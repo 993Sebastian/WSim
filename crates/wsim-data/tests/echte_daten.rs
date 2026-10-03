@@ -236,6 +236,7 @@ fn chain_one_runs_in_britain() {
             start_capital: Money::from_usd(200_000_000.0).unwrap(),
             start_form: StartForm::Workshop,
             company_name: "Teesside Iron".into(),
+            research_ahead_factor: 1.0,
         },
     )
     .unwrap();
@@ -360,6 +361,7 @@ fn government_demand_for_steel_bars() {
             start_capital: Money::from_usd(1_000_000.0).unwrap(),
             start_form: StartForm::Workshop,
             company_name: "Test".into(),
+            research_ahead_factor: 1.0,
         },
     )
     .unwrap();

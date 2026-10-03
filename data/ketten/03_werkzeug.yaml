@@ -1,0 +1,58 @@
+# Kette 3 – Werkzeug (Lastenheft §17.1)
+# Stahl + Holz → Handwerkzeuge (Hammer, Axt, Säge, Zange im Mittel).
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: handwerkzeug
+    art: endprodukt
+    branche: maschinenbau
+    einheit: stueck
+    gewicht_kg: 1.5
+    verwendung: beides
+    warengruppe: metallwaren
+    transportklasse: stueckgut
+    richtpreis_usd: 30            # um 1900 etwa 0,50–1 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 1.0}
+      kaufschwelle: 20            # die Hälfte kauft ab etwa 600 USD Einkommen
+      preisempfindlichkeit: 1.0
+      einkommensempfindlichkeit: 1.0
+    staatsnachfrage:              # Heer, Bahn, Bauverwaltung
+      je_mio_usd_bip: 0.5
+      kriegsfaktor: 2.0
+    annaeherung: true
+
+anlagen:
+  - id: werkzeugschmiede          # Gesenkschmiede mit Härterei und Schleiferei
+    standorttyp: werk
+    investition_usd: 2_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 500        # Stück
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: werkzeug_schmieden
+    produkt: handwerkzeug
+    menge: 1
+    dauer_tage: 1
+    anlage: werkzeugschmiede
+    technologie: gesenkschmieden
+    eingang:
+      stahl: 0.0012
+      schnittholz: 0.0006         # Stiel
+      kohle: 0.002
+    arbeit_stunden:
+      angelernt: 2.0
+      fachkraft.metall: 1.5
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: gesenkschmieden
+    fachgebiet: metall
+    erfindungsjahr: 1862
+    annaeherung: true

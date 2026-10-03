@@ -296,6 +296,8 @@ pub struct RawConsumerDemand {
     pub consumable: Option<RawConsumable>,
     #[serde(rename = "gebrauch", default)]
     pub durable: Option<RawDurable>,
+    #[serde(rename = "ergaenzung", default)]
+    pub complement: Option<RawComplement>,
     #[serde(rename = "kaufschwelle")]
     pub purchase_threshold: f64,
     #[serde(rename = "preisempfindlichkeit")]
@@ -304,6 +306,17 @@ pub struct RawConsumerDemand {
     pub income_sensitivity: f64,
     #[serde(rename = "saison", default)]
     pub seasonality: Option<Vec<f64>>,
+    #[serde(rename = "netzabhaengig", default)]
+    pub needs_grid: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawComplement {
+    #[serde(rename = "zu")]
+    pub of: String,
+    #[serde(rename = "je_besitz_und_jahr")]
+    pub per_unit_per_year: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -488,6 +501,10 @@ pub struct RawProductionModel {
     pub quality: RawQuality,
     #[serde(rename = "zustand_minimum")]
     pub condition_min: f64,
+    #[serde(rename = "strom", default)]
+    pub electricity: Option<String>,
+    #[serde(rename = "einspeiseverguetung")]
+    pub feed_in_share: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -654,4 +671,28 @@ pub struct RawTraders {
     pub cover_days: f64,
     #[serde(rename = "glaettung_tage")]
     pub smoothing_days: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawResearchModel {
+    #[serde(rename = "vorgriff_faktor")]
+    pub ahead_base: f64,
+    #[serde(rename = "nachzuegler")]
+    pub latecomer: RawLatecomer,
+    #[serde(rename = "gemeingut_nach_jahren")]
+    pub public_domain_years: u32,
+    #[serde(rename = "forscher")]
+    pub researchers: String,
+    #[serde(rename = "sachkosten_usd_je_forschertag")]
+    pub material_usd_per_day: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLatecomer {
+    #[serde(rename = "rabatt_je_jahr")]
+    pub discount: f64,
+    #[serde(rename = "minimum")]
+    pub min: f64,
 }

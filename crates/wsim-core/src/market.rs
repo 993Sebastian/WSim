@@ -5,6 +5,8 @@
 //! consumers in five income layers. Consumer and government demand are set at the start
 //! of each month; markets with sellers or buyers are cleared every day.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use crate::calendar::Date;
 use crate::catalog::{Catalog, ConsumerDemand, ConsumptionType, MarketModel};
 use crate::ids::{CountryId, Id, ProductId};
@@ -12,7 +14,9 @@ use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup};
-use crate::state::{CompanyId, Consignee, GameState, PriceMode, Shipment, SiteId, Stock, Trade};
+use crate::state::{
+    CompanyId, Consignee, GameState, Market, PriceMode, Shipment, SiteId, Stock, Trade,
+};
 use crate::trade::{self, PlannedBuy};
 
 /// Market price of a product in a country: the price index, or before the first sale
@@ -24,11 +28,45 @@ pub fn market_price(
     product: ProductId,
 ) -> Money {
     let market = state.markets.get(product).get(country);
-    if market.price > Money::ZERO {
-        market.price
+    let price = match (
+        market.idle_since,
+        state_price(catalog, state, country, product),
+    ) {
+        // Only the state market sold since then: the index moved towards its price.
+        (Some(from), Some(sp)) if from < state.date && market.price > Money::ZERO => {
+            let keep = math::pow(
+                1.0 - catalog.market_model.index_smoothing,
+                f64::from(from.days_until(state.date)),
+            );
+            sp + (market.price - sp).scale(keep)
+        }
+        (Some(from), Some(sp)) if from < state.date => sp,
+        _ => market.price,
+    };
+    if price > Money::ZERO {
+        price
     } else {
         local_reference(catalog, state, country, product)
     }
+}
+
+/// Price of the state market for a product in a country, if it sells it this year.
+pub fn state_price(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    product: ProductId,
+) -> Option<Money> {
+    let year = state.date.year();
+    catalog
+        .products
+        .get(product)
+        .state_market
+        .filter(|m| {
+            m.available_from.is_none_or(|y| y <= year)
+                && m.available_until.is_none_or(|y| y >= year)
+        })
+        .map(|m| m.price.scale(state.countries.get(country).price_level))
 }
 
 /// Reference price at the country's price level.
@@ -73,7 +111,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             .filter(|(_, q)| q.replaces.contains(&product))
             .filter_map(|(id, q)| match q.consumer_demand.as_ref()?.consumption {
                 ConsumptionType::Durable { max_ownership, .. } => Some((id, max_ownership)),
-                ConsumptionType::Consumable { .. } => None,
+                ConsumptionType::Consumable { .. } | ConsumptionType::Complement { .. } => None,
             })
             .collect();
         for country in catalog.countries.ids() {
@@ -87,20 +125,31 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                     f * (1.0 - (state.markets.get(s).get(country).ownership[q] / max).min(1.0))
                 })
             });
+            // Units of the durable a complement is used with, per inhabitant.
+            let complement_owned: [f64; 5] = match p.consumer_demand.as_ref().map(|d| d.consumption)
+            {
+                Some(ConsumptionType::Complement { of, .. }) => {
+                    state.markets.get(of).get(country).ownership
+                }
+                _ => [0.0; 5],
+            };
             let market = state.markets.get_mut(product).get_mut(country);
             market.close_month();
+            // Markets rest until something happens (see `clear`).
+            market.idle_since = Some(date);
             if market.price == Money::ZERO {
                 market.price = Money::from_usd(reference).unwrap_or(Money::ZERO);
             }
             let price = market.price.to_usd();
             if let Some(d) = &p.consumer_demand {
                 let season = d.seasonality.map_or(1.0, |s| s[month]);
+                let grid = if d.needs_grid { cs.grid_share } else { 1.0 };
                 for q in 0..5 {
                     let share = propensity(d, incomes[q], price, reference);
                     market.consumer_rate[q] = match d.consumption {
                         ConsumptionType::Consumable {
                             per_capita_per_year,
-                        } => per_capita_per_year * share * per_layer / 365.0 * season,
+                        } => per_capita_per_year * share * grid * per_layer / 365.0 * season,
                         ConsumptionType::Durable {
                             service_life_years,
                             max_ownership,
@@ -111,11 +160,18 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                                     - *owned / (service_life_years * 12.0);
                                 *owned = owned.max(0.0);
                             }
-                            let target = max_ownership * share * displaced[q];
+                            let target = max_ownership * share * displaced[q] * grid;
                             let owned = market.ownership[q];
                             let gap = (target - owned).max(0.0);
                             (gap * model.adoption_per_year + owned / service_life_years) * per_layer
                                 / 365.0
+                        }
+                        ConsumptionType::Complement {
+                            per_unit_per_year, ..
+                        } => {
+                            complement_owned[q] * per_layer * per_unit_per_year * share * grid
+                                / 365.0
+                                * season
                         }
                     };
                     market.bought[q] = 0.0;
@@ -163,53 +219,165 @@ enum Buyer {
     Outside,
 }
 
-/// Clears all markets that have sellers or buyers today.
+/// Clears all markets that have sellers or buyers today. All other markets with
+/// consumer or government demand rest: nobody but perhaps the state market sells there,
+/// and their days are booked together later (`settle_idle`).
 pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
     let countries = catalog.countries.len();
     let mut sites_by_country: Vec<Vec<SiteId>> = vec![Vec::new(); countries];
+    // Markets to clear today, by product.
+    let mut active: BTreeMap<ProductId, BTreeSet<CountryId>> = BTreeMap::new();
     for (i, site) in state.sites.iter().enumerate() {
-        let active = !site.offers.is_empty() || !site.orders.is_empty();
-        if active && !state.companies[site.owner.index()].bankrupt {
+        let trades = !site.offers.is_empty() || !site.orders.is_empty();
+        if trades && !state.companies[site.owner.index()].bankrupt {
             sites_by_country[site.country.index()]
                 .push(SiteId(u32::try_from(i).expect("fits u32")));
+            for &product in site.offers.keys().chain(site.orders.keys()) {
+                active.entry(product).or_default().insert(site.country);
+            }
         }
     }
+    for &(product, country) in &state.import_markets {
+        active.entry(product).or_default().insert(country);
+    }
     let in_transit = trade::to_importers(state);
-    for (product, p) in catalog.products.iter() {
-        let state_market = p.state_market.filter(|m| {
-            m.available_from.is_none_or(|y| y <= date.year())
-                && m.available_until.is_none_or(|y| y >= date.year())
-        });
+    let model = &catalog.market_model;
+    for (product, _) in catalog.products.iter() {
         let plan = trade::plan(state, catalog, product, &sites_by_country, &in_transit);
-        for country in catalog.countries.ids() {
-            let sites = &sites_by_country[country.index()];
-            let has_site_trade = sites.iter().any(|s| {
-                let site = &state.sites[s.index()];
-                site.offers.contains_key(&product) || site.orders.contains_key(&product)
-            });
-            let m = state.markets.get(product).get(country);
-            let has_outside_demand = m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0);
-            let has_imports = m.imports.quantity > 1e-9 || m.open_demand > 1e-9;
-            if !has_site_trade && !has_outside_demand && !has_imports {
-                continue;
-            }
-            let state_price =
-                state_market.map(|m| m.price.scale(state.countries.get(country).price_level));
+        let mut markets = active.remove(&product).unwrap_or_default();
+        markets.extend(plan.iter().map(|b| state.sites[b.site.index()].country));
+        for country in markets {
             let exports: Vec<PlannedBuy> = plan
                 .iter()
                 .filter(|b| state.sites[b.site.index()].country == country)
                 .copied()
                 .collect();
+            let state_price = state_price(catalog, state, country, product);
+            let reference = local_reference(catalog, state, country, product);
+            settle_idle(
+                state.markets.get_mut(product).get_mut(country),
+                model,
+                date,
+                state_price,
+                reference,
+            );
             clear_market(
                 state,
                 catalog,
                 (country, product, date),
-                sites,
+                &sites_by_country[country.index()],
                 state_price,
                 &exports,
             );
+            // From tomorrow on the market rests again unless something happens.
+            let m = state.markets.get_mut(product).get_mut(country);
+            if m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0) {
+                m.idle_since = Some(date.next_day());
+            }
+            if m.imports.quantity > 1e-9 {
+                state.import_markets.insert((product, country));
+            } else {
+                state.import_markets.remove(&(product, country));
+            }
         }
     }
+}
+
+/// Books the idle days of all markets before `until`, with the prices of the running
+/// month (called before the country values change at the start of a month).
+pub(crate) fn settle_all_idle(state: &mut GameState, catalog: &Catalog, until: Date) {
+    for (product, _) in catalog.products.iter() {
+        for country in catalog.countries.ids() {
+            if state.markets.get(product).get(country).idle_since.is_none() {
+                continue;
+            }
+            let state_price = state_price(catalog, state, country, product);
+            let reference = local_reference(catalog, state, country, product);
+            settle_idle(
+                state.markets.get_mut(product).get_mut(country),
+                &catalog.market_model,
+                until,
+                state_price,
+                reference,
+            );
+        }
+    }
+}
+
+/// Demand per day of consumers and government (constant within a month).
+fn outside_rate(market: &Market) -> f64 {
+    let mut demand = market.state_rate;
+    for q in (0..5).rev() {
+        demand += market.consumer_rate[q];
+    }
+    demand
+}
+
+/// Open demand after `days` idle days in which all outside demand stayed open.
+fn open_after_idle(market: &Market, model: &MarketModel, days: i32) -> f64 {
+    let demand = outside_rate(market);
+    let keep = math::pow(1.0 - 1.0 / model.demand_smoothing_days, f64::from(days));
+    let open = demand + (market.open_demand - demand) * keep;
+    if open < 1e-9 { 0.0 } else { open }
+}
+
+/// Open demand of a market on `date`, including idle days not yet booked.
+pub fn open_demand(market: &Market, model: &MarketModel, date: Date) -> f64 {
+    match market.idle_since {
+        Some(from) if from < date => open_after_idle(market, model, from.days_until(date)),
+        _ => market.open_demand,
+    }
+}
+
+/// Books the idle days before `until`. Nobody sold, or only the state market (at
+/// `state_price`, without limit): consumers buy all they want from it, the government
+/// up to its price cap. Everything outside demand stays open for traders.
+fn settle_idle(
+    market: &mut Market,
+    model: &MarketModel,
+    until: Date,
+    state_price: Option<Money>,
+    reference: Money,
+) {
+    let Some(from) = market.idle_since.take() else {
+        return;
+    };
+    let days = from.days_until(until);
+    if days <= 0 {
+        return;
+    }
+    let n = f64::from(days);
+    market.open_demand = open_after_idle(market, model, days);
+    let demand = outside_rate(market);
+    let mut day = Trade {
+        demand,
+        ..Trade::default()
+    };
+    if let Some(price) = state_price {
+        let consumers: f64 = market.consumer_rate.iter().sum();
+        let government = if price <= reference.scale(model.state_price_cap) {
+            market.state_rate
+        } else {
+            0.0
+        };
+        day.sold = consumers + government;
+        day.revenue = Money::times(price, day.sold);
+        for (bought, rate) in market.bought.iter_mut().zip(market.consumer_rate) {
+            *bought += rate * n;
+        }
+        if day.sold > 1e-9 {
+            let keep = math::pow(1.0 - model.index_smoothing, n);
+            market.price = if market.price > Money::ZERO {
+                price + (market.price - price).scale(keep)
+            } else {
+                price
+            };
+        }
+    }
+    market.month.demand += day.demand * n;
+    market.month.sold += day.sold * n;
+    market.month.revenue += Money::times(day.revenue, n);
+    market.today = day;
 }
 
 /// Quantities of one market day that decide the open demand for traders.
@@ -408,6 +576,7 @@ fn clear_market(
     // 4. Consumers: richest layer first; sellers chosen by attractiveness (logit).
     let rates = state.markets.get(product).get(country).consumer_rate;
     let mut bought = [0.0; 5];
+    let mut weights = vec![0.0; offers.len()];
     for q in (0..5).rev() {
         let mut need = rates[q];
         day.demand += need;
@@ -416,19 +585,17 @@ fn clear_market(
             if need <= 1e-9 {
                 break;
             }
-            let weights: Vec<f64> = offers
-                .iter()
-                .map(|o| {
-                    if o.available <= 1e-12 || reference <= 0.0 {
-                        return 0.0;
-                    }
+            for (w, o) in weights.iter_mut().zip(&offers) {
+                *w = if o.available <= 1e-12 || reference <= 0.0 {
+                    0.0
+                } else {
                     let relative = (o.price.to_usd() / reference).max(1e-6);
                     math::exp(
                         -model.price_weight[q] * math::ln(relative)
                             + model.quality_weight[q] * (o.quality - 50.0) / 25.0,
                     )
-                })
-                .collect();
+                };
+            }
             let total: f64 = weights.iter().sum();
             if total <= 0.0 {
                 break;

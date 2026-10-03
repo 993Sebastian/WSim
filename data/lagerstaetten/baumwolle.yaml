@@ -1,0 +1,97 @@
+# Baumwollanbau (erneuerbar). Höchstförderung in t Baumwolle je Jahr.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: baumwollguertel   # Südstaaten
+    land: USA
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 25_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 2_500_000
+    annaeherung: true
+
+  - id: dekkan
+    land: IND
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 10_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 800_000
+    annaeherung: true
+
+  - id: sindh_punjab
+    land: PAK
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 300_000
+    annaeherung: true
+
+  - id: nildelta   # langstapelige Baumwolle
+    land: EGY
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 300_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: nordchina_baumwolle
+    land: CHN
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 600_000
+    annaeherung: true
+
+  - id: ferghana   # Russisch-Turkestan
+    land: UZB
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 300_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: nordost_brasilien
+    land: BRA
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 100_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: gezira   # Bewässerung ab 1925
+    land: SDN
+    rohstoff: baumwolle
+    erneuerbar: true
+    entdeckt: 1925
+    erschliessung: {investition_usd: 10_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 100_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: kuestentaeler_peru
+    land: PER
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 50_000
+    annaeherung: true
+
+  - id: laguna
+    land: MEX
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 50_000
+    annaeherung: true
+
+  - id: kilikien
+    land: TUR
+    rohstoff: baumwolle
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 50_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true

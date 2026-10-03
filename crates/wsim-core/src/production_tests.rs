@@ -25,6 +25,7 @@ fn new_game(catalog: Catalog) -> Game {
         start_capital: usd(10_000_000.0),
         start_form: StartForm::Workshop,
         company_name: "Hütte AG".into(),
+        research_ahead_factor: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -477,4 +478,90 @@ fn production_is_reproducible_through_save_and_replay() {
     let replayed = Game::replay(catalog, a.state().settings.clone(), a.journal()).unwrap();
     assert_eq!(replayed.state_hash(), a.state_hash());
     assert!(a.date() > Date::new(1900, 3, 1).unwrap());
+}
+
+/// Power plant fed with ore from the mine.
+fn power_plant(game: &mut Game, mine_site: SiteId) -> SiteId {
+    let c = game.catalog().clone();
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::PowerPlant,
+    })
+    .unwrap();
+    let plant = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildFacility {
+        site: plant,
+        facility: c.facilities.id("kraftwerk").unwrap(),
+    })
+    .unwrap();
+    game.apply(Command::SetProduction {
+        site: plant,
+        slot: 0,
+        recipe: c.recipes.id("strom_erzeugen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    game.apply(Command::TransferGoods {
+        from: mine_site,
+        to: plant,
+        product: c.products.id("erz").unwrap(),
+        quantity: 100.0,
+    })
+    .unwrap();
+    plant
+}
+
+#[test]
+fn the_grid_limits_electric_production() {
+    let mut game = new_game(test_support::power());
+    let (_, works) = chain(&mut game);
+    days(&mut game, 2);
+    let aaa = game.catalog().countries.id("AAA").unwrap();
+    let grid = game.state().countries.get(aaa).grid_share;
+    assert!(grid > 0.1 && grid < 0.9, "{grid}");
+    let runs = game.state().sites[works.index()].slots[0].last_runs;
+    assert!(
+        (runs - 50.0 * grid).abs() < 1e-6,
+        "{runs} vs {}",
+        50.0 * grid
+    );
+}
+
+#[test]
+fn own_power_plant_supplies_and_feeds_in() {
+    let mut game = new_game(test_support::power());
+    let (mine_site, works) = chain(&mut game);
+    days(&mut game, 20);
+    let plant = power_plant(&mut game, mine_site);
+    let rest = stock(&game, mine_site, "erz");
+    game.apply(Command::TransferGoods {
+        from: mine_site,
+        to: works,
+        product: game.catalog().products.id("erz").unwrap(),
+        quantity: rest,
+    })
+    .unwrap();
+    // Half the furnace: 25 runs need 50 MWh, the plant makes 100.
+    game.apply(Command::SetProduction {
+        site: works,
+        slot: 0,
+        recipe: game.catalog().recipes.id("eisen_schmelzen"),
+        utilization: 0.5,
+    })
+    .unwrap();
+    days(&mut game, 3);
+    let state = game.state();
+    let runs = state.sites[works.index()].slots[0].last_runs;
+    assert!((runs - 25.0).abs() < 1e-6, "{runs}");
+    assert!((state.sites[plant.index()].slots[0].last_runs - 100.0).abs() < 1e-6);
+    assert_eq!(
+        stock(&game, plant, "strom"),
+        0.0,
+        "surplus went into the grid"
+    );
+    let power = game.catalog().products.id("strom").unwrap();
+    let ledger = &state.companies[game.player().index()].ledger;
+    assert!(ledger.month.by_product[&power] != Money::ZERO);
+    assert!(ledger.month.by_type[&CostType::Revenue] > Money::ZERO);
+    assert!(ledger.is_balanced());
 }

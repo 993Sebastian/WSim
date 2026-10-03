@@ -1,0 +1,188 @@
+# Kette 5 – Textil (Lastenheft §17.1)
+# Baumwolle → Garn → Stoff → Kleidung. Nähmaschinen (Kette 11) verschleißen in der
+# Konfektion; elektrische Webstühle brauchen Elektromotoren (Kette 8).
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: baumwolle
+    art: rohstoff
+    branche: textil
+    einheit: t
+    verwendung: industrie
+    warengruppe: agrarrohstoffe
+    transportklasse: schuettgut   # in Ballen
+    richtpreis_usd: 6000          # um 1900 etwa 9 Cent je lb
+
+  - id: garn
+    art: halbzeug
+    branche: textil
+    einheit: t
+    verwendung: industrie
+    warengruppe: textilien
+    transportklasse: stueckgut
+    richtpreis_usd: 12_000
+
+  - id: stoff
+    art: halbzeug
+    branche: textil
+    einheit: t
+    verwendung: industrie
+    warengruppe: textilien
+    transportklasse: stueckgut
+    richtpreis_usd: 18_000
+
+  - id: kleidung
+    art: endprodukt
+    branche: textil
+    einheit: stueck
+    gewicht_kg: 0.6
+    verwendung: konsum
+    warengruppe: bekleidung
+    transportklasse: stueckgut
+    richtpreis_usd: 40            # Hemd, Hose, Kleid im Mittel
+    nachfrage:
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 6}
+      kaufschwelle: 10            # die Hälfte kauft ab etwa 400 USD Einkommen
+      preisempfindlichkeit: 0.8
+      einkommensempfindlichkeit: 0.8
+    staatsnachfrage:              # Uniformen
+      je_mio_usd_bip: 0.5
+      kriegsfaktor: 4.0
+    annaeherung: true
+
+anlagen:
+  - id: baumwollplantage
+    standorttyp: foerderstaette
+    investition_usd: 1_500_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 10
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.1
+    annaeherung: true
+
+  - id: spinnerei                 # etwa 30 000 Ringspindeln
+    standorttyp: werk
+    investition_usd: 6_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 10
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: weberei
+    standorttyp: werk
+    investition_usd: 4_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 8
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: konfektion                # Nähsaal mit Nähmaschinen
+    standorttyp: werk
+    investition_usd: 500_000
+    bauzeit_tage: 90
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+rezepte:
+  - id: baumwolle_ernte
+    produkt: baumwolle
+    menge: 1
+    dauer_tage: 1
+    anlage: baumwollplantage
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 400              # Pflücken von Hand
+      angelernt: 40
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: garn_spinnen
+    produkt: garn
+    menge: 1
+    dauer_tage: 2
+    anlage: spinnerei
+    technologie: ringspinnmaschine
+    eingang:
+      baumwolle: 1.15
+      kohle: 1.0                  # Dampfmaschine
+    arbeit_stunden:
+      ungelernt: 40
+      angelernt: 120
+      fachkraft.textil: 10
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: stoff_weben
+    produkt: stoff
+    menge: 1
+    dauer_tage: 2
+    anlage: weberei
+    technologie: mechanischer_webstuhl
+    eingang:
+      garn: 1.05
+      kohle: 1.2
+    arbeit_stunden:
+      ungelernt: 50
+      angelernt: 200
+      fachkraft.textil: 15
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: stoff_elektrisch          # Webstühle mit eigenem Elektromotor
+    produkt: stoff
+    menge: 1
+    dauer_tage: 2
+    anlage: weberei
+    technologie: elektrischer_einzelantrieb
+    eingang:
+      garn: 1.04
+      elektromotor: 0.002         # Verschleiß
+    arbeit_stunden:
+      ungelernt: 30
+      angelernt: 120
+      fachkraft.textil: 15
+      fachkraft.elektro: 2
+    energie_mwh: 1.5
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: kleidung_naehen
+    produkt: kleidung
+    menge: 1
+    dauer_tage: 1
+    anlage: konfektion
+    technologie: naehmaschine
+    eingang:
+      stoff: 0.0007
+      garn: 0.00005
+      naehmaschine: 0.0002        # Verschleiß der Nähmaschinen
+    arbeit_stunden:
+      angelernt: 1.2
+      fachkraft.textil: 0.3
+    qualitaet_basis: 50
+    annaeherung: true
+
+technologien:
+  - id: ringspinnmaschine
+    fachgebiet: textil
+    erfindungsjahr: 1828
+
+  - id: mechanischer_webstuhl     # Edmund Cartwright
+    fachgebiet: textil
+    erfindungsjahr: 1785
+
+  - id: elektrischer_einzelantrieb
+    fachgebiet: elektro
+    erfindungsjahr: 1905
+    voraussetzungen: [drehstrommotor, mechanischer_webstuhl]
+    forschungsaufwand: 5000
+    annaeherung: true

@@ -32,6 +32,7 @@ fn new_game(catalog: Catalog) -> Game {
         start_capital: usd(1_000_000.0),
         start_form: StartForm::Trading,
         company_name: "Exporteur".into(),
+        research_ahead_factor: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -63,6 +64,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> Sit
         staffing_due: false,
         offers: Default::default(),
         orders: Default::default(),
+        research: None,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     if quantity > 0.0 {
@@ -96,6 +98,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
         sales_policies: Vec::new(),
+        research: Default::default(),
     });
     id
 }

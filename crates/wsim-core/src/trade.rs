@@ -42,6 +42,7 @@ pub(crate) fn deliver(state: &mut GameState, today: Date) {
                 .entry(s.product)
                 .or_default(),
             Consignee::Importer(country) => {
+                state.import_markets.insert((s.product, country));
                 &mut state.markets.get_mut(s.product).get_mut(country).imports
             }
         };
@@ -117,7 +118,8 @@ pub(crate) fn plan(
     for country in catalog.countries.ids() {
         let m = state.markets.get(product).get(country);
         let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
-        let need = model.trader_cover_days * m.open_demand - m.imports.quantity - transit;
+        let open = market::open_demand(m, model, state.date);
+        let need = model.trader_cover_days * open - m.imports.quantity - transit;
         if need <= 1e-9 {
             continue;
         }

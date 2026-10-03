@@ -378,10 +378,12 @@ pub(crate) fn build(
         b.catalog.countries.insert(&e.value.id, country);
     }
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
-    b.catalog.production_model = production::production_model(b.ctx, raw);
+    b.catalog.production_model = production::production_model(b.ctx, raw, &product_keys);
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     b.catalog.market_model = production::market_model(b.ctx, raw);
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
+    b.catalog.research_model =
+        production::research_model(b.ctx, &b.catalog, raw, &qualification_keys);
     for e in &vehicles {
         let vehicle = production::vehicle(b.ctx, e, &transport_keys);
         b.catalog.vehicles.insert(&e.value.id, vehicle);
@@ -552,6 +554,8 @@ pub(crate) fn build(
     }
 
     b.check_product_sources(&products);
+    b.check_electricity(raw);
+    b.check_complements(&products);
 
     let all_keys = [
         &unit_keys,
@@ -594,6 +598,59 @@ impl Builder<'_, '_> {
                     self.ctx.error(&other.loc, messages::meta_duplicate(&first));
                 }
             }
+        }
+    }
+
+    /// Complements belong to a durable (petrol to the car).
+    fn check_complements(&mut self, products: &[&Entry<RawProduct>]) {
+        for e in products {
+            let Some(c) = e
+                .value
+                .consumer_demand
+                .as_ref()
+                .and_then(|d| d.complement.as_ref())
+            else {
+                continue;
+            };
+            let Some(of) = self.catalog.products.id(&c.of) else {
+                continue;
+            };
+            let durable = matches!(
+                self.catalog
+                    .products
+                    .get(of)
+                    .consumer_demand
+                    .as_ref()
+                    .map(|d| d.consumption),
+                Some(ConsumptionType::Durable { .. })
+            );
+            if !durable {
+                self.ctx.error(
+                    &e.loc.field("nachfrage").field("ergaenzung").field("zu"),
+                    messages::complement_needs_durable(&c.of),
+                );
+            }
+        }
+    }
+
+    /// The electricity product of the production model must be of kind `energie`.
+    fn check_electricity(&mut self, raw: &RawData) {
+        let (Some(entry), Some(id)) = (
+            raw.production_model.first(),
+            self.catalog.production_model.electricity,
+        ) else {
+            return;
+        };
+        let Some(key) = entry.value.electricity.as_deref() else {
+            return;
+        };
+        if self.catalog.products.id(key) == Some(id)
+            && self.catalog.products.get(id).kind != ProductKind::Energy
+        {
+            self.ctx.error(
+                &entry.loc.field("strom"),
+                messages::electricity_not_energy(key),
+            );
         }
     }
 
@@ -743,7 +800,7 @@ impl Builder<'_, '_> {
             consumer_demand: v
                 .consumer_demand
                 .as_ref()
-                .map(|d| self.consumer_demand(d, &l.field("nachfrage"))),
+                .map(|d| self.consumer_demand(d, &l.field("nachfrage"), refs.products)),
             state_demand: v.state_demand.as_ref().map(|d| {
                 let loc = l.field("staatsnachfrage");
                 StateDemand {
@@ -764,16 +821,32 @@ impl Builder<'_, '_> {
         }
     }
 
-    fn consumer_demand(&mut self, d: &RawConsumerDemand, l: &Loc) -> ConsumerDemand {
-        let consumption = match (&d.consumable, &d.durable) {
-            (Some(c), None) => ConsumptionType::Consumable {
+    fn consumer_demand(
+        &mut self,
+        d: &RawConsumerDemand,
+        l: &Loc,
+        products: &Keys,
+    ) -> ConsumerDemand {
+        let consumption = match (&d.consumable, &d.durable, &d.complement) {
+            (None, None, Some(c)) => {
+                let c_loc = l.field("ergaenzung");
+                ConsumptionType::Complement {
+                    of: resolve(self.ctx, products, &c.of, &c_loc.field("zu")),
+                    per_unit_per_year: positive(
+                        self.ctx,
+                        c.per_unit_per_year,
+                        &c_loc.field("je_besitz_und_jahr"),
+                    ),
+                }
+            }
+            (Some(c), None, None) => ConsumptionType::Consumable {
                 per_capita_per_year: positive(
                     self.ctx,
                     c.per_capita_per_year,
                     &l.field("verbrauch").field("je_kopf_und_jahr"),
                 ),
             },
-            (None, Some(g)) => {
+            (None, Some(g), None) => {
                 let g_loc = l.field("gebrauch");
                 ConsumptionType::Durable {
                     service_life_years: positive(
@@ -826,6 +899,7 @@ impl Builder<'_, '_> {
                 &l.field("einkommensempfindlichkeit"),
             ),
             seasonality,
+            needs_grid: d.needs_grid,
         }
     }
 

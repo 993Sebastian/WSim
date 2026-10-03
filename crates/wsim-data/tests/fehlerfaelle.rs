@@ -82,6 +82,7 @@ produktionsmodell:
   automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
+  einspeiseverguetung: 0.5
 ";
 
 const FINANZEN: &str = "\
@@ -109,6 +110,15 @@ transportmodell:
   umweg: {land: 1.3, see: 1.4, luft: 1.05}
   umschlag: {kosten_usd_je_t: 5, tage: 2}
   mindestinfrastruktur: 0.05
+";
+
+const FORSCHUNG: &str = "\
+forschungsmodell:
+  vorgriff_faktor: 1.25
+  nachzuegler: {rabatt_je_jahr: 0.1, minimum: 0.2}
+  gemeingut_nach_jahren: 25
+  forscher: fachkraft
+  sachkosten_usd_je_forschertag: 40
 ";
 
 const VERKEHR: &str = "\
@@ -229,6 +239,7 @@ impl Daten {
             ("parameter/finanzmodell.yaml", FINANZEN),
             ("parameter/marktmodell.yaml", MARKT),
             ("parameter/transportmodell.yaml", TRANSPORT),
+            ("parameter/forschungsmodell.yaml", FORSCHUNG),
             ("verkehrsmittel.yaml", VERKEHR),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
@@ -1030,4 +1041,52 @@ fn kostenfaktor_der_transportklasse_ist_positiv() {
     let outcome = d.laden();
     let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
     assert_eq!(f.path.to_string(), "transportklassen[0].kostenfaktor");
+}
+
+#[test]
+fn forschungsmodell_wird_geprueft() {
+    let outcome = Daten::neu().ohne("parameter/forschungsmodell.yaml").laden();
+    befund(&outcome, "Abschnitt „forschungsmodell“ fehlt");
+    let data = Daten::neu().laden().data.unwrap();
+    let groups = &data.catalog.research_model.researchers;
+    assert_eq!(groups.len(), 2, "eine Gruppe je Fachrichtung");
+    assert_eq!(
+        groups[0].map(|g| data.catalog.labor_groups.key(g).to_owned()),
+        Some("fachkraft.metall".to_owned())
+    );
+
+    let d = Daten::neu().ersetze(
+        "parameter/forschungsmodell.yaml",
+        "forscher: fachkraft",
+        "forscher: ungelernt",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Forscher brauchen eine Qualifikation mit Fachrichtungen",
+    );
+    assert_ort(
+        f,
+        "parameter/forschungsmodell.yaml",
+        5,
+        "forschungsmodell.forscher",
+    );
+    let d = Daten::neu().ersetze(
+        "parameter/forschungsmodell.yaml",
+        "forscher: fachkraft",
+        "forscher: fachkraf",
+    );
+    befund(
+        &d.laden(),
+        "Qualifikation „fachkraf“ ist nicht definiert. Meinten Sie „fachkraft“?",
+    );
+    let d = Daten::neu().ersetze(
+        "parameter/forschungsmodell.yaml",
+        "vorgriff_faktor: 1.25",
+        "vorgriff_faktor: 0.5",
+    );
+    befund(
+        &d.laden(),
+        "Wert 0.5 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
+    );
 }

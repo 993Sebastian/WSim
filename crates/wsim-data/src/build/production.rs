@@ -1,6 +1,9 @@
 //! The production model.
 
-use wsim_core::catalog::{ProductionModel, SiteType, TransportModel, Vehicle, Way};
+use wsim_core::catalog::{
+    Catalog, ProductionModel, ResearchModel, SiteType, TransportModel, Vehicle, Way,
+};
+use wsim_core::ids::QualificationId;
 
 use super::{
     HISTORY_YEARS, Keys, in_range, money, non_negative, positive, provenance, resolve, time_series,
@@ -42,7 +45,7 @@ const SITE_TYPES: &[(&str, SiteType)] = &[
     ("forschungszentrum", SiteType::ResearchCenter),
 ];
 
-pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData) -> ProductionModel {
+pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData, products: &Keys) -> ProductionModel {
     let Some(entry) = single(
         ctx,
         &raw.production_model,
@@ -120,6 +123,17 @@ pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData) -> ProductionModel 
             &quality.field("zustand"),
         ),
         condition_min: in_range(ctx, m.condition_min, 0.0, 1.0, &l.field("zustand_minimum")),
+        electricity: m
+            .electricity
+            .as_ref()
+            .map(|key| resolve(ctx, products, key, &l.field("strom"))),
+        feed_in_share: in_range(
+            ctx,
+            m.feed_in_share,
+            0.0,
+            1.0,
+            &l.field("einspeiseverguetung"),
+        ),
     }
 }
 
@@ -326,5 +340,63 @@ pub(super) fn vehicle(ctx: &mut Ctx, e: &Entry<RawVehicle>, classes: &Keys) -> V
         cost_per_tkm: time_series(ctx, &v.cost_per_tkm, &l.field("kosten_usd_je_tkm")),
         km_per_day: time_series(ctx, &v.km_per_day, &speed_loc),
         provenance: provenance(v.approximation, v.source.as_ref()),
+    }
+}
+
+pub(super) fn research_model(
+    ctx: &mut Ctx,
+    catalog: &Catalog,
+    raw: &RawData,
+    qualifications: &Keys,
+) -> ResearchModel {
+    let Some(entry) = single(
+        ctx,
+        &raw.research_model,
+        "forschungsmodell",
+        "parameter/forschungsmodell.yaml",
+    ) else {
+        return ResearchModel::default();
+    };
+    let m = &entry.value;
+    let l = &entry.loc;
+    let latecomer = l.field("nachzuegler");
+    let researchers_loc = l.field("forscher");
+    let qualification: QualificationId =
+        resolve(ctx, qualifications, &m.researchers, &researchers_loc);
+    let researchers = if catalog.qualifications.get(qualification).has_specialization {
+        catalog
+            .specializations
+            .ids()
+            .map(|s| {
+                let key = format!("{}.{}", m.researchers, catalog.specializations.key(s));
+                catalog.labor_groups.id(&key)
+            })
+            .collect()
+    } else {
+        if qualifications.index.contains_key(&m.researchers) {
+            ctx.error(
+                &researchers_loc,
+                messages::researchers_need_fields(&m.researchers),
+            );
+        }
+        Vec::new()
+    };
+    ResearchModel {
+        ahead_base: in_range(ctx, m.ahead_base, 1.0, 10.0, &l.field("vorgriff_faktor")),
+        latecomer_discount: in_range(
+            ctx,
+            m.latecomer.discount,
+            0.0,
+            1.0,
+            &latecomer.field("rabatt_je_jahr"),
+        ),
+        latecomer_min: in_range(ctx, m.latecomer.min, 0.0, 1.0, &latecomer.field("minimum")),
+        public_domain_years: i32::try_from(m.public_domain_years).unwrap_or(i32::MAX),
+        material_usd_per_day: non_negative(
+            ctx,
+            m.material_usd_per_day,
+            &l.field("sachkosten_usd_je_forschertag"),
+        ),
+        researchers,
     }
 }

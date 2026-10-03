@@ -1,0 +1,80 @@
+# Kette 7 – Energie (Lastenheft §17.1)
+# Kohle → Strom im eigenen Kraftwerk. Eigenstrom deckt den Bedarf der eigenen Werke im
+# selben Land vor dem Netz; Überschuss geht gegen Einspeisevergütung ins Netz
+# (docs/FORMELN.md, M9). Strom lässt sich nicht lagern und nicht ins Ausland liefern.
+
+produkte:
+  - id: strom
+    art: energie
+    branche: energie
+    einheit: mwh
+    verwendung: industrie
+    warengruppe: strom
+    transportklasse: leitung
+    richtpreis_usd: 1000          # Industriestrom um 1900 (Netzpreise im Ländermodell)
+    annaeherung: true
+
+anlagen:
+  - id: dampfkraftwerk            # Kolbendampfmaschinen mit Generatoren, 5 MW
+    standorttyp: kraftwerk
+    investition_usd: 25_000_000   # etwa 5 000 USD je kW
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 120        # MWh je Tag
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: turbinenkraftwerk         # Dampfturbinen mit Turbogeneratoren, 20 MW
+    standorttyp: kraftwerk
+    investition_usd: 70_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 480
+    lebensdauer_jahre: 35
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.4
+    technologie: turbogenerator
+    annaeherung: true
+
+rezepte:
+  - id: strom_dampfmaschine
+    produkt: strom
+    menge: 1
+    dauer_tage: 1
+    anlage: dampfkraftwerk
+    technologie: elektrizitaetswerk
+    eingang:
+      kohle: 1.6                  # Wirkungsgrad rund 8 %
+    arbeit_stunden:
+      ungelernt: 0.8
+      fachkraft.elektro: 0.4
+      akademiker.elektro: 0.01
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: strom_turbine
+    produkt: strom
+    menge: 1
+    dauer_tage: 1
+    anlage: turbinenkraftwerk
+    technologie: turbogenerator
+    eingang:
+      kohle: 0.9                  # Wirkungsgrad rund 14 %
+    arbeit_stunden:
+      ungelernt: 0.3
+      fachkraft.elektro: 0.2
+      akademiker.elektro: 0.01
+    qualitaet_basis: 50
+    annaeherung: true
+
+technologien:
+  - id: elektrizitaetswerk        # Pearl Street Station, Edison
+    fachgebiet: elektro
+    erfindungsjahr: 1882
+
+  - id: turbogenerator            # große Turbinenkraftwerke (z. B. Elberfeld 1900, Chicago 1903)
+    fachgebiet: elektro
+    erfindungsjahr: 1903
+    voraussetzungen: [elektrizitaetswerk]
+    forschungsaufwand: 10_000
+    annaeherung: true

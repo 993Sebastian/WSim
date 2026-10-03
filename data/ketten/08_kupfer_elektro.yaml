@@ -1,0 +1,167 @@
+# Kette 8 – Kupfer und Elektro (Lastenheft §17.1)
+# Kupfererz → Kupfer → Kupferdraht → Elektromotor (Industriegut für andere Ketten).
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: kupfererz
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # normiert auf 2 % Kupfer
+    verwendung: industrie
+    warengruppe: erze
+    transportklasse: schuettgut
+    richtpreis_usd: 150
+
+  - id: kupfer
+    art: halbzeug
+    branche: metallurgie
+    einheit: t                    # Elektrolytkupfer
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 13_000        # um 1900 etwa 16 Cent je lb
+
+  - id: kupferdraht
+    art: halbzeug
+    branche: elektro
+    einheit: t
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 15_000
+    staatsnachfrage:              # Telegrafen, Fernsprechnetze
+      je_mio_usd_bip: 0.05
+      kriegsfaktor: 2.0
+    annaeherung: true
+
+  - id: elektromotor
+    art: komponente
+    branche: elektro
+    einheit: stueck               # Drehstrommotor um 5 kW
+    gewicht_kg: 120
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 2500
+    staatsnachfrage:              # Straßenbahnen, Elektrifizierung
+      je_mio_usd_bip: 0.3
+      kriegsfaktor: 1.5
+    annaeherung: true
+
+anlagen:
+  - id: kupferbergwerk
+    standorttyp: foerderstaette
+    investition_usd: 20_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 3000
+    lebensdauer_jahre: 40
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.1
+    annaeherung: true
+
+  - id: kupferhuette              # Rösten, Schmelzen, Elektrolyse
+    standorttyp: werk
+    investition_usd: 25_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 50
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: kupferdrahtwerk
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 40
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: elektromotorenwerk
+    standorttyp: werk
+    investition_usd: 4_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 50
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+rezepte:
+  - id: kupfererz_abbau
+    produkt: kupfererz
+    menge: 1
+    dauer_tage: 1
+    anlage: kupferbergwerk
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 1.0
+      fachkraft.bergbau: 0.8
+      akademiker.bergbau: 0.01
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: kupfer_verhuetten
+    produkt: kupfer
+    menge: 1
+    dauer_tage: 3
+    anlage: kupferhuette
+    technologie: kupferelektrolyse
+    eingang:
+      kupfererz: 55
+      kohle: 4
+    arbeit_stunden:
+      ungelernt: 30
+      angelernt: 10
+      fachkraft.metall: 4
+      fachkraft.chemie: 2
+      akademiker.chemie: 0.3
+    energie_mwh: 0.3
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: kupferdraht_ziehen
+    produkt: kupferdraht
+    menge: 1
+    dauer_tage: 1
+    anlage: kupferdrahtwerk
+    technologie: warmwalzen
+    eingang:
+      kupfer: 1.03
+      kohle: 0.1
+    arbeit_stunden:
+      angelernt: 15
+      fachkraft.metall: 5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: elektromotor_bauen
+    produkt: elektromotor
+    menge: 1
+    dauer_tage: 3
+    anlage: elektromotorenwerk
+    technologie: drehstrommotor
+    eingang:
+      kupferdraht: 0.012
+      blech: 0.06                 # Elektroblech
+      stabstahl: 0.04
+      roheisen: 0.03              # Gehäuse aus Guss
+      schrauben: 0.002
+    arbeit_stunden:
+      angelernt: 80
+      fachkraft.elektro: 60
+      fachkraft.maschinenbau: 30
+      akademiker.elektro: 3
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: kupferelektrolyse
+    fachgebiet: chemie
+    erfindungsjahr: 1869
+
+  - id: drehstrommotor            # Michail Doliwo-Dobrowolski
+    fachgebiet: elektro
+    erfindungsjahr: 1889

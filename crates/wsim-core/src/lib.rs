@@ -18,6 +18,7 @@ pub mod money;
 pub mod policy;
 pub mod production;
 pub mod reports;
+pub mod research;
 pub mod rng;
 pub mod save;
 pub mod state;
@@ -33,6 +34,8 @@ mod finance_tests;
 mod market_tests;
 #[cfg(test)]
 mod production_tests;
+#[cfg(test)]
+mod research_tests;
 #[cfg(test)]
 mod trade_tests;
 

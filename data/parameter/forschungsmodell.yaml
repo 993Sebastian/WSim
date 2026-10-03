@@ -1,0 +1,18 @@
+# Parameter der Forschung (Lastenheft §7.1). Formeln: docs/FORMELN.md, Abschnitt M9.
+# Forschungspunkte: 1 Punkt = 1 Forschertag bei Forschungseffizienz 1.
+
+forschungsmodell:
+  # Kosten × 1,25 je Jahr vor dem historischen Erfindungsjahr: 10 Jahre ≈ × 9,
+  # 30 Jahre ≈ × 800, 50 Jahre ≈ × 70 000 – extreme Vorgriffe führen in die Pleite.
+  vorgriff_faktor: 1.25
+  # Nach der Erfindung (historisch oder im Spiel) wird es für Nachzügler billiger.
+  nachzuegler:
+    rabatt_je_jahr: 0.1
+    minimum: 0.2
+  # So viele Jahre nach dem historischen Erfindungsjahr darf jede Firma die Technologie
+  # nutzen (Wissen hat sich verbreitet; Patente folgen in Stufe 5).
+  gemeingut_nach_jahren: 25
+  # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
+  forscher: akademiker
+  # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)
+  sachkosten_usd_je_forschertag: 40

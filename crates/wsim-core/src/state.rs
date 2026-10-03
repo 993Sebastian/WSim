@@ -231,6 +231,9 @@ pub struct Company {
     /// Who may buy the company's goods (Lastenheft §9.2).
     #[serde(default)]
     pub sales_policies: Vec<SalesPolicy>,
+    /// Research points collected per technology not yet acquired.
+    #[serde(default)]
+    pub research: BTreeMap<TechnologyId, f64>,
 }
 
 /// A bank loan, repaid in equal monthly instalments (annuity).
@@ -335,6 +338,9 @@ pub struct Site {
     /// Goods bought on the country's market to keep a stock.
     #[serde(default)]
     pub orders: BTreeMap<ProductId, PurchaseOrder>,
+    /// Technology the research center works on.
+    #[serde(default)]
+    pub research: Option<TechnologyId>,
 }
 
 /// How a sale offer is priced.
@@ -429,6 +435,10 @@ pub struct Market {
     /// import to cover it.
     #[serde(default)]
     pub open_demand: f64,
+    /// First day without any seller or buyer that is not booked yet (see
+    /// `market::settle_idle`).
+    #[serde(default)]
+    pub idle_since: Option<Date>,
 }
 
 impl Market {
@@ -487,6 +497,13 @@ pub struct GameSettings {
     pub start_capital: Money,
     pub start_form: StartForm,
     pub company_name: String,
+    /// Multiplies the cost escalation of research ahead of history (Lastenheft §15).
+    #[serde(default = "one")]
+    pub research_ahead_factor: f64,
+}
+
+fn one() -> f64 {
+    1.0
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -506,6 +523,9 @@ pub struct GameState {
     pub sites: Vec<Site>,
     #[serde(default)]
     pub deposits: PerId<DepositId, DepositState>,
+    /// Day each technology was first acquired by research in this game.
+    #[serde(default)]
+    pub inventions: PerId<TechnologyId, Option<Date>>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,
@@ -515,6 +535,9 @@ pub struct GameState {
     /// Cheapest transport routes of the current year; derived, not saved.
     #[serde(skip)]
     pub routes: Routes,
+    /// Markets where traders hold imported goods; derived, not saved.
+    #[serde(skip)]
+    pub import_markets: BTreeSet<(ProductId, CountryId)>,
     pub player: CompanyId,
     pub game_over: bool,
 }
@@ -537,9 +560,11 @@ impl GameState {
     }
 
     /// Whether a company may use a technology: known to everyone at the start of the
-    /// game, or acquired by the company.
+    /// game or common knowledge by now (docs/FORMELN.md, M9), or acquired by the company.
     pub fn knows(&self, catalog: &Catalog, company: CompanyId, technology: TechnologyId) -> bool {
-        catalog.technologies.get(technology).invention_year <= self.settings.start_year
+        let year = catalog.technologies.get(technology).invention_year;
+        year <= self.settings.start_year
+            || year.saturating_add(catalog.research_model.public_domain_years) <= self.date.year()
             || self
                 .company(company)
                 .is_some_and(|c| c.technologies.contains(&technology))
@@ -563,6 +588,8 @@ impl GameState {
     pub(crate) fn fit_to_catalog(&mut self, catalog: &Catalog) {
         self.deposits
             .resize_with(catalog.deposits.len(), DepositState::default);
+        self.inventions
+            .resize_with(catalog.technologies.len(), || None);
         let countries = catalog.countries.len();
         self.markets
             .resize_with(catalog.products.len(), PerId::default);
@@ -573,6 +600,16 @@ impl GameState {
         for site in &mut self.sites {
             site.workforce.resize_with(groups, || 0.0);
         }
+        self.import_markets = self
+            .markets
+            .iter()
+            .flat_map(|(p, markets)| {
+                markets
+                    .iter()
+                    .filter(|(_, m)| m.imports.quantity > 1e-9)
+                    .map(move |(c, _)| (p, c))
+            })
+            .collect();
         self.refresh_countries(catalog);
     }
 }

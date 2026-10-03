@@ -186,7 +186,9 @@ pub fn weight_missing(unit: &str) -> String {
 }
 
 pub fn demand_type_ambiguous() -> String {
-    "Genau eines von „verbrauch“ (Verbrauchsgut) oder „gebrauch“ (Gebrauchsgut) angeben.".into()
+    "Genau eines von „verbrauch“ (Verbrauchsgut), „gebrauch“ (Gebrauchsgut) oder \
+     „ergaenzung“ (Verbrauch je besessenem Gebrauchsgut) angeben."
+        .into()
 }
 
 pub fn season_length(found: usize) -> String {
@@ -328,4 +330,18 @@ pub fn range_inverted(min: &str, max: &str) -> String {
 
 pub fn vehicle_without_classes() -> String {
     "Mindestens eine Transportklasse ist nötig: Was befördert dieses Verkehrsmittel?".into()
+}
+
+pub fn researchers_need_fields(qualification: &str) -> String {
+    format!("Forscher brauchen eine Qualifikation mit Fachrichtungen; „{qualification}“ hat keine.")
+}
+
+pub fn electricity_not_energy(key: &str) -> String {
+    format!("„{key}“ steht für Strom und muss deshalb ein Produkt der Art „energie“ sein.")
+}
+
+pub fn complement_needs_durable(key: &str) -> String {
+    format!(
+        "„{key}“ ist kein Gebrauchsgut; eine Ergänzung gehört zu einem Gebrauchsgut wie dem Auto."
+    )
 }

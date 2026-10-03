@@ -1,0 +1,110 @@
+# Kette 11 – Nähmaschine und Fahrrad (Lastenheft §17.1)
+# Stahl, Kleinteile, Reifen → Nähmaschine, Fahrrad. Massenprodukte; die Nähmaschine ist
+# Industrie- und Konsumgut (Verschleiß in der Konfektion, Kette 5).
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: naehmaschine
+    art: endprodukt
+    branche: maschinenbau
+    einheit: stueck
+    gewicht_kg: 15
+    verwendung: beides
+    warengruppe: maschinen
+    transportklasse: stueckgut
+    richtpreis_usd: 700           # Singer um 1900 etwa 20 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 25, max_besitzquote: 0.15}
+      kaufschwelle: 4.3           # die Hälfte kauft ab etwa 3 000 USD Einkommen
+      preisempfindlichkeit: 1.3
+      einkommensempfindlichkeit: 1.2
+    annaeherung: true
+
+  - id: fahrrad
+    art: endprodukt
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 15
+    verwendung: konsum
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 700           # um 1900 etwa 20 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.4}
+      kaufschwelle: 3.6           # die Hälfte kauft ab etwa 2 500 USD Einkommen
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.3
+    staatsnachfrage:              # Post, Heer
+      je_mio_usd_bip: 0.2
+      kriegsfaktor: 3.0
+    annaeherung: true
+
+anlagen:
+  - id: naehmaschinenfabrik
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 200
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: fahrradfabrik
+    standorttyp: werk
+    investition_usd: 2_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: naehmaschine_bauen
+    produkt: naehmaschine
+    menge: 1
+    dauer_tage: 2
+    anlage: naehmaschinenfabrik
+    technologie: naehmaschine
+    eingang:
+      roheisen: 0.008             # Gussgestell
+      stabstahl: 0.004
+      schrauben: 0.0005
+      muttern: 0.0002
+    arbeit_stunden:
+      angelernt: 40
+      fachkraft.maschinenbau: 30
+      akademiker.maschinenbau: 0.5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: fahrrad_bauen
+    produkt: fahrrad
+    menge: 1
+    dauer_tage: 1
+    anlage: fahrradfabrik
+    technologie: sicherheitsfahrrad
+    eingang:
+      stabstahl: 0.01             # Rohre
+      blech: 0.002
+      draht: 0.001                # Speichen
+      schrauben: 0.0005
+      muttern: 0.0003
+      fahrradreifen: 2
+    arbeit_stunden:
+      angelernt: 15
+      fachkraft.maschinenbau: 8
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: naehmaschine              # Elias Howe, Isaac Singer
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1851
+
+  - id: sicherheitsfahrrad        # John Kemp Starley, „Rover“
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1885

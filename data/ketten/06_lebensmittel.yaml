@@ -1,0 +1,204 @@
+# Kette 6 – Lebensmittel (Lastenheft §17.1)
+# Getreide → Mehl; Weißblech + Lebensmittel → Konserven. Zinn und Konserveninhalt
+# kommen vom Staatsmarkt.
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: getreide
+    art: rohstoff
+    branche: lebensmittel
+    einheit: t                    # Weizen
+    verwendung: industrie
+    warengruppe: agrarrohstoffe
+    transportklasse: schuettgut
+    richtpreis_usd: 700           # um 1900 etwa 0,65 USD je Bushel
+
+  - id: mehl
+    art: halbzeug
+    branche: lebensmittel
+    einheit: t
+    verwendung: beides
+    warengruppe: lebensmittel
+    transportklasse: schuettgut
+    richtpreis_usd: 1100
+    nachfrage:                    # Backen im Haushalt und beim Bäcker
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 0.1}
+      kaufschwelle: 0.14          # die Hälfte kauft ab etwa 150 USD Einkommen
+      preisempfindlichkeit: 0.3
+      einkommensempfindlichkeit: 0.3
+    staatsnachfrage:              # Heer, Anstalten
+      je_mio_usd_bip: 1.0
+      kriegsfaktor: 3.0
+    annaeherung: true
+
+  - id: zinn
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 25_000
+    staatsmarkt:
+      preis_usd: 25_000
+    annaeherung: true
+
+  - id: weissblech
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: stueckgut
+    richtpreis_usd: 3200
+    annaeherung: true
+
+  - id: konserveninhalt           # Gemüse, Obst, Fleisch, Fisch
+    art: halbzeug
+    branche: lebensmittel
+    einheit: t
+    verwendung: industrie
+    warengruppe: lebensmittel
+    transportklasse: stueckgut
+    richtpreis_usd: 1500
+    staatsmarkt:
+      preis_usd: 1500
+    annaeherung: true
+
+  - id: konserve
+    art: endprodukt
+    branche: lebensmittel
+    einheit: stueck               # Dose mit 500 g Inhalt
+    gewicht_kg: 0.6
+    verwendung: konsum
+    warengruppe: lebensmittel
+    transportklasse: stueckgut
+    richtpreis_usd: 4
+    nachfrage:
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 12}
+      kaufschwelle: 375           # die Hälfte kauft ab etwa 1 500 USD Einkommen
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.0
+    staatsnachfrage:              # Heeresverpflegung
+      je_mio_usd_bip: 20
+      kriegsfaktor: 5.0
+    annaeherung: true
+
+anlagen:
+  - id: getreidefarm
+    standorttyp: foerderstaette
+    investition_usd: 500_000      # Gebäude, Gespanne, Mähbinder
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 30
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: muehle                    # Walzenmühle
+    standorttyp: werk
+    investition_usd: 1_500_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: verzinnerei
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 30
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: konservenfabrik
+    standorttyp: werk
+    investition_usd: 800_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 20_000     # Dosen
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: getreide_ernte
+    produkt: getreide
+    menge: 1
+    dauer_tage: 1
+    anlage: getreidefarm
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 15
+      angelernt: 3
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: mehl_mahlen
+    produkt: mehl
+    menge: 1
+    dauer_tage: 1
+    anlage: muehle
+    technologie: walzenmuehle
+    eingang:
+      getreide: 1.35
+      kohle: 0.05
+    arbeit_stunden:
+      ungelernt: 3
+      angelernt: 2
+      fachkraft.lebensmittel: 0.5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: weissblech_verzinnen
+    produkt: weissblech
+    menge: 1
+    dauer_tage: 1
+    anlage: verzinnerei
+    technologie: feuerverzinnung
+    eingang:
+      blech: 1.02
+      zinn: 0.025
+      kohle: 0.1
+    arbeit_stunden:
+      angelernt: 6
+      fachkraft.metall: 2
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: konserve_abfuellen
+    produkt: konserve
+    menge: 1
+    dauer_tage: 1
+    anlage: konservenfabrik
+    technologie: konservendose
+    eingang:
+      weissblech: 0.0001
+      konserveninhalt: 0.0005
+      kohle: 0.0002               # Sterilisieren
+    arbeit_stunden:
+      ungelernt: 0.05
+      angelernt: 0.08
+    qualitaet_basis: 50
+    annaeherung: true
+
+technologien:
+  - id: walzenmuehle
+    fachgebiet: lebensmittel
+    erfindungsjahr: 1873
+    annaeherung: true
+
+  - id: feuerverzinnung
+    fachgebiet: metall
+    erfindungsjahr: 1720
+    annaeherung: true
+
+  - id: konservendose             # Peter Durand
+    fachgebiet: lebensmittel
+    erfindungsjahr: 1810

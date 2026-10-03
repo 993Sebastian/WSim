@@ -1,0 +1,153 @@
+# Wälder (erneuerbar). Höchstförderung in t Rundholz je Jahr.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: sibirische_taiga   # abgelegen
+    land: RUS
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 60_000_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: kanadische_waelder
+    land: CAN
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 150}
+    foerderung_max_je_jahr: 40_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: pazifischer_nordwesten   # Douglasie, große Stämme
+    land: USA
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 150}
+    foerderung_max_je_jahr: 50_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: suedstaatenkiefer
+    land: USA
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 40_000_000
+    annaeherung: true
+
+  - id: schwedische_waelder
+    land: SWE
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 20_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: finnische_waelder
+    land: FIN
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 15_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: norwegische_waelder
+    land: NOR
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 5_000_000
+    annaeherung: true
+
+  - id: deutsche_waelder   # Forstwirtschaft, Schwarzwald, Harz
+    land: DEU
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 90}
+    foerderung_max_je_jahr: 15_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: alpenwaelder
+    land: AUT
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 90}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: polnische_waelder
+    land: POL
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 90}
+    foerderung_max_je_jahr: 8_000_000
+    annaeherung: true
+
+  - id: franzoesische_waelder
+    land: FRA
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 90}
+    foerderung_max_je_jahr: 12_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: karpaten
+    land: ROU
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: amazonas_holz   # Tropenholz, kaum erschlossen
+    land: BRA
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 20_000_000
+    foerderkosten_faktor: 1.6
+    annaeherung: true
+
+  - id: borneo_sumatra
+    land: IDN
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 1.4
+    annaeherung: true
+
+  - id: indische_waelder
+    land: IND
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: japanische_waelder
+    land: JPN
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 120}
+    foerderung_max_je_jahr: 8_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: mandschurei_holz
+    land: CHN
+    rohstoff: holz
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true

@@ -21,6 +21,7 @@ fn settings(seed: u64) -> GameSettings {
         start_capital: Money::from_usd(100_000.0).unwrap(),
         start_form: StartForm::Workshop,
         company_name: "Muster & Söhne".into(),
+        research_ahead_factor: 1.0,
     }
 }
 

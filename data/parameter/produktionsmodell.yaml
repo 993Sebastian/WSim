@@ -19,3 +19,5 @@ produktionsmodell:
     automatisierung: 10         # Punkte bei voller Automatisierung
     zustand: 20                 # Punkte Abzug bei völlig verschlissener Anlage
   zustand_minimum: 0.2
+  strom: strom                  # Produkt für Eigenstrom (Kette 7)
+  einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz

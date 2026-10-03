@@ -1,0 +1,146 @@
+# Kupfererz-Lagerstätten. Vorrat und Förderung in t Erz, normiert auf 2 % Kupfer.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: butte   # Montana, „richest hill on earth“
+    land: USA
+    rohstoff: kupfererz
+    vorrat: 1_500_000_000
+    entdeckt: 1864
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 10_000_000
+    annaeherung: true
+
+  - id: arizona_kupfer   # Bisbee, Morenci, Globe
+    land: USA
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1877
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 6_000_000
+    annaeherung: true
+
+  - id: keweenaw   # gediegenes Kupfer am Oberen See
+    land: USA
+    rohstoff: kupfererz
+    vorrat: 500_000_000
+    entdeckt: 1845
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 4_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: rio_tinto
+    land: ESP
+    rohstoff: kupfererz
+    vorrat: 800_000_000
+    entdeckt: 1873
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true
+
+  - id: cananea
+    land: MEX
+    rohstoff: kupfererz
+    vorrat: 800_000_000
+    entdeckt: 1899
+    erschliessung: {investition_usd: 50_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true
+
+  - id: cerro_de_pasco   # Hochland, über 4 000 m
+    land: PER
+    rohstoff: kupfererz
+    vorrat: 600_000_000
+    entdeckt: 1902
+    erschliessung: {investition_usd: 70_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 3_000_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: el_teniente
+    land: CHL
+    rohstoff: kupfererz
+    vorrat: 3_000_000_000
+    entdeckt: 1904
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 8_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: chuquicamata   # Tagebau ab 1915
+    land: CHL
+    rohstoff: kupfererz
+    vorrat: 5_000_000_000
+    entdeckt: 1910
+    erschliessung: {investition_usd: 200_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 15_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: katanga   # Union Minière du Haut Katanga
+    land: COD
+    rohstoff: kupfererz
+    vorrat: 3_000_000_000
+    entdeckt: 1906
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 10_000_000
+    annaeherung: true
+
+  - id: copperbelt   # Roan Antelope, Nkana
+    land: ZMB
+    rohstoff: kupfererz
+    vorrat: 4_000_000_000
+    entdeckt: 1923
+    erschliessung: {investition_usd: 180_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: sudbury   # Nickel-Kupfer-Erz
+    land: CAN
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1883
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 3_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: mount_lyell
+    land: AUS
+    rohstoff: kupfererz
+    vorrat: 300_000_000
+    entdeckt: 1893
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 1_500_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: ashio
+    land: JPN
+    rohstoff: kupfererz
+    vorrat: 300_000_000
+    entdeckt: 1877
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_500_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: mansfeld   # Kupferschiefer, flache Flöze
+    land: DEU
+    rohstoff: kupfererz
+    vorrat: 300_000_000
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    foerderkosten_faktor: 1.6
+    annaeherung: true
+
+  - id: ural_kupfer
+    land: RUS
+    rohstoff: kupfererz
+    vorrat: 500_000_000
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 1_000_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true

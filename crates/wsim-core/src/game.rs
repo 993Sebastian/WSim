@@ -18,6 +18,7 @@ use crate::market;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::production;
+use crate::research;
 use crate::rng::{SimRng, Stream};
 use crate::state::{Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId};
 use crate::trade;
@@ -26,6 +27,9 @@ use crate::trade;
 pub const LATEST_START_YEAR: i32 = 2026;
 /// Highest start capital in USD.
 pub const MAX_START_CAPITAL_USD: f64 = 1.0e12;
+/// Range of the research cost setting (Lastenheft §15).
+pub const MIN_RESEARCH_FACTOR: f64 = 0.25;
+pub const MAX_RESEARCH_FACTOR: f64 = 4.0;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NewGameError {
@@ -33,6 +37,7 @@ pub enum NewGameError {
     StartCapital,
     StartCountry,
     Name(NameError),
+    ResearchFactor,
 }
 
 impl NewGameError {
@@ -48,6 +53,9 @@ impl NewGameError {
             ),
             NewGameError::StartCountry => Message::error(keys::NEW_GAME_START_COUNTRY),
             NewGameError::Name(e) => e.message(),
+            NewGameError::ResearchFactor => Message::error(keys::NEW_GAME_RESEARCH_FACTOR)
+                .with("von", Param::Number(MIN_RESEARCH_FACTOR))
+                .with("bis", Param::Number(MAX_RESEARCH_FACTOR)),
         }
     }
 }
@@ -129,6 +137,9 @@ impl Game {
         if settings.start_country.index() >= catalog.countries.len() {
             return Err(NewGameError::StartCountry);
         }
+        if !(MIN_RESEARCH_FACTOR..=MAX_RESEARCH_FACTOR).contains(&settings.research_ahead_factor) {
+            return Err(NewGameError::ResearchFactor);
+        }
         let name = command::check_company_name(None, &settings.company_name, None)
             .map_err(NewGameError::Name)?;
 
@@ -145,6 +156,7 @@ impl Game {
             loans: Vec::new(),
             loss_carryforward: Money::ZERO,
             sales_policies: Vec::new(),
+            research: Default::default(),
         };
         let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
@@ -156,7 +168,9 @@ impl Game {
             markets: PerId::default(),
             shipments: Vec::new(),
             routes: Default::default(),
+            import_markets: Default::default(),
             deposits: PerId::from_fn(catalog.deposits.len(), |_| DepositState::default()),
+            inventions: PerId::default(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -308,8 +322,16 @@ impl Game {
         trade::deliver(&mut self.state, today);
         production::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
+        report.messages.extend(research::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
 
         let next = today.next_day();
+        if next.day() == 1 {
+            market::settle_all_idle(&mut self.state, &self.catalog, next);
+        }
         self.state.date = next;
         if next.day() == 1 {
             finance::month_end(&mut self.state, &self.catalog, today);

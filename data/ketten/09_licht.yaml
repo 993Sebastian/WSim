@@ -1,0 +1,224 @@
+# Kette 9 – Licht (Lastenheft §17.1)
+# Rohöl → Petroleum → Petroleumlampe; Kupfer + Glas → Glühlampe.
+# Verdrängung: Die Glühlampe ersetzt die Petroleumlampe, soweit es Strom gibt
+# (netzabhängige Nachfrage). Petroleum wird je besessener Lampe verbraucht.
+# Glas kommt vom Staatsmarkt. Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: rohoel
+    art: rohstoff
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: mineraloel
+    transportklasse: fluessig
+    richtpreis_usd: 330           # um 1900 etwa 1,20 USD je Barrel
+    heizwert_mwh: 11.6
+
+  - id: petroleum
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Leuchtpetroleum (Kerosin)
+    verwendung: beides
+    warengruppe: mineraloel
+    transportklasse: fluessig
+    richtpreis_usd: 1100
+    heizwert_mwh: 12.0
+    nachfrage:
+      bedarfsklasse: grundbedarf
+      ergaenzung: {zu: petroleumlampe, je_besitz_und_jahr: 0.03}
+      kaufschwelle: 0.05
+      preisempfindlichkeit: 0.5
+      einkommensempfindlichkeit: 0.3
+    annaeherung: true
+
+  - id: glas
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: glas_keramik
+    transportklasse: stueckgut
+    richtpreis_usd: 1500
+    staatsmarkt:
+      preis_usd: 1500
+    annaeherung: true
+
+  - id: petroleumlampe
+    art: endprodukt
+    branche: konsumgueter
+    einheit: stueck
+    gewicht_kg: 1.5
+    verwendung: konsum
+    warengruppe: moebel_hausrat
+    transportklasse: stueckgut
+    richtpreis_usd: 20
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.6}
+      kaufschwelle: 15            # die Hälfte kauft ab etwa 300 USD Einkommen
+      preisempfindlichkeit: 1.0
+      einkommensempfindlichkeit: 1.0
+    annaeherung: true
+
+  - id: gluehlampe
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.05
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 10            # Kohlefadenlampe um 1900 etwa 25 Cent
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 1, max_besitzquote: 3}
+      kaufschwelle: 150           # die Hälfte kauft ab etwa 1 500 USD Einkommen
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.5
+      netzabhaengig: true
+    ersetzt: [petroleumlampe]
+    annaeherung: true
+
+anlagen:
+  - id: oelfeld                   # Bohrtürme, Pumpen, Tanks
+    standorttyp: foerderstaette
+    investition_usd: 3_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 200
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: raffinerie
+    standorttyp: werk
+    investition_usd: 15_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300        # t Rohöl
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: lampenfabrik
+    standorttyp: werk
+    investition_usd: 600_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 1500
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: gluehlampenfabrik
+    standorttyp: werk
+    investition_usd: 1_500_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 5000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: rohoel_foerdern
+    produkt: rohoel
+    menge: 1
+    dauer_tage: 1
+    anlage: oelfeld
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 0.5
+      fachkraft.bergbau: 0.3
+      akademiker.chemie: 0.005
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: rohoel_destillieren       # Petroleum ist das Hauptprodukt, Benzin fällt an
+    produkt: petroleum
+    menge: 0.45
+    nebenprodukte:
+      benzin: 0.1
+    dauer_tage: 2
+    anlage: raffinerie
+    technologie: erdoeldestillation
+    eingang:
+      rohoel: 1
+      kohle: 0.05
+    arbeit_stunden:
+      ungelernt: 1.0
+      angelernt: 1.0
+      fachkraft.chemie: 0.5
+      akademiker.chemie: 0.02
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: petroleumlampe_bauen
+    produkt: petroleumlampe
+    menge: 1
+    dauer_tage: 1
+    anlage: lampenfabrik
+    technologie: rundbrenner
+    eingang:
+      blech: 0.0008
+      glas: 0.0004
+      draht: 0.0001
+    arbeit_stunden:
+      angelernt: 1.0
+      fachkraft.metall: 0.3
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: gluehlampe_kohlefaden
+    produkt: gluehlampe
+    menge: 1
+    dauer_tage: 1
+    anlage: gluehlampenfabrik
+    technologie: gluehlampe
+    eingang:
+      kupferdraht: 0.000005
+      glas: 0.00003
+    arbeit_stunden:
+      angelernt: 1.0
+      fachkraft.elektro: 0.1
+    energie_mwh: 0.001
+    qualitaet_basis: 45           # kurze Lebensdauer, wenig Licht je Watt
+    annaeherung: true
+
+  - id: gluehlampe_wolfram
+    produkt: gluehlampe
+    menge: 1
+    dauer_tage: 1
+    anlage: gluehlampenfabrik
+    technologie: wolframgluehlampe
+    eingang:
+      kupferdraht: 0.000005
+      glas: 0.00003
+    arbeit_stunden:
+      angelernt: 0.8
+      fachkraft.elektro: 0.15
+    energie_mwh: 0.001
+    qualitaet_basis: 75
+    annaeherung: true
+
+technologien:
+  - id: erdoeldestillation
+    fachgebiet: chemie
+    erfindungsjahr: 1859
+
+  - id: rundbrenner               # Petroleumlampe mit Rundbrenner
+    fachgebiet: metall
+    erfindungsjahr: 1865
+    annaeherung: true
+
+  - id: gluehlampe                # Edison, Swan
+    fachgebiet: elektro
+    erfindungsjahr: 1879
+
+  - id: wolframgluehlampe         # Just und Hanaman
+    fachgebiet: elektro
+    erfindungsjahr: 1906
+    voraussetzungen: [gluehlampe]
+    forschungsaufwand: 6000
+    annaeherung: true

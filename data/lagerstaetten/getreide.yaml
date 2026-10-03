@@ -1,0 +1,150 @@
+# Getreideanbau (erneuerbar). Höchstförderung in t Weizen je Jahr.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: praerie_usa   # Great Plains, Mähdrescher
+    land: USA
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 25_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: praerie_kanada
+    land: CAN
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: pampa
+    land: ARG
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 8_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: weizenguertel_australien
+    land: AUS
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 3_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: schwarzerde_russland
+    land: RUS
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 15_000_000
+    annaeherung: true
+
+  - id: schwarzerde_ukraine
+    land: UKR
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 12_000_000
+    annaeherung: true
+
+  - id: kasachische_steppe
+    land: KAZ
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: punjab_weizen
+    land: IND
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 10_000_000
+    annaeherung: true
+
+  - id: beauce
+    land: FRA
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 9_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: boerden
+    land: DEU
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: poebene
+    land: ITA
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: walachei
+    land: ROU
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 4_000_000
+    annaeherung: true
+
+  - id: ungarische_tiefebene
+    land: HUN
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 4_000_000
+    annaeherung: true
+
+  - id: meseta
+    land: ESP
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 4_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: nordchinesische_ebene
+    land: CHN
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 6_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 15_000_000
+    annaeherung: true
+
+  - id: anatolien
+    land: TUR
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 3_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: ostengland
+    land: GBR
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true

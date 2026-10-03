@@ -1,0 +1,143 @@
+# Kette 4 – Holz (Lastenheft §17.1)
+# Holz → Schnittholz → Möbel. Leim kommt vom Staatsmarkt.
+# Alle Zahlen sind Annäherungen für etwa 1900.
+
+produkte:
+  - id: holz
+    art: rohstoff
+    branche: holz_papier
+    einheit: t                    # Rundholz
+    verwendung: industrie
+    warengruppe: holz
+    transportklasse: schuettgut
+    richtpreis_usd: 70
+
+  - id: schnittholz
+    art: halbzeug
+    branche: holz_papier
+    einheit: t
+    verwendung: industrie
+    warengruppe: holz
+    transportklasse: stueckgut
+    richtpreis_usd: 450
+    staatsnachfrage:              # öffentliche Bauten, Bahnschwellen
+      je_mio_usd_bip: 5.0
+      kriegsfaktor: 1.5
+    annaeherung: true
+
+  - id: leim
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 2000
+    staatsmarkt:
+      preis_usd: 2000
+    annaeherung: true
+
+  - id: moebel
+    art: endprodukt
+    branche: konsumgueter
+    einheit: stueck
+    gewicht_kg: 25
+    verwendung: konsum
+    warengruppe: moebel_hausrat
+    transportklasse: stueckgut
+    richtpreis_usd: 200           # Stuhl, Tisch, Schrank im Mittel
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 20, max_besitzquote: 2.0}
+      kaufschwelle: 8             # die Hälfte kauft ab etwa 1 600 USD Einkommen
+      preisempfindlichkeit: 1.3
+      einkommensempfindlichkeit: 1.2
+    annaeherung: true
+
+anlagen:
+  - id: forstbetrieb
+    standorttyp: foerderstaette
+    investition_usd: 300_000      # Wege, Rückepferde, Flößerei
+    bauzeit_tage: 60
+    kapazitaet_je_tag: 200
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.1
+    annaeherung: true
+
+  - id: saegewerk                 # Dampfsägewerk
+    standorttyp: werk
+    investition_usd: 800_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 50         # t Schnittholz
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: moebelfabrik
+    standorttyp: werk
+    investition_usd: 1_000_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 100        # Stück
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+rezepte:
+  - id: holz_einschlag
+    produkt: holz
+    menge: 1
+    dauer_tage: 1
+    anlage: forstbetrieb
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 4.0
+      angelernt: 0.5
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: schnittholz_saegen
+    produkt: schnittholz
+    menge: 1
+    dauer_tage: 1
+    anlage: saegewerk
+    technologie: dampfsaege
+    eingang:
+      holz: 1.7
+      kohle: 0.05
+    arbeit_stunden:
+      ungelernt: 3.0
+      angelernt: 2.0
+      fachkraft.holz_bau: 0.5
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: moebel_tischlern
+    produkt: moebel
+    menge: 1
+    dauer_tage: 2
+    anlage: moebelfabrik
+    technologie: holzbearbeitungsmaschinen
+    eingang:
+      schnittholz: 0.035
+      naegel: 0.0003
+      schrauben: 0.0002
+      leim: 0.0005
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.holz_bau: 12
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: dampfsaege
+    fachgebiet: holz_bau
+    erfindungsjahr: 1810
+    annaeherung: true
+
+  - id: holzbearbeitungsmaschinen # Kehl-, Fräs- und Bohrmaschinen
+    fachgebiet: holz_bau
+    erfindungsjahr: 1860
+    annaeherung: true

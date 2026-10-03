@@ -1,0 +1,90 @@
+# Kautschuk aus Wildbeständen und Plantagen (erneuerbar). Höchstförderung in t je Jahr.
+# Plantagen brauchen Jahre, bis die Bäume gezapft werden können (lange Erschließung).
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: amazonas_kautschuk   # Wildkautschuk, Seringueiros
+    land: BRA
+    rohstoff: kautschuk
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 40_000
+    foerderkosten_faktor: 2.5
+    annaeherung: true
+
+  - id: kongo_kautschuk   # Wildkautschuk
+    land: COD
+    rohstoff: kautschuk
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 10_000
+    foerderkosten_faktor: 3.0
+    annaeherung: true
+
+  - id: amazonas_peru
+    land: PER
+    rohstoff: kautschuk
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 5_000
+    foerderkosten_faktor: 2.8
+    annaeherung: true
+
+  - id: amazonas_bolivien
+    land: BOL
+    rohstoff: kautschuk
+    erneuerbar: true
+    erschliessung: {investition_usd: 2_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 4_000
+    foerderkosten_faktor: 2.8
+    annaeherung: true
+
+  - id: malaya_plantagen
+    land: MYS
+    rohstoff: kautschuk
+    erneuerbar: true
+    entdeckt: 1905
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 2000}
+    foerderung_max_je_jahr: 300_000
+    foerderkosten_faktor: 0.5
+    annaeherung: true
+
+  - id: sumatra_java_plantagen
+    land: IDN
+    rohstoff: kautschuk
+    erneuerbar: true
+    entdeckt: 1910
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 2000}
+    foerderung_max_je_jahr: 250_000
+    foerderkosten_faktor: 0.5
+    annaeherung: true
+
+  - id: ceylon_plantagen
+    land: LKA
+    rohstoff: kautschuk
+    erneuerbar: true
+    entdeckt: 1905
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 2000}
+    foerderung_max_je_jahr: 60_000
+    foerderkosten_faktor: 0.6
+    annaeherung: true
+
+  - id: cochinchina_plantagen
+    land: VNM
+    rohstoff: kautschuk
+    erneuerbar: true
+    entdeckt: 1910
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 2000}
+    foerderung_max_je_jahr: 60_000
+    foerderkosten_faktor: 0.6
+    annaeherung: true
+
+  - id: liberia_plantagen   # Firestone
+    land: LBR
+    rohstoff: kautschuk
+    erneuerbar: true
+    entdeckt: 1926
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 2000}
+    foerderung_max_je_jahr: 50_000
+    foerderkosten_faktor: 0.6
+    annaeherung: true

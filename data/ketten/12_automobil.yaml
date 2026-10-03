@@ -1,0 +1,325 @@
+# Kette 12 – Automobil (Lastenheft §17.1)
+# Motor, Fahrgestell, Karosserie, Reifen → Automobil; Rohöl → Benzin. Erste komplexe
+# Kette mit Forschung (Fließband, Ganzstahlkarosserie, thermisches Cracken).
+# Verdrängung: Das Automobil ersetzt die Pferdekutsche (Staatsmarkt).
+# Alle Zahlen sind Annäherungen für etwa 1900–1915.
+
+produkte:
+  - id: benzin
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: beides
+    warengruppe: mineraloel
+    transportklasse: fluessig
+    richtpreis_usd: 900
+    heizwert_mwh: 12.2
+    nachfrage:                    # Verbrauch je Auto (um 1910 rund 15 l je 100 km)
+      bedarfsklasse: grundbedarf
+      ergaenzung: {zu: automobil, je_besitz_und_jahr: 1.2}
+      kaufschwelle: 0.05
+      preisempfindlichkeit: 0.3
+      einkommensempfindlichkeit: 0.2
+    annaeherung: true
+
+  - id: motor
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck               # Vierzylinder-Ottomotor
+    gewicht_kg: 200
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 3000
+
+  - id: fahrgestell
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 400
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 3000
+
+  - id: karosserie
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 250
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 2500
+
+  - id: automobil
+    art: endprodukt
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 1000
+    verwendung: konsum
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 30_000        # Ford Modell T 1909: 850 USD
+    nachfrage:
+      bedarfsklasse: luxus
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.3}
+      kaufschwelle: 2             # die Hälfte kauft ab etwa 60 000 USD Einkommen
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.5
+    staatsnachfrage:              # Post, Heer, Verwaltung
+      je_mio_usd_bip: 0.005
+      kriegsfaktor: 10
+    ersetzt: [pferdekutsche]
+    annaeherung: true
+
+  - id: pferdekutsche
+    art: endprodukt
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 500
+    verwendung: konsum
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 8000
+    staatsmarkt:
+      preis_usd: 8000
+    nachfrage:
+      bedarfsklasse: luxus
+      gebrauch: {nutzungsdauer_jahre: 15, max_besitzquote: 0.03}
+      kaufschwelle: 2.5           # die Hälfte kauft ab etwa 20 000 USD Einkommen
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.5
+    annaeherung: true
+
+anlagen:
+  - id: motorenwerk
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    technologie: ottomotor
+    annaeherung: true
+
+  - id: fahrgestellwerk
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: karosseriewerk
+    standorttyp: werk
+    investition_usd: 2_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: automobilwerk             # Montage in Werkstätten
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    technologie: automobil
+    annaeherung: true
+
+  - id: automobilwerk_fliessband  # Highland Park, 1913
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 500
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.6
+    technologie: fliessband
+    annaeherung: true
+
+  - id: crackanlage
+    standorttyp: werk
+    investition_usd: 20_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300        # t Rohöl
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: thermisches_cracken
+    annaeherung: true
+
+rezepte:
+  - id: motor_bauen
+    produkt: motor
+    menge: 1
+    dauer_tage: 3
+    anlage: motorenwerk
+    technologie: ottomotor
+    eingang:
+      roheisen: 0.12              # Motorblock aus Guss
+      stahl: 0.06
+      kupferdraht: 0.002          # Zündung
+      schrauben: 0.004
+      muttern: 0.002
+    arbeit_stunden:
+      angelernt: 120
+      fachkraft.maschinenbau: 150
+      akademiker.maschinenbau: 3
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: fahrgestell_bauen
+    produkt: fahrgestell
+    menge: 1
+    dauer_tage: 2
+    anlage: fahrgestellwerk
+    technologie: automobil
+    eingang:
+      stabstahl: 0.25
+      blech: 0.05
+      schrauben: 0.01
+      muttern: 0.005
+    arbeit_stunden:
+      angelernt: 80
+      fachkraft.maschinenbau: 60
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: karosserie_holz           # Holzgerippe mit Blech, Kutschenbau
+    produkt: karosserie
+    menge: 1
+    dauer_tage: 3
+    anlage: karosseriewerk
+    technologie: automobil
+    eingang:
+      schnittholz: 0.15
+      blech: 0.06
+      stoff: 0.008                # Polster, Verdeck
+      glas: 0.01
+      naegel: 0.002
+      leim: 0.002
+    arbeit_stunden:
+      angelernt: 60
+      fachkraft.holz_bau: 80
+      fachkraft.textil: 10
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: karosserie_stahl
+    produkt: karosserie
+    menge: 1
+    dauer_tage: 1
+    anlage: karosseriewerk
+    technologie: ganzstahlkarosserie
+    eingang:
+      blech: 0.2
+      stoff: 0.008
+      glas: 0.01
+      schrauben: 0.005
+    arbeit_stunden:
+      angelernt: 30
+      fachkraft.metall: 15
+      fachkraft.textil: 5
+    energie_mwh: 0.2              # Pressen
+    qualitaet_basis: 65
+    annaeherung: true
+
+  - id: automobil_montage
+    produkt: automobil
+    menge: 1
+    dauer_tage: 5
+    anlage: automobilwerk
+    technologie: automobil
+    eingang:
+      motor: 1
+      fahrgestell: 1
+      karosserie: 1
+      autoreifen: 4
+      schrauben: 0.005
+      muttern: 0.003
+    arbeit_stunden:
+      angelernt: 150
+      fachkraft.maschinenbau: 120
+      akademiker.maschinenbau: 5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: automobil_fliessband
+    produkt: automobil
+    menge: 1
+    dauer_tage: 1
+    anlage: automobilwerk_fliessband
+    technologie: fliessband
+    eingang:
+      motor: 1
+      fahrgestell: 1
+      karosserie: 1
+      autoreifen: 4
+      schrauben: 0.005
+      muttern: 0.003
+    arbeit_stunden:
+      angelernt: 35
+      fachkraft.maschinenbau: 12
+      akademiker.maschinenbau: 0.5
+    energie_mwh: 0.5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: rohoel_cracken            # Burton-Verfahren: mehr Benzin aus dem Rohöl
+    produkt: benzin
+    menge: 0.4
+    nebenprodukte:
+      petroleum: 0.2
+    dauer_tage: 2
+    anlage: crackanlage
+    technologie: thermisches_cracken
+    eingang:
+      rohoel: 1
+      kohle: 0.1
+    arbeit_stunden:
+      ungelernt: 1.0
+      angelernt: 1.0
+      fachkraft.chemie: 0.8
+      akademiker.chemie: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: ottomotor                 # Nicolaus August Otto
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1876
+
+  - id: automobil                 # Carl Benz
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1886
+    voraussetzungen: [ottomotor]
+
+  - id: fliessband                # Henry Ford, Highland Park
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1913
+    voraussetzungen: [automobil]
+    forschungsaufwand: 30_000
+    annaeherung: true
+
+  - id: ganzstahlkarosserie       # Edward G. Budd
+    fachgebiet: metall
+    erfindungsjahr: 1914
+    voraussetzungen: [automobil, warmwalzen]
+    forschungsaufwand: 12_000
+    annaeherung: true
+
+  - id: thermisches_cracken       # William Burton
+    fachgebiet: chemie
+    erfindungsjahr: 1913
+    voraussetzungen: [erdoeldestillation]
+    forschungsaufwand: 15_000
+    annaeherung: true

@@ -2,11 +2,11 @@
 //! (Lastenheft §5.2, §6.1–6.3; formulas in docs/FORMELN.md, section M5).
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, Recipe};
-use crate::ids::{Id, LaborGroupId, RecipeId};
+use crate::catalog::{Catalog, Recipe, SiteType};
+use crate::ids::{CountryId, Id, LaborGroupId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::money::Money;
-use crate::state::{Batch, GameState, SiteId};
+use crate::state::{Batch, CompanyId, GameState, SiteId};
 
 /// Working hours one employee provides per calendar day.
 pub fn hours_per_worker_day(catalog: &Catalog, date: Date) -> f64 {
@@ -38,21 +38,102 @@ fn hours_per_run(
         .collect()
 }
 
-/// One simulated day for all sites. `date` is the day being simulated.
+/// One simulated day for all sites. `date` is the day being simulated. Power plants
+/// run first so that factories can use the electricity of the same day.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
     complete_constructions(state, catalog, date);
     staff_sites(state, catalog, date);
-    for index in 0..state.sites.len() {
-        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
-        if state
-            .company(state.sites[index].owner)
-            .is_some_and(|c| c.bankrupt)
-        {
+    for power_plants in [true, false] {
+        for index in 0..state.sites.len() {
+            if (state.sites[index].kind == SiteType::PowerPlant) != power_plants {
+                continue;
+            }
+            let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+            if state
+                .company(state.sites[index].owner)
+                .is_some_and(|c| c.bankrupt)
+            {
+                continue;
+            }
+            produce(state, catalog, site, date);
+            finish_batches(state, site, date);
+            running_costs(state, catalog, site, date);
+        }
+    }
+    feed_in(state, catalog);
+}
+
+/// Own electricity of a company in a country (all its sites there).
+fn own_electricity(
+    catalog: &Catalog,
+    state: &GameState,
+    owner: CompanyId,
+    country: CountryId,
+) -> f64 {
+    let Some(power) = catalog.production_model.electricity else {
+        return 0.0;
+    };
+    state
+        .sites
+        .iter()
+        .filter(|s| s.owner == owner && s.country == country)
+        .filter_map(|s| s.inventory.get(&power))
+        .map(|s| s.quantity)
+        .sum()
+}
+
+/// Takes own electricity from the company's sites in a country; returns its value.
+fn use_own_electricity(
+    catalog: &Catalog,
+    state: &mut GameState,
+    owner: CompanyId,
+    country: CountryId,
+    mut mwh: f64,
+) -> Money {
+    let Some(power) = catalog.production_model.electricity else {
+        return Money::ZERO;
+    };
+    let mut value = Money::ZERO;
+    for s in &mut state.sites {
+        if mwh <= 0.0 {
+            break;
+        }
+        if s.owner != owner || s.country != country {
             continue;
         }
-        produce(state, catalog, site, date);
-        finish_batches(state, site, date);
-        running_costs(state, catalog, site, date);
+        if let Some(stock) = s.inventory.get_mut(&power) {
+            let taken = mwh.min(stock.quantity);
+            value += stock.take(taken);
+            mwh -= taken;
+        }
+    }
+    value
+}
+
+/// Electricity cannot be stored: what is left at the end of the day goes into the
+/// public grid at a share of the industrial price.
+fn feed_in(state: &mut GameState, catalog: &Catalog) {
+    let Some(power) = catalog.production_model.electricity else {
+        return;
+    };
+    for index in 0..state.sites.len() {
+        let s = &mut state.sites[index];
+        let Some(stock) = s.inventory.get_mut(&power) else {
+            continue;
+        };
+        if stock.quantity <= 0.0 {
+            continue;
+        }
+        let quantity = stock.quantity;
+        let value = stock.take(quantity);
+        let price = state.countries.get(s.country).electricity_price_usd_mwh
+            * catalog.production_model.feed_in_share;
+        let revenue = Money::from_usd(quantity * price).unwrap_or(Money::ZERO);
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        let ledger = &mut state.companies[s.owner.index()].ledger;
+        let center = CostCenter::product(site, power);
+        ledger.income(CostType::Revenue, center, Account::Cash, revenue);
+        ledger.expense(CostType::InventoryChange, center, Account::Inventory, value);
     }
 }
 
@@ -159,6 +240,19 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
                 needed[g.index()] += runs * h / worker_hours;
             }
         }
+        if let Some(technology) = state.sites[index].research {
+            let field = catalog.technologies.get(technology).field;
+            if let Some(group) = catalog
+                .research_model
+                .researchers
+                .get(field.index())
+                .copied()
+                .flatten()
+            {
+                needed[group.index()] +=
+                    crate::research::wanted_researchers(catalog, state, site, date);
+            }
+        }
         let pool = &state.countries.get(country).labor_pool;
         let s = &mut state.sites[index];
         for g in 0..groups {
@@ -224,9 +318,13 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
                 runs = runs.min(hours[g.index()] / h);
             }
         }
-        if recipe.energy_mwh > 0.0 {
-            runs = runs.min(planned * grid_share);
-        }
+        let own_power = if recipe.energy_mwh > 0.0 {
+            let own = own_electricity(catalog, state, owner, country);
+            runs = runs.min(planned * grid_share + own / recipe.energy_mwh);
+            own
+        } else {
+            0.0
+        };
         if recipe.extraction {
             let deposit = state.sites[index].deposit.expect("checked in planned_runs");
             let d = catalog.deposits.get(deposit);
@@ -261,10 +359,19 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             value += Money::from_usd(h * runs * wages.get(g.index()).copied().unwrap_or(0.0))
                 .unwrap_or(Money::ZERO);
         }
-        let energy =
-            Money::from_usd(recipe.energy_mwh * runs * electricity_price).unwrap_or(Money::ZERO);
-        ledger.expense(CostType::Energy, center, Account::Cash, energy);
-        value += energy;
+        // Own electricity first, the rest from the grid.
+        let needed = recipe.energy_mwh * runs;
+        let own = needed.min(own_power);
+        let grid = Money::from_usd((needed - own) * electricity_price).unwrap_or(Money::ZERO);
+        ledger.expense(CostType::Energy, center, Account::Cash, grid);
+        value += grid;
+        if own > 0.0 {
+            let own_value = use_own_electricity(catalog, state, owner, country, own);
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.expense(CostType::Energy, center, Account::Inventory, own_value);
+            value += own_value;
+        }
+        let ledger = &mut state.companies[owner.index()].ledger;
         ledger.income(CostType::InventoryChange, center, Account::Inventory, value);
 
         // Quality (docs/FORMELN.md).
@@ -366,10 +473,16 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
             depreciation += ds.development_cost.scale(1.0 / dev_days);
         }
     }
+    // Researchers' wages are research costs (Lastenheft §14.2).
+    let wage_type = if s.kind == SiteType::ResearchCenter {
+        CostType::Research
+    } else {
+        CostType::Personnel
+    };
     let ledger = &mut state.companies[owner.index()].ledger;
     let center = CostCenter::site(site);
     ledger.expense(
-        CostType::Personnel,
+        wage_type,
         center,
         Account::Cash,
         Money::from_usd(wage_bill).unwrap_or(Money::ZERO),

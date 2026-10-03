@@ -1,0 +1,188 @@
+# Erdölfelder. Vorrat und Förderung in t.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: pennsylvania
+    land: USA
+    rohstoff: rohoel
+    vorrat: 150_000_000
+    entdeckt: 1859
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: texas_golfkueste   # Spindletop
+    land: USA
+    rohstoff: rohoel
+    vorrat: 3_000_000_000
+    entdeckt: 1901
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 50_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: kalifornien
+    land: USA
+    rohstoff: rohoel
+    vorrat: 1_500_000_000
+    entdeckt: 1892
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 30_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: oklahoma   # Glenn Pool
+    land: USA
+    rohstoff: rohoel
+    vorrat: 1_500_000_000
+    entdeckt: 1905
+    erschliessung: {investition_usd: 70_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 40_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: baku
+    land: AZE
+    rohstoff: rohoel
+    vorrat: 2_000_000_000
+    entdeckt: 1871
+    erschliessung: {investition_usd: 50_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 12_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: grosny
+    land: RUS
+    rohstoff: rohoel
+    vorrat: 500_000_000
+    entdeckt: 1893
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true
+
+  - id: ploiesti
+    land: ROU
+    rohstoff: rohoel
+    vorrat: 300_000_000
+    entdeckt: 1857
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true
+
+  - id: galizien   # Boryslaw
+    land: UKR
+    rohstoff: rohoel
+    vorrat: 150_000_000
+    entdeckt: 1870
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 240}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: sumatra_oel
+    land: IDN
+    rohstoff: rohoel
+    vorrat: 400_000_000
+    entdeckt: 1885
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true
+
+  - id: goldene_linie   # Potrero del Llano
+    land: MEX
+    rohstoff: rohoel
+    vorrat: 1_500_000_000
+    entdeckt: 1910
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 30_000_000
+    foerderkosten_faktor: 0.7
+    annaeherung: true
+
+  - id: masjed_soleyman
+    land: IRN
+    rohstoff: rohoel
+    vorrat: 3_000_000_000
+    entdeckt: 1908
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: maracaibo   # Mene Grande
+    land: VEN
+    rohstoff: rohoel
+    vorrat: 5_000_000_000
+    entdeckt: 1914
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 40_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: kirkuk
+    land: IRQ
+    rohstoff: rohoel
+    vorrat: 3_000_000_000
+    entdeckt: 1927
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: trinidad
+    land: TTO
+    rohstoff: rohoel
+    vorrat: 100_000_000
+    entdeckt: 1908
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    annaeherung: true
+
+  - id: talara
+    land: PER
+    rohstoff: rohoel
+    vorrat: 100_000_000
+    entdeckt: 1869
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    annaeherung: true
+
+  - id: yenangyaung
+    land: MMR
+    rohstoff: rohoel
+    vorrat: 100_000_000
+    entdeckt: 1887
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: dammam
+    land: SAU
+    rohstoff: rohoel
+    vorrat: 30_000_000_000
+    entdeckt: 1938
+    erschliessung: {investition_usd: 300_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 100_000_000
+    foerderkosten_faktor: 0.5
+    annaeherung: true
+
+  - id: burgan
+    land: KWT
+    rohstoff: rohoel
+    vorrat: 10_000_000_000
+    entdeckt: 1938
+    erschliessung: {investition_usd: 200_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 60_000_000
+    foerderkosten_faktor: 0.5
+    annaeherung: true
+
+  - id: leduc
+    land: CAN
+    rohstoff: rohoel
+    vorrat: 2_000_000_000
+    entdeckt: 1947
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true

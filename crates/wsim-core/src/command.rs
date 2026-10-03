@@ -66,6 +66,12 @@ pub enum Command {
         max_price: Money,
         min_quality: f64,
     },
+    /// Lets a research center work on a technology (`None` stops it; the points
+    /// collected so far stay with the company).
+    SetResearch {
+        site: SiteId,
+        technology: Option<TechnologyId>,
+    },
     /// Sets who besides consumers and governments may buy the company's goods
     /// (`None` removes the policy of this scope, the more general one applies).
     SetSalesPolicy {
@@ -146,6 +152,8 @@ pub enum CommandError {
     },
     UnknownLoan,
     InvalidPrice,
+    /// Already known, or prerequisites missing (key of the technology).
+    NotResearchable(String),
     /// No transport route for the product between the two countries.
     NoRoute {
         product: String,
@@ -199,6 +207,8 @@ impl CommandError {
             }
             CommandError::UnknownLoan => e(keys::COMMAND_UNKNOWN_LOAN),
             CommandError::InvalidPrice => e(keys::COMMAND_INVALID_PRICE),
+            CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
+                .with("technologie", Param::TextKey(format!("technologie.{t}"))),
             CommandError::NoRoute { product, from, to } => e(keys::COMMAND_NO_ROUTE)
                 .with("produkt", Param::TextKey(format!("produkt.{product}")))
                 .with("von", Param::TextKey(format!("land.{from}")))
@@ -332,6 +342,7 @@ pub(crate) fn execute(
                 staffing_due: false,
                 offers: Default::default(),
                 orders: Default::default(),
+                research: None,
             });
         }
         Command::BuildFacility { site, facility } => {
@@ -427,10 +438,16 @@ pub(crate) fn execute(
                     }
                 }
             }
+            // Laboratories have no recipe; their utilization sets the researcher posts.
+            let lab = catalog.facilities.get(sl.facility).site_type == SiteType::ResearchCenter;
             let s = state.site_mut(*site).expect("checked above");
             let sl = &mut s.slots[*slot];
             sl.recipe = *recipe;
-            sl.utilization = if recipe.is_some() { *utilization } else { 0.0 };
+            sl.utilization = if recipe.is_some() || lab {
+                *utilization
+            } else {
+                0.0
+            };
             s.staffing_due = true;
         }
         Command::SetAutomation { site, slot, level } => {
@@ -647,6 +664,24 @@ pub(crate) fn execute(
             } else {
                 s.orders.remove(product);
             }
+        }
+        Command::SetResearch { site, technology } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::ResearchCenter {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::ResearchCenter,
+                });
+            }
+            if let Some(t) = technology
+                && !crate::research::can_research(catalog, state, actor, *t)
+            {
+                return Err(CommandError::NotResearchable(
+                    catalog.technologies.key(*t).to_owned(),
+                ));
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            s.research = *technology;
+            s.staffing_due = true;
         }
         Command::SetSalesPolicy { buyer, scope, rule } => {
             if let Some(r) = rule {

@@ -234,6 +234,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                     Startform::Handel => StartForm::Trading,
                 },
                 company_name: args.name.clone(),
+                research_ahead_factor: 1.0,
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }

@@ -294,6 +294,7 @@ pub fn production() -> Catalog {
                     price_sensitivity: 1.5,
                     income_sensitivity: 1.0,
                     seasonality: None,
+                    needs_grid: false,
                 },
             ),
         )
@@ -321,6 +322,7 @@ pub fn production() -> Catalog {
                         price_sensitivity: 1.5,
                         income_sensitivity: 1.5,
                         seasonality: None,
+                        needs_grid: false,
                     },
                 )
             },
@@ -344,6 +346,7 @@ pub fn production() -> Catalog {
                         price_sensitivity: 2.0,
                         income_sensitivity: 2.0,
                         seasonality: None,
+                        needs_grid: false,
                     },
                 )
             },
@@ -399,5 +402,104 @@ pub fn trading() -> Catalog {
             },
         );
     }
+    c
+}
+
+/// The production catalog with research: a laboratory with 10 researcher posts and a
+/// turbine invented in 1902 (300 points, field metal).
+pub fn research() -> Catalog {
+    use super::{Facility, SiteType, Technology};
+    use crate::money::Money;
+
+    let mut c = production();
+    let metal = c.specializations.id("metall").expect("exists");
+    let group = c.labor_groups.id("fachkraft.metall").expect("exists");
+    c.research_model.researchers = vec![Some(group)];
+    c.facilities.insert(
+        "labor",
+        Facility {
+            site_type: SiteType::ResearchCenter,
+            investment: Money::from_usd(100_000.0).expect("valid"),
+            build_days: 10,
+            runs_per_day: 10.0,
+            lifetime_years: 20,
+            maintenance_share: 0.02,
+            automation_max: 0.0,
+            technology: None,
+            provenance: Provenance::default(),
+        },
+    );
+    let smelting = c.technologies.id("schmelzen").expect("exists");
+    c.technologies.insert(
+        "turbine",
+        Technology {
+            field: metal,
+            invention_year: 1902,
+            prerequisites: vec![smelting],
+            research_effort: Some(300.0),
+            provenance: Provenance::default(),
+        },
+    );
+    c
+}
+
+/// The production catalog where smelting needs 2 MWh per run, and a power plant that
+/// makes 1 MWh from 0.1 t ore (100 runs per day, built in one day).
+pub fn power() -> Catalog {
+    use super::{Facility, Product, ProductKind, Recipe, SiteType};
+    use crate::money::Money;
+
+    let mut c = production();
+    let ore = c.products.id("erz").expect("exists");
+    let template = c.products.get(ore).clone();
+    let power = c
+        .products
+        .insert(
+            "strom",
+            Product {
+                kind: ProductKind::Energy,
+                weight_kg: 0.0,
+                ..template
+            },
+        )
+        .expect("new");
+    c.production_model.electricity = Some(power);
+    let plant = c
+        .facilities
+        .insert(
+            "kraftwerk",
+            Facility {
+                site_type: SiteType::PowerPlant,
+                investment: Money::from_usd(200_000.0).expect("valid"),
+                build_days: 1,
+                runs_per_day: 100.0,
+                lifetime_years: 20,
+                maintenance_share: 0.02,
+                automation_max: 0.0,
+                technology: None,
+                provenance: Provenance::default(),
+            },
+        )
+        .expect("new");
+    let unskilled = c.labor_groups.id("ungelernt").expect("exists");
+    c.recipes.insert(
+        "strom_erzeugen",
+        Recipe {
+            product: power,
+            output: 1.0,
+            by_products: Vec::new(),
+            duration_days: 1,
+            facility: plant,
+            technology: None,
+            extraction: false,
+            inputs: vec![(ore, 0.1)],
+            labor_hours: vec![(unskilled, 0.1)],
+            energy_mwh: 0.0,
+            base_quality: 50.0,
+            provenance: Provenance::default(),
+        },
+    );
+    let smelting = c.recipes.id("eisen_schmelzen").expect("exists");
+    c.recipes.get_mut(smelting).energy_mwh = 2.0;
     c
 }

@@ -96,6 +96,7 @@ pub(super) fn decode_v2(
                 loans: Vec::new(),
                 loss_carryforward: Money::ZERO,
                 sales_policies: Vec::new(),
+                research: Default::default(),
             })
         })
         .collect::<Result<Vec<_>, LoadError>>()?;
@@ -107,6 +108,7 @@ pub(super) fn decode_v2(
             start_capital: s.settings.start_capital,
             start_form: s.settings.start_form,
             company_name: s.settings.company_name,
+            research_ahead_factor: 1.0,
         },
         date: s.date,
         world_rng: s.world_rng,
@@ -116,7 +118,9 @@ pub(super) fn decode_v2(
         markets: PerId::default(),
         shipments: Vec::new(),
         routes: Default::default(),
+        import_markets: Default::default(),
         deposits: PerId::default(),
+        inventions: PerId::default(),
         player: s.player,
         game_over: s.game_over,
     };

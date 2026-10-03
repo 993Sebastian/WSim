@@ -1,0 +1,172 @@
+# Kette 10 – Gummi (Lastenheft §17.1)
+# Kautschuk → Gummi → Reifen (Komponente für Fahrrad und Auto). Schwefel kommt vom
+# Staatsmarkt. Kautschuk ist um 1900 sehr teuer (Wildkautschuk); erst die Plantagen in
+# Südostasien ab etwa 1910 machen ihn billig. Alle Zahlen sind Annäherungen.
+
+produkte:
+  - id: kautschuk
+    art: rohstoff
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: gummi
+    transportklasse: stueckgut
+    richtpreis_usd: 50_000        # um 1900 etwa 1 USD je lb
+
+  - id: schwefel
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: schuettgut
+    richtpreis_usd: 900
+    staatsmarkt:
+      preis_usd: 900
+    annaeherung: true
+
+  - id: gummi
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: gummi
+    transportklasse: stueckgut
+    richtpreis_usd: 60_000
+
+  - id: fahrradreifen
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 0.6
+    verwendung: beides
+    warengruppe: gummi
+    transportklasse: stueckgut
+    richtpreis_usd: 70
+    nachfrage:                    # Ersatzreifen
+      bedarfsklasse: gebrauchsgut
+      ergaenzung: {zu: fahrrad, je_besitz_und_jahr: 0.5}
+      kaufschwelle: 2
+      preisempfindlichkeit: 0.8
+      einkommensempfindlichkeit: 0.5
+    annaeherung: true
+
+  - id: autoreifen
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 10
+    verwendung: beides
+    warengruppe: gummi
+    transportklasse: stueckgut
+    richtpreis_usd: 1000          # um 1910 etwa 30 USD
+    nachfrage:                    # Ersatzreifen (frühe Reifen halten 3 000–5 000 km)
+      bedarfsklasse: gebrauchsgut
+      ergaenzung: {zu: automobil, je_besitz_und_jahr: 2}
+      kaufschwelle: 1
+      preisempfindlichkeit: 0.5
+      einkommensempfindlichkeit: 0.3
+    annaeherung: true
+
+anlagen:
+  - id: kautschukplantage         # auch Sammelgebiete für Wildkautschuk
+    standorttyp: foerderstaette
+    investition_usd: 2_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 2
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.0
+    annaeherung: true
+
+  - id: gummiwerk
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 5
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: reifenwerk
+    standorttyp: werk
+    investition_usd: 2_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 500        # Reifen
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+rezepte:
+  - id: kautschuk_zapfen
+    produkt: kautschuk
+    menge: 1
+    dauer_tage: 1
+    anlage: kautschukplantage
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 800              # Zapfen und Sammeln von Hand
+      angelernt: 100
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: gummi_vulkanisieren
+    produkt: gummi
+    menge: 1
+    dauer_tage: 1
+    anlage: gummiwerk
+    technologie: vulkanisation
+    eingang:
+      kautschuk: 0.9
+      schwefel: 0.05
+      kohle: 0.2
+    arbeit_stunden:
+      angelernt: 40
+      fachkraft.chemie: 10
+      akademiker.chemie: 0.5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: fahrradreifen_bauen
+    produkt: fahrradreifen
+    menge: 1
+    dauer_tage: 1
+    anlage: reifenwerk
+    technologie: luftreifen
+    eingang:
+      gummi: 0.0006
+      stoff: 0.0002               # Gewebelagen aus Baumwolle
+      draht: 0.00005
+    arbeit_stunden:
+      angelernt: 1.5
+      fachkraft.chemie: 0.2
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: autoreifen_bauen
+    produkt: autoreifen
+    menge: 1
+    dauer_tage: 1
+    anlage: reifenwerk
+    technologie: luftreifen
+    eingang:
+      gummi: 0.008
+      stoff: 0.003
+      draht: 0.0005
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.chemie: 1
+    qualitaet_basis: 50
+    annaeherung: true
+
+technologien:
+  - id: vulkanisation             # Charles Goodyear
+    fachgebiet: chemie
+    erfindungsjahr: 1839
+
+  - id: luftreifen                # John Boyd Dunlop
+    fachgebiet: chemie
+    erfindungsjahr: 1888
+    voraussetzungen: [vulkanisation]

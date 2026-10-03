@@ -34,3 +34,169 @@ technologie.warmwalzen: Warmwalzen
 technologie.bessemer_verfahren: Bessemer-Verfahren
 technologie.siemens_martin_verfahren: Siemens-Martin-Verfahren
 technologie.elektrostahl: Elektrostahl
+
+# Kette 7 – Energie
+produkt.strom: Strom
+anlage.dampfkraftwerk: Dampfkraftwerk
+anlage.turbinenkraftwerk: Turbinenkraftwerk
+rezept.strom_dampfmaschine: Strom aus Dampfmaschinen
+rezept.strom_turbine: Strom aus Dampfturbinen
+technologie.elektrizitaetswerk: Elektrizitätswerk
+technologie.turbogenerator: Turbogenerator
+
+# Kette 2 – Kleinteile
+produkt.naegel: Nägel
+produkt.schrauben: Schrauben
+produkt.muttern: Muttern
+anlage.nagelmaschine: Nagelmaschine
+anlage.schraubenfabrik: Schraubenfabrik
+rezept.naegel_maschine: Nägel auf der Drahtstiftmaschine
+rezept.schrauben_drehen: Schrauben drehen
+rezept.muttern_pressen: Muttern pressen
+technologie.drahtstiftmaschine: Drahtstiftmaschine
+technologie.schraubenautomat: Schraubenautomat
+
+# Kette 3 – Werkzeug
+produkt.handwerkzeug: Handwerkzeug
+anlage.werkzeugschmiede: Werkzeugschmiede
+rezept.werkzeug_schmieden: Werkzeug schmieden
+technologie.gesenkschmieden: Gesenkschmieden
+
+# Kette 4 – Holz
+produkt.holz: Holz
+produkt.schnittholz: Schnittholz
+produkt.leim: Leim
+produkt.moebel: Möbel
+anlage.forstbetrieb: Forstbetrieb
+anlage.saegewerk: Sägewerk
+anlage.moebelfabrik: Möbelfabrik
+rezept.holz_einschlag: Holzeinschlag
+rezept.schnittholz_saegen: Schnittholz sägen
+rezept.moebel_tischlern: Möbel tischlern
+technologie.dampfsaege: Dampfsäge
+technologie.holzbearbeitungsmaschinen: Holzbearbeitungsmaschinen
+
+# Kette 5 – Textil
+produkt.baumwolle: Baumwolle
+produkt.garn: Garn
+produkt.stoff: Stoff
+produkt.kleidung: Kleidung
+anlage.baumwollplantage: Baumwollplantage
+anlage.spinnerei: Spinnerei
+anlage.weberei: Weberei
+anlage.konfektion: Konfektion
+rezept.baumwolle_ernte: Baumwolle ernten
+rezept.garn_spinnen: Garn spinnen
+rezept.stoff_weben: Stoff weben
+rezept.stoff_elektrisch: Stoff weben mit Elektroantrieb
+rezept.kleidung_naehen: Kleidung nähen
+technologie.ringspinnmaschine: Ringspinnmaschine
+technologie.mechanischer_webstuhl: Mechanischer Webstuhl
+technologie.elektrischer_einzelantrieb: Elektrischer Einzelantrieb
+
+# Kette 6 – Lebensmittel
+produkt.getreide: Getreide
+produkt.mehl: Mehl
+produkt.zinn: Zinn
+produkt.weissblech: Weißblech
+produkt.konserveninhalt: Konserveninhalt
+produkt.konserve: Konserve
+anlage.getreidefarm: Getreidefarm
+anlage.muehle: Mühle
+anlage.verzinnerei: Verzinnerei
+anlage.konservenfabrik: Konservenfabrik
+rezept.getreide_ernte: Getreide ernten
+rezept.mehl_mahlen: Mehl mahlen
+rezept.weissblech_verzinnen: Blech verzinnen
+rezept.konserve_abfuellen: Konserven abfüllen
+technologie.walzenmuehle: Walzenmühle
+technologie.feuerverzinnung: Feuerverzinnung
+technologie.konservendose: Konservendose
+
+# Kette 8 – Kupfer und Elektro
+produkt.kupfererz: Kupfererz
+produkt.kupfer: Kupfer
+produkt.kupferdraht: Kupferdraht
+produkt.elektromotor: Elektromotor
+anlage.kupferbergwerk: Kupferbergwerk
+anlage.kupferhuette: Kupferhütte
+anlage.kupferdrahtwerk: Kupferdrahtwerk
+anlage.elektromotorenwerk: Elektromotorenwerk
+rezept.kupfererz_abbau: Kupfererz fördern
+rezept.kupfer_verhuetten: Kupfer verhütten
+rezept.kupferdraht_ziehen: Kupferdraht ziehen
+rezept.elektromotor_bauen: Elektromotoren bauen
+technologie.kupferelektrolyse: Kupferelektrolyse
+technologie.drehstrommotor: Drehstrommotor
+
+# Kette 9 – Licht
+produkt.rohoel: Rohöl
+produkt.petroleum: Petroleum
+produkt.glas: Glas
+produkt.petroleumlampe: Petroleumlampe
+produkt.gluehlampe: Glühlampe
+anlage.oelfeld: Ölfeld
+anlage.raffinerie: Raffinerie
+anlage.lampenfabrik: Lampenfabrik
+anlage.gluehlampenfabrik: Glühlampenfabrik
+rezept.rohoel_foerdern: Rohöl fördern
+rezept.rohoel_destillieren: Rohöl destillieren
+rezept.petroleumlampe_bauen: Petroleumlampen bauen
+rezept.gluehlampe_kohlefaden: Kohlefadenlampen
+rezept.gluehlampe_wolfram: Wolframfadenlampen
+technologie.erdoeldestillation: Erdöldestillation
+technologie.rundbrenner: Rundbrenner
+technologie.gluehlampe: Glühlampe
+technologie.wolframgluehlampe: Wolfram-Glühlampe
+
+# Kette 10 – Gummi
+produkt.kautschuk: Kautschuk
+produkt.schwefel: Schwefel
+produkt.gummi: Gummi
+produkt.fahrradreifen: Fahrradreifen
+produkt.autoreifen: Autoreifen
+anlage.kautschukplantage: Kautschukplantage
+anlage.gummiwerk: Gummiwerk
+anlage.reifenwerk: Reifenwerk
+rezept.kautschuk_zapfen: Kautschuk zapfen
+rezept.gummi_vulkanisieren: Gummi vulkanisieren
+rezept.fahrradreifen_bauen: Fahrradreifen bauen
+rezept.autoreifen_bauen: Autoreifen bauen
+technologie.vulkanisation: Vulkanisation
+technologie.luftreifen: Luftreifen
+
+# Kette 11 – Nähmaschine und Fahrrad
+produkt.naehmaschine: Nähmaschine
+produkt.fahrrad: Fahrrad
+anlage.naehmaschinenfabrik: Nähmaschinenfabrik
+anlage.fahrradfabrik: Fahrradfabrik
+rezept.naehmaschine_bauen: Nähmaschinen bauen
+rezept.fahrrad_bauen: Fahrräder bauen
+technologie.naehmaschine: Nähmaschine
+technologie.sicherheitsfahrrad: Sicherheitsfahrrad
+
+# Kette 12 – Automobil
+produkt.benzin: Benzin
+produkt.motor: Motor
+produkt.fahrgestell: Fahrgestell
+produkt.karosserie: Karosserie
+produkt.automobil: Automobil
+produkt.pferdekutsche: Pferdekutsche
+anlage.motorenwerk: Motorenwerk
+anlage.fahrgestellwerk: Fahrgestellwerk
+anlage.karosseriewerk: Karosseriewerk
+anlage.automobilwerk: Automobilwerk
+anlage.automobilwerk_fliessband: Automobilwerk mit Fließband
+anlage.crackanlage: Crackanlage
+rezept.motor_bauen: Motoren bauen
+rezept.fahrgestell_bauen: Fahrgestelle bauen
+rezept.karosserie_holz: Karosserie aus Holz und Blech
+rezept.karosserie_stahl: Ganzstahlkarosserie
+rezept.automobil_montage: Automobile montieren
+rezept.automobil_fliessband: Automobile am Fließband
+rezept.rohoel_cracken: Rohöl cracken
+technologie.ottomotor: Ottomotor
+technologie.automobil: Automobil
+technologie.fliessband: Fließband
+technologie.ganzstahlkarosserie: Ganzstahlkarosserie
+technologie.thermisches_cracken: Thermisches Cracken

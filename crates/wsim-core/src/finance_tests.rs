@@ -25,6 +25,7 @@ fn new_game(capital: f64) -> Game {
         start_capital: usd(capital),
         start_form: StartForm::Workshop,
         company_name: "Bankkunde".into(),
+        research_ahead_factor: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }

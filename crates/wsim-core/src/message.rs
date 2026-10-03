@@ -104,6 +104,9 @@ pub mod keys {
     pub const SAVE_CONTENT_MISSING: &str = "fehler.spielstand.inhalt_fehlt";
     pub const GAME_END: &str = "meldung.spielende";
     pub const NEW_YEAR: &str = "meldung.neues_jahr";
+    pub const RESEARCH_DONE: &str = "meldung.forschung_abgeschlossen";
+    pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
+    pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
 
     pub const ALL: &[&str] = &[
         NEW_GAME_START_YEAR,
@@ -148,5 +151,8 @@ pub mod keys {
         SAVE_CONTENT_MISSING,
         GAME_END,
         NEW_YEAR,
+        RESEARCH_DONE,
+        COMMAND_NOT_RESEARCHABLE,
+        NEW_GAME_RESEARCH_FACTOR,
     ];
 }

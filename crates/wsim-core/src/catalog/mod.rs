@@ -41,6 +41,7 @@ pub struct Catalog {
     pub finance_model: FinanceModel,
     pub market_model: MarketModel,
     pub transport_model: TransportModel,
+    pub research_model: ResearchModel,
 }
 
 impl Catalog {
@@ -127,6 +128,36 @@ pub struct Vehicle {
 impl Vehicle {
     pub fn available(&self, year: i32) -> bool {
         self.available_from <= year && self.available_until.is_none_or(|y| y >= year)
+    }
+}
+
+/// Parameters of research (`data/parameter/forschungsmodell.yaml`, formulas in
+/// docs/FORMELN.md, M9).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ResearchModel {
+    /// Cost factor per year of research ahead of the historical invention.
+    pub ahead_base: f64,
+    /// Yearly discount for latecomers after an invention, and the lowest share left.
+    pub latecomer_discount: f64,
+    pub latecomer_min: f64,
+    /// Years after the historical invention when everyone may use a technology.
+    pub public_domain_years: i32,
+    /// Equipment and material per researcher and day (USD at price level 1).
+    pub material_usd_per_day: f64,
+    /// Labor group of the researchers per field, indexed by `SpecializationId`.
+    pub researchers: Vec<Option<LaborGroupId>>,
+}
+
+impl Default for ResearchModel {
+    fn default() -> Self {
+        Self {
+            ahead_base: 1.25,
+            latecomer_discount: 0.1,
+            latecomer_min: 0.2,
+            public_domain_years: 25,
+            material_usd_per_day: 40.0,
+            researchers: Vec::new(),
+        }
     }
 }
 
@@ -309,6 +340,10 @@ pub struct ProductionModel {
     pub quality_automation: f64,
     pub quality_condition: f64,
     pub condition_min: f64,
+    /// The product that stands for electricity (own power plants, Lastenheft §6.1).
+    pub electricity: Option<ProductId>,
+    /// Own electricity fed into the grid earns this share of the industrial price.
+    pub feed_in_share: f64,
 }
 
 impl Default for ProductionModel {
@@ -323,6 +358,8 @@ impl Default for ProductionModel {
             quality_automation: 10.0,
             quality_condition: 20.0,
             condition_min: 0.2,
+            electricity: None,
+            feed_in_share: 0.5,
         }
     }
 }
@@ -465,6 +502,11 @@ pub enum ConsumptionType {
         service_life_years: f64,
         max_ownership: f64,
     },
+    /// Used up with a durable the households own (petrol per car, kerosene per lamp).
+    Complement {
+        of: ProductId,
+        per_unit_per_year: f64,
+    },
 }
 
 /// Consumer demand characteristics (Lastenheft §9.1, formulas in docs/FORMELN.md M7).
@@ -481,6 +523,8 @@ pub struct ConsumerDemand {
     pub income_sensitivity: f64,
     /// Twelve monthly factors, if demand is seasonal.
     pub seasonality: Option<[f64; 12]>,
+    /// Only households with electricity buy (demand times the grid share).
+    pub needs_grid: bool,
 }
 
 /// Government demand (Lastenheft §9.1).

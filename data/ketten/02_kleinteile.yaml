@@ -1,0 +1,129 @@
+# Kette 2 – Kleinteile (Lastenheft §17.1)
+# Draht, Stabstahl → Nägel, Schrauben, Muttern. Startprodukt der Werkstatt.
+#
+# Preise um 1900 mit dem Verbraucherpreisindex auf USD 2026 umgerechnet (× 38).
+# Alle Zahlen sind Annäherungen und werden beim Balancing (M15) geprüft.
+
+produkte:
+  - id: naegel
+    art: komponente
+    branche: maschinenbau
+    einheit: t
+    verwendung: beides
+    warengruppe: metallwaren
+    transportklasse: stueckgut
+    richtpreis_usd: 2200          # Drahtstifte um 1900 etwa 2,50 USD je 100 lb
+    nachfrage:                    # Handwerk und Haushalte
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 0.0015}
+      kaufschwelle: 0.2           # die Hälfte kauft ab etwa 440 USD Einkommen
+      preisempfindlichkeit: 0.6
+      einkommensempfindlichkeit: 0.8
+    staatsnachfrage:              # Bauwesen
+      je_mio_usd_bip: 0.15
+      kriegsfaktor: 1.2
+    annaeherung: true
+
+  - id: schrauben
+    art: komponente
+    branche: maschinenbau
+    einheit: t
+    verwendung: industrie
+    warengruppe: metallwaren
+    transportklasse: stueckgut
+    richtpreis_usd: 4000
+    staatsnachfrage:
+      je_mio_usd_bip: 0.03
+      kriegsfaktor: 1.5
+    annaeherung: true
+
+  - id: muttern
+    art: komponente
+    branche: maschinenbau
+    einheit: t
+    verwendung: industrie
+    warengruppe: metallwaren
+    transportklasse: stueckgut
+    richtpreis_usd: 3600
+    staatsnachfrage:
+      je_mio_usd_bip: 0.02
+      kriegsfaktor: 1.5
+    annaeherung: true
+
+anlagen:
+  - id: nagelmaschine             # Drahtstiftmaschinen einer kleinen Werkstatt
+    standorttyp: werk
+    investition_usd: 40_000
+    bauzeit_tage: 30
+    kapazitaet_je_tag: 0.5        # t Nägel
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: schraubenfabrik           # Schraubenautomaten und Pressen
+    standorttyp: werk
+    investition_usd: 1_500_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 5          # t Schrauben oder Muttern
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    annaeherung: true
+
+rezepte:
+  - id: naegel_maschine
+    produkt: naegel
+    menge: 1
+    dauer_tage: 1
+    anlage: nagelmaschine
+    technologie: drahtstiftmaschine
+    eingang:
+      draht: 1.05
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.metall: 2
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: schrauben_drehen
+    produkt: schrauben
+    menge: 1
+    dauer_tage: 1
+    anlage: schraubenfabrik
+    technologie: schraubenautomat
+    eingang:
+      stabstahl: 1.25
+    arbeit_stunden:
+      angelernt: 40
+      fachkraft.metall: 15
+      akademiker.maschinenbau: 0.2
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: muttern_pressen
+    produkt: muttern
+    menge: 1
+    dauer_tage: 1
+    anlage: schraubenfabrik
+    technologie: schraubenautomat
+    eingang:
+      stabstahl: 1.2
+      kohle: 0.1
+    arbeit_stunden:
+      angelernt: 30
+      fachkraft.metall: 10
+      akademiker.maschinenbau: 0.1
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: drahtstiftmaschine
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1875
+    voraussetzungen: [warmwalzen]
+    annaeherung: true
+
+  - id: schraubenautomat          # Christopher Spencer
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1873
