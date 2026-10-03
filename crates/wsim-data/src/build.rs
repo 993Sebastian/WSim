@@ -8,16 +8,17 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use wsim_core::EARLIEST_START_YEAR;
 use wsim_core::catalog::{
-    Branch, Catalog, ConsumerDemand, ConsumptionType, Continent, Country, CountryValues, Deposit,
-    Facility, GoodsGroup, LaborGroup, NeedClass, Product, ProductKind, Provenance, Qualification,
-    Recipe, SiteType, Specialization, StateDemand, StateMarketOffer, Technology, TransportClass,
-    Unit, Usage,
+    Branch, Catalog, ConsumerDemand, ConsumptionType, Continent, Deposit, Facility, GoodsGroup,
+    LaborGroup, NeedClass, Product, ProductKind, Provenance, Qualification, Recipe, SiteType,
+    Specialization, StateDemand, StateMarketOffer, Technology, TransportClass, Unit, Usage,
 };
 use wsim_core::ids::{Id, LaborGroupId, ProductId, TechnologyId};
 use wsim_core::money::Money;
 use wsim_core::time_series::TimeSeries;
 
 use crate::messages;
+
+mod countries;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawProduct, RawProductKind, RawSiteType, RawStateMarket,
     RawUsage,
@@ -356,31 +357,23 @@ pub(crate) fn build(
     b.labor_groups();
 
     for e in &countries {
-        let v = &e.value;
-        let values_loc = e.loc.field("werte");
-        let country = Country {
-            continent: resolve(
-                b.ctx,
-                &continent_keys,
-                &v.continent,
-                &e.loc.field("kontinent"),
-            ),
-            values: CountryValues {
-                population: time_series(
-                    b.ctx,
-                    &v.values.population,
-                    &values_loc.field("bevoelkerung"),
-                ),
-                gdp_per_capita_usd: time_series(
-                    b.ctx,
-                    &v.values.gdp_per_capita_usd,
-                    &values_loc.field("bip_je_kopf_usd"),
-                ),
-            },
-            provenance: provenance(v.approximation, v.source.as_ref()),
-        };
-        b.catalog.countries.insert(&v.id, country);
+        let country = countries::country(
+            b.ctx,
+            &b.catalog,
+            e,
+            &continent_keys,
+            &country_keys,
+            &specialization_keys,
+        );
+        b.catalog.countries.insert(&e.value.id, country);
     }
+    countries::check_neighbors(b.ctx, &b.catalog, &countries);
+    b.catalog.country_model = countries::country_model(
+        b.ctx,
+        &b.catalog,
+        raw,
+        (&country_keys, &qualification_keys, &specialization_keys),
+    );
 
     for e in &products {
         let refs = ProductRefs {

@@ -14,6 +14,16 @@ pub struct Texts {
 }
 
 impl Texts {
+    /// Texts from key–text pairs (tools and tests; the game loads them from `data/`).
+    pub fn from_pairs<'a>(pairs: impl IntoIterator<Item = (&'a str, &'a str)>) -> Self {
+        Self {
+            entries: pairs
+                .into_iter()
+                .map(|(k, v)| (k.to_owned(), v.to_owned()))
+                .collect(),
+        }
+    }
+
     pub fn get(&self, key: &str) -> Option<&str> {
         self.entries.get(key).map(String::as_str)
     }

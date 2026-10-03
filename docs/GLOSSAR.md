@@ -51,3 +51,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Spielstand | `save`, `SaveHeader` |
 | Befehl, Entscheidung | `Command` |
 | Firma | `Company`, `CompanyId` |
+| Ländermodell | `CountryModel`, `country_model` |
+| Länderwerte (abgeleitet) | `CountryState` |
+| Prägung | `CountryProfile` |
+| Preisniveau | `price_level` |
+| Einkommensfünftel | `income_quintiles_usd` |
+| Erwerbspersonen | `labor_force` |
+| Arbeitskräftepool | `labor_pool` |

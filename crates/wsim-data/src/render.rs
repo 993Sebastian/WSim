@@ -83,7 +83,6 @@ mod tests {
     use wsim_core::message::MessageKind;
 
     use super::*;
-    use crate::{Source, load_sources};
 
     #[test]
     fn formats_numbers_the_german_way() {
@@ -102,16 +101,10 @@ mod tests {
 
     #[test]
     fn renders_placeholders() {
-        let texts = load_sources(vec![
-            Source::new("meta.yaml", "meta: {datenversion: 1}"),
-            Source::new(
-                "texte/de/a.yaml",
-                "a.b: \"{name} kauft in {land} für {betrag} ({fehlt})\"\nland.DEU: Deutschland\n",
-            ),
-        ])
-        .data
-        .expect("loads")
-        .texts;
+        let texts = Texts::from_pairs([
+            ("a.b", "{name} kauft in {land} für {betrag} ({fehlt})"),
+            ("land.DEU", "Deutschland"),
+        ]);
         let message = Message::new(MessageKind::Info, "a.b")
             .with("name", Param::Text("Krupp".into()))
             .with("land", Param::Country("DEU".into()))

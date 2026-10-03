@@ -24,7 +24,8 @@ data/
   meta.yaml            Datenversion
   grundlagen.yaml      Einheiten, Kontinente, Branchen, Warengruppen, Transportklassen
   arbeitskraefte.yaml  Qualifikationen und Fachrichtungen
-  laender/             ein Land je Datei, z. B. DEU.yaml
+  laender/             ein Land je Datei, z. B. DEU.yaml (erzeugt)
+  parameter/           Parameter der Modelle, z. B. laendermodell.yaml
   ketten/              eine Produktionskette je Datei
   lagerstaetten/       Rohstoffvorkommen, eine Datei je Rohstoff
   texte/de/            alle Anzeigetexte
@@ -32,10 +33,10 @@ data/
 
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
-Erlaubte Abschnitte: `meta`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+Erlaubte Abschnitte: `meta`, `laendermodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`. Jeder Abschnitt außer `meta`
-ist eine Liste von Einträgen.
+ist eine Liste von Einträgen (`meta` und `laendermodell` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -78,16 +79,51 @@ wie die Qualifikation (`ungelernt`), mit Fachrichtung `qualifikation.fachrichtun
 
 ## laender
 
+Die Länderdateien werden von `tools/daten/laender.py` aus Gapminder und Natural Earth
+erzeugt; Änderungen gehören in das Skript (oder bewusst von Hand, dann im Skript
+nachziehen).
+
 | Feld | Bedeutung |
 | --- | --- |
-| **id** | ISO-3166-Code, z. B. `DEU` |
+| **id** | ISO-3166-Code, z. B. `DEU` (Kosovo: `XKX`) |
 | **kontinent** | Verweis auf einen Kontinent |
+| **flaeche_km2** | Fläche |
+| **hauptstadt** | `{breite, laenge}` in Grad; Bezugspunkt für Entfernungen |
+| **binnenland** | `true` ohne Meereszugang |
+| nachbarn | Länder mit gemeinsamer Landgrenze (muss beidseitig eingetragen sein) |
 | **werte.bevoelkerung** | Einwohner, Jahreswerte |
-| **werte.bip_je_kopf_usd** | Bruttoinlandsprodukt je Einwohner in USD, Jahreswerte |
+| **werte.bip_je_kopf_usd** | BIP je Einwohner zu Kaufkraftparität in USD, Jahreswerte |
+| **werte.gini** | Gini-Koeffizient der Einkommen (0–0,95), Jahreswerte |
+| werte.stabilitaet | Politische Stabilität 0–1; sonst Standardwert des Ländermodells |
+| werte.steuer_unternehmen, werte.steuer_dividenden | Steuersätze 0–1; sonst Standardverlauf |
+| praegung.automatisierung | Zuschlag zur Automatisierungsprägung (−1 bis 1) |
+| praegung.fachrichtungen | Gewicht je Fachrichtung (1 = Durchschnitt), z. B. `{textil: 1.5}` |
+| praegung.forschung | Forschungsstärke je Fachgebiet (1 = Durchschnitt) |
 
 Alle Werte gelten in **heutigen Grenzen** und zeigen den **realen Verlauf**
-einschließlich Kriegen und Krisen. Weitere Länderwerte (Einkommensverteilung, Löhne,
-Arbeitskräfte, Steuern …) kommen mit Meilenstein M4.
+einschließlich Kriegen und Krisen: jährlich bis 2026, danach Projektionen in
+Fünfjahresschritten.
+
+## laendermodell
+
+Ein einziger Abschnitt (in `parameter/laendermodell.yaml`) mit den Parametern, aus denen
+die übrigen Länderwerte berechnet werden; Formeln in `docs/FORMELN.md` (M4).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **preisniveau** | `referenzland`, `elastizitaet`, `minimum`, `maximum` |
+| **erwerbsquote**, **lohnquote** | Anteile 0–1 |
+| **jahresarbeitsstunden** | Jahreswerte |
+| **qualifikationsanteile** | Zeilen `{bip_je_kopf_usd, anteile: {qualifikation: anteil}}`, aufsteigend; jede Qualifikation, Summe 1 |
+| **lohnabstand** | Zeilen `{bip_je_kopf_usd, faktoren: {qualifikation: faktor}}`, aufsteigend |
+| **fachrichtungsanteile** | je Qualifikation mit Fachrichtung: `{fachrichtung: anteil}`, Summe 1 |
+| **strompreis_usd_je_mwh**, **stromnetz**, **stromnetz_bezug_usd** | Strom für die Industrie |
+| **steuer_unternehmen**, **steuer_dividenden** | Standardverläufe 0–1 |
+| **entwicklung** | `{von_usd, bis_usd}` für den Entwicklungsstand |
+| **verkehrstraeger** | Verfügbarkeit 0–1 nach Jahr: `schiene`, `strasse`, `luft`, `hafen` |
+| **stabilitaet** | Standardwert 0–1 |
+| **forschung** | `{bezug_usd, elastizitaet, minimum, maximum}` |
+| **automatisierung** | `{basis, je_verdopplung, bezug_usd}` |
 
 ## produkte
 

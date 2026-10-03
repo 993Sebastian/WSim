@@ -248,7 +248,7 @@ lagerstaetten:
 
 ## 4 Meilensteine für Stufe 1
 
-**Stand:** M1 bis M3 abgeschlossen.
+**Stand:** M1 bis M4 abgeschlossen; Fortschritt in `docs/FORTSCHRITT.md`.
 
 Jeder Meilenstein endet mit grünen automatischen Tests und einer kurzen Abnahme
 durch dich. Formeln werden vor der Umsetzung in `docs/FORMELN.md` beschrieben und

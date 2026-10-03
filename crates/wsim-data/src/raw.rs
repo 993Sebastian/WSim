@@ -45,8 +45,18 @@ pub struct RawCountry {
     pub id: String,
     #[serde(rename = "kontinent")]
     pub continent: String,
+    #[serde(rename = "flaeche_km2")]
+    pub area_km2: f64,
+    #[serde(rename = "hauptstadt")]
+    pub capital: RawLocation,
+    #[serde(rename = "binnenland")]
+    pub landlocked: bool,
+    #[serde(rename = "nachbarn", default)]
+    pub neighbors: Vec<String>,
     #[serde(rename = "werte")]
     pub values: RawCountryValues,
+    #[serde(rename = "praegung", default)]
+    pub profile: Option<RawProfile>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -55,11 +65,156 @@ pub struct RawCountry {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct RawLocation {
+    #[serde(rename = "breite")]
+    pub lat: f64,
+    #[serde(rename = "laenge")]
+    pub lon: f64,
+}
+
+pub type RawSeries = BTreeMap<i32, f64>;
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RawCountryValues {
     #[serde(rename = "bevoelkerung")]
-    pub population: BTreeMap<i32, f64>,
+    pub population: RawSeries,
     #[serde(rename = "bip_je_kopf_usd")]
-    pub gdp_per_capita_usd: BTreeMap<i32, f64>,
+    pub gdp_per_capita_usd: RawSeries,
+    pub gini: RawSeries,
+    #[serde(rename = "stabilitaet", default)]
+    pub stability: Option<RawSeries>,
+    #[serde(rename = "steuer_unternehmen", default)]
+    pub corporate_tax: Option<RawSeries>,
+    #[serde(rename = "steuer_dividenden", default)]
+    pub dividend_tax: Option<RawSeries>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProfile {
+    #[serde(rename = "automatisierung", default)]
+    pub automation: f64,
+    #[serde(rename = "fachrichtungen", default)]
+    pub specializations: BTreeMap<String, f64>,
+    #[serde(rename = "forschung", default)]
+    pub research: BTreeMap<String, f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCountryModel {
+    #[serde(rename = "preisniveau")]
+    pub price_level: RawPriceLevel,
+    #[serde(rename = "erwerbsquote")]
+    pub participation_rate: f64,
+    #[serde(rename = "lohnquote")]
+    pub labor_share: f64,
+    #[serde(rename = "jahresarbeitsstunden")]
+    pub annual_hours: RawSeries,
+    #[serde(rename = "qualifikationsanteile")]
+    pub qualification_shares: Vec<RawShareRow>,
+    #[serde(rename = "lohnabstand")]
+    pub wage_factors: Vec<RawFactorRow>,
+    #[serde(rename = "fachrichtungsanteile")]
+    pub specialization_shares: BTreeMap<String, BTreeMap<String, f64>>,
+    #[serde(rename = "strompreis_usd_je_mwh")]
+    pub electricity_price: RawSeries,
+    #[serde(rename = "stromnetz")]
+    pub grid_reach: RawSeries,
+    #[serde(rename = "stromnetz_bezug_usd")]
+    pub grid_reference_usd: f64,
+    #[serde(rename = "steuer_unternehmen")]
+    pub corporate_tax: RawSeries,
+    #[serde(rename = "steuer_dividenden")]
+    pub dividend_tax: RawSeries,
+    #[serde(rename = "entwicklung")]
+    pub development: RawRange,
+    #[serde(rename = "verkehrstraeger")]
+    pub transport: RawTransportAvailability,
+    #[serde(rename = "stabilitaet")]
+    pub stability: f64,
+    #[serde(rename = "forschung")]
+    pub research: RawResearch,
+    #[serde(rename = "automatisierung")]
+    pub automation: RawAutomation,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPriceLevel {
+    #[serde(rename = "referenzland")]
+    pub reference: String,
+    #[serde(rename = "elastizitaet")]
+    pub elasticity: f64,
+    #[serde(rename = "minimum")]
+    pub min: f64,
+    #[serde(rename = "maximum")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawShareRow {
+    #[serde(rename = "bip_je_kopf_usd")]
+    pub gdp: f64,
+    #[serde(rename = "anteile")]
+    pub shares: BTreeMap<String, f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFactorRow {
+    #[serde(rename = "bip_je_kopf_usd")]
+    pub gdp: f64,
+    #[serde(rename = "faktoren")]
+    pub factors: BTreeMap<String, f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRange {
+    #[serde(rename = "von_usd")]
+    pub from: f64,
+    #[serde(rename = "bis_usd")]
+    pub to: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTransportAvailability {
+    #[serde(rename = "schiene")]
+    pub rail: RawSeries,
+    #[serde(rename = "strasse")]
+    pub road: RawSeries,
+    #[serde(rename = "luft")]
+    pub air: RawSeries,
+    #[serde(rename = "hafen")]
+    pub port: RawSeries,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawResearch {
+    #[serde(rename = "bezug_usd")]
+    pub reference: f64,
+    #[serde(rename = "elastizitaet")]
+    pub elasticity: f64,
+    #[serde(rename = "minimum")]
+    pub min: f64,
+    #[serde(rename = "maximum")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAutomation {
+    #[serde(rename = "basis")]
+    pub base: f64,
+    #[serde(rename = "je_verdopplung")]
+    pub per_doubling: f64,
+    #[serde(rename = "bezug_usd")]
+    pub reference: f64,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq)]

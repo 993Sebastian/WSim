@@ -36,6 +36,15 @@ enum Command {
     },
     /// Lässt eine Partie ohne Oberfläche laufen.
     Run(RunArgs),
+    /// Zeigt die berechneten Werte eines Landes (Ländermodell).
+    Land {
+        /// ISO-Code, z. B. DEU
+        land: String,
+        #[arg(long, default_value_t = 1900)]
+        jahr: i32,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
 }
 
 #[derive(clap::Args)]
@@ -113,6 +122,13 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Command::Validate { verzeichnis } => validate(&verzeichnis),
+        Command::Land { land, jahr, daten } => match show_country(&daten, &land, jahr) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
         Command::Run(args) => match run(&args) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
@@ -233,5 +249,75 @@ fn run(args: &RunArgs) -> Result<(), String> {
         format_date(game.date()),
         game.state_hash()
     );
+    Ok(())
+}
+
+fn show_country(directory: &Path, key: &str, year: i32) -> Result<(), String> {
+    use wsim_core::ids::Id;
+    use wsim_data::format_number;
+
+    let data = load_data(directory)?;
+    let c = &data.catalog;
+    let id = c
+        .countries
+        .id(key)
+        .ok_or_else(|| format!("Land „{key}“ gibt es nicht."))?;
+    let s = wsim_core::country_model::compute(c, id, Date::first_of_year(year));
+    let name = data.texts.get(&format!("land.{key}")).unwrap_or(key);
+    let n = |v: f64| format_number(v, 0);
+    let p = |v: f64| format!("{} %", format_number(v * 100.0, 1));
+    println!("{name} am 01.01.{year}");
+    println!("  Bevölkerung            {}", n(s.population));
+    println!("  BIP je Kopf (KKP)      {} USD", n(s.gdp_per_capita_usd));
+    println!(
+        "  Preisniveau            {}",
+        format_number(s.price_level, 2)
+    );
+    println!("  Gini                   {}", format_number(s.gini, 3));
+    let quintiles: Vec<String> = s.income_quintiles_usd.iter().map(|&v| n(v)).collect();
+    println!("  Einkommen je Fünftel   {} USD", quintiles.join(" / "));
+    println!("  Erwerbspersonen        {}", n(s.labor_force));
+    for (group, _) in c.labor_groups.iter() {
+        let g = group.index();
+        println!(
+            "    {:<26} {:>12} Personen  {:>8} USD/h",
+            c.labor_groups.key(group),
+            n(s.labor_pool[g]),
+            format_number(s.hourly_wage_usd[g], 2)
+        );
+    }
+    println!(
+        "  Strompreis             {} USD/MWh, Netz {}",
+        n(s.electricity_price_usd_mwh),
+        p(s.grid_share)
+    );
+    println!(
+        "  Steuern                Gewinn {}, Dividende {}",
+        p(s.corporate_tax),
+        p(s.dividend_tax)
+    );
+    let i = &s.infrastructure;
+    println!(
+        "  Infrastruktur          Schiene {}, Straße {}, Hafen {}, Luft {}",
+        p(i.rail),
+        p(i.road),
+        p(i.port),
+        p(i.air)
+    );
+    println!("  Entwicklung            {}", p(s.development));
+    println!("  Stabilität             {}", p(s.stability));
+    println!("  Automatisierung        {}", p(s.automation_affinity));
+    let research: Vec<String> = c
+        .specializations
+        .iter()
+        .map(|(id, _)| {
+            format!(
+                "{} {}",
+                c.specializations.key(id),
+                format_number(s.research_efficiency[id.index()], 2)
+            )
+        })
+        .collect();
+    println!("  Forschung              {}", research.join(", "));
     Ok(())
 }

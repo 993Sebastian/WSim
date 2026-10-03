@@ -311,8 +311,9 @@ fn saves_survive_changed_data() {
     let bbb = changed.countries.id("BBB").unwrap();
     assert_eq!(state.settings.start_country, bbb);
     assert_eq!(state.company(state.player).unwrap().headquarters, bbb);
-    let old_bbb = game.state().countries.get(CountryId::from_index(1));
-    assert_eq!(state.countries.get(bbb), old_bbb);
+    // Country values are derived and follow the new data.
+    let expected = crate::country_model::compute(&changed, bbb, state.date);
+    assert_eq!(state.countries.get(bbb), &expected);
     assert_eq!(state.countries.len(), 3);
 
     // A country that disappeared from the data cannot be loaded.
@@ -326,23 +327,34 @@ fn saves_survive_changed_data() {
     );
 }
 
-/// Save of format version 1. It must stay loadable in every later version.
-const FIXTURE_V1: &[u8] = include_bytes!("../tests/fixtures/saves/v1.wsim");
+/// Saves of every format version. They must stay loadable in every later version.
+const FIXTURES: &[(u32, &[u8])] = &[
+    (1, include_bytes!("../tests/fixtures/saves/v1.wsim")),
+    (2, include_bytes!("../tests/fixtures/saves/v2.wsim")),
+];
 
 #[test]
-fn version_1_saves_stay_loadable() {
-    let loaded = save::decode(FIXTURE_V1, catalog()).unwrap();
-    let state = loaded.game.state();
-    assert_eq!(loaded.header.format_version, 1);
-    assert_eq!(state.date, date(1900, 4, 1));
-    assert_eq!(state.company(state.player).unwrap().name, "Fixture GmbH");
+fn saves_of_all_versions_stay_loadable() {
     assert_eq!(
-        state.company(state.player).unwrap().cash,
-        Money::from_usd(250_000.0).unwrap()
+        FIXTURES.last().unwrap().0,
+        SAVE_FORMAT_VERSION,
+        "fixture for the current version missing"
     );
+    for &(version, bytes) in FIXTURES {
+        let loaded = save::decode(bytes, catalog()).unwrap_or_else(|e| panic!("v{version}: {e:?}"));
+        let state = loaded.game.state();
+        assert_eq!(loaded.header.format_version, version);
+        assert_eq!(state.date, date(1900, 4, 1));
+        assert_eq!(state.company(state.player).unwrap().name, "Fixture GmbH");
+        assert_eq!(
+            state.company(state.player).unwrap().cash,
+            Money::from_usd(250_000.0).unwrap()
+        );
+        assert_eq!(state.countries.len(), 2, "country values are recomputed");
+    }
 }
 
-/// Writes the fixture above. Run once per format version:
+/// Writes the fixture for the current version. Run once per format version:
 /// `cargo test -p wsim-core -- --ignored write_fixture`
 #[test]
 #[ignore = "writes a fixture file"]

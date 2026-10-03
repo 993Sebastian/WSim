@@ -31,14 +31,34 @@ use crate::state::GameState;
 
 /// Current save format. Raise it on every incompatible change of `GameState`, add a
 /// migration and keep a save of the old version under `tests/fixtures/saves/`.
-pub const SAVE_FORMAT_VERSION: u32 = 1;
+pub const SAVE_FORMAT_VERSION: u32 = 2;
 
 const MAGIC: &[u8; 8] = b"WSIMSAVE";
 
 /// Upgrades of the body, from version `n` to `n + 1`, operating on the untyped
 /// MessagePack tree. Index 0 upgrades version 1 to 2, and so on.
 type Migration = fn(&mut rmpv::Value) -> Result<(), String>;
-const MIGRATIONS: &[Migration] = &[];
+const MIGRATIONS: &[Migration] = &[v1_derived_country_values_removed];
+
+/// Version 2 no longer saves the derived country values; they are recomputed.
+fn v1_derived_country_values_removed(body: &mut rmpv::Value) -> Result<(), String> {
+    let state = map_entry(body, "state").ok_or("state missing")?;
+    if let rmpv::Value::Map(fields) = state {
+        fields.retain(|(key, _)| key.as_str() != Some("countries"));
+    }
+    Ok(())
+}
+
+/// Value stored under `key` in a MessagePack map.
+fn map_entry<'v>(value: &'v mut rmpv::Value, key: &str) -> Option<&'v mut rmpv::Value> {
+    match value {
+        rmpv::Value::Map(fields) => fields
+            .iter_mut()
+            .find(|(k, _)| k.as_str() == Some(key))
+            .map(|(_, v)| v),
+        _ => None,
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SaveHeader {
@@ -207,6 +227,8 @@ pub fn decode(bytes: &[u8], catalog: Arc<Catalog>) -> Result<LoadedGame, LoadErr
         state.remap(&countries, &catalog);
     }
     check_consistency(&state, &catalog)?;
+    // Derived values follow the current data (identical if the data is unchanged).
+    state.refresh_countries(&catalog);
     let game = Game::from_parts(catalog, state, journal);
     Ok(LoadedGame {
         game,
@@ -252,9 +274,6 @@ fn migrate(from: u32, body: Vec<u8>) -> Result<Vec<u8>, LoadError> {
 fn check_consistency(state: &GameState, catalog: &Catalog) -> Result<(), LoadError> {
     let corrupt = |what: &str| Err(LoadError::Corrupt(what.to_owned()));
     let countries = catalog.countries.len();
-    if state.countries.len() != countries {
-        return corrupt("country count");
-    }
     if state.company(state.player).is_none() {
         return corrupt("player company");
     }

@@ -6,8 +6,10 @@
 pub mod calendar;
 pub mod catalog;
 pub mod command;
+pub mod country_model;
 pub mod game;
 pub mod ids;
+pub mod math;
 pub mod message;
 pub mod money;
 pub mod rng;

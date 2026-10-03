@@ -1,5 +1,198 @@
+# Erzeugt von tools/daten/laender.py – Namen nach Natural Earth (NAME_DE).
+land.AFG: Afghanistan
+land.AGO: Angola
+land.ALB: Albanien
+land.AND: Andorra
+land.ARE: Vereinigte Arabische Emirate
+land.ARG: Argentinien
+land.ARM: Armenien
+land.ATG: Antigua und Barbuda
+land.AUS: Australien
+land.AUT: Österreich
+land.AZE: Aserbaidschan
+land.BDI: Burundi
+land.BEL: Belgien
+land.BEN: Benin
+land.BFA: Burkina Faso
+land.BGD: Bangladesch
+land.BGR: Bulgarien
+land.BHR: Bahrain
+land.BHS: Bahamas
+land.BIH: Bosnien und Herzegowina
+land.BLR: Belarus
+land.BLZ: Belize
+land.BOL: Bolivien
+land.BRA: Brasilien
+land.BRB: Barbados
+land.BRN: Brunei
+land.BTN: Bhutan
+land.BWA: Botswana
+land.CAF: Zentralafrikanische Republik
+land.CAN: Kanada
+land.CHE: Schweiz
+land.CHL: Chile
+land.CHN: China
+land.CIV: Elfenbeinküste
+land.CMR: Kamerun
+land.COD: Demokratische Republik Kongo
+land.COG: Republik Kongo
+land.COL: Kolumbien
+land.COM: Komoren
+land.CPV: Kap Verde
+land.CRI: Costa Rica
+land.CUB: Kuba
+land.CYP: Zypern
+land.CZE: Tschechien
 land.DEU: Deutschland
+land.DJI: Dschibuti
+land.DMA: Dominica
+land.DNK: Dänemark
+land.DOM: Dominikanische Republik
+land.DZA: Algerien
+land.ECU: Ecuador
+land.EGY: Ägypten
+land.ERI: Eritrea
+land.ESH: Westsahara
+land.ESP: Spanien
+land.EST: Estland
+land.ETH: Äthiopien
+land.FIN: Finnland
+land.FJI: Fidschi
 land.FRA: Frankreich
+land.FSM: Mikronesien
+land.GAB: Gabun
 land.GBR: Vereinigtes Königreich
+land.GEO: Georgien
+land.GHA: Ghana
+land.GIN: Guinea
+land.GMB: Gambia
+land.GNB: Guinea-Bissau
+land.GNQ: Äquatorialguinea
+land.GRC: Griechenland
+land.GRD: Grenada
+land.GTM: Guatemala
+land.GUY: Guyana
+land.HND: Honduras
+land.HRV: Kroatien
+land.HTI: Haiti
+land.HUN: Ungarn
+land.IDN: Indonesien
+land.IND: Indien
+land.IRL: Irland
+land.IRN: Iran
+land.IRQ: Irak
+land.ISL: Island
+land.ISR: Israel
+land.ITA: Italien
+land.JAM: Jamaika
+land.JOR: Jordanien
+land.JPN: Japan
+land.KAZ: Kasachstan
+land.KEN: Kenia
+land.KGZ: Kirgisistan
+land.KHM: Kambodscha
+land.KIR: Kiribati
+land.KNA: St. Kitts und Nevis
+land.KOR: Südkorea
+land.KWT: Kuwait
+land.LAO: Laos
+land.LBN: Libanon
+land.LBR: Liberia
+land.LBY: Libyen
+land.LCA: St. Lucia
+land.LIE: Liechtenstein
+land.LKA: Sri Lanka
+land.LSO: Lesotho
+land.LTU: Litauen
+land.LUX: Luxemburg
+land.LVA: Lettland
+land.MAR: Marokko
+land.MCO: Monaco
+land.MDA: Moldau
+land.MDG: Madagaskar
+land.MDV: Malediven
+land.MEX: Mexiko
+land.MHL: Marshallinseln
+land.MKD: Nordmazedonien
+land.MLI: Mali
+land.MLT: Malta
+land.MMR: Myanmar
+land.MNE: Montenegro
+land.MNG: Mongolei
+land.MOZ: Mosambik
+land.MRT: Mauretanien
+land.MUS: Mauritius
+land.MWI: Malawi
+land.MYS: Malaysia
+land.NAM: Namibia
+land.NER: Niger
+land.NGA: Nigeria
+land.NIC: Nicaragua
+land.NLD: Niederlande
+land.NOR: Norwegen
+land.NPL: Nepal
+land.NRU: Nauru
+land.NZL: Neuseeland
+land.OMN: Oman
+land.PAK: Pakistan
+land.PAN: Panama
+land.PER: Peru
+land.PHL: Philippinen
+land.PLW: Palau
+land.PNG: Papua-Neuguinea
+land.POL: Polen
+land.PRK: Nordkorea
+land.PRT: Portugal
+land.PRY: Paraguay
+land.PSE: Palästina
+land.QAT: Katar
+land.ROU: Rumänien
+land.RUS: Russland
+land.RWA: Ruanda
+land.SAU: Saudi-Arabien
+land.SDN: Sudan
+land.SEN: Senegal
+land.SGP: Singapur
+land.SLB: Salomonen
+land.SLE: Sierra Leone
+land.SLV: El Salvador
+land.SMR: San Marino
+land.SOM: Somalia
+land.SRB: Serbien
+land.SSD: Südsudan
+land.STP: São Tomé und Príncipe
+land.SUR: Suriname
+land.SVK: Slowakei
+land.SVN: Slowenien
 land.SWE: Schweden
+land.SWZ: Eswatini
+land.SYC: Seychellen
+land.SYR: Syrien
+land.TCD: Tschad
+land.TGO: Togo
+land.THA: Thailand
+land.TJK: Tadschikistan
+land.TKM: Turkmenistan
+land.TLS: Osttimor
+land.TON: Tonga
+land.TTO: Trinidad und Tobago
+land.TUN: Tunesien
+land.TUR: Türkei
+land.TUV: Tuvalu
+land.TWN: Taiwan
+land.TZA: Tansania
+land.UGA: Uganda
+land.UKR: Ukraine
+land.URY: Uruguay
 land.USA: Vereinigte Staaten
+land.UZB: Usbekistan
+land.VCT: St. Vincent und die Grenadinen
+land.VEN: Venezuela
+land.VNM: Vietnam
+land.VUT: Vanuatu
+land.WSM: Samoa
+land.XKX: Kosovo
+land.YEM: Jemen
+land.ZAF: Südafrika
+land.ZMB: Sambia
+land.ZWE: Simbabwe

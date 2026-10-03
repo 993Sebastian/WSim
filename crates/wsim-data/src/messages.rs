@@ -279,3 +279,45 @@ pub fn texts_missing(language: &str) -> String {
 pub fn negative(value: f64) -> String {
     format!("Wert {value} darf nicht negativ sein.")
 }
+
+// --- Countries and country model ---
+
+pub fn country_model_missing() -> String {
+    "Abschnitt „laendermodell“ fehlt (erwartet in parameter/laendermodell.yaml).".into()
+}
+
+pub fn section_duplicate(section: &str, other: &str) -> String {
+    format!("Abschnitt „{section}“ darf es nur einmal geben; er steht bereits in {other}.")
+}
+
+pub fn rows_not_ascending() -> String {
+    "Die Zeilen müssen nach „bip_je_kopf_usd“ aufsteigend sortiert sein.".into()
+}
+
+pub fn table_empty() -> String {
+    "Mindestens eine Zeile ist nötig.".into()
+}
+
+pub fn entry_missing(kind: &str, key: &str) -> String {
+    format!("Eintrag für {kind} „{key}“ fehlt.")
+}
+
+pub fn shares_sum(sum: f64) -> String {
+    format!("Die Anteile ergeben zusammen {sum:.4}, müssen aber 1 ergeben.")
+}
+
+pub fn specialization_not_allowed(qualification: &str) -> String {
+    format!("Qualifikation „{qualification}“ hat keine Fachrichtungen.")
+}
+
+pub fn neighbor_self(key: &str) -> String {
+    format!("Land „{key}“ kann nicht sein eigener Nachbar sein.")
+}
+
+pub fn neighbor_asymmetric(neighbor: &str, key: &str) -> String {
+    format!("„{neighbor}“ führt „{key}“ nicht als Nachbarn.")
+}
+
+pub fn range_inverted(min: &str, max: &str) -> String {
+    format!("„{min}“ muss kleiner als „{max}“ sein.")
+}

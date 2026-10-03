@@ -33,6 +33,7 @@ pub struct Catalog {
     pub recipes: Table<RecipeId, Recipe>,
     pub technologies: Table<TechnologyId, Technology>,
     pub deposits: Table<DepositId, Deposit>,
+    pub country_model: CountryModel,
 }
 
 /// Where a value comes from (Lastenheft §16.2: approximations are marked).
@@ -82,17 +83,122 @@ pub struct LaborGroup {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Country {
     pub continent: ContinentId,
+    pub area_km2: f64,
+    pub capital: GeoPoint,
+    pub landlocked: bool,
+    /// Countries with a land border.
+    pub neighbors: Vec<CountryId>,
     pub values: CountryValues,
+    pub profile: CountryProfile,
     pub provenance: Provenance,
 }
 
-/// Yearly country values, interpolated in between (Lastenheft §3.2).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GeoPoint {
+    pub lat: f64,
+    pub lon: f64,
+}
+
+/// Yearly country values, interpolated in between (Lastenheft §3.2). All in today's
+/// borders and with the real course of history, including wars and crises.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CountryValues {
     /// Inhabitants.
     pub population: TimeSeries,
-    /// GDP per capita in USD (purchasing power 2026).
+    /// GDP per capita in USD at purchasing power parity (purchasing power 2026).
     pub gdp_per_capita_usd: TimeSeries,
+    /// Gini coefficient of income (0–1).
+    pub gini: TimeSeries,
+    /// Own values; otherwise the defaults of the country model apply.
+    pub stability: Option<TimeSeries>,
+    pub corporate_tax: Option<TimeSeries>,
+    pub dividend_tax: Option<TimeSeries>,
+}
+
+/// Country-specific deviations from the country model.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CountryProfile {
+    /// Added to the automation affinity.
+    pub automation_bonus: f64,
+    /// Weight per specialization (1 = average), indexed by `SpecializationId`.
+    pub specialization_weights: Vec<f64>,
+    /// Research strength per field (1 = average), indexed by `SpecializationId`.
+    pub research_weights: Vec<f64>,
+}
+
+/// Parameters of the country model (`data/parameter/laendermodell.yaml`,
+/// formulas in docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct CountryModel {
+    pub price_reference: Option<CountryId>,
+    pub price_elasticity: f64,
+    pub price_min: f64,
+    pub price_max: f64,
+    pub participation_rate: f64,
+    pub labor_share: f64,
+    pub annual_hours: TimeSeries,
+    /// Rows `(GDP per capita, share per qualification)`, ascending by GDP.
+    pub qualification_shares: Vec<(f64, Vec<f64>)>,
+    /// Rows `(GDP per capita, wage factor per qualification)`, ascending by GDP.
+    pub wage_factors: Vec<(f64, Vec<f64>)>,
+    /// Per qualification: share per specialization (empty for qualifications without).
+    pub specialization_shares: Vec<Vec<f64>>,
+    pub electricity_price_usd_mwh: TimeSeries,
+    pub grid_reach: TimeSeries,
+    pub grid_reference_usd: f64,
+    pub corporate_tax: TimeSeries,
+    pub dividend_tax: TimeSeries,
+    pub development_from_usd: f64,
+    pub development_to_usd: f64,
+    pub rail: TimeSeries,
+    pub road: TimeSeries,
+    pub air: TimeSeries,
+    pub port: TimeSeries,
+    pub stability: f64,
+    pub research_reference_usd: f64,
+    pub research_elasticity: f64,
+    pub research_min: f64,
+    pub research_max: f64,
+    pub automation_base: f64,
+    pub automation_per_doubling: f64,
+    pub automation_reference_usd: f64,
+}
+
+impl Default for CountryModel {
+    fn default() -> Self {
+        let constant = |v: f64| TimeSeries::new(vec![(1900, v)]).expect("valid");
+        Self {
+            price_reference: None,
+            price_elasticity: 0.0,
+            price_min: 1.0,
+            price_max: 1.0,
+            participation_rate: 0.42,
+            labor_share: 0.6,
+            annual_hours: constant(2000.0),
+            qualification_shares: Vec::new(),
+            wage_factors: Vec::new(),
+            specialization_shares: Vec::new(),
+            electricity_price_usd_mwh: constant(100.0),
+            grid_reach: constant(1.0),
+            grid_reference_usd: 13_000.0,
+            corporate_tax: constant(0.2),
+            dividend_tax: constant(0.2),
+            development_from_usd: 1_300.0,
+            development_to_usd: 65_000.0,
+            rail: constant(1.0),
+            road: constant(1.0),
+            air: constant(1.0),
+            port: constant(1.0),
+            stability: 0.8,
+            research_reference_usd: 26_000.0,
+            research_elasticity: 0.3,
+            research_min: 0.3,
+            research_max: 1.5,
+            automation_base: 0.3,
+            automation_per_doubling: 0.12,
+            automation_reference_usd: 13_000.0,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

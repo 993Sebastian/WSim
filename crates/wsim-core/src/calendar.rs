@@ -57,6 +57,12 @@ impl Date {
     }
 
     #[must_use]
+    pub fn first_of_month(self) -> Date {
+        let (year, month, _) = civil_from_days(self.0);
+        Date(days_from_civil(year, month, 1))
+    }
+
+    #[must_use]
     pub fn first_of_next_month(self) -> Date {
         let (year, month, _) = civil_from_days(self.0);
         if month == 12 {

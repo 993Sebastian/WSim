@@ -83,9 +83,62 @@ fn country_values_interpolate() {
     let c = &data.catalog;
     let deu = c.countries.get(c.countries.id("DEU").unwrap());
     let population = &deu.values.population;
-    assert_eq!(population.value_at(1900.0), 44_000_000.0);
-    let mid = population.value_at(1906.5);
-    assert!(mid > 44_000_000.0 && mid < 52_600_000.0);
+    let p1900 = population.value_at(1900.0);
+    assert!(
+        (40e6..47e6).contains(&p1900),
+        "Deutschland 1900 in heutigen Grenzen: {p1900}"
+    );
+    let mid = population.value_at(1905.5);
+    assert!(mid > p1900 && mid < population.value_at(1913.0));
+}
+
+#[test]
+fn all_countries_with_complete_values() {
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = &data.catalog;
+    assert_eq!(c.countries.len(), 197);
+    for (id, country) in c.countries.iter() {
+        let key = c.countries.key(id);
+        for series in [
+            &country.values.population,
+            &country.values.gdp_per_capita_usd,
+            &country.values.gini,
+        ] {
+            let points = series.points();
+            assert!(
+                points.first().unwrap().0 <= 1900 && points.last().unwrap().0 >= 2026,
+                "{key}"
+            );
+        }
+        assert!(country.area_km2 > 0.0, "{key}");
+    }
+    let world = |year: f64| {
+        c.countries
+            .iter()
+            .map(|(_, k)| k.values.population.value_at(year))
+            .sum::<f64>()
+    };
+    assert!(
+        (1.55e9..1.70e9).contains(&world(1900.0)),
+        "{}",
+        world(1900.0)
+    );
+    assert!(
+        (1.95e9..2.15e9).contains(&world(1930.0)),
+        "{}",
+        world(1930.0)
+    );
+
+    let deu = c.countries.get(c.countries.id("DEU").unwrap());
+    let mut neighbors: Vec<&str> = deu.neighbors.iter().map(|&n| c.countries.key(n)).collect();
+    neighbors.sort_unstable();
+    assert_eq!(
+        neighbors,
+        [
+            "AUT", "BEL", "CHE", "CZE", "DNK", "FRA", "LUX", "NLD", "POL"
+        ]
+    );
+    assert_eq!(data.texts.get("land.DEU"), Some("Deutschland"));
 }
 
 #[test]
@@ -98,4 +151,58 @@ fn every_core_message_has_a_text() {
         );
     }
     assert!(data.texts.get("art.land").is_some());
+}
+
+/// Plausibility of the country model with the shipped data (rough historical ranges).
+#[test]
+fn country_model_is_plausible() {
+    use wsim_core::calendar::Date;
+    use wsim_core::country_model::compute;
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = &data.catalog;
+    let at =
+        |key: &str, year: i32| compute(c, c.countries.id(key).unwrap(), Date::first_of_year(year));
+    let group = |key: &str| c.labor_groups.id(key).unwrap().index();
+    use wsim_core::ids::Id;
+
+    let usa = at("USA", 1900);
+    let deu = at("DEU", 1900);
+    let ind = at("IND", 1900);
+    assert_eq!(usa.price_level, 1.0, "Bezugsland");
+    assert!(ind.price_level < 0.6, "{}", ind.price_level);
+
+    for (name, state, range) in [
+        ("DEU", &deu, 2.0..8.0),
+        ("USA", &usa, 3.0..12.0),
+        ("IND", &ind, 0.2..2.0),
+    ] {
+        let wage = state.hourly_wage_usd[group("ungelernt")];
+        assert!(
+            range.contains(&wage),
+            "Stundenlohn ungelernt {name} 1900: {wage}"
+        );
+        assert!(state.hourly_wage_usd[group("akademiker.chemie")] > wage);
+        let pools: f64 = state.labor_pool.iter().sum();
+        assert!(
+            (pools / state.labor_force - 1.0).abs() < 1e-9,
+            "{name}: {pools} vs {}",
+            state.labor_force
+        );
+        assert!(state.income_quintiles_usd.windows(2).all(|w| w[0] < w[1]));
+        let mean = state.income_quintiles_usd.iter().sum::<f64>() / 5.0;
+        assert!((mean / (state.gdp_per_capita_usd * state.price_level) - 1.0).abs() < 1e-9);
+    }
+
+    assert!(deu.grid_share < at("DEU", 1930).grid_share);
+    assert!(at("RUS", 1918).stability < 0.2);
+    assert!((at("USA", 1930).corporate_tax - 0.12).abs() < 0.01);
+    assert!(at("USA", 1913).automation_affinity > at("DEU", 1913).automation_affinity);
+    let chemie = c.specializations.id("chemie").unwrap().index();
+    assert!(deu.research_efficiency[chemie] > usa.research_efficiency[chemie]);
+    // Germany has more chemistry workers relative to its labor force than average.
+    let share = |s: &wsim_core::country_model::CountryState| {
+        s.labor_pool[group("fachkraft.chemie")] / s.labor_force
+    };
+    assert!(share(&deu) > share(&at("FRA", 1900)));
 }

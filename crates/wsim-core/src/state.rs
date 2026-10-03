@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::calendar::Date;
 use crate::catalog::Catalog;
+pub use crate::country_model::CountryState;
 use crate::ids::{CountryId, Id};
 use crate::money::Money;
 use crate::rng::SimRng;
@@ -34,6 +35,15 @@ impl<I, T: Clone> Clone for PerId<I, T> {
 impl<I, T: PartialEq> PartialEq for PerId<I, T> {
     fn eq(&self, other: &Self) -> bool {
         self.items == other.items
+    }
+}
+
+impl<I, T> Default for PerId<I, T> {
+    fn default() -> Self {
+        Self {
+            items: Vec::new(),
+            _id: PhantomData,
+        }
     }
 }
 
@@ -132,25 +142,6 @@ pub struct Company {
     pub rng: SimRng,
 }
 
-/// Current values of a country, derived from the yearly data for the current day.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct CountryState {
-    pub population: f64,
-    pub gdp_per_capita_usd: f64,
-}
-
-impl CountryState {
-    /// Yearly values apply to the middle of the year (see docs/FORMELN.md).
-    pub fn at(catalog: &Catalog, country: CountryId, date: Date) -> Self {
-        let values = &catalog.countries.get(country).values;
-        let t = date.year_fraction() - 0.5;
-        Self {
-            population: values.population.value_at(t),
-            gdp_per_capita_usd: values.gdp_per_capita_usd.value_at(t),
-        }
-    }
-}
-
 /// Settings chosen when starting a game (Lastenheft §15). Together with the journal
 /// of decisions they determine the whole game.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -171,6 +162,8 @@ pub struct GameState {
     pub date: Date,
     /// Random stream for world-level processes.
     pub world_rng: SimRng,
+    /// Derived from catalog and date; not saved, recomputed after loading.
+    #[serde(skip)]
     pub countries: PerId<CountryId, CountryState>,
     /// Indexed by [`CompanyId`].
     pub companies: Vec<Company>,
@@ -187,18 +180,25 @@ impl GameState {
         self.companies.get_mut(id.index())
     }
 
-    /// Translates all catalog IDs after the catalog changed (see `save`).
+    /// Translates all catalog IDs after the catalog changed (see `save`). Country
+    /// values are derived data and are simply recomputed.
     pub(crate) fn remap(&mut self, countries: &[CountryId], catalog: &Catalog) {
         let map = |id: CountryId| countries[id.index()];
-        let date = self.date;
-        let old = std::mem::replace(&mut self.countries, PerId::from_fn(0, |_| unreachable!()));
-        self.countries = old.remap(countries, catalog.countries.len(), |id| {
-            CountryState::at(catalog, id, date)
-        });
         self.settings.start_country = map(self.settings.start_country);
         for company in &mut self.companies {
             company.headquarters = map(company.headquarters);
         }
+        self.refresh_countries(catalog);
+    }
+
+    /// Recomputes the derived country values. They change monthly: the values of the
+    /// first day of the current month apply to the whole month.
+    pub(crate) fn refresh_countries(&mut self, catalog: &Catalog) {
+        let month = self.date.first_of_month();
+        let mut values = crate::country_model::compute_all(catalog, month).into_iter();
+        self.countries = PerId::from_fn(catalog.countries.len(), |_| {
+            values.next().expect("one per country")
+        });
     }
 }
 

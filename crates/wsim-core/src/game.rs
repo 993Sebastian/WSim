@@ -10,11 +10,12 @@ use crate::EARLIEST_START_YEAR;
 use crate::calendar::{Date, GAME_END, RoundLength};
 use crate::catalog::Catalog;
 use crate::command::{self, Command, CommandError, NameError};
+use crate::country_model;
 use crate::ids::Id;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
-use crate::state::{Company, CompanyId, CompanyKind, CountryState, GameSettings, GameState, PerId};
+use crate::state::{Company, CompanyId, CompanyKind, GameSettings, GameState, PerId};
 
 /// Latest selectable start year; technology freezes in 2026 (Lastenheft §3.1).
 pub const LATEST_START_YEAR: i32 = 2026;
@@ -127,8 +128,9 @@ impl Game {
             .map_err(NewGameError::Name)?;
 
         let date = Date::first_of_year(settings.start_year);
-        let countries = PerId::from_fn(catalog.countries.len(), |id| {
-            CountryState::at(&catalog, id, date)
+        let mut values = country_model::compute_all(&catalog, date).into_iter();
+        let countries = PerId::from_fn(catalog.countries.len(), |_| {
+            values.next().expect("one per country")
         });
         let player = Company {
             name,
@@ -281,8 +283,8 @@ impl Game {
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let next = self.state.date.next_day();
         self.state.date = next;
-        for (id, country) in self.state.countries.iter_mut() {
-            *country = CountryState::at(&self.catalog, id, next);
+        if next.day() == 1 {
+            self.state.refresh_countries(&self.catalog);
         }
         if next.ordinal() == 1 && next < GAME_END {
             report.messages.push(

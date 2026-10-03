@@ -51,6 +51,10 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - Rohschema (`raw.rs`, deutsche Feldnamen per `serde(rename)`) und Katalog im Kern
   (`wsim_core::catalog`, englisch) sind getrennt; nur `wsim-data` übersetzt.
 - Länderdaten gelten in **heutigen Grenzen** für den ganzen Zeitraum.
+- `data/laender/*.yaml` und `data/texte/de/laender.yaml` erzeugt
+  `python3 tools/daten/laender.py` aus Gapminder und Natural Earth (Quellen werden nach
+  `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript.
+- Fortschritt und eigenständige Entscheidungen: `docs/FORTSCHRITT.md`.
 
 ## Spielstände
 

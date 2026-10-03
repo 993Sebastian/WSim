@@ -36,9 +36,42 @@ const LAND: &str = "\
 laender:
   - id: SWE
     kontinent: europa
+    flaeche_km2: 450_000
+    hauptstadt: {breite: 59.33, laenge: 18.07}
+    binnenland: false
     werte:
       bevoelkerung: {1900: 5_000_000, 1930: 6_000_000}
       bip_je_kopf_usd: {1900: 6_000}
+      gini: {1900: 0.45}
+";
+
+const MODELL: &str = "\
+laendermodell:
+  preisniveau: {referenzland: SWE, elastizitaet: 0.35, minimum: 0.2, maximum: 1.5}
+  erwerbsquote: 0.42
+  lohnquote: 0.6
+  jahresarbeitsstunden: {1900: 2900}
+  qualifikationsanteile:
+    - {bip_je_kopf_usd: 1_000, anteile: {ungelernt: 0.9, fachkraft: 0.1}}
+    - {bip_je_kopf_usd: 50_000, anteile: {ungelernt: 0.4, fachkraft: 0.6}}
+  lohnabstand:
+    - {bip_je_kopf_usd: 5_000, faktoren: {ungelernt: 0.8, fachkraft: 1.5}}
+  fachrichtungsanteile:
+    fachkraft: {metall: 0.6, bergbau: 0.4}
+  strompreis_usd_je_mwh: {1900: 2000}
+  stromnetz: {1900: 0.1}
+  stromnetz_bezug_usd: 13_000
+  steuer_unternehmen: {1900: 0.04}
+  steuer_dividenden: {1900: 0.03}
+  entwicklung: {von_usd: 1_300, bis_usd: 65_000}
+  verkehrstraeger:
+    schiene: {1900: 1}
+    strasse: {1900: 0.05}
+    luft: {1900: 0}
+    hafen: {1900: 1}
+  stabilitaet: 0.8
+  forschung: {bezug_usd: 26_000, elastizitaet: 0.3, minimum: 0.3, maximum: 1.5}
+  automatisierung: {basis: 0.3, je_verdopplung: 0.12, bezug_usd: 13_000}
 ";
 
 const KETTE: &str = "\
@@ -141,6 +174,7 @@ impl Daten {
             ("meta.yaml", META),
             ("grundlagen.yaml", GRUNDLAGEN),
             ("laender/SWE.yaml", LAND),
+            ("parameter/laendermodell.yaml", MODELL),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -386,7 +420,12 @@ fn ungueltige_ids() {
         )
         .ersetze("laender/SWE.yaml", "id: SWE", "id: swe")
         .ersetze("texte/de/a.yaml", "land.SWE", "land.swe")
-        .ersetze("ketten/a.yaml", "land: SWE", "land: swe");
+        .ersetze("ketten/a.yaml", "land: SWE", "land: swe")
+        .ersetze(
+            "parameter/laendermodell.yaml",
+            "referenzland: SWE",
+            "referenzland: swe",
+        );
     let outcome = d.laden();
     befund(&outcome, "Ungültige ID „Grube“");
     befund(&outcome, "Ungültiger Ländercode „swe“");
@@ -650,7 +689,7 @@ fn zeitreihe_ausserhalb_des_spielzeitraums() {
     assert_ort(
         f,
         "laender/SWE.yaml",
-        5,
+        8,
         "laender[0].werte.bevoelkerung.2150",
     );
 }
@@ -684,4 +723,108 @@ fn bericht_ist_reproduzierbar() {
         .ersetze("ketten/a.yaml", "      erz: 2\n", "      erzz: 2\n")
         .ersetze("ketten/a.yaml", "rezepte:", "rezepe:");
     assert_eq!(d.laden().report, d.laden().report);
+}
+
+#[test]
+fn laendermodell_muss_vorhanden_sein() {
+    let outcome = Daten::neu().ohne("parameter/laendermodell.yaml").laden();
+    befund(&outcome, "Abschnitt „laendermodell“ fehlt");
+}
+
+#[test]
+fn anteile_muessen_eins_ergeben() {
+    let d = Daten::neu().ersetze(
+        "parameter/laendermodell.yaml",
+        "ungelernt: 0.9, fachkraft: 0.1",
+        "ungelernt: 0.9, fachkraft: 0.2",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Die Anteile ergeben zusammen 1.1000, müssen aber 1 ergeben.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "laendermodell.qualifikationsanteile[0].anteile"
+    );
+    nur_fehler(&outcome, 1);
+}
+
+#[test]
+fn tabellen_muessen_aufsteigend_sein() {
+    let d = Daten::neu().ersetze(
+        "parameter/laendermodell.yaml",
+        "bip_je_kopf_usd: 50_000",
+        "bip_je_kopf_usd: 500",
+    );
+    befund(&d.laden(), "aufsteigend sortiert");
+}
+
+#[test]
+fn jede_qualifikation_braucht_einen_anteil() {
+    let d = Daten::neu().ersetze(
+        "parameter/laendermodell.yaml",
+        "{ungelernt: 0.9, fachkraft: 0.1}",
+        "{ungelernt: 1.0}",
+    );
+    befund(&d.laden(), "Eintrag für Qualifikation „fachkraft“ fehlt.");
+    let ohne_fachrichtung = Daten::neu().ersetze(
+        "parameter/laendermodell.yaml",
+        "    fachkraft: {metall: 0.6, bergbau: 0.4}",
+        "    fachkraft: {metall: 0.6, bergbau: 0.4}\n    ungelernt: {metall: 1.0}",
+    );
+    befund(
+        &ohne_fachrichtung.laden(),
+        "Qualifikation „ungelernt“ hat keine Fachrichtungen.",
+    );
+}
+
+#[test]
+fn nachbarn_werden_geprueft() {
+    let selbst = Daten::neu().ersetze(
+        "laender/SWE.yaml",
+        "    binnenland: false",
+        "    binnenland: false\n    nachbarn: [SWE]",
+    );
+    befund(
+        &selbst.laden(),
+        "Land „SWE“ kann nicht sein eigener Nachbar sein.",
+    );
+
+    let einseitig = Daten::neu()
+        .ersetze(
+            "laender/SWE.yaml",
+            "    binnenland: false",
+            "    binnenland: false\n    nachbarn: [NOR]",
+        )
+        .datei(
+            "laender/NOR.yaml",
+            &LAND.replace("SWE", "NOR").replace("59.33", "59.91"),
+        )
+        .ersetze(
+            "texte/de/a.yaml",
+            "land.SWE: Schweden\n",
+            "land.SWE: Schweden\nland.NOR: Norwegen\n",
+        );
+    let outcome = einseitig.laden();
+    let w = befund(&outcome, "„NOR“ führt „SWE“ nicht als Nachbarn.");
+    assert_eq!(w.severity, Severity::Warning);
+}
+
+#[test]
+fn gini_und_stabilitaet_im_bereich() {
+    let d = Daten::neu().ersetze(
+        "laender/SWE.yaml",
+        "gini: {1900: 0.45}",
+        "gini: {1900: 45}\n      stabilitaet: {1900: 2}",
+    );
+    let outcome = d.laden();
+    befund(
+        &outcome,
+        "Wert 45 liegt außerhalb des erlaubten Bereichs 0 bis 0.95.",
+    );
+    befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
 }

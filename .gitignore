@@ -5,3 +5,4 @@ node_modules/
 /ui/playwright-report
 /app/src-tauri/gen/schemas
 *.tsbuildinfo
+/tools/daten/.cache

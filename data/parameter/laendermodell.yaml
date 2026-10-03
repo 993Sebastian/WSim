@@ -1,0 +1,64 @@
+# Parameter des Ländermodells. Die Formeln stehen in docs/FORMELN.md (Abschnitt M4).
+# BIP je Kopf immer in USD (Kaufkraftparität, Kaufkraft 2026), wie in data/laender/.
+# Alle Werte sind Schätzungen (Annäherungen) und werden beim Balancing überprüft.
+
+laendermodell:
+  # Preisniveau: Verhältnis Marktpreis zu Kaufkraftparität (Balassa-Samuelson).
+  preisniveau:
+    referenzland: USA
+    elastizitaet: 0.35
+    minimum: 0.2
+    maximum: 1.5
+
+  # Arbeitsmarkt
+  erwerbsquote: 0.42              # Erwerbspersonen je Einwohner
+  lohnquote: 0.6                  # Anteil der Arbeitseinkommen am BIP
+  jahresarbeitsstunden: {1900: 2900, 1930: 2400, 1960: 2100, 2000: 1750, 2026: 1650}
+
+  # Anteile der Erwerbspersonen je Qualifikation nach BIP je Kopf; dazwischen
+  # logarithmisch interpoliert.
+  qualifikationsanteile:
+    - {bip_je_kopf_usd: 1_300, anteile: {ungelernt: 0.82, angelernt: 0.10, fachkraft: 0.075, akademiker: 0.005}}
+    - {bip_je_kopf_usd: 6_500, anteile: {ungelernt: 0.62, angelernt: 0.18, fachkraft: 0.18, akademiker: 0.02}}
+    - {bip_je_kopf_usd: 13_000, anteile: {ungelernt: 0.45, angelernt: 0.25, fachkraft: 0.27, akademiker: 0.03}}
+    - {bip_je_kopf_usd: 26_000, anteile: {ungelernt: 0.30, angelernt: 0.28, fachkraft: 0.35, akademiker: 0.07}}
+    - {bip_je_kopf_usd: 52_000, anteile: {ungelernt: 0.15, angelernt: 0.25, fachkraft: 0.40, akademiker: 0.20}}
+    - {bip_je_kopf_usd: 90_000, anteile: {ungelernt: 0.08, angelernt: 0.20, fachkraft: 0.40, akademiker: 0.32}}
+
+  # Lohn je Qualifikation relativ zum Durchschnittslohn; der Lohnabstand sinkt mit
+  # dem Wohlstand.
+  lohnabstand:
+    - {bip_je_kopf_usd: 6_500, faktoren: {ungelernt: 0.75, angelernt: 0.95, fachkraft: 1.45, akademiker: 3.5}}
+    - {bip_je_kopf_usd: 52_000, faktoren: {ungelernt: 0.6, angelernt: 0.8, fachkraft: 1.0, akademiker: 1.8}}
+
+  # Verteilung der Fachkräfte und Akademiker auf die Fachrichtungen (Summe 1);
+  # Länder können sie über „praegung.fachrichtungen“ gewichten.
+  fachrichtungsanteile:
+    fachkraft: {bergbau: 0.08, metall: 0.15, maschinenbau: 0.15, elektro: 0.07, chemie: 0.07, textil: 0.15, holz_bau: 0.15, lebensmittel: 0.08, kaufmaennisch: 0.10}
+    akademiker: {bergbau: 0.05, metall: 0.10, maschinenbau: 0.15, elektro: 0.10, chemie: 0.15, textil: 0.03, holz_bau: 0.10, lebensmittel: 0.02, kaufmaennisch: 0.30}
+
+  # Strom für die Industrie (USD je MWh bei Preisniveau 1) und erreichbare
+  # Netzversorgung eines entwickelten Landes.
+  strompreis_usd_je_mwh: {1900: 2000, 1910: 1000, 1920: 500, 1930: 300, 1950: 150, 1970: 70, 2000: 70, 2026: 90}
+  stromnetz: {1900: 0.1, 1910: 0.3, 1920: 0.5, 1930: 0.7, 1950: 0.9, 1970: 1.0}
+  stromnetz_bezug_usd: 13_000     # BIP je Kopf, ab dem die volle Netzversorgung erreicht wird
+
+  # Steuern, wenn ein Land keine eigenen Werte hat (Anteil am Gewinn bzw. an der Dividende)
+  steuer_unternehmen: {1900: 0.04, 1914: 0.05, 1918: 0.10, 1925: 0.12, 1930: 0.15, 1940: 0.30, 1950: 0.40, 1980: 0.45, 2000: 0.30, 2026: 0.24}
+  steuer_dividenden: {1900: 0.03, 1918: 0.08, 1930: 0.12, 1950: 0.30, 1980: 0.40, 2000: 0.25, 2026: 0.25}
+
+  # Entwicklungsstand 0–1 (logarithmisch zwischen den beiden Werten)
+  entwicklung: {von_usd: 1_300, bis_usd: 65_000}
+  # Verfügbarkeit der Verkehrsträger nach Jahr (Lastenheft §3.5)
+  verkehrstraeger:
+    schiene: {1830: 0.0, 1860: 0.6, 1880: 1.0}
+    strasse: {1900: 0.05, 1915: 0.3, 1930: 0.7, 1950: 1.0}
+    luft: {1918: 0.0, 1930: 0.1, 1950: 0.5, 1970: 1.0}
+    hafen: {1800: 1.0}
+
+  stabilitaet: 0.8                # wenn ein Land keine eigenen Werte hat
+
+  # Forschungseffizienz = (BIP je Kopf / Bezug)^Elastizität, begrenzt
+  forschung: {bezug_usd: 26_000, elastizitaet: 0.3, minimum: 0.3, maximum: 1.5}
+  # Prägung Automatisierung = Basis + je Verdopplung des BIP je Kopf über dem Bezug
+  automatisierung: {basis: 0.3, je_verdopplung: 0.12, bezug_usd: 13_000}
