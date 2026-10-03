@@ -1,0 +1,36 @@
+# Namen der Inhalte aus data/ketten/
+
+# Kette 1 – Eisen und Stahl
+produkt.eisenerz: Eisenerz
+produkt.eisenerz.info: Erz mit hohem Eisengehalt, gerechnet in Tonnen mit 60 % Eisen.
+produkt.kohle: Kohle
+produkt.roheisen: Roheisen
+produkt.stahl: Stahl
+produkt.blech: Blech
+produkt.draht: Draht
+produkt.stabstahl: Stabstahl
+
+anlage.erzbergwerk: Erzbergwerk
+anlage.kohlenzeche: Kohlenzeche
+anlage.hochofen: Hochofen
+anlage.stahlwerk_konverter: Konverter-Stahlwerk
+anlage.stahlwerk_herdofen: Siemens-Martin-Stahlwerk
+anlage.elektrostahlwerk: Elektrostahlwerk
+anlage.walzwerk: Walzwerk
+anlage.drahtzieherei: Drahtzieherei
+
+rezept.eisenerz_abbau: Eisenerz fördern
+rezept.kohle_abbau: Kohle fördern
+rezept.roheisen_kokshochofen: Roheisen im Kokshochofen
+rezept.stahl_bessemer: Stahl nach Bessemer
+rezept.stahl_siemens_martin: Stahl nach Siemens-Martin
+rezept.stahl_elektro: Elektrostahl
+rezept.blech_walzen: Blech walzen
+rezept.stabstahl_walzen: Stabstahl walzen
+rezept.draht_ziehen: Draht ziehen
+
+technologie.kokshochofen: Kokshochofen
+technologie.warmwalzen: Warmwalzen
+technologie.bessemer_verfahren: Bessemer-Verfahren
+technologie.siemens_martin_verfahren: Siemens-Martin-Verfahren
+technologie.elektrostahl: Elektrostahl

@@ -44,8 +44,12 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
   Länder-IDs sind ISO-3166-alpha-3 (`DEU`, `SWE`).
 - Code-Bezeichner englisch; Zuordnung in `docs/GLOSSAR.md` pflegen.
 - Geschätzte Werte mit `annaeherung: true` kennzeichnen, recherchierte mit `quelle:`.
+- Format aller Felder: `docs/DATENFORMAT.md` – bei jeder Schemaänderung mitpflegen.
 - Jeder neue Datentyp braucht Prüfregeln mit verständlicher deutscher Fehlermeldung
-  (Datei, Zeile, Pfad) und einen Test dafür.
+  (Datei, Zeile, Pfad) und einen Test in `crates/wsim-data/tests/fehlerfaelle.rs`.
+  Alle Prüfmeldungen stehen zentral in `crates/wsim-data/src/messages.rs`.
+- Rohschema (`raw.rs`, deutsche Feldnamen per `serde(rename)`) und Katalog im Kern
+  (`wsim_core::catalog`, englisch) sind getrennt; nur `wsim-data` übersetzt.
 - Länderdaten gelten in **heutigen Grenzen** für den ganzen Zeitraum.
 
 ## Spielstände
@@ -58,7 +62,7 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - Rust: `cargo fmt --all --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`
   (deckt `crates/*` ab; die Tauri-Hülle braucht zusätzlich `pnpm -C ui build` und
   `cargo clippy -p wsim-app --all-targets -- -D warnings`)
-- Daten (ab M2): `cargo run -p wsim-cli -- validate data/`
+- Daten: `cargo run -p wsim-cli -- validate data` (muss ohne Fehler und Warnungen enden)
 - UI: `pnpm -C ui typecheck`, `pnpm -C ui lint`, `pnpm -C ui test`, `pnpm -C ui e2e`
   (`pnpm -C ui format` behebt Formatierungsfehler)
 - Der Determinismus-Test muss grün sein (ab M3).

@@ -1,0 +1,9 @@
+laender:
+  - id: GBR
+    kontinent: europa
+    # Heutige Grenzen: Großbritannien und Nordirland, ohne die Republik Irland.
+    werte:
+      bevoelkerung: {1900: 38_200_000, 1913: 42_600_000, 1930: 46_000_000}
+      bip_je_kopf_usd: {1900: 10_730, 1913: 11_810, 1918: 12_900, 1921: 10_800, 1929: 12_670, 1930: 12_530}
+    annaeherung: true
+    quelle: "Vorläufige Größenordnung für M2 (Maddison Project Database 2023, Int.-$ 2011 × 1,44 auf USD 2026; Bevölkerung auf heutige Grenzen umgerechnet). Wird in M4 recherchiert."

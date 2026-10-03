@@ -1,0 +1,75 @@
+# Namen der Grundbegriffe (data/grundlagen.yaml, data/arbeitskraefte.yaml)
+
+einheit.t: t
+einheit.kg: kg
+einheit.stueck: Stück
+einheit.mwh: MWh
+einheit.m3: m³
+
+kontinent.afrika: Afrika
+kontinent.asien: Asien
+kontinent.europa: Europa
+kontinent.nordamerika: Nordamerika
+kontinent.suedamerika: Südamerika
+kontinent.ozeanien: Ozeanien
+
+branche.bergbau: Bergbau und Rohstoffe
+branche.metallurgie: Metallurgie
+branche.chemie: Chemie
+branche.energie: Energie
+branche.holz_papier: Holz und Papier
+branche.textil: Textil
+branche.lebensmittel: Lebensmittel
+branche.bau: Bau
+branche.maschinenbau: Maschinenbau
+branche.fahrzeuge: Fahrzeuge
+branche.schiffbau: Schiffbau
+branche.luftfahrt: Luftfahrt
+branche.raumfahrt: Raumfahrt
+branche.elektro: Elektrotechnik und Elektronik
+branche.konsumgueter: Konsumgüter
+branche.pharma: Pharma
+branche.ruestung: Rüstung
+
+warengruppe.erze: Erze
+warengruppe.brennstoffe: Brennstoffe
+warengruppe.eisen_stahl: Eisen und Stahl
+warengruppe.nichteisenmetalle: Nichteisenmetalle
+warengruppe.holz: Holz
+warengruppe.papier: Papier
+warengruppe.agrarrohstoffe: Agrarrohstoffe
+warengruppe.lebensmittel: Lebensmittel
+warengruppe.textilien: Textilien
+warengruppe.bekleidung: Bekleidung
+warengruppe.chemie: Chemische Erzeugnisse
+warengruppe.mineraloel: Mineralöl
+warengruppe.gummi: Gummi
+warengruppe.glas_keramik: Glas und Keramik
+warengruppe.metallwaren: Metallwaren
+warengruppe.maschinen: Maschinen
+warengruppe.elektro: Elektrotechnik
+warengruppe.fahrzeuge: Fahrzeuge
+warengruppe.moebel_hausrat: Möbel und Hausrat
+warengruppe.ruestung: Rüstungsgüter
+warengruppe.strom: Strom
+
+transportklasse.schuettgut: Schüttgut
+transportklasse.stueckgut: Stückgut
+transportklasse.fluessig: Flüssiggut
+transportklasse.gas: Gas
+transportklasse.leitung: Leitung
+
+qualifikation.ungelernt: Ungelernte
+qualifikation.angelernt: Angelernte
+qualifikation.fachkraft: Fachkräfte
+qualifikation.akademiker: Akademiker
+
+fachrichtung.bergbau: Bergbau
+fachrichtung.metall: Metall
+fachrichtung.maschinenbau: Maschinenbau
+fachrichtung.elektro: Elektrotechnik
+fachrichtung.chemie: Chemie
+fachrichtung.textil: Textil
+fachrichtung.holz_bau: Holz und Bau
+fachrichtung.lebensmittel: Lebensmittel
+fachrichtung.kaufmaennisch: Kaufmännisch

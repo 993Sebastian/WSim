@@ -22,6 +22,8 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+      - name: Spieldaten prüfen
+        run: cargo run -p wsim-cli -- validate data
 
   oberflaeche:
     name: Oberfläche (TypeScript)

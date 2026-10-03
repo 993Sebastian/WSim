@@ -24,3 +24,19 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Technologie | `Technology` |
 | Standort | `Site` |
 | Firma | `Company` |
+| Arbeitskräftegruppe | `LaborGroup` |
+| Qualifikation | `Qualification` |
+| Fachrichtung, Fachgebiet | `Specialization` |
+| Einheit | `Unit` |
+| Branche | `Branch` |
+| Warengruppe | `GoodsGroup` |
+| Transportklasse | `TransportClass` |
+| Staatsmarkt | `StateMarketOffer` |
+| Staatsnachfrage | `StateDemand` |
+| Endkunden-Nachfrage | `ConsumerDemand` |
+| Abbau (Rezept) | `extraction` |
+| Nebenprodukt | `by_products` |
+| Zeitreihe, Jahreswerte | `TimeSeries` |
+| Geldbetrag | `Money` |
+| Annäherung, Quelle | `Provenance` |
+| Befund, Prüfbericht | `Finding`, `Report` |

@@ -477,4 +477,12 @@ Rüstungsgüter folgen erst mit den historischen Ereignissen in Stufe 4.
 
 Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingearbeitet.
 
-Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt.
+Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
+Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
+
+### 18.1 Entscheidungen vom 03.10.2026
+
+- **Staatlicher Markt:** Güter ohne eigene Produktionskette (z. B. Glas, Zinn, Schwefel, Inhalt von Konserven, Pferdekutsche) können vom staatlichen Markt bezogen werden. Er bietet die Ware in jedem Land zu einem Preis aus den Datendateien an.
+- **Länderwerte:** Die Jahreswerte der Länder bilden den realen Verlauf ab, einschließlich der Einbrüche durch Kriege und Krisen. Historische Ereignisse (Stufe 4) erzeugen diese Einbrüche nicht ein zweites Mal.
+- **Sprache:** Programmcode verwendet englische Bezeichner; Datendateien und alle Texte sind deutsch.
+- **Arbeitskräfte:** vier Qualifikationen (Ungelernte, Angelernte, Fachkräfte, Akademiker), bei Fachkräften und Akademikern neun Fachrichtungen, die zugleich die Fachgebiete der Forschung sind (Vorschlag umgesetzt, Freigabe ausstehend).

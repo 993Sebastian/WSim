@@ -1,8 +1,8 @@
-# Architekturvorschlag WSim (Stand: Entwurf zur Freigabe)
+# Architektur WSim
 
 Bezug: `docs/LASTENHEFT.md`. Umgesetzt wird nur Ausbaustufe 1 (§17), die Architektur
-ist aber auf alle sechs Stufen ausgelegt. Dieses Dokument wird mit jeder Freigabe
-fortgeschrieben.
+ist aber auf alle sechs Stufen ausgelegt. Technologie freigegeben am 03.10.2026.
+Dieses Dokument wird mit jedem Meilenstein fortgeschrieben.
 
 ---
 
@@ -164,6 +164,8 @@ data/
   Anteile ≠ 100 %) werden beim Laden mit Datei, Zeile und Pfad gemeldet, mit
   Vorschlag bei Tippfehlern.
 - Geschätzte Werte tragen `annaeherung: true`, recherchierte eine `quelle:`.
+- Güter ohne eigene Kette (Glas, Zinn, Pferdekutsche …) bietet der **Staatsmarkt**
+  in jedem Land zu einem Preis aus den Daten an (`staatsmarkt:` am Produkt).
 - Feldnamen und IDs der Daten sind deutsch (ohne Umlaute), damit Inhalte ohne
   Programmierkenntnisse lesbar sind; der Programmcode verwendet englische Bezeichner.
   Ein Glossar (`docs/GLOSSAR.md`) ordnet beides zu.
@@ -199,219 +201,54 @@ data/
 
 ## 3 Beispiel: Kette 1 – Eisen und Stahl
 
-Datei `data/ketten/01_eisen_stahl.yaml`. Alle Zahlen sind Annäherungen für etwa 1900
-und werden in Meilenstein 1 bzw. 8 recherchiert und gekennzeichnet.
+Die vollständige Kette steht in `data/ketten/01_eisen_stahl.yaml`, die Lagerstätten in
+`data/lagerstaetten/`, die Namen in `data/texte/de/`. Alle Felder beschreibt
+`docs/DATENFORMAT.md`. Auszug:
 
 ```yaml
-# Kette 1 – Eisen und Stahl
-# Geld: USD, Kaufkraft 2026. Mengen in der Einheit des Produkts.
-
-produkte:
-  - id: eisenerz
-    art: rohstoff                 # rohstoff | halbzeug | komponente | endprodukt | energie
-    branche: bergbau
-    einheit: t                    # normiert auf 60 % Fe-Gehalt
-    verwendung: industrie         # industrie | konsum | beides
-    warengruppe: erze             # für Zölle/Handelsbeschränkungen (ab Stufe 2)
-    transportklasse: schuettgut
-
-  - id: kohle
-    art: rohstoff
-    branche: bergbau
-    einheit: t
-    verwendung: industrie
-    warengruppe: brennstoffe
-    transportklasse: schuettgut
-    heizwert_mwh: 8.1             # damit Kohle auch als Energieträger dient (Kette 7)
-
-  - id: roheisen
-    art: halbzeug
-    branche: metallurgie
-    einheit: t
-    verwendung: industrie
-    warengruppe: eisen_stahl
-    transportklasse: schuettgut
-
-  - id: stahl
-    art: halbzeug
-    branche: metallurgie
-    einheit: t
-    verwendung: industrie
-    warengruppe: eisen_stahl
-    transportklasse: stueckgut
-
-  - id: blech
-    art: halbzeug
-    branche: metallurgie
-    einheit: t
-    verwendung: industrie
-    warengruppe: eisen_stahl
-    transportklasse: stueckgut
-
-  - id: draht
-    # … wie blech
-
-  - id: stabstahl
-    art: halbzeug
-    branche: metallurgie
-    einheit: t
-    verwendung: industrie
-    warengruppe: eisen_stahl
-    transportklasse: stueckgut
-    staatsnachfrage:              # Schienen, Brücken, Bauten (§9.1)
-      t_je_mio_usd_bip: 2.0
-      kriegsfaktor: 1.5           # wirkt erst mit Ereignissen (Stufe 4)
-      annaeherung: true
-
-anlagen:
-  - id: hochofen
-    standorttyp: werk
-    investition_usd: 60_000_000
-    bauzeit_tage: 540
-    kapazitaet_je_tag: 250        # Durchläufe pro Tag bei voller Auslastung
-    lebensdauer_jahre: 30
-    wartung_je_jahr: 0.03         # Anteil der Investition
-    automatisierung_max: 0.2      # steigt mit späteren Technologien
-    annaeherung: true
-
-  - id: stahlwerk_konverter      # Bessemer/Thomas
-    # … Felder wie hochofen
-  - id: stahlwerk_herdofen       # Siemens-Martin
-    # …
-  - id: walzwerk
-    # …
-
 rezepte:
-  - id: roheisen_kokshochofen
-    produkt: roheisen
-    menge: 1                      # Ausstoß je Durchlauf (t)
-    dauer_tage: 1
-    anlage: hochofen
-    technologie: kokshochofen
-    eingang:                      # je Durchlauf
-      eisenerz: 1.7
-      kohle: 1.5                  # Kokskohle, Verkokung im Rezept enthalten
-    arbeit_stunden:               # Personenstunden je Durchlauf nach Qualifikation
-      ungelernt: 6.0
-      facharbeiter: 2.5
-      techniker: 0.3
-    energie_mwh: 0.0              # 1900: Hochofen braucht keinen Fremdstrom
-    qualitaet_basis: 50           # 0–100, vor Einfluss von Vorprodukten, Schulung usw.
-    annaeherung: true
-
-  # Zwei Rezepte für dasselbe Produkt: Technologie-Fortschritt ohne neues Produkt.
+  # Zwei Rezepte für dasselbe Produkt: Fortschritt durch Technologie.
   - id: stahl_bessemer
     produkt: stahl
     menge: 1
     dauer_tage: 1
     anlage: stahlwerk_konverter
     technologie: bessemer_verfahren
-    eingang: { roheisen: 1.12 }
-    arbeit_stunden: { ungelernt: 3.0, facharbeiter: 2.0, techniker: 0.2 }
-    energie_mwh: 0.0
+    eingang:
+      roheisen: 1.12
+    arbeit_stunden:               # Personenstunden je Durchlauf
+      ungelernt: 2.0
+      angelernt: 1.5
+      fachkraft.metall: 1.5
+      akademiker.metall: 0.05
     qualitaet_basis: 45
     annaeherung: true
 
   - id: stahl_siemens_martin
     produkt: stahl
-    menge: 1
-    dauer_tage: 1
-    anlage: stahlwerk_herdofen
-    technologie: siemens_martin_verfahren
-    eingang: { roheisen: 1.10, kohle: 0.25 }
-    arbeit_stunden: { ungelernt: 4.0, facharbeiter: 3.0, techniker: 0.3 }
-    energie_mwh: 0.0
+    eingang:
+      roheisen: 1.10
+      kohle: 0.25
     qualitaet_basis: 65
-    annaeherung: true
+    # …
 
-  - id: blech_warmwalzen
-    produkt: blech
-    menge: 1
-    dauer_tage: 1
-    anlage: walzwerk
-    technologie: warmwalzen
-    eingang: { stahl: 1.12, kohle: 0.10 }
-    arbeit_stunden: { ungelernt: 3.0, facharbeiter: 2.5, techniker: 0.2 }
-    energie_mwh: 0.05
-    qualitaet_basis: 55
-    annaeherung: true
-
-  # draht_ziehen, stabstahl_walzen analog
-
-technologien:
-  - id: kokshochofen
-    fachgebiet: metallurgie
-    erfindungsjahr: 1709
-    voraussetzungen: []
-
-  - id: bessemer_verfahren
-    fachgebiet: metallurgie
-    erfindungsjahr: 1856
-    voraussetzungen: [kokshochofen]
-
-  - id: siemens_martin_verfahren
-    fachgebiet: metallurgie
-    erfindungsjahr: 1864
-    voraussetzungen: [kokshochofen]
-
-  - id: warmwalzen
-    fachgebiet: metallurgie
-    erfindungsjahr: 1783
-    voraussetzungen: []
-
-  - id: elektrostahl              # erst nach 1900: echtes Forschungsziel
-    fachgebiet: metallurgie
-    erfindungsjahr: 1900
-    voraussetzungen: [siemens_martin_verfahren, stromversorgung]  # stromversorgung: Kette 7
-    forschungsaufwand: 4000       # Forschungspunkte zum historischen Jahr
-    annaeherung: true
-```
-
-Datei `data/lagerstaetten/eisenerz.yaml`:
-
-```yaml
 lagerstaetten:
-  - id: kiruna_malmberget
-    land: SWE
-    rohstoff: eisenerz
-    vorrat: 3_000_000_000         # t, normiert auf 60 % Fe
-    entdeckt: 1696
-    erschliessung: { investition_usd: 150_000_000, dauer_tage: 720 }
-    foerderung_max_je_jahr: 30_000_000
-    foerderkosten_faktor: 0.8     # Tagebau, reiches Erz
-    annaeherung: true
-
   - id: lothringen_minette
-    land: FRA                     # heutige Grenzen – 1900 überwiegend deutsch
+    land: FRA                     # heutige Grenzen – 1900 zum großen Teil deutsch
     rohstoff: eisenerz
-    vorrat: 2_500_000_000         # Minette ≈ 30 % Fe, hier auf 60 % umgerechnet
+    vorrat: 2_500_000_000         # t, normiert auf 60 % Fe
     entdeckt: 1850
-    erschliessung: { investition_usd: 80_000_000, dauer_tage: 540 }
-    foerderung_max_je_jahr: 20_000_000
-    foerderkosten_faktor: 1.3     # phosphorreich, braucht Thomas-Verfahren
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 25_000_000
+    foerderkosten_faktor: 1.3
     annaeherung: true
-```
-
-Datei `data/texte/de/produkte.yaml`:
-
-```yaml
-produkt.eisenerz: Eisenerz
-produkt.eisenerz.info: Erz mit hohem Eisengehalt, normiert auf 60 % Fe.
-produkt.roheisen: Roheisen
-rezept.roheisen_kokshochofen: Roheisen im Kokshochofen
-technologie.bessemer_verfahren: Bessemer-Verfahren
-```
-
-So meldet der Lader einen Fehler:
-
-```
-Fehler in data/ketten/01_eisen_stahl.yaml, Zeile 112 (rezepte[3].eingang):
-  Unbekanntes Produkt „roheisn“. Meinten Sie „roheisen“?
 ```
 
 ---
 
 ## 4 Meilensteine für Stufe 1
+
+**Stand:** M1 und M2 abgeschlossen.
 
 Jeder Meilenstein endet mit grünen automatischen Tests und einer kurzen Abnahme
 durch dich. Formeln werden vor der Umsetzung in `docs/FORMELN.md` beschrieben und

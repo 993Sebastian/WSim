@@ -1,0 +1,52 @@
+# Eisenerz-Lagerstätten. Vorrat und Förderung in t, normiert auf 60 % Eisengehalt.
+# Länder in heutigen Grenzen. Werte sind grobe Annäherungen und werden in M4 ergänzt.
+
+lagerstaetten:
+  - id: kiruna_malmberget
+    land: SWE
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    entdeckt: 1696
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 720}   # Erzbahn nach Narvik
+    foerderung_max_je_jahr: 30_000_000
+    foerderkosten_faktor: 0.8     # Tagebau, sehr reiches Erz
+    annaeherung: true
+
+  - id: lothringen_minette
+    land: FRA                     # heutige Grenzen – 1900 zum großen Teil deutsch
+    rohstoff: eisenerz
+    vorrat: 2_500_000_000         # Minette mit etwa 30 % Fe, umgerechnet
+    entdeckt: 1850
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 25_000_000
+    foerderkosten_faktor: 1.3     # arm und phosphorreich
+    annaeherung: true
+
+  - id: siegerland
+    land: DEU
+    rohstoff: eisenerz
+    vorrat: 100_000_000
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.4     # Tiefbau, kleine Gänge
+    annaeherung: true
+
+  - id: cleveland_hills
+    land: GBR
+    rohstoff: eisenerz
+    vorrat: 250_000_000
+    entdeckt: 1850
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 4_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: mesabi_range
+    land: USA
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    entdeckt: 1890
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 50_000_000
+    foerderkosten_faktor: 0.7     # Tagebau mit Dampfbaggern
+    annaeherung: true

@@ -1,0 +1,39 @@
+# Steinkohle-Lagerstätten. Vorrat und Förderung in t.
+# Länder in heutigen Grenzen. Werte sind grobe Annäherungen und werden in M4 ergänzt.
+
+lagerstaetten:
+  - id: ruhrgebiet
+    land: DEU
+    rohstoff: kohle
+    vorrat: 20_000_000_000
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 150_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: suedwales
+    land: GBR
+    rohstoff: kohle
+    vorrat: 10_000_000_000
+    erschliessung: {investition_usd: 50_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 60_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: nord_pas_de_calais
+    land: FRA
+    rohstoff: kohle
+    vorrat: 3_000_000_000
+    erschliessung: {investition_usd: 50_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 35_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: appalachen
+    land: USA
+    rohstoff: kohle
+    vorrat: 50_000_000_000
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 300_000_000
+    foerderkosten_faktor: 0.7     # flache, mächtige Flöze
+    annaeherung: true

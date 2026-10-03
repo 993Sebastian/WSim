@@ -1,0 +1,29 @@
+# Arbeitskräfte werden als Gruppen geführt (Lastenheft §5.3): Qualifikation, bei
+# Fachkräften und Akademikern zusätzlich die Fachrichtung. In Rezepten heißt eine
+# Gruppe z. B. „ungelernt“ oder „fachkraft.metall“.
+# Die Fachrichtungen sind zugleich die Fachgebiete der Forschung.
+
+qualifikationen:
+  - id: ungelernt         # Hilfsarbeiter, Handlanger, Landarbeiter
+    stufe: 1
+    mit_fachrichtung: false
+  - id: angelernt         # Maschinenbediener, Fließband – kurze Einarbeitung
+    stufe: 2
+    mit_fachrichtung: false
+  - id: fachkraft         # Berufsausbildung, Meister: Hauer, Schmelzer, Schlosser, Weber
+    stufe: 3
+    mit_fachrichtung: true
+  - id: akademiker        # Ingenieure, Chemiker, Kaufleute mit Studium, Forscher
+    stufe: 4
+    mit_fachrichtung: true
+
+fachrichtungen:
+  - id: bergbau           # Bergbau, Förderung von Erz, Kohle, Öl
+  - id: metall            # Hütten, Gießereien, Walzwerke, Metallbearbeitung
+  - id: maschinenbau      # Maschinen, Fahrzeuge, Schiffe, Luft- und Raumfahrt
+  - id: elektro           # Elektrotechnik, Kraftwerke, später Elektronik
+  - id: chemie            # Chemie, Raffinerien, Gummi, Glas, Pharma
+  - id: textil            # Spinnerei, Weberei, Bekleidung, Leder
+  - id: holz_bau          # Sägewerke, Möbel, Papier, Bau
+  - id: lebensmittel      # Mühlen, Konserven, Lebensmittelverarbeitung
+  - id: kaufmaennisch     # Einkauf, Vertrieb, Verwaltung, Logistik

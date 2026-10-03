@@ -1,0 +1,8 @@
+laender:
+  - id: SWE
+    kontinent: europa
+    werte:
+      bevoelkerung: {1900: 5_140_000, 1913: 5_640_000, 1930: 6_140_000}
+      bip_je_kopf_usd: {1900: 6_050, 1913: 7_630, 1918: 6_700, 1929: 9_790, 1930: 9_860}
+    annaeherung: true
+    quelle: "Vorläufige Größenordnung für M2 (Maddison Project Database 2023, Int.-$ 2011 × 1,44 auf USD 2026; Bevölkerung auf heutige Grenzen umgerechnet). Wird in M4 recherchiert."

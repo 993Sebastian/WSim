@@ -1,0 +1,9 @@
+laender:
+  - id: FRA
+    kontinent: europa
+    # Heutige Grenzen: einschließlich Elsass-Lothringen.
+    werte:
+      bevoelkerung: {1900: 40_700_000, 1913: 41_700_000, 1921: 39_200_000, 1930: 41_600_000}
+      bip_je_kopf_usd: {1900: 7_900, 1913: 9_190, 1918: 6_900, 1929: 11_520, 1930: 11_230}
+    annaeherung: true
+    quelle: "Vorläufige Größenordnung für M2 (Maddison Project Database 2023, Int.-$ 2011 × 1,44 auf USD 2026; Bevölkerung auf heutige Grenzen umgerechnet). Wird in M4 recherchiert."

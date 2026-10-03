@@ -1,0 +1,328 @@
+# Kette 1 – Eisen und Stahl (Lastenheft §17.1)
+# Eisenerz + Kohle → Roheisen → Stahl → Blech, Draht, Stabstahl
+#
+# Geld in USD mit Kaufkraft 2026, Mengen in der Einheit des Produkts.
+# Alle Zahlen sind Annäherungen für etwa 1900 und werden beim Balancing (M15) überprüft.
+# Arbeitszeiten: Personenstunden je Durchlauf, ohne Automatisierung.
+
+produkte:
+  - id: eisenerz
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # normiert auf 60 % Eisengehalt
+    verwendung: industrie
+    warengruppe: erze
+    transportklasse: schuettgut
+
+  - id: kohle
+    art: rohstoff
+    branche: bergbau
+    einheit: t
+    verwendung: beides            # auch Hausbrand
+    warengruppe: brennstoffe
+    transportklasse: schuettgut
+    heizwert_mwh: 8.1             # Steinkohle, etwa 29 GJ/t
+
+  - id: roheisen
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: schuettgut
+
+  - id: stahl
+    art: halbzeug
+    branche: metallurgie
+    einheit: t                    # Rohstahl in Blöcken
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: stueckgut
+
+  - id: blech
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: stueckgut
+    staatsnachfrage:              # Schiffbau, Behälter
+      je_mio_usd_bip: 0.5
+      kriegsfaktor: 2.0
+    annaeherung: true
+
+  - id: draht
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: stueckgut
+
+  - id: stabstahl
+    art: halbzeug
+    branche: metallurgie
+    einheit: t                    # Profile, Schienen, Träger
+    verwendung: industrie
+    warengruppe: eisen_stahl
+    transportklasse: stueckgut
+    staatsnachfrage:              # Eisenbahn, Brücken, öffentliche Bauten
+      je_mio_usd_bip: 2.0
+      kriegsfaktor: 1.5
+    annaeherung: true
+
+anlagen:
+  - id: erzbergwerk
+    standorttyp: foerderstaette
+    investition_usd: 15_000_000   # Förderanlage; die Erschließung der Lagerstätte kommt hinzu
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 2000       # Durchläufe = t Erz
+    lebensdauer_jahre: 40
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.1
+    annaeherung: true
+
+  - id: kohlenzeche
+    standorttyp: foerderstaette
+    investition_usd: 25_000_000   # Schächte, Förderturm, Wasserhaltung
+    bauzeit_tage: 720
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 40
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.1
+    annaeherung: true
+
+  - id: hochofen
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 250
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: stahlwerk_konverter      # Bessemer-Birne
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 500
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: stahlwerk_herdofen       # Siemens-Martin-Ofen
+    standorttyp: werk
+    investition_usd: 35_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: elektrostahlwerk         # Lichtbogenofen
+    standorttyp: werk
+    investition_usd: 6_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 30
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.3
+    technologie: elektrostahl
+    annaeherung: true
+
+  - id: walzwerk
+    standorttyp: werk
+    investition_usd: 30_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: drahtzieherei
+    standorttyp: werk
+    investition_usd: 8_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: eisenerz_abbau
+    produkt: eisenerz
+    menge: 1
+    dauer_tage: 1
+    anlage: erzbergwerk
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 2.0
+      fachkraft.bergbau: 2.0
+      akademiker.bergbau: 0.02
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: kohle_abbau
+    produkt: kohle
+    menge: 1
+    dauer_tage: 1
+    anlage: kohlenzeche
+    abbau: true
+    arbeit_stunden:               # etwa 1 t je Hauer-Schicht unter Tage
+      ungelernt: 3.0
+      fachkraft.bergbau: 4.5
+      akademiker.bergbau: 0.03
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: roheisen_kokshochofen
+    produkt: roheisen
+    menge: 1
+    dauer_tage: 1
+    anlage: hochofen
+    technologie: kokshochofen
+    eingang:
+      eisenerz: 1.7
+      kohle: 1.5                  # Kokskohle; die Verkokung ist im Rezept enthalten
+    arbeit_stunden:
+      ungelernt: 5.0
+      angelernt: 2.0
+      fachkraft.metall: 1.8
+      akademiker.metall: 0.05
+    energie_mwh: 0.0              # Gebläse mit Gichtgas, kein Fremdstrom
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: stahl_bessemer
+    produkt: stahl
+    menge: 1
+    dauer_tage: 1
+    anlage: stahlwerk_konverter
+    technologie: bessemer_verfahren
+    eingang:
+      roheisen: 1.12
+    arbeit_stunden:
+      ungelernt: 2.0
+      angelernt: 1.5
+      fachkraft.metall: 1.5
+      akademiker.metall: 0.05
+    qualitaet_basis: 45           # spröder, schwer zu steuern
+    annaeherung: true
+
+  - id: stahl_siemens_martin
+    produkt: stahl
+    menge: 1
+    dauer_tage: 1
+    anlage: stahlwerk_herdofen
+    technologie: siemens_martin_verfahren
+    eingang:
+      roheisen: 1.10
+      kohle: 0.25                 # Generatorgas für den Herdofen
+    arbeit_stunden:
+      ungelernt: 3.0
+      angelernt: 2.0
+      fachkraft.metall: 2.5
+      akademiker.metall: 0.08
+    qualitaet_basis: 65
+    annaeherung: true
+
+  - id: stahl_elektro
+    produkt: stahl
+    menge: 1
+    dauer_tage: 1
+    anlage: elektrostahlwerk
+    technologie: elektrostahl
+    eingang:
+      roheisen: 1.05
+    arbeit_stunden:
+      angelernt: 2.0
+      fachkraft.metall: 2.0
+      fachkraft.elektro: 0.5
+      akademiker.metall: 0.15
+    energie_mwh: 0.8
+    qualitaet_basis: 80           # Edelstahl, Werkzeugstahl
+    annaeherung: true
+
+  - id: blech_walzen
+    produkt: blech
+    menge: 1
+    dauer_tage: 1
+    anlage: walzwerk
+    technologie: warmwalzen
+    eingang:
+      stahl: 1.12
+      kohle: 0.10                 # Wiedererwärmen der Blöcke
+    arbeit_stunden:
+      ungelernt: 2.5
+      angelernt: 2.0
+      fachkraft.metall: 2.0
+      akademiker.metall: 0.04
+    energie_mwh: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: stabstahl_walzen
+    produkt: stabstahl
+    menge: 1
+    dauer_tage: 1
+    anlage: walzwerk
+    technologie: warmwalzen
+    eingang:
+      stahl: 1.08
+      kohle: 0.10
+    arbeit_stunden:
+      ungelernt: 2.0
+      angelernt: 1.5
+      fachkraft.metall: 1.5
+      akademiker.metall: 0.03
+    energie_mwh: 0.04
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: draht_ziehen
+    produkt: draht
+    menge: 1
+    dauer_tage: 1
+    anlage: drahtzieherei
+    technologie: warmwalzen       # Walzdraht als Vorstufe
+    eingang:
+      stahl: 1.10
+      kohle: 0.10
+    arbeit_stunden:
+      ungelernt: 3.0
+      angelernt: 6.0
+      fachkraft.metall: 3.0
+      akademiker.metall: 0.05
+    energie_mwh: 0.10
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: kokshochofen
+    fachgebiet: metall
+    erfindungsjahr: 1709          # Abraham Darby
+
+  - id: warmwalzen
+    fachgebiet: metall
+    erfindungsjahr: 1783          # Henry Cort
+
+  - id: bessemer_verfahren
+    fachgebiet: metall
+    erfindungsjahr: 1856
+    voraussetzungen: [kokshochofen]
+
+  - id: siemens_martin_verfahren
+    fachgebiet: metall
+    erfindungsjahr: 1864
+    voraussetzungen: [kokshochofen]
+
+  - id: elektrostahl              # Paul Héroult, Lichtbogenofen
+    fachgebiet: metall
+    erfindungsjahr: 1900
+    voraussetzungen: [siemens_martin_verfahren]   # + Stromversorgung, sobald Kette 7 da ist
+    annaeherung: true

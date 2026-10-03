@@ -1,0 +1,9 @@
+laender:
+  - id: DEU
+    kontinent: europa
+    # Heutige Grenzen: 1900 ohne Elsass-Lothringen und die Ostgebiete.
+    werte:
+      bevoelkerung: {1900: 44_000_000, 1913: 52_600_000, 1919: 50_500_000, 1925: 54_100_000, 1930: 56_500_000}
+      bip_je_kopf_usd: {1900: 8_710, 1913: 10_150, 1919: 7_200, 1923: 7_600, 1929: 10_580, 1930: 10_150}
+    annaeherung: true
+    quelle: "Vorläufige Größenordnung für M2 (Maddison Project Database 2023, Int.-$ 2011 × 1,44 auf USD 2026; Bevölkerung auf heutige Grenzen umgerechnet). Wird in M4 recherchiert."

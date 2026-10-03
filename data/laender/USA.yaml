@@ -1,0 +1,8 @@
+laender:
+  - id: USA
+    kontinent: nordamerika
+    werte:
+      bevoelkerung: {1900: 76_100_000, 1913: 97_200_000, 1929: 121_800_000, 1930: 123_100_000}
+      bip_je_kopf_usd: {1900: 11_575, 1913: 14_555, 1921: 13_300, 1929: 17_214, 1930: 15_400}
+    annaeherung: true
+    quelle: "Vorläufige Größenordnung für M2 (Maddison Project Database 2023, Int.-$ 2011 × 1,44 auf USD 2026; Bevölkerung auf heutige Grenzen umgerechnet). Wird in M4 recherchiert."

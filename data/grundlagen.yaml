@@ -1,0 +1,70 @@
+# Grundbegriffe, auf die sich alle anderen Daten beziehen.
+
+einheiten:
+  - id: t
+    gewicht_kg: 1000
+  - id: kg
+    gewicht_kg: 1
+  - id: stueck            # Gewicht steht beim Produkt
+  - id: mwh
+    gewicht_kg: 0         # Strom wird über das Netz geliefert
+  - id: m3                # Gewicht steht beim Produkt
+
+kontinente:
+  - id: afrika
+  - id: asien
+  - id: europa
+  - id: nordamerika       # einschließlich Mittelamerika und Karibik
+  - id: suedamerika
+  - id: ozeanien
+
+# Branchen nach Lastenheft §6.2
+branchen:
+  - id: bergbau
+  - id: metallurgie
+  - id: chemie
+  - id: energie
+  - id: holz_papier
+  - id: textil
+  - id: lebensmittel
+  - id: bau
+  - id: maschinenbau
+  - id: fahrzeuge
+  - id: schiffbau
+  - id: luftfahrt
+  - id: raumfahrt
+  - id: elektro
+  - id: konsumgueter
+  - id: pharma
+  - id: ruestung
+
+# Warengruppen für Zölle und Handelsbeschränkungen (ab Stufe 2)
+warengruppen:
+  - id: erze
+  - id: brennstoffe
+  - id: eisen_stahl
+  - id: nichteisenmetalle
+  - id: holz
+  - id: papier
+  - id: agrarrohstoffe
+  - id: lebensmittel
+  - id: textilien
+  - id: bekleidung
+  - id: chemie
+  - id: mineraloel
+  - id: gummi
+  - id: glas_keramik
+  - id: metallwaren
+  - id: maschinen
+  - id: elektro
+  - id: fahrzeuge
+  - id: moebel_hausrat
+  - id: ruestung
+  - id: strom
+
+transportklassen:
+  - id: schuettgut        # Erz, Kohle, Getreide
+  - id: stueckgut         # Stahlprofile, Maschinen, Konsumgüter
+  - id: fluessig          # Rohöl, Benzin
+  - id: gas
+  - id: leitung           # Strom
