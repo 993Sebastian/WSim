@@ -1,0 +1,77 @@
+:root {
+  --hintergrund: #f4f6f9;
+  --flaeche: #ffffff;
+  --text: #1b2430;
+  --text-gedaempft: #5b6675;
+  --akzent: #1f3a5f;
+  --erfolg: #2e7d4f;
+  --fehler: #b3261e;
+  --rahmen: #d8dee6;
+
+  color-scheme: light dark;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #12171e;
+    --flaeche: #1a212b;
+    --text: #e6ebf1;
+    --text-gedaempft: #9aa6b5;
+    --akzent: #8fb3e0;
+    --erfolg: #6cc28f;
+    --fehler: #f2827a;
+    --rahmen: #2c3644;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--hintergrund);
+  color: var(--text);
+}
+
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 0.25rem;
+}
+
+.start h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--akzent);
+}
+
+.untertitel {
+  margin: 0 0 2rem;
+  font-size: 1.25rem;
+  color: var(--text-gedaempft);
+}
+
+.kernstatus {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+  background: var(--flaeche);
+  color: var(--text-gedaempft);
+}
+
+.kernstatus-bereit {
+  color: var(--erfolg);
+}
+
+.kernstatus-fehler {
+  color: var(--fehler);
+}

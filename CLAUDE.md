@@ -55,11 +55,24 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 
 ## Prüfen vor jedem Commit
 
-- Rust: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`
-- Daten: `cargo run -p wsim-cli -- validate data/`
-- UI: `pnpm -C ui lint`, `pnpm -C ui test`
-- Der Determinismus-Test muss grün sein.
+- Rust: `cargo fmt --all --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`
+  (deckt `crates/*` ab; die Tauri-Hülle braucht zusätzlich `pnpm -C ui build` und
+  `cargo clippy -p wsim-app --all-targets -- -D warnings`)
+- Daten (ab M2): `cargo run -p wsim-cli -- validate data/`
+- UI: `pnpm -C ui typecheck`, `pnpm -C ui lint`, `pnpm -C ui test`, `pnpm -C ui e2e`
+  (`pnpm -C ui format` behebt Formatierungsfehler)
+- Der Determinismus-Test muss grün sein (ab M3).
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
+- CI (`.github/workflows/ci.yml`) führt dasselbe aus und baut den Windows-Installer.
+
+## Umgebung
+
+- Rust-Version ist in `rust-toolchain.toml` fest eingestellt (gleiche Gleitkomma-
+  Ergebnisse); nur bewusst und mit Determinismus-Test anheben.
+- Tauri unter Linux braucht `libwebkit2gtk-4.1-dev` und `libgtk-3-dev`. Die App lässt
+  sich hier mit `pnpm -C app tauri build --debug --no-bundle` bauen und unter
+  `xvfb-run` starten.
+- Playwright ist auf 1.56.1 festgelegt, passend zum vorinstallierten Chromium.
 
 ## Sprache
 

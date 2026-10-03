@@ -1,0 +1,7 @@
+# Anzeigetexte der Oberfläche. Schlüssel: bereich.name, Platzhalter in {geschweiften Klammern}.
+app.titel: WSim
+app.untertitel: Wirtschaftssimulation 1900–2100
+kern.laedt: Simulationskern wird gestartet …
+kern.bereit: Simulationskern {version} bereit
+kern.vorschau: Vorschau im Browser – ohne Simulationskern
+kern.fehler: "Simulationskern nicht erreichbar: {fehler}"

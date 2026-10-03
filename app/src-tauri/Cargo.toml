@@ -1,0 +1,23 @@
+[package]
+name = "wsim-app"
+description = "Windows-Programm von WSim (Tauri-Hülle um Kern und Oberfläche)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "wsim-app"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+wsim-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tauri = { version = "2.12", features = [] }
+
+[lints]
+workspace = true

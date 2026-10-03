@@ -1,0 +1,4 @@
+# Pinned so that floating-point results stay identical between builds (reproducibility, §16.1).
+[toolchain]
+channel = "1.97.0"
+components = ["rustfmt", "clippy"]
