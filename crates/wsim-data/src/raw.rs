@@ -470,3 +470,40 @@ pub struct RawDevelopment {
     #[serde(rename = "dauer_tage")]
     pub days: u32,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProductionModel {
+    #[serde(rename = "standortkosten_usd")]
+    pub site_cost: BTreeMap<String, f64>,
+    #[serde(rename = "gebaeude_lebensdauer_jahre")]
+    pub building_lifetime_years: f64,
+    #[serde(rename = "erschliessung_lebensdauer_jahre")]
+    pub development_lifetime_years: f64,
+    #[serde(rename = "automatisierung")]
+    pub automation: RawAutomationCost,
+    #[serde(rename = "qualitaet")]
+    pub quality: RawQuality,
+    #[serde(rename = "zustand_minimum")]
+    pub condition_min: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAutomationCost {
+    #[serde(rename = "arbeitsersparnis")]
+    pub labor_saving: f64,
+    #[serde(rename = "kostenanteil")]
+    pub cost_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawQuality {
+    #[serde(rename = "vorprodukte")]
+    pub inputs: f64,
+    #[serde(rename = "automatisierung")]
+    pub automation: f64,
+    #[serde(rename = "zustand")]
+    pub condition: f64,
+}

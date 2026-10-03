@@ -1,0 +1,406 @@
+//! Daily production: construction, staffing, extraction and manufacturing, costs
+//! (Lastenheft §5.2, §6.1–6.3; formulas in docs/FORMELN.md, section M5).
+
+use crate::calendar::Date;
+use crate::catalog::{Catalog, Recipe};
+use crate::ids::{Id, LaborGroupId, RecipeId};
+use crate::ledger::{Account, CostCenter, CostType};
+use crate::money::Money;
+use crate::state::{Batch, GameState, SiteId};
+
+/// Working hours one employee provides per calendar day.
+pub fn hours_per_worker_day(catalog: &Catalog, date: Date) -> f64 {
+    catalog
+        .country_model
+        .annual_hours
+        .value_at(f64::from(date.year()))
+        / 365.0
+}
+
+/// Factor on the labor hours of a recipe for a degree of automation.
+pub fn labor_factor(catalog: &Catalog, automation: f64, affinity: f64) -> f64 {
+    1.0 - automation * catalog.production_model.automation_labor_saving * (0.5 + 0.5 * affinity)
+}
+
+/// Labor hours per run for each group, including automation and deposit difficulty.
+fn hours_per_run(
+    catalog: &Catalog,
+    recipe: &Recipe,
+    automation: f64,
+    affinity: f64,
+    cost_factor: f64,
+) -> Vec<(LaborGroupId, f64)> {
+    let factor = labor_factor(catalog, automation, affinity) * cost_factor;
+    recipe
+        .labor_hours
+        .iter()
+        .map(|&(g, h)| (g, h * factor))
+        .collect()
+}
+
+/// One simulated day for all sites. `date` is the day being simulated.
+pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
+    complete_constructions(state, catalog, date);
+    staff_sites(state, catalog, date);
+    for index in 0..state.sites.len() {
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        if state
+            .company(state.sites[index].owner)
+            .is_some_and(|c| c.bankrupt)
+        {
+            continue;
+        }
+        produce(state, catalog, site, date);
+        finish_batches(state, site, date);
+        running_costs(state, catalog, site, date);
+    }
+}
+
+fn complete_constructions(state: &mut GameState, catalog: &Catalog, date: Date) {
+    for site in 0..state.sites.len() {
+        let owner = state.sites[site].owner;
+        let finished: Money = state.sites[site]
+            .slots
+            .iter()
+            .filter(|s| s.ready == date)
+            .map(|s| catalog.facilities.get(s.facility).investment)
+            .sum();
+        if finished != Money::ZERO {
+            state.sites[site].staffing_due = true;
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.transfer(
+                Account::FixedAssets,
+                Account::AssetsUnderConstruction,
+                finished,
+            );
+        }
+    }
+    for (_, deposit) in state.deposits.iter_mut() {
+        if deposit.ready == Some(date)
+            && let Some(site) = deposit.site
+        {
+            let owner = state.sites[site.index()].owner;
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.transfer(
+                Account::FixedAssets,
+                Account::AssetsUnderConstruction,
+                deposit.development_cost,
+            );
+            state.sites[site.index()].staffing_due = true;
+        }
+    }
+}
+
+/// Planned runs per day of a slot (0 while under construction or idle).
+fn planned_runs(
+    catalog: &Catalog,
+    state: &GameState,
+    site: SiteId,
+    slot: usize,
+    date: Date,
+) -> Option<(RecipeId, f64)> {
+    let s = &state.sites[site.index()];
+    let sl = &s.slots[slot];
+    let recipe = sl.recipe?;
+    if sl.ready > date || sl.utilization <= 0.0 {
+        return None;
+    }
+    if catalog.recipes.get(recipe).extraction {
+        let deposit = s.deposit?;
+        if state.deposits.get(deposit).ready.is_none_or(|r| r > date) {
+            return None;
+        }
+    }
+    Some((
+        recipe,
+        catalog.facilities.get(sl.facility).runs_per_day * sl.utilization,
+    ))
+}
+
+fn deposit_cost_factor(catalog: &Catalog, state: &GameState, site: SiteId, recipe: &Recipe) -> f64 {
+    let s = &state.sites[site.index()];
+    match (recipe.extraction, s.deposit) {
+        (true, Some(d)) => catalog.deposits.get(d).cost_factor,
+        _ => 1.0,
+    }
+}
+
+/// Hires and dismisses staff so that every site has the workers its planned production
+/// needs, within the free labor pool of its country (Lastenheft §5.3). Sites are served
+/// in the order they were founded.
+fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
+    if !state.sites.iter().any(|s| s.staffing_due) {
+        return;
+    }
+    let groups = catalog.labor_groups.len();
+    let mut employed: Vec<Vec<f64>> = vec![vec![0.0; groups]; catalog.countries.len()];
+    for s in &state.sites {
+        for (g, &w) in s.workforce.iter() {
+            employed[s.country.index()][g.index()] += w;
+        }
+    }
+    let worker_hours = hours_per_worker_day(catalog, date);
+    for index in 0..state.sites.len() {
+        if !state.sites[index].staffing_due {
+            continue;
+        }
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        let country = state.sites[index].country;
+        let affinity = state.countries.get(country).automation_affinity;
+        let mut needed = vec![0.0; groups];
+        for slot in 0..state.sites[index].slots.len() {
+            let Some((recipe_id, runs)) = planned_runs(catalog, state, site, slot, date) else {
+                continue;
+            };
+            let recipe = catalog.recipes.get(recipe_id);
+            let automation = state.sites[index].slots[slot].automation;
+            let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+            for (g, h) in hours_per_run(catalog, recipe, automation, affinity, cost_factor) {
+                needed[g.index()] += runs * h / worker_hours;
+            }
+        }
+        let pool = &state.countries.get(country).labor_pool;
+        let s = &mut state.sites[index];
+        for g in 0..groups {
+            let id = LaborGroupId::from_index(g);
+            let current = *s.workforce.get(id);
+            let target = needed[g];
+            let new = if target > current {
+                let free =
+                    (pool.get(g).copied().unwrap_or(0.0) - employed[country.index()][g]).max(0.0);
+                current + (target - current).min(free)
+            } else {
+                target
+            };
+            employed[country.index()][g] += new - current;
+            *s.workforce.get_mut(id) = new;
+        }
+        s.staffing_due = false;
+    }
+}
+
+fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
+    let index = site.index();
+    let country = state.sites[index].country;
+    let worker_hours = hours_per_worker_day(catalog, date);
+    let (affinity, grid_share, electricity_price, wages) = {
+        let c = state.countries.get(country);
+        (
+            c.automation_affinity,
+            c.grid_share,
+            c.electricity_price_usd_mwh,
+            c.hourly_wage_usd.clone(),
+        )
+    };
+    // Hours the site's staff can work today, shared by the facilities in order.
+    let mut hours: Vec<f64> = state.sites[index]
+        .workforce
+        .values()
+        .map(|w| w * worker_hours)
+        .collect();
+    let owner = state.sites[index].owner;
+    let model = &catalog.production_model;
+
+    for slot in 0..state.sites[index].slots.len() {
+        state.sites[index].slots[slot].last_runs = 0.0;
+        let Some((recipe_id, planned)) = planned_runs(catalog, state, site, slot, date) else {
+            continue;
+        };
+        let recipe = catalog.recipes.get(recipe_id);
+        let automation = state.sites[index].slots[slot].automation;
+        let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+        let per_run = hours_per_run(catalog, recipe, automation, affinity, cost_factor);
+
+        let mut runs = planned;
+        for &(p, q) in &recipe.inputs {
+            let available = state.sites[index]
+                .inventory
+                .get(&p)
+                .map_or(0.0, |s| s.quantity);
+            runs = runs.min(available / q);
+        }
+        for &(g, h) in &per_run {
+            if h > 0.0 {
+                runs = runs.min(hours[g.index()] / h);
+            }
+        }
+        if recipe.energy_mwh > 0.0 {
+            runs = runs.min(planned * grid_share);
+        }
+        if recipe.extraction {
+            let deposit = state.sites[index].deposit.expect("checked in planned_runs");
+            let d = catalog.deposits.get(deposit);
+            let ds = state.deposits.get(deposit);
+            let mut room = d.max_output_per_year - ds.extracted_this_year;
+            if let Some(reserve) = d.reserve {
+                room = room.min(reserve - ds.extracted);
+            }
+            runs = runs.min(room.max(0.0) / recipe.output);
+        }
+        if runs <= 1e-9 {
+            continue;
+        }
+
+        // Consume inputs.
+        let mut value = Money::ZERO;
+        let mut input_quality = 0.0;
+        let mut input_quantity = 0.0;
+        let s = &mut state.sites[index];
+        for &(p, q) in &recipe.inputs {
+            let stock = s.inventory.entry(p).or_default();
+            input_quality += stock.quality * q * runs;
+            input_quantity += q * runs;
+            value += stock.take(q * runs);
+        }
+        let ledger = &mut state.companies[owner.index()].ledger;
+        let center = CostCenter::product(site, recipe.product);
+        ledger.expense(CostType::Material, center, Account::Inventory, value);
+        // Labor used (paid with the wages of the day) and electricity.
+        for &(g, h) in &per_run {
+            hours[g.index()] -= h * runs;
+            value += Money::from_usd(h * runs * wages.get(g.index()).copied().unwrap_or(0.0))
+                .unwrap_or(Money::ZERO);
+        }
+        let energy =
+            Money::from_usd(recipe.energy_mwh * runs * electricity_price).unwrap_or(Money::ZERO);
+        ledger.expense(CostType::Energy, center, Account::Cash, energy);
+        value += energy;
+        ledger.income(CostType::InventoryChange, center, Account::Inventory, value);
+
+        // Quality (docs/FORMELN.md).
+        let sl = &state.sites[index].slots[slot];
+        let average_input = if input_quantity > 0.0 {
+            input_quality / input_quantity
+        } else {
+            50.0
+        };
+        let quality = (recipe.base_quality
+            + model.quality_inputs * (average_input - 50.0)
+            + model.quality_automation * sl.automation
+            - model.quality_condition * (1.0 - sl.condition))
+            .clamp(0.0, 100.0);
+
+        let mut outputs = vec![(recipe.product, recipe.output * runs)];
+        outputs.extend(recipe.by_products.iter().map(|&(p, q)| (p, q * runs)));
+        let finish = date.add_days(i32::try_from(recipe.duration_days).unwrap_or(1) - 1);
+        let sl = &mut state.sites[index].slots[slot];
+        sl.batches.push(Batch {
+            finish,
+            outputs,
+            quality,
+            value,
+        });
+        sl.last_runs = runs;
+
+        if recipe.extraction {
+            let deposit = state.sites[index].deposit.expect("checked in planned_runs");
+            let ds = state.deposits.get_mut(deposit);
+            ds.extracted += recipe.output * runs;
+            ds.extracted_this_year += recipe.output * runs;
+        }
+    }
+}
+
+fn finish_batches(state: &mut GameState, site: SiteId, date: Date) {
+    let s = &mut state.sites[site.index()];
+    for slot in &mut s.slots {
+        let (done, open): (Vec<Batch>, Vec<Batch>) =
+            slot.batches.drain(..).partition(|b| b.finish <= date);
+        slot.batches = open;
+        for batch in done {
+            let total: f64 = batch.outputs.iter().map(|(_, q)| q).sum();
+            let mut remaining = batch.value;
+            for (i, &(product, quantity)) in batch.outputs.iter().enumerate() {
+                let value = if i + 1 == batch.outputs.len() {
+                    remaining
+                } else {
+                    batch.value.scale(quantity / total)
+                };
+                remaining -= value;
+                s.inventory
+                    .entry(product)
+                    .or_default()
+                    .add(quantity, value, batch.quality);
+            }
+        }
+    }
+}
+
+/// Wages, maintenance, depreciation and wear of one site for one day.
+fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
+    let index = site.index();
+    let s = &state.sites[index];
+    let owner = s.owner;
+    let worker_hours = hours_per_worker_day(catalog, date);
+    let wages = &state.countries.get(s.country).hourly_wage_usd;
+    let wage_bill: f64 = s
+        .workforce
+        .iter()
+        .map(|(g, &w)| w * worker_hours * wages.get(g.index()).copied().unwrap_or(0.0))
+        .sum();
+    let model = &catalog.production_model;
+    let mut maintenance = Money::ZERO;
+    let mut depreciation = Money::ZERO;
+    for sl in &s.slots {
+        if sl.ready > date {
+            continue;
+        }
+        let f = catalog.facilities.get(sl.facility);
+        maintenance += sl.cost.scale(f.maintenance_share / 365.0);
+        let life_days = f64::from(f.lifetime_years) * 365.0;
+        if f64::from(sl.ready.days_until(date)) < life_days {
+            depreciation += sl.cost.scale(1.0 / life_days);
+        }
+    }
+    let building_days = model.building_lifetime_years * 365.0;
+    if f64::from(s.founded.days_until(date)) < building_days {
+        depreciation += s.building_cost.scale(1.0 / building_days);
+    }
+    if let Some(d) = s.deposit {
+        let ds = state.deposits.get(d);
+        let dev_days = model.development_lifetime_years * 365.0;
+        if ds
+            .ready
+            .is_some_and(|r| r <= date && f64::from(r.days_until(date)) < dev_days)
+        {
+            depreciation += ds.development_cost.scale(1.0 / dev_days);
+        }
+    }
+    let ledger = &mut state.companies[owner.index()].ledger;
+    let center = CostCenter::site(site);
+    ledger.expense(
+        CostType::Personnel,
+        center,
+        Account::Cash,
+        Money::from_usd(wage_bill).unwrap_or(Money::ZERO),
+    );
+    ledger.expense(CostType::Maintenance, center, Account::Cash, maintenance);
+    ledger.expense(
+        CostType::Depreciation,
+        center,
+        Account::FixedAssets,
+        depreciation,
+    );
+
+    // Wear: the condition falls linearly over the lifetime.
+    for sl in &mut state.sites[index].slots {
+        if sl.ready <= date {
+            let life_days = f64::from(catalog.facilities.get(sl.facility).lifetime_years) * 365.0;
+            sl.condition = (sl.condition - 1.0 / life_days).max(model.condition_min);
+        }
+    }
+}
+
+/// Resets the yearly extraction counters (called on 1 January).
+pub(crate) fn new_year(state: &mut GameState) {
+    for (_, d) in state.deposits.iter_mut() {
+        d.extracted_this_year = 0.0;
+    }
+}
+
+/// Marks all sites for staffing (called on the first of each month).
+pub(crate) fn new_month(state: &mut GameState) {
+    for s in &mut state.sites {
+        s.staffing_due = true;
+    }
+}

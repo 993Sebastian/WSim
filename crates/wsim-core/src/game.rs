@@ -1,6 +1,7 @@
 //! A running game: catalog, state, journal of decisions, and the round loop
 //! (Lastenheft §13).
 
+use std::collections::BTreeSet;
 use std::fmt;
 use std::sync::Arc;
 
@@ -10,12 +11,13 @@ use crate::EARLIEST_START_YEAR;
 use crate::calendar::{Date, GAME_END, RoundLength};
 use crate::catalog::Catalog;
 use crate::command::{self, Command, CommandError, NameError};
-use crate::country_model;
 use crate::ids::Id;
+use crate::ledger::Ledger;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
+use crate::production;
 use crate::rng::{SimRng, Stream};
-use crate::state::{Company, CompanyId, CompanyKind, GameSettings, GameState, PerId};
+use crate::state::{Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId};
 
 /// Latest selectable start year; technology freezes in 2026 (Lastenheft §3.1).
 pub const LATEST_START_YEAR: i32 = 2026;
@@ -90,7 +92,7 @@ impl fmt::Display for StateHash {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ReplayError {
     NewGame(NewGameError),
     Command {
@@ -128,27 +130,28 @@ impl Game {
             .map_err(NewGameError::Name)?;
 
         let date = Date::first_of_year(settings.start_year);
-        let mut values = country_model::compute_all(&catalog, date).into_iter();
-        let countries = PerId::from_fn(catalog.countries.len(), |_| {
-            values.next().expect("one per country")
-        });
         let player = Company {
             name,
             kind: CompanyKind::Player,
             headquarters: settings.start_country,
-            cash: settings.start_capital,
             founded: date,
             rng: SimRng::for_stream(settings.seed, Stream::Company(0)),
+            ledger: Ledger::new(date, settings.start_capital),
+            technologies: BTreeSet::new(),
+            bankrupt: false,
         };
-        let state = GameState {
+        let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
             settings,
             date,
-            countries,
+            countries: PerId::default(),
             companies: vec![player],
+            sites: Vec::new(),
+            deposits: PerId::from_fn(catalog.deposits.len(), |_| DepositState::default()),
             player: CompanyId(0),
             game_over: false,
         };
+        state.refresh_countries(&catalog);
         Ok(Self {
             catalog,
             state,
@@ -281,10 +284,20 @@ impl Game {
     /// One day. Systems run in a fixed order (docs/ARCHITEKTUR.md §2.2); production,
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
-        let next = self.state.date.next_day();
+        let today = self.state.date;
+        production::simulate_day(&mut self.state, &self.catalog, today);
+
+        let next = today.next_day();
         self.state.date = next;
         if next.day() == 1 {
+            for company in &mut self.state.companies {
+                company.ledger.close_month(next);
+            }
             self.state.refresh_countries(&self.catalog);
+            production::new_month(&mut self.state);
+        }
+        if next.ordinal() == 1 {
+            production::new_year(&mut self.state);
         }
         if next.ordinal() == 1 && next < GAME_END {
             report.messages.push(

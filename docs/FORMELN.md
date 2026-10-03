@@ -116,3 +116,61 @@ Steuern und Stabilität: eigene Jahreswerte des Landes, sonst die Standardwerte.
     Prägung Automatisierung = Basis + je_Verdopplung · log₂(y / Bezug) + Länderzuschlag
 
 Werte prüfen: `wsim land DEU --jahr 1900`.
+
+## M5 – Produktion
+
+Parameter: `data/parameter/produktionsmodell.yaml`.
+
+### Standorte und Anlagen
+
+- Ein Standort kostet Grundstück und Gebäude (`standortkosten_usd` je Standorttyp);
+  Abschreibung linear über `gebaeude_lebensdauer_jahre`.
+- Eine Anlage kostet ihre Investition und produziert erst nach der Bauzeit
+  (bis dahin „Anlagen im Bau“). Abschreibung linear über ihre Lebensdauer, Wartung
+  täglich `Investition · wartung_je_jahr / 365`.
+- Zustand: sinkt linear von 1 auf `zustand_minimum` über die Lebensdauer.
+- Lagerstätten: Erschließung kostet und dauert laut Daten; danach Abbau bis zur
+  Höchstförderung je Kalenderjahr und bis der Vorrat erschöpft ist. Die
+  Erschließung wird über `erschliessung_lebensdauer_jahre` abgeschrieben.
+
+### Tagesproduktion je Anlage
+
+    geplante Durchläufe = Kapazität je Tag · Auslastung
+    Durchläufe = min(geplant,
+                     Lagerbestand(Eingang) / Menge je Durchlauf   für jeden Eingang,
+                     freie Arbeitsstunden(Gruppe) / Stunden je Durchlauf   für jede Gruppe,
+                     geplant · Netzanteil des Landes   (nur bei Strombedarf),
+                     verbleibende Jahresförderung und Vorrat   (nur Abbau))
+
+    Stunden je Durchlauf = Stunden laut Rezept · Arbeitsfaktor · Förderkostenfaktor (Abbau)
+    Arbeitsfaktor = 1 − Automatisierung · Arbeitsersparnis · (0,5 + 0,5 · Automatisierungsprägung)
+
+Die Anlagen eines Standorts teilen sich dessen Belegschaft in ihrer Reihenfolge.
+Das Ergebnis eines Durchlaufs liegt nach `dauer_tage` Tagen im Lager (bei 1 Tag am
+selben Tag).
+
+### Qualität
+
+    Q = Grundqualität + 0,3 · (Ø Qualität der Eingänge − 50) + 10 · Automatisierung
+        − 20 · (1 − Zustand),   begrenzt auf 0–100
+
+(Gewichte aus den Parametern.) Abbau-Rezepte haben keine Eingänge (Term = 0).
+
+### Personal
+
+- Jeder Beschäftigte leistet `Jahresarbeitsstunden / 365` Stunden je Kalendertag und
+  bekommt dafür den Stundenlohn seiner Gruppe im Land.
+- Am Monatsersten und nach jeder Änderung wird jeder Standort auf den Bedarf seiner
+  geplanten Produktion eingestellt: Fehlende Kräfte werden aus dem freien Pool des
+  Landes (Pool minus alle Beschäftigten im Land) eingestellt, überzählige entlassen.
+  Ältere Standorte werden zuerst bedient. Vertretung durch höhere Qualifikationen
+  und Abwerbung kommen später (M10).
+
+### Bewertung und Buchung (Gesamtkostenverfahren)
+
+- Verbrauchte Eingänge: Materialaufwand zum Durchschnittswert des Lagers.
+- Löhne aller Beschäftigten: Personalaufwand (auch für ungenutzte Stunden).
+- Strom: Energieaufwand zum Landespreis.
+- Erzeugte Ware: Bestandserhöhung zu Herstellkosten = Eingänge + genutzte
+  Arbeitsstunden · Lohn + Strom. Nebenprodukte erhalten Kosten anteilig nach Menge.
+- Ungenutzte Arbeitszeit, Wartung und Abschreibung mindern das Ergebnis direkt.

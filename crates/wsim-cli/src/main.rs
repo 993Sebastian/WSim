@@ -11,7 +11,7 @@ use wsim_core::game::Game;
 use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{GameSettings, StartForm};
-use wsim_data::{GameData, format_date};
+use wsim_data::{GameData, format_date, format_money};
 
 #[derive(Parser)]
 #[command(
@@ -243,6 +243,14 @@ fn run(args: &RunArgs) -> Result<(), String> {
     if let Some(path) = &args.speichern {
         fs::write(path, save::encode(&game)).map_err(|e| format!("{}: {e}", path.display()))?;
         println!("Gespeichert: {}", path.display());
+    }
+    if let Some(company) = game.state().company(game.player()) {
+        println!(
+            "{}: Kasse {}, Ergebnis laufendes Jahr {}",
+            company.name,
+            format_money(company.ledger.cash()),
+            format_money(company.ledger.year.total())
+        );
     }
     println!(
         "Stand: {} · Zustands-Hash {}",

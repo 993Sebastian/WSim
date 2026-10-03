@@ -67,6 +67,24 @@ pub mod keys {
     pub const NEW_GAME_START_COUNTRY: &str = "fehler.spielstart.startland";
     pub const COMMAND_GAME_OVER: &str = "fehler.befehl.spielende";
     pub const COMMAND_UNKNOWN_COMPANY: &str = "fehler.befehl.firma_unbekannt";
+    pub const COMMAND_BANKRUPT: &str = "fehler.befehl.firma_insolvent";
+    pub const COMMAND_UNKNOWN_SITE: &str = "fehler.befehl.standort_unbekannt";
+    pub const COMMAND_NOT_OWNER: &str = "fehler.befehl.fremder_standort";
+    pub const COMMAND_UNKNOWN_SLOT: &str = "fehler.befehl.anlage_unbekannt";
+    pub const COMMAND_WRONG_SITE_TYPE: &str = "fehler.befehl.falscher_standorttyp";
+    pub const COMMAND_TECHNOLOGY_UNKNOWN: &str = "fehler.befehl.technologie_fehlt";
+    pub const COMMAND_NOT_ENOUGH_CASH: &str = "fehler.befehl.geld_fehlt";
+    pub const COMMAND_DEPOSIT_UNAVAILABLE: &str = "fehler.befehl.lagerstaette_vergeben";
+    pub const COMMAND_DEPOSIT_OTHER_COUNTRY: &str = "fehler.befehl.lagerstaette_anderes_land";
+    pub const COMMAND_DEPOSIT_NOT_DISCOVERED: &str = "fehler.befehl.lagerstaette_unentdeckt";
+    pub const COMMAND_SITE_HAS_DEPOSIT: &str = "fehler.befehl.standort_hat_lagerstaette";
+    pub const COMMAND_RECIPE_NOT_FOR_FACILITY: &str = "fehler.befehl.rezept_passt_nicht";
+    pub const COMMAND_RECIPE_NEEDS_DEPOSIT: &str = "fehler.befehl.rezept_braucht_lagerstaette";
+    pub const COMMAND_INVALID_SHARE: &str = "fehler.befehl.anteil_ungueltig";
+    pub const COMMAND_AUTOMATION_TOO_HIGH: &str = "fehler.befehl.automatisierung_zu_hoch";
+    pub const COMMAND_INVALID_QUANTITY: &str = "fehler.befehl.menge_ungueltig";
+    pub const COMMAND_NOT_ENOUGH_GOODS: &str = "fehler.befehl.ware_fehlt";
+    pub const COMMAND_DIFFERENT_COUNTRIES: &str = "fehler.befehl.anderes_land";
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
     pub const NAME_TAKEN: &str = "fehler.name.vergeben";
@@ -84,6 +102,24 @@ pub mod keys {
         NEW_GAME_START_COUNTRY,
         COMMAND_GAME_OVER,
         COMMAND_UNKNOWN_COMPANY,
+        COMMAND_BANKRUPT,
+        COMMAND_UNKNOWN_SITE,
+        COMMAND_NOT_OWNER,
+        COMMAND_UNKNOWN_SLOT,
+        COMMAND_WRONG_SITE_TYPE,
+        COMMAND_TECHNOLOGY_UNKNOWN,
+        COMMAND_NOT_ENOUGH_CASH,
+        COMMAND_DEPOSIT_UNAVAILABLE,
+        COMMAND_DEPOSIT_OTHER_COUNTRY,
+        COMMAND_DEPOSIT_NOT_DISCOVERED,
+        COMMAND_SITE_HAS_DEPOSIT,
+        COMMAND_RECIPE_NOT_FOR_FACILITY,
+        COMMAND_RECIPE_NEEDS_DEPOSIT,
+        COMMAND_INVALID_SHARE,
+        COMMAND_AUTOMATION_TOO_HIGH,
+        COMMAND_INVALID_QUANTITY,
+        COMMAND_NOT_ENOUGH_GOODS,
+        COMMAND_DIFFERENT_COUNTRIES,
         NAME_EMPTY,
         NAME_TOO_LONG,
         NAME_TAKEN,

@@ -9,6 +9,8 @@ pub(crate) mod test_support;
 
 pub use table::Table;
 
+use crate::ids::{IdKind, KeyTable};
+
 use crate::ids::{
     BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId, ProductId,
     QualificationId, RecipeId, SpecializationId, TechnologyId, TransportClassId, UnitId,
@@ -34,6 +36,33 @@ pub struct Catalog {
     pub technologies: Table<TechnologyId, Technology>,
     pub deposits: Table<DepositId, Deposit>,
     pub country_model: CountryModel,
+    pub production_model: ProductionModel,
+}
+
+impl Catalog {
+    /// Keys of all entries by kind, for saving and loading.
+    pub fn key_table(&self) -> KeyTable {
+        let keys = IdKind::ALL
+            .iter()
+            .map(|kind| match kind {
+                IdKind::Unit => self.units.keys().to_vec(),
+                IdKind::Continent => self.continents.keys().to_vec(),
+                IdKind::Branch => self.branches.keys().to_vec(),
+                IdKind::GoodsGroup => self.goods_groups.keys().to_vec(),
+                IdKind::TransportClass => self.transport_classes.keys().to_vec(),
+                IdKind::Qualification => self.qualifications.keys().to_vec(),
+                IdKind::Specialization => self.specializations.keys().to_vec(),
+                IdKind::LaborGroup => self.labor_groups.keys().to_vec(),
+                IdKind::Country => self.countries.keys().to_vec(),
+                IdKind::Product => self.products.keys().to_vec(),
+                IdKind::Facility => self.facilities.keys().to_vec(),
+                IdKind::Recipe => self.recipes.keys().to_vec(),
+                IdKind::Technology => self.technologies.keys().to_vec(),
+                IdKind::Deposit => self.deposits.keys().to_vec(),
+            })
+            .collect();
+        KeyTable::new(keys)
+    }
 }
 
 /// Where a value comes from (Lastenheft §16.2: approximations are marked).
@@ -124,6 +153,49 @@ pub struct CountryProfile {
     pub specialization_weights: Vec<f64>,
     /// Research strength per field (1 = average), indexed by `SpecializationId`.
     pub research_weights: Vec<f64>,
+}
+
+/// Parameters of production (`data/parameter/produktionsmodell.yaml`, formulas in
+/// docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProductionModel {
+    /// Cost of founding a site (land, buildings) per site type.
+    pub site_cost: Vec<(SiteType, Money)>,
+    pub building_lifetime_years: f64,
+    pub development_lifetime_years: f64,
+    /// Share of labor that full automation saves at full automation affinity.
+    pub automation_labor_saving: f64,
+    /// Cost of raising automation from 0 to 1, as share of the facility investment.
+    pub automation_cost_share: f64,
+    pub quality_inputs: f64,
+    pub quality_automation: f64,
+    pub quality_condition: f64,
+    pub condition_min: f64,
+}
+
+impl Default for ProductionModel {
+    fn default() -> Self {
+        Self {
+            site_cost: Vec::new(),
+            building_lifetime_years: 50.0,
+            development_lifetime_years: 30.0,
+            automation_labor_saving: 0.8,
+            automation_cost_share: 0.5,
+            quality_inputs: 0.3,
+            quality_automation: 10.0,
+            quality_condition: 20.0,
+            condition_min: 0.2,
+        }
+    }
+}
+
+impl ProductionModel {
+    pub fn site_cost(&self, kind: SiteType) -> Money {
+        self.site_cost
+            .iter()
+            .find(|(k, _)| *k == kind)
+            .map_or(Money::ZERO, |(_, c)| *c)
+    }
 }
 
 /// Parameters of the country model (`data/parameter/laendermodell.yaml`,
@@ -286,7 +358,9 @@ pub struct StateMarketOffer {
     pub available_until: Option<i32>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 pub enum SiteType {
     /// Mine, oil field, plantation, forest.
     Extraction,

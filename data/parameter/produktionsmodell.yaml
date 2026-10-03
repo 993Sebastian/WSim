@@ -1,0 +1,21 @@
+# Parameter der Produktion. Formeln: docs/FORMELN.md, Abschnitt M5.
+
+produktionsmodell:
+  # Kosten für Grundstück und Gebäude beim Gründen eines Standorts
+  standortkosten_usd:
+    foerderstaette: 200_000
+    werk: 500_000
+    kraftwerk: 300_000
+    lager: 150_000
+    niederlassung: 150_000
+    forschungszentrum: 400_000
+  gebaeude_lebensdauer_jahre: 50
+  erschliessung_lebensdauer_jahre: 30
+  automatisierung:
+    arbeitsersparnis: 0.8       # Anteil der Arbeit, den volle Automatisierung bei voller Prägung spart
+    kostenanteil: 0.5           # Kosten für Automatisierung 0 → 1 als Anteil der Investition
+  qualitaet:
+    vorprodukte: 0.3            # je Punkt Vorproduktqualität über/unter 50
+    automatisierung: 10         # Punkte bei voller Automatisierung
+    zustand: 20                 # Punkte Abzug bei völlig verschlissener Anlage
+  zustand_minimum: 0.2

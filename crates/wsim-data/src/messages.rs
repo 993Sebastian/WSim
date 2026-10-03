@@ -282,6 +282,10 @@ pub fn negative(value: f64) -> String {
 
 // --- Countries and country model ---
 
+pub fn section_missing(section: &str, file: &str) -> String {
+    format!("Abschnitt „{section}“ fehlt (erwartet in {file}).")
+}
+
 pub fn country_model_missing() -> String {
     "Abschnitt „laendermodell“ fehlt (erwartet in parameter/laendermodell.yaml).".into()
 }

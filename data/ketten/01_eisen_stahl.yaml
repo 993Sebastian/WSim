@@ -262,7 +262,6 @@ rezepte:
       angelernt: 2.0
       fachkraft.metall: 2.0
       akademiker.metall: 0.04
-    energie_mwh: 0.05
     qualitaet_basis: 55
     annaeherung: true
 
@@ -280,7 +279,6 @@ rezepte:
       angelernt: 1.5
       fachkraft.metall: 1.5
       akademiker.metall: 0.03
-    energie_mwh: 0.04
     qualitaet_basis: 55
     annaeherung: true
 
@@ -298,7 +296,6 @@ rezepte:
       angelernt: 6.0
       fachkraft.metall: 3.0
       akademiker.metall: 0.05
-    energie_mwh: 0.10
     qualitaet_basis: 55
     annaeherung: true
 

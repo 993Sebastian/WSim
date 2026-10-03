@@ -58,3 +58,14 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Einkommensfünftel | `income_quintiles_usd` |
 | Erwerbspersonen | `labor_force` |
 | Arbeitskräftepool | `labor_pool` |
+| Produktionsmodell | `ProductionModel` |
+| Standort | `Site`, `SiteId` |
+| Anlage (gebaut, am Standort) | `Slot` |
+| Charge (in Produktion) | `Batch` |
+| Lagerbestand | `Stock` |
+| Belegschaft | `workforce` |
+| Buchführung, Konto | `Ledger`, `Account` |
+| Kasse, Vorräte, Sachanlagen, Anlagen im Bau | `Cash`, `Inventory`, `FixedAssets`, `AssetsUnderConstruction` |
+| Eigenkapital, Gewinnrücklagen, Jahresergebnis | `Equity`, `RetainedEarnings`, `Result` |
+| Periodenergebnis | `PeriodResult` |
+| Lagerstättenzustand | `DepositState` |

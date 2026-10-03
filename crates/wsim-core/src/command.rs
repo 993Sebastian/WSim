@@ -5,14 +5,43 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::catalog::Catalog;
+use crate::catalog::{Catalog, SiteType};
+use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
+use crate::ledger::{Account, Ledger};
 use crate::message::{Message, Param, keys};
-use crate::state::{CompanyId, GameState};
+use crate::money::Money;
+use crate::state::{CompanyId, GameState, PerId, Site, SiteId, Slot};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Command {
     /// Renames the acting company.
     RenameCompany { name: String },
+    /// Founds a site (land and buildings) in a country.
+    FoundSite { country: CountryId, kind: SiteType },
+    /// Builds a facility at a site; it produces after the construction time.
+    BuildFacility { site: SiteId, facility: FacilityId },
+    /// Develops a deposit for an extraction site in the same country.
+    DevelopDeposit { site: SiteId, deposit: DepositId },
+    /// Sets what a facility produces and how much of its capacity is planned.
+    SetProduction {
+        site: SiteId,
+        slot: usize,
+        recipe: Option<RecipeId>,
+        utilization: f64,
+    },
+    /// Sets the degree of automation of a facility; raising it costs money.
+    SetAutomation {
+        site: SiteId,
+        slot: usize,
+        level: f64,
+    },
+    /// Moves goods between two own sites in the same country.
+    TransferGoods {
+        from: SiteId,
+        to: SiteId,
+        product: ProductId,
+        quantity: f64,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -29,10 +58,9 @@ impl NameError {
     pub fn message(&self) -> Message {
         match self {
             NameError::Empty => Message::error(keys::NAME_EMPTY),
-            NameError::TooLong { max } => Message::error(keys::NAME_TOO_LONG).with(
-                "max",
-                Param::Integer(i64::try_from(*max).unwrap_or(i64::MAX)),
-            ),
+            NameError::TooLong { max } => {
+                Message::error(keys::NAME_TOO_LONG).with("max", integer(*max))
+            }
             NameError::Taken { name } => {
                 Message::error(keys::NAME_TAKEN).with("name", Param::Text(name.clone()))
             }
@@ -40,22 +68,97 @@ impl NameError {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+fn integer(n: usize) -> Param {
+    Param::Integer(i64::try_from(n).unwrap_or(i64::MAX))
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum CommandError {
     GameOver,
     UnknownCompany(CompanyId),
+    CompanyBankrupt,
     Name(NameError),
+    UnknownSite,
+    NotOwner,
+    UnknownSlot,
+    WrongSiteType {
+        required: SiteType,
+    },
+    /// Key of the missing technology.
+    TechnologyUnknown(String),
+    NotEnoughCash {
+        needed: Money,
+    },
+    DepositUnavailable,
+    DepositOtherCountry,
+    DepositNotDiscovered {
+        year: i32,
+    },
+    SiteHasDeposit,
+    RecipeNotForFacility,
+    RecipeNeedsDeposit,
+    InvalidShare,
+    AutomationTooHigh {
+        max: f64,
+    },
+    InvalidQuantity,
+    NotEnoughGoods {
+        available: f64,
+    },
+    DifferentCountries,
 }
 
 impl CommandError {
     pub fn message(&self) -> Message {
+        let e = Message::error;
         match self {
-            CommandError::GameOver => Message::error(keys::COMMAND_GAME_OVER),
-            CommandError::UnknownCompany(id) => Message::error(keys::COMMAND_UNKNOWN_COMPANY)
-                .with("firma", Param::Integer(i64::from(id.0))),
-            CommandError::Name(e) => e.message(),
+            CommandError::GameOver => e(keys::COMMAND_GAME_OVER),
+            CommandError::UnknownCompany(id) => {
+                e(keys::COMMAND_UNKNOWN_COMPANY).with("firma", Param::Integer(i64::from(id.0)))
+            }
+            CommandError::CompanyBankrupt => e(keys::COMMAND_BANKRUPT),
+            CommandError::Name(n) => n.message(),
+            CommandError::UnknownSite => e(keys::COMMAND_UNKNOWN_SITE),
+            CommandError::NotOwner => e(keys::COMMAND_NOT_OWNER),
+            CommandError::UnknownSlot => e(keys::COMMAND_UNKNOWN_SLOT),
+            CommandError::WrongSiteType { required } => e(keys::COMMAND_WRONG_SITE_TYPE)
+                .with("typ", Param::TextKey(site_type_key(*required))),
+            CommandError::TechnologyUnknown(t) => e(keys::COMMAND_TECHNOLOGY_UNKNOWN)
+                .with("technologie", Param::TextKey(format!("technologie.{t}"))),
+            CommandError::NotEnoughCash { needed } => {
+                e(keys::COMMAND_NOT_ENOUGH_CASH).with("betrag", Param::Money(*needed))
+            }
+            CommandError::DepositUnavailable => e(keys::COMMAND_DEPOSIT_UNAVAILABLE),
+            CommandError::DepositOtherCountry => e(keys::COMMAND_DEPOSIT_OTHER_COUNTRY),
+            CommandError::DepositNotDiscovered { year } => e(keys::COMMAND_DEPOSIT_NOT_DISCOVERED)
+                .with("jahr", Param::Integer(i64::from(*year))),
+            CommandError::SiteHasDeposit => e(keys::COMMAND_SITE_HAS_DEPOSIT),
+            CommandError::RecipeNotForFacility => e(keys::COMMAND_RECIPE_NOT_FOR_FACILITY),
+            CommandError::RecipeNeedsDeposit => e(keys::COMMAND_RECIPE_NEEDS_DEPOSIT),
+            CommandError::InvalidShare => e(keys::COMMAND_INVALID_SHARE),
+            CommandError::AutomationTooHigh { max } => {
+                e(keys::COMMAND_AUTOMATION_TOO_HIGH).with("max", Param::Number(*max * 100.0))
+            }
+            CommandError::InvalidQuantity => e(keys::COMMAND_INVALID_QUANTITY),
+            CommandError::NotEnoughGoods { available } => {
+                e(keys::COMMAND_NOT_ENOUGH_GOODS).with("menge", Param::Number(*available))
+            }
+            CommandError::DifferentCountries => e(keys::COMMAND_DIFFERENT_COUNTRIES),
         }
     }
+}
+
+/// Text key of a site type, e.g. `standorttyp.werk`.
+pub fn site_type_key(kind: SiteType) -> String {
+    let name = match kind {
+        SiteType::Extraction => "foerderstaette",
+        SiteType::Factory => "werk",
+        SiteType::PowerPlant => "kraftwerk",
+        SiteType::Warehouse => "lager",
+        SiteType::SalesOffice => "niederlassung",
+        SiteType::ResearchCenter => "forschungszentrum",
+    };
+    format!("standorttyp.{name}")
 }
 
 /// Checks a company name and returns it trimmed. `own` is excluded from the
@@ -88,23 +191,240 @@ pub fn check_company_name(
     Ok(name.to_owned())
 }
 
+fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
+    CommandError::TechnologyUnknown(catalog.technologies.key(t).to_owned())
+}
+
+fn pay(ledger: &mut Ledger, asset: Account, amount: Money) -> Result<(), CommandError> {
+    if ledger.cash() < amount {
+        return Err(CommandError::NotEnoughCash { needed: amount });
+    }
+    ledger.transfer(asset, Account::Cash, amount);
+    Ok(())
+}
+
+fn own_site(state: &GameState, actor: CompanyId, site: SiteId) -> Result<&Site, CommandError> {
+    let s = state.site(site).ok_or(CommandError::UnknownSite)?;
+    if s.owner != actor {
+        return Err(CommandError::NotOwner);
+    }
+    Ok(s)
+}
+
+fn own_slot(
+    state: &GameState,
+    actor: CompanyId,
+    site: SiteId,
+    slot: usize,
+) -> Result<&Slot, CommandError> {
+    own_site(state, actor, site)?
+        .slots
+        .get(slot)
+        .ok_or(CommandError::UnknownSlot)
+}
+
+fn check_share(value: f64) -> Result<(), CommandError> {
+    if (0.0..=1.0).contains(&value) {
+        Ok(())
+    } else {
+        Err(CommandError::InvalidShare)
+    }
+}
+
 pub(crate) fn execute(
     state: &mut GameState,
-    _catalog: &Catalog,
+    catalog: &Catalog,
     actor: CompanyId,
     command: &Command,
 ) -> Result<(), CommandError> {
     if state.game_over {
         return Err(CommandError::GameOver);
     }
-    if state.company(actor).is_none() {
-        return Err(CommandError::UnknownCompany(actor));
+    let company = state
+        .company(actor)
+        .ok_or(CommandError::UnknownCompany(actor))?;
+    if company.bankrupt {
+        return Err(CommandError::CompanyBankrupt);
     }
+    let today = state.date;
     match command {
         Command::RenameCompany { name } => {
             let name =
                 check_company_name(Some(state), name, Some(actor)).map_err(CommandError::Name)?;
             state.company_mut(actor).expect("checked above").name = name;
+        }
+        Command::FoundSite { country, kind } => {
+            if country.index() >= catalog.countries.len() {
+                return Err(CommandError::DifferentCountries);
+            }
+            let cost = catalog.production_model.site_cost(*kind);
+            let company = state.company_mut(actor).expect("checked above");
+            pay(&mut company.ledger, Account::FixedAssets, cost)?;
+            state.sites.push(Site {
+                owner: actor,
+                country: *country,
+                kind: *kind,
+                founded: today,
+                building_cost: cost,
+                deposit: None,
+                slots: Vec::new(),
+                inventory: Default::default(),
+                workforce: PerId::from_fn(catalog.labor_groups.len(), |_| 0.0),
+                staffing_due: false,
+            });
+        }
+        Command::BuildFacility { site, facility } => {
+            let s = own_site(state, actor, *site)?;
+            let f = catalog.facilities.get(*facility);
+            if s.kind != f.site_type {
+                return Err(CommandError::WrongSiteType {
+                    required: f.site_type,
+                });
+            }
+            if let Some(t) = f.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+                return Err(unknown_technology(catalog, t));
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            pay(
+                &mut company.ledger,
+                Account::AssetsUnderConstruction,
+                f.investment,
+            )?;
+            let ready = today.add_days(i32::try_from(f.build_days).unwrap_or(i32::MAX));
+            state
+                .site_mut(*site)
+                .expect("checked above")
+                .slots
+                .push(Slot {
+                    facility: *facility,
+                    ready,
+                    cost: f.investment,
+                    recipe: None,
+                    utilization: 0.0,
+                    automation: 0.0,
+                    condition: 1.0,
+                    batches: Vec::new(),
+                    last_runs: 0.0,
+                });
+        }
+        Command::DevelopDeposit { site, deposit } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::Extraction {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::Extraction,
+                });
+            }
+            if s.deposit.is_some() {
+                return Err(CommandError::SiteHasDeposit);
+            }
+            let d = catalog.deposits.get(*deposit);
+            if d.country != s.country {
+                return Err(CommandError::DepositOtherCountry);
+            }
+            if let Some(year) = d.discovered.filter(|&y| y > today.year()) {
+                return Err(CommandError::DepositNotDiscovered { year });
+            }
+            if state.deposits.get(*deposit).site.is_some() {
+                return Err(CommandError::DepositUnavailable);
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            pay(
+                &mut company.ledger,
+                Account::AssetsUnderConstruction,
+                d.development_cost,
+            )?;
+            let ready = today.add_days(i32::try_from(d.development_days).unwrap_or(i32::MAX));
+            let ds = state.deposits.get_mut(*deposit);
+            ds.site = Some(*site);
+            ds.ready = Some(ready);
+            ds.development_cost = d.development_cost;
+            state.site_mut(*site).expect("checked above").deposit = Some(*deposit);
+        }
+        Command::SetProduction {
+            site,
+            slot,
+            recipe,
+            utilization,
+        } => {
+            check_share(*utilization)?;
+            let s = own_site(state, actor, *site)?;
+            let sl = own_slot(state, actor, *site, *slot)?;
+            if let Some(recipe) = recipe {
+                let r = catalog.recipes.get(*recipe);
+                if r.facility != sl.facility {
+                    return Err(CommandError::RecipeNotForFacility);
+                }
+                if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+                    return Err(unknown_technology(catalog, t));
+                }
+                if r.extraction {
+                    let fits = s
+                        .deposit
+                        .is_some_and(|d| catalog.deposits.get(d).resource == r.product);
+                    if !fits {
+                        return Err(CommandError::RecipeNeedsDeposit);
+                    }
+                }
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            let sl = &mut s.slots[*slot];
+            sl.recipe = *recipe;
+            sl.utilization = if recipe.is_some() { *utilization } else { 0.0 };
+            s.staffing_due = true;
+        }
+        Command::SetAutomation { site, slot, level } => {
+            check_share(*level)?;
+            let sl = own_slot(state, actor, *site, *slot)?;
+            let f = catalog.facilities.get(sl.facility);
+            if *level > f.automation_max + 1e-9 {
+                return Err(CommandError::AutomationTooHigh {
+                    max: f.automation_max,
+                });
+            }
+            let cost = f.investment.scale(
+                (level - sl.automation).max(0.0) * catalog.production_model.automation_cost_share,
+            );
+            let company = state.company_mut(actor).expect("checked above");
+            pay(&mut company.ledger, Account::FixedAssets, cost)?;
+            let s = state.site_mut(*site).expect("checked above");
+            let sl = &mut s.slots[*slot];
+            sl.automation = *level;
+            sl.cost += cost;
+            s.staffing_due = true;
+        }
+        Command::TransferGoods {
+            from,
+            to,
+            product,
+            quantity,
+        } => {
+            if !(quantity.is_finite() && *quantity > 0.0) {
+                return Err(CommandError::InvalidQuantity);
+            }
+            let source = own_site(state, actor, *from)?;
+            let target = own_site(state, actor, *to)?;
+            if source.country != target.country {
+                return Err(CommandError::DifferentCountries);
+            }
+            let available = source.inventory.get(product).map_or(0.0, |s| s.quantity);
+            if *quantity > available + 1e-9 {
+                return Err(CommandError::NotEnoughGoods { available });
+            }
+            let stock = state
+                .site_mut(*from)
+                .expect("checked above")
+                .inventory
+                .entry(*product)
+                .or_default();
+            let quality = stock.quality;
+            let value = stock.take(*quantity);
+            state
+                .site_mut(*to)
+                .expect("checked above")
+                .inventory
+                .entry(*product)
+                .or_default()
+                .add(*quantity, value, quality);
         }
     }
     Ok(())

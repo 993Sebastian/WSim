@@ -52,6 +52,11 @@ impl<I: Id, T> Table<I, T> {
         self.by_key.get(key).map(|&i| I::from_index(i))
     }
 
+    /// All keys in ID order.
+    pub fn keys(&self) -> &[String] {
+        &self.keys
+    }
+
     pub fn key(&self, id: I) -> &str {
         &self.keys[id.index()]
     }

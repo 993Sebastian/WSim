@@ -331,6 +331,7 @@ fn saves_survive_changed_data() {
 const FIXTURES: &[(u32, &[u8])] = &[
     (1, include_bytes!("../tests/fixtures/saves/v1.wsim")),
     (2, include_bytes!("../tests/fixtures/saves/v2.wsim")),
+    (3, include_bytes!("../tests/fixtures/saves/v3.wsim")),
 ];
 
 #[test]
@@ -347,7 +348,7 @@ fn saves_of_all_versions_stay_loadable() {
         assert_eq!(state.date, date(1900, 4, 1));
         assert_eq!(state.company(state.player).unwrap().name, "Fixture GmbH");
         assert_eq!(
-            state.company(state.player).unwrap().cash,
+            state.company(state.player).unwrap().ledger.cash(),
             Money::from_usd(250_000.0).unwrap()
         );
         assert_eq!(state.countries.len(), 2, "country values are recomputed");

@@ -58,15 +58,19 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 
 ## Spielstände
 
-- Formatversion `SAVE_FORMAT_VERSION` in `crates/wsim-core/src/save.rs`. Jede
-  inkompatible Änderung an `GameState`: Version erhöhen, Migration in `MIGRATIONS`
-  schreiben, neuen Beispielstand mit dem ignorierten Test `write_fixture` erzeugen.
-  Alte Beispielstände unter `crates/wsim-core/tests/fixtures/saves/` bleiben liegen
-  und müssen weiter laden.
-- Jedes Feld im Zustand, das eine Katalog-ID enthält, muss in `GameState::remap`
-  übersetzt werden, und die Art muss in `CatalogKeys` stehen.
+- Formatversion `SAVE_FORMAT_VERSION` in `crates/wsim-core/src/save/mod.rs`. Jede
+  inkompatible Änderung an `GameState`: Version erhöhen, das alte Format in
+  `save/legacy.rs` typisiert einlesen und umwandeln, neuen Beispielstand mit dem
+  ignorierten Test `write_fixture` erzeugen und in `FIXTURES` eintragen. Alte
+  Beispielstände unter `crates/wsim-core/tests/fixtures/saves/` bleiben liegen.
+- Verweise auf Inhalte (IDs) werden beim Speichern automatisch als Schlüssel
+  geschrieben; Zustand je Inhalt gehört in `PerId<Id, T>` (wird als Zuordnung
+  Schlüssel → Wert gespeichert). Neue Einträge nach dem Laden: `fit_to_catalog`.
+- Abgeleitete Werte (z. B. Länderwerte) nicht speichern (`#[serde(skip)]`), sondern
+  nach dem Laden neu berechnen.
 - Alles, was die Simulation verändert, läuft über `Game::apply`/`advance` und steht
   damit im Journal; `Game::replay` muss denselben Zustand ergeben.
+- Jede Buchung hält die Bilanz ausgeglichen (`Ledger::is_balanced`); Tests prüfen das.
 
 ## Prüfen vor jedem Commit
 

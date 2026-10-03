@@ -74,6 +74,16 @@ laendermodell:
   automatisierung: {basis: 0.3, je_verdopplung: 0.12, bezug_usd: 13_000}
 ";
 
+const PRODUKTION: &str = "\
+produktionsmodell:
+  standortkosten_usd: {foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, niederlassung: 1, forschungszentrum: 1}
+  gebaeude_lebensdauer_jahre: 50
+  erschliessung_lebensdauer_jahre: 30
+  automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
+  qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
+  zustand_minimum: 0.2
+";
+
 const KETTE: &str = "\
 produkte:
   - id: erz
@@ -175,6 +185,7 @@ impl Daten {
             ("grundlagen.yaml", GRUNDLAGEN),
             ("laender/SWE.yaml", LAND),
             ("parameter/laendermodell.yaml", MODELL),
+            ("parameter/produktionsmodell.yaml", PRODUKTION),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -825,6 +836,29 @@ fn gini_und_stabilitaet_im_bereich() {
     );
     befund(
         &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+}
+
+#[test]
+fn produktionsmodell_wird_geprueft() {
+    let outcome = Daten::neu()
+        .ohne("parameter/produktionsmodell.yaml")
+        .laden();
+    befund(&outcome, "Abschnitt „produktionsmodell“ fehlt");
+
+    let d = Daten::neu().ersetze("parameter/produktionsmodell.yaml", "werk: 1,", "werkk: 1,");
+    let outcome = d.laden();
+    befund(&outcome, "Unbekannter Wert „werkk“. Meinten Sie „werk“?");
+    befund(&outcome, "Eintrag für Standorttyp „werk“ fehlt.");
+
+    let d = Daten::neu().ersetze(
+        "parameter/produktionsmodell.yaml",
+        "zustand_minimum: 0.2",
+        "zustand_minimum: 2",
+    );
+    befund(
+        &d.laden(),
         "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
     );
 }

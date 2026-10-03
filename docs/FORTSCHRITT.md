@@ -12,8 +12,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M2 | Datenformat und Prüfung | ✅ |
 | M3 | Kern-Gerüst | ✅ |
 | M4 | Länder-Grundwerte | ✅ |
-| M5 | Rohstoffe und Produktion | in Arbeit |
-| M6 | Buchführung und Grundfinanzen | offen |
+| M5 | Rohstoffe und Produktion | ✅ |
+| M6 | Buchführung und Grundfinanzen | in Arbeit |
 | M7 | Markt und Preise (ein Land) | offen |
 | M8 | Handel zwischen Ländern | offen |
 | M9 | Alle 12 Ketten + Forschung | offen |
@@ -49,3 +49,19 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Staatsgründungen, Krisen). Umsetzung: Ereignisdatei mit historischen Ereignissen
   (M11, Meldungsart „Weltereignis“), Anzeige als Pop-up in der Oberfläche (M12). Die
   wirtschaftlichen Folgen stecken bis Stufe 4 bereits in den realen Länderwerten.
+- M5: Doppelte Buchführung (Konten, Kostenarten nach §14.2, Kostenstellen Standort/
+  Produkt, Monats- und Jahresergebnisse) schon in M5 statt M6, weil die Produktion
+  Geldbewegungen erzeugt. Bewertung nach dem Gesamtkostenverfahren.
+- M5: Spielstände schreiben alle Verweise auf Inhalte als IDs (`roheisen`), damit sie
+  nach Datenänderungen ladbar bleiben; ältere Formate werden typisiert eingelesen
+  (Format 3, Umwandlung von 1 und 2).
+- M5: Umlagern von Waren nur innerhalb eines Landes und ohne Kosten; Transporte
+  zwischen Ländern kommen mit M8.
+- M5: Strombedarf wird höchstens bis zum Netzanteil des Landes gedeckt (Eigenstrom ab
+  Kette 7 in M9). Walzen und Drahtziehen laufen um 1900 mit Dampf (Kohle als Eingang),
+  daher ohne Strom.
+- M5: Personal wird monatlich und nach Änderungen automatisch auf den Bedarf eingestellt
+  (Lastenheft §5.4 „automatisch nachbesetzen“); ältere Standorte zuerst. Vertretung
+  durch höhere Qualifikationen und Abwerbung folgen mit den KI-Firmen.
+- M5: Startform (Werkstatt/Handel) wirkt erst mit Kette 2 (M9): dann erhält der
+  Spieler eine kleine Werkstatt bzw. Niederlassung.

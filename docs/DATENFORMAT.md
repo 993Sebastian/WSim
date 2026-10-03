@@ -33,10 +33,10 @@ data/
 
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
-Erlaubte Abschnitte: `meta`, `laendermodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`. Jeder Abschnitt außer `meta`
-ist eine Liste von Einträgen (`meta` und `laendermodell` sind einmalige Zuordnungen).
+ist eine Liste von Einträgen (`meta`, `laendermodell` und `produktionsmodell` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -124,6 +124,19 @@ die übrigen Länderwerte berechnet werden; Formeln in `docs/FORMELN.md` (M4).
 | **stabilitaet** | Standardwert 0–1 |
 | **forschung** | `{bezug_usd, elastizitaet, minimum, maximum}` |
 | **automatisierung** | `{basis, je_verdopplung, bezug_usd}` |
+
+## produktionsmodell
+
+Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
+`docs/FORMELN.md` (M5).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **standortkosten_usd** | Kosten je Standorttyp: `foerderstaette`, `werk`, `kraftwerk`, `lager`, `niederlassung`, `forschungszentrum` (alle nötig) |
+| **gebaeude_lebensdauer_jahre**, **erschliessung_lebensdauer_jahre** | Abschreibungsdauern |
+| **automatisierung** | `arbeitsersparnis` (0–1), `kostenanteil` |
+| **qualitaet** | Gewichte `vorprodukte`, `automatisierung`, `zustand` |
+| **zustand_minimum** | Untergrenze des Anlagenzustands (0–1) |
 
 ## produkte
 

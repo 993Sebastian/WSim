@@ -206,3 +206,130 @@ fn country_model_is_plausible() {
     };
     assert!(share(&deu) > share(&at("FRA", 1900)));
 }
+
+/// Chain 1 with the shipped data: ore and coal in Britain, pig iron in a blast furnace.
+#[test]
+fn chain_one_runs_in_britain() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::catalog::SiteType;
+    use wsim_core::command::Command;
+    use wsim_core::game::Game;
+    use wsim_core::money::Money;
+    use wsim_core::state::{GameSettings, SiteId, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let gbr = c.countries.id("GBR").unwrap();
+    let mut game = Game::new(
+        c.clone(),
+        GameSettings {
+            seed: 1,
+            start_year: 1900,
+            start_country: gbr,
+            start_capital: Money::from_usd(200_000_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Teesside Iron".into(),
+        },
+    )
+    .unwrap();
+    let apply = |game: &mut Game, cmd| game.apply(cmd).unwrap();
+    for (deposit, facility, recipe) in [
+        ("cleveland_hills", "erzbergwerk", "eisenerz_abbau"),
+        ("suedwales", "kohlenzeche", "kohle_abbau"),
+    ] {
+        apply(
+            &mut game,
+            Command::FoundSite {
+                country: gbr,
+                kind: SiteType::Extraction,
+            },
+        );
+        let site = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+        apply(
+            &mut game,
+            Command::BuildFacility {
+                site,
+                facility: c.facilities.id(facility).unwrap(),
+            },
+        );
+        apply(
+            &mut game,
+            Command::DevelopDeposit {
+                site,
+                deposit: c.deposits.id(deposit).unwrap(),
+            },
+        );
+        apply(
+            &mut game,
+            Command::SetProduction {
+                site,
+                slot: 0,
+                recipe: c.recipes.id(recipe),
+                utilization: 1.0,
+            },
+        );
+    }
+    apply(
+        &mut game,
+        Command::FoundSite {
+            country: gbr,
+            kind: SiteType::Factory,
+        },
+    );
+    let works = SiteId(2);
+    apply(
+        &mut game,
+        Command::BuildFacility {
+            site: works,
+            facility: c.facilities.id("hochofen").unwrap(),
+        },
+    );
+    apply(
+        &mut game,
+        Command::SetProduction {
+            site: works,
+            slot: 0,
+            recipe: c.recipes.id("roheisen_kokshochofen"),
+            utilization: 1.0,
+        },
+    );
+    // Developing the Welsh coal field takes 720 days.
+    for _ in 0..12 {
+        game.advance(RoundLength::Quarter, |_| {});
+    }
+    let ore = c.products.id("eisenerz").unwrap();
+    let coal = c.products.id("kohle").unwrap();
+    for (site, product) in [(SiteId(0), ore), (SiteId(1), coal)] {
+        let quantity = game.state().site(site).unwrap().inventory[&product].quantity;
+        assert!(quantity > 100_000.0, "{quantity}");
+        apply(
+            &mut game,
+            Command::TransferGoods {
+                from: site,
+                to: works,
+                product,
+                quantity,
+            },
+        );
+    }
+    game.advance(RoundLength::Month, |_| {});
+    let pig_iron = c.products.id("roheisen").unwrap();
+    let stock = &game.state().site(works).unwrap().inventory[&pig_iron];
+    // 250 t a day at full capacity.
+    assert!(stock.quantity > 250.0 * 25.0, "{}", stock.quantity);
+    let cost_per_t = stock.value.to_usd() / stock.quantity;
+    // Ore, coal and labor in Britain 1903: a few dozen dollars (2026) per tonne.
+    eprintln!("Herstellkosten Roheisen 1903: {cost_per_t:.2} USD/t");
+    assert!(
+        (10.0..200.0).contains(&cost_per_t),
+        "Herstellkosten Roheisen: {cost_per_t} USD/t"
+    );
+    assert!(
+        game.state()
+            .company(game.player())
+            .unwrap()
+            .ledger
+            .is_balanced()
+    );
+}

@@ -9,9 +9,11 @@ pub mod command;
 pub mod country_model;
 pub mod game;
 pub mod ids;
+pub mod ledger;
 pub mod math;
 pub mod message;
 pub mod money;
+pub mod production;
 pub mod rng;
 pub mod save;
 pub mod state;
@@ -19,6 +21,8 @@ pub mod time_series;
 
 #[cfg(test)]
 mod determinism_tests;
+#[cfg(test)]
+mod production_tests;
 
 pub use calendar::{Date, RoundLength};
 pub use game::{Game, JournalEntry, RoundReport, StateHash};

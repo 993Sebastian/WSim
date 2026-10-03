@@ -39,6 +39,69 @@ impl Money {
     pub fn to_usd(self) -> f64 {
         self.0 as f64 / Self::UNITS_PER_USD as f64
     }
+
+    /// Amount times a factor, rounded to the nearest unit (factors come from quantities,
+    /// shares and prices, which are floating point).
+    #[must_use]
+    pub fn scale(self, factor: f64) -> Money {
+        let value = (self.0 as f64 * factor).round();
+        // Amounts in the game stay far below the i64 range.
+        #[allow(clippy::cast_possible_truncation)]
+        Money(value as i64)
+    }
+
+    /// Price per unit times quantity.
+    pub fn times(price: Money, quantity: f64) -> Money {
+        price.scale(quantity)
+    }
+
+    pub fn is_negative(self) -> bool {
+        self.0 < 0
+    }
+
+    #[must_use]
+    pub fn abs(self) -> Money {
+        Money(self.0.abs())
+    }
+}
+
+impl std::ops::Add for Money {
+    type Output = Money;
+    fn add(self, rhs: Money) -> Money {
+        Money(self.0 + rhs.0)
+    }
+}
+
+impl std::ops::Sub for Money {
+    type Output = Money;
+    fn sub(self, rhs: Money) -> Money {
+        Money(self.0 - rhs.0)
+    }
+}
+
+impl std::ops::Neg for Money {
+    type Output = Money;
+    fn neg(self) -> Money {
+        Money(-self.0)
+    }
+}
+
+impl std::ops::AddAssign for Money {
+    fn add_assign(&mut self, rhs: Money) {
+        self.0 += rhs.0;
+    }
+}
+
+impl std::ops::SubAssign for Money {
+    fn sub_assign(&mut self, rhs: Money) {
+        self.0 -= rhs.0;
+    }
+}
+
+impl std::iter::Sum for Money {
+    fn sum<I: Iterator<Item = Money>>(iter: I) -> Money {
+        iter.fold(Money::ZERO, |a, b| a + b)
+    }
 }
 
 #[cfg(test)]

@@ -12,10 +12,52 @@ fehler.spielstand.kein_spielstand: Die Datei ist kein WSim-Spielstand.
 fehler.spielstand.zu_neu: Der Spielstand stammt aus einer neueren Spielversion (Format {version}, diese Version kann bis Format {unterstuetzt} laden).
 fehler.spielstand.zu_alt: Der Spielstand hat das veraltete Format {version} und kann nicht geladen werden.
 fehler.spielstand.beschaedigt: Der Spielstand ist beschädigt ({detail}).
-fehler.spielstand.inhalt_fehlt: Der Spielstand verwendet {art} „{id}“, das es in den Spieldaten nicht mehr gibt.
+fehler.spielstand.inhalt_fehlt: "Der Spielstand verwendet „{id}“ ({art}); diesen Eintrag gibt es in den Spieldaten nicht mehr."
 
 meldung.spielende: Die Partie ist mit dem 31.12.2100 zu Ende gegangen.
 meldung.neues_jahr: Das Jahr {jahr} beginnt.
 
 # Arten von Inhalten, für Meldungen
-art.land: das Land
+art.land: Land
+
+fehler.befehl.firma_insolvent: Die Firma ist insolvent und kann nicht mehr handeln.
+fehler.befehl.standort_unbekannt: Diesen Standort gibt es nicht.
+fehler.befehl.fremder_standort: Der Standort gehört einer anderen Firma.
+fehler.befehl.anlage_unbekannt: Diese Anlage gibt es am Standort nicht.
+fehler.befehl.falscher_standorttyp: Das geht nur an einem Standort vom Typ {typ}.
+fehler.befehl.technologie_fehlt: Dafür fehlt die Technologie „{technologie}“.
+fehler.befehl.geld_fehlt: Dafür reicht das Geld nicht; nötig sind {betrag}.
+fehler.befehl.lagerstaette_vergeben: Die Lagerstätte wird bereits von einer Firma erschlossen.
+fehler.befehl.lagerstaette_anderes_land: Die Lagerstätte liegt in einem anderen Land als der Standort.
+fehler.befehl.lagerstaette_unentdeckt: Die Lagerstätte wird erst {jahr} entdeckt.
+fehler.befehl.standort_hat_lagerstaette: Der Standort erschließt bereits eine Lagerstätte.
+fehler.befehl.rezept_passt_nicht: Dieses Verfahren läuft nicht auf dieser Anlage.
+fehler.befehl.rezept_braucht_lagerstaette: Für den Abbau braucht der Standort eine erschlossene Lagerstätte dieses Rohstoffs.
+fehler.befehl.anteil_ungueltig: Der Wert muss zwischen 0 und 100 % liegen.
+fehler.befehl.automatisierung_zu_hoch: Diese Anlage lässt sich höchstens zu {max} % automatisieren.
+fehler.befehl.menge_ungueltig: Die Menge muss größer als 0 sein.
+fehler.befehl.ware_fehlt: So viel ist nicht auf Lager; vorhanden sind {menge}.
+fehler.befehl.anderes_land: Die Standorte liegen in verschiedenen Ländern; Transporte zwischen Ländern kommen mit dem Handel.
+
+# Standorttypen
+standorttyp.foerderstaette: Förderstätte
+standorttyp.werk: Werk
+standorttyp.kraftwerk: Kraftwerk
+standorttyp.lager: Lager
+standorttyp.niederlassung: Handelsniederlassung
+standorttyp.forschungszentrum: Forschungszentrum
+
+# Arten von Inhalten
+art.einheit: Einheit
+art.kontinent: Kontinent
+art.branche: Branche
+art.warengruppe: Warengruppe
+art.transportklasse: Transportklasse
+art.qualifikation: Qualifikation
+art.fachrichtung: Fachrichtung
+art.arbeitskraeftegruppe: Arbeitskräftegruppe
+art.produkt: Produkt
+art.anlage: Anlage
+art.rezept: Rezept
+art.technologie: Technologie
+art.lagerstaette: Lagerstätte

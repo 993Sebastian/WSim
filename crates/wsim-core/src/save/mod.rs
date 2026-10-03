@@ -9,11 +9,14 @@
 //! | n | Header as JSON (readable without unpacking, for the load menu) |
 //! | rest | Body: MessagePack with field names, compressed with DEFLATE |
 //!
-//! The body stores catalog references by key (`DEU`), so a save remains loadable when
-//! the data files change: IDs are translated to the new catalog on load. Older format
-//! versions are upgraded step by step by the functions in [`MIGRATIONS`].
+//! References to catalog entries are written as keys (`DEU`, `roheisen`), so a save
+//! stays loadable when entries are added or reordered in the data files. Older format
+//! versions are read with their own types (`legacy`) and converted.
 //! The core does no file IO; callers read and write the bytes.
 
+mod legacy;
+
+use std::collections::BTreeMap;
 use std::io::{Read, Write};
 use std::sync::Arc;
 
@@ -25,40 +28,16 @@ use serde::{Deserialize, Serialize};
 use crate::calendar::Date;
 use crate::catalog::Catalog;
 use crate::game::{Game, JournalEntry};
-use crate::ids::{CountryId, Id};
+use crate::ids::{self, IdKind};
 use crate::message::{Message, Param, keys};
 use crate::state::GameState;
 
-/// Current save format. Raise it on every incompatible change of `GameState`, add a
-/// migration and keep a save of the old version under `tests/fixtures/saves/`.
-pub const SAVE_FORMAT_VERSION: u32 = 2;
+/// Current save format. Raise it on every incompatible change of `GameState`, read the
+/// old format in `legacy` and keep a save of the old version under
+/// `tests/fixtures/saves/`.
+pub const SAVE_FORMAT_VERSION: u32 = 3;
 
 const MAGIC: &[u8; 8] = b"WSIMSAVE";
-
-/// Upgrades of the body, from version `n` to `n + 1`, operating on the untyped
-/// MessagePack tree. Index 0 upgrades version 1 to 2, and so on.
-type Migration = fn(&mut rmpv::Value) -> Result<(), String>;
-const MIGRATIONS: &[Migration] = &[v1_derived_country_values_removed];
-
-/// Version 2 no longer saves the derived country values; they are recomputed.
-fn v1_derived_country_values_removed(body: &mut rmpv::Value) -> Result<(), String> {
-    let state = map_entry(body, "state").ok_or("state missing")?;
-    if let rmpv::Value::Map(fields) = state {
-        fields.retain(|(key, _)| key.as_str() != Some("countries"));
-    }
-    Ok(())
-}
-
-/// Value stored under `key` in a MessagePack map.
-fn map_entry<'v>(value: &'v mut rmpv::Value, key: &str) -> Option<&'v mut rmpv::Value> {
-    match value {
-        rmpv::Value::Map(fields) => fields
-            .iter_mut()
-            .find(|(k, _)| k.as_str() == Some(key))
-            .map(|(_, v)| v),
-        _ => None,
-    }
-}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SaveHeader {
@@ -69,22 +48,15 @@ pub struct SaveHeader {
     pub company_name: String,
 }
 
-/// Keys of the catalog entries the state refers to, in ID order at the time of saving.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct CatalogKeys {
-    countries: Vec<String>,
-}
+/// Keys of all catalog entries by kind at the time of saving (to detect changed data).
+type CatalogKeys = BTreeMap<String, Vec<String>>;
 
-impl CatalogKeys {
-    fn of(catalog: &Catalog) -> Self {
-        Self {
-            countries: catalog
-                .countries
-                .ids()
-                .map(|id| catalog.countries.key(id).to_owned())
-                .collect(),
-        }
-    }
+fn catalog_keys(catalog: &Catalog) -> CatalogKeys {
+    let table = catalog.key_table();
+    IdKind::ALL
+        .iter()
+        .map(|&kind| (kind.name().to_owned(), table.keys(kind).to_vec()))
+        .collect()
 }
 
 #[derive(Serialize, Deserialize)]
@@ -141,11 +113,12 @@ pub struct LoadedGame {
 }
 
 pub fn encode(game: &Game) -> Vec<u8> {
+    let catalog = game.catalog();
     let state = game.state();
     let header = SaveHeader {
         format_version: SAVE_FORMAT_VERSION,
         game_version: crate::VERSION.to_owned(),
-        data_version: game.catalog().data_version,
+        data_version: catalog.data_version,
         date: state.date,
         company_name: state
             .company(state.player)
@@ -154,11 +127,12 @@ pub fn encode(game: &Game) -> Vec<u8> {
     };
     let header = serde_json::to_vec(&header).expect("header is serializable");
     let body = SaveBody {
-        catalog_keys: CatalogKeys::of(game.catalog()),
+        catalog_keys: catalog_keys(catalog),
         state: state.clone(),
         journal: game.journal().to_vec(),
     };
-    let body = rmp_serde::to_vec_named(&body).expect("state is serializable");
+    let (body, _) = ids::with_keys(&catalog.key_table(), || rmp_serde::to_vec_named(&body));
+    let body = body.expect("state is serializable");
 
     let mut out = Vec::with_capacity(body.len() / 4 + header.len() + 16);
     out.extend_from_slice(MAGIC);
@@ -200,35 +174,32 @@ pub fn decode(bytes: &[u8], catalog: Arc<Catalog>) -> Result<LoadedGame, LoadErr
             found: header.format_version,
         });
     }
-    if header.format_version == 0 {
-        return Err(LoadError::TooOld {
-            found: header.format_version,
-        });
-    }
     let mut body = Vec::new();
     DeflateDecoder::new(compressed)
         .read_to_end(&mut body)
         .map_err(|e| LoadError::Corrupt(e.to_string()))?;
-    let body = migrate(header.format_version, body)?;
-    let SaveBody {
-        catalog_keys,
-        mut state,
-        journal,
-    } = rmp_serde::from_slice(&body).map_err(|e| LoadError::Corrupt(e.to_string()))?;
 
-    let current = CatalogKeys::of(&catalog);
-    let data_changed = header.data_version != catalog.data_version || catalog_keys != current;
-    if catalog_keys != current {
-        let countries = translate::<CountryId>(
-            &catalog_keys.countries,
-            |key| catalog.countries.id(key),
-            "land",
-        )?;
-        state.remap(&countries, &catalog);
-    }
+    let (saved_keys, mut state, journal) = match header.format_version {
+        0 => return Err(LoadError::TooOld { found: 0 }),
+        1 | 2 => legacy::decode_v2(&body, &catalog)?,
+        _ => {
+            let (result, missing) = ids::with_keys(&catalog.key_table(), || {
+                rmp_serde::from_slice::<SaveBody>(&body)
+            });
+            if let Some((kind, key)) = missing {
+                return Err(LoadError::ContentMissing {
+                    kind: kind.name(),
+                    key,
+                });
+            }
+            let body = result.map_err(|e| LoadError::Corrupt(e.to_string()))?;
+            (body.catalog_keys, body.state, body.journal)
+        }
+    };
+    let data_changed =
+        header.data_version != catalog.data_version || saved_keys != catalog_keys(&catalog);
     check_consistency(&state, &catalog)?;
-    // Derived values follow the current data (identical if the data is unchanged).
-    state.refresh_countries(&catalog);
+    state.fit_to_catalog(&catalog);
     let game = Game::from_parts(catalog, state, journal);
     Ok(LoadedGame {
         game,
@@ -237,51 +208,31 @@ pub fn decode(bytes: &[u8], catalog: Arc<Catalog>) -> Result<LoadedGame, LoadErr
     })
 }
 
-/// New ID for every saved key; fails if a key no longer exists.
-fn translate<I: Id>(
-    saved: &[String],
-    lookup: impl Fn(&str) -> Option<I>,
-    kind: &'static str,
-) -> Result<Vec<I>, LoadError> {
-    saved
-        .iter()
-        .map(|key| {
-            lookup(key).ok_or_else(|| LoadError::ContentMissing {
-                kind,
-                key: key.clone(),
-            })
-        })
-        .collect()
-}
-
-fn migrate(from: u32, body: Vec<u8>) -> Result<Vec<u8>, LoadError> {
-    let first = usize::try_from(from - 1).expect("small");
-    let steps = MIGRATIONS.get(first..).unwrap_or_default();
-    if steps.is_empty() {
-        return Ok(body);
-    }
-    let corrupt = |e: &dyn std::fmt::Display| LoadError::Corrupt(e.to_string());
-    let mut value = rmpv::decode::read_value(&mut body.as_slice()).map_err(|e| corrupt(&e))?;
-    for step in steps {
-        step(&mut value).map_err(|e| corrupt(&e))?;
-    }
-    let mut out = Vec::new();
-    rmpv::encode::write_value(&mut out, &value).map_err(|e| corrupt(&e))?;
-    Ok(out)
-}
-
-/// Guards against saves whose content does not fit the catalog (damaged files).
+/// Guards against saves whose content does not fit together (damaged files).
 fn check_consistency(state: &GameState, catalog: &Catalog) -> Result<(), LoadError> {
     let corrupt = |what: &str| Err(LoadError::Corrupt(what.to_owned()));
-    let countries = catalog.countries.len();
     if state.company(state.player).is_none() {
         return corrupt("player company");
     }
-    let in_range = |id: CountryId| id.index() < countries;
+    let countries = catalog.countries.len();
+    let in_range = |id: crate::ids::CountryId| crate::ids::Id::index(id) < countries;
     if !in_range(state.settings.start_country)
         || !state.companies.iter().all(|c| in_range(c.headquarters))
+        || !state.sites.iter().all(|s| in_range(s.country))
     {
         return corrupt("country reference");
+    }
+    let companies = state.companies.len();
+    if state.sites.iter().any(|s| s.owner.index() >= companies) {
+        return corrupt("site owner");
+    }
+    let sites = state.sites.len();
+    if state
+        .deposits
+        .values()
+        .any(|d| d.site.is_some_and(|s| s.index() >= sites))
+    {
+        return corrupt("deposit site");
     }
     Ok(())
 }

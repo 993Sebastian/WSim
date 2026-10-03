@@ -19,6 +19,7 @@ use wsim_core::time_series::TimeSeries;
 use crate::messages;
 
 mod countries;
+mod production;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawProduct, RawProductKind, RawSiteType, RawStateMarket,
     RawUsage,
@@ -368,6 +369,7 @@ pub(crate) fn build(
         b.catalog.countries.insert(&e.value.id, country);
     }
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
+    b.catalog.production_model = production::production_model(b.ctx, raw);
     b.catalog.country_model = countries::country_model(
         b.ctx,
         &b.catalog,

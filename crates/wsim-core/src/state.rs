@@ -1,25 +1,30 @@
 //! The game state: everything that changes during a game and is saved.
 //!
-//! Rule: every field that holds a catalog ID must be handled in [`GameState::remap`],
-//! so that saves stay loadable when the data files change.
+//! Catalog IDs in the state are saved as keys (see `ids`), so saves survive changes of
+//! the data files without any manual translation.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::fmt;
 use std::marker::PhantomData;
 
-use serde::{Deserialize, Serialize};
+use serde::de::{MapAccess, SeqAccess, Visitor};
+use serde::ser::SerializeMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::calendar::Date;
-use crate::catalog::Catalog;
+use crate::catalog::{Catalog, SiteType};
 pub use crate::country_model::CountryState;
-use crate::ids::{CountryId, Id};
+use crate::ids::{
+    self, CountryId, DepositId, FacilityId, Id, LaborGroupId, ProductId, RecipeId, TechnologyId,
+};
+use crate::ledger::Ledger;
 use crate::money::Money;
 use crate::rng::SimRng;
 
 /// Per-entry state for a catalog table, indexed by the table's IDs.
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(transparent)]
+#[derive(Debug)]
 pub struct PerId<I, T> {
     items: Vec<T>,
-    #[serde(skip)]
     _id: PhantomData<fn() -> I>,
 }
 
@@ -85,23 +90,84 @@ impl<I: Id, T> PerId<I, T> {
             .map(|(i, t)| (I::from_index(i), t))
     }
 
-    /// Reorders the entries for a new catalog. `new_ids[old_index]` gives the new ID of
-    /// each saved entry; entries that are new in the catalog are created with `create`.
-    #[must_use]
-    pub fn remap(self, new_ids: &[I], new_len: usize, mut create: impl FnMut(I) -> T) -> Self {
-        let mut slots: Vec<Option<T>> = (0..new_len).map(|_| None).collect();
-        for (item, &new_id) in self.items.into_iter().zip(new_ids) {
-            slots[new_id.index()] = Some(item);
+    pub fn values(&self) -> impl Iterator<Item = &T> {
+        self.items.iter()
+    }
+
+    /// Grows or shrinks to `len` entries; new entries come from `f`.
+    pub fn resize_with(&mut self, len: usize, f: impl FnMut() -> T) {
+        self.items.resize_with(len, f);
+    }
+}
+
+/// As a list normally; as a map from key to entry while saving, so the entries find
+/// their place again when the catalog order changes.
+impl<I: Id + Serialize, T: Serialize> Serialize for PerId<I, T> {
+    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        if ids::keys_active() {
+            let mut map = s.serialize_map(Some(self.items.len()))?;
+            for (i, item) in self.items.iter().enumerate() {
+                map.serialize_entry(&I::from_index(i), item)?;
+            }
+            map.end()
+        } else {
+            self.items.serialize(s)
         }
-        let items = slots
-            .into_iter()
-            .enumerate()
-            .map(|(i, slot)| slot.unwrap_or_else(|| create(I::from_index(i))))
-            .collect();
-        Self {
-            items,
-            _id: PhantomData,
+    }
+}
+
+impl<'de, I: Id + Deserialize<'de>, T: Deserialize<'de> + Default> Deserialize<'de>
+    for PerId<I, T>
+{
+    fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct PerIdVisitor<I, T>(PhantomData<(I, T)>);
+
+        impl<'de, I: Id + Deserialize<'de>, T: Deserialize<'de> + Default> Visitor<'de>
+            for PerIdVisitor<I, T>
+        {
+            type Value = PerId<I, T>;
+
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str("a list or a map of entries")
+            }
+
+            fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+                let mut items = Vec::new();
+                while let Some(item) = seq.next_element()? {
+                    items.push(item);
+                }
+                Ok(PerId {
+                    items,
+                    _id: PhantomData,
+                })
+            }
+
+            fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+                let mut entries: Vec<(I, T)> = Vec::new();
+                while let Some(entry) = map.next_entry()? {
+                    entries.push(entry);
+                }
+                let len = ids::active_len(I::KIND).unwrap_or_else(|| {
+                    entries
+                        .iter()
+                        .map(|(i, _)| i.index() + 1)
+                        .max()
+                        .unwrap_or(0)
+                });
+                let mut items: Vec<T> = (0..len).map(|_| T::default()).collect();
+                for (id, item) in entries {
+                    if let Some(slot) = items.get_mut(id.index()) {
+                        *slot = item;
+                    }
+                }
+                Ok(PerId {
+                    items,
+                    _id: PhantomData,
+                })
+            }
         }
+
+        d.deserialize_any(PerIdVisitor(PhantomData))
     }
 }
 
@@ -111,6 +177,17 @@ impl<I: Id, T> PerId<I, T> {
 pub struct CompanyId(pub u32);
 
 impl CompanyId {
+    pub fn index(self) -> usize {
+        self.0 as usize
+    }
+}
+
+/// Sites are numbered in the order they are founded; IDs are never reused.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct SiteId(pub u32);
+
+impl SiteId {
     pub fn index(self) -> usize {
         self.0 as usize
     }
@@ -136,10 +213,112 @@ pub struct Company {
     pub kind: CompanyKind,
     /// Country of the head office; decides taxes (Lastenheft §5.1).
     pub headquarters: CountryId,
-    pub cash: Money,
     pub founded: Date,
     /// Own random stream for the company's decisions.
     pub rng: SimRng,
+    pub ledger: Ledger,
+    /// Technologies the company acquired after the start (research, later licences).
+    pub technologies: BTreeSet<TechnologyId>,
+    /// Bankrupt companies keep their history but no longer act.
+    pub bankrupt: bool,
+}
+
+/// Goods of one kind in a site's warehouse, valued at production or purchase cost.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Stock {
+    pub quantity: f64,
+    pub value: Money,
+    /// Average quality 0–100.
+    pub quality: f64,
+}
+
+impl Stock {
+    pub fn add(&mut self, quantity: f64, value: Money, quality: f64) {
+        let total = self.quantity + quantity;
+        if total > 0.0 {
+            self.quality = (self.quality * self.quantity + quality * quantity) / total;
+        }
+        self.quantity = total;
+        self.value += value;
+    }
+
+    /// Removes `quantity` (at most what is there); returns its value at average cost.
+    pub fn take(&mut self, quantity: f64) -> Money {
+        let quantity = quantity.min(self.quantity).max(0.0);
+        if quantity >= self.quantity {
+            let value = self.value;
+            *self = Stock {
+                quality: self.quality,
+                ..Stock::default()
+            };
+            return value;
+        }
+        let value = self.value.scale(quantity / self.quantity);
+        self.quantity -= quantity;
+        self.value -= value;
+        value
+    }
+}
+
+/// Goods in production that leave the facility on `finish`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Batch {
+    pub finish: Date,
+    pub outputs: Vec<(ProductId, f64)>,
+    pub quality: f64,
+    /// Production cost, distributed over the outputs by quantity.
+    pub value: Money,
+}
+
+/// A facility built at a site.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Slot {
+    pub facility: FacilityId,
+    /// Day the construction is finished; until then the facility does not produce.
+    pub ready: Date,
+    /// Investment including automation upgrades (basis of depreciation and maintenance).
+    pub cost: Money,
+    pub recipe: Option<RecipeId>,
+    /// Planned share of the capacity, 0–1.
+    pub utilization: f64,
+    /// Degree of automation, 0 to the facility's maximum.
+    pub automation: f64,
+    /// Condition of the equipment, 1 = new.
+    pub condition: f64,
+    pub batches: Vec<Batch>,
+    /// Runs on the last production day (for reports).
+    pub last_runs: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Site {
+    pub owner: CompanyId,
+    pub country: CountryId,
+    pub kind: SiteType,
+    pub founded: Date,
+    /// Cost of land and buildings (depreciated over the building lifetime).
+    pub building_cost: Money,
+    /// Deposit worked by this site (extraction sites only).
+    pub deposit: Option<DepositId>,
+    pub slots: Vec<Slot>,
+    pub inventory: BTreeMap<ProductId, Stock>,
+    /// Employed persons per labor group.
+    pub workforce: PerId<LaborGroupId, f64>,
+    /// Staffing is adjusted at the start of each month and after changes.
+    pub staffing_due: bool,
+}
+
+/// State of a deposit.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct DepositState {
+    /// Quantity extracted so far.
+    pub extracted: f64,
+    pub extracted_this_year: f64,
+    /// Site that develops or works the deposit.
+    pub site: Option<SiteId>,
+    /// Day the development is finished.
+    pub ready: Option<Date>,
+    pub development_cost: Money,
 }
 
 /// Settings chosen when starting a game (Lastenheft §15). Together with the journal
@@ -167,6 +346,11 @@ pub struct GameState {
     pub countries: PerId<CountryId, CountryState>,
     /// Indexed by [`CompanyId`].
     pub companies: Vec<Company>,
+    /// Indexed by [`SiteId`].
+    #[serde(default)]
+    pub sites: Vec<Site>,
+    #[serde(default)]
+    pub deposits: PerId<DepositId, DepositState>,
     pub player: CompanyId,
     pub game_over: bool,
 }
@@ -180,15 +364,21 @@ impl GameState {
         self.companies.get_mut(id.index())
     }
 
-    /// Translates all catalog IDs after the catalog changed (see `save`). Country
-    /// values are derived data and are simply recomputed.
-    pub(crate) fn remap(&mut self, countries: &[CountryId], catalog: &Catalog) {
-        let map = |id: CountryId| countries[id.index()];
-        self.settings.start_country = map(self.settings.start_country);
-        for company in &mut self.companies {
-            company.headquarters = map(company.headquarters);
-        }
-        self.refresh_countries(catalog);
+    pub fn site(&self, id: SiteId) -> Option<&Site> {
+        self.sites.get(id.index())
+    }
+
+    pub fn site_mut(&mut self, id: SiteId) -> Option<&mut Site> {
+        self.sites.get_mut(id.index())
+    }
+
+    /// Whether a company may use a technology: known to everyone at the start of the
+    /// game, or acquired by the company.
+    pub fn knows(&self, catalog: &Catalog, company: CompanyId, technology: TechnologyId) -> bool {
+        catalog.technologies.get(technology).invention_year <= self.settings.start_year
+            || self
+                .company(company)
+                .is_some_and(|c| c.technologies.contains(&technology))
     }
 
     /// Recomputes the derived country values. They change monthly: the values of the
@@ -200,6 +390,18 @@ impl GameState {
             values.next().expect("one per country")
         });
     }
+
+    /// Fits per-entry state to the catalog after loading: new deposits and labor
+    /// groups get empty entries, derived values are recomputed.
+    pub(crate) fn fit_to_catalog(&mut self, catalog: &Catalog) {
+        self.deposits
+            .resize_with(catalog.deposits.len(), DepositState::default);
+        let groups = catalog.labor_groups.len();
+        for site in &mut self.sites {
+            site.workforce.resize_with(groups, || 0.0);
+        }
+        self.refresh_countries(catalog);
+    }
 }
 
 #[cfg(test)]
@@ -207,13 +409,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn remap_reorders_and_fills_new_entries() {
-        let per: PerId<CountryId, &str> =
-            PerId::from_fn(2, |id: CountryId| if id.index() == 0 { "a" } else { "b" });
-        // Old 0 → new 1, old 1 → new 2, new 0 did not exist before.
-        let new_ids = [CountryId::from_index(1), CountryId::from_index(2)];
-        let remapped = per.remap(&new_ids, 3, |_| "neu");
-        let values: Vec<_> = remapped.iter().map(|(_, v)| *v).collect();
-        assert_eq!(values, ["neu", "a", "b"]);
+    fn stock_keeps_value_and_quality() {
+        let mut stock = Stock::default();
+        stock.add(10.0, Money::from_usd(100.0).unwrap(), 40.0);
+        stock.add(10.0, Money::from_usd(300.0).unwrap(), 60.0);
+        assert_eq!(stock.quality, 50.0);
+        assert_eq!(stock.take(5.0), Money::from_usd(100.0).unwrap());
+        assert_eq!(stock.value, Money::from_usd(300.0).unwrap());
+        // Taking more than there is empties the stock exactly.
+        assert_eq!(stock.take(100.0), Money::from_usd(300.0).unwrap());
+        assert_eq!((stock.quantity, stock.value), (0.0, Money::ZERO));
     }
 }
