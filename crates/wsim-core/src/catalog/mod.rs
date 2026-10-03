@@ -37,6 +37,7 @@ pub struct Catalog {
     pub deposits: Table<DepositId, Deposit>,
     pub country_model: CountryModel,
     pub production_model: ProductionModel,
+    pub finance_model: FinanceModel,
 }
 
 impl Catalog {
@@ -153,6 +154,35 @@ pub struct CountryProfile {
     pub specialization_weights: Vec<f64>,
     /// Research strength per field (1 = average), indexed by `SpecializationId`.
     pub research_weights: Vec<f64>,
+}
+
+/// Parameters of banking and taxes (`data/parameter/finanzmodell.yaml`, formulas in
+/// docs/FORMELN.md). Interest rates are real rates: the game has no inflation.
+#[derive(Clone, Debug, PartialEq)]
+pub struct FinanceModel {
+    pub real_rate: TimeSeries,
+    pub premium_min: f64,
+    pub premium_per_debt_ratio: f64,
+    /// Loans up to this share of fixed assets and inventory.
+    pub loan_to_value: f64,
+    /// Overdraft up to this share of total assets.
+    pub overdraft_share: f64,
+    pub overdraft_premium: f64,
+    pub max_term_years: u32,
+}
+
+impl Default for FinanceModel {
+    fn default() -> Self {
+        Self {
+            real_rate: TimeSeries::new(vec![(1900, 0.03)]).expect("valid"),
+            premium_min: 0.01,
+            premium_per_debt_ratio: 0.08,
+            loan_to_value: 0.6,
+            overdraft_share: 0.1,
+            overdraft_premium: 0.06,
+            max_term_years: 30,
+        }
+    }
 }
 
 /// Parameters of production (`data/parameter/produktionsmodell.yaml`, formulas in

@@ -69,3 +69,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Eigenkapital, Gewinnrücklagen, Jahresergebnis | `Equity`, `RetainedEarnings`, `Result` |
 | Periodenergebnis | `PeriodResult` |
 | Lagerstättenzustand | `DepositState` |
+| Finanzmodell | `FinanceModel` |
+| Kredit, Annuität, Rate | `Loan`, `instalment` |
+| Kreditrahmen, Kreditlinie (Dispo) | `credit_limit`, `overdraft_limit` |
+| Verlustvortrag | `loss_carryforward` |
+| Zahlungsunfähigkeit | `is_insolvent`, `bankrupt` |
+| Kapitalfluss | `CashFlow` |
+| GuV, Bilanz | `IncomeStatement`, `BalanceSheet` |

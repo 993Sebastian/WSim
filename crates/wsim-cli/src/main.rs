@@ -85,6 +85,9 @@ struct RunArgs {
     /// Keine Ausgabe je Runde
     #[arg(long)]
     leise: bool,
+    /// Am Ende GuV, Bilanz und Kapitalfluss der eigenen Firma ausgeben
+    #[arg(long)]
+    bericht: bool,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -244,6 +247,11 @@ fn run(args: &RunArgs) -> Result<(), String> {
         fs::write(path, save::encode(&game)).map_err(|e| format!("{}: {e}", path.display()))?;
         println!("Gespeichert: {}", path.display());
     }
+    if args.bericht
+        && let Some(company) = game.state().company(game.player())
+    {
+        print_report(texts, &company.ledger);
+    }
     if let Some(company) = game.state().company(game.player()) {
         println!(
             "{}: Kasse {}, Ergebnis laufendes Jahr {}",
@@ -328,4 +336,35 @@ fn show_country(directory: &Path, key: &str, year: i32) -> Result<(), String> {
         .collect();
     println!("  Forschung              {}", research.join(", "));
     Ok(())
+}
+
+fn print_report(texts: &wsim_data::Texts, ledger: &wsim_core::ledger::Ledger) {
+    use wsim_core::reports::{balance_sheet, income_statement};
+    let name = |key: &str| texts.get(key).unwrap_or(key).to_owned();
+    let line = |label: &str, value: Money| println!("  {label:<32} {:>20}", format_money(value));
+    let periods = ledger
+        .years
+        .last()
+        .into_iter()
+        .map(|p| ("Letztes Jahr", p))
+        .chain([("Laufendes Jahr", &ledger.year)]);
+    for (title, period) in periods {
+        let statement = income_statement(period);
+        println!("\nGewinn- und Verlustrechnung – {title}");
+        for (cost, amount) in &statement.lines {
+            line(&name(cost.text_key()), *amount);
+        }
+        line("Ergebnis", statement.result);
+        println!("  Kapitalfluss");
+        line("    operativ", statement.cash_flow.operating);
+        line("    Investitionen", statement.cash_flow.investing);
+        line("    Finanzierung", statement.cash_flow.financing);
+    }
+    let sheet = balance_sheet(ledger);
+    println!("\nBilanz");
+    for (account, amount) in sheet.assets.iter().chain(&sheet.claims) {
+        line(&name(account.text_key()), *amount);
+    }
+    line("Bilanzsumme", sheet.total);
+    println!();
 }

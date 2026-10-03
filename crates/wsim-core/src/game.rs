@@ -11,6 +11,7 @@ use crate::EARLIEST_START_YEAR;
 use crate::calendar::{Date, GAME_END, RoundLength};
 use crate::catalog::Catalog;
 use crate::command::{self, Command, CommandError, NameError};
+use crate::finance;
 use crate::ids::Id;
 use crate::ledger::Ledger;
 use crate::message::{Message, MessageKind, Param, keys};
@@ -139,6 +140,8 @@ impl Game {
             ledger: Ledger::new(date, settings.start_capital),
             technologies: BTreeSet::new(),
             bankrupt: false,
+            loans: Vec::new(),
+            loss_carryforward: Money::ZERO,
         };
         let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
@@ -210,6 +213,12 @@ impl Game {
         &self.state
     }
 
+    /// Direct access for tests that set up special situations.
+    #[cfg(test)]
+    pub(crate) fn state_mut(&mut self) -> &mut GameState {
+        &mut self.state
+    }
+
     pub fn journal(&self) -> &[JournalEntry] {
         &self.journal
     }
@@ -272,6 +281,9 @@ impl Game {
         }
         report.to = to;
         report.days = total;
+        if let Some(warning) = finance::overdraft_warning(&self.state, &self.catalog) {
+            report.messages.push(warning);
+        }
         if to >= GAME_END {
             self.state.game_over = true;
             report
@@ -290,9 +302,13 @@ impl Game {
         let next = today.next_day();
         self.state.date = next;
         if next.day() == 1 {
+            finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);
             }
+            report
+                .messages
+                .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
             production::new_month(&mut self.state);
         }

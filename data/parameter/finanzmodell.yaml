@@ -1,0 +1,16 @@
+# Parameter für Banken, Kredite und Steuern. Formeln: docs/FORMELN.md, Abschnitt M6.
+# Das Spiel rechnet ohne Inflation; alle Zinsen sind daher reale Zinsen.
+
+finanzmodell:
+  # Realer Leitzins (Nominalzins abzüglich Inflation, grobe Annäherung)
+  realzins: {1900: 0.03, 1914: 0.02, 1919: -0.02, 1922: 0.0, 1925: 0.04, 1930: 0.05, 1932: 0.07,
+             1940: 0.0, 1946: -0.02, 1950: 0.02, 1974: -0.01, 1980: 0.02, 1985: 0.05, 2000: 0.03,
+             2010: 0.0, 2022: -0.02, 2026: 0.01}
+  risikoaufschlag:
+    minimum: 0.01               # für jede Firma
+    je_verschuldung: 0.08       # zusätzlich je Verschuldungsgrad (Kredite / Bilanzsumme)
+  beleihung: 0.6                # Kredite bis 60 % von Sachanlagen, Anlagen im Bau und Vorräten
+  dispo:
+    anteil: 0.1                 # Kontoüberziehung bis 10 % der Bilanzsumme
+    aufschlag: 0.06             # Zins: Leitzins + Aufschlag
+  laufzeit_max_jahre: 30

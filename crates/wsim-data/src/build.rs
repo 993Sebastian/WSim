@@ -370,6 +370,7 @@ pub(crate) fn build(
     }
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
     b.catalog.production_model = production::production_model(b.ctx, raw);
+    b.catalog.finance_model = production::finance_model(b.ctx, raw);
     b.catalog.country_model = countries::country_model(
         b.ctx,
         &b.catalog,

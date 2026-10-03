@@ -107,6 +107,32 @@ pub struct PeriodResult {
     pub by_type: BTreeMap<CostType, Money>,
     pub by_site: BTreeMap<SiteId, Money>,
     pub by_product: BTreeMap<ProductId, Money>,
+    #[serde(default)]
+    pub cash_flow: CashFlow,
+}
+
+/// Change of cash in a period by activity (Kapitalflussrechnung).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CashFlow {
+    pub operating: Money,
+    pub investing: Money,
+    pub financing: Money,
+}
+
+impl CashFlow {
+    pub fn total(&self) -> Money {
+        self.operating + self.investing + self.financing
+    }
+
+    fn add(&mut self, counter_account: Account, amount: Money) {
+        match counter_account {
+            Account::FixedAssets | Account::AssetsUnderConstruction => self.investing += amount,
+            Account::Loans | Account::Equity | Account::RetainedEarnings => {
+                self.financing += amount
+            }
+            Account::Cash | Account::Inventory | Account::Result => self.operating += amount,
+        }
+    }
 }
 
 impl PeriodResult {
@@ -166,6 +192,25 @@ impl Ledger {
     pub fn transfer(&mut self, debit: Account, credit: Account, amount: Money) {
         self.balances[debit.slot()] += amount;
         self.balances[credit.slot()] -= amount;
+        let cash_change = match (debit, credit) {
+            (Account::Cash, Account::Cash) => None,
+            (Account::Cash, other) => Some((other, amount)),
+            (other, Account::Cash) => Some((other, -amount)),
+            _ => None,
+        };
+        if let Some((other, change)) = cash_change {
+            self.month.cash_flow.add(other, change);
+            self.year.cash_flow.add(other, change);
+        }
+    }
+
+    /// Sum of all assets (= sum of liabilities and equity).
+    pub fn total_assets(&self) -> Money {
+        Account::ALL
+            .iter()
+            .filter(|a| a.is_asset())
+            .map(|&a| self.balance(a))
+            .sum()
     }
 
     /// An expense paid from (or reducing) `credit`, e.g. wages from cash.

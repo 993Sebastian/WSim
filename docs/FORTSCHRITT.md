@@ -13,8 +13,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M3 | Kern-Gerüst | ✅ |
 | M4 | Länder-Grundwerte | ✅ |
 | M5 | Rohstoffe und Produktion | ✅ |
-| M6 | Buchführung und Grundfinanzen | in Arbeit |
-| M7 | Markt und Preise (ein Land) | offen |
+| M6 | Buchführung und Grundfinanzen | ✅ |
+| M7 | Markt und Preise (ein Land) | in Arbeit |
 | M8 | Handel zwischen Ländern | offen |
 | M9 | Alle 12 Ketten + Forschung | offen |
 | M10 | KI-Firmen | offen |
@@ -65,3 +65,10 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   durch höhere Qualifikationen und Abwerbung folgen mit den KI-Firmen.
 - M5: Startform (Werkstatt/Handel) wirkt erst mit Kette 2 (M9): dann erhält der
   Spieler eine kleine Werkstatt bzw. Niederlassung.
+- M6: Zinsen sind reale Zinsen (das Spiel hat keine Inflation); Realzins-Verlauf
+  1900–2026 grob angenähert. Kredite nur gegen Sicherheiten (60 % der Sachwerte),
+  dazu eine Kreditlinie von 10 % der Bilanzsumme. Gewinnsteuer jährlich mit
+  unbegrenztem Verlustvortrag.
+- M6: Zahlungsunfähigkeit wird monatlich geprüft; der Spieler verliert nur, wenn auch
+  ein neuer Kredit die Lücke nicht schließen könnte (§11.3). Anleihen und Anteile
+  folgen in Stufe 3.

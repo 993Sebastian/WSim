@@ -150,7 +150,13 @@ fn every_core_message_has_a_text() {
             "Text „{key}“ fehlt in data/texte/de/"
         );
     }
-    assert!(data.texts.get("art.land").is_some());
+    for kind in wsim_core::ids::IdKind::ALL {
+        let key = format!("art.{}", kind.name());
+        assert!(data.texts.get(&key).is_some(), "Text „{key}“ fehlt");
+    }
+    for key in wsim_core::reports::text_keys() {
+        assert!(data.texts.get(key).is_some(), "Text „{key}“ fehlt");
+    }
 }
 
 /// Plausibility of the country model with the shipped data (rough historical ranges).

@@ -221,6 +221,24 @@ pub struct Company {
     pub technologies: BTreeSet<TechnologyId>,
     /// Bankrupt companies keep their history but no longer act.
     pub bankrupt: bool,
+    #[serde(default)]
+    pub loans: Vec<Loan>,
+    /// Losses of earlier years that reduce future taxable profits.
+    #[serde(default)]
+    pub loss_carryforward: Money,
+}
+
+/// A bank loan, repaid in equal monthly instalments (annuity).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Loan {
+    pub principal: Money,
+    /// Outstanding amount.
+    pub balance: Money,
+    /// Real interest rate per year.
+    pub rate: f64,
+    pub start: Date,
+    pub months: u32,
+    pub instalment: Money,
 }
 
 /// Goods of one kind in a site's warehouse, valued at production or purchase cost.

@@ -84,6 +84,15 @@ produktionsmodell:
   zustand_minimum: 0.2
 ";
 
+const FINANZEN: &str = "\
+finanzmodell:
+  realzins: {1900: 0.03}
+  risikoaufschlag: {minimum: 0.01, je_verschuldung: 0.08}
+  beleihung: 0.6
+  dispo: {anteil: 0.1, aufschlag: 0.06}
+  laufzeit_max_jahre: 30
+";
+
 const KETTE: &str = "\
 produkte:
   - id: erz
@@ -186,6 +195,7 @@ impl Daten {
             ("laender/SWE.yaml", LAND),
             ("parameter/laendermodell.yaml", MODELL),
             ("parameter/produktionsmodell.yaml", PRODUKTION),
+            ("parameter/finanzmodell.yaml", FINANZEN),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -861,4 +871,25 @@ fn produktionsmodell_wird_geprueft() {
         &d.laden(),
         "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
     );
+}
+
+#[test]
+fn finanzmodell_wird_geprueft() {
+    let outcome = Daten::neu().ohne("parameter/finanzmodell.yaml").laden();
+    befund(&outcome, "Abschnitt „finanzmodell“ fehlt");
+    let d = Daten::neu().ersetze(
+        "parameter/finanzmodell.yaml",
+        "beleihung: 0.6",
+        "beleihung: 60",
+    );
+    befund(
+        &d.laden(),
+        "Wert 60 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    let d = Daten::neu().ersetze(
+        "parameter/finanzmodell.yaml",
+        "laufzeit_max_jahre: 30",
+        "laufzeit_max_jahre: 0",
+    );
+    befund(&d.laden(), "Wert 0 muss größer als 0 sein.");
 }

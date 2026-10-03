@@ -61,3 +61,35 @@ art.anlage: Anlage
 art.rezept: Rezept
 art.technologie: Technologie
 art.lagerstaette: Lagerstätte
+
+fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.
+fehler.befehl.kredit_zu_hoch: Die Bank leiht höchstens {limit}.
+fehler.befehl.laufzeit_ungueltig: Die Laufzeit muss zwischen 1 und {max} Jahren liegen.
+fehler.befehl.kredit_unbekannt: Diesen Kredit gibt es nicht.
+meldung.spielende_insolvenz: Die Firma ist zahlungsunfähig, und keine Bank gibt mehr Kredit. Die Partie ist zu Ende.
+meldung.firma_insolvent: „{firma}“ ist zahlungsunfähig.
+warnung.konto_ueberzogen: Das Konto ist um {betrag} überzogen (Kreditlinie {limit}). Ohne neuen Kredit droht die Zahlungsunfähigkeit.
+
+# Konten und Kostenarten (Berichte)
+konto.kasse: Kasse und Bank
+konto.vorraete: Vorräte
+konto.sachanlagen: Sachanlagen
+konto.anlagen_im_bau: Anlagen im Bau
+konto.kredite: Bankkredite
+konto.eigenkapital: Gezeichnetes Kapital
+konto.gewinnruecklagen: Gewinnrücklagen
+konto.jahresergebnis: Jahresergebnis
+kostenart.umsatz: Umsatzerlöse
+kostenart.bestandsveraenderung: Bestandsveränderung
+kostenart.material: Materialaufwand
+kostenart.personal: Personalaufwand
+kostenart.energie: Energie
+kostenart.transport: Transport
+kostenart.zoelle: Zölle
+kostenart.steuern: Steuern
+kostenart.marketing: Marketing
+kostenart.forschung: Forschung
+kostenart.zinsen: Zinsen
+kostenart.abschreibungen: Abschreibungen
+kostenart.instandhaltung: Instandhaltung
+kostenart.sonstiges: Sonstiges

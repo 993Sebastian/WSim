@@ -42,6 +42,10 @@ pub enum Command {
         product: ProductId,
         quantity: f64,
     },
+    /// Takes up a bank loan, repaid monthly over `years`.
+    TakeLoan { amount: Money, years: u32 },
+    /// Repays (part of) a loan early.
+    RepayLoan { loan: usize, amount: Money },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -106,6 +110,14 @@ pub enum CommandError {
         available: f64,
     },
     DifferentCountries,
+    InvalidAmount,
+    LoanTooLarge {
+        limit: Money,
+    },
+    InvalidTerm {
+        max: u32,
+    },
+    UnknownLoan,
 }
 
 impl CommandError {
@@ -144,6 +156,14 @@ impl CommandError {
                 e(keys::COMMAND_NOT_ENOUGH_GOODS).with("menge", Param::Number(*available))
             }
             CommandError::DifferentCountries => e(keys::COMMAND_DIFFERENT_COUNTRIES),
+            CommandError::InvalidAmount => e(keys::COMMAND_INVALID_AMOUNT),
+            CommandError::LoanTooLarge { limit } => {
+                e(keys::COMMAND_LOAN_TOO_LARGE).with("limit", Param::Money(*limit))
+            }
+            CommandError::InvalidTerm { max } => {
+                e(keys::COMMAND_INVALID_TERM).with("max", Param::Integer(i64::from(*max)))
+            }
+            CommandError::UnknownLoan => e(keys::COMMAND_UNKNOWN_LOAN),
         }
     }
 }
@@ -425,6 +445,35 @@ pub(crate) fn execute(
                 .entry(*product)
                 .or_default()
                 .add(*quantity, value, quality);
+        }
+        Command::TakeLoan { amount, years } => {
+            if *amount <= Money::ZERO {
+                return Err(CommandError::InvalidAmount);
+            }
+            let max = catalog.finance_model.max_term_years;
+            if *years == 0 || *years > max {
+                return Err(CommandError::InvalidTerm { max });
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            let limit = crate::finance::credit_limit(catalog, company);
+            if *amount > limit {
+                return Err(CommandError::LoanTooLarge { limit });
+            }
+            crate::finance::grant_loan(catalog, company, *amount, *years, today);
+        }
+        Command::RepayLoan { loan, amount } => {
+            if *amount <= Money::ZERO {
+                return Err(CommandError::InvalidAmount);
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            if *loan >= company.loans.len() {
+                return Err(CommandError::UnknownLoan);
+            }
+            let amount = (*amount).min(company.loans[*loan].balance);
+            if company.ledger.cash() < amount {
+                return Err(CommandError::NotEnoughCash { needed: amount });
+            }
+            crate::finance::repay(company, *loan, amount);
         }
     }
     Ok(())

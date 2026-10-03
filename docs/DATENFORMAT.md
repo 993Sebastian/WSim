@@ -33,10 +33,10 @@ data/
 
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
-Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`. Jeder Abschnitt außer `meta`
-ist eine Liste von Einträgen (`meta`, `laendermodell` und `produktionsmodell` sind einmalige Zuordnungen).
+ist eine Liste von Einträgen (`meta`, `laendermodell`, `produktionsmodell` und `finanzmodell` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -137,6 +137,18 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **automatisierung** | `arbeitsersparnis` (0–1), `kostenanteil` |
 | **qualitaet** | Gewichte `vorprodukte`, `automatisierung`, `zustand` |
 | **zustand_minimum** | Untergrenze des Anlagenzustands (0–1) |
+
+## finanzmodell
+
+Ein einziger Abschnitt (in `parameter/finanzmodell.yaml`); Formeln in `docs/FORMELN.md` (M6).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **realzins** | Realer Leitzins als Jahreswerte (−0,2 bis 0,5) |
+| **risikoaufschlag** | `minimum` und `je_verschuldung` (Aufschlag je Verschuldungsgrad) |
+| **beleihung** | Anteil der Sachwerte, bis zu dem Banken Kredit geben (0–1) |
+| **dispo** | `anteil` der Bilanzsumme als Kreditlinie, `aufschlag` auf den Leitzins |
+| **laufzeit_max_jahre** | Längste Kreditlaufzeit |
 
 ## produkte
 

@@ -174,3 +174,41 @@ selben Tag).
 - Erzeugte Ware: Bestandserhöhung zu Herstellkosten = Eingänge + genutzte
   Arbeitsstunden · Lohn + Strom. Nebenprodukte erhalten Kosten anteilig nach Menge.
 - Ungenutzte Arbeitszeit, Wartung und Abschreibung mindern das Ergebnis direkt.
+
+## M6 – Finanzen
+
+Parameter: `data/parameter/finanzmodell.yaml`. Das Spiel kennt keine Inflation; alle
+Zinsen sind **reale** Zinsen (Nominalzins minus Inflation, historisch angenähert).
+
+### Kredite
+
+    Kreditrahmen = Beleihung · (Sachanlagen + Anlagen im Bau + Vorräte) − laufende Kredite
+    Zins = Realzins(Jahr) + Mindestaufschlag + Aufschlag je Verschuldung · Verschuldungsgrad
+    Verschuldungsgrad = (Kredite + neuer Kredit) / (Bilanzsumme + neuer Kredit)
+    Monatsrate (Annuität) = K · i/12 / (1 − (1 + i/12)^−n),  n = Laufzeit in Monaten
+
+Am Monatsende: Zinsen = Restschuld · i/12 (Zinsaufwand), Tilgung = Rate − Zinsen.
+Vorzeitige Tilgung ist jederzeit möglich.
+
+### Kontoüberziehung (Kreditlinie)
+
+    Kreditlinie = Dispo-Anteil · Bilanzsumme
+    Überziehungszinsen am Monatsende = −Kasse · (Realzins + Dispo-Aufschlag) / 12
+
+### Steuern
+
+Am 31. Dezember: Gewinnsteuer am Firmensitz auf das Jahresergebnis vor Steuern.
+Verluste werden unbegrenzt vorgetragen und mit späteren Gewinnen verrechnet.
+Dividendensteuer folgt mit Dividenden (Stufe 3).
+
+### Zahlungsunfähigkeit (Lastenheft §11.3)
+
+Am Monatsende ist eine Firma zahlungsunfähig, wenn die Überziehung die Kreditlinie
+übersteigt **und** ein neuer Kredit die Lücke nicht schließen könnte. Für den Spieler
+endet dann die Partie; solange ein Kredit möglich ist, warnt das Spiel nur.
+
+### Berichte
+
+GuV nach Kostenarten (Gesamtkostenverfahren), Bilanz aus den Kontensalden,
+Kapitalfluss nach dem Gegenkonto jeder Kassenbewegung: Sachanlagen/Anlagen im Bau →
+Investitionen, Kredite/Eigenkapital → Finanzierung, alles andere → operativ.

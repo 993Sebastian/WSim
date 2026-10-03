@@ -93,6 +93,8 @@ pub(super) fn decode_v2(
                 ledger: Ledger::new(s.date, c.cash),
                 technologies: BTreeSet::new(),
                 bankrupt: false,
+                loans: Vec::new(),
+                loss_carryforward: Money::ZERO,
             })
         })
         .collect::<Result<Vec<_>, LoadError>>()?;

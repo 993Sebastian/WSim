@@ -85,6 +85,13 @@ pub mod keys {
     pub const COMMAND_INVALID_QUANTITY: &str = "fehler.befehl.menge_ungueltig";
     pub const COMMAND_NOT_ENOUGH_GOODS: &str = "fehler.befehl.ware_fehlt";
     pub const COMMAND_DIFFERENT_COUNTRIES: &str = "fehler.befehl.anderes_land";
+    pub const COMMAND_INVALID_AMOUNT: &str = "fehler.befehl.betrag_ungueltig";
+    pub const COMMAND_LOAN_TOO_LARGE: &str = "fehler.befehl.kredit_zu_hoch";
+    pub const COMMAND_INVALID_TERM: &str = "fehler.befehl.laufzeit_ungueltig";
+    pub const COMMAND_UNKNOWN_LOAN: &str = "fehler.befehl.kredit_unbekannt";
+    pub const GAME_OVER_INSOLVENT: &str = "meldung.spielende_insolvenz";
+    pub const COMPANY_INSOLVENT: &str = "meldung.firma_insolvent";
+    pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
     pub const NAME_TAKEN: &str = "fehler.name.vergeben";
@@ -120,6 +127,13 @@ pub mod keys {
         COMMAND_INVALID_QUANTITY,
         COMMAND_NOT_ENOUGH_GOODS,
         COMMAND_DIFFERENT_COUNTRIES,
+        COMMAND_INVALID_AMOUNT,
+        COMMAND_LOAN_TOO_LARGE,
+        COMMAND_INVALID_TERM,
+        COMMAND_UNKNOWN_LOAN,
+        GAME_OVER_INSOLVENT,
+        COMPANY_INSOLVENT,
+        OVERDRAFT,
         NAME_EMPTY,
         NAME_TOO_LONG,
         NAME_TAKEN,

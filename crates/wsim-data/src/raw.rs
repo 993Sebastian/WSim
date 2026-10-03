@@ -507,3 +507,36 @@ pub struct RawQuality {
     #[serde(rename = "zustand")]
     pub condition: f64,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFinanceModel {
+    #[serde(rename = "realzins")]
+    pub real_rate: BTreeMap<i32, f64>,
+    #[serde(rename = "risikoaufschlag")]
+    pub premium: RawPremium,
+    #[serde(rename = "beleihung")]
+    pub loan_to_value: f64,
+    #[serde(rename = "dispo")]
+    pub overdraft: RawOverdraft,
+    #[serde(rename = "laufzeit_max_jahre")]
+    pub max_term_years: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPremium {
+    #[serde(rename = "minimum")]
+    pub min: f64,
+    #[serde(rename = "je_verschuldung")]
+    pub per_debt_ratio: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOverdraft {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+}
