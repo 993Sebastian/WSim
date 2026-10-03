@@ -1,0 +1,67 @@
+# WSim – Projektregeln
+
+Rundenbasierte Wirtschaftssimulation 1900–2100 für Windows (Einzelspieler, Deutsch).
+Anforderungen: `docs/LASTENHEFT.md`. Architektur: `docs/ARCHITEKTUR.md`.
+Offene Fragen: `docs/OFFENE_PUNKTE.md`.
+
+## Umfang und Arbeitsweise
+
+- Umgesetzt wird **nur Ausbaustufe 1** (Lastenheft §17). Keine Abkürzung, die eine
+  spätere Stufe verbaut (siehe Tabelle „Was Stufe 1 schon vorsieht“ in der Architektur).
+- Gearbeitet wird in **Meilensteinen** (Architektur §4). Vor jedem neuen Meilenstein
+  auf Freigabe des Auftraggebers warten.
+- Formeln vor der Umsetzung in `docs/FORMELN.md` beschreiben; sie werden mit dem
+  Meilenstein abgenommen.
+- Unklarheiten nicht stillschweigend entscheiden: in `docs/OFFENE_PUNKTE.md`
+  eintragen (mit Vorschlag) und nachfragen, wenn sie das Ergebnis ändern.
+
+## Aufbau
+
+- `crates/wsim-core` – Simulationskern. Keine Abhängigkeit zu UI, Tauri oder Datei-IO.
+- `crates/wsim-data` – Laden und Prüfen der Datendateien, erzeugt den Katalog.
+- `crates/wsim-cli` – Läufe ohne Oberfläche, `validate`, Balance-Protokolle.
+- `app/src-tauri` – dünner Adapter zwischen Kern und Oberfläche.
+- `ui/` – TypeScript + React. **Keine Spiellogik**, keine nachgerechneten Spielwerte.
+- `data/` – alle Spielinhalte (YAML) und alle Texte (`data/texte/de/`).
+
+## Kernregeln der Simulation
+
+- **Determinismus:** gleicher Seed + gleiche Befehle = identischer Zustand.
+  - Zufall nur über die Zufallsströme des Kerns (je Teilsystem/Firma), nie `rand::thread_rng`.
+  - Keine Iteration über `HashMap`/`HashSet` im Kern; `Vec`, `BTreeMap` oder `IndexMap`.
+  - Keine Systemzeit, keine von Thread-Reihenfolge abhängigen Ergebnisse.
+  - `exp`, `ln`, `pow` usw. über `libm`.
+- **Geld** ist `i64` (Hundertstel-Cent, USD Kaufkraft 2026), nie Gleitkomma.
+- **Jede Geldbewegung** ist ein Buchungssatz (Konto, Kostenart, Kostenstelle).
+- **Jede Handlung** von Spieler und KI ist ein `Befehl` und läuft durch dieselbe
+  Prüfung. KI-Firmen bekommen keine Sonderregeln; Schwierigkeit ändert nur ihr Verhalten.
+- **Keine Spielzahlen im Code:** Parameter und Inhalte gehören in `data/`.
+- **Keine Anzeigetexte im Kern:** Meldungen als Textschlüssel + Parameter.
+
+## Daten
+
+- Datenfelder und IDs deutsch, `snake_case`, ohne Umlaute (`foerderung`, `roheisen`).
+  Länder-IDs sind ISO-3166-alpha-3 (`DEU`, `SWE`).
+- Code-Bezeichner englisch; Zuordnung in `docs/GLOSSAR.md` pflegen.
+- Geschätzte Werte mit `annaeherung: true` kennzeichnen, recherchierte mit `quelle:`.
+- Jeder neue Datentyp braucht Prüfregeln mit verständlicher deutscher Fehlermeldung
+  (Datei, Zeile, Pfad) und einen Test dafür.
+- Länderdaten gelten in **heutigen Grenzen** für den ganzen Zeitraum.
+
+## Spielstände
+
+- Formatversion im Kopf. Jede Formatänderung: Version erhöhen, Migration schreiben,
+  Test mit altem Beispielstand unter `tests/fixtures/saves/` ergänzen.
+
+## Prüfen vor jedem Commit
+
+- Rust: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`
+- Daten: `cargo run -p wsim-cli -- validate data/`
+- UI: `pnpm -C ui lint`, `pnpm -C ui test`
+- Der Determinismus-Test muss grün sein.
+- Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
+
+## Sprache
+
+- Kommunikation, Dokumentation, Commit-Nachrichten und Spieltexte auf Deutsch.
+- Code-Kommentare auf Englisch, knapp, nur wo das Warum nicht offensichtlich ist.
