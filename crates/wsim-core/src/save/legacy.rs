@@ -95,6 +95,7 @@ pub(super) fn decode_v2(
                 bankrupt: false,
                 loans: Vec::new(),
                 loss_carryforward: Money::ZERO,
+                sales_policies: Vec::new(),
             })
         })
         .collect::<Result<Vec<_>, LoadError>>()?;
@@ -113,6 +114,8 @@ pub(super) fn decode_v2(
         companies,
         sites: Vec::new(),
         markets: PerId::default(),
+        shipments: Vec::new(),
+        routes: Default::default(),
         deposits: PerId::default(),
         player: s.player,
         game_over: s.game_over,

@@ -15,12 +15,15 @@ pub mod market;
 pub mod math;
 pub mod message;
 pub mod money;
+pub mod policy;
 pub mod production;
 pub mod reports;
 pub mod rng;
 pub mod save;
 pub mod state;
 pub mod time_series;
+pub mod trade;
+pub mod transport;
 
 #[cfg(test)]
 mod determinism_tests;
@@ -30,6 +33,8 @@ mod finance_tests;
 mod market_tests;
 #[cfg(test)]
 mod production_tests;
+#[cfg(test)]
+mod trade_tests;
 
 pub use calendar::{Date, RoundLength};
 pub use game::{Game, JournalEntry, RoundReport, StateHash};

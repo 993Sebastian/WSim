@@ -101,6 +101,24 @@ marktmodell:
   preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30}
   staat_hoechstpreis: 1.5
   index_glaettung: 0.1
+  haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}
+";
+
+const TRANSPORT: &str = "\
+transportmodell:
+  umweg: {land: 1.3, see: 1.4, luft: 1.05}
+  umschlag: {kosten_usd_je_t: 5, tage: 2}
+  mindestinfrastruktur: 0.05
+";
+
+const VERKEHR: &str = "\
+verkehrsmittel:
+  - id: fuhrwerk
+    weg: gelaende
+    verfuegbar_ab: 1800
+    transportklassen: [schuettgut]
+    kosten_usd_je_tkm: {1900: 3.0}
+    km_je_tag: {1900: 25}
 ";
 
 const KETTE: &str = "\
@@ -193,6 +211,7 @@ rezept.erz_abbau: Erz fördern
 rezept.eisen_schmelzen: Eisen schmelzen
 technologie.schmelzen: Schmelzen
 lagerstaette.grube: Grube
+verkehrsmittel.fuhrwerk: Fuhrwerk
 ";
 
 struct Daten {
@@ -209,6 +228,8 @@ impl Daten {
             ("parameter/produktionsmodell.yaml", PRODUKTION),
             ("parameter/finanzmodell.yaml", FINANZEN),
             ("parameter/marktmodell.yaml", MARKT),
+            ("parameter/transportmodell.yaml", TRANSPORT),
+            ("verkehrsmittel.yaml", VERKEHR),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -926,4 +947,87 @@ fn marktmodell_wird_geprueft() {
 fn richtpreis_ist_pflicht() {
     let d = Daten::neu().ersetze("ketten/a.yaml", "    richtpreis_usd: 10\n", "");
     befund(&d.laden(), "Pflichtfeld „richtpreis_usd“ fehlt.");
+}
+
+#[test]
+fn transportmodell_wird_geprueft() {
+    let outcome = Daten::neu().ohne("parameter/transportmodell.yaml").laden();
+    befund(&outcome, "Abschnitt „transportmodell“ fehlt");
+    let d = Daten::neu().ersetze("parameter/transportmodell.yaml", "land: 1.3", "land: 0.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0.5 liegt außerhalb des erlaubten Bereichs 1 bis 5.",
+    );
+    assert_ort(
+        f,
+        "parameter/transportmodell.yaml",
+        2,
+        "transportmodell.umweg.land",
+    );
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "glaettung_tage: 30",
+        "glaettung_tage: 0",
+    );
+    befund(
+        &d.laden(),
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 365.",
+    );
+}
+
+#[test]
+fn verkehrsmittel_werden_geprueft() {
+    let d = Daten::neu().ersetze("verkehrsmittel.yaml", "[schuettgut]", "[schuettgud]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Transportklasse „schuettgud“ ist nicht definiert. Meinten Sie „schuettgut“?",
+    );
+    assert_ort(
+        f,
+        "verkehrsmittel.yaml",
+        d.zeile("verkehrsmittel.yaml", "transportklassen"),
+        "verkehrsmittel[0].transportklassen[0]",
+    );
+    nur_fehler(&outcome, 1);
+
+    let d = Daten::neu().ersetze("verkehrsmittel.yaml", "[schuettgut]", "[]");
+    befund(&d.laden(), "Mindestens eine Transportklasse ist nötig");
+
+    let d = Daten::neu().ersetze(
+        "verkehrsmittel.yaml",
+        "verfuegbar_ab: 1800",
+        "verfuegbar_ab: 1800\n    verfuegbar_bis: 1700",
+    );
+    befund(
+        &d.laden(),
+        "„verfuegbar_ab“ (1800) liegt nach „verfuegbar_bis“ (1700).",
+    );
+
+    let d = Daten::neu().ersetze("verkehrsmittel.yaml", "{1900: 25}", "{1900: 0}");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "verkehrsmittel[0].km_je_tag.1900");
+
+    let d = Daten::neu().ersetze("verkehrsmittel.yaml", "weg: gelaende", "weg: gelende");
+    befund(
+        &d.laden(),
+        "Unbekannter Wert „gelende“. Meinten Sie „gelaende“?",
+    );
+
+    let d = Daten::neu().ersetze("texte/de/a.yaml", "verkehrsmittel.fuhrwerk: Fuhrwerk\n", "");
+    befund(&d.laden(), "verkehrsmittel.fuhrwerk");
+}
+
+#[test]
+fn kostenfaktor_der_transportklasse_ist_positiv() {
+    let d = Daten::neu().ersetze(
+        "grundlagen.yaml",
+        "  - id: schuettgut\n",
+        "  - id: schuettgut\n    kostenfaktor: 0\n",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "transportklassen[0].kostenfaktor");
 }

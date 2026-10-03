@@ -15,8 +15,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M5 | Rohstoffe und Produktion | ✅ |
 | M6 | Buchführung und Grundfinanzen | ✅ |
 | M7 | Markt und Preise (ein Land) | ✅ |
-| M8 | Handel zwischen Ländern | in Arbeit |
-| M9 | Alle 12 Ketten + Forschung | offen |
+| M8 | Handel zwischen Ländern | ✅ |
+| M9 | Alle 12 Ketten + Forschung | in Arbeit |
 | M10 | KI-Firmen | offen |
 | M11 | Rundenbericht und Meldungen | offen |
 | M12 | Oberfläche I: Rundenablauf | offen |
@@ -79,3 +79,17 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Standort im Land möglich; Niederlassungen werden mit dem Handel zwischen Ländern wichtig.
 - M7: Automatische Preise passen sich täglich um +2 %/−1 % an (Parameter); Premium-,
   Kampfpreis- und Margenstrategien folgen mit der Strategieansicht (Stufe 2).
+- M8: Frachtdienst zwischen Hauptstädten (Land-, See-, Luftwege; Dijkstra je Jahr und
+  Abgangsland). Seewege nach Luftlinie × Umwegfaktor 1,4 – echte Seewege und Kanäle
+  (Panama ab 1914, Suez) folgen mit der Logistik in Stufe 2. Binnenschifffahrt fehlt
+  noch. Standorte haben innerhalb eines Landes keine Lage: Transfers im Land sind
+  sofort und kostenlos.
+- M8: Verkehrsmittel-Kosten aus Frachtraten um 1900 mit dem Verbraucherpreisindex auf
+  2026 umgerechnet (Eisenbahn 0,17 USD/tkm, Dampfschiff 0,012, Fuhrwerk 3,0); Kohle
+  Großbritannien → USA kostet so etwa 112 USD/t und 26 Tage.
+- M8: KI-Händler sind in Stufe 1 ein wettbewerblicher Händlermarkt ohne eigene Bilanz
+  (ihre Spanne verlässt das Spiel). Sie kaufen nur aus Firmenangeboten, nicht vom
+  Staatsmarkt. Handelsfirmen als echte KI-Firmen folgen mit M10.
+- M8: Verkaufsfreigaben je Abnehmergruppe mit vier Geltungsbereichen (pauschal, Land,
+  Produkt, Produkt im Land); die Höchstmenge gilt je Angebot (Standort und Produkt)
+  und Monat.

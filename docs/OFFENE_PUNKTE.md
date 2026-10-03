@@ -9,7 +9,9 @@ bei Bedarf widersprechen) · ❓ offen
 
 1. 🟡 **Transport in Stufe 1.** Ein abstrakter „Frachtdienst“ mit Kosten und Dauer nach
    Entfernung, Transportklasse und Epoche; keine Kapazitätsgrenzen, kein Risiko.
-   Eigene Flotte, staatlicher und KI-Transport folgen in Stufe 2.
+   Eigene Flotte, staatlicher und KI-Transport folgen in Stufe 2. Umgesetzt mit M8:
+   Wege zwischen Hauptstädten, Seewege nach Luftlinie × Umwegfaktor (echte Seewege mit
+   Kanälen ab Stufe 2), Waren bewegen sich innerhalb eines Landes ohne Kosten.
 2. 🟡 **Zölle.** Stufe 1 ohne Zölle; die Warengruppen sind im Datenformat schon da.
 3. 🟡 **Währung.** Stufe 1 rechnet und zeigt alles in USD (Kaufkraft 2026).
 4. 🟡 **Strategie-Ansicht (§5.6)** kommt mit dem Manager-System in Stufe 2. In Stufe 1

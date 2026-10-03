@@ -84,3 +84,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
 | Handel (Menge, Umsatz) | `Trade` |
+| Verkehrsmittel, Weg | `Vehicle`, `Way` |
+| Transportmodell, Frachtdienst | `TransportModel`, `transport` |
+| Route, Umweg, Umschlag | `Route`, `detour`, `handling` |
+| Sendung, Empfänger | `Shipment`, `Consignee` |
+| KI-Händler, Importlager, offene Nachfrage | `trade`, `Market::imports`, `open_demand` |
+| Vorgabe, Verkaufsfreigabe, Geltungsbereich | `policy`, `SalesRule`, `Scope` |
+| Abnehmergruppe | `BuyerGroup` |

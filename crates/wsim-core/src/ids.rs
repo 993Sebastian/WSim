@@ -32,10 +32,11 @@ pub enum IdKind {
     Recipe,
     Technology,
     Deposit,
+    Vehicle,
 }
 
 impl IdKind {
-    pub const ALL: [IdKind; 14] = [
+    pub const ALL: [IdKind; 15] = [
         IdKind::Unit,
         IdKind::Continent,
         IdKind::Branch,
@@ -50,6 +51,7 @@ impl IdKind {
         IdKind::Recipe,
         IdKind::Technology,
         IdKind::Deposit,
+        IdKind::Vehicle,
     ];
 
     pub fn name(self) -> &'static str {
@@ -68,6 +70,7 @@ impl IdKind {
             IdKind::Recipe => "rezept",
             IdKind::Technology => "technologie",
             IdKind::Deposit => "lagerstaette",
+            IdKind::Vehicle => "verkehrsmittel",
         }
     }
 
@@ -248,6 +251,7 @@ define_id!(
     RecipeId => Recipe,
     TechnologyId => Technology,
     DepositId => Deposit,
+    VehicleId => Vehicle,
 );
 
 #[cfg(test)]

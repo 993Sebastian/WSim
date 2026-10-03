@@ -13,7 +13,7 @@ use crate::ids::{IdKind, KeyTable};
 
 use crate::ids::{
     BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId, ProductId,
-    QualificationId, RecipeId, SpecializationId, TechnologyId, TransportClassId, UnitId,
+    QualificationId, RecipeId, SpecializationId, TechnologyId, TransportClassId, UnitId, VehicleId,
 };
 use crate::money::Money;
 use crate::time_series::TimeSeries;
@@ -35,10 +35,12 @@ pub struct Catalog {
     pub recipes: Table<RecipeId, Recipe>,
     pub technologies: Table<TechnologyId, Technology>,
     pub deposits: Table<DepositId, Deposit>,
+    pub vehicles: Table<VehicleId, Vehicle>,
     pub country_model: CountryModel,
     pub production_model: ProductionModel,
     pub finance_model: FinanceModel,
     pub market_model: MarketModel,
+    pub transport_model: TransportModel,
 }
 
 impl Catalog {
@@ -61,6 +63,7 @@ impl Catalog {
                 IdKind::Recipe => self.recipes.keys().to_vec(),
                 IdKind::Technology => self.technologies.keys().to_vec(),
                 IdKind::Deposit => self.deposits.keys().to_vec(),
+                IdKind::Vehicle => self.vehicles.keys().to_vec(),
             })
             .collect();
         KeyTable::new(keys)
@@ -89,8 +92,70 @@ pub struct Branch;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GoodsGroup;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TransportClass;
+#[derive(Clone, Debug, PartialEq)]
+pub struct TransportClass {
+    /// Transport costs relative to bulk goods (1 = bulk).
+    pub cost_factor: f64,
+}
+
+/// Kind of way a vehicle uses (Lastenheft §3.5, §8.1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Way {
+    /// No built infrastructure needed (carts on tracks and dirt roads).
+    Terrain,
+    Road,
+    Rail,
+    Sea,
+    Air,
+}
+
+/// A means of transport (Lastenheft §8.1). Stage 1 uses vehicles only through the
+/// abstract freight service between countries (formulas in docs/FORMELN.md, M8).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Vehicle {
+    pub way: Way,
+    pub available_from: i32,
+    pub available_until: Option<i32>,
+    /// Transport classes the vehicle carries.
+    pub classes: Vec<TransportClassId>,
+    /// Cost per tonne-kilometre of bulk goods in USD, by year.
+    pub cost_per_tkm: TimeSeries,
+    pub km_per_day: TimeSeries,
+    pub provenance: Provenance,
+}
+
+impl Vehicle {
+    pub fn available(&self, year: i32) -> bool {
+        self.available_from <= year && self.available_until.is_none_or(|y| y >= year)
+    }
+}
+
+/// Parameters of transport (`data/parameter/transportmodell.yaml`).
+#[derive(Clone, Debug, PartialEq)]
+pub struct TransportModel {
+    /// Route length relative to the great-circle distance between capitals.
+    pub detour_land: f64,
+    pub detour_sea: f64,
+    pub detour_air: f64,
+    /// Loading or unloading at a port or airport, per tonne of bulk goods (USD).
+    pub handling_cost_usd: f64,
+    pub handling_days: f64,
+    /// Below this infrastructure level a way cannot be used.
+    pub min_infrastructure: f64,
+}
+
+impl Default for TransportModel {
+    fn default() -> Self {
+        Self {
+            detour_land: 1.3,
+            detour_sea: 1.4,
+            detour_air: 1.05,
+            handling_cost_usd: 4.0,
+            handling_days: 2.0,
+            min_infrastructure: 0.05,
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Qualification {
@@ -202,6 +267,12 @@ pub struct MarketModel {
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
     pub index_smoothing: f64,
+    /// Traders import only if the market price exceeds their landed cost by this share.
+    pub trader_margin: f64,
+    /// Traders keep stock for this many days of open demand.
+    pub trader_cover_days: f64,
+    /// Days over which the open demand of a market is averaged.
+    pub demand_smoothing_days: f64,
 }
 
 impl Default for MarketModel {
@@ -215,6 +286,9 @@ impl Default for MarketModel {
             stock_days: 30.0,
             state_price_cap: 1.5,
             index_smoothing: 0.1,
+            trader_margin: 0.05,
+            trader_cover_days: 30.0,
+            demand_smoothing_days: 30.0,
         }
     }
 }

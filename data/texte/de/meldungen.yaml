@@ -61,6 +61,7 @@ art.anlage: Anlage
 art.rezept: Rezept
 art.technologie: Technologie
 art.lagerstaette: Lagerstätte
+art.verkehrsmittel: Verkehrsmittel
 
 fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.
 fehler.befehl.kredit_zu_hoch: Die Bank leiht höchstens {limit}.
@@ -94,3 +95,4 @@ kostenart.abschreibungen: Abschreibungen
 kostenart.instandhaltung: Instandhaltung
 kostenart.sonstiges: Sonstiges
 fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
+fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} nach {nach} befördern – es gibt kein passendes Verkehrsmittel.

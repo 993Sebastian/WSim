@@ -1,0 +1,74 @@
+# Verkehrsmittel (Lastenheft §8.1). In Stufe 1 bestimmen sie Kosten und Dauer des
+# abstrakten Frachtdienstes zwischen Ländern; eigene Flotten folgen in Stufe 2.
+#
+# Kosten in USD (Kaufkraft 2026) je Tonnenkilometer Schüttgut, bei voll ausgebauter
+# Infrastruktur; Geschwindigkeit in km je Tag einschließlich Wartezeiten.
+# Grundlage: Frachtraten um 1900 (US-Eisenbahn rund 0,45 Cent je tkm, Kohlefracht
+# Cardiff–Genua rund 7 Schilling je Tonne), mit dem Verbraucherpreisindex auf 2026
+# umgerechnet. Alle Werte sind Annäherungen und werden beim Balancing (M15) geprüft.
+
+verkehrsmittel:
+  - id: fuhrwerk
+    weg: gelaende                 # braucht keine ausgebauten Straßen
+    verfuegbar_ab: 1800
+    transportklassen: [schuettgut, stueckgut, fluessig]
+    kosten_usd_je_tkm: {1900: 3.0, 1950: 2.0}
+    km_je_tag: {1900: 25}
+    annaeherung: true
+
+  - id: lastkraftwagen
+    weg: strasse
+    verfuegbar_ab: 1910
+    transportklassen: [schuettgut, stueckgut, fluessig, gas]
+    kosten_usd_je_tkm: {1910: 2.0, 1920: 1.6, 1930: 0.8, 1950: 0.3, 1970: 0.15, 2000: 0.08, 2026: 0.1}
+    km_je_tag: {1910: 100, 1930: 250, 1960: 500, 2000: 700}
+    annaeherung: true
+
+  - id: eisenbahn
+    weg: schiene
+    verfuegbar_ab: 1830
+    transportklassen: [schuettgut, stueckgut, fluessig, gas]
+    kosten_usd_je_tkm: {1900: 0.17, 1930: 0.13, 1960: 0.09, 2000: 0.03, 2026: 0.04}
+    km_je_tag: {1900: 200, 1950: 300, 2000: 500}
+    annaeherung: true
+
+  - id: dampfschiff
+    weg: see
+    verfuegbar_ab: 1840
+    verfuegbar_bis: 1965
+    transportklassen: [schuettgut, stueckgut, fluessig]
+    kosten_usd_je_tkm: {1900: 0.012, 1930: 0.011, 1960: 0.010}
+    km_je_tag: {1900: 400}
+    annaeherung: true
+
+  - id: motorschiff
+    weg: see
+    verfuegbar_ab: 1912           # erstes hochseetüchtiges Motorschiff „Selandia“
+    transportklassen: [schuettgut, stueckgut, fluessig]
+    kosten_usd_je_tkm: {1912: 0.011, 1930: 0.009, 1960: 0.006, 2000: 0.003}
+    km_je_tag: {1912: 450, 1960: 550, 2000: 600}
+    annaeherung: true
+
+  - id: tankschiff
+    weg: see
+    verfuegbar_ab: 1886           # Tanker „Glückauf“
+    transportklassen: [fluessig]
+    kosten_usd_je_tkm: {1900: 0.009, 1960: 0.004, 2000: 0.002}
+    km_je_tag: {1900: 400, 1960: 550}
+    annaeherung: true
+
+  - id: containerschiff
+    weg: see
+    verfuegbar_ab: 1956
+    transportklassen: [stueckgut]
+    kosten_usd_je_tkm: {1956: 0.006, 2000: 0.0025}
+    km_je_tag: {1956: 600, 2000: 750}
+    annaeherung: true
+
+  - id: frachtflugzeug
+    weg: luft
+    verfuegbar_ab: 1925
+    transportklassen: [stueckgut]
+    kosten_usd_je_tkm: {1925: 40, 1950: 5, 1970: 1.5, 2000: 0.6, 2026: 0.5}
+    km_je_tag: {1925: 1500, 1960: 5000, 2000: 8000}
+    annaeherung: true

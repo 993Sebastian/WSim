@@ -20,6 +20,7 @@ use crate::money::Money;
 use crate::production;
 use crate::rng::{SimRng, Stream};
 use crate::state::{Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId};
+use crate::trade;
 
 /// Latest selectable start year; technology freezes in 2026 (Lastenheft §3.1).
 pub const LATEST_START_YEAR: i32 = 2026;
@@ -143,6 +144,7 @@ impl Game {
             bankrupt: false,
             loans: Vec::new(),
             loss_carryforward: Money::ZERO,
+            sales_policies: Vec::new(),
         };
         let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
@@ -152,6 +154,8 @@ impl Game {
             companies: vec![player],
             sites: Vec::new(),
             markets: PerId::default(),
+            shipments: Vec::new(),
+            routes: Default::default(),
             deposits: PerId::from_fn(catalog.deposits.len(), |_| DepositState::default()),
             player: CompanyId(0),
             game_over: false,
@@ -301,6 +305,7 @@ impl Game {
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
+        trade::deliver(&mut self.state, today);
         production::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
 

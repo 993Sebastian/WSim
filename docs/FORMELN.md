@@ -267,3 +267,70 @@ Ist ein Anbieter ausverkauft, wird der Rest auf die übrigen verteilt.
 
 Verkauf: Umsatzerlöse (Kasse) und Bestandsminderung zu Herstellkosten. Einkauf:
 Vorräte zum gezahlten Preis (keine Ergebniswirkung bis zum Verbrauch).
+
+## M8 – Handel zwischen Ländern
+
+Parameter: `data/parameter/transportmodell.yaml`, `data/verkehrsmittel.yaml`,
+`marktmodell.haendler`.
+
+### Frachtdienst
+
+Jedes Land ist ein Knoten an seiner Hauptstadt; innerhalb eines Landes kosten
+Warenbewegungen nichts und dauern keinen Tag. d(A, B) ist die Großkreisentfernung der
+Hauptstädte. Je Transportklasse k mit Kostenfaktor f_k und Jahr gilt je Weg das
+günstigste verfügbare Verkehrsmittel, das k befördert (Kosten c je tkm, Strecke v je Tag).
+
+- **Landweg** zwischen Nachbarn, Länge L = d · `umweg.land`. Infrastruktur I = Mittel
+  beider Länder (Schiene bzw. Straße; Gelände = 1), nur nutzbar ab `mindestinfrastruktur`:
+
+      Kosten = L · c · f_k / I        Dauer = L / (v · I)
+
+  Gewählt wird das günstigste von Fuhrwerk, Straße und Schiene.
+- **Seeweg** zwischen allen Ländern mit Hafen (Infrastruktur H ≥ Mindestwert), Länge
+  S = d · `umweg.see`:
+
+      Kosten = S · c · f_k + U(A) + U(B)      U(X) = Umschlagkosten · f_k / H(X)
+      Dauer  = S / v + Umschlagtage / H(A) + Umschlagtage / H(B)
+
+- **Luftweg** wie der Seeweg, mit Flughafen-Infrastruktur und `umweg.luft`.
+- Die **Route** ist der kostengünstigste Weg über beliebige Teilstrecken (Dijkstra);
+  Binnenländer erreichen die See über ihre Nachbarn. Die Infrastruktur gilt mit den
+  Werten vom 1. Januar für das ganze Jahr.
+- Kosten je Einheit = Route (USD/t) · Gewicht der Einheit (kg) / 1000; die Dauer wird auf
+  ganze Tage aufgerundet (mindestens 1).
+
+### Warentransfer der Firmen
+
+Transfer zwischen eigenen Standorten in verschiedenen Ländern: Die Transportkosten
+werden sofort als Kostenart Transport gebucht (Kostenstelle: Abgangsstandort, Produkt),
+die Ware ist bis zur Ankunft mit ihrem Lagerwert unterwegs (Konto Vorräte) und kommt
+am Ankunftstag vor der Produktion an.
+
+### KI-Händler
+
+Ein wettbewerblicher Händlermarkt verbindet die Länder (Gewinne verlassen das Spiel).
+
+- **Offene Nachfrage** eines Markts je Tag:
+
+      o = (Endkunden + Staat − davon von Firmen im Land bedient)
+          + Industriekäufe aus Importen + offene Industrienachfrage / vorrat_tage
+
+  geglättet: ō ← ō + (o − ō) / `glaettung_tage`.
+- **Bedarf** eines Ziellands B: vorrat_tage · ō − Importlager − unterwegs.
+- **Einkauf:** Händler kaufen nur aus Verkaufsangeboten von Firmen, die ihre
+  Verkaufsfreigabe erlaubt (siehe unten). Für jedes Angebot im Land A ist der
+  Einstandspreis E = Angebotspreis + Transport(A → B). Gekauft wird nur, wenn
+  `Marktpreis(B) ≥ E · (1 + marge)`. Ziele mit der höchsten relativen Spanne werden zuerst
+  bedient, jeweils aus den günstigsten Angeboten. Die Käufe finden bei der Räumung des
+  Markts A statt, nach der Industrie und vor Staat und Endkunden.
+- **Verkauf** im Zielland: Das Importlager ist ein Angebot wie jedes andere. Sein Preis
+  steigt um `hoch`, wenn es ausverkauft ist und Nachfrage offen bleibt, sonst sinkt er um
+  `runter`, nie unter durchschnittlicher Einstandspreis · (1 + marge).
+- Folge: Im Gleichgewicht gilt Preis(B) ≤ (Preis(A) + Transport) · (1 + marge).
+
+### Verkaufswege (Vorgaben)
+
+Je Abnehmergruppe (KI-Händler, andere Firmen) und Geltungsbereich (pauschal, Land,
+Produkt, Produkt im Land; der genaueste gilt): erlaubt ja/nein, Mindestpreis,
+Höchstmenge je Angebot und Monat. Ohne Vorgabe dürfen alle kaufen. Endkunden und
+Staaten kaufen immer.

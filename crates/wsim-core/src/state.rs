@@ -19,7 +19,9 @@ use crate::ids::{
 };
 use crate::ledger::Ledger;
 use crate::money::Money;
+use crate::policy::SalesPolicy;
 use crate::rng::SimRng;
+use crate::transport::Routes;
 
 /// Per-entry state for a catalog table, indexed by the table's IDs.
 #[derive(Debug)]
@@ -226,6 +228,9 @@ pub struct Company {
     /// Losses of earlier years that reduce future taxable profits.
     #[serde(default)]
     pub loss_carryforward: Money,
+    /// Who may buy the company's goods (Lastenheft §9.2).
+    #[serde(default)]
+    pub sales_policies: Vec<SalesPolicy>,
 }
 
 /// A bank loan, repaid in equal monthly instalments (annuity).
@@ -353,6 +358,12 @@ pub struct SaleOffer {
     pub keep: f64,
     pub sold_today: f64,
     pub sold_month: f64,
+    /// Sold to traders and to other companies in the running month (for the limits of
+    /// the sales policies).
+    #[serde(default)]
+    pub to_traders_month: f64,
+    #[serde(default)]
+    pub to_companies_month: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -370,6 +381,12 @@ pub struct Trade {
     pub demand: f64,
     pub sold: f64,
     pub revenue: Money,
+    /// Sold from traders' imports.
+    #[serde(default)]
+    pub imported: f64,
+    /// Bought by traders for export.
+    #[serde(default)]
+    pub exported: f64,
 }
 
 impl Trade {
@@ -381,6 +398,8 @@ impl Trade {
         self.demand += other.demand;
         self.sold += other.sold;
         self.revenue += other.revenue;
+        self.imported += other.imported;
+        self.exported += other.exported;
     }
 }
 
@@ -400,6 +419,16 @@ pub struct Market {
     pub today: Trade,
     pub month: Trade,
     pub last_month: Trade,
+    /// Goods imported by traders and offered here.
+    #[serde(default)]
+    pub imports: Stock,
+    /// Asking price of the traders.
+    #[serde(default)]
+    pub import_price: Money,
+    /// Demand per day that companies in the country do not serve (smoothed); traders
+    /// import to cover it.
+    #[serde(default)]
+    pub open_demand: f64,
 }
 
 impl Market {
@@ -411,6 +440,27 @@ impl Market {
     pub(crate) fn close_month(&mut self) {
         self.last_month = std::mem::take(&mut self.month);
     }
+}
+
+/// Goods on the way between countries.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Shipment {
+    pub product: ProductId,
+    pub quantity: f64,
+    pub quality: f64,
+    /// Inventory value for companies; purchase price plus transport for traders.
+    pub value: Money,
+    pub from: CountryId,
+    pub to: Consignee,
+    pub arrival: Date,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Consignee {
+    /// An own site of the sending company.
+    Site(SiteId),
+    /// The traders' stock on the market of a country.
+    Importer(CountryId),
 }
 
 /// State of a deposit.
@@ -459,6 +509,12 @@ pub struct GameState {
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,
+    /// Goods on the way, in the order they were sent.
+    #[serde(default)]
+    pub shipments: Vec<Shipment>,
+    /// Cheapest transport routes of the current year; derived, not saved.
+    #[serde(skip)]
+    pub routes: Routes,
     pub player: CompanyId,
     pub game_over: bool,
 }
@@ -497,6 +553,9 @@ impl GameState {
         self.countries = PerId::from_fn(catalog.countries.len(), |_| {
             values.next().expect("one per country")
         });
+        if self.routes.year() != self.date.year() {
+            self.routes = Routes::new(catalog, self.date.year(), Some(&self.routes));
+        }
     }
 
     /// Fits per-entry state to the catalog after loading: new deposits and labor

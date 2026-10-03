@@ -7,11 +7,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::catalog::{Catalog, SiteType};
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
-use crate::ledger::{Account, Ledger};
+use crate::ledger::{Account, CostCenter, CostType, Ledger};
 use crate::message::{Message, Param, keys};
 use crate::money::Money;
+use crate::policy::{self, BuyerGroup, SalesRule, Scope};
 use crate::state::{
-    CompanyId, GameState, PerId, PriceMode, PurchaseOrder, SaleOffer, Site, SiteId, Slot,
+    CompanyId, Consignee, GameState, PerId, PriceMode, PurchaseOrder, SaleOffer, Shipment, Site,
+    SiteId, Slot,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -37,7 +39,8 @@ pub enum Command {
         slot: usize,
         level: f64,
     },
-    /// Moves goods between two own sites in the same country.
+    /// Moves goods between two own sites: at once within a country, otherwise by
+    /// freight with transport costs and travel time.
     TransferGoods {
         from: SiteId,
         to: SiteId,
@@ -62,6 +65,13 @@ pub enum Command {
         target: f64,
         max_price: Money,
         min_quality: f64,
+    },
+    /// Sets who besides consumers and governments may buy the company's goods
+    /// (`None` removes the policy of this scope, the more general one applies).
+    SetSalesPolicy {
+        buyer: BuyerGroup,
+        scope: Scope,
+        rule: Option<SalesRule>,
     },
 }
 
@@ -136,6 +146,12 @@ pub enum CommandError {
     },
     UnknownLoan,
     InvalidPrice,
+    /// No transport route for the product between the two countries.
+    NoRoute {
+        product: String,
+        from: String,
+        to: String,
+    },
 }
 
 impl CommandError {
@@ -183,6 +199,10 @@ impl CommandError {
             }
             CommandError::UnknownLoan => e(keys::COMMAND_UNKNOWN_LOAN),
             CommandError::InvalidPrice => e(keys::COMMAND_INVALID_PRICE),
+            CommandError::NoRoute { product, from, to } => e(keys::COMMAND_NO_ROUTE)
+                .with("produkt", Param::TextKey(format!("produkt.{product}")))
+                .with("von", Param::TextKey(format!("land.{from}")))
+                .with("nach", Param::TextKey(format!("land.{to}"))),
         }
     }
 }
@@ -444,13 +464,41 @@ pub(crate) fn execute(
             }
             let source = own_site(state, actor, *from)?;
             let target = own_site(state, actor, *to)?;
-            if source.country != target.country {
-                return Err(CommandError::DifferentCountries);
-            }
+            let (from_country, to_country) = (source.country, target.country);
+            let route = if from_country == to_country {
+                None
+            } else {
+                Some(
+                    state
+                        .routes
+                        .for_product(catalog, *product, from_country, to_country)
+                        .ok_or_else(|| CommandError::NoRoute {
+                            product: catalog.products.key(*product).to_owned(),
+                            from: catalog.countries.key(from_country).to_owned(),
+                            to: catalog.countries.key(to_country).to_owned(),
+                        })?,
+                )
+            };
             let available = source.inventory.get(product).map_or(0.0, |s| s.quantity);
             if *quantity > available + 1e-9 {
                 return Err(CommandError::NotEnoughGoods { available });
             }
+            let freight = if let Some((per_unit, days)) = route {
+                let cost = Money::times(per_unit, *quantity);
+                let company = state.company_mut(actor).expect("checked above");
+                if company.ledger.cash() < cost {
+                    return Err(CommandError::NotEnoughCash { needed: cost });
+                }
+                company.ledger.expense(
+                    CostType::Transport,
+                    CostCenter::product(*from, *product),
+                    Account::Cash,
+                    cost,
+                );
+                Some(days)
+            } else {
+                None
+            };
             let stock = state
                 .site_mut(*from)
                 .expect("checked above")
@@ -459,13 +507,24 @@ pub(crate) fn execute(
                 .or_default();
             let quality = stock.quality;
             let value = stock.take(*quantity);
-            state
-                .site_mut(*to)
-                .expect("checked above")
-                .inventory
-                .entry(*product)
-                .or_default()
-                .add(*quantity, value, quality);
+            match freight {
+                None => state
+                    .site_mut(*to)
+                    .expect("checked above")
+                    .inventory
+                    .entry(*product)
+                    .or_default()
+                    .add(*quantity, value, quality),
+                Some(days) => state.shipments.push(Shipment {
+                    product: *product,
+                    quantity: *quantity,
+                    quality,
+                    value,
+                    from: from_country,
+                    to: Consignee::Site(*to),
+                    arrival: today.add_days(i32::try_from(days).expect("short route")),
+                }),
+            }
         }
         Command::TakeLoan { amount, years } => {
             if *amount <= Money::ZERO {
@@ -519,6 +578,8 @@ pub(crate) fn execute(
                         keep: *keep,
                         sold_today: 0.0,
                         sold_month: 0.0,
+                        to_traders_month: 0.0,
+                        to_companies_month: 0.0,
                     })
                 }
                 Some(PriceMode::Market { markup, floor }) => {
@@ -534,12 +595,20 @@ pub(crate) fn execute(
                         keep: *keep,
                         sold_today: 0.0,
                         sold_month: 0.0,
+                        to_traders_month: 0.0,
+                        to_companies_month: 0.0,
                     })
                 }
             };
             let s = state.site_mut(*site).expect("checked above");
             match offer {
-                Some(offer) => {
+                Some(mut offer) => {
+                    // A new price does not reset the month's sales and policy limits.
+                    if let Some(old) = s.offers.get(product) {
+                        offer.sold_month = old.sold_month;
+                        offer.to_traders_month = old.to_traders_month;
+                        offer.to_companies_month = old.to_companies_month;
+                    }
                     s.offers.insert(*product, offer);
                 }
                 None => {
@@ -578,6 +647,20 @@ pub(crate) fn execute(
             } else {
                 s.orders.remove(product);
             }
+        }
+        Command::SetSalesPolicy { buyer, scope, rule } => {
+            if let Some(r) = rule {
+                if r.min_price.is_some_and(|p| p.is_negative()) {
+                    return Err(CommandError::InvalidPrice);
+                }
+                if r.max_per_month
+                    .is_some_and(|m| !(m.is_finite() && m >= 0.0))
+                {
+                    return Err(CommandError::InvalidQuantity);
+                }
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            policy::set(company, *buyer, *scope, *rule);
         }
     }
     Ok(())

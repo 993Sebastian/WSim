@@ -373,3 +373,53 @@ fn government_demand_for_steel_bars() {
     // Railways, bridges, public buildings: several hundred thousand tonnes a year.
     assert!((200_000.0..2_000_000.0).contains(&per_year), "{per_year}");
 }
+
+#[test]
+fn freight_routes_are_plausible() {
+    use wsim_core::transport::Routes;
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = &data.catalog;
+    let country = |key: &str| c.countries.id(key).unwrap();
+    let class = |key: &str| c.transport_classes.id(key).unwrap();
+    let routes = Routes::new(c, 1900, None);
+    let bulk = class("schuettgut");
+
+    // Coal across the Atlantic: about 2–4 USD of 1900 per tonne, three to four weeks.
+    let atlantic = routes.get(bulk, country("GBR"), country("USA")).unwrap();
+    assert!(atlantic.by_sea);
+    assert!((60.0..200.0).contains(&atlantic.cost_per_t), "{atlantic:?}");
+    assert!((10.0..40.0).contains(&atlantic.days), "{atlantic:?}");
+    // Piece goods cost more than bulk on the same way.
+    let piece = routes
+        .get(class("stueckgut"), country("GBR"), country("USA"))
+        .unwrap();
+    assert!(piece.cost_per_t > atlantic.cost_per_t);
+
+    // Landlocked countries reach the sea through their neighbors.
+    let swiss = routes.get(bulk, country("CHE"), country("USA")).unwrap();
+    assert!(swiss.cost_per_t > atlantic.cost_per_t);
+    // Neighbors without a sea leg: by land.
+    let alps = routes.get(bulk, country("CHE"), country("AUT")).unwrap();
+    assert!(!alps.by_sea, "{alps:?}");
+
+    // Electricity only flows through the national grid in stage 1.
+    assert!(
+        routes
+            .get(class("leitung"), country("DEU"), country("FRA"))
+            .is_none()
+    );
+    // Every country can be reached from Britain with bulk goods.
+    for (id, _) in c.countries.iter() {
+        assert!(
+            routes.get(bulk, country("GBR"), id).is_some(),
+            "kein Weg nach {}",
+            c.countries.key(id)
+        );
+    }
+    // Freight gets cheaper over time (motor ships).
+    let later = Routes::new(c, 1930, None)
+        .get(bulk, country("GBR"), country("USA"))
+        .unwrap();
+    assert!(later.cost_per_t < atlantic.cost_per_t);
+}

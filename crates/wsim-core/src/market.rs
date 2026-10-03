@@ -6,12 +6,14 @@
 //! of each month; markets with sellers or buyers are cleared every day.
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, ConsumerDemand, ConsumptionType};
+use crate::catalog::{Catalog, ConsumerDemand, ConsumptionType, MarketModel};
 use crate::ids::{CountryId, Id, ProductId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
 use crate::money::Money;
-use crate::state::{CompanyId, GameState, PriceMode, SiteId, Trade};
+use crate::policy::{self, BuyerGroup};
+use crate::state::{CompanyId, Consignee, GameState, PriceMode, Shipment, SiteId, Stock, Trade};
+use crate::trade::{self, PlannedBuy};
 
 /// Market price of a product in a country: the price index, or before the first sale
 /// the reference price at the country's price level.
@@ -126,18 +128,38 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     }
 }
 
+/// Who sells on a market.
+#[derive(Clone, Copy, PartialEq)]
+enum Seller {
+    Site {
+        site: SiteId,
+        owner: CompanyId,
+    },
+    StateMarket,
+    /// Traders selling imported goods.
+    Importer,
+}
+
 /// A seller on one market for one day.
 struct Offer {
-    site: Option<SiteId>,
-    owner: Option<CompanyId>,
+    seller: Seller,
     price: Money,
     available: f64,
     quality: f64,
     sold: f64,
+    to_traders: f64,
+    to_companies: f64,
 }
 
+#[derive(Clone, Copy)]
 enum Buyer {
     Site(SiteId),
+    /// Traders shipping the goods to another country.
+    Trader {
+        destination: CountryId,
+        transport_per_unit: Money,
+        days: u32,
+    },
     Outside,
 }
 
@@ -152,70 +174,116 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
                 .push(SiteId(u32::try_from(i).expect("fits u32")));
         }
     }
+    let in_transit = trade::to_importers(state);
     for (product, p) in catalog.products.iter() {
         let state_market = p.state_market.filter(|m| {
             m.available_from.is_none_or(|y| y <= date.year())
                 && m.available_until.is_none_or(|y| y >= date.year())
         });
+        let plan = trade::plan(state, catalog, product, &sites_by_country, &in_transit);
         for country in catalog.countries.ids() {
             let sites = &sites_by_country[country.index()];
             let has_site_trade = sites.iter().any(|s| {
                 let site = &state.sites[s.index()];
                 site.offers.contains_key(&product) || site.orders.contains_key(&product)
             });
-            let has_outside_demand = {
-                let m = state.markets.get(product).get(country);
-                m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0)
-            };
-            if !has_site_trade && !(state_market.is_some() && has_outside_demand) {
+            let m = state.markets.get(product).get(country);
+            let has_outside_demand = m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0);
+            let has_imports = m.imports.quantity > 1e-9 || m.open_demand > 1e-9;
+            if !has_site_trade && !has_outside_demand && !has_imports {
                 continue;
             }
             let state_price =
                 state_market.map(|m| m.price.scale(state.countries.get(country).price_level));
-            clear_market(state, catalog, country, product, sites, state_price);
+            let exports: Vec<PlannedBuy> = plan
+                .iter()
+                .filter(|b| state.sites[b.site.index()].country == country)
+                .copied()
+                .collect();
+            clear_market(
+                state,
+                catalog,
+                (country, product, date),
+                sites,
+                state_price,
+                &exports,
+            );
         }
     }
+}
+
+/// Quantities of one market day that decide the open demand for traders.
+#[derive(Default)]
+struct Flows {
+    /// Consumer and government demand.
+    outside_demand: f64,
+    /// Of that, served by companies in the country.
+    outside_from_sites: f64,
+    /// Industry purchases from traders' imports.
+    industry_from_imports: f64,
+    /// Industry demand nobody served.
+    industry_unmet: f64,
 }
 
 fn clear_market(
     state: &mut GameState,
     catalog: &Catalog,
-    country: CountryId,
-    product: ProductId,
+    (country, product, date): (CountryId, ProductId, Date),
     sites: &[SiteId],
     state_market_price: Option<Money>,
+    exports: &[PlannedBuy],
 ) {
     let model = &catalog.market_model;
     let reference = local_reference(catalog, state, country, product).to_usd();
     let mut offers: Vec<Offer> = Vec::new();
+    let offer = |seller, price, available, quality| Offer {
+        seller,
+        price,
+        available,
+        quality,
+        sold: 0.0,
+        to_traders: 0.0,
+        to_companies: 0.0,
+    };
     for &site in sites {
         let s = &state.sites[site.index()];
-        if let Some(offer) = s.offers.get(&product) {
+        if let Some(o) = s.offers.get(&product) {
             let stock = s.inventory.get(&product);
-            offers.push(Offer {
-                site: Some(site),
-                owner: Some(s.owner),
-                price: offer.price,
-                available: stock.map_or(0.0, |st| (st.quantity - offer.keep).max(0.0)),
-                quality: stock.map_or(50.0, |st| st.quality),
-                sold: 0.0,
-            });
+            offers.push(offer(
+                Seller::Site {
+                    site,
+                    owner: s.owner,
+                },
+                o.price,
+                stock.map_or(0.0, |st| (st.quantity - o.keep).max(0.0)),
+                stock.map_or(50.0, |st| st.quality),
+            ));
         }
     }
-    if let Some(price) = state_market_price {
-        offers.push(Offer {
-            site: None,
-            owner: None,
+    let imports = &state.markets.get(product).get(country).imports;
+    if imports.quantity > 1e-9 {
+        let floor = import_floor(model, imports);
+        let price = state
+            .markets
+            .get(product)
+            .get(country)
+            .import_price
+            .max(floor);
+        offers.push(offer(
+            Seller::Importer,
             price,
-            available: f64::INFINITY,
-            quality: 50.0,
-            sold: 0.0,
-        });
+            imports.quantity,
+            imports.quality,
+        ));
+    }
+    if let Some(price) = state_market_price {
+        offers.push(offer(Seller::StateMarket, price, f64::INFINITY, 50.0));
     }
     let available_before: Vec<f64> = offers.iter().map(|o| o.available).collect();
     let mut by_price: Vec<usize> = (0..offers.len()).collect();
     by_price.sort_by(|&a, &b| offers[a].price.cmp(&offers[b].price).then(a.cmp(&b)));
     let mut day = Trade::default();
+    let mut flows = Flows::default();
 
     // 1. Industry: purchase orders, highest willingness to pay first.
     let mut buyers: Vec<(SiteId, f64, Money, f64)> = sites
@@ -241,30 +309,77 @@ fn clear_market(
                 break;
             }
             let o = &offers[i];
-            if o.owner == Some(owner)
-                || o.price > max_price
-                || o.quality < min_quality
-                || o.available <= 0.0
-            {
+            if o.price > max_price || o.quality < min_quality || o.available <= 0.0 {
                 continue;
             }
-            let quantity = need.min(o.available);
+            let allowance = match o.seller {
+                Seller::Site { owner: seller, .. } if seller == owner => continue,
+                Seller::Site {
+                    site: s,
+                    owner: seller,
+                } => {
+                    let (rule, _) = policy::sales_rule(
+                        &state.companies[seller.index()],
+                        BuyerGroup::Companies,
+                        product,
+                        country,
+                    );
+                    let month = state.sites[s.index()].offers[&product].to_companies_month;
+                    rule.allowance(o.price, month + o.to_companies)
+                }
+                Seller::StateMarket | Seller::Importer => f64::INFINITY,
+            };
+            let quantity = need.min(o.available).min(allowance);
+            if quantity <= 1e-9 {
+                continue;
+            }
+            if o.seller == Seller::Importer {
+                flows.industry_from_imports += quantity;
+            }
             trade(
                 state,
                 &mut offers[i],
                 quantity,
                 Buyer::Site(site),
-                product,
+                (product, country, date),
                 &mut day,
             );
             need -= quantity;
         }
+        flows.industry_unmet += need.max(0.0);
     }
 
-    // 2. Government: cheapest offers up to a price cap.
+    // 2. Traders: purchases planned for export (only from company offers).
+    for b in exports {
+        let Some(i) = offers
+            .iter()
+            .position(|o| matches!(o.seller, Seller::Site { site, .. } if site == b.site))
+        else {
+            continue;
+        };
+        let quantity = b.quantity.min(offers[i].available);
+        if quantity <= 1e-9 {
+            continue;
+        }
+        trade(
+            state,
+            &mut offers[i],
+            quantity,
+            Buyer::Trader {
+                destination: b.destination,
+                transport_per_unit: b.transport_per_unit,
+                days: b.days,
+            },
+            (product, country, date),
+            &mut day,
+        );
+    }
+
+    // 3. Government: cheapest offers up to a price cap.
     let state_need = state.markets.get(product).get(country).state_rate;
     if state_need > 0.0 {
         day.demand += state_need;
+        flows.outside_demand += state_need;
         let cap = Money::from_usd(reference * model.state_price_cap).unwrap_or(Money::ZERO);
         let mut need = state_need;
         for &i in &by_price {
@@ -275,24 +390,28 @@ fn clear_market(
                 continue;
             }
             let quantity = need.min(offers[i].available);
+            if matches!(offers[i].seller, Seller::Site { .. }) {
+                flows.outside_from_sites += quantity;
+            }
             trade(
                 state,
                 &mut offers[i],
                 quantity,
                 Buyer::Outside,
-                product,
+                (product, country, date),
                 &mut day,
             );
             need -= quantity;
         }
     }
 
-    // 3. Consumers: richest layer first; sellers chosen by attractiveness (logit).
+    // 4. Consumers: richest layer first; sellers chosen by attractiveness (logit).
     let rates = state.markets.get(product).get(country).consumer_rate;
     let mut bought = [0.0; 5];
     for q in (0..5).rev() {
         let mut need = rates[q];
         day.demand += need;
+        flows.outside_demand += need;
         for _ in 0..8 {
             if need <= 1e-9 {
                 break;
@@ -321,12 +440,15 @@ fn clear_market(
                 }
                 let quantity = (need * weights[i] / total).min(offers[i].available);
                 if quantity > 0.0 {
+                    if matches!(offers[i].seller, Seller::Site { .. }) {
+                        flows.outside_from_sites += quantity;
+                    }
                     trade(
                         state,
                         &mut offers[i],
                         quantity,
                         Buyer::Outside,
-                        product,
+                        (product, country, date),
                         &mut day,
                     );
                     taken += quantity;
@@ -337,29 +459,42 @@ fn clear_market(
         }
     }
 
-    // Prices of automatic sellers and the market's price index.
+    // Prices of automatic sellers and traders, and the market's price index.
     let unmet = day.unmet() > 1e-9;
+    let mut import_price = None;
     for (i, o) in offers.iter().enumerate() {
-        let Some(site) = o.site else { continue };
-        let Some(offer) = state.sites[site.index()].offers.get_mut(&product) else {
-            continue;
-        };
-        offer.sold_today = o.sold;
-        offer.sold_month += o.sold;
-        match offer.mode {
-            PriceMode::Fixed(price) => offer.price = price,
-            PriceMode::Market { floor, .. } => {
-                let before = available_before[i];
-                if o.sold >= before - 1e-9 && unmet {
-                    offer.price = offer.price.scale(1.0 + model.price_step_up);
-                } else if before > 0.0 && o.sold < before / model.stock_days {
-                    offer.price = offer.price.scale(1.0 - model.price_step_down);
+        let before = available_before[i];
+        let scarce = o.sold >= before - 1e-9 && unmet;
+        let slow = before > 0.0 && o.sold < before / model.stock_days;
+        match o.seller {
+            Seller::Site { site, .. } => {
+                let Some(offer) = state.sites[site.index()].offers.get_mut(&product) else {
+                    continue;
+                };
+                offer.sold_today = o.sold;
+                offer.sold_month += o.sold;
+                offer.to_traders_month += o.to_traders;
+                offer.to_companies_month += o.to_companies;
+                match offer.mode {
+                    PriceMode::Fixed(price) => offer.price = price,
+                    PriceMode::Market { floor, .. } => {
+                        offer.price = adjust_price(model, offer.price, scarce, slow)
+                            .max(floor)
+                            .max(Money::from_units(1));
+                    }
                 }
-                offer.price = offer.price.max(floor).max(Money::from_units(1));
             }
+            // Traders compete: their price falls to cost plus margin unless goods are scarce.
+            Seller::Importer => {
+                import_price = Some(adjust_price(model, o.price, scarce, !scarce));
+            }
+            Seller::StateMarket => {}
         }
     }
     let market = state.markets.get_mut(product).get_mut(country);
+    if let Some(price) = import_price {
+        market.import_price = price.max(import_floor(model, &market.imports));
+    }
     if day.sold > 1e-9 {
         let average = day.revenue.scale(1.0 / day.sold);
         let s = model.index_smoothing;
@@ -368,7 +503,36 @@ fn clear_market(
     for (total, today) in market.bought.iter_mut().zip(bought) {
         *total += today;
     }
+    let open = (flows.outside_demand - flows.outside_from_sites)
+        + flows.industry_from_imports
+        + flows.industry_unmet / model.trader_cover_days;
+    market.open_demand += (open.max(0.0) - market.open_demand) / model.demand_smoothing_days;
+    if market.open_demand < 1e-9 {
+        market.open_demand = 0.0;
+    }
     market.record_day(day);
+}
+
+/// Daily step of an automatic price: up when sold out with demand left, down when
+/// little sells.
+fn adjust_price(model: &MarketModel, price: Money, scarce: bool, slow: bool) -> Money {
+    if scarce {
+        price.scale(1.0 + model.price_step_up)
+    } else if slow {
+        price.scale(1.0 - model.price_step_down)
+    } else {
+        price
+    }
+}
+
+/// Traders never sell below their average landed cost plus margin.
+fn import_floor(model: &MarketModel, imports: &Stock) -> Money {
+    if imports.quantity <= 1e-9 {
+        return Money::ZERO;
+    }
+    imports
+        .value
+        .scale((1.0 + model.trader_margin) / imports.quantity)
 }
 
 fn trade(
@@ -376,7 +540,7 @@ fn trade(
     offer: &mut Offer,
     quantity: f64,
     buyer: Buyer,
-    product: ProductId,
+    (product, country, date): (ProductId, CountryId, Date),
     day: &mut Trade,
 ) {
     let amount = Money::times(offer.price, quantity);
@@ -384,26 +548,64 @@ fn trade(
     offer.sold += quantity;
     day.sold += quantity;
     day.revenue += amount;
-    if let Some(site) = offer.site {
-        let s = &mut state.sites[site.index()];
-        let value = s.inventory.entry(product).or_default().take(quantity);
-        let ledger = &mut state.companies[s.owner.index()].ledger;
-        let center = CostCenter::product(site, product);
-        ledger.income(CostType::Revenue, center, Account::Cash, amount);
-        ledger.expense(CostType::InventoryChange, center, Account::Inventory, value);
-    }
-    if let Buyer::Site(site) = buyer {
-        let s = &mut state.sites[site.index()];
-        s.inventory
-            .entry(product)
-            .or_default()
-            .add(quantity, amount, offer.quality);
-        if let Some(order) = s.orders.get_mut(&product) {
-            order.bought_month += quantity;
+    match offer.seller {
+        Seller::Site { site, owner } => {
+            let s = &mut state.sites[site.index()];
+            let value = s.inventory.entry(product).or_default().take(quantity);
+            let ledger = &mut state.companies[owner.index()].ledger;
+            let center = CostCenter::product(site, product);
+            ledger.income(CostType::Revenue, center, Account::Cash, amount);
+            ledger.expense(CostType::InventoryChange, center, Account::Inventory, value);
         }
-        state.companies[s.owner.index()]
-            .ledger
-            .transfer(Account::Inventory, Account::Cash, amount);
+        Seller::Importer => {
+            state
+                .markets
+                .get_mut(product)
+                .get_mut(country)
+                .imports
+                .take(quantity);
+            day.imported += quantity;
+        }
+        Seller::StateMarket => {}
+    }
+    match buyer {
+        Buyer::Site(site) => {
+            let s = &mut state.sites[site.index()];
+            s.inventory
+                .entry(product)
+                .or_default()
+                .add(quantity, amount, offer.quality);
+            if let Some(order) = s.orders.get_mut(&product) {
+                order.bought_month += quantity;
+            }
+            let owner = s.owner;
+            state.companies[owner.index()].ledger.transfer(
+                Account::Inventory,
+                Account::Cash,
+                amount,
+            );
+            if matches!(offer.seller, Seller::Site { owner: seller, .. } if seller != owner) {
+                offer.to_companies += quantity;
+            }
+        }
+        Buyer::Trader {
+            destination,
+            transport_per_unit,
+            days,
+        } => {
+            offer.to_traders += quantity;
+            day.exported += quantity;
+            state.shipments.push(Shipment {
+                product,
+                quantity,
+                quality: offer.quality,
+                value: amount + Money::times(transport_per_unit, quantity),
+                from: country,
+                to: Consignee::Importer(destination),
+                arrival: date.add_days(i32::try_from(days).expect("routes take far fewer days")),
+            });
+        }
+        Buyer::Outside => {}
     }
 }
 
@@ -412,6 +614,8 @@ pub(crate) fn reset_site_months(state: &mut GameState) {
     for site in &mut state.sites {
         for offer in site.offers.values_mut() {
             offer.sold_month = 0.0;
+            offer.to_traders_month = 0.0;
+            offer.to_companies_month = 0.0;
         }
         for order in site.orders.values_mut() {
             order.bought_month = 0.0;

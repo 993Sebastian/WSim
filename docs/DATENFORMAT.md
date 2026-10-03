@@ -28,14 +28,16 @@ data/
   parameter/           Parameter der Modelle, z. B. laendermodell.yaml
   ketten/              eine Produktionskette je Datei
   lagerstaetten/       Rohstoffvorkommen, eine Datei je Rohstoff
+  verkehrsmittel.yaml  Verkehrsmittel mit Kosten und Geschwindigkeit
   texte/de/            alle Anzeigetexte
 ```
 
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
-Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`, `marktmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`,
+`marktmodell`, `transportmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
-`anlagen`, `rezepte`, `technologien`, `lagerstaetten`. Jeder Abschnitt außer `meta`
+`anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`. Jeder Abschnitt außer `meta`
 ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
@@ -54,7 +56,8 @@ ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einma
 - **Texte**: Jeder Eintrag braucht einen Anzeigenamen in `texte/de/`, Schlüssel
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
-  `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`. Zusätzliche Texte wie
+  `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`.
+  Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
 
 Pflichtfelder sind unten **fett** gesetzt, alle anderen sind optional.
@@ -70,7 +73,8 @@ Pflichtfelder sind unten **fett** gesetzt, alle anderen sind optional.
 | Abschnitt | Felder |
 | --- | --- |
 | `einheiten` | **id**, gewicht_kg (Gewicht einer Einheit; fehlt es, braucht jedes Produkt mit dieser Einheit ein eigenes `gewicht_kg`) |
-| `kontinente`, `branchen`, `warengruppen`, `transportklassen`, `fachrichtungen` | **id** |
+| `kontinente`, `branchen`, `warengruppen`, `fachrichtungen` | **id** |
+| `transportklassen` | **id**, kostenfaktor (Transportkosten gegenüber Schüttgut, Standard 1) |
 | `qualifikationen` | **id**, **stufe** (1–255, höher = qualifizierter), **mit_fachrichtung** (true/false) |
 
 **Arbeitskräftegruppen** ergeben sich daraus: Qualifikationen ohne Fachrichtung heißen
@@ -161,6 +165,18 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | **preisanpassung** | `hoch`, `runter` (je Tag), `lagertage` |
 | **staat_hoechstpreis** | Staaten zahlen höchstens dieses Vielfache des Richtpreises |
 | **index_glaettung** | Gewicht des Tagesdurchschnitts im Marktpreis |
+| **haendler** | KI-Händler (M8): `marge` (Aufschlag auf Einkauf und Transport), `vorrat_tage` (Lager für so viele Tage offener Nachfrage), `glaettung_tage` (1–365, Mittelung der offenen Nachfrage) |
+
+## transportmodell
+
+Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
+`docs/FORMELN.md` (M8).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **umweg** | `land`, `see`, `luft` (je 1–5): Weglänge im Verhältnis zur Luftlinie zwischen den Hauptstädten |
+| **umschlag** | `kosten_usd_je_t` und `tage` für Be- oder Entladen in einem Hafen oder Flughafen bei voll ausgebauter Infrastruktur |
+| **mindestinfrastruktur** | Ausbaugrad (0–1), unter dem Straße, Schiene, Hafen oder Flughafen nicht nutzbar sind |
 
 ## produkte
 
@@ -259,3 +275,17 @@ Technologien bis zum frühesten Startjahr 1900 sind bei Spielbeginn allen bekann
 | **erschliessung.investition_usd**, **erschliessung.dauer_tage** | Kosten und Dauer der Erschließung |
 | **foerderung_max_je_jahr** | Höchstförderung |
 | foerderkosten_faktor | Relative Förderkosten (Standard 1) |
+
+## verkehrsmittel
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | |
+| **weg** | `gelaende` (ohne ausgebaute Wege, z. B. Fuhrwerk), `strasse`, `schiene`, `see`, `luft` |
+| **verfuegbar_ab**, verfuegbar_bis | Jahre, in denen das Verkehrsmittel genutzt wird |
+| **transportklassen** | Liste der Transportklassen, die es befördert (mindestens eine) |
+| **kosten_usd_je_tkm** | Jahreswerte: Kosten je Tonnenkilometer Schüttgut bei voll ausgebauter Infrastruktur |
+| **km_je_tag** | Jahreswerte: Strecke je Tag einschließlich Wartezeiten (> 0) |
+
+Eine Transportklasse ohne verfügbares Verkehrsmittel (in Stufe 1 `leitung`) lässt sich
+nicht zwischen Ländern befördern.

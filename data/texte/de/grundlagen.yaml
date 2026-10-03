@@ -73,3 +73,12 @@ fachrichtung.textil: Textil
 fachrichtung.holz_bau: Holz und Bau
 fachrichtung.lebensmittel: Lebensmittel
 fachrichtung.kaufmaennisch: Kaufmännisch
+
+verkehrsmittel.fuhrwerk: Fuhrwerk
+verkehrsmittel.lastkraftwagen: Lastkraftwagen
+verkehrsmittel.eisenbahn: Eisenbahn
+verkehrsmittel.dampfschiff: Dampfschiff
+verkehrsmittel.motorschiff: Motorschiff
+verkehrsmittel.tankschiff: Tankschiff
+verkehrsmittel.containerschiff: Containerschiff
+verkehrsmittel.frachtflugzeug: Frachtflugzeug

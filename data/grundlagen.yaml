@@ -62,9 +62,15 @@ warengruppen:
   - id: ruestung
   - id: strom
 
+# Transportklassen; der Kostenfaktor gilt gegenüber Schüttgut (Umschlag, Verpackung).
 transportklassen:
   - id: schuettgut        # Erz, Kohle, Getreide
+    kostenfaktor: 1.0
   - id: stueckgut         # Stahlprofile, Maschinen, Konsumgüter
+    kostenfaktor: 1.5
   - id: fluessig          # Rohöl, Benzin
+    kostenfaktor: 1.3
   - id: gas
-  - id: leitung           # Strom
+    kostenfaktor: 2.0
+  - id: leitung           # Strom; in Stufe 1 nur über das Netz im eigenen Land
+    kostenfaktor: 1.0

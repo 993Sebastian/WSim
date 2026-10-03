@@ -23,6 +23,28 @@ pub fn sqrt(x: f64) -> f64 {
     libm::sqrt(x)
 }
 
+pub fn sin(x: f64) -> f64 {
+    libm::sin(x)
+}
+
+pub fn cos(x: f64) -> f64 {
+    libm::cos(x)
+}
+
+pub fn asin(x: f64) -> f64 {
+    libm::asin(x)
+}
+
+/// Great-circle distance in km between two points given in degrees (haversine).
+pub fn great_circle_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+    const EARTH_RADIUS_KM: f64 = 6_371.0;
+    let (p1, p2) = (lat1.to_radians(), lat2.to_radians());
+    let dp = (lat2 - lat1).to_radians();
+    let dl = (lon2 - lon1).to_radians();
+    let h = sin(dp / 2.0) * sin(dp / 2.0) + cos(p1) * cos(p2) * sin(dl / 2.0) * sin(dl / 2.0);
+    2.0 * EARTH_RADIUS_KM * asin(sqrt(h.clamp(0.0, 1.0)))
+}
+
 /// Position of `x` between `from` and `to` on a logarithmic scale, clamped to 0–1.
 pub fn log_position(x: f64, from: f64, to: f64) -> f64 {
     if x <= from {

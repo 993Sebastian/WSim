@@ -12,3 +12,8 @@ marktmodell:
     lagertage: 30
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
   index_glaettung: 0.1            # Gewicht des Tagesdurchschnitts im Marktpreis
+  # KI-Händler verbinden die Märkte der Länder (Formeln: docs/FORMELN.md, Abschnitt M8).
+  haendler:
+    marge: 0.05                   # Aufschlag auf Einkauf und Transport
+    vorrat_tage: 30               # Lager für so viele Tage offener Nachfrage
+    glaettung_tage: 30            # Mittelungszeitraum der offenen Nachfrage

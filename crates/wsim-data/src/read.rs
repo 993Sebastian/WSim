@@ -8,7 +8,8 @@ use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
     RawCountry, RawCountryModel, RawDeposit, RawFacility, RawFinanceModel, RawMarketModel, RawMeta,
-    RawProduct, RawProductionModel, RawQualification, RawRecipe, RawSimple, RawTechnology, RawUnit,
+    RawProduct, RawProductionModel, RawQualification, RawRecipe, RawSimple, RawTechnology,
+    RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -151,11 +152,12 @@ pub(crate) struct RawData {
     pub production_model: Vec<Entry<RawProductionModel>>,
     pub finance_model: Vec<Entry<RawFinanceModel>>,
     pub market_model: Vec<Entry<RawMarketModel>>,
+    pub transport_model: Vec<Entry<RawTransportModel>>,
     pub units: Vec<Entry<RawUnit>>,
     pub continents: Vec<Entry<RawSimple>>,
     pub branches: Vec<Entry<RawSimple>>,
     pub goods_groups: Vec<Entry<RawSimple>>,
-    pub transport_classes: Vec<Entry<RawSimple>>,
+    pub transport_classes: Vec<Entry<RawTransportClass>>,
     pub qualifications: Vec<Entry<RawQualification>>,
     pub specializations: Vec<Entry<RawSimple>>,
     pub countries: Vec<Entry<RawCountry>>,
@@ -164,6 +166,7 @@ pub(crate) struct RawData {
     pub recipes: Vec<Entry<RawRecipe>>,
     pub technologies: Vec<Entry<RawTechnology>>,
     pub deposits: Vec<Entry<RawDeposit>>,
+    pub vehicles: Vec<Entry<RawVehicle>>,
 }
 
 pub(crate) const SECTIONS: &[&str] = &[
@@ -172,6 +175,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "produktionsmodell",
     "finanzmodell",
     "marktmodell",
+    "transportmodell",
     "einheiten",
     "kontinente",
     "branchen",
@@ -185,6 +189,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "rezepte",
     "technologien",
     "lagerstaetten",
+    "verkehrsmittel",
 ];
 
 /// Reads all sections of one content file into `raw`.
@@ -226,6 +231,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
                 Ok(model) => raw.market_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
+            "transportmodell" => match de::from_node::<RawTransportModel>(value, &loc.path) {
+                Ok(model) => raw.transport_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
             "einheiten" => read_list(ctx, &loc, value, &mut raw.units, &mut raw.broken),
             "kontinente" => read_list(ctx, &loc, value, &mut raw.continents, &mut raw.broken),
             "branchen" => read_list(ctx, &loc, value, &mut raw.branches, &mut raw.broken),
@@ -251,6 +260,7 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             "rezepte" => read_list(ctx, &loc, value, &mut raw.recipes, &mut raw.broken),
             "technologien" => read_list(ctx, &loc, value, &mut raw.technologies, &mut raw.broken),
             "lagerstaetten" => read_list(ctx, &loc, value, &mut raw.deposits, &mut raw.broken),
+            "verkehrsmittel" => read_list(ctx, &loc, value, &mut raw.vehicles, &mut raw.broken),
             other => ctx.error(
                 &file_loc.key(other),
                 messages::unknown_section(

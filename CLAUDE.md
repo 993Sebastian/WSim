@@ -19,7 +19,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 
 - `crates/wsim-core` – Simulationskern. Keine Abhängigkeit zu UI, Tauri oder Datei-IO.
 - `crates/wsim-data` – Laden und Prüfen der Datendateien, erzeugt den Katalog.
-- `crates/wsim-cli` – Läufe ohne Oberfläche, `validate`, Balance-Protokolle.
+- `crates/wsim-cli` – Läufe ohne Oberfläche, `validate`, Balance-Protokolle;
+  `land <ISO>` und `route <von> <nach>` zeigen Länderwerte und Transportwege.
 - `app/src-tauri` – dünner Adapter zwischen Kern und Oberfläche.
 - `ui/` – TypeScript + React. **Keine Spiellogik**, keine nachgerechneten Spielwerte.
 - `data/` – alle Spielinhalte (YAML) und alle Texte (`data/texte/de/`).

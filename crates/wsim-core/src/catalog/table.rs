@@ -70,6 +70,10 @@ impl<I: Id, T> Table<I, T> {
         (0..self.items.len()).map(I::from_index)
     }
 
+    pub fn values(&self) -> impl Iterator<Item = &T> + '_ {
+        self.items.iter()
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = (I, &T)> + '_ {
         self.items
             .iter()

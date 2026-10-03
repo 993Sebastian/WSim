@@ -321,6 +321,14 @@ pub(crate) fn build(
         &raw.deposits,
         |e| &e.id,
     );
+    let (vehicle_keys, vehicles) = register(
+        b.ctx,
+        raw,
+        ("verkehrsmittel", "Verkehrsmittel", Some("verkehrsmittel")),
+        KeyFormat::Snake,
+        &raw.vehicles,
+        |e| &e.id,
+    );
 
     for e in &units {
         let weight_kg = e
@@ -339,9 +347,10 @@ pub(crate) fn build(
         b.catalog.goods_groups.insert(&e.value.id, GoodsGroup);
     }
     for e in &transport_classes {
+        let cost_factor = positive(b.ctx, e.value.cost_factor, &e.loc.field("kostenfaktor"));
         b.catalog
             .transport_classes
-            .insert(&e.value.id, TransportClass);
+            .insert(&e.value.id, TransportClass { cost_factor });
     }
     for e in &qualifications {
         let q = Qualification {
@@ -372,6 +381,11 @@ pub(crate) fn build(
     b.catalog.production_model = production::production_model(b.ctx, raw);
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     b.catalog.market_model = production::market_model(b.ctx, raw);
+    b.catalog.transport_model = production::transport_model(b.ctx, raw);
+    for e in &vehicles {
+        let vehicle = production::vehicle(b.ctx, e, &transport_keys);
+        b.catalog.vehicles.insert(&e.value.id, vehicle);
+    }
     b.catalog.country_model = countries::country_model(
         b.ctx,
         &b.catalog,
@@ -553,6 +567,7 @@ pub(crate) fn build(
         &recipe_keys,
         &technology_keys,
         &deposit_keys,
+        &vehicle_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
 

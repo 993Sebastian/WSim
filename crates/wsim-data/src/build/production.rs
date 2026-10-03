@@ -1,11 +1,37 @@
 //! The production model.
 
-use wsim_core::catalog::{ProductionModel, SiteType};
+use wsim_core::catalog::{ProductionModel, SiteType, TransportModel, Vehicle, Way};
 
-use super::{in_range, money, positive};
+use super::{
+    HISTORY_YEARS, Keys, in_range, money, non_negative, positive, provenance, resolve, time_series,
+    year,
+};
 use crate::messages;
-use crate::read::{Ctx, RawData};
+use crate::raw::{RawVehicle, RawWay};
+use crate::read::{Ctx, Entry, RawData};
 use crate::suggest;
+
+/// The one entry of a parameter section; reports a missing or repeated section.
+fn single<'r, T>(
+    ctx: &mut Ctx,
+    entries: &'r [Entry<T>],
+    section: &str,
+    file: &str,
+) -> Option<&'r Entry<T>> {
+    match entries {
+        [] => {
+            ctx.general_error(messages::section_missing(section, file));
+            None
+        }
+        [first, rest @ ..] => {
+            let first_loc = ctx.describe(&first.loc);
+            for other in rest {
+                ctx.error(&other.loc, messages::section_duplicate(section, &first_loc));
+            }
+            Some(first)
+        }
+    }
+}
 
 const SITE_TYPES: &[(&str, SiteType)] = &[
     ("foerderstaette", SiteType::Extraction),
@@ -17,24 +43,13 @@ const SITE_TYPES: &[(&str, SiteType)] = &[
 ];
 
 pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData) -> ProductionModel {
-    let entry = match raw.production_model.as_slice() {
-        [] => {
-            ctx.general_error(messages::section_missing(
-                "produktionsmodell",
-                "parameter/produktionsmodell.yaml",
-            ));
-            return ProductionModel::default();
-        }
-        [first, rest @ ..] => {
-            let first_loc = ctx.describe(&first.loc);
-            for other in rest {
-                ctx.error(
-                    &other.loc,
-                    messages::section_duplicate("produktionsmodell", &first_loc),
-                );
-            }
-            first
-        }
+    let Some(entry) = single(
+        ctx,
+        &raw.production_model,
+        "produktionsmodell",
+        "parameter/produktionsmodell.yaml",
+    ) else {
+        return ProductionModel::default();
     };
     let m = &entry.value;
     let l = &entry.loc;
@@ -110,24 +125,13 @@ pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData) -> ProductionModel 
 
 pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::FinanceModel {
     use wsim_core::time_series::TimeSeries;
-    let entry = match raw.finance_model.as_slice() {
-        [] => {
-            ctx.general_error(messages::section_missing(
-                "finanzmodell",
-                "parameter/finanzmodell.yaml",
-            ));
-            return wsim_core::catalog::FinanceModel::default();
-        }
-        [first, rest @ ..] => {
-            let first_loc = ctx.describe(&first.loc);
-            for other in rest {
-                ctx.error(
-                    &other.loc,
-                    messages::section_duplicate("finanzmodell", &first_loc),
-                );
-            }
-            first
-        }
+    let Some(entry) = single(
+        ctx,
+        &raw.finance_model,
+        "finanzmodell",
+        "parameter/finanzmodell.yaml",
+    ) else {
+        return wsim_core::catalog::FinanceModel::default();
     };
     let m = &entry.value;
     let l = &entry.loc;
@@ -171,24 +175,13 @@ pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog:
 }
 
 pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::MarketModel {
-    let entry = match raw.market_model.as_slice() {
-        [] => {
-            ctx.general_error(messages::section_missing(
-                "marktmodell",
-                "parameter/marktmodell.yaml",
-            ));
-            return wsim_core::catalog::MarketModel::default();
-        }
-        [first, rest @ ..] => {
-            let first_loc = ctx.describe(&first.loc);
-            for other in rest {
-                ctx.error(
-                    &other.loc,
-                    messages::section_duplicate("marktmodell", &first_loc),
-                );
-            }
-            first
-        }
+    let Some(entry) = single(
+        ctx,
+        &raw.market_model,
+        "marktmodell",
+        "parameter/marktmodell.yaml",
+    ) else {
+        return wsim_core::catalog::MarketModel::default();
     };
     let m = &entry.value;
     let l = &entry.loc;
@@ -208,6 +201,7 @@ pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::
     let price_weight = five(&m.price_weight, "preisgewicht");
     let quality_weight = five(&m.quality_weight, "qualitaetsgewicht");
     let adjust = l.field("preisanpassung");
+    let traders = l.field("haendler");
     wsim_core::catalog::MarketModel {
         price_weight,
         quality_weight,
@@ -239,5 +233,98 @@ pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::
             1.0,
             &l.field("index_glaettung"),
         ),
+        trader_margin: in_range(ctx, m.traders.margin, 0.0, 1.0, &traders.field("marge")),
+        trader_cover_days: positive(ctx, m.traders.cover_days, &traders.field("vorrat_tage")),
+        demand_smoothing_days: in_range(
+            ctx,
+            m.traders.smoothing_days,
+            1.0,
+            365.0,
+            &traders.field("glaettung_tage"),
+        ),
+    }
+}
+
+pub(super) fn transport_model(ctx: &mut Ctx, raw: &RawData) -> TransportModel {
+    let Some(entry) = single(
+        ctx,
+        &raw.transport_model,
+        "transportmodell",
+        "parameter/transportmodell.yaml",
+    ) else {
+        return TransportModel::default();
+    };
+    let m = &entry.value;
+    let l = &entry.loc;
+    let detour = l.field("umweg");
+    let handling = l.field("umschlag");
+    TransportModel {
+        detour_land: in_range(ctx, m.detour.land, 1.0, 5.0, &detour.field("land")),
+        detour_sea: in_range(ctx, m.detour.see, 1.0, 5.0, &detour.field("see")),
+        detour_air: in_range(ctx, m.detour.luft, 1.0, 5.0, &detour.field("luft")),
+        handling_cost_usd: non_negative(
+            ctx,
+            m.handling.cost_usd,
+            &handling.field("kosten_usd_je_t"),
+        ),
+        handling_days: non_negative(ctx, m.handling.days, &handling.field("tage")),
+        min_infrastructure: in_range(
+            ctx,
+            m.min_infrastructure,
+            0.001,
+            1.0,
+            &l.field("mindestinfrastruktur"),
+        ),
+    }
+}
+
+pub(super) fn vehicle(ctx: &mut Ctx, e: &Entry<RawVehicle>, classes: &Keys) -> Vehicle {
+    let v = &e.value;
+    let l = &e.loc;
+    let available_from = year(
+        ctx,
+        v.available_from,
+        HISTORY_YEARS,
+        &l.field("verfuegbar_ab"),
+    );
+    let available_until = v
+        .available_until
+        .map(|y| year(ctx, y, HISTORY_YEARS, &l.field("verfuegbar_bis")));
+    if let Some(until) = available_until
+        && available_from > until
+    {
+        ctx.error(
+            &l.field("verfuegbar_bis"),
+            messages::year_range_inverted(available_from, until),
+        );
+    }
+    let classes_loc = l.field("transportklassen");
+    if v.classes.is_empty() {
+        ctx.error(&classes_loc, messages::vehicle_without_classes());
+    }
+    let classes = v
+        .classes
+        .iter()
+        .enumerate()
+        .map(|(i, c)| resolve(ctx, classes, c, &classes_loc.index(i)))
+        .collect();
+    let speed_loc = l.field("km_je_tag");
+    for (&y, &speed) in &v.km_per_day {
+        positive(ctx, speed, &speed_loc.field(&y.to_string()));
+    }
+    Vehicle {
+        way: match v.way {
+            RawWay::Terrain => Way::Terrain,
+            RawWay::Road => Way::Road,
+            RawWay::Rail => Way::Rail,
+            RawWay::Sea => Way::Sea,
+            RawWay::Air => Way::Air,
+        },
+        available_from,
+        available_until,
+        classes,
+        cost_per_tkm: time_series(ctx, &v.cost_per_tkm, &l.field("kosten_usd_je_tkm")),
+        km_per_day: time_series(ctx, &v.km_per_day, &speed_loc),
+        provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

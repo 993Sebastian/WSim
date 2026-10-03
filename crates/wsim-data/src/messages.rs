@@ -325,3 +325,7 @@ pub fn neighbor_asymmetric(neighbor: &str, key: &str) -> String {
 pub fn range_inverted(min: &str, max: &str) -> String {
     format!("„{min}“ muss kleiner als „{max}“ sein.")
 }
+
+pub fn vehicle_without_classes() -> String {
+    "Mindestens eine Transportklasse ist nötig: Was befördert dieses Verkehrsmittel?".into()
+}

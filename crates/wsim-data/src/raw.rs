@@ -558,6 +558,8 @@ pub struct RawMarketModel {
     pub state_price_cap: f64,
     #[serde(rename = "index_glaettung")]
     pub index_smoothing: f64,
+    #[serde(rename = "haendler")]
+    pub traders: RawTraders,
 }
 
 #[derive(Debug, Deserialize)]
@@ -569,4 +571,87 @@ pub struct RawPriceAdjustment {
     pub down: f64,
     #[serde(rename = "lagertage")]
     pub stock_days: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTransportClass {
+    pub id: String,
+    #[serde(rename = "kostenfaktor", default = "one")]
+    pub cost_factor: f64,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+pub enum RawWay {
+    #[serde(rename = "gelaende")]
+    Terrain,
+    #[serde(rename = "strasse")]
+    Road,
+    #[serde(rename = "schiene")]
+    Rail,
+    #[serde(rename = "see")]
+    Sea,
+    #[serde(rename = "luft")]
+    Air,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVehicle {
+    pub id: String,
+    #[serde(rename = "weg")]
+    pub way: RawWay,
+    #[serde(rename = "verfuegbar_ab")]
+    pub available_from: i32,
+    #[serde(rename = "verfuegbar_bis", default)]
+    pub available_until: Option<i32>,
+    #[serde(rename = "transportklassen")]
+    pub classes: Vec<String>,
+    #[serde(rename = "kosten_usd_je_tkm")]
+    pub cost_per_tkm: RawSeries,
+    #[serde(rename = "km_je_tag")]
+    pub km_per_day: RawSeries,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTransportModel {
+    #[serde(rename = "umweg")]
+    pub detour: RawDetour,
+    #[serde(rename = "umschlag")]
+    pub handling: RawHandling,
+    #[serde(rename = "mindestinfrastruktur")]
+    pub min_infrastructure: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDetour {
+    pub land: f64,
+    pub see: f64,
+    pub luft: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHandling {
+    #[serde(rename = "kosten_usd_je_t")]
+    pub cost_usd: f64,
+    #[serde(rename = "tage")]
+    pub days: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTraders {
+    #[serde(rename = "marge")]
+    pub margin: f64,
+    #[serde(rename = "vorrat_tage")]
+    pub cover_days: f64,
+    #[serde(rename = "glaettung_tage")]
+    pub smoothing_days: f64,
 }

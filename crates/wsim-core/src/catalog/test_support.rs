@@ -75,7 +75,7 @@ pub fn production() -> Catalog {
     let group = c.goods_groups.insert("erze", GoodsGroup).expect("new");
     let transport = c
         .transport_classes
-        .insert("schuettgut", TransportClass)
+        .insert("schuettgut", TransportClass { cost_factor: 1.0 })
         .expect("new");
     let unskilled = c
         .qualifications
@@ -363,5 +363,41 @@ pub fn production() -> Catalog {
         ..ProductionModel::default()
     };
     let _ = (g_unskilled.index(), g_metal.index());
+    c
+}
+
+/// The production catalog with freight: AAA (50° N, 10° E) and BBB (50° N, 20° E) are
+/// coastal neighbors; carts, rail and steamships carry bulk goods.
+pub fn trading() -> Catalog {
+    use super::{Vehicle, Way};
+
+    let mut c = production();
+    for (key, lon, neighbor) in [("AAA", 10.0, "BBB"), ("BBB", 20.0, "AAA")] {
+        let other = c.countries.id(neighbor).expect("exists");
+        let id = c.countries.id(key).expect("exists");
+        let country = c.countries.get_mut(id);
+        country.capital = GeoPoint { lat: 50.0, lon };
+        country.neighbors = vec![other];
+    }
+    let bulk = c.transport_classes.id("schuettgut").expect("exists");
+    let series = |v: f64| TimeSeries::new(vec![(1900, v)]).expect("valid");
+    for (key, way, cost, speed) in [
+        ("karren", Way::Terrain, 2.0, 30.0),
+        ("bahn", Way::Rail, 0.15, 200.0),
+        ("dampfer", Way::Sea, 0.015, 400.0),
+    ] {
+        c.vehicles.insert(
+            key,
+            Vehicle {
+                way,
+                available_from: 1800,
+                available_until: None,
+                classes: vec![bulk],
+                cost_per_tkm: series(cost),
+                km_per_day: series(speed),
+                provenance: Provenance::default(),
+            },
+        );
+    }
     c
 }

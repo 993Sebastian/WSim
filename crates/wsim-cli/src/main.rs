@@ -45,6 +45,17 @@ enum Command {
         #[arg(long, default_value = "data")]
         daten: PathBuf,
     },
+    /// Zeigt den günstigsten Transportweg zwischen zwei Ländern je Transportklasse.
+    Route {
+        /// ISO-Code des Abgangslands, z. B. GBR
+        von: String,
+        /// ISO-Code des Ziellands, z. B. USA
+        nach: String,
+        #[arg(long, default_value_t = 1900)]
+        jahr: i32,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
 }
 
 #[derive(clap::Args)]
@@ -132,6 +143,18 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Command::Route {
+            von,
+            nach,
+            jahr,
+            daten,
+        } => match show_route(&daten, &von, &nach, jahr) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
         Command::Run(args) => match run(&args) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
@@ -152,13 +175,14 @@ fn validate(directory: &Path) -> ExitCode {
     if let Some(data) = &outcome.data {
         let c = &data.catalog;
         println!(
-            "Daten geprüft: {} Länder, {} Produkte, {} Rezepte, {} Anlagen, {} Technologien, {} Lagerstätten, {} Texte.",
+            "Daten geprüft: {} Länder, {} Produkte, {} Rezepte, {} Anlagen, {} Technologien, {} Lagerstätten, {} Verkehrsmittel, {} Texte.",
             c.countries.len(),
             c.products.len(),
             c.recipes.len(),
             c.facilities.len(),
             c.technologies.len(),
             c.deposits.len(),
+            c.vehicles.len(),
             data.texts.len(),
         );
     }
@@ -335,6 +359,42 @@ fn show_country(directory: &Path, key: &str, year: i32) -> Result<(), String> {
         })
         .collect();
     println!("  Forschung              {}", research.join(", "));
+    Ok(())
+}
+
+fn show_route(directory: &Path, from: &str, to: &str, year: i32) -> Result<(), String> {
+    use wsim_data::format_number;
+
+    let data = load_data(directory)?;
+    let c = &data.catalog;
+    let country = |key: &str| {
+        c.countries
+            .id(key)
+            .ok_or_else(|| format!("Land „{key}“ gibt es nicht."))
+    };
+    let (a, b) = (country(from)?, country(to)?);
+    let routes = wsim_core::transport::Routes::new(c, year, None);
+    let name = |key: String| data.texts.get(&key).unwrap_or(&key).to_owned();
+    println!(
+        "{} → {} im Jahr {year}",
+        name(format!("land.{from}")),
+        name(format!("land.{to}"))
+    );
+    for (class, _) in c.transport_classes.iter() {
+        let label = name(format!(
+            "transportklasse.{}",
+            c.transport_classes.key(class)
+        ));
+        match routes.get(class, a, b) {
+            Some(r) => println!(
+                "  {label:<14} {:>10} USD/t  {:>6} Tage  {}",
+                format_number(r.cost_per_t, 2),
+                format_number(r.days, 1),
+                if r.by_sea { "über See" } else { "über Land" }
+            ),
+            None => println!("  {label:<14} kein Transportweg"),
+        }
+    }
     Ok(())
 }
 

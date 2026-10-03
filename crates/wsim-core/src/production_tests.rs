@@ -347,7 +347,11 @@ fn commands_are_checked() {
                 quantity: 1.0
             }
         ),
-        CommandError::DifferentCountries
+        CommandError::NoRoute {
+            product: "erz".into(),
+            from: "AAA".into(),
+            to: "BBB".into()
+        }
     );
     let expensive = Command::BuildFacility {
         site: works,

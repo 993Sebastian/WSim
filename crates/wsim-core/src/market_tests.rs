@@ -90,6 +90,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         bankrupt: false,
         loans: Vec::new(),
         loss_carryforward: Money::ZERO,
+        sales_policies: Vec::new(),
     });
     id
 }
