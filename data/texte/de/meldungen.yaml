@@ -1,0 +1,21 @@
+# Meldungen und Fehlertexte des Simulationskerns. Platzhalter stehen in {geschweiften Klammern}.
+
+fehler.spielstart.startjahr: Das Startjahr {jahr} ist nicht möglich; erlaubt sind {von} bis {bis}.
+fehler.spielstart.startkapital: Das Startkapital muss größer als 0 und höchstens {max} sein.
+fehler.spielstart.startland: Das gewählte Startland gibt es in den Spieldaten nicht.
+fehler.befehl.spielende: Die Partie ist beendet; es sind keine Entscheidungen mehr möglich.
+fehler.befehl.firma_unbekannt: Die Firma Nr. {firma} gibt es nicht.
+fehler.name.leer: Der Name darf nicht leer sein.
+fehler.name.zu_lang: Der Name darf höchstens {max} Zeichen lang sein.
+fehler.name.vergeben: Der Name „{name}“ ist bereits vergeben.
+fehler.spielstand.kein_spielstand: Die Datei ist kein WSim-Spielstand.
+fehler.spielstand.zu_neu: Der Spielstand stammt aus einer neueren Spielversion (Format {version}, diese Version kann bis Format {unterstuetzt} laden).
+fehler.spielstand.zu_alt: Der Spielstand hat das veraltete Format {version} und kann nicht geladen werden.
+fehler.spielstand.beschaedigt: Der Spielstand ist beschädigt ({detail}).
+fehler.spielstand.inhalt_fehlt: Der Spielstand verwendet {art} „{id}“, das es in den Spieldaten nicht mehr gibt.
+
+meldung.spielende: Die Partie ist mit dem 31.12.2100 zu Ende gegangen.
+meldung.neues_jahr: Das Jahr {jahr} beginnt.
+
+# Arten von Inhalten, für Meldungen
+art.land: das Land

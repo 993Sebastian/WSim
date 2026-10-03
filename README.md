@@ -30,7 +30,9 @@ pnpm -C ui test                  # Tests der Oberfläche
 pnpm -C ui e2e                   # Browser-Tests
 pnpm -C app dev                  # Spiel im Entwicklungsmodus starten
 pnpm -C app tauri build          # Installer bauen (unter Windows: NSIS-setup.exe)
-cargo run -p wsim-cli -- info    # Kommandozeile
+cargo run -p wsim-cli -- validate data          # Spieldaten prüfen
+cargo run -p wsim-cli -- run --runde quartal --bis 1910-01-01 --speichern a.wsim
+cargo run -p wsim-cli -- run --laden a.wsim --runden 4   # weiterspielen
 ```
 
 Den fertigen Windows-Installer baut die CI bei jedem Push; er liegt als Artefakt

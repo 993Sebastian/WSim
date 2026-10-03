@@ -40,3 +40,14 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Geldbetrag | `Money` |
 | Annäherung, Quelle | `Provenance` |
 | Befund, Prüfbericht | `Finding`, `Report` |
+| Spiel, Partie | `Game` |
+| Spielzustand | `GameState` |
+| Spieleinstellungen | `GameSettings` |
+| Runde, Rundenlänge | `RoundLength` |
+| Rundenbericht | `RoundReport` |
+| Journal (Entscheidungen und Runden) | `JournalEntry` |
+| Zufallsstrom | `SimRng`, `Stream` |
+| Zustands-Hash | `StateHash` |
+| Spielstand | `save`, `SaveHeader` |
+| Befehl, Entscheidung | `Command` |
+| Firma | `Company`, `CompanyId` |

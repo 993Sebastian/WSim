@@ -16,7 +16,7 @@ Dieses Dokument wird mit jedem Meilenstein fortgeschrieben.
 | Desktop-Hülle | **Tauri 2** | Erzeugt einen echten Windows-Installer (NSIS-`setup.exe` oder MSI), startet wie ein normales Programm, läuft komplett offline. Klein (≈ 10–20 MB statt 150 MB bei Electron). Die WebView2-Laufzeit wird als Offline-Installer eingebettet, damit auch Rechner ohne Internet installieren können. |
 | Oberfläche | **TypeScript + React + Vite** | Tabellen, Diagramme und Karten sind die Stärke von Web-Technik: **TanStack Table** (sortieren, filtern, virtualisiert – zehntausende Zeilen), **Apache ECharts** (Zeitreihen, Balken, Sankey für Produktionsketten, Choroplethen-Weltkarte mit Ebenen, Zoom). Nüchtern-modernes Design ist mit CSS leicht erreichbar. |
 | Kartendaten | **Natural Earth** Admin-0 (gemeinfrei), vereinfacht als TopoJSON | Heutige Grenzen, ISO-3166-Codes als Länder-IDs. |
-| Datenformat | **YAML** für Spielinhalte, MessagePack + zstd für Spielstände | YAML ist kommentierbar und gut von Hand editierbar; Spielstände kompakt und schnell. |
+| Datenformat | **YAML** für Spielinhalte, MessagePack + DEFLATE für Spielstände | YAML ist kommentierbar und gut von Hand editierbar; Spielstände kompakt und schnell, Kompression in reinem Rust (keine C-Abhängigkeit). |
 
 **Warum diese Trennung zwei Sprachen rechtfertigt:** Das Lastenheft verlangt einen
 Kern, der ohne Oberfläche lauffähig ist. Mit Rust-Kern und Web-Oberfläche ist diese
@@ -133,8 +133,8 @@ Oberfläche zeigt sie im Tooltip.
 sondern `Meldung { art, schluessel, parameter, ziel }`. Alle Texte liegen zentral in
 `data/texte/de/`; eine Übersetzung ist ein weiterer Ordner.
 
-**Spielstände (§16.3).** Kopf mit Formatversion, Spielversion und Daten-Hash, danach
-der Zustand (MessagePack, zstd-komprimiert). Verweise auf Inhalte werden mit ihren
+**Spielstände (§16.3).** Kopf mit Formatversion, Spielversion und Datenversion,
+danach der Zustand (MessagePack, DEFLATE-komprimiert). Verweise auf Inhalte werden mit ihren
 Text-IDs gespeichert, damit geänderte Daten ladbar bleiben. Jede Formatänderung
 bringt eine Migrationsfunktion und einen Test mit einem alten Beispielstand mit.
 
@@ -248,7 +248,7 @@ lagerstaetten:
 
 ## 4 Meilensteine für Stufe 1
 
-**Stand:** M1 und M2 abgeschlossen.
+**Stand:** M1 bis M3 abgeschlossen.
 
 Jeder Meilenstein endet mit grünen automatischen Tests und einer kurzen Abnahme
 durch dich. Formeln werden vor der Umsetzung in `docs/FORMELN.md` beschrieben und

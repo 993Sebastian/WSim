@@ -87,3 +87,15 @@ fn country_values_interpolate() {
     let mid = population.value_at(1906.5);
     assert!(mid > 44_000_000.0 && mid < 52_600_000.0);
 }
+
+#[test]
+fn every_core_message_has_a_text() {
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    for key in wsim_core::message::keys::ALL {
+        assert!(
+            data.texts.get(key).is_some(),
+            "Text „{key}“ fehlt in data/texte/de/"
+        );
+    }
+    assert!(data.texts.get("art.land").is_some());
+}

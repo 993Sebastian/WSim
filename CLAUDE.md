@@ -54,8 +54,15 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 
 ## Spielstände
 
-- Formatversion im Kopf. Jede Formatänderung: Version erhöhen, Migration schreiben,
-  Test mit altem Beispielstand unter `tests/fixtures/saves/` ergänzen.
+- Formatversion `SAVE_FORMAT_VERSION` in `crates/wsim-core/src/save.rs`. Jede
+  inkompatible Änderung an `GameState`: Version erhöhen, Migration in `MIGRATIONS`
+  schreiben, neuen Beispielstand mit dem ignorierten Test `write_fixture` erzeugen.
+  Alte Beispielstände unter `crates/wsim-core/tests/fixtures/saves/` bleiben liegen
+  und müssen weiter laden.
+- Jedes Feld im Zustand, das eine Katalog-ID enthält, muss in `GameState::remap`
+  übersetzt werden, und die Art muss in `CatalogKeys` stehen.
+- Alles, was die Simulation verändert, läuft über `Game::apply`/`advance` und steht
+  damit im Journal; `Game::replay` muss denselben Zustand ergeben.
 
 ## Prüfen vor jedem Commit
 
@@ -65,7 +72,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - Daten: `cargo run -p wsim-cli -- validate data` (muss ohne Fehler und Warnungen enden)
 - UI: `pnpm -C ui typecheck`, `pnpm -C ui lint`, `pnpm -C ui test`, `pnpm -C ui e2e`
   (`pnpm -C ui format` behebt Formatierungsfehler)
-- Der Determinismus-Test muss grün sein (ab M3).
+- Die Reproduzierbarkeits-Tests (`crates/wsim-core/src/determinism_tests.rs`,
+  `crates/wsim-cli/tests/lauf.rs`) müssen grün sein.
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
 - CI (`.github/workflows/ci.yml`) führt dasselbe aus und baut den Windows-Installer.
 

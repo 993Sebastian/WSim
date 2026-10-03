@@ -3,10 +3,23 @@
 //! The core has no dependency on the UI, Tauri or file IO. It receives a compiled
 //! catalog from `wsim-data`, accepts commands and advances the world in daily ticks.
 
+pub mod calendar;
 pub mod catalog;
+pub mod command;
+pub mod game;
 pub mod ids;
+pub mod message;
 pub mod money;
+pub mod rng;
+pub mod save;
+pub mod state;
 pub mod time_series;
+
+#[cfg(test)]
+mod determinism_tests;
+
+pub use calendar::{Date, RoundLength};
+pub use game::{Game, JournalEntry, RoundReport, StateHash};
 
 use serde::Serialize;
 

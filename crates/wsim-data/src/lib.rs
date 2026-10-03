@@ -9,6 +9,7 @@ mod de;
 mod messages;
 mod raw;
 mod read;
+mod render;
 mod report;
 mod suggest;
 mod texts;
@@ -19,6 +20,7 @@ use std::path::Path as FsPath;
 
 use wsim_core::catalog::Catalog;
 
+pub use render::{format_date, format_money, format_number};
 pub use report::{Finding, Path, Report, Segment, Severity};
 pub use texts::Texts;
 pub use yaml::Position;

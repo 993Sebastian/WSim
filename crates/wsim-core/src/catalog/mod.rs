@@ -4,6 +4,8 @@
 //! game state. Field semantics are documented in the data format (`docs/DATENFORMAT.md`).
 
 mod table;
+#[cfg(test)]
+pub(crate) mod test_support;
 
 pub use table::Table;
 
