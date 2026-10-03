@@ -14,6 +14,7 @@ use crate::command::{self, Command, CommandError, NameError};
 use crate::finance;
 use crate::ids::Id;
 use crate::ledger::Ledger;
+use crate::market;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::production;
@@ -150,11 +151,14 @@ impl Game {
             countries: PerId::default(),
             companies: vec![player],
             sites: Vec::new(),
+            markets: PerId::default(),
             deposits: PerId::from_fn(catalog.deposits.len(), |_| DepositState::default()),
             player: CompanyId(0),
             game_over: false,
         };
         state.refresh_countries(&catalog);
+        state.fit_to_catalog(&catalog);
+        market::month_start(&mut state, &catalog, date);
         Ok(Self {
             catalog,
             state,
@@ -298,6 +302,7 @@ impl Game {
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
         production::simulate_day(&mut self.state, &self.catalog, today);
+        market::clear(&mut self.state, &self.catalog, today);
 
         let next = today.next_day();
         self.state.date = next;
@@ -311,6 +316,8 @@ impl Game {
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
             production::new_month(&mut self.state);
+            market::month_start(&mut self.state, &self.catalog, next);
+            market::reset_site_months(&mut self.state);
         }
         if next.ordinal() == 1 {
             production::new_year(&mut self.state);

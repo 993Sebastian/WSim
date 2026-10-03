@@ -339,3 +339,37 @@ fn chain_one_runs_in_britain() {
             .is_balanced()
     );
 }
+
+/// Government demand for steel bars in Britain 1900 has a plausible size.
+#[test]
+fn government_demand_for_steel_bars() {
+    use std::sync::Arc;
+    use wsim_core::game::Game;
+    use wsim_core::money::Money;
+    use wsim_core::state::{GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let gbr = c.countries.id("GBR").unwrap();
+    let game = Game::new(
+        c.clone(),
+        GameSettings {
+            seed: 1,
+            start_year: 1900,
+            start_country: gbr,
+            start_capital: Money::from_usd(1_000_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Test".into(),
+        },
+    )
+    .unwrap();
+    let per_year = game
+        .state()
+        .markets
+        .get(c.products.id("stabstahl").unwrap())
+        .get(gbr)
+        .state_rate
+        * 365.0;
+    // Railways, bridges, public buildings: several hundred thousand tonnes a year.
+    assert!((200_000.0..2_000_000.0).contains(&per_year), "{per_year}");
+}

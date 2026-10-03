@@ -7,8 +7,8 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawCountry, RawCountryModel, RawDeposit, RawFacility, RawFinanceModel, RawMeta, RawProduct,
-    RawProductionModel, RawQualification, RawRecipe, RawSimple, RawTechnology, RawUnit,
+    RawCountry, RawCountryModel, RawDeposit, RawFacility, RawFinanceModel, RawMarketModel, RawMeta,
+    RawProduct, RawProductionModel, RawQualification, RawRecipe, RawSimple, RawTechnology, RawUnit,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -150,6 +150,7 @@ pub(crate) struct RawData {
     pub country_model: Vec<Entry<RawCountryModel>>,
     pub production_model: Vec<Entry<RawProductionModel>>,
     pub finance_model: Vec<Entry<RawFinanceModel>>,
+    pub market_model: Vec<Entry<RawMarketModel>>,
     pub units: Vec<Entry<RawUnit>>,
     pub continents: Vec<Entry<RawSimple>>,
     pub branches: Vec<Entry<RawSimple>>,
@@ -170,6 +171,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "laendermodell",
     "produktionsmodell",
     "finanzmodell",
+    "marktmodell",
     "einheiten",
     "kontinente",
     "branchen",
@@ -218,6 +220,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "finanzmodell" => match de::from_node::<RawFinanceModel>(value, &loc.path) {
                 Ok(model) => raw.finance_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "marktmodell" => match de::from_node::<RawMarketModel>(value, &loc.path) {
+                Ok(model) => raw.market_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "einheiten" => read_list(ctx, &loc, value, &mut raw.units, &mut raw.broken),

@@ -38,6 +38,7 @@ pub struct Catalog {
     pub country_model: CountryModel,
     pub production_model: ProductionModel,
     pub finance_model: FinanceModel,
+    pub market_model: MarketModel,
 }
 
 impl Catalog {
@@ -185,6 +186,39 @@ impl Default for FinanceModel {
     }
 }
 
+/// Parameters of markets (`data/parameter/marktmodell.yaml`, formulas in docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct MarketModel {
+    /// Weight of the price when choosing a seller, per income fifth (poorest first).
+    pub price_weight: [f64; 5],
+    /// Weight of the quality when choosing a seller, per income fifth.
+    pub quality_weight: [f64; 5],
+    /// Share of the gap to the target ownership that is bought per year (durables).
+    pub adoption_per_year: f64,
+    pub price_step_up: f64,
+    pub price_step_down: f64,
+    /// Unsold stock worth more than this many days of sales lowers the price.
+    pub stock_days: f64,
+    /// Governments pay at most this multiple of the reference price.
+    pub state_price_cap: f64,
+    pub index_smoothing: f64,
+}
+
+impl Default for MarketModel {
+    fn default() -> Self {
+        Self {
+            price_weight: [2.0, 1.6, 1.2, 0.9, 0.6],
+            quality_weight: [0.3, 0.5, 0.8, 1.1, 1.5],
+            adoption_per_year: 0.25,
+            price_step_up: 0.02,
+            price_step_down: 0.01,
+            stock_days: 30.0,
+            state_price_cap: 1.5,
+            index_smoothing: 0.1,
+        }
+    }
+}
+
 /// Parameters of production (`data/parameter/produktionsmodell.yaml`, formulas in
 /// docs/FORMELN.md).
 #[derive(Clone, Debug, PartialEq)]
@@ -327,6 +361,8 @@ pub struct Product {
     pub usage: Usage,
     pub goods_group: GoodsGroupId,
     pub transport_class: TransportClassId,
+    /// Typical price around 1900 at price level 1; starting point of the markets.
+    pub reference_price: Money,
     /// Weight of one unit in kg (from the product or its unit).
     pub weight_kg: f64,
     /// Energy content per unit in MWh, if the product can serve as fuel.
@@ -357,14 +393,17 @@ pub enum ConsumptionType {
     },
 }
 
-/// Consumer demand characteristics (Lastenheft §9.1). Formulas follow in M7.
+/// Consumer demand characteristics (Lastenheft §9.1, formulas in docs/FORMELN.md M7).
 #[derive(Clone, Debug, PartialEq)]
 pub struct ConsumerDemand {
     pub need_class: NeedClass,
     pub consumption: ConsumptionType,
-    /// Yearly income per capita (USD) from which a household layer starts buying.
-    pub income_threshold_usd: f64,
+    /// Yearly income per capita relative to the price at which half of a household
+    /// layer buys (e.g. 2 = an income of twice the price).
+    pub purchase_threshold: f64,
+    /// Exponent of the price in the purchase propensity.
     pub price_sensitivity: f64,
+    /// Exponent of the income in the purchase propensity.
     pub income_sensitivity: f64,
     /// Twelve monthly factors, if demand is seasonal.
     pub seasonality: Option<[f64; 12]>,

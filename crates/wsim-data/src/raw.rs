@@ -257,6 +257,8 @@ pub struct RawProduct {
     pub goods_group: String,
     #[serde(rename = "transportklasse")]
     pub transport_class: String,
+    #[serde(rename = "richtpreis_usd")]
+    pub reference_price_usd: f64,
     #[serde(rename = "gewicht_kg", default)]
     pub weight_kg: Option<f64>,
     #[serde(rename = "heizwert_mwh", default)]
@@ -294,8 +296,8 @@ pub struct RawConsumerDemand {
     pub consumable: Option<RawConsumable>,
     #[serde(rename = "gebrauch", default)]
     pub durable: Option<RawDurable>,
-    #[serde(rename = "einkommensschwelle_usd")]
-    pub income_threshold_usd: f64,
+    #[serde(rename = "kaufschwelle")]
+    pub purchase_threshold: f64,
     #[serde(rename = "preisempfindlichkeit")]
     pub price_sensitivity: f64,
     #[serde(rename = "einkommensempfindlichkeit")]
@@ -539,4 +541,32 @@ pub struct RawOverdraft {
     pub share: f64,
     #[serde(rename = "aufschlag")]
     pub premium: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMarketModel {
+    #[serde(rename = "preisgewicht")]
+    pub price_weight: Vec<f64>,
+    #[serde(rename = "qualitaetsgewicht")]
+    pub quality_weight: Vec<f64>,
+    #[serde(rename = "aneignung_je_jahr")]
+    pub adoption_per_year: f64,
+    #[serde(rename = "preisanpassung")]
+    pub price_adjustment: RawPriceAdjustment,
+    #[serde(rename = "staat_hoechstpreis")]
+    pub state_price_cap: f64,
+    #[serde(rename = "index_glaettung")]
+    pub index_smoothing: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPriceAdjustment {
+    #[serde(rename = "hoch")]
+    pub up: f64,
+    #[serde(rename = "runter")]
+    pub down: f64,
+    #[serde(rename = "lagertage")]
+    pub stock_days: f64,
 }

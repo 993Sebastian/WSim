@@ -132,13 +132,14 @@ pub fn production() -> Catalog {
         specialization_shares: vec![Vec::new(), vec![1.0]],
         ..CountryModel::default()
     };
-    let product = |kind| Product {
+    let product = |kind, reference: f64| Product {
         kind,
         branch,
         unit: t,
         usage: Usage::Industry,
         goods_group: group,
         transport_class: transport,
+        reference_price: usd(reference),
         weight_kg: 1000.0,
         heating_value_mwh: None,
         consumer_demand: None,
@@ -149,11 +150,11 @@ pub fn production() -> Catalog {
     };
     let ore = c
         .products
-        .insert("erz", product(ProductKind::RawMaterial))
+        .insert("erz", product(ProductKind::RawMaterial, 10.0))
         .expect("new");
     let iron = c
         .products
-        .insert("eisen", product(ProductKind::SemiFinished))
+        .insert("eisen", product(ProductKind::SemiFinished, 100.0))
         .expect("new");
     let smelting = c
         .technologies
@@ -271,6 +272,89 @@ pub fn production() -> Catalog {
             },
         )
         .expect("new");
+    // Consumer goods for market tests (no production recipes; tests put them in stock).
+    use super::{ConsumerDemand, ConsumptionType, NeedClass, StateDemand, StateMarketOffer};
+    let consumer = |kind, reference: f64, demand: ConsumerDemand| Product {
+        consumer_demand: Some(demand),
+        usage: Usage::Consumer,
+        ..product(kind, reference)
+    };
+    c.products
+        .insert(
+            "brot",
+            consumer(
+                ProductKind::EndProduct,
+                2.0,
+                ConsumerDemand {
+                    need_class: NeedClass::Basic,
+                    consumption: ConsumptionType::Consumable {
+                        per_capita_per_year: 200.0,
+                    },
+                    purchase_threshold: 20.0,
+                    price_sensitivity: 1.5,
+                    income_sensitivity: 1.0,
+                    seasonality: None,
+                },
+            ),
+        )
+        .expect("new");
+    let carriage = c
+        .products
+        .insert(
+            "kutsche",
+            Product {
+                state_market: Some(StateMarketOffer {
+                    price: usd(500.0),
+                    available_from: None,
+                    available_until: None,
+                }),
+                ..consumer(
+                    ProductKind::EndProduct,
+                    500.0,
+                    ConsumerDemand {
+                        need_class: NeedClass::Luxury,
+                        consumption: ConsumptionType::Durable {
+                            service_life_years: 15.0,
+                            max_ownership: 0.1,
+                        },
+                        purchase_threshold: 2.0,
+                        price_sensitivity: 1.5,
+                        income_sensitivity: 1.5,
+                        seasonality: None,
+                    },
+                )
+            },
+        )
+        .expect("new");
+    c.products
+        .insert(
+            "rad",
+            Product {
+                replaces: vec![carriage],
+                ..consumer(
+                    ProductKind::EndProduct,
+                    100.0,
+                    ConsumerDemand {
+                        need_class: NeedClass::Durable,
+                        consumption: ConsumptionType::Durable {
+                            service_life_years: 10.0,
+                            max_ownership: 0.5,
+                        },
+                        purchase_threshold: 1.0,
+                        price_sensitivity: 2.0,
+                        income_sensitivity: 2.0,
+                        seasonality: None,
+                    },
+                )
+            },
+        )
+        .expect("new");
+    let iron_product = c.products.id("eisen").expect("exists");
+    c.products.get_mut(iron_product).state_demand = Some(StateDemand {
+        per_million_gdp: 0.5,
+        war_factor: 1.0,
+    });
+
     c.production_model = ProductionModel {
         site_cost: vec![
             (SiteType::Extraction, usd(100_000.0)),

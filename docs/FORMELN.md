@@ -212,3 +212,58 @@ endet dann die Partie; solange ein Kredit möglich ist, warnt das Spiel nur.
 GuV nach Kostenarten (Gesamtkostenverfahren), Bilanz aus den Kontensalden,
 Kapitalfluss nach dem Gegenkonto jeder Kassenbewegung: Sachanlagen/Anlagen im Bau →
 Investitionen, Kredite/Eigenkapital → Finanzierung, alles andere → operativ.
+
+## M7 – Markt und Preise
+
+Parameter: `data/parameter/marktmodell.yaml`. Je Produkt und Land gibt es einen Markt.
+
+### Teilnehmer
+
+- **Anbieter:** Standorte mit Verkaufsangebot (Festpreis oder automatischer Preis;
+  ein Teil des Lagers kann zurückbehalten werden) und – für Güter mit `staatsmarkt` –
+  der Staatsmarkt zum Datenpreis · Preisniveau, in beliebiger Menge, Qualität 50.
+- **Nachfrager**, in dieser Reihenfolge bedient:
+  1. Einkaufsaufträge von Standorten (Industrie): Ziel-Lagerbestand, Höchstpreis,
+     Mindestqualität; höchste Zahlungsbereitschaft zuerst, jeweils beim billigsten
+     passenden Anbieter, nie bei der eigenen Firma.
+  2. Staat: täglich `je_mio_usd_bip · BIP (Marktpreise) / 10⁶ / 365`, billigste
+     Anbieter bis `staat_hoechstpreis · Richtpreis · Preisniveau`.
+  3. Endkunden, reichste Schicht zuerst.
+
+### Endkunden-Nachfrage (monatlich)
+
+Je Einkommensfünftel q mit Einkommen y_q (Marktpreise) und Marktpreis p,
+Richtpreis r (· Preisniveau):
+
+    a_q = (y_q / (Kaufschwelle · r))^Einkommensempfindlichkeit · (r / p)^Preisempfindlichkeit
+    Kaufneigung S_q = a_q / (1 + a_q)
+
+Liegt das Einkommen beim `kaufschwelle`-Fachen des Preises, kauft die Hälfte der
+Schicht. Preissenkungen erhöhen S_q gerade in den unteren Schichten (Massenmärkte).
+
+- **Verbrauchsgüter:** Nachfrage je Tag = Bedarf je Kopf · S_q · Bevölkerung/5 / 365 · Saison.
+- **Gebrauchsgüter:** Besitzquote o_q je Einwohner. Zielquote T_q = max. Besitzquote · S_q
+  · Verdrängungsfaktor. Nachfrage je Tag = ((T_q − o_q)⁺ · Aneignung + o_q / Nutzungsdauer)
+  · Bevölkerung/5 / 365. Monatlich: o_q += Käufe / (Bevölkerung/5) − o_q / (12 · Nutzungsdauer).
+- **Verdrängung:** Ersetzt Produkt B Produkt A, sinkt T_A um den Faktor
+  (1 − o_B / max. Besitzquote_B) – Besitzer des Nachfolgers kaufen den Vorgänger nicht mehr.
+
+### Anbieterwahl der Endkunden
+
+    Nutzen_i = −Preisgewicht_q · ln(p_i / r) + Qualitätsgewicht_q · (Qualität_i − 50) / 25
+    Anteil_i = exp(Nutzen_i) / Σ exp(Nutzen_j)
+
+Ist ein Anbieter ausverkauft, wird der Rest auf die übrigen verteilt.
+
+### Preise
+
+- Automatischer Preis: Start beim Marktpreis · (1 + Aufschlag). Täglich +`hoch`, wenn
+  der Anbieter alles verkauft hat und Nachfrage offen blieb; −`runter`, wenn er weniger
+  als 1/`lagertage` seines Angebots verkauft hat; nie unter der Preisuntergrenze.
+- Marktpreis (Index) = (1 − g) · bisheriger Index + g · Durchschnittspreis des Tages,
+  g = `index_glaettung`; vor dem ersten Verkauf Richtpreis · Preisniveau.
+
+### Buchungen
+
+Verkauf: Umsatzerlöse (Kasse) und Bestandsminderung zu Herstellkosten. Einkauf:
+Vorräte zum gezahlten Preis (keine Ergebniswirkung bis zum Verbrauch).

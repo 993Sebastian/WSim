@@ -324,6 +324,93 @@ pub struct Site {
     pub workforce: PerId<LaborGroupId, f64>,
     /// Staffing is adjusted at the start of each month and after changes.
     pub staffing_due: bool,
+    /// Goods offered for sale on the country's market.
+    #[serde(default)]
+    pub offers: BTreeMap<ProductId, SaleOffer>,
+    /// Goods bought on the country's market to keep a stock.
+    #[serde(default)]
+    pub orders: BTreeMap<ProductId, PurchaseOrder>,
+}
+
+/// How a sale offer is priced.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub enum PriceMode {
+    Fixed(Money),
+    /// Follows supply and demand, never below `floor`; starts at the market price
+    /// plus `markup` (e.g. 0.1 = 10 % above).
+    Market {
+        markup: f64,
+        floor: Money,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SaleOffer {
+    pub mode: PriceMode,
+    /// Current asking price per unit.
+    pub price: Money,
+    /// Stock kept back (e.g. for own production).
+    pub keep: f64,
+    pub sold_today: f64,
+    pub sold_month: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PurchaseOrder {
+    /// Stock the site wants to have.
+    pub target: f64,
+    pub max_price: Money,
+    pub min_quality: f64,
+    pub bought_month: f64,
+}
+
+/// Trade on a market in a period.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Trade {
+    pub demand: f64,
+    pub sold: f64,
+    pub revenue: Money,
+}
+
+impl Trade {
+    pub fn unmet(&self) -> f64 {
+        (self.demand - self.sold).max(0.0)
+    }
+
+    fn add(&mut self, other: &Trade) {
+        self.demand += other.demand;
+        self.sold += other.sold;
+        self.revenue += other.revenue;
+    }
+}
+
+/// Market of one product in one country.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Market {
+    /// Price index (smoothed average of sales); zero until the market starts.
+    pub price: Money,
+    /// Consumer demand per day by income fifth (poorest first), set monthly.
+    pub consumer_rate: [f64; 5],
+    /// Government demand per day.
+    pub state_rate: f64,
+    /// Units owned per inhabitant by income fifth (durables).
+    pub ownership: [f64; 5],
+    /// Consumer purchases in the running month by income fifth.
+    pub bought: [f64; 5],
+    pub today: Trade,
+    pub month: Trade,
+    pub last_month: Trade,
+}
+
+impl Market {
+    pub(crate) fn record_day(&mut self, day: Trade) {
+        self.today = day;
+        self.month.add(&day);
+    }
+
+    pub(crate) fn close_month(&mut self) {
+        self.last_month = std::mem::take(&mut self.month);
+    }
 }
 
 /// State of a deposit.
@@ -369,6 +456,9 @@ pub struct GameState {
     pub sites: Vec<Site>,
     #[serde(default)]
     pub deposits: PerId<DepositId, DepositState>,
+    /// Markets by product and country.
+    #[serde(default)]
+    pub markets: PerId<ProductId, PerId<CountryId, Market>>,
     pub player: CompanyId,
     pub game_over: bool,
 }
@@ -414,6 +504,12 @@ impl GameState {
     pub(crate) fn fit_to_catalog(&mut self, catalog: &Catalog) {
         self.deposits
             .resize_with(catalog.deposits.len(), DepositState::default);
+        let countries = catalog.countries.len();
+        self.markets
+            .resize_with(catalog.products.len(), PerId::default);
+        for (_, markets) in self.markets.iter_mut() {
+            markets.resize_with(countries, Market::default);
+        }
         let groups = catalog.labor_groups.len();
         for site in &mut self.sites {
             site.workforce.resize_with(groups, || 0.0);

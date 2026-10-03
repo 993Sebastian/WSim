@@ -89,6 +89,7 @@ pub mod keys {
     pub const COMMAND_LOAN_TOO_LARGE: &str = "fehler.befehl.kredit_zu_hoch";
     pub const COMMAND_INVALID_TERM: &str = "fehler.befehl.laufzeit_ungueltig";
     pub const COMMAND_UNKNOWN_LOAN: &str = "fehler.befehl.kredit_unbekannt";
+    pub const COMMAND_INVALID_PRICE: &str = "fehler.befehl.preis_ungueltig";
     pub const GAME_OVER_INSOLVENT: &str = "meldung.spielende_insolvenz";
     pub const COMPANY_INSOLVENT: &str = "meldung.firma_insolvent";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
@@ -131,6 +132,7 @@ pub mod keys {
         COMMAND_LOAN_TOO_LARGE,
         COMMAND_INVALID_TERM,
         COMMAND_UNKNOWN_LOAN,
+        COMMAND_INVALID_PRICE,
         GAME_OVER_INSOLVENT,
         COMPANY_INSOLVENT,
         OVERDRAFT,

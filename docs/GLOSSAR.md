@@ -76,3 +76,11 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Zahlungsunfähigkeit | `is_insolvent`, `bankrupt` |
 | Kapitalfluss | `CashFlow` |
 | GuV, Bilanz | `IncomeStatement`, `BalanceSheet` |
+| Markt, Marktpreis | `Market`, `market_price` |
+| Marktmodell | `MarketModel` |
+| Richtpreis | `reference_price` |
+| Kaufschwelle, Kaufneigung | `purchase_threshold`, `propensity` |
+| Besitzquote | `ownership` |
+| Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
+| Einkaufsauftrag | `PurchaseOrder` |
+| Handel (Menge, Umsatz) | `Trade` |

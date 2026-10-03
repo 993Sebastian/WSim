@@ -14,8 +14,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M4 | Länder-Grundwerte | ✅ |
 | M5 | Rohstoffe und Produktion | ✅ |
 | M6 | Buchführung und Grundfinanzen | ✅ |
-| M7 | Markt und Preise (ein Land) | in Arbeit |
-| M8 | Handel zwischen Ländern | offen |
+| M7 | Markt und Preise (ein Land) | ✅ |
+| M8 | Handel zwischen Ländern | in Arbeit |
 | M9 | Alle 12 Ketten + Forschung | offen |
 | M10 | KI-Firmen | offen |
 | M11 | Rundenbericht und Meldungen | offen |
@@ -72,3 +72,10 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
 - M6: Zahlungsunfähigkeit wird monatlich geprüft; der Spieler verliert nur, wenn auch
   ein neuer Kredit die Lücke nicht schließen könnte (§11.3). Anleihen und Anteile
   folgen in Stufe 3.
+- M7: Die Kaufschwelle ist ein Verhältnis Einkommen/Preis statt eines Dollarbetrags
+  (Lastenheft §9.1 „Einkommen im Verhältnis zum Preis“); jedes Produkt hat einen
+  Richtpreis um 1900. Endkunden-Nachfrage wird monatlich berechnet, Märkte täglich
+  geräumt (Reihenfolge: Industrie, Staat, Endkunden). Verkauf an Endkunden ist von jedem
+  Standort im Land möglich; Niederlassungen werden mit dem Handel zwischen Ländern wichtig.
+- M7: Automatische Preise passen sich täglich um +2 %/−1 % an (Parameter); Premium-,
+  Kampfpreis- und Margenstrategien folgen mit der Strategieansicht (Stufe 2).

@@ -33,10 +33,10 @@ data/
 
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
-Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`, `marktmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`. Jeder Abschnitt außer `meta`
-ist eine Liste von Einträgen (`meta`, `laendermodell`, `produktionsmodell` und `finanzmodell` sind einmalige Zuordnungen).
+ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -150,6 +150,18 @@ Ein einziger Abschnitt (in `parameter/finanzmodell.yaml`); Formeln in `docs/FORM
 | **dispo** | `anteil` der Bilanzsumme als Kreditlinie, `aufschlag` auf den Leitzins |
 | **laufzeit_max_jahre** | Längste Kreditlaufzeit |
 
+## marktmodell
+
+Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORMELN.md` (M7).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **preisgewicht**, **qualitaetsgewicht** | je 5 Werte (ärmstes Fünftel zuerst) für die Anbieterwahl |
+| **aneignung_je_jahr** | Anteil der Lücke zur Ziel-Besitzquote, der je Jahr gekauft wird |
+| **preisanpassung** | `hoch`, `runter` (je Tag), `lagertage` |
+| **staat_hoechstpreis** | Staaten zahlen höchstens dieses Vielfache des Richtpreises |
+| **index_glaettung** | Gewicht des Tagesdurchschnitts im Marktpreis |
+
 ## produkte
 
 | Feld | Bedeutung |
@@ -161,6 +173,7 @@ Ein einziger Abschnitt (in `parameter/finanzmodell.yaml`); Formeln in `docs/FORM
 | **verwendung** | `industrie`, `konsum` oder `beides` |
 | **warengruppe** | Verweis; bestimmt später Zölle und Handelsbeschränkungen |
 | **transportklasse** | Verweis; bestimmt später Transportmittel und -kosten |
+| **richtpreis_usd** | Typischer Preis je Einheit um 1900 (bei Preisniveau 1); Startwert der Märkte |
 | gewicht_kg | Gewicht einer Einheit; nötig, wenn die Einheit keines festlegt |
 | heizwert_mwh | Energiegehalt je Einheit, wenn das Produkt als Brennstoff dient |
 | nachfrage | Endkunden-Nachfrage, siehe unten |
@@ -174,15 +187,15 @@ Jedes Produkt muss hergestellt (Rezept, auch als Nebenprodukt) oder vom
 **Staatsmarkt** bezogen werden können. Der Staatsmarkt liefert Güter ohne eigene
 Kette, z. B. Glas, Zinn oder die Pferdekutsche.
 
-**nachfrage** (Konsumgüter; die Formeln folgen mit M7):
+**nachfrage** (Konsumgüter; Formeln in `docs/FORMELN.md`, M7):
 
 | Feld | Bedeutung |
 | --- | --- |
 | **bedarfsklasse** | `grundbedarf`, `gebrauchsgut`, `luxus` |
 | verbrauch.**je_kopf_und_jahr** | Verbrauchsgut: Sättigungsbedarf je Einwohner und Jahr |
-| gebrauch.**nutzungsdauer_jahre**, gebrauch.**max_besitzquote** | Gebrauchsgut: Lebensdauer und maximale Besitzquote je Haushalt (0–10) |
-| **einkommensschwelle_usd** | Pro-Kopf-Einkommen, ab dem eine Einkommensschicht kauft |
-| **preisempfindlichkeit**, **einkommensempfindlichkeit** | Elastizitäten als Beträge (≥ 0) |
+| gebrauch.**nutzungsdauer_jahre**, gebrauch.**max_besitzquote** | Gebrauchsgut: Lebensdauer und maximale Besitzquote je Einwohner (0–10) |
+| **kaufschwelle** | Verhältnis Jahreseinkommen je Kopf zu Preis, bei dem die Hälfte einer Schicht kauft (z. B. 2) |
+| **preisempfindlichkeit**, **einkommensempfindlichkeit** | Exponenten von Preis und Einkommen in der Kaufneigung (≥ 0) |
 | saison | Zwölf Monatsfaktoren |
 
 Genau eines von `verbrauch` oder `gebrauch` ist anzugeben.

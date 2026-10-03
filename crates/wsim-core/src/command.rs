@@ -10,7 +10,9 @@ use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, Tech
 use crate::ledger::{Account, Ledger};
 use crate::message::{Message, Param, keys};
 use crate::money::Money;
-use crate::state::{CompanyId, GameState, PerId, Site, SiteId, Slot};
+use crate::state::{
+    CompanyId, GameState, PerId, PriceMode, PurchaseOrder, SaleOffer, Site, SiteId, Slot,
+};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Command {
@@ -46,6 +48,21 @@ pub enum Command {
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
     RepayLoan { loan: usize, amount: Money },
+    /// Offers goods of a site on the country's market (`None` withdraws the offer).
+    SetSale {
+        site: SiteId,
+        product: ProductId,
+        mode: Option<PriceMode>,
+        keep: f64,
+    },
+    /// Keeps a stock at a site by buying on the country's market (`target` 0 stops).
+    SetPurchase {
+        site: SiteId,
+        product: ProductId,
+        target: f64,
+        max_price: Money,
+        min_quality: f64,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -118,6 +135,7 @@ pub enum CommandError {
         max: u32,
     },
     UnknownLoan,
+    InvalidPrice,
 }
 
 impl CommandError {
@@ -164,6 +182,7 @@ impl CommandError {
                 e(keys::COMMAND_INVALID_TERM).with("max", Param::Integer(i64::from(*max)))
             }
             CommandError::UnknownLoan => e(keys::COMMAND_UNKNOWN_LOAN),
+            CommandError::InvalidPrice => e(keys::COMMAND_INVALID_PRICE),
         }
     }
 }
@@ -291,6 +310,8 @@ pub(crate) fn execute(
                 inventory: Default::default(),
                 workforce: PerId::from_fn(catalog.labor_groups.len(), |_| 0.0),
                 staffing_due: false,
+                offers: Default::default(),
+                orders: Default::default(),
             });
         }
         Command::BuildFacility { site, facility } => {
@@ -474,6 +495,89 @@ pub(crate) fn execute(
                 return Err(CommandError::NotEnoughCash { needed: amount });
             }
             crate::finance::repay(company, *loan, amount);
+        }
+        Command::SetSale {
+            site,
+            product,
+            mode,
+            keep,
+        } => {
+            own_site(state, actor, *site)?;
+            if !(keep.is_finite() && *keep >= 0.0) {
+                return Err(CommandError::InvalidQuantity);
+            }
+            let country = state.sites[site.index()].country;
+            let offer = match mode {
+                None => None,
+                Some(PriceMode::Fixed(price)) => {
+                    if *price <= Money::ZERO {
+                        return Err(CommandError::InvalidPrice);
+                    }
+                    Some(SaleOffer {
+                        mode: *mode.as_ref().expect("some"),
+                        price: *price,
+                        keep: *keep,
+                        sold_today: 0.0,
+                        sold_month: 0.0,
+                    })
+                }
+                Some(PriceMode::Market { markup, floor }) => {
+                    if !(-0.9..=2.0).contains(markup) || floor.is_negative() {
+                        return Err(CommandError::InvalidPrice);
+                    }
+                    let start = crate::market::market_price(catalog, state, country, *product)
+                        .scale(1.0 + markup)
+                        .max(*floor);
+                    Some(SaleOffer {
+                        mode: *mode.as_ref().expect("some"),
+                        price: start,
+                        keep: *keep,
+                        sold_today: 0.0,
+                        sold_month: 0.0,
+                    })
+                }
+            };
+            let s = state.site_mut(*site).expect("checked above");
+            match offer {
+                Some(offer) => {
+                    s.offers.insert(*product, offer);
+                }
+                None => {
+                    s.offers.remove(product);
+                }
+            }
+        }
+        Command::SetPurchase {
+            site,
+            product,
+            target,
+            max_price,
+            min_quality,
+        } => {
+            own_site(state, actor, *site)?;
+            if !(target.is_finite() && *target >= 0.0) {
+                return Err(CommandError::InvalidQuantity);
+            }
+            if *target > 0.0 && *max_price <= Money::ZERO {
+                return Err(CommandError::InvalidPrice);
+            }
+            if !(0.0..=100.0).contains(min_quality) {
+                return Err(CommandError::InvalidShare);
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            if *target > 0.0 {
+                s.orders.insert(
+                    *product,
+                    PurchaseOrder {
+                        target: *target,
+                        max_price: *max_price,
+                        min_quality: *min_quality,
+                        bought_month: 0.0,
+                    },
+                );
+            } else {
+                s.orders.remove(product);
+            }
         }
     }
     Ok(())

@@ -11,6 +11,7 @@ pub mod finance;
 pub mod game;
 pub mod ids;
 pub mod ledger;
+pub mod market;
 pub mod math;
 pub mod message;
 pub mod money;
@@ -25,6 +26,8 @@ pub mod time_series;
 mod determinism_tests;
 #[cfg(test)]
 mod finance_tests;
+#[cfg(test)]
+mod market_tests;
 #[cfg(test)]
 mod production_tests;
 

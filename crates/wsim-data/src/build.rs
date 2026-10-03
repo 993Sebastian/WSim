@@ -371,6 +371,7 @@ pub(crate) fn build(
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
     b.catalog.production_model = production::production_model(b.ctx, raw);
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
+    b.catalog.market_model = production::market_model(b.ctx, raw);
     b.catalog.country_model = countries::country_model(
         b.ctx,
         &b.catalog,
@@ -715,6 +716,11 @@ impl Builder<'_, '_> {
                 &v.transport_class,
                 &l.field("transportklasse"),
             ),
+            reference_price: {
+                let loc = l.field("richtpreis_usd");
+                positive(self.ctx, v.reference_price_usd, &loc);
+                money(self.ctx, v.reference_price_usd, &loc)
+            },
             weight_kg,
             heating_value_mwh: v
                 .heating_value_mwh
@@ -793,11 +799,7 @@ impl Builder<'_, '_> {
                 RawNeedClass::Luxury => NeedClass::Luxury,
             },
             consumption,
-            income_threshold_usd: non_negative(
-                self.ctx,
-                d.income_threshold_usd,
-                &l.field("einkommensschwelle_usd"),
-            ),
+            purchase_threshold: positive(self.ctx, d.purchase_threshold, &l.field("kaufschwelle")),
             price_sensitivity: non_negative(
                 self.ctx,
                 d.price_sensitivity,

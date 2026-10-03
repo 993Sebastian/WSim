@@ -112,6 +112,7 @@ pub(super) fn decode_v2(
         countries: PerId::default(),
         companies,
         sites: Vec::new(),
+        markets: PerId::default(),
         deposits: PerId::default(),
         player: s.player,
         game_over: s.game_over,

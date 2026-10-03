@@ -169,3 +169,75 @@ pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog:
         max_term_years: m.max_term_years,
     }
 }
+
+pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::MarketModel {
+    let entry = match raw.market_model.as_slice() {
+        [] => {
+            ctx.general_error(messages::section_missing(
+                "marktmodell",
+                "parameter/marktmodell.yaml",
+            ));
+            return wsim_core::catalog::MarketModel::default();
+        }
+        [first, rest @ ..] => {
+            let first_loc = ctx.describe(&first.loc);
+            for other in rest {
+                ctx.error(
+                    &other.loc,
+                    messages::section_duplicate("marktmodell", &first_loc),
+                );
+            }
+            first
+        }
+    };
+    let m = &entry.value;
+    let l = &entry.loc;
+    let mut five = |values: &[f64], field: &str| -> [f64; 5] {
+        let loc = l.field(field);
+        for (i, &v) in values.iter().enumerate() {
+            positive(ctx, v, &loc.index(i));
+        }
+        <[f64; 5]>::try_from(values).unwrap_or_else(|_| {
+            ctx.error(
+                &loc,
+                messages::wrong_length(values.len(), "5 Werte (ärmstes Fünftel zuerst)"),
+            );
+            [1.0; 5]
+        })
+    };
+    let price_weight = five(&m.price_weight, "preisgewicht");
+    let quality_weight = five(&m.quality_weight, "qualitaetsgewicht");
+    let adjust = l.field("preisanpassung");
+    wsim_core::catalog::MarketModel {
+        price_weight,
+        quality_weight,
+        adoption_per_year: in_range(
+            ctx,
+            m.adoption_per_year,
+            0.0,
+            1.0,
+            &l.field("aneignung_je_jahr"),
+        ),
+        price_step_up: in_range(ctx, m.price_adjustment.up, 0.0, 0.5, &adjust.field("hoch")),
+        price_step_down: in_range(
+            ctx,
+            m.price_adjustment.down,
+            0.0,
+            0.5,
+            &adjust.field("runter"),
+        ),
+        stock_days: positive(
+            ctx,
+            m.price_adjustment.stock_days,
+            &adjust.field("lagertage"),
+        ),
+        state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
+        index_smoothing: in_range(
+            ctx,
+            m.index_smoothing,
+            0.0,
+            1.0,
+            &l.field("index_glaettung"),
+        ),
+    }
+}

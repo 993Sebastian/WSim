@@ -44,6 +44,11 @@ impl<I: Id, T> Table<I, T> {
         self.items.is_empty()
     }
 
+    /// Mutable access (catalogs are built once; used while building and in tests).
+    pub fn get_mut(&mut self, id: I) -> &mut T {
+        &mut self.items[id.index()]
+    }
+
     pub fn get(&self, id: I) -> &T {
         &self.items[id.index()]
     }

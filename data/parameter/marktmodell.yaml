@@ -1,0 +1,14 @@
+# Parameter der Märkte. Formeln: docs/FORMELN.md, Abschnitt M7.
+
+marktmodell:
+  # Gewichte bei der Wahl des Anbieters, je Einkommensfünftel (ärmstes zuerst):
+  # Untere Schichten achten stärker auf den Preis, obere stärker auf die Qualität.
+  preisgewicht: [2.0, 1.6, 1.2, 0.9, 0.6]
+  qualitaetsgewicht: [0.3, 0.5, 0.8, 1.1, 1.5]
+  aneignung_je_jahr: 0.25         # Anteil der Lücke zur Ziel-Besitzquote, der je Jahr gekauft wird
+  preisanpassung:                 # automatische Preise der Anbieter, je Tag
+    hoch: 0.02                    # ausverkauft und Nachfrage offen
+    runter: 0.01                  # Lager reicht länger als „lagertage“
+    lagertage: 30
+  staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
+  index_glaettung: 0.1            # Gewicht des Tagesdurchschnitts im Marktpreis

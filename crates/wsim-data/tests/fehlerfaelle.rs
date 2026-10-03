@@ -93,6 +93,16 @@ finanzmodell:
   laufzeit_max_jahre: 30
 ";
 
+const MARKT: &str = "\
+marktmodell:
+  preisgewicht: [2.0, 1.6, 1.2, 0.9, 0.6]
+  qualitaetsgewicht: [0.3, 0.5, 0.8, 1.1, 1.5]
+  aneignung_je_jahr: 0.25
+  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30}
+  staat_hoechstpreis: 1.5
+  index_glaettung: 0.1
+";
+
 const KETTE: &str = "\
 produkte:
   - id: erz
@@ -102,6 +112,7 @@ produkte:
     verwendung: industrie
     warengruppe: erze
     transportklasse: schuettgut
+    richtpreis_usd: 10
   - id: eisen
     art: halbzeug
     branche: metallurgie
@@ -109,6 +120,7 @@ produkte:
     verwendung: industrie
     warengruppe: erze
     transportklasse: schuettgut
+    richtpreis_usd: 100
 anlagen:
   - id: mine
     standorttyp: foerderstaette
@@ -196,6 +208,7 @@ impl Daten {
             ("parameter/laendermodell.yaml", MODELL),
             ("parameter/produktionsmodell.yaml", PRODUKTION),
             ("parameter/finanzmodell.yaml", FINANZEN),
+            ("parameter/marktmodell.yaml", MARKT),
             ("ketten/a.yaml", KETTE),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -602,7 +615,7 @@ fn produkt_ohne_bezugsquelle() {
 #[test]
 fn staatsmarkt_ist_bezugsquelle() {
     let d = Daten::neu()
-        .ersetze("ketten/a.yaml", "anlagen:", "  - id: glas\n    art: halbzeug\n    branche: metallurgie\n    einheit: t\n    verwendung: industrie\n    warengruppe: erze\n    transportklasse: schuettgut\n    staatsmarkt:\n      preis_usd: 1_200\n      verfuegbar_ab: 1900\nanlagen:")
+        .ersetze("ketten/a.yaml", "anlagen:", "  - id: glas\n    art: halbzeug\n    branche: metallurgie\n    einheit: t\n    verwendung: industrie\n    warengruppe: erze\n    transportklasse: schuettgut\n    richtpreis_usd: 1_000\n    staatsmarkt:\n      preis_usd: 1_200\n      verfuegbar_ab: 1900\nanlagen:")
         .ersetze("texte/de/a.yaml", "produkt.eisen: Eisen\n", "produkt.eisen: Eisen\nprodukt.glas: Glas\n");
     let outcome = d.laden();
     assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
@@ -892,4 +905,25 @@ fn finanzmodell_wird_geprueft() {
         "laufzeit_max_jahre: 0",
     );
     befund(&d.laden(), "Wert 0 muss größer als 0 sein.");
+}
+
+#[test]
+fn marktmodell_wird_geprueft() {
+    let outcome = Daten::neu().ohne("parameter/marktmodell.yaml").laden();
+    befund(&outcome, "Abschnitt „marktmodell“ fehlt");
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "[2.0, 1.6, 1.2, 0.9, 0.6]",
+        "[2.0, 1.6]",
+    );
+    befund(
+        &d.laden(),
+        "Falsche Anzahl an Einträgen (2), erwartet wird 5 Werte",
+    );
+}
+
+#[test]
+fn richtpreis_ist_pflicht() {
+    let d = Daten::neu().ersetze("ketten/a.yaml", "    richtpreis_usd: 10\n", "");
+    befund(&d.laden(), "Pflichtfeld „richtpreis_usd“ fehlt.");
 }

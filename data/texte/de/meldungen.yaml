@@ -93,3 +93,4 @@ kostenart.zinsen: Zinsen
 kostenart.abschreibungen: Abschreibungen
 kostenart.instandhaltung: Instandhaltung
 kostenart.sonstiges: Sonstiges
+fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
