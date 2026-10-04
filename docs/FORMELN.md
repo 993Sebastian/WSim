@@ -470,10 +470,17 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
     `auslastung_min`), unter `lager_niedrig_tage` steigt sie, wenn die Anlage nicht
     durch fehlende Vorprodukte oder Arbeitskräfte gebremst war.
   - Neue Anlagen bekommen das günstigste bekannte Rezept; bekannte bessere Rezepte auf
-    derselben Anlage ersetzen alte (z. B. nach Forschung).
-  - Preisuntergrenze = variable Stückkosten (Vorprodukte, Arbeit, Strom) ·
-    `preisuntergrenze` (*a*); darüber sucht der Marktpreis-Modus den Preis. Ein neuer
-    `SetSale` mit gleichem Aufschlag setzt die Preissuche nicht zurück.
+    derselben Anlage ersetzen alte (z. B. nach Forschung). Strom zählt dabei mit
+    Strompreis / Netzanteil des Landes (eigenes Kraftwerk im Land: Netzanteil 1), damit
+    elektrische Verfahren nur gewählt werden, wo genug Strom da ist (M15).
+  - Preisuntergrenze = Vollkosten je Stück · `preisuntergrenze` (*a*): variable Kosten
+    (Vorprodukte zum Marktpreis, Arbeit, Strom) bei der laufenden Auslastung plus
+    Fixkosten (Abschreibung, Instandhaltung, bei Förderung die Erschließung über
+    `erschliessung_lebensdauer_jahre`) bei der Normalauslastung `start.auslastung`
+    (M15; vorher nur variable Kosten). Darüber sucht der Marktpreis-Modus den Preis. Ein
+    neuer `SetSale` mit gleichem Aufschlag setzt die Preissuche nicht zurück.
+  - Erzeugnisse ohne Angebot, die der Standort nicht selbst braucht (z. B. Benzin als
+    Nebenprodukt der Raffinerie), werden zum Marktpreis ohne Untergrenze angeboten.
   - Einkauf: Ziel = `lager_eingang_tage` · Tagesbedarf, Höchstpreis = Marktpreis ·
     (1 + `einkauf_aufschlag`); fehlt Ware (unter `lager_niedrig_tage`), steigt das Gebot
     je Durchgang um `auslastung_schritt` bis zum Dreifachen des Marktpreises.
@@ -484,9 +491,10 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
   `kredit_jahre` bis zur Mitte zwischen Minimum und Maximum (höchstens der
   Kreditrahmen), über `kasse_max_monate` Tilgung.
 - **Ausbau** am letzten Tag jedes Quartals: das Produkt mit der höchsten Marge
-  (Angebotspreis / Stückkosten − 1), dessen Auslastung mindestens
-  `ausbau_auslastung` (*a*) und Marge mindestens `ausbau_marge` (*a*) ist und das im
-  Monat mindestens 90 % seiner Erzeugung verkauft hat, erhält 25 % mehr Anlagen
+  (Angebotspreis, ohne Angebot Marktpreis / Stückkosten − 1), dessen Auslastung
+  mindestens `ausbau_auslastung` (*a*) und Marge mindestens `ausbau_marge` (*a*) ist und
+  von dessen Erzeugung im Monat mindestens 90 % verkauft oder am selben Standort
+  weiterverarbeitet wurden (M15: integrierte Werke), erhält 25 % mehr Anlagen
   (mindestens 1) mit dem günstigsten bekannten Rezept, bezahlt bis zu
   `ausbau_anteil_kasse_max` von Kasse + Kreditrahmen. Sonst erschließen Förderfirmen
   eine freie Konzession, wenn ihr Rohstoff weltweit offen nachgefragt ist und sich
@@ -506,6 +514,11 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
   `lager_hoch_tage` Erzeugung umfassen, und Rohstoffe ohne freie Konzession. Kapital =
   `gruendung_kapitalfaktor` · Investition; Aufbau über `FoundSite`, `DevelopDeposit`,
   `BuildFacility`, `SetProduction`, `SetSale`.
+- **Diversifizierung** (M15) am letzten Tag jedes Quartals: Bis zu
+  `diversifikationen_je_quartal` KI-Firmen, die reichsten zuerst (Budget =
+  `ausbau_anteil_kasse_max` · (Kasse + Kreditrahmen)), bauen einen neuen Standort für
+  denselben Engpass wie bei der Neugründung, jede Firma in einer anderen Kette; die
+  Anlagenzahl wird so weit verringert, wie das Budget reicht.
 
 ### Händler und Preise (Ergänzungen zu M7/M8)
 

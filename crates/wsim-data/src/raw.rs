@@ -870,6 +870,8 @@ pub struct RawAiBehavior {
     pub loan_years: u32,
     #[serde(rename = "gruendungen_je_monat")]
     pub foundings_per_month: u32,
+    #[serde(rename = "diversifikationen_je_quartal")]
+    pub diversifications_per_quarter: u32,
     #[serde(rename = "gruendung_kapitalfaktor")]
     pub founding_capital_factor: f64,
 }

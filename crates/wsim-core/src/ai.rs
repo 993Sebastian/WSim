@@ -86,6 +86,9 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
     if first_of_month {
         found_companies(state, catalog, date, &mut news);
     }
+    if end_of_quarter {
+        diversify(state, catalog, &mut news);
+    }
     news
 }
 
@@ -172,7 +175,25 @@ fn best_recipe(
     id: CompanyId,
     product: ProductId,
     facility: Option<FacilityId>,
+    country: Option<CountryId>,
 ) -> Option<RecipeId> {
+    // Electricity where the grid is small is dear: scarce supply counts as a higher
+    // price, so that electric recipes win only where power is available.
+    let energy = match country {
+        Some(c) => {
+            let v = state.countries.get(c);
+            let own = state.sites.iter().any(|s| {
+                s.owner == id && s.country == c && s.kind == crate::catalog::SiteType::PowerPlant
+            });
+            let share = if own { 1.0 } else { v.grid_share.max(0.05) };
+            v.electricity_price_usd_mwh / share
+        }
+        None => catalog
+            .products
+            .values()
+            .find(|p| p.kind == ProductKind::Energy)
+            .map_or(0.0, |p| p.reference_price.to_usd()),
+    };
     catalog
         .recipes
         .iter()
@@ -186,7 +207,7 @@ fn best_recipe(
                     .technology
                     .is_none_or(|t| state.knows(catalog, id, t))
         })
-        .map(|(rid, _)| (rid, population::reference_unit_cost(catalog, rid, 0.0)))
+        .map(|(rid, _)| (rid, population::reference_unit_cost(catalog, rid, energy)))
         .min_by(|a, b| a.1.total_cmp(&b.1))
         .map(|(rid, _)| rid)
 }
@@ -205,7 +226,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
         let country = s.country;
         let mut commands = Vec::new();
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
-        let mut cost: BTreeMap<ProductId, (Money, f64)> = BTreeMap::new();
+        let mut cost: BTreeMap<ProductId, (Money, f64, f64, f64)> = BTreeMap::new();
         for (index, sl) in s.slots.iter().enumerate() {
             let Some(recipe) = sl.recipe else {
                 // A new facility: the company's best recipe for it.
@@ -223,7 +244,9 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 };
                 if let Some(r) = products
                     .iter()
-                    .filter_map(|&p| best_recipe(catalog, state, id, p, Some(sl.facility)))
+                    .filter_map(|&p| {
+                        best_recipe(catalog, state, id, p, Some(sl.facility), Some(s.country))
+                    })
                     .find(|&r| fits(r))
                 {
                     commands.push(Command::SetProduction {
@@ -238,9 +261,16 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             let r = catalog.recipes.get(recipe);
             let product = r.product;
             // A better recipe on the same facility, e.g. after research.
-            let recipe = best_recipe(catalog, state, id, product, Some(sl.facility))
-                .filter(|&better| !catalog.recipes.get(better).extraction || r.extraction)
-                .unwrap_or(recipe);
+            let recipe = best_recipe(
+                catalog,
+                state,
+                id,
+                product,
+                Some(sl.facility),
+                Some(country),
+            )
+            .filter(|&better| !catalog.recipes.get(better).extraction || r.extraction)
+            .unwrap_or(recipe);
             let mut utilization = sl.utilization;
             if catalog.products.get(product).kind != ProductKind::Energy && sl.ready <= date {
                 let full = catalog.facilities.get(sl.facility).runs_per_day
@@ -272,19 +302,43 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             for (input, q) in &flows.inputs {
                 *need.entry(*input).or_default() += q;
             }
-            let e = cost.entry(flows.product).or_insert((Money::ZERO, 0.0));
+            // Fixed costs per unit at the normal utilization, so that a quiet month
+            // does not push the floor up: plant, maintenance and deposit development.
+            let full = catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * catalog.recipes.get(recipe).output
+                * model.start.utilization;
+            let mut fixed = (flows.cost_per_day - flows.variable_per_day).to_usd();
+            if catalog.recipes.get(recipe).extraction
+                && let Some(d) = s.deposit
+                && let Some(c) = state
+                    .deposits
+                    .get(d)
+                    .concessions
+                    .iter()
+                    .find(|c| c.site == Some(site))
+            {
+                fixed += c.development_cost.to_usd()
+                    / (catalog.production_model.development_lifetime_years * 365.0).max(1.0);
+            }
+            let e = cost
+                .entry(flows.product)
+                .or_insert((Money::ZERO, 0.0, 0.0, 0.0));
             e.0 += flows.variable_per_day;
             e.1 += flows.output;
+            e.2 += fixed;
+            e.3 += full;
         }
-        // Prices: the market decides above a floor from the variable cost.
+        // Prices: the market decides above a floor from the full unit cost.
         for (&product, offer) in &s.offers {
-            let Some(&(daily, output)) = cost.get(&product) else {
+            let Some(&(daily, output, fixed, full)) = cost.get(&product) else {
                 continue;
             };
             if output <= 1e-9 {
                 continue;
             }
-            let floor = daily.scale(floor_factor / output);
+            let unit = daily.to_usd() / output + fixed / full.max(1e-9);
+            let floor = Money::from_usd(unit * floor_factor).unwrap_or(Money::ZERO);
             let keep = need.get(&product).copied().unwrap_or(0.0) * model.start.input_stock_days;
             let old = match offer.mode {
                 PriceMode::Market { floor, .. } => floor,
@@ -487,13 +541,21 @@ fn expand(
     for &site in sites {
         let s = &state.sites[site.index()];
         let mut by_product: BTreeMap<ProductId, (f64, u32, Money, f64)> = BTreeMap::new();
+        // What the site's own facilities use per day (vertically integrated works).
+        let mut own_use: BTreeMap<ProductId, f64> = BTreeMap::new();
         for sl in &s.slots {
             let Some(r) = sl.recipe else { continue };
-            if sl.ready > date || catalog.recipes.get(r).extraction {
+            if sl.ready > date {
                 continue;
             }
             let flows =
                 population::slot_flows(catalog, state, s.country, r, sl.count, sl.utilization);
+            for &(input, q) in &flows.inputs {
+                *own_use.entry(input).or_default() += q;
+            }
+            if catalog.recipes.get(r).extraction {
+                continue;
+            }
             let e = by_product
                 .entry(flows.product)
                 .or_insert((0.0, 0, Money::ZERO, 0.0));
@@ -503,18 +565,22 @@ fn expand(
             e.3 += flows.output;
         }
         for (product, (weighted, count, daily, output)) in by_product {
-            let Some(offer) = s.offers.get(&product) else {
-                continue;
-            };
             if count == 0 || output <= 1e-9 {
                 continue;
             }
             let utilization = weighted / f64::from(count);
             let unit = daily.to_usd() / output;
-            let margin = offer.price.to_usd() / unit.max(1e-9) - 1.0;
-            // Sold this month at least nine tenths of what the facilities made.
+            let offer = s.offers.get(&product);
+            let price = offer.map_or_else(
+                || market::market_price(catalog, state, s.country, product),
+                |o| o.price,
+            );
+            let margin = price.to_usd() / unit.max(1e-9) - 1.0;
+            // Sold this month, or used at the site, at least nine tenths of the output.
             let made = output * f64::from(date.day());
-            let sells = offer.sold_month >= 0.9 * made;
+            let used = own_use.get(&product).copied().unwrap_or(0.0) * f64::from(date.day());
+            let sold = offer.map_or(0.0, |o| o.sold_month);
+            let sells = sold + used >= 0.9 * made;
             if utilization >= min_utilization
                 && sells
                 && margin >= min_margin
@@ -531,7 +597,8 @@ fn expand(
         return;
     };
     let kind = state.sites[site.index()].kind;
-    let Some(recipe) = best_recipe(catalog, state, id, product, None).filter(|&r| {
+    let place = state.sites[site.index()].country;
+    let Some(recipe) = best_recipe(catalog, state, id, product, None, Some(place)).filter(|&r| {
         catalog
             .facilities
             .get(catalog.recipes.get(r).facility)
@@ -580,6 +647,148 @@ fn expand(
         run(state, catalog, id, &produce);
         news.extend(news_expansion(state, catalog, id, site, recipe, count));
     }
+}
+
+/// Rich companies build where the world's largest unserved demand is (the bottleneck
+/// that also guides new companies): at most `diversifications_per_quarter` per quarter,
+/// the richest first, each in another chain.
+fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) {
+    let b = &catalog.ai_model.behavior;
+    let mut rich: Vec<(Money, CompanyId)> = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.ai.is_some() && !c.bankrupt)
+        .map(|(i, c)| {
+            let budget = (c.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, c))
+                .scale(b.invest_share_max);
+            (budget, CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+        })
+        .collect();
+    rich.sort_by(|a, c| c.0.cmp(&a.0).then(a.1.cmp(&c.1)));
+    let mut taken: Vec<ProductId> = Vec::new();
+    let mut done = 0;
+    for (budget, id) in rich {
+        if done >= b.diversifications_per_quarter {
+            break;
+        }
+        let Some((product, country, deposit, recipe, count)) = opportunity(state, catalog, &taken)
+        else {
+            break;
+        };
+        let r = catalog.recipes.get(recipe);
+        let f = catalog.facilities.get(r.facility);
+        let fixed = catalog.production_model.site_cost(f.site_type)
+            + deposit.map_or(Money::ZERO, |d| {
+                catalog
+                    .deposits
+                    .get(d)
+                    .development_cost
+                    .scale(state.settings.market_scale)
+            });
+        let mut count = count;
+        while count > 0 && fixed + f.investment.scale(f64::from(count)) > budget {
+            count -= 1;
+        }
+        if count == 0 {
+            // The richest cannot afford it; the others cannot either.
+            break;
+        }
+        taken.push(product);
+        if build_in_bottleneck(
+            state,
+            catalog,
+            id,
+            (product, country, deposit, recipe, count),
+        ) {
+            done += 1;
+            news.extend(news_expansion(
+                state,
+                catalog,
+                id,
+                site_id(state.sites.len() - 1),
+                recipe,
+                count,
+            ));
+        }
+    }
+}
+
+/// Builds a new site for an opportunity in an existing company (loan if needed).
+fn build_in_bottleneck(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    o: Opportunity,
+) -> bool {
+    let (product, country, deposit, recipe, count) = o;
+    let b = &catalog.ai_model.behavior;
+    let r = catalog.recipes.get(recipe);
+    let f = catalog.facilities.get(r.facility);
+    let cost =
+        catalog.production_model.site_cost(f.site_type) + f.investment.scale(f64::from(count));
+    let cash_needed = cost - state.companies[id.index()].ledger.cash();
+    if cash_needed > Money::ZERO {
+        let years = b.loan_years.min(catalog.finance_model.max_term_years);
+        run(
+            state,
+            catalog,
+            id,
+            &Command::TakeLoan {
+                amount: cash_needed,
+                years,
+            },
+        );
+    }
+    let found = Command::FoundSite {
+        country,
+        kind: f.site_type,
+    };
+    if !run(state, catalog, id, &found) {
+        return false;
+    }
+    let site = site_id(state.sites.len() - 1);
+    if let Some(d) = deposit {
+        run(
+            state,
+            catalog,
+            id,
+            &Command::DevelopDeposit { site, deposit: d },
+        );
+    }
+    let build = Command::BuildFacility {
+        site,
+        facility: r.facility,
+        count,
+    };
+    if !run(state, catalog, id, &build) {
+        return false;
+    }
+    run(
+        state,
+        catalog,
+        id,
+        &Command::SetProduction {
+            site,
+            slot: 0,
+            recipe: Some(recipe),
+            utilization: catalog.ai_model.start.utilization,
+        },
+    );
+    run(
+        state,
+        catalog,
+        id,
+        &Command::SetSale {
+            site,
+            product,
+            mode: Some(PriceMode::Market {
+                markup: 0.0,
+                floor: Money::ZERO,
+            }),
+            keep: 0.0,
+        },
+    )
 }
 
 /// Whether the stocks of a product exceed `stock_high_days` of its current output: then
@@ -633,7 +842,7 @@ fn open_deposit(
             .values()
             .map(|m| market::open_demand(m, model, date))
             .sum();
-        let Some(recipe) = best_recipe(catalog, state, id, product, None) else {
+        let Some(recipe) = best_recipe(catalog, state, id, product, None, None) else {
             continue;
         };
         let per_day = population::output_per_day(catalog, recipe);
@@ -868,7 +1077,8 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
         .saturating_sub(active)
         .min(catalog.ai_model.behavior.foundings_per_month as usize);
     for _ in 0..n {
-        let Some((product, country, deposit, recipe, count)) = opportunity(state, catalog) else {
+        let Some((product, country, deposit, recipe, count)) = opportunity(state, catalog, &[])
+        else {
             return;
         };
         if found_one(
@@ -899,7 +1109,7 @@ type Opportunity = (ProductId, CountryId, Option<DepositId>, RecipeId, u32);
 /// Where a new company is most needed: the product with the largest unserved demand
 /// by value, or, if its inputs are short, the input that is the bottleneck. Raw
 /// materials need a free concession; chains without one are left out.
-fn opportunity(state: &GameState, catalog: &Catalog) -> Option<Opportunity> {
+fn opportunity(state: &GameState, catalog: &Catalog, taken: &[ProductId]) -> Option<Opportunity> {
     let model = &catalog.market_model;
     let newcomer = CompanyId(u32::MAX);
     let u = catalog.ai_model.start.utilization;
@@ -928,7 +1138,7 @@ fn opportunity(state: &GameState, catalog: &Catalog) -> Option<Opportunity> {
     'chains: for (_, top) in candidates {
         let mut product = top;
         for _ in 0..6 {
-            let Some(recipe) = best_recipe(catalog, state, newcomer, product, None) else {
+            let Some(recipe) = best_recipe(catalog, state, newcomer, product, None, None) else {
                 continue 'chains;
             };
             let r = catalog.recipes.get(recipe);
@@ -946,7 +1156,7 @@ fn opportunity(state: &GameState, catalog: &Catalog) -> Option<Opportunity> {
                 continue;
             }
             // Products piling up somewhere need trade, not new companies.
-            if piling(state, catalog, product) {
+            if piling(state, catalog, product) || taken.contains(&product) {
                 continue 'chains;
             }
             let (_, country, total) = open(product);

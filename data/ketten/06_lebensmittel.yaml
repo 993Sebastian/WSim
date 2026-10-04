@@ -135,8 +135,8 @@ rezepte:
     anlage: getreidefarm
     abbau: true
     arbeit_stunden:
-      ungelernt: 15
-      angelernt: 3
+      ungelernt: 45
+      angelernt: 9
     qualitaet_basis: 50
     annaeherung: true
 
@@ -148,7 +148,6 @@ rezepte:
     technologie: walzenmuehle
     eingang:
       getreide: 1.35
-      kohle: 0.05
     arbeit_stunden:
       ungelernt: 3
       angelernt: 2
@@ -165,7 +164,6 @@ rezepte:
     eingang:
       stahl: 1.14                 # walzen und verzinnen in einem (Lastenheft §17.2)
       zinn: 0.025
-      kohle: 0.2
     arbeit_stunden:              # mit dem Walzen des Feinblechs
       ungelernt: 2.5
       angelernt: 8
@@ -182,7 +180,6 @@ rezepte:
     eingang:
       weissblech: 0.0001
       konserveninhalt: 0.0005
-      kohle: 0.0002               # Sterilisieren
     arbeit_stunden:
       ungelernt: 0.05
       angelernt: 0.08

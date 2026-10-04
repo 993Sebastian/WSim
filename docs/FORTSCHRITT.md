@@ -256,3 +256,26 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Saldo 0 auf, sodass Beteiligungen und vergebene Kredite (Stufe 3) kein neues
   Spielstandformat brauchen. Befehle bleiben je Firma; der Spieler steuert die Firmen,
   an denen er die Mehrheit hält.
+- M15 Balancing (Protokolle 1900–1930 mit 100 KI-Firmen):
+  - Kohle als Nebenbrennstoff (0,002–1,2 t je Einheit) blockierte ganze Branchen
+    (Werkzeug, Konserven, Mehl, Garn, Stoff …), weil kleine Mengen in vielen Ländern
+    fehlten; sie ist nur noch Vorprodukt bei Stahl, Kupferhütte und Kraftwerk. Ebenso
+    entfallen Nähgarn bei Kleidung und Garn bei Reifen (Lastenheft §17.2: lieber ein
+    Eingangsmaterial weglassen).
+  - KI baut auch Vorstufen aus, die sie selbst weiterverarbeitet (vorher nie), und
+    diversifiziert: Je Quartal bauen bis zu vier reiche Firmen im größten Engpass der
+    Welt. Vorher entstanden neue Hersteller nur als Ersatz für Pleiten.
+  - Preisuntergrenze auf Vollkosten; Strom in der Rezeptwahl nach Netzanteil bewertet.
+  - Höchstpreis auf das Vierfache des Richtpreises gesenkt (vorher 20-fach); die
+    Preisspitzen machten Knappheit zur Goldgrube.
+  - Förderung von Erz, Holz, Getreide, Kupfererz, Rohöl und Kautschuk mit historisch
+    plausiblen Arbeitszeiten (vorher kostete Förderung fast nichts, Rohstoffe fielen auf
+    4–46 % des Richtpreises). Richtpreise der Kleinteile an ihre Kosten angepasst
+    (Nägel 1 800, Schrauben 2 800, Muttern 2 500 USD je t).
+  - Ergebnis: Kleidung von 8–9 × auf unter 2 × Richtpreis, Autoproduktion von 365 auf
+    über 7 000 im Jahr, Pleiten bis 1925 von 65 auf 23, Eisenerz und Holz nahe am
+    Richtpreis. Offen: Baumwolle und Garn bleiben knapp und teuer.
+  - Protokoll mit Aufschlüsselung nach Ländern (`laender.csv`) zum Finden von
+    Handelsproblemen.
+  - Testpartie 1900–1930 als Test (`crates/wsim-session/tests/testpartie.rs`, ignoriert,
+    `--release`): Ein Spieler mit einfacher Strategie spielt 30 Jahre über die Sitzung.

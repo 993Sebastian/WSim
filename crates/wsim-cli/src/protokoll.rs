@@ -425,6 +425,7 @@ impl Protocol {
             }
         }
         write(dir, "auswertung.md", &md)?;
+        write(dir, "laender.csv", &by_country(game))?;
         let countries: Vec<_> = ["DEU", "GBR", "USA"]
             .iter()
             .filter_map(|k| catalog.countries.id(k))
@@ -525,4 +526,83 @@ pub fn recipe_margins(
         let _ = writeln!(md, " {:.0} % |", labor_share * 100.0);
     }
     md
+}
+
+/// Production, need, consumer demand, sales and prices of the last month per product
+/// and country (where something happens), to find trade problems between countries.
+fn by_country(game: &Game) -> String {
+    let state = game.state();
+    let catalog = game.catalog();
+    #[derive(Default)]
+    struct Row {
+        produced: f64,
+        need: f64,
+        sold: f64,
+        revenue: f64,
+        stock: f64,
+        sellers: usize,
+    }
+    let mut rows: BTreeMap<(ProductId, wsim_core::ids::CountryId), Row> = BTreeMap::new();
+    for s in &state.sites {
+        if state.companies[s.owner.index()].bankrupt {
+            continue;
+        }
+        for sl in &s.slots {
+            let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+                continue;
+            };
+            if sl.ready > state.date {
+                continue;
+            }
+            let planned = catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * sl.utilization;
+            for &(p, q) in &r.inputs {
+                rows.entry((p, s.country)).or_default().need += q * planned * 30.0;
+            }
+            rows.entry((r.product, s.country)).or_default().produced +=
+                sl.last_runs * r.output * 30.0;
+        }
+        for (&p, o) in &s.offers {
+            let row = rows.entry((p, s.country)).or_default();
+            row.sold += o.sold_last_month;
+            row.revenue += o.sold_last_month * usd(o.price);
+            row.sellers += 1;
+        }
+        for (&p, st) in &s.inventory {
+            rows.entry((p, s.country)).or_default().stock += st.quantity;
+        }
+    }
+    let mut csv = String::from(
+        "produkt;land;produktion_monat;bedarf_vorprodukt_monat;konsumnachfrage_monat;absatz_monat;preis_usd;richtpreis_usd;anbieter;lager;einfuhr;ausfuhr\n",
+    );
+    for ((p, c), r) in &rows {
+        let market = state.markets.get(*p).get(*c);
+        let t = &market.last_month;
+        if r.produced + r.need + r.sold + t.demand <= 1e-6 {
+            continue;
+        }
+        let price = if r.sold > 0.0 {
+            r.revenue / r.sold
+        } else {
+            0.0
+        };
+        let _ = writeln!(
+            csv,
+            "{};{};{:.0};{:.0};{:.0};{:.0};{:.2};{:.2};{};{:.0};{:.0};{:.0}",
+            catalog.products.key(*p),
+            catalog.countries.key(*c),
+            r.produced,
+            r.need,
+            t.demand,
+            r.sold,
+            price,
+            usd(market::local_reference(catalog, state, *c, *p)),
+            r.sellers,
+            r.stock,
+            t.imported,
+            t.exported
+        );
+    }
+    csv
 }

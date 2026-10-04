@@ -269,7 +269,6 @@ rezepte:
     technologie: thermisches_cracken
     eingang:
       rohoel: 1
-      kohle: 0.1
     arbeit_stunden:
       ungelernt: 1.0
       angelernt: 1.0

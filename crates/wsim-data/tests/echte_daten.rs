@@ -327,10 +327,10 @@ fn chain_one_runs_in_britain() {
     // 250 t a day at full capacity.
     assert!(stock.quantity > 250.0 * 25.0, "{}", stock.quantity);
     let cost_per_t = stock.value.to_usd() / stock.quantity;
-    // Ore, coal and labor in Britain 1903: below a hundred dollars (2026) per tonne.
+    // Ore, coal and labor in Britain 1903: well below the reference price of 900 USD.
     eprintln!("Herstellkosten Stahl 1903: {cost_per_t:.2} USD/t");
     assert!(
-        (10.0..300.0).contains(&cost_per_t),
+        (100.0..600.0).contains(&cost_per_t),
         "Herstellkosten Stahl: {cost_per_t} USD/t"
     );
     assert!(

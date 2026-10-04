@@ -256,6 +256,8 @@ pub struct AiBehavior {
     pub cash_max_months: f64,
     pub loan_years: u32,
     pub foundings_per_month: u32,
+    /// Rich companies that build in another company's bottleneck per quarter.
+    pub diversifications_per_quarter: u32,
     pub founding_capital_factor: f64,
 }
 
@@ -315,6 +317,7 @@ impl Default for AiModel {
                 cash_max_months: 6.0,
                 loan_years: 10,
                 foundings_per_month: 2,
+                diversifications_per_quarter: 4,
                 founding_capital_factor: 1.5,
             },
         }

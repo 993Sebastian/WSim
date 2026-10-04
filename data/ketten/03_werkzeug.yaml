@@ -44,7 +44,6 @@ rezepte:
     eingang:
       stahl: 0.0012
       schnittholz: 0.0006         # Stiel
-      kohle: 0.002
     arbeit_stunden:
       angelernt: 2.0
       fachkraft.metall: 1.5

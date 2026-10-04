@@ -329,7 +329,7 @@ der Firma (0–1) ab.
 | **schwierigkeit_standard** | ID der vorgewählten Schwierigkeit |
 | **streuung** | Zufällige Abweichung je Firma von den Werten der Schwierigkeit (0–0,5) |
 | **start** | `auslastung`, `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `bauteil`, `endprodukt`, `energie`), `referenzlohn_usd` |
-| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `gruendung_kapitalfaktor` |
+| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `diversifikationen_je_quartal` (Firmen je Quartal, die in einem fremden Engpass bauen), `gruendung_kapitalfaktor` |
 
 ## namensgruppen
 

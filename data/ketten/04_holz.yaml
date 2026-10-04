@@ -93,8 +93,8 @@ rezepte:
     anlage: forstbetrieb
     abbau: true
     arbeit_stunden:
-      ungelernt: 4.0
-      angelernt: 0.5
+      ungelernt: 8
+      angelernt: 1
     qualitaet_basis: 50
     annaeherung: true
 
@@ -106,7 +106,6 @@ rezepte:
     technologie: dampfsaege
     eingang:
       holz: 1.7
-      kohle: 0.05
     arbeit_stunden:
       ungelernt: 3.0
       angelernt: 2.0

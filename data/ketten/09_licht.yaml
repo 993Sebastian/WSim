@@ -129,9 +129,9 @@ rezepte:
     anlage: oelfeld
     abbau: true
     arbeit_stunden:
-      ungelernt: 0.5
-      fachkraft.bergbau: 0.3
-      akademiker.chemie: 0.005
+      ungelernt: 12
+      fachkraft.bergbau: 7.2
+      akademiker.chemie: 0.12
     qualitaet_basis: 50
     annaeherung: true
 
@@ -145,7 +145,6 @@ rezepte:
     technologie: erdoeldestillation
     eingang:
       rohoel: 1
-      kohle: 0.05
     arbeit_stunden:
       ungelernt: 1.0
       angelernt: 1.0

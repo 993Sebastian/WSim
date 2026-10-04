@@ -152,9 +152,9 @@ rezepte:
     anlage: erzbergwerk
     abbau: true
     arbeit_stunden:
-      ungelernt: 2.0
-      fachkraft.bergbau: 2.0
-      akademiker.bergbau: 0.02
+      ungelernt: 4.4
+      fachkraft.bergbau: 4.4
+      akademiker.bergbau: 0.044
     qualitaet_basis: 50
     annaeherung: true
 
@@ -231,7 +231,6 @@ rezepte:
     technologie: warmwalzen
     eingang:
       stahl: 1.12
-      kohle: 0.10                 # Wiedererwärmen der Blöcke
     arbeit_stunden:
       ungelernt: 2.5
       angelernt: 2.0
@@ -248,7 +247,6 @@ rezepte:
     technologie: warmwalzen
     eingang:
       stahl: 1.08
-      kohle: 0.10
     arbeit_stunden:
       ungelernt: 2.0
       angelernt: 1.5
@@ -265,7 +263,6 @@ rezepte:
     technologie: warmwalzen       # Walzdraht als Vorstufe
     eingang:
       stahl: 1.10
-      kohle: 0.10
     arbeit_stunden:
       ungelernt: 3.0
       angelernt: 6.0

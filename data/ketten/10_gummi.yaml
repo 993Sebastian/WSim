@@ -107,8 +107,8 @@ rezepte:
     anlage: kautschukplantage
     abbau: true
     arbeit_stunden:
-      ungelernt: 800              # Zapfen und Sammeln von Hand
-      angelernt: 100
+      ungelernt: 4000              # Zapfen und Sammeln von Hand
+      angelernt: 500
     qualitaet_basis: 50
     annaeherung: true
 
@@ -121,7 +121,6 @@ rezepte:
     eingang:
       kautschuk: 0.9
       schwefel: 0.05
-      kohle: 0.2
     arbeit_stunden:
       angelernt: 40
       fachkraft.chemie: 10
@@ -136,8 +135,7 @@ rezepte:
     anlage: reifenwerk
     technologie: luftreifen
     eingang:
-      gummi: 0.0006
-      garn: 0.00021               # Gewebelagen aus Baumwolle
+      gummi: 0.0008               # mit Gewebelagen (Lastenheft §17.2: wenige Vorprodukte)
       stahl: 0.000055             # Wulstdraht
     arbeit_stunden:
       angelernt: 1.5
@@ -152,8 +150,7 @@ rezepte:
     anlage: reifenwerk
     technologie: luftreifen
     eingang:
-      gummi: 0.008
-      garn: 0.0032
+      gummi: 0.011
       stahl: 0.00055
     arbeit_stunden:
       angelernt: 8

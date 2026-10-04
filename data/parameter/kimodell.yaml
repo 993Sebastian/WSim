@@ -45,7 +45,7 @@ kimodell:
     lager_niedrig_tage: 7                              # weniger Lager: mehr produzieren
     auslastung_schritt: 0.1
     auslastung_min: 0.05
-    preisuntergrenze: {bei_0: 1.1, bei_1: 0.95}       # × variable Stückkosten, Aggressivität
+    preisuntergrenze: {bei_0: 1.1, bei_1: 0.95}       # × Vollkosten bei normaler Auslastung, Aggressivität
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität
     ausbau_marge: {bei_0: 0.25, bei_1: 0.08}          # Aggressivität
@@ -57,4 +57,5 @@ kimodell:
     kasse_max_monate: 6
     kredit_jahre: 10
     gruendungen_je_monat: 2
+    diversifikationen_je_quartal: 4                   # reiche Firmen bauen in fremden Engpässen
     gruendung_kapitalfaktor: 1.5

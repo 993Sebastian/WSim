@@ -172,6 +172,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         cash_max_months: positive(ctx, b.cash_max_months, &bl.field("kasse_max_monate")),
         loan_years: b.loan_years.max(1),
         foundings_per_month: b.foundings_per_month,
+        diversifications_per_quarter: b.diversifications_per_quarter,
         founding_capital_factor: positive(
             ctx,
             b.founding_capital_factor,

@@ -113,7 +113,6 @@ rezepte:
     technologie: ringspinnmaschine
     eingang:
       baumwolle: 1.15
-      kohle: 1.0                  # Dampfmaschine
     arbeit_stunden:
       ungelernt: 40
       angelernt: 120
@@ -129,7 +128,6 @@ rezepte:
     technologie: mechanischer_webstuhl
     eingang:
       garn: 1.05
-      kohle: 1.2
     arbeit_stunden:
       ungelernt: 50
       angelernt: 200
@@ -161,8 +159,7 @@ rezepte:
     anlage: konfektion
     technologie: naehmaschine
     eingang:
-      stoff: 0.0007
-      garn: 0.00005               # die Nähmaschinen stecken in der Anlage
+      stoff: 0.0007               # Nähgarn und Nähmaschinen stecken in Anlage und Arbeit
     arbeit_stunden:
       angelernt: 1.2
       fachkraft.textil: 0.3

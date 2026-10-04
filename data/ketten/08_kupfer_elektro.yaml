@@ -97,9 +97,9 @@ rezepte:
     anlage: kupferbergwerk
     abbau: true
     arbeit_stunden:
-      ungelernt: 1.0
-      fachkraft.bergbau: 0.8
-      akademiker.bergbau: 0.01
+      ungelernt: 6
+      fachkraft.bergbau: 4.8
+      akademiker.bergbau: 0.06
     qualitaet_basis: 50
     annaeherung: true
 
@@ -130,7 +130,6 @@ rezepte:
     technologie: warmwalzen
     eingang:
       kupfer: 1.03
-      kohle: 0.1
     arbeit_stunden:
       angelernt: 15
       fachkraft.metall: 5

@@ -1,9 +1,9 @@
 {
   "bericht": {
-    "cash_after_usd": 133953.5917,
-    "cash_before_usd": 115450.256,
+    "cash_after_usd": 82320.7844,
+    "cash_before_usd": 70995.8336,
     "days": 31,
-    "equity_change_usd": 19072.5831,
+    "equity_change_usd": 10815.5028,
     "from": "1914-07-01",
     "game_over": false,
     "messages": [
@@ -70,15 +70,15 @@
       }
     ],
     "period": {
-      "costs_usd": 8706.5014,
+      "costs_usd": 11912.8385,
       "lines": [
         [
           "kostenart.umsatz",
-          27779.0845
+          22728.3413
         ],
         [
           "kostenart.material",
-          -7738.5047
+          -10944.8418
         ],
         [
           "kostenart.personal",
@@ -93,19 +93,19 @@
           -101.9187
         ]
       ],
-      "result_usd": 19072.5831,
-      "revenue_usd": 27779.0845
+      "result_usd": 10815.5028,
+      "revenue_usd": 22728.3413
     },
     "previous": {
-      "costs_usd": 8491.9535,
+      "costs_usd": 13161.5706,
       "lines": [
         [
           "kostenart.umsatz",
-          26882.985
+          21995.169
         ],
         [
           "kostenart.material",
-          -7545.6545
+          -12215.2716
         ],
         [
           "kostenart.personal",
@@ -120,8 +120,8 @@
           -98.631
         ]
       ],
-      "result_usd": 18391.0315,
-      "revenue_usd": 26882.985
+      "result_usd": 8833.5984,
+      "revenue_usd": 21995.169
     },
     "research": [],
     "to": "1914-07-31"
@@ -130,11 +130,11 @@
     "assets": [
       [
         "konto.kasse",
-        133953.5917
+        82320.7844
       ],
       [
         "konto.vorraete",
-        3016.7254
+        3287.5306
       ],
       [
         "konto.sachanlagen",
@@ -160,21 +160,21 @@
       ],
       [
         "konto.jahresergebnis",
-        95189.1355
+        43827.1334
       ]
     ],
-    "credit_limit_usd": 36741.3263,
+    "credit_limit_usd": 36903.8094,
     "date": "1914-08-01",
     "last_month": {
       "cash_flow_usd": [
-        18503.3357,
+        11324.9508,
         0.0,
         0.0
       ],
       "lines": [
         [
           "kostenart.umsatz",
-          27779.0845
+          22728.3413
         ],
         [
           "kostenart.bestandsveraenderung",
@@ -182,7 +182,7 @@
         ],
         [
           "kostenart.material",
-          -7738.5047
+          -10944.8418
         ],
         [
           "kostenart.personal",
@@ -229,25 +229,25 @@
           0.0
         ]
       ],
-      "result_usd": 19072.5831
+      "result_usd": 10815.5028
     },
     "last_year": null,
-    "loan_rate": 0.026831478452025128,
+    "loan_rate": 0.027354749540216643,
     "loans": [],
     "loss_carryforward_usd": 0.0,
     "max_term_years": 30,
-    "overdraft_limit_usd": 19518.9136,
-    "total_usd": 195189.1355,
+    "overdraft_limit_usd": 14382.7133,
+    "total_usd": 143827.1334,
     "year": {
       "cash_flow_usd": [
-        93953.5917,
+        42320.7844,
         -60000.0,
         100000.0
       ],
       "lines": [
         [
           "kostenart.umsatz",
-          189076.9945
+          154699.3553
         ],
         [
           "kostenart.bestandsveraenderung",
@@ -255,7 +255,7 @@
         ],
         [
           "kostenart.material",
-          -87065.7211
+          -104050.084
         ],
         [
           "kostenart.personal",
@@ -302,7 +302,7 @@
           0.0
         ]
       ],
-      "result_usd": 95189.1355
+      "result_usd": 43827.1334
     }
   },
   "forschung": {
@@ -854,12 +854,12 @@
           "sites": 1
         },
         {
-          "name": "Lorenz KG",
+          "name": "Vogt KG",
           "own": false,
           "sites": 13
         },
         {
-          "name": "Ebert & Söhne",
+          "name": "Hoffmann & Pfeiffer & Co.",
           "own": false,
           "sites": 5
         },
@@ -879,12 +879,12 @@
           "sites": 2
         },
         {
-          "name": "Holloway Electric Ltd.",
+          "name": "Hoffmann & Vogt & Co.",
           "own": false,
           "sites": 2
         },
         {
-          "name": "Reuter & Hartmann GmbH",
+          "name": "Morgan Motor & Sons",
           "own": false,
           "sites": 2
         },
@@ -899,7 +899,7 @@
           "sites": 2
         },
         {
-          "name": "Vogt & Söhne",
+          "name": "Zürcher Bergwerke KG",
           "own": false,
           "sites": 2
         },
@@ -909,12 +909,7 @@
           "sites": 1
         },
         {
-          "name": "Brandt & Körber & Co.",
-          "own": false,
-          "sites": 1
-        },
-        {
-          "name": "Bremer Spinnerei und Weberei & Co.",
+          "name": "Chemische Werke Körber & Söhne",
           "own": false,
           "sites": 1
         },
@@ -929,12 +924,17 @@
           "sites": 1
         },
         {
-          "name": "Steinbach & Brandt KG",
+          "name": "Maschinenfabrik Becker AG",
           "own": false,
           "sites": 1
         },
         {
-          "name": "Wuxi Zhou Ju",
+          "name": "Rong Gongchang Ju",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Zürcher Spinnerei und Weberei & Co.",
           "own": false,
           "sites": 1
         }
@@ -1142,140 +1142,140 @@
       "labor_force": 20956156.69134246,
       "markets": [
         {
-          "demand_last_month": 1795111.2608334874,
-          "price_usd": 200.6823,
+          "demand_last_month": 2213780.518689106,
+          "price_usd": 35.2054,
           "product": "kleidung",
-          "sold_last_month": 1570728.8550276624
+          "sold_last_month": 2213637.686663894
         },
         {
-          "demand_last_month": 22268.403258520644,
-          "price_usd": 734.9736,
+          "demand_last_month": 22125.4083334651,
+          "price_usd": 772.0052,
           "product": "mehl",
-          "sold_last_month": 22008.74114971516
+          "sold_last_month": 43810.563933099715
         },
         {
-          "demand_last_month": 6001.123708757551,
-          "price_usd": 602.5496,
+          "demand_last_month": 5977.763708757553,
+          "price_usd": 690.074,
           "product": "stabstahl",
-          "sold_last_month": 24390.936483507598
+          "sold_last_month": 12269.58116518127
         },
         {
-          "demand_last_month": 148.27684271893878,
-          "price_usd": 9977.8951,
-          "product": "kupferdraht",
-          "sold_last_month": 1179.8627282344848
-        },
-        {
-          "demand_last_month": 15770.684271893884,
-          "price_usd": 366.5892,
-          "product": "schnittholz",
-          "sold_last_month": 19499.87916935793
-        },
-        {
-          "demand_last_month": 2430740.2940355917,
-          "price_usd": 2.5985,
+          "demand_last_month": 2475907.0926258196,
+          "price_usd": 2.6057,
           "product": "konserve",
-          "sold_last_month": 2430740.294035589
+          "sold_last_month": 3029800.132518244
         },
         {
-          "demand_last_month": 34567.6491190251,
-          "price_usd": 142.9968,
+          "demand_last_month": 148.36809271893878,
+          "price_usd": 9868.916,
+          "product": "kupferdraht",
+          "sold_last_month": 777.3774749372598
+        },
+        {
+          "demand_last_month": 15551.859271893874,
+          "price_usd": 356.0288,
+          "product": "schnittholz",
+          "sold_last_month": 17250.45309898489
+        },
+        {
+          "demand_last_month": 35250.38759910035,
+          "price_usd": 129.4254,
           "product": "moebel",
-          "sold_last_month": 34567.6491190251
+          "sold_last_month": 35250.38759910035
         },
         {
-          "demand_last_month": 28131.97258808639,
-          "price_usd": 63.9164,
-          "product": "fahrradreifen",
-          "sold_last_month": 49488.974314060295
-        },
-        {
-          "demand_last_month": 1014.6455726131014,
-          "price_usd": 1315.8425,
-          "product": "naegel",
-          "sold_last_month": 2114.2499999999995
-        },
-        {
-          "demand_last_month": 308045.65414185624,
-          "price_usd": 8.745,
+          "demand_last_month": 289072.92774064484,
+          "price_usd": 8.0847,
           "product": "gluehlampe",
-          "sold_last_month": 308045.65414185624
+          "sold_last_month": 511320.6745285995
         },
         {
-          "demand_last_month": 194.9553419142106,
-          "price_usd": 15459.2841,
-          "product": "automobil",
-          "sold_last_month": 170.9109939529542
+          "demand_last_month": 1021.413071686453,
+          "price_usd": 1134.2696,
+          "product": "naegel",
+          "sold_last_month": 2325.0
         },
         {
-          "demand_last_month": 5351.050678913236,
-          "price_usd": 416.3268,
+          "demand_last_month": 28368.831098771774,
+          "price_usd": 53.5113,
+          "product": "fahrradreifen",
+          "sold_last_month": 46685.7965567706
+        },
+        {
+          "demand_last_month": 5550.290443663445,
+          "price_usd": 410.4037,
           "product": "fahrrad",
-          "sold_last_month": 5351.050678913236
+          "sold_last_month": 5550.290443663445
         },
         {
-          "demand_last_month": 1638.2009271893885,
-          "price_usd": 605.2423,
-          "product": "blech",
-          "sold_last_month": 3284.8914243581435
+          "demand_last_month": 271.6098928023343,
+          "price_usd": 15699.4829,
+          "product": "automobil",
+          "sold_last_month": 140.04643778094638
         },
         {
           "demand_last_month": 147.5930927189387,
-          "price_usd": 1079.0857,
+          "price_usd": 1121.4095,
           "product": "elektromotor",
-          "sold_last_month": 1285.017022933373
+          "sold_last_month": 1112.1224454487526
         },
         {
-          "demand_last_month": 176.4236055084454,
+          "demand_last_month": 176.4112421624547,
           "price_usd": 6432.7285,
           "product": "pferdekutsche",
-          "sold_last_month": 176.42360550844538
+          "sold_last_month": 176.41124216245473
         },
         {
-          "demand_last_month": 2564.4327855441684,
-          "price_usd": 381.4119,
+          "demand_last_month": 1582.400927189388,
+          "price_usd": 756.3431,
+          "product": "blech",
+          "sold_last_month": 1472.668089981157
+        },
+        {
+          "demand_last_month": 2241.3521487407397,
+          "price_usd": 401.4571,
           "product": "naehmaschine",
-          "sold_last_month": 2564.4327855441684
+          "sold_last_month": 2241.3521487407397
         },
         {
-          "demand_last_month": 40767.549645944084,
-          "price_usd": 19.0511,
+          "demand_last_month": 42119.61100046507,
+          "price_usd": 18.3568,
           "product": "handwerkzeug",
-          "sold_last_month": 49349.38256117234
+          "sold_last_month": 42119.61100046508
         },
         {
-          "demand_last_month": 1287.0461582505368,
-          "price_usd": 550.0119,
+          "demand_last_month": 1038.199738069258,
+          "price_usd": 608.8873,
           "product": "autoreifen",
-          "sold_last_month": 1287.0461582505368
+          "sold_last_month": 1038.199738069258
         },
         {
-          "demand_last_month": 108.80385563136328,
-          "price_usd": 3116.7221,
+          "demand_last_month": 104.49385563136327,
+          "price_usd": 2148.2018,
           "product": "schrauben",
-          "sold_last_month": 213.5339839129923
+          "sold_last_month": 216.66286772822193
         },
         {
-          "demand_last_month": 18841.80471671526,
-          "price_usd": 9.0185,
+          "demand_last_month": 21704.721488427273,
+          "price_usd": 8.9167,
           "product": "petroleumlampe",
-          "sold_last_month": 49756.67544646785
+          "sold_last_month": 43300.6092243132
         },
         {
-          "demand_last_month": 59.429237087575544,
-          "price_usd": 2446.0663,
+          "demand_last_month": 59.421237087575534,
+          "price_usd": 1776.1325,
           "product": "muttern",
-          "sold_last_month": 154.49999999999932
+          "sold_last_month": 154.2705221201363
         },
         {
-          "demand_last_month": 68.94563325129778,
-          "price_usd": 115.4719,
+          "demand_last_month": 68.4069496474299,
+          "price_usd": 113.7604,
           "product": "benzin",
-          "sold_last_month": 68.94563325129778
+          "sold_last_month": 68.4069496474299
         },
         {
-          "demand_last_month": 2981.647365049661,
-          "price_usd": 518.907,
+          "demand_last_month": 2947.7996866474273,
+          "price_usd": 473.3316,
           "product": "petroleum",
           "sold_last_month": 0.0
         }
@@ -1287,14 +1287,9 @@
     "GBR": {
       "companies": [
         {
-          "name": "Whitfield Milling Ltd.",
+          "name": "Sheffield Milling Corporation",
           "own": false,
           "sites": 10
-        },
-        {
-          "name": "Barker Ltd.",
-          "own": false,
-          "sites": 3
         },
         {
           "name": "Bolckow, Vaughan & Co.",
@@ -1302,19 +1297,19 @@
           "sites": 3
         },
         {
-          "name": "Birmingham Iron and Steel & Co.",
+          "name": "Barker & Fletcher Corporation",
           "own": false,
           "sites": 2
         },
         {
-          "name": "Holloway Electric Ltd.",
+          "name": "Fletcher & Whitfield Ltd.",
           "own": false,
           "sites": 2
         },
         {
-          "name": "Barker Machine Works & Co.",
+          "name": "Morgan Iron and Steel Corporation",
           "own": false,
-          "sites": 1
+          "sites": 2
         },
         {
           "name": "Dunlop Pneumatic Tyre Company",
@@ -1322,17 +1317,17 @@
           "sites": 1
         },
         {
-          "name": "Fletcher & Whitfield Ltd.",
+          "name": "Fabrik Demidov",
           "own": false,
           "sites": 1
         },
         {
-          "name": "Harris & Co.",
+          "name": "Fletcher Machine Works & Co.",
           "own": false,
           "sites": 1
         },
         {
-          "name": "Hughes Company",
+          "name": "Grant Lumber Company",
           "own": false,
           "sites": 1
         },
@@ -1342,7 +1337,17 @@
           "sites": 1
         },
         {
-          "name": "Morgan & Bradley & Sons",
+          "name": "Lawrence Mills & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Mitchell Company",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Morgan Motor & Sons",
           "own": false,
           "sites": 1
         },
@@ -1352,7 +1357,7 @@
           "sites": 1
         },
         {
-          "name": "Whitfield & Mitchell Ltd.",
+          "name": "Sutton & Sutton Company",
           "own": false,
           "sites": 1
         }
@@ -1408,7 +1413,7 @@
         {
           "concessions": 2,
           "country": "GBR",
-          "free_concessions": 1,
+          "free_concessions": 2,
           "key": "schottland_kohle",
           "max_output_per_year": 4000000.0,
           "resource": "kohle",
@@ -1560,140 +1565,140 @@
       "labor_force": 17891821.968328763,
       "markets": [
         {
-          "demand_last_month": 2010571.2897837516,
-          "price_usd": 37.8036,
+          "demand_last_month": 2013302.2320272324,
+          "price_usd": 34.1751,
           "product": "kleidung",
-          "sold_last_month": 2217358.870596577
+          "sold_last_month": 2013302.2320272324
         },
         {
-          "demand_last_month": 22119.032481388207,
-          "price_usd": 828.4431,
+          "demand_last_month": 22287.548444862423,
+          "price_usd": 809.9289,
           "product": "mehl",
-          "sold_last_month": 22119.032481388207
+          "sold_last_month": 13550.054790634716
         },
         {
-          "demand_last_month": 26454.721036745206,
-          "price_usd": 358.5175,
+          "demand_last_month": 26409.546036745207,
+          "price_usd": 340.938,
           "product": "schnittholz",
-          "sold_last_month": 33977.58977910026
+          "sold_last_month": 28965.85664155233
         },
         {
-          "demand_last_month": 2959341.690082896,
-          "price_usd": 2.6132,
+          "demand_last_month": 2880686.2504384513,
+          "price_usd": 2.752,
           "product": "konserve",
-          "sold_last_month": 2959341.6900828956
+          "sold_last_month": 2880686.2504384518
         },
         {
-          "demand_last_month": 10132.353414698086,
-          "price_usd": 650.3313,
+          "demand_last_month": 10131.363414698086,
+          "price_usd": 754.7237,
           "product": "stabstahl",
-          "sold_last_month": 10593.857306072818
+          "sold_last_month": 10131.363414698086
         },
         {
-          "demand_last_month": 30915.822183044645,
-          "price_usd": 214.8315,
+          "demand_last_month": 30761.882554552216,
+          "price_usd": 194.1748,
           "product": "moebel",
-          "sold_last_month": 30915.822183044645
+          "sold_last_month": 30761.882554552216
         },
         {
-          "demand_last_month": 7036.757622022254,
-          "price_usd": 962.0464,
+          "demand_last_month": 7070.408099063639,
+          "price_usd": 686.1943,
           "product": "fahrrad",
-          "sold_last_month": 5604.900440676851
+          "sold_last_month": 6399.126450005107
         },
         {
-          "demand_last_month": 1259.8453550376053,
-          "price_usd": 1457.4417,
+          "demand_last_month": 1262.3069028533598,
+          "price_usd": 1383.847,
           "product": "naegel",
-          "sold_last_month": 2612.225
+          "sold_last_month": 2785.743952385649
         },
         {
-          "demand_last_month": 403641.79128675227,
-          "price_usd": 8.0987,
-          "product": "gluehlampe",
-          "sold_last_month": 403641.79128675227
-        },
-        {
-          "demand_last_month": 30104.32573529118,
-          "price_usd": 64.8492,
+          "demand_last_month": 28809.028746037005,
+          "price_usd": 60.5896,
           "product": "fahrradreifen",
-          "sold_last_month": 46169.292651670214
+          "sold_last_month": 62856.13626350121
+        },
+        {
+          "demand_last_month": 403990.74359381985,
+          "price_usd": 9.1006,
+          "product": "gluehlampe",
+          "sold_last_month": 403990.74359381985
         },
         {
           "demand_last_month": 251.07971036745224,
-          "price_usd": 11696.1174,
+          "price_usd": 12538.753,
           "product": "kupferdraht",
           "sold_last_month": 251.07971036745224
         },
         {
-          "demand_last_month": 2130.951622453633,
-          "price_usd": 872.8321,
-          "product": "petroleum",
-          "sold_last_month": 2130.951622453633
+          "demand_last_month": 2534.4821036745225,
+          "price_usd": 707.7985,
+          "product": "blech",
+          "sold_last_month": 3744.349697579604
         },
         {
-          "demand_last_month": 238.25062770918763,
+          "demand_last_month": 238.25840057444103,
           "price_usd": 7690.054,
           "product": "pferdekutsche",
-          "sold_last_month": 238.25062770918765
+          "sold_last_month": 238.25840057444103
         },
         {
-          "demand_last_month": 2534.4821036745225,
-          "price_usd": 608.1977,
-          "product": "blech",
-          "sold_last_month": 2534.4821036745225
+          "demand_last_month": 2135.0757390249732,
+          "price_usd": 855.1322,
+          "product": "petroleum",
+          "sold_last_month": 2135.0757390249732
         },
         {
-          "demand_last_month": 2007.7455969437858,
-          "price_usd": 642.9576,
-          "product": "naehmaschine",
-          "sold_last_month": 1569.2617101782591
-        },
-        {
-          "demand_last_month": 176.63982622047138,
-          "price_usd": 3777.1007,
-          "product": "schrauben",
-          "sold_last_month": 260.000171671805
-        },
-        {
-          "demand_last_month": 35969.569655254025,
-          "price_usd": 26.7775,
+          "demand_last_month": 35546.6397314921,
+          "price_usd": 37.6506,
           "product": "handwerkzeug",
-          "sold_last_month": 35969.56965525401
+          "sold_last_month": 33191.87729622133
         },
         {
-          "demand_last_month": 100.60188414698091,
-          "price_usd": 2780.8697,
-          "product": "muttern",
-          "sold_last_month": 217.43993071845813
+          "demand_last_month": 2010.7152966981107,
+          "price_usd": 642.0918,
+          "product": "naehmaschine",
+          "sold_last_month": 1554.5130271126504
+        },
+        {
+          "demand_last_month": 175.41782622047134,
+          "price_usd": 1900.6296,
+          "product": "schrauben",
+          "sold_last_month": 499.19546494510786
         },
         {
           "demand_last_month": 251.07971036745224,
-          "price_usd": 1715.4905,
+          "price_usd": 1820.9425,
           "product": "elektromotor",
           "sold_last_month": 251.07971036745224
         },
         {
-          "demand_last_month": 13893.51390214077,
-          "price_usd": 10.8955,
+          "demand_last_month": 100.60188414698091,
+          "price_usd": 1902.8498,
+          "product": "muttern",
+          "sold_last_month": 189.81888412640657
+        },
+        {
+          "demand_last_month": 13895.452792340626,
+          "price_usd": 11.5185,
           "product": "petroleumlampe",
-          "sold_last_month": 13893.51390214077
+          "sold_last_month": 13895.452792340626
         },
         {
-          "demand_last_month": 109.61757865560973,
-          "price_usd": 129.5839,
+          "demand_last_month": 109.53671123248584,
+          "price_usd": 127.9347,
           "product": "benzin",
-          "sold_last_month": 109.61757865560973
+          "sold_last_month": 109.53671123248584
         },
         {
-          "demand_last_month": 173.77658416656286,
-          "price_usd": 348.9243,
+          "demand_last_month": 748169.6327385507,
+          "price_usd": 443.7038,
           "product": "autoreifen",
           "sold_last_month": 0.0
         },
         {
-          "demand_last_month": 1155.084176740547,
-          "price_usd": 9553.6287,
+          "demand_last_month": 1087.0978270105027,
+          "price_usd": 9714.9434,
           "product": "automobil",
           "sold_last_month": 0.0
         }
@@ -1705,29 +1710,29 @@
     "USA": {
       "companies": [
         {
-          "name": "Grant Chemical Company",
+          "name": "Barker Ltd.",
           "own": false,
           "sites": 31
         },
         {
-          "name": "Pemberton Lumber & Sons",
+          "name": "Holloway & Co.",
           "own": false,
           "sites": 24
         },
         {
-          "name": "Fletcher Milling & Co.",
+          "name": "Dawson Ltd.",
           "own": false,
           "sites": 13
         },
         {
-          "name": "Holloway Company",
+          "name": "Lawrence Mills & Co.",
           "own": false,
           "sites": 13
         },
         {
-          "name": "Pemberton & Pemberton & Sons",
+          "name": "Glasgow Mining & Co.",
           "own": false,
-          "sites": 10
+          "sites": 8
         },
         {
           "name": "Anaconda Copper Mining Company",
@@ -1740,17 +1745,17 @@
           "sites": 3
         },
         {
+          "name": "Fletcher & Whitfield Ltd.",
+          "own": false,
+          "sites": 2
+        },
+        {
           "name": "General Electric",
           "own": false,
           "sites": 2
         },
         {
-          "name": "Holloway Electric Ltd.",
-          "own": false,
-          "sites": 2
-        },
-        {
-          "name": "Pittsburgh Iron and Steel & Sons",
+          "name": "Holloway Iron and Steel Corporation",
           "own": false,
           "sites": 2
         },
@@ -1765,7 +1770,7 @@
           "sites": 1
         },
         {
-          "name": "Fletcher & Whitfield Ltd.",
+          "name": "Bradley Machine Works & Co.",
           "own": false,
           "sites": 1
         },
@@ -1775,7 +1780,7 @@
           "sites": 1
         },
         {
-          "name": "Morgan Machine Works & Sons",
+          "name": "Morgan Motor & Sons",
           "own": false,
           "sites": 1
         },
@@ -1855,7 +1860,7 @@
         {
           "concessions": 12,
           "country": "USA",
-          "free_concessions": 5,
+          "free_concessions": 7,
           "key": "appalachen",
           "max_output_per_year": 30000000.0,
           "resource": "kohle",
@@ -2070,82 +2075,82 @@
       "labor_force": 41701243.830821894,
       "markets": [
         {
-          "demand_last_month": 4632729.307842064,
-          "price_usd": 39.9996,
+          "demand_last_month": 4463633.689618862,
+          "price_usd": 59.988,
           "product": "kleidung",
-          "sold_last_month": 8038045.594717359
+          "sold_last_month": 4462096.6820858475
         },
         {
-          "demand_last_month": 54655.34865252133,
-          "price_usd": 700.4447,
+          "demand_last_month": 53925.307769734085,
+          "price_usd": 833.5665,
           "product": "mehl",
-          "sold_last_month": 42503.65712179327
+          "sold_last_month": 50298.15142720492
         },
         {
-          "demand_last_month": 71383.13146219366,
-          "price_usd": 370.7903,
+          "demand_last_month": 71381.69146219366,
+          "price_usd": 449.6324,
           "product": "schnittholz",
-          "sold_last_month": 72121.59315906187
+          "sold_last_month": 71381.69146219366
         },
         {
-          "demand_last_month": 27457.335584877477,
-          "price_usd": 884.9799,
-          "product": "stabstahl",
-          "sold_last_month": 27457.335584877477
-        },
-        {
-          "demand_last_month": 65739.12185144336,
-          "price_usd": 328.1513,
+          "demand_last_month": 65623.35637298966,
+          "price_usd": 342.8851,
           "product": "moebel",
-          "sold_last_month": 65739.12185144336
+          "sold_last_month": 65623.35637298966
         },
         {
-          "demand_last_month": 6080582.175831378,
-          "price_usd": 3.5432,
+          "demand_last_month": 27425.165584877486,
+          "price_usd": 733.2695,
+          "product": "stabstahl",
+          "sold_last_month": 27425.165584877486
+        },
+        {
+          "demand_last_month": 6021855.834131454,
+          "price_usd": 3.3383,
           "product": "konserve",
-          "sold_last_month": 6080582.1758313775
+          "sold_last_month": 6021855.834131454
         },
         {
-          "demand_last_month": 972463.6653322288,
-          "price_usd": 12.3133,
+          "demand_last_month": 982809.8208874655,
+          "price_usd": 11.7073,
           "product": "gluehlampe",
-          "sold_last_month": 972463.6653322288
+          "sold_last_month": 982809.8208874655
         },
         {
-          "demand_last_month": 16012.915117507877,
-          "price_usd": 728.7958,
+          "demand_last_month": 15810.273390215643,
+          "price_usd": 647.5846,
           "product": "fahrrad",
-          "sold_last_month": 16012.915117507877
+          "sold_last_month": 15810.273390215643
         },
         {
-          "demand_last_month": 3204.8204982704738,
-          "price_usd": 1726.8433,
+          "demand_last_month": 3217.9802010411504,
+          "price_usd": 1477.943,
           "product": "naegel",
-          "sold_last_month": 6659.376214693398
+          "sold_last_month": 6746.7219184733185
         },
         {
-          "demand_last_month": 684.9047646219373,
-          "price_usd": 14914.1012,
-          "product": "kupferdraht",
-          "sold_last_month": 684.9047646219373
-        },
-        {
-          "demand_last_month": 4888.834837721151,
-          "price_usd": 580.899,
+          "demand_last_month": 4864.998892335391,
+          "price_usd": 624.0319,
           "product": "petroleum",
-          "sold_last_month": 13790.116399290548
+          "sold_last_month": 13649.440970577321
         },
         {
-          "demand_last_month": 7023.5576462193685,
-          "price_usd": 918.042,
+          "demand_last_month": 684.9047646219371,
+          "price_usd": 12002.186,
+          "product": "kupferdraht",
+          "sold_last_month": 684.9047646219371
+        },
+        {
+          "demand_last_month": 6998.402646219367,
+          "price_usd": 912.1296,
           "product": "blech",
-          "sold_last_month": 6943.545141502615
+          "sold_last_month": 6933.270141502613
         },
         {
-          "demand_last_month": 66853.88769402495,
-          "price_usd": 63.7205,
+          "demand_last_month": 66749.46900549196,
+          "price_usd": 66.3385,
           "product": "fahrradreifen",
-          "sold_last_month": 84176.16384107311
+          "sold_last_month": 67986.68735104518
         },
         {
           "demand_last_month": 557.8089276119764,
@@ -2154,58 +2159,58 @@
           "sold_last_month": 557.8089276119764
         },
         {
-          "demand_last_month": 81671.92599657264,
-          "price_usd": 54.4462,
+          "demand_last_month": 79973.50725274721,
+          "price_usd": 54.5037,
           "product": "handwerkzeug",
-          "sold_last_month": 75499.59721082372
+          "sold_last_month": 78071.03487064323
         },
         {
-          "demand_last_month": 3209.357811506431,
-          "price_usd": 1181.6724,
+          "demand_last_month": 3115.343524096691,
+          "price_usd": 1267.7187,
           "product": "naehmaschine",
-          "sold_last_month": 3209.357811506431
-        },
-        {
-          "demand_last_month": 471.22835877316214,
-          "price_usd": 3259.0881,
-          "product": "schrauben",
-          "sold_last_month": 775.3211897965135
+          "sold_last_month": 3083.8586669260435
         },
         {
           "demand_last_month": 120.83953158966342,
-          "price_usd": 20336.2242,
+          "price_usd": 20000.2407,
           "product": "automobil",
-          "sold_last_month": 114.47373746684325
+          "sold_last_month": 116.15624696540996
         },
         {
           "demand_last_month": 680.6747646219364,
-          "price_usd": 2056.6221,
+          "price_usd": 2045.6431,
           "product": "elektromotor",
           "sold_last_month": 680.6747646219364
         },
         {
-          "demand_last_month": 272.8999058487746,
-          "price_usd": 3284.9312,
+          "demand_last_month": 469.0183587731621,
+          "price_usd": 2071.5584,
+          "product": "schrauben",
+          "sold_last_month": 614.1463750924784
+        },
+        {
+          "demand_last_month": 273.0239058487748,
+          "price_usd": 2450.7184,
           "product": "muttern",
-          "sold_last_month": 301.05450099005475
+          "sold_last_month": 273.0239058487748
         },
         {
-          "demand_last_month": 31385.125588006696,
-          "price_usd": 14.2551,
+          "demand_last_month": 30964.999499679332,
+          "price_usd": 14.1966,
           "product": "petroleumlampe",
-          "sold_last_month": 23859.560438063032
+          "sold_last_month": 23877.64091044975
         },
         {
-          "demand_last_month": 313.427778739904,
-          "price_usd": 404.6985,
-          "product": "autoreifen",
-          "sold_last_month": 313.427778739904
-        },
-        {
-          "demand_last_month": 197.81188215345824,
-          "price_usd": 164.2775,
+          "demand_last_month": 197.04587554136018,
+          "price_usd": 178.9592,
           "product": "benzin",
-          "sold_last_month": 197.8118821534583
+          "sold_last_month": 197.04587554136018
+        },
+        {
+          "demand_last_month": 308.7067260550471,
+          "price_usd": 533.1148,
+          "product": "autoreifen",
+          "sold_last_month": 46.69046954975018
         }
       ],
       "population": 99288675.78767118,
@@ -2223,7 +2228,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 45.4901,
+        "price_usd": 24.3573,
         "product": "eisenerz",
         "reference_usd": 72.2308,
         "sellers": 0,
@@ -2236,7 +2241,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 34.3548,
+        "price_usd": 37.0027,
         "product": "kohle",
         "reference_usd": 48.1539,
         "sellers": 4,
@@ -2249,7 +2254,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 427.0423,
+        "price_usd": 463.7414,
         "product": "stahl",
         "reference_usd": 722.3079,
         "sellers": 3,
@@ -2257,16 +2262,16 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 1638.2009271893885,
-        "exported_last_month": 1646.6904971687554,
-        "imported_last_month": 318.6040504237525,
+        "demand_last_month": 1582.400927189388,
+        "exported_last_month": 182.0243543499572,
+        "imported_last_month": 716.5731989947456,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 605.2423,
+        "price_usd": 756.3431,
         "product": "blech",
         "reference_usd": 1203.8465,
         "sellers": 1,
-        "sold_last_month": 3284.8914243581435,
+        "sold_last_month": 1472.668089981157,
         "state_price_usd": null
       },
       {
@@ -2275,7 +2280,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 608.6785,
+        "price_usd": 658.9925,
         "product": "draht",
         "reference_usd": 1203.8465,
         "sellers": 2,
@@ -2283,68 +2288,68 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 6001.123708757551,
-        "exported_last_month": 18389.812774750033,
-        "imported_last_month": 5790.9364835075885,
+        "demand_last_month": 5977.763708757553,
+        "exported_last_month": 6291.81745642372,
+        "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 602.5496,
+        "price_usd": 690.074,
         "product": "stabstahl",
         "reference_usd": 963.0772,
         "sellers": 2,
-        "sold_last_month": 24390.936483507598,
+        "sold_last_month": 12269.58116518127,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 1014.6455726131014,
-        "exported_last_month": 2100.75,
+        "demand_last_month": 1021.413071686453,
+        "exported_last_month": 2313.5,
         "imported_last_month": 0.0,
-        "own_price_usd": 1792.1991,
+        "own_price_usd": 1466.3447,
         "own_sold_last_month": 15.499999999999998,
-        "price_usd": 1315.8425,
+        "price_usd": 1134.2696,
         "product": "naegel",
-        "reference_usd": 1765.6416,
+        "reference_usd": 1444.6158,
         "sellers": 2,
-        "sold_last_month": 2114.2499999999995,
+        "sold_last_month": 2325.0,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 108.80385563136328,
-        "exported_last_month": 134.652,
-        "imported_last_month": 61.78398391299221,
+        "demand_last_month": 104.49385563136327,
+        "exported_last_month": 112.16901209685865,
+        "imported_last_month": 76.2793721017006,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 3116.7221,
+        "price_usd": 2148.2018,
         "product": "schrauben",
-        "reference_usd": 3210.2574,
+        "reference_usd": 2247.1802,
         "sellers": 1,
-        "sold_last_month": 213.5339839129923,
+        "sold_last_month": 216.66286772822193,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 59.429237087575544,
-        "exported_last_month": 154.10799999999938,
-        "imported_last_month": 0.0,
+        "demand_last_month": 59.421237087575534,
+        "exported_last_month": 140.02975460495747,
+        "imported_last_month": 1.270522120136285,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 2446.0663,
+        "price_usd": 1776.1325,
         "product": "muttern",
-        "reference_usd": 2889.2317,
+        "reference_usd": 2006.4109,
         "sellers": 1,
-        "sold_last_month": 154.49999999999932,
+        "sold_last_month": 154.2705221201363,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 40767.549645944084,
-        "exported_last_month": 8581.832915228233,
-        "imported_last_month": 1378.8042747796178,
+        "demand_last_month": 42119.61100046507,
+        "exported_last_month": 0.0,
+        "imported_last_month": 5646.785025708498,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 19.0511,
+        "price_usd": 18.3568,
         "product": "handwerkzeug",
         "reference_usd": 24.0769,
         "sellers": 1,
-        "sold_last_month": 49349.38256117234,
+        "sold_last_month": 42119.61100046508,
         "state_price_usd": null
       },
       {
@@ -2353,7 +2358,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 37.8351,
+        "price_usd": 35.9409,
         "product": "holz",
         "reference_usd": 56.1795,
         "sellers": 4,
@@ -2361,16 +2366,16 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 15770.684271893884,
-        "exported_last_month": 3729.194897464048,
+        "demand_last_month": 15551.859271893874,
+        "exported_last_month": 1698.5938270910117,
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 366.5892,
+        "price_usd": 356.0288,
         "product": "schnittholz",
         "reference_usd": 361.154,
         "sellers": 1,
-        "sold_last_month": 19499.87916935793,
+        "sold_last_month": 17250.45309898489,
         "state_price_usd": null
       },
       {
@@ -2379,7 +2384,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 1608.2604,
+        "price_usd": 1608.459,
         "product": "leim",
         "reference_usd": 1605.1287,
         "sellers": 0,
@@ -2387,16 +2392,16 @@
         "state_price_usd": 1605.1287
       },
       {
-        "demand_last_month": 34567.6491190251,
+        "demand_last_month": 35250.38759910035,
         "exported_last_month": 0.0,
-        "imported_last_month": 19850.101464479867,
+        "imported_last_month": 18743.978455499986,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 142.9968,
+        "price_usd": 129.4254,
         "product": "moebel",
         "reference_usd": 160.5129,
         "sellers": 1,
-        "sold_last_month": 34567.6491190251,
+        "sold_last_month": 35250.38759910035,
         "state_price_usd": null
       },
       {
@@ -2405,7 +2410,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 7634.2688,
+        "price_usd": 4717.9544,
         "product": "baumwolle",
         "reference_usd": 4815.3861,
         "sellers": 0,
@@ -2418,7 +2423,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 9995.3598,
+        "price_usd": 8298.2607,
         "product": "garn",
         "reference_usd": 9630.7722,
         "sellers": 1,
@@ -2431,7 +2436,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 18537.6815,
+        "price_usd": 11692.1524,
         "product": "stoff",
         "reference_usd": 14446.1584,
         "sellers": 1,
@@ -2439,16 +2444,16 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 1795111.2608334874,
+        "demand_last_month": 2213780.518689106,
         "exported_last_month": 0.0,
-        "imported_last_month": 556913.0611498756,
+        "imported_last_month": 1159803.86246888,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 200.6823,
+        "price_usd": 35.2054,
         "product": "kleidung",
         "reference_usd": 32.1026,
         "sellers": 1,
-        "sold_last_month": 1570728.8550276624,
+        "sold_last_month": 2213637.686663894,
         "state_price_usd": null
       },
       {
@@ -2457,7 +2462,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 193.1579,
+        "price_usd": 272.964,
         "product": "getreide",
         "reference_usd": 561.795,
         "sellers": 12,
@@ -2465,16 +2470,16 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 22268.403258520644,
-        "exported_last_month": 0.0,
-        "imported_last_month": 12255.653744653257,
+        "demand_last_month": 22125.4083334651,
+        "exported_last_month": 21685.15559963458,
+        "imported_last_month": 14395.623853464747,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 734.9736,
+        "price_usd": 772.0052,
         "product": "mehl",
         "reference_usd": 882.8208,
         "sellers": 1,
-        "sold_last_month": 22008.74114971516,
+        "sold_last_month": 43810.563933099715,
         "state_price_usd": null
       },
       {
@@ -2483,7 +2488,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 20102.837,
+        "price_usd": 20102.3401,
         "product": "zinn",
         "reference_usd": 20064.1088,
         "sellers": 0,
@@ -2496,7 +2501,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 1226.5687,
+        "price_usd": 1328.7852,
         "product": "weissblech",
         "reference_usd": 2568.2059,
         "sellers": 1,
@@ -2509,7 +2514,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 1206.285,
+        "price_usd": 1206.1372,
         "product": "konserveninhalt",
         "reference_usd": 1203.8465,
         "sellers": 0,
@@ -2517,16 +2522,16 @@
         "state_price_usd": 1203.8465
       },
       {
-        "demand_last_month": 2430740.2940355917,
-        "exported_last_month": 0.0,
-        "imported_last_month": 1413523.1868320066,
+        "demand_last_month": 2475907.0926258196,
+        "exported_last_month": 553893.0398924245,
+        "imported_last_month": 549661.4461411865,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 2.5985,
+        "price_usd": 2.6057,
         "product": "konserve",
         "reference_usd": 3.2103,
         "sellers": 1,
-        "sold_last_month": 2430740.294035589,
+        "sold_last_month": 3029800.132518244,
         "state_price_usd": null
       },
       {
@@ -2535,7 +2540,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 188.9166,
+        "price_usd": 28.7262,
         "product": "kupfererz",
         "reference_usd": 120.3847,
         "sellers": 0,
@@ -2548,7 +2553,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 8856.9935,
+        "price_usd": 8934.3125,
         "product": "kupfer",
         "reference_usd": 10433.3366,
         "sellers": 1,
@@ -2556,29 +2561,29 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 148.27684271893878,
-        "exported_last_month": 1031.5858855155466,
+        "demand_last_month": 148.36809271893878,
+        "exported_last_month": 629.0093822183209,
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 9977.8951,
+        "price_usd": 9868.916,
         "product": "kupferdraht",
         "reference_usd": 12038.4653,
         "sellers": 2,
-        "sold_last_month": 1179.8627282344848,
+        "sold_last_month": 777.3774749372598,
         "state_price_usd": null
       },
       {
         "demand_last_month": 147.5930927189387,
-        "exported_last_month": 1137.4239302144342,
+        "exported_last_month": 964.5293527298138,
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 1079.0857,
+        "price_usd": 1121.4095,
         "product": "elektromotor",
         "reference_usd": 2006.4109,
         "sellers": 2,
-        "sold_last_month": 1285.017022933373,
+        "sold_last_month": 1112.1224454487526,
         "state_price_usd": null
       },
       {
@@ -2587,7 +2592,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 63.0897,
+        "price_usd": 22.7892,
         "product": "rohoel",
         "reference_usd": 264.8462,
         "sellers": 0,
@@ -2595,12 +2600,12 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 2981.647365049661,
+        "demand_last_month": 2947.7996866474273,
         "exported_last_month": 0.0,
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 518.907,
+        "price_usd": 473.3316,
         "product": "petroleum",
         "reference_usd": 882.8208,
         "sellers": 1,
@@ -2613,7 +2618,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 1206.1366,
+        "price_usd": 1206.1372,
         "product": "glas",
         "reference_usd": 1203.8465,
         "sellers": 0,
@@ -2621,29 +2626,29 @@
         "state_price_usd": 1203.8465
       },
       {
-        "demand_last_month": 18841.80471671526,
-        "exported_last_month": 35169.47179481732,
+        "demand_last_month": 21704.721488427273,
+        "exported_last_month": 34670.58725938844,
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 9.0185,
+        "price_usd": 8.9167,
         "product": "petroleumlampe",
         "reference_usd": 16.0513,
         "sellers": 1,
-        "sold_last_month": 49756.67544646785,
+        "sold_last_month": 43300.6092243132,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 308045.65414185624,
-        "exported_last_month": 0.0,
-        "imported_last_month": 49866.02944353519,
+        "demand_last_month": 289072.92774064484,
+        "exported_last_month": 222247.74678795453,
+        "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 8.745,
+        "price_usd": 8.0847,
         "product": "gluehlampe",
         "reference_usd": 8.0256,
         "sellers": 3,
-        "sold_last_month": 308045.65414185624,
+        "sold_last_month": 511320.6745285995,
         "state_price_usd": null
       },
       {
@@ -2665,7 +2670,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 634.1314,
+        "price_usd": 652.7938,
         "product": "schwefel",
         "reference_usd": 722.3079,
         "sellers": 0,
@@ -2678,7 +2683,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 35056.3322,
+        "price_usd": 47161.8044,
         "product": "gummi",
         "reference_usd": 48153.8612,
         "sellers": 1,
@@ -2686,68 +2691,68 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 28131.97258808639,
-        "exported_last_month": 23210.906410865948,
-        "imported_last_month": 10873.811178429833,
+        "demand_last_month": 28368.831098771774,
+        "exported_last_month": 39780.0,
+        "imported_last_month": 185.79655677060168,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 63.9164,
+        "price_usd": 53.5113,
         "product": "fahrradreifen",
         "reference_usd": 56.1795,
         "sellers": 2,
-        "sold_last_month": 49488.974314060295,
+        "sold_last_month": 46685.7965567706,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 1287.0461582505368,
+        "demand_last_month": 1038.199738069258,
         "exported_last_month": 0.0,
-        "imported_last_month": 1287.0461582505368,
+        "imported_last_month": 1038.199738069258,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 550.0119,
+        "price_usd": 608.8873,
         "product": "autoreifen",
         "reference_usd": 802.5644,
         "sellers": 0,
-        "sold_last_month": 1287.0461582505368,
+        "sold_last_month": 1038.199738069258,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 2564.4327855441684,
+        "demand_last_month": 2241.3521487407397,
         "exported_last_month": 0.0,
-        "imported_last_month": 1471.0200668045575,
+        "imported_last_month": 1334.9337763100452,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 381.4119,
+        "price_usd": 401.4571,
         "product": "naehmaschine",
         "reference_usd": 561.795,
         "sellers": 1,
-        "sold_last_month": 2564.4327855441684,
+        "sold_last_month": 2241.3521487407397,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 5351.050678913236,
+        "demand_last_month": 5550.290443663445,
         "exported_last_month": 0.0,
-        "imported_last_month": 3039.940239820026,
+        "imported_last_month": 3330.463208536463,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 416.3268,
+        "price_usd": 410.4037,
         "product": "fahrrad",
         "reference_usd": 561.795,
         "sellers": 1,
-        "sold_last_month": 5351.050678913236,
+        "sold_last_month": 5550.290443663445,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 68.94563325129778,
+        "demand_last_month": 68.4069496474299,
         "exported_last_month": 0.0,
-        "imported_last_month": 30.76296250907294,
+        "imported_last_month": 30.406573622047773,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 115.4719,
+        "price_usd": 113.7604,
         "product": "benzin",
         "reference_usd": 722.3079,
         "sellers": 1,
-        "sold_last_month": 68.94563325129778,
+        "sold_last_month": 68.4069496474299,
         "state_price_usd": null
       },
       {
@@ -2756,7 +2761,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 2407.6931,
+        "price_usd": 1510.0929,
         "product": "motor",
         "reference_usd": 2407.6931,
         "sellers": 2,
@@ -2769,7 +2774,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 740.3772,
+        "price_usd": 998.2389,
         "product": "fahrgestell",
         "reference_usd": 2407.6931,
         "sellers": 1,
@@ -2782,7 +2787,7 @@
         "imported_last_month": 0.0,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 459.0675,
+        "price_usd": 612.1442,
         "product": "karosserie",
         "reference_usd": 2006.4109,
         "sellers": 1,
@@ -2790,20 +2795,20 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 194.9553419142106,
-        "exported_last_month": 19.000000000000007,
-        "imported_last_month": 25.222260943410934,
+        "demand_last_month": 271.6098928023343,
+        "exported_last_month": 21.000000000000018,
+        "imported_last_month": 21.12869776149736,
         "own_price_usd": null,
         "own_sold_last_month": 0.0,
-        "price_usd": 15459.2841,
+        "price_usd": 15699.4829,
         "product": "automobil",
         "reference_usd": 24076.9306,
         "sellers": 1,
-        "sold_last_month": 170.9109939529542,
+        "sold_last_month": 140.04643778094638,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 176.4236055084454,
+        "demand_last_month": 176.4112421624547,
         "exported_last_month": 0.0,
         "imported_last_month": 0.0,
         "own_price_usd": null,
@@ -2812,7 +2817,7 @@
         "product": "pferdekutsche",
         "reference_usd": 6420.5148,
         "sellers": 0,
-        "sold_last_month": 176.42360550844538,
+        "sold_last_month": 176.41124216245473,
         "state_price_usd": 6420.5148
       }
     ]
@@ -3068,7 +3073,7 @@
     }
   },
   "produktion": {
-    "cash_usd": 133953.5917,
+    "cash_usd": 82320.7844,
     "date": "1914-08-01",
     "facilities": [
       {
@@ -3609,15 +3614,15 @@
         "labor_hours": [
           [
             "akademiker.bergbau",
-            0.02
+            0.044
           ],
           [
             "fachkraft.bergbau",
-            2.0
+            4.4
           ],
           [
             "ungelernt",
-            2.0
+            4.4
           ]
         ],
         "output": 1.0,
@@ -3765,10 +3770,6 @@
         "facility": "walzwerk",
         "inputs": [
           [
-            "kohle",
-            0.1
-          ],
-          [
             "stahl",
             1.12
           ]
@@ -3802,10 +3803,6 @@
         "facility": "walzwerk",
         "inputs": [
           [
-            "kohle",
-            0.1
-          ],
-          [
             "stahl",
             1.08
           ]
@@ -3838,10 +3835,6 @@
         "extraction": false,
         "facility": "drahtzieherei",
         "inputs": [
-          [
-            "kohle",
-            0.1
-          ],
           [
             "stahl",
             1.1
@@ -3930,10 +3923,6 @@
         "facility": "schraubenfabrik",
         "inputs": [
           [
-            "kohle",
-            0.1
-          ],
-          [
             "stahl",
             1.3
           ]
@@ -3962,10 +3951,6 @@
         "extraction": false,
         "facility": "werkzeugschmiede",
         "inputs": [
-          [
-            "kohle",
-            0.002
-          ],
           [
             "schnittholz",
             0.0006
@@ -3999,11 +3984,11 @@
         "labor_hours": [
           [
             "angelernt",
-            0.5
+            1.0
           ],
           [
             "ungelernt",
-            4.0
+            8.0
           ]
         ],
         "output": 1.0,
@@ -4018,10 +4003,6 @@
           [
             "holz",
             1.7
-          ],
-          [
-            "kohle",
-            0.05
           ]
         ],
         "key": "schnittholz_saegen",
@@ -4104,10 +4085,6 @@
           [
             "baumwolle",
             1.15
-          ],
-          [
-            "kohle",
-            1.0
           ]
         ],
         "key": "garn_spinnen",
@@ -4137,10 +4114,6 @@
           [
             "garn",
             1.05
-          ],
-          [
-            "kohle",
-            1.2
           ]
         ],
         "key": "stoff_weben",
@@ -4201,10 +4174,6 @@
         "facility": "konfektion",
         "inputs": [
           [
-            "garn",
-            0.00005
-          ],
-          [
             "stoff",
             0.0007
           ]
@@ -4233,11 +4202,11 @@
         "labor_hours": [
           [
             "angelernt",
-            3.0
+            9.0
           ],
           [
             "ungelernt",
-            15.0
+            45.0
           ]
         ],
         "output": 1.0,
@@ -4252,10 +4221,6 @@
           [
             "getreide",
             1.35
-          ],
-          [
-            "kohle",
-            0.05
           ]
         ],
         "key": "mehl_mahlen",
@@ -4282,10 +4247,6 @@
         "extraction": false,
         "facility": "verzinnerei",
         "inputs": [
-          [
-            "kohle",
-            0.2
-          ],
           [
             "stahl",
             1.14
@@ -4319,10 +4280,6 @@
         "extraction": false,
         "facility": "konservenfabrik",
         "inputs": [
-          [
-            "kohle",
-            0.0002
-          ],
           [
             "konserveninhalt",
             0.0005
@@ -4414,15 +4371,15 @@
         "labor_hours": [
           [
             "akademiker.bergbau",
-            0.01
+            0.06
           ],
           [
             "fachkraft.bergbau",
-            0.8
+            4.8
           ],
           [
             "ungelernt",
-            1.0
+            6.0
           ]
         ],
         "output": 1.0,
@@ -4475,10 +4432,6 @@
         "extraction": false,
         "facility": "kupferdrahtwerk",
         "inputs": [
-          [
-            "kohle",
-            0.1
-          ],
           [
             "kupfer",
             1.03
@@ -4553,15 +4506,15 @@
         "labor_hours": [
           [
             "akademiker.chemie",
-            0.005
+            0.12
           ],
           [
             "fachkraft.bergbau",
-            0.3
+            7.2
           ],
           [
             "ungelernt",
-            0.5
+            12.0
           ]
         ],
         "output": 1.0,
@@ -4573,10 +4526,6 @@
         "extraction": false,
         "facility": "raffinerie",
         "inputs": [
-          [
-            "kohle",
-            0.05
-          ],
           [
             "rohoel",
             1.0
@@ -4705,11 +4654,11 @@
         "labor_hours": [
           [
             "angelernt",
-            100.0
+            500.0
           ],
           [
             "ungelernt",
-            800.0
+            4000.0
           ]
         ],
         "output": 1.0,
@@ -4724,10 +4673,6 @@
           [
             "kautschuk",
             0.9
-          ],
-          [
-            "kohle",
-            0.2
           ],
           [
             "schwefel",
@@ -4759,12 +4704,8 @@
         "facility": "reifenwerk",
         "inputs": [
           [
-            "garn",
-            0.00021
-          ],
-          [
             "gummi",
-            0.0006
+            0.0008
           ],
           [
             "stahl",
@@ -4792,12 +4733,8 @@
         "facility": "reifenwerk",
         "inputs": [
           [
-            "garn",
-            0.0032
-          ],
-          [
             "gummi",
-            0.008
+            0.011
           ],
           [
             "stahl",
@@ -5113,10 +5050,6 @@
         "facility": "crackanlage",
         "inputs": [
           [
-            "kohle",
-            0.1
-          ],
-          [
             "rohoel",
             1.0
           ]
@@ -5201,7 +5134,7 @@
             "keep": 0.0,
             "markup": 0.0,
             "mode": "markt",
-            "price_usd": 1792.1991,
+            "price_usd": 1466.3447,
             "product": "naegel",
             "sold_last_month": 15.499999999999998,
             "sold_month": 0.0
@@ -5238,7 +5171,7 @@
           {
             "product": "draht",
             "quantity": 5.0,
-            "value_usd": 3016.7254
+            "value_usd": 3287.5306
           }
         ],
         "workers": 0.684375
@@ -5247,14 +5180,14 @@
   },
   "uebersicht": {
     "company": {
-      "cash_usd": 133953.5917,
-      "equity_usd": 195189.1355,
+      "cash_usd": 82320.7844,
+      "equity_usd": 143827.1334,
       "headquarters": "DEU",
       "loans_usd": 0.0,
       "name": "Neue Firma",
-      "result_last_month_usd": 19072.5831,
-      "result_year_usd": 95189.1355,
-      "revenue_last_month_usd": 27779.0845,
+      "result_last_month_usd": 10815.5028,
+      "result_year_usd": 43827.1334,
+      "revenue_last_month_usd": 22728.3413,
       "sites": [
         {
           "country": "DEU",
@@ -5276,73 +5209,73 @@
             {
               "product": "draht",
               "quantity": 5.0,
-              "value_usd": 3016.7254
+              "value_usd": 3287.5306
             }
           ],
           "workers": 0.684375
         }
       ],
-      "total_assets_usd": 195189.1355
+      "total_assets_usd": 143827.1334
     },
     "competitors": [
       {
-        "equity_usd": 3293338818.6296,
+        "equity_usd": 3328400595.7866,
         "headquarters": "USA",
-        "name": "Holloway Company",
+        "name": "Lawrence Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 1995773380.0048,
+        "equity_usd": 2010901322.226,
         "headquarters": "USA",
-        "name": "Pittsburgh Iron and Steel & Sons",
+        "name": "Holloway Iron and Steel Corporation",
         "real": false
       },
       {
-        "equity_usd": 1893416620.8087,
+        "equity_usd": 1844641015.6917,
         "headquarters": "USA",
-        "name": "Holloway Electric Ltd.",
+        "name": "Fletcher & Whitfield Ltd.",
         "real": false
       },
       {
-        "equity_usd": 1177279076.5706,
+        "equity_usd": 1295242157.3482,
         "headquarters": "USA",
-        "name": "Fletcher Milling & Co.",
+        "name": "Dawson Ltd.",
         "real": false
       },
       {
-        "equity_usd": 1094109252.1359,
+        "equity_usd": 980119777.4269,
+        "headquarters": "IND",
+        "name": "Cleveland Mills & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 974464185.8824,
+        "headquarters": "GBR",
+        "name": "Mitchell Company",
+        "real": false
+      },
+      {
+        "equity_usd": 904425730.36,
+        "headquarters": "GBR",
+        "name": "Morgan Iron and Steel Corporation",
+        "real": false
+      },
+      {
+        "equity_usd": 853673226.9228,
         "headquarters": "DEU",
-        "name": "Bremer Spinnerei und Weberei & Co.",
+        "name": "Zürcher Spinnerei und Weberei & Co.",
         "real": false
       },
       {
-        "equity_usd": 1041376235.8884,
-        "headquarters": "GBR",
-        "name": "Hughes Company",
+        "equity_usd": 630422873.9009,
+        "headquarters": "POL",
+        "name": "Charkower Manufaktur",
         "real": false
       },
       {
-        "equity_usd": 894486215.6453,
-        "headquarters": "GBR",
-        "name": "Birmingham Iron and Steel & Co.",
-        "real": false
-      },
-      {
-        "equity_usd": 893788960.4676,
+        "equity_usd": 609729322.4519,
         "headquarters": "FRA",
         "name": "Filatures de Liège",
-        "real": false
-      },
-      {
-        "equity_usd": 668540976.8308,
-        "headquarters": "RUS",
-        "name": "Manufaktur Shevchenko",
-        "real": false
-      },
-      {
-        "equity_usd": 535457733.2407,
-        "headquarters": "ITA",
-        "name": "Cotonificio Genova",
         "real": false
       }
     ],
@@ -5388,61 +5321,61 @@
     },
     "competitors": [
       {
-        "equity_usd": 2484971021.7622,
+        "equity_usd": 2544360066.9856,
         "headquarters": "USA",
-        "name": "Holloway Company",
+        "name": "Lawrence Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 2009534228.354,
+        "equity_usd": 2008236788.354,
         "headquarters": "USA",
-        "name": "Pittsburgh Iron and Steel & Sons",
+        "name": "Holloway Iron and Steel Corporation",
         "real": false
       },
       {
-        "equity_usd": 1608703291.8427,
+        "equity_usd": 1608668587.4251,
         "headquarters": "USA",
-        "name": "Holloway Electric Ltd.",
+        "name": "Fletcher & Whitfield Ltd.",
         "real": false
       },
       {
-        "equity_usd": 1078729152.4174,
+        "equity_usd": 1224278432.2084,
         "headquarters": "USA",
-        "name": "Fletcher Milling & Co.",
+        "name": "Dawson Ltd.",
         "real": false
       },
       {
-        "equity_usd": 881054104.0687,
+        "equity_usd": 880556674.7492,
         "headquarters": "GBR",
-        "name": "Birmingham Iron and Steel & Co.",
+        "name": "Morgan Iron and Steel Corporation",
         "real": false
       },
       {
-        "equity_usd": 775987652.9009,
+        "equity_usd": 792921777.5551,
         "headquarters": "GBR",
-        "name": "Hughes Company",
+        "name": "Mitchell Company",
         "real": false
       },
       {
-        "equity_usd": 504379260.0314,
+        "equity_usd": 535006274.1905,
         "headquarters": "DEU",
-        "name": "Bremer Spinnerei und Weberei & Co.",
+        "name": "Zürcher Spinnerei und Weberei & Co.",
         "real": false
       },
       {
-        "equity_usd": 441291302.8747,
+        "equity_usd": 441211533.5708,
         "headquarters": "DEU",
-        "name": "Vogt & Söhne",
+        "name": "Hoffmann & Vogt & Co.",
         "real": false
       },
       {
-        "equity_usd": 399366057.3328,
+        "equity_usd": 412649314.7073,
         "headquarters": "USA",
-        "name": "Pemberton & Pemberton & Sons",
+        "name": "Morgan Motor & Sons",
         "real": false
       },
       {
-        "equity_usd": 398430884.737,
+        "equity_usd": 401172208.9686,
         "headquarters": "FRA",
         "name": "Filatures de Liège",
         "real": false
@@ -7240,7 +7173,7 @@
         "key": "RUS",
         "lat": 55.75,
         "lon": 37.61,
-        "other_sites": 37,
+        "other_sites": 36,
         "own_sites": 0,
         "population": 74180453.66438353,
         "wage_usd": 1.205674541109944
@@ -7684,7 +7617,7 @@
         "key": "USA",
         "lat": 38.9,
         "lon": -77.01,
-        "other_sites": 112,
+        "other_sites": 110,
         "own_sites": 0,
         "population": 99288675.78767118,
         "wage_usd": 5.972905569079991
@@ -8466,7 +8399,7 @@
       {
         "concessions": 12,
         "country": "USA",
-        "free_concessions": 5,
+        "free_concessions": 7,
         "key": "appalachen",
         "max_output_per_year": 30000000.0,
         "resource": "kohle",
@@ -8511,7 +8444,7 @@
       {
         "concessions": 2,
         "country": "GBR",
-        "free_concessions": 1,
+        "free_concessions": 2,
         "key": "schottland_kohle",
         "max_output_per_year": 4000000.0,
         "resource": "kohle",
@@ -8574,7 +8507,7 @@
       {
         "concessions": 2,
         "country": "RUS",
-        "free_concessions": 1,
+        "free_concessions": 2,
         "key": "kusnezk",
         "max_output_per_year": 3000000.0,
         "resource": "kohle",
