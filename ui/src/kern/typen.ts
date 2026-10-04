@@ -320,7 +320,20 @@ export interface Markt {
     sellers: number;
     own_price_usd: number | null;
     own_sold_last_month: number;
+    group: string;
+    own_share: number;
+    leader: string | null;
+    leader_share: number;
   }[];
+  brands: {
+    group: string;
+    own_awareness: number;
+    top: string | null;
+    top_awareness: number;
+    budget_usd: number;
+  }[];
+  medium: string | null;
+  reach_usd: number;
 }
 
 export interface Forschung {

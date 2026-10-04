@@ -1,5 +1,7 @@
 //! The production model.
 
+use std::collections::BTreeMap;
+
 use wsim_core::catalog::{
     Catalog, ProductionModel, ResearchModel, SiteType, StartSetup, TransportModel, Vehicle, Way,
 };
@@ -194,14 +196,25 @@ pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog:
     }
 }
 
-pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::MarketModel {
+/// The market model and the keys of the advertising media (for the text check).
+pub(super) fn market_model(
+    ctx: &mut Ctx,
+    raw: &RawData,
+) -> (wsim_core::catalog::MarketModel, Keys) {
+    let mut media_keys = Keys {
+        kind: "Werbemittel",
+        text_prefix: Some("werbemittel"),
+        index: BTreeMap::new(),
+        locations: Vec::new(),
+        broken: Default::default(),
+    };
     let Some(entry) = single(
         ctx,
         &raw.market_model,
         "marktmodell",
         "parameter/marktmodell.yaml",
     ) else {
-        return wsim_core::catalog::MarketModel::default();
+        return (wsim_core::catalog::MarketModel::default(), media_keys);
     };
     let m = &entry.value;
     let l = &entry.loc;
@@ -220,9 +233,91 @@ pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::
     };
     let price_weight = five(&m.price_weight, "preisgewicht");
     let quality_weight = five(&m.quality_weight, "qualitaetsgewicht");
+    let bl = l.field("marke");
+    let brand_weight = {
+        let loc = bl.field("markengewicht");
+        for (i, &v) in m.brand.weight.iter().enumerate() {
+            non_negative(ctx, v, &loc.index(i));
+        }
+        <[f64; 5]>::try_from(m.brand.weight.as_slice()).unwrap_or_else(|_| {
+            ctx.error(
+                &loc,
+                messages::wrong_length(m.brand.weight.len(), "5 Werte (ärmstes Fünftel zuerst)"),
+            );
+            [0.0; 5]
+        })
+    };
+    let b = &m.brand;
+    let mut media = Vec::new();
+    for (i, medium) in b.media.iter().enumerate() {
+        let loc = bl.field("werbemittel").index(i);
+        if let Some(&first) = media_keys.index.get(&medium.id) {
+            let first = ctx.describe(&media_keys.locations[first]);
+            ctx.error(
+                &loc.field("id"),
+                messages::duplicate_key("Werbemittel", &medium.id, &first),
+            );
+            continue;
+        }
+        media_keys.index.insert(medium.id.clone(), media.len());
+        media_keys.locations.push(loc.clone());
+        media.push(wsim_core::catalog::AdvertisingMedium {
+            key: medium.id.clone(),
+            from_year: medium.from_year,
+            effect: positive(ctx, medium.effect, &loc.field("wirkung")),
+        });
+    }
+    if media.is_empty() {
+        ctx.error(&bl.field("werbemittel"), messages::list_empty());
+    }
+    let brand = wsim_core::catalog::BrandModel {
+        weight: brand_weight,
+        forgetting_per_month: in_range(
+            ctx,
+            b.forgetting_per_month,
+            0.0,
+            1.0,
+            &bl.field("vergessen_je_monat"),
+        ),
+        word_of_mouth: in_range(ctx, b.word_of_mouth, 0.0, 1.0, &bl.field("mundpropaganda")),
+        cost_per_inhabitant_usd: positive(
+            ctx,
+            b.cost_per_inhabitant_usd,
+            &bl.field("kosten_je_einwohner_usd"),
+        ),
+        start_awareness: in_range(
+            ctx,
+            b.start_awareness,
+            0.0,
+            1.0,
+            &bl.field("bekanntheit_start"),
+        ),
+        start_awareness_real: in_range(
+            ctx,
+            b.start_awareness_real,
+            0.0,
+            1.0,
+            &bl.field("bekanntheit_start_real"),
+        ),
+        trade_awareness: in_range(
+            ctx,
+            b.trade_awareness,
+            0.0,
+            1.0,
+            &bl.field("bekanntheit_handel"),
+        ),
+        state_market_awareness: in_range(
+            ctx,
+            b.state_market_awareness,
+            0.0,
+            1.0,
+            &bl.field("bekanntheit_staatsmarkt"),
+        ),
+        media,
+    };
     let adjust = l.field("preisanpassung");
     let traders = l.field("haendler");
-    wsim_core::catalog::MarketModel {
+    let model = wsim_core::catalog::MarketModel {
         price_weight,
         quality_weight,
         adoption_per_year: in_range(
@@ -269,7 +364,9 @@ pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::
             365.0,
             &traders.field("glaettung_tage"),
         ),
-    }
+        brand,
+    };
+    (model, media_keys)
 }
 
 pub(super) fn transport_model(ctx: &mut Ctx, raw: &RawData) -> TransportModel {

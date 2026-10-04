@@ -548,6 +548,101 @@ fn ai_start_population() {
     }
 }
 
+/// M16 (Lastenheft §9.1): At the start established companies saturate the markets; a
+/// newcomer sells only what it wins from them, not every unit at any price.
+#[test]
+fn markets_are_saturated_and_newcomers_must_compete() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::command::Command;
+    use wsim_core::game::Game;
+    use wsim_core::state::{AiSettings, GameSettings, PriceMode, SiteId, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 1,
+        start_year: 1900,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Neuling".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 100,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        },
+    };
+    let mut game = Game::new(c.clone(), settings).unwrap();
+    let nails = c.products.id("naegel").unwrap();
+    let deu = c.countries.id("DEU").unwrap();
+    let player = game.player();
+    let site = SiteId(
+        u32::try_from(
+            game.state()
+                .sites
+                .iter()
+                .position(|s| s.owner == player)
+                .unwrap(),
+        )
+        .unwrap(),
+    );
+    // The newcomer asks 30 % more than the market.
+    let price = wsim_core::market::market_price(&c, game.state(), deu, nails).scale(1.3);
+    game.apply(Command::SetSale {
+        site,
+        product: nails,
+        mode: Some(PriceMode::Fixed(price)),
+        keep: 0.0,
+    })
+    .unwrap();
+    for _ in 0..3 {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    let state = game.state();
+    let s = &state.sites[site.index()];
+    let made: f64 = s
+        .slots
+        .iter()
+        .filter_map(|sl| {
+            let r = c.recipes.get(sl.recipe?);
+            (r.product == nails).then(|| {
+                c.facilities.get(sl.facility).runs_per_day * f64::from(sl.count) * r.output * 30.0
+            })
+        })
+        .sum();
+    let sold = s.offers[&nails].sold_last_month;
+    assert!(
+        sold < 0.5 * made,
+        "Neuling verkauft {sold} von {made} trotz Aufschlag"
+    );
+
+    // The established companies serve the demand for end products everywhere.
+    let mut covered = Vec::new();
+    for (product, p) in c.products.iter() {
+        if p.kind != ProductKind::EndProduct {
+            continue;
+        }
+        let (mut demand, mut served) = (0.0, 0.0);
+        for country in c.countries.ids() {
+            let m = &state.markets.get(product).get(country).last_month;
+            demand += m.demand;
+            served += m.sold - m.exported;
+        }
+        if demand > 0.0 {
+            covered.push((served / demand, c.products.key(product).to_string()));
+        }
+    }
+    covered.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let well = covered.iter().filter(|(share, _)| *share >= 0.85).count();
+    assert!(
+        well * 5 >= covered.len() * 4,
+        "zu viele Endprodukte unterversorgt: {covered:?}"
+    );
+}
+
 /// AI companies decide through commands; a game with them stays reproducible, balanced
 /// and loadable.
 #[test]

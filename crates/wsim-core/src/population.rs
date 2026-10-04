@@ -304,7 +304,8 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         }
         let per_day = output_per_day(catalog, recipe) * u;
         let rates = &need.rate[product.index()];
-        let facilities: f64 = rates.iter().sum::<f64>() / per_day;
+        // Saturated markets (M16): established companies cover more than the demand.
+        let facilities: f64 = rates.iter().sum::<f64>() * start.market_cover / per_day;
         if facilities < start.min_plant_share {
             continue;
         }
@@ -387,6 +388,79 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
     }
     for plan in plans {
         found_company(state, catalog, &plan, None, (None, None), date);
+    }
+    stock_traders(state, catalog);
+}
+
+/// The trade network of the start year (M16): where a country lacks what its plants and
+/// consumers need, the traders already hold `trader_cover_days` of the gap in stock and
+/// keep importing it. Without this, plants far from their suppliers stand still for
+/// weeks until the first shipments arrive.
+fn stock_traders(state: &mut GameState, catalog: &Catalog) {
+    let n = catalog.countries.len();
+    let mut supply: Vec<Vec<f64>> = vec![vec![0.0; n]; catalog.products.len()];
+    let mut need: Vec<Vec<f64>> = vec![vec![0.0; n]; catalog.products.len()];
+    for s in &state.sites {
+        for sl in &s.slots {
+            let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+                continue;
+            };
+            let runs = catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * sl.utilization;
+            supply[r.product.index()][s.country.index()] += runs * r.output;
+            for &(p, q) in &r.inputs {
+                need[p.index()][s.country.index()] += runs * q;
+            }
+        }
+    }
+    let model = &catalog.market_model;
+    for (product, p) in catalog.products.iter() {
+        if p.kind == ProductKind::Energy || p.state_market.is_some() {
+            continue;
+        }
+        let gaps: Vec<f64> = catalog
+            .countries
+            .ids()
+            .map(|c| {
+                let m = state.markets.get(product).get(c);
+                need[product.index()][c.index()]
+                    + m.consumer_rate.iter().sum::<f64>()
+                    + m.state_rate
+                    - supply[product.index()][c.index()]
+            })
+            .collect();
+        let exporters: Vec<CountryId> = catalog
+            .countries
+            .ids()
+            .filter(|c| gaps[c.index()] < -1e-9)
+            .collect();
+        for country in catalog.countries.ids() {
+            let gap = gaps[country.index()];
+            if gap <= 1e-9 {
+                continue;
+            }
+            // Imports cost what the cheapest exporting country asks plus transport, so
+            // that the traders keep buying when the first stock is sold.
+            let local = crate::market::local_reference(catalog, state, country, product);
+            let cost = exporters
+                .iter()
+                .filter_map(|&from| {
+                    let (transport, _) =
+                        state.routes.for_product(catalog, product, from, country)?;
+                    Some(crate::market::local_reference(catalog, state, from, product) + transport)
+                })
+                .min()
+                .unwrap_or(local);
+            let price = local.max(cost.scale(1.0 + model.trader_margin));
+            let quantity = gap * model.trader_cover_days;
+            let m = state.markets.get_mut(product).get_mut(country);
+            m.imports.add(quantity, Money::times(cost, quantity), 50.0);
+            m.import_price = price;
+            m.price = m.price.max(price);
+            m.open_demand = gap;
+            state.import_markets.insert((product, country));
+        }
     }
 }
 
@@ -880,7 +954,32 @@ fn found_company(
     let operations = model.behavior.operations_days.at(competence);
     // A random first day spreads the decisions of the companies over the period.
     let first = (rng.next_f64() * operations).floor();
+    // Established companies are known where they sell their end products (M16).
+    let brand_model = &catalog.market_model.brand;
+    let start_awareness = if real.is_some() {
+        brand_model.start_awareness_real
+    } else {
+        brand_model.start_awareness
+    };
+    let mut brands: Vec<crate::state::Brand> = Vec::new();
+    for p in &plan.placements {
+        let product = catalog.products.get(catalog.recipes.get(p.recipe).product);
+        if product.kind == ProductKind::EndProduct
+            && !brands
+                .iter()
+                .any(|b| b.country == p.country && b.group == product.goods_group)
+        {
+            brands.push(crate::state::Brand {
+                country: p.country,
+                group: product.goods_group,
+                awareness: start_awareness,
+            });
+        }
+    }
+    brands.sort_by_key(|b| (b.country, b.group));
     state.companies.push(Company {
+        brands,
+        advertising: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

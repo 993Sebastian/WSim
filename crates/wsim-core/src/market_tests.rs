@@ -84,6 +84,8 @@ fn competitor(game: &mut Game) -> CompanyId {
     let id = CompanyId(u32::try_from(state.companies.len()).unwrap());
     let date = state.date;
     state.companies.push(Company {
+        brands: Vec::new(),
+        advertising: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Konkurrenz".into(),
         kind: CompanyKind::Ai,
@@ -228,6 +230,95 @@ fn cheaper_and_better_offers_win_more_customers() {
     assert!(sold(good) > sold(poor));
 }
 
+/// M16: Customers find a seller in proportion to its presence (production and stock); a
+/// small newcomer does not win a large share just by appearing.
+#[test]
+fn small_sellers_win_customers_in_proportion_to_their_presence() {
+    let mut game = new_game();
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let small = warehouse(&mut game, player, "brot", 1e6, 50.0);
+    let large = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+    sell(&mut game, small, "brot", PriceMode::Fixed(usd(2.0)));
+    sell(&mut game, large, "brot", PriceMode::Fixed(usd(2.0)));
+    day(&mut game);
+    let small_sold = 1e6 - stock(&game, small, "brot");
+    let large_sold = 1e9 - stock(&game, large, "brot");
+    assert!(small_sold > 0.0);
+    let ratio = small_sold / large_sold;
+    assert!(
+        (0.0005..0.002).contains(&ratio),
+        "{small_sold} {large_sold}"
+    );
+}
+
+/// M16: In a saturated market an unknown newcomer sells less than a known brand at the
+/// same price and quality; a lower price or advertising wins customers back.
+#[test]
+fn known_brands_win_customers_and_newcomers_must_compete() {
+    let setup = |newcomer_price: f64| {
+        let mut game = new_game();
+        let player = game.player();
+        let rival = competitor(&mut game);
+        let new = warehouse(&mut game, player, "brot", 1e9, 50.0);
+        let known = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+        let country = aaa(&game);
+        let group = game
+            .catalog()
+            .products
+            .get(product(&game, "brot"))
+            .goods_group;
+        game.state_mut().companies[rival.index()].brands = vec![crate::state::Brand {
+            country,
+            group,
+            awareness: 0.6,
+        }];
+        sell(
+            &mut game,
+            new,
+            "brot",
+            PriceMode::Fixed(usd(newcomer_price)),
+        );
+        sell(&mut game, known, "brot", PriceMode::Fixed(usd(2.0)));
+        (game, new, known)
+    };
+    let (mut game, new, known) = setup(2.0);
+    day(&mut game);
+    let sold = |g: &Game, s| 1e9 - stock(g, s, "brot");
+    let (n, k) = (sold(&game, new), sold(&game, known));
+    assert!(k > 1.3 * n, "bekannt {k}, neu {n}");
+
+    // A lower price wins customers back.
+    let (mut game, new, known) = setup(1.6);
+    day(&mut game);
+    let (n2, k2) = (sold(&game, new), sold(&game, known));
+    assert!(n2 / k2 > n / k, "{n2} {k2}");
+
+    // Advertising makes the newcomer known.
+    let (mut game, new, known) = setup(2.0);
+    let country = aaa(&game);
+    let group = game
+        .catalog()
+        .products
+        .get(product(&game, "brot"))
+        .goods_group;
+    let reach = crate::brand::reach_usd(game.state(), game.catalog(), country);
+    game.apply(Command::SetAdvertising {
+        country,
+        group,
+        budget: usd(3.0 * reach),
+    })
+    .unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    let player = game.player();
+    let awareness = game.state().companies[player.index()].awareness(country, group);
+    assert!(awareness > 0.9, "{awareness}");
+    let before = (sold(&game, new), sold(&game, known));
+    day(&mut game);
+    let after = (sold(&game, new) - before.0, sold(&game, known) - before.1);
+    assert!(after.0 > after.1, "{after:?}");
+}
+
 #[test]
 fn automatic_prices_follow_supply_and_demand() {
     // Scarce supply: sold out every day with demand left → the price rises.
@@ -345,6 +436,15 @@ fn sites_buy_from_other_companies() {
     assert!(
         rival_ledger.is_balanced() && game.state().company(player).unwrap().ledger.is_balanced()
     );
+    // Markets of goods only companies buy close their month as well (before M16 their
+    // month never closed and the views showed nothing).
+    let country = aaa(&game);
+    game.advance(RoundLength::Month, |_| {});
+    let last = &game.state().markets.get(ore).get(country).last_month;
+    assert!(last.sold >= 1_000.0, "{last:?}");
+    game.advance(RoundLength::Month, |_| {});
+    let last = &game.state().markets.get(ore).get(country).last_month;
+    assert!(last.sold < 1_000.0, "{last:?}");
 }
 
 #[test]

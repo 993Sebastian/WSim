@@ -8,6 +8,7 @@ import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
 import { WeltereignisDialog } from "./Weltereignis";
 import { BerichteAnsicht } from "./Berichte";
+import { Einfuehrung, SCHRITTE } from "./Einfuehrung";
 import { FinanzenAnsicht } from "./Finanzen";
 import { ForschungAnsicht } from "./Forschung";
 import { MarktAnsicht } from "./Markt";
@@ -44,13 +45,17 @@ type Fenster =
 export function Spiel({
   kern,
   start,
+  einfuehrung = false,
   onMenue,
 }: {
   kern: Kern;
   start: Uebersicht;
+  /** Show the introduction (chosen in the new game dialog). */
+  einfuehrung?: boolean;
   onMenue: (u: Uebersicht) => void;
 }) {
   const [uebersicht, setUebersicht] = useState(start);
+  const [schritt, setSchritt] = useState<number | null>(einfuehrung ? 0 : null);
   const [laenge, setLaenge] = useState<Rundenlaenge>("monat");
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
@@ -115,6 +120,11 @@ export function Spiel({
     window.addEventListener("keydown", taste);
     return () => window.removeEventListener("keydown", taste);
   }, [offen, uebersicht.game_over]);
+
+  const zeigeSchritt = (n: number) => {
+    setSchritt(n);
+    setAnsicht(SCHRITTE[n]!.ansicht as Ansicht);
+  };
 
   const springe = (ziel: string) => {
     setFenster({ art: "keins" });
@@ -204,11 +214,7 @@ export function Spiel({
           <ProduktionAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "markt" && (
-          <MarktAnsicht
-            kern={kern}
-            datum={uebersicht.date}
-            heimat={uebersicht.company.headquarters}
-          />
+          <MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "forschung" && (
           <ForschungAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
@@ -224,7 +230,18 @@ export function Spiel({
           />
         )}
       </div>
-      {fenster.art === "hilfe" && <Tastenhilfe onSchliessen={schliessen} />}
+      {schritt !== null && (
+        <Einfuehrung schritt={schritt} onSchritt={zeigeSchritt} onEnde={() => setSchritt(null)} />
+      )}
+      {fenster.art === "hilfe" && (
+        <Tastenhilfe
+          onSchliessen={schliessen}
+          onEinfuehrung={() => {
+            schliessen();
+            zeigeSchritt(0);
+          }}
+        />
+      )}
 
       {fenster.art === "runde" && (
         <Dialog titel={t("fortschritt.titel")}>

@@ -11,7 +11,13 @@ export const TASTEN: [string, string][] = [
   ["Esc", "tasten.schliessen"],
 ];
 
-export function Tastenhilfe({ onSchliessen }: { onSchliessen: () => void }) {
+export function Tastenhilfe({
+  onSchliessen,
+  onEinfuehrung,
+}: {
+  onSchliessen: () => void;
+  onEinfuehrung: () => void;
+}) {
   return (
     <Dialog titel={t("tasten.titel")} onSchliessen={onSchliessen}>
       <dl className="tasten">
@@ -25,6 +31,9 @@ export function Tastenhilfe({ onSchliessen }: { onSchliessen: () => void }) {
         ))}
       </dl>
       <div className="knopfreihe">
+        <button type="button" onClick={onEinfuehrung}>
+          {t("einfuehrung.starten")}
+        </button>
         <button type="button" className="haupt" onClick={onSchliessen}>
           {t("dialog.schliessen")}
         </button>

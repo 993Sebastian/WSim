@@ -98,6 +98,19 @@ pub fn propensity(demand: &ConsumerDemand, income: f64, price: f64, reference: f
 /// Start of a month: updates the ownership of durables from last month's purchases
 /// and sets the consumer and government demand per day.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
+    // Markets of goods without consumer or government demand (wire, steel …) close
+    // their month here; `update_demand` closes the others.
+    for (product, p) in catalog.products.iter() {
+        if p.consumer_demand.is_none() && p.state_demand.is_none() {
+            for country in catalog.countries.ids() {
+                state
+                    .markets
+                    .get_mut(product)
+                    .get_mut(country)
+                    .close_month();
+            }
+        }
+    }
     update_demand(state, catalog, date, false);
 }
 
@@ -610,8 +623,29 @@ fn clear_market(
         }
     }
 
-    // 4. Consumers: richest layer first; sellers chosen by attractiveness (logit).
+    // 4. Consumers: richest layer first; sellers chosen by attractiveness (logit) of
+    // price, quality and brand, weighted by their presence in the shops (M16).
     let rates = state.markets.get(product).get(country).consumer_rate;
+    let presence: Vec<f64> = offers
+        .iter()
+        .map(|o| match o.seller {
+            Seller::Site { site, .. } => {
+                production_rate(state, catalog, site, product, date)
+                    + o.available / model.stock_days
+            }
+            Seller::Importer => o.available / model.stock_days,
+            Seller::StateMarket => rates.iter().sum(),
+        })
+        .collect();
+    let group = catalog.products.get(product).goods_group;
+    let brand: Vec<f64> = offers
+        .iter()
+        .map(|o| match o.seller {
+            Seller::Site { owner, .. } => state.companies[owner.index()].awareness(country, group),
+            Seller::Importer => model.brand.trade_awareness,
+            Seller::StateMarket => model.brand.state_market_awareness,
+        })
+        .collect();
     let mut bought = [0.0; 5];
     let mut weights = vec![0.0; offers.len()];
     for q in (0..5).rev() {
@@ -622,15 +656,18 @@ fn clear_market(
             if need <= 1e-9 {
                 break;
             }
-            for (w, o) in weights.iter_mut().zip(&offers) {
+            for (i, w) in weights.iter_mut().enumerate() {
+                let o = &offers[i];
                 *w = if o.available <= 1e-12 || reference <= 0.0 {
                     0.0
                 } else {
                     let relative = (o.price.to_usd() / reference).max(1e-6);
-                    math::exp(
-                        -model.price_weight[q] * math::ln(relative)
-                            + model.quality_weight[q] * (o.quality - 50.0) / 25.0,
-                    )
+                    presence[i]
+                        * math::exp(
+                            -model.price_weight[q] * math::ln(relative)
+                                + model.quality_weight[q] * (o.quality - 50.0) / 25.0
+                                + model.brand.weight[q] * brand[i],
+                        )
                 };
             }
             let total: f64 = weights.iter().sum();
@@ -718,6 +755,34 @@ fn clear_market(
         market.open_demand = 0.0;
     }
     market.record_day(day);
+}
+
+/// Planned daily output of a product at a site: main and by-products of its finished
+/// facilities at their planned utilization.
+fn production_rate(
+    state: &GameState,
+    catalog: &Catalog,
+    site: SiteId,
+    product: ProductId,
+    date: Date,
+) -> f64 {
+    state.sites[site.index()]
+        .slots
+        .iter()
+        .filter(|sl| sl.ready <= date)
+        .filter_map(|sl| {
+            let r = catalog.recipes.get(sl.recipe?);
+            let per_run = if r.product == product {
+                r.output
+            } else {
+                r.by_products.iter().find(|(p, _)| *p == product)?.1
+            };
+            let runs = catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * sl.utilization;
+            Some(runs * per_run)
+        })
+        .sum()
 }
 
 /// Daily step of an automatic price: up when sold out with demand left, down when

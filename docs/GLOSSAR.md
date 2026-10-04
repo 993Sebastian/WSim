@@ -128,3 +128,11 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | sehr komplexes Produkt (5–6 Ebenen) | `sehr_komplex` (Daten), `very_complex` |
 | Tastaturkürzel | `TASTEN` (UI, `Tastenhilfe.tsx`) |
 
+| Marke, Bekanntheit, Warengruppe | `Brand`, `awareness`, `GoodsGroupId` |
+| Werbung, Werbebudget, Werbemittel | `Advertising`, `SetAdvertising`, `AdvertisingMedium` |
+| Markenmodell (in `marktmodell.marke`) | `BrandModel`, `brand::month_start` |
+| Mundpropaganda, Vergessen | `word_of_mouth`, `forgetting_per_month` |
+| Präsenz (Anbieterwahl) | `presence`, `production_rate` |
+| Marktdeckung (Startbesetzung) | `AiStart::market_cover` |
+| Werbeanteil (KI) | `AiBehavior::advertising_share`, `ai::advertise` |
+| Händlerlager zum Start | `population::stock_traders` |

@@ -7,7 +7,8 @@ import type { Kern, Uebersicht } from "./kern";
 export type KernStatus =
   { art: "laedt" } | { art: "bereit"; version: string } | { art: "fehler"; fehler: string };
 
-type Bildschirm = { art: "menue" } | { art: "neu" } | { art: "spiel"; start: Uebersicht };
+type Bildschirm =
+  { art: "menue" } | { art: "neu" } | { art: "spiel"; start: Uebersicht; einfuehrung: boolean };
 
 export function App({ kern }: { kern: Kern }) {
   const [status, setStatus] = useState<KernStatus>({ art: "laedt" });
@@ -25,9 +26,9 @@ export function App({ kern }: { kern: Kern }) {
     };
   }, [kern]);
 
-  const spielen = (u: Uebersicht) => {
+  const spielen = (u: Uebersicht, einfuehrung = false) => {
     setLaufend(u);
-    setBildschirm({ art: "spiel", start: u });
+    setBildschirm({ art: "spiel", start: u, einfuehrung });
   };
 
   switch (bildschirm.art) {
@@ -38,7 +39,7 @@ export function App({ kern }: { kern: Kern }) {
           status={status}
           laufend={laufend}
           onNeu={() => setBildschirm({ art: "neu" })}
-          onSpielen={spielen}
+          onSpielen={(u) => spielen(u)}
         />
       );
     case "neu":
@@ -54,6 +55,7 @@ export function App({ kern }: { kern: Kern }) {
         <Spiel
           kern={kern}
           start={bildschirm.start}
+          einfuehrung={bildschirm.einfuehrung}
           onMenue={(u) => {
             setLaufend(u);
             setBildschirm({ art: "menue" });

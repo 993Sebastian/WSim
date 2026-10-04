@@ -75,6 +75,7 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
         }
         if first_of_month {
             manage_cash(state, catalog, id, own);
+            advertise(state, catalog, id, own);
         }
         if end_of_quarter {
             expand(state, catalog, id, own, date, &mut news);
@@ -278,7 +279,15 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                     * r.output;
                 let keep = s.offers.get(&product).map_or(0.0, |o| o.keep);
                 let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity) - keep;
-                let days = stock.max(0.0) / (full * utilization.max(b.utilization_min)).max(1e-9);
+                // Stock in days of sales; measured against the own output it would grow
+                // with every cut and drive production to the minimum.
+                let sold = s.offers.get(&product).map_or(0.0, |o| o.sold_last_month) / 30.0;
+                let rate = if sold > 1e-9 {
+                    sold
+                } else {
+                    full * utilization.max(b.utilization_min)
+                };
+                let days = stock.max(0.0) / rate.max(1e-9);
                 let planned = catalog.facilities.get(sl.facility).runs_per_day
                     * f64::from(sl.count)
                     * sl.utilization;
@@ -646,6 +655,57 @@ fn expand(
         };
         run(state, catalog, id, &produce);
         news.extend(news_expansion(state, catalog, id, site, recipe, count));
+    }
+}
+
+/// Advertising for every country and goods group where the company sold end products
+/// last month: a share of that revenue (M16).
+fn advertise(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId]) {
+    let (_, aggressiveness) = traits(state, id);
+    let share = catalog
+        .ai_model
+        .behavior
+        .advertising_share
+        .at(aggressiveness);
+    let mut revenue: BTreeMap<(CountryId, crate::ids::GoodsGroupId), f64> = BTreeMap::new();
+    for &site in sites {
+        let s = &state.sites[site.index()];
+        for (&product, offer) in &s.offers {
+            let p = catalog.products.get(product);
+            if p.kind == ProductKind::EndProduct && offer.sold_last_month > 0.0 {
+                *revenue.entry((s.country, p.goods_group)).or_default() +=
+                    offer.sold_last_month * offer.price.to_usd();
+            }
+        }
+    }
+    let company = &state.companies[id.index()];
+    let mut commands = Vec::new();
+    for (&(country, group), &r) in &revenue {
+        let budget = Money::from_usd(share * r).unwrap_or(Money::ZERO);
+        let old = company
+            .advertising
+            .iter()
+            .find(|a| a.country == country && a.group == group)
+            .map_or(Money::ZERO, |a| a.budget);
+        if (budget.to_usd() - old.to_usd()).abs() > 0.1 * old.to_usd().max(1.0) {
+            commands.push(Command::SetAdvertising {
+                country,
+                group,
+                budget,
+            });
+        }
+    }
+    for a in &company.advertising {
+        if !revenue.contains_key(&(a.country, a.group)) {
+            commands.push(Command::SetAdvertising {
+                country: a.country,
+                group: a.group,
+                budget: Money::ZERO,
+            });
+        }
+    }
+    for c in &commands {
+        run(state, catalog, id, c);
     }
 }
 
@@ -1222,6 +1282,8 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
     let branch = catalog.products.get(product).branch;
     let name = population::company_name(state, catalog, &mut rng, country, branch);
     state.companies.push(Company {
+        brands: Vec::new(),
+        advertising: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

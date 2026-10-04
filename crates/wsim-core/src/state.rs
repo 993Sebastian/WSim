@@ -15,7 +15,8 @@ use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
 pub use crate::country_model::CountryState;
 use crate::ids::{
-    self, CountryId, DepositId, FacilityId, Id, LaborGroupId, ProductId, RecipeId, TechnologyId,
+    self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, ProductId, RecipeId,
+    TechnologyId,
 };
 use crate::ledger::Ledger;
 use crate::money::Money;
@@ -241,6 +242,28 @@ pub struct Company {
     /// older saves (`fit_to_catalog`).
     #[serde(default)]
     pub owners: Vec<Stake>,
+    /// Brand awareness per country and goods group (M16).
+    #[serde(default)]
+    pub brands: Vec<Brand>,
+    /// Advertising budgets per month (M16).
+    #[serde(default)]
+    pub advertising: Vec<Advertising>,
+}
+
+/// How well consumers in a country know a company's brand for a goods group (0–1).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Brand {
+    pub country: CountryId,
+    pub group: GoodsGroupId,
+    pub awareness: f64,
+}
+
+/// Monthly advertising budget of a company in a country for a goods group.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Advertising {
+    pub country: CountryId,
+    pub group: GoodsGroupId,
+    pub budget: Money,
 }
 
 /// Who holds shares of a company. The player is an owner, not a company, so that later
@@ -267,6 +290,14 @@ impl Stake {
 }
 
 impl Company {
+    /// Brand awareness in a country for a goods group (0 if unknown).
+    pub fn awareness(&self, country: CountryId, group: GoodsGroupId) -> f64 {
+        self.brands
+            .iter()
+            .find(|b| b.country == country && b.group == group)
+            .map_or(0.0, |b| b.awareness)
+    }
+
     /// The holder with more than half of the shares, if any.
     pub fn majority_holder(&self) -> Option<Holder> {
         let mut shares: Vec<(Holder, f64)> = Vec::new();

@@ -20,6 +20,8 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   const kopf = page.locator(".kopfleiste");
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
   await expect(kopf.getByText("01.01.1914")).toBeVisible();
+  // The introduction is on by default and leaves the game usable.
+  await expect(page.getByRole("complementary", { name: "Einführung" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Standorte" })).toBeVisible();
   await expect(page.getByText(/100 aktive KI-Firmen/)).toBeVisible();
 
@@ -77,6 +79,7 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
   await page.getByLabel("Name der Firma").fill("Kartenprobe");
+  await page.getByLabel(/Einführung zeigen/).uncheck();
   await page.getByRole("button", { name: "Spiel starten" }).click();
 
   await page.getByRole("button", { name: "Weltkarte" }).click();

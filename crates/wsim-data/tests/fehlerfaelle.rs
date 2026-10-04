@@ -115,6 +115,17 @@ marktmodell:
   staat_hoechstpreis: 1.5
   index_glaettung: 0.1
   haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}
+  marke:
+    markengewicht: [0.4, 0.6, 0.9, 1.2, 1.5]
+    vergessen_je_monat: 0.03
+    mundpropaganda: 0.08
+    kosten_je_einwohner_usd: 0.05
+    bekanntheit_start: 0.5
+    bekanntheit_start_real: 0.7
+    bekanntheit_handel: 0.2
+    bekanntheit_staatsmarkt: 0.3
+    werbemittel:
+      - {id: zeitung, ab: 1800, wirkung: 1.0}
 ";
 
 const TRANSPORT: &str = "\
@@ -250,6 +261,7 @@ kontinent.europa: Europa
 branche.bergbau: Bergbau
 branche.metallurgie: Metallurgie
 warengruppe.erze: Erze
+werbemittel.zeitung: Zeitung
 transportklasse.schuettgut: Schüttgut
 qualifikation.ungelernt: Ungelernte
 qualifikation.fachkraft: Fachkräfte
@@ -1391,4 +1403,39 @@ fn produktbaum_hoechstens_sechs_ebenen() {
     let f = befund(&outcome, "Der Produktbaum hat hier 7 Ebenen");
     assert_eq!(f.severity, Severity::Error);
     assert!(f.message.contains("erlaubt sind höchstens 6"));
+}
+
+#[test]
+fn marke_und_werbung_werden_geprueft() {
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "markengewicht: [0.4, 0.6, 0.9, 1.2, 1.5]",
+        "markengewicht: [0.4, 0.6, 0.9, 1.2]",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Falsche Anzahl an Einträgen (4)");
+    assert_eq!(f.path.to_string(), "marktmodell.marke.markengewicht");
+
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "      - {id: zeitung, ab: 1800, wirkung: 1.0}",
+        "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n      - {id: zeitung, ab: 1923, wirkung: 1.4}",
+    );
+    befund(&d.laden(), "Werbemittel „zeitung“ ist doppelt definiert");
+
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "      - {id: zeitung, ab: 1800, wirkung: 1.0}",
+        "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n      - {id: plakat, ab: 1850, wirkung: 0.8}",
+    );
+    befund(&d.laden(), "werbemittel.plakat");
+
+    let d = Daten::neu().ersetze(
+        "parameter/marktmodell.yaml",
+        "bekanntheit_start: 0.5",
+        "bekanntheit_start: 1.5",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "1.5");
+    assert_eq!(f.path.to_string(), "marktmodell.marke.bekanntheit_start");
 }

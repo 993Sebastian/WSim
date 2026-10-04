@@ -25,4 +25,5 @@ export type Befehl =
         min_quality: number;
       };
     }
-  | { SetResearch: { site: number; technology: string | null } };
+  | { SetResearch: { site: number; technology: string | null } }
+  | { SetAdvertising: { country: string; group: string; budget: number } };

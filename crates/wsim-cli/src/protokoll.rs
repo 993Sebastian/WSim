@@ -112,11 +112,13 @@ impl Protocol {
             closed.year(),
             closed.month(),
         ));
-        for (product, _) in catalog.products.iter() {
+        for (product, p) in catalog.products.iter() {
             let acc = self.year.entry(product).or_default();
             for (_, m) in state.markets.get(product).iter() {
                 let t = &m.last_month;
-                acc.demand += t.demand;
+                if outside_demand(p) {
+                    acc.demand += t.demand;
+                }
                 acc.sold += t.sold;
                 acc.imported += t.imported;
             }
@@ -579,7 +581,12 @@ fn by_country(game: &Game) -> String {
     for ((p, c), r) in &rows {
         let market = state.markets.get(*p).get(*c);
         let t = &market.last_month;
-        if r.produced + r.need + r.sold + t.demand <= 1e-6 {
+        let demand = if outside_demand(catalog.products.get(*p)) {
+            t.demand
+        } else {
+            0.0
+        };
+        if r.produced + r.need + r.sold + demand <= 1e-6 {
             continue;
         }
         let price = if r.sold > 0.0 {
@@ -594,7 +601,7 @@ fn by_country(game: &Game) -> String {
             catalog.countries.key(*c),
             r.produced,
             r.need,
-            t.demand,
+            demand,
             r.sold,
             price,
             usd(market::local_reference(catalog, state, *c, *p)),
@@ -605,4 +612,10 @@ fn by_country(game: &Game) -> String {
         );
     }
     csv
+}
+
+/// Whether consumers or governments buy the product; the markets' demand of other goods
+/// is the purchase orders of companies, counted as input need instead.
+fn outside_demand(p: &wsim_core::catalog::Product) -> bool {
+    p.consumer_demand.is_some() || p.state_demand.is_some()
 }

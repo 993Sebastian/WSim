@@ -2,6 +2,8 @@
 //! options to build, markets, research and finances. Like all views they hold keys
 //! and finished numbers only.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
@@ -9,11 +11,12 @@ use crate::catalog::SiteType;
 use crate::command::site_type_key;
 use crate::finance;
 use crate::game::Game;
+use crate::ids::{CountryId, GoodsGroupId};
 use crate::market;
 use crate::money::Money;
 use crate::reports;
 use crate::research;
-use crate::state::{Limit, PriceMode};
+use crate::state::{CompanyId, Limit, PriceMode};
 
 /// Why a facility made less than planned on the last day, as text key and product.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -446,6 +449,26 @@ pub struct MarketLine {
     pub own_price_usd: Option<f64>,
     /// Own sales in the last closed month.
     pub own_sold_last_month: f64,
+    /// Goods group; brands and advertising work per group (M16).
+    pub group: String,
+    /// Own share of the sales in the country in the last closed month (0–1).
+    pub own_share: f64,
+    /// Company that sold most here in the last closed month, and its share.
+    pub leader: Option<String>,
+    pub leader_share: f64,
+}
+
+/// Brands of a goods group in a country (M16).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BrandLine {
+    pub group: String,
+    /// Own awareness, 0–1.
+    pub own_awareness: f64,
+    /// Best known other company selling the group here, and its awareness.
+    pub top: Option<String>,
+    pub top_awareness: f64,
+    /// Own advertising budget per month.
+    pub budget_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -453,6 +476,12 @@ pub struct MarketView {
     pub date: String,
     pub country: String,
     pub lines: Vec<MarketLine>,
+    /// Goods groups that consumers buy here or the player advertises or is known for.
+    pub brands: Vec<BrandLine>,
+    /// Best advertising medium of the year (text `werbemittel.<key>`).
+    pub medium: Option<String>,
+    /// Budget per month that reaches the whole country once.
+    pub reach_usd: f64,
 }
 
 pub fn market(game: &Game, country: &str) -> Option<MarketView> {
@@ -469,18 +498,25 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
             let mut sellers = 0;
             let mut own_price = None;
             let mut own_sold = 0.0;
+            let mut by_company: BTreeMap<CompanyId, f64> = BTreeMap::new();
             for s in state.sites.iter().filter(|s| s.country == c) {
                 if let Some(o) = s.offers.get(&p) {
                     if state.companies[s.owner.index()].bankrupt {
                         continue;
                     }
                     sellers += 1;
+                    *by_company.entry(s.owner).or_default() += o.sold_last_month;
                     if s.owner == state.player {
                         own_price = Some(usd(o.price));
                         own_sold += o.sold_last_month;
                     }
                 }
             }
+            let share = |sold: f64| if t.sold > 1e-9 { sold / t.sold } else { 0.0 };
+            let leader = by_company
+                .iter()
+                .filter(|&(_, &sold)| sold > 1e-9)
+                .max_by(|a, b| a.1.total_cmp(b.1).then(b.0.cmp(a.0)));
             MarketLine {
                 product: catalog.products.key(p).to_owned(),
                 price_usd: usd(market::market_price(catalog, state, c, p)),
@@ -493,6 +529,13 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                 sellers,
                 own_price_usd: own_price,
                 own_sold_last_month: own_sold,
+                group: catalog
+                    .goods_groups
+                    .key(catalog.products.get(p).goods_group)
+                    .to_owned(),
+                own_share: share(own_sold),
+                leader: leader.map(|(&id, _)| state.companies[id.index()].name.clone()),
+                leader_share: leader.map_or(0.0, |(_, &sold)| share(sold)),
             }
         })
         .collect();
@@ -500,7 +543,82 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
         date: iso(state.date),
         country: country.to_owned(),
         lines,
+        brands: brands(game, c),
+        medium: catalog
+            .market_model
+            .brand
+            .medium(state.date.year())
+            .map(|m| m.key.clone()),
+        reach_usd: crate::brand::reach_usd(state, catalog, c),
     })
+}
+
+/// Awareness and advertising per goods group in a country: groups with consumer demand
+/// here and groups the player advertises or is known for.
+fn brands(game: &Game, country: CountryId) -> Vec<BrandLine> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let player = &state.companies[state.player.index()];
+    let mut groups: BTreeSet<GoodsGroupId> = catalog
+        .products
+        .iter()
+        .filter(|&(p, _)| {
+            state
+                .markets
+                .get(p)
+                .get(country)
+                .consumer_rate
+                .iter()
+                .sum::<f64>()
+                > 0.0
+        })
+        .map(|(_, product)| product.goods_group)
+        .collect();
+    groups.extend(
+        player
+            .brands
+            .iter()
+            .filter(|b| b.country == country)
+            .map(|b| b.group),
+    );
+    groups.extend(
+        player
+            .advertising
+            .iter()
+            .filter(|a| a.country == country)
+            .map(|a| a.group),
+    );
+    groups
+        .into_iter()
+        .map(|group| {
+            let top = state
+                .sites
+                .iter()
+                .filter(|s| s.country == country && s.owner != state.player)
+                .filter(|s| !state.companies[s.owner.index()].bankrupt)
+                .filter(|s| {
+                    s.offers
+                        .keys()
+                        .any(|&p| catalog.products.get(p).goods_group == group)
+                })
+                .map(|s| {
+                    let company = &state.companies[s.owner.index()];
+                    (company.awareness(country, group), s.owner)
+                })
+                .max_by(|a, b| a.0.total_cmp(&b.0).then(b.1.cmp(&a.1)));
+            BrandLine {
+                group: catalog.goods_groups.key(group).to_owned(),
+                own_awareness: player.awareness(country, group),
+                top: top.map(|(_, id)| state.companies[id.index()].name.clone()),
+                top_awareness: top.map_or(0.0, |(a, _)| a),
+                budget_usd: player
+                    .advertising
+                    .iter()
+                    .find(|a| a.country == country && a.group == group)
+                    .map_or(0.0, |a| usd(a.budget)),
+            }
+        })
+        .collect()
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -2,10 +2,13 @@ import { expect, test, type Page } from "@playwright/test";
 
 const bilder = process.env.WSIM_BILDER;
 
-async function starten(page: Page) {
+async function starten(page: Page, einfuehrung = false) {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
   await page.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
+  const haken = page.getByLabel(/Einführung zeigen/);
+  await expect(haken).toBeChecked();
+  if (!einfuehrung) await haken.uncheck();
   await page.getByRole("button", { name: "Spiel starten" }).click();
   await expect(page.locator(".kopfleiste")).toBeVisible();
 }
@@ -34,6 +37,11 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
 
   await page.keyboard.press("3");
   await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
+  // Newcomer against the established companies: leader, own share and brands.
+  await expect(page.getByRole("cell", { name: "99 % Maschinenfabrik Becker AG" })).toBeVisible();
+  const marken = page.getByRole("table", { name: "Marke und Werbung Deutschland" });
+  await expect(marken.getByRole("cell", { name: "Metallwaren", exact: true })).toBeVisible();
+  await expect(page.getByText(/Bestes Werbemittel: Zeitungsanzeigen/)).toBeVisible();
   await bild(page, "markt");
 
   await page.keyboard.press("4");
@@ -79,6 +87,11 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await page.getByLabel("Laufzeit (Jahre)").fill("8");
   await page.getByRole("button", { name: "Aufnehmen" }).click();
 
+  await page.getByRole("button", { name: "Markt" }).click();
+  const werbung = page.getByRole("form", { name: "Werbung für Metallwaren" });
+  await werbung.getByLabel("Werbebudget je Monat für Metallwaren in USD").fill("5000");
+  await werbung.getByRole("button", { name: "Setzen" }).click();
+
   expect(await befehle(page)).toEqual([
     { SetProduction: { site: 0, slot: 0, recipe: "naegel_maschine", utilization: 0.6 } },
     {
@@ -92,7 +105,48 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_000_000 }, keep: 0 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },
+    { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
   ]);
+});
+
+test("Die Einführung führt durch die Ansichten und lässt sich neu starten", async ({ page }) => {
+  await starten(page, true);
+  const einfuehrung = page.getByRole("complementary", { name: "Einführung" });
+  await expect(einfuehrung.getByRole("heading", { name: "Willkommen" })).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 8")).toBeVisible();
+  await bild(page, "einfuehrung");
+
+  const weiter = einfuehrung.getByRole("button", { name: "Weiter" });
+  await weiter.click();
+  await weiter.click();
+  await expect(einfuehrung.getByRole("heading", { name: "Produktion" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Produktion" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await weiter.click();
+  await weiter.click();
+  await expect(einfuehrung.getByRole("heading", { name: "Marke und Werbung" })).toBeVisible();
+  await expect(page.getByRole("table", { name: "Marke und Werbung Deutschland" })).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Zurück" }).click();
+  await expect(einfuehrung.getByRole("heading", { name: "Markt" })).toBeVisible();
+
+  await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
+  await expect(einfuehrung).toBeHidden();
+
+  await page.keyboard.press("?");
+  await page
+    .getByRole("dialog", { name: "Tastaturkürzel" })
+    .getByRole("button", { name: "Einführung starten" })
+    .click();
+  await expect(einfuehrung.getByText("Schritt 1 von 8")).toBeVisible();
+  for (let i = 0; i < 7; i++) await weiter.click();
+  await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await einfuehrung.getByRole("button", { name: "Fertig" }).click();
+  await expect(einfuehrung).toBeHidden();
 });
 
 test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {

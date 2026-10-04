@@ -110,6 +110,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             non_negative(ctx, w.energy, &wl.field("energie")),
         ],
         reference_wage_usd: positive(ctx, s.reference_wage_usd, &sl.field("referenzlohn_usd")),
+        market_cover: in_range(ctx, s.market_cover, 1.0, 3.0, &sl.field("marktdeckung")),
     };
     let b = &m.behavior;
     let bl = l.field("verhalten");
@@ -138,6 +139,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         ),
         utilization_min: share(ctx, b.utilization_min, &bl.field("auslastung_min")),
         floor_factor: span(ctx, &b.floor_factor, &bl.field("preisuntergrenze")),
+        advertising_share: span(ctx, &b.advertising_share, &bl.field("werbeanteil")),
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),
         expand_margin: span(ctx, &b.expand_margin, &bl.field("ausbau_marge")),

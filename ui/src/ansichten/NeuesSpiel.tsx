@@ -12,11 +12,13 @@ export function NeuesSpielAnsicht({
   onZurueck,
 }: {
   kern: Kern;
-  onStart: (u: Uebersicht) => void;
+  onStart: (u: Uebersicht, einfuehrung: boolean) => void;
   onZurueck: () => void;
 }) {
   const [optionen, setOptionen] = useState<Optionen | null>(null);
   const [werte, setWerte] = useState<NeuesSpiel | null>(null);
+  // Part of the interface only: the core does not know the introduction.
+  const [einfuehrung, setEinfuehrung] = useState(true);
   const [fehler, setFehler] = useState<string | null>(null);
   const [startet, setStartet] = useState(false);
 
@@ -71,7 +73,10 @@ export function NeuesSpielAnsicht({
     setFehler(null);
     setStartet(true);
     try {
-      onStart(await kern.neuesSpiel({ ...werte, company_name: werte.company_name.trim() }));
+      onStart(
+        await kern.neuesSpiel({ ...werte, company_name: werte.company_name.trim() }),
+        einfuehrung,
+      );
     } catch (err) {
       setFehler(fehlerText(err));
       setStartet(false);
@@ -199,6 +204,15 @@ export function NeuesSpielAnsicht({
             />
           </label>
         </div>
+        <label className="ankreuz">
+          <input
+            id="einfuehrung"
+            type="checkbox"
+            checked={einfuehrung}
+            onChange={(e) => setEinfuehrung(e.target.checked)}
+          />
+          {t("neu.einfuehrung")}
+        </label>
         <FehlerText fehler={fehler} />
         <div className="knopfreihe">
           <button type="button" onClick={onZurueck} disabled={startet}>

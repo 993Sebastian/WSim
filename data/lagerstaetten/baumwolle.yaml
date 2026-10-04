@@ -1,13 +1,15 @@
 # Baumwollanbau (erneuerbar). Höchstförderung in t Baumwolle je Jahr.
 # Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
 
+# Stufe 1: Baumwolle steht für alle Textilfasern (auch Wolle, Leinen, Seide); die
+# Förderung liegt deshalb um die Hälfte über der historischen Baumwollernte (M15).
 lagerstaetten:
   - id: baumwollguertel   # Südstaaten
     land: USA
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 25_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 2_500_000
+    foerderung_max_je_jahr: 3_750_000
     annaeherung: true
 
   - id: dekkan
@@ -15,7 +17,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 10_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 800_000
+    foerderung_max_je_jahr: 1_200_000
     annaeherung: true
 
   - id: sindh_punjab
@@ -23,7 +25,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 300_000
+    foerderung_max_je_jahr: 450_000
     annaeherung: true
 
   - id: nildelta   # langstapelige Baumwolle
@@ -31,7 +33,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 300_000
+    foerderung_max_je_jahr: 450_000
     foerderkosten_faktor: 0.8
     annaeherung: true
 
@@ -40,7 +42,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 8_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 600_000
+    foerderung_max_je_jahr: 900_000
     annaeherung: true
 
   - id: ferghana   # Russisch-Turkestan
@@ -48,7 +50,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 8_000_000, dauer_tage: 240}
-    foerderung_max_je_jahr: 300_000
+    foerderung_max_je_jahr: 450_000
     foerderkosten_faktor: 1.1
     annaeherung: true
 
@@ -57,7 +59,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 5_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 100_000
+    foerderung_max_je_jahr: 150_000
     foerderkosten_faktor: 1.1
     annaeherung: true
 
@@ -67,7 +69,7 @@ lagerstaetten:
     erneuerbar: true
     entdeckt: 1925
     erschliessung: {investition_usd: 10_000_000, dauer_tage: 360}
-    foerderung_max_je_jahr: 100_000
+    foerderung_max_je_jahr: 150_000
     foerderkosten_faktor: 0.9
     annaeherung: true
 
@@ -76,7 +78,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 50_000
+    foerderung_max_je_jahr: 75_000
     annaeherung: true
 
   - id: laguna
@@ -84,7 +86,7 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 50_000
+    foerderung_max_je_jahr: 75_000
     annaeherung: true
 
   - id: kilikien
@@ -92,6 +94,6 @@ lagerstaetten:
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
-    foerderung_max_je_jahr: 50_000
+    foerderung_max_je_jahr: 75_000
     foerderkosten_faktor: 1.1
     annaeherung: true

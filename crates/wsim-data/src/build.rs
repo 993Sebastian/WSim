@@ -399,7 +399,8 @@ pub(crate) fn build(
     b.catalog.production_model =
         production::production_model(b.ctx, raw, (&product_keys, &facility_keys, &recipe_keys));
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
-    b.catalog.market_model = production::market_model(b.ctx, raw);
+    let (market_model, media_keys) = production::market_model(b.ctx, raw);
+    b.catalog.market_model = market_model;
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
     b.catalog.research_model =
         production::research_model(b.ctx, &b.catalog, raw, &qualification_keys);
@@ -619,6 +620,7 @@ pub(crate) fn build(
         &vehicle_keys,
         &difficulty_keys,
         &event_keys,
+        &media_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
 

@@ -174,6 +174,8 @@ impl Game {
 
         let date = Date::first_of_year(settings.start_year);
         let player = Company {
+            brands: Vec::new(),
+            advertising: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -385,6 +387,7 @@ impl Game {
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);
             market::reset_site_months(&mut self.state);
+            crate::brand::month_start(&mut self.state, &self.catalog, next);
         }
         if next.ordinal() == 1 {
             production::new_year(&mut self.state);

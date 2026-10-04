@@ -53,6 +53,12 @@ warengruppe.moebel_hausrat: Möbel und Hausrat
 warengruppe.ruestung: Rüstungsgüter
 warengruppe.strom: Strom
 
+# Werbemittel (marktmodell.marke.werbemittel)
+werbemittel.zeitung: Zeitungsanzeigen
+werbemittel.radio: Radiowerbung
+werbemittel.fernsehen: Fernsehwerbung
+werbemittel.internet: Internetwerbung
+
 transportklasse.schuettgut: Schüttgut
 transportklasse.stueckgut: Stückgut
 transportklasse.fluessig: Flüssiggut

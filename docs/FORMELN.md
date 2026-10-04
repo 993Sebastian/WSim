@@ -257,7 +257,10 @@ Schicht. Preissenkungen erhöhen S_q gerade in den unteren Schichten (Massenmär
     Nutzen_i = −Preisgewicht_q · ln(p_i / r) + Qualitätsgewicht_q · (Qualität_i − 50) / 25
     Anteil_i = exp(Nutzen_i) / Σ exp(Nutzen_j)
 
-Ist ein Anbieter ausverkauft, wird der Rest auf die übrigen verteilt.
+Ist ein Anbieter ausverkauft, wird der Rest auf die übrigen verteilt. Seit M16 kommen
+Marke und Präsenz hinzu (Abschnitt M16). Das Preisgewicht ist dort auf 7 (ärmstes
+Fünftel) bis 3 (reichstes) gestiegen: Massenware wird über den Preis verkauft, ein
+doppelter Preis behält bei Gewicht 5 nur 1/32 der Kunden.
 
 ### Preise
 
@@ -465,7 +468,10 @@ Befehle unterbleiben. Sie werden am Tagesanfang getroffen und nicht ins Journal
 geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
 
 - **Betrieb** alle `betrieb_alle_tage` (*k*) Tage, erster Termin zufällig gestreut:
-  - Lagerreichweite = (Lager − Rückhalt) / (Vollleistung · Auslastung). Über
+  - Lagerreichweite = (Lager − Rückhalt) / Absatz je Tag im Vormonat; ohne Absatz im
+    Vormonat / (Vollleistung · Auslastung). (Bis M16 stand hier immer die eigene
+    Erzeugung im Nenner: Jede Drosselung verlängerte die Reichweite und trieb die
+    Auslastung bis zum Minimum.) Über
     `lager_hoch_tage` sinkt die Auslastung um `auslastung_schritt` (nicht unter
     `auslastung_min`), unter `lager_niedrig_tage` steigt sie, wenn die Anlage nicht
     durch fehlende Vorprodukte oder Arbeitskräfte gebremst war.
@@ -530,8 +536,8 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
 
 ## M16 – Markteintritt, Marke und Werbung
 
-Parameter: `data/parameter/marketingmodell.yaml`; KI: `kimodell.verhalten.werbeanteil`;
-Startbesetzung: `kimodell.start.marktdeckung`.
+Parameter: `marktmodell.marke` in `data/parameter/marktmodell.yaml`; KI:
+`kimodell.verhalten.werbeanteil`; Startbesetzung: `kimodell.start.marktdeckung`.
 
 ### Gesättigte Märkte zum Start
 
@@ -540,6 +546,14 @@ Bedarf bei Normalauslastung, statt für den Bedarf allein. Etablierte Firmen beg
 Markenbekanntheit B_start in jedem Land und jeder Warengruppe, in denen sie zum Start
 Endprodukte anbieten: `bekanntheit_start` für generierte, `bekanntheit_start_real` für
 historische Firmen. Der Spieler beginnt überall mit B = 0.
+
+Der Handel läuft vom ersten Tag an: Fehlt einem Land ein Gut (Bedarf der Anlagen,
+Verbraucher und des Staates über der eigenen Erzeugung), halten die Händler dort
+`vorrat_tage` dieser Lücke auf Lager. Eingekauft ist die Ware zum Richtpreis des
+günstigsten Landes mit Überschuss plus Transport (E); Einfuhrpreis und Marktpreis des
+Landes beginnen bei max(Richtpreis im Land, E · (1 + `haendler.marge`)). So decken die
+Händler den Einkauf weiter, sobald das erste Lager verkauft ist, statt erst nach Wochen
+des Mangels.
 
 ### Markenbekanntheit
 
@@ -560,12 +574,24 @@ B ∈ [0, 1] je Firma, Land und Warengruppe. Monatlich (Monatsanfang, für den V
   im Land im Vormonat (Mundpropaganda: Wer verkauft, wird bekannt).
 - Einträge mit B < 0,001 ohne Budget entfallen.
 
-### Anbieterwahl mit Marke
+### Anbieterwahl mit Marke und Präsenz
 
-Der Nutzen der Endkunden (M7) bekommt einen Markenteil:
+Der Nutzen der Endkunden (M7) bekommt einen Markenteil, und jedes Angebot zählt mit
+seiner Präsenz im Handel:
 
-    Nutzen_i = −Preisgewicht_q · ln(p_i / r) + Qualitätsgewicht_q · (Qualität_i − 50) / 25
-               + Markengewicht_q · B_i
+    Nutzen_i  = −Preisgewicht_q · ln(p_i / r) + Qualitätsgewicht_q · (Qualität_i − 50) / 25
+                + Markengewicht_q · B_i
+    Gewicht_i = P_i · exp(Nutzen_i)
+    Anteil_i  = Gewicht_i / Σ Gewicht
+
+- P_i: Präsenz, was der Anbieter je Tag in die Läden bringt. Standort: geplante Erzeugung
+  des Produkts je Tag (Haupt- und Nebenprodukt fertiger Anlagen bei ihrer Auslastung)
+  + verfügbares Lager / `lagertage`. Händler: Importlager / `lagertage`. Staatsmarkt:
+  die gesamte Verbrauchernachfrage je Tag.
+- Ohne Präsenz bekäme ein Neuling mit einer kleinen Anlage bei gleichem Nutzen so viele
+  Kunden wie ein großer Etablierter und verkaufte jede Menge zu jedem Preis. Mit
+  Präsenz verkauft er bei gleichem Nutzen ungefähr seine Erzeugung; teurer, unbekannt
+  oder schlechter bleibt er auf seiner Ware sitzen.
 
 - B_i: Bekanntheit des Anbieters im Land für die Warengruppe des Produkts. Händlerware
   (Einfuhr) hat `bekanntheit_handel`, der Staatsmarkt `bekanntheit_staatsmarkt`.
@@ -573,9 +599,11 @@ Der Nutzen der Endkunden (M7) bekommt einen Markenteil:
   auf die Marke.
 - Industrie und Staat kaufen weiter nach Preis (M7); dort zählt die Marke nicht.
 
-Beispiel: Ein Neuling (B = 0) gegen eine bekannte Marke (B = 0,6) bei gleichem Preis und
-gleicher Qualität erhält bei Markengewicht 1 einen Anteil von exp(0) / (exp(0) + exp(0,6))
-≈ 35 %; mit 10 % niedrigerem Preis und Preisgewicht 1,6 etwa 39 %.
+Beispiel: Ein Neuling (B = 0, Präsenz 1 t/Tag) neben einer bekannten Marke (B = 0,6,
+Präsenz 30 t/Tag) bei gleichem Preis und gleicher Qualität, Markengewicht 1,2,
+Preisgewicht 4: Anteil = 1 / (1 + 30 · exp(0,72)) ≈ 1,6 % der Nachfrage – bei einem
+Markt von 31 t/Tag 0,5 t, die halbe Erzeugung. Mit 15 % niedrigerem Preis
+(exp(−4 · ln 0,85) ≈ 1,9) sind es etwa 3 % – die ganze Erzeugung.
 
 ### Werbebudget
 

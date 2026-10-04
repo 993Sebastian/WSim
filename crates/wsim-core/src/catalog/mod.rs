@@ -230,6 +230,8 @@ pub struct AiStart {
     pub development_weight: [f64; 5],
     /// Wage for comparing recipes (USD per hour).
     pub reference_wage_usd: f64,
+    /// Plants are planned for this multiple of the demand: saturated markets (M16).
+    pub market_cover: f64,
 }
 
 /// How the AI companies decide; spans depend on competence or aggressiveness.
@@ -243,6 +245,8 @@ pub struct AiBehavior {
     pub utilization_min: f64,
     /// Price floor = normal cost × this factor (aggressiveness).
     pub floor_factor: Span,
+    /// Monthly advertising as share of the revenue of a goods group in a country.
+    pub advertising_share: Span,
     pub purchase_markup: f64,
     /// Expansion when the utilization and the margin reach these (aggressiveness).
     pub expand_utilization: Span,
@@ -283,6 +287,7 @@ impl Default for AiModel {
                 cash_months: 3.0,
                 development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
                 reference_wage_usd: 4.0,
+                market_cover: 1.15,
             },
             behavior: AiBehavior {
                 operations_days: Span {
@@ -296,6 +301,10 @@ impl Default for AiModel {
                 floor_factor: Span {
                     at_0: 1.05,
                     at_1: 0.9,
+                },
+                advertising_share: Span {
+                    at_0: 0.01,
+                    at_1: 0.03,
                 },
                 purchase_markup: 0.25,
                 expand_utilization: Span {
@@ -525,12 +534,70 @@ pub struct MarketModel {
     pub trader_cover_days: f64,
     /// Days over which the open demand of a market is averaged.
     pub demand_smoothing_days: f64,
+    /// Brands and advertising (M16).
+    pub brand: BrandModel,
+}
+
+/// Brand awareness and advertising (`marktmodell.marke`, formulas in docs/FORMELN.md, M16).
+#[derive(Clone, Debug, PartialEq)]
+pub struct BrandModel {
+    /// Weight of the brand awareness when choosing a seller, per income fifth.
+    pub weight: [f64; 5],
+    pub forgetting_per_month: f64,
+    /// Share of the gap to full awareness closed per month at a market share of 1.
+    pub word_of_mouth: f64,
+    /// Advertising that reaches a country once, per inhabitant at price level 1.
+    pub cost_per_inhabitant_usd: f64,
+    /// Awareness of established companies where they sell at the start.
+    pub start_awareness: f64,
+    pub start_awareness_real: f64,
+    /// Awareness of goods that traders import and of the state market.
+    pub trade_awareness: f64,
+    pub state_market_awareness: f64,
+    pub media: Vec<AdvertisingMedium>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AdvertisingMedium {
+    pub key: String,
+    pub from_year: i32,
+    pub effect: f64,
+}
+
+impl BrandModel {
+    /// The best medium available in `year`, if any.
+    pub fn medium(&self, year: i32) -> Option<&AdvertisingMedium> {
+        self.media
+            .iter()
+            .filter(|m| m.from_year <= year)
+            .max_by(|a, b| a.effect.total_cmp(&b.effect))
+    }
+}
+
+impl Default for BrandModel {
+    fn default() -> Self {
+        Self {
+            weight: [0.4, 0.6, 0.9, 1.2, 1.5],
+            forgetting_per_month: 0.03,
+            word_of_mouth: 0.08,
+            cost_per_inhabitant_usd: 0.05,
+            start_awareness: 0.5,
+            start_awareness_real: 0.7,
+            trade_awareness: 0.2,
+            state_market_awareness: 0.3,
+            media: vec![AdvertisingMedium {
+                key: "zeitung".into(),
+                from_year: 1800,
+                effect: 1.0,
+            }],
+        }
+    }
 }
 
 impl Default for MarketModel {
     fn default() -> Self {
         Self {
-            price_weight: [2.0, 1.6, 1.2, 0.9, 0.6],
+            price_weight: [7.0, 6.0, 5.0, 4.0, 3.0],
             quality_weight: [0.3, 0.5, 0.8, 1.1, 1.5],
             adoption_per_year: 0.25,
             price_step_up: 0.02,
@@ -542,6 +609,7 @@ impl Default for MarketModel {
             trader_margin: 0.05,
             trader_cover_days: 30.0,
             demand_smoothing_days: 30.0,
+            brand: BrandModel::default(),
         }
     }
 }

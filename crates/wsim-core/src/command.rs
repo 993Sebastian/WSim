@@ -6,7 +6,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::catalog::{Catalog, SiteType};
-use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
+use crate::ids::{
+    CountryId, DepositId, FacilityId, GoodsGroupId, Id, ProductId, RecipeId, TechnologyId,
+};
 use crate::ledger::{Account, CostCenter, CostType, Ledger};
 use crate::message::{Message, Param, keys};
 use crate::money::Money;
@@ -84,6 +86,12 @@ pub enum Command {
         buyer: BuyerGroup,
         scope: Scope,
         rule: Option<SalesRule>,
+    },
+    /// Monthly advertising budget for a goods group in a country (0 stops it).
+    SetAdvertising {
+        country: CountryId,
+        group: GoodsGroupId,
+        budget: Money,
     },
 }
 
@@ -749,6 +757,27 @@ pub(crate) fn execute(
             }
             let company = state.company_mut(actor).expect("checked above");
             policy::set(company, *buyer, *scope, *rule);
+        }
+        Command::SetAdvertising {
+            country,
+            group,
+            budget,
+        } => {
+            if budget.is_negative() {
+                return Err(CommandError::InvalidAmount);
+            }
+            let company = state.company_mut(actor).expect("checked above");
+            company
+                .advertising
+                .retain(|a| !(a.country == *country && a.group == *group));
+            if *budget > Money::ZERO {
+                company.advertising.push(crate::state::Advertising {
+                    country: *country,
+                    group: *group,
+                    budget: *budget,
+                });
+                company.advertising.sort_by_key(|a| (a.country, a.group));
+            }
         }
     }
     Ok(())

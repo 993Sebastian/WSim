@@ -92,6 +92,12 @@ bei Bedarf widersprechen) · ❓ offen
 28. 🟡 **Tutorial-Stand beim Speichern.** Vorschlag: Das Tutorial gehört zur laufenden
     Sitzung; nach dem Laden eines Spielstands ist es aus und lässt sich über die
     Tastenhilfe neu starten.
+29. 🟡 **Präsenz und Preisempfindlichkeit der Endkunden.** Umgesetzt (M16): Jedes Angebot
+    zählt in der Anbieterwahl mit seiner Präsenz (Erzeugung je Tag plus Lager / 30), und
+    das Preisgewicht liegt bei 7 (ärmstes Fünftel) bis 3 (reichstes) statt 2,0–0,6.
+    Ohne beides verkaufte ein Neuling mit einer Maschine alles zu fast jedem Preis.
+    Zu prüfen beim Spielen: ob Neulinge mit Werbung und Preis schnell genug Anteile
+    gewinnen (Stellschrauben: `preisgewicht`, `markengewicht`, `kosten_je_einwohner_usd`).
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

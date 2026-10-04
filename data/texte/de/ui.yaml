@@ -26,6 +26,7 @@ neu.seed: Zufallswert (gleicher Wert und gleiche Entscheidungen ergeben dieselbe
 neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
+neu.einfuehrung: Einführung zeigen (empfohlen für die erste Partie)
 
 startform.werkstatt: Werkstatt
 startform.handel: Handelsniederlassung
@@ -254,11 +255,25 @@ markt.referenz: Referenz
 markt.staat: Staatlich
 markt.nachfrage: Nachfrage
 markt.verkauft: Verkauft
-markt.einfuhr: Einfuhr
-markt.ausfuhr: Ausfuhr
+markt.ein_ausfuhr: Einfuhr / Ausfuhr
 markt.anbieter: Anbieter
 markt.eigener_preis: Eigener Preis (Absatz)
 markt.hinweis: Mengen des Vormonats. Der staatliche Markt liefert Vorprodukte, die sonst niemand anbietet, zu einem Aufschlag.
+markt.fuehrer: Marktführer
+markt.anteil: Eigener Anteil
+markt.marke_titel: Marke und Werbung
+markt.marke_tabelle: "Marke und Werbung {land}"
+markt.warengruppe: Warengruppe
+markt.bekanntheit: Eigene Bekanntheit
+markt.konkurrenz: Bekannteste Konkurrenz
+markt.konkurrenz_wert: "{firma} ({bekanntheit})"
+markt.werbebudget: Werbebudget je Monat (USD)
+markt.werbung_fuer: "Werbung für {gruppe}"
+markt.budget_fuer: "Werbebudget je Monat für {gruppe} in USD"
+markt.budget_setzen: Setzen
+markt.werbemittel: "Bestes Werbemittel: {mittel}. Mit {betrag} im Monat erreicht die Werbung das ganze Land einmal; mehr Geld wirkt immer schwächer."
+markt.kein_werbemittel: Noch gibt es kein Werbemittel.
+markt.marke_hinweis: "Kunden wählen nach Preis, Qualität, Bekanntheit und danach, wie viel ein Anbieter in die Läden bringt. Bekanntheit wächst mit Werbung und mit eigenen Verkäufen an Verbraucher und verblasst ohne beides. Bezahlt wird das Budget am Monatsanfang; 0 beendet die Werbung. Industrie und Staat kaufen nur nach Preis."
 
 # Forschung
 forschung.zentren: Forschungszentren
@@ -322,6 +337,31 @@ tasten.speichern: Speichern
 tasten.laden: Laden
 tasten.hilfe: Diese Übersicht
 tasten.schliessen: Fenster schließen
+
+# Einführung (Lastenheft §14.4): Schritte in ui/src/ansichten/Einfuehrung.tsx
+einfuehrung.titel: Einführung
+einfuehrung.schritt: "Schritt {nummer} von {anzahl}"
+einfuehrung.beenden: Einführung beenden
+einfuehrung.zurueck: Zurück
+einfuehrung.weiter: Weiter
+einfuehrung.fertig: Fertig
+einfuehrung.starten: Einführung starten
+einfuehrung.willkommen.titel: Willkommen
+einfuehrung.willkommen.text: "Du führst eine kleine, neue Firma. Die Märkte sind schon verteilt: Etablierte Firmen versorgen jedes Land, sie sind bekannt und haben große Werke. Verkaufen wirst du nur, was du ihnen abnimmst – über einen günstigeren Preis, bessere Qualität, eine bekannte Marke, genug Ware in den Läden oder als Lieferant anderer Firmen."
+einfuehrung.uebersicht.titel: Übersicht
+einfuehrung.uebersicht.text: "Hier stehen Kasse, Eigenkapital und Ergebnis deiner Firma und die Zahl deiner Wettbewerber. Oben wählst du die Rundenlänge und beendest die Runde (Strg + Enter); danach fasst der Rundenbericht zusammen, was geschehen ist."
+einfuehrung.produktion.titel: Produktion
+einfuehrung.produktion.text: "Deine Werkstatt macht Nägel aus Draht. Je Anlage legst du Rezept und Auslastung fest; der Einkauf hält ein Lager an Vorprodukten, der Verkauf bietet deine Ware an – zum Marktpreis oder zu einem festen Preis. Steht eine Anlage still, nennt die Spalte „Ursache“ den Grund. Neue Anlagen und Standorte baust du ebenfalls hier."
+einfuehrung.markt.titel: Markt
+einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat. „Marktführer“ zeigt, gegen wen du antrittst, „Eigener Anteil“, was du ihm schon abgenommen hast. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
+einfuehrung.werbung.titel: Marke und Werbung
+einfuehrung.werbung.text: "Unter der Markttabelle steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
+einfuehrung.forschung.titel: Forschung
+einfuehrung.forschung.text: "Mit einem Forschungszentrum und seinen Laboren erforschst du neue Verfahren und Produkte – auch vor ihrer historischen Zeit, dann aber teurer."
+einfuehrung.finanzen.titel: Finanzen
+einfuehrung.finanzen.text: "Kredite, Erfolgsrechnung, Bilanz und Kapitalfluss. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
+einfuehrung.weltkarte.titel: Weltkarte
+einfuehrung.weltkarte.text: "Einwohner, Einkommen und Rohstoffe der Länder; ein Klick zeigt ein Land mit seinen Firmen. Mit „?“ siehst du alle Tastaturkürzel und kannst diese Einführung erneut starten. Viel Erfolg!"
 
 # Berichte
 ansicht.berichte: Berichte

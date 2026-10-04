@@ -22,8 +22,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
 | M13 | Oberfläche II: Weltkarte | ✅ |
 | M14 | Oberfläche III: Spielen | ✅ |
-| M15 | Spielbarkeit Stufe 1 | in Arbeit |
-| M16 | Markteintritt und Marketing | offen |
+| M15 | Spielbarkeit Stufe 1 | ✅ |
+| M16 | Markteintritt und Marketing | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -280,3 +280,57 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
     Handelsproblemen.
   - Testpartie 1900–1930 als Test (`crates/wsim-session/tests/testpartie.rs`, ignoriert,
     `--release`): Ein Spieler mit einfacher Strategie spielt 30 Jahre über die Sitzung.
+- M16 Markteintritt und Marketing (Auftrag vom 04.10.2026: gesättigte Märkte zum Start,
+  der Spieler gewinnt Marktanteile nur über Preis, Qualität, Marke, Präsenz und
+  Industriekunden; Werbung für Endprodukte; abwählbares Tutorial):
+  - Die Startbesetzung plant 115 % des Bedarfs (`marktdeckung`); etablierte Firmen sind
+    dort bekannt, wo sie zum Start Endprodukte verkaufen (B = 0,5, historische 0,7).
+  - Markenbekanntheit je Firma, Land und Warengruppe wächst mit Werbung (bestes
+    verfügbares Werbemittel: Zeitung, Radio ab 1923, Fernsehen ab 1950, Internet ab
+    1995) und Mundpropaganda (Marktanteil) und verblasst ohne beides. Die Parameter
+    stehen in `marktmodell.marke` statt in einer eigenen Datei, weil sie die
+    Anbieterwahl des Marktes betreffen. KI-Firmen werben mit 1–3 % ihres Umsatzes.
+  - Präsenz in der Anbieterwahl: Ohne sie bekam ein Neuling mit einer Nagelmaschine bei
+    gleichem Nutzen so viele Kunden wie ein großes Werk und verkaufte alles mit hohem
+    Aufschlag (Protokoll: Werkstatt ohne eigenes Zutun 0,4–0,8 Mio. USD Gewinn im Jahr).
+    Jetzt zählt jedes Angebot mit seiner Erzeugung und seinem Lager.
+  - Preisgewicht der Endkunden von 2,0–0,6 auf 7–3: Massenware wird über den Preis
+    verkauft; vorher hielt ein Anbieter mit doppeltem Preis noch über ein Drittel der
+    Kunden.
+  - KI-Lagerreichweite misst am Absatz statt an der eigenen Erzeugung; vorher trieb
+    jede Drosselung die Reichweite hoch und die Auslastung bis zum Minimum, sodass die
+    Welt nach einem halben Jahr nur die Hälfte der Nachfrage erzeugte.
+  - Händlerlager zum Start: Länder ohne eigene Erzeugung bekommen 30 Tage ihrer Lücke,
+    eingekauft im günstigsten Land mit Überschuss plus Transport; der Einfuhrpreis
+    deckt diesen Einkauf, sodass der Handel vom ersten Tag an läuft (vorher kam der
+    erste Nachschub erst nach Wochen des Mangels und leerte dann die Lager der
+    Exporteure auf einen Schlag).
+  - Baumwolle: Ertrag der Lagerstätten um 50 % erhöht. Baumwolle steht in Stufe 1 für
+    alle Naturfasern (Wolle, Leinen, Seide), deren Bedarf die Kleidung mitträgt.
+  - Ergebnis (Protokoll 1900–1930, 100 KI-Firmen): Die Werkstatt ohne eigenes Zutun
+    verdient 30 000–70 000 USD im Jahr und ab etwa 1910 kaum noch etwas (vorher
+    0,4–0,8 Mio. USD). Nach drei Monaten sind alle Endprodukte zu 88–100 % versorgt.
+    Pleiten bis 1929: 31. In der Testpartie (Nägel, bis zu 20 Maschinen) steht der
+    Spieler 1930 bei 0,66 Mio. USD Eigenkapital statt 18 Mio.
+  - Oberfläche: Die Marktansicht zeigt je Produkt den Marktführer mit Anteil und den
+    eigenen Anteil, darunter je Warengruppe die eigene Bekanntheit neben der
+    bekanntesten Konkurrenz und das Werbebudget (Befehl `SetAdvertising`) sowie das
+    beste Werbemittel und die Summe, die das Land einmal erreicht. Einfuhr und Ausfuhr
+    stehen in einer Spalte, damit die Tabelle breit genug für die neuen Spalten bleibt.
+  - Einführung (Lastenheft §14.4): im Dialog „Neues Spiel“ abwählbar (Standard: an),
+    acht Schritte von der Lage als Neuling über Übersicht, Produktion, Markt, Werbung,
+    Forschung und Finanzen bis zur Weltkarte. Sie liegt als Fenster neben dem Spiel
+    und sperrt es nicht, wechselt bei jedem Schritt in die passende Ansicht und lässt
+    sich über die Tastenhilfe („?“) neu starten. Sie gehört nur zur Oberfläche: Der Kern
+    kennt sie nicht, und ein geladenes Spiel beginnt ohne sie.
+  - Fehler behoben: Märkte von Gütern, die nur Firmen kaufen (Draht, Stahl, Holz …),
+    schlossen ihren Monat nie ab; Markt- und Länderansicht zeigten dort keine Nachfrage
+    und keinen Absatz. Die Simulation selbst las diese Werte nicht.
+  - Bekannt, als Nächstes (Weltlauf-Diagnose): Nach dem ersten Quartal sinkt die
+    Versorgung einzelner Konsumgüter weltweit auf 75–90 %, obwohl genug Anlagen da sind.
+    Ursachen: (1) Händler zählen die Ware unterwegs gegen ihren 30-Tage-Vorrat; auf
+    Seewegen über 30 Tage (China, Indien) kommt so dauerhaft nur ein Teil an. (2) Der
+    Marktpreisindex eines Vorprodukts beginnt bei 0 und steigt nur langsam; darauf
+    gestützte Gebote der KI erreichen die Verkäufer nicht (Möbelwerke ohne Leim).
+    (3) Die KI ändert die Auslastung nur in Schritten von 0,1 und braucht Monate, um einer
+    gestiegenen Nachfrage zu folgen. Korrekturen sind erprobt, aber noch nicht abgenommen.

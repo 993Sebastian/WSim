@@ -184,6 +184,7 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | **staat_hoechstpreis** | Staaten zahlen höchstens dieses Vielfache des Richtpreises |
 | **index_glaettung** | Gewicht des Tagesdurchschnitts im Marktpreis |
 | **haendler** | KI-Händler (M8): `marge` (Aufschlag auf Einkauf und Transport), `vorrat_tage` (Lager für so viele Tage offener Nachfrage), `glaettung_tage` (1–365, Mittelung der offenen Nachfrage) |
+| **marke** | Marke und Werbung (M16): `markengewicht` (5 Werte ≥ 0, ärmstes Fünftel zuerst), `vergessen_je_monat` (0–1), `mundpropaganda` (0–1, Anteil der Lücke je Monat bei 100 % Marktanteil), `kosten_je_einwohner_usd` (> 0, Werbung, die ein Land bei Preisniveau 1 einmal erreicht), `bekanntheit_start` und `bekanntheit_start_real` (0–1, etablierte generierte bzw. historische Firmen, wo sie zum Start Endprodukte verkaufen), `bekanntheit_handel` und `bekanntheit_staatsmarkt` (0–1, Bekanntheit eingeführter Ware und des Staatsmarkts), `werbemittel` (Liste `{id, ab, wirkung}`, nicht leer, `id` eindeutig, `wirkung` > 0; es wirkt das beste im Jahr verfügbare; Text `werbemittel.<id>`) |
 
 ## transportmodell
 
@@ -328,8 +329,8 @@ der Firma (0–1) ab.
 | **schwierigkeiten** | Liste mit `id`, `kompetenz`, `aggressivitaet` (je 0–1); Text `schwierigkeit.<id>` |
 | **schwierigkeit_standard** | ID der vorgewählten Schwierigkeit |
 | **streuung** | Zufällige Abweichung je Firma von den Werten der Schwierigkeit (0–0,5) |
-| **start** | `auslastung`, `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `bauteil`, `endprodukt`, `energie`), `referenzlohn_usd` |
-| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `diversifikationen_je_quartal` (Firmen je Quartal, die in einem fremden Engpass bauen), `gruendung_kapitalfaktor` |
+| **start** | `auslastung`, `marktdeckung` (1–3, geplante Erzeugung im Verhältnis zum Bedarf: über 1 sind die Märkte zum Start gesättigt), `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `bauteil`, `endprodukt`, `energie`), `referenzlohn_usd` |
+| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `werbeanteil` (`bei_0`/`bei_1` nach Aggressivität: Werbebudget als Anteil des Vormonatsumsatzes je Land und Warengruppe), `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `diversifikationen_je_quartal` (Firmen je Quartal, die in einem fremden Engpass bauen), `gruendung_kapitalfaktor` |
 
 ## namensgruppen
 

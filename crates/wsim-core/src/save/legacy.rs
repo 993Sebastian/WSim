@@ -85,6 +85,8 @@ pub(super) fn decode_v2(
         .into_iter()
         .map(|c| {
             Ok(Company {
+                brands: Vec::new(),
+                advertising: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

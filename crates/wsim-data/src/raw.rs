@@ -619,6 +619,41 @@ pub struct RawMarketModel {
     pub index_smoothing: f64,
     #[serde(rename = "haendler")]
     pub traders: RawTraders,
+    #[serde(rename = "marke")]
+    pub brand: RawBrandModel,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBrandModel {
+    #[serde(rename = "markengewicht")]
+    pub weight: Vec<f64>,
+    #[serde(rename = "vergessen_je_monat")]
+    pub forgetting_per_month: f64,
+    #[serde(rename = "mundpropaganda")]
+    pub word_of_mouth: f64,
+    #[serde(rename = "kosten_je_einwohner_usd")]
+    pub cost_per_inhabitant_usd: f64,
+    #[serde(rename = "bekanntheit_start")]
+    pub start_awareness: f64,
+    #[serde(rename = "bekanntheit_start_real")]
+    pub start_awareness_real: f64,
+    #[serde(rename = "bekanntheit_handel")]
+    pub trade_awareness: f64,
+    #[serde(rename = "bekanntheit_staatsmarkt")]
+    pub state_market_awareness: f64,
+    #[serde(rename = "werbemittel")]
+    pub media: Vec<RawAdvertisingMedium>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAdvertisingMedium {
+    pub id: String,
+    #[serde(rename = "ab")]
+    pub from_year: i32,
+    #[serde(rename = "wirkung")]
+    pub effect: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -816,6 +851,8 @@ pub struct RawAiStart {
     pub development_weight: RawKindWeights,
     #[serde(rename = "referenzlohn_usd")]
     pub reference_wage_usd: f64,
+    #[serde(rename = "marktdeckung")]
+    pub market_cover: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -848,6 +885,8 @@ pub struct RawAiBehavior {
     pub utilization_min: f64,
     #[serde(rename = "preisuntergrenze")]
     pub floor_factor: RawSpan,
+    #[serde(rename = "werbeanteil")]
+    pub advertising_share: RawSpan,
     #[serde(rename = "einkauf_aufschlag")]
     pub purchase_markup: f64,
     #[serde(rename = "ausbau_auslastung")]
