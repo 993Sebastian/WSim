@@ -228,6 +228,24 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
         let mut commands = Vec::new();
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut cost: BTreeMap<ProductId, (Money, f64, f64, f64)> = BTreeMap::new();
+        // Per product of the site: full output of its finished facilities, and what is
+        // taken per day (sales over the last month and this one, own facilities' inputs).
+        let mut full_output: BTreeMap<ProductId, f64> = BTreeMap::new();
+        let mut taken: BTreeMap<ProductId, f64> = BTreeMap::new();
+        for sl in s.slots.iter().filter(|sl| sl.ready <= date) {
+            let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+                continue;
+            };
+            let runs = catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count);
+            *full_output.entry(r.product).or_default() += runs * r.output;
+            for &(input, q) in &r.inputs {
+                *taken.entry(input).or_default() += runs * sl.utilization * q;
+            }
+        }
+        let days_sold = 30.0 + f64::from(date.day() - 1);
+        for (&product, o) in &s.offers {
+            *taken.entry(product).or_default() += (o.sold_last_month + o.sold_month) / days_sold;
+        }
         for (index, sl) in s.slots.iter().enumerate() {
             let Some(recipe) = sl.recipe else {
                 // A new facility: the company's best recipe for it.
@@ -274,28 +292,29 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             .unwrap_or(recipe);
             let mut utilization = sl.utilization;
             if catalog.products.get(product).kind != ProductKind::Energy && sl.ready <= date {
-                let full = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * r.output;
+                let full = full_output.get(&product).copied().unwrap_or(0.0).max(1e-9);
                 let keep = s.offers.get(&product).map_or(0.0, |o| o.keep);
                 let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity) - keep;
-                // Stock in days of sales; measured against the own output it would grow
-                // with every cut and drive production to the minimum.
-                let sold = s.offers.get(&product).map_or(0.0, |o| o.sold_last_month) / 30.0;
-                let rate = if sold > 1e-9 {
-                    sold
+                let wanted = taken.get(&product).copied().unwrap_or(0.0);
+                let next = if wanted > 1e-9 {
+                    // Make what is taken and steer the stock to its target (M16). The old
+                    // steps of ±0.1 needed months to follow the demand.
+                    let target = b.stock_target_days * wanted;
+                    ((wanted + (target - stock) / b.stock_adjust_days) / full)
+                        .clamp(b.utilization_min, 1.0)
+                } else if stock > b.stock_high_days * full * utilization.max(b.utilization_min) {
+                    // Nothing taken yet (a new plant): produce until the stock is high.
+                    (utilization - b.utilization_step).max(b.utilization_min)
                 } else {
-                    full * utilization.max(b.utilization_min)
+                    utilization
                 };
-                let days = stock.max(0.0) / rate.max(1e-9);
                 let planned = catalog.facilities.get(sl.facility).runs_per_day
                     * f64::from(sl.count)
                     * sl.utilization;
+                // Held back by missing inputs or labour: planning more would not help.
                 let limited = sl.last_runs < 0.9 * planned;
-                if days > b.stock_high_days {
-                    utilization = (utilization - b.utilization_step).max(b.utilization_min);
-                } else if days < b.stock_low_days && !limited {
-                    utilization = (utilization + b.utilization_step).min(1.0);
+                if !(limited && next > utilization) {
+                    utilization = next;
                 }
             }
             if recipe != sl.recipe.expect("set") || (utilization - sl.utilization).abs() > 1e-9 {

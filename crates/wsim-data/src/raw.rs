@@ -883,6 +883,10 @@ pub struct RawAiBehavior {
     pub utilization_step: f64,
     #[serde(rename = "auslastung_min")]
     pub utilization_min: f64,
+    #[serde(rename = "lager_ziel_tage")]
+    pub stock_target_days: f64,
+    #[serde(rename = "lager_ausgleich_tage")]
+    pub stock_adjust_days: f64,
     #[serde(rename = "preisuntergrenze")]
     pub floor_factor: RawSpan,
     #[serde(rename = "werbeanteil")]

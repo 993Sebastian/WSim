@@ -42,8 +42,12 @@ kimodell:
 
   verhalten:
     betrieb_alle_tage: {bei_0: 14, bei_1: 7}          # Kompetenz
-    lager_hoch_tage: 20                                # mehr Lager: weniger produzieren
-    lager_niedrig_tage: 7                              # weniger Lager: mehr produzieren
+    # Erzeugung = Absatz und Eigenverbrauch je Tag + (Lagerziel − Lager) / Ausgleichstage
+    lager_ziel_tage: 14                                # Lager in Tagen von Absatz und Eigenverbrauch
+    lager_ausgleich_tage: 15                           # so schnell wird die Lücke zum Ziel geschlossen
+    # Einkauf: Gebote steigen unter „niedrig“ und sinken über „hoch“ um den Schritt
+    lager_hoch_tage: 20
+    lager_niedrig_tage: 7
     auslastung_schritt: 0.1
     auslastung_min: 0.05
     preisuntergrenze: {bei_0: 1.1, bei_1: 0.95}       # × Vollkosten bei normaler Auslastung, Aggressivität

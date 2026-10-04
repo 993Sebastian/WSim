@@ -323,7 +323,10 @@ Ein wettbewerblicher Händlermarkt verbindet die Länder (Gewinne verlassen das 
           + Industriekäufe aus Importen + offene Industrienachfrage / vorrat_tage
 
   geglättet: ō ← ō + (o − ō) / `glaettung_tage`.
-- **Bedarf** eines Ziellands B: vorrat_tage · ō − Importlager − unterwegs.
+- **Bedarf** eines Ziellands B: (vorrat_tage + Transporttage) · ō − Importlager −
+  unterwegs; Transporttage des günstigsten Herkunftslands. (Bis M16 ohne die
+  Transporttage: Bei Seewegen länger als `vorrat_tage` kam dann dauerhaft nur ein Teil
+  der Nachfrage an, z. B. 60 % in China und Indien.)
 - **Einkauf:** Händler kaufen nur aus Verkaufsangeboten von Firmen, die ihre
   Verkaufsfreigabe erlaubt (siehe unten). Für jedes Angebot im Land A ist der
   Einstandspreis E = Angebotspreis + Transport(A → B). Gekauft wird nur, wenn
@@ -548,8 +551,8 @@ Endprodukte anbieten: `bekanntheit_start` für generierte, `bekanntheit_start_re
 historische Firmen. Der Spieler beginnt überall mit B = 0.
 
 Der Handel läuft vom ersten Tag an: Fehlt einem Land ein Gut (Bedarf der Anlagen,
-Verbraucher und des Staates über der eigenen Erzeugung), halten die Händler dort
-`vorrat_tage` dieser Lücke auf Lager. Eingekauft ist die Ware zum Richtpreis des
+Verbraucher und des Staates über der eigenen Erzeugung), halten die Händler dort diese
+Lücke für `vorrat_tage` plus die Transporttage vom günstigsten Land auf Lager. Eingekauft ist die Ware zum Richtpreis des
 günstigsten Landes mit Überschuss plus Transport (E); Einfuhrpreis und Marktpreis des
 Landes beginnen bei max(Richtpreis im Land, E · (1 + `haendler.marge`)). So decken die
 Händler den Einkauf weiter, sobald das erste Lager verkauft ist, statt erst nach Wochen

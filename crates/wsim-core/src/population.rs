@@ -393,8 +393,8 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
 }
 
 /// The trade network of the start year (M16): where a country lacks what its plants and
-/// consumers need, the traders already hold `trader_cover_days` of the gap in stock and
-/// keep importing it. Without this, plants far from their suppliers stand still for
+/// consumers need, the traders already hold the gap for `trader_cover_days` plus the
+/// days at sea in stock and keep importing it. Without this, plants far from their suppliers stand still for
 /// weeks until the first shipments arrive.
 fn stock_traders(state: &mut GameState, catalog: &Catalog) {
     let n = catalog.countries.len();
@@ -443,17 +443,20 @@ fn stock_traders(state: &mut GameState, catalog: &Catalog) {
             // Imports cost what the cheapest exporting country asks plus transport, so
             // that the traders keep buying when the first stock is sold.
             let local = crate::market::local_reference(catalog, state, country, product);
-            let cost = exporters
+            let (cost, days) = exporters
                 .iter()
                 .filter_map(|&from| {
-                    let (transport, _) =
+                    let (transport, days) =
                         state.routes.for_product(catalog, product, from, country)?;
-                    Some(crate::market::local_reference(catalog, state, from, product) + transport)
+                    let cost =
+                        crate::market::local_reference(catalog, state, from, product) + transport;
+                    Some((cost, days))
                 })
                 .min()
-                .unwrap_or(local);
+                .unwrap_or((local, 0));
             let price = local.max(cost.scale(1.0 + model.trader_margin));
-            let quantity = gap * model.trader_cover_days;
+            // Enough until the first new shipments arrive, then the usual cover.
+            let quantity = gap * (model.trader_cover_days + f64::from(days));
             let m = state.markets.get_mut(product).get_mut(country);
             m.imports.add(quantity, Money::times(cost, quantity), 50.0);
             m.import_price = price;

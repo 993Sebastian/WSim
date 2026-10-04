@@ -117,10 +117,8 @@ pub(crate) fn plan(
     let mut destinations: Vec<Destination> = Vec::new();
     for country in catalog.countries.ids() {
         let m = state.markets.get(product).get(country);
-        let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
         let open = market::open_demand(m, model, state.date);
-        let need = model.trader_cover_days * open - m.imports.quantity - transit;
-        if need <= 1e-9 {
+        if open <= 1e-9 {
             continue;
         }
         // Companies that keep a stock state what they would pay; a market without
@@ -133,6 +131,12 @@ pub(crate) fn plan(
             .max()
             .unwrap_or(Money::ZERO);
         let price = market::market_price(catalog, state, country, product).max(bid);
+        // Open demand is worth supplying up to the highest price the market accepts; the
+        // demand adapts to the price. Waiting for the index to rise would leave a market
+        // without sellers unserved for good: without sales its index never moves.
+        let ceiling = market::local_reference(catalog, state, country, product)
+            .scale(model.price_max_factor)
+            .max(price);
         let mut candidates: Vec<(Money, usize, Money, u32)> = sources
             .iter()
             .enumerate()
@@ -142,7 +146,7 @@ pub(crate) fn plan(
                     .routes
                     .for_product(catalog, product, s.country, country)?;
                 let landed = s.price + transport;
-                (landed.scale(1.0 + model.trader_margin) <= price)
+                (landed.scale(1.0 + model.trader_margin) <= ceiling)
                     .then_some((landed, i, transport, days))
             })
             .collect();
@@ -150,6 +154,14 @@ pub(crate) fn plan(
             continue;
         }
         candidates.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+        // Stock and goods on the way cover the days at sea as well: with the cover
+        // alone, a route longer than it would only ever bring part of the demand.
+        let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
+        let days = f64::from(candidates[0].3);
+        let need = (model.trader_cover_days + days) * open - m.imports.quantity - transit;
+        if need <= 1e-9 {
+            continue;
+        }
         let margin = (price - candidates[0].0).to_usd() / price.to_usd().max(1e-9);
         destinations.push(Destination {
             country,

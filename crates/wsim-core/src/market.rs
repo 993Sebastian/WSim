@@ -567,33 +567,7 @@ fn clear_market(
         flows.industry_unmet += need.max(0.0);
     }
 
-    // 2. Traders: purchases planned for export (only from company offers).
-    for b in exports {
-        let Some(i) = offers
-            .iter()
-            .position(|o| matches!(o.seller, Seller::Site { site, .. } if site == b.site))
-        else {
-            continue;
-        };
-        let quantity = b.quantity.min(offers[i].available);
-        if quantity <= 1e-9 {
-            continue;
-        }
-        trade(
-            state,
-            &mut offers[i],
-            quantity,
-            Buyer::Trader {
-                destination: b.destination,
-                transport_per_unit: b.transport_per_unit,
-                days: b.days,
-            },
-            (product, country, date),
-            &mut day,
-        );
-    }
-
-    // 3. Government: cheapest offers up to a price cap.
+    // 2. Government: cheapest offers up to a price cap.
     let state_need = state.markets.get(product).get(country).state_rate;
     if state_need > 0.0 {
         day.demand += state_need;
@@ -623,7 +597,7 @@ fn clear_market(
         }
     }
 
-    // 4. Consumers: richest layer first; sellers chosen by attractiveness (logit) of
+    // 3. Consumers: richest layer first; sellers chosen by attractiveness (logit) of
     // price, quality and brand, weighted by their presence in the shops (M16).
     let rates = state.markets.get(product).get(country).consumer_rate;
     let presence: Vec<f64> = offers
@@ -700,6 +674,34 @@ fn clear_market(
         }
     }
 
+    // 4. Traders: purchases planned for export (only from company offers), from what
+    // the buyers of the country left (M16: before, exports came first and emptied the
+    // markets of the exporting countries).
+    for b in exports {
+        let Some(i) = offers
+            .iter()
+            .position(|o| matches!(o.seller, Seller::Site { site, .. } if site == b.site))
+        else {
+            continue;
+        };
+        let quantity = b.quantity.min(offers[i].available);
+        if quantity <= 1e-9 {
+            continue;
+        }
+        trade(
+            state,
+            &mut offers[i],
+            quantity,
+            Buyer::Trader {
+                destination: b.destination,
+                transport_per_unit: b.transport_per_unit,
+                days: b.days,
+            },
+            (product, country, date),
+            &mut day,
+        );
+    }
+
     // Prices of automatic sellers and traders, and the market's price index.
     let unmet = day.unmet() > 1e-9;
     let max_price = local_reference(catalog, state, country, product).scale(model.price_max_factor);
@@ -742,7 +744,13 @@ fn clear_market(
     if day.sold > 1e-9 {
         let average = day.revenue.scale(1.0 / day.sold);
         let s = model.index_smoothing;
-        market.price = market.price.scale(1.0 - s) + average.scale(s);
+        // The first sale sets the index; smoothed from zero it would stay far below the
+        // prices for weeks, and bids based on it would never reach the sellers.
+        market.price = if market.price > Money::ZERO {
+            market.price.scale(1.0 - s) + average.scale(s)
+        } else {
+            average
+        };
     }
     for (total, today) in market.bought.iter_mut().zip(bought) {
         *total += today;

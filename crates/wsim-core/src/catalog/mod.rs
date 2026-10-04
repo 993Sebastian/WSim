@@ -243,6 +243,10 @@ pub struct AiBehavior {
     pub stock_low_days: f64,
     pub utilization_step: f64,
     pub utilization_min: f64,
+    /// Stock the production aims at, in days of sales and own use (M16).
+    pub stock_target_days: f64,
+    /// Days in which the production closes the gap to the stock target.
+    pub stock_adjust_days: f64,
     /// Price floor = normal cost × this factor (aggressiveness).
     pub floor_factor: Span,
     /// Monthly advertising as share of the revenue of a goods group in a country.
@@ -298,6 +302,8 @@ impl Default for AiModel {
                 stock_low_days: 7.0,
                 utilization_step: 0.1,
                 utilization_min: 0.2,
+                stock_target_days: 14.0,
+                stock_adjust_days: 15.0,
                 floor_factor: Span {
                     at_0: 1.05,
                     at_1: 0.9,
