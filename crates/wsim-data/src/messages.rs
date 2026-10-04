@@ -225,6 +225,19 @@ pub fn extraction_needs_raw_material(product: &str) -> String {
     format!("Abbau-Rezepte („abbau: true“) erzeugen Rohstoffe; „{product}“ ist kein Rohstoff.")
 }
 
+pub fn too_many_inputs(count: usize, max: usize) -> String {
+    format!(
+        "Das Rezept hat {count} Vorprodukte; erlaubt sind höchstens {max} (Lastenheft §17.2). Lieber ein Eingangsmaterial weglassen."
+    )
+}
+
+pub fn product_tree_too_deep(levels: usize, max: usize, path: &[&str]) -> String {
+    format!(
+        "Der Produktbaum hat hier {levels} Ebenen ({}); erlaubt sind höchstens {max} vom Rohstoff bis zum Zielprodukt (Lastenheft §17.2).",
+        path.join(" → ")
+    )
+}
+
 pub fn recipe_consumes_own_product(product: &str) -> String {
     format!("Das Rezept verbraucht sein eigenes Produkt „{product}“.")
 }

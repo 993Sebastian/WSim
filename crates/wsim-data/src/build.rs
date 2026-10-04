@@ -31,6 +31,10 @@ use crate::texts::TextIndex;
 
 /// Years allowed for country time series and market availability.
 const GAME_YEARS: (i32, i32) = (1800, 2100);
+/// Product trees (Lastenheft §17.2): inputs per recipe and levels from raw material to
+/// product. A design rule of the data, not a parameter of the simulation.
+const MAX_INPUTS: usize = 4;
+const MAX_LEVELS: usize = 4;
 /// Years allowed for historical facts such as inventions and discoveries.
 const HISTORY_YEARS: (i32, i32) = (-10_000, 2100);
 
@@ -588,6 +592,10 @@ pub(crate) fn build(
     b.catalog.events = ai::events(b.ctx, &events, &country_keys, texts);
 
     b.check_product_sources(&products);
+    // Only on a consistent catalog: unresolved references would point anywhere.
+    if !b.ctx.report.has_errors() {
+        b.check_product_tree(&recipes);
+    }
     b.check_electricity(raw);
     production::check_start_setups(b.ctx, &b.catalog, raw);
     b.check_complements(&products);
@@ -1000,6 +1008,19 @@ impl Builder<'_, '_> {
         };
         let inputs = quantities("eingang", &v.inputs);
         let by_products = quantities("nebenprodukte", &v.by_products);
+        let material = inputs
+            .iter()
+            .filter(|&&(p, _)| {
+                p.index() >= self.catalog.products.len()
+                    || self.catalog.products.get(p).kind != ProductKind::Energy
+            })
+            .count();
+        if material > MAX_INPUTS {
+            self.ctx.error(
+                &l.field("eingang"),
+                messages::too_many_inputs(material, MAX_INPUTS),
+            );
+        }
         let labor_hours = v
             .labor_hours
             .iter()
@@ -1098,6 +1119,76 @@ impl Builder<'_, '_> {
                 .collect();
             let loc = entries[cycle[0].index()].loc.field("voraussetzungen");
             self.ctx.error(&loc, messages::technology_cycle(&names));
+        }
+    }
+
+    /// Lastenheft §17.2: at most `MAX_LEVELS` levels from the raw material to the product
+    /// of every recipe. Goods without a processing recipe count as raw materials,
+    /// electricity is a production factor, not a level.
+    fn check_product_tree(&mut self, entries: &[&Entry<crate::raw::RawRecipe>]) {
+        let c = &self.catalog;
+        // Longest chain of inputs that ends with each product, raw material first.
+        fn chain(
+            p: ProductId,
+            c: &Catalog,
+            memo: &mut BTreeMap<ProductId, Vec<ProductId>>,
+            active: &mut BTreeSet<ProductId>,
+        ) -> Vec<ProductId> {
+            if let Some(found) = memo.get(&p) {
+                return found.clone();
+            }
+            if !active.insert(p) {
+                return vec![p];
+            }
+            let mut best: Vec<ProductId> = Vec::new();
+            for (_, r) in c
+                .recipes
+                .iter()
+                .filter(|(_, r)| r.product == p && !r.extraction)
+            {
+                for &(input, _) in &r.inputs {
+                    if c.products.get(input).kind == ProductKind::Energy {
+                        continue;
+                    }
+                    let sub = chain(input, c, memo, active);
+                    if sub.len() > best.len() {
+                        best = sub;
+                    }
+                }
+            }
+            active.remove(&p);
+            best.push(p);
+            memo.insert(p, best.clone());
+            best
+        }
+        let mut memo = BTreeMap::new();
+        let mut findings = Vec::new();
+        for (id, r) in c.recipes.iter() {
+            if r.extraction {
+                continue;
+            }
+            let mut longest: Vec<ProductId> = Vec::new();
+            for &(input, _) in &r.inputs {
+                if c.products.get(input).kind == ProductKind::Energy {
+                    continue;
+                }
+                let sub = chain(input, c, &mut memo, &mut BTreeSet::new());
+                if sub.len() > longest.len() {
+                    longest = sub;
+                }
+            }
+            longest.push(r.product);
+            if longest.len() > MAX_LEVELS {
+                let names: Vec<&str> = longest.iter().map(|&p| c.products.key(p)).collect();
+                let loc = entries[id.index()].loc.field("eingang");
+                findings.push((
+                    loc,
+                    messages::product_tree_too_deep(longest.len(), MAX_LEVELS, &names),
+                ));
+            }
+        }
+        for (loc, message) in findings {
+            self.ctx.error(&loc, message);
         }
     }
 

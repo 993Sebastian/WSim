@@ -14,9 +14,8 @@ reale_firmen:
         anlagen: [{anlage: kohlenzeche, anzahl: 3}]
       - land: DEU
         anlagen:
-          - {anlage: hochofen, anzahl: 6}
-          - {anlage: stahlwerk_herdofen, anzahl: 3}
-          - {anlage: stahlwerk_konverter, anzahl: 1}
+          - {anlage: stahlwerk_herdofen, anzahl: 4}
+          - {anlage: stahlwerk_konverter, anzahl: 2}
           - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
           - {anlage: walzwerk, anzahl: 1, rezept: stabstahl_walzen}
     annaeherung: true
@@ -31,8 +30,7 @@ reale_firmen:
         anlagen: [{anlage: kohlenzeche, anzahl: 3}]
       - land: DEU
         anlagen:
-          - {anlage: hochofen, anzahl: 4}
-          - {anlage: stahlwerk_konverter, anzahl: 2}
+          - {anlage: stahlwerk_konverter, anzahl: 4}
           - {anlage: walzwerk, anzahl: 2, rezept: stabstahl_walzen}
           - {anlage: drahtzieherei, anzahl: 1}
     annaeherung: true
@@ -50,8 +48,7 @@ reale_firmen:
         anlagen: [{anlage: kohlenzeche, anzahl: 4}]
       - land: USA
         anlagen:
-          - {anlage: hochofen, anzahl: 20}
-          - {anlage: stahlwerk_konverter, anzahl: 12}
+          - {anlage: stahlwerk_konverter, anzahl: 20}
           - {anlage: walzwerk, anzahl: 6, rezept: blech_walzen}
           - {anlage: walzwerk, anzahl: 6, rezept: stabstahl_walzen}
     annaeherung: true
@@ -63,8 +60,7 @@ reale_firmen:
     standorte:
       - land: USA
         anlagen:
-          - {anlage: hochofen, anzahl: 4}
-          - {anlage: stahlwerk_herdofen, anzahl: 3}
+          - {anlage: stahlwerk_herdofen, anzahl: 4}
           - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
     annaeherung: true
 
@@ -78,8 +74,7 @@ reale_firmen:
         anlagen: [{anlage: erzbergwerk, anzahl: 1}]
       - land: FRA
         anlagen:
-          - {anlage: hochofen, anzahl: 3}
-          - {anlage: stahlwerk_herdofen, anzahl: 2}
+          - {anlage: stahlwerk_herdofen, anzahl: 3}
           - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
     annaeherung: true
 
@@ -96,8 +91,7 @@ reale_firmen:
         anlagen: [{anlage: kohlenzeche, anzahl: 2}]
       - land: GBR
         anlagen:
-          - {anlage: hochofen, anzahl: 9}
-          - {anlage: stahlwerk_konverter, anzahl: 2}
+          - {anlage: stahlwerk_konverter, anzahl: 9}
           - {anlage: walzwerk, anzahl: 2, rezept: stabstahl_walzen}
     annaeherung: true
 
@@ -122,8 +116,7 @@ reale_firmen:
         anlagen: [{anlage: erzbergwerk, anzahl: 1}]
       - land: CHN
         anlagen:
-          - {anlage: hochofen, anzahl: 2}
-          - {anlage: stahlwerk_konverter, anzahl: 1}
+          - {anlage: stahlwerk_konverter, anzahl: 2}
     annaeherung: true
 
   - id: standard_oil

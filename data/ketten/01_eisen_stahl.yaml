@@ -1,5 +1,8 @@
 # Kette 1 – Eisen und Stahl (Lastenheft §17.1)
-# Eisenerz + Kohle → Roheisen → Stahl → Blech, Draht, Stabstahl
+# Eisenerz + Kohle → Stahl → Blech, Draht, Stabstahl
+#
+# Lastenheft §17.2 (höchstens vier Ebenen): Hochofen und Stahlwerk sind zu einem
+# Hüttenwerk zusammengefasst; Roheisen ist kein eigenes Produkt.
 #
 # Geld in USD mit Kaufkraft 2026, Mengen in der Einheit des Produkts.
 # Alle Zahlen sind Annäherungen für etwa 1900 und werden beim Balancing (M15) überprüft.
@@ -24,15 +27,6 @@ produkte:
     transportklasse: schuettgut
     richtpreis_usd: 60
     heizwert_mwh: 8.1             # Steinkohle, etwa 29 GJ/t
-
-  - id: roheisen
-    art: halbzeug
-    branche: metallurgie
-    einheit: t
-    verwendung: industrie
-    warengruppe: eisen_stahl
-    transportklasse: schuettgut
-    richtpreis_usd: 600
 
   - id: stahl
     art: halbzeug
@@ -99,9 +93,19 @@ anlagen:
     automatisierung_max: 0.1
     annaeherung: true
 
-  - id: hochofen
+  - id: stahlwerk_konverter      # Hüttenwerk: Kokshochofen und Bessemer-Birne
     standorttyp: werk
-    investition_usd: 60_000_000
+    investition_usd: 85_000_000   # Hochofen für 280 t Roheisen und Anteil der Birne
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 250
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: stahlwerk_herdofen       # Hüttenwerk: Kokshochofen und Siemens-Martin-Ofen
+    standorttyp: werk
+    investition_usd: 95_000_000   # Hochofen für 275 t Roheisen und Anteil des Herdofens
     bauzeit_tage: 540
     kapazitaet_je_tag: 250
     lebensdauer_jahre: 30
@@ -109,29 +113,9 @@ anlagen:
     automatisierung_max: 0.2
     annaeherung: true
 
-  - id: stahlwerk_konverter      # Bessemer-Birne
+  - id: elektrostahlwerk         # Elektro-Niederschachtofen und Lichtbogenofen
     standorttyp: werk
-    investition_usd: 40_000_000
-    bauzeit_tage: 360
-    kapazitaet_je_tag: 500
-    lebensdauer_jahre: 30
-    wartung_je_jahr: 0.04
-    automatisierung_max: 0.2
-    annaeherung: true
-
-  - id: stahlwerk_herdofen       # Siemens-Martin-Ofen
-    standorttyp: werk
-    investition_usd: 35_000_000
-    bauzeit_tage: 360
-    kapazitaet_je_tag: 300
-    lebensdauer_jahre: 30
-    wartung_je_jahr: 0.03
-    automatisierung_max: 0.2
-    annaeherung: true
-
-  - id: elektrostahlwerk         # Lichtbogenofen
-    standorttyp: werk
-    investition_usd: 6_000_000
+    investition_usd: 9_000_000
     bauzeit_tage: 270
     kapazitaet_je_tag: 30
     lebensdauer_jahre: 25
@@ -187,37 +171,20 @@ rezepte:
     qualitaet_basis: 50
     annaeherung: true
 
-  - id: roheisen_kokshochofen
-    produkt: roheisen
-    menge: 1
-    dauer_tage: 1
-    anlage: hochofen
-    technologie: kokshochofen
-    eingang:
-      eisenerz: 1.7
-      kohle: 1.5                  # Kokskohle; die Verkokung ist im Rezept enthalten
-    arbeit_stunden:
-      ungelernt: 5.0
-      angelernt: 2.0
-      fachkraft.metall: 1.8
-      akademiker.metall: 0.05
-    energie_mwh: 0.0              # Gebläse mit Gichtgas, kein Fremdstrom
-    qualitaet_basis: 50
-    annaeherung: true
-
   - id: stahl_bessemer
     produkt: stahl
     menge: 1
     dauer_tage: 1
     anlage: stahlwerk_konverter
     technologie: bessemer_verfahren
-    eingang:
-      roheisen: 1.12
-    arbeit_stunden:
-      ungelernt: 2.0
-      angelernt: 1.5
-      fachkraft.metall: 1.5
-      akademiker.metall: 0.05
+    eingang:                      # 1,12 t Roheisen aus 1,7 t Erz und 1,5 t Kokskohle je t
+      eisenerz: 1.9
+      kohle: 1.68
+    arbeit_stunden:               # Hochofen und Birne
+      ungelernt: 7.6
+      angelernt: 3.7
+      fachkraft.metall: 3.5
+      akademiker.metall: 0.11
     qualitaet_basis: 45           # spröder, schwer zu steuern
     annaeherung: true
 
@@ -227,14 +194,14 @@ rezepte:
     dauer_tage: 1
     anlage: stahlwerk_herdofen
     technologie: siemens_martin_verfahren
-    eingang:
-      roheisen: 1.10
-      kohle: 0.25                 # Generatorgas für den Herdofen
-    arbeit_stunden:
-      ungelernt: 3.0
-      angelernt: 2.0
-      fachkraft.metall: 2.5
-      akademiker.metall: 0.08
+    eingang:                      # 1,10 t Roheisen; dazu Generatorgas für den Herdofen
+      eisenerz: 1.87
+      kohle: 1.9
+    arbeit_stunden:               # Hochofen und Herdofen
+      ungelernt: 8.5
+      angelernt: 4.2
+      fachkraft.metall: 4.5
+      akademiker.metall: 0.14
     qualitaet_basis: 65
     annaeherung: true
 
@@ -244,14 +211,15 @@ rezepte:
     dauer_tage: 1
     anlage: elektrostahlwerk
     technologie: elektrostahl
-    eingang:
-      roheisen: 1.05
+    eingang:                      # Erz elektrisch reduziert (Schweden, ab etwa 1910)
+      eisenerz: 1.8
+      kohle: 0.6
     arbeit_stunden:
-      angelernt: 2.0
-      fachkraft.metall: 2.0
-      fachkraft.elektro: 0.5
-      akademiker.metall: 0.15
-    energie_mwh: 0.8
+      angelernt: 3.0
+      fachkraft.metall: 3.0
+      fachkraft.elektro: 0.8
+      akademiker.metall: 0.2
+    energie_mwh: 3.0
     qualitaet_basis: 80           # Edelstahl, Werkzeugstahl
     annaeherung: true
 
