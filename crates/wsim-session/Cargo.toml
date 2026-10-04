@@ -1,0 +1,18 @@
+[package]
+name = "wsim-session"
+description = "Spielsitzung für Oberflächen: neues Spiel, Runden, Spielstände"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde.workspace = true
+wsim-core.workspace = true
+wsim-data.workspace = true
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true

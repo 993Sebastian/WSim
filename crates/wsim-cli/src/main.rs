@@ -47,6 +47,13 @@ enum Command {
         #[arg(long, default_value = "data")]
         daten: PathBuf,
     },
+    /// Schreibt Beispielsichten (JSON) für die Browser-Vorschau der Oberfläche.
+    Beispielsichten {
+        /// Zieldatei, z. B. ui/src/kern/beispiel.json
+        datei: PathBuf,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
     /// Zeigt den günstigsten Transportweg zwischen zwei Ländern je Transportklasse.
     Route {
         /// ISO-Code des Abgangslands, z. B. GBR
@@ -160,6 +167,13 @@ fn main() -> ExitCode {
             jahr,
             daten,
         } => match show_route(&daten, &von, &nach, jahr) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
+        Command::Beispielsichten { datei, daten } => match example_views(&daten, &datei) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
                 eprintln!("{message}");
@@ -306,6 +320,44 @@ fn run(args: &RunArgs) -> Result<(), String> {
         format_date(game.date()),
         game.state_hash()
     );
+    Ok(())
+}
+
+/// Views of a real game for the UI preview: options, a new game, the report of its
+/// twelfth month and the overview after it.
+fn example_views(data: &Path, out: &Path) -> Result<(), String> {
+    use wsim_session::{NewGameRequest, Session};
+    let saves = std::env::temp_dir().join("wsim-beispielsichten");
+    let mut session = Session::open(data, saves)?;
+    let options = session.options();
+    let request = NewGameRequest {
+        seed: 1,
+        start_year: 1900,
+        country: "DEU".into(),
+        capital_usd: 100_000.0,
+        start_form: "werkstatt".into(),
+        company_name: "Neue Firma".into(),
+        companies: options.companies.default,
+        difficulty: options.default_difficulty.clone(),
+        research_factor: 1.0,
+    };
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let start = session.new_game(&request).map_err(message)?;
+    // The December round shows the turn of the year and the first events.
+    for _ in 0..11 {
+        session.end_round("monat", |_| {}).map_err(message)?;
+    }
+    let report = session.end_round("monat", |_| {}).map_err(message)?;
+    let after = session.overview().map_err(message)?;
+    let json = serde_json::json!({
+        "optionen": options,
+        "uebersicht_start": start,
+        "bericht": report,
+        "uebersicht": after,
+    });
+    let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
+    fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
+    println!("Geschrieben: {}", out.display());
     Ok(())
 }
 

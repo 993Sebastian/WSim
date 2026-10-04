@@ -19,7 +19,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M9 | Alle 12 Ketten + Forschung | ✅ |
 | M10 | KI-Firmen | ✅ |
 | M11 | Rundenbericht und Meldungen | offen |
-| M12 | Oberfläche I: Rundenablauf | offen |
+| M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
 | M13 | Oberfläche II: Weltkarte | offen |
 | M14 | Oberfläche III: Spielen | offen |
 | M15 | Spielbarkeit Stufe 1 | offen |
@@ -149,4 +149,19 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
 - M10: CLI `run --ki <Anzahl> --schwierigkeit <id> --welt` für Weltläufe mit Bericht.
 - M10 vereinfacht (offene Punkte 23–25): keine Handelsfirmen als KI, KI-Einkäufe
   ohne Kassenprüfung, kein Ersatz durch höher qualifizierte Arbeitskräfte.
+- M12 vor M11 gezogen, damit der Auftraggeber früh ein spielbares Programm sieht
+  (Absprache 04.10.2026). Der Rundenbericht zeigt vorerst Zeitraum, Kasse vorher/nachher,
+  Veränderung des Eigenkapitals und die Meldungen des Kerns; M11 erweitert ihn.
+- M12: Sichten (`wsim_core::views`) liefern der Oberfläche nur Schlüssel und fertige
+  Zahlen (USD, ISO-Datum); die Oberfläche formatiert nur. Die Spielsitzung (neues
+  Spiel, Runden, Spielstände) liegt in der Bibliothek `wsim-session`, damit der
+  Tauri-Adapter dünn bleibt und alles ohne Tauri testbar ist.
+- M12: Die Browser-Vorschau (Entwicklung, Playwright) antwortet mit Beispielsichten
+  eines echten Spiels (`wsim beispielsichten ui/src/kern/beispiel.json`); jede Runde
+  liefert denselben Bericht. Spielstände liegen im lokalen App-Datenordner
+  (`spielstaende/*.wsim`), Namen bis 60 Zeichen.
+- M12: Startjahr im Dialog 1900–1930 (offener Punkt 7); Zufallswert wird vorgeschlagen
+  und ist änderbar. Der Marktmaßstab wird nicht in der Oberfläche vorausberechnet.
+- M12: Sprungziele der Meldungen führen vorerst zur Übersicht; weitere Ansichten folgen
+  mit M13/M14.
 

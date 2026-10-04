@@ -5,3 +5,94 @@ kern.laedt: Simulationskern wird gestartet …
 kern.bereit: Simulationskern {version} bereit
 kern.vorschau: Vorschau im Browser – ohne Simulationskern
 kern.fehler: "Simulationskern nicht erreichbar: {fehler}"
+
+menue.neues_spiel: Neues Spiel
+menue.laden: Spiel laden
+menue.fortsetzen: Weiterspielen
+menue.hauptmenue: Hauptmenü
+menue.vorschau_hinweis: Die Vorschau zeigt Beispieldaten eines echten Spiels; jede Runde liefert denselben Beispielbericht.
+
+neu.titel: Neues Spiel
+neu.firmenname: Name der Firma
+neu.startland: Startland (Firmensitz)
+neu.startjahr: Startjahr
+neu.startkapital: Startkapital in USD
+neu.startform: Startform
+neu.startform_kosten: "{form} – kostet {betrag}"
+neu.ki_firmen: Anzahl KI-Firmen
+neu.schwierigkeit: Schwierigkeit der KI
+neu.forschungsfaktor: Kostenfaktor für Forschung vor dem historischen Jahr
+neu.seed: Zufallswert (gleicher Wert und gleiche Entscheidungen ergeben dieselbe Partie)
+neu.starten: Spiel starten
+neu.startet: Welt wird aufgebaut …
+neu.zurueck: Zurück
+
+startform.werkstatt: Werkstatt
+startform.handel: Handelsniederlassung
+
+spiel.datum: Datum
+spiel.kasse: Kasse
+spiel.rundenlaenge: Rundenlänge
+spiel.runde_beenden: Runde beenden
+spiel.speichern: Speichern
+spiel.laden: Laden
+spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
+rundenlaenge.tag: Tag
+rundenlaenge.woche: Woche
+rundenlaenge.monat: Monat
+rundenlaenge.quartal: Quartal
+
+fortschritt.titel: Runde läuft
+fortschritt.tage: Tag {done} von {total}
+
+uebersicht.titel: Übersicht
+uebersicht.finanzen: Finanzen
+uebersicht.eigenkapital: Eigenkapital
+uebersicht.kredite: Kredite
+uebersicht.ergebnis_jahr: Ergebnis laufendes Jahr
+uebersicht.ergebnis_monat: Ergebnis Vormonat
+uebersicht.umsatz_monat: Umsatz Vormonat
+uebersicht.noch_kein_monat: noch kein Monat abgeschlossen
+uebersicht.standorte: Standorte
+uebersicht.keine_standorte: Noch keine Standorte.
+uebersicht.anlage: Anlage
+uebersicht.produkt: Produkt
+uebersicht.auslastung: Auslastung
+uebersicht.tagesleistung: Leistung am letzten Tag
+uebersicht.im_bau: im Bau bis {datum}
+uebersicht.beschaeftigte: "{anzahl} Beschäftigte"
+uebersicht.lager: Lager
+uebersicht.lager_leer: leer
+uebersicht.wettbewerb: Wettbewerb
+uebersicht.wettbewerb_zahlen: "{aktiv} aktive KI-Firmen, {pleite} ausgeschieden"
+uebersicht.keine_wettbewerber: Diese Partie läuft ohne KI-Firmen.
+uebersicht.firma: Firma
+uebersicht.sitz: Sitz
+uebersicht.real: historisch
+
+bericht.titel: Rundenbericht
+bericht.zeitraum: "{von} bis {bis} ({tage} Tage)"
+bericht.kasse: Kasse
+bericht.eigenkapital_aenderung: Veränderung Eigenkapital
+bericht.meldungen: Meldungen
+bericht.keine_meldungen: Keine besonderen Ereignisse.
+bericht.ansehen: Ansehen
+bericht.weiter: Weiter
+
+meldungsart.info: Info
+meldungsart.success: Erfolg
+meldungsart.warning: Warnung
+meldungsart.crisis: Krise
+meldungsart.world_event: Weltgeschehen
+meldungsart.stock: Börse
+meldungsart.error: Fehler
+
+speichern.titel: Spiel speichern
+speichern.name: Name des Spielstands
+speichern.speichern: Speichern
+speichern.gespeichert: "Gespeichert: {name}"
+laden.titel: Spiel laden
+laden.keine: Noch keine Spielstände vorhanden.
+laden.laden: Laden
+laden.stand: "{firma}, {datum}"
+dialog.schliessen: Schließen

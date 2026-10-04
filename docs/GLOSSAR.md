@@ -110,4 +110,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | KI-Entscheidungen | `ai::decide` |
 | Neugründung, Engpass | `found_companies`, `opportunity` |
 | Preisuntergrenze, Höchstfaktor | `floor`, `price_max_factor` |
+| Sicht (für die Oberfläche) | `views` (`Overview`, `RoundReportView`, `NewGameOptions`) |
+| Spielsitzung, Spielstand | `wsim_session::Session`, `SaveEntry` |
+| Beispielsichten (Browser-Vorschau) | `beispiel.json`, `vorschauKern` |
 

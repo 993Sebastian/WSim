@@ -26,7 +26,9 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "publisher": "WSim",
     "shortDescription": "Wirtschaftssimulation 1900–2100",
     "longDescription": "Rundenbasierte Wirtschaftssimulation von 1900 bis 2100.",
@@ -37,12 +39,19 @@
       "icons/icon.ico"
     ],
     "windows": {
-      "webviewInstallMode": { "type": "offlineInstaller" },
+      "webviewInstallMode": {
+        "type": "offlineInstaller"
+      },
       "nsis": {
-        "languages": ["German"],
+        "languages": [
+          "German"
+        ],
         "installMode": "currentUser",
         "installerIcon": "icons/icon.ico"
       }
+    },
+    "resources": {
+      "../../data/": "data/"
     }
   }
 }

@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import type { Kern } from "./kern";
-import { t } from "./texte";
+import { Hauptmenue } from "./ansichten/Hauptmenue";
+import { NeuesSpielAnsicht } from "./ansichten/NeuesSpiel";
+import { Spiel } from "./ansichten/Spiel";
+import type { Kern, Uebersicht } from "./kern";
 
-type KernStatus =
+export type KernStatus =
   { art: "laedt" } | { art: "bereit"; version: string } | { art: "fehler"; fehler: string };
+
+type Bildschirm = { art: "menue" } | { art: "neu" } | { art: "spiel"; start: Uebersicht };
 
 export function App({ kern }: { kern: Kern }) {
   const [status, setStatus] = useState<KernStatus>({ art: "laedt" });
+  const [bildschirm, setBildschirm] = useState<Bildschirm>({ art: "menue" });
+  const [laufend, setLaufend] = useState<Uebersicht | null>(null);
 
   useEffect(() => {
     let aktiv = true;
@@ -19,24 +25,40 @@ export function App({ kern }: { kern: Kern }) {
     };
   }, [kern]);
 
-  return (
-    <main className="start">
-      <h1>{t("app.titel")}</h1>
-      <p className="untertitel">{t("app.untertitel")}</p>
-      <p className={`kernstatus kernstatus-${status.art}`} role="status">
-        {kernStatusText(status, kern.echt)}
-      </p>
-    </main>
-  );
-}
+  const spielen = (u: Uebersicht) => {
+    setLaufend(u);
+    setBildschirm({ art: "spiel", start: u });
+  };
 
-function kernStatusText(status: KernStatus, echt: boolean): string {
-  switch (status.art) {
-    case "laedt":
-      return t("kern.laedt");
-    case "bereit":
-      return echt ? t("kern.bereit", { version: status.version }) : t("kern.vorschau");
-    case "fehler":
-      return t("kern.fehler", { fehler: status.fehler });
+  switch (bildschirm.art) {
+    case "menue":
+      return (
+        <Hauptmenue
+          kern={kern}
+          status={status}
+          laufend={laufend}
+          onNeu={() => setBildschirm({ art: "neu" })}
+          onSpielen={spielen}
+        />
+      );
+    case "neu":
+      return (
+        <NeuesSpielAnsicht
+          kern={kern}
+          onStart={spielen}
+          onZurueck={() => setBildschirm({ art: "menue" })}
+        />
+      );
+    case "spiel":
+      return (
+        <Spiel
+          kern={kern}
+          start={bildschirm.start}
+          onMenue={(u) => {
+            setLaufend(u);
+            setBildschirm({ art: "menue" });
+          }}
+        />
+      );
   }
 }

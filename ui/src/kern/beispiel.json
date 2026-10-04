@@ -1,0 +1,484 @@
+{
+  "bericht": {
+    "cash_after_usd": 209270.8275,
+    "cash_before_usd": 205684.6739,
+    "days": 31,
+    "equity_change_usd": 3322.8221,
+    "from": "1900-12-01",
+    "game_over": false,
+    "messages": [
+      {
+        "key": "meldung.neues_jahr",
+        "kind": "info",
+        "params": {
+          "jahr": {
+            "type": "integer",
+            "value": 1901
+          }
+        },
+        "target": null
+      }
+    ],
+    "to": "1900-12-31"
+  },
+  "optionen": {
+    "companies": {
+      "default": 100,
+      "max": 10000,
+      "min": 0
+    },
+    "countries": [
+      "AFG",
+      "AGO",
+      "ALB",
+      "AND",
+      "ARE",
+      "ARG",
+      "ARM",
+      "ATG",
+      "AUS",
+      "AUT",
+      "AZE",
+      "BDI",
+      "BEL",
+      "BEN",
+      "BFA",
+      "BGD",
+      "BGR",
+      "BHR",
+      "BHS",
+      "BIH",
+      "BLR",
+      "BLZ",
+      "BOL",
+      "BRA",
+      "BRB",
+      "BRN",
+      "BTN",
+      "BWA",
+      "CAF",
+      "CAN",
+      "CHE",
+      "CHL",
+      "CHN",
+      "CIV",
+      "CMR",
+      "COD",
+      "COG",
+      "COL",
+      "COM",
+      "CPV",
+      "CRI",
+      "CUB",
+      "CYP",
+      "CZE",
+      "DEU",
+      "DJI",
+      "DMA",
+      "DNK",
+      "DOM",
+      "DZA",
+      "ECU",
+      "EGY",
+      "ERI",
+      "ESH",
+      "ESP",
+      "EST",
+      "ETH",
+      "FIN",
+      "FJI",
+      "FRA",
+      "FSM",
+      "GAB",
+      "GBR",
+      "GEO",
+      "GHA",
+      "GIN",
+      "GMB",
+      "GNB",
+      "GNQ",
+      "GRC",
+      "GRD",
+      "GTM",
+      "GUY",
+      "HND",
+      "HRV",
+      "HTI",
+      "HUN",
+      "IDN",
+      "IND",
+      "IRL",
+      "IRN",
+      "IRQ",
+      "ISL",
+      "ISR",
+      "ITA",
+      "JAM",
+      "JOR",
+      "JPN",
+      "KAZ",
+      "KEN",
+      "KGZ",
+      "KHM",
+      "KIR",
+      "KNA",
+      "KOR",
+      "KWT",
+      "LAO",
+      "LBN",
+      "LBR",
+      "LBY",
+      "LCA",
+      "LIE",
+      "LKA",
+      "LSO",
+      "LTU",
+      "LUX",
+      "LVA",
+      "MAR",
+      "MCO",
+      "MDA",
+      "MDG",
+      "MDV",
+      "MEX",
+      "MHL",
+      "MKD",
+      "MLI",
+      "MLT",
+      "MMR",
+      "MNE",
+      "MNG",
+      "MOZ",
+      "MRT",
+      "MUS",
+      "MWI",
+      "MYS",
+      "NAM",
+      "NER",
+      "NGA",
+      "NIC",
+      "NLD",
+      "NOR",
+      "NPL",
+      "NRU",
+      "NZL",
+      "OMN",
+      "PAK",
+      "PAN",
+      "PER",
+      "PHL",
+      "PLW",
+      "PNG",
+      "POL",
+      "PRK",
+      "PRT",
+      "PRY",
+      "PSE",
+      "QAT",
+      "ROU",
+      "RUS",
+      "RWA",
+      "SAU",
+      "SDN",
+      "SEN",
+      "SGP",
+      "SLB",
+      "SLE",
+      "SLV",
+      "SMR",
+      "SOM",
+      "SRB",
+      "SSD",
+      "STP",
+      "SUR",
+      "SVK",
+      "SVN",
+      "SWE",
+      "SWZ",
+      "SYC",
+      "SYR",
+      "TCD",
+      "TGO",
+      "THA",
+      "TJK",
+      "TKM",
+      "TLS",
+      "TON",
+      "TTO",
+      "TUN",
+      "TUR",
+      "TUV",
+      "TWN",
+      "TZA",
+      "UGA",
+      "UKR",
+      "URY",
+      "USA",
+      "UZB",
+      "VCT",
+      "VEN",
+      "VNM",
+      "VUT",
+      "WSM",
+      "XKX",
+      "YEM",
+      "ZAF",
+      "ZMB",
+      "ZWE"
+    ],
+    "default_country": "DEU",
+    "default_difficulty": "mittel",
+    "difficulties": [
+      {
+        "aggressiveness": 0.3,
+        "competence": 0.25,
+        "key": "leicht"
+      },
+      {
+        "aggressiveness": 0.5,
+        "competence": 0.5,
+        "key": "mittel"
+      },
+      {
+        "aggressiveness": 0.7,
+        "competence": 0.8,
+        "key": "schwer"
+      }
+    ],
+    "research_factor": {
+      "default": 1.0,
+      "max": 4.0,
+      "min": 0.25
+    },
+    "start_capital_usd": {
+      "default": 100000.0,
+      "max": 1000000000000.0,
+      "min": 1.0
+    },
+    "start_forms": [
+      {
+        "cost_usd": 60000.0,
+        "key": "werkstatt"
+      },
+      {
+        "cost_usd": 15000.0,
+        "key": "handel"
+      }
+    ],
+    "start_year": {
+      "default": 1900,
+      "max": 1930,
+      "min": 1900
+    }
+  },
+  "uebersicht": {
+    "company": {
+      "cash_usd": 209270.8275,
+      "equity_usd": 273939.5601,
+      "headquarters": "DEU",
+      "loans_usd": 0.0,
+      "name": "Neue Firma",
+      "result_last_month_usd": 3322.8221,
+      "result_year_usd": 0.0,
+      "revenue_last_month_usd": 36715.6746,
+      "sites": [
+        {
+          "country": "DEU",
+          "deposit": null,
+          "facilities": [
+            {
+              "count": 1,
+              "facility": "nagelmaschine",
+              "output_per_day": 0.5,
+              "product": "naegel",
+              "ready": "1900-01-01",
+              "recipe": "naegel_maschine",
+              "utilization": 1.0
+            }
+          ],
+          "index": 0,
+          "kind": "standorttyp.werk",
+          "stock": [
+            {
+              "product": "draht",
+              "quantity": 5.0,
+              "value_usd": 7735.3896
+            }
+          ],
+          "workers": 0.6293103448275862
+        }
+      ],
+      "total_assets_usd": 273939.5601
+    },
+    "competitors": [
+      {
+        "equity_usd": 2954458736.0269,
+        "headquarters": "USA",
+        "name": "Lawrence Mills & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 2215208968.0536,
+        "headquarters": "USA",
+        "name": "Hale Iron and Steel Company",
+        "real": false
+      },
+      {
+        "equity_usd": 1256238249.0816,
+        "headquarters": "GBR",
+        "name": "Birmingham Iron and Steel & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 1037321426.7713,
+        "headquarters": "USA",
+        "name": "Fletcher Milling & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 954559271.65,
+        "headquarters": "GBR",
+        "name": "Cleveland Mills & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 812519097.5044,
+        "headquarters": "DEU",
+        "name": "Leipziger Spinnerei und Weberei AG",
+        "real": false
+      },
+      {
+        "equity_usd": 752711210.9704,
+        "headquarters": "RUS",
+        "name": "Charkower Manufaktur",
+        "real": false
+      },
+      {
+        "equity_usd": 722850827.6891,
+        "headquarters": "CHN",
+        "name": "Shanghai Liu Gongsi",
+        "real": false
+      },
+      {
+        "equity_usd": 714331636.8376,
+        "headquarters": "FRA",
+        "name": "Rousseau & Cie",
+        "real": false
+      },
+      {
+        "equity_usd": 594766345.1407,
+        "headquarters": "DEU",
+        "name": "Vogt & Söhne",
+        "real": false
+      }
+    ],
+    "competitors_active": 100,
+    "competitors_bankrupt": 0,
+    "date": "1901-01-01",
+    "game_over": false,
+    "market_scale": 0.1,
+    "start_year": 1900
+  },
+  "uebersicht_start": {
+    "company": {
+      "cash_usd": 40000.0,
+      "equity_usd": 100000.0,
+      "headquarters": "DEU",
+      "loans_usd": 0.0,
+      "name": "Neue Firma",
+      "result_last_month_usd": null,
+      "result_year_usd": 0.0,
+      "revenue_last_month_usd": null,
+      "sites": [
+        {
+          "country": "DEU",
+          "deposit": null,
+          "facilities": [
+            {
+              "count": 1,
+              "facility": "nagelmaschine",
+              "output_per_day": 0.0,
+              "product": "naegel",
+              "ready": "1900-01-01",
+              "recipe": "naegel_maschine",
+              "utilization": 1.0
+            }
+          ],
+          "index": 0,
+          "kind": "standorttyp.werk",
+          "stock": [],
+          "workers": 0.0
+        }
+      ],
+      "total_assets_usd": 100000.0
+    },
+    "competitors": [
+      {
+        "equity_usd": 2269875053.2465,
+        "headquarters": "USA",
+        "name": "Hale Iron and Steel Company",
+        "real": false
+      },
+      {
+        "equity_usd": 2205710460.3397,
+        "headquarters": "USA",
+        "name": "Lawrence Mills & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 1246556845.8672,
+        "headquarters": "GBR",
+        "name": "Birmingham Iron and Steel & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 871269293.5312,
+        "headquarters": "GBR",
+        "name": "Cleveland Mills & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 852920158.1674,
+        "headquarters": "USA",
+        "name": "Fletcher Milling & Co.",
+        "real": false
+      },
+      {
+        "equity_usd": 588111259.1461,
+        "headquarters": "DEU",
+        "name": "Vogt & Söhne",
+        "real": false
+      },
+      {
+        "equity_usd": 523381952.4087,
+        "headquarters": "DEU",
+        "name": "Leipziger Spinnerei und Weberei AG",
+        "real": false
+      },
+      {
+        "equity_usd": 460004158.2648,
+        "headquarters": "FRA",
+        "name": "Rousseau & Cie",
+        "real": false
+      },
+      {
+        "equity_usd": 406374864.3218,
+        "headquarters": "USA",
+        "name": "Pemberton & Pemberton & Sons",
+        "real": false
+      },
+      {
+        "equity_usd": 397906142.6783,
+        "headquarters": "USA",
+        "name": "Carnegie Steel Company",
+        "real": true
+      }
+    ],
+    "competitors_active": 100,
+    "competitors_bankrupt": 0,
+    "date": "1900-01-01",
+    "game_over": false,
+    "market_scale": 0.1,
+    "start_year": 1900
+  }
+}

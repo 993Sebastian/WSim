@@ -53,6 +53,8 @@ Windows-Runner.
                           ▼
       crates/wsim-core   Simulationskern (kein UI, kein Datei-IO)
               ▲
+      crates/wsim-session Spielsitzung: Einstellungen, Runden, Spielstände → Sichten
+              ▲
       crates/wsim-data   YAML laden → prüfen → kompilierter Katalog
               ▲
       crates/wsim-cli    Kommandozeile: Daten prüfen, Läufe ohne UI,

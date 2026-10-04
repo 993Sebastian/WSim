@@ -4467,6 +4467,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "wsim-core",
+ "wsim-session",
 ]
 
 [[package]]
@@ -4474,8 +4475,10 @@ name = "wsim-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "serde_json",
  "wsim-core",
  "wsim-data",
+ "wsim-session",
 ]
 
 [[package]]
@@ -4497,6 +4500,16 @@ dependencies = [
  "serde",
  "tempfile",
  "wsim-core",
+]
+
+[[package]]
+name = "wsim-session"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "tempfile",
+ "wsim-core",
+ "wsim-data",
 ]
 
 [[package]]

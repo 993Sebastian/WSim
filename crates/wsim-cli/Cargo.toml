@@ -13,6 +13,8 @@ path = "src/main.rs"
 [dependencies]
 wsim-core.workspace = true
 wsim-data.workspace = true
+wsim-session.workspace = true
+serde_json.workspace = true
 clap.workspace = true
 
 [lints]

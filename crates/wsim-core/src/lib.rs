@@ -27,6 +27,7 @@ pub mod state;
 pub mod time_series;
 pub mod trade;
 pub mod transport;
+pub mod views;
 
 #[cfg(test)]
 mod determinism_tests;

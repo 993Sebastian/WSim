@@ -1,11 +1,12 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "./App";
 import type { Kern } from "./kern";
+import { vorschauKern } from "./kern/vorschau";
 
-const kernMit = (info: Kern["info"], echt = true): Kern => ({ echt, info });
+const kernMit = (info: Kern["info"], echt = true): Kern => ({ ...vorschauKern(0), echt, info });
 
-describe("Startbildschirm", () => {
+describe("Hauptmenü", () => {
   afterEach(cleanup);
 
   it("zeigt Titel und Version des Kerns", async () => {
@@ -19,8 +20,45 @@ describe("Startbildschirm", () => {
     expect(await screen.findByText(/Vorschau im Browser/)).toBeTruthy();
   });
 
-  it("meldet einen nicht erreichbaren Kern", async () => {
+  it("meldet einen nicht erreichbaren Kern und sperrt das neue Spiel", async () => {
     render(<App kern={kernMit(() => Promise.reject(new Error("weg")))} />);
     expect(await screen.findByText(/nicht erreichbar: Error: weg/)).toBeTruthy();
+    expect(
+      (screen.getByRole("button", { name: "Neues Spiel" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+  });
+});
+
+describe("Spielablauf", () => {
+  afterEach(cleanup);
+
+  it("startet ein Spiel, beendet eine Runde und speichert", async () => {
+    render(<App kern={vorschauKern(0)} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Neues Spiel" }));
+    fireEvent.change(await screen.findByLabelText("Name der Firma"), {
+      target: { value: "Test AG" },
+    });
+    expect((screen.getByLabelText("Startland (Firmensitz)") as HTMLSelectElement).value).toBe(
+      "DEU",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Spiel starten" }));
+
+    expect(await screen.findByText("Test AG")).toBeTruthy();
+    expect(screen.getByText("01.01.1900")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Wettbewerb" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Runde beenden" }));
+    const bericht = await screen.findByRole("dialog", { name: "Rundenbericht" });
+    expect(within(bericht).getByText("Das Jahr 1901 beginnt.")).toBeTruthy();
+    fireEvent.click(within(bericht).getByRole("button", { name: "Weiter" }));
+    expect(await screen.findByText("01.01.1901")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
+    const dialog = await screen.findByRole("dialog", { name: "Spiel speichern" });
+    fireEvent.change(within(dialog).getByLabelText("Name des Spielstands"), {
+      target: { value: "Probe" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Speichern" }));
+    expect(await within(dialog).findByText("Gespeichert: Probe")).toBeTruthy();
   });
 });
