@@ -13,6 +13,7 @@ use crate::catalog::Catalog;
 use crate::command::{self, Command, CommandError, NameError};
 use crate::finance;
 use crate::ids::Id;
+use crate::ledger::Account;
 use crate::ledger::Ledger;
 use crate::market;
 use crate::message::{Message, MessageKind, Param, keys};
@@ -20,7 +21,10 @@ use crate::money::Money;
 use crate::production;
 use crate::research;
 use crate::rng::{SimRng, Stream};
-use crate::state::{Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId};
+use crate::state::{
+    Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId, PriceMode,
+    PurchaseOrder, SaleOffer, Site, Slot,
+};
 use crate::trade;
 
 /// Latest selectable start year; technology freezes in 2026 (Lastenheft §3.1).
@@ -33,11 +37,17 @@ pub const MAX_RESEARCH_FACTOR: f64 = 4.0;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NewGameError {
-    StartYear { year: i32 },
+    StartYear {
+        year: i32,
+    },
     StartCapital,
     StartCountry,
     Name(NameError),
     ResearchFactor,
+    /// The start capital does not cover the workshop or office of the start form.
+    StartFormTooExpensive {
+        needed: Money,
+    },
 }
 
 impl NewGameError {
@@ -53,6 +63,9 @@ impl NewGameError {
             ),
             NewGameError::StartCountry => Message::error(keys::NEW_GAME_START_COUNTRY),
             NewGameError::Name(e) => e.message(),
+            NewGameError::StartFormTooExpensive { needed } => {
+                Message::error(keys::NEW_GAME_START_FORM).with("betrag", Param::Money(*needed))
+            }
             NewGameError::ResearchFactor => Message::error(keys::NEW_GAME_RESEARCH_FACTOR)
                 .with("von", Param::Number(MIN_RESEARCH_FACTOR))
                 .with("bis", Param::Number(MAX_RESEARCH_FACTOR)),
@@ -177,6 +190,7 @@ impl Game {
         state.refresh_countries(&catalog);
         state.fit_to_catalog(&catalog);
         market::month_start(&mut state, &catalog, date);
+        apply_start_setup(&mut state, &catalog)?;
         Ok(Self {
             catalog,
             state,
@@ -361,6 +375,89 @@ impl Game {
         let bytes = rmp_serde::to_vec_named(&self.state).expect("state is serializable");
         StateHash(fnv1a(&bytes))
     }
+}
+
+/// Gives the new company the site of its start form (Lastenheft §2, §15), paid from
+/// the start capital: a small workshop that makes simple parts, or a trading office.
+fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), NewGameError> {
+    let Some(setup) = catalog
+        .production_model
+        .start_setup(state.settings.start_form)
+    else {
+        return Ok(());
+    };
+    let cost = setup.cost(catalog);
+    if cost > state.settings.start_capital {
+        return Err(NewGameError::StartFormTooExpensive { needed: cost });
+    }
+    let date = state.date;
+    let country = state.settings.start_country;
+    let ledger = &mut state.companies[state.player.index()].ledger;
+    ledger.transfer(Account::FixedAssets, Account::Cash, cost);
+    let slots = setup
+        .facilities
+        .iter()
+        .map(|&(facility, recipe, utilization)| Slot {
+            facility,
+            ready: date,
+            cost: catalog.facilities.get(facility).investment,
+            recipe,
+            utilization,
+            automation: 0.0,
+            condition: 1.0,
+            batches: Vec::new(),
+            last_runs: 0.0,
+        })
+        .collect();
+    let offers = setup
+        .sales
+        .iter()
+        .map(|&product| {
+            let price = market::market_price(catalog, state, country, product);
+            let offer = SaleOffer {
+                mode: PriceMode::Market {
+                    markup: 0.0,
+                    floor: Money::ZERO,
+                },
+                price,
+                keep: 0.0,
+                sold_today: 0.0,
+                sold_month: 0.0,
+                to_traders_month: 0.0,
+                to_companies_month: 0.0,
+            };
+            (product, offer)
+        })
+        .collect();
+    let orders = setup
+        .purchases
+        .iter()
+        .map(|&(product, target, max_price)| {
+            let order = PurchaseOrder {
+                target,
+                max_price,
+                min_quality: 0.0,
+                bought_month: 0.0,
+            };
+            (product, order)
+        })
+        .collect();
+    state.sites.push(Site {
+        owner: state.player,
+        country,
+        kind: setup.site_type,
+        founded: date,
+        building_cost: setup.building,
+        deposit: None,
+        slots,
+        inventory: Default::default(),
+        workforce: PerId::from_fn(catalog.labor_groups.len(), |_| 0.0),
+        staffing_due: true,
+        offers,
+        orders,
+        research: None,
+    });
+    Ok(())
 }
 
 fn fnv1a(bytes: &[u8]) -> u64 {

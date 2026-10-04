@@ -345,3 +345,15 @@ pub fn complement_needs_durable(key: &str) -> String {
         "„{key}“ ist kein Gebrauchsgut; eine Ergänzung gehört zu einem Gebrauchsgut wie dem Auto."
     )
 }
+
+pub fn start_facility_wrong_site(facility: &str) -> String {
+    format!("Anlage „{facility}“ passt nicht zum Standorttyp der Startform.")
+}
+
+pub fn start_recipe_wrong_facility(recipe: &str, facility: &str) -> String {
+    format!("Rezept „{recipe}“ läuft nicht auf der Anlage „{facility}“.")
+}
+
+pub fn start_needs_new_technology(key: &str) -> String {
+    format!("„{key}“ braucht eine Technologie, die im frühesten Startjahr noch nicht erfunden ist.")
+}

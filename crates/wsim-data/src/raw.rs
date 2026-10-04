@@ -505,6 +505,45 @@ pub struct RawProductionModel {
     pub electricity: Option<String>,
     #[serde(rename = "einspeiseverguetung")]
     pub feed_in_share: f64,
+    #[serde(rename = "startformen")]
+    pub start_setups: BTreeMap<String, RawStartSetup>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStartSetup {
+    #[serde(rename = "standorttyp")]
+    pub site_type: RawSiteType,
+    #[serde(rename = "gebaeude_usd")]
+    pub building_usd: f64,
+    #[serde(rename = "anlagen", default)]
+    pub facilities: Vec<RawStartFacility>,
+    #[serde(rename = "einkauf", default)]
+    pub purchases: Vec<RawStartPurchase>,
+    #[serde(rename = "verkauf", default)]
+    pub sales: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStartFacility {
+    #[serde(rename = "anlage")]
+    pub facility: String,
+    #[serde(rename = "rezept", default)]
+    pub recipe: Option<String>,
+    #[serde(rename = "auslastung", default = "one")]
+    pub utilization: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStartPurchase {
+    #[serde(rename = "produkt")]
+    pub product: String,
+    #[serde(rename = "ziel")]
+    pub target: f64,
+    #[serde(rename = "hoechstpreis_usd")]
+    pub max_price_usd: f64,
 }
 
 #[derive(Debug, Deserialize)]

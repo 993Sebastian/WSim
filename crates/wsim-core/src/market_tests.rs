@@ -450,3 +450,37 @@ fn markets_survive_save_and_replay() {
         product(&game, "brot"),
     );
 }
+
+#[test]
+fn displacement_curve_is_gradual() {
+    let mut game = new_game();
+    let player = game.player();
+    game.advance(RoundLength::Month, |_| {});
+    let (carriage, bike, country) = (product(&game, "kutsche"), product(&game, "rad"), aaa(&game));
+    let site = warehouse(&mut game, player, "rad", 1e9, 50.0);
+    sell(&mut game, site, "rad", PriceMode::Fixed(usd(60.0)));
+    let mut curve = Vec::new();
+    for _ in 0..8 {
+        let s = game.state();
+        let owned: f64 = s.markets.get(bike).get(country).ownership.iter().sum();
+        let carriages: f64 = s
+            .markets
+            .get(carriage)
+            .get(country)
+            .consumer_rate
+            .iter()
+            .sum();
+        curve.push((owned, carriages));
+        for _ in 0..6 {
+            game.advance(RoundLength::Month, |_| {});
+        }
+    }
+    // Bicycles spread, carriage demand falls step by step, not all at once.
+    for pair in curve.windows(2) {
+        assert!(pair[1].0 > pair[0].0, "{curve:?}");
+        assert!(pair[1].1 < pair[0].1, "{curve:?}");
+    }
+    let (start, half_year, end) = (curve[0].1, curve[1].1, curve[7].1);
+    assert!(half_year > 0.5 * start, "{curve:?}");
+    assert!(end < 0.7 * start, "{curve:?}");
+}

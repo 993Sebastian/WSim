@@ -1,17 +1,18 @@
 //! The production model.
 
 use wsim_core::catalog::{
-    Catalog, ProductionModel, ResearchModel, SiteType, TransportModel, Vehicle, Way,
+    Catalog, ProductionModel, ResearchModel, SiteType, StartSetup, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::QualificationId;
+use wsim_core::state::StartForm;
 
 use super::{
     HISTORY_YEARS, Keys, in_range, money, non_negative, positive, provenance, resolve, time_series,
     year,
 };
 use crate::messages;
-use crate::raw::{RawVehicle, RawWay};
-use crate::read::{Ctx, Entry, RawData};
+use crate::raw::{RawProductionModel, RawVehicle, RawWay};
+use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
 
 /// The one entry of a parameter section; reports a missing or repeated section.
@@ -45,7 +46,11 @@ const SITE_TYPES: &[(&str, SiteType)] = &[
     ("forschungszentrum", SiteType::ResearchCenter),
 ];
 
-pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData, products: &Keys) -> ProductionModel {
+pub(super) fn production_model(
+    ctx: &mut Ctx,
+    raw: &RawData,
+    (products, facilities, recipes): (&Keys, &Keys, &Keys),
+) -> ProductionModel {
     let Some(entry) = single(
         ctx,
         &raw.production_model,
@@ -134,6 +139,7 @@ pub(super) fn production_model(ctx: &mut Ctx, raw: &RawData, products: &Keys) ->
             1.0,
             &l.field("einspeiseverguetung"),
         ),
+        start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
     }
 }
 
@@ -398,5 +404,138 @@ pub(super) fn research_model(
             &l.field("sachkosten_usd_je_forschertag"),
         ),
         researchers,
+    }
+}
+
+const START_FORMS: &[(&str, StartForm)] = &[
+    ("werkstatt", StartForm::Workshop),
+    ("handel", StartForm::Trading),
+];
+
+fn start_setups(
+    ctx: &mut Ctx,
+    m: &RawProductionModel,
+    l: &Loc,
+    (products, facilities, recipes): (&Keys, &Keys, &Keys),
+) -> Vec<(StartForm, StartSetup)> {
+    let forms_loc = l.field("startformen");
+    let names: Vec<&str> = START_FORMS.iter().map(|(n, _)| *n).collect();
+    let mut setups = Vec::new();
+    for (key, raw) in &m.start_setups {
+        let Some(&(_, form)) = START_FORMS.iter().find(|(n, _)| n == key) else {
+            ctx.error(
+                &forms_loc.key(key),
+                messages::unknown_value(key, &names, suggest::closest(key, names.iter().copied())),
+            );
+            continue;
+        };
+        let loc = forms_loc.field(key);
+        let facilities_loc = loc.field("anlagen");
+        let purchases_loc = loc.field("einkauf");
+        let sales_loc = loc.field("verkauf");
+        let setup = StartSetup {
+            site_type: super::site_type(raw.site_type),
+            building: money(ctx, raw.building_usd, &loc.field("gebaeude_usd")),
+            facilities: raw
+                .facilities
+                .iter()
+                .enumerate()
+                .map(|(i, f)| {
+                    let f_loc = facilities_loc.index(i);
+                    (
+                        resolve(ctx, facilities, &f.facility, &f_loc.field("anlage")),
+                        f.recipe
+                            .as_ref()
+                            .map(|r| resolve(ctx, recipes, r, &f_loc.field("rezept"))),
+                        in_range(ctx, f.utilization, 0.0, 1.0, &f_loc.field("auslastung")),
+                    )
+                })
+                .collect(),
+            purchases: raw
+                .purchases
+                .iter()
+                .enumerate()
+                .map(|(i, p)| {
+                    let p_loc = purchases_loc.index(i);
+                    (
+                        resolve(ctx, products, &p.product, &p_loc.field("produkt")),
+                        positive(ctx, p.target, &p_loc.field("ziel")),
+                        money(ctx, p.max_price_usd, &p_loc.field("hoechstpreis_usd")),
+                    )
+                })
+                .collect(),
+            sales: raw
+                .sales
+                .iter()
+                .enumerate()
+                .map(|(i, p)| resolve(ctx, products, p, &sales_loc.index(i)))
+                .collect(),
+        };
+        setups.push((form, setup));
+    }
+    for (name, _) in START_FORMS {
+        if !m.start_setups.contains_key(*name) {
+            ctx.error(&forms_loc, messages::entry_missing("Startform", name));
+        }
+    }
+    setups
+}
+
+/// Facilities of a start form fit its site type, recipes fit their facility, and both
+/// are known in the earliest start year.
+pub(super) fn check_start_setups(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) {
+    let Some(entry) = raw.production_model.first() else {
+        return;
+    };
+    for (key, setup) in &entry.value.start_setups {
+        let Some(&(_, form)) = START_FORMS.iter().find(|(n, _)| n == key) else {
+            continue;
+        };
+        let Some(built) = catalog.production_model.start_setup(form) else {
+            continue;
+        };
+        let loc = entry.loc.field("startformen").field(key).field("anlagen");
+        for (i, (&(facility, recipe, _), raw_f)) in
+            built.facilities.iter().zip(&setup.facilities).enumerate()
+        {
+            if catalog.facilities.id(&raw_f.facility) != Some(facility) {
+                continue;
+            }
+            let f = catalog.facilities.get(facility);
+            if f.site_type != built.site_type {
+                ctx.error(
+                    &loc.index(i).field("anlage"),
+                    messages::start_facility_wrong_site(&raw_f.facility),
+                );
+            }
+            let too_new = |t: Option<wsim_core::ids::TechnologyId>| {
+                t.is_some_and(|t| {
+                    catalog.technologies.get(t).invention_year > wsim_core::EARLIEST_START_YEAR
+                })
+            };
+            if too_new(f.technology) {
+                ctx.error(
+                    &loc.index(i).field("anlage"),
+                    messages::start_needs_new_technology(&raw_f.facility),
+                );
+            }
+            if let (Some(recipe), Some(raw_r)) = (recipe, raw_f.recipe.as_deref())
+                && catalog.recipes.id(raw_r) == Some(recipe)
+            {
+                let r = catalog.recipes.get(recipe);
+                if r.facility != facility {
+                    ctx.error(
+                        &loc.index(i).field("rezept"),
+                        messages::start_recipe_wrong_facility(raw_r, &raw_f.facility),
+                    );
+                }
+                if too_new(r.technology) {
+                    ctx.error(
+                        &loc.index(i).field("rezept"),
+                        messages::start_needs_new_technology(raw_r),
+                    );
+                }
+            }
+        }
     }
 }

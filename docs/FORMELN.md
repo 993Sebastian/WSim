@@ -334,3 +334,67 @@ Je Abnehmergruppe (KI-Händler, andere Firmen) und Geltungsbereich (pauschal, La
 Produkt, Produkt im Land; der genaueste gilt): erlaubt ja/nein, Mindestpreis,
 Höchstmenge je Angebot und Monat. Ohne Vorgabe dürfen alle kaufen. Endkunden und
 Staaten kaufen immer.
+
+## M9 – Alle Ketten, Forschung, Eigenstrom
+
+Parameter: `data/parameter/forschungsmodell.yaml`, `produktionsmodell.strom`,
+`produktionsmodell.einspeiseverguetung`, `produktionsmodell.startformen`.
+
+### Forschung
+
+- Ein Forschungszentrum arbeitet an einer Technologie. Seine Labore haben
+  `kapazitaet_je_tag` Forscherplätze × Auslastung; besetzt werden sie mit Arbeitskräften
+  der Gruppe `forscher.<Fachgebiet>` (z. B. `akademiker.metall`) aus dem Landespool.
+- Forschungspunkte je Tag = Forscher · Forschungseffizienz des Landes im Fachgebiet.
+  Die Punkte gehören der Firma (mehrere Zentren können an derselben Technologie arbeiten).
+- Kosten: Löhne der Forscher und Sachkosten (Forscher · `sachkosten` · Preisniveau),
+  beides als Kostenart Forschung.
+- Aufwand zum Zeitpunkt t (in Jahren, mit Bruchteil), Erfindung E = historisches Jahr
+  oder früherer Erfolg im Spiel:
+
+      vor E:   Punkte = Aufwand · vorgriff_faktor^((Jahr − t) · Spieleinstellung)
+      ab E:    Punkte = Aufwand · max(minimum, (1 − rabatt_je_jahr)^(t − E))
+
+  „Jahr“ ist das historische Erfindungsjahr; die Spieleinstellung „Kostenfaktor für
+  Forschung vor dem historischen Jahr“ (0,25–4) verstärkt oder dämpft den Vorgriff.
+  Erreichen die gesammelten Punkte den aktuellen Aufwand, ist die Technologie erforscht.
+- Gemeingut: `gemeingut_nach_jahren` nach dem historischen Erfindungsjahr darf jede Firma
+  die Technologie nutzen; bis zum Startjahr erfundene Technologien kennt jeder.
+
+### Eigenstrom (Kette 7)
+
+- Kraftwerke produzieren vor allen anderen Standorten. Ein Rezept mit Strombedarf e je
+  Durchlauf läuft höchstens
+
+      Durchläufe ≤ geplant · Netzanteil + Eigenstrom / e
+
+  Eigenstrom ist der Strom auf allen Standorten der Firma im selben Land. Er wird zuerst
+  verbraucht (Kostenart Energie zu Herstellkosten), der Rest kommt aus dem Netz zum
+  Landespreis.
+- Strom lässt sich nicht lagern: Was am Tagesende übrig ist, geht ins Netz zu
+  Strompreis · `einspeiseverguetung` (Umsatzerlös).
+
+### Nachfrage (Ergänzungen zu M7)
+
+- Ergänzungsgut (`ergaenzung`): Nachfrage je Tag und Schicht q =
+  Besitzquote_q(Gebrauchsgut) · Bevölkerung/5 · je_besitz_und_jahr · S_q / 365 · Saison.
+- Netzabhängig: Verbrauch, Ziel-Besitzquote bzw. Ergänzung werden mit der
+  Netzversorgung des Landes multipliziert.
+
+### Ruhende Märkte (Rechenweise, ab M9)
+
+Märkte ohne Firmenangebote, Einkaufsaufträge, Importe und Exporte „ruhen“: Nur
+Endkunden und Staat fragen nach, und höchstens der Staatsmarkt verkauft. Ihre Tage
+werden am Monatsende (vor dem Wechsel der Länderwerte) oder bei Aktivierung gesammelt
+gebucht – mit denselben Formeln wie täglich, für d gleiche Tage:
+
+    offene Nachfrage ō ← D + (ō − D) · (1 − 1/glaettung_tage)^d
+    Marktpreis      p ← p_Staat + (p − p_Staat) · (1 − index_glaettung)^d
+
+Die Ergebnisse hängen nicht von der Rundenlänge ab.
+
+### Startformen
+
+Die neue Firma erhält den Standort ihrer Startform (Werkstatt oder Niederlassung) mit
+den Anlagen, Einkaufsaufträgen und Verkaufsangeboten aus den Daten; Gebäude und Anlagen
+werden vom Startkapital bezahlt (reicht es nicht, lässt sich das Spiel nicht starten).

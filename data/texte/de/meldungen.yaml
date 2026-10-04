@@ -3,6 +3,7 @@
 fehler.spielstart.startjahr: Das Startjahr {jahr} ist nicht möglich; erlaubt sind {von} bis {bis}.
 fehler.spielstart.startkapital: Das Startkapital muss größer als 0 und höchstens {max} sein.
 fehler.spielstart.startland: Das gewählte Startland gibt es in den Spieldaten nicht.
+fehler.spielstart.startform: Das Startkapital reicht nicht für den Start – Werkstatt bzw. Niederlassung kosten {betrag}.
 fehler.spielstart.forschungsfaktor: Der Kostenfaktor für Forschung vor dem historischen Jahr muss zwischen {von} und {bis} liegen.
 fehler.befehl.spielende: Die Partie ist beendet; es sind keine Entscheidungen mehr möglich.
 fehler.befehl.firma_unbekannt: Die Firma Nr. {firma} gibt es nicht.

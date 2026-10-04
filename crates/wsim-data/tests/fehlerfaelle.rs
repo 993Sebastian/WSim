@@ -83,6 +83,18 @@ produktionsmodell:
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
   einspeiseverguetung: 0.5
+  startformen:
+    werkstatt:
+      standorttyp: werk
+      gebaeude_usd: 20_000
+      anlagen:
+        - {anlage: ofen}
+      einkauf:
+        - {produkt: erz, ziel: 5, hoechstpreis_usd: 20}
+      verkauf: [eisen]
+    handel:
+      standorttyp: niederlassung
+      gebaeude_usd: 15_000
 ";
 
 const FINANZEN: &str = "\
@@ -1088,5 +1100,43 @@ fn forschungsmodell_wird_geprueft() {
     befund(
         &d.laden(),
         "Wert 0.5 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
+    );
+}
+
+#[test]
+fn startformen_werden_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let d = Daten::neu().ersetze(datei, "    handel:\n", "    hendel:\n");
+    let outcome = d.laden();
+    befund(&outcome, "Unbekannter Wert „hendel“. Meinten Sie „handel“?");
+    befund(&outcome, "Eintrag für Startform „handel“ fehlt.");
+
+    let d = Daten::neu().ersetze(
+        datei,
+        "{anlage: ofen}",
+        "{anlage: mine, rezept: eisen_schmelzen}",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Anlage „mine“ passt nicht zum Standorttyp der Startform.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.startformen.werkstatt.anlagen[0].anlage"
+    );
+    befund(
+        &outcome,
+        "Rezept „eisen_schmelzen“ läuft nicht auf der Anlage „mine“.",
+    );
+
+    let d = Daten::neu().ersetze(
+        datei,
+        "{anlage: ofen}",
+        "{anlage: ofen, rezept: eisen_schmelzn}",
+    );
+    befund(
+        &d.laden(),
+        "Rezept „eisen_schmelzn“ ist nicht definiert. Meinten Sie „eisen_schmelzen“?",
     );
 }

@@ -16,6 +16,7 @@ use crate::ids::{
     QualificationId, RecipeId, SpecializationId, TechnologyId, TransportClassId, UnitId, VehicleId,
 };
 use crate::money::Money;
+use crate::state::StartForm;
 use crate::time_series::TimeSeries;
 
 #[derive(Clone, Debug, Default)]
@@ -344,6 +345,43 @@ pub struct ProductionModel {
     pub electricity: Option<ProductId>,
     /// Own electricity fed into the grid earns this share of the industrial price.
     pub feed_in_share: f64,
+    /// What a new company owns at the start, per start form (Lastenheft §15).
+    pub start_setups: Vec<(StartForm, StartSetup)>,
+}
+
+/// The first site of a new company, paid from the start capital.
+#[derive(Clone, Debug, PartialEq)]
+pub struct StartSetup {
+    pub site_type: SiteType,
+    /// Land and buildings (a workshop costs less than an industrial site).
+    pub building: Money,
+    /// Facilities ready at the start, with recipe and planned utilization.
+    pub facilities: Vec<(FacilityId, Option<RecipeId>, f64)>,
+    /// Purchase orders: product, target stock, highest price.
+    pub purchases: Vec<(ProductId, f64, Money)>,
+    /// Products offered at the market price.
+    pub sales: Vec<ProductId>,
+}
+
+impl StartSetup {
+    /// Building and facilities together.
+    pub fn cost(&self, catalog: &Catalog) -> Money {
+        self.building
+            + self
+                .facilities
+                .iter()
+                .map(|&(f, _, _)| catalog.facilities.get(f).investment)
+                .sum::<Money>()
+    }
+}
+
+impl ProductionModel {
+    pub fn start_setup(&self, form: StartForm) -> Option<&StartSetup> {
+        self.start_setups
+            .iter()
+            .find(|(f, _)| *f == form)
+            .map(|(_, s)| s)
+    }
 }
 
 impl Default for ProductionModel {
@@ -360,6 +398,7 @@ impl Default for ProductionModel {
             condition_min: 0.2,
             electricity: None,
             feed_in_share: 0.5,
+            start_setups: Vec::new(),
         }
     }
 }

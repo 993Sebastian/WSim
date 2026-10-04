@@ -21,7 +21,8 @@ bei Bedarf widersprechen) · ❓ offen
    vereinfacht: zahlungsunfähig und kein Kredit mehr möglich.
 6. 🟡 **Forschung in Stufe 1** mit Technologiebaum, Forschungszentren,
    Länder-Forschungsstärke, Vorgriffskosten und Nachzügler-Rabatt; Patente und
-   Lizenzen in Stufe 5.
+   Lizenzen in Stufe 5. Umgesetzt mit M9; zusätzlich wird jede Technologie 25 Jahre
+   nach ihrer historischen Erfindung Gemeingut (Wert in den Daten).
 7. 🟡 **Spieleinstellungen (§15) in Stufe 1:** Startjahr (1900–1930), Startland,
    Startkapital, Startform, Schwierigkeitsgrad, Anzahl/Kompetenz/Aggressivität der
    KI-Firmen, Preis-/Qualitätsempfindlichkeit, Konjunkturstärke,

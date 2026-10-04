@@ -21,3 +21,19 @@ produktionsmodell:
   zustand_minimum: 0.2
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
+
+  # Was eine neue Firma zu Beginn besitzt (Lastenheft §2, §15); bezahlt aus dem
+  # Startkapital. Die Werkstatt stellt Nägel aus Draht her und verkauft sie zum
+  # Marktpreis; der Händler beginnt mit einer Niederlassung im Startland.
+  startformen:
+    werkstatt:
+      standorttyp: werk
+      gebaeude_usd: 20_000          # kleine Werkstatt statt eines Industriewerks
+      anlagen:
+        - {anlage: nagelmaschine, rezept: naegel_maschine, auslastung: 1.0}
+      einkauf:
+        - {produkt: draht, ziel: 5, hoechstpreis_usd: 2_000}
+      verkauf: [naegel]
+    handel:
+      standorttyp: niederlassung
+      gebaeude_usd: 15_000

@@ -35,7 +35,7 @@ data/
 Die Aufteilung auf Dateien ist frei: Jede Datei besteht aus Abschnitten, der Lader
 sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen.
 Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`,
-`marktmodell`, `transportmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
+`marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`. Jeder Abschnitt außer `meta`
 ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
@@ -141,6 +141,22 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **automatisierung** | `arbeitsersparnis` (0–1), `kostenanteil` |
 | **qualitaet** | Gewichte `vorprodukte`, `automatisierung`, `zustand` |
 | **zustand_minimum** | Untergrenze des Anlagenzustands (0–1) |
+| strom | Produkt der Art `energie`, das für Eigenstrom steht (Kette 7) |
+| **einspeiseverguetung** | Anteil (0–1) des Industriestrompreises für überschüssigen Eigenstrom |
+| **startformen** | `werkstatt` und `handel` (beide nötig), je: **standorttyp**, **gebaeude_usd**, `anlagen` (Liste `{anlage, rezept, auslastung}`), `einkauf` (Liste `{produkt, ziel, hoechstpreis_usd}`), `verkauf` (Liste von Produkten, Angebot zum Marktpreis). Anlagen und Rezepte müssen 1900 bekannt sein und zum Standorttyp passen. Kosten werden vom Startkapital bezahlt. |
+
+## forschungsmodell
+
+Ein einziger Abschnitt (in `parameter/forschungsmodell.yaml`); Formeln in
+`docs/FORMELN.md` (M9).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **vorgriff_faktor** | Kostenfaktor (1–10) je Jahr vor dem historischen Erfindungsjahr |
+| **nachzuegler** | `rabatt_je_jahr` und `minimum` (je 0–1) nach der Erfindung |
+| **gemeingut_nach_jahren** | Jahre nach dem historischen Erfindungsjahr, ab denen jede Firma die Technologie nutzen darf |
+| **forscher** | Qualifikation der Forscher (mit Fachrichtungen); die Fachrichtung ist das Fachgebiet der Technologie |
+| **sachkosten_usd_je_forschertag** | Geräte und Material je Forscher und Tag bei Preisniveau 1 |
 
 ## finanzmodell
 
@@ -210,11 +226,14 @@ Kette, z. B. Glas, Zinn oder die Pferdekutsche.
 | **bedarfsklasse** | `grundbedarf`, `gebrauchsgut`, `luxus` |
 | verbrauch.**je_kopf_und_jahr** | Verbrauchsgut: Sättigungsbedarf je Einwohner und Jahr |
 | gebrauch.**nutzungsdauer_jahre**, gebrauch.**max_besitzquote** | Gebrauchsgut: Lebensdauer und maximale Besitzquote je Einwohner (0–10) |
+| ergaenzung.**zu**, ergaenzung.**je_besitz_und_jahr** | Ergänzungsgut: Verbrauch je besessenem Gebrauchsgut (z. B. Benzin je Auto) |
 | **kaufschwelle** | Verhältnis Jahreseinkommen je Kopf zu Preis, bei dem die Hälfte einer Schicht kauft (z. B. 2) |
 | **preisempfindlichkeit**, **einkommensempfindlichkeit** | Exponenten von Preis und Einkommen in der Kaufneigung (≥ 0) |
 | saison | Zwölf Monatsfaktoren |
+| netzabhaengig | `true`: nur Haushalte mit Stromanschluss kaufen (Nachfrage × Netzversorgung) |
 
-Genau eines von `verbrauch` oder `gebrauch` ist anzugeben.
+Genau eines von `verbrauch`, `gebrauch` oder `ergaenzung` ist anzugeben; `zu` muss ein
+Gebrauchsgut sein.
 
 ## anlagen
 

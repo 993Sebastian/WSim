@@ -91,3 +91,11 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | KI-Händler, Importlager, offene Nachfrage | `trade`, `Market::imports`, `open_demand` |
 | Vorgabe, Verkaufsfreigabe, Geltungsbereich | `policy`, `SalesRule`, `Scope` |
 | Abnehmergruppe | `BuyerGroup` |
+| Forschung, Forschungsmodell | `research`, `ResearchModel` |
+| Forschungsaufwand, Vorgriff, Nachzügler | `Effort`, `ahead_base`, `latecomer_discount` |
+| Gemeingut | `public_domain_years` |
+| Erfindung (im Spiel) | `inventions` |
+| Eigenstrom, Einspeisevergütung | `own_electricity`, `feed_in_share` |
+| Ergänzungsgut, netzabhängig | `ConsumptionType::Complement`, `needs_grid` |
+| Startform, Startausstattung | `StartForm`, `StartSetup` |
+| ruhender Markt | `Market::idle_since`, `settle_idle` |

@@ -16,8 +16,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M6 | Buchführung und Grundfinanzen | ✅ |
 | M7 | Markt und Preise (ein Land) | ✅ |
 | M8 | Handel zwischen Ländern | ✅ |
-| M9 | Alle 12 Ketten + Forschung | in Arbeit |
-| M10 | KI-Firmen | offen |
+| M9 | Alle 12 Ketten + Forschung | ✅ |
+| M10 | KI-Firmen | in Arbeit |
 | M11 | Rundenbericht und Meldungen | offen |
 | M12 | Oberfläche I: Rundenablauf | offen |
 | M13 | Oberfläche II: Weltkarte | offen |
@@ -93,3 +93,27 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
 - M8: Verkaufsfreigaben je Abnehmergruppe mit vier Geltungsbereichen (pauschal, Land,
   Produkt, Produkt im Land); die Höchstmenge gilt je Angebot (Standort und Produkt)
   und Monat.
+- M9: Preise der neuen Ketten sind Preise um 1900 × 38 (Verbraucherpreisindex bis 2026).
+  Kautschuk ist dadurch um 1900 sehr teuer (Wildkautschuk); Plantagen in Malaya, auf
+  Sumatra und Ceylon werden ab 1905/1910 nutzbar (lange Erschließung) und senken den
+  Preis, wenn KI-Firmen sie erschließen.
+- M9: Güter ohne eigene Kette vom Staatsmarkt: Leim, Zinn, Konserveninhalt, Glas,
+  Schwefel, Pferdekutsche. Benzin entsteht um 1900 als Nebenprodukt der
+  Petroleum-Raffinerie; das Cracken (1913) kehrt das Verhältnis um.
+- M9: Forschung als Punkte je Forschertag; Aufwand ab 1900 erfundener Technologien in
+  den Daten (z. B. Fließband 30 000 Punkte). Vorgriff × 1,25 je Jahr, Nachzügler −10 %
+  je Jahr bis 20 %, Gemeingut nach 25 Jahren (Patente erst Stufe 5).
+- M9: Eigenstrom kann nicht gelagert werden; Überschuss geht zu 50 % des
+  Industriestrompreises ins Netz. Kraftwerke versorgen nur Standorte derselben Firma
+  im selben Land.
+- M9: Startform Werkstatt = kleines Werk (20 000 USD) mit Nagelmaschine (40 000 USD),
+  Einkaufsauftrag für Draht und Verkaufsangebot für Nägel; Startform Handel =
+  Niederlassung (15 000 USD). Beides wird vom Startkapital bezahlt.
+- M9: Ergänzungsgüter (Benzin je Auto, Petroleum je Petroleumlampe, Ersatzreifen) und
+  netzabhängige Nachfrage (Glühlampe) ergänzen das Nachfragemodell; so sinkt der
+  Petroleumbedarf mit der Verdrängung der Lampe.
+- M9: Herstellkosten im Kopflos-Szenario (Test `ketten.rs`) liegen bei Rohstoffen aus
+  eigener Förderung weit unter den Richtpreisen (z. B. Gummi); das ist Stoff für das
+  Balancing in M15.
+- M9: Leistung – Märkte ohne Handel werden gesammelt gebucht; 30 Jahre ohne Spieler
+  laufen in unter 1 s (vorher 3,5 s mit allen Ketten).

@@ -241,6 +241,8 @@ fn chain_one_runs_in_britain() {
     )
     .unwrap();
     let apply = |game: &mut Game, cmd| game.apply(cmd).unwrap();
+    let last_site = |game: &Game| SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    let mut mines = Vec::new();
     for (deposit, facility, recipe) in [
         ("cleveland_hills", "erzbergwerk", "eisenerz_abbau"),
         ("suedwales", "kohlenzeche", "kohle_abbau"),
@@ -252,7 +254,8 @@ fn chain_one_runs_in_britain() {
                 kind: SiteType::Extraction,
             },
         );
-        let site = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+        let site = last_site(&game);
+        mines.push(site);
         apply(
             &mut game,
             Command::BuildFacility {
@@ -284,7 +287,7 @@ fn chain_one_runs_in_britain() {
             kind: SiteType::Factory,
         },
     );
-    let works = SiteId(2);
+    let works = last_site(&game);
     apply(
         &mut game,
         Command::BuildFacility {
@@ -307,7 +310,7 @@ fn chain_one_runs_in_britain() {
     }
     let ore = c.products.id("eisenerz").unwrap();
     let coal = c.products.id("kohle").unwrap();
-    for (site, product) in [(SiteId(0), ore), (SiteId(1), coal)] {
+    for (site, product) in [(mines[0], ore), (mines[1], coal)] {
         let quantity = game.state().site(site).unwrap().inventory[&product].quantity;
         assert!(quantity > 100_000.0, "{quantity}");
         apply(
@@ -424,4 +427,51 @@ fn freight_routes_are_plausible() {
         .get(bulk, country("GBR"), country("USA"))
         .unwrap();
     assert!(later.cost_per_t < atlantic.cost_per_t);
+}
+
+#[test]
+fn start_forms_give_a_workshop_or_an_office() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::catalog::SiteType;
+    use wsim_core::game::{Game, NewGameError};
+    use wsim_core::state::{GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = |form, capital: f64| GameSettings {
+        seed: 4,
+        start_year: 1900,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(capital).unwrap(),
+        start_form: form,
+        company_name: "Start".into(),
+        research_ahead_factor: 1.0,
+    };
+
+    let mut workshop = Game::new(c.clone(), settings(StartForm::Workshop, 100_000.0)).unwrap();
+    let site = &workshop.state().sites[0];
+    assert_eq!(site.kind, SiteType::Factory);
+    assert_eq!(site.slots.len(), 1);
+    let nails = c.products.id("naegel").unwrap();
+    let wire = c.products.id("draht").unwrap();
+    assert!(site.offers.contains_key(&nails));
+    assert!(site.orders.contains_key(&wire));
+    let ledger = &workshop.state().companies[0].ledger;
+    assert_eq!(ledger.cash(), Money::from_usd(40_000.0).unwrap());
+    assert!(ledger.is_balanced());
+    workshop.advance(RoundLength::Month, |_| {});
+    assert!(workshop.state().companies[0].ledger.is_balanced());
+
+    let trading = Game::new(c.clone(), settings(StartForm::Trading, 100_000.0)).unwrap();
+    assert_eq!(trading.state().sites[0].kind, SiteType::SalesOffice);
+    assert_eq!(
+        trading.state().companies[0].ledger.cash(),
+        Money::from_usd(85_000.0).unwrap()
+    );
+
+    assert!(matches!(
+        Game::new(c.clone(), settings(StartForm::Workshop, 50_000.0)),
+        Err(NewGameError::StartFormTooExpensive { .. })
+    ));
 }

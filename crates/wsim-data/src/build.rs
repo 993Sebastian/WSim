@@ -108,6 +108,17 @@ fn register<'r, T>(
     (keys, accepted)
 }
 
+pub(crate) fn site_type(raw: RawSiteType) -> SiteType {
+    match raw {
+        RawSiteType::Extraction => SiteType::Extraction,
+        RawSiteType::Factory => SiteType::Factory,
+        RawSiteType::PowerPlant => SiteType::PowerPlant,
+        RawSiteType::Warehouse => SiteType::Warehouse,
+        RawSiteType::SalesOffice => SiteType::SalesOffice,
+        RawSiteType::ResearchCenter => SiteType::ResearchCenter,
+    }
+}
+
 fn is_snake_key(key: &str) -> bool {
     key.starts_with(|c: char| c.is_ascii_lowercase())
         && key
@@ -378,7 +389,8 @@ pub(crate) fn build(
         b.catalog.countries.insert(&e.value.id, country);
     }
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
-    b.catalog.production_model = production::production_model(b.ctx, raw, &product_keys);
+    b.catalog.production_model =
+        production::production_model(b.ctx, raw, (&product_keys, &facility_keys, &recipe_keys));
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     b.catalog.market_model = production::market_model(b.ctx, raw);
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
@@ -458,14 +470,7 @@ pub(crate) fn build(
         let v = &e.value;
         let l = &e.loc;
         let facility = Facility {
-            site_type: match v.site_type {
-                RawSiteType::Extraction => SiteType::Extraction,
-                RawSiteType::Factory => SiteType::Factory,
-                RawSiteType::PowerPlant => SiteType::PowerPlant,
-                RawSiteType::Warehouse => SiteType::Warehouse,
-                RawSiteType::SalesOffice => SiteType::SalesOffice,
-                RawSiteType::ResearchCenter => SiteType::ResearchCenter,
-            },
+            site_type: site_type(v.site_type),
             investment: money(b.ctx, v.investment_usd, &l.field("investition_usd")),
             build_days: v.build_days,
             runs_per_day: positive(b.ctx, v.runs_per_day, &l.field("kapazitaet_je_tag")),
@@ -555,6 +560,7 @@ pub(crate) fn build(
 
     b.check_product_sources(&products);
     b.check_electricity(raw);
+    production::check_start_setups(b.ctx, &b.catalog, raw);
     b.check_complements(&products);
 
     let all_keys = [
