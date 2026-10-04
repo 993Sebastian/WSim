@@ -318,10 +318,13 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
 
         let mut runs = planned;
         let mut limit = None;
+        // Rounding (e.g. workers hired for exactly the planned runs) is no bottleneck.
         let mut bound = |runs: &mut f64, cap: f64, why: Limit| {
             if cap < *runs {
                 *runs = cap;
-                limit = Some(why);
+                if cap < planned * (1.0 - 1e-9) {
+                    limit = Some(why);
+                }
             }
         };
         for &(p, q) in &recipe.inputs {

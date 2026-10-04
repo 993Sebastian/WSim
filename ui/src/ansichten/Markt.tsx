@@ -123,7 +123,7 @@ export function MarktAnsicht({
                   <td className="zahl">
                     {z.own_price_usd === null
                       ? "–"
-                      : `${formatGeld(z.own_price_usd)} (${formatZahl(z.own_sold_month, 1)})`}
+                      : `${formatGeld(z.own_price_usd)} (${formatZahl(z.own_sold_last_month, 1)})`}
                   </td>
                 </tr>
               ))}

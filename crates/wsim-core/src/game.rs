@@ -485,6 +485,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
                 keep: 0.0,
                 sold_today: 0.0,
                 sold_month: 0.0,
+                sold_last_month: 0.0,
                 to_traders_month: 0.0,
                 to_companies_month: 0.0,
             };
@@ -500,6 +501,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
                 max_price,
                 min_quality: 0.0,
                 bought_month: 0.0,
+                bought_last_month: 0.0,
             };
             (product, order)
         })

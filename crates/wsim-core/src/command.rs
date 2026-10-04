@@ -391,7 +391,12 @@ pub(crate) fn execute(
                     count: *count,
                     cost: investment,
                     recipe: None,
-                    utilization: 0.0,
+                    // Laboratories have no recipe: they work as soon as they are ready.
+                    utilization: if f.site_type == SiteType::ResearchCenter {
+                        1.0
+                    } else {
+                        0.0
+                    },
                     automation: 0.0,
                     condition: 1.0,
                     batches: Vec::new(),
@@ -623,6 +628,7 @@ pub(crate) fn execute(
                         keep: *keep,
                         sold_today: 0.0,
                         sold_month: 0.0,
+                        sold_last_month: 0.0,
                         to_traders_month: 0.0,
                         to_companies_month: 0.0,
                     })
@@ -652,6 +658,7 @@ pub(crate) fn execute(
                         keep: *keep,
                         sold_today: 0.0,
                         sold_month: 0.0,
+                        sold_last_month: 0.0,
                         to_traders_month: 0.0,
                         to_companies_month: 0.0,
                     })
@@ -663,6 +670,7 @@ pub(crate) fn execute(
                     // A new price does not reset the month's sales and policy limits.
                     if let Some(old) = s.offers.get(product) {
                         offer.sold_month = old.sold_month;
+                        offer.sold_last_month = old.sold_last_month;
                         offer.to_traders_month = old.to_traders_month;
                         offer.to_companies_month = old.to_companies_month;
                     }
@@ -692,7 +700,10 @@ pub(crate) fn execute(
             }
             let s = state.site_mut(*site).expect("checked above");
             if *target > 0.0 {
-                let bought_month = s.orders.get(product).map_or(0.0, |o| o.bought_month);
+                let (bought_month, bought_last_month) = s
+                    .orders
+                    .get(product)
+                    .map_or((0.0, 0.0), |o| (o.bought_month, o.bought_last_month));
                 s.orders.insert(
                     *product,
                     PurchaseOrder {
@@ -700,6 +711,7 @@ pub(crate) fn execute(
                         max_price: *max_price,
                         min_quality: *min_quality,
                         bought_month,
+                        bought_last_month,
                     },
                 );
             } else {

@@ -826,6 +826,7 @@ fn found_company(
                     keep,
                     sold_today: 0.0,
                     sold_month: 0.0,
+                    sold_last_month: 0.0,
                     to_traders_month: 0.0,
                     to_companies_month: 0.0,
                 },
@@ -847,6 +848,7 @@ fn found_company(
                     max_price: price.scale(1.0 + model.behavior.purchase_markup),
                     min_quality: 0.0,
                     bought_month: 0.0,
+                    bought_last_month: 0.0,
                 },
             );
         }

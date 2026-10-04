@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { formatDatum, formatGeld, formatZahl, landName } from "../format";
 import {
   geld,
@@ -7,6 +7,7 @@ import {
   type Kern,
   type StandortDetail,
   type Uebersicht,
+  type Versorgung,
 } from "../kern";
 import type { Produktion } from "../kern";
 import { t } from "../texte";
@@ -121,14 +122,36 @@ function Standort({
     .sort((a, b) => a.investment_usd - b.investment_usd);
   const [anlage, setAnlage] = useState(baubar[0]?.key ?? "");
   const [anzahl, setAnzahl] = useState(1);
-  const gemacht = new Set(s.slots.map((a) => a.product).filter((p): p is string => !!p));
-  const ohneAngebot = [...gemacht].filter((p) => !s.offers.some((o) => o.product === p));
+  // Products made here or in stock can be offered; orders outside the recipes stay visible.
+  const angebotbar = new Set([
+    ...s.slots.map((a) => a.product).filter((p): p is string => !!p),
+    ...s.stock.map((l) => l.product),
+  ]);
+  const ohneAngebot = [...angebotbar].filter((p) => !s.offers.some((o) => o.product === p));
+  const einkaufZeilen: Versorgung[] = [
+    ...s.inputs,
+    ...s.orders
+      .filter((o) => !s.inputs.some((v) => v.product === o.product))
+      .map((o) => ({
+        product: o.product,
+        need_per_day: 0,
+        stock: s.stock.find((l) => l.product === o.product)?.quantity ?? 0,
+        days: null,
+        own: false,
+        ordered: true,
+      })),
+  ];
 
   return (
     <article className="standort" aria-label={`${t(s.kind_text)} ${landName(s.country)}`}>
       <h2>
         {t(s.kind_text)} · {landName(s.country)}
         {s.deposit && ` · ${t(`lagerstaette.${s.deposit}`)}`}
+        {s.deposit_ready && s.deposit_ready > produktion.date && (
+          <small className="gedaempft">
+            {t("produktion.erschliessung_bis", { datum: formatDatum(s.deposit_ready) })}
+          </small>
+        )}
         <small>{t("uebersicht.beschaeftigte", { anzahl: formatZahl(s.workers, 1) })}</small>
       </h2>
 
@@ -199,22 +222,27 @@ function Standort({
         </form>
       )}
 
-      {s.inputs.length > 0 && (
+      {s.kind === "Extraction" && (
+        <Erschliessung standort={s} datum={produktion.date} ausfuehren={ausfuehren} />
+      )}
+
+      {s.kind !== "ResearchCenter" && (
         <>
           <h3>{t("produktion.vorprodukte")}</h3>
           <div className="tabelle">
-            <table>
+            <table aria-label={t("produktion.vorprodukte")}>
               <thead>
                 <tr>
                   <th>{t("uebersicht.produkt")}</th>
                   <th className="zahl">{t("produktion.bedarf")}</th>
                   <th className="zahl">{t("uebersicht.lager")}</th>
                   <th className="zahl">{t("produktion.reichweite")}</th>
+                  <th className="zahl">{t("produktion.gekauft_vormonat")}</th>
                   <th>{t("produktion.einkauf")}</th>
                 </tr>
               </thead>
               <tbody>
-                {s.inputs.map((v) => {
+                {einkaufZeilen.map((v) => {
                   const auftrag = s.orders.find((o) => o.product === v.product);
                   const tage = v.days ?? Infinity;
                   const zustand = tage < 1 ? "fehlt" : tage < 7 ? "knapp" : "gut";
@@ -224,15 +252,21 @@ function Standort({
                         {t(`produkt.${v.product}`)}
                         {v.own && <span className="marke">{t("produktion.eigen")}</span>}
                       </td>
-                      <td className="zahl">{formatZahl(v.need_per_day, 2)}</td>
+                      <td className="zahl">
+                        {v.need_per_day > 0 ? formatZahl(v.need_per_day, 2) : "–"}
+                      </td>
                       <td className="zahl">{formatZahl(v.stock, 1)}</td>
                       <td className={`zahl zustand-${zustand}`}>
                         {v.days === null
                           ? "–"
                           : t("produktion.tage", { tage: formatZahl(v.days, 0) })}
                       </td>
+                      <td className="zahl">
+                        {auftrag ? formatZahl(auftrag.bought_last_month, 1) : "–"}
+                      </td>
                       <td>
                         <EinkaufFormular
+                          key={`${v.product}/${auftrag?.target ?? Math.ceil(v.need_per_day * 20)}`}
                           standort={s.index}
                           produkt={v.product}
                           auftrag={auftrag}
@@ -243,21 +277,36 @@ function Standort({
                     </tr>
                   );
                 })}
+                <NeueZeile
+                  titel={t("produktion.neuer_einkauf")}
+                  spalten={5}
+                  produkte={produktion.products.filter(
+                    (p) => !einkaufZeilen.some((v) => v.product === p),
+                  )}
+                >
+                  {(p) => (
+                    <EinkaufFormular
+                      key={p}
+                      standort={s.index}
+                      produkt={p}
+                      auftrag={undefined}
+                      bedarf={0}
+                      ausfuehren={ausfuehren}
+                    />
+                  )}
+                </NeueZeile>
               </tbody>
             </table>
           </div>
-        </>
-      )}
 
-      {(s.offers.length > 0 || ohneAngebot.length > 0) && (
-        <>
           <h3>{t("produktion.verkauf")}</h3>
           <div className="tabelle">
-            <table>
+            <table aria-label={t("produktion.verkauf")}>
               <thead>
                 <tr>
                   <th>{t("uebersicht.produkt")}</th>
                   <th className="zahl">{t("produktion.preis")}</th>
+                  <th className="zahl">{t("produktion.verkauft_vormonat")}</th>
                   <th className="zahl">{t("produktion.verkauft_monat")}</th>
                   <th>{t("produktion.preisregel")}</th>
                 </tr>
@@ -267,6 +316,7 @@ function Standort({
                   <tr key={o.product}>
                     <td>{t(`produkt.${o.product}`)}</td>
                     <td className="zahl">{formatGeld(o.price_usd)}</td>
+                    <td className="zahl">{formatZahl(o.sold_last_month, 1)}</td>
                     <td className="zahl">{formatZahl(o.sold_month, 1)}</td>
                     <td>
                       <VerkaufFormular
@@ -283,6 +333,7 @@ function Standort({
                     <td>{t(`produkt.${p}`)}</td>
                     <td className="zahl">–</td>
                     <td className="zahl">–</td>
+                    <td className="zahl">–</td>
                     <td>
                       <VerkaufFormular
                         standort={s.index}
@@ -293,6 +344,23 @@ function Standort({
                     </td>
                   </tr>
                 ))}
+                <NeueZeile
+                  titel={t("produktion.neues_angebot")}
+                  spalten={4}
+                  produkte={produktion.products.filter(
+                    (p) => !s.offers.some((o) => o.product === p) && !ohneAngebot.includes(p),
+                  )}
+                >
+                  {(p) => (
+                    <VerkaufFormular
+                      key={p}
+                      standort={s.index}
+                      produkt={p}
+                      angebot={null}
+                      ausfuehren={ausfuehren}
+                    />
+                  )}
+                </NeueZeile>
               </tbody>
             </table>
           </div>
@@ -347,18 +415,22 @@ function AnlageZeile({
         )}
       </td>
       <td>
-        <select
-          aria-label={t("produktion.rezept_von", { anlage: t(`anlage.${a.facility}`) })}
-          value={a.recipe ?? ""}
-          onChange={(e) => setze(e.target.value || null, auslastung)}
-        >
-          <option value="">{t("produktion.kein_rezept")}</option>
-          {rezepte.map((r) => (
-            <option key={r.key} value={r.key}>
-              {t(`rezept.${r.key}`)}
-            </option>
-          ))}
-        </select>
+        {s.kind === "ResearchCenter" ? (
+          <span className="gedaempft">{t("produktion.labor")}</span>
+        ) : (
+          <select
+            aria-label={t("produktion.rezept_von", { anlage: t(`anlage.${a.facility}`) })}
+            value={a.recipe ?? ""}
+            onChange={(e) => setze(e.target.value || null, auslastung)}
+          >
+            <option value="">{t("produktion.kein_rezept")}</option>
+            {rezepte.map((r) => (
+              <option key={r.key} value={r.key}>
+                {t(`rezept.${r.key}`)}
+              </option>
+            ))}
+          </select>
+        )}
       </td>
       <td className="zahl">
         <input
@@ -443,7 +515,7 @@ function EinkaufFormular({
         value={preis || ""}
         onChange={(e) => setPreis(Number(e.target.value))}
       />
-      <button type="submit" className="schlicht">
+      <button type="submit" className="schlicht" disabled={!auftrag && !(ziel > 0 && preis > 0)}>
         {auftrag ? t("produktion.aendern") : t("produktion.kaufen")}
       </button>
       {auftrag && (
@@ -540,6 +612,83 @@ function VerkaufFormular({
           {t("produktion.stoppen")}
         </button>
       )}
+    </form>
+  );
+}
+
+/** Last row of a table: pick another product, then the form for it. */
+function NeueZeile({
+  titel,
+  spalten,
+  produkte,
+  children,
+}: {
+  titel: string;
+  spalten: number;
+  produkte: string[];
+  children: (produkt: string) => ReactNode;
+}) {
+  const [produkt, setProdukt] = useState("");
+  const sortiert = [...produkte].sort((a, b) =>
+    t(`produkt.${a}`).localeCompare(t(`produkt.${b}`), "de"),
+  );
+  return (
+    <tr className="neue-zeile">
+      <td colSpan={spalten}>
+        <label>
+          {titel}{" "}
+          <select aria-label={titel} value={produkt} onChange={(e) => setProdukt(e.target.value)}>
+            <option value="">–</option>
+            {sortiert.map((p) => (
+              <option key={p} value={p}>
+                {t(`produkt.${p}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </td>
+      <td>{produkt && children(produkt)}</td>
+    </tr>
+  );
+}
+
+function Erschliessung({
+  standort: s,
+  datum,
+  ausfuehren,
+}: {
+  standort: StandortDetail;
+  datum: string;
+  ausfuehren: Ausfuehren;
+}) {
+  const [lager, setLager] = useState(s.free_deposits[0]?.key ?? "");
+  if (s.deposit) return null;
+  if (s.free_deposits.length === 0)
+    return (
+      <p className="gedaempft">{t("produktion.keine_lagerstaette", { jahr: datum.slice(0, 4) })}</p>
+    );
+  return (
+    <form
+      className="zeilenformular"
+      aria-label={t("produktion.erschliessen")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void ausfuehren({ DevelopDeposit: { site: s.index, deposit: lager } });
+      }}
+    >
+      <label>
+        {t("produktion.erschliessen")}
+        <select id={`lager_${s.index}`} value={lager} onChange={(e) => setLager(e.target.value)}>
+          {s.free_deposits.map((d) => (
+            <option key={d.key} value={d.key}>
+              {t(`lagerstaette.${d.key}`)} ({t(`produkt.${d.resource}`)}) – {formatGeld(d.cost_usd)}
+              , {t("produktion.bauzeit", { tage: d.days })},{" "}
+              {t("produktion.foerderung_jahr", { menge: formatZahl(d.output_per_year) })}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="submit">{t("produktion.erschliessen_knopf")}</button>
     </form>
   );
 }

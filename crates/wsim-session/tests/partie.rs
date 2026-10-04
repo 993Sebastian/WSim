@@ -113,9 +113,32 @@ fn played_game_1900_to_1905() {
     assert_eq!(finance.loans.len(), 1);
     assert!(finance.loans[0].balance_usd < finance.loans[0].principal_usd);
     assert!(finance.last_year.is_some());
+    // A slot running at its plan shows no bottleneck (no rounding artefacts).
+    for slot in &production.sites[0].slots {
+        if slot.made_per_day >= slot.planned_per_day * 0.999 && slot.planned_per_day > 0.0 {
+            assert!(slot.cause.is_none(), "{slot:?}");
+        }
+    }
+    // Monthly rounds show the sales of the closed month, not the reset counter.
+    let offer = production.sites[0]
+        .offers
+        .iter()
+        .find(|o| o.product == "naegel")
+        .unwrap();
+    assert!(offer.sold_last_month > 0.0, "{offer:?}");
+    // The statements of all periods list the same cost types in the same order.
+    let year = &finance.year.lines;
+    for other in [&finance.last_month, &finance.last_year]
+        .into_iter()
+        .flatten()
+    {
+        let keys = |l: &Vec<(String, f64)>| l.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+        assert_eq!(keys(year), keys(&other.lines));
+    }
     let market = session.market("DEU").unwrap();
     let nails = market.lines.iter().find(|l| l.product == "naegel").unwrap();
     assert!(nails.own_price_usd.is_some());
+    assert!(nails.own_sold_last_month > 0.0, "{nails:?}");
     let research = session.research().unwrap();
     assert!(research.technologies.iter().any(|t| t.researchable));
     // The game was played through commands only: replaying the journal gives it again.
@@ -127,4 +150,93 @@ fn played_game_1900_to_1905() {
     )
     .unwrap();
     assert_eq!(again.state_hash(), game.state_hash());
+}
+
+/// Research centers and deposits as the interface sets them up: a new laboratory works
+/// at once (also for AI companies, which build it with the same command), an
+/// extraction site lists the deposits it can develop.
+#[test]
+fn research_center_and_deposit_through_the_interface() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().to_path_buf()).unwrap();
+    session
+        .new_game(&NewGameRequest {
+            seed: 5,
+            start_year: 1900,
+            country: "DEU".into(),
+            capital_usd: 3_000_000.0,
+            start_form: "werkstatt".into(),
+            company_name: "Laborprobe".into(),
+            companies: 5,
+            difficulty: "mittel".into(),
+            research_factor: 1.0,
+        })
+        .unwrap();
+    session
+        .command(json!({"FoundSite": {"country": "DEU", "kind": "ResearchCenter"}}))
+        .unwrap();
+    let research = session.research().unwrap();
+    let center = &research.centers[0];
+    assert!(center.labs.is_empty() && !center.ready && center.building_until.is_none());
+    let site = center.site;
+    let lab = research.laboratory.clone().unwrap();
+    session
+        .command(json!({"BuildFacility": {"site": site, "facility": lab, "count": 1}}))
+        .unwrap();
+    let research = session.research().unwrap();
+    let center = &research.centers[0];
+    assert_eq!(center.labs[0].utilization, 1.0);
+    assert!(center.building_until.is_some());
+    let target = research
+        .technologies
+        .iter()
+        .find(|t| t.researchable)
+        .unwrap()
+        .key
+        .clone();
+    session
+        .command(json!({"SetResearch": {"site": site, "technology": target}}))
+        .unwrap();
+    // The laboratory is built in 120 days; then researchers are hired.
+    for _ in 0..6 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let research = session.research().unwrap();
+    let center = &research.centers[0];
+    assert!(center.ready && center.building_until.is_none());
+    assert!(center.researchers > 0.0, "{center:?}");
+    let points = research
+        .technologies
+        .iter()
+        .find(|t| t.key == target)
+        .unwrap()
+        .points;
+    assert!(points > 0.0);
+
+    session
+        .command(json!({"FoundSite": {"country": "DEU", "kind": "Extraction"}}))
+        .unwrap();
+    let production = session.production().unwrap();
+    let mine = production.sites.last().unwrap();
+    let deposit = mine
+        .free_deposits
+        .first()
+        .expect("a free deposit")
+        .key
+        .clone();
+    let index = mine.index;
+    session
+        .command(json!({"DevelopDeposit": {"site": index, "deposit": deposit}}))
+        .unwrap();
+    let production = session.production().unwrap();
+    let mine = production.sites.last().unwrap();
+    assert_eq!(mine.deposit.as_ref(), Some(&deposit));
+    assert!(mine.deposit_ready.is_some() && mine.free_deposits.is_empty());
+
+    // Numbers instead of keys must stay inside the catalog: refused, no panic.
+    let wrong = json!({"BuildFacility": {"site": index, "facility": 60_000, "count": 1}});
+    assert_eq!(
+        session.command(wrong).unwrap_err().key,
+        keys::INVALID_COMMAND
+    );
 }

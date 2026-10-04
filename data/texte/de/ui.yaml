@@ -207,7 +207,9 @@ produktion.aendern: Ändern
 produktion.stoppen: Stoppen
 produktion.verkauf: Verkauf
 produktion.preis: Preis
-produktion.verkauft_monat: Verkauft im Monat
+produktion.verkauft_monat: Laufender Monat
+produktion.verkauft_vormonat: Verkauft Vormonat
+produktion.gekauft_vormonat: Gekauft Vormonat
 produktion.preisregel: Preisregel (USD)
 produktion.verkauf_von: "Verkauf von {produkt}"
 produktion.preisart: "Preisart für {produkt}"
@@ -217,6 +219,14 @@ produktion.festpreis_von: "Festpreis für {produkt} in USD"
 produktion.untergrenze: Untergrenze
 produktion.untergrenze_von: "Preisuntergrenze für {produkt} in USD"
 produktion.anbieten: Anbieten
+produktion.neuer_einkauf: Weiteres Produkt einkaufen
+produktion.neues_angebot: Weiteres Produkt anbieten
+produktion.erschliessen: Lagerstätte erschließen
+produktion.erschliessen_knopf: Erschließen
+produktion.erschliessung_bis: "in Erschließung bis {datum}"
+produktion.foerderung_jahr: "{menge} je Jahr"
+produktion.keine_lagerstaette: "Im Land ist {jahr} keine entdeckte Lagerstätte mit freier Konzession."
+produktion.labor: Forschungslabor
 
 ursache.vorprodukt: "Vorprodukt fehlt: {detail}"
 ursache.vorprodukt.hilfe: Das Lager reicht nicht für die geplante Menge. Einkauf erhöhen oder eigene Herstellung ausbauen.
@@ -231,6 +241,8 @@ ursache.im_bau.hilfe: Die Anlage arbeitet ab dem Fertigstellungstag.
 ursache.kein_rezept: kein Rezept gewählt
 ursache.kein_rezept.hilfe: Ohne Rezept steht die Anlage still.
 ursache.ruht: Auslastung 0 %
+ursache.erschliessung: Lagerstätte in Erschließung
+ursache.erschliessung.hilfe: Die Förderung beginnt, sobald die Lagerstätte erschlossen ist.
 ursache.ruht.hilfe: Die Anlage ist stillgelegt.
 
 # Markt
@@ -256,6 +268,9 @@ forschung.ohne_labor: ohne Labor
 forschung.projekt_von: "Forschungsprojekt in {land}"
 forschung.kein_projekt: – kein Projekt –
 forschung.labor_bauen: Labor bauen
+forschung.labor_erweitern: Weiteres Labor bauen
+forschung.labor_im_bau: "Labor im Bau bis {datum}"
+forschung.labor_auslastung: "Auslastung ({anzahl} Labor)"
 forschung.gruenden: Forschungszentrum gründen in
 forschung.technologien: Technologien
 forschung.feld: Fachgebiet

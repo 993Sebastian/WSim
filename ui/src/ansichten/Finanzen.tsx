@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatDatum, formatGeld, formatProzent } from "../format";
-import { geld, type Abrechnung, type Kern, type Uebersicht } from "../kern";
+import { geld, type Abrechnung, type Befehl, type Kern, type Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useBefehl, useSicht } from "./gemeinsam";
@@ -18,13 +18,16 @@ export function FinanzenAnsicht({
   const { ausfuehren, meldung } = useBefehl(kern, onGeaendert, neu);
   const [betrag, setBetrag] = useState(0);
   const [jahre, setJahre] = useState(10);
-  const [tilgung, setTilgung] = useState<Record<number, number>>({});
   if (!daten) return <FehlerText fehler={fehler} />;
   const abrechnungen: [string, Abrechnung | null][] = [
     ["finanzen.vormonat", daten.last_month],
     ["finanzen.laufendes_jahr", daten.year],
     ["finanzen.vorjahr", daten.last_year],
   ];
+  // The core lists every cost type in the same order; types without any amount are left out.
+  const arten = daten.year.lines
+    .map(([art]) => art)
+    .filter((art) => abrechnungen.some(([, a]) => (new Map(a?.lines).get(art) ?? 0) !== 0));
   return (
     <main className="ansicht" id="finanzen">
       <h1 className="unsichtbar">{t("ansicht.finanzen")}</h1>
@@ -58,12 +61,12 @@ export function FinanzenAnsicht({
                 </tr>
               </thead>
               <tbody>
-                {daten.year.lines.map(([art], i) => (
+                {arten.map((art) => (
                   <tr key={art}>
                     <td>{t(art)}</td>
                     {abrechnungen.map(([k, a]) => (
                       <td key={k} className="zahl">
-                        {a ? <Betrag usd={a.lines[i]?.[1] ?? 0} /> : "–"}
+                        {a ? <Betrag usd={new Map(a.lines).get(art) ?? 0} /> : "–"}
                       </td>
                     ))}
                   </tr>
@@ -131,34 +134,12 @@ export function FinanzenAnsicht({
                     <td className="zahl">{formatProzent(k.rate)}</td>
                     <td className="zahl">{formatGeld(k.instalment_usd)}</td>
                     <td>
-                      <form
-                        className="inline"
-                        aria-label={t("finanzen.sondertilgung")}
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          void ausfuehren({
-                            RepayLoan: {
-                              loan: k.index,
-                              amount: geld(tilgung[k.index] ?? k.balance_usd),
-                            },
-                          });
-                        }}
-                      >
-                        <input
-                          className="schmal"
-                          type="number"
-                          min={0}
-                          step="any"
-                          aria-label={t("finanzen.tilgungsbetrag")}
-                          value={tilgung[k.index] ?? Math.ceil(k.balance_usd)}
-                          onChange={(e) =>
-                            setTilgung({ ...tilgung, [k.index]: Number(e.target.value) })
-                          }
-                        />
-                        <button type="submit" className="schlicht">
-                          {t("finanzen.tilgen")}
-                        </button>
-                      </form>
+                      <Tilgung
+                        key={`${k.index}/${k.balance_usd}`}
+                        kredit={k.index}
+                        rest={k.balance_usd}
+                        ausfuehren={ausfuehren}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -243,5 +224,40 @@ function Spalte({
         </tr>
       </tbody>
     </table>
+  );
+}
+
+function Tilgung({
+  kredit,
+  rest,
+  ausfuehren,
+}: {
+  kredit: number;
+  rest: number;
+  ausfuehren: (...b: Befehl[]) => Promise<boolean>;
+}) {
+  const [betrag, setBetrag] = useState(Math.ceil(rest));
+  return (
+    <form
+      className="inline"
+      aria-label={t("finanzen.sondertilgung")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void ausfuehren({ RepayLoan: { loan: kredit, amount: geld(betrag) } });
+      }}
+    >
+      <input
+        className="schmal"
+        type="number"
+        min={0}
+        step="any"
+        aria-label={t("finanzen.tilgungsbetrag")}
+        value={betrag}
+        onChange={(e) => setBetrag(Number(e.target.value))}
+      />
+      <button type="submit" className="schlicht" disabled={!(betrag > 0)}>
+        {t("finanzen.tilgen")}
+      </button>
+    </form>
   );
 }

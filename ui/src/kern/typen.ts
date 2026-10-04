@@ -233,6 +233,7 @@ export interface Angebot {
   markup: number;
   keep: number;
   sold_month: number;
+  sold_last_month: number;
 }
 
 export interface Einkauf {
@@ -241,6 +242,7 @@ export interface Einkauf {
   max_price_usd: number;
   min_quality: number;
   bought_month: number;
+  bought_last_month: number;
 }
 
 export interface Versorgung {
@@ -258,6 +260,14 @@ export interface StandortDetail {
   kind: string;
   kind_text: string;
   deposit: string | null;
+  deposit_ready: string | null;
+  free_deposits: {
+    key: string;
+    resource: string;
+    cost_usd: number;
+    days: number;
+    output_per_year: number;
+  }[];
   workers: number;
   slots: AnlageDetail[];
   stock: { product: string; quantity: number; value_usd: number }[];
@@ -292,6 +302,7 @@ export interface Produktion {
     labor_hours: [string, number][];
     energy_mwh: number;
   }[];
+  products: string[];
 }
 
 export interface Markt {
@@ -308,7 +319,7 @@ export interface Markt {
     exported_last_month: number;
     sellers: number;
     own_price_usd: number | null;
-    own_sold_month: number;
+    own_sold_last_month: number;
   }[];
 }
 
@@ -333,6 +344,8 @@ export interface Forschung {
     researchers: number;
     project: string | null;
     ready: boolean;
+    building_until: string | null;
+    labs: { slot: number; count: number; utilization: number; ready: string }[];
   }[];
   laboratory: string | null;
 }

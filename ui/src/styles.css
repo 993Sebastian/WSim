@@ -945,3 +945,7 @@ button.spaltenkopf {
   font-weight: 600;
   cursor: pointer;
 }
+
+.ansichtsbereich {
+  display: contents;
+}

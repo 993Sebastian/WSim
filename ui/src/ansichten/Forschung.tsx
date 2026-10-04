@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { formatZahl, landName } from "../format";
-import type { Kern, Uebersicht } from "../kern";
+import { formatDatum, formatZahl, landName } from "../format";
+import type { Befehl, Forschung, Kern, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useBefehl, useSicht } from "./gemeinsam";
@@ -37,12 +37,14 @@ export function ForschungAnsicht({
               <span className="gedaempft">
                 {z.ready
                   ? t("forschung.forscher", { anzahl: formatZahl(z.researchers, 1) })
-                  : t("forschung.ohne_labor")}
+                  : z.building_until
+                    ? t("forschung.labor_im_bau", { datum: formatDatum(z.building_until) })
+                    : t("forschung.ohne_labor")}
               </span>{" "}
               <select
                 aria-label={t("forschung.projekt_von", { land: landName(z.country) })}
                 value={z.project ?? ""}
-                disabled={!z.ready}
+                disabled={z.labs.length === 0}
                 onChange={(e) =>
                   void ausfuehren({
                     SetResearch: { site: z.site, technology: e.target.value || null },
@@ -56,7 +58,15 @@ export function ForschungAnsicht({
                   </option>
                 ))}
               </select>
-              {!z.ready && daten.laboratory && (
+              {z.labs.map((l) => (
+                <LaborAuslastung
+                  key={`${l.slot}/${l.utilization}`}
+                  site={z.site}
+                  labor={l}
+                  ausfuehren={ausfuehren}
+                />
+              ))}
+              {daten.laboratory && (
                 <button
                   type="button"
                   className="schlicht"
@@ -66,7 +76,9 @@ export function ForschungAnsicht({
                     })
                   }
                 >
-                  {t("forschung.labor_bauen")}
+                  {z.labs.length === 0
+                    ? t("forschung.labor_bauen")
+                    : t("forschung.labor_erweitern")}
                 </button>
               )}
             </li>
@@ -142,5 +154,44 @@ export function ForschungAnsicht({
         </div>
       </section>
     </main>
+  );
+}
+
+function LaborAuslastung({
+  site,
+  labor,
+  ausfuehren,
+}: {
+  site: number;
+  labor: Forschung["centers"][number]["labs"][number];
+  ausfuehren: (...b: Befehl[]) => Promise<boolean>;
+}) {
+  const [prozent, setProzent] = useState(Math.round(labor.utilization * 100));
+  const senden = () =>
+    prozent !== Math.round(labor.utilization * 100) &&
+    void ausfuehren({
+      SetProduction: {
+        site,
+        slot: labor.slot,
+        recipe: null,
+        utilization: Math.min(100, Math.max(0, prozent)) / 100,
+      },
+    });
+  return (
+    <label className="inline">
+      {t("forschung.labor_auslastung", { anzahl: labor.count })}
+      <input
+        className="schmal"
+        type="number"
+        min={0}
+        max={100}
+        step={5}
+        value={prozent}
+        onChange={(e) => setProzent(Number(e.target.value))}
+        onBlur={senden}
+        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+      />
+      %
+    </label>
   );
 }

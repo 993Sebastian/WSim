@@ -25,7 +25,11 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
     "page",
   );
   await expect(page.getByRole("heading", { name: /Werk · Deutschland/ })).toBeVisible();
-  await expect(page.getByText(/Zu wenig Angelernte/)).toBeVisible();
+  // A machine at its plan shows no bottleneck; last month's sales are shown.
+  await expect(page.getByRole("cell", { name: "läuft" })).toBeVisible();
+  const verkauf = page.getByRole("table", { name: "Verkauf" });
+  await expect(verkauf.getByRole("cell", { name: "15,5" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Weiteres Produkt einkaufen" })).toBeVisible();
   await bild(page, "produktion");
 
   await page.keyboard.press("3");
@@ -104,7 +108,7 @@ test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(bericht).toBeHidden();
 
-  await page.getByLabel("Meldungen").selectOption("welt");
+  await page.locator("#berichte_gruppe").selectOption("welt");
   await expect(page.getByText(/Erster Weltkrieg/).first()).toBeVisible();
   await page.getByRole("button", { name: "Bericht öffnen" }).click();
   await expect(bericht).toBeVisible();

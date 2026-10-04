@@ -290,14 +290,15 @@ fn broken_saves_are_rejected() {
 
 #[test]
 fn saves_that_do_not_fit_the_catalog_are_rejected() {
-    // The keys match, but the head office points to a country that does not exist.
+    // The keys match, but the head office points to a country that does not exist. It
+    // is written as a number (no key), which reading rejects as outside the catalog.
     let game = played(1, &script(1, 3));
     let mut state = game.state().clone();
     state.companies[0].headquarters = CountryId::from_index(9);
     let tampered = save::encode(&Game::from_parts(catalog(), state, Vec::new()));
     assert_eq!(
         save::decode(&tampered, catalog()).unwrap_err(),
-        LoadError::Corrupt("country reference".into())
+        LoadError::Corrupt("ID out of range".into())
     );
 }
 

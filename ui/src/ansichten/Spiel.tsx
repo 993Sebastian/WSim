@@ -56,6 +56,8 @@ export function Spiel({
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
   const [berichte, setBerichte] = useState<Rundenbericht[]>([]);
+  // Counts loaded games: the views start afresh, even if the date is the same.
+  const [ladung, setLadung] = useState(0);
   const firma = uebersicht.company;
 
   const runde = async () => {
@@ -195,30 +197,33 @@ export function Spiel({
       </nav>
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
-      {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
-      {ansicht === "produktion" && (
-        <ProduktionAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
-      )}
-      {ansicht === "markt" && (
-        <MarktAnsicht
-          kern={kern}
-          datum={uebersicht.date}
-          heimat={uebersicht.company.headquarters}
-        />
-      )}
-      {ansicht === "forschung" && (
-        <ForschungAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
-      )}
-      {ansicht === "finanzen" && (
-        <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
-      )}
-      {ansicht === "weltkarte" && <WeltkarteAnsicht kern={kern} datum={uebersicht.date} />}
-      {ansicht === "berichte" && (
-        <BerichteAnsicht
-          berichte={berichte}
-          onOeffnen={(bericht) => setFenster({ art: "bericht", bericht })}
-        />
-      )}
+      {/* A text key: with the number alone the views were drawn twice after a round. */}
+      <div key={`ladung-${ladung}`} className="ansichtsbereich">
+        {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
+        {ansicht === "produktion" && (
+          <ProduktionAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "markt" && (
+          <MarktAnsicht
+            kern={kern}
+            datum={uebersicht.date}
+            heimat={uebersicht.company.headquarters}
+          />
+        )}
+        {ansicht === "forschung" && (
+          <ForschungAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "finanzen" && (
+          <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "weltkarte" && <WeltkarteAnsicht kern={kern} datum={uebersicht.date} />}
+        {ansicht === "berichte" && (
+          <BerichteAnsicht
+            berichte={berichte}
+            onOeffnen={(bericht) => setFenster({ art: "bericht", bericht })}
+          />
+        )}
+      </div>
       {fenster.art === "hilfe" && <Tastenhilfe onSchliessen={schliessen} />}
 
       {fenster.art === "runde" && (
@@ -272,6 +277,8 @@ export function Spiel({
           kern={kern}
           onGeladen={(u) => {
             setUebersicht(u);
+            setLadung((n) => n + 1);
+            setBerichte([]);
             setFenster({ art: "keins" });
           }}
           onSchliessen={schliessen}

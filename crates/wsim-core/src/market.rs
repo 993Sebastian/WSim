@@ -820,11 +820,13 @@ fn trade(
 pub(crate) fn reset_site_months(state: &mut GameState) {
     for site in &mut state.sites {
         for offer in site.offers.values_mut() {
+            offer.sold_last_month = offer.sold_month;
             offer.sold_month = 0.0;
             offer.to_traders_month = 0.0;
             offer.to_companies_month = 0.0;
         }
         for order in site.orders.values_mut() {
+            order.bought_last_month = order.bought_month;
             order.bought_month = 0.0;
         }
     }

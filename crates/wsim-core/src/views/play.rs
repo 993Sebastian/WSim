@@ -19,7 +19,8 @@ use crate::state::{Limit, PriceMode};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Cause {
     /// `ursache.vorprodukt`, `ursache.arbeitskraefte`, `ursache.strom`,
-    /// `ursache.lagerstaette`, `ursache.im_bau`, `ursache.kein_rezept`, `ursache.ruht`.
+    /// `ursache.lagerstaette`, `ursache.im_bau`, `ursache.erschliessung`,
+    /// `ursache.kein_rezept`, `ursache.ruht`.
     pub key: String,
     /// Missing input or labor group.
     pub detail: Option<String>,
@@ -52,7 +53,9 @@ pub struct OfferView {
     pub floor_usd: f64,
     pub markup: f64,
     pub keep: f64,
+    /// Sold in the running month.
     pub sold_month: f64,
+    pub sold_last_month: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -61,7 +64,9 @@ pub struct OrderView {
     pub target: f64,
     pub max_price_usd: f64,
     pub min_quality: f64,
+    /// Bought in the running month.
     pub bought_month: f64,
+    pub bought_last_month: f64,
 }
 
 /// An input of the site's production: daily need, stock and how long it lasts.
@@ -78,6 +83,17 @@ pub struct InputSupply {
     pub ordered: bool,
 }
 
+/// A deposit an extraction site without deposit could develop.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DepositOption {
+    pub key: String,
+    pub resource: String,
+    pub cost_usd: f64,
+    pub days: u32,
+    /// Yearly output of the free field.
+    pub output_per_year: f64,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SiteDetail {
     pub index: u32,
@@ -87,6 +103,10 @@ pub struct SiteDetail {
     /// Text key, e.g. `standorttyp.werk`.
     pub kind_text: String,
     pub deposit: Option<String>,
+    /// Day the development of the site's deposit field is finished.
+    pub deposit_ready: Option<String>,
+    /// Deposits to develop (extraction sites without deposit only).
+    pub free_deposits: Vec<DepositOption>,
     pub workers: f64,
     pub slots: Vec<SlotDetail>,
     pub stock: Vec<super::StockView>,
@@ -137,6 +157,8 @@ pub struct ProductionView {
     pub site_types: Vec<SiteTypeOption>,
     pub facilities: Vec<FacilityOption>,
     pub recipes: Vec<RecipeOption>,
+    /// All products (for new purchase orders and offers).
+    pub products: Vec<String>,
 }
 
 pub fn production(game: &Game) -> ProductionView {
@@ -214,6 +236,16 @@ pub fn production(game: &Game) -> ProductionView {
         .enumerate()
         .filter(|(_, s)| s.owner == player)
         .map(|(i, s)| {
+            let site_id = crate::state::SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+            let concession = s.deposit.and_then(|d| {
+                state
+                    .deposits
+                    .get(d)
+                    .concessions
+                    .iter()
+                    .find(|c| c.site == Some(site_id))
+            });
+            let developing = concession.is_none_or(|c| c.ready.is_none_or(|r| r > state.date));
             let mut need: Vec<(crate::ids::ProductId, f64)> = Vec::new();
             let slots = s
                 .slots
@@ -231,12 +263,15 @@ pub fn production(game: &Game) -> ProductionView {
                             }
                         }
                     }
+                    let lab = f.site_type == SiteType::ResearchCenter;
                     let cause = if sl.ready > state.date {
                         Some(("ursache.im_bau", None))
-                    } else if recipe.is_none() {
+                    } else if recipe.is_none() && !lab {
                         Some(("ursache.kein_rezept", None))
                     } else if sl.utilization <= 0.0 {
                         Some(("ursache.ruht", None))
+                    } else if recipe.is_some_and(|r| r.extraction) && developing {
+                        Some(("ursache.erschliessung", None))
                     } else {
                         sl.limit.map(|l| match l {
                             Limit::Input(p) => (
@@ -295,6 +330,12 @@ pub fn production(game: &Game) -> ProductionView {
                 kind: s.kind,
                 kind_text: site_type_key(s.kind),
                 deposit: s.deposit.map(|d| catalog.deposits.key(d).to_owned()),
+                deposit_ready: concession.and_then(|c| c.ready).map(iso),
+                free_deposits: if s.kind == SiteType::Extraction && s.deposit.is_none() {
+                    free_deposits(game, s.country)
+                } else {
+                    Vec::new()
+                },
                 workers: s.workforce.values().sum(),
                 slots,
                 stock: s
@@ -323,6 +364,7 @@ pub fn production(game: &Game) -> ProductionView {
                             markup,
                             keep: o.keep,
                             sold_month: o.sold_month,
+                            sold_last_month: o.sold_last_month,
                         }
                     })
                     .collect(),
@@ -335,6 +377,7 @@ pub fn production(game: &Game) -> ProductionView {
                         max_price_usd: usd(o.max_price),
                         min_quality: o.min_quality,
                         bought_month: o.bought_month,
+                        bought_last_month: o.bought_last_month,
                     })
                     .collect(),
                 inputs,
@@ -349,7 +392,41 @@ pub fn production(game: &Game) -> ProductionView {
         site_types,
         facilities,
         recipes,
+        products: catalog
+            .products
+            .iter()
+            .map(|(p, _)| catalog.products.key(p).to_owned())
+            .collect(),
     }
+}
+
+/// Discovered deposits of a country with a free field, priced as `DevelopDeposit` does.
+fn free_deposits(game: &Game, country: crate::ids::CountryId) -> Vec<DepositOption> {
+    let state = game.state();
+    let catalog = game.catalog();
+    catalog
+        .deposits
+        .iter()
+        .filter(|(_, d)| d.country == country)
+        .filter(|(_, d)| d.discovered.is_none_or(|y| y <= state.date.year()))
+        .filter_map(|(id, d)| {
+            let field = state
+                .deposits
+                .get(id)
+                .concessions
+                .iter()
+                .find(|c| c.site.is_none())?;
+            Some(DepositOption {
+                key: catalog.deposits.key(id).to_owned(),
+                resource: catalog.products.key(d.resource).to_owned(),
+                cost_usd: usd(d
+                    .development_cost
+                    .scale(state.settings.market_scale * field.share)),
+                days: d.development_days,
+                output_per_year: d.max_output_per_year * field.share,
+            })
+        })
+        .collect()
 }
 
 /// One product on the market of a country.
@@ -367,7 +444,8 @@ pub struct MarketLine {
     pub sellers: u32,
     /// The player's asking price here, if the player offers the product.
     pub own_price_usd: Option<f64>,
-    pub own_sold_month: f64,
+    /// Own sales in the last closed month.
+    pub own_sold_last_month: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -399,7 +477,7 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                     sellers += 1;
                     if s.owner == state.player {
                         own_price = Some(usd(o.price));
-                        own_sold += o.sold_month;
+                        own_sold += o.sold_last_month;
                     }
                 }
             }
@@ -414,7 +492,7 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                 exported_last_month: t.exported,
                 sellers,
                 own_price_usd: own_price,
-                own_sold_month: own_sold,
+                own_sold_last_month: own_sold,
             }
         })
         .collect();
@@ -450,7 +528,20 @@ pub struct ResearchCenterView {
     pub country: String,
     pub researchers: f64,
     pub project: Option<String>,
+    /// A laboratory is ready.
     pub ready: bool,
+    /// Day the first laboratory is ready while all are still being built.
+    pub building_until: Option<String>,
+    pub labs: Vec<LabView>,
+}
+
+/// A laboratory slot of a research center; its utilization sets the researcher posts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LabView {
+    pub slot: usize,
+    pub count: u32,
+    pub utilization: f64,
+    pub ready: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -521,6 +612,24 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             researchers: s.workforce.values().sum(),
             project: s.research.map(|t| catalog.technologies.key(t).to_owned()),
             ready: s.slots.iter().any(|sl| sl.ready <= state.date),
+            building_until: s
+                .slots
+                .iter()
+                .map(|sl| sl.ready)
+                .min()
+                .filter(|&r| r > state.date)
+                .map(iso),
+            labs: s
+                .slots
+                .iter()
+                .enumerate()
+                .map(|(slot, sl)| LabView {
+                    slot,
+                    count: sl.count,
+                    utilization: sl.utilization,
+                    ready: iso(sl.ready),
+                })
+                .collect(),
         })
         .collect();
     ResearchOverview {
@@ -557,11 +666,18 @@ pub struct Statement {
 
 fn statement(period: &crate::ledger::PeriodResult) -> Statement {
     let s = reports::income_statement(period);
+    // Every cost type, so that the periods line up in one table.
     Statement {
-        lines: s
-            .lines
+        lines: crate::ledger::CostType::ALL
             .iter()
-            .map(|(t, m)| (t.text_key().to_owned(), usd(*m)))
+            .map(|t| {
+                let amount = s
+                    .lines
+                    .iter()
+                    .find(|(x, _)| x == t)
+                    .map_or(Money::ZERO, |l| l.1);
+                (t.text_key().to_owned(), usd(amount))
+            })
             .collect(),
         result_usd: usd(s.result),
         cash_flow_usd: [

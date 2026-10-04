@@ -395,6 +395,9 @@ pub struct SaleOffer {
     pub keep: f64,
     pub sold_today: f64,
     pub sold_month: f64,
+    /// Sold in the last closed month (for the views).
+    #[serde(default)]
+    pub sold_last_month: f64,
     /// Sold to traders and to other companies in the running month (for the limits of
     /// the sales policies).
     #[serde(default)]
@@ -410,6 +413,9 @@ pub struct PurchaseOrder {
     pub max_price: Money,
     pub min_quality: f64,
     pub bought_month: f64,
+    /// Bought in the last closed month (for the views).
+    #[serde(default)]
+    pub bought_last_month: f64,
 }
 
 /// Trade on a market in a period.

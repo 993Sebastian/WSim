@@ -170,9 +170,11 @@ impl<I: Id> Visitor<'_> for IdVisitor<I> {
     }
 
     fn visit_u64<E: de::Error>(self, v: u64) -> Result<I, E> {
+        // With a key table, an index must also exist in the catalog.
+        let max = active_len(I::KIND).map_or(usize::from(u16::MAX) + 1, |n| n);
         usize::try_from(v)
             .ok()
-            .filter(|&i| i <= usize::from(u16::MAX))
+            .filter(|&i| i < max)
             .map(I::from_index)
             .ok_or_else(|| E::custom("ID out of range"))
     }

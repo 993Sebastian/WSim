@@ -220,3 +220,23 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
 - M14: Die durchgespielte Partie 1900–1905 läuft als Test der Sitzung
   (`crates/wsim-session/tests/partie.rs`): Bauen, Produktion, Einkauf, Verkauf, Kredit,
   60 Monatsrunden, Wiederholung aus dem Journal ergibt denselben Zustand.
+- M14 (Review): Ein unabhängiges Review des M14-Diffs (vier Blickwinkel, jeder Befund
+  gegengeprüft) fand 14 Fehler, alle behoben:
+  - Forschungslabore liefen nach dem Bau mit 0 % Auslastung, auch bei KI-Firmen – es
+    wurde nie geforscht. Labore arbeiten jetzt ab Fertigstellung voll; die Auslastung
+    lässt sich in der Forschungsansicht ändern, weitere Labore lassen sich bauen.
+  - Lagerstätten ließen sich in der Oberfläche nicht erschließen. Förderstätten ohne
+    Lagerstätte zeigen jetzt die entdeckten Lagerstätten des Landes mit freier
+    Konzession (Kosten, Dauer, Jahresförderung); während der Erschließung lautet die
+    Ursache „Lagerstätte in Erschließung“.
+  - Absatz und Einkauf zeigten nach Monatsrunden immer 0 (der laufende Zähler wird am
+    Monatsersten zurückgesetzt). Angebote und Einkäufe merken sich jetzt den Vormonat
+    (`sold_last_month`, `bought_last_month`, alte Spielstände laden mit 0).
+  - Rundungsfehler galten als Engpass („Zu wenig Angelernte“ bei voller Leistung);
+    Ursachen zählen erst ab einer echten Unterschreitung des Plans.
+  - Die Erfolgsrechnung ordnete die Spalten nach Position statt nach Kostenart.
+  - Einkauf und Verkauf jedes Produkts an jedem Standort (z. B. Handelsniederlassung
+    der Startform „Handel“), nicht nur der Vorprodukte und eigenen Erzeugnisse.
+  - Zahlen statt Schlüssel in Befehlen werden gegen den Katalog geprüft (vorher Absturz).
+  - Nach „Laden“ beginnen alle Ansichten neu; das Berichtsarchiv wird geleert.
+  - Kleinere Formularfehler (Vorgabewerte, Sondertilgung je Kredit, Laborbau im Bau).

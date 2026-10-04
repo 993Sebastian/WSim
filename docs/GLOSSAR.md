@@ -121,5 +121,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Engpass, Ursache | `Slot::limit` (`Limit`), `Cause` |
 | Produktion, Markt, Forschung, Finanzen (Sichten) | `ProductionView`, `MarketView`, `ResearchOverview`, `FinanceView` |
 | Berichte (Meldungsarchiv) | `BerichteAnsicht` (UI) |
+| Lagerstätte erschließen, freie Lagerstätte | `DevelopDeposit`, `DepositOption` |
+| Forschungslabor (Anlage im Forschungszentrum) | `LabView` |
+| Absatz/Einkauf Vormonat | `sold_last_month`, `bought_last_month` |
 | Tastaturkürzel | `TASTEN` (UI, `Tastenhilfe.tsx`) |
 
