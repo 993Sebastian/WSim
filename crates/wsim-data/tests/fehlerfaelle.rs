@@ -212,7 +212,38 @@ lagerstaetten:
     foerderung_max_je_jahr: 10_000
 ";
 
+const KI: &str = include_str!("../../../data/parameter/kimodell.yaml");
+
+const KI_NAMEN: &str = "\
+namensgruppen:
+  - id: schwedisch
+    laender: [SWE]
+    standard: true
+    familiennamen: [Berg]
+    orte: [Kiruna]
+    rechtsformen: [AB]
+    muster: [\"{familienname} {branche} {rechtsform}\"]
+    branchen: {bergbau: Gruv}
+";
+
+const KI_FIRMA: &str = "\
+reale_firmen:
+  - id: lkab
+    name: LKAB
+    sitz: SWE
+    gegruendet: 1890
+    standorte:
+      - land: SWE
+        lagerstaette: grube
+        anlagen: [{anlage: mine, anzahl: 2}]
+      - land: SWE
+        anlagen: [{anlage: ofen, anzahl: 1, rezept: eisen_schmelzen}]
+";
+
 const TEXTE: &str = "\
+schwierigkeit.leicht: Leicht
+schwierigkeit.mittel: Mittel
+schwierigkeit.schwer: Schwer
 einheit.t: t
 einheit.stueck: Stück
 kontinent.europa: Europa
@@ -254,6 +285,8 @@ impl Daten {
             ("parameter/forschungsmodell.yaml", FORSCHUNG),
             ("verkehrsmittel.yaml", VERKEHR),
             ("ketten/a.yaml", KETTE),
+            ("parameter/kimodell.yaml", KI),
+            ("ki/a.yaml", KI_NAMEN),
             ("texte/de/a.yaml", TEXTE),
         ];
         Self {
@@ -503,7 +536,8 @@ fn ungueltige_ids() {
             "parameter/laendermodell.yaml",
             "referenzland: SWE",
             "referenzland: swe",
-        );
+        )
+        .ersetze("ki/a.yaml", "laender: [SWE]", "laender: [swe]");
     let outcome = d.laden();
     befund(&outcome, "Ungültige ID „Grube“");
     befund(&outcome, "Ungültiger Ländercode „swe“");
@@ -1139,4 +1173,110 @@ fn startformen_werden_geprueft() {
         &d.laden(),
         "Rezept „eisen_schmelzn“ ist nicht definiert. Meinten Sie „eisen_schmelzen“?",
     );
+}
+
+#[test]
+fn kimodell_wird_geprueft() {
+    let datei = "parameter/kimodell.yaml";
+    let d = Daten::neu().ersetze(
+        datei,
+        "schwierigkeit_standard: mittel",
+        "schwierigkeit_standard: mitel",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Schwierigkeit „mitel“ ist unter „schwierigkeiten“ nicht aufgeführt.",
+    );
+    assert_eq!(f.path.to_string(), "kimodell.schwierigkeit_standard");
+
+    let d = Daten::neu().ersetze(datei, "lager_niedrig_tage: 7", "lager_niedrig_tage: 30");
+    befund(
+        &d.laden(),
+        "„lager_niedrig_tage“ muss kleiner als „lager_hoch_tage“ sein.",
+    );
+
+    let d = Daten::neu().ersetze(datei, "streuung: 0.15", "streuung: 0.9");
+    befund(
+        &d.laden(),
+        "Wert 0.9 liegt außerhalb des erlaubten Bereichs 0 bis 0.5.",
+    );
+
+    let d = Daten::neu().ohne(datei);
+    befund(
+        &d.laden(),
+        "Abschnitt „kimodell“ fehlt (erwartet in parameter/kimodell.yaml).",
+    );
+}
+
+#[test]
+fn namensgruppen_werden_geprueft() {
+    let datei = "ki/a.yaml";
+    let d = Daten::neu().ersetze(datei, "{branche} {rechtsform}", "{branch} {rechtsform}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Platzhalter „{branch}“ ist unbekannt; erlaubt sind {familienname}, {ort}, {rechtsform} und {branche}.",
+    );
+    assert_eq!(f.path.to_string(), "namensgruppen[0].muster[0]");
+
+    let d = Daten::neu().ersetze(datei, "    standard: true\n", "");
+    befund(
+        &d.laden(),
+        "Genau eine Namensgruppe muss „standard: true“ haben, gefunden: 0.",
+    );
+
+    let d = Daten::neu().ersetze(datei, "orte: [Kiruna]", "orte: []");
+    befund(&d.laden(), "Die Liste darf nicht leer sein.");
+
+    let d = Daten::neu().ersetze(datei, "{bergbau: Gruv}", "{bergbaau: Gruv}");
+    befund(
+        &d.laden(),
+        "Branche „bergbaau“ ist nicht definiert. Meinten Sie „bergbau“?",
+    );
+}
+
+#[test]
+fn reale_firmen_werden_geprueft() {
+    let datei = "ki/firmen.yaml";
+    let neu = || Daten::neu().datei(datei, KI_FIRMA);
+    let d = neu().ersetze(datei, "        lagerstaette: grube\n", "");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Anlage „mine“ fördert einen Rohstoff; der Standort braucht eine „lagerstaette“.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "reale_firmen[0].standorte[0].anlagen[0].anlage"
+    );
+
+    let d = neu().ersetze(datei, "gegruendet: 1890", "gegruendet: 1907");
+    befund(
+        &d.laden(),
+        "Gegründet 1907: Reale Firmen beschreiben den Stand 1900.",
+    );
+
+    let d = neu().ersetze(
+        datei,
+        "{anlage: ofen, anzahl: 1,",
+        "{anlage: mine, anzahl: 1,",
+    );
+    befund(
+        &d.laden(),
+        "Rezept „eisen_schmelzen“ läuft nicht auf der Anlage „mine“.",
+    );
+
+    let d = neu().ersetze(
+        datei,
+        "anlagen: [{anlage: mine, anzahl: 2}]",
+        "anlagen: [{anlage: mine, anzahl: 2}, {anlage: ofen, anzahl: 1}]",
+    );
+    befund(
+        &d.laden(),
+        "Alle Anlagen eines Standorts brauchen denselben Standorttyp.",
+    );
+
+    let d = neu().ersetze(datei, "anzahl: 2", "anzahl: 0");
+    befund(&d.laden(), "0 muss größer als 0 sein.");
 }

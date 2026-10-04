@@ -37,7 +37,8 @@ sammelt alle Dateien (`*.yaml`, nicht `*.yml`) und fügt die Abschnitte zusammen
 Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell`,
 `marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
-`anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`. Jeder Abschnitt außer `meta`
+`anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
+`namensgruppen`, `reale_firmen`. Jeder Abschnitt außer `meta`
 ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
@@ -56,7 +57,8 @@ ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einma
 - **Texte**: Jeder Eintrag braucht einen Anzeigenamen in `texte/de/`, Schlüssel
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
-  `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`.
+  `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`,
+  `schwierigkeit`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
   Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
 
@@ -308,3 +310,52 @@ Technologien bis zum frühesten Startjahr 1900 sind bei Spielbeginn allen bekann
 
 Eine Transportklasse ohne verfügbares Verkehrsmittel (in Stufe 1 `leitung`) lässt sich
 nicht zwischen Ländern befördern.
+
+## kimodell
+
+Ein einziger Abschnitt (in `parameter/kimodell.yaml`); Formeln in `docs/FORMELN.md` (M10).
+Werte der Form `{bei_0: …, bei_1: …}` hängen linear von Kompetenz bzw. Aggressivität
+der Firma (0–1) ab.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **firmen_standard**, **firmen_max** | Vorgabe und Obergrenze der Zahl der KI-Firmen |
+| **firmen_bei_realer_groesse** | Bei so vielen Firmen arbeiten die Märkte in realer Größe (Marktmaßstab 1) |
+| **massstab** | `minimum` und `maximum` des Marktmaßstabs (je über 0 bis 1) |
+| **arbeitskraefte_min** | Untergrenze jedes Arbeitsmarkts (Personen je Gruppe) |
+| **anlagen_je_konzession**, **konzessionen_max** | Teilung der Lagerstätten in Konzessionen |
+| **schwierigkeiten** | Liste mit `id`, `kompetenz`, `aggressivitaet` (je 0–1); Text `schwierigkeit.<id>` |
+| **schwierigkeit_standard** | ID der vorgewählten Schwierigkeit |
+| **streuung** | Zufällige Abweichung je Firma von den Werten der Schwierigkeit (0–0,5) |
+| **start** | `auslastung`, `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `bauteil`, `endprodukt`, `energie`), `referenzlohn_usd` |
+| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `gruendung_kapitalfaktor` |
+
+## namensgruppen
+
+Namensbausteine für erzeugte KI-Firmen (in `ki/`). Eine Firma nimmt die Gruppe ihres
+Sitzlandes, sonst die eine Gruppe mit `standard: true`.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel der Gruppe |
+| laender | Länder der Gruppe; jedes Land gehört zu höchstens einer Gruppe |
+| standard | `true` für genau eine Gruppe |
+| **familiennamen**, **orte**, **rechtsformen** | Nicht leere Listen von Namensteilen |
+| **muster** | Namensmuster mit `{familienname}`, `{ort}`, `{rechtsform}`, `{branche}` |
+| **branchen** | Wort für das Geschäft je Branche, z. B. `metallurgie: Hüttenwerke` |
+
+## reale_firmen
+
+Historische Firmen mit ihrem Stand im frühesten Startjahr 1900 (in `ki/`). Sie zählen zu
+den KI-Firmen; ihre Anlagenzahl wird mit dem Marktmaßstab verkleinert (mindestens 1).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel |
+| **name** | Firmenname (Eigenname, nicht übersetzt) |
+| **sitz** | Land des Hauptsitzes |
+| **gegruendet** | Gründungsjahr, höchstens 1900 |
+| **standorte** | Liste mit `land`, `lagerstaette` (Pflicht bei Förderanlagen, im selben Land) und `anlagen`: Liste aus `anlage`, `anzahl` (über 0) und `rezept` (optional, muss zur Anlage passen). Alle Anlagen eines Standorts haben denselben Standorttyp; Anlagen und Rezepte dürfen keine Technologie nach 1900 brauchen. |
+| kompetenz, aggressivitaet | Feste Werte (0–1) statt der Schwierigkeit |
+| annaeherung, quelle | Herkunft |
+

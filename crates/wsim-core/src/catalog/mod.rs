@@ -210,20 +210,30 @@ pub struct AiModel {
     pub default_difficulty: usize,
     /// Spread of competence and aggressiveness around the setting, per company.
     pub trait_spread: f64,
-    // Start population
-    pub start_utilization: f64,
+    pub start: AiStart,
+    pub behavior: AiBehavior,
+}
+
+/// How the AI companies are placed at the start.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AiStart {
+    pub utilization: f64,
     /// Plants below this share of one facility are not built.
     pub min_plant_share: f64,
     pub input_stock_days: f64,
     pub output_stock_days: f64,
     pub cash_months: f64,
-    pub max_age_share: f64,
     /// Weight of the development level when placing plants, by product kind
     /// (raw material, semi-finished, component, end product, energy).
     pub development_weight: [f64; 5],
     /// Wage for comparing recipes (USD per hour).
     pub reference_wage_usd: f64,
-    // Behavior
+}
+
+/// How the AI companies decide; spans depend on competence or aggressiveness.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AiBehavior {
+    /// Days between operating decisions (competence).
     pub operations_days: Span,
     pub stock_high_days: f64,
     pub stock_low_days: f64,
@@ -231,11 +241,12 @@ pub struct AiModel {
     pub utilization_min: f64,
     /// Price floor = normal cost × this factor (aggressiveness).
     pub floor_factor: Span,
-    pub purchase_days: Span,
     pub purchase_markup: f64,
+    /// Expansion when the utilization and the margin reach these (aggressiveness).
     pub expand_utilization: Span,
     pub expand_margin: Span,
     pub invest_share_max: f64,
+    /// Research on technologies up to this many years before their invention (competence).
     pub research_lookahead_years: Span,
     pub research_min_revenue_usd: f64,
     pub research_competence_min: f64,
@@ -260,51 +271,50 @@ impl Default for AiModel {
             difficulties: Vec::new(),
             default_difficulty: 0,
             trait_spread: 0.15,
-            start_utilization: 0.85,
-            min_plant_share: 0.15,
-            input_stock_days: 20.0,
-            output_stock_days: 10.0,
-            cash_months: 3.0,
-            max_age_share: 0.6,
-            development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
-            reference_wage_usd: 4.0,
-            operations_days: Span {
-                at_0: 14.0,
-                at_1: 7.0,
+            start: AiStart {
+                utilization: 0.85,
+                min_plant_share: 0.15,
+                input_stock_days: 20.0,
+                output_stock_days: 10.0,
+                cash_months: 3.0,
+                development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
+                reference_wage_usd: 4.0,
             },
-            stock_high_days: 20.0,
-            stock_low_days: 7.0,
-            utilization_step: 0.1,
-            utilization_min: 0.2,
-            floor_factor: Span {
-                at_0: 1.05,
-                at_1: 0.9,
+            behavior: AiBehavior {
+                operations_days: Span {
+                    at_0: 14.0,
+                    at_1: 7.0,
+                },
+                stock_high_days: 20.0,
+                stock_low_days: 7.0,
+                utilization_step: 0.1,
+                utilization_min: 0.2,
+                floor_factor: Span {
+                    at_0: 1.05,
+                    at_1: 0.9,
+                },
+                purchase_markup: 0.25,
+                expand_utilization: Span {
+                    at_0: 0.95,
+                    at_1: 0.8,
+                },
+                expand_margin: Span {
+                    at_0: 0.25,
+                    at_1: 0.08,
+                },
+                invest_share_max: 0.3,
+                research_lookahead_years: Span {
+                    at_0: 0.0,
+                    at_1: 2.0,
+                },
+                research_min_revenue_usd: 5_000_000.0,
+                research_competence_min: 0.5,
+                cash_min_months: 2.0,
+                cash_max_months: 6.0,
+                loan_years: 10,
+                foundings_per_month: 2,
+                founding_capital_factor: 1.5,
             },
-            purchase_days: Span {
-                at_0: 10.0,
-                at_1: 25.0,
-            },
-            purchase_markup: 0.25,
-            expand_utilization: Span {
-                at_0: 0.95,
-                at_1: 0.8,
-            },
-            expand_margin: Span {
-                at_0: 0.25,
-                at_1: 0.08,
-            },
-            invest_share_max: 0.3,
-            research_lookahead_years: Span {
-                at_0: 0.0,
-                at_1: 2.0,
-            },
-            research_min_revenue_usd: 5_000_000.0,
-            research_competence_min: 0.5,
-            cash_min_months: 2.0,
-            cash_max_months: 6.0,
-            loan_years: 10,
-            foundings_per_month: 2,
-            founding_capital_factor: 1.5,
         }
     }
 }

@@ -735,3 +735,201 @@ pub struct RawLatecomer {
     #[serde(rename = "minimum")]
     pub min: f64,
 }
+
+/// `data/parameter/kimodell.yaml`
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiModel {
+    #[serde(rename = "firmen_standard")]
+    pub default_companies: u32,
+    #[serde(rename = "firmen_max")]
+    pub max_companies: u32,
+    #[serde(rename = "firmen_bei_realer_groesse")]
+    pub companies_for_real_size: f64,
+    #[serde(rename = "massstab")]
+    pub scale: RawLimits,
+    #[serde(rename = "arbeitskraefte_min")]
+    pub min_labor_pool: f64,
+    #[serde(rename = "anlagen_je_konzession")]
+    pub plants_per_concession: f64,
+    #[serde(rename = "konzessionen_max")]
+    pub max_concessions: u32,
+    #[serde(rename = "schwierigkeiten")]
+    pub difficulties: Vec<RawDifficulty>,
+    #[serde(rename = "schwierigkeit_standard")]
+    pub default_difficulty: String,
+    #[serde(rename = "streuung")]
+    pub trait_spread: f64,
+    pub start: RawAiStart,
+    #[serde(rename = "verhalten")]
+    pub behavior: RawAiBehavior,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLimits {
+    #[serde(rename = "minimum")]
+    pub min: f64,
+    #[serde(rename = "maximum")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDifficulty {
+    pub id: String,
+    #[serde(rename = "kompetenz")]
+    pub competence: f64,
+    #[serde(rename = "aggressivitaet")]
+    pub aggressiveness: f64,
+}
+
+/// A value depending on a company trait: at 0 and at 1.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSpan {
+    #[serde(rename = "bei_0")]
+    pub at_0: f64,
+    #[serde(rename = "bei_1")]
+    pub at_1: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiStart {
+    #[serde(rename = "auslastung")]
+    pub utilization: f64,
+    #[serde(rename = "anlage_mindestanteil")]
+    pub min_plant_share: f64,
+    #[serde(rename = "lager_eingang_tage")]
+    pub input_stock_days: f64,
+    #[serde(rename = "lager_ausgang_tage")]
+    pub output_stock_days: f64,
+    #[serde(rename = "kasse_monate")]
+    pub cash_months: f64,
+    #[serde(rename = "gewicht_entwicklung")]
+    pub development_weight: RawKindWeights,
+    #[serde(rename = "referenzlohn_usd")]
+    pub reference_wage_usd: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawKindWeights {
+    #[serde(rename = "rohstoff")]
+    pub raw_material: f64,
+    #[serde(rename = "halbzeug")]
+    pub semi_finished: f64,
+    #[serde(rename = "bauteil")]
+    pub component: f64,
+    #[serde(rename = "endprodukt")]
+    pub end_product: f64,
+    #[serde(rename = "energie")]
+    pub energy: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiBehavior {
+    #[serde(rename = "betrieb_alle_tage")]
+    pub operations_days: RawSpan,
+    #[serde(rename = "lager_hoch_tage")]
+    pub stock_high_days: f64,
+    #[serde(rename = "lager_niedrig_tage")]
+    pub stock_low_days: f64,
+    #[serde(rename = "auslastung_schritt")]
+    pub utilization_step: f64,
+    #[serde(rename = "auslastung_min")]
+    pub utilization_min: f64,
+    #[serde(rename = "preisuntergrenze")]
+    pub floor_factor: RawSpan,
+    #[serde(rename = "einkauf_aufschlag")]
+    pub purchase_markup: f64,
+    #[serde(rename = "ausbau_auslastung")]
+    pub expand_utilization: RawSpan,
+    #[serde(rename = "ausbau_marge")]
+    pub expand_margin: RawSpan,
+    #[serde(rename = "ausbau_anteil_kasse_max")]
+    pub invest_share_max: f64,
+    #[serde(rename = "forschung_vorgriff_jahre")]
+    pub research_lookahead_years: RawSpan,
+    #[serde(rename = "forschung_mindestumsatz_usd")]
+    pub research_min_revenue_usd: f64,
+    #[serde(rename = "forschung_mindestkompetenz")]
+    pub research_competence_min: f64,
+    #[serde(rename = "kasse_min_monate")]
+    pub cash_min_months: f64,
+    #[serde(rename = "kasse_max_monate")]
+    pub cash_max_months: f64,
+    #[serde(rename = "kredit_jahre")]
+    pub loan_years: u32,
+    #[serde(rename = "gruendungen_je_monat")]
+    pub foundings_per_month: u32,
+    #[serde(rename = "gruendung_kapitalfaktor")]
+    pub founding_capital_factor: f64,
+}
+
+/// Name parts for generated companies (`data/ki/namen.yaml`).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawNameGroup {
+    pub id: String,
+    #[serde(rename = "laender", default)]
+    pub countries: Vec<String>,
+    #[serde(rename = "standard", default)]
+    pub is_default: bool,
+    #[serde(rename = "familiennamen")]
+    pub surnames: Vec<String>,
+    #[serde(rename = "orte")]
+    pub places: Vec<String>,
+    #[serde(rename = "rechtsformen")]
+    pub legal_forms: Vec<String>,
+    #[serde(rename = "muster")]
+    pub patterns: Vec<String>,
+    #[serde(rename = "branchen")]
+    pub branch_words: BTreeMap<String, String>,
+}
+
+/// A historical company (`data/ki/reale_firmen.yaml`).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRealCompany {
+    pub id: String,
+    pub name: String,
+    #[serde(rename = "sitz")]
+    pub headquarters: String,
+    #[serde(rename = "gegruendet")]
+    pub founded: i32,
+    #[serde(rename = "standorte")]
+    pub sites: Vec<RawRealSite>,
+    #[serde(rename = "kompetenz", default)]
+    pub competence: Option<f64>,
+    #[serde(rename = "aggressivitaet", default)]
+    pub aggressiveness: Option<f64>,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRealSite {
+    #[serde(rename = "land")]
+    pub country: String,
+    #[serde(rename = "lagerstaette", default)]
+    pub deposit: Option<String>,
+    #[serde(rename = "anlagen")]
+    pub facilities: Vec<RawRealFacility>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRealFacility {
+    #[serde(rename = "anlage")]
+    pub facility: String,
+    #[serde(rename = "anzahl")]
+    pub count: f64,
+    #[serde(rename = "rezept", default)]
+    pub recipe: Option<String>,
+}

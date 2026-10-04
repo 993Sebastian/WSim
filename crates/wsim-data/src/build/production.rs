@@ -16,7 +16,7 @@ use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
 
 /// The one entry of a parameter section; reports a missing or repeated section.
-fn single<'r, T>(
+pub(super) fn single<'r, T>(
     ctx: &mut Ctx,
     entries: &'r [Entry<T>],
     section: &str,

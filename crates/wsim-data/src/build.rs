@@ -18,6 +18,7 @@ use wsim_core::time_series::TimeSeries;
 
 use crate::messages;
 
+mod ai;
 mod countries;
 mod production;
 use crate::raw::{
@@ -558,6 +559,24 @@ pub(crate) fn build(
         b.catalog.deposits.insert(&v.id, deposit);
     }
 
+    let (ai_model, difficulty_keys) = ai::ai_model(b.ctx, raw);
+    b.catalog.ai_model = ai_model;
+    b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
+    let (_, real_companies) = register(
+        b.ctx,
+        raw,
+        ("reale_firmen", "reale Firma", None),
+        KeyFormat::Snake,
+        &raw.real_companies,
+        |e| &e.id,
+    );
+    b.catalog.real_companies = ai::real_companies(
+        b.ctx,
+        &b.catalog,
+        &real_companies,
+        (&country_keys, &deposit_keys, &facility_keys, &recipe_keys),
+    );
+
     b.check_product_sources(&products);
     b.check_electricity(raw);
     production::check_start_setups(b.ctx, &b.catalog, raw);
@@ -578,6 +597,7 @@ pub(crate) fn build(
         &technology_keys,
         &deposit_keys,
         &vehicle_keys,
+        &difficulty_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
 

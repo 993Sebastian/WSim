@@ -357,3 +357,42 @@ pub fn start_recipe_wrong_facility(recipe: &str, facility: &str) -> String {
 pub fn start_needs_new_technology(key: &str) -> String {
     format!("„{key}“ braucht eine Technologie, die im frühesten Startjahr noch nicht erfunden ist.")
 }
+
+pub fn default_difficulty_unknown(key: &str) -> String {
+    format!("Schwierigkeit „{key}“ ist unter „schwierigkeiten“ nicht aufgeführt.")
+}
+
+pub fn list_empty() -> String {
+    "Die Liste darf nicht leer sein.".into()
+}
+
+pub fn name_placeholder_unknown(placeholder: &str) -> String {
+    format!(
+        "Platzhalter „{{{placeholder}}}“ ist unbekannt; erlaubt sind {{familienname}}, {{ort}}, \
+         {{rechtsform}} und {{branche}}."
+    )
+}
+
+pub fn name_default_count(count: usize) -> String {
+    format!("Genau eine Namensgruppe muss „standard: true“ haben, gefunden: {count}.")
+}
+
+pub fn name_country_twice(country: &str, first: &str) -> String {
+    format!("Land „{country}“ gehört schon zur Namensgruppe „{first}“.")
+}
+
+pub fn real_deposit_other_country(deposit: &str, country: &str) -> String {
+    format!("Lagerstätte „{deposit}“ liegt nicht in „{country}“.")
+}
+
+pub fn real_site_mixed_types() -> String {
+    "Alle Anlagen eines Standorts brauchen denselben Standorttyp.".into()
+}
+
+pub fn real_site_needs_deposit(facility: &str) -> String {
+    format!("Anlage „{facility}“ fördert einen Rohstoff; der Standort braucht eine „lagerstaette“.")
+}
+
+pub fn real_company_too_young(founded: i32, year: i32) -> String {
+    format!("Gegründet {founded}: Reale Firmen beschreiben den Stand {year}.")
+}

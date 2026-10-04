@@ -7,9 +7,10 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawCountry, RawCountryModel, RawDeposit, RawFacility, RawFinanceModel, RawMarketModel, RawMeta,
-    RawProduct, RawProductionModel, RawQualification, RawRecipe, RawResearchModel, RawSimple,
-    RawTechnology, RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
+    RawAiModel, RawCountry, RawCountryModel, RawDeposit, RawFacility, RawFinanceModel,
+    RawMarketModel, RawMeta, RawNameGroup, RawProduct, RawProductionModel, RawQualification,
+    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTechnology, RawTransportClass,
+    RawTransportModel, RawUnit, RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -168,6 +169,9 @@ pub(crate) struct RawData {
     pub technologies: Vec<Entry<RawTechnology>>,
     pub deposits: Vec<Entry<RawDeposit>>,
     pub vehicles: Vec<Entry<RawVehicle>>,
+    pub ai_model: Vec<Entry<RawAiModel>>,
+    pub name_groups: Vec<Entry<RawNameGroup>>,
+    pub real_companies: Vec<Entry<RawRealCompany>>,
 }
 
 pub(crate) const SECTIONS: &[&str] = &[
@@ -192,6 +196,9 @@ pub(crate) const SECTIONS: &[&str] = &[
     "technologien",
     "lagerstaetten",
     "verkehrsmittel",
+    "kimodell",
+    "namensgruppen",
+    "reale_firmen",
 ];
 
 /// Reads all sections of one content file into `raw`.
@@ -241,6 +248,12 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
                 Ok(model) => raw.research_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
+            "kimodell" => match de::from_node::<RawAiModel>(value, &loc.path) {
+                Ok(model) => raw.ai_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "namensgruppen" => read_list(ctx, &loc, value, &mut raw.name_groups, &mut raw.broken),
+            "reale_firmen" => read_list(ctx, &loc, value, &mut raw.real_companies, &mut raw.broken),
             "einheiten" => read_list(ctx, &loc, value, &mut raw.units, &mut raw.broken),
             "kontinente" => read_list(ctx, &loc, value, &mut raw.continents, &mut raw.broken),
             "branchen" => read_list(ctx, &loc, value, &mut raw.branches, &mut raw.broken),

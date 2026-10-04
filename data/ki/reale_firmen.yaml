@@ -1,0 +1,359 @@
+# Reale Firmen mit ihrem Stand 1900 (Lastenheft §10). Anzahl = reale Zahl gleichartiger
+# Anlagen; im Spiel wird sie mit dem Marktmaßstab verkleinert (mindestens 1). Die Zahlen
+# sind grobe Annäherungen aus der Firmengeschichte (Produktion um 1900 geteilt durch die
+# Kapazität der Anlage im Spiel). Länder in heutigen Grenzen.
+
+reale_firmen:
+  - id: krupp
+    name: Fried. Krupp
+    sitz: DEU
+    gegruendet: 1811
+    standorte:
+      - land: DEU
+        lagerstaette: ruhrgebiet
+        anlagen: [{anlage: kohlenzeche, anzahl: 3}]
+      - land: DEU
+        anlagen:
+          - {anlage: hochofen, anzahl: 6}
+          - {anlage: stahlwerk_herdofen, anzahl: 3}
+          - {anlage: stahlwerk_konverter, anzahl: 1}
+          - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
+          - {anlage: walzwerk, anzahl: 1, rezept: stabstahl_walzen}
+    annaeherung: true
+
+  - id: thyssen
+    name: Thyssen & Co.
+    sitz: DEU
+    gegruendet: 1871
+    standorte:
+      - land: DEU
+        lagerstaette: ruhrgebiet
+        anlagen: [{anlage: kohlenzeche, anzahl: 3}]
+      - land: DEU
+        anlagen:
+          - {anlage: hochofen, anzahl: 4}
+          - {anlage: stahlwerk_konverter, anzahl: 2}
+          - {anlage: walzwerk, anzahl: 2, rezept: stabstahl_walzen}
+          - {anlage: drahtzieherei, anzahl: 1}
+    annaeherung: true
+
+  - id: carnegie_steel
+    name: Carnegie Steel Company
+    sitz: USA
+    gegruendet: 1892
+    standorte:
+      - land: USA
+        lagerstaette: mesabi_range
+        anlagen: [{anlage: erzbergwerk, anzahl: 4}]
+      - land: USA
+        lagerstaette: appalachen
+        anlagen: [{anlage: kohlenzeche, anzahl: 4}]
+      - land: USA
+        anlagen:
+          - {anlage: hochofen, anzahl: 20}
+          - {anlage: stahlwerk_konverter, anzahl: 12}
+          - {anlage: walzwerk, anzahl: 6, rezept: blech_walzen}
+          - {anlage: walzwerk, anzahl: 6, rezept: stabstahl_walzen}
+    annaeherung: true
+
+  - id: bethlehem_steel
+    name: Bethlehem Steel Company
+    sitz: USA
+    gegruendet: 1857
+    standorte:
+      - land: USA
+        anlagen:
+          - {anlage: hochofen, anzahl: 4}
+          - {anlage: stahlwerk_herdofen, anzahl: 3}
+          - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
+    annaeherung: true
+
+  - id: schneider
+    name: Schneider et Cie
+    sitz: FRA
+    gegruendet: 1836
+    standorte:
+      - land: FRA
+        lagerstaette: lothringen_minette
+        anlagen: [{anlage: erzbergwerk, anzahl: 1}]
+      - land: FRA
+        anlagen:
+          - {anlage: hochofen, anzahl: 3}
+          - {anlage: stahlwerk_herdofen, anzahl: 2}
+          - {anlage: walzwerk, anzahl: 2, rezept: blech_walzen}
+    annaeherung: true
+
+  - id: bolckow_vaughan
+    name: Bolckow, Vaughan & Co.
+    sitz: GBR
+    gegruendet: 1864
+    standorte:
+      - land: GBR
+        lagerstaette: cleveland_hills
+        anlagen: [{anlage: erzbergwerk, anzahl: 3}]
+      - land: GBR
+        lagerstaette: nordostengland
+        anlagen: [{anlage: kohlenzeche, anzahl: 2}]
+      - land: GBR
+        anlagen:
+          - {anlage: hochofen, anzahl: 9}
+          - {anlage: stahlwerk_konverter, anzahl: 2}
+          - {anlage: walzwerk, anzahl: 2, rezept: stabstahl_walzen}
+    annaeherung: true
+
+  - id: putilow
+    name: Putilow-Werke
+    sitz: RUS
+    gegruendet: 1868
+    standorte:
+      - land: RUS
+        anlagen:
+          - {anlage: stahlwerk_herdofen, anzahl: 2}
+          - {anlage: walzwerk, anzahl: 2, rezept: stabstahl_walzen}
+    annaeherung: true
+
+  - id: hanyang
+    name: Hanyang Iron Works
+    sitz: CHN
+    gegruendet: 1890
+    standorte:
+      - land: CHN
+        lagerstaette: tayeh
+        anlagen: [{anlage: erzbergwerk, anzahl: 1}]
+      - land: CHN
+        anlagen:
+          - {anlage: hochofen, anzahl: 2}
+          - {anlage: stahlwerk_konverter, anzahl: 1}
+    annaeherung: true
+
+  - id: standard_oil
+    name: Standard Oil
+    sitz: USA
+    gegruendet: 1870
+    standorte:
+      - land: USA
+        lagerstaette: pennsylvania
+        anlagen: [{anlage: oelfeld, anzahl: 30}]
+      - land: USA
+        anlagen: [{anlage: raffinerie, anzahl: 50}]
+    annaeherung: true
+
+  - id: branobel
+    name: Gebrüder Nobel (Branobel)
+    sitz: RUS
+    gegruendet: 1879
+    standorte:
+      - land: AZE
+        lagerstaette: baku
+        anlagen: [{anlage: oelfeld, anzahl: 25}]
+      - land: AZE
+        anlagen: [{anlage: raffinerie, anzahl: 10}]
+    annaeherung: true
+
+  - id: royal_dutch
+    name: Royal Dutch Petroleum
+    sitz: NLD
+    gegruendet: 1890
+    standorte:
+      - land: IDN
+        lagerstaette: sumatra_oel
+        anlagen: [{anlage: oelfeld, anzahl: 5}]
+      - land: IDN
+        anlagen: [{anlage: raffinerie, anzahl: 3}]
+    annaeherung: true
+
+  - id: anaconda
+    name: Anaconda Copper Mining Company
+    sitz: USA
+    gegruendet: 1881
+    standorte:
+      - land: USA
+        lagerstaette: butte
+        anlagen: [{anlage: kupferbergwerk, anzahl: 6}]
+      - land: USA
+        anlagen: [{anlage: kupferhuette, anzahl: 3}]
+    annaeherung: true
+
+  - id: rio_tinto
+    name: Rio Tinto Company
+    sitz: GBR
+    gegruendet: 1873
+    standorte:
+      - land: ESP
+        lagerstaette: rio_tinto
+        anlagen: [{anlage: kupferbergwerk, anzahl: 3}]
+      - land: ESP
+        anlagen: [{anlage: kupferhuette, anzahl: 1}]
+    annaeherung: true
+
+  - id: siemens_halske
+    name: Siemens & Halske
+    sitz: DEU
+    gegruendet: 1847
+    standorte:
+      - land: DEU
+        anlagen:
+          - {anlage: elektromotorenwerk, anzahl: 4}
+          - {anlage: kupferdrahtwerk, anzahl: 2}
+          - {anlage: gluehlampenfabrik, anzahl: 2}
+    annaeherung: true
+
+  - id: aeg
+    name: Allgemeine Elektricitäts-Gesellschaft
+    sitz: DEU
+    gegruendet: 1887
+    standorte:
+      - land: DEU
+        anlagen:
+          - {anlage: gluehlampenfabrik, anzahl: 4}
+          - {anlage: elektromotorenwerk, anzahl: 4}
+          - {anlage: kupferdrahtwerk, anzahl: 2}
+    annaeherung: true
+
+  - id: general_electric
+    name: General Electric
+    sitz: USA
+    gegruendet: 1892
+    standorte:
+      - land: USA
+        anlagen:
+          - {anlage: gluehlampenfabrik, anzahl: 8}
+          - {anlage: elektromotorenwerk, anzahl: 8}
+          - {anlage: kupferdrahtwerk, anzahl: 3}
+    annaeherung: true
+
+  - id: westinghouse
+    name: Westinghouse Electric
+    sitz: USA
+    gegruendet: 1886
+    standorte:
+      - land: USA
+        anlagen: [{anlage: elektromotorenwerk, anzahl: 5}]
+    annaeherung: true
+
+  - id: singer
+    name: Singer Manufacturing Company
+    sitz: USA
+    gegruendet: 1851
+    standorte:
+      - land: USA
+        anlagen: [{anlage: naehmaschinenfabrik, anzahl: 6}]
+      - land: GBR
+        anlagen: [{anlage: naehmaschinenfabrik, anzahl: 4}]
+    annaeherung: true
+
+  - id: opel
+    name: Adam Opel
+    sitz: DEU
+    gegruendet: 1862
+    standorte:
+      - land: DEU
+        anlagen:
+          - {anlage: naehmaschinenfabrik, anzahl: 1}
+          - {anlage: fahrradfabrik, anzahl: 2}
+    annaeherung: true
+
+  - id: peugeot
+    name: Peugeot Frères
+    sitz: FRA
+    gegruendet: 1810
+    standorte:
+      - land: FRA
+        anlagen:
+          - {anlage: fahrradfabrik, anzahl: 2}
+          - {anlage: automobilwerk, anzahl: 1}
+    annaeherung: true
+
+  - id: daimler
+    name: Daimler-Motoren-Gesellschaft
+    sitz: DEU
+    gegruendet: 1890
+    standorte:
+      - land: DEU
+        anlagen:
+          - {anlage: motorenwerk, anzahl: 1}
+          - {anlage: automobilwerk, anzahl: 1}
+    annaeherung: true
+
+  - id: panhard
+    name: Panhard et Levassor
+    sitz: FRA
+    gegruendet: 1887
+    standorte:
+      - land: FRA
+        anlagen:
+          - {anlage: motorenwerk, anzahl: 1}
+          - {anlage: automobilwerk, anzahl: 1}
+    annaeherung: true
+
+  - id: dunlop
+    name: Dunlop Pneumatic Tyre Company
+    sitz: GBR
+    gegruendet: 1889
+    standorte:
+      - land: GBR
+        anlagen:
+          - {anlage: gummiwerk, anzahl: 2}
+          - {anlage: reifenwerk, anzahl: 2, rezept: fahrradreifen_bauen}
+    annaeherung: true
+
+  - id: michelin
+    name: Michelin et Cie
+    sitz: FRA
+    gegruendet: 1889
+    standorte:
+      - land: FRA
+        anlagen:
+          - {anlage: gummiwerk, anzahl: 1}
+          - {anlage: reifenwerk, anzahl: 1, rezept: fahrradreifen_bauen}
+    annaeherung: true
+
+  - id: continental
+    name: Continental-Caoutchouc- und Gutta-Percha Compagnie
+    sitz: DEU
+    gegruendet: 1871
+    standorte:
+      - land: DEU
+        anlagen:
+          - {anlage: gummiwerk, anzahl: 2}
+          - {anlage: reifenwerk, anzahl: 1, rezept: fahrradreifen_bauen}
+    annaeherung: true
+
+  - id: pillsbury
+    name: Pillsbury-Washburn Flour Mills
+    sitz: USA
+    gegruendet: 1889
+    standorte:
+      - land: USA
+        anlagen: [{anlage: muehle, anzahl: 8}]
+    annaeherung: true
+
+  - id: coats
+    name: J. & P. Coats
+    sitz: GBR
+    gegruendet: 1826
+    standorte:
+      - land: GBR
+        anlagen: [{anlage: spinnerei, anzahl: 10}]
+    annaeherung: true
+
+  - id: mitsui
+    name: Mitsui Gōmei
+    sitz: JPN
+    gegruendet: 1876
+    standorte:
+      - land: JPN
+        lagerstaette: kyushu
+        anlagen: [{anlage: kohlenzeche, anzahl: 2}]
+      - land: JPN
+        anlagen: [{anlage: spinnerei, anzahl: 2}]
+    annaeherung: true
+
+  - id: tata
+    name: Tata & Sons
+    sitz: IND
+    gegruendet: 1868
+    standorte:
+      - land: IND
+        anlagen: [{anlage: spinnerei, anzahl: 3}]
+    annaeherung: true

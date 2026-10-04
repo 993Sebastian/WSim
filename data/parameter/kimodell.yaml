@@ -1,0 +1,60 @@
+# KI-Firmen (Lastenheft §10, §15). Formeln: docs/FORMELN.md, Abschnitt M10.
+# Kompetenz und Aggressivität liegen zwischen 0 und 1; Werte mit bei_0/bei_1 hängen
+# linear davon ab.
+
+kimodell:
+  firmen_standard: 100
+  firmen_max: 10_000
+  # Mit so vielen KI-Firmen arbeiten die Märkte in realer Größe. Bei weniger Firmen
+  # schrumpfen Bevölkerung, Staatsnachfrage, Arbeitskräfte und Lagerstätten im selben
+  # Verhältnis (Marktmaßstab); Preise, Löhne und Anlagengrößen bleiben real.
+  firmen_bei_realer_groesse: 1000
+  massstab: {minimum: 0.01, maximum: 1}
+  # Kein Arbeitsmarkt schrumpft unter so viele Personen je Gruppe.
+  arbeitskraefte_min: 2000
+  # Eine Lagerstätte wird in Konzessionen für je so viele Förderanlagen geteilt.
+  anlagen_je_konzession: 2
+  konzessionen_max: 12
+
+  schwierigkeiten:
+    - {id: leicht, kompetenz: 0.25, aggressivitaet: 0.3}
+    - {id: mittel, kompetenz: 0.5, aggressivitaet: 0.5}
+    - {id: schwer, kompetenz: 0.8, aggressivitaet: 0.7}
+  schwierigkeit_standard: mittel
+  # Jede Firma weicht zufällig bis zu so viel von den Werten der Schwierigkeit ab.
+  streuung: 0.15
+
+  # Startbesetzung: Die KI-Firmen decken zusammen die Nachfrage des Startjahres.
+  start:
+    auslastung: 0.85
+    # Ein Land bekommt eine Anlage erst ab diesem Anteil einer ganzen Anlage.
+    anlage_mindestanteil: 0.35
+    lager_eingang_tage: 20
+    lager_ausgang_tage: 10
+    # Kasse für so viele Monate laufender Kosten
+    kasse_monate: 3
+    # Gewicht des Entwicklungsstands bei der Wahl der Länder je Produktart:
+    # Rohstoffe liegen bei der Lagerstätte, Halbzeuge und Bauteile in Industrieländern.
+    gewicht_entwicklung: {rohstoff: 0, halbzeug: 1.5, bauteil: 2, endprodukt: 0.5, energie: 1}
+    # Lohn je Stunde zum Vergleich der Rezepte (USD bei Preisniveau 1)
+    referenzlohn_usd: 4
+
+  verhalten:
+    betrieb_alle_tage: {bei_0: 14, bei_1: 7}          # Kompetenz
+    lager_hoch_tage: 20                                # mehr Lager: weniger produzieren
+    lager_niedrig_tage: 7                              # weniger Lager: mehr produzieren
+    auslastung_schritt: 0.1
+    auslastung_min: 0.2
+    preisuntergrenze: {bei_0: 1.05, bei_1: 0.9}       # × Normalkosten, Aggressivität
+    einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
+    ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität
+    ausbau_marge: {bei_0: 0.25, bei_1: 0.08}          # Aggressivität
+    ausbau_anteil_kasse_max: 0.3
+    forschung_vorgriff_jahre: {bei_0: 0, bei_1: 2}    # Kompetenz
+    forschung_mindestumsatz_usd: 2_000_000
+    forschung_mindestkompetenz: 0.4
+    kasse_min_monate: 2
+    kasse_max_monate: 6
+    kredit_jahre: 10
+    gruendungen_je_monat: 2
+    gruendung_kapitalfaktor: 1.5

@@ -1,0 +1,13 @@
+# Forschung (Lastenheft §7.1). Ein Forschungslabor bietet Plätze für Forscher; jeder
+# Forscher sammelt einen Forschungspunkt je Tag (docs/FORMELN.md, M9).
+
+anlagen:
+  - id: forschungslabor           # Industrielabor wie Siemens (1905) oder GE (1900)
+    standorttyp: forschungszentrum
+    investition_usd: 500_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 20         # Forscherplätze
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.02
+    automatisierung_max: 0
+    annaeherung: true

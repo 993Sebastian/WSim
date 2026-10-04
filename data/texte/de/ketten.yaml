@@ -38,6 +38,7 @@ technologie.elektrostahl: Elektrostahl
 # Kette 7 – Energie
 produkt.strom: Strom
 anlage.dampfkraftwerk: Dampfkraftwerk
+anlage.forschungslabor: Forschungslabor
 anlage.turbinenkraftwerk: Turbinenkraftwerk
 rezept.strom_dampfmaschine: Strom aus Dampfmaschinen
 rezept.strom_turbine: Strom aus Dampfturbinen

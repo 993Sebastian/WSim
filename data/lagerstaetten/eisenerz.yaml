@@ -50,3 +50,84 @@ lagerstaetten:
     foerderung_max_je_jahr: 50_000_000
     foerderkosten_faktor: 0.7     # Tagebau mit Dampfbaggern
     annaeherung: true
+
+  - id: krivoi_rog
+    land: UKR
+    rohstoff: eisenerz
+    vorrat: 2_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: bilbao
+    land: ESP
+    rohstoff: eisenerz
+    vorrat: 300_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 9_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: alabama_erz
+    land: USA
+    rohstoff: eisenerz
+    vorrat: 1_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: ural_eisen
+    land: RUS
+    rohstoff: eisenerz
+    vorrat: 1_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 4_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: steirischer_erzberg
+    land: AUT
+    rohstoff: eisenerz
+    vorrat: 200_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: northamptonshire
+    land: GBR
+    rohstoff: eisenerz
+    vorrat: 1_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: bell_island
+    land: CAN
+    rohstoff: eisenerz
+    vorrat: 2_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: singhbhum
+    land: IND
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: tayeh
+    land: CHN
+    rohstoff: eisenerz
+    vorrat: 300_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 1_500_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true

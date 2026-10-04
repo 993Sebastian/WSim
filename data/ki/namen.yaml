@@ -1,0 +1,170 @@
+# Namensbausteine für erzeugte KI-Firmen (Lastenheft §10). Eine Firma bekommt die
+# Namensgruppe ihres Sitzlandes, sonst die Standardgruppe. Platzhalter im Muster:
+# {familienname}, {ort}, {rechtsform}, {branche}. Namen sind Eigennamen und werden nicht
+# übersetzt; reale Firmennamen stehen in reale_firmen.yaml und werden nicht erzeugt.
+
+namensgruppen:
+  - id: deutsch
+    laender: [DEU, AUT, CHE, LIE, LUX]
+    familiennamen: [Becker, Hoffmann, Brandt, Lehmann, Vogt, Kessler, Hartmann, Albrecht,
+                    Wendt, Körber, Steinbach, Reuter, Hahn, Lorenz, Pfeiffer, Ebert]
+    orte: [Dortmunder, Bochumer, Kölner, Chemnitzer, Leipziger, Bremer, Stuttgarter,
+           Wiener, Grazer, Zürcher, Mannheimer, Hagener]
+    rechtsformen: [AG, GmbH, "& Co.", "& Söhne", KG]
+    muster: ["{familienname} {rechtsform}", "{ort} {branche} {rechtsform}",
+             "{familienname} & {familienname} {rechtsform}", "{branche} {familienname} {rechtsform}"]
+    branchen:
+      bergbau: Bergwerke
+      metallurgie: Hüttenwerke
+      chemie: Chemische Werke
+      energie: Elektricitätswerke
+      holz_papier: Holzwerke
+      textil: Spinnerei und Weberei
+      lebensmittel: Mühlenwerke
+      maschinenbau: Maschinenfabrik
+      fahrzeuge: Fahrzeugwerke
+      elektro: Elektrizitäts-Gesellschaft
+      konsumgueter: Metallwarenfabrik
+
+  - id: englisch
+    laender: [GBR, USA, CAN, AUS, NZL, IRL, ZAF]
+    standard: true
+    familiennamen: [Harris, Whitfield, Morgan, Bradley, Hughes, Carter, Fletcher, Dawson,
+                    Pemberton, Hale, Sutton, Barker, Lawrence, Grant, Mitchell, Holloway]
+    orte: [Pittsburgh, Cleveland, Sheffield, Birmingham, Manchester, Glasgow, Toronto,
+           Chicago, Detroit, Newcastle, Baltimore, Melbourne]
+    rechtsformen: [Company, Corporation, Ltd., "& Co.", "& Sons"]
+    muster: ["{familienname} {rechtsform}", "{ort} {branche} {rechtsform}",
+             "{familienname} & {familienname} {rechtsform}", "{familienname} {branche} {rechtsform}"]
+    branchen:
+      bergbau: Mining
+      metallurgie: Iron and Steel
+      chemie: Chemical
+      energie: Power
+      holz_papier: Lumber
+      textil: Mills
+      lebensmittel: Milling
+      maschinenbau: Machine Works
+      fahrzeuge: Motor
+      elektro: Electric
+      konsumgueter: Manufacturing
+
+  - id: franzoesisch
+    laender: [FRA, BEL, MCO]
+    familiennamen: [Durand, Lefèvre, Moreau, Girard, Bonnet, Fontaine, Rousseau, Mercier,
+                    Blanchard, Gauthier, Perrin, Chevalier]
+    orte: [Lyon, Lille, Saint-Étienne, Rouen, Nancy, Liège, Charleroi, Marseille]
+    rechtsformen: ["S.A.", "& Cie", "Frères", "et Fils"]
+    muster: ["{familienname} {rechtsform}", "{branche} de {ort}",
+             "{familienname} & {familienname}", "{branche} {familienname} {rechtsform}"]
+    branchen:
+      bergbau: Mines
+      metallurgie: Forges et Aciéries
+      chemie: Produits Chimiques
+      energie: Énergie Électrique
+      holz_papier: Scieries
+      textil: Filatures
+      lebensmittel: Minoteries
+      maschinenbau: Ateliers de Construction
+      fahrzeuge: Automobiles
+      elektro: Compagnie Électrique
+      konsumgueter: Manufacture
+
+  - id: italienisch_spanisch
+    laender: [ITA, ESP, MEX, ARG, CHL, PER, COL, VEN, URY, CUB, BOL, ECU]
+    familiennamen: [Rossi, Ferrari, Colombo, Bianchi, García, Fernández, López, Martínez,
+                    Ortega, Romano, Vázquez, Moretti]
+    orte: [Milano, Torino, Genova, Bilbao, Barcelona, Monterrey, Rosario, Valparaíso]
+    rechtsformen: ["S.A.", "y Cía.", "e Figli", "Hermanos"]
+    muster: ["{familienname} {rechtsform}", "{branche} {ort}", "{familienname} & {familienname}"]
+    branchen:
+      bergbau: Minera
+      metallurgie: Acciaierie
+      chemie: Química
+      energie: Eléctrica
+      holz_papier: Maderera
+      textil: Cotonificio
+      lebensmittel: Molinos
+      maschinenbau: Officine Meccaniche
+      fahrzeuge: Automobili
+      elektro: Elettrica
+      konsumgueter: Manifattura
+
+  - id: russisch
+    laender: [RUS, UKR, BLR, KAZ, AZE, GEO, ARM, UZB, POL]
+    familiennamen: [Morozov, Putilov, Demidov, Ryabushinsky, Kovalenko, Sokolov, Volkov,
+                    Orlov, Wiśniewski, Kowalski, Shevchenko, Lebedev]
+    orte: [Petersburg, Moskau, Jekaterinburg, Charkow, Odessa, Warschau, Łódź, Baku]
+    rechtsformen: [Gesellschaft, "& Söhne", Werke]
+    muster: ["{familienname}-{rechtsform}", "{ort}er {branche}", "{branche} {familienname}"]
+    branchen:
+      bergbau: Bergbau-Gesellschaft
+      metallurgie: Hüttenwerke
+      chemie: Chemiewerke
+      energie: Elektrizitätswerke
+      holz_papier: Holzwerke
+      textil: Manufaktur
+      lebensmittel: Mühlen
+      maschinenbau: Maschinenwerke
+      fahrzeuge: Wagenbau
+      elektro: Elektrogesellschaft
+      konsumgueter: Fabrik
+
+  - id: skandinavisch_niederlaendisch
+    laender: [SWE, NOR, DNK, FIN, ISL, NLD]
+    familiennamen: [Lindqvist, Berg, Holm, Nyström, Hansen, Larsen, Virtanen, de Vries,
+                    van Dijk, Bakker, Sandberg, Åkerlund]
+    orte: [Göteborg, Stockholm, Bergen, Oslo, Kopenhagen, Rotterdam, Eindhoven, Tampere]
+    rechtsformen: [AB, AS, "N.V.", "& Co."]
+    muster: ["{familienname} {rechtsform}", "{ort} {branche} {rechtsform}"]
+    branchen:
+      bergbau: Gruv
+      metallurgie: Järnverk
+      chemie: Kemiska
+      energie: Kraft
+      holz_papier: Trävaru
+      textil: Textil
+      lebensmittel: Kvarn
+      maschinenbau: Mekaniska Verkstad
+      fahrzeuge: Motor
+      elektro: Elektriska
+      konsumgueter: Fabrik
+
+  - id: japanisch
+    laender: [JPN]
+    familiennamen: [Mitsui, Yasuda, Furukawa, Asano, Okura, Fujita, Kuhara, Nakajima,
+                    Shibusawa, Morimura]
+    orte: [Osaka, Tokio, Yokohama, Kobe, Nagoya, Yawata]
+    rechtsformen: [Gōmei, Kabushiki Kaisha, Shōkai]
+    muster: ["{familienname} {rechtsform}", "{ort} {branche}"]
+    branchen:
+      bergbau: Kōgyō
+      metallurgie: Seitetsu
+      chemie: Kagaku
+      energie: Dentō
+      holz_papier: Seizai
+      textil: Bōseki
+      lebensmittel: Seifun
+      maschinenbau: Zōki
+      fahrzeuge: Jidōsha
+      elektro: Denki
+      konsumgueter: Seisakusho
+
+  - id: chinesisch
+    laender: [CHN, TWN]
+    familiennamen: [Zhang, Li, Wang, Chen, Liu, Zhou, Sheng, Rong]
+    orte: [Shanghai, Tianjin, Hankou, Kanton, Wuxi, Nantong]
+    rechtsformen: [Gongsi, Hang, Ju]
+    muster: ["{ort} {familienname} {rechtsform}", "{familienname} {branche} {rechtsform}"]
+    branchen:
+      bergbau: Kuangwu
+      metallurgie: Tiechang
+      chemie: Huagong
+      energie: Dianqi
+      holz_papier: Mucai
+      textil: Shachang
+      lebensmittel: Mianfen
+      maschinenbau: Jiqi
+      fahrzeuge: Qiche
+      elektro: Dianqi
+      konsumgueter: Gongchang
