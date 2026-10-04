@@ -445,9 +445,9 @@ Das Spiel wird in sechs Stufen umgesetzt; jede Stufe ist für sich spielbar, und
 
 1. **Fundament:** Simulationskern, Datenformat, alle Länder mit Grundwerten, Rohstoffe, 12 Produktionsketten nach 17.1, Rundenablauf mit wählbarer Länge, Markt- und Preisbildung, KI-Firmen mit Grundverhalten, Grundfinanzen, Weltkarte, Rundenbericht, Speichern. Spielbar etwa 1900 bis 1930.
 2. **Wachstum:** Manager-System, Schulung, Tochterfirmen, Logistik mit eigener Flotte, staatlichem und KI-Transport, Zölle, Lieferverträge, Marketing, ausgebautes Controlling.
-3. **Kapitalmarkt:** Börse, Börsengänge, Investoren, Beteiligungen, Übernahmen, Insolvenzen, Anleihen.
+3. **Kapitalmarkt:** Börse, Börsengänge, Investoren, Beteiligungen, Übernahmen, Insolvenzen, Anleihen; Spiel als reiner Investor oder als Bank (17.3).
 4. **Geschichte:** historische Ereignisse, Regulierung und Umwelt, Währungen und Wechselkurse.
-5. **Breite:** vollständige Produkt- und Technologiedaten bis 2026, inklusive Elektronik, Luft- und Raumfahrt, Rüstung; reale Firmen mit Gründungsjahren; Patente und Lizenzen.
+5. **Breite:** vollständige Produkt- und Technologiedaten bis 2026 (Ziel rund 500 Endprodukte über alle Epochen, Regeln nach 17.2), inklusive Elektronik, Luft- und Raumfahrt, Rüstung; reale Firmen mit Gründungsjahren; Patente und Lizenzen.
 6. **Feinschliff:** zufällige Ereignisse ab 2027, Töne, Balancing, Leistungsoptimierung.
 
 ### 17.1 Produktionsketten in Stufe 1
@@ -472,6 +472,32 @@ Rohstoffe: Eisenerz, Kohle, Kupfererz, Holz, Baumwolle, Getreide, Kautschuk, Roh
 | 12 | Automobil | Motor, Fahrgestell, Karosserie, Reifen; Rohöl → Benzin | Erste komplexe Kette mit Forschung; Verdrängung der Pferdekutsche |
 
 Rüstungsgüter folgen erst mit den historischen Ereignissen in Stufe 4.
+
+### 17.2 Regeln für Produktbäume (alle Stufen)
+
+Vorgabe des Auftraggebers vom 04.10.2026, gilt für alle heutigen und künftigen Produkte:
+
+- Ein Rezept hat **höchstens vier Vorprodukte**. Lieber ein Eingangsmaterial weglassen als
+  einen zu breiten Baum bauen; z. B. wird ein Benzinmotor nur aus Stahl gefertigt.
+- Der Baum zu einem Zielprodukt hat **höchstens vier Ebenen einschließlich Zielebene**,
+  gezählt vom Rohstoff: Rohstoff → Halbzeug → Bauteil → Endprodukt. Güter ohne eigenes
+  Rezept (vom staatlichen Markt bezogen, z. B. Glas, Zinn) zählen als Rohstoffebene. Strom
+  ist Produktionsfaktor und zählt nicht als Vorprodukt.
+- Die Datenprüfung (`wsim validate`) erzwingt beide Regeln für jedes Rezept.
+- Ziel über alle Epochen: **rund 500 Endprodukte**, also Breite statt Tiefe. Viele
+  Endprodukte teilen sich wenige Halbzeuge und Bauteile.
+
+### 17.3 Vorbereitung auf Investor, Bank und Tochterfirmen
+
+Vorgabe des Auftraggebers vom 04.10.2026: Spätere Spielweisen werden schon im Fundament
+berücksichtigt:
+
+- Der Spieler kann sich nur als **Investor** beteiligen (ohne eigene Produktion), am
+  **Aktienmarkt** handeln oder als **Bank** auftreten (Kredite vergeben, Einlagen).
+- Der Spieler kann solche Tochterfirmen gründen (Beteiligungs-, Investment-, Bankfirma)
+  neben Produktions-, Handels- und Logistiktöchtern.
+- Umsetzung mit Stufe 2 (Tochterfirmen) und Stufe 3 (Kapitalmarkt); das Datenmodell aus
+  Stufe 1 darf dem nicht im Weg stehen (siehe Architektur §2.5).
 
 ## 18 Offene Punkte
 

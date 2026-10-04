@@ -193,10 +193,12 @@ data/
 | Manager, Strategie-Ansicht (2) | Befehle als einziger Handlungsweg; Vorgaben mit Stellen-Hierarchie |
 | Tochterfirmen, Controlling (2) | Doppelte Buchführung mit Kostenstellen, Firma als Konzernknoten |
 | Logistik, Zölle (2) | Transport als eigenes System; Warengruppen und Länderpaare im Datenmodell |
-| Börse, Übernahmen (3) | Eigentümer-Struktur je Firma (Anteile), Bilanzdaten |
+| Börse, Übernahmen (3) | Eigentümer-Struktur je Firma (Anteile: Spieler, andere Firma, Privatbesitz), Bilanzdaten |
+| Investor, Bank, Beteiligungsfirmen als Spielweise (3, Lastenheft §17.3) | Der Spieler ist Eigentümer, nicht selbst eine Firma: Er hält Anteile und steuert die Firmen, deren Mehrheit er hält. Eine reine Investor- oder Bankrolle ist eine Firma ohne Standorte mit Finanzanlagen bzw. Kreditbuch; Befehle bleiben je Firma. Konten für Beteiligungen und vergebene Kredite kommen mit Stufe 3 hinzu, das Hauptbuch nimmt neue Konten ohne neues Spielstandformat auf |
 | Ereignisse, Regulierung (4) | Modifikatoren, Ereignis-/Regulierungsdateien als eigener Datentyp |
 | Währungen (4) | Alle Beträge intern in Leitwährung; Anzeige läuft über eine Umrechnungsschicht |
-| Breite, Patente (5) | Ketten-Dateien, Technologiebaum mit Erfindungsjahr, Rezept-Alternativen |
+| Breite, Patente (5) | Ketten-Dateien, Technologiebaum mit Erfindungsjahr, Rezept-Alternativen; Prüfregeln für Produktbäume (höchstens vier Vorprodukte je Rezept, höchstens vier Ebenen, Lastenheft §17.2) |
+| Rund 500 Endprodukte (5) | Märkte ohne Handel werden gesammelt gebucht; Tabellen der Oberfläche mit Sortierung und Filtern; Produkte mit Art (Rohstoff, Halbzeug, Bauteil, Endprodukt) für Gruppierung |
 | Zufallsereignisse, Töne (6) | Eigene Zufallsströme, Meldungsarten |
 
 ---
