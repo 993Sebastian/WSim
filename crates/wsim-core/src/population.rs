@@ -881,6 +881,7 @@ fn found_company(
     // A random first day spreads the decisions of the companies over the period.
     let first = (rng.next_f64() * operations).floor();
     state.companies.push(Company {
+        owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
         headquarters,

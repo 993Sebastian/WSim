@@ -237,6 +237,47 @@ pub struct Company {
     /// Character and plans of an AI company (`None` for the player).
     #[serde(default)]
     pub ai: Option<AiState>,
+    /// Shareholders (Lastenheft §11, §17.3); the shares add up to 1. Filled after loading
+    /// older saves (`fit_to_catalog`).
+    #[serde(default)]
+    pub owners: Vec<Stake>,
+}
+
+/// Who holds shares of a company. The player is an owner, not a company, so that later
+/// stages can let the player act as investor or bank and hold subsidiaries.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Holder {
+    Player,
+    Company(CompanyId),
+    /// Founders, families and small shareholders.
+    Private,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Stake {
+    pub holder: Holder,
+    /// Share of the company (0–1).
+    pub share: f64,
+}
+
+impl Stake {
+    pub fn sole(holder: Holder) -> Vec<Stake> {
+        vec![Stake { holder, share: 1.0 }]
+    }
+}
+
+impl Company {
+    /// The holder with more than half of the shares, if any.
+    pub fn majority_holder(&self) -> Option<Holder> {
+        let mut shares: Vec<(Holder, f64)> = Vec::new();
+        for s in &self.owners {
+            match shares.iter_mut().find(|(h, _)| *h == s.holder) {
+                Some((_, v)) => *v += s.share,
+                None => shares.push((s.holder, s.share)),
+            }
+        }
+        shares.into_iter().find(|&(_, v)| v > 0.5).map(|(h, _)| h)
+    }
 }
 
 /// What distinguishes one AI company from another (Lastenheft §10).
@@ -726,6 +767,17 @@ impl GameState {
     /// Fits per-entry state to the catalog after loading: new deposits and labor
     /// groups get empty entries, derived values are recomputed.
     pub(crate) fn fit_to_catalog(&mut self, catalog: &Catalog) {
+        for (i, company) in self.companies.iter_mut().enumerate() {
+            company.ledger.fit_accounts();
+            if company.owners.is_empty() {
+                let holder = if i == self.player.index() {
+                    Holder::Player
+                } else {
+                    Holder::Private
+                };
+                company.owners = Stake::sole(holder);
+            }
+        }
         self.deposits
             .resize_with(catalog.deposits.len(), DepositState::default);
         let scale = self.settings.market_scale;

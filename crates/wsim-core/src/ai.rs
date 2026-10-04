@@ -1012,6 +1012,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
     let branch = catalog.products.get(product).branch;
     let name = population::company_name(state, catalog, &mut rng, country, branch);
     state.companies.push(Company {
+        owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
         headquarters: country,

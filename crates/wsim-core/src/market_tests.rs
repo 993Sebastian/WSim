@@ -84,6 +84,7 @@ fn competitor(game: &mut Game) -> CompanyId {
     let id = CompanyId(u32::try_from(state.companies.len()).unwrap());
     let date = state.date;
     state.companies.push(Company {
+        owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Konkurrenz".into(),
         kind: CompanyKind::Ai,
         headquarters: state.settings.start_country,

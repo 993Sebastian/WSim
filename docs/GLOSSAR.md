@@ -124,5 +124,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Lagerstätte erschließen, freie Lagerstätte | `DevelopDeposit`, `DepositOption` |
 | Forschungslabor (Anlage im Forschungszentrum) | `LabView` |
 | Absatz/Einkauf Vormonat | `sold_last_month`, `bought_last_month` |
+| Eigentümer, Anteil, Mehrheit | `Holder` (Spieler, Firma, Privatbesitz), `Stake`, `majority_holder` |
+| sehr komplexes Produkt (5–6 Ebenen) | `sehr_komplex` (Daten), `very_complex` |
 | Tastaturkürzel | `TASTEN` (UI, `Tastenhilfe.tsx`) |
 

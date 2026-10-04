@@ -85,6 +85,7 @@ pub(super) fn decode_v2(
         .into_iter()
         .map(|c| {
             Ok(Company {
+                owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,
                 headquarters: country(c.headquarters)?,

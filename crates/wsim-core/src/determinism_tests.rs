@@ -11,7 +11,7 @@ use crate::message::keys;
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::save::{self, LoadError, SAVE_FORMAT_VERSION};
-use crate::state::{GameSettings, StartForm};
+use crate::state::{GameSettings, Holder, Stake, StartForm};
 
 fn settings(seed: u64) -> GameSettings {
     GameSettings {
@@ -356,7 +356,43 @@ fn saves_of_all_versions_stay_loadable() {
             Money::from_usd(250_000.0).unwrap()
         );
         assert_eq!(state.countries.len(), 2, "country values are recomputed");
+        // Owners came with the preparation for investors (Lastenheft §17.3).
+        let player = state.company(state.player).unwrap();
+        assert_eq!(player.majority_holder(), Some(Holder::Player), "v{version}");
+        for c in &state.companies {
+            let total: f64 = c.owners.iter().map(|s| s.share).sum();
+            assert!((total - 1.0).abs() < 1e-9, "v{version}: {}", c.name);
+        }
     }
+}
+
+#[test]
+fn the_player_owns_the_own_company_and_ai_companies_are_private() {
+    let mut s = settings(5);
+    s.ai.companies = 3;
+    let game = Game::new(catalog(), s).unwrap();
+    let state = game.state();
+    for (i, c) in state.companies.iter().enumerate() {
+        let expected = if i == state.player.index() {
+            Holder::Player
+        } else {
+            Holder::Private
+        };
+        assert_eq!(c.majority_holder(), Some(expected), "{}", c.name);
+    }
+    // Two holders with half each: no majority.
+    let mut c = state.companies[0].clone();
+    c.owners = vec![
+        Stake {
+            holder: Holder::Player,
+            share: 0.5,
+        },
+        Stake {
+            holder: Holder::Private,
+            share: 0.5,
+        },
+    ];
+    assert_eq!(c.majority_holder(), None);
 }
 
 /// Writes the fixture for the current version. Run once per format version:

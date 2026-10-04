@@ -246,6 +246,11 @@ impl Ledger {
     }
 
     /// Closes the running month; called on the first day of the next month.
+    /// Accounts added in later versions start at zero in older saves.
+    pub(crate) fn fit_accounts(&mut self) {
+        self.balances.resize(Account::ALL.len(), Money::ZERO);
+    }
+
     pub fn close_month(&mut self, next: Date) {
         let closed = std::mem::replace(&mut self.month, PeriodResult::starting(next));
         self.months.push(closed);

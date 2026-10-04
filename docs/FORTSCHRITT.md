@@ -249,3 +249,10 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Elektromotor in der Weberei) sind keine Vorprodukte mehr; Fahrrad, Automobil,
   Elektromotor, Karosserie und Möbel mit höchstens vier Vorprodukten. Ergebnis: acht
   Endprodukte mit vier Ebenen, Handwerkzeug mit drei.
+- M15: Vorbereitung auf Investor, Bank und Tochterfirmen (Lastenheft §17.3): Jede Firma
+  hat Eigentümer mit Anteilen (`Holder`: Spieler, andere Firma, Privatbesitz). Die
+  Spielerfirma gehört zu 100 % dem Spieler, KI-Firmen sind in Privatbesitz; ältere
+  Spielstände bekommen das beim Laden. Das Hauptbuch nimmt neue Konten beim Laden mit
+  Saldo 0 auf, sodass Beteiligungen und vergebene Kredite (Stufe 3) kein neues
+  Spielstandformat brauchen. Befehle bleiben je Firma; der Spieler steuert die Firmen,
+  an denen er die Mehrheit hält.

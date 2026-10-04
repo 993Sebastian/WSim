@@ -174,6 +174,7 @@ impl Game {
 
         let date = Date::first_of_year(settings.start_year);
         let player = Company {
+            owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
             headquarters: settings.start_country,
