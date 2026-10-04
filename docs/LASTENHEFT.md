@@ -251,6 +251,7 @@ Die Endkunden-Nachfrage wird je Land aus Einkommensschichten berechnet, damit si
 - **Gebrauchsgüter** wie Möbel, Fahrrad oder Auto: Das Spiel führt je Land und Schicht eine Besitzquote. Nachfrage = Erstkäufer (bis zur Sättigung, typischer S-Kurven-Verlauf) + Ersatzkäufe nach Ablauf der Nutzungsdauer.
 - **Kaufkraftgrenze:** Eine Schicht kauft erst, wenn ihr Einkommen im Verhältnis zum Preis die Schwelle erreicht. Preissenkungen öffnen neue Schichten und schaffen Massenmärkte, wie beim Ford Modell T.
 - **Anbieterwahl:** Die Nachfrage verteilt sich nach Attraktivität auf die Anbieter: Preis, Qualität, Markenbekanntheit, Verfügbarkeit im Land. Untere Schichten achten stärker auf den Preis, obere stärker auf Qualität und Marke.
+- **Gesättigte Märkte zum Start** (Vorgabe des Auftraggebers vom 04.10.2026): Zum Spielstart decken etablierte Firmen die Nachfrage aller Märkte, und ihre Marken sind dort bekannt. Der Spieler kommt als neuer Anbieter hinzu und gewinnt Marktanteile auf klassischen Wegen: günstigerer Preis, bessere Qualität, Werbung und Markenbekanntheit, Präsenz in weiteren Ländern (Niederlassungen), Lieferungen an Firmen, Händler und den Staat.
 - **Verdrängung:** Ein Nachfolgeprodukt gewinnt Kaufentscheidungen schrittweise; Besitzer des alten Produkts wechseln beim nächsten Ersatzkauf.
 - **Länderprägung:** optionaler Vorliebefaktor je Land und Produktgruppe, z. B. Fahrrad in den Niederlanden.
 - **Staatliche Nachfrage:** Staaten kaufen abhängig von Wirtschaftsleistung und Lage, z. B. Rüstung, Schienen, Baustoffe, Fahrzeuge; in Kriegen stark steigend.
@@ -274,6 +275,11 @@ Die Endkunden-Nachfrage wird je Land aus Einkommensschichten berechnet, damit si
 - Werbung und Markenbekanntheit je Land und Produktgruppe; Image wird auch von Qualität und Umweltverhalten beeinflusst.
 - Werbemittel nach Epoche, z. B. Zeitung, Radio, Fernsehen, Internet.
 - Marketing und Vertrieb lassen sich an Manager delegieren.
+- Vorgezogen nach Stufe 1 (Auftraggeber 04.10.2026): Werbebudget je Land und Warengruppe,
+  Markenbekanntheit von 0 bis 1, die durch Werbung und eigene Verkäufe wächst und ohne
+  beides langsam verblasst; es wirkt automatisch das beste Werbemittel der Epoche. KI-Firmen
+  werben nach denselben Regeln. Wahl einzelner Werbemittel, Image durch Qualität und
+  Umwelt sowie Delegation bleiben in Stufe 2 bzw. 4.
 
 ## 10 KI-Konkurrenten
 
@@ -388,6 +394,16 @@ Die Oberfläche ist nüchtern und modern; ein ausgeprägtes Controlling zeigt ge
 - Tabellen sortier- und filterbar, Diagramme für Zeitreihen.
 - Tooltips, die Werte und ihre Ursachen erklären.
 - Tastaturkürzel für häufige Aktionen.
+
+### 14.4 Einführung (Tutorial)
+
+Vorgabe des Auftraggebers vom 04.10.2026:
+
+- Beim Start eines neuen Spiels im Dialog an- und abwählbar (Standard: an).
+- Führt Schritt für Schritt durch die ersten Entscheidungen: Lage als Neuling im
+  gesättigten Markt, Übersicht, Produktion, Einkauf und Verkauf, Markt mit Anteilen,
+  Werbung, Runde beenden, Rundenbericht, Finanzen.
+- Jederzeit überspringbar; über die Tastenhilfe erneut startbar.
 
 ## 15 Spieleinstellungen bei neuem Spiel
 

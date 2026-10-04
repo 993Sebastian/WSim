@@ -275,6 +275,7 @@ mit dem Meilenstein freigegeben.
 | M13 | Oberfläche II: Weltkarte | Karte, Länderdetail, Ebenen Rohstoffe/Lohnniveau/Standorte | Playwright-Tests, Sichtprüfung |
 | M14 | Oberfläche III: Spielen | Standorte bauen, Produktion, Produktionsketten mit Engpässen, Markt und Preise, Forschung, Finanzen; Tooltips mit Ursachen; Tastaturkürzel | Playwright-Tests; durchgespielte Partie 1900–1905 |
 | M15 | Spielbarkeit Stufe 1 | Balancing 1900–1930, Windows-Installer offline, Protokoll-Auswertung | Testpartie 1900–1930 ohne Abbruch; Abnahme durch dich |
+| M16 | Markteintritt und Marketing (Auftraggeber 04.10.2026) | Gesättigte Märkte zum Start, Markenbekanntheit in der Anbieterwahl, Werbebudget je Land und Warengruppe (Spieler und KI), Marktanteile in der Oberfläche, abwählbares Tutorial | Szenariotests (Neuling ohne Marke verliert gegen bekannte Marke bei gleichem Preis, Werbung holt auf), Testpartie, Playwright |
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.

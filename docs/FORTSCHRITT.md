@@ -22,7 +22,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
 | M13 | Oberfläche II: Weltkarte | ✅ |
 | M14 | Oberfläche III: Spielen | ✅ |
-| M15 | Spielbarkeit Stufe 1 | offen |
+| M15 | Spielbarkeit Stufe 1 | in Arbeit |
+| M16 | Markteintritt und Marketing | offen |
 
 ## Eigenständige Entscheidungen (für das Review)
 

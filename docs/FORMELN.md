@@ -528,3 +528,59 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
 - Automatische Preise (Anbieter und Händler) bleiben unter `hoechstfaktor` ·
   Richtpreis im Land.
 
+## M16 – Markteintritt, Marke und Werbung
+
+Parameter: `data/parameter/marketingmodell.yaml`; KI: `kimodell.verhalten.werbeanteil`;
+Startbesetzung: `kimodell.start.marktdeckung`.
+
+### Gesättigte Märkte zum Start
+
+Die Startbesetzung plant je Produkt Anlagen für `marktdeckung` (z. B. 1,15) mal den
+Bedarf bei Normalauslastung, statt für den Bedarf allein. Etablierte Firmen beginnen mit
+Markenbekanntheit B_start in jedem Land und jeder Warengruppe, in denen sie zum Start
+Endprodukte anbieten: `bekanntheit_start` für generierte, `bekanntheit_start_real` für
+historische Firmen. Der Spieler beginnt überall mit B = 0.
+
+### Markenbekanntheit
+
+B ∈ [0, 1] je Firma, Land und Warengruppe. Monatlich (Monatsanfang, für den Vormonat):
+
+    K = kosten_je_einwohner_usd · Bevölkerung · Preisniveau · Marktmaßstab
+    Werbung   = (1 − B) · (1 − exp(−w · A / K))
+    Absatz    = (1 − B) · mundpropaganda · s
+    B'        = min(1, B · (1 − vergessen) + Werbung + Absatz)
+
+- A: Werbeausgaben des Monats im Land für die Warengruppe (USD), gebucht als Kostenart
+  Marketing.
+- w: Wirkung des besten Werbemittels, das im Jahr verfügbar ist (`werbemittel`, z. B.
+  Zeitung ab 1800 mit 1,0, Radio ab 1923 mit 1,4).
+- K: Ausgaben, mit denen die Werbung ein Land einmal erreicht; mit dem Marktmaßstab
+  verkleinert wie die Märkte.
+- s: Anteil der Firma an den Verkäufen von Endprodukten der Warengruppe an Verbraucher
+  im Land im Vormonat (Mundpropaganda: Wer verkauft, wird bekannt).
+- Einträge mit B < 0,001 ohne Budget entfallen.
+
+### Anbieterwahl mit Marke
+
+Der Nutzen der Endkunden (M7) bekommt einen Markenteil:
+
+    Nutzen_i = −Preisgewicht_q · ln(p_i / r) + Qualitätsgewicht_q · (Qualität_i − 50) / 25
+               + Markengewicht_q · B_i
+
+- B_i: Bekanntheit des Anbieters im Land für die Warengruppe des Produkts. Händlerware
+  (Einfuhr) hat `bekanntheit_handel`, der Staatsmarkt `bekanntheit_staatsmarkt`.
+- `markengewicht` je Einkommensfünftel, ärmstes zuerst; obere Schichten achten stärker
+  auf die Marke.
+- Industrie und Staat kaufen weiter nach Preis (M7); dort zählt die Marke nicht.
+
+Beispiel: Ein Neuling (B = 0) gegen eine bekannte Marke (B = 0,6) bei gleichem Preis und
+gleicher Qualität erhält bei Markengewicht 1 einen Anteil von exp(0) / (exp(0) + exp(0,6))
+≈ 35 %; mit 10 % niedrigerem Preis und Preisgewicht 1,6 etwa 39 %.
+
+### Werbebudget
+
+- Befehl `SetAdvertising { country, group, budget }`: Budget je Monat (≥ 0; 0 beendet die
+  Werbung). Gezahlt wird am Monatsanfang aus der Kasse, auch ins Minus wie bei Einkäufen.
+- KI: Am Monatsanfang setzt jede KI-Firma für jedes Land und jede Warengruppe, in denen
+  sie Endprodukte an Verbraucher verkauft, das Budget = `werbeanteil` (*a*) · Umsatz der
+  Warengruppe im Land im Vormonat.

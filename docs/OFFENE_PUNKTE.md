@@ -84,6 +84,14 @@ bei Bedarf widersprechen) · ❓ offen
 25. 🟡 **Ersatz durch höhere Qualifikation.** Die Regel „höhere Qualifikation vertritt
     niedrigere“ (Vorschlag zu Punkt 15) ist noch nicht umgesetzt; fehlende Arbeitskräfte
     bremsen die Produktion. Vorschlag: mit dem Balancing in M15 nachziehen.
+26. 🟡 **Werbemittel.** Vorschlag Stufe 1: Es wirkt automatisch das beste Werbemittel der
+    Epoche (Zeitung, ab 1923 Radio); die Wahl einzelner Werbemittel folgt in Stufe 2.
+27. 🟡 **Marke je Warengruppe.** Vorschlag: Bekanntheit je Firma, Land und Warengruppe
+    (nicht je Produkt), wie im Lastenheft §9.4; Händlerware und Staatsmarkt mit festen
+    Werten.
+28. 🟡 **Tutorial-Stand beim Speichern.** Vorschlag: Das Tutorial gehört zur laufenden
+    Sitzung; nach dem Laden eines Spielstands ist es aus und lässt sich über die
+    Tastenhilfe neu starten.
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 
