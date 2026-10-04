@@ -275,6 +275,13 @@ pub(super) fn country_model(
             messages::range_inverted("von_usd", "bis_usd"),
         );
     }
+    let productivity = l.field("produktivitaet");
+    if m.productivity.min > m.productivity.max {
+        ctx.error(
+            &productivity.field("minimum"),
+            messages::range_inverted("minimum", "maximum"),
+        );
+    }
     let research = l.field("forschung");
     if m.research.min > m.research.max {
         ctx.error(
@@ -395,6 +402,20 @@ pub(super) fn country_model(
         ),
         research_min: positive(ctx, m.research.min, &research.field("minimum")),
         research_max: positive(ctx, m.research.max, &research.field("maximum")),
+        productivity_reference_usd: positive(
+            ctx,
+            m.productivity.reference,
+            &productivity.field("bezug_usd"),
+        ),
+        productivity_elasticity: in_range(
+            ctx,
+            m.productivity.elasticity,
+            0.0,
+            2.0,
+            &productivity.field("elastizitaet"),
+        ),
+        productivity_min: positive(ctx, m.productivity.min, &productivity.field("minimum")),
+        productivity_max: positive(ctx, m.productivity.max, &productivity.field("maximum")),
         automation_base: in_range(
             ctx,
             m.automation.base,

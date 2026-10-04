@@ -72,6 +72,8 @@ pub enum CostType {
     Interest,
     Depreciation,
     Maintenance,
+    /// Administration, sales and logistics of the production (M16).
+    Overhead,
     Other,
 }
 

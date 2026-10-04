@@ -20,7 +20,7 @@ impl Account {
 }
 
 impl CostType {
-    pub const ALL: [CostType; 14] = [
+    pub const ALL: [CostType; 15] = [
         CostType::Revenue,
         CostType::InventoryChange,
         CostType::Material,
@@ -34,6 +34,7 @@ impl CostType {
         CostType::Interest,
         CostType::Depreciation,
         CostType::Maintenance,
+        CostType::Overhead,
         CostType::Other,
     ];
 
@@ -52,6 +53,7 @@ impl CostType {
             CostType::Interest => "kostenart.zinsen",
             CostType::Depreciation => "kostenart.abschreibungen",
             CostType::Maintenance => "kostenart.instandhaltung",
+            CostType::Overhead => "kostenart.gemeinkosten",
             CostType::Other => "kostenart.sonstiges",
         }
     }

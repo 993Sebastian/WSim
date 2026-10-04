@@ -302,9 +302,11 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         if p.kind == ProductKind::Energy {
             continue;
         }
-        let per_day = output_per_day(catalog, recipe) * u;
+        let per_day = output_per_day(catalog, recipe);
         let rates = &need.rate[product.index()];
-        // Saturated markets (M16): established companies cover more than the demand.
+        // Saturated markets (M16): at full capacity the established companies could
+        // make `market_cover` times the demand. More spare capacity would start a
+        // lasting price war, since idle plants lower their prices.
         let facilities: f64 = rates.iter().sum::<f64>() * start.market_cover / per_day;
         if facilities < start.min_plant_share {
             continue;
@@ -346,7 +348,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                 }
             }
         } else {
-            let exponent = start.development_weight[kind_index(p.kind)];
+            let exponent = start.development_weight[p.kind.index()];
             let weights: Vec<f64> = catalog
                 .countries
                 .ids()
@@ -531,16 +533,6 @@ fn fit_to_inputs(
     planned
 }
 
-fn kind_index(kind: ProductKind) -> usize {
-    match kind {
-        ProductKind::RawMaterial => 0,
-        ProductKind::SemiFinished => 1,
-        ProductKind::Component => 2,
-        ProductKind::EndProduct => 3,
-        ProductKind::Energy => 4,
-    }
-}
-
 /// The first recipe usable on a facility (for historical plants without a recipe).
 fn first_recipe(
     catalog: &Catalog,
@@ -699,18 +691,21 @@ pub(crate) fn slot_flows(
         .labor_hours
         .iter()
         .map(|&(g, h)| h * runs * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
-        .sum();
+        .sum::<f64>()
+        / c.labor_productivity.max(1e-9);
     let energy = r.energy_mwh * runs * c.electricity_price_usd_mwh;
+    let overhead = crate::production::overhead_per_run_usd(catalog, r, c.price_level) * runs;
     let capital = f.investment.to_usd()
         * f64::from(count)
         * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
         / 365.0;
+    let variable = input_cost + labor + energy + overhead;
     SlotFlows {
         product: r.product,
         output: runs * r.output,
         inputs,
-        cost_per_day: Money::from_usd(input_cost + labor + energy + capital).unwrap_or(Money::ZERO),
-        variable_per_day: Money::from_usd(input_cost + labor + energy).unwrap_or(Money::ZERO),
+        cost_per_day: Money::from_usd(variable + capital).unwrap_or(Money::ZERO),
+        variable_per_day: Money::from_usd(variable).unwrap_or(Money::ZERO),
     }
 }
 

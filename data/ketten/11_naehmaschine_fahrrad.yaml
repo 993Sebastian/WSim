@@ -74,10 +74,10 @@ rezepte:
       stabstahl: 0.004
       schrauben: 0.0005
       muttern: 0.0002
-    arbeit_stunden:
-      angelernt: 40
-      fachkraft.maschinenbau: 30
-      akademiker.maschinenbau: 0.5
+    arbeit_stunden:               # Singer um 1900: etwa 35–40 Stunden je Maschine
+      angelernt: 25
+      fachkraft.maschinenbau: 15
+      akademiker.maschinenbau: 0.3
     qualitaet_basis: 55
     annaeherung: true
 

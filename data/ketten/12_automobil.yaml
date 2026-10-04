@@ -263,7 +263,7 @@ rezepte:
     produkt: benzin
     menge: 0.4
     nebenprodukte:
-      petroleum: 0.2
+      petroleum: 0.15             # Rest: Gas, Koks, Verluste
     dauer_tage: 2
     anlage: crackanlage
     technologie: thermisches_cracken

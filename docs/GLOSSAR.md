@@ -136,3 +136,13 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Marktdeckung (Startbesetzung) | `AiStart::market_cover` |
 | Werbeanteil (KI) | `AiBehavior::advertising_share`, `ai::advertise` |
 | Händlerlager zum Start | `population::stock_traders` |
+| Preisfaktor, Preisniveau-Anteil | `market::price_factor`, `MarketModel::price_level_share` |
+| Arbeitsproduktivität | `CountryState::labor_productivity` (`produktivitaet`) |
+| Gemeinkosten (Verwaltung und Vertrieb) | `CostType::Overhead`, `ProductionModel::overhead_share`, `overhead_per_run_usd` |
+| Wertschöpfung (zu Richtpreisen) | value added (`overhead_per_run_usd`) |
+| je Produktart (Datentabelle) | `RawPerKind`, `[f64; 5]` mit `ProductKind::index` |
+| Richtpreis-Marge, Plausibilitätsprüfung | `ProductionModel::reference_margin`, `health::reference_margin`, `check_reference_margins` |
+| Vollkosten je Stück | `health::UnitCost`, `health::unit_cost` |
+| Marktgesundheit (Versorgung, Engpässe, Preise) | `health::ProductHealth`, `health::last_month` |
+| Normalauslastung (freie Anlagen) | `MarketModel::normal_utilization` (`auslastung_normal`) |
+| Lagerziel, Ausgleich (KI-Auslastung) | `AiBehavior::stock_target_days`, `stock_adjust_days` |

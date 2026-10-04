@@ -23,15 +23,33 @@ pub fn labor_factor(catalog: &Catalog, automation: f64, affinity: f64) -> f64 {
     1.0 - automation * catalog.production_model.automation_labor_saving * (0.5 + 0.5 * affinity)
 }
 
-/// Labor hours per run for each group, including automation and deposit difficulty.
+/// Administration, sales and logistics of one run in USD (M16): a share of the value
+/// the run adds at reference prices, per product kind, at the country's price level.
+pub fn overhead_per_run_usd(catalog: &Catalog, recipe: &Recipe, price_level: f64) -> f64 {
+    let price = |p: ProductId| catalog.products.get(p).reference_price.to_usd();
+    let made = recipe.output * price(recipe.product)
+        + recipe
+            .by_products
+            .iter()
+            .map(|&(p, q)| q * price(p))
+            .sum::<f64>();
+    let used: f64 = recipe.inputs.iter().map(|&(p, q)| q * price(p)).sum();
+    let share = catalog
+        .production_model
+        .overhead_share(catalog.products.get(recipe.product).kind);
+    share * (made - used).max(0.0) * price_level
+}
+
+/// Labor hours per run for each group, including automation, deposit difficulty and
+/// the country's labor productivity.
 fn hours_per_run(
     catalog: &Catalog,
     recipe: &Recipe,
     automation: f64,
-    affinity: f64,
+    (affinity, productivity): (f64, f64),
     cost_factor: f64,
 ) -> Vec<(LaborGroupId, f64)> {
-    let factor = labor_factor(catalog, automation, affinity) * cost_factor;
+    let factor = labor_factor(catalog, automation, affinity) * cost_factor / productivity.max(1e-9);
     recipe
         .labor_hours
         .iter()
@@ -237,7 +255,8 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
         }
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));
         let country = state.sites[index].country;
-        let affinity = state.countries.get(country).automation_affinity;
+        let c = state.countries.get(country);
+        let affinity = (c.automation_affinity, c.labor_productivity);
         let mut needed = vec![0.0; groups];
         for slot in 0..state.sites[index].slots.len() {
             let Some((recipe_id, runs)) = planned_runs(catalog, state, site, slot, date) else {
@@ -290,7 +309,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
     let (affinity, grid_share, electricity_price, wages) = {
         let c = state.countries.get(country);
         (
-            c.automation_affinity,
+            (c.automation_affinity, c.labor_productivity),
             c.grid_share,
             c.electricity_price_usd_mwh,
             c.hourly_wage_usd.clone(),
@@ -398,6 +417,15 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let ledger = &mut state.companies[owner.index()].ledger;
             ledger.expense(CostType::Energy, center, Account::Inventory, own_value);
             value += own_value;
+        }
+        // Administration, sales and logistics.
+        let level = state.countries.get(country).price_level;
+        let overhead = Money::from_usd(overhead_per_run_usd(catalog, recipe, level) * runs)
+            .unwrap_or(Money::ZERO);
+        if overhead > Money::ZERO {
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.expense(CostType::Overhead, center, Account::Cash, overhead);
+            value += overhead;
         }
         let ledger = &mut state.companies[owner.index()].ledger;
         ledger.income(CostType::InventoryChange, center, Account::Inventory, value);

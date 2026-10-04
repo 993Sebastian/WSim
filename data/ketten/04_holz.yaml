@@ -19,7 +19,7 @@ produkte:
     verwendung: industrie
     warengruppe: holz
     transportklasse: stueckgut
-    richtpreis_usd: 450
+    richtpreis_usd: 300           # etwa das Vierfache des Rundholzes (Ausbeute gut 55 %)
     staatsnachfrage:              # öffentliche Bauten, Bahnschwellen
       je_mio_usd_bip: 5.0
       kriegsfaktor: 1.5
@@ -105,7 +105,7 @@ rezepte:
     anlage: saegewerk
     technologie: dampfsaege
     eingang:
-      holz: 1.7
+      holz: 1.8
     arbeit_stunden:
       ungelernt: 3.0
       angelernt: 2.0
@@ -123,9 +123,9 @@ rezepte:
       schnittholz: 0.035
       schrauben: 0.0005           # Beschläge; Nägel als Vorprodukt entfallen
       leim: 0.0005
-    arbeit_stunden:
-      angelernt: 8
-      fachkraft.holz_bau: 12
+    arbeit_stunden:               # Serienmöbel mit Holzbearbeitungsmaschinen
+      angelernt: 4
+      fachkraft.holz_bau: 5
     qualitaet_basis: 55
     annaeherung: true
 

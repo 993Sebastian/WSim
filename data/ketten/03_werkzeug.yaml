@@ -44,9 +44,9 @@ rezepte:
     eingang:
       stahl: 0.0012
       schnittholz: 0.0006         # Stiel
-    arbeit_stunden:
-      angelernt: 2.0
-      fachkraft.metall: 1.5
+    arbeit_stunden:               # Gesenkschmieden: wenige Schläge je Werkstück
+      angelernt: 1.0
+      fachkraft.metall: 0.6
     qualitaet_basis: 55
     annaeherung: true
 

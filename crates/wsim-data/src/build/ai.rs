@@ -11,7 +11,9 @@ use wsim_core::catalog::{
 use wsim_core::ids::{BranchId, CountryId, DepositId, FacilityId, Id, RecipeId};
 
 use super::production::single;
-use super::{HISTORY_YEARS, Keys, in_range, non_negative, positive, provenance, resolve, year};
+use super::{
+    HISTORY_YEARS, Keys, in_range, non_negative, per_kind, positive, provenance, resolve, year,
+};
 use crate::TextIndex;
 use crate::messages;
 use crate::raw::{RawEvent, RawRealCompany, RawSpan};
@@ -102,13 +104,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         input_stock_days: non_negative(ctx, s.input_stock_days, &sl.field("lager_eingang_tage")),
         output_stock_days: non_negative(ctx, s.output_stock_days, &sl.field("lager_ausgang_tage")),
         cash_months: non_negative(ctx, s.cash_months, &sl.field("kasse_monate")),
-        development_weight: [
-            non_negative(ctx, w.raw_material, &wl.field("rohstoff")),
-            non_negative(ctx, w.semi_finished, &wl.field("halbzeug")),
-            non_negative(ctx, w.component, &wl.field("bauteil")),
-            non_negative(ctx, w.end_product, &wl.field("endprodukt")),
-            non_negative(ctx, w.energy, &wl.field("energie")),
-        ],
+        development_weight: per_kind(ctx, w, &wl, non_negative),
         reference_wage_usd: positive(ctx, s.reference_wage_usd, &sl.field("referenzlohn_usd")),
         market_cover: in_range(ctx, s.market_cover, 1.0, 3.0, &sl.field("marktdeckung")),
     };

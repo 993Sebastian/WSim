@@ -9,11 +9,11 @@ use wsim_core::ids::QualificationId;
 use wsim_core::state::StartForm;
 
 use super::{
-    HISTORY_YEARS, Keys, in_range, money, non_negative, positive, provenance, resolve, time_series,
-    year,
+    HISTORY_YEARS, Keys, in_range, money, non_negative, per_kind, positive, provenance, resolve,
+    time_series, year,
 };
 use crate::messages;
-use crate::raw::{RawProductionModel, RawVehicle, RawWay};
+use crate::raw::{RawLimits, RawProductionModel, RawVehicle, RawWay};
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
 
@@ -141,8 +141,24 @@ pub(super) fn production_model(
             1.0,
             &l.field("einspeiseverguetung"),
         ),
+        overhead_share: per_kind(
+            ctx,
+            &m.overhead_share,
+            &l.field("gemeinkosten_anteil"),
+            |ctx, v, loc| in_range(ctx, v, 0.0, 0.9, loc),
+        ),
+        reference_margin: reference_margin(ctx, &m.reference_margin, &l.field("richtpreis_marge")),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
     }
+}
+
+fn reference_margin(ctx: &mut Ctx, m: &RawLimits, loc: &Loc) -> (f64, f64) {
+    let min = in_range(ctx, m.min, -1.0, 1.0, &loc.field("minimum"));
+    let max = in_range(ctx, m.max, -1.0, 1.0, &loc.field("maximum"));
+    if min > max {
+        ctx.error(loc, messages::range_inverted("minimum", "maximum"));
+    }
+    (min, max)
 }
 
 pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::FinanceModel {
@@ -340,6 +356,13 @@ pub(super) fn market_model(
             m.price_adjustment.stock_days,
             &adjust.field("lagertage"),
         ),
+        normal_utilization: in_range(
+            ctx,
+            m.price_adjustment.normal_utilization,
+            0.0,
+            1.0,
+            &adjust.field("auslastung_normal"),
+        ),
         price_max_factor: in_range(
             ctx,
             m.price_adjustment.max_factor,
@@ -348,6 +371,12 @@ pub(super) fn market_model(
             &adjust.field("hoechstfaktor"),
         ),
         state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
+        price_level_share: per_kind(
+            ctx,
+            &m.price_level_share,
+            &l.field("preisniveau_anteil"),
+            |ctx, v, loc| in_range(ctx, v, 0.0, 1.0, loc),
+        ),
         index_smoothing: in_range(
             ctx,
             m.index_smoothing,

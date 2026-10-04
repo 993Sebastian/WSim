@@ -178,9 +178,9 @@ rezepte:
     eingang:
       kupferdraht: 0.000005
       glas: 0.00003
-    arbeit_stunden:
-      angelernt: 1.0
-      fachkraft.elektro: 0.1
+    arbeit_stunden:               # USA um 1900: rund 25 Mio. Lampen im Jahr
+      angelernt: 0.4
+      fachkraft.elektro: 0.04
     energie_mwh: 0.001
     qualitaet_basis: 45           # kurze Lebensdauer, wenig Licht je Watt
     annaeherung: true
@@ -195,8 +195,8 @@ rezepte:
       kupferdraht: 0.000005
       glas: 0.00003
     arbeit_stunden:
-      angelernt: 0.8
-      fachkraft.elektro: 0.15
+      angelernt: 0.3
+      fachkraft.elektro: 0.05
     energie_mwh: 0.001
     qualitaet_basis: 75
     annaeherung: true

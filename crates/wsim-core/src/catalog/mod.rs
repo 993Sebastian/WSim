@@ -529,10 +529,17 @@ pub struct MarketModel {
     pub price_step_down: f64,
     /// Unsold stock worth more than this many days of sales lowers the price.
     pub stock_days: f64,
+    /// Automatic prices also fall while the seller's facilities for the product run
+    /// below this share of their capacity: idle plants compete for customers (M16).
+    pub normal_utilization: f64,
     /// Automatic prices stay below this multiple of the local reference price.
     pub price_max_factor: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
+    /// How far a country's price level carries into the prices of goods, per product
+    /// kind (0: world price, 1: fully). Goods are traded; only the local share of
+    /// wages, trade and distribution in their price follows the price level.
+    pub price_level_share: [f64; 5],
     pub index_smoothing: f64,
     /// Traders import only if the market price exceeds their landed cost by this share.
     pub trader_margin: f64,
@@ -609,8 +616,10 @@ impl Default for MarketModel {
             price_step_up: 0.02,
             price_step_down: 0.01,
             stock_days: 30.0,
+            normal_utilization: 0.85,
             price_max_factor: 20.0,
             state_price_cap: 1.5,
+            price_level_share: [1.0; 5],
             index_smoothing: 0.1,
             trader_margin: 0.05,
             trader_cover_days: 30.0,
@@ -640,6 +649,12 @@ pub struct ProductionModel {
     pub electricity: Option<ProductId>,
     /// Own electricity fed into the grid earns this share of the industrial price.
     pub feed_in_share: f64,
+    /// Administration, sales and logistics per run, as share of the value it adds at
+    /// reference prices, per product kind (M16).
+    pub overhead_share: [f64; 5],
+    /// Plausible margin at reference prices of the best recipe of a product in the first
+    /// year it can be made (checked when loading the data; extraction only from below).
+    pub reference_margin: (f64, f64),
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
 }
@@ -671,6 +686,11 @@ impl StartSetup {
 }
 
 impl ProductionModel {
+    /// Overhead per unit made, as share of the reference price.
+    pub fn overhead_share(&self, kind: ProductKind) -> f64 {
+        self.overhead_share[kind.index()]
+    }
+
     pub fn start_setup(&self, form: StartForm) -> Option<&StartSetup> {
         self.start_setups
             .iter()
@@ -693,6 +713,8 @@ impl Default for ProductionModel {
             condition_min: 0.2,
             electricity: None,
             feed_in_share: 0.5,
+            overhead_share: [0.0; 5],
+            reference_margin: (0.05, 0.45),
             start_setups: Vec::new(),
         }
     }
@@ -740,6 +762,12 @@ pub struct CountryModel {
     pub research_elasticity: f64,
     pub research_min: f64,
     pub research_max: f64,
+    /// Labor productivity = (GDP per capita / reference)^elasticity, bounded: the
+    /// recipes' hours hold at the reference (M16).
+    pub productivity_reference_usd: f64,
+    pub productivity_elasticity: f64,
+    pub productivity_min: f64,
+    pub productivity_max: f64,
     pub automation_base: f64,
     pub automation_per_doubling: f64,
     pub automation_reference_usd: f64,
@@ -775,6 +803,10 @@ impl Default for CountryModel {
             research_elasticity: 0.3,
             research_min: 0.3,
             research_max: 1.5,
+            productivity_reference_usd: 10_000.0,
+            productivity_elasticity: 0.0,
+            productivity_min: 0.1,
+            productivity_max: 4.0,
             automation_base: 0.3,
             automation_per_doubling: 0.12,
             automation_reference_usd: 13_000.0,
@@ -789,6 +821,19 @@ pub enum ProductKind {
     Component,
     EndProduct,
     Energy,
+}
+
+impl ProductKind {
+    /// Position in tables with one value per product kind (`[T; 5]`).
+    pub fn index(self) -> usize {
+        match self {
+            ProductKind::RawMaterial => 0,
+            ProductKind::SemiFinished => 1,
+            ProductKind::Component => 2,
+            ProductKind::EndProduct => 3,
+            ProductKind::Energy => 4,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

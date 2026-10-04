@@ -502,6 +502,12 @@ pub struct Trade {
     /// Bought by traders for export.
     #[serde(default)]
     pub exported: f64,
+    /// Demand of consumers and government, without companies' purchase orders.
+    #[serde(default)]
+    pub outside_demand: f64,
+    /// Of that, served (by companies, traders or the state market).
+    #[serde(default)]
+    pub outside_sold: f64,
 }
 
 impl Trade {
@@ -515,6 +521,8 @@ impl Trade {
         self.revenue += other.revenue;
         self.imported += other.imported;
         self.exported += other.exported;
+        self.outside_demand += other.outside_demand;
+        self.outside_sold += other.outside_sold;
     }
 }
 

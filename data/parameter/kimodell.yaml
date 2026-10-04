@@ -26,7 +26,7 @@ kimodell:
 
   # Startbesetzung: Die KI-Firmen decken zusammen die Nachfrage des Startjahres.
   start:
-    auslastung: 0.85
+    auslastung: 0.9                # Startauslastung und Normalauslastung der Vollkosten (M16: deckt bei 115 % Kapazität die Nachfrage)
     # Ein Land bekommt eine Anlage erst ab diesem Anteil einer ganzen Anlage.
     anlage_mindestanteil: 0.35
     lager_eingang_tage: 20
@@ -35,7 +35,7 @@ kimodell:
     kasse_monate: 3
     # Gewicht des Entwicklungsstands bei der Wahl der Länder je Produktart:
     # Rohstoffe liegen bei der Lagerstätte, Halbzeuge und Bauteile in Industrieländern.
-    gewicht_entwicklung: {rohstoff: 0, halbzeug: 1.5, bauteil: 2, endprodukt: 0.5, energie: 1}
+    gewicht_entwicklung: {rohstoff: 0, halbzeug: 1.5, komponente: 2, endprodukt: 0.5, energie: 1}
     # Lohn je Stunde zum Vergleich der Rezepte (USD bei Preisniveau 1)
     referenzlohn_usd: 4
     marktdeckung: 1.15             # Anlagen für 115 % des Bedarfs: gesättigte Märkte (M16)
@@ -50,11 +50,11 @@ kimodell:
     lager_niedrig_tage: 7
     auslastung_schritt: 0.1
     auslastung_min: 0.05
-    preisuntergrenze: {bei_0: 1.1, bei_1: 0.95}       # × Vollkosten bei normaler Auslastung, Aggressivität
+    preisuntergrenze: {bei_0: 1.15, bei_1: 1.05}      # × Vollkosten bei normaler Auslastung (mit Gemeinkosten); deckt Werbung, Zinsen, Gebäude (M16)
     werbeanteil: {bei_0: 0.01, bei_1: 0.03}           # Werbung je Monat, Anteil am Umsatz, Aggressivität
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität
-    ausbau_marge: {bei_0: 0.25, bei_1: 0.08}          # Aggressivität
+    ausbau_marge: {bei_0: 0.1, bei_1: 0.03}           # Aufschlag auf Vollkosten mit Gemeinkosten (M16), Aggressivität
     ausbau_anteil_kasse_max: 0.3
     forschung_vorgriff_jahre: {bei_0: 0, bei_1: 2}    # Kompetenz
     forschung_mindestumsatz_usd: 2_000_000

@@ -69,6 +69,16 @@ struct Source {
     available: f64,
 }
 
+/// Today's plan of the traders for one product.
+pub(crate) struct Plan {
+    pub buys: Vec<PlannedBuy>,
+    /// Need the offers could not cover: sellers who sold out may raise their prices for
+    /// it (M16).
+    pub unserved: f64,
+    /// Per country holding imports: the lowest landed cost of fresh goods from abroad.
+    pub replacement: BTreeMap<CountryId, Money>,
+}
+
 /// Plans today's purchases of the traders for one product: each market with open
 /// demand is supplied from the offers with the lowest landed cost, markets with the
 /// highest margin first.
@@ -78,7 +88,7 @@ pub(crate) fn plan(
     product: ProductId,
     sites_by_country: &[Vec<SiteId>],
     in_transit: &BTreeMap<(ProductId, CountryId), f64>,
-) -> Vec<PlannedBuy> {
+) -> Plan {
     let model = &catalog.market_model;
     let mut sources: Vec<Source> = Vec::new();
     for sites in sites_by_country {
@@ -103,7 +113,38 @@ pub(crate) fn plan(
         }
     }
     if sources.is_empty() {
-        return Vec::new();
+        // Nobody has goods left: open demand anywhere is unserved.
+        let open: f64 = catalog
+            .countries
+            .ids()
+            .map(|c| market::open_demand(state.markets.get(product).get(c), model, state.date))
+            .sum();
+        return Plan {
+            buys: Vec::new(),
+            unserved: open,
+            replacement: BTreeMap::new(),
+        };
+    }
+    // What fresh goods would cost where traders hold stock: other traders would sell at
+    // that, so old stock bought dearly cannot ask more (M16).
+    let mut replacement = BTreeMap::new();
+    for &(p, country) in &state.import_markets {
+        if p != product {
+            continue;
+        }
+        let cheapest = sources
+            .iter()
+            .filter(|s| s.country != country)
+            .filter_map(|s| {
+                let (transport, _) = state
+                    .routes
+                    .for_product(catalog, product, s.country, country)?;
+                Some(s.price + transport)
+            })
+            .min();
+        if let Some(landed) = cheapest {
+            replacement.insert(country, landed);
+        }
     }
 
     // Markets with open demand and the sources whose landed cost the price covers.
@@ -178,6 +219,7 @@ pub(crate) fn plan(
 
     let mut remaining: Vec<f64> = sources.iter().map(|s| s.available).collect();
     let mut plan = Vec::new();
+    let mut unserved = 0.0;
     for d in destinations {
         let mut need = d.need;
         for (_, i, transport, days) in d.candidates {
@@ -198,6 +240,11 @@ pub(crate) fn plan(
                 days,
             });
         }
+        unserved += need.max(0.0);
     }
-    plan
+    Plan {
+        buys: plan,
+        unserved,
+        replacement,
+    }
 }

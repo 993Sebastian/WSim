@@ -107,6 +107,7 @@ kostenart.forschung: Forschung
 kostenart.zinsen: Zinsen
 kostenart.abschreibungen: Abschreibungen
 kostenart.instandhaltung: Instandhaltung
+kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.sonstiges: Sonstiges
 fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
 fehler.befehl.nicht_erforschbar: „{technologie}“ lässt sich nicht erforschen – sie ist schon bekannt, oder es fehlen Voraussetzungen.

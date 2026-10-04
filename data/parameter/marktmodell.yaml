@@ -10,8 +10,14 @@ marktmodell:
     hoch: 0.02                    # ausverkauft und Nachfrage offen
     runter: 0.01                  # Lager reicht länger als „lagertage“
     lagertage: 30
+    auslastung_normal: 0.85       # darunter sinkt der Preis auch: freie Anlagen werben um Kunden (M16)
     hoechstfaktor: 4              # nie über dem 4-Fachen des Richtpreises im Land (M15)
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
+  # Wie weit das Preisniveau eines Landes die Preise der Waren bestimmt (0: Weltpreis, 1: voll),
+  # je Produktart (M16). Waren werden gehandelt und kosten überall ähnlich viel; nur der Anteil
+  # von Löhnen, Handel und Vertrieb im Land folgt dem Preisniveau (Balassa-Samuelson).
+  # Strom kommt aus dem Netz im eigenen Land.
+  preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
   index_glaettung: 0.1            # Gewicht des Tagesdurchschnitts im Marktpreis
   # KI-Händler verbinden die Märkte der Länder (Formeln: docs/FORMELN.md, Abschnitt M8).
   haendler:

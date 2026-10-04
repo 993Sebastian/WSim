@@ -12,7 +12,8 @@ use wsim_core::catalog::{
     LaborGroup, NeedClass, Product, ProductKind, Provenance, Qualification, Recipe, SiteType,
     Specialization, StateDemand, StateMarketOffer, Technology, TransportClass, Unit, Usage,
 };
-use wsim_core::ids::{Id, LaborGroupId, ProductId, TechnologyId};
+use wsim_core::health;
+use wsim_core::ids::{Id, LaborGroupId, ProductId, RecipeId, TechnologyId};
 use wsim_core::money::Money;
 use wsim_core::time_series::TimeSeries;
 
@@ -22,8 +23,8 @@ mod ai;
 mod countries;
 mod production;
 use crate::raw::{
-    RawConsumerDemand, RawNeedClass, RawProduct, RawProductKind, RawSiteType, RawStateMarket,
-    RawUsage,
+    RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
+    RawStateMarket, RawUsage,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -171,6 +172,23 @@ fn in_range(ctx: &mut Ctx, value: f64, min: f64, max: f64, loc: &Loc) -> f64 {
         ctx.error(loc, messages::out_of_range(value, min, max));
     }
     value
+}
+
+/// One value per product kind, in the order of `ProductKind::index`, each checked by
+/// `check`.
+fn per_kind(
+    ctx: &mut Ctx,
+    values: &RawPerKind,
+    loc: &Loc,
+    check: impl Fn(&mut Ctx, f64, &Loc) -> f64,
+) -> [f64; 5] {
+    [
+        check(ctx, values.raw_material, &loc.field("rohstoff")),
+        check(ctx, values.semi_finished, &loc.field("halbzeug")),
+        check(ctx, values.component, &loc.field("komponente")),
+        check(ctx, values.end_product, &loc.field("endprodukt")),
+        check(ctx, values.energy, &loc.field("energie")),
+    ]
 }
 
 fn year(ctx: &mut Ctx, year: i32, (min, max): (i32, i32), loc: &Loc) -> i32 {
@@ -598,6 +616,7 @@ pub(crate) fn build(
     // Only on a consistent catalog: unresolved references would point anywhere.
     if !b.ctx.report.has_errors() {
         b.check_product_tree(&recipes, &products);
+        b.check_reference_margins(&recipes);
     }
     b.check_electricity(raw);
     production::check_start_setups(b.ctx, &b.catalog, raw);
@@ -1157,6 +1176,52 @@ impl Builder<'_, '_> {
             } else {
                 self.ctx.warning(&loc, message);
             }
+        }
+    }
+
+    /// Plausibility of the reference prices: at reference prices, the best recipe of a
+    /// product in the first year it can be made earns a margin within the band of the
+    /// production model (extraction only from below: scarce deposits earn a rent).
+    fn check_reference_margins(&mut self, recipes: &[&Entry<crate::raw::RawRecipe>]) {
+        let c = &self.catalog;
+        let (min, max) = c.production_model.reference_margin;
+        let mut findings = Vec::new();
+        for (product, p) in c.products.iter() {
+            if p.kind == ProductKind::Energy {
+                continue;
+            }
+            let made: Vec<(RecipeId, i32)> = c
+                .recipes
+                .iter()
+                .filter(|(_, r)| r.product == product)
+                .map(|(id, _)| (id, health::first_year(c, id)))
+                .collect();
+            let Some(first) = made.iter().map(|&(_, y)| y).min() else {
+                continue;
+            };
+            let best = made
+                .iter()
+                .filter(|&&(_, y)| y == first)
+                .filter_map(|&(r, _)| health::reference_margin(c, r).map(|m| (r, m)))
+                .max_by(|a, b| a.1.total_cmp(&b.1));
+            let Some((recipe, margin)) = best else {
+                continue;
+            };
+            let upper = (!c.recipes.get(recipe).extraction).then_some(max);
+            if margin < min || upper.is_some_and(|max| margin > max) {
+                let price = p.reference_price.to_usd();
+                let message = messages::reference_margin(
+                    c.products.key(product),
+                    first,
+                    ((1.0 - margin) * price, price),
+                    margin,
+                    (min, upper),
+                );
+                findings.push((recipes[recipe.index()].loc.field("id"), message));
+            }
+        }
+        for (loc, message) in findings {
+            self.ctx.warning(&loc, message);
         }
     }
 

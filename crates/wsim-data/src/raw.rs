@@ -136,6 +136,8 @@ pub struct RawCountryModel {
     pub stability: f64,
     #[serde(rename = "forschung")]
     pub research: RawResearch,
+    #[serde(rename = "produktivitaet")]
+    pub productivity: RawResearch,
     #[serde(rename = "automatisierung")]
     pub automation: RawAutomation,
 }
@@ -508,6 +510,10 @@ pub struct RawProductionModel {
     pub electricity: Option<String>,
     #[serde(rename = "einspeiseverguetung")]
     pub feed_in_share: f64,
+    #[serde(rename = "gemeinkosten_anteil")]
+    pub overhead_share: RawPerKind,
+    #[serde(rename = "richtpreis_marge")]
+    pub reference_margin: RawLimits,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
 }
@@ -615,6 +621,8 @@ pub struct RawMarketModel {
     pub price_adjustment: RawPriceAdjustment,
     #[serde(rename = "staat_hoechstpreis")]
     pub state_price_cap: f64,
+    #[serde(rename = "preisniveau_anteil")]
+    pub price_level_share: RawPerKind,
     #[serde(rename = "index_glaettung")]
     pub index_smoothing: f64,
     #[serde(rename = "haendler")]
@@ -665,6 +673,8 @@ pub struct RawPriceAdjustment {
     pub down: f64,
     #[serde(rename = "lagertage")]
     pub stock_days: f64,
+    #[serde(rename = "auslastung_normal")]
+    pub normal_utilization: f64,
     #[serde(rename = "hoechstfaktor")]
     pub max_factor: f64,
 }
@@ -848,7 +858,7 @@ pub struct RawAiStart {
     #[serde(rename = "kasse_monate")]
     pub cash_months: f64,
     #[serde(rename = "gewicht_entwicklung")]
-    pub development_weight: RawKindWeights,
+    pub development_weight: RawPerKind,
     #[serde(rename = "referenzlohn_usd")]
     pub reference_wage_usd: f64,
     #[serde(rename = "marktdeckung")]
@@ -857,12 +867,12 @@ pub struct RawAiStart {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct RawKindWeights {
+pub struct RawPerKind {
     #[serde(rename = "rohstoff")]
     pub raw_material: f64,
     #[serde(rename = "halbzeug")]
     pub semi_finished: f64,
-    #[serde(rename = "bauteil")]
+    #[serde(rename = "komponente")]
     pub component: f64,
     #[serde(rename = "endprodukt")]
     pub end_product: f64,

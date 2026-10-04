@@ -255,6 +255,27 @@ pub fn product_without_source(key: &str) -> String {
     )
 }
 
+pub fn reference_margin(
+    product: &str,
+    year: i32,
+    (cost, price): (f64, f64),
+    margin: f64,
+    (min, max): (f64, Option<f64>),
+) -> String {
+    let percent = |share: f64| format!("{:.0}", share * 100.0);
+    let expected = match max {
+        Some(max) => format!("{}–{} %", percent(min), percent(max)),
+        None => format!("mindestens {} %", percent(min)),
+    };
+    format!(
+        "Das Rezept stellt „{product}“ {year} zu Richtpreisen für {cost:.2} USD je Einheit \
+         her, der Richtpreis ist {price:.2} USD: Marge {} %, erwartet {expected}. \
+         Richtpreis, Vorprodukte, Arbeitsstunden oder Anlage prüfen (Rechnung: \
+         docs/FORMELN.md, Plausibilität).",
+        percent(margin),
+    )
+}
+
 pub fn raw_material_without_deposit(key: &str) -> String {
     format!("Für den Rohstoff „{key}“ gibt es ein Abbau-Rezept, aber keine Lagerstätte.")
 }

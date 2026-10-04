@@ -21,6 +21,14 @@ produktionsmodell:
   zustand_minimum: 0.2
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
+  # Verwaltung, Vertrieb und Logistik je Lauf als Anteil der Wertschöpfung zu Richtpreisen
+  # (Erzeugnisse minus Vorprodukte), je Produktart (M16). Die Rezepte enthalten nur direkte
+  # Kosten; Richtpreise sind Marktpreise. Konsumgüter tragen den Vertrieb an Verbraucher.
+  gemeinkosten_anteil: {rohstoff: 0.1, halbzeug: 0.2, komponente: 0.25, endprodukt: 0.4, energie: 0}
+  # Plausibilitätsprüfung beim Laden: Marge des besten Rezepts eines Produkts zu Richtpreisen
+  # im ersten Jahr, in dem es hergestellt werden kann (Referenzland, Normalauslastung).
+  # Förderung nur nach unten geprüft: knappe Lagerstätten tragen eine Rente.
+  richtpreis_marge: {minimum: 0.05, maximum: 0.45}
 
   # Was eine neue Firma zu Beginn besitzt (Lastenheft §2, §15); bezahlt aus dem
   # Startkapital. Die Werkstatt stellt Nägel aus Draht her und verkauft sie zum

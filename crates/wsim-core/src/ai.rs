@@ -21,7 +21,7 @@ use crate::money::Money;
 use crate::population::{self, SlotFlows};
 use crate::research;
 use crate::rng::{SimRng, Stream};
-use crate::state::{AiState, Company, CompanyId, CompanyKind, GameState, PriceMode, SiteId};
+use crate::state::{AiState, Company, CompanyId, CompanyKind, GameState, Limit, PriceMode, SiteId};
 
 /// Runs the decisions due today, before the day is simulated. Returns news about
 /// competitors for the player's round report.
@@ -227,6 +227,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
         let country = s.country;
         let mut commands = Vec::new();
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
+        let mut willing: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut cost: BTreeMap<ProductId, (Money, f64, f64, f64)> = BTreeMap::new();
         // Per product of the site: full output of its finished facilities, and what is
         // taken per day (sales over the last month and this one, own facilities' inputs).
@@ -242,9 +243,19 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 *taken.entry(input).or_default() += runs * sl.utilization * q;
             }
         }
-        let days_sold = 30.0 + f64::from(date.day() - 1);
+        // Without sales last month (a new offer, the first month of the game, a seller
+        // that was sold out) this month alone tells the rate: averaging over 30 more days
+        // would take a new seller for a slow one and stop its plants.
+        let days = f64::from(date.day() - 1);
         for (&product, o) in &s.offers {
-            *taken.entry(product).or_default() += (o.sold_last_month + o.sold_month) / days_sold;
+            let rate = if o.sold_last_month > 1e-9 {
+                (o.sold_last_month + o.sold_month) / (30.0 + days)
+            } else if days > 0.0 {
+                o.sold_month / days
+            } else {
+                0.0
+            };
+            *taken.entry(product).or_default() += rate;
         }
         for (index, sl) in s.slots.iter().enumerate() {
             let Some(recipe) = sl.recipe else {
@@ -312,7 +323,8 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                     * f64::from(sl.count)
                     * sl.utilization;
                 // Held back by missing inputs or labour: planning more would not help.
-                let limited = sl.last_runs < 0.9 * planned;
+                // The grid, by contrast, delivers a share of whatever is planned.
+                let limited = sl.last_runs < 0.9 * planned && sl.limit != Some(Limit::Electricity);
                 if !(limited && next > utilization) {
                     utilization = next;
                 }
@@ -329,6 +341,36 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 population::slot_flows(catalog, state, country, recipe, sl.count, utilization);
             for (input, q) in &flows.inputs {
                 *need.entry(*input).or_default() += q;
+            }
+            // What an input may cost at most: the value this slot makes of it after all
+            // its other costs (derived demand), at the site's own selling prices.
+            let r = catalog.recipes.get(recipe);
+            if flows.output > 1e-9 {
+                let runs = flows.output / r.output.max(1e-9);
+                let value = |p: ProductId| {
+                    s.offers
+                        .get(&p)
+                        .map_or_else(
+                            || market::market_price(catalog, state, country, p),
+                            |o| o.price,
+                        )
+                        .to_usd()
+                };
+                let made = r.output * value(r.product)
+                    + r.by_products
+                        .iter()
+                        .map(|&(p, q)| q * value(p))
+                        .sum::<f64>();
+                let variable = flows.variable_per_day.to_usd();
+                for &(input, q) in &flows.inputs {
+                    if q <= 1e-9 {
+                        continue;
+                    }
+                    let own = q * market::market_price(catalog, state, country, input).to_usd();
+                    let most = (runs * made - (variable - own)) / q;
+                    let w = willing.entry(input).or_insert(0.0);
+                    *w = w.max(most);
+                }
             }
             // Fixed costs per unit at the normal utilization, so that a quiet month
             // does not push the floor up: plant, maintenance and deposit development.
@@ -418,16 +460,28 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             let price = market::market_price(catalog, state, country, product);
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
             let normal = price.scale(1.0 + b.purchase_markup);
+            // Short inputs are bid up to what the products made of them can bear (M16;
+            // before, to three times a market index that stands still while nothing
+            // sells, so plants starved next to imports that cost more).
+            let most = willing
+                .get(&product)
+                .and_then(|&w| Money::from_usd(w))
+                .unwrap_or(Money::ZERO)
+                .min(
+                    market::local_reference(catalog, state, country, product)
+                        .scale(catalog.market_model.price_max_factor),
+                )
+                .max(normal);
             let max_price = match s.orders.get(&product) {
                 Some(o) if stock < per_day * b.stock_low_days => o
                     .max_price
                     .scale(1.0 + b.utilization_step)
-                    .min(price.scale(3.0))
+                    .min(most)
                     .max(normal),
                 Some(o) if o.max_price > normal && stock >= per_day * b.stock_high_days => {
                     normal.max(o.max_price.scale(1.0 - b.utilization_step))
                 }
-                Some(o) => o.max_price.max(normal),
+                Some(o) => o.max_price.min(most).max(normal),
                 None => normal,
             };
             let changed = s.orders.get(&product).is_none_or(|o| {
@@ -561,6 +615,9 @@ fn expand(
     date: Date,
     news: &mut Vec<Message>,
 ) {
+    if own_power(state, catalog, id, sites, date) {
+        return;
+    }
     let b = &catalog.ai_model.behavior;
     let (_, aggressiveness) = traits(state, id);
     let min_utilization = b.expand_utilization.at(aggressiveness);
@@ -571,10 +628,16 @@ fn expand(
         let mut by_product: BTreeMap<ProductId, (f64, u32, Money, f64)> = BTreeMap::new();
         // What the site's own facilities use per day (vertically integrated works).
         let mut own_use: BTreeMap<ProductId, f64> = BTreeMap::new();
+        // Products whose facilities wait for inputs or workers: more of them would only
+        // compete for the same scarce supply (M16).
+        let mut held_back: Vec<ProductId> = Vec::new();
         for sl in &s.slots {
             let Some(r) = sl.recipe else { continue };
             if sl.ready > date {
                 continue;
+            }
+            if matches!(sl.limit, Some(Limit::Input(_) | Limit::Labor(_))) {
+                held_back.push(catalog.recipes.get(r).product);
             }
             let flows =
                 population::slot_flows(catalog, state, s.country, r, sl.count, sl.utilization);
@@ -612,6 +675,7 @@ fn expand(
             if utilization >= min_utilization
                 && sells
                 && margin >= min_margin
+                && !held_back.contains(&product)
                 && best.is_none_or(|(m, ..)| margin > m)
             {
                 let add = (f64::from(count) * 0.25).round().max(1.0);
@@ -675,6 +739,125 @@ fn expand(
         run(state, catalog, id, &produce);
         news.extend(news_expansion(state, catalog, id, site, recipe, count));
     }
+}
+
+/// Own electricity where the grid holds the company's plants back, as at the start
+/// (M10): a power plant in the country for the electricity they lack. Returns whether
+/// it built one.
+fn own_power(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    date: Date,
+) -> bool {
+    let Some(electricity) = catalog.production_model.electricity else {
+        return false;
+    };
+    // Electricity lacking per country (MWh per day).
+    let mut lacking: BTreeMap<CountryId, f64> = BTreeMap::new();
+    for &site in sites {
+        let s = &state.sites[site.index()];
+        for sl in &s.slots {
+            if sl.ready > date || sl.limit != Some(Limit::Electricity) {
+                continue;
+            }
+            let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+                continue;
+            };
+            let planned = catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * sl.utilization;
+            *lacking.entry(s.country).or_default() +=
+                r.energy_mwh * (planned - sl.last_runs).max(0.0);
+        }
+    }
+    let Some((country, mwh)) = lacking
+        .into_iter()
+        .max_by(|a, b| a.1.total_cmp(&b.1).then(b.0.cmp(&a.0)))
+    else {
+        return false;
+    };
+    if mwh <= 1e-9 {
+        return false;
+    }
+    let Some(recipe) = best_recipe(catalog, state, id, electricity, None, Some(country)) else {
+        return false;
+    };
+    let r = catalog.recipes.get(recipe);
+    let f = catalog.facilities.get(r.facility);
+    let per_plant = f.runs_per_day * r.output * catalog.ai_model.start.utilization;
+    // Plant counts are small; the cast cannot overflow.
+    let mut count = (mwh / per_plant.max(1e-9)).ceil().max(1.0) as u32;
+    let b = &catalog.ai_model.behavior;
+    let company = &state.companies[id.index()];
+    let budget = (company.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, company))
+        .scale(b.invest_share_max);
+    let site_cost = if sites.iter().any(|&s| {
+        let s = &state.sites[s.index()];
+        s.country == country && s.kind == f.site_type
+    }) {
+        Money::ZERO
+    } else {
+        catalog.production_model.site_cost(f.site_type)
+    };
+    while count > 0 && f.investment.scale(f64::from(count)) + site_cost > budget {
+        count -= 1;
+    }
+    if count == 0 {
+        return false;
+    }
+    let cash_needed = f.investment.scale(f64::from(count)) + site_cost - company.ledger.cash();
+    if cash_needed > Money::ZERO {
+        let years = b.loan_years.min(catalog.finance_model.max_term_years);
+        run(
+            state,
+            catalog,
+            id,
+            &Command::TakeLoan {
+                amount: cash_needed,
+                years,
+            },
+        );
+    }
+    let existing = sites.iter().copied().find(|&s| {
+        let s = &state.sites[s.index()];
+        s.country == country && s.kind == f.site_type
+    });
+    let site = match existing {
+        Some(site) => site,
+        None => {
+            let found = Command::FoundSite {
+                country,
+                kind: f.site_type,
+            };
+            if !run(state, catalog, id, &found) {
+                return false;
+            }
+            site_id(state.sites.len() - 1)
+        }
+    };
+    let build = Command::BuildFacility {
+        site,
+        facility: r.facility,
+        count,
+    };
+    if !run(state, catalog, id, &build) {
+        return false;
+    }
+    let slot = state.sites[site.index()].slots.len() - 1;
+    run(
+        state,
+        catalog,
+        id,
+        &Command::SetProduction {
+            site,
+            slot,
+            recipe: Some(recipe),
+            utilization: catalog.ai_model.start.utilization,
+        },
+    );
+    true
 }
 
 /// Advertising for every country and goods group where the company sold end products

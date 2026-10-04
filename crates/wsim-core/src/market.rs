@@ -66,10 +66,30 @@ pub fn state_price(
             m.available_from.is_none_or(|y| y <= year)
                 && m.available_until.is_none_or(|y| y >= year)
         })
-        .map(|m| m.price.scale(state.countries.get(country).price_level))
+        .map(|m| {
+            m.price
+                .scale(price_factor(catalog, state, country, product))
+        })
 }
 
-/// Reference price at the country's price level.
+/// What governments pay at most for a product: `state_price_cap` times the reference
+/// price at the country's price level, but at least at world prices (price level 1).
+/// Governments of poorer countries buy rails or sheet metal abroad at world prices; with
+/// the local level alone imports would stay unsold for good (M16).
+pub fn state_price_limit(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    product: ProductId,
+) -> Money {
+    let world = catalog.products.get(product).reference_price;
+    local_reference(catalog, state, country, product)
+        .max(world)
+        .scale(catalog.market_model.state_price_cap)
+}
+
+/// Reference price in a country: the world reference at the share of the country's
+/// price level that carries into the product's prices.
 pub fn local_reference(
     catalog: &Catalog,
     state: &GameState,
@@ -80,7 +100,24 @@ pub fn local_reference(
         .products
         .get(product)
         .reference_price
-        .scale(state.countries.get(country).price_level)
+        .scale(price_factor(catalog, state, country, product))
+}
+
+/// Factor of a country's prices for a product against world prices (M16): the price
+/// level to the power of the share that carries into prices of this kind of product.
+pub fn price_factor(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    product: ProductId,
+) -> f64 {
+    level_factor(catalog, state.countries.get(country).price_level, product)
+}
+
+/// `price_factor` for a price level.
+pub fn level_factor(catalog: &Catalog, price_level: f64, product: ProductId) -> f64 {
+    let share = catalog.market_model.price_level_share[catalog.products.get(product).kind.index()];
+    math::pow(price_level, share)
 }
 
 /// Share of a household layer that buys (0–1), from income and price.
@@ -294,30 +331,37 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
     let model = &catalog.market_model;
     for (product, _) in catalog.products.iter() {
         let plan = trade::plan(state, catalog, product, &sites_by_country, &in_transit);
+        // Demand abroad the traders could not buy for counts as scarcity too.
+        let export_shortage = plan.unserved > 1e-9;
         let mut markets = active.remove(&product).unwrap_or_default();
-        markets.extend(plan.iter().map(|b| state.sites[b.site.index()].country));
+        markets.extend(
+            plan.buys
+                .iter()
+                .map(|b| state.sites[b.site.index()].country),
+        );
         for country in markets {
             let exports: Vec<PlannedBuy> = plan
+                .buys
                 .iter()
                 .filter(|b| state.sites[b.site.index()].country == country)
                 .copied()
                 .collect();
             let state_price = state_price(catalog, state, country, product);
-            let reference = local_reference(catalog, state, country, product);
+            let limit = state_price_limit(catalog, state, country, product);
             settle_idle(
                 state.markets.get_mut(product).get_mut(country),
                 model,
                 date,
                 state_price,
-                reference,
+                limit,
             );
             clear_market(
                 state,
                 catalog,
                 (country, product, date),
                 &sites_by_country[country.index()],
-                state_price,
-                &exports,
+                (state_price, plan.replacement.get(&country).copied()),
+                (&exports, export_shortage),
             );
             // From tomorrow on the market rests again unless something happens.
             let m = state.markets.get_mut(product).get_mut(country);
@@ -342,13 +386,13 @@ pub(crate) fn settle_all_idle(state: &mut GameState, catalog: &Catalog, until: D
                 continue;
             }
             let state_price = state_price(catalog, state, country, product);
-            let reference = local_reference(catalog, state, country, product);
+            let limit = state_price_limit(catalog, state, country, product);
             settle_idle(
                 state.markets.get_mut(product).get_mut(country),
                 &catalog.market_model,
                 until,
                 state_price,
-                reference,
+                limit,
             );
         }
     }
@@ -387,7 +431,7 @@ fn settle_idle(
     model: &MarketModel,
     until: Date,
     state_price: Option<Money>,
-    reference: Money,
+    state_limit: Money,
 ) {
     let Some(from) = market.idle_since.take() else {
         return;
@@ -405,7 +449,7 @@ fn settle_idle(
     };
     if let Some(price) = state_price {
         let consumers: f64 = market.consumer_rate.iter().sum();
-        let government = if price <= reference.scale(model.state_price_cap) {
+        let government = if price <= state_limit {
             market.state_rate
         } else {
             0.0
@@ -424,8 +468,12 @@ fn settle_idle(
             };
         }
     }
+    day.outside_demand = day.demand;
+    day.outside_sold = day.sold;
     market.month.demand += day.demand * n;
     market.month.sold += day.sold * n;
+    market.month.outside_demand += day.outside_demand * n;
+    market.month.outside_sold += day.outside_sold * n;
     market.month.revenue += Money::times(day.revenue, n);
     market.today = day;
 }
@@ -448,8 +496,8 @@ fn clear_market(
     catalog: &Catalog,
     (country, product, date): (CountryId, ProductId, Date),
     sites: &[SiteId],
-    state_market_price: Option<Money>,
-    exports: &[PlannedBuy],
+    (state_market_price, replacement): (Option<Money>, Option<Money>),
+    (exports, export_shortage): (&[PlannedBuy], bool),
 ) {
     let model = &catalog.market_model;
     let reference = local_reference(catalog, state, country, product).to_usd();
@@ -480,7 +528,7 @@ fn clear_market(
     }
     let imports = &state.markets.get(product).get(country).imports;
     if imports.quantity > 1e-9 {
-        let floor = import_floor(model, imports);
+        let floor = import_floor(model, imports, replacement);
         let price = state
             .markets
             .get(product)
@@ -572,7 +620,8 @@ fn clear_market(
     if state_need > 0.0 {
         day.demand += state_need;
         flows.outside_demand += state_need;
-        let cap = Money::from_usd(reference * model.state_price_cap).unwrap_or(Money::ZERO);
+        day.outside_demand += state_need;
+        let cap = state_price_limit(catalog, state, country, product);
         let mut need = state_need;
         for &i in &by_price {
             if need <= 1e-9 {
@@ -626,6 +675,7 @@ fn clear_market(
         let mut need = rates[q];
         day.demand += need;
         flows.outside_demand += need;
+        day.outside_demand += need;
         for _ in 0..8 {
             if need <= 1e-9 {
                 break;
@@ -703,14 +753,21 @@ fn clear_market(
     }
 
     // Prices of automatic sellers and traders, and the market's price index.
-    let unmet = day.unmet() > 1e-9;
+    let unmet = day.unmet() > 1e-9 || export_shortage;
     let max_price = local_reference(catalog, state, country, product).scale(model.price_max_factor);
     let mut import_price = None;
     for (i, o) in offers.iter().enumerate() {
         let before = available_before[i];
         // Only a seller that had goods and sold out raises its price.
         let scarce = before > 1e-9 && o.sold >= before - 1e-9 && unmet;
-        let slow = before > 0.0 && o.sold < before / model.stock_days;
+        // Slow: stock for more than `stock_days`, or own facilities idling below the
+        // normal utilization (they compete for customers instead of standing still).
+        let idle = match o.seller {
+            Seller::Site { site, .. } => utilization(state, catalog, site, product, date)
+                .is_some_and(|u| u < model.normal_utilization),
+            Seller::Importer | Seller::StateMarket => false,
+        };
+        let slow = before > 0.0 && (o.sold < before / model.stock_days || idle) && !scarce;
         match o.seller {
             Seller::Site { site, .. } => {
                 let Some(offer) = state.sites[site.index()].offers.get_mut(&product) else {
@@ -739,7 +796,7 @@ fn clear_market(
     }
     let market = state.markets.get_mut(product).get_mut(country);
     if let Some(price) = import_price {
-        market.import_price = price.max(import_floor(model, &market.imports));
+        market.import_price = price.max(import_floor(model, &market.imports, replacement));
     }
     if day.sold > 1e-9 {
         let average = day.revenue.scale(1.0 / day.sold);
@@ -763,6 +820,32 @@ fn clear_market(
         market.open_demand = 0.0;
     }
     market.record_day(day);
+}
+
+/// Planned share of the capacity of the facilities making a product (main product) at
+/// a site, if it has any.
+fn utilization(
+    state: &GameState,
+    catalog: &Catalog,
+    site: SiteId,
+    product: ProductId,
+    date: Date,
+) -> Option<f64> {
+    let (planned, full) = state.sites[site.index()]
+        .slots
+        .iter()
+        .filter(|sl| sl.ready <= date)
+        .filter_map(|sl| {
+            let r = catalog.recipes.get(sl.recipe?);
+            (r.product == product).then(|| {
+                let full = catalog.facilities.get(sl.facility).runs_per_day
+                    * f64::from(sl.count)
+                    * r.output;
+                (full * sl.utilization, full)
+            })
+        })
+        .fold((0.0, 0.0), |(p, f), (a, b)| (p + a, f + b));
+    (full > 1e-9).then(|| planned / full)
 }
 
 /// Planned daily output of a product at a site: main and by-products of its finished
@@ -805,14 +888,17 @@ fn adjust_price(model: &MarketModel, price: Money, scarce: bool, slow: bool) -> 
     }
 }
 
-/// Traders never sell below their average landed cost plus margin.
-fn import_floor(model: &MarketModel, imports: &Stock) -> Money {
+/// Traders sell at their average landed cost plus margin at least, but not above what
+/// fresh goods from abroad would cost (`replacement`): other traders would undercut
+/// stock bought dearly.
+fn import_floor(model: &MarketModel, imports: &Stock, replacement: Option<Money>) -> Money {
     if imports.quantity <= 1e-9 {
         return Money::ZERO;
     }
-    imports
-        .value
-        .scale((1.0 + model.trader_margin) / imports.quantity)
+    let landed = imports.value.scale(1.0 / imports.quantity);
+    replacement
+        .map_or(landed, |r| landed.min(r))
+        .scale(1.0 + model.trader_margin)
 }
 
 fn trade(
@@ -885,7 +971,7 @@ fn trade(
                 arrival: date.add_days(i32::try_from(days).expect("routes take far fewer days")),
             });
         }
-        Buyer::Outside => {}
+        Buyer::Outside => day.outside_sold += quantity,
     }
 }
 

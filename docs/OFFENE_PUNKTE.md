@@ -98,6 +98,32 @@ bei Bedarf widersprechen) · ❓ offen
     Ohne beides verkaufte ein Neuling mit einer Maschine alles zu fast jedem Preis.
     Zu prüfen beim Spielen: ob Neulinge mit Werbung und Preis schnell genug Anteile
     gewinnen (Stellschrauben: `preisgewicht`, `markengewicht`, `kosten_je_einwohner_usd`).
+30. 🟡 **Preise der Waren je Land (Nacharbeit zu M16).** Bisher galt der Richtpreis
+    überall mal dem vollen Preisniveau des Landes. Umgesetzt: Waren folgen ihm nur mit
+    einem Anteil je Produktart (`preisniveau_anteil`: Rohstoffe 0,2, Halbzeuge und
+    Komponenten 0,1, Endprodukte 0,4, Strom 1). Grund: Eingeführte Vorprodukte kosten
+    überall Weltpreise; mit dem vollen Faktor lagen Preise und Untergrenzen in ärmeren
+    Ländern beim 1,5- bis 2-Fachen des Richtpreises, und Werke dort konnten nie zum
+    Richtpreis verkaufen. Folge: Verbraucher ärmerer Länder kaufen weniger Industriewaren
+    als bisher (realistisch, aber eine Änderung der Marktgrößen). Alternative: alle
+    Anteile auf 1 setzen (bisheriges Verhalten).
+31. 🟡 **Gemeinkosten (Nacharbeit zu M16).** Die Rezepte enthalten nur direkte Kosten.
+    Umgesetzt: Verwaltung, Vertrieb und Logistik als Anteil der Wertschöpfung zu
+    Richtpreisen je Produktart (Rohstoffe 10 %, Halbzeuge 20 %, Komponenten 25 %,
+    Endprodukte 40 %), gebucht als Kostenart „Verwaltung und Vertrieb“. Ohne sie drückte
+    der Wettbewerb die Preise auf 20–50 % des Richtpreises. Später (Stufe 2, Manager)
+    könnten Gemeinkosten aus eigener Verwaltung und eigenem Vertrieb entstehen.
+32. 🟡 **Arbeitsproduktivität nach Wohlstand (Nacharbeit zu M16).** Die Arbeitsstunden
+    der Rezepte gelten bei 10.000 USD BIP je Kopf; Länder brauchen dazu im Verhältnis
+    mehr oder weniger Stunden (Elastizität 1, `laendermodell.produktivitaet`). So kostet
+    Arbeit je Stück in Kaufkraft überall gleich viel, und Niedriglohnländer haben keinen
+    übertriebenen Kostenvorteil.
+33. 🟡 **Plausibilitätsprüfung der Richtpreise.** `validate` warnt, wenn das beste Rezept
+    eines Produkts zu Richtpreisen weniger als 5 % oder mehr als 45 % Marge bringt
+    (Förderung nur nach unten). Die Prüfung fand sieben Unstimmigkeiten (Nägel,
+    Handwerkzeug, Möbel, Glühlampe, Nähmaschine, Schnittholz, Benzin), korrigiert über
+    Richtpreise, Ausbeuten und Arbeitsstunden (`docs/FORMELN.md`, Plausibilität). Bitte
+    widersprechen, falls Richtpreise unverändert bleiben sollen.
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 
