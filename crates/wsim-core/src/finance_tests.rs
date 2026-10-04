@@ -26,6 +26,8 @@ fn new_game(capital: f64) -> Game {
         start_form: StartForm::Workshop,
         company_name: "Bankkunde".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -45,6 +47,7 @@ fn with_collateral(game: &mut Game) {
     game.apply(Command::BuildFacility {
         site: SiteId(0),
         facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
     })
     .unwrap();
 }

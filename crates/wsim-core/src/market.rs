@@ -147,9 +147,9 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
         for country in catalog.countries.ids() {
             let cs = state.countries.get(country);
             let reference = p.reference_price.to_usd() * cs.price_level;
-            let per_layer = cs.population / 5.0;
+            let per_layer = cs.market_population / 5.0;
             let incomes = cs.income_quintiles_usd;
-            let gdp = cs.population * cs.gdp_per_capita_usd * cs.price_level;
+            let gdp = cs.market_population * cs.gdp_per_capita_usd * cs.price_level;
             let displaced: [f64; 5] = std::array::from_fn(|q| {
                 successors.iter().fold(1.0, |f, &(s, max)| {
                     f * (1.0 - (state.markets.get(s).get(country).ownership[q] / max).min(1.0))

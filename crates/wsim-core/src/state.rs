@@ -302,6 +302,9 @@ pub struct Slot {
     pub facility: FacilityId,
     /// Day the construction is finished; until then the facility does not produce.
     pub ready: Date,
+    /// Identical units of the facility working together (capacity, staff and cost × count).
+    #[serde(default = "one_unit")]
+    pub count: u32,
     /// Investment including automation upgrades (basis of depreciation and maintenance).
     pub cost: Money,
     pub recipe: Option<RecipeId>,
@@ -476,14 +479,82 @@ pub enum Consignee {
 /// State of a deposit.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct DepositState {
-    /// Quantity extracted so far.
+    /// Quantity extracted so far from the whole deposit (the reserve is shared).
     pub extracted: f64,
-    pub extracted_this_year: f64,
-    /// Site that develops or works the deposit.
+    /// Fields that companies develop and work separately (docs/FORMELN.md, M10).
+    #[serde(default)]
+    pub concessions: Vec<Concession>,
+    // Before M10 a deposit had a single site. Read from old saves and moved into the
+    // first concession by `fit_to_catalog`.
+    #[serde(default, rename = "site", skip_serializing_if = "Option::is_none")]
+    legacy_site: Option<SiteId>,
+    #[serde(default, rename = "ready", skip_serializing_if = "Option::is_none")]
+    legacy_ready: Option<Date>,
+    #[serde(
+        default,
+        rename = "development_cost",
+        skip_serializing_if = "Option::is_none"
+    )]
+    legacy_development_cost: Option<Money>,
+    #[serde(
+        default,
+        rename = "extracted_this_year",
+        skip_serializing_if = "Option::is_none"
+    )]
+    legacy_extracted_this_year: Option<f64>,
+}
+
+/// A field of a deposit that one site develops and works.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Concession {
     pub site: Option<SiteId>,
     /// Day the development is finished.
     pub ready: Option<Date>,
     pub development_cost: Money,
+    pub extracted_this_year: f64,
+    /// Share of the deposit's yearly output (and development cost) of this field.
+    pub share: f64,
+}
+
+impl DepositState {
+    /// Free fields of a deposit at the given market scale.
+    pub fn new(count: u32) -> Self {
+        let share = 1.0 / f64::from(count.max(1));
+        Self {
+            concessions: (0..count.max(1))
+                .map(|_| Concession {
+                    share,
+                    ..Concession::default()
+                })
+                .collect(),
+            ..Self::default()
+        }
+    }
+
+    pub fn concession_of(&self, site: SiteId) -> Option<&Concession> {
+        self.concessions.iter().find(|c| c.site == Some(site))
+    }
+
+    pub fn concession_of_mut(&mut self, site: SiteId) -> Option<&mut Concession> {
+        self.concessions.iter_mut().find(|c| c.site == Some(site))
+    }
+
+    /// Moves the single site of a save from before M10 into one concession that keeps
+    /// the whole deposit, so old games behave as before.
+    fn migrate_legacy(&mut self) {
+        if let Some(site) = self.legacy_site.take() {
+            self.concessions = vec![Concession {
+                site: Some(site),
+                ready: self.legacy_ready.take(),
+                development_cost: self.legacy_development_cost.take().unwrap_or(Money::ZERO),
+                extracted_this_year: self.legacy_extracted_this_year.take().unwrap_or(0.0),
+                share: 1.0,
+            }];
+        }
+        self.legacy_ready = None;
+        self.legacy_development_cost = None;
+        self.legacy_extracted_this_year = None;
+    }
 }
 
 /// Settings chosen when starting a game (Lastenheft §15). Together with the journal
@@ -500,10 +571,41 @@ pub struct GameSettings {
     /// Multiplies the cost escalation of research ahead of history (Lastenheft §15).
     #[serde(default = "one")]
     pub research_ahead_factor: f64,
+    /// Share of the real world's quantities the markets work with (docs/FORMELN.md, M10).
+    #[serde(default = "one")]
+    pub market_scale: f64,
+    /// AI competitors (Lastenheft §10, §15).
+    #[serde(default)]
+    pub ai: AiSettings,
+}
+
+/// Number and character of the AI companies; difficulty presets fill these values.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AiSettings {
+    pub companies: u32,
+    /// 0 = clumsy, 1 = very competent.
+    pub competence: f64,
+    /// 0 = cautious, 1 = aggressive.
+    pub aggressiveness: f64,
+}
+
+impl Default for AiSettings {
+    /// Games from before M10 have no AI companies.
+    fn default() -> Self {
+        Self {
+            companies: 0,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        }
+    }
 }
 
 fn one() -> f64 {
     1.0
+}
+
+fn one_unit() -> u32 {
+    1
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -575,8 +677,12 @@ impl GameState {
     pub(crate) fn refresh_countries(&mut self, catalog: &Catalog) {
         let month = self.date.first_of_month();
         let mut values = crate::country_model::compute_all(catalog, month).into_iter();
+        let scale = self.settings.market_scale;
+        let min_pool = catalog.ai_model.min_labor_pool;
         self.countries = PerId::from_fn(catalog.countries.len(), |_| {
-            values.next().expect("one per country")
+            let mut c = values.next().expect("one per country");
+            crate::country_model::apply_market_scale(&mut c, scale, min_pool);
+            c
         });
         if self.routes.year() != self.date.year() {
             self.routes = Routes::new(catalog, self.date.year(), Some(&self.routes));
@@ -588,6 +694,16 @@ impl GameState {
     pub(crate) fn fit_to_catalog(&mut self, catalog: &Catalog) {
         self.deposits
             .resize_with(catalog.deposits.len(), DepositState::default);
+        let scale = self.settings.market_scale;
+        for (id, d) in self.deposits.iter_mut() {
+            d.migrate_legacy();
+            if d.concessions.is_empty() {
+                *d = DepositState {
+                    extracted: d.extracted,
+                    ..DepositState::new(crate::population::concession_count(catalog, id, scale))
+                };
+            }
+        }
         self.inventions
             .resize_with(catalog.technologies.len(), || None);
         let countries = catalog.countries.len();

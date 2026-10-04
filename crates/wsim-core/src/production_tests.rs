@@ -26,6 +26,8 @@ fn new_game(catalog: Catalog) -> Game {
         start_form: StartForm::Workshop,
         company_name: "Hütte AG".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -49,6 +51,7 @@ fn mine(game: &mut Game) -> SiteId {
     game.apply(Command::BuildFacility {
         site,
         facility: c.facilities.id("mine").unwrap(),
+        count: 1,
     })
     .unwrap();
     game.apply(Command::DevelopDeposit {
@@ -178,6 +181,7 @@ fn chain(game: &mut Game) -> (SiteId, SiteId) {
     game.apply(Command::BuildFacility {
         site: works,
         facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
     })
     .unwrap();
     game.apply(Command::SetProduction {
@@ -266,7 +270,8 @@ fn commands_are_checked() {
             &mut game,
             Command::BuildFacility {
                 site: works,
-                facility: c.facilities.id("mine").unwrap()
+                facility: c.facilities.id("mine").unwrap(),
+                count: 1
             }
         ),
         CommandError::WrongSiteType {
@@ -278,7 +283,8 @@ fn commands_are_checked() {
             &mut game,
             Command::BuildFacility {
                 site: works,
-                facility: c.facilities.id("ofen_2000").unwrap()
+                facility: c.facilities.id("ofen_2000").unwrap(),
+                count: 1
             }
         ),
         CommandError::TechnologyUnknown("hochofen_2000".into())
@@ -301,6 +307,7 @@ fn commands_are_checked() {
     game.apply(Command::BuildFacility {
         site: SiteId(1),
         facility: c.facilities.id("mine").unwrap(),
+        count: 1,
     })
     .unwrap();
     assert_eq!(
@@ -357,6 +364,7 @@ fn commands_are_checked() {
     let expensive = Command::BuildFacility {
         site: works,
         facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
     };
     for _ in 0..4 {
         game.apply(expensive.clone()).unwrap();
@@ -492,6 +500,7 @@ fn power_plant(game: &mut Game, mine_site: SiteId) -> SiteId {
     game.apply(Command::BuildFacility {
         site: plant,
         facility: c.facilities.id("kraftwerk").unwrap(),
+        count: 1,
     })
     .unwrap();
     game.apply(Command::SetProduction {

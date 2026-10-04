@@ -227,11 +227,11 @@ fn check_consistency(state: &GameState, catalog: &Catalog) -> Result<(), LoadErr
         return corrupt("site owner");
     }
     let sites = state.sites.len();
-    if state
-        .deposits
-        .values()
-        .any(|d| d.site.is_some_and(|s| s.index() >= sites))
-    {
+    if state.deposits.values().any(|d| {
+        d.concessions
+            .iter()
+            .any(|c| c.site.is_some_and(|s| s.index() >= sites))
+    }) {
         return corrupt("deposit site");
     }
     Ok(())

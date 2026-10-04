@@ -34,6 +34,12 @@ pub struct CountryState {
     pub labor_force: f64,
     /// Persons per labor group, indexed by `LaborGroupId`.
     pub labor_pool: Vec<f64>,
+    /// Inhabitants whose demand the markets serve (population × market scale).
+    #[serde(default)]
+    pub market_population: f64,
+    /// Workers the companies can hire per labor group (pool × market scale).
+    #[serde(default)]
+    pub labor_available: Vec<f64>,
     /// Hourly wage at market prices (USD) per labor group.
     pub hourly_wage_usd: Vec<f64>,
     pub electricity_price_usd_mwh: f64,
@@ -192,6 +198,8 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
         price_level,
         income_quintiles_usd,
         labor_force,
+        market_population: population,
+        labor_available: labor_pool.clone(),
         labor_pool,
         hourly_wage_usd,
         electricity_price_usd_mwh: model.electricity_price_usd_mwh.value_at(year) * price_level,
@@ -227,6 +235,18 @@ fn interpolate_rows(rows: &[(f64, Vec<f64>)], gdp: f64) -> Vec<f64> {
     let (g1, b) = &rows[next];
     let w = math::log_position(gdp, *g0, *g1);
     a.iter().zip(b).map(|(x, y)| x + (y - x) * w).collect()
+}
+
+/// Shrinks the quantities markets and companies work with to the market scale
+/// (docs/FORMELN.md, M10); the real values stay for display. Small labor pools keep at
+/// least `min_pool` persons, so that a single real facility can still be staffed.
+pub fn apply_market_scale(state: &mut CountryState, scale: f64, min_pool: f64) {
+    state.market_population = state.population * scale;
+    state.labor_available = state
+        .labor_pool
+        .iter()
+        .map(|&pool| (pool * scale).max(pool.min(min_pool)))
+        .collect();
 }
 
 #[cfg(test)]

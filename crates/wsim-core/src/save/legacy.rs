@@ -109,6 +109,8 @@ pub(super) fn decode_v2(
             start_form: s.settings.start_form,
             company_name: s.settings.company_name,
             research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
         },
         date: s.date,
         world_rng: s.world_rng,

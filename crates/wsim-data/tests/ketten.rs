@@ -41,6 +41,7 @@ impl Scenario {
         self.apply(Command::BuildFacility {
             site,
             facility: c.facilities.id(facility).expect(facility),
+            count: 1,
         });
         let slot = self.game.state().sites[site.index()].slots.len() - 1;
         self.apply(Command::SetProduction {
@@ -105,6 +106,8 @@ fn all_chains_run_from_raw_material_to_end_product() {
             start_form: StartForm::Workshop,
             company_name: "Alle Ketten".into(),
             research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
         },
     )
     .unwrap();

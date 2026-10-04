@@ -16,6 +16,7 @@ pub mod math;
 pub mod message;
 pub mod money;
 pub mod policy;
+pub mod population;
 pub mod production;
 pub mod reports;
 pub mod research;

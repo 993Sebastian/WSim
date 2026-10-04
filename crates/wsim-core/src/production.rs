@@ -144,7 +144,13 @@ fn complete_constructions(state: &mut GameState, catalog: &Catalog, date: Date) 
             .slots
             .iter()
             .filter(|s| s.ready == date)
-            .map(|s| catalog.facilities.get(s.facility).investment)
+            .map(|s| {
+                catalog
+                    .facilities
+                    .get(s.facility)
+                    .investment
+                    .scale(f64::from(s.count))
+            })
             .sum();
         if finished != Money::ZERO {
             state.sites[site].staffing_due = true;
@@ -157,17 +163,19 @@ fn complete_constructions(state: &mut GameState, catalog: &Catalog, date: Date) 
         }
     }
     for (_, deposit) in state.deposits.iter_mut() {
-        if deposit.ready == Some(date)
-            && let Some(site) = deposit.site
-        {
-            let owner = state.sites[site.index()].owner;
-            let ledger = &mut state.companies[owner.index()].ledger;
-            ledger.transfer(
-                Account::FixedAssets,
-                Account::AssetsUnderConstruction,
-                deposit.development_cost,
-            );
-            state.sites[site.index()].staffing_due = true;
+        for c in &deposit.concessions {
+            if c.ready == Some(date)
+                && let Some(site) = c.site
+            {
+                let owner = state.sites[site.index()].owner;
+                let ledger = &mut state.companies[owner.index()].ledger;
+                ledger.transfer(
+                    Account::FixedAssets,
+                    Account::AssetsUnderConstruction,
+                    c.development_cost,
+                );
+                state.sites[site.index()].staffing_due = true;
+            }
         }
     }
 }
@@ -188,13 +196,14 @@ fn planned_runs(
     }
     if catalog.recipes.get(recipe).extraction {
         let deposit = s.deposit?;
-        if state.deposits.get(deposit).ready.is_none_or(|r| r > date) {
+        let field = state.deposits.get(deposit).concession_of(site)?;
+        if field.ready.is_none_or(|r| r > date) {
             return None;
         }
     }
     Some((
         recipe,
-        catalog.facilities.get(sl.facility).runs_per_day * sl.utilization,
+        catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count) * sl.utilization,
     ))
 }
 
@@ -253,7 +262,7 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
                     crate::research::wanted_researchers(catalog, state, site, date);
             }
         }
-        let pool = &state.countries.get(country).labor_pool;
+        let pool = &state.countries.get(country).labor_available;
         let s = &mut state.sites[index];
         for g in 0..groups {
             let id = LaborGroupId::from_index(g);
@@ -329,9 +338,11 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let deposit = state.sites[index].deposit.expect("checked in planned_runs");
             let d = catalog.deposits.get(deposit);
             let ds = state.deposits.get(deposit);
-            let mut room = d.max_output_per_year - ds.extracted_this_year;
+            let field = ds.concession_of(site).expect("checked in planned_runs");
+            let scale = state.settings.market_scale;
+            let mut room = d.max_output_per_year * scale * field.share - field.extracted_this_year;
             if let Some(reserve) = d.reserve {
-                room = room.min(reserve - ds.extracted);
+                room = room.min(reserve * scale - ds.extracted);
             }
             runs = runs.min(room.max(0.0) / recipe.output);
         }
@@ -403,7 +414,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let deposit = state.sites[index].deposit.expect("checked in planned_runs");
             let ds = state.deposits.get_mut(deposit);
             ds.extracted += recipe.output * runs;
-            ds.extracted_this_year += recipe.output * runs;
+            if let Some(field) = ds.concession_of_mut(site) {
+                field.extracted_this_year += recipe.output * runs;
+            }
         }
     }
 }
@@ -463,14 +476,16 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
     if f64::from(s.founded.days_until(date)) < building_days {
         depreciation += s.building_cost.scale(1.0 / building_days);
     }
-    if let Some(d) = s.deposit {
-        let ds = state.deposits.get(d);
+    if let Some(field) = s
+        .deposit
+        .and_then(|d| state.deposits.get(d).concession_of(site))
+    {
         let dev_days = model.development_lifetime_years * 365.0;
-        if ds
+        if field
             .ready
             .is_some_and(|r| r <= date && f64::from(r.days_until(date)) < dev_days)
         {
-            depreciation += ds.development_cost.scale(1.0 / dev_days);
+            depreciation += field.development_cost.scale(1.0 / dev_days);
         }
     }
     // Researchers' wages are research costs (Lastenheft §14.2).
@@ -507,7 +522,9 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
 /// Resets the yearly extraction counters (called on 1 January).
 pub(crate) fn new_year(state: &mut GameState) {
     for (_, d) in state.deposits.iter_mut() {
-        d.extracted_this_year = 0.0;
+        for field in &mut d.concessions {
+            field.extracted_this_year = 0.0;
+        }
     }
 }
 

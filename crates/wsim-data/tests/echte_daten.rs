@@ -237,6 +237,8 @@ fn chain_one_runs_in_britain() {
             start_form: StartForm::Workshop,
             company_name: "Teesside Iron".into(),
             research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
         },
     )
     .unwrap();
@@ -261,6 +263,7 @@ fn chain_one_runs_in_britain() {
             Command::BuildFacility {
                 site,
                 facility: c.facilities.id(facility).unwrap(),
+                count: 1,
             },
         );
         apply(
@@ -293,6 +296,7 @@ fn chain_one_runs_in_britain() {
         Command::BuildFacility {
             site: works,
             facility: c.facilities.id("hochofen").unwrap(),
+            count: 1,
         },
     );
     apply(
@@ -365,6 +369,8 @@ fn government_demand_for_steel_bars() {
             start_form: StartForm::Workshop,
             company_name: "Test".into(),
             research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
         },
     )
     .unwrap();
@@ -447,6 +453,8 @@ fn start_forms_give_a_workshop_or_an_office() {
         start_form: form,
         company_name: "Start".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     };
 
     let mut workshop = Game::new(c.clone(), settings(StartForm::Workshop, 100_000.0)).unwrap();

@@ -33,6 +33,8 @@ fn new_game(catalog: Catalog) -> Game {
         start_form: StartForm::Trading,
         company_name: "Exporteur".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
 }

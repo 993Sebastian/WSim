@@ -235,6 +235,8 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 },
                 company_name: args.name.clone(),
                 research_ahead_factor: 1.0,
+                market_scale: 1.0,
+                ai: Default::default(),
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }

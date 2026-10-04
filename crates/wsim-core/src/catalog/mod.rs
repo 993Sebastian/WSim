@@ -43,6 +43,11 @@ pub struct Catalog {
     pub market_model: MarketModel,
     pub transport_model: TransportModel,
     pub research_model: ResearchModel,
+    pub ai_model: AiModel,
+    /// Historical companies of the start population and later foundings.
+    pub real_companies: Vec<RealCompany>,
+    /// Parts for the names of generated companies.
+    pub name_groups: Vec<NameGroup>,
 }
 
 impl Catalog {
@@ -160,6 +165,192 @@ impl Default for ResearchModel {
             researchers: Vec::new(),
         }
     }
+}
+
+/// A value that depends on a company trait (competence or aggressiveness, 0–1).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Span {
+    pub at_0: f64,
+    pub at_1: f64,
+}
+
+impl Span {
+    pub const fn fixed(v: f64) -> Self {
+        Self { at_0: v, at_1: v }
+    }
+
+    pub fn at(&self, t: f64) -> f64 {
+        self.at_0 + (self.at_1 - self.at_0) * t.clamp(0.0, 1.0)
+    }
+}
+
+/// A preset of the AI difficulty (Lastenheft §15).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Difficulty {
+    pub key: String,
+    pub competence: f64,
+    pub aggressiveness: f64,
+}
+
+/// Parameters of the AI companies (`data/parameter/kimodell.yaml`, docs/FORMELN.md M10).
+#[derive(Clone, Debug, PartialEq)]
+pub struct AiModel {
+    pub default_companies: u32,
+    pub max_companies: u32,
+    /// Market scale = companies / this number, within the limits below.
+    pub companies_for_real_size: f64,
+    pub scale_min: f64,
+    pub scale_max: f64,
+    /// Labor pools never shrink below this many persons per group.
+    pub min_labor_pool: f64,
+    /// Extraction facilities a concession is sized for, and the most concessions.
+    pub plants_per_concession: f64,
+    pub max_concessions: u32,
+    pub difficulties: Vec<Difficulty>,
+    pub default_difficulty: usize,
+    /// Spread of competence and aggressiveness around the setting, per company.
+    pub trait_spread: f64,
+    // Start population
+    pub start_utilization: f64,
+    /// Plants below this share of one facility are not built.
+    pub min_plant_share: f64,
+    pub input_stock_days: f64,
+    pub output_stock_days: f64,
+    pub cash_months: f64,
+    pub max_age_share: f64,
+    /// Weight of the development level when placing plants, by product kind
+    /// (raw material, semi-finished, component, end product, energy).
+    pub development_weight: [f64; 5],
+    /// Wage for comparing recipes (USD per hour).
+    pub reference_wage_usd: f64,
+    // Behavior
+    pub operations_days: Span,
+    pub stock_high_days: f64,
+    pub stock_low_days: f64,
+    pub utilization_step: f64,
+    pub utilization_min: f64,
+    /// Price floor = normal cost × this factor (aggressiveness).
+    pub floor_factor: Span,
+    pub purchase_days: Span,
+    pub purchase_markup: f64,
+    pub expand_utilization: Span,
+    pub expand_margin: Span,
+    pub invest_share_max: f64,
+    pub research_lookahead_years: Span,
+    pub research_min_revenue_usd: f64,
+    pub research_competence_min: f64,
+    pub cash_min_months: f64,
+    pub cash_max_months: f64,
+    pub loan_years: u32,
+    pub foundings_per_month: u32,
+    pub founding_capital_factor: f64,
+}
+
+impl Default for AiModel {
+    fn default() -> Self {
+        Self {
+            default_companies: 100,
+            max_companies: 10_000,
+            companies_for_real_size: 1000.0,
+            scale_min: 0.01,
+            scale_max: 1.0,
+            min_labor_pool: 2000.0,
+            plants_per_concession: 2.0,
+            max_concessions: 12,
+            difficulties: Vec::new(),
+            default_difficulty: 0,
+            trait_spread: 0.15,
+            start_utilization: 0.85,
+            min_plant_share: 0.15,
+            input_stock_days: 20.0,
+            output_stock_days: 10.0,
+            cash_months: 3.0,
+            max_age_share: 0.6,
+            development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
+            reference_wage_usd: 4.0,
+            operations_days: Span {
+                at_0: 14.0,
+                at_1: 7.0,
+            },
+            stock_high_days: 20.0,
+            stock_low_days: 7.0,
+            utilization_step: 0.1,
+            utilization_min: 0.2,
+            floor_factor: Span {
+                at_0: 1.05,
+                at_1: 0.9,
+            },
+            purchase_days: Span {
+                at_0: 10.0,
+                at_1: 25.0,
+            },
+            purchase_markup: 0.25,
+            expand_utilization: Span {
+                at_0: 0.95,
+                at_1: 0.8,
+            },
+            expand_margin: Span {
+                at_0: 0.25,
+                at_1: 0.08,
+            },
+            invest_share_max: 0.3,
+            research_lookahead_years: Span {
+                at_0: 0.0,
+                at_1: 2.0,
+            },
+            research_min_revenue_usd: 5_000_000.0,
+            research_competence_min: 0.5,
+            cash_min_months: 2.0,
+            cash_max_months: 6.0,
+            loan_years: 10,
+            foundings_per_month: 2,
+            founding_capital_factor: 1.5,
+        }
+    }
+}
+
+impl AiModel {
+    /// Market scale for a number of AI companies.
+    pub fn market_scale(&self, companies: u32) -> f64 {
+        (f64::from(companies) / self.companies_for_real_size).clamp(self.scale_min, self.scale_max)
+    }
+}
+
+/// A historical company (Lastenheft §10): its activities at `snapshot_year`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct RealCompany {
+    pub key: String,
+    /// Proper name, not translated.
+    pub name: String,
+    pub headquarters: CountryId,
+    pub founded: i32,
+    pub sites: Vec<RealSite>,
+    pub competence: Option<f64>,
+    pub aggressiveness: Option<f64>,
+    pub provenance: Provenance,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct RealSite {
+    pub country: CountryId,
+    pub deposit: Option<DepositId>,
+    /// Facility, real number of units (scaled in the game), recipe.
+    pub facilities: Vec<(FacilityId, f64, Option<RecipeId>)>,
+}
+
+/// Name parts for generated companies of a language region.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct NameGroup {
+    pub key: String,
+    pub countries: Vec<CountryId>,
+    pub is_default: bool,
+    pub surnames: Vec<String>,
+    pub places: Vec<String>,
+    pub legal_forms: Vec<String>,
+    /// Patterns with `{familienname}`, `{ort}`, `{rechtsform}`, `{branche}`.
+    pub patterns: Vec<String>,
+    /// Word for the business per branch, indexed by `BranchId`.
+    pub branch_words: Vec<Option<String>>,
 }
 
 /// Parameters of transport (`data/parameter/transportmodell.yaml`).

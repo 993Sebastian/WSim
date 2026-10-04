@@ -22,8 +22,8 @@ use crate::production;
 use crate::research;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
-    Company, CompanyId, CompanyKind, DepositState, GameSettings, GameState, PerId, PriceMode,
-    PurchaseOrder, SaleOffer, Site, Slot,
+    Company, CompanyId, CompanyKind, GameSettings, GameState, PerId, PriceMode, PurchaseOrder,
+    SaleOffer, Site, Slot,
 };
 use crate::trade;
 
@@ -182,7 +182,7 @@ impl Game {
             shipments: Vec::new(),
             routes: Default::default(),
             import_markets: Default::default(),
-            deposits: PerId::from_fn(catalog.deposits.len(), |_| DepositState::default()),
+            deposits: PerId::default(),
             inventions: PerId::default(),
             player: CompanyId(0),
             game_over: false,
@@ -400,6 +400,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         .map(|&(facility, recipe, utilization)| Slot {
             facility,
             ready: date,
+            count: 1,
             cost: catalog.facilities.get(facility).investment,
             recipe,
             utilization,

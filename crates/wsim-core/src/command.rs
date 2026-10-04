@@ -22,8 +22,14 @@ pub enum Command {
     RenameCompany { name: String },
     /// Founds a site (land and buildings) in a country.
     FoundSite { country: CountryId, kind: SiteType },
-    /// Builds a facility at a site; it produces after the construction time.
-    BuildFacility { site: SiteId, facility: FacilityId },
+    /// Builds `count` identical units of a facility at a site, working together in one
+    /// slot; they produce after the construction time.
+    BuildFacility {
+        site: SiteId,
+        facility: FacilityId,
+        #[serde(default = "one_unit")]
+        count: u32,
+    },
     /// Develops a deposit for an extraction site in the same country.
     DevelopDeposit { site: SiteId, deposit: DepositId },
     /// Sets what a facility produces and how much of its capacity is planned.
@@ -103,6 +109,10 @@ impl NameError {
             }
         }
     }
+}
+
+fn one_unit() -> u32 {
+    1
 }
 
 fn integer(n: usize) -> Param {
@@ -345,7 +355,14 @@ pub(crate) fn execute(
                 research: None,
             });
         }
-        Command::BuildFacility { site, facility } => {
+        Command::BuildFacility {
+            site,
+            facility,
+            count,
+        } => {
+            if *count == 0 {
+                return Err(CommandError::InvalidQuantity);
+            }
             let s = own_site(state, actor, *site)?;
             let f = catalog.facilities.get(*facility);
             if s.kind != f.site_type {
@@ -357,10 +374,11 @@ pub(crate) fn execute(
                 return Err(unknown_technology(catalog, t));
             }
             let company = state.company_mut(actor).expect("checked above");
+            let investment = f.investment.scale(f64::from(*count));
             pay(
                 &mut company.ledger,
                 Account::AssetsUnderConstruction,
-                f.investment,
+                investment,
             )?;
             let ready = today.add_days(i32::try_from(f.build_days).unwrap_or(i32::MAX));
             state
@@ -370,7 +388,8 @@ pub(crate) fn execute(
                 .push(Slot {
                     facility: *facility,
                     ready,
-                    cost: f.investment,
+                    count: *count,
+                    cost: investment,
                     recipe: None,
                     utilization: 0.0,
                     automation: 0.0,
@@ -396,20 +415,26 @@ pub(crate) fn execute(
             if let Some(year) = d.discovered.filter(|&y| y > today.year()) {
                 return Err(CommandError::DepositNotDiscovered { year });
             }
-            if state.deposits.get(*deposit).site.is_some() {
+            let Some(field) = state
+                .deposits
+                .get(*deposit)
+                .concessions
+                .iter()
+                .position(|c| c.site.is_none())
+            else {
                 return Err(CommandError::DepositUnavailable);
-            }
+            };
+            let share = state.deposits.get(*deposit).concessions[field].share;
+            let cost = d
+                .development_cost
+                .scale(state.settings.market_scale * share);
             let company = state.company_mut(actor).expect("checked above");
-            pay(
-                &mut company.ledger,
-                Account::AssetsUnderConstruction,
-                d.development_cost,
-            )?;
+            pay(&mut company.ledger, Account::AssetsUnderConstruction, cost)?;
             let ready = today.add_days(i32::try_from(d.development_days).unwrap_or(i32::MAX));
-            let ds = state.deposits.get_mut(*deposit);
-            ds.site = Some(*site);
-            ds.ready = Some(ready);
-            ds.development_cost = d.development_cost;
+            let c = &mut state.deposits.get_mut(*deposit).concessions[field];
+            c.site = Some(*site);
+            c.ready = Some(ready);
+            c.development_cost = cost;
             state.site_mut(*site).expect("checked above").deposit = Some(*deposit);
         }
         Command::SetProduction {
@@ -460,7 +485,9 @@ pub(crate) fn execute(
                 });
             }
             let cost = f.investment.scale(
-                (level - sl.automation).max(0.0) * catalog.production_model.automation_cost_share,
+                (level - sl.automation).max(0.0)
+                    * catalog.production_model.automation_cost_share
+                    * f64::from(sl.count),
             );
             let company = state.company_mut(actor).expect("checked above");
             pay(&mut company.ledger, Account::FixedAssets, cost)?;

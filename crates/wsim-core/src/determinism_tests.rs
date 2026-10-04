@@ -22,6 +22,8 @@ fn settings(seed: u64) -> GameSettings {
         start_form: StartForm::Workshop,
         company_name: "Muster & Söhne".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     }
 }
 

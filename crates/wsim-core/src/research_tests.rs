@@ -23,6 +23,8 @@ fn new_game(catalog: Catalog) -> Game {
         start_form: StartForm::Workshop,
         company_name: "Labor AG".into(),
         research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -43,6 +45,7 @@ fn research_center(game: &mut Game) -> SiteId {
     game.apply(Command::BuildFacility {
         site,
         facility: c.facilities.id("labor").unwrap(),
+        count: 1,
     })
     .unwrap();
     game.apply(Command::SetProduction {
