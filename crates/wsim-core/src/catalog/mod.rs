@@ -497,6 +497,8 @@ pub struct MarketModel {
     pub price_step_down: f64,
     /// Unsold stock worth more than this many days of sales lowers the price.
     pub stock_days: f64,
+    /// Automatic prices stay below this multiple of the local reference price.
+    pub price_max_factor: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
     pub index_smoothing: f64,
@@ -517,6 +519,7 @@ impl Default for MarketModel {
             price_step_up: 0.02,
             price_step_down: 0.01,
             stock_days: 30.0,
+            price_max_factor: 20.0,
             state_price_cap: 1.5,
             index_smoothing: 0.1,
             trader_margin: 0.05,

@@ -402,3 +402,116 @@ Die Ergebnisse hängen nicht von der Rundenlänge ab.
 Die neue Firma erhält den Standort ihrer Startform (Werkstatt oder Niederlassung) mit
 den Anlagen, Einkaufsaufträgen und Verkaufsangeboten aus den Daten; Gebäude und Anlagen
 werden vom Startkapital bezahlt (reicht es nicht, lässt sich das Spiel nicht starten).
+
+## M10 – KI-Firmen
+
+Parameter: `data/parameter/kimodell.yaml`; reale Firmen und Namensbausteine in
+`data/ki/`. Werte `{bei_0, bei_1}` gelten linear in Kompetenz *k* bzw. Aggressivität *a*
+der Firma (0–1). Jede Firma weicht zufällig (eigener Zufallsstrom) um höchstens
+± `streuung` von den Werten der Schwierigkeit ab.
+
+### Marktmaßstab
+
+Mit *N* KI-Firmen arbeiten die Märkte im Maßstab *s* = clamp(*N* / `firmen_bei_realer_groesse`,
+`massstab.minimum`, `massstab.maximum`), bei 100 Firmen also 0,1. Skaliert werden
+Marktbevölkerung (Verbrauchernachfrage), Staatsnachfrage, Arbeitskräfte (nie unter
+`arbeitskraefte_min` je Gruppe), Förderung und Vorrat der Lagerstätten sowie deren
+Erschließungskosten. Preise, Löhne, Einkommen je Kopf und Anlagengrößen bleiben real.
+Ohne KI-Firmen gilt *s* = 1.
+
+### Konzessionen
+
+Eine Lagerstätte hat *n* = clamp(⌊Förderung_max · *s* / (`anlagen_je_konzession` ·
+Jahresleistung einer Förderanlage)⌋, 1, `konzessionen_max`) gleich große Konzessionen.
+Jede Konzession gehört höchstens einem Standort; ihre Jahresförderung ist höchstens
+Förderung_max · *s* · Anteil, der Vorrat (× *s*) gilt für alle gemeinsam. Erschließen
+kostet Erschließungskosten · *s* · Anteil. Spielstände vor M10 übernehmen die eine
+erschlossene Lagerstätte als Konzession mit Anteil 1.
+
+### Startbesetzung
+
+1. **Rezept je Produkt:** das im Startjahr nutzbare Rezept mit den geringsten
+   Stückkosten aus Vorprodukten zum Richtpreis, Arbeit zum `referenzlohn_usd`, Strom zum
+   mittleren Strompreis der Länder und Abschreibung samt Wartung.
+2. **Reale Firmen** (höchstens die Hälfte von *N*, gegründet bis zum Startjahr, Name
+   nicht vom Spieler belegt) erhalten ihre Anlagen mit Anzahl max(1, round(Anzahl ·
+   *s*)); ihre Leistung deckt Nachfrage, ihr Bedarf erhöht die der Vorprodukte.
+3. **Bedarf:** Produkte werden so geordnet, dass jedes nach allen Produkten kommt, die
+   es verbrauchen. Je Produkt und Land gilt Bedarf = Verbraucher- + Staatsnachfrage pro
+   Tag + Vorproduktbedarf der schon geplanten Anlagen − Leistung realer Anlagen.
+4. **Anlagen:** *F* = Bedarf / (Tagesleistung · `start.auslastung`); unter
+   `anlage_mindestanteil` keine. Verteilung auf Länder mit Gewicht Bedarf ·
+   Entwicklung^*w* (*w* je Produktart aus `gewicht_entwicklung`), bei Rohstoffen auf
+   Lagerstätten mit freien Konzessionen nach Förderung / Kostenfaktor (höchstens die
+   Förderung). Ganze Zahlen nach dem größten Rest, Summe round(*F*), mindestens 1.
+5. **Vorprodukte begrenzen:** Von den Rohstoffen aufwärts wird jede Stufe auf den
+   Anteil verkleinert, den ihre Vorprodukte weltweit decken (Staatsmarkt und Strom
+   unbegrenzt) – sonst entstünden Werke ohne Material.
+6. **Firmen:** Anlagen werden je Branche und Land gebündelt. Sind es mehr Bündel als
+   Firmen, geht das kleinste in das kleinste derselben Branche auf; sind es weniger,
+   wird das größte geteilt (Anlagen oder Anzahl halbiert).
+7. **Ausstattung je Firma:** ein Standort je Land und Standorttyp, je Konzession ein
+   Förderstandort, eigenes Kraftwerk im Land für den Strom, den das Netz nicht liefert
+   (Bedarf · (1 − Netzanteil)). Lager: `lager_ausgang_tage` der Erzeugung (zu
+   Herstellkosten) und `lager_eingang_tage` der Vorprodukte (zum Marktpreis). Kasse:
+   `kasse_monate` der laufenden Kosten. Angebot im Marktpreis-Modus mit Untergrenze aus
+   den variablen Kosten, Einkaufsaufträge für alle Vorprodukte. Eigenkapital = Summe
+   aller Vermögenswerte.
+
+### Verhalten
+
+Alle Entscheidungen sind Befehle mit derselben Prüfung wie beim Spieler; abgelehnte
+Befehle unterbleiben. Sie werden am Tagesanfang getroffen und nicht ins Journal
+geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
+
+- **Betrieb** alle `betrieb_alle_tage` (*k*) Tage, erster Termin zufällig gestreut:
+  - Lagerreichweite = (Lager − Rückhalt) / (Vollleistung · Auslastung). Über
+    `lager_hoch_tage` sinkt die Auslastung um `auslastung_schritt` (nicht unter
+    `auslastung_min`), unter `lager_niedrig_tage` steigt sie, wenn die Anlage nicht
+    durch fehlende Vorprodukte oder Arbeitskräfte gebremst war.
+  - Neue Anlagen bekommen das günstigste bekannte Rezept; bekannte bessere Rezepte auf
+    derselben Anlage ersetzen alte (z. B. nach Forschung).
+  - Preisuntergrenze = variable Stückkosten (Vorprodukte, Arbeit, Strom) ·
+    `preisuntergrenze` (*a*); darüber sucht der Marktpreis-Modus den Preis. Ein neuer
+    `SetSale` mit gleichem Aufschlag setzt die Preissuche nicht zurück.
+  - Einkauf: Ziel = `lager_eingang_tage` · Tagesbedarf, Höchstpreis = Marktpreis ·
+    (1 + `einkauf_aufschlag`); fehlt Ware (unter `lager_niedrig_tage`), steigt das Gebot
+    je Durchgang um `auslastung_schritt` bis zum Dreifachen des Marktpreises.
+  - Eigene Ware: Eine Firma kann auf dem Markt nicht bei sich selbst kaufen. Fehlende
+    Vorprodukte holt sie per `TransferGoods` von eigenen Standorten, die sie anbieten
+    (zuerst im selben Land, sonst per Fracht).
+- **Kasse** am Monatsanfang: unter `kasse_min_monate` laufender Kosten ein Kredit über
+  `kredit_jahre` bis zur Mitte zwischen Minimum und Maximum (höchstens der
+  Kreditrahmen), über `kasse_max_monate` Tilgung.
+- **Ausbau** am letzten Tag jedes Quartals: das Produkt mit der höchsten Marge
+  (Angebotspreis / Stückkosten − 1), dessen Auslastung mindestens
+  `ausbau_auslastung` (*a*) und Marge mindestens `ausbau_marge` (*a*) ist und das im
+  Monat mindestens 90 % seiner Erzeugung verkauft hat, erhält 25 % mehr Anlagen
+  (mindestens 1) mit dem günstigsten bekannten Rezept, bezahlt bis zu
+  `ausbau_anteil_kasse_max` von Kasse + Kreditrahmen. Sonst erschließen Förderfirmen
+  eine freie Konzession, wenn ihr Rohstoff weltweit offen nachgefragt ist und sich
+  nirgends stapelt.
+- **Forschung** zum Jahresbeginn bei *k* ≥ `forschung_mindestkompetenz` und
+  Vorjahresumsatz ≥ `forschung_mindestumsatz_usd`: die Technologie mit dem geringsten
+  Aufwand unter denen, die ein Rezept oder eine Anlage der eigenen Branchen betreffen
+  und bis Jahr + `forschung_vorgriff_jahre` (*k*) erfunden sind; ohne Forschungszentrum
+  wird eines mit einem Labor am Sitz gebaut.
+- **Pleite:** Eine zahlungsunfähige KI-Firma scheidet aus; ihre Belegschaft wird frei,
+  Angebote und Aufträge enden, ihre Konzessionen werden frei.
+- **Neugründung:** Sind weniger als *N* KI-Firmen aktiv, entstehen je Monat bis zu
+  `gruendungen_je_monat` neue. Gesucht wird das Produkt mit der größten offenen
+  Nachfrage (Wert); fehlt einem neuen Werk ein Vorprodukt (offene Nachfrage über die
+  Hälfte seines Bedarfs), wird stattdessen dieser Engpass gegründet (bis zu sechs
+  Stufen). Ausgelassen werden Produkte, deren Lager weltweit mehr als
+  `lager_hoch_tage` Erzeugung umfassen, und Rohstoffe ohne freie Konzession. Kapital =
+  `gruendung_kapitalfaktor` · Investition; Aufbau über `FoundSite`, `DevelopDeposit`,
+  `BuildFacility`, `SetProduction`, `SetSale`.
+
+### Händler und Preise (Ergänzungen zu M7/M8)
+
+- Händler prüfen den Einstandspreis gegen max(Marktpreis, höchstes Gebot der
+  Einkaufsaufträge im Zielland); ein Markt ohne Verkäufer bewegt sonst keinen Preis.
+- Ein Angebot erhöht seinen Preis nur, wenn es Ware hatte und ausverkauft wurde.
+- Automatische Preise (Anbieter und Händler) bleiben unter `hoechstfaktor` ·
+  Richtpreis im Land.
+

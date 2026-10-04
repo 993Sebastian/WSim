@@ -10,6 +10,7 @@ marktmodell:
     hoch: 0.02                    # ausverkauft und Nachfrage offen
     runter: 0.01                  # Lager reicht länger als „lagertage“
     lagertage: 30
+    hoechstfaktor: 20             # nie über dem 20-Fachen des Richtpreises im Land
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
   index_glaettung: 0.1            # Gewicht des Tagesdurchschnitts im Marktpreis
   # KI-Händler verbinden die Märkte der Länder (Formeln: docs/FORMELN.md, Abschnitt M8).

@@ -630,8 +630,20 @@ pub(crate) fn execute(
                     if !(-0.9..=2.0).contains(markup) || floor.is_negative() {
                         return Err(CommandError::InvalidPrice);
                     }
-                    let start = crate::market::market_price(catalog, state, country, *product)
-                        .scale(1.0 + markup)
+                    // Same markup as before: the price search goes on from the current
+                    // price, only the new floor applies.
+                    let current = state.sites[site.index()]
+                        .offers
+                        .get(product)
+                        .filter(|o| {
+                            matches!(o.mode, PriceMode::Market { markup: m, .. } if m == *markup)
+                        })
+                        .map(|o| o.price);
+                    let start = current
+                        .unwrap_or_else(|| {
+                            crate::market::market_price(catalog, state, country, *product)
+                                .scale(1.0 + markup)
+                        })
                         .max(*floor);
                     Some(SaleOffer {
                         mode: *mode.as_ref().expect("some"),
@@ -679,13 +691,14 @@ pub(crate) fn execute(
             }
             let s = state.site_mut(*site).expect("checked above");
             if *target > 0.0 {
+                let bought_month = s.orders.get(product).map_or(0.0, |o| o.bought_month);
                 s.orders.insert(
                     *product,
                     PurchaseOrder {
                         target: *target,
                         max_price: *max_price,
                         min_quality: *min_quality,
-                        bought_month: 0.0,
+                        bought_month,
                     },
                 );
             } else {

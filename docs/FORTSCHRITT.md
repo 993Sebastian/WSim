@@ -17,7 +17,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M7 | Markt und Preise (ein Land) | ✅ |
 | M8 | Handel zwischen Ländern | ✅ |
 | M9 | Alle 12 Ketten + Forschung | ✅ |
-| M10 | KI-Firmen | in Arbeit |
+| M10 | KI-Firmen | ✅ |
 | M11 | Rundenbericht und Meldungen | offen |
 | M12 | Oberfläche I: Rundenablauf | offen |
 | M13 | Oberfläche II: Weltkarte | offen |
@@ -89,7 +89,7 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Großbritannien → USA kostet so etwa 112 USD/t und 26 Tage.
 - M8: KI-Händler sind in Stufe 1 ein wettbewerblicher Händlermarkt ohne eigene Bilanz
   (ihre Spanne verlässt das Spiel). Sie kaufen nur aus Firmenangeboten, nicht vom
-  Staatsmarkt. Handelsfirmen als echte KI-Firmen folgen mit M10.
+  Staatsmarkt. Handelsfirmen als echte KI-Firmen sind nach M10 verschoben (siehe M10).
 - M8: Verkaufsfreigaben je Abnehmergruppe mit vier Geltungsbereichen (pauschal, Land,
   Produkt, Produkt im Land); die Höchstmenge gilt je Angebot (Standort und Produkt)
   und Monat.
@@ -117,3 +117,36 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Balancing in M15.
 - M9: Leistung – Märkte ohne Handel werden gesammelt gebucht; 30 Jahre ohne Spieler
   laufen in unter 1 s (vorher 3,5 s mit allen Ketten).
+- M10: Standard 100 KI-Firmen (Auftraggeber); Märkte im Maßstab Firmen/1000, also 0,1.
+  Preise, Löhne und Anlagengrößen bleiben real, damit Zahlen und Bilanzen vertraut
+  wirken. Höchstens 10 000 Firmen.
+- M10: Schwierigkeiten leicht/mittel/schwer setzen Kompetenz 0,25/0,5/0,8 und
+  Aggressivität 0,3/0,5/0,7; jede Firma streut ± 0,15.
+- M10: 29 reale Firmen mit ihrem Stand 1900 (Krupp, Thyssen, Carnegie Steel,
+  Standard Oil, Branobel, Siemens & Halske, AEG, General Electric, Singer, Dunlop,
+  Michelin, Mitsui, Tata …); Anlagenzahlen grob geschätzt (`annaeherung: true`).
+  Höchstens die Hälfte aller KI-Firmen sind reale. Sie werden auch bei späterem
+  Startjahr mit dem Stand 1900 eingesetzt.
+- M10: Firmennamen aus acht Sprachräumen (Familienname, Ort, Rechtsform, Branche);
+  Namen realer Firmen werden nie erzeugt.
+- M10: Weitere Kohle- (12) und Eisenerzlagerstätten (9) sowie das Forschungslabor
+  (500 000 USD, 20 Forscherplätze) für die KI-Forschung ergänzt.
+- M10: KI-Entscheidungen stehen nicht im Journal; sie folgen beim Wiederholen aus dem
+  Zustand (Test `ai_world_is_reproducible`).
+- M10: Firmen können nicht bei sich selbst kaufen; die KI lagert eigene Vorprodukte
+  per Warentransfer um.
+- M10: Gefundene und behobene Marktfehler: Angebote ohne Lager erhöhten täglich ihren
+  Preis (Preise bis 10¹¹ USD); jetzt nur bei ausverkaufter Ware und höchstens
+  20 × Richtpreis (`marktmodell.preisanpassung.hoechstfaktor`). Händler sehen nun die
+  Gebote der Einkaufsaufträge.
+- M10: Weltlauf 1900–1930 mit 100 Firmen (Seed 1): Preise bleiben in der Nähe der
+  Richtpreise, alle Ketten liefern, rund 2–3 % der Firmen pro Jahr gehen pleite und
+  werden durch Gründungen an Engpässen ersetzt. Die Welt reagiert empfindlich auf
+  Regeländerungen; das Feintuning (Nachfrageniveau Textil, Überkapazität bei Erz) ist
+  Aufgabe von M15.
+- M10: Leistung – Startbesetzung 0,2 s; ein Jahr mit 100 Firmen rund 4 s, mit
+  1000 Firmen rund 6 s (Release, eine Kern-CPU).
+- M10: CLI `run --ki <Anzahl> --schwierigkeit <id> --welt` für Weltläufe mit Bericht.
+- M10 vereinfacht (offene Punkte 23–25): keine Handelsfirmen als KI, KI-Einkäufe
+  ohne Kassenprüfung, kein Ersatz durch höher qualifizierte Arbeitskräfte.
+

@@ -61,7 +61,7 @@ fn usable(catalog: &Catalog, recipe: RecipeId, year: i32) -> bool {
 
 /// Cost of one unit at reference prices, the reference wage and an electricity price,
 /// including the facility's depreciation (for choosing among recipes).
-fn reference_unit_cost(catalog: &Catalog, recipe: RecipeId, energy_usd_mwh: f64) -> f64 {
+pub(crate) fn reference_unit_cost(catalog: &Catalog, recipe: RecipeId, energy_usd_mwh: f64) -> f64 {
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
     let inputs: f64 = r
@@ -375,6 +375,9 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         }
     }
 
+    let order = planning_order(catalog, &recipes);
+    let real_placements: Vec<&Placement> = real.iter().flat_map(|(_, p)| &p.placements).collect();
+    let planned = fit_to_inputs(catalog, &order, planned, &real_placements, u);
     let generated = usize::try_from(wanted).unwrap_or(usize::MAX) - real.len();
     let plans = group(catalog, planned, generated);
     let date = state.date;
@@ -385,6 +388,70 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
     for plan in plans {
         found_company(state, catalog, &plan, None, (None, None), date);
     }
+}
+
+/// Scales the planned plants down to what their inputs allow, from the raw materials
+/// upwards: deposits limit the raw materials, and a plant that would lack inputs would
+/// only make losses. Historical plants stay as they are.
+fn fit_to_inputs(
+    catalog: &Catalog,
+    order: &[ProductId],
+    mut planned: Vec<Placement>,
+    real: &[&Placement],
+    u: f64,
+) -> Vec<Placement> {
+    let n = catalog.products.len();
+    let flows = |placements: &mut dyn Iterator<Item = &Placement>| {
+        let mut supply = vec![0.0; n];
+        let mut used = vec![0.0; n];
+        for p in placements {
+            let r = catalog.recipes.get(p.recipe);
+            let runs = catalog.facilities.get(r.facility).runs_per_day * f64::from(p.count) * u;
+            supply[r.product.index()] += runs * r.output;
+            for &(i, q) in &r.inputs {
+                used[i.index()] += runs * q;
+            }
+        }
+        (supply, used)
+    };
+    for &product in order.iter().rev() {
+        let (supply, used) = flows(&mut planned.iter().chain(real.iter().copied()));
+        let Some(first) = planned
+            .iter()
+            .find(|p| catalog.recipes.get(p.recipe).product == product)
+        else {
+            continue;
+        };
+        let r = catalog.recipes.get(first.recipe);
+        let ratio = r
+            .inputs
+            .iter()
+            .filter(|(i, _)| {
+                let p = catalog.products.get(*i);
+                p.state_market.is_none() && p.kind != ProductKind::Energy
+            })
+            .map(|(i, _)| {
+                let u = used[i.index()];
+                if u > 1e-9 {
+                    (supply[i.index()] / u).min(1.0)
+                } else {
+                    1.0
+                }
+            })
+            .fold(1.0, f64::min);
+        if ratio >= 0.95 {
+            continue;
+        }
+        for p in planned
+            .iter_mut()
+            .filter(|p| catalog.recipes.get(p.recipe).product == product)
+        {
+            // Plant counts are small; the cast cannot overflow.
+            p.count = (f64::from(p.count) * ratio).round() as u32;
+        }
+        planned.retain(|p| p.count > 0);
+    }
+    planned
 }
 
 fn kind_index(kind: ProductKind) -> usize {
@@ -525,14 +592,16 @@ fn split(catalog: &Catalog, plan: &mut Plan) -> Plan {
 }
 
 /// Daily input and labor cost and output of a slot at a utilization.
-struct SlotFlows {
-    product: ProductId,
-    output: f64,
-    inputs: Vec<(ProductId, f64)>,
-    cost_per_day: Money,
+pub(crate) struct SlotFlows {
+    pub product: ProductId,
+    pub output: f64,
+    pub inputs: Vec<(ProductId, f64)>,
+    pub cost_per_day: Money,
+    /// Cost per day without depreciation and maintenance (inputs, labor, energy).
+    pub variable_per_day: Money,
 }
 
-fn slot_flows(
+pub(crate) fn slot_flows(
     catalog: &Catalog,
     state: &GameState,
     country: CountryId,
@@ -564,6 +633,7 @@ fn slot_flows(
         output: runs * r.output,
         inputs,
         cost_per_day: Money::from_usd(input_cost + labor + energy + capital).unwrap_or(Money::ZERO),
+        variable_per_day: Money::from_usd(input_cost + labor + energy).unwrap_or(Money::ZERO),
     }
 }
 
@@ -663,7 +733,7 @@ fn found_company(
         let building = catalog.production_model.site_cost(kind);
         fixed += building;
         let mut slots = Vec::new();
-        let mut produced: BTreeMap<ProductId, (f64, Money)> = BTreeMap::new();
+        let mut produced: BTreeMap<ProductId, (f64, Money, Money)> = BTreeMap::new();
         let mut used: BTreeMap<ProductId, f64> = BTreeMap::new();
         for p in &placements {
             let r = catalog.recipes.get(p.recipe);
@@ -694,9 +764,12 @@ fn found_company(
                 start.utilization,
             );
             daily_cost += flows.cost_per_day;
-            let e = produced.entry(flows.product).or_insert((0.0, Money::ZERO));
+            let e = produced
+                .entry(flows.product)
+                .or_insert((0.0, Money::ZERO, Money::ZERO));
             e.0 += flows.output;
             e.1 += flows.cost_per_day;
+            e.2 += flows.variable_per_day;
             for (input, q) in flows.inputs {
                 *used.entry(input).or_default() += q;
             }
@@ -718,7 +791,7 @@ fn found_company(
         let mut inventory = BTreeMap::new();
         let mut offers = BTreeMap::new();
         let mut orders = BTreeMap::new();
-        for (&product, &(output, cost)) in &produced {
+        for (&product, &(output, cost, variable)) in &produced {
             if catalog.products.get(product).kind == ProductKind::Energy {
                 continue;
             }
@@ -740,7 +813,11 @@ fn found_company(
                 SaleOffer {
                     mode: PriceMode::Market {
                         markup: 0.0,
-                        floor: unit.scale(floor_factor),
+                        floor: if output > 0.0 {
+                            variable.scale(floor_factor / output)
+                        } else {
+                            Money::ZERO
+                        },
                     },
                     price: market::market_price(catalog, state, country, product),
                     keep,
@@ -819,7 +896,7 @@ fn found_company(
 
 /// A generated name from the name group of the country, unique among all companies and
 /// the historical ones.
-fn company_name(
+pub(crate) fn company_name(
     state: &GameState,
     catalog: &Catalog,
     rng: &mut SimRng,
@@ -885,5 +962,19 @@ fn company_name(
             return numbered;
         }
         n += 1;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::distribute;
+
+    #[test]
+    fn distribute_keeps_the_total_and_follows_the_weights() {
+        assert_eq!(distribute(10.0, &[1.0, 1.0, 2.0]), vec![3, 2, 5]);
+        assert_eq!(distribute(0.4, &[1.0, 3.0]), vec![0, 1]);
+        assert_eq!(distribute(5.0, &[0.0, 0.0]), vec![0, 0]);
+        let counts = distribute(7.3, &[0.2, 0.5, 0.1, 0.2]);
+        assert_eq!(counts.iter().sum::<u32>(), 7);
     }
 }

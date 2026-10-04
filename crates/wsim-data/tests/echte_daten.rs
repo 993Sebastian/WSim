@@ -483,3 +483,114 @@ fn start_forms_give_a_workshop_or_an_office() {
         Err(NewGameError::StartFormTooExpensive { .. })
     ));
 }
+
+/// A new game with 100 AI companies (Lastenheft §10): historical companies first, the
+/// rest generated, every company's books balanced.
+#[test]
+fn ai_start_population() {
+    use std::collections::BTreeSet;
+    use std::sync::Arc;
+    use wsim_core::game::Game;
+    use wsim_core::state::{AiSettings, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 7,
+        start_year: 1900,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Start".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 100,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        },
+    };
+    let game = Game::new(c.clone(), settings.clone()).unwrap();
+    let state = game.state();
+    assert!((state.settings.market_scale - 0.1).abs() < 1e-12);
+    let ai: Vec<_> = state.companies.iter().filter(|x| x.ai.is_some()).collect();
+    assert_eq!(ai.len(), 100);
+    assert!(ai.iter().any(|x| x.name == "Fried. Krupp"));
+    let names: BTreeSet<String> = state
+        .companies
+        .iter()
+        .map(|x| x.name.to_lowercase())
+        .collect();
+    assert_eq!(names.len(), state.companies.len(), "names are unique");
+    for company in &state.companies {
+        assert!(company.ledger.is_balanced(), "{}", company.name);
+        assert!(company.ledger.cash() >= Money::ZERO, "{}", company.name);
+    }
+    // Every AI company owns plants; concessions point to extraction sites on them.
+    for (i, _) in state.companies.iter().enumerate().skip(1) {
+        assert!(state.sites.iter().any(|s| s.owner.0 as usize == i));
+    }
+    for (d, ds) in state.deposits.iter() {
+        for field in &ds.concessions {
+            if let Some(site) = field.site {
+                assert_eq!(state.sites[site.0 as usize].deposit, Some(d));
+            }
+        }
+    }
+    // Same settings, same world.
+    let again = Game::new(c, settings).unwrap();
+    assert_eq!(game.state_hash(), again.state_hash());
+}
+
+/// AI companies decide through commands; a game with them stays reproducible, balanced
+/// and loadable.
+#[test]
+fn ai_world_is_reproducible() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::game::Game;
+    use wsim_core::save;
+    use wsim_core::state::{AiSettings, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 11,
+        start_year: 1900,
+        start_country: c.countries.id("GBR").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Start".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 40,
+            competence: 0.8,
+            aggressiveness: 0.7,
+        },
+    };
+    let run = || {
+        let mut game = Game::new(c.clone(), settings.clone()).unwrap();
+        for _ in 0..4 {
+            game.advance(RoundLength::Month, |_| {});
+        }
+        game
+    };
+    let game = run();
+    assert_eq!(game.state_hash(), run().state_hash());
+    for company in &game.state().companies {
+        assert!(company.ledger.is_balanced(), "{}", company.name);
+    }
+    let loaded = save::decode(&save::encode(&game), c.clone()).unwrap().game;
+    assert_eq!(loaded.state_hash(), game.state_hash());
+    let replayed = Game::replay(c.clone(), settings.clone(), game.journal()).unwrap();
+    assert_eq!(replayed.state_hash(), game.state_hash());
+    // The AI acted: some sites changed their production or prices.
+    assert!(
+        game.state()
+            .sites
+            .iter()
+            .flat_map(|s| s.slots.iter())
+            .any(|sl| (sl.utilization - c.ai_model.start.utilization).abs() > 1e-9)
+    );
+}

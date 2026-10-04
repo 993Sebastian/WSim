@@ -665,10 +665,12 @@ fn clear_market(
 
     // Prices of automatic sellers and traders, and the market's price index.
     let unmet = day.unmet() > 1e-9;
+    let max_price = local_reference(catalog, state, country, product).scale(model.price_max_factor);
     let mut import_price = None;
     for (i, o) in offers.iter().enumerate() {
         let before = available_before[i];
-        let scarce = o.sold >= before - 1e-9 && unmet;
+        // Only a seller that had goods and sold out raises its price.
+        let scarce = before > 1e-9 && o.sold >= before - 1e-9 && unmet;
         let slow = before > 0.0 && o.sold < before / model.stock_days;
         match o.seller {
             Seller::Site { site, .. } => {
@@ -683,6 +685,7 @@ fn clear_market(
                     PriceMode::Fixed(price) => offer.price = price,
                     PriceMode::Market { floor, .. } => {
                         offer.price = adjust_price(model, offer.price, scarce, slow)
+                            .min(max_price)
                             .max(floor)
                             .max(Money::from_units(1));
                     }
@@ -690,7 +693,7 @@ fn clear_market(
             }
             // Traders compete: their price falls to cost plus margin unless goods are scarce.
             Seller::Importer => {
-                import_price = Some(adjust_price(model, o.price, scarce, !scarce));
+                import_price = Some(adjust_price(model, o.price, scarce, !scarce).min(max_price));
             }
             Seller::StateMarket => {}
         }

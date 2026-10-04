@@ -351,6 +351,7 @@ impl Game {
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
+        crate::ai::decide(&mut self.state, &self.catalog, today);
         trade::deliver(&mut self.state, today);
         production::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);

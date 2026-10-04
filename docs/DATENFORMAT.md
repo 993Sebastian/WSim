@@ -180,7 +180,7 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | --- | --- |
 | **preisgewicht**, **qualitaetsgewicht** | je 5 Werte (ärmstes Fünftel zuerst) für die Anbieterwahl |
 | **aneignung_je_jahr** | Anteil der Lücke zur Ziel-Besitzquote, der je Jahr gekauft wird |
-| **preisanpassung** | `hoch`, `runter` (je Tag), `lagertage` |
+| **preisanpassung** | `hoch`, `runter` (je Tag), `lagertage`, `hoechstfaktor` (automatische Preise höchstens dieses Vielfache des Richtpreises im Land, 1–1000) |
 | **staat_hoechstpreis** | Staaten zahlen höchstens dieses Vielfache des Richtpreises |
 | **index_glaettung** | Gewicht des Tagesdurchschnitts im Marktpreis |
 | **haendler** | KI-Händler (M8): `marge` (Aufschlag auf Einkauf und Transport), `vorrat_tage` (Lager für so viele Tage offener Nachfrage), `glaettung_tage` (1–365, Mittelung der offenen Nachfrage) |

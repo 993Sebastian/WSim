@@ -627,6 +627,8 @@ pub struct RawPriceAdjustment {
     pub down: f64,
     #[serde(rename = "lagertage")]
     pub stock_days: f64,
+    #[serde(rename = "hoechstfaktor")]
+    pub max_factor: f64,
 }
 
 #[derive(Debug, Deserialize)]

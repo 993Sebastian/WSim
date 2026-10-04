@@ -99,3 +99,15 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Ergänzungsgut, netzabhängig | `ConsumptionType::Complement`, `needs_grid` |
 | Startform, Startausstattung | `StartForm`, `StartSetup` |
 | ruhender Markt | `Market::idle_since`, `settle_idle` |
+| KI-Firma, KI-Modell | `CompanyKind::Ai`, `AiModel` |
+| Kompetenz, Aggressivität | `competence`, `aggressiveness` |
+| Schwierigkeit | `Difficulty` |
+| Marktmaßstab | `market_scale` |
+| Konzession | `Concession` |
+| Anzahl (gleichartiger Anlagen) | `Slot::count` |
+| Startbesetzung | `population::populate` |
+| reale Firma, Namensgruppe | `RealCompany`, `NameGroup` |
+| KI-Entscheidungen | `ai::decide` |
+| Neugründung, Engpass | `found_companies`, `opportunity` |
+| Preisuntergrenze, Höchstfaktor | `floor`, `price_max_factor` |
+

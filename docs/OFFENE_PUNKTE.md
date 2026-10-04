@@ -75,6 +75,15 @@ bei Bedarf widersprechen) · ❓ offen
 21. ✅ **Sprache.** Code-Bezeichner englisch; Datendateien und alle Texte deutsch.
 22. 🟡 **Formelabnahme.** Formeln je Meilenstein in `docs/FORMELN.md`, Freigabe mit
     dem Meilenstein.
+23. 🟡 **Handelsfirmen als KI.** In Stufe 1 bleiben die Händler ein abstrakter,
+    wettbewerblicher Händlermarkt (M8); KI-Firmen produzieren. Vorschlag: KI-Handels-
+    firmen mit eigener Bilanz zusammen mit Flotten in Stufe 2.
+24. 🟡 **Einkäufe ohne Kassenprüfung.** Einkaufsaufträge (Spieler und KI) kaufen auch
+    bei leerer Kasse; das Konto geht dann ins Minus bis zur Überziehungsgrenze, danach
+    droht die Insolvenz. Vorschlag: so lassen (einfach, die Insolvenzprüfung fängt es).
+25. 🟡 **Ersatz durch höhere Qualifikation.** Die Regel „höhere Qualifikation vertritt
+    niedrigere“ (Vorschlag zu Punkt 15) ist noch nicht umgesetzt; fehlende Arbeitskräfte
+    bremsen die Produktion. Vorschlag: mit dem Balancing in M15 nachziehen.
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

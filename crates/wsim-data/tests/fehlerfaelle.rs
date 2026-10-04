@@ -111,7 +111,7 @@ marktmodell:
   preisgewicht: [2.0, 1.6, 1.2, 0.9, 0.6]
   qualitaetsgewicht: [0.3, 0.5, 0.8, 1.1, 1.5]
   aneignung_je_jahr: 0.25
-  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30}
+  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, hoechstfaktor: 20}
   staat_hoechstpreis: 1.5
   index_glaettung: 0.1
   haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}

@@ -44,8 +44,8 @@ kimodell:
     lager_hoch_tage: 20                                # mehr Lager: weniger produzieren
     lager_niedrig_tage: 7                              # weniger Lager: mehr produzieren
     auslastung_schritt: 0.1
-    auslastung_min: 0.2
-    preisuntergrenze: {bei_0: 1.05, bei_1: 0.9}       # × Normalkosten, Aggressivität
+    auslastung_min: 0.05
+    preisuntergrenze: {bei_0: 1.1, bei_1: 0.95}       # × variable Stückkosten, Aggressivität
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität
     ausbau_marge: {bei_0: 0.25, bei_1: 0.08}          # Aggressivität

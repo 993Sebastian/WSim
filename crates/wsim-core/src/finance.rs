@@ -182,6 +182,7 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
             state.game_over = true;
             messages.push(Message::new(MessageKind::Crisis, keys::GAME_OVER_INSOLVENT));
         } else {
+            crate::ai::release_assets(state, id);
             messages.push(
                 Message::new(MessageKind::Info, keys::COMPANY_INSOLVENT)
                     .with("firma", Param::Text(state.companies[index].name.clone())),

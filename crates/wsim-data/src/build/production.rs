@@ -245,6 +245,13 @@ pub(super) fn market_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::
             m.price_adjustment.stock_days,
             &adjust.field("lagertage"),
         ),
+        price_max_factor: in_range(
+            ctx,
+            m.price_adjustment.max_factor,
+            1.0,
+            1000.0,
+            &adjust.field("hoechstfaktor"),
+        ),
         state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
         index_smoothing: in_range(
             ctx,

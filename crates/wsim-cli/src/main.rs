@@ -379,6 +379,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
         let capacity: f64 = state
             .sites
             .iter()
+            .filter(|s| !state.companies[s.owner.index()].bankrupt)
             .flat_map(|s| s.slots.iter())
             .filter_map(|sl| {
                 let r = catalog.recipes.get(sl.recipe?);
@@ -396,6 +397,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
         let produced: f64 = state
             .sites
             .iter()
+            .filter(|s| !state.companies[s.owner.index()].bankrupt)
             .flat_map(|s| s.slots.iter())
             .filter_map(|sl| {
                 let r = catalog.recipes.get(sl.recipe?);
