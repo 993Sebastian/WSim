@@ -107,6 +107,7 @@ pub mod keys {
     pub const RESEARCH_DONE: &str = "meldung.forschung_abgeschlossen";
     pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
     pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
+    pub const NEW_GAME_TOO_MANY_COMPANIES: &str = "fehler.spielstart.zu_viele_firmen";
     pub const NEW_GAME_START_FORM: &str = "fehler.spielstart.startform";
 
     pub const ALL: &[&str] = &[
@@ -155,6 +156,7 @@ pub mod keys {
         RESEARCH_DONE,
         COMMAND_NOT_RESEARCHABLE,
         NEW_GAME_RESEARCH_FACTOR,
+        NEW_GAME_TOO_MANY_COMPANIES,
         NEW_GAME_START_FORM,
     ];
 }

@@ -96,6 +96,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         loss_carryforward: Money::ZERO,
         sales_policies: Vec::new(),
         research: Default::default(),
+        ai: None,
     });
     id
 }

@@ -48,6 +48,9 @@ pub enum NewGameError {
     StartFormTooExpensive {
         needed: Money,
     },
+    TooManyCompanies {
+        max: u32,
+    },
 }
 
 impl NewGameError {
@@ -65,6 +68,10 @@ impl NewGameError {
             NewGameError::Name(e) => e.message(),
             NewGameError::StartFormTooExpensive { needed } => {
                 Message::error(keys::NEW_GAME_START_FORM).with("betrag", Param::Money(*needed))
+            }
+            NewGameError::TooManyCompanies { max } => {
+                Message::error(keys::NEW_GAME_TOO_MANY_COMPANIES)
+                    .with("max", Param::Integer(i64::from(*max)))
             }
             NewGameError::ResearchFactor => Message::error(keys::NEW_GAME_RESEARCH_FACTOR)
                 .with("von", Param::Number(MIN_RESEARCH_FACTOR))
@@ -155,6 +162,15 @@ impl Game {
         }
         let name = command::check_company_name(None, &settings.company_name, None)
             .map_err(NewGameError::Name)?;
+        if settings.ai.companies > catalog.ai_model.max_companies {
+            return Err(NewGameError::TooManyCompanies {
+                max: catalog.ai_model.max_companies,
+            });
+        }
+        let mut settings = settings;
+        if settings.ai.companies > 0 {
+            settings.market_scale = catalog.ai_model.market_scale(settings.ai.companies);
+        }
 
         let date = Date::first_of_year(settings.start_year);
         let player = Company {
@@ -170,6 +186,7 @@ impl Game {
             loss_carryforward: Money::ZERO,
             sales_policies: Vec::new(),
             research: Default::default(),
+            ai: None,
         };
         let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
@@ -191,6 +208,7 @@ impl Game {
         state.fit_to_catalog(&catalog);
         market::initial_demand(&mut state, &catalog, date);
         apply_start_setup(&mut state, &catalog)?;
+        crate::population::populate(&mut state, &catalog);
         Ok(Self {
             catalog,
             state,

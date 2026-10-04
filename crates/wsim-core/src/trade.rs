@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use crate::calendar::Date;
 use crate::catalog::Catalog;
-use crate::ids::{CountryId, ProductId};
+use crate::ids::{CountryId, Id, ProductId};
 use crate::market;
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup};
@@ -123,7 +123,16 @@ pub(crate) fn plan(
         if need <= 1e-9 {
             continue;
         }
-        let price = market::market_price(catalog, state, country, product);
+        // Companies that keep a stock state what they would pay; a market without
+        // sellers has no price movement that could show it.
+        let bid = sites_by_country[country.index()]
+            .iter()
+            .filter_map(|&s| state.sites[s.index()].orders.get(&product))
+            .filter(|o| o.target > 0.0)
+            .map(|o| o.max_price)
+            .max()
+            .unwrap_or(Money::ZERO);
+        let price = market::market_price(catalog, state, country, product).max(bid);
         let mut candidates: Vec<(Money, usize, Money, u32)> = sources
             .iter()
             .enumerate()

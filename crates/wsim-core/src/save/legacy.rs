@@ -97,6 +97,7 @@ pub(super) fn decode_v2(
                 loss_carryforward: Money::ZERO,
                 sales_policies: Vec::new(),
                 research: Default::default(),
+                ai: None,
             })
         })
         .collect::<Result<Vec<_>, LoadError>>()?;

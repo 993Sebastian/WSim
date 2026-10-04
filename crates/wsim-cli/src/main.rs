@@ -7,10 +7,12 @@ use std::sync::Arc;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use wsim_core::calendar::{Date, RoundLength};
+use wsim_core::catalog::Catalog;
 use wsim_core::game::Game;
+use wsim_core::ledger::Account;
 use wsim_core::money::Money;
 use wsim_core::save;
-use wsim_core::state::{GameSettings, StartForm};
+use wsim_core::state::{AiSettings, GameSettings, StartForm};
 use wsim_data::{GameData, format_date, format_money};
 
 #[derive(Parser)]
@@ -99,6 +101,15 @@ struct RunArgs {
     /// Am Ende GuV, Bilanz und Kapitalfluss der eigenen Firma ausgeben
     #[arg(long)]
     bericht: bool,
+    /// Zahl der KI-Firmen (0 = ohne Gegner, Märkte in realer Größe)
+    #[arg(long, default_value_t = 0)]
+    ki: u32,
+    /// Schwierigkeit der KI (Schlüssel aus kimodell.yaml, z. B. leicht, mittel, schwer)
+    #[arg(long)]
+    schwierigkeit: Option<String>,
+    /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
+    #[arg(long)]
+    welt: bool,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -236,7 +247,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 company_name: args.name.clone(),
                 research_ahead_factor: 1.0,
                 market_scale: 1.0,
-                ai: Default::default(),
+                ai: ai_settings(&catalog, args)?,
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }
@@ -279,6 +290,9 @@ fn run(args: &RunArgs) -> Result<(), String> {
     {
         print_report(texts, &company.ledger);
     }
+    if args.welt {
+        print_world(texts, &game);
+    }
     if let Some(company) = game.state().company(game.player()) {
         println!(
             "{}: Kasse {}, Ergebnis laufendes Jahr {}",
@@ -293,6 +307,125 @@ fn run(args: &RunArgs) -> Result<(), String> {
         game.state_hash()
     );
     Ok(())
+}
+
+fn ai_settings(catalog: &Catalog, args: &RunArgs) -> Result<AiSettings, String> {
+    let model = &catalog.ai_model;
+    let difficulty = match &args.schwierigkeit {
+        Some(key) => model
+            .difficulties
+            .iter()
+            .find(|d| &d.key == key)
+            .ok_or_else(|| format!("Schwierigkeit „{key}“ gibt es nicht."))?,
+        None => model
+            .difficulties
+            .get(model.default_difficulty)
+            .ok_or("Die Spieldaten nennen keine Schwierigkeit.")?,
+    };
+    Ok(AiSettings {
+        companies: args.ki,
+        competence: difficulty.competence,
+        aggressiveness: difficulty.aggressiveness,
+    })
+}
+
+/// Companies, output and prices of the simulated world.
+fn print_world(texts: &wsim_data::Texts, game: &Game) {
+    use wsim_data::format_number;
+    let state = game.state();
+    let catalog = game.catalog();
+    let ai: Vec<_> = state.companies.iter().filter(|c| c.ai.is_some()).collect();
+    let bankrupt = ai.iter().filter(|c| c.bankrupt).count();
+    println!(
+        "Welt am {}: {} KI-Firmen, davon {} pleite, {} Standorte, Marktmaßstab {}",
+        format_date(state.date),
+        ai.len(),
+        bankrupt,
+        state.sites.len(),
+        format_number(state.settings.market_scale, 3)
+    );
+    let mut by_equity: Vec<_> = state
+        .companies
+        .iter()
+        .map(|c| {
+            (
+                c,
+                c.ledger.total_assets() - c.ledger.balance(Account::Loans),
+            )
+        })
+        .collect();
+    by_equity.sort_by_key(|b| std::cmp::Reverse(b.1));
+    println!("Größte Firmen (Eigenkapital):");
+    for (c, equity) in by_equity.iter().take(15) {
+        println!(
+            "  {:<45} {:>18}  {}",
+            c.name,
+            format_money(*equity),
+            texts
+                .get(&format!("land.{}", catalog.countries.key(c.headquarters)))
+                .unwrap_or_default()
+        );
+    }
+    println!("Produkte (Welt, letzter Monat):");
+    for (product, _) in catalog.products.iter() {
+        let mut sold = 0.0;
+        let mut demand = 0.0;
+        let mut revenue = Money::ZERO;
+        for (_, m) in state.markets.get(product).iter() {
+            sold += m.last_month.sold;
+            demand += m.last_month.demand;
+            revenue += m.last_month.revenue;
+        }
+        let capacity: f64 = state
+            .sites
+            .iter()
+            .flat_map(|s| s.slots.iter())
+            .filter_map(|sl| {
+                let r = catalog.recipes.get(sl.recipe?);
+                (r.product == product).then(|| {
+                    catalog.facilities.get(sl.facility).runs_per_day
+                        * f64::from(sl.count)
+                        * r.output
+                        * 30.0
+                })
+            })
+            .sum();
+        if sold <= 0.0 && demand <= 0.0 && capacity <= 0.0 {
+            continue;
+        }
+        let produced: f64 = state
+            .sites
+            .iter()
+            .flat_map(|s| s.slots.iter())
+            .filter_map(|sl| {
+                let r = catalog.recipes.get(sl.recipe?);
+                (r.product == product).then_some(sl.last_runs * r.output * 30.0)
+            })
+            .sum();
+        let stock: f64 = state
+            .sites
+            .iter()
+            .filter_map(|s| s.inventory.get(&product))
+            .map(|st| st.quantity)
+            .sum();
+        let price = if sold > 0.0 {
+            format_money(revenue.scale(1.0 / sold))
+        } else {
+            "–".into()
+        };
+        println!(
+            "  {:<16} Nachfrage {:>12}  verkauft {:>12}  Kapazität {:>12}  Produktion {:>12}  Lager {:>12}  Preis {:>12}",
+            texts
+                .get(&format!("produkt.{}", catalog.products.key(product)))
+                .unwrap_or_default(),
+            format_number(demand, 0),
+            format_number(sold, 0),
+            format_number(capacity, 0),
+            format_number(produced, 0),
+            format_number(stock, 0),
+            price
+        );
+    }
 }
 
 fn show_country(directory: &Path, key: &str, year: i32) -> Result<(), String> {

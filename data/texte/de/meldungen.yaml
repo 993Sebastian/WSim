@@ -5,6 +5,7 @@ fehler.spielstart.startkapital: Das Startkapital muss größer als 0 und höchst
 fehler.spielstart.startland: Das gewählte Startland gibt es in den Spieldaten nicht.
 fehler.spielstart.startform: Das Startkapital reicht nicht für den Start – Werkstatt bzw. Niederlassung kosten {betrag}.
 fehler.spielstart.forschungsfaktor: Der Kostenfaktor für Forschung vor dem historischen Jahr muss zwischen {von} und {bis} liegen.
+fehler.spielstart.zu_viele_firmen: Höchstens {max} KI-Firmen sind möglich.
 fehler.befehl.spielende: Die Partie ist beendet; es sind keine Entscheidungen mehr möglich.
 fehler.befehl.firma_unbekannt: Die Firma Nr. {firma} gibt es nicht.
 fehler.name.leer: Der Name darf nicht leer sein.

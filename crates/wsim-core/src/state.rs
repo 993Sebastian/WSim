@@ -234,6 +234,22 @@ pub struct Company {
     /// Research points collected per technology not yet acquired.
     #[serde(default)]
     pub research: BTreeMap<TechnologyId, f64>,
+    /// Character and plans of an AI company (`None` for the player).
+    #[serde(default)]
+    pub ai: Option<AiState>,
+}
+
+/// What distinguishes one AI company from another (Lastenheft §10).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AiState {
+    /// 0 = clumsy, 1 = very competent.
+    pub competence: f64,
+    /// 0 = cautious, 1 = aggressive.
+    pub aggressiveness: f64,
+    /// Key of the historical company it stands for.
+    pub real: Option<String>,
+    /// Day of the next operating decisions.
+    pub next_operations: Date,
 }
 
 /// A bank loan, repaid in equal monthly instalments (annuity).
