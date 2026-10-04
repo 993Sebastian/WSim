@@ -145,9 +145,8 @@ rezepte:
     technologie: drehstrommotor
     eingang:
       kupferdraht: 0.012
-      blech: 0.06                 # Elektroblech
+      blech: 0.09                 # Elektroblech und Gehäuse
       stabstahl: 0.04
-      roheisen: 0.03              # Gehäuse aus Guss
       schrauben: 0.002
     arbeit_stunden:
       angelernt: 80

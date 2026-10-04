@@ -253,6 +253,28 @@ fn validate(directory: &Path) -> ExitCode {
             c.vehicles.len(),
             data.texts.len(),
         );
+        // Lastenheft §17.2: most products should need three or four levels.
+        let levels = wsim_data::product_levels(c);
+        let mut count = [0usize; 7];
+        for (i, (_, p)) in c.products.iter().enumerate() {
+            if p.kind == wsim_core::catalog::ProductKind::EndProduct {
+                count[levels[i].min(6)] += 1;
+            }
+        }
+        let parts: Vec<String> = (1..=6)
+            .filter(|&l| count[l] > 0)
+            .map(|l| {
+                format!(
+                    "{l} {}: {}",
+                    if l == 1 { "Ebene" } else { "Ebenen" },
+                    count[l]
+                )
+            })
+            .collect();
+        println!(
+            "Endprodukte nach Ebenen des Produktbaums: {}.",
+            parts.join(", ")
+        );
     }
     println!("{errors} Fehler, {warnings} Warnungen.");
     if errors > 0 {

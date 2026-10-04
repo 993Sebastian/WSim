@@ -4,7 +4,6 @@
 produkt.eisenerz: Eisenerz
 produkt.eisenerz.info: Erz mit hohem Eisengehalt, gerechnet in Tonnen mit 60 % Eisen.
 produkt.kohle: Kohle
-produkt.roheisen: Roheisen
 produkt.stahl: Stahl
 produkt.blech: Blech
 produkt.draht: Draht
@@ -12,16 +11,14 @@ produkt.stabstahl: Stabstahl
 
 anlage.erzbergwerk: Erzbergwerk
 anlage.kohlenzeche: Kohlenzeche
-anlage.hochofen: Hochofen
-anlage.stahlwerk_konverter: Konverter-Stahlwerk
-anlage.stahlwerk_herdofen: Siemens-Martin-Stahlwerk
+anlage.stahlwerk_konverter: Hüttenwerk mit Bessemer-Konverter
+anlage.stahlwerk_herdofen: Hüttenwerk mit Siemens-Martin-Ofen
 anlage.elektrostahlwerk: Elektrostahlwerk
 anlage.walzwerk: Walzwerk
 anlage.drahtzieherei: Drahtzieherei
 
 rezept.eisenerz_abbau: Eisenerz fördern
 rezept.kohle_abbau: Kohle fördern
-rezept.roheisen_kokshochofen: Roheisen im Kokshochofen
 rezept.stahl_bessemer: Stahl nach Bessemer
 rezept.stahl_siemens_martin: Stahl nach Siemens-Martin
 rezept.stahl_elektro: Elektrostahl

@@ -137,8 +137,8 @@ rezepte:
     technologie: luftreifen
     eingang:
       gummi: 0.0006
-      stoff: 0.0002               # Gewebelagen aus Baumwolle
-      draht: 0.00005
+      garn: 0.00021               # Gewebelagen aus Baumwolle
+      stahl: 0.000055             # Wulstdraht
     arbeit_stunden:
       angelernt: 1.5
       fachkraft.chemie: 0.2
@@ -153,8 +153,8 @@ rezepte:
     technologie: luftreifen
     eingang:
       gummi: 0.008
-      stoff: 0.003
-      draht: 0.0005
+      garn: 0.0032
+      stahl: 0.00055
     arbeit_stunden:
       angelernt: 8
       fachkraft.chemie: 1

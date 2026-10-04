@@ -171,8 +171,7 @@ fn all_chains_run_from_raw_material_to_end_product() {
     // One works with all factories; they share its warehouse.
     let works = s.site(usa, SiteType::Factory);
     for (facility, recipe, utilization) in [
-        ("hochofen", "roheisen_kokshochofen", 1.0),
-        ("stahlwerk_herdofen", "stahl_siemens_martin", 0.5),
+        ("stahlwerk_herdofen", "stahl_siemens_martin", 1.0),
         ("walzwerk", "blech_walzen", 0.1),
         ("walzwerk", "stabstahl_walzen", 0.15),
         ("drahtzieherei", "draht_ziehen", 0.3),
@@ -245,7 +244,6 @@ fn all_chains_run_from_raw_material_to_end_product() {
     );
     let mut missing = Vec::new();
     for key in [
-        "roheisen",
         "stahl",
         "blech",
         "draht",

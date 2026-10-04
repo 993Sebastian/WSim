@@ -163,12 +163,13 @@ rezepte:
     anlage: verzinnerei
     technologie: feuerverzinnung
     eingang:
-      blech: 1.02
+      stahl: 1.14                 # walzen und verzinnen in einem (Lastenheft §17.2)
       zinn: 0.025
-      kohle: 0.1
-    arbeit_stunden:
-      angelernt: 6
-      fachkraft.metall: 2
+      kohle: 0.2
+    arbeit_stunden:              # mit dem Walzen des Feinblechs
+      ungelernt: 2.5
+      angelernt: 8
+      fachkraft.metall: 3
     qualitaet_basis: 55
     annaeherung: true
 

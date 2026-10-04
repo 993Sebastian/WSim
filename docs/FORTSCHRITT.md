@@ -240,3 +240,12 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   - Zahlen statt Schlüssel in Befehlen werden gegen den Katalog geprüft (vorher Absturz).
   - Nach „Laden“ beginnen alle Ansichten neu; das Berichtsarchiv wird geleert.
   - Kleinere Formularfehler (Vorgabewerte, Sondertilgung je Kredit, Laborbau im Bau).
+- M15: Produktbäume nach Lastenheft §17.2 (Vorgabe des Auftraggebers): höchstens vier
+  Vorprodukte je Rezept, höchstens sechs Ebenen, mehr als vier nur mit `sehr_komplex`.
+  Die Datenprüfung erzwingt das und zeigt die Verteilung der Endprodukte nach Ebenen.
+  Umbau dafür: Hochofen und Stahlwerk sind ein Hüttenwerk (Roheisen entfällt, Stahl aus
+  Erz und Kohle); Weißblech, Schrauben, Muttern, Motor und Fahrgestell aus Stahl; Reifen
+  aus Gummi, Garn und Stahl; Investitionsgüter (Nähmaschine in der Konfektion,
+  Elektromotor in der Weberei) sind keine Vorprodukte mehr; Fahrrad, Automobil,
+  Elektromotor, Karosserie und Möbel mit höchstens vier Vorprodukten. Ergebnis: acht
+  Endprodukte mit vier Ebenen, Handwerkzeug mit drei.

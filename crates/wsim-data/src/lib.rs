@@ -28,6 +28,17 @@ pub use yaml::Position;
 use read::{Ctx, RawData, SourceFile};
 use texts::TextIndex;
 
+/// Levels of every product's tree from the raw material (1) to the product itself
+/// (Lastenheft §17.2), indexed by product.
+pub fn product_levels(catalog: &Catalog) -> Vec<usize> {
+    let chains = build::longest_chains(catalog);
+    catalog
+        .products
+        .iter()
+        .map(|(p, _)| chains.get(&p).map_or(1, Vec::len))
+        .collect()
+}
+
 /// Language of the display texts (`data/texte/<LANGUAGE>/`).
 pub const LANGUAGE: &str = "de";
 

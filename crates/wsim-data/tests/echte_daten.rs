@@ -32,31 +32,25 @@ fn chain_one_is_complete() {
     let data = load_dir(&data_dir()).data.expect("data loads");
     let c = &data.catalog;
 
-    for key in [
-        "eisenerz",
-        "kohle",
-        "roheisen",
-        "stahl",
-        "blech",
-        "draht",
-        "stabstahl",
-    ] {
+    for key in ["eisenerz", "kohle", "stahl", "blech", "draht", "stabstahl"] {
         assert!(c.products.id(key).is_some(), "Produkt {key} fehlt");
     }
     let erz = c.products.id("eisenerz").unwrap();
     assert_eq!(c.products.get(erz).kind, ProductKind::RawMaterial);
     assert_eq!(c.products.get(erz).weight_kg, 1000.0);
 
-    let recipe = c
-        .recipes
-        .get(c.recipes.id("roheisen_kokshochofen").unwrap());
-    assert_eq!(recipe.product, c.products.id("roheisen").unwrap());
-    assert!(recipe.inputs.contains(&(erz, 1.7)));
+    // Blast furnace and converter form one steelworks (Lastenheft §17.2).
+    assert!(c.products.id("roheisen").is_none());
+    let recipe = c.recipes.get(c.recipes.id("stahl_bessemer").unwrap());
+    assert_eq!(recipe.product, c.products.id("stahl").unwrap());
+    assert!(recipe.inputs.contains(&(erz, 1.9)));
     let metal = c.labor_groups.id("fachkraft.metall").unwrap();
-    assert!(recipe.labor_hours.contains(&(metal, 1.8)));
+    assert!(recipe.labor_hours.contains(&(metal, 3.5)));
 
-    let furnace = c.facilities.get(c.facilities.id("hochofen").unwrap());
-    assert_eq!(furnace.investment, Money::from_usd(60_000_000.0).unwrap());
+    let works = c
+        .facilities
+        .get(c.facilities.id("stahlwerk_konverter").unwrap());
+    assert_eq!(works.investment, Money::from_usd(85_000_000.0).unwrap());
 
     // Every deposit of chain 1 lies in a country that exists.
     assert!(
@@ -295,7 +289,7 @@ fn chain_one_runs_in_britain() {
         &mut game,
         Command::BuildFacility {
             site: works,
-            facility: c.facilities.id("hochofen").unwrap(),
+            facility: c.facilities.id("stahlwerk_konverter").unwrap(),
             count: 1,
         },
     );
@@ -304,7 +298,7 @@ fn chain_one_runs_in_britain() {
         Command::SetProduction {
             site: works,
             slot: 0,
-            recipe: c.recipes.id("roheisen_kokshochofen"),
+            recipe: c.recipes.id("stahl_bessemer"),
             utilization: 1.0,
         },
     );
@@ -328,16 +322,16 @@ fn chain_one_runs_in_britain() {
         );
     }
     game.advance(RoundLength::Month, |_| {});
-    let pig_iron = c.products.id("roheisen").unwrap();
-    let stock = &game.state().site(works).unwrap().inventory[&pig_iron];
+    let steel = c.products.id("stahl").unwrap();
+    let stock = &game.state().site(works).unwrap().inventory[&steel];
     // 250 t a day at full capacity.
     assert!(stock.quantity > 250.0 * 25.0, "{}", stock.quantity);
     let cost_per_t = stock.value.to_usd() / stock.quantity;
-    // Ore, coal and labor in Britain 1903: a few dozen dollars (2026) per tonne.
-    eprintln!("Herstellkosten Roheisen 1903: {cost_per_t:.2} USD/t");
+    // Ore, coal and labor in Britain 1903: below a hundred dollars (2026) per tonne.
+    eprintln!("Herstellkosten Stahl 1903: {cost_per_t:.2} USD/t");
     assert!(
-        (10.0..200.0).contains(&cost_per_t),
-        "Herstellkosten Roheisen: {cost_per_t} USD/t"
+        (10.0..300.0).contains(&cost_per_t),
+        "Herstellkosten Stahl: {cost_per_t} USD/t"
     );
     assert!(
         game.state()

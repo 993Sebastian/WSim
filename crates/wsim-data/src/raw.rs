@@ -271,6 +271,9 @@ pub struct RawProduct {
     pub state_market: Option<RawStateMarket>,
     #[serde(rename = "ersetzt", default)]
     pub replaces: Vec<String>,
+    /// May use five or six levels in its product tree (Lastenheft §17.2).
+    #[serde(rename = "sehr_komplex", default)]
+    pub very_complex: bool,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]

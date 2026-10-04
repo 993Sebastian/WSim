@@ -216,6 +216,7 @@ Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
 | staatsmarkt.**preis_usd** | Ware ist in jedem Land vom staatlichen Markt zu diesem Preis erhältlich |
 | staatsmarkt.verfuegbar_ab / verfuegbar_bis | Jahre, in denen der Staatsmarkt die Ware anbietet |
 | ersetzt | Liste von Produkten, die dieses Produkt nach und nach verdrängt |
+| sehr_komplex | `true`, wenn der Produktbaum fünf oder sechs Ebenen braucht (Lastenheft §17.2); sonst Warnung ab fünf Ebenen |
 
 Jedes Produkt muss hergestellt (Rezept, auch als Nebenprodukt) oder vom
 **Staatsmarkt** bezogen werden können. Der Staatsmarkt liefert Güter ohne eigene
@@ -263,7 +264,7 @@ Gebrauchsgut sein.
 | **anlage** | Anlage, auf der das Rezept läuft |
 | technologie | Nötige Technologie |
 | abbau | `true`: fördert einen Rohstoff aus einer Lagerstätte am Standort |
-| eingang | `{produkt: menge}` je Durchlauf; nicht das eigene Produkt |
+| eingang | `{produkt: menge}` je Durchlauf; nicht das eigene Produkt; höchstens vier Vorprodukte (Strom zählt nicht). Der Produktbaum vom Rohstoff bis zum Produkt hat höchstens sechs Ebenen, mehr als vier nur bei `sehr_komplex` (Lastenheft §17.2) |
 | **arbeit_stunden** | `{arbeitskräftegruppe: stunden}` je Durchlauf, z. B. `fachkraft.metall: 1.8` |
 | energie_mwh | Strom je Durchlauf (Standard 0) |
 | **qualitaet_basis** | Grundqualität 0–100 vor Einfluss von Vorprodukten, Schulung, Automatisierung und Anlagenzustand |

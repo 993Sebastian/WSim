@@ -70,7 +70,7 @@ rezepte:
     anlage: naehmaschinenfabrik
     technologie: naehmaschine
     eingang:
-      roheisen: 0.008             # Gussgestell
+      stahl: 0.008                # Gussgestell
       stabstahl: 0.004
       schrauben: 0.0005
       muttern: 0.0002
@@ -88,11 +88,9 @@ rezepte:
     anlage: fahrradfabrik
     technologie: sicherheitsfahrrad
     eingang:
-      stabstahl: 0.01             # Rohre
+      stabstahl: 0.011            # Rohre und Speichen
       blech: 0.002
-      draht: 0.001                # Speichen
-      schrauben: 0.0005
-      muttern: 0.0003
+      schrauben: 0.0008           # mit Muttern
       fahrradreifen: 2
     arbeit_stunden:
       angelernt: 15

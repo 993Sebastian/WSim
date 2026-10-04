@@ -21,7 +21,7 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
   await expect(kopf.getByText("01.01.1914")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Standorte" })).toBeVisible();
-  await expect(page.getByText("Carnegie Steel Company")).toBeVisible();
+  await expect(page.getByText(/100 aktive KI-Firmen/)).toBeVisible();
 
   await page.getByLabel("Rundenlänge").selectOption("woche");
   await page.getByRole("button", { name: "Runde beenden" }).click();

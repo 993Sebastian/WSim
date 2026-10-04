@@ -1305,3 +1305,90 @@ ereignisse:
     befund(&outcome, "Land „XXX“ ist nicht definiert.");
     befund(&outcome, "Text „ereignis.grosser_streik.text“ fehlt");
 }
+
+/// A chain `eisen → stufe3 → … → stufe<n>` on top of the test chain (erz → eisen).
+fn tiefe_kette(ebenen: usize, sehr_komplex: bool) -> (String, String) {
+    let mut kette = String::from("produkte:\n");
+    let mut rezepte = String::from("rezepte:\n");
+    let mut texte = TEXTE.to_owned();
+    for stufe in 3..=ebenen {
+        let vorher = if stufe == 3 {
+            "eisen".to_owned()
+        } else {
+            format!("stufe{}", stufe - 1)
+        };
+        let komplex = if sehr_komplex && stufe == ebenen {
+            "    sehr_komplex: true\n"
+        } else {
+            ""
+        };
+        kette.push_str(&format!(
+            "  - id: stufe{stufe}\n    art: komponente\n    branche: metallurgie\n    einheit: t\n    verwendung: industrie\n    warengruppe: erze\n    transportklasse: schuettgut\n    richtpreis_usd: 1000\n{komplex}"
+        ));
+        rezepte.push_str(&format!(
+            "  - id: stufe{stufe}_bauen\n    produkt: stufe{stufe}\n    menge: 1\n    dauer_tage: 1\n    anlage: ofen\n    eingang:\n      {vorher}: 1\n    arbeit_stunden:\n      ungelernt: 1\n    qualitaet_basis: 50\n"
+        ));
+        texte.push_str(&format!(
+            "produkt.stufe{stufe}: Stufe {stufe}\nrezept.stufe{stufe}_bauen: Stufe {stufe} bauen\n"
+        ));
+    }
+    (kette + &rezepte, texte)
+}
+
+#[test]
+fn hoechstens_vier_vorprodukte() {
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    eingang:\n      erz: 2\n",
+        "    eingang:\n      erz: 2\n      e2: 1\n      e3: 1\n      e4: 1\n      e5: 1\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Das Rezept hat 5 Vorprodukte; erlaubt sind höchstens 4",
+    );
+    assert_eq!(f.severity, Severity::Error);
+    assert_eq!(f.path.to_string(), "rezepte[1].eingang");
+}
+
+#[test]
+fn produktbaum_hoechstens_sechs_ebenen() {
+    // Five levels: allowed only for very complex products.
+    let (kette, texte) = tiefe_kette(5, false);
+    let outcome = Daten::neu()
+        .datei("ketten/b.yaml", &kette)
+        .datei("texte/de/a.yaml", &texte)
+        .laden();
+    let w = befund(
+        &outcome,
+        "5 Ebenen (erz → eisen → stufe3 → stufe4 → stufe5); mehr als 4 sind nur für sehr komplexe Produkte",
+    );
+    assert_eq!(w.severity, Severity::Warning);
+    assert!(outcome.data.is_some());
+    let levels = wsim_data::product_levels(&outcome.data.unwrap().catalog);
+    assert_eq!(levels.iter().max(), Some(&5));
+
+    let (kette, texte) = tiefe_kette(6, true);
+    let outcome = Daten::neu()
+        .datei("ketten/b.yaml", &kette)
+        .datei("texte/de/a.yaml", &texte)
+        .laden();
+    assert!(
+        outcome
+            .report
+            .findings()
+            .iter()
+            .all(|f| !f.message.contains("6 Ebenen")),
+        "{:?}",
+        outcome.report.findings()
+    );
+
+    let (kette, texte) = tiefe_kette(7, true);
+    let outcome = Daten::neu()
+        .datei("ketten/b.yaml", &kette)
+        .datei("texte/de/a.yaml", &texte)
+        .laden();
+    let f = befund(&outcome, "Der Produktbaum hat hier 7 Ebenen");
+    assert_eq!(f.severity, Severity::Error);
+    assert!(f.message.contains("erlaubt sind höchstens 6"));
+}

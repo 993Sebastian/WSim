@@ -144,8 +144,7 @@ rezepte:
     anlage: weberei
     technologie: elektrischer_einzelantrieb
     eingang:
-      garn: 1.04
-      elektromotor: 0.002         # Verschleiß
+      garn: 1.04                  # der Elektroantrieb steckt in der Anlage
     arbeit_stunden:
       ungelernt: 30
       angelernt: 120
@@ -163,8 +162,7 @@ rezepte:
     technologie: naehmaschine
     eingang:
       stoff: 0.0007
-      garn: 0.00005
-      naehmaschine: 0.0002        # Verschleiß der Nähmaschinen
+      garn: 0.00005               # die Nähmaschinen stecken in der Anlage
     arbeit_stunden:
       angelernt: 1.2
       fachkraft.textil: 0.3

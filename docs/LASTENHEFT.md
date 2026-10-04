@@ -458,7 +458,7 @@ Rohstoffe: Eisenerz, Kohle, Kupfererz, Holz, Baumwolle, Getreide, Kautschuk, Roh
 
 | Nr. | Kette | Weg vom Rohstoff zum Produkt | Zweck im Spiel |
 | --- | --- | --- | --- |
-| 1 | Eisen und Stahl | Eisenerz + Kohle → Roheisen → Stahl → Blech, Draht, Stabstahl | Rückgrat fast aller anderen Ketten |
+| 1 | Eisen und Stahl | Eisenerz + Kohle → Stahl (Hüttenwerk) → Blech, Draht, Stabstahl | Rückgrat fast aller anderen Ketten |
 | 2 | Kleinteile | Draht, Stabstahl → Nägel, Schrauben, Muttern | Startprodukt der Werkstatt |
 | 3 | Werkzeug | Stahl + Holz → Handwerkzeuge | Einfaches Endprodukt aus zwei Ketten |
 | 4 | Holz | Holz → Schnittholz → Möbel | Konsumgut |
@@ -475,15 +475,21 @@ Rüstungsgüter folgen erst mit den historischen Ereignissen in Stufe 4.
 
 ### 17.2 Regeln für Produktbäume (alle Stufen)
 
-Vorgabe des Auftraggebers vom 04.10.2026, gilt für alle heutigen und künftigen Produkte:
+Vorgabe des Auftraggebers vom 04.10.2026 (Ebenen am selben Tag von vier auf sechs
+erweitert), gilt für alle heutigen und künftigen Produkte:
 
 - Ein Rezept hat **höchstens vier Vorprodukte**. Lieber ein Eingangsmaterial weglassen als
   einen zu breiten Baum bauen; z. B. wird ein Benzinmotor nur aus Stahl gefertigt.
-- Der Baum zu einem Zielprodukt hat **höchstens vier Ebenen einschließlich Zielebene**,
-  gezählt vom Rohstoff: Rohstoff → Halbzeug → Bauteil → Endprodukt. Güter ohne eigenes
+- Der Baum zu einem Zielprodukt hat **höchstens sechs Ebenen einschließlich Zielebene**,
+  gezählt vom Rohstoff, z. B. Rohstoff → Halbzeug → Bauteil → Endprodukt (vier Ebenen).
+  Sechs Ebenen reizen nur sehr komplexe Produkte aus (Linienflugzeug, Rakete); die meisten
+  Produkte liegen bei drei bis vier Ebenen, weniger ist immer erlaubt. Güter ohne eigenes
   Rezept (vom staatlichen Markt bezogen, z. B. Glas, Zinn) zählen als Rohstoffebene. Strom
   ist Produktionsfaktor und zählt nicht als Vorprodukt.
-- Die Datenprüfung (`wsim validate`) erzwingt beide Regeln für jedes Rezept.
+- Produkte mit fünf oder sechs Ebenen tragen in den Daten `sehr_komplex: true`; ohne diese
+  Angabe meldet die Datenprüfung eine Warnung.
+- Die Datenprüfung (`wsim validate`) erzwingt beide Regeln für jedes Rezept und zeigt die
+  Verteilung der Endprodukte nach Ebenen.
 - Ziel über alle Epochen: **rund 500 Endprodukte**, also Breite statt Tiefe. Viele
   Endprodukte teilen sich wenige Halbzeuge und Bauteile.
 

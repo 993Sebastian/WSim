@@ -165,11 +165,7 @@ rezepte:
     anlage: motorenwerk
     technologie: ottomotor
     eingang:
-      roheisen: 0.12              # Motorblock aus Guss
-      stahl: 0.06
-      kupferdraht: 0.002          # Zündung
-      schrauben: 0.004
-      muttern: 0.002
+      stahl: 0.19                 # nur Stahl (Lastenheft §17.2): Block, Welle, Kleinteile
     arbeit_stunden:
       angelernt: 120
       fachkraft.maschinenbau: 150
@@ -184,10 +180,7 @@ rezepte:
     anlage: fahrgestellwerk
     technologie: automobil
     eingang:
-      stabstahl: 0.25
-      blech: 0.05
-      schrauben: 0.01
-      muttern: 0.005
+      stahl: 0.33                 # Rahmen und Achsen, nur Stahl
     arbeit_stunden:
       angelernt: 80
       fachkraft.maschinenbau: 60
@@ -202,10 +195,8 @@ rezepte:
     technologie: automobil
     eingang:
       schnittholz: 0.15
-      blech: 0.06
-      stoff: 0.008                # Polster, Verdeck
+      stahl: 0.067                # Beplankung und Beschläge
       glas: 0.01
-      naegel: 0.002
       leim: 0.002
     arbeit_stunden:
       angelernt: 60
@@ -221,10 +212,8 @@ rezepte:
     anlage: karosseriewerk
     technologie: ganzstahlkarosserie
     eingang:
-      blech: 0.2
-      stoff: 0.008
+      stahl: 0.229                # Blech, Beschläge und Schrauben aus dem eigenen Walzwerk
       glas: 0.01
-      schrauben: 0.005
     arbeit_stunden:
       angelernt: 30
       fachkraft.metall: 15
@@ -244,8 +233,6 @@ rezepte:
       fahrgestell: 1
       karosserie: 1
       autoreifen: 4
-      schrauben: 0.005
-      muttern: 0.003
     arbeit_stunden:
       angelernt: 150
       fachkraft.maschinenbau: 120
@@ -264,8 +251,6 @@ rezepte:
       fahrgestell: 1
       karosserie: 1
       autoreifen: 4
-      schrauben: 0.005
-      muttern: 0.003
     arbeit_stunden:
       angelernt: 35
       fachkraft.maschinenbau: 12
