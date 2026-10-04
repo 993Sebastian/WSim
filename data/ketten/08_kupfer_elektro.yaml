@@ -44,7 +44,7 @@ produkte:
     transportklasse: stueckgut
     richtpreis_usd: 2500
     staatsnachfrage:              # Straßenbahnen, Elektrifizierung
-      je_mio_usd_bip: 0.3
+      je_mio_usd_bip: 0.05
       kriegsfaktor: 1.5
     annaeherung: true
 

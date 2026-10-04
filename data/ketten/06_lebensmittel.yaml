@@ -23,7 +23,7 @@ produkte:
     richtpreis_usd: 1100
     nachfrage:                    # Backen im Haushalt und beim Bäcker
       bedarfsklasse: grundbedarf
-      verbrauch: {je_kopf_und_jahr: 0.1}
+      verbrauch: {je_kopf_und_jahr: 0.06}
       kaufschwelle: 0.14          # die Hälfte kauft ab etwa 150 USD Einkommen
       preisempfindlichkeit: 0.3
       einkommensempfindlichkeit: 0.3
@@ -78,9 +78,9 @@ produkte:
     nachfrage:
       bedarfsklasse: grundbedarf
       verbrauch: {je_kopf_und_jahr: 12}
-      kaufschwelle: 375           # die Hälfte kauft ab etwa 1 500 USD Einkommen
+      kaufschwelle: 2000          # die Hälfte kauft ab etwa 8 000 USD Einkommen
       preisempfindlichkeit: 1.2
-      einkommensempfindlichkeit: 1.0
+      einkommensempfindlichkeit: 1.5
     staatsnachfrage:              # Heeresverpflegung
       je_mio_usd_bip: 20
       kriegsfaktor: 5.0

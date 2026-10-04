@@ -63,8 +63,13 @@ bei Bedarf widersprechen) · ❓ offen
 
 ## D Umfang und Technik
 
-19. 🟡 **Anzahl KI-Firmen.** Ausgelegt auf 10 000, Stufe 1 getestet mit 1 000,
-    Standard 300.
+19. ✅ **Anzahl KI-Firmen.** Standard **100 KI-Firmen** (Entscheidung des Auftraggebers,
+    04.10.2026: „eine Welt mit 100 Live-Gegnern ist ausreichend“), einstellbar; getestet
+    mit 1 000. Die **Marktgröße passt sich der Firmenzahl an**: Ein Marktmaßstab
+    verkleinert alle Mengen (Endkunden- und Staatsnachfrage, Arbeitskräftepools,
+    Förderung der Lagerstätten); Preise, Stundenlöhne, Einkommen je Kopf und
+    Anlagengrößen bleiben real. Mehr Firmen → größere Märkte. Länderwerte werden weiter
+    real angezeigt.
 20. 🟡 **Reale Firmen.** Stufe 1 etwa 30 reale Firmen der Kernbranchen plus
     generierte; vollständige Liste in Stufe 5.
 21. ✅ **Sprache.** Code-Bezeichner englisch; Datendateien und alle Texte deutsch.

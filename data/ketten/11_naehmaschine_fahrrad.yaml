@@ -33,9 +33,9 @@ produkte:
     nachfrage:
       bedarfsklasse: gebrauchsgut
       gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.4}
-      kaufschwelle: 3.6           # die Hälfte kauft ab etwa 2 500 USD Einkommen
+      kaufschwelle: 19            # die Hälfte kauft ab etwa 13 000 USD Einkommen
       preisempfindlichkeit: 1.5
-      einkommensempfindlichkeit: 1.3
+      einkommensempfindlichkeit: 2.5
     staatsnachfrage:              # Post, Heer
       je_mio_usd_bip: 0.2
       kriegsfaktor: 3.0

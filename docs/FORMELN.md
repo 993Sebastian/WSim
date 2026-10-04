@@ -243,8 +243,12 @@ Schicht. Preissenkungen erhöhen S_q gerade in den unteren Schichten (Massenmär
 
 - **Verbrauchsgüter:** Nachfrage je Tag = Bedarf je Kopf · S_q · Bevölkerung/5 / 365 · Saison.
 - **Gebrauchsgüter:** Besitzquote o_q je Einwohner. Zielquote T_q = max. Besitzquote · S_q
-  · Verdrängungsfaktor. Nachfrage je Tag = ((T_q − o_q)⁺ · Aneignung + o_q / Nutzungsdauer)
-  · Bevölkerung/5 / 365. Monatlich: o_q += Käufe / (Bevölkerung/5) − o_q / (12 · Nutzungsdauer).
+  · Verdrängungsfaktor. Nachfrage je Tag = ((T_q − o_q)⁺ · Aneignung + o_q / Nutzungsdauer
+  · min(1, T_q / o_q)) · Bevölkerung/5 / 365 – liegt der Besitz über dem Ziel, ersetzen
+  nur so viele Besitzer ihr Gerät, wie das Ziel noch trägt; die anderen wechseln (§6.4).
+  Monatlich: o_q += Käufe / (Bevölkerung/5) − o_q / (12 · Nutzungsdauer).
+- **Besitz zum Spielstart:** Für Gebrauchsgüter, die es zum Start schon gibt (ein Rezept
+  mit bekannter Technik oder der Staatsmarkt), beginnt o_q bei T_q; sonst bei 0.
 - **Verdrängung:** Ersetzt Produkt B Produkt A, sinkt T_A um den Faktor
   (1 − o_B / max. Besitzquote_B) – Besitzer des Nachfolgers kaufen den Vorgänger nicht mehr.
 

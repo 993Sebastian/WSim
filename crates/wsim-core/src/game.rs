@@ -189,7 +189,7 @@ impl Game {
         };
         state.refresh_countries(&catalog);
         state.fit_to_catalog(&catalog);
-        market::month_start(&mut state, &catalog, date);
+        market::initial_demand(&mut state, &catalog, date);
         apply_start_setup(&mut state, &catalog)?;
         Ok(Self {
             catalog,

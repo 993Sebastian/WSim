@@ -64,8 +64,8 @@ produkte:
     nachfrage:
       bedarfsklasse: luxus
       gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.3}
-      kaufschwelle: 2             # die Hälfte kauft ab etwa 60 000 USD Einkommen
-      preisempfindlichkeit: 1.5
+      kaufschwelle: 80            # zum Richtpreis kauft fast niemand; erst billige Autos
+      preisempfindlichkeit: 4     # schaffen den Massenmarkt (Ford Modell T)
       einkommensempfindlichkeit: 1.5
     staatsnachfrage:              # Post, Heer, Verwaltung
       je_mio_usd_bip: 0.005

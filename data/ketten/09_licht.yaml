@@ -26,7 +26,7 @@ produkte:
     heizwert_mwh: 12.0
     nachfrage:
       bedarfsklasse: grundbedarf
-      ergaenzung: {zu: petroleumlampe, je_besitz_und_jahr: 0.03}
+      ergaenzung: {zu: petroleumlampe, je_besitz_und_jahr: 0.02}
       kaufschwelle: 0.05
       preisempfindlichkeit: 0.5
       einkommensempfindlichkeit: 0.3

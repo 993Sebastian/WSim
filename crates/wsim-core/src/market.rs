@@ -98,12 +98,42 @@ pub fn propensity(demand: &ConsumerDemand, income: f64, price: f64, reference: f
 /// Start of a month: updates the ownership of durables from last month's purchases
 /// and sets the consumer and government demand per day.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
+    update_demand(state, catalog, date, false);
+}
+
+/// Demand at the start of a game. Households already own durables: their ownership
+/// starts at its equilibrium, so the first years show replacement and growth instead
+/// of a catch-up of everything people owned in 1900. Two passes, so that complements
+/// and displaced products see the ownership of the goods they depend on.
+pub(crate) fn initial_demand(state: &mut GameState, catalog: &Catalog, date: Date) {
+    update_demand(state, catalog, date, true);
+    update_demand(state, catalog, date, true);
+}
+
+/// Whether households could own a product at the start: some recipe for it uses only
+/// technologies known by then, or the state market sells it.
+fn available_at_start(catalog: &Catalog, product: ProductId, year: i32) -> bool {
+    let known = |t: Option<crate::ids::TechnologyId>| {
+        t.is_none_or(|t| catalog.technologies.get(t).invention_year <= year)
+    };
+    let p = catalog.products.get(product);
+    p.state_market
+        .is_some_and(|m| m.available_from.is_none_or(|y| y <= year))
+        || catalog.recipes.values().any(|r| {
+            r.product == product
+                && known(r.technology)
+                && known(catalog.facilities.get(r.facility).technology)
+        })
+}
+
+fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: bool) {
     let model = &catalog.market_model;
     let month = usize::try_from(date.month() - 1).expect("month 1-12");
     for (product, p) in catalog.products.iter() {
         if p.consumer_demand.is_none() && p.state_demand.is_none() {
             continue;
         }
+        let owned_at_start = initial && available_at_start(catalog, product, date.year());
         // Products that displace this one (§6.4): their ownership lowers our target.
         let successors: Vec<(ProductId, f64)> = catalog
             .products
@@ -154,16 +184,23 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                             service_life_years,
                             max_ownership,
                         } => {
-                            if per_layer > 0.0 {
+                            let target = max_ownership * share * displaced[q] * grid;
+                            if owned_at_start {
+                                market.ownership[q] = target;
+                            } else if !initial && per_layer > 0.0 {
                                 let owned = &mut market.ownership[q];
                                 *owned += market.bought[q] / per_layer
                                     - *owned / (service_life_years * 12.0);
                                 *owned = owned.max(0.0);
                             }
-                            let target = max_ownership * share * displaced[q] * grid;
                             let owned = market.ownership[q];
                             let gap = (target - owned).max(0.0);
-                            (gap * model.adoption_per_year + owned / service_life_years) * per_layer
+                            // Owners above the target switch at their next purchase
+                            // (Lastenheft §6.4, §9.1): only part of the worn-out units
+                            // is replaced.
+                            let replaced = if owned > target { target / owned } else { 1.0 };
+                            (gap * model.adoption_per_year + owned / service_life_years * replaced)
+                                * per_layer
                                 / 365.0
                         }
                         ConsumptionType::Complement {
