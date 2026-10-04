@@ -11,7 +11,9 @@ use std::sync::{Arc, Mutex};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
-use wsim_core::views::{MessageView, NewGameOptions, Overview, RoundReportView};
+use wsim_core::views::{
+    CountryDetail, MessageView, NewGameOptions, Overview, RoundReportView, WorldMap,
+};
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
 /// The session, or why the data could not be loaded.
@@ -102,6 +104,16 @@ async fn runde_beenden(
 }
 
 #[tauri::command]
+fn weltkarte(state: State<'_, Shared>) -> Result<WorldMap, Fehler> {
+    mit_sitzung(&state, |s| s.world_map())
+}
+
+#[tauri::command]
+fn land(state: State<'_, Shared>, schluessel: String) -> Result<CountryDetail, Fehler> {
+    mit_sitzung(&state, |s| s.country(&schluessel))
+}
+
+#[tauri::command]
 fn speichern(state: State<'_, Shared>, name: String) -> Result<SaveEntry, Fehler> {
     mit_sitzung(&state, |s| s.save(&name))
 }
@@ -148,6 +160,8 @@ fn main() {
             neues_spiel,
             uebersicht,
             runde_beenden,
+            weltkarte,
+            land,
             speichern,
             spielstaende,
             laden

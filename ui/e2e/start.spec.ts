@@ -72,3 +72,30 @@ test("Ein leerer Firmenname wird nicht abgeschickt", async ({ page }) => {
   // The empty company name is refused by the browser before anything is sent.
   await expect(page.getByRole("heading", { name: "Neues Spiel" })).toBeVisible();
 });
+
+test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel("Name der Firma").fill("Kartenprobe");
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+
+  await page.getByRole("button", { name: "Weltkarte" }).click();
+  const karte = page.getByRole("group", { name: "Weltkarte" });
+  await expect(karte).toBeVisible();
+  await expect(page.getByRole("list", { name: "Legende" })).toContainText("USD/h");
+
+  await page.getByRole("radio", { name: "Rohstoffe" }).click();
+  await page.getByLabel("Rohstoff").selectOption("kohle");
+  await expect(page.getByRole("list", { name: "Legende" })).toContainText("Konzession frei");
+
+  await karte.getByRole("button", { name: "Deutschland" }).click();
+  const detail = page.getByRole("complementary", { name: "Deutschland" });
+  await expect(detail.getByRole("heading", { name: "Arbeitskräfte und Löhne" })).toBeVisible();
+  await expect(detail.getByText("Ruhrgebiet")).toBeVisible();
+  await expect(detail.getByText("Kartenprobe")).toBeVisible();
+
+  await karte.getByRole("button", { name: "Frankreich" }).press("Enter");
+  await expect(
+    page.getByRole("complementary", { name: "Frankreich" }).getByRole("alert"),
+  ).toContainText("Die Vorschau enthält nur");
+});

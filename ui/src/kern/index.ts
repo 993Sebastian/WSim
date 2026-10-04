@@ -6,12 +6,14 @@ import { listen } from "@tauri-apps/api/event";
 import { KernFehler } from "./fehler";
 import type {
   Fortschritt,
+  Landdetail,
   NeuesSpiel,
   Optionen,
   Rundenbericht,
   Rundenlaenge,
   Spielstand,
   Uebersicht,
+  Weltkarte,
 } from "./typen";
 import { vorschauKern } from "./vorschau";
 
@@ -30,6 +32,8 @@ export interface Kern {
   neuesSpiel(einstellungen: NeuesSpiel): Promise<Uebersicht>;
   uebersicht(): Promise<Uebersicht>;
   rundeBeenden(laenge: Rundenlaenge, fortschritt: (f: Fortschritt) => void): Promise<Rundenbericht>;
+  weltkarte(): Promise<Weltkarte>;
+  land(schluessel: string): Promise<Landdetail>;
   speichern(name: string): Promise<Spielstand>;
   spielstaende(): Promise<Spielstand[]>;
   laden(name: string): Promise<Uebersicht>;
@@ -57,6 +61,8 @@ const tauriKern: Kern = {
       abmelden();
     }
   },
+  weltkarte: () => aufruf("weltkarte"),
+  land: (schluessel) => aufruf("land", { schluessel }),
   speichern: (name) => aufruf("speichern", { name }),
   spielstaende: () => aufruf("spielstaende"),
   laden: (name) => aufruf("laden", { name }),

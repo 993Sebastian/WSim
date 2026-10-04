@@ -9,6 +9,15 @@
   --rahmen: #d8dee6;
   --warnung: #9a6300;
   --hervorhebung: #e8eef6;
+  --meer: #dfe8f1;
+  --land: #c9d1da;
+  --grenze: #f7f9fb;
+  --skala-0: #e6eef5;
+  --skala-1: #bcd0e3;
+  --skala-2: #87abcd;
+  --skala-3: #4f7fae;
+  --skala-4: #1f3a5f;
+  --eigen: #c0681a;
 
   color-scheme: light dark;
   font-family: "Segoe UI", system-ui, sans-serif;
@@ -28,6 +37,15 @@
     --rahmen: #2c3644;
     --warnung: #e7b04f;
     --hervorhebung: #223047;
+    --meer: #0f1620;
+    --land: #2e3946;
+    --grenze: #12171e;
+    --skala-0: #24303d;
+    --skala-1: #2f4a66;
+    --skala-2: #3f6b93;
+    --skala-3: #6595c2;
+    --skala-4: #a9c8e8;
+    --eigen: #f0a35e;
   }
 }
 
@@ -559,4 +577,236 @@ table.ergebnis th[scope="row"] {
 .forschungszeile progress {
   width: 100%;
   accent-color: var(--akzent);
+}
+
+/* Tabs of the game screen */
+.reiter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  padding: 0.4rem 1.25rem 0;
+  border-bottom: 1px solid var(--rahmen);
+  background: var(--flaeche);
+}
+
+.reiter button {
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: transparent;
+}
+
+.reiter button[aria-current="page"] {
+  border-bottom-color: var(--akzent);
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+.reiter .gedaempft {
+  margin-left: auto;
+  font-size: 0.85rem;
+}
+
+/* World map */
+.weltkarte {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.karten-steuerung {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.karten-steuerung button[aria-checked="true"] {
+  border-color: var(--akzent);
+  background: var(--akzent);
+  color: var(--flaeche);
+}
+
+.karten-steuerung label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.75rem;
+}
+
+.karten-flaeche {
+  position: relative;
+}
+
+.karte {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+}
+
+.karte .meer {
+  fill: var(--meer);
+}
+
+.karte .land {
+  stroke: var(--grenze);
+  stroke-width: 0.12;
+  cursor: pointer;
+}
+
+.karte .land:hover,
+.karte .land:focus-visible {
+  stroke: var(--text);
+  stroke-width: 0.3;
+  outline: none;
+}
+
+.karte .land.gewaehlt {
+  stroke: var(--eigen);
+  stroke-width: 0.45;
+}
+
+.karte .symbol {
+  pointer-events: none;
+}
+
+.karte .fremd {
+  fill: var(--akzent);
+  fill-opacity: 0.45;
+}
+
+.karte .eigen {
+  fill: var(--eigen);
+}
+
+.karte .lager {
+  stroke: var(--flaeche);
+  stroke-width: 0.15;
+}
+
+.karte .lager.frei {
+  fill: var(--erfolg);
+}
+
+.karte .lager.vergeben {
+  fill: var(--text-gedaempft);
+}
+
+.karte .lager.unentdeckt {
+  fill: none;
+  stroke: var(--text-gedaempft);
+  stroke-dasharray: 0.4 0.3;
+}
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.legende li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legende .farbe,
+.legende .punkt {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid var(--rahmen);
+}
+
+.legende .punkt {
+  border-radius: 50%;
+}
+
+.legende .punkt.eigen {
+  background: var(--eigen);
+}
+
+.legende .punkt.fremd {
+  background: var(--akzent);
+  opacity: 0.6;
+}
+
+.legende .punkt.frei {
+  background: var(--erfolg);
+}
+
+.legende .punkt.vergeben {
+  background: var(--text-gedaempft);
+}
+
+.legende .punkt.unentdeckt {
+  border: 1px dashed var(--text-gedaempft);
+}
+
+/* Country detail */
+.laenderdetail {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+  background: var(--flaeche);
+}
+
+.laenderdetail h3 {
+  margin: 1.1rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.werte {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.werte dt {
+  color: var(--text-gedaempft);
+}
+
+.werte dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.liste.kompakt li {
+  padding: 0.3rem 0;
+}
+
+.liste li.eigen span:first-child {
+  font-weight: 600;
+  color: var(--eigen);
+}
+
+.karten-spalte {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .weltkarte:has(.laenderdetail) {
+    grid-template-columns: minmax(0, 1fr) 30rem;
+    align-items: start;
+  }
+
+  .weltkarte .laenderdetail {
+    position: sticky;
+    top: 7rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
 }

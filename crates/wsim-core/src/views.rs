@@ -14,6 +14,7 @@ use crate::command::site_type_key;
 use crate::game::{
     Game, MAX_RESEARCH_FACTOR, MAX_START_CAPITAL_USD, MIN_RESEARCH_FACTOR, RoundReport,
 };
+use crate::ids::Id;
 use crate::ledger::{Account, CostType};
 use crate::message::{Message, MessageKind, Param};
 use crate::money::Money;
@@ -528,6 +529,250 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
     }
 }
 
+/// A country on the world map with the values of its layers (Lastenheft §3.3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MapCountry {
+    pub key: String,
+    pub lat: f64,
+    pub lon: f64,
+    pub population: f64,
+    pub gdp_per_capita_usd: f64,
+    /// Hourly wage of the unskilled (first labor group).
+    pub wage_usd: f64,
+    pub development: f64,
+    pub grid_share: f64,
+    pub own_sites: u32,
+    pub other_sites: u32,
+}
+
+/// A deposit on the world map, shown at its country's capital.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MapDeposit {
+    pub key: String,
+    pub country: String,
+    pub resource: String,
+    /// Yearly output in game quantities (market scale applied).
+    pub max_output_per_year: f64,
+    pub concessions: u32,
+    pub free_concessions: u32,
+    /// Discovered later than the current year.
+    pub undiscovered: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WorldMap {
+    pub date: String,
+    pub countries: Vec<MapCountry>,
+    pub deposits: Vec<MapDeposit>,
+    /// Raw materials with deposits, for the resource filter.
+    pub resources: Vec<String>,
+}
+
+pub fn world_map(game: &Game) -> WorldMap {
+    let state = game.state();
+    let catalog = game.catalog();
+    let mut own = vec![0u32; catalog.countries.len()];
+    let mut other = vec![0u32; catalog.countries.len()];
+    for s in &state.sites {
+        if state.companies[s.owner.index()].bankrupt {
+            continue;
+        }
+        let n = if s.owner == state.player {
+            &mut own
+        } else {
+            &mut other
+        };
+        n[s.country.index()] += 1;
+    }
+    let countries = catalog
+        .countries
+        .iter()
+        .map(|(id, c)| {
+            let v = state.countries.get(id);
+            MapCountry {
+                key: catalog.countries.key(id).to_owned(),
+                lat: c.capital.lat,
+                lon: c.capital.lon,
+                population: v.population,
+                gdp_per_capita_usd: v.gdp_per_capita_usd,
+                wage_usd: v.hourly_wage_usd.first().copied().unwrap_or(0.0),
+                development: v.development,
+                grid_share: v.grid_share,
+                own_sites: own[id.index()],
+                other_sites: other[id.index()],
+            }
+        })
+        .collect();
+    let year = state.date.year();
+    let mut resources: Vec<String> = Vec::new();
+    let deposits = catalog
+        .deposits
+        .iter()
+        .map(|(id, d)| {
+            let resource = catalog.products.key(d.resource).to_owned();
+            if !resources.contains(&resource) {
+                resources.push(resource.clone());
+            }
+            let ds = state.deposits.get(id);
+            MapDeposit {
+                key: catalog.deposits.key(id).to_owned(),
+                country: catalog.countries.key(d.country).to_owned(),
+                resource,
+                max_output_per_year: d.max_output_per_year * state.settings.market_scale,
+                concessions: u32::try_from(ds.concessions.len()).unwrap_or(u32::MAX),
+                free_concessions: u32::try_from(
+                    ds.concessions.iter().filter(|c| c.site.is_none()).count(),
+                )
+                .unwrap_or(u32::MAX),
+                undiscovered: d.discovered.is_some_and(|y| y > year),
+            }
+        })
+        .collect();
+    WorldMap {
+        date: iso(state.date),
+        countries,
+        deposits,
+        resources,
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LaborView {
+    /// Labor group key, e.g. `fachkraft.metall`.
+    pub group: String,
+    pub persons: f64,
+    /// Workers the companies can hire in the game (market scale applied).
+    pub available: f64,
+    pub wage_usd: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CountryCompany {
+    pub name: String,
+    pub sites: u32,
+    pub own: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CountryMarket {
+    pub product: String,
+    pub price_usd: f64,
+    pub demand_last_month: f64,
+    pub sold_last_month: f64,
+}
+
+/// Everything about one country (Lastenheft §3.2, §14.1 Länderdetail).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CountryDetail {
+    pub key: String,
+    pub date: String,
+    pub population: f64,
+    pub gdp_per_capita_usd: f64,
+    pub price_level: f64,
+    pub gini: f64,
+    pub income_quintiles_usd: [f64; 5],
+    pub labor_force: f64,
+    pub labor: Vec<LaborView>,
+    pub electricity_price_usd_mwh: f64,
+    pub grid_share: f64,
+    pub corporate_tax: f64,
+    pub dividend_tax: f64,
+    pub development: f64,
+    /// Rail, road, port, air (0–1).
+    pub infrastructure: [f64; 4],
+    pub stability: f64,
+    pub deposits: Vec<MapDeposit>,
+    /// Companies with sites in the country, most sites first.
+    pub companies: Vec<CountryCompany>,
+    /// Markets with demand or sales, largest turnover first.
+    pub markets: Vec<CountryMarket>,
+}
+
+pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let id = catalog.countries.id(key)?;
+    let v = state.countries.get(id);
+    let labor = catalog
+        .labor_groups
+        .iter()
+        .map(|(g, _)| LaborView {
+            group: catalog.labor_groups.key(g).to_owned(),
+            persons: v.labor_pool.get(g.index()).copied().unwrap_or(0.0),
+            available: v.labor_available.get(g.index()).copied().unwrap_or(0.0),
+            wage_usd: v.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0),
+        })
+        .collect();
+    let mut sites: BTreeMap<usize, u32> = BTreeMap::new();
+    for s in state.sites.iter().filter(|s| s.country == id) {
+        if !state.companies[s.owner.index()].bankrupt {
+            *sites.entry(s.owner.index()).or_default() += 1;
+        }
+    }
+    let mut companies: Vec<CountryCompany> = sites
+        .into_iter()
+        .map(|(c, n)| CountryCompany {
+            name: state.companies[c].name.clone(),
+            sites: n,
+            own: c == state.player.index(),
+        })
+        .collect();
+    companies.sort_by(|a, b| {
+        b.own
+            .cmp(&a.own)
+            .then(b.sites.cmp(&a.sites))
+            .then(a.name.cmp(&b.name))
+    });
+    let mut markets: Vec<CountryMarket> = catalog
+        .products
+        .ids()
+        .filter_map(|p| {
+            let m = state.markets.get(p).get(id);
+            let t = &m.last_month;
+            (t.demand > 0.0 || t.sold > 0.0).then(|| CountryMarket {
+                product: catalog.products.key(p).to_owned(),
+                price_usd: usd(crate::market::market_price(catalog, state, id, p)),
+                demand_last_month: t.demand,
+                sold_last_month: t.sold,
+            })
+        })
+        .collect();
+    markets.sort_by(|a, b| {
+        (b.sold_last_month * b.price_usd).total_cmp(&(a.sold_last_month * a.price_usd))
+    });
+    let map = world_map(game);
+    Some(CountryDetail {
+        key: key.to_owned(),
+        date: iso(state.date),
+        population: v.population,
+        gdp_per_capita_usd: v.gdp_per_capita_usd,
+        price_level: v.price_level,
+        gini: v.gini,
+        income_quintiles_usd: v.income_quintiles_usd,
+        labor_force: v.labor_force,
+        labor,
+        electricity_price_usd_mwh: v.electricity_price_usd_mwh,
+        grid_share: v.grid_share,
+        corporate_tax: v.corporate_tax,
+        dividend_tax: v.dividend_tax,
+        development: v.development,
+        infrastructure: [
+            v.infrastructure.rail,
+            v.infrastructure.road,
+            v.infrastructure.port,
+            v.infrastructure.air,
+        ],
+        stability: v.stability,
+        deposits: map
+            .deposits
+            .into_iter()
+            .filter(|d| d.country == key)
+            .collect(),
+        companies,
+        markets,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -611,6 +856,23 @@ mod tests {
             "{json}"
         );
         assert_eq!(v.target.as_deref(), Some("uebersicht"));
+    }
+
+    #[test]
+    fn world_map_and_country_detail() {
+        let g = game();
+        let map = world_map(&g);
+        assert_eq!(map.countries.len(), g.catalog().countries.len());
+        let sites = map
+            .countries
+            .iter()
+            .map(|c| c.own_sites + c.other_sites)
+            .sum::<u32>();
+        assert_eq!(sites as usize, g.state().sites.len());
+        let key = map.countries[0].key.clone();
+        let detail = country_detail(&g, &key).expect("known country");
+        assert_eq!(detail.labor.len(), g.catalog().labor_groups.len());
+        assert!(country_detail(&g, "XXX").is_none());
     }
 
     #[test]

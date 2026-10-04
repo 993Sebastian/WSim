@@ -349,11 +349,22 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     }
     let report = session.end_round("monat", |_| {}).map_err(message)?;
     let after = session.overview().map_err(message)?;
+    let map = session.world_map().map_err(message)?;
+    let countries: serde_json::Map<String, serde_json::Value> = ["DEU", "GBR", "USA"]
+        .iter()
+        .map(|&k| {
+            let detail = session.country(k).map_err(message)?;
+            let value = serde_json::to_value(detail).map_err(|e| e.to_string())?;
+            Ok((k.to_owned(), value))
+        })
+        .collect::<Result<_, String>>()?;
     let json = serde_json::json!({
         "optionen": options,
         "uebersicht_start": start,
         "bericht": report,
         "uebersicht": after,
+        "weltkarte": map,
+        "laender": countries,
     });
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;

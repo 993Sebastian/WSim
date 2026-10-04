@@ -147,3 +147,60 @@ export interface Fortschritt {
   done: number;
   total: number;
 }
+
+export interface KartenLand {
+  key: string;
+  lat: number;
+  lon: number;
+  population: number;
+  gdp_per_capita_usd: number;
+  wage_usd: number;
+  development: number;
+  grid_share: number;
+  own_sites: number;
+  other_sites: number;
+}
+
+export interface Lagerstaette {
+  key: string;
+  country: string;
+  resource: string;
+  max_output_per_year: number;
+  concessions: number;
+  free_concessions: number;
+  undiscovered: boolean;
+}
+
+export interface Weltkarte {
+  date: string;
+  countries: KartenLand[];
+  deposits: Lagerstaette[];
+  resources: string[];
+}
+
+export interface Landdetail {
+  key: string;
+  date: string;
+  population: number;
+  gdp_per_capita_usd: number;
+  price_level: number;
+  gini: number;
+  income_quintiles_usd: number[];
+  labor_force: number;
+  labor: { group: string; persons: number; available: number; wage_usd: number }[];
+  electricity_price_usd_mwh: number;
+  grid_share: number;
+  corporate_tax: number;
+  dividend_tax: number;
+  development: number;
+  infrastructure: number[];
+  stability: number;
+  deposits: Lagerstaette[];
+  companies: { name: string; sites: number; own: boolean }[];
+  markets: {
+    product: string;
+    price_usd: number;
+    demand_last_month: number;
+    sold_last_month: number;
+  }[];
+}

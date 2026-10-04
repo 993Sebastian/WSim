@@ -3,13 +3,23 @@
 import beispielJson from "./beispiel.json";
 import { KernFehler } from "./fehler";
 import type { Kern } from "./index";
-import type { Optionen, Rundenbericht, Rundenlaenge, Spielstand, Uebersicht } from "./typen";
+import type {
+  Landdetail,
+  Optionen,
+  Rundenbericht,
+  Rundenlaenge,
+  Spielstand,
+  Uebersicht,
+  Weltkarte,
+} from "./typen";
 
 const beispiel = beispielJson as unknown as {
   optionen: Optionen;
   uebersicht_start: Uebersicht;
   bericht: Rundenbericht;
   uebersicht: Uebersicht;
+  weltkarte: Weltkarte;
+  laender: Record<string, Landdetail>;
 };
 
 const TAGE: Record<Rundenlaenge, number> = { tag: 1, woche: 7, monat: 31, quartal: 92 };
@@ -56,6 +66,26 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       }
       spiel = mitName(beispiel.uebersicht);
       return kopie(beispiel.bericht);
+    },
+    weltkarte: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.weltkarte);
+    },
+    land: async (schluessel) => {
+      if (!spiel) throw keinSpiel();
+      const land = beispiel.laender[schluessel];
+      if (!land) {
+        throw new KernFehler({
+          kind: "error",
+          group: "allgemein",
+          key: "vorschau.land_fehlt",
+          params: {},
+          target: null,
+        });
+      }
+      const c = kopie(land);
+      for (const f of c.companies) if (f.own) f.name = firma;
+      return c;
     },
     speichern: async (name) => {
       if (!spiel) throw keinSpiel();

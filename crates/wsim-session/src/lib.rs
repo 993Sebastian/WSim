@@ -15,7 +15,9 @@ use wsim_core::message::{Message, Param};
 use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
-use wsim_core::views::{self, MessageView, NewGameOptions, Overview, RoundReportView};
+use wsim_core::views::{
+    self, CountryDetail, MessageView, NewGameOptions, Overview, RoundReportView, WorldMap,
+};
 
 /// File extension of saves.
 pub const SAVE_EXTENSION: &str = "wsim";
@@ -132,6 +134,18 @@ impl Session {
             .as_ref()
             .map(views::overview)
             .ok_or_else(|| error(keys::NO_GAME))
+    }
+
+    pub fn world_map(&self) -> Result<WorldMap, MessageView> {
+        self.game
+            .as_ref()
+            .map(views::world_map)
+            .ok_or_else(|| error(keys::NO_GAME))
+    }
+
+    pub fn country(&self, key: &str) -> Result<CountryDetail, MessageView> {
+        let game = self.game.as_ref().ok_or_else(|| error(keys::NO_GAME))?;
+        views::country_detail(game, key).ok_or_else(|| error(keys::UNKNOWN_COUNTRY))
     }
 
     /// Simulates one round of `length` (`tag`, `woche`, `monat`, `quartal`).

@@ -115,3 +115,56 @@ bericht.gruppe.warnung: Warnungen
 bericht.gruppe.wettbewerb: Wettbewerb
 bericht.gruppe.forschung: Forschung
 bericht.gruppe.allgemein: Allgemein
+
+spiel.ansichten: Ansichten
+spiel.weitere_ansichten: "Produktion, Markt, Forschung und Finanzen folgen."
+ansicht.uebersicht: Übersicht
+ansicht.weltkarte: Weltkarte
+
+karte.titel: Weltkarte
+karte.ebene: Kartenebene
+karte.ebene.lohn: Lohnniveau
+karte.ebene.bip: BIP je Kopf
+karte.ebene.bevoelkerung: Bevölkerung
+karte.ebene.rohstoffe: Rohstoffe
+karte.ebene.standorte: Standorte
+karte.rohstoff: Rohstoff
+karte.legende: Legende
+karte.standorte_titel: "{eigene} eigene, {fremde} fremde Standorte"
+karte.lagerstaetten_titel: "{anzahl} Lagerstätten"
+karte.lager.frei: "{frei} von {gesamt} Konzessionen frei"
+karte.lager.vergeben: alle Konzessionen vergeben
+karte.lager.unentdeckt: noch nicht entdeckt
+karte.legende.frei: Konzession frei
+karte.legende.vergeben: vergeben
+karte.legende.unentdeckt: noch nicht entdeckt
+karte.eigene_standorte: eigene Standorte
+karte.fremde_standorte: Standorte der Wettbewerber
+karte.hinweis: Länder in heutigen Grenzen. Lohnniveau = Stundenlohn ungelernter Arbeitskräfte. Lagerstätten stehen an der Hauptstadt ihres Landes; die Größe zeigt die mögliche Jahresförderung. Ein Klick auf ein Land öffnet die Länderdaten.
+
+landdetail.bevoelkerung: Bevölkerung
+landdetail.bip_je_kopf: BIP je Kopf
+landdetail.preisniveau: Preisniveau
+landdetail.gini: Gini-Koeffizient
+landdetail.strom: Strompreis
+landdetail.netz: "Netz deckt {anteil}"
+landdetail.steuern: Steuern
+landdetail.steuern_wert: "Gewinn {gewinn}, Dividende {dividende}"
+landdetail.infrastruktur: Infrastruktur
+landdetail.infrastruktur_wert: "Schiene {schiene}, Straße {strasse}, Hafen {hafen}"
+landdetail.stabilitaet: Stabilität
+landdetail.arbeitskraefte: Arbeitskräfte und Löhne
+landdetail.gruppe: Gruppe
+landdetail.personen: Personen
+landdetail.verfuegbar: im Spiel
+landdetail.lohn: Lohn/h
+landdetail.lagerstaetten: Lagerstätten
+landdetail.konzessionen: "{frei} von {gesamt} Konzessionen frei"
+landdetail.firmen: Firmen im Land
+landdetail.keine_firmen: Noch keine Firma hat hier einen Standort.
+landdetail.standorte_anzahl: "{anzahl} Standorte"
+landdetail.maerkte: Märkte (Vormonat)
+landdetail.preis: Preis
+landdetail.nachfrage: Nachfrage
+landdetail.verkauft: verkauft
+vorschau.land_fehlt: Die Vorschau enthält nur Deutschland, das Vereinigte Königreich und die Vereinigten Staaten.

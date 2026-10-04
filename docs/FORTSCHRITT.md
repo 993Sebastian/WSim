@@ -20,7 +20,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M10 | KI-Firmen | ✅ |
 | M11 | Rundenbericht und Meldungen | ✅ |
 | M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
-| M13 | Oberfläche II: Weltkarte | offen |
+| M13 | Oberfläche II: Weltkarte | ✅ |
 | M14 | Oberfläche III: Spielen | offen |
 | M15 | Spielbarkeit Stufe 1 | offen |
 
@@ -179,4 +179,17 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   überschrieben); manuelle Spielstände beliebig. Ein Meldungsarchiv folgt mit M14.
 - M11: Die Browser-Vorschau zeigt jetzt einen Start 1914 mit dem Juli-Bericht
   (Kriegsbeginn), damit Popups und Vergleich sichtbar sind.
+- M13: Weltkarte als eigenes SVG statt ECharts-Geo (Architektur §2.4): keine zusätzliche
+  Bibliothek, volle Kontrolle über Farben in hellem und dunklem Design. Die Umrisse
+  erzeugt `python3 tools/daten/karte.py` aus Natural Earth 1:50 Mio. (gleichabstandige
+  Projektion, vereinfacht, 151 KB); 21 Kleinstaaten ohne Fläche erscheinen als Punkt
+  an der Hauptstadt.
+- M13: Ebenen Lohnniveau (Stundenlohn Ungelernter), BIP je Kopf, Bevölkerung (je fünf
+  Klassen nach Quantilen), Rohstoffe (Lagerstätten je Rohstoff an der Hauptstadt, Größe
+  nach Jahresförderung, Farbe nach freien Konzessionen) und Standorte (eigene und
+  fremde). Ein Klick oder Enter auf ein Land öffnet das Länderdetail: Grundwerte,
+  Arbeitskräfte und Löhne je Gruppe, Lagerstätten mit Konzessionen, Firmen im Land und
+  Märkte des Vormonats.
+- M13: Routen auf der Karte (Lastenheft §14.1) folgen mit der Logistik in Stufe 2; in
+  Stufe 1 zeigt `wsim route` die Wege.
 

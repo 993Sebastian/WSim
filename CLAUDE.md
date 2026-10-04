@@ -59,6 +59,7 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - `data/laender/*.yaml` und `data/texte/de/laender.yaml` erzeugt
   `python3 tools/daten/laender.py` aus Gapminder und Natural Earth (Quellen werden nach
   `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript.
+  Die Umrisse der Weltkarte (`ui/src/karte/welt.json`) erzeugt `tools/daten/karte.py`.
 - Fortschritt und eigenständige Entscheidungen: `docs/FORTSCHRITT.md`.
 
 ## Spielstände

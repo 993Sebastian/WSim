@@ -7,6 +7,10 @@ import { fehlerText } from "./fehler";
 import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
 import { WeltereignisDialog } from "./Weltereignis";
+import { WeltkarteAnsicht } from "./Weltkarte";
+
+type Ansicht = "uebersicht" | "weltkarte";
+const ANSICHTEN: Ansicht[] = ["uebersicht", "weltkarte"];
 import { UebersichtAnsicht } from "./Uebersicht";
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
@@ -32,6 +36,7 @@ export function Spiel({
   const [laenge, setLaenge] = useState<Rundenlaenge>("monat");
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
+  const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
   const firma = uebersicht.company;
 
   const runde = async () => {
@@ -59,7 +64,7 @@ export function Spiel({
 
   const springe = (ziel: string) => {
     setFenster({ art: "keins" });
-    document.getElementById(ziel)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if ((ANSICHTEN as string[]).includes(ziel)) setAnsicht(ziel as Ansicht);
   };
 
   return (
@@ -114,9 +119,23 @@ export function Spiel({
           </button>
         </nav>
       </header>
+      <nav className="reiter" aria-label={t("spiel.ansichten")}>
+        {ANSICHTEN.map((a) => (
+          <button
+            key={a}
+            type="button"
+            aria-current={ansicht === a ? "page" : undefined}
+            onClick={() => setAnsicht(a)}
+          >
+            {t(`ansicht.${a}`)}
+          </button>
+        ))}
+        <span className="gedaempft">{t("spiel.weitere_ansichten")}</span>
+      </nav>
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
-      <UebersichtAnsicht uebersicht={uebersicht} />
+      {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
+      {ansicht === "weltkarte" && <WeltkarteAnsicht kern={kern} datum={uebersicht.date} />}
 
       {fenster.art === "runde" && (
         <Dialog titel={t("fortschritt.titel")}>

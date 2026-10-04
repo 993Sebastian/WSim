@@ -126,6 +126,1374 @@
     "research": [],
     "to": "1914-07-31"
   },
+  "laender": {
+    "DEU": {
+      "companies": [
+        {
+          "name": "Neue Firma",
+          "own": true,
+          "sites": 1
+        },
+        {
+          "name": "Vogt KG",
+          "own": false,
+          "sites": 13
+        },
+        {
+          "name": "Holzwerke Lorenz AG",
+          "own": false,
+          "sites": 5
+        },
+        {
+          "name": "Allgemeine Elektricitäts-Gesellschaft",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Fletcher & Whitfield Ltd.",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Fried. Krupp",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Morgan Motor & Sons",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Reuter & Hartmann GmbH",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Siemens & Halske",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Thyssen & Co.",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Vogt & Söhne",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Adam Opel",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Continental-Caoutchouc- und Gutta-Percha Compagnie",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Daimler-Motoren-Gesellschaft",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Dortmunder Chemische Werke KG",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Maschinenfabrik Reuter & Söhne",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Rong Gongchang Ju",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Zürcher Spinnerei und Weberei & Co.",
+          "own": false,
+          "sites": 1
+        }
+      ],
+      "corporate_tax": 0.050673515981734835,
+      "date": "1914-08-01",
+      "deposits": [
+        {
+          "concessions": 1,
+          "country": "DEU",
+          "free_concessions": 1,
+          "key": "siegerland",
+          "max_output_per_year": 200000.0,
+          "resource": "eisenerz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "DEU",
+          "free_concessions": 0,
+          "key": "boerden",
+          "max_output_per_year": 600000.0,
+          "resource": "getreide",
+          "undiscovered": false
+        },
+        {
+          "concessions": 10,
+          "country": "DEU",
+          "free_concessions": 6,
+          "key": "deutsche_waelder",
+          "max_output_per_year": 1500000.0,
+          "resource": "holz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 10,
+          "country": "DEU",
+          "free_concessions": 6,
+          "key": "ruhrgebiet",
+          "max_output_per_year": 15000000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "DEU",
+          "free_concessions": 1,
+          "key": "saarrevier",
+          "max_output_per_year": 1500000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "DEU",
+          "free_concessions": 1,
+          "key": "mansfeld",
+          "max_output_per_year": 100000.0,
+          "resource": "kupfererz",
+          "undiscovered": false
+        }
+      ],
+      "development": 0.4836687090148202,
+      "dividend_tax": 0.06888888888888889,
+      "electricity_price_usd_mwh": 642.0514823725888,
+      "gdp_per_capita_usd": 8623.468493150704,
+      "gini": 0.42383835616438365,
+      "grid_share": 0.28510224470838263,
+      "income_quintiles_usd": [
+        1775.9753748836645,
+        3354.739819510441,
+        5097.156259151446,
+        7779.152017759416,
+        16597.41858632456
+      ],
+      "infrastructure": [
+        0.6954629458244488,
+        0.13703946755419905,
+        0.6954629458244488,
+        0.0
+      ],
+      "key": "DEU",
+      "labor": [
+        {
+          "available": 1153990.8946622298,
+          "group": "ungelernt",
+          "persons": 11539908.946622297,
+          "wage_usd": 2.773575458036241
+        },
+        {
+          "available": 437036.4522916361,
+          "group": "angelernt",
+          "persons": 4370364.522916361,
+          "wage_usd": 3.5338668145553758
+        },
+        {
+          "available": 37778.536426676656,
+          "group": "fachkraft.bergbau",
+          "persons": 377785.3642667665,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 76737.65211668696,
+          "group": "fachkraft.metall",
+          "persons": 767376.5211668696,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 70834.75580001873,
+          "group": "fachkraft.maschinenbau",
+          "persons": 708347.5580001873,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 38565.58926889908,
+          "group": "fachkraft.elektro",
+          "persons": 385655.8926889908,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 41320.27421667759,
+          "group": "fachkraft.chemie",
+          "persons": 413202.7421667759,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 59028.963166682275,
+          "group": "fachkraft.textil",
+          "persons": 590289.6316668227,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 59028.963166682275,
+          "group": "fachkraft.holz_bau",
+          "persons": 590289.6316668227,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 31482.113688897214,
+          "group": "fachkraft.lebensmittel",
+          "persons": 314821.13688897213,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 39352.64211112152,
+          "group": "fachkraft.kaufmaennisch",
+          "persons": 393526.42111121514,
+          "wage_usd": 5.279560948032183
+        },
+        {
+          "available": 2554.877580660154,
+          "group": "akademiker.bergbau",
+          "persons": 25548.775806601538,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 5535.568091430333,
+          "group": "akademiker.metall",
+          "persons": 55355.680914303324,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 7664.63274198046,
+          "group": "akademiker.maschinenbau",
+          "persons": 76646.3274198046,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 5961.381021540358,
+          "group": "akademiker.elektro",
+          "persons": 59613.81021540358,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 9580.790927475577,
+          "group": "akademiker.chemie",
+          "persons": 95807.90927475576,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 2000.0,
+          "group": "akademiker.textil",
+          "persons": 12774.387903300769,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 4258.129301100255,
+          "group": "akademiker.holz_bau",
+          "persons": 42581.293011002555,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 2000.0,
+          "group": "akademiker.lebensmittel",
+          "persons": 8516.25860220051,
+          "wage_usd": 12.42657127809903
+        },
+        {
+          "available": 12774.387903300767,
+          "group": "akademiker.kaufmaennisch",
+          "persons": 127743.87903300766,
+          "wage_usd": 12.42657127809903
+        }
+      ],
+      "labor_force": 20956156.69134246,
+      "markets": [
+        {
+          "demand_last_month": 1877077.4549599823,
+          "price_usd": 126.0805,
+          "product": "kleidung",
+          "sold_last_month": 1811682.4415057113
+        },
+        {
+          "demand_last_month": 22470.403543745477,
+          "price_usd": 759.4347,
+          "product": "mehl",
+          "sold_last_month": 24531.476816425416
+        },
+        {
+          "demand_last_month": 6371.84370875755,
+          "price_usd": 539.1395,
+          "product": "stabstahl",
+          "sold_last_month": 26682.3217432315
+        },
+        {
+          "demand_last_month": 148.2968427189388,
+          "price_usd": 9614.081,
+          "product": "kupferdraht",
+          "sold_last_month": 967.3528852143925
+        },
+        {
+          "demand_last_month": 15666.809271893884,
+          "price_usd": 366.5865,
+          "product": "schnittholz",
+          "sold_last_month": 19241.3929393236
+        },
+        {
+          "demand_last_month": 2429838.2210635887,
+          "price_usd": 2.6391,
+          "product": "konserve",
+          "sold_last_month": 2429838.2210635883
+        },
+        {
+          "demand_last_month": 1008.4769061379606,
+          "price_usd": 1978.4746,
+          "product": "naegel",
+          "sold_last_month": 2760.596906137962
+        },
+        {
+          "demand_last_month": 34674.34876753609,
+          "price_usd": 140.2539,
+          "product": "moebel",
+          "sold_last_month": 34674.34876753609
+        },
+        {
+          "demand_last_month": 2254.310927189388,
+          "price_usd": 648.26,
+          "product": "blech",
+          "sold_last_month": 5762.166312009725
+        },
+        {
+          "demand_last_month": 307380.4321983869,
+          "price_usd": 8.5601,
+          "product": "gluehlampe",
+          "sold_last_month": 307380.4321983869
+        },
+        {
+          "demand_last_month": 259.1746860954075,
+          "price_usd": 13935.6747,
+          "product": "automobil",
+          "sold_last_month": 150.06885120899634
+        },
+        {
+          "demand_last_month": 6558.31709693623,
+          "price_usd": 438.1049,
+          "product": "fahrrad",
+          "sold_last_month": 4670.500698449846
+        },
+        {
+          "demand_last_month": 2780.019546080508,
+          "price_usd": 689.5711,
+          "product": "petroleum",
+          "sold_last_month": 2780.019546080508
+        },
+        {
+          "demand_last_month": 2926.5778733175857,
+          "price_usd": 376.9758,
+          "product": "naehmaschine",
+          "sold_last_month": 4364.726690366543
+        },
+        {
+          "demand_last_month": 149.281802240775,
+          "price_usd": 1056.7832,
+          "product": "elektromotor",
+          "sold_last_month": 1292.0403134280182
+        },
+        {
+          "demand_last_month": 42329.58598516958,
+          "price_usd": 17.3058,
+          "product": "handwerkzeug",
+          "sold_last_month": 77500.0
+        },
+        {
+          "demand_last_month": 176.41778207983296,
+          "price_usd": 6432.7285,
+          "product": "pferdekutsche",
+          "sold_last_month": 176.41778207983296
+        },
+        {
+          "demand_last_month": 100.10385563136327,
+          "price_usd": 2799.8505,
+          "product": "schrauben",
+          "sold_last_month": 219.42206767131466
+        },
+        {
+          "demand_last_month": 786.1608199845439,
+          "price_usd": 589.6708,
+          "product": "autoreifen",
+          "sold_last_month": 786.1608199845439
+        },
+        {
+          "demand_last_month": 60.721237087575496,
+          "price_usd": 2259.686,
+          "product": "muttern",
+          "sold_last_month": 177.8531240338999
+        },
+        {
+          "demand_last_month": 19331.650625454287,
+          "price_usd": 8.9157,
+          "product": "petroleumlampe",
+          "sold_last_month": 37376.2666947651
+        },
+        {
+          "demand_last_month": 188584.4911220796,
+          "price_usd": 71.8295,
+          "product": "fahrradreifen",
+          "sold_last_month": 0.0
+        },
+        {
+          "demand_last_month": 59.577052901666384,
+          "price_usd": 733.1724,
+          "product": "benzin",
+          "sold_last_month": 0.0
+        }
+      ],
+      "population": 49895611.16986301,
+      "price_level": 0.802564352965736,
+      "stability": 0.7898972602739776
+    },
+    "GBR": {
+      "companies": [
+        {
+          "name": "Sheffield Milling Corporation",
+          "own": false,
+          "sites": 10
+        },
+        {
+          "name": "Barker Ltd.",
+          "own": false,
+          "sites": 3
+        },
+        {
+          "name": "Bolckow, Vaughan & Co.",
+          "own": false,
+          "sites": 3
+        },
+        {
+          "name": "Birmingham Iron and Steel & Co.",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Fletcher & Whitfield Ltd.",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Barker Chemical & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Cleveland Mills & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Detroit Lumber & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Dunlop Pneumatic Tyre Company",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Fabrik Demidov",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Grant & Sons",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "J. & P. Coats",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Morgan Motor & Sons",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Singer Manufacturing Company",
+          "own": false,
+          "sites": 1
+        }
+      ],
+      "corporate_tax": 0.0676780821917771,
+      "date": "1914-08-01",
+      "deposits": [
+        {
+          "concessions": 1,
+          "country": "GBR",
+          "free_concessions": 0,
+          "key": "cleveland_hills",
+          "max_output_per_year": 400000.0,
+          "resource": "eisenerz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "GBR",
+          "free_concessions": 1,
+          "key": "northamptonshire",
+          "max_output_per_year": 600000.0,
+          "resource": "eisenerz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 9,
+          "country": "GBR",
+          "free_concessions": 0,
+          "key": "ostengland",
+          "max_output_per_year": 200000.0,
+          "resource": "getreide",
+          "undiscovered": false
+        },
+        {
+          "concessions": 4,
+          "country": "GBR",
+          "free_concessions": 3,
+          "key": "suedwales",
+          "max_output_per_year": 6000000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 4,
+          "country": "GBR",
+          "free_concessions": 2,
+          "key": "nordostengland",
+          "max_output_per_year": 6000000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 2,
+          "country": "GBR",
+          "free_concessions": 1,
+          "key": "schottland_kohle",
+          "max_output_per_year": 4000000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        }
+      ],
+      "development": 0.6167682384763724,
+      "dividend_tax": 0.06888888888888889,
+      "electricity_price_usd_mwh": 770.3996749261659,
+      "gdp_per_capita_usd": 14514.901369862979,
+      "gini": 0.42,
+      "grid_share": 0.4104810498231378,
+      "income_quintiles_usd": [
+        3645.691164851868,
+        6845.550020948771,
+        10357.661373567138,
+        15740.252770005234,
+        33300.06527642573
+      ],
+      "infrastructure": [
+        0.7853459355445678,
+        0.17475100090163884,
+        0.7853459355445678,
+        0.0
+      ],
+      "key": "GBR",
+      "labor": [
+        {
+          "available": 762453.781454469,
+          "group": "ungelernt",
+          "persons": 7624537.814544689,
+          "wage_usd": 5.253820958943982
+        },
+        {
+          "available": 455831.19063228427,
+          "group": "angelernt",
+          "persons": 4558311.906322842,
+          "wage_usd": 6.772159155495062
+        },
+        {
+          "available": 45390.3830675938,
+          "group": "fachkraft.bergbau",
+          "persons": 453903.830675938,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 78560.27838622003,
+          "group": "fachkraft.metall",
+          "persons": 785602.7838622002,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 78560.27838622003,
+          "group": "fachkraft.maschinenbau",
+          "persons": 785602.7838622002,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 30551.219372418902,
+          "group": "fachkraft.elektro",
+          "persons": 305512.193724189,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 30551.219372418902,
+          "group": "fachkraft.chemie",
+          "persons": 305512.193724189,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 98200.34798277503,
+          "group": "fachkraft.textil",
+          "persons": 982003.4798277502,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 65466.89865518336,
+          "group": "fachkraft.holz_bau",
+          "persons": 654668.9865518336,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 34915.67928276446,
+          "group": "fachkraft.lebensmittel",
+          "persons": 349156.79282764456,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 43644.59910345558,
+          "group": "fachkraft.kaufmaennisch",
+          "persons": 436445.9910345558,
+          "wage_usd": 9.688110090627628
+        },
+        {
+          "available": 3915.42673510162,
+          "group": "akademiker.bergbau",
+          "persons": 39154.2673510162,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 7228.480126341453,
+          "group": "akademiker.metall",
+          "persons": 72284.80126341453,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 10842.72018951218,
+          "group": "akademiker.maschinenbau",
+          "persons": 108427.20189512179,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 6023.733438617877,
+          "group": "akademiker.elektro",
+          "persons": 60237.33438617877,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 9035.600157926816,
+          "group": "akademiker.chemie",
+          "persons": 90356.00157926815,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 2710.680047378045,
+          "group": "akademiker.textil",
+          "persons": 27106.800473780448,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 6023.733438617877,
+          "group": "akademiker.holz_bau",
+          "persons": 60237.33438617877,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 2000.0,
+          "group": "akademiker.lebensmittel",
+          "persons": 12047.466877235755,
+          "wage_usd": 21.584849287588135
+        },
+        {
+          "available": 18071.20031585363,
+          "group": "akademiker.kaufmaennisch",
+          "persons": 180712.0031585363,
+          "wage_usd": 21.584849287588135
+        }
+      ],
+      "labor_force": 17891821.968328763,
+      "markets": [
+        {
+          "demand_last_month": 1963701.3139179752,
+          "price_usd": 53.9934,
+          "product": "kleidung",
+          "sold_last_month": 2217358.870596577
+        },
+        {
+          "demand_last_month": 22417.213221988335,
+          "price_usd": 736.2754,
+          "product": "mehl",
+          "sold_last_month": 22417.21322198833
+        },
+        {
+          "demand_last_month": 26400.846036745224,
+          "price_usd": 354.9185,
+          "product": "schnittholz",
+          "sold_last_month": 28946.500719669923
+        },
+        {
+          "demand_last_month": 10717.218414698096,
+          "price_usd": 559.1683,
+          "product": "stabstahl",
+          "sold_last_month": 13854.15964267447
+        },
+        {
+          "demand_last_month": 2926607.677710136,
+          "price_usd": 2.6293,
+          "product": "konserve",
+          "sold_last_month": 2926607.677710136
+        },
+        {
+          "demand_last_month": 1267.3838712773518,
+          "price_usd": 1727.761,
+          "product": "naegel",
+          "sold_last_month": 3279.277777916013
+        },
+        {
+          "demand_last_month": 31873.452015440893,
+          "price_usd": 177.1336,
+          "product": "moebel",
+          "sold_last_month": 31873.452015440893
+        },
+        {
+          "demand_last_month": 251.07971036745224,
+          "price_usd": 13201.9849,
+          "product": "kupferdraht",
+          "sold_last_month": 251.07971036745224
+        },
+        {
+          "demand_last_month": 404552.95148178097,
+          "price_usd": 7.7486,
+          "product": "gluehlampe",
+          "sold_last_month": 404552.95148178097
+        },
+        {
+          "demand_last_month": 2516.4671036745235,
+          "price_usd": 745.5082,
+          "product": "blech",
+          "sold_last_month": 2516.4671036745235
+        },
+        {
+          "demand_last_month": 238.2576660942589,
+          "price_usd": 7690.054,
+          "product": "pferdekutsche",
+          "sold_last_month": 238.25766609425887
+        },
+        {
+          "demand_last_month": 8686.618046937683,
+          "price_usd": 487.6439,
+          "product": "fahrrad",
+          "sold_last_month": 3449.589546872155
+        },
+        {
+          "demand_last_month": 2565.364127347959,
+          "price_usd": 587.0674,
+          "product": "naehmaschine",
+          "sold_last_month": 2565.364127347959
+        },
+        {
+          "demand_last_month": 158.25782622047126,
+          "price_usd": 3296.5297,
+          "product": "schrauben",
+          "sold_last_month": 435.49282622047116
+        },
+        {
+          "demand_last_month": 36503.7440980131,
+          "price_usd": 23.2582,
+          "product": "handwerkzeug",
+          "sold_last_month": 36503.7440980131
+        },
+        {
+          "demand_last_month": 100.49388414698096,
+          "price_usd": 2437.7077,
+          "product": "muttern",
+          "sold_last_month": 300.38271705802174
+        },
+        {
+          "demand_last_month": 254.18389791627442,
+          "price_usd": 1797.4135,
+          "product": "elektromotor",
+          "sold_last_month": 254.18389791627442
+        },
+        {
+          "demand_last_month": 13977.238516271522,
+          "price_usd": 10.9345,
+          "product": "petroleumlampe",
+          "sold_last_month": 13977.238516271522
+        },
+        {
+          "demand_last_month": 171.59455481252942,
+          "price_usd": 396.3547,
+          "product": "autoreifen",
+          "sold_last_month": 111.01808068011094
+        },
+        {
+          "demand_last_month": 2275.4475755846465,
+          "price_usd": 494.861,
+          "product": "petroleum",
+          "sold_last_month": 0.0
+        },
+        {
+          "demand_last_month": 158477.3047544177,
+          "price_usd": 66.4355,
+          "product": "fahrradreifen",
+          "sold_last_month": 0.0
+        },
+        {
+          "demand_last_month": 100.27447175421909,
+          "price_usd": 850.598,
+          "product": "benzin",
+          "sold_last_month": 0.0
+        },
+        {
+          "demand_last_month": 947.1152745884528,
+          "price_usd": 10087.4296,
+          "product": "automobil",
+          "sold_last_month": 0.0
+        }
+      ],
+      "population": 42599576.11506849,
+      "price_level": 0.9629995936577074,
+      "stability": 0.9
+    },
+    "USA": {
+      "companies": [
+        {
+          "name": "Hughes & Fletcher Corporation",
+          "own": false,
+          "sites": 31
+        },
+        {
+          "name": "Whitfield & Mitchell Ltd.",
+          "own": false,
+          "sites": 24
+        },
+        {
+          "name": "Dawson Ltd.",
+          "own": false,
+          "sites": 13
+        },
+        {
+          "name": "Lawrence Mills & Co.",
+          "own": false,
+          "sites": 13
+        },
+        {
+          "name": "Pemberton & Pemberton & Sons",
+          "own": false,
+          "sites": 10
+        },
+        {
+          "name": "Anaconda Copper Mining Company",
+          "own": false,
+          "sites": 3
+        },
+        {
+          "name": "Carnegie Steel Company",
+          "own": false,
+          "sites": 3
+        },
+        {
+          "name": "Fletcher & Whitfield Ltd.",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "General Electric",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Hale Iron and Steel Company",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Standard Oil",
+          "own": false,
+          "sites": 2
+        },
+        {
+          "name": "Bethlehem Steel Company",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Bradley Machine Works & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Harris & Co.",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Morgan Motor & Sons",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Pillsbury-Washburn Flour Mills",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Singer Manufacturing Company",
+          "own": false,
+          "sites": 1
+        },
+        {
+          "name": "Westinghouse Electric",
+          "own": false,
+          "sites": 1
+        }
+      ],
+      "corporate_tax": 0.017258317025440256,
+      "date": "1914-08-01",
+      "deposits": [
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "baumwollguertel",
+          "max_output_per_year": 250000.0,
+          "resource": "baumwolle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 3,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "mesabi_range",
+          "max_output_per_year": 5000000.0,
+          "resource": "eisenerz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "alabama_erz",
+          "max_output_per_year": 600000.0,
+          "resource": "eisenerz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "praerie_usa",
+          "max_output_per_year": 2500000.0,
+          "resource": "getreide",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "pazifischer_nordwesten",
+          "max_output_per_year": 5000000.0,
+          "resource": "holz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 1,
+          "key": "suedstaatenkiefer",
+          "max_output_per_year": 4000000.0,
+          "resource": "holz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 5,
+          "key": "appalachen",
+          "max_output_per_year": 30000000.0,
+          "resource": "kohle",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "butte",
+          "max_output_per_year": 1000000.0,
+          "resource": "kupfererz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "arizona_kupfer",
+          "max_output_per_year": 600000.0,
+          "resource": "kupfererz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 1,
+          "country": "USA",
+          "free_concessions": 1,
+          "key": "keweenaw",
+          "max_output_per_year": 400000.0,
+          "resource": "kupfererz",
+          "undiscovered": false
+        },
+        {
+          "concessions": 3,
+          "country": "USA",
+          "free_concessions": 1,
+          "key": "pennsylvania",
+          "max_output_per_year": 500000.0,
+          "resource": "rohoel",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 0,
+          "key": "texas_golfkueste",
+          "max_output_per_year": 5000000.0,
+          "resource": "rohoel",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 5,
+          "key": "kalifornien",
+          "max_output_per_year": 3000000.0,
+          "resource": "rohoel",
+          "undiscovered": false
+        },
+        {
+          "concessions": 12,
+          "country": "USA",
+          "free_concessions": 2,
+          "key": "oklahoma",
+          "max_output_per_year": 4000000.0,
+          "resource": "rohoel",
+          "undiscovered": false
+        }
+      ],
+      "development": 0.6443040750399972,
+      "dividend_tax": 0.06888888888888889,
+      "electricity_price_usd_mwh": 800.0,
+      "gdp_per_capita_usd": 16165.77945205479,
+      "gini": 0.5171616438356164,
+      "grid_share": 0.4426300601293578,
+      "income_quintiles_usd": [
+        2693.555352613879,
+        5908.7016517060965,
+        9982.916627327304,
+        16985.072455758138,
+        45258.65117286853
+      ],
+      "infrastructure": [
+        0.802685539324085,
+        0.18255282126133254,
+        0.802685539324085,
+        0.0
+      ],
+      "key": "USA",
+      "labor": [
+        {
+          "available": 1679873.235717915,
+          "group": "ungelernt",
+          "persons": 16798732.35717915,
+          "wage_usd": 5.972905569079991
+        },
+        {
+          "available": 1081867.6431043616,
+          "group": "angelernt",
+          "persons": 10818676.431043616,
+          "wage_usd": 7.718658563119799
+        },
+        {
+          "available": 89841.68197000209,
+          "group": "fachkraft.bergbau",
+          "persons": 898416.8197000208,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 202143.7844325047,
+          "group": "fachkraft.metall",
+          "persons": 2021437.844325047,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 218989.09980188007,
+          "group": "fachkraft.maschinenbau",
+          "persons": 2189890.9980188007,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 102194.91324087739,
+          "group": "fachkraft.elektro",
+          "persons": 1021949.1324087739,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 78611.47172375183,
+          "group": "fachkraft.chemie",
+          "persons": 786114.7172375183,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 168453.15369375388,
+          "group": "fachkraft.textil",
+          "persons": 1684531.5369375388,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 168453.15369375388,
+          "group": "fachkraft.holz_bau",
+          "persons": 1684531.5369375388,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 89841.68197000209,
+          "group": "fachkraft.lebensmittel",
+          "persons": 898416.8197000208,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 112302.10246250262,
+          "group": "fachkraft.kaufmaennisch",
+          "persons": 1123021.0246250262,
+          "wage_usd": 10.93570473108074
+        },
+        {
+          "available": 8107.418322871436,
+          "group": "akademiker.bergbau",
+          "persons": 81074.18322871436,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 19457.80397489144,
+          "group": "akademiker.metall",
+          "persons": 194578.03974891442,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 31618.931459198604,
+          "group": "akademiker.maschinenbau",
+          "persons": 316189.314591986,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 21079.287639465736,
+          "group": "akademiker.elektro",
+          "persons": 210792.87639465733,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 24322.254968614303,
+          "group": "akademiker.chemie",
+          "persons": 243222.54968614303,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 4864.45099372286,
+          "group": "akademiker.textil",
+          "persons": 48644.509937228606,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 16214.836645742873,
+          "group": "akademiker.holz_bau",
+          "persons": 162148.36645742872,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 3242.9673291485747,
+          "group": "akademiker.lebensmittel",
+          "persons": 32429.673291485746,
+          "wage_usd": 24.04910493191136
+        },
+        {
+          "available": 48644.509937228606,
+          "group": "akademiker.kaufmaennisch",
+          "persons": 486445.09937228606,
+          "wage_usd": 24.04910493191136
+        }
+      ],
+      "labor_force": 41701243.830821894,
+      "markets": [
+        {
+          "demand_last_month": 4534844.324875736,
+          "price_usd": 53.8345,
+          "product": "kleidung",
+          "sold_last_month": 6820000.0
+        },
+        {
+          "demand_last_month": 54232.11618203018,
+          "price_usd": 746.6639,
+          "product": "mehl",
+          "sold_last_month": 51284.710341123195
+        },
+        {
+          "demand_last_month": 71370.53146219366,
+          "price_usd": 495.279,
+          "product": "schnittholz",
+          "sold_last_month": 71370.53146219366
+        },
+        {
+          "demand_last_month": 28246.98308487747,
+          "price_usd": 968.3047,
+          "product": "stabstahl",
+          "sold_last_month": 28246.98308487747
+        },
+        {
+          "demand_last_month": 67111.76593485153,
+          "price_usd": 299.5322,
+          "product": "moebel",
+          "sold_last_month": 67111.76593485153
+        },
+        {
+          "demand_last_month": 6275885.885774885,
+          "price_usd": 3.1826,
+          "product": "konserve",
+          "sold_last_month": 6275885.885774885
+        },
+        {
+          "demand_last_month": 3225.2387531120175,
+          "price_usd": 2078.4334,
+          "product": "naegel",
+          "sold_last_month": 7203.310523837376
+        },
+        {
+          "demand_last_month": 980768.9724975959,
+          "price_usd": 11.5519,
+          "product": "gluehlampe",
+          "sold_last_month": 980768.9724975958
+        },
+        {
+          "demand_last_month": 21479.08262488752,
+          "price_usd": 728.9477,
+          "product": "fahrrad",
+          "sold_last_month": 14635.80492956916
+        },
+        {
+          "demand_last_month": 683.4547646219366,
+          "price_usd": 12042.3576,
+          "product": "kupferdraht",
+          "sold_last_month": 683.4547646219366
+        },
+        {
+          "demand_last_month": 557.8089276119764,
+          "price_usd": 8000.0,
+          "product": "pferdekutsche",
+          "sold_last_month": 557.8089276119764
+        },
+        {
+          "demand_last_month": 7099.547646219366,
+          "price_usd": 547.3245,
+          "product": "blech",
+          "sold_last_month": 7364.229481492988
+        },
+        {
+          "demand_last_month": 6045.9018676598835,
+          "price_usd": 954.2309,
+          "product": "naehmaschine",
+          "sold_last_month": 4091.0472611879563
+        },
+        {
+          "demand_last_month": 82245.08596487026,
+          "price_usd": 47.9279,
+          "product": "handwerkzeug",
+          "sold_last_month": 71541.47169519638
+        },
+        {
+          "demand_last_month": 4983.940079007693,
+          "price_usd": 539.8585,
+          "product": "petroleum",
+          "sold_last_month": 4986.638461003969
+        },
+        {
+          "demand_last_month": 120.83953158966342,
+          "price_usd": 20429.8848,
+          "product": "automobil",
+          "sold_last_month": 113.2067498352983
+        },
+        {
+          "demand_last_month": 431.85485877316216,
+          "price_usd": 3476.7531,
+          "product": "schrauben",
+          "sold_last_month": 576.5669777258214
+        },
+        {
+          "demand_last_month": 689.4446583600464,
+          "price_usd": 2028.945,
+          "product": "elektromotor",
+          "sold_last_month": 689.4446583600464
+        },
+        {
+          "demand_last_month": 273.2499058487748,
+          "price_usd": 2836.6929,
+          "product": "muttern",
+          "sold_last_month": 273.2499058487748
+        },
+        {
+          "demand_last_month": 31777.58596665415,
+          "price_usd": 13.5605,
+          "product": "petroleumlampe",
+          "sold_last_month": 23814.250677690776
+        },
+        {
+          "demand_last_month": 312.89602761979586,
+          "price_usd": 418.3731,
+          "product": "autoreifen",
+          "sold_last_month": 312.89602761979586
+        },
+        {
+          "demand_last_month": 569310.8303375668,
+          "price_usd": 62.0533,
+          "product": "fahrradreifen",
+          "sold_last_month": 0.0
+        },
+        {
+          "demand_last_month": 183.43988100788573,
+          "price_usd": 900.0,
+          "product": "benzin",
+          "sold_last_month": 0.0
+        }
+      ],
+      "population": 99288675.78767118,
+      "price_level": 1.0,
+      "stability": 0.894412372254838
+    }
+  },
   "optionen": {
     "companies": {
       "default": 100,
@@ -585,5 +1953,3448 @@
     "game_over": false,
     "market_scale": 0.1,
     "start_year": 1914
+  },
+  "weltkarte": {
+    "countries": [
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1291.373972602739,
+        "grid_share": 0.07546744906826941,
+        "key": "AFG",
+        "lat": 34.52,
+        "lon": 69.18,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 7432282.112328745,
+        "wage_usd": 0.25619448240003057
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 981.3438356164372,
+        "grid_share": 0.06227275635227522,
+        "key": "AGO",
+        "lat": -8.84,
+        "lon": 13.23,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2909972.3260273975,
+        "wage_usd": 0.17685125714799216
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1038.5054794520536,
+        "grid_share": 0.06479021254260528,
+        "key": "ALB",
+        "lat": 41.33,
+        "lon": 19.82,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 903067.5767123286,
+        "wage_usd": 0.19089801066839937
+      },
+      {
+        "development": 0.4205706804055109,
+        "gdp_per_capita_usd": 6737.213698630132,
+        "grid_share": 0.239860909509942,
+        "key": "AND",
+        "lat": 42.5,
+        "lon": 1.52,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 5175.435616438353,
+        "wage_usd": 2.0507726330338447
+      },
+      {
+        "development": 0.291484680775812,
+        "gdp_per_capita_usd": 4065.9972602739804,
+        "grid_share": 0.1684380508536257,
+        "key": "ARE",
+        "lat": 24.47,
+        "lon": 54.37,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 53993.63287671231,
+        "wage_usd": 1.08492152793059
+      },
+      {
+        "development": 0.5039283293782794,
+        "gdp_per_capita_usd": 9334.74520547946,
+        "grid_share": 0.3013665023856387,
+        "key": "ARG",
+        "lat": -34.6,
+        "lon": -58.4,
+        "other_sites": 20,
+        "own_sites": 0,
+        "population": 7549152.858904102,
+        "wage_usd": 3.0579487015609015
+      },
+      {
+        "development": 0.20433441054224655,
+        "gdp_per_capita_usd": 2891.3547945205446,
+        "grid_share": 0.13267656548135645,
+        "key": "ARM",
+        "lat": 40.18,
+        "lon": 44.51,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 981798.7520547941,
+        "wage_usd": 0.7057588115370315
+      },
+      {
+        "development": 0.1761170884855764,
+        "gdp_per_capita_usd": 2589.1726027397235,
+        "grid_share": 0.12281062796174473,
+        "key": "ATG",
+        "lat": 17.12,
+        "lon": -61.85,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 30769.431506849323,
+        "wage_usd": 0.6141580076940065
+      },
+      {
+        "development": 0.6112035527997254,
+        "gdp_per_capita_usd": 14202.338356164399,
+        "grid_share": 0.4042733828413609,
+        "key": "AUS",
+        "lat": -35.28,
+        "lon": 149.13,
+        "other_sites": 21,
+        "own_sites": 0,
+        "population": 4685166.81506849,
+        "wage_usd": 5.120190187982514
+      },
+      {
+        "development": 0.4673766578387248,
+        "gdp_per_capita_usd": 8091.001369863038,
+        "grid_share": 0.2726621420887031,
+        "key": "AUT",
+        "lat": 48.2,
+        "lon": 16.36,
+        "other_sites": 9,
+        "own_sites": 0,
+        "population": 6556511.720547946,
+        "wage_usd": 2.5647940978322183
+      },
+      {
+        "development": 0.164355352053467,
+        "gdp_per_capita_usd": 2472.738356164381,
+        "grid_share": 0.11891810113670272,
+        "key": "AZE",
+        "lat": 40.4,
+        "lon": 49.86,
+        "other_sites": 6,
+        "own_sites": 0,
+        "population": 2221078.383561643,
+        "wage_usd": 0.5795976407365054
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 917.0,
+        "grid_share": 0.05938568700309836,
+        "key": "BDI",
+        "lat": -3.38,
+        "lon": 29.36,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1453589.953424658,
+        "wage_usd": 0.16137941475919768
+      },
+      {
+        "development": 0.5479999985224017,
+        "gdp_per_capita_usd": 11091.209589041104,
+        "grid_share": 0.3400231516773191,
+        "key": "BEL",
+        "lat": 50.84,
+        "lon": 4.33,
+        "other_sites": 8,
+        "own_sites": 0,
+        "population": 7493227.957534246,
+        "wage_usd": 3.7854732027632276
+      },
+      {
+        "development": 0.1165807903328368,
+        "gdp_per_capita_usd": 2051.212328767123,
+        "grid_share": 0.10433515911938367,
+        "key": "BEN",
+        "lat": 6.4,
+        "lon": 2.52,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1348263.4095890406,
+        "wage_usd": 0.4581800902831862
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1227.2424657534245,
+        "grid_share": 0.07282399706226558,
+        "key": "BFA",
+        "lat": 12.37,
+        "lon": -1.53,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2671528.397260273,
+        "wage_usd": 0.23916935851259888
+      },
+      {
+        "development": 0.05430228829175131,
+        "gdp_per_capita_usd": 1607.6863013698646,
+        "grid_share": 0.08797599105700005,
+        "key": "BGD",
+        "lat": 23.73,
+        "lon": 90.41,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 29139857.80410959,
+        "wage_usd": 0.33740375213849566
+      },
+      {
+        "development": 0.220527697156188,
+        "gdp_per_capita_usd": 3080.44383561644,
+        "grid_share": 0.1386923658195403,
+        "key": "BGR",
+        "lat": 42.69,
+        "lon": 23.31,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 4737358.869863012,
+        "wage_usd": 0.7644064169233308
+      },
+      {
+        "development": 0.20686152127575713,
+        "gdp_per_capita_usd": 2920.080821917808,
+        "grid_share": 0.13359790886108197,
+        "key": "BHR",
+        "lat": 26.24,
+        "lon": 50.58,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 95788.57671232862,
+        "wage_usd": 0.7146043275084918
+      },
+      {
+        "development": 0.3445274059711449,
+        "gdp_per_capita_usd": 5003.62876712328,
+        "grid_share": 0.19477033288062265,
+        "key": "BHS",
+        "lat": 25.08,
+        "lon": -77.35,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 62733.2191780822,
+        "wage_usd": 1.410089436441083
+      },
+      {
+        "development": 0.18874605542763911,
+        "gdp_per_capita_usd": 2720.3027397260284,
+        "grid_share": 0.12713212822159664,
+        "key": "BIH",
+        "lat": 43.85,
+        "lon": 18.38,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 2039512.9712328762,
+        "wage_usd": 0.6535770028068743
+      },
+      {
+        "development": 0.23259528319046555,
+        "gdp_per_capita_usd": 3229.3547945205446,
+        "grid_share": 0.1433521738406543,
+        "key": "BLR",
+        "lat": 53.9,
+        "lon": 27.56,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 5163094.790410957,
+        "wage_usd": 0.811276302832978
+      },
+      {
+        "development": 0.10488892063491283,
+        "gdp_per_capita_usd": 1959.5054794520536,
+        "grid_share": 0.10104754988569166,
+        "key": "BLZ",
+        "lat": 17.25,
+        "lon": -88.77,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 43388.320547945186,
+        "wage_usd": 0.4325849946663818
+      },
+      {
+        "development": 0.22592709207405476,
+        "gdp_per_capita_usd": 3146.2027397260254,
+        "grid_share": 0.1407582774447598,
+        "key": "BOL",
+        "lat": -16.5,
+        "lon": -68.15,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2149104.019178081,
+        "wage_usd": 0.7850312503946062
+      },
+      {
+        "development": 0.08125727566818373,
+        "gdp_per_capita_usd": 1786.4753424657517,
+        "grid_share": 0.09471552446540114,
+        "key": "BRA",
+        "lat": -15.78,
+        "lon": -47.92,
+        "other_sites": 9,
+        "own_sites": 0,
+        "population": 24137057.246575322,
+        "wage_usd": 0.38515618305916666
+      },
+      {
+        "development": 0.27870300392229236,
+        "gdp_per_capita_usd": 3867.6876712328744,
+        "grid_share": 0.16264444215308507,
+        "key": "BRB",
+        "lat": 13.1,
+        "lon": -59.62,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 165003.87808219183,
+        "wage_usd": 1.0185574948188376
+      },
+      {
+        "development": 0.26778491076472233,
+        "gdp_per_capita_usd": 3705.969863013698,
+        "grid_share": 0.15785362816290213,
+        "key": "BRN",
+        "lat": 4.88,
+        "lon": 114.93,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 24441.349315068477,
+        "wage_usd": 0.9651086739681188
+      },
+      {
+        "development": 0.009329583917888688,
+        "gdp_per_capita_usd": 1348.3232876712327,
+        "grid_share": 0.07778199444006832,
+        "key": "BTN",
+        "lat": 27.47,
+        "lon": 89.64,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 248744.46438356166,
+        "wage_usd": 0.27060408678075726
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 780.2424657534245,
+        "grid_share": 0.053037611597250435,
+        "key": "BWA",
+        "lat": -24.65,
+        "lon": 25.91,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 206964.54931506838,
+        "wage_usd": 0.12976556768642303
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1215.6972602739718,
+        "grid_share": 0.07234375658665178,
+        "key": "CAF",
+        "lat": 4.37,
+        "lon": 18.56,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 982376.7575342468,
+        "wage_usd": 0.23613690909631616
+      },
+      {
+        "development": 0.555993574358248,
+        "gdp_per_capita_usd": 11443.52328767121,
+        "grid_share": 0.34754822948398123,
+        "key": "CAN",
+        "lat": 45.42,
+        "lon": -75.7,
+        "other_sites": 32,
+        "own_sites": 0,
+        "population": 7625077.26164383,
+        "wage_usd": 3.935513399837789
+      },
+      {
+        "development": 0.59767886556753,
+        "gdp_per_capita_usd": 13470.441095890421,
+        "grid_share": 0.3895745000446142,
+        "key": "CHE",
+        "lat": 46.92,
+        "lon": 7.47,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 3784706.4465753417,
+        "wage_usd": 4.810494833376993
+      },
+      {
+        "development": 0.4373362729981082,
+        "gdp_per_capita_usd": 7193.902739726045,
+        "grid_share": 0.2511299113607406,
+        "key": "CHL",
+        "lat": -33.45,
+        "lon": -70.67,
+        "other_sites": 7,
+        "own_sites": 0,
+        "population": 3762399.2410958884,
+        "wage_usd": 2.221381418785624
+      },
+      {
+        "development": 0.07660304026953209,
+        "gdp_per_capita_usd": 1754.2424657534245,
+        "grid_share": 0.09351601328388132,
+        "key": "CHN",
+        "lat": 39.93,
+        "lon": 116.39,
+        "other_sites": 32,
+        "own_sites": 0,
+        "population": 437027916.2260272,
+        "wage_usd": 0.3764503350441517
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1045.0,
+        "grid_share": 0.06507357301255208,
+        "key": "CIV",
+        "lat": 5.32,
+        "lon": -4.04,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1632684.261643835,
+        "wage_usd": 0.19251143226026532
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1262.9698630136982,
+        "grid_share": 0.07430163000615947,
+        "key": "CMR",
+        "lat": 3.87,
+        "lon": 11.51,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 2895815.6863013706,
+        "wage_usd": 0.24861656754749295
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 811.2123287671227,
+        "grid_share": 0.05450262626429604,
+        "key": "COD",
+        "lat": -4.33,
+        "lon": 15.31,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 8374832.990410961,
+        "wage_usd": 0.13676695105049266
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1257.263013698629,
+        "grid_share": 0.07406645311928514,
+        "key": "COG",
+        "lat": -4.26,
+        "lon": 15.28,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 540838.1301369864,
+        "wage_usd": 0.24710118123746605
+      },
+      {
+        "development": 0.16115897018291486,
+        "gdp_per_capita_usd": 2442.010958904107,
+        "grid_share": 0.11788175041026033,
+        "key": "COL",
+        "lat": 4.6,
+        "lon": -74.09,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 5442409.690410954,
+        "wage_usd": 0.5705480040424121
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1030.1616438356164,
+        "grid_share": 0.06442538358390244,
+        "key": "COM",
+        "lat": -11.7,
+        "lon": 43.24,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 115060.08493150675,
+        "wage_usd": 0.1888303465612171
+      },
+      {
+        "development": 0.013289650025165987,
+        "gdp_per_capita_usd": 1369.373972602739,
+        "grid_share": 0.07863007652778176,
+        "key": "CPV",
+        "lat": 14.92,
+        "lon": -23.52,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 166254.82602739733,
+        "wage_usd": 0.27590932736709184
+      },
+      {
+        "development": 0.29779729554336765,
+        "gdp_per_capita_usd": 4167.657534246573,
+        "grid_share": 0.17137507875129987,
+        "key": "CRI",
+        "lat": 9.94,
+        "lon": -84.09,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 409591.6945205477,
+        "wage_usd": 1.119283286293364
+      },
+      {
+        "development": 0.2779373671160387,
+        "gdp_per_capita_usd": 3856.1205479452074,
+        "grid_share": 0.16230379381695212,
+        "key": "CUB",
+        "lat": 23.13,
+        "lon": -82.37,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2573976.4616438323,
+        "wage_usd": 1.014714246359502
+      },
+      {
+        "development": 0.27383625430813346,
+        "gdp_per_capita_usd": 3794.747945205478,
+        "grid_share": 0.16049122950144612,
+        "key": "CYP",
+        "lat": 35.17,
+        "lon": 33.37,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 287560.5958904108,
+        "wage_usd": 0.9943746897197135
+      },
+      {
+        "development": 0.4029392323933308,
+        "gdp_per_capita_usd": 6288.180821917811,
+        "grid_share": 0.22855502031254296,
+        "key": "CZE",
+        "lat": 50.09,
+        "lon": 14.46,
+        "other_sites": 8,
+        "own_sites": 0,
+        "population": 10283242.465753425,
+        "wage_usd": 1.8826883979276328
+      },
+      {
+        "development": 0.4836687090148202,
+        "gdp_per_capita_usd": 8623.468493150704,
+        "grid_share": 0.28510224470838263,
+        "key": "DEU",
+        "lat": 52.52,
+        "lon": 13.4,
+        "other_sites": 41,
+        "own_sites": 1,
+        "population": 49895611.16986301,
+        "wage_usd": 2.773575458036241
+      },
+      {
+        "development": 0.127165374565547,
+        "gdp_per_capita_usd": 2137.9301369862987,
+        "grid_share": 0.10740356736161313,
+        "key": "DJI",
+        "lat": 11.6,
+        "lon": 43.15,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 43913.86986301369,
+        "wage_usd": 0.4826623868806048
+      },
+      {
+        "development": 0.031376901480681896,
+        "gdp_per_capita_usd": 1469.77808219178,
+        "grid_share": 0.08262271972645503,
+        "key": "DMA",
+        "lat": 15.3,
+        "lon": -61.39,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 34212.22602739725,
+        "wage_usd": 0.30150274913632163
+      },
+      {
+        "development": 0.5585828523367782,
+        "gdp_per_capita_usd": 11560.02739726031,
+        "grid_share": 0.35002128459745585,
+        "key": "DNK",
+        "lat": 55.68,
+        "lon": 12.56,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 3028920.749315067,
+        "wage_usd": 3.9854200846466594
+      },
+      {
+        "development": 0.01372297265037948,
+        "gdp_per_capita_usd": 1371.6972602739718,
+        "grid_share": 0.07872343574469855,
+        "key": "DOM",
+        "lat": 18.47,
+        "lon": -69.9,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 769371.1643835609,
+        "wage_usd": 0.2764961576195223
+      },
+      {
+        "development": 0.23876232215025078,
+        "gdp_per_capita_usd": 3308.212328767123,
+        "grid_share": 0.14579365142402828,
+        "key": "DZA",
+        "lat": 36.77,
+        "lon": 3.05,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 5650918.808219177,
+        "wage_usd": 0.8363332636594014
+      },
+      {
+        "development": 0.19005644501385724,
+        "gdp_per_capita_usd": 2734.2835616438333,
+        "grid_share": 0.12758914761843523,
+        "key": "ECU",
+        "lat": -0.21,
+        "lon": -78.5,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1758722.860273972,
+        "wage_usd": 0.6578100836154273
+      },
+      {
+        "development": 0.2104212990142839,
+        "gdp_per_capita_usd": 2961.030136986302,
+        "grid_share": 0.13490661002101456,
+        "key": "EGY",
+        "lat": 30.05,
+        "lon": 31.25,
+        "other_sites": 8,
+        "own_sites": 0,
+        "population": 11904836.38904109,
+        "wage_usd": 0.7272538076001882
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1206.5657534246573,
+        "grid_share": 0.0719629479848762,
+        "key": "ERI",
+        "lat": 15.33,
+        "lon": 38.93,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 573892.0,
+        "wage_usd": 0.23374556279664352
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1231.9397260273963,
+        "grid_share": 0.07301899849628919,
+        "key": "ESH",
+        "lat": 24.49,
+        "lon": -12.66,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 18310.301369863017,
+        "wage_usd": 0.24040600086123212
+      },
+      {
+        "development": 0.3570831914424623,
+        "gdp_per_capita_usd": 5255.535616438356,
+        "grid_share": 0.2015835729444575,
+        "key": "ESP",
+        "lat": 40.4,
+        "lon": -3.69,
+        "other_sites": 24,
+        "own_sites": 0,
+        "population": 20414381.80547945,
+        "wage_usd": 1.5004314912541297
+      },
+      {
+        "development": 0.35240382493984934,
+        "gdp_per_capita_usd": 5160.204109589035,
+        "grid_share": 0.1990169499808673,
+        "key": "EST",
+        "lat": 59.43,
+        "lon": 24.73,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 1035321.1767123282,
+        "wage_usd": 1.4661017406291488
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1152.1616438356164,
+        "grid_share": 0.0696759083527132,
+        "key": "ETH",
+        "lat": 9.04,
+        "lon": 38.7,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 17480721.693150684,
+        "wage_usd": 0.2196304952312804
+      },
+      {
+        "development": 0.3750709333165052,
+        "gdp_per_capita_usd": 5638.682191780836,
+        "grid_share": 0.21176178166441237,
+        "key": "FIN",
+        "lat": 60.18,
+        "lon": 24.93,
+        "other_sites": 9,
+        "own_sites": 0,
+        "population": 3006853.9164383556,
+        "wage_usd": 1.6400864142909093
+      },
+      {
+        "development": 0.105999994229915,
+        "gdp_per_capita_usd": 1968.041095890409,
+        "grid_share": 0.10135546351310651,
+        "key": "FJI",
+        "lat": -18.13,
+        "lon": 178.44,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 155550.9863013698,
+        "wage_usd": 0.4349541731338866
+      },
+      {
+        "development": 0.4992023288584069,
+        "gdp_per_capita_usd": 9163.747945205478,
+        "grid_share": 0.2974914199378588,
+        "key": "FRA",
+        "lat": 48.87,
+        "lon": 2.33,
+        "other_sites": 31,
+        "own_sites": 0,
+        "population": 39600546.42328768,
+        "wage_usd": 2.989023526212628
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1008.6164383561636,
+        "grid_share": 0.0634792050413015,
+        "key": "FSM",
+        "lat": 6.92,
+        "lon": 158.15,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 26544.234246575335,
+        "wage_usd": 0.1835184319029742
+      },
+      {
+        "development": 0.08904202827235672,
+        "gdp_per_capita_usd": 1841.7178082191763,
+        "grid_share": 0.09675633538297472,
+        "key": "GAB",
+        "lat": 0.39,
+        "lon": 9.46,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 328275.7616438357,
+        "wage_usd": 0.400172696704362
+      },
+      {
+        "development": 0.6167682384763724,
+        "gdp_per_capita_usd": 14514.901369862979,
+        "grid_share": 0.4104810498231378,
+        "key": "GBR",
+        "lat": 51.5,
+        "lon": -0.12,
+        "other_sites": 29,
+        "own_sites": 0,
+        "population": 42599576.11506849,
+        "wage_usd": 5.253820958943982
+      },
+      {
+        "development": 0.16473515419537701,
+        "gdp_per_capita_usd": 2476.4150684931483,
+        "grid_share": 0.11904184699734811,
+        "key": "GEO",
+        "lat": 41.73,
+        "lon": 44.79,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2508890.4849315058,
+        "wage_usd": 0.5806824888583973
+      },
+      {
+        "development": 0.12639178069931797,
+        "gdp_per_capita_usd": 2131.4698630136836,
+        "grid_share": 0.10717628212027568,
+        "key": "GHA",
+        "lat": 5.55,
+        "lon": -0.22,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 3032117.4041095884,
+        "wage_usd": 0.48082932532664163
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 802.2424657534245,
+        "grid_share": 0.05408006475871956,
+        "key": "GIN",
+        "lat": 9.53,
+        "lon": -13.68,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1757888.565753424,
+        "wage_usd": 0.13472933203280554
+      },
+      {
+        "development": 0.00874483719227668,
+        "gdp_per_capita_usd": 1345.2424657534245,
+        "grid_share": 0.077657543366764,
+        "key": "GMB",
+        "lat": 13.45,
+        "lon": -16.59,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 185073.6835616438,
+        "wage_usd": 0.26982945303139105
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 825.0808219178082,
+        "grid_share": 0.05515321008584957,
+        "key": "GNB",
+        "lat": 11.87,
+        "lon": -15.6,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 329717.17397260264,
+        "wage_usd": 0.1399328881772606
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 961.0506849315063,
+        "grid_share": 0.06136852071972008,
+        "key": "GNQ",
+        "lat": 3.75,
+        "lon": 8.78,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 120279.71780821921,
+        "wage_usd": 0.17193212384861484
+      },
+      {
+        "development": 0.2979338758955154,
+        "gdp_per_capita_usd": 4169.884931506889,
+        "grid_share": 0.17143918738987302,
+        "key": "GRC",
+        "lat": 37.99,
+        "lon": 23.73,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 5512586.031506848,
+        "wage_usd": 1.1200387040318591
+      },
+      {
+        "development": 0.1716068037448269,
+        "gdp_per_capita_usd": 2543.88904109589,
+        "grid_share": 0.12130311824714479,
+        "key": "GRD",
+        "lat": 12.05,
+        "lon": -61.74,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 66477.75616438357,
+        "wage_usd": 0.6006667232260251
+      },
+      {
+        "development": 0.24787417075400903,
+        "gdp_per_capita_usd": 3428.263013698629,
+        "grid_share": 0.14947726512639617,
+        "key": "GTM",
+        "lat": 14.62,
+        "lon": -90.53,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 1561454.286301369,
+        "wage_usd": 0.8747858987631616
+      },
+      {
+        "development": 0.2943040895387624,
+        "gdp_per_capita_usd": 4111.091780821916,
+        "grid_share": 0.16974354612462722,
+        "key": "GUY",
+        "lat": 6.8,
+        "lon": -58.17,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 295735.5739726027,
+        "wage_usd": 1.1001355909933472
+      },
+      {
+        "development": 0.23953152489488055,
+        "gdp_per_capita_usd": 3318.182191780821,
+        "grid_share": 0.14610107442448828,
+        "key": "HND",
+        "lat": 14.1,
+        "lon": -87.22,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 710415.6356164379,
+        "wage_usd": 0.8395126432793136
+      },
+      {
+        "development": 0.30428989654719574,
+        "gdp_per_capita_usd": 4274.868493150685,
+        "grid_share": 0.17444928003241505,
+        "key": "HRV",
+        "lat": 45.8,
+        "lon": 16.0,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 2826313.6424657525,
+        "wage_usd": 1.1557660081811794
+      },
+      {
+        "development": 0.1424172979615014,
+        "gdp_per_capita_usd": 2269.373972602739,
+        "grid_share": 0.11198439260257541,
+        "key": "HTI",
+        "lat": 18.54,
+        "lon": -72.34,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 2025840.0493150672,
+        "wage_usd": 0.5202723410767454
+      },
+      {
+        "development": 0.3802683079818663,
+        "gdp_per_capita_usd": 5754.502739726034,
+        "grid_share": 0.21479724699737668,
+        "key": "HUN",
+        "lat": 47.5,
+        "lon": 19.08,
+        "other_sites": 17,
+        "own_sites": 0,
+        "population": 7740033.576712328,
+        "wage_usd": 1.6828186636900793
+      },
+      {
+        "development": 0.1556093588906056,
+        "gdp_per_capita_usd": 2389.5657534246575,
+        "grid_share": 0.11610382825264873,
+        "key": "IDN",
+        "lat": -6.17,
+        "lon": 106.83,
+        "other_sites": 17,
+        "own_sites": 0,
+        "population": 44214764.18219176,
+        "wage_usd": 0.5551719454113697
+      },
+      {
+        "development": 0.11048527121677139,
+        "gdp_per_capita_usd": 2002.8780821917828,
+        "grid_share": 0.10260804423952846,
+        "key": "IND",
+        "lat": 28.6,
+        "lon": 77.2,
+        "other_sites": 33,
+        "own_sites": 0,
+        "population": 288808840.44520545,
+        "wage_usd": 0.4446516707290034
+      },
+      {
+        "development": 0.45358455247633817,
+        "gdp_per_capita_usd": 7666.019178082195,
+        "grid_share": 0.2625561412414849,
+        "key": "IRL",
+        "lat": 53.34,
+        "lon": -6.25,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 3065634.5301369866,
+        "wage_usd": 2.4007742255463524
+      },
+      {
+        "development": 0.14760272192282597,
+        "gdp_per_capita_usd": 2315.8794520547926,
+        "grid_share": 0.11358589766438817,
+        "key": "IRN",
+        "lat": 35.67,
+        "lon": 51.42,
+        "other_sites": 6,
+        "own_sites": 0,
+        "population": 10113263.672602748,
+        "wage_usd": 0.5337193167206994
+      },
+      {
+        "development": 0.14581592762355647,
+        "gdp_per_capita_usd": 2299.747945205478,
+        "grid_share": 0.11303148090805405,
+        "key": "IRQ",
+        "lat": 33.34,
+        "lon": 44.39,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 3088502.9890410933,
+        "wage_usd": 0.5290467487160294
+      },
+      {
+        "development": 0.3717484594048205,
+        "gdp_per_capita_usd": 5565.867123287676,
+        "grid_share": 0.20984384427523828,
+        "key": "ISL",
+        "lat": 64.15,
+        "lon": -21.95,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 91550.52876712325,
+        "wage_usd": 1.6133422228804002
+      },
+      {
+        "development": 0.11532502309680928,
+        "gdp_per_capita_usd": 2041.1602739726065,
+        "grid_share": 0.10397698619257005,
+        "key": "ISR",
+        "lat": 31.78,
+        "lon": 35.21,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 428396.7712328766,
+        "wage_usd": 0.4553595936410018
+      },
+      {
+        "development": 0.4223501809111421,
+        "gdp_per_capita_usd": 6784.278082191794,
+        "grid_share": 0.24103260733276924,
+        "key": "ITA",
+        "lat": 41.9,
+        "lon": 12.48,
+        "other_sites": 22,
+        "own_sites": 0,
+        "population": 36364651.967123285,
+        "wage_usd": 2.0682188653661706
+      },
+      {
+        "development": 0.07541839826422209,
+        "gdp_per_capita_usd": 1746.1315068493145,
+        "grid_share": 0.09321313488034921,
+        "key": "JAM",
+        "lat": 17.98,
+        "lon": -76.77,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 838147.1287671231,
+        "wage_usd": 0.3742662088941285
+      },
+      {
+        "development": 0.2027272253070463,
+        "gdp_per_capita_usd": 2873.232876712327,
+        "grid_share": 0.132093920178731,
+        "key": "JOR",
+        "lat": 31.95,
+        "lon": 35.93,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 239246.01780821956,
+        "wage_usd": 0.7001905986812531
+      },
+      {
+        "development": 0.3003900722501231,
+        "gdp_per_capita_usd": 4210.145205479441,
+        "grid_share": 0.1725961890766295,
+        "key": "JPN",
+        "lat": 35.69,
+        "lon": 139.75,
+        "other_sites": 13,
+        "own_sites": 0,
+        "population": 53633423.752054766,
+        "wage_usd": 1.133711560128611
+      },
+      {
+        "development": 0.31556624704674285,
+        "gdp_per_capita_usd": 4467.66849315068,
+        "grid_share": 0.1799201930006428,
+        "key": "KAZ",
+        "lat": 51.18,
+        "lon": 71.43,
+        "other_sites": 16,
+        "own_sites": 0,
+        "population": 4797323.724657533,
+        "wage_usd": 1.2219921368095448
+      },
+      {
+        "development": 0.0021204679411451926,
+        "gdp_per_capita_usd": 1310.8287671232863,
+        "grid_share": 0.07626151429100328,
+        "key": "KEN",
+        "lat": -1.28,
+        "lon": 36.81,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 3574529.341095891,
+        "wage_usd": 0.26120816036278793
+      },
+      {
+        "development": 0.1585488412532609,
+        "gdp_per_capita_usd": 2417.2027397260254,
+        "grid_share": 0.11704218059716971,
+        "key": "KGZ",
+        "lat": 42.88,
+        "lon": 74.58,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1251307.6534246572,
+        "wage_usd": 0.5632636229190993
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1280.2424657534245,
+        "grid_share": 0.07501149308662555,
+        "key": "KHM",
+        "lat": 11.55,
+        "lon": 104.91,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2971646.735616439,
+        "wage_usd": 0.2532176895082035
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1114.5863013698618,
+        "grid_share": 0.06807738117367734,
+        "key": "KIR",
+        "lat": 1.34,
+        "lon": 173.02,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 31394.326027397252,
+        "wage_usd": 0.2100163128595792
+      },
+      {
+        "development": 0.28284570770476936,
+        "gdp_per_capita_usd": 3930.8794520547926,
+        "grid_share": 0.1645000589384748,
+        "key": "KNA",
+        "lat": 17.3,
+        "lon": -62.72,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 42995.26438356167,
+        "wage_usd": 1.0396076439673227
+      },
+      {
+        "development": 0.13771974389281946,
+        "gdp_per_capita_usd": 2228.050684931506,
+        "grid_share": 0.11055306723111959,
+        "key": "KOR",
+        "lat": 37.57,
+        "lon": 127.0,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 10288439.024657529,
+        "wage_usd": 0.5083847695477813
+      },
+      {
+        "development": 0.3220891152077609,
+        "gdp_per_capita_usd": 4583.1397260274025,
+        "grid_share": 0.1831628609411082,
+        "key": "KWT",
+        "lat": 29.37,
+        "lon": 47.98,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 109193.83150684928,
+        "wage_usd": 1.2620282372918021
+      },
+      {
+        "development": 0.0615995648847119,
+        "gdp_per_capita_usd": 1654.2424657534245,
+        "grid_share": 0.08975169635597073,
+        "key": "LAO",
+        "lat": 17.97,
+        "lon": 102.6,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1177671.0808219188,
+        "wage_usd": 0.34971039743756877
+      },
+      {
+        "development": 0.29774276061618626,
+        "gdp_per_capita_usd": 4166.768493150683,
+        "grid_share": 0.1713494876240205,
+        "key": "LBN",
+        "lat": 33.87,
+        "lon": 35.51,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 689455.943835616,
+        "wage_usd": 1.1189817999126874
+      },
+      {
+        "development": 0.17492552981834608,
+        "gdp_per_capita_usd": 2577.1315068493145,
+        "grid_share": 0.12241055199168784,
+        "key": "LBR",
+        "lat": 6.31,
+        "lon": -10.8,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 551562.0369863012,
+        "wage_usd": 0.6105644549102501
+      },
+      {
+        "development": 0.15862140818185208,
+        "gdp_per_capita_usd": 2417.88904109589,
+        "grid_share": 0.11706544134849138,
+        "key": "LBY",
+        "lat": 32.89,
+        "lon": 13.18,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 632464.8109589037,
+        "wage_usd": 0.5634648745521943
+      },
+      {
+        "development": 0.013295275660446226,
+        "gdp_per_capita_usd": 1369.404109589041,
+        "grid_share": 0.07863128785940833,
+        "key": "LCA",
+        "lat": 14.0,
+        "lon": -61.0,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 58726.11780821916,
+        "wage_usd": 0.2759169378907885
+      },
+      {
+        "development": 0.59767886556753,
+        "gdp_per_capita_usd": 13470.441095890421,
+        "grid_share": 0.3895745000446142,
+        "key": "LIE",
+        "lat": 47.13,
+        "lon": 9.52,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 11518.324657534242,
+        "wage_usd": 4.810494833376993
+      },
+      {
+        "development": 0.24644192326718484,
+        "gdp_per_capita_usd": 3409.1082191780906,
+        "grid_share": 0.14889215008887136,
+        "key": "LKA",
+        "lat": 6.93,
+        "lon": 79.86,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 5047928.3726027375,
+        "wage_usd": 0.8686260558702628
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 947.3232876712327,
+        "grid_share": 0.06075359748088676,
+        "key": "LSO",
+        "lat": -29.32,
+        "lon": 27.48,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 295101.36027397244,
+        "wage_usd": 0.16862506157738327
+      },
+      {
+        "development": 0.3563482251003538,
+        "gdp_per_capita_usd": 5240.446575342459,
+        "grid_share": 0.20117826505000302,
+        "key": "LTU",
+        "lat": 54.68,
+        "lon": 25.32,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 2492781.160273975,
+        "wage_usd": 1.4949864951150313
+      },
+      {
+        "development": 0.4884650831651799,
+        "gdp_per_capita_usd": 8786.802739726014,
+        "grid_share": 0.28887161120224825,
+        "key": "LUX",
+        "lat": 49.61,
+        "lon": 6.13,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 263287.0931506849,
+        "wage_usd": 2.8383314820164007
+      },
+      {
+        "development": 0.26680632385401043,
+        "gdp_per_capita_usd": 3691.8095890410914,
+        "grid_share": 0.15743118174257342,
+        "key": "LVA",
+        "lat": 56.95,
+        "lon": 24.1,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2206166.7739726054,
+        "wage_usd": 0.9604579254173754
+      },
+      {
+        "development": 0.11683246721703323,
+        "gdp_per_capita_usd": 2053.232876712327,
+        "grid_share": 0.10440709128194665,
+        "key": "MAR",
+        "lat": 34.03,
+        "lon": -6.84,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 5578040.783561643,
+        "wage_usd": 0.45874747485441775
+      },
+      {
+        "development": 0.5378286187993068,
+        "gdp_per_capita_usd": 10658.547945205471,
+        "grid_share": 0.33068300855504046,
+        "key": "MCO",
+        "lat": 43.74,
+        "lon": 7.41,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 23841.049315068496,
+        "wage_usd": 3.60305158535337
+      },
+      {
+        "development": 0.20999639752018176,
+        "gdp_per_capita_usd": 2956.11232876712,
+        "grid_share": 0.134749729765167,
+        "key": "MDA",
+        "lat": 47.01,
+        "lon": 28.86,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 1798265.2027397254,
+        "wage_usd": 0.7257321916570444
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1289.0205479452045,
+        "grid_share": 0.07537114940284033,
+        "key": "MDG",
+        "lat": -18.91,
+        "lon": 47.51,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2509366.750684932,
+        "wage_usd": 0.25556437696227574
+      },
+      {
+        "development": 0.08329566939303831,
+        "gdp_per_capita_usd": 1800.77808219178,
+        "grid_share": 0.09524570204173011,
+        "key": "MDV",
+        "lat": 4.17,
+        "lon": 73.5,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 66129.58219178084,
+        "wage_usd": 0.38903252885874867
+      },
+      {
+        "development": 0.2575701123026456,
+        "gdp_per_capita_usd": 3560.7972602739746,
+        "grid_share": 0.1534992730233284,
+        "key": "MEX",
+        "lat": 19.44,
+        "lon": -99.13,
+        "other_sites": 14,
+        "own_sites": 0,
+        "population": 14520064.83150685,
+        "wage_usd": 0.9176570167239293
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1052.0205479452045,
+        "grid_share": 0.06537929087116566,
+        "key": "MHL",
+        "lat": 7.1,
+        "lon": 171.38,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 55582.56438356159,
+        "wage_usd": 0.19425948514794553
+      },
+      {
+        "development": 0.18911124102149815,
+        "gdp_per_capita_usd": 2724.191780821918,
+        "grid_share": 0.1272593277689945,
+        "key": "MKD",
+        "lat": 42.0,
+        "lon": 21.43,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 909508.4575342463,
+        "wage_usd": 0.6547539382102813
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1229.1616438356164,
+        "grid_share": 0.07290369656955031,
+        "key": "MLI",
+        "lat": 12.65,
+        "lon": -8.0,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2854441.2780821905,
+        "wage_usd": 0.23967441854643343
+      },
+      {
+        "development": 0.23566933194792847,
+        "gdp_per_capita_usd": 3268.4246575342454,
+        "grid_share": 0.14456400944433884,
+        "key": "MLT",
+        "lat": 35.9,
+        "lon": 14.51,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 216432.38630136987,
+        "wage_usd": 0.8236705567421071
+      },
+      {
+        "development": 0.1192208347864256,
+        "gdp_per_capita_usd": 2072.5068493150634,
+        "grid_share": 0.10509218753781657,
+        "key": "MMR",
+        "lat": 19.77,
+        "lon": 96.12,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 11334324.957534242,
+        "wage_usd": 0.46416713862937986
+      },
+      {
+        "development": 0.15147428651522626,
+        "gdp_per_capita_usd": 2351.22191780822,
+        "grid_share": 0.11479653644946029,
+        "key": "MNE",
+        "lat": 42.47,
+        "lon": 19.27,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 504180.47945205495,
+        "wage_usd": 0.5439865188186783
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 764.0,
+        "grid_share": 0.05226230991869292,
+        "key": "MNG",
+        "lat": 47.92,
+        "lon": 106.91,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 725215.0369863013,
+        "wage_usd": 0.12613208275983478
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 739.0808219178082,
+        "grid_share": 0.05106315011594185,
+        "key": "MOZ",
+        "lat": -25.95,
+        "lon": 32.59,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 3807988.219178083,
+        "wage_usd": 0.1206100903264848
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 960.4041095890409,
+        "grid_share": 0.06133961655796409,
+        "key": "MRT",
+        "lat": 18.09,
+        "lon": -15.98,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 397256.0383561643,
+        "wage_usd": 0.1717759844509487
+      },
+      {
+        "development": 0.24337074747805343,
+        "gdp_per_capita_usd": 3368.3945205479436,
+        "grid_share": 0.1476451945907736,
+        "key": "MUS",
+        "lat": -20.17,
+        "lon": 57.5,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 400135.5821917808,
+        "wage_usd": 0.8555640186144762
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 869.4041095890409,
+        "grid_share": 0.057210854195027486,
+        "key": "MWI",
+        "lat": -13.98,
+        "lon": 33.78,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1889958.1260273976,
+        "wage_usd": 0.15017540532855958
+      },
+      {
+        "development": 0.17529918424906887,
+        "gdp_per_capita_usd": 2580.901369863007,
+        "grid_share": 0.12253586917977213,
+        "key": "MYS",
+        "lat": 3.17,
+        "lon": 101.7,
+        "other_sites": 10,
+        "own_sites": 0,
+        "population": 2969042.73287671,
+        "wage_usd": 0.6116890570131231
+      },
+      {
+        "development": 0.2742978674922964,
+        "gdp_per_capita_usd": 3801.606849315066,
+        "grid_share": 0.16069423297579746,
+        "key": "NAM",
+        "lat": -22.57,
+        "lon": 17.08,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 257376.69452054778,
+        "wage_usd": 0.9966434558476709
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1291.5657534246573,
+        "grid_share": 0.07547529421702517,
+        "key": "NER",
+        "lat": 13.52,
+        "lon": 2.11,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1575649.6452054789,
+        "wage_usd": 0.25624584748059676
+      },
+      {
+        "development": 0.06540001206599136,
+        "gdp_per_capita_usd": 1679.0205479452045,
+        "grid_share": 0.09069063813293746,
+        "key": "NGA",
+        "lat": 9.09,
+        "lon": 7.53,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 21603659.46849314,
+        "wage_usd": 0.3562975215209452
+      },
+      {
+        "development": 0.23895817162039656,
+        "gdp_per_capita_usd": 3310.747945205478,
+        "grid_share": 0.1458718640593033,
+        "key": "NIC",
+        "lat": 12.15,
+        "lon": -86.27,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 704836.7246575338,
+        "wage_usd": 0.8371416268009709
+      },
+      {
+        "development": 0.5450785898989264,
+        "gdp_per_capita_usd": 10965.173972602734,
+        "grid_share": 0.3373138073115665,
+        "key": "NLD",
+        "lat": 52.35,
+        "lon": 4.91,
+        "other_sites": 8,
+        "own_sites": 0,
+        "population": 6285286.594520545,
+        "wage_usd": 3.7321226010639736
+      },
+      {
+        "development": 0.4550861328772508,
+        "gdp_per_capita_usd": 7711.183561643831,
+        "grid_share": 0.263637982193392,
+        "key": "NOR",
+        "lat": 59.92,
+        "lon": 10.75,
+        "other_sites": 7,
+        "own_sites": 0,
+        "population": 2483690.9616438346,
+        "wage_usd": 2.4180925142803753
+      },
+      {
+        "development": 0.0435852073661421,
+        "gdp_per_capita_usd": 1541.6767123287673,
+        "grid_share": 0.085431605603591,
+        "key": "NPL",
+        "lat": 27.72,
+        "lon": 85.31,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 5381662.627397261,
+        "wage_usd": 0.32011473892931863
+      },
+      {
+        "development": 0.056079077626441605,
+        "gdp_per_capita_usd": 1618.8999999999971,
+        "grid_share": 0.08840508909045133,
+        "key": "NRU",
+        "lat": -0.52,
+        "lon": 166.93,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1960.1616438356164,
+        "wage_usd": 0.34035954421382136
+      },
+      {
+        "development": 0.6197903751798003,
+        "gdp_per_capita_usd": 14687.524657534248,
+        "grid_share": 0.41389223251188867,
+        "key": "NZL",
+        "lat": -41.3,
+        "lon": 174.78,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 1118488.5602739719,
+        "wage_usd": 5.327970923627167
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 823.9698630136982,
+        "grid_share": 0.055101215503465126,
+        "key": "OMN",
+        "lat": 23.61,
+        "lon": 58.59,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 416247.0068493151,
+        "wage_usd": 0.13967858447015924
+      },
+      {
+        "development": 0.12046707030002199,
+        "gdp_per_capita_usd": 2082.6356164383583,
+        "grid_share": 0.10545144952428823,
+        "key": "PAK",
+        "lat": 33.7,
+        "lon": 73.16,
+        "other_sites": 8,
+        "own_sites": 0,
+        "population": 19192875.032876704,
+        "wage_usd": 0.4670205992350825
+      },
+      {
+        "development": 0.36754500740941237,
+        "gdp_per_capita_usd": 5475.0904109589055,
+        "grid_share": 0.20744222243181787,
+        "key": "PAN",
+        "lat": 8.97,
+        "lon": -79.53,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 371302.4794520542,
+        "wage_usd": 1.5801333757561402
+      },
+      {
+        "development": 0.2037695427380374,
+        "gdp_per_capita_usd": 2884.972602739718,
+        "grid_share": 0.13247149429998908,
+        "key": "PER",
+        "lat": -12.05,
+        "lon": -77.05,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 4354158.3657534225,
+        "wage_usd": 0.7037967305891502
+      },
+      {
+        "development": 0.18460054335238016,
+        "gdp_per_capita_usd": 2676.542465753433,
+        "grid_share": 0.12569706779444198,
+        "key": "PHL",
+        "lat": 14.61,
+        "lon": 120.98,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 8558554.872602735,
+        "wage_usd": 0.640364827860011
+      },
+      {
+        "development": 0.1313175634322992,
+        "gdp_per_capita_usd": 2172.9410958904064,
+        "grid_share": 0.10863176042790655,
+        "key": "PLW",
+        "lat": 7.49,
+        "lon": 134.63,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 6197.505479452054,
+        "wage_usd": 0.49262190576159226
+      },
+      {
+        "development": 0.00842603053437375,
+        "gdp_per_capita_usd": 1343.5657534246573,
+        "grid_share": 0.07758977595339311,
+        "key": "PNG",
+        "lat": -9.46,
+        "lon": 147.19,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 711303.5808219191,
+        "wage_usd": 0.2694080591085844
+      },
+      {
+        "development": 0.34350248694358493,
+        "gdp_per_capita_usd": 4983.606849315066,
+        "grid_share": 0.19422444621281063,
+        "key": "POL",
+        "lat": 52.25,
+        "lon": 21.0,
+        "other_sites": 11,
+        "own_sites": 0,
+        "population": 24946470.15890412,
+        "wage_usd": 1.402960679329583
+      },
+      {
+        "development": 0.13151473382432644,
+        "gdp_per_capita_usd": 2174.6178082191736,
+        "grid_share": 0.10869043030901497,
+        "key": "PRK",
+        "lat": 39.02,
+        "lon": 125.75,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 6134560.605479447,
+        "wage_usd": 0.493099948096533
+      },
+      {
+        "development": 0.25709104477310335,
+        "gdp_per_capita_usd": 3554.130136986305,
+        "grid_share": 0.15329803147142457,
+        "key": "PRT",
+        "lat": 38.72,
+        "lon": -9.15,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 5935639.036986301,
+        "wage_usd": 0.9154900368765138
+      },
+      {
+        "development": 0.3109332819406464,
+        "gdp_per_capita_usd": 4387.424657534246,
+        "grid_share": 0.17765196688615725,
+        "key": "PRY",
+        "lat": -25.29,
+        "lon": -57.64,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 621298.0630136981,
+        "wage_usd": 1.1943332510726503
+      },
+      {
+        "development": 0.25701408587839236,
+        "gdp_per_capita_usd": 3553.0602739726037,
+        "grid_share": 0.15326572800874305,
+        "key": "PSE",
+        "lat": 31.92,
+        "lon": 35.2,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 356637.1232876713,
+        "wage_usd": 0.915142406216838
+      },
+      {
+        "development": 0.31584034505448105,
+        "gdp_per_capita_usd": 4472.461643835625,
+        "grid_share": 0.1800552907851474,
+        "key": "QAT",
+        "lat": 25.29,
+        "lon": 51.53,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 17398.506849315065,
+        "wage_usd": 1.223648526493013
+      },
+      {
+        "development": 0.18064046865113675,
+        "gdp_per_capita_usd": 2635.397260273963,
+        "grid_share": 0.12434133133236865,
+        "key": "ROU",
+        "lat": 44.44,
+        "lon": 26.1,
+        "other_sites": 18,
+        "own_sites": 0,
+        "population": 12051376.824657533,
+        "wage_usd": 0.627994440285656
+      },
+      {
+        "development": 0.312845897232306,
+        "gdp_per_capita_usd": 4420.375342465749,
+        "grid_share": 0.17858486646490787,
+        "key": "RUS",
+        "lat": 55.75,
+        "lon": 37.61,
+        "other_sites": 36,
+        "own_sites": 0,
+        "population": 74180453.66438353,
+        "wage_usd": 1.205674541109944
+      },
+      {
+        "development": 0.004785352224162859,
+        "gdp_per_capita_usd": 1324.5657534246573,
+        "grid_share": 0.07682007300206857,
+        "key": "RWA",
+        "lat": -1.95,
+        "lon": 30.06,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1376302.1534246576,
+        "wage_usd": 0.2646425546085892
+      },
+      {
+        "development": 0.07804594586096325,
+        "gdp_per_capita_usd": 1764.1726027397235,
+        "grid_share": 0.09388625182979211,
+        "key": "SAU",
+        "lat": 24.64,
+        "lon": 46.77,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1285639.343835617,
+        "wage_usd": 0.37912794449853904
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1102.5356164383554,
+        "grid_share": 0.06756131430079389,
+        "key": "SDN",
+        "lat": 15.59,
+        "lon": 32.53,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 5290356.738356164,
+        "wage_usd": 0.20695674281824364
+      },
+      {
+        "development": 0.046058730132133296,
+        "gdp_per_capita_usd": 1556.66712328767,
+        "grid_share": 0.08601224380444358,
+        "key": "SEN",
+        "lat": 14.72,
+        "lon": -17.48,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1539616.9863013695,
+        "wage_usd": 0.32402427493884906
+      },
+      {
+        "development": 0.27774523555468755,
+        "gdp_per_capita_usd": 3853.2232876712296,
+        "grid_share": 0.1622184223823206,
+        "key": "SGP",
+        "lat": 1.29,
+        "lon": 103.85,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 342604.6958904107,
+        "wage_usd": 1.0137520975190135
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 914.1315068493145,
+        "grid_share": 0.0592555896937539,
+        "key": "SLB",
+        "lat": -9.44,
+        "lon": 159.95,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 152583.9109589041,
+        "wage_usd": 0.1606982872556867
+      },
+      {
+        "development": 0.11332376227915858,
+        "gdp_per_capita_usd": 2025.2424657534245,
+        "grid_share": 0.1034087212394467,
+        "key": "SLE",
+        "lat": 8.47,
+        "lon": -13.24,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1211066.0876712326,
+        "wage_usd": 0.4509007269833782
+      },
+      {
+        "development": 0.18290410197987267,
+        "gdp_per_capita_usd": 2658.8383561643836,
+        "grid_share": 0.12511448847782947,
+        "key": "SLV",
+        "lat": 13.71,
+        "lon": -89.2,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1148193.7095890401,
+        "wage_usd": 0.6350358124900406
+      },
+      {
+        "development": 0.35408849875407145,
+        "gdp_per_capita_usd": 5194.324657534243,
+        "grid_share": 0.19993720350755734,
+        "key": "SMR",
+        "lat": 43.94,
+        "lon": 12.44,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 11690.760273972595,
+        "wage_usd": 1.4783693408818148
+      },
+      {
+        "development": 0.01577027000686013,
+        "gdp_per_capita_usd": 1382.7273972602736,
+        "grid_share": 0.07916602654073507,
+        "key": "SOM",
+        "lat": 2.07,
+        "lon": 45.36,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1570124.32739726,
+        "wage_usd": 0.2792857496278414
+      },
+      {
+        "development": 0.2977507441136497,
+        "gdp_per_capita_usd": 4166.898630136988,
+        "grid_share": 0.17135323373111697,
+        "key": "SRB",
+        "lat": 44.82,
+        "lon": 20.47,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2871176.03287671,
+        "wage_usd": 1.11902593012106
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1135.5356164383554,
+        "grid_share": 0.06897056479192845,
+        "key": "SSD",
+        "lat": 7.5,
+        "lon": 30.0,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 2091427.547945205,
+        "wage_usd": 0.21536273592231148
+      },
+      {
+        "development": 0.06861069144168597,
+        "gdp_per_capita_usd": 1700.2424657534245,
+        "grid_share": 0.09149152179051936,
+        "key": "STP",
+        "lat": 0.33,
+        "lon": 6.73,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 58544.3191780822,
+        "wage_usd": 0.3619595843995691
+      },
+      {
+        "development": 0.37059410190814557,
+        "gdp_per_capita_usd": 5540.789041095887,
+        "grid_share": 0.20918155189898394,
+        "key": "SUR",
+        "lat": 5.84,
+        "lon": -55.17,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 102636.33287671219,
+        "wage_usd": 1.6041531500509165
+      },
+      {
+        "development": 0.36912279471378645,
+        "gdp_per_capita_usd": 5508.989041095892,
+        "grid_share": 0.20834044426303996,
+        "key": "SVK",
+        "lat": 48.15,
+        "lon": 17.12,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 3015684.4136986295,
+        "wage_usd": 1.592517219413652
+      },
+      {
+        "development": 0.41950332921169714,
+        "gdp_per_capita_usd": 6709.141095890412,
+        "grid_share": 0.23916085521922495,
+        "key": "SVN",
+        "lat": 46.06,
+        "lon": 14.51,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 1058122.4794520545,
+        "wage_usd": 2.0403815150453144
+      },
+      {
+        "development": 0.47489039977734154,
+        "gdp_per_capita_usd": 8332.357534246565,
+        "grid_share": 0.278330485923306,
+        "key": "SWE",
+        "lat": 59.35,
+        "lon": 18.1,
+        "other_sites": 13,
+        "own_sites": 0,
+        "population": 5632325.1986301355,
+        "wage_usd": 2.6589854293872226
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1007.88904109589,
+        "grid_share": 0.06344715547688605,
+        "key": "SWZ",
+        "lat": -26.32,
+        "lon": 31.13,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 136006.8369863013,
+        "wage_usd": 0.18333978139553794
+      },
+      {
+        "development": 0.1510930394740818,
+        "gdp_per_capita_usd": 2347.7178082191763,
+        "grid_share": 0.11467674990904027,
+        "key": "SYC",
+        "lat": -4.62,
+        "lon": 55.45,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 27185.7109589041,
+        "wage_usd": 0.5429667173637085
+      },
+      {
+        "development": 0.27060570657601374,
+        "gdp_per_capita_usd": 3747.0917808219156,
+        "grid_share": 0.159077692076619,
+        "key": "SYR",
+        "lat": 33.5,
+        "lon": 36.3,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 2163804.2520547933,
+        "wage_usd": 0.9786415694689801
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 971.2931506849309,
+        "grid_share": 0.06182561972958579,
+        "key": "TCD",
+        "lat": 12.12,
+        "lon": 15.05,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1713655.0287671236,
+        "wage_usd": 0.1744104382640213
+      },
+      {
+        "development": 0.045086462579703245,
+        "gdp_per_capita_usd": 1550.7575342465755,
+        "grid_share": 0.0857835431069151,
+        "key": "TGO",
+        "lat": 6.13,
+        "lon": 1.22,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 836012.7780821915,
+        "wage_usd": 0.32248185750165065
+      },
+      {
+        "development": 0.1537527091481037,
+        "gdp_per_capita_usd": 2372.2726027397266,
+        "grid_share": 0.11551502202862891,
+        "key": "THA",
+        "lat": 13.75,
+        "lon": 100.51,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 9014079.472602734,
+        "wage_usd": 0.5501213616309136
+      },
+      {
+        "development": 0.1645870645212617,
+        "gdp_per_capita_usd": 2474.9808219178053,
+        "grid_share": 0.1189935816076481,
+        "key": "TJK",
+        "lat": 38.56,
+        "lon": 68.77,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1086955.235616438,
+        "wage_usd": 0.5802592502334677
+      },
+      {
+        "development": 0.23636049818003727,
+        "gdp_per_capita_usd": 3277.273972602736,
+        "grid_share": 0.1448378849524801,
+        "key": "TKM",
+        "lat": 37.95,
+        "lon": 58.38,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 902321.1726027394,
+        "wage_usd": 0.82648337092284
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1158.3232876712327,
+        "grid_share": 0.06993653339231724,
+        "key": "TLS",
+        "lat": -8.56,
+        "lon": 125.58,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 358487.73972602736,
+        "wage_usd": 0.22121763573906517
+      },
+      {
+        "development": 0.059342023963658536,
+        "gdp_per_capita_usd": 1639.6972602739718,
+        "grid_share": 0.08919855515837825,
+        "key": "TON",
+        "lat": -21.14,
+        "lon": -175.22,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 25670.720547945195,
+        "wage_usd": 0.3458556422997024
+      },
+      {
+        "development": 0.32716475111487714,
+        "gdp_per_capita_usd": 4675.052054794516,
+        "grid_share": 0.1857264534218088,
+        "key": "TTO",
+        "lat": 10.65,
+        "lon": -61.52,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 362285.0328767121,
+        "wage_usd": 1.2940911432561402
+      },
+      {
+        "development": 0.16881868568965208,
+        "gdp_per_capita_usd": 2516.293150684931,
+        "grid_share": 0.12038049223721214,
+        "key": "TUN",
+        "lat": 36.8,
+        "lon": 10.18,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 2259569.928767123,
+        "wage_usd": 0.5924762415333782
+      },
+      {
+        "development": 0.14735462900172946,
+        "gdp_per_capita_usd": 2313.6328767123387,
+        "grid_share": 0.11350875569715987,
+        "key": "TUR",
+        "lat": 39.93,
+        "lon": 32.86,
+        "other_sites": 17,
+        "own_sites": 0,
+        "population": 14359515.017808223,
+        "wage_usd": 0.5330680675574679
+      },
+      {
+        "development": 0.07924319729324072,
+        "gdp_per_capita_usd": 1772.4547945205472,
+        "grid_share": 0.09419456986814746,
+        "key": "TUV",
+        "lat": -8.52,
+        "lon": 179.22,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 3987.6164383561636,
+        "wage_usd": 0.3813642257921772
+      },
+      {
+        "development": 0.13556573146946843,
+        "gdp_per_capita_usd": 2209.3547945205446,
+        "grid_share": 0.1099028803402892,
+        "key": "TWN",
+        "lat": 25.04,
+        "lon": 121.57,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 3419216.2150684916,
+        "wage_usd": 0.5030255424596323
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 978.1616438356164,
+        "grid_share": 0.06213133572209199,
+        "key": "TZA",
+        "lat": -6.8,
+        "lon": 39.27,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 4755186.879452054,
+        "wage_usd": 0.1760775076539051
+      },
+      {
+        "development": 0.00004578702359005375,
+        "gdp_per_capita_usd": 1300.2328767123272,
+        "grid_share": 0.0758294751698363,
+        "key": "UGA",
+        "lat": 0.32,
+        "lon": 32.58,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 3541939.7410958903,
+        "wage_usd": 0.2585654654162263
+      },
+      {
+        "development": 0.20920091770858557,
+        "gdp_per_capita_usd": 2946.9273972602796,
+        "grid_share": 0.1344565165316259,
+        "key": "UKR",
+        "lat": 50.44,
+        "lon": 30.51,
+        "other_sites": 20,
+        "own_sites": 0,
+        "population": 26768776.547945194,
+        "wage_usd": 0.7228920942941852
+      },
+      {
+        "development": 0.4178699742499934,
+        "gdp_per_capita_usd": 6666.408219178099,
+        "grid_share": 0.23809352398529723,
+        "key": "URY",
+        "lat": -34.86,
+        "lon": -56.17,
+        "other_sites": 3,
+        "own_sites": 0,
+        "population": 1210198.4767123277,
+        "wage_usd": 2.024585573358915
+      },
+      {
+        "development": 0.6443040750399972,
+        "gdp_per_capita_usd": 16165.77945205479,
+        "grid_share": 0.4426300601293578,
+        "key": "USA",
+        "lat": 38.9,
+        "lon": -77.01,
+        "other_sites": 112,
+        "own_sites": 0,
+        "population": 99288675.78767118,
+        "wage_usd": 5.972905569079991
+      },
+      {
+        "development": 0.10778723470156858,
+        "gdp_per_capita_usd": 1981.8493150684908,
+        "grid_share": 0.10185273412280618,
+        "key": "UZB",
+        "lat": 41.31,
+        "lon": 69.29,
+        "other_sites": 6,
+        "own_sites": 0,
+        "population": 4440149.66438356,
+        "wage_usd": 0.43879256922490784
+      },
+      {
+        "development": 0.19822782014382156,
+        "gdp_per_capita_usd": 2823.1013698630127,
+        "grid_share": 0.13047634455155158,
+        "key": "VCT",
+        "lat": 13.15,
+        "lon": -61.21,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 39555.74931506849,
+        "wage_usd": 0.6848357936627364
+      },
+      {
+        "development": 0.25951551877899737,
+        "gdp_per_capita_usd": 3588.0,
+        "grid_share": 0.15431919674140845,
+        "key": "VEN",
+        "lat": 10.5,
+        "lon": -66.92,
+        "other_sites": 13,
+        "own_sites": 0,
+        "population": 3116646.189041095,
+        "wage_usd": 0.9265098246631149
+      },
+      {
+        "development": 0.11674308631306222,
+        "gdp_per_capita_usd": 2052.515068493151,
+        "grid_share": 0.1043815395094993,
+        "key": "VNM",
+        "lat": 21.04,
+        "lon": 105.85,
+        "other_sites": 5,
+        "own_sites": 0,
+        "population": 18877358.387671236,
+        "wage_usd": 0.45854589220091097
+      },
+      {
+        "development": 0.027789123599164807,
+        "gdp_per_capita_usd": 1449.2931506849309,
+        "grid_share": 0.08181494030110317,
+        "key": "VUT",
+        "lat": -17.73,
+        "lon": 168.32,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 62777.697260274,
+        "wage_usd": 0.2962428630437646
+      },
+      {
+        "development": 0.25062792807621787,
+        "gdp_per_capita_usd": 3465.3945205479436,
+        "grid_share": 0.1506087239933132,
+        "key": "WSM",
+        "lat": -13.84,
+        "lon": -171.74,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 39685.85616438357,
+        "wage_usd": 0.8867529397504149
+      },
+      {
+        "development": 0.1206183485330047,
+        "gdp_per_capita_usd": 2083.8684931506855,
+        "grid_share": 0.10549514318139393,
+        "key": "XKX",
+        "lat": 42.67,
+        "lon": 21.17,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 426820.88493150676,
+        "wage_usd": 0.46736817385394136
+      },
+      {
+        "development": 0.13019317438457323,
+        "gdp_per_capita_usd": 2163.4041095890407,
+        "grid_share": 0.10829779275555486,
+        "key": "YEM",
+        "lat": 15.36,
+        "lon": 44.2,
+        "other_sites": 2,
+        "own_sites": 0,
+        "population": 3280800.943835615,
+        "wage_usd": 0.4899047002836078
+      },
+      {
+        "development": 0.23628633549244243,
+        "gdp_per_capita_usd": 3276.3232876712327,
+        "grid_share": 0.14480847305964423,
+        "key": "ZAF",
+        "lat": -33.92,
+        "lon": 18.43,
+        "other_sites": 4,
+        "own_sites": 0,
+        "population": 6507200.38356164,
+        "wage_usd": 0.8261810919474101
+      },
+      {
+        "development": 0.0,
+        "gdp_per_capita_usd": 1124.2931506849309,
+        "grid_share": 0.0684918576566261,
+        "key": "ZMB",
+        "lat": -15.41,
+        "lon": 28.28,
+        "other_sites": 0,
+        "own_sites": 0,
+        "population": 1485831.77260274,
+        "wage_usd": 0.21248924119042842
+      },
+      {
+        "development": 0.05784145385869312,
+        "gdp_per_capita_usd": 1630.1000000000029,
+        "grid_share": 0.08883277380951918,
+        "key": "ZWE",
+        "lat": -17.82,
+        "lon": 31.04,
+        "other_sites": 1,
+        "own_sites": 0,
+        "population": 1390086.0273972594,
+        "wage_usd": 0.343317086612192
+      }
+    ],
+    "date": "1914-08-01",
+    "deposits": [
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "baumwollguertel",
+        "max_output_per_year": 250000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 10,
+        "country": "IND",
+        "free_concessions": 0,
+        "key": "dekkan",
+        "max_output_per_year": 80000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "PAK",
+        "free_concessions": 0,
+        "key": "sindh_punjab",
+        "max_output_per_year": 30000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "EGY",
+        "free_concessions": 0,
+        "key": "nildelta",
+        "max_output_per_year": 30000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 8,
+        "country": "CHN",
+        "free_concessions": 0,
+        "key": "nordchina_baumwolle",
+        "max_output_per_year": 60000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "UZB",
+        "free_concessions": 0,
+        "key": "ferghana",
+        "max_output_per_year": 30000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "BRA",
+        "free_concessions": 0,
+        "key": "nordost_brasilien",
+        "max_output_per_year": 10000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "SDN",
+        "free_concessions": 1,
+        "key": "gezira",
+        "max_output_per_year": 10000.0,
+        "resource": "baumwolle",
+        "undiscovered": true
+      },
+      {
+        "concessions": 1,
+        "country": "PER",
+        "free_concessions": 0,
+        "key": "kuestentaeler_peru",
+        "max_output_per_year": 5000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "MEX",
+        "free_concessions": 0,
+        "key": "laguna",
+        "max_output_per_year": 5000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "TUR",
+        "free_concessions": 0,
+        "key": "kilikien",
+        "max_output_per_year": 5000.0,
+        "resource": "baumwolle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "SWE",
+        "free_concessions": 0,
+        "key": "kiruna_malmberget",
+        "max_output_per_year": 3000000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "FRA",
+        "free_concessions": 0,
+        "key": "lothringen_minette",
+        "max_output_per_year": 2500000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "DEU",
+        "free_concessions": 1,
+        "key": "siegerland",
+        "max_output_per_year": 200000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "GBR",
+        "free_concessions": 0,
+        "key": "cleveland_hills",
+        "max_output_per_year": 400000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "mesabi_range",
+        "max_output_per_year": 5000000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "UKR",
+        "free_concessions": 0,
+        "key": "krivoi_rog",
+        "max_output_per_year": 1000000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "ESP",
+        "free_concessions": 0,
+        "key": "bilbao",
+        "max_output_per_year": 900000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "alabama_erz",
+        "max_output_per_year": 600000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "RUS",
+        "free_concessions": 1,
+        "key": "ural_eisen",
+        "max_output_per_year": 400000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "AUT",
+        "free_concessions": 1,
+        "key": "steirischer_erzberg",
+        "max_output_per_year": 200000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "GBR",
+        "free_concessions": 1,
+        "key": "northamptonshire",
+        "max_output_per_year": 600000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CAN",
+        "free_concessions": 1,
+        "key": "bell_island",
+        "max_output_per_year": 200000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "IND",
+        "free_concessions": 1,
+        "key": "singhbhum",
+        "max_output_per_year": 500000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CHN",
+        "free_concessions": 0,
+        "key": "tayeh",
+        "max_output_per_year": 150000.0,
+        "resource": "eisenerz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "praerie_usa",
+        "max_output_per_year": 2500000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "CAN",
+        "free_concessions": 0,
+        "key": "praerie_kanada",
+        "max_output_per_year": 1000000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "ARG",
+        "free_concessions": 0,
+        "key": "pampa",
+        "max_output_per_year": 800000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "AUS",
+        "free_concessions": 0,
+        "key": "weizenguertel_australien",
+        "max_output_per_year": 300000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "RUS",
+        "free_concessions": 0,
+        "key": "schwarzerde_russland",
+        "max_output_per_year": 1500000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "UKR",
+        "free_concessions": 0,
+        "key": "schwarzerde_ukraine",
+        "max_output_per_year": 1200000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "KAZ",
+        "free_concessions": 0,
+        "key": "kasachische_steppe",
+        "max_output_per_year": 500000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "IND",
+        "free_concessions": 0,
+        "key": "punjab_weizen",
+        "max_output_per_year": 1000000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "FRA",
+        "free_concessions": 0,
+        "key": "beauce",
+        "max_output_per_year": 900000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "DEU",
+        "free_concessions": 0,
+        "key": "boerden",
+        "max_output_per_year": 600000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "ITA",
+        "free_concessions": 0,
+        "key": "poebene",
+        "max_output_per_year": 500000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "ROU",
+        "free_concessions": 0,
+        "key": "walachei",
+        "max_output_per_year": 400000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "HUN",
+        "free_concessions": 0,
+        "key": "ungarische_tiefebene",
+        "max_output_per_year": 400000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "ESP",
+        "free_concessions": 0,
+        "key": "meseta",
+        "max_output_per_year": 400000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "CHN",
+        "free_concessions": 0,
+        "key": "nordchinesische_ebene",
+        "max_output_per_year": 1500000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "TUR",
+        "free_concessions": 0,
+        "key": "anatolien",
+        "max_output_per_year": 300000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 9,
+        "country": "GBR",
+        "free_concessions": 0,
+        "key": "ostengland",
+        "max_output_per_year": 200000.0,
+        "resource": "getreide",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "RUS",
+        "free_concessions": 0,
+        "key": "sibirische_taiga",
+        "max_output_per_year": 6000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "CAN",
+        "free_concessions": 2,
+        "key": "kanadische_waelder",
+        "max_output_per_year": 4000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "pazifischer_nordwesten",
+        "max_output_per_year": 5000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 1,
+        "key": "suedstaatenkiefer",
+        "max_output_per_year": 4000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "SWE",
+        "free_concessions": 6,
+        "key": "schwedische_waelder",
+        "max_output_per_year": 2000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 10,
+        "country": "FIN",
+        "free_concessions": 5,
+        "key": "finnische_waelder",
+        "max_output_per_year": 1500000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "NOR",
+        "free_concessions": 1,
+        "key": "norwegische_waelder",
+        "max_output_per_year": 500000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 10,
+        "country": "DEU",
+        "free_concessions": 6,
+        "key": "deutsche_waelder",
+        "max_output_per_year": 1500000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "AUT",
+        "free_concessions": 3,
+        "key": "alpenwaelder",
+        "max_output_per_year": 600000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 5,
+        "country": "POL",
+        "free_concessions": 3,
+        "key": "polnische_waelder",
+        "max_output_per_year": 800000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 8,
+        "country": "FRA",
+        "free_concessions": 5,
+        "key": "franzoesische_waelder",
+        "max_output_per_year": 1200000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "ROU",
+        "free_concessions": 2,
+        "key": "karpaten",
+        "max_output_per_year": 500000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "BRA",
+        "free_concessions": 8,
+        "key": "amazonas_holz",
+        "max_output_per_year": 2000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 6,
+        "country": "IDN",
+        "free_concessions": 4,
+        "key": "borneo_sumatra",
+        "max_output_per_year": 1000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 6,
+        "country": "IND",
+        "free_concessions": 4,
+        "key": "indische_waelder",
+        "max_output_per_year": 1000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 5,
+        "country": "JPN",
+        "free_concessions": 3,
+        "key": "japanische_waelder",
+        "max_output_per_year": 800000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 6,
+        "country": "CHN",
+        "free_concessions": 4,
+        "key": "mandschurei_holz",
+        "max_output_per_year": 1000000.0,
+        "resource": "holz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "BRA",
+        "free_concessions": 2,
+        "key": "amazonas_kautschuk",
+        "max_output_per_year": 4000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "COD",
+        "free_concessions": 1,
+        "key": "kongo_kautschuk",
+        "max_output_per_year": 1000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "PER",
+        "free_concessions": 1,
+        "key": "amazonas_peru",
+        "max_output_per_year": 500.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "BOL",
+        "free_concessions": 1,
+        "key": "amazonas_bolivien",
+        "max_output_per_year": 400.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "MYS",
+        "free_concessions": 5,
+        "key": "malaya_plantagen",
+        "max_output_per_year": 30000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "IDN",
+        "free_concessions": 7,
+        "key": "sumatra_java_plantagen",
+        "max_output_per_year": 25000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "LKA",
+        "free_concessions": 3,
+        "key": "ceylon_plantagen",
+        "max_output_per_year": 6000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "VNM",
+        "free_concessions": 3,
+        "key": "cochinchina_plantagen",
+        "max_output_per_year": 6000.0,
+        "resource": "kautschuk",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "LBR",
+        "free_concessions": 3,
+        "key": "liberia_plantagen",
+        "max_output_per_year": 5000.0,
+        "resource": "kautschuk",
+        "undiscovered": true
+      },
+      {
+        "concessions": 10,
+        "country": "DEU",
+        "free_concessions": 6,
+        "key": "ruhrgebiet",
+        "max_output_per_year": 15000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "GBR",
+        "free_concessions": 3,
+        "key": "suedwales",
+        "max_output_per_year": 6000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "FRA",
+        "free_concessions": 2,
+        "key": "nord_pas_de_calais",
+        "max_output_per_year": 3500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 5,
+        "key": "appalachen",
+        "max_output_per_year": 30000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "POL",
+        "free_concessions": 2,
+        "key": "oberschlesien",
+        "max_output_per_year": 4500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "UKR",
+        "free_concessions": 1,
+        "key": "donbass",
+        "max_output_per_year": 3000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "DEU",
+        "free_concessions": 1,
+        "key": "saarrevier",
+        "max_output_per_year": 1500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 4,
+        "country": "GBR",
+        "free_concessions": 2,
+        "key": "nordostengland",
+        "max_output_per_year": 6000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "GBR",
+        "free_concessions": 1,
+        "key": "schottland_kohle",
+        "max_output_per_year": 4000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "BEL",
+        "free_concessions": 1,
+        "key": "wallonien",
+        "max_output_per_year": 2500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CZE",
+        "free_concessions": 1,
+        "key": "ostrau_karwin",
+        "max_output_per_year": 1500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CHN",
+        "free_concessions": 1,
+        "key": "kaiping",
+        "max_output_per_year": 2000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "JPN",
+        "free_concessions": 0,
+        "key": "kyushu",
+        "max_output_per_year": 2000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "IND",
+        "free_concessions": 1,
+        "key": "jharia",
+        "max_output_per_year": 2000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "AUS",
+        "free_concessions": 1,
+        "key": "neusuedwales",
+        "max_output_per_year": 1500000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "RUS",
+        "free_concessions": 1,
+        "key": "kusnezk",
+        "max_output_per_year": 3000000.0,
+        "resource": "kohle",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "butte",
+        "max_output_per_year": 1000000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "arizona_kupfer",
+        "max_output_per_year": 600000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "USA",
+        "free_concessions": 1,
+        "key": "keweenaw",
+        "max_output_per_year": 400000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "ESP",
+        "free_concessions": 0,
+        "key": "rio_tinto",
+        "max_output_per_year": 300000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "MEX",
+        "free_concessions": 1,
+        "key": "cananea",
+        "max_output_per_year": 300000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "PER",
+        "free_concessions": 1,
+        "key": "cerro_de_pasco",
+        "max_output_per_year": 300000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CHL",
+        "free_concessions": 0,
+        "key": "el_teniente",
+        "max_output_per_year": 800000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "CHL",
+        "free_concessions": 0,
+        "key": "chuquicamata",
+        "max_output_per_year": 1500000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "COD",
+        "free_concessions": 0,
+        "key": "katanga",
+        "max_output_per_year": 1000000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "ZMB",
+        "free_concessions": 1,
+        "key": "copperbelt",
+        "max_output_per_year": 1000000.0,
+        "resource": "kupfererz",
+        "undiscovered": true
+      },
+      {
+        "concessions": 1,
+        "country": "CAN",
+        "free_concessions": 1,
+        "key": "sudbury",
+        "max_output_per_year": 300000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "AUS",
+        "free_concessions": 1,
+        "key": "mount_lyell",
+        "max_output_per_year": 150000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "JPN",
+        "free_concessions": 1,
+        "key": "ashio",
+        "max_output_per_year": 150000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "DEU",
+        "free_concessions": 1,
+        "key": "mansfeld",
+        "max_output_per_year": 100000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "RUS",
+        "free_concessions": 1,
+        "key": "ural_kupfer",
+        "max_output_per_year": 100000.0,
+        "resource": "kupfererz",
+        "undiscovered": false
+      },
+      {
+        "concessions": 3,
+        "country": "USA",
+        "free_concessions": 1,
+        "key": "pennsylvania",
+        "max_output_per_year": 500000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 0,
+        "key": "texas_golfkueste",
+        "max_output_per_year": 5000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 5,
+        "key": "kalifornien",
+        "max_output_per_year": 3000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "USA",
+        "free_concessions": 2,
+        "key": "oklahoma",
+        "max_output_per_year": 4000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 8,
+        "country": "AZE",
+        "free_concessions": 4,
+        "key": "baku",
+        "max_output_per_year": 1200000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "RUS",
+        "free_concessions": 1,
+        "key": "grosny",
+        "max_output_per_year": 300000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "ROU",
+        "free_concessions": 1,
+        "key": "ploiesti",
+        "max_output_per_year": 300000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "UKR",
+        "free_concessions": 1,
+        "key": "galizien",
+        "max_output_per_year": 200000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 2,
+        "country": "IDN",
+        "free_concessions": 0,
+        "key": "sumatra_oel",
+        "max_output_per_year": 300000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "MEX",
+        "free_concessions": 4,
+        "key": "goldene_linie",
+        "max_output_per_year": 3000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 6,
+        "country": "IRN",
+        "free_concessions": 4,
+        "key": "masjed_soleyman",
+        "max_output_per_year": 1000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "VEN",
+        "free_concessions": 2,
+        "key": "maracaibo",
+        "max_output_per_year": 4000000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 6,
+        "country": "IRQ",
+        "free_concessions": 6,
+        "key": "kirkuk",
+        "max_output_per_year": 1000000.0,
+        "resource": "rohoel",
+        "undiscovered": true
+      },
+      {
+        "concessions": 1,
+        "country": "TTO",
+        "free_concessions": 1,
+        "key": "trinidad",
+        "max_output_per_year": 100000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "PER",
+        "free_concessions": 1,
+        "key": "talara",
+        "max_output_per_year": 100000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 1,
+        "country": "MMR",
+        "free_concessions": 1,
+        "key": "yenangyaung",
+        "max_output_per_year": 100000.0,
+        "resource": "rohoel",
+        "undiscovered": false
+      },
+      {
+        "concessions": 12,
+        "country": "SAU",
+        "free_concessions": 12,
+        "key": "dammam",
+        "max_output_per_year": 10000000.0,
+        "resource": "rohoel",
+        "undiscovered": true
+      },
+      {
+        "concessions": 12,
+        "country": "KWT",
+        "free_concessions": 12,
+        "key": "burgan",
+        "max_output_per_year": 6000000.0,
+        "resource": "rohoel",
+        "undiscovered": true
+      },
+      {
+        "concessions": 6,
+        "country": "CAN",
+        "free_concessions": 6,
+        "key": "leduc",
+        "max_output_per_year": 1000000.0,
+        "resource": "rohoel",
+        "undiscovered": true
+      }
+    ],
+    "resources": [
+      "baumwolle",
+      "eisenerz",
+      "getreide",
+      "holz",
+      "kautschuk",
+      "kohle",
+      "kupfererz",
+      "rohoel"
+    ]
   }
 }

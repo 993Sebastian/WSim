@@ -116,4 +116,6 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Weltereignis, historisches Ereignis | `MessageKind::WorldEvent`, `HistoricalEvent` |
 | Periodenergebnis, Vorrunde | `PeriodView`, `previous` |
 | Autospeicherung | `AUTOSAVE_NAME` |
+| Weltkarte, Kartenebene | `WorldMap`, `Ebene` (UI) |
+| Länderdetail | `CountryDetail` |
 

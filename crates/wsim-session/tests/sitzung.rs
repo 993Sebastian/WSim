@@ -35,6 +35,23 @@ fn new_game_round_save_and_load() {
     assert_eq!(overview.company.name, "Sitzung AG");
     assert_eq!(overview.competitors_active, 10);
 
+    let map = session.world_map().unwrap();
+    assert!(
+        map.countries
+            .iter()
+            .any(|c| c.key == "DEU" && c.own_sites == 1)
+    );
+    let deu = session.country("DEU").unwrap();
+    assert!(
+        deu.companies
+            .iter()
+            .any(|c| c.own && c.name == "Sitzung AG")
+    );
+    assert_eq!(
+        session.country("XXX").unwrap_err().key,
+        keys::UNKNOWN_COUNTRY
+    );
+
     let mut steps = 0;
     let report = session.end_round("woche", |_| steps += 1).unwrap();
     assert_eq!(report.days, 7);
