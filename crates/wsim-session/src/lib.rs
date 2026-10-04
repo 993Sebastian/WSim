@@ -44,10 +44,15 @@ pub struct SaveEntry {
     pub company: String,
 }
 
+/// Name of the save written after every round (Lastenheft §13.1).
+pub const AUTOSAVE_NAME: &str = "Automatisch";
+
 pub struct Session {
     catalog: Arc<Catalog>,
     saves: PathBuf,
     game: Option<Game>,
+    /// Result of the last round, for the comparison in the next report.
+    last_period: Option<views::PeriodView>,
 }
 
 fn error(key: &str) -> MessageView {
@@ -74,6 +79,7 @@ impl Session {
             catalog,
             saves,
             game: None,
+            last_period: None,
         }
     }
 
@@ -117,6 +123,7 @@ impl Session {
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&game);
         self.game = Some(game);
+        self.last_period = None;
         Ok(overview)
     }
 
@@ -143,7 +150,12 @@ impl Session {
         let game = self.game.as_mut().ok_or_else(|| error(keys::NO_GAME))?;
         let before = views::snapshot(game);
         let report = game.advance(length, progress);
-        Ok(views::round_report(game, &report, before))
+        let mut view = views::round_report(game, &report, &before);
+        view.previous = self.last_period.replace(view.period.clone());
+        if let Err(e) = self.save(AUTOSAVE_NAME) {
+            view.messages.push(e);
+        }
+        Ok(view)
     }
 
     fn path(&self, name: &str) -> Result<PathBuf, MessageView> {
@@ -209,6 +221,7 @@ impl Session {
             .map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&loaded.game);
         self.game = Some(loaded.game);
+        self.last_period = None;
         Ok(overview)
     }
 }

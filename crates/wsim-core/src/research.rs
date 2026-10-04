@@ -148,8 +148,22 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             company.research.remove(&technology);
             company.technologies.insert(technology);
             let first = state.inventions.get_mut(technology);
-            if first.is_none() {
+            let new_to_the_world = first.is_none();
+            if new_to_the_world {
                 *first = Some(date);
+            }
+            if new_to_the_world && c != state.player.index() {
+                messages.push(
+                    Message::new(MessageKind::Info, keys::AI_INVENTION)
+                        .with("firma", Param::Text(state.companies[c].name.clone()))
+                        .with(
+                            "technologie",
+                            Param::TextKey(format!(
+                                "technologie.{}",
+                                catalog.technologies.key(technology)
+                            )),
+                        ),
+                );
             }
             for site in &mut state.sites {
                 if site.owner.index() == c && site.research == Some(technology) {

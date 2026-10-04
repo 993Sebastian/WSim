@@ -577,6 +577,16 @@ pub(crate) fn build(
         (&country_keys, &deposit_keys, &facility_keys, &recipe_keys),
     );
 
+    let (event_keys, events) = register(
+        b.ctx,
+        raw,
+        ("ereignisse", "Ereignis", Some("ereignis")),
+        KeyFormat::Snake,
+        &raw.events,
+        |e| &e.id,
+    );
+    b.catalog.events = ai::events(b.ctx, &events, &country_keys, texts);
+
     b.check_product_sources(&products);
     b.check_electricity(raw);
     production::check_start_setups(b.ctx, &b.catalog, raw);
@@ -598,6 +608,7 @@ pub(crate) fn build(
         &deposit_keys,
         &vehicle_keys,
         &difficulty_keys,
+        &event_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
 

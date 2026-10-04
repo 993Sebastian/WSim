@@ -44,14 +44,20 @@ describe("Spielablauf", () => {
     fireEvent.click(screen.getByRole("button", { name: "Spiel starten" }));
 
     expect(await screen.findByText("Test AG")).toBeTruthy();
-    expect(screen.getByText("01.01.1900")).toBeTruthy();
+    expect(screen.getByText("01.01.1914")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Wettbewerb" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Runde beenden" }));
+    const ereignis = await screen.findByRole("dialog", { name: "Erster Weltkrieg" });
+    expect(within(ereignis).getByText(/Österreich-Ungarn erklärt Serbien den Krieg/)).toBeTruthy();
+    expect(within(ereignis).getByText(/Deutschland/)).toBeTruthy();
+    fireEvent.click(within(ereignis).getByRole("button", { name: "Weiter" }));
+
     const bericht = await screen.findByRole("dialog", { name: "Rundenbericht" });
-    expect(within(bericht).getByText("Das Jahr 1901 beginnt.")).toBeTruthy();
+    expect(within(bericht).getByRole("heading", { name: "Weltgeschehen" })).toBeTruthy();
+    expect(within(bericht).getByRole("heading", { name: "Finanzergebnis" })).toBeTruthy();
     fireEvent.click(within(bericht).getByRole("button", { name: "Weiter" }));
-    expect(await screen.findByText("01.01.1901")).toBeTruthy();
+    expect(await screen.findByText("01.08.1914")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
     const dialog = await screen.findByRole("dialog", { name: "Spiel speichern" });

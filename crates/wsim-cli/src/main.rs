@@ -323,8 +323,8 @@ fn run(args: &RunArgs) -> Result<(), String> {
     Ok(())
 }
 
-/// Views of a real game for the UI preview: options, a new game, the report of its
-/// twelfth month and the overview after it.
+/// Views of a real game for the UI preview: options, a new game in 1914, the report of
+/// its seventh month (July 1914) and the overview after it.
 fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     use wsim_session::{NewGameRequest, Session};
     let saves = std::env::temp_dir().join("wsim-beispielsichten");
@@ -332,7 +332,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     let options = session.options();
     let request = NewGameRequest {
         seed: 1,
-        start_year: 1900,
+        start_year: 1914,
         country: "DEU".into(),
         capital_usd: 100_000.0,
         start_form: "werkstatt".into(),
@@ -343,8 +343,8 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
-    // The December round shows the turn of the year and the first events.
-    for _ in 0..11 {
+    // The July round shows the start of the First World War and competitors' moves.
+    for _ in 0..6 {
         session.end_round("monat", |_| {}).map_err(message)?;
     }
     let report = session.end_round("monat", |_| {}).map_err(message)?;

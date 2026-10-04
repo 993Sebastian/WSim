@@ -18,7 +18,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M8 | Handel zwischen Ländern | ✅ |
 | M9 | Alle 12 Ketten + Forschung | ✅ |
 | M10 | KI-Firmen | ✅ |
-| M11 | Rundenbericht und Meldungen | offen |
+| M11 | Rundenbericht und Meldungen | ✅ |
 | M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
 | M13 | Oberfläche II: Weltkarte | offen |
 | M14 | Oberfläche III: Spielen | offen |
@@ -164,4 +164,19 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   und ist änderbar. Der Marktmaßstab wird nicht in der Oberfläche vorausberechnet.
 - M12: Sprungziele der Meldungen führen vorerst zur Übersicht; weitere Ansichten folgen
   mit M13/M14.
+- M11: 42 historische Ereignisse 1900–1939 (`data/ereignisse/`) erscheinen am
+  Ereignistag als Weltereignis; die Oberfläche zeigt sie nach der Runde als eigene
+  Fenster vor dem Bericht (Wunsch des Auftraggebers: Popups bei Kriegen und neuen
+  Ländern). In Stufe 1 ohne eigene Wirkungen: Die Folgen stecken in den Länderwerten
+  (Lastenheft §18), Wirkungen folgen mit Stufe 4.
+- M11: Rundenbericht mit Finanzergebnis der Runde (aus dem Hauptbuch, auch über den
+  Jahreswechsel) und Vergleich mit der Vorrunde, Abschnitten Weltgeschehen, Warnungen,
+  Wettbewerb und Forschung (Fortschritt je Projekt).
+- M11: Wettbewerbermeldungen: Gründungen, Pleiten, erste Erfindungen und Ausbauten in
+  Produkten, die der Spieler herstellt oder anbietet (nicht jeder Ausbau aller
+  100 Firmen). Warnung, wenn Anlagen wegen fehlender Vorprodukte stillstehen.
+- M11: Nach jeder Runde automatische Speicherung unter „Automatisch“ (ein Stand, wird
+  überschrieben); manuelle Spielstände beliebig. Ein Meldungsarchiv folgt mit M14.
+- M11: Die Browser-Vorschau zeigt jetzt einen Start 1914 mit dem Juli-Bericht
+  (Kriegsbeginn), damit Popups und Vergleich sichtbar sind.
 

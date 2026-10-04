@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { formatDatum, formatGeld } from "../format";
-import type { Fortschritt, Kern, Rundenbericht, Rundenlaenge, Uebersicht } from "../kern";
+import type { Fortschritt, Kern, Meldung, Rundenbericht, Rundenlaenge, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { Dialog, FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
 import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
+import { WeltereignisDialog } from "./Weltereignis";
 import { UebersichtAnsicht } from "./Uebersicht";
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
@@ -14,6 +15,7 @@ type Fenster =
   | { art: "keins" }
   | { art: "runde"; fortschritt: Fortschritt | null }
   | { art: "bericht"; bericht: Rundenbericht }
+  | { art: "ereignis"; bericht: Rundenbericht; liste: Meldung[]; index: number }
   | { art: "speichern" }
   | { art: "laden" };
 
@@ -40,7 +42,13 @@ export function Spiel({
         setFenster((alt) => (alt.art === "runde" ? { art: "runde", fortschritt: f } : alt)),
       );
       setUebersicht(await kern.uebersicht());
-      setFenster({ art: "bericht", bericht });
+      // World news first, each in a window of its own (then the report).
+      const welt = bericht.messages.filter((m) => m.group === "welt");
+      setFenster(
+        welt.length > 0
+          ? { art: "ereignis", bericht, liste: welt, index: 0 }
+          : { art: "bericht", bericht },
+      );
     } catch (err) {
       setFehler(fehlerText(err));
       setFenster({ art: "keins" });
@@ -123,8 +131,31 @@ export function Spiel({
           </p>
         </Dialog>
       )}
+      {fenster.art === "ereignis" && fenster.liste[fenster.index] && (
+        <WeltereignisDialog
+          key={fenster.index}
+          meldung={fenster.liste[fenster.index]!}
+          nummer={fenster.index + 1}
+          anzahl={fenster.liste.length}
+          onWeiter={() =>
+            setFenster(
+              fenster.index + 1 < fenster.liste.length
+                ? { ...fenster, index: fenster.index + 1 }
+                : { art: "bericht", bericht: fenster.bericht },
+            )
+          }
+          onAlle={() => setFenster({ art: "bericht", bericht: fenster.bericht })}
+        />
+      )}
       {fenster.art === "bericht" && (
-        <RundenberichtDialog bericht={fenster.bericht} onZiel={springe} onSchliessen={schliessen} />
+        <RundenberichtDialog
+          bericht={fenster.bericht}
+          onZiel={springe}
+          onEreignis={(m) =>
+            setFenster({ art: "ereignis", bericht: fenster.bericht, liste: [m], index: 0 })
+          }
+          onSchliessen={schliessen}
+        />
       )}
       {fenster.art === "speichern" && (
         <SpeichernDialog

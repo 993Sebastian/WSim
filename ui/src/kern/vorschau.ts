@@ -1,9 +1,16 @@
 // Browser preview: answers with example views of a real game. It makes no game
 // decisions of its own; every round returns the same example report.
-import beispiel from "./beispiel.json";
+import beispielJson from "./beispiel.json";
 import { KernFehler } from "./fehler";
 import type { Kern } from "./index";
-import type { Rundenbericht, Rundenlaenge, Spielstand, Uebersicht } from "./typen";
+import type { Optionen, Rundenbericht, Rundenlaenge, Spielstand, Uebersicht } from "./typen";
+
+const beispiel = beispielJson as unknown as {
+  optionen: Optionen;
+  uebersicht_start: Uebersicht;
+  bericht: Rundenbericht;
+  uebersicht: Uebersicht;
+};
 
 const TAGE: Record<Rundenlaenge, number> = { tag: 1, woche: 7, monat: 31, quartal: 92 };
 
@@ -14,7 +21,13 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
   let firma = "";
   const staende = new Map<string, { stand: Spielstand; uebersicht: Uebersicht }>();
   const keinSpiel = () =>
-    new KernFehler({ kind: "error", key: "fehler.sitzung.kein_spiel", params: {}, target: null });
+    new KernFehler({
+      kind: "error",
+      group: "allgemein",
+      key: "fehler.sitzung.kein_spiel",
+      params: {},
+      target: null,
+    });
   const mitName = (u: Uebersicht): Uebersicht => {
     const c = kopie(u);
     c.company.name = firma;
@@ -24,10 +37,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
   return {
     echt: false,
     info: async () => ({ version: "vorschau" }),
-    optionen: async () => kopie(beispiel.optionen) as never,
+    optionen: async () => kopie(beispiel.optionen),
     neuesSpiel: async (einstellungen) => {
       firma = einstellungen.company_name.trim() || "Neue Firma";
-      spiel = mitName(beispiel.uebersicht_start as Uebersicht);
+      spiel = mitName(beispiel.uebersicht_start);
       return kopie(spiel);
     },
     uebersicht: async () => {
@@ -41,8 +54,8 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
         await new Promise((r) => setTimeout(r, verzoegerungMs));
         fortschritt({ done, total });
       }
-      spiel = mitName(beispiel.uebersicht as Uebersicht);
-      return kopie(beispiel.bericht as Rundenbericht);
+      spiel = mitName(beispiel.uebersicht);
+      return kopie(beispiel.bericht);
     },
     speichern: async (name) => {
       if (!spiel) throw keinSpiel();
@@ -50,6 +63,7 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!stand.name) {
         throw new KernFehler({
           kind: "error",
+          group: "allgemein",
           key: "fehler.sitzung.name_ungueltig",
           params: {},
           target: null,
@@ -64,6 +78,7 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!s) {
         throw new KernFehler({
           kind: "error",
+          group: "allgemein",
           key: "fehler.sitzung.laden",
           params: { fehler: { type: "text", value: name } },
           target: null,

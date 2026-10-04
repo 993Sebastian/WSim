@@ -338,6 +338,9 @@ impl Game {
         if let Some(warning) = finance::overdraft_warning(&self.state, &self.catalog) {
             report.messages.push(warning);
         }
+        report
+            .messages
+            .extend(production::input_warnings(&self.state, &self.catalog));
         if to >= GAME_END {
             self.state.game_over = true;
             report
@@ -351,7 +354,9 @@ impl Game {
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
-        crate::ai::decide(&mut self.state, &self.catalog, today);
+        report
+            .messages
+            .extend(crate::ai::decide(&mut self.state, &self.catalog, today));
         trade::deliver(&mut self.state, today);
         production::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
@@ -360,6 +365,7 @@ impl Game {
             &self.catalog,
             today,
         ));
+        report.messages.extend(world_events(&self.catalog, today));
 
         let next = today.next_day();
         if next.day() == 1 {
@@ -394,6 +400,34 @@ impl Game {
         let bytes = rmp_serde::to_vec_named(&self.state).expect("state is serializable");
         StateHash(fnv1a(&bytes))
     }
+}
+
+/// Historical events of the day as world news (Lastenheft §4.1, §13.2).
+fn world_events(catalog: &Catalog, date: Date) -> Vec<Message> {
+    let first = catalog.events.partition_point(|e| e.date < date);
+    catalog.events[first..]
+        .iter()
+        .take_while(|e| e.date == date)
+        .map(|e| {
+            Message::new(MessageKind::WorldEvent, keys::WORLD_EVENT)
+                .with("ereignis", Param::TextKey(format!("ereignis.{}", e.key)))
+                .with(
+                    "beschreibung",
+                    Param::TextKey(format!("ereignis.{}.text", e.key)),
+                )
+                .with("art", Param::TextKey(format!("ereignisart.{}", e.kind)))
+                .with("datum", Param::Date(e.date))
+                .with(
+                    "laender",
+                    Param::Countries(
+                        e.countries
+                            .iter()
+                            .map(|&c| catalog.countries.key(c).to_owned())
+                            .collect(),
+                    ),
+                )
+        })
+        .collect()
 }
 
 /// Gives the new company the site of its start form (Lastenheft §2, §15), paid from

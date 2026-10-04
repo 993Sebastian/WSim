@@ -510,3 +510,53 @@ td {
   font-size: 0.72rem;
   color: var(--warnung);
 }
+
+.ereignis-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.ereignis-kopf .marke {
+  margin-left: 0;
+}
+
+.ereignis-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.hinweis-links {
+  font-size: 0.85rem;
+  color: var(--text-gedaempft);
+}
+
+table.ergebnis th[scope="row"] {
+  border-bottom: 1px solid var(--rahmen);
+  color: var(--text);
+}
+
+.aufschluesselung {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.aufschluesselung summary {
+  cursor: pointer;
+  color: var(--akzent);
+}
+
+.forschungszeile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 10rem 3.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0;
+}
+
+.forschungszeile progress {
+  width: 100%;
+  accent-color: var(--akzent);
+}

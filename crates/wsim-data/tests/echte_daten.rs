@@ -594,3 +594,68 @@ fn ai_world_is_reproducible() {
             .any(|sl| (sl.utilization - c.ai_model.start.utilization).abs() > 1e-9)
     );
 }
+
+/// Historical events reach the round report as world news (Lastenheft §4.1, §13.2).
+#[test]
+fn world_events_appear_in_the_round_report() {
+    use std::sync::Arc;
+    use wsim_core::calendar::{Date, RoundLength};
+    use wsim_core::game::Game;
+    use wsim_core::message::{MessageKind, Param};
+    use wsim_core::state::{GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    for kind in [
+        "krieg",
+        "kriegsende",
+        "krise",
+        "revolution",
+        "staatsgruendung",
+        "abkommen",
+        "katastrophe",
+        "technik",
+    ] {
+        assert!(
+            data.texts.get(&format!("ereignisart.{kind}")).is_some(),
+            "{kind}"
+        );
+    }
+    let c = Arc::new(data.catalog);
+    assert!(c.events.windows(2).all(|w| w[0].date <= w[1].date));
+    let settings = GameSettings {
+        seed: 1,
+        start_year: 1914,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Trading,
+        company_name: "Ereignis".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
+    };
+    let mut game = Game::new(c, settings).unwrap();
+    let mut events = Vec::new();
+    while game.date() < Date::new(1914, 9, 1).unwrap() {
+        let report = game.advance(RoundLength::Month, |_| {});
+        events.extend(
+            report
+                .messages
+                .into_iter()
+                .filter(|m| m.kind == MessageKind::WorldEvent),
+        );
+    }
+    let war = events
+        .iter()
+        .find(|m| {
+            m.params
+                .iter()
+                .any(|(_, p)| *p == Param::TextKey("ereignis.erster_weltkrieg".into()))
+        })
+        .expect("the First World War is reported");
+    let countries = war
+        .params
+        .iter()
+        .find(|(k, _)| k == "laender")
+        .map(|(_, p)| p.clone());
+    assert!(matches!(countries, Some(Param::Countries(c)) if c.contains(&"DEU".to_owned())));
+}

@@ -935,3 +935,21 @@ pub struct RawRealFacility {
     #[serde(rename = "rezept", default)]
     pub recipe: Option<String>,
 }
+
+/// A historical event (`data/ereignisse/`).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEvent {
+    pub id: String,
+    /// `JJJJ-MM-TT`
+    #[serde(rename = "datum")]
+    pub date: String,
+    #[serde(rename = "art")]
+    pub kind: String,
+    #[serde(rename = "laender", default)]
+    pub countries: Vec<String>,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}

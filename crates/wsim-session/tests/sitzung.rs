@@ -51,9 +51,14 @@ fn new_game_round_save_and_load() {
         keys::INVALID_SAVE_NAME
     );
     let list = session.saves();
-    assert_eq!(list.len(), 1);
+    // The round also wrote the automatic save.
+    assert_eq!(list.len(), 2);
+    assert!(list.iter().any(|s| s.name == wsim_session::AUTOSAVE_NAME));
     assert_eq!(list[0].company, "Sitzung AG");
+    let second = session.end_round("woche", |_| {}).unwrap();
+    assert_eq!(second.previous.as_ref(), Some(&report.period));
 
+    session.load("Erster Stand").unwrap();
     let hash = session.game().unwrap().state_hash();
     session.end_round("tag", |_| {}).unwrap();
     let loaded = session.load("Erster Stand").unwrap();

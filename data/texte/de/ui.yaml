@@ -96,3 +96,22 @@ laden.keine: Noch keine Spielstände vorhanden.
 laden.laden: Laden
 laden.stand: "{firma}, {datum}"
 dialog.schliessen: Schließen
+
+weltereignis.zaehler: "{nummer} von {anzahl}"
+weltereignis.laender: Betroffene Länder
+weltereignis.hinweis_stufe1: Die wirtschaftlichen Folgen zeigen sich in den Länderwerten (Einkommen, Bevölkerung). Eigene Wirkungen wie Handelssperren oder Zerstörungen folgen in einer späteren Ausbaustufe.
+weltereignis.alle_ueberspringen: Alle überspringen
+
+bericht.finanzergebnis: Finanzergebnis
+bericht.umsatz: Umsatz
+bericht.kosten: Kosten
+bericht.ergebnis: Ergebnis
+bericht.diese_runde: Diese Runde
+bericht.vorrunde: Vorrunde
+bericht.veraenderung: Veränderung
+bericht.nach_kostenart: Nach Kostenart
+bericht.gruppe.welt: Weltgeschehen
+bericht.gruppe.warnung: Warnungen
+bericht.gruppe.wettbewerb: Wettbewerb
+bericht.gruppe.forschung: Forschung
+bericht.gruppe.allgemein: Allgemein

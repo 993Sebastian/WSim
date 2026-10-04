@@ -16,14 +16,17 @@ use crate::finance;
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
 use crate::ledger::{CostType, Ledger};
 use crate::market;
+use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::population::{self, SlotFlows};
 use crate::research;
 use crate::rng::{SimRng, Stream};
 use crate::state::{AiState, Company, CompanyId, CompanyKind, GameState, PriceMode, SiteId};
 
-/// Runs the decisions due today, before the day is simulated.
-pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) {
+/// Runs the decisions due today, before the day is simulated. Returns news about
+/// competitors for the player's round report.
+pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    let mut news = Vec::new();
     let first_of_month = date.day() == 1;
     // Expansion looks at the sales of the closing month, so it runs on its last day.
     let end_of_quarter = date.next_day().day() == 1 && date.month().is_multiple_of(3);
@@ -41,11 +44,11 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) {
         .map(|(i, _)| company_id(i))
         .collect();
     if due.is_empty() && !first_of_month {
-        return;
+        return news;
     }
     if due.is_empty() {
-        found_companies(state, catalog, date);
-        return;
+        found_companies(state, catalog, date, &mut news);
+        return news;
     }
     let mut sites: BTreeMap<CompanyId, Vec<SiteId>> = BTreeMap::new();
     for (i, s) in state.sites.iter().enumerate() {
@@ -74,15 +77,72 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) {
             manage_cash(state, catalog, id, own);
         }
         if end_of_quarter {
-            expand(state, catalog, id, own, date);
+            expand(state, catalog, id, own, date, &mut news);
         }
         if first_of_year {
             research_plan(state, catalog, id, own, date);
         }
     }
     if first_of_month {
-        found_companies(state, catalog, date);
+        found_companies(state, catalog, date, &mut news);
     }
+    news
+}
+
+/// Products the player makes or offers: competitors' moves in them are news.
+fn player_products(state: &GameState, catalog: &Catalog) -> Vec<ProductId> {
+    let mut products = Vec::new();
+    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+        let made = s
+            .slots
+            .iter()
+            .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product));
+        for p in made.chain(s.offers.keys().copied()) {
+            if !products.contains(&p) {
+                products.push(p);
+            }
+        }
+    }
+    products
+}
+
+fn news_expansion(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    site: SiteId,
+    recipe: RecipeId,
+    count: u32,
+) -> Option<Message> {
+    let r = catalog.recipes.get(recipe);
+    if !player_products(state, catalog).contains(&r.product) {
+        return None;
+    }
+    Some(
+        Message::new(MessageKind::Info, keys::AI_EXPANDS)
+            .with(
+                "firma",
+                Param::Text(state.companies[id.index()].name.clone()),
+            )
+            .with(
+                "land",
+                Param::Country(
+                    catalog
+                        .countries
+                        .key(state.sites[site.index()].country)
+                        .to_owned(),
+                ),
+            )
+            .with("anzahl", Param::Integer(i64::from(count)))
+            .with(
+                "anlage",
+                Param::TextKey(format!("anlage.{}", catalog.facilities.key(r.facility))),
+            )
+            .with(
+                "produkt",
+                Param::TextKey(format!("produkt.{}", catalog.products.key(r.product))),
+            ),
+    )
 }
 
 fn company_id(index: usize) -> CompanyId {
@@ -385,7 +445,14 @@ fn manage_cash(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &
 
 /// Expands the most profitable product that runs near its capacity and sells what it
 /// makes.
-fn expand(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId], date: Date) {
+fn expand(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    date: Date,
+    news: &mut Vec<Message>,
+) {
     let b = &catalog.ai_model.behavior;
     let (_, aggressiveness) = traits(state, id);
     let min_utilization = b.expand_utilization.at(aggressiveness);
@@ -434,7 +501,7 @@ fn expand(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Site
         }
     }
     let Some((_, site, product, mut count)) = best else {
-        open_deposit(state, catalog, id, sites, date);
+        open_deposit(state, catalog, id, sites, date, news);
         return;
     };
     let kind = state.sites[site.index()].kind;
@@ -485,6 +552,7 @@ fn expand(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Site
             utilization: catalog.ai_model.start.utilization,
         };
         run(state, catalog, id, &produce);
+        news.extend(news_expansion(state, catalog, id, site, recipe, count));
     }
 }
 
@@ -517,6 +585,7 @@ fn open_deposit(
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
+    news: &mut Vec<Message>,
 ) {
     let model = &catalog.market_model;
     let b = &catalog.ai_model.behavior;
@@ -620,6 +689,15 @@ fn open_deposit(
                 keep: 0.0,
             };
             run(state, catalog, id, &sell);
+            // Plant counts are small; the cast cannot overflow.
+            news.extend(news_expansion(
+                state,
+                catalog,
+                id,
+                site,
+                recipe,
+                count as u32,
+            ));
         }
         return;
     }
@@ -753,7 +831,7 @@ pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
 }
 
 /// New companies take the place of bankrupt ones where demand is unserved.
-fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date) {
+fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<Message>) {
     let wanted = usize::try_from(state.settings.ai.companies).unwrap_or(usize::MAX);
     let active = state
         .companies
@@ -767,12 +845,26 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date) {
         let Some((product, country, deposit, recipe, count)) = opportunity(state, catalog) else {
             return;
         };
-        found_one(
+        if found_one(
             state,
             catalog,
             date,
             (product, country, deposit, recipe, count),
-        );
+        ) {
+            let company = state.companies.last().expect("just founded");
+            news.push(
+                Message::new(MessageKind::Info, keys::AI_FOUNDED)
+                    .with("firma", Param::Text(company.name.clone()))
+                    .with(
+                        "land",
+                        Param::Country(catalog.countries.key(country).to_owned()),
+                    )
+                    .with(
+                        "produkt",
+                        Param::TextKey(format!("produkt.{}", catalog.products.key(product))),
+                    ),
+            );
+        }
     }
 }
 
@@ -867,7 +959,8 @@ fn opportunity(state: &GameState, catalog: &Catalog) -> Option<Opportunity> {
     None
 }
 
-fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunity) {
+/// Founds a company for an opportunity; true when it could start production.
+fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunity) -> bool {
     let (product, country, deposit, recipe, count) = o;
     let model = &catalog.ai_model;
     let r = catalog.recipes.get(recipe);
@@ -917,7 +1010,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         kind: f.site_type,
     };
     if !run(state, catalog, id, &found) {
-        return;
+        return false;
     }
     let site = site_id(state.sites.len() - 1);
     if let Some(d) = deposit {
@@ -934,7 +1027,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         count,
     };
     if !run(state, catalog, id, &build) {
-        return;
+        return false;
     }
     let produce = Command::SetProduction {
         site,
@@ -952,5 +1045,5 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         }),
         keep: 0.0,
     };
-    run(state, catalog, id, &sell);
+    run(state, catalog, id, &sell)
 }

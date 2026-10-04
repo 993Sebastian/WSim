@@ -19,31 +19,48 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
 
   const kopf = page.locator(".kopfleiste");
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
-  await expect(kopf.getByText("01.01.1900")).toBeVisible();
+  await expect(kopf.getByText("01.01.1914")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Standorte" })).toBeVisible();
   await expect(page.getByText("Carnegie Steel Company")).toBeVisible();
 
   await page.getByLabel("Rundenlänge").selectOption("woche");
   await page.getByRole("button", { name: "Runde beenden" }).click();
   await expect(page.getByRole("dialog", { name: "Runde läuft" })).toBeVisible();
+  const ereignis = page.getByRole("dialog", { name: "Erster Weltkrieg" });
+  await expect(ereignis).toBeVisible();
+  await expect(ereignis.getByText("Krieg", { exact: true })).toBeVisible();
+  await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: "Rundenbericht" });
   await expect(bericht).toBeVisible();
-  await expect(bericht.getByText("Das Jahr 1901 beginnt.")).toBeVisible();
-  await bericht.getByRole("button", { name: "Weiter" }).click();
-  await expect(kopf.getByText("01.01.1901")).toBeVisible();
+  await expect(
+    bericht
+      .getByRole("cell", { name: "Umsatz" })
+      .or(bericht.getByRole("rowheader", { name: "Umsatz" })),
+  ).toBeVisible();
+  // The world news can be opened again from the report.
+  await bericht.getByRole("button", { name: "Ansehen" }).first().click();
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Rundenbericht" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await expect(kopf.getByText("01.08.1914")).toBeVisible();
 
   await page.getByRole("button", { name: "Speichern" }).click();
   const speichern = page.getByRole("dialog", { name: "Spiel speichern" });
-  await speichern.getByLabel("Name des Spielstands").fill("Probe 1901");
+  await speichern.getByLabel("Name des Spielstands").fill("Probe 1914");
   await speichern.getByRole("button", { name: "Speichern" }).click();
-  await expect(speichern.getByText("Gespeichert: Probe 1901")).toBeVisible();
+  await expect(speichern.getByText("Gespeichert: Probe 1914")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(speichern).toBeHidden();
 
   await page.getByRole("button", { name: "Hauptmenü" }).click();
   await page.getByRole("button", { name: "Spiel laden" }).click();
   const laden = page.getByRole("dialog", { name: "Spiel laden" });
-  await expect(laden.getByText("Probe 1901")).toBeVisible();
+  await expect(laden.getByText("Probe 1914")).toBeVisible();
   await laden.getByRole("button", { name: "Laden" }).click();
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
 });

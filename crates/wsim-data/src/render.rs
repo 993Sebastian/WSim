@@ -39,6 +39,11 @@ impl Texts {
             Param::Date(d) => format_date(*d),
             Param::Country(key) => self.get(&format!("land.{key}")).unwrap_or(key).to_owned(),
             Param::TextKey(key) => self.get(key).unwrap_or(key).to_owned(),
+            Param::Countries(keys) => keys
+                .iter()
+                .map(|key| self.get(&format!("land.{key}")).unwrap_or(key).to_owned())
+                .collect::<Vec<_>>()
+                .join(", "),
         }
     }
 }

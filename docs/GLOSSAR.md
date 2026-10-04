@@ -113,4 +113,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Sicht (für die Oberfläche) | `views` (`Overview`, `RoundReportView`, `NewGameOptions`) |
 | Spielsitzung, Spielstand | `wsim_session::Session`, `SaveEntry` |
 | Beispielsichten (Browser-Vorschau) | `beispiel.json`, `vorschauKern` |
+| Weltereignis, historisches Ereignis | `MessageKind::WorldEvent`, `HistoricalEvent` |
+| Periodenergebnis, Vorrunde | `PeriodView`, `previous` |
+| Autospeicherung | `AUTOSAVE_NAME` |
 

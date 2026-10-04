@@ -46,6 +46,8 @@ pub struct Catalog {
     pub ai_model: AiModel,
     /// Historical companies of the start population and later foundings.
     pub real_companies: Vec<RealCompany>,
+    /// Historical events, sorted by date (Lastenheft §4.1; effects follow in stage 4).
+    pub events: Vec<HistoricalEvent>,
     /// Parts for the names of generated companies.
     pub name_groups: Vec<NameGroup>,
 }
@@ -324,6 +326,18 @@ impl AiModel {
     pub fn market_scale(&self, companies: u32) -> f64 {
         (f64::from(companies) / self.companies_for_real_size).clamp(self.scale_min, self.scale_max)
     }
+}
+
+/// A historical event shown as world news (Lastenheft §4.1, §13.2). In stage 1 it has
+/// no effects of its own: the country values already contain its economic slump.
+#[derive(Clone, Debug, PartialEq)]
+pub struct HistoricalEvent {
+    pub key: String,
+    pub date: crate::calendar::Date,
+    /// Kind of event, text `ereignisart.<kind>`.
+    pub kind: String,
+    pub countries: Vec<CountryId>,
+    pub provenance: Provenance,
 }
 
 /// A historical company (Lastenheft §10): its activities at `snapshot_year`.

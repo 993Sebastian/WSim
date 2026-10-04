@@ -27,6 +27,7 @@ fehler.spielstand.inhalt_fehlt: "Der Spielstand verwendet „{id}“ ({art}); di
 
 meldung.spielende: Die Partie ist mit dem 31.12.2100 zu Ende gegangen.
 meldung.neues_jahr: Das Jahr {jahr} beginnt.
+meldung.weltereignis: "{ereignis}"
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
 
 # Arten von Inhalten, für Meldungen
@@ -109,3 +110,7 @@ kostenart.sonstiges: Sonstiges
 fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
 fehler.befehl.nicht_erforschbar: „{technologie}“ lässt sich nicht erforschen – sie ist schon bekannt, oder es fehlen Voraussetzungen.
 fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} nach {nach} befördern – es gibt kein passendes Verkehrsmittel.
+meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
+meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} für {produkt}."
+meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
+warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."

@@ -14,7 +14,7 @@ use crate::command::site_type_key;
 use crate::game::{
     Game, MAX_RESEARCH_FACTOR, MAX_START_CAPITAL_USD, MIN_RESEARCH_FACTOR, RoundReport,
 };
-use crate::ledger::Account;
+use crate::ledger::{Account, CostType};
 use crate::message::{Message, MessageKind, Param};
 use crate::money::Money;
 use crate::state::{Company, StartForm};
@@ -321,12 +321,17 @@ pub enum ParamView {
     Country(String),
     /// Another text key.
     TextKey(String),
+    /// Country keys, shown as a list of names.
+    Countries(Vec<String>),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MessageView {
     /// `info`, `success`, `warning`, `crisis`, `world_event`, `stock`, `error`.
     pub kind: String,
+    /// Section of the round report (Lastenheft §13.2): `welt`, `wettbewerb`, `warnung`,
+    /// `forschung` or `allgemein`.
+    pub group: String,
     pub key: String,
     pub params: BTreeMap<String, ParamView>,
     /// View the message leads to when clicked (Lastenheft §13.3).
@@ -355,6 +360,7 @@ pub fn message_view(message: &Message) -> MessageView {
                 Param::Date(d) => ParamView::Date(iso(*d)),
                 Param::Country(c) => ParamView::Country(c.clone()),
                 Param::TextKey(k) => ParamView::TextKey(k.clone()),
+                Param::Countries(c) => ParamView::Countries(c.clone()),
             };
             (name.clone(), v)
         })
@@ -367,19 +373,35 @@ pub fn message_view(message: &Message) -> MessageView {
         }
         _ => None,
     };
+    let group = if message.kind == MessageKind::WorldEvent {
+        "welt"
+    } else if message.key.starts_with("meldung.ki.")
+        || message.key == crate::message::keys::COMPANY_INSOLVENT
+    {
+        "wettbewerb"
+    } else if matches!(message.kind, MessageKind::Warning | MessageKind::Crisis) {
+        "warnung"
+    } else if message.key.starts_with("meldung.forschung") {
+        "forschung"
+    } else {
+        "allgemein"
+    };
     MessageView {
         kind: kind.to_owned(),
+        group: group.to_owned(),
         key: message.key.clone(),
         params,
         target,
     }
 }
 
-/// Cash and equity of the player's company, to compare before and after a round.
-#[derive(Clone, Copy, Debug, PartialEq)]
+/// The player's books before a round, to compare with the books after it.
+#[derive(Clone, Debug, PartialEq)]
 pub struct Snapshot {
     pub cash: Money,
     pub equity: Money,
+    year: BTreeMap<CostType, Money>,
+    years_closed: usize,
 }
 
 pub fn snapshot(game: &Game) -> Snapshot {
@@ -388,7 +410,87 @@ pub fn snapshot(game: &Game) -> Snapshot {
     Snapshot {
         cash: company.ledger.cash(),
         equity: equity(company),
+        year: company.ledger.year.by_type.clone(),
+        years_closed: company.ledger.years.len(),
     }
+}
+
+/// Revenue, costs and result of a period, with the amounts by cost type.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PeriodView {
+    pub revenue_usd: f64,
+    /// Costs as a positive amount (everything but revenue and inventory change).
+    pub costs_usd: f64,
+    pub result_usd: f64,
+    /// (text key of the cost type, amount; costs negative)
+    pub lines: Vec<(String, f64)>,
+}
+
+fn period(game: &Game, before: &Snapshot) -> PeriodView {
+    let state = game.state();
+    let ledger = &state.companies[state.player.index()].ledger;
+    let mut sums: BTreeMap<CostType, Money> = BTreeMap::new();
+    let closed = ledger.years.get(before.years_closed..).unwrap_or_default();
+    for year in closed
+        .iter()
+        .map(|y| &y.by_type)
+        .chain([&ledger.year.by_type])
+    {
+        for (&t, &m) in year {
+            *sums.entry(t).or_insert(Money::ZERO) += m;
+        }
+    }
+    // The year running at the start of the round already held these amounts.
+    for (&t, &m) in &before.year {
+        *sums.entry(t).or_insert(Money::ZERO) -= m;
+    }
+    let get = |t: CostType| sums.get(&t).copied().unwrap_or(Money::ZERO);
+    let result: Money = sums.values().copied().fold(Money::ZERO, |a, b| a + b);
+    let revenue = get(CostType::Revenue);
+    let costs = result - revenue - get(CostType::InventoryChange);
+    PeriodView {
+        revenue_usd: usd(revenue),
+        costs_usd: -usd(costs),
+        result_usd: usd(result),
+        lines: sums
+            .iter()
+            .filter(|(_, m)| **m != Money::ZERO)
+            .map(|(t, m)| (t.text_key().to_owned(), usd(*m)))
+            .collect(),
+    }
+}
+
+/// A research project of the player.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ResearchView {
+    pub technology: String,
+    pub points: f64,
+    pub needed: f64,
+}
+
+fn research_projects(game: &Game) -> Vec<ResearchView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let company = &state.companies[state.player.index()];
+    let mut projects: Vec<ResearchView> = Vec::new();
+    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+        let Some(t) = s.research else { continue };
+        if projects
+            .iter()
+            .any(|p| p.technology == catalog.technologies.key(t))
+        {
+            continue;
+        }
+        let Some(effort) = crate::research::effort(catalog, state, t, state.date) else {
+            continue;
+        };
+        projects.push(ResearchView {
+            technology: catalog.technologies.key(t).to_owned(),
+            points: company.research.get(&t).copied().unwrap_or(0.0),
+            needed: effort.points,
+        });
+    }
+    projects
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -400,11 +502,16 @@ pub struct RoundReportView {
     pub cash_before_usd: f64,
     pub cash_after_usd: f64,
     pub equity_change_usd: f64,
+    /// Result of this round.
+    pub period: PeriodView,
+    /// Result of the round before, if the session knows it.
+    pub previous: Option<PeriodView>,
+    pub research: Vec<ResearchView>,
     pub messages: Vec<MessageView>,
     pub game_over: bool,
 }
 
-pub fn round_report(game: &Game, report: &RoundReport, before: Snapshot) -> RoundReportView {
+pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> RoundReportView {
     let after = snapshot(game);
     RoundReportView {
         from: iso(report.from),
@@ -413,6 +520,9 @@ pub fn round_report(game: &Game, report: &RoundReport, before: Snapshot) -> Roun
         cash_before_usd: usd(before.cash),
         cash_after_usd: usd(after.cash),
         equity_change_usd: usd(after.equity - before.equity),
+        period: period(game, before),
+        previous: None,
+        research: research_projects(game),
         messages: report.messages.iter().map(message_view).collect(),
         game_over: game.is_over(),
     }
@@ -459,14 +569,29 @@ mod tests {
         let mut g = game();
         let before = snapshot(&g);
         let report = g.advance(RoundLength::Month, |_| {});
-        let view = round_report(&g, &report, before);
+        let view = round_report(&g, &report, &before);
         assert_eq!(view.from, "1900-01-01");
         assert_eq!(view.to, "1900-01-31");
         assert_eq!(view.days, 31);
         assert!((view.cash_before_usd - usd(before.cash)).abs() < 1e-9);
+        // The result of the round is the change of equity (no capital moves here).
+        assert!((view.period.result_usd - view.equity_change_usd).abs() < 0.01);
         let json = serde_json::to_string(&view).expect("serializable");
         let back: RoundReportView = serde_json::from_str(&json).expect("round trip");
         assert_eq!(back, view);
+    }
+
+    #[test]
+    fn round_result_spans_the_turn_of_the_year() {
+        let mut g = game();
+        for _ in 0..11 {
+            g.advance(RoundLength::Month, |_| {});
+        }
+        let before = snapshot(&g);
+        let report = g.advance(RoundLength::Quarter, |_| {});
+        assert_eq!(report.from.year(), 1900);
+        let view = round_report(&g, &report, &before);
+        assert!((view.period.result_usd - view.equity_change_usd).abs() < 0.01);
     }
 
     #[test]

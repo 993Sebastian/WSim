@@ -30,6 +30,8 @@ pub enum Param {
     Country(String),
     /// Another text, looked up by its key.
     TextKey(String),
+    /// Keys of several countries, shown as a list of names.
+    Countries(Vec<String>),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -109,6 +111,11 @@ pub mod keys {
     pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
     pub const NEW_GAME_TOO_MANY_COMPANIES: &str = "fehler.spielstart.zu_viele_firmen";
     pub const NEW_GAME_START_FORM: &str = "fehler.spielstart.startform";
+    pub const WORLD_EVENT: &str = "meldung.weltereignis";
+    pub const AI_FOUNDED: &str = "meldung.ki.gruendung";
+    pub const AI_EXPANDS: &str = "meldung.ki.ausbau";
+    pub const AI_INVENTION: &str = "meldung.ki.erfindung";
+    pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
 
     pub const ALL: &[&str] = &[
         NEW_GAME_START_YEAR,
@@ -158,5 +165,10 @@ pub mod keys {
         NEW_GAME_RESEARCH_FACTOR,
         NEW_GAME_TOO_MANY_COMPANIES,
         NEW_GAME_START_FORM,
+        WORLD_EVENT,
+        AI_FOUNDED,
+        AI_EXPANDS,
+        AI_INVENTION,
+        INPUT_MISSING,
     ];
 }

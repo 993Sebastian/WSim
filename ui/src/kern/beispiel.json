@@ -1,25 +1,130 @@
 {
   "bericht": {
-    "cash_after_usd": 209270.8275,
-    "cash_before_usd": 205684.6739,
+    "cash_after_usd": 156758.6997,
+    "cash_before_usd": 128296.3224,
     "days": 31,
-    "equity_change_usd": 3322.8221,
-    "from": "1900-12-01",
+    "equity_change_usd": 28259.182,
+    "from": "1914-07-01",
     "game_over": false,
     "messages": [
       {
-        "key": "meldung.neues_jahr",
-        "kind": "info",
+        "group": "welt",
+        "key": "meldung.weltereignis",
+        "kind": "world_event",
         "params": {
-          "jahr": {
-            "type": "integer",
-            "value": 1901
+          "art": {
+            "type": "text_key",
+            "value": "ereignisart.krieg"
+          },
+          "beschreibung": {
+            "type": "text_key",
+            "value": "ereignis.erster_weltkrieg.text"
+          },
+          "datum": {
+            "type": "date",
+            "value": "1914-07-28"
+          },
+          "ereignis": {
+            "type": "text_key",
+            "value": "ereignis.erster_weltkrieg"
+          },
+          "laender": {
+            "type": "countries",
+            "value": [
+              "AUT",
+              "HUN",
+              "SRB",
+              "DEU",
+              "RUS",
+              "FRA",
+              "GBR",
+              "BEL",
+              "LUX",
+              "POL",
+              "CZE",
+              "SVK",
+              "SVN",
+              "HRV",
+              "BIH",
+              "UKR",
+              "BLR",
+              "LTU",
+              "LVA",
+              "EST",
+              "TUR",
+              "BGR",
+              "ROU",
+              "ITA",
+              "GRC",
+              "MNE",
+              "JPN",
+              "CAN",
+              "AUS",
+              "NZL",
+              "ZAF",
+              "IND"
+            ]
           }
         },
         "target": null
       }
     ],
-    "to": "1900-12-31"
+    "period": {
+      "costs_usd": 7676.0273,
+      "lines": [
+        [
+          "kostenart.umsatz",
+          35935.2093
+        ],
+        [
+          "kostenart.material",
+          -6708.0306
+        ],
+        [
+          "kostenart.personal",
+          -605.6222
+        ],
+        [
+          "kostenart.abschreibungen",
+          -260.4558
+        ],
+        [
+          "kostenart.instandhaltung",
+          -101.9187
+        ]
+      ],
+      "result_usd": 28259.182,
+      "revenue_usd": 35935.2093
+    },
+    "previous": {
+      "costs_usd": 8362.7233,
+      "lines": [
+        [
+          "kostenart.umsatz",
+          34345.9332
+        ],
+        [
+          "kostenart.material",
+          -7416.4243
+        ],
+        [
+          "kostenart.personal",
+          -595.614
+        ],
+        [
+          "kostenart.abschreibungen",
+          -252.054
+        ],
+        [
+          "kostenart.instandhaltung",
+          -98.631
+        ]
+      ],
+      "result_usd": 25983.2099,
+      "revenue_usd": 34345.9332
+    },
+    "research": [],
+    "to": "1914-07-31"
   },
   "optionen": {
     "companies": {
@@ -273,14 +378,14 @@
   },
   "uebersicht": {
     "company": {
-      "cash_usd": 209270.8275,
-      "equity_usd": 273939.5601,
+      "cash_usd": 156758.6997,
+      "equity_usd": 217179.0916,
       "headquarters": "DEU",
       "loans_usd": 0.0,
       "name": "Neue Firma",
-      "result_last_month_usd": 3322.8221,
-      "result_year_usd": 0.0,
-      "revenue_last_month_usd": 36715.6746,
+      "result_last_month_usd": 28259.182,
+      "result_year_usd": 117179.0916,
+      "revenue_last_month_usd": 35935.2093,
       "sites": [
         {
           "country": "DEU",
@@ -289,9 +394,9 @@
             {
               "count": 1,
               "facility": "nagelmaschine",
-              "output_per_day": 0.5,
+              "output_per_day": 0.49999999999999994,
               "product": "naegel",
-              "ready": "1900-01-01",
+              "ready": "1914-01-01",
               "recipe": "naegel_maschine",
               "utilization": 1.0
             }
@@ -302,82 +407,82 @@
             {
               "product": "draht",
               "quantity": 5.0,
-              "value_usd": 7735.3896
+              "value_usd": 2201.5735
             }
           ],
-          "workers": 0.6293103448275862
+          "workers": 0.684375
         }
       ],
-      "total_assets_usd": 273939.5601
+      "total_assets_usd": 217179.0916
     },
     "competitors": [
       {
-        "equity_usd": 2954458736.0269,
+        "equity_usd": 3521131519.3211,
         "headquarters": "USA",
         "name": "Lawrence Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 2215208968.0536,
+        "equity_usd": 2925345341.9463,
         "headquarters": "USA",
         "name": "Hale Iron and Steel Company",
         "real": false
       },
       {
-        "equity_usd": 1256238249.0816,
+        "equity_usd": 1900667792.368,
+        "headquarters": "USA",
+        "name": "Fletcher & Whitfield Ltd.",
+        "real": false
+      },
+      {
+        "equity_usd": 1225034419.5693,
         "headquarters": "GBR",
         "name": "Birmingham Iron and Steel & Co.",
         "real": false
       },
       {
-        "equity_usd": 1037321426.7713,
-        "headquarters": "USA",
-        "name": "Fletcher Milling & Co.",
-        "real": false
-      },
-      {
-        "equity_usd": 954559271.65,
+        "equity_usd": 1192580395.5792,
         "headquarters": "GBR",
         "name": "Cleveland Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 812519097.5044,
+        "equity_usd": 1177876162.4536,
+        "headquarters": "USA",
+        "name": "Dawson Ltd.",
+        "real": false
+      },
+      {
+        "equity_usd": 926616591.6794,
         "headquarters": "DEU",
-        "name": "Leipziger Spinnerei und Weberei AG",
+        "name": "Zürcher Spinnerei und Weberei & Co.",
         "real": false
       },
       {
-        "equity_usd": 752711210.9704,
-        "headquarters": "RUS",
-        "name": "Charkower Manufaktur",
-        "real": false
-      },
-      {
-        "equity_usd": 722850827.6891,
-        "headquarters": "CHN",
-        "name": "Shanghai Liu Gongsi",
-        "real": false
-      },
-      {
-        "equity_usd": 714331636.8376,
+        "equity_usd": 713997088.0236,
         "headquarters": "FRA",
         "name": "Rousseau & Cie",
         "real": false
       },
       {
-        "equity_usd": 594766345.1407,
+        "equity_usd": 652144065.4186,
         "headquarters": "DEU",
         "name": "Vogt & Söhne",
+        "real": false
+      },
+      {
+        "equity_usd": 562520766.6926,
+        "headquarters": "RUS",
+        "name": "Manufaktur Orlov",
         "real": false
       }
     ],
     "competitors_active": 100,
     "competitors_bankrupt": 0,
-    "date": "1901-01-01",
+    "date": "1914-08-01",
     "game_over": false,
     "market_scale": 0.1,
-    "start_year": 1900
+    "start_year": 1914
   },
   "uebersicht_start": {
     "company": {
@@ -399,7 +504,7 @@
               "facility": "nagelmaschine",
               "output_per_day": 0.0,
               "product": "naegel",
-              "ready": "1900-01-01",
+              "ready": "1914-01-01",
               "recipe": "naegel_maschine",
               "utilization": 1.0
             }
@@ -414,61 +519,61 @@
     },
     "competitors": [
       {
-        "equity_usd": 2269875053.2465,
+        "equity_usd": 2965477224.685,
         "headquarters": "USA",
         "name": "Hale Iron and Steel Company",
         "real": false
       },
       {
-        "equity_usd": 2205710460.3397,
+        "equity_usd": 2482675943.7142,
         "headquarters": "USA",
         "name": "Lawrence Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 1246556845.8672,
+        "equity_usd": 1608573150.3277,
+        "headquarters": "USA",
+        "name": "Fletcher & Whitfield Ltd.",
+        "real": false
+      },
+      {
+        "equity_usd": 1215444357.7152,
         "headquarters": "GBR",
         "name": "Birmingham Iron and Steel & Co.",
         "real": false
       },
       {
-        "equity_usd": 871269293.5312,
+        "equity_usd": 1078729152.4174,
+        "headquarters": "USA",
+        "name": "Dawson Ltd.",
+        "real": false
+      },
+      {
+        "equity_usd": 777256359.1384,
         "headquarters": "GBR",
         "name": "Cleveland Mills & Co.",
         "real": false
       },
       {
-        "equity_usd": 852920158.1674,
-        "headquarters": "USA",
-        "name": "Fletcher Milling & Co.",
-        "real": false
-      },
-      {
-        "equity_usd": 588111259.1461,
+        "equity_usd": 632153980.0589,
         "headquarters": "DEU",
         "name": "Vogt & Söhne",
         "real": false
       },
       {
-        "equity_usd": 523381952.4087,
+        "equity_usd": 505495988.2087,
         "headquarters": "DEU",
-        "name": "Leipziger Spinnerei und Weberei AG",
+        "name": "Zürcher Spinnerei und Weberei & Co.",
         "real": false
       },
       {
-        "equity_usd": 460004158.2648,
+        "equity_usd": 411737919.6288,
         "headquarters": "FRA",
         "name": "Rousseau & Cie",
         "real": false
       },
       {
-        "equity_usd": 406374864.3218,
-        "headquarters": "USA",
-        "name": "Pemberton & Pemberton & Sons",
-        "real": false
-      },
-      {
-        "equity_usd": 397906142.6783,
+        "equity_usd": 403051788.9493,
         "headquarters": "USA",
         "name": "Carnegie Steel Company",
         "real": true
@@ -476,9 +581,9 @@
     ],
     "competitors_active": 100,
     "competitors_bankrupt": 0,
-    "date": "1900-01-01",
+    "date": "1914-01-01",
     "game_over": false,
     "market_scale": 0.1,
-    "start_year": 1900
+    "start_year": 1914
   }
 }

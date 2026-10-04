@@ -3,8 +3,9 @@
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, Recipe, SiteType};
-use crate::ids::{CountryId, Id, LaborGroupId, RecipeId};
+use crate::ids::{CountryId, Id, LaborGroupId, ProductId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
+use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::state::{Batch, CompanyId, GameState, SiteId};
 
@@ -533,4 +534,52 @@ pub(crate) fn new_month(state: &mut GameState) {
     for s in &mut state.sites {
         s.staffing_due = true;
     }
+}
+
+/// Warnings for the player at the end of a round: facilities that stood still or ran
+/// slower on the last day because an input was missing (Lastenheft §13.2).
+pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Message> {
+    let mut messages = Vec::new();
+    let date = state.date.add_days(-1);
+    for (index, s) in state.sites.iter().enumerate() {
+        if s.owner != state.player {
+            continue;
+        }
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        let mut reported: Vec<ProductId> = Vec::new();
+        for (slot, sl) in s.slots.iter().enumerate() {
+            let Some((recipe, planned)) = planned_runs(catalog, state, site, slot, date) else {
+                continue;
+            };
+            if sl.last_runs >= 0.99 * planned {
+                continue;
+            }
+            let r = catalog.recipes.get(recipe);
+            for &(input, q) in &r.inputs {
+                let stock = s.inventory.get(&input).map_or(0.0, |x| x.quantity);
+                if stock < q && !reported.contains(&input) {
+                    reported.push(input);
+                    messages.push(
+                        Message::new(MessageKind::Warning, keys::INPUT_MISSING)
+                            .with(
+                                "produkt",
+                                Param::TextKey(format!("produkt.{}", catalog.products.key(input))),
+                            )
+                            .with(
+                                "anlage",
+                                Param::TextKey(format!(
+                                    "anlage.{}",
+                                    catalog.facilities.key(sl.facility)
+                                )),
+                            )
+                            .with(
+                                "land",
+                                Param::Country(catalog.countries.key(s.country).to_owned()),
+                            ),
+                    );
+                }
+            }
+        }
+    }
+    messages
 }

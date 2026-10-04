@@ -47,7 +47,15 @@ function parameterText(p: Parameter): string | number {
       return landName(p.value);
     case "text_key":
       return t(p.value);
+    case "countries":
+      return p.value.map(landName).join(", ");
   }
+}
+
+/** One parameter of a message as display text (empty if the message has none). */
+export function parameterAnzeige(m: Meldung, name: string): string {
+  const p = m.params[name];
+  return p === undefined ? "" : String(parameterText(p));
 }
 
 /** The text of a message from the core, with its parameters formatted. */

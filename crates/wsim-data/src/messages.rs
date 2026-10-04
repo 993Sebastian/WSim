@@ -396,3 +396,11 @@ pub fn real_site_needs_deposit(facility: &str) -> String {
 pub fn real_company_too_young(founded: i32, year: i32) -> String {
     format!("Gegründet {founded}: Reale Firmen beschreiben den Stand {year}.")
 }
+
+pub fn event_date_invalid(text: &str) -> String {
+    format!("„{text}“ ist kein gültiges Datum; erwartet wird JJJJ-MM-TT, z. B. 1914-07-28.")
+}
+
+pub fn event_kind_unknown(kind: &str, known: &str) -> String {
+    format!("Unbekannte Ereignisart „{kind}“; erlaubt sind {known}.")
+}

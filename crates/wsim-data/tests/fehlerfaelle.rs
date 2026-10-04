@@ -1280,3 +1280,28 @@ fn reale_firmen_werden_geprueft() {
     let d = neu().ersetze(datei, "anzahl: 2", "anzahl: 0");
     befund(&d.laden(), "0 muss größer als 0 sein.");
 }
+
+#[test]
+fn ereignisse_werden_geprueft() {
+    let ereignis = "\
+ereignisse:
+  - id: grosser_streik
+    datum: \"1905-13-01\"
+    art: streik
+    laender: [SWE, XXX]
+";
+    let d = Daten::neu().datei("ereignisse/a.yaml", ereignis).ersetze(
+        "texte/de/a.yaml",
+        "land.SWE: Schweden\n",
+        "land.SWE: Schweden\nereignis.grosser_streik: Großer Streik\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "„1905-13-01“ ist kein gültiges Datum; erwartet wird JJJJ-MM-TT, z. B. 1914-07-28.",
+    );
+    assert_eq!(f.path.to_string(), "ereignisse[0].datum");
+    befund(&outcome, "Unbekannte Ereignisart „streik“");
+    befund(&outcome, "Land „XXX“ ist nicht definiert.");
+    befund(&outcome, "Text „ereignis.grosser_streik.text“ fehlt");
+}

@@ -38,7 +38,7 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
-`namensgruppen`, `reale_firmen`. Jeder Abschnitt außer `meta`
+`namensgruppen`, `reale_firmen`, `ereignisse`. Jeder Abschnitt außer `meta`
 ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
@@ -58,7 +58,7 @@ ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einma
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
   `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`,
-  `schwierigkeit`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
+  `schwierigkeit`, `ereignis`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
   Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
 
@@ -357,5 +357,19 @@ den KI-Firmen; ihre Anlagenzahl wird mit dem Marktmaßstab verkleinert (mindeste
 | **gegruendet** | Gründungsjahr, höchstens 1900 |
 | **standorte** | Liste mit `land`, `lagerstaette` (Pflicht bei Förderanlagen, im selben Land) und `anlagen`: Liste aus `anlage`, `anzahl` (über 0) und `rezept` (optional, muss zur Anlage passen). Alle Anlagen eines Standorts haben denselben Standorttyp; Anlagen und Rezepte dürfen keine Technologie nach 1900 brauchen. |
 | kompetenz, aggressivitaet | Feste Werte (0–1) statt der Schwierigkeit |
+| annaeherung, quelle | Herkunft |
+
+## ereignisse
+
+Historische Ereignisse (in `ereignisse/`), Lastenheft §4.1. In Stufe 1 erscheinen sie
+als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
+`ereignis.<id>` (Titel) und `ereignis.<id>.text` (Beschreibung), beide Pflicht.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel |
+| **datum** | Tag des Ereignisses, `"JJJJ-MM-TT"` (in Anführungszeichen) |
+| **art** | `krieg`, `kriegsende`, `krise`, `revolution`, `staatsgruendung`, `abkommen`, `katastrophe` oder `technik`; Text `ereignisart.<art>` |
+| laender | Betroffene Länder (heutige Grenzen) |
 | annaeherung, quelle | Herkunft |
 

@@ -90,16 +90,35 @@ export type Parameter =
   | { type: "money"; value: number }
   | { type: "date"; value: string }
   | { type: "country"; value: string }
-  | { type: "text_key"; value: string };
+  | { type: "text_key"; value: string }
+  | { type: "countries"; value: string[] };
 
 export type MeldungsArt =
   "info" | "success" | "warning" | "crisis" | "world_event" | "stock" | "error";
 
+/** Section of the round report. */
+export type MeldungsGruppe = "welt" | "wettbewerb" | "warnung" | "forschung" | "allgemein";
+
 export interface Meldung {
   kind: MeldungsArt;
+  group: MeldungsGruppe;
   key: string;
   params: Record<string, Parameter>;
   target: string | null;
+}
+
+export interface Periode {
+  revenue_usd: number;
+  costs_usd: number;
+  result_usd: number;
+  /** [text key of the cost type, amount; costs negative] */
+  lines: [string, number][];
+}
+
+export interface Forschungsprojekt {
+  technology: string;
+  points: number;
+  needed: number;
 }
 
 export interface Rundenbericht {
@@ -109,6 +128,9 @@ export interface Rundenbericht {
   cash_before_usd: number;
   cash_after_usd: number;
   equity_change_usd: number;
+  period: Periode;
+  previous: Periode | null;
+  research: Forschungsprojekt[];
   messages: Meldung[];
   game_over: boolean;
 }

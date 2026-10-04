@@ -16,10 +16,22 @@ describe("Formate", () => {
   it("setzt Meldungsparameter nach ihrem Typ ein", () => {
     const text = meldungText({
       kind: "warning",
+      group: "warnung",
       key: "fehler.spielstart.startform",
       params: { betrag: { type: "money", value: 60000 } },
       target: null,
     });
     expect(text).toContain("60.000 USD");
+  });
+
+  it("zeigt Länderlisten mit Namen", () => {
+    const text = meldungText({
+      kind: "world_event",
+      group: "welt",
+      key: "weltereignis.laender",
+      params: { laender: { type: "countries", value: ["DEU", "FRA"] } },
+      target: null,
+    });
+    expect(text).toBe("Betroffene Länder");
   });
 });

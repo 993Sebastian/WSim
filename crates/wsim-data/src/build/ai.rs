@@ -3,16 +3,18 @@
 use std::collections::BTreeMap;
 
 use wsim_core::EARLIEST_START_YEAR;
+use wsim_core::calendar::Date;
 use wsim_core::catalog::{
-    AiBehavior, AiModel, AiStart, Catalog, Difficulty, NameGroup, RealCompany, RealSite, SiteType,
-    Span,
+    AiBehavior, AiModel, AiStart, Catalog, Difficulty, HistoricalEvent, NameGroup, RealCompany,
+    RealSite, SiteType, Span,
 };
 use wsim_core::ids::{BranchId, CountryId, DepositId, FacilityId, Id, RecipeId};
 
 use super::production::single;
 use super::{HISTORY_YEARS, Keys, in_range, non_negative, positive, provenance, resolve, year};
+use crate::TextIndex;
 use crate::messages;
-use crate::raw::{RawRealCompany, RawSpan};
+use crate::raw::{RawEvent, RawRealCompany, RawSpan};
 use crate::read::{Ctx, Entry, Loc, RawData};
 
 /// Placeholders allowed in name patterns.
@@ -390,4 +392,74 @@ pub(super) fn real_companies(
         });
     }
     companies
+}
+
+/// Kinds of historical events; each has a text `ereignisart.<kind>`.
+pub const EVENT_KINDS: &[&str] = &[
+    "krieg",
+    "kriegsende",
+    "krise",
+    "revolution",
+    "staatsgruendung",
+    "abkommen",
+    "katastrophe",
+    "technik",
+];
+
+fn parse_date(text: &str) -> Option<Date> {
+    let mut parts = text.split('-');
+    let year = parts.next()?.parse().ok()?;
+    let month = parts.next()?.parse().ok()?;
+    let day = parts.next()?.parse().ok()?;
+    if parts.next().is_some() {
+        return None;
+    }
+    Date::new(year, month, day)
+}
+
+/// Historical events, sorted by date; each needs a title and a `.text` description.
+pub(super) fn events(
+    ctx: &mut Ctx,
+    entries: &[&Entry<RawEvent>],
+    countries: &Keys,
+    texts: &TextIndex,
+) -> Vec<HistoricalEvent> {
+    let mut events = Vec::new();
+    for e in entries {
+        let v = &e.value;
+        let l = &e.loc;
+        let date = parse_date(&v.date)
+            .filter(|d| (super::GAME_YEARS.0..=super::GAME_YEARS.1).contains(&d.year()));
+        if date.is_none() {
+            ctx.error(&l.field("datum"), messages::event_date_invalid(&v.date));
+        }
+        if !EVENT_KINDS.contains(&v.kind.as_str()) {
+            ctx.error(
+                &l.field("art"),
+                messages::event_kind_unknown(&v.kind, &EVENT_KINDS.join(", ")),
+            );
+        }
+        let description = format!("ereignis.{}.text", v.id);
+        if texts.texts.get(&description).is_none() {
+            ctx.error(
+                &l.field("id"),
+                messages::text_missing(&description, crate::LANGUAGE),
+            );
+        }
+        let countries = v
+            .countries
+            .iter()
+            .enumerate()
+            .map(|(i, c)| resolve(ctx, countries, c, &l.field("laender").index(i)))
+            .collect();
+        events.push(HistoricalEvent {
+            key: v.id.clone(),
+            date: date.unwrap_or(Date::first_of_year(EARLIEST_START_YEAR)),
+            kind: v.kind.clone(),
+            countries,
+            provenance: provenance(v.approximation, v.source.as_ref()),
+        });
+    }
+    events.sort_by(|a, b| a.date.cmp(&b.date).then(a.key.cmp(&b.key)));
+    events
 }
