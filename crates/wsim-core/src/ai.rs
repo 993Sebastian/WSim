@@ -301,6 +301,32 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 });
             }
         }
+        // Goods made here without an offer (by-products such as petrol from the
+        // refinery) are sold at the market price unless the site needs them itself.
+        for (&product, stock) in &s.inventory {
+            let made = s.slots.iter().any(|sl| {
+                sl.recipe.is_some_and(|r| {
+                    let r = catalog.recipes.get(r);
+                    r.product == product || r.by_products.iter().any(|&(p, _)| p == product)
+                })
+            });
+            if made
+                && stock.quantity > 1e-9
+                && !s.offers.contains_key(&product)
+                && !need.contains_key(&product)
+                && catalog.products.get(product).kind != ProductKind::Energy
+            {
+                commands.push(Command::SetSale {
+                    site,
+                    product,
+                    mode: Some(PriceMode::Market {
+                        markup: 0.0,
+                        floor: Money::ZERO,
+                    }),
+                    keep: 0.0,
+                });
+            }
+        }
         // Purchases keep a stock of the inputs; short inputs are bid up.
         for (&product, &per_day) in &need {
             if per_day <= 1e-9 {

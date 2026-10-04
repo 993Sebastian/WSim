@@ -6,6 +6,8 @@ use std::process::ExitCode;
 use std::sync::Arc;
 
 use clap::{Parser, Subcommand, ValueEnum};
+
+mod protokoll;
 use wsim_core::calendar::{Date, RoundLength};
 use wsim_core::catalog::Catalog;
 use wsim_core::game::Game;
@@ -44,6 +46,17 @@ enum Command {
         land: String,
         #[arg(long, default_value_t = 1900)]
         jahr: i32,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
+    /// Stückkosten und Margen aller Rezepte bei Richtpreisen (Markdown).
+    Rezepte {
+        /// Jahr der Löhne und Strompreise
+        #[arg(long, default_value_t = 1900)]
+        jahr: i32,
+        /// Länder (ISO-Codes, mit Komma getrennt)
+        #[arg(long, default_value = "DEU,GBR,USA")]
+        laender: String,
         #[arg(long, default_value = "data")]
         daten: PathBuf,
     },
@@ -117,6 +130,10 @@ struct RunArgs {
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
+    /// Balance-Protokoll in diesen Ordner schreiben (produkte.csv, firmen.csv,
+    /// auswertung.md); Runden höchstens einen Monat lang
+    #[arg(long)]
+    protokoll: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -174,6 +191,32 @@ fn main() -> ExitCode {
             }
         },
         Command::Beispielsichten { datei, daten } => match example_views(&daten, &datei) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
+        Command::Rezepte {
+            jahr,
+            laender,
+            daten,
+        } => match load_data(&daten).and_then(|data| {
+            let countries = laender
+                .split(',')
+                .map(|k| {
+                    data.catalog
+                        .countries
+                        .id(k.trim())
+                        .ok_or_else(|| format!("Land „{k}“ gibt es nicht."))
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            println!(
+                "{}",
+                protokoll::recipe_margins(&data.catalog, &data.texts, jahr, &countries)
+            );
+            Ok(())
+        }) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
                 eprintln!("{message}");
@@ -276,6 +319,13 @@ fn run(args: &RunArgs) -> Result<(), String> {
     let rounds = args
         .runden
         .unwrap_or(if args.bis.is_some() { u32::MAX } else { 1 });
+    if args.protokoll.is_some() && matches!(args.runde, Runde::Quartal) {
+        return Err("Das Protokoll braucht Runden von höchstens einem Monat.".into());
+    }
+    let mut protocol = args
+        .protokoll
+        .as_ref()
+        .map(|_| protokoll::Protocol::new(&game));
     for _ in 0..rounds {
         if game.is_over() || args.bis.is_some_and(|end| game.date() >= end) {
             break;
@@ -290,9 +340,17 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 report.days
             );
         }
-        for message in &report.messages {
-            println!("  {}", texts.render(message));
+        if !args.leise {
+            for message in &report.messages {
+                println!("  {}", texts.render(message));
+            }
         }
+        if let Some(p) = &mut protocol {
+            p.after_round(&game);
+        }
+    }
+    if let (Some(p), Some(dir)) = (&protocol, &args.protokoll) {
+        p.write(&game, texts, dir)?;
     }
 
     if let Some(path) = &args.speichern {
