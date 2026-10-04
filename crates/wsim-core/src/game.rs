@@ -445,8 +445,15 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
     }
     let date = state.date;
     let country = state.settings.start_country;
+    // The facilities are completed on the first day (`complete_constructions`).
+    let facilities: Money = setup
+        .facilities
+        .iter()
+        .map(|&(f, _, _)| catalog.facilities.get(f).investment)
+        .sum();
     let ledger = &mut state.companies[state.player.index()].ledger;
-    ledger.transfer(Account::FixedAssets, Account::Cash, cost);
+    ledger.transfer(Account::FixedAssets, Account::Cash, cost - facilities);
+    ledger.transfer(Account::AssetsUnderConstruction, Account::Cash, facilities);
     let slots = setup
         .facilities
         .iter()
@@ -461,6 +468,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
             condition: 1.0,
             batches: Vec::new(),
             last_runs: 0.0,
+            limit: None,
         })
         .collect();
     let offers = setup

@@ -204,3 +204,165 @@ export interface Landdetail {
     sold_last_month: number;
   }[];
 }
+
+export interface Ursache {
+  key: string;
+  detail: string | null;
+}
+
+export interface AnlageDetail {
+  index: number;
+  facility: string;
+  count: number;
+  recipe: string | null;
+  product: string | null;
+  utilization: number;
+  automation: number;
+  automation_max: number;
+  ready: string;
+  planned_per_day: number;
+  made_per_day: number;
+  cause: Ursache | null;
+}
+
+export interface Angebot {
+  product: string;
+  mode: "markt" | "fest";
+  price_usd: number;
+  floor_usd: number;
+  markup: number;
+  keep: number;
+  sold_month: number;
+}
+
+export interface Einkauf {
+  product: string;
+  target: number;
+  max_price_usd: number;
+  min_quality: number;
+  bought_month: number;
+}
+
+export interface Versorgung {
+  product: string;
+  need_per_day: number;
+  stock: number;
+  days: number | null;
+  own: boolean;
+  ordered: boolean;
+}
+
+export interface StandortDetail {
+  index: number;
+  country: string;
+  kind: string;
+  kind_text: string;
+  deposit: string | null;
+  workers: number;
+  slots: AnlageDetail[];
+  stock: { product: string; quantity: number; value_usd: number }[];
+  offers: Angebot[];
+  orders: Einkauf[];
+  inputs: Versorgung[];
+  research: string | null;
+}
+
+export interface Produktion {
+  date: string;
+  cash_usd: number;
+  sites: StandortDetail[];
+  site_types: { kind: string; kind_text: string; cost_usd: number }[];
+  facilities: {
+    key: string;
+    site_type: string;
+    investment_usd: number;
+    build_days: number;
+    runs_per_day: number;
+    automation_max: number;
+    recipes: string[];
+  }[];
+  recipes: {
+    key: string;
+    facility: string;
+    product: string;
+    output: number;
+    duration_days: number;
+    extraction: boolean;
+    inputs: [string, number][];
+    labor_hours: [string, number][];
+    energy_mwh: number;
+  }[];
+}
+
+export interface Markt {
+  date: string;
+  country: string;
+  lines: {
+    product: string;
+    price_usd: number;
+    reference_usd: number;
+    state_price_usd: number | null;
+    demand_last_month: number;
+    sold_last_month: number;
+    imported_last_month: number;
+    exported_last_month: number;
+    sellers: number;
+    own_price_usd: number | null;
+    own_sold_month: number;
+  }[];
+}
+
+export interface Forschung {
+  date: string;
+  technologies: {
+    key: string;
+    field: string;
+    invention_year: number;
+    prerequisites: string[];
+    known: boolean;
+    researchable: boolean;
+    needed: number | null;
+    factor: number | null;
+    points: number;
+    sites: number[];
+    opens: string[];
+  }[];
+  centers: {
+    site: number;
+    country: string;
+    researchers: number;
+    project: string | null;
+    ready: boolean;
+  }[];
+  laboratory: string | null;
+}
+
+export interface Abrechnung {
+  lines: [string, number][];
+  result_usd: number;
+  cash_flow_usd: [number, number, number];
+}
+
+export interface Finanzen {
+  date: string;
+  assets: [string, number][];
+  claims: [string, number][];
+  total_usd: number;
+  year: Abrechnung;
+  last_year: Abrechnung | null;
+  last_month: Abrechnung | null;
+  loans: {
+    index: number;
+    principal_usd: number;
+    balance_usd: number;
+    rate: number;
+    start: string;
+    months: number;
+    instalment_usd: number;
+  }[];
+  credit_limit_usd: number;
+  overdraft_limit_usd: number;
+  loan_rate: number;
+  max_term_years: number;
+  loss_carryforward_usd: number;
+}

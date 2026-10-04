@@ -14,6 +14,7 @@ fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
 fehler.sitzung.name_ungueltig: "Der Name des Spielstands darf 1 bis 60 Zeichen haben: Buchstaben, Ziffern, Leerzeichen, Punkt, Binde- und Unterstrich."
 fehler.sitzung.speichern: "Der Spielstand konnte nicht gespeichert werden: {fehler}"
 fehler.sitzung.laden: "Der Spielstand konnte nicht geladen werden: {fehler}"
+fehler.sitzung.befehl_ungueltig: "Die Eingabe konnte nicht verarbeitet werden: {fehler}"
 fehler.befehl.spielende: Die Partie ist beendet; es sind keine Entscheidungen mehr möglich.
 fehler.befehl.firma_unbekannt: Die Firma Nr. {firma} gibt es nicht.
 fehler.name.leer: Der Name darf nicht leer sein.

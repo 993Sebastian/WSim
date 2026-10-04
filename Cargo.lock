@@ -4507,6 +4507,7 @@ name = "wsim-session"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_json",
  "tempfile",
  "wsim-core",
  "wsim-data",

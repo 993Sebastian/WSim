@@ -810,3 +810,138 @@ table.ergebnis th[scope="row"] {
     overflow-y: auto;
   }
 }
+
+/* Spielansichten: Produktion, Markt, Forschung, Finanzen */
+.ansicht {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 3rem;
+}
+
+.ansicht h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.ansicht h2 small {
+  font-weight: 400;
+  color: var(--text-gedaempft);
+}
+
+.ansicht h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.zeilenformular {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.zeilenformular label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+form.inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+input.schmal {
+  width: 6.5rem;
+}
+
+td input.schmal {
+  padding: 0.15rem 0.3rem;
+}
+
+td.ursache {
+  color: var(--warnung);
+  cursor: help;
+}
+
+td.zustand-fehlt {
+  color: var(--fehler);
+  font-weight: 600;
+}
+
+td.zustand-knapp {
+  color: var(--warnung);
+}
+
+tr.eigen td:first-child,
+tr.bekannt td:first-child {
+  font-weight: 600;
+}
+
+tr.summe td {
+  border-top: 1px solid var(--text-gedaempft);
+  font-weight: 600;
+}
+
+tr.trenner td {
+  padding-top: 0.8rem;
+}
+
+.raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  gap: 1.5rem;
+}
+
+.bilanz {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+}
+
+label.ankreuz {
+  gap: 0.3rem;
+}
+
+.tasten {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+
+.tasten div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 0.75rem;
+}
+
+.tasten dd {
+  margin: 0;
+}
+
+kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 3px;
+  background: var(--flaeche);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+button.spaltenkopf {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

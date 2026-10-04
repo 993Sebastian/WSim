@@ -540,6 +540,18 @@ fn ai_start_population() {
     // Same settings, same world.
     let again = Game::new(c, settings).unwrap();
     assert_eq!(game.state_hash(), again.state_hash());
+    // The start plants are completed on the first day and booked once as fixed assets.
+    let mut game = again;
+    game.advance(wsim_core::calendar::RoundLength::Day, |_| {});
+    for company in &game.state().companies {
+        let ledger = &company.ledger;
+        assert!(ledger.is_balanced(), "{}", company.name);
+        assert!(
+            ledger.balance(wsim_core::ledger::Account::AssetsUnderConstruction) >= Money::ZERO,
+            "{}",
+            company.name
+        );
+    }
 }
 
 /// AI companies decide through commands; a game with them stays reproducible, balanced

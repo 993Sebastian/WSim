@@ -21,7 +21,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M11 | Rundenbericht und Meldungen | ✅ |
 | M12 | Oberfläche I: Rundenablauf | ✅ (vor M11 gezogen) |
 | M13 | Oberfläche II: Weltkarte | ✅ |
-| M14 | Oberfläche III: Spielen | offen |
+| M14 | Oberfläche III: Spielen | ✅ |
 | M15 | Spielbarkeit Stufe 1 | offen |
 
 ## Eigenständige Entscheidungen (für das Review)
@@ -192,4 +192,31 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
   Märkte des Vormonats.
 - M13: Routen auf der Karte (Lastenheft §14.1) folgen mit der Logistik in Stufe 2; in
   Stufe 1 zeigt `wsim route` die Wege.
-
+- M14: Sechs Spielansichten neben Übersicht und Weltkarte: Produktion, Markt,
+  Forschung, Finanzen, Berichte; Wechsel mit den Zifferntasten 1–7. Alle Eingaben werden
+  als `Befehl` (JSON) über die Sitzung an `Game::apply` geschickt und laufen durch
+  dieselbe Prüfung wie bei KI-Firmen; Ablehnungen erscheinen als Textschlüssel.
+- M14: „Produktionsketten“ (Lastenheft §14.1) zeigt Stufe 1 je Standort als Tabelle statt
+  als Grafik: Anlagen mit Rezept, Auslastung, Ist-/Planmenge und Engpass, darunter die
+  Vorprodukte mit Reichweite in Tagen (rot unter 1, gelb unter 7) und Einkauf, dann
+  Verkauf und Lager. Eine grafische Kettenansicht lohnt erst mit mehr Standorten und
+  Logistik (Stufe 2).
+- M14: Engpass-Ursachen kommen aus dem Kern: Die Produktion merkt sich je Anlage, was
+  am letzten Tag begrenzt hat (`Slot::limit`: Vorprodukt, Arbeitskräftegruppe, Strom,
+  Lagerstätte); dazu im Bau, ohne Rezept, stillgelegt. Der Tooltip erklärt, was hilft.
+- M14: Markttabelle sortierbar (Klick auf den Spaltenkopf) und auf eigene Produkte
+  filterbar; Technologien nach Fachgebiet filterbar (Lastenheft §14.3).
+- M14: Tastaturkürzel an einer Stelle (`Spiel.tsx`) und in der Hilfe (`?` oder F1):
+  Strg+Enter Runde beenden, 1–7 Ansichten, Strg+S Speichern, Strg+O Laden, Esc schließt.
+- M14: Das Meldungsarchiv („Berichte“) hält die letzten 120 Rundenberichte der laufenden
+  Sitzung im Speicher der Oberfläche; es wird nicht gespeichert. Ein gespeichertes Archiv
+  bräuchte die Meldungen im Spielstand und folgt bei Bedarf.
+- M14: Sprungziele der Meldungen: fehlende Vorprodukte → Produktion, Forschung →
+  Forschung, Geld (Warnung, Krise, Erfolg) → Finanzen.
+- M14: Fehler behoben: Startanlagen (Werkstatt des Spielers, Startbesetzung der KI)
+  wurden doppelt aktiviert – direkt als Sachanlage und am ersten Tag noch einmal aus
+  „Anlagen im Bau“. Die Summe stimmte, „Anlagen im Bau“ war aber negativ. Jetzt laufen
+  Anlagen und Lagerstätten über „Anlagen im Bau“ und werden am ersten Tag fertig.
+- M14: Die durchgespielte Partie 1900–1905 läuft als Test der Sitzung
+  (`crates/wsim-session/tests/partie.rs`): Bauen, Produktion, Einkauf, Verkauf, Kredit,
+  60 Monatsrunden, Wiederholung aus dem Journal ergibt denselben Zustand.

@@ -3,8 +3,13 @@
 import beispielJson from "./beispiel.json";
 import { KernFehler } from "./fehler";
 import type { Kern } from "./index";
+import type { Befehl } from "./befehle";
 import type {
+  Finanzen,
+  Forschung,
   Landdetail,
+  Markt,
+  Produktion,
   Optionen,
   Rundenbericht,
   Rundenlaenge,
@@ -20,7 +25,20 @@ const beispiel = beispielJson as unknown as {
   uebersicht: Uebersicht;
   weltkarte: Weltkarte;
   laender: Record<string, Landdetail>;
+  produktion: Produktion;
+  markt: Markt;
+  forschung: Forschung;
+  finanzen: Finanzen;
 };
+
+/** Commands the preview received (for the UI tests). */
+export const vorschauBefehle: Befehl[] = [];
+declare global {
+  interface Window {
+    __wsimBefehle?: Befehl[];
+  }
+}
+if (typeof window !== "undefined") window.__wsimBefehle = vorschauBefehle;
 
 const TAGE: Record<Rundenlaenge, number> = { tag: 1, woche: 7, monat: 31, quartal: 92 };
 
@@ -86,6 +104,33 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       const c = kopie(land);
       for (const f of c.companies) if (f.own) f.name = firma;
       return c;
+    },
+    produktion: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.produktion);
+    },
+    markt: async (land) => {
+      if (!spiel) throw keinSpiel();
+      return { ...kopie(beispiel.markt), country: land };
+    },
+    forschung: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.forschung);
+    },
+    finanzen: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.finanzen);
+    },
+    befehl: async (befehl) => {
+      if (!spiel) throw keinSpiel();
+      vorschauBefehle.push(kopie(befehl));
+      throw new KernFehler({
+        kind: "error",
+        group: "allgemein",
+        key: "vorschau.befehl",
+        params: {},
+        target: null,
+      });
     },
     speichern: async (name) => {
       if (!spiel) throw keinSpiel();

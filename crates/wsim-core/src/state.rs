@@ -333,6 +333,18 @@ pub struct Slot {
     pub batches: Vec<Batch>,
     /// Runs on the last production day (for reports).
     pub last_runs: f64,
+    /// What held the facility below its plan on the last production day.
+    #[serde(default)]
+    pub limit: Option<Limit>,
+}
+
+/// What kept a facility below its planned production (shown as cause in the UI).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Limit {
+    Input(ProductId),
+    Labor(LaborGroupId),
+    Electricity,
+    Deposit,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

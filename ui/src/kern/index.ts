@@ -3,8 +3,13 @@
 // real game (beispiel.json, written by `wsim beispielsichten`).
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import type { Befehl } from "./befehle";
 import { KernFehler } from "./fehler";
 import type {
+  Finanzen,
+  Forschung,
+  Markt,
+  Produktion,
   Fortschritt,
   Landdetail,
   NeuesSpiel,
@@ -18,6 +23,8 @@ import type {
 import { vorschauKern } from "./vorschau";
 
 export type * from "./typen";
+export type { Befehl, Preisart } from "./befehle";
+export { geld } from "./befehle";
 export { KernFehler } from "./fehler";
 
 export interface KernInfo {
@@ -34,6 +41,12 @@ export interface Kern {
   rundeBeenden(laenge: Rundenlaenge, fortschritt: (f: Fortschritt) => void): Promise<Rundenbericht>;
   weltkarte(): Promise<Weltkarte>;
   land(schluessel: string): Promise<Landdetail>;
+  produktion(): Promise<Produktion>;
+  markt(land: string): Promise<Markt>;
+  forschung(): Promise<Forschung>;
+  finanzen(): Promise<Finanzen>;
+  /** Carries out a decision; answers with the new overview. */
+  befehl(befehl: Befehl): Promise<Uebersicht>;
   speichern(name: string): Promise<Spielstand>;
   spielstaende(): Promise<Spielstand[]>;
   laden(name: string): Promise<Uebersicht>;
@@ -63,6 +76,11 @@ const tauriKern: Kern = {
   },
   weltkarte: () => aufruf("weltkarte"),
   land: (schluessel) => aufruf("land", { schluessel }),
+  produktion: () => aufruf("produktion"),
+  markt: (land) => aufruf("markt", { land }),
+  forschung: () => aufruf("forschung"),
+  finanzen: () => aufruf("finanzen"),
+  befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),
   spielstaende: () => aufruf("spielstaende"),
   laden: (name) => aufruf("laden", { name }),

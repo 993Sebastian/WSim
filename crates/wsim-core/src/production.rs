@@ -7,7 +7,7 @@ use crate::ids::{CountryId, Id, LaborGroupId, ProductId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
-use crate::state::{Batch, CompanyId, GameState, SiteId};
+use crate::state::{Batch, CompanyId, GameState, Limit, SiteId};
 
 /// Working hours one employee provides per calendar day.
 pub fn hours_per_worker_day(catalog: &Catalog, date: Date) -> f64 {
@@ -307,6 +307,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
 
     for slot in 0..state.sites[index].slots.len() {
         state.sites[index].slots[slot].last_runs = 0.0;
+        state.sites[index].slots[slot].limit = None;
         let Some((recipe_id, planned)) = planned_runs(catalog, state, site, slot, date) else {
             continue;
         };
@@ -316,21 +317,32 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let per_run = hours_per_run(catalog, recipe, automation, affinity, cost_factor);
 
         let mut runs = planned;
+        let mut limit = None;
+        let mut bound = |runs: &mut f64, cap: f64, why: Limit| {
+            if cap < *runs {
+                *runs = cap;
+                limit = Some(why);
+            }
+        };
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
                 .inventory
                 .get(&p)
                 .map_or(0.0, |s| s.quantity);
-            runs = runs.min(available / q);
+            bound(&mut runs, available / q, Limit::Input(p));
         }
         for &(g, h) in &per_run {
             if h > 0.0 {
-                runs = runs.min(hours[g.index()] / h);
+                bound(&mut runs, hours[g.index()] / h, Limit::Labor(g));
             }
         }
         let own_power = if recipe.energy_mwh > 0.0 {
             let own = own_electricity(catalog, state, owner, country);
-            runs = runs.min(planned * grid_share + own / recipe.energy_mwh);
+            bound(
+                &mut runs,
+                planned * grid_share + own / recipe.energy_mwh,
+                Limit::Electricity,
+            );
             own
         } else {
             0.0
@@ -345,8 +357,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             if let Some(reserve) = d.reserve {
                 room = room.min(reserve * scale - ds.extracted);
             }
-            runs = runs.min(room.max(0.0) / recipe.output);
+            bound(&mut runs, room.max(0.0) / recipe.output, Limit::Deposit);
         }
+        state.sites[index].slots[slot].limit = limit;
         if runs <= 1e-9 {
             continue;
         }

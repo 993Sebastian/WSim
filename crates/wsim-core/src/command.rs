@@ -396,6 +396,7 @@ pub(crate) fn execute(
                     condition: 1.0,
                     batches: Vec::new(),
                     last_runs: 0.0,
+                    limit: None,
                 });
         }
         Command::DevelopDeposit { site, deposit } => {

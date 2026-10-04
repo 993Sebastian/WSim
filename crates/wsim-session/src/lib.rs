@@ -10,13 +10,15 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use wsim_core::calendar::RoundLength;
 use wsim_core::catalog::Catalog;
+use wsim_core::command::Command;
 use wsim_core::game::{Game, Progress};
 use wsim_core::message::{Message, Param};
 use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
 use wsim_core::views::{
-    self, CountryDetail, MessageView, NewGameOptions, Overview, RoundReportView, WorldMap,
+    self, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
+    ProductionView, ResearchOverview, RoundReportView, WorldMap,
 };
 
 /// File extension of saves.
@@ -148,6 +150,50 @@ impl Session {
         views::country_detail(game, key).ok_or_else(|| error(keys::UNKNOWN_COUNTRY))
     }
 
+    fn view<T>(&self, f: impl FnOnce(&Game) -> T) -> Result<T, MessageView> {
+        self.game
+            .as_ref()
+            .map(f)
+            .ok_or_else(|| error(keys::NO_GAME))
+    }
+
+    pub fn production(&self) -> Result<ProductionView, MessageView> {
+        self.view(views::production)
+    }
+
+    pub fn research(&self) -> Result<ResearchOverview, MessageView> {
+        self.view(views::research_overview)
+    }
+
+    pub fn finance(&self) -> Result<FinanceView, MessageView> {
+        self.view(views::finance_overview)
+    }
+
+    pub fn market(&self, country: &str) -> Result<MarketView, MessageView> {
+        self.view(|g| views::market(g, country))?
+            .ok_or_else(|| error(keys::UNKNOWN_COUNTRY))
+    }
+
+    /// Carries out a decision of the player. The command comes as JSON with keys for
+    /// content (`{"FoundSite": {"country": "DEU", "kind": "Factory"}}`); it passes the
+    /// same checks as every command and goes into the journal.
+    pub fn command(&mut self, json: serde_json::Value) -> Result<Overview, MessageView> {
+        let game = self.game.as_mut().ok_or_else(|| error(keys::NO_GAME))?;
+        let table = game.catalog().key_table();
+        let (parsed, missing) =
+            wsim_core::ids::with_keys(&table, || serde_json::from_value::<Command>(json));
+        let command = match (parsed, missing) {
+            (Ok(c), None) => c,
+            (Err(e), _) => return Err(error_with(keys::INVALID_COMMAND, "fehler", e.to_string())),
+            (_, Some((_, key))) => {
+                return Err(error_with(keys::INVALID_COMMAND, "fehler", key));
+            }
+        };
+        game.apply(command)
+            .map_err(|e| views::message_view(&e.message()))?;
+        Ok(views::overview(game))
+    }
+
     /// Simulates one round of `length` (`tag`, `woche`, `monat`, `quartal`).
     pub fn end_round(
         &mut self,
@@ -250,6 +296,7 @@ pub mod keys {
     pub const INVALID_SAVE_NAME: &str = "fehler.sitzung.name_ungueltig";
     pub const SAVE_FAILED: &str = "fehler.sitzung.speichern";
     pub const LOAD_FAILED: &str = "fehler.sitzung.laden";
+    pub const INVALID_COMMAND: &str = "fehler.sitzung.befehl_ungueltig";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -260,5 +307,6 @@ pub mod keys {
         INVALID_SAVE_NAME,
         SAVE_FAILED,
         LOAD_FAILED,
+        INVALID_COMMAND,
     ];
 }

@@ -5,6 +5,9 @@
 
 use std::collections::BTreeMap;
 
+mod play;
+pub use play::*;
+
 use serde::{Deserialize, Serialize};
 
 use crate::EARLIEST_START_YEAR;
@@ -366,14 +369,20 @@ pub fn message_view(message: &Message) -> MessageView {
             (name.clone(), v)
         })
         .collect();
-    // Messages about the own money lead to the overview with the finances; the other
-    // views follow with M13 and M14.
-    let target = match message.kind {
-        MessageKind::Warning | MessageKind::Crisis | MessageKind::Success => {
-            Some("uebersicht".to_owned())
-        }
-        _ => None,
-    };
+    // The view where the player can act on the message.
+    let target = if message.key == crate::message::keys::INPUT_MISSING {
+        Some("produktion")
+    } else if message.key.starts_with("meldung.forschung") {
+        Some("forschung")
+    } else if matches!(
+        message.kind,
+        MessageKind::Warning | MessageKind::Crisis | MessageKind::Success
+    ) {
+        Some("finanzen")
+    } else {
+        None
+    }
+    .map(str::to_owned);
     let group = if message.kind == MessageKind::WorldEvent {
         "welt"
     } else if message.key.starts_with("meldung.ki.")
@@ -855,7 +864,7 @@ mod tests {
             json.contains(r#""betrag":{"type":"money","value":12.5}"#),
             "{json}"
         );
-        assert_eq!(v.target.as_deref(), Some("uebersicht"));
+        assert_eq!(v.target.as_deref(), Some("finanzen"));
     }
 
     #[test]

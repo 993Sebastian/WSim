@@ -117,9 +117,12 @@ bericht.gruppe.forschung: Forschung
 bericht.gruppe.allgemein: Allgemein
 
 spiel.ansichten: Ansichten
-spiel.weitere_ansichten: "Produktion, Markt, Forschung und Finanzen folgen."
 ansicht.uebersicht: Übersicht
 ansicht.weltkarte: Weltkarte
+ansicht.produktion: Produktion
+ansicht.markt: Markt
+ansicht.forschung: Forschung
+ansicht.finanzen: Finanzen
 
 karte.titel: Weltkarte
 karte.ebene: Kartenebene
@@ -168,3 +171,154 @@ landdetail.preis: Preis
 landdetail.nachfrage: Nachfrage
 landdetail.verkauft: verkauft
 vorschau.land_fehlt: Die Vorschau enthält nur Deutschland, das Vereinigte Königreich und die Vereinigten Staaten.
+
+# Spielen: Befehle
+befehl.ausgefuehrt: Erledigt.
+vorschau.befehl: Die Vorschau im Browser führt keine Befehle aus – dafür das Spiel starten.
+
+# Produktion
+produktion.gruenden: Neuer Standort
+produktion.land: Land
+produktion.standorttyp: Art
+produktion.gruenden_knopf: Gründen
+produktion.bauen: Anlage bauen
+produktion.anzahl: Anzahl
+produktion.bauen_knopf: Bauen
+produktion.bauzeit: "{tage} Tage Bauzeit"
+produktion.rezept: Rezept
+produktion.rezept_von: "Rezept für {anlage}"
+produktion.auslastung_von: "Auslastung von {anlage} in Prozent"
+produktion.kein_rezept: – ruht –
+produktion.leistung: Ist / Plan je Tag
+produktion.ursache: Engpass
+produktion.laeuft: läuft
+produktion.vorprodukte: Vorprodukte
+produktion.bedarf: Bedarf je Tag
+produktion.reichweite: Reichweite
+produktion.tage: "{tage} Tage"
+produktion.eigen: eigen
+produktion.einkauf: Einkauf (Ziellager, Höchstpreis USD)
+produktion.einkauf_von: "Einkauf von {produkt}"
+produktion.ziellager: "Ziellager für {produkt}"
+produktion.hoechstpreis: "Höchstpreis für {produkt} in USD"
+produktion.hoechstpreis_kurz: Höchstpreis
+produktion.kaufen: Kaufen
+produktion.aendern: Ändern
+produktion.stoppen: Stoppen
+produktion.verkauf: Verkauf
+produktion.preis: Preis
+produktion.verkauft_monat: Verkauft im Monat
+produktion.preisregel: Preisregel (USD)
+produktion.verkauf_von: "Verkauf von {produkt}"
+produktion.preisart: "Preisart für {produkt}"
+produktion.marktpreis: Marktpreis
+produktion.festpreis: Festpreis
+produktion.festpreis_von: "Festpreis für {produkt} in USD"
+produktion.untergrenze: Untergrenze
+produktion.untergrenze_von: "Preisuntergrenze für {produkt} in USD"
+produktion.anbieten: Anbieten
+
+ursache.vorprodukt: "Vorprodukt fehlt: {detail}"
+ursache.vorprodukt.hilfe: Das Lager reicht nicht für die geplante Menge. Einkauf erhöhen oder eigene Herstellung ausbauen.
+ursache.arbeitskraefte: "Zu wenig {detail}"
+ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gruppe frei. Auslastung senken, automatisieren oder in einem anderen Land produzieren.
+ursache.strom: Zu wenig Strom
+ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
+ursache.lagerstaette: Lagerstätte erschöpft
+ursache.lagerstaette.hilfe: Die Förderung ist durch die Lagerstätte begrenzt.
+ursache.im_bau: im Bau
+ursache.im_bau.hilfe: Die Anlage arbeitet ab dem Fertigstellungstag.
+ursache.kein_rezept: kein Rezept gewählt
+ursache.kein_rezept.hilfe: Ohne Rezept steht die Anlage still.
+ursache.ruht: Auslastung 0 %
+ursache.ruht.hilfe: Die Anlage ist stillgelegt.
+
+# Markt
+markt.land: Land
+markt.nur_eigene: nur eigene Produkte
+markt.titel: "Markt {land}"
+markt.preis: Marktpreis
+markt.referenz: Referenz
+markt.staat: Staatlich
+markt.nachfrage: Nachfrage
+markt.verkauft: Verkauft
+markt.einfuhr: Einfuhr
+markt.ausfuhr: Ausfuhr
+markt.anbieter: Anbieter
+markt.eigener_preis: Eigener Preis (Absatz)
+markt.hinweis: Mengen des Vormonats. Der staatliche Markt liefert Vorprodukte, die sonst niemand anbietet, zu einem Aufschlag.
+
+# Forschung
+forschung.zentren: Forschungszentren
+forschung.keine_zentren: Noch kein Forschungszentrum.
+forschung.forscher: "{anzahl} Forscher"
+forschung.ohne_labor: ohne Labor
+forschung.projekt_von: "Forschungsprojekt in {land}"
+forschung.kein_projekt: – kein Projekt –
+forschung.labor_bauen: Labor bauen
+forschung.gruenden: Forschungszentrum gründen in
+forschung.technologien: Technologien
+forschung.feld: Fachgebiet
+forschung.alle_felder: alle
+forschung.technologie: Technologie
+forschung.erfindung: Erfunden
+forschung.stand: Stand
+forschung.voraussetzungen: Voraussetzungen
+forschung.ermoeglicht: Ermöglicht
+forschung.bekannt: bekannt
+forschung.punkte: "{punkte} von {bedarf} Punkten"
+forschung.gesperrt: noch nicht erforschbar
+
+# Finanzen
+finanzen.bilanz: Bilanz
+finanzen.aktiva: Aktiva
+finanzen.passiva: Passiva
+finanzen.summe: Summe
+finanzen.verlustvortrag: "Verlustvortrag: {betrag}"
+finanzen.erfolgsrechnung: Erfolgsrechnung und Geldfluss
+finanzen.vormonat: Vormonat
+finanzen.laufendes_jahr: Laufendes Jahr
+finanzen.vorjahr: Vorjahr
+finanzen.ergebnis: Ergebnis
+finanzen.cf_betrieb: Geldfluss Betrieb
+finanzen.cf_investition: Geldfluss Investition
+finanzen.cf_finanzierung: Geldfluss Finanzierung
+finanzen.kredite: Kredite
+finanzen.rahmen: "Kreditrahmen {rahmen}, Dispositionsrahmen {dispo}, Zins für neue Kredite {zins}."
+finanzen.beginn: Beginn
+finanzen.monate: "{anzahl} Monate"
+finanzen.betrag: Betrag (USD)
+finanzen.rest: Restschuld
+finanzen.zins: Zins
+finanzen.rate: Monatsrate
+finanzen.sondertilgung: Sondertilgung
+finanzen.tilgungsbetrag: Tilgungsbetrag in USD
+finanzen.tilgen: Tilgen
+finanzen.aufnehmen: Kredit aufnehmen
+finanzen.laufzeit: Laufzeit (Jahre)
+finanzen.aufnehmen_knopf: Aufnehmen
+
+# Tastaturkürzel
+tasten.knopf: Tasten (?)
+tasten.titel: Tastaturkürzel
+tasten.runde: Runde beenden
+tasten.ansichten: Ansicht wechseln (Übersicht, Produktion, Markt, Forschung, Finanzen, Weltkarte, Berichte)
+tasten.speichern: Speichern
+tasten.laden: Laden
+tasten.hilfe: Diese Übersicht
+tasten.schliessen: Fenster schließen
+
+# Berichte
+ansicht.berichte: Berichte
+berichte.gruppe: Meldungen
+berichte.gruppe.alle: alle
+berichte.gruppe.warnung: Warnungen
+berichte.gruppe.welt: Weltgeschehen
+berichte.gruppe.wettbewerb: Wettbewerb
+berichte.gruppe.forschung: Forschung
+berichte.gruppe.allgemein: Allgemein
+berichte.hinweis: Rundenberichte dieser Sitzung, neueste zuerst.
+berichte.leer: Noch keine Runde beendet.
+berichte.ergebnis: "Ergebnis {betrag}"
+berichte.oeffnen: Bericht öffnen
+berichte.keine_meldungen: Keine Meldungen.

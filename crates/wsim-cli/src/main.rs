@@ -365,6 +365,10 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "uebersicht": after,
         "weltkarte": map,
         "laender": countries,
+        "produktion": session.production().map_err(message)?,
+        "markt": session.market("DEU").map_err(message)?,
+        "forschung": session.research().map_err(message)?,
+        "finanzen": session.finance().map_err(message)?,
     });
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { formatDatum, formatGeld } from "../format";
 import type { Fortschritt, Kern, Meldung, Rundenbericht, Rundenlaenge, Uebersicht } from "../kern";
 import { t } from "../texte";
@@ -7,11 +7,28 @@ import { fehlerText } from "./fehler";
 import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
 import { WeltereignisDialog } from "./Weltereignis";
+import { BerichteAnsicht } from "./Berichte";
+import { FinanzenAnsicht } from "./Finanzen";
+import { ForschungAnsicht } from "./Forschung";
+import { MarktAnsicht } from "./Markt";
+import { ProduktionAnsicht } from "./Produktion";
+import { Tastenhilfe } from "./Tastenhilfe";
+import { UebersichtAnsicht } from "./Uebersicht";
 import { WeltkarteAnsicht } from "./Weltkarte";
 
-type Ansicht = "uebersicht" | "weltkarte";
-const ANSICHTEN: Ansicht[] = ["uebersicht", "weltkarte"];
-import { UebersichtAnsicht } from "./Uebersicht";
+type Ansicht =
+  "uebersicht" | "produktion" | "markt" | "forschung" | "finanzen" | "weltkarte" | "berichte";
+export const ANSICHTEN: Ansicht[] = [
+  "uebersicht",
+  "produktion",
+  "markt",
+  "forschung",
+  "finanzen",
+  "weltkarte",
+  "berichte",
+];
+/** Round reports kept for the archive view. */
+const ARCHIV = 120;
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
 
@@ -21,7 +38,8 @@ type Fenster =
   | { art: "bericht"; bericht: Rundenbericht }
   | { art: "ereignis"; bericht: Rundenbericht; liste: Meldung[]; index: number }
   | { art: "speichern" }
-  | { art: "laden" };
+  | { art: "laden" }
+  | { art: "hilfe" };
 
 export function Spiel({
   kern,
@@ -37,6 +55,7 @@ export function Spiel({
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
+  const [berichte, setBerichte] = useState<Rundenbericht[]>([]);
   const firma = uebersicht.company;
 
   const runde = async () => {
@@ -47,6 +66,7 @@ export function Spiel({
         setFenster((alt) => (alt.art === "runde" ? { art: "runde", fortschritt: f } : alt)),
       );
       setUebersicht(await kern.uebersicht());
+      setBerichte((alt) => [bericht, ...alt].slice(0, ARCHIV));
       // World news first, each in a window of its own (then the report).
       const welt = bericht.messages.filter((m) => m.group === "welt");
       setFenster(
@@ -61,6 +81,38 @@ export function Spiel({
   };
 
   const schliessen = useCallback(() => setFenster({ art: "keins" }), []);
+
+  // Keyboard shortcuts (Lastenheft §15): one place, shown in the help window.
+  const rundeRef = useRef(runde);
+  useEffect(() => {
+    rundeRef.current = runde;
+  });
+  const offen = fenster.art !== "keins";
+  useEffect(() => {
+    const taste = (e: KeyboardEvent) => {
+      const ziel = e.target as HTMLElement | null;
+      const eingabe = ziel && /^(INPUT|SELECT|TEXTAREA)$/.test(ziel.tagName);
+      if (e.ctrlKey && e.key === "Enter") {
+        e.preventDefault();
+        if (!offen && !uebersicht.game_over) void rundeRef.current();
+      } else if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (!offen) setFenster({ art: "speichern" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        if (!offen) setFenster({ art: "laden" });
+      } else if (!offen && !eingabe && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const nummer = Number(e.key);
+        if (nummer >= 1 && nummer <= ANSICHTEN.length) setAnsicht(ANSICHTEN[nummer - 1]!);
+        else if (e.key === "?" || e.key === "F1") {
+          e.preventDefault();
+          setFenster({ art: "hilfe" });
+        }
+      }
+    };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  }, [offen, uebersicht.game_over]);
 
   const springe = (ziel: string) => {
     setFenster({ art: "keins" });
@@ -102,6 +154,7 @@ export function Spiel({
             type="button"
             className="haupt"
             onClick={runde}
+            aria-keyshortcuts="Control+Enter"
             disabled={uebersicht.game_over || fenster.art === "runde"}
           >
             {t("spiel.runde_beenden")}
@@ -120,22 +173,53 @@ export function Spiel({
         </nav>
       </header>
       <nav className="reiter" aria-label={t("spiel.ansichten")}>
-        {ANSICHTEN.map((a) => (
+        {ANSICHTEN.map((a, i) => (
           <button
             key={a}
             type="button"
             aria-current={ansicht === a ? "page" : undefined}
+            aria-keyshortcuts={String(i + 1)}
             onClick={() => setAnsicht(a)}
           >
             {t(`ansicht.${a}`)}
           </button>
         ))}
-        <span className="gedaempft">{t("spiel.weitere_ansichten")}</span>
+        <button
+          type="button"
+          className="schlicht"
+          aria-keyshortcuts="?"
+          onClick={() => setFenster({ art: "hilfe" })}
+        >
+          {t("tasten.knopf")}
+        </button>
       </nav>
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
       {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
+      {ansicht === "produktion" && (
+        <ProduktionAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+      )}
+      {ansicht === "markt" && (
+        <MarktAnsicht
+          kern={kern}
+          datum={uebersicht.date}
+          heimat={uebersicht.company.headquarters}
+        />
+      )}
+      {ansicht === "forschung" && (
+        <ForschungAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+      )}
+      {ansicht === "finanzen" && (
+        <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+      )}
       {ansicht === "weltkarte" && <WeltkarteAnsicht kern={kern} datum={uebersicht.date} />}
+      {ansicht === "berichte" && (
+        <BerichteAnsicht
+          berichte={berichte}
+          onOeffnen={(bericht) => setFenster({ art: "bericht", bericht })}
+        />
+      )}
+      {fenster.art === "hilfe" && <Tastenhilfe onSchliessen={schliessen} />}
 
       {fenster.art === "runde" && (
         <Dialog titel={t("fortschritt.titel")}>

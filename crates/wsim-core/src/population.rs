@@ -715,6 +715,8 @@ fn found_company(
     }
     let floor_factor = model.behavior.floor_factor.at(aggressiveness);
     let mut fixed = Money::ZERO;
+    // Facilities and deposits are completed on the first day (`complete_constructions`).
+    let mut construction = Money::ZERO;
     let mut stock_value = Money::ZERO;
     let mut daily_cost = Money::ZERO;
     let mut new_sites = Vec::new();
@@ -742,7 +744,7 @@ fn found_company(
                 .get(r.facility)
                 .investment
                 .scale(f64::from(p.count));
-            fixed += cost;
+            construction += cost;
             slots.push(Slot {
                 facility: r.facility,
                 ready: date,
@@ -754,6 +756,7 @@ fn found_company(
                 condition: 1.0,
                 batches: Vec::new(),
                 last_runs: 0.0,
+                limit: None,
             });
             let flows = slot_flows(
                 catalog,
@@ -785,7 +788,7 @@ fn found_company(
                 field.site = Some(site_id);
                 field.ready = Some(date);
                 field.development_cost = cost;
-                fixed += cost;
+                construction += cost;
             }
         }
         let mut inventory = BTreeMap::new();
@@ -864,8 +867,13 @@ fn found_company(
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);
-    let mut ledger = Ledger::new(date, fixed + stock_value + cash);
+    let mut ledger = Ledger::new(date, fixed + construction + stock_value + cash);
     ledger.transfer(Account::FixedAssets, Account::Cash, fixed);
+    ledger.transfer(
+        Account::AssetsUnderConstruction,
+        Account::Cash,
+        construction,
+    );
     ledger.transfer(Account::Inventory, Account::Cash, stock_value);
     let operations = model.behavior.operations_days.at(competence);
     // A random first day spreads the decisions of the companies over the period.

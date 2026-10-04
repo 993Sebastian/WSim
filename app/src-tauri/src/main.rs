@@ -12,7 +12,8 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    CountryDetail, MessageView, NewGameOptions, Overview, RoundReportView, WorldMap,
+    CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview, ProductionView,
+    ResearchOverview, RoundReportView, WorldMap,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -114,6 +115,32 @@ fn land(state: State<'_, Shared>, schluessel: String) -> Result<CountryDetail, F
 }
 
 #[tauri::command]
+fn produktion(state: State<'_, Shared>) -> Result<ProductionView, Fehler> {
+    mit_sitzung(&state, |s| s.production())
+}
+
+#[tauri::command]
+fn markt(state: State<'_, Shared>, land: String) -> Result<MarketView, Fehler> {
+    mit_sitzung(&state, |s| s.market(&land))
+}
+
+#[tauri::command]
+fn forschung(state: State<'_, Shared>) -> Result<ResearchOverview, Fehler> {
+    mit_sitzung(&state, |s| s.research())
+}
+
+#[tauri::command]
+fn finanzen(state: State<'_, Shared>) -> Result<FinanceView, Fehler> {
+    mit_sitzung(&state, |s| s.finance())
+}
+
+/// A decision of the player, as JSON command with keys (see `Session::command`).
+#[tauri::command]
+fn befehl(state: State<'_, Shared>, befehl: serde_json::Value) -> Result<Overview, Fehler> {
+    mit_sitzung(&state, |s| s.command(befehl))
+}
+
+#[tauri::command]
 fn speichern(state: State<'_, Shared>, name: String) -> Result<SaveEntry, Fehler> {
     mit_sitzung(&state, |s| s.save(&name))
 }
@@ -162,6 +189,11 @@ fn main() {
             runde_beenden,
             weltkarte,
             land,
+            produktion,
+            markt,
+            forschung,
+            finanzen,
+            befehl,
             speichern,
             spielstaende,
             laden

@@ -118,4 +118,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Autospeicherung | `AUTOSAVE_NAME` |
 | Weltkarte, Kartenebene | `WorldMap`, `Ebene` (UI) |
 | Länderdetail | `CountryDetail` |
+| Engpass, Ursache | `Slot::limit` (`Limit`), `Cause` |
+| Produktion, Markt, Forschung, Finanzen (Sichten) | `ProductionView`, `MarketView`, `ResearchOverview`, `FinanceView` |
+| Berichte (Meldungsarchiv) | `BerichteAnsicht` (UI) |
+| Tastaturkürzel | `TASTEN` (UI, `Tastenhilfe.tsx`) |
 
