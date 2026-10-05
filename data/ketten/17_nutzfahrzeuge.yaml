@@ -1,0 +1,105 @@
+# Kette 17 – Nutzfahrzeuge (M32, Epoche 1915–1939)
+# Motor, Fahrgestell, Autoreifen, Blech → Lastwagen; Motor, Stahl, Stabstahl → Traktor.
+# Gekauft werden sie von Spediteuren, Höfen und Behörden: als Staatsbedarf je BIP.
+# Alle Zahlen sind Annäherungen für etwa 1925.
+
+produkte:
+  - id: lastwagen
+    art: endprodukt
+    branche: fahrzeuge
+    einheit: stueck               # Lastwagen um 3 t Nutzlast
+    gewicht_kg: 3000
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 20_000
+    staatsnachfrage:
+      je_mio_usd_bip: 0.03
+      kriegsfaktor: 10
+    annaeherung: true
+
+  - id: traktor
+    art: endprodukt
+    branche: maschinenbau
+    einheit: stueck               # Ackerschlepper wie der Fordson
+    gewicht_kg: 1200
+    verwendung: industrie
+    warengruppe: maschinen
+    transportklasse: stueckgut
+    richtpreis_usd: 7500
+    staatsnachfrage:
+      je_mio_usd_bip: 0.01
+      kriegsfaktor: 0.5
+    annaeherung: true
+
+anlagen:
+  - id: lastwagenwerk
+    standorttyp: werk
+    investition_usd: 8_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: lastkraftwagen
+    annaeherung: true
+
+  - id: traktorenwerk
+    standorttyp: werk
+    investition_usd: 8_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: ackerschlepper
+    annaeherung: true
+
+rezepte:
+  - id: lastwagen_bauen
+    produkt: lastwagen
+    menge: 1
+    dauer_tage: 2
+    anlage: lastwagenwerk
+    technologie: lastkraftwagen
+    eingang:
+      motor: 1
+      fahrgestell: 1
+      autoreifen: 6
+      blech: 0.4                  # Pritsche und Führerhaus
+    arbeit_stunden:
+      angelernt: 40
+      fachkraft.maschinenbau: 20
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: traktor_bauen
+    produkt: traktor
+    menge: 1
+    dauer_tage: 2
+    anlage: traktorenwerk
+    technologie: ackerschlepper
+    eingang:
+      motor: 1
+      stahl: 0.8                  # Gussgehäuse als tragender Rahmen
+      stabstahl: 0.3
+    arbeit_stunden:
+      angelernt: 30
+      fachkraft.maschinenbau: 15
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: lastkraftwagen            # Serienlastwagen (Mack AB 1914, Ford TT 1917)
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1912
+    voraussetzungen: [automobil]
+    forschungsaufwand: 12000
+    annaeherung: true
+
+  - id: ackerschlepper            # Fordson in Großserie
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1917
+    voraussetzungen: [ottomotor]
+    forschungsaufwand: 10000
+    annaeherung: true

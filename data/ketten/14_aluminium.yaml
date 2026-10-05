@@ -1,0 +1,176 @@
+# Kette 14 – Aluminium (M32, Epoche 1915–1939)
+# Bauxit → Tonerde (Bayer-Verfahren) → Aluminium (Schmelzflusselektrolyse) → Kochtopf;
+# Aluminium geht auch in Flugmotoren und Verkehrsflugzeuge (Kette 18).
+# Eine Aluminiumhütte stand am eigenen Wasserkraftwerk: Es steckt in ihrer Investition,
+# Netzstrom braucht sie nicht (rund 20 MWh je t wären zu Netzpreisen unbezahlbar).
+# Alle Zahlen sind Annäherungen für etwa 1930.
+
+produkte:
+  - id: bauxit
+    art: rohstoff
+    branche: bergbau
+    einheit: t
+    verwendung: industrie
+    warengruppe: erze
+    transportklasse: schuettgut
+    richtpreis_usd: 90            # um 1930 etwa 5 USD je t
+    pacht_anteil: 0.3
+    annaeherung: true
+
+  - id: tonerde
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Aluminiumoxid
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: schuettgut
+    richtpreis_usd: 800           # um 1930 etwa 45 USD je t
+    annaeherung: true
+
+  - id: aluminium
+    art: halbzeug
+    branche: metallurgie
+    einheit: t
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 8000          # um 1930 etwa 23 Cent je lb
+    # Nachfrage über Kochtöpfe und Flugzeuge; um 1900 war der Markt winzig (7 000 t).
+    annaeherung: true
+
+  - id: kochtopf
+    art: endprodukt
+    branche: konsumgueter
+    einheit: stueck               # Aluminiumtopf, gut 1 kg
+    gewicht_kg: 1.2
+    verwendung: konsum
+    warengruppe: moebel_hausrat
+    transportklasse: stueckgut
+    richtpreis_usd: 20
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 15, max_besitzquote: 0.25}
+      kaufschwelle: 40
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.0
+    annaeherung: true
+
+anlagen:
+  - id: bauxitgrube               # Tagebau
+    standorttyp: foerderstaette
+    investition_usd: 8_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 1000
+    lebensdauer_jahre: 40
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: tonerdefabrik             # Bayer-Verfahren; eine Linie, ein Werk hat mehrere
+    standorttyp: werk
+    investition_usd: 12_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 30
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: aluminiumhuette           # Ofenreihe mit eigenem Wasserkraftwerk, gut 8 MW
+    standorttyp: werk
+    investition_usd: 100_000_000
+    bauzeit_tage: 720
+    kapazitaet_je_tag: 10
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: aluminiumwarenfabrik      # Drückerei und Stanzerei
+    standorttyp: werk
+    investition_usd: 2_000_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    technologie: aluminiumgeschirr
+    annaeherung: true
+
+rezepte:
+  - id: bauxit_abbau
+    produkt: bauxit
+    menge: 1
+    dauer_tage: 1
+    anlage: bauxitgrube
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 2.5
+      fachkraft.bergbau: 1.5
+      akademiker.bergbau: 0.02
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: tonerde_bayer
+    produkt: tonerde
+    menge: 1
+    dauer_tage: 2
+    anlage: tonerdefabrik
+    technologie: bayer_verfahren
+    eingang:
+      bauxit: 2.5
+      kohle: 1.0                  # Dampf zum Aufschließen
+    arbeit_stunden:
+      ungelernt: 3
+      angelernt: 2
+      fachkraft.chemie: 0.8
+      akademiker.chemie: 0.03
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: aluminium_elektrolyse
+    produkt: aluminium
+    menge: 1
+    dauer_tage: 2
+    anlage: aluminiumhuette
+    technologie: schmelzflusselektrolyse
+    eingang:
+      tonerde: 1.95
+      kohle: 0.8                  # Anoden
+    arbeit_stunden:
+      ungelernt: 12
+      angelernt: 10
+      fachkraft.metall: 4
+      fachkraft.elektro: 3
+      akademiker.chemie: 0.3
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: kochtopf_druecken
+    produkt: kochtopf
+    menge: 1
+    dauer_tage: 1
+    anlage: aluminiumwarenfabrik
+    eingang:
+      aluminium: 0.0012
+    arbeit_stunden:
+      angelernt: 0.25
+      fachkraft.metall: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: schmelzflusselektrolyse   # Hall und Héroult
+    fachgebiet: chemie
+    erfindungsjahr: 1886
+
+  - id: bayer_verfahren           # Carl Josef Bayer
+    fachgebiet: chemie
+    erfindungsjahr: 1888
+
+  - id: aluminiumgeschirr         # Kochgeschirr aus Aluminium wird erschwinglich
+    fachgebiet: metall
+    erfindungsjahr: 1910
+    voraussetzungen: [schmelzflusselektrolyse]
+    forschungsaufwand: 3000
+    annaeherung: true

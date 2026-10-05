@@ -417,6 +417,8 @@ pub struct AiBehavior {
     pub research_lookahead_years: Span,
     pub research_min_revenue_usd: f64,
     pub research_competence_min: f64,
+    /// Companies researching the same technology for a market gap at once (M32).
+    pub research_gap_companies: u32,
     pub cash_min_months: f64,
     pub cash_max_months: f64,
     pub loan_years: u32,
@@ -500,6 +502,7 @@ impl Default for AiModel {
                 },
                 research_min_revenue_usd: 5_000_000.0,
                 research_competence_min: 0.5,
+                research_gap_companies: 2,
                 cash_min_months: 2.0,
                 cash_max_months: 6.0,
                 loan_years: 10,

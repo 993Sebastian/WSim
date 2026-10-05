@@ -40,11 +40,13 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M29 | Rang in der Übersicht | ✅ |
 | M30 | Kaufangebote I: Standorte, Labore, Lizenzen | ✅ |
 | M31 | Kaufangebote II: ganze Bereiche | ✅ |
-| M32–M36 | Produktepochen bis 2026 | offen |
+| M32 | Produkte 1915–1939 | ✅ |
+| M33–M36 | Produktepochen bis 2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
-(Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M36.
+(Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M36; M30–M32
+sind umgesetzt.
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -952,3 +954,61 @@ Eigenständige Entscheidungen:
     kosten). Die Marke geht als Teil des Preises in den Firmenwert der Standorte ein,
     soweit der Preis die Buchwerte übersteigt; ein eigenes Markenkonto gibt es nicht.
   - Ein Bereich lässt sich bieten, sobald sein ältester Standort das Mindestalter hat.
+
+### M32: Produkte 1915–1939 (05.10.2026)
+
+Lastenheft §18.4, Abschnitt G der offenen Punkte („gleich schrittweise bis 2026“).
+Formeln: `docs/FORMELN.md`, M32 (und M10, Forschung).
+
+  - **Daten** (`data/ketten/14_*.yaml` bis `19_*.yaml`): 20 Produkte, 21 Rezepte und 15
+    Technologien (erfunden 1874–1920) in sechs Ketten – Aluminium (Bauxit → Tonerde nach
+    Bayer → Schmelzflusselektrolyse → Kochtopf), Kunstseide (Zellstoff → Viskose →
+    Strümpfe), Elektrogeräte (Bakelit, Radioröhre, Röhrenradio, Kleinmotor, Staubsauger,
+    Kühlschrank), Nutzfahrzeuge (Lastwagen, Traktor), Luftfahrt (Flugmotor,
+    Ganzmetall-Verkehrsflugzeug) und Stickstoff (Chilesalpeter, Ammoniak nach
+    Haber-Bosch, Dünger auf beiden Wegen). Dazu elf Bauxit-Lagerstätten und die
+    Salpeterfelder der Atacama. Alle Werte sind als Annäherung gekennzeichnet; die
+    Margen zum Richtpreis liegen bei 5–45 %, die Produktbäume bei höchstens fünf Ebenen
+    (Verkehrsflugzeug `sehr_komplex`).
+  - **Nachfrage erst ab Verfügbarkeit:** Endkunden und Staat fragen ein Produkt erst nach,
+    wenn es sich herstellen lässt; der Markt eines Landes listet nur solche Waren.
+  - **KI für neue Produkte** (für alle Firmen gleich): Pioniere bauen, was gefragt ist,
+    aber noch nirgends hergestellt wird; Marktlücken werden erforscht (höchstens zwei
+    Firmen je Technologie, `forschung_luecke_firmen`); Anlagen im Bau zählen gegen die
+    offene Nachfrage; die Engpass-Suche weicht auf das nächste knappe Vorprodukt aus;
+    Werke für Vorprodukte entstehen, wo die Fracht am geringsten ist (Tonerde beim
+    Bauxit in Frankreich); was eigene Standorte verbrauchen, zählt für die Auslastung.
+  - **Weltlauf 1900–1940** (Seed 1, 100 KI-Firmen): Alle neuen Produkte werden
+    hergestellt – Strümpfe und Staubsauger ab 1907/08, Kochtopf (über Bauxit und Tonerde
+    aus Frankreich) ab 1912, Lastwagen 1913, Ammoniak und Traktor 1918, Kühlschrank 1919,
+    Röhrenradio 1921, Verkehrsflugzeug 1925. Nach zwei bis vier Anlaufjahren sind Kochtopf, Radio,
+    Kühlschrank, Staubsauger, Lastwagen, Traktor und Dünger zu 99–100 % versorgt,
+    Verkehrsflugzeuge zu 48–86 %. Gegen den ersten M32-Stand: Versorgung weltweit 192 →
+    65 Verstöße, je Land 4.681 → 1.378, Erzeugung ohne Vorprodukte 171 → 51, keine
+    Pleitewelle (6 Pleiten bis 1939).
+  - **1900–1930 gegen M31:** Die älteren Ketten laufen wie zuvor (Verstöße je Land bei
+    den alten Produkten 322 statt 309, Gummi und Schnittholz wie bisher); dazu kommen
+    die Anlaufjahre der neuen Produkte (weltweit 18 → 55, je Land 309 → 1.175, davon
+    216 Verkehrsflugzeuge). Margen außerhalb −20 bis 50 %: 47 → 107, vor allem
+    Aluminium und Tonerde (Verlust bei zu großen Hütten für den Anlauf) sowie Kleinmotor
+    und Radioröhre (Pioniergewinne der ersten Jahre).
+  - Tests: Nachfrage wartet auf die Technologie, Markt ohne unverfügbare Waren, sechs
+    KI-Tests (Engpass ohne Wissen über das Endprodukt, Forschung für eine Marktlücke,
+    Pionier mit Anlage im Bau, Standort nach Fracht für Vorprodukte und nicht für
+    Staatsgüter, Verbrauch eigener Standorte als Absatz).
+
+Eigenständige Entscheidungen:
+
+  - Lastwagen, Traktoren, Verkehrsflugzeuge und Dünger kaufen in Stufe 1 die Staaten (je
+    BIP); eigene Kunden wie Speditionen und Fluggesellschaften folgen mit späteren
+    Stufen. Der Düngerbedarf entspricht 1913 (0,3 t je Mio. USD BIP), sein späterer
+    Anstieg kommt mit den nächsten Epochen.
+  - Aluminiumhütten stehen am eigenen Wasserkraftwerk (in der Investition). Die neuen
+    Anlagen sind einzelne Linien (Tonerde 30 t, Hütte 10 t, Flugmotoren 0,5 Stück, Zellstoff
+    50 t je Tag), damit sie zu den kleinen Märkten passen.
+  - Die Standortwahl nach Fracht gilt nur für Vorprodukte: Mühlen nahe am Getreide, aber
+    fern der Nachfrage, wurden sonst Quartal für Quartal neu gebaut (Händler bringen
+    Mehl kaum in Länder mit niedrigem Preisniveau).
+  - Bekannte Grenzen (offene Punkte, Abschnitt G): dünner Markt für Verkehrsflugzeuge,
+    stillstehende Aluminiumhütten nach dem Anlauf, Chilesalpeter wird auch ohne Käufer
+    weiter auf Mindestauslastung gefördert (Förderung legt die KI nicht still, M22).

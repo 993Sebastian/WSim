@@ -1,0 +1,12 @@
+# Lagerstätten von Chilesalpeter (M32). Vorrat und Förderung in t Natronsalpeter;
+# Förderung etwa nach dem Höchststand um 1913–1929. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: atacama_salpeter   # Tarapacá und Antofagasta
+    land: CHL
+    rohstoff: chilesalpeter
+    vorrat: 300_000_000
+    entdeckt: 1830
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 3_000_000
+    annaeherung: true

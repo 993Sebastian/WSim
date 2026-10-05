@@ -1,0 +1,105 @@
+# Bauxit-Lagerstätten (M32). Vorrat und Förderung in t Bauxit; Förderung etwa nach dem
+# Stand der 1930er-Jahre. Länder in heutigen Grenzen (Istrien und Dalmatien: Kroatien).
+# Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: provence_bauxit   # Var und Hérault; Namensgeber Les Baux
+    land: FRA
+    rohstoff: bauxit
+    vorrat: 100_000_000
+    entdeckt: 1821
+    erschliessung: {investition_usd: 10_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 700_000
+    annaeherung: true
+
+  - id: arkansas_bauxit   # Saline County, Ort Bauxite
+    land: USA
+    rohstoff: bauxit
+    vorrat: 100_000_000
+    entdeckt: 1887
+    erschliessung: {investition_usd: 10_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 600_000
+    annaeherung: true
+
+  - id: bakony_bauxit   # Gánt und Halimba
+    land: HUN
+    rohstoff: bauxit
+    vorrat: 200_000_000
+    entdeckt: 1920
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 500_000
+    annaeherung: true
+
+  - id: dalmatien_bauxit   # Istrien und Dalmatien
+    land: HRV
+    rohstoff: bauxit
+    vorrat: 60_000_000
+    entdeckt: 1910
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 400_000
+    annaeherung: true
+
+  - id: herzegowina_bauxit   # bei Mostar
+    land: BIH
+    rohstoff: bauxit
+    vorrat: 60_000_000
+    entdeckt: 1912
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 250_000
+    annaeherung: true
+
+  - id: gargano_bauxit   # Apulien und Abruzzen
+    land: ITA
+    rohstoff: bauxit
+    vorrat: 20_000_000
+    entdeckt: 1910
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 150_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: parnass_bauxit   # Parnass und Giona
+    land: GRC
+    rohstoff: bauxit
+    vorrat: 100_000_000
+    entdeckt: 1920
+    erschliessung: {investition_usd: 8_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 200_000
+    annaeherung: true
+
+  - id: demerara_bauxit   # Mackenzie (Linden)
+    land: GUY
+    rohstoff: bauxit
+    vorrat: 150_000_000
+    entdeckt: 1914
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 450}
+    foerderung_max_je_jahr: 500_000
+    annaeherung: true
+
+  - id: moengo_bauxit
+    land: SUR
+    rohstoff: bauxit
+    vorrat: 150_000_000
+    entdeckt: 1915
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 450}
+    foerderung_max_je_jahr: 400_000
+    annaeherung: true
+
+  - id: bintan_bauxit
+    land: IDN
+    rohstoff: bauxit
+    vorrat: 50_000_000
+    entdeckt: 1924
+    erschliessung: {investition_usd: 12_000_000, dauer_tage: 450}
+    foerderung_max_je_jahr: 250_000
+    annaeherung: true
+
+  - id: tichwin_bauxit   # Tichwin und Ural
+    land: RUS
+    rohstoff: bauxit
+    vorrat: 100_000_000
+    entdeckt: 1916
+    erschliessung: {investition_usd: 12_000_000, dauer_tage: 450}
+    foerderung_max_je_jahr: 300_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true

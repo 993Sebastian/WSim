@@ -310,7 +310,8 @@ mit dem Meilenstein freigegeben.
 | M29 | Rang | Platz nach Eigenkapital und Umsatz mit Vorjahresvergleich | Kern-Tests, Playwright |
 | M30 | Kaufangebote I (05.10.2026, §18.4) | Angebote für Standorte, Labore und Lizenzen zwischen allen Firmen; Bewertung, Gegenangebot, Firmenwert, KI-Motive; Ansicht Wettbewerb | Szenariotests, Weltlauf-Protokoll, Playwright |
 | M31 | Kaufangebote II (05.10.2026, §18.4) | Ganze Bereiche: alle Standorte einer Warengruppe mit der Marke; Markenwert, Aufteilung des Preises, Übergabe der Bekanntheit; KI-Motive wie M30 | Szenariotests, Weltlauf-Protokoll, Playwright |
-| M32–M36 | Produktepochen bis 2026 | 1915–1939, 1940–1964, 1965–1989, 1990–2009, 2010–2026: Rohstoffe, Technologien, Ketten, Verdrängung | Prüfregeln, Weltlauf je Epoche |
+| M32 | Produkte 1915–1939 (05.10.2026, §18.4) | Aluminium, Kunstseide, Elektrogeräte, Nutzfahrzeuge, Luftfahrt, Stickstoff; Nachfrage erst ab Verfügbarkeit; KI: Pioniere, Marktlücken-Forschung, Anlagen im Bau, Engpass mit Ausweichen, Standort nach Fracht | Prüfregeln, Kern-Tests, Weltlauf 1900–1940 |
+| M33–M36 | Produktepochen bis 2026 | 1940–1964, 1965–1989, 1990–2009, 2010–2026: Rohstoffe, Technologien, Ketten, Verdrängung | Prüfregeln, Weltlauf je Epoche |
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.

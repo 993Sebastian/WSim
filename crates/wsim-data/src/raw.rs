@@ -1027,6 +1027,8 @@ pub struct RawAiBehavior {
     pub research_min_revenue_usd: f64,
     #[serde(rename = "forschung_mindestkompetenz")]
     pub research_competence_min: f64,
+    #[serde(rename = "forschung_luecke_firmen")]
+    pub research_gap_companies: u32,
     #[serde(rename = "kasse_min_monate")]
     pub cash_min_months: f64,
     #[serde(rename = "kasse_max_monate")]

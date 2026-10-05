@@ -219,6 +219,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             b.research_competence_min,
             &bl.field("forschung_mindestkompetenz"),
         ),
+        research_gap_companies: b.research_gap_companies,
         cash_min_months: non_negative(ctx, b.cash_min_months, &bl.field("kasse_min_monate")),
         cash_max_months: positive(ctx, b.cash_max_months, &bl.field("kasse_max_monate")),
         loan_years: b.loan_years.max(1),

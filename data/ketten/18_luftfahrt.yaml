@@ -1,0 +1,107 @@
+# Kette 18 – Luftfahrt (M32, Epoche 1915–1939)
+# Aluminium, Stahl, Kupferdraht → Flugmotor; Flugmotor, Aluminium, Stahl, Gummi →
+# Verkehrsflugzeug (Ganzmetall, z. B. Junkers F 13, Ju 52, Douglas DC-3).
+# Bauxit → Tonerde → Aluminium → Flugmotor → Flugzeug: fünf Ebenen.
+# Fluggesellschaften und Post kaufen als Staatsbedarf je BIP.
+# Alle Zahlen sind Annäherungen für etwa 1935.
+
+produkte:
+  - id: flugmotor
+    art: komponente
+    branche: luftfahrt
+    einheit: stueck               # Sternmotor um 700 PS
+    gewicht_kg: 500
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 38_000
+    annaeherung: true
+
+  - id: verkehrsflugzeug
+    art: endprodukt
+    branche: luftfahrt
+    einheit: stueck
+    gewicht_kg: 8000
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 850_000       # Douglas DC-3 1936: rund 110 000 USD
+    staatsnachfrage:
+      je_mio_usd_bip: 0.0001
+      kriegsfaktor: 20
+    sehr_komplex: true
+    annaeherung: true
+
+anlagen:
+  - id: flugmotorenwerk           # eine Montagelinie
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 0.5
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    technologie: flugmotor
+    annaeherung: true
+
+  - id: flugzeugwerk
+    standorttyp: werk
+    investition_usd: 50_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 0.3
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    technologie: ganzmetallflugzeug
+    annaeherung: true
+
+rezepte:
+  - id: flugmotor_bauen
+    produkt: flugmotor
+    menge: 1
+    dauer_tage: 10
+    anlage: flugmotorenwerk
+    technologie: flugmotor
+    eingang:
+      aluminium: 0.15
+      stahl: 0.2
+      kupferdraht: 0.002
+    arbeit_stunden:
+      angelernt: 750
+      fachkraft.maschinenbau: 1200
+      akademiker.maschinenbau: 40
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: verkehrsflugzeug_bauen
+    produkt: verkehrsflugzeug
+    menge: 1
+    dauer_tage: 60
+    anlage: flugzeugwerk
+    technologie: ganzmetallflugzeug
+    eingang:
+      flugmotor: 2
+      aluminium: 3
+      stahl: 0.5
+      gummi: 0.05
+    arbeit_stunden:
+      angelernt: 10_000
+      fachkraft.maschinenbau: 15_000
+      akademiker.maschinenbau: 500
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: flugmotor                 # Umlaufmotor Gnome, später Sternmotoren
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1909
+    voraussetzungen: [ottomotor]
+    forschungsaufwand: 10000
+    annaeherung: true
+
+  - id: ganzmetallflugzeug        # Junkers F 13
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1919
+    voraussetzungen: [flugmotor, schmelzflusselektrolyse]
+    forschungsaufwand: 30000
+    annaeherung: true

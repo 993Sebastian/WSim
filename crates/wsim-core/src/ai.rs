@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, ProductKind, SiteType};
+use crate::catalog::{Catalog, ProductKind, Recipe, SiteType};
 use crate::command::{self, Command};
 use crate::finance;
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
@@ -57,6 +57,11 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
         sites.entry(s.owner).or_default().push(site_id(i));
     }
     let none = Vec::new();
+    let gaps = if first_of_year {
+        gap_technologies(state, catalog)
+    } else {
+        Vec::new()
+    };
     for id in due {
         let own = sites.get(&id).unwrap_or(&none);
         let ai = state.companies[id.index()].ai.clone().expect("AI company");
@@ -85,7 +90,7 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
             expand(state, catalog, id, own, date, &mut news);
         }
         if first_of_year {
-            research_plan(state, catalog, id, own, date);
+            research_plan(state, catalog, id, own, date, &gaps);
         }
     }
     if first_of_month {
@@ -250,9 +255,9 @@ fn retire(
 
         // Per product: the running units with their planned utilization and their cost
         // per unit at full load; what is taken per day against what they could make.
-        let (full_output, taken) = output_and_offtake(state, catalog, site, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
         restart_where_short(state, catalog, id, site, (&full_output, &taken));
-        let (full_output, taken) = output_and_offtake(state, catalog, site, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
         let s = &state.sites[site.index()];
         let wage = 1.0 + s.wage_premium;
         let mut by_product: BTreeMap<ProductId, Vec<(usize, u32, f64, f64)>> = BTreeMap::new();
@@ -482,7 +487,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut willing: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut cost: BTreeMap<ProductId, (Money, f64, f64, f64)> = BTreeMap::new();
-        let (full_output, taken) = output_and_offtake(state, catalog, site, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
         for (index, sl) in s.slots.iter().enumerate() {
             // Shut down facilities wait for a restart (M22).
             if sl.mothballed() {
@@ -846,6 +851,7 @@ fn output_and_offtake(
     state: &GameState,
     catalog: &Catalog,
     site: SiteId,
+    own: &[SiteId],
     date: Date,
 ) -> (BTreeMap<ProductId, f64>, BTreeMap<ProductId, f64>) {
     let s = &state.sites[site.index()];
@@ -874,6 +880,45 @@ fn output_and_offtake(
             0.0
         };
         *taken.entry(product).or_default() += rate;
+    }
+    // What the company's other sites use of the goods offered here (M32): they get them
+    // by transfer, not over the market, and a works that fed only its own company's plants
+    // saw no buyers and ran down (aero engines for the company's aircraft works). Shared
+    // equally by the company's sites that make the goods.
+    for &product in s.offers.keys() {
+        let makers = own
+            .iter()
+            .filter(|&&o| {
+                state.sites[o.index()].slots.iter().any(|sl| {
+                    sl.operating(date)
+                        && sl
+                            .recipe
+                            .is_some_and(|r| catalog.recipes.get(r).product == product)
+                })
+            })
+            .count();
+        if makers == 0 {
+            continue;
+        }
+        let used: f64 = own
+            .iter()
+            .filter(|&&o| o != site)
+            .flat_map(|&o| &state.sites[o.index()].slots)
+            .filter(|sl| sl.operating(date))
+            .filter_map(|sl| sl.recipe.map(|r| (sl, catalog.recipes.get(r))))
+            .map(|(sl, r)| {
+                let runs = catalog.facilities.get(sl.facility).runs_per_day
+                    * f64::from(sl.count)
+                    * sl.utilization;
+                r.inputs
+                    .iter()
+                    .filter(|&&(i, _)| i == product)
+                    .map(|&(_, q)| runs * q)
+                    .sum::<f64>()
+            })
+            .sum();
+        // Few sites; the cast is exact.
+        *taken.entry(product).or_default() += used / makers as f64;
     }
     (full_output, taken)
 }
@@ -1392,49 +1437,24 @@ fn advertise(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[S
 /// the richest first, each in another chain.
 fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) {
     let b = &catalog.ai_model.behavior;
-    let mut rich: Vec<(Money, CompanyId)> = state
-        .companies
-        .iter()
-        .enumerate()
-        .filter(|(_, c)| c.ai.is_some() && !c.bankrupt)
-        .map(|(i, c)| {
-            let budget = (c.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, c))
-                .scale(b.invest_share_max);
-            (budget, CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
-        })
-        .collect();
-    rich.sort_by(|a, c| c.0.cmp(&a.0).then(a.1.cmp(&c.1)));
+    pioneer(state, catalog, &by_budget(state, catalog), news);
     let mut taken: Vec<ProductId> = Vec::new();
     let mut done = 0;
-    for (budget, id) in rich {
+    for (budget, id) in by_budget(state, catalog) {
         if done >= b.diversifications_per_quarter {
             break;
         }
         // With the processes this company knows: it may have researched one that is not
         // public yet (M22; cracking 1913 was public only in 1938).
         let Some((product, country, deposit, recipe, count)) =
-            opportunity(state, catalog, &taken, id)
+            opportunity(state, catalog, &taken, id, None)
         else {
             continue;
         };
-        let r = catalog.recipes.get(recipe);
-        let f = catalog.facilities.get(r.facility);
-        let fixed = catalog.production_model.site_cost(f.site_type)
-            + deposit.map_or(Money::ZERO, |d| {
-                catalog
-                    .deposits
-                    .get(d)
-                    .development_cost
-                    .scale(state.settings.market_scale)
-            });
-        let mut count = count;
-        while count > 0 && fixed + f.investment.scale(f64::from(count)) > budget {
-            count -= 1;
-        }
-        if count == 0 {
+        let Some(count) = affordable(state, catalog, (deposit, recipe, count), budget) else {
             // The richest cannot afford it; the others cannot either.
             break;
-        }
+        };
         taken.push(product);
         if build_in_bottleneck(
             state,
@@ -1453,6 +1473,105 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
             ));
         }
     }
+}
+
+/// AI companies by investment budget, the richest first.
+fn by_budget(state: &GameState, catalog: &Catalog) -> Vec<(Money, CompanyId)> {
+    let b = &catalog.ai_model.behavior;
+    let mut rich: Vec<(Money, CompanyId)> = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.ai.is_some() && !c.bankrupt)
+        .map(|(i, c)| {
+            let budget = (c.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, c))
+                .scale(b.invest_share_max);
+            (budget, company_id(i))
+        })
+        .collect();
+    rich.sort_by(|a, c| c.0.cmp(&a.0).then(a.1.cmp(&c.1)));
+    rich
+}
+
+/// Products in demand that no site makes yet (M32): the richest company that can make
+/// one – or the bottleneck below it – builds, one product per company and quarter. New
+/// processes would otherwise wait until one of the richest companies learned them.
+fn pioneer(
+    state: &mut GameState,
+    catalog: &Catalog,
+    rich: &[(Money, CompanyId)],
+    news: &mut Vec<Message>,
+) {
+    let mut made: Vec<ProductId> = Vec::new();
+    for s in &state.sites {
+        if state.companies[s.owner.index()].bankrupt {
+            continue;
+        }
+        for r in s.slots.iter().filter_map(|sl| sl.recipe) {
+            let r = catalog.recipes.get(r);
+            for p in std::iter::once(r.product).chain(r.by_products.iter().map(|&(b, _)| b)) {
+                if !made.contains(&p) {
+                    made.push(p);
+                }
+            }
+        }
+    }
+    let new: Vec<ProductId> = catalog
+        .products
+        .ids()
+        .filter(|p| !made.contains(p))
+        .collect();
+    let mut taken: Vec<ProductId> = Vec::new();
+    for &(budget, id) in rich {
+        let Some((product, country, deposit, recipe, count)) =
+            opportunity(state, catalog, &taken, id, Some(&new))
+        else {
+            continue;
+        };
+        let Some(count) = affordable(state, catalog, (deposit, recipe, count), budget) else {
+            continue;
+        };
+        taken.push(product);
+        if build_in_bottleneck(
+            state,
+            catalog,
+            id,
+            (product, country, deposit, recipe, count),
+        ) {
+            news.extend(news_expansion(
+                state,
+                catalog,
+                id,
+                site_id(state.sites.len() - 1),
+                recipe,
+                count,
+            ));
+        }
+    }
+}
+
+/// The number of facilities a budget pays for, with the site and the development of the
+/// deposit; `None` if not even one.
+fn affordable(
+    state: &GameState,
+    catalog: &Catalog,
+    (deposit, recipe, count): (Option<DepositId>, RecipeId, u32),
+    budget: Money,
+) -> Option<u32> {
+    let f = catalog.facilities.get(catalog.recipes.get(recipe).facility);
+    let fixed = catalog.production_model.site_cost(f.site_type)
+        + deposit.map_or(Money::ZERO, |d| {
+            catalog
+                .deposits
+                .get(d)
+                .development_cost
+                .scale(state.settings.market_scale)
+        });
+    let mut count = count;
+    while count > 0 && fixed + f.investment.scale(f64::from(count)) > budget {
+        count -= 1;
+    }
+    (count > 0).then_some(count)
 }
 
 /// Builds a new site for an opportunity in an existing company (loan if needed).
@@ -1699,13 +1818,14 @@ pub(crate) fn wants_research(state: &GameState, catalog: &Catalog, id: CompanyId
 }
 
 /// Competent companies with enough revenue research the technology their branch needs
-/// next (cheapest first), in their own laboratory.
+/// next or one for a market gap (cheapest first), in their own laboratory.
 fn research_plan(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
+    gaps: &[TechnologyId],
 ) {
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(state, id);
@@ -1725,21 +1845,41 @@ fn research_plan(
         }
     }
     let horizon = f64::from(date.year()) + b.research_lookahead_years.at(competence);
-    let target: Option<TechnologyId> = catalog
-        .technologies
-        .iter()
-        .filter(|&(t, tech)| {
-            f64::from(tech.invention_year) <= horizon
-                && research::can_research(catalog, state, id, t)
-                && catalog.recipes.values().any(|r| {
-                    (r.technology == Some(t)
-                        || catalog.facilities.get(r.facility).technology == Some(t))
-                        && branches.contains(&catalog.products.get(r.product).branch)
-                })
+    let view: &GameState = state;
+    let cheapest = |qualifies: &dyn Fn(TechnologyId) -> bool| -> Option<TechnologyId> {
+        catalog
+            .technologies
+            .iter()
+            .filter(|&(t, tech)| {
+                f64::from(tech.invention_year) <= horizon
+                    && research::can_research(catalog, view, id, t)
+                    && qualifies(t)
+            })
+            .filter_map(|(t, _)| research::effort(catalog, view, t, date).map(|e| (t, e.points)))
+            .min_by(|a, b| a.1.total_cmp(&b.1))
+            .map(|(t, _)| t)
+    };
+    let own_branch = |t: TechnologyId| {
+        catalog.recipes.values().any(|r| {
+            (r.technology == Some(t) || catalog.facilities.get(r.facility).technology == Some(t))
+                && branches.contains(&catalog.products.get(r.product).branch)
         })
-        .filter_map(|(t, _)| research::effort(catalog, state, t, date).map(|e| (t, e.points)))
-        .min_by(|a, b| a.1.total_cmp(&b.1))
-        .map(|(t, _)| t);
+    };
+    // Market gaps (M32) only without work in the own branches, and by a few companies
+    // at a time; a company keeps the gap it works on.
+    let gap = |t: TechnologyId| {
+        let mine = sites
+            .iter()
+            .any(|&s| view.sites[s.index()].research == Some(t));
+        let others = view
+            .sites
+            .iter()
+            .filter(|s| s.research == Some(t) && !view.companies[s.owner.index()].bankrupt)
+            .count();
+        gaps.contains(&t)
+            && (mine || others < usize::try_from(b.research_gap_companies).unwrap_or(0))
+    };
+    let target = cheapest(&own_branch).or_else(|| cheapest(&gap));
     let center = sites
         .iter()
         .copied()
@@ -1827,7 +1967,7 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
         .min(catalog.ai_model.behavior.foundings_per_month as usize);
     for _ in 0..n {
         let Some((product, country, deposit, recipe, count)) =
-            opportunity(state, catalog, &[], CompanyId(u32::MAX))
+            opportunity(state, catalog, &[], CompanyId(u32::MAX), None)
         else {
             return;
         };
@@ -1856,18 +1996,124 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
 
 type Opportunity = (ProductId, CountryId, Option<DepositId>, RecipeId, u32);
 
+/// Whether some active company could use a recipe: it knows the technologies of the
+/// recipe and of its facility.
+fn usable_somewhere(state: &GameState, catalog: &Catalog, recipe: &Recipe) -> bool {
+    let known = |t: Option<TechnologyId>| {
+        t.is_none_or(|t| {
+            (0..state.companies.len())
+                .any(|i| !state.companies[i].bankrupt && state.knows(catalog, company_id(i), t))
+        })
+    };
+    known(recipe.technology) && known(catalog.facilities.get(recipe.facility).technology)
+}
+
+/// A recipe for a product that some site uses, or else that some active company knows
+/// (M32): the chain to a bottleneck goes through it.
+fn recipe_known_somewhere(
+    state: &GameState,
+    catalog: &Catalog,
+    product: ProductId,
+) -> Option<RecipeId> {
+    state
+        .sites
+        .iter()
+        .flat_map(|s| &s.slots)
+        .filter_map(|sl| sl.recipe)
+        .find(|&r| catalog.recipes.get(r).product == product)
+        .or_else(|| {
+            catalog
+                .recipes
+                .iter()
+                .find(|(_, r)| r.product == product && usable_somewhere(state, catalog, r))
+                .map(|(id, _)| id)
+        })
+}
+
+/// Technologies for market gaps (M32): products that consumers or the state ask for, and
+/// the inputs of their usable recipes, that no active company can make – the
+/// technologies of their recipes and facilities with all prerequisites.
+fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
+    let mut todo: Vec<ProductId> = catalog
+        .products
+        .ids()
+        .filter(|&p| {
+            state
+                .markets
+                .get(p)
+                .iter()
+                .any(|(_, m)| m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0))
+        })
+        .collect();
+    let mut seen = todo.clone();
+    let mut techs: Vec<TechnologyId> = Vec::new();
+    while let Some(product) = todo.pop() {
+        let recipes: Vec<&Recipe> = catalog
+            .recipes
+            .values()
+            .filter(|r| r.product == product)
+            .collect();
+        let usable: Vec<&Recipe> = recipes
+            .iter()
+            .copied()
+            .filter(|r| usable_somewhere(state, catalog, r))
+            .collect();
+        if usable.is_empty() {
+            let mut needed: Vec<TechnologyId> = recipes
+                .iter()
+                .flat_map(|r| [r.technology, catalog.facilities.get(r.facility).technology])
+                .flatten()
+                .collect();
+            while let Some(t) = needed.pop() {
+                if !techs.contains(&t) {
+                    techs.push(t);
+                    needed.extend(catalog.technologies.get(t).prerequisites.iter().copied());
+                }
+            }
+        }
+        for r in usable {
+            for &(input, _) in &r.inputs {
+                if !seen.contains(&input) {
+                    seen.push(input);
+                    todo.push(input);
+                }
+            }
+        }
+    }
+    techs
+}
+
 /// Where a new company is most needed: the product with the largest unserved demand
 /// by value, or, if its inputs are short, the input that is the bottleneck. Raw
 /// materials need a free concession; chains without one are left out. `builder` is the
-/// company that would build (an unknown ID for a newcomer: public processes only).
+/// company that would build (an unknown ID for a newcomer: public processes only);
+/// `only` limits the products at the top of the chains.
 fn opportunity(
     state: &GameState,
     catalog: &Catalog,
     taken: &[ProductId],
     builder: CompanyId,
+    only: Option<&[ProductId]>,
 ) -> Option<Opportunity> {
     let model = &catalog.market_model;
+    // Facilities under construction will serve part of the demand (M32): without this,
+    // the same bottleneck was built again every quarter until the first plant ran.
     let u = catalog.ai_model.start.utilization;
+    let mut coming: BTreeMap<ProductId, f64> = BTreeMap::new();
+    for s in &state.sites {
+        if state.companies[s.owner.index()].bankrupt {
+            continue;
+        }
+        for sl in s.slots.iter().filter(|sl| sl.ready > state.date) {
+            if let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) {
+                *coming.entry(r.product).or_default() +=
+                    catalog.facilities.get(sl.facility).runs_per_day
+                        * f64::from(sl.count)
+                        * r.output
+                        * u;
+            }
+        }
+    }
     let open = |product: ProductId| -> (f64, CountryId, f64) {
         let mut total = 0.0;
         let mut value = 0.0;
@@ -1880,77 +2126,201 @@ fn opportunity(
                 best = (o, Some(country));
             }
         }
-        (value, best.1.unwrap_or(CountryId::from_index(0)), total)
+        let left = (total - coming.get(&product).copied().unwrap_or(0.0)).max(0.0);
+        let value = if total > 0.0 {
+            value * left / total
+        } else {
+            0.0
+        };
+        (value, best.1.unwrap_or(CountryId::from_index(0)), left)
     };
     let mut candidates: Vec<(f64, ProductId)> = catalog
         .products
         .iter()
-        .filter(|(_, p)| p.kind != ProductKind::Energy)
+        .filter(|(id, p)| p.kind != ProductKind::Energy && only.is_none_or(|o| o.contains(id)))
         .map(|(id, _)| (open(id).0, id))
         .filter(|(v, _)| *v > 0.0)
         .collect();
     candidates.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
-    'chains: for (_, top) in candidates {
-        let mut product = top;
-        for _ in 0..6 {
-            let Some(recipe) = best_recipe(catalog, state, builder, product, None, None) else {
-                continue 'chains;
-            };
-            let r = catalog.recipes.get(recipe);
-            let runs = catalog.facilities.get(r.facility).runs_per_day * u;
-            // The input whose unserved demand is largest relative to one new plant's need.
-            // An input piling up somewhere is not short: it waits for traders (M22; crude
-            // oil kept the petrol shortage of the 1920s from ever reaching a cracker).
-            let short = r
-                .inputs
-                .iter()
-                .filter(|(i, _)| catalog.products.get(*i).state_market.is_none())
-                .filter(|(i, _)| !piling(state, catalog, *i))
-                .map(|&(i, q)| (open(i).2 / (q * runs).max(1e-9), i))
-                .filter(|(ratio, _)| *ratio > 0.5)
-                .max_by(|a, b| a.0.total_cmp(&b.0));
-            if let Some((_, input)) = short {
-                product = input;
+    let chain = Chain {
+        state,
+        catalog,
+        taken,
+        builder,
+        open: &open,
+    };
+    candidates
+        .into_iter()
+        .find_map(|(_, top)| chain.bottleneck(top, 0))
+}
+
+/// The search for a bottleneck below a product with unserved demand.
+struct Chain<'a> {
+    state: &'a GameState,
+    catalog: &'a Catalog,
+    taken: &'a [ProductId],
+    builder: CompanyId,
+    /// Unserved demand of a product: value per day, country with the most, quantity.
+    open: &'a dyn Fn(ProductId) -> (f64, CountryId, f64),
+}
+
+impl Chain<'_> {
+    /// Freight per unit of a product (USD); unreachable countries cost infinitely much.
+    fn freight(&self, product: ProductId, from: CountryId, to: CountryId) -> f64 {
+        self.state
+            .routes
+            .for_product(self.catalog, product, from, to)
+            .map_or(f64::INFINITY, |(cost, _)| cost.to_usd())
+    }
+
+    /// Where a works for an input of other works goes (M32): the country with the most
+    /// unserved demand, unless the inputs would travel far – then the country among those
+    /// where an input is made or mined that minimises the freight of inputs (each from
+    /// its nearest source) and output (to the demand). Weight-losing processes such as
+    /// alumina from bauxite thus move to the raw material.
+    fn site_for(&self, r: &Recipe, demand: CountryId) -> CountryId {
+        let (state, catalog) = (self.state, self.catalog);
+        let year = state.date.year();
+        let mut inputs: Vec<(ProductId, f64, Vec<CountryId>)> = Vec::new();
+        for &(input, q) in &r.inputs {
+            if catalog.products.get(input).state_market.is_some() {
                 continue;
             }
-            // Products piling up somewhere need trade, not new companies.
-            if piling(state, catalog, product) || taken.contains(&product) {
-                continue 'chains;
+            let mut from: Vec<CountryId> = state
+                .sites
+                .iter()
+                .filter(|s| {
+                    !state.companies[s.owner.index()].bankrupt
+                        && s.slots.iter().any(|sl| {
+                            sl.recipe
+                                .is_some_and(|x| catalog.recipes.get(x).product == input)
+                        })
+                })
+                .map(|s| s.country)
+                .chain(
+                    catalog
+                        .deposits
+                        .values()
+                        .filter(|d| d.resource == input && d.discovered.is_none_or(|y| y <= year))
+                        .map(|d| d.country),
+                )
+                .collect();
+            from.sort();
+            from.dedup();
+            if !from.is_empty() {
+                inputs.push((input, q, from));
             }
-            let (_, country, total) = open(product);
-            let mut place = country;
-            let mut deposit = None;
-            if r.extraction {
-                let usable = |d: DepositId| {
-                    let dep = catalog.deposits.get(d);
-                    dep.resource == product
-                        && dep.discovered.is_none_or(|y| y <= state.date.year())
-                        && state
-                            .deposits
-                            .get(d)
-                            .concessions
-                            .iter()
-                            .any(|c| c.site.is_none())
-                };
-                // A deposit in the country itself, otherwise anywhere.
-                let Some((d, dep)) = catalog
-                    .deposits
-                    .iter()
-                    .find(|&(d, dep)| usable(d) && dep.country == country)
-                    .or_else(|| catalog.deposits.iter().find(|&(d, _)| usable(d)))
-                else {
-                    continue 'chains;
-                };
-                place = dep.country;
-                deposit = Some(d);
-            }
-            let per_day = population::output_per_day(catalog, recipe) * u;
-            // Small counts; the cast cannot overflow.
-            let count = (total / per_day.max(1e-9)).round().clamp(1.0, 20.0) as u32;
-            return Some((product, place, deposit, recipe, count));
         }
+        let cost = |c: CountryId| -> f64 {
+            inputs
+                .iter()
+                .map(|(input, q, from)| {
+                    q * from
+                        .iter()
+                        .map(|&s| self.freight(*input, s, c))
+                        .fold(f64::INFINITY, f64::min)
+                })
+                .sum::<f64>()
+                + r.output * self.freight(r.product, c, demand)
+        };
+        let mut candidates: Vec<CountryId> = inputs
+            .iter()
+            .flat_map(|(_, _, from)| from.iter().copied())
+            .collect();
+        candidates.sort();
+        candidates.dedup();
+        let mut best = (cost(demand), demand);
+        for c in candidates {
+            let k = cost(c);
+            if k < best.0 {
+                best = (k, c);
+            }
+        }
+        best.1
     }
-    None
+
+    /// The product itself, or – if an input is short – the bottleneck below the shortest
+    /// input whose chain leads somewhere, then the next (M32: coal short at every alumina
+    /// works hid the missing bauxite mine). At most six stages.
+    fn bottleneck(&self, product: ProductId, depth: u32) -> Option<Opportunity> {
+        let (state, catalog) = (self.state, self.catalog);
+        if depth >= 6 {
+            return None;
+        }
+        // The chain is followed with a recipe some company uses or knows where the builder
+        // cannot make the product itself; it builds only what it can make.
+        let own = best_recipe(catalog, state, self.builder, product, None, None);
+        let recipe = own.or_else(|| recipe_known_somewhere(state, catalog, product))?;
+        let r = catalog.recipes.get(recipe);
+        let u = catalog.ai_model.start.utilization;
+        let runs = catalog.facilities.get(r.facility).runs_per_day * u;
+        // Inputs whose unserved demand exceeds half of one new plant's need, shortest
+        // first. An input piling up somewhere is not short: it waits for traders (M22;
+        // crude oil kept the petrol shortage of the 1920s from ever reaching a cracker).
+        let mut short: Vec<(f64, ProductId)> = r
+            .inputs
+            .iter()
+            .filter(|(i, _)| catalog.products.get(*i).state_market.is_none())
+            .filter(|(i, _)| !piling(state, catalog, *i))
+            .map(|&(i, q)| ((self.open)(i).2 / (q * runs).max(1e-9), i))
+            .filter(|(ratio, _)| *ratio > 0.5)
+            .collect();
+        if !short.is_empty() {
+            short.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+            return short
+                .into_iter()
+                .find_map(|(_, input)| self.bottleneck(input, depth + 1));
+        }
+        // Products piling up somewhere need trade, not new companies.
+        if piling(state, catalog, product) || self.taken.contains(&product) {
+            return None;
+        }
+        let recipe = own?;
+        let r = catalog.recipes.get(recipe);
+        let (_, country, total) = (self.open)(product);
+        let place;
+        let mut deposit = None;
+        if r.extraction {
+            let usable = |d: DepositId| {
+                let dep = catalog.deposits.get(d);
+                dep.resource == product
+                    && dep.discovered.is_none_or(|y| y <= state.date.year())
+                    && state
+                        .deposits
+                        .get(d)
+                        .concessions
+                        .iter()
+                        .any(|c| c.site.is_none())
+            };
+            // The deposit with the cheapest way to the demand (M32; before: the first).
+            let (d, dep) = catalog
+                .deposits
+                .iter()
+                .filter(|&(d, _)| usable(d))
+                .min_by(|a, b| {
+                    let to_demand = |c: CountryId| self.freight(product, c, country);
+                    to_demand(a.1.country)
+                        .total_cmp(&to_demand(b.1.country))
+                        .then(a.0.cmp(&b.0))
+                })?;
+            place = dep.country;
+            deposit = Some(d);
+        } else {
+            // Goods for consumers and the state are made where they are wanted: traders
+            // hardly bring them into poorer countries with their low price levels (mills
+            // far from Indian demand were built again and again).
+            let p = catalog.products.get(product);
+            place = if p.consumer_demand.is_none() && p.state_demand.is_none() {
+                self.site_for(r, country)
+            } else {
+                country
+            };
+        }
+        let per_day = population::output_per_day(catalog, recipe) * u;
+        // Small counts; the cast cannot overflow.
+        let count = (total / per_day.max(1e-9)).round().clamp(1.0, 20.0) as u32;
+        Some((product, place, deposit, recipe, count))
+    }
 }
 
 /// Founds a company for an opportunity; true when it could start production.
@@ -2299,5 +2669,261 @@ mod tests {
             premium = next_wage_premium(&catalog, premium, false);
         }
         assert_eq!(premium, 0.0);
+    }
+
+    /// M32: a bottleneck is built by a company that knows how to make it, even if it
+    /// cannot make the product at the top of the chain (a bauxite mine needs no knowledge
+    /// of cooking pots).
+    #[test]
+    fn a_bottleneck_is_built_without_knowing_the_top_product() {
+        let mut catalog = test_support::research();
+        let turbine = catalog.technologies.id("turbine").expect("exists");
+        let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+        catalog.recipes.get_mut(smelting).technology = Some(turbine);
+        // Bread is baked without inputs in a furnace.
+        let bread = catalog.products.id("brot").expect("exists");
+        let mut baking = catalog.recipes.get(smelting).clone();
+        baking.product = bread;
+        baking.technology = None;
+        baking.inputs = Vec::new();
+        catalog.recipes.insert("brot_backen", baking).expect("new");
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        state.sites[works.index()].slots.clear();
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        let iron = catalog.products.id("eisen").expect("exists");
+        let ore = catalog.products.id("erz").expect("exists");
+        // Unserved by value: iron 50 000 USD a day, bread 20 000, ore 10 000. Iron is
+        // short of ore; nobody knows how to smelt it yet.
+        for (product, open) in [(iron, 1000.0), (bread, 10_000.0), (ore, 1000.0)] {
+            let m = state.markets.get_mut(product).get_mut(aaa);
+            m.open_demand = open;
+            m.idle_since = None;
+        }
+        let first = |state: &GameState| opportunity(state, &catalog, &[], id, None).map(|o| o.0);
+        assert_eq!(first(state), Some(bread));
+        // Another company knows how: the chain of iron leads the builder to the mine.
+        let player = state.player;
+        state.companies[player.index()].technologies.insert(turbine);
+        let (product, country, deposit, recipe, _) =
+            opportunity(state, &catalog, &[], id, None).expect("a bottleneck");
+        assert_eq!((product, country), (ore, aaa));
+        assert_eq!(deposit, catalog.deposits.id("grube"));
+        assert_eq!(Some(recipe), catalog.recipes.id("erz_abbau"));
+    }
+
+    /// M32: a competent company researches a technology outside its branches when
+    /// consumers ask for a product that nobody can make.
+    #[test]
+    fn research_follows_a_market_gap() {
+        let mut catalog = test_support::research();
+        let turbine = catalog.technologies.id("turbine").expect("exists");
+        let furnace = catalog.facilities.id("ofen").expect("exists");
+        let iron = catalog.products.id("eisen").expect("exists");
+        let bicycle = catalog.products.id("rad").expect("exists");
+        let vehicles = catalog
+            .branches
+            .insert("fahrzeuge", crate::catalog::Branch)
+            .expect("new");
+        catalog.products.get_mut(bicycle).branch = vehicles;
+        let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+        let mut building = catalog.recipes.get(smelting).clone();
+        building.product = bicycle;
+        building.facility = furnace;
+        building.technology = Some(turbine);
+        building.inputs = vec![(iron, 0.1)];
+        catalog.recipes.insert("rad_bauen", building).expect("new");
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        state.date = Date::new(1903, 1, 1).expect("valid");
+        let date = state.date;
+        let mut last_year = crate::ledger::PeriodResult::default();
+        last_year.by_type.insert(
+            CostType::Revenue,
+            Money::from_usd(10_000_000.0).expect("valid"),
+        );
+        state.companies[id.index()].ledger.years.push(last_year);
+        let researching = |state: &GameState| {
+            state
+                .sites
+                .iter()
+                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .and_then(|s| s.research)
+        };
+        // Nobody asks for bicycles: the iron works have nothing to research.
+        assert!(gap_technologies(state, &catalog).is_empty());
+        let gaps = gap_technologies(state, &catalog);
+        research_plan(state, &catalog, id, &[works], date, &gaps);
+        assert_eq!(researching(state), None);
+        // Consumers ask for them; nobody knows how to make them.
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        state.markets.get_mut(bicycle).get_mut(aaa).consumer_rate[2] = 5.0;
+        // With the prerequisite (known to all since 1800).
+        let mut gaps = gap_technologies(state, &catalog);
+        gaps.sort();
+        assert_eq!(
+            gaps,
+            vec![
+                catalog.technologies.id("schmelzen").expect("exists"),
+                turbine
+            ]
+        );
+        research_plan(state, &catalog, id, &[works], date, &gaps);
+        assert_eq!(researching(state), Some(turbine));
+        // Once a company knows it, the gap is closed.
+        let player = state.player;
+        state.companies[player.index()].technologies.insert(turbine);
+        assert!(gap_technologies(state, &catalog).is_empty());
+    }
+
+    /// M32: a product in demand that nobody makes is taken up by a company that can make
+    /// it; the plant under construction then counts against the demand.
+    #[test]
+    fn a_new_product_is_taken_up_by_a_company_that_can_make_it() {
+        let mut catalog = test_support::research();
+        let turbine = catalog.technologies.id("turbine").expect("exists");
+        let bicycle = catalog.products.id("rad").expect("exists");
+        let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+        let mut building = catalog.recipes.get(smelting).clone();
+        building.product = bicycle;
+        building.technology = Some(turbine);
+        building.inputs = Vec::new();
+        let building = catalog.recipes.insert("rad_bauen", building).expect("new");
+        let (mut game, id, _) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        let date = state.date;
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        let m = state.markets.get_mut(bicycle).get_mut(aaa);
+        m.open_demand = 20.0;
+        m.idle_since = None;
+        let cash = Money::from_usd(50_000_000.0).expect("valid");
+        let ledger = &mut state.companies[id.index()].ledger;
+        ledger.transfer(
+            crate::ledger::Account::Cash,
+            crate::ledger::Account::Equity,
+            cash,
+        );
+        let making = |state: &GameState| {
+            state
+                .sites
+                .iter()
+                .filter(|s| s.owner == id)
+                .flat_map(|s| &s.slots)
+                .filter(|sl| sl.recipe == Some(building))
+                .count()
+        };
+        // Nobody knows how to build bicycles.
+        let mut news = Vec::new();
+        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        assert_eq!(making(state), 0);
+        // The company learns it and builds the first works.
+        state.companies[id.index()].technologies.insert(turbine);
+        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        assert_eq!(making(state), 1);
+        let new = state.sites.last().expect("built");
+        assert!(new.slots[0].ready > date);
+        // The works under construction will serve the demand: nothing more to build.
+        assert_eq!(
+            opportunity(state, &catalog, &[], id, Some(&[bicycle])),
+            None
+        );
+        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        assert_eq!(making(state), 1);
+    }
+
+    /// M32: a works for an input whose inputs weigh more than its output goes to its raw
+    /// material; otherwise, and for goods the state buys, it stays where the demand is.
+    #[test]
+    fn a_weight_losing_works_goes_to_its_raw_material() {
+        for (ore_per_t, state_buys, expected) in
+            [(2.0, false, "AAA"), (0.5, false, "BBB"), (2.0, true, "BBB")]
+        {
+            let mut catalog = test_support::trading();
+            let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+            catalog.recipes.get_mut(smelting).inputs[0].1 = ore_per_t;
+            let iron = catalog.products.id("eisen").expect("exists");
+            if !state_buys {
+                catalog.products.get_mut(iron).state_demand = None;
+            }
+            let (mut game, id, works) = idle_works_in(catalog, 0.6);
+            let catalog = game.catalog().clone();
+            let state = game.state_mut();
+            state.sites[works.index()].slots.clear();
+            // Iron is wanted in BBB; the ore deposit lies in AAA.
+            let bbb = catalog.countries.id("BBB").expect("exists");
+            let iron = catalog.products.id("eisen").expect("exists");
+            let m = state.markets.get_mut(iron).get_mut(bbb);
+            m.open_demand = 1000.0;
+            m.idle_since = None;
+            let (product, country, ..) =
+                opportunity(state, &catalog, &[], id, Some(&[iron])).expect("iron");
+            assert_eq!(product, iron);
+            assert_eq!(
+                catalog.countries.key(country),
+                expected,
+                "{ore_per_t} t ore, state buys: {state_buys}"
+            );
+        }
+    }
+
+    /// M32: a works that supplies the company's own plants counts what they use as taken,
+    /// though nothing goes over the market.
+    #[test]
+    fn a_works_feeding_its_own_plants_counts_their_use() {
+        use crate::state::Slot;
+        let (mut game, id, works) = idle_works(0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        let date = state.date;
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        let ore = catalog.products.id("erz").expect("exists");
+        let found = Command::FoundSite {
+            country: aaa,
+            kind: SiteType::Extraction,
+        };
+        assert!(run(state, &catalog, id, &found));
+        let mine = site_id(state.sites.len() - 1);
+        state.sites[mine.index()].slots.push(Slot {
+            facility: catalog.facilities.id("mine").expect("exists"),
+            ready: date,
+            count: 1,
+            cost: Money::from_usd(1_000_000.0).expect("valid"),
+            recipe: catalog.recipes.id("erz_abbau"),
+            utilization: 0.5,
+            automation: 0.0,
+            condition: 1.0,
+            batches: Vec::new(),
+            last_runs: 0.0,
+            limit: None,
+            operation: Operation::Running,
+        });
+        state.sites[mine.index()].offers.insert(
+            ore,
+            crate::state::SaleOffer {
+                mode: PriceMode::Market {
+                    markup: 0.0,
+                    floor: Money::ZERO,
+                },
+                price: Money::from_usd(10.0).expect("valid"),
+                keep: 0.0,
+                sold_today: 0.0,
+                sold_month: 0.0,
+                sold_last_month: 0.0,
+                to_traders_month: 0.0,
+                to_companies_month: 0.0,
+            },
+        );
+        // Ten furnaces at 60 % take 2 t of ore per run, 50 runs a day each.
+        let (_, taken) = output_and_offtake(state, &catalog, mine, &[works, mine], date);
+        assert!(
+            (taken[&ore] - 10.0 * 50.0 * 0.6 * 2.0).abs() < 1e-9,
+            "{taken:?}"
+        );
+        // Without the works nobody takes the ore.
+        let (_, alone) = output_and_offtake(state, &catalog, mine, &[mine], date);
+        assert_eq!(alone.get(&ore).copied().unwrap_or(0.0), 0.0);
     }
 }

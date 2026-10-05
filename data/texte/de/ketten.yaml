@@ -202,3 +202,91 @@ technologie.automobil: Automobil
 technologie.fliessband: Fließband
 technologie.ganzstahlkarosserie: Ganzstahlkarosserie
 technologie.thermisches_cracken: Thermisches Cracken
+
+# Kette 14 – Aluminium (M32)
+produkt.bauxit: Bauxit
+produkt.tonerde: Tonerde
+produkt.aluminium: Aluminium
+produkt.kochtopf: Kochtopf
+anlage.bauxitgrube: Bauxitgrube
+anlage.tonerdefabrik: Tonerdefabrik
+anlage.aluminiumhuette: Aluminiumhütte
+anlage.aluminiumwarenfabrik: Aluminiumwarenfabrik
+rezept.bauxit_abbau: Bauxit abbauen
+rezept.tonerde_bayer: Tonerde nach Bayer
+rezept.aluminium_elektrolyse: Aluminium-Elektrolyse
+rezept.kochtopf_druecken: Kochtöpfe drücken
+technologie.schmelzflusselektrolyse: Schmelzflusselektrolyse
+technologie.bayer_verfahren: Bayer-Verfahren
+technologie.aluminiumgeschirr: Aluminiumgeschirr
+
+# Kette 15 – Kunstseide (M32)
+produkt.zellstoff: Zellstoff
+produkt.kunstseide: Kunstseide
+produkt.strumpf: Strümpfe
+anlage.zellstofffabrik: Zellstofffabrik
+anlage.viskosefabrik: Viskosefabrik
+anlage.strumpffabrik: Strumpffabrik
+rezept.zellstoff_sulfit: Zellstoff nach dem Sulfitverfahren
+rezept.kunstseide_viskose: Viskose spinnen
+rezept.strumpf_wirken: Strümpfe wirken
+technologie.sulfitverfahren: Sulfitverfahren
+technologie.viskoseverfahren: Viskoseverfahren
+
+# Kette 16 – Rundfunk und Haushaltsgeräte (M32)
+produkt.bakelit: Bakelit
+produkt.radioroehre: Radioröhre
+produkt.roehrenradio: Röhrenradio
+produkt.kleinmotor: Kleinmotor
+produkt.staubsauger: Staubsauger
+produkt.kuehlschrank: Kühlschrank
+anlage.kunstharzfabrik: Kunstharzfabrik
+anlage.roehrenwerk: Röhrenwerk
+anlage.radiofabrik: Radiofabrik
+anlage.kleinmotorenwerk: Kleinmotorenwerk
+anlage.haushaltsgeraetewerk: Haushaltsgerätewerk
+anlage.kuehlschrankfabrik: Kühlschrankfabrik
+rezept.bakelit_pressmasse: Bakelit-Pressmasse
+rezept.radioroehre_bauen: Radioröhren bauen
+rezept.roehrenradio_bauen: Röhrenradios bauen
+rezept.kleinmotor_bauen: Kleinmotoren bauen
+rezept.staubsauger_bauen: Staubsauger bauen
+rezept.kuehlschrank_bauen: Kühlschränke bauen
+technologie.phenolharz: Phenolharz
+technologie.elektronenroehre: Elektronenröhre
+technologie.rundfunk: Rundfunk
+technologie.staubsauger: Staubsauger
+technologie.kompressionskuehlschrank: Kompressionskühlschrank
+
+# Kette 17 – Nutzfahrzeuge (M32)
+produkt.lastwagen: Lastwagen
+produkt.traktor: Traktor
+anlage.lastwagenwerk: Lastwagenwerk
+anlage.traktorenwerk: Traktorenwerk
+rezept.lastwagen_bauen: Lastwagen bauen
+rezept.traktor_bauen: Traktoren bauen
+technologie.lastkraftwagen: Lastkraftwagen
+technologie.ackerschlepper: Ackerschlepper
+
+# Kette 18 – Luftfahrt (M32)
+produkt.flugmotor: Flugmotor
+produkt.verkehrsflugzeug: Verkehrsflugzeug
+anlage.flugmotorenwerk: Flugmotorenwerk
+anlage.flugzeugwerk: Flugzeugwerk
+rezept.flugmotor_bauen: Flugmotoren bauen
+rezept.verkehrsflugzeug_bauen: Verkehrsflugzeuge bauen
+technologie.flugmotor: Flugmotor
+technologie.ganzmetallflugzeug: Ganzmetallflugzeug
+
+# Kette 19 – Stickstoffdünger (M32)
+produkt.chilesalpeter: Chilesalpeter
+produkt.ammoniak: Ammoniak
+produkt.stickstoffduenger: Stickstoffdünger
+anlage.salpeterwerk: Salpeterwerk
+anlage.ammoniakwerk: Ammoniakwerk
+anlage.duengemittelfabrik: Düngemittelfabrik
+rezept.salpeter_abbau: Salpeter abbauen
+rezept.ammoniak_haber_bosch: Ammoniak nach Haber-Bosch
+rezept.duenger_salpeter: Dünger aus Salpeter
+rezept.duenger_ammoniak: Dünger aus Ammoniak
+technologie.haber_bosch: Haber-Bosch-Verfahren

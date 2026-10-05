@@ -1,0 +1,134 @@
+# Kette 15 – Kunstseide (M32, Epoche 1915–1939)
+# Holz → Zellstoff (Sulfitverfahren) → Kunstseide (Viskose) → Damenstrümpfe.
+# Viskose war arbeitsintensiv: Spinnen, Zwirnen, Waschen und Sortieren von Hand.
+# Alle Zahlen sind Annäherungen für etwa 1930.
+
+produkte:
+  - id: zellstoff
+    art: halbzeug
+    branche: holz_papier
+    einheit: t
+    verwendung: industrie
+    warengruppe: papier
+    transportklasse: schuettgut
+    richtpreis_usd: 600           # Sulfitzellstoff um 1930 etwa 40 USD je t
+    annaeherung: true
+
+  - id: kunstseide
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Viskosegarn
+    verwendung: industrie
+    warengruppe: textilien
+    transportklasse: stueckgut
+    richtpreis_usd: 22_000        # um 1930 etwa 75 Cent je lb
+    annaeherung: true
+
+  - id: strumpf
+    art: endprodukt
+    branche: textil
+    einheit: stueck               # Paar Damenstrümpfe
+    gewicht_kg: 0.05
+    verwendung: konsum
+    warengruppe: bekleidung
+    transportklasse: stueckgut
+    richtpreis_usd: 10
+    nachfrage:
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 3}
+      kaufschwelle: 150
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.2
+    annaeherung: true
+
+anlagen:
+  - id: zellstofffabrik
+    standorttyp: werk
+    investition_usd: 15_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 50
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: viskosefabrik
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    technologie: viskoseverfahren
+    annaeherung: true
+
+  - id: strumpffabrik             # Cottonmaschinen für Längen und Fersen
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 3000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: zellstoff_sulfit
+    produkt: zellstoff
+    menge: 1
+    dauer_tage: 2
+    anlage: zellstofffabrik
+    technologie: sulfitverfahren
+    eingang:
+      holz: 2.2
+      schwefel: 0.1
+    arbeit_stunden:
+      ungelernt: 3
+      angelernt: 2
+      fachkraft.chemie: 1
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: kunstseide_viskose
+    produkt: kunstseide
+    menge: 1
+    dauer_tage: 3
+    anlage: viskosefabrik
+    technologie: viskoseverfahren
+    eingang:
+      zellstoff: 1.1
+      schwefel: 0.6               # Schwefelkohlenstoff und Spinnbad
+    arbeit_stunden:
+      angelernt: 1000
+      fachkraft.chemie: 200
+      fachkraft.textil: 250
+      akademiker.chemie: 5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: strumpf_wirken
+    produkt: strumpf
+    menge: 1
+    dauer_tage: 1
+    anlage: strumpffabrik
+    technologie: viskoseverfahren
+    eingang:
+      kunstseide: 0.00005
+    arbeit_stunden:
+      angelernt: 0.3
+      fachkraft.textil: 0.1
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: sulfitverfahren           # Alexander Mitscherlich
+    fachgebiet: chemie
+    erfindungsjahr: 1874
+
+  - id: viskoseverfahren          # Courtaulds spinnt Viskose in Coventry
+    fachgebiet: chemie
+    erfindungsjahr: 1905
+    voraussetzungen: [sulfitverfahren]
+    forschungsaufwand: 12000
+    annaeherung: true

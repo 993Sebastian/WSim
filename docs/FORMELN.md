@@ -590,14 +590,25 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
   Vorjahresumsatz ≥ `forschung_mindestumsatz_usd`: die Technologie mit dem geringsten
   Aufwand unter denen, die ein Rezept oder eine Anlage der eigenen Branchen betreffen
   und bis Jahr + `forschung_vorgriff_jahre` (*k*) erfunden sind; ohne Forschungszentrum
-  wird eines mit einem Labor am Sitz gebaut.
+  wird eines mit einem Labor am Sitz gebaut. Seit M32 zählen auch **Marktlücken**:
+  Produkte, nach denen Endkunden oder Staat fragen, und die Vorprodukte ihrer nutzbaren
+  Rezepte, die keine aktive Firma herstellen kann (jedes Rezept braucht eine Technologie
+  des Rezepts oder der Anlage, die keine aktive Firma kennt). Ihre Technologien und alle
+  Voraussetzungen erforscht eine Firma, die in den eigenen Branchen nichts zu
+  erforschen hat (wieder die billigste), höchstens `forschung_luecke_firmen` Firmen
+  zugleich je Technologie; eine Firma behält ihre Lücke. Sonst erforschte niemand
+  Produkte neuer Branchen (Luftfahrt). Die Lücken werden einmal je Jahr vor den
+  Forschungsplänen bestimmt.
 - **Pleite:** Eine zahlungsunfähige KI-Firma scheidet aus; ihre Belegschaft wird frei,
   Angebote und Aufträge enden, ihre Konzessionen werden frei.
 - **Neugründung:** Sind weniger als *N* KI-Firmen aktiv, entstehen je Monat bis zu
   `gruendungen_je_monat` neue. Gesucht wird das Produkt mit der größten offenen
   Nachfrage (Wert); fehlt einem neuen Werk ein Vorprodukt (offene Nachfrage über die
   Hälfte seines Bedarfs), wird stattdessen dieser Engpass gegründet (bis zu sechs
-  Stufen). Ausgelassen werden Produkte, deren Lager weltweit mehr als
+  Stufen). Der Kette folgt die KI mit dem eigenen Rezept oder, wenn sie das Produkt
+  selbst nicht herstellen kann, mit einem Rezept, das eine Firma nutzt oder kennt (M32);
+  bauen muss sie das Glied, das sie selbst herstellen kann – eine Bauxitgrube braucht
+  kein Wissen über Kochtöpfe. Ausgelassen werden Produkte, deren Lager weltweit mehr als
   `lager_hoch_tage` Erzeugung umfassen, und Rohstoffe ohne freie Konzession. Kapital =
   `gruendung_kapitalfaktor` · Investition; Aufbau über `FoundSite`, `DevelopDeposit`,
   `BuildFacility`, `SetProduction`, `SetSale`.
@@ -1436,3 +1447,59 @@ M30; hier steht nur, was für Bereiche dazukommt.
   Werbebudgets für g.
 - Offene Angebote für die übergebenen Standorte und für Bereiche von V sind danach
   hinfällig (ihr Inhalt hat sich geändert).
+
+## M32 – Produkte 1915–1939
+
+Lastenheft §18.4. Neue Produkte, Rohstoffe, Anlagen, Rezepte und Technologien stehen
+in `data/ketten/14_*.yaml` bis `19_*.yaml`, `data/lagerstaetten/bauxit.yaml` und
+`chilesalpeter.yaml`
+(Annäherungen in den Kommentaren der Daten). An Formeln kommt hinzu:
+
+- **Nachfrage erst ab Verfügbarkeit:** Endkunden und Staat fragen ein Produkt erst
+  nach, wenn es sich herstellen lässt – ein Rezept, das es (auch als Nebenprodukt)
+  erzeugt, braucht nur Technologien, deren Erfindungsjahr erreicht ist oder die eine
+  aktive Firma kennt (vorzeitig erforscht) – oder wenn der Staatsmarkt es anbietet.
+  Waren ganz ohne Rezept gelten als verfügbar. Vorher sind Nachfrage und Staatsbedarf
+  null, und der Besitz von Gebrauchsgütern beginnt bei null (M7: Aneignung).
+
+Damit neue Produkte überhaupt hergestellt werden, gelten für die KI (alle Firmen gleich,
+M10) außerdem:
+
+- **Marktlücken erforschen:** siehe M10, Forschung (`forschung_luecke_firmen` Firmen je
+  Technologie zugleich, nur ohne Aufgabe in den eigenen Branchen).
+- **Pioniere:** Am Quartalsende, vor der Diversifizierung, geht jede KI-Firma (die
+  reichsten zuerst) die Produkte mit offener Nachfrage durch, die noch kein Standort
+  herstellt (auch nicht als Nebenprodukt); sie baut für das wertvollste, das sie
+  selbst herstellen kann, oder für den Engpass darunter (Suche wie bei der Neugründung)
+  einen Standort, wenn ihr Budget wenigstens eine Anlage trägt. Je Firma und Quartal
+  höchstens einer, jedes Produkt nur einmal. Ohne diese Regel wartete eine neue
+  Technik, bis eine der reichsten Firmen sie kennt, und kleine neue Märkte (Traktor,
+  Bauxit) kamen gegen die großen nie an die Reihe.
+- **Anlagen im Bau zählen:** Für Neugründung, Diversifizierung und Pioniere sinkt die
+  offene Nachfrage eines Produkts um die Erzeugung der Anlagen, die dafür im Bau sind
+  (Kapazität × Startauslastung); ihr Wert sinkt im selben Verhältnis. Vorher entstand
+  derselbe Engpass jedes Quartal neu, bis das erste Werk lief.
+- **Engpass mit Ausweichen:** Sind mehrere Vorprodukte knapp, folgt die Suche zuerst
+  dem knappsten; führt dessen Kette zu nichts (keine freie Konzession, keine bekannte
+  Herstellung), versucht sie das nächste (vorher wurde die ganze Kette verworfen:
+  knappe Kohle verdeckte die fehlende Bauxitgrube).
+- **Standortwahl:** Ein Werk entsteht im Land mit der größten offenen Nachfrage *L*,
+  außer der Transport wäre anderswo billiger: Kandidaten sind die Länder, in denen ein
+  Vorprodukt hergestellt wird oder eine entdeckte Lagerstätte dafür liegt. Kosten je
+  Lauf in Land *c* = Σ Menge des Vorprodukts × Fracht vom nächsten Herkunftsland nach
+  *c* + Ausbringung × Fracht von *c* nach *L* (Fracht je Einheit wie im Handel, M8;
+  Vorprodukte mit Staatsmarkt zählen nicht). Gewählt wird das billigste Land, bei
+  Gleichstand *L*. Eine Tonerdefabrik (2,5 t Bauxit je t) geht so zum Bauxit, eine
+  Kochtopffabrik bleibt beim Markt. Gruben wählen die freie Lagerstätte mit der
+  billigsten Fracht nach *L* (vorher die erste im Land, sonst irgendeine). Das gilt nur
+  für Vorprodukte, die allein Werke kaufen: Güter für Endkunden und Staat entstehen in
+  *L* – Händler bringen sie kaum in Länder mit niedrigem Preisniveau, und Mühlen fern
+  der Nachfrage wurden immer wieder neu gebaut.
+- **Lieferungen an eigene Standorte:** Für Auslastung und Stilllegung zählt bei einem
+  Angebot neben dem Verkauf auch, was die anderen Standorte der Firma davon verbrauchen
+  (Läufe × Auslastung × Menge je Lauf), geteilt durch die Zahl ihrer Standorte, die die
+  Ware herstellen. Vorher sah ein Werk, das nur die eigenen Anlagen belieferte, keine
+  Abnehmer und fuhr auf die Mindestauslastung herunter (Flugmotoren für das eigene
+  Flugzeugwerk).
+- **Markt-Ansicht:** Waren, die noch niemand herstellen kann, stehen nicht in der Liste
+  eines Landesmarkts.

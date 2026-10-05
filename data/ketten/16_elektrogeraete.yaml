@@ -1,0 +1,291 @@
+# Kette 16 – Rundfunk und Haushaltsgeräte (M32, Epoche 1915–1939)
+# Kohle → Bakelit (Phenolharz); Glas, Kupfer → Radioröhre → Röhrenradio;
+# Kupfer, Stahl → Kleinmotor → Staubsauger, Kühlschrank.
+# Die Geräte brauchen einen Stromanschluss im Haushalt.
+# Alle Zahlen sind Annäherungen für etwa 1930.
+
+produkte:
+  - id: bakelit
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Pressmasse aus Phenolharz und Holzmehl
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 3000
+    annaeherung: true
+
+  - id: radioroehre
+    art: komponente
+    branche: elektro
+    einheit: stueck               # Elektronenröhre
+    gewicht_kg: 0.05
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 14
+    annaeherung: true
+
+  - id: roehrenradio
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 8
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 550
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 8, max_besitzquote: 0.35}
+      kaufschwelle: 12
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.5
+      netzabhaengig: true
+    annaeherung: true
+
+  - id: kleinmotor
+    art: komponente
+    branche: elektro
+    einheit: stueck               # Universal- oder Spaltpolmotor unter 0,5 kW
+    gewicht_kg: 4
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 80
+    annaeherung: true
+
+  - id: staubsauger
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 8
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 300
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.25}
+      kaufschwelle: 30
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.5
+      netzabhaengig: true
+    annaeherung: true
+
+  - id: kuehlschrank
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 120
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1100
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 15, max_besitzquote: 0.3}
+      kaufschwelle: 10
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: kunstharzfabrik
+    standorttyp: werk
+    investition_usd: 30_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: roehrenwerk
+    standorttyp: werk
+    investition_usd: 8_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 5000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: radiofabrik
+    standorttyp: werk
+    investition_usd: 10_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 500
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: kleinmotorenwerk
+    standorttyp: werk
+    investition_usd: 3_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: haushaltsgeraetewerk      # Staubsauger
+    standorttyp: werk
+    investition_usd: 4_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: kuehlschrankfabrik
+    standorttyp: werk
+    investition_usd: 15_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: bakelit_pressmasse
+    produkt: bakelit
+    menge: 1
+    dauer_tage: 2
+    anlage: kunstharzfabrik
+    technologie: phenolharz
+    eingang:
+      kohle: 3                    # Phenol aus Steinkohlenteer, Formaldehyd
+      holz: 0.4                   # Holzmehl als Füllstoff
+    arbeit_stunden:
+      angelernt: 60
+      fachkraft.chemie: 20
+      akademiker.chemie: 1
+    energie_mwh: 0.2
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: radioroehre_bauen
+    produkt: radioroehre
+    menge: 1
+    dauer_tage: 1
+    anlage: roehrenwerk
+    technologie: elektronenroehre
+    eingang:
+      glas: 0.00004
+      kupfer: 0.00002             # Drähte und Anode
+    arbeit_stunden:
+      angelernt: 0.5
+      fachkraft.elektro: 0.1
+    energie_mwh: 0.002
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: roehrenradio_bauen
+    produkt: roehrenradio
+    menge: 1
+    dauer_tage: 1
+    anlage: radiofabrik
+    technologie: rundfunk
+    eingang:
+      radioroehre: 4
+      bakelit: 0.003              # Gehäuse
+      kupferdraht: 0.001
+      blech: 0.002                # Chassis
+    arbeit_stunden:
+      angelernt: 15
+      fachkraft.elektro: 5
+      akademiker.elektro: 0.2
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: kleinmotor_bauen
+    produkt: kleinmotor
+    menge: 1
+    dauer_tage: 1
+    anlage: kleinmotorenwerk
+    technologie: drehstrommotor
+    eingang:
+      kupfer: 0.0008              # Wicklung
+      stahl: 0.006                # Blechpaket und Gehäuse aus dem Walzwerk des Herstellers
+    arbeit_stunden:
+      angelernt: 3
+      fachkraft.elektro: 1
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: staubsauger_bauen
+    produkt: staubsauger
+    menge: 1
+    dauer_tage: 1
+    anlage: haushaltsgeraetewerk
+    technologie: staubsauger
+    eingang:
+      kleinmotor: 1
+      blech: 0.005
+      stoff: 0.0005               # Staubbeutel
+      gummi: 0.0003               # Schlauch und Riemen
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.maschinenbau: 1
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: kuehlschrank_bauen
+    produkt: kuehlschrank
+    menge: 1
+    dauer_tage: 2
+    anlage: kuehlschrankfabrik
+    technologie: kompressionskuehlschrank
+    eingang:
+      kleinmotor: 1               # Verdichter
+      blech: 0.06
+      kupferdraht: 0.004          # Kühlschlangen
+    arbeit_stunden:
+      angelernt: 20
+      fachkraft.maschinenbau: 6
+      fachkraft.elektro: 2
+    energie_mwh: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: phenolharz                # Leo Baekeland
+    fachgebiet: chemie
+    erfindungsjahr: 1907
+    forschungsaufwand: 6000
+    annaeherung: true
+
+  - id: elektronenroehre          # Hochvakuumröhre (Lieben, de Forest, Langmuir)
+    fachgebiet: elektro
+    erfindungsjahr: 1912
+    voraussetzungen: [gluehlampe]
+    forschungsaufwand: 8000
+    annaeherung: true
+
+  - id: rundfunk                  # erste Rundfunksender (KDKA 1920, Berlin 1923)
+    fachgebiet: elektro
+    erfindungsjahr: 1920
+    voraussetzungen: [elektronenroehre]
+    forschungsaufwand: 15000
+    annaeherung: true
+
+  - id: staubsauger               # Spangler und Hoover
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1908
+    voraussetzungen: [drehstrommotor]
+    forschungsaufwand: 5000
+    annaeherung: true
+
+  - id: kompressionskuehlschrank  # Kelvinator, Frigidaire
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1918
+    voraussetzungen: [drehstrommotor]
+    forschungsaufwand: 15000
+    annaeherung: true

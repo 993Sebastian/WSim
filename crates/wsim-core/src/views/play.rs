@@ -878,6 +878,8 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
         .products
         .ids()
         .filter(|&p| catalog.products.get(p).kind != crate::catalog::ProductKind::Energy)
+        // What nobody can make yet has no market (M32).
+        .filter(|&p| market::available(state, catalog, p, state.date.year()))
         .map(|p| {
             let m = state.markets.get(p).get(c);
             let t = &m.last_month;
@@ -2004,6 +2006,25 @@ mod explain_tests {
             ai: Default::default(),
         };
         Game::new(catalog, settings).unwrap()
+    }
+
+    /// M32: goods that nobody can make yet do not appear in the market.
+    #[test]
+    fn the_market_lists_only_goods_that_can_be_made() {
+        let mut catalog = test_support::production();
+        let later = catalog.technologies.id("hochofen_2000").unwrap();
+        let wheel = catalog.products.id("rad").unwrap();
+        let smelting = catalog.recipes.id("eisen_schmelzen").unwrap();
+        let mut building = catalog.recipes.get(smelting).clone();
+        building.product = wheel;
+        building.technology = Some(later);
+        catalog.recipes.insert("rad_bauen", building).unwrap();
+        let settings = game().state().settings.clone();
+        let game = Game::new(Arc::new(catalog), settings).unwrap();
+        let view = market(&game, "AAA").unwrap();
+        let listed: Vec<&str> = view.lines.iter().map(|l| l.product.as_str()).collect();
+        assert!(listed.contains(&"brot"), "{listed:?}");
+        assert!(!listed.contains(&"rad"), "{listed:?}");
     }
 
     #[test]

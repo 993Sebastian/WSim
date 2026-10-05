@@ -176,6 +176,36 @@ fn available_at_start(catalog: &Catalog, product: ProductId, year: i32) -> bool 
         })
 }
 
+/// Whether a product can be bought at all (docs/FORMELN.md, M32): not while every recipe
+/// that makes it (also as a by-product) needs a technology that is neither invented by
+/// `year` nor known to a company, unless the state market sells it. Goods without any
+/// recipe are always available.
+pub fn available(state: &GameState, catalog: &Catalog, product: ProductId, year: i32) -> bool {
+    let p = catalog.products.get(product);
+    if p.state_market
+        .is_some_and(|m| m.available_from.is_none_or(|y| y <= year))
+    {
+        return true;
+    }
+    let usable = |t: Option<crate::ids::TechnologyId>| {
+        t.is_none_or(|t| {
+            catalog.technologies.get(t).invention_year <= year
+                || state
+                    .companies
+                    .iter()
+                    .any(|c| !c.bankrupt && c.technologies.contains(&t))
+        })
+    };
+    let mut recipes = catalog
+        .recipes
+        .values()
+        .filter(|r| r.product == product || r.by_products.iter().any(|&(b, _)| b == product))
+        .peekable();
+    recipes.peek().is_none()
+        || recipes
+            .any(|r| usable(r.technology) && usable(catalog.facilities.get(r.facility).technology))
+}
+
 /// Durables that displace a product (§6.4) with their highest ownership per head.
 pub(crate) fn successors(catalog: &Catalog, product: ProductId) -> Vec<(ProductId, f64)> {
     catalog
@@ -210,6 +240,8 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
             continue;
         }
         let owned_at_start = initial && available_at_start(catalog, product, date.year());
+        // Nobody asks for what cannot be made yet.
+        let open = available(state, catalog, product, date.year());
         let successors = successors(catalog, product);
         for country in catalog.countries.ids() {
             let cs = state.countries.get(country);
@@ -236,6 +268,12 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                 market.price = start_price;
             }
             let price = market.price.to_usd();
+            if !open {
+                market.consumer_rate = [0.0; 5];
+                market.bought = [0.0; 5];
+                market.state_rate = 0.0;
+                continue;
+            }
             if let Some(d) = &p.consumer_demand {
                 let season = d.seasonality.map_or(1.0, |s| s[month]);
                 let grid = if d.needs_grid { cs.grid_share } else { 1.0 };

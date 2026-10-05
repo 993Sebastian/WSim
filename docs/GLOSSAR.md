@@ -81,6 +81,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Richtpreis | `reference_price` |
 | Kaufschwelle, Kaufneigung | `purchase_threshold`, `propensity` |
 | Besitzquote | `ownership` |
+| Verfügbarkeit eines Produkts (Nachfrage erst, wenn es sich herstellen lässt, M32) | `market::available` |
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
 | Handel (Menge, Umsatz) | `Trade` |
@@ -199,6 +200,9 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Aufholen knapper Preise unter dem Richtpreis | `MarketModel::catch_up_max` (`preisanpassung.aufholen_max`), `market::adjust_price` |
 | Untergrenze eines Nebenprodukts nach dem Brennwert (KI) | `ai::fuel_value` (`heizwert_mwh`) |
 | Gelegenheit für eine Firma mit ihren Verfahren | `ai::opportunity` (`builder`) |
+| Engpass-Suche mit Ausweichen, Standortwahl nach Fracht (M32) | `Chain::bottleneck`, `Chain::site_for` |
+| Pionier (Produkt, das noch niemand herstellt; M32) | `ai::pioneer` |
+| Marktlücke (Forschung, M32) | `gap_technologies`, `research_gap_companies` (`forschung_luecke_firmen`) |
 | Etappe (Etappenziel), Art, Wert | `catalog::Milestone`, `MilestoneCondition` (`etappen`: `art`, `wert`), `MilestoneId` |
 | Erreichte Etappen des Spielers, Fortschritt | `GameState::milestones`, `milestones::check`, `milestones::progress`; Sicht `MilestoneView` (`Overview::milestones`); UI: `Etappen`, `ETAPPEN_SPEICHER` |
 | Monatsreihe eines Markts (Preis, Absatz, eigener Absatz) | `state::MarketHistory` (`Market::history`), `competition::record_history`, `marktmodell.verlauf_monate`; Sicht `MarketMonthView` (`ProductMarketView::history`); UI: `MarktVerlauf`, `Marktmonat` |

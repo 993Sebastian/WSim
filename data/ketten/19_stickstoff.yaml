@@ -1,0 +1,138 @@
+# Kette 19 – Stickstoffdünger (M32, Epoche 1915–1939)
+# Chilesalpeter → Dünger; ab 1913 Kohle → Ammoniak (Haber-Bosch) → Dünger. Der
+# synthetische Dünger verdrängt den Salpeter über den Preis.
+# Die Landwirtschaft kauft als Staatsbedarf je BIP.
+# Alle Zahlen sind Annäherungen für etwa 1925.
+
+produkte:
+  - id: chilesalpeter
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # Natronsalpeter, rund 16 % Stickstoff
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: schuettgut
+    richtpreis_usd: 380
+    pacht_anteil: 0.4             # Chiles Ausfuhrzoll
+    annaeherung: true
+
+  - id: ammoniak
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: fluessig
+    richtpreis_usd: 1800
+    annaeherung: true
+
+  - id: stickstoffduenger
+    art: endprodukt
+    branche: chemie
+    einheit: t                    # mit 16 % Stickstoff wie Chilesalpeter
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: schuettgut
+    richtpreis_usd: 600
+    # Bedarf wie um 1913: gut 1,8 Mio. t Chilesalpeter gingen als Dünger auf die Felder.
+    # Danach stieg der Verbrauch je BIP stark (Haber-Bosch); das folgt mit den späteren
+    # Epochen.
+    staatsnachfrage:
+      je_mio_usd_bip: 0.3
+      kriegsfaktor: 2.0           # auch für Sprengstoff
+    annaeherung: true
+
+anlagen:
+  - id: salpeterwerk              # Oficina: Caliche brechen, auslaugen, kristallisieren
+    standorttyp: foerderstaette
+    investition_usd: 10_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    annaeherung: true
+
+  - id: ammoniakwerk              # Hochdrucksynthese wie Oppau und Leuna
+    standorttyp: werk
+    investition_usd: 250_000_000
+    bauzeit_tage: 720
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    technologie: haber_bosch
+    annaeherung: true
+
+  - id: duengemittelfabrik
+    standorttyp: werk
+    investition_usd: 10_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 500
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+rezepte:
+  - id: salpeter_abbau
+    produkt: chilesalpeter
+    menge: 1
+    dauer_tage: 1
+    anlage: salpeterwerk
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 15               # Caliche von Hand brechen
+      fachkraft.bergbau: 2
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: ammoniak_haber_bosch
+    produkt: ammoniak
+    menge: 1
+    dauer_tage: 1
+    anlage: ammoniakwerk
+    technologie: haber_bosch
+    eingang:
+      kohle: 2.0                  # Koks für Wasserstoff, Dampf
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.chemie: 4
+      akademiker.chemie: 0.3
+    energie_mwh: 0.2
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: duenger_salpeter
+    produkt: stickstoffduenger
+    menge: 1
+    dauer_tage: 1
+    anlage: duengemittelfabrik
+    eingang:
+      chilesalpeter: 1.0
+    arbeit_stunden:
+      ungelernt: 0.5
+      angelernt: 0.3
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: duenger_ammoniak
+    produkt: stickstoffduenger
+    menge: 1
+    dauer_tage: 1
+    anlage: duengemittelfabrik
+    technologie: haber_bosch
+    eingang:
+      ammoniak: 0.2
+    arbeit_stunden:
+      angelernt: 1
+      fachkraft.chemie: 0.2
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: haber_bosch               # BASF Oppau
+    fachgebiet: chemie
+    erfindungsjahr: 1913
+    forschungsaufwand: 25000
+    annaeherung: true

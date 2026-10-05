@@ -591,3 +591,36 @@ fn displacement_curve_is_gradual() {
     assert!(half_year > 0.5 * start, "{curve:?}");
     assert!(end < 0.7 * start, "{curve:?}");
 }
+
+/// M32: nobody asks for a product that cannot be made yet; the demand comes with the
+/// technology – by its invention year or as soon as a company knows it.
+#[test]
+fn demand_waits_for_the_technology() {
+    let mut catalog = test_support::production();
+    let later = catalog.technologies.id("hochofen_2000").unwrap();
+    let bread = catalog.products.id("brot").unwrap();
+    let smelting = catalog.recipes.id("eisen_schmelzen").unwrap();
+    let mut baking = catalog.recipes.get(smelting).clone();
+    baking.product = bread;
+    baking.technology = Some(later);
+    catalog.recipes.insert("brot_backen", baking).unwrap();
+    let settings = new_game().state().settings.clone();
+    let mut game = Game::new(Arc::new(catalog), settings).unwrap();
+    game.advance(RoundLength::Month, |_| {});
+    let rate = |game: &Game| -> f64 {
+        game.state()
+            .markets
+            .get(product(game, "brot"))
+            .get(aaa(game))
+            .consumer_rate
+            .iter()
+            .sum()
+    };
+    assert_eq!(rate(&game), 0.0);
+    let player = game.player();
+    game.state_mut().companies[player.index()]
+        .technologies
+        .insert(later);
+    game.advance(RoundLength::Month, |_| {});
+    assert!(rate(&game) > 0.0);
+}

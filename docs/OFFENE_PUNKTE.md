@@ -328,6 +328,33 @@ Je Epoche: neue Rohstoffe mit Lagerstätten, Technologien mit Erfindungsjahr, Ve
 älterer Produkte (z. B. Transistorradio verdrängt Röhrenradio, LED die Glühlampe), Texte,
 Prüfung im Weltlauf. Rüstungsgüter bleiben bei Stufe 4.
 
+✅ **M32 (1915–1939) umgesetzt** wie in der Tabelle, dazu Zellstoff, Kleinmotor, Flugmotor,
+Ammoniak und Chilesalpeter als Vorprodukte (Einzelheiten: `docs/FORTSCHRITT.md`, M32).
+🟡 Vorläufig entschieden:
+
+1. **Nachfrage erst ab Verfügbarkeit:** Nach einem Produkt fragt erst jemand, wenn es
+   sich herstellen lässt (Erfindungsjahr erreicht oder von einer Firma vorzeitig
+   erforscht). Vorher gab es Nachfrage nach Röhrenradios, die niemand bauen konnte.
+2. **Käufer von Lastwagen, Traktoren, Verkehrsflugzeugen und Dünger** sind in Stufe 1 die
+   Staaten (Bedarf je BIP); Speditionen, Höfe und Fluggesellschaften als eigene Kunden
+   kommen mit späteren Stufen. Der Düngerbedarf entspricht 1913; sein starker Anstieg
+   danach folgt mit den späteren Epochen.
+3. **Aluminiumhütten** stehen am eigenen Wasserkraftwerk (in der Investition); Netzstrom
+   wäre für 20 MWh je t unbezahlbar.
+4. **Anlagengrößen** der neuen Ketten sind einzelne Linien (Tonerde 30 t, Hütte 10 t,
+   Flugmotoren 0,5 Stück je Tag), damit sie zu den kleinen Märkten passen; große Werke
+   bestehen aus mehreren Einheiten.
+5. **KI für neue Produkte** (alle Firmen gleich, `docs/FORMELN.md`, M32): Pioniere bauen,
+   was noch niemand herstellt; Marktlücken werden erforscht; Anlagen im Bau zählen gegen
+   die offene Nachfrage; Engpässe mit Ausweichen; Vorprodukte entstehen dort, wo die
+   Fracht am geringsten ist.
+6. **Bekannte Grenzen:** Verkehrsflugzeuge sind 1925–1939 nur zu 48–86 % versorgt (wenige,
+   teure Stücke: Händler verteilen Bruchteile auf viele Länder, der Preis liegt nahe der
+   Obergrenze des Staats); in den ersten zwei bis vier Jahren eines neuen Produkts fehlt
+   Ware, bis die ersten Werke fertig sind. Die Aluminiumhütten wurden für den Anlauf der
+   Kochtopf-Nachfrage gebaut und stehen danach großteils still (Verlust); einzelne
+   Anlagen je Standort legt die KI nicht still (Regel aus M22).
+
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 
 Vier **Qualifikationen**, bei Fachkräften und Akademikern zusätzlich eine von neun
