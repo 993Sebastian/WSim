@@ -145,9 +145,14 @@ pub(super) fn production_model(
             ctx,
             &m.overhead_share,
             &l.field("gemeinkosten_anteil"),
-            |ctx, v, loc| in_range(ctx, v, 0.0, 0.9, loc),
+            |ctx, v, loc| in_range(ctx, v, 0.0, 5.0, loc),
         ),
         reference_margin: reference_margin(ctx, &m.reference_margin, &l.field("richtpreis_marge")),
+        by_product_stock_days: positive(
+            ctx,
+            m.by_product_stock_days,
+            &l.field("nebenprodukte_lager_tage"),
+        ),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
     }
 }

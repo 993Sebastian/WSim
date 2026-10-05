@@ -307,7 +307,8 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         // Saturated markets (M16): at full capacity the established companies could
         // make `market_cover` times the demand. More spare capacity would start a
         // lasting price war, since idle plants lower their prices.
-        let facilities: f64 = rates.iter().sum::<f64>() * start.market_cover / per_day;
+        let facilities: f64 =
+            rates.iter().sum::<f64>() * start.market_cover[p.kind.index()] / per_day;
         if facilities < start.min_plant_share {
             continue;
         }
@@ -324,9 +325,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                 .map(|(id, _)| id)
                 .collect();
             let capacity = |d: DepositId| {
-                catalog.deposits.get(d).max_output_per_year * state.settings.market_scale
-                    / 365.0
-                    / per_day
+                catalog.max_output(d, year) * state.settings.market_scale / 365.0 / per_day
             };
             let weights: Vec<f64> = deposits
                 .iter()
@@ -480,15 +479,21 @@ fn fit_to_inputs(
     u: f64,
 ) -> Vec<Placement> {
     let n = catalog.products.len();
+    // Supply at full output against the use at the start utilization times the market
+    // cover: every input keeps the spare capacity the markets start with (M16). Raw
+    // materials limited by their deposits would otherwise start short, and the spare
+    // plants after them would bid their price up to the limit.
+    let cover =
+        |p: ProductId| catalog.ai_model.start.market_cover[catalog.products.get(p).kind.index()];
     let flows = |placements: &mut dyn Iterator<Item = &Placement>| {
         let mut supply = vec![0.0; n];
         let mut used = vec![0.0; n];
         for p in placements {
             let r = catalog.recipes.get(p.recipe);
-            let runs = catalog.facilities.get(r.facility).runs_per_day * f64::from(p.count) * u;
-            supply[r.product.index()] += runs * r.output;
+            let full = catalog.facilities.get(r.facility).runs_per_day * f64::from(p.count);
+            supply[r.product.index()] += full * r.output;
             for &(i, q) in &r.inputs {
-                used[i.index()] += runs * q;
+                used[i.index()] += full * u * q * cover(i);
             }
         }
         (supply, used)
@@ -694,7 +699,9 @@ pub(crate) fn slot_flows(
         .sum::<f64>()
         / c.labor_productivity.max(1e-9);
     let energy = r.energy_mwh * runs * c.electricity_price_usd_mwh;
-    let overhead = crate::production::overhead_per_run_usd(catalog, r, c.price_level) * runs;
+    let conversion = labor + energy + crate::production::capital_per_run_usd(catalog, r) * runs;
+    let overhead = crate::production::overhead_usd(catalog, r, conversion)
+        + crate::production::rent_per_run_usd(catalog, state, country, r) * runs;
     let capital = f.investment.to_usd()
         * f64::from(count)
         * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
@@ -882,7 +889,8 @@ fn found_company(
                 .entry(product)
                 .or_insert_with(Stock::default)
                 .add(qty, value, 50.0);
-            let keep = used.get(&product).copied().unwrap_or(0.0) * start.input_stock_days;
+            let own_use = used.get(&product).copied().unwrap_or(0.0);
+            let keep = own_use * start.input_stock_days;
             offers.insert(
                 product,
                 SaleOffer {
@@ -898,7 +906,10 @@ fn found_company(
                     keep,
                     sold_today: 0.0,
                     sold_month: 0.0,
-                    sold_last_month: 0.0,
+                    // The start is an equilibrium: last month the site sold what it makes.
+                    // Without this the AI would judge its sales by the first days, while
+                    // markets and traders start, and throttle the whole chain at once.
+                    sold_last_month: (output - own_use).max(0.0) * 30.0,
                     to_traders_month: 0.0,
                     to_companies_month: 0.0,
                 },

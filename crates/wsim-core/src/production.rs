@@ -23,21 +23,40 @@ pub fn labor_factor(catalog: &Catalog, automation: f64, affinity: f64) -> f64 {
     1.0 - automation * catalog.production_model.automation_labor_saving * (0.5 + 0.5 * affinity)
 }
 
-/// Administration, sales and logistics of one run in USD (M16): a share of the value
-/// the run adds at reference prices, per product kind, at the country's price level.
-pub fn overhead_per_run_usd(catalog: &Catalog, recipe: &Recipe, price_level: f64) -> f64 {
-    let price = |p: ProductId| catalog.products.get(p).reference_price.to_usd();
-    let made = recipe.output * price(recipe.product)
-        + recipe
-            .by_products
-            .iter()
-            .map(|&(p, q)| q * price(p))
-            .sum::<f64>();
-    let used: f64 = recipe.inputs.iter().map(|&(p, q)| q * price(p)).sum();
+/// Administration, sales and logistics in USD (M16): a share of the conversion cost
+/// (labor, electricity, plant) per product kind, like an overhead rate on manufacturing
+/// costs. It falls with mass production and stays put when only market prices fall.
+pub fn overhead_usd(catalog: &Catalog, recipe: &Recipe, conversion_usd: f64) -> f64 {
     let share = catalog
         .production_model
         .overhead_share(catalog.products.get(recipe.product).kind);
-    share * (made - used).max(0.0) * price_level
+    share * conversion_usd.max(0.0)
+}
+
+/// Land rent and royalties per run in USD (M16): a share of the main product's reference
+/// price in the country for each unit extracted. Without them a raw material that is not
+/// scarce fell to its bare extraction cost, a third of its price, and pulled the whole
+/// chain below its reference prices.
+pub fn rent_per_run_usd(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    recipe: &Recipe,
+) -> f64 {
+    let p = catalog.products.get(recipe.product);
+    if p.rent_share <= 0.0 {
+        return 0.0;
+    }
+    p.rent_share
+        * recipe.output
+        * crate::market::local_reference(catalog, state, country, recipe.product).to_usd()
+}
+
+/// Depreciation and maintenance of a recipe's facility per run at normal utilization.
+pub fn capital_per_run_usd(catalog: &Catalog, recipe: &Recipe) -> f64 {
+    let f = catalog.facilities.get(recipe.facility);
+    f.investment.to_usd() * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
+        / (365.0 * f.runs_per_day.max(1e-9) * catalog.market_model.normal_utilization.max(1e-9))
 }
 
 /// Labor hours per run for each group, including automation, deposit difficulty and
@@ -75,7 +94,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
                 continue;
             }
             produce(state, catalog, site, date);
-            finish_batches(state, site, date);
+            finish_batches(state, catalog, site, date);
             running_costs(state, catalog, site, date);
         }
     }
@@ -334,6 +353,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let automation = state.sites[index].slots[slot].automation;
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
         let per_run = hours_per_run(catalog, recipe, automation, affinity, cost_factor);
+        let rent_per_run = rent_per_run_usd(catalog, state, country, recipe);
 
         let mut runs = planned;
         let mut limit = None;
@@ -375,7 +395,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let ds = state.deposits.get(deposit);
             let field = ds.concession_of(site).expect("checked in planned_runs");
             let scale = state.settings.market_scale;
-            let mut room = d.max_output_per_year * scale * field.share - field.extracted_this_year;
+            let mut room = catalog.max_output(deposit, date.year()) * scale * field.share
+                - field.extracted_this_year;
             if let Some(reserve) = d.reserve {
                 room = room.min(reserve * scale - ds.extracted);
             }
@@ -400,6 +421,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let ledger = &mut state.companies[owner.index()].ledger;
         let center = CostCenter::product(site, recipe.product);
         ledger.expense(CostType::Material, center, Account::Inventory, value);
+        let materials = value;
         // Labor used (paid with the wages of the day) and electricity.
         for &(g, h) in &per_run {
             hours[g.index()] -= h * runs;
@@ -418,14 +440,20 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             ledger.expense(CostType::Energy, center, Account::Inventory, own_value);
             value += own_value;
         }
-        // Administration, sales and logistics.
-        let level = state.countries.get(country).price_level;
-        let overhead = Money::from_usd(overhead_per_run_usd(catalog, recipe, level) * runs)
-            .unwrap_or(Money::ZERO);
+        // Administration, sales and logistics on labor, electricity and plant.
+        let conversion = (value - materials).to_usd() + capital_per_run_usd(catalog, recipe) * runs;
+        let overhead =
+            Money::from_usd(overhead_usd(catalog, recipe, conversion)).unwrap_or(Money::ZERO);
         if overhead > Money::ZERO {
             let ledger = &mut state.companies[owner.index()].ledger;
             ledger.expense(CostType::Overhead, center, Account::Cash, overhead);
             value += overhead;
+        }
+        let rent = Money::from_usd(rent_per_run * runs).unwrap_or(Money::ZERO);
+        if rent > Money::ZERO {
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.expense(CostType::Rent, center, Account::Cash, rent);
+            value += rent;
         }
         let ledger = &mut state.companies[owner.index()].ledger;
         ledger.income(CostType::InventoryChange, center, Account::Inventory, value);
@@ -466,17 +494,39 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
     }
 }
 
-fn finish_batches(state: &mut GameState, site: SiteId, date: Date) {
+fn finish_batches(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
+    let days = catalog.production_model.by_product_stock_days;
     let s = &mut state.sites[site.index()];
     for slot in &mut s.slots {
         let (done, open): (Vec<Batch>, Vec<Batch>) =
             slot.batches.drain(..).partition(|b| b.finish <= date);
         slot.batches = open;
         for batch in done {
-            let total: f64 = batch.outputs.iter().map(|(_, q)| q).sum();
+            // By-products beyond `days` of this output are disposed of (flared, dumped):
+            // a refinery does not store petrol nobody buys for decades (M16). The batch's
+            // value goes to what is kept.
+            let kept: Vec<(ProductId, f64)> = batch
+                .outputs
+                .iter()
+                .enumerate()
+                .map(|(i, &(product, quantity))| {
+                    if i == 0 {
+                        return (product, quantity);
+                    }
+                    let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
+                    (product, quantity.min((quantity * days - stock).max(0.0)))
+                })
+                .collect();
+            let kept: Vec<(ProductId, f64)> = kept
+                .into_iter()
+                .enumerate()
+                .filter(|&(i, (_, q))| i == 0 || q > 0.0)
+                .map(|(_, k)| k)
+                .collect();
+            let total: f64 = kept.iter().map(|(_, q)| q).sum();
             let mut remaining = batch.value;
-            for (i, &(product, quantity)) in batch.outputs.iter().enumerate() {
-                let value = if i + 1 == batch.outputs.len() {
+            for (i, &(product, quantity)) in kept.iter().enumerate() {
+                let value = if i + 1 == kept.len() {
                     remaining
                 } else {
                     batch.value.scale(quantity / total)

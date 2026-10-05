@@ -594,6 +594,11 @@ impl Protocol {
 
         let mut found = Vec::new();
         for p in &self.products {
+            // Only made as a by-product (petrol before cracking): its price follows the
+            // main product's output, a glut of it is cheap.
+            if !wsim_core::health::made_as_main(catalog, p.product, p.year) {
+                continue;
+            }
             if let (Some(price), Some(reference)) = (p.price_usd, p.reference_usd) {
                 let ratio = price / reference.max(1e-9);
                 if !(PRICE_BAND.0..=PRICE_BAND.1).contains(&ratio) {

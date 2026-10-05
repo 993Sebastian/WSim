@@ -11,6 +11,8 @@ produkte:
     warengruppe: erze
     transportklasse: schuettgut
     richtpreis_usd: 150
+    # Förderabgaben, Grubenpacht und Erkundung.
+    pacht_anteil: 0.35
 
   - id: kupfer
     art: halbzeug

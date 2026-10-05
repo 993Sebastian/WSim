@@ -24,6 +24,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M14 | Oberfläche III: Spielen | ✅ |
 | M15 | Spielbarkeit Stufe 1 | ✅ |
 | M16 | Markteintritt und Marketing | ✅ |
+| – | Nacharbeit zu M16: Plausibilität und Versorgung | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -333,4 +334,71 @@ Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.
     Marktpreisindex eines Vorprodukts beginnt bei 0 und steigt nur langsam; darauf
     gestützte Gebote der KI erreichen die Verkäufer nicht (Möbelwerke ohne Leim).
     (3) Die KI ändert die Auslastung nur in Schritten von 0,1 und braucht Monate, um einer
-    gestiegenen Nachfrage zu folgen. Korrekturen sind erprobt, aber noch nicht abgenommen.
+    gestiegenen Nachfrage zu folgen. → behoben in der Nacharbeit (folgender Abschnitt).
+
+### Nacharbeit zu M16: Plausibilität und Versorgung (05.10.2026)
+
+Auftrag: generische Lösungen statt Einzelkorrekturen („das ganze Spiel sollte sich so
+verhalten“), Plausibilitätsprüfungen, den Versorgungszweig gleich mit optimieren.
+Grundsatz: Jede Regel gilt für alle Produkte und Länder gleich und hängt nur an der
+Produktart, den Daten und Marktsignalen. Formeln: `docs/FORMELN.md`, Abschnitt
+„Nacharbeit zu M16“; Entscheidungen zum Widersprechen: `docs/OFFENE_PUNKTE.md` 30–41.
+
+  - Prüfungen: `validate` prüft die Richtpreise gegen die Herstellkosten des besten
+    Rezepts (Marge 5–45 %, Förderung mit ihrer Pacht); `wsim rezepte` rechnet dasselbe
+    für beliebige Länder und Jahre. Das Balance-Protokoll prüft neun Kennzahlen für alle
+    Produkte und Länder gleich (Kern: `health`). Der Test
+    `world_stays_plausible_in_the_first_year` lässt CI ein Jahr Weltlauf auf Brüche
+    prüfen.
+  - Kosten: Arbeitsproduktivität nach Wohlstand; Gemeinkosten als Zuschlag auf die
+    Umwandlungskosten je Produktart; Pacht und Förderabgaben je Rohstoff (neue
+    Kostenart); Preise der Waren je Land mit einem Anteil des Preisniveaus je Produktart
+    (Waren sind handelbar), auch als Startpreis jedes Markts.
+  - Markt und Handel: Index ab dem ersten Verkauf; Ausfuhr erst nach den Käufern im
+    Land; Händlerbedarf mit Transporttagen; Händlerlager höchstens zum
+    Wiederbeschaffungspreis; Knappheit im Ausland hebt Preise; freie Anlagen senken
+    Preise; Staaten kaufen auch zu Weltpreisen; knapp ist nur, wofür ein Käufer mehr
+    zahlen würde; Preisschritte 0,25 %/0,125 % je Tag statt 2 %/1 %.
+  - KI: Auslastung nach Absatz und Lagerziel (erster Monat ohne Vormonat richtig
+    gerechnet; ausverkauft über der Untergrenze → mehr; je Entscheidung höchstens ±0,3;
+    Start im Gleichgewicht mit dem geplanten Absatz als Vormonat); Untergrenze aus
+    Einstandskosten;
+    Gebote bis zur Zahlungsbereitschaft aus dem Erlös; Eigenstrom, wenn das Netz bremst;
+    kein Ausbau bei knappen Vorprodukten; Förderanlagen wachsen mit der Konzession.
+  - Daten: Förderindex für Getreide, Baumwolle, Holz; Pacht für sieben Rohstoffe;
+    Kleidung 5 statt 6 Stück je Kopf (Faserbedarf 1900); Fließband für Motor und Fahrgestell;
+    Staatsnachfrage für sonstige Gummiwaren; Entsorgung überschüssiger Nebenprodukte
+    (Benzin um 1900); Korrekturen aus der Margenprüfung (Nägel, Werkzeug, Schnittholz,
+    Möbel, Glühlampe, Nähmaschine, Cracken, Stahl, Konserve, Fahrgestell, Montage).
+  - Fehler behoben: Die Höchstförderung in der Ansicht „Lagerstätte erschließen“ war
+    ohne Marktmaßstab angegeben (bei 100 KI-Firmen zehnmal zu hoch).
+  - Fehler behoben: Kaufte ein Staat oberhalb seiner Preisgrenze nicht, galt das als
+    Mangel; die Anbieter hoben ihre Preise weiter (Nägel und Mehl im ersten Jahr beim
+    Drei- bis Vierfachen).
+
+Ergebnis im Balance-Protokoll (1900–1930, 100 KI-Firmen, Seed 1; Zahl der Verstöße, die
+Grenzen gelten für alle Produkte und Länder gleich):
+
+| Prüfung | Stand M16 | Zwischenstand (vor Pacht und Dämpfung) | Endstand |
+| --- | --- | --- | --- |
+| Versorgung von Verbrauchern und Staaten weltweit (≥ 90 %) | 488 | 39 | 18 |
+| Versorgung je Land (≥ 75 %) | 5.774 | 550 | 311 |
+| Erzeugung, die auf Vorprodukte wartet (≤ 10 %) | 131 | 114 | 12 |
+| Erzeugung, die auf Arbeitskräfte wartet (≤ 10 %) | – | 2 | 1 |
+| Preis gegen Richtpreis (0,5–2 ×) | 404 | 429 | 146 |
+| Marge über Vollkosten (−20 bis 50 %) | – | 96 | 38 |
+| Jahresergebnis des passiven Spielers (≤ 50 %) | 4 | 2 | 4 |
+| Pleiten | 0 | 0 | 0 |
+| Förderung gegen den Bedarf der Anlagen (≥ 90 %) | 78 | 68 | 27 |
+
+Preise 1929 gegen den Richtpreis im Land (Endstand): Rohstoffe 0,81–1,07 (vorher
+Getreide 0,36, Kautschuk 0,37, Rohöl 0,41), Mehl 0,90, Kupfer 0,80, Petroleum 0,86;
+Baumwolle 1,06 und Kleidung 0,66 (vorher 3,83 und 1,40); Stahlkette 0,45–0,66 (real
+fielen diese Preise bis 1929 ebenfalls); Auto 0,32 mit Fließband (Ford: Model T 1909 bis
+1925 real auf etwa ein Siebtel). Im ersten Jahr schwankt Getreide nicht mehr zwischen 0,55
+und 3,9 des Richtpreises. Offen: `docs/OFFENE_PUNKTE.md` 38.
+
+Vorgehen: Jede Änderung im Weltlauf gegen den vorherigen Stand gemessen; Varianten
+parallel (Startpreis, Gleichgewichtsstart, Preisschritte 2/1, 1/0,5, 0,5/0,25 und
+0,25/0,125 % je Tag, Niederstwertprinzip, Mindestschritt nach Richtpreis, Ausbau über der
+Normalauslastung). Verworfen, was keine Verbesserung brachte (`docs/FORMELN.md`).

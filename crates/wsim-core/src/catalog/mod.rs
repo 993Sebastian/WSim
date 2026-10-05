@@ -53,6 +53,19 @@ pub struct Catalog {
 }
 
 impl Catalog {
+    /// Highest output of a deposit per year in a year (before the market scale): the
+    /// deposit's value times the output index of its raw material (M16).
+    pub fn max_output(&self, deposit: DepositId, year: i32) -> f64 {
+        let d = self.deposits.get(deposit);
+        let index = self
+            .products
+            .get(d.resource)
+            .output_index
+            .as_ref()
+            .map_or(1.0, |i| i.value_at(f64::from(year)));
+        d.max_output_per_year * index
+    }
+
     /// Keys of all entries by kind, for saving and loading.
     pub fn key_table(&self) -> KeyTable {
         let keys = IdKind::ALL
@@ -230,8 +243,9 @@ pub struct AiStart {
     pub development_weight: [f64; 5],
     /// Wage for comparing recipes (USD per hour).
     pub reference_wage_usd: f64,
-    /// Plants are planned for this multiple of the demand: saturated markets (M16).
-    pub market_cover: f64,
+    /// Plants are planned for this multiple of the demand, per product kind: saturated
+    /// markets (M16).
+    pub market_cover: [f64; 5],
 }
 
 /// How the AI companies decide; spans depend on competence or aggressiveness.
@@ -243,6 +257,9 @@ pub struct AiBehavior {
     pub stock_low_days: f64,
     pub utilization_step: f64,
     pub utilization_min: f64,
+    /// Largest change of the planned utilization per decision: one weak month must not
+    /// stop a plant, nor one good month fill every warehouse at once.
+    pub utilization_change_max: f64,
     /// Stock the production aims at, in days of sales and own use (M16).
     pub stock_target_days: f64,
     /// Days in which the production closes the gap to the stock target.
@@ -255,6 +272,9 @@ pub struct AiBehavior {
     /// Expansion when the utilization and the margin reach these (aggressiveness).
     pub expand_utilization: Span,
     pub expand_margin: Span,
+    /// No expansion while an input costs more than this multiple of its reference price
+    /// in the country: it is scarce (M16).
+    pub expand_input_price_max: f64,
     pub invest_share_max: f64,
     /// Research on technologies up to this many years before their invention (competence).
     pub research_lookahead_years: Span,
@@ -291,7 +311,7 @@ impl Default for AiModel {
                 cash_months: 3.0,
                 development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
                 reference_wage_usd: 4.0,
-                market_cover: 1.15,
+                market_cover: [1.15; 5],
             },
             behavior: AiBehavior {
                 operations_days: Span {
@@ -302,6 +322,7 @@ impl Default for AiModel {
                 stock_low_days: 7.0,
                 utilization_step: 0.1,
                 utilization_min: 0.2,
+                utilization_change_max: 1.0,
                 stock_target_days: 14.0,
                 stock_adjust_days: 15.0,
                 floor_factor: Span {
@@ -321,6 +342,7 @@ impl Default for AiModel {
                     at_0: 0.25,
                     at_1: 0.08,
                 },
+                expand_input_price_max: 1.5,
                 invest_share_max: 0.3,
                 research_lookahead_years: Span {
                     at_0: 0.0,
@@ -655,6 +677,8 @@ pub struct ProductionModel {
     /// Plausible margin at reference prices of the best recipe of a product in the first
     /// year it can be made (checked when loading the data; extraction only from below).
     pub reference_margin: (f64, f64),
+    /// By-products beyond this many days of their output in stock are disposed of.
+    pub by_product_stock_days: f64,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
 }
@@ -715,6 +739,7 @@ impl Default for ProductionModel {
             feed_in_share: 0.5,
             overhead_share: [0.0; 5],
             reference_margin: (0.05, 0.45),
+            by_product_stock_days: 90.0,
             start_setups: Vec::new(),
         }
     }
@@ -862,6 +887,12 @@ pub struct Product {
     pub state_market: Option<StateMarketOffer>,
     /// Products this one displaces over time (Lastenheft §6.4).
     pub replaces: Vec<ProductId>,
+    /// Raw materials: how the highest output of their deposits develops over the years
+    /// (more land and better yields), as factor on the deposit values (M16).
+    pub output_index: Option<TimeSeries>,
+    /// Raw materials: land rent and royalties per unit extracted, as share of the
+    /// reference price in the country (M16).
+    pub rent_share: f64,
     pub provenance: Provenance,
 }
 

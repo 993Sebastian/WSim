@@ -13,6 +13,8 @@ produkte:
     warengruppe: mineraloel
     transportklasse: fluessig
     richtpreis_usd: 330           # um 1900 etwa 1,20 USD je Barrel
+    # Förderabgabe (ein Achtel), Pacht der Ölfelder und trockene Bohrungen.
+    pacht_anteil: 0.45
     heizwert_mwh: 11.6
 
   - id: petroleum

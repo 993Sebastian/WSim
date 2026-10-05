@@ -12,6 +12,11 @@ produkte:
     warengruppe: agrarrohstoffe
     transportklasse: schuettgut
     richtpreis_usd: 700           # um 1900 etwa 0,65 USD je Bushel
+    # Höchstförderung gegenüber 1900: Weizenernte der Welt etwa 90 Mio. t (1900), 130
+    # (1930), 170 (1950), 310 (1970), 585 (2000), 770 (2020)
+    foerderindex: {1900: 1.0, 1930: 1.45, 1950: 1.9, 1970: 3.4, 2000: 6.5, 2026: 8.5}
+    # Pacht bzw. Bodenrente: Der Pachtzins lag um 1900 bei etwa 30–50 % des Ertrags.
+    pacht_anteil: 0.45
 
   - id: mehl
     art: halbzeug
@@ -181,8 +186,8 @@ rezepte:
       weissblech: 0.0001
       konserveninhalt: 0.0005
     arbeit_stunden:
-      ungelernt: 0.05
-      angelernt: 0.08
+      ungelernt: 0.08
+      angelernt: 0.1
     qualitaet_basis: 50
     annaeherung: true
 

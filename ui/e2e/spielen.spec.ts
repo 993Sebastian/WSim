@@ -38,7 +38,9 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await page.keyboard.press("3");
   await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
   // Newcomer against the established companies: leader, own share and brands.
-  await expect(page.getByRole("cell", { name: "99 % Maschinenfabrik Becker AG" })).toBeVisible();
+  await expect(
+    page.getByRole("cell", { name: "99 % Maschinenfabrik Lehmann & Söhne" }),
+  ).toBeVisible();
   const marken = page.getByRole("table", { name: "Marke und Werbung Deutschland" });
   await expect(marken.getByRole("cell", { name: "Metallwaren", exact: true })).toBeVisible();
   await expect(page.getByText(/Bestes Werbemittel: Zeitungsanzeigen/)).toBeVisible();

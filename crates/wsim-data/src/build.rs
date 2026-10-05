@@ -885,6 +885,22 @@ impl Builder<'_, '_> {
                 .as_ref()
                 .map(|m| self.state_market(m, &l.field("staatsmarkt"))),
             replaces,
+            output_index: v.output_index.as_ref().map(|values| {
+                let loc = l.field("foerderindex");
+                if !matches!(v.kind, RawProductKind::RawMaterial) {
+                    self.ctx
+                        .error(&loc, messages::output_index_needs_raw_material(&v.id));
+                }
+                time_series(self.ctx, values, &loc)
+            }),
+            rent_share: v.rent_share.map_or(0.0, |share| {
+                let loc = l.field("pacht_anteil");
+                if !matches!(v.kind, RawProductKind::RawMaterial) {
+                    self.ctx
+                        .error(&loc, messages::rent_needs_raw_material(&v.id));
+                }
+                in_range(self.ctx, share, 0.0, 0.9, &loc)
+            }),
             provenance: provenance(v.approximation, v.source.as_ref()),
         }
     }
@@ -1207,15 +1223,14 @@ impl Builder<'_, '_> {
             let Some((recipe, margin)) = best else {
                 continue;
             };
-            let upper = (!c.recipes.get(recipe).extraction).then_some(max);
-            if margin < min || upper.is_some_and(|max| margin > max) {
+            if margin < min || margin > max {
                 let price = p.reference_price.to_usd();
                 let message = messages::reference_margin(
                     c.products.key(product),
                     first,
                     ((1.0 - margin) * price, price),
                     margin,
-                    (min, upper),
+                    (min, max),
                 );
                 findings.push((recipes[recipe.index()].loc.field("id"), message));
             }

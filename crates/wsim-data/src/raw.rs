@@ -273,6 +273,10 @@ pub struct RawProduct {
     pub state_market: Option<RawStateMarket>,
     #[serde(rename = "ersetzt", default)]
     pub replaces: Vec<String>,
+    #[serde(rename = "foerderindex", default)]
+    pub output_index: Option<RawSeries>,
+    #[serde(rename = "pacht_anteil", default)]
+    pub rent_share: Option<f64>,
     /// May use five or six levels in its product tree (Lastenheft §17.2).
     #[serde(rename = "sehr_komplex", default)]
     pub very_complex: bool,
@@ -514,6 +518,8 @@ pub struct RawProductionModel {
     pub overhead_share: RawPerKind,
     #[serde(rename = "richtpreis_marge")]
     pub reference_margin: RawLimits,
+    #[serde(rename = "nebenprodukte_lager_tage")]
+    pub by_product_stock_days: f64,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
 }
@@ -862,7 +868,7 @@ pub struct RawAiStart {
     #[serde(rename = "referenzlohn_usd")]
     pub reference_wage_usd: f64,
     #[serde(rename = "marktdeckung")]
-    pub market_cover: f64,
+    pub market_cover: RawPerKind,
 }
 
 #[derive(Debug, Deserialize)]
@@ -893,6 +899,8 @@ pub struct RawAiBehavior {
     pub utilization_step: f64,
     #[serde(rename = "auslastung_min")]
     pub utilization_min: f64,
+    #[serde(rename = "auslastung_aenderung_max")]
+    pub utilization_change_max: f64,
     #[serde(rename = "lager_ziel_tage")]
     pub stock_target_days: f64,
     #[serde(rename = "lager_ausgleich_tage")]
@@ -907,6 +915,8 @@ pub struct RawAiBehavior {
     pub expand_utilization: RawSpan,
     #[serde(rename = "ausbau_marge")]
     pub expand_margin: RawSpan,
+    #[serde(rename = "ausbau_vorprodukt_preis_max")]
+    pub expand_input_price_max: f64,
     #[serde(rename = "ausbau_anteil_kasse_max")]
     pub invest_share_max: f64,
     #[serde(rename = "forschung_vorgriff_jahre")]

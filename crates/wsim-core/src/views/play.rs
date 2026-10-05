@@ -426,7 +426,11 @@ fn free_deposits(game: &Game, country: crate::ids::CountryId) -> Vec<DepositOpti
                     .development_cost
                     .scale(state.settings.market_scale * field.share)),
                 days: d.development_days,
-                output_per_year: d.max_output_per_year * field.share,
+                // What the concession allows this year, at the market scale like the
+                // production itself.
+                output_per_year: catalog.max_output(id, state.date.year())
+                    * state.settings.market_scale
+                    * field.share,
             })
         })
         .collect()

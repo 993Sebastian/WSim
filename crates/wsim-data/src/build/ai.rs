@@ -106,7 +106,12 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         cash_months: non_negative(ctx, s.cash_months, &sl.field("kasse_monate")),
         development_weight: per_kind(ctx, w, &wl, non_negative),
         reference_wage_usd: positive(ctx, s.reference_wage_usd, &sl.field("referenzlohn_usd")),
-        market_cover: in_range(ctx, s.market_cover, 1.0, 3.0, &sl.field("marktdeckung")),
+        market_cover: per_kind(
+            ctx,
+            &s.market_cover,
+            &sl.field("marktdeckung"),
+            |ctx, v, loc| in_range(ctx, v, 1.0, 3.0, loc),
+        ),
     };
     let b = &m.behavior;
     let bl = l.field("verhalten");
@@ -134,6 +139,13 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             &bl.field("auslastung_schritt"),
         ),
         utilization_min: share(ctx, b.utilization_min, &bl.field("auslastung_min")),
+        utilization_change_max: in_range(
+            ctx,
+            b.utilization_change_max,
+            0.01,
+            1.0,
+            &bl.field("auslastung_aenderung_max"),
+        ),
         stock_target_days: positive(ctx, b.stock_target_days, &bl.field("lager_ziel_tage")),
         stock_adjust_days: in_range(
             ctx,
@@ -147,6 +159,13 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),
         expand_margin: span(ctx, &b.expand_margin, &bl.field("ausbau_marge")),
+        expand_input_price_max: in_range(
+            ctx,
+            b.expand_input_price_max,
+            1.0,
+            10.0,
+            &bl.field("ausbau_vorprodukt_preis_max"),
+        ),
         invest_share_max: share(
             ctx,
             b.invest_share_max,

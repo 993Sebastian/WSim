@@ -159,12 +159,15 @@ pub struct UnitCost {
     pub capital: f64,
     /// Administration, sales and logistics.
     pub overhead: f64,
+    /// Land rent and royalties of extraction.
+    pub rent: f64,
     pub by_products: f64,
 }
 
 impl UnitCost {
     pub fn total(&self) -> f64 {
-        self.inputs + self.labor + self.energy + self.capital + self.overhead - self.by_products
+        self.inputs + self.labor + self.energy + self.capital + self.overhead + self.rent
+            - self.by_products
     }
 }
 
@@ -197,13 +200,17 @@ pub fn unit_cost(
     let capital = f.investment.to_usd()
         * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
         / (365.0 * f.runs_per_day.max(1e-9) * utilization.max(1e-9));
+    let energy = r.energy_mwh * country.electricity_price_usd_mwh;
+    let conversion = labor + energy + crate::production::capital_per_run_usd(catalog, r);
     UnitCost {
         inputs: r.inputs.iter().map(|&(p, q)| q * price(p)).sum::<f64>() * per_unit,
         labor: labor * per_unit,
-        energy: r.energy_mwh * country.electricity_price_usd_mwh * per_unit,
+        energy: energy * per_unit,
         capital: capital * per_unit,
-        overhead: crate::production::overhead_per_run_usd(catalog, r, country.price_level)
-            * per_unit,
+        overhead: crate::production::overhead_usd(catalog, r, conversion) * per_unit,
+        rent: catalog.products.get(r.product).rent_share
+            * catalog.products.get(r.product).reference_price.to_usd()
+            * market::level_factor(catalog, country.price_level, r.product),
         by_products: r
             .by_products
             .iter()
@@ -211,6 +218,16 @@ pub fn unit_cost(
             .sum::<f64>()
             * per_unit,
     }
+}
+
+/// Whether some recipe makes the product as its main product in a year; otherwise it
+/// only comes as a by-product (petrol before cracking), and its price follows the
+/// main product's output rather than its own cost.
+pub fn made_as_main(catalog: &Catalog, product: ProductId, year: i32) -> bool {
+    catalog
+        .recipes
+        .iter()
+        .any(|(id, r)| r.product == product && first_year(catalog, id) <= year)
 }
 
 /// The first year in which a recipe can be used (its own and its facility's

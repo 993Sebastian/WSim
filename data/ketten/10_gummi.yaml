@@ -12,6 +12,8 @@ produkte:
     warengruppe: gummi
     transportklasse: stueckgut
     richtpreis_usd: 50_000        # um 1900 etwa 1 USD je lb
+    # Konzessionsabgaben (Wildkautschuk am Amazonas und im Kongo) und Pacht der Plantagen.
+    pacht_anteil: 0.4
 
   - id: schwefel
     art: halbzeug
@@ -33,6 +35,12 @@ produkte:
     warengruppe: gummi
     transportklasse: stueckgut
     richtpreis_usd: 60_000
+    # Steht für die übrigen Gummiwaren der Industrie (Treibriemen, Schläuche, Dichtungen,
+    # Kabelisolierung): um 1900 etwa ein Drittel des Kautschuks.
+    staatsnachfrage:
+      je_mio_usd_bip: 0.005
+      kriegsfaktor: 2.0
+    annaeherung: true
 
   - id: fahrradreifen
     art: komponente

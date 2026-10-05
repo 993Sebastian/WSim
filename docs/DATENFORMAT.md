@@ -146,7 +146,8 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **zustand_minimum** | Untergrenze des Anlagenzustands (0–1) |
 | strom | Produkt der Art `energie`, das für Eigenstrom steht (Kette 7) |
 | **einspeiseverguetung** | Anteil (0–1) des Industriestrompreises für überschüssigen Eigenstrom |
-| **gemeinkosten_anteil** | Verwaltung, Vertrieb und Logistik als Anteil (0–0,9) der Wertschöpfung zu Richtpreisen, je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie` |
+| **gemeinkosten_anteil** | Verwaltung, Vertrieb und Logistik als Zuschlag (0–5) auf die Umwandlungskosten eines Laufs (Arbeit, Strom, Anlage), je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie` |
+| **nebenprodukte_lager_tage** | Nebenprodukte über so viele Tage ihrer Erzeugung hinaus werden entsorgt (> 0) |
 | **richtpreis_marge** | `{minimum, maximum}` (je −1 bis 1): Bereich der Marge, den das beste Rezept eines Produkts zu Richtpreisen erreichen soll; außerhalb warnt die Prüfung (Förderung nur unter `minimum`) |
 | **startformen** | `werkstatt` und `handel` (beide nötig), je: **standorttyp**, **gebaeude_usd**, `anlagen` (Liste `{anlage, rezept, auslastung}`), `einkauf` (Liste `{produkt, ziel, hoechstpreis_usd}`), `verkauf` (Liste von Produkten, Angebot zum Marktpreis). Anlagen und Rezepte müssen 1900 bekannt sein und zum Standorttyp passen. Kosten werden vom Startkapital bezahlt. |
 
@@ -221,6 +222,8 @@ Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
 | staatsmarkt.**preis_usd** | Ware ist in jedem Land vom staatlichen Markt zu diesem Preis erhältlich |
 | staatsmarkt.verfuegbar_ab / verfuegbar_bis | Jahre, in denen der Staatsmarkt die Ware anbietet |
 | ersetzt | Liste von Produkten, die dieses Produkt nach und nach verdrängt |
+| foerderindex | Nur Rohstoffe: Jahreswerte, mit denen die Höchstförderung aller Lagerstätten des Rohstoffs gegenüber ihren Datenwerten wächst (mehr Fläche, bessere Erträge), z. B. `{1900: 1.0, 1930: 1.45}`; ohne Angabe 1 |
+| pacht_anteil | Nur Rohstoffe, 0–0,9: Pacht und Förderabgaben je geförderter Einheit als Anteil am Richtpreis im Land (Bodenrente, Förderzins, Konzessionsabgaben); als Kostenart „Pacht und Förderabgaben“ gebucht; ohne Angabe 0 |
 | sehr_komplex | `true`, wenn der Produktbaum fünf oder sechs Ebenen braucht (Lastenheft §17.2); sonst Warnung ab fünf Ebenen |
 
 Jedes Produkt muss hergestellt (Rezept, auch als Nebenprodukt) oder vom
@@ -333,8 +336,8 @@ der Firma (0–1) ab.
 | **schwierigkeiten** | Liste mit `id`, `kompetenz`, `aggressivitaet` (je 0–1); Text `schwierigkeit.<id>` |
 | **schwierigkeit_standard** | ID der vorgewählten Schwierigkeit |
 | **streuung** | Zufällige Abweichung je Firma von den Werten der Schwierigkeit (0–0,5) |
-| **start** | `auslastung`, `marktdeckung` (1–3, geplante Erzeugung im Verhältnis zum Bedarf: über 1 sind die Märkte zum Start gesättigt), `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie`), `referenzlohn_usd` |
-| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `lager_ziel_tage` (Lager der Erzeugnisse in Tagen des Abgangs), `lager_ausgleich_tage` (in so vielen Tagen wird die Lücke zum Ziel geschlossen), `auslastung_schritt`, `auslastung_min`, `preisuntergrenze`, `werbeanteil` (`bei_0`/`bei_1` nach Aggressivität: Werbebudget als Anteil des Vormonatsumsatzes je Land und Warengruppe), `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `diversifikationen_je_quartal` (Firmen je Quartal, die in einem fremden Engpass bauen), `gruendung_kapitalfaktor` |
+| **start** | `auslastung`, `marktdeckung` (je Produktart 1–3: Vollleistung der Startanlagen im Verhältnis zum Bedarf; über 1 sind die Märkte zum Start gesättigt), `anlage_mindestanteil`, `lager_eingang_tage`, `lager_ausgang_tage`, `kasse_monate`, `gewicht_entwicklung` (je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie`), `referenzlohn_usd` |
+| **verhalten** | `betrieb_alle_tage`, `lager_hoch_tage`, `lager_niedrig_tage` (kleiner als hoch), `lager_ziel_tage` (Lager der Erzeugnisse in Tagen des Abgangs), `lager_ausgleich_tage` (in so vielen Tagen wird die Lücke zum Ziel geschlossen), `auslastung_schritt`, `auslastung_min`, `auslastung_aenderung_max` (0,01–1: so stark ändert sich die geplante Auslastung je Entscheidung höchstens), `preisuntergrenze`, `werbeanteil` (`bei_0`/`bei_1` nach Aggressivität: Werbebudget als Anteil des Vormonatsumsatzes je Land und Warengruppe), `einkauf_aufschlag`, `ausbau_auslastung`, `ausbau_marge`, `ausbau_vorprodukt_preis_max` (1–10: kein Ausbau, solange ein Vorprodukt im Land mehr als dieses Vielfache seines Richtpreises kostet), `ausbau_anteil_kasse_max`, `forschung_vorgriff_jahre`, `forschung_mindestumsatz_usd`, `forschung_mindestkompetenz`, `kasse_min_monate` (kleiner als max), `kasse_max_monate`, `kredit_jahre`, `gruendungen_je_monat`, `diversifikationen_je_quartal` (Firmen je Quartal, die in einem fremden Engpass bauen), `gruendung_kapitalfaktor` |
 
 ## namensgruppen
 

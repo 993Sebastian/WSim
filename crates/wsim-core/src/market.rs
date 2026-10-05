@@ -213,12 +213,14 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                 }
                 _ => [0.0; 5],
             };
+            // A market without sales starts at the price the sellers ask there.
+            let start_price = local_reference(catalog, state, country, product);
             let market = state.markets.get_mut(product).get_mut(country);
             market.close_month();
             // Markets rest until something happens (see `clear`).
             market.idle_since = Some(date);
             if market.price == Money::ZERO {
-                market.price = Money::from_usd(reference).unwrap_or(Money::ZERO);
+                market.price = start_price;
             }
             let price = market.price.to_usd();
             if let Some(d) = &p.consumer_demand {
@@ -550,6 +552,9 @@ fn clear_market(
     by_price.sort_by(|&a, &b| offers[a].price.cmp(&offers[b].price).then(a.cmp(&b)));
     let mut day = Trade::default();
     let mut flows = Flows::default();
+    // The highest price a buyer left without goods would have paid (see below).
+    let mut unmet_limit: Option<Money> = None;
+    let mut consumers_unmet = false;
 
     // 1. Industry: purchase orders, highest willingness to pay first.
     let mut buyers: Vec<(SiteId, f64, Money, f64)> = sites
@@ -613,6 +618,9 @@ fn clear_market(
             need -= quantity;
         }
         flows.industry_unmet += need.max(0.0);
+        if need > 1e-9 {
+            note_unmet(&mut unmet_limit, max_price);
+        }
     }
 
     // 2. Government: cheapest offers up to a price cap.
@@ -643,6 +651,9 @@ fn clear_market(
                 &mut day,
             );
             need -= quantity;
+        }
+        if need > 1e-9 {
+            note_unmet(&mut unmet_limit, cap);
         }
     }
 
@@ -722,6 +733,7 @@ fn clear_market(
             need -= taken;
             bought[q] += taken;
         }
+        consumers_unmet |= need > 1e-9;
     }
 
     // 4. Traders: purchases planned for export (only from company offers), from what
@@ -753,13 +765,22 @@ fn clear_market(
     }
 
     // Prices of automatic sellers and traders, and the market's price index.
-    let unmet = day.unmet() > 1e-9 || export_shortage;
-    let max_price = local_reference(catalog, state, country, product).scale(model.price_max_factor);
+    let reference = local_reference(catalog, state, country, product);
+    let max_price = reference.scale(model.price_max_factor);
+    // Households and traders take any price up to the market's highest.
+    if consumers_unmet || export_shortage {
+        note_unmet(&mut unmet_limit, max_price);
+    }
     let mut import_price = None;
     for (i, o) in offers.iter().enumerate() {
         let before = available_before[i];
-        // Only a seller that had goods and sold out raises its price.
-        let scarce = before > 1e-9 && o.sold >= before - 1e-9 && unmet;
+        // Only a seller that had goods and sold out raises its price, and only while a
+        // buyer left without goods would pay more. Demand that fails at the price (a
+        // government above its cap, a plant above its bid) is no shortage: counted as
+        // one, it drove the prices further out of reach (nails, flour 1900).
+        let scarce = before > 1e-9
+            && o.sold >= before - 1e-9
+            && unmet_limit.is_some_and(|limit| limit > o.price);
         // Slow: stock for more than `stock_days`, or own facilities idling below the
         // normal utilization (they compete for customers instead of standing still).
         let idle = match o.seller {
@@ -878,6 +899,11 @@ fn production_rate(
 
 /// Daily step of an automatic price: up when sold out with demand left, down when
 /// little sells.
+/// Raises the highest price an unserved buyer would have paid.
+fn note_unmet(limit: &mut Option<Money>, price: Money) {
+    *limit = Some(limit.map_or(price, |l| l.max(price)));
+}
+
 fn adjust_price(model: &MarketModel, price: Money, scarce: bool, slow: bool) -> Money {
     if scarce {
         price.scale(1.0 + model.price_step_up)
