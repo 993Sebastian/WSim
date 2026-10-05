@@ -15,11 +15,13 @@
         "license_value_usd": null,
         "object": {
           "country": "DEU",
+          "group": null,
           "kind": "standort",
           "products": [
             "naegel"
           ],
           "site": 0,
+          "site_count": 1,
           "site_type": "standorttyp.werk",
           "technology": null
         },
@@ -29,6 +31,7 @@
         "value": {
           "base_usd": 27056.5648,
           "book_usd": 59739.5434,
+          "brand_usd": 0.0,
           "earnings_value_usd": 0.0,
           "earnings_years": 5.0,
           "inventory_usd": 7169.8068,
@@ -476,6 +479,57 @@
     }
   },
   "firma": {
+    "areas": [
+      {
+        "blocked": null,
+        "blocked_until": null,
+        "brand": [],
+        "group": "textilien",
+        "new_build_usd": 180000000.0,
+        "open_offer": null,
+        "sites": [
+          309
+        ],
+        "value": {
+          "base_usd": 188416893.5963,
+          "book_usd": 179452050.2283,
+          "brand_usd": 0.0,
+          "earnings_value_usd": 0.0,
+          "earnings_years": 5.0,
+          "inventory_usd": 98940443.8245,
+          "liquidation_usd": 89476449.7718,
+          "result_year_usd": null,
+          "under_construction_usd": 0.0
+        }
+      },
+      {
+        "blocked": null,
+        "blocked_until": null,
+        "brand": [
+          [
+            "DEU",
+            1.0
+          ]
+        ],
+        "group": "bekleidung",
+        "new_build_usd": 180931903.1163,
+        "open_offer": null,
+        "sites": [
+          309
+        ],
+        "value": {
+          "base_usd": 189348796.7126,
+          "book_usd": 179452050.2283,
+          "brand_usd": 931903.1163,
+          "earnings_value_usd": 0.0,
+          "earnings_years": 5.0,
+          "inventory_usd": 98940443.8245,
+          "liquidation_usd": 89476449.7718,
+          "result_year_usd": null,
+          "under_construction_usd": 0.0
+        }
+      }
+    ],
     "cash_usd": 37022.3943,
     "company": {
       "equity_usd": 837511831.2567,
@@ -521,6 +575,7 @@
         "value": {
           "base_usd": 188416893.5963,
           "book_usd": 179452050.2283,
+          "brand_usd": 0.0,
           "earnings_value_usd": 0.0,
           "earnings_years": 5.0,
           "inventory_usd": 98940443.8245,

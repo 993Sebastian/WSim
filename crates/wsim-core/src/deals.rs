@@ -11,8 +11,9 @@ use serde::{Deserialize, Serialize};
 use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
 use crate::command::{self, Command, CommandError, site_type_key};
-use crate::ids::{CountryId, Id, ProductId, TechnologyId};
+use crate::ids::{CountryId, GoodsGroupId, Id, ProductId, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
+use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::state::{CompanyId, Consignee, GameState, Goodwill, SiteId};
@@ -24,6 +25,8 @@ pub enum DealObject {
     Site(SiteId),
     /// A licence: the buyer gets the technology, the seller keeps it.
     License(TechnologyId),
+    /// All the seller's sites of a goods group with its brand (M31).
+    Area(GoodsGroupId),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -191,6 +194,148 @@ pub fn site_value(state: &GameState, catalog: &Catalog, site: SiteId) -> SiteVal
     v
 }
 
+/// Awareness counted for the brand value: full awareness would cost endless advertising.
+const AWARENESS_VALUED_MAX: f64 = 0.99;
+
+/// Whether a site can belong to an area: power plants and laboratories serve the whole
+/// company.
+pub fn area_kind(kind: SiteType) -> bool {
+    !matches!(kind, SiteType::PowerPlant | SiteType::ResearchCenter)
+}
+
+/// The goods groups a site makes or offers products of.
+pub fn site_groups(state: &GameState, catalog: &Catalog, site: SiteId) -> BTreeSet<GoodsGroupId> {
+    site_products(state, catalog, site)
+        .into_iter()
+        .map(|p| catalog.products.get(p).goods_group)
+        .collect()
+}
+
+/// The sites of a company's area for a goods group (docs/FORMELN.md, M31).
+pub fn area_sites(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    group: GoodsGroupId,
+) -> Vec<SiteId> {
+    (0..state.sites.len())
+        .map(|i| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .filter(|&site| {
+            let s = &state.sites[site.index()];
+            s.owner == company
+                && area_kind(s.kind)
+                && site_groups(state, catalog, site).contains(&group)
+        })
+        .collect()
+}
+
+/// W: the advertising that would build the company's awareness for a goods group in
+/// every country (docs/FORMELN.md, M31).
+pub fn brand_value(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    group: GoodsGroupId,
+) -> Money {
+    let effect = catalog
+        .market_model
+        .brand
+        .medium(state.date.year())
+        .map_or(0.0, |m| m.effect);
+    if effect <= 0.0 {
+        return Money::ZERO;
+    }
+    let usd: f64 = state.companies[company.index()]
+        .brands
+        .iter()
+        .filter(|b| b.group == group)
+        .map(|b| {
+            let months = -math::ln(1.0 - b.awareness.clamp(0.0, AWARENESS_VALUED_MAX)) / effect;
+            crate::brand::reach_usd(state, catalog, b.country) * months
+        })
+        .sum();
+    Money::from_usd(usd).unwrap_or(Money::ZERO)
+}
+
+/// What an area is worth (docs/FORMELN.md, M31).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct AreaValue {
+    pub sites: Vec<(SiteId, SiteValue)>,
+    /// W: the brand.
+    pub brand: Money,
+    /// G_B = sum of the sites' base values + W.
+    pub base: Money,
+    /// N_B = sum of the sites' new-build costs + W.
+    pub new_build: Money,
+}
+
+impl AreaValue {
+    /// The sum of the sites' parts, with the brand for the views.
+    pub fn sum(&self) -> SiteValue {
+        let mut v = SiteValue::default();
+        for (_, s) in &self.sites {
+            v.fixed_assets += s.fixed_assets;
+            v.under_construction += s.under_construction;
+            v.goodwill += s.goodwill;
+            v.inventory += s.inventory;
+            v.earnings_value += s.earnings_value;
+            v.liquidation += s.liquidation;
+            if let Some(r) = s.result_year {
+                v.result_year = Some(v.result_year.unwrap_or(Money::ZERO) + r);
+            }
+        }
+        v.base = self.base;
+        v
+    }
+}
+
+pub fn area_value_of(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    group: GoodsGroupId,
+    sites: &[SiteId],
+) -> AreaValue {
+    let brand = brand_value(state, catalog, company, group);
+    let sites: Vec<(SiteId, SiteValue)> = sites
+        .iter()
+        .map(|&s| (s, site_value(state, catalog, s)))
+        .collect();
+    let base = sites.iter().map(|(_, v)| v.base).sum::<Money>() + brand;
+    let new_build = sites
+        .iter()
+        .map(|&(s, _)| new_site_cost(state, catalog, s))
+        .sum::<Money>()
+        + brand;
+    AreaValue {
+        sites,
+        brand,
+        base,
+        new_build,
+    }
+}
+
+pub fn area_value(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    group: GoodsGroupId,
+) -> AreaValue {
+    let sites = area_sites(state, catalog, company, group);
+    area_value_of(state, catalog, company, group, &sites)
+}
+
+/// Whether the sites hold all the company's works and extraction sites with facilities
+/// (docs/FORMELN.md, M31).
+fn whole_production(state: &GameState, company: CompanyId, sites: &[SiteId]) -> bool {
+    state.sites.iter().enumerate().all(|(i, s)| {
+        s.owner != company
+            || !matches!(s.kind, SiteType::Extraction | SiteType::Factory)
+            || s.slots.is_empty()
+            || sites.iter().any(|x| x.index() == i)
+    })
+}
+
 /// Shares above the base value that a site is worth to a buyer (docs/FORMELN.md, M30).
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Advantages {
@@ -348,59 +493,86 @@ pub fn advantages(
     site: SiteId,
     value: &SiteValue,
 ) -> Advantages {
+    let business = business(state, catalog, buyer);
+    let new_build = new_site_cost(state, catalog, site);
+    advantages_for(
+        state,
+        catalog,
+        buyer,
+        &business,
+        &[site],
+        value.base,
+        new_build,
+    )
+}
+
+/// The shares of `advantages` for several sites bought together (an area, M31) worth
+/// `base`, which would cost `new_build` anew; `business` as from `business`.
+fn advantages_for(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    business: &(BTreeSet<ProductId>, BTreeSet<(ProductId, CountryId)>),
+    sites: &[SiteId],
+    base: Money,
+    new_build: Money,
+) -> Advantages {
     let model = &catalog.deal_model;
     let ai = &model.ai;
     let (_, aggressiveness) = crate::ai::traits(state, buyer);
-    let s = &state.sites[site.index()];
-    let (made, offered) = business(state, catalog, buyer);
+    let (made, offered) = business;
 
     let mut share = 0.0;
-    for (&p, offer) in &s.offers {
-        if offer.sold_last_month <= 0.0 || !offered.contains(&(p, s.country)) {
-            continue;
+    let (mut workers, mut qualified, mut scarce) = (0.0, 0.0, 0.0);
+    for &site in sites {
+        let s = &state.sites[site.index()];
+        for (&p, offer) in &s.offers {
+            if offer.sold_last_month <= 0.0 || !offered.contains(&(p, s.country)) {
+                continue;
+            }
+            let sold = state.markets.get(p).get(s.country).last_month.sold;
+            if sold > 0.0 {
+                share += offer.sold_last_month / sold;
+            }
         }
-        let sold = state.markets.get(p).get(s.country).last_month.sold;
-        if sold > 0.0 {
-            share += offer.sold_last_month / sold;
+        let country = state.countries.get(s.country);
+        for (g, &w) in s.workforce.iter() {
+            workers += w;
+            let rank = catalog
+                .qualifications
+                .get(catalog.labor_groups.get(g).qualification)
+                .rank;
+            if rank < model.qualified_rank || w <= 0.0 {
+                continue;
+            }
+            qualified += w;
+            let pool = country.labor_pool.get(g.index()).copied().unwrap_or(0.0);
+            let free = country
+                .labor_available
+                .get(g.index())
+                .copied()
+                .unwrap_or(0.0);
+            let scarcity = if pool > 0.0 {
+                (1.0 - free / pool).clamp(0.0, 1.0)
+            } else {
+                1.0
+            };
+            scarce += w * scarcity;
         }
     }
     let competition = ai.competition_markup.at(aggressiveness) * share.min(1.0);
-
-    let country = state.countries.get(s.country);
-    let (mut workers, mut qualified, mut scarce) = (0.0, 0.0, 0.0);
-    for (g, &w) in s.workforce.iter() {
-        workers += w;
-        let rank = catalog
-            .qualifications
-            .get(catalog.labor_groups.get(g).qualification)
-            .rank;
-        if rank < model.qualified_rank || w <= 0.0 {
-            continue;
-        }
-        qualified += w;
-        let pool = country.labor_pool.get(g.index()).copied().unwrap_or(0.0);
-        let free = country
-            .labor_available
-            .get(g.index())
-            .copied()
-            .unwrap_or(0.0);
-        let scarcity = if pool > 0.0 {
-            (1.0 - free / pool).clamp(0.0, 1.0)
-        } else {
-            1.0
-        };
-        scarce += w * scarcity;
-    }
     let staff = if qualified > 0.0 {
         ai.staff_markup * (qualified / workers) * (scarce / qualified)
     } else {
         0.0
     };
 
-    let (own_business, new_build) = if in_business(state, catalog, buyer, site, &made) {
-        let new_site = new_site_cost(state, catalog, site);
-        let saved = if value.base > Money::ZERO {
-            (new_site - value.base).max(Money::ZERO).to_usd() / value.base.to_usd()
+    let in_business = sites
+        .iter()
+        .any(|&site| in_business(state, catalog, buyer, site, made));
+    let (own_business, new_build) = if in_business {
+        let saved = if base > Money::ZERO {
+            (new_build - base).max(Money::ZERO).to_usd() / base.to_usd()
         } else {
             0.0
         };
@@ -485,15 +657,29 @@ fn check_object(
                 return Err(CommandError::LicenseNotPossible);
             }
         }
+        DealObject::Area(group) => {
+            if group.index() >= catalog.goods_groups.len() {
+                return Err(CommandError::NotSellersObject);
+            }
+            let sites = area_sites(state, catalog, seller, group);
+            if sites.is_empty() {
+                return Err(CommandError::NotSellersObject);
+            }
+            let min = catalog.deal_model.min_age_months;
+            if sites.iter().all(|&s| age_months(state, s) < min) {
+                return Err(CommandError::SiteTooYoung { months: min });
+            }
+        }
     }
     Ok(())
 }
 
-/// Until when a buyer may not offer again for an object (declined or expired).
+/// Until when a buyer may not offer a seller again for an object (declined or expired).
 fn blocked_until(
     state: &GameState,
     catalog: &Catalog,
     buyer: CompanyId,
+    seller: CompanyId,
     object: DealObject,
 ) -> Option<Date> {
     state
@@ -501,6 +687,7 @@ fn blocked_until(
         .iter()
         .filter(|o| {
             o.buyer == buyer
+                && o.seller == seller
                 && o.object == object
                 && matches!(o.status, OfferStatus::Declined | OfferStatus::Expired)
         })
@@ -534,14 +721,15 @@ pub(crate) fn make_offer(
     if state.companies[buyer.index()].ledger.cash() < price {
         return Err(CommandError::NotEnoughCash { needed: price });
     }
-    if state
-        .offers
-        .iter()
-        .any(|o| o.status == OfferStatus::Open && o.buyer == buyer && o.object == object)
-    {
+    if state.offers.iter().any(|o| {
+        o.status == OfferStatus::Open
+            && o.buyer == buyer
+            && o.seller == seller
+            && o.object == object
+    }) {
         return Err(CommandError::OfferExists);
     }
-    if let Some(until) = blocked_until(state, catalog, buyer, object) {
+    if let Some(until) = blocked_until(state, catalog, buyer, seller, object) {
         return Err(CommandError::OfferBlocked { until });
     }
     let id = state.next_offer;
@@ -602,23 +790,35 @@ pub(crate) fn answer_offer(
             if buyer.bankrupt || buyer.ledger.cash() < offer.price {
                 return Err(CommandError::BuyerCannotPay);
             }
-            match offer.object {
+            let moved = match offer.object {
                 DealObject::Site(site) => {
                     hand_over(state, catalog, offer.buyer, offer.seller, site, offer.price);
+                    vec![site]
                 }
                 DealObject::License(t) => {
                     license(state, offer.buyer, offer.seller, t, offer.price);
+                    Vec::new()
                 }
-            }
+                DealObject::Area(group) => hand_over_area(
+                    state,
+                    catalog,
+                    offer.buyer,
+                    offer.seller,
+                    group,
+                    offer.price,
+                ),
+            };
             let o = &mut state.offers[index];
             o.status = OfferStatus::Accepted;
             o.closed = Some(today);
-            // Other open offers for the same site are void now; licences can be sold
-            // to several buyers, but a buyer needs only one.
+            // Other open offers for the sites handed over are void now, and so are those
+            // for the seller's areas, whose content changed; licences can be sold to
+            // several buyers, but a buyer needs only one.
             for o in &mut state.offers {
                 let void = o.status == OfferStatus::Open
-                    && match offer.object {
-                        DealObject::Site(_) => o.object == offer.object,
+                    && match o.object {
+                        DealObject::Site(site) => moved.contains(&site),
+                        DealObject::Area(_) => !moved.is_empty() && o.seller == offer.seller,
                         DealObject::License(_) => {
                             o.object == offer.object && o.buyer == offer.buyer
                         }
@@ -707,6 +907,54 @@ fn hand_over(
     s.staffing_due = true;
 }
 
+/// Hands an area over: its sites, with the price split by their base values, and the
+/// brand (docs/FORMELN.md, M31). Returns the sites.
+fn hand_over_area(
+    state: &mut GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    seller: CompanyId,
+    group: GoodsGroupId,
+    price: Money,
+) -> Vec<SiteId> {
+    let value = area_value(state, catalog, seller, group);
+    let total = value.sites.iter().map(|(_, v)| v.base).sum::<Money>();
+    let count = value.sites.len();
+    let mut rest = price;
+    for (i, &(site, v)) in value.sites.iter().enumerate() {
+        let part = if i + 1 == count {
+            rest
+        } else if total > Money::ZERO {
+            price.scale(v.base.to_usd() / total.to_usd()).min(rest)
+        } else {
+            // Few sites; the cast is exact.
+            price.scale(1.0 / count as f64).min(rest)
+        };
+        rest -= part;
+        hand_over(state, catalog, buyer, seller, site, part);
+    }
+    let sold: Vec<crate::state::Brand> = state.companies[seller.index()]
+        .brands
+        .iter()
+        .filter(|b| b.group == group)
+        .copied()
+        .collect();
+    let s = &mut state.companies[seller.index()];
+    s.brands.retain(|b| b.group != group);
+    s.advertising.retain(|a| a.group != group);
+    let brands = &mut state.companies[buyer.index()].brands;
+    for b in sold {
+        match brands
+            .iter_mut()
+            .find(|o| o.country == b.country && o.group == group)
+        {
+            Some(own) => own.awareness = own.awareness.max(b.awareness),
+            None => brands.push(b),
+        }
+    }
+    value.sites.into_iter().map(|(site, _)| site).collect()
+}
+
 /// Gives the buyer the technology; the seller keeps it.
 fn license(
     state: &mut GameState,
@@ -732,8 +980,14 @@ fn license(
     );
 }
 
-/// Message parameters naming the object.
-fn describe(message: Message, state: &GameState, catalog: &Catalog, object: DealObject) -> Message {
+/// Message parameters naming the object of an offer to `seller`.
+pub(crate) fn describe(
+    message: Message,
+    state: &GameState,
+    catalog: &Catalog,
+    seller: CompanyId,
+    object: DealObject,
+) -> Message {
     match object {
         DealObject::Site(site) => {
             let s = &state.sites[site.index()];
@@ -748,6 +1002,27 @@ fn describe(message: Message, state: &GameState, catalog: &Catalog, object: Deal
             "technologie",
             Param::TextKey(format!("technologie.{}", catalog.technologies.key(t))),
         ),
+        DealObject::Area(group) => {
+            let sites = area_sites(state, catalog, seller, group).len();
+            message
+                .with(
+                    "warengruppe",
+                    Param::TextKey(format!("warengruppe.{}", catalog.goods_groups.key(group))),
+                )
+                .with(
+                    "standorte",
+                    Param::Integer(i64::try_from(sites).unwrap_or(i64::MAX)),
+                )
+        }
+    }
+}
+
+/// The key of a message by the kind of object: site, licence or area.
+pub(crate) fn object_key(object: DealObject, keys: [&'static str; 3]) -> &'static str {
+    match object {
+        DealObject::Site(_) => keys[0],
+        DealObject::License(_) => keys[1],
+        DealObject::Area(_) => keys[2],
     }
 }
 
@@ -755,14 +1030,11 @@ fn describe(message: Message, state: &GameState, catalog: &Catalog, object: Deal
 fn news(
     state: &GameState,
     catalog: &Catalog,
-    keys: (&str, &str),
+    keys: [&'static str; 3],
     offer: &Offer,
     other: CompanyId,
 ) -> Message {
-    let key = match offer.object {
-        DealObject::Site(_) => keys.0,
-        DealObject::License(_) => keys.1,
-    };
+    let key = object_key(offer.object, keys);
     let message = Message::new(MessageKind::Info, key)
         .with(
             "firma",
@@ -770,7 +1042,7 @@ fn news(
         )
         .with("preis", Param::Money(offer.price))
         .with("frist", Param::Date(offer.deadline(catalog)));
-    describe(message, state, catalog, offer.object)
+    describe(message, state, catalog, offer.seller, offer.object)
 }
 
 /// The lowest price an AI seller accepts.
@@ -798,11 +1070,30 @@ fn ai_minimum(state: &GameState, catalog: &Catalog, offer: &Offer) -> Money {
                 minimum
             }
         }
+        DealObject::Area(group) => {
+            let sites = area_sites(state, catalog, offer.seller, group);
+            let value = area_value_of(state, catalog, offer.seller, group, &sites);
+            let minimum = value.base.scale(1.0 + ai.sale_markup.at(aggressiveness));
+            // The core of the business, as for a single site.
+            if revenue_share_reached(state, catalog, offer.seller, &sites)
+                || whole_production(state, offer.seller, &sites)
+            {
+                minimum.scale(1.0 + ai.core_markup)
+            } else {
+                minimum
+            }
+        }
     }
 }
 
 /// The highest price an AI buyer pays.
-fn ai_maximum(state: &GameState, catalog: &Catalog, buyer: CompanyId, object: DealObject) -> Money {
+fn ai_maximum(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    seller: CompanyId,
+    object: DealObject,
+) -> Money {
     match object {
         DealObject::Site(site) => {
             let value = site_value(state, catalog, site);
@@ -812,6 +1103,21 @@ fn ai_maximum(state: &GameState, catalog: &Catalog, buyer: CompanyId, object: De
         DealObject::License(t) => license_value(state, catalog, buyer, t)
             .unwrap_or(Money::ZERO)
             .scale(catalog.deal_model.ai.license_max),
+        DealObject::Area(group) => {
+            let sites = area_sites(state, catalog, seller, group);
+            let value = area_value_of(state, catalog, seller, group, &sites);
+            let business = business(state, catalog, buyer);
+            let adv = advantages_for(
+                state,
+                catalog,
+                buyer,
+                &business,
+                &sites,
+                value.base,
+                value.new_build,
+            );
+            value.base.scale(1.0 + adv.total())
+        }
     }
 }
 
@@ -826,6 +1132,16 @@ fn core_site(state: &GameState, catalog: &Catalog, company: CompanyId, site: Sit
     if with_facilities <= 1 && !state.sites[site.index()].slots.is_empty() {
         return true;
     }
+    revenue_share_reached(state, catalog, company, &[site])
+}
+
+/// Whether sites brought at least `kern_anteil` of the company's revenue last month.
+fn revenue_share_reached(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    sites: &[SiteId],
+) -> bool {
     let ledger = &state.companies[company.index()].ledger;
     let Some(month) = ledger.months.last() else {
         return false;
@@ -835,9 +1151,11 @@ fn core_site(state: &GameState, catalog: &Catalog, company: CompanyId, site: Sit
         .get(&CostType::Revenue)
         .copied()
         .unwrap_or(Money::ZERO);
-    total > Money::ZERO
-        && month.site_type(site, CostType::Revenue).to_usd() / total.to_usd()
-            >= catalog.deal_model.ai.core_share
+    let share: f64 = sites
+        .iter()
+        .map(|&s| month.site_type(s, CostType::Revenue).to_usd())
+        .sum();
+    total > Money::ZERO && share / total.to_usd() >= catalog.deal_model.ai.core_share
 }
 
 /// Whether buyer and seller offer a product made with the technology in the same country.
@@ -870,13 +1188,14 @@ fn ai_answer(state: &GameState, catalog: &Catalog, offer: &Offer) -> OfferAnswer
     if offer.counter {
         let cash = state.companies[offer.buyer.index()].ledger.cash();
         let affordable = offer.price <= cash.scale(ai.cash_share_max);
-        return if affordable && offer.price <= ai_maximum(state, catalog, offer.buyer, offer.object)
-        {
+        let highest = ai_maximum(state, catalog, offer.buyer, offer.seller, offer.object);
+        return if affordable && offer.price <= highest {
             OfferAnswer::Accept
         } else {
             OfferAnswer::Decline
         };
     }
+
     let minimum = ai_minimum(state, catalog, offer);
     if offer.price >= minimum {
         OfferAnswer::Accept
@@ -915,7 +1234,11 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             messages.push(news(
                 state,
                 catalog,
-                (keys::OFFER_EXPIRED_SITE, keys::OFFER_EXPIRED_LICENSE),
+                [
+                    keys::OFFER_EXPIRED_SITE,
+                    keys::OFFER_EXPIRED_LICENSE,
+                    keys::OFFER_EXPIRED_AREA,
+                ],
                 &o,
                 other,
             ));
@@ -940,10 +1263,27 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     for offer in due {
         let answer = ai_answer(state, catalog, &offer);
         let who = offer.answering();
-        // Described before the hand-over, while the site still has its old owner.
-        let accepted_site_news = (answer == OfferAnswer::Accept)
-            .then(|| ai_deal_news(state, catalog, &offer))
-            .flatten();
+        // Deals are described before the hand-over, while the seller still owns what it
+        // sells.
+        let accepted_news = if answer != OfferAnswer::Accept {
+            None
+        } else if offer.buyer == player {
+            let keys = [
+                keys::OFFER_BOUGHT_SITE,
+                keys::OFFER_BOUGHT_LICENSE,
+                keys::OFFER_BOUGHT_AREA,
+            ];
+            Some(news(state, catalog, keys, &offer, offer.seller))
+        } else if offer.seller == player {
+            let keys = [
+                keys::OFFER_SOLD_SITE,
+                keys::OFFER_SOLD_LICENSE,
+                keys::OFFER_SOLD_AREA,
+            ];
+            Some(news(state, catalog, keys, &offer, offer.buyer))
+        } else {
+            ai_deal_news(state, catalog, &offer)
+        };
         let command = Command::AnswerOffer {
             offer: offer.id,
             answer,
@@ -967,26 +1307,26 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             None
         };
         match (after.status, player_side) {
-            (OfferStatus::Accepted, Some(other)) => {
-                let keys = if after.buyer == player {
-                    (keys::OFFER_BOUGHT_SITE, keys::OFFER_BOUGHT_LICENSE)
-                } else {
-                    (keys::OFFER_SOLD_SITE, keys::OFFER_SOLD_LICENSE)
-                };
-                messages.push(news(state, catalog, keys, &after, other));
-            }
-            (OfferStatus::Accepted, None) => messages.extend(accepted_site_news),
+            (OfferStatus::Accepted, _) => messages.extend(accepted_news),
             (OfferStatus::Declined, Some(other)) => messages.push(news(
                 state,
                 catalog,
-                (keys::OFFER_DECLINED_SITE, keys::OFFER_DECLINED_LICENSE),
+                [
+                    keys::OFFER_DECLINED_SITE,
+                    keys::OFFER_DECLINED_LICENSE,
+                    keys::OFFER_DECLINED_AREA,
+                ],
                 &after,
                 other,
             )),
             (OfferStatus::Open, Some(other)) if after.counter => messages.push(news(
                 state,
                 catalog,
-                (keys::OFFER_COUNTER_SITE, keys::OFFER_COUNTER_LICENSE),
+                [
+                    keys::OFFER_COUNTER_SITE,
+                    keys::OFFER_COUNTER_LICENSE,
+                    keys::OFFER_COUNTER_AREA,
+                ],
                 &after,
                 other,
             )),
@@ -1005,23 +1345,30 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
 /// News of a deal between AI companies that touches the player: a site that sells
 /// what the player sells, or in a country where the player has a site.
 fn ai_deal_news(state: &GameState, catalog: &Catalog, offer: &Offer) -> Option<Message> {
-    let DealObject::Site(site) = offer.object else {
-        return None;
+    let (sites, key) = match offer.object {
+        DealObject::Site(site) => (vec![site], keys::AI_BUYS_SITE),
+        DealObject::Area(group) => (
+            area_sites(state, catalog, offer.seller, group),
+            keys::AI_BUYS_AREA,
+        ),
+        DealObject::License(_) => return None,
     };
     let player = state.player;
-    let s = &state.sites[site.index()];
     let (_, offered) = business(state, catalog, player);
-    let relevant = state
-        .sites
-        .iter()
-        .any(|o| o.owner == player && o.country == s.country)
-        || s.offers
-            .keys()
-            .any(|&p| offered.iter().any(|&(q, _)| q == p));
+    let relevant = sites.iter().any(|&site| {
+        let s = &state.sites[site.index()];
+        state
+            .sites
+            .iter()
+            .any(|o| o.owner == player && o.country == s.country)
+            || s.offers
+                .keys()
+                .any(|&p| offered.iter().any(|&(q, _)| q == p))
+    });
     if !relevant {
         return None;
     }
-    let message = Message::new(MessageKind::Info, keys::AI_BUYS_SITE)
+    let message = Message::new(MessageKind::Info, key)
         .with(
             "kaeufer",
             Param::Text(state.companies[offer.buyer.index()].name.clone()),
@@ -1031,11 +1378,17 @@ fn ai_deal_news(state: &GameState, catalog: &Catalog, offer: &Offer) -> Option<M
             Param::Text(state.companies[offer.seller.index()].name.clone()),
         )
         .with("preis", Param::Money(offer.price));
-    Some(describe(message, state, catalog, offer.object))
+    Some(describe(
+        message,
+        state,
+        catalog,
+        offer.seller,
+        offer.object,
+    ))
 }
 
 /// The best deal an AI company could offer for now: object, seller and price.
-fn best_deal(
+pub(crate) fn best_deal(
     state: &GameState,
     catalog: &Catalog,
     buyer: CompanyId,
@@ -1057,12 +1410,13 @@ fn best_deal(
         .count();
     let player_full =
         u32::try_from(to_player_this_month).unwrap_or(u32::MAX) >= ai.player_offers_per_month;
-    let taken = |object: DealObject| {
-        state
-            .offers
-            .iter()
-            .any(|o| o.status == OfferStatus::Open && o.buyer == buyer && o.object == object)
-            || blocked_until(state, catalog, buyer, object).is_some()
+    let taken = |seller: CompanyId, object: DealObject| {
+        state.offers.iter().any(|o| {
+            o.status == OfferStatus::Open
+                && o.buyer == buyer
+                && o.seller == seller
+                && o.object == object
+        }) || blocked_until(state, catalog, buyer, seller, object).is_some()
     };
     let mut countries: BTreeSet<CountryId> = state
         .sites
@@ -1085,22 +1439,25 @@ fn best_deal(
         }
     };
 
-    let (made, _) = business(state, catalog, buyer);
+    let business = business(state, catalog, buyer);
+    let available = |seller: CompanyId| {
+        seller != buyer
+            && !state.companies[seller.index()].bankrupt
+            && !(seller == player && player_full)
+    };
     for (i, s) in state.sites.iter().enumerate() {
         let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
         let seller = s.owner;
-        if seller == buyer
+        if !available(seller)
             || !countries.contains(&s.country)
-            || state.companies[seller.index()].bankrupt
-            || (seller == player && player_full)
             || age_months(state, site) < model.min_age_months
-            || taken(DealObject::Site(site))
+            || taken(seller, DealObject::Site(site))
         {
             continue;
         }
         // Laboratories and power plants serve only the owner's own work.
         if matches!(s.kind, SiteType::ResearchCenter | SiteType::PowerPlant)
-            && !in_business(state, catalog, buyer, site, &made)
+            && !in_business(state, catalog, buyer, site, &business.0)
         {
             continue;
         }
@@ -1108,7 +1465,8 @@ fn best_deal(
         if value.base <= Money::ZERO {
             continue;
         }
-        let adv = advantages(state, catalog, buyer, site, &value);
+        let anew = new_site_cost(state, catalog, site);
+        let adv = advantages_for(state, catalog, buyer, &business, &[site], value.base, anew);
         if adv.total() < ai.min_advantage {
             continue;
         }
@@ -1119,13 +1477,63 @@ fn best_deal(
             .min(highest);
         // An owner gives up a site it needs only for what a new one would cost.
         if needed_by_owner(state, catalog, site) {
-            let anew = new_site_cost(state, catalog, site);
             if highest < anew {
                 continue;
             }
             price = price.max(anew);
         }
         consider(highest - price, DealObject::Site(site), seller, price);
+    }
+
+    // Areas (M31): with at least two sites or a brand – else it is the single site – and
+    // a site in one of the buyer's countries.
+    let mut areas: std::collections::BTreeMap<(CompanyId, GoodsGroupId), Vec<SiteId>> =
+        std::collections::BTreeMap::new();
+    for (i, s) in state.sites.iter().enumerate() {
+        if !area_kind(s.kind) || !available(s.owner) {
+            continue;
+        }
+        let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+        for group in site_groups(state, catalog, site) {
+            areas.entry((s.owner, group)).or_default().push(site);
+        }
+    }
+    for ((seller, group), sites) in areas {
+        let object = DealObject::Area(group);
+        let brand = brand_value(state, catalog, seller, group);
+        if (sites.len() < 2 && brand <= Money::ZERO)
+            || !sites
+                .iter()
+                .any(|s| countries.contains(&state.sites[s.index()].country))
+            || sites
+                .iter()
+                .all(|&s| age_months(state, s) < model.min_age_months)
+            || taken(seller, object)
+        {
+            continue;
+        }
+        let value = area_value_of(state, catalog, seller, group, &sites);
+        if value.base <= Money::ZERO {
+            continue;
+        }
+        let adv = advantages_for(
+            state,
+            catalog,
+            buyer,
+            &business,
+            &sites,
+            value.base,
+            value.new_build,
+        );
+        if adv.total() < ai.min_advantage {
+            continue;
+        }
+        let highest = value.base.scale(1.0 + adv.total());
+        let price = value
+            .base
+            .scale(1.0 + ai.bid_markup.at(aggressiveness))
+            .min(highest);
+        consider(highest - price, object, seller, price);
     }
 
     // Licences for what the company is researching, from the first company that knows it.
@@ -1143,17 +1551,13 @@ fn best_deal(
         .collect();
     for t in researching {
         let object = DealObject::License(t);
-        if state.knows(catalog, buyer, t) || taken(object) {
+        if state.knows(catalog, buyer, t) {
             continue;
         }
-        let Some(seller) = state.companies.iter().enumerate().find_map(|(i, c)| {
-            let id = CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
-            (id != buyer
-                && !c.bankrupt
-                && !(id == player && player_full)
-                && state.knows(catalog, id, t))
-            .then_some(id)
-        }) else {
+        let Some(seller) = (0..state.companies.len())
+            .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+            .find(|&id| available(id) && state.knows(catalog, id, t) && !taken(id, object))
+        else {
             continue;
         };
         let Some(value) = license_value(state, catalog, buyer, t) else {
@@ -1203,7 +1607,11 @@ pub(crate) fn ai_offers(
     Some(news(
         state,
         catalog,
-        (keys::OFFER_RECEIVED_SITE, keys::OFFER_RECEIVED_LICENSE),
+        [
+            keys::OFFER_RECEIVED_SITE,
+            keys::OFFER_RECEIVED_LICENSE,
+            keys::OFFER_RECEIVED_AREA,
+        ],
         &offer,
         buyer,
     ))

@@ -1,4 +1,4 @@
-//! Scenario tests for offers between companies (M30) with the small chain of
+//! Scenario tests for offers between companies (M30, areas M31) with the small chain of
 //! `test_support::production`.
 
 use std::sync::Arc;
@@ -6,12 +6,17 @@ use std::sync::Arc;
 use crate::calendar::{Date, RoundLength};
 use crate::catalog::{Catalog, SiteType, Span, test_support};
 use crate::command::{Command, CommandError};
-use crate::deals::{DealObject, OfferAnswer, OfferStatus, site_value};
+use crate::deals::{
+    DealObject, OfferAnswer, OfferStatus, area_value, best_deal, brand_value, site_value,
+};
 use crate::game::Game;
 use crate::ledger::{Account, CostType, Ledger};
 use crate::message::keys;
 use crate::money::Money;
-use crate::state::{AiState, CompanyId, Consignee, GameSettings, SiteId, StartForm};
+use crate::state::{
+    Advertising, AiState, Brand, CompanyId, Consignee, GameSettings, PriceMode, SaleOffer, SiteId,
+    StartForm,
+};
 
 fn usd(v: f64) -> Money {
     Money::from_usd(v).unwrap()
@@ -671,4 +676,259 @@ fn an_ai_company_keeps_its_only_laboratory_while_it_researches() {
             assert_eq!(game.state().sites[lab.index()].owner, player);
         }
     }
+}
+
+/// The rival's brand for ores in AAA, with an advertising budget.
+fn brand(game: &mut Game, company: CompanyId, awareness: f64) {
+    let c = game.catalog().clone();
+    let (country, group) = (
+        c.countries.id("AAA").unwrap(),
+        c.goods_groups.id("erze").unwrap(),
+    );
+    let company = &mut game.state_mut().companies[company.index()];
+    company.brands.push(Brand {
+        country,
+        group,
+        awareness,
+    });
+    company.advertising.push(Advertising {
+        country,
+        group,
+        budget: usd(1_000.0),
+    });
+}
+
+/// M31: an area goes with all its sites, the price split by their base values, and the
+/// brand; the seller keeps neither awareness nor advertising for the group.
+#[test]
+fn an_area_changes_hands_with_its_sites_and_brand() {
+    let (mut game, rival) = new_game(catalog(), false);
+    let player = game.player();
+    let c = game.catalog().clone();
+    let ores = c.goods_groups.id("erze").unwrap();
+    let aaa = c.countries.id("AAA").unwrap();
+    let a = works(&mut game, rival);
+    let b = works(&mut game, rival);
+    // A works without production belongs to no area.
+    let idle = {
+        game.apply_as(
+            rival,
+            Command::FoundSite {
+                country: aaa,
+                kind: SiteType::Factory,
+            },
+        )
+        .unwrap();
+        SiteId(u32::try_from(game.state().sites.len() - 1).unwrap())
+    };
+    brand(&mut game, rival, 0.5);
+    days(&mut game, 40);
+
+    let value = area_value(game.state(), game.catalog(), rival, ores);
+    let sites: Vec<SiteId> = value.sites.iter().map(|&(s, _)| s).collect();
+    assert_eq!(sites, vec![a, b]);
+    // W: the advertising for the awareness the brand has now.
+    let awareness = game.state().companies[rival.index()].awareness(aaa, ores);
+    let reach = crate::brand::reach_usd(game.state(), game.catalog(), aaa);
+    let expected = reach * -crate::math::ln(1.0 - awareness);
+    assert!(awareness > 0.4, "{awareness}");
+    assert!((value.brand.to_usd() - expected).abs() < 0.01, "{value:?}");
+    assert_eq!(
+        value.brand,
+        brand_value(game.state(), game.catalog(), rival, ores)
+    );
+    let parts: Money = value.sites.iter().map(|(_, v)| v.base).sum();
+    assert_eq!(value.base, parts + value.brand);
+
+    let price = value.base.scale(1.2);
+    let cash = |game: &Game, id: CompanyId| game.state().companies[id.index()].ledger.cash();
+    let (player_cash, rival_cash) = (cash(&game, player), cash(&game, rival));
+    game.apply(Command::MakeOffer {
+        seller: rival,
+        object: DealObject::Area(ores),
+        price,
+    })
+    .unwrap();
+    let id = game.state().offers.last().unwrap().id;
+    game.apply_as(rival, answer(id, OfferAnswer::Accept))
+        .unwrap();
+
+    let state = game.state();
+    assert_eq!(state.sites[a.index()].owner, player);
+    assert_eq!(state.sites[b.index()].owner, player);
+    assert_eq!(state.sites[idle.index()].owner, rival);
+    assert_eq!(cash(&game, player), player_cash - price);
+    assert_eq!(cash(&game, rival), rival_cash + price);
+    assert_eq!(
+        state.companies[player.index()].awareness(aaa, ores),
+        awareness
+    );
+    assert_eq!(state.companies[rival.index()].awareness(aaa, ores), 0.0);
+    assert!(state.companies[rival.index()].advertising.is_empty());
+    for company in [player, rival] {
+        assert!(state.companies[company.index()].ledger.is_balanced());
+        assert!(inventory_matches(&game, company));
+    }
+    // Nothing is left of the area.
+    assert_eq!(
+        game.apply(Command::MakeOffer {
+            seller: rival,
+            object: DealObject::Area(ores),
+            price,
+        }),
+        Err(CommandError::NotSellersObject)
+    );
+}
+
+/// An AI company asks the core markup for an area with all its works.
+#[test]
+fn an_ai_company_asks_more_for_its_whole_production() {
+    let mut c = catalog();
+    c.deal_model.ai.chance = Span::fixed(0.0);
+    for whole in [true, false] {
+        let (mut game, rival) = new_game(c.clone(), true);
+        let ores = game.catalog().goods_groups.id("erze").unwrap();
+        let aaa = game.catalog().countries.id("AAA").unwrap();
+        works(&mut game, rival);
+        if !whole {
+            // A second works with a furnace that makes nothing yet.
+            game.apply_as(
+                rival,
+                Command::FoundSite {
+                    country: aaa,
+                    kind: SiteType::Factory,
+                },
+            )
+            .unwrap();
+            let site = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+            let furnace = game.catalog().facilities.id("ofen").unwrap();
+            game.apply_as(
+                rival,
+                Command::BuildFacility {
+                    site,
+                    facility: furnace,
+                    count: 1,
+                },
+            )
+            .unwrap();
+        }
+        days(&mut game, 40);
+        let value = area_value(game.state(), game.catalog(), rival, ores);
+        // Above the usual minimum (+20 %), below the one for the core (+80 %).
+        game.apply(Command::MakeOffer {
+            seller: rival,
+            object: DealObject::Area(ores),
+            price: value.base.scale(1.5),
+        })
+        .unwrap();
+        let news = days(&mut game, 2);
+        if whole {
+            assert!(
+                news.contains(&keys::OFFER_COUNTER_AREA.to_owned()),
+                "{news:?}"
+            );
+            // The minimum of the next day, when the plants have aged a day.
+            let counter = game.state().offers.last().unwrap().price.to_usd();
+            let core = value.base.to_usd() * 1.2 * 1.5;
+            assert!((counter / core - 1.0).abs() < 1e-3, "{counter} vs {core}");
+        } else {
+            assert!(
+                news.contains(&keys::OFFER_BOUGHT_AREA.to_owned()),
+                "{news:?}"
+            );
+        }
+    }
+}
+
+/// An AI company bids for the area of a competitor in its own market: the shares of
+/// all its sites add up, which a single site does not offer.
+#[test]
+fn an_ai_company_bids_for_a_competitors_area() {
+    let mut c = catalog();
+    c.deal_model.ai.min_price_usd = 0.0;
+    let (mut game, rival) = new_game(c, true);
+    let player = game.player();
+    let iron = game.catalog().products.id("eisen").unwrap();
+    let aaa = game.catalog().countries.id("AAA").unwrap();
+    let ores = game.catalog().goods_groups.id("erze").unwrap();
+    let mine = works(&mut game, rival);
+    let a = works(&mut game, player);
+    let b = works(&mut game, player);
+    days(&mut game, 40);
+    // Last month each sold a quarter of the market.
+    let state = game.state_mut();
+    state.markets.get_mut(iron).get_mut(aaa).last_month.sold = 400.0;
+    for site in [mine, a, b] {
+        state.sites[site.index()].offers.insert(
+            iron,
+            SaleOffer {
+                mode: PriceMode::Market {
+                    markup: 0.0,
+                    floor: Money::ZERO,
+                },
+                price: usd(100.0),
+                keep: 0.0,
+                sold_today: 0.0,
+                sold_month: 0.0,
+                sold_last_month: 100.0,
+                to_traders_month: 0.0,
+                to_companies_month: 0.0,
+            },
+        );
+    }
+    let deal = best_deal(game.state(), game.catalog(), rival).expect("a deal");
+    assert_eq!((deal.0, deal.1), (DealObject::Area(ores), player));
+}
+
+/// The company view lists areas with their sites, brand and value; offers and hints
+/// name the goods group.
+#[test]
+fn the_player_sees_areas_and_offers_for_them() {
+    let (mut game, rival) = new_game(catalog(), false);
+    let player = game.player();
+    let ores = game.catalog().goods_groups.id("erze").unwrap();
+    let a = works(&mut game, player);
+    let b = works(&mut game, player);
+    brand(&mut game, player, 0.3);
+    days(&mut game, 40);
+    let detail = crate::views::company_detail(&game, player.0).expect("own company");
+    assert_eq!(detail.areas.len(), 1);
+    let area = &detail.areas[0];
+    assert_eq!(area.group, "erze");
+    assert_eq!(area.sites, vec![a.0, b.0]);
+    assert_eq!(area.brand.len(), 1);
+    assert_eq!(area.brand[0].0, "AAA");
+    assert!(area.value.brand_usd > 0.0);
+    assert!(area.new_build_usd > area.value.brand_usd);
+    assert_eq!(area.blocked, None);
+
+    game.apply_as(
+        rival,
+        Command::MakeOffer {
+            seller: player,
+            object: DealObject::Area(ores),
+            price: usd(5_000_000.0),
+        },
+    )
+    .unwrap();
+    let offers = crate::views::offers(&game).offers;
+    let o = &offers[0];
+    assert_eq!(o.object.kind, "bereich");
+    assert_eq!(o.object.group.as_deref(), Some("erze"));
+    assert_eq!(o.object.site_count, 2);
+    assert_eq!(o.object.products, vec!["eisen".to_owned()]);
+    assert!(o.value.as_ref().is_some_and(|v| v.brand_usd > 0.0));
+    let hint = crate::views::overview(&game)
+        .hints
+        .into_iter()
+        .find(|h| h.message.key == keys::HINT_OFFER_AREA)
+        .expect("a hint to answer");
+    assert!(hint.message.params.iter().any(|(k, _)| k == "warengruppe"));
+
+    // The player's own areas carry no state for offers of its own.
+    let own = crate::views::company_detail(&game, player.0).unwrap();
+    assert_eq!(
+        (own.areas[0].blocked.clone(), own.areas[0].open_offer),
+        (None, None)
+    );
 }

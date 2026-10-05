@@ -158,7 +158,14 @@ pub mod keys {
     pub const OFFER_DECLINED_LICENSE: &str = "meldung.angebot.abgelehnt.lizenz";
     pub const OFFER_EXPIRED_SITE: &str = "meldung.angebot.abgelaufen.standort";
     pub const OFFER_EXPIRED_LICENSE: &str = "meldung.angebot.abgelaufen.lizenz";
+    pub const OFFER_RECEIVED_AREA: &str = "meldung.angebot.erhalten.bereich";
+    pub const OFFER_COUNTER_AREA: &str = "meldung.angebot.gegenangebot.bereich";
+    pub const OFFER_BOUGHT_AREA: &str = "meldung.angebot.gekauft.bereich";
+    pub const OFFER_SOLD_AREA: &str = "meldung.angebot.verkauft.bereich";
+    pub const OFFER_DECLINED_AREA: &str = "meldung.angebot.abgelehnt.bereich";
+    pub const OFFER_EXPIRED_AREA: &str = "meldung.angebot.abgelaufen.bereich";
     pub const AI_BUYS_SITE: &str = "meldung.ki.kauf_standort";
+    pub const AI_BUYS_AREA: &str = "meldung.ki.kauf_bereich";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
     pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
@@ -178,6 +185,8 @@ pub mod keys {
     pub const HINT_OFFER_LICENSE: &str = "hinweis.angebot.lizenz";
     pub const HINT_COUNTER_SITE: &str = "hinweis.gegenangebot.standort";
     pub const HINT_COUNTER_LICENSE: &str = "hinweis.gegenangebot.lizenz";
+    pub const HINT_OFFER_AREA: &str = "hinweis.angebot.bereich";
+    pub const HINT_COUNTER_AREA: &str = "hinweis.gegenangebot.bereich";
 
     pub const ALL: &[&str] = &[
         NEW_GAME_START_YEAR,
@@ -271,7 +280,14 @@ pub mod keys {
         OFFER_DECLINED_LICENSE,
         OFFER_EXPIRED_SITE,
         OFFER_EXPIRED_LICENSE,
+        OFFER_RECEIVED_AREA,
+        OFFER_COUNTER_AREA,
+        OFFER_BOUGHT_AREA,
+        OFFER_SOLD_AREA,
+        OFFER_DECLINED_AREA,
+        OFFER_EXPIRED_AREA,
         AI_BUYS_SITE,
+        AI_BUYS_AREA,
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,
@@ -293,5 +309,7 @@ pub mod keys {
         HINT_OFFER_LICENSE,
         HINT_COUNTER_SITE,
         HINT_COUNTER_LICENSE,
+        HINT_OFFER_AREA,
+        HINT_COUNTER_AREA,
     ];
 }

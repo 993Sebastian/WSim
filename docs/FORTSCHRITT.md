@@ -39,7 +39,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M28 | Geschichte erzählen | ✅ |
 | M29 | Rang in der Übersicht | ✅ |
 | M30 | Kaufangebote I: Standorte, Labore, Lizenzen | ✅ |
-| M31 | Kaufangebote II: ganze Bereiche | offen |
+| M31 | Kaufangebote II: ganze Bereiche | ✅ |
 | M32–M36 | Produktepochen bis 2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
@@ -908,3 +908,47 @@ Eigenständige Entscheidungen:
   - Knapp drei Viertel der KI-Angebote werden abgelehnt (Gebot 5–20 % über dem Grundwert,
     Mindestpreis 10–30 %, Kernstandorte 50 % mehr): ein normales Ergebnis von
     Verhandlungen, das nur eine Sperre für denselben Gegenstand hinterlässt.
+
+### M31: Kaufangebote II – ganze Bereiche (05.10.2026)
+
+Lastenheft §18.4 („alle Standorte einer Warengruppe mit der Markenbekanntheit“).
+Formeln: `docs/FORMELN.md`, M31.
+
+  - **Bereich:** je Firma und Warengruppe alle Förderstandorte, Werke, Lager und
+    Verkaufsbüros, die Waren der Gruppe herstellen oder anbieten – jeweils ganz –, dazu
+    die Bekanntheit der Marke in allen Ländern. Kraftwerke und Labore gehören zu keinem
+    Bereich.
+  - **Bewertung:** Grundwert = Grundwerte der Standorte + Markenwert; der Markenwert ist
+    die Werbung, die dieselbe Bekanntheit aufbauen würde (Werbemodell M16). Höchstpreis
+    und KI-Motive wie bei Standorten, über alle Standorte des Bereichs zusammen.
+  - **Übergabe:** Der Preis wird nach den Grundwerten auf die Standorte verteilt, jeder
+    Standort wie in M30 gebucht. Der Käufer übernimmt je Land die höhere Bekanntheit;
+    der Verkäufer verliert Marke und Werbebudgets der Gruppe. Offene Angebote für die
+    übergebenen Standorte und für Bereiche des Verkäufers verfallen.
+  - **KI:** prüft Bereiche zusammen mit Standorten und Lizenzen (Spielraum je Dollar),
+    nur solche mit mindestens zwei Standorten oder einer Marke. Sperren und offene
+    Angebote gelten jetzt je Käufer, Verkäufer und Gegenstand.
+  - **Oberfläche:** In der Firmenansicht stehen die Bereiche mit ihren Standorten, der
+    Bekanntheit je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und Preisfeld;
+    Angebote, Meldungen und Hinweise nennen Warengruppe und Zahl der Standorte.
+  - **Weltlauf 1900–1930:** 15 Bereichskäufe (der größte mit 23 Standorten, Fahrzeuge),
+    328 Standortkäufe, 16 Lizenzen. Gegen M30: Versorgung weltweit 15 → 18 Verstöße,
+    je Land 294 → 309, Preis gegen Richtpreis 148 → 139, Marge 47 → 47. 7 statt 4
+    Pleiten, davon 3 im Jahr 1925; keine der Firmen hatte einen Bereich gekauft oder
+    verkauft (vor allem Stahlfirmen bei niedrigen Stahlpreisen). Die Grenzen der
+    Prüfung „Pleiten“ werden eingehalten.
+  - Tests: vier Szenariotests (Übergabe mit Preisaufteilung und Marke, Kernaufschlag für
+    die ganze Erzeugung, KI bietet für den Bereich eines Wettbewerbers, Sichten und
+    Hinweise), Vorschau (Bereich mit Marke, Grundwert, Angebot).
+
+Eigenständige Entscheidungen:
+
+  - Ein Standort geht ganz zu einem Bereich, auch wenn er Waren anderer Gruppen herstellt;
+    Standorte lassen sich nicht teilen. Gehört ein Standort zu mehreren Bereichen, steht
+    er in jedem.
+  - Umfasst ein Bereich die ganze Erzeugung einer KI-Firma, verlangt sie den
+    Kernaufschlag wie für ihren einzigen Standort mit Anlagen (M30), statt abzulehnen.
+  - Bekanntheit wird bis 99 % bewertet (volle Bekanntheit würde unendlich viel Werbung
+    kosten). Die Marke geht als Teil des Preises in den Firmenwert der Standorte ein,
+    soweit der Preis die Buchwerte übersteigt; ein eigenes Markenkonto gibt es nicht.
+  - Ein Bereich lässt sich bieten, sobald sein ältester Standort das Mindestalter hat.

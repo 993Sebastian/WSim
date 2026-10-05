@@ -37,7 +37,7 @@ export type Befehl =
   | { WithdrawOffer: { offer: number } };
 
 /** What an offer is for (M30): a site by its number, or a licence on a technology. */
-export type Gegenstand = { Site: number } | { License: string };
+export type Gegenstand = { Site: number } | { License: string } | { Area: string };
 
 /** How the company whose turn it is answers an offer. */
 export type Antwort = "Accept" | "Decline" | { Counter: { price: number } };

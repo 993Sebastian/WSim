@@ -309,6 +309,18 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   const werk = page.getByRole("article", { name: "Werk in Deutschland" });
   await expect(werk).toContainText("Kleidung, Stoff, Garn");
   await expect(werk).toContainText("Neubau heute: 180 Mio. USD");
+  // Its areas: the clothing with a brand known everywhere in Germany.
+  const bereich = page.getByRole("article", { name: "Bereich Bekleidung" });
+  await expect(bereich).toContainText("Standorte (1): Werk in Deutschland");
+  await expect(bereich).toContainText("Marke: Deutschland 100 %");
+  await bereich.getByLabel("Wie entsteht: Grundwert?").first().click();
+  await expect(bereich.getByRole("note")).toContainText("Marke (Werbung für dieselbe Bekanntheit)");
+  await bereich.getByLabel("Wie entsteht: Grundwert?").first().click();
+  await bereich.getByLabel("Preis").fill("250000000");
+  await bereich.getByRole("button", { name: "Angebot abgeben" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    MakeOffer: { seller: 59, object: { Area: "bekleidung" }, price: 2_500_000_000_000 },
+  });
   await werk.getByLabel("Preis").fill("200000000");
   await werk.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({

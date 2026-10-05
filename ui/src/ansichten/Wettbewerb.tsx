@@ -1,10 +1,12 @@
-// Competition (M30, docs/BEDIENUNG.md): the offers to buy and sell sites and licences,
-// and the companies with what they own. "Who wants what of mine, and what could I buy?"
+// Competition (M30/M31, docs/BEDIENUNG.md): the offers to buy and sell sites, areas and
+// licences, and the companies with what they own. "Who wants what of mine, and what
+// could I buy?"
 import { useState, type FormEvent } from "react";
 import {
   ausAnzeige,
   formatDatum,
   formatGeld,
+  formatProzent,
   formatZahl,
   geldEinheit,
   geldFeld,
@@ -17,6 +19,7 @@ import {
   geld,
   type Angebot,
   type Befehl,
+  type Geschaeftsbereich,
   type Firmendetail,
   type Gegenstandssicht,
   type Kern,
@@ -38,10 +41,16 @@ import {
 
 type Reiter = "angebote" | "firmen";
 
-/** "Werk in Deutschland (Nägel, Draht)" or "Lizenz auf …". */
+/** "Werk in Deutschland (Nägel, Draht)", "Bereich Metallwaren (…)" or "Lizenz auf …". */
 export function gegenstandText(g: Gegenstandssicht): string {
   if (g.kind === "lizenz")
     return t("wettbewerb.lizenz_auf", { technologie: t(`technologie.${g.technology}`) });
+  if (g.kind === "bereich")
+    return t("wettbewerb.bereich_mit", {
+      gruppe: t(`warengruppe.${g.group}`),
+      anzahl: formatZahl(g.site_count),
+      produkte: g.products.map((p) => t(`produkt.${p}`)).join(", "),
+    });
   const art = t(g.site_type ?? "standorttyp.werk");
   const land = landName(g.country ?? "");
   const produkte = g.products.map((p) => t(`produkt.${p}`)).join(", ");
@@ -50,8 +59,21 @@ export function gegenstandText(g: Gegenstandssicht): string {
     : t("wettbewerb.standort", { art, land });
 }
 
-/** The parts of a site's base value (docs/FORMELN.md, M30). */
-function Wertteile({ w }: { w: Standortwert }) {
+/** The parts of a site's base value (docs/FORMELN.md, M30), or an area's (M31). */
+function Wertteile({ w, bereich }: { w: Standortwert; bereich: boolean }) {
+  if (bereich)
+    return (
+      <dl className="rechnung">
+        <dt>{t("wettbewerb.standorte_summe")}</dt>
+        <dd>{formatGeld(w.base_usd - w.brand_usd)}</dd>
+        <dt>{t("wettbewerb.markenwert")}</dt>
+        <dd>{formatGeld(w.brand_usd)}</dd>
+        <dt className="summe">{t("wettbewerb.grundwert")}</dt>
+        <dd className="summe">{formatGeld(w.base_usd)}</dd>
+        <dt>{t("wettbewerb.buchwert")}</dt>
+        <dd>{formatGeld(w.book_usd)}</dd>
+      </dl>
+    );
   return (
     <dl className="rechnung">
       <dt>
@@ -82,13 +104,13 @@ function Wertteile({ w }: { w: Standortwert }) {
 }
 
 /** Base value with its explanation. */
-function Grundwert({ w }: { w: Standortwert }) {
+function Grundwert({ w, bereich = false }: { w: Standortwert; bereich?: boolean }) {
   return (
     <span className="mit-erklaerung">
       {formatGeld(w.base_usd)}
       <Erklaerung wert={t("wettbewerb.grundwert")}>
-        <p>{t("wettbewerb.grundwert_hilfe")}</p>
-        <Wertteile w={w} />
+        <p>{t(bereich ? "wettbewerb.grundwert_bereich_hilfe" : "wettbewerb.grundwert_hilfe")}</p>
+        <Wertteile w={w} bereich={bereich} />
       </Erklaerung>
     </span>
   );
@@ -170,7 +192,7 @@ function AngebotKarte({ a }: { a: Angebot }) {
           <div className="kennzahl">
             <dt>{t("wettbewerb.grundwert")}</dt>
             <dd>
-              <Grundwert w={a.value} />
+              <Grundwert w={a.value} bereich={a.object.kind === "bereich"} />
             </dd>
           </div>
         )}
@@ -327,6 +349,58 @@ function FirmenListe({
   );
 }
 
+/** An area of another company: its sites, brand and value, with a price form. */
+function BereichKarte({ b, d }: { b: Geschaeftsbereich; d: Firmendetail }) {
+  const gruppe = t(`warengruppe.${b.group}`);
+  const standorte = b.sites
+    .map((id) => d.sites.find((s) => s.site === id))
+    .filter((s) => s !== undefined)
+    .map((s) => t("wettbewerb.standort", { art: t(s.site_type), land: landName(s.country) }));
+  return (
+    <article className="karte" aria-label={t("wettbewerb.bereich", { gruppe })}>
+      <h4>{gruppe}</h4>
+      <p>
+        {t("wettbewerb.bereich_standorte", {
+          anzahl: formatZahl(b.sites.length),
+          liste: standorte.join(", "),
+        })}
+      </p>
+      <p className="gedaempft">
+        {t("wettbewerb.marke")}:{" "}
+        {b.brand.length === 0
+          ? t("wettbewerb.marke_keine")
+          : b.brand
+              .map(([land, anteil]) => `${landName(land)} ${formatProzent(anteil)}`)
+              .join(", ")}
+      </p>
+      <p>
+        {t("wettbewerb.grundwert")}: <Grundwert w={b.value} bereich />
+      </p>
+      <p>
+        {t("wettbewerb.neubau")}: {formatGeld(b.new_build_usd)}
+      </p>
+      {b.blocked === null ? (
+        <Preisformular
+          key={`${b.group}/${geldSchluessel()}`}
+          ort={`bereich/${d.company.index}/${b.group}`}
+          vorschlag={b.value.base_usd * 1.1}
+          knopf={t("wettbewerb.anbieten")}
+          erfolg={t("wettbewerb.angebot_gesendet")}
+          befehl={(price) => ({
+            MakeOffer: { seller: d.company.index, object: { Area: b.group }, price },
+          })}
+        />
+      ) : (
+        <p className="gedaempft">
+          {t(`wettbewerb.gesperrt.${b.blocked}`, {
+            datum: b.blocked_until ? formatDatum(b.blocked_until) : "",
+          })}
+        </p>
+      )}
+    </article>
+  );
+}
+
 function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void }) {
   const c = d.company;
   return (
@@ -398,6 +472,17 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
           </article>
         ))}
       </div>
+      {d.areas.length > 0 && (
+        <>
+          <h3>{t("wettbewerb.bereiche")}</h3>
+          <p className="gedaempft">{t("wettbewerb.bereiche_hilfe")}</p>
+          <div className="karten">
+            {d.areas.map((b) => (
+              <BereichKarte key={b.group} b={b} d={d} />
+            ))}
+          </div>
+        </>
+      )}
       <h3>{t("wettbewerb.lizenzen")}</h3>
       {d.licenses.length === 0 ? (
         <p className="gedaempft">{t("wettbewerb.keine_lizenzen")}</p>

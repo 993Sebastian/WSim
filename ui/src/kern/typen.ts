@@ -762,14 +762,21 @@ export interface Standortwert {
   earnings_value_usd: number;
   liquidation_usd: number;
   under_construction_usd: number;
-  /** Base value G = max(earnings value, liquidation) + under construction + stocks. */
+  /** Base value G = max(earnings value, liquidation) + under construction + stocks;
+   * for an area the sum over its sites and the brand. */
   base_usd: number;
   earnings_years: number;
+  /** Brand value W of an area (advertising for the same awareness); 0 for a site. */
+  brand_usd: number;
 }
 
 /** The object of an offer. */
 export interface Gegenstandssicht {
-  kind: "standort" | "lizenz";
+  kind: "standort" | "lizenz" | "bereich";
+  /** Goods group of an area. */
+  group: string | null;
+  /** Number of sites of an area. */
+  site_count: number;
   site: number | null;
   /** Text key of the site type. */
   site_type: string | null;
@@ -844,9 +851,25 @@ export interface Lizenzmoeglichkeit {
   blocked_until: string | null;
 }
 
+/** All sites of a company in a goods group with its brand (M31). */
+export interface Geschaeftsbereich {
+  group: string;
+  /** Its sites, as in `sites` of the company. */
+  sites: number[];
+  /** Awareness of the brand per country, highest first. */
+  brand: [string, number][];
+  value: Standortwert;
+  new_build_usd: number;
+  /** Why no offer is possible now, as for sites. */
+  blocked: "zu_jung" | "angebot_offen" | "gesperrt" | null;
+  blocked_until: string | null;
+  open_offer: number | null;
+}
+
 export interface Firmendetail {
   company: Firmenzeile;
   sites: FremderStandort[];
+  areas: Geschaeftsbereich[];
   licenses: Lizenzmoeglichkeit[];
   cash_usd: number;
   min_age_months: number;

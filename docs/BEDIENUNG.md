@@ -160,7 +160,7 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   zwei Stufen sind offen, tiefere klappen auf; ein Klick auf ein Produkt öffnet seinen
   Markt.
 
-### Wettbewerb (M30)
+### Wettbewerb (M30, M31)
 
 Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
 
@@ -177,6 +177,10 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Firma einen Standort selbst – den Strom eines Kraftwerks für ihre Werke im Land oder
   ihr einziges Labor –, steht das dabei: Unter dem Neubaupreis verkauft sie ihn nicht,
   und der Preisvorschlag beginnt dort.
+- **Bereiche (M31):** Unter den Standorten einer Firma stehen ihre Bereiche – je
+  Warengruppe alle Standorte, die Waren der Gruppe herstellen oder anbieten, mit der
+  Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
+  Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
 ### Forschung → Technologiebaum (M19)
 

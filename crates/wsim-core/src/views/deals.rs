@@ -26,9 +26,11 @@ pub struct SiteValueView {
     pub liquidation_usd: f64,
     /// U: facilities and development under construction.
     pub under_construction_usd: f64,
-    /// G = max(E, Q) + U + L.
+    /// G = max(E, Q) + U + L; for an area the sum over its sites and the brand.
     pub base_usd: f64,
     pub earnings_years: f64,
+    /// W: the brand of an area (M31), 0 for a site.
+    pub brand_usd: f64,
 }
 
 fn value_view(game: &Game, v: &SiteValue) -> SiteValueView {
@@ -41,14 +43,26 @@ fn value_view(game: &Game, v: &SiteValue) -> SiteValueView {
         under_construction_usd: usd(v.under_construction),
         base_usd: usd(v.base),
         earnings_years: game.catalog().deal_model.earnings_years,
+        brand_usd: 0.0,
+    }
+}
+
+fn area_value_view(game: &Game, v: &deals::AreaValue) -> SiteValueView {
+    SiteValueView {
+        brand_usd: usd(v.brand),
+        ..value_view(game, &v.sum())
     }
 }
 
 /// The object of an offer.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DealObjectView {
-    /// `standort` or `lizenz`.
+    /// `standort`, `lizenz` or `bereich`.
     pub kind: String,
+    /// Goods group of an area.
+    pub group: Option<String>,
+    /// Number of sites of an area.
+    pub site_count: u32,
     pub site: Option<u32>,
     /// Text key of the site type, e.g. `standorttyp.werk`.
     pub site_type: Option<String>,
@@ -79,13 +93,15 @@ fn products_of(game: &Game, site: SiteId) -> Vec<String> {
     products
 }
 
-fn object_view(game: &Game, object: DealObject) -> DealObjectView {
+fn object_view(game: &Game, seller: CompanyId, object: DealObject) -> DealObjectView {
     let catalog = game.catalog();
     match object {
         DealObject::Site(site) => {
             let s = &game.state().sites[site.index()];
             DealObjectView {
                 kind: "standort".to_owned(),
+                group: None,
+                site_count: 1,
                 site: Some(site_index(site)),
                 site_type: Some(site_type_key(s.kind)),
                 country: Some(catalog.countries.key(s.country).to_owned()),
@@ -95,12 +111,35 @@ fn object_view(game: &Game, object: DealObject) -> DealObjectView {
         }
         DealObject::License(t) => DealObjectView {
             kind: "lizenz".to_owned(),
+            group: None,
+            site_count: 0,
             site: None,
             site_type: None,
             country: None,
             products: Vec::new(),
             technology: Some(catalog.technologies.key(t).to_owned()),
         },
+        DealObject::Area(group) => {
+            let sites = deals::area_sites(game.state(), catalog, seller, group);
+            let mut products: Vec<String> = Vec::new();
+            for &site in &sites {
+                for p in products_of(game, site) {
+                    if !products.contains(&p) {
+                        products.push(p);
+                    }
+                }
+            }
+            DealObjectView {
+                kind: "bereich".to_owned(),
+                group: Some(catalog.goods_groups.key(group).to_owned()),
+                site_count: u32::try_from(sites.len()).unwrap_or(u32::MAX),
+                site: None,
+                site_type: None,
+                country: None,
+                products,
+                technology: None,
+            }
+        }
     }
 }
 
@@ -164,6 +203,13 @@ fn offer_view(game: &Game, offer: &Offer) -> OfferView {
             None,
             deals::license_value(state, catalog, offer.buyer, t).map(usd),
         ),
+        DealObject::Area(group) if open => (
+            Some(area_value_view(
+                game,
+                &deals::area_value(state, catalog, offer.seller, group),
+            )),
+            None,
+        ),
         _ => (None, None),
     };
     OfferView {
@@ -176,7 +222,7 @@ fn offer_view(game: &Game, offer: &Offer) -> OfferView {
         .to_owned(),
         company: state.companies[other.index()].name.clone(),
         company_index: other.0,
-        object: object_view(game, offer.object),
+        object: object_view(game, offer.seller, offer.object),
         price_usd: usd(offer.price),
         counter: offer.counter,
         date: iso(offer.date),
@@ -313,19 +359,38 @@ pub struct LicenseView {
     pub blocked_until: Option<String>,
 }
 
+/// An area of a company: all its sites of a goods group with the brand (M31).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AreaView {
+    pub group: String,
+    /// Its sites, as listed in `sites` of the company.
+    pub sites: Vec<u32>,
+    /// Awareness of the brand per country, highest first.
+    pub brand: Vec<(String, f64)>,
+    pub value: SiteValueView,
+    /// What the sites and the advertising for the brand would cost today.
+    pub new_build_usd: f64,
+    /// Why the player cannot bid now, as for sites.
+    pub blocked: Option<String>,
+    pub blocked_until: Option<String>,
+    pub open_offer: Option<u32>,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CompanyDetailView {
     pub company: CompanyRowView,
     pub sites: Vec<ForeignSiteView>,
+    pub areas: Vec<AreaView>,
     pub licenses: Vec<LicenseView>,
     /// The player's cash (for the offer form).
     pub cash_usd: f64,
     pub min_age_months: u32,
 }
 
-/// Until when the player is blocked for an object, and its open offer.
+/// Until when the player is blocked for an object of `seller`, and its open offer.
 fn player_offer_state(
     game: &Game,
+    seller: CompanyId,
     object: DealObject,
 ) -> (Option<u32>, Option<crate::calendar::Date>) {
     let state = game.state();
@@ -334,13 +399,19 @@ fn player_offer_state(
     let open = state
         .offers
         .iter()
-        .find(|o| o.status == OfferStatus::Open && o.buyer == player && o.object == object)
+        .find(|o| {
+            o.status == OfferStatus::Open
+                && o.buyer == player
+                && o.seller == seller
+                && o.object == object
+        })
         .map(|o| o.id);
     let blocked = state
         .offers
         .iter()
         .filter(|o| {
             o.buyer == player
+                && o.seller == seller
                 && o.object == object
                 && matches!(o.status, OfferStatus::Declined | OfferStatus::Expired)
         })
@@ -368,7 +439,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         .filter(|(_, s)| s.owner == id)
         .map(|(i, s)| {
             let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
-            let (open, blocked) = player_offer_state(game, DealObject::Site(site));
+            let (open, blocked) = player_offer_state(game, id, DealObject::Site(site));
             let ready = s.founded.add_months(min_age);
             let (reason, until) = if id == player {
                 (None, None)
@@ -401,6 +472,55 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
             }
         })
         .collect();
+    let groups: std::collections::BTreeSet<crate::ids::GoodsGroupId> = state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.owner == id && deals::area_kind(s.kind))
+        .flat_map(|(i, _)| {
+            deals::site_groups(state, catalog, SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
+        })
+        .collect();
+    let areas = groups
+        .into_iter()
+        .map(|group| {
+            let sites = deals::area_sites(state, catalog, id, group);
+            let value = deals::area_value_of(state, catalog, id, group, &sites);
+            let (open, blocked) = player_offer_state(game, id, DealObject::Area(group));
+            let ready = sites
+                .iter()
+                .map(|s| state.sites[s.index()].founded.add_months(min_age))
+                .min();
+            let (reason, until) = if id == player {
+                (None, None)
+            } else if let Some(_offer) = open {
+                (Some("angebot_offen"), None)
+            } else if let Some(ready) = ready.filter(|&r| r > state.date) {
+                (Some("zu_jung"), Some(ready))
+            } else if let Some(until) = blocked {
+                (Some("gesperrt"), Some(until))
+            } else {
+                (None, None)
+            };
+            let mut brand: Vec<(String, f64)> = company
+                .brands
+                .iter()
+                .filter(|b| b.group == group)
+                .map(|b| (catalog.countries.key(b.country).to_owned(), b.awareness))
+                .collect();
+            brand.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+            AreaView {
+                group: catalog.goods_groups.key(group).to_owned(),
+                sites: sites.iter().map(|s| s.0).collect(),
+                brand,
+                value: area_value_view(game, &value),
+                new_build_usd: usd(value.new_build),
+                blocked: reason.map(str::to_owned),
+                blocked_until: until.map(iso),
+                open_offer: open,
+            }
+        })
+        .collect();
     let licenses = if id == player {
         Vec::new()
     } else {
@@ -410,7 +530,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
             .filter(|&t| state.knows(catalog, id, t) && !state.knows(catalog, player, t))
             .filter_map(|t| {
                 let value = deals::license_value(state, catalog, player, t)?;
-                let (open, blocked) = player_offer_state(game, DealObject::License(t));
+                let (open, blocked) = player_offer_state(game, id, DealObject::License(t));
                 Some(LicenseView {
                     technology: catalog.technologies.key(t).to_owned(),
                     value_usd: usd(value),
@@ -423,6 +543,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
     Some(CompanyDetailView {
         company: row(state, catalog, id),
         sites,
+        areas,
         licenses,
         cash_usd: usd(state.companies[player.index()].ledger.cash()),
         min_age_months: min_age,
@@ -440,33 +561,33 @@ pub(super) fn offer_hints(game: &Game) -> Vec<Message> {
         .filter(|o| o.status == OfferStatus::Open && o.answering() == player)
         .map(|o| {
             let other = if o.buyer == player { o.seller } else { o.buyer };
-            let key = match (o.object, o.counter) {
-                (DealObject::Site(_), false) => keys::HINT_OFFER_SITE,
-                (DealObject::License(_), false) => keys::HINT_OFFER_LICENSE,
-                (DealObject::Site(_), true) => keys::HINT_COUNTER_SITE,
-                (DealObject::License(_), true) => keys::HINT_COUNTER_LICENSE,
+            let key = if o.counter {
+                deals::object_key(
+                    o.object,
+                    [
+                        keys::HINT_COUNTER_SITE,
+                        keys::HINT_COUNTER_LICENSE,
+                        keys::HINT_COUNTER_AREA,
+                    ],
+                )
+            } else {
+                deals::object_key(
+                    o.object,
+                    [
+                        keys::HINT_OFFER_SITE,
+                        keys::HINT_OFFER_LICENSE,
+                        keys::HINT_OFFER_AREA,
+                    ],
+                )
             };
-            let mut m = Message::new(MessageKind::Info, key)
+            let m = Message::new(MessageKind::Info, key)
                 .with(
                     "firma",
                     Param::Text(state.companies[other.index()].name.clone()),
                 )
                 .with("preis", Param::Money(o.price))
                 .with("frist", Param::Date(o.deadline(catalog)));
-            m = match o.object {
-                DealObject::Site(site) => {
-                    let s = &state.sites[site.index()];
-                    m.with("art", Param::TextKey(site_type_key(s.kind))).with(
-                        "land",
-                        Param::Country(catalog.countries.key(s.country).to_owned()),
-                    )
-                }
-                DealObject::License(t) => m.with(
-                    "technologie",
-                    Param::TextKey(format!("technologie.{}", catalog.technologies.key(t))),
-                ),
-            };
-            m
+            deals::describe(m, state, catalog, o.seller, o.object)
         })
         .collect()
 }

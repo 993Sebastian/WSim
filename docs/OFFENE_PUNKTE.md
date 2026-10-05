@@ -302,7 +302,12 @@ Gegenangebot. Umsetzung als M30 (Standorte, Labore, Lizenzen) und M31 (Bereiche)
    und das einzige Labor, solange es forscht, gibt eine KI-Firma nur zum Neubaupreis ab.
    Kraftwerke kauft sie nur, wo ihr selbst Strom fehlt, Labore nur, wenn sie keines hat
    (Strom lässt sich nicht handeln; ein zweites Labor nutzt die KI nicht).
-6. **Später:** Übernahme ganzer Firmen über Anteile (Stufe 3), Kartellaufsicht gegen
+6. **Bereiche (M31):** alle Standorte einer Warengruppe – jeweils ganz – mit der Marke.
+   Die Marke ist so viel wert wie die Werbung für dieselbe Bekanntheit; der Käufer
+   übernimmt die höhere der beiden Bekanntheiten je Land. Umfasst ein Bereich die ganze
+   Erzeugung einer KI-Firma, verlangt sie den Kernaufschlag (wie für den einzigen
+   Standort mit Anlagen).
+7. **Später:** Übernahme ganzer Firmen über Anteile (Stufe 3), Kartellaufsicht gegen
    Aufkäufe zur Wettbewerbsvermeidung (Stufe 4, Regulierung), Patente (Stufe 5).
 
 ## G Produkte bis 2026 (Entscheidung vom 05.10.2026)

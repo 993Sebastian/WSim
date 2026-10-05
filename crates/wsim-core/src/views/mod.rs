@@ -11,8 +11,8 @@ mod hints;
 mod play;
 pub use chains::*;
 pub use deals::{
-    CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView, LicenseView,
-    OfferView, OffersView, SiteValueView, companies, company_detail, offers,
+    AreaView, CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView,
+    LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
 };
 pub use hints::*;
 pub use play::*;

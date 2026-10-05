@@ -212,7 +212,11 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Ereignisart Wirtschaftspolitik | `reform` (`build::ai::EVENT_KINDS`) |
 | Rang (Platz unter allen Firmen) nach Eigenkapital und Umsatz | `ranking::standing`, `ranking::Standing` (`GameState::standings`), `ranking::equity`, `revenue_of_year`, `year_before`, `month_end`; Sicht `RankView`, `StandingView` (`Overview::rank`); Schlüssel `meldung.rang`, `meldung.rang_vorjahr`; UI: `RangAnzeige`, `Rang`, `Platzierung` |
 | Kaufangebot, Gegenangebot, Annahme, Ablehnung, Rücknahme | `deals::Offer` (`GameState::offers`, `next_offer`), `OfferStatus`, `OfferAnswer`; Befehle `MakeOffer`, `AnswerOffer`, `WithdrawOffer` (M30) |
-| Gegenstand eines Angebots: Standort, Lizenz | `deals::DealObject` (`Site`, `License`) |
+| Gegenstand eines Angebots: Standort, Lizenz, Bereich | `deals::DealObject` (`Site`, `License`, `Area`) |
+| Bereich (alle Standorte einer Warengruppe mit Marke) | `DealObject::Area`, `deals::area_sites`, `deals::AreaValue`, `deals::area_value`; Sicht `AreaView` (M31) |
+| Markenwert (Werbung für dieselbe Bekanntheit) | `deals::brand_value` |
+| Neubaupreis eines Standorts | `deals::new_site_cost` |
+| Selbst gebraucht (Kraftwerk, einziges Labor) | `deals::needed_by_owner` |
 | Grundwert, Buchwert, Ertragswert, Restwert eines Standorts | `deals::SiteValue` (`base`, `book`, `earnings_value`, `liquidation`), `deals::site_value`; Sicht `SiteValueView` |
 | Höchstpreis und Aufschläge eines Käufers (Wettbewerb, Belegschaft, eigenes Geschäft, Neubau) | `deals::Advantages`, `deals::advantages` |
 | Lizenzwert (ersparte Forschungskosten) | `deals::license_value` |
@@ -220,5 +224,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Kostenart Lizenzen | `CostType::Licenses` |
 | Kaufmodell (Parameter) | `catalog::DealModel`, `DealAi` (`parameter/kaufmodell.yaml`) |
 | KI kauft und verkauft | `deals::ai_offers`, `deals::simulate_day` (Antworten, Verfall), `best_deal` |
-| Ansicht Wettbewerb (Angebote, Firmen) | Sichten `OffersView`, `CompaniesView`, `CompanyDetailView` (`offers`, `companies`, `company_detail`); Befehle `angebote`, `firmen`, `firma`; UI: `WettbewerbAnsicht` |
+| Ansicht Wettbewerb (Angebote, Firmen) | Sichten `OffersView`, `CompaniesView`, `CompanyDetailView` (`offers`, `companies`, `company_detail`); Befehle `angebote`, `firmen`, `firma`; UI: `WettbewerbAnsicht`, `BereichKarte` (Typ `Geschaeftsbereich`) |
 

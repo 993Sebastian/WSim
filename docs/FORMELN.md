@@ -1380,3 +1380,59 @@ Am Monatsersten prüft jede KI-Firma mit der Wahrscheinlichkeit
 - Mit dem Standort wechseln Anlagen samt laufender Aufträge, Gebäude, Konzession, Lager,
   Belegschaft, Lohnaufschlag, Verkaufsangebote, Einkäufe und das Forschungsprojekt.
   Forschungspunkte, Marke und Kredite bleiben bei der Firma.
+
+## M31 – Kaufangebote II: ganze Bereiche
+
+Lastenheft §18.4: ganze Bereiche, d. h. alle Standorte einer Warengruppe mit der
+Markenbekanntheit. Es gelten Ablauf, Fristen, Sperren, Gegenangebot und Buchungen aus
+M30; hier steht nur, was für Bereiche dazukommt.
+
+### Was zu einem Bereich gehört
+
+- **Bereich (V, g)** für eine Warengruppe g: alle Standorte von V – Förderstandorte,
+  Werke, Lager und Verkaufsbüros –, an denen eine Anlage ein Produkt von g herstellt
+  oder die ein Produkt von g anbieten. Ein Standort geht immer ganz mit, auch mit
+  Anlagen für andere Warengruppen. Kraftwerke und Forschungszentren gehören zu keinem
+  Bereich; Warengruppen aus Energie (Strom) bilden keinen Bereich.
+- Dazu die **Marke**: die Bekanntheit B_c von V für g in jedem Land c.
+- Angebot möglich, wenn der Bereich mindestens einen Standort hat und der älteste davon
+  seit `mindestalter_monate` besteht. Sperren und offene Angebote gelten je Käufer,
+  Verkäufer und Gegenstand (für Standorte und Lizenzen ebenso).
+
+### Grundwert
+
+- **Markenwert** W = Σ_c K_c · (−ln(1 − min(B_c, 0,99))) / w: die Werbung, die dieselbe
+  Bekanntheit aufbauen würde (M16: Ausgaben ΣA schließen 1 − exp(−w · ΣA / K) der
+  Lücke; K_c wie M16, w = Wirkung des Werbemittels des Jahres; ohne Werbemittel W = 0).
+- **Grundwert G_B = Σ G(s) + W** über die Standorte s des Bereichs (G wie M30).
+- Neubau N_B = Σ N(s) + W (Anlagen und Standorte wie M30, die Marke über Werbung).
+
+### Höchstpreis und KI als Käufer
+
+- Aufschläge wie M30, über den ganzen Bereich: a_w mit der Summe der Marktanteile aller
+  Standorte (höchstens 1), a_f über die Beschäftigten aller Standorte, a_b, wenn K ein
+  Produkt eines der Standorte herstellt, a_n = `neubau_anteil` · max(0, N_B − G_B) / G_B.
+  H_B = G_B · (1 + a_w + a_f + a_b + a_n).
+- Die KI prüft Bereiche zusammen mit Standorten und Lizenzen (größter Spielraum je
+  Dollar). Nur Bereiche mit mindestens zwei Standorten oder einer Marke (sonst wäre es
+  das Angebot für den einzelnen Standort), mit mindestens einem Standort in einem Land,
+  in dem K einen Standort oder den Sitz hat. Gebot P = G_B · (1 + `gebotsaufschlag`),
+  höchstens H_B.
+
+### KI als Verkäufer
+
+- Mindestpreis M_B = G_B · (1 + `verkaufsaufschlag`); · (1 + `kern_aufschlag`), wenn
+  der Bereich mindestens `kern_anteil` des Umsatzes im Vormonat bringt oder alle Werke
+  und Förderstandorte mit Anlagen von V umfasst (wie der einzige Standort mit Anlagen
+  in M30).
+
+### Übergabe
+
+- Der Preis wird auf die Standorte nach ihrem Grundwert aufgeteilt (P_s = P · G(s) /
+  Σ G(s); bei Σ G(s) = 0 zu gleichen Teilen, Rundungsrest beim letzten). Jeder
+  Standort wird wie in M30 übergeben; der Anteil der Marke geht so in den Preis der
+  Standorte ein (als Firmenwert, soweit der Preis die Buchwerte übersteigt).
+- Marke: K erhält je Land B_K = max(B_K, B_V); V verliert seine Bekanntheit und seine
+  Werbebudgets für g.
+- Offene Angebote für die übergebenen Standorte und für Bereiche von V sind danach
+  hinfällig (ihr Inhalt hat sich geändert).

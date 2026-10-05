@@ -817,6 +817,16 @@ wettbewerb.firmen: Firmen
 wettbewerb.lizenz_auf: "Lizenz auf „{technologie}“"
 wettbewerb.standort: "{art} in {land}"
 wettbewerb.standort_mit: "{art} in {land} ({produkte})"
+wettbewerb.bereich: "Bereich {gruppe}"
+wettbewerb.bereich_mit: "Bereich {gruppe} mit Marke (Standorte: {anzahl}; {produkte})"
+wettbewerb.bereich_standorte: "Standorte ({anzahl}): {liste}"
+wettbewerb.bereiche: Bereiche
+wettbewerb.bereiche_hilfe: Ein Bereich umfasst alle Standorte der Firma, die Waren einer Gruppe herstellen oder anbieten – jeweils ganz, auch mit anderen Waren dort – und ihre Marke in allen Ländern.
+wettbewerb.marke: Marke
+wettbewerb.marke_keine: noch nicht bekannt
+wettbewerb.markenwert: Marke (Werbung für dieselbe Bekanntheit)
+wettbewerb.standorte_summe: Standorte (Summe ihrer Grundwerte)
+wettbewerb.grundwert_bereich_hilfe: Die Grundwerte aller Standorte des Bereichs und dazu die Marke, bewertet mit der Werbung, die dieselbe Bekanntheit aufbauen würde.
 wettbewerb.ertrag_fehlt: Ertragswert (noch kein Jahresergebnis)
 wettbewerb.ertragswert: "Ertragswert: Ergebnis {ergebnis} im Jahr × {jahre}"
 wettbewerb.restwert: Restwert der Anlagen
@@ -845,7 +855,7 @@ wettbewerb.wartet: "Wartet auf Antwort bis {datum}."
 wettbewerb.zurueckziehen: Zurückziehen
 wettbewerb.zurueckgezogen: Zurückgezogen.
 wettbewerb.keine_angebote: Im Moment liegen keine offenen Angebote vor.
-wettbewerb.angebote_hilfe: Wettbewerber bieten für Standorte, die sich lohnen, eine gute Belegschaft haben oder ihnen Konkurrenz machen, und für Lizenzen auf deine Technologien. Selbst bietest du unter „Firmen“.
+wettbewerb.angebote_hilfe: Wettbewerber bieten für Standorte und ganze Bereiche, die sich lohnen, eine gute Belegschaft haben oder ihnen Konkurrenz machen, und für Lizenzen auf deine Technologien. Selbst bietest du unter „Firmen“.
 wettbewerb.abgeschlossen: Abgeschlossen
 wettbewerb.status.angenommen: "{datum}: {gegenstand} – Geschäft mit {firma} für {preis}"
 wettbewerb.status.abgelehnt: "{datum}: {gegenstand} – abgelehnt ({firma}, {preis})"
