@@ -199,12 +199,21 @@ bei Bedarf widersprechen) · ❓ offen
     nicht nur mit gemeinfreien. (d) Nebenprodukte zählen als Erzeugung, Vorprodukte auf
     Halde nicht als Engpass. Ergebnis: Benzin 1929 bei 1,18 × Richtpreis statt 0,00,
     Crackanlagen ab 1925 (Formeln: `docs/FORMELN.md`, M22).
+43. 🟡 **Umstellungskurse bei Währungswechseln (M28).** Die Meldung zur Umstellung nennt
+    den gesetzlichen Kurs, wo er in den Daten steht (137 Wechsel, darunter alle
+    Euro-Einführungen), sonst das Verhältnis der Wechselkurse. Wo die Daten eine
+    Zwischenwährung auslassen, weicht dieses Verhältnis vom damaligen Umstellungskurs ab
+    (Brasilien: Cruzado Novo 1989 und Cruzeiro Real 1993 fehlen, daher 1990
+    „1 Cr$ = 41,2 Cz$“; ähnlich Kroatien 1994 und die Übergangscoupons in Georgien,
+    Moldau und Usbekistan). Vorschlag: diese Zwischenwährungen bei Gelegenheit in
+    `data/waehrungen/` ergänzen.
 
 ## E Vorschläge für die nächsten Meilensteine (05.10.2026)
 
 Auftrag: „Wenn du mit meinen letzten Anforderungen durch bist, überlege, wie du das Spiel
 besser machen kannst.“ ✅ Alle acht Punkte sind freigegeben (05.10.2026, Lastenheft
-§18.3) und werden als M22–M29 in dieser Reihenfolge umgesetzt.
+§18.3) und als M22–M29 umgesetzt (Stand und eigenständige Entscheidungen:
+`docs/FORTSCHRITT.md`).
 
 Grundlage ist ein Weltlauf 1900–1930 mit Stand M21 (100 KI-Firmen, Seed 1; Protokoll mit
 `wsim run --ki 100 --bis 1930-01-01 --protokoll <Ordner>`). Die Prüfungen stehen wie nach
