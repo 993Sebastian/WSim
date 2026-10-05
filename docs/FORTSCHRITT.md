@@ -31,6 +31,9 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M20 | Geführte Einführung bis zum ersten Verkauf | ✅ |
 | M21 | Landeswährungen: Kaufkraft 2026 oder Preise der Zeit | ✅ |
 
+Nächste Schritte: Vorschläge zur Verbesserung mit Befunden aus dem Weltlauf stehen in
+`docs/OFFENE_PUNKTE.md`, Abschnitt E; sie warten auf die Freigabe des Auftraggebers.
+
 ## Eigenständige Entscheidungen (für das Review)
 
 Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.

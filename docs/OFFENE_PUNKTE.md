@@ -190,6 +190,72 @@ bei Bedarf widersprechen) · ❓ offen
     Preisuntergrenze, Ausbau erst über der Normalauslastung (beides ohne Verbesserung im
     Weltlauf).
 
+## E Vorschläge für die nächsten Meilensteine (05.10.2026)
+
+Auftrag: „Wenn du mit meinen letzten Anforderungen durch bist, überlege, wie du das Spiel
+besser machen kannst.“ Alle Punkte sind ❓ offen: Umsetzung erst nach Freigabe, die
+Reihenfolge ist die Empfehlung.
+
+Grundlage ist ein Weltlauf 1900–1930 mit Stand M21 (100 KI-Firmen, Seed 1; Protokoll mit
+`wsim run --ki 100 --bis 1930-01-01 --protokoll <Ordner>`). Die Prüfungen stehen wie nach
+der Nacharbeit zu M16: Versorgung weltweit 18 Verstöße, Preis gegen Richtpreis 146,
+keine Pleitewellen. Dazu kamen diese Befunde:
+
+- **Überkapazität:** 30 der 47 Produkte haben zehn Jahre oder länger Überkapazität
+  (mehr als das Doppelte des Bedarfs; Kupfererz 1929 das 5,6-Fache). Viele Metallwaren
+  kosten 1929 nur 0,45 bis 0,6 des Richtpreises. Blech wird 27 Jahre mit Verlust
+  hergestellt.
+  - Ursache: Anlagen werden gebaut, aber nie stillgelegt oder verkauft. Dafür gibt es
+    keinen Befehl, auch nicht für den Spieler.
+- **Einzelne Märkte:** Benzin kostet ab 1913 nichts (0,00 des Richtpreises). Gummi
+  deckt 1902–1911 zeitweise nur 26 % der Nachfrage, Autoreifen 1923–1924 nur 74 %.
+- **Passive Werkstatt:** Ohne Entscheidungen verdient sie 1900 noch 72 % ihres
+  Startkapitals, ab 1920 rund 10 % im Jahr und 1929 nichts mehr. Wer nicht handelt,
+  fällt zurück.
+- **Rechenzeit:** 30 Jahre dauern 6 Minuten (Release, ein Kern). Im Browser braucht eine
+  Monatsrunde mit 100 KI-Firmen rund 1,9 s.
+
+1. ❓ **Anlagen stilllegen und verkaufen (Spieler und KI).**
+   - Neue Befehle: eine Anlage vorübergehend stilllegen (geringe Fixkosten, später
+     wieder anfahren) oder verkaufen bzw. abreißen (Restwert mit Abschlag).
+   - Die KI legt Anlagen still, die über längere Zeit Verlust machen. Das senkt die
+     Überkapazität und hebt die Preise wieder in Richtung Richtpreis.
+   - Der Spieler kann so Fehlentscheidungen korrigieren und Geld aus schwachen
+     Standorten ziehen.
+   - Danach eine Balance-Runde für Benzin, Gummi und Reifen.
+2. ❓ **Etappenziele nach der Einführung.** Die Einführung endet mit dem ersten Verkauf;
+   danach fehlt eine Richtung.
+   - Abwählbare Etappen in der Übersicht, jeweils mit Hinweis, wie man sie erreicht
+     („Nächste Etappe: erster Monat mit Gewinn – so geht's …“).
+   - Beispiele: erster Gewinnmonat, zweite Anlage, eigenes Vorprodukt, zweites Land,
+     erste eigene Forschung, Marktführer in einem Land, Eigenkapital verdoppelt.
+   - Erreichte Etappen erscheinen als Erfolg im Rundenbericht.
+   - Etappen als Daten, die Bewertung als Sicht im Kern, ohne Wirkung auf die Simulation.
+3. ❓ **Wettbewerb und Preise im Verlauf (§13.2, §14.2).**
+   - Rundenbericht: Preissenkungen der Konkurrenz, neue und ausgeschiedene Anbieter in
+     den eigenen Märkten.
+   - Markt: Preisverlauf je Produkt und Land über 24 Monate, dazu der eigene
+     Marktanteil im Verlauf.
+   - Braucht eine kleine Monatsreihe je Markt im Spielstand (neue Formatversion).
+4. ❓ **Ansicht Produktionsketten (§14.1).** Je Endprodukt die Kette bis zu den
+   Rohstoffen:
+   - Verfahren und Anlage je Stufe.
+   - Richtpreis gegen geschätzte Stückkosten im Land des Firmensitzes.
+   - Was der Spieler selbst herstellt oder kauft, und wo es hakt.
+   - Beantwortet „Was lohnt sich als Nächstes, und was brauche ich dafür?“.
+5. ❓ **Weiterlaufen bis …** Mehrere Runden am Stück, bis zum Jahresende oder bis zur
+   nächsten Warnung bzw. zum nächsten Weltereignis. Spart Klicks, solange alles läuft.
+6. ❓ **Ursachen erklären (§14.3).** Tooltips zerlegen einen Wert in seine Teile:
+   - Marktpreis aus Richtpreis und Knappheit.
+   - Stückkosten aus Material, Personal, Energie und Anlage.
+   - Nachfrage aus Bevölkerung, Einkommen und Sättigung.
+7. ❓ **Geschichte erzählen.**
+   - Währungsreformen als Meldung im Rundenbericht („Ab Dezember 1923 rechnet
+     Deutschland in Reichsmark, 1 RM = 1 Billion Mark“).
+   - Weltereignisse 1940–2026 als Meldungen; ihre Wirkungen folgen weiter mit Stufe 4.
+8. ❓ **Rang in der Übersicht.** Platz der eigenen Firma unter allen Firmen nach
+   Eigenkapital und Umsatz, mit der Veränderung zum Vorjahr.
+
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 
 Vier **Qualifikationen**, bei Fachkräften und Akademikern zusätzlich eine von neun
