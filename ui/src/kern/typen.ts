@@ -530,6 +530,40 @@ export interface ProduktMarkt {
   chances: string[];
   /** The last closed months, oldest first (M24). */
   history?: Marktmonat[];
+  /** How the market price comes about (M27). */
+  price_parts?: {
+    world_reference_usd: number;
+    price_level: number;
+    level_share: number;
+    level_factor: number;
+    reference_usd: number;
+    price_usd: number;
+    /** Market price / reference price in the country. */
+    situation: number;
+    supply: number | null;
+    unmet_share: number;
+    import_share: number;
+    sellers: number;
+    price_max_factor: number;
+  } | null;
+  /** How the consumer demand comes about (M27); null without consumer demand. */
+  demand_parts?: {
+    kind: "verbrauch" | "gebrauch" | "ergaenzung";
+    complement_of: string | null;
+    population: number;
+    gdp_per_capita_usd: number;
+    reference_usd: number;
+    price_usd: number;
+    grid: number | null;
+    season: number;
+    fifths: {
+      income_usd: number;
+      propensity: number;
+      base: number;
+      owned: number | null;
+      per_head_year: number;
+    }[];
+  } | null;
 }
 
 /** One closed month of a market (M24). */

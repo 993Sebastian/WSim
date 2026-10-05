@@ -1,7 +1,7 @@
 // The plant view (docs/BEDIENUNG.md): one site with its areas – facilities, purchasing,
 // sales, staff and costs. Every decision shows the numbers it rests on next to it, and
 // the answer of the core next to its button.
-import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react";
 import {
   ausAnzeige,
   formatDatum,
@@ -30,7 +30,7 @@ import type {
 } from "../kern";
 import { geld } from "../kern";
 import { t } from "../texte";
-import { Rueckmeldung, Unterreiter, useAktion, ZahlFeld } from "./gemeinsam";
+import { Erklaerung, Rueckmeldung, Unterreiter, useAktion, ZahlFeld } from "./gemeinsam";
 
 type Bereich = "anlagen" | "einkauf" | "verkauf" | "personal" | "kosten";
 
@@ -923,6 +923,7 @@ function AngebotKarte({
         markt={markt}
         richt={richt}
         stueck={stueck ?? null}
+        teile={s.unit_costs.find((u) => u.product === produkt) ?? null}
         marge={o?.margin ?? null}
       />
       <form
@@ -1036,6 +1037,7 @@ function Preisvergleich({
   markt,
   richt,
   stueck,
+  teile,
   marge,
 }: {
   einheit: string;
@@ -1043,6 +1045,8 @@ function Preisvergleich({
   markt: number;
   richt: number;
   stueck: number | null;
+  /** The parts of the unit cost (M27), if the site makes the product. */
+  teile: Stueckkosten | null;
   marge: number | null;
 }) {
   const zeilen: { key: string; wert: number; klasse: string }[] = [
@@ -1057,7 +1061,14 @@ function Preisvergleich({
       <dl>
         {zeilen.map((z) => (
           <div key={z.key} className={`balkenzeile ${z.klasse}`}>
-            <dt>{t(z.key)}</dt>
+            <dt>
+              <span>{t(z.key)}</span>
+              {z.key === "werk.stueckkosten" && teile && (
+                <Erklaerung wert={t("werk.stueckkosten")}>
+                  <KostenTeile u={teile} einheit={e} />
+                </Erklaerung>
+              )}
+            </dt>
             <dd>
               <span className="balken" style={{ width: `${(z.wert / hoechst) * 100}%` }} />
               <span className="balkenwert">{formatPreis(z.wert, e)}</span>
@@ -1182,6 +1193,31 @@ function Personal({ s }: { s: StandortDetail }) {
 }
 
 // --- Costs ---
+
+/** The parts of a unit cost (M27): what each unit of the product costs and why. */
+function KostenTeile({ u, einheit }: { u: Stueckkosten; einheit: string }) {
+  const zeilen = KOSTENARTEN.filter((k) => Math.abs(u[k.key] as number) >= 0.005);
+  return (
+    <>
+      <dl className="rechnung">
+        {zeilen.map((k) => (
+          <Fragment key={k.key}>
+            <dt>{t(k.text)}</dt>
+            <dd>{formatPreis(u[k.key] as number, einheit)}</dd>
+          </Fragment>
+        ))}
+        <dt className="summe">{t("werk.stueckkosten")}</dt>
+        <dd className="summe">= {formatPreis(u.total_usd, einheit)}</dd>
+      </dl>
+      <p className="gedaempft">
+        {t("erklaerung.stueckkosten", {
+          variabel: formatPreis(u.variable_usd, einheit),
+          menge: `${formatZahl(u.output_per_day, u.output_per_day < 10 ? 1 : 0)} ${einheit}`,
+        })}
+      </p>
+    </>
+  );
+}
 
 const KOSTENARTEN: { key: keyof Stueckkosten; text: string }[] = [
   { key: "material_usd", text: "kostenart.material" },

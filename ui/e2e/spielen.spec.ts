@@ -56,7 +56,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await werk.getByRole("button", { name: "Verkauf" }).click();
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
   await expect(naegel.getByText("15,5 t")).toBeVisible();
-  await expect(naegel.getByText("Stückkosten", { exact: true })).toBeVisible();
+  await expect(naegel.getByText("Stückkosten", { exact: true }).first()).toBeVisible();
   await expect(naegel.getByText(/Marge 16 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
@@ -275,6 +275,46 @@ test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", 
   await ketten.getByLabel("Kette von").selectOption("naegel");
   await ketten.getByRole("button", { name: "Markt für Draht öffnen" }).first().click();
   await expect(page.getByRole("region", { name: "Draht in Deutschland" })).toBeVisible();
+});
+
+test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await page.keyboard.press("Escape");
+
+  // The market price: reference price × price level × market situation.
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Markt für Nägel öffnen" }).click();
+  await page.getByLabel("Wie entsteht: Marktpreis?").first().click();
+  const preis = page.getByRole("note", { name: "Wie entsteht: Marktpreis?" });
+  await expect(preis).toContainText("Richtpreis (Preisniveau 1)1.900 USD/t");
+  await expect(preis).toContainText("Preisniveau Deutschland 0,8, davon wirkt 10 %× 0,98");
+  await expect(preis).toContainText("Marktlage: 2 % über dem Richtpreis× 1,02");
+  await expect(preis).toContainText("Marktpreis= 1.905 USD/t");
+  await bild(page, "erklaerung_preis");
+  await page.getByRole("button", { name: /Alle Produkte/ }).click();
+
+  // The demand of a consumer good by income fifth.
+  await page.getByRole("button", { name: "Markt für Möbel öffnen" }).click();
+  await page.getByLabel("Wie entsteht: Nachfrage der Verbraucher?").first().click();
+  const nachfrage = page.getByRole("note", { name: "Wie entsteht: Nachfrage der Verbraucher?" });
+  await expect(nachfrage.getByText("Zielbesitz je Kopf")).toBeVisible();
+  await expect(nachfrage.getByRole("row")).toHaveCount(6);
+  await expect(nachfrage).toContainText("Die Haushalte vergleichen den Preis");
+  await page.getByRole("button", { name: /Alle Produkte/ }).click();
+
+  // The unit cost of the own nails.
+  await page.getByRole("button", { name: "Standorte" }).click();
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  await page.getByRole("button", { name: "Verkauf" }).click();
+  await page.getByLabel("Wie entsteht: Stückkosten?").first().click();
+  const kosten = page.getByRole("note", { name: "Wie entsteht: Stückkosten?" });
+  await expect(kosten).toContainText("Material");
+  await expect(kosten).toContainText(/Stückkosten= [\d.,]+ USD\/t/);
 });
 
 test("Anlagen lassen sich stilllegen und verkaufen", async ({ page }) => {

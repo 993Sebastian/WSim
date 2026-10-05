@@ -451,6 +451,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "produktmaerkte": {
             "naegel": session.product_market("DEU", "naegel").map_err(message)?,
             "draht": session.product_market("DEU", "draht").map_err(message)?,
+            "moebel": session.product_market("DEU", "moebel").map_err(message)?,
         },
         "weltmarkt": session.world_market("naegel").map_err(message)?,
         "ketten": session.chains().map_err(message)?,

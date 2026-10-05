@@ -1196,3 +1196,27 @@ jede wie eine einzelne Runde (gleiches Journal, gleiche Ergebnisse wie Runde fü
   vor der ersten Runde, alle Meldungen, die Zahl der Runden und den Grund des Halts. Der
   automatische Spielstand wird einmal am Ende geschrieben.
 
+## M27 – Ursachen erklären (Anzeige)
+
+Lastenheft §14.3; Vorschlag 6. Die Erklärungen zeigen die Teile, aus denen der Kern einen
+Wert berechnet; ein Test prüft je Wert, dass die Teile das Ganze ergeben.
+
+- **Marktpreis** (Produktmarkt): Richtpreis × Preisniveau^Anteil (`preisniveau_anteil` der
+  Produktart) = Richtpreis im Land; × Marktlage (Marktpreis / Richtpreis im Land) =
+  Marktpreis. Dazu die Lage im Vormonat (Versorgung der Verbraucher und des Staats,
+  offene Nachfrage, Anteil der Einfuhren, Zahl der Anbieter) und die Regel der
+  automatischen Preise (M7, M16, M22).
+- **Nachfrage der Verbraucher** (Produktmarkt): je Einkommensfünftel Einkommen je Kopf,
+  Kaufneigung beim heutigen Marktpreis gegen den Vergleichspreis (Richtpreis ×
+  Preisniveau, wie in M7), dazu
+  - Verbrauchsgut: gesättigter Bedarf je Kopf; Nachfrage = Bedarf × Kaufneigung ×
+    Netzanteil × Saison.
+  - Gebrauchsgut: Zielbesitz (höchster Besitz × Kaufneigung × Rest nach Verdrängung ×
+    Netzanteil) und Besitz je Kopf.
+  - Ergänzungsgut: besessene Stücke des Gebrauchsguts je Kopf.
+  Die Nachfrage je Kopf und Jahr ist die des laufenden Monats (zu Monatsbeginn gesetzt);
+  zu Monatsbeginn ergeben die Teile sie genau.
+- **Stückkosten** (Werk, Verkauf): Material, Personal, Energie, Gemeinkosten, Pacht und
+  Anlage (Abschreibung und Wartung) wie unter „Kosten“ (M18), dazu die Kosten ohne
+  Anlage für ein weiteres Stück.
+

@@ -35,7 +35,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M24 | Wettbewerb und Preise im Verlauf | ✅ |
 | M25 | Produktionsketten | ✅ |
 | M26 | Weiterlaufen bis … | ✅ |
-| M27 | Ursachen erklären | offen |
+| M27 | Ursachen erklären | ✅ |
 | M28 | Geschichte erzählen | offen |
 | M29 | Rang in der Übersicht | offen |
 
@@ -766,4 +766,26 @@ Eigenständige Entscheidungen:
     Vorprodukt fehlt) oder ein Weltereignis. Erfolge und Wettbewerbsmeldungen halten nicht
     an. Nach einem Jahr ohne Warnung hält das Spiel trotzdem, damit der Spieler nachsehen
     kann.
+
+### M27: Ursachen erklären (05.10.2026)
+
+Vorschlag 6 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Formeln: `docs/FORMELN.md`, M27.
+
+  - **Kern:** Die Sicht des Produktmarkts liefert die Teile des Marktpreises
+    (Richtpreis, Preisniveau, Marktlage, Lage im Vormonat) und der Nachfrage der
+    Verbraucher je Einkommensfünftel (Einkommen, Kaufneigung, Bedarf, Zielbesitz und
+    Besitz). Die Verdrängung durch Nachfolger nutzen Simulation und Erklärung aus
+    derselben Funktion.
+  - **Oberfläche:** „ⓘ“ bei Marktpreis und „Wer kauft?“ im Produktmarkt und bei den
+    Stückkosten im Werk; die Vorschau enthält dafür zusätzlich den Möbelmarkt.
+  - Tests: Kern (Teile des Preises und der Nachfrage ergeben das Ganze) und Vorschau
+    (alle drei Erklärungen).
+
+Eigenständige Entscheidungen:
+
+  - Die Erklärung steht in einem aufklappbaren Element statt in einem Tooltip beim
+    Überfahren: So funktioniert sie auch mit der Tastatur und auf dem Handy.
+  - Die Kaufneigung wird beim heutigen Marktpreis gezeigt; die Nachfrage des Monats
+    wurde zu Monatsbeginn mit dem damaligen Preis gesetzt. Zu Monatsbeginn stimmen beide
+    genau überein, im Monat können sie leicht abweichen.
 

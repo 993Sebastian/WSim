@@ -992,6 +992,74 @@ pub struct ProductMarketView {
     /// The last closed months, oldest first (M24).
     #[serde(default)]
     pub history: Vec<MarketMonthView>,
+    /// How the market price comes about (M27).
+    #[serde(default)]
+    pub price_parts: Option<PriceParts>,
+    /// How the consumer demand comes about (M27); `None` without consumer demand.
+    #[serde(default)]
+    pub demand_parts: Option<DemandParts>,
+}
+
+/// The market price as reference price × price level factor × market situation (M27).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PriceParts {
+    /// Reference price of the product at price level 1.
+    pub world_reference_usd: f64,
+    /// Price level of the country (1: reference country) and the share of it that
+    /// carries into this kind of product.
+    pub price_level: f64,
+    pub level_share: f64,
+    /// price level ^ share; reference price × factor = reference price in the country.
+    pub level_factor: f64,
+    pub reference_usd: f64,
+    pub price_usd: f64,
+    /// Market price / reference price in the country.
+    pub situation: f64,
+    /// Last month: supply of consumers and government, unserved share of all demand,
+    /// share of the sales from imports, sellers here.
+    pub supply: Option<f64>,
+    pub unmet_share: f64,
+    pub import_share: f64,
+    pub sellers: u32,
+    /// Ceiling of automatic prices (multiple of the reference price in the country).
+    pub price_max_factor: f64,
+}
+
+/// The consumer demand of a market from its parts (M27; docs/FORMELN.md, M7).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DemandParts {
+    /// `verbrauch`, `gebrauch` or `ergaenzung`.
+    pub kind: String,
+    /// The durable a complement is used with.
+    pub complement_of: Option<String>,
+    /// Inhabitants the market counts (the market scale applied) and GDP per head.
+    pub population: f64,
+    pub gdp_per_capita_usd: f64,
+    /// Price the households compare with: the reference price at the country's price
+    /// level; and today's market price.
+    pub reference_usd: f64,
+    pub price_usd: f64,
+    /// Share of households with electricity (for goods that need it).
+    pub grid: Option<f64>,
+    /// Seasonal factor of this month.
+    pub season: f64,
+    pub fifths: Vec<FifthParts>,
+}
+
+/// One income fifth (poorest first).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FifthParts {
+    /// Income per head and year.
+    pub income_usd: f64,
+    /// Share that buys at today's price (from income and price).
+    pub propensity: f64,
+    /// Consumables: units per head and year at saturation; complements: durables owned
+    /// per head; durables: ownership per head the fifth aims at.
+    pub base: f64,
+    /// Durables: units owned per head.
+    pub owned: Option<f64>,
+    /// Demand per head and year this month.
+    pub per_head_year: f64,
 }
 
 /// One closed month of a market (M24).
@@ -1004,6 +1072,119 @@ pub struct MarketMonthView {
     pub sold: f64,
     /// The player's share of the units sold; `None` while the player never sold here.
     pub own_share: Option<f64>,
+}
+
+fn price_parts(game: &Game, country: CountryId, product: crate::ids::ProductId) -> PriceParts {
+    let state = game.state();
+    let catalog = game.catalog();
+    let p = catalog.products.get(product);
+    let level = state.countries.get(country).price_level;
+    let factor = market::price_factor(catalog, state, country, product);
+    let reference = market::local_reference(catalog, state, country, product).to_usd();
+    let price = market::market_price(catalog, state, country, product).to_usd();
+    let m = state.markets.get(product).get(country);
+    let t = &m.last_month;
+    let sellers = state
+        .sites
+        .iter()
+        .filter(|s| s.country == country && s.offers.contains_key(&product))
+        .filter(|s| !state.companies[s.owner.index()].bankrupt)
+        .count();
+    PriceParts {
+        world_reference_usd: usd(p.reference_price),
+        price_level: level,
+        level_share: catalog.market_model.price_level_share[p.kind.index()],
+        level_factor: factor,
+        reference_usd: reference,
+        price_usd: price,
+        situation: if reference > 0.0 {
+            price / reference
+        } else {
+            1.0
+        },
+        supply: (t.outside_demand > 1e-9).then(|| t.outside_sold / t.outside_demand),
+        unmet_share: if t.demand > 1e-9 {
+            t.unmet() / t.demand
+        } else {
+            0.0
+        },
+        import_share: if t.sold > 1e-9 {
+            t.imported / t.sold
+        } else {
+            0.0
+        },
+        sellers: u32::try_from(sellers).unwrap_or(u32::MAX),
+        price_max_factor: catalog.market_model.price_max_factor,
+    }
+}
+
+/// The parts of the consumer demand, from the same formulas as `market::update_demand`.
+fn demand_parts(
+    game: &Game,
+    country: CountryId,
+    product: crate::ids::ProductId,
+) -> Option<DemandParts> {
+    use crate::catalog::ConsumptionType;
+    let state = game.state();
+    let catalog = game.catalog();
+    let p = catalog.products.get(product);
+    let d = p.consumer_demand.as_ref()?;
+    let cs = state.countries.get(country);
+    let m = state.markets.get(product).get(country);
+    let reference = p.reference_price.to_usd() * cs.price_level;
+    let price = m.price.to_usd();
+    let per_layer = cs.market_population / 5.0;
+    let month = usize::try_from(state.date.month() - 1).unwrap_or(0);
+    let season = d.seasonality.map_or(1.0, |s| s[month]);
+    let grid = d.needs_grid.then_some(cs.grid_share);
+    let (kind, complement_of) = match d.consumption {
+        ConsumptionType::Consumable { .. } => ("verbrauch", None),
+        ConsumptionType::Durable { .. } => ("gebrauch", None),
+        ConsumptionType::Complement { of, .. } => {
+            ("ergaenzung", Some(catalog.products.key(of).to_owned()))
+        }
+    };
+    let displaced = market::displaced(state, country, &market::successors(catalog, product));
+    let fifths = (0..5)
+        .map(|q| {
+            let income = cs.income_quintiles_usd[q];
+            let share = market::propensity(d, income, price, reference);
+            let (base, owned) = match d.consumption {
+                ConsumptionType::Consumable {
+                    per_capita_per_year,
+                } => (per_capita_per_year, None),
+                ConsumptionType::Durable { max_ownership, .. } => {
+                    let target = max_ownership * share * displaced[q] * grid.unwrap_or(1.0);
+                    (target, Some(m.ownership[q]))
+                }
+                ConsumptionType::Complement { of, .. } => {
+                    (state.markets.get(of).get(country).ownership[q], None)
+                }
+            };
+            FifthParts {
+                income_usd: income,
+                propensity: share,
+                base,
+                owned,
+                per_head_year: if per_layer > 0.0 {
+                    m.consumer_rate[q] * 365.0 / per_layer
+                } else {
+                    0.0
+                },
+            }
+        })
+        .collect();
+    Some(DemandParts {
+        kind: kind.to_owned(),
+        complement_of,
+        population: cs.market_population,
+        gdp_per_capita_usd: cs.gdp_per_capita_usd,
+        reference_usd: reference,
+        price_usd: price,
+        grid,
+        season,
+        fifths,
+    })
 }
 
 /// The series of a market with the first day of each month.
@@ -1111,6 +1292,8 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         own_awareness: state.companies[state.player.index()].awareness(c, group),
         chances: line.map(|l| l.chances).unwrap_or_default(),
         history: market_history(state, m),
+        price_parts: Some(price_parts(game, c, p)),
+        demand_parts: demand_parts(game, c, p),
     })
 }
 
@@ -1796,5 +1979,84 @@ pub fn finance_overview(game: &Game) -> FinanceView {
         centers_last_month: ledger.months.last().and_then(|m| center_results(game, m)),
         centers_year: center_results(game, &ledger.year),
         loss_carryforward_usd: usd(company.loss_carryforward),
+    }
+}
+
+#[cfg(test)]
+mod explain_tests {
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::catalog::test_support;
+    use crate::state::{GameSettings, StartForm};
+
+    fn game() -> Game {
+        let catalog = Arc::new(test_support::production());
+        let settings = GameSettings {
+            seed: 3,
+            start_year: 1900,
+            start_country: catalog.countries.id("AAA").unwrap(),
+            start_capital: Money::from_usd(1_000_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Test AG".into(),
+            research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
+        };
+        Game::new(catalog, settings).unwrap()
+    }
+
+    #[test]
+    fn the_parts_of_the_price_make_the_price() {
+        let game = game();
+        for (country, product) in [("AAA", "brot"), ("BBB", "rad"), ("BBB", "eisen")] {
+            let m = product_market(&game, country, product).unwrap();
+            let p = m.price_parts.unwrap();
+            assert!(
+                (p.world_reference_usd * p.level_factor - p.reference_usd).abs() < 1e-3,
+                "{product}"
+            );
+            assert!(
+                (p.reference_usd * p.situation - p.price_usd).abs() < 1e-3,
+                "{product}"
+            );
+            assert!((libm::pow(p.price_level, p.level_share) - p.level_factor).abs() < 1e-12);
+            assert_eq!(p.price_usd, m.price_usd);
+        }
+    }
+
+    #[test]
+    fn the_parts_of_the_demand_make_the_demand() {
+        // At the start the demand was set with today's prices: the parts give it exactly.
+        let game = game();
+        let bread = product_market(&game, "AAA", "brot").unwrap();
+        let d = bread.demand_parts.unwrap();
+        assert_eq!(d.kind, "verbrauch");
+        assert_eq!(d.fifths.len(), 5);
+        for (q, f) in d.fifths.iter().enumerate() {
+            let expected = f.base * f.propensity * d.grid.unwrap_or(1.0) * d.season;
+            assert!((f.per_head_year - expected).abs() < 1e-9, "fifth {q}");
+            // Demand per month as the market view shows it.
+            let monthly = f.per_head_year * d.population / 5.0 / 365.0 * 30.0;
+            assert!((monthly - bread.consumers_per_month[q]).abs() < 1e-6);
+        }
+        // Richer fifths buy more readily.
+        assert!(d.fifths[4].propensity > d.fifths[0].propensity);
+
+        // A durable shows its ownership and the ownership the fifth aims at.
+        let wheel = product_market(&game, "AAA", "rad").unwrap();
+        let d = wheel.demand_parts.unwrap();
+        assert_eq!(d.kind, "gebrauch");
+        assert!(
+            d.fifths
+                .iter()
+                .all(|f| f.owned.is_some() && f.base <= 0.5 + 1e-12)
+        );
+        assert!(
+            product_market(&game, "AAA", "eisen")
+                .unwrap()
+                .demand_parts
+                .is_none()
+        );
     }
 }

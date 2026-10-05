@@ -176,6 +176,32 @@ fn available_at_start(catalog: &Catalog, product: ProductId, year: i32) -> bool 
         })
 }
 
+/// Durables that displace a product (§6.4) with their highest ownership per head.
+pub(crate) fn successors(catalog: &Catalog, product: ProductId) -> Vec<(ProductId, f64)> {
+    catalog
+        .products
+        .iter()
+        .filter(|(_, q)| q.replaces.contains(&product))
+        .filter_map(|(id, q)| match q.consumer_demand.as_ref()?.consumption {
+            ConsumptionType::Durable { max_ownership, .. } => Some((id, max_ownership)),
+            ConsumptionType::Consumable { .. } | ConsumptionType::Complement { .. } => None,
+        })
+        .collect()
+}
+
+/// Share of the target ownership left per income fifth once the successors are owned.
+pub(crate) fn displaced(
+    state: &GameState,
+    country: CountryId,
+    successors: &[(ProductId, f64)],
+) -> [f64; 5] {
+    std::array::from_fn(|q| {
+        successors.iter().fold(1.0, |f, &(s, max)| {
+            f * (1.0 - (state.markets.get(s).get(country).ownership[q] / max).min(1.0))
+        })
+    })
+}
+
 fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: bool) {
     let model = &catalog.market_model;
     let month = usize::try_from(date.month() - 1).expect("month 1-12");
@@ -184,27 +210,14 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
             continue;
         }
         let owned_at_start = initial && available_at_start(catalog, product, date.year());
-        // Products that displace this one (§6.4): their ownership lowers our target.
-        let successors: Vec<(ProductId, f64)> = catalog
-            .products
-            .iter()
-            .filter(|(_, q)| q.replaces.contains(&product))
-            .filter_map(|(id, q)| match q.consumer_demand.as_ref()?.consumption {
-                ConsumptionType::Durable { max_ownership, .. } => Some((id, max_ownership)),
-                ConsumptionType::Consumable { .. } | ConsumptionType::Complement { .. } => None,
-            })
-            .collect();
+        let successors = successors(catalog, product);
         for country in catalog.countries.ids() {
             let cs = state.countries.get(country);
             let reference = p.reference_price.to_usd() * cs.price_level;
             let per_layer = cs.market_population / 5.0;
             let incomes = cs.income_quintiles_usd;
             let gdp = cs.market_population * cs.gdp_per_capita_usd * cs.price_level;
-            let displaced: [f64; 5] = std::array::from_fn(|q| {
-                successors.iter().fold(1.0, |f, &(s, max)| {
-                    f * (1.0 - (state.markets.get(s).get(country).ownership[q] / max).min(1.0))
-                })
-            });
+            let displaced = displaced(state, country, &successors);
             // Units of the durable a complement is used with, per inhabitant.
             let complement_owned: [f64; 5] = match p.consumer_demand.as_ref().map(|d| d.consumption)
             {

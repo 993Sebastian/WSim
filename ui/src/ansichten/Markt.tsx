@@ -7,6 +7,7 @@ import {
   formatPreis,
   formatProzent,
   formatZahl,
+  formatZahlKurz,
   geldEinheit,
   geldFeld,
   geldSchluessel,
@@ -20,6 +21,7 @@ import { formatMonatKurz, Verlauf } from "./Grafik";
 import { KettenAnsicht } from "./Ketten";
 import {
   Befehle,
+  Erklaerung,
   Rueckmeldung,
   Unterreiter,
   useAktion,
@@ -344,6 +346,125 @@ function ProduktmarktAnsicht({
   );
 }
 
+/** How the market price comes about (M27): reference price × price level × situation. */
+function PreisTeile({
+  p,
+  einheit,
+  land,
+}: {
+  p: NonNullable<ProduktMarkt["price_parts"]>;
+  einheit: string;
+  land: string;
+}) {
+  const faktor = (f: number) => formatZahl(f, 2);
+  const abweichung = p.situation - 1;
+  return (
+    <>
+      <dl className="rechnung">
+        <dt>{t("erklaerung.richtpreis_welt")}</dt>
+        <dd>{formatPreis(p.world_reference_usd, einheit)}</dd>
+        <dt>
+          {t("erklaerung.preisniveau", {
+            land: landName(land),
+            niveau: faktor(p.price_level),
+            anteil: formatProzent(p.level_share),
+          })}
+        </dt>
+        <dd>× {faktor(p.level_factor)}</dd>
+        <dt>{t("werk.richtpreis")}</dt>
+        <dd>= {formatPreis(p.reference_usd, einheit)}</dd>
+        <dt>
+          {t(
+            Math.abs(abweichung) < 0.005
+              ? "erklaerung.marktlage_gleich"
+              : abweichung > 0
+                ? "erklaerung.marktlage_hoch"
+                : "erklaerung.marktlage_tief",
+            { prozent: formatProzent(Math.abs(abweichung)) },
+          )}
+        </dt>
+        <dd>× {faktor(p.situation)}</dd>
+        <dt className="summe">{t("markt.preis")}</dt>
+        <dd className="summe">= {formatPreis(p.price_usd, einheit)}</dd>
+      </dl>
+      <p>
+        {t("erklaerung.vormonat", {
+          versorgung: p.supply === null ? "–" : formatProzent(p.supply),
+          offen: formatProzent(p.unmet_share),
+          einfuhr: formatProzent(p.import_share),
+          anbieter: p.sellers,
+        })}
+      </p>
+      <p className="gedaempft">
+        {t("erklaerung.preisregel", { hoechst: formatZahl(p.price_max_factor) })}
+      </p>
+    </>
+  );
+}
+
+/** How the consumer demand comes about (M27): people, income, price and saturation. */
+function NachfrageTeile({
+  d,
+  einheit,
+}: {
+  d: NonNullable<ProduktMarkt["demand_parts"]>;
+  einheit: string;
+}) {
+  const je = (q: number) => `${formatZahl(q, q < 10 ? 3 : 0)} ${einheit}`;
+  const basis =
+    d.kind === "verbrauch"
+      ? "erklaerung.basis_verbrauch"
+      : d.kind === "gebrauch"
+        ? "erklaerung.basis_gebrauch"
+        : "erklaerung.basis_ergaenzung";
+  return (
+    <>
+      <p>
+        {t("erklaerung.menschen", {
+          menschen: formatZahlKurz(d.population),
+          bip: formatGeld(d.gdp_per_capita_usd),
+        })}{" "}
+        {t("erklaerung.preisvergleich", {
+          preis: formatPreis(d.price_usd, einheit),
+          bezug: formatPreis(d.reference_usd, einheit),
+        })}
+        {d.grid !== null && ` ${t("erklaerung.netz", { anteil: formatProzent(d.grid) })}`}
+        {Math.abs(d.season - 1) > 0.005 &&
+          ` ${t("erklaerung.saison", { faktor: formatZahl(d.season, 2) })}`}
+      </p>
+      <div className="tabelle">
+        <table className="rechnung-tabelle">
+          <thead>
+            <tr>
+              <th>{t("erklaerung.fuenftel")}</th>
+              <th className="zahl">{t("erklaerung.einkommen")}</th>
+              <th className="zahl">{t("erklaerung.kaufneigung")}</th>
+              <th className="zahl">
+                {t(basis, { produkt: d.complement_of ? t(`produkt.${d.complement_of}`) : "" })}
+              </th>
+              {d.kind === "gebrauch" && <th className="zahl">{t("erklaerung.besitz")}</th>}
+              <th className="zahl">{t("erklaerung.je_kopf")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {d.fifths.map((f, i) => (
+              <tr key={i}>
+                <td>{t(`markt.fuenftel.${i + 1}`)}</td>
+                <td className="zahl">{formatGeld(f.income_usd)}</td>
+                <td className="zahl">{formatProzent(f.propensity)}</td>
+                <td className="zahl">{formatZahl(f.base, f.base < 10 ? 3 : 0)}</td>
+                {d.kind === "gebrauch" && <td className="zahl">{formatZahl(f.owned ?? 0, 3)}</td>}
+                <td className="zahl">{je(f.per_head_year)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="gedaempft">{t(`erklaerung.regel_${d.kind}`)}</p>
+    </>
+  );
+}
+
 /** Months without sales keep the last price paid, so the line does not drop to zero. */
 export function fortgeschrieben(werte: (number | null)[], ersatz: number): number[] {
   const erster = werte.find((w) => w !== null) ?? ersatz;
@@ -423,7 +544,14 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
     <>
       <dl className="kennzahlen">
         <div>
-          <dt>{t("markt.preis")}</dt>
+          <dt>
+            <span>{t("markt.preis")}</span>
+            {m.price_parts && (
+              <Erklaerung wert={t("markt.preis")}>
+                <PreisTeile p={m.price_parts} einheit={e} land={m.country} />
+              </Erklaerung>
+            )}
+          </dt>
           <dd>
             {formatPreis(m.price_usd, e)}
             <Trend jetzt={m.price_usd} vorher={m.price_last_month_usd} />
@@ -528,7 +656,14 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
       </section>
 
       <section className="karte" aria-label={t("markt.nachfrage_titel")}>
-        <h3>{t("markt.nachfrage_titel")}</h3>
+        <h3>
+          <span>{t("markt.nachfrage_titel")}</span>
+          {m.demand_parts && (
+            <Erklaerung wert={t("erklaerung.nachfrage")}>
+              <NachfrageTeile d={m.demand_parts} einheit={e} />
+            </Erklaerung>
+          )}
+        </h3>
         <p className="feld-hilfe">{t("markt.nachfrage_hilfe")}</p>
         <dl className="nachfrage">
           {m.consumers_per_month.map((q, i) => (

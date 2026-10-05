@@ -2480,3 +2480,90 @@ body {
   border-left: 3px solid var(--akzent);
   background: var(--flaeche);
 }
+
+/* Where a value comes from (M27) */
+.erklaerung-knopf {
+  display: inline-block;
+  position: relative;
+  margin-left: 0.3rem;
+  font-weight: normal;
+  font-size: 0.95rem;
+  vertical-align: baseline;
+}
+
+.erklaerung-knopf > summary {
+  display: inline;
+  cursor: pointer;
+  list-style: none;
+  color: var(--akzent);
+}
+
+.erklaerung-knopf > summary::-webkit-details-marker {
+  display: none;
+}
+
+.erklaerung-inhalt {
+  position: absolute;
+  z-index: 20;
+  top: 1.6rem;
+  left: 0;
+  width: max-content;
+  max-width: min(30rem, calc(100vw - 2rem));
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+  background: var(--flaeche);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 15%);
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: normal;
+}
+
+.erklaerung-inhalt p {
+  margin: 0.4rem 0 0;
+}
+
+.rechnung {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 1rem;
+  margin: 0;
+}
+
+.erklaerung-inhalt dt,
+.erklaerung-inhalt dd {
+  font-size: inherit;
+  font-weight: normal;
+  color: inherit;
+}
+
+.rechnung dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.erklaerung-inhalt .rechnung .summe {
+  border-top: 1px solid var(--rahmen);
+  padding-top: 0.15rem;
+  font-weight: 600;
+}
+
+.rechnung-tabelle {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 700px) {
+  .erklaerung-inhalt {
+    position: fixed;
+    top: auto;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-width: none;
+    max-height: 60vh;
+    overflow: auto;
+  }
+}

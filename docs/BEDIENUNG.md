@@ -10,6 +10,18 @@ Kopfbereich, Übersicht, Markt, Finanzen, Rundenbericht, Neues Spiel, Weltkarte 
 Spielstände als Datei (M18d), der Technologiebaum (M19) und die geführte Einführung
 bis zum ersten Verkauf (M20) sind umgesetzt.
 
+## Erklärungen (M27)
+
+Ein „ⓘ“ neben einem Wert zeigt, woraus er entsteht – als aufklappbare Rechnung, mit der
+Tastatur und auf dem Handy (dort unten am Bildschirm) bedienbar:
+
+- **Marktpreis** im Produktmarkt: Richtpreis, Preisniveau des Landes, Marktlage und die
+  Lage im Vormonat.
+- **Wer kauft?** im Produktmarkt: Einkommen, Kaufneigung, Bedarf oder Zielbesitz und
+  Nachfrage je Kopf für jedes Einkommensfünftel.
+- **Stückkosten** im Werk unter „Verkauf“: Material, Personal, Energie, Gemeinkosten,
+  Pacht und Anlage.
+
 ## Hinweise und Kennzeichen (M18d)
 
 Die Übersicht und der Rundenbericht zeigen unter „Zu erledigen“ bzw. „Jetzt zu tun“

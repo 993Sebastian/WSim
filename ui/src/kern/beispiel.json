@@ -9544,6 +9544,7 @@
       "country": "DEU",
       "date": "1914-08-01",
       "demand_last_month": 2186.429999999997,
+      "demand_parts": null,
       "exported_last_month": 4032.340515969684,
       "group": "eisen_stahl",
       "history": [
@@ -9595,6 +9596,20 @@
       "outside_demand_last_month": 0.0,
       "own_awareness": 0.0,
       "price_last_month_usd": 1494.0513800662811,
+      "price_parts": {
+        "import_share": 0.0,
+        "level_factor": 0.9782457878929504,
+        "level_share": 0.1,
+        "price_level": 0.802564352965736,
+        "price_max_factor": 4.0,
+        "price_usd": 1489.0548,
+        "reference_usd": 1467.3687,
+        "sellers": 2,
+        "situation": 1.014778903216349,
+        "supply": null,
+        "unmet_share": 0.0,
+        "world_reference_usd": 1500.0
+      },
       "price_usd": 1489.0548,
       "product": "draht",
       "reference_usd": 1467.3687,
@@ -9623,6 +9638,150 @@
       "unit": "t",
       "unmet_last_month": 0.0
     },
+    "moebel": {
+      "chances": [],
+      "consumers_per_month": [
+        4774.837445063421,
+        6145.724247133535,
+        6820.582533852565,
+        7310.498393613584,
+        7818.001791645801
+      ],
+      "country": "DEU",
+      "date": "1914-08-01",
+      "demand_last_month": 33890.44903929889,
+      "demand_parts": {
+        "complement_of": null,
+        "fifths": [
+          {
+            "base": 1.1643079264793874,
+            "income_usd": 1775.9753748836645,
+            "owned": 1.1728669634214821,
+            "per_head_year": 0.05821539632396937,
+            "propensity": 0.5821539632396937
+          },
+          {
+            "base": 1.4985882843597194,
+            "income_usd": 3354.739819510441,
+            "owned": 1.5047366039266112,
+            "per_head_year": 0.07492941421798598,
+            "propensity": 0.7492941421798597
+          },
+          {
+            "base": 1.6631473633896507,
+            "income_usd": 5097.156259151446,
+            "owned": 1.6674071380448159,
+            "per_head_year": 0.08315736816948253,
+            "propensity": 0.8315736816948254
+          },
+          {
+            "base": 1.782609633129839,
+            "income_usd": 7779.152017759416,
+            "owned": 1.7852712193943177,
+            "per_head_year": 0.08913048165649196,
+            "propensity": 0.8913048165649196
+          },
+          {
+            "base": 1.9063604907962168,
+            "income_usd": 16597.41858632456,
+            "owned": 1.907269336996434,
+            "per_head_year": 0.09531802453981084,
+            "propensity": 0.9531802453981084
+          }
+        ],
+        "gdp_per_capita_usd": 8623.468493150704,
+        "grid": null,
+        "kind": "gebrauch",
+        "population": 4989561.116986301,
+        "price_usd": 167.7751,
+        "reference_usd": 160.5128705931472,
+        "season": 1.0
+      },
+      "exported_last_month": 396.7335637542715,
+      "group": "moebel_hausrat",
+      "history": [
+        {
+          "month": "1914-01-01",
+          "own_share": null,
+          "price_usd": 182.9919,
+          "sold": 33971.05078125
+        },
+        {
+          "month": "1914-02-01",
+          "own_share": null,
+          "price_usd": 176.9226,
+          "sold": 30670.748046875
+        },
+        {
+          "month": "1914-03-01",
+          "own_share": null,
+          "price_usd": 171.4877,
+          "sold": 56884.22265625
+        },
+        {
+          "month": "1914-04-01",
+          "own_share": null,
+          "price_usd": 170.1395,
+          "sold": 54000.0
+        },
+        {
+          "month": "1914-05-01",
+          "own_share": null,
+          "price_usd": 170.1395,
+          "sold": 55800.0
+        },
+        {
+          "month": "1914-06-01",
+          "own_share": null,
+          "price_usd": 170.1395,
+          "sold": 43988.12890625
+        },
+        {
+          "month": "1914-07-01",
+          "own_share": null,
+          "price_usd": 168.8145,
+          "sold": 34287.18359375
+        }
+      ],
+      "import_price_usd": null,
+      "imported_last_month": 0.0,
+      "outside_demand_last_month": 33890.44903929889,
+      "own_awareness": 0.0,
+      "price_last_month_usd": 168.81449516603274,
+      "price_parts": {
+        "import_share": 0.0,
+        "level_factor": 0.9157816696465176,
+        "level_share": 0.4,
+        "price_level": 0.802564352965736,
+        "price_max_factor": 4.0,
+        "price_usd": 167.7751,
+        "reference_usd": 183.1563,
+        "sellers": 1,
+        "situation": 0.9160214527155223,
+        "supply": 1.0,
+        "unmet_share": 0.0,
+        "world_reference_usd": 200.0
+      },
+      "price_usd": 167.7751,
+      "product": "moebel",
+      "reference_usd": 183.1563,
+      "sellers": [
+        {
+          "company": "Barker Corporation",
+          "own": false,
+          "price_usd": 165.9362,
+          "real": false,
+          "share": 1.0,
+          "sold_last_month": 34287.18260305316
+        }
+      ],
+      "sold_last_month": 34287.18260305316,
+      "state_per_month": 0.0,
+      "state_price_usd": null,
+      "supply": 1.0,
+      "unit": "stueck",
+      "unmet_last_month": 0.0
+    },
     "naegel": {
       "chances": [
         "wenige_anbieter"
@@ -9637,6 +9796,53 @@
       "country": "DEU",
       "date": "1914-08-01",
       "demand_last_month": 1003.1870451984547,
+      "demand_parts": {
+        "complement_of": null,
+        "fifths": [
+          {
+            "base": 0.0015,
+            "income_usd": 1775.9753748836645,
+            "owned": null,
+            "per_head_year": 0.00117264199371162,
+            "propensity": 0.78176132914108
+          },
+          {
+            "base": 0.0015,
+            "income_usd": 3354.739819510441,
+            "owned": null,
+            "per_head_year": 0.0012844290988719559,
+            "propensity": 0.8562860659146373
+          },
+          {
+            "base": 0.0015,
+            "income_usd": 5097.156259151446,
+            "owned": null,
+            "per_head_year": 0.00133916558030993,
+            "propensity": 0.8927770535399533
+          },
+          {
+            "base": 0.0015,
+            "income_usd": 7779.152017759416,
+            "owned": null,
+            "per_head_year": 0.0013816773450252532,
+            "propensity": 0.9211182300168353
+          },
+          {
+            "base": 0.0015,
+            "income_usd": 16597.41858632456,
+            "owned": null,
+            "per_head_year": 0.0014330668758871813,
+            "propensity": 0.9553779172581209
+          }
+        ],
+        "gdp_per_capita_usd": 8623.468493150704,
+        "grid": null,
+        "kind": "verbrauch",
+        "population": 4989561.116986301,
+        "price_usd": 1904.9956,
+        "reference_usd": 1524.8722706348985,
+        "season": 1.0
+      },
       "exported_last_month": 1135.8129548015459,
       "group": "metallwaren",
       "history": [
@@ -9688,6 +9894,20 @@
       "outside_demand_last_month": 1003.1870451984547,
       "own_awareness": 0.0,
       "price_last_month_usd": 1904.9958741935484,
+      "price_parts": {
+        "import_share": 0.0,
+        "level_factor": 0.9782457878929504,
+        "level_share": 0.1,
+        "price_level": 0.802564352965736,
+        "price_max_factor": 4.0,
+        "price_usd": 1904.9956,
+        "reference_usd": 1858.667,
+        "sellers": 2,
+        "situation": 1.0249257128899367,
+        "supply": 1.0,
+        "unmet_share": 0.0,
+        "world_reference_usd": 1900.0
+      },
       "price_usd": 1904.9956,
       "product": "naegel",
       "reference_usd": 1858.667,

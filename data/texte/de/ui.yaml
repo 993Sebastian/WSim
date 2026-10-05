@@ -770,3 +770,30 @@ etappe.marktfuehrer.hinweis: Verkaufe in einem Land mehr von einem Produkt als j
 etappe.eigenkapital_verdoppelt: Eigenkapital verdoppelt
 etappe.eigenkapital_verdoppelt.hinweis: Gewinne erhöhen das Eigenkapital. Steck sie in Anlagen mit guter Marge; die Übersicht zeigt den Verlauf.
 
+# Ursachen erklären (M27)
+erklaerung.wie: "Wie entsteht: {wert}?"
+erklaerung.nachfrage: Nachfrage der Verbraucher
+erklaerung.richtpreis_welt: Richtpreis (Preisniveau 1)
+erklaerung.preisniveau: "Preisniveau {land} {niveau}, davon wirkt {anteil}"
+erklaerung.marktlage_hoch: "Marktlage: {prozent} über dem Richtpreis"
+erklaerung.marktlage_tief: "Marktlage: {prozent} unter dem Richtpreis"
+erklaerung.marktlage_gleich: "Marktlage: beim Richtpreis"
+erklaerung.vormonat: "Im Vormonat: Versorgung der Verbraucher und des Staats {versorgung}, offene Nachfrage {offen}, aus Einfuhren {einfuhr} des Absatzes, {anbieter} Anbieter im Land."
+erklaerung.preisregel: "Automatische Preise steigen, wenn ein Anbieter ausverkauft ist und Käufer mehr zahlen würden, und sinken bei vollen Lagern oder freien Anlagen – höchstens bis zum {hoechst}-Fachen des Richtpreises im Land. Der Marktpreis ist der geglättete Durchschnitt der Verkäufe."
+erklaerung.menschen: "{menschen} Einwohner im Markt, BIP je Kopf {bip}."
+erklaerung.preisvergleich: "Die Haushalte vergleichen den Preis {preis} mit {bezug} (Richtpreis mal Preisniveau)."
+erklaerung.netz: "Nur Haushalte mit Strom kaufen: {anteil}."
+erklaerung.saison: "Saison: {faktor}-fache Nachfrage in diesem Monat."
+erklaerung.fuenftel: Einkommensfünftel
+erklaerung.einkommen: Einkommen je Kopf
+erklaerung.kaufneigung: Kaufneigung
+erklaerung.basis_verbrauch: Bedarf je Kopf (gesättigt)
+erklaerung.basis_gebrauch: Zielbesitz je Kopf
+erklaerung.basis_ergaenzung: "{produkt} je Kopf"
+erklaerung.besitz: Besitz je Kopf
+erklaerung.je_kopf: Nachfrage je Kopf und Jahr
+erklaerung.regel_verbrauch: Nachfrage je Kopf = gesättigter Bedarf × Kaufneigung. Die Kaufneigung steigt mit dem Einkommen und fällt, wenn der Preis über dem Vergleichspreis liegt.
+erklaerung.regel_gebrauch: Haushalte ersetzen verschlissene Stücke und schließen jedes Jahr einen Teil der Lücke zum Zielbesitz; das Ziel ist der höchste Besitz je Kopf mal Kaufneigung, weniger, was Nachfolger schon verdrängt haben.
+erklaerung.regel_ergaenzung: Verbraucht wird mit dem Gebrauchsgut, das die Haushalte besitzen – je Stück ein fester Bedarf mal Kaufneigung.
+erklaerung.stueckkosten: "Bei {menge} am Tag. Jedes weitere Stück kostet ohne die Anlage {variabel}."
+

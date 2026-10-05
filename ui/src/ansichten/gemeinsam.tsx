@@ -192,3 +192,24 @@ export function Unterreiter<K extends string>({
     </nav>
   );
 }
+
+/**
+ * "Where does this value come from?" (M27): a small ⓘ that opens the parts of a value.
+ * A details element, so it works with the keyboard and on a phone alike.
+ */
+export function Erklaerung({ wert, children }: { wert: string; children: ReactNode }) {
+  // Drawn only while open: closed, its texts would stand twice on the page.
+  const [offen, setOffen] = useState(false);
+  return (
+    <details className="erklaerung-knopf" onToggle={(e) => setOffen(e.currentTarget.open)}>
+      <summary aria-label={t("erklaerung.wie", { wert })} title={t("erklaerung.wie", { wert })}>
+        ⓘ
+      </summary>
+      {offen && (
+        <div className="erklaerung-inhalt" role="note" aria-label={t("erklaerung.wie", { wert })}>
+          {children}
+        </div>
+      )}
+    </details>
+  );
+}
