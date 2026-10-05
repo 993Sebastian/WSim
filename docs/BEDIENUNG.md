@@ -133,6 +133,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   (Mangel, Preis über Richtpreis, wenige Anbieter). Ein Klick öffnet den
   **Produktmarkt**: Preisverlauf, Anbieter mit Preisen und Anteilen, Nachfrage nach
   Einkommensschicht, Einfuhr und Ausfuhr, eigenes Angebot.
+- **Verlauf** (M24): Der Produktmarkt zeigt die letzten 24 Monate – bezahlter Preis mit
+  dem Richtpreis als gestrichelter Linie, Absatz je Monat und den eigenen Anteil.
+  Der Rundenbericht nennt unter „Wettbewerb“ neue und ausgeschiedene Anbieter in den
+  eigenen Märkten und Preissenkungen ab 10 %; „Ansehen“ führt zum Markt.
 
 ### Forschung → Technologiebaum (M19)
 

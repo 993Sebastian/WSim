@@ -8,6 +8,7 @@ pub mod brand;
 pub mod calendar;
 pub mod catalog;
 pub mod command;
+pub mod competition;
 pub mod country_model;
 pub mod currency;
 pub mod finance;

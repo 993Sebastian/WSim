@@ -608,6 +608,39 @@ pub struct Market {
     /// `market::settle_idle`).
     #[serde(default)]
     pub idle_since: Option<Date>,
+    /// The last closed months, for the charts (M24); empty for markets without sales.
+    #[serde(default, skip_serializing_if = "MarketHistory::is_empty")]
+    pub history: MarketHistory,
+}
+
+/// Closed months of a market, oldest first, the last one is the month before the
+/// current (M24). For display only.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct MarketHistory {
+    /// Average price paid (zero: nothing sold).
+    pub price: Vec<Money>,
+    /// Units sold.
+    pub sold: Vec<f32>,
+    /// Units the player sold; empty while the player never sold here.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub own: Vec<f32>,
+}
+
+impl MarketHistory {
+    pub fn is_empty(&self) -> bool {
+        self.price.is_empty()
+    }
+}
+
+/// A market the player sells in, with the competitors' offers at the last month's end
+/// (M24): the round report names newcomers, leavers and price cuts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WatchedMarket {
+    pub product: ProductId,
+    pub country: CountryId,
+    /// Competitors with an offer and the price a cut is measured from: their lowest
+    /// price at the last report or since then, whichever is higher.
+    pub sellers: Vec<(CompanyId, Money)>,
 }
 
 impl Market {
@@ -797,6 +830,9 @@ pub struct GameState {
     /// Day the player reached each milestone (M23).
     #[serde(default)]
     pub milestones: PerId<MilestoneId, Option<Date>>,
+    /// Markets the player sells in, with the competitors seen there (M24).
+    #[serde(default)]
+    pub watched_markets: Vec<WatchedMarket>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

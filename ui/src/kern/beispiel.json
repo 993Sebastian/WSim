@@ -8354,6 +8354,50 @@
       "demand_last_month": 2186.429999999997,
       "exported_last_month": 4032.340515969684,
       "group": "eisen_stahl",
+      "history": [
+        {
+          "month": "1914-01-01",
+          "own_share": null,
+          "price_usd": 1445.3143,
+          "sold": 6379.0810546875
+        },
+        {
+          "month": "1914-02-01",
+          "own_share": null,
+          "price_usd": 1416.8782,
+          "sold": 5333.712890625
+        },
+        {
+          "month": "1914-03-01",
+          "own_share": null,
+          "price_usd": 1396.7809,
+          "sold": 6426.28125
+        },
+        {
+          "month": "1914-04-01",
+          "own_share": null,
+          "price_usd": 1391.1718,
+          "sold": 7202.17919921875
+        },
+        {
+          "month": "1914-05-01",
+          "own_share": null,
+          "price_usd": 1484.6095,
+          "sold": 6200.0
+        },
+        {
+          "month": "1914-06-01",
+          "own_share": null,
+          "price_usd": 1505.047,
+          "sold": 5911.5595703125
+        },
+        {
+          "month": "1914-07-01",
+          "own_share": null,
+          "price_usd": 1494.0514,
+          "sold": 6218.7705078125
+        }
+      ],
       "import_price_usd": null,
       "imported_last_month": 0.0,
       "outside_demand_last_month": 0.0,
@@ -8403,6 +8447,50 @@
       "demand_last_month": 1003.1870451984547,
       "exported_last_month": 1135.8129548015459,
       "group": "metallwaren",
+      "history": [
+        {
+          "month": "1914-01-01",
+          "own_share": 0.0,
+          "price_usd": 1836.5652,
+          "sold": 2371.75048828125
+        },
+        {
+          "month": "1914-02-01",
+          "own_share": 0.007465066731791598,
+          "price_usd": 1825.4551,
+          "sold": 1875.40185546875
+        },
+        {
+          "month": "1914-03-01",
+          "own_share": 0.007246376811594203,
+          "price_usd": 1876.6869,
+          "sold": 2139.0
+        },
+        {
+          "month": "1914-04-01",
+          "own_share": 0.007246376811594203,
+          "price_usd": 1904.9959,
+          "sold": 2070.0
+        },
+        {
+          "month": "1914-05-01",
+          "own_share": 0.007246376811594203,
+          "price_usd": 1904.9959,
+          "sold": 2139.0
+        },
+        {
+          "month": "1914-06-01",
+          "own_share": 0.007246376811594203,
+          "price_usd": 1904.9959,
+          "sold": 2070.0
+        },
+        {
+          "month": "1914-07-01",
+          "own_share": 0.007246376811594203,
+          "price_usd": 1904.9959,
+          "sold": 2139.0
+        }
+      ],
       "import_price_usd": null,
       "imported_last_month": 0.0,
       "outside_demand_last_month": 1003.1870451984547,

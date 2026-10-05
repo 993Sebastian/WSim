@@ -144,3 +144,6 @@ hinweis.forschung_ohne_projekt: "Das Forschungszentrum in {land} hat kein Projek
 hinweis.konto_ueberzogen: "Das Konto ist um {betrag} überzogen."
 hinweis.kasse: "Bei einem Verlust wie im Vormonat reicht die Kasse noch etwa {monate} Monate."
 meldung.etappe: "Etappe erreicht: {etappe}"
+meldung.ki.anbieter_neu: "{firma} bietet jetzt {produkt} in {land} an, für {preis}."
+meldung.ki.anbieter_weg: "{firma} bietet {produkt} in {land} nicht mehr an."
+meldung.ki.preissenkung: "{firma} senkt den Preis für {produkt} in {land} um {prozent} % auf {preis}."

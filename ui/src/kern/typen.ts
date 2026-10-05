@@ -519,6 +519,19 @@ export interface ProduktMarkt {
   }[];
   own_awareness: number;
   chances: string[];
+  /** The last closed months, oldest first (M24). */
+  history?: Marktmonat[];
+}
+
+/** One closed month of a market (M24). */
+export interface Marktmonat {
+  /** First day of the month. */
+  month: string;
+  /** Average price paid; null when nothing was sold. */
+  price_usd: number | null;
+  sold: number;
+  /** The player's share; null while the player never sold here. */
+  own_share: number | null;
 }
 
 export interface WeltMarkt {

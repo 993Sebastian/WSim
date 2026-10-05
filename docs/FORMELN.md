@@ -1138,3 +1138,25 @@ Spieler.
   | `eigenkapital` | Eigenkapital ≥ `wert` · Startkapital | Eigenkapital |
 
 - Ältere Spielstände ohne Etappen holen die erfüllten am ersten Tag nach dem Laden nach.
+
+## M24 – Wettbewerb und Preise im Verlauf
+
+Lastenheft §13.2, §14.2; Vorschlag 3. Parameter: `marktmodell.verlauf_monate`,
+`marktmodell.meldung_preissenkung`. Beides wirkt nicht auf die Simulation.
+
+- **Monatsreihe je Markt:** Am Monatsende bekommt jeder Markt, der in den letzten
+  `verlauf_monate` Monaten etwas verkauft hat, einen Eintrag: bezahlter Durchschnittspreis
+  (Umsatz / Menge; 0 ohne Verkauf), verkaufte Menge und die Menge des Spielers (diese erst,
+  sobald er dort verkauft; die Monate davor zählen 0). Ältere Einträge fallen weg; ein
+  Markt ohne Verkauf in allen gehaltenen Monaten verliert seine Reihe. Der Anteil des
+  Spielers ist seine Menge / verkaufte Menge.
+- **Wettbewerbsmeldungen:** Am Monatsende für jeden Markt (Produkt und Land), in dem der
+  Spieler ein Angebot hat. Je Wettbewerber zählt sein niedrigster Angebotspreis dort.
+  - Neuer Anbieter: Er hat jetzt ein Angebot, am letzten Monatsende nicht.
+  - Anbieter weg: Er hatte ein Angebot und hat keines mehr (auch nach einer Pleite).
+  - Preissenkung: Sein Preis liegt mindestens `meldung_preissenkung` unter seinem
+    Bezugspreis. Der Bezugspreis ist der Preis bei der letzten Meldung, danach der höchste
+    Preis seither; so werden auch schrittweise Senkungen gemeldet (automatische Preise
+    sinken höchstens etwa 4 % im Monat), kleine Schwankungen aber nicht.
+  - Der erste Monat in einem neuen Markt des Spielers merkt sich nur die Anbieter.
+

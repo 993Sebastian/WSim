@@ -466,6 +466,14 @@ pub fn message_view(message: &Message) -> MessageView {
         Some("produktion")
     } else if message.key == crate::message::keys::MILESTONE {
         Some("uebersicht")
+    } else if [
+        crate::message::keys::AI_NEW_SELLER,
+        crate::message::keys::AI_SELLER_GONE,
+        crate::message::keys::AI_PRICE_CUT,
+    ]
+    .contains(&message.key.as_str())
+    {
+        Some("markt")
     } else if message.key.starts_with("meldung.forschung") {
         Some("forschung")
     } else if matches!(

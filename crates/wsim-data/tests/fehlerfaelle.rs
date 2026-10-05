@@ -120,6 +120,8 @@ marktmodell:
   aneignung_je_jahr: 0.25
   preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, auslastung_normal: 0.85, hoechstfaktor: 20, aufholen_max: 20}
   staat_hoechstpreis: 1.5
+  verlauf_monate: 24
+  meldung_preissenkung: 0.1
   preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
   index_glaettung: 0.1
   haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}
@@ -1650,6 +1652,33 @@ ereignisse:
     befund(&outcome, "Unbekannte Ereignisart „streik“");
     befund(&outcome, "Land „XXX“ ist nicht definiert.");
     befund(&outcome, "Text „ereignis.grosser_streik.text“ fehlt");
+}
+
+#[test]
+fn verlauf_und_preismeldung_im_marktmodell() {
+    let d = Daten::neu()
+        .ersetze(
+            "parameter/marktmodell.yaml",
+            "verlauf_monate: 24",
+            "verlauf_monate: 0",
+        )
+        .ersetze(
+            "parameter/marktmodell.yaml",
+            "meldung_preissenkung: 0.1",
+            "meldung_preissenkung: 1.5",
+        );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 120.",
+    );
+    assert_eq!(f.path.to_string(), "marktmodell.verlauf_monate");
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0.01 bis 0.9.",
+    );
+    assert_eq!(f.path.to_string(), "marktmodell.meldung_preissenkung");
+    nur_fehler(&outcome, 2);
 }
 
 #[test]

@@ -192,6 +192,8 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | --- | --- |
 | **preisgewicht**, **qualitaetsgewicht** | je 5 Werte (ärmstes Fünftel zuerst) für die Anbieterwahl |
 | **aneignung_je_jahr** | Anteil der Lücke zur Ziel-Besitzquote, der je Jahr gekauft wird |
+| **verlauf_monate** | Monate der Preis- und Absatzreihe je Markt für die Verläufe (1–120, M24) |
+| **meldung_preissenkung** | Preissenkung eines Wettbewerbers seit seinem Bezugspreis, die der Rundenbericht meldet (0,01–0,9, M24) |
 | **preisanpassung** | `hoch`, `runter` (je Tag), `lagertage`, `auslastung_normal` (0–1: darunter sinken automatische Preise auch, freie Anlagen werben um Kunden), `hoechstfaktor` (automatische Preise höchstens dieses Vielfache des Richtpreises im Land, 1–1000), `aufholen_max` (knappe Ware unter dem Richtpreis steigt um `hoch` · Richtpreis/Preis, höchstens dieses Vielfache; 1–1000, M22) |
 | **staat_hoechstpreis** | Staaten zahlen höchstens dieses Vielfache des Richtpreises (im Land, mindestens des weltweiten) |
 | **preisniveau_anteil** | Wie weit das Preisniveau eines Landes die Preise bestimmt (0: Weltpreis, 1: voll), je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie` (je 0–1) |

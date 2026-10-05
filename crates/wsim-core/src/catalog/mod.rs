@@ -614,6 +614,11 @@ pub struct MarketModel {
     pub catch_up_max: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
+    /// Closed months kept per market for the charts (M24).
+    pub history_months: u32,
+    /// A competitor's price cut since its last high (or last report) that the round
+    /// report names (M24).
+    pub price_cut_report: f64,
     /// How far a country's price level carries into the prices of goods, per product
     /// kind (0: world price, 1: fully). Goods are traded; only the local share of
     /// wages, trade and distribution in their price follows the price level.
@@ -698,6 +703,8 @@ impl Default for MarketModel {
             price_max_factor: 20.0,
             catch_up_max: 20.0,
             state_price_cap: 1.5,
+            history_months: 24,
+            price_cut_report: 0.1,
             price_level_share: [1.0; 5],
             index_smoothing: 0.1,
             trader_margin: 0.05,

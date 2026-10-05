@@ -20,6 +20,11 @@ marktmodell:
     # um das Vielfache „aufholen_max“ (M22). Sonst bräuchte er Jahre, um aufzuholen.
     aufholen_max: 20
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
+  # Verläufe und Wettbewerbsmeldungen im Rundenbericht (M24): Monate der Preis- und
+  # Absatzreihe je Markt; Preissenkung eines Wettbewerbers seit seinem letzten Höchststand
+  # oder der letzten Meldung, ab der der Bericht sie nennt.
+  verlauf_monate: 24
+  meldung_preissenkung: 0.1
   # Wie weit das Preisniveau eines Landes die Preise der Waren bestimmt (0: Weltpreis, 1: voll),
   # je Produktart (M16). Waren werden gehandelt und kosten überall ähnlich viel; nur der Anteil
   # von Löhnen, Handel und Vertrieb im Land folgt dem Preisniveau (Balassa-Samuelson).

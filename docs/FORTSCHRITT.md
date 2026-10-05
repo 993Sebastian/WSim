@@ -32,7 +32,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M21 | Landeswährungen: Kaufkraft 2026 oder Preise der Zeit | ✅ |
 | M22 | Anlagen stilllegen und verkaufen; Balance-Runde | ✅ |
 | M23 | Etappenziele | ✅ |
-| M24 | Wettbewerb und Preise im Verlauf | offen |
+| M24 | Wettbewerb und Preise im Verlauf | ✅ |
 | M25 | Produktionsketten | offen |
 | M26 | Weiterlaufen bis … | offen |
 | M27 | Ursachen erklären | offen |
@@ -689,4 +689,32 @@ Eigenständige Entscheidungen:
     nicht.
   - Ob die Etappen gezeigt werden, merkt sich der Browser bzw. die App (wie die
     Geldanzeige), nicht der Spielstand.
+
+### M24: Wettbewerb und Preise im Verlauf (05.10.2026)
+
+Vorschlag 3 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Formeln: `docs/FORMELN.md`, M24.
+
+  - **Monatsreihe je Markt** im Spielstand: bezahlter Preis, Absatz und eigener Absatz der
+    letzten 24 Monate (`marktmodell.verlauf_monate`), nur für Märkte mit Absatz.
+  - **Produktmarkt:** Bereich „Verlauf“ mit drei kleinen Diagrammen – Preis gegen den
+    Richtpreis (gestrichelt), Absatz je Monat, eigener Anteil. Monate ohne Verkauf
+    schreiben den letzten Preis fort.
+  - **Rundenbericht** (Gruppe „Wettbewerb“, Sprung zum Markt): neue und ausgeschiedene
+    Anbieter in den Märkten, in denen der Spieler anbietet, und Preissenkungen ab 10 %
+    (`marktmodell.meldung_preissenkung`) seit dem letzten Höchststand.
+  - Tests: Kern (Reihe mit Kürzung, Lücken und eigenem Absatz; Meldungen für neue,
+    ausgeschiedene und billigere Anbieter, auch bei schrittweiser Senkung), Daten
+    (Fehlerfälle der Parameter), Oberfläche (Fortschreiben fehlender Preise) und Vorschau
+    (Diagramme im Produktmarkt).
+
+Eigenständige Entscheidungen:
+
+  - Keine neue Formatversion: Die Reihen sind neue Felder mit Standardwert; ältere
+    Spielstände beginnen ihre Reihen beim nächsten Monatsende.
+  - Ein Spielstand 1903 mit 100 KI-Firmen wird dadurch rund 23 % größer (5,1 statt
+    4,2 MB): Mehrere Tausend Märkte haben Absatz, auch über den Staatsmarkt und Einfuhren.
+    Mengen werden einfach genau (f32) gespeichert, Preise als Geldbetrag.
+  - Preissenkungen werden gegen den Höchststand seit der letzten Meldung gemessen, nicht
+    gegen den Vormonat: Automatische Preise sinken höchstens etwa 4 % im Monat, ein
+    Vergleich mit dem Vormonat meldete also nur feste Preise.
 

@@ -201,3 +201,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Gelegenheit für eine Firma mit ihren Verfahren | `ai::opportunity` (`builder`) |
 | Etappe (Etappenziel), Art, Wert | `catalog::Milestone`, `MilestoneCondition` (`etappen`: `art`, `wert`), `MilestoneId` |
 | Erreichte Etappen des Spielers, Fortschritt | `GameState::milestones`, `milestones::check`, `milestones::progress`; Sicht `MilestoneView` (`Overview::milestones`); UI: `Etappen`, `ETAPPEN_SPEICHER` |
+| Monatsreihe eines Markts (Preis, Absatz, eigener Absatz) | `state::MarketHistory` (`Market::history`), `competition::record_history`, `marktmodell.verlauf_monate`; Sicht `MarketMonthView` (`ProductMarketView::history`); UI: `MarktVerlauf`, `Marktmonat` |
+| Wettbewerbsmeldungen (neuer Anbieter, Anbieter weg, Preissenkung) | `competition::competitor_news`, `state::WatchedMarket` (`GameState::watched_markets`), `marktmodell.meldung_preissenkung`; Schlüssel `meldung.ki.anbieter_neu`, `anbieter_weg`, `preissenkung` |

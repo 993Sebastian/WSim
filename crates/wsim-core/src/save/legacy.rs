@@ -128,6 +128,7 @@ pub(super) fn decode_v2(
         deposits: PerId::default(),
         inventions: PerId::default(),
         milestones: PerId::default(),
+        watched_markets: Vec::new(),
         player: s.player,
         game_over: s.game_over,
     };

@@ -205,6 +205,7 @@ impl Game {
             deposits: PerId::default(),
             inventions: PerId::default(),
             milestones: PerId::default(),
+            watched_markets: Vec::new(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -388,6 +389,10 @@ impl Game {
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);
             market::reset_site_months(&mut self.state);
+            report.messages.extend(crate::competition::month_end(
+                &mut self.state,
+                &self.catalog,
+            ));
             crate::brand::month_start(&mut self.state, &self.catalog, next);
         }
         if next.ordinal() == 1 {

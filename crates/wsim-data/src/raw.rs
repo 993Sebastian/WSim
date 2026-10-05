@@ -655,6 +655,10 @@ pub struct RawMarketModel {
     pub price_adjustment: RawPriceAdjustment,
     #[serde(rename = "staat_hoechstpreis")]
     pub state_price_cap: f64,
+    #[serde(rename = "verlauf_monate")]
+    pub history_months: u32,
+    #[serde(rename = "meldung_preissenkung")]
+    pub price_cut_report: f64,
     #[serde(rename = "preisniveau_anteil")]
     pub price_level_share: RawPerKind,
     #[serde(rename = "index_glaettung")]

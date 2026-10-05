@@ -419,6 +419,18 @@ pub(super) fn market_model(
             &adjust.field("aufholen_max"),
         ),
         state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
+        history_months: {
+            let loc = l.field("verlauf_monate");
+            in_range(ctx, f64::from(m.history_months), 1.0, 120.0, &loc);
+            m.history_months
+        },
+        price_cut_report: in_range(
+            ctx,
+            m.price_cut_report,
+            0.01,
+            0.9,
+            &l.field("meldung_preissenkung"),
+        ),
         price_level_share: per_kind(
             ctx,
             &m.price_level_share,

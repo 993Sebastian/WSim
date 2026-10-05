@@ -464,6 +464,11 @@ markt.chance.wenige_anbieter.hilfe: Höchstens zwei Firmen bieten hier an, und d
 markt.produktmarkt_titel: "{produkt} in {land}"
 markt.alle_produkte: Alle Produkte
 markt.anbieter_titel: Anbieter im Vormonat
+markt.verlauf_titel: Verlauf
+markt.verlauf_preis: Bezahlter Preis je Monat
+markt.verlauf_richtpreis: "Gestrichelt: Richtpreis im Land."
+markt.verlauf_absatz: Absatz je Monat
+markt.verlauf_anteil: Dein Anteil am Absatz
 markt.keine_anbieter: Im Land bietet keine Firma dieses Produkt an.
 markt.preis_anbieter: Preis heute
 markt.verkauft_vormonat: Verkauft im Vormonat

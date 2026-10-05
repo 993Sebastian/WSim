@@ -21,18 +21,27 @@ export function Verlauf({
   monate,
   werte,
   art = "linie",
+  bezug,
+  format = formatGeld,
 }: {
   name: string;
   monate: string[];
   werte: number[];
   art?: "linie" | "balken";
+  /** A value to compare with, drawn as a dashed line (e.g. the reference price). */
+  bezug?: number;
+  /** How the text alternative writes a value (amounts by default). */
+  format?: (wert: number) => string;
 }) {
   if (werte.length < 2) {
     return <p className="gedaempft verlauf-leer">{t("grafik.zu_wenig")}</p>;
   }
   // Bars stand on the zero line; a line uses the range of its values, so that the
   // course shows (cash from 40 to 48 thousand is no flat line at the top).
-  const roh = art === "balken" ? [0, ...werte] : werte;
+  const roh = [
+    ...(art === "balken" ? [0, ...werte] : werte),
+    ...(bezug === undefined ? [] : [bezug]),
+  ];
   const tief = Math.min(...roh);
   const hoch = Math.max(...roh);
   const rand = art === "balken" ? 0 : (hoch - tief) * 0.1 || Math.abs(hoch) * 0.05 || 1;
@@ -45,9 +54,9 @@ export function Verlauf({
   const beschreibung = t("grafik.beschreibung", {
     name,
     von: formatMonatKurz(monate[0]!),
-    anfang: formatGeld(werte[0]!),
+    anfang: format(werte[0]!),
     bis: formatMonatKurz(monate.at(-1)!),
-    ende: formatGeld(werte.at(-1)!),
+    ende: format(werte.at(-1)!),
   });
   return (
     <svg
@@ -60,6 +69,9 @@ export function Verlauf({
       <title>{beschreibung}</title>
       {min <= 0 && max >= 0 && (
         <line className="nulllinie" x1={0} x2={BREITE} y1={y(0)} y2={y(0)} />
+      )}
+      {bezug !== undefined && (
+        <line className="bezugslinie" x1={0} x2={BREITE} y1={y(bezug)} y2={y(bezug)} />
       )}
       {art === "linie" ? (
         <polyline points={werte.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />

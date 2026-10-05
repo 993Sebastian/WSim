@@ -91,6 +91,19 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
       .getByText("Maschinenfabrik Lehmann & Söhne"),
   ).toBeVisible();
   await expect(naegelMarkt.getByText("Ärmstes Fünftel")).toBeVisible();
+  // The last months: price against the reference price, sales and the own share (M24).
+  const verlauf = naegelMarkt.getByRole("region", { name: "Verlauf" });
+  await expect(verlauf.getByText("Gestrichelt: Richtpreis im Land.")).toBeVisible();
+  await expect(
+    verlauf.getByRole("img", {
+      name: /^Bezahlter Preis je Monat: 1\.837 USD\/t \(Jan 1914\) bis 1\.905 USD\/t \(Jul 1914\)$/,
+    }),
+  ).toBeVisible();
+  await expect(
+    verlauf.getByRole("img", {
+      name: /^Dein Anteil am Absatz: 0 % \(Jan 1914\) bis 0,7 % \(Jul 1914\)$/,
+    }),
+  ).toBeVisible();
   await bild(page, "produktmarkt");
   await naegelMarkt.getByRole("button", { name: /Alle Produkte/ }).click();
   await page.getByRole("button", { name: "Marke und Werbung", exact: true }).click();

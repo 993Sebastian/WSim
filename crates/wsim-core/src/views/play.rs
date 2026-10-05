@@ -16,7 +16,7 @@ use crate::market;
 use crate::money::Money;
 use crate::reports;
 use crate::research;
-use crate::state::{CompanyId, Limit, Operation, PriceMode};
+use crate::state::{CompanyId, Limit, Market, Operation, PriceMode};
 
 /// Why a facility made less than planned on the last day, as text key and product.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -989,6 +989,52 @@ pub struct ProductMarketView {
     pub sellers: Vec<SellerLine>,
     pub own_awareness: f64,
     pub chances: Vec<String>,
+    /// The last closed months, oldest first (M24).
+    #[serde(default)]
+    pub history: Vec<MarketMonthView>,
+}
+
+/// One closed month of a market (M24).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MarketMonthView {
+    /// First day of the month.
+    pub month: String,
+    /// Average price paid; `None` when nothing was sold.
+    pub price_usd: Option<f64>,
+    pub sold: f64,
+    /// The player's share of the units sold; `None` while the player never sold here.
+    pub own_share: Option<f64>,
+}
+
+/// The series of a market with the first day of each month.
+fn market_history(state: &crate::state::GameState, m: &Market) -> Vec<MarketMonthView> {
+    let h = &m.history;
+    let mut month = state.date.first_of_month();
+    let mut months = Vec::with_capacity(h.price.len());
+    for _ in 0..h.price.len() {
+        month = month.add_days(-1).first_of_month();
+        months.push(month);
+    }
+    months.reverse();
+    months
+        .into_iter()
+        .enumerate()
+        .map(|(i, month)| {
+            let sold = f64::from(h.sold[i]);
+            MarketMonthView {
+                month: iso(month),
+                price_usd: (h.price[i] > Money::ZERO).then(|| usd(h.price[i])),
+                sold,
+                own_share: h.own.get(i).map(|&own| {
+                    if sold > 0.0 {
+                        f64::from(own) / sold
+                    } else {
+                        0.0
+                    }
+                }),
+            }
+        })
+        .collect()
 }
 
 /// Days of a month for demand per month at daily rates.
@@ -1064,6 +1110,7 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         sellers,
         own_awareness: state.companies[state.player.index()].awareness(c, group),
         chances: line.map(|l| l.chances).unwrap_or_default(),
+        history: market_history(state, m),
     })
 }
 

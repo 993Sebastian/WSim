@@ -16,6 +16,7 @@ import {
 import { geld, type Kern, type Markt, type ProduktMarkt, type Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
+import { formatMonatKurz, Verlauf } from "./Grafik";
 import {
   Befehle,
   Rueckmeldung,
@@ -333,6 +334,74 @@ function ProduktmarktAnsicht({
   );
 }
 
+/** Months without sales keep the last price paid, so the line does not drop to zero. */
+export function fortgeschrieben(werte: (number | null)[], ersatz: number): number[] {
+  const erster = werte.find((w) => w !== null) ?? ersatz;
+  return werte.reduce<number[]>((liste, w) => [...liste, w ?? liste.at(-1) ?? erster], []);
+}
+
+/** Price, sales and the own share over the last months (M24). */
+function MarktVerlauf({ m, einheit }: { m: ProduktMarkt; einheit: string }) {
+  const verlauf = m.history ?? [];
+  if (verlauf.length < 2) return null;
+  const monate = verlauf.map((v) => v.month);
+  const preise = fortgeschrieben(
+    verlauf.map((v) => v.price_usd),
+    m.reference_usd,
+  );
+  const eigen = verlauf.some((v) => v.own_share !== null);
+  const zeitraum = (
+    <small className="gedaempft">
+      {formatMonatKurz(monate[0]!)} – {formatMonatKurz(monate.at(-1)!)}
+    </small>
+  );
+  return (
+    <section className="karte" aria-label={t("markt.verlauf_titel")}>
+      <h3>{t("markt.verlauf_titel")}</h3>
+      <div className="verlaeufe">
+        <figure className="verlaufskarte">
+          <figcaption>
+            {t("markt.verlauf_preis")} {zeitraum}
+          </figcaption>
+          <Verlauf
+            name={t("markt.verlauf_preis")}
+            monate={monate}
+            werte={preise}
+            bezug={m.reference_usd}
+            format={(v) => formatPreis(v, einheit)}
+          />
+          <p className="feld-hilfe">{t("markt.verlauf_richtpreis")}</p>
+        </figure>
+        <figure className="verlaufskarte">
+          <figcaption>
+            {t("markt.verlauf_absatz")} {zeitraum}
+          </figcaption>
+          <Verlauf
+            name={t("markt.verlauf_absatz")}
+            monate={monate}
+            werte={verlauf.map((v) => v.sold)}
+            art="balken"
+            format={(v) => `${formatZahl(v, v < 10 ? 1 : 0)} ${einheit}`}
+          />
+        </figure>
+        {eigen && (
+          <figure className="verlaufskarte">
+            <figcaption>
+              {t("markt.verlauf_anteil")} {zeitraum}
+            </figcaption>
+            <Verlauf
+              name={t("markt.verlauf_anteil")}
+              monate={monate}
+              werte={verlauf.map((v) => v.own_share ?? 0)}
+              format={(v) => (v > 0 && v < 0.1 ? `${formatZahl(v * 100, 1)} %` : formatProzent(v))}
+            />
+          </figure>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Produktmarkt({ m }: { m: ProduktMarkt }) {
   const e = t(`einheit.${m.unit}`);
   const menge = (q: number) => `${formatZahl(q, q < 10 ? 1 : 0)} ${e}`;
@@ -375,6 +444,8 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
           ))}
         </ul>
       )}
+
+      <MarktVerlauf m={m} einheit={e} />
 
       <section className="karte" aria-label={t("markt.anbieter_titel")}>
         <h3>{t("markt.anbieter_titel")}</h3>
