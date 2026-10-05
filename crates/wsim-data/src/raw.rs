@@ -136,6 +136,8 @@ pub struct RawCountryModel {
     pub stability: f64,
     #[serde(rename = "forschung")]
     pub research: RawResearch,
+    #[serde(rename = "produktivitaet")]
+    pub productivity: RawResearch,
     #[serde(rename = "automatisierung")]
     pub automation: RawAutomation,
 }
@@ -271,6 +273,10 @@ pub struct RawProduct {
     pub state_market: Option<RawStateMarket>,
     #[serde(rename = "ersetzt", default)]
     pub replaces: Vec<String>,
+    #[serde(rename = "foerderindex", default)]
+    pub output_index: Option<RawSeries>,
+    #[serde(rename = "pacht_anteil", default)]
+    pub rent_share: Option<f64>,
     /// May use five or six levels in its product tree (Lastenheft §17.2).
     #[serde(rename = "sehr_komplex", default)]
     pub very_complex: bool,
@@ -508,6 +514,12 @@ pub struct RawProductionModel {
     pub electricity: Option<String>,
     #[serde(rename = "einspeiseverguetung")]
     pub feed_in_share: f64,
+    #[serde(rename = "gemeinkosten_anteil")]
+    pub overhead_share: RawPerKind,
+    #[serde(rename = "richtpreis_marge")]
+    pub reference_margin: RawLimits,
+    #[serde(rename = "nebenprodukte_lager_tage")]
+    pub by_product_stock_days: f64,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
 }
@@ -615,6 +627,8 @@ pub struct RawMarketModel {
     pub price_adjustment: RawPriceAdjustment,
     #[serde(rename = "staat_hoechstpreis")]
     pub state_price_cap: f64,
+    #[serde(rename = "preisniveau_anteil")]
+    pub price_level_share: RawPerKind,
     #[serde(rename = "index_glaettung")]
     pub index_smoothing: f64,
     #[serde(rename = "haendler")]
@@ -665,6 +679,8 @@ pub struct RawPriceAdjustment {
     pub down: f64,
     #[serde(rename = "lagertage")]
     pub stock_days: f64,
+    #[serde(rename = "auslastung_normal")]
+    pub normal_utilization: f64,
     #[serde(rename = "hoechstfaktor")]
     pub max_factor: f64,
 }
@@ -848,21 +864,21 @@ pub struct RawAiStart {
     #[serde(rename = "kasse_monate")]
     pub cash_months: f64,
     #[serde(rename = "gewicht_entwicklung")]
-    pub development_weight: RawKindWeights,
+    pub development_weight: RawPerKind,
     #[serde(rename = "referenzlohn_usd")]
     pub reference_wage_usd: f64,
     #[serde(rename = "marktdeckung")]
-    pub market_cover: f64,
+    pub market_cover: RawPerKind,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct RawKindWeights {
+pub struct RawPerKind {
     #[serde(rename = "rohstoff")]
     pub raw_material: f64,
     #[serde(rename = "halbzeug")]
     pub semi_finished: f64,
-    #[serde(rename = "bauteil")]
+    #[serde(rename = "komponente")]
     pub component: f64,
     #[serde(rename = "endprodukt")]
     pub end_product: f64,
@@ -883,6 +899,12 @@ pub struct RawAiBehavior {
     pub utilization_step: f64,
     #[serde(rename = "auslastung_min")]
     pub utilization_min: f64,
+    #[serde(rename = "auslastung_aenderung_max")]
+    pub utilization_change_max: f64,
+    #[serde(rename = "lager_ziel_tage")]
+    pub stock_target_days: f64,
+    #[serde(rename = "lager_ausgleich_tage")]
+    pub stock_adjust_days: f64,
     #[serde(rename = "preisuntergrenze")]
     pub floor_factor: RawSpan,
     #[serde(rename = "werbeanteil")]
@@ -893,6 +915,8 @@ pub struct RawAiBehavior {
     pub expand_utilization: RawSpan,
     #[serde(rename = "ausbau_marge")]
     pub expand_margin: RawSpan,
+    #[serde(rename = "ausbau_vorprodukt_preis_max")]
+    pub expand_input_price_max: f64,
     #[serde(rename = "ausbau_anteil_kasse_max")]
     pub invest_share_max: f64,
     #[serde(rename = "forschung_vorgriff_jahre")]

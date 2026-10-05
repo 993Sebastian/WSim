@@ -11,6 +11,7 @@ pub mod command;
 pub mod country_model;
 pub mod finance;
 pub mod game;
+pub mod health;
 pub mod ids;
 pub mod ledger;
 pub mod market;

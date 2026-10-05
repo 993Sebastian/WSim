@@ -143,6 +143,7 @@ Parameter: `data/parameter/produktionsmodell.yaml`.
                      verbleibende Jahresförderung und Vorrat   (nur Abbau))
 
     Stunden je Durchlauf = Stunden laut Rezept · Arbeitsfaktor · Förderkostenfaktor (Abbau)
+                           / Arbeitsproduktivität des Landes (Nacharbeit zu M16)
     Arbeitsfaktor = 1 − Automatisierung · Arbeitsersparnis · (0,5 + 0,5 · Automatisierungsprägung)
 
 Die Anlagen eines Standorts teilen sich dessen Belegschaft in ihrer Reihenfolge.
@@ -171,8 +172,13 @@ selben Tag).
 - Verbrauchte Eingänge: Materialaufwand zum Durchschnittswert des Lagers.
 - Löhne aller Beschäftigten: Personalaufwand (auch für ungenutzte Stunden).
 - Strom: Energieaufwand zum Landespreis.
+- Gemeinkosten (Verwaltung, Vertrieb, Logistik): Aufwand aus der Kasse je Durchlauf
+  (Nacharbeit zu M16).
 - Erzeugte Ware: Bestandserhöhung zu Herstellkosten = Eingänge + genutzte
-  Arbeitsstunden · Lohn + Strom. Nebenprodukte erhalten Kosten anteilig nach Menge.
+  Arbeitsstunden · Lohn + Strom + Gemeinkosten. Nebenprodukte erhalten Kosten anteilig
+  nach Menge. Läge ein Nebenprodukt danach über `nebenprodukte_lager_tage` seiner
+  Tageserzeugung auf Lager, wird der Überschuss entsorgt (Nacharbeit zu M16: um 1900
+  wurde Benzin abgefackelt); seine Kosten trägt die behaltene Ware.
 - Ungenutzte Arbeitszeit, Wartung und Abschreibung mindern das Ergebnis direkt.
 
 ## M6 – Finanzen
@@ -221,19 +227,22 @@ Parameter: `data/parameter/marktmodell.yaml`. Je Produkt und Land gibt es einen 
 
 - **Anbieter:** Standorte mit Verkaufsangebot (Festpreis oder automatischer Preis;
   ein Teil des Lagers kann zurückbehalten werden) und – für Güter mit `staatsmarkt` –
-  der Staatsmarkt zum Datenpreis · Preisniveau, in beliebiger Menge, Qualität 50.
+  der Staatsmarkt zum Datenpreis · Preisfaktor des Landes (Abschnitt „Preise der Waren je
+  Land“), in beliebiger Menge, Qualität 50.
 - **Nachfrager**, in dieser Reihenfolge bedient:
   1. Einkaufsaufträge von Standorten (Industrie): Ziel-Lagerbestand, Höchstpreis,
      Mindestqualität; höchste Zahlungsbereitschaft zuerst, jeweils beim billigsten
      passenden Anbieter, nie bei der eigenen Firma.
   2. Staat: täglich `je_mio_usd_bip · BIP (Marktpreise) / 10⁶ / 365`, billigste
-     Anbieter bis `staat_hoechstpreis · Richtpreis · Preisniveau`.
+     Anbieter bis `staat_hoechstpreis · max(Richtpreis im Land, Richtpreis)`: Staaten
+     ärmerer Länder kaufen Schienen oder Blech auch zu Weltpreisen.
   3. Endkunden, reichste Schicht zuerst.
+  4. Händler für die Ausfuhr, aus dem, was die Käufer im Land übrig lassen (M8).
 
 ### Endkunden-Nachfrage (monatlich)
 
 Je Einkommensfünftel q mit Einkommen y_q (Marktpreise) und Marktpreis p,
-Richtpreis r (· Preisniveau):
+Richtpreis im Land r (Richtpreis · Preisfaktor):
 
     a_q = (y_q / (Kaufschwelle · r))^Einkommensempfindlichkeit · (r / p)^Preisempfindlichkeit
     Kaufneigung S_q = a_q / (1 + a_q)
@@ -265,10 +274,16 @@ doppelter Preis behält bei Gewicht 5 nur 1/32 der Kunden.
 ### Preise
 
 - Automatischer Preis: Start beim Marktpreis · (1 + Aufschlag). Täglich +`hoch`, wenn
-  der Anbieter alles verkauft hat und Nachfrage offen blieb; −`runter`, wenn er weniger
-  als 1/`lagertage` seines Angebots verkauft hat; nie unter der Preisuntergrenze.
+  der Anbieter alles verkauft hat und ein Käufer ohne Ware blieb, der mehr als seinen
+  Preis gezahlt hätte (im Land oder bei den Händlern, die für die Ausfuhr nicht genug
+  fanden; Nacharbeit zu M16, siehe dort); −`runter`, wenn er weniger als
+  1/`lagertage` seines Angebots verkauft hat oder seine Anlagen für das Produkt unter
+  `auslastung_normal` geplant sind (freie Anlagen werben um Kunden, M16); nie unter der
+  Preisuntergrenze und nie über `hoechstfaktor` · Richtpreis im Land.
 - Marktpreis (Index) = (1 − g) · bisheriger Index + g · Durchschnittspreis des Tages,
-  g = `index_glaettung`; vor dem ersten Verkauf Richtpreis · Preisniveau.
+  g = `index_glaettung`. Der erste Verkauf setzt den Index; vorher gilt der Richtpreis im
+  Land. (Bis M16 begann die Glättung bei 0: Der Index lag dann wochenlang weit unter den
+  Preisen, und Gebote nach dem Index erreichten keinen Verkäufer.)
 
 ### Buchungen
 
@@ -323,16 +338,27 @@ Ein wettbewerblicher Händlermarkt verbindet die Länder (Gewinne verlassen das 
           + Industriekäufe aus Importen + offene Industrienachfrage / vorrat_tage
 
   geglättet: ō ← ō + (o − ō) / `glaettung_tage`.
-- **Bedarf** eines Ziellands B: vorrat_tage · ō − Importlager − unterwegs.
+- **Bedarf** eines Ziellands B: (vorrat_tage + Transporttage) · ō − Importlager −
+  unterwegs; Transporttage des günstigsten Herkunftslands. (Bis M16 ohne die
+  Transporttage: Bei Seewegen länger als `vorrat_tage` kam dann dauerhaft nur ein Teil
+  der Nachfrage an, z. B. 60 % in China und Indien.)
 - **Einkauf:** Händler kaufen nur aus Verkaufsangeboten von Firmen, die ihre
   Verkaufsfreigabe erlaubt (siehe unten). Für jedes Angebot im Land A ist der
   Einstandspreis E = Angebotspreis + Transport(A → B). Gekauft wird nur, wenn
   `Marktpreis(B) ≥ E · (1 + marge)`. Ziele mit der höchsten relativen Spanne werden zuerst
   bedient, jeweils aus den günstigsten Angeboten. Die Käufe finden bei der Räumung des
-  Markts A statt, nach der Industrie und vor Staat und Endkunden.
+  Markts A statt, nach Industrie, Staat und Endkunden des Landes A (bis M16 vor Staat und
+  Endkunden: Die Ausfuhr leerte die Märkte der Erzeugerländer). Angebote kommen nur in
+  Frage, wenn E · (1 + marge) ≤ max(Marktpreis(B), `hoechstfaktor` · Richtpreis in B):
+  Offene Nachfrage ist bis zum höchsten Preis, den der Markt annimmt, eine Lieferung
+  wert; ein Markt ohne Verkäufer bewegt seinen Index sonst nie.
 - **Verkauf** im Zielland: Das Importlager ist ein Angebot wie jedes andere. Sein Preis
   steigt um `hoch`, wenn es ausverkauft ist und Nachfrage offen bleibt, sonst sinkt er um
-  `runter`, nie unter durchschnittlicher Einstandspreis · (1 + marge).
+  `runter`, nie unter min(durchschnittlicher Einstandspreis, Wiederbeschaffungspreis) ·
+  (1 + marge). Wiederbeschaffungspreis: der niedrigste Einstandspreis frischer Ware aus
+  einem anderen Land (Angebotspreis + Transport). Andere Händler unterböten teuer
+  eingekaufte Ware; bis M16 blieb solche Ware dauerhaft liegen, während die Werke daneben
+  stillstanden.
 - Folge: Im Gleichgewicht gilt Preis(B) ≤ (Preis(A) + Transport) · (1 + marge).
 
 ### Verkaufswege (Vorgaben)
@@ -442,21 +468,26 @@ erschlossene Lagerstätte als Konzession mit Anteil 1.
 3. **Bedarf:** Produkte werden so geordnet, dass jedes nach allen Produkten kommt, die
    es verbrauchen. Je Produkt und Land gilt Bedarf = Verbraucher- + Staatsnachfrage pro
    Tag + Vorproduktbedarf der schon geplanten Anlagen − Leistung realer Anlagen.
-4. **Anlagen:** *F* = Bedarf / (Tagesleistung · `start.auslastung`); unter
-   `anlage_mindestanteil` keine. Verteilung auf Länder mit Gewicht Bedarf ·
+4. **Anlagen:** *F* = Bedarf · `marktdeckung` / Tagesleistung bei Vollleistung (M16;
+   vorher Bedarf / (Tagesleistung · `start.auslastung`)); unter `anlage_mindestanteil`
+   keine. Die Anlagen beginnen mit `start.auslastung`. Verteilung auf Länder mit Gewicht Bedarf ·
    Entwicklung^*w* (*w* je Produktart aus `gewicht_entwicklung`), bei Rohstoffen auf
    Lagerstätten mit freien Konzessionen nach Förderung / Kostenfaktor (höchstens die
    Förderung). Ganze Zahlen nach dem größten Rest, Summe round(*F*), mindestens 1.
 5. **Vorprodukte begrenzen:** Von den Rohstoffen aufwärts wird jede Stufe auf den
    Anteil verkleinert, den ihre Vorprodukte weltweit decken (Staatsmarkt und Strom
-   unbegrenzt) – sonst entstünden Werke ohne Material.
+   unbegrenzt) – sonst entstünden Werke ohne Material. Gedeckt heißt (Nacharbeit zu M16):
+   Erzeugung der Vorprodukte bei Vollleistung ≥ Verbrauch bei `start.auslastung` ·
+   `marktdeckung` des Vorprodukts; auch Rohstoffe, die ihre Lagerstätten begrenzen,
+   behalten so die Reserve aller Märkte.
 6. **Firmen:** Anlagen werden je Branche und Land gebündelt. Sind es mehr Bündel als
    Firmen, geht das kleinste in das kleinste derselben Branche auf; sind es weniger,
    wird das größte geteilt (Anlagen oder Anzahl halbiert).
 7. **Ausstattung je Firma:** ein Standort je Land und Standorttyp, je Konzession ein
    Förderstandort, eigenes Kraftwerk im Land für den Strom, den das Netz nicht liefert
    (Bedarf · (1 − Netzanteil)). Lager: `lager_ausgang_tage` der Erzeugung (zu
-   Herstellkosten) und `lager_eingang_tage` der Vorprodukte (zum Marktpreis). Kasse:
+   Herstellkosten; gleich dem Lagerziel der Erzeugung, damit nicht alle Werke am ersten
+   Tag zugleich Lager aufbauen) und `lager_eingang_tage` der Vorprodukte (zum Marktpreis). Kasse:
    `kasse_monate` der laufenden Kosten. Angebot im Marktpreis-Modus mit Untergrenze aus
    den variablen Kosten, Einkaufsaufträge für alle Vorprodukte. Eigenkapital = Summe
    aller Vermögenswerte.
@@ -468,43 +499,91 @@ Befehle unterbleiben. Sie werden am Tagesanfang getroffen und nicht ins Journal
 geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
 
 - **Betrieb** alle `betrieb_alle_tage` (*k*) Tage, erster Termin zufällig gestreut:
-  - Lagerreichweite = (Lager − Rückhalt) / Absatz je Tag im Vormonat; ohne Absatz im
-    Vormonat / (Vollleistung · Auslastung). (Bis M16 stand hier immer die eigene
-    Erzeugung im Nenner: Jede Drosselung verlängerte die Reichweite und trieb die
-    Auslastung bis zum Minimum.) Über
-    `lager_hoch_tage` sinkt die Auslastung um `auslastung_schritt` (nicht unter
-    `auslastung_min`), unter `lager_niedrig_tage` steigt sie, wenn die Anlage nicht
-    durch fehlende Vorprodukte oder Arbeitskräfte gebremst war.
+  - Auslastung nach Absatz und Lagerziel (M16): Abgang a je Tag = Verkäufe des Vormonats
+    und des laufenden Monats / (30 + Tage des laufenden Monats) + Verbrauch eigener
+    Anlagen am Standort. Ohne Verkäufe im Vormonat (neues Angebot, erster Monat der
+    Partie, ausverkauft) zählt nur der laufende Monat: Verkäufe / Tage. Dann
+
+        Ziel = lager_ziel_tage · a
+        Auslastung = (a + (Ziel − (Lager − Rückhalt)) / lager_ausgleich_tage) / Vollleistung,
+                     begrenzt auf [auslastung_min, 1] und auf ± auslastung_aenderung_max
+                     gegenüber der bisherigen Auslastung (Nacharbeit zu M16)
+
+    Höher wird sie nur, wenn die Anlage nicht durch fehlende Vorprodukte oder
+    Arbeitskräfte gebremst war (dann hülfe es nichts). Ist der Standort ausverkauft (Lager
+    höchstens ein Tag Abgang) und verkauft er über seiner Preisuntergrenze ·
+    (1 + `auslastung_schritt`), steigt die Auslastung um mindestens `auslastung_schritt`:
+    Der Markt will mehr, als die Anlage bisher absetzen konnte. Ohne diese Regel blieb
+    eine Anlage, die einmal Käufer verloren hatte, neben einem knappen Markt klein (so
+    standen Baumwollfelder in den USA bei 12 % Auslastung, während Baumwolle das
+    Dreifache kostete). Ohne jeden Abgang sinkt sie um
+    `auslastung_schritt`, sobald das Lager `lager_hoch_tage` der Erzeugung übersteigt.
+    (Bis M16: Schritte von ±`auslastung_schritt` nach der Lagerreichweite; sie brauchten
+    Monate, um der Nachfrage zu folgen. Im ersten Monat einer Partie wurde der Absatz
+    durch 30 + Tage geteilt, obwohl es keinen Vormonat gab: Nach drei Tagen galt er als
+    ein Zehntel des wirklichen, und die Werke fuhren auf das Minimum herunter.)
   - Neue Anlagen bekommen das günstigste bekannte Rezept; bekannte bessere Rezepte auf
     derselben Anlage ersetzen alte (z. B. nach Forschung). Strom zählt dabei mit
     Strompreis / Netzanteil des Landes (eigenes Kraftwerk im Land: Netzanteil 1), damit
     elektrische Verfahren nur gewählt werden, wo genug Strom da ist (M15).
   - Preisuntergrenze = Vollkosten je Stück · `preisuntergrenze` (*a*): variable Kosten
-    (Vorprodukte zum Marktpreis, Arbeit, Strom) bei der laufenden Auslastung plus
+    (Vorprodukte zu ihren Einstandskosten im Lager, ohne Lager zum Marktpreis; Arbeit nach
+    Arbeitsproduktivität, Strom, Gemeinkosten) bei der laufenden Auslastung plus
     Fixkosten (Abschreibung, Instandhaltung, bei Förderung die Erschließung über
     `erschliessung_lebensdauer_jahre`) bei der Normalauslastung `start.auslastung`
     (M15; vorher nur variable Kosten). Darüber sucht der Marktpreis-Modus den Preis. Ein
-    neuer `SetSale` mit gleichem Aufschlag setzt die Preissuche nicht zurück.
+    neuer `SetSale` mit gleichem Aufschlag setzt die Preissuche nicht zurück. Die
+    Einstandskosten statt des Tagespreises (Nacharbeit zu M16) dämpfen Preisspitzen: Bis
+    dahin trug jede kurze Knappheit beim Getreide die Mehlpreise am selben Tag mit, auch
+    wenn die Mühlen ihr Getreide billig eingekauft hatten. Mit `preisuntergrenze`
+    {1,2; 1,1} statt {1,15; 1,05} liegen die Preise im Wettbewerb näher am Richtpreis:
+    An der Untergrenze gilt Preis = Richtpreis, wenn die Marge zum Richtpreis
+    1 − 1/Faktor beträgt.
   - Erzeugnisse ohne Angebot, die der Standort nicht selbst braucht (z. B. Benzin als
     Nebenprodukt der Raffinerie), werden zum Marktpreis ohne Untergrenze angeboten.
   - Einkauf: Ziel = `lager_eingang_tage` · Tagesbedarf, Höchstpreis = Marktpreis ·
     (1 + `einkauf_aufschlag`); fehlt Ware (unter `lager_niedrig_tage`), steigt das Gebot
-    je Durchgang um `auslastung_schritt` bis zum Dreifachen des Marktpreises.
+    je Durchgang um `auslastung_schritt` bis zur Zahlungsbereitschaft (M16), höchstens
+    `hoechstfaktor` · Richtpreis im Land. Zahlungsbereitschaft für ein Vorprodukt *i*
+    (die beste Verwendung am Standort):
+
+        ZB_i = (Erlös je Tag − (variable Kosten je Tag − Menge_i · Marktpreis_i)) / Menge_i
+        Erlös = Durchläufe · (Menge · Angebotspreis + Σ Nebenprodukte · Angebotspreis)
+
+    (ohne eigenes Angebot zählt der Marktpreis). Die Werke zahlen also, was ihr Erzeugnis
+    nach allen übrigen Kosten trägt; steigt ein Vorprodukt darüber, steht das Werk, bis
+    sein eigener Preis nachzieht. Bis M16 endete das Gebot beim Dreifachen des
+    Marktindex – der aber steht still, solange nichts verkauft wird.
+  - Bremst nur das Stromnetz eine Anlage, darf die Auslastung trotzdem steigen: Das Netz
+    liefert einen Anteil des Geplanten, mehr Planung bringt also mehr Erzeugung (bis M16
+    sank sie dann nur noch, bis zum Minimum).
   - Eigene Ware: Eine Firma kann auf dem Markt nicht bei sich selbst kaufen. Fehlende
     Vorprodukte holt sie per `TransferGoods` von eigenen Standorten, die sie anbieten
     (zuerst im selben Land, sonst per Fracht).
 - **Kasse** am Monatsanfang: unter `kasse_min_monate` laufender Kosten ein Kredit über
   `kredit_jahre` bis zur Mitte zwischen Minimum und Maximum (höchstens der
   Kreditrahmen), über `kasse_max_monate` Tilgung.
-- **Ausbau** am letzten Tag jedes Quartals: das Produkt mit der höchsten Marge
-  (Angebotspreis, ohne Angebot Marktpreis / Stückkosten − 1), dessen Auslastung
-  mindestens `ausbau_auslastung` (*a*) und Marge mindestens `ausbau_marge` (*a*) ist und
-  von dessen Erzeugung im Monat mindestens 90 % verkauft oder am selben Standort
-  weiterverarbeitet wurden (M15: integrierte Werke), erhält 25 % mehr Anlagen
-  (mindestens 1) mit dem günstigsten bekannten Rezept, bezahlt bis zu
-  `ausbau_anteil_kasse_max` von Kasse + Kreditrahmen. Sonst erschließen Förderfirmen
-  eine freie Konzession, wenn ihr Rohstoff weltweit offen nachgefragt ist und sich
-  nirgends stapelt.
+- **Ausbau** am letzten Tag jedes Quartals:
+  - Zuerst **Eigenstrom** (Nacharbeit zu M16): Bremst das Netz Anlagen der Firma in einem
+    Land (Grenze Strom), baut sie dort ein Kraftwerk mit dem günstigsten Rezept für den
+    fehlenden Strom (Anzahl = fehlende MWh je Tag / Leistung bei `start.auslastung`,
+    aufgerundet), im vorhandenen Kraftwerksstandort oder einem neuen – wie die
+    Startbesetzung. Sonst:
+  - das Produkt mit der höchsten Marge (Angebotspreis, ohne Angebot Marktpreis /
+    Stückkosten − 1), dessen Auslastung mindestens `ausbau_auslastung` (*a*) und Marge
+    mindestens `ausbau_marge` (*a*) ist und von dessen Erzeugung im Monat mindestens 90 %
+    verkauft oder am selben Standort weiterverarbeitet wurden (M15: integrierte Werke),
+    erhält 25 % mehr Anlagen (mindestens 1) mit dem günstigsten bekannten Rezept, bezahlt
+    bis zu `ausbau_anteil_kasse_max` von Kasse + Kreditrahmen. Ausgenommen sind Produkte,
+    deren Anlagen am Standort auf Arbeitskräfte oder ein Vorprodukt warten oder bei denen
+    ein Vorprodukt unter `lager_niedrig_tage` des Verbrauchs liegt oder im Land mehr als
+    `ausbau_vorprodukt_preis_max` · Richtpreis kostet (knapp): Weitere Anlagen würden nur
+    um dieselbe knappe Ware bieten (bis M16 wuchsen so die Spinnereien auf das Fünffache,
+    während die Baumwolle fehlte). Förderanlagen wachsen nur, solange die
+    Konzession mehr erlaubt, als sie fördern (Höchstförderung · Maßstab · Anteil / 365 −
+    Vollleistung, in ganzen Anlagen).
+  - Sonst erschließen Förderfirmen eine freie Konzession, wenn ihr Rohstoff weltweit offen
+    nachgefragt ist und sich nirgends stapelt.
 - **Forschung** zum Jahresbeginn bei *k* ≥ `forschung_mindestkompetenz` und
   Vorjahresumsatz ≥ `forschung_mindestumsatz_usd`: die Technologie mit dem geringsten
   Aufwand unter denen, die ein Rezept oder eine Anlage der eigenen Branchen betreffen
@@ -541,15 +620,18 @@ Parameter: `marktmodell.marke` in `data/parameter/marktmodell.yaml`; KI:
 
 ### Gesättigte Märkte zum Start
 
-Die Startbesetzung plant je Produkt Anlagen für `marktdeckung` (z. B. 1,15) mal den
-Bedarf bei Normalauslastung, statt für den Bedarf allein. Etablierte Firmen beginnen mit
+Die Startbesetzung plant je Produkt Anlagen, die bei Vollleistung `marktdeckung` (je
+Produktart, derzeit überall 1,15) mal den Bedarf herstellen könnten, statt für den
+Bedarf allein. Mehr freie
+Kapazität löste über die Regel „freie Anlagen werben um Kunden“ (M7) einen dauerhaften
+Preiskampf aus. Etablierte Firmen beginnen mit
 Markenbekanntheit B_start in jedem Land und jeder Warengruppe, in denen sie zum Start
 Endprodukte anbieten: `bekanntheit_start` für generierte, `bekanntheit_start_real` für
 historische Firmen. Der Spieler beginnt überall mit B = 0.
 
 Der Handel läuft vom ersten Tag an: Fehlt einem Land ein Gut (Bedarf der Anlagen,
-Verbraucher und des Staates über der eigenen Erzeugung), halten die Händler dort
-`vorrat_tage` dieser Lücke auf Lager. Eingekauft ist die Ware zum Richtpreis des
+Verbraucher und des Staates über der eigenen Erzeugung), halten die Händler dort diese
+Lücke für `vorrat_tage` plus die Transporttage vom günstigsten Land auf Lager. Eingekauft ist die Ware zum Richtpreis des
 günstigsten Landes mit Überschuss plus Transport (E); Einfuhrpreis und Marktpreis des
 Landes beginnen bei max(Richtpreis im Land, E · (1 + `haendler.marge`)). So decken die
 Händler den Einkauf weiter, sobald das erste Lager verkauft ist, statt erst nach Wochen
@@ -612,3 +694,177 @@ Markt von 31 t/Tag 0,5 t, die halbe Erzeugung. Mit 15 % niedrigerem Preis
 - KI: Am Monatsanfang setzt jede KI-Firma für jedes Land und jede Warengruppe, in denen
   sie Endprodukte an Verbraucher verkauft, das Budget = `werbeanteil` (*a*) · Umsatz der
   Warengruppe im Land im Vormonat.
+
+## Nacharbeit zu M16 – Plausibilität und Versorgung
+
+Parameter: `marktmodell.preisniveau_anteil`, `marktmodell.preisanpassung` (`hoch`,
+`runter`, `auslastung_normal`), `produktionsmodell.gemeinkosten_anteil`,
+`produktionsmodell.richtpreis_marge`, `laendermodell.produktivitaet`,
+`kimodell.verhalten.lager_ziel_tage`, `lager_ausgleich_tage` und
+`auslastung_aenderung_max`; am Rohstoff `pacht_anteil` und `foerderindex`.
+
+Grundsatz: Jede Regel gilt für alle Produkte und Länder gleich und hängt nur von der
+Produktart, den Daten und Marktsignalen ab (Absatz, Lager, Auslastung, offene Nachfrage).
+Ein neues Produkt braucht keine eigene Regel; die KI reagiert auf jeden Spielverlauf mit
+denselben Signalen.
+
+### Preise der Waren je Land
+
+    Preisfaktor(Land, Produkt) = Preisniveau(Land) ^ preisniveau_anteil(Produktart)
+    Richtpreis im Land        = Richtpreis · Preisfaktor
+
+Waren werden gehandelt; ihre Preise unterscheiden sich zwischen den Ländern viel weniger
+als das Preisniveau, das vor allem Löhne und Dienstleistungen erfasst (Balassa-Samuelson).
+Dem Preisniveau folgt nur der Anteil von Löhnen, Handel und Vertrieb im Land: bei
+Vorprodukten kaum (0,1), bei Endprodukten im Laden zu 0,4; Strom kommt aus dem Netz im
+eigenen Land (1). Der Richtpreis im Land gilt überall, wo bisher Richtpreis · Preisniveau
+stand: Startpreise, Preisobergrenzen, Staatsmarkt. Auch ein Markt ohne Verkäufe beginnt
+beim Richtpreis im Land (bis zur Nacharbeit begannen Märkte mit Verbrauchernachfrage beim
+Richtpreis · Preisniveau, die übrigen beim Richtpreis im Land; Nägel kosteten zum Start
+weniger als der Draht daraus). Die Kaufneigung der Verbraucher vergleicht weiter mit
+Richtpreis · Preisniveau, denn die Einkommen sind in Marktpreisen gerechnet.
+
+Bis M16 galt der volle Faktor für alle Waren. In einem Land mit Preisniveau 0,5 kostete
+eingeführter Draht dann das Doppelte des Richtpreises im Land; Nägel daraus fanden zum
+Richtpreis keinen Käufer, und die Preisuntergrenzen lagen beim 1,5- bis 2-Fachen. Folge
+der Änderung: Verbraucher ärmerer Länder kaufen weniger Industriewaren, als ihr
+Einkommen in Kaufkraft erwarten ließe – Industriewaren sind dort relativ teuer.
+
+### Herstellkosten
+
+- **Arbeitsproduktivität** Π = clamp((y / `bezug_usd`)^`elastizitaet`, `minimum`,
+  `maximum`) mit y = BIP je Kopf (Kaufkraft). Stunden je Durchlauf = Stunden laut Rezept ·
+  Arbeitsfaktor · Förderkostenfaktor / Π. Mit Elastizität 1 kostet die Arbeit je Stück in
+  Kaufkraft überall gleich viel; in Marktpreisen folgt sie dem Preisniveau.
+- **Gemeinkosten** (Verwaltung, Vertrieb, Logistik) je Durchlauf, gebucht als Kostenart
+  „Verwaltung und Vertrieb“ aus der Kasse und in den Herstellkosten der Ware – als
+  Zuschlag auf die Umwandlungskosten wie in der Zuschlagskalkulation:
+
+      Umwandlung   = Arbeit + Strom + Anlage je Durchlauf
+                     (Anlage: Investition · (1/Lebensdauer + Wartung) /
+                      (365 · Durchläufe je Tag · auslastung_normal))
+      Gemeinkosten = gemeinkosten_anteil(Produktart) · Umwandlung
+
+  Die Rezepte enthalten nur direkte Kosten; ohne Gemeinkosten lagen die Kosten so weit
+  unter den Richtpreisen, dass der Wettbewerb die Preise auf 20–50 % des Richtpreises
+  drückte. Der Zuschlag auf die Umwandlung belastet Durchlaufgeschäfte wie Drahtziehen
+  oder Mahlen wenig und Fertigwaren mit viel Arbeit stark, wie in der Wirklichkeit.
+  Fließbandfertigung senkt ihn mit der Arbeit. Er hängt nicht an den Preisen; sie können
+  daher nicht unter die echten Kosten sinken. (Erprobt und verworfen: ein Anteil der
+  Wertschöpfung zu Richtpreisen hielt das Auto trotz Fließband teuer; ein Anteil der
+  Wertschöpfung zu Marktpreisen fiel mit den Preisen und drückte Grundstoffe bis 1929
+  auf ein Drittel des Richtpreises.) Liegt der Preis an der Untergrenze f · Vollkosten,
+  gilt im Gleichgewicht P = f · (Eingänge + (1 + s) · Umwandlung).
+- **Pacht und Förderabgaben** je geförderter Einheit eines Rohstoffs, gebucht als
+  Kostenart „Pacht und Förderabgaben“ aus der Kasse und in den Herstellkosten:
+
+      Pacht = pacht_anteil(Rohstoff) · Richtpreis im Land · Menge
+
+  Bodenrente, Förderzins und Konzessionsabgaben (Pächter im Baumwollgürtel gaben ein
+  Drittel bis die Hälfte der Ernte ab, Ölförderer ein Achtel als Förderabgabe). Ohne sie
+  kostete die Förderung von Getreide, Baumwolle, Rohöl, Kautschuk und Kupfererz nur ein
+  Drittel bis die Hälfte ihres Richtpreises; wo keine Lagerstätte knapp war, fielen die
+  Preise im Wettbewerb dorthin und zogen die ganzen Ketten mit (1929: Getreide 0,37,
+  Mehl 0,44, Kautschuk 0,38, Gummi 0,25, Rohöl 0,43 des Richtpreises). Mit Pacht 1929:
+  0,86, 0,90, 0,81, 0,58, 0,94. Werte: Baumwolle 0,5, Getreide und Rohöl 0,45, Kautschuk
+  0,4, Kupfererz 0,35, Holz 0,2, Eisenerz 0,15, Kohle 0.
+- **Vollkosten je Stück** (Kern: `health::unit_cost`): Eingänge zu Preisen, Arbeit
+  (Stunden · Lohn / Π), Strom, Abschreibung und Instandhaltung bei der Auslastung,
+  Gemeinkosten, Pacht, abzüglich der Nebenprodukte; alles geteilt durch die Menge je
+  Durchlauf.
+
+### Plausibilitätsprüfung der Daten
+
+Beim Laden (`wsim validate`) gilt für jedes Produkt außer Energie: Das beste seiner
+Rezepte im ersten Jahr, in dem es hergestellt werden kann (Technik von Rezept und Anlage,
+frühestens 1900), erzielt im Referenzland des Preisniveaus (Jahresmitte) eine Marge in
+`richtpreis_marge`:
+
+    Marge = 1 − Vollkosten (Eingänge zu Richtpreisen, Normalauslastung) / Richtpreis
+
+Förderrezepte zählen mit ihrer Pacht und werden wie alle anderen in beide Richtungen
+geprüft (bis zur Einführung der Pacht nur nach unten). Sonst gibt es eine Warnung mit
+Datei und Zeile des Rezepts. `wsim rezepte --jahr J --laender …`
+zeigt dieselbe Rechnung für beliebige Länder und Jahre.
+
+Die erste Prüfung der Daten (1900, USA) fand: Nägel −7 %, Handwerkzeug −8 %, Möbel −3 %,
+Glühlampe −13 %, Nähmaschine 4 % (zu viele Arbeitsstunden oder zu wenig Spanne zum
+Vorprodukt), Schnittholz 53 % und Benzin 47 % (zu hoch). Korrigiert: Nägel aus 1,02 t
+Draht zum Richtpreis 1.900 USD; Stunden für Werkzeug, Möbel, Glühlampen und Nähmaschinen
+nach historischen Stückzahlen; Schnittholz zum Richtpreis 300 USD aus 1,8 t Holz;
+Cracken mit 0,15 t Petroleum als Nebenprodukt. Alle Verarbeitungsrezepte liegen nun
+zwischen 8 und 42 %.
+
+### Preisbildung im Wettbewerb
+
+- **Freie Anlagen werben um Kunden:** Liegt die geplante Auslastung der Anlagen eines
+  Anbieters für das Produkt unter `auslastung_normal`, sinkt sein automatischer Preis
+  täglich um `runter`, solange er nicht ausverkauft ist (M7). Mit einer Untergrenze aus
+  Vollkosten · `preisuntergrenze` (M10) pendelt der Preis in gesättigten Märkten knapp
+  über den Vollkosten: Produkte mit hoher Marge zum Richtpreis werden dann billiger als
+  ihr Richtpreis, solche mit geringer bleiben nahe daran.
+- **Knappheit über Grenzen:** Finden die Händler für den Bedarf der Einfuhrländer nicht
+  genug Angebote, gilt jeder ausverkaufte Anbieter als knapp und erhöht seinen Preis –
+  auch wenn im eigenen Land niemand mehr wartet.
+- **Knapp ist nur, wofür jemand zahlt:** Bei der Räumung eines Markts merkt sich der Kern
+  den höchsten Preis, den ein Käufer ohne Ware gezahlt hätte: das Gebot eines Werks, die
+  Preisgrenze des Staats (`staat_hoechstpreis`), bei Verbrauchern und Händlern
+  `hoechstfaktor` · Richtpreis im Land. Ein ausverkaufter Anbieter erhöht seinen Preis
+  nur, solange er darunter liegt. Bis zur Nacharbeit zählte jede offene Nachfrage: Kaufte
+  der Staat oberhalb seiner Grenze nicht, hoben die Anbieter ihre Preise weiter, und der
+  Staat kaufte erst recht nicht – Nägel (Bauwesen) und Mehl (Heer) stiegen so im ersten
+  Jahr auf das Drei- bis Vierfache.
+- **Preisschritte:** `hoch` 0,25 % und `runter` 0,125 % je Tag, also etwa +8 % und −4 % im
+  Monat (vorher 2 % und 1 %). Die Erzeugung folgt den Preisen über Auslastung und Ausbau
+  erst in Wochen und Monaten; schnellere Preise schaukelten sich auf (Getreide 1900
+  zwischen 0,55 und 3,9 des Richtpreises). Im Weltlauf 1900–1930 mit 100 KI-Firmen gab
+  es mit den langsamen Schritten in allen Prüfungen weniger Verstöße (Varianten mit 1 %
+  und 0,5 % je Tag lagen dazwischen).
+
+### Förderung im Lauf der Zeit
+
+    Höchstförderung(Lagerstätte, Jahr) = foerderung_max_je_jahr · foerderindex_Rohstoff(Jahr)
+
+Der Förderindex (Jahreswerte am Rohstoff, ohne Angabe 1) bildet mehr Anbaufläche und
+höhere Erträge ab: Getreide 1930 das 1,45-Fache von 1900, Baumwolle (für alle Fasern)
+das 1,65-Fache (Baumwollernte 3,6 → 6,0 Mio. t), Holz das 1,3-Fache. Kleidung braucht
+seit der Nacharbeit 5 statt 6 Stück je Kopf und Jahr bei voller Kaufneigung: Der
+Faserbedarf lag 1900 bei 6,6 Mio. t, die Welt erzeugte etwa 5 Mio. t, und die Baumwolle
+blieb bis 1929 beim Drei- bis Vierfachen des Richtpreises. Ohne ihn blieb die Förderung auf dem Stand von 1900, während
+die Nachfrage mit der Bevölkerung wuchs; Getreide und Baumwolle kosteten dann über
+Jahrzehnte das Vierfache des Richtpreises. Die Konzessionen behalten ihre Anteile; ihre
+Förderanlagen wachsen über den Ausbau der KI (M10) mit.
+
+### Startbesetzung und Handel
+
+- Die Anlagen der Startbesetzung sind bei Vollleistung für `marktdeckung` mal den Bedarf
+  bemessen (M10, Schritt 4).
+- Händler bemessen ihren Bedarf mit den Transporttagen (M8) und halten zum Start den
+  Vorrat dafür bereit (M16).
+- **Start im Gleichgewicht:** Jedes Angebot der Startbesetzung beginnt mit einem Absatz im
+  Vormonat von 30 Tagen seiner geplanten Erzeugung (ohne Eigenverbrauch). Bis zur
+  Nacharbeit schätzte die KI den Absatz im ersten Monat aus den ersten Tagen, während
+  Märkte und Händler erst anliefen, und drosselte ganze Ketten auf einmal (die größte
+  US-Mühle am 1. Februar 1900 von 90 % auf 5 %); das löste den Getreidezyklus aus.
+- **Gedämpfte Auslastung:** Die geplante Auslastung einer Anlage ändert sich je
+  Entscheidung höchstens um `auslastung_aenderung_max` (0,3). Ein schwacher Monat legt
+  kein Werk still, ein starker füllt nicht alle Lager zugleich (Peitscheneffekt über die
+  Lagerstufen Farm – Mühle – Händler).
+
+### Marktgesundheit und Prüfungen im Weltlauf
+
+`wsim run --ki 100 --bis 1930-01-01 --protokoll <Ordner>` schreibt in `auswertung.md` die
+Prüfungen je Jahr (Kern: `health::last_month`). Die Grenzen gelten für alle Produkte und
+Länder gleich und stehen im Protokoll-Code (sie sind keine Spielregeln):
+
+| Prüfung | Grenze |
+| --- | --- |
+| Versorgung von Verbrauchern und Staaten weltweit | ≥ 90 % |
+| Versorgung je Land (ab 0,5 % der Weltnachfrage) | ≥ 75 % |
+| Erzeugung, die auf fehlende Vorprodukte wartet | ≤ 10 % |
+| Erzeugung, die auf fehlende Arbeitskräfte wartet | ≤ 10 % |
+| Preis gegen Richtpreis im Land | 0,5 bis 2 × |
+| Marge über Vollkosten | −20 % bis 50 % |
+| Jahresergebnis des passiven Spielers gegen sein Startkapital | ≤ 50 % |
+| Pleiten je Jahr; aktive KI-Firmen | ≤ 5 %; ≥ 80 % der Startzahl |
+| Förderung von Rohstoffen gegen den Bedarf der Anlagen | ≥ 90 % |

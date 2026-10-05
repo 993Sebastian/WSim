@@ -136,3 +136,24 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Marktdeckung (Startbesetzung) | `AiStart::market_cover` |
 | Werbeanteil (KI) | `AiBehavior::advertising_share`, `ai::advertise` |
 | Händlerlager zum Start | `population::stock_traders` |
+| Preisfaktor, Preisniveau-Anteil | `market::price_factor`, `MarketModel::price_level_share` |
+| Arbeitsproduktivität | `CountryState::labor_productivity` (`produktivitaet`) |
+| Gemeinkosten (Verwaltung und Vertrieb) | `CostType::Overhead`, `ProductionModel::overhead_share`, `overhead_per_run_usd` |
+| Wertschöpfung (zu Richtpreisen) | value added (`overhead_per_run_usd`) |
+| je Produktart (Datentabelle) | `RawPerKind`, `[f64; 5]` mit `ProductKind::index` |
+| Richtpreis-Marge, Plausibilitätsprüfung | `ProductionModel::reference_margin`, `health::reference_margin`, `check_reference_margins` |
+| Vollkosten je Stück | `health::UnitCost`, `health::unit_cost` |
+| Marktgesundheit (Versorgung, Engpässe, Preise) | `health::ProductHealth`, `health::last_month` |
+| Normalauslastung (freie Anlagen) | `MarketModel::normal_utilization` (`auslastung_normal`) |
+| Lagerziel, Ausgleich (KI-Auslastung) | `AiBehavior::stock_target_days`, `stock_adjust_days` |
+| Förderindex, Höchstförderung im Jahr | `Product::output_index` (`foerderindex`), `Catalog::max_output` |
+| Pacht und Förderabgaben | `Product::rent_share` (`pacht_anteil`), `CostType::Rent`, `production::rent_per_run_usd` |
+| Höchste Änderung der Auslastung je Entscheidung | `AiBehavior::utilization_change_max` (`auslastung_aenderung_max`) |
+| Knappheit nur bei Zahlungsbereitschaft (höchster Preis eines unbedienten Käufers) | `unmet_limit`, `note_unmet` in `market.rs` |
+| Eigenstrom der KI | `ai::own_power` |
+| Zahlungsbereitschaft (Einkauf der KI) | `willing` in `ai::operate` |
+| Wiederbeschaffungspreis der Händler | `trade::Plan::replacement`, `import_floor` |
+| Ausbausperre bei knappem Vorprodukt | `AiBehavior::expand_input_price_max` (`ausbau_vorprodukt_preis_max`) |
+| Marktdeckung je Produktart | `AiStart::market_cover` (`[f64; 5]`) |
+| nur als Nebenprodukt hergestellt | `health::made_as_main` |
+| Entsorgung überschüssiger Nebenprodukte | `ProductionModel::by_product_stock_days` (`nebenprodukte_lager_tage`) |

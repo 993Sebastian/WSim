@@ -21,6 +21,18 @@ produktionsmodell:
   zustand_minimum: 0.2
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
+  # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs
+  # (Arbeit, Strom, Anlage), je Produktart (M16) – wie Gemeinkostenzuschläge in der
+  # Zuschlagskalkulation. Die Rezepte enthalten nur direkte Kosten. Konsumgüter tragen
+  # zusätzlich den Vertrieb an Verbraucher.
+  gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
+  # Plausibilitätsprüfung beim Laden: Marge des besten Rezepts eines Produkts zu Richtpreisen
+  # im ersten Jahr, in dem es hergestellt werden kann (Referenzland, Normalauslastung).
+  # Förderrezepte zählen mit ihrer Pacht (pacht_anteil am Rohstoff).
+  richtpreis_marge: {minimum: 0.05, maximum: 0.45}
+  # Nebenprodukte, die über so viele Tage ihrer Erzeugung hinaus auf Lager lägen, werden
+  # entsorgt (abgefackelt, verkippt): Um 1900 fand Benzin kaum Käufer.
+  nebenprodukte_lager_tage: 90
 
   # Was eine neue Firma zu Beginn besitzt (Lastenheft §2, §15); bezahlt aus dem
   # Startkapital. Die Werkstatt stellt Nägel aus Draht her und verkauft sie zum

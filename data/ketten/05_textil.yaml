@@ -12,6 +12,13 @@ produkte:
     warengruppe: agrarrohstoffe
     transportklasse: schuettgut   # in Ballen
     richtpreis_usd: 6000          # um 1900 etwa 9 Cent je lb
+    # Höchstförderung der Lagerstätten gegenüber 1900 (mehr Fläche, höhere Erträge):
+    # Baumwollernte der Welt etwa 3,6 Mio. t (1900), 6,0 (1930), 6,6 (1950); dazu Wolle,
+    # Flachs und ab den 1920ern Kunstseide. Fasern insgesamt 1930 etwa das 1,6-Fache.
+    foerderindex: {1900: 1.0, 1930: 1.65, 1950: 1.9, 1970: 3.0, 2000: 4.5, 2026: 5.5}
+    # Pacht je Tonne als Anteil am Richtpreis: Pächter und Teilpächter im Baumwollgürtel
+    # gaben um 1900 ein Drittel bis die Hälfte der Ernte an die Landbesitzer ab.
+    pacht_anteil: 0.5
 
   - id: garn
     art: halbzeug
@@ -42,7 +49,7 @@ produkte:
     richtpreis_usd: 40            # Hemd, Hose, Kleid im Mittel
     nachfrage:
       bedarfsklasse: grundbedarf
-      verbrauch: {je_kopf_und_jahr: 6}
+      verbrauch: {je_kopf_und_jahr: 5}  # 1900 etwa 3 kg Fasern je Kopf und Jahr (alle Textilien)
       kaufschwelle: 10            # die Hälfte kauft ab etwa 400 USD Einkommen
       preisempfindlichkeit: 0.8
       einkommensempfindlichkeit: 0.8

@@ -104,6 +104,17 @@ anlagen:
     technologie: ottomotor
     annaeherung: true
 
+  - id: motorenwerk_fliessband     # Motorenfertigung an Transferstraßen, Highland Park 1913
+    standorttyp: werk
+    investition_usd: 20_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.6
+    technologie: fliessband
+    annaeherung: true
+
   - id: fahrgestellwerk
     standorttyp: werk
     investition_usd: 3_000_000
@@ -112,6 +123,17 @@ anlagen:
     lebensdauer_jahre: 25
     wartung_je_jahr: 0.04
     automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: fahrgestellwerk_fliessband
+    standorttyp: werk
+    investition_usd: 12_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.6
+    technologie: fliessband
     annaeherung: true
 
   - id: karosseriewerk
@@ -173,6 +195,22 @@ rezepte:
     qualitaet_basis: 50
     annaeherung: true
 
+  - id: motor_fliessband          # Ford: etwa ein Sechstel der Stunden der Werkstattfertigung
+    produkt: motor
+    menge: 1
+    dauer_tage: 1
+    anlage: motorenwerk_fliessband
+    technologie: fliessband
+    eingang:
+      stahl: 0.19
+    arbeit_stunden:
+      angelernt: 30
+      fachkraft.maschinenbau: 10
+      akademiker.maschinenbau: 0.3
+    energie_mwh: 0.15
+    qualitaet_basis: 55
+    annaeherung: true
+
   - id: fahrgestell_bauen
     produkt: fahrgestell
     menge: 1
@@ -181,10 +219,25 @@ rezepte:
     technologie: automobil
     eingang:
       stahl: 0.33                 # Rahmen und Achsen, nur Stahl
-    arbeit_stunden:
-      angelernt: 80
-      fachkraft.maschinenbau: 60
+    arbeit_stunden:               # Rahmen, Achsen, Federn und Lenkung von Hand
+      angelernt: 110
+      fachkraft.maschinenbau: 80
     qualitaet_basis: 50
+    annaeherung: true
+
+  - id: fahrgestell_fliessband
+    produkt: fahrgestell
+    menge: 1
+    dauer_tage: 1
+    anlage: fahrgestellwerk_fliessband
+    technologie: fliessband
+    eingang:
+      stahl: 0.33
+    arbeit_stunden:
+      angelernt: 18
+      fachkraft.maschinenbau: 5
+    energie_mwh: 0.1
+    qualitaet_basis: 55
     annaeherung: true
 
   - id: karosserie_holz           # Holzgerippe mit Blech, Kutschenbau
@@ -233,10 +286,10 @@ rezepte:
       fahrgestell: 1
       karosserie: 1
       autoreifen: 4
-    arbeit_stunden:
-      angelernt: 150
-      fachkraft.maschinenbau: 120
-      akademiker.maschinenbau: 5
+    arbeit_stunden:               # Werkstattmontage: Wochen je Wagen
+      angelernt: 220
+      fachkraft.maschinenbau: 180
+      akademiker.maschinenbau: 8
     qualitaet_basis: 55
     annaeherung: true
 
@@ -263,7 +316,7 @@ rezepte:
     produkt: benzin
     menge: 0.4
     nebenprodukte:
-      petroleum: 0.2
+      petroleum: 0.15             # Rest: Gas, Koks, Verluste
     dauer_tage: 2
     anlage: crackanlage
     technologie: thermisches_cracken

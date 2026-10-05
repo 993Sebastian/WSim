@@ -98,6 +98,91 @@ bei Bedarf widersprechen) · ❓ offen
     Ohne beides verkaufte ein Neuling mit einer Maschine alles zu fast jedem Preis.
     Zu prüfen beim Spielen: ob Neulinge mit Werbung und Preis schnell genug Anteile
     gewinnen (Stellschrauben: `preisgewicht`, `markengewicht`, `kosten_je_einwohner_usd`).
+30. 🟡 **Preise der Waren je Land (Nacharbeit zu M16).** Bisher galt der Richtpreis
+    überall mal dem vollen Preisniveau des Landes. Umgesetzt: Waren folgen ihm nur mit
+    einem Anteil je Produktart (`preisniveau_anteil`: Rohstoffe 0,2, Halbzeuge und
+    Komponenten 0,1, Endprodukte 0,4, Strom 1). Grund: Eingeführte Vorprodukte kosten
+    überall Weltpreise; mit dem vollen Faktor lagen Preise und Untergrenzen in ärmeren
+    Ländern beim 1,5- bis 2-Fachen des Richtpreises, und Werke dort konnten nie zum
+    Richtpreis verkaufen. Folge: Verbraucher ärmerer Länder kaufen weniger Industriewaren
+    als bisher (realistisch, aber eine Änderung der Marktgrößen). Alternative: alle
+    Anteile auf 1 setzen (bisheriges Verhalten).
+31. 🟡 **Gemeinkosten (Nacharbeit zu M16).** Die Rezepte enthalten nur direkte Kosten.
+    Umgesetzt: Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten
+    (Arbeit, Strom, Anlage) je Produktart (Rohstoffe 25 %, Halbzeuge und Komponenten 50 %,
+    Endprodukte 100 %), gebucht als Kostenart „Verwaltung und Vertrieb“. Ohne sie drückte
+    der Wettbewerb die Preise auf 20–50 % des Richtpreises. Später (Stufe 2, Manager)
+    könnten Gemeinkosten aus eigener Verwaltung und eigenem Vertrieb entstehen.
+32. 🟡 **Arbeitsproduktivität nach Wohlstand (Nacharbeit zu M16).** Die Arbeitsstunden
+    der Rezepte gelten bei 10.000 USD BIP je Kopf; Länder brauchen dazu im Verhältnis
+    mehr oder weniger Stunden (Elastizität 1, `laendermodell.produktivitaet`). So kostet
+    Arbeit je Stück in Kaufkraft überall gleich viel, und Niedriglohnländer haben keinen
+    übertriebenen Kostenvorteil.
+33. 🟡 **Plausibilitätsprüfung der Richtpreise.** `validate` warnt, wenn das beste Rezept
+    eines Produkts zu Richtpreisen weniger als 5 % oder mehr als 45 % Marge bringt
+    (Förderung mit ihrer Pacht, siehe 39). Die Prüfung fand sieben Unstimmigkeiten (Nägel,
+    Handwerkzeug, Möbel, Glühlampe, Nähmaschine, Schnittholz, Benzin), korrigiert über
+    Richtpreise, Ausbeuten und Arbeitsstunden (`docs/FORMELN.md`, Plausibilität). Bitte
+    widersprechen, falls Richtpreise unverändert bleiben sollen.
+34. 🟡 **Preisuntergrenze der KI.** Angehoben auf das 1,2-Fache (vorsichtige Firmen) bis
+    1,1-Fache (aggressive) der Vollkosten, statt 1,15 bis 1,05. Im Wettbewerb liegen die
+    Preise an dieser Grenze; mit den alten Werten fielen Grundstoffe bis 1929 auf etwa die
+    Hälfte des Richtpreises. Gegenläufig: Je höher die Grenze, desto mehr verdient eine
+    Werkstatt ohne Entscheidungen (1900 etwa zwei Drittel ihres Startkapitals).
+35. 🟡 **Fließband für Motor und Fahrgestell.** Neue Rezepte mit der Technologie
+    Fließband (1913) und eigenen Anlagen: etwa ein Sechstel der Arbeitsstunden der
+    Werkstattfertigung, wie bei Ford. Ohne sie blieb das Auto bis 1930 ein Luxusgut
+    (rund 4.000 Autos im Jahr im Marktmaßstab 0,1); mit ihnen fallen die Preise auf etwa
+    die Hälfte des Richtpreises, und die Nachfrage wächst um ein Vielfaches.
+36. 🟡 **Förderung im Lauf der Zeit.** Getreide, Baumwolle und Holz haben einen
+    Förderindex nach der historischen Weltproduktion (Getreide 1930 das 1,45-Fache von
+    1900, Baumwolle 1,65 nach der Baumwollernte 3,6 → 6,0 Mio. t, Holz 1,3). Weitere
+    Rohstoffe wachsen über neue Lagerstätten (Entdeckungsjahr). Kleidung: 5 statt 6 Stück
+    je Kopf und Jahr bei voller Kaufneigung – der Faserbedarf lag 1900 sonst bei 6,6 statt
+    etwa 5 Mio. t, und Baumwolle kostete bis 1929 das Drei- bis Vierfache.
+37. 🟡 **Sonstige Gummiwaren.** Gummi hat eine Staatsnachfrage als Stellvertreter für
+    Treibriemen, Schläuche, Dichtungen und Isolierungen (etwa ein Drittel des
+    Kautschuks um 1900). Ohne sie brauchten nur Reifen Kautschuk, und sein Preis fiel auf
+    ein Drittel des Richtpreises.
+38. ❓ **Bekannte Restpunkte der Plausibilität** (Protokoll 1900–1930 mit 100 KI-Firmen,
+    siehe `docs/FORTSCHRITT.md`):
+    - Die Stahlkette (Blech, Draht, Weißblech, Schrauben, Muttern, Nägel) liegt im
+      Wettbewerb bei 0,45–0,65 × Richtpreis: Ihre Rezepte haben zu Richtpreisen 26–45 %
+      Marge, und die Preise sinken bis an die Untergrenze (1,1–1,2 × Vollkosten). Real
+      fielen Stahl- und Nagelpreise 1900–1929 (inflationsbereinigt) ebenfalls um ein bis
+      zwei Drittel. Vorschlag: so lassen; sonst das Margenband auf höchstens 30 % enger
+      fassen und 17 Rezepte anpassen.
+    - Die Werkstatt ohne Entscheidungen verdient 1900–1903 bis zur Hälfte ihres
+      Startkapitals im Jahr (Grenze im Protokoll: 50 %). Vorschlag: kleinere
+      Startwerkstatt oder Zinsen auf das gebundene Kapital in den Vollkosten.
+    - Gummi ist 1902–1911 knapp (Kautschuk bis 2 × Richtpreis), bis die Plantagen in
+      Malaya liefern – historisch richtig (Kautschukboom 1910).
+    - Das Auto bleibt kleiner als in Wirklichkeit: 1929 etwa 0,7 Mio. statt 5 Mio. Autos
+      im Jahr (hochgerechnet), Benzin fällt als Nebenprodukt deshalb bis 1929 nicht knapp.
+      Die Preiserholung eines zusammengebrochenen Nebenprodukts (Benzin) ist ungelöst:
+      Ein Mindestschritt nach dem Richtpreis wurde erprobt und verworfen, weil er die
+      Preisschwankungen im ersten Jahr verstärkte. Vorschlag für später: Benzin als
+      eigenes Produkt der Crackanlagen über die Gelegenheitssuche der KI.
+39. 🟡 **Pacht und Förderabgaben (Nacharbeit zu M16).** Rohstoffe zahlen je geförderter
+    Einheit einen Anteil ihres Richtpreises im Land (`pacht_anteil`): Baumwolle 0,5,
+    Getreide und Rohöl 0,45, Kautschuk 0,4, Kupfererz 0,35, Holz 0,2, Eisenerz 0,15,
+    Kohle 0. Bodenrente, Förderzins und Konzessionsabgaben fehlten in den Kosten; wo keine
+    Lagerstätte knapp war, fielen die Rohstoffe auf ein Drittel ihres Richtpreises und
+    zogen ganze Ketten mit. Gebucht als neue Kostenart „Pacht und Förderabgaben“.
+40. 🟡 **Langsamere Preisschritte.** Automatische Preise steigen je Tag um 0,25 % (vorher
+    2 %) und sinken um 0,125 % (vorher 1 %), also etwa +8 % und −4 % im Monat. Die
+    schnellen Schritte schaukelten Getreide und Mehl im ersten Jahr zwischen 0,55 und
+    3,9 × Richtpreis auf; im Weltlauf ergaben die langsamen in allen Prüfungen die
+    wenigsten Verstöße. Gegenläufig: Nach einem echten Engpass (Krieg) dauert es Monate,
+    bis die Preise ihn zeigen.
+41. 🟡 **Ruhigere Märkte (Nacharbeit zu M16).** (a) Ein ausverkaufter Anbieter erhöht
+    seinen Preis nur, wenn ein Käufer ohne Ware mehr gezahlt hätte – kauft der Staat
+    über seiner Preisgrenze nicht, ist das kein Mangel. (b) Die Startbesetzung beginnt im
+    Gleichgewicht (Absatz im Vormonat = geplante Erzeugung). (c) Die KI ändert die
+    Auslastung je Entscheidung höchstens um 0,3. (d) Märkte ohne Verkäufe starten beim
+    Richtpreis im Land. Erprobt und verworfen: Niederstwertprinzip für die
+    Preisuntergrenze, Ausbau erst über der Normalauslastung (beides ohne Verbesserung im
+    Weltlauf).
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

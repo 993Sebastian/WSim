@@ -146,6 +146,8 @@ pub fn production() -> Catalog {
         state_demand: None,
         state_market: None,
         replaces: Vec::new(),
+        output_index: None,
+        rent_share: 0.0,
         provenance: Provenance::default(),
     };
     let ore = c

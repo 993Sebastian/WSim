@@ -221,6 +221,18 @@ pub fn prerequisite_younger(prerequisite: &str, year: i32) -> String {
     )
 }
 
+pub fn output_index_needs_raw_material(product: &str) -> String {
+    format!(
+        "Einen Förderindex („foerderindex“) haben nur Rohstoffe; „{product}“ ist kein Rohstoff."
+    )
+}
+
+pub fn rent_needs_raw_material(product: &str) -> String {
+    format!(
+        "Pacht und Förderabgaben („pacht_anteil“) zahlen nur Rohstoffe; „{product}“ ist kein Rohstoff."
+    )
+}
+
 pub fn extraction_needs_raw_material(product: &str) -> String {
     format!("Abbau-Rezepte („abbau: true“) erzeugen Rohstoffe; „{product}“ ist kein Rohstoff.")
 }
@@ -252,6 +264,25 @@ pub fn recipe_consumes_own_product(product: &str) -> String {
 pub fn product_without_source(key: &str) -> String {
     format!(
         "Produkt „{key}“ kann weder hergestellt noch vom Staatsmarkt bezogen werden: Es fehlt ein Rezept oder ein Eintrag „staatsmarkt“."
+    )
+}
+
+pub fn reference_margin(
+    product: &str,
+    year: i32,
+    (cost, price): (f64, f64),
+    margin: f64,
+    (min, max): (f64, f64),
+) -> String {
+    let percent = |share: f64| format!("{:.0}", share * 100.0);
+    format!(
+        "Das Rezept stellt „{product}“ {year} zu Richtpreisen für {cost:.2} USD je Einheit \
+         her, der Richtpreis ist {price:.2} USD: Marge {} %, erwartet {}–{} %. \
+         Richtpreis, Vorprodukte, Arbeitsstunden, Anlage oder bei Rohstoffen die Pacht \
+         prüfen (Rechnung: docs/FORMELN.md, Plausibilität).",
+        percent(margin),
+        percent(min),
+        percent(max),
     )
 }
 

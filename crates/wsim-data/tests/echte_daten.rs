@@ -760,3 +760,102 @@ fn world_events_appear_in_the_round_report() {
         .map(|(_, p)| p.clone());
     assert!(matches!(countries, Some(Param::Countries(c)) if c.contains(&"DEU".to_owned())));
 }
+
+/// Plausibility of a world run (M16): over the first year with 100 AI companies no
+/// market breaks down, prices stay near the reference prices, plants get their inputs,
+/// no AI company fails, and a passive player's workshop earns no fortune. The limits
+/// catch breakdowns; the start year still has transients (wood shipped from remote
+/// forests, small markets filling the traders' stocks). The balance protocol
+/// (`wsim run --protokoll`) checks tighter limits over longer runs.
+#[test]
+fn world_stays_plausible_in_the_first_year() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::game::Game;
+    use wsim_core::health;
+    use wsim_core::ids::Id;
+    use wsim_core::state::{AiSettings, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let capital = 100_000.0;
+    let settings = GameSettings {
+        seed: 1,
+        start_year: 1900,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(capital).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Werkstatt".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 100,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        },
+    };
+    let mut game = Game::new(c.clone(), settings).unwrap();
+    let n = c.products.len();
+    let mut demand = vec![0.0; n];
+    let mut served = vec![0.0; n];
+    let mut revenue = vec![0.0; n];
+    let mut reference = vec![0.0; n];
+    let mut planned = vec![0.0; n];
+    let mut waiting = vec![0.0; n];
+    for _ in 0..12 {
+        game.advance(RoundLength::Month, |_| {});
+        for h in health::last_month(game.state(), &c) {
+            let i = h.product.index();
+            demand[i] += h.outside_demand;
+            served[i] += h.outside_sold;
+            revenue[i] += h.revenue_usd;
+            reference[i] += h.reference_value_usd;
+            planned[i] += h.planned;
+            waiting[i] += h.input_limited;
+        }
+    }
+
+    let mut problems = Vec::new();
+    for product in c.products.ids() {
+        let i = product.index();
+        let name = c.products.key(product);
+        if demand[i] > 1e-9 && served[i] / demand[i] < 0.5 {
+            let share = 100.0 * served[i] / demand[i];
+            problems.push(format!("{name}: nur {share:.0} % der Nachfrage bedient"));
+        }
+        // A product made only as a by-product (petrol before cracking) may be cheap.
+        if reference[i] > 1e-9 && health::made_as_main(&c, product, 1900) {
+            let ratio = revenue[i] / reference[i];
+            if !(0.4..=2.5).contains(&ratio) {
+                problems.push(format!("{name}: Preis {ratio:.2} × Richtpreis"));
+            }
+        }
+        if planned[i] > 1e-9 && waiting[i] / planned[i] > 0.3 {
+            let share = 100.0 * waiting[i] / planned[i];
+            problems.push(format!(
+                "{name}: {share:.0} % der Erzeugung warten auf Vorprodukte"
+            ));
+        }
+    }
+    let state = game.state();
+    let failed = state.companies.iter().filter(|c| c.bankrupt).count();
+    if failed > 0 {
+        problems.push(format!("{failed} KI-Firmen pleite"));
+    }
+    let player = state.company(game.player()).unwrap();
+    let result = player
+        .ledger
+        .years
+        .last()
+        .map_or(0.0, |y| y.total().to_usd());
+    if result > 0.8 * capital {
+        problems.push(format!(
+            "Werkstatt ohne Entscheidungen verdient {result:.0} USD im ersten Jahr"
+        ));
+    }
+    assert!(
+        problems.is_empty(),
+        "Unplausibler Weltlauf 1900:\n{}",
+        problems.join("\n")
+    );
+}

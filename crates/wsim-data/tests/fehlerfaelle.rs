@@ -71,6 +71,7 @@ laendermodell:
     hafen: {1900: 1}
   stabilitaet: 0.8
   forschung: {bezug_usd: 26_000, elastizitaet: 0.3, minimum: 0.3, maximum: 1.5}
+  produktivitaet: {bezug_usd: 10_000, elastizitaet: 1.0, minimum: 0.1, maximum: 4.0}
   automatisierung: {basis: 0.3, je_verdopplung: 0.12, bezug_usd: 13_000}
 ";
 
@@ -83,6 +84,9 @@ produktionsmodell:
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
   einspeiseverguetung: 0.5
+  gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
+  richtpreis_marge: {minimum: 0.05, maximum: 0.45}
+  nebenprodukte_lager_tage: 90
   startformen:
     werkstatt:
       standorttyp: werk
@@ -111,8 +115,9 @@ marktmodell:
   preisgewicht: [2.0, 1.6, 1.2, 0.9, 0.6]
   qualitaetsgewicht: [0.3, 0.5, 0.8, 1.1, 1.5]
   aneignung_je_jahr: 0.25
-  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, hoechstfaktor: 20}
+  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, auslastung_normal: 0.85, hoechstfaktor: 20}
   staat_hoechstpreis: 1.5
+  preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
   index_glaettung: 0.1
   haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}
   marke:
@@ -163,7 +168,7 @@ produkte:
     verwendung: industrie
     warengruppe: erze
     transportklasse: schuettgut
-    richtpreis_usd: 10
+    richtpreis_usd: 60
   - id: eisen
     art: halbzeug
     branche: metallurgie
@@ -171,7 +176,7 @@ produkte:
     verwendung: industrie
     warengruppe: erze
     transportklasse: schuettgut
-    richtpreis_usd: 100
+    richtpreis_usd: 400
 anlagen:
   - id: mine
     standorttyp: foerderstaette
@@ -730,6 +735,61 @@ fn abbau_nur_fuer_rohstoffe() {
 }
 
 #[test]
+fn foerderindex_nur_fuer_rohstoffe() {
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    foerderindex: {1900: 1.0, 1930: 1.5}\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Einen Förderindex („foerderindex“) haben nur Rohstoffe",
+    );
+    assert_eq!(f.path.to_string(), "produkte[1].foerderindex");
+
+    // A raw material may have one; the deposit's output follows it.
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 60\n",
+        "    richtpreis_usd: 60\n    foerderindex: {1900: 1.0, 1930: 1.5}\n",
+    );
+    let outcome = d.laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let catalog = outcome.data.unwrap().catalog;
+    let grube = catalog.deposits.id("grube").unwrap();
+    assert_eq!(catalog.max_output(grube, 1900), 10_000.0);
+    assert_eq!(catalog.max_output(grube, 1930), 15_000.0);
+}
+
+#[test]
+fn pacht_nur_fuer_rohstoffe() {
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    pacht_anteil: 0.1\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Pacht und Förderabgaben („pacht_anteil“) zahlen nur Rohstoffe",
+    );
+    assert_eq!(f.path.to_string(), "produkte[1].pacht_anteil");
+
+    // A raw material pays it on every unit extracted.
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 60\n",
+        "    richtpreis_usd: 60\n    pacht_anteil: 0.1\n",
+    );
+    let outcome = d.laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let catalog = outcome.data.unwrap().catalog;
+    let erz = catalog.products.id("erz").unwrap();
+    assert_eq!(catalog.products.get(erz).rent_share, 0.1);
+}
+
+#[test]
 fn fachrichtung_bei_arbeitskraeften() {
     let d = Daten::neu()
         .ersetze("ketten/a.yaml", "fachkraft.metall: 1.5", "fachkraft: 1.5")
@@ -787,6 +847,50 @@ fn rohstoff_ohne_lagerstaette_ist_warnung() {
     let w = befund(&outcome, "gibt es ein Abbau-Rezept, aber keine Lagerstätte");
     assert_eq!(w.severity, Severity::Warning);
     assert!(outcome.data.is_some());
+}
+
+#[test]
+fn richtpreis_passt_nicht_zu_den_herstellkosten() {
+    // Too high: the reference price leaves far more than the plausible margin.
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 4000\n",
+    );
+    let outcome = d.laden();
+    let w = befund(&outcome, "Das Rezept stellt „eisen“ 1900 zu Richtpreisen");
+    assert_eq!(w.severity, Severity::Warning);
+    assert!(w.message.contains("erwartet 5–45 %"), "{w}");
+    let line = d.zeile("ketten/a.yaml", "  - id: eisen_schmelzen");
+    assert_ort(w, "ketten/a.yaml", line, "rezepte[1].id");
+    assert!(outcome.data.is_some());
+
+    // Too low.
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 60\n",
+        "    richtpreis_usd: 10\n",
+    );
+    let outcome = d.laden();
+    let w = befund(&outcome, "Das Rezept stellt „erz“ 1900 zu Richtpreisen");
+    assert!(w.message.contains("erwartet 5–45 %"), "{w}");
+    let line = d.zeile("ketten/a.yaml", "  - id: erz_abbau");
+    assert_ort(w, "ketten/a.yaml", line, "rezepte[0].id");
+
+    // Extraction far below its price is checked too: the rent of the land belongs into
+    // the data (pacht_anteil), or the raw material falls to its bare cost in the game.
+    let teuer = |extra: &str| {
+        Daten::neu()
+            .ersetze(
+                "ketten/a.yaml",
+                "    richtpreis_usd: 60\n",
+                &format!("    richtpreis_usd: 6000\n{extra}"),
+            )
+            .laden()
+    };
+    assert!(alle(&teuer("")).contains("„erz“"), "{}", alle(&teuer("")));
+    let outcome = teuer("    pacht_anteil: 0.8\n");
+    assert!(!alle(&outcome).contains("„erz“"), "{}", alle(&outcome));
 }
 
 #[test]
@@ -1014,7 +1118,7 @@ fn marktmodell_wird_geprueft() {
 
 #[test]
 fn richtpreis_ist_pflicht() {
-    let d = Daten::neu().ersetze("ketten/a.yaml", "    richtpreis_usd: 10\n", "");
+    let d = Daten::neu().ersetze("ketten/a.yaml", "    richtpreis_usd: 60\n", "");
     befund(&d.laden(), "Pflichtfeld „richtpreis_usd“ fehlt.");
 }
 

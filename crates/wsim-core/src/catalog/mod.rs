@@ -53,6 +53,19 @@ pub struct Catalog {
 }
 
 impl Catalog {
+    /// Highest output of a deposit per year in a year (before the market scale): the
+    /// deposit's value times the output index of its raw material (M16).
+    pub fn max_output(&self, deposit: DepositId, year: i32) -> f64 {
+        let d = self.deposits.get(deposit);
+        let index = self
+            .products
+            .get(d.resource)
+            .output_index
+            .as_ref()
+            .map_or(1.0, |i| i.value_at(f64::from(year)));
+        d.max_output_per_year * index
+    }
+
     /// Keys of all entries by kind, for saving and loading.
     pub fn key_table(&self) -> KeyTable {
         let keys = IdKind::ALL
@@ -230,8 +243,9 @@ pub struct AiStart {
     pub development_weight: [f64; 5],
     /// Wage for comparing recipes (USD per hour).
     pub reference_wage_usd: f64,
-    /// Plants are planned for this multiple of the demand: saturated markets (M16).
-    pub market_cover: f64,
+    /// Plants are planned for this multiple of the demand, per product kind: saturated
+    /// markets (M16).
+    pub market_cover: [f64; 5],
 }
 
 /// How the AI companies decide; spans depend on competence or aggressiveness.
@@ -243,6 +257,13 @@ pub struct AiBehavior {
     pub stock_low_days: f64,
     pub utilization_step: f64,
     pub utilization_min: f64,
+    /// Largest change of the planned utilization per decision: one weak month must not
+    /// stop a plant, nor one good month fill every warehouse at once.
+    pub utilization_change_max: f64,
+    /// Stock the production aims at, in days of sales and own use (M16).
+    pub stock_target_days: f64,
+    /// Days in which the production closes the gap to the stock target.
+    pub stock_adjust_days: f64,
     /// Price floor = normal cost × this factor (aggressiveness).
     pub floor_factor: Span,
     /// Monthly advertising as share of the revenue of a goods group in a country.
@@ -251,6 +272,9 @@ pub struct AiBehavior {
     /// Expansion when the utilization and the margin reach these (aggressiveness).
     pub expand_utilization: Span,
     pub expand_margin: Span,
+    /// No expansion while an input costs more than this multiple of its reference price
+    /// in the country: it is scarce (M16).
+    pub expand_input_price_max: f64,
     pub invest_share_max: f64,
     /// Research on technologies up to this many years before their invention (competence).
     pub research_lookahead_years: Span,
@@ -287,7 +311,7 @@ impl Default for AiModel {
                 cash_months: 3.0,
                 development_weight: [0.0, 1.5, 2.0, 0.5, 1.0],
                 reference_wage_usd: 4.0,
-                market_cover: 1.15,
+                market_cover: [1.15; 5],
             },
             behavior: AiBehavior {
                 operations_days: Span {
@@ -298,6 +322,9 @@ impl Default for AiModel {
                 stock_low_days: 7.0,
                 utilization_step: 0.1,
                 utilization_min: 0.2,
+                utilization_change_max: 1.0,
+                stock_target_days: 14.0,
+                stock_adjust_days: 15.0,
                 floor_factor: Span {
                     at_0: 1.05,
                     at_1: 0.9,
@@ -315,6 +342,7 @@ impl Default for AiModel {
                     at_0: 0.25,
                     at_1: 0.08,
                 },
+                expand_input_price_max: 1.5,
                 invest_share_max: 0.3,
                 research_lookahead_years: Span {
                     at_0: 0.0,
@@ -523,10 +551,17 @@ pub struct MarketModel {
     pub price_step_down: f64,
     /// Unsold stock worth more than this many days of sales lowers the price.
     pub stock_days: f64,
+    /// Automatic prices also fall while the seller's facilities for the product run
+    /// below this share of their capacity: idle plants compete for customers (M16).
+    pub normal_utilization: f64,
     /// Automatic prices stay below this multiple of the local reference price.
     pub price_max_factor: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
+    /// How far a country's price level carries into the prices of goods, per product
+    /// kind (0: world price, 1: fully). Goods are traded; only the local share of
+    /// wages, trade and distribution in their price follows the price level.
+    pub price_level_share: [f64; 5],
     pub index_smoothing: f64,
     /// Traders import only if the market price exceeds their landed cost by this share.
     pub trader_margin: f64,
@@ -603,8 +638,10 @@ impl Default for MarketModel {
             price_step_up: 0.02,
             price_step_down: 0.01,
             stock_days: 30.0,
+            normal_utilization: 0.85,
             price_max_factor: 20.0,
             state_price_cap: 1.5,
+            price_level_share: [1.0; 5],
             index_smoothing: 0.1,
             trader_margin: 0.05,
             trader_cover_days: 30.0,
@@ -634,6 +671,14 @@ pub struct ProductionModel {
     pub electricity: Option<ProductId>,
     /// Own electricity fed into the grid earns this share of the industrial price.
     pub feed_in_share: f64,
+    /// Administration, sales and logistics per run, as share of the value it adds at
+    /// reference prices, per product kind (M16).
+    pub overhead_share: [f64; 5],
+    /// Plausible margin at reference prices of the best recipe of a product in the first
+    /// year it can be made (checked when loading the data; extraction only from below).
+    pub reference_margin: (f64, f64),
+    /// By-products beyond this many days of their output in stock are disposed of.
+    pub by_product_stock_days: f64,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
 }
@@ -665,6 +710,11 @@ impl StartSetup {
 }
 
 impl ProductionModel {
+    /// Overhead per unit made, as share of the reference price.
+    pub fn overhead_share(&self, kind: ProductKind) -> f64 {
+        self.overhead_share[kind.index()]
+    }
+
     pub fn start_setup(&self, form: StartForm) -> Option<&StartSetup> {
         self.start_setups
             .iter()
@@ -687,6 +737,9 @@ impl Default for ProductionModel {
             condition_min: 0.2,
             electricity: None,
             feed_in_share: 0.5,
+            overhead_share: [0.0; 5],
+            reference_margin: (0.05, 0.45),
+            by_product_stock_days: 90.0,
             start_setups: Vec::new(),
         }
     }
@@ -734,6 +787,12 @@ pub struct CountryModel {
     pub research_elasticity: f64,
     pub research_min: f64,
     pub research_max: f64,
+    /// Labor productivity = (GDP per capita / reference)^elasticity, bounded: the
+    /// recipes' hours hold at the reference (M16).
+    pub productivity_reference_usd: f64,
+    pub productivity_elasticity: f64,
+    pub productivity_min: f64,
+    pub productivity_max: f64,
     pub automation_base: f64,
     pub automation_per_doubling: f64,
     pub automation_reference_usd: f64,
@@ -769,6 +828,10 @@ impl Default for CountryModel {
             research_elasticity: 0.3,
             research_min: 0.3,
             research_max: 1.5,
+            productivity_reference_usd: 10_000.0,
+            productivity_elasticity: 0.0,
+            productivity_min: 0.1,
+            productivity_max: 4.0,
             automation_base: 0.3,
             automation_per_doubling: 0.12,
             automation_reference_usd: 13_000.0,
@@ -783,6 +846,19 @@ pub enum ProductKind {
     Component,
     EndProduct,
     Energy,
+}
+
+impl ProductKind {
+    /// Position in tables with one value per product kind (`[T; 5]`).
+    pub fn index(self) -> usize {
+        match self {
+            ProductKind::RawMaterial => 0,
+            ProductKind::SemiFinished => 1,
+            ProductKind::Component => 2,
+            ProductKind::EndProduct => 3,
+            ProductKind::Energy => 4,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -811,6 +887,12 @@ pub struct Product {
     pub state_market: Option<StateMarketOffer>,
     /// Products this one displaces over time (Lastenheft §6.4).
     pub replaces: Vec<ProductId>,
+    /// Raw materials: how the highest output of their deposits develops over the years
+    /// (more land and better yields), as factor on the deposit values (M16).
+    pub output_index: Option<TimeSeries>,
+    /// Raw materials: land rent and royalties per unit extracted, as share of the
+    /// reference price in the country (M16).
+    pub rent_share: f64,
     pub provenance: Provenance,
 }
 

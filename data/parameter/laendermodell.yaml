@@ -60,5 +60,9 @@ laendermodell:
 
   # Forschungseffizienz = (BIP je Kopf / Bezug)^Elastizität, begrenzt
   forschung: {bezug_usd: 26_000, elastizitaet: 0.3, minimum: 0.3, maximum: 1.5}
+  # Arbeitsproduktivität = (BIP je Kopf / Bezug)^Elastizität, begrenzt (M16). Die
+  # Arbeitsstunden der Rezepte gelten beim Bezug; arme Länder brauchen mehr Stunden je
+  # Stück, reiche weniger, und mit dem Wachstum sinken die Stunden.
+  produktivitaet: {bezug_usd: 10_000, elastizitaet: 1.0, minimum: 0.1, maximum: 4.0}
   # Prägung Automatisierung = Basis + je Verdopplung des BIP je Kopf über dem Bezug
   automatisierung: {basis: 0.3, je_verdopplung: 0.12, bezug_usd: 13_000}

@@ -17,6 +17,8 @@ produkte:
     warengruppe: erze
     transportklasse: schuettgut
     richtpreis_usd: 90
+    # Förderzins an die Grubenbesitzer (Mesabi um 1900 etwa ein Siebtel des Erzpreises).
+    pacht_anteil: 0.15
 
   - id: kohle
     art: rohstoff
@@ -181,7 +183,7 @@ rezepte:
       eisenerz: 1.9
       kohle: 1.68
     arbeit_stunden:               # Hochofen und Birne
-      ungelernt: 7.6
+      ungelernt: 9.0
       angelernt: 3.7
       fachkraft.metall: 3.5
       akademiker.metall: 0.11

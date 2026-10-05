@@ -55,6 +55,8 @@ pub struct CountryState {
     /// Research efficiency per field, indexed by `SpecializationId`.
     pub research_efficiency: Vec<f64>,
     /// Suitability for automated production (0 = hand assembly, 1 = highly automated).
+    /// Labor productivity against the reference: recipe hours are divided by it (M16).
+    pub labor_productivity: f64,
     pub automation_affinity: f64,
 }
 
@@ -186,6 +188,11 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
                     .unwrap_or(1.0)
         })
         .collect();
+    let labor_productivity = math::pow(
+        gdp / model.productivity_reference_usd,
+        model.productivity_elasticity,
+    )
+    .clamp(model.productivity_min, model.productivity_max);
     let automation_affinity = (model.automation_base
         + model.automation_per_doubling * math::log2(gdp / model.automation_reference_usd)
         + country.profile.automation_bonus)
@@ -214,6 +221,7 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
             .map_or(model.stability, |s| s.value_at(t))
             .clamp(0.0, 1.0),
         research_efficiency,
+        labor_productivity,
         automation_affinity,
     }
 }

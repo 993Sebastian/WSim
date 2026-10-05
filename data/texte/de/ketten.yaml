@@ -181,13 +181,17 @@ produkt.karosserie: Karosserie
 produkt.automobil: Automobil
 produkt.pferdekutsche: Pferdekutsche
 anlage.motorenwerk: Motorenwerk
+anlage.motorenwerk_fliessband: Motorenwerk mit Fließfertigung
 anlage.fahrgestellwerk: Fahrgestellwerk
+anlage.fahrgestellwerk_fliessband: Fahrgestellwerk mit Fließband
 anlage.karosseriewerk: Karosseriewerk
 anlage.automobilwerk: Automobilwerk
 anlage.automobilwerk_fliessband: Automobilwerk mit Fließband
 anlage.crackanlage: Crackanlage
 rezept.motor_bauen: Motoren bauen
+rezept.motor_fliessband: Motoren in Fließfertigung
 rezept.fahrgestell_bauen: Fahrgestelle bauen
+rezept.fahrgestell_fliessband: Fahrgestelle am Fließband
 rezept.karosserie_holz: Karosserie aus Holz und Blech
 rezept.karosserie_stahl: Ganzstahlkarosserie
 rezept.automobil_montage: Automobile montieren

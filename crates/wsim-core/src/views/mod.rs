@@ -627,7 +627,8 @@ pub fn world_map(game: &Game) -> WorldMap {
                 key: catalog.deposits.key(id).to_owned(),
                 country: catalog.countries.key(d.country).to_owned(),
                 resource,
-                max_output_per_year: d.max_output_per_year * state.settings.market_scale,
+                max_output_per_year: catalog.max_output(id, state.date.year())
+                    * state.settings.market_scale,
                 concessions: u32::try_from(ds.concessions.len()).unwrap_or(u32::MAX),
                 free_concessions: u32::try_from(
                     ds.concessions.iter().filter(|c| c.site.is_none()).count(),

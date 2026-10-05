@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use wsim_core::game::Game;
-use wsim_core::ids::{Id, ProductId};
+use wsim_core::ids::{CountryId, ProductId};
 use wsim_core::ledger::Account;
 use wsim_core::market;
 use wsim_data::Texts;
@@ -20,6 +20,24 @@ const SHORTAGE: f64 = 0.85;
 const OVERCAPACITY: f64 = 2.0;
 const RICH_MARGIN: f64 = 0.4;
 const LOSS_MARGIN: f64 = -0.1;
+
+/// Plausibility limits (M16): what a believable world keeps to, for every product and
+/// country alike.
+const COVERAGE_MIN: f64 = 0.9;
+/// Countries count from this share of a product's world demand on.
+const COUNTRY_SHARE_MIN: f64 = 0.005;
+const COUNTRY_COVERAGE_MIN: f64 = 0.75;
+const INPUT_SHORTAGE_MAX: f64 = 0.1;
+const PRICE_BAND: (f64, f64) = (0.5, 2.0);
+const MARGIN_BAND: (f64, f64) = (-0.2, 0.5);
+/// The player's workshop runs without any decision: its yearly result against its
+/// starting equity.
+const PLAYER_RETURN_MAX: f64 = 0.5;
+const BANKRUPT_PER_YEAR_MAX: f64 = 0.05;
+const AI_ACTIVE_MIN: f64 = 0.8;
+
+/// A violated plausibility limit: subject (product, country), year and value.
+type Finding = (String, i32, String);
 
 #[derive(Default)]
 struct Month {
@@ -36,6 +54,16 @@ struct Month {
     company_revenue_usd: f64,
     /// Reference price weighted with the companies' sales.
     reference_usd: f64,
+    /// Demand of consumers and governments and what they got, worldwide and per country.
+    outside_demand: f64,
+    outside_sold: f64,
+    countries: BTreeMap<CountryId, (f64, f64)>,
+    /// Planned output, the part held back by missing inputs, and the full cost of the
+    /// facilities at their planned utilization.
+    planned: f64,
+    input_limited: f64,
+    labor_limited: f64,
+    cost_usd: f64,
 }
 
 struct ProductYear {
@@ -53,6 +81,16 @@ struct ProductYear {
     stock: f64,
     profit_usd: f64,
     imported: f64,
+    /// Share of the consumers' and governments' demand that was served.
+    coverage: Option<f64>,
+    /// Relevant countries served below `COUNTRY_COVERAGE_MIN`, with their coverage.
+    undersupplied: Vec<(CountryId, f64)>,
+    /// Share of the planned output held back by missing inputs and by missing workers.
+    input_shortage: f64,
+    labor_shortage: f64,
+    /// Margin of the selling price over the full unit cost (inputs at market prices,
+    /// wages, electricity, depreciation and maintenance).
+    margin: Option<f64>,
     flags: Vec<&'static str>,
 }
 
@@ -73,6 +111,9 @@ pub struct Protocol {
     month: Option<(i32, u32)>,
     year: BTreeMap<ProductId, Month>,
     companies_before: usize,
+    /// AI companies at the start and the player's equity at the start.
+    ai_at_start: usize,
+    player_start_equity_usd: f64,
     products: Vec<ProductYear>,
     companies: Vec<CompanyYear>,
 }
@@ -83,9 +124,15 @@ fn usd(m: wsim_core::money::Money) -> f64 {
 
 impl Protocol {
     pub fn new(game: &Game) -> Self {
+        let state = game.state();
+        let player = &state.companies[game.player().index()];
         Self {
             month: Some((game.date().year(), game.date().month())),
-            companies_before: game.state().companies.len(),
+            companies_before: state.companies.len(),
+            ai_at_start: state.companies.iter().filter(|c| c.ai.is_some()).count(),
+            player_start_equity_usd: usd(
+                player.ledger.total_assets() - player.ledger.balance(Account::Loans)
+            ),
             ..Self::default()
         }
     }
@@ -112,6 +159,20 @@ impl Protocol {
             closed.year(),
             closed.month(),
         ));
+        for h in wsim_core::health::last_month(state, catalog) {
+            let acc = self.year.entry(h.product).or_default();
+            acc.outside_demand += h.outside_demand;
+            acc.outside_sold += h.outside_sold;
+            for &(country, demand, sold) in &h.countries {
+                let e = acc.countries.entry(country).or_default();
+                e.0 += demand;
+                e.1 += sold;
+            }
+            acc.planned += h.planned * days;
+            acc.input_limited += h.input_limited * days;
+            acc.labor_limited += h.labor_limited * days;
+            acc.cost_usd += h.cost_usd * days;
+        }
         for (product, p) in catalog.products.iter() {
             let acc = self.year.entry(product).or_default();
             for (_, m) in state.markets.get(product).iter() {
@@ -196,6 +257,12 @@ impl Protocol {
             }
             let price_usd = (m.company_sold > 0.0).then(|| m.company_revenue_usd / m.company_sold);
             let reference_usd = (m.company_sold > 0.0).then(|| m.reference_usd / m.company_sold);
+            let margin = match price_usd {
+                Some(price) if m.planned > 1e-9 && price > 0.0 => {
+                    Some(1.0 - m.cost_usd / m.planned / price)
+                }
+                _ => None,
+            };
             let mut flags = Vec::new();
             if let (Some(p), Some(r)) = (price_usd, reference_usd) {
                 if p > EXPENSIVE * r {
@@ -204,10 +271,11 @@ impl Protocol {
                     flags.push("billig");
                 }
             }
-            // Consumer goods: demand the markets could not serve; inputs: need the
-            // facilities could not cover from the world's production.
-            let short = if m.demand > 0.0 {
-                m.sold < SHORTAGE * m.demand
+            // Consumer goods: demand of consumers and governments that stayed open;
+            // inputs: need the facilities could not cover from the world's production.
+            let coverage = (m.outside_demand > 1e-9).then(|| m.outside_sold / m.outside_demand);
+            let short = if let Some(c) = coverage {
+                c < SHORTAGE
             } else {
                 m.input_need > 0.0 && m.produced < SHORTAGE * m.input_need
             };
@@ -222,14 +290,25 @@ impl Protocol {
             if demand > 0.0 && capacity > OVERCAPACITY * demand {
                 flags.push("Überkapazität");
             }
-            if m.company_revenue_usd > 0.0 {
-                let margin = profit_usd / m.company_revenue_usd;
+            if let Some(margin) = margin {
                 if margin > RICH_MARGIN {
                     flags.push("sehr profitabel");
                 } else if margin < LOSS_MARGIN {
                     flags.push("Verlust");
                 }
             }
+            let undersupplied = m
+                .countries
+                .iter()
+                .filter(|(_, (d, _))| *d >= COUNTRY_SHARE_MIN * m.outside_demand)
+                .map(|(&c, &(d, s))| (c, s / d.max(1e-9)))
+                .filter(|&(_, c)| c < COUNTRY_COVERAGE_MIN)
+                .collect();
+            let (input_shortage, labor_shortage) = if m.planned > 1e-9 {
+                (m.input_limited / m.planned, m.labor_limited / m.planned)
+            } else {
+                (0.0, 0.0)
+            };
             self.products.push(ProductYear {
                 year,
                 product,
@@ -244,6 +323,11 @@ impl Protocol {
                 stock,
                 profit_usd,
                 imported: m.imported,
+                coverage,
+                undersupplied,
+                input_shortage,
+                labor_shortage,
+                margin,
                 flags,
             });
         }
@@ -293,12 +377,12 @@ impl Protocol {
         let opt = |v: Option<f64>| v.map_or(String::new(), |v| format!("{v:.2}"));
 
         let mut csv = String::from(
-            "jahr;produkt;bedarf;konsumnachfrage;produktion;absatz_firmen;preis_usd;richtpreis_usd;kapazitaet;hersteller;lager;ergebnis_usd;einfuhr;auffaellig\n",
+            "jahr;produkt;bedarf;konsumnachfrage;produktion;absatz_firmen;preis_usd;richtpreis_usd;kapazitaet;hersteller;lager;ergebnis_usd;einfuhr;versorgung;engpass_vorprodukte;marge_vollkosten;auffaellig\n",
         );
         for p in &self.products {
             let _ = writeln!(
                 csv,
-                "{};{};{:.0};{:.0};{:.0};{:.0};{};{};{:.0};{};{:.0};{:.0};{:.0};{}",
+                "{};{};{:.0};{:.0};{:.0};{:.0};{};{};{:.0};{};{:.0};{:.0};{:.0};{};{:.3};{};{}",
                 p.year,
                 catalog.products.key(p.product),
                 p.demand,
@@ -312,6 +396,9 @@ impl Protocol {
                 p.stock,
                 p.profit_usd,
                 p.imported,
+                opt(p.coverage),
+                p.input_shortage,
+                opt(p.margin),
                 p.flags.join(",")
             );
         }
@@ -348,6 +435,8 @@ impl Protocol {
             s.market_scale,
             wsim_data::format_date(game.date())
         );
+        let (section, passed, total) = self.plausibility(game, &name);
+        md.push_str(&section);
         md.push_str("## Firmen je Jahr\n\n| Jahr | KI aktiv | pleite (gesamt) | gegründet | mit Gewinn | Median Eigenkapital | Spieler Eigenkapital | Spieler Ergebnis |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
         for c in &self.companies {
             let _ = writeln!(
@@ -363,7 +452,7 @@ impl Protocol {
                 money(c.player_result_usd)
             );
         }
-        md.push_str("\n## Auffälligkeiten je Produkt\n\nJahre mit Auffälligkeit (teuer > 1,5 × Richtpreis, billig < 0,6 ×, Mangel < 85 % der Nachfrage bzw. des Vorproduktbedarfs gedeckt, Überkapazität > 2 × Bedarf, sehr profitabel > 40 % Marge, Verlust < −10 %).\n\n| Produkt | Jahre | teuer | billig | Mangel | Überkapazität | sehr profitabel | Verlust |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
+        md.push_str("\n## Auffälligkeiten je Produkt\n\nJahre mit Auffälligkeit (teuer > 1,5 × Richtpreis, billig < 0,6 ×, Mangel < 85 % der Nachfrage von Verbrauchern und Staaten bzw. des Vorproduktbedarfs gedeckt, Überkapazität > 2 × Bedarf, sehr profitabel > 40 % Marge über Vollkosten, Verlust < −10 %).\n\n| Produkt | Jahre | teuer | billig | Mangel | Überkapazität | sehr profitabel | Verlust |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
         let mut by_product: BTreeMap<ProductId, (usize, BTreeMap<&str, usize>)> = BTreeMap::new();
         for p in &self.products {
             let e = by_product.entry(p.product).or_default();
@@ -405,12 +494,9 @@ impl Protocol {
                 } else {
                     "–".into()
                 };
-                let revenue = p.price_usd.unwrap_or(0.0) * p.sold;
-                let margin = if revenue > 0.0 {
-                    format!("{:.0} %", 100.0 * p.profit_usd / revenue)
-                } else {
-                    "–".into()
-                };
+                let margin = p
+                    .margin
+                    .map_or("–".into(), |m| format!("{:.0} %", 100.0 * m));
                 let _ = writeln!(
                     md,
                     "| {} | {:.0} | {:.0} | {:.0} | {} | {} | {} | {} | {} |",
@@ -438,8 +524,230 @@ impl Protocol {
             &recipe_margins(catalog, texts, s.start_year, &countries),
         )?;
         println!("Protokoll geschrieben: {}", dir.display());
+        println!("Plausibilität: {passed} von {total} Prüfungen ohne Verstoß");
         Ok(())
     }
+
+    /// The plausibility checks over all products, countries and years (Markdown), and
+    /// how many of them passed.
+    fn plausibility(
+        &self,
+        game: &Game,
+        name: &dyn Fn(ProductId) -> String,
+    ) -> (String, usize, usize) {
+        let catalog = game.catalog();
+        let pct = |v: f64| format!("{:.0} %", v * 100.0);
+        // Per check: (title, limit, findings).
+        let mut checks: Vec<(&str, String, Vec<Finding>)> = Vec::new();
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            if let Some(c) = p.coverage.filter(|&c| c < COVERAGE_MIN) {
+                found.push((name(p.product), p.year, pct(c)));
+            }
+        }
+        checks.push((
+            "Versorgung von Verbrauchern und Staaten weltweit",
+            format!("≥ {}", pct(COVERAGE_MIN)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            for &(country, c) in &p.undersupplied {
+                found.push((
+                    format!("{} in {}", name(p.product), catalog.countries.key(country)),
+                    p.year,
+                    pct(c),
+                ));
+            }
+        }
+        checks.push((
+            "Versorgung je Land (ab 0,5 % der Weltnachfrage)",
+            format!("≥ {}", pct(COUNTRY_COVERAGE_MIN)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            if p.input_shortage > INPUT_SHORTAGE_MAX {
+                found.push((name(p.product), p.year, pct(p.input_shortage)));
+            }
+        }
+        checks.push((
+            "Erzeugung, die auf fehlende Vorprodukte wartet",
+            format!("≤ {}", pct(INPUT_SHORTAGE_MAX)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            if p.labor_shortage > INPUT_SHORTAGE_MAX {
+                found.push((name(p.product), p.year, pct(p.labor_shortage)));
+            }
+        }
+        checks.push((
+            "Erzeugung, die auf fehlende Arbeitskräfte wartet",
+            format!("≤ {}", pct(INPUT_SHORTAGE_MAX)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            // Only made as a by-product (petrol before cracking): its price follows the
+            // main product's output, a glut of it is cheap.
+            if !wsim_core::health::made_as_main(catalog, p.product, p.year) {
+                continue;
+            }
+            if let (Some(price), Some(reference)) = (p.price_usd, p.reference_usd) {
+                let ratio = price / reference.max(1e-9);
+                if !(PRICE_BAND.0..=PRICE_BAND.1).contains(&ratio) {
+                    found.push((name(p.product), p.year, format!("{ratio:.2} ×")));
+                }
+            }
+        }
+        checks.push((
+            "Preis gegen Richtpreis",
+            format!("{} bis {} ×", PRICE_BAND.0, PRICE_BAND.1),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            // A by-product given away has no margin of its own.
+            let main = catalog.recipes.values().any(|r| r.product == p.product);
+            if let Some(margin) = p.margin.filter(|_| main)
+                && !(MARGIN_BAND.0..=MARGIN_BAND.1).contains(&margin)
+            {
+                found.push((name(p.product), p.year, pct(margin)));
+            }
+        }
+        checks.push((
+            "Marge über Vollkosten (Vorprodukte zu Marktpreisen, Löhne, Strom, Anlagen)",
+            format!("{} bis {}", pct(MARGIN_BAND.0), pct(MARGIN_BAND.1)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for c in &self.companies {
+            let ratio = c.player_result_usd / self.player_start_equity_usd.max(1.0);
+            if ratio > PLAYER_RETURN_MAX {
+                found.push((
+                    "Werkstatt ohne Entscheidungen".to_owned(),
+                    c.year,
+                    pct(ratio),
+                ));
+            }
+        }
+        checks.push((
+            "Jahresergebnis des passiven Spielers gegen sein Startkapital",
+            format!("≤ {}", pct(PLAYER_RETURN_MAX)),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        let mut before = 0;
+        let mut active_before = self.ai_at_start;
+        for c in &self.companies {
+            let failed = c.bankrupt.saturating_sub(before);
+            let rate = failed as f64 / active_before.max(1) as f64;
+            if rate > BANKRUPT_PER_YEAR_MAX {
+                found.push(("KI-Firmen pleite".to_owned(), c.year, pct(rate)));
+            }
+            if (c.active as f64) < AI_ACTIVE_MIN * self.ai_at_start as f64 {
+                found.push(("KI-Firmen aktiv".to_owned(), c.year, c.active.to_string()));
+            }
+            before = c.bankrupt;
+            active_before = c.active;
+        }
+        checks.push((
+            "Pleiten je Jahr und aktive KI-Firmen",
+            format!(
+                "≤ {} je Jahr, ≥ {} der Startzahl",
+                pct(BANKRUPT_PER_YEAR_MAX),
+                pct(AI_ACTIVE_MIN)
+            ),
+            found,
+        ));
+
+        let mut found = Vec::new();
+        for p in &self.products {
+            let extracted = catalog
+                .recipes
+                .values()
+                .any(|r| r.product == p.product && r.extraction);
+            let need = p.demand - p.consumer_demand;
+            if extracted && need > 0.0 && p.produced < COVERAGE_MIN * need {
+                found.push((name(p.product), p.year, pct(p.produced / need)));
+            }
+        }
+        checks.push((
+            "Förderung von Rohstoffen gegen den Bedarf der Anlagen",
+            format!("≥ {}", pct(COVERAGE_MIN)),
+            found,
+        ));
+
+        let total = checks.len();
+        let passed = checks.iter().filter(|c| c.2.is_empty()).count();
+        let mut md = format!(
+            "## Plausibilität\n\n{passed} von {total} Prüfungen ohne Verstoß. Die Grenzen gelten für alle Produkte und Länder gleich.\n\n| Prüfung | Grenze | Verstöße | Betroffen (Jahre; schlechtester Wert) |\n| --- | --- | --- | --- |\n"
+        );
+        for (title, limit, found) in &checks {
+            let mut by_subject: BTreeMap<&str, (Vec<i32>, &str)> = BTreeMap::new();
+            for (subject, year, value) in found {
+                let e = by_subject
+                    .entry(subject.as_str())
+                    .or_insert((Vec::new(), value.as_str()));
+                e.0.push(*year);
+                e.1 = value.as_str();
+            }
+            let shown: Vec<String> = by_subject
+                .iter()
+                .take(12)
+                .map(|(s, (years, value))| format!("{s} ({}; {value})", year_ranges(years)))
+                .collect();
+            let more = by_subject.len().saturating_sub(12);
+            let _ = writeln!(
+                md,
+                "| {title} | {limit} | {} | {}{} |",
+                found.len(),
+                if shown.is_empty() {
+                    "–".to_owned()
+                } else {
+                    shown.join(", ")
+                },
+                if more > 0 {
+                    format!(" und {more} weitere")
+                } else {
+                    String::new()
+                }
+            );
+        }
+        md.push('\n');
+        (md, passed, total)
+    }
+}
+
+/// Years as ranges: 1901–1903, 1905.
+fn year_ranges(years: &[i32]) -> String {
+    let mut sorted = years.to_vec();
+    sorted.sort_unstable();
+    sorted.dedup();
+    let mut parts: Vec<String> = Vec::new();
+    let mut i = 0;
+    while i < sorted.len() {
+        let mut j = i;
+        while j + 1 < sorted.len() && sorted[j + 1] == sorted[j] + 1 {
+            j += 1;
+        }
+        parts.push(if j > i {
+            format!("{}–{}", sorted[i], sorted[j])
+        } else {
+            sorted[i].to_string()
+        });
+        i = j + 1;
+    }
+    parts.join(", ")
 }
 
 fn money(v: f64) -> String {
@@ -451,10 +759,8 @@ fn write(dir: &Path, name: &str, text: &str) -> Result<(), String> {
     fs::write(&path, text).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Unit costs of every recipe at reference prices of the inputs and the wages and
-/// electricity prices of the given countries, against the product's reference price
-/// (Markdown). A margin far above or below the typical range points at a reference
-/// price or recipe that needs balancing.
+/// Unit cost and margin of every recipe at reference prices in some countries (the
+/// same calculation as the plausibility check of the data, docs/FORMELN.md).
 pub fn recipe_margins(
     catalog: &wsim_core::catalog::Catalog,
     texts: &Texts,
@@ -462,13 +768,21 @@ pub fn recipe_margins(
     countries: &[wsim_core::ids::CountryId],
 ) -> String {
     use wsim_core::calendar::Date;
+    use wsim_core::health;
     let values: Vec<_> = countries
         .iter()
         .map(|&c| wsim_core::country_model::compute(catalog, c, Date::first_of_year(year)))
         .collect();
+    let (low, high) = catalog.production_model.reference_margin;
     let text = |key: String| texts.get(&key).map_or(key.clone(), str::to_owned);
     let mut md = format!(
-        "# Rezeptmargen {year}\n\nStückkosten: Vorprodukte zu Richtpreisen, Arbeitsstunden zu den Löhnen des Landes, Strom zum Landespreis, Anlage über die Lebensdauer mit Instandhaltung; Nebenprodukte zu Richtpreisen abgezogen. Marge = 1 − Kosten/Richtpreis.\n\n| Rezept | Produkt | erfunden | Richtpreis |"
+        "# Rezeptmargen {year}\n\nStückkosten: Vorprodukte zu Richtpreisen im Land, Arbeitsstunden \
+         zu den Löhnen und der Produktivität des Landes, Strom zum Landespreis, Anlage bei \
+         Normalauslastung mit Abschreibung und Instandhaltung, Gemeinkosten; Nebenprodukte zu \
+         Richtpreisen abgezogen. Marge = 1 − Kosten/Richtpreis im Land; ⚠ außerhalb von {:.0} \
+         bis {:.0} %.\n\n| Rezept | Produkt | erfunden | Richtpreis |",
+        low * 100.0,
+        high * 100.0
     );
     for c in countries {
         let _ = write!(md, " Kosten {} | Marge |", catalog.countries.key(*c));
@@ -479,51 +793,41 @@ pub fn recipe_margins(
     }
     md.push_str(" --- |\n");
     for (id, r) in catalog.recipes.iter() {
-        let f = catalog.facilities.get(r.facility);
-        let invented = [r.technology, f.technology]
-            .into_iter()
-            .flatten()
-            .map(|t| catalog.technologies.get(t).invention_year)
-            .max();
-        let price = catalog.products.get(r.product).reference_price.to_usd();
-        let inputs: f64 = r
-            .inputs
-            .iter()
-            .map(|&(p, q)| q * catalog.products.get(p).reference_price.to_usd())
-            .sum();
-        let by_products: f64 = r
-            .by_products
-            .iter()
-            .map(|&(p, q)| q * catalog.products.get(p).reference_price.to_usd())
-            .sum();
-        let capital = f.investment.to_usd()
-            * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
-            / (365.0 * f.runs_per_day.max(1e-9));
+        let year = health::first_year(catalog, id);
         let _ = write!(
             md,
             "| {} | {} | {} | {} |",
             text(format!("rezept.{}", catalog.recipes.key(id))),
             text(format!("produkt.{}", catalog.products.key(r.product))),
-            invented.map_or("–".into(), |y| y.to_string()),
-            money(price)
+            if year > wsim_core::EARLIEST_START_YEAR {
+                year.to_string()
+            } else {
+                "–".into()
+            },
+            money(catalog.products.get(r.product).reference_price.to_usd())
         );
         let mut labor_share = 0.0;
         for v in &values {
-            let labor: f64 = r
-                .labor_hours
-                .iter()
-                .map(|&(g, h)| h * v.hourly_wage_usd[g.index()])
-                .sum();
-            let energy = r.energy_mwh * v.electricity_price_usd_mwh;
-            let cost = (inputs + labor + energy + capital - by_products) / r.output.max(1e-9);
-            labor_share = labor / (inputs + labor + energy + capital).max(1e-9);
-            let margin = if price > 0.0 { 1.0 - cost / price } else { 0.0 };
-            let mark = if !(-0.05..=0.4).contains(&margin) {
-                " ⚠"
-            } else {
-                ""
+            let price = |p| {
+                catalog.products.get(p).reference_price.to_usd()
+                    * wsim_core::market::level_factor(catalog, v.price_level, p)
             };
-            let _ = write!(md, " {} | {:.0} %{} |", money(cost), margin * 100.0, mark);
+            let utilization = catalog.market_model.normal_utilization;
+            let cost = health::unit_cost(catalog, v, id, utilization, price);
+            labor_share = cost.labor / cost.total().max(1e-9);
+            let margin = health::margin_in(catalog, v, id).unwrap_or(0.0);
+            let mark = if (low..=high).contains(&margin) {
+                ""
+            } else {
+                " ⚠"
+            };
+            let _ = write!(
+                md,
+                " {} | {:.0} %{} |",
+                money(cost.total()),
+                margin * 100.0,
+                mark
+            );
         }
         let _ = writeln!(md, " {:.0} % |", labor_share * 100.0);
     }

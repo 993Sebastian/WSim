@@ -11,7 +11,9 @@ use wsim_core::catalog::{
 use wsim_core::ids::{BranchId, CountryId, DepositId, FacilityId, Id, RecipeId};
 
 use super::production::single;
-use super::{HISTORY_YEARS, Keys, in_range, non_negative, positive, provenance, resolve, year};
+use super::{
+    HISTORY_YEARS, Keys, in_range, non_negative, per_kind, positive, provenance, resolve, year,
+};
 use crate::TextIndex;
 use crate::messages;
 use crate::raw::{RawEvent, RawRealCompany, RawSpan};
@@ -102,15 +104,14 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         input_stock_days: non_negative(ctx, s.input_stock_days, &sl.field("lager_eingang_tage")),
         output_stock_days: non_negative(ctx, s.output_stock_days, &sl.field("lager_ausgang_tage")),
         cash_months: non_negative(ctx, s.cash_months, &sl.field("kasse_monate")),
-        development_weight: [
-            non_negative(ctx, w.raw_material, &wl.field("rohstoff")),
-            non_negative(ctx, w.semi_finished, &wl.field("halbzeug")),
-            non_negative(ctx, w.component, &wl.field("bauteil")),
-            non_negative(ctx, w.end_product, &wl.field("endprodukt")),
-            non_negative(ctx, w.energy, &wl.field("energie")),
-        ],
+        development_weight: per_kind(ctx, w, &wl, non_negative),
         reference_wage_usd: positive(ctx, s.reference_wage_usd, &sl.field("referenzlohn_usd")),
-        market_cover: in_range(ctx, s.market_cover, 1.0, 3.0, &sl.field("marktdeckung")),
+        market_cover: per_kind(
+            ctx,
+            &s.market_cover,
+            &sl.field("marktdeckung"),
+            |ctx, v, loc| in_range(ctx, v, 1.0, 3.0, loc),
+        ),
     };
     let b = &m.behavior;
     let bl = l.field("verhalten");
@@ -138,11 +139,33 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             &bl.field("auslastung_schritt"),
         ),
         utilization_min: share(ctx, b.utilization_min, &bl.field("auslastung_min")),
+        utilization_change_max: in_range(
+            ctx,
+            b.utilization_change_max,
+            0.01,
+            1.0,
+            &bl.field("auslastung_aenderung_max"),
+        ),
+        stock_target_days: positive(ctx, b.stock_target_days, &bl.field("lager_ziel_tage")),
+        stock_adjust_days: in_range(
+            ctx,
+            b.stock_adjust_days,
+            1.0,
+            365.0,
+            &bl.field("lager_ausgleich_tage"),
+        ),
         floor_factor: span(ctx, &b.floor_factor, &bl.field("preisuntergrenze")),
         advertising_share: span(ctx, &b.advertising_share, &bl.field("werbeanteil")),
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),
         expand_margin: span(ctx, &b.expand_margin, &bl.field("ausbau_marge")),
+        expand_input_price_max: in_range(
+            ctx,
+            b.expand_input_price_max,
+            1.0,
+            10.0,
+            &bl.field("ausbau_vorprodukt_preis_max"),
+        ),
         invest_share_max: share(
             ctx,
             b.invest_share_max,
