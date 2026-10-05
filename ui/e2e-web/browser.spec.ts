@@ -134,3 +134,24 @@ test("Die Einführung führt bis zum ersten Verkauf", async ({ page }, info) => 
     .click();
   await expect(titel("Deine Firma läuft")).toBeVisible();
 });
+
+// Shutting a machine down and starting it up again with the real core (M22).
+test("Anlage stilllegen und wieder anfahren", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel("Name der Firma").fill("Stillstand AG");
+  await page.getByLabel(/Einführung zeigen/).uncheck();
+  await page.getByText(/Weitere Einstellungen/).click();
+  await page.getByLabel("Anzahl KI-Firmen").fill("8");
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  await expect(page.locator(".kopfleiste")).toContainText("Stillstand AG");
+
+  await page.getByRole("button", { name: "Standorte" }).click();
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  const anlage = page.getByRole("article", { name: "Nagelmaschine" });
+  await anlage.getByText("Stilllegen oder verkaufen").click();
+  await anlage.getByRole("button", { name: "Stilllegen" }).click();
+  await expect(anlage).toContainText("stillgelegt seit 01.01.1900");
+  await anlage.getByRole("button", { name: /Wieder anfahren/ }).click();
+  await expect(anlage).toContainText("fährt wieder an bis 31.01.1900");
+});

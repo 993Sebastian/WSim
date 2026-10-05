@@ -95,6 +95,10 @@ pub mod keys {
     pub const COMMAND_INVALID_WAGE_PREMIUM: &str = "fehler.befehl.lohnaufschlag_ungueltig";
     pub const COMMAND_NO_OFFER: &str = "fehler.befehl.kein_angebot";
     pub const COMMAND_NO_ROUTE: &str = "fehler.befehl.keine_route";
+    pub const COMMAND_UNDER_CONSTRUCTION: &str = "fehler.befehl.anlage_im_bau";
+    pub const COMMAND_ALREADY_MOTHBALLED: &str = "fehler.befehl.schon_stillgelegt";
+    pub const COMMAND_NOT_MOTHBALLED: &str = "fehler.befehl.nicht_stillgelegt";
+    pub const COMMAND_TOO_MANY_UNITS: &str = "fehler.befehl.zu_viele_einheiten";
     pub const GAME_OVER_INSOLVENT: &str = "meldung.spielende_insolvenz";
     pub const COMPANY_INSOLVENT: &str = "meldung.firma_insolvent";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
@@ -117,6 +121,8 @@ pub mod keys {
     pub const AI_FOUNDED: &str = "meldung.ki.gruendung";
     pub const AI_EXPANDS: &str = "meldung.ki.ausbau";
     pub const AI_INVENTION: &str = "meldung.ki.erfindung";
+    pub const AI_MOTHBALLS: &str = "meldung.ki.stilllegung";
+    pub const AI_SELLS: &str = "meldung.ki.verkauf";
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
@@ -166,6 +172,10 @@ pub mod keys {
         COMMAND_INVALID_WAGE_PREMIUM,
         COMMAND_NO_OFFER,
         COMMAND_NO_ROUTE,
+        COMMAND_UNDER_CONSTRUCTION,
+        COMMAND_ALREADY_MOTHBALLED,
+        COMMAND_NOT_MOTHBALLED,
+        COMMAND_TOO_MANY_UNITS,
         GAME_OVER_INSOLVENT,
         COMPANY_INSOLVENT,
         OVERDRAFT,
@@ -188,6 +198,8 @@ pub mod keys {
         AI_FOUNDED,
         AI_EXPANDS,
         AI_INVENTION,
+        AI_MOTHBALLS,
+        AI_SELLS,
         INPUT_MISSING,
         HINT_INPUT,
         HINT_LABOR,

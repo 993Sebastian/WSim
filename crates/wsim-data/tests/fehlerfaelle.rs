@@ -84,6 +84,8 @@ produktionsmodell:
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
   lohnaufschlag_max: 1.0
+  stilllegung: {instandhaltung_anteil: 0.25, wiederanlauf_tage: 30, wiederanlauf_kosten: 0.02}
+  verkauf: {erloes_anteil: 0.5, schrottwert: 0.03}
   einspeiseverguetung: 0.5
   gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
   richtpreis_marge: {minimum: 0.05, maximum: 0.45}
@@ -116,7 +118,7 @@ marktmodell:
   preisgewicht: [2.0, 1.6, 1.2, 0.9, 0.6]
   qualitaetsgewicht: [0.3, 0.5, 0.8, 1.1, 1.5]
   aneignung_je_jahr: 0.25
-  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, auslastung_normal: 0.85, hoechstfaktor: 20}
+  preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, auslastung_normal: 0.85, hoechstfaktor: 20, aufholen_max: 20}
   staat_hoechstpreis: 1.5
   preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
   index_glaettung: 0.1
@@ -1241,6 +1243,36 @@ fn produktionsmodell_wird_geprueft() {
         "Wert 7 liegt außerhalb des erlaubten Bereichs 0 bis 5.",
     );
     assert_eq!(f.path.to_string(), "produktionsmodell.lohnaufschlag_max");
+
+    // Shut down and sold facilities (M22).
+    let d = Daten::neu().ersetze(
+        "parameter/produktionsmodell.yaml",
+        "instandhaltung_anteil: 0.25",
+        "instandhaltung_anteil: 1.5",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.stilllegung.instandhaltung_anteil"
+    );
+    let d = Daten::neu().ersetze(
+        "parameter/produktionsmodell.yaml",
+        "erloes_anteil: 0.5",
+        "erloes_anteil: -0.1",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert -0.1 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.verkauf.erloes_anteil"
+    );
 }
 
 #[test]
@@ -1494,6 +1526,26 @@ fn kimodell_wird_geprueft() {
     assert_eq!(
         f.path.to_string(),
         "kimodell.verhalten.lohnaufschlag_schritt"
+    );
+
+    // The AI shuts down below a utilization that must lie under its target (M22).
+    let d = Daten::neu().ersetze(
+        datei,
+        "stilllegen_auslastung: 0.5",
+        "stilllegen_auslastung: 0.9",
+    );
+    befund(
+        &d.laden(),
+        "„stilllegen_auslastung“ muss kleiner als „stilllegen_zielauslastung“ sein.",
+    );
+    let d = Daten::neu().ersetze(
+        datei,
+        "wiederanfahren_auslastung: 0.95",
+        "wiederanfahren_auslastung: 0.7",
+    );
+    befund(
+        &d.laden(),
+        "„stilllegen_zielauslastung“ muss kleiner als „wiederanfahren_auslastung“ sein.",
     );
 
     let d = Daten::neu().ohne(datei);

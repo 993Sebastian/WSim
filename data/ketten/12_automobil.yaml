@@ -20,6 +20,12 @@ produkte:
       kaufschwelle: 0.05
       preisempfindlichkeit: 0.3
       einkommensempfindlichkeit: 0.2
+    # Übrige Verwendung (M22): Lösungsmittel, Gaskocher und Gasmaschinen, Stationär- und
+    # Bootsmotoren, Heer und Marine. Um 1900 verbrauchten sie den größten Teil des Benzins
+    # (USA 1899 rund 0,8 Mio. t); ohne sie fand das Benzin der Raffinerien keine Käufer.
+    staatsnachfrage:
+      je_mio_usd_bip: 0.15
+      kriegsfaktor: 2.0
     annaeherung: true
 
   - id: motor

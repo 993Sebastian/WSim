@@ -16,7 +16,7 @@ use crate::market;
 use crate::money::Money;
 use crate::reports;
 use crate::research;
-use crate::state::{CompanyId, Limit, PriceMode};
+use crate::state::{CompanyId, Limit, Operation, PriceMode};
 
 /// Why a facility made less than planned on the last day, as text key and product.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -49,6 +49,19 @@ pub struct SlotDetail {
     pub condition: f64,
     /// Inputs per day at the planned utilization.
     pub inputs_per_day: Vec<(String, f64)>,
+    /// `laeuft`, `stillgelegt` or `wiederanlauf` (M22).
+    pub operation: String,
+    /// Shut down since, or producing again from (`stillgelegt`, `wiederanlauf`).
+    pub operation_date: Option<String>,
+    /// Book value of all units and what selling them would bring now (M22).
+    pub book_value_usd: f64,
+    pub sale_value_usd: f64,
+    /// Starting the facility up again: one-off cost and days.
+    pub restart_cost_usd: f64,
+    pub restart_days: u32,
+    /// Maintenance per month while running and while shut down.
+    pub maintenance_month_usd: f64,
+    pub maintenance_mothballed_month_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -371,7 +384,12 @@ pub fn production(game: &Game) -> ProductionView {
                 .map(|(index, sl)| {
                     let f = catalog.facilities.get(sl.facility);
                     let recipe = sl.recipe.map(|r| catalog.recipes.get(r));
-                    let runs = f.runs_per_day * f64::from(sl.count) * sl.utilization;
+                    // A shut down facility needs nothing (M22).
+                    let runs = if sl.mothballed() {
+                        0.0
+                    } else {
+                        f.runs_per_day * f64::from(sl.count) * sl.utilization
+                    };
                     if let Some(r) = recipe {
                         for &(p, q) in &r.inputs {
                             match need.iter_mut().find(|(x, _)| *x == p) {
@@ -381,8 +399,14 @@ pub fn production(game: &Game) -> ProductionView {
                         }
                     }
                     let lab = f.site_type == SiteType::ResearchCenter;
+                    let model = &catalog.production_model;
+                    let sale = crate::production::sale_value(catalog, sl, sl.count, state.date);
                     let cause = if sl.ready > state.date {
                         Some(("ursache.im_bau", None))
+                    } else if sl.mothballed() {
+                        Some(("ursache.stillgelegt", None))
+                    } else if !sl.operating(state.date) {
+                        Some(("ursache.wiederanlauf", None))
                     } else if recipe.is_none() && !lab {
                         Some(("ursache.kein_rezept", None))
                     } else if sl.utilization <= 0.0 {
@@ -426,6 +450,25 @@ pub fn production(game: &Game) -> ProductionView {
                                 .map(|&(p, q)| (catalog.products.key(p).to_owned(), q * runs))
                                 .collect()
                         }),
+                        operation: match sl.operation {
+                            Operation::Running => "laeuft",
+                            Operation::Mothballed { .. } => "stillgelegt",
+                            Operation::Restarting { .. } => "wiederanlauf",
+                        }
+                        .to_owned(),
+                        operation_date: match sl.operation {
+                            Operation::Running => None,
+                            Operation::Mothballed { since } => Some(iso(since)),
+                            Operation::Restarting { until } => Some(iso(until)),
+                        },
+                        book_value_usd: usd(sale.0),
+                        sale_value_usd: usd(sale.1),
+                        restart_cost_usd: usd(sl.cost.scale(model.restart_cost_share)),
+                        restart_days: model.restart_days,
+                        maintenance_month_usd: usd(sl.cost.scale(f.maintenance_share / 12.0)),
+                        maintenance_mothballed_month_usd: usd(sl
+                            .cost
+                            .scale(f.maintenance_share * model.mothball_maintenance_share / 12.0)),
                     }
                 })
                 .collect();
@@ -1480,7 +1523,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             country: catalog.countries.key(s.country).to_owned(),
             researchers: s.workforce.values().sum(),
             project: s.research.map(|t| catalog.technologies.key(t).to_owned()),
-            ready: s.slots.iter().any(|sl| sl.ready <= state.date),
+            ready: s.slots.iter().any(|sl| sl.operating(state.date)),
             building_until: s
                 .slots
                 .iter()

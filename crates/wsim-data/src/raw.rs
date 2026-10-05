@@ -522,8 +522,34 @@ pub struct RawProductionModel {
     pub by_product_stock_days: f64,
     #[serde(rename = "lohnaufschlag_max")]
     pub wage_premium_max: f64,
+    #[serde(rename = "stilllegung")]
+    pub mothballing: RawMothballing,
+    #[serde(rename = "verkauf")]
+    pub facility_sale: RawFacilitySale,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
+}
+
+/// Shut down facilities (M22).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMothballing {
+    #[serde(rename = "instandhaltung_anteil")]
+    pub maintenance_share: f64,
+    #[serde(rename = "wiederanlauf_tage")]
+    pub restart_days: u32,
+    #[serde(rename = "wiederanlauf_kosten")]
+    pub restart_cost_share: f64,
+}
+
+/// Sold facilities (M22).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFacilitySale {
+    #[serde(rename = "erloes_anteil")]
+    pub proceeds_share: f64,
+    #[serde(rename = "schrottwert")]
+    pub scrap_share: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -685,6 +711,8 @@ pub struct RawPriceAdjustment {
     pub normal_utilization: f64,
     #[serde(rename = "hoechstfaktor")]
     pub max_factor: f64,
+    #[serde(rename = "aufholen_max")]
+    pub catch_up_max: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -943,6 +971,16 @@ pub struct RawAiBehavior {
     pub diversifications_per_quarter: u32,
     #[serde(rename = "gruendung_kapitalfaktor")]
     pub founding_capital_factor: f64,
+    #[serde(rename = "stilllegen_auslastung")]
+    pub mothball_utilization: f64,
+    #[serde(rename = "stilllegen_zielauslastung")]
+    pub mothball_target_utilization: f64,
+    #[serde(rename = "stilllegen_preis_max")]
+    pub mothball_price_max: f64,
+    #[serde(rename = "wiederanfahren_auslastung")]
+    pub restart_utilization: f64,
+    #[serde(rename = "verkaufen_nach_monaten")]
+    pub sell_after_months: u32,
 }
 
 /// Name parts for generated companies (`data/ki/namen.yaml`).

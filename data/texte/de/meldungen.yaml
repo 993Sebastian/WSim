@@ -119,6 +119,12 @@ fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} n
 meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
 meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} für {produkt}."
 meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
+meldung.ki.stilllegung: "{firma} legt in {land} {anzahl} × {anlage} für {produkt} still."
+meldung.ki.verkauf: "{firma} verkauft in {land} {anzahl} × {anlage} für {produkt}."
+fehler.befehl.anlage_im_bau: Die Anlage ist noch im Bau.
+fehler.befehl.schon_stillgelegt: Die Anlage ist schon stillgelegt.
+fehler.befehl.nicht_stillgelegt: Die Anlage ist nicht stillgelegt.
+fehler.befehl.zu_viele_einheiten: "Die Anlage hat nur {anzahl} Einheiten."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)

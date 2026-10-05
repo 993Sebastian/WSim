@@ -113,7 +113,7 @@ pub fn last_month(state: &GameState, catalog: &Catalog) -> Vec<ProductHealth> {
         if state.companies[site.owner.index()].bankrupt {
             continue;
         }
-        for sl in site.slots.iter().filter(|sl| sl.ready <= state.date) {
+        for sl in site.slots.iter().filter(|sl| sl.operating(state.date)) {
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };

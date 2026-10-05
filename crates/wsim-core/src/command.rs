@@ -5,6 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
 use crate::ids::{
     CountryId, DepositId, FacilityId, GoodsGroupId, Id, ProductId, RecipeId, TechnologyId,
@@ -14,8 +15,8 @@ use crate::message::{Message, Param, keys};
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup, SalesRule, Scope};
 use crate::state::{
-    CompanyId, Consignee, GameState, PerId, PriceMode, PurchaseOrder, SaleOffer, Shipment, Site,
-    SiteId, Slot,
+    CompanyId, Consignee, GameState, Operation, PerId, PriceMode, PurchaseOrder, SaleOffer,
+    Shipment, Site, SiteId, Slot,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -102,6 +103,23 @@ pub enum Command {
         site: SiteId,
         product: ProductId,
         price: Money,
+    },
+    /// Shuts down `count` units of a finished facility (M22): no production and staff,
+    /// less maintenance, no wear. Units of a larger facility become a facility of their
+    /// own (at the end of the site's list).
+    MothballFacility {
+        site: SiteId,
+        slot: usize,
+        count: u32,
+    },
+    /// Starts a shut down facility up again (M22); it produces after the restart time.
+    RestartFacility { site: SiteId, slot: usize },
+    /// Sells `count` units of a finished facility for part of their book value (M22).
+    /// Selling all units removes the facility; later facilities move up one place.
+    SellFacility {
+        site: SiteId,
+        slot: usize,
+        count: u32,
     },
 }
 
@@ -193,6 +211,14 @@ pub enum CommandError {
         from: String,
         to: String,
     },
+    /// The facility is not finished yet (M22).
+    UnderConstruction,
+    AlreadyMothballed,
+    NotMothballed,
+    /// More units than the facility has (M22).
+    TooManyUnits {
+        count: u32,
+    },
 }
 
 impl CommandError {
@@ -251,6 +277,12 @@ impl CommandError {
                 .with("produkt", Param::TextKey(format!("produkt.{product}")))
                 .with("von", Param::TextKey(format!("land.{from}")))
                 .with("nach", Param::TextKey(format!("land.{to}"))),
+            CommandError::UnderConstruction => e(keys::COMMAND_UNDER_CONSTRUCTION),
+            CommandError::AlreadyMothballed => e(keys::COMMAND_ALREADY_MOTHBALLED),
+            CommandError::NotMothballed => e(keys::COMMAND_NOT_MOTHBALLED),
+            CommandError::TooManyUnits { count } => {
+                e(keys::COMMAND_TOO_MANY_UNITS).with("anzahl", Param::Integer(i64::from(*count)))
+            }
         }
     }
 }
@@ -431,6 +463,7 @@ pub(crate) fn execute(
                     batches: Vec::new(),
                     last_runs: 0.0,
                     limit: None,
+                    operation: crate::state::Operation::Running,
                 });
         }
         Command::DevelopDeposit { site, deposit } => {
@@ -834,6 +867,108 @@ pub(crate) fn execute(
                 PriceMode::Market { floor, .. } => offer.price = (*price).max(*floor),
             }
         }
+        Command::MothballFacility { site, slot, count } => {
+            let sl = own_slot(state, actor, *site, *slot)?;
+            check_units(sl, *count, today)?;
+            if sl.mothballed() {
+                return Err(CommandError::AlreadyMothballed);
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            let shut = Operation::Mothballed { since: today };
+            let sl = &mut s.slots[*slot];
+            if *count == sl.count {
+                sl.operation = shut;
+                sl.last_runs = 0.0;
+                sl.limit = None;
+            } else {
+                // The shut units become a facility of their own; running batches stay.
+                let cost = sl.share_of_cost(*count);
+                let mut part = sl.clone();
+                sl.cost -= cost;
+                sl.count -= count;
+                part.count = *count;
+                part.cost = cost;
+                part.batches = Vec::new();
+                part.operation = shut;
+                part.last_runs = 0.0;
+                part.limit = None;
+                s.slots.push(part);
+            }
+            s.staffing_due = true;
+        }
+        Command::RestartFacility { site, slot } => {
+            let sl = own_slot(state, actor, *site, *slot)?;
+            if !sl.mothballed() {
+                return Err(CommandError::NotMothballed);
+            }
+            let model = &catalog.production_model;
+            let cost = sl.cost.scale(model.restart_cost_share);
+            let ledger = &mut state.company_mut(actor).expect("checked above").ledger;
+            if ledger.cash() < cost {
+                return Err(CommandError::NotEnoughCash { needed: cost });
+            }
+            ledger.expense(
+                CostType::Maintenance,
+                CostCenter::site(*site),
+                Account::Cash,
+                cost,
+            );
+            let until = today.add_days(i32::try_from(model.restart_days).unwrap_or(i32::MAX));
+            let s = state.site_mut(*site).expect("checked above");
+            s.slots[*slot].operation = Operation::Restarting { until };
+            s.staffing_due = true;
+        }
+        Command::SellFacility { site, slot, count } => {
+            let sl = own_slot(state, actor, *site, *slot)?;
+            check_units(sl, *count, today)?;
+            let (book, proceeds) = crate::production::sale_value(catalog, sl, *count, today);
+            let s = state.site_mut(*site).expect("checked above");
+            let open = if *count == s.slots[*slot].count {
+                s.slots.remove(*slot).batches
+            } else {
+                let sl = &mut s.slots[*slot];
+                let cost = sl.share_of_cost(*count);
+                sl.cost -= cost;
+                sl.count -= count;
+                Vec::new()
+            };
+            // Goods still in production of a facility that goes are finished at once.
+            crate::production::deliver(catalog, s, open);
+            s.staffing_due = true;
+            let ledger = &mut state.company_mut(actor).expect("checked above").ledger;
+            let center = CostCenter::site(*site);
+            // Loss (or gain) against the book value, then the proceeds for the rest.
+            if book > proceeds {
+                ledger.expense(
+                    CostType::Other,
+                    center,
+                    Account::FixedAssets,
+                    book - proceeds,
+                );
+            } else {
+                ledger.income(
+                    CostType::Other,
+                    center,
+                    Account::FixedAssets,
+                    proceeds - book,
+                );
+            }
+            ledger.transfer(Account::Cash, Account::FixedAssets, proceeds);
+        }
+    }
+    Ok(())
+}
+
+/// A shut down or sold part of a facility: finished, and not more units than it has.
+fn check_units(sl: &Slot, count: u32, today: Date) -> Result<(), CommandError> {
+    if sl.ready > today {
+        return Err(CommandError::UnderConstruction);
+    }
+    if count == 0 {
+        return Err(CommandError::InvalidQuantity);
+    }
+    if count > sl.count {
+        return Err(CommandError::TooManyUnits { count: sl.count });
     }
     Ok(())
 }

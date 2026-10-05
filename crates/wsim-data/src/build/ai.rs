@@ -121,6 +121,18 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             messages::range_inverted("lager_niedrig_tage", "lager_hoch_tage"),
         );
     }
+    if b.mothball_target_utilization >= b.restart_utilization {
+        ctx.error(
+            &bl.field("stilllegen_zielauslastung"),
+            messages::range_inverted("stilllegen_zielauslastung", "wiederanfahren_auslastung"),
+        );
+    }
+    if b.mothball_utilization >= b.mothball_target_utilization {
+        ctx.error(
+            &bl.field("stilllegen_auslastung"),
+            messages::range_inverted("stilllegen_auslastung", "stilllegen_zielauslastung"),
+        );
+    }
     if b.cash_min_months >= b.cash_max_months {
         ctx.error(
             &bl.field("kasse_min_monate"),
@@ -217,6 +229,33 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             b.founding_capital_factor,
             &bl.field("gruendung_kapitalfaktor"),
         ),
+        mothball_utilization: share(
+            ctx,
+            b.mothball_utilization,
+            &bl.field("stilllegen_auslastung"),
+        ),
+        mothball_target_utilization: in_range(
+            ctx,
+            b.mothball_target_utilization,
+            0.1,
+            1.0,
+            &bl.field("stilllegen_zielauslastung"),
+        ),
+        mothball_price_max: in_range(
+            ctx,
+            b.mothball_price_max,
+            0.1,
+            10.0,
+            &bl.field("stilllegen_preis_max"),
+        ),
+        restart_utilization: in_range(
+            ctx,
+            b.restart_utilization,
+            0.1,
+            1.0,
+            &bl.field("wiederanfahren_auslastung"),
+        ),
+        sell_after_months: b.sell_after_months,
     };
     let model = AiModel {
         default_companies: m.default_companies,

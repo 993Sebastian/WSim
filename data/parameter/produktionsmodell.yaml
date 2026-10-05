@@ -22,6 +22,17 @@ produktionsmodell:
   # Höchster Lohnaufschlag je Standort (1 = doppelter Lohn). Sind Arbeitskräfte knapp,
   # bekommen Standorte mit höherem Aufschlag sie zuerst und werben sie ab (M18).
   lohnaufschlag_max: 1.0
+  # Anlagen stilllegen und verkaufen (M22). Stillgelegte Anlagen kosten einen Teil der
+  # Wartung (Konservierung, Bewachung) und verschleißen nicht; das Wiederanfahren dauert
+  # und kostet einen kleinen Teil der Investition. Gebrauchte Anlagen bringen beim
+  # Verkauf einen Teil des Restbuchwerts, mindestens den Schrottwert.
+  stilllegung:
+    instandhaltung_anteil: 0.25
+    wiederanlauf_tage: 30
+    wiederanlauf_kosten: 0.02
+  verkauf:
+    erloes_anteil: 0.5
+    schrottwert: 0.03
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
   # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs

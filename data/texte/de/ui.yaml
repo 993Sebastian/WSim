@@ -95,6 +95,7 @@ uebersicht.umsatz: Umsatz je Monat
 uebersicht.ergebnis: Ergebnis je Monat
 uebersicht.keine_erzeugung: stellt nichts her
 uebersicht.anlagen: Anlagen
+uebersicht.davon_stillgelegt: "{anzahl} stillgelegt"
 uebersicht.davon_im_bau: "{anzahl} im Bau"
 uebersicht.hinweise_standort: "{anzahl} Hinweis(e) unter „Zu erledigen“"
 uebersicht.wettbewerb_hinweis: Die größten KI-Firmen nach Eigenkapital. Wer welchen Markt beherrscht, zeigt der Reiter Markt.
@@ -304,6 +305,27 @@ werk.auslastung: Geplante Auslastung
 werk.uebernehmen: Übernehmen
 werk.auslastung_bereich: Die Auslastung muss zwischen 0 und 100 % liegen.
 werk.anlage_geaendert: Gespeichert – gilt ab der nächsten Runde.
+werk.stilllegen_verkaufen: Stilllegen oder verkaufen
+werk.wartung_monat: Wartung je Monat
+werk.wartung_stillgelegt: "stillgelegt nur {betrag}"
+werk.restbuchwert: Restbuchwert
+werk.verkaufserloes: Erlös beim Verkauf
+werk.einheiten: Einheiten
+werk.von_einheiten: "von {anzahl}"
+werk.einheiten_bereich: "Bitte 1 bis {anzahl} Einheiten angeben."
+werk.stilllegen: Stilllegen
+werk.wieder_anfahren: "Wieder anfahren ({kosten})"
+werk.verkaufen: Verkaufen …
+werk.verkaufen_frage: "{anzahl} × {anlage} für {erloes} verkaufen? Das bringt {verlust} mehr als den Restbuchwert."
+werk.verkaufen_frage_verlust: "{anzahl} × {anlage} für {erloes} verkaufen? Das sind {verlust} weniger als der Restbuchwert (Verlust im Ergebnis)."
+werk.verkaufen_ja: Ja, verkaufen
+werk.abbrechen: Abbrechen
+werk.stillgelegt_seit: "stillgelegt seit {datum}"
+werk.wiederanlauf_bis: "fährt wieder an bis {datum}"
+werk.stillgelegt_meldung: "{anzahl} × {anlage} stillgelegt."
+werk.angefahren_meldung: "{anlage} fährt wieder an und produziert in {tage} Tagen."
+werk.verkauft_meldung: "{anzahl} × {anlage} für {erloes} verkauft."
+werk.abbau_erklaerung: "Stillgelegt erzeugt die Anlage nichts, braucht kein Personal und verschleißt nicht; die Abschreibung läuft weiter. Wieder anfahren dauert {tage} Tage und kostet {kosten}. Ein Verkauf bringt einen Teil des Restbuchwerts und ist endgültig."
 werk.bau_begonnen: "Bau von {anlage} begonnen; fertig in {tage} Tagen."
 werk.anlage: Anlage
 werk.investition: Investition
@@ -398,7 +420,11 @@ ursache.kein_rezept.hilfe: Ohne Rezept steht die Anlage still.
 ursache.ruht: Auslastung 0 %
 ursache.erschliessung: Lagerstätte in Erschließung
 ursache.erschliessung.hilfe: Die Förderung beginnt, sobald die Lagerstätte erschlossen ist.
-ursache.ruht.hilfe: Die Anlage ist stillgelegt.
+ursache.ruht.hilfe: Die geplante Auslastung ist 0 %. Die Anlage kostet weiter volle Wartung; stilllegen spart einen Teil davon.
+ursache.stillgelegt: stillgelegt
+ursache.stillgelegt.hilfe: Keine Erzeugung, kein Personal, kein Verschleiß und weniger Wartung. „Wieder anfahren“ macht die Anlage wieder einsatzbereit.
+ursache.wiederanlauf: fährt wieder an
+ursache.wiederanlauf.hilfe: Die Anlage wird wieder angefahren und produziert ab dem angegebenen Tag.
 
 # Markt
 markt.land: Land

@@ -57,7 +57,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
   await expect(naegel.getByText("15,5 t")).toBeVisible();
   await expect(naegel.getByText("Stückkosten", { exact: true })).toBeVisible();
-  await expect(naegel.getByText(/Marge 18 %/)).toBeVisible();
+  await expect(naegel.getByText(/Marge 16 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
   await werk.getByRole("button", { name: "Einkauf" }).click();
@@ -184,12 +184,36 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
-    // 1 932,4557 USD − 5 %, rounded to cents
-    { SetPrice: { site: 0, product: "naegel", price: 18_358_300 } },
+    // 1 932,48 USD − 5 %, rounded to cents
+    { SetPrice: { site: 0, product: "naegel", price: 18_358_600 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
     { SetWagePremium: { site: 0, premium: 0.125 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },
     { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
+  ]);
+});
+
+test("Anlagen lassen sich stilllegen und verkaufen", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Standorte" }).click();
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  const anlage = page.getByRole("article", { name: "Nagelmaschine" });
+  await anlage.getByText("Stilllegen oder verkaufen").click();
+  // What the machine is worth and what shutting it down saves.
+  await expect(anlage).toContainText("Restbuchwert");
+  await expect(anlage).toContainText("38.451 USD");
+  await expect(anlage).toContainText("19.226 USD");
+  await expect(anlage).toContainText("stillgelegt nur 25 USD");
+  await anlage.getByRole("button", { name: "Stilllegen" }).click();
+  // Selling asks first and names the loss against the book value.
+  await anlage.getByRole("button", { name: "Verkaufen …" }).click();
+  await expect(anlage.getByText(/weniger als der Restbuchwert/)).toBeVisible();
+  await anlage.getByRole("button", { name: "Abbrechen" }).click();
+  await anlage.getByRole("button", { name: "Verkaufen …" }).click();
+  await anlage.getByRole("button", { name: "Ja, verkaufen" }).click();
+  expect(await befehle(page)).toEqual([
+    { MothballFacility: { site: 0, slot: 0, count: 1 } },
+    { SellFacility: { site: 0, slot: 0, count: 1 } },
   ]);
 });
 
@@ -295,7 +319,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(titel("Dein erster Umsatz")).toBeVisible();
   await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
-  await expect(einfuehrung).toContainText("29.953 USD");
+  await expect(einfuehrung).toContainText("29.954 USD");
   await bild(page, "einfuehrung_bericht");
   await bericht.getByRole("button", { name: "Weiter" }).click();
   await expect(titel("Deine Firma läuft")).toBeVisible();

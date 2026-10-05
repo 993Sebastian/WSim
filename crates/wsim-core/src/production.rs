@@ -7,7 +7,7 @@ use crate::ids::{CountryId, Id, LaborGroupId, ProductId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
-use crate::state::{Batch, CompanyId, GameState, Limit, SiteId};
+use crate::state::{Batch, CompanyId, GameState, Limit, Operation, Site, SiteId, Slot};
 
 /// Working hours one employee provides per calendar day.
 pub fn hours_per_worker_day(catalog: &Catalog, date: Date) -> f64 {
@@ -176,6 +176,15 @@ fn feed_in(state: &mut GameState, catalog: &Catalog) {
 }
 
 fn complete_constructions(state: &mut GameState, catalog: &Catalog, date: Date) {
+    // Facilities started up again work from today on (M22).
+    for s in &mut state.sites {
+        for sl in &mut s.slots {
+            if matches!(sl.operation, Operation::Restarting { until } if until <= date) {
+                sl.operation = Operation::Running;
+                s.staffing_due = true;
+            }
+        }
+    }
     for site in 0..state.sites.len() {
         let owner = state.sites[site].owner;
         let finished: Money = state.sites[site]
@@ -229,7 +238,7 @@ fn planned_runs(
     let s = &state.sites[site.index()];
     let sl = &s.slots[slot];
     let recipe = sl.recipe?;
-    if sl.ready > date || sl.utilization <= 0.0 {
+    if !sl.operating(date) || sl.utilization <= 0.0 {
         return None;
     }
     if catalog.recipes.get(recipe).extraction {
@@ -331,7 +340,12 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
         };
         let mut sums: Vec<UnitCost> = Vec::new();
         for sl in &s.slots {
-            let Some(recipe) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+            // Shut down facilities make nothing (M22).
+            let Some(recipe) = sl
+                .recipe
+                .filter(|_| !sl.mothballed())
+                .map(|r| catalog.recipes.get(r))
+            else {
                 continue;
             };
             let f = catalog.facilities.get(sl.facility);
@@ -669,50 +683,66 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
 }
 
 fn finish_batches(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
-    let days = catalog.production_model.by_product_stock_days;
     let s = &mut state.sites[site.index()];
+    let mut done = Vec::new();
     for slot in &mut s.slots {
-        let (done, open): (Vec<Batch>, Vec<Batch>) =
+        let (finished, open): (Vec<Batch>, Vec<Batch>) =
             slot.batches.drain(..).partition(|b| b.finish <= date);
         slot.batches = open;
-        for batch in done {
-            // By-products beyond `days` of this output are disposed of (flared, dumped):
-            // a refinery does not store petrol nobody buys for decades (M16). The batch's
-            // value goes to what is kept.
-            let kept: Vec<(ProductId, f64)> = batch
-                .outputs
-                .iter()
-                .enumerate()
-                .map(|(i, &(product, quantity))| {
-                    if i == 0 {
-                        return (product, quantity);
-                    }
-                    let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
-                    (product, quantity.min((quantity * days - stock).max(0.0)))
-                })
-                .collect();
-            let kept: Vec<(ProductId, f64)> = kept
-                .into_iter()
-                .enumerate()
-                .filter(|&(i, (_, q))| i == 0 || q > 0.0)
-                .map(|(_, k)| k)
-                .collect();
-            let total: f64 = kept.iter().map(|(_, q)| q).sum();
-            let mut remaining = batch.value;
-            for (i, &(product, quantity)) in kept.iter().enumerate() {
-                let value = if i + 1 == kept.len() {
-                    remaining
-                } else {
-                    batch.value.scale(quantity / total)
-                };
-                remaining -= value;
-                s.inventory
-                    .entry(product)
-                    .or_default()
-                    .add(quantity, value, batch.quality);
-            }
+        done.extend(finished);
+    }
+    deliver(catalog, s, done);
+}
+
+/// Puts finished batches into the site's stock.
+pub(crate) fn deliver(catalog: &Catalog, s: &mut Site, batches: Vec<Batch>) {
+    let days = catalog.production_model.by_product_stock_days;
+    for batch in batches {
+        // By-products beyond `days` of this output are disposed of (flared, dumped): a
+        // refinery does not store petrol nobody buys for decades (M16). The batch's value
+        // goes to what is kept.
+        let kept: Vec<(ProductId, f64)> = batch
+            .outputs
+            .iter()
+            .enumerate()
+            .map(|(i, &(product, quantity))| {
+                if i == 0 {
+                    return (product, quantity);
+                }
+                let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
+                (product, quantity.min((quantity * days - stock).max(0.0)))
+            })
+            .collect();
+        let kept: Vec<(ProductId, f64)> = kept
+            .into_iter()
+            .enumerate()
+            .filter(|&(i, (_, q))| i == 0 || q > 0.0)
+            .map(|(_, k)| k)
+            .collect();
+        let total: f64 = kept.iter().map(|(_, q)| q).sum();
+        let mut remaining = batch.value;
+        for (i, &(product, quantity)) in kept.iter().enumerate() {
+            let value = if i + 1 == kept.len() {
+                remaining
+            } else {
+                batch.value.scale(quantity / total)
+            };
+            remaining -= value;
+            s.inventory
+                .entry(product)
+                .or_default()
+                .add(quantity, value, batch.quality);
         }
     }
+}
+
+/// Book value and sale proceeds of `units` of a facility on `date` (M22).
+pub fn sale_value(catalog: &Catalog, slot: &Slot, units: u32, date: Date) -> (Money, Money) {
+    let model = &catalog.production_model;
+    let f = catalog.facilities.get(slot.facility);
+    let book = slot.book_value(f.lifetime_years, units, date);
+    let scrap = slot.share_of_cost(units).scale(model.scrap_share);
+    (book, book.scale(model.sale_proceeds_share).max(scrap))
 }
 
 /// Wages, maintenance, depreciation and wear of one site for one day.
@@ -736,7 +766,13 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
             continue;
         }
         let f = catalog.facilities.get(sl.facility);
-        maintenance += sl.cost.scale(f.maintenance_share / 365.0);
+        // A shut down facility is kept, not run (M22).
+        let kept = if sl.mothballed() {
+            model.mothball_maintenance_share
+        } else {
+            1.0
+        };
+        maintenance += sl.cost.scale(f.maintenance_share * kept / 365.0);
         let life_days = f64::from(f.lifetime_years) * 365.0;
         if f64::from(sl.ready.days_until(date)) < life_days {
             depreciation += sl.cost.scale(1.0 / life_days);
@@ -780,9 +816,9 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         depreciation,
     );
 
-    // Wear: the condition falls linearly over the lifetime.
+    // Wear: the condition falls linearly over the lifetime, not while shut down.
     for sl in &mut state.sites[index].slots {
-        if sl.ready <= date {
+        if sl.ready <= date && !sl.mothballed() {
             let life_days = f64::from(catalog.facilities.get(sl.facility).lifetime_years) * 365.0;
             sl.condition = (sl.condition - 1.0 / life_days).max(model.condition_min);
         }

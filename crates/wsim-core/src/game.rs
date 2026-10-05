@@ -473,6 +473,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
             batches: Vec::new(),
             last_runs: 0.0,
             limit: None,
+            operation: crate::state::Operation::Running,
         })
         .collect();
     let offers = setup

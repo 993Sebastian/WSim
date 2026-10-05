@@ -28,4 +28,7 @@ export type Befehl =
   | { SetResearch: { site: number; technology: string | null } }
   | { SetAdvertising: { country: string; group: string; budget: number } }
   | { SetWagePremium: { site: number; premium: number } }
-  | { SetPrice: { site: number; product: string; price: number } };
+  | { SetPrice: { site: number; product: string; price: number } }
+  | { MothballFacility: { site: number; slot: number; count: number } }
+  | { RestartFacility: { site: number; slot: number } }
+  | { SellFacility: { site: number; slot: number; count: number } };

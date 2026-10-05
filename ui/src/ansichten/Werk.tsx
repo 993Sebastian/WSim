@@ -237,6 +237,13 @@ function AnlageKarte({
         {a.count > 1 ? `${a.count} × ` : ""}
         {name}
         {imBau && <small>{t("uebersicht.im_bau", { datum: formatDatum(a.ready) })}</small>}
+        {a.operation !== "laeuft" && a.operation_date && (
+          <small>
+            {t(a.operation === "stillgelegt" ? "werk.stillgelegt_seit" : "werk.wiederanlauf_bis", {
+              datum: formatDatum(a.operation_date),
+            })}
+          </small>
+        )}
       </h3>
       {a.product && (
         <p className="rezeptzeile">
@@ -297,7 +304,139 @@ function AnlageKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      {!imBau && <AnlageAbbau a={a} s={s} name={name} />}
     </article>
+  );
+}
+
+/**
+ * Shutting down, starting up again and selling (M22): with what each costs or brings,
+ * so that the player sees whether a facility is worth keeping.
+ */
+function AnlageAbbau({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name: string }) {
+  const { los, antwort } = useAktion(`abbau/${s.index}/${a.index}`);
+  const [einheiten, setEinheiten] = useState(String(a.count));
+  const [frage, setFrage] = useState(false);
+  const id = useId();
+  const k = Math.floor(zahlLesen(einheiten) ?? 0);
+  const gueltig = k >= 1 && k <= a.count;
+  const anteil = gueltig ? k / a.count : 0;
+  const erloes = a.sale_value_usd * anteil;
+  const buchwert = a.book_value_usd * anteil;
+  const befehl = (art: "MothballFacility" | "SellFacility") =>
+    art === "MothballFacility"
+      ? { MothballFacility: { site: s.index, slot: a.index, count: k } }
+      : { SellFacility: { site: s.index, slot: a.index, count: k } };
+  return (
+    <details className="anlage-abbau">
+      <summary>{t("werk.stilllegen_verkaufen")}</summary>
+      <dl className="werte">
+        <dt>{t("werk.wartung_monat")}</dt>
+        <dd>
+          {formatGeld(a.maintenance_month_usd)}
+          <small className="feld-hilfe">
+            {t("werk.wartung_stillgelegt", {
+              betrag: formatGeld(a.maintenance_mothballed_month_usd),
+            })}
+          </small>
+        </dd>
+        <dt>{t("werk.restbuchwert")}</dt>
+        <dd>{formatGeld(a.book_value_usd)}</dd>
+        <dt>{t("werk.verkaufserloes")}</dt>
+        <dd>{formatGeld(a.sale_value_usd)}</dd>
+      </dl>
+      {a.count > 1 && (
+        <ZahlFeld
+          name={t("werk.einheiten")}
+          einheit={t("werk.von_einheiten", { anzahl: a.count })}
+          wert={einheiten}
+          onWert={(w) => {
+            setEinheiten(w);
+            setFrage(false);
+          }}
+        />
+      )}
+      {!gueltig && <p className="fehlertext">{t("werk.einheiten_bereich", { anzahl: a.count })}</p>}
+      {frage ? (
+        <div className="bestaetigung" role="group" aria-labelledby={`${id}-frage`}>
+          <p id={`${id}-frage`}>
+            {t(buchwert > erloes ? "werk.verkaufen_frage_verlust" : "werk.verkaufen_frage", {
+              anzahl: k,
+              anlage: name,
+              erloes: formatGeld(erloes),
+              verlust: formatGeld(Math.abs(buchwert - erloes)),
+            })}
+          </p>
+          <div className="knopfreihe links">
+            <button
+              type="button"
+              className="gefahr"
+              onClick={() => {
+                setFrage(false);
+                void los(
+                  [befehl("SellFacility")],
+                  t("werk.verkauft_meldung", {
+                    anzahl: k,
+                    anlage: name,
+                    erloes: formatGeld(erloes),
+                  }),
+                );
+              }}
+            >
+              {t("werk.verkaufen_ja")}
+            </button>
+            <button type="button" className="schlicht" onClick={() => setFrage(false)}>
+              {t("werk.abbrechen")}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="knopfreihe links">
+          {a.operation === "laeuft" && (
+            <button
+              type="button"
+              disabled={!gueltig}
+              onClick={() =>
+                void los(
+                  [befehl("MothballFacility")],
+                  t("werk.stillgelegt_meldung", { anzahl: k, anlage: name }),
+                )
+              }
+            >
+              {t("werk.stilllegen")}
+            </button>
+          )}
+          {a.operation === "stillgelegt" && (
+            <button
+              type="button"
+              onClick={() =>
+                void los(
+                  [{ RestartFacility: { site: s.index, slot: a.index } }],
+                  t("werk.angefahren_meldung", { anlage: name, tage: a.restart_days }),
+                )
+              }
+            >
+              {t("werk.wieder_anfahren", { kosten: formatGeld(a.restart_cost_usd) })}
+            </button>
+          )}
+          <button
+            type="button"
+            className="schlicht"
+            disabled={!gueltig}
+            onClick={() => setFrage(true)}
+          >
+            {t("werk.verkaufen")}
+          </button>
+        </div>
+      )}
+      <p className="erklaerung">
+        {t("werk.abbau_erklaerung", {
+          tage: a.restart_days,
+          kosten: formatGeld(a.restart_cost_usd),
+        })}
+      </p>
+      <Rueckmeldung meldung={antwort} />
+    </details>
   );
 }
 

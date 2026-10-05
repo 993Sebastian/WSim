@@ -84,7 +84,7 @@ pub(crate) fn wanted_researchers(
     }
     s.slots
         .iter()
-        .filter(|sl| sl.ready <= date)
+        .filter(|sl| sl.operating(date))
         .map(|sl| catalog.facilities.get(sl.facility).runs_per_day * sl.utilization)
         .sum()
 }

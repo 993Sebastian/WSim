@@ -801,7 +801,7 @@ fn clear_market(
                 match offer.mode {
                     PriceMode::Fixed(price) => offer.price = price,
                     PriceMode::Market { floor, .. } => {
-                        offer.price = adjust_price(model, offer.price, scarce, slow)
+                        offer.price = adjust_price(model, offer.price, (scarce, slow), reference)
                             .min(max_price)
                             .max(floor)
                             .max(Money::from_units(1));
@@ -810,7 +810,8 @@ fn clear_market(
             }
             // Traders compete: their price falls to cost plus margin unless goods are scarce.
             Seller::Importer => {
-                import_price = Some(adjust_price(model, o.price, scarce, !scarce).min(max_price));
+                import_price =
+                    Some(adjust_price(model, o.price, (scarce, !scarce), reference).min(max_price));
             }
             Seller::StateMarket => {}
         }
@@ -855,7 +856,7 @@ fn utilization(
     let (planned, full) = state.sites[site.index()]
         .slots
         .iter()
-        .filter(|sl| sl.ready <= date)
+        .filter(|sl| sl.operating(date))
         .filter_map(|sl| {
             let r = catalog.recipes.get(sl.recipe?);
             (r.product == product).then(|| {
@@ -881,7 +882,7 @@ fn production_rate(
     state.sites[site.index()]
         .slots
         .iter()
-        .filter(|sl| sl.ready <= date)
+        .filter(|sl| sl.operating(date))
         .filter_map(|sl| {
             let r = catalog.recipes.get(sl.recipe?);
             let per_run = if r.product == product {
@@ -904,9 +905,17 @@ fn note_unmet(limit: &mut Option<Money>, price: Money) {
     *limit = Some(limit.map_or(price, |l| l.max(price)));
 }
 
-fn adjust_price(model: &MarketModel, price: Money, scarce: bool, slow: bool) -> Money {
+fn adjust_price(
+    model: &MarketModel,
+    price: Money,
+    (scarce, slow): (bool, bool),
+    reference: Money,
+) -> Money {
     if scarce {
-        price.scale(1.0 + model.price_step_up)
+        // Far below its reference price a scarce good catches up faster (M22): after a
+        // glut (petrol around 1910) the price would otherwise need years to recover.
+        let gap = (reference.to_usd() / price.to_usd().max(1e-9)).clamp(1.0, model.catch_up_max);
+        price.scale(1.0 + model.price_step_up * gap)
     } else if slow {
         price.scale(1.0 - model.price_step_down)
     } else {

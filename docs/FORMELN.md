@@ -998,3 +998,119 @@ Simulation und stehen nicht im Spielstand.
 - „Kaufkraft 2026“ zeigt die Landeswährung des Basisjahrs (in Deutschland den Euro):
   Eine Mark oder Reichsmark „mit der Kaufkraft von 2026“ gibt es nicht. Die damaligen
   Währungen mit ihren Umstellungen erscheinen mit „Preise der Zeit“.
+
+## M22 – Anlagen stilllegen und verkaufen
+
+Lastenheft §18.3. Parameter: `data/parameter/produktionsmodell.yaml` (`stilllegung`,
+`verkauf`), für die KI `data/parameter/kimodell.yaml` (`stilllegen_auslastung`,
+`stilllegen_zielauslastung`, `verkaufen_nach_monaten`). Spieler und KI nutzen dieselben
+Befehle.
+
+- **Stilllegen** (`MothballFacility`, *k* der *n* Einheiten einer Anlage): Sind es nicht
+  alle, werden die *k* Einheiten ein eigener Platz mit dem Anteil *k*/*n* der Investition,
+  gleichem Zustand, Rezept und gleicher Automatisierung; laufende Chargen bleiben beim
+  weiterlaufenden Teil. Eine stillgelegte Anlage produziert nicht, braucht kein Personal
+  (es wird bei der nächsten Besetzung frei) und verschleißt nicht. Sie kostet
+  `stilllegung.instandhaltung_anteil` · Wartung; die Abschreibung läuft weiter.
+- **Wieder anfahren** (`RestartFacility`): kostet einmalig
+  `stilllegung.wiederanlauf_kosten` · Investition (Instandhaltung) und dauert
+  `stilllegung.wiederanlauf_tage` Tage mit voller Wartung; danach produziert die Anlage
+  mit Rezept und Auslastung von vorher.
+- **Verkaufen** (`SellFacility`, *k* Einheiten). Mit dem Alter seit der Fertigstellung:
+
+      Restbuchwert RBW = Investition · k/n · max(0, 1 − Alter / Lebensdauer)
+      Erlös E         = max(verkauf.erloes_anteil · RBW, verkauf.schrottwert · Investition · k/n)
+
+  Buchung: Kasse + E, Anlagen − RBW, die Differenz E − RBW als sonstiger Ertrag bzw.
+  Aufwand. Laufende Chargen einer ganz verkauften Anlage werden sofort fertig (die Ware
+  kommt ins Lager).
+- Anlagen im Bau lassen sich weder stilllegen noch verkaufen.
+- **KI** am letzten Tag jedes Quartals, vor dem Ausbau, je Standort und angebotenem
+  Produkt (ohne Strom, Forschung und Förderung – Förderanlagen hängen an ihrer
+  Konzession; Waren, die die Firma nur selbst verwendet oder zu eigenen Standorten
+  schickt, misst kein Absatz):
+  - Abgang *A* je Tag = Verkäufe des Vormonats und des laufenden Monats / (30 + Tage)
+    + Verbrauch eigener Anlagen am Standort (wie beim Betrieb), *V* = Vollleistung der
+    laufenden Einheiten, *n* ihre Zahl, Bedarf *d* = *A* / *V*.
+  - **Wieder anfahren:** Ist *d* größer als `wiederanfahren_auslastung` und läuft keine
+    Einheit des Produkts gerade wieder an, fährt die KI stillgelegte Einheiten wieder an,
+    bis *A* höchstens `stilllegen_zielauslastung` · (laufende + anlaufende Vollleistung)
+    ist.
+  - **Stilllegen:** Ist *d* kleiner als `stilllegen_auslastung` und der Marktpreis im
+    Land unter `stilllegen_preis_max` · Richtpreis, legt sie die Einheiten still, die
+    bei `stilllegen_zielauslastung` (*Z*) nicht gebraucht werden: *n* − ⌈*n* · *d* / *Z*⌉,
+    mindestens eine bleibt. Die teuersten Anlagen (Stückkosten bei voller Auslastung)
+    zuerst. Die übrigen fahren mit der bisherigen geplanten Auslastung · *n* /
+    (verbleibende Einheiten) weiter, damit die Erzeugung nicht einbricht.
+  - Warum so: Der erste Weltlauf maß die geplante Auslastung statt des Abgangs und
+    kannte keine Preisbedingung – alle Anbieter knapper Märkte legten zugleich still,
+    Baumwolle, Garn, Stoff, Kleidung, Getreide und Mehl stiegen auf das Drei- bis
+    Vierfache. Ein Wiederanfahren bei jeder Betriebsentscheidung ließ Anlagen im
+    Tagesrhythmus pendeln (1 730 Stilllegungen und 1 286 Wiederanläufe in zwölf Jahren);
+    vierteljährlich mit Abstand zwischen 0,5 und 0,95 sind es rund 850 und 300.
+  - Wählt der Ausbau ein Produkt, von dem am Standort Einheiten stillliegen, fährt sie
+    zuerst diese wieder an; solange welche wieder anlaufen, baut sie dafür nicht aus.
+  - Einheiten, die länger als `verkaufen_nach_monaten` stillliegen, verkauft sie.
+  - Legt ein Wettbewerber Anlagen eines Produkts still oder verkauft er sie, das der
+    Spieler herstellt oder anbietet, steht das im Rundenbericht.
+
+### Preise holen nach einer Schwemme auf
+
+Ein knapper Anbieter (ausverkauft, ein Käufer hätte mehr gezahlt, siehe M16) erhöht
+seinen automatischen Preis je Tag um
+
+    hoch · clamp(Richtpreis im Land / Preis, 1, aufholen_max)
+
+Liegt der Preis über dem Richtpreis, bleibt es bei `hoch` (0,25 % je Tag). Darunter
+steigt er schneller, höchstens um `hoch` · `aufholen_max` (5 % je Tag bei
+`aufholen_max` 20). Anlass: Nach der Benzinschwemme um 1910 lag Benzin 1929 noch bei
+einem Dreitausendstel des Richtpreises, obwohl es knapp war – mit 8 % im Monat braucht
+ein Preis für den Faktor 3 000 rund neun Jahre, und die Anbieter legten ihre Anlagen
+inzwischen still (M22). Parameter: `marktmodell.preisanpassung.aufholen_max`.
+
+### Nebenprodukte, Benzin und neue Verfahren (Balance-Runde M22)
+
+- **Untergrenze für Nebenprodukte (KI):** Nebenprodukte haben keine eigenen Kosten. Die
+  KI verkauft sie nicht unter ihrem Wert als Brennstoff:
+
+      Untergrenze = Heizwert · min über andere Brennstoffe b (Marktpreis_b im Land / Heizwert_b)
+
+  Brennstoffe sind Produkte mit `heizwert_mwh`; ohne Heizwert ist die Untergrenze 0.
+  Benzin (12,2 MWh/t) kostet so mindestens, was dieselbe Wärme aus Kohle kostet (60 USD
+  je 8,1 MWh): rund 90 USD/t, ein Zehntel des Richtpreises. Vorher fiel es mit
+  Untergrenze 0 auf 0,3 Cent je Tonne.
+- **Übrige Verwendung von Benzin:** `staatsnachfrage` 0,15 t je Mio. USD BIP für
+  Lösungsmittel, Gaskocher und Gasmaschinen, Stationär- und Bootsmotoren, Heer und
+  Marine (wie bei Gummi). 1900 sind das weltweit rund 50 000 t (Maßstab 0,1), 1929 rund
+  100 000 t; dazu kommt der Verbrauch der Autos.
+- **KI erkennt Nebenprodukte als Erzeugung:** Ob eine Ware „auf Halde liegt“ (Lager über
+  `lager_hoch_tage` der Erzeugung), zählt auch, was als Nebenprodukt entsteht. Benzin aus
+  den Raffinerien galt sonst immer als Halde, und niemand baute Crackanlagen.
+- **Vorprodukte auf Halde sind kein Engpass:** Bei der Suche nach einer Lücke folgt die
+  KI einem knappen Vorprodukt nur, wenn es nicht irgendwo auf Halde liegt; dann fehlt
+  Handel, keine Erzeugung. Rohöl lag in Lagern, galt aber wegen der Einfuhren als
+  knapp – und lenkte jede Benzin-Gelegenheit auf Ölfelder ohne freie Konzession.
+- **Neue Verfahren der eigenen Forschung:** Firmen, die in ein neues Produkt einsteigen,
+  nutzen alle Verfahren, die sie kennen – auch selbst erforschte, die noch nicht
+  gemeinfrei sind (`gemeingut_nach_jahren` 25). Vorher konnten nur Neugründungen mit
+  gemeinfreien Verfahren einsteigen; das Burton-Cracken von 1913 kam so erst 1938.
+
+Weltlauf 1900–1930 (100 KI-Firmen, Seed 1) gegen den Stand von M21:
+
+| Prüfung bzw. Wert | M21 | M22 |
+| --- | --- | --- |
+| Produkte mit zehn oder mehr Jahren Überkapazität | 30 | 23 |
+| Verstöße „Preis gegen Richtpreis“ | 146 | 137 |
+| Verstöße „Versorgung je Land“ | 334 | 328 |
+| Benzin 1929: Preis / Richtpreis | 0,00 | 1,18 |
+| Autoreifen 1929: Marge über Vollkosten | 49 % | 14 % |
+| Pleiten bis 1929 | 13 | 4 |
+| KI-Firmen mit Gewinn 1929 | 81 | 86 |
+| Verstöße „Förderung gegen Bedarf der Anlagen“ | 26 | 90 |
+
+Benzin fällt bis 1904 auf 0,16–0,2 × Richtpreis (Untergrenze Brennwert) und bleibt dort
+bis 1922; 1923–1926 wird es knapp (bis 2,1 ×) und ist ab 1927 voll versorgt, nachdem ab 1925 Crackanlagen laufen –
+wie die Benzinknappheit der frühen 1920er-Jahre, die das Cracken durchsetzte. Mehr
+Verstöße bei der Förderung (schlechtester Wert 74 %, Kupfererz): Mit weniger
+Überkapazität laufen die Anlagen näher an ihrer Grenze, und ihr Einkauf schwankt stärker
+als die Förderung.

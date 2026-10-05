@@ -39,6 +39,8 @@ export interface Anlage {
   utilization: number;
   ready: string;
   output_per_day: number;
+  /** Shut down (M22). */
+  mothballed: boolean;
 }
 
 export interface Standort {
@@ -287,6 +289,18 @@ export interface AnlageDetail {
   condition: number;
   /** [product, quantity per day at the planned utilization] */
   inputs_per_day: [string, number][];
+  /** Running, shut down or starting up again (M22). */
+  operation: "laeuft" | "stillgelegt" | "wiederanlauf";
+  /** Shut down since, or producing again from. */
+  operation_date: string | null;
+  /** Book value of all units and what selling them brings now. */
+  book_value_usd: number;
+  sale_value_usd: number;
+  restart_cost_usd: number;
+  restart_days: number;
+  /** Maintenance per month while running and while shut down. */
+  maintenance_month_usd: number;
+  maintenance_mothballed_month_usd: number;
 }
 
 export interface Angebot {

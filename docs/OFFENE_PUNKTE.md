@@ -164,11 +164,12 @@ bei Bedarf widersprechen) · ❓ offen
     - Gummi ist 1902–1911 knapp (Kautschuk bis 2 × Richtpreis), bis die Plantagen in
       Malaya liefern – historisch richtig (Kautschukboom 1910).
     - Das Auto bleibt kleiner als in Wirklichkeit: 1929 etwa 0,7 Mio. statt 5 Mio. Autos
-      im Jahr (hochgerechnet), Benzin fällt als Nebenprodukt deshalb bis 1929 nicht knapp.
-      Die Preiserholung eines zusammengebrochenen Nebenprodukts (Benzin) ist ungelöst:
-      Ein Mindestschritt nach dem Richtpreis wurde erprobt und verworfen, weil er die
-      Preisschwankungen im ersten Jahr verstärkte. Vorschlag für später: Benzin als
-      eigenes Produkt der Crackanlagen über die Gelegenheitssuche der KI.
+      im Jahr (hochgerechnet). ✅ Benzin gelöst mit M22 (Punkt 42): Untergrenze nach dem
+      Brennwert, übrige Verwendung als Nachfrage, Crackanlagen ab 1925.
+    - Die Kautschukförderung fällt 1903–1911 auf 40–75 % der Kapazität, obwohl Kautschuk
+      das Zwei- bis Dreifache des Richtpreises kostet (schon vor M22). Gummi ist dadurch
+      knapper als nötig. Ursache noch nicht gefunden; Vorschlag: bei der nächsten
+      Balance-Runde prüfen.
 39. 🟡 **Pacht und Förderabgaben (Nacharbeit zu M16).** Rohstoffe zahlen je geförderter
     Einheit einen Anteil ihres Richtpreises im Land (`pacht_anteil`): Baumwolle 0,5,
     Getreide und Rohöl 0,45, Kautschuk 0,4, Kupfererz 0,35, Holz 0,2, Eisenerz 0,15,
@@ -190,11 +191,20 @@ bei Bedarf widersprechen) · ❓ offen
     Preisuntergrenze, Ausbau erst über der Normalauslastung (beides ohne Verbesserung im
     Weltlauf).
 
+42. 🟡 **Nebenprodukte und neue Verfahren (M22).** (a) Die KI verkauft Nebenprodukte
+    nicht unter ihrem Brennwert (Wärme zum Preis des billigsten anderen Brennstoffs im
+    Land; Benzin rund 0,1 × Richtpreis). (b) Benzin hat eine übrige Verwendung als
+    Staatsnachfrage (0,15 t je Mio. USD BIP; Lösungsmittel, Kocher, Motoren, Heer).
+    (c) KI-Firmen steigen mit allen Verfahren, die sie kennen, in neue Produkte ein,
+    nicht nur mit gemeinfreien. (d) Nebenprodukte zählen als Erzeugung, Vorprodukte auf
+    Halde nicht als Engpass. Ergebnis: Benzin 1929 bei 1,18 × Richtpreis statt 0,00,
+    Crackanlagen ab 1925 (Formeln: `docs/FORMELN.md`, M22).
+
 ## E Vorschläge für die nächsten Meilensteine (05.10.2026)
 
 Auftrag: „Wenn du mit meinen letzten Anforderungen durch bist, überlege, wie du das Spiel
-besser machen kannst.“ Alle Punkte sind ❓ offen: Umsetzung erst nach Freigabe, die
-Reihenfolge ist die Empfehlung.
+besser machen kannst.“ ✅ Alle acht Punkte sind freigegeben (05.10.2026, Lastenheft
+§18.3) und werden als M22–M29 in dieser Reihenfolge umgesetzt.
 
 Grundlage ist ein Weltlauf 1900–1930 mit Stand M21 (100 KI-Firmen, Seed 1; Protokoll mit
 `wsim run --ki 100 --bis 1930-01-01 --protokoll <Ordner>`). Die Prüfungen stehen wie nach
@@ -215,7 +225,7 @@ keine Pleitewellen. Dazu kamen diese Befunde:
 - **Rechenzeit:** 30 Jahre dauern 6 Minuten (Release, ein Kern). Im Browser braucht eine
   Monatsrunde mit 100 KI-Firmen rund 1,9 s.
 
-1. ❓ **Anlagen stilllegen und verkaufen (Spieler und KI).**
+1. ✅ **Anlagen stilllegen und verkaufen (Spieler und KI).**
    - Neue Befehle: eine Anlage vorübergehend stilllegen (geringe Fixkosten, später
      wieder anfahren) oder verkaufen bzw. abreißen (Restwert mit Abschlag).
    - Die KI legt Anlagen still, die über längere Zeit Verlust machen. Das senkt die
@@ -223,7 +233,7 @@ keine Pleitewellen. Dazu kamen diese Befunde:
    - Der Spieler kann so Fehlentscheidungen korrigieren und Geld aus schwachen
      Standorten ziehen.
    - Danach eine Balance-Runde für Benzin, Gummi und Reifen.
-2. ❓ **Etappenziele nach der Einführung.** Die Einführung endet mit dem ersten Verkauf;
+2. ✅ **Etappenziele nach der Einführung.** Die Einführung endet mit dem ersten Verkauf;
    danach fehlt eine Richtung.
    - Abwählbare Etappen in der Übersicht, jeweils mit Hinweis, wie man sie erreicht
      („Nächste Etappe: erster Monat mit Gewinn – so geht's …“).
@@ -231,29 +241,29 @@ keine Pleitewellen. Dazu kamen diese Befunde:
      erste eigene Forschung, Marktführer in einem Land, Eigenkapital verdoppelt.
    - Erreichte Etappen erscheinen als Erfolg im Rundenbericht.
    - Etappen als Daten, die Bewertung als Sicht im Kern, ohne Wirkung auf die Simulation.
-3. ❓ **Wettbewerb und Preise im Verlauf (§13.2, §14.2).**
+3. ✅ **Wettbewerb und Preise im Verlauf (§13.2, §14.2).**
    - Rundenbericht: Preissenkungen der Konkurrenz, neue und ausgeschiedene Anbieter in
      den eigenen Märkten.
    - Markt: Preisverlauf je Produkt und Land über 24 Monate, dazu der eigene
      Marktanteil im Verlauf.
    - Braucht eine kleine Monatsreihe je Markt im Spielstand (neue Formatversion).
-4. ❓ **Ansicht Produktionsketten (§14.1).** Je Endprodukt die Kette bis zu den
+4. ✅ **Ansicht Produktionsketten (§14.1).** Je Endprodukt die Kette bis zu den
    Rohstoffen:
    - Verfahren und Anlage je Stufe.
    - Richtpreis gegen geschätzte Stückkosten im Land des Firmensitzes.
    - Was der Spieler selbst herstellt oder kauft, und wo es hakt.
    - Beantwortet „Was lohnt sich als Nächstes, und was brauche ich dafür?“.
-5. ❓ **Weiterlaufen bis …** Mehrere Runden am Stück, bis zum Jahresende oder bis zur
+5. ✅ **Weiterlaufen bis …** Mehrere Runden am Stück, bis zum Jahresende oder bis zur
    nächsten Warnung bzw. zum nächsten Weltereignis. Spart Klicks, solange alles läuft.
-6. ❓ **Ursachen erklären (§14.3).** Tooltips zerlegen einen Wert in seine Teile:
+6. ✅ **Ursachen erklären (§14.3).** Tooltips zerlegen einen Wert in seine Teile:
    - Marktpreis aus Richtpreis und Knappheit.
    - Stückkosten aus Material, Personal, Energie und Anlage.
    - Nachfrage aus Bevölkerung, Einkommen und Sättigung.
-7. ❓ **Geschichte erzählen.**
+7. ✅ **Geschichte erzählen.**
    - Währungsreformen als Meldung im Rundenbericht („Ab Dezember 1923 rechnet
      Deutschland in Reichsmark, 1 RM = 1 Billion Mark“).
    - Weltereignisse 1940–2026 als Meldungen; ihre Wirkungen folgen weiter mit Stufe 4.
-8. ❓ **Rang in der Übersicht.** Platz der eigenen Firma unter allen Firmen nach
+8. ✅ **Rang in der Übersicht.** Platz der eigenen Firma unter allen Firmen nach
    Eigenkapital und Umsatz, mit der Veränderung zum Vorjahr.
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte

@@ -838,6 +838,7 @@ fn found_company(
                 batches: Vec::new(),
                 last_runs: 0.0,
                 limit: None,
+                operation: crate::state::Operation::Running,
             });
             let flows = slot_flows(
                 catalog,

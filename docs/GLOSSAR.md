@@ -192,3 +192,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Kaufkraft 2026 / Preise der Zeit | `MoneyOptions::home_base`, `lead_base` / `home_then`, `lead_then`; UI: `GeldWahl.preise` (`basis`, `zeit`) |
 | Betrag in der gezeigten Währung, zurück in Spieldollar (UI) | `inAnzeige`, `ausAnzeige`, `geldFeld`, `geldEinheit` |
 | Währungen eines Landes im Länderdetail, Kurs der Zeit | `CountryDetail::currencies` (`CurrencyPeriodView`), `currency_per_usd`, `CurrencyModel::periods_of` |
+| Stilllegen, wieder anfahren, verkaufen (Anlage) | `Command::MothballFacility`, `RestartFacility`, `SellFacility` (M22) |
+| Betriebszustand einer Anlage (läuft, stillgelegt, fährt wieder an) | `state::Operation` (`Running`, `Mothballed`, `Restarting`), `Slot::operating` |
+| Restbuchwert, Verkaufserlös, Schrottwert | `Slot::book_value`, `production::sale_value`, `ProductionModel::scrap_share` (`verkauf.schrottwert`) |
+| Überkapazität abbauen, wieder anfahren (KI) | `ai::retire`, `ai::restart_where_short`, `ai::output_and_offtake`, `AiBehavior::mothball_utilization`, `mothball_target_utilization`, `mothball_price_max`, `restart_utilization`, `sell_after_months` |
+| Aufholen knapper Preise unter dem Richtpreis | `MarketModel::catch_up_max` (`preisanpassung.aufholen_max`), `market::adjust_price` |
+| Untergrenze eines Nebenprodukts nach dem Brennwert (KI) | `ai::fuel_value` (`heizwert_mwh`) |
+| Gelegenheit für eine Firma mit ihren Verfahren | `ai::opportunity` (`builder`) |

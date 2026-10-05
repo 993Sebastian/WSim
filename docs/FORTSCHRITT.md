@@ -30,9 +30,17 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M19 | Technologiebaum: Technologien, Verfahren, Produkte und Anlagen | ✅ |
 | M20 | Geführte Einführung bis zum ersten Verkauf | ✅ |
 | M21 | Landeswährungen: Kaufkraft 2026 oder Preise der Zeit | ✅ |
+| M22 | Anlagen stilllegen und verkaufen; Balance-Runde | ✅ |
+| M23 | Etappenziele | offen |
+| M24 | Wettbewerb und Preise im Verlauf | offen |
+| M25 | Produktionsketten | offen |
+| M26 | Weiterlaufen bis … | offen |
+| M27 | Ursachen erklären | offen |
+| M28 | Geschichte erzählen | offen |
+| M29 | Rang in der Übersicht | offen |
 
-Nächste Schritte: Vorschläge zur Verbesserung mit Befunden aus dem Weltlauf stehen in
-`docs/OFFENE_PUNKTE.md`, Abschnitt E; sie warten auf die Freigabe des Auftraggebers.
+Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
+§18.3) und werden als M22–M29 in dieser Reihenfolge umgesetzt.
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -600,3 +608,48 @@ Eigenständige Entscheidungen:
     Cruzado novo, Syli, Ekwele); bei gespaltenen Kursen gilt der Kurs, zu dem
     tatsächlich gehandelt wurde. Annahmen stehen als Kommentar in den Daten.
   - Außerhalb einer Partie (Neues Spiel, Startkapital) bleibt die Anzeige in US-Dollar.
+
+### M22: Anlagen stilllegen und verkaufen (05.10.2026)
+
+Vorschlag 1 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E (freigegeben, Lastenheft §18.3).
+Formeln: `docs/FORMELN.md`, M22.
+
+  - **Befehle für Spieler und KI:** Anlagen ganz oder teilweise (Zahl der Einheiten)
+    stilllegen, wieder anfahren oder verkaufen. Stillgelegt: keine Erzeugung, kein
+    Personal, kein Verschleiß, ein Viertel der Wartung. Wieder anfahren: 2 % der
+    Investition, 30 Tage. Verkauf: halber Restbuchwert, mindestens 3 % der Investition
+    als Schrottwert; Gewinn oder Verlust gegen den Buchwert wird gebucht.
+  - **Werksansicht:** „Stilllegen oder verkaufen“ unter jeder Anlage mit Wartung,
+    Restbuchwert, Erlös und Rückfrage vor dem Verkauf; stillgelegte Anlagen zeigen
+    „stillgelegt seit …“ und „Wieder anfahren“. Die Übersicht zählt stillgelegte Anlagen;
+    die Ursache „stillgelegt“ bzw. „fährt wieder an“ steht beim Engpass.
+  - **KI:** vierteljährlich je Standort und Produkt nach dem Abgang: unter der Hälfte der
+    Leistung und bei einem Preis unter dem Richtpreis legt sie still, über 95 % fährt sie
+    wieder an (Abstand gegen Pendeln); nach 24 Monaten Stillstand verkauft sie. Der
+    Rundenbericht meldet, wenn ein Wettbewerber in den Märkten des Spielers stilllegt
+    oder verkauft.
+  - **Balance-Runde** (Weltlauf 1900–1930 gegen M21): Überkapazität über zehn Jahre bei 23
+    statt 30 Produkten, Benzin 1929 bei 1,18 statt 0,00 × Richtpreis, Autoreifen ohne
+    Monopolmarge (14 % statt 49 %), 4 statt 13 Pleiten. Dazu: knappe Waren weit unter dem
+    Richtpreis holen schneller auf; Nebenprodukte nicht unter ihrem Brennwert; Benzin mit
+    übriger Verwendung; die KI baut ab 1925 Crackanlagen (Tabelle in FORMELN).
+  - Tests: sieben Szenariotests der Befehle (Kosten, Buchung, Teilstilllegung, Prüfung,
+    Speichern und Wiederholen), vier KI-Tests (Stilllegen und Verkauf, Untergrenze nach
+    dem Brennwert), Prüfregeln der neuen Parameter, Vorschau (Stilllegen, Verkaufen mit
+    Rückfrage) und Browser-Version mit echtem Kern (Stilllegen und wieder anfahren).
+
+Eigenständige Entscheidungen:
+
+  - Verkaufserlös und Kosten des Stillstands sind Annahmen (Parameter in
+    `data/parameter/produktionsmodell.yaml`); der Spieler bekommt dieselben Bedingungen
+    wie die KI.
+  - Förderanlagen legt die KI nicht still (sie hängen an ihrer Konzession), Strom und
+    Forschung ebenfalls nicht; der Spieler darf alle Anlagen stilllegen.
+  - Die Prüfung „Förderung gegen Bedarf der Anlagen“ zeigt mehr Verstöße (26 → 90,
+    schlechtester Wert 74 %): Ohne Überkapazität schwankt der Einkauf der Anlagen
+    stärker als die Förderung. Hingenommen, weil die Märkte selbst besser versorgt sind.
+  - Benzins übrige Verwendung läuft wie bei Gummi über die Staatsnachfrage, bis
+    Lösungsmittel und Motoren eigene Abnehmer bekommen.
+  - Gummi bleibt 1902–1912 knapp (Kautschukboom); dass die Kautschukförderung dabei unter
+    ihre Kapazität fällt, ist als offener Punkt 38 vermerkt.
+

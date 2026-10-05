@@ -35,6 +35,8 @@ pub mod views;
 #[cfg(test)]
 mod determinism_tests;
 #[cfg(test)]
+mod facility_tests;
+#[cfg(test)]
 mod finance_tests;
 #[cfg(test)]
 mod market_tests;

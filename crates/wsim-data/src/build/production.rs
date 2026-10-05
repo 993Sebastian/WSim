@@ -160,6 +160,35 @@ pub(super) fn production_model(
             5.0,
             &l.field("lohnaufschlag_max"),
         ),
+        mothball_maintenance_share: in_range(
+            ctx,
+            m.mothballing.maintenance_share,
+            0.0,
+            1.0,
+            &l.field("stilllegung").field("instandhaltung_anteil"),
+        ),
+        restart_days: m.mothballing.restart_days,
+        restart_cost_share: in_range(
+            ctx,
+            m.mothballing.restart_cost_share,
+            0.0,
+            1.0,
+            &l.field("stilllegung").field("wiederanlauf_kosten"),
+        ),
+        sale_proceeds_share: in_range(
+            ctx,
+            m.facility_sale.proceeds_share,
+            0.0,
+            1.0,
+            &l.field("verkauf").field("erloes_anteil"),
+        ),
+        scrap_share: in_range(
+            ctx,
+            m.facility_sale.scrap_share,
+            0.0,
+            1.0,
+            &l.field("verkauf").field("schrottwert"),
+        ),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
     }
 }
@@ -381,6 +410,13 @@ pub(super) fn market_model(
             1.0,
             1000.0,
             &adjust.field("hoechstfaktor"),
+        ),
+        catch_up_max: in_range(
+            ctx,
+            m.price_adjustment.catch_up_max,
+            1.0,
+            1000.0,
+            &adjust.field("aufholen_max"),
         ),
         state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
         price_level_share: per_kind(

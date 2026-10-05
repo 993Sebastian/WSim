@@ -159,6 +159,9 @@ pub struct FacilityView {
     pub ready: String,
     /// Units made on the last day.
     pub output_per_day: f64,
+    /// Shut down (M22).
+    #[serde(default)]
+    pub mothballed: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -285,6 +288,7 @@ fn company_view(game: &Game) -> CompanyView {
                         utilization: sl.utilization,
                         ready: iso(sl.ready),
                         output_per_day: recipe.map_or(0.0, |r| sl.last_runs * r.output),
+                        mothballed: sl.mothballed(),
                     }
                 })
                 .collect(),

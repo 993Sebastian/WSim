@@ -408,6 +408,55 @@ pub struct Slot {
     /// What held the facility below its plan on the last production day.
     #[serde(default)]
     pub limit: Option<Limit>,
+    /// Running, shut down or starting up again (M22).
+    #[serde(default)]
+    pub operation: Operation,
+}
+
+/// Whether a finished facility works (M22).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Operation {
+    #[default]
+    Running,
+    /// Shut down since the day: no production, no staff, no wear, less maintenance.
+    Mothballed { since: Date },
+    /// Starting up again; produces from the day on.
+    Restarting { until: Date },
+}
+
+impl Slot {
+    /// Whether the facility can produce on `date`: built, not shut down, started up.
+    pub fn operating(&self, date: Date) -> bool {
+        self.ready <= date
+            && match self.operation {
+                Operation::Running => true,
+                Operation::Mothballed { .. } => false,
+                Operation::Restarting { until } => until <= date,
+            }
+    }
+
+    pub fn mothballed(&self) -> bool {
+        matches!(self.operation, Operation::Mothballed { .. })
+    }
+
+    /// Book value of `units` of the facility on `date`: the investment less straight-line
+    /// depreciation since it was finished (M22).
+    pub fn book_value(&self, lifetime_years: u32, units: u32, date: Date) -> Money {
+        let life_days = f64::from(lifetime_years.max(1)) * 365.0;
+        let age = f64::from(self.ready.days_until(date).max(0));
+        self.share_of_cost(units)
+            .scale((1.0 - age / life_days).max(0.0))
+    }
+
+    /// The investment of `units` of the facility's units.
+    pub fn share_of_cost(&self, units: u32) -> Money {
+        if units >= self.count {
+            self.cost
+        } else {
+            self.cost
+                .scale(f64::from(units) / f64::from(self.count.max(1)))
+        }
+    }
 }
 
 /// What kept a facility below its planned production (shown as cause in the UI).

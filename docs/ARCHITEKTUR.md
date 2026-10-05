@@ -300,6 +300,14 @@ mit dem Meilenstein freigegeben.
 | M19 | Technologiebaum (05.10.2026) | Technologien, Verfahren, Produkte und Anlagen mit Abhängigkeiten und Status | Kern-Tests der Sicht, Playwright |
 | M20 | Tutorial (05.10.2026) | Geführte Schritte mit hervorgehobenen Schaltflächen bis zum ersten Verkauf | Playwright-Durchlauf bis zum Verkauf |
 | M21 | Landeswährungen (05.10.2026) | Währungen je Land und Zeitraum, Anzeige in Kaufkraft 2026 oder zeitgenössisch | Prüfregeln, Umrechnungstests, Playwright |
+| M22 | Anlagen stilllegen und verkaufen (05.10.2026, §18.3) | Befehle für Spieler und KI, Restwert, KI baut Überkapazität ab; Balance-Runde | Szenariotests, Weltlauf-Protokoll, Playwright |
+| M23 | Etappenziele | Etappen als Daten, Bewertung im Kern, Anzeige in Übersicht und Rundenbericht | Kern-Tests, Playwright |
+| M24 | Wettbewerb und Preise im Verlauf | Monatsreihen je Markt, Konkurrenzmeldungen, Verlaufsdiagramme | Kern-Tests, Spielstand-Umwandlung, Playwright |
+| M25 | Produktionsketten | Ketten je Endprodukt mit Kosten, eigener Abdeckung und Engpässen | Kern-Tests, Playwright |
+| M26 | Weiterlaufen bis … | Mehrere Runden bis Jahresende oder zur nächsten Warnung | Sitzungs-Tests, Playwright |
+| M27 | Ursachen erklären | Bestandteile von Preis, Kosten und Nachfrage als Erklärung | Kern-Tests (Teile ergeben das Ganze), Playwright |
+| M28 | Geschichte erzählen | Meldungen zu Währungsreformen, Weltereignisse 1940–2026 | Prüfregeln, Kern-Tests |
+| M29 | Rang | Platz nach Eigenkapital und Umsatz mit Vorjahresvergleich | Kern-Tests, Playwright |
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.

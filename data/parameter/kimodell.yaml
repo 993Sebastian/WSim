@@ -79,3 +79,15 @@ kimodell:
     gruendungen_je_monat: 2
     diversifikationen_je_quartal: 4                   # reiche Firmen bauen in fremden Engpässen
     gruendung_kapitalfaktor: 1.5
+    # Überkapazität abbauen (M22): Liegt der Abgang (Verkauf und Eigenverbrauch) eines
+    # angebotenen Produkts am Standort zum Quartalsende unter stilllegen_auslastung der
+    # Vollleistung (und der Preis im Land unter dem Richtpreis · stilllegen_preis_max),
+    # werden die Einheiten stillgelegt, die bei der Zielauslastung nicht gebraucht werden;
+    # nach so vielen Monaten Stillstand verkauft. Förderanlagen bleiben. Übersteigt der
+    # Abgang wiederanfahren_auslastung der laufenden Vollleistung, fährt die KI zum
+    # Quartalsende stillgelegte Anlagen wieder an, bis die Zielauslastung erreicht ist.
+    stilllegen_auslastung: 0.5
+    stilllegen_zielauslastung: 0.8
+    stilllegen_preis_max: 1.0          # nur wo das Produkt unter seinem Richtpreis verkauft wird
+    wiederanfahren_auslastung: 0.95    # Abgang über diesem Anteil der laufenden Vollleistung: Anlagen laufen wieder an
+    verkaufen_nach_monaten: 24

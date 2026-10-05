@@ -293,6 +293,17 @@ pub struct AiBehavior {
     /// Rich companies that build in another company's bottleneck per quarter.
     pub diversifications_per_quarter: u32,
     pub founding_capital_factor: f64,
+    /// Below this planned utilization of a product at a site the AI shuts down the
+    /// units it does not need at the target utilization (M22).
+    pub mothball_utilization: f64,
+    pub mothball_target_utilization: f64,
+    /// Only below this price (× reference price in the country) (M22).
+    pub mothball_price_max: f64,
+    /// A shut down facility starts up again when more than this share of the running
+    /// facilities' full output is taken (M22).
+    pub restart_utilization: f64,
+    /// Units shut down for longer than this are sold (M22).
+    pub sell_after_months: u32,
 }
 
 impl Default for AiModel {
@@ -364,6 +375,11 @@ impl Default for AiModel {
                 foundings_per_month: 2,
                 diversifications_per_quarter: 4,
                 founding_capital_factor: 1.5,
+                mothball_utilization: 0.5,
+                mothball_target_utilization: 0.8,
+                mothball_price_max: 1.0,
+                restart_utilization: 0.95,
+                sell_after_months: 24,
             },
         }
     }
@@ -564,6 +580,9 @@ pub struct MarketModel {
     pub normal_utilization: f64,
     /// Automatic prices stay below this multiple of the local reference price.
     pub price_max_factor: f64,
+    /// A scarce good far below its reference price rises faster: the upward step times
+    /// the gap (reference / price), at most this factor (M22).
+    pub catch_up_max: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
     /// How far a country's price level carries into the prices of goods, per product
@@ -648,6 +667,7 @@ impl Default for MarketModel {
             stock_days: 30.0,
             normal_utilization: 0.85,
             price_max_factor: 20.0,
+            catch_up_max: 20.0,
             state_price_cap: 1.5,
             price_level_share: [1.0; 5],
             index_smoothing: 0.1,
@@ -689,6 +709,15 @@ pub struct ProductionModel {
     pub by_product_stock_days: f64,
     /// Highest wage premium of a site (M18).
     pub wage_premium_max: f64,
+    /// Shut down facilities: share of the maintenance they still cost, days and cost
+    /// (share of the investment) of a restart (M22).
+    pub mothball_maintenance_share: f64,
+    pub restart_days: u32,
+    pub restart_cost_share: f64,
+    /// Sold facilities: proceeds as share of the book value, at least the scrap value
+    /// as share of the investment (M22).
+    pub sale_proceeds_share: f64,
+    pub scrap_share: f64,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
 }
@@ -751,6 +780,11 @@ impl Default for ProductionModel {
             reference_margin: (0.05, 0.45),
             by_product_stock_days: 90.0,
             wage_premium_max: 1.0,
+            mothball_maintenance_share: 0.25,
+            restart_days: 30,
+            restart_cost_share: 0.02,
+            sale_proceeds_share: 0.5,
+            scrap_share: 0.03,
             start_setups: Vec::new(),
         }
     }

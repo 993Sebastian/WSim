@@ -15,6 +15,10 @@ marktmodell:
     lagertage: 30
     auslastung_normal: 0.85       # darunter sinkt der Preis auch: freie Anlagen werben um Kunden (M16)
     hoechstfaktor: 4              # nie über dem 4-Fachen des Richtpreises im Land (M15)
+    # Ist eine Ware knapp, liegt ihr Preis aber weit unter dem Richtpreis (nach einer
+    # Schwemme, z. B. Benzin um 1910), steigt er um „hoch“ · (Richtpreis / Preis), höchstens
+    # um das Vielfache „aufholen_max“ (M22). Sonst bräuchte er Jahre, um aufzuholen.
+    aufholen_max: 20
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
   # Wie weit das Preisniveau eines Landes die Preise der Waren bestimmt (0: Weltpreis, 1: voll),
   # je Produktart (M16). Waren werden gehandelt und kosten überall ähnlich viel; nur der Anteil

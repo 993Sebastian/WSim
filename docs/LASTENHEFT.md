@@ -528,6 +528,21 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.3 Entscheidungen vom 05.10.2026 (Verbesserungen)
+
+Die acht Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, werden umgesetzt
+(Meilensteine M22–M29):
+
+- Anlagen lassen sich stilllegen und verkaufen, vom Spieler und von der KI; danach eine
+  Balance-Runde (Überkapazität, Benzin, Gummi, Reifen).
+- Etappenziele nach der Einführung.
+- Wettbewerb und Preise im Verlauf (Rundenbericht, Preis- und Anteilsverlauf im Markt).
+- Ansicht Produktionsketten (§14.1).
+- Weiterlaufen bis zum Jahresende oder zur nächsten Warnung.
+- Erklärungen, aus welchen Teilen sich ein Wert zusammensetzt (§14.3).
+- Geschichte erzählen: Währungsreformen und Weltereignisse bis 2026 als Meldungen.
+- Rang der eigenen Firma in der Übersicht.
+
 ### 18.2 Entscheidungen vom 05.10.2026
 
 - **Browser-Version:** Neben dem Windows-Programm gibt es eine Browser-Version zum Prüfen

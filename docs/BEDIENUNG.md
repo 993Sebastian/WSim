@@ -99,6 +99,11 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   - **Anlagen:** je Anlage Rezept (Eingänge → Ausgang je Tag), Auslastung (Regler),
     Ist/Plan, Engpass mit Ursache in Worten, Zustand; „Anlage bauen“ als Auswahl mit
     Leistung, Personal, Investition, Bauzeit.
+  - **Stilllegen oder verkaufen** (M22): aufklappbar unter jeder fertigen Anlage. Zeigt
+    Wartung im Betrieb und stillgelegt, Restbuchwert und Verkaufserlös; die Zahl der
+    Einheiten ist wählbar. Verkaufen fragt nach, bei einem Erlös unter dem Restbuchwert
+    mit dem Verlust. Eine stillgelegte Anlage zeigt „stillgelegt seit …“ und „Wieder
+    anfahren“ mit Kosten und Dauer; die Übersicht zählt stillgelegte Anlagen.
   - **Einkauf:** je Vorprodukt Bedarf/Tag, Lager, Reichweite (Ampel), Marktpreis,
     Ziellager (Tage oder Menge) und Höchstpreis mit eigener Beschriftung.
   - **Verkauf:** je Erzeugnis Lager, Absatz Vormonat, **Stückkosten**, eigener Preis,

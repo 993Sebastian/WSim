@@ -152,6 +152,7 @@ export function UebersichtAnsicht({
               ...new Set(s.facilities.map((a) => a.product).filter((p): p is string => !!p)),
             ];
             const imBau = s.facilities.filter((a) => a.ready > uebersicht.date).length;
+            const still = s.facilities.filter((a) => a.mothballed).reduce((n, a) => n + a.count, 0);
             const probleme = uebersicht.hints.filter((h) => h.site === s.index).length;
             return (
               <article key={s.index} className="karte standortkarte" aria-label={titel}>
@@ -169,6 +170,7 @@ export function UebersichtAnsicht({
                   <dd>
                     {formatZahl(s.facilities.reduce((n, a) => n + a.count, 0))}
                     {imBau > 0 && ` (${t("uebersicht.davon_im_bau", { anzahl: imBau })})`}
+                    {still > 0 && ` (${t("uebersicht.davon_stillgelegt", { anzahl: still })})`}
                   </dd>
                   <dt>{t("werk.beschaeftigte")}</dt>
                   <dd>{formatZahl(s.workers, s.workers >= 10 ? 0 : 1)}</dd>
