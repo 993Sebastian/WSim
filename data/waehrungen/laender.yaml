@@ -1,0 +1,970 @@
+# Währungen der Länder (Lastenheft §3.6, §18.2; M21). Formatbeschreibung:
+# docs/DATENFORMAT.md. Länder gelten in heutigen Grenzen (wie alle Länderdaten).
+#
+# Jeder Zeitraum gilt ab dem ersten Tag des Jahres bzw. Monats bis zum nächsten.
+# Vor einer eigenen Landeswährung gilt die Währung der Kolonial- oder Vormacht;
+# Annahmen stehen als Kommentar am Land.
+landeswaehrungen:
+  - land: AFG  # Afghanistan – Kabul-Rupie bis 1925
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1925, waehrung: afghani_alt}
+      - {ab: 2002, waehrung: afghani}
+  - land: AGO  # Angola – portugiesische Kolonie bis 1975
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1977, waehrung: kwanza_alt}
+      - {ab: 1999, waehrung: kwanza}
+  - land: ALB  # Albanien – 1913–1925 Goldfranken (Annahme: Kurs wie Schweizer Franken)
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1913, waehrung: franken_schweiz}
+      - {ab: 1926, waehrung: lek}
+  - land: AND  # Andorra – Franc und Peseta im Umlauf, Peseta angenommen
+    perioden:
+      - {ab: 1900, waehrung: peseta}
+      - {ab: 1999, waehrung: euro}
+  - land: ARE  # Vereinigte Arabische Emirate – Golf-Rupie bis 1966
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1966, waehrung: riyal_katar_dubai}
+      - {ab: 1973, waehrung: dirham_vae}
+  - land: ARG  # Argentinien
+    perioden:
+      - {ab: 1900, waehrung: peso_moneda_nacional}
+      - {ab: 1970, waehrung: peso_ley}
+      - {ab: "1983-06", waehrung: peso_argentino}
+      - {ab: "1985-06", waehrung: austral}
+      - {ab: 1992, waehrung: peso_argentinien}
+  - land: ARM  # Armenien
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-11", waehrung: dram}
+  - land: ATG  # Antigua und Barbuda
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: AUS  # Australien
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1910, waehrung: pfund_australien}
+      - {ab: "1966-02", waehrung: australischer_dollar}
+  - land: AUT  # Österreich
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1925, waehrung: schilling}
+      - {ab: "1938-03", waehrung: reichsmark}
+      - {ab: "1945-12", waehrung: schilling}
+      - {ab: 1999, waehrung: euro}
+  - land: AZE  # Aserbaidschan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1992-08", waehrung: manat_aserbaidschan_alt}
+      - {ab: 2006, waehrung: manat_aserbaidschan}
+  - land: BDI  # Burundi – Deutsch-Ostafrika bis 1916, dann belgisch
+    perioden:
+      - {ab: 1900, waehrung: rupie_ostafrika_deutsch}
+      - {ab: 1916, waehrung: franc_kongo_belgisch}
+      - {ab: 1964, waehrung: franc_burundi}
+  - land: BEL  # Belgien
+    perioden:
+      - {ab: 1900, waehrung: franc_belgien}
+      - {ab: 1999, waehrung: euro}
+  - land: BEN  # Benin – Französisch-Dahomey
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: BFA  # Burkina Faso
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: BGD  # Bangladesch
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1948, waehrung: rupie_pakistan}
+      - {ab: 1972, waehrung: taka}
+  - land: BGR  # Bulgarien
+    perioden:
+      - {ab: 1900, waehrung: lew_alt}
+      - {ab: 1999, waehrung: lew}
+      - {ab: 2026, waehrung: euro}
+  - land: BHR  # Bahrain
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1965, waehrung: dinar_bahrain}
+  - land: BHS  # Bahamas
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1966, waehrung: bahama_dollar}
+  - land: BIH  # Bosnien und Herzegowina – 1994–1998 vor allem D-Mark im Umlauf
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1994, waehrung: d_mark}
+      - {ab: "1998-06", waehrung: konvertible_mark}
+  - land: BLR  # Belarus
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1992, waehrung: rubel_belarus_alt}
+      - {ab: "2016-07", waehrung: rubel_belarus}
+  - land: BLZ  # Belize – Britisch-Honduras-Dollar
+    perioden:
+      - {ab: 1900, waehrung: belize_dollar}
+  - land: BOL  # Bolivien
+    perioden:
+      - {ab: 1900, waehrung: boliviano_alt}
+      - {ab: 1963, waehrung: peso_boliviano}
+      - {ab: 1987, waehrung: boliviano}
+  - land: BRA  # Brasilien – Cruzado novo 1989 und Cruzeiro real 1993 zusammengefasst
+    perioden:
+      - {ab: 1900, waehrung: mil_reis}
+      - {ab: "1942-11", waehrung: cruzeiro}
+      - {ab: 1967, waehrung: cruzeiro_novo}
+      - {ab: "1986-03", waehrung: cruzado}
+      - {ab: "1990-03", waehrung: cruzeiro_1990}
+      - {ab: "1994-07", waehrung: real}
+  - land: BRB  # Barbados
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+      - {ab: 1973, waehrung: barbados_dollar}
+  - land: BRN  # Brunei
+    perioden:
+      - {ab: 1900, waehrung: straits_dollar}
+      - {ab: 1967, waehrung: brunei_dollar}
+  - land: BTN  # Bhutan
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1974, waehrung: ngultrum}
+  - land: BWA  # Botswana
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1923, waehrung: pfund_suedafrika}
+      - {ab: 1961, waehrung: rand}
+      - {ab: 1976, waehrung: pula}
+  - land: CAF  # Zentralafrikanische Republik
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: CAN  # Kanada
+    perioden:
+      - {ab: 1900, waehrung: dollar_kanada}
+  - land: CHE  # Schweiz
+    perioden:
+      - {ab: 1900, waehrung: franken_schweiz}
+  - land: CHL  # Chile
+    perioden:
+      - {ab: 1900, waehrung: peso_chile_alt}
+      - {ab: 1960, waehrung: escudo_chile}
+      - {ab: "1975-09", waehrung: peso_chile}
+  - land: CHN  # China – Silberwährung bis 1935; Renminbi 1949–1954 in neuen Yuan gerechnet
+    perioden:
+      - {ab: 1900, waehrung: yuan_silber}
+      - {ab: "1935-11", waehrung: fabi}
+      - {ab: 1949, waehrung: renminbi}
+  - land: CIV  # Elfenbeinküste
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: CMR  # Kamerun – deutsche Kolonie bis 1916
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1916, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: COD  # Demokratische Republik Kongo
+    perioden:
+      - {ab: 1900, waehrung: franc_kongo_belgisch}
+      - {ab: 1960, waehrung: franc_kongo_alt}
+      - {ab: 1967, waehrung: zaire}
+      - {ab: 1993, waehrung: neuer_zaire}
+      - {ab: "1998-07", waehrung: franc_kongo}
+  - land: COG  # Republik Kongo
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: COL  # Kolumbien
+    perioden:
+      - {ab: 1900, waehrung: peso_kolumbien}
+  - land: COM  # Komoren
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+      - {ab: 1981, waehrung: franc_komoren}
+  - land: CPV  # Kap Verde
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1977, waehrung: escudo_kap_verde}
+  - land: CRI  # Costa Rica
+    perioden:
+      - {ab: 1900, waehrung: colon_costa_rica}
+  - land: CUB  # Kuba
+    perioden:
+      - {ab: 1900, waehrung: us_dollar}
+      - {ab: 1914, waehrung: peso_kuba}
+  - land: CYP  # Zypern
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1960, waehrung: pfund_zypern}
+      - {ab: 2008, waehrung: euro}
+  - land: CZE  # Tschechien
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1919, waehrung: krone_tschechoslowakei}
+      - {ab: 1993, waehrung: krone_tschechien}
+  - land: DEU  # Deutschland – Rentenmark ab November 1923 als Reichsmark gerechnet; Grenzen von heute, daher D-Mark ab 1948
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: "1923-12", waehrung: reichsmark}
+      - {ab: "1948-06", waehrung: d_mark}
+      - {ab: 1999, waehrung: euro}
+  - land: DJI  # Dschibuti
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1949, waehrung: franc_dschibuti}
+  - land: DMA  # Dominica
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: DNK  # Dänemark
+    perioden:
+      - {ab: 1900, waehrung: krone_daenemark}
+  - land: DOM  # Dominikanische Republik – vor 1905 unsichere eigene Pesos, US-Dollar angenommen
+    perioden:
+      - {ab: 1900, waehrung: us_dollar}
+      - {ab: 1947, waehrung: peso_dominikanisch}
+  - land: DZA  # Algerien
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1960, waehrung: neuer_franc}
+      - {ab: 1964, waehrung: dinar_algerien}
+  - land: ECU  # Ecuador
+    perioden:
+      - {ab: 1900, waehrung: sucre}
+      - {ab: "2000-09", waehrung: us_dollar}
+  - land: EGY  # Ägypten
+    perioden:
+      - {ab: 1900, waehrung: pfund_aegypten}
+  - land: ERI  # Eritrea – italienische Kolonie bis 1941
+    perioden:
+      - {ab: 1900, waehrung: lira}
+      - {ab: 1941, waehrung: schilling_ostafrika}
+      - {ab: 1952, waehrung: birr}
+      - {ab: 1997, waehrung: nakfa}
+  - land: ESH  # Westsahara
+    perioden:
+      - {ab: 1900, waehrung: peseta}
+      - {ab: 1976, waehrung: dirham_marokko}
+  - land: ESP  # Spanien
+    perioden:
+      - {ab: 1900, waehrung: peseta}
+      - {ab: 1999, waehrung: euro}
+  - land: EST  # Estland
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1919, waehrung: estnische_mark}
+      - {ab: 1928, waehrung: kroon_alt}
+      - {ab: 1940, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1992-06", waehrung: kroon}
+      - {ab: 2011, waehrung: euro}
+  - land: ETH  # Äthiopien
+    perioden:
+      - {ab: 1900, waehrung: taler_maria_theresia}
+      - {ab: 1945, waehrung: birr}
+  - land: FIN  # Finnland
+    perioden:
+      - {ab: 1900, waehrung: markka_alt}
+      - {ab: 1963, waehrung: markka}
+      - {ab: 1999, waehrung: euro}
+  - land: FJI  # Fidschi – Fidschi-Pfund vor 1969 wie Pfund Sterling gerechnet
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1969, waehrung: fidschi_dollar}
+  - land: FRA  # Frankreich
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1960, waehrung: neuer_franc}
+      - {ab: 1999, waehrung: euro}
+  - land: FSM  # Mikronesien – deutsch bis 1914, japanisch bis 1945
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: yen}
+      - {ab: 1945, waehrung: us_dollar}
+  - land: GAB  # Gabun
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: GBR  # Vereinigtes Königreich
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+  - land: GEO  # Georgien
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1995, waehrung: lari}
+  - land: GHA  # Ghana – Goldküste: Westafrikanisches Pfund, ab 1958 Ghana-Pfund zum gleichen Kurs
+    perioden:
+      - {ab: 1900, waehrung: pfund_westafrika}
+      - {ab: 1965, waehrung: cedi_alt}
+      - {ab: 2007, waehrung: cedi}
+  - land: GIN  # Guinea – Syli 1972–1985 als Guinea-Franc gerechnet
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+      - {ab: 1959, waehrung: franc_guinea}
+  - land: GMB  # Gambia
+    perioden:
+      - {ab: 1900, waehrung: pfund_westafrika}
+      - {ab: 1971, waehrung: dalasi}
+  - land: GNB  # Guinea-Bissau
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1976, waehrung: peso_guinea_bissau}
+      - {ab: 1997, waehrung: franc_cfa}
+  - land: GNQ  # Äquatorialguinea – Ekwele 1975–1985 als Peseta gerechnet
+    perioden:
+      - {ab: 1900, waehrung: peseta}
+      - {ab: 1985, waehrung: franc_cfa}
+  - land: GRC  # Griechenland
+    perioden:
+      - {ab: 1900, waehrung: drachme_alt}
+      - {ab: 1954, waehrung: drachme}
+      - {ab: 2001, waehrung: euro}
+  - land: GRD  # Grenada
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: GTM  # Guatemala
+    perioden:
+      - {ab: 1900, waehrung: peso_guatemala}
+      - {ab: 1925, waehrung: quetzal}
+  - land: GUY  # Guyana
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: guyana_dollar}
+  - land: HND  # Honduras
+    perioden:
+      - {ab: 1900, waehrung: peso_honduras}
+      - {ab: 1931, waehrung: lempira}
+  - land: HRV  # Kroatien
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1994, waehrung: kuna}
+      - {ab: 2023, waehrung: euro}
+  - land: HTI  # Haiti
+    perioden:
+      - {ab: 1900, waehrung: gourde}
+  - land: HUN  # Ungarn
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1919, waehrung: korona_ungarn}
+      - {ab: 1927, waehrung: pengoe}
+      - {ab: "1946-08", waehrung: forint}
+  - land: IDN  # Indonesien – Niederländisch-Indien bis 1949; japanische Besatzung nicht eigens abgebildet
+    perioden:
+      - {ab: 1900, waehrung: gulden_indien}
+      - {ab: 1950, waehrung: rupiah}
+  - land: IND  # Indien
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+  - land: IRL  # Irland
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1928, waehrung: irisches_pfund}
+      - {ab: 1999, waehrung: euro}
+  - land: IRN  # Iran – Kran bis 1932 als Rial gerechnet; ab 1980 freie Kurse
+    perioden:
+      - {ab: 1900, waehrung: rial_iran}
+  - land: IRQ  # Irak
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: rupie_indien}
+      - {ab: 1932, waehrung: dinar_irak}
+  - land: ISL  # Island
+    perioden:
+      - {ab: 1900, waehrung: krone_daenemark}
+      - {ab: 1918, waehrung: krone_island_alt}
+      - {ab: 1981, waehrung: krone_island}
+  - land: ISR  # Israel
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: pfund_aegypten}
+      - {ab: 1927, waehrung: pfund_palaestina}
+      - {ab: "1948-08", waehrung: pfund_israel}
+      - {ab: 1980, waehrung: schekel_alt}
+      - {ab: "1985-09", waehrung: schekel}
+  - land: ITA  # Italien
+    perioden:
+      - {ab: 1900, waehrung: lira}
+      - {ab: 1999, waehrung: euro}
+  - land: JAM  # Jamaika
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1969, waehrung: jamaika_dollar}
+  - land: JOR  # Jordanien
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: pfund_aegypten}
+      - {ab: 1927, waehrung: pfund_palaestina}
+      - {ab: "1950-07", waehrung: dinar_jordanien}
+  - land: JPN  # Japan
+    perioden:
+      - {ab: 1900, waehrung: yen}
+  - land: KAZ  # Kasachstan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-11", waehrung: tenge}
+  - land: KEN  # Kenia
+    perioden:
+      - {ab: 1900, waehrung: rupie_ostafrika}
+      - {ab: 1921, waehrung: schilling_ostafrika}
+      - {ab: 1966, waehrung: schilling_kenia}
+  - land: KGZ  # Kirgisistan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-05", waehrung: som_kirgisistan}
+  - land: KHM  # Kambodscha
+    perioden:
+      - {ab: 1900, waehrung: piaster_indochina}
+      - {ab: 1955, waehrung: riel}
+  - land: KIR  # Kiribati
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1966, waehrung: australischer_dollar}
+  - land: KNA  # St. Kitts und Nevis
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: KOR  # Südkorea – Koreanischer Won 1902–1910 und japanische Herrschaft: Yen
+    perioden:
+      - {ab: 1900, waehrung: yen}
+      - {ab: 1945, waehrung: won_alt}
+      - {ab: 1962, waehrung: won}
+  - land: KWT  # Kuwait
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1961, waehrung: dinar_kuwait}
+  - land: LAO  # Laos
+    perioden:
+      - {ab: 1900, waehrung: piaster_indochina}
+      - {ab: 1955, waehrung: kip}
+  - land: LBN  # Libanon
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: pfund_aegypten}
+      - {ab: 1920, waehrung: pfund_syrien_libanon}
+      - {ab: 1939, waehrung: pfund_libanon}
+  - land: LBR  # Liberia – britische Münzen bis 1943
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1943, waehrung: liberia_dollar}
+  - land: LBY  # Libyen
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1912, waehrung: lira}
+      - {ab: 1943, waehrung: pfund_aegypten}
+      - {ab: 1951, waehrung: pfund_libyen}
+      - {ab: 1971, waehrung: dinar_libyen}
+  - land: LCA  # St. Lucia
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: LIE  # Liechtenstein
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1921, waehrung: franken_schweiz}
+  - land: LKA  # Sri Lanka
+    perioden:
+      - {ab: 1900, waehrung: rupie_ceylon}
+  - land: LSO  # Lesotho
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1923, waehrung: pfund_suedafrika}
+      - {ab: 1961, waehrung: rand}
+      - {ab: 1980, waehrung: loti}
+  - land: LTU  # Litauen
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1922, waehrung: litas_alt}
+      - {ab: 1940, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-06", waehrung: litas}
+      - {ab: 2015, waehrung: euro}
+  - land: LUX  # Luxemburg – im deutschen Zollverein bis 1918
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1919, waehrung: franc_luxemburg}
+      - {ab: 1999, waehrung: euro}
+  - land: LVA  # Lettland
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1922, waehrung: lats_alt}
+      - {ab: 1940, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1993, waehrung: lats}
+      - {ab: 2014, waehrung: euro}
+  - land: MAR  # Marokko – Hassani-Rial und spanische Münzen vor 1920 als Franc gerechnet
+    perioden:
+      - {ab: 1900, waehrung: franc_marokko}
+      - {ab: 1960, waehrung: dirham_marokko}
+  - land: MCO  # Monaco
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1960, waehrung: neuer_franc}
+      - {ab: 1999, waehrung: euro}
+  - land: MDA  # Moldau – Bessarabien 1918–1940 rumänisch
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1918, waehrung: leu_alt}
+      - {ab: 1940, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-11", waehrung: leu_moldau}
+  - land: MDG  # Madagaskar – Madagaskar-Franc ab 1973 in Ariary gerechnet
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+      - {ab: 1973, waehrung: ariary}
+  - land: MDV  # Malediven
+    perioden:
+      - {ab: 1900, waehrung: rupie_ceylon}
+      - {ab: 1960, waehrung: rufiyaa}
+  - land: MEX  # Mexiko
+    perioden:
+      - {ab: 1900, waehrung: peso_mexiko_alt}
+      - {ab: 1993, waehrung: peso_mexiko}
+  - land: MHL  # Marshallinseln
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: yen}
+      - {ab: 1945, waehrung: us_dollar}
+  - land: MKD  # Nordmazedonien
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1913, waehrung: dinar_serbien_alt}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1993, waehrung: denar}
+  - land: MLI  # Mali – Mali-Franc 1962–1984 als CFA-Franc gerechnet
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: MLT  # Malta
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1972, waehrung: lira_malta}
+      - {ab: 2008, waehrung: euro}
+  - land: MMR  # Myanmar
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1952, waehrung: kyat}
+  - land: MNE  # Montenegro
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1906, waehrung: perper}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1994, waehrung: dinar_serbien}
+      - {ab: 1999, waehrung: d_mark}
+      - {ab: 2002, waehrung: euro}
+  - land: MNG  # Mongolei
+    perioden:
+      - {ab: 1900, waehrung: yuan_silber}
+      - {ab: 1925, waehrung: tugrik}
+  - land: MOZ  # Mosambik
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1980, waehrung: metical_alt}
+      - {ab: 2006, waehrung: metical}
+  - land: MRT  # Mauretanien
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+      - {ab: 1973, waehrung: ouguiya_alt}
+      - {ab: 2018, waehrung: ouguiya}
+  - land: MUS  # Mauritius
+    perioden:
+      - {ab: 1900, waehrung: rupie_mauritius}
+  - land: MWI  # Malawi
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1971, waehrung: kwacha_malawi}
+  - land: MYS  # Malaysia
+    perioden:
+      - {ab: 1900, waehrung: straits_dollar}
+      - {ab: 1967, waehrung: ringgit}
+  - land: NAM  # Namibia – Deutsch-Südwestafrika bis 1915
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1915, waehrung: pfund_sterling}
+      - {ab: 1923, waehrung: pfund_suedafrika}
+      - {ab: 1961, waehrung: rand}
+      - {ab: 1993, waehrung: namibia_dollar}
+  - land: NER  # Niger
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: NGA  # Nigeria – Westafrikanisches Pfund, ab Juli 1959 Nigerianisches Pfund
+    perioden:
+      - {ab: 1900, waehrung: pfund_westafrika}
+      - {ab: "1959-07", waehrung: pfund_nigeria}
+      - {ab: 1973, waehrung: naira}
+  - land: NIC  # Nicaragua – Nicaragua-Peso vor 1912 wie der Honduras-Peso gerechnet
+    perioden:
+      - {ab: 1900, waehrung: peso_honduras}
+      - {ab: 1912, waehrung: cordoba_alt}
+      - {ab: 1991, waehrung: cordoba}
+  - land: NLD  # Niederlande
+    perioden:
+      - {ab: 1900, waehrung: gulden}
+      - {ab: 1999, waehrung: euro}
+  - land: NOR  # Norwegen
+    perioden:
+      - {ab: 1900, waehrung: krone_norwegen}
+  - land: NPL  # Nepal
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1932, waehrung: rupie_nepal}
+  - land: NRU  # Nauru
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: pfund_australien}
+      - {ab: 1966, waehrung: australischer_dollar}
+  - land: NZL  # Neuseeland
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1934, waehrung: pfund_neuseeland}
+      - {ab: "1967-07", waehrung: neuseeland_dollar}
+  - land: OMN  # Oman
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1970, waehrung: rial_oman}
+  - land: PAK  # Pakistan
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1948, waehrung: rupie_pakistan}
+  - land: PAN  # Panama – bis 1903 Teil Kolumbiens
+    perioden:
+      - {ab: 1900, waehrung: peso_kolumbien}
+      - {ab: 1904, waehrung: balboa}
+  - land: PER  # Peru – Peruanisches Pfund 1898–1930 als Sol gerechnet
+    perioden:
+      - {ab: 1900, waehrung: sol_peru_alt}
+      - {ab: "1985-02", waehrung: inti}
+      - {ab: "1991-07", waehrung: sol_peru}
+  - land: PHL  # Philippinen
+    perioden:
+      - {ab: 1900, waehrung: peso_philippinen}
+  - land: PLW  # Palau
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: yen}
+      - {ab: 1945, waehrung: us_dollar}
+  - land: PNG  # Papua-Neuguinea – Deutsch-Neuguinea bis 1914
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: pfund_australien}
+      - {ab: 1966, waehrung: australischer_dollar}
+      - {ab: 1975, waehrung: kina}
+  - land: POL  # Polen – Kongresspolen; Besatzungswährungen 1939–1945 nicht eigens abgebildet
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1917, waehrung: polnische_mark}
+      - {ab: 1924, waehrung: zloty_alt}
+      - {ab: 1995, waehrung: zloty}
+  - land: PRK  # Nordkorea – ab 2013 Marktkurs
+    perioden:
+      - {ab: 1900, waehrung: yen}
+      - {ab: 1947, waehrung: won_nordkorea}
+  - land: PRT  # Portugal – Real bis 1911 als Escudo gerechnet (1 Escudo = 1000 Réis)
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1999, waehrung: euro}
+  - land: PRY  # Paraguay
+    perioden:
+      - {ab: 1900, waehrung: peso_paraguay}
+      - {ab: 1943, waehrung: guarani}
+  - land: PSE  # Palästina
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: pfund_aegypten}
+      - {ab: 1927, waehrung: pfund_palaestina}
+      - {ab: 1950, waehrung: dinar_jordanien}
+      - {ab: 1967, waehrung: pfund_israel}
+      - {ab: 1980, waehrung: schekel_alt}
+      - {ab: "1985-09", waehrung: schekel}
+  - land: QAT  # Katar
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1966, waehrung: riyal_katar_dubai}
+      - {ab: 1973, waehrung: riyal_katar}
+  - land: ROU  # Rumänien
+    perioden:
+      - {ab: 1900, waehrung: leu_alt}
+      - {ab: "2005-07", waehrung: leu}
+  - land: RUS  # Russland – Sowjetrubel bis 1991 zum amtlichen Kurs
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1998, waehrung: rubel}
+  - land: RWA  # Ruanda
+    perioden:
+      - {ab: 1900, waehrung: rupie_ostafrika_deutsch}
+      - {ab: 1916, waehrung: franc_kongo_belgisch}
+      - {ab: 1964, waehrung: franc_ruanda}
+  - land: SAU  # Saudi-Arabien
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1928, waehrung: riyal_saudi}
+  - land: SDN  # Sudan
+    perioden:
+      - {ab: 1900, waehrung: pfund_aegypten}
+      - {ab: 1957, waehrung: pfund_sudan_alt}
+      - {ab: 1992, waehrung: dinar_sudan}
+      - {ab: 2007, waehrung: pfund_sudan}
+  - land: SEN  # Senegal
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: SGP  # Singapur
+    perioden:
+      - {ab: 1900, waehrung: straits_dollar}
+      - {ab: 1967, waehrung: singapur_dollar}
+  - land: SLB  # Salomonen
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1966, waehrung: australischer_dollar}
+      - {ab: 1977, waehrung: salomonen_dollar}
+  - land: SLE  # Sierra Leone
+    perioden:
+      - {ab: 1900, waehrung: pfund_westafrika}
+      - {ab: 1964, waehrung: leone_alt}
+      - {ab: 2022, waehrung: leone}
+  - land: SLV  # El Salvador – Peso vor 1919 als Colón gerechnet
+    perioden:
+      - {ab: 1900, waehrung: colon_el_salvador}
+      - {ab: 2001, waehrung: us_dollar}
+  - land: SMR  # San Marino
+    perioden:
+      - {ab: 1900, waehrung: lira}
+      - {ab: 1999, waehrung: euro}
+  - land: SOM  # Somalia
+    perioden:
+      - {ab: 1900, waehrung: rupie_indien}
+      - {ab: 1925, waehrung: lira}
+      - {ab: 1941, waehrung: schilling_ostafrika}
+      - {ab: 1962, waehrung: schilling_somalia}
+  - land: SRB  # Serbien
+    perioden:
+      - {ab: 1900, waehrung: dinar_serbien_alt}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1994, waehrung: dinar_serbien}
+  - land: SSD  # Südsudan
+    perioden:
+      - {ab: 1900, waehrung: pfund_aegypten}
+      - {ab: 1957, waehrung: pfund_sudan_alt}
+      - {ab: 1992, waehrung: dinar_sudan}
+      - {ab: 2007, waehrung: pfund_sudan}
+      - {ab: "2011-07", waehrung: pfund_suedsudan}
+  - land: STP  # São Tomé und Príncipe
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1977, waehrung: dobra_alt}
+      - {ab: 2018, waehrung: dobra}
+  - land: SUR  # Suriname
+    perioden:
+      - {ab: 1900, waehrung: gulden}
+      - {ab: 1940, waehrung: suriname_gulden}
+      - {ab: 2004, waehrung: suriname_dollar}
+  - land: SVK  # Slowakei
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1919, waehrung: krone_tschechoslowakei}
+      - {ab: 1993, waehrung: krone_slowakei}
+      - {ab: 2009, waehrung: euro}
+  - land: SVN  # Slowenien
+    perioden:
+      - {ab: 1900, waehrung: krone_oesterreich}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1992, waehrung: tolar}
+      - {ab: 2007, waehrung: euro}
+  - land: SWE  # Schweden
+    perioden:
+      - {ab: 1900, waehrung: krone_schweden}
+  - land: SWZ  # Eswatini
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1923, waehrung: pfund_suedafrika}
+      - {ab: 1961, waehrung: rand}
+      - {ab: 1974, waehrung: lilangeni}
+  - land: SYC  # Seychellen
+    perioden:
+      - {ab: 1900, waehrung: rupie_mauritius}
+      - {ab: 1914, waehrung: rupie_seychellen}
+  - land: SYR  # Syrien
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1918, waehrung: pfund_aegypten}
+      - {ab: 1920, waehrung: pfund_syrien_libanon}
+      - {ab: 1939, waehrung: pfund_syrien}
+  - land: TCD  # Tschad
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: TGO  # Togo – deutsche Kolonie bis 1914
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1915, waehrung: franc}
+      - {ab: 1946, waehrung: franc_cfa}
+  - land: THA  # Thailand – Tical bis 1925 als Baht gerechnet
+    perioden:
+      - {ab: 1900, waehrung: baht}
+  - land: TJK  # Tadschikistan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1995, waehrung: rubel_tadschikistan}
+      - {ab: "2000-10", waehrung: somoni}
+  - land: TKM  # Turkmenistan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: "1993-11", waehrung: manat_turkmenistan_alt}
+      - {ab: 2009, waehrung: manat_turkmenistan}
+  - land: TLS  # Osttimor – Pataca von Portugiesisch-Timor als Escudo gerechnet
+    perioden:
+      - {ab: 1900, waehrung: escudo}
+      - {ab: 1976, waehrung: rupiah}
+      - {ab: 2000, waehrung: us_dollar}
+  - land: TON  # Tonga
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1967, waehrung: paanga}
+  - land: TTO  # Trinidad und Tobago
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1964, waehrung: tt_dollar}
+  - land: TUN  # Tunesien
+    perioden:
+      - {ab: 1900, waehrung: franc}
+      - {ab: 1958, waehrung: dinar_tunesien}
+  - land: TUR  # Türkei
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1923, waehrung: lira_tuerkei_alt}
+      - {ab: 2005, waehrung: lira_tuerkei}
+  - land: TUV  # Tuvalu
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1966, waehrung: australischer_dollar}
+  - land: TWN  # Taiwan – japanische Herrschaft bis 1945
+    perioden:
+      - {ab: 1900, waehrung: yen}
+      - {ab: 1946, waehrung: taiwan_dollar_alt}
+      - {ab: "1949-06", waehrung: taiwan_dollar}
+  - land: TZA  # Tansania – Deutsch-Ostafrika bis 1916
+    perioden:
+      - {ab: 1900, waehrung: rupie_ostafrika_deutsch}
+      - {ab: 1916, waehrung: rupie_ostafrika}
+      - {ab: 1921, waehrung: schilling_ostafrika}
+      - {ab: 1966, waehrung: schilling_tansania}
+  - land: UGA  # Uganda
+    perioden:
+      - {ab: 1900, waehrung: rupie_ostafrika}
+      - {ab: 1921, waehrung: schilling_ostafrika}
+      - {ab: 1966, waehrung: schilling_uganda}
+  - land: UKR  # Ukraine
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1992, waehrung: karbowanez}
+      - {ab: "1996-09", waehrung: hrywnja}
+  - land: URY  # Uruguay
+    perioden:
+      - {ab: 1900, waehrung: peso_uruguay_alt}
+      - {ab: 1975, waehrung: nuevo_peso_uruguay}
+      - {ab: 1993, waehrung: peso_uruguay}
+  - land: USA  # Vereinigte Staaten
+    perioden:
+      - {ab: 1900, waehrung: us_dollar}
+  - land: UZB  # Usbekistan
+    perioden:
+      - {ab: 1900, waehrung: rubel_zarenreich}
+      - {ab: 1924, waehrung: rubel_sowjet}
+      - {ab: 1961, waehrung: rubel_1961}
+      - {ab: 1994, waehrung: som_usbekistan}
+  - land: VCT  # St. Vincent und die Grenadinen
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1950, waehrung: bwi_dollar}
+      - {ab: 1965, waehrung: ec_dollar}
+  - land: VEN  # Venezuela – ab 2010 Marktkurse
+    perioden:
+      - {ab: 1900, waehrung: bolivar_alt}
+      - {ab: 2008, waehrung: bolivar_fuerte}
+      - {ab: "2018-08", waehrung: bolivar_soberano}
+      - {ab: "2021-10", waehrung: bolivar}
+  - land: VNM  # Vietnam
+    perioden:
+      - {ab: 1900, waehrung: piaster_indochina}
+      - {ab: 1954, waehrung: dong}
+  - land: VUT  # Vanuatu – Kondominium; Neue-Hebriden-Franc vor 1981 nicht eigens abgebildet
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1981, waehrung: vatu}
+  - land: WSM  # Samoa – Deutsch-Samoa bis 1914
+    perioden:
+      - {ab: 1900, waehrung: mark}
+      - {ab: 1914, waehrung: pfund_sterling}
+      - {ab: 1934, waehrung: pfund_neuseeland}
+      - {ab: 1967, waehrung: tala}
+  - land: XKX  # Kosovo
+    perioden:
+      - {ab: 1900, waehrung: lira_osmanisch}
+      - {ab: 1913, waehrung: dinar_serbien_alt}
+      - {ab: 1920, waehrung: dinar_jugoslawien}
+      - {ab: 1994, waehrung: dinar_serbien}
+      - {ab: 1999, waehrung: d_mark}
+      - {ab: 2002, waehrung: euro}
+  - land: YEM  # Jemen – Aden mit Rupie und Ostafrika-Schilling nicht eigens abgebildet
+    perioden:
+      - {ab: 1900, waehrung: taler_maria_theresia}
+      - {ab: 1964, waehrung: rial_jemen}
+  - land: ZAF  # Südafrika
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1923, waehrung: pfund_suedafrika}
+      - {ab: 1961, waehrung: rand}
+  - land: ZMB  # Sambia
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1968, waehrung: kwacha_sambia_alt}
+      - {ab: 2013, waehrung: kwacha_sambia}
+  - land: ZWE  # Simbabwe – 2009–2024 vor allem US-Dollar
+    perioden:
+      - {ab: 1900, waehrung: pfund_sterling}
+      - {ab: 1970, waehrung: rhodesien_dollar}
+      - {ab: 1980, waehrung: simbabwe_dollar}
+      - {ab: 2009, waehrung: us_dollar}
+      - {ab: "2024-04", waehrung: zig}

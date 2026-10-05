@@ -455,3 +455,63 @@ pub fn event_date_invalid(text: &str) -> String {
 pub fn event_kind_unknown(kind: &str, known: &str) -> String {
     format!("Unbekannte Ereignisart „{kind}“; erlaubt sind {known}.")
 }
+
+// --- Currencies (M21) ---
+
+pub fn point_in_time_invalid(text: &str) -> String {
+    format!(
+        "„{text}“ ist kein gültiger Zeitpunkt: erlaubt sind ein Jahr (1924) oder Jahr und \
+         Monat („1923-11“)."
+    )
+}
+
+pub fn field_empty(field: &str) -> String {
+    format!("„{field}“ darf nicht leer sein.")
+}
+
+pub fn rates_or_peg() -> String {
+    "Genau eines von „kurse“ (Einheiten je US-Dollar) oder „bindung“ (fest an eine andere \
+     Währung) angeben."
+        .into()
+}
+
+pub fn peg_to_pegged(other: &str) -> String {
+    format!(
+        "Die Währung „{other}“ ist selbst gebunden; binden Sie an eine Währung mit eigenen \
+         Kursen."
+    )
+}
+
+pub fn lead_currency_not_one(currency: &str) -> String {
+    format!(
+        "Die Leitwährung „{currency}“ ist die Einheit des Spiels: Sie braucht eigene Kurse, \
+         alle gleich 1."
+    )
+}
+
+pub fn base_year_without_price(year: i32) -> String {
+    format!("Für das Basisjahr {year} fehlt ein Wert in „werte“.")
+}
+
+pub fn periods_not_ascending() -> String {
+    "Die Zeiträume müssen nach „ab“ aufsteigend sortiert sein.".into()
+}
+
+pub fn first_period_late(from: &str, start: i32) -> String {
+    format!(
+        "Der erste Zeitraum beginnt erst {from}; er muss spätestens im frühesten Startjahr \
+         {start} beginnen."
+    )
+}
+
+pub fn country_without_currency(country: &str) -> String {
+    format!("Für das Land „{country}“ fehlt ein Eintrag im Abschnitt „landeswaehrungen“.")
+}
+
+pub fn country_currencies_duplicate(country: &str, first: &str) -> String {
+    format!("Für das Land „{country}“ gibt es schon einen Eintrag ({first}).")
+}
+
+pub fn currency_unused(currency: &str) -> String {
+    format!("Die Währung „{currency}“ wird von keinem Land verwendet und ist an nichts gebunden.")
+}

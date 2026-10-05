@@ -9,6 +9,7 @@ pub mod calendar;
 pub mod catalog;
 pub mod command;
 pub mod country_model;
+pub mod currency;
 pub mod finance;
 pub mod game;
 pub mod health;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Hauptmenue } from "./ansichten/Hauptmenue";
 import { NeuesSpielAnsicht } from "./ansichten/NeuesSpiel";
 import { Spiel } from "./ansichten/Spiel";
+import { setzeGeldanzeige } from "./format";
 import type { Kern, Uebersicht } from "./kern";
 
 export type KernStatus =
@@ -31,6 +32,8 @@ export function App({ kern }: { kern: Kern }) {
     setBildschirm({ art: "spiel", start: u, einfuehrung });
   };
 
+  // Outside a game amounts are shown in game dollars (the game sets its own way).
+  if (bildschirm.art !== "spiel") setzeGeldanzeige(null);
   switch (bildschirm.art) {
     case "menue":
       return (

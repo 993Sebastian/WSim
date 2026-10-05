@@ -859,3 +859,42 @@ fn world_stays_plausible_in_the_first_year() {
         problems.join("\n")
     );
 }
+
+/// Every country can show money at any time of the game, and the conversion keeps the
+/// history: Mark in 1900, the inflation of 1923, the euro of today (M21).
+#[test]
+fn currencies_cover_every_country_and_year() {
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = &data.catalog;
+    let m = &c.currencies;
+    for (country, _) in c.countries.iter() {
+        let key = c.countries.key(country);
+        let base = m
+            .at_base(country)
+            .unwrap_or_else(|| panic!("{key}: keine Währung 2026"));
+        assert!(
+            base.factor.is_finite() && base.factor > 0.0,
+            "{key}: {base:?}"
+        );
+        for year in 1900..=2100 {
+            let t = f64::from(year) + 0.37;
+            let then = m.at_time(country, t).expect("currency");
+            assert!(
+                then.factor.is_finite() && then.factor > 0.0,
+                "{key} {year}: {then:?}"
+            );
+        }
+    }
+    let deu = c.countries.id("DEU").expect("DEU");
+    assert_eq!(m.at_base(deu).expect("currency").currency, "euro");
+    let mark = m.at_time(deu, 1900.5).expect("currency");
+    assert_eq!(mark.currency, "mark");
+    // A nail price of 1,865 USD (2026) was about 200 Mark per tonne in 1900.
+    let naegel = 1865.0 * mark.factor;
+    assert!((150.0..250.0).contains(&naegel), "{naegel}");
+    let inflation = m.at_time(deu, 1923.85).expect("currency");
+    assert!(inflation.factor > 1e9, "{inflation:?}");
+    assert_eq!(m.at_time(deu, 1950.0).expect("currency").currency, "d_mark");
+    let usa = c.countries.id("USA").expect("USA");
+    assert!((m.at_base(usa).expect("currency").factor - 1.0).abs() < 1e-12);
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatGeld, formatZahl, landName } from "../format";
+import { formatGeld, formatPreis, formatZahl, landName } from "../format";
 import type { KartenLand, Kern, Lagerstaette, WeltMarkt, Weltkarte } from "../kern";
 import welt from "../karte/welt.json";
 import { t } from "../texte";
@@ -21,7 +21,7 @@ const wert: Record<"lohn" | "bip" | "bevoelkerung", (l: KartenLand) => number> =
   bevoelkerung: (l) => l.population,
 };
 const anzeige: Record<"lohn" | "bip" | "bevoelkerung", (v: number) => string> = {
-  lohn: (v) => `${formatZahl(v, 2)} USD/h`,
+  lohn: (v) => formatPreis(v, "h"),
   bip: (v) => formatGeld(v),
   bevoelkerung: (v) => formatZahl(v),
 };

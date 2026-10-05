@@ -21,6 +21,7 @@ use crate::messages;
 
 mod ai;
 mod countries;
+mod currencies;
 mod production;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
@@ -140,15 +141,21 @@ fn is_country_code(key: &str) -> bool {
 
 /// Resolves a reference; reports unknown keys and returns a placeholder then.
 fn resolve<I: Id>(ctx: &mut Ctx, keys: &Keys, key: &str, loc: &Loc) -> I {
+    I::from_index(resolve_index(ctx, keys, key, loc))
+}
+
+/// Index of a key; unknown keys are reported and resolve to 0 (the catalog is then
+/// discarded anyway).
+fn resolve_index(ctx: &mut Ctx, keys: &Keys, key: &str, loc: &Loc) -> usize {
     match keys.index.get(key) {
-        Some(&i) => I::from_index(i),
-        None if keys.broken.contains(key) => I::from_index(0),
+        Some(&i) => i,
+        None if keys.broken.contains(key) => 0,
         None => {
             ctx.error(
                 loc,
                 messages::unknown_reference(keys.kind, key, keys.suggest(key)),
             );
-            I::from_index(0)
+            0
         }
     }
 }
@@ -432,6 +439,8 @@ pub(crate) fn build(
         raw,
         (&country_keys, &qualification_keys, &specialization_keys),
     );
+    let (currency_model, currency_keys) = currencies::currency_model(b.ctx, raw, &country_keys);
+    b.catalog.currencies = currency_model;
 
     for e in &products {
         let refs = ProductRefs {
@@ -640,6 +649,7 @@ pub(crate) fn build(
         &difficulty_keys,
         &event_keys,
         &media_keys,
+        &currency_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
 

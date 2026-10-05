@@ -29,6 +29,7 @@ data/
   ketten/              eine Produktionskette je Datei
   lagerstaetten/       Rohstoffvorkommen, eine Datei je Rohstoff
   verkehrsmittel.yaml  Verkehrsmittel mit Kosten und Geschwindigkeit
+  waehrungen/          Preisindex, Währungen und ihre Zeiträume je Land (Anzeige)
   texte/de/            alle Anzeigetexte
 ```
 
@@ -38,8 +39,9 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
-`namensgruppen`, `reale_firmen`, `ereignisse`. Jeder Abschnitt außer `meta`
-ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einmalige Zuordnungen).
+`namensgruppen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
+`landeswaehrungen`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
+`preisindex` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -48,7 +50,9 @@ ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einma
   Jede ID gibt es je Art nur einmal.
 - **Verweise** nennen die ID eines anderen Eintrags (`produkt: roheisen`).
 - **Zahlen** mit Punkt als Dezimaltrennzeichen; `_` gliedert große Zahlen (`60_000_000`).
-- **Geld** immer in USD mit Kaufkraft 2026, ohne Inflation (Lastenheft §3.6).
+- **Geld** immer in USD mit Kaufkraft 2026, ohne Inflation (Lastenheft §3.6). Nur die
+  Anzeige rechnet in Landeswährungen um (Abschnitte `preisindex`, `waehrungen`,
+  `landeswaehrungen`).
 - **Jahreswerte** werden als `{1900: 56.0, 1913: 67.0}` angegeben; dazwischen wird
   linear interpoliert, davor und danach gilt der nächste Wert.
 - **Herkunft**: Geschätzte Werte bekommen `annaeherung: true`, recherchierte eine
@@ -58,7 +62,7 @@ ist eine Liste von Einträgen (`meta` und die Modelle in `parameter/` sind einma
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
   `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`,
-  `schwierigkeit`, `ereignis`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
+  `schwierigkeit`, `ereignis`, `waehrung`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
   Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
 
@@ -383,3 +387,43 @@ als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
 | laender | Betroffene Länder (heutige Grenzen) |
 | annaeherung, quelle | Herkunft |
 
+
+## preisindex
+
+Verbraucherpreise der Leitwährung (in `waehrungen/preisindex.yaml`), einmalig. Sie
+rechnen Spieldollar in Dollar der jeweiligen Zeit um (Anzeige „Preise der Zeit“,
+docs/FORMELN.md M21).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **leitwaehrung** | Währung, in der das Spiel rechnet; ihre Kurse müssen alle 1 sein |
+| **basisjahr** | Jahr, dessen Kaufkraft die Spieldollar haben; braucht einen Wert in `werte` |
+| **werte** | Jahresmittel des Index, `{1900: 8.4, …}`, Jahre 1900–2100, Werte über 0 |
+| **teuerung_danach** | Angenommene Teuerung je Jahr nach dem letzten Wert, zwischen −0,5 und 1 |
+| annaeherung, quelle | Herkunft |
+
+## waehrungen
+
+Währungen mit ihrem Kurs zur Leitwährung (in `waehrungen/`). Text: `waehrung.<id>`.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel, z. B. `reichsmark` |
+| **zeichen** | Kurzzeichen der Anzeige, z. B. `RM`, `€`; nicht leer |
+| kurse | Einheiten je US-Dollar der Zeit (nominal), `{1924: 4.2, "1933-03": 4.2}`. Schlüssel: Jahr (steht für das Jahresmittel) oder `"JJJJ-MM"` (Monatsmitte), 1900–2100; Werte über 0. Dazwischen logarithmisch interpoliert, davor und danach gilt der nächste Wert. |
+| bindung | Statt `kurse`: fest an eine andere Währung gebunden, mit `an` (Währung mit eigenen Kursen, nicht selbst gebunden) und `faktor` (Einheiten je Einheit von `an`, über 0) |
+| annaeherung, quelle | Herkunft |
+
+Genau eines von `kurse` und `bindung` ist anzugeben. Eine Währung, die kein Land nutzt
+und an die keine andere gebunden ist, ergibt eine Warnung.
+
+## landeswaehrungen
+
+Welche Währung ein Land wann nutzt (in `waehrungen/laender.yaml`). Jedes Land braucht
+genau einen Eintrag. Vor einer eigenen Landeswährung gilt die Währung der damaligen
+Kolonial- oder Vormacht (Annahme, im Kommentar begründet).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **land** | Land (ISO-3166-alpha-3) |
+| **perioden** | Nicht leere Liste aus `ab` (Jahr = 1. Januar oder `"JJJJ-MM"` = 1. des Monats) und `waehrung`; aufsteigend nach `ab`, der erste Zeitraum beginnt spätestens 1900 |

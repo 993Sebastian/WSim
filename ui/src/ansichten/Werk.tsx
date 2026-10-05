@@ -3,12 +3,18 @@
 // the answer of the core next to its button.
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import {
+  ausAnzeige,
   formatDatum,
   formatGeld,
   formatMenge,
   formatPreis,
   formatProzent,
   formatZahl,
+  geldEinheit,
+  geldFeld,
+  geldRunden,
+  geldSchluessel,
+  inAnzeige,
   landName,
   zahlFeld,
   zahlLesen,
@@ -54,8 +60,6 @@ export function ursacheText(a: AnlageDetail): string {
 export function formatKoepfe(anzahl: number): string {
   return formatZahl(anzahl, anzahl >= 10 ? 0 : 1);
 }
-
-const rund = (wert: number) => Math.round(wert * 100) / 100;
 
 export function standortTitel(s: StandortDetail): string {
   return `${t(s.kind_text)} · ${landName(s.country)}`;
@@ -447,7 +451,7 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         const auftrag = s.orders.find((o) => o.product === v.product);
         return (
           <EinkaufKarte
-            key={`${v.product}/${auftrag?.target}/${auftrag?.max_price_usd}`}
+            key={`${v.product}/${auftrag?.target}/${auftrag?.max_price_usd}/${geldSchluessel()}`}
             v={v}
             s={s}
             produktion={produktion}
@@ -498,7 +502,7 @@ function EinkaufKarte({
   const name = produktName(v.product);
   const e = einheit(produktion, v.product);
   const { los, antwort } = useAktion(`einkauf/${s.index}/${v.product}`);
-  const vorschlagPreis = v.market_price_usd > 0 ? rund(v.market_price_usd * 1.1) : 0;
+  const vorschlagPreis = v.market_price_usd * 1.1;
   // Without a need here (trade) the player chooses the stock: the field starts empty.
   const [ziel, setZiel] = useState(
     auftrag
@@ -507,7 +511,7 @@ function EinkaufKarte({
         ? zahlFeld(Math.ceil(v.need_per_day * 20), 1)
         : "",
   );
-  const [preis, setPreis] = useState(zahlFeld(auftrag ? auftrag.max_price_usd : vorschlagPreis, 2));
+  const [preis, setPreis] = useState(geldFeld(auftrag ? auftrag.max_price_usd : vorschlagPreis));
   const [fehler, setFehler] = useState<string | null>(null);
   const zustand = reichweiteZustand(v.days);
 
@@ -527,7 +531,7 @@ function EinkaufKarte({
             site: s.index,
             product: v.product,
             target: z,
-            max_price: geld(p),
+            max_price: geld(ausAnzeige(p)),
             min_quality: 0,
           },
         },
@@ -583,7 +587,7 @@ function EinkaufKarte({
         />
         <ZahlFeld
           name={t("werk.hoechstpreis")}
-          einheit={`USD/${e}`}
+          einheit={`${geldEinheit()}/${e}`}
           wert={preis}
           onWert={setPreis}
           hilfe={t("werk.hoechstpreis_hilfe")}
@@ -637,7 +641,7 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
       <p className="erklaerung">{t("werk.verkauf_hinweis")}</p>
       {s.offers.map((o) => (
         <AngebotKarte
-          key={`${o.product}/${o.mode}/${o.price_usd}/${o.floor_usd}/${o.keep}`}
+          key={`${o.product}/${o.mode}/${o.price_usd}/${o.floor_usd}/${o.keep}/${geldSchluessel()}`}
           produkt={o.product}
           o={o}
           s={s}
@@ -645,7 +649,13 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         />
       ))}
       {ohneAngebot.map((p) => (
-        <AngebotKarte key={p} produkt={p} o={null} s={s} produktion={produktion} />
+        <AngebotKarte
+          key={`${p}/${geldSchluessel()}`}
+          produkt={p}
+          o={null}
+          s={s}
+          produktion={produktion}
+        />
       ))}
       <WeiteresProdukt
         tour="angebot-neu"
@@ -654,7 +664,15 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
           (p) => !s.offers.some((o) => o.product === p) && !ohneAngebot.includes(p),
         )}
       >
-        {(p) => <AngebotKarte key={p} produkt={p} o={null} s={s} produktion={produktion} />}
+        {(p) => (
+          <AngebotKarte
+            key={`${p}/${geldSchluessel()}`}
+            produkt={p}
+            o={null}
+            s={s}
+            produktion={produktion}
+          />
+        )}
       </WeiteresProdukt>
     </div>
   );
@@ -679,8 +697,9 @@ function AngebotKarte({
   const richt = o?.reference_usd ?? preise?.reference_usd ?? 0;
   const stueck = o?.unit_cost_usd ?? s.unit_costs.find((u) => u.product === produkt)?.total_usd;
   const [art, setArt] = useState<"markt" | "fest">(o?.mode ?? "markt");
-  const [preis, setPreis] = useState(zahlFeld(o ? o.price_usd : markt, 2));
-  const [mindest, setMindest] = useState(zahlFeld(o ? o.floor_usd : 0, 2));
+  const preisFeld = geldFeld(o ? o.price_usd : markt);
+  const [preis, setPreis] = useState(preisFeld);
+  const [mindest, setMindest] = useState(geldFeld(o ? o.floor_usd : 0));
   const [behalten, setBehalten] = useState(zahlFeld(o ? o.keep : 0, 1));
   const [fehler, setFehler] = useState<string | null>(null);
   const id = useId();
@@ -704,21 +723,27 @@ function AngebotKarte({
           product: produkt,
           mode:
             art === "fest"
-              ? { Fixed: geld(p) }
-              : { Market: { markup: o?.mode === "markt" ? o.markup : 0, floor: geld(m) } },
+              ? { Fixed: geld(ausAnzeige(p)) }
+              : {
+                  Market: {
+                    markup: o?.mode === "markt" ? o.markup : 0,
+                    floor: geld(ausAnzeige(m)),
+                  },
+                },
           keep: k,
         },
       },
     ];
-    // An automatic price goes on from the typed price.
-    if (art === "markt" && (!o || Math.abs(p - o.price_usd) > 0.005))
-      befehle.push({ SetPrice: { site: s.index, product: produkt, price: geld(p) } });
+    // An automatic price goes on from the typed price (if the player changed it).
+    if (art === "markt" && (!o || preis.trim() !== preisFeld))
+      befehle.push({ SetPrice: { site: s.index, product: produkt, price: geld(ausAnzeige(p)) } });
     void los(befehle, t(o ? "werk.angebot_geaendert" : "werk.angebot_neu", { produkt: name }));
   };
 
   const schritt = (faktor: number) => {
     if (!o) return;
-    const neu = rund(o.price_usd * faktor);
+    // Rounded in the shown currency, as the field would show it.
+    const neu = ausAnzeige(geldRunden(inAnzeige(o.price_usd) * faktor));
     void los(
       [{ SetPrice: { site: s.index, product: produkt, price: geld(neu) } }],
       t("werk.preis_gesetzt", { preis: formatPreis(neu, e) }),
@@ -793,7 +818,7 @@ function AngebotKarte({
         <div className="formular-zeile" data-tour={o ? "preis" : undefined}>
           <ZahlFeld
             name={art === "markt" ? t("werk.preis_jetzt") : t("werk.preis")}
-            einheit={`USD/${e}`}
+            einheit={`${geldEinheit()}/${e}`}
             wert={preis}
             onWert={setPreis}
           />
@@ -818,7 +843,7 @@ function AngebotKarte({
           {art === "markt" && (
             <ZahlFeld
               name={t("werk.mindestpreis")}
-              einheit={`USD/${e}`}
+              einheit={`${geldEinheit()}/${e}`}
               wert={mindest}
               onWert={setMindest}
               hilfe={t("werk.mindestpreis_hilfe")}

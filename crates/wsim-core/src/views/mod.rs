@@ -16,10 +16,11 @@ use crate::EARLIEST_START_YEAR;
 use crate::calendar::Date;
 use crate::catalog::Catalog;
 use crate::command::site_type_key;
+use crate::currency::MoneyDisplay;
 use crate::game::{
     Game, MAX_RESEARCH_FACTOR, MAX_START_CAPITAL_USD, MIN_RESEARCH_FACTOR, RoundReport,
 };
-use crate::ids::Id;
+use crate::ids::{CountryId, Id};
 use crate::ledger::{Account, CostType};
 use crate::message::{Message, MessageKind, Param};
 use crate::money::Money;
@@ -219,6 +220,34 @@ pub struct Overview {
     pub hints: Vec<HintView>,
     /// Closed months of the player's books, oldest first.
     pub history: Vec<MonthView>,
+    /// Ways to show amounts (M21); `None` without currency data.
+    pub money: Option<MoneyOptions>,
+}
+
+/// Ways to show amounts (Lastenheft §3.6, §18.2): the headquarters' currency or the US
+/// dollar, each at the purchasing power of the base year or at the prices of the game
+/// date. The factor turns the game's dollars into the shown units.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MoneyOptions {
+    pub home_base: MoneyDisplay,
+    pub home_then: MoneyDisplay,
+    pub lead_base: MoneyDisplay,
+    pub lead_then: MoneyDisplay,
+    pub base_year: i32,
+}
+
+fn money_options(game: &Game) -> Option<MoneyOptions> {
+    let state = game.state();
+    let m = &game.catalog().currencies;
+    let home = state.companies[state.player.index()].headquarters;
+    let t = state.date.year_fraction();
+    Some(MoneyOptions {
+        home_base: m.at_base(home)?,
+        home_then: m.at_time(home, t)?,
+        lead_base: m.lead(None)?,
+        lead_then: m.lead(Some(t))?,
+        base_year: m.base_year,
+    })
 }
 
 fn equity(company: &Company) -> Money {
@@ -317,6 +346,7 @@ pub fn overview(game: &Game) -> Overview {
             .collect(),
         hints: hints(game),
         history: history(&state.companies[state.player.index()].ledger),
+        money: money_options(game),
     }
 }
 
@@ -777,6 +807,53 @@ pub struct CountryDetail {
     pub companies: Vec<CountryCompany>,
     /// Markets with demand or sales, largest turnover first.
     pub markets: Vec<CountryMarket>,
+    /// The country's currencies, oldest first (M21; empty without currency data).
+    pub currencies: Vec<CurrencyPeriodView>,
+    /// Units of the current currency per US dollar of the game date; `None` for the
+    /// lead currency itself or without currency data.
+    pub currency_per_usd: Option<f64>,
+}
+
+/// A currency of a country from a month on (M21).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CurrencyPeriodView {
+    /// First month of use, "1923-12".
+    pub from: String,
+    pub currency: String,
+    pub symbol: String,
+    /// In use at the game date.
+    pub current: bool,
+}
+
+/// The currencies of a country and the rate of the one in use at the game date.
+fn country_currencies(game: &Game, id: CountryId) -> (Vec<CurrencyPeriodView>, Option<f64>) {
+    let m = &game.catalog().currencies;
+    let t = game.state().date.year_fraction();
+    let periods = m.periods_of(id);
+    // As in `currency_at`: before the first period the first one applies.
+    let now = periods
+        .partition_point(|&(from, _)| from <= t)
+        .saturating_sub(1);
+    let views = periods
+        .iter()
+        .enumerate()
+        .map(|(i, &(from, c))| {
+            // Periods start on the first day of a month: year + (month − 1)/12.
+            let year = from.floor();
+            let month = (from - year) * 12.0 + 1.0;
+            CurrencyPeriodView {
+                from: format!("{year:04.0}-{month:02.0}"),
+                currency: m.currencies[c].key.clone(),
+                symbol: m.currencies[c].symbol.clone(),
+                current: i == now,
+            }
+        })
+        .collect();
+    let per_usd = m
+        .currency_at(id, t)
+        .filter(|&c| c != m.lead)
+        .map(|c| m.rate(c, t));
+    (views, per_usd)
 }
 
 pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
@@ -832,6 +909,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         (b.sold_last_month * b.price_usd).total_cmp(&(a.sold_last_month * a.price_usd))
     });
     let map = world_map(game);
+    let (currencies, currency_per_usd) = country_currencies(game, id);
     Some(CountryDetail {
         key: key.to_owned(),
         date: iso(state.date),
@@ -861,6 +939,8 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
             .collect(),
         companies,
         markets,
+        currencies,
+        currency_per_usd,
     })
 }
 
@@ -902,6 +982,79 @@ mod tests {
         assert_eq!(o.competitors_active, 0);
         let json = serde_json::to_string(&o).expect("serializable");
         assert!(json.contains("\"cash_usd\""));
+    }
+
+    /// The test game with currencies: a krone everywhere, from November 1923 a new one.
+    fn game_with_currencies() -> Game {
+        use crate::catalog::Provenance;
+        use crate::currency::{Currency, CurrencyModel, Rate};
+        let mut catalog = test_support::production();
+        let currency = |key: &str, points: Vec<(f64, f64)>| Currency {
+            key: key.to_owned(),
+            symbol: key.to_uppercase(),
+            rate: Rate::Points(points),
+            provenance: Provenance::default(),
+        };
+        catalog.currencies = CurrencyModel {
+            currencies: vec![
+                currency("usd", vec![(1900.5, 1.0)]),
+                currency("krone", vec![(1900.5, 4.0), (2026.5, 9.0)]),
+                currency("krone_neu", vec![(1924.5, 9.0)]),
+            ],
+            periods: vec![vec![(1900.0, 1), (1923.0 + 10.0 / 12.0, 2)]; catalog.countries.len()],
+            lead: 0,
+            us_prices: vec![(1900.5, 10.0), (2026.5, 300.0)],
+            base_year: 2026,
+            inflation_after: 0.02,
+            prices_provenance: Provenance::default(),
+        };
+        let settings = game().state().settings.clone();
+        Game::new(Arc::new(catalog), settings).expect("valid settings")
+    }
+
+    #[test]
+    fn money_options_follow_the_headquarters_and_the_date() {
+        // Without currency data the amounts stay in game dollars.
+        assert_eq!(overview(&game()).money, None);
+        let g = game_with_currencies();
+        let money = overview(&g).money.expect("currency data");
+        assert_eq!(money.home_base.currency, "krone_neu");
+        assert!((money.home_base.factor - 9.0).abs() < 1e-9);
+        assert_eq!(money.home_then.currency, "krone");
+        // 1 January 1900: the rate and the prices of that day.
+        assert!((money.home_then.factor - 4.0 * 10.0 / 300.0).abs() < 1e-9);
+        assert_eq!(
+            (money.lead_base.currency.as_str(), money.lead_base.factor),
+            ("usd", 1.0)
+        );
+        assert!((money.lead_then.factor - 10.0 / 300.0).abs() < 1e-9);
+        assert_eq!(money.base_year, 2026);
+    }
+
+    #[test]
+    fn country_detail_names_the_currencies_and_the_rate() {
+        let key = |g: &Game| {
+            let c = g.catalog().countries.ids().next().expect("one country");
+            g.catalog().countries.key(c).to_owned()
+        };
+        let plain = game();
+        let d = country_detail(&plain, &key(&plain)).expect("country");
+        assert!(d.currencies.is_empty());
+        assert_eq!(d.currency_per_usd, None);
+
+        let g = game_with_currencies();
+        let d = country_detail(&g, &key(&g)).expect("country");
+        let periods: Vec<(&str, &str, bool)> = d
+            .currencies
+            .iter()
+            .map(|p| (p.from.as_str(), p.currency.as_str(), p.current))
+            .collect();
+        assert_eq!(
+            periods,
+            [("1900-01", "krone", true), ("1923-11", "krone_neu", false)]
+        );
+        // 1 January 1900: before the first rate the first one holds.
+        assert!((d.currency_per_usd.expect("rate") - 4.0).abs() < 1e-9);
     }
 
     #[test]

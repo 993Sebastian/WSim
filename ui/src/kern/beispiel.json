@@ -2311,6 +2311,33 @@
         }
       ],
       "corporate_tax": 0.050673515981734835,
+      "currencies": [
+        {
+          "currency": "mark",
+          "current": true,
+          "from": "1900-01",
+          "symbol": "M"
+        },
+        {
+          "currency": "reichsmark",
+          "current": false,
+          "from": "1923-12",
+          "symbol": "RM"
+        },
+        {
+          "currency": "d_mark",
+          "current": false,
+          "from": "1948-06",
+          "symbol": "DM"
+        },
+        {
+          "currency": "euro",
+          "current": false,
+          "from": "1999-01",
+          "symbol": "€"
+        }
+      ],
+      "currency_per_usd": 4.224957557079599,
       "date": "1914-08-01",
       "deposits": [
         {
@@ -2855,6 +2882,15 @@
         }
       ],
       "corporate_tax": 0.0676780821917771,
+      "currencies": [
+        {
+          "currency": "pfund_sterling",
+          "current": true,
+          "from": "1900-01",
+          "symbol": "£"
+        }
+      ],
+      "currency_per_usd": 0.20570194175650622,
       "date": "1914-08-01",
       "deposits": [
         {
@@ -3407,6 +3443,15 @@
         }
       ],
       "corporate_tax": 0.017258317025440256,
+      "currencies": [
+        {
+          "currency": "us_dollar",
+          "current": true,
+          "from": "1900-01",
+          "symbol": "USD"
+        }
+      ],
+      "currency_per_usd": null,
       "date": "1914-08-01",
       "deposits": [
         {
@@ -8528,6 +8573,29 @@
       }
     ],
     "market_scale": 0.1,
+    "money": {
+      "base_year": 2026,
+      "home_base": {
+        "currency": "euro",
+        "factor": 0.87,
+        "symbol": "€"
+      },
+      "home_then": {
+        "currency": "mark",
+        "factor": 0.12813249238799435,
+        "symbol": "M"
+      },
+      "lead_base": {
+        "currency": "us_dollar",
+        "factor": 1.0,
+        "symbol": "USD"
+      },
+      "lead_then": {
+        "currency": "us_dollar",
+        "factor": 0.03032752179327521,
+        "symbol": "USD"
+      }
+    },
     "start_year": 1914
   },
   "uebersicht_start": {
@@ -8653,6 +8721,29 @@
     ],
     "history": [],
     "market_scale": 0.1,
+    "money": {
+      "base_year": 2026,
+      "home_base": {
+        "currency": "euro",
+        "factor": 0.87,
+        "symbol": "€"
+      },
+      "home_then": {
+        "currency": "mark",
+        "factor": 0.1265760606060606,
+        "symbol": "M"
+      },
+      "lead_base": {
+        "currency": "us_dollar",
+        "factor": 1.0,
+        "symbol": "USD"
+      },
+      "lead_then": {
+        "currency": "us_dollar",
+        "factor": 0.030151515151515148,
+        "symbol": "USD"
+      }
+    },
     "start_year": 1914
   },
   "weltkarte": {

@@ -243,7 +243,7 @@ fn validate(directory: &Path) -> ExitCode {
     if let Some(data) = &outcome.data {
         let c = &data.catalog;
         println!(
-            "Daten geprüft: {} Länder, {} Produkte, {} Rezepte, {} Anlagen, {} Technologien, {} Lagerstätten, {} Verkehrsmittel, {} Texte.",
+            "Daten geprüft: {} Länder, {} Produkte, {} Rezepte, {} Anlagen, {} Technologien, {} Lagerstätten, {} Verkehrsmittel, {} Währungen, {} Texte.",
             c.countries.len(),
             c.products.len(),
             c.recipes.len(),
@@ -251,6 +251,7 @@ fn validate(directory: &Path) -> ExitCode {
             c.technologies.len(),
             c.deposits.len(),
             c.vehicles.len(),
+            c.currencies.currencies.len(),
             data.texts.len(),
         );
         // Lastenheft §17.2: most products should need three or four levels.

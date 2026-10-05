@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { formatDatum, formatGeld, formatProzent, landName, zahlFeld, zahlLesen } from "../format";
+import {
+  ausAnzeige,
+  formatDatum,
+  formatGeld,
+  formatProzent,
+  geldEinheit,
+  geldSchluessel,
+  inAnzeige,
+  landName,
+  zahlFeld,
+  zahlLesen,
+} from "../format";
 import {
   geld,
   type Abrechnung,
@@ -151,7 +162,7 @@ export function FinanzenAnsicht({
                       <td className="zahl">{formatGeld(k.instalment_usd)}</td>
                       <td>
                         <Tilgung
-                          key={`${k.index}/${k.balance_usd}`}
+                          key={`${k.index}/${k.balance_usd}/${geldSchluessel()}`}
                           kredit={k.index}
                           rest={k.balance_usd}
                         />
@@ -188,14 +199,19 @@ function Kreditaufnahme({ jahreMax }: { jahreMax: number }) {
         }
         setFehler(null);
         void los(
-          [{ TakeLoan: { amount: geld(b), years: Math.floor(j) } }],
-          t("finanzen.kredit_aufgenommen", { betrag: formatGeld(b) }),
+          [{ TakeLoan: { amount: geld(ausAnzeige(b)), years: Math.floor(j) } }],
+          t("finanzen.kredit_aufgenommen", { betrag: formatGeld(ausAnzeige(b)) }),
         ).then((ok) => ok && setBetrag(""));
       }}
     >
       <h3>{t("finanzen.aufnehmen")}</h3>
       <div className="formular-zeile">
-        <ZahlFeld name={t("finanzen.betrag")} einheit="USD" wert={betrag} onWert={setBetrag} />
+        <ZahlFeld
+          name={t("finanzen.betrag")}
+          einheit={geldEinheit()}
+          wert={betrag}
+          onWert={setBetrag}
+        />
         <ZahlFeld
           name={t("finanzen.laufzeit")}
           einheit={t("finanzen.jahre")}
@@ -412,7 +428,8 @@ function Spalte({
 }
 
 function Tilgung({ kredit, rest }: { kredit: number; rest: number }) {
-  const [betrag, setBetrag] = useState(zahlFeld(Math.ceil(rest), 0));
+  // Rounded up: the core repays at most what is left.
+  const [betrag, setBetrag] = useState(zahlFeld(Math.ceil(inAnzeige(rest)), 0));
   const { los, antwort } = useAktion(`tilgung/${kredit}`);
   return (
     <form
@@ -423,14 +440,14 @@ function Tilgung({ kredit, rest }: { kredit: number; rest: number }) {
         const b = zahlLesen(betrag);
         if (b === null || b <= 0) return;
         void los(
-          [{ RepayLoan: { loan: kredit, amount: geld(b) } }],
-          t("finanzen.getilgt", { betrag: formatGeld(b) }),
+          [{ RepayLoan: { loan: kredit, amount: geld(ausAnzeige(b)) } }],
+          t("finanzen.getilgt", { betrag: formatGeld(Math.min(ausAnzeige(b), rest)) }),
         );
       }}
     >
       <ZahlFeld
         name={t("finanzen.tilgungsbetrag")}
-        einheit="USD"
+        einheit={geldEinheit()}
         wert={betrag}
         onWert={setBetrag}
       />

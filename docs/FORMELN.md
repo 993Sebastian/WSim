@@ -958,3 +958,43 @@ nicht auf die Simulation.
   Herstellkosten (positiv, wenn das Lager wächst).
 - Die Einführung gilt als „erster Verkauf“ erreicht, wenn der Rundenbericht einen
   Umsatz über 0 ausweist; sonst führt sie zur nächsten Runde.
+
+## M21 – Landeswährungen (Anzeige)
+
+Lastenheft §3.6 und §18.2. Das Spiel rechnet weiter in US-Dollar mit der Kaufkraft des
+Basisjahrs B = 2026 (`data/waehrungen/preisindex.yaml`). Währungen ändern nur die
+Anzeige (`wsim_core::currency`, Sicht `Overview.money`); sie wirken nicht auf die
+Simulation und stehen nicht im Spielstand.
+
+- **Zeitpunkt** t als Jahr mit Bruchteil: 1. Januar 1900 = 1900,0. Ein Jahreswert der
+  Daten steht für das Jahresmittel (t = Jahr + 0,5), ein Monatswert ("1923-11") für die
+  Monatsmitte (t = Jahr + (Monat − 0,5)/12). Ein Zeitraum `ab: 1999` beginnt am
+  1. Januar, `ab: "1948-06"` am 1. des Monats.
+- **Kurs** e(W, t) = Einheiten der Währung W je US-Dollar der Zeit t. Zwischen zwei Werten
+  (a, eₐ) und (b, e_b) auf logarithmischer Skala:
+
+      e(t) = exp( ln eₐ + (ln e_b − ln eₐ) · (t − a)/(b − a) )
+
+  Vor dem ersten und nach dem letzten Wert bleibt der Kurs gleich. Eine **gebundene**
+  Währung hat e(W, t) = k · e(A, t) mit dem festen Faktor k je Einheit der Ankerwährung A.
+- **Preisindex** P(t) der USA: linear zwischen den Jahresmitten; vor dem ersten Wert
+  der erste Wert, nach dem letzten P(t) = P_letzt · (1 + π)^(t − t_letzt) mit
+  π = `teuerung_danach`. Teuerung seit dem Basisjahr: I(t) = P(t) / P(B + 0,5).
+- **Währung eines Landes** zum Zeitpunkt t: die des letzten Zeitraums mit Beginn ≤ t.
+- **Umrechnungsfaktor** f (gezeigter Betrag = Spieldollar · f) für die vier Wahlmöglichkeiten:
+
+  | Anzeige | Währung | Faktor |
+  |---|---|---|
+  | Landeswährung, Kaufkraft 2026 | Währung des Firmensitzes in B | e(W_B, B + 0,5) |
+  | Landeswährung, Preise der Zeit | Währung des Firmensitzes zum Spieldatum | e(W_t, t) · I(t) |
+  | US-Dollar, Kaufkraft 2026 | US-Dollar | 1 |
+  | US-Dollar, Preise der Zeit | US-Dollar | I(t) |
+
+  Beispiel Deutschland am 1.1.1914: e(Mark) = 4,198 M/$, I = 9,95/330 = 0,0302, also
+  f = 0,1266 M je Spieldollar; mit der Kaufkraft 2026 f = 0,87 € je Spieldollar.
+- Eingaben in Formularen gelten in der gezeigten Währung: Spieldollar = Eingabe / f.
+- Alle Beträge eines Bildschirms nutzen den Faktor des aktuellen Spieldatums, auch
+  Verläufe und Vormonatswerte; so bleiben sie untereinander vergleichbar.
+- „Kaufkraft 2026“ zeigt die Landeswährung des Basisjahrs (in Deutschland den Euro):
+  Eine Mark oder Reichsmark „mit der Kaufkraft von 2026“ gibt es nicht. Die damaligen
+  Währungen mit ihren Umstellungen erscheinen mit „Preise der Zeit“.

@@ -2,12 +2,15 @@
 // newcomer has a chance, and who rules each market. A click opens one product market.
 import { useId, useState } from "react";
 import {
+  ausAnzeige,
   formatGeld,
   formatPreis,
   formatProzent,
   formatZahl,
+  geldEinheit,
+  geldFeld,
+  geldSchluessel,
   landName,
-  zahlFeld,
   zahlLesen,
 } from "../format";
 import { geld, type Kern, type Markt, type ProduktMarkt, type Uebersicht } from "../kern";
@@ -495,7 +498,7 @@ function MarkeUndWerbung({ daten }: { daten: Markt }) {
       <div className="karten-raster">
         {daten.brands.map((m) => (
           <Werbung
-            key={`${daten.country}/${m.group}/${m.budget_usd}`}
+            key={`${daten.country}/${m.group}/${m.budget_usd}/${geldSchluessel()}`}
             land={daten.country}
             marke={m}
           />
@@ -507,7 +510,7 @@ function MarkeUndWerbung({ daten }: { daten: Markt }) {
 
 function Werbung({ land, marke }: { land: string; marke: Marke }) {
   const gruppe = t(`warengruppe.${marke.group}`);
-  const [betrag, setBetrag] = useState(zahlFeld(marke.budget_usd, 0));
+  const [betrag, setBetrag] = useState(geldFeld(marke.budget_usd));
   const [fehler, setFehler] = useState<string | null>(null);
   const { los, antwort } = useAktion(`werbung/${land}/${marke.group}`);
   return (
@@ -523,8 +526,10 @@ function Werbung({ land, marke }: { land: string; marke: Marke }) {
         }
         setFehler(null);
         void los(
-          [{ SetAdvertising: { country: land, group: marke.group, budget: geld(b) } }],
-          b > 0 ? t("markt.budget_gesetzt", { betrag: formatGeld(b) }) : t("markt.werbung_beendet"),
+          [{ SetAdvertising: { country: land, group: marke.group, budget: geld(ausAnzeige(b)) } }],
+          b > 0
+            ? t("markt.budget_gesetzt", { betrag: formatGeld(ausAnzeige(b)) })
+            : t("markt.werbung_beendet"),
         );
       }}
     >
@@ -550,7 +555,7 @@ function Werbung({ land, marke }: { land: string; marke: Marke }) {
       <div className="formular-zeile">
         <ZahlFeld
           name={t("markt.werbebudget")}
-          einheit={t("markt.usd_monat")}
+          einheit={t("markt.je_monat", { waehrung: geldEinheit() })}
           wert={betrag}
           onWert={setBetrag}
         />

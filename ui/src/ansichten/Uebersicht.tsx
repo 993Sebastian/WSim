@@ -29,10 +29,13 @@ function Kennzahl({
 
 export function UebersichtAnsicht({
   uebersicht,
+  geldHinweis = null,
   onHinweis,
   onWerk,
 }: {
   uebersicht: Uebersicht;
+  /** In which currency and at which prices the amounts are shown. */
+  geldHinweis?: string | null;
   onHinweis: (h: Hinweis) => void;
   onWerk: (site: number) => void;
 }) {
@@ -106,6 +109,11 @@ export function UebersichtAnsicht({
           />
           <Kennzahl titel={t("uebersicht.kredite")} wert={formatGeld(f.loans_usd)} />
         </dl>
+        {geldHinweis && (
+          <p className="gedaempft geld-hinweis">
+            {geldHinweis} {t("geld.umstellen")}
+          </p>
+        )}
         {verlauf.length >= 2 && (
           <div className="verlaeufe">
             {(

@@ -85,6 +85,28 @@ export interface Uebersicht {
   hints: Hinweis[];
   /** Closed months, oldest first. */
   history: Monat[];
+  /** Ways to show amounts (M21); null without currency data. */
+  money: Geldoptionen | null;
+}
+
+/** How amounts are shown: a currency and the factor from game dollars to its units. */
+export interface Geldanzeige {
+  /** Key of the currency (text `waehrung.<key>`). */
+  currency: string;
+  symbol: string;
+  factor: number;
+}
+
+/**
+ * The headquarters' currency or the US dollar, each at the purchasing power of the
+ * base year or at the prices of the game date (Lastenheft §3.6, §18.2).
+ */
+export interface Geldoptionen {
+  home_base: Geldanzeige;
+  home_then: Geldanzeige;
+  lead_base: Geldanzeige;
+  lead_then: Geldanzeige;
+  base_year: number;
 }
 
 /** A hint with the place to act on it (site and area of the plant view). */
@@ -237,6 +259,10 @@ export interface Landdetail {
     demand_last_month: number;
     sold_last_month: number;
   }[];
+  /** The country's currencies from their first month ("1923-12") on, oldest first. */
+  currencies: { from: string; currency: string; symbol: string; current: boolean }[];
+  /** Units of the current currency per US dollar of the game date (null: the dollar). */
+  currency_per_usd: number | null;
 }
 
 export interface Ursache {

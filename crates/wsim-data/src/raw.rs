@@ -1027,3 +1027,105 @@ pub struct RawEvent {
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
 }
+
+/// A point in time of the currency data: a year (`1924`) or a year and month
+/// (`"1923-11"`). Checked and converted in `build`.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct RawPointInTime(pub String);
+
+impl<'de> Deserialize<'de> for RawPointInTime {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct Visitor;
+        impl serde::de::Visitor<'_> for Visitor {
+            type Value = RawPointInTime;
+
+            fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str("ein Jahr (1924) oder Jahr und Monat (\"1923-11\")")
+            }
+
+            fn visit_i64<E: serde::de::Error>(self, v: i64) -> Result<Self::Value, E> {
+                Ok(RawPointInTime(v.to_string()))
+            }
+
+            fn visit_u64<E: serde::de::Error>(self, v: u64) -> Result<Self::Value, E> {
+                Ok(RawPointInTime(v.to_string()))
+            }
+
+            fn visit_f64<E: serde::de::Error>(self, v: f64) -> Result<Self::Value, E> {
+                Ok(RawPointInTime(v.to_string()))
+            }
+
+            fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
+                Ok(RawPointInTime(v.to_owned()))
+            }
+        }
+        d.deserialize_any(Visitor)
+    }
+}
+
+/// US consumer prices (M21): turn the game's dollars into money of the time.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPriceIndex {
+    /// The currency whose prices these are; the unit of the simulation.
+    #[serde(rename = "leitwaehrung")]
+    pub lead_currency: String,
+    /// Year whose purchasing power the game's dollars have.
+    #[serde(rename = "basisjahr")]
+    pub base_year: i32,
+    /// Annual averages.
+    #[serde(rename = "werte")]
+    pub values: BTreeMap<i32, f64>,
+    #[serde(rename = "teuerung_danach")]
+    pub inflation_after: f64,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCurrency {
+    pub id: String,
+    #[serde(rename = "zeichen")]
+    pub symbol: String,
+    /// Units per US dollar of the time: at a year (annual average) or a month.
+    #[serde(rename = "kurse", default)]
+    pub rates: Option<BTreeMap<RawPointInTime, f64>>,
+    /// Instead of rates: fixed to another currency.
+    #[serde(rename = "bindung", default)]
+    pub peg: Option<RawPeg>,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPeg {
+    #[serde(rename = "an")]
+    pub currency: String,
+    /// Units of this currency per unit of the other.
+    #[serde(rename = "faktor")]
+    pub factor: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCountryCurrencies {
+    #[serde(rename = "land")]
+    pub country: String,
+    #[serde(rename = "perioden")]
+    pub periods: Vec<RawCurrencyPeriod>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCurrencyPeriod {
+    #[serde(rename = "ab")]
+    pub from: RawPointInTime,
+    #[serde(rename = "waehrung")]
+    pub currency: String,
+}

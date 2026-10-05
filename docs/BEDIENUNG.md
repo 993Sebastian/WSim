@@ -55,6 +55,13 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   beenden“ mit Längenwahl; Speichern, Laden, Hauptmenü und Tastenhilfe in einem Menü
   „☰“. Warnungen (z. B. „Draht fehlt im Werk Deutschland“) als Zähler am Reiter
   Übersicht.
+- Geld (M21): Im Menü „☰“ stehen zwei Wahlen für alle Beträge: **Währung der Beträge**
+  (Landeswährung des Firmensitzes oder US-Dollar) und **Preise** (Kaufkraft 2026 ohne
+  Inflation oder Preise der Zeit mit Inflation). Voreinstellung: Landeswährung,
+  Kaufkraft 2026 – in Deutschland also Euro; mit „Preise der Zeit“ erscheinen Mark,
+  Reichsmark, D-Mark und Euro, wie sie zum Spieldatum galten. Unter den Kennzahlen der
+  Übersicht steht, worin die Beträge gerade stehen. Eingabefelder für Geld tragen das
+  Zeichen der gezeigten Währung („€/t“) und rechnen die Eingabe zurück.
 
 ### Übersicht
 
@@ -145,6 +152,8 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   das Land. Gut lesbar.
 - Ziel: Ebene **Absatzchancen** für ein gewähltes Produkt (Nachfrage, Preis gegen
   Richtpreis); im Länderdetail Sprung „Standort hier gründen“.
+- M21: Das Länderdetail nennt die Währung des Landes zum Spieldatum mit ihrem Kurs je
+  US-Dollar der Zeit und die Abfolge der Währungen (Umstellungen und Reformen).
 
 ### Rundenbericht
 

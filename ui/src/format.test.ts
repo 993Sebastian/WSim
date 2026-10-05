@@ -1,5 +1,18 @@
-import { describe, expect, it } from "vitest";
-import { formatDatum, formatGeld, formatMenge, meldungText, zahlFeld, zahlLesen } from "./format";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  ausAnzeige,
+  formatDatum,
+  formatGeld,
+  formatMenge,
+  formatPreis,
+  geldEinheit,
+  geldFeld,
+  geldRunden,
+  meldungText,
+  setzeGeldanzeige,
+  zahlFeld,
+  zahlLesen,
+} from "./format";
 
 describe("Formate", () => {
   it("kürzt große Beträge", () => {
@@ -33,6 +46,8 @@ describe("Formate", () => {
     expect(zahlLesen("abc")).toBeNull();
     expect(zahlLesen("1,2,3")).toBeNull();
     expect(zahlLesen("1.800.5")).toBeNull();
+    // A leading zero starts no thousands: small prices in a strong currency.
+    expect(zahlLesen("0.005")).toBe(0.005);
   });
 
   it("schreibt Zahlen für Eingabefelder ohne Tausenderpunkt", () => {
@@ -65,5 +80,39 @@ describe("Formate", () => {
       target: null,
     });
     expect(text).toBe("Betroffene Länder");
+  });
+});
+
+describe("Geldanzeige", () => {
+  afterEach(() => setzeGeldanzeige(null));
+
+  it("rechnet Spieldollar in die gezeigte Währung um", () => {
+    setzeGeldanzeige({ currency: "euro", symbol: "€", factor: 0.87 });
+    expect(formatGeld(1000)).toBe("870 €");
+    expect(formatPreis(10, "t")).toBe("8,7 €/t");
+    expect(geldEinheit()).toBe("€");
+    expect(ausAnzeige(870)).toBeCloseTo(1000, 9);
+    expect(geldFeld(1000)).toBe("870");
+    setzeGeldanzeige(null);
+    expect(formatGeld(1000)).toBe("1.000 USD");
+  });
+
+  it("kürzt die Beträge der Hyperinflation", () => {
+    setzeGeldanzeige({ currency: "mark", symbol: "M", factor: 2.2e11 });
+    expect(formatGeld(1000)).toBe("220 Bio. M");
+    expect(formatGeld(1e6)).toBe("220 Brd. M");
+    expect(formatGeld(1e9)).toBe("220 Trill. M");
+    expect(formatGeld(1e12)).toBe("220.000 Trill. M");
+  });
+
+  it("zeigt kleine Beträge einer starken Währung nicht als null", () => {
+    setzeGeldanzeige({ currency: "pfund_sterling", symbol: "£", factor: 0.005 });
+    expect(formatGeld(1.024)).toBe("0,00512 £");
+    expect(geldFeld(1.024)).toBe("0,00512");
+    expect(zahlLesen(geldFeld(1.024))).toBe(0.00512);
+    expect(geldRunden(0.0051234)).toBe(0.00512);
+    expect(geldRunden(1234.5678)).toBe(1234.57);
+    // Rounding noise of the core is no amount.
+    expect(formatGeld(1e-12)).toBe("0 £");
   });
 });

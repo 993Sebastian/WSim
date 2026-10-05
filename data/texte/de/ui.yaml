@@ -16,7 +16,7 @@ neu.titel: Neues Spiel
 neu.firmenname: Name der Firma
 neu.startland: Startland (Firmensitz)
 neu.startjahr: Startjahr
-neu.startkapital: Startkapital in USD
+neu.startkapital: Startkapital in USD (Kaufkraft 2026)
 neu.startform: Startform
 neu.startform_kosten: "{form} – kostet {betrag}"
 neu.ki_firmen: Anzahl KI-Firmen
@@ -45,6 +45,14 @@ spiel.menue: Menü
 spiel.kasse_trend: Veränderung seit Ende des Vormonats
 spiel.offene_hinweise: Offene Hinweise
 spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
+geld.waehrung: Währung der Beträge
+geld.heimat: "{waehrung} (Firmensitz)"
+geld.preise: Preise
+geld.basis: "Kaufkraft {jahr} (ohne Inflation)"
+geld.zeit: Preise der Zeit (mit Inflation)
+geld.anzeige_basis: "Beträge in {waehrung} mit der Kaufkraft von {jahr}."
+geld.anzeige_zeit: "Beträge in {waehrung} zu den Preisen von {jahr}."
+geld.umstellen: Umstellen im Menü ☰.
 rundenlaenge.tag: Tag
 rundenlaenge.woche: Woche
 rundenlaenge.monat: Monat
@@ -197,6 +205,10 @@ landdetail.steuern_wert: "Gewinn {gewinn}, Dividende {dividende}"
 landdetail.infrastruktur: Infrastruktur
 landdetail.infrastruktur_wert: "Schiene {schiene}, Straße {strasse}, Hafen {hafen}"
 landdetail.stabilitaet: Stabilität
+landdetail.waehrung: Währung
+landdetail.kurs: "{kurs} {zeichen} je US-Dollar ({jahr})"
+landdetail.waehrungen: "Im Lauf der Zeit: {liste}"
+landdetail.waehrung_ab: "ab {zeit} {waehrung}"
 landdetail.arbeitskraefte: Arbeitskräfte und Löhne
 landdetail.gruppe: Gruppe
 landdetail.personen: Personen
@@ -448,7 +460,7 @@ markt.marke_titel: Marke und Werbung
 markt.bekanntheit: Deine Bekanntheit
 markt.konkurrenz: Bekannteste Konkurrenz
 markt.werbebudget: Werbebudget
-markt.usd_monat: USD je Monat
+markt.je_monat: "{waehrung} je Monat"
 markt.werbung_fuer: "Werbung für {gruppe}"
 markt.budget_setzen: Setzen
 markt.budget_ungueltig: Das Budget muss eine Zahl ab 0 sein.

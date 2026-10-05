@@ -50,6 +50,8 @@ pub struct Catalog {
     pub events: Vec<HistoricalEvent>,
     /// Parts for the names of generated companies.
     pub name_groups: Vec<NameGroup>,
+    /// Currencies of the countries, for display only (M21).
+    pub currencies: crate::currency::CurrencyModel,
 }
 
 impl Catalog {

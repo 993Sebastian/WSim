@@ -1389,6 +1389,35 @@ input[aria-invalid="true"] {
   background: var(--hervorhebung);
 }
 
+/* Choices in the menu (currency and prices of the amounts) */
+.menue-gruppe {
+  display: grid;
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--rahmen);
+}
+
+.menue-titel {
+  padding: 0.2rem 0.6rem;
+  color: var(--text-gedaempft);
+  font-size: 0.85em;
+}
+
+.menue-liste .menue-wahl {
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.menue-wahl::before {
+  content: "○";
+  color: var(--text-gedaempft);
+}
+
+.menue-wahl[aria-checked="true"]::before {
+  content: "●";
+  color: var(--akzent);
+}
+
 .trend.positiv,
 .trend.steigt {
   color: var(--erfolg);
@@ -2306,4 +2335,10 @@ body {
   .einfuehrung.oben {
     top: 0.5rem;
   }
+}
+
+/* Which currency and prices the amounts are shown in (M21) */
+.geld-hinweis {
+  margin: 0.4rem 0 0;
+  font-size: 0.85em;
 }

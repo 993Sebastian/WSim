@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { formatDatum, formatGeld, landName } from "../format";
+import { formatDatum, formatGeld, landName, setzeGeldanzeige } from "../format";
 import type {
   Fortschritt,
+  Geldanzeige,
+  Geldoptionen,
   Hinweis,
   Kern,
   Meldung,
@@ -53,6 +55,47 @@ interface Fuehrung {
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
 
+/**
+ * How the player wants amounts shown (M21): the headquarters' currency or the US
+ * dollar, at the purchasing power of the base year or at the prices of the time.
+ */
+export interface GeldWahl {
+  waehrung: "heimat" | "dollar";
+  preise: "basis" | "zeit";
+}
+
+/** Kept in the browser: a convenience of this player, not part of the game. */
+export const GELD_SPEICHER = "wsim-geldanzeige";
+
+function geldWahlLesen(): GeldWahl {
+  try {
+    const roh = JSON.parse(
+      localStorage.getItem(GELD_SPEICHER) ?? "null",
+    ) as Partial<GeldWahl> | null;
+    return {
+      waehrung: roh?.waehrung === "dollar" ? "dollar" : "heimat",
+      preise: roh?.preise === "zeit" ? "zeit" : "basis",
+    };
+  } catch {
+    return { waehrung: "heimat", preise: "basis" };
+  }
+}
+
+function geldWahlMerken(wahl: GeldWahl) {
+  try {
+    localStorage.setItem(GELD_SPEICHER, JSON.stringify(wahl));
+  } catch {
+    // Without storage the choice holds for this session only.
+  }
+}
+
+/** The way of showing amounts the core offers for a choice (null: game dollars). */
+export function geldanzeigeFuer(o: Geldoptionen | null, wahl: GeldWahl): Geldanzeige | null {
+  if (!o) return null;
+  if (wahl.waehrung === "heimat") return wahl.preise === "basis" ? o.home_base : o.home_then;
+  return wahl.preise === "basis" ? o.lead_base : o.lead_then;
+}
+
 type Fenster =
   | { art: "keins" }
   | { art: "runde"; fortschritt: Fortschritt | null }
@@ -97,7 +140,25 @@ export function Spiel({
   const [berichte, setBerichte] = useState<Rundenbericht[]>([]);
   // Counts loaded games: the views start afresh, even if the date is the same.
   const [ladung, setLadung] = useState(0);
+  const [geldWahl, setGeldWahl] = useState(geldWahlLesen);
   const firma = uebersicht.company;
+  const geldoptionen = uebersicht.money ?? null;
+  // Set while drawing (not in an effect): every amount of this screen, dialogs
+  // included, is formatted with it.
+  const geldanzeige = geldanzeigeFuer(geldoptionen, geldWahl);
+  setzeGeldanzeige(geldanzeige);
+  const geldHinweis =
+    geldoptionen && geldanzeige
+      ? t(geldWahl.preise === "basis" ? "geld.anzeige_basis" : "geld.anzeige_zeit", {
+          waehrung: t(`waehrung.${geldanzeige.currency}`),
+          jahr: geldWahl.preise === "basis" ? geldoptionen.base_year : uebersicht.date.slice(0, 4),
+        })
+      : null;
+  const waehleGeld = (wahl: Partial<GeldWahl>) => {
+    const neu = { ...geldWahl, ...wahl };
+    setGeldWahl(neu);
+    geldWahlMerken(neu);
+  };
 
   const runde = async () => {
     setFehler(null);
@@ -287,6 +348,13 @@ export function Spiel({
                 >
                   {t("menue.hauptmenue")}
                 </button>
+                {geldoptionen && (
+                  <GeldMenue
+                    optionen={geldoptionen}
+                    wahl={geldWahl}
+                    onWahl={(w) => menuePunkt(() => waehleGeld(w))()}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -318,9 +386,17 @@ export function Spiel({
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
       {/* A text key: with the number alone the views were drawn twice after a round. */}
-      <div key={`ladung-${ladung}`} className="ansichtsbereich">
+      <div
+        key={`ladung-${ladung}/${geldWahl.waehrung}/${geldWahl.preise}`}
+        className="ansichtsbereich"
+      >
         {ansicht === "uebersicht" && (
-          <UebersichtAnsicht uebersicht={uebersicht} onHinweis={zuHinweis} onWerk={oeffneWerk} />
+          <UebersichtAnsicht
+            uebersicht={uebersicht}
+            geldHinweis={geldHinweis}
+            onHinweis={zuHinweis}
+            onWerk={oeffneWerk}
+          />
         )}
         {ansicht === "produktion" && (
           <ProduktionAnsicht
@@ -453,5 +529,59 @@ export function Spiel({
         />
       )}
     </div>
+  );
+}
+
+/** Menu entries to choose the currency and the prices amounts are shown in. */
+function GeldMenue({
+  optionen,
+  wahl,
+  onWahl,
+}: {
+  optionen: Geldoptionen;
+  wahl: GeldWahl;
+  onWahl: (w: Partial<GeldWahl>) => void;
+}) {
+  const heimat = wahl.preise === "basis" ? optionen.home_base : optionen.home_then;
+  const dollar = wahl.preise === "basis" ? optionen.lead_base : optionen.lead_then;
+  const eintrag = (aktiv: boolean, text: string, w: Partial<GeldWahl>) => (
+    <button
+      type="button"
+      role="menuitemradio"
+      aria-checked={aktiv}
+      className="menue-wahl"
+      onClick={() => onWahl(w)}
+    >
+      {text}
+    </button>
+  );
+  return (
+    <>
+      {/* With the headquarters in the USA both currencies are the same. */}
+      {heimat.currency !== dollar.currency && (
+        <div role="group" aria-label={t("geld.waehrung")} className="menue-gruppe">
+          <span className="menue-titel" aria-hidden="true">
+            {t("geld.waehrung")}
+          </span>
+          {eintrag(
+            wahl.waehrung === "heimat",
+            t("geld.heimat", { waehrung: t(`waehrung.${heimat.currency}`) }),
+            { waehrung: "heimat" },
+          )}
+          {eintrag(wahl.waehrung === "dollar", t(`waehrung.${dollar.currency}`), {
+            waehrung: "dollar",
+          })}
+        </div>
+      )}
+      <div role="group" aria-label={t("geld.preise")} className="menue-gruppe">
+        <span className="menue-titel" aria-hidden="true">
+          {t("geld.preise")}
+        </span>
+        {eintrag(wahl.preise === "basis", t("geld.basis", { jahr: optionen.base_year }), {
+          preise: "basis",
+        })}
+        {eintrag(wahl.preise === "zeit", t("geld.zeit"), { preise: "zeit" })}
+      </div>
+    </>
   );
 }

@@ -7,10 +7,10 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawCountry, RawCountryModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel,
-    RawMarketModel, RawMeta, RawNameGroup, RawProduct, RawProductionModel, RawQualification,
-    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTechnology, RawTransportClass,
-    RawTransportModel, RawUnit, RawVehicle,
+    RawAiModel, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency, RawDeposit,
+    RawEvent, RawFacility, RawFinanceModel, RawMarketModel, RawMeta, RawNameGroup, RawPriceIndex,
+    RawProduct, RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel,
+    RawSimple, RawTechnology, RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -173,6 +173,9 @@ pub(crate) struct RawData {
     pub name_groups: Vec<Entry<RawNameGroup>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
     pub events: Vec<Entry<RawEvent>>,
+    pub price_index: Vec<Entry<RawPriceIndex>>,
+    pub currencies: Vec<Entry<RawCurrency>>,
+    pub country_currencies: Vec<Entry<RawCountryCurrencies>>,
 }
 
 pub(crate) const SECTIONS: &[&str] = &[
@@ -201,6 +204,9 @@ pub(crate) const SECTIONS: &[&str] = &[
     "namensgruppen",
     "reale_firmen",
     "ereignisse",
+    "preisindex",
+    "waehrungen",
+    "landeswaehrungen",
 ];
 
 /// Reads all sections of one content file into `raw`.
@@ -254,6 +260,18 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
                 Ok(model) => raw.ai_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
+            "preisindex" => match de::from_node::<RawPriceIndex>(value, &loc.path) {
+                Ok(index) => raw.price_index.push(Entry { loc, value: index }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "waehrungen" => read_list(ctx, &loc, value, &mut raw.currencies, &mut raw.broken),
+            "landeswaehrungen" => read_list(
+                ctx,
+                &loc,
+                value,
+                &mut raw.country_currencies,
+                &mut raw.broken,
+            ),
             "namensgruppen" => read_list(ctx, &loc, value, &mut raw.name_groups, &mut raw.broken),
             "ereignisse" => read_list(ctx, &loc, value, &mut raw.events, &mut raw.broken),
             "reale_firmen" => read_list(ctx, &loc, value, &mut raw.real_companies, &mut raw.broken),

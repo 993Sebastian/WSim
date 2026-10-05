@@ -1,9 +1,46 @@
 import { useEffect, useState } from "react";
-import { formatGeld, formatProzent, formatZahl, landName } from "../format";
+import { formatGeld, formatProzent, formatZahl, formatZahlKurz, landName } from "../format";
 import type { Kern, Landdetail } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
+
+/** "1923-12" → "Dezember 1923"; a start in January is just the year. */
+function zeitpunkt(iso: string): string {
+  const [jahr, monat] = iso.split("-");
+  return Number(monat) === 1 ? jahr! : `${t(`monat.${Number(monat)}`)} ${jahr}`;
+}
+
+/** The currency in use with its rate, and the currencies of the country over time. */
+function Waehrung({ land }: { land: Landdetail }) {
+  const jetzt = land.currencies.find((p) => p.current);
+  if (!jetzt) return null;
+  const verlauf = land.currencies
+    .map((p, i) => {
+      const name = t(`waehrung.${p.currency}`);
+      return i === 0
+        ? name
+        : t("landdetail.waehrung_ab", { zeit: zeitpunkt(p.from), waehrung: name });
+    })
+    .join(", ");
+  return (
+    <>
+      <dt>{t("landdetail.waehrung")}</dt>
+      <dd>
+        {t(`waehrung.${jetzt.currency}`)} ({jetzt.symbol})
+        {land.currency_per_usd !== null &&
+          ` · ${t("landdetail.kurs", {
+            kurs: formatZahlKurz(land.currency_per_usd),
+            zeichen: jetzt.symbol,
+            jahr: land.date.slice(0, 4),
+          })}`}
+        {land.currencies.length > 1 && (
+          <small className="feld-hilfe">{t("landdetail.waehrungen", { liste: verlauf })}</small>
+        )}
+      </dd>
+    </>
+  );
+}
 
 function gruppenName(gruppe: string): string {
   const [qualifikation, fach] = gruppe.split(".");
@@ -77,6 +114,7 @@ export function Laenderdetail({
             <dd>{formatGeld(land.gdp_per_capita_usd)}</dd>
             <dt>{t("landdetail.preisniveau")}</dt>
             <dd>{formatZahl(land.price_level, 2)}</dd>
+            <Waehrung land={land} />
             <dt>{t("landdetail.gini")}</dt>
             <dd>{formatZahl(land.gini, 3)}</dd>
             <dt>{t("landdetail.strom")}</dt>
@@ -122,7 +160,7 @@ export function Laenderdetail({
                       <td>{gruppenName(a.group)}</td>
                       <td className="zahl">{formatZahl(a.persons)}</td>
                       <td className="zahl">{formatZahl(a.available)}</td>
-                      <td className="zahl">{formatZahl(a.wage_usd, 2)} USD</td>
+                      <td className="zahl">{formatGeld(a.wage_usd)}</td>
                     </tr>
                   ))}
               </tbody>

@@ -2,7 +2,19 @@ import { expect, test, type Page } from "@playwright/test";
 
 const bilder = process.env.WSIM_BILDER;
 
-async function starten(page: Page, einfuehrung = false) {
+/**
+ * Starts a game in the preview. The expectations are written in game dollars, so the
+ * amounts are shown in US dollars unless a test looks at the default (the currency of
+ * the headquarters).
+ */
+async function starten(page: Page, einfuehrung = false, dollar = true) {
+  if (dollar)
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        "wsim-geldanzeige",
+        JSON.stringify({ waehrung: "dollar", preise: "basis" }),
+      ),
+    );
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
   await page.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
@@ -179,6 +191,49 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     { TakeLoan: { amount: 200_000_000, years: 8 } },
     { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
   ]);
+});
+
+test("Beträge in der Landeswährung, in US-Dollar und zu Preisen der Zeit", async ({ page }) => {
+  await starten(page, false, false);
+  const kasse = page.locator(".kopf-firma");
+  const hinweis = page.locator(".geld-hinweis");
+  // By default: the currency of the headquarters at the purchasing power of 2026.
+  await expect(hinweis).toHaveText(/^Beträge in Euro mit der Kaufkraft von 2026\./);
+  await expect(kasse).toContainText("€");
+
+  const waehle = async (name: string) => {
+    await page.getByRole("button", { name: "Menü" }).click();
+    await page.getByRole("menuitemradio", { name }).click();
+  };
+  await waehle("US-Dollar");
+  await expect(hinweis).toHaveText(/^Beträge in US-Dollar mit der Kaufkraft von 2026\./);
+  await expect(kasse).toContainText("USD");
+  await waehle("Preise der Zeit (mit Inflation)");
+  await expect(hinweis).toHaveText(/^Beträge in US-Dollar zu den Preisen von 1914\./);
+  // In 1914 Germany paid in Mark.
+  await waehle("Mark (Firmensitz)");
+  await expect(hinweis).toHaveText(/^Beträge in Mark zu den Preisen von 1914\./);
+  await expect(kasse).toContainText(" M");
+  await page.getByRole("button", { name: "Menü" }).click();
+  await expect(page.getByRole("menuitemradio", { name: "Mark (Firmensitz)" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByRole("button", { name: "Menü" }).click();
+  // The choice is kept for the next game.
+  expect(await page.evaluate(() => localStorage.getItem("wsim-geldanzeige"))).toBe(
+    JSON.stringify({ waehrung: "heimat", preise: "zeit" }),
+  );
+
+  // Typed amounts are in the shown currency: 20.000 € are 20.000 / 0,87 game dollars.
+  await waehle("Kaufkraft 2026 (ohne Inflation)");
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  const kredit = page.getByRole("form", { name: "Kredit aufnehmen" });
+  await expect(kredit.getByText("€", { exact: true })).toBeVisible();
+  await kredit.getByLabel("Betrag").fill("20.000");
+  await kredit.getByLabel("Laufzeit").fill("8");
+  await kredit.getByRole("button", { name: "Aufnehmen" }).click();
+  expect(await befehle(page)).toEqual([{ TakeLoan: { amount: 229_885_057, years: 8 } }]);
 });
 
 test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten", async ({ page }) => {

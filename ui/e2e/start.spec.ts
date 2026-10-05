@@ -93,7 +93,8 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await expect(page.getByLabel("Produkt")).toHaveValue("naegel");
   await expect(page.getByRole("list", { name: "Legende" })).toContainText("Nachfrage");
   await page.getByRole("radio", { name: "Lohnniveau" }).click();
-  await expect(page.getByRole("list", { name: "Legende" })).toContainText("USD/h");
+  // Amounts in the currency of the headquarters.
+  await expect(page.getByRole("list", { name: "Legende" })).toContainText("€/h");
 
   await page.getByRole("radio", { name: "Rohstoffe" }).click();
   await page.getByLabel("Rohstoff").selectOption("kohle");
@@ -104,6 +105,11 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await expect(detail.getByRole("heading", { name: "Arbeitskräfte und Löhne" })).toBeVisible();
   await expect(detail.getByText("Ruhrgebiet")).toBeVisible();
   await expect(detail.getByText("Kartenprobe")).toBeVisible();
+  // The currency of the time with its rate, and the ones that followed.
+  await expect(detail).toContainText("Mark (M) · 4,22 M je US-Dollar (1914)");
+  await expect(detail).toContainText(
+    "Im Lauf der Zeit: Mark, ab Dezember 1923 Reichsmark, ab Juni 1948 D-Mark, ab 1999 Euro",
+  );
 
   await karte.getByRole("button", { name: "Frankreich" }).press("Enter");
   const frankreich = page.getByRole("complementary", { name: "Frankreich" });

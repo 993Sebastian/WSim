@@ -183,3 +183,12 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Geführte Einführung, Weg je Startform, Schritt | `Einfuehrung`, `PFADE`, `Pfad`, `Schritt` (UI) |
 | Markierung für die Einführung | Attribut `data-tour` (UI) |
 | Lagerveränderung im Rundenbericht | `PeriodView::inventory_change_usd` |
+| Währung, Kurzzeichen, Kurs je US-Dollar | `currency::Currency` (`key`, `symbol`, `rate`), `Rate::Points` (`kurse`) |
+| Bindung an eine andere Währung | `Rate::Peg` (`bindung`: `an`, `faktor`) |
+| Leitwährung, Basisjahr, Teuerung danach | `CurrencyModel::lead`, `base_year`, `inflation_after` (`leitwaehrung`, `basisjahr`, `teuerung_danach`) |
+| Preisindex der USA | `CurrencyModel::us_prices` (`preisindex.werte`), `us_prices_at`, `inflation_since_base` |
+| Währungszeiträume eines Landes | `CurrencyModel::periods` (`landeswaehrungen.perioden`), `currency_at` |
+| Geldanzeige (Währung und Faktor), Anzeigeoptionen | `MoneyDisplay`, `MoneyOptions` (`Overview::money`); UI: `Geldanzeige`, `Geldoptionen`, `setzeGeldanzeige` |
+| Kaufkraft 2026 / Preise der Zeit | `MoneyOptions::home_base`, `lead_base` / `home_then`, `lead_then`; UI: `GeldWahl.preise` (`basis`, `zeit`) |
+| Betrag in der gezeigten Währung, zurück in Spieldollar (UI) | `inAnzeige`, `ausAnzeige`, `geldFeld`, `geldEinheit` |
+| Währungen eines Landes im Länderdetail, Kurs der Zeit | `CountryDetail::currencies` (`CurrencyPeriodView`), `currency_per_usd`, `CurrencyModel::periods_of` |

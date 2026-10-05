@@ -29,6 +29,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M18 | Bedienung: Personal, Werksansicht, Preise, alle Ansichten überarbeitet | ✅ |
 | M19 | Technologiebaum: Technologien, Verfahren, Produkte und Anlagen | ✅ |
 | M20 | Geführte Einführung bis zum ersten Verkauf | ✅ |
+| M21 | Landeswährungen: Kaufkraft 2026 oder Preise der Zeit | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -548,3 +549,51 @@ und die konkret zu benutzenden Schaltflächen hervorheben.
     mit echtem Kern auf Desktop und iPhone bis zum ersten Umsatz; Unit-Test, dass es zu
     jedem Schritt Texte und jede Markierung in den Ansichten gibt; Kern-Test, dass die
     Zeilen des Rundenberichts aufgehen.
+
+### M21: Landeswährungen (05.10.2026)
+
+Auftrag: Landeswährungen mit angenommenen Wechselkursen und historischem Verständnis;
+Währungen, die es 1900 noch nicht gab, nach Annahmen. Entscheidung (§18.2): vorgezogen,
+Anzeige umschaltbar zwischen Kaufkraft 2026 und zeitgenössischen Preisen.
+
+  - **Daten** (`data/waehrungen/`): 263 Währungen mit Kurzzeichen und Kursen je
+    US-Dollar 1900–2026 (Goldparitäten bis 1914, Abwertungen und Währungsreformen auf
+    den Monat genau, Paritäten von Bretton Woods, danach gerundete Jahresmittel, die
+    deutsche Hyperinflation bis 4,2 Billionen Mark je Dollar) oder fest an eine andere
+    Währung gebunden (CFA-Franc, Rand-Raum, ostkaribischer Dollar, …); für alle 197
+    Länder die Zeiträume ihrer Währungen, z. B. Deutschland: Mark, ab Dezember 1923
+    Reichsmark, ab Juni 1948 D-Mark, ab 1999 Euro. Dazu der Verbraucherpreisindex der
+    USA 1900–2026 (danach 2 % Teuerung im Jahr). Prüfregeln mit deutschen Meldungen und
+    Tests für alle Fehlerfälle; ein Test prüft alle Länder und Jahre 1900–2100.
+  - **Anzeige:** Im Menü ☰ wählt der Spieler die Währung (Landeswährung des
+    Firmensitzes oder US-Dollar) und die Preise (Kaufkraft 2026 ohne Inflation oder
+    Preise der Zeit mit Inflation). Voreinstellung: Landeswährung, Kaufkraft 2026. Die
+    Übersicht nennt, worin die Beträge stehen. Eingaben in Formularen (Preise,
+    Höchstpreise, Kredite, Tilgung, Werbebudget) gelten in der gezeigten Währung.
+    Formeln: `docs/FORMELN.md`, M21.
+  - Das Länderdetail der Weltkarte nennt die Währung mit dem Kurs der Zeit („Mark (M) ·
+    4,22 M je US-Dollar (1914)“) und ihre Abfolge („Mark, ab Dezember 1923 Reichsmark,
+    ab Juni 1948 D-Mark, ab 1999 Euro“).
+  - Kleine Beträge einer starken Währung werden mit drei gültigen Stellen gezeigt
+    („0,00512 £“), sehr große gekürzt bis „Trill.“ (Hyperinflation).
+  - Tests: Kern (Kurse, Bindung, Teuerung, Optionen der Übersicht), Daten (Fehlerfälle,
+    alle Länder und Jahre), Oberfläche (Formate), Vorschau (Umschalten, Eingabe in Euro)
+    und Browser-Version mit echtem Kern (Mark zu Preisen von 1900).
+
+Eigenständige Entscheidungen:
+
+  - Die Währung wirkt nur auf die Anzeige; die Simulation, die Daten und der Spielstand
+    bleiben in US-Dollar mit der Kaufkraft 2026 (Wechselkurswirkungen auf Handel und
+    Löhne bleiben in Stufe 4). Die Wahl der Anzeige merkt sich der Browser bzw. die App,
+    sie gehört nicht zum Spielstand.
+  - „Kaufkraft 2026“ zeigt die Landeswährung von 2026 (in Deutschland den Euro), denn
+    eine Mark „mit der Kaufkraft von 2026“ gibt es nicht; Mark, Reichsmark und D-Mark
+    erscheinen mit „Preise der Zeit“ (offener Punkt 3).
+  - Alle Beträge eines Bildschirms werden mit dem Faktor des aktuellen Spieldatums
+    umgerechnet, auch Verläufe – sonst wären die Monate vor und nach einer Reform oder
+    während der Hyperinflation nicht vergleichbar.
+  - Vor einer eigenen Währung gilt die der Kolonial- oder Vormacht; Übergangswährungen
+    sind zusammengefasst, wo sie nur kurz galten (Rentenmark als Reichsmark,
+    Cruzado novo, Syli, Ekwele); bei gespaltenen Kursen gilt der Kurs, zu dem
+    tatsächlich gehandelt wurde. Annahmen stehen als Kommentar in den Daten.
+  - Außerhalb einer Partie (Neues Spiel, Startkapital) bleibt die Anzeige in US-Dollar.

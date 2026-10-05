@@ -13,7 +13,13 @@ bei Bedarf widersprechen) · ❓ offen
    Wege zwischen Hauptstädten, Seewege nach Luftlinie × Umwegfaktor (echte Seewege mit
    Kanälen ab Stufe 2), Waren bewegen sich innerhalb eines Landes ohne Kosten.
 2. 🟡 **Zölle.** Stufe 1 ohne Zölle; die Warengruppen sind im Datenformat schon da.
-3. 🟡 **Währung.** Stufe 1 rechnet und zeigt alles in USD (Kaufkraft 2026).
+3. 🟡 **Währung.** Stufe 1 rechnet in USD (Kaufkraft 2026). Die Anzeige in
+   Landeswährungen ist mit M21 vorgezogen (§18.2): umschaltbar zwischen Kaufkraft 2026
+   und Preisen der Zeit. Vorschlag: „Kaufkraft 2026“ zeigt die Landeswährung des Jahres
+   2026 (Deutschland: Euro), weil es eine Mark „mit der Kaufkraft von 2026“ nicht gibt;
+   die historischen Währungen mit ihren Umstellungen (Mark, Reichsmark, D-Mark) zeigt
+   „Preise der Zeit“. Wechselkurswirkungen auf Handel, Löhne und Gewinne folgen mit
+   Stufe 4.
 4. 🟡 **Strategie-Ansicht (§5.6)** kommt mit dem Manager-System in Stufe 2. In Stufe 1
    stellt der Spieler die Verkaufswege (§9.2) direkt je Produkt bzw. pauschal ein.
 5. 🟡 **Insolvenz.** Einfache Insolvenz in Stufe 1 (Firma scheidet aus, Standorte

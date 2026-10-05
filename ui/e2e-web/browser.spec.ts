@@ -14,6 +14,14 @@ test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, 
   await page.getByRole("button", { name: "Spiel starten" }).click();
   await expect(page.locator(".kopfleiste")).toContainText("Browser AG");
   if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-start.png` });
+  // Amounts in the currency of the headquarters; at the prices of 1900 that is the Mark.
+  await expect(page.locator(".geld-hinweis")).toHaveText(/^Beträge in Euro mit der Kaufkraft/);
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("menuitemradio", { name: "Preise der Zeit (mit Inflation)" }).click();
+  await expect(page.locator(".geld-hinweis")).toHaveText(
+    /^Beträge in Mark zu den Preisen von 1900\./,
+  );
+  await expect(page.locator(".kopf-firma")).toContainText(" M");
 
   await page.getByLabel("Rundenlänge").selectOption("woche");
   await page.getByRole("button", { name: "Runde beenden" }).click();

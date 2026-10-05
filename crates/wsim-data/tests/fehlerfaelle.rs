@@ -257,7 +257,33 @@ reale_firmen:
         anlagen: [{anlage: ofen, anzahl: 1, rezept: eisen_schmelzen}]
 ";
 
+const WAEHRUNG: &str = "\
+preisindex:
+  leitwaehrung: dollar
+  basisjahr: 2026
+  teuerung_danach: 0.02
+  werte: {1900: 8.4, 2026: 330}
+waehrungen:
+  - id: dollar
+    zeichen: USD
+    kurse: {1900: 1}
+  - id: krone
+    zeichen: kr
+    kurse: {1900: 3.73, \"1923-11\": 4.0}
+  - id: krone_neu
+    zeichen: kr
+    bindung: {an: krone, faktor: 2}
+landeswaehrungen:
+  - land: SWE
+    perioden:
+      - {ab: 1900, waehrung: krone}
+      - {ab: \"1999-01\", waehrung: krone_neu}
+";
+
 const TEXTE: &str = "\
+waehrung.dollar: Dollar
+waehrung.krone: Krone
+waehrung.krone_neu: Neue Krone
 schwierigkeit.leicht: Leicht
 schwierigkeit.mittel: Mittel
 schwierigkeit.schwer: Schwer
@@ -302,6 +328,7 @@ impl Daten {
             ("parameter/transportmodell.yaml", TRANSPORT),
             ("parameter/forschungsmodell.yaml", FORSCHUNG),
             ("verkehrsmittel.yaml", VERKEHR),
+            ("waehrungen/a.yaml", WAEHRUNG),
             ("ketten/a.yaml", KETTE),
             ("parameter/kimodell.yaml", KI),
             ("ki/a.yaml", KI_NAMEN),
@@ -394,6 +421,128 @@ fn grunddaten_laden_ohne_befunde() {
     let data = outcome.data.unwrap();
     assert_eq!(data.catalog.products.len(), 2);
     assert_eq!(data.catalog.labor_groups.len(), 3);
+}
+
+#[test]
+fn waehrungen_werden_umgerechnet() {
+    let data = Daten::neu().laden().data.unwrap();
+    let m = &data.catalog.currencies;
+    let swe = data.catalog.countries.id("SWE").unwrap();
+    // 2026: die neue Krone, fest an die alte gebunden (2 je Krone).
+    let heute = m.at_base(swe).unwrap();
+    assert_eq!(heute.currency, "krone_neu");
+    assert!((heute.factor - 8.0).abs() < 1e-9);
+    // 1900: die alte Krone, mit der Teuerung seit 1900.
+    let damals = m.at_time(swe, 1900.5).unwrap();
+    assert_eq!(damals.currency, "krone");
+    assert!((damals.factor - 3.73 * 8.4 / 330.0).abs() < 1e-9);
+}
+
+#[test]
+fn waehrung_mit_ungueltigem_zeitpunkt() {
+    let d = Daten::neu().ersetze("waehrungen/a.yaml", "\"1923-11\"", "\"1923-13\"");
+    let outcome = d.laden();
+    let f = befund(&outcome, "„1923-13“ ist kein gültiger Zeitpunkt");
+    assert_ort(
+        f,
+        "waehrungen/a.yaml",
+        d.zeile("waehrungen/a.yaml", "\"1923-13\""),
+        "waehrungen[1].kurse.1923-13",
+    );
+    nur_fehler(&outcome, 1);
+}
+
+#[test]
+fn waehrung_mit_kursen_und_bindung() {
+    let d = Daten::neu().ersetze(
+        "waehrungen/a.yaml",
+        "    bindung: {an: krone, faktor: 2}",
+        "    bindung: {an: krone, faktor: 2}\n    kurse: {1900: 1}",
+    );
+    let outcome = d.laden();
+    befund(&outcome, "Genau eines von „kurse“");
+    nur_fehler(&outcome, 1);
+}
+
+#[test]
+fn waehrung_an_gebundene_waehrung_gebunden() {
+    let d = Daten::neu().datei(
+        "waehrungen/b.yaml",
+        "waehrungen:\n  - id: krone_neuer\n    zeichen: kr\n    bindung: {an: krone_neu, faktor: 1}\n",
+    );
+    let outcome = d.laden();
+    befund(&outcome, "„krone_neu“ ist selbst gebunden");
+}
+
+#[test]
+fn waehrung_negativer_kurs_und_unbekannte_waehrung() {
+    let d = Daten::neu()
+        .ersetze("waehrungen/a.yaml", "{1900: 3.73,", "{1900: -3.73,")
+        .ersetze(
+            "waehrungen/a.yaml",
+            "waehrung: krone_neu}",
+            "waehrung: krona_neu}",
+        );
+    let outcome = d.laden();
+    befund(&outcome, "Wert -3.73 muss größer als 0 sein");
+    let f = befund(&outcome, "krona_neu");
+    assert!(f.message.contains("krone_neu"), "Vorschlag fehlt: {f}");
+    nur_fehler(&outcome, 2);
+}
+
+#[test]
+fn land_ohne_waehrung_und_spaeter_beginn() {
+    let ohne = Daten::neu().ersetze("waehrungen/a.yaml", "  - land: SWE", "  - land: XXX");
+    let outcome = ohne.laden();
+    befund(&outcome, "Für das Land „SWE“ fehlt ein Eintrag");
+    let spaet = Daten::neu().ersetze(
+        "waehrungen/a.yaml",
+        "      - {ab: 1900, waehrung: krone}",
+        "      - {ab: 1920, waehrung: krone}",
+    );
+    let outcome = spaet.laden();
+    befund(&outcome, "Der erste Zeitraum beginnt erst 1920");
+    nur_fehler(&outcome, 1);
+}
+
+#[test]
+fn zeitraeume_absteigend_und_basisjahr_ohne_preis() {
+    let d = Daten::neu()
+        .ersetze("waehrungen/a.yaml", "{ab: \"1999-01\"", "{ab: \"1899-01\"")
+        .ersetze("waehrungen/a.yaml", "2026: 330}", "2025: 330}");
+    let outcome = d.laden();
+    befund(&outcome, "nach „ab“ aufsteigend sortiert");
+    befund(&outcome, "Für das Basisjahr 2026 fehlt ein Wert");
+}
+
+#[test]
+fn leitwaehrung_braucht_kurs_eins() {
+    let d = Daten::neu().ersetze(
+        "waehrungen/a.yaml",
+        "kurse: {1900: 1}",
+        "kurse: {1900: 1.2}",
+    );
+    let outcome = d.laden();
+    befund(&outcome, "Leitwährung „dollar“");
+    nur_fehler(&outcome, 1);
+}
+
+#[test]
+fn unbenutzte_waehrung_ist_eine_warnung() {
+    let d = Daten::neu()
+        .datei(
+            "waehrungen/b.yaml",
+            "waehrungen:\n  - id: taler\n    zeichen: Tlr\n    kurse: {1900: 4}\n",
+        )
+        .ersetze(
+            "texte/de/a.yaml",
+            "waehrung.dollar: Dollar",
+            "waehrung.dollar: Dollar\nwaehrung.taler: Taler",
+        );
+    let outcome = d.laden();
+    let f = befund(&outcome, "„taler“ wird von keinem Land verwendet");
+    assert_eq!(f.severity, Severity::Warning);
+    assert!(outcome.data.is_some());
 }
 
 #[test]
@@ -555,7 +704,8 @@ fn ungueltige_ids() {
             "referenzland: SWE",
             "referenzland: swe",
         )
-        .ersetze("ki/a.yaml", "laender: [SWE]", "laender: [swe]");
+        .ersetze("ki/a.yaml", "laender: [SWE]", "laender: [swe]")
+        .ersetze("waehrungen/a.yaml", "land: SWE", "land: swe");
     let outcome = d.laden();
     befund(&outcome, "Ungültige ID „Grube“");
     befund(&outcome, "Ungültiger Ländercode „swe“");
