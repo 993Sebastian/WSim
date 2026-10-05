@@ -9,6 +9,13 @@ export function formatZahl(wert: number, stellen = 0): string {
   return zahl(stellen).format(wert);
 }
 
+/** Quantities of goods: small ones with three significant digits ("0,021 t"), large
+ * ones whole. */
+export function formatMenge(wert: number): string {
+  if (Math.abs(wert) >= 100) return zahl(0).format(wert);
+  return new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 }).format(wert);
+}
+
 /** Amounts in USD: whole dollars, from a million shortened (Mio., Mrd.). */
 export function formatGeld(usd: number): string {
   const betrag = Math.abs(usd);

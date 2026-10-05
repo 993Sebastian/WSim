@@ -27,6 +27,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | – | Nacharbeit zu M16: Plausibilität und Versorgung | ✅ |
 | M17 | Browser-Version (WebAssembly, GitHub Pages) | ✅ |
 | M18 | Bedienung: Personal, Werksansicht, Preise, alle Ansichten überarbeitet | ✅ |
+| M19 | Technologiebaum: Technologien, Verfahren, Produkte und Anlagen | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -487,4 +488,32 @@ Lohnaufschlag).
   - Kern: Hinweise, Monatsverlauf, Ergebnisse je Kostenstelle, Umsatz und Rohertrag
     je Produkt in der Runde, Produkt- und Weltmarkt als Sichten (mit Tests); neue
     Anfragen `produktmarkt` und `weltmarkt` in Desktop-App, Browser-Version und Vorschau.
+
+### M19: Technologiebaum (05.10.2026)
+
+Auftrag: ein einsehbarer Technologiebaum – welche Technologien, Verfahren und Produkte
+erforscht werden können und welche Betriebsmittel (Anlagen) sie brauchen.
+
+  - **Baum:** Spalten nach Zeitabschnitt der Erfindung, Zeilen nach Fachgebiet (die
+    Fachgebiete bleiben beim seitlichen Blättern stehen), Linien zu den Voraussetzungen;
+    die gewählte Technologie hebt ihre Linien hervor, der Baum öffnet sich an der
+    Forschungsgrenze. Stand je Knoten: bekannt, in Arbeit, erforschbar, Voraussetzungen
+    fehlen (Farbe und Rahmen, dazu eine Legende). Wahlweise **Liste** nach Fachgebiet;
+    auf dem Handy ist sie voreingestellt, die Details öffnen sich unter dem Eintrag.
+  - **Je Technologie:** Fortschritt in Punkten, Aufwandsfaktor (Vorgriff teurer,
+    Nachzügler günstiger), Dauer mit den eigenen Zentren bzw. mit einem voll besetzten
+    Labor und die Kosten dafür (Formeln: `docs/FORMELN.md`, M19); Voraussetzungen und
+    „Führt zu“ als Sprünge; **Schaltet frei:** Anlagen (Art, Investition, Bauzeit),
+    Verfahren (Ein- und Ausgänge je Anlage und Tag, nötige Anlage und gegebenenfalls die
+    Technologie, die ihr noch fehlt) und Produkte; bei bekannten Technologien führt
+    „Anlage bauen“ zu den Standorten. Forschung startet direkt aus dem Baum; ohne
+    Zentrum mit Labor führt ein Hinweis zu den Forschungszentren.
+  - **Forschungszentren:** eigener Unterreiter mit Stand (Forscher auf Plätzen, Labor im
+    Bau), Fortschritt des Projekts, Projektwahl, Auslastung je Labor, Labor bauen und
+    neues Zentrum gründen.
+  - Mengen werden mit drei gültigen Stellen gezeigt („0,021 t Kupferdraht“ statt „0 t“).
+    Ein Test prüft, dass es jeden festen Textschlüssel der Oberfläche gibt.
+  - Tests: Kern (Stand, Schätzung, „Führt zu“, Freischaltungen), Vorschau (Baum, Detail,
+    Sprung zu Voraussetzungen, Liste) und Browser-Version mit echtem Kern auf Desktop und
+    iPhone (Zentrum gründen, Labor bauen, Forschung starten).
 

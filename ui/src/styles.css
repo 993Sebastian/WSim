@@ -1143,6 +1143,8 @@ form.karte {
 
 .formular-zeile > .feld:has(select) {
   flex: 1 1 16rem;
+  /* Keeps the button next to the choice on wide screens. */
+  max-width: 30rem;
 }
 
 .feld-eingabe {
@@ -1639,6 +1641,333 @@ tr.eigen .anteilbalken span {
   opacity: 0.45;
 }
 
+/* Technology tree (M19) */
+.technik-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 1100px) {
+  .technik-layout {
+    grid-template-columns: minmax(0, 1fr) 26rem;
+    align-items: start;
+  }
+
+  .technikdetail {
+    position: sticky;
+    top: 7rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+}
+
+.baum-rahmen {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--rahmen);
+  border-radius: 8px;
+  background: var(--flaeche);
+}
+
+.baum-scroll {
+  overflow-x: auto;
+}
+
+.bahnkoepfe {
+  position: relative;
+  width: 8.75rem;
+  border-right: 1px solid var(--rahmen);
+}
+
+.bahnkoepfe .bahn {
+  position: absolute;
+  right: 0;
+  left: 0;
+  padding: 0.55rem 0.5rem;
+  color: var(--text-gedaempft);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.bahnkoepfe .bahn.ungerade {
+  background: var(--hintergrund);
+}
+
+svg.technikbaum {
+  display: block;
+  font-size: 12px;
+}
+
+.technikbaum .bahn {
+  fill: var(--flaeche);
+}
+
+.technikbaum .bahn.ungerade {
+  fill: var(--hintergrund);
+}
+
+.technikbaum .epoche {
+  font-weight: 600;
+  fill: var(--text-gedaempft);
+}
+
+.technikbaum .kante {
+  fill: none;
+  stroke: var(--text-gedaempft);
+  stroke-opacity: 0.45;
+  stroke-width: 1.2;
+}
+
+.technikbaum .kante.aktiv {
+  stroke: var(--akzent);
+  stroke-opacity: 1;
+  stroke-width: 2;
+}
+
+/* Nodes are buttons over the drawing, so long names wrap instead of running over. */
+.baum-flaeche {
+  position: relative;
+}
+
+.baum-flaeche > svg {
+  position: absolute;
+  inset: 0;
+}
+
+.baum-flaeche .knoten {
+  position: absolute;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.45rem;
+  border: 1.5px solid var(--rahmen);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.baum-flaeche .knoten span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.baum-flaeche .knoten small {
+  color: var(--text-gedaempft);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.baum-flaeche .knoten.technik-bekannt {
+  border-color: var(--skala-2);
+  background: var(--hervorhebung);
+}
+
+.baum-flaeche .knoten.technik-in_arbeit {
+  border-color: var(--akzent);
+  background: var(--akzent);
+  color: var(--flaeche);
+}
+
+.baum-flaeche .knoten.technik-in_arbeit small {
+  color: inherit;
+}
+
+.baum-flaeche .knoten.technik-erforschbar {
+  border-color: var(--erfolg);
+  background: var(--flaeche);
+}
+
+.baum-flaeche .knoten.technik-gesperrt {
+  border-style: dashed;
+  background: var(--flaeche);
+  color: var(--text-gedaempft);
+}
+
+.baum-flaeche .knoten.gewaehlt {
+  border-color: var(--eigen);
+  box-shadow: 0 0 0 2px var(--eigen);
+}
+
+.legende .punkt.technik-bekannt,
+.technikzeile .punkt.technik-bekannt {
+  background: var(--hervorhebung);
+  border-color: var(--skala-2);
+}
+
+.legende .punkt.technik-in_arbeit,
+.technikzeile .punkt.technik-in_arbeit {
+  background: var(--akzent);
+}
+
+.legende .punkt.technik-erforschbar,
+.technikzeile .punkt.technik-erforschbar {
+  border: 2px solid var(--erfolg);
+}
+
+.legende .punkt.technik-gesperrt,
+.technikzeile .punkt.technik-gesperrt {
+  border: 1px dashed var(--text-gedaempft);
+}
+
+.chip.technik-bekannt {
+  background: var(--skala-2);
+}
+
+.chip.technik-in_arbeit {
+  background: var(--akzent);
+}
+
+.chip.technik-erforschbar {
+  background: var(--erfolg);
+}
+
+.chip.technik-gesperrt {
+  background: var(--text-gedaempft);
+}
+
+.technikliste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.technikliste h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.95rem;
+}
+
+.technikliste ul {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.technikzeile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+/* On a phone the details open below the chosen item. */
+.technikliste li > .technikdetail {
+  margin: 0.3rem 0 0.6rem;
+}
+
+.technikzeile .punkt {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 50%;
+}
+
+.technikzeile.gewaehlt {
+  border-color: var(--eigen);
+  box-shadow: 0 0 0 2px var(--hervorhebung);
+}
+
+.technikzeile.technik-gesperrt {
+  color: var(--text-gedaempft);
+}
+
+.technikdetail h3 {
+  margin: 0;
+}
+
+.technik-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.6rem;
+  margin: 0.2rem 0 0.7rem;
+  font-size: 0.9rem;
+}
+
+/* Short labels, the values get the width of the narrow panel. */
+.werte.technikwerte {
+  grid-template-columns: max-content minmax(0, 1fr);
+  margin-bottom: 0.8rem;
+}
+
+.technikwerte small {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.fortschritt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fortschritt progress {
+  width: 100%;
+  accent-color: var(--akzent);
+}
+
+.zentrumkarte {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.zentrumkarte h3,
+.zentrumkarte .werte,
+.zentrumkarte p {
+  margin: 0;
+}
+
+.technikdetail h4 {
+  margin: 0.9rem 0 0.3rem;
+  font-size: 0.95rem;
+}
+
+.technikdetail h5 {
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-gedaempft);
+}
+
+.freischaltungen {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.freischaltungen li {
+  display: grid;
+  gap: 0.1rem;
+}
+
+button.verweis.knapp {
+  margin-right: 0.6rem;
+}
+
 /* Introduction: a panel beside the game, below the dialogs */
 .einfuehrung {
   position: fixed;
@@ -1672,6 +2001,20 @@ body {
 }
 
 @media (max-width: 700px) {
+  .bahnkoepfe {
+    width: 5.6rem;
+  }
+
+  .bahnkoepfe .bahn {
+    padding: 0.5rem 0.35rem;
+    font-size: 11px;
+  }
+
+  /* Below the sticky header when scrolled to. */
+  .technikdetail {
+    scroll-margin-top: 9.5rem;
+  }
+
   .kopfleiste {
     gap: 0.35rem 0.75rem;
     padding: 0.4rem 0.75rem;

@@ -53,3 +53,36 @@ test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, 
   await expect(page.locator(".kopfleiste")).toContainText("08.01.1900");
   await expect(page.locator(".kopfleiste")).toContainText("Browser AG");
 });
+
+// Research with the real core: found a center, build a laboratory, pick a technology.
+test("Forschungszentrum gründen und eine Technologie erforschen", async ({ page }, info) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel("Name der Firma").fill("Forschung AG");
+  await page.getByLabel(/Einführung zeigen/).uncheck();
+  await page.getByText(/Weitere Einstellungen/).click();
+  await page.getByLabel("Anzahl KI-Firmen").fill("8");
+  await page.getByLabel("Startkapital in USD").fill("5000000");
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  await expect(page.locator(".kopfleiste")).toContainText("Forschung AG");
+
+  await page.getByRole("button", { name: "Forschung", exact: true }).click();
+  await page.getByRole("button", { name: "Forschungszentren", exact: true }).click();
+  await page
+    .getByRole("form", { name: "Neues Forschungszentrum" })
+    .getByRole("button", { name: "Gründen" })
+    .click();
+  const zentrum = page.getByRole("article", { name: "Forschungszentrum in Deutschland" });
+  await zentrum.getByRole("button", { name: /Labor bauen/ }).click();
+  await expect(zentrum).toContainText("Labor im Bau bis");
+
+  await page.getByRole("button", { name: "Technologiebaum", exact: true }).click();
+  await page.getByLabel("Liste").check();
+  await page.getByRole("button", { name: /Turbogenerator/ }).click();
+  const turbo = page.getByRole("region", { name: "Turbogenerator" });
+  await expect(turbo.getByText("Turbinenkraftwerk", { exact: true })).toBeVisible();
+  await turbo.getByRole("button", { name: "Forschung starten" }).click();
+  await expect(turbo).toContainText("Das Zentrum forscht jetzt an Turbogenerator.");
+  await expect(turbo).toContainText("Forscht daran");
+  if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-forschung.png` });
+});

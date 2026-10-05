@@ -320,7 +320,15 @@ export function Spiel({
           <MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "forschung" && (
-          <ForschungAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+          <ForschungAnsicht
+            kern={kern}
+            uebersicht={uebersicht}
+            onGeaendert={setUebersicht}
+            onStandorte={() => {
+              setWerk(null);
+              setAnsicht("produktion");
+            }}
+          />
         )}
         {ansicht === "finanzen" && (
           <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />

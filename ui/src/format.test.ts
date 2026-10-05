@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDatum, formatGeld, meldungText, zahlFeld, zahlLesen } from "./format";
+import { formatDatum, formatGeld, formatMenge, meldungText, zahlFeld, zahlLesen } from "./format";
 
 describe("Formate", () => {
   it("kürzt große Beträge", () => {
@@ -7,6 +7,14 @@ describe("Formate", () => {
     expect(formatGeld(12.5)).toBe("12,5 USD");
     expect(formatGeld(2_500_000)).toBe("2,5 Mio. USD");
     expect(formatGeld(-3_100_000_000)).toBe("-3,1 Mrd. USD");
+  });
+
+  it("zeigt kleine Mengen mit drei gültigen Stellen", () => {
+    expect(formatMenge(0.0213)).toBe("0,0213");
+    expect(formatMenge(8.333)).toBe("8,33");
+    expect(formatMenge(57)).toBe("57");
+    expect(formatMenge(1234.6)).toBe("1.235");
+    expect(formatMenge(0)).toBe("0");
   });
 
   it("liest Zahlen, wie man sie deutsch eintippt", () => {

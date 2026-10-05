@@ -210,3 +210,62 @@ fn research_survives_saving() {
     loaded.advance(RoundLength::Quarter, |_| {});
     assert_eq!(game.state_hash(), loaded.state_hash());
 }
+
+/// M19: the technology tree knows each technology's status, what it opens, and how long
+/// and how expensive it is with one laboratory.
+#[test]
+fn the_tree_shows_status_estimates_and_what_a_technology_opens() {
+    let mut game = new_game(test_support::research());
+    let view = |game: &Game| crate::views::research_overview(game);
+    let find = |v: &crate::views::ResearchOverview, key: &str| {
+        v.technologies
+            .iter()
+            .find(|t| t.key == key)
+            .cloned()
+            .unwrap()
+    };
+    let v = view(&game);
+    assert_eq!(v.laboratory_posts, 10.0);
+    let smelting = find(&v, "schmelzen");
+    assert_eq!(smelting.status, "bekannt");
+    assert_eq!(smelting.leads_to, vec!["hochofen_2000", "turbine"]);
+    // Smelting opens the furnace and its recipe, which makes iron from ore.
+    assert!(smelting.facilities.iter().any(|f| f.key == "ofen"));
+    let recipe = smelting
+        .recipes
+        .iter()
+        .find(|r| r.key == "eisen_schmelzen")
+        .unwrap();
+    assert_eq!(recipe.product, "eisen");
+    assert!((recipe.output_per_day - 50.0).abs() < 1e-9);
+    assert_eq!(recipe.inputs_per_day, vec![("erz".to_owned(), 100.0)]);
+    assert_eq!(smelting.products, vec!["eisen"]);
+
+    let turbine = find(&v, "turbine");
+    assert_eq!(turbine.status, "erforschbar");
+    let remaining = turbine.remaining.unwrap();
+    assert!((remaining - turbine.needed.unwrap()).abs() < 1e-9);
+    // One laboratory: 10 researchers at the efficiency of the home country.
+    let lab = turbine.one_lab.clone().unwrap();
+    assert_eq!(lab.country, "AAA");
+    assert!((lab.days - remaining / lab.points_per_day).abs() < 1e-9);
+    assert!(lab.cost_usd > 0.0);
+    assert_eq!(turbine.days, None);
+    let late = find(&v, "hochofen_2000");
+    assert_eq!(late.status, "erforschbar");
+
+    let site = research_center(&mut game);
+    game.apply(Command::SetResearch {
+        site,
+        technology: Some(tech(&game, "turbine")),
+    })
+    .unwrap();
+    for _ in 0..12 {
+        game.advance(RoundLength::Day, |_| {});
+    }
+    let turbine = find(&view(&game), "turbine");
+    assert_eq!(turbine.status, "in_arbeit");
+    assert!(turbine.points_per_day > 0.0);
+    let days = turbine.days.unwrap();
+    assert!((days - turbine.remaining.unwrap() / turbine.points_per_day).abs() < 1e-9);
+}

@@ -5,6 +5,7 @@ import { useId, useState, type FormEvent, type ReactNode } from "react";
 import {
   formatDatum,
   formatGeld,
+  formatMenge,
   formatPreis,
   formatProzent,
   formatZahl,
@@ -179,7 +180,7 @@ function Anlagen({ s, produktion }: { s: StandortDetail; produktion: Produktion 
 
 function mengen(produktion: Produktion, liste: [string, number][]): string {
   return liste
-    .map(([p, q]) => `${formatZahl(q, 1)} ${einheit(produktion, p)} ${produktName(p)}`)
+    .map(([p, q]) => `${formatMenge(q)} ${einheit(produktion, p)} ${produktName(p)}`)
     .join(" + ");
 }
 
@@ -237,7 +238,7 @@ function AnlageKarte({
         <p className="rezeptzeile">
           {a.inputs_per_day.length > 0 && `${mengen(produktion, a.inputs_per_day)} → `}
           <strong>
-            {formatZahl(a.planned_per_day, 1)} {einheit(produktion, a.product)}{" "}
+            {formatMenge(a.planned_per_day)} {einheit(produktion, a.product)}{" "}
             {produktName(a.product)}
           </strong>{" "}
           {t("werk.je_tag_geplant")}
@@ -249,8 +250,8 @@ function AnlageKarte({
             <dt>{t("werk.gestern")}</dt>
             <dd>
               {t("werk.ist_von_plan", {
-                ist: formatZahl(a.made_per_day, 1),
-                plan: formatZahl(a.planned_per_day, 1),
+                ist: formatMenge(a.made_per_day),
+                plan: formatMenge(a.planned_per_day),
                 einheit: einheit(produktion, a.product),
               })}
             </dd>
@@ -355,7 +356,7 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
             {rezepte.map((r) => (
               <li key={r.key}>
                 {r.inputs_per_day.length > 0 && `${mengen(produktion, r.inputs_per_day)} → `}
-                {formatZahl(r.output_per_day, 1)} {einheit(produktion, r.product)}{" "}
+                {formatMenge(r.output_per_day)} {einheit(produktion, r.product)}{" "}
                 {produktName(r.product)} {t("werk.je_tag")}
               </li>
             ))}
@@ -533,10 +534,10 @@ function EinkaufKarte({
       </h3>
       <dl className="werte">
         <dt>{t("produktion.bedarf")}</dt>
-        <dd>{v.need_per_day > 0 ? `${formatZahl(v.need_per_day, 2)} ${e}` : "–"}</dd>
+        <dd>{v.need_per_day > 0 ? `${formatMenge(v.need_per_day)} ${e}` : "–"}</dd>
         <dt>{t("uebersicht.lager")}</dt>
         <dd>
-          {formatZahl(v.stock, 1)} {e}
+          {formatMenge(v.stock)} {e}
         </dd>
         <dt>{t("produktion.reichweite")}</dt>
         <dd className={`zustand-${zustand}`}>
@@ -718,7 +719,7 @@ function AngebotKarte({
       <dl className="werte">
         <dt>{t("uebersicht.lager")}</dt>
         <dd>
-          {formatZahl(lager, 1)} {e}
+          {formatMenge(lager)} {e}
         </dd>
         {o && (
           <>
@@ -1111,7 +1112,7 @@ function StueckkostenKarte({
         {produktName(u.product)}
         <small>
           {t("werk.erzeugung_tag", {
-            menge: formatZahl(u.output_per_day, 1),
+            menge: formatMenge(u.output_per_day),
             einheit: e,
           })}
         </small>

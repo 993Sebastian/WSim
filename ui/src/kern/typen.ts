@@ -497,6 +497,36 @@ export interface Forschung {
     points: number;
     sites: number[];
     opens: string[];
+    /** bekannt, in_arbeit, erforschbar, gesperrt */
+    status: "bekannt" | "in_arbeit" | "erforschbar" | "gesperrt";
+    leads_to: string[];
+    remaining: number | null;
+    points_per_day: number;
+    days: number | null;
+    one_lab: {
+      country: string;
+      researchers: number;
+      points_per_day: number;
+      days: number;
+      cost_usd: number;
+    } | null;
+    facilities: {
+      key: string;
+      site_type: string;
+      kind_text: string;
+      investment_usd: number;
+      build_days: number;
+      recipes: string[];
+    }[];
+    recipes: {
+      key: string;
+      facility: string;
+      facility_missing: string | null;
+      product: string;
+      output_per_day: number;
+      inputs_per_day: [string, number][];
+    }[];
+    products: string[];
   }[];
   centers: {
     site: number;
@@ -508,7 +538,12 @@ export interface Forschung {
     labs: { slot: number; count: number; utilization: number; ready: string }[];
   }[];
   laboratory: string | null;
+  laboratory_usd: number;
+  laboratory_posts: number;
+  units: Record<string, string>;
 }
+
+export type Technologie = Forschung["technologies"][number];
 
 export interface Abrechnung {
   lines: [string, number][];

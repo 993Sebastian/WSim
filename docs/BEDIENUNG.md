@@ -7,8 +7,8 @@ Zielbild, das M18 bis M20 umsetzen.
 
 Umsetzungsstand: Standorte und Werksansicht mit Personal und Preisen (M18b/c) sowie
 Kopfbereich, Übersicht, Markt, Finanzen, Rundenbericht, Neues Spiel, Weltkarte und
-Spielstände als Datei (M18d) sind umgesetzt; es folgen der Technologiebaum (M19) und die
-geführte Einführung (M20).
+Spielstände als Datei (M18d) sowie der Technologiebaum (M19) sind umgesetzt; es folgt
+die geführte Einführung (M20).
 
 ## Hinweise und Kennzeichen (M18d)
 
@@ -126,6 +126,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Dauer bei eigenem Forschungszentrum, und was sie freischaltet: **Verfahren**
   (Rezepte mit Ein- und Ausgängen), **Produkte**, **Anlagen** (Betriebsmittel mit
   Investition und Leistung) – jeweils mit Sprung zu „Anlage bauen“.
+- Umgesetzt (M19): Baum mit feststehenden Fachgebieten und Linien zu den
+  Voraussetzungen, alternativ Liste (Handy: voreingestellt, Details unter dem Eintrag);
+  Detail mit Fortschritt, Aufwandsfaktor, Dauer und Kosten je Labor, „Schaltet frei“ und
+  Forschung starten; Forschungszentren als eigener Unterreiter.
 
 ### Finanzen
 

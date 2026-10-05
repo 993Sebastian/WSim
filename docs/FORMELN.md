@@ -921,3 +921,32 @@ Parameter: `produktionsmodell.lohnaufschlag_max`; KI:
 - **Preis setzen** (Befehl `SetPrice`): Ein fester Preis wird zum neuen festen Preis. Ein
   automatischer Preis springt auf den eingegebenen Wert (nicht unter die Untergrenze) und
   folgt von dort wieder Angebot und Nachfrage.
+
+## M19 – Technologiebaum (Anzeige)
+
+Die Werte sind Anzeigen der Forschungsansicht (`views::research_overview`) und wirken
+nicht auf die Simulation.
+
+- **Stand** einer Technologie: *bekannt* (die Firma kennt sie, auch als Gemeingut),
+  *in Arbeit* (ein eigenes Forschungszentrum forscht daran), *erforschbar* (alle
+  Voraussetzungen bekannt), sonst *Voraussetzungen fehlen*.
+- **Noch nötige Punkte** R = Aufwand heute (M9, mit Faktor für Vorgriff oder Nachzügler)
+  − gesammelte Punkte der Firma. Der Faktor wird mit angezeigt; vor dem historischen
+  Jahr sinkt er mit der Zeit.
+- **Mit deinen Zentren:** Punkte je Tag P = Σ über die eigenen Zentren an dieser
+  Technologie: Forscher · Forschungseffizienz des Landes im Fachgebiet; Dauer = R / P.
+- **Mit einem Labor:** ein voll besetztes Labor (F = `kapazitaet_je_tag` Forscherplätze)
+  im Land des ersten eigenen Forschungszentrums, sonst am Sitz der Firma:
+
+      P₁     = F · Forschungseffizienz(Land, Fachgebiet)
+      Dauer  = R / P₁
+      Kosten = Dauer · F · (Lohn(Land, Forschergruppe) · Arbeitsstunden je Tag
+                            + sachkosten · Preisniveau(Land))
+
+  ohne den Bau des Labors.
+- **Schaltet frei:** Anlagen, die die Technologie verlangen; Verfahren (Rezepte), die sie
+  selbst verlangen oder deren Anlage sie verlangt – fehlt der Anlage noch eine andere
+  Technologie, wird diese genannt; Produkte, die eines dieser Verfahren herstellt.
+- **Darstellung:** Spalten nach Zeitabschnitt der historischen Erfindung (bis 1850,
+  1851–1875, 1876–1899, 1900–1909, 1910–1919, ab 1920), Zeilen nach Fachgebiet, Linien zu
+  den Voraussetzungen.

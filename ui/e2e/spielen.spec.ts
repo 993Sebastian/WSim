@@ -37,7 +37,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   // A machine at its plan shows no bottleneck.
   const maschine = werk.getByRole("article", { name: "Nagelmaschine" });
   await expect(maschine.getByText("läuft nach Plan")).toBeVisible();
-  await expect(maschine.getByText(/0,5 t Draht → 0,5 t Nägel/)).toBeVisible();
+  await expect(maschine.getByText(/0,51 t Draht → 0,5 t Nägel/)).toBeVisible();
   await bild(page, "werk_anlagen");
 
   // Sales: last month's sales, the price beside market price and unit cost.
@@ -87,9 +87,20 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await bild(page, "marke");
 
   await page.keyboard.press("4");
-  await expect(page.getByRole("heading", { name: "Technologien" })).toBeVisible();
-  await expect(page.getByRole("cell", { name: "Bessemer-Verfahren" })).toBeVisible();
+  // The technology tree: a node opens what the technology costs and opens.
+  const baum = page.getByRole("group", { name: "Technologiebaum" });
+  await expect(baum).toBeVisible();
+  await baum.getByRole("button", { name: /^Fließband, 1913/ }).click();
+  const fliessband = page.getByRole("region", { name: "Fließband" });
+  await expect(fliessband.getByText("Schaltet frei")).toBeVisible();
+  await expect(fliessband.getByText(/57 t Stahl → 300 Stück Motor/)).toBeVisible();
+  await fliessband.getByRole("button", { name: "Automobil" }).click();
+  await expect(page.getByRole("region", { name: "Automobil" })).toBeVisible();
   await bild(page, "forschung");
+  await page.getByLabel("Liste").check();
+  // Picking from the list moves the focus out of the input, so digits switch views again.
+  await page.getByRole("button", { name: /Bessemer-Verfahren/ }).click();
+  await expect(page.getByRole("region", { name: "Bessemer-Verfahren" })).toBeVisible();
 
   await page.keyboard.press("5");
   await expect(page.getByRole("heading", { name: "Bilanz" })).toBeVisible();

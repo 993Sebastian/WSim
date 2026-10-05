@@ -176,3 +176,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Chancen eines Markts (Mangel, teuer, wenige Anbieter) | `MarketLine::chances`, `views::play::chances` |
 | Versorgung (Anteil bedienter Nachfrage von Verbrauchern und Staat) | `MarketLine::supply` |
 | Spielstand als Datei (Browser-Version) | `Kern::spielstandDatei`, `spielstandEinlesen` (UI), Worker-Anfragen `datei`, `einlesen` |
+| Technologiebaum, Stand einer Technologie (bekannt, in Arbeit, erforschbar, gesperrt) | `TechnologyView::status`, `leads_to` (Führt zu) |
+| Schätzung mit einem Labor (Dauer, Kosten) | `LabEstimate`, `views::play::lab_estimate`, `TechnologyView::one_lab` |
+| Schaltet frei: Anlagen, Verfahren, Produkte | `FacilityUnlock`, `RecipeUnlock`, `TechnologyView::products` |
+| Menge mit drei gültigen Stellen (UI) | `formatMenge` |

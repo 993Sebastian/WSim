@@ -457,27 +457,79 @@ markt.marke_hinweis: "Kunden wählen nach Preis, Qualität, Bekanntheit und dana
 
 # Forschung
 forschung.zentren: Forschungszentren
+forschung.bereiche: Bereiche der Forschung
+forschung.baum: Technologiebaum
+forschung.erklaerung: Jede Technologie öffnet Verfahren, Anlagen und Produkte. Erforschbar ist, wessen Voraussetzungen bekannt sind – auch vor dem historischen Jahr, dann aber teurer. Ein Klick zeigt Kosten, Dauer und was die Technologie bringt.
+forschung.darstellung: Darstellung
+forschung.darstellung.baum: Baum
+forschung.darstellung.liste: Liste
+forschung.status.bekannt: bekannt
+forschung.status.in_arbeit: in Arbeit
+forschung.status.erforschbar: erforschbar
+forschung.status.gesperrt: Voraussetzungen fehlen
+forschung.epoche.bis_1850: bis 1850
+forschung.epoche.bis_1875: 1851–1875
+forschung.epoche.bis_1899: 1876–1899
+forschung.epoche.bis_1909: 1900–1909
+forschung.epoche.bis_1919: 1910–1919
+forschung.epoche.ab_1920: ab 1920
+forschung.erfunden: "erfunden {jahr}"
+forschung.fortschritt: Fortschritt
+forschung.punkte: "{punkte} von {bedarf} Punkten"
+forschung.vorgriff: "× {faktor} – vor dem historischen Jahr teurer, mit der Zeit günstiger"
+forschung.nachzuegler: "× {faktor} – Nachzügler forschen günstiger"
+forschung.faktor: Aufwandsfaktor
+forschung.forscht_daran: Forscht daran
+forschung.dauer: Dauer
+forschung.tage_etwa: "etwa {tage} Tage"
+forschung.mit_deinen_zentren: "mit deinen Zentren ({punkte} Punkte am Tag)"
+forschung.mit_einem_labor: "mit einem voll besetzten Labor in {land}"
+forschung.kosten: Kosten
+forschung.kosten_etwa: "etwa {kosten}"
+forschung.kosten_hinweis: "mit einem Labor: {forscher} Forscher, Löhne und Sachkosten, ohne den Bau des Labors"
+forschung.erst_zentrum: "Zum Forschen brauchst du ein Forschungszentrum mit Labor (ein Labor kostet {betrag})."
+forschung.zu_den_zentren: Zu den Forschungszentren
+forschung.forschen_an: "An {technologie} forschen"
+forschung.zentrum: Forschungszentrum
+forschung.statt: "statt {technologie}"
+forschung.starten: Forschung starten
+forschung.gestartet: "Das Zentrum forscht jetzt an {technologie}."
+forschung.angehalten: Forschung angehalten.
+forschung.erst_voraussetzungen: "Erst erforschbar, wenn bekannt ist: {liste}."
+forschung.voraussetzungen: Voraussetzungen
+forschung.keine: keine
+forschung.fuehrt_zu: Führt zu
+forschung.schaltet_frei: Schaltet frei
+forschung.nichts_frei: Diese Technologie öffnet keine Anlage und kein Verfahren selbst; sie ist Voraussetzung für andere.
+forschung.anlagen: Anlagen (Betriebsmittel)
+forschung.anlage_info: "{art}, {betrag}, {tage} Tage Bauzeit"
+forschung.verfahren: Verfahren
+forschung.je_anlage_tag: je Anlage und Tag
+forschung.braucht_anlage: "Anlage: {anlage}"
+forschung.anlage_fehlt: "(erst mit {technologie})"
+forschung.produkte: Produkte
+forschung.anlage_bauen: Anlage bauen (zu den Standorten)
+forschung.zentren_erklaerung: "Ein Forschungszentrum arbeitet an einer Technologie. Jedes Labor hat {plaetze} Forscherplätze und kostet {betrag}; die Auslastung bestimmt, wie viele Forscher eingestellt werden. Forscher sind Akademiker des Fachgebiets; ihre Löhne und Sachkosten sind Forschungskosten."
+forschung.zentrum_in: "Forschungszentrum in {land}"
+forschung.stand_zentrum: Stand
+forschung.projekt: Projekt
+forschung.labor_begonnen: Das Labor wird gebaut.
+forschung.labor_hilfe: Anteil der Forscherplätze, die besetzt werden.
+forschung.gegruendet: "Forschungszentrum in {land} gegründet – baue dort ein Labor."
 forschung.keine_zentren: Noch kein Forschungszentrum.
-forschung.forscher: "{anzahl} Forscher"
+forschung.forscher_von: "{anzahl} Forscher auf {plaetze} Plätzen"
+forschung.projekt_stand: "{technologie}: {anteil}"
+forschung.noch_tage: "– noch etwa {tage} Tage"
+forschung.erst_labor: Ohne Labor forscht das Zentrum nicht. Baue zuerst ein Labor.
 forschung.ohne_labor: ohne Labor
 forschung.projekt_von: "Forschungsprojekt in {land}"
 forschung.kein_projekt: – kein Projekt –
-forschung.labor_bauen: Labor bauen
-forschung.labor_erweitern: Weiteres Labor bauen
+forschung.labor_bauen: "Labor bauen ({betrag})"
+forschung.labor_erweitern: "Weiteres Labor bauen ({betrag})"
 forschung.labor_im_bau: "Labor im Bau bis {datum}"
-forschung.labor_auslastung: "Auslastung ({anzahl} Labor)"
-forschung.gruenden: Forschungszentrum gründen in
-forschung.technologien: Technologien
-forschung.feld: Fachgebiet
-forschung.alle_felder: alle
-forschung.technologie: Technologie
-forschung.erfindung: Erfunden
-forschung.stand: Stand
-forschung.voraussetzungen: Voraussetzungen
-forschung.ermoeglicht: Ermöglicht
-forschung.bekannt: bekannt
-forschung.punkte: "{punkte} von {bedarf} Punkten"
-forschung.gesperrt: noch nicht erforschbar
+forschung.labor_auslastung: Auslastung der Labore
+forschung.labor_auslastung_nr: "Auslastung von Labor {nummer}"
+forschung.gruenden: Neues Forschungszentrum
 
 # Finanzen
 finanzen.bilanz: Bilanz

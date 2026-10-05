@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
-use crate::catalog::SiteType;
+use crate::catalog::{Catalog, SiteType};
 use crate::command::site_type_key;
 use crate::finance;
 use crate::game::Game;
@@ -1176,8 +1176,62 @@ pub struct TechnologyView {
     pub points: f64,
     /// Sites working on it.
     pub sites: Vec<u32>,
-    /// Facilities and recipes it opens.
+    /// Facilities and recipes it opens (text keys).
     pub opens: Vec<String>,
+    /// `bekannt`, `in_arbeit`, `erforschbar` or `gesperrt` (prerequisites missing).
+    pub status: String,
+    /// Technologies that need this one.
+    pub leads_to: Vec<String>,
+    /// Points still missing today.
+    pub remaining: Option<f64>,
+    /// Points per day of the own research centers working on it now.
+    pub points_per_day: f64,
+    /// Days to go at that pace.
+    pub days: Option<f64>,
+    /// What one fully used laboratory in the company's home country would take.
+    pub one_lab: Option<LabEstimate>,
+    /// Facilities it opens, with what they cost and make.
+    pub facilities: Vec<FacilityUnlock>,
+    /// Recipes it opens and the facility each needs.
+    pub recipes: Vec<RecipeUnlock>,
+    /// Products the opened recipes make.
+    pub products: Vec<String>,
+}
+
+/// Time and cost of a technology with one fully used laboratory (M19, estimate).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LabEstimate {
+    pub country: String,
+    pub researchers: f64,
+    pub points_per_day: f64,
+    pub days: f64,
+    /// Researchers' wages and material, without building the laboratory.
+    pub cost_usd: f64,
+}
+
+/// A facility a technology opens.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FacilityUnlock {
+    pub key: String,
+    pub site_type: SiteType,
+    pub kind_text: String,
+    pub investment_usd: f64,
+    pub build_days: u32,
+    /// Recipes that run on it.
+    pub recipes: Vec<String>,
+}
+
+/// A recipe a technology opens.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RecipeUnlock {
+    pub key: String,
+    pub facility: String,
+    /// Technology the facility needs, if the player does not know it yet.
+    pub facility_missing: Option<String>,
+    pub product: String,
+    /// Output and inputs of one facility per day at full utilization.
+    pub output_per_day: f64,
+    pub inputs_per_day: Vec<(String, f64)>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1209,6 +1263,55 @@ pub struct ResearchOverview {
     pub centers: Vec<ResearchCenterView>,
     /// Facility for research centers (to build a laboratory).
     pub laboratory: Option<String>,
+    /// Its price and researcher posts.
+    pub laboratory_usd: f64,
+    pub laboratory_posts: f64,
+    /// Unit of each product (key of `einheit.<key>`).
+    pub units: BTreeMap<String, String>,
+}
+
+/// One fully used laboratory in a country working on a technology: points, days and
+/// cost (researchers' wages and material) for the points still missing.
+fn lab_estimate(
+    catalog: &Catalog,
+    state: &crate::state::GameState,
+    country: CountryId,
+    technology: crate::ids::TechnologyId,
+    remaining: f64,
+) -> Option<LabEstimate> {
+    let lab = catalog
+        .facilities
+        .values()
+        .find(|f| f.site_type == SiteType::ResearchCenter)?;
+    let field = catalog.technologies.get(technology).field;
+    let group = catalog
+        .research_model
+        .researchers
+        .get(field.index())
+        .copied()
+        .flatten()?;
+    let c = state.countries.get(country);
+    let researchers = lab.runs_per_day;
+    let points_per_day = researchers
+        * c.research_efficiency
+            .get(field.index())
+            .copied()
+            .unwrap_or(1.0);
+    if points_per_day <= 0.0 {
+        return None;
+    }
+    let hours = crate::production::hours_per_worker_day(catalog, state.date);
+    let wage = c.hourly_wage_usd.get(group.index()).copied().unwrap_or(0.0);
+    let per_day =
+        researchers * (wage * hours + catalog.research_model.material_usd_per_day * c.price_level);
+    let days = remaining / points_per_day;
+    Some(LabEstimate {
+        country: catalog.countries.key(country).to_owned(),
+        researchers,
+        points_per_day,
+        days,
+        cost_usd: days * per_day,
+    })
 }
 
 pub fn research_overview(game: &Game) -> ResearchOverview {
@@ -1234,7 +1337,125 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                     .filter(|(_, r)| r.technology == Some(id))
                     .map(|(r, _)| format!("rezept.{}", catalog.recipes.key(r))),
             );
+            let known = state.knows(catalog, player, id);
+            let researchable = research::can_research(catalog, state, player, id);
+            let points = company.research.get(&id).copied().unwrap_or(0.0);
+            let remaining = effort
+                .map(|e| (e.points - points).max(0.0))
+                .filter(|_| !known);
+            let working: Vec<usize> = state
+                .sites
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| s.owner == player && s.research == Some(id))
+                .map(|(i, _)| i)
+                .collect();
+            let points_per_day: f64 = working
+                .iter()
+                .map(|&i| {
+                    let s = &state.sites[i];
+                    let researchers = catalog
+                        .research_model
+                        .researchers
+                        .get(t.field.index())
+                        .copied()
+                        .flatten()
+                        .map_or(0.0, |g| *s.workforce.get(g));
+                    researchers
+                        * state
+                            .countries
+                            .get(s.country)
+                            .research_efficiency
+                            .get(t.field.index())
+                            .copied()
+                            .unwrap_or(1.0)
+                })
+                .sum();
+            let status = if known {
+                "bekannt"
+            } else if !working.is_empty() {
+                "in_arbeit"
+            } else if researchable {
+                "erforschbar"
+            } else {
+                "gesperrt"
+            };
+            let lab_country = state
+                .sites
+                .iter()
+                .find(|s| s.owner == player && s.kind == SiteType::ResearchCenter)
+                .map_or(company.headquarters, |s| s.country);
+            let knows = |t: Option<crate::ids::TechnologyId>| {
+                t.is_none_or(|t| state.knows(catalog, player, t))
+            };
+            let facilities: Vec<FacilityUnlock> = catalog
+                .facilities
+                .iter()
+                .filter(|(_, f)| f.technology == Some(id))
+                .map(|(f, x)| FacilityUnlock {
+                    key: catalog.facilities.key(f).to_owned(),
+                    site_type: x.site_type,
+                    kind_text: site_type_key(x.site_type),
+                    investment_usd: usd(x.investment),
+                    build_days: x.build_days,
+                    recipes: catalog
+                        .recipes
+                        .iter()
+                        .filter(|(_, r)| r.facility == f)
+                        .map(|(r, _)| catalog.recipes.key(r).to_owned())
+                        .collect(),
+                })
+                .collect();
+            // Recipes it opens: those that need it, and those on its facilities.
+            let recipes: Vec<RecipeUnlock> = catalog
+                .recipes
+                .iter()
+                .filter(|(_, r)| {
+                    r.technology == Some(id)
+                        || catalog.facilities.get(r.facility).technology == Some(id)
+                })
+                .map(|(r, x)| {
+                    let f = catalog.facilities.get(x.facility);
+                    RecipeUnlock {
+                        key: catalog.recipes.key(r).to_owned(),
+                        facility: catalog.facilities.key(x.facility).to_owned(),
+                        facility_missing: f
+                            .technology
+                            .filter(|&ft| ft != id && !knows(Some(ft)))
+                            .map(|ft| catalog.technologies.key(ft).to_owned()),
+                        product: catalog.products.key(x.product).to_owned(),
+                        output_per_day: x.output * f.runs_per_day,
+                        inputs_per_day: x
+                            .inputs
+                            .iter()
+                            .map(|&(p, q)| (catalog.products.key(p).to_owned(), q * f.runs_per_day))
+                            .collect(),
+                    }
+                })
+                .collect();
+            let mut products: Vec<String> = Vec::new();
+            for r in &recipes {
+                if !products.contains(&r.product) {
+                    products.push(r.product.clone());
+                }
+            }
             TechnologyView {
+                status: status.to_owned(),
+                leads_to: catalog
+                    .technologies
+                    .iter()
+                    .filter(|(_, other)| other.prerequisites.contains(&id))
+                    .map(|(o, _)| catalog.technologies.key(o).to_owned())
+                    .collect(),
+                remaining,
+                points_per_day,
+                days: remaining
+                    .filter(|_| points_per_day > 0.0)
+                    .map(|r| r / points_per_day),
+                one_lab: remaining.and_then(|r| lab_estimate(catalog, state, lab_country, id, r)),
+                facilities,
+                recipes,
+                products,
                 key: catalog.technologies.key(id).to_owned(),
                 field: catalog.specializations.key(t.field).to_owned(),
                 invention_year: t.invention_year,
@@ -1243,17 +1464,14 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                     .iter()
                     .map(|&p| catalog.technologies.key(p).to_owned())
                     .collect(),
-                known: state.knows(catalog, player, id),
-                researchable: research::can_research(catalog, state, player, id),
+                known,
+                researchable,
                 needed: effort.map(|e| e.points),
                 factor: effort.map(|e| e.factor),
-                points: company.research.get(&id).copied().unwrap_or(0.0),
-                sites: state
-                    .sites
+                points,
+                sites: working
                     .iter()
-                    .enumerate()
-                    .filter(|(_, s)| s.owner == player && s.research == Some(id))
-                    .map(|(i, _)| u32::try_from(i).unwrap_or(u32::MAX))
+                    .map(|&i| u32::try_from(i).unwrap_or(u32::MAX))
                     .collect(),
                 opens,
             }
@@ -1299,6 +1517,17 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             .iter()
             .find(|(_, f)| f.site_type == SiteType::ResearchCenter)
             .map(|(f, _)| catalog.facilities.key(f).to_owned()),
+        laboratory_usd: catalog
+            .facilities
+            .values()
+            .find(|f| f.site_type == SiteType::ResearchCenter)
+            .map_or(0.0, |f| usd(f.investment)),
+        laboratory_posts: catalog
+            .facilities
+            .values()
+            .find(|f| f.site_type == SiteType::ResearchCenter)
+            .map_or(0.0, |f| f.runs_per_day),
+        units: units(catalog),
     }
 }
 
