@@ -26,6 +26,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M16 | Markteintritt und Marketing | ✅ |
 | – | Nacharbeit zu M16: Plausibilität und Versorgung | ✅ |
 | M17 | Browser-Version (WebAssembly, GitHub Pages) | ✅ |
+| M18 | Bedienung: Personal, Werksansicht, Preise (M18a–c), übrige Ansichten (M18d) | 🔄 a–c ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -430,4 +431,41 @@ prüfen. Entscheidungen des Auftraggebers: Lastenheft §18.2.
     `gh-pages`.
   - Leistung (Node, ein Kern): Daten laden 0,26 s, neues Spiel mit 100 KI-Firmen 0,07 s,
     ein Monat 1,5–1,7 s; Speicher etwa 90 MB.
+
+### M18: Bedienung, Personal und Werksansicht (05.10.2026)
+
+Auftrag: Lesbarkeit und Zuordnung von Überschriften und Feldern prüfen, das einzelne Werk
+detaillierter zeigen, Preisanpassungen reparieren, Arbeitskräfte einstellbar machen,
+alle Ansichten auf die Entscheidungen des Spielers ausrichten. Entscheidungen des
+Auftraggebers: Lastenheft §18.2 (Manager erst in Stufe 2; Personal sichtbar mit
+Lohnaufschlag).
+
+  - **M18a Prüfung:** `docs/BEDIENUNG.md` – Grundsätze und Befund je Ansicht. Ursache von
+    „Preisanpassungen gehen teilweise nicht“: Im Modus Marktpreis war das einzige Feld
+    die Untergrenze; ein niedrigerer Wert änderte den laufenden Preis nicht. Dazu
+    erschien die Rückmeldung oben außer Sicht, und „1.800“ wurde als 1,8 gelesen.
+  - **M18b Personal:** Lohnaufschlag je Standort (`SetWagePremium`, 0 bis
+    `lohnaufschlag_max`); er gilt für Lohnkosten, den Wert der Erzeugnisse und die
+    Kostenschätzungen der KI. Besetzung nach Aufschlag; wer mehr zahlt, wirbt bei
+    Knappheit Arbeitskräfte von Standorten desselben Landes mit niedrigerem Aufschlag ab
+    (Formeln: `docs/FORMELN.md`, M18). KI: Schritt nach oben bei Personalmangel, sonst
+    zurück bis 0 (höchstens 30 %). Im Weltlauf 1900 ändert das nichts (keine
+    Personalengpässe); erst 1917 trat im Protokoll ein Engpass auf (Kupfererz).
+  - **M18c Werksansicht und Preise:** Reiter „Standorte“ mit einer Karte je Standort
+    (Umsatz und Ergebnis des Vormonats, Beschäftigte, Engpässe); „Öffnen“ führt in die
+    Werksansicht mit Anlagen, Einkauf, Verkauf, Personal sowie Kosten und Ergebnis.
+    Neuer Befehl `SetPrice`: Der eingegebene Preis gilt sofort, auch im automatischen
+    Modus (der Preis folgt danach wieder dem Markt); Schnellknöpfe −5 %/+5 %; neben dem
+    Preis stehen Marktpreis, Richtpreis, Stückkosten und Marge auf einer Skala.
+    Stückkosten je Erzeugnis aufgeschlüsselt (Material, Personal, Energie, Gemeinkosten,
+    Pacht, Anlage); Ergebnis des Standorts im Vormonat je Kostenart und Rohertrag je
+    Produkt. Dafür führt das Hauptbuch Ergebnisse je Kostenstelle und Kostenart (nur
+    laufender und letzter abgeschlossener Monat und Jahr, Spielstände bleiben klein) und
+    verrechnet die Löhne der genutzten Stunden intern auf die Produkte.
+  - Bedienung allgemein: Jedes Feld hat eine eigene Beschriftung mit Einheit, Zahlen
+    werden deutsch gelesen („1.800“ = 1800, „2,5“ = 2,5), Rückmeldungen erscheinen am
+    Formular. Auf dem Handy werden Tabellen zu Karten; lange Beschriftungen brechen um,
+    statt Werte aus der Karte zu schieben.
+  - Spielstände: neue Felder mit Vorgabewerten, ältere Stände laden unverändert
+    (keine neue Formatversion).
 

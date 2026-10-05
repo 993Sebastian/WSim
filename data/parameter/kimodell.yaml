@@ -66,6 +66,10 @@ kimodell:
     ausbau_marge: {bei_0: 0.1, bei_1: 0.03}           # Aufschlag auf Vollkosten mit Gemeinkosten (M16), Aggressivität
     ausbau_vorprodukt_preis_max: 1.5                  # kein Ausbau, solange ein Vorprodukt mehr kostet (× Richtpreis im Land): knapp
     ausbau_anteil_kasse_max: 0.3
+    # Lohnaufschlag je Standort (M18): + Schritt je Entscheidung, solange eine Anlage auf
+    # Arbeitskräfte wartet, sonst − Schritt bis 0; höchstens so viel.
+    lohnaufschlag_schritt: 0.05
+    lohnaufschlag_max: 0.3
     forschung_vorgriff_jahre: {bei_0: 0, bei_1: 2}    # Kompetenz
     forschung_mindestumsatz_usd: 2_000_000
     forschung_mindestkompetenz: 0.4

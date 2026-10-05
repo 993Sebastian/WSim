@@ -223,6 +223,10 @@ export interface AnlageDetail {
   planned_per_day: number;
   made_per_day: number;
   cause: Ursache | null;
+  /** Condition of the facilities (1 = new). */
+  condition: number;
+  /** [product, quantity per day at the planned utilization] */
+  inputs_per_day: [string, number][];
 }
 
 export interface Angebot {
@@ -234,6 +238,15 @@ export interface Angebot {
   keep: number;
   sold_month: number;
   sold_last_month: number;
+  stock: number;
+  market_price_usd: number;
+  reference_usd: number;
+  /** Expected cost per unit (made here, else the value of the stock). */
+  unit_cost_usd: number | null;
+  /** (price − unit cost) / price */
+  margin: number | null;
+  /** The site uses the product itself. */
+  used_here: boolean;
 }
 
 export interface Einkauf {
@@ -252,6 +265,39 @@ export interface Versorgung {
   days: number | null;
   own: boolean;
   ordered: boolean;
+  market_price_usd: number;
+}
+
+export interface Personal {
+  group: string;
+  needed: number;
+  employed: number;
+  free_in_country: number;
+  wage_usd: number;
+  country_wage_usd: number;
+}
+
+export interface Stueckkosten {
+  product: string;
+  output_per_day: number;
+  material_usd: number;
+  labor_usd: number;
+  energy_usd: number;
+  overhead_usd: number;
+  rent_usd: number;
+  facility_usd: number;
+  total_usd: number;
+  variable_usd: number;
+}
+
+export interface StandortErgebnis {
+  /** First day of the month. */
+  month: string;
+  revenue_usd: number;
+  /** Everything but revenue by cost type (text keys), costs negative. */
+  lines: { key: string; usd: number }[];
+  result_usd: number;
+  products: { product: string; revenue_usd: number; margin_usd: number }[];
 }
 
 export interface StandortDetail {
@@ -275,6 +321,15 @@ export interface StandortDetail {
   orders: Einkauf[];
   inputs: Versorgung[];
   research: string | null;
+  wage_premium: number;
+  wage_premium_max: number;
+  rival_premium_max: number;
+  staff: Personal[];
+  wage_cost_per_day_usd: number;
+  unit_costs: Stueckkosten[];
+  last_month: StandortErgebnis | null;
+  /** Market and reference price in the site's country, by product. */
+  prices: Record<string, { market_usd: number; reference_usd: number }>;
 }
 
 export interface Produktion {
@@ -296,6 +351,8 @@ export interface Produktion {
     facility: string;
     product: string;
     output: number;
+    output_per_day: number;
+    inputs_per_day: [string, number][];
     duration_days: number;
     extraction: boolean;
     inputs: [string, number][];
@@ -303,6 +360,8 @@ export interface Produktion {
     energy_mwh: number;
   }[];
   products: string[];
+  /** Unit key of each product (einheit.<key>). */
+  units: Record<string, string>;
 }
 
 export interface Markt {

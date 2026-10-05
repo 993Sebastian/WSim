@@ -23,17 +23,39 @@ async function bild(page: Page, name: string) {
 test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await starten(page);
   await page.keyboard.press("2");
-  await expect(page.getByRole("button", { name: "Produktion" })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: "Standorte" })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  await expect(page.getByRole("heading", { name: /Werk · Deutschland/ })).toBeVisible();
-  // A machine at its plan shows no bottleneck; last month's sales are shown.
-  await expect(page.getByRole("cell", { name: "läuft" })).toBeVisible();
-  const verkauf = page.getByRole("table", { name: "Verkauf" });
-  await expect(verkauf.getByRole("cell", { name: "15,5" })).toBeVisible();
-  await expect(page.getByRole("combobox", { name: "Weiteres Produkt einkaufen" })).toBeVisible();
-  await bild(page, "produktion");
+  // One card per site; it opens the plant view.
+  const karte = page.getByRole("article", { name: "Werk · Deutschland" });
+  await expect(karte.getByText("Alle Anlagen laufen nach Plan.")).toBeVisible();
+  await bild(page, "standorte");
+  await karte.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  const werk = page.getByRole("region", { name: "Werk · Deutschland" });
+  await expect(werk.getByRole("heading", { name: /Werk · Deutschland/ })).toBeVisible();
+  // A machine at its plan shows no bottleneck.
+  const maschine = werk.getByRole("article", { name: "Nagelmaschine" });
+  await expect(maschine.getByText("läuft nach Plan")).toBeVisible();
+  await expect(maschine.getByText(/0,5 t Draht → 0,5 t Nägel/)).toBeVisible();
+  await bild(page, "werk_anlagen");
+
+  // Sales: last month's sales, the price beside market price and unit cost.
+  await werk.getByRole("button", { name: "Verkauf" }).click();
+  const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
+  await expect(naegel.getByText("15,5 t")).toBeVisible();
+  await expect(naegel.getByText("Stückkosten", { exact: true })).toBeVisible();
+  await expect(naegel.getByText(/Marge 18 %/)).toBeVisible();
+  await bild(page, "werk_verkauf");
+
+  await werk.getByRole("button", { name: "Einkauf" }).click();
+  await expect(werk.getByRole("combobox", { name: "Weiteres Produkt einkaufen" })).toBeVisible();
+  await werk.getByRole("button", { name: "Personal" }).click();
+  await expect(werk.getByRole("table", { name: "Arbeitskräfte" })).toBeVisible();
+  await werk.getByRole("button", { name: "Kosten und Ergebnis" }).click();
+  await expect(werk.getByRole("article", { name: "Stückkosten von Nägel" })).toBeVisible();
+  await expect(werk.getByRole("table", { name: "Ergebnis des Vormonats" })).toBeVisible();
+  await bild(page, "werk_kosten");
 
   await page.keyboard.press("3");
   await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
@@ -68,21 +90,33 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
 
 test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await starten(page);
-  await page.getByRole("button", { name: "Produktion" }).click();
+  await page.getByRole("button", { name: "Standorte" }).click();
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
 
-  await page.getByLabel("Auslastung von Nagelmaschine in Prozent").fill("60");
-  await page.getByLabel("Auslastung von Nagelmaschine in Prozent").press("Enter");
-  await expect(page.getByRole("alert")).toHaveText(/Vorschau im Browser führt keine Befehle aus/);
+  const anlage = page.getByRole("form", { name: "Nagelmaschine steuern" });
+  await anlage.getByLabel("Geplante Auslastung").fill("60");
+  await anlage.getByRole("button", { name: "Übernehmen" }).click();
+  // The answer appears at the form, not at the top of the page.
+  await expect(anlage.getByRole("alert")).toHaveText(/Vorschau im Browser führt keine Befehle aus/);
 
-  const einkauf = page.getByRole("form", { name: "Einkauf von Draht" });
-  await einkauf.getByLabel("Ziellager für Draht").fill("30");
-  await einkauf.getByLabel("Höchstpreis für Draht in USD").fill("2500");
-  await einkauf.getByRole("button", { name: "Ändern" }).click();
+  await page.getByRole("button", { name: "Einkauf" }).click();
+  const einkauf = page.getByRole("form", { name: "Einkauf von Draht festlegen" });
+  await einkauf.getByLabel("Ziellager").fill("30");
+  // German input: the point separates thousands.
+  await einkauf.getByLabel("Höchstpreis").fill("2.500");
+  await einkauf.getByRole("button", { name: /Einkauf (ändern|starten)/ }).click();
 
-  const verkauf = page.getByRole("form", { name: "Verkauf von Nägel" });
-  await verkauf.getByLabel("Preisart für Nägel").selectOption("fest");
-  await verkauf.getByLabel("Festpreis für Nägel in USD").fill("2400");
-  await verkauf.getByRole("button", { name: "Ändern" }).click();
+  await page.getByRole("button", { name: "Verkauf" }).click();
+  const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
+  await verkauf.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();
+  await verkauf.getByLabel("Fester Preis").check();
+  await verkauf.getByLabel("Preis", { exact: true }).fill("2.400,50");
+  await verkauf.getByRole("button", { name: "Übernehmen" }).click();
+
+  await page.getByRole("button", { name: "Personal" }).click();
+  const lohn = page.getByRole("form", { name: "Lohnaufschlag" });
+  await lohn.getByLabel("Lohnaufschlag").fill("12,5");
+  await lohn.getByRole("button", { name: "Übernehmen" }).click();
 
   await page.getByRole("button", { name: "Finanzen" }).click();
   await page.getByLabel("Betrag (USD)").fill("20000");
@@ -105,7 +139,10 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
-    { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_000_000 }, keep: 0 } },
+    // 1 932,4557 USD − 5 %, rounded to cents
+    { SetPrice: { site: 0, product: "naegel", price: 18_358_300 } },
+    { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
+    { SetWagePremium: { site: 0, premium: 0.125 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },
     { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
   ]);
@@ -121,8 +158,8 @@ test("Die Einführung führt durch die Ansichten und lässt sich neu starten", a
   const weiter = einfuehrung.getByRole("button", { name: "Weiter" });
   await weiter.click();
   await weiter.click();
-  await expect(einfuehrung.getByRole("heading", { name: "Produktion" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Produktion" })).toHaveAttribute(
+  await expect(einfuehrung.getByRole("heading", { name: "Standorte" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Standorte" })).toHaveAttribute(
     "aria-current",
     "page",
   );

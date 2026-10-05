@@ -356,8 +356,15 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                     utilization,
                 });
             }
-            let flows: SlotFlows =
-                population::slot_flows(catalog, state, country, recipe, sl.count, utilization);
+            let flows: SlotFlows = population::slot_flows(
+                catalog,
+                state,
+                country,
+                recipe,
+                sl.count,
+                utilization,
+                1.0 + s.wage_premium,
+            );
             for (input, q) in &flows.inputs {
                 *need.entry(*input).or_default() += q;
             }
@@ -536,9 +543,30 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 });
             }
         }
+        let short_of_staff = s
+            .slots
+            .iter()
+            .any(|sl| matches!(sl.limit, Some(Limit::Labor(_))));
+        let premium = next_wage_premium(catalog, s.wage_premium, short_of_staff);
+        if (premium - s.wage_premium).abs() > 1e-9 {
+            commands.push(Command::SetWagePremium { site, premium });
+        }
         for c in &commands {
             run(state, catalog, id, c);
         }
+    }
+}
+
+/// Wage premium of a site after an operating decision (M18): a step up while facilities
+/// wait for workers, a step down otherwise.
+fn next_wage_premium(catalog: &Catalog, current: f64, short_of_staff: bool) -> f64 {
+    let b = &catalog.ai_model.behavior;
+    if short_of_staff {
+        (current + b.wage_premium_step)
+            .min(b.wage_premium_max)
+            .min(catalog.production_model.wage_premium_max)
+    } else {
+        (current - b.wage_premium_step).max(0.0)
     }
 }
 
@@ -605,9 +633,16 @@ fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
         let s = &state.sites[site.index()];
         for sl in &s.slots {
             if let Some(r) = sl.recipe {
-                total +=
-                    population::slot_flows(catalog, state, s.country, r, sl.count, sl.utilization)
-                        .cost_per_day;
+                total += population::slot_flows(
+                    catalog,
+                    state,
+                    s.country,
+                    r,
+                    sl.count,
+                    sl.utilization,
+                    1.0 + s.wage_premium,
+                )
+                .cost_per_day;
             }
         }
     }
@@ -683,8 +718,15 @@ fn expand(
             if short || matches!(sl.limit, Some(Limit::Input(_) | Limit::Labor(_))) {
                 held_back.push(recipe.product);
             }
-            let flows =
-                population::slot_flows(catalog, state, s.country, r, sl.count, sl.utilization);
+            let flows = population::slot_flows(
+                catalog,
+                state,
+                s.country,
+                r,
+                sl.count,
+                sl.utilization,
+                1.0 + s.wage_premium,
+            );
             for &(input, q) in &flows.inputs {
                 *own_use.entry(input).or_default() += q;
             }
@@ -1608,4 +1650,27 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         keep: 0.0,
     };
     run(state, catalog, id, &sell)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::catalog::test_support;
+
+    #[test]
+    fn wage_premium_rises_while_short_of_staff_and_falls_back() {
+        let catalog = test_support::production();
+        let b = &catalog.ai_model.behavior;
+        let mut premium = 0.0;
+        for _ in 0..100 {
+            premium = next_wage_premium(&catalog, premium, true);
+        }
+        assert!((premium - b.wage_premium_max).abs() < 1e-9, "{premium}");
+        premium = next_wage_premium(&catalog, premium, false);
+        assert!((premium - (b.wage_premium_max - b.wage_premium_step)).abs() < 1e-9);
+        for _ in 0..100 {
+            premium = next_wage_premium(&catalog, premium, false);
+        }
+        assert_eq!(premium, 0.0);
+    }
 }

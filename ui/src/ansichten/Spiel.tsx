@@ -60,6 +60,8 @@ export function Spiel({
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
+  // Site open in the plant view of the sites tab (null: the list of sites).
+  const [werk, setWerk] = useState<number | null>(null);
   // Every view starts at its top (and the game screen at its first view): the page
   // kept the scroll position of the previous screen and hid the tabs.
   useEffect(() => window.scrollTo(0, 0), [ansicht]);
@@ -217,7 +219,13 @@ export function Spiel({
       <div key={`ladung-${ladung}`} className="ansichtsbereich">
         {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
         {ansicht === "produktion" && (
-          <ProduktionAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+          <ProduktionAnsicht
+            kern={kern}
+            uebersicht={uebersicht}
+            onGeaendert={setUebersicht}
+            werk={werk}
+            onWerk={setWerk}
+          />
         )}
         {ansicht === "markt" && (
           <MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
@@ -300,6 +308,7 @@ export function Spiel({
           kern={kern}
           onGeladen={(u) => {
             setUebersicht(u);
+            setWerk(null);
             setLadung((n) => n + 1);
             setBerichte([]);
             setFenster({ art: "keins" });

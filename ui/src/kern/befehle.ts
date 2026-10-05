@@ -26,4 +26,6 @@ export type Befehl =
       };
     }
   | { SetResearch: { site: number; technology: string | null } }
-  | { SetAdvertising: { country: string; group: string; budget: number } };
+  | { SetAdvertising: { country: string; group: string; budget: number } }
+  | { SetWagePremium: { site: number; premium: number } }
+  | { SetPrice: { site: number; product: string; price: number } };

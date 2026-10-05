@@ -524,6 +524,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         offers,
         orders,
         research: None,
+        wage_premium: 0.0,
     });
     Ok(())
 }

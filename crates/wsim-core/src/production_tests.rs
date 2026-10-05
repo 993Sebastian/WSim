@@ -574,3 +574,201 @@ fn own_power_plant_supplies_and_feeds_in() {
     assert!(ledger.month.by_type[&CostType::Revenue] > Money::ZERO);
     assert!(ledger.is_balanced());
 }
+
+/// M18: a site that pays a higher wage premium gets scarce workers first and hires them
+/// away from a site in the same country that pays less.
+#[test]
+fn a_higher_wage_premium_hires_workers_away() {
+    let mut catalog = test_support::production();
+    // Almost no skilled metal workers in the country.
+    catalog.country_model.qualification_shares = vec![(1_000.0, vec![1.0 - 1e-7, 1e-7])];
+    let mut game = new_game(catalog);
+    let (mine_site, works) = chain(&mut game);
+    let c = game.catalog().clone();
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let second = SiteId(2);
+    game.apply(Command::BuildFacility {
+        site: second,
+        facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
+    })
+    .unwrap();
+    game.apply(Command::SetProduction {
+        site: second,
+        slot: 0,
+        recipe: c.recipes.id("eisen_schmelzen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    days(&mut game, 21);
+    game.apply(Command::TransferGoods {
+        from: mine_site,
+        to: second,
+        product: c.products.id("erz").unwrap(),
+        quantity: 500.0,
+    })
+    .unwrap();
+    days(&mut game, 1);
+    let g = c.labor_groups.id("fachkraft.metall").unwrap();
+    let aaa = c.countries.id("AAA").unwrap();
+    let pool = game.state().countries.get(aaa).labor_pool[g.index()];
+    let metal = |game: &Game, site: SiteId| *game.state().site(site).unwrap().workforce.get(g);
+    // Same premium: nobody hires away; the older furnace keeps the workers.
+    assert!((metal(&game, works) - pool).abs() < 1e-12, "{pool}");
+    assert_eq!(metal(&game, second), 0.0);
+
+    game.apply(Command::SetWagePremium {
+        site: second,
+        premium: 0.2,
+    })
+    .unwrap();
+    days(&mut game, 1);
+    assert!((metal(&game, second) - pool).abs() < 1e-12);
+    assert!(metal(&game, works) < 1e-12);
+    assert!(game.state().site(second).unwrap().slots[0].last_runs > 0.0);
+    // The furnace that lost its workers cannot hire them back.
+    days(&mut game, 3);
+    assert!(metal(&game, works) < 1e-12);
+    for company in &game.state().companies {
+        assert!(company.ledger.is_balanced());
+    }
+}
+
+#[test]
+fn the_wage_premium_raises_the_wage_bill() {
+    let mut game = new_game(test_support::production());
+    let site = mine(&mut game);
+    game.apply(Command::SetWagePremium { site, premium: 0.5 })
+        .unwrap();
+    days(&mut game, 31);
+    let month = &game.state().company(game.player()).unwrap().ledger.months[0];
+    let expected = 25.0 * 8.0 * wage(&game, "ungelernt") * 1.5;
+    let paid = -month.by_type[&CostType::Personnel].to_usd();
+    assert!((paid - expected).abs() < 0.01, "{paid} vs {expected}");
+    // The ore carries the higher wages in its value.
+    let ore = game.catalog().products.id("erz").unwrap();
+    let s = &game.state().site(site).unwrap().inventory[&ore];
+    let per_t = s.value.to_usd() / s.quantity;
+    assert!((per_t - 2.0 * wage(&game, "ungelernt") * 1.5).abs() < 1e-3);
+
+    let err = |game: &mut Game, premium| {
+        game.apply(Command::SetWagePremium { site, premium })
+            .unwrap_err()
+    };
+    let invalid = CommandError::InvalidWagePremium { max: 1.0 };
+    assert_eq!(err(&mut game, 1.5), invalid);
+    assert_eq!(err(&mut game, -0.1), invalid);
+    assert_eq!(err(&mut game, f64::NAN), invalid);
+}
+
+/// M18: the asking price can be set directly, also while it follows the market.
+#[test]
+fn prices_can_be_set_in_both_modes() {
+    use crate::state::PriceMode;
+    let mut game = new_game(test_support::production());
+    let (_, works) = chain(&mut game);
+    let c = game.catalog().clone();
+    let iron = c.products.id("eisen").unwrap();
+    let offer = |game: &Game| game.state().site(works).unwrap().offers[&iron].clone();
+    game.apply(Command::SetSale {
+        site: works,
+        product: iron,
+        mode: Some(PriceMode::Market {
+            markup: 0.0,
+            floor: usd(50.0),
+        }),
+        keep: 0.0,
+    })
+    .unwrap();
+    game.apply(Command::SetPrice {
+        site: works,
+        product: iron,
+        price: usd(80.0),
+    })
+    .unwrap();
+    assert_eq!(offer(&game).price, usd(80.0));
+    assert!(matches!(offer(&game).mode, PriceMode::Market { .. }));
+    // Never below the floor.
+    game.apply(Command::SetPrice {
+        site: works,
+        product: iron,
+        price: usd(30.0),
+    })
+    .unwrap();
+    assert_eq!(offer(&game).price, usd(50.0));
+    game.apply(Command::SetSale {
+        site: works,
+        product: iron,
+        mode: Some(PriceMode::Fixed(usd(120.0))),
+        keep: 0.0,
+    })
+    .unwrap();
+    game.apply(Command::SetPrice {
+        site: works,
+        product: iron,
+        price: usd(110.0),
+    })
+    .unwrap();
+    assert_eq!(offer(&game).price, usd(110.0));
+    assert_eq!(offer(&game).mode, PriceMode::Fixed(usd(110.0)));
+    assert_eq!(
+        game.apply(Command::SetPrice {
+            site: works,
+            product: c.products.id("erz").unwrap(),
+            price: usd(1.0),
+        })
+        .unwrap_err(),
+        CommandError::NoOffer("erz".into())
+    );
+    assert_eq!(
+        game.apply(Command::SetPrice {
+            site: works,
+            product: iron,
+            price: Money::ZERO,
+        })
+        .unwrap_err(),
+        CommandError::InvalidPrice
+    );
+}
+
+/// M18: expected unit costs by kind, and the wages of the hours used booked on the product.
+#[test]
+fn unit_costs_add_up_and_follow_the_wage_premium() {
+    let mut game = new_game(test_support::production());
+    let (_, works) = chain(&mut game);
+    let c = game.catalog().clone();
+    let iron = c.products.id("eisen").unwrap();
+    let aaa = c.countries.id("AAA").unwrap();
+    let costs = crate::production::unit_costs(&c, game.state(), works);
+    assert_eq!(costs.len(), 1);
+    let u = &costs[0];
+    assert_eq!(u.product, iron);
+    assert!((u.output_per_day - 50.0).abs() < 1e-9);
+    let ore_price =
+        crate::market::market_price(&c, game.state(), aaa, c.products.id("erz").unwrap());
+    assert!((u.material - 2.0 * ore_price.to_usd()).abs() < 1e-9);
+    let labor = wage(&game, "ungelernt") + wage(&game, "fachkraft.metall");
+    assert!((u.labor - labor).abs() < 1e-9, "{} vs {labor}", u.labor);
+    // Furnace: 2 000 000 USD over 20 years plus 3.65 % maintenance, 50 t a day.
+    let facility = 2_000_000.0 * (1.0 / 20.0 + 0.0365) / 365.0 / 50.0;
+    assert!((u.facility - facility).abs() < 1e-9);
+    assert!((u.total() - u.variable() - u.facility).abs() < 1e-9);
+
+    game.apply(Command::SetWagePremium {
+        site: works,
+        premium: 0.25,
+    })
+    .unwrap();
+    let higher = crate::production::unit_costs(&c, game.state(), works);
+    assert!((higher[0].labor - 1.25 * labor).abs() < 1e-9);
+
+    // Without sales the product's result is zero: its costs went into the stock.
+    days(&mut game, 3);
+    let ledger = &game.state().company(game.player()).unwrap().ledger;
+    assert_eq!(ledger.month.by_product[&iron], Money::ZERO);
+    assert!(ledger.month.site_type(works, CostType::Personnel) < Money::ZERO);
+}

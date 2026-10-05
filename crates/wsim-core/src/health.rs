@@ -125,6 +125,7 @@ pub fn last_month(state: &GameState, catalog: &Catalog) -> Vec<ProductHealth> {
                 sl.recipe.expect("set"),
                 sl.count,
                 sl.utilization,
+                1.0 + site.wage_premium,
             );
             let h = &mut health[r.product.index()];
             h.capacity += runs * r.output;

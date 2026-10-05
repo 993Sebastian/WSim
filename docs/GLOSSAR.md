@@ -159,3 +159,11 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Marktdeckung je Produktart | `AiStart::market_cover` (`[f64; 5]`) |
 | nur als Nebenprodukt hergestellt | `health::made_as_main` |
 | Entsorgung überschüssiger Nebenprodukte | `ProductionModel::by_product_stock_days` (`nebenprodukte_lager_tage`) |
+| Lohnaufschlag (über die Landeslöhne) | `Site::wage_premium`, `SetWagePremium`, `ProductionModel::wage_premium_max` (`lohnaufschlag_max`) |
+| Abwerben (Besetzung nach Lohnaufschlag) | `production::staff_sites` |
+| Personalbedarf eines Standorts | `production::needed_workers`, `StaffLine` (Sicht) |
+| Lohnaufschlag der KI | `AiBehavior::wage_premium_step`, `wage_premium_max` (`lohnaufschlag_schritt`, `lohnaufschlag_max`), `ai::next_wage_premium` |
+| Preis setzen (auch bei automatischem Preis) | `Command::SetPrice`, `CommandError::NoOffer` |
+| Stückkosten eines Standorts (Material, Personal, Energie, Gemeinkosten, Pacht, Anlage) | `production::UnitCost`, `production::unit_costs`, `UnitCostView` |
+| Ergebnis je Kostenstelle, interne Verrechnung | `PeriodResult::by_center`, `PeriodResult::site_type`, `Ledger::allocate` |
+| Ergebnis des Standorts im Vormonat, Rohertrag je Produkt | `SiteResult`, `ProductResult` |

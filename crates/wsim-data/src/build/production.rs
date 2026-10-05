@@ -153,6 +153,13 @@ pub(super) fn production_model(
             m.by_product_stock_days,
             &l.field("nebenprodukte_lager_tage"),
         ),
+        wage_premium_max: in_range(
+            ctx,
+            m.wage_premium_max,
+            0.0,
+            5.0,
+            &l.field("lohnaufschlag_max"),
+        ),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
     }
 }

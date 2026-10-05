@@ -868,3 +868,56 @@ Länder gleich und stehen im Protokoll-Code (sie sind keine Spielregeln):
 | Jahresergebnis des passiven Spielers gegen sein Startkapital | ≤ 50 % |
 | Pleiten je Jahr; aktive KI-Firmen | ≤ 5 %; ≥ 80 % der Startzahl |
 | Förderung von Rohstoffen gegen den Bedarf der Anlagen | ≥ 90 % |
+
+## M18 – Personal und Lohnaufschlag (Entscheidung vom 05.10.2026)
+
+Parameter: `produktionsmodell.lohnaufschlag_max`; KI:
+`kimodell.verhalten.lohnaufschlag_schritt` und `lohnaufschlag_max`.
+
+- **Lohnaufschlag** *a* je Standort, 0 ≤ *a* ≤ `lohnaufschlag_max` (Befehl
+  `SetWagePremium`). Lohn je Stunde am Standort = Lohn(Land, Gruppe) · (1 + *a*). Er gilt
+  für die täglichen Lohnkosten, für den Arbeitsanteil im Wert der Erzeugnisse und in den
+  Kostenschätzungen der KI.
+- **Besetzung** (zu Monatsbeginn und nach Änderungen, wie M5): Bedarf je Gruppe =
+  Σ geplante Durchläufe · Stunden je Durchlauf / Arbeitsstunden je Tag, dazu die Forscher.
+  Die fälligen Standorte werden nach Lohnaufschlag besetzt (höchster zuerst), bei gleichem
+  Aufschlag in der Reihenfolge ihrer Gründung. Reichen die freien Kräfte des Landes nicht,
+  **wirbt** ein Standort die fehlenden von Standorten desselben Landes **ab**, die einen
+  niedrigeren Aufschlag zahlen: zuerst vom niedrigsten Aufschlag, bei gleichem vom jüngsten
+  Standort (Lastenheft §5.3). Wer Leute verliert, wird erneut besetzt und produziert bis
+  dahin mit weniger Personal. Bei gleichem Aufschlag wirbt niemand ab; ohne Aufschläge
+  bleibt alles wie bisher.
+- **KI:** Bei jeder Betriebsentscheidung hebt eine KI-Firma den Aufschlag eines Standorts
+  um `lohnaufschlag_schritt` (höchstens ihr `lohnaufschlag_max`), wenn dort am letzten Tag
+  eine Anlage auf Arbeitskräfte wartete; sonst senkt sie ihn um den Schritt bis 0.
+  Knappe Arbeitsmärkte heben so die Löhne, entspannte senken sie wieder.
+
+## M18 – Stückkosten, Ergebnis je Standort und Preis setzen
+
+- **Stückkosten** eines Erzeugnisses am Standort (Anzeige der Werksansicht, keine
+  Wirkung auf die Simulation), je Anlage mit dem Rezept bei geplanter Auslastung *u*
+  (ruhende Anlagen: *u* = 1), Durchläufe je Tag *n* = Durchläufe je Anlage · Anzahl · *u*:
+  - Material = Σ Menge · Marktpreis im Land; Vorprodukte, die der Standort selbst
+    herstellt, mit ihren eigenen Stückkosten (wiederholt gerechnet, bis die Kette
+    durchlaufen ist).
+  - Personal = Σ Stunden je Durchlauf (mit Automatisierung, Lagerstätte und
+    Produktivität wie in der Erzeugung) · Lohn · (1 + *a*).
+  - Energie = MWh je Durchlauf · Industriestrompreis; Gemeinkosten und Pacht wie in der
+    Erzeugung (M16).
+  - Anlage = Anschaffungskosten der Anlagen · (1 / Lebensdauer + Instandhaltungsanteil)
+    / 365 je Tag, verteilt auf die Tagesmenge.
+  - Je Stück = Summe je Tag / Erzeugung je Tag; mehrere Anlagen desselben Erzeugnisses
+    werden mengengewichtet zusammengefasst. Die variablen Stückkosten sind alles ohne
+    Anlage. Nebenprodukte werden nicht gutgeschrieben; Gebäude und Erschließung stehen
+    nur im Ergebnis des Standorts.
+- **Interne Verrechnung der Löhne:** Die Löhne der in einem Durchlauf genutzten Stunden
+  (die schon im Wert der Erzeugnisse stecken) werden von der Kostenstelle des Standorts
+  auf die Kostenstelle des Erzeugnisses umgebucht. Summen je Kostenart und Bilanz bleiben
+  gleich. Das Ergebnis je Erzeugnis ist damit Umsatz − Herstellkosten des Absatzes
+  (Rohertrag); auf dem Standort bleiben die Löhne ungenutzter Stunden, Instandhaltung
+  und Abschreibungen.
+- **Ergebnis je Kostenstelle und Kostenart** wird für den laufenden und den letzten
+  abgeschlossenen Monat (und das Jahr) geführt; ältere Monate behalten nur die Summen.
+- **Preis setzen** (Befehl `SetPrice`): Ein fester Preis wird zum neuen festen Preis. Ein
+  automatischer Preis springt auf den eingegebenen Wert (nicht unter die Untergrenze) und
+  folgt von dort wieder Angebot und Nachfrage.

@@ -21,6 +21,39 @@ export function formatProzent(anteil: number): string {
   return `${zahl(0).format(anteil * 100)} %`;
 }
 
+/** Amount per unit, e.g. "1.234 USD/t". */
+export function formatPreis(usd: number, einheit: string): string {
+  return `${formatGeld(usd)}/${einheit}`;
+}
+
+/**
+ * Reads a number as typed in German: "1.800" is 1800, "1,5" is 1.5, "1.800,50" is
+ * 1800.5. A point is a decimal point only where it cannot be a thousands separator
+ * ("1.5", "12.75"). Empty or invalid input gives null.
+ */
+export function zahlLesen(text: string): number | null {
+  const s = text
+    .trim()
+    .replace(/\s|\u00a0/g, "")
+    .replace(/%$/, "");
+  if (s === "") return null;
+  let normal: string;
+  if (s.includes(",")) normal = s.replace(/\./g, "").replace(",", ".");
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) normal = s.replace(/\./g, "");
+  else normal = s;
+  if (!/^-?\d*\.?\d+$/.test(normal) && !/^-?\d+\.?$/.test(normal)) return null;
+  const wert = Number(normal);
+  return Number.isFinite(wert) ? wert : null;
+}
+
+/** A number for an input field, without thousands separators ("1800,5"). */
+export function zahlFeld(wert: number, stellen = 2): string {
+  return new Intl.NumberFormat("de-DE", {
+    maximumFractionDigits: stellen,
+    useGrouping: false,
+  }).format(wert);
+}
+
 /** 1900-01-31 → 31.01.1900 */
 export function formatDatum(iso: string): string {
   const [jahr, monat, tag] = iso.split("-");

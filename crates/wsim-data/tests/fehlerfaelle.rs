@@ -83,6 +83,7 @@ produktionsmodell:
   automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
+  lohnaufschlag_max: 1.0
   einspeiseverguetung: 0.5
   gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
   richtpreis_marge: {minimum: 0.05, maximum: 0.45}
@@ -1078,6 +1079,18 @@ fn produktionsmodell_wird_geprueft() {
         &d.laden(),
         "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
     );
+
+    let d = Daten::neu().ersetze(
+        "parameter/produktionsmodell.yaml",
+        "lohnaufschlag_max: 1.0",
+        "lohnaufschlag_max: 7",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 7 liegt außerhalb des erlaubten Bereichs 0 bis 5.",
+    );
+    assert_eq!(f.path.to_string(), "produktionsmodell.lohnaufschlag_max");
 }
 
 #[test]
@@ -1316,6 +1329,21 @@ fn kimodell_wird_geprueft() {
     befund(
         &d.laden(),
         "Wert 0.9 liegt außerhalb des erlaubten Bereichs 0 bis 0.5.",
+    );
+
+    let d = Daten::neu().ersetze(
+        datei,
+        "lohnaufschlag_schritt: 0.05",
+        "lohnaufschlag_schritt: 2",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "kimodell.verhalten.lohnaufschlag_schritt"
     );
 
     let d = Daten::neu().ohne(datei);

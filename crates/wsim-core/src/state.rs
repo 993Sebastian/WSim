@@ -444,6 +444,9 @@ pub struct Site {
     /// Technology the research center works on.
     #[serde(default)]
     pub research: Option<TechnologyId>,
+    /// Premium over the country's wages (M18, 0.1 = 10 %).
+    #[serde(default)]
+    pub wage_premium: f64,
 }
 
 /// How a sale offer is priced.

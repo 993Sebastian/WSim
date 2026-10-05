@@ -67,6 +67,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> Sit
         offers: Default::default(),
         orders: Default::default(),
         research: None,
+        wage_premium: 0.0,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     if quantity > 0.0 {

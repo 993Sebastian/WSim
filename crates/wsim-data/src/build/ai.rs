@@ -166,6 +166,20 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             10.0,
             &bl.field("ausbau_vorprodukt_preis_max"),
         ),
+        wage_premium_step: in_range(
+            ctx,
+            b.wage_premium_step,
+            0.0,
+            1.0,
+            &bl.field("lohnaufschlag_schritt"),
+        ),
+        wage_premium_max: in_range(
+            ctx,
+            b.wage_premium_max,
+            0.0,
+            5.0,
+            &bl.field("lohnaufschlag_max"),
+        ),
         invest_share_max: share(
             ctx,
             b.invest_share_max,

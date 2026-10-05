@@ -11,7 +11,7 @@ use crate::catalog::SiteType;
 use crate::command::site_type_key;
 use crate::finance;
 use crate::game::Game;
-use crate::ids::{CountryId, GoodsGroupId};
+use crate::ids::{CountryId, GoodsGroupId, Id};
 use crate::market;
 use crate::money::Money;
 use crate::reports;
@@ -45,6 +45,10 @@ pub struct SlotDetail {
     /// Output on the last day.
     pub made_per_day: f64,
     pub cause: Option<Cause>,
+    /// Condition of the facilities (1 = new).
+    pub condition: f64,
+    /// Inputs per day at the planned utilization.
+    pub inputs_per_day: Vec<(String, f64)>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -59,6 +63,18 @@ pub struct OfferView {
     /// Sold in the running month.
     pub sold_month: f64,
     pub sold_last_month: f64,
+    /// In stock at the site.
+    pub stock: f64,
+    /// Price index of the product in the site's country.
+    pub market_price_usd: f64,
+    /// Reference price in the site's country.
+    pub reference_usd: f64,
+    /// Expected cost per unit: of making it here, else of what is in stock.
+    pub unit_cost_usd: Option<f64>,
+    /// (price − unit cost) / price.
+    pub margin: Option<f64>,
+    /// The site uses the product itself (an input of its facilities).
+    pub used_here: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -84,6 +100,68 @@ pub struct InputSupply {
     pub own: bool,
     /// Bought by a purchase order of the site.
     pub ordered: bool,
+    /// Price index in the site's country.
+    pub market_price_usd: f64,
+}
+
+/// A labor group at a site (M18): what production needs, who works there, who is free
+/// in the country, and the wage the site pays.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StaffLine {
+    pub group: String,
+    pub needed: f64,
+    pub employed: f64,
+    /// Workers of the group in the country that no site employs.
+    pub free_in_country: f64,
+    /// Wage per hour at the site, with its premium.
+    pub wage_usd: f64,
+    /// Wage per hour in the country.
+    pub country_wage_usd: f64,
+}
+
+/// Expected cost of one unit of a product made at the site, by kind (USD per unit).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct UnitCostView {
+    pub product: String,
+    pub output_per_day: f64,
+    pub material_usd: f64,
+    pub labor_usd: f64,
+    pub energy_usd: f64,
+    pub overhead_usd: f64,
+    pub rent_usd: f64,
+    /// Depreciation and maintenance of the facilities.
+    pub facility_usd: f64,
+    pub total_usd: f64,
+    /// Without the facilities: what one more unit costs.
+    pub variable_usd: f64,
+}
+
+/// An amount by cost type, e.g. `kostenart.material` (income positive).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ResultLine {
+    pub key: String,
+    pub usd: f64,
+}
+
+/// Revenue and gross margin of a product at a site (M18): revenue less the production
+/// cost of what was sold.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProductResult {
+    pub product: String,
+    pub revenue_usd: f64,
+    pub margin_usd: f64,
+}
+
+/// A site's result in the last closed month (M18).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SiteResult {
+    /// First day of the month.
+    pub month: String,
+    pub revenue_usd: f64,
+    /// Everything but revenue by cost type, in the order of the income statement.
+    pub lines: Vec<ResultLine>,
+    pub result_usd: f64,
+    pub products: Vec<ProductResult>,
 }
 
 /// A deposit an extraction site without deposit could develop.
@@ -117,6 +195,26 @@ pub struct SiteDetail {
     pub orders: Vec<OrderView>,
     pub inputs: Vec<InputSupply>,
     pub research: Option<String>,
+    /// Premium over the country's wages (0.1 = 10 %) and its highest allowed value.
+    pub wage_premium: f64,
+    pub wage_premium_max: f64,
+    /// Highest premium another company pays at a site in the same country.
+    pub rival_premium_max: f64,
+    pub staff: Vec<StaffLine>,
+    /// Wages per day of the staff employed now.
+    pub wage_cost_per_day_usd: f64,
+    pub unit_costs: Vec<UnitCostView>,
+    /// Result of the last closed month, if the site existed then.
+    pub last_month: Option<SiteResult>,
+    /// Prices in the site's country of the products it makes, uses, keeps, buys or sells.
+    pub prices: BTreeMap<String, PriceInfo>,
+}
+
+/// Price index and reference price of a product in a country.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PriceInfo {
+    pub market_usd: f64,
+    pub reference_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -144,6 +242,9 @@ pub struct RecipeOption {
     pub facility: String,
     pub product: String,
     pub output: f64,
+    /// Output of one facility per day at full utilization, and the inputs it takes.
+    pub output_per_day: f64,
+    pub inputs_per_day: Vec<(String, f64)>,
     pub duration_days: u32,
     pub extraction: bool,
     pub inputs: Vec<(String, f64)>,
@@ -162,6 +263,8 @@ pub struct ProductionView {
     pub recipes: Vec<RecipeOption>,
     /// All products (for new purchase orders and offers).
     pub products: Vec<String>,
+    /// Unit of each product (key of `einheit.<key>`).
+    pub units: BTreeMap<String, String>,
 }
 
 pub fn production(game: &Game) -> ProductionView {
@@ -181,6 +284,17 @@ pub fn production(game: &Game) -> ProductionView {
             facility: catalog.facilities.key(r.facility).to_owned(),
             product: catalog.products.key(r.product).to_owned(),
             output: r.output,
+            output_per_day: r.output * catalog.facilities.get(r.facility).runs_per_day,
+            inputs_per_day: r
+                .inputs
+                .iter()
+                .map(|&(p, q)| {
+                    (
+                        catalog.products.key(p).to_owned(),
+                        q * catalog.facilities.get(r.facility).runs_per_day,
+                    )
+                })
+                .collect(),
             duration_days: r.duration_days,
             extraction: r.extraction,
             inputs: r
@@ -305,6 +419,13 @@ pub fn production(game: &Game) -> ProductionView {
                             key: key.to_owned(),
                             detail,
                         }),
+                        condition: sl.condition,
+                        inputs_per_day: recipe.map_or_else(Vec::new, |r| {
+                            r.inputs
+                                .iter()
+                                .map(|&(p, q)| (catalog.products.key(p).to_owned(), q * runs))
+                                .collect()
+                        }),
                     }
                 })
                 .collect();
@@ -324,9 +445,13 @@ pub fn production(game: &Game) -> ProductionView {
                         days: (per_day > 1e-12).then(|| stock / per_day),
                         own: made.contains(&p),
                         ordered: s.orders.contains_key(&p),
+                        market_price_usd: usd(market::market_price(catalog, state, s.country, p)),
                     }
                 })
                 .collect();
+            let unit_costs = crate::production::unit_costs(catalog, state, site_id);
+            let used_here: Vec<crate::ids::ProductId> = need.iter().map(|&(p, _)| p).collect();
+            let (staff, rival_premium_max, wage_cost_per_day_usd) = site_staff(game, site_id);
             SiteDetail {
                 index: u32::try_from(i).unwrap_or(u32::MAX),
                 country: catalog.countries.key(s.country).to_owned(),
@@ -359,6 +484,16 @@ pub fn production(game: &Game) -> ProductionView {
                             PriceMode::Fixed(_) => ("fest", 0.0, Money::ZERO),
                             PriceMode::Market { markup, floor } => ("markt", markup, floor),
                         };
+                        let stock = s.inventory.get(p);
+                        let unit_cost_usd = unit_costs
+                            .iter()
+                            .find(|u| u.product == *p)
+                            .map(crate::production::UnitCost::total)
+                            .or_else(|| {
+                                stock
+                                    .filter(|st| st.quantity > 1e-9)
+                                    .map(|st| usd(st.value) / st.quantity)
+                            });
                         OfferView {
                             product: catalog.products.key(*p).to_owned(),
                             mode: mode.to_owned(),
@@ -368,6 +503,18 @@ pub fn production(game: &Game) -> ProductionView {
                             keep: o.keep,
                             sold_month: o.sold_month,
                             sold_last_month: o.sold_last_month,
+                            stock: stock.map_or(0.0, |st| st.quantity),
+                            market_price_usd: usd(market::market_price(
+                                catalog, state, s.country, *p,
+                            )),
+                            reference_usd: usd(market::local_reference(
+                                catalog, state, s.country, *p,
+                            )),
+                            margin: unit_cost_usd
+                                .filter(|_| o.price > Money::ZERO)
+                                .map(|c| 1.0 - c / usd(o.price)),
+                            unit_cost_usd,
+                            used_here: used_here.contains(p),
                         }
                     })
                     .collect(),
@@ -385,6 +532,50 @@ pub fn production(game: &Game) -> ProductionView {
                     .collect(),
                 inputs,
                 research: s.research.map(|t| catalog.technologies.key(t).to_owned()),
+                wage_premium: s.wage_premium,
+                wage_premium_max: catalog.production_model.wage_premium_max,
+                rival_premium_max,
+                staff,
+                wage_cost_per_day_usd,
+                unit_costs: unit_costs
+                    .iter()
+                    .map(|u| UnitCostView {
+                        product: catalog.products.key(u.product).to_owned(),
+                        output_per_day: u.output_per_day,
+                        material_usd: u.material,
+                        labor_usd: u.labor,
+                        energy_usd: u.energy,
+                        overhead_usd: u.overhead,
+                        rent_usd: u.rent,
+                        facility_usd: u.facility,
+                        total_usd: u.total(),
+                        variable_usd: u.variable(),
+                    })
+                    .collect(),
+                last_month: site_result(game, site_id),
+                prices: {
+                    let mut products: BTreeSet<crate::ids::ProductId> =
+                        made.iter().chain(used_here.iter()).copied().collect();
+                    products.extend(s.inventory.keys());
+                    products.extend(s.offers.keys());
+                    products.extend(s.orders.keys());
+                    products
+                        .into_iter()
+                        .map(|p| {
+                            (
+                                catalog.products.key(p).to_owned(),
+                                PriceInfo {
+                                    market_usd: usd(market::market_price(
+                                        catalog, state, s.country, p,
+                                    )),
+                                    reference_usd: usd(market::local_reference(
+                                        catalog, state, s.country, p,
+                                    )),
+                                },
+                            )
+                        })
+                        .collect()
+                },
             }
         })
         .collect();
@@ -400,7 +591,122 @@ pub fn production(game: &Game) -> ProductionView {
             .iter()
             .map(|(p, _)| catalog.products.key(p).to_owned())
             .collect(),
+        units: units(catalog),
     }
+}
+
+/// Unit of each product, by product key.
+pub fn units(catalog: &crate::catalog::Catalog) -> BTreeMap<String, String> {
+    catalog
+        .products
+        .iter()
+        .map(|(p, x)| {
+            (
+                catalog.products.key(p).to_owned(),
+                catalog.units.key(x.unit).to_owned(),
+            )
+        })
+        .collect()
+}
+
+/// Staff of a site by labor group, the highest premium of other companies' sites in its
+/// country, and the wages per day of the staff employed now.
+fn site_staff(game: &Game, site: crate::state::SiteId) -> (Vec<StaffLine>, f64, f64) {
+    let state = game.state();
+    let catalog = game.catalog();
+    let s = &state.sites[site.index()];
+    let country = state.countries.get(s.country);
+    let needed = crate::production::needed_workers(catalog, state, site, state.date);
+    let hours = crate::production::hours_per_worker_day(catalog, state.date);
+    let factor = 1.0 + s.wage_premium;
+    let mut wage_cost = 0.0;
+    let staff = catalog
+        .labor_groups
+        .ids()
+        .map(|g| {
+            let employed_in_country: f64 = state
+                .sites
+                .iter()
+                .filter(|o| o.country == s.country)
+                .map(|o| *o.workforce.get(g))
+                .sum();
+            let employed = *s.workforce.get(g);
+            let country_wage = country
+                .hourly_wage_usd
+                .get(g.index())
+                .copied()
+                .unwrap_or(0.0);
+            wage_cost += employed * hours * country_wage * factor;
+            StaffLine {
+                group: catalog.labor_groups.key(g).to_owned(),
+                needed: needed.get(g.index()).copied().unwrap_or(0.0),
+                employed,
+                free_in_country: (country
+                    .labor_available
+                    .get(g.index())
+                    .copied()
+                    .unwrap_or(0.0)
+                    - employed_in_country)
+                    .max(0.0),
+                wage_usd: country_wage * factor,
+                country_wage_usd: country_wage,
+            }
+        })
+        .filter(|l| l.needed > 1e-9 || l.employed > 1e-9)
+        .collect();
+    let rival_premium_max = state
+        .sites
+        .iter()
+        .filter(|o| o.country == s.country && o.owner != s.owner)
+        .map(|o| o.wage_premium)
+        .fold(0.0, f64::max);
+    (staff, rival_premium_max, wage_cost)
+}
+
+/// A site's result in the last closed month by cost type, and per product.
+fn site_result(game: &Game, site: crate::state::SiteId) -> Option<SiteResult> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let owner = state.sites[site.index()].owner;
+    let period = state.companies[owner.index()].ledger.months.last()?;
+    if period.by_center.keys().all(|c| c.site != Some(site)) {
+        return None;
+    }
+    let lines: Vec<ResultLine> = crate::ledger::CostType::ALL
+        .iter()
+        .filter(|&&t| t != crate::ledger::CostType::Revenue)
+        .map(|&t| (t, period.site_type(site, t)))
+        .filter(|(_, m)| *m != Money::ZERO)
+        .map(|(t, m)| ResultLine {
+            key: t.text_key().to_owned(),
+            usd: usd(m),
+        })
+        .collect();
+    let revenue = period.site_type(site, crate::ledger::CostType::Revenue);
+    let products = period
+        .by_center
+        .iter()
+        .filter(|(c, _)| c.site == Some(site))
+        .filter_map(|(c, by_type)| {
+            let product = c.product?;
+            let revenue = by_type
+                .get(&crate::ledger::CostType::Revenue)
+                .copied()
+                .unwrap_or(Money::ZERO);
+            Some(ProductResult {
+                product: catalog.products.key(product).to_owned(),
+                revenue_usd: usd(revenue),
+                margin_usd: usd(by_type.values().copied().sum()),
+            })
+        })
+        .collect();
+    Some(SiteResult {
+        month: super::iso(period.start?),
+        revenue_usd: usd(revenue),
+        result_usd: usd(revenue) + lines.iter().map(|l| l.usd).sum::<f64>(),
+        lines,
+        products,
+    })
 }
 
 /// Discovered deposits of a country with a free field, priced as `DevelopDeposit` does.

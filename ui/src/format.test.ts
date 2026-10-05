@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDatum, formatGeld, meldungText } from "./format";
+import { formatDatum, formatGeld, meldungText, zahlFeld, zahlLesen } from "./format";
 
 describe("Formate", () => {
   it("kürzt große Beträge", () => {
@@ -7,6 +7,30 @@ describe("Formate", () => {
     expect(formatGeld(12.5)).toBe("12,5 USD");
     expect(formatGeld(2_500_000)).toBe("2,5 Mio. USD");
     expect(formatGeld(-3_100_000_000)).toBe("-3,1 Mrd. USD");
+  });
+
+  it("liest Zahlen, wie man sie deutsch eintippt", () => {
+    expect(zahlLesen("1.800")).toBe(1800);
+    expect(zahlLesen("1.800.000")).toBe(1_800_000);
+    expect(zahlLesen("1,5")).toBe(1.5);
+    expect(zahlLesen("1.800,50")).toBe(1800.5);
+    expect(zahlLesen(" 2 400 ")).toBe(2400);
+    expect(zahlLesen("12,5 %")).toBe(12.5);
+    // A point that cannot separate thousands is a decimal point.
+    expect(zahlLesen("1.5")).toBe(1.5);
+    expect(zahlLesen("12.75")).toBe(12.75);
+    expect(zahlLesen(",5")).toBe(0.5);
+    expect(zahlLesen("-3")).toBe(-3);
+    expect(zahlLesen("")).toBeNull();
+    expect(zahlLesen("abc")).toBeNull();
+    expect(zahlLesen("1,2,3")).toBeNull();
+    expect(zahlLesen("1.800.5")).toBeNull();
+  });
+
+  it("schreibt Zahlen für Eingabefelder ohne Tausenderpunkt", () => {
+    expect(zahlFeld(1800.5)).toBe("1800,5");
+    expect(zahlFeld(0.125, 3)).toBe("0,125");
+    expect(zahlLesen(zahlFeld(1234567.89))).toBe(1234567.89);
   });
 
   it("schreibt Daten deutsch", () => {

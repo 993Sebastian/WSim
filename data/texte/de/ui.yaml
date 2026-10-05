@@ -120,7 +120,7 @@ bericht.gruppe.allgemein: Allgemein
 spiel.ansichten: Ansichten
 ansicht.uebersicht: Übersicht
 ansicht.weltkarte: Weltkarte
-ansicht.produktion: Produktion
+ansicht.produktion: Standorte
 ansicht.markt: Markt
 ansicht.forschung: Forschung
 ansicht.finanzen: Finanzen
@@ -177,7 +177,7 @@ vorschau.land_fehlt: Die Vorschau enthält nur Deutschland, das Vereinigte Köni
 befehl.ausgefuehrt: Erledigt.
 vorschau.befehl: Die Vorschau im Browser führt keine Befehle aus – dafür das Spiel starten.
 
-# Produktion
+# Standorte und Werksansicht
 produktion.gruenden: Neuer Standort
 produktion.land: Land
 produktion.standorttyp: Art
@@ -186,53 +186,153 @@ produktion.bauen: Anlage bauen
 produktion.anzahl: Anzahl
 produktion.bauen_knopf: Bauen
 produktion.bauzeit: "{tage} Tage Bauzeit"
-produktion.rezept: Rezept
-produktion.rezept_von: "Rezept für {anlage}"
-produktion.auslastung_von: "Auslastung von {anlage} in Prozent"
 produktion.kein_rezept: – ruht –
-produktion.leistung: Ist / Plan je Tag
 produktion.ursache: Engpass
-produktion.laeuft: läuft
-produktion.vorprodukte: Vorprodukte
+produktion.laeuft: läuft nach Plan
 produktion.bedarf: Bedarf je Tag
 produktion.reichweite: Reichweite
 produktion.tage: "{tage} Tage"
-produktion.eigen: eigen
-produktion.einkauf: Einkauf (Ziellager, Höchstpreis USD)
+produktion.eigen: eigene Herstellung
 produktion.einkauf_von: "Einkauf von {produkt}"
-produktion.ziellager: "Ziellager für {produkt}"
-produktion.hoechstpreis: "Höchstpreis für {produkt} in USD"
-produktion.hoechstpreis_kurz: Höchstpreis
-produktion.kaufen: Kaufen
-produktion.aendern: Ändern
 produktion.stoppen: Stoppen
-produktion.verkauf: Verkauf
-produktion.preis: Preis
-produktion.verkauft_monat: Laufender Monat
-produktion.verkauft_vormonat: Verkauft Vormonat
-produktion.gekauft_vormonat: Gekauft Vormonat
-produktion.preisregel: Preisregel (USD)
+produktion.verkauft_monat: Verkauft im laufenden Monat
+produktion.verkauft_vormonat: Verkauft im Vormonat
+produktion.gekauft_vormonat: Gekauft im Vormonat
 produktion.verkauf_von: "Verkauf von {produkt}"
-produktion.preisart: "Preisart für {produkt}"
-produktion.marktpreis: Marktpreis
-produktion.festpreis: Festpreis
-produktion.festpreis_von: "Festpreis für {produkt} in USD"
-produktion.untergrenze: Untergrenze
-produktion.untergrenze_von: "Preisuntergrenze für {produkt} in USD"
 produktion.anbieten: Anbieten
 produktion.neuer_einkauf: Weiteres Produkt einkaufen
 produktion.neues_angebot: Weiteres Produkt anbieten
 produktion.erschliessen: Lagerstätte erschließen
 produktion.erschliessen_knopf: Erschließen
-produktion.erschliessung_bis: "in Erschließung bis {datum}"
+produktion.erschliessung_bis: "Die Lagerstätte wird bis {datum} erschlossen."
 produktion.foerderung_jahr: "{menge} je Jahr"
 produktion.keine_lagerstaette: "Im Land ist {jahr} keine entdeckte Lagerstätte mit freier Konzession."
-produktion.labor: Forschungslabor
+
+feld.keine_zahl: Bitte eine Zahl eingeben, z. B. 1.800 oder 2,5.
+monat.1: Januar
+monat.2: Februar
+monat.3: März
+monat.4: April
+monat.5: Mai
+monat.6: Juni
+monat.7: Juli
+monat.8: August
+monat.9: September
+monat.10: Oktober
+monat.11: November
+monat.12: Dezember
+
+werk.oeffnen: Öffnen
+werk.oeffnen_von: "{standort} öffnen"
+werk.alles_laeuft: Alle Anlagen laufen nach Plan.
+werk.anlagen_im_bau: "{anzahl} Anlage(n) im Bau"
+werk.gruenden_hinweis: Ein Werk verarbeitet Vorprodukte, eine Förderstätte baut Rohstoffe ab, ein Kraftwerk erzeugt Strom; im Forschungszentrum entstehen neue Verfahren. Danach baust du im neuen Standort seine Anlagen.
+werk.gegruendet: "{art} in {land} gegründet. Öffne ihn, um Anlagen zu bauen."
+werk.alle_standorte: Alle Standorte
+werk.bereiche: Bereiche des Standorts
+werk.anlagen: Anlagen
+werk.einkauf: Einkauf
+werk.verkauf: Verkauf
+werk.personal: Personal
+werk.kosten: Kosten und Ergebnis
+werk.beschaeftigte: Beschäftigte
+werk.von_benoetigt: "(benötigt: {anzahl})"
+werk.lohnkosten_tag: Lohnkosten je Tag
+werk.keine_anlagen: Noch keine Anlagen – unten eine bauen.
+werk.je_tag_geplant: je Tag (geplant)
+werk.je_tag: je Tag
+werk.gestern: Gestern erzeugt
+werk.ist_von_plan: "{ist} von {plan} {einheit}"
+werk.zustand: Zustand der Anlage
+werk.betrieb: Betrieb
+werk.anlage_steuern: "{anlage} steuern"
+werk.verfahren: Verfahren
+werk.auslastung: Geplante Auslastung
+werk.uebernehmen: Übernehmen
+werk.auslastung_bereich: Die Auslastung muss zwischen 0 und 100 % liegen.
+werk.anlage_geaendert: Gespeichert – gilt ab der nächsten Runde.
+werk.bau_begonnen: "Bau von {anlage} begonnen; fertig in {tage} Tagen."
+werk.anlage: Anlage
+werk.investition: Investition
+werk.je_anlage: "{betrag} je Anlage"
+werk.bauzeit: Bauzeit
+werk.leistung: Leistung bei voller Auslastung
+werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
+werk.lagerstaette: Lagerstätte
+werk.einkauf_hinweis: Der Standort kauft jeden Tag auf dem Markt seines Landes nach, bis das Ziellager erreicht ist – aber nie teurer als der Höchstpreis. Die Reichweite zeigt, wie lange das Lager bei geplanter Erzeugung hält.
+werk.kein_bedarf: Die Anlagen hier brauchen keine Vorprodukte.
+werk.einkauf_werte: Ziellager und Höchstpreis müssen größer als 0 sein.
+werk.einkauf_gesetzt: "Einkauf von {produkt} festgelegt."
+werk.einkauf_gestoppt: "Einkauf von {produkt} gestoppt."
+werk.marktpreis: Marktpreis
+werk.eigenes_vorprodukt: Dieses Vorprodukt stellt der Standort selbst her; ein Einkauf ist nur nötig, wenn die eigene Erzeugung nicht reicht.
+werk.einkauf_festlegen: "Einkauf von {produkt} festlegen"
+werk.ziellager: Ziellager
+werk.ziellager_hilfe: Bis zu diesem Bestand wird nachgekauft.
+werk.hoechstpreis: Höchstpreis
+werk.hoechstpreis_hilfe: Teurer wird nicht gekauft. Liegt er unter dem Marktpreis, kommt oft nichts.
+werk.einkauf_aendern: Einkauf ändern
+werk.einkauf_starten: Einkauf starten
+werk.verkauf_hinweis: "Automatischer Preis: Er steigt, solange deine Ware ausverkauft ist, und sinkt, solange sie liegen bleibt – nie unter den Mindestpreis. Fester Preis: bleibt, bis du ihn änderst. Vergleiche ihn mit Marktpreis und Stückkosten."
+werk.verkauf_werte: Der Preis muss größer als 0 sein; Mindestpreis und Menge dürfen nicht negativ sein.
+werk.angebot_geaendert: "Verkauf von {produkt} geändert."
+werk.angebot_neu: "{produkt} wird jetzt angeboten."
+werk.preis_gesetzt: "Preis auf {preis} gesetzt."
+werk.nicht_angeboten: nicht im Verkauf
+werk.preis_festlegen: "Preis für {produkt} festlegen"
+werk.preisart: Preisart
+werk.automatisch: Automatisch – folgt Angebot und Nachfrage
+werk.fest: Fester Preis
+werk.automatisch_hilfe: Der eingegebene Preis gilt sofort; danach passt er sich täglich an.
+werk.fest_hilfe: Der Preis bleibt, bis du ihn änderst.
+werk.preis_jetzt: Preis ab sofort
+werk.preis: Preis
+werk.preis_schnell: Preis schnell ändern
+werk.preis_minus: "Preis für {produkt} um 5 % senken"
+werk.preis_plus: "Preis für {produkt} um 5 % erhöhen"
+werk.mindestpreis: Mindestpreis
+werk.mindestpreis_hilfe: Darunter sinkt der automatische Preis nie (0 = keine Grenze).
+werk.behalten: Für eigene Verarbeitung behalten
+werk.behalten_hilfe: Diese Menge bleibt auf Lager für die eigenen Anlagen.
+werk.verkauf_beendet: "Verkauf von {produkt} beendet."
+werk.verkauf_beenden: Verkauf beenden
+werk.eigener_preis: Dein Preis
+werk.richtpreis: Richtpreis
+werk.stueckkosten: Stückkosten
+werk.marge: "Marge {marge} – der Preis deckt die Stückkosten."
+werk.marge_negativ: "Marge {marge} – jedes verkaufte Stück bringt Verlust."
+werk.kein_personal: Dieser Standort braucht derzeit kein Personal.
+werk.arbeitskraefte: Arbeitskräfte
+werk.gruppe: Gruppe
+werk.benoetigt: Benötigt
+werk.beschaeftigt: Beschäftigt
+werk.frei_im_land: Frei im Land
+werk.lohn_stunde: Lohn je Stunde
+werk.fehlt_frei: "Es fehlen {anzahl} {gruppe}. Im Land sind noch Kräfte frei; sie werden zu Monatsbeginn oder nach einer Änderung eingestellt."
+werk.fehlt_keine_frei: "Es fehlen {anzahl} {gruppe}, und im Land ist niemand mehr frei. Mit einem höheren Lohnaufschlag als andere Standorte im Land (höchster der Konkurrenz: {aufschlag}) wirbst du sie ab."
+werk.aufschlag_bereich: "Der Lohnaufschlag muss zwischen 0 und {max} % liegen."
+werk.aufschlag_gesetzt: "Lohnaufschlag {prozent} % gilt ab sofort."
+werk.lohnaufschlag: Lohnaufschlag
+werk.lohnaufschlag_erklaerung: Ein Aufschlag auf die Löhne des Landes macht den Standort zum begehrten Arbeitgeber. Sind Arbeitskräfte knapp, bekommt der Standort mit dem höheren Aufschlag sie zuerst und wirbt sie bei Standorten mit niedrigerem Aufschlag im selben Land ab. Der Aufschlag erhöht die Lohnkosten und damit die Stückkosten.
+werk.aufschlag_jetzt: Dein Aufschlag
+werk.aufschlag_konkurrenz: Höchster Aufschlag der Konkurrenz im Land
+werk.aufschlag_hilfe: "0 bis {max} % über den Löhnen des Landes."
+werk.anlage_kosten: Anlage (Abschreibung, Instandhaltung)
+werk.kosten_hinweis: Stückkosten bei geplanter Auslastung, mit Vorprodukten zu Marktpreisen. Die untere Linie zeigt deinen Preis im selben Maßstab.
+werk.keine_erzeugung: Dieser Standort stellt nichts her.
+werk.ergebnis_vormonat: Ergebnis des Vormonats
+werk.ergebnis: Ergebnis
+werk.je_produkt: Je Produkt
+werk.rohertrag: Rohertrag
+werk.rohertrag_hilfe: Rohertrag = Umsatz − Herstellkosten der verkauften Menge (ohne Anlagen, Gebäude und ungenutzte Arbeitsstunden).
+werk.stueckkosten_von: "Stückkosten von {produkt}"
+werk.erzeugung_tag: "{menge} {einheit} je Tag"
+werk.variable_kosten: Ohne Anlage (jedes weitere Stück)
 
 ursache.vorprodukt: "Vorprodukt fehlt: {detail}"
 ursache.vorprodukt.hilfe: Das Lager reicht nicht für die geplante Menge. Einkauf erhöhen oder eigene Herstellung ausbauen.
 ursache.arbeitskraefte: "Zu wenig {detail}"
-ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gruppe frei. Auslastung senken, automatisieren oder in einem anderen Land produzieren.
+ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gruppe frei. Ein höherer Lohnaufschlag (Bereich Personal) wirbt sie bei anderen ab; sonst Auslastung senken oder in einem anderen Land produzieren.
 ursache.strom: Zu wenig Strom
 ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
 ursache.lagerstaette: Lagerstätte erschöpft
@@ -350,8 +450,8 @@ einfuehrung.willkommen.titel: Willkommen
 einfuehrung.willkommen.text: "Du führst eine kleine, neue Firma. Die Märkte sind schon verteilt: Etablierte Firmen versorgen jedes Land, sie sind bekannt und haben große Werke. Verkaufen wirst du nur, was du ihnen abnimmst – über einen günstigeren Preis, bessere Qualität, eine bekannte Marke, genug Ware in den Läden oder als Lieferant anderer Firmen."
 einfuehrung.uebersicht.titel: Übersicht
 einfuehrung.uebersicht.text: "Hier stehen Kasse, Eigenkapital und Ergebnis deiner Firma und die Zahl deiner Wettbewerber. Oben wählst du die Rundenlänge und beendest die Runde (Strg + Enter); danach fasst der Rundenbericht zusammen, was geschehen ist."
-einfuehrung.produktion.titel: Produktion
-einfuehrung.produktion.text: "Deine Werkstatt macht Nägel aus Draht. Je Anlage legst du Rezept und Auslastung fest; der Einkauf hält ein Lager an Vorprodukten, der Verkauf bietet deine Ware an – zum Marktpreis oder zu einem festen Preis. Steht eine Anlage still, nennt die Spalte „Ursache“ den Grund. Neue Anlagen und Standorte baust du ebenfalls hier."
+einfuehrung.produktion.titel: Standorte
+einfuehrung.produktion.text: "Jeder Standort ist eine Karte mit Umsatz, Ergebnis und Engpässen. „Öffnen“ führt in die Werksansicht: Anlagen (Verfahren und Auslastung), Einkauf (Ziellager und Höchstpreis der Vorprodukte), Verkauf (dein Preis neben Marktpreis und Stückkosten), Personal (Arbeitskräfte und Lohnaufschlag) sowie Kosten und Ergebnis. Neue Standorte gründest du unten auf der Seite."
 einfuehrung.markt.titel: Markt
 einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat. „Marktführer“ zeigt, gegen wen du antrittst, „Eigener Anteil“, was du ihm schon abgenommen hast. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung

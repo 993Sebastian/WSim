@@ -19,6 +19,9 @@ produktionsmodell:
     automatisierung: 10         # Punkte bei voller Automatisierung
     zustand: 20                 # Punkte Abzug bei völlig verschlissener Anlage
   zustand_minimum: 0.2
+  # Höchster Lohnaufschlag je Standort (1 = doppelter Lohn). Sind Arbeitskräfte knapp,
+  # bekommen Standorte mit höherem Aufschlag sie zuerst und werben sie ab (M18).
+  lohnaufschlag_max: 1.0
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
   # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs

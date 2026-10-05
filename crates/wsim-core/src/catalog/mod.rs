@@ -276,6 +276,10 @@ pub struct AiBehavior {
     /// in the country: it is scarce (M16).
     pub expand_input_price_max: f64,
     pub invest_share_max: f64,
+    /// Wage premium of a site: raised by the step while a facility waits for workers,
+    /// lowered otherwise, up to the maximum (M18).
+    pub wage_premium_step: f64,
+    pub wage_premium_max: f64,
     /// Research on technologies up to this many years before their invention (competence).
     pub research_lookahead_years: Span,
     pub research_min_revenue_usd: f64,
@@ -344,6 +348,8 @@ impl Default for AiModel {
                 },
                 expand_input_price_max: 1.5,
                 invest_share_max: 0.3,
+                wage_premium_step: 0.05,
+                wage_premium_max: 0.3,
                 research_lookahead_years: Span {
                     at_0: 0.0,
                     at_1: 2.0,
@@ -679,6 +685,8 @@ pub struct ProductionModel {
     pub reference_margin: (f64, f64),
     /// By-products beyond this many days of their output in stock are disposed of.
     pub by_product_stock_days: f64,
+    /// Highest wage premium of a site (M18).
+    pub wage_premium_max: f64,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
 }
@@ -740,6 +748,7 @@ impl Default for ProductionModel {
             overhead_share: [0.0; 5],
             reference_margin: (0.05, 0.45),
             by_product_stock_days: 90.0,
+            wage_premium_max: 1.0,
             start_setups: Vec::new(),
         }
     }

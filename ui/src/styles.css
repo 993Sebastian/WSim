@@ -178,6 +178,10 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+select {
+  max-width: 100%;
+}
+
 input,
 select {
   padding: 0.4rem 0.55rem;
@@ -785,7 +789,8 @@ table.ergebnis th[scope="row"] {
 
 .werte {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  /* Long labels wrap instead of pushing the values out of narrow cards. */
+  grid-template-columns: fit-content(60%) minmax(0, 1fr);
   gap: 0.25rem 1rem;
   margin: 0;
 }
@@ -796,6 +801,7 @@ table.ergebnis th[scope="row"] {
 
 .werte dd {
   margin: 0;
+  overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
 
@@ -969,6 +975,372 @@ button.spaltenkopf {
   display: contents;
 }
 
+/* Sites and the plant view (docs/BEDIENUNG.md) */
+.karten {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
+.karten-raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0.9rem;
+}
+
+.karte {
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 8px;
+  background: var(--flaeche);
+}
+
+.karte h2,
+.karte h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.karte h2 small,
+.karte h3 small {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-gedaempft);
+}
+
+.karte .werte {
+  margin-bottom: 0.6rem;
+}
+
+form.karte {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.standortkarte {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.standortkarte p {
+  margin: 0;
+}
+
+.probleme {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  border-left: 3px solid var(--warnung);
+  background: var(--hintergrund);
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.werk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
+.werk-kopf {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.werk-kopf button {
+  justify-self: start;
+  padding-left: 0;
+}
+
+.werk-kopf h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.unterreiter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.unterreiter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+}
+
+.unterreiter button[aria-current="page"] {
+  border-color: var(--akzent);
+  background: var(--akzent);
+  color: var(--flaeche);
+  font-weight: 600;
+}
+
+.zaehler {
+  min-width: 1.3rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--warnung);
+  color: var(--flaeche);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* An explanation above a part of a view */
+.erklaerung {
+  max-width: 48rem;
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--akzent);
+  background: var(--hervorhebung);
+  font-size: 0.92rem;
+}
+
+.warntext {
+  color: var(--warnung);
+}
+
+.negativ {
+  color: var(--fehler);
+}
+
+.rezeptzeile {
+  margin: 0 0 0.5rem;
+}
+
+/* Labelled fields: the label above its field, the unit beside it, help below. */
+.feld {
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.feld > label {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.feld select {
+  width: 100%;
+}
+
+.formular-zeile > .feld:has(select) {
+  flex: 1 1 16rem;
+}
+
+.feld-eingabe {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.einheit {
+  color: var(--text-gedaempft);
+  white-space: nowrap;
+}
+
+.feld-hilfe {
+  display: block;
+  max-width: 28rem;
+  font-size: 0.82rem;
+  color: var(--text-gedaempft);
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--fehler);
+}
+
+.formular-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem 1.1rem;
+}
+
+.formular-zeile > .erfolgstext,
+.formular-zeile > .fehlertext {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.formular-spalten {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.knopfreihe.links {
+  justify-content: flex-start;
+}
+
+.auswahlgruppe {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+}
+
+.auswahlgruppe legend {
+  padding: 0 0.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.auswahlgruppe label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.schnellknoepfe {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.schnellknoepfe button {
+  padding: 0.4rem 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.schlicht-liste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weiteres {
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* Price against market, reference and unit cost on one scale */
+.preisvergleich dl {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 0.4rem;
+}
+
+.balkenzeile {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.balkenzeile dt {
+  font-size: 0.88rem;
+  color: var(--text-gedaempft);
+}
+
+.balkenzeile dd {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.balken {
+  height: 0.75rem;
+  min-width: 2px;
+  border-radius: 3px;
+  background: var(--skala-2);
+}
+
+.balkenzeile.eigen .balken {
+  background: var(--eigen);
+}
+
+.balkenzeile.kosten .balken {
+  background: var(--fehler);
+}
+
+.balkenzeile.richt .balken {
+  background: var(--skala-1);
+}
+
+.balkenwert {
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.preisvergleich p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+/* Unit costs as a stacked bar, the own price as a line on the same scale */
+.stapel {
+  display: flex;
+  height: 1.1rem;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--hintergrund);
+}
+
+.stapel.preislinie {
+  height: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.stapel-preis {
+  background: var(--eigen);
+}
+
+.teil-0 {
+  background: #4f7fae;
+}
+
+.teil-1 {
+  background: #c0681a;
+}
+
+.teil-2 {
+  background: #2e7d4f;
+}
+
+.teil-3 {
+  background: #8a5fb0;
+}
+
+.teil-4 {
+  background: #9a6300;
+}
+
+.teil-5 {
+  background: #7a8594;
+}
+
+.legende-werte {
+  margin-top: 0.6rem;
+}
+
+.farbpunkt {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.4rem;
+  border-radius: 2px;
+}
+
+.werte dt.summe,
+.werte dd.summe {
+  padding-top: 0.2rem;
+  border-top: 1px solid var(--rahmen);
+  font-weight: 600;
+}
+
 /* Introduction: a panel beside the game, below the dialogs */
 .einfuehrung {
   position: fixed;
@@ -1061,6 +1433,69 @@ body {
 
   .dialog {
     padding: 0.8rem 0.9rem 1rem;
+  }
+
+  .karte {
+    padding: 0.7rem 0.75rem;
+  }
+
+  /* Tables marked for it become one card per row, each value with its column name. */
+  table.mobil-karten thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  table.mobil-karten,
+  table.mobil-karten tbody,
+  table.mobil-karten tr,
+  table.mobil-karten td {
+    display: block;
+  }
+
+  table.mobil-karten tr {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--rahmen);
+  }
+
+  table.mobil-karten td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.1rem 0;
+    border: none;
+    text-align: right;
+  }
+
+  table.mobil-karten td:first-child {
+    font-weight: 600;
+    text-align: left;
+  }
+
+  table.mobil-karten td[data-spalte]::before {
+    content: attr(data-spalte);
+    color: var(--text-gedaempft);
+    text-align: left;
+  }
+
+  .balkenzeile {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+  }
+
+  .formular-zeile {
+    gap: 0.5rem 0.75rem;
+  }
+
+  .unterreiter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .unterreiter button {
+    flex: 0 0 auto;
   }
 
   /* The introduction becomes a sheet at the bottom of the screen. */

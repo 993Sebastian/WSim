@@ -520,6 +520,8 @@ pub struct RawProductionModel {
     pub reference_margin: RawLimits,
     #[serde(rename = "nebenprodukte_lager_tage")]
     pub by_product_stock_days: f64,
+    #[serde(rename = "lohnaufschlag_max")]
+    pub wage_premium_max: f64,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
 }
@@ -919,6 +921,10 @@ pub struct RawAiBehavior {
     pub expand_input_price_max: f64,
     #[serde(rename = "ausbau_anteil_kasse_max")]
     pub invest_share_max: f64,
+    #[serde(rename = "lohnaufschlag_schritt")]
+    pub wage_premium_step: f64,
+    #[serde(rename = "lohnaufschlag_max")]
+    pub wage_premium_max: f64,
     #[serde(rename = "forschung_vorgriff_jahre")]
     pub research_lookahead_years: RawSpan,
     #[serde(rename = "forschung_mindestumsatz_usd")]

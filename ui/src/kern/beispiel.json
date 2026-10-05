@@ -1206,6 +1206,12 @@
           "sold_last_month": 1587.584152588797
         },
         {
+          "demand_last_month": 2809.6105637269266,
+          "price_usd": 989.7887,
+          "product": "petroleum",
+          "sold_last_month": 16042.530932395497
+        },
+        {
           "demand_last_month": 148.30140807324335,
           "price_usd": 14165.1304,
           "product": "kupferdraht",
@@ -1218,16 +1224,16 @@
           "sold_last_month": 1009.4080585552144
         },
         {
-          "demand_last_month": 2806.720506719385,
-          "price_usd": 993.0186,
-          "product": "petroleum",
-          "sold_last_month": 11846.687786779816
-        },
-        {
           "demand_last_month": 6050.652959976016,
           "price_usd": 1037.3393,
           "product": "stabstahl",
           "sold_last_month": 10258.239598492875
+        },
+        {
+          "demand_last_month": 24930.0,
+          "price_usd": 345.7825,
+          "product": "rohoel",
+          "sold_last_month": 24930.0
         },
         {
           "demand_last_month": 2186.429999999997,
@@ -1278,16 +1284,10 @@
           "sold_last_month": 45501.23508954947
         },
         {
-          "demand_last_month": 12673.442215147297,
-          "price_usd": 345.7825,
-          "product": "rohoel",
-          "sold_last_month": 12673.442215147297
-        },
-        {
           "demand_last_month": 39.46063973269697,
           "price_usd": 46570.2587,
           "product": "gummi",
-          "sold_last_month": 87.68842334280222
+          "sold_last_month": 87.68842334280217
         },
         {
           "demand_last_month": 1003.1949773761633,
@@ -1423,7 +1423,7 @@
         },
         {
           "demand_last_month": 21.529909528932073,
-          "price_usd": 724.7129,
+          "price_usd": 724.7018,
           "product": "benzin",
           "sold_last_month": 21.529909528932073
         },
@@ -1828,10 +1828,10 @@
           "sold_last_month": 3715.111290075446
         },
         {
-          "demand_last_month": 108.08158251534653,
+          "demand_last_month": 108.0815825153465,
           "price_usd": 38403.4219,
           "product": "kautschuk",
-          "sold_last_month": 108.08158251534653
+          "sold_last_month": 108.0815825153465
         },
         {
           "demand_last_month": 2549.5105012315325,
@@ -1852,10 +1852,10 @@
           "sold_last_month": 279.66072190448676
         },
         {
-          "demand_last_month": 2159.4762399157507,
-          "price_usd": 1012.8935,
+          "demand_last_month": 2159.467307017165,
+          "price_usd": 1012.9435,
           "product": "petroleum",
-          "sold_last_month": 2159.476239915751
+          "sold_last_month": 2159.467307017165
         },
         {
           "demand_last_month": 509.90210024630676,
@@ -1954,16 +1954,16 @@
           "sold_last_month": 26.892915200160054
         },
         {
-          "demand_last_month": 51.80315955072477,
-          "price_usd": 733.0074,
+          "demand_last_month": 51.80332120393608,
+          "price_usd": 732.9734,
           "product": "benzin",
-          "sold_last_month": 51.80315955072477
+          "sold_last_month": 51.803321203936086
         },
         {
-          "demand_last_month": 6.00453236196369,
+          "demand_last_month": 6.004532361963689,
           "price_usd": 896.4507,
           "product": "schwefel",
-          "sold_last_month": 6.00453236196369
+          "sold_last_month": 6.004532361963689
         }
       ],
       "population": 42599576.11506849,
@@ -2374,22 +2374,28 @@
           "sold_last_month": 40776.65334847176
         },
         {
+          "demand_last_month": 33016.764303024305,
+          "price_usd": 304.5565,
+          "product": "rohoel",
+          "sold_last_month": 104331.24383225078
+        },
+        {
           "demand_last_month": 6319788.8843494095,
           "price_usd": 3.2901,
           "product": "konserve",
           "sold_last_month": 8301857.053342438
         },
         {
-          "demand_last_month": 43909.21845095474,
-          "price_usd": 304.5565,
-          "product": "rohoel",
-          "sold_last_month": 85041.55575813027
-        },
-        {
           "demand_last_month": 79125.41972597809,
           "price_usd": 163.5641,
           "product": "moebel",
           "sold_last_month": 129944.26206370094
+        },
+        {
+          "demand_last_month": 4708.225527475411,
+          "price_usd": 931.2342,
+          "product": "petroleum",
+          "sold_last_month": 22273.45051625599
         },
         {
           "demand_last_month": 72668.53503545024,
@@ -2402,12 +2408,6 @@
           "price_usd": 10284.65,
           "product": "kupfer",
           "sold_last_month": 1888.3540735597855
-        },
-        {
-          "demand_last_month": 4710.775612664116,
-          "price_usd": 938.6556,
-          "product": "petroleum",
-          "sold_last_month": 20155.92184509548
         },
         {
           "demand_last_month": 685.5789283538209,
@@ -2479,7 +2479,7 @@
           "demand_last_month": 67110.90913332322,
           "price_usd": 66.8573,
           "product": "fahrradreifen",
-          "sold_last_month": 99756.09514485057
+          "sold_last_month": 99756.09514485054
         },
         {
           "demand_last_month": 702.269657116416,
@@ -2566,10 +2566,10 @@
           "sold_last_month": 305.41964677435357
         },
         {
-          "demand_last_month": 193.32796133377548,
-          "price_usd": 739.5894,
+          "demand_last_month": 193.32987761747188,
+          "price_usd": 739.6077,
           "product": "benzin",
-          "sold_last_month": 193.87770195649628
+          "sold_last_month": 193.87961824019257
         },
         {
           "demand_last_month": 65.0211802707257,
@@ -3147,10 +3147,10 @@
         "state_price_usd": null
       },
       {
-        "demand_last_month": 12673.442215147297,
+        "demand_last_month": 24930.0,
         "exported_last_month": 0.0,
         "group": "mineraloel",
-        "imported_last_month": 12673.442215147297,
+        "imported_last_month": 24930.0,
         "leader": null,
         "leader_share": 0.0,
         "own_price_usd": null,
@@ -3160,12 +3160,12 @@
         "product": "rohoel",
         "reference_usd": 315.7984,
         "sellers": 0,
-        "sold_last_month": 12673.442215147297,
+        "sold_last_month": 24930.0,
         "state_price_usd": null
       },
       {
-        "demand_last_month": 2806.720506719385,
-        "exported_last_month": 9039.967280060444,
+        "demand_last_month": 2809.6105637269266,
+        "exported_last_month": 13232.920368668565,
         "group": "mineraloel",
         "imported_last_month": 0.0,
         "leader": "Chemische Werke Reuter & Söhne",
@@ -3173,11 +3173,11 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_usd": 993.0186,
+        "price_usd": 989.7887,
         "product": "petroleum",
         "reference_usd": 1076.0704,
         "sellers": 1,
-        "sold_last_month": 11846.687786779816,
+        "sold_last_month": 16042.530932395497,
         "state_price_usd": null
       },
       {
@@ -3267,7 +3267,7 @@
       },
       {
         "demand_last_month": 39.46063973269697,
-        "exported_last_month": 48.22778361010528,
+        "exported_last_month": 48.2277836101052,
         "group": "gummi",
         "imported_last_month": 0.0,
         "leader": "Continental-Caoutchouc- und Gutta-Percha Compagnie",
@@ -3279,7 +3279,7 @@
         "product": "gummi",
         "reference_usd": 58694.7473,
         "sellers": 1,
-        "sold_last_month": 87.68842334280222,
+        "sold_last_month": 87.68842334280217,
         "state_price_usd": null
       },
       {
@@ -3354,13 +3354,13 @@
         "demand_last_month": 21.529909528932073,
         "exported_last_month": 0.0,
         "group": "mineraloel",
-        "imported_last_month": 0.05802147445494019,
+        "imported_last_month": 0.05371999648355421,
         "leader": "Chemische Werke Reuter & Söhne",
-        "leader_share": 0.9973050757887785,
+        "leader_share": 0.9975048665944763,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_usd": 724.7129,
+        "price_usd": 724.7018,
         "product": "benzin",
         "reference_usd": 880.4212,
         "sellers": 1,
@@ -4266,6 +4266,7 @@
         "extraction": true,
         "facility": "erzbergwerk",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "eisenerz_abbau",
         "labor_hours": [
           [
@@ -4282,6 +4283,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 2000.0,
         "product": "eisenerz"
       },
       {
@@ -4290,6 +4292,7 @@
         "extraction": true,
         "facility": "kohlenzeche",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "kohle_abbau",
         "labor_hours": [
           [
@@ -4306,6 +4309,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 2000.0,
         "product": "kohle"
       },
       {
@@ -4321,6 +4325,16 @@
           [
             "kohle",
             1.68
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "eisenerz",
+            475.0
+          ],
+          [
+            "kohle",
+            420.0
           ]
         ],
         "key": "stahl_bessemer",
@@ -4343,6 +4357,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 250.0,
         "product": "stahl"
       },
       {
@@ -4358,6 +4373,16 @@
           [
             "kohle",
             1.9
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "eisenerz",
+            467.5
+          ],
+          [
+            "kohle",
+            475.0
           ]
         ],
         "key": "stahl_siemens_martin",
@@ -4380,6 +4405,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 250.0,
         "product": "stahl"
       },
       {
@@ -4395,6 +4421,16 @@
           [
             "kohle",
             0.6
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "eisenerz",
+            54.0
+          ],
+          [
+            "kohle",
+            18.0
           ]
         ],
         "key": "stahl_elektro",
@@ -4417,6 +4453,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 30.0,
         "product": "stahl"
       },
       {
@@ -4428,6 +4465,12 @@
           [
             "stahl",
             1.12
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            336.00000000000006
           ]
         ],
         "key": "blech_walzen",
@@ -4450,6 +4493,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 300.0,
         "product": "blech"
       },
       {
@@ -4461,6 +4505,12 @@
           [
             "stahl",
             1.08
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            324.0
           ]
         ],
         "key": "stabstahl_walzen",
@@ -4483,6 +4533,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 300.0,
         "product": "stabstahl"
       },
       {
@@ -4494,6 +4545,12 @@
           [
             "stahl",
             1.1
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            110.00000000000001
           ]
         ],
         "key": "draht_ziehen",
@@ -4516,6 +4573,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 100.0,
         "product": "draht"
       },
       {
@@ -4527,6 +4585,12 @@
           [
             "draht",
             1.02
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "draht",
+            0.51
           ]
         ],
         "key": "naegel_maschine",
@@ -4541,6 +4605,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 0.5,
         "product": "naegel"
       },
       {
@@ -4552,6 +4617,12 @@
           [
             "stahl",
             1.35
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            6.75
           ]
         ],
         "key": "schrauben_drehen",
@@ -4570,6 +4641,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 5.0,
         "product": "schrauben"
       },
       {
@@ -4581,6 +4653,12 @@
           [
             "stahl",
             1.3
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            6.5
           ]
         ],
         "key": "muttern_pressen",
@@ -4599,6 +4677,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 5.0,
         "product": "muttern"
       },
       {
@@ -4616,6 +4695,16 @@
             0.0012
           ]
         ],
+        "inputs_per_day": [
+          [
+            "schnittholz",
+            0.3
+          ],
+          [
+            "stahl",
+            0.6
+          ]
+        ],
         "key": "werkzeug_schmieden",
         "labor_hours": [
           [
@@ -4628,6 +4717,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 500.0,
         "product": "handwerkzeug"
       },
       {
@@ -4636,6 +4726,7 @@
         "extraction": true,
         "facility": "forstbetrieb",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "holz_einschlag",
         "labor_hours": [
           [
@@ -4648,6 +4739,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 200.0,
         "product": "holz"
       },
       {
@@ -4659,6 +4751,12 @@
           [
             "holz",
             1.8
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "holz",
+            90.0
           ]
         ],
         "key": "schnittholz_saegen",
@@ -4677,6 +4775,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 50.0,
         "product": "schnittholz"
       },
       {
@@ -4698,6 +4797,20 @@
             0.0005
           ]
         ],
+        "inputs_per_day": [
+          [
+            "leim",
+            0.05
+          ],
+          [
+            "schnittholz",
+            3.5000000000000004
+          ],
+          [
+            "schrauben",
+            0.05
+          ]
+        ],
         "key": "moebel_tischlern",
         "labor_hours": [
           [
@@ -4710,6 +4823,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 100.0,
         "product": "moebel"
       },
       {
@@ -4718,6 +4832,7 @@
         "extraction": true,
         "facility": "baumwollplantage",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "baumwolle_ernte",
         "labor_hours": [
           [
@@ -4730,6 +4845,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 10.0,
         "product": "baumwolle"
       },
       {
@@ -4741,6 +4857,12 @@
           [
             "baumwolle",
             1.15
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "baumwolle",
+            11.5
           ]
         ],
         "key": "garn_spinnen",
@@ -4759,6 +4881,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 10.0,
         "product": "garn"
       },
       {
@@ -4770,6 +4893,12 @@
           [
             "garn",
             1.05
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "garn",
+            8.4
           ]
         ],
         "key": "stoff_weben",
@@ -4788,6 +4917,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 8.0,
         "product": "stoff"
       },
       {
@@ -4799,6 +4929,12 @@
           [
             "garn",
             1.04
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "garn",
+            8.32
           ]
         ],
         "key": "stoff_elektrisch",
@@ -4821,6 +4957,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 8.0,
         "product": "stoff"
       },
       {
@@ -4832,6 +4969,12 @@
           [
             "stoff",
             0.0007
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stoff",
+            1.4
           ]
         ],
         "key": "kleidung_naehen",
@@ -4846,6 +4989,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 2000.0,
         "product": "kleidung"
       },
       {
@@ -4854,6 +4998,7 @@
         "extraction": true,
         "facility": "getreidefarm",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "getreide_ernte",
         "labor_hours": [
           [
@@ -4866,6 +5011,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 30.0,
         "product": "getreide"
       },
       {
@@ -4877,6 +5023,12 @@
           [
             "getreide",
             1.35
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "getreide",
+            135.0
           ]
         ],
         "key": "mehl_mahlen",
@@ -4895,6 +5047,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 100.0,
         "product": "mehl"
       },
       {
@@ -4910,6 +5063,16 @@
           [
             "zinn",
             0.025
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            34.199999999999996
+          ],
+          [
+            "zinn",
+            0.75
           ]
         ],
         "key": "weissblech_verzinnen",
@@ -4928,6 +5091,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 30.0,
         "product": "weissblech"
       },
       {
@@ -4945,6 +5109,16 @@
             0.0001
           ]
         ],
+        "inputs_per_day": [
+          [
+            "konserveninhalt",
+            10.0
+          ],
+          [
+            "weissblech",
+            2.0
+          ]
+        ],
         "key": "konserve_abfuellen",
         "labor_hours": [
           [
@@ -4957,6 +5131,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20000.0,
         "product": "konserve"
       },
       {
@@ -4968,6 +5143,12 @@
           [
             "kohle",
             1.6
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "kohle",
+            192.0
           ]
         ],
         "key": "strom_dampfmaschine",
@@ -4986,6 +5167,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 120.0,
         "product": "strom"
       },
       {
@@ -4997,6 +5179,12 @@
           [
             "kohle",
             0.9
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "kohle",
+            432.0
           ]
         ],
         "key": "strom_turbine",
@@ -5015,6 +5203,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 480.0,
         "product": "strom"
       },
       {
@@ -5023,6 +5212,7 @@
         "extraction": true,
         "facility": "kupferbergwerk",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "kupfererz_abbau",
         "labor_hours": [
           [
@@ -5039,6 +5229,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 3000.0,
         "product": "kupfererz"
       },
       {
@@ -5054,6 +5245,16 @@
           [
             "kupfererz",
             55.0
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "kohle",
+            200.0
+          ],
+          [
+            "kupfererz",
+            2750.0
           ]
         ],
         "key": "kupfer_verhuetten",
@@ -5080,6 +5281,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 50.0,
         "product": "kupfer"
       },
       {
@@ -5091,6 +5293,12 @@
           [
             "kupfer",
             1.03
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "kupfer",
+            41.2
           ]
         ],
         "key": "kupferdraht_ziehen",
@@ -5105,6 +5313,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 40.0,
         "product": "kupferdraht"
       },
       {
@@ -5130,6 +5339,24 @@
             0.04
           ]
         ],
+        "inputs_per_day": [
+          [
+            "blech",
+            4.5
+          ],
+          [
+            "kupferdraht",
+            0.6
+          ],
+          [
+            "schrauben",
+            0.1
+          ],
+          [
+            "stabstahl",
+            2.0
+          ]
+        ],
         "key": "elektromotor_bauen",
         "labor_hours": [
           [
@@ -5150,6 +5377,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 50.0,
         "product": "elektromotor"
       },
       {
@@ -5158,6 +5386,7 @@
         "extraction": true,
         "facility": "oelfeld",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "rohoel_foerdern",
         "labor_hours": [
           [
@@ -5174,6 +5403,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 200.0,
         "product": "rohoel"
       },
       {
@@ -5185,6 +5415,12 @@
           [
             "rohoel",
             1.0
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "rohoel",
+            300.0
           ]
         ],
         "key": "rohoel_destillieren",
@@ -5207,6 +5443,7 @@
           ]
         ],
         "output": 0.45,
+        "output_per_day": 135.0,
         "product": "petroleum"
       },
       {
@@ -5228,6 +5465,20 @@
             0.0004
           ]
         ],
+        "inputs_per_day": [
+          [
+            "blech",
+            1.2
+          ],
+          [
+            "draht",
+            0.15
+          ],
+          [
+            "glas",
+            0.6
+          ]
+        ],
         "key": "petroleumlampe_bauen",
         "labor_hours": [
           [
@@ -5240,6 +5491,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 1500.0,
         "product": "petroleumlampe"
       },
       {
@@ -5257,6 +5509,16 @@
             5e-6
           ]
         ],
+        "inputs_per_day": [
+          [
+            "glas",
+            0.15
+          ],
+          [
+            "kupferdraht",
+            0.025
+          ]
+        ],
         "key": "gluehlampe_kohlefaden",
         "labor_hours": [
           [
@@ -5269,6 +5531,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 5000.0,
         "product": "gluehlampe"
       },
       {
@@ -5286,6 +5549,16 @@
             5e-6
           ]
         ],
+        "inputs_per_day": [
+          [
+            "glas",
+            0.15
+          ],
+          [
+            "kupferdraht",
+            0.025
+          ]
+        ],
         "key": "gluehlampe_wolfram",
         "labor_hours": [
           [
@@ -5298,6 +5571,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 5000.0,
         "product": "gluehlampe"
       },
       {
@@ -5306,6 +5580,7 @@
         "extraction": true,
         "facility": "kautschukplantage",
         "inputs": [],
+        "inputs_per_day": [],
         "key": "kautschuk_zapfen",
         "labor_hours": [
           [
@@ -5318,6 +5593,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 2.0,
         "product": "kautschuk"
       },
       {
@@ -5333,6 +5609,16 @@
           [
             "schwefel",
             0.05
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "kautschuk",
+            4.5
+          ],
+          [
+            "schwefel",
+            0.25
           ]
         ],
         "key": "gummi_vulkanisieren",
@@ -5351,6 +5637,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 5.0,
         "product": "gummi"
       },
       {
@@ -5368,6 +5655,16 @@
             0.000055
           ]
         ],
+        "inputs_per_day": [
+          [
+            "gummi",
+            0.4
+          ],
+          [
+            "stahl",
+            0.0275
+          ]
+        ],
         "key": "fahrradreifen_bauen",
         "labor_hours": [
           [
@@ -5380,6 +5677,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 500.0,
         "product": "fahrradreifen"
       },
       {
@@ -5397,6 +5695,16 @@
             0.00055
           ]
         ],
+        "inputs_per_day": [
+          [
+            "gummi",
+            5.5
+          ],
+          [
+            "stahl",
+            0.275
+          ]
+        ],
         "key": "autoreifen_bauen",
         "labor_hours": [
           [
@@ -5409,6 +5717,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 500.0,
         "product": "autoreifen"
       },
       {
@@ -5434,6 +5743,24 @@
             0.008
           ]
         ],
+        "inputs_per_day": [
+          [
+            "muttern",
+            0.04
+          ],
+          [
+            "schrauben",
+            0.1
+          ],
+          [
+            "stabstahl",
+            0.8
+          ],
+          [
+            "stahl",
+            1.6
+          ]
+        ],
         "key": "naehmaschine_bauen",
         "labor_hours": [
           [
@@ -5450,6 +5777,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 200.0,
         "product": "naehmaschine"
       },
       {
@@ -5475,6 +5803,24 @@
             0.011
           ]
         ],
+        "inputs_per_day": [
+          [
+            "blech",
+            0.6
+          ],
+          [
+            "fahrradreifen",
+            600.0
+          ],
+          [
+            "schrauben",
+            0.24000000000000002
+          ],
+          [
+            "stabstahl",
+            3.3
+          ]
+        ],
         "key": "fahrrad_bauen",
         "labor_hours": [
           [
@@ -5487,6 +5833,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 300.0,
         "product": "fahrrad"
       },
       {
@@ -5498,6 +5845,12 @@
           [
             "stahl",
             0.19
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            3.8
           ]
         ],
         "key": "motor_bauen",
@@ -5516,6 +5869,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20.0,
         "product": "motor"
       },
       {
@@ -5527,6 +5881,12 @@
           [
             "stahl",
             0.19
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            57.0
           ]
         ],
         "key": "motor_fliessband",
@@ -5545,6 +5905,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 300.0,
         "product": "motor"
       },
       {
@@ -5556,6 +5917,12 @@
           [
             "stahl",
             0.33
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            6.6000000000000005
           ]
         ],
         "key": "fahrgestell_bauen",
@@ -5570,6 +5937,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20.0,
         "product": "fahrgestell"
       },
       {
@@ -5581,6 +5949,12 @@
           [
             "stahl",
             0.33
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "stahl",
+            99.0
           ]
         ],
         "key": "fahrgestell_fliessband",
@@ -5595,6 +5969,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 300.0,
         "product": "fahrgestell"
       },
       {
@@ -5620,6 +5995,24 @@
             0.067
           ]
         ],
+        "inputs_per_day": [
+          [
+            "glas",
+            0.2
+          ],
+          [
+            "leim",
+            0.04
+          ],
+          [
+            "schnittholz",
+            3.0
+          ],
+          [
+            "stahl",
+            1.34
+          ]
+        ],
         "key": "karosserie_holz",
         "labor_hours": [
           [
@@ -5636,6 +6029,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20.0,
         "product": "karosserie"
       },
       {
@@ -5651,6 +6045,16 @@
           [
             "stahl",
             0.229
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "glas",
+            0.2
+          ],
+          [
+            "stahl",
+            4.58
           ]
         ],
         "key": "karosserie_stahl",
@@ -5669,6 +6073,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20.0,
         "product": "karosserie"
       },
       {
@@ -5694,6 +6099,24 @@
             1.0
           ]
         ],
+        "inputs_per_day": [
+          [
+            "autoreifen",
+            80.0
+          ],
+          [
+            "fahrgestell",
+            20.0
+          ],
+          [
+            "karosserie",
+            20.0
+          ],
+          [
+            "motor",
+            20.0
+          ]
+        ],
         "key": "automobil_montage",
         "labor_hours": [
           [
@@ -5710,6 +6133,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 20.0,
         "product": "automobil"
       },
       {
@@ -5735,6 +6159,24 @@
             1.0
           ]
         ],
+        "inputs_per_day": [
+          [
+            "autoreifen",
+            2000.0
+          ],
+          [
+            "fahrgestell",
+            500.0
+          ],
+          [
+            "karosserie",
+            500.0
+          ],
+          [
+            "motor",
+            500.0
+          ]
+        ],
         "key": "automobil_fliessband",
         "labor_hours": [
           [
@@ -5751,6 +6193,7 @@
           ]
         ],
         "output": 1.0,
+        "output_per_day": 500.0,
         "product": "automobil"
       },
       {
@@ -5762,6 +6205,12 @@
           [
             "rohoel",
             1.0
+          ]
+        ],
+        "inputs_per_day": [
+          [
+            "rohoel",
+            300.0
           ]
         ],
         "key": "rohoel_cracken",
@@ -5784,6 +6233,7 @@
           ]
         ],
         "output": 0.4,
+        "output_per_day": 120.0,
         "product": "benzin"
       }
     ],
@@ -5829,6 +6279,7 @@
         "inputs": [
           {
             "days": 9.803921568627452,
+            "market_price_usd": 1457.3539,
             "need_per_day": 0.51,
             "ordered": true,
             "own": false,
@@ -5838,16 +6289,56 @@
         ],
         "kind": "Factory",
         "kind_text": "standorttyp.werk",
+        "last_month": {
+          "lines": [
+            {
+              "key": "kostenart.material",
+              "usd": -23028.2793
+            },
+            {
+              "key": "kostenart.personal",
+              "usd": -698.7803
+            },
+            {
+              "key": "kostenart.abschreibungen",
+              "usd": -260.4558
+            },
+            {
+              "key": "kostenart.instandhaltung",
+              "usd": -101.9187
+            },
+            {
+              "key": "kostenart.gemeinkosten",
+              "usd": -542.5682
+            }
+          ],
+          "month": "1914-07-01",
+          "products": [
+            {
+              "margin_usd": 5683.4363,
+              "product": "naegel",
+              "revenue_usd": 29953.0641
+            }
+          ],
+          "result_usd": 5321.061800000003,
+          "revenue_usd": 29953.0641
+        },
         "offers": [
           {
             "floor_usd": 0.0,
             "keep": 0.0,
+            "margin": 0.1784061149867946,
+            "market_price_usd": 1904.6016,
             "markup": 0.0,
             "mode": "markt",
             "price_usd": 1932.4557,
             "product": "naegel",
+            "reference_usd": 1858.667,
             "sold_last_month": 15.5,
-            "sold_month": 0.0
+            "sold_month": 0.0,
+            "stock": 0.0,
+            "unit_cost_usd": 1587.6937861789133,
+            "used_here": false
           }
         ],
         "orders": [
@@ -5860,21 +6351,57 @@
             "target": 5.0
           }
         ],
+        "prices": {
+          "draht": {
+            "market_usd": 1457.3539,
+            "reference_usd": 1467.3687
+          },
+          "naegel": {
+            "market_usd": 1904.6016,
+            "reference_usd": 1858.667
+          }
+        },
         "research": null,
+        "rival_premium_max": 0.0,
         "slots": [
           {
             "automation": 0.0,
             "automation_max": 0.3,
             "cause": null,
+            "condition": 0.9612785388127887,
             "count": 1,
             "facility": "nagelmaschine",
             "index": 0,
+            "inputs_per_day": [
+              [
+                "draht",
+                0.51
+              ]
+            ],
             "made_per_day": 0.5,
             "planned_per_day": 0.5,
             "product": "naegel",
             "ready": "1914-01-01",
             "recipe": "naegel_maschine",
             "utilization": 1.0
+          }
+        ],
+        "staff": [
+          {
+            "country_wage_usd": 3.5338668145553758,
+            "employed": 0.631717056510688,
+            "free_in_country": 413846.7242801279,
+            "group": "angelernt",
+            "needed": 0.6348953445297083,
+            "wage_usd": 3.5338668145553758
+          },
+          {
+            "country_wage_usd": 5.279560948032183,
+            "employed": 0.157929264127672,
+            "free_in_country": 75690.29651177383,
+            "group": "fachkraft.metall",
+            "needed": 0.15872383613242708,
+            "wage_usd": 5.279560948032183
           }
         ],
         "stock": [
@@ -5884,9 +6411,75 @@
             "value_usd": 7282.9488
           }
         ],
+        "unit_costs": [
+          {
+            "energy_usd": 0.0,
+            "facility_usd": 21.187214611872147,
+            "labor_usd": 45.02835076552854,
+            "material_usd": 1486.500978,
+            "output_per_day": 0.5,
+            "overhead_usd": 34.97724280151259,
+            "product": "naegel",
+            "rent_usd": 0.0,
+            "total_usd": 1587.6937861789133,
+            "variable_usd": 1566.5065715670412
+          }
+        ],
+        "wage_cost_per_day_usd": 22.401469352559925,
+        "wage_premium": 0.0,
+        "wage_premium_max": 1.0,
         "workers": 0.7896463206383599
       }
-    ]
+    ],
+    "units": {
+      "automobil": "stueck",
+      "autoreifen": "stueck",
+      "baumwolle": "t",
+      "benzin": "t",
+      "blech": "t",
+      "draht": "t",
+      "eisenerz": "t",
+      "elektromotor": "stueck",
+      "fahrgestell": "stueck",
+      "fahrrad": "stueck",
+      "fahrradreifen": "stueck",
+      "garn": "t",
+      "getreide": "t",
+      "glas": "t",
+      "gluehlampe": "stueck",
+      "gummi": "t",
+      "handwerkzeug": "stueck",
+      "holz": "t",
+      "karosserie": "stueck",
+      "kautschuk": "t",
+      "kleidung": "stueck",
+      "kohle": "t",
+      "konserve": "stueck",
+      "konserveninhalt": "t",
+      "kupfer": "t",
+      "kupferdraht": "t",
+      "kupfererz": "t",
+      "leim": "t",
+      "mehl": "t",
+      "moebel": "stueck",
+      "motor": "stueck",
+      "muttern": "t",
+      "naegel": "t",
+      "naehmaschine": "stueck",
+      "petroleum": "t",
+      "petroleumlampe": "stueck",
+      "pferdekutsche": "stueck",
+      "rohoel": "t",
+      "schnittholz": "t",
+      "schrauben": "t",
+      "schwefel": "t",
+      "stabstahl": "t",
+      "stahl": "t",
+      "stoff": "t",
+      "strom": "mwh",
+      "weissblech": "t",
+      "zinn": "t"
+    }
   },
   "uebersicht": {
     "company": {

@@ -682,6 +682,7 @@ pub(crate) fn slot_flows(
     recipe: RecipeId,
     count: u32,
     utilization: f64,
+    wage_factor: f64,
 ) -> SlotFlows {
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
@@ -697,6 +698,7 @@ pub(crate) fn slot_flows(
         .iter()
         .map(|&(g, h)| h * runs * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
         .sum::<f64>()
+        * wage_factor
         / c.labor_productivity.max(1e-9);
     let energy = r.energy_mwh * runs * c.electricity_price_usd_mwh;
     let conversion = labor + energy + crate::production::capital_per_run_usd(catalog, r) * runs;
@@ -844,6 +846,7 @@ fn found_company(
                 p.recipe,
                 p.count,
                 start.utilization,
+                1.0,
             );
             daily_cost += flows.cost_per_day;
             let e = produced
@@ -949,6 +952,7 @@ fn found_company(
             offers,
             orders,
             research: None,
+            wage_premium: 0.0,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

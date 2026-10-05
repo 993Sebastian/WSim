@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useState,
+  type ReactNode,
+} from "react";
+import { zahlLesen } from "../format";
 import type { Befehl, Kern, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { fehlerText } from "./fehler";
@@ -27,26 +36,71 @@ export function useSicht<T>(laden: () => Promise<T>, stand: string) {
   return { daten, fehler, neu };
 }
 
+export interface Antwort {
+  fehler: boolean;
+  text: string;
+  /** Where the decision was taken (shown next to that form only). */
+  ort: string | null;
+}
+
 /** Sends decisions to the core; reports the answer and the new overview. */
 export function useBefehl(kern: Kern, onGeaendert: (u: Uebersicht) => void, neu: () => void) {
-  const [meldung, setMeldung] = useState<{ fehler: boolean; text: string } | null>(null);
-  const ausfuehren = useCallback(
-    async (...befehle: Befehl[]) => {
+  const [meldung, setMeldung] = useState<Antwort | null>(null);
+  const senden = useCallback(
+    async (ort: string | null, erfolg: string | null, befehle: Befehl[]) => {
+      let antwort: Antwort;
       try {
         let u: Uebersicht | null = null;
         for (const b of befehle) u = await kern.befehl(b);
         if (u) onGeaendert(u);
-        setMeldung({ fehler: false, text: t("befehl.ausgefuehrt") });
+        antwort = { fehler: false, text: erfolg ?? t("befehl.ausgefuehrt"), ort };
         neu();
-        return true;
       } catch (e) {
-        setMeldung({ fehler: true, text: fehlerText(e) });
-        return false;
+        antwort = { fehler: true, text: fehlerText(e), ort };
       }
+      setMeldung(antwort);
+      return antwort;
     },
     [kern, onGeaendert, neu],
   );
-  return { ausfuehren, meldung };
+  const ausfuehren = useCallback(
+    async (...befehle: Befehl[]) => !(await senden(null, null, befehle)).fehler,
+    [senden],
+  );
+  return { ausfuehren, senden, meldung };
+}
+
+export type Senden = ReturnType<typeof useBefehl>["senden"];
+
+const BefehlKontext = createContext<{ senden: Senden; meldung: Antwort | null } | null>(null);
+
+/** Gives the forms below a view the means to send decisions (see `useAktion`). */
+export function Befehle({
+  senden,
+  meldung,
+  children,
+}: {
+  senden: Senden;
+  meldung: Antwort | null;
+  children: ReactNode;
+}) {
+  return <BefehlKontext.Provider value={{ senden, meldung }}>{children}</BefehlKontext.Provider>;
+}
+
+/**
+ * Decisions of one form: the answer of the core appears next to this form's buttons
+ * (docs/BEDIENUNG.md, rule 4), not at the top of the page.
+ */
+export function useAktion(ort: string) {
+  const kontext = useContext(BefehlKontext);
+  if (!kontext) throw new Error("useAktion außerhalb von <Befehle>");
+  const { senden, meldung } = kontext;
+  const los = useCallback(
+    async (befehle: Befehl[], erfolg?: string) =>
+      !(await senden(ort, erfolg ?? null, befehle)).fehler,
+    [senden, ort],
+  );
+  return { los, antwort: meldung?.ort === ort ? meldung : null };
 }
 
 export function Rueckmeldung({ meldung }: { meldung: { fehler: boolean; text: string } | null }) {
@@ -58,5 +112,82 @@ export function Rueckmeldung({ meldung }: { meldung: { fehler: boolean; text: st
     >
       {meldung.text}
     </p>
+  );
+}
+
+/**
+ * A labelled number field for German input ("1.800" or "1,5"), with its unit next to
+ * it and an optional explanation below. The parent keeps the text; `zahlLesen` reads it.
+ */
+export function ZahlFeld({
+  name,
+  einheit,
+  wert,
+  onWert,
+  hilfe,
+  breit = false,
+}: {
+  name: string;
+  einheit?: string;
+  wert: string;
+  onWert: (text: string) => void;
+  hilfe?: ReactNode;
+  breit?: boolean;
+}) {
+  const id = useId();
+  const ungueltig = wert.trim() !== "" && zahlLesen(wert) === null;
+  return (
+    <div className="feld">
+      <label htmlFor={id}>{name}</label>
+      <span className="feld-eingabe">
+        <input
+          id={id}
+          className={breit ? undefined : "schmal"}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          value={wert}
+          aria-invalid={ungueltig || undefined}
+          aria-describedby={hilfe ? `${id}-hilfe` : undefined}
+          onChange={(e) => onWert(e.target.value)}
+        />
+        {einheit && <span className="einheit">{einheit}</span>}
+      </span>
+      {hilfe && (
+        <small id={`${id}-hilfe`} className="feld-hilfe">
+          {hilfe}
+        </small>
+      )}
+      {ungueltig && <small className="fehlertext">{t("feld.keine_zahl")}</small>}
+    </div>
+  );
+}
+
+/** Sub-tabs of a view (e.g. the areas of a plant). */
+export function Unterreiter<K extends string>({
+  name,
+  bereiche,
+  aktiv,
+  onWahl,
+}: {
+  name: string;
+  bereiche: { key: K; text: string; zaehler?: number }[];
+  aktiv: K;
+  onWahl: (k: K) => void;
+}) {
+  return (
+    <nav className="unterreiter" aria-label={name}>
+      {bereiche.map((b) => (
+        <button
+          key={b.key}
+          type="button"
+          aria-current={aktiv === b.key ? "page" : undefined}
+          onClick={() => onWahl(b.key)}
+        >
+          {b.text}
+          {b.zaehler ? <span className="zaehler">{b.zaehler}</span> : null}
+        </button>
+      ))}
+    </nav>
   );
 }

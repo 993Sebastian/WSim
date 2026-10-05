@@ -113,6 +113,10 @@ pub struct PeriodResult {
     pub by_product: BTreeMap<ProductId, Money>,
     #[serde(default)]
     pub cash_flow: CashFlow,
+    /// Result by cost center and cost type (M18: results of a site and of its products).
+    /// Kept for the running and the last closed periods only, to keep saves small.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub by_center: BTreeMap<CostCenter, BTreeMap<CostType, Money>>,
 }
 
 /// Change of cash in a period by activity (Kapitalflussrechnung).
@@ -155,6 +159,22 @@ impl PeriodResult {
         if let Some(product) = center.product {
             *self.by_product.entry(product).or_default() += amount;
         }
+        *self
+            .by_center
+            .entry(center)
+            .or_default()
+            .entry(cost)
+            .or_default() += amount;
+    }
+
+    /// Sum of a cost type over the centers of a site (with its products).
+    pub fn site_type(&self, site: SiteId, cost: CostType) -> Money {
+        self.by_center
+            .iter()
+            .filter(|(c, _)| c.site == Some(site))
+            .filter_map(|(_, t)| t.get(&cost))
+            .copied()
+            .sum()
     }
 
     pub fn total(&self) -> Money {
@@ -229,6 +249,14 @@ impl Ledger {
         self.record(cost, center, amount);
     }
 
+    /// Moves a cost booked on `from` to `to` (internal allocation, e.g. the wages of the
+    /// hours a product used from the site's wage bill). Balances and totals by cost type
+    /// stay as they are.
+    pub fn allocate(&mut self, cost: CostType, from: CostCenter, to: CostCenter, amount: Money) {
+        self.record(cost, from, amount);
+        self.record(cost, to, -amount);
+    }
+
     fn record(&mut self, cost: CostType, center: CostCenter, amount: Money) {
         self.month.add(cost, center, amount);
         self.year.add(cost, center, amount);
@@ -257,12 +285,18 @@ impl Ledger {
 
     pub fn close_month(&mut self, next: Date) {
         let closed = std::mem::replace(&mut self.month, PeriodResult::starting(next));
+        if let Some(last) = self.months.last_mut() {
+            last.by_center.clear();
+        }
         self.months.push(closed);
         if self.months.len() > MONTHS_KEPT {
             self.months.remove(0);
         }
         if next.month() == 1 {
             let closed = std::mem::replace(&mut self.year, PeriodResult::starting(next));
+            if let Some(last) = self.years.last_mut() {
+                last.by_center.clear();
+            }
             self.years.push(closed);
             // The year's result moves into retained earnings.
             let result = self.balances[Account::Result.slot()];
@@ -275,6 +309,7 @@ impl Ledger {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ids::Id;
 
     fn usd(v: f64) -> Money {
         Money::from_usd(v).unwrap()
@@ -336,5 +371,38 @@ mod tests {
         assert_eq!(l.balance(Account::Result), Money::ZERO);
         assert_eq!(l.balance(Account::RetainedEarnings), usd(10.0));
         assert!(l.is_balanced());
+    }
+
+    #[test]
+    fn allocation_moves_costs_between_centers_only() {
+        let start = Date::first_of_year(1900);
+        let mut l = Ledger::new(start, usd(100.0));
+        let site = SiteId(2);
+        let product = ProductId::from_index(0);
+        l.expense(
+            CostType::Personnel,
+            CostCenter::site(site),
+            Account::Cash,
+            usd(30.0),
+        );
+        l.allocate(
+            CostType::Personnel,
+            CostCenter::site(site),
+            CostCenter::product(site, product),
+            usd(20.0),
+        );
+        assert!(l.is_balanced());
+        assert_eq!(l.month.by_type[&CostType::Personnel], usd(-30.0));
+        assert_eq!(l.month.by_site[&site], usd(-30.0));
+        assert_eq!(l.month.by_product[&product], usd(-20.0));
+        assert_eq!(l.month.site_type(site, CostType::Personnel), usd(-30.0));
+        let at = |c: CostCenter| l.month.by_center[&c][&CostType::Personnel];
+        assert_eq!(at(CostCenter::site(site)), usd(-10.0));
+        assert_eq!(at(CostCenter::product(site, product)), usd(-20.0));
+        // Only the last closed months keep the details.
+        l.close_month(Date::new(1900, 2, 1).unwrap());
+        l.close_month(Date::new(1900, 3, 1).unwrap());
+        assert!(l.months[0].by_center.is_empty());
+        assert_eq!(l.months[0].by_type[&CostType::Personnel], usd(-30.0));
     }
 }

@@ -93,6 +93,16 @@ pub enum Command {
         group: GoodsGroupId,
         budget: Money,
     },
+    /// Wage premium of a site over the country's wages (M18, 0.1 = 10 %): when workers
+    /// are scarce, better payers get them first and hire them away from others.
+    SetWagePremium { site: SiteId, premium: f64 },
+    /// Sets the asking price of an existing offer (M18): a fixed price becomes this
+    /// price; an automatic price goes on from here (never below its floor).
+    SetPrice {
+        site: SiteId,
+        product: ProductId,
+        price: Money,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -170,6 +180,11 @@ pub enum CommandError {
     },
     UnknownLoan,
     InvalidPrice,
+    InvalidWagePremium {
+        max: f64,
+    },
+    /// The site offers no such product (key of the product).
+    NoOffer(String),
     /// Already known, or prerequisites missing (key of the technology).
     NotResearchable(String),
     /// No transport route for the product between the two countries.
@@ -225,6 +240,11 @@ impl CommandError {
             }
             CommandError::UnknownLoan => e(keys::COMMAND_UNKNOWN_LOAN),
             CommandError::InvalidPrice => e(keys::COMMAND_INVALID_PRICE),
+            CommandError::InvalidWagePremium { max } => {
+                e(keys::COMMAND_INVALID_WAGE_PREMIUM).with("max", Param::Number(*max * 100.0))
+            }
+            CommandError::NoOffer(product) => e(keys::COMMAND_NO_OFFER)
+                .with("produkt", Param::TextKey(format!("produkt.{product}"))),
             CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
             CommandError::NoRoute { product, from, to } => e(keys::COMMAND_NO_ROUTE)
@@ -361,6 +381,7 @@ pub(crate) fn execute(
                 offers: Default::default(),
                 orders: Default::default(),
                 research: None,
+                wage_premium: 0.0,
             });
         }
         Command::BuildFacility {
@@ -777,6 +798,40 @@ pub(crate) fn execute(
                     budget: *budget,
                 });
                 company.advertising.sort_by_key(|a| (a.country, a.group));
+            }
+        }
+        Command::SetWagePremium { site, premium } => {
+            let max = catalog.production_model.wage_premium_max;
+            if !(premium.is_finite() && (0.0..=max + 1e-9).contains(premium)) {
+                return Err(CommandError::InvalidWagePremium { max });
+            }
+            own_site(state, actor, *site)?;
+            let s = state.site_mut(*site).expect("checked above");
+            s.wage_premium = *premium;
+            // A higher premium may hire workers away from others at once.
+            s.staffing_due = true;
+        }
+        Command::SetPrice {
+            site,
+            product,
+            price,
+        } => {
+            own_site(state, actor, *site)?;
+            if *price <= Money::ZERO {
+                return Err(CommandError::InvalidPrice);
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            let Some(offer) = s.offers.get_mut(product) else {
+                return Err(CommandError::NoOffer(
+                    catalog.products.key(*product).to_owned(),
+                ));
+            };
+            match &mut offer.mode {
+                PriceMode::Fixed(fixed) => {
+                    *fixed = *price;
+                    offer.price = *price;
+                }
+                PriceMode::Market { floor, .. } => offer.price = (*price).max(*floor),
             }
         }
     }

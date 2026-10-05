@@ -253,9 +253,169 @@ fn deposit_cost_factor(catalog: &Catalog, state: &GameState, site: SiteId, recip
     }
 }
 
+/// Expected cost of one unit of a product made at a site, by kind of cost (USD).
+#[derive(Clone, Debug, PartialEq)]
+pub struct UnitCost {
+    pub product: ProductId,
+    /// Output per day at the planned utilization (idle facilities at full utilization).
+    pub output_per_day: f64,
+    pub material: f64,
+    pub labor: f64,
+    pub energy: f64,
+    pub overhead: f64,
+    pub rent: f64,
+    /// Depreciation and maintenance of the facilities.
+    pub facility: f64,
+}
+
+impl UnitCost {
+    pub fn total(&self) -> f64 {
+        self.variable() + self.facility
+    }
+
+    /// What one more unit costs: everything but the facilities.
+    pub fn variable(&self) -> f64 {
+        self.material + self.labor + self.energy + self.overhead + self.rent
+    }
+
+    fn add(&mut self, other: &UnitCost) {
+        self.output_per_day += other.output_per_day;
+        self.material += other.material;
+        self.labor += other.labor;
+        self.energy += other.energy;
+        self.overhead += other.overhead;
+        self.rent += other.rent;
+        self.facility += other.facility;
+    }
+
+    fn per_unit(mut self) -> Self {
+        let q = self.output_per_day.max(1e-12);
+        for v in [
+            &mut self.material,
+            &mut self.labor,
+            &mut self.energy,
+            &mut self.overhead,
+            &mut self.rent,
+            &mut self.facility,
+        ] {
+            *v /= q;
+        }
+        self
+    }
+}
+
+/// Expected unit costs of the products a site makes (M18, docs/FORMELN.md): inputs at
+/// the country's market price (those made at the site at their own unit cost), labor
+/// with the site's wage premium, electricity from the grid, overhead and rent as in
+/// production, and depreciation and maintenance of the facilities at the planned
+/// utilization. The whole cost goes to the main product.
+pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<UnitCost> {
+    let s = &state.sites[site.index()];
+    let c = state.countries.get(s.country);
+    let affinity = (c.automation_affinity, c.labor_productivity);
+    let wage_factor = 1.0 + s.wage_premium;
+    let made: Vec<ProductId> = s
+        .slots
+        .iter()
+        .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product))
+        .collect();
+    let mut costs: Vec<UnitCost> = Vec::new();
+    // Inputs made here are valued at the estimate of the previous pass; chains are at
+    // most a few levels deep.
+    for _ in 0..=made.len() {
+        let price = |p: ProductId| {
+            costs.iter().find(|u| u.product == p).map_or_else(
+                || crate::market::market_price(catalog, state, s.country, p).to_usd(),
+                UnitCost::total,
+            )
+        };
+        let mut sums: Vec<UnitCost> = Vec::new();
+        for sl in &s.slots {
+            let Some(recipe) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
+                continue;
+            };
+            let f = catalog.facilities.get(sl.facility);
+            let utilization = if sl.utilization > 0.0 {
+                sl.utilization
+            } else {
+                1.0
+            };
+            let runs = f.runs_per_day * f64::from(sl.count) * utilization;
+            let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+            let labor: f64 = hours_per_run(catalog, recipe, sl.automation, affinity, cost_factor)
+                .iter()
+                .map(|&(g, h)| h * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
+                .sum::<f64>()
+                * wage_factor;
+            let energy = recipe.energy_mwh * c.electricity_price_usd_mwh;
+            let material: f64 = recipe.inputs.iter().map(|&(p, q)| q * price(p)).sum();
+            let overhead = overhead_usd(
+                catalog,
+                recipe,
+                labor + energy + capital_per_run_usd(catalog, recipe),
+            );
+            let rent = rent_per_run_usd(catalog, state, s.country, recipe);
+            let facility = sl.cost.to_usd()
+                * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
+                / 365.0;
+            let line = UnitCost {
+                product: recipe.product,
+                output_per_day: runs * recipe.output,
+                material: material * runs,
+                labor: labor * runs,
+                energy: energy * runs,
+                overhead: overhead * runs,
+                rent: rent * runs,
+                facility,
+            };
+            match sums.iter_mut().find(|u| u.product == recipe.product) {
+                Some(u) => u.add(&line),
+                None => sums.push(line),
+            }
+        }
+        costs = sums.into_iter().map(UnitCost::per_unit).collect();
+    }
+    costs
+}
+
+/// Workers per labor group that a site's planned production (and research) needs.
+pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: Date) -> Vec<f64> {
+    let index = site.index();
+    let worker_hours = hours_per_worker_day(catalog, date);
+    let c = state.countries.get(state.sites[index].country);
+    let affinity = (c.automation_affinity, c.labor_productivity);
+    let mut needed = vec![0.0; catalog.labor_groups.len()];
+    for slot in 0..state.sites[index].slots.len() {
+        let Some((recipe_id, runs)) = planned_runs(catalog, state, site, slot, date) else {
+            continue;
+        };
+        let recipe = catalog.recipes.get(recipe_id);
+        let automation = state.sites[index].slots[slot].automation;
+        let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+        for (g, h) in hours_per_run(catalog, recipe, automation, affinity, cost_factor) {
+            needed[g.index()] += runs * h / worker_hours;
+        }
+    }
+    if let Some(technology) = state.sites[index].research {
+        let field = catalog.technologies.get(technology).field;
+        if let Some(group) = catalog
+            .research_model
+            .researchers
+            .get(field.index())
+            .copied()
+            .flatten()
+        {
+            needed[group.index()] +=
+                crate::research::wanted_researchers(catalog, state, site, date);
+        }
+    }
+    needed
+}
+
 /// Hires and dismisses staff so that every site has the workers its planned production
-/// needs, within the free labor pool of its country (Lastenheft §5.3). Sites are served
-/// in the order they were founded.
+/// needs, within the free labor pool of its country (Lastenheft §5.3). Sites with a
+/// higher wage premium are served first; when the pool runs short they hire workers
+/// away from sites in the same country that pay a lower premium (M18).
 fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
     if !state.sites.iter().any(|s| s.staffing_due) {
         return;
@@ -267,57 +427,63 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
             employed[s.country.index()][g.index()] += w;
         }
     }
-    let worker_hours = hours_per_worker_day(catalog, date);
-    for index in 0..state.sites.len() {
-        if !state.sites[index].staffing_due {
-            continue;
-        }
+    let mut due: Vec<usize> = (0..state.sites.len())
+        .filter(|&i| state.sites[i].staffing_due)
+        .collect();
+    due.sort_by(|&a, &b| {
+        let (pa, pb) = (state.sites[a].wage_premium, state.sites[b].wage_premium);
+        pb.total_cmp(&pa).then(a.cmp(&b))
+    });
+    for index in due {
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));
         let country = state.sites[index].country;
-        let c = state.countries.get(country);
-        let affinity = (c.automation_affinity, c.labor_productivity);
-        let mut needed = vec![0.0; groups];
-        for slot in 0..state.sites[index].slots.len() {
-            let Some((recipe_id, runs)) = planned_runs(catalog, state, site, slot, date) else {
-                continue;
-            };
-            let recipe = catalog.recipes.get(recipe_id);
-            let automation = state.sites[index].slots[slot].automation;
-            let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
-            for (g, h) in hours_per_run(catalog, recipe, automation, affinity, cost_factor) {
-                needed[g.index()] += runs * h / worker_hours;
-            }
-        }
-        if let Some(technology) = state.sites[index].research {
-            let field = catalog.technologies.get(technology).field;
-            if let Some(group) = catalog
-                .research_model
-                .researchers
-                .get(field.index())
-                .copied()
-                .flatten()
-            {
-                needed[group.index()] +=
-                    crate::research::wanted_researchers(catalog, state, site, date);
-            }
-        }
+        let premium = state.sites[index].wage_premium;
+        let needed = needed_workers(catalog, state, site, date);
+        // Who can be hired away: same country, lower premium; lowest premium first, the
+        // youngest site first among equals.
+        let mut rivals: Vec<usize> = (0..state.sites.len())
+            .filter(|&i| {
+                i != index
+                    && state.sites[i].country == country
+                    && state.sites[i].wage_premium < premium
+            })
+            .collect();
+        rivals.sort_by(|&a, &b| {
+            let (pa, pb) = (state.sites[a].wage_premium, state.sites[b].wage_premium);
+            pa.total_cmp(&pb).then(b.cmp(&a))
+        });
         let pool = &state.countries.get(country).labor_available;
-        let s = &mut state.sites[index];
+        let free: Vec<f64> = (0..groups)
+            .map(|g| (pool.get(g).copied().unwrap_or(0.0) - employed[country.index()][g]).max(0.0))
+            .collect();
         for g in 0..groups {
             let id = LaborGroupId::from_index(g);
-            let current = *s.workforce.get(id);
+            let current = *state.sites[index].workforce.get(id);
             let target = needed[g];
-            let new = if target > current {
-                let free =
-                    (pool.get(g).copied().unwrap_or(0.0) - employed[country.index()][g]).max(0.0);
-                current + (target - current).min(free)
-            } else {
-                target
-            };
-            employed[country.index()][g] += new - current;
-            *s.workforce.get_mut(id) = new;
+            if target <= current {
+                employed[country.index()][g] -= current - target;
+                *state.sites[index].workforce.get_mut(id) = target;
+                continue;
+            }
+            let hired = (target - current).min(free[g]);
+            employed[country.index()][g] += hired;
+            let mut new = current + hired;
+            for &r in &rivals {
+                let missing = target - new;
+                if missing <= 1e-9 {
+                    break;
+                }
+                let theirs = state.sites[r].workforce.get_mut(id);
+                let taken = missing.min(*theirs);
+                if taken > 0.0 {
+                    *theirs -= taken;
+                    new += taken;
+                    state.sites[r].staffing_due = true;
+                }
+            }
+            *state.sites[index].workforce.get_mut(id) = new;
         }
-        s.staffing_due = false;
+        state.sites[index].staffing_due = false;
     }
 }
 
@@ -327,11 +493,15 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
     let worker_hours = hours_per_worker_day(catalog, date);
     let (affinity, grid_share, electricity_price, wages) = {
         let c = state.countries.get(country);
+        let factor = 1.0 + state.sites[index].wage_premium;
         (
             (c.automation_affinity, c.labor_productivity),
             c.grid_share,
             c.electricity_price_usd_mwh,
-            c.hourly_wage_usd.clone(),
+            c.hourly_wage_usd
+                .iter()
+                .map(|w| w * factor)
+                .collect::<Vec<f64>>(),
         )
     };
     // Hours the site's staff can work today, shared by the facilities in order.
@@ -422,12 +592,16 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let center = CostCenter::product(site, recipe.product);
         ledger.expense(CostType::Material, center, Account::Inventory, value);
         let materials = value;
-        // Labor used (paid with the wages of the day) and electricity.
+        // Labor used (paid with the wages of the day) and electricity. The wages of the
+        // hours used move from the site's wage bill to the product (M18).
+        let mut labor = Money::ZERO;
         for &(g, h) in &per_run {
             hours[g.index()] -= h * runs;
-            value += Money::from_usd(h * runs * wages.get(g.index()).copied().unwrap_or(0.0))
+            labor += Money::from_usd(h * runs * wages.get(g.index()).copied().unwrap_or(0.0))
                 .unwrap_or(Money::ZERO);
         }
+        ledger.allocate(CostType::Personnel, CostCenter::site(site), center, labor);
+        value += labor;
         // Own electricity first, the rest from the grid.
         let needed = recipe.energy_mwh * runs;
         let own = needed.min(own_power);
@@ -552,7 +726,8 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         .workforce
         .iter()
         .map(|(g, &w)| w * worker_hours * wages.get(g.index()).copied().unwrap_or(0.0))
-        .sum();
+        .sum::<f64>()
+        * (1.0 + s.wage_premium);
     let model = &catalog.production_model;
     let mut maintenance = Money::ZERO;
     let mut depreciation = Money::ZERO;
