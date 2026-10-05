@@ -73,6 +73,12 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Linien für Kasse, Umsatz, Ergebnis), dann Standorte als Karten (Auslastung, Umsatz,
   Ergebnis, Engpass) mit Sprung zur Werksansicht. Wettbewerber auf eine eigene
   Unterseite „Wettbewerb“ mit Marktanteilen statt nur Eigenkapital.
+- **Etappen** (M23): unter „Zu erledigen“ die nächste Etappe mit Fortschrittsbalken
+  (z. B. „1 von 2“ Anlagen, „12 % von 30 %“ Marktanteil) und „So geht's“; alle Etappen
+  mit Datum der erreichten aufklappbar. „Etappen ausblenden“ blendet den Bereich aus,
+  das Menü ☰ („Etappen zeigen“) wieder ein; die Wahl merkt sich der Browser. Erreichte
+  Etappen stehen im Rundenbericht unter „Erreicht“; die Einführung zeigt den Bereich
+  nach dem ersten Verkauf.
 
 ### Produktion → Standorte und Werksansicht
 

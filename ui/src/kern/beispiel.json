@@ -8589,6 +8589,64 @@
       }
     ],
     "market_scale": 0.1,
+    "milestones": [
+      {
+        "key": "erster_verkauf",
+        "progress": null,
+        "reached": "1914-01-02"
+      },
+      {
+        "key": "gewinnmonat",
+        "progress": null,
+        "reached": "1914-01-31"
+      },
+      {
+        "key": "zweite_anlage",
+        "progress": {
+          "current": 1.0,
+          "target": 2.0,
+          "unit": "anzahl"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigenes_vorprodukt",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "zweites_land",
+        "progress": {
+          "current": 1.0,
+          "target": 2.0,
+          "unit": "anzahl"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigene_forschung",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "marktfuehrer",
+        "progress": {
+          "current": 0.0,
+          "target": 0.3,
+          "unit": "anteil"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigenkapital_verdoppelt",
+        "progress": {
+          "current": 134473.9386,
+          "target": 200000.0,
+          "unit": "geld"
+        },
+        "reached": null
+      }
+    ],
     "money": {
       "base_year": 2026,
       "home_base": {
@@ -8738,6 +8796,64 @@
     ],
     "history": [],
     "market_scale": 0.1,
+    "milestones": [
+      {
+        "key": "erster_verkauf",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "gewinnmonat",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "zweite_anlage",
+        "progress": {
+          "current": 1.0,
+          "target": 2.0,
+          "unit": "anzahl"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigenes_vorprodukt",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "zweites_land",
+        "progress": {
+          "current": 1.0,
+          "target": 2.0,
+          "unit": "anzahl"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigene_forschung",
+        "progress": null,
+        "reached": null
+      },
+      {
+        "key": "marktfuehrer",
+        "progress": {
+          "current": 0.0,
+          "target": 0.3,
+          "unit": "anteil"
+        },
+        "reached": null
+      },
+      {
+        "key": "eigenkapital_verdoppelt",
+        "progress": {
+          "current": 100000.0,
+          "target": 200000.0,
+          "unit": "geld"
+        },
+        "reached": null
+      }
+    ],
     "money": {
       "base_year": 2026,
       "home_base": {

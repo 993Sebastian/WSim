@@ -8,9 +8,10 @@ use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
     RawAiModel, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency, RawDeposit,
-    RawEvent, RawFacility, RawFinanceModel, RawMarketModel, RawMeta, RawNameGroup, RawPriceIndex,
-    RawProduct, RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel,
-    RawSimple, RawTechnology, RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
+    RawEvent, RawFacility, RawFinanceModel, RawMarketModel, RawMeta, RawMilestone, RawNameGroup,
+    RawPriceIndex, RawProduct, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
+    RawResearchModel, RawSimple, RawTechnology, RawTransportClass, RawTransportModel, RawUnit,
+    RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -176,6 +177,7 @@ pub(crate) struct RawData {
     pub price_index: Vec<Entry<RawPriceIndex>>,
     pub currencies: Vec<Entry<RawCurrency>>,
     pub country_currencies: Vec<Entry<RawCountryCurrencies>>,
+    pub milestones: Vec<Entry<RawMilestone>>,
 }
 
 pub(crate) const SECTIONS: &[&str] = &[
@@ -207,6 +209,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "preisindex",
     "waehrungen",
     "landeswaehrungen",
+    "etappen",
 ];
 
 /// Reads all sections of one content file into `raw`.
@@ -274,6 +277,7 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             ),
             "namensgruppen" => read_list(ctx, &loc, value, &mut raw.name_groups, &mut raw.broken),
             "ereignisse" => read_list(ctx, &loc, value, &mut raw.events, &mut raw.broken),
+            "etappen" => read_list(ctx, &loc, value, &mut raw.milestones, &mut raw.broken),
             "reale_firmen" => read_list(ctx, &loc, value, &mut raw.real_companies, &mut raw.broken),
             "einheiten" => read_list(ctx, &loc, value, &mut raw.units, &mut raw.broken),
             "kontinente" => read_list(ctx, &loc, value, &mut raw.continents, &mut raw.broken),

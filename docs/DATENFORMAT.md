@@ -30,6 +30,7 @@ data/
   lagerstaetten/       Rohstoffvorkommen, eine Datei je Rohstoff
   verkehrsmittel.yaml  Verkehrsmittel mit Kosten und Geschwindigkeit
   waehrungen/          Preisindex, Währungen und ihre Zeiträume je Land (Anzeige)
+  etappen.yaml         Etappenziele des Spielers nach der Einführung
   texte/de/            alle Anzeigetexte
 ```
 
@@ -40,7 +41,7 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
 `namensgruppen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
-`landeswaehrungen`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
+`landeswaehrungen`, `etappen`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
 `preisindex` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
@@ -429,3 +430,17 @@ Kolonial- oder Vormacht (Annahme, im Kommentar begründet).
 | --- | --- |
 | **land** | Land (ISO-3166-alpha-3) |
 | **perioden** | Nicht leere Liste aus `ab` (Jahr = 1. Januar oder `"JJJJ-MM"` = 1. des Monats) und `waehrung`; aufsteigend nach `ab`, der erste Zeitraum beginnt spätestens 1900 |
+
+## etappen
+
+Etappenziele des Spielers nach der Einführung (M23), in der Reihenfolge der Übersicht.
+Sie wirken nicht auf die Simulation. Texte: `etappe.<id>` (Name) und
+`etappe.<id>.hinweis` (so erreicht man sie; `{anteil}` wird beim Marktführer durch den
+geforderten Anteil ersetzt), beide Pflicht. Bewertung: `docs/FORMELN.md`, M23.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel |
+| **art** | `erster_verkauf`, `gewinnmonat`, `anlagen`, `eigenes_vorprodukt`, `laender`, `forschung`, `marktfuehrer` oder `eigenkapital` |
+| wert | Nur und genau bei `anlagen` und `laender` (ganze Zahl 1–1000), `marktfuehrer` (Anteil am Absatz, 0,01–1) und `eigenkapital` (Vielfaches des Startkapitals, über 1 bis 1000) |
+

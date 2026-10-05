@@ -12,8 +12,9 @@ pub use table::Table;
 use crate::ids::{IdKind, KeyTable};
 
 use crate::ids::{
-    BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId, ProductId,
-    QualificationId, RecipeId, SpecializationId, TechnologyId, TransportClassId, UnitId, VehicleId,
+    BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId,
+    MilestoneId, ProductId, QualificationId, RecipeId, SpecializationId, TechnologyId,
+    TransportClassId, UnitId, VehicleId,
 };
 use crate::money::Money;
 use crate::state::StartForm;
@@ -37,6 +38,8 @@ pub struct Catalog {
     pub technologies: Table<TechnologyId, Technology>,
     pub deposits: Table<DepositId, Deposit>,
     pub vehicles: Table<VehicleId, Vehicle>,
+    /// Goals for the player after the introduction, in display order (M23).
+    pub milestones: Table<MilestoneId, Milestone>,
     pub country_model: CountryModel,
     pub production_model: ProductionModel,
     pub finance_model: FinanceModel,
@@ -88,10 +91,36 @@ impl Catalog {
                 IdKind::Technology => self.technologies.keys().to_vec(),
                 IdKind::Deposit => self.deposits.keys().to_vec(),
                 IdKind::Vehicle => self.vehicles.keys().to_vec(),
+                IdKind::Milestone => self.milestones.keys().to_vec(),
             })
             .collect();
         KeyTable::new(keys)
     }
+}
+
+/// A goal for the player (M23). It has no effect on the simulation.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Milestone {
+    pub condition: MilestoneCondition,
+}
+
+/// When a milestone is reached (docs/FORMELN.md, M23).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum MilestoneCondition {
+    FirstSale,
+    ProfitMonth,
+    /// Finished units of all facilities.
+    Facilities(u32),
+    /// An own facility makes what another one uses.
+    OwnInput,
+    /// Sites in this many countries.
+    Countries(u32),
+    /// A technology researched by the company itself.
+    Research,
+    /// Sold most of a product in a country last month, with at least this share.
+    MarketLeader(f64),
+    /// Equity of at least this multiple of the start capital.
+    Equity(f64),
 }
 
 /// Where a value comes from (Lastenheft §16.2: approximations are marked).

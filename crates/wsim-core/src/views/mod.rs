@@ -225,6 +225,55 @@ pub struct Overview {
     pub history: Vec<MonthView>,
     /// Ways to show amounts (M21); `None` without currency data.
     pub money: Option<MoneyOptions>,
+    /// Goals after the introduction, in data order (M23).
+    #[serde(default)]
+    pub milestones: Vec<MilestoneView>,
+}
+
+/// A goal of the player (texts `etappe.<key>` and `etappe.<key>.hinweis`).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MilestoneView {
+    pub key: String,
+    /// Day it was reached.
+    pub reached: Option<String>,
+    /// Way there for measurable goals: current value and target.
+    pub progress: Option<ProgressView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProgressView {
+    pub current: f64,
+    pub target: f64,
+    /// `anzahl`, `anteil` or `geld` (USD).
+    pub unit: String,
+}
+
+fn milestones(game: &Game) -> Vec<MilestoneView> {
+    use crate::catalog::MilestoneCondition as C;
+    let state = game.state();
+    let catalog = game.catalog();
+    catalog
+        .milestones
+        .iter()
+        .map(|(id, m)| {
+            let unit = match m.condition {
+                C::MarketLeader(_) => "anteil",
+                C::Equity(_) => "geld",
+                _ => "anzahl",
+            };
+            MilestoneView {
+                key: catalog.milestones.key(id).to_owned(),
+                reached: state.milestones.get(id).map(iso),
+                progress: crate::milestones::progress(state, m.condition, state.date).map(|p| {
+                    ProgressView {
+                        current: p.current,
+                        target: p.target,
+                        unit: unit.to_owned(),
+                    }
+                }),
+            }
+        })
+        .collect()
 }
 
 /// Ways to show amounts (Lastenheft §3.6, §18.2): the headquarters' currency or the US
@@ -351,6 +400,7 @@ pub fn overview(game: &Game) -> Overview {
         hints: hints(game),
         history: history(&state.companies[state.player.index()].ledger),
         money: money_options(game),
+        milestones: milestones(game),
     }
 }
 
@@ -414,6 +464,8 @@ pub fn message_view(message: &Message) -> MessageView {
     // The view where the player can act on the message.
     let target = if message.key == crate::message::keys::INPUT_MISSING {
         Some("produktion")
+    } else if message.key == crate::message::keys::MILESTONE {
+        Some("uebersicht")
     } else if message.key.starts_with("meldung.forschung") {
         Some("forschung")
     } else if matches!(
@@ -427,6 +479,8 @@ pub fn message_view(message: &Message) -> MessageView {
     .map(str::to_owned);
     let group = if message.kind == MessageKind::WorldEvent {
         "welt"
+    } else if message.key == crate::message::keys::MILESTONE {
+        "erfolg"
     } else if message.key.starts_with("meldung.ki.")
         || message.key == crate::message::keys::COMPANY_INSOLVENT
     {

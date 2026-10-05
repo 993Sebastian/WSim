@@ -22,6 +22,7 @@ use crate::messages;
 mod ai;
 mod countries;
 mod currencies;
+mod milestones;
 mod production;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
@@ -621,6 +622,16 @@ pub(crate) fn build(
     );
     b.catalog.events = ai::events(b.ctx, &events, &country_keys, texts);
 
+    let (milestone_keys, milestone_entries) = register(
+        b.ctx,
+        raw,
+        ("etappen", "Etappe", Some("etappe")),
+        KeyFormat::Snake,
+        &raw.milestones,
+        |e| &e.id,
+    );
+    milestones::milestones(b.ctx, &mut b.catalog, &milestone_entries, texts);
+
     b.check_product_sources(&products);
     // Only on a consistent catalog: unresolved references would point anywhere.
     if !b.ctx.report.has_errors() {
@@ -648,6 +659,7 @@ pub(crate) fn build(
         &vehicle_keys,
         &difficulty_keys,
         &event_keys,
+        &milestone_keys,
         &media_keys,
         &currency_keys,
     ];

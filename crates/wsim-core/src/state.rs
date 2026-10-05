@@ -15,8 +15,8 @@ use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
 pub use crate::country_model::CountryState;
 use crate::ids::{
-    self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, ProductId, RecipeId,
-    TechnologyId,
+    self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, MilestoneId, ProductId,
+    RecipeId, TechnologyId,
 };
 use crate::ledger::Ledger;
 use crate::money::Money;
@@ -794,6 +794,9 @@ pub struct GameState {
     /// Day each technology was first acquired by research in this game.
     #[serde(default)]
     pub inventions: PerId<TechnologyId, Option<Date>>,
+    /// Day the player reached each milestone (M23).
+    #[serde(default)]
+    pub milestones: PerId<MilestoneId, Option<Date>>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,
@@ -883,6 +886,8 @@ impl GameState {
         }
         self.inventions
             .resize_with(catalog.technologies.len(), || None);
+        self.milestones
+            .resize_with(catalog.milestones.len(), || None);
         let countries = catalog.countries.len();
         self.markets
             .resize_with(catalog.products.len(), PerId::default);

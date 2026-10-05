@@ -1426,6 +1426,14 @@ input[aria-invalid="true"] {
   color: var(--akzent);
 }
 
+.menue-wahl[role="menuitemcheckbox"]::before {
+  content: "☐";
+}
+
+.menue-wahl[role="menuitemcheckbox"][aria-checked="true"]::before {
+  content: "☑";
+}
+
 .trend.positiv,
 .trend.steigt {
   color: var(--erfolg);
@@ -2371,4 +2379,47 @@ body {
   padding: 0.6rem;
   border: 1px solid var(--fehler);
   border-radius: 6px;
+}
+
+/* Goals after the introduction (M23) */
+.abschnitt-kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.naechste-etappe {
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--erfolg);
+  background: var(--flaeche);
+}
+
+.naechste-etappe p {
+  margin: 0.25rem 0;
+}
+
+.etappen-fortschritt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.etappen-fortschritt progress {
+  flex: 1 1 10rem;
+  max-width: 20rem;
+}
+
+.alle-etappen ol {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.alle-etappen li.erreicht > span:first-child {
+  color: var(--erfolg);
 }

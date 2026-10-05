@@ -127,6 +127,7 @@ pub(super) fn decode_v2(
         import_markets: Default::default(),
         deposits: PerId::default(),
         inventions: PerId::default(),
+        milestones: PerId::default(),
         player: s.player,
         game_over: s.game_over,
     };

@@ -89,6 +89,17 @@ export interface Uebersicht {
   history: Monat[];
   /** Ways to show amounts (M21); null without currency data. */
   money: Geldoptionen | null;
+  /** Goals after the introduction, in data order (M23). */
+  milestones?: Etappe[];
+}
+
+/** A goal of the player (M23); texts `etappe.<key>` and `etappe.<key>.hinweis`. */
+export interface Etappe {
+  key: string;
+  /** Day it was reached (ISO), null while open. */
+  reached: string | null;
+  /** Way there for measurable goals. */
+  progress: { current: number; target: number; unit: "anzahl" | "anteil" | "geld" } | null;
 }
 
 /** How amounts are shown: a currency and the factor from game dollars to its units. */
@@ -148,7 +159,8 @@ export type MeldungsArt =
   "info" | "success" | "warning" | "crisis" | "world_event" | "stock" | "error";
 
 /** Section of the round report. */
-export type MeldungsGruppe = "welt" | "wettbewerb" | "warnung" | "forschung" | "allgemein";
+export type MeldungsGruppe =
+  "erfolg" | "welt" | "wettbewerb" | "warnung" | "forschung" | "allgemein";
 
 export interface Meldung {
   kind: MeldungsArt;

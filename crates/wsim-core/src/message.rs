@@ -124,6 +124,7 @@ pub mod keys {
     pub const AI_MOTHBALLS: &str = "meldung.ki.stilllegung";
     pub const AI_SELLS: &str = "meldung.ki.verkauf";
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
+    pub const MILESTONE: &str = "meldung.etappe";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
     pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
@@ -198,6 +199,7 @@ pub mod keys {
         AI_FOUNDED,
         AI_EXPANDS,
         AI_INVENTION,
+        MILESTONE,
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,

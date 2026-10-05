@@ -153,6 +153,7 @@ bericht.diese_runde: Diese Runde
 bericht.vorrunde: Vorrunde
 bericht.veraenderung: Veränderung
 bericht.nach_kostenart: Nach Kostenart
+bericht.gruppe.erfolg: Erreicht
 bericht.gruppe.welt: Weltgeschehen
 bericht.gruppe.warnung: Warnungen
 bericht.gruppe.wettbewerb: Wettbewerb
@@ -677,6 +678,8 @@ einfuehrung.bericht_nichts.titel: Der Rundenbericht
 einfuehrung.bericht_nichts.text: Nach jeder Runde fasst der Rundenbericht zusammen, was geschehen ist (vorher kommen Nachrichten aus aller Welt). Diesmal wurde noch nichts verkauft; „Jetzt zu tun“ nennt die Ursachen. Schließe den Bericht mit „Weiter“.
 einfuehrung.geschafft.titel: Deine Firma läuft
 einfuehrung.geschafft.text: "Ab jetzt zeigt dir die Übersicht unter „Zu erledigen“, wo es hakt – ein Klick führt direkt an die Stelle. Neue Märkte und Produkte findest du im Markt, neue Werke gründest du unter „Standorte“, neue Verfahren erforschst du in der Forschung. Ein kurzer Rundgang zeigt dir diese Ansichten – oder beende die Einführung."
+einfuehrung.etappen.titel: Etappen
+einfuehrung.etappen.text: "Wie geht es weiter? Die Etappen in der Übersicht nennen dir das nächste lohnende Ziel – vom ersten Monat mit Gewinn bis zum verdoppelten Eigenkapital – und wie du es erreichst. Erreichte Etappen stehen im Rundenbericht. Im Menü ☰ kannst du sie ausblenden."
 einfuehrung.markt.titel: Markt
 einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung
@@ -702,3 +705,32 @@ berichte.leer: Noch keine Runde beendet.
 berichte.ergebnis: "Ergebnis {betrag}"
 berichte.oeffnen: Bericht öffnen
 berichte.keine_meldungen: Keine Meldungen.
+
+# Etappenziele (M23)
+etappen.titel: Etappen
+etappen.naechste: Nächste Etappe
+etappen.so_gehts: "So geht's:"
+etappen.erreicht_am: "erreicht am {datum}"
+etappen.fortschritt: "{aktuell} von {ziel}"
+etappen.alle: "Alle {anzahl} Etappen erreicht – Glückwunsch!"
+etappen.stand: "{erreicht} von {anzahl} erreicht"
+etappen.ausblenden: Etappen ausblenden
+etappen.einblenden: Etappen zeigen
+etappen.alle_zeigen: Alle Etappen
+etappe.erster_verkauf: Erster Verkauf
+etappe.erster_verkauf.hinweis: Biete im Werk unter „Verkauf“ ein Erzeugnis an und spiele eine Runde. Ein Preis knapp unter dem Marktpreis findet schnell Käufer.
+etappe.gewinnmonat: Erster Monat mit Gewinn
+etappe.gewinnmonat.hinweis: Achte im Werk unter „Verkauf“ auf die Marge über den Stückkosten. Volle Auslastung senkt die Stückkosten, ein zu hoher Preis kostet Absatz.
+etappe.zweite_anlage: Zwei Anlagen in Betrieb
+etappe.zweite_anlage.hinweis: Unter „Produktion“ → „Anlage bauen“ siehst du Leistung, Personal und Kosten jeder Anlage. Baue dort, wo dein Absatz die Leistung übersteigt.
+etappe.eigenes_vorprodukt: Eigenes Vorprodukt
+etappe.eigenes_vorprodukt.hinweis: Stelle ein Vorprodukt deiner Anlagen selbst her – etwa Draht für die Nagelmaschine. Der Technologiebaum unter „Forschung“ zeigt, welche Anlage es herstellt.
+etappe.zweites_land: Standort in einem zweiten Land
+etappe.zweites_land.hinweis: Gründe unter „Produktion“ → „Neuer Standort“ einen Standort im Ausland. Die Weltkarte zeigt Löhne, Rohstoffe und Märkte der Länder.
+etappe.eigene_forschung: Erste eigene Erfindung
+etappe.eigene_forschung.hinweis: Gründe ein Forschungszentrum und wähle unter „Forschung“ eine Technologie. Neue Verfahren senken die Kosten oder öffnen neue Produkte.
+etappe.marktfuehrer: Marktführer in einem Land
+etappe.marktfuehrer.hinweis: Verkaufe in einem Land mehr von einem Produkt als jede andere Firma, mit mindestens {anteil} des Absatzes. Der Markt zeigt je Produkt den Marktführer und deinen Anteil.
+etappe.eigenkapital_verdoppelt: Eigenkapital verdoppelt
+etappe.eigenkapital_verdoppelt.hinweis: Gewinne erhöhen das Eigenkapital. Steck sie in Anlagen mit guter Marge; die Übersicht zeigt den Verlauf.
+

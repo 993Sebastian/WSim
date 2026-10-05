@@ -1652,6 +1652,86 @@ ereignisse:
     befund(&outcome, "Text „ereignis.grosser_streik.text“ fehlt");
 }
 
+#[test]
+fn etappen_werden_geprueft() {
+    let etappen = "\
+etappen:
+  - id: gewinn
+    art: gewinnmonat
+    wert: 3
+  - id: werke
+    art: anlagen
+  - id: laender
+    art: laender
+    wert: 1.5
+  - id: fuehrung
+    art: marktfuehrer
+    wert: 2
+  - id: reich
+    art: eigenkapital
+    wert: 0.5
+  - id: falsch
+    art: gewinn_monat
+";
+    let texte = "\
+etappe.gewinn: Gewinn
+etappe.gewinn.hinweis: So geht's
+etappe.werke: Werke
+etappe.werke.hinweis: So geht's
+etappe.laender: Länder
+etappe.fuehrung: Führung
+etappe.fuehrung.hinweis: So geht's
+etappe.reich: Reich
+etappe.reich.hinweis: So geht's
+";
+    let d = Daten::neu()
+        .datei("etappen.yaml", etappen)
+        .datei("texte/de/etappen.yaml", texte);
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Die Etappe der Art „gewinnmonat“ hat keinen „wert“; bitte entfernen.",
+    );
+    assert_ort(
+        f,
+        "etappen.yaml",
+        d.zeile("etappen.yaml", "wert: 3"),
+        "etappen[0].wert",
+    );
+    befund(
+        &outcome,
+        "Die Etappe der Art „anlagen“ braucht einen „wert“.",
+    );
+    befund(
+        &outcome,
+        "„wert“ muss eine ganze Zahl von 1 bis 1000 sein, nicht 1.5.",
+    );
+    befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+    );
+    befund(
+        &outcome,
+        "„wert“ ist das Vielfache des Startkapitals und muss größer als 1 sein, nicht 0.5.",
+    );
+    befund(&outcome, "Text „etappe.laender.hinweis“ fehlt");
+    let f = befund(&outcome, "Unbekannter Wert „gewinn_monat“");
+    assert!(f.message.contains("gewinnmonat"), "{f}");
+    nur_fehler(&outcome, 7);
+}
+
+#[test]
+fn etappe_ohne_namen() {
+    let d = Daten::neu().datei(
+        "etappen.yaml",
+        "etappen:\n  - id: forschen\n    art: forschung\n",
+    );
+    let outcome = d.laden();
+    befund(&outcome, "Text „etappe.forschen“ fehlt");
+    befund(&outcome, "Text „etappe.forschen.hinweis“ fehlt");
+    nur_fehler(&outcome, 2);
+}
+
 /// A chain `eisen → stufe3 → … → stufe<n>` on top of the test chain (erz → eisen).
 fn tiefe_kette(ebenen: usize, sehr_komplex: bool) -> (String, String) {
     let mut kette = String::from("produkte:\n");

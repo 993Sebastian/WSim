@@ -31,7 +31,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M20 | Geführte Einführung bis zum ersten Verkauf | ✅ |
 | M21 | Landeswährungen: Kaufkraft 2026 oder Preise der Zeit | ✅ |
 | M22 | Anlagen stilllegen und verkaufen; Balance-Runde | ✅ |
-| M23 | Etappenziele | offen |
+| M23 | Etappenziele | ✅ |
 | M24 | Wettbewerb und Preise im Verlauf | offen |
 | M25 | Produktionsketten | offen |
 | M26 | Weiterlaufen bis … | offen |
@@ -652,4 +652,41 @@ Eigenständige Entscheidungen:
     Lösungsmittel und Motoren eigene Abnehmer bekommen.
   - Gummi bleibt 1902–1912 knapp (Kautschukboom); dass die Kautschukförderung dabei unter
     ihre Kapazität fällt, ist als offener Punkt 38 vermerkt.
+
+### M23: Etappenziele (05.10.2026)
+
+Vorschlag 2 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Formeln: `docs/FORMELN.md`, M23.
+
+  - **Daten** (`data/etappen.yaml`): acht Etappen in dieser Reihenfolge – erster Verkauf,
+    erster Monat mit Gewinn, zwei Anlagen, eigenes Vorprodukt, zweites Land, erste
+    eigene Erfindung, Marktführer in einem Land (mindestens 30 % des Absatzes),
+    Eigenkapital verdoppelt. Name und „So geht's“ als Texte; Prüfregeln mit deutschen
+    Meldungen (Art, Wert, Texte) und Fehlerfall-Tests.
+  - **Kern:** bewertet die Etappen des Spielers am Ende jedes Tages, merkt sich das Datum
+    (Spielstand, nach Schlüsseln gespeichert) und meldet jede einmal als Erfolg. Keine
+    Wirkung auf die Simulation; KI-Firmen haben keine Etappen.
+  - **Oberfläche:** Bereich „Etappen“ in der Übersicht (nächste Etappe mit Fortschritt und
+    Hinweis, alle Etappen aufklappbar), ausblendbar und über das Menü ☰ wieder
+    einblendbar; Rundenbericht mit der Gruppe „Erreicht“; die Einführung führt nach dem
+    ersten Verkauf zu den Etappen.
+  - Tests: Kern (einmalige Meldung mit Datum, bleibt nach Verkauf der Anlagen erreicht,
+    Speichern und Wiederholen, Eigenkapital, Marktführerschaft gegen einen Wettbewerber,
+    Länder und eigenes Vorprodukt), Daten (Fehlerfälle), Vorschau (Anzeige, Ausblenden,
+    Menü) und Browser-Version mit echtem Kern („Etappe erreicht: Erster Verkauf“).
+
+Eigenständige Entscheidungen:
+
+  - Vorschlag war eine Bewertung nur als Sicht. Sie läuft nun im Tageslauf des Kerns,
+    damit eine erreichte Etappe ihr Datum behält und genau einmal im Rundenbericht steht;
+    sie verändert nichts außer der Liste der erreichten Etappen.
+  - „Erster Verkauf“ ist die erste Etappe, auch wenn die Einführung dorthin führt: Wer
+    ohne Einführung spielt, bekommt so dieselbe Richtung.
+  - „Zwei Anlagen“ zählt fertige Einheiten (auch stillgelegte): Eine zweite Nagelmaschine
+    am selben Standort zählt wie eine neue Anlage.
+  - Marktführer heißt: im Vormonat in einem Land mehr verkauft als jede andere Firma und
+    mindestens 30 % des ganzen Absatzes dort, also auch gegen Einfuhren der Händler und
+    den Staatsmarkt. Ein knapper Vorsprung unter vielen kleinen Anbietern zählt so noch
+    nicht.
+  - Ob die Etappen gezeigt werden, merkt sich der Browser bzw. die App (wie die
+    Geldanzeige), nicht der Spielstand.
 

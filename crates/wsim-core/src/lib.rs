@@ -18,6 +18,7 @@ pub mod ledger;
 pub mod market;
 pub mod math;
 pub mod message;
+pub mod milestones;
 pub mod money;
 pub mod policy;
 pub mod population;

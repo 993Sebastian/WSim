@@ -456,6 +456,24 @@ pub fn event_kind_unknown(kind: &str, known: &str) -> String {
     format!("Unbekannte Ereignisart „{kind}“; erlaubt sind {known}.")
 }
 
+// --- Milestones (M23) ---
+
+pub fn milestone_value_missing(kind: &str) -> String {
+    format!("Die Etappe der Art „{kind}“ braucht einen „wert“.")
+}
+
+pub fn milestone_value_not_allowed(kind: &str) -> String {
+    format!("Die Etappe der Art „{kind}“ hat keinen „wert“; bitte entfernen.")
+}
+
+pub fn milestone_count_invalid(value: f64) -> String {
+    format!("„wert“ muss eine ganze Zahl von 1 bis 1000 sein, nicht {value}.")
+}
+
+pub fn milestone_factor_invalid(value: f64) -> String {
+    format!("„wert“ ist das Vielfache des Startkapitals und muss größer als 1 sein, nicht {value}.")
+}
+
 // --- Currencies (M21) ---
 
 pub fn point_in_time_invalid(text: &str) -> String {

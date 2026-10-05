@@ -77,6 +77,7 @@ art.rezept: Rezept
 art.technologie: Technologie
 art.lagerstaette: Lagerstätte
 art.verkehrsmittel: Verkehrsmittel
+art.etappe: Etappe
 
 fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.
 fehler.befehl.kredit_zu_hoch: Die Bank leiht höchstens {limit}.
@@ -142,4 +143,4 @@ hinweis.personal: "{standort} {land} hat nicht alle Arbeitskräfte, die die Anla
 hinweis.forschung_ohne_projekt: "Das Forschungszentrum in {land} hat kein Projekt."
 hinweis.konto_ueberzogen: "Das Konto ist um {betrag} überzogen."
 hinweis.kasse: "Bei einem Verlust wie im Vormonat reicht die Kasse noch etwa {monate} Monate."
-
+meldung.etappe: "Etappe erreicht: {etappe}"

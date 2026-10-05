@@ -193,6 +193,43 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   ]);
 });
 
+test("Etappen zeigen das nächste Ziel und lassen sich ausblenden", async ({ page }) => {
+  await starten(page);
+  const etappen = page.getByRole("region", { name: /Etappen/ });
+  await expect(etappen).toContainText("0 von 8 erreicht");
+  await expect(etappen).toContainText("Nächste Etappe: Erster Verkauf");
+  await expect(etappen).toContainText("So geht's: Biete im Werk unter „Verkauf“");
+
+  // After a round (the preview's example: January 1914 brought the first sale and
+  // the first month with a profit).
+  await page.keyboard.press("Control+Enter");
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await page.keyboard.press("Escape");
+  await expect(etappen).toContainText("2 von 8 erreicht");
+  await expect(etappen).toContainText("Nächste Etappe: Zwei Anlagen in Betrieb");
+  await expect(etappen).toContainText("1 von 2");
+  await expect(etappen).toContainText("So geht's: Unter „Produktion“ → „Anlage bauen“");
+  await etappen.getByText("Alle Etappen").click();
+  await expect(etappen.getByText(/erreicht am 31\.01\.1914/)).toBeVisible();
+  await expect(etappen.getByText("0 % von 30 %")).toBeVisible();
+  await bild(page, "etappen");
+
+  await etappen.getByRole("button", { name: "Etappen ausblenden" }).click();
+  await expect(etappen).toBeHidden();
+  // Kept in the browser: hidden in the next game too, until the menu shows them again.
+  await starten(page);
+  await expect(page.locator(".kopfleiste")).toBeVisible();
+  await expect(etappen).toBeHidden();
+  await page.getByRole("button", { name: "Menü" }).click();
+  const schalter = page.getByRole("menuitemcheckbox", { name: "Etappen zeigen" });
+  await expect(schalter).toHaveAttribute("aria-checked", "false");
+  await schalter.click();
+  await expect(etappen).toBeVisible();
+});
+
 test("Anlagen lassen sich stilllegen und verkaufen", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Standorte" }).click();
@@ -266,12 +303,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 17")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 18")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 17 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 18 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -328,8 +365,11 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     "page",
   );
 
-  // A short tour of the other views.
+  // The goals after the introduction, then a short tour of the other views.
   const weiter = einfuehrung.getByRole("button", { name: "Weiter" });
+  await weiter.click();
+  await expect(titel("Etappen")).toBeVisible();
+  await expect(page.getByRole("region", { name: /Etappen/ })).toBeVisible();
   await weiter.click();
   await expect(titel("Markt")).toBeVisible();
   await weiter.click();
@@ -348,7 +388,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 17")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 18")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });

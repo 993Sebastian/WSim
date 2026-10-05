@@ -1114,3 +1114,27 @@ wie die Benzinknappheit der frühen 1920er-Jahre, die das Cracken durchsetzte. M
 Verstöße bei der Förderung (schlechtester Wert 74 %, Kupfererz): Mit weniger
 Überkapazität laufen die Anlagen näher an ihrer Grenze, und ihr Einkauf schwankt stärker
 als die Förderung.
+
+## M23 – Etappenziele
+
+Lastenheft §18.3, Vorschlag 2. Daten: `data/etappen.yaml`. Etappen geben nach der
+Einführung eine Richtung; sie wirken nicht auf die Simulation und gelten nur für den
+Spieler.
+
+- **Bewertung:** am Ende jedes Spieltags (nach dem Monatsabschluss), in der Reihenfolge der
+  Daten. Eine erreichte Etappe bleibt erreicht und behält ihr Datum, auch wenn die
+  Bedingung später nicht mehr gilt; im Rundenbericht steht sie als Erfolg.
+- **Bedingungen** (`art`, Wert `wert`):
+
+  | Art | Erreicht, wenn | Fortschritt |
+  | --- | --- | --- |
+  | `erster_verkauf` | Umsatz der Firma (laufendes oder ein abgeschlossenes Jahr) > 0 | – |
+  | `gewinnmonat` | ein abgeschlossener Monat mit Ergebnis > 0 | – |
+  | `anlagen` | fertige Einheiten aller Anlagen (auch stillgelegte) ≥ `wert` | Einheiten |
+  | `eigenes_vorprodukt` | eine laufende eigene Anlage stellt her, was eine andere laufende eigene Anlage als Vorprodukt verbraucht | – |
+  | `laender` | Standorte in ≥ `wert` Ländern | Länder |
+  | `forschung` | eine Technologie selbst erforscht | – |
+  | `marktfuehrer` | in einem Land im Vormonat mehr von einem Produkt verkauft als jede andere Firma, mit einem Anteil ≥ `wert` am Absatz dort | bester eigener Anteil |
+  | `eigenkapital` | Eigenkapital ≥ `wert` · Startkapital | Eigenkapital |
+
+- Ältere Spielstände ohne Etappen holen die erfüllten am ersten Tag nach dem Laden nach.

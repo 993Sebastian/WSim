@@ -81,6 +81,25 @@ function geldWahlLesen(): GeldWahl {
   }
 }
 
+/** Whether the overview shows the goals (M23); kept in the browser like the currency. */
+export const ETAPPEN_SPEICHER = "wsim-etappen";
+
+function etappenLesen(): boolean {
+  try {
+    return localStorage.getItem(ETAPPEN_SPEICHER) !== "aus";
+  } catch {
+    return true;
+  }
+}
+
+function etappenMerken(zeigen: boolean) {
+  try {
+    localStorage.setItem(ETAPPEN_SPEICHER, zeigen ? "an" : "aus");
+  } catch {
+    // Without storage the choice holds for this session only.
+  }
+}
+
 function geldWahlMerken(wahl: GeldWahl) {
   try {
     localStorage.setItem(GELD_SPEICHER, JSON.stringify(wahl));
@@ -141,6 +160,11 @@ export function Spiel({
   // Counts loaded games: the views start afresh, even if the date is the same.
   const [ladung, setLadung] = useState(0);
   const [geldWahl, setGeldWahl] = useState(geldWahlLesen);
+  const [etappenZeigen, setEtappenZeigen] = useState(etappenLesen);
+  const zeigeEtappen = (zeigen: boolean) => {
+    setEtappenZeigen(zeigen);
+    etappenMerken(zeigen);
+  };
   const firma = uebersicht.company;
   const geldoptionen = uebersicht.money ?? null;
   // Set while drawing (not in an effect): every amount of this screen, dialogs
@@ -348,6 +372,15 @@ export function Spiel({
                 >
                   {t("menue.hauptmenue")}
                 </button>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={etappenZeigen}
+                  className="menue-wahl"
+                  onClick={menuePunkt(() => zeigeEtappen(!etappenZeigen))}
+                >
+                  {t("etappen.einblenden")}
+                </button>
                 {geldoptionen && (
                   <GeldMenue
                     optionen={geldoptionen}
@@ -394,6 +427,8 @@ export function Spiel({
           <UebersichtAnsicht
             uebersicht={uebersicht}
             geldHinweis={geldHinweis}
+            etappenZeigen={etappenZeigen}
+            onEtappen={zeigeEtappen}
             onHinweis={zuHinweis}
             onWerk={oeffneWerk}
           />

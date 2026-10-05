@@ -199,3 +199,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Aufholen knapper Preise unter dem Richtpreis | `MarketModel::catch_up_max` (`preisanpassung.aufholen_max`), `market::adjust_price` |
 | Untergrenze eines Nebenprodukts nach dem Brennwert (KI) | `ai::fuel_value` (`heizwert_mwh`) |
 | Gelegenheit für eine Firma mit ihren Verfahren | `ai::opportunity` (`builder`) |
+| Etappe (Etappenziel), Art, Wert | `catalog::Milestone`, `MilestoneCondition` (`etappen`: `art`, `wert`), `MilestoneId` |
+| Erreichte Etappen des Spielers, Fortschritt | `GameState::milestones`, `milestones::check`, `milestones::progress`; Sicht `MilestoneView` (`Overview::milestones`); UI: `Etappen`, `ETAPPEN_SPEICHER` |

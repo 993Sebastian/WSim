@@ -3,7 +3,14 @@ import type { Hinweis, Meldung, MeldungsGruppe, Periode, Rundenbericht } from ".
 import { t } from "../texte";
 import { Dialog } from "./Dialog";
 
-const GRUPPEN: MeldungsGruppe[] = ["welt", "warnung", "wettbewerb", "forschung", "allgemein"];
+const GRUPPEN: MeldungsGruppe[] = [
+  "erfolg",
+  "welt",
+  "warnung",
+  "wettbewerb",
+  "forschung",
+  "allgemein",
+];
 
 function Veraenderung({ jetzt, vorher }: { jetzt: number; vorher: number | undefined }) {
   if (vorher === undefined) return <td className="zahl gedaempft">–</td>;

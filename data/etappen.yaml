@@ -1,0 +1,26 @@
+# Etappenziele (M23): Sie geben dem Spieler nach der Einführung eine Richtung und wirken
+# nicht auf die Simulation. Die Reihenfolge ist die Reihenfolge in der Übersicht.
+# Texte: etappe.<id> (Name) und etappe.<id>.hinweis (so geht's) in data/texte/de/ui.yaml.
+# Formeln: docs/FORMELN.md, M23.
+
+etappen:
+  - id: erster_verkauf
+    art: erster_verkauf
+  - id: gewinnmonat
+    art: gewinnmonat
+  - id: zweite_anlage
+    art: anlagen
+    wert: 2
+  - id: eigenes_vorprodukt
+    art: eigenes_vorprodukt
+  - id: zweites_land
+    art: laender
+    wert: 2
+  - id: eigene_forschung
+    art: forschung
+  - id: marktfuehrer
+    art: marktfuehrer
+    wert: 0.3                     # mindestens 30 % des Absatzes im Land
+  - id: eigenkapital_verdoppelt
+    art: eigenkapital
+    wert: 2

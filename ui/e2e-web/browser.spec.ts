@@ -128,11 +128,17 @@ test("Die Einführung führt bis zum ersten Verkauf", async ({ page }, info) => 
   await page.getByRole("button", { name: "Runde beenden" }).click();
   await expect(titel("Dein erster Umsatz")).toBeVisible({ timeout: 60_000 });
   if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-einfuehrung.png` });
-  await page
-    .getByRole("dialog", { name: /Rundenbericht/ })
-    .getByRole("button", { name: "Weiter" })
-    .click();
+  // The first goal reached, reported by the core (M23).
+  const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
+  await expect(bericht.getByRole("heading", { name: "Erreicht" })).toBeVisible();
+  await expect(bericht.getByText("Etappe erreicht: Erster Verkauf")).toBeVisible();
+  await bericht.getByRole("button", { name: "Weiter" }).click();
   await expect(titel("Deine Firma läuft")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await expect(titel("Etappen")).toBeVisible();
+  const etappen = page.getByRole("region", { name: /Etappen/ });
+  await expect(etappen).toContainText("1 von 8 erreicht");
+  await expect(etappen).toContainText("Nächste Etappe: Erster Monat mit Gewinn");
 });
 
 // Shutting a machine down and starting it up again with the real core (M22).

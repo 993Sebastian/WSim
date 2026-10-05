@@ -204,6 +204,7 @@ impl Game {
             import_markets: Default::default(),
             deposits: PerId::default(),
             inventions: PerId::default(),
+            milestones: PerId::default(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -392,6 +393,11 @@ impl Game {
         if next.ordinal() == 1 {
             production::new_year(&mut self.state);
         }
+        report.messages.extend(crate::milestones::check(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         if next.ordinal() == 1 && next < GAME_END {
             report.messages.push(
                 Message::new(MessageKind::Info, keys::NEW_YEAR)

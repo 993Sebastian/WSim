@@ -1066,6 +1066,38 @@ pub struct RawEvent {
     pub source: Option<String>,
 }
 
+/// A goal for the player after the introduction (M23).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMilestone {
+    pub id: String,
+    #[serde(rename = "art")]
+    pub kind: RawMilestoneKind,
+    /// Count, share or factor, depending on the kind.
+    #[serde(rename = "wert", default)]
+    pub value: Option<f64>,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq)]
+pub enum RawMilestoneKind {
+    #[serde(rename = "erster_verkauf")]
+    FirstSale,
+    #[serde(rename = "gewinnmonat")]
+    ProfitMonth,
+    #[serde(rename = "anlagen")]
+    Facilities,
+    #[serde(rename = "eigenes_vorprodukt")]
+    OwnInput,
+    #[serde(rename = "laender")]
+    Countries,
+    #[serde(rename = "forschung")]
+    Research,
+    #[serde(rename = "marktfuehrer")]
+    MarketLeader,
+    #[serde(rename = "eigenkapital")]
+    Equity,
+}
+
 /// A point in time of the currency data: a year (`1924`) or a year and month
 /// (`"1923-11"`). Checked and converted in `build`.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
