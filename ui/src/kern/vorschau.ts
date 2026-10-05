@@ -81,15 +81,21 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       return kopie(spiel);
     },
-    rundeBeenden: async (laenge, fortschritt) => {
+    rundeBeenden: async (laenge, fortschritt, bis = "runde") => {
       if (!spiel) throw keinSpiel();
       const total = TAGE[laenge];
-      for (let done = 1; done <= total; done++) {
-        await new Promise((r) => setTimeout(r, verzoegerungMs));
-        fortschritt({ done, total });
+      // Several rounds: two in the preview, each with its progress.
+      for (let runde = 0; runde < (bis === "runde" ? 1 : 2); runde++) {
+        for (let done = 1; done <= total; done++) {
+          await new Promise((r) => setTimeout(r, verzoegerungMs));
+          fortschritt({ done, total });
+        }
       }
       spiel = mitName(beispiel.uebersicht);
-      return kopie(beispiel.bericht);
+      const bericht = kopie(beispiel.bericht);
+      return bis === "runde"
+        ? bericht
+        : { ...bericht, rounds: 2, stop: bis === "jahresende" ? "jahresende" : "weltereignis" };
     },
     weltkarte: async () => {
       if (!spiel) throw keinSpiel();

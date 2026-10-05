@@ -121,7 +121,9 @@ export function RundenberichtDialog({
           bis: formatDatum(bericht.to),
           tage: bericht.days,
         })}
+        {(bericht.rounds ?? 1) > 1 && ` · ${t("bericht.runden", { anzahl: bericht.rounds! })}`}
       </p>
+      {bericht.stop && <p className="halt-grund">{t(`bericht.halt.${bericht.stop}`)}</p>}
       <dl className="kennzahlen">
         <div>
           <dt>{t("bericht.kasse")}</dt>

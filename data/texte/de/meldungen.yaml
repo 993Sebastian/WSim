@@ -12,6 +12,7 @@ fehler.sitzung.unbekanntes_produkt: Das gewählte Produkt gibt es in den Spielda
 fehler.sitzung.unbekannte_startform: Diese Startform gibt es nicht.
 fehler.sitzung.unbekannte_schwierigkeit: Diese Schwierigkeit gibt es nicht.
 fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
+fehler.sitzung.unbekanntes_ziel: So weit kann das Spiel nicht weiterlaufen.
 fehler.sitzung.name_ungueltig: "Der Name des Spielstands darf 1 bis 60 Zeichen haben: Buchstaben, Ziffern, Leerzeichen, Punkt, Binde- und Unterstrich."
 fehler.sitzung.speichern: "Der Spielstand konnte nicht gespeichert werden: {fehler}"
 fehler.sitzung.laden: "Der Spielstand konnte nicht geladen werden: {fehler}"

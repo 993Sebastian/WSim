@@ -440,6 +440,21 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(einfuehrung).toBeHidden();
 });
 
+test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
+  await starten(page);
+  await page.getByLabel("Rundenlänge").selectOption("jahresende");
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  await expect(page.getByText(/^Runde 2 · Tag \d+ von 31$/)).toBeVisible();
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  const bericht = page.getByRole("dialog", { name: "Rundenbericht" });
+  await expect(bericht).toContainText("2 Runden am Stück");
+  await expect(bericht.getByText("Das Jahr ist zu Ende.")).toBeVisible();
+  await bild(page, "mehrere_runden");
+});
+
 test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {
   await starten(page);
   await page.keyboard.press("7");

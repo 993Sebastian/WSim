@@ -61,6 +61,18 @@ test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, 
   await expect(page.locator(".kopfleiste")).toContainText("08.01.1900");
   await expect(page.locator(".kopfleiste")).toContainText("Browser AG");
 
+  // Months at a stretch up to the next warning or world event (M26), real core.
+  await page.getByLabel("Rundenlänge").selectOption("meldung");
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  // World events come first, each in a window of its own.
+  const ereignis = page.locator('[data-tour="ereignis"]');
+  await expect(ereignis.or(bericht).first()).toBeVisible({ timeout: 120_000 });
+  while (await ereignis.isVisible())
+    await ereignis.locator('[data-tour="ereignis-weiter"]').click();
+  await expect(bericht).toBeVisible();
+  await expect(bericht.locator(".halt-grund")).toBeVisible();
+  await bericht.getByRole("button", { name: "Weiter" }).click();
+
   // The production chains from the real core (M25).
   await page.getByRole("button", { name: "Markt", exact: true }).click();
   await page.getByRole("button", { name: "Produktionsketten", exact: true }).click();

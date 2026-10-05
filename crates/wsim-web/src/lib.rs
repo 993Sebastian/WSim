@@ -96,7 +96,11 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     "uebersicht" => wert(s.overview()?),
                     "runde_beenden" => {
                         let laenge: String = argument(args, "laenge")?;
-                        wert(s.end_round(&laenge, |p| fortschritt(p.done, p.total))?)
+                        let bis: Option<String> = argument(args, "bis")?;
+                        let bis = bis.as_deref().unwrap_or("runde");
+                        wert(s.end_round_until(&laenge, bis, |p| {
+                            fortschritt(p.done, p.total);
+                        })?)
                     }
                     "weltkarte" => wert(s.world_map()?),
                     "land" => {

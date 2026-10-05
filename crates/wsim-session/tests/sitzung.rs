@@ -105,3 +105,48 @@ fn every_session_message_has_a_text() {
         assert!(data.texts.get(key).is_some(), "Text „{key}“ fehlt");
     }
 }
+
+/// Several rounds at a stretch (M26): up to the end of the year or the next warning.
+#[test]
+fn rounds_up_to_the_year_end_or_the_next_news() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    assert_eq!(
+        session
+            .end_round_until("monat", "jahrhundert", |_| {})
+            .unwrap_err()
+            .key,
+        keys::UNKNOWN_UNTIL
+    );
+    let one = session.end_round_until("monat", "runde", |_| {}).unwrap();
+    assert_eq!((one.rounds, one.stop.as_deref()), (1, None));
+
+    // From February to the end of the year: eleven months in one report.
+    let year = session
+        .end_round_until("monat", "jahresende", |_| {})
+        .unwrap();
+    assert_eq!(year.rounds, 11);
+    assert_eq!(year.stop.as_deref(), Some("jahresende"));
+    assert_eq!(
+        (year.from.as_str(), year.to.as_str()),
+        ("1900-02-01", "1900-12-31")
+    );
+    assert_eq!(year.days, 334);
+    assert_eq!(session.overview().unwrap().date, "1901-01-01");
+
+    // Up to the next warning or world event, at most a year.
+    let news = session.end_round_until("monat", "meldung", |_| {}).unwrap();
+    let stop = news.stop.clone().unwrap();
+    match stop.as_str() {
+        "warnung" => assert!(
+            news.messages
+                .iter()
+                .any(|m| m.kind == "warning" || m.kind == "crisis")
+        ),
+        "weltereignis" => assert!(news.messages.iter().any(|m| m.kind == "world_event")),
+        "ein_jahr" => assert_eq!(news.rounds, 12),
+        other => panic!("unexpected stop {other}"),
+    }
+    assert!(news.rounds <= 12);
+}

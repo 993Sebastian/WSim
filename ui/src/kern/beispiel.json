@@ -142,6 +142,8 @@
       }
     ],
     "research": [],
+    "rounds": 1,
+    "stop": null,
     "to": "1914-07-31"
   },
   "finanzen": {

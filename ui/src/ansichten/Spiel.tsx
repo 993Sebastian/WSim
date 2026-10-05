@@ -9,6 +9,7 @@ import type {
   Meldung,
   Rundenbericht,
   Rundenlaenge,
+  Weiterlaufen,
   Uebersicht,
 } from "../kern";
 import { t } from "../texte";
@@ -54,6 +55,9 @@ interface Fuehrung {
 }
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
+/** Months one after the other (M26): to the year's end or to the next warning. */
+const MEHRERE: Weiterlaufen[] = ["jahresende", "meldung"];
+type Wahl = Rundenlaenge | Exclude<Weiterlaufen, "runde">;
 
 /**
  * How the player wants amounts shown (M21): the headquarters' currency or the US
@@ -117,7 +121,7 @@ export function geldanzeigeFuer(o: Geldoptionen | null, wahl: GeldWahl): Geldanz
 
 type Fenster =
   | { art: "keins" }
-  | { art: "runde"; fortschritt: Fortschritt | null }
+  | { art: "runde"; fortschritt: Fortschritt | null; runde: number }
   | { art: "bericht"; bericht: Rundenbericht }
   | { art: "ereignis"; bericht: Rundenbericht; liste: Meldung[]; index: number }
   | { art: "speichern" }
@@ -142,7 +146,7 @@ export function Spiel({
   );
   // Rounds played in this session (the introduction looks at reports after its start).
   const [runden, setRunden] = useState(0);
-  const [laenge, setLaenge] = useState<Rundenlaenge>("monat");
+  const [laenge, setLaenge] = useState<Wahl>("monat");
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
@@ -186,10 +190,24 @@ export function Spiel({
 
   const runde = async () => {
     setFehler(null);
-    setFenster({ art: "runde", fortschritt: null });
+    setFenster({ art: "runde", fortschritt: null, runde: 1 });
+    const mehrere = (MEHRERE as string[]).includes(laenge);
     try {
-      const bericht = await kern.rundeBeenden(laenge, (f) =>
-        setFenster((alt) => (alt.art === "runde" ? { art: "runde", fortschritt: f } : alt)),
+      const bericht = await kern.rundeBeenden(
+        mehrere ? "monat" : (laenge as Rundenlaenge),
+        // A day count that starts again is the next round.
+        (f) =>
+          setFenster((alt) =>
+            alt.art === "runde"
+              ? {
+                  art: "runde",
+                  fortschritt: f,
+                  runde:
+                    alt.fortschritt && f.done < alt.fortschritt.done ? alt.runde + 1 : alt.runde,
+                }
+              : alt,
+          ),
+        mehrere ? (laenge as Weiterlaufen) : "runde",
       );
       setUebersicht(await kern.uebersicht());
       setBerichte((alt) => [bericht, ...alt].slice(0, ARCHIV));
@@ -313,13 +331,20 @@ export function Spiel({
               <select
                 id="rundenlaenge"
                 value={laenge}
-                onChange={(e) => setLaenge(e.target.value as Rundenlaenge)}
+                onChange={(e) => setLaenge(e.target.value as Wahl)}
               >
                 {LAENGEN.map((l) => (
                   <option key={l} value={l}>
                     {t(`rundenlaenge.${l}`)}
                   </option>
                 ))}
+                <optgroup label={t("rundenlaenge.mehrere")}>
+                  {MEHRERE.map((l) => (
+                    <option key={l} value={l}>
+                      {t(`rundenlaenge.${l}`)}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </label>
             <button
@@ -512,6 +537,7 @@ export function Spiel({
             aria-label={t("fortschritt.titel")}
           />
           <p className="gedaempft">
+            {fenster.runde > 1 && `${t("fortschritt.runde", { runde: fenster.runde })} · `}
             {fenster.fortschritt ? t("fortschritt.tage", { ...fenster.fortschritt }) : "…"}
           </p>
         </Dialog>

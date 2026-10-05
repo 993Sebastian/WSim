@@ -22,6 +22,7 @@ import type {
   Rundenlaenge,
   Spielstand,
   Uebersicht,
+  Weiterlaufen,
   Weltkarte,
 } from "./typen";
 import { vorschauKern } from "./vorschau";
@@ -43,7 +44,11 @@ export interface Kern {
   optionen(): Promise<Optionen>;
   neuesSpiel(einstellungen: NeuesSpiel): Promise<Uebersicht>;
   uebersicht(): Promise<Uebersicht>;
-  rundeBeenden(laenge: Rundenlaenge, fortschritt: (f: Fortschritt) => void): Promise<Rundenbericht>;
+  rundeBeenden(
+    laenge: Rundenlaenge,
+    fortschritt: (f: Fortschritt) => void,
+    bis?: Weiterlaufen,
+  ): Promise<Rundenbericht>;
   weltkarte(): Promise<Weltkarte>;
   land(schluessel: string): Promise<Landdetail>;
   produktion(): Promise<Produktion>;
@@ -79,10 +84,10 @@ const tauriKern: Kern = {
   optionen: () => aufruf("optionen"),
   neuesSpiel: (einstellungen) => aufruf("neues_spiel", { einstellungen }),
   uebersicht: () => aufruf("uebersicht"),
-  rundeBeenden: async (laenge, fortschritt) => {
+  rundeBeenden: async (laenge, fortschritt, bis = "runde") => {
     const abmelden = await listen<Fortschritt>("fortschritt", (e) => fortschritt(e.payload));
     try {
-      return await aufruf<Rundenbericht>("runde_beenden", { laenge });
+      return await aufruf<Rundenbericht>("runde_beenden", { laenge, bis });
     } finally {
       abmelden();
     }

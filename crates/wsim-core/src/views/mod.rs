@@ -653,6 +653,17 @@ pub struct RoundReportView {
     pub products: Vec<ProductResult>,
     /// What needs the player's attention after the round.
     pub hints: Vec<HintView>,
+    /// Rounds the report covers (M26).
+    #[serde(default = "one")]
+    pub rounds: u32,
+    /// Why several rounds stopped (M26): `jahresende`, `warnung`, `weltereignis`,
+    /// `ein_jahr`, `spielende`; `None` for a single round.
+    #[serde(default)]
+    pub stop: Option<String>,
+}
+
+fn one() -> u32 {
+    1
 }
 
 /// Revenue and gross margin by product in the round: the years closed during the
@@ -706,6 +717,8 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         game_over: game.is_over(),
         products: round_products(game, before),
         hints: hints(game),
+        rounds: 1,
+        stop: None,
     }
 }
 

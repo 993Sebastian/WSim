@@ -85,11 +85,12 @@ async fn runde_beenden(
     app: AppHandle,
     state: State<'_, Shared>,
     laenge: String,
+    bis: Option<String>,
 ) -> Result<RoundReportView, Fehler> {
     let shared = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         mit_sitzung(&shared, |s| {
-            s.end_round(&laenge, |p| {
+            s.end_round_until(&laenge, bis.as_deref().unwrap_or("runde"), |p| {
                 // A lost progress event only delays the bar.
                 let _ = app.emit(
                     "fortschritt",

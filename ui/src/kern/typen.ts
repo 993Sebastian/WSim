@@ -201,6 +201,11 @@ export interface Rundenbericht {
   /** Revenue and gross margin by product in this round. */
   products: ProduktErgebnis[];
   hints: Hinweis[];
+  /** Rounds the report covers (M26). */
+  rounds?: number;
+  /** Why several rounds stopped: `jahresende`, `warnung`, `weltereignis`, `ein_jahr`,
+   * `spielende`; null for a single round. */
+  stop?: string | null;
 }
 
 export interface Spielstand {
@@ -210,6 +215,10 @@ export interface Spielstand {
 }
 
 export type Rundenlaenge = "tag" | "woche" | "monat" | "quartal";
+
+/** How far "end round" goes (M26): one round, rounds up to the year's end, or up to the
+ * next warning or world event (at most a year). */
+export type Weiterlaufen = "runde" | "jahresende" | "meldung";
 
 export interface Fortschritt {
   done: number;

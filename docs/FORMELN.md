@@ -1182,3 +1182,17 @@ Lastenheft §14.1; Vorschlag 4. Nur Anzeige, keine Wirkung auf die Simulation.
   eigene Anlagen des Produkts am letzten Tag bremste (Vorprodukt, Arbeitskräfte, Strom,
   Lagerstätte).
 
+## M26 – Weiterlaufen bis … (Sitzung)
+
+Vorschlag 5. Die Sitzung reiht Runden der gewählten Länge aneinander; der Kern rechnet
+jede wie eine einzelne Runde (gleiches Journal, gleiche Ergebnisse wie Runde für Runde).
+
+- `runde`: eine Runde (wie bisher).
+- `jahresende`: Monatsrunden, bis das Datum im nächsten Jahr liegt.
+- `meldung`: Monatsrunden bis nach der ersten Runde mit einer Warnung, einer Krise oder
+  einem Weltereignis, höchstens ein Jahr (bis zum selben Monat des Folgejahrs).
+- Immer: Halt beim Spielende.
+- Der Bericht umfasst alle Runden: Zeitraum, Ergebnis und „Was lief“ gegen den Stand
+  vor der ersten Runde, alle Meldungen, die Zahl der Runden und den Grund des Halts. Der
+  automatische Spielstand wird einmal am Ende geschrieben.
+

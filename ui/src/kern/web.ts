@@ -47,10 +47,10 @@ export function webKern(): Kern {
     optionen: () => aufruf("optionen"),
     neuesSpiel: (einstellungen) => aufruf("neues_spiel", { einstellungen }),
     uebersicht: () => aufruf("uebersicht"),
-    rundeBeenden: async (laenge, melden) => {
+    rundeBeenden: async (laenge, melden, bis = "runde") => {
       fortschritt = melden;
       try {
-        return await aufruf("runde_beenden", { laenge });
+        return await aufruf("runde_beenden", { laenge, bis });
       } finally {
         fortschritt = null;
       }

@@ -34,7 +34,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M23 | Etappenziele | ✅ |
 | M24 | Wettbewerb und Preise im Verlauf | ✅ |
 | M25 | Produktionsketten | ✅ |
-| M26 | Weiterlaufen bis … | offen |
+| M26 | Weiterlaufen bis … | ✅ |
 | M27 | Ursachen erklären | offen |
 | M28 | Geschichte erzählen | offen |
 | M29 | Rang in der Übersicht | offen |
@@ -743,4 +743,27 @@ Eigenständige Entscheidungen:
   - Die Ansicht deckt Ungleichgewichte der Daten auf (1914: Motor 80 %, Fahrgestell 83 %
     Marge mit dem Fließband); sie bleiben, wie im Weltlauf beobachtet, ein Restpunkt der
     Balance (offener Punkt 38).
+
+### M26: Weiterlaufen bis … (05.10.2026)
+
+Vorschlag 5 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Regeln: `docs/FORMELN.md`, M26.
+
+  - **Sitzung:** `end_round_until` reiht Monatsrunden aneinander – bis Jahresende oder bis
+    zur ersten Runde mit Warnung, Krise oder Weltereignis (höchstens ein Jahr) – und
+    liefert einen Bericht über den ganzen Zeitraum mit Zahl der Runden und Haltegrund.
+    Tauri-Befehl und Browser-Version nehmen dafür `bis` entgegen.
+  - **Oberfläche:** zwei Einträge unter „Mehrere Monate“ in der Rundenlänge; Fortschritt
+    mit Rundenzähler; Bericht mit „n Runden am Stück“ und dem Haltegrund. Weltereignisse
+    erscheinen wie gewohnt vor dem Bericht, jedes in einem eigenen Fenster.
+  - Tests: Sitzung (Jahresende mit elf Monaten in einem Bericht, Halt bei Meldung,
+    unbekanntes Ziel), Vorschau (Fortschritt, Bericht) und Browser-Version mit echtem Kern.
+
+Eigenständige Entscheidungen:
+
+  - Mehrere Runden laufen immer in Monatsschritten; die Auswahl ersetzt die Rundenlänge,
+    statt ein zweites Auswahlfeld in die volle Kopfleiste zu setzen (Handy).
+  - „Warnung“ heißt: eine Meldung der Art Warnung oder Krise (z. B. Konto überzogen,
+    Vorprodukt fehlt) oder ein Weltereignis. Erfolge und Wettbewerbsmeldungen halten nicht
+    an. Nach einem Jahr ohne Warnung hält das Spiel trotzdem, damit der Spieler nachsehen
+    kann.
 

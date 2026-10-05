@@ -2473,3 +2473,10 @@ body {
   color: var(--text-gedaempft);
   font-size: 0.9em;
 }
+
+/* Why several rounds stopped (M26) */
+.halt-grund {
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--akzent);
+  background: var(--flaeche);
+}

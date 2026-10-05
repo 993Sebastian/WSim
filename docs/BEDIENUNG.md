@@ -181,6 +181,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
 - Ist: Kasse, Eigenkapital, Finanzergebnis mit Vorrunde, Ereignisse.
 - Ziel: zusätzlich „Was lief“ (Erzeugung und Absatz je Produkt, Engpässe der Runde)
   mit Sprung zur Werksansicht.
+- **Weiterlaufen bis …** (M26): Die Auswahl „Rundenlänge“ hat unter „Mehrere Monate“
+  zusätzlich „bis Jahresende“ und „bis zur nächsten Warnung“ (höchstens ein Jahr). Der
+  Fortschritt zeigt „Runde n · Tag x von y“; ein Bericht deckt alle Runden ab, nennt ihre
+  Zahl („3 Runden am Stück“) und den Grund des Halts.
 
 ### Neues Spiel
 

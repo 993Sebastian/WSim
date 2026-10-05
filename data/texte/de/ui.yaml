@@ -57,9 +57,13 @@ rundenlaenge.tag: Tag
 rundenlaenge.woche: Woche
 rundenlaenge.monat: Monat
 rundenlaenge.quartal: Quartal
+rundenlaenge.mehrere: Mehrere Monate
+rundenlaenge.jahresende: bis Jahresende
+rundenlaenge.meldung: bis zur nächsten Warnung
 
 fortschritt.titel: Runde läuft
 fortschritt.tage: Tag {done} von {total}
+fortschritt.runde: Runde {runde}
 
 uebersicht.titel: Übersicht
 uebersicht.finanzen: Finanzen
@@ -154,6 +158,13 @@ bericht.vorrunde: Vorrunde
 bericht.veraenderung: Veränderung
 bericht.nach_kostenart: Nach Kostenart
 bericht.gruppe.erfolg: Erreicht
+bericht.runden: "{anzahl} Runden am Stück"
+bericht.halt.jahresende: Das Jahr ist zu Ende.
+bericht.halt.warnung: Angehalten wegen einer Warnung – sieh sie dir unten an.
+bericht.halt.weltereignis: Angehalten wegen eines Weltereignisses.
+bericht.halt.ein_jahr: Ein Jahr lang ohne Warnung – angehalten, damit du nachsehen kannst.
+bericht.halt.spielende: Das Spiel ist zu Ende.
+bericht.halt.runde: Eine Runde.
 bericht.gruppe.welt: Weltgeschehen
 bericht.gruppe.warnung: Warnungen
 bericht.gruppe.wettbewerb: Wettbewerb

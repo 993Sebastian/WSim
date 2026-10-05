@@ -10,11 +10,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+use wsim_core::calendar::Date;
 use wsim_core::calendar::RoundLength;
 use wsim_core::catalog::Catalog;
 use wsim_core::command::Command;
-use wsim_core::game::{Game, Progress};
-use wsim_core::message::{Message, Param};
+use wsim_core::game::{Game, Progress, RoundReport};
+use wsim_core::message::{Message, MessageKind, Param};
 use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
@@ -331,6 +332,18 @@ impl<S: SaveStore> Session<S> {
         length: &str,
         progress: impl FnMut(Progress),
     ) -> Result<RoundReportView, MessageView> {
+        self.end_round_until(length, "runde", progress)
+    }
+
+    /// Simulates rounds of `length` one after the other (M26): one (`runde`), up to the
+    /// end of the year (`jahresende`), or up to the next warning or world event, at most
+    /// a year (`meldung`). The report covers all of them.
+    pub fn end_round_until(
+        &mut self,
+        length: &str,
+        until: &str,
+        mut progress: impl FnMut(Progress),
+    ) -> Result<RoundReportView, MessageView> {
         let length = match length {
             "tag" => RoundLength::Day,
             "woche" => RoundLength::Week,
@@ -338,10 +351,48 @@ impl<S: SaveStore> Session<S> {
             "quartal" => RoundLength::Quarter,
             _ => return Err(error(keys::UNKNOWN_ROUND_LENGTH)),
         };
+        if !["runde", "jahresende", "meldung"].contains(&until) {
+            return Err(error(keys::UNKNOWN_UNTIL));
+        }
         let game = self.game.as_mut().ok_or_else(|| error(keys::NO_GAME))?;
         let before = views::snapshot(game);
-        let report = game.advance(length, progress);
-        let mut view = views::round_report(game, &report, &before);
+        let start = game.date();
+        let year_later = Date::new(start.year() + 1, start.month(), 1).unwrap_or(start);
+        let mut all = RoundReport {
+            from: start,
+            to: start,
+            days: 0,
+            messages: Vec::new(),
+        };
+        let mut rounds = 0;
+        let stop = loop {
+            let report = game.advance(length, &mut progress);
+            rounds += 1;
+            let news = report.messages.iter().find_map(|m| match m.kind {
+                MessageKind::WorldEvent => Some("weltereignis"),
+                MessageKind::Warning | MessageKind::Crisis => Some("warnung"),
+                _ => None,
+            });
+            all.to = report.to;
+            all.days += report.days;
+            all.messages.extend(report.messages);
+            let next_year = game.date().year() > start.year();
+            let stop = if game.is_over() || report.days == 0 {
+                Some("spielende")
+            } else {
+                match until {
+                    "jahresende" => next_year.then_some("jahresende"),
+                    "meldung" => news.or((game.date() >= year_later).then_some("ein_jahr")),
+                    _ => Some("runde"),
+                }
+            };
+            if let Some(stop) = stop {
+                break stop;
+            }
+        };
+        let mut view = views::round_report(game, &all, &before);
+        view.rounds = rounds;
+        view.stop = (rounds > 1 || stop != "runde").then(|| stop.to_owned());
         view.previous = self.last_period.replace(view.period.clone());
         if let Err(e) = self.save(AUTOSAVE_NAME) {
             view.messages.push(e);
@@ -428,6 +479,7 @@ pub mod keys {
     pub const LOAD_FAILED: &str = "fehler.sitzung.laden";
     pub const INVALID_COMMAND: &str = "fehler.sitzung.befehl_ungueltig";
     pub const UNKNOWN_PRODUCT: &str = "fehler.sitzung.unbekanntes_produkt";
+    pub const UNKNOWN_UNTIL: &str = "fehler.sitzung.unbekanntes_ziel";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -440,5 +492,6 @@ pub mod keys {
         LOAD_FAILED,
         INVALID_COMMAND,
         UNKNOWN_PRODUCT,
+        UNKNOWN_UNTIL,
     ];
 }
