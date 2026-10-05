@@ -78,6 +78,7 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
         if first_of_month {
             manage_cash(state, catalog, id, own);
             advertise(state, catalog, id, own);
+            news.extend(crate::deals::ai_offers(state, catalog, id));
         }
         if end_of_quarter {
             retire(state, catalog, id, own, date, &mut news);
@@ -414,7 +415,7 @@ fn run(state: &mut GameState, catalog: &Catalog, actor: CompanyId, command: &Com
     command::execute(state, catalog, actor, command).is_ok()
 }
 
-fn traits(state: &GameState, id: CompanyId) -> (f64, f64) {
+pub(crate) fn traits(state: &GameState, id: CompanyId) -> (f64, f64) {
     state.companies[id.index()]
         .ai
         .as_ref()
@@ -1225,6 +1226,28 @@ fn own_power(
                 r.energy_mwh * (planned - sl.last_runs).max(0.0);
         }
     }
+    // Plants still being built cover their share once they run; without them every
+    // decision during the construction time would add another plant.
+    for &site in sites {
+        let s = &state.sites[site.index()];
+        if s.kind != SiteType::PowerPlant {
+            continue;
+        }
+        let Some(lack) = lacking.get_mut(&s.country) else {
+            continue;
+        };
+        for sl in s
+            .slots
+            .iter()
+            .filter(|sl| !sl.operating(date) && !sl.mothballed())
+        {
+            let output = sl.recipe.map_or(1.0, |r| catalog.recipes.get(r).output);
+            *lack -= catalog.facilities.get(sl.facility).runs_per_day
+                * f64::from(sl.count)
+                * output
+                * catalog.ai_model.start.utilization;
+        }
+    }
     let Some((country, mwh)) = lacking
         .into_iter()
         .max_by(|a, b| a.1.total_cmp(&b.1).then(b.0.cmp(&a.0)))
@@ -1661,6 +1684,20 @@ fn open_deposit(
     }
 }
 
+/// Whether an AI company is competent and large enough to research (M10).
+pub(crate) fn wants_research(state: &GameState, catalog: &Catalog, id: CompanyId) -> bool {
+    let b = &catalog.ai_model.behavior;
+    let (competence, _) = traits(state, id);
+    let revenue = state.companies[id.index()]
+        .ledger
+        .years
+        .last()
+        .and_then(|y| y.by_type.get(&CostType::Revenue))
+        .copied()
+        .unwrap_or(Money::ZERO);
+    competence >= b.research_competence_min && revenue.to_usd() >= b.research_min_revenue_usd
+}
+
 /// Competent companies with enough revenue research the technology their branch needs
 /// next (cheapest first), in their own laboratory.
 fn research_plan(
@@ -1672,18 +1709,7 @@ fn research_plan(
 ) {
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(state, id);
-    if competence < b.research_competence_min {
-        return;
-    }
-    let company = &state.companies[id.index()];
-    let revenue = company
-        .ledger
-        .years
-        .last()
-        .and_then(|y| y.by_type.get(&CostType::Revenue))
-        .copied()
-        .unwrap_or(Money::ZERO);
-    if revenue.to_usd() < b.research_min_revenue_usd {
+    if !wants_research(state, catalog, id) {
         return;
     }
     // Branches the company works in.
@@ -2124,6 +2150,47 @@ mod tests {
             },
         );
         (game, id, site)
+    }
+
+    /// M30: a power plant under construction covers the electricity it will make, so
+    /// the next decision during its construction does not add another.
+    #[test]
+    fn a_power_plant_under_construction_counts_against_the_lack() {
+        let (mut game, id, works) = idle_works_in(test_support::power(), 0.05);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        let date = state.date;
+        // 25 runs a day at 2 MWh are held back by the grid: 50 MWh a day are missing.
+        let slot = &mut state.sites[works.index()].slots[0];
+        slot.limit = Some(Limit::Electricity);
+        slot.last_runs = 0.0;
+        let owned = |state: &GameState| -> Vec<SiteId> {
+            (0..state.sites.len())
+                .filter(|&i| state.sites[i].owner == id)
+                .map(site_id)
+                .collect()
+        };
+        let plants = |state: &GameState| -> u32 {
+            state
+                .sites
+                .iter()
+                .filter(|s| s.owner == id && s.kind == SiteType::PowerPlant)
+                .flat_map(|s| &s.slots)
+                .map(|sl| sl.count)
+                .sum()
+        };
+        assert!(own_power(state, &catalog, id, &owned(state), date));
+        assert_eq!(plants(state), 1);
+        assert!(
+            state
+                .sites
+                .iter()
+                .flat_map(|s| &s.slots)
+                .any(|sl| sl.ready > date)
+        );
+        // The works still wait for power, but the plant being built covers them.
+        assert!(!own_power(state, &catalog, id, &owned(state), date));
+        assert_eq!(plants(state), 1);
     }
 
     #[test]

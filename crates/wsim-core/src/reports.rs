@@ -15,12 +15,13 @@ impl Account {
             Account::Equity => "konto.eigenkapital",
             Account::RetainedEarnings => "konto.gewinnruecklagen",
             Account::Result => "konto.jahresergebnis",
+            Account::Goodwill => "konto.firmenwert",
         }
     }
 }
 
 impl CostType {
-    pub const ALL: [CostType; 16] = [
+    pub const ALL: [CostType; 17] = [
         CostType::Revenue,
         CostType::InventoryChange,
         CostType::Material,
@@ -36,6 +37,7 @@ impl CostType {
         CostType::Maintenance,
         CostType::Overhead,
         CostType::Rent,
+        CostType::Licenses,
         CostType::Other,
     ];
 
@@ -56,6 +58,7 @@ impl CostType {
             CostType::Maintenance => "kostenart.instandhaltung",
             CostType::Overhead => "kostenart.gemeinkosten",
             CostType::Rent => "kostenart.pacht",
+            CostType::Licenses => "kostenart.lizenzen",
             CostType::Other => "kostenart.sonstiges",
         }
     }

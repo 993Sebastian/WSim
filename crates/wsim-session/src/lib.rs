@@ -20,9 +20,9 @@ use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
 use wsim_core::views::{
-    self, ChainsView, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
-    WorldMarketView,
+    self, ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, MarketView,
+    MessageView, NewGameOptions, OffersView, Overview, ProductMarketView, ProductionView,
+    ResearchOverview, RoundReportView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -300,6 +300,22 @@ impl<S: SaveStore> Session<S> {
         self.view(views::chains)
     }
 
+    /// The player's offers to buy and sell (M30).
+    pub fn offers(&self) -> Result<OffersView, MessageView> {
+        self.view(views::offers)
+    }
+
+    /// The active companies, largest equity first (M30).
+    pub fn companies(&self) -> Result<CompaniesView, MessageView> {
+        self.view(views::companies)
+    }
+
+    /// A company with its sites and the licences the player could buy (M30).
+    pub fn company(&self, index: u32) -> Result<CompanyDetailView, MessageView> {
+        self.view(|g| views::company_detail(g, index))?
+            .ok_or_else(|| error(keys::UNKNOWN_COMPANY))
+    }
+
     /// One product in all countries (world map).
     pub fn world_market(&self, product: &str) -> Result<WorldMarketView, MessageView> {
         self.view(|g| views::world_market(g, product))?
@@ -371,6 +387,12 @@ impl<S: SaveStore> Session<S> {
             let news = report.messages.iter().find_map(|m| match m.kind {
                 MessageKind::WorldEvent => Some("weltereignis"),
                 MessageKind::Warning | MessageKind::Crisis => Some("warnung"),
+                // An offer waits for the player's answer (M30).
+                _ if m.key.starts_with("meldung.angebot.erhalten")
+                    || m.key.starts_with("meldung.angebot.gegenangebot") =>
+                {
+                    Some("angebot")
+                }
                 _ => None,
             });
             all.to = report.to;
@@ -480,6 +502,7 @@ pub mod keys {
     pub const INVALID_COMMAND: &str = "fehler.sitzung.befehl_ungueltig";
     pub const UNKNOWN_PRODUCT: &str = "fehler.sitzung.unbekanntes_produkt";
     pub const UNKNOWN_UNTIL: &str = "fehler.sitzung.unbekanntes_ziel";
+    pub const UNKNOWN_COMPANY: &str = "fehler.sitzung.unbekannte_firma";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -493,5 +516,6 @@ pub mod keys {
         INVALID_COMMAND,
         UNKNOWN_PRODUCT,
         UNKNOWN_UNTIL,
+        UNKNOWN_COMPANY,
     ];
 }

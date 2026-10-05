@@ -1,4 +1,44 @@
 {
+  "angebote": {
+    "offers": [
+      {
+        "answer": true,
+        "can_counter": true,
+        "can_withdraw": false,
+        "closed": null,
+        "company": "Leipziger Spinnerei und Weberei AG",
+        "company_index": 59,
+        "counter": false,
+        "date": "1914-02-01",
+        "deadline": "1914-04-01",
+        "id": 4,
+        "license_value_usd": null,
+        "object": {
+          "country": "DEU",
+          "kind": "standort",
+          "products": [
+            "naegel"
+          ],
+          "site": 0,
+          "site_type": "standorttyp.werk",
+          "technology": null
+        },
+        "price_usd": 33820.706,
+        "role": "verkaeufer",
+        "status": "offen",
+        "value": {
+          "base_usd": 27056.5648,
+          "book_usd": 59739.5434,
+          "earnings_value_usd": 0.0,
+          "earnings_years": 5.0,
+          "inventory_usd": 7169.8068,
+          "liquidation_usd": 19886.758,
+          "result_year_usd": null,
+          "under_construction_usd": 0.0
+        }
+      }
+    ]
+  },
   "bericht": {
     "cash_after_usd": 68810.7753,
     "cash_before_usd": 63831.8501,
@@ -162,6 +202,10 @@
       ],
       [
         "konto.anlagen_im_bau",
+        0.0
+      ],
+      [
+        "konto.firmenwert",
         0.0
       ]
     ],
@@ -335,6 +379,10 @@
           0.0
         ],
         [
+          "kostenart.lizenzen",
+          0.0
+        ],
+        [
           "kostenart.sonstiges",
           0.0
         ]
@@ -416,12 +464,1087 @@
           0.0
         ],
         [
+          "kostenart.lizenzen",
+          0.0
+        ],
+        [
           "kostenart.sonstiges",
           0.0
         ]
       ],
       "result_usd": 34473.9386
     }
+  },
+  "firma": {
+    "cash_usd": 37022.3943,
+    "company": {
+      "equity_usd": 837511831.2567,
+      "headquarters": "DEU",
+      "index": 59,
+      "name": "Leipziger Spinnerei und Weberei AG",
+      "player": false,
+      "real": false,
+      "revenue_year_usd": 150789317.579,
+      "sites": 1
+    },
+    "licenses": [],
+    "min_age_months": 0,
+    "sites": [
+      {
+        "blocked": null,
+        "blocked_until": null,
+        "country": "DEU",
+        "facilities": [
+          [
+            "konfektion",
+            55
+          ],
+          [
+            "weberei",
+            17
+          ],
+          [
+            "spinnerei",
+            14
+          ]
+        ],
+        "needed": false,
+        "new_build_usd": 180000000.0,
+        "open_offer": null,
+        "products": [
+          "kleidung",
+          "stoff",
+          "garn"
+        ],
+        "site": 309,
+        "site_type": "standorttyp.werk",
+        "value": {
+          "base_usd": 188416893.5963,
+          "book_usd": 179452050.2283,
+          "earnings_value_usd": 0.0,
+          "earnings_years": 5.0,
+          "inventory_usd": 98940443.8245,
+          "liquidation_usd": 89476449.7718,
+          "result_year_usd": null,
+          "under_construction_usd": 0.0
+        },
+        "workers": 18660.476749842015
+      }
+    ]
+  },
+  "firmen": {
+    "companies": [
+      {
+        "equity_usd": 3390745077.7955,
+        "headquarters": "USA",
+        "index": 74,
+        "name": "Holloway Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 151631622.2168,
+        "sites": 13
+      },
+      {
+        "equity_usd": 2067286204.9122,
+        "headquarters": "USA",
+        "index": 42,
+        "name": "Pittsburgh Iron and Steel & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 44690601.2383,
+        "sites": 2
+      },
+      {
+        "equity_usd": 1604576191.6685,
+        "headquarters": "GBR",
+        "index": 95,
+        "name": "Holloway Electric Ltd.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 115720399.4186,
+        "sites": 35
+      },
+      {
+        "equity_usd": 1421678878.7138,
+        "headquarters": "USA",
+        "index": 89,
+        "name": "Barker Milling & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 91560333.5216,
+        "sites": 13
+      },
+      {
+        "equity_usd": 1069321018.7478,
+        "headquarters": "GBR",
+        "index": 64,
+        "name": "Hughes Mills & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 64304000.7956,
+        "sites": 1
+      },
+      {
+        "equity_usd": 922432146.9196,
+        "headquarters": "GBR",
+        "index": 39,
+        "name": "Birmingham Iron and Steel & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 24598921.3142,
+        "sites": 2
+      },
+      {
+        "equity_usd": 892403386.9077,
+        "headquarters": "CHN",
+        "index": 58,
+        "name": "Li Shachang Gongsi",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 378217425.2248,
+        "sites": 13
+      },
+      {
+        "equity_usd": 841966930.2373,
+        "headquarters": "IND",
+        "index": 65,
+        "name": "Whitfield & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 344909786.573,
+        "sites": 13
+      },
+      {
+        "equity_usd": 837511831.2567,
+        "headquarters": "DEU",
+        "index": 59,
+        "name": "Leipziger Spinnerei und Weberei AG",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 150789317.579,
+        "sites": 1
+      },
+      {
+        "equity_usd": 645167470.0866,
+        "headquarters": "FRA",
+        "index": 63,
+        "name": "Blanchard et Fils",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 121491874.3808,
+        "sites": 1
+      },
+      {
+        "equity_usd": 534954463.1552,
+        "headquarters": "RUS",
+        "index": 73,
+        "name": "Manufaktur Shevchenko",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 112349652.6792,
+        "sites": 1
+      },
+      {
+        "equity_usd": 528661706.3714,
+        "headquarters": "UZB",
+        "index": 75,
+        "name": "Demidov-Werke",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 131914921.194,
+        "sites": 44
+      },
+      {
+        "equity_usd": 479423168.0825,
+        "headquarters": "DEU",
+        "index": 37,
+        "name": "Vogt & Söhne",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 30393927.3698,
+        "sites": 2
+      },
+      {
+        "equity_usd": 423269570.9292,
+        "headquarters": "USA",
+        "index": 94,
+        "name": "Fletcher & Whitfield Ltd.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 53623568.1794,
+        "sites": 10
+      },
+      {
+        "equity_usd": 422954332.1937,
+        "headquarters": "AUS",
+        "index": 77,
+        "name": "Hughes & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 111276996.469,
+        "sites": 34
+      },
+      {
+        "equity_usd": 417053552.4135,
+        "headquarters": "ITA",
+        "index": 67,
+        "name": "Cotonificio Genova",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 84828828.3512,
+        "sites": 1
+      },
+      {
+        "equity_usd": 398629284.6562,
+        "headquarters": "USA",
+        "index": 3,
+        "name": "Carnegie Steel Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 17310972.6445,
+        "sites": 3
+      },
+      {
+        "equity_usd": 394046352.6888,
+        "headquarters": "GBR",
+        "index": 82,
+        "name": "Pemberton & Carter & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 86114981.2473,
+        "sites": 10
+      },
+      {
+        "equity_usd": 392433913.6587,
+        "headquarters": "USA",
+        "index": 35,
+        "name": "Pemberton & Pemberton & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 19752267.6853,
+        "sites": 8
+      },
+      {
+        "equity_usd": 388787010.2731,
+        "headquarters": "RUS",
+        "index": 87,
+        "name": "Lebedev-Werke",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 97443484.8117,
+        "sites": 13
+      },
+      {
+        "equity_usd": 381863832.7988,
+        "headquarters": "ITA",
+        "index": 84,
+        "name": "Molinos Rosario",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 69371924.1946,
+        "sites": 39
+      },
+      {
+        "equity_usd": 377458773.1286,
+        "headquarters": "FRA",
+        "index": 38,
+        "name": "Forges et Aciéries Perrin S.A.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 10147971.8168,
+        "sites": 1
+      },
+      {
+        "equity_usd": 375898581.09,
+        "headquarters": "CAN",
+        "index": 57,
+        "name": "Pemberton Corporation",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 80233992.8995,
+        "sites": 8
+      },
+      {
+        "equity_usd": 373317093.2044,
+        "headquarters": "DEU",
+        "index": 1,
+        "name": "Fried. Krupp",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 18178172.6729,
+        "sites": 2
+      },
+      {
+        "equity_usd": 368956223.0782,
+        "headquarters": "JPN",
+        "index": 86,
+        "name": "Kobe Seifun",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 122718624.9675,
+        "sites": 27
+      },
+      {
+        "equity_usd": 353287798.5076,
+        "headquarters": "JPN",
+        "index": 68,
+        "name": "Yokohama Bōseki",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 76432155.8894,
+        "sites": 1
+      },
+      {
+        "equity_usd": 352370505.8998,
+        "headquarters": "DEU",
+        "index": 80,
+        "name": "Mühlenwerke Hoffmann & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 73108991.5355,
+        "sites": 13
+      },
+      {
+        "equity_usd": 339428529.2811,
+        "headquarters": "USA",
+        "index": 51,
+        "name": "Detroit Chemical & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 18036599.0137,
+        "sites": 28
+      },
+      {
+        "equity_usd": 337463289.9745,
+        "headquarters": "FRA",
+        "index": 81,
+        "name": "Mercier & Cie",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 55506425.2673,
+        "sites": 13
+      },
+      {
+        "equity_usd": 328408923.3688,
+        "headquarters": "ITA",
+        "index": 40,
+        "name": "Romano y Cía.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 22320297.3787,
+        "sites": 1
+      },
+      {
+        "equity_usd": 325503608.2059,
+        "headquarters": "MEX",
+        "index": 72,
+        "name": "Ortega & Rossi",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 74957689.3467,
+        "sites": 9
+      },
+      {
+        "equity_usd": 321580133.1785,
+        "headquarters": "EGY",
+        "index": 61,
+        "name": "Mitchell Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 66907588.9639,
+        "sites": 15
+      },
+      {
+        "equity_usd": 316974189.3668,
+        "headquarters": "ESP",
+        "index": 62,
+        "name": "Ferrari S.A.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 45948114.6392,
+        "sites": 2
+      },
+      {
+        "equity_usd": 299077397.8959,
+        "headquarters": "CHN",
+        "index": 79,
+        "name": "Sheng Mianfen Ju",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 69896144.3673,
+        "sites": 13
+      },
+      {
+        "equity_usd": 296469012.9309,
+        "headquarters": "BEL",
+        "index": 56,
+        "name": "Filatures Perrin & Cie",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 36126058.1335,
+        "sites": 2
+      },
+      {
+        "equity_usd": 292806782.775,
+        "headquarters": "ESP",
+        "index": 83,
+        "name": "Colombo e Figli",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 86436068.4205,
+        "sites": 23
+      },
+      {
+        "equity_usd": 274300901.1588,
+        "headquarters": "PAK",
+        "index": 60,
+        "name": "Glasgow Mills Ltd.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 82884646.4687,
+        "sites": 13
+      },
+      {
+        "equity_usd": 263470940.6305,
+        "headquarters": "NLD",
+        "index": 69,
+        "name": "Stockholm Textil AS",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 52350164.0053,
+        "sites": 3
+      },
+      {
+        "equity_usd": 257109116.6087,
+        "headquarters": "CZE",
+        "index": 70,
+        "name": "Holloway & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 59507237.4118,
+        "sites": 9
+      },
+      {
+        "equity_usd": 246120796.6235,
+        "headquarters": "IND",
+        "index": 85,
+        "name": "Glasgow Milling Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 65073345.037,
+        "sites": 13
+      },
+      {
+        "equity_usd": 241182389.5638,
+        "headquarters": "CAN",
+        "index": 78,
+        "name": "Grant & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 57930173.9188,
+        "sites": 13
+      },
+      {
+        "equity_usd": 233324657.4597,
+        "headquarters": "GBR",
+        "index": 6,
+        "name": "Bolckow, Vaughan & Co.",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 15219789.2967,
+        "sites": 3
+      },
+      {
+        "equity_usd": 221535889.1589,
+        "headquarters": "USA",
+        "index": 12,
+        "name": "Anaconda Copper Mining Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 16057017.4485,
+        "sites": 3
+      },
+      {
+        "equity_usd": 221512233.5174,
+        "headquarters": "POL",
+        "index": 71,
+        "name": "Charkower Manufaktur",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 45325528.6148,
+        "sites": 1
+      },
+      {
+        "equity_usd": 220849816.812,
+        "headquarters": "DEU",
+        "index": 2,
+        "name": "Thyssen & Co.",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 20519768.7069,
+        "sites": 2
+      },
+      {
+        "equity_usd": 212156147.4584,
+        "headquarters": "RUS",
+        "index": 49,
+        "name": "Volkov-& Söhne",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 27128349.163,
+        "sites": 19
+      },
+      {
+        "equity_usd": 212031876.6531,
+        "headquarters": "UKR",
+        "index": 88,
+        "name": "Mühlen Volkov",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 76388338.2594,
+        "sites": 13
+      },
+      {
+        "equity_usd": 210120934.5367,
+        "headquarters": "FRA",
+        "index": 5,
+        "name": "Schneider et Cie",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 6911659.5976,
+        "sites": 2
+      },
+      {
+        "equity_usd": 207514939.2171,
+        "headquarters": "GBR",
+        "index": 13,
+        "name": "Rio Tinto Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 19484411.9232,
+        "sites": 3
+      },
+      {
+        "equity_usd": 206590403.5047,
+        "headquarters": "USA",
+        "index": 54,
+        "name": "Holloway & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 22090325.385,
+        "sites": 25
+      },
+      {
+        "equity_usd": 205581819.4411,
+        "headquarters": "AUT",
+        "index": 55,
+        "name": "Spinnerei und Weberei Wendt KG",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 33588526.3223,
+        "sites": 3
+      },
+      {
+        "equity_usd": 201593559.043,
+        "headquarters": "ARG",
+        "index": 76,
+        "name": "Romano & Vázquez",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 17761738.9998,
+        "sites": 13
+      },
+      {
+        "equity_usd": 197831060.1763,
+        "headquarters": "DEU",
+        "index": 45,
+        "name": "Chemische Werke Reuter & Söhne",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 30800678.6798,
+        "sites": 2
+      },
+      {
+        "equity_usd": 195226545.0621,
+        "headquarters": "CHE",
+        "index": 66,
+        "name": "Brandt & Brandt & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 25650002.9341,
+        "sites": 3
+      },
+      {
+        "equity_usd": 180217746.1992,
+        "headquarters": "CHN",
+        "index": 91,
+        "name": "Tianjin Zhou Gongsi",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 28640747.8659,
+        "sites": 47
+      },
+      {
+        "equity_usd": 176747279.5933,
+        "headquarters": "USA",
+        "index": 4,
+        "name": "Bethlehem Steel Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 7113727.7338,
+        "sites": 1
+      },
+      {
+        "equity_usd": 173859729.8096,
+        "headquarters": "RUS",
+        "index": 7,
+        "name": "Putilow-Werke",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 14443650.9994,
+        "sites": 1
+      },
+      {
+        "equity_usd": 170799202.3614,
+        "headquarters": "DEU",
+        "index": 53,
+        "name": "Hoffmann & Pfeiffer & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 32196872.5448,
+        "sites": 60
+      },
+      {
+        "equity_usd": 169218598.9799,
+        "headquarters": "GBR",
+        "index": 46,
+        "name": "Sutton & Sutton Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 4672356.5659,
+        "sites": 1
+      },
+      {
+        "equity_usd": 168475427.2327,
+        "headquarters": "GBR",
+        "index": 97,
+        "name": "Barker Corporation",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 30541593.852,
+        "sites": 10
+      },
+      {
+        "equity_usd": 166427220.558,
+        "headquarters": "USA",
+        "index": 9,
+        "name": "Standard Oil",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 12235385.1975,
+        "sites": 3
+      },
+      {
+        "equity_usd": 163801767.4516,
+        "headquarters": "USA",
+        "index": 16,
+        "name": "General Electric",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 17544068.9432,
+        "sites": 2
+      },
+      {
+        "equity_usd": 163572327.2038,
+        "headquarters": "DEU",
+        "index": 15,
+        "name": "Allgemeine Elektricitäts-Gesellschaft",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 28410072.0104,
+        "sites": 3
+      },
+      {
+        "equity_usd": 162632790.7422,
+        "headquarters": "CAN",
+        "index": 36,
+        "name": "Whitfield & Hughes Ltd.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 5406202.1861,
+        "sites": 1
+      },
+      {
+        "equity_usd": 160034432.5218,
+        "headquarters": "DEU",
+        "index": 14,
+        "name": "Siemens & Halske",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 8532215.1333,
+        "sites": 2
+      },
+      {
+        "equity_usd": 155478084.1621,
+        "headquarters": "USA",
+        "index": 93,
+        "name": "Morgan Machine Works & Sons",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 10962969.4471,
+        "sites": 1
+      },
+      {
+        "equity_usd": 152452312.083,
+        "headquarters": "POL",
+        "index": 99,
+        "name": "Fabrik Demidov",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 27166802.7423,
+        "sites": 40
+      },
+      {
+        "equity_usd": 144514402.5306,
+        "headquarters": "DEU",
+        "index": 92,
+        "name": "Maschinenfabrik Lehmann & Söhne",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 22093469.2282,
+        "sites": 10
+      },
+      {
+        "equity_usd": 134426455.183,
+        "headquarters": "CHL",
+        "index": 30,
+        "name": "Romano e Figli",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 0.0,
+        "sites": 2
+      },
+      {
+        "equity_usd": 132929007.0119,
+        "headquarters": "VEN",
+        "index": 43,
+        "name": "Fernández & Fernández",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 16085840.9395,
+        "sites": 11
+      },
+      {
+        "equity_usd": 129793380.5959,
+        "headquarters": "MEX",
+        "index": 48,
+        "name": "Vázquez e Figli",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 14717825.9773,
+        "sites": 13
+      },
+      {
+        "equity_usd": 126418157.1254,
+        "headquarters": "SWE",
+        "index": 34,
+        "name": "Stockholm Gruv N.V.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 4165160.2896,
+        "sites": 4
+      },
+      {
+        "equity_usd": 124858769.6862,
+        "headquarters": "CHN",
+        "index": 44,
+        "name": "Kanton Wang Hang",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 14136883.2013,
+        "sites": 8
+      },
+      {
+        "equity_usd": 122020289.2401,
+        "headquarters": "CHN",
+        "index": 8,
+        "name": "Hanyang Iron Works",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 453971.0328,
+        "sites": 2
+      },
+      {
+        "equity_usd": 120089890.7144,
+        "headquarters": "GBR",
+        "index": 52,
+        "name": "Grant Lumber Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 18204436.3419,
+        "sites": 28
+      },
+      {
+        "equity_usd": 119655641.4217,
+        "headquarters": "GBR",
+        "index": 90,
+        "name": "Harris Machine Works Company",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 17368428.1853,
+        "sites": 16
+      },
+      {
+        "equity_usd": 118540847.3504,
+        "headquarters": "CHN",
+        "index": 96,
+        "name": "Wuxi Zhou Ju",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 27255255.6324,
+        "sites": 7
+      },
+      {
+        "equity_usd": 113068915.8781,
+        "headquarters": "POL",
+        "index": 50,
+        "name": "Odessaer Chemiewerke",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 21441968.4422,
+        "sites": 4
+      },
+      {
+        "equity_usd": 111440110.0559,
+        "headquarters": "ITA",
+        "index": 47,
+        "name": "López S.A.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 15474236.6933,
+        "sites": 3
+      },
+      {
+        "equity_usd": 106550080.4053,
+        "headquarters": "USA",
+        "index": 100,
+        "name": "Harris & Co.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 14899800.5716,
+        "sites": 1
+      },
+      {
+        "equity_usd": 104485947.0056,
+        "headquarters": "IND",
+        "index": 98,
+        "name": "Grant Manufacturing Corporation",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 25048833.1611,
+        "sites": 3
+      },
+      {
+        "equity_usd": 96578151.6051,
+        "headquarters": "RUS",
+        "index": 41,
+        "name": "Hüttenwerke Ryabushinsky",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 0.0,
+        "sites": 1
+      },
+      {
+        "equity_usd": 89824567.1974,
+        "headquarters": "POL",
+        "index": 33,
+        "name": "Sokolov-Gesellschaft",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 3280564.8158,
+        "sites": 2
+      },
+      {
+        "equity_usd": 72737581.9138,
+        "headquarters": "GBR",
+        "index": 32,
+        "name": "Barker Ltd.",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 3048537.9248,
+        "sites": 2
+      },
+      {
+        "equity_usd": 70704500.1473,
+        "headquarters": "DEU",
+        "index": 31,
+        "name": "Reuter & Hartmann GmbH",
+        "player": false,
+        "real": false,
+        "revenue_year_usd": 4014896.0096,
+        "sites": 2
+      },
+      {
+        "equity_usd": 56722558.5639,
+        "headquarters": "FRA",
+        "index": 20,
+        "name": "Peugeot Frères",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 6643060.4236,
+        "sites": 1
+      },
+      {
+        "equity_usd": 53445838.53,
+        "headquarters": "JPN",
+        "index": 28,
+        "name": "Mitsui Gōmei",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 6592080.3102,
+        "sites": 2
+      },
+      {
+        "equity_usd": 51453202.5578,
+        "headquarters": "DEU",
+        "index": 21,
+        "name": "Daimler-Motoren-Gesellschaft",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 3426865.4782,
+        "sites": 1
+      },
+      {
+        "equity_usd": 50317256.0027,
+        "headquarters": "FRA",
+        "index": 22,
+        "name": "Panhard et Levassor",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 628065.9076,
+        "sites": 1
+      },
+      {
+        "equity_usd": 47365854.8704,
+        "headquarters": "RUS",
+        "index": 10,
+        "name": "Gebrüder Nobel (Branobel)",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 116669.7949,
+        "sites": 2
+      },
+      {
+        "equity_usd": 37600530.6234,
+        "headquarters": "NLD",
+        "index": 11,
+        "name": "Royal Dutch Petroleum",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 8266124.2244,
+        "sites": 2
+      },
+      {
+        "equity_usd": 34726735.3839,
+        "headquarters": "DEU",
+        "index": 25,
+        "name": "Continental-Caoutchouc- und Gutta-Percha Compagnie",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 7013157.0566,
+        "sites": 1
+      },
+      {
+        "equity_usd": 34705480.4623,
+        "headquarters": "GBR",
+        "index": 23,
+        "name": "Dunlop Pneumatic Tyre Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 3734225.06,
+        "sites": 1
+      },
+      {
+        "equity_usd": 33699639.9808,
+        "headquarters": "FRA",
+        "index": 24,
+        "name": "Michelin et Cie",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 2623478.9797,
+        "sites": 1
+      },
+      {
+        "equity_usd": 26373523.6743,
+        "headquarters": "DEU",
+        "index": 19,
+        "name": "Adam Opel",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 4302282.3889,
+        "sites": 1
+      },
+      {
+        "equity_usd": 25445629.4366,
+        "headquarters": "USA",
+        "index": 18,
+        "name": "Singer Manufacturing Company",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 3830904.6841,
+        "sites": 2
+      },
+      {
+        "equity_usd": 15765485.5236,
+        "headquarters": "IND",
+        "index": 29,
+        "name": "Tata & Sons",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 4694411.1762,
+        "sites": 1
+      },
+      {
+        "equity_usd": 15309363.5148,
+        "headquarters": "GBR",
+        "index": 27,
+        "name": "J. & P. Coats",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 0.0,
+        "sites": 1
+      },
+      {
+        "equity_usd": 14214862.9518,
+        "headquarters": "USA",
+        "index": 17,
+        "name": "Westinghouse Electric",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 1636914.2617,
+        "sites": 1
+      },
+      {
+        "equity_usd": 13524276.6873,
+        "headquarters": "USA",
+        "index": 26,
+        "name": "Pillsbury-Washburn Flour Mills",
+        "player": false,
+        "real": true,
+        "revenue_year_usd": 4838376.891,
+        "sites": 1
+      },
+      {
+        "equity_usd": 103931.7453,
+        "headquarters": "DEU",
+        "index": 0,
+        "name": "Neue Firma",
+        "player": true,
+        "real": false,
+        "revenue_year_usd": 27803.7856,
+        "sites": 1
+      }
+    ]
   },
   "forschung": {
     "centers": [],

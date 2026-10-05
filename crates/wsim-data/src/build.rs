@@ -22,6 +22,7 @@ use crate::messages;
 mod ai;
 mod countries;
 mod currencies;
+mod deals;
 mod milestones;
 mod production;
 use crate::raw::{
@@ -596,6 +597,7 @@ pub(crate) fn build(
 
     let (ai_model, difficulty_keys) = ai::ai_model(b.ctx, raw);
     b.catalog.ai_model = ai_model;
+    b.catalog.deal_model = deals::deal_model(b.ctx, &b.catalog, raw);
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
     let (_, real_companies) = register(
         b.ctx,

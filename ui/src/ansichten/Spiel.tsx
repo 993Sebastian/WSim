@@ -27,13 +27,22 @@ import { ProduktionAnsicht } from "./Produktion";
 import { Tastenhilfe } from "./Tastenhilfe";
 import { UebersichtAnsicht } from "./Uebersicht";
 import { WeltkarteAnsicht } from "./Weltkarte";
+import { WettbewerbAnsicht } from "./Wettbewerb";
 
 type Ansicht =
-  "uebersicht" | "produktion" | "markt" | "forschung" | "finanzen" | "weltkarte" | "berichte";
+  | "uebersicht"
+  | "produktion"
+  | "markt"
+  | "wettbewerb"
+  | "forschung"
+  | "finanzen"
+  | "weltkarte"
+  | "berichte";
 export const ANSICHTEN: Ansicht[] = [
   "uebersicht",
   "produktion",
   "markt",
+  "wettbewerb",
   "forschung",
   "finanzen",
   "weltkarte",
@@ -290,6 +299,8 @@ export function Spiel({
   const warnungen = uebersicht.hints.filter(
     (h) => h.message.kind === "warning" || h.message.kind === "crisis",
   ).length;
+  // Offers waiting for the player's answer (M30).
+  const offeneAngebote = uebersicht.hints.filter((h) => h.message.target === "wettbewerb").length;
   const vormonat = uebersicht.history.at(-1);
   const trend = vormonat ? firma.cash_usd - vormonat.cash_usd : null;
   const menuePunkt = (aktion: () => void) => () => {
@@ -437,6 +448,11 @@ export function Spiel({
                   {warnungen}
                 </span>
               )}
+              {a === "wettbewerb" && offeneAngebote > 0 && (
+                <span className="zaehler" title={t("spiel.offene_angebote")}>
+                  {offeneAngebote}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -474,6 +490,14 @@ export function Spiel({
         )}
         {ansicht === "markt" && (
           <MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "wettbewerb" && (
+          <WettbewerbAnsicht
+            kern={kern}
+            uebersicht={uebersicht}
+            onGeaendert={setUebersicht}
+            offene={offeneAngebote}
+          />
         )}
         {ansicht === "forschung" && (
           <ForschungAnsicht

@@ -5,7 +5,10 @@ import { KernFehler } from "./fehler";
 import type { Kern } from "./index";
 import type { Befehl } from "./befehle";
 import type {
+  Angebote,
   Finanzen,
+  Firmen,
+  Firmendetail,
   Forschung,
   Landdetail,
   Markt,
@@ -33,6 +36,9 @@ const beispiel = beispielJson as unknown as {
   produktmaerkte: Record<string, ProduktMarkt>;
   weltmarkt: WeltMarkt;
   ketten: Ketten;
+  angebote: Angebote;
+  firmen: Firmen;
+  firma: Firmendetail;
   forschung: Forschung;
   finanzen: Finanzen;
 };
@@ -144,6 +150,24 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     ketten: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.ketten);
+    },
+    angebote: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.angebote);
+    },
+    firmen: async () => {
+      if (!spiel) throw keinSpiel();
+      const f = kopie(beispiel.firmen);
+      for (const c of f.companies) if (c.player) c.name = firma;
+      return f;
+    },
+    firma: async (index) => {
+      if (!spiel) throw keinSpiel();
+      // The preview knows one company in detail; the others show its sites.
+      const d = kopie(beispiel.firma);
+      const zeile = beispiel.firmen.companies.find((c) => c.index === index);
+      if (zeile) d.company = { ...kopie(zeile), name: zeile.player ? firma : zeile.name };
+      return d;
     },
     weltmarkt: async (produkt) => {
       if (!spiel) throw keinSpiel();

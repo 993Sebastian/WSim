@@ -112,6 +112,13 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await bild(page, "marke");
 
   await page.keyboard.press("4");
+  await expect(page.getByRole("button", { name: "Wettbewerb" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.getByRole("button", { name: /^Angebote/ })).toBeVisible();
+
+  await page.keyboard.press("5");
   // The technology tree: a node opens what the technology costs and opens.
   const baum = page.getByRole("group", { name: "Technologiebaum" });
   await expect(baum).toBeVisible();
@@ -127,7 +134,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await page.getByRole("button", { name: /Bessemer-Verfahren/ }).click();
   await expect(page.getByRole("region", { name: "Bessemer-Verfahren" })).toBeVisible();
 
-  await page.keyboard.press("5");
+  await page.keyboard.press("6");
   await expect(page.getByRole("heading", { name: "Bilanz" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "Sachanlagen" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Womit verdienst du Geld?" })).toBeVisible();
@@ -265,6 +272,49 @@ test("Der Rang zeigt den Platz unter allen Firmen", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(umsatz).toContainText("Platz 101");
   await bild(page, "rang");
+});
+
+test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
+  await starten(page);
+  // The preview's competitor bids for the workshop (hint and counter: core tests).
+  await page.keyboard.press("4");
+  const angebot = page.getByRole("article", {
+    name: "Kaufangebot von Leipziger Spinnerei und Weberei AG",
+  });
+  await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
+  await expect(angebot).toContainText("33.821 USD");
+  await expect(angebot).toContainText("01.04.1914");
+  // The base value with its parts.
+  await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
+  await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
+  await expect(angebot.getByRole("note")).toContainText("27.057 USD");
+  await bild(page, "angebot");
+  await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
+
+  await angebot.getByRole("button", { name: "Annehmen" }).click();
+  await angebot.getByLabel("Preis").fill("50000");
+  await angebot.getByRole("button", { name: "Gegenangebot machen" }).click();
+  const befehleNachAntwort = await befehle(page);
+  expect(befehleNachAntwort.slice(-2)).toEqual([
+    { AnswerOffer: { offer: 4, answer: "Accept" } },
+    { AnswerOffer: { offer: 4, answer: { Counter: { price: 500_000_000 } } } },
+  ]);
+
+  // Bid for a competitor's site.
+  await page.getByRole("button", { name: "Firmen", exact: true }).click();
+  await page.getByRole("button", { name: "Leipziger Spinnerei und Weberei AG" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Leipziger Spinnerei und Weberei AG" }),
+  ).toBeVisible();
+  const werk = page.getByRole("article", { name: "Werk in Deutschland" });
+  await expect(werk).toContainText("Kleidung, Stoff, Garn");
+  await expect(werk).toContainText("Neubau heute: 180 Mio. USD");
+  await werk.getByLabel("Preis").fill("200000000");
+  await werk.getByRole("button", { name: "Angebot abgeben" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    MakeOffer: { seller: 59, object: { Site: 309 }, price: 2_000_000_000_000 },
+  });
+  await bild(page, "firma");
 });
 
 test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", async ({ page }) => {
@@ -521,7 +571,7 @@ test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
 
 test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {
   await starten(page);
-  await page.keyboard.press("7");
+  await page.keyboard.press("8");
   await expect(page.getByText("Noch keine Runde beendet.")).toBeVisible();
 
   await page.keyboard.press("Control+Enter");

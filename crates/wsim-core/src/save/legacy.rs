@@ -130,6 +130,8 @@ pub(super) fn decode_v2(
         milestones: PerId::default(),
         watched_markets: Vec::new(),
         standings: Vec::new(),
+        offers: Vec::new(),
+        next_offer: 0,
         player: s.player,
         game_over: s.game_over,
     };

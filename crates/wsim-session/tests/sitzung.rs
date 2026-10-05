@@ -150,3 +150,38 @@ fn rounds_up_to_the_year_end_or_the_next_news() {
     }
     assert!(news.rounds <= 12);
 }
+
+/// The competition tab (M30): companies, one in detail, and the player's offers.
+#[test]
+fn companies_and_offers_for_the_competition_tab() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    let companies = session.companies().unwrap();
+    assert_eq!(companies.companies.len(), 11);
+    assert!(companies.companies.iter().any(|c| c.player));
+    let rival = companies.companies.iter().find(|c| !c.player).unwrap();
+    let detail = session.company(rival.index).unwrap();
+    assert_eq!(detail.company.name, rival.name);
+    assert_eq!(detail.sites.len(), rival.sites as usize);
+    // At the start every site is too young to buy.
+    assert!(
+        detail
+            .sites
+            .iter()
+            .all(|s| s.blocked.as_deref() == Some("zu_jung"))
+    );
+    assert!(session.offers().unwrap().offers.is_empty());
+    assert_eq!(
+        session.company(9_999).unwrap_err().key,
+        keys::UNKNOWN_COMPANY
+    );
+    // An offer for a site that is too young is refused with the reason.
+    let site = detail.sites[0].site;
+    let err = session
+        .command(serde_json::json!({
+            "MakeOffer": {"seller": rival.index, "object": {"Site": site}, "price": 10_000_000}
+        }))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.standort_zu_jung");
+}

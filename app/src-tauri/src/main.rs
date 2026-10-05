@@ -12,9 +12,9 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    ChainsView, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
-    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
-    WorldMarketView,
+    ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, MarketView,
+    MessageView, NewGameOptions, OffersView, Overview, ProductMarketView, ProductionView,
+    ResearchOverview, RoundReportView, WorldMap, WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -141,6 +141,21 @@ fn ketten(state: State<'_, Shared>) -> Result<ChainsView, Fehler> {
 }
 
 #[tauri::command]
+fn angebote(state: State<'_, Shared>) -> Result<OffersView, Fehler> {
+    mit_sitzung(&state, |s| s.offers())
+}
+
+#[tauri::command]
+fn firmen(state: State<'_, Shared>) -> Result<CompaniesView, Fehler> {
+    mit_sitzung(&state, |s| s.companies())
+}
+
+#[tauri::command]
+fn firma(state: State<'_, Shared>, index: u32) -> Result<CompanyDetailView, Fehler> {
+    mit_sitzung(&state, |s| s.company(index))
+}
+
+#[tauri::command]
 fn weltmarkt(state: State<'_, Shared>, produkt: String) -> Result<WorldMarketView, Fehler> {
     mit_sitzung(&state, |s| s.world_market(&produkt))
 }
@@ -214,6 +229,9 @@ fn main() {
             markt,
             produktmarkt,
             ketten,
+            angebote,
+            firmen,
+            firma,
             weltmarkt,
             forschung,
             finanzen,

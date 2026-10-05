@@ -496,6 +496,28 @@ pub struct Site {
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
+    /// Day the current owner bought the site (M30); `None` for sites it founded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acquired: Option<Date>,
+    /// Goodwill paid above the book values when the site was bought (M30).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub goodwill: Option<Goodwill>,
+}
+
+/// Goodwill of a bought site: written off linearly from the day of purchase (M30).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Goodwill {
+    pub amount: Money,
+    pub from: Date,
+}
+
+impl Goodwill {
+    /// Book value after `years` of straight-line write-off.
+    pub fn book_value(&self, years: f64, date: Date) -> Money {
+        let life_days = years.max(1.0 / 365.0) * 365.0;
+        let age = f64::from(self.from.days_until(date).max(0));
+        self.amount.scale((1.0 - age / life_days).max(0.0))
+    }
 }
 
 /// How a sale offer is priced.
@@ -837,6 +859,12 @@ pub struct GameState {
     /// the last two years (M29).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub standings: Vec<crate::ranking::Standing>,
+    /// Offers between companies, open ones and those closed in the blocking period (M30).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub offers: Vec<crate::deals::Offer>,
+    /// Number of the next offer.
+    #[serde(default)]
+    pub next_offer: u32,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

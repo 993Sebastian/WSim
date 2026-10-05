@@ -275,6 +275,54 @@ keine Pleitewellen. Dazu kamen diese Befunde:
 8. ✅ **Rang in der Übersicht.** Platz der eigenen Firma unter allen Firmen nach
    Eigenkapital und Umsatz, mit der Veränderung zum Vorjahr.
 
+## F Kaufangebote zwischen Firmen (Anfrage vom 05.10.2026)
+
+Auftrag: „Es soll die Möglichkeit geben, dass Wettbewerber lohnenswerte Werke, Bereiche,
+Technologien oder Labore abkaufen wollen. Bspw. weil die besonders qualifiziert oder
+wirtschaftlich sind. Oder als Vermeidung von Wettbewerb.“
+
+✅ Entschieden (Lastenheft §18.4): Standorte und Labore, Technologien als Lizenz und ganze
+Bereiche; alle Firmen untereinander nach denselben Regeln; Annehmen, Ablehnen oder
+Gegenangebot. Umsetzung als M30 (Standorte, Labore, Lizenzen) und M31 (Bereiche).
+
+🟡 Ausgestaltung (Vorschlag gilt vorläufig, Formeln in `docs/FORMELN.md`, M30):
+
+1. **Grundwert eines Standorts:** höherer Wert aus Ertragswert (Jahresergebnis × 5) und
+   Restwert der Anlagen, dazu Anlagen im Bau und Lager. Ein Standort lässt sich erst ein
+   Jahr nach der Gründung kaufen (sonst fehlt ein Ergebnis zum Bewerten).
+2. **Motive der KI:** Wettbewerb im selben Markt (je nach Aggressivität bis +60 %),
+   qualifizierte Belegschaft, wo sie knapp ist (bis +30 %), eigenes Geschäft (Bauzeit
+   gespart, +15 %), Neubau wäre teurer (Hälfte der Ersparnis), Lizenz statt eigener
+   Forschung (30–60 % der ersparten Kosten).
+3. **Firmenwert:** Was der Käufer über den Buchwerten zahlt, steht als Firmenwert in der
+   Bilanz und wird über zehn Jahre abgeschrieben (wie HGB § 253).
+4. **Häufigkeit:** Jede KI-Firma prüft monatlich mit 2–6 % Wahrscheinlichkeit ein
+   Geschäft; an den Spieler geht höchstens ein neues Angebot je Monat.
+5. **Selbst gebraucht:** Ein Kraftwerk, dessen Strom die eigenen Werke im Land brauchen,
+   und das einzige Labor, solange es forscht, gibt eine KI-Firma nur zum Neubaupreis ab.
+   Kraftwerke kauft sie nur, wo ihr selbst Strom fehlt, Labore nur, wenn sie keines hat
+   (Strom lässt sich nicht handeln; ein zweites Labor nutzt die KI nicht).
+6. **Später:** Übernahme ganzer Firmen über Anteile (Stufe 3), Kartellaufsicht gegen
+   Aufkäufe zur Wettbewerbsvermeidung (Stufe 4, Regulierung), Patente (Stufe 5).
+
+## G Produkte bis 2026 (Entscheidung vom 05.10.2026)
+
+✅ Entschieden (Lastenheft §18.4): Die Produktbreite aus Stufe 5 wird Epoche für Epoche
+vorgezogen. 🟡 Vorschlag für die Meilensteine (Auswahl je Epoche mit Recherche zu Rezept,
+Anlage, Erfindungsjahr, Richtpreis und Nachfrage; Regeln aus Lastenheft §17.2):
+
+| Meilenstein | Epoche | Beispiele für neue Ketten und Produkte |
+| --- | --- | --- |
+| M32 | 1915–1939 | Aluminium (Bauxit), Kunstseide, Bakelit, Röhrenradio, Kühlschrank, Staubsauger, Lastwagen, Traktor, Verkehrsflugzeug, Stickstoffdünger |
+| M33 | 1940–1964 | Erdöl-Kunststoffe, Nylon, Fernseher, Waschmaschine, Transistorradio, Düsenflugzeug, Antibiotika |
+| M34 | 1965–1989 | Halbleiter und Mikrochip, Taschenrechner, Farbfernseher, Mikrowelle, Personal Computer, Videorekorder, CD-Spieler |
+| M35 | 1990–2009 | Mobiltelefon, Laptop, Digitalkamera, Lithium-Ionen-Akku, Flachbildfernseher |
+| M36 | 2010–2026 | Smartphone, Tablet, Elektroauto, Solarmodul, Windkraftanlage, Wärmepumpe, LED-Lampe |
+
+Je Epoche: neue Rohstoffe mit Lagerstätten, Technologien mit Erfindungsjahr, Verdrängung
+älterer Produkte (z. B. Transistorradio verdrängt Röhrenradio, LED die Glühlampe), Texte,
+Prüfung im Weltlauf. Rüstungsgüter bleiben bei Stufe 4.
+
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 
 Vier **Qualifikationen**, bei Fachkräften und Akademikern zusätzlich eine von neun

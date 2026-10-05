@@ -180,3 +180,23 @@ test("Anlage stilllegen und wieder anfahren", async ({ page }) => {
   await anlage.getByRole("button", { name: /Wieder anfahren/ }).click();
   await expect(anlage).toContainText("fährt wieder an bis 31.01.1900");
 });
+
+test("Wettbewerber und ihre Standorte mit dem echten Kern", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel("Name der Firma").fill("Bieter AG");
+  await page.getByLabel(/Einführung zeigen/).uncheck();
+  await page.getByText(/Weitere Einstellungen/).click();
+  await page.getByLabel("Anzahl KI-Firmen").fill("8");
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  await expect(page.locator(".kopfleiste")).toContainText("Bieter AG");
+
+  await page.getByRole("button", { name: "Wettbewerb" }).click();
+  await expect(page.getByText("Im Moment liegen keine offenen Angebote vor.")).toBeVisible();
+  await page.getByRole("button", { name: "Firmen", exact: true }).click();
+  const tabelle = page.getByRole("table", { name: "Firmen" });
+  await expect(tabelle.getByRole("row")).toHaveCount(10);
+  await tabelle.getByRole("row").nth(1).getByRole("button").click();
+  // At the start the sites are too young to buy; the date when they can be bought shows.
+  await expect(page.getByText(/Erst ab 01\.01\.1901 zu kaufen\./).first()).toBeVisible();
+});

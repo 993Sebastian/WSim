@@ -47,6 +47,8 @@ pub struct Catalog {
     pub transport_model: TransportModel,
     pub research_model: ResearchModel,
     pub ai_model: AiModel,
+    /// Offers between companies for sites and licences (M30).
+    pub deal_model: DealModel,
     /// Historical companies of the start population and later foundings.
     pub real_companies: Vec<RealCompany>,
     /// Historical events, sorted by date (Lastenheft §4.1; effects follow in stage 4).
@@ -236,6 +238,106 @@ pub struct Difficulty {
     pub key: String,
     pub competence: f64,
     pub aggressiveness: f64,
+}
+
+/// Offers between companies (`data/parameter/kaufmodell.yaml`, docs/FORMELN.md M30).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DealModel {
+    /// Months an offer waits for an answer.
+    pub valid_months: u32,
+    /// Months a buyer waits after a declined or expired offer for the same object.
+    pub block_months: u32,
+    /// Months a site must exist before it can be bought.
+    pub min_age_months: u32,
+    /// Earnings value = yearly result × this many years.
+    pub earnings_years: f64,
+    /// Sites with fewer closed months have no earnings value.
+    pub earnings_min_months: u32,
+    /// Years over which bought goodwill is written off.
+    pub goodwill_years: f64,
+    /// Workers from this qualification rank on count as qualified.
+    pub qualified_rank: u8,
+    pub ai: DealAi,
+}
+
+/// How AI companies buy and sell (spans over aggressiveness).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DealAi {
+    /// Chance per month to look for a deal.
+    pub chance: Span,
+    pub open_max: u32,
+    /// New offers to the player per month, from all AI companies together.
+    pub player_offers_per_month: u32,
+    /// Highest price at least this share above the base value.
+    pub min_advantage: f64,
+    pub bid_markup: Span,
+    pub min_price_usd: f64,
+    /// A price at most this share of the cash.
+    pub cash_share_max: f64,
+    pub competition_markup: Span,
+    pub staff_markup: f64,
+    pub build_time_markup: f64,
+    pub new_build_share: f64,
+    pub license_bid: Span,
+    pub license_max: f64,
+    pub sale_markup: Span,
+    /// A site with this share of the revenue (or the only one with facilities) is core.
+    pub core_share: f64,
+    pub core_markup: f64,
+    pub license_min: f64,
+    pub license_competition: f64,
+    /// Prices from this share of the minimum get a counter-offer.
+    pub counter_threshold: f64,
+}
+
+impl Default for DealModel {
+    fn default() -> Self {
+        Self {
+            valid_months: 2,
+            block_months: 12,
+            min_age_months: 12,
+            earnings_years: 5.0,
+            earnings_min_months: 3,
+            goodwill_years: 10.0,
+            qualified_rank: 3,
+            ai: DealAi {
+                chance: Span {
+                    at_0: 0.02,
+                    at_1: 0.06,
+                },
+                open_max: 2,
+                player_offers_per_month: 1,
+                min_advantage: 0.1,
+                bid_markup: Span {
+                    at_0: 0.05,
+                    at_1: 0.2,
+                },
+                min_price_usd: 10_000.0,
+                cash_share_max: 0.5,
+                competition_markup: Span {
+                    at_0: 0.1,
+                    at_1: 0.6,
+                },
+                staff_markup: 0.3,
+                build_time_markup: 0.15,
+                new_build_share: 0.5,
+                license_bid: Span {
+                    at_0: 0.3,
+                    at_1: 0.6,
+                },
+                license_max: 0.9,
+                sale_markup: Span {
+                    at_0: 0.1,
+                    at_1: 0.3,
+                },
+                core_share: 0.4,
+                core_markup: 0.5,
+                license_min: 0.3,
+                license_competition: 1.0,
+                counter_threshold: 0.7,
+            },
+        }
+    }
 }
 
 /// Parameters of the AI companies (`data/parameter/kimodell.yaml`, docs/FORMELN.md M10).

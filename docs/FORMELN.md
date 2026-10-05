@@ -568,7 +568,9 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
     Land (Grenze Strom), baut sie dort ein Kraftwerk mit dem günstigsten Rezept für den
     fehlenden Strom (Anzahl = fehlende MWh je Tag / Leistung bei `start.auslastung`,
     aufgerundet), im vorhandenen Kraftwerksstandort oder einem neuen – wie die
-    Startbesetzung. Sonst:
+    Startbesetzung. Eigene Kraftwerke im Bau oder im Wiederanlauf zählen mit ihrer
+    Leistung bei `start.auslastung` gegen den fehlenden Strom (M30: sonst käme während
+    der Bauzeit jedes Quartal ein weiteres hinzu). Sonst:
   - das Produkt mit der höchsten Marge (Angebotspreis, ohne Angebot Marktpreis /
     Stückkosten − 1), dessen Auslastung mindestens `ausbau_auslastung` (*a*) und Marge
     mindestens `ausbau_marge` (*a*) ist und von dessen Erzeugung im Monat mindestens 90 %
@@ -1256,3 +1258,125 @@ Vorschlag 8. Nichts davon wirkt auf die Simulation zurück.
   ein Jahr zuvor.
 - Zum Jahresende meldet der Rundenbericht den Platz nach Eigenkapital und, mit Umsatz,
   nach Umsatz, jeweils mit dem Platz ein Jahr zuvor (nur mit Wettbewerbern).
+
+## M30 – Kaufangebote I: Standorte, Labore und Lizenzen
+
+Lastenheft §18.4. Jede Firma kann jeder anderen ein Angebot machen; Spieler und KI
+nutzen dieselben Befehle und Prüfungen. Parameter: `data/parameter/kaufmodell.yaml`.
+
+### Ablauf
+
+- **Angebot** (Befehl `MakeOffer`): Käufer K bietet Verkäufer V einen Preis P für einen
+  Gegenstand: einen Standort von V (jede Art, auch Forschungszentren) oder eine
+  **Lizenz** auf eine Technologie, die V kennt und K nicht. Geprüft wird: V ≠ K, V nicht
+  insolvent, der Gegenstand gehört V, der Standort besteht seit `mindestalter_monate`,
+  P > 0, P ≤ Kasse von K, kein offenes Angebot von K für denselben Gegenstand, keine
+  Sperre.
+- **Antwort** (Befehl `AnswerOffer`): Wer am Zug ist – V auf ein Angebot, K auf ein
+  Gegenangebot –, nimmt an oder lehnt ab. V kann statt dessen einmal einen höheren Preis
+  nennen (**Gegenangebot**); dann ist K am Zug. Die Annahme vollzieht den Kauf sofort,
+  wenn der Gegenstand noch V gehört und K den Preis zahlen kann; sonst wird sie
+  abgewiesen.
+- **Rücknahme** (Befehl `WithdrawOffer`): Wer den geltenden Preis genannt hat, kann ihn
+  zurückziehen.
+- **Frist:** `gueltig_monate` ab dem letzten Preis, danach verfällt das Angebot. Nach
+  Ablehnung oder Verfall bietet derselbe Käufer frühestens nach `sperre_monate` wieder
+  für denselben Gegenstand. Abgeschlossene Angebote bleiben so lange sichtbar.
+- KI-Firmen antworten am Tag nach Eingang.
+
+### Grundwert eines Standorts (für alle gleich)
+
+- Buchwert B = Restbuchwert der fertigen Anlagen (M22) + Kosten der Anlagen im Bau +
+  Restbuchwert von Gebäude, Erschließung und Firmenwert.
+- Lager L = Wert der Vorräte am Standort und der Lieferungen, die dorthin unterwegs sind.
+- Ergebnis R = Ergebnis des Standorts (alle seine Kostenstellen) in den letzten zwölf
+  abgeschlossenen Monaten des Eigentümers; bei n < 12 Monaten R · 12/n, ab
+  `ertrag_mindestmonate`, sonst 0.
+- Ertragswert E = max(0, R) · `ertragsfaktor` (Jahre).
+- Restwert Q = Erlös beim Verkauf aller fertigen Anlagen (M22).
+- U = Kosten der Anlagen im Bau.
+- **Grundwert G = max(E, Q) + U + L.**
+
+### Höchstpreis eines Käufers
+
+Aufschläge auf G, als Anteile:
+
+- **Wettbewerb** a_w: m = Summe über die Produkte, die s im Vormonat in seinem Land
+  verkauft hat und die K dort ebenfalls anbietet, von (Absatz von s / Absatz im Markt).
+  a_w = `wettbewerb_aufschlag`(Aggressivität von K) · min(1, m).
+- **Belegschaft** a_f = `fachkraefte_aufschlag` · q · k. q = Anteil der Beschäftigten ab
+  Qualifikationsstufe `qualifiziert_ab_stufe` (Fachkräfte, Akademiker, Forscher); k =
+  Knappheit dieser Gruppen im Land, 1 − frei/Bestand, gewichtet mit den Beschäftigten.
+- **Eigenes Geschäft** a_b = `bauzeit_aufschlag`, wenn K eines der Produkte von s selbst
+  herstellt: Kauf spart Bauzeit und Anlauf. Ein Forschungszentrum zählt, wenn K keines
+  hat, aber forschen will (Kompetenz und Umsatz wie die Forschung der KI, M10) – ein
+  zweites nutzt die KI nicht. Strom lässt sich nicht handeln: Ein Kraftwerk zählt nur,
+  wenn K im Land des Kraftwerks Strom fehlt (Strombedarf S der eigenen Anlagen dort
+  über der Leistung W seiner Kraftwerke dort, siehe unten).
+- **Neubau erspart** a_n (nur mit a_b) = `neubau_anteil` · max(0, N − G) / G mit N =
+  heutige Investition der Anlagen (Katalog, je Einheit) + Kosten des Standorts.
+- **Höchstpreis H = G · (1 + a_w + a_f + a_b + a_n).**
+
+### Lizenz
+
+- Kosten je Forschungspunkt für K: (Tageslohn der Akademiker des Fachgebiets im Land des
+  Firmensitzes + Material je Forscher und Tag · Preisniveau) / Forschungseffizienz des
+  Landes im Fachgebiet (M9).
+- Fehlende Punkte = Aufwand der Technologie (M9) − von K gesammelte Punkte.
+- **Lizenzwert F = fehlende Punkte · Kosten je Punkt.** Höchstpreis von K:
+  `lizenz_hoechst` · F.
+- Abschluss: K erhält die Technologie (seine Punkte dafür entfallen), V behält sie.
+  Buchung bei K als Aufwand, bei V als Ertrag der Kostenart „Lizenzen“.
+
+### KI als Käufer
+
+Am Monatsersten prüft jede KI-Firma mit der Wahrscheinlichkeit
+`angebot_chance`(Aggressivität) ein Geschäft, höchstens eines je Monat und höchstens
+`offene_angebote_max` offene Angebote:
+
+- **Standorte:** Standorte anderer aktiver Firmen in Ländern, in denen K einen Standort
+  oder den Sitz hat, ohne offenes Angebot und ohne Sperre. Vorteil v = H/G − 1; nur ab
+  `mindestvorteil`. Gebot P = G · (1 + `gebotsaufschlag`(Aggressivität)), höchstens H.
+  Forschungszentren und Kraftwerke nur, wenn sie zum eigenen Geschäft von K zählen
+  (a_b). Braucht der Eigentümer den Standort selbst (siehe „KI als Verkäufer“), bietet
+  K mindestens N und nur, wenn H ≥ N.
+- **Lizenzen:** Technologien, an denen K forscht (gesammelte Punkte oder ein Labor
+  daran), von einer Firma, die sie kennt. Gebot P = F · `lizenz_gebot`(Aggressivität).
+- Gewählt wird das Geschäft mit dem größten Spielraum je Dollar, (H − P) / P: Kleine,
+  aber lohnende Gegenstände zählen so viel wie große. Nur wenn P ≥ `mindestpreis_usd`
+  und P ≤ `kasse_anteil_max` · Kasse.
+- An den Spieler gehen höchstens `spieler_angebote_je_monat` neue Angebote je Monat.
+
+### KI als Verkäufer und auf ein Gegenangebot
+
+- Mindestpreis Standort M = G · (1 + `verkaufsaufschlag`(Aggressivität)); für einen
+  Kernstandort (mindestens `kern_anteil` des Umsatzes der letzten zwölf Monate oder der
+  einzige Standort mit Anlagen) M · (1 + `kern_aufschlag`).
+- **Selbst gebraucht:** Ohne den Standort müsste V neu bauen, wenn er
+  - ein Kraftwerk ist und S > W ohne dieses Kraftwerk, oder
+  - das einzige Forschungszentrum von V ist und V dort forscht oder als KI-Firma
+    forschen will (Kompetenz und Umsatz wie M10; sonst verkaufte sie es in der Pause
+    zwischen zwei Forschungszielen und baute zum Quartalsende ein neues).
+
+  Dann gilt M = max(M, N) mit N wie oben (Neubau). S = Summe über die nicht
+  stillgelegten Anlagen von V im Land: Strom je Lauf · Läufe je Tag · Anzahl ·
+  Auslastung; W = Summe über die nicht stillgelegten Kraftwerke dort: Läufe je Tag ·
+  Anzahl · Menge je Lauf.
+- Mindestpreis Lizenz M = F · `lizenz_mindest` (F für den Käufer); bietet K Produkte, die
+  V herstellt, im selben Land an (Wettbewerber): M · (1 + `wettbewerb_lizenz`).
+- P ≥ M: annehmen. P ≥ M · `gegen_schwelle`: Gegenangebot zu M. Sonst ablehnen.
+- Auf ein Gegenangebot nimmt die KI an, wenn der Preis höchstens H ist und
+  `kasse_anteil_max` · Kasse nicht übersteigt; sonst lehnt sie ab.
+
+### Übergabe eines Standorts (Buchungen)
+
+- **Verkäufer:** Sachanlagen −= Restbuchwert der fertigen Anlagen, des Gebäudes und der
+  Erschließung; Anlagen im Bau −= U; Firmenwert −= sein Restbuchwert; Vorräte −= L;
+  Kasse += P. Unterschied P − (B + L): Ertrag oder Aufwand „Sonstiges“ (wie M22).
+- **Käufer:** Kasse −= P; Vorräte += L; Sachanlagen und Anlagen im Bau wie beim
+  Verkäufer abgegangen (die Anlagen behalten Alter und Abschreibung). Firmenwert =
+  P − (B ohne alten Firmenwert + L): positiv als Firmenwert des Standorts, linear über
+  `firmenwert_jahre` abgeschrieben; negativ sofort Ertrag „Sonstiges“.
+- Mit dem Standort wechseln Anlagen samt laufender Aufträge, Gebäude, Konzession, Lager,
+  Belegschaft, Lohnaufschlag, Verkaufsangebote, Einkäufe und das Forschungsprojekt.
+  Forschungspunkte, Marke und Kredite bleiben bei der Firma.

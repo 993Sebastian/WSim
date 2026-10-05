@@ -335,6 +335,10 @@ pub fn negative(value: f64) -> String {
 
 // --- Countries and country model ---
 
+pub fn rank_unknown(rank: u8, max: u8) -> String {
+    format!("Eine Qualifikationsstufe {rank} gibt es nicht (Stufen 1 bis {max}).")
+}
+
 pub fn section_missing(section: &str, file: &str) -> String {
     format!("Abschnitt „{section}“ fehlt (erwartet in {file}).")
 }

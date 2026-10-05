@@ -207,6 +207,8 @@ impl Game {
             milestones: PerId::default(),
             watched_markets: Vec::new(),
             standings: Vec::new(),
+            offers: Vec::new(),
+            next_offer: 0,
             player: CompanyId(0),
             game_over: false,
         };
@@ -373,6 +375,11 @@ impl Game {
             today,
         ));
         report.messages.extend(world_events(&self.catalog, today));
+        report.messages.extend(crate::deals::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         if today.day() == 1 {
             report
                 .messages
@@ -588,6 +595,8 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         orders,
         research: None,
         wage_premium: 0.0,
+        acquired: None,
+        goodwill: None,
     });
     Ok(())
 }

@@ -6,9 +6,14 @@
 use std::collections::BTreeMap;
 
 mod chains;
+mod deals;
 mod hints;
 mod play;
 pub use chains::*;
+pub use deals::{
+    CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView, LicenseView,
+    OfferView, OffersView, SiteValueView, companies, company_detail, offers,
+};
 pub use hints::*;
 pub use play::*;
 
@@ -513,6 +518,10 @@ pub fn message_view(message: &Message) -> MessageView {
     .contains(&message.key.as_str())
     {
         Some("uebersicht")
+    } else if message.key.starts_with("meldung.angebot.")
+        || message.key == crate::message::keys::AI_BUYS_SITE
+    {
+        Some("wettbewerb")
     } else if [
         crate::message::keys::AI_NEW_SELLER,
         crate::message::keys::AI_SELLER_GONE,
@@ -538,6 +547,7 @@ pub fn message_view(message: &Message) -> MessageView {
         "erfolg"
     } else if message.key.starts_with("meldung.ki.")
         || message.key.starts_with("meldung.rang")
+        || message.key.starts_with("meldung.angebot.")
         || message.key == crate::message::keys::COMPANY_INSOLVENT
     {
         "wettbewerb"

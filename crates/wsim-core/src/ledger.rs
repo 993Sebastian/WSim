@@ -27,10 +27,13 @@ pub enum Account {
     RetainedEarnings,
     /// Result of the current year; closed into retained earnings at year end.
     Result,
+    /// Goodwill of bought sites (M30); an asset, last so that older saves keep their
+    /// balances in place.
+    Goodwill,
 }
 
 impl Account {
-    pub const ALL: [Account; 8] = [
+    pub const ALL: [Account; 9] = [
         Account::Cash,
         Account::Inventory,
         Account::FixedAssets,
@@ -39,6 +42,7 @@ impl Account {
         Account::Equity,
         Account::RetainedEarnings,
         Account::Result,
+        Account::Goodwill,
     ];
 
     pub fn is_asset(self) -> bool {
@@ -48,6 +52,7 @@ impl Account {
                 | Account::Inventory
                 | Account::FixedAssets
                 | Account::AssetsUnderConstruction
+                | Account::Goodwill
         )
     }
 
@@ -76,6 +81,8 @@ pub enum CostType {
     Overhead,
     /// Land rent and royalties of extraction (M16).
     Rent,
+    /// Licence fees paid and received (M30).
+    Licenses,
     Other,
 }
 
@@ -134,7 +141,9 @@ impl CashFlow {
 
     fn add(&mut self, counter_account: Account, amount: Money) {
         match counter_account {
-            Account::FixedAssets | Account::AssetsUnderConstruction => self.investing += amount,
+            Account::FixedAssets | Account::AssetsUnderConstruction | Account::Goodwill => {
+                self.investing += amount
+            }
             Account::Loans | Account::Equity | Account::RetainedEarnings => {
                 self.financing += amount
             }

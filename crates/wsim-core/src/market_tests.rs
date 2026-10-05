@@ -63,6 +63,8 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
         orders: Default::default(),
         research: None,
         wage_premium: 0.0,
+        acquired: None,
+        goodwill: None,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     state.sites[site.index()]

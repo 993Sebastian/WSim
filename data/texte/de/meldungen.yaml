@@ -13,6 +13,7 @@ fehler.sitzung.unbekannte_startform: Diese Startform gibt es nicht.
 fehler.sitzung.unbekannte_schwierigkeit: Diese Schwierigkeit gibt es nicht.
 fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
 fehler.sitzung.unbekanntes_ziel: So weit kann das Spiel nicht weiterlaufen.
+fehler.sitzung.unbekannte_firma: Diese Firma gibt es nicht mehr.
 fehler.sitzung.name_ungueltig: "Der Name des Spielstands darf 1 bis 60 Zeichen haben: Buchstaben, Ziffern, Leerzeichen, Punkt, Binde- und Unterstrich."
 fehler.sitzung.speichern: "Der Spielstand konnte nicht gespeichert werden: {fehler}"
 fehler.sitzung.laden: "Der Spielstand konnte nicht geladen werden: {fehler}"
@@ -103,6 +104,7 @@ konto.kredite: Bankkredite
 konto.eigenkapital: Gezeichnetes Kapital
 konto.gewinnruecklagen: Gewinnrücklagen
 konto.jahresergebnis: Jahresergebnis
+konto.firmenwert: Firmenwert
 kostenart.umsatz: Umsatzerlöse
 kostenart.bestandsveraenderung: Bestandsveränderung
 kostenart.material: Materialaufwand
@@ -118,6 +120,7 @@ kostenart.abschreibungen: Abschreibungen
 kostenart.instandhaltung: Instandhaltung
 kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.pacht: Pacht und Förderabgaben
+kostenart.lizenzen: Lizenzen
 kostenart.sonstiges: Sonstiges
 fehler.befehl.lohnaufschlag_ungueltig: Der Lohnaufschlag muss zwischen 0 und {max} % liegen.
 fehler.befehl.kein_angebot: Dieser Standort bietet {produkt} nicht zum Verkauf an.
@@ -133,6 +136,31 @@ fehler.befehl.anlage_im_bau: Die Anlage ist noch im Bau.
 fehler.befehl.schon_stillgelegt: Die Anlage ist schon stillgelegt.
 fehler.befehl.nicht_stillgelegt: Die Anlage ist nicht stillgelegt.
 fehler.befehl.zu_viele_einheiten: "Die Anlage hat nur {anzahl} Einheiten."
+
+# Kaufangebote (M30)
+fehler.befehl.eigenes_angebot: Der eigenen Firma kann man nichts abkaufen.
+fehler.befehl.verkaeufer_insolvent: Diese Firma ist insolvent.
+fehler.befehl.nicht_im_besitz: Das gehört dieser Firma nicht (mehr).
+fehler.befehl.standort_zu_jung: "Ein Standort lässt sich erst {monate} Monate nach seiner Gründung kaufen."
+fehler.befehl.lizenz_unmoeglich: Eine Lizenz gibt es nur auf eine Technologie, die der Verkäufer kennt und der Käufer noch nicht.
+fehler.befehl.angebot_offen: Dafür liegt schon ein offenes Angebot von dir vor.
+fehler.befehl.angebot_gesperrt: "Nach der Ablehnung kannst du dafür erst ab {datum} wieder bieten."
+fehler.befehl.angebot_unbekannt: Dieses Angebot gibt es nicht mehr; es ist abgeschlossen oder abgelaufen.
+fehler.befehl.nicht_am_zug: Auf dieses Angebot antwortet die andere Firma.
+fehler.befehl.kein_gegenangebot: Ein Gegenangebot macht nur der Verkäufer, einmal und über dem gebotenen Preis.
+fehler.befehl.kaeufer_zahlt_nicht: Der Käufer kann den Preis nicht mehr bezahlen.
+meldung.angebot.erhalten.standort: "{firma} bietet {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
+meldung.angebot.erhalten.lizenz: "{firma} bietet {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
+meldung.angebot.gegenangebot.standort: "{firma} verlangt {preis} für den Standort ({art} in {land}). Antwort bis {frist}."
+meldung.angebot.gegenangebot.lizenz: "{firma} verlangt {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
+meldung.angebot.gekauft.standort: "Gekauft: {firma} verkauft dir den Standort ({art} in {land}) für {preis}."
+meldung.angebot.gekauft.lizenz: "Gekauft: {firma} gibt dir eine Lizenz auf „{technologie}“ für {preis}."
+meldung.angebot.verkauft.standort: "Verkauft: {firma} übernimmt deinen Standort ({art} in {land}) für {preis}."
+meldung.angebot.verkauft.lizenz: "Verkauft: {firma} zahlt {preis} für eine Lizenz auf „{technologie}“."
+meldung.angebot.abgelehnt.standort: "{firma} lehnt das Angebot für den Standort ({art} in {land}) ab."
+meldung.angebot.abgelehnt.lizenz: "{firma} lehnt das Angebot für eine Lizenz auf „{technologie}“ ab."
+meldung.angebot.abgelaufen.standort: "Das Angebot mit {firma} für den Standort ({art} in {land}) ist abgelaufen."
+meldung.angebot.abgelaufen.lizenz: "Das Angebot mit {firma} für eine Lizenz auf „{technologie}“ ist abgelaufen."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)
@@ -150,7 +178,12 @@ hinweis.personal: "{standort} {land} hat nicht alle Arbeitskräfte, die die Anla
 hinweis.forschung_ohne_projekt: "Das Forschungszentrum in {land} hat kein Projekt."
 hinweis.konto_ueberzogen: "Das Konto ist um {betrag} überzogen."
 hinweis.kasse: "Bei einem Verlust wie im Vormonat reicht die Kasse noch etwa {monate} Monate."
+hinweis.angebot.standort: "Kaufangebot: {firma} bietet {preis} für deinen Standort ({art} in {land}) – Antwort bis {frist}."
+hinweis.angebot.lizenz: "Lizenzanfrage: {firma} bietet {preis} für „{technologie}“ – Antwort bis {frist}."
+hinweis.gegenangebot.standort: "Gegenangebot: {firma} verlangt {preis} für den Standort ({art} in {land}) – Antwort bis {frist}."
+hinweis.gegenangebot.lizenz: "Gegenangebot: {firma} verlangt {preis} für eine Lizenz auf „{technologie}“ – Antwort bis {frist}."
 meldung.etappe: "Etappe erreicht: {etappe}"
 meldung.ki.anbieter_neu: "{firma} bietet jetzt {produkt} in {land} an, für {preis}."
 meldung.ki.anbieter_weg: "{firma} bietet {produkt} in {land} nicht mehr an."
 meldung.ki.preissenkung: "{firma} senkt den Preis für {produkt} in {land} um {prozent} % auf {preis}."
+meldung.ki.kauf_standort: "{kaeufer} kauft von {verkaeufer} einen Standort ({art} in {land}) für {preis}."

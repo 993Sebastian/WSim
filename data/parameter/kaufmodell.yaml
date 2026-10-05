@@ -1,0 +1,36 @@
+# Kaufangebote zwischen Firmen (Lastenheft §18.4, M30): Standorte, Labore und Lizenzen.
+# Formeln: docs/FORMELN.md, Abschnitt M30. Werte mit bei_0/bei_1 hängen linear von der
+# Aggressivität der Firma ab (0–1).
+
+kaufmodell:
+  gueltig_monate: 2              # so lange wartet ein Angebot auf die Antwort
+  sperre_monate: 12              # nach Ablehnung oder Verfall bietet derselbe Käufer erst danach wieder
+  mindestalter_monate: 12        # ein Standort lässt sich erst so lange nach der Gründung kaufen
+  # Grundwert eines Standorts: max(Ertragswert, Restwert) + Anlagen im Bau + Lager
+  ertragsfaktor: 5               # Ertragswert = Jahresergebnis × so viele Jahre (20 % Rendite)
+  ertrag_mindestmonate: 3        # kürzer bestehende Standorte haben noch keinen Ertragswert
+  firmenwert_jahre: 10           # Abschreibung eines gekauften Firmenwerts (wie HGB § 253 Abs. 3)
+  qualifiziert_ab_stufe: 3       # Fachkräfte und Akademiker zählen als qualifiziert
+
+  ki:
+    angebot_chance: {bei_0: 0.02, bei_1: 0.06}   # je Firma und Monat
+    offene_angebote_max: 2
+    spieler_angebote_je_monat: 1                 # von allen KI-Firmen zusammen
+    # Höchstpreis eines Käufers: Aufschläge auf den Grundwert
+    wettbewerb_aufschlag: {bei_0: 0.1, bei_1: 0.6}   # × Anteil des Standorts an gemeinsamen Märkten
+    fachkraefte_aufschlag: 0.3                   # × Anteil Qualifizierter × Knappheit im Land
+    bauzeit_aufschlag: 0.15                      # im eigenen Geschäft: Kauf spart Bauzeit und Anlauf
+    neubau_anteil: 0.5                           # Anteil der Ersparnis gegenüber einem Neubau
+    mindestvorteil: 0.1                          # nur bieten, wenn der Höchstpreis so weit über dem Grundwert liegt
+    gebotsaufschlag: {bei_0: 0.05, bei_1: 0.2}   # Gebot = Grundwert × (1 + Aufschlag)
+    mindestpreis_usd: 10_000
+    kasse_anteil_max: 0.5
+    lizenz_gebot: {bei_0: 0.3, bei_1: 0.6}       # × Lizenzwert (ersparte Forschungskosten)
+    lizenz_hoechst: 0.9
+    # Als Verkäufer
+    verkaufsaufschlag: {bei_0: 0.1, bei_1: 0.3}  # Mindestpreis = Grundwert × (1 + Aufschlag)
+    kern_anteil: 0.4                             # Kernstandort: so viel vom Umsatz
+    kern_aufschlag: 0.5
+    lizenz_mindest: 0.3                          # × Lizenzwert für den Käufer
+    wettbewerb_lizenz: 1.0                       # Aufschlag, wenn der Käufer ein Wettbewerber ist
+    gegen_schwelle: 0.7                          # ab diesem Anteil des Mindestpreises ein Gegenangebot

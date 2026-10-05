@@ -752,3 +752,102 @@ export interface Zentren {
   products: ProduktErgebnis[];
   company_usd: number;
 }
+
+/** What a site is worth (M30, docs/FORMELN.md). */
+export interface Standortwert {
+  book_usd: number;
+  inventory_usd: number;
+  /** Result of the last twelve months; null with too few months. */
+  result_year_usd: number | null;
+  earnings_value_usd: number;
+  liquidation_usd: number;
+  under_construction_usd: number;
+  /** Base value G = max(earnings value, liquidation) + under construction + stocks. */
+  base_usd: number;
+  earnings_years: number;
+}
+
+/** The object of an offer. */
+export interface Gegenstandssicht {
+  kind: "standort" | "lizenz";
+  site: number | null;
+  /** Text key of the site type. */
+  site_type: string | null;
+  country: string | null;
+  products: string[];
+  technology: string | null;
+}
+
+export interface Angebot {
+  id: number;
+  /** `kaeufer`: the player buys; `verkaeufer`: the player sells. */
+  role: "kaeufer" | "verkaeufer";
+  company: string;
+  company_index: number;
+  object: Gegenstandssicht;
+  price_usd: number;
+  /** The seller named the price (counter-offer). */
+  counter: boolean;
+  date: string;
+  deadline: string;
+  status: "offen" | "angenommen" | "abgelehnt" | "abgelaufen" | "zurueckgezogen";
+  closed: string | null;
+  /** The player answers now. */
+  answer: boolean;
+  can_counter: boolean;
+  can_withdraw: boolean;
+  value: Standortwert | null;
+  license_value_usd: number | null;
+}
+
+export interface Angebote {
+  offers: Angebot[];
+}
+
+export interface Firmenzeile {
+  index: number;
+  name: string;
+  headquarters: string;
+  equity_usd: number;
+  revenue_year_usd: number;
+  sites: number;
+  real: boolean;
+  player: boolean;
+}
+
+export interface Firmen {
+  companies: Firmenzeile[];
+}
+
+export interface FremderStandort {
+  site: number;
+  site_type: string;
+  country: string;
+  facilities: [string, number][];
+  products: string[];
+  workers: number;
+  value: Standortwert;
+  /** What the same site would cost to build today. */
+  new_build_usd: number;
+  /** The owner needs the site itself and sells it only for what a new one costs. */
+  needed: boolean;
+  /** Why no offer is possible now: `zu_jung`, `angebot_offen`, `gesperrt`. */
+  blocked: "zu_jung" | "angebot_offen" | "gesperrt" | null;
+  blocked_until: string | null;
+  open_offer: number | null;
+}
+
+export interface Lizenzmoeglichkeit {
+  technology: string;
+  value_usd: number;
+  open_offer: number | null;
+  blocked_until: string | null;
+}
+
+export interface Firmendetail {
+  company: Firmenzeile;
+  sites: FremderStandort[];
+  licenses: Lizenzmoeglichkeit[];
+  cash_usd: number;
+  min_age_months: number;
+}

@@ -31,4 +31,13 @@ export type Befehl =
   | { SetPrice: { site: number; product: string; price: number } }
   | { MothballFacility: { site: number; slot: number; count: number } }
   | { RestartFacility: { site: number; slot: number } }
-  | { SellFacility: { site: number; slot: number; count: number } };
+  | { SellFacility: { site: number; slot: number; count: number } }
+  | { MakeOffer: { seller: number; object: Gegenstand; price: number } }
+  | { AnswerOffer: { offer: number; answer: Antwort } }
+  | { WithdrawOffer: { offer: number } };
+
+/** What an offer is for (M30): a site by its number, or a licence on a technology. */
+export type Gegenstand = { Site: number } | { License: string };
+
+/** How the company whose turn it is answers an offer. */
+export type Antwort = "Accept" | "Decline" | { Counter: { price: number } };

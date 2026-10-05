@@ -431,6 +431,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     let report = session.end_round("monat", |_| {}).map_err(message)?;
     let after = session.overview().map_err(message)?;
     let map = session.world_map().map_err(message)?;
+    let deals = example_deals(&session)?;
     let countries: serde_json::Map<String, serde_json::Value> = ["DEU", "GBR", "USA"]
         .iter()
         .map(|&k| {
@@ -455,6 +456,9 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         },
         "weltmarkt": session.world_market("naegel").map_err(message)?,
         "ketten": session.chains().map_err(message)?,
+        "angebote": deals.0,
+        "firmen": deals.1,
+        "firma": deals.2,
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
     });
@@ -462,6 +466,58 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
     Ok(())
+}
+
+/// Offers for the preview (M30): sites can be bought only after a year, so a second
+/// game of the same start, where they can be bought at once, provides an AI company's
+/// bid for the player's workshop after one month.
+fn example_deals(
+    session: &wsim_session::Session,
+) -> Result<(serde_json::Value, serde_json::Value, serde_json::Value), String> {
+    use wsim_core::command::Command;
+    use wsim_core::deals::{DealObject, site_value};
+    use wsim_core::state::SiteId;
+    use wsim_core::views;
+    let game = session.game().ok_or("kein Spiel")?;
+    let mut catalog = game.catalog().as_ref().clone();
+    catalog.deal_model.min_age_months = 0;
+    let mut g = Game::new(Arc::new(catalog), game.state().settings.clone())
+        .map_err(|e| format!("{e:?}"))?;
+    g.advance(RoundLength::Month, |_| {});
+    let player = g.player();
+    let site = |i: usize| SiteId(u32::try_from(i).expect("few sites"));
+    let state = g.state();
+    let home = state.companies[player.index()].headquarters;
+    let workshop = state
+        .sites
+        .iter()
+        .position(|s| s.owner == player)
+        .ok_or("keine Werkstatt")?;
+    // The largest company with a site in the home country bids.
+    let buyer = state
+        .sites
+        .iter()
+        .filter(|s| s.owner != player && s.country == home)
+        .map(|s| s.owner)
+        .max_by_key(|&c| state.companies[c.index()].ledger.cash())
+        .ok_or("keine Wettbewerber im Land")?;
+    let price = site_value(state, g.catalog(), site(workshop))
+        .base
+        .scale(1.25);
+    let bid = Command::MakeOffer {
+        seller: player,
+        object: DealObject::Site(site(workshop)),
+        price,
+    };
+    g.apply_as(buyer, bid).map_err(|e| format!("{e:?}"))?;
+    let json = |v: Result<serde_json::Value, serde_json::Error>| v.map_err(|e| e.to_string());
+    Ok((
+        json(serde_json::to_value(views::offers(&g)))?,
+        json(serde_json::to_value(views::companies(&g)))?,
+        json(serde_json::to_value(
+            views::company_detail(&g, buyer.0).ok_or("keine Firma")?,
+        ))?,
+    ))
 }
 
 fn ai_settings(catalog: &Catalog, args: &RunArgs) -> Result<AiSettings, String> {

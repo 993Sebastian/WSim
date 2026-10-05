@@ -211,3 +211,14 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Auf gültige Stellen runden | `math::round_significant` |
 | Ereignisart Wirtschaftspolitik | `reform` (`build::ai::EVENT_KINDS`) |
 | Rang (Platz unter allen Firmen) nach Eigenkapital und Umsatz | `ranking::standing`, `ranking::Standing` (`GameState::standings`), `ranking::equity`, `revenue_of_year`, `year_before`, `month_end`; Sicht `RankView`, `StandingView` (`Overview::rank`); Schlüssel `meldung.rang`, `meldung.rang_vorjahr`; UI: `RangAnzeige`, `Rang`, `Platzierung` |
+| Kaufangebot, Gegenangebot, Annahme, Ablehnung, Rücknahme | `deals::Offer` (`GameState::offers`, `next_offer`), `OfferStatus`, `OfferAnswer`; Befehle `MakeOffer`, `AnswerOffer`, `WithdrawOffer` (M30) |
+| Gegenstand eines Angebots: Standort, Lizenz | `deals::DealObject` (`Site`, `License`) |
+| Grundwert, Buchwert, Ertragswert, Restwert eines Standorts | `deals::SiteValue` (`base`, `book`, `earnings_value`, `liquidation`), `deals::site_value`; Sicht `SiteValueView` |
+| Höchstpreis und Aufschläge eines Käufers (Wettbewerb, Belegschaft, eigenes Geschäft, Neubau) | `deals::Advantages`, `deals::advantages` |
+| Lizenzwert (ersparte Forschungskosten) | `deals::license_value` |
+| Firmenwert eines gekauften Standorts | `state::Goodwill` (`Site::goodwill`), `Account::Goodwill`, `Site::acquired` |
+| Kostenart Lizenzen | `CostType::Licenses` |
+| Kaufmodell (Parameter) | `catalog::DealModel`, `DealAi` (`parameter/kaufmodell.yaml`) |
+| KI kauft und verkauft | `deals::ai_offers`, `deals::simulate_day` (Antworten, Verfall), `best_deal` |
+| Ansicht Wettbewerb (Angebote, Firmen) | Sichten `OffersView`, `CompaniesView`, `CompanyDetailView` (`offers`, `companies`, `company_detail`); Befehle `angebote`, `firmen`, `firma`; UI: `WettbewerbAnsicht` |
+

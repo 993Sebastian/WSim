@@ -528,6 +528,23 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.4 Entscheidungen vom 05.10.2026 (Kaufangebote, Produkte bis 2026)
+
+- **Kaufangebote zwischen Firmen** (vorgezogen; ergänzt die Übernahmen über Anteile aus
+  Stufe 3 und die Lizenzen aus Stufe 5): Firmen können einander **Standorte** (Werke,
+  Minen, Kraftwerke, Forschungslabore), **ganze Bereiche** (alle Standorte einer
+  Warengruppe mit der Markenbekanntheit) und **Technologien als Lizenz** abkaufen.
+  - Jede Firma kann jeder anderen ein Angebot machen: KI an Spieler, Spieler an KI und
+    KI-Firmen untereinander, nach denselben Regeln (§10).
+  - Die Gegenseite nimmt an, lehnt ab oder macht ein Gegenangebot.
+  - KI-Firmen bieten, wenn ein Objekt wirtschaftlich ist, eine qualifizierte Belegschaft
+    oder Forscher mitbringt, eigene Forschung oder einen Neubau erspart oder Wettbewerb
+    vermeidet.
+- **Produkte bis 2026:** Die Breite aus Stufe 5 wird Epoche für Epoche vorgezogen
+  (1915–1939, 1940–1964, 1965–1989, 1990–2009, 2010–2026), jeweils mit Rohstoffen,
+  Technologien, Ketten und Verdrängung nach den Regeln aus 17.2. Rüstungsgüter bleiben
+  bei Stufe 4 (17.1).
+
 ### 18.3 Entscheidungen vom 05.10.2026 (Verbesserungen)
 
 Die acht Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, werden umgesetzt

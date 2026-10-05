@@ -212,7 +212,7 @@ Dieselbe Oberfläche läuft auch im Browser, etwa zum Prüfen neuer Stände vom 
 | Manager, Strategie-Ansicht (2) | Befehle als einziger Handlungsweg; Vorgaben mit Stellen-Hierarchie |
 | Tochterfirmen, Controlling (2) | Doppelte Buchführung mit Kostenstellen, Firma als Konzernknoten |
 | Logistik, Zölle (2) | Transport als eigenes System; Warengruppen und Länderpaare im Datenmodell |
-| Börse, Übernahmen (3) | Eigentümer-Struktur je Firma (Anteile: Spieler, andere Firma, Privatbesitz), Bilanzdaten |
+| Börse, Übernahmen (3) | Eigentümer-Struktur je Firma (Anteile: Spieler, andere Firma, Privatbesitz), Bilanzdaten; seit M30 Kaufangebote zwischen Firmen (Standorte, Lizenzen) mit Bewertung und Firmenwert |
 | Investor, Bank, Beteiligungsfirmen als Spielweise (3, Lastenheft §17.3) | Der Spieler ist Eigentümer, nicht selbst eine Firma: Er hält Anteile und steuert die Firmen, deren Mehrheit er hält. Eine reine Investor- oder Bankrolle ist eine Firma ohne Standorte mit Finanzanlagen bzw. Kreditbuch; Befehle bleiben je Firma. Konten für Beteiligungen und vergebene Kredite kommen mit Stufe 3 hinzu, das Hauptbuch nimmt neue Konten ohne neues Spielstandformat auf |
 | Ereignisse, Regulierung (4) | Modifikatoren, Ereignis-/Regulierungsdateien als eigener Datentyp |
 | Währungen (4) | Alle Beträge intern in Leitwährung; Anzeige läuft über eine Umrechnungsschicht (seit M21: Landeswährungen nur in der Anzeige, `wsim_core::currency`) |
@@ -308,6 +308,9 @@ mit dem Meilenstein freigegeben.
 | M27 | Ursachen erklären | Bestandteile von Preis, Kosten und Nachfrage als Erklärung | Kern-Tests (Teile ergeben das Ganze), Playwright |
 | M28 | Geschichte erzählen | Meldungen zu Währungsreformen, Weltereignisse 1940–2026 | Prüfregeln, Kern-Tests |
 | M29 | Rang | Platz nach Eigenkapital und Umsatz mit Vorjahresvergleich | Kern-Tests, Playwright |
+| M30 | Kaufangebote I (05.10.2026, §18.4) | Angebote für Standorte, Labore und Lizenzen zwischen allen Firmen; Bewertung, Gegenangebot, Firmenwert, KI-Motive; Ansicht Wettbewerb | Szenariotests, Weltlauf-Protokoll, Playwright |
+| M31 | Kaufangebote II | Ganze Bereiche (Warengruppe mit Marke) | Szenariotests, Playwright |
+| M32–M36 | Produktepochen bis 2026 | 1915–1939, 1940–1964, 1965–1989, 1990–2009, 2010–2026: Rohstoffe, Technologien, Ketten, Verdrängung | Prüfregeln, Weltlauf je Epoche |
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.

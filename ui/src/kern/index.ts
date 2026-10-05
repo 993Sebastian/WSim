@@ -7,7 +7,10 @@ import { listen } from "@tauri-apps/api/event";
 import type { Befehl } from "./befehle";
 import { KernFehler } from "./fehler";
 import type {
+  Angebote,
   Finanzen,
+  Firmen,
+  Firmendetail,
   Forschung,
   Markt,
   Ketten,
@@ -29,7 +32,7 @@ import { vorschauKern } from "./vorschau";
 import { webKern } from "./web";
 
 export type * from "./typen";
-export type { Befehl, Preisart } from "./befehle";
+export type { Antwort, Befehl, Gegenstand, Preisart } from "./befehle";
 export { geld } from "./befehle";
 export { KernFehler } from "./fehler";
 
@@ -56,6 +59,12 @@ export interface Kern {
   produktmarkt(land: string, produkt: string): Promise<ProduktMarkt>;
   /** Production chains of the end products (M25). */
   ketten(): Promise<Ketten>;
+  /** The player's offers to buy and sell (M30). */
+  angebote(): Promise<Angebote>;
+  /** The active companies, largest equity first (M30). */
+  firmen(): Promise<Firmen>;
+  /** A company with its sites and the licences the player could buy (M30). */
+  firma(index: number): Promise<Firmendetail>;
   weltmarkt(produkt: string): Promise<WeltMarkt>;
   forschung(): Promise<Forschung>;
   finanzen(): Promise<Finanzen>;
@@ -98,6 +107,9 @@ const tauriKern: Kern = {
   markt: (land) => aufruf("markt", { land }),
   produktmarkt: (land, produkt) => aufruf("produktmarkt", { land, produkt }),
   ketten: () => aufruf("ketten"),
+  angebote: () => aufruf("angebote"),
+  firmen: () => aufruf("firmen"),
+  firma: (index) => aufruf("firma", { index }),
   weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
   forschung: () => aufruf("forschung"),
   finanzen: () => aufruf("finanzen"),

@@ -36,11 +36,15 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M25 | Produktionsketten | ✅ |
 | M26 | Weiterlaufen bis … | ✅ |
 | M27 | Ursachen erklären | ✅ |
-| M28 | Geschichte erzählen | offen |
-| M29 | Rang in der Übersicht | offen |
+| M28 | Geschichte erzählen | ✅ |
+| M29 | Rang in der Übersicht | ✅ |
+| M30 | Kaufangebote I: Standorte, Labore, Lizenzen | ✅ |
+| M31 | Kaufangebote II: ganze Bereiche | offen |
+| M32–M36 | Produktepochen bis 2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
-§18.3) und werden als M22–M29 in dieser Reihenfolge umgesetzt.
+§18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
+(Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M36.
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -842,3 +846,65 @@ Eigenständige Entscheidungen:
   - Der Vergleich gilt dem Stand ein Jahr zuvor im selben Monat, nicht dem Jahresende:
     So zeigt er auch im Januar eine Veränderung über ein ganzes Jahr.
 
+
+### M30: Kaufangebote I – Standorte, Labore und Lizenzen (05.10.2026)
+
+Auftrag vom 05.10.2026 (Lastenheft §18.4, `docs/OFFENE_PUNKTE.md`, Abschnitt F).
+Formeln: `docs/FORMELN.md`, M30; Parameter: `data/parameter/kaufmodell.yaml`.
+
+  - **Befehle für alle Firmen:** Angebot für einen Standort (jede Art, auch Labore) oder
+    eine Lizenz auf eine Technologie; Antwort mit Annehmen, Ablehnen oder einmal einem
+    Gegenangebot; Rücknahme. Frist zwei Monate, danach zwölf Monate Sperre für denselben
+    Käufer und Gegenstand; Standorte erst ab zwölf Monaten Alter.
+  - **Bewertung:** Grundwert = höherer Wert aus Ertragswert (Ergebnis der letzten zwölf
+    Monate × 5) und Restwert der Anlagen, dazu Anlagen im Bau und Lager. Lizenzwert =
+    ersparte Forschung des Käufers. Die KI zahlt mehr für Wettbewerb im selben Markt,
+    knappe Fachkräfte, eigenes Geschäft (Bauzeit) und einen teureren Neubau.
+  - **Übergabe:** Der Standort wechselt mit Anlagen, Gebäude, Konzession, Lager,
+    Belegschaft, Angeboten und Forschungsprojekt; beide Seiten buchen doppelt. Was über
+    den Buchwerten gezahlt wird, ist Firmenwert (neues Konto, zehn Jahre abgeschrieben);
+    Lizenzen buchen als eigene Kostenart. Forschungspunkte, Marke und Kredite bleiben
+    bei der Firma.
+  - **KI:** prüft monatlich mit 2–6 % Wahrscheinlichkeit ein Geschäft und wählt das mit
+    dem größten Spielraum je Dollar; antwortet am Tag nach Eingang. Dem Spieler bieten
+    alle KI-Firmen zusammen höchstens einmal im Monat etwas Neues an.
+  - **Oberfläche:** Reiter „Wettbewerb“ (Taste 4) mit „Angebote“ (beantworten,
+    Gegenangebot, zurückziehen, abgeschlossene des letzten Jahres) und „Firmen“ (alle
+    Firmen, Standorte mit Grundwert und Neubaupreis, fehlende Technologien mit
+    Lizenzwert). Offene Angebote zählen am Reiter und unter „Zu erledigen“; „bis zur
+    nächsten Warnung“ hält bei einem neuen Angebot.
+  - **Weltlauf 1900–1930** (Seed 1, 100 KI-Firmen): 324 Standortkäufe (222 Werke,
+    98 Förderstandorte, 4 Labore), 16 Lizenzen, 8 Angebote an den passiven Spieler,
+    4 Pleiten wie ohne Angebote. Gegen denselben Lauf ohne Angebote: Versorgung weltweit
+    19 → 15 Verstöße, je Land 313 → 294, Preis gegen Richtpreis 140 → 148, Marge
+    43 → 47; Kohle 1929 bei 1,04 × Richtpreis.
+  - Tests: neun Szenariotests (Übergabe mit Buchungen und Firmenwert, Prüfregeln,
+    Lizenz nach Gegenangebot, Antworten und Verfall, KI-Angebot an den Spieler, Hinweise
+    und Sichten, Kraftwerke und Labore, die der Eigentümer braucht), KI-Test zu
+    Kraftwerken im Bau, Sitzung, Prüfregeln des Kaufmodells, Vorschau (beantworten und
+    bieten) und Browser-Version mit echtem Kern (Firmen und Standorte).
+
+Eigenständige Entscheidungen:
+
+  - Die KI wählt nach Spielraum je Dollar (H − P) / P statt nach dem größten Spielraum:
+    Sonst gewannen stets große Werke, und an den Spieler mit seiner Werkstatt ging nie
+    ein Angebot.
+  - Der erste Weltlauf zeigte doppelten Kohlebedarf (Kohle 1929 bei 1,84 × Richtpreis):
+    KI-Firmen verkauften Kraftwerke, deren Strom ihre Werke brauchten, und bauten neu –
+    dabei kam während der Bauzeit von 360 Tagen jedes Quartal eine Einheit dazu (1 → 6),
+    weil Kraftwerke im Bau nicht mitzählten. Behoben in der KI (Kraftwerke im Bau zählen
+    gegen den Fehlbedarf, Formeln M10) und in den Kaufangeboten: Was der Eigentümer
+    selbst braucht (Kraftwerk für die eigenen Werke im Land, einziges Labor, solange er
+    forscht oder als KI forschen will), gibt er nur zum Neubaupreis ab. Kraftwerke kauft
+    die KI nur, wo ihr Strom fehlt (Strom lässt sich nicht handeln), Labore nur, wenn
+    sie keines hat. Vorher wechselten bis 1930 358 Labore den Besitzer, meist in der
+    Pause zwischen zwei Forschungszielen.
+  - Die Oberfläche zeigt bei fremden Standorten „Neubau heute“ und, wenn die Firma den
+    Standort selbst braucht, einen Hinweis; der Preisvorschlag beginnt dann beim
+    Neubaupreis. Den Mindestpreis der KI (Verkaufsaufschlag) zeigt sie nicht.
+  - Mindestalter zwölf Monate, Firmenwert über zehn Jahre und die Antwort am Folgetag
+    sind Annahmen (Parameter). Die KI-Antwort hängt nur vom Angebot und den eigenen
+    Werten ab, nicht vom Zufall.
+  - Knapp drei Viertel der KI-Angebote werden abgelehnt (Gebot 5–20 % über dem Grundwert,
+    Mindestpreis 10–30 %, Kernstandorte 50 % mehr): ein normales Ergebnis von
+    Verhandlungen, das nur eine Sperre für denselben Gegenstand hinterlässt.

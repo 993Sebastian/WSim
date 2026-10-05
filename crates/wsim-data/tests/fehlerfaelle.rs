@@ -234,6 +234,7 @@ lagerstaetten:
 ";
 
 const KI: &str = include_str!("../../../data/parameter/kimodell.yaml");
+const KAUF: &str = include_str!("../../../data/parameter/kaufmodell.yaml");
 
 const KI_NAMEN: &str = "\
 namensgruppen:
@@ -335,6 +336,7 @@ impl Daten {
             ("waehrungen/a.yaml", WAEHRUNG),
             ("ketten/a.yaml", KETTE),
             ("parameter/kimodell.yaml", KI),
+            ("parameter/kaufmodell.yaml", KAUF),
             ("ki/a.yaml", KI_NAMEN),
             ("texte/de/a.yaml", TEXTE),
         ];
@@ -556,6 +558,35 @@ fn umrechnung_nur_beim_wechsel_und_positiv() {
     );
     befund(&outcome, "Wert -1 muss größer als 0 sein");
     nur_fehler(&outcome, 2);
+}
+
+#[test]
+fn kaufmodell_wird_geprueft() {
+    let d = Daten::neu()
+        .ersetze(
+            "parameter/kaufmodell.yaml",
+            "qualifiziert_ab_stufe: 3",
+            "qualifiziert_ab_stufe: 9",
+        )
+        .ersetze(
+            "parameter/kaufmodell.yaml",
+            "angebot_chance: {bei_0: 0.02,",
+            "angebot_chance: {bei_0: 1.5,",
+        );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Qualifikationsstufe 9 gibt es nicht");
+    assert_ort(
+        f,
+        "parameter/kaufmodell.yaml",
+        d.zeile("parameter/kaufmodell.yaml", "qualifiziert_ab_stufe"),
+        "kaufmodell.qualifiziert_ab_stufe",
+    );
+    befund(&outcome, "1.5");
+    nur_fehler(&outcome, 2);
+
+    let ohne = Daten::neu().ohne("parameter/kaufmodell.yaml");
+    let outcome = ohne.laden();
+    befund(&outcome, "Abschnitt „kaufmodell“ fehlt");
 }
 
 #[test]

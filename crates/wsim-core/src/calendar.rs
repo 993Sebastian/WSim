@@ -62,6 +62,16 @@ impl Date {
         Date(days_from_civil(year, month, 1))
     }
 
+    /// The same day `months` later; the month's last day where that day does not exist.
+    #[must_use]
+    pub fn add_months(self, months: u32) -> Date {
+        let (year, month, day) = civil_from_days(self.0);
+        let total = i64::from(year) * 12 + i64::from(month - 1) + i64::from(months);
+        let y = i32::try_from(total.div_euclid(12)).expect("year fits");
+        let m = u32::try_from(total.rem_euclid(12)).expect("month fits") + 1;
+        Date(days_from_civil(y, m, day.min(days_in_month(y, m))))
+    }
+
     #[must_use]
     pub fn first_of_next_month(self) -> Date {
         let (year, month, _) = civil_from_days(self.0);

@@ -11,6 +11,7 @@ pub mod command;
 pub mod competition;
 pub mod country_model;
 pub mod currency;
+pub mod deals;
 pub mod finance;
 pub mod game;
 pub mod health;
@@ -35,6 +36,8 @@ pub mod trade;
 pub mod transport;
 pub mod views;
 
+#[cfg(test)]
+mod deals_tests;
 #[cfg(test)]
 mod determinism_tests;
 #[cfg(test)]

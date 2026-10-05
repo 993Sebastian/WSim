@@ -815,6 +815,19 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         Account::FixedAssets,
         depreciation,
     );
+    // Goodwill of a bought site, written off from the day of purchase (M30).
+    if let Some(g) = state.sites[index].goodwill {
+        let life_days = catalog.deal_model.goodwill_years * 365.0;
+        if f64::from(g.from.days_until(date)) < life_days {
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.expense(
+                CostType::Depreciation,
+                center,
+                Account::Goodwill,
+                g.amount.scale(1.0 / life_days),
+            );
+        }
+    }
 
     // Wear: the condition falls linearly over the lifetime, not while shut down.
     for sl in &mut state.sites[index].slots {

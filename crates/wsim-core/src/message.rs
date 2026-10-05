@@ -135,6 +135,30 @@ pub mod keys {
     pub const RANK_YEAR_END_COMPARED: &str = "meldung.rang_vorjahr";
     pub const RANK_BY_EQUITY: &str = "rang.eigenkapital";
     pub const RANK_BY_REVENUE: &str = "rang.umsatz";
+    pub const COMMAND_OWN_OBJECT: &str = "fehler.befehl.eigenes_angebot";
+    pub const COMMAND_SELLER_BANKRUPT: &str = "fehler.befehl.verkaeufer_insolvent";
+    pub const COMMAND_NOT_SELLERS_OBJECT: &str = "fehler.befehl.nicht_im_besitz";
+    pub const COMMAND_SITE_TOO_YOUNG: &str = "fehler.befehl.standort_zu_jung";
+    pub const COMMAND_LICENSE_NOT_POSSIBLE: &str = "fehler.befehl.lizenz_unmoeglich";
+    pub const COMMAND_OFFER_EXISTS: &str = "fehler.befehl.angebot_offen";
+    pub const COMMAND_OFFER_BLOCKED: &str = "fehler.befehl.angebot_gesperrt";
+    pub const COMMAND_UNKNOWN_OFFER: &str = "fehler.befehl.angebot_unbekannt";
+    pub const COMMAND_NOT_YOUR_TURN: &str = "fehler.befehl.nicht_am_zug";
+    pub const COMMAND_NO_COUNTER: &str = "fehler.befehl.kein_gegenangebot";
+    pub const COMMAND_BUYER_CANNOT_PAY: &str = "fehler.befehl.kaeufer_zahlt_nicht";
+    pub const OFFER_RECEIVED_SITE: &str = "meldung.angebot.erhalten.standort";
+    pub const OFFER_RECEIVED_LICENSE: &str = "meldung.angebot.erhalten.lizenz";
+    pub const OFFER_COUNTER_SITE: &str = "meldung.angebot.gegenangebot.standort";
+    pub const OFFER_COUNTER_LICENSE: &str = "meldung.angebot.gegenangebot.lizenz";
+    pub const OFFER_BOUGHT_SITE: &str = "meldung.angebot.gekauft.standort";
+    pub const OFFER_BOUGHT_LICENSE: &str = "meldung.angebot.gekauft.lizenz";
+    pub const OFFER_SOLD_SITE: &str = "meldung.angebot.verkauft.standort";
+    pub const OFFER_SOLD_LICENSE: &str = "meldung.angebot.verkauft.lizenz";
+    pub const OFFER_DECLINED_SITE: &str = "meldung.angebot.abgelehnt.standort";
+    pub const OFFER_DECLINED_LICENSE: &str = "meldung.angebot.abgelehnt.lizenz";
+    pub const OFFER_EXPIRED_SITE: &str = "meldung.angebot.abgelaufen.standort";
+    pub const OFFER_EXPIRED_LICENSE: &str = "meldung.angebot.abgelaufen.lizenz";
+    pub const AI_BUYS_SITE: &str = "meldung.ki.kauf_standort";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
     pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
@@ -150,6 +174,10 @@ pub mod keys {
     pub const HINT_NO_RESEARCH: &str = "hinweis.forschung_ohne_projekt";
     pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
     pub const HINT_CASH: &str = "hinweis.kasse";
+    pub const HINT_OFFER_SITE: &str = "hinweis.angebot.standort";
+    pub const HINT_OFFER_LICENSE: &str = "hinweis.angebot.lizenz";
+    pub const HINT_COUNTER_SITE: &str = "hinweis.gegenangebot.standort";
+    pub const HINT_COUNTER_LICENSE: &str = "hinweis.gegenangebot.lizenz";
 
     pub const ALL: &[&str] = &[
         NEW_GAME_START_YEAR,
@@ -220,6 +248,30 @@ pub mod keys {
         RANK_YEAR_END_COMPARED,
         RANK_BY_EQUITY,
         RANK_BY_REVENUE,
+        COMMAND_OWN_OBJECT,
+        COMMAND_SELLER_BANKRUPT,
+        COMMAND_NOT_SELLERS_OBJECT,
+        COMMAND_SITE_TOO_YOUNG,
+        COMMAND_LICENSE_NOT_POSSIBLE,
+        COMMAND_OFFER_EXISTS,
+        COMMAND_OFFER_BLOCKED,
+        COMMAND_UNKNOWN_OFFER,
+        COMMAND_NOT_YOUR_TURN,
+        COMMAND_NO_COUNTER,
+        COMMAND_BUYER_CANNOT_PAY,
+        OFFER_RECEIVED_SITE,
+        OFFER_RECEIVED_LICENSE,
+        OFFER_COUNTER_SITE,
+        OFFER_COUNTER_LICENSE,
+        OFFER_BOUGHT_SITE,
+        OFFER_BOUGHT_LICENSE,
+        OFFER_SOLD_SITE,
+        OFFER_SOLD_LICENSE,
+        OFFER_DECLINED_SITE,
+        OFFER_DECLINED_LICENSE,
+        OFFER_EXPIRED_SITE,
+        OFFER_EXPIRED_LICENSE,
+        AI_BUYS_SITE,
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,
@@ -237,5 +289,9 @@ pub mod keys {
         HINT_NO_RESEARCH,
         HINT_OVERDRAWN,
         HINT_CASH,
+        HINT_OFFER_SITE,
+        HINT_OFFER_LICENSE,
+        HINT_COUNTER_SITE,
+        HINT_COUNTER_LICENSE,
     ];
 }

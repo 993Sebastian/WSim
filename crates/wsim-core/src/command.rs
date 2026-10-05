@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
+use crate::deals::{DealObject, OfferAnswer};
 use crate::ids::{
     CountryId, DepositId, FacilityId, GoodsGroupId, Id, ProductId, RecipeId, TechnologyId,
 };
@@ -121,6 +122,16 @@ pub enum Command {
         slot: usize,
         count: u32,
     },
+    /// Offers another company a price for one of its sites or for a licence (M30).
+    MakeOffer {
+        seller: CompanyId,
+        object: DealObject,
+        price: Money,
+    },
+    /// Answers an offer: accept, decline, or (the seller, once) name a higher price.
+    AnswerOffer { offer: u32, answer: OfferAnswer },
+    /// Withdraws the price the acting company named last.
+    WithdrawOffer { offer: u32 },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -219,6 +230,24 @@ pub enum CommandError {
     TooManyUnits {
         count: u32,
     },
+    /// An offer to the acting company itself (M30).
+    OwnObject,
+    SellerBankrupt,
+    /// The site or technology does not (or no longer) belong to the seller.
+    NotSellersObject,
+    SiteTooYoung {
+        months: u32,
+    },
+    /// The seller does not know the technology, or the buyer already does.
+    LicenseNotPossible,
+    OfferExists,
+    OfferBlocked {
+        until: Date,
+    },
+    UnknownOffer,
+    NotYourTurn,
+    NoCounter,
+    BuyerCannotPay,
 }
 
 impl CommandError {
@@ -283,6 +312,21 @@ impl CommandError {
             CommandError::TooManyUnits { count } => {
                 e(keys::COMMAND_TOO_MANY_UNITS).with("anzahl", Param::Integer(i64::from(*count)))
             }
+            CommandError::OwnObject => e(keys::COMMAND_OWN_OBJECT),
+            CommandError::SellerBankrupt => e(keys::COMMAND_SELLER_BANKRUPT),
+            CommandError::NotSellersObject => e(keys::COMMAND_NOT_SELLERS_OBJECT),
+            CommandError::SiteTooYoung { months } => {
+                e(keys::COMMAND_SITE_TOO_YOUNG).with("monate", Param::Integer(i64::from(*months)))
+            }
+            CommandError::LicenseNotPossible => e(keys::COMMAND_LICENSE_NOT_POSSIBLE),
+            CommandError::OfferExists => e(keys::COMMAND_OFFER_EXISTS),
+            CommandError::OfferBlocked { until } => {
+                e(keys::COMMAND_OFFER_BLOCKED).with("datum", Param::Date(*until))
+            }
+            CommandError::UnknownOffer => e(keys::COMMAND_UNKNOWN_OFFER),
+            CommandError::NotYourTurn => e(keys::COMMAND_NOT_YOUR_TURN),
+            CommandError::NoCounter => e(keys::COMMAND_NO_COUNTER),
+            CommandError::BuyerCannotPay => e(keys::COMMAND_BUYER_CANNOT_PAY),
         }
     }
 }
@@ -414,6 +458,8 @@ pub(crate) fn execute(
                 orders: Default::default(),
                 research: None,
                 wage_premium: 0.0,
+                acquired: None,
+                goodwill: None,
             });
         }
         Command::BuildFacility {
@@ -955,6 +1001,15 @@ pub(crate) fn execute(
             }
             ledger.transfer(Account::Cash, Account::FixedAssets, proceeds);
         }
+        Command::MakeOffer {
+            seller,
+            object,
+            price,
+        } => crate::deals::make_offer(state, catalog, actor, *seller, *object, *price)?,
+        Command::AnswerOffer { offer, answer } => {
+            crate::deals::answer_offer(state, catalog, actor, *offer, *answer)?;
+        }
+        Command::WithdrawOffer { offer } => crate::deals::withdraw_offer(state, actor, *offer)?,
     }
     Ok(())
 }

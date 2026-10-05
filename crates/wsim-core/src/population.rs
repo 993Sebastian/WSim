@@ -954,6 +954,8 @@ fn found_company(
             orders,
             research: None,
             wage_premium: 0.0,
+            acquired: None,
+            goodwill: None,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

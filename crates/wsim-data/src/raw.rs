@@ -874,6 +874,70 @@ pub struct RawDifficulty {
     pub aggressiveness: f64,
 }
 
+/// Offers between companies (`parameter/kaufmodell.yaml`, M30).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDealModel {
+    #[serde(rename = "gueltig_monate")]
+    pub valid_months: u32,
+    #[serde(rename = "sperre_monate")]
+    pub block_months: u32,
+    #[serde(rename = "mindestalter_monate")]
+    pub min_age_months: u32,
+    #[serde(rename = "ertragsfaktor")]
+    pub earnings_years: f64,
+    #[serde(rename = "ertrag_mindestmonate")]
+    pub earnings_min_months: u32,
+    #[serde(rename = "firmenwert_jahre")]
+    pub goodwill_years: f64,
+    #[serde(rename = "qualifiziert_ab_stufe")]
+    pub qualified_rank: u8,
+    pub ki: RawDealAi,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDealAi {
+    #[serde(rename = "angebot_chance")]
+    pub chance: RawSpan,
+    #[serde(rename = "offene_angebote_max")]
+    pub open_max: u32,
+    #[serde(rename = "spieler_angebote_je_monat")]
+    pub player_offers_per_month: u32,
+    #[serde(rename = "wettbewerb_aufschlag")]
+    pub competition_markup: RawSpan,
+    #[serde(rename = "fachkraefte_aufschlag")]
+    pub staff_markup: f64,
+    #[serde(rename = "bauzeit_aufschlag")]
+    pub build_time_markup: f64,
+    #[serde(rename = "neubau_anteil")]
+    pub new_build_share: f64,
+    #[serde(rename = "mindestvorteil")]
+    pub min_advantage: f64,
+    #[serde(rename = "gebotsaufschlag")]
+    pub bid_markup: RawSpan,
+    #[serde(rename = "mindestpreis_usd")]
+    pub min_price_usd: f64,
+    #[serde(rename = "kasse_anteil_max")]
+    pub cash_share_max: f64,
+    #[serde(rename = "lizenz_gebot")]
+    pub license_bid: RawSpan,
+    #[serde(rename = "lizenz_hoechst")]
+    pub license_max: f64,
+    #[serde(rename = "verkaufsaufschlag")]
+    pub sale_markup: RawSpan,
+    #[serde(rename = "kern_anteil")]
+    pub core_share: f64,
+    #[serde(rename = "kern_aufschlag")]
+    pub core_markup: f64,
+    #[serde(rename = "lizenz_mindest")]
+    pub license_min: f64,
+    #[serde(rename = "wettbewerb_lizenz")]
+    pub license_competition: f64,
+    #[serde(rename = "gegen_schwelle")]
+    pub counter_threshold: f64,
+}
+
 /// A value depending on a company trait: at 0 and at 1.
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -155,6 +155,12 @@ pub fn hints(game: &Game) -> Vec<HintView> {
             found.push((3, h));
         }
     }
+    // Offers waiting for the player's answer expire (M30).
+    for m in super::deals::offer_hints(game) {
+        let mut h = hint(m, None, None);
+        h.message.target = Some("wettbewerb".to_owned());
+        found.push((1, h));
+    }
     let ledger = &state.companies[state.player.index()].ledger;
     let cash = ledger.cash();
     if cash < Money::ZERO {

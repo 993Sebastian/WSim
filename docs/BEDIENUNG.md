@@ -160,6 +160,24 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   zwei Stufen sind offen, tiefere klappen auf; ein Klick auf ein Produkt öffnet seinen
   Markt.
 
+### Wettbewerb (M30)
+
+Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
+
+- **Angebote:** Kaufangebote und Lizenzanfragen anderer Firmen mit Preis, Grundwert (ⓘ:
+  Ertragswert, Restwert, Lager, Buchwert) und Frist; „Annehmen“, „Ablehnen“ oder ein
+  Gegenangebot mit eigenem Preis. Eigene Angebote warten auf die Antwort und lassen
+  sich zurückziehen. Darunter die abgeschlossenen Angebote des letzten Jahres.
+  Wartende Angebote stehen auch unter „Zu erledigen“ und als Zähler am Reiter; „bis zur
+  nächsten Warnung“ hält bei einem neuen Angebot an.
+- **Firmen:** alle Firmen mit Sitz, Eigenkapital, Umsatz und Zahl der Standorte. Eine
+  Firma öffnet ihre Standorte (Produkte, Anlagen, Beschäftigte, Grundwert, „Neubau
+  heute“) mit einem Preisfeld für ein eigenes Angebot und die Technologien, die dir
+  fehlen, mit der ersparten Forschung als Anhalt für eine Lizenzanfrage. Braucht die
+  Firma einen Standort selbst – den Strom eines Kraftwerks für ihre Werke im Land oder
+  ihr einziges Labor –, steht das dabei: Unter dem Neubaupreis verkauft sie ihn nicht,
+  und der Preisvorschlag beginnt dort.
+
 ### Forschung → Technologiebaum (M19)
 
 - Ist: Liste der Technologien mit Erfindungsjahr, Stand, Voraussetzungen, „ermöglicht“.

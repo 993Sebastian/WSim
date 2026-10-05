@@ -4,7 +4,7 @@ import { Dialog } from "./Dialog";
 /** All keyboard shortcuts of the game screen (see `Spiel`). */
 export const TASTEN: [string, string][] = [
   ["Strg + Enter", "tasten.runde"],
-  ["1 … 7", "tasten.ansichten"],
+  ["1 … 8", "tasten.ansichten"],
   ["Strg + S", "tasten.speichern"],
   ["Strg + O", "tasten.laden"],
   ["? / F1", "tasten.hilfe"],

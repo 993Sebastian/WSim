@@ -44,6 +44,7 @@ spiel.laden: Laden
 spiel.menue: Menü
 spiel.kasse_trend: Veränderung seit Ende des Vormonats
 spiel.offene_hinweise: Offene Hinweise
+spiel.offene_angebote: Angebote, die auf deine Antwort warten
 spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
 geld.waehrung: Währung der Beträge
 geld.heimat: "{waehrung} (Firmensitz)"
@@ -173,6 +174,7 @@ bericht.runden: "{anzahl} Runden am Stück"
 bericht.halt.jahresende: Das Jahr ist zu Ende.
 bericht.halt.warnung: Angehalten wegen einer Warnung – sieh sie dir unten an.
 bericht.halt.weltereignis: Angehalten wegen eines Weltereignisses.
+bericht.halt.angebot: Angehalten wegen eines Angebots, das auf deine Antwort wartet.
 bericht.halt.ein_jahr: Ein Jahr lang ohne Warnung – angehalten, damit du nachsehen kannst.
 bericht.halt.spielende: Das Spiel ist zu Ende.
 bericht.halt.runde: Eine Runde.
@@ -187,6 +189,7 @@ ansicht.uebersicht: Übersicht
 ansicht.weltkarte: Weltkarte
 ansicht.produktion: Standorte
 ansicht.markt: Markt
+ansicht.wettbewerb: Wettbewerb
 ansicht.forschung: Forschung
 ansicht.finanzen: Finanzen
 
@@ -668,7 +671,7 @@ finanzen.kein_umsatz: Noch kein Umsatz in diesem Zeitraum.
 tasten.knopf: Tasten (?)
 tasten.titel: Tastaturkürzel
 tasten.runde: Runde beenden
-tasten.ansichten: Ansicht wechseln (Übersicht, Standorte, Markt, Forschung, Finanzen, Weltkarte, Berichte)
+tasten.ansichten: Ansicht wechseln (Übersicht, Standorte, Markt, Wettbewerb, Forschung, Finanzen, Weltkarte, Berichte)
 tasten.speichern: Speichern
 tasten.laden: Laden
 tasten.hilfe: Diese Übersicht
@@ -807,4 +810,62 @@ erklaerung.regel_verbrauch: Nachfrage je Kopf = gesättigter Bedarf × Kaufneigu
 erklaerung.regel_gebrauch: Haushalte ersetzen verschlissene Stücke und schließen jedes Jahr einen Teil der Lücke zum Zielbesitz; das Ziel ist der höchste Besitz je Kopf mal Kaufneigung, weniger, was Nachfolger schon verdrängt haben.
 erklaerung.regel_ergaenzung: Verbraucht wird mit dem Gebrauchsgut, das die Haushalte besitzen – je Stück ein fester Bedarf mal Kaufneigung.
 erklaerung.stueckkosten: "Bei {menge} am Tag. Jedes weitere Stück kostet ohne die Anlage {variabel}."
+
+# Wettbewerb: Kaufangebote zwischen Firmen (M30)
+wettbewerb.angebote: Angebote
+wettbewerb.firmen: Firmen
+wettbewerb.lizenz_auf: "Lizenz auf „{technologie}“"
+wettbewerb.standort: "{art} in {land}"
+wettbewerb.standort_mit: "{art} in {land} ({produkte})"
+wettbewerb.ertrag_fehlt: Ertragswert (noch kein Jahresergebnis)
+wettbewerb.ertragswert: "Ertragswert: Ergebnis {ergebnis} im Jahr × {jahre}"
+wettbewerb.restwert: Restwert der Anlagen
+wettbewerb.im_bau: Anlagen im Bau
+wettbewerb.lager: Lager
+wettbewerb.grundwert: Grundwert
+wettbewerb.grundwert_hilfe: Der höhere Wert aus Ertragswert und Restwert der Anlagen, dazu Anlagen im Bau und Lager. Danach richten sich die Firmen beim Kaufen und Verkaufen; wer im selben Geschäft ist, zahlt mehr.
+wettbewerb.buchwert: Buchwert (Anlagen, Gebäude, Firmenwert)
+wettbewerb.preis: Preis
+wettbewerb.preis_fehlt: Bitte einen Preis über 0 eintragen.
+wettbewerb.lizenzwert: Ersparte Forschung
+wettbewerb.frist: Antwort bis
+wettbewerb.angebot_von: "Kaufangebot von {firma}"
+wettbewerb.gegenangebot_von: "Gegenangebot von {firma}"
+wettbewerb.dein_angebot_an: "Dein Angebot an {firma}"
+wettbewerb.dein_gegenangebot_an: "Dein Gegenangebot an {firma}"
+wettbewerb.hilfe_verkauf: Beim Verkauf bekommst du den Preis; Anlagen, Lager und Belegschaft gehen an den Käufer. Liegt der Preis unter dem Buchwert, entsteht ein Verlust.
+wettbewerb.hilfe_kauf: "Beim Kauf zahlst du den Preis; was über dem Buchwert liegt, wird als Firmenwert über zehn Jahre abgeschrieben."
+wettbewerb.annehmen: Annehmen
+wettbewerb.ablehnen: Ablehnen
+wettbewerb.gegenangebot: Gegenangebot machen
+wettbewerb.angenommen: Angenommen – das Geschäft ist abgeschlossen.
+wettbewerb.abgelehnt: Abgelehnt.
+wettbewerb.gegenangebot_gesendet: Gegenangebot gesendet; die andere Firma antwortet in der nächsten Runde.
+wettbewerb.wartet: "Wartet auf Antwort bis {datum}."
+wettbewerb.zurueckziehen: Zurückziehen
+wettbewerb.zurueckgezogen: Zurückgezogen.
+wettbewerb.keine_angebote: Im Moment liegen keine offenen Angebote vor.
+wettbewerb.angebote_hilfe: Wettbewerber bieten für Standorte, die sich lohnen, eine gute Belegschaft haben oder ihnen Konkurrenz machen, und für Lizenzen auf deine Technologien. Selbst bietest du unter „Firmen“.
+wettbewerb.abgeschlossen: Abgeschlossen
+wettbewerb.status.angenommen: "{datum}: {gegenstand} – Geschäft mit {firma} für {preis}"
+wettbewerb.status.abgelehnt: "{datum}: {gegenstand} – abgelehnt ({firma}, {preis})"
+wettbewerb.status.abgelaufen: "{datum}: {gegenstand} – abgelaufen ({firma}, {preis})"
+wettbewerb.status.zurueckgezogen: "{datum}: {gegenstand} – zurückgezogen ({firma}, {preis})"
+wettbewerb.umsatz: Umsatz (12 Monate)
+wettbewerb.standorte: Standorte
+wettbewerb.alle_firmen: Alle Firmen
+wettbewerb.firma_kopf: "Sitz: {land} · Eigenkapital {eigenkapital} · Umsatz {umsatz} in zwölf Monaten"
+wettbewerb.kaufen_hilfe: Biete für einen Standort; die Firma antwortet in der nächsten Runde mit Ja, Nein oder einem höheren Preis.
+wettbewerb.mindestalter: "Standorte lassen sich erst {monate} Monate nach der Gründung kaufen."
+wettbewerb.beschaeftigte: "{anzahl} Beschäftigte"
+wettbewerb.neubau: Neubau heute
+wettbewerb.selbst_gebraucht: Die Firma braucht diesen Standort selbst – den Strom für ihre Werke im Land oder ihr einziges Labor – und verkauft ihn nicht unter dem Neubaupreis.
+wettbewerb.anbieten: Angebot abgeben
+wettbewerb.angebot_gesendet: Angebot gesendet; die Firma antwortet in der nächsten Runde.
+wettbewerb.gesperrt.zu_jung: "Erst ab {datum} zu kaufen."
+wettbewerb.gesperrt.angebot_offen: Dein Angebot dafür ist noch offen.
+wettbewerb.gesperrt.gesperrt: "Nach der Ablehnung kannst du ab {datum} wieder bieten."
+wettbewerb.lizenzen: Lizenzen
+wettbewerb.keine_lizenzen: Diese Firma kennt keine Technologie, die dir fehlt.
+wettbewerb.lizenz_anfragen: Lizenz anfragen
 
