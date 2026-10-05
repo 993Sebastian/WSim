@@ -5,9 +5,25 @@ zwei Monate gespielt) im Desktop- und iPhone-Format. Leitfrage je Stelle: **Was 
 Spieler hier erkennen, und welche Entscheidung trifft er damit?** Daraus folgt das
 Zielbild, das M18 bis M20 umsetzen.
 
-Umsetzungsstand: Standorte und Werksansicht mit Personal und Preisen (M18b/c) sind
-umgesetzt; die übrigen Ansichten folgen in M18d, der Technologiebaum in M19 und die
-Einführung in M20.
+Umsetzungsstand: Standorte und Werksansicht mit Personal und Preisen (M18b/c) sowie
+Kopfbereich, Übersicht, Markt, Finanzen, Rundenbericht, Neues Spiel, Weltkarte und
+Spielstände als Datei (M18d) sind umgesetzt; es folgen der Technologiebaum (M19) und die
+geführte Einführung (M20).
+
+## Hinweise und Kennzeichen (M18d)
+
+Die Übersicht und der Rundenbericht zeigen unter „Zu erledigen“ bzw. „Jetzt zu tun“
+Hinweise aus dem Kern (`views::hints`), jeweils mit Sprung an die Stelle, an der der
+Spieler handeln kann (Werksansicht mit passendem Bereich, Forschung, Finanzen):
+stillstehende Anlagen mit Ursache, Vorprodukte ohne Einkauf mit weniger als 7 Tagen
+Reichweite, hergestellte, aber nicht angebotene Produkte, Verkauf unter Stückkosten,
+Ware ohne Absatz im Vormonat, fehlendes Personal, Forschungszentrum ohne Projekt,
+überzogenes Konto und eine Kasse, die bei einem Verlust wie im Vormonat keine 12 Monate
+reicht. Die Märkte tragen Kennzeichen für Chancen: **Mangel** (weniger als 90 % der
+Nachfrage von Verbrauchern und Staat bedient oder mehr als 10 % der Nachfrage ohne Ware),
+**teuer** (Preis mindestens 20 % über dem Richtpreis) und **wenige Anbieter** (höchstens
+zwei, und der Markt ist nicht gesättigt oder teurer als der Richtpreis). Die Schwellen
+sind Anzeigehilfen und wirken nicht auf die Simulation.
 
 ## Grundsätze
 

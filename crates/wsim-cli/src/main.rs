@@ -447,6 +447,11 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "laender": countries,
         "produktion": session.production().map_err(message)?,
         "markt": session.market("DEU").map_err(message)?,
+        "produktmaerkte": {
+            "naegel": session.product_market("DEU", "naegel").map_err(message)?,
+            "draht": session.product_market("DEU", "draht").map_err(message)?,
+        },
+        "weltmarkt": session.world_market("naegel").map_err(message)?,
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
     });

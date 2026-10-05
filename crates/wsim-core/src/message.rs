@@ -118,6 +118,21 @@ pub mod keys {
     pub const AI_EXPANDS: &str = "meldung.ki.ausbau";
     pub const AI_INVENTION: &str = "meldung.ki.erfindung";
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
+    // Hints of the overview (views::hints).
+    pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
+    pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
+    pub const HINT_POWER: &str = "hinweis.strom";
+    pub const HINT_DEPOSIT: &str = "hinweis.lagerstaette";
+    pub const HINT_NO_RECIPE: &str = "hinweis.ohne_verfahren";
+    pub const HINT_IDLE: &str = "hinweis.ruht";
+    pub const HINT_NO_PURCHASE: &str = "hinweis.kein_einkauf";
+    pub const HINT_NO_OFFER: &str = "hinweis.kein_verkauf";
+    pub const HINT_BELOW_COST: &str = "hinweis.unter_stueckkosten";
+    pub const HINT_UNSOLD: &str = "hinweis.nichts_verkauft";
+    pub const HINT_STAFF: &str = "hinweis.personal";
+    pub const HINT_NO_RESEARCH: &str = "hinweis.forschung_ohne_projekt";
+    pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
+    pub const HINT_CASH: &str = "hinweis.kasse";
 
     pub const ALL: &[&str] = &[
         NEW_GAME_START_YEAR,
@@ -174,5 +189,19 @@ pub mod keys {
         AI_EXPANDS,
         AI_INVENTION,
         INPUT_MISSING,
+        HINT_INPUT,
+        HINT_LABOR,
+        HINT_POWER,
+        HINT_DEPOSIT,
+        HINT_NO_RECIPE,
+        HINT_IDLE,
+        HINT_NO_PURCHASE,
+        HINT_NO_OFFER,
+        HINT_BELOW_COST,
+        HINT_UNSOLD,
+        HINT_STAFF,
+        HINT_NO_RESEARCH,
+        HINT_OVERDRAWN,
+        HINT_CASH,
     ];
 }

@@ -1,6 +1,6 @@
 // Sites (docs/BEDIENUNG.md): one card per site with what matters at a glance – last
 // month's result, staff, bottlenecks – and the plant view behind it.
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatGeld, landName } from "../format";
 import type { Kern, Produktion, StandortDetail, Uebersicht } from "../kern";
 import { t } from "../texte";
@@ -13,6 +13,8 @@ export function ProduktionAnsicht({
   uebersicht,
   onGeaendert,
   werk,
+  werkBereich = null,
+  gruendenIn = null,
   onWerk,
 }: {
   kern: Kern;
@@ -20,6 +22,10 @@ export function ProduktionAnsicht({
   onGeaendert: (u: Uebersicht) => void;
   /** Site shown in the plant view, or null for the list of sites. */
   werk: number | null;
+  /** Area of the plant view to show first (e.g. from a hint). */
+  werkBereich?: string | null;
+  /** Country preselected for a new site (from the map). */
+  gruendenIn?: string | null;
   onWerk: (site: number | null) => void;
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.produktion(), uebersicht.date);
@@ -31,7 +37,12 @@ export function ProduktionAnsicht({
       <h1 className="unsichtbar">{t("ansicht.produktion")}</h1>
       <Befehle senden={senden} meldung={meldung}>
         {offen ? (
-          <Werk standort={offen} produktion={daten} onZurueck={() => onWerk(null)} />
+          <Werk
+            standort={offen}
+            produktion={daten}
+            bereich={werkBereich}
+            onZurueck={() => onWerk(null)}
+          />
         ) : (
           <>
             {daten.sites.length === 0 && (
@@ -42,7 +53,12 @@ export function ProduktionAnsicht({
                 <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
               ))}
             </div>
-            <StandortGruenden produktion={daten} heimat={uebersicht.company.headquarters} />
+            <StandortGruenden
+              key={gruendenIn ?? "heimat"}
+              produktion={daten}
+              heimat={gruendenIn ?? uebersicht.company.headquarters}
+              hervorheben={gruendenIn !== null}
+            />
           </>
         )}
       </Befehle>
@@ -110,8 +126,21 @@ function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => v
   );
 }
 
-function StandortGruenden({ produktion, heimat }: { produktion: Produktion; heimat: string }) {
+function StandortGruenden({
+  produktion,
+  heimat,
+  hervorheben,
+}: {
+  produktion: Produktion;
+  heimat: string;
+  /** Scroll to the form (the country was chosen on the map). */
+  hervorheben: boolean;
+}) {
   const [land, setLand] = useState(heimat);
+  const ref = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (hervorheben) ref.current?.scrollIntoView({ block: "center" });
+  }, [hervorheben]);
   const [art, setArt] = useState(produktion.site_types[1]?.kind ?? "Factory");
   const { los, antwort } = useAktion("gruenden");
   const id = useId();
@@ -126,7 +155,8 @@ function StandortGruenden({ produktion, heimat }: { produktion: Produktion; heim
   const typ = produktion.site_types.find((s) => s.kind === art);
   return (
     <form
-      className="karte"
+      ref={ref}
+      className={`karte${hervorheben ? " hervorgehoben" : ""}`}
       aria-label={t("produktion.gruenden")}
       onSubmit={(e) => {
         e.preventDefault();

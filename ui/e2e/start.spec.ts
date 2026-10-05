@@ -13,6 +13,7 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
 
   await page.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
   await expect(page.getByLabel("Startland (Firmensitz)")).toHaveValue("DEU");
+  await page.getByText(/Weitere Einstellungen/).click();
   await page.getByLabel("Anzahl KI-Firmen").fill("100");
   await page.getByLabel("Schwierigkeit der KI").selectOption("schwer");
   await page.getByRole("button", { name: "Spiel starten" }).click();
@@ -34,10 +35,10 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: "Rundenbericht" });
   await expect(bericht).toBeVisible();
+  await expect(bericht.getByRole("rowheader", { name: "Umsatz", exact: true })).toBeVisible();
+  // What each product brought in the round.
   await expect(
-    bericht
-      .getByRole("cell", { name: "Umsatz" })
-      .or(bericht.getByRole("rowheader", { name: "Umsatz" })),
+    bericht.getByRole("table", { name: /Was lief/ }).getByRole("cell", { name: "Nägel" }),
   ).toBeVisible();
   // The world news can be opened again from the report.
   await bericht.getByRole("button", { name: "Ansehen" }).first().click();
@@ -51,7 +52,9 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
     .click();
   await expect(kopf.getByText("01.08.1914")).toBeVisible();
 
-  await page.getByRole("button", { name: "Speichern" }).click();
+  // Saving, loading and the main menu sit in the menu of the header.
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("menuitem", { name: /Speichern/ }).click();
   const speichern = page.getByRole("dialog", { name: "Spiel speichern" });
   await speichern.getByLabel("Name des Spielstands").fill("Probe 1914");
   await speichern.getByRole("button", { name: "Speichern" }).click();
@@ -59,7 +62,8 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(speichern).toBeHidden();
 
-  await page.getByRole("button", { name: "Hauptmenü" }).click();
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.getByRole("menuitem", { name: "Hauptmenü" }).click();
   await page.getByRole("button", { name: "Spiel laden" }).click();
   const laden = page.getByRole("dialog", { name: "Spiel laden" });
   await expect(laden.getByText("Probe 1914")).toBeVisible();
@@ -85,6 +89,10 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await page.getByRole("button", { name: "Weltkarte" }).click();
   const karte = page.getByRole("group", { name: "Weltkarte" });
   await expect(karte).toBeVisible();
+  // First layer: where a product sells at what price against the reference price.
+  await expect(page.getByLabel("Produkt")).toHaveValue("naegel");
+  await expect(page.getByRole("list", { name: "Legende" })).toContainText("Nachfrage");
+  await page.getByRole("radio", { name: "Lohnniveau" }).click();
   await expect(page.getByRole("list", { name: "Legende" })).toContainText("USD/h");
 
   await page.getByRole("radio", { name: "Rohstoffe" }).click();
@@ -98,7 +106,10 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await expect(detail.getByText("Kartenprobe")).toBeVisible();
 
   await karte.getByRole("button", { name: "Frankreich" }).press("Enter");
-  await expect(
-    page.getByRole("complementary", { name: "Frankreich" }).getByRole("alert"),
-  ).toContainText("Die Vorschau enthält nur");
+  const frankreich = page.getByRole("complementary", { name: "Frankreich" });
+  await expect(frankreich.getByRole("alert")).toContainText("Die Vorschau enthält nur");
+  // From the map to a new site in that country.
+  await frankreich.getByRole("button", { name: "Standort hier gründen" }).click();
+  const gruenden = page.getByRole("form", { name: "Neuer Standort" });
+  await expect(gruenden.getByLabel("Land")).toHaveValue("FRA");
 });

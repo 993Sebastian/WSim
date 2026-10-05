@@ -60,16 +60,23 @@ export function standortTitel(s: StandortDetail): string {
   return `${t(s.kind_text)} · ${landName(s.country)}`;
 }
 
+const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "personal", "kosten"];
+
 export function Werk({
   standort: s,
   produktion,
+  bereich: start = null,
   onZurueck,
 }: {
   standort: StandortDetail;
   produktion: Produktion;
+  /** Area to show first. */
+  bereich?: string | null;
   onZurueck: () => void;
 }) {
-  const [bereich, setBereich] = useState<Bereich>("anlagen");
+  const [bereich, setBereich] = useState<Bereich>(
+    BEREICHE.includes(start as Bereich) ? (start as Bereich) : "anlagen",
+  );
   const forschung = s.kind === "ResearchCenter";
   const engpaesse = s.slots.filter((a) => a.cause && a.cause.key !== "ursache.im_bau").length;
   const knapp = s.inputs.filter((v) => !v.own && v.days !== null && v.days < 7).length;

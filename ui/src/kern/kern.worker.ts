@@ -133,6 +133,28 @@ scope.onmessage = async (ereignis: MessageEvent) => {
   const { id, op, args } = daten;
   try {
     const e = await starten();
+    if (op === "datei") {
+      // The bytes of a save, to download it.
+      const [ptr, len] = schreiben(e, enc.encode(String(args?.name)));
+      const bytes = lesen(e, e.wsim_spielstand(ptr, len));
+      scope.postMessage(
+        bytes.length > 0
+          ? { id, ok: bytes }
+          : { id, err: `Spielstand „${String(args?.name)}“ nicht gefunden.` },
+      );
+      return;
+    }
+    if (op === "einlesen") {
+      // A save from a file: into the module and the browser's storage.
+      const name = String(args?.name);
+      const bytes = args?.bytes as Uint8Array;
+      const [np, nl] = schreiben(e, enc.encode(name));
+      const [dp, dl] = schreiben(e, bytes);
+      e.wsim_spielstand_einlegen(np, nl, dp, dl);
+      await sichern(name, bytes.slice());
+      scope.postMessage({ id, ...rufe(e, "spielstaende") });
+      return;
+    }
     const antwort = rufe(e, op, args);
     if (op === "speichern" || op === "runde_beenden") await geschriebeneSichern(e);
     scope.postMessage({ id, ...antwort });

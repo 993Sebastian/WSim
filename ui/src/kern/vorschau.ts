@@ -9,7 +9,9 @@ import type {
   Forschung,
   Landdetail,
   Markt,
+  ProduktMarkt,
   Produktion,
+  WeltMarkt,
   Optionen,
   Rundenbericht,
   Rundenlaenge,
@@ -27,6 +29,8 @@ const beispiel = beispielJson as unknown as {
   laender: Record<string, Landdetail>;
   produktion: Produktion;
   markt: Markt;
+  produktmaerkte: Record<string, ProduktMarkt>;
+  weltmarkt: WeltMarkt;
   forschung: Forschung;
   finanzen: Finanzen;
 };
@@ -112,6 +116,26 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     markt: async (land) => {
       if (!spiel) throw keinSpiel();
       return { ...kopie(beispiel.markt), country: land };
+    },
+    produktmarkt: async (land, produkt) => {
+      if (!spiel) throw keinSpiel();
+      const markt = beispiel.produktmaerkte[produkt];
+      if (!markt) {
+        throw new KernFehler({
+          kind: "error",
+          group: "allgemein",
+          key: "vorschau.produkt_fehlt",
+          params: {},
+          target: null,
+        });
+      }
+      const c = { ...kopie(markt), country: land };
+      for (const s of c.sellers) if (s.own) s.company = firma;
+      return c;
+    },
+    weltmarkt: async (produkt) => {
+      if (!spiel) throw keinSpiel();
+      return { ...kopie(beispiel.weltmarkt), product: produkt };
     },
     forschung: async () => {
       if (!spiel) throw keinSpiel();

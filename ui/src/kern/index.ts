@@ -10,7 +10,9 @@ import type {
   Finanzen,
   Forschung,
   Markt,
+  ProduktMarkt,
   Produktion,
+  WeltMarkt,
   Fortschritt,
   Landdetail,
   NeuesSpiel,
@@ -45,6 +47,8 @@ export interface Kern {
   land(schluessel: string): Promise<Landdetail>;
   produktion(): Promise<Produktion>;
   markt(land: string): Promise<Markt>;
+  produktmarkt(land: string, produkt: string): Promise<ProduktMarkt>;
+  weltmarkt(produkt: string): Promise<WeltMarkt>;
   forschung(): Promise<Forschung>;
   finanzen(): Promise<Finanzen>;
   /** Carries out a decision; answers with the new overview. */
@@ -52,6 +56,10 @@ export interface Kern {
   speichern(name: string): Promise<Spielstand>;
   spielstaende(): Promise<Spielstand[]>;
   laden(name: string): Promise<Uebersicht>;
+  /** Browser version: a save as file contents, to move it to another device. */
+  spielstandDatei?(name: string): Promise<Uint8Array>;
+  /** Browser version: adds a save from a file. */
+  spielstandEinlesen?(name: string, bytes: Uint8Array): Promise<Spielstand[]>;
 }
 
 async function aufruf<T>(befehl: string, argumente?: Record<string, unknown>): Promise<T> {
@@ -80,6 +88,8 @@ const tauriKern: Kern = {
   land: (schluessel) => aufruf("land", { schluessel }),
   produktion: () => aufruf("produktion"),
   markt: (land) => aufruf("markt", { land }),
+  produktmarkt: (land, produkt) => aufruf("produktmarkt", { land, produkt }),
+  weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
   forschung: () => aufruf("forschung"),
   finanzen: () => aufruf("finanzen"),
   befehl: (befehl) => aufruf("befehl", { befehl }),

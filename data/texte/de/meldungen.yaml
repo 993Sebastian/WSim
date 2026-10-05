@@ -8,6 +8,7 @@ fehler.spielstart.forschungsfaktor: Der Kostenfaktor für Forschung vor dem hist
 fehler.spielstart.zu_viele_firmen: Höchstens {max} KI-Firmen sind möglich.
 fehler.sitzung.kein_spiel: Es läuft noch kein Spiel. Starte ein neues Spiel oder lade einen Spielstand.
 fehler.sitzung.unbekanntes_land: Das gewählte Land gibt es in den Spieldaten nicht.
+fehler.sitzung.unbekanntes_produkt: Das gewählte Produkt gibt es in den Spieldaten nicht.
 fehler.sitzung.unbekannte_startform: Diese Startform gibt es nicht.
 fehler.sitzung.unbekannte_schwierigkeit: Diese Schwierigkeit gibt es nicht.
 fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
@@ -119,3 +120,20 @@ meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produk
 meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} für {produkt}."
 meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
+
+# Hinweise der Übersicht („Zu erledigen“)
+hinweis.vorprodukt_fehlt: "{anlage} ({standort} {land}) steht teilweise still: {produkt} fehlt. Einkauf erhöhen oder selbst herstellen."
+hinweis.arbeitskraefte: "{anlage} ({standort} {land}) wartet auf Arbeitskräfte. Lohnaufschlag erhöhen oder Auslastung senken."
+hinweis.strom: "{anlage} ({standort} {land}) bekommt zu wenig Strom. Ein eigenes Kraftwerk hilft."
+hinweis.lagerstaette: "{anlage} ({standort} {land}): Die Lagerstätte gibt nicht mehr her."
+hinweis.ohne_verfahren: "{anlage} ({standort} {land}) hat kein Verfahren und steht still."
+hinweis.ruht: "{anlage} ({standort} {land}) ruht (Auslastung 0 %)."
+hinweis.kein_einkauf: "{standort} {land}: Für {produkt} gibt es keinen Einkauf; das Lager reicht noch {tage} Tage."
+hinweis.kein_verkauf: "{standort} {land} stellt {produkt} her, bietet es aber nicht zum Verkauf an."
+hinweis.unter_stueckkosten: "{produkt} ({standort} {land}) wird unter den Stückkosten verkauft (Marge {marge} %)."
+hinweis.nichts_verkauft: "{produkt} ({standort} {land}) liegt auf Lager, verkauft wurde nichts – dein Preis {preis}, Marktpreis {markt}."
+hinweis.personal: "{standort} {land} hat nicht alle Arbeitskräfte, die die Anlagen brauchen."
+hinweis.forschung_ohne_projekt: "Das Forschungszentrum in {land} hat kein Projekt."
+hinweis.konto_ueberzogen: "Das Konto ist um {betrag} überzogen."
+hinweis.kasse: "Bei einem Verlust wie im Vormonat reicht die Kasse noch etwa {monate} Monate."
+

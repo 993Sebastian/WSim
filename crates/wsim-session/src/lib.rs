@@ -20,7 +20,8 @@ use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
 use wsim_core::views::{
     self, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
-    ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    WorldMarketView,
 };
 
 /// File extension of saves.
@@ -280,6 +281,25 @@ impl<S: SaveStore> Session<S> {
             .ok_or_else(|| error(keys::UNKNOWN_COUNTRY))
     }
 
+    /// One product on the market of a country.
+    pub fn product_market(
+        &self,
+        country: &str,
+        product: &str,
+    ) -> Result<ProductMarketView, MessageView> {
+        let game = self.game.as_ref().ok_or_else(|| error(keys::NO_GAME))?;
+        if game.catalog().countries.id(country).is_none() {
+            return Err(error(keys::UNKNOWN_COUNTRY));
+        }
+        views::product_market(game, country, product).ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
+    }
+
+    /// One product in all countries (world map).
+    pub fn world_market(&self, product: &str) -> Result<WorldMarketView, MessageView> {
+        self.view(|g| views::world_market(g, product))?
+            .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
+    }
+
     /// Carries out a decision of the player. The command comes as JSON with keys for
     /// content (`{"FoundSite": {"country": "DEU", "kind": "Factory"}}`); it passes the
     /// same checks as every command and goes into the journal.
@@ -402,6 +422,7 @@ pub mod keys {
     pub const SAVE_FAILED: &str = "fehler.sitzung.speichern";
     pub const LOAD_FAILED: &str = "fehler.sitzung.laden";
     pub const INVALID_COMMAND: &str = "fehler.sitzung.befehl_ungueltig";
+    pub const UNKNOWN_PRODUCT: &str = "fehler.sitzung.unbekanntes_produkt";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -413,5 +434,6 @@ pub mod keys {
         SAVE_FAILED,
         LOAD_FAILED,
         INVALID_COMMAND,
+        UNKNOWN_PRODUCT,
     ];
 }

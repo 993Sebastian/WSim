@@ -12,8 +12,9 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview, ProductionView,
-    ResearchOverview, RoundReportView, WorldMap,
+    CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
+    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -125,6 +126,20 @@ fn markt(state: State<'_, Shared>, land: String) -> Result<MarketView, Fehler> {
 }
 
 #[tauri::command]
+fn produktmarkt(
+    state: State<'_, Shared>,
+    land: String,
+    produkt: String,
+) -> Result<ProductMarketView, Fehler> {
+    mit_sitzung(&state, |s| s.product_market(&land, &produkt))
+}
+
+#[tauri::command]
+fn weltmarkt(state: State<'_, Shared>, produkt: String) -> Result<WorldMarketView, Fehler> {
+    mit_sitzung(&state, |s| s.world_market(&produkt))
+}
+
+#[tauri::command]
 fn forschung(state: State<'_, Shared>) -> Result<ResearchOverview, Fehler> {
     mit_sitzung(&state, |s| s.research())
 }
@@ -191,6 +206,8 @@ fn main() {
             land,
             produktion,
             markt,
+            produktmarkt,
+            weltmarkt,
             forschung,
             finanzen,
             befehl,

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatGeld, formatZahl, landName } from "../format";
-import type { KartenLand, Kern, Lagerstaette, Weltkarte } from "../kern";
+import type { KartenLand, Kern, Lagerstaette, WeltMarkt, Weltkarte } from "../kern";
 import welt from "../karte/welt.json";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -9,9 +9,11 @@ import { Laenderdetail } from "./Laenderdetail";
 
 const pfade = welt as Record<string, string>;
 
-export type Ebene = "lohn" | "bip" | "bevoelkerung" | "rohstoffe" | "standorte";
-const EBENEN: Ebene[] = ["lohn", "bip", "bevoelkerung", "rohstoffe", "standorte"];
+export type Ebene = "absatz" | "lohn" | "bip" | "bevoelkerung" | "rohstoffe" | "standorte";
+const EBENEN: Ebene[] = ["absatz", "lohn", "bip", "bevoelkerung", "rohstoffe", "standorte"];
 const STUFEN = 5;
+/** Price against the reference price: limits of the classes of the sales layer. */
+const PREISSTUFEN = [0.9, 1.0, 1.1, 1.3];
 
 const wert: Record<"lohn" | "bip" | "bevoelkerung", (l: KartenLand) => number> = {
   lohn: (l) => l.wage_usd,
@@ -42,12 +44,35 @@ function stufe(v: number, g: number[]): number {
 // Equirectangular map: x = lon + 180, y = 90 − lat (see tools/daten/karte.py).
 const punkt = (l: { lat: number; lon: number }) => ({ x: l.lon + 180, y: 90 - l.lat });
 
-export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string }) {
+export function WeltkarteAnsicht({
+  kern,
+  datum,
+  onGruenden,
+}: {
+  kern: Kern;
+  datum: string;
+  /** Opens the form to found a site in this country. */
+  onGruenden: (land: string) => void;
+}) {
   const [karte, setKarte] = useState<Weltkarte | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
-  const [ebene, setEbene] = useState<Ebene>("lohn");
+  const [ebene, setEbene] = useState<Ebene>("absatz");
   const [rohstoff, setRohstoff] = useState<string>("");
+  const [produkt, setProdukt] = useState<string>("naegel");
+  const [markt, setMarkt] = useState<WeltMarkt | null>(null);
   const [land, setLand] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (ebene !== "absatz" || !produkt) return;
+    let aktiv = true;
+    kern
+      .weltmarkt(produkt)
+      .then((m) => aktiv && setMarkt(m))
+      .catch((e: unknown) => aktiv && setFehler(fehlerText(e)));
+    return () => {
+      aktiv = false;
+    };
+  }, [kern, datum, ebene, produkt]);
 
   useEffect(() => {
     let aktiv = true;
@@ -73,8 +98,23 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
 
   if (!karte) return <FehlerText fehler={fehler} />;
 
+  const absatz =
+    ebene === "absatz" && markt?.product === produkt
+      ? new Map(markt.countries.map((m) => [m.country, m]))
+      : null;
+  const einheit = markt ? t(`einheit.${markt.unit}`) : "";
   const titel = (l: KartenLand) => {
     const name = landName(l.key);
+    if (ebene === "absatz") {
+      const m = absatz?.get(l.key);
+      if (!m) return `${name}: ${t("karte.absatz_keine")}`;
+      return `${name}: ${t("karte.absatz_titel", {
+        preis: `${formatGeld(m.price_usd)}/${einheit}`,
+        anteil: formatZahl((m.price_usd / Math.max(m.reference_usd, 1e-9)) * 100),
+        nachfrage: `${formatZahl(m.demand_last_month)} ${einheit}`,
+        anbieter: m.sellers,
+      })}`;
+    }
     if (ebene in wert) {
       const k = ebene as keyof typeof wert;
       return `${name}: ${anzeige[k](wert[k](l))}`;
@@ -84,8 +124,18 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
     const n = karte.deposits.filter((d) => d.country === l.key && d.resource === rohstoff).length;
     return `${name}: ${t("karte.lagerstaetten_titel", { anzahl: n })}`;
   };
-  const fuellung = (key: string) =>
-    klassen ? `var(--skala-${klassen.je.get(key) ?? 0})` : "var(--land)";
+  const fuellung = (key: string) => {
+    if (ebene === "absatz") {
+      const m = absatz?.get(key);
+      if (!m || m.reference_usd <= 0 || m.demand_last_month <= 0) return "var(--land)";
+      return `var(--skala-${stufe(m.price_usd / m.reference_usd, PREISSTUFEN)})`;
+    }
+    return klassen ? `var(--skala-${klassen.je.get(key) ?? 0})` : "var(--land)";
+  };
+  const groessteNachfrage = Math.max(
+    1e-9,
+    ...(markt?.countries.map((m) => m.demand_last_month) ?? [0]),
+  );
   const laender = new Map(karte.countries.map((l) => [l.key, l]));
   const lager = karte.deposits.filter((d) => d.resource === rohstoff);
   const groesste = Math.max(1, ...lager.map((d) => d.max_output_per_year));
@@ -105,6 +155,24 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
               {t(`karte.ebene.${e}`)}
             </button>
           ))}
+          {ebene === "absatz" && (
+            <label>
+              {t("karte.produkt")}
+              <select
+                id="absatz_produkt"
+                value={produkt}
+                onChange={(e) => setProdukt(e.target.value)}
+              >
+                {[...karte.products]
+                  .sort((a, b) => t(`produkt.${a}`).localeCompare(t(`produkt.${b}`), "de"))
+                  .map((p) => (
+                    <option key={p} value={p}>
+                      {t(`produkt.${p}`)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
           {ebene === "rohstoffe" && (
             <label>
               {t("karte.rohstoff")}
@@ -119,7 +187,12 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
           )}
         </div>
         <div className="karten-flaeche">
-          <svg viewBox="0 4 360 146" className="karte" role="group" aria-label={t("karte.titel")}>
+          <svg
+            viewBox="0 4 360 146"
+            className="kartenbild"
+            role="group"
+            aria-label={t("karte.titel")}
+          >
             <rect x="0" y="4" width="360" height="146" className="meer" />
             {karte.countries.map((l) => {
               const d = pfade[l.key];
@@ -145,6 +218,23 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
                 </circle>
               );
             })}
+            {absatz &&
+              karte.countries
+                .filter((l) => (absatz.get(l.key)?.demand_last_month ?? 0) > 0)
+                .map((l) => {
+                  const m = absatz.get(l.key)!;
+                  const p = punkt(l);
+                  return (
+                    <circle
+                      key={l.key}
+                      cx={p.x}
+                      cy={p.y}
+                      r={0.5 + 3 * Math.sqrt(m.demand_last_month / groessteNachfrage)}
+                      className={`nachfrage${m.own_sellers > 0 ? " eigen" : ""}`}
+                      aria-hidden="true"
+                    />
+                  );
+                })}
             {ebene === "standorte" &&
               karte.countries
                 .filter((l) => l.own_sites + l.other_sites > 0)
@@ -196,7 +286,9 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
           </svg>
           <Legende ebene={ebene} klassen={klassen?.g ?? null} />
         </div>
-        <p className="hinweis-links">{t("karte.hinweis")}</p>
+        <p className="hinweis-links">
+          {ebene === "absatz" ? t("karte.absatz_hinweis") : t("karte.hinweis")}
+        </p>
       </div>
       {land && (
         <Laenderdetail
@@ -204,6 +296,7 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
           schluessel={land}
           datum={karte.date}
           onSchliessen={() => setLand(null)}
+          onGruenden={() => onGruenden(land)}
         />
       )}
     </div>
@@ -211,6 +304,29 @@ export function WeltkarteAnsicht({ kern, datum }: { kern: Kern; datum: string })
 }
 
 function Legende({ ebene, klassen }: { ebene: Ebene; klassen: number[] | null }) {
+  if (ebene === "absatz") {
+    const texte = [
+      `< ${formatZahl(PREISSTUFEN[0]! * 100)} %`,
+      ...PREISSTUFEN.slice(1).map(
+        (g, i) => `${formatZahl(PREISSTUFEN[i]! * 100)} – ${formatZahl(g * 100)} %`,
+      ),
+      `≥ ${formatZahl(PREISSTUFEN.at(-1)! * 100)} %`,
+    ];
+    return (
+      <ul className="legende" aria-label={t("karte.legende")}>
+        {texte.map((text, i) => (
+          <li key={i}>
+            <span className="farbe" style={{ background: `var(--skala-${i})` }} />
+            {text}
+          </li>
+        ))}
+        <li>
+          <span className="punkt nachfrage" />
+          {t("karte.legende.nachfrage")}
+        </li>
+      </ul>
+    );
+  }
   if (klassen && ebene in anzeige) {
     const f = anzeige[ebene as keyof typeof anzeige];
     return (

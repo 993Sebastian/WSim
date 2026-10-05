@@ -108,6 +108,15 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                         let land: String = argument(args, "land")?;
                         wert(s.market(&land)?)
                     }
+                    "produktmarkt" => {
+                        let land: String = argument(args, "land")?;
+                        let produkt: String = argument(args, "produkt")?;
+                        wert(s.product_market(&land, &produkt)?)
+                    }
+                    "weltmarkt" => {
+                        let produkt: String = argument(args, "produkt")?;
+                        wert(s.world_market(&produkt)?)
+                    }
                     "forschung" => wert(s.research()?),
                     "finanzen" => wert(s.finance()?),
                     "befehl" => {

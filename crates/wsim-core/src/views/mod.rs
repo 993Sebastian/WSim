@@ -5,7 +5,9 @@
 
 use std::collections::BTreeMap;
 
+mod hints;
 mod play;
+pub use hints::*;
 pub use play::*;
 
 use serde::{Deserialize, Serialize};
@@ -213,6 +215,10 @@ pub struct Overview {
     pub competitors_bankrupt: u32,
     /// The largest active AI companies by equity.
     pub competitors: Vec<CompetitorView>,
+    /// What needs the player's attention now (M18).
+    pub hints: Vec<HintView>,
+    /// Closed months of the player's books, oldest first.
+    pub history: Vec<MonthView>,
 }
 
 fn equity(company: &Company) -> Money {
@@ -309,6 +315,8 @@ pub fn overview(game: &Game) -> Overview {
                 real: c.ai.as_ref().is_some_and(|a| a.real.is_some()),
             })
             .collect(),
+        hints: hints(game),
+        history: history(&state.companies[state.player.index()].ledger),
     }
 }
 
@@ -411,7 +419,26 @@ pub struct Snapshot {
     pub cash: Money,
     pub equity: Money,
     year: BTreeMap<CostType, Money>,
+    /// Revenue and result by product of the running year.
+    products: BTreeMap<crate::ids::ProductId, (Money, Money)>,
     years_closed: usize,
+}
+
+/// Revenue and result (gross margin) by product of a period, from its cost centers.
+fn product_totals(
+    period: &crate::ledger::PeriodResult,
+) -> BTreeMap<crate::ids::ProductId, (Money, Money)> {
+    let mut totals: BTreeMap<crate::ids::ProductId, (Money, Money)> = BTreeMap::new();
+    for (center, by_type) in &period.by_center {
+        let Some(p) = center.product else { continue };
+        let e = totals.entry(p).or_insert((Money::ZERO, Money::ZERO));
+        e.0 += by_type
+            .get(&CostType::Revenue)
+            .copied()
+            .unwrap_or(Money::ZERO);
+        e.1 += by_type.values().copied().sum::<Money>();
+    }
+    totals
 }
 
 pub fn snapshot(game: &Game) -> Snapshot {
@@ -421,6 +448,7 @@ pub fn snapshot(game: &Game) -> Snapshot {
         cash: company.ledger.cash(),
         equity: equity(company),
         year: company.ledger.year.by_type.clone(),
+        products: product_totals(&company.ledger.year),
         years_closed: company.ledger.years.len(),
     }
 }
@@ -519,6 +547,45 @@ pub struct RoundReportView {
     pub research: Vec<ResearchView>,
     pub messages: Vec<MessageView>,
     pub game_over: bool,
+    /// What the round brought by product: revenue and gross margin (M18).
+    pub products: Vec<ProductResult>,
+    /// What needs the player's attention after the round.
+    pub hints: Vec<HintView>,
+}
+
+/// Revenue and gross margin by product in the round: the years closed during the
+/// round (only the last one keeps its details) and the running year, less the running
+/// year at its start.
+fn round_products(game: &Game, before: &Snapshot) -> Vec<ProductResult> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let ledger = &state.companies[state.player.index()].ledger;
+    let mut sums: BTreeMap<crate::ids::ProductId, (Money, Money)> = BTreeMap::new();
+    let mut add = |totals: BTreeMap<crate::ids::ProductId, (Money, Money)>, sign: i64| {
+        for (p, (revenue, result)) in totals {
+            let e = sums.entry(p).or_insert((Money::ZERO, Money::ZERO));
+            if sign > 0 {
+                e.0 += revenue;
+                e.1 += result;
+            } else {
+                e.0 -= revenue;
+                e.1 -= result;
+            }
+        }
+    };
+    for year in ledger.years.get(before.years_closed..).unwrap_or_default() {
+        add(product_totals(year), 1);
+    }
+    add(product_totals(&ledger.year), 1);
+    add(before.products.clone(), -1);
+    sums.into_iter()
+        .filter(|(_, (revenue, result))| *revenue != Money::ZERO || *result != Money::ZERO)
+        .map(|(p, (revenue, result))| ProductResult {
+            product: catalog.products.key(p).to_owned(),
+            revenue_usd: usd(revenue),
+            margin_usd: usd(result),
+        })
+        .collect()
 }
 
 pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> RoundReportView {
@@ -535,6 +602,8 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         research: research_projects(game),
         messages: report.messages.iter().map(message_view).collect(),
         game_over: game.is_over(),
+        products: round_products(game, before),
+        hints: hints(game),
     }
 }
 
@@ -575,6 +644,8 @@ pub struct WorldMap {
     pub deposits: Vec<MapDeposit>,
     /// Raw materials with deposits, for the resource filter.
     pub resources: Vec<String>,
+    /// Traded products (without energy), for the layer of sales chances.
+    pub products: Vec<String>,
 }
 
 pub fn world_map(game: &Game) -> WorldMap {
@@ -643,6 +714,12 @@ pub fn world_map(game: &Game) -> WorldMap {
         countries,
         deposits,
         resources,
+        products: catalog
+            .products
+            .iter()
+            .filter(|(_, p)| p.kind != crate::catalog::ProductKind::Energy)
+            .map(|(id, _)| catalog.products.key(id).to_owned())
+            .collect(),
     }
 }
 
@@ -792,12 +869,16 @@ mod tests {
     use std::sync::Arc;
 
     fn game() -> Game {
+        game_with(1_000_000.0)
+    }
+
+    fn game_with(capital_usd: f64) -> Game {
         let catalog = Arc::new(test_support::production());
         let settings = GameSettings {
             seed: 3,
             start_year: 1900,
             start_country: catalog.countries.ids().next().expect("one country"),
-            start_capital: Money::from_usd(1_000_000.0).expect("valid"),
+            start_capital: Money::from_usd(capital_usd).expect("valid"),
             start_form: StartForm::Workshop,
             company_name: "Test AG".into(),
             research_ahead_factor: 1.0,
@@ -883,6 +964,198 @@ mod tests {
         let detail = country_detail(&g, &key).expect("known country");
         assert_eq!(detail.labor.len(), g.catalog().labor_groups.len());
         assert!(country_detail(&g, "XXX").is_none());
+    }
+
+    /// Mine and furnace in AAA (test chain): the furnace has no ore and its iron is
+    /// not offered.
+    fn chain() -> (Game, u32, u32) {
+        use crate::catalog::SiteType;
+        use crate::command::Command;
+        use crate::state::SiteId;
+        let mut g = game_with(10_000_000.0);
+        let c = g.catalog().clone();
+        let aaa = c.countries.id("AAA").expect("exists");
+        let found = |g: &mut Game, kind| {
+            g.apply(Command::FoundSite { country: aaa, kind })
+                .expect("valid");
+            SiteId(u32::try_from(g.state().sites.len() - 1).expect("fits"))
+        };
+        let mine = found(&mut g, SiteType::Extraction);
+        let works = found(&mut g, SiteType::Factory);
+        g.apply(Command::DevelopDeposit {
+            site: mine,
+            deposit: c.deposits.id("grube").expect("exists"),
+        })
+        .expect("valid");
+        for (site, facility, recipe) in [
+            (mine, "mine", "erz_abbau"),
+            (works, "ofen", "eisen_schmelzen"),
+        ] {
+            g.apply(Command::BuildFacility {
+                site,
+                facility: c.facilities.id(facility).expect("exists"),
+                count: 1,
+            })
+            .expect("valid");
+            g.apply(Command::SetProduction {
+                site,
+                slot: 0,
+                recipe: c.recipes.id(recipe),
+                utilization: 1.0,
+            })
+            .expect("valid");
+        }
+        (g, mine.0, works.0)
+    }
+
+    #[test]
+    fn hints_point_to_the_place_to_act() {
+        let (mut g, mine, works) = chain();
+        g.advance(RoundLength::Month, |_| {});
+        let hints = hints(&g);
+        let find = |key: &str, site: u32| {
+            hints
+                .iter()
+                .find(|h| h.message.key == key && h.site == Some(site))
+        };
+        // The furnace waits for ore and has no purchase for it.
+        let input = find(crate::message::keys::HINT_INPUT, works).expect("ore missing");
+        assert_eq!(input.area.as_deref(), Some("einkauf"));
+        assert_eq!(input.message.target.as_deref(), Some("produktion"));
+        assert_eq!(
+            input.message.params["produkt"],
+            ParamView::TextKey("produkt.erz".into())
+        );
+        assert_eq!(
+            input.message.params["standort"],
+            ParamView::TextKey("standorttyp.werk".into())
+        );
+        // The ore of the mine is made but not offered.
+        let offer = find(crate::message::keys::HINT_NO_OFFER, mine).expect("no offer");
+        assert_eq!(offer.area.as_deref(), Some("verkauf"));
+        assert!(
+            hints
+                .iter()
+                .all(|h| h.message.key != crate::message::keys::HINT_OVERDRAWN)
+        );
+        // Urgent first: no info before a warning.
+        let ranks: Vec<bool> = hints.iter().map(|h| h.message.kind == "info").collect();
+        assert!(ranks.windows(2).all(|w| !(w[0] && !w[1])), "{hints:?}");
+    }
+
+    #[test]
+    fn history_works_the_cash_back_from_today() {
+        let (mut g, _, works) = chain();
+        for _ in 0..3 {
+            g.advance(RoundLength::Month, |_| {});
+        }
+        g.advance(RoundLength::Week, |_| {});
+        let ledger = &g.state().companies[g.state().player.index()].ledger;
+        let months = history(ledger);
+        assert_eq!(months.len(), 3);
+        assert_eq!(months[0].month, "1900-01-01");
+        let last = months.last().expect("three months");
+        let today = usd(ledger.cash() - ledger.month.cash_flow.total());
+        assert!((last.cash_usd - today).abs() < 1e-6);
+        let before = last.cash_usd - usd(ledger.months[2].cash_flow.total());
+        assert!((months[1].cash_usd - before).abs() < 1e-6);
+        // The results by site add up to the company's result with its own items.
+        let f = finance_overview(&g);
+        let centers = f.centers_last_month.expect("details of the last month");
+        let sites: f64 = centers.sites.iter().map(|s| s.result_usd).sum();
+        assert!((sites + centers.company_usd - last.result_usd).abs() < 0.01);
+        assert!(centers.sites.iter().any(|s| s.site == works));
+        assert_eq!(f.history, months);
+    }
+
+    #[test]
+    fn product_market_lists_sellers_and_demand() {
+        use crate::command::Command;
+        use crate::state::{PriceMode, SiteId};
+        let (mut g, mine, _) = chain();
+        g.advance(RoundLength::Month, |_| {});
+        let c = g.catalog().clone();
+        let ore = c.products.id("erz").expect("exists");
+        g.apply(Command::SetSale {
+            site: SiteId(mine),
+            product: ore,
+            mode: Some(PriceMode::Fixed(Money::from_usd(9.0).expect("valid"))),
+            keep: 0.0,
+        })
+        .expect("valid");
+        g.advance(RoundLength::Month, |_| {});
+        let view = product_market(&g, "AAA", "erz").expect("known product");
+        assert_eq!(view.unit, "t");
+        let own = view.sellers.iter().find(|s| s.own).expect("own offer");
+        assert!((own.price_usd - 9.0).abs() < 1e-9);
+        let shares: f64 = view.sellers.iter().map(|s| s.share).sum();
+        assert!(shares <= 1.0 + 1e-9);
+        assert!(product_market(&g, "AAA", "gibts_nicht").is_none());
+        let world = world_market(&g, "erz").expect("known product");
+        let aaa = world
+            .countries
+            .iter()
+            .find(|l| l.country == "AAA")
+            .expect("own seller in AAA");
+        assert_eq!(aaa.own_sellers, 1);
+        let line = market(&g, "AAA")
+            .expect("known country")
+            .lines
+            .into_iter()
+            .find(|l| l.product == "erz")
+            .expect("ore");
+        assert_eq!(
+            line.chances,
+            product_market(&g, "AAA", "erz").expect("ore").chances
+        );
+    }
+
+    #[test]
+    fn round_report_shows_what_each_product_brought() {
+        use crate::command::Command;
+        use crate::state::{PriceMode, SiteId};
+        let (mut g, mine, _) = chain();
+        let c = g.catalog().clone();
+        // Bread for the consumers of AAA (the test chain has no recipe for it).
+        let bread = c.products.id("brot").expect("exists");
+        g.state_mut().sites[mine as usize]
+            .inventory
+            .entry(bread)
+            .or_default()
+            .add(1e9, Money::from_usd(1e9).expect("valid"), 50.0);
+        g.apply(Command::SetSale {
+            site: SiteId(mine),
+            product: bread,
+            mode: Some(PriceMode::Fixed(Money::from_usd(2.0).expect("valid"))),
+            keep: 0.0,
+        })
+        .expect("valid");
+        // Over the turn of the year: the closed year still counts.
+        for _ in 0..11 {
+            g.advance(RoundLength::Month, |_| {});
+        }
+        let before = snapshot(&g);
+        let report = g.advance(RoundLength::Quarter, |_| {});
+        let view = round_report(&g, &report, &before);
+        let sold = view
+            .products
+            .iter()
+            .find(|p| p.product == "brot")
+            .expect("bread was sold");
+        assert!(sold.revenue_usd > 0.0);
+        // Bought in at 1 USD, sold at 2 USD.
+        assert!((sold.margin_usd - 0.5 * sold.revenue_usd).abs() < 0.01);
+        let revenue = view
+            .period
+            .lines
+            .iter()
+            .find(|(k, _)| k == "kostenart.umsatz")
+            .map_or(0.0, |l| l.1);
+        let by_product: f64 = view.products.iter().map(|p| p.revenue_usd).sum();
+        assert!(
+            (revenue - by_product).abs() < 0.01,
+            "{revenue} vs {by_product}"
+        );
     }
 
     #[test]

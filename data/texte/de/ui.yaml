@@ -27,6 +27,10 @@ neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
 neu.einfuehrung: Einführung zeigen (empfohlen für die erste Partie)
+neu.weitere: Weitere Einstellungen (Zahl der KI-Firmen, Startkapital, Forschung, Zufallswert)
+neu.ki_firmen_hilfe: Mehr Firmen machen die Märkte voller und die Runden etwas langsamer.
+neu.startform_hilfe.werkstatt: Eine kleine Nagelwerkstatt mit Maschine; sie kauft Draht ein und verkauft Nägel – du produzierst vom ersten Tag an.
+neu.startform_hilfe.handel: Eine Niederlassung ohne Anlagen und mehr Geld in der Kasse – du kaufst ein, verkaufst weiter und baust selbst auf.
 
 startform.werkstatt: Werkstatt
 startform.handel: Handelsniederlassung
@@ -37,6 +41,9 @@ spiel.rundenlaenge: Rundenlänge
 spiel.runde_beenden: Runde beenden
 spiel.speichern: Speichern
 spiel.laden: Laden
+spiel.menue: Menü
+spiel.kasse_trend: Veränderung seit Ende des Vormonats
+spiel.offene_hinweise: Offene Hinweise
 spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
 rundenlaenge.tag: Tag
 rundenlaenge.woche: Woche
@@ -70,8 +77,27 @@ uebersicht.keine_wettbewerber: Diese Partie läuft ohne KI-Firmen.
 uebersicht.firma: Firma
 uebersicht.sitz: Sitz
 uebersicht.real: historisch
+uebersicht.zu_erledigen: Zu erledigen
+uebersicht.nichts_zu_tun: Alles läuft – im Moment ist nichts zu tun.
+uebersicht.hingehen: Hingehen
+uebersicht.seit_monatsende: "{betrag} seit Monatsende"
+uebersicht.im_vormonat: "{betrag} im Vormonat"
+uebersicht.kasse_verlauf: Kasse am Monatsende
+uebersicht.umsatz: Umsatz je Monat
+uebersicht.ergebnis: Ergebnis je Monat
+uebersicht.keine_erzeugung: stellt nichts her
+uebersicht.anlagen: Anlagen
+uebersicht.davon_im_bau: "{anzahl} im Bau"
+uebersicht.hinweise_standort: "{anzahl} Hinweis(e) unter „Zu erledigen“"
+uebersicht.wettbewerb_hinweis: Die größten KI-Firmen nach Eigenkapital. Wer welchen Markt beherrscht, zeigt der Reiter Markt.
+uebersicht.groesste: Größte Wettbewerber
+grafik.zu_wenig: Der Verlauf erscheint nach dem zweiten abgeschlossenen Monat.
+grafik.beschreibung: "{name}: {anfang} ({von}) bis {ende} ({bis})"
 
 bericht.titel: Rundenbericht
+bericht.was_lief: Was lief – Umsatz und Rohertrag je Produkt in dieser Runde
+bericht.nichts_verkauft: In dieser Runde wurde nichts verkauft.
+bericht.jetzt_tun: Jetzt zu tun
 bericht.zeitraum: "{von} bis {bis} ({tage} Tage)"
 bericht.kasse: Kasse
 bericht.eigenkapital_aenderung: Veränderung Eigenkapital
@@ -96,6 +122,11 @@ laden.titel: Spiel laden
 laden.keine: Noch keine Spielstände vorhanden.
 laden.laden: Laden
 laden.stand: "{firma}, {datum}"
+laden.datei: Als Datei
+laden.datei_von: "Spielstand {name} als Datei herunterladen"
+laden.hochladen: Spielstand aus einer Datei
+laden.hochladen_hilfe: Eine .wsim-Datei, z. B. von einem anderen Gerät. Sie erscheint danach in der Liste.
+laden.hochgeladen: "„{name}“ eingelesen – jetzt laden."
 dialog.schliessen: Schließen
 
 weltereignis.zaehler: "{nummer} von {anzahl}"
@@ -127,12 +158,18 @@ ansicht.finanzen: Finanzen
 
 karte.titel: Weltkarte
 karte.ebene: Kartenebene
+karte.ebene.absatz: Absatzchancen
 karte.ebene.lohn: Lohnniveau
 karte.ebene.bip: BIP je Kopf
 karte.ebene.bevoelkerung: Bevölkerung
 karte.ebene.rohstoffe: Rohstoffe
 karte.ebene.standorte: Standorte
 karte.rohstoff: Rohstoff
+karte.produkt: Produkt
+karte.absatz_titel: "Preis {preis} ({anteil} % des Richtpreises), Nachfrage {nachfrage} im Vormonat, {anbieter} Anbieter"
+karte.absatz_keine: keine Nachfrage im Vormonat
+karte.absatz_hinweis: Farbe = Marktpreis im Verhältnis zum Richtpreis des Landes (dunkler = teurer, mehr Spielraum für einen günstigeren Anbieter); Kreis = Nachfrage im Vormonat, orange mit eigenem Angebot. Ein Klick auf ein Land öffnet seine Daten; dort lässt sich ein Standort gründen.
+karte.legende.nachfrage: Nachfrage (Kreisgröße)
 karte.legende: Legende
 karte.standorte_titel: "{eigene} eigene, {fremde} fremde Standorte"
 karte.lagerstaetten_titel: "{anzahl} Lagerstätten"
@@ -146,6 +183,7 @@ karte.eigene_standorte: eigene Standorte
 karte.fremde_standorte: Standorte der Wettbewerber
 karte.hinweis: Länder in heutigen Grenzen. Lohnniveau = Stundenlohn ungelernter Arbeitskräfte. Lagerstätten stehen an der Hauptstadt ihres Landes; die Größe zeigt die mögliche Jahresförderung. Ein Klick auf ein Land öffnet die Länderdaten.
 
+landdetail.gruenden: Standort hier gründen
 landdetail.bevoelkerung: Bevölkerung
 landdetail.bip_je_kopf: BIP je Kopf
 landdetail.preisniveau: Preisniveau
@@ -172,6 +210,7 @@ landdetail.preis: Preis
 landdetail.nachfrage: Nachfrage
 landdetail.verkauft: verkauft
 vorschau.land_fehlt: Die Vorschau enthält nur Deutschland, das Vereinigte Königreich und die Vereinigten Staaten.
+vorschau.produkt_fehlt: Die Vorschau enthält nur die Märkte für Nägel und Draht.
 
 # Spielen: Befehle
 befehl.ausgefuehrt: Erledigt.
@@ -348,29 +387,70 @@ ursache.ruht.hilfe: Die Anlage ist stillgelegt.
 
 # Markt
 markt.land: Land
-markt.nur_eigene: nur eigene Produkte
 markt.titel: "Markt {land}"
+markt.bereiche: Bereiche des Markts
+markt.produkte: Produkte
+markt.erklaerung: "Preise und Mengen des Vormonats im gewählten Land. Ein Klick auf ein Produkt zeigt Anbieter, Anteile und wer was kauft. „Chancen“ zeigt Märkte, in denen Ware fehlt, die Preise hoch sind oder kaum jemand anbietet."
+markt.zeigen: Zeigen
+markt.filter.alle: alle Produkte
+markt.filter.eigene: nur eigene
+markt.filter.chancen: Chancen
+markt.sortieren: Sortieren nach
+markt.sort.name: Name
+markt.sort.nachfrage: Nachfrage (größte zuerst)
+markt.sort.preis: Preis zum Richtpreis (höchster zuerst)
+markt.sort.versorgung: Versorgung (schlechteste zuerst)
+markt.keine_produkte: Keine Produkte für diese Auswahl.
+markt.ohne_markt: "{anzahl} Produkte ohne Nachfrage und Anbieter in diesem Land sind ausgeblendet."
 markt.preis: Marktpreis
-markt.referenz: Referenz
-markt.staat: Staatlich
-markt.nachfrage: Nachfrage
-markt.verkauft: Verkauft
-markt.ein_ausfuhr: Einfuhr / Ausfuhr
+markt.zum_richtpreis: Preis zum Richtpreis
+markt.richtpreis_hilfe: Marktpreis im Verhältnis zum Richtpreis des Landes; der Strich in der Mitte steht für 100 %.
+markt.trend_hilfe: Marktpreis heute gegen den Durchschnitt der Verkäufe im Vormonat
+markt.nachfrage_monat: Nachfrage im Vormonat
+markt.versorgung: Versorgung
 markt.anbieter: Anbieter
-markt.eigener_preis: Eigener Preis (Absatz)
-markt.hinweis: Mengen des Vormonats. Der staatliche Markt liefert Vorprodukte, die sonst niemand anbietet, zu einem Aufschlag.
 markt.fuehrer: Marktführer
-markt.anteil: Eigener Anteil
+markt.anteil: Dein Anteil
+markt.oeffnen: "Markt für {produkt} öffnen"
+markt.hinweis: Versorgung = Anteil der Nachfrage von Verbrauchern und Staat, der im Vormonat bedient wurde. Der staatliche Markt liefert Vorprodukte, die sonst niemand anbietet, zu einem Aufschlag.
+markt.chance.mangel: Mangel
+markt.chance.mangel.hilfe: Ein Teil der Nachfrage blieb im Vormonat ohne Ware.
+markt.chance.teuer: teuer
+markt.chance.teuer.hilfe: Der Preis liegt mindestens 20 % über dem Richtpreis – Platz für einen günstigeren Anbieter.
+markt.chance.wenige_anbieter: wenige Anbieter
+markt.chance.wenige_anbieter.hilfe: Höchstens zwei Firmen bieten hier an, und der Markt ist nicht gesättigt.
+markt.produktmarkt_titel: "{produkt} in {land}"
+markt.alle_produkte: Alle Produkte
+markt.anbieter_titel: Anbieter im Vormonat
+markt.keine_anbieter: Im Land bietet keine Firma dieses Produkt an.
+markt.preis_anbieter: Preis heute
+markt.verkauft_vormonat: Verkauft im Vormonat
+markt.anteil_markt: Marktanteil
+markt.du: du
+markt.einfuhr: Einfuhr durch Händler
+markt.ausfuhr: Ausfuhr durch Händler
+markt.staatsmarkt: Staatlicher Markt
+markt.deine_bekanntheit: Deine Bekanntheit
+markt.nachfrage_titel: Wer kauft?
+markt.nachfrage_hilfe: Nachfrage je Monat zu heutigen Preisen und Einkommen; die Verbraucher nach Einkommensfünfteln, vom ärmsten zum reichsten.
+markt.fuenftel.1: Ärmstes Fünftel
+markt.fuenftel.2: Zweites Fünftel
+markt.fuenftel.3: Mittleres Fünftel
+markt.fuenftel.4: Viertes Fünftel
+markt.fuenftel.5: Reichstes Fünftel
+markt.staat_nachfrage: Staat
+markt.industrie: Firmen (Vorprodukt)
+markt.verbraucher_summe: "Verbraucher zusammen: {menge} je Monat."
 markt.marke_titel: Marke und Werbung
-markt.marke_tabelle: "Marke und Werbung {land}"
-markt.warengruppe: Warengruppe
-markt.bekanntheit: Eigene Bekanntheit
+markt.bekanntheit: Deine Bekanntheit
 markt.konkurrenz: Bekannteste Konkurrenz
-markt.konkurrenz_wert: "{firma} ({bekanntheit})"
-markt.werbebudget: Werbebudget je Monat (USD)
+markt.werbebudget: Werbebudget
+markt.usd_monat: USD je Monat
 markt.werbung_fuer: "Werbung für {gruppe}"
-markt.budget_fuer: "Werbebudget je Monat für {gruppe} in USD"
 markt.budget_setzen: Setzen
+markt.budget_ungueltig: Das Budget muss eine Zahl ab 0 sein.
+markt.budget_gesetzt: "Werbebudget {betrag} je Monat gesetzt."
+markt.werbung_beendet: Werbung beendet.
 markt.werbemittel: "Bestes Werbemittel: {mittel}. Mit {betrag} im Monat erreicht die Werbung das ganze Land einmal; mehr Geld wirkt immer schwächer."
 markt.kein_werbemittel: Noch gibt es kein Werbemittel.
 markt.marke_hinweis: "Kunden wählen nach Preis, Qualität, Bekanntheit und danach, wie viel ein Anbieter in die Läden bringt. Bekanntheit wächst mit Werbung und mit eigenen Verkäufen an Verbraucher und verblasst ohne beides. Bezahlt wird das Budget am Monatsanfang; 0 beendet die Werbung. Industrie und Staat kaufen nur nach Preis."
@@ -417,16 +497,31 @@ finanzen.kredite: Kredite
 finanzen.rahmen: "Kreditrahmen {rahmen}, Dispositionsrahmen {dispo}, Zins für neue Kredite {zins}."
 finanzen.beginn: Beginn
 finanzen.monate: "{anzahl} Monate"
-finanzen.betrag: Betrag (USD)
+finanzen.betrag: Betrag
 finanzen.rest: Restschuld
 finanzen.zins: Zins
 finanzen.rate: Monatsrate
 finanzen.sondertilgung: Sondertilgung
-finanzen.tilgungsbetrag: Tilgungsbetrag in USD
+finanzen.tilgungsbetrag: Tilgungsbetrag
 finanzen.tilgen: Tilgen
 finanzen.aufnehmen: Kredit aufnehmen
-finanzen.laufzeit: Laufzeit (Jahre)
+finanzen.laufzeit: Laufzeit
 finanzen.aufnehmen_knopf: Aufnehmen
+finanzen.jahre: Jahre
+finanzen.laufzeit_hilfe: "1 bis {max} Jahre; getilgt wird in gleichen Monatsraten."
+finanzen.kredit_werte: "Bitte einen Betrag über 0 und eine Laufzeit von 1 bis {max} Jahren eingeben."
+finanzen.kredit_aufgenommen: "Kredit über {betrag} aufgenommen."
+finanzen.getilgt: "{betrag} getilgt."
+finanzen.verlauf: Verlauf
+finanzen.verlauf_tabelle: Werte je Monat
+finanzen.monat: Monat
+finanzen.woher: Womit verdienst du Geld?
+finanzen.zeitraum: Zeitraum
+finanzen.je_standort: Je Standort
+finanzen.je_produkt: Je Produkt
+finanzen.firma_gesamt: Firma (Zinsen, Steuern, Werbung)
+finanzen.rohertrag_anteil: Rohertrag in % des Umsatzes
+finanzen.kein_umsatz: Noch kein Umsatz in diesem Zeitraum.
 
 # Tastaturkürzel
 tasten.knopf: Tasten (?)
@@ -453,9 +548,9 @@ einfuehrung.uebersicht.text: "Hier stehen Kasse, Eigenkapital und Ergebnis deine
 einfuehrung.produktion.titel: Standorte
 einfuehrung.produktion.text: "Jeder Standort ist eine Karte mit Umsatz, Ergebnis und Engpässen. „Öffnen“ führt in die Werksansicht: Anlagen (Verfahren und Auslastung), Einkauf (Ziellager und Höchstpreis der Vorprodukte), Verkauf (dein Preis neben Marktpreis und Stückkosten), Personal (Arbeitskräfte und Lohnaufschlag) sowie Kosten und Ergebnis. Neue Standorte gründest du unten auf der Seite."
 einfuehrung.markt.titel: Markt
-einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat. „Marktführer“ zeigt, gegen wen du antrittst, „Eigener Anteil“, was du ihm schon abgenommen hast. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
+einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. „Marktführer“ zeigt, gegen wen du antrittst, „Dein Anteil“, was du ihm schon abgenommen hast. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung
-einfuehrung.werbung.text: "Unter der Markttabelle steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
+einfuehrung.werbung.text: "Im Markt unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
 einfuehrung.forschung.titel: Forschung
 einfuehrung.forschung.text: "Mit einem Forschungszentrum und seinen Laboren erforschst du neue Verfahren und Produkte – auch vor ihrer historischen Zeit, dann aber teurer."
 einfuehrung.finanzen.titel: Finanzen

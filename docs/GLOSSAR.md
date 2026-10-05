@@ -167,3 +167,12 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Stückkosten eines Standorts (Material, Personal, Energie, Gemeinkosten, Pacht, Anlage) | `production::UnitCost`, `production::unit_costs`, `UnitCostView` |
 | Ergebnis je Kostenstelle, interne Verrechnung | `PeriodResult::by_center`, `PeriodResult::site_type`, `Ledger::allocate` |
 | Ergebnis des Standorts im Vormonat, Rohertrag je Produkt | `SiteResult`, `ProductResult` |
+| Zu erledigen (Hinweise der Übersicht) | `views::hints`, `HintView`, `keys::HINT_*` (`hinweis.*`) |
+| Verlauf je Monat (Kasse, Umsatz, Ergebnis) | `views::history`, `MonthView` |
+| Ergebnis je Standort und Produkt (Finanzen) | `CenterResults`, `SiteLine`, `ProductResult` |
+| Was lief (Rundenbericht) | `RoundReportView::products`, `round_products` |
+| Produktmarkt, Anbieter, Wer kauft? | `views::product_market`, `ProductMarketView`, `SellerLine` |
+| Absatzchancen (Weltkarte), Weltmarkt eines Produkts | `views::world_market`, `WorldMarketView` |
+| Chancen eines Markts (Mangel, teuer, wenige Anbieter) | `MarketLine::chances`, `views::play::chances` |
+| Versorgung (Anteil bedienter Nachfrage von Verbrauchern und Staat) | `MarketLine::supply` |
+| Spielstand als Datei (Browser-Version) | `Kern::spielstandDatei`, `spielstandEinlesen` (UI), Worker-Anfragen `datei`, `einlesen` |

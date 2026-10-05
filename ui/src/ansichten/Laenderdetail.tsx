@@ -16,11 +16,13 @@ export function Laenderdetail({
   schluessel,
   datum,
   onSchliessen,
+  onGruenden,
 }: {
   kern: Kern;
   schluessel: string;
   datum: string;
   onSchliessen: () => void;
+  onGruenden?: () => void;
 }) {
   const [land, setLand] = useState<Landdetail | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -59,6 +61,13 @@ export function Laenderdetail({
         </button>
       </header>
       <FehlerText fehler={fehler} />
+      {onGruenden && (
+        <div className="knopfreihe links">
+          <button type="button" onClick={onGruenden}>
+            {t("landdetail.gruenden")}
+          </button>
+        </div>
+      )}
       {land && land.key === schluessel && (
         <>
           <dl className="werte">

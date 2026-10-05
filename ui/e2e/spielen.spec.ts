@@ -58,15 +58,33 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await bild(page, "werk_kosten");
 
   await page.keyboard.press("3");
-  await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
-  // Newcomer against the established companies: leader, own share and brands.
+  const markt = page.getByRole("table", { name: "Markt Deutschland" });
+  await expect(markt).toBeVisible();
+  // Newcomer against the established companies: the leader and its share.
   await expect(
-    page.getByRole("cell", { name: "99 % Maschinenfabrik Lehmann & Söhne" }),
+    markt.getByRole("cell", { name: "99 % Maschinenfabrik Lehmann & Söhne" }),
   ).toBeVisible();
-  const marken = page.getByRole("table", { name: "Marke und Werbung Deutschland" });
-  await expect(marken.getByRole("cell", { name: "Metallwaren", exact: true })).toBeVisible();
-  await expect(page.getByText(/Bestes Werbemittel: Zeitungsanzeigen/)).toBeVisible();
+  // Openings for a newcomer.
+  await page.getByLabel("Chancen").check();
+  await expect(markt.getByRole("button", { name: "Markt für Eisenerz öffnen" })).toBeVisible();
+  await expect(markt.getByRole("button", { name: "Markt für Blech öffnen" })).toBeHidden();
+  await page.getByLabel("alle Produkte").check();
   await bild(page, "markt");
+  // One product market: sellers with shares and who buys.
+  await markt.getByRole("button", { name: "Markt für Nägel öffnen" }).click();
+  const naegelMarkt = page.getByRole("region", { name: "Nägel in Deutschland" });
+  await expect(
+    naegelMarkt
+      .getByRole("table", { name: "Anbieter im Vormonat" })
+      .getByText("Maschinenfabrik Lehmann & Söhne"),
+  ).toBeVisible();
+  await expect(naegelMarkt.getByText("Ärmstes Fünftel")).toBeVisible();
+  await bild(page, "produktmarkt");
+  await naegelMarkt.getByRole("button", { name: /Alle Produkte/ }).click();
+  await page.getByRole("button", { name: "Marke und Werbung", exact: true }).click();
+  await expect(page.getByRole("form", { name: "Werbung für Metallwaren" })).toBeVisible();
+  await expect(page.getByText(/Bestes Werbemittel: Zeitungsanzeigen/)).toBeVisible();
+  await bild(page, "marke");
 
   await page.keyboard.press("4");
   await expect(page.getByRole("heading", { name: "Technologien" })).toBeVisible();
@@ -76,6 +94,8 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await page.keyboard.press("5");
   await expect(page.getByRole("heading", { name: "Bilanz" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "Sachanlagen" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Womit verdienst du Geld?" })).toBeVisible();
+  await expect(page.getByRole("table", { name: "Je Produkt" }).getByText("Nägel")).toBeVisible();
   await bild(page, "finanzen");
 
   await page.keyboard.press("?");
@@ -118,14 +138,16 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await lohn.getByLabel("Lohnaufschlag").fill("12,5");
   await lohn.getByRole("button", { name: "Übernehmen" }).click();
 
-  await page.getByRole("button", { name: "Finanzen" }).click();
-  await page.getByLabel("Betrag (USD)").fill("20000");
-  await page.getByLabel("Laufzeit (Jahre)").fill("8");
-  await page.getByRole("button", { name: "Aufnehmen" }).click();
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  const kredit = page.getByRole("form", { name: "Kredit aufnehmen" });
+  await kredit.getByLabel("Betrag").fill("20.000");
+  await kredit.getByLabel("Laufzeit").fill("8");
+  await kredit.getByRole("button", { name: "Aufnehmen" }).click();
 
-  await page.getByRole("button", { name: "Markt" }).click();
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Marke und Werbung", exact: true }).click();
   const werbung = page.getByRole("form", { name: "Werbung für Metallwaren" });
-  await werbung.getByLabel("Werbebudget je Monat für Metallwaren in USD").fill("5000");
+  await werbung.getByLabel("Werbebudget").fill("5.000");
   await werbung.getByRole("button", { name: "Setzen" }).click();
 
   expect(await befehle(page)).toEqual([
@@ -166,7 +188,7 @@ test("Die Einführung führt durch die Ansichten und lässt sich neu starten", a
   await weiter.click();
   await weiter.click();
   await expect(einfuehrung.getByRole("heading", { name: "Marke und Werbung" })).toBeVisible();
-  await expect(page.getByRole("table", { name: "Marke und Werbung Deutschland" })).toBeVisible();
+  await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Zurück" }).click();
   await expect(einfuehrung.getByRole("heading", { name: "Markt" })).toBeVisible();
 

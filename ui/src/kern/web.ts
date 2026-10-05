@@ -59,11 +59,15 @@ export function webKern(): Kern {
     land: (schluessel) => aufruf("land", { schluessel }),
     produktion: () => aufruf("produktion"),
     markt: (land) => aufruf("markt", { land }),
+    produktmarkt: (land, produkt) => aufruf("produktmarkt", { land, produkt }),
+    weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
     forschung: () => aufruf("forschung"),
     finanzen: () => aufruf("finanzen"),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),
     spielstaende: () => aufruf("spielstaende"),
     laden: (name) => aufruf("laden", { name }),
+    spielstandDatei: (name) => aufruf("datei", { name }),
+    spielstandEinlesen: (name, bytes) => aufruf("einlesen", { name, bytes }),
   };
 }

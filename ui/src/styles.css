@@ -470,6 +470,13 @@ select {
   color: var(--text-gedaempft);
 }
 
+.kennzahl-zusatz {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-gedaempft);
+}
+
 .kennzahlen dd {
   margin: 0.15rem 0 0;
   font-size: 1.15rem;
@@ -663,7 +670,7 @@ table.ergebnis th[scope="row"] {
   position: relative;
 }
 
-.karte {
+.kartenbild {
   display: block;
   width: 100%;
   height: auto;
@@ -671,55 +678,55 @@ table.ergebnis th[scope="row"] {
   border-radius: 6px;
 }
 
-.karte .meer {
+.kartenbild .meer {
   fill: var(--meer);
 }
 
-.karte .land {
+.kartenbild .land {
   stroke: var(--grenze);
   stroke-width: 0.12;
   cursor: pointer;
 }
 
-.karte .land:hover,
-.karte .land:focus-visible {
+.kartenbild .land:hover,
+.kartenbild .land:focus-visible {
   stroke: var(--text);
   stroke-width: 0.3;
   outline: none;
 }
 
-.karte .land.gewaehlt {
+.kartenbild .land.gewaehlt {
   stroke: var(--eigen);
   stroke-width: 0.45;
 }
 
-.karte .symbol {
+.kartenbild .symbol {
   pointer-events: none;
 }
 
-.karte .fremd {
+.kartenbild .fremd {
   fill: var(--akzent);
   fill-opacity: 0.45;
 }
 
-.karte .eigen {
+.kartenbild .eigen {
   fill: var(--eigen);
 }
 
-.karte .lager {
+.kartenbild .lager {
   stroke: var(--flaeche);
   stroke-width: 0.15;
 }
 
-.karte .lager.frei {
+.kartenbild .lager.frei {
   fill: var(--erfolg);
 }
 
-.karte .lager.vergeben {
+.kartenbild .lager.vergeben {
   fill: var(--text-gedaempft);
 }
 
-.karte .lager.unentdeckt {
+.kartenbild .lager.unentdeckt {
   fill: none;
   stroke: var(--text-gedaempft);
   stroke-dasharray: 0.4 0.3;
@@ -1341,6 +1348,297 @@ input[aria-invalid="true"] {
   font-weight: 600;
 }
 
+/* Header menu (M18d) */
+.kopf-menue {
+  position: relative;
+}
+
+.kopf-menue > button {
+  min-width: 2.6rem;
+  font-size: 1.1rem;
+}
+
+.menue-liste {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  z-index: 9;
+  display: grid;
+  min-width: 14rem;
+  padding: 0.3rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 8px;
+  background: var(--flaeche);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+}
+
+.menue-liste button {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border: none;
+  text-align: left;
+}
+
+.menue-liste button:hover {
+  background: var(--hervorhebung);
+}
+
+.trend.positiv,
+.trend.steigt {
+  color: var(--erfolg);
+}
+
+.trend.negativ,
+.trend.faellt {
+  color: var(--fehler);
+}
+
+.trend {
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+
+.reiter .zaehler {
+  margin-left: 0.35rem;
+}
+
+/* Overview: hints, courses, sites */
+.hinweise {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hinweis-zeile {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-left: 3px solid var(--rahmen);
+  background: var(--flaeche);
+}
+
+.verlaeufe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.verlaufskarte {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+  background: var(--flaeche);
+}
+
+.verlaufskarte figcaption {
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--text-gedaempft);
+}
+
+svg.verlauf {
+  display: block;
+  width: 100%;
+  height: 3.5rem;
+}
+
+.verlauf polyline {
+  fill: none;
+  stroke: var(--akzent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.verlauf .nulllinie {
+  stroke: var(--rahmen);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.verlauf rect.plus {
+  fill: var(--erfolg);
+}
+
+.verlauf rect.minus {
+  fill: var(--fehler);
+}
+
+.aufklapper > summary {
+  cursor: pointer;
+  color: var(--akzent);
+}
+
+.aufklapper[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+/* Markets */
+button.verweis {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--akzent);
+  font-weight: 600;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chip {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: var(--flaeche);
+}
+
+.chance-mangel {
+  background: var(--fehler);
+}
+
+.chance-teuer {
+  background: var(--warnung);
+}
+
+.chance-wenige_anbieter {
+  background: var(--akzent);
+}
+
+.chancenliste {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chancenliste .chip {
+  margin-left: 0;
+}
+
+.richtbalken {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.richtbalken-spur {
+  position: relative;
+  display: inline-block;
+  width: 5rem;
+  height: 0.6rem;
+  border-radius: 3px;
+  background: var(--hintergrund);
+}
+
+/* The reference price in the middle of the track */
+.richtbalken-spur::after {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 1px;
+  background: var(--text-gedaempft);
+  content: "";
+}
+
+.richtbalken-wert {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--skala-2);
+}
+
+.richtbalken-wert.ueber {
+  background: var(--warnung);
+}
+
+.richtbalken-wert.unter {
+  background: var(--skala-1);
+}
+
+.anteilbalken {
+  display: inline-block;
+  width: 4rem;
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--hintergrund);
+  vertical-align: middle;
+}
+
+.anteilbalken span {
+  display: block;
+  height: 100%;
+  background: var(--akzent);
+}
+
+tr.eigen .anteilbalken span {
+  background: var(--eigen);
+}
+
+.nachfrage,
+.bekanntheit {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.balkenzeile.eigen .balken {
+  background: var(--eigen);
+}
+
+.auswahlgruppe.waagrecht {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+}
+
+.auswahlgruppe.waagrecht legend {
+  width: 100%;
+}
+
+.hochladen {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rahmen);
+}
+
+.hervorgehoben {
+  border-color: var(--akzent);
+  box-shadow: 0 0 0 3px var(--hervorhebung);
+}
+
+.kartenbild .nachfrage {
+  fill: var(--akzent);
+  fill-opacity: 0.35;
+  stroke: var(--flaeche);
+  stroke-width: 0.1;
+  pointer-events: none;
+}
+
+.kartenbild .nachfrage.eigen {
+  fill: var(--eigen);
+  fill-opacity: 0.8;
+}
+
+.legende .punkt.nachfrage {
+  background: var(--akzent);
+  opacity: 0.45;
+}
+
 /* Introduction: a panel beside the game, below the dialogs */
 .einfuehrung {
   position: fixed;
@@ -1455,29 +1753,48 @@ body {
     display: block;
   }
 
+  /* Two values side by side, each with its column name above it. */
   table.mobil-karten tr {
-    padding: 0.4rem 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem 1rem;
+    padding: 0.55rem 0;
     border-bottom: 1px solid var(--rahmen);
   }
 
   table.mobil-karten td {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.1rem 0;
+    display: grid;
+    align-content: start;
+    padding: 0;
     border: none;
-    text-align: right;
+    text-align: left;
+    white-space: normal;
   }
 
+  /* The name with its marks (chances, "du") in one line, marks as wide as their text. */
   table.mobil-karten td:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.4rem;
+    grid-column: 1 / -1;
     font-weight: 600;
-    text-align: left;
+  }
+
+  table.mobil-karten td:first-child .chip,
+  table.mobil-karten td:first-child .marke {
+    margin-left: 0;
   }
 
   table.mobil-karten td[data-spalte]::before {
     content: attr(data-spalte);
+    font-size: 0.75rem;
+    font-weight: 400;
     color: var(--text-gedaempft);
-    text-align: left;
+  }
+
+  table.mobil-karten .spalte-breit {
+    display: none;
   }
 
   .balkenzeile {
@@ -1486,6 +1803,14 @@ body {
 
   .formular-zeile {
     gap: 0.5rem 0.75rem;
+  }
+
+  .hinweis-zeile {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .hinweis-zeile .meldungsart {
+    grid-column: 1 / -1;
   }
 
   .unterreiter {

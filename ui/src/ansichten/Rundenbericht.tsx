@@ -1,5 +1,5 @@
 import { formatDatum, formatGeld, formatProzent, meldungText } from "../format";
-import type { Meldung, MeldungsGruppe, Periode, Rundenbericht } from "../kern";
+import type { Hinweis, Meldung, MeldungsGruppe, Periode, Rundenbericht } from "../kern";
 import { t } from "../texte";
 import { Dialog } from "./Dialog";
 
@@ -80,11 +80,13 @@ function MeldungZeile({ m, onZiel }: { m: Meldung; onZiel: (ziel: string) => voi
 export function RundenberichtDialog({
   bericht,
   onZiel,
+  onHinweis,
   onEreignis,
   onSchliessen,
 }: {
   bericht: Rundenbericht;
   onZiel: (ziel: string) => void;
+  onHinweis: (h: Hinweis) => void;
   onEreignis: (m: Meldung) => void;
   onSchliessen: () => void;
 }) {
@@ -117,6 +119,56 @@ export function RundenberichtDialog({
 
       <h3>{t("bericht.finanzergebnis")}</h3>
       <Ergebnis periode={bericht.period} vorher={bericht.previous} />
+
+      <h3>{t("bericht.was_lief")}</h3>
+      {bericht.products.length === 0 ? (
+        <p className="gedaempft">{t("bericht.nichts_verkauft")}</p>
+      ) : (
+        <div className="tabelle">
+          <table className="mobil-karten" aria-label={t("bericht.was_lief")}>
+            <thead>
+              <tr>
+                <th>{t("uebersicht.produkt")}</th>
+                <th className="zahl">{t("kostenart.umsatz")}</th>
+                <th className="zahl">{t("werk.rohertrag")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bericht.products.map((p) => (
+                <tr key={p.product}>
+                  <td>{t(`produkt.${p.product}`)}</td>
+                  <td className="zahl" data-spalte={t("kostenart.umsatz")}>
+                    {formatGeld(p.revenue_usd)}
+                  </td>
+                  <td
+                    className={`zahl ${p.margin_usd < 0 ? "negativ" : ""}`}
+                    data-spalte={t("werk.rohertrag")}
+                  >
+                    {formatGeld(p.margin_usd)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {bericht.hints.length > 0 && (
+        <section>
+          <h3>{t("bericht.jetzt_tun")}</h3>
+          <ul className="meldungen">
+            {bericht.hints.map((h, i) => (
+              <li key={i} className={`meldung meldung-${h.message.kind}`}>
+                <span className="meldungsart">{t(`meldungsart.${h.message.kind}`)}</span>
+                <span className="meldungstext">{meldungText(h.message)}</span>
+                <button type="button" className="schlicht" onClick={() => onHinweis(h)}>
+                  {t("uebersicht.hingehen")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {gruppen.map(([gruppe, liste]) =>
         gruppe === "forschung"

@@ -59,7 +59,8 @@ describe("Spielablauf", () => {
     fireEvent.click(within(bericht).getByRole("button", { name: "Weiter" }));
     expect(await screen.findByText("01.08.1914")).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Speichern" }));
+    fireEvent.click(screen.getByRole("button", { name: "Menü" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Speichern/ }));
     const dialog = await screen.findByRole("dialog", { name: "Spiel speichern" });
     fireEvent.change(within(dialog).getByLabelText("Name des Spielstands"), {
       target: { value: "Probe" },

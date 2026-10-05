@@ -766,6 +766,44 @@ pub struct MarketLine {
     /// Company that sold most here in the last closed month, and its share.
     pub leader: Option<String>,
     pub leader_share: f64,
+    /// Average price of last month's sales (for the trend against the price now).
+    pub price_last_month_usd: Option<f64>,
+    /// Share of consumers' and government demand served last month.
+    pub supply: Option<f64>,
+    /// Demand last month that found no goods at its price.
+    pub unmet_last_month: f64,
+    /// Openings for a newcomer (display hints): `mangel`, `teuer`, `wenige_anbieter`.
+    pub chances: Vec<String>,
+}
+
+/// Supply below this share of consumers' and government demand is a shortage.
+const SHORTAGE_SUPPLY: f64 = 0.9;
+/// A price this far above the reference price makes room for a cheaper newcomer.
+const EXPENSIVE_FACTOR: f64 = 1.2;
+/// With demand and at most this many sellers, a market is open to newcomers – if it is
+/// not fully served or pays more than the reference price.
+const FEW_SELLERS: u32 = 2;
+
+fn chances(line: &MarketLine) -> Vec<String> {
+    let mut found = Vec::new();
+    let unmet_share = if line.demand_last_month > 1e-9 {
+        line.unmet_last_month / line.demand_last_month
+    } else {
+        0.0
+    };
+    if line.supply.is_some_and(|s| s < SHORTAGE_SUPPLY) || unmet_share > 1.0 - SHORTAGE_SUPPLY {
+        found.push("mangel");
+    }
+    if line.reference_usd > 0.0 && line.price_usd >= EXPENSIVE_FACTOR * line.reference_usd {
+        found.push("teuer");
+    }
+    let open = line.supply.is_some_and(|s| s < 0.99)
+        || unmet_share > 0.01
+        || line.price_usd > line.reference_usd;
+    if line.demand_last_month > 1e-9 && line.sellers <= FEW_SELLERS && open {
+        found.push("wenige_anbieter");
+    }
+    found.into_iter().map(str::to_owned).collect()
 }
 
 /// Brands of a goods group in a country (M16).
@@ -792,6 +830,8 @@ pub struct MarketView {
     pub medium: Option<String>,
     /// Budget per month that reaches the whole country once.
     pub reach_usd: f64,
+    /// Unit of each product (key of `einheit.<key>`).
+    pub units: BTreeMap<String, String>,
 }
 
 pub fn market(game: &Game, country: &str) -> Option<MarketView> {
@@ -827,7 +867,7 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                 .iter()
                 .filter(|&(_, &sold)| sold > 1e-9)
                 .max_by(|a, b| a.1.total_cmp(b.1).then(b.0.cmp(a.0)));
-            MarketLine {
+            let mut line = MarketLine {
                 product: catalog.products.key(p).to_owned(),
                 price_usd: usd(market::market_price(catalog, state, c, p)),
                 reference_usd: usd(market::local_reference(catalog, state, c, p)),
@@ -846,7 +886,13 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                 own_share: share(own_sold),
                 leader: leader.map(|(&id, _)| state.companies[id.index()].name.clone()),
                 leader_share: leader.map_or(0.0, |(_, &sold)| share(sold)),
-            }
+                price_last_month_usd: (t.sold > 1e-9).then(|| usd(t.revenue) / t.sold),
+                supply: (t.outside_demand > 1e-9).then(|| t.outside_sold / t.outside_demand),
+                unmet_last_month: t.unmet(),
+                chances: Vec::new(),
+            };
+            line.chances = chances(&line);
+            line
         })
         .collect();
     Some(MarketView {
@@ -860,6 +906,190 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
             .medium(state.date.year())
             .map(|m| m.key.clone()),
         reach_usd: crate::brand::reach_usd(state, catalog, c),
+        units: units(catalog),
+    })
+}
+
+/// A seller on a product market.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SellerLine {
+    pub company: String,
+    pub own: bool,
+    /// A historical company.
+    pub real: bool,
+    pub price_usd: f64,
+    pub sold_last_month: f64,
+    /// Share of the market's sales last month (0–1).
+    pub share: f64,
+}
+
+/// One product on the market of a country (M18): prices, demand by buyer, sellers.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProductMarketView {
+    pub date: String,
+    pub country: String,
+    pub product: String,
+    pub unit: String,
+    pub group: String,
+    pub price_usd: f64,
+    pub reference_usd: f64,
+    pub price_last_month_usd: Option<f64>,
+    pub state_price_usd: Option<f64>,
+    /// Asking price of the traders' imports, if they hold any.
+    pub import_price_usd: Option<f64>,
+    /// Consumer demand per month by income fifth (poorest first), at today's rates.
+    pub consumers_per_month: [f64; 5],
+    /// Government demand per month at today's rate.
+    pub state_per_month: f64,
+    pub demand_last_month: f64,
+    /// Of last month's demand: consumers and government; the rest is companies.
+    pub outside_demand_last_month: f64,
+    pub sold_last_month: f64,
+    pub unmet_last_month: f64,
+    pub imported_last_month: f64,
+    pub exported_last_month: f64,
+    pub supply: Option<f64>,
+    /// Companies selling here, by last month's sales.
+    pub sellers: Vec<SellerLine>,
+    pub own_awareness: f64,
+    pub chances: Vec<String>,
+}
+
+/// Days of a month for demand per month at daily rates.
+const DAYS_PER_MONTH: f64 = 30.0;
+
+pub fn product_market(game: &Game, country: &str, product: &str) -> Option<ProductMarketView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let c = catalog.countries.id(country)?;
+    let p = catalog.products.id(product)?;
+    let line = market(game, country)?
+        .lines
+        .into_iter()
+        .find(|l| l.product == product);
+    let m = state.markets.get(p).get(c);
+    let t = &m.last_month;
+    let mut sellers: Vec<SellerLine> = Vec::new();
+    for s in state.sites.iter().filter(|s| s.country == c) {
+        let Some(o) = s.offers.get(&p) else { continue };
+        let company = &state.companies[s.owner.index()];
+        if company.bankrupt {
+            continue;
+        }
+        match sellers.iter_mut().find(|x| x.company == company.name) {
+            Some(x) => {
+                x.sold_last_month += o.sold_last_month;
+                x.price_usd = x.price_usd.min(usd(o.price));
+            }
+            None => sellers.push(SellerLine {
+                company: company.name.clone(),
+                own: s.owner == state.player,
+                real: company.ai.as_ref().is_some_and(|a| a.real.is_some()),
+                price_usd: usd(o.price),
+                sold_last_month: o.sold_last_month,
+                share: 0.0,
+            }),
+        }
+    }
+    for x in &mut sellers {
+        x.share = if t.sold > 1e-9 {
+            x.sold_last_month / t.sold
+        } else {
+            0.0
+        };
+    }
+    sellers.sort_by(|a, b| {
+        b.sold_last_month
+            .total_cmp(&a.sold_last_month)
+            .then(a.price_usd.total_cmp(&b.price_usd))
+            .then(a.company.cmp(&b.company))
+    });
+    let group = catalog.products.get(p).goods_group;
+    Some(ProductMarketView {
+        date: iso(state.date),
+        country: country.to_owned(),
+        product: product.to_owned(),
+        unit: catalog.units.key(catalog.products.get(p).unit).to_owned(),
+        group: catalog.goods_groups.key(group).to_owned(),
+        price_usd: usd(market::market_price(catalog, state, c, p)),
+        reference_usd: usd(market::local_reference(catalog, state, c, p)),
+        price_last_month_usd: (t.sold > 1e-9).then(|| usd(t.revenue) / t.sold),
+        state_price_usd: market::state_price(catalog, state, c, p).map(usd),
+        import_price_usd: (m.imports.quantity > 1e-9).then(|| usd(m.import_price)),
+        consumers_per_month: m.consumer_rate.map(|r| r * DAYS_PER_MONTH),
+        state_per_month: m.state_rate * DAYS_PER_MONTH,
+        demand_last_month: t.demand,
+        outside_demand_last_month: t.outside_demand,
+        sold_last_month: t.sold,
+        unmet_last_month: t.unmet(),
+        imported_last_month: t.imported,
+        exported_last_month: t.exported,
+        supply: (t.outside_demand > 1e-9).then(|| t.outside_sold / t.outside_demand),
+        sellers,
+        own_awareness: state.companies[state.player.index()].awareness(c, group),
+        chances: line.map(|l| l.chances).unwrap_or_default(),
+    })
+}
+
+/// A product on the market of one country, for the world map.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WorldMarketLine {
+    pub country: String,
+    pub price_usd: f64,
+    pub reference_usd: f64,
+    pub demand_last_month: f64,
+    pub unmet_last_month: f64,
+    pub supply: Option<f64>,
+    pub sellers: u32,
+    pub own_sellers: u32,
+}
+
+/// One product in every country with demand or sellers (map layer "Absatzchancen").
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WorldMarketView {
+    pub date: String,
+    pub product: String,
+    pub unit: String,
+    pub countries: Vec<WorldMarketLine>,
+}
+
+pub fn world_market(game: &Game, product: &str) -> Option<WorldMarketView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let p = catalog.products.id(product)?;
+    let mut sellers: BTreeMap<CountryId, (u32, u32)> = BTreeMap::new();
+    for s in &state.sites {
+        if s.offers.contains_key(&p) && !state.companies[s.owner.index()].bankrupt {
+            let e = sellers.entry(s.country).or_default();
+            e.0 += 1;
+            if s.owner == state.player {
+                e.1 += 1;
+            }
+        }
+    }
+    let countries = catalog
+        .countries
+        .ids()
+        .filter_map(|c| {
+            let t = &state.markets.get(p).get(c).last_month;
+            let (count, own) = sellers.get(&c).copied().unwrap_or_default();
+            (t.demand > 1e-9 || count > 0).then(|| WorldMarketLine {
+                country: catalog.countries.key(c).to_owned(),
+                price_usd: usd(market::market_price(catalog, state, c, p)),
+                reference_usd: usd(market::local_reference(catalog, state, c, p)),
+                demand_last_month: t.demand,
+                unmet_last_month: t.unmet(),
+                supply: (t.outside_demand > 1e-9).then(|| t.outside_sold / t.outside_demand),
+                sellers: count,
+                own_sellers: own,
+            })
+        })
+        .collect();
+    Some(WorldMarketView {
+        date: iso(state.date),
+        product: product.to_owned(),
+        unit: catalog.units.key(catalog.products.get(p).unit).to_owned(),
+        countries,
     })
 }
 
@@ -1133,6 +1363,80 @@ pub struct FinanceView {
     pub loan_rate: f64,
     pub max_term_years: u32,
     pub loss_carryforward_usd: f64,
+    /// Closed months, oldest first (M18).
+    pub history: Vec<super::MonthView>,
+    /// Where the money was made: by site and product, last month and this year.
+    pub centers_last_month: Option<CenterResults>,
+    pub centers_year: Option<CenterResults>,
+}
+
+/// Revenue and result of a site in a period.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SiteLine {
+    pub site: u32,
+    pub kind_text: String,
+    pub country: String,
+    pub revenue_usd: f64,
+    pub result_usd: f64,
+}
+
+/// Results of a period by site and by product (all sites), and what belongs to the
+/// company as a whole (interest, taxes, advertising).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CenterResults {
+    pub sites: Vec<SiteLine>,
+    /// Revenue and gross margin (revenue less the production cost of what was sold).
+    pub products: Vec<ProductResult>,
+    pub company_usd: f64,
+}
+
+fn center_results(game: &Game, period: &crate::ledger::PeriodResult) -> Option<CenterResults> {
+    use crate::ledger::CostType;
+    if period.by_center.is_empty() {
+        return None;
+    }
+    let state = game.state();
+    let catalog = game.catalog();
+    let sum = |filter: &dyn Fn(&crate::ledger::CostCenter) -> bool, revenue_only: bool| {
+        period
+            .by_center
+            .iter()
+            .filter(|(c, _)| filter(c))
+            .flat_map(|(_, t)| t.iter())
+            .filter(|(t, _)| !revenue_only || **t == CostType::Revenue)
+            .map(|(_, &m)| m)
+            .sum::<Money>()
+    };
+    let sites = state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.owner == state.player)
+        .map(|(i, s)| {
+            let id = crate::state::SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+            SiteLine {
+                site: id.0,
+                kind_text: site_type_key(s.kind),
+                country: catalog.countries.key(s.country).to_owned(),
+                revenue_usd: usd(sum(&|c| c.site == Some(id), true)),
+                result_usd: usd(sum(&|c| c.site == Some(id), false)),
+            }
+        })
+        .collect();
+    let products: BTreeSet<crate::ids::ProductId> =
+        period.by_center.keys().filter_map(|c| c.product).collect();
+    Some(CenterResults {
+        sites,
+        products: products
+            .into_iter()
+            .map(|p| ProductResult {
+                product: catalog.products.key(p).to_owned(),
+                revenue_usd: usd(sum(&|c| c.product == Some(p), true)),
+                margin_usd: usd(sum(&|c| c.product == Some(p), false)),
+            })
+            .collect(),
+        company_usd: usd(sum(&|c| c.site.is_none(), false)),
+    })
 }
 
 pub fn finance_overview(game: &Game) -> FinanceView {
@@ -1176,6 +1480,9 @@ pub fn finance_overview(game: &Game) -> FinanceView {
         overdraft_limit_usd: usd(finance::overdraft_limit(catalog, ledger)),
         loan_rate: finance::loan_rate(catalog, company, limit.scale(0.1), state.date),
         max_term_years: catalog.finance_model.max_term_years,
+        history: super::history(ledger),
+        centers_last_month: ledger.months.last().and_then(|m| center_results(game, m)),
+        centers_year: center_results(game, &ledger.year),
         loss_carryforward_usd: usd(company.loss_carryforward),
     }
 }

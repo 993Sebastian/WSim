@@ -81,6 +81,33 @@ export interface Uebersicht {
   competitors_active: number;
   competitors_bankrupt: number;
   competitors: Wettbewerber[];
+  /** What needs the player's attention now, most urgent first. */
+  hints: Hinweis[];
+  /** Closed months, oldest first. */
+  history: Monat[];
+}
+
+/** A hint with the place to act on it (site and area of the plant view). */
+export interface Hinweis {
+  message: Meldung;
+  site: number | null;
+  area: string | null;
+}
+
+export interface Monat {
+  /** First day of the month. */
+  month: string;
+  revenue_usd: number;
+  result_usd: number;
+  /** Cash at the end of the month. */
+  cash_usd: number;
+}
+
+/** Revenue and gross margin of a product. */
+export interface ProduktErgebnis {
+  product: string;
+  revenue_usd: number;
+  margin_usd: number;
 }
 
 export type Parameter =
@@ -133,6 +160,9 @@ export interface Rundenbericht {
   research: Forschungsprojekt[];
   messages: Meldung[];
   game_over: boolean;
+  /** Revenue and gross margin by product in this round. */
+  products: ProduktErgebnis[];
+  hints: Hinweis[];
 }
 
 export interface Spielstand {
@@ -176,6 +206,8 @@ export interface Weltkarte {
   countries: KartenLand[];
   deposits: Lagerstaette[];
   resources: string[];
+  /** Traded products, for the layer of sales chances. */
+  products: string[];
 }
 
 export interface Landdetail {
@@ -383,6 +415,12 @@ export interface Markt {
     own_share: number;
     leader: string | null;
     leader_share: number;
+    price_last_month_usd: number | null;
+    /** Share of consumers' and government demand served last month. */
+    supply: number | null;
+    unmet_last_month: number;
+    /** mangel, teuer, wenige_anbieter */
+    chances: string[];
   }[];
   brands: {
     group: string;
@@ -393,6 +431,56 @@ export interface Markt {
   }[];
   medium: string | null;
   reach_usd: number;
+  units: Record<string, string>;
+}
+
+export interface ProduktMarkt {
+  date: string;
+  country: string;
+  product: string;
+  unit: string;
+  group: string;
+  price_usd: number;
+  reference_usd: number;
+  price_last_month_usd: number | null;
+  state_price_usd: number | null;
+  import_price_usd: number | null;
+  /** Consumer demand per month by income fifth, poorest first. */
+  consumers_per_month: number[];
+  state_per_month: number;
+  demand_last_month: number;
+  outside_demand_last_month: number;
+  sold_last_month: number;
+  unmet_last_month: number;
+  imported_last_month: number;
+  exported_last_month: number;
+  supply: number | null;
+  sellers: {
+    company: string;
+    own: boolean;
+    real: boolean;
+    price_usd: number;
+    sold_last_month: number;
+    share: number;
+  }[];
+  own_awareness: number;
+  chances: string[];
+}
+
+export interface WeltMarkt {
+  date: string;
+  product: string;
+  unit: string;
+  countries: {
+    country: string;
+    price_usd: number;
+    reference_usd: number;
+    demand_last_month: number;
+    unmet_last_month: number;
+    supply: number | null;
+    sellers: number;
+    own_sellers: number;
+  }[];
 }
 
 export interface Forschung {
@@ -450,4 +538,20 @@ export interface Finanzen {
   loan_rate: number;
   max_term_years: number;
   loss_carryforward_usd: number;
+  history: Monat[];
+  centers_last_month: Zentren | null;
+  centers_year: Zentren | null;
+}
+
+/** Results by site and product of a period, and the company's own items. */
+export interface Zentren {
+  sites: {
+    site: number;
+    kind_text: string;
+    country: string;
+    revenue_usd: number;
+    result_usd: number;
+  }[];
+  products: ProduktErgebnis[];
+  company_usd: number;
 }

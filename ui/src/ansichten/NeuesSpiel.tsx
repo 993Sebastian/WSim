@@ -97,21 +97,21 @@ export function NeuesSpielAnsicht({
             onChange={(e) => setze("company_name", e.target.value)}
           />
         </label>
-        <label>
-          {t("neu.startland")}
-          <select
-            id="startland"
-            value={werte.country}
-            onChange={(e) => setze("country", e.target.value)}
-          >
-            {laender.map(({ k, name }) => (
-              <option key={k} value={k}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
         <div className="feldreihe">
+          <label>
+            {t("neu.startland")}
+            <select
+              id="startland"
+              value={werte.country}
+              onChange={(e) => setze("country", e.target.value)}
+            >
+              {laender.map(({ k, name }) => (
+                <option key={k} value={k}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
           <label>
             {t("neu.startjahr")}
             <input
@@ -121,17 +121,6 @@ export function NeuesSpielAnsicht({
               max={optionen.start_year.max}
               value={werte.start_year}
               onChange={(e) => setze("start_year", zahl(e.target.value))}
-            />
-          </label>
-          <label>
-            {t("neu.startkapital")}
-            <input
-              id="startkapital"
-              type="number"
-              min={optionen.start_capital_usd.min}
-              step="any"
-              value={werte.capital_usd}
-              onChange={(e) => setze("capital_usd", zahl(e.target.value))}
             />
           </label>
         </div>
@@ -146,65 +135,31 @@ export function NeuesSpielAnsicht({
                 checked={werte.start_form === f.key}
                 onChange={() => setze("start_form", f.key)}
               />
-              {t("neu.startform_kosten", {
-                form: t(`startform.${f.key}`),
-                betrag: formatGeld(f.cost_usd),
-              })}
+              <span>
+                {t("neu.startform_kosten", {
+                  form: t(`startform.${f.key}`),
+                  betrag: formatGeld(f.cost_usd),
+                })}
+                <small className="feld-hilfe">{t(`neu.startform_hilfe.${f.key}`)}</small>
+              </span>
             </label>
           ))}
         </fieldset>
-        <div className="feldreihe">
-          <label>
-            {t("neu.ki_firmen")}
-            <input
-              id="ki_firmen"
-              type="number"
-              min={optionen.companies.min}
-              max={optionen.companies.max}
-              value={werte.companies}
-              onChange={(e) => setze("companies", zahl(e.target.value))}
-            />
-          </label>
-          <label>
-            {t("neu.schwierigkeit")}
-            <select
-              id="schwierigkeit"
-              value={werte.difficulty}
-              onChange={(e) => setze("difficulty", e.target.value)}
-            >
-              {optionen.difficulties.map((d) => (
-                <option key={d.key} value={d.key}>
-                  {t(`schwierigkeit.${d.key}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div className="feldreihe">
-          <label>
-            {t("neu.forschungsfaktor")}
-            <input
-              id="forschungsfaktor"
-              type="number"
-              min={optionen.research_factor.min}
-              max={optionen.research_factor.max}
-              step={0.25}
-              value={werte.research_factor}
-              onChange={(e) => setze("research_factor", zahl(e.target.value))}
-            />
-          </label>
-          <label>
-            {t("neu.seed")}
-            <input
-              id="seed"
-              type="number"
-              min={0}
-              value={werte.seed}
-              onChange={(e) => setze("seed", Math.max(0, Math.floor(zahl(e.target.value) || 0)))}
-            />
-          </label>
-        </div>
-        <label className="ankreuz">
+        <label>
+          {t("neu.schwierigkeit")}
+          <select
+            id="schwierigkeit"
+            value={werte.difficulty}
+            onChange={(e) => setze("difficulty", e.target.value)}
+          >
+            {optionen.difficulties.map((d) => (
+              <option key={d.key} value={d.key}>
+                {t(`schwierigkeit.${d.key}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="auswahl">
           <input
             id="einfuehrung"
             type="checkbox"
@@ -213,6 +168,62 @@ export function NeuesSpielAnsicht({
           />
           {t("neu.einfuehrung")}
         </label>
+        <details className="aufklapper">
+          <summary>{t("neu.weitere")}</summary>
+          <div className="formular">
+            <div className="feldreihe">
+              <label>
+                {t("neu.ki_firmen")}
+                <input
+                  id="ki_firmen"
+                  type="number"
+                  min={optionen.companies.min}
+                  max={optionen.companies.max}
+                  value={werte.companies}
+                  onChange={(e) => setze("companies", zahl(e.target.value))}
+                />
+                <small className="feld-hilfe">{t("neu.ki_firmen_hilfe")}</small>
+              </label>
+              <label>
+                {t("neu.startkapital")}
+                <input
+                  id="startkapital"
+                  type="number"
+                  min={optionen.start_capital_usd.min}
+                  step="any"
+                  value={werte.capital_usd}
+                  onChange={(e) => setze("capital_usd", zahl(e.target.value))}
+                />
+              </label>
+            </div>
+            <div className="feldreihe">
+              <label>
+                {t("neu.forschungsfaktor")}
+                <input
+                  id="forschungsfaktor"
+                  type="number"
+                  min={optionen.research_factor.min}
+                  max={optionen.research_factor.max}
+                  step={0.25}
+                  value={werte.research_factor}
+                  onChange={(e) => setze("research_factor", zahl(e.target.value))}
+                />
+              </label>
+              <label>
+                {t("neu.seed")}
+                <input
+                  id="seed"
+                  type="number"
+                  min={0}
+                  value={werte.seed}
+                  onChange={(e) =>
+                    setze("seed", Math.max(0, Math.floor(zahl(e.target.value) || 0)))
+                  }
+                />
+              </label>
+            </div>
+          </div>
+        </details>
         <FehlerText fehler={fehler} />
         <div className="knopfreihe">
           <button type="button" onClick={onZurueck} disabled={startet}>

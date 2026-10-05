@@ -26,7 +26,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M16 | Markteintritt und Marketing | ✅ |
 | – | Nacharbeit zu M16: Plausibilität und Versorgung | ✅ |
 | M17 | Browser-Version (WebAssembly, GitHub Pages) | ✅ |
-| M18 | Bedienung: Personal, Werksansicht, Preise (M18a–c), übrige Ansichten (M18d) | 🔄 a–c ✅ |
+| M18 | Bedienung: Personal, Werksansicht, Preise, alle Ansichten überarbeitet | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -468,4 +468,23 @@ Lohnaufschlag).
     statt Werte aus der Karte zu schieben.
   - Spielstände: neue Felder mit Vorgabewerten, ältere Stände laden unverändert
     (keine neue Formatversion).
+  - **M18d Ansichten:** Kopfbereich in einer Zeile mit Menü „☰“ (Speichern, Laden,
+    Tastaturkürzel, Hauptmenü), Kassentrend und Zähler offener Warnungen am Reiter
+    Übersicht. Übersicht: „Zu erledigen“ mit Sprung an die Stelle (Werk und Bereich),
+    Kennzahlen mit Verlauf (Kasse, Umsatz, Ergebnis je Monat), Standorte als Karten,
+    Wettbewerb aufklappbar. Markt: Unterreiter Produkte und Marke und Werbung; je
+    Produkt Preis mit Trend zum Vormonat, Preis zum Richtpreis als Balken, Nachfrage mit
+    Einheit, Versorgung als Ampel, Kennzeichen für Chancen und Filter; Klick öffnet den
+    Produktmarkt (Anbieter mit Preisen und Anteilen, wer kauft: Einkommensfünftel,
+    Staat, Firmen; Ein- und Ausfuhr). Finanzen: Verlauf und „Womit verdienst du Geld?“
+    (Ergebnis je Standort, Rohertrag je Produkt, Vormonat oder Jahr). Rundenbericht:
+    „Was lief“ je Produkt und „Jetzt zu tun“. Neues Spiel: Grundeinstellungen oben,
+    Weiteres aufklappbar, Erklärung der Startformen. Weltkarte: Ebene
+    „Absatzchancen“ für ein Produkt (Preis zum Richtpreis je Land, Nachfrage als Kreis);
+    im Länderdetail „Standort hier gründen“. Browser-Version: Spielstände als Datei
+    herunter- und hochladen (Wechsel zwischen iPhone und Rechner). Auf dem Handy
+    werden Tabellen zu zweispaltigen Karten; die Marktliste ist fünfmal kürzer.
+  - Kern: Hinweise, Monatsverlauf, Ergebnisse je Kostenstelle, Umsatz und Rohertrag
+    je Produkt in der Runde, Produkt- und Weltmarkt als Sichten (mit Tests); neue
+    Anfragen `produktmarkt` und `weltmarkt` in Desktop-App, Browser-Version und Vorschau.
 

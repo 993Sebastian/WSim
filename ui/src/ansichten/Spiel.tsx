@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatDatum, formatGeld } from "../format";
-import type { Fortschritt, Kern, Meldung, Rundenbericht, Rundenlaenge, Uebersicht } from "../kern";
+import type {
+  Fortschritt,
+  Hinweis,
+  Kern,
+  Meldung,
+  Rundenbericht,
+  Rundenlaenge,
+  Uebersicht,
+} from "../kern";
 import { t } from "../texte";
 import { Dialog, FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
@@ -60,8 +68,13 @@ export function Spiel({
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
-  // Site open in the plant view of the sites tab (null: the list of sites).
+  // Site open in the plant view of the sites tab (null: the list of sites), and the
+  // area of the plant view to show first.
   const [werk, setWerk] = useState<number | null>(null);
+  const [werkBereich, setWerkBereich] = useState<string | null>(null);
+  const [menue, setMenue] = useState(false);
+  // Country chosen on the map for a new site.
+  const [gruendenIn, setGruendenIn] = useState<string | null>(null);
   // Every view starts at its top (and the game screen at its first view): the page
   // kept the scroll position of the previous screen and hid the tabs.
   useEffect(() => window.scrollTo(0, 0), [ansicht]);
@@ -136,6 +149,32 @@ export function Spiel({
     if ((ANSICHTEN as string[]).includes(ziel)) setAnsicht(ziel as Ansicht);
   };
 
+  /** Opens the place a hint points to: a plant (with its area) or a view. */
+  const zuHinweis = (h: Hinweis) => {
+    setFenster({ art: "keins" });
+    if (h.site !== null) {
+      setWerk(h.site);
+      setWerkBereich(h.area);
+      setAnsicht("produktion");
+    } else if (h.message.target) springe(h.message.target);
+  };
+
+  const oeffneWerk = (site: number) => {
+    setWerk(site);
+    setWerkBereich(null);
+    setAnsicht("produktion");
+  };
+
+  const warnungen = uebersicht.hints.filter(
+    (h) => h.message.kind === "warning" || h.message.kind === "crisis",
+  ).length;
+  const vormonat = uebersicht.history.at(-1);
+  const trend = vormonat ? firma.cash_usd - vormonat.cash_usd : null;
+  const menuePunkt = (aktion: () => void) => () => {
+    setMenue(false);
+    aktion();
+  };
+
   return (
     <div className="spiel">
       {/* Header and tabs stay on screen together while the view scrolls. */}
@@ -144,7 +183,7 @@ export function Spiel({
           <div className="kopf-firma">
             <strong>{firma.name}</strong>
             <span>
-              {t("spiel.datum")}:{" "}
+              <span className="nur-breit">{t("spiel.datum")}: </span>
               <time dateTime={uebersicht.date}>{formatDatum(uebersicht.date)}</time>
             </span>
             <span>
@@ -152,6 +191,16 @@ export function Spiel({
               <span className={firma.cash_usd < 0 ? "negativ" : ""}>
                 {formatGeld(firma.cash_usd)}
               </span>
+              {trend !== null && Math.abs(trend) >= 0.5 && (
+                <span
+                  className={`trend ${trend < 0 ? "negativ" : "positiv"}`}
+                  title={t("spiel.kasse_trend")}
+                >
+                  {" "}
+                  {trend < 0 ? "▼" : "▲"}
+                  <span className="nur-breit"> {formatGeld(Math.abs(trend))}</span>
+                </span>
+              )}
             </span>
           </div>
           <div className="kopf-runde">
@@ -179,17 +228,49 @@ export function Spiel({
               {t("spiel.runde_beenden")}
             </button>
           </div>
-          <nav className="kopf-menue">
-            <button type="button" onClick={() => setFenster({ art: "speichern" })}>
-              {t("spiel.speichern")}
+          <div className="kopf-menue">
+            <button
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={menue}
+              aria-label={t("spiel.menue")}
+              onClick={() => setMenue((m) => !m)}
+            >
+              ☰
             </button>
-            <button type="button" onClick={() => setFenster({ art: "laden" })}>
-              {t("spiel.laden")}
-            </button>
-            <button type="button" onClick={() => onMenue(uebersicht)}>
-              {t("menue.hauptmenue")}
-            </button>
-          </nav>
+            {menue && (
+              <div className="menue-liste" role="menu" aria-label={t("spiel.menue")}>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={menuePunkt(() => setFenster({ art: "speichern" }))}
+                >
+                  {t("spiel.speichern")} <kbd>Strg+S</kbd>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={menuePunkt(() => setFenster({ art: "laden" }))}
+                >
+                  {t("spiel.laden")} <kbd>Strg+O</kbd>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={menuePunkt(() => setFenster({ art: "hilfe" }))}
+                >
+                  {t("tasten.titel")} <kbd>?</kbd>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={menuePunkt(() => onMenue(uebersicht))}
+                >
+                  {t("menue.hauptmenue")}
+                </button>
+              </div>
+            )}
+          </div>
         </header>
         <nav className="reiter" aria-label={t("spiel.ansichten")}>
           {ANSICHTEN.map((a, i) => (
@@ -198,33 +279,41 @@ export function Spiel({
               type="button"
               aria-current={ansicht === a ? "page" : undefined}
               aria-keyshortcuts={String(i + 1)}
-              onClick={() => setAnsicht(a)}
+              onClick={() => {
+                if (a === "produktion" && ansicht === "produktion") setWerk(null);
+                setGruendenIn(null);
+                setAnsicht(a);
+              }}
             >
               {t(`ansicht.${a}`)}
+              {a === "uebersicht" && warnungen > 0 && (
+                <span className="zaehler" title={t("spiel.offene_hinweise")}>
+                  {warnungen}
+                </span>
+              )}
             </button>
           ))}
-          <button
-            type="button"
-            className="schlicht"
-            aria-keyshortcuts="?"
-            onClick={() => setFenster({ art: "hilfe" })}
-          >
-            {t("tasten.knopf")}
-          </button>
         </nav>
       </div>
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
       {/* A text key: with the number alone the views were drawn twice after a round. */}
       <div key={`ladung-${ladung}`} className="ansichtsbereich">
-        {ansicht === "uebersicht" && <UebersichtAnsicht uebersicht={uebersicht} />}
+        {ansicht === "uebersicht" && (
+          <UebersichtAnsicht uebersicht={uebersicht} onHinweis={zuHinweis} onWerk={oeffneWerk} />
+        )}
         {ansicht === "produktion" && (
           <ProduktionAnsicht
             kern={kern}
             uebersicht={uebersicht}
             onGeaendert={setUebersicht}
             werk={werk}
-            onWerk={setWerk}
+            werkBereich={werkBereich}
+            gruendenIn={gruendenIn}
+            onWerk={(site) => {
+              setWerk(site);
+              setWerkBereich(null);
+            }}
           />
         )}
         {ansicht === "markt" && (
@@ -236,7 +325,17 @@ export function Spiel({
         {ansicht === "finanzen" && (
           <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
-        {ansicht === "weltkarte" && <WeltkarteAnsicht kern={kern} datum={uebersicht.date} />}
+        {ansicht === "weltkarte" && (
+          <WeltkarteAnsicht
+            kern={kern}
+            datum={uebersicht.date}
+            onGruenden={(land) => {
+              setGruendenIn(land);
+              setWerk(null);
+              setAnsicht("produktion");
+            }}
+          />
+        )}
         {ansicht === "berichte" && (
           <BerichteAnsicht
             berichte={berichte}
@@ -290,6 +389,7 @@ export function Spiel({
         <RundenberichtDialog
           bericht={fenster.bericht}
           onZiel={springe}
+          onHinweis={zuHinweis}
           onEreignis={(m) =>
             setFenster({ art: "ereignis", bericht: fenster.bericht, liste: [m], index: 0 })
           }
