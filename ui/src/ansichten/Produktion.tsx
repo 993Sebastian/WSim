@@ -48,7 +48,7 @@ export function ProduktionAnsicht({
             {daten.sites.length === 0 && (
               <p className="gedaempft">{t("uebersicht.keine_standorte")}</p>
             )}
-            <div className="karten-raster">
+            <div className="karten-raster" data-tour="standorte">
               {daten.sites.map((s) => (
                 <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
               ))}
@@ -117,6 +117,7 @@ function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => v
           type="button"
           className="haupt"
           aria-label={t("werk.oeffnen_von", { standort: titel })}
+          data-tour="werk-oeffnen"
           onClick={onOeffnen}
         >
           {t("werk.oeffnen")}

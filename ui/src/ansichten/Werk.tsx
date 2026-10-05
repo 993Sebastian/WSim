@@ -96,7 +96,7 @@ export function Werk({
       ];
   const titel = standortTitel(s);
   return (
-    <section className="werk" aria-label={titel}>
+    <section className="werk" aria-label={titel} data-tour="werk">
       <div className="werk-kopf">
         <button type="button" className="schlicht" onClick={onZurueck}>
           ← {t("werk.alle_standorte")}
@@ -161,7 +161,7 @@ function WerkKennzahlen({ s }: { s: StandortDetail }) {
 
 function Anlagen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
   return (
-    <div className="karten">
+    <div className="karten" data-tour="werk-anlagen">
       {s.slots.length === 0 && <p className="gedaempft">{t("werk.keine_anlagen")}</p>}
       {s.slots.map((a) => (
         // New values from the core start the form afresh.
@@ -228,7 +228,7 @@ function AnlageKarte({
   };
 
   return (
-    <article className="karte" aria-label={name}>
+    <article className="karte" aria-label={name} data-tour="anlage">
       <h3>
         {a.count > 1 ? `${a.count} × ` : ""}
         {name}
@@ -436,9 +436,13 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
       })),
   ];
   return (
-    <div className="karten">
+    <div className="karten" data-tour="werk-einkauf">
       <p className="erklaerung">{t("werk.einkauf_hinweis")}</p>
-      {zeilen.length === 0 && <p className="gedaempft">{t("werk.kein_bedarf")}</p>}
+      {zeilen.length === 0 && (
+        <p className="gedaempft">
+          {t(s.slots.length === 0 ? "werk.kein_einkauf" : "werk.kein_bedarf")}
+        </p>
+      )}
       {zeilen.map((v) => {
         const auftrag = s.orders.find((o) => o.product === v.product);
         return (
@@ -451,6 +455,7 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         );
       })}
       <WeiteresProdukt
+        tour="einkauf-neu"
         titel={t("produktion.neuer_einkauf")}
         produkte={produktion.products.filter((p) => !zeilen.some((v) => v.product === p))}
       >
@@ -494,8 +499,13 @@ function EinkaufKarte({
   const e = einheit(produktion, v.product);
   const { los, antwort } = useAktion(`einkauf/${s.index}/${v.product}`);
   const vorschlagPreis = v.market_price_usd > 0 ? rund(v.market_price_usd * 1.1) : 0;
+  // Without a need here (trade) the player chooses the stock: the field starts empty.
   const [ziel, setZiel] = useState(
-    zahlFeld(auftrag ? auftrag.target : Math.ceil(v.need_per_day * 20), 1),
+    auftrag
+      ? zahlFeld(auftrag.target, 1)
+      : v.need_per_day > 0
+        ? zahlFeld(Math.ceil(v.need_per_day * 20), 1)
+        : "",
   );
   const [preis, setPreis] = useState(zahlFeld(auftrag ? auftrag.max_price_usd : vorschlagPreis, 2));
   const [fehler, setFehler] = useState<string | null>(null);
@@ -527,7 +537,11 @@ function EinkaufKarte({
   };
 
   return (
-    <article className="karte" aria-label={t("produktion.einkauf_von", { produkt: name })}>
+    <article
+      className="karte"
+      aria-label={t("produktion.einkauf_von", { produkt: name })}
+      data-tour={auftrag ? "einkauf-auftrag" : "einkauf-karte"}
+    >
       <h3>
         {name}
         {v.own && <span className="marke">{t("produktion.eigen")}</span>}
@@ -619,7 +633,7 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
   ]);
   const ohneAngebot = [...angebotbar].filter((p) => !s.offers.some((o) => o.product === p));
   return (
-    <div className="karten">
+    <div className="karten" data-tour="werk-verkauf">
       <p className="erklaerung">{t("werk.verkauf_hinweis")}</p>
       {s.offers.map((o) => (
         <AngebotKarte
@@ -634,6 +648,7 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         <AngebotKarte key={p} produkt={p} o={null} s={s} produktion={produktion} />
       ))}
       <WeiteresProdukt
+        tour="angebot-neu"
         titel={t("produktion.neues_angebot")}
         produkte={produktion.products.filter(
           (p) => !s.offers.some((o) => o.product === p) && !ohneAngebot.includes(p),
@@ -711,7 +726,11 @@ function AngebotKarte({
   };
 
   return (
-    <article className="karte" aria-label={t("produktion.verkauf_von", { produkt: name })}>
+    <article
+      className="karte"
+      aria-label={t("produktion.verkauf_von", { produkt: name })}
+      data-tour={o ? "angebot-aktiv" : "angebot-karte"}
+    >
       <h3>
         {name}
         {!o && <small>{t("werk.nicht_angeboten")}</small>}
@@ -771,7 +790,7 @@ function AngebotKarte({
             {art === "markt" ? t("werk.automatisch_hilfe") : t("werk.fest_hilfe")}
           </small>
         </fieldset>
-        <div className="formular-zeile">
+        <div className="formular-zeile" data-tour={o ? "preis" : undefined}>
           <ZahlFeld
             name={art === "markt" ? t("werk.preis_jetzt") : t("werk.preis")}
             einheit={`USD/${e}`}
@@ -836,6 +855,8 @@ function AngebotKarte({
         </div>
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
+        {/* Tells the introduction that a price was set. */}
+        {antwort && !antwort.fehler && <span data-tour="preis-gesetzt" hidden />}
       </form>
     </article>
   );
@@ -898,7 +919,7 @@ function Personal({ s }: { s: StandortDetail }) {
   const fehlt = s.staff.filter((l) => l.employed + 0.05 < l.needed);
   const max = s.wage_premium_max * 100;
   return (
-    <div className="karten">
+    <div className="karten" data-tour="werk-personal">
       {s.staff.length === 0 ? (
         <p className="gedaempft">{t("werk.kein_personal")}</p>
       ) : (
@@ -1181,16 +1202,19 @@ function WeiteresProdukt({
   titel,
   produkte,
   children,
+  tour,
 }: {
   titel: string;
   produkte: string[];
   children: (produkt: string) => ReactNode;
+  /** Mark for the introduction (`data-tour`). */
+  tour?: string;
 }) {
   const [produkt, setProdukt] = useState("");
   const id = useId();
   const sortiert = [...produkte].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"));
   return (
-    <div className="weiteres">
+    <div className="weiteres" data-tour={tour}>
       <div className="feld">
         <label htmlFor={id}>{titel}</label>
         <select id={id} value={produkt} onChange={(e) => setProdukt(e.target.value)}>

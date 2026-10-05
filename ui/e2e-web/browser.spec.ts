@@ -86,3 +86,43 @@ test("Forschungszentrum gründen und eine Technologie erforschen", async ({ page
   await expect(turbo).toContainText("Forscht daran");
   if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-forschung.png` });
 });
+
+// The introduction with the real core: from the start to the first sale.
+test("Die Einführung führt bis zum ersten Verkauf", async ({ page }, info) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel("Name der Firma").fill("Lehrling AG");
+  await page.getByText(/Weitere Einstellungen/).click();
+  await page.getByLabel("Anzahl KI-Firmen").fill("8");
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  const einfuehrung = page.getByRole("complementary", { name: "Einführung" });
+  const titel = (name: string) => einfuehrung.getByRole("heading", { name });
+  const markiert = (id: string) => page.locator(`[data-tour="${id}"]`).first();
+
+  await expect(titel("Willkommen bei Lehrling AG")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await markiert("reiter-produktion").click();
+  await expect(titel("Die Werkstatt öffnen")).toBeVisible();
+  await markiert("werk-oeffnen").click();
+  await expect(titel("Die Anlage")).toBeVisible();
+  await expect(page.locator(".einfuehrung-rahmen")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await markiert("bereich-einkauf").click();
+  await expect(titel("Draht einkaufen")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await markiert("bereich-verkauf").click();
+  await expect(titel("Dein Preis")).toBeVisible();
+  await page.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();
+  await expect(titel("Personal")).toBeVisible();
+  await markiert("bereich-personal").click();
+  await expect(titel("Runde beenden")).toBeVisible();
+  await page.getByLabel("Rundenlänge").selectOption("woche");
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  await expect(titel("Dein erster Umsatz")).toBeVisible({ timeout: 60_000 });
+  if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-einfuehrung.png` });
+  await page
+    .getByRole("dialog", { name: /Rundenbericht/ })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await expect(titel("Deine Firma läuft")).toBeVisible();
+});

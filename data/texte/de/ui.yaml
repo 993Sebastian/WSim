@@ -137,6 +137,8 @@ weltereignis.alle_ueberspringen: Alle überspringen
 bericht.finanzergebnis: Finanzergebnis
 bericht.umsatz: Umsatz
 bericht.kosten: Kosten
+bericht.lager: Lagerveränderung (zu Herstellkosten)
+bericht.lager_hinweis: Hergestellte, noch nicht verkaufte Ware zählt mit ihren Herstellkosten als Vermögen. Ihre Herstellung steckt in den Kosten; die Lagerveränderung gleicht das aus, bis sie verkauft ist.
 bericht.ergebnis: Ergebnis
 bericht.diese_runde: Diese Runde
 bericht.vorrunde: Vorrunde
@@ -300,6 +302,7 @@ werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
 werk.einkauf_hinweis: Der Standort kauft jeden Tag auf dem Markt seines Landes nach, bis das Ziellager erreicht ist – aber nie teurer als der Höchstpreis. Die Reichweite zeigt, wie lange das Lager bei geplanter Erzeugung hält.
 werk.kein_bedarf: Die Anlagen hier brauchen keine Vorprodukte.
+werk.kein_einkauf: Noch kein Einkauf – wähle unten eine Ware, die du einkaufen und weiterverkaufen willst.
 werk.einkauf_werte: Ziellager und Höchstpreis müssen größer als 0 sein.
 werk.einkauf_gesetzt: "Einkauf von {produkt} festgelegt."
 werk.einkauf_gestoppt: "Einkauf von {produkt} gestoppt."
@@ -589,26 +592,63 @@ tasten.schliessen: Fenster schließen
 einfuehrung.titel: Einführung
 einfuehrung.schritt: "Schritt {nummer} von {anzahl}"
 einfuehrung.beenden: Einführung beenden
+einfuehrung.zuklappen: Einführung verkleinern
+einfuehrung.aufklappen: Einführung aufklappen
 einfuehrung.zurueck: Zurück
 einfuehrung.weiter: Weiter
+einfuehrung.ueberspringen: Überspringen
 einfuehrung.fertig: Fertig
 einfuehrung.starten: Einführung starten
-einfuehrung.willkommen.titel: Willkommen
-einfuehrung.willkommen.text: "Du führst eine kleine, neue Firma. Die Märkte sind schon verteilt: Etablierte Firmen versorgen jedes Land, sie sind bekannt und haben große Werke. Verkaufen wirst du nur, was du ihnen abnimmst – über einen günstigeren Preis, bessere Qualität, eine bekannte Marke, genug Ware in den Läden oder als Lieferant anderer Firmen."
-einfuehrung.uebersicht.titel: Übersicht
-einfuehrung.uebersicht.text: "Hier stehen Kasse, Eigenkapital und Ergebnis deiner Firma und die Zahl deiner Wettbewerber. Oben wählst du die Rundenlänge und beendest die Runde (Strg + Enter); danach fasst der Rundenbericht zusammen, was geschehen ist."
-einfuehrung.produktion.titel: Standorte
-einfuehrung.produktion.text: "Jeder Standort ist eine Karte mit Umsatz, Ergebnis und Engpässen. „Öffnen“ führt in die Werksansicht: Anlagen (Verfahren und Auslastung), Einkauf (Ziellager und Höchstpreis der Vorprodukte), Verkauf (dein Preis neben Marktpreis und Stückkosten), Personal (Arbeitskräfte und Lohnaufschlag) sowie Kosten und Ergebnis. Neue Standorte gründest du unten auf der Seite."
+einfuehrung.tipp_klick: Klicke auf das hervorgehobene Feld – dann geht es von selbst weiter.
+einfuehrung.tipp_weg: Erst dorthin – das hervorgehobene Feld führt dich hin.
+einfuehrung.willkommen.titel: "Willkommen bei {firma}"
+einfuehrung.willkommen.text: "Du führst eine kleine Nagelwerkstatt in {land}. Diese Einführung bringt dich bis zu deinen ersten verkauften Nägeln; was du anklicken sollst, ist jeweils hervorgehoben. Die Märkte sind schon verteilt: Etablierte Firmen versorgen jedes Land. Verkaufen wirst du, was du ihnen abnimmst – über den Preis, eine bekannte Marke und genug Ware im Handel."
+einfuehrung.willkommen_handel.titel: "Willkommen bei {firma}"
+einfuehrung.willkommen_handel.text: "Du führst eine Handelsniederlassung in {land}: Sie stellt nichts her, sondern kauft Ware ein und verkauft sie weiter. Diese Einführung bringt dich bis zu deinem ersten Verkauf; was du anklicken sollst, ist jeweils hervorgehoben."
+einfuehrung.standorte.titel: Deine Standorte
+einfuehrung.standorte.text: Öffne oben den Reiter „Standorte“. Dort steht jeder deiner Standorte mit Umsatz, Ergebnis, Beschäftigten und Engpässen.
+einfuehrung.werk_oeffnen.titel: Die Werkstatt öffnen
+einfuehrung.werk_oeffnen.text: Das ist deine Werkstatt. Mit „Öffnen“ kommst du in die Werksansicht – dort steuerst du Anlagen, Einkauf, Verkauf und Personal.
+einfuehrung.niederlassung_oeffnen.titel: Die Niederlassung öffnen
+einfuehrung.niederlassung_oeffnen.text: Das ist deine Niederlassung. Mit „Öffnen“ kommst du in ihre Ansicht – dort steuerst du Einkauf und Verkauf.
+einfuehrung.anlage.titel: Die Anlage
+einfuehrung.anlage.text: "Die Nagelmaschine macht aus Draht Nägel. Die Karte zeigt, ob sie läuft, was sie je Tag braucht und herstellt und was sie bremst; Verfahren und Auslastung kannst du hier ändern. Für den Anfang passt alles – weiter mit „Weiter“."
+einfuehrung.einkauf_oeffnen.titel: Einkauf
+einfuehrung.einkauf_oeffnen.text: Ohne Vorprodukte keine Erzeugung. Öffne den Bereich „Einkauf“.
+einfuehrung.einkauf.titel: Draht einkaufen
+einfuehrung.einkauf.text: "Dein Einkauf hält ein Ziellager an Draht und zahlt höchstens den Höchstpreis. „Reicht für“ zeigt, wie lange der Vorrat hält. Steigt der Marktpreis über deinen Höchstpreis, kaufst du nichts mehr – dann steht die Maschine still."
+einfuehrung.einkauf_handel.titel: Ware einkaufen
+einfuehrung.einkauf_handel.text: "Wähle unter „Weiteres Produkt einkaufen“ eine Ware, zum Beispiel Nägel. Trage ein Ziellager ein (so viel hältst du vorrätig, für den Anfang etwa 5 t) und als Höchstpreis etwas mehr als den Marktpreis – vorgeschlagen sind 10 % mehr. Dann klicke „Einkauf starten“."
+einfuehrung.verkauf_oeffnen.titel: Verkauf
+einfuehrung.verkauf_oeffnen.text: Jetzt zum Wichtigsten. Öffne den Bereich „Verkauf“.
+einfuehrung.preis.titel: Dein Preis
+einfuehrung.preis.text: "Hier legst du fest, zu welchem Preis du anbietest; daneben stehen Marktpreis, Richtpreis und deine Stückkosten. Als Neuling nimmst du etablierten Firmen Kunden ab: Etwas unter dem Marktpreis verkaufst du mehr, über den Stückkosten verdienst du daran. Probiere „−5 %“ oder gib einen Preis ein und klicke „Übernehmen“ – oder lass ihn, wie er ist, mit „Überspringen“."
+einfuehrung.angebot_handel.titel: Ware anbieten
+einfuehrung.angebot_handel.text: "Biete die Ware jetzt an: Wähle sie unter „Weiteres Produkt anbieten“, setze einen Preis über deinem Einkaufspreis, aber nicht weit über dem Marktpreis, und klicke „Anbieten“."
+einfuehrung.personal.titel: Personal
+einfuehrung.personal.text: Arbeitskräfte werden zu Monatsbeginn eingestellt; fehlen welche, steht die Anlage. Im Bereich „Personal“ siehst du Bedarf und Besetzung und kannst mit einem Lohnaufschlag Leute anwerben. Öffne ihn.
+einfuehrung.runde.titel: Runde beenden
+einfuehrung.runde.text: "Alles bereit. Wähle oben als Rundenlänge „Woche“ und klicke „Runde beenden“. Die Welt rechnet Tag für Tag: Draht wird geliefert, die Maschine läuft, Kunden kaufen."
+einfuehrung.runde_handel.titel: Runde beenden
+einfuehrung.runde_handel.text: "Alles bereit. Wähle oben als Rundenlänge „Monat“ und klicke „Runde beenden“: Erst kommt die Ware an, dann verkaufst du sie."
+einfuehrung.runde_nochmal.titel: Noch eine Runde
+einfuehrung.runde_nochmal.text: "Noch kein Verkauf – das kommt vor. Die Übersicht nennt unter „Zu erledigen“ die Ursachen (Preis zu hoch, Ware oder Vorprodukt fehlt, Personal fehlt). Ändere bei Bedarf deinen Preis und beende dann eine weitere Runde."
+einfuehrung.bericht_verkauft.titel: Dein erster Umsatz
+einfuehrung.bericht_verkauft.text: "Geschafft: Du hast in dieser Runde für {umsatz} verkauft! Unter „Was lief“ stehen Umsatz und Rohertrag je Produkt, oben die Kasse vorher und nachher. Schließe den Bericht mit „Weiter“."
+einfuehrung.bericht_nichts.titel: Der Rundenbericht
+einfuehrung.bericht_nichts.text: Nach jeder Runde fasst der Rundenbericht zusammen, was geschehen ist (vorher kommen Nachrichten aus aller Welt). Diesmal wurde noch nichts verkauft; „Jetzt zu tun“ nennt die Ursachen. Schließe den Bericht mit „Weiter“.
+einfuehrung.geschafft.titel: Deine Firma läuft
+einfuehrung.geschafft.text: "Ab jetzt zeigt dir die Übersicht unter „Zu erledigen“, wo es hakt – ein Klick führt direkt an die Stelle. Neue Märkte und Produkte findest du im Markt, neue Werke gründest du unter „Standorte“, neue Verfahren erforschst du in der Forschung. Ein kurzer Rundgang zeigt dir diese Ansichten – oder beende die Einführung."
 einfuehrung.markt.titel: Markt
-einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. „Marktführer“ zeigt, gegen wen du antrittst, „Dein Anteil“, was du ihm schon abgenommen hast. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
+einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung
-einfuehrung.werbung.text: "Im Markt unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
+einfuehrung.werbung.text: "Unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
 einfuehrung.forschung.titel: Forschung
-einfuehrung.forschung.text: "Mit einem Forschungszentrum und seinen Laboren erforschst du neue Verfahren und Produkte – auch vor ihrer historischen Zeit, dann aber teurer."
+einfuehrung.forschung.text: Der Technologiebaum zeigt, welche Verfahren, Anlagen und Produkte jede Technologie freischaltet und was sie kostet. Geforscht wird in Forschungszentren mit Laboren – auch vor der historischen Zeit, dann aber teurer.
 einfuehrung.finanzen.titel: Finanzen
-einfuehrung.finanzen.text: "Kredite, Erfolgsrechnung, Bilanz und Kapitalfluss. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
+einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.weltkarte.titel: Weltkarte
-einfuehrung.weltkarte.text: "Einwohner, Einkommen und Rohstoffe der Länder; ein Klick zeigt ein Land mit seinen Firmen. Mit „?“ siehst du alle Tastaturkürzel und kannst diese Einführung erneut starten. Viel Erfolg!"
+einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
 # Berichte
 ansicht.berichte: Berichte

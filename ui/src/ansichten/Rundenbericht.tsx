@@ -17,9 +17,22 @@ function Veraenderung({ jetzt, vorher }: { jetzt: number; vorher: number | undef
 }
 
 function Ergebnis({ periode, vorher }: { periode: Periode; vorher: Periode | null }) {
+  // Without the change of the stock the lines would not add up to the result.
+  const lager =
+    Math.abs(periode.inventory_change_usd) >= 0.5 ||
+    Math.abs(vorher?.inventory_change_usd ?? 0) >= 0.5;
   const zeilen: [string, number, number | undefined][] = [
     [t("bericht.umsatz"), periode.revenue_usd, vorher?.revenue_usd],
     [t("bericht.kosten"), -periode.costs_usd, vorher ? -vorher.costs_usd : undefined],
+    ...(lager
+      ? [
+          [t("bericht.lager"), periode.inventory_change_usd, vorher?.inventory_change_usd] as [
+            string,
+            number,
+            number | undefined,
+          ],
+        ]
+      : []),
     [t("bericht.ergebnis"), periode.result_usd, vorher?.result_usd],
   ];
   return (
@@ -44,6 +57,7 @@ function Ergebnis({ periode, vorher }: { periode: Periode; vorher: Periode | nul
           ))}
         </tbody>
       </table>
+      {lager && <p className="feld-hilfe">{t("bericht.lager_hinweis")}</p>}
       {periode.lines.length > 0 && (
         <details className="aufschluesselung">
           <summary>{t("bericht.nach_kostenart")}</summary>
@@ -93,7 +107,7 @@ export function RundenberichtDialog({
   const aenderung = bericht.equity_change_usd;
   const gruppen = GRUPPEN.map((g) => [g, bericht.messages.filter((m) => m.group === g)] as const);
   return (
-    <Dialog titel={t("bericht.titel")} onSchliessen={onSchliessen} breit>
+    <Dialog titel={t("bericht.titel")} onSchliessen={onSchliessen} breit tour="bericht">
       <p className="gedaempft">
         {t("bericht.zeitraum", {
           von: formatDatum(bericht.from),
@@ -120,38 +134,40 @@ export function RundenberichtDialog({
       <h3>{t("bericht.finanzergebnis")}</h3>
       <Ergebnis periode={bericht.period} vorher={bericht.previous} />
 
-      <h3>{t("bericht.was_lief")}</h3>
-      {bericht.products.length === 0 ? (
-        <p className="gedaempft">{t("bericht.nichts_verkauft")}</p>
-      ) : (
-        <div className="tabelle">
-          <table className="mobil-karten" aria-label={t("bericht.was_lief")}>
-            <thead>
-              <tr>
-                <th>{t("uebersicht.produkt")}</th>
-                <th className="zahl">{t("kostenart.umsatz")}</th>
-                <th className="zahl">{t("werk.rohertrag")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bericht.products.map((p) => (
-                <tr key={p.product}>
-                  <td>{t(`produkt.${p.product}`)}</td>
-                  <td className="zahl" data-spalte={t("kostenart.umsatz")}>
-                    {formatGeld(p.revenue_usd)}
-                  </td>
-                  <td
-                    className={`zahl ${p.margin_usd < 0 ? "negativ" : ""}`}
-                    data-spalte={t("werk.rohertrag")}
-                  >
-                    {formatGeld(p.margin_usd)}
-                  </td>
+      <div data-tour="was-lief">
+        <h3>{t("bericht.was_lief")}</h3>
+        {bericht.products.length === 0 ? (
+          <p className="gedaempft">{t("bericht.nichts_verkauft")}</p>
+        ) : (
+          <div className="tabelle">
+            <table className="mobil-karten" aria-label={t("bericht.was_lief")}>
+              <thead>
+                <tr>
+                  <th>{t("uebersicht.produkt")}</th>
+                  <th className="zahl">{t("kostenart.umsatz")}</th>
+                  <th className="zahl">{t("werk.rohertrag")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {bericht.products.map((p) => (
+                  <tr key={p.product}>
+                    <td>{t(`produkt.${p.product}`)}</td>
+                    <td className="zahl" data-spalte={t("kostenart.umsatz")}>
+                      {formatGeld(p.revenue_usd)}
+                    </td>
+                    <td
+                      className={`zahl ${p.margin_usd < 0 ? "negativ" : ""}`}
+                      data-spalte={t("werk.rohertrag")}
+                    >
+                      {formatGeld(p.margin_usd)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {bericht.hints.length > 0 && (
         <section>

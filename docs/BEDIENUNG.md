@@ -7,8 +7,8 @@ Zielbild, das M18 bis M20 umsetzen.
 
 Umsetzungsstand: Standorte und Werksansicht mit Personal und Preisen (M18b/c) sowie
 Kopfbereich, Übersicht, Markt, Finanzen, Rundenbericht, Neues Spiel, Weltkarte und
-Spielstände als Datei (M18d) sowie der Technologiebaum (M19) sind umgesetzt; es folgt
-die geführte Einführung (M20).
+Spielstände als Datei (M18d), der Technologiebaum (M19) und die geführte Einführung
+bis zum ersten Verkauf (M20) sind umgesetzt.
 
 ## Hinweise und Kennzeichen (M18d)
 
@@ -168,6 +168,11 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Schaltfläche hervor (Rahmen und Abdunklung des Rests) und geht erst weiter, wenn der
   Spieler sie ausgeführt hat (Spielzustand), z. B. Werksansicht öffnen → Einkauf von
   Draht prüfen → Preis setzen → Runde beenden → im Bericht den ersten Verkauf sehen.
+- Umgesetzt (M20): zwei Wege (Werkstatt, Handelsniederlassung) mit Rahmen, Abdunklung
+  und Weiterschalten nach Benutzung; ist der Spieler woanders, zeigt der Rahmen den Weg.
+  Ohne Verkauf folgt eine weitere Runde mit den üblichen Ursachen, danach ein Rundgang.
+  Die Tafel verdeckt nichts: Dialoge und auf breiten Bildschirmen auch die Ansicht
+  lassen ihr Platz; auf dem Handy lässt sie sich einklappen.
 
 ### Tastenhilfe, Speichern und Laden
 

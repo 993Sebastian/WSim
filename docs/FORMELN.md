@@ -950,3 +950,11 @@ nicht auf die Simulation.
 - **Darstellung:** Spalten nach Zeitabschnitt der historischen Erfindung (bis 1850,
   1851–1875, 1876–1899, 1900–1909, 1910–1919, ab 1920), Zeilen nach Fachgebiet, Linien zu
   den Voraussetzungen.
+
+## M20 – Rundenbericht und Einführung (Anzeige)
+
+- Rundenbericht: Umsatz − Kosten + Lagerveränderung = Ergebnis. Die Lagerveränderung
+  ist die Kostenart Bestandsveränderung: hergestellte, noch nicht verkaufte Ware zu
+  Herstellkosten (positiv, wenn das Lager wächst).
+- Die Einführung gilt als „erster Verkauf“ erreicht, wenn der Rundenbericht einen
+  Umsatz über 0 ausweist; sonst führt sie zur nächsten Runde.

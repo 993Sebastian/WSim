@@ -137,6 +137,8 @@ export interface Meldung {
 export interface Periode {
   revenue_usd: number;
   costs_usd: number;
+  /** Goods made but not sold yet, at production cost: revenue − costs + this = result. */
+  inventory_change_usd: number;
   result_usd: number;
   /** [text key of the cost type, amount; costs negative] */
   lines: [string, number][];

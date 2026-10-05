@@ -180,3 +180,6 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Schätzung mit einem Labor (Dauer, Kosten) | `LabEstimate`, `views::play::lab_estimate`, `TechnologyView::one_lab` |
 | Schaltet frei: Anlagen, Verfahren, Produkte | `FacilityUnlock`, `RecipeUnlock`, `TechnologyView::products` |
 | Menge mit drei gültigen Stellen (UI) | `formatMenge` |
+| Geführte Einführung, Weg je Startform, Schritt | `Einfuehrung`, `PFADE`, `Pfad`, `Schritt` (UI) |
+| Markierung für die Einführung | Attribut `data-tour` (UI) |
+| Lagerveränderung im Rundenbericht | `PeriodView::inventory_change_usd` |

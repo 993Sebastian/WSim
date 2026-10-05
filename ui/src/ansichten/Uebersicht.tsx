@@ -58,7 +58,7 @@ export function UebersichtAnsicht({
     <main className="uebersicht" id="uebersicht">
       <h1 className="unsichtbar">{t("uebersicht.titel")}</h1>
 
-      <section aria-labelledby="erledigen-titel">
+      <section aria-labelledby="erledigen-titel" data-tour="zu-erledigen">
         <h2 id="erledigen-titel">{t("uebersicht.zu_erledigen")}</h2>
         {uebersicht.hints.length === 0 ? (
           <p className="erfolgstext">{t("uebersicht.nichts_zu_tun")}</p>

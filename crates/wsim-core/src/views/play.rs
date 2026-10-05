@@ -206,7 +206,7 @@ pub struct SiteDetail {
     pub unit_costs: Vec<UnitCostView>,
     /// Result of the last closed month, if the site existed then.
     pub last_month: Option<SiteResult>,
-    /// Prices in the site's country of the products it makes, uses, keeps, buys or sells.
+    /// Prices of all products in the site's country.
     pub prices: BTreeMap<String, PriceInfo>,
 }
 
@@ -553,29 +553,22 @@ pub fn production(game: &Game) -> ProductionView {
                     })
                     .collect(),
                 last_month: site_result(game, site_id),
-                prices: {
-                    let mut products: BTreeSet<crate::ids::ProductId> =
-                        made.iter().chain(used_here.iter()).copied().collect();
-                    products.extend(s.inventory.keys());
-                    products.extend(s.offers.keys());
-                    products.extend(s.orders.keys());
-                    products
-                        .into_iter()
-                        .map(|p| {
-                            (
-                                catalog.products.key(p).to_owned(),
-                                PriceInfo {
-                                    market_usd: usd(market::market_price(
-                                        catalog, state, s.country, p,
-                                    )),
-                                    reference_usd: usd(market::local_reference(
-                                        catalog, state, s.country, p,
-                                    )),
-                                },
-                            )
-                        })
-                        .collect()
-                },
+                // Every product: a branch picks what to trade by these prices.
+                prices: catalog
+                    .products
+                    .iter()
+                    .map(|(p, _)| {
+                        (
+                            catalog.products.key(p).to_owned(),
+                            PriceInfo {
+                                market_usd: usd(market::market_price(catalog, state, s.country, p)),
+                                reference_usd: usd(market::local_reference(
+                                    catalog, state, s.country, p,
+                                )),
+                            },
+                        )
+                    })
+                    .collect(),
             }
         })
         .collect();

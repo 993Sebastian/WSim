@@ -72,6 +72,7 @@
     ],
     "period": {
       "costs_usd": 24632.0023,
+      "inventory_change_usd": 0.0,
       "lines": [
         [
           "kostenart.umsatz",
@@ -103,6 +104,7 @@
     },
     "previous": {
       "costs_usd": 23826.7954,
+      "inventory_change_usd": 0.0,
       "lines": [
         [
           "kostenart.umsatz",
@@ -7968,13 +7970,193 @@
           }
         ],
         "prices": {
+          "automobil": {
+            "market_usd": 21468.8889,
+            "reference_usd": 27473.4501
+          },
+          "autoreifen": {
+            "market_usd": 800.5637,
+            "reference_usd": 978.2458
+          },
+          "baumwolle": {
+            "market_usd": 5810.8311,
+            "reference_usd": 5741.7889
+          },
+          "benzin": {
+            "market_usd": 724.7018,
+            "reference_usd": 880.4212
+          },
+          "blech": {
+            "market_usd": 1171.9077,
+            "reference_usd": 1467.3687
+          },
           "draht": {
             "market_usd": 1457.3539,
             "reference_usd": 1467.3687
           },
+          "eisenerz": {
+            "market_usd": 104.3883,
+            "reference_usd": 86.1268
+          },
+          "elektromotor": {
+            "market_usd": 2005.2074,
+            "reference_usd": 2445.6145
+          },
+          "fahrgestell": {
+            "market_usd": 3086.0781,
+            "reference_usd": 2934.7374
+          },
+          "fahrrad": {
+            "market_usd": 557.4472,
+            "reference_usd": 641.0472
+          },
+          "fahrradreifen": {
+            "market_usd": 67.8861,
+            "reference_usd": 68.4772
+          },
+          "garn": {
+            "market_usd": 11866.7566,
+            "reference_usd": 11738.9495
+          },
+          "getreide": {
+            "market_usd": 901.5242,
+            "reference_usd": 669.8754
+          },
+          "glas": {
+            "market_usd": 1467.6475,
+            "reference_usd": 1467.3687
+          },
+          "gluehlampe": {
+            "market_usd": 8.4015,
+            "reference_usd": 9.1578
+          },
+          "gummi": {
+            "market_usd": 46570.2587,
+            "reference_usd": 58694.7473
+          },
+          "handwerkzeug": {
+            "market_usd": 24.7685,
+            "reference_usd": 27.4735
+          },
+          "holz": {
+            "market_usd": 102.3173,
+            "reference_usd": 66.9875
+          },
+          "karosserie": {
+            "market_usd": 1936.012,
+            "reference_usd": 2445.6145
+          },
+          "kautschuk": {
+            "market_usd": 37670.7018,
+            "reference_usd": 47848.2411
+          },
+          "kleidung": {
+            "market_usd": 31.8831,
+            "reference_usd": 36.6313
+          },
+          "kohle": {
+            "market_usd": 57.5333,
+            "reference_usd": 57.4179
+          },
+          "konserve": {
+            "market_usd": 3.4195,
+            "reference_usd": 3.6631
+          },
+          "konserveninhalt": {
+            "market_usd": 1467.6476,
+            "reference_usd": 1467.3687
+          },
+          "kupfer": {
+            "market_usd": 10873.0821,
+            "reference_usd": 12717.1952
+          },
+          "kupferdraht": {
+            "market_usd": 14165.1304,
+            "reference_usd": 14673.6868
+          },
+          "kupfererz": {
+            "market_usd": 190.6137,
+            "reference_usd": 143.5447
+          },
+          "leim": {
+            "market_usd": 1956.916,
+            "reference_usd": 1956.4916
+          },
+          "mehl": {
+            "market_usd": 1415.3535,
+            "reference_usd": 1076.0704
+          },
+          "moebel": {
+            "market_usd": 168.3431,
+            "reference_usd": 183.1563
+          },
+          "motor": {
+            "market_usd": 2939.122,
+            "reference_usd": 2934.7374
+          },
+          "muttern": {
+            "market_usd": 2354.2925,
+            "reference_usd": 2445.6145
+          },
           "naegel": {
             "market_usd": 1904.6016,
             "reference_usd": 1858.667
+          },
+          "naehmaschine": {
+            "market_usd": 529.3661,
+            "reference_usd": 641.0472
+          },
+          "petroleum": {
+            "market_usd": 989.7887,
+            "reference_usd": 1076.0704
+          },
+          "petroleumlampe": {
+            "market_usd": 17.2196,
+            "reference_usd": 18.3156
+          },
+          "pferdekutsche": {
+            "market_usd": 7331.8246,
+            "reference_usd": 7326.2534
+          },
+          "rohoel": {
+            "market_usd": 345.7825,
+            "reference_usd": 315.7984
+          },
+          "schnittholz": {
+            "market_usd": 310.4874,
+            "reference_usd": 293.4737
+          },
+          "schrauben": {
+            "market_usd": 2662.2766,
+            "reference_usd": 2739.0882
+          },
+          "schwefel": {
+            "market_usd": 880.641,
+            "reference_usd": 880.4212
+          },
+          "stabstahl": {
+            "market_usd": 1037.3393,
+            "reference_usd": 1173.8949
+          },
+          "stahl": {
+            "market_usd": 724.5529,
+            "reference_usd": 880.4212
+          },
+          "stoff": {
+            "market_usd": 15926.3546,
+            "reference_usd": 17608.4242
+          },
+          "strom": {
+            "market_usd": 802.5644,
+            "reference_usd": 802.5644
+          },
+          "weissblech": {
+            "market_usd": 3754.9358,
+            "reference_usd": 3130.3865
+          },
+          "zinn": {
+            "market_usd": 24462.8536,
+            "reference_usd": 24456.1447
           }
         },
         "research": null,

@@ -19,7 +19,7 @@ export function WeltereignisDialog({
 }) {
   const laender = parameterAnzeige(meldung, "laender");
   return (
-    <Dialog titel={parameterAnzeige(meldung, "ereignis")} onSchliessen={onWeiter}>
+    <Dialog titel={parameterAnzeige(meldung, "ereignis")} onSchliessen={onWeiter} tour="ereignis">
       <p className="ereignis-kopf">
         <span className="marke">{parameterAnzeige(meldung, "art")}</span>
         <time>{parameterAnzeige(meldung, "datum")}</time>
@@ -40,7 +40,7 @@ export function WeltereignisDialog({
             {t("weltereignis.alle_ueberspringen")}
           </button>
         )}
-        <button type="button" className="haupt" onClick={onWeiter}>
+        <button type="button" className="haupt" onClick={onWeiter} data-tour="ereignis-weiter">
           {t("bericht.weiter")}
         </button>
       </div>

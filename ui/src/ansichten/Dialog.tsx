@@ -7,11 +7,14 @@ export function Dialog({
   onSchliessen,
   children,
   breit = false,
+  tour,
 }: {
   titel: string;
   onSchliessen?: () => void;
   children: ReactNode;
   breit?: boolean;
+  /** Mark for the introduction (`data-tour`). */
+  tour?: string;
 }) {
   const id = useId();
   const flaeche = useRef<HTMLDivElement>(null);
@@ -33,6 +36,7 @@ export function Dialog({
         aria-labelledby={id}
         tabIndex={-1}
         ref={flaeche}
+        data-tour={tour}
       >
         <header className="dialog-kopf">
           <h2 id={id}>{titel}</h2>

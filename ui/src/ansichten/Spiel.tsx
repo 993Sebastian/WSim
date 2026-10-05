@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { formatDatum, formatGeld } from "../format";
+import { formatDatum, formatGeld, landName } from "../format";
 import type {
   Fortschritt,
   Hinweis,
@@ -16,7 +16,7 @@ import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
 import { WeltereignisDialog } from "./Weltereignis";
 import { BerichteAnsicht } from "./Berichte";
-import { Einfuehrung, SCHRITTE } from "./Einfuehrung";
+import { Einfuehrung, PFADE, type Pfad } from "./Einfuehrung";
 import { FinanzenAnsicht } from "./Finanzen";
 import { ForschungAnsicht } from "./Forschung";
 import { MarktAnsicht } from "./Markt";
@@ -38,6 +38,18 @@ export const ANSICHTEN: Ansicht[] = [
 ];
 /** Round reports kept for the archive view. */
 const ARCHIV = 120;
+
+/** The introduction's way to the first sale: a start with facilities produces. */
+function pfadVon(u: Uebersicht): Pfad {
+  return u.company.sites.some((s) => s.facilities.length > 0) ? "werkstatt" : "handel";
+}
+
+/** The running introduction and the number of rounds played when it started. */
+interface Fuehrung {
+  pfad: Pfad;
+  schritt: number;
+  ab: number;
+}
 
 const LAENGEN: Rundenlaenge[] = ["tag", "woche", "monat", "quartal"];
 
@@ -63,7 +75,11 @@ export function Spiel({
   onMenue: (u: Uebersicht) => void;
 }) {
   const [uebersicht, setUebersicht] = useState(start);
-  const [schritt, setSchritt] = useState<number | null>(einfuehrung ? 0 : null);
+  const [fuehrung, setFuehrung] = useState<Fuehrung | null>(
+    einfuehrung ? { pfad: pfadVon(start), schritt: 0, ab: 0 } : null,
+  );
+  // Rounds played in this session (the introduction looks at reports after its start).
+  const [runden, setRunden] = useState(0);
   const [laenge, setLaenge] = useState<Rundenlaenge>("monat");
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
@@ -92,6 +108,7 @@ export function Spiel({
       );
       setUebersicht(await kern.uebersicht());
       setBerichte((alt) => [bericht, ...alt].slice(0, ARCHIV));
+      setRunden((n) => n + 1);
       // World news first, each in a window of its own (then the report).
       const welt = bericht.messages.filter((m) => m.group === "welt");
       setFenster(
@@ -140,8 +157,10 @@ export function Spiel({
   }, [offen, uebersicht.game_over]);
 
   const zeigeSchritt = (n: number) => {
-    setSchritt(n);
-    setAnsicht(SCHRITTE[n]!.ansicht as Ansicht);
+    if (!fuehrung) return;
+    setFuehrung({ ...fuehrung, schritt: n });
+    const a = PFADE[fuehrung.pfad][n]?.ansicht;
+    if (a) setAnsicht(a as Ansicht);
   };
 
   const springe = (ziel: string) => {
@@ -176,7 +195,7 @@ export function Spiel({
   };
 
   return (
-    <div className="spiel">
+    <div className={fuehrung ? "spiel mit-einfuehrung" : "spiel"}>
       {/* Header and tabs stay on screen together while the view scrolls. */}
       <div className="kopfbereich">
         <header className="kopfleiste">
@@ -203,7 +222,7 @@ export function Spiel({
               )}
             </span>
           </div>
-          <div className="kopf-runde">
+          <div className="kopf-runde" data-tour="runde">
             <label>
               <span className="nur-breit">{t("spiel.rundenlaenge")}</span>
               <select
@@ -279,6 +298,7 @@ export function Spiel({
               type="button"
               aria-current={ansicht === a ? "page" : undefined}
               aria-keyshortcuts={String(i + 1)}
+              data-tour={`reiter-${a}`}
               onClick={() => {
                 if (a === "produktion" && ansicht === "produktion") setWerk(null);
                 setGruendenIn(null);
@@ -351,15 +371,23 @@ export function Spiel({
           />
         )}
       </div>
-      {schritt !== null && (
-        <Einfuehrung schritt={schritt} onSchritt={zeigeSchritt} onEnde={() => setSchritt(null)} />
+      {fuehrung && (
+        <Einfuehrung
+          pfad={fuehrung.pfad}
+          schritt={fuehrung.schritt}
+          bericht={runden > fuehrung.ab ? (berichte[0] ?? null) : null}
+          parameter={{ firma: firma.name, land: landName(firma.headquarters) }}
+          onSchritt={zeigeSchritt}
+          onEnde={() => setFuehrung(null)}
+        />
       )}
       {fenster.art === "hilfe" && (
         <Tastenhilfe
           onSchliessen={schliessen}
           onEinfuehrung={() => {
             schliessen();
-            zeigeSchritt(0);
+            setFuehrung({ pfad: pfadVon(uebersicht), schritt: 0, ab: runden });
+            setAnsicht("uebersicht");
           }}
         />
       )}

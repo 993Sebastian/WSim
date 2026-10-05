@@ -28,6 +28,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M17 | Browser-Version (WebAssembly, GitHub Pages) | ✅ |
 | M18 | Bedienung: Personal, Werksansicht, Preise, alle Ansichten überarbeitet | ✅ |
 | M19 | Technologiebaum: Technologien, Verfahren, Produkte und Anlagen | ✅ |
+| M20 | Geführte Einführung bis zum ersten Verkauf | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -517,3 +518,33 @@ erforscht werden können und welche Betriebsmittel (Anlagen) sie brauchen.
     Sprung zu Voraussetzungen, Liste) und Browser-Version mit echtem Kern auf Desktop und
     iPhone (Zentrum gründen, Labor bauen, Forschung starten).
 
+
+
+### M20: Geführte Einführung (05.10.2026)
+
+Auftrag: Die Einführung soll intensiver begleiten, bis die ersten Produkte verkauft sind,
+und die konkret zu benutzenden Schaltflächen hervorheben.
+
+  - **Schritt für Schritt zum ersten Verkauf:** Jeder Schritt hebt die Schaltfläche
+    hervor, die der Spieler benutzen soll (pulsierender Rahmen, der Rest des Bildschirms
+    abgedunkelt), und geht von selbst weiter, sobald sie benutzt wurde. Ist der Spieler
+    woanders, zeigt der Rahmen den Weg dorthin (Reiter, „Öffnen“, Bereich). Nichts wird
+    gesperrt; „Überspringen“, „Zurück“ und „×“ sind immer da, die Tafel lässt sich auf
+    eine Zeile einklappen.
+  - **Zwei Wege je nach Startform:** Werkstatt – Standorte, Werk öffnen, Anlage,
+    Einkauf (Draht), Verkauf (Preis, z. B. −5 %), Personal, Runde beenden, Bericht.
+    Handelsniederlassung – Niederlassung öffnen, Ware einkaufen, Ware anbieten, Runde,
+    Bericht. Ohne Verkauf in der Runde nennt die Einführung die üblichen Ursachen und
+    führt zur nächsten Runde; nach dem ersten Umsatz folgen „Zu erledigen“ und ein
+    kurzer Rundgang durch Markt, Marke, Forschung, Finanzen und Weltkarte.
+  - Dialoge lassen der Tafel Platz (auf breiten Bildschirmen daneben, sonst darüber);
+    auf breiten Bildschirmen hält auch die Ansicht rechts eine Spalte frei.
+  - Gefunden beim Durchspielen: Eine Handelsniederlassung sah für neu gewählte Waren
+    keinen Marktpreis (die Werksansicht liefert jetzt die Preise aller Produkte im
+    Land); das Ziellager beginnt beim Handel leer statt mit 0. Der Rundenbericht zeigt
+    die **Lagerveränderung** (zu Herstellkosten), damit Umsatz − Kosten + Lager =
+    Ergebnis aufgeht.
+  - Tests: Einführung in der Vorschau (alle Schritte, Zurück, Einklappen, Neustart),
+    mit echtem Kern auf Desktop und iPhone bis zum ersten Umsatz; Unit-Test, dass es zu
+    jedem Schritt Texte und jede Markierung in den Ansichten gibt; Kern-Test, dass die
+    Zeilen des Rundenberichts aufgehen.

@@ -459,6 +459,9 @@ pub struct PeriodView {
     pub revenue_usd: f64,
     /// Costs as a positive amount (everything but revenue and inventory change).
     pub costs_usd: f64,
+    /// Goods made but not yet sold, at their production cost (positive: more in stock).
+    /// Revenue − costs + inventory change = result.
+    pub inventory_change_usd: f64,
     pub result_usd: f64,
     /// (text key of the cost type, amount; costs negative)
     pub lines: Vec<(String, f64)>,
@@ -489,6 +492,7 @@ fn period(game: &Game, before: &Snapshot) -> PeriodView {
     PeriodView {
         revenue_usd: usd(revenue),
         costs_usd: -usd(costs),
+        inventory_change_usd: usd(get(CostType::InventoryChange)),
         result_usd: usd(result),
         lines: sums
             .iter()
@@ -1155,6 +1159,13 @@ mod tests {
         assert!(
             (revenue - by_product).abs() < 0.01,
             "{revenue} vs {by_product}"
+        );
+        // The summary adds up: revenue − costs + change of the stock = result.
+        let p = &view.period;
+        assert!(p.inventory_change_usd.abs() > 0.01, "the chain makes goods");
+        assert!(
+            (p.revenue_usd - p.costs_usd + p.inventory_change_usd - p.result_usd).abs() < 0.01,
+            "{p:?}"
         );
     }
 

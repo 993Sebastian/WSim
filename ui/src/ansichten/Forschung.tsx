@@ -394,7 +394,7 @@ function TechnologieDetail({
         <dl className="werte technikwerte">
           <dt>{t("forschung.fortschritt")}</dt>
           <dd>
-            <span className="fortschritt">
+            <span className="technik-fortschritt">
               <progress max={1} value={fortschritt} aria-label={t("forschung.fortschritt")} />
               <span className="zahl">{formatProzent(fortschritt)}</span>
             </span>

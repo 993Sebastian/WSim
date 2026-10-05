@@ -181,43 +181,96 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   ]);
 });
 
-test("Die Einführung führt durch die Ansichten und lässt sich neu starten", async ({ page }) => {
+test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten", async ({ page }) => {
   await starten(page, true);
   const einfuehrung = page.getByRole("complementary", { name: "Einführung" });
-  await expect(einfuehrung.getByRole("heading", { name: "Willkommen" })).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 8")).toBeVisible();
+  const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
+  const ring = page.locator(".einfuehrung-rahmen");
+  await expect(titel(/^Willkommen bei/)).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 17")).toBeVisible();
   await bild(page, "einfuehrung");
+  // Folded to one line, to see more of the screen.
+  await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
+  await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
+  await expect(einfuehrung).toContainText("Schritt 1 von 17 · Willkommen bei");
+  await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
-  const weiter = einfuehrung.getByRole("button", { name: "Weiter" });
-  await weiter.click();
-  await weiter.click();
-  await expect(einfuehrung.getByRole("heading", { name: "Standorte" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Standorte" })).toHaveAttribute(
+  // Each step highlights the button to use and goes on once it was used.
+  await expect(titel("Deine Standorte")).toBeVisible();
+  await expect(ring).toBeVisible();
+  await expect(einfuehrung.getByText(/Klicke auf das hervorgehobene Feld/)).toBeVisible();
+  await page.getByRole("button", { name: "Standorte", exact: true }).click();
+  await expect(titel("Die Werkstatt öffnen")).toBeVisible();
+  await bild(page, "einfuehrung_werk");
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  await expect(titel("Die Anlage")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await expect(titel("Einkauf")).toBeVisible();
+  await page
+    .getByRole("button", { name: /^Einkauf/ })
+    .first()
+    .click();
+  await expect(titel("Draht einkaufen")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Weiter" }).click();
+  await page
+    .getByRole("button", { name: /^Verkauf/ })
+    .first()
+    .click();
+  await expect(titel("Dein Preis")).toBeVisible();
+  await bild(page, "einfuehrung_preis");
+  // The preview takes no decisions: the price step is skipped.
+  await einfuehrung.getByRole("button", { name: "Überspringen" }).click();
+  await expect(titel("Personal")).toBeVisible();
+
+  // Back by hand: the step waits even though it is done.
+  await einfuehrung.getByRole("button", { name: "Zurück" }).click();
+  await expect(titel("Dein Preis")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Überspringen" }).click();
+  await page
+    .getByRole("button", { name: /^Personal/ })
+    .first()
+    .click();
+
+  // The round: world news, then the report with the first sale.
+  await expect(titel("Runde beenden")).toBeVisible();
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  const ereignis = page.getByRole("dialog", { name: "Erster Weltkrieg" });
+  await expect(ereignis).toBeVisible();
+  await expect(titel("Dein erster Umsatz")).toBeVisible();
+  await ereignis.getByRole("button", { name: "Weiter" }).click();
+  const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
+  await expect(einfuehrung).toContainText("29.953 USD");
+  await bild(page, "einfuehrung_bericht");
+  await bericht.getByRole("button", { name: "Weiter" }).click();
+  await expect(titel("Deine Firma läuft")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Übersicht/ })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  await weiter.click();
-  await weiter.click();
-  await expect(einfuehrung.getByRole("heading", { name: "Marke und Werbung" })).toBeVisible();
-  await expect(page.getByRole("table", { name: "Markt Deutschland" })).toBeVisible();
-  await einfuehrung.getByRole("button", { name: "Zurück" }).click();
-  await expect(einfuehrung.getByRole("heading", { name: "Markt" })).toBeVisible();
 
-  await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
+  // A short tour of the other views.
+  const weiter = einfuehrung.getByRole("button", { name: "Weiter" });
+  await weiter.click();
+  await expect(titel("Markt")).toBeVisible();
+  await weiter.click();
+  await expect(titel("Marke und Werbung")).toBeVisible();
+  for (let i = 0; i < 3; i++) await weiter.click();
+  await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await einfuehrung.getByRole("button", { name: "Fertig" }).click();
   await expect(einfuehrung).toBeHidden();
+  await expect(ring).toBeHidden();
 
   await page.keyboard.press("?");
   await page
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 8")).toBeVisible();
-  for (let i = 0; i < 7; i++) await weiter.click();
-  await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
-  await einfuehrung.getByRole("button", { name: "Fertig" }).click();
+  await expect(einfuehrung.getByText("Schritt 1 von 17")).toBeVisible();
+  await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });
 

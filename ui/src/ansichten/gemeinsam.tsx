@@ -182,6 +182,7 @@ export function Unterreiter<K extends string>({
           key={b.key}
           type="button"
           aria-current={aktiv === b.key ? "page" : undefined}
+          data-tour={`bereich-${b.key}`}
           onClick={() => onWahl(b.key)}
         >
           {b.text}
