@@ -715,6 +715,7 @@ fn world_events_appear_in_the_round_report() {
         "abkommen",
         "katastrophe",
         "technik",
+        "reform",
     ] {
         assert!(
             data.texts.get(&format!("ereignisart.{kind}")).is_some(),
@@ -759,6 +760,70 @@ fn world_events_appear_in_the_round_report() {
         .find(|(k, _)| k == "laender")
         .map(|(_, p)| p.clone());
     assert!(matches!(countries, Some(Param::Countries(c)) if c.contains(&"DEU".to_owned())));
+}
+
+/// History along the way (M28): the euro arrives as a world event and, for a company
+/// at home in Germany, as a change of currency at the rate fixed by law.
+#[test]
+fn the_euro_arrives_as_world_event_and_change_of_currency() {
+    use std::sync::Arc;
+    use wsim_core::calendar::{Date, RoundLength};
+    use wsim_core::game::Game;
+    use wsim_core::message::{MessageKind, Param, keys};
+    use wsim_core::state::{GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 1,
+        start_year: 1998,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Trading,
+        company_name: "Euro".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
+    };
+    let mut game = Game::new(c, settings).unwrap();
+    let mut news = Vec::new();
+    while game.date() <= Date::new(1999, 1, 1).unwrap() {
+        let report = game.advance(RoundLength::Month, |_| {});
+        news.extend(
+            report
+                .messages
+                .into_iter()
+                .filter(|m| m.kind == MessageKind::WorldEvent),
+        );
+    }
+    let param = |m: &wsim_core::message::Message, name: &str| {
+        m.params
+            .iter()
+            .find(|(k, _)| k == name)
+            .map(|(_, p)| p.clone())
+    };
+    assert!(
+        news.iter()
+            .any(|m| param(m, "ereignis") == Some(Param::TextKey("ereignis.euro".into())))
+    );
+    let reforms: Vec<_> = news
+        .iter()
+        .filter(|m| m.key == keys::CURRENCY_REFORM)
+        .collect();
+    assert_eq!(reforms.len(), 1, "{reforms:?}");
+    let euro = reforms[0];
+    assert_eq!(param(euro, "land"), Some(Param::Country("DEU".into())));
+    assert_eq!(
+        param(euro, "neu"),
+        Some(Param::TextKey("waehrung.euro".into()))
+    );
+    assert_eq!(
+        param(euro, "alt"),
+        Some(Param::TextKey("waehrung.d_mark".into()))
+    );
+    assert_eq!(param(euro, "faktor"), Some(Param::Number(1.95583)));
+    assert_eq!(param(euro, "monat"), Some(Param::TextKey("monat.1".into())));
+    assert_eq!(param(euro, "jahr"), Some(Param::Integer(1999)));
 }
 
 /// Plausibility of a world run (M16): over the first year with 100 AI companies no

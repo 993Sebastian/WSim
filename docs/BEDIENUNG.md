@@ -197,6 +197,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   zusätzlich „bis Jahresende“ und „bis zur nächsten Warnung“ (höchstens ein Jahr). Der
   Fortschritt zeigt „Runde n · Tag x von y“; ein Bericht deckt alle Runden ab, nennt ihre
   Zahl („3 Runden am Stück“) und den Grund des Halts.
+- **Geschichte** (M28): Weltereignisse von 1900 bis 2026 erscheinen vor dem Bericht in
+  eigenen Fenstern. Wechselt im Land des Firmensitzes oder eines eigenen Standorts die
+  Währung, kommt ein Fenster „Währungsumstellung“ mit dem Umstellungskurs („1 € =
+  1,95583 DM“) und dem Hinweis, dass sich das Vermögen nicht ändert.
 
 ### Neues Spiel
 

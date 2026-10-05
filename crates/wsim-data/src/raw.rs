@@ -1202,4 +1202,7 @@ pub struct RawCurrencyPeriod {
     pub from: RawPointInTime,
     #[serde(rename = "waehrung")]
     pub currency: String,
+    /// Units of the previous currency per unit of this one, fixed by law (M28).
+    #[serde(rename = "umrechnung", default)]
+    pub conversion: Option<f64>,
 }

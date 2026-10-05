@@ -515,6 +515,10 @@ pub fn periods_not_ascending() -> String {
     "Die Zeiträume müssen nach „ab“ aufsteigend sortiert sein.".into()
 }
 
+pub fn conversion_without_change() -> String {
+    "„umrechnung“ gilt nur für einen Zeitraum, in dem das Land die Währung wechselt.".into()
+}
+
 pub fn first_period_late(from: &str, start: i32) -> String {
     format!(
         "Der erste Zeitraum beginnt erst {from}; er muss spätestens im frühesten Startjahr \

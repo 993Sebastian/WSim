@@ -1,4 +1,4 @@
-import { parameterAnzeige } from "../format";
+import { meldungText, parameterAnzeige } from "../format";
 import type { Meldung } from "../kern";
 import { t } from "../texte";
 import { Dialog } from "./Dialog";
@@ -18,22 +18,29 @@ export function WeltereignisDialog({
   onAlle: () => void;
 }) {
   const laender = parameterAnzeige(meldung, "laender");
+  const datum = parameterAnzeige(meldung, "datum");
+  // Historical events bring a description; a change of currency is its own text.
+  const text = parameterAnzeige(meldung, "beschreibung") || meldungText(meldung);
+  const hinweis =
+    meldung.key === "meldung.waehrungsreform"
+      ? "weltereignis.hinweis_waehrung"
+      : "weltereignis.hinweis_stufe1";
   return (
     <Dialog titel={parameterAnzeige(meldung, "ereignis")} onSchliessen={onWeiter} tour="ereignis">
       <p className="ereignis-kopf">
         <span className="marke">{parameterAnzeige(meldung, "art")}</span>
-        <time>{parameterAnzeige(meldung, "datum")}</time>
+        {datum && <time>{datum}</time>}
         {anzahl > 1 && (
           <span className="gedaempft">{t("weltereignis.zaehler", { nummer, anzahl })}</span>
         )}
       </p>
-      <p className="ereignis-text">{parameterAnzeige(meldung, "beschreibung")}</p>
+      <p className="ereignis-text">{text}</p>
       {laender && (
         <p className="gedaempft">
           <strong>{t("weltereignis.laender")}:</strong> {laender}
         </p>
       )}
-      <p className="hinweis-links">{t("weltereignis.hinweis_stufe1")}</p>
+      <p className="hinweis-links">{t(hinweis)}</p>
       <div className="knopfreihe">
         {anzahl > nummer && (
           <button type="button" onClick={onAlle}>

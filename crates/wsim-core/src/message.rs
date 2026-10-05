@@ -128,6 +128,9 @@ pub mod keys {
     pub const AI_NEW_SELLER: &str = "meldung.ki.anbieter_neu";
     pub const AI_SELLER_GONE: &str = "meldung.ki.anbieter_weg";
     pub const AI_PRICE_CUT: &str = "meldung.ki.preissenkung";
+    pub const CURRENCY_REFORM: &str = "meldung.waehrungsreform";
+    pub const CURRENCY_REFORM_TITLE: &str = "meldung.waehrungsreform.titel";
+    pub const EVENT_KIND_CURRENCY: &str = "ereignisart.waehrung";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
     pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
@@ -206,6 +209,9 @@ pub mod keys {
         AI_NEW_SELLER,
         AI_SELLER_GONE,
         AI_PRICE_CUT,
+        CURRENCY_REFORM,
+        CURRENCY_REFORM_TITLE,
+        EVENT_KIND_CURRENCY,
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,

@@ -380,7 +380,7 @@ den KI-Firmen; ihre Anlagenzahl wird mit dem Marktmaßstab verkleinert (mindeste
 
 ## ereignisse
 
-Historische Ereignisse (in `ereignisse/`), Lastenheft §4.1. In Stufe 1 erscheinen sie
+Historische Ereignisse (in `ereignisse/`, 1900–2026), Lastenheft §4.1. In Stufe 1 erscheinen sie
 als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
 `ereignis.<id>` (Titel) und `ereignis.<id>.text` (Beschreibung), beide Pflicht.
 
@@ -388,7 +388,7 @@ als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
 | --- | --- |
 | **id** | Schlüssel |
 | **datum** | Tag des Ereignisses, `"JJJJ-MM-TT"` (in Anführungszeichen) |
-| **art** | `krieg`, `kriegsende`, `krise`, `revolution`, `staatsgruendung`, `abkommen`, `katastrophe` oder `technik`; Text `ereignisart.<art>` |
+| **art** | `krieg`, `kriegsende`, `krise`, `revolution`, `staatsgruendung`, `abkommen`, `katastrophe`, `technik` oder `reform` (Wirtschaftspolitik, M28); Text `ereignisart.<art>` |
 | laender | Betroffene Länder (heutige Grenzen) |
 | annaeherung, quelle | Herkunft |
 
@@ -432,6 +432,7 @@ Kolonial- oder Vormacht (Annahme, im Kommentar begründet).
 | --- | --- |
 | **land** | Land (ISO-3166-alpha-3) |
 | **perioden** | Nicht leere Liste aus `ab` (Jahr = 1. Januar oder `"JJJJ-MM"` = 1. des Monats) und `waehrung`; aufsteigend nach `ab`, der erste Zeitraum beginnt spätestens 1900 |
+| perioden[].umrechnung | Gesetzlicher Umstellungskurs (M28): Einheiten der bisherigen Währung für eine Einheit der neuen, > 0 (Euro: 1,95583 für die D-Mark). Nur bei einem Wechsel der Währung. Ohne ihn nennt die Meldung zur Währungsumstellung das Verhältnis der Wechselkurse |
 
 ## etappen
 

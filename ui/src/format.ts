@@ -52,8 +52,12 @@ export function geldSchluessel(): string {
   return `${anzeige.currency}@${anzeige.factor}`;
 }
 
-/** German short scales; amounts in hyperinflation reach Billiarden. */
+/** German short scales; amounts in hyperinflation reach Billiarden, the forint of 1946
+ * was worth 400 Quadrilliarden pengő. */
 const GROSS: [number, string][] = [
+  [1e27, "Quadrilliarden"],
+  [1e24, "Quadrillionen"],
+  [1e21, "Trilliarden"],
   [1e18, "Trill."],
   [1e15, "Brd."],
   [1e12, "Bio."],
@@ -162,6 +166,8 @@ export function landName(schluessel: string): string {
   return t(`land.${schluessel}`);
 }
 
+const sechsStellen = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 });
+
 function parameterText(p: Parameter): string | number {
   switch (p.type) {
     case "text":
@@ -169,7 +175,8 @@ function parameterText(p: Parameter): string | number {
     case "integer":
       return p.value;
     case "number":
-      return formatZahl(p.value, 2);
+      // Up to six significant digits: rates fixed by law read 1,95583 or 1.936,27.
+      return kurz(p.value) ?? sechsStellen.format(p.value);
     case "money":
       return formatGeld(p.value);
     case "date":

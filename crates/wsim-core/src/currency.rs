@@ -14,8 +14,8 @@ use crate::math;
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct CurrencyModel {
     pub currencies: Vec<Currency>,
-    /// By country index: from when on (fractional year) which currency, ascending.
-    pub periods: Vec<Vec<(f64, usize)>>,
+    /// By country index: from when on which currency, ascending.
+    pub periods: Vec<Vec<Period>>,
     /// The lead currency (US dollar), the unit of the simulation.
     pub lead: usize,
     /// US consumer prices: (fractional year, index), ascending.
@@ -33,6 +33,37 @@ pub struct Currency {
     pub symbol: String,
     pub rate: Rate,
     pub provenance: Provenance,
+}
+
+/// A currency a country uses from a point in time on.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Period {
+    /// Fractional year of the first day of a year or month (year + (month − 1)/12).
+    pub from: f64,
+    pub currency: usize,
+    /// Units of the previous currency for one unit of this one as fixed by law at the
+    /// changeover (1.95583 marks per euro); without it, the ratio of the exchange rates.
+    pub conversion: Option<f64>,
+}
+
+impl Period {
+    /// A period without a conversion fixed by law.
+    pub fn new(from: f64, currency: usize) -> Self {
+        Self {
+            from,
+            currency,
+            conversion: None,
+        }
+    }
+}
+
+/// A change of a country's currency (M28).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Reform {
+    pub old: usize,
+    pub new: usize,
+    /// Units of the old currency for one unit of the new one.
+    pub factor: f64,
 }
 
 /// Units of a currency per US dollar of the time.
@@ -110,15 +141,37 @@ impl CurrencyModel {
     }
 
     /// When a country starts using which currency, ascending (empty without data).
-    pub fn periods_of(&self, country: CountryId) -> &[(f64, usize)] {
+    pub fn periods_of(&self, country: CountryId) -> &[Period] {
         self.periods.get(country.index()).map_or(&[], Vec::as_slice)
     }
 
     /// The currency a country uses at `t` (before its first period: the first one).
     pub fn currency_at(&self, country: CountryId, t: f64) -> Option<usize> {
         let periods = self.periods.get(country.index())?;
-        let after = periods.partition_point(|&(from, _)| from <= t);
-        periods.get(after.saturating_sub(1)).map(|&(_, c)| c)
+        let after = periods.partition_point(|p| p.from <= t);
+        periods.get(after.saturating_sub(1)).map(|p| p.currency)
+    }
+
+    /// The change of currency a country makes at `t`, the first day of a year or month
+    /// (docs/FORMELN.md, M28). Without a conversion fixed by law, the factor is the
+    /// ratio of the exchange rates then, to three significant digits: the rates are
+    /// estimates.
+    pub fn reform_at(&self, country: CountryId, t: f64) -> Option<Reform> {
+        let periods = self.periods_of(country);
+        let i = periods.iter().position(|p| (p.from - t).abs() < 1e-6)?;
+        let old = periods[i.checked_sub(1)?].currency;
+        let new = periods[i];
+        if old == new.currency {
+            return None;
+        }
+        let factor = new.conversion.unwrap_or_else(|| {
+            math::round_significant(self.rate(old, t) / self.rate(new.currency, t), 3)
+        });
+        Some(Reform {
+            old,
+            new: new.currency,
+            factor,
+        })
     }
 
     fn display(&self, currency: usize, factor: f64) -> MoneyDisplay {
@@ -178,7 +231,10 @@ mod tests {
                     },
                 ),
             ],
-            periods: vec![vec![(1900.0, 1), (1924.0, 2)], vec![(1900.0, 3)]],
+            periods: vec![
+                vec![Period::new(1900.0, 1), Period::new(1924.0, 2)],
+                vec![Period::new(1900.0, 3)],
+            ],
             lead: 0,
             us_prices: vec![(1900.5, 8.0), (2026.5, 320.0)],
             base_year: 2026,
@@ -228,6 +284,23 @@ mod tests {
         let lead = m.lead(None).expect("lead");
         assert_eq!((lead.currency.as_str(), lead.factor), ("usd", 1.0));
         assert!((m.lead(Some(1900.5)).expect("lead").factor - 0.025).abs() < 1e-12);
+    }
+
+    #[test]
+    fn a_reform_converts_at_the_law_or_at_the_rates() {
+        let mut m = model();
+        let deu = CountryId::from_index(0);
+        // Mark (constant 4.2e12 after 1923.5) to Reichsmark (4.2 before 1924.5).
+        let reform = m.reform_at(deu, 1924.0).expect("reform");
+        assert_eq!((reform.old, reform.new), (1, 2));
+        assert_eq!(reform.factor, 1e12);
+        // Only on the first day of the period, never for the first one.
+        assert_eq!(m.reform_at(deu, 1924.0 + 1.0 / 12.0), None);
+        assert_eq!(m.reform_at(deu, 1900.0), None);
+        assert_eq!(m.reform_at(CountryId::from_index(1), 1900.0), None);
+        // A conversion fixed by law wins over the rates.
+        m.periods[0][1].conversion = Some(1.5e12);
+        assert_eq!(m.reform_at(deu, 1924.0).expect("reform").factor, 1.5e12);
     }
 
     #[test]

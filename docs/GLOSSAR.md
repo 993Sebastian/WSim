@@ -206,3 +206,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Produktionsketten, Spitze einer Kette | `views::chains` (`ChainsView::roots`, `ChainProduct`, `ChainRecipe`), Sitzung `chains`, Befehl `ketten`; UI: `KettenAnsicht`, `Ketten`, `KettenProdukt` |
 | Weiterlaufen bis Jahresende / zur nächsten Warnung | `Session::end_round_until` (`runde`, `jahresende`, `meldung`), `RoundReportView::rounds`, `stop`; Befehl `runde_beenden` mit `bis`; UI: `Weiterlaufen`, `MEHRERE` |
 | Erklärung eines Werts (Teile von Preis, Nachfrage, Stückkosten) | `PriceParts`, `DemandParts`, `FifthParts` (`ProductMarketView::price_parts`, `demand_parts`), `market::successors`, `market::displaced`; UI: `Erklaerung`, `PreisTeile`, `NachfrageTeile`, `KostenTeile` |
+| Währungszeitraum, gesetzlicher Umstellungskurs | `currency::Period` (`from`, `currency`, `conversion` ← `perioden[].umrechnung`) |
+| Währungsumstellung (Meldung) | `currency::Reform`, `CurrencyModel::reform_at`, `game::currency_reforms`; Schlüssel `meldung.waehrungsreform`, Art `ereignisart.waehrung` |
+| Auf gültige Stellen runden | `math::round_significant` |
+| Ereignisart Wirtschaftspolitik | `reform` (`build::ai::EVENT_KINDS`) |

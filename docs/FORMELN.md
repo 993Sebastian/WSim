@@ -1220,3 +1220,23 @@ Wert berechnet; ein Test prüft je Wert, dass die Teile das Ganze ergeben.
   Anlage (Abschreibung und Wartung) wie unter „Kosten“ (M18), dazu die Kosten ohne
   Anlage für ein weiteres Stück.
 
+
+## M28 – Geschichte erzählen (Meldungen)
+
+Lastenheft §4.1, §3.6; Vorschlag 7. Nichts davon wirkt auf die Simulation zurück.
+
+- **Weltereignisse 1940–2026** wie die von 1900–1939 (M11): am Tag des Ereignisses eine
+  Meldung mit Titel, Beschreibung, Art und betroffenen Ländern. Neue Art `reform`
+  (Wirtschaftspolitik). Ihre Folgen stecken in den Länderwerten; eigene Wirkungen folgen
+  mit Stufe 4.
+- **Währungsumstellung:** Am ersten Tag eines Monats prüft der Kern für das Land des
+  Firmensitzes und jedes Land mit eigenem Standort, ob dort ein neuer Zeitraum der
+  Landeswährungen (M21) beginnt (Beginn = Jahr + (Monat − 1)/12). Wechselt dabei die
+  Währung, meldet er „ab Monat Jahr rechnet Land in neu statt in alt: 1 neu = Faktor alt“.
+  - Faktor = gesetzlicher Umstellungskurs (`umrechnung` am Zeitraum), sonst
+    Kurs_alt(Beginn) / Kurs_neu(Beginn) mit den Kursen je US-Dollar (M21), auf drei
+    gültige Stellen gerundet (die Kurse sind Schätzungen).
+  - Beispiele: Dezember 1923, 1 RM = 1 Billion M (gesetzlich); Januar 1999,
+    1 € = 1,95583 DM (amtlicher Kurs).
+  - Das Vermögen im Spiel ändert sich nicht (es zählt in US-Dollar mit der Kaufkraft
+    von 2026); bei „Preise der Zeit“ erscheinen Beträge ab dann in der neuen Währung.

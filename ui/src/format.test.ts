@@ -102,7 +102,7 @@ describe("Geldanzeige", () => {
     expect(formatGeld(1000)).toBe("220 Bio. M");
     expect(formatGeld(1e6)).toBe("220 Brd. M");
     expect(formatGeld(1e9)).toBe("220 Trill. M");
-    expect(formatGeld(1e12)).toBe("220.000 Trill. M");
+    expect(formatGeld(1e12)).toBe("220 Trilliarden M");
   });
 
   it("zeigt kleine Beträge einer starken Währung nicht als null", () => {

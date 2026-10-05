@@ -483,6 +483,7 @@ pub const EVENT_KINDS: &[&str] = &[
     "abkommen",
     "katastrophe",
     "technik",
+    "reform",
 ];
 
 fn parse_date(text: &str) -> Option<Date> {

@@ -145,6 +145,7 @@ dialog.schliessen: Schließen
 weltereignis.zaehler: "{nummer} von {anzahl}"
 weltereignis.laender: Betroffene Länder
 weltereignis.hinweis_stufe1: Die wirtschaftlichen Folgen zeigen sich in den Länderwerten (Einkommen, Bevölkerung). Eigene Wirkungen wie Handelssperren oder Zerstörungen folgen in einer späteren Ausbaustufe.
+weltereignis.hinweis_waehrung: "Das Spiel rechnet intern in US-Dollar mit der Kaufkraft von 2026; die Umstellung ändert dein Vermögen nicht. Bei „Preise der Zeit“ erscheinen Beträge ab jetzt in der neuen Währung."
 weltereignis.alle_ueberspringen: Alle überspringen
 
 bericht.finanzergebnis: Finanzergebnis

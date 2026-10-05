@@ -1,0 +1,497 @@
+# Historische Ereignisse 1940–2026 (M28, Lastenheft §4.1). In Stufe 1 erscheinen sie als
+# Weltereignis im Rundenbericht; ihre wirtschaftlichen Folgen stecken bereits in den
+# Länderwerten. Wirkungen (Nachfrage, Handelssperren, Zerstörung) folgen mit Stufe 4.
+# Länder in heutigen Grenzen. Auswahl: was Märkte, Handel und Industrie bewegte.
+
+ereignisse:
+  - id: westfeldzug
+    datum: "1940-05-10"
+    art: krieg
+    laender: [DEU, FRA, BEL, NLD, LUX, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: leih_und_pachtgesetz
+    datum: "1941-03-11"
+    art: abkommen
+    laender: [USA, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: angriff_sowjetunion
+    datum: "1941-06-22"
+    art: krieg
+    laender: [DEU, RUS, UKR, BLR, LTU, LVA, EST]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: pearl_harbor
+    datum: "1941-12-07"
+    art: krieg
+    laender: [USA, JPN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: stalingrad
+    datum: "1943-02-02"
+    art: krieg
+    laender: [DEU, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: landung_normandie
+    datum: "1944-06-06"
+    art: krieg
+    laender: [FRA, USA, GBR, CAN, DEU]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: bretton_woods
+    datum: "1944-07-22"
+    art: abkommen
+    laender: [USA, GBR, FRA, CAN, CHN, IND, BRA, MEX]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: kriegsende_europa
+    datum: "1945-05-08"
+    art: kriegsende
+    laender: [DEU, FRA, GBR, RUS, USA, POL, ITA, NLD, BEL]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: hiroshima
+    datum: "1945-08-06"
+    art: krieg
+    laender: [JPN, USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: kapitulation_japan
+    datum: "1945-09-02"
+    art: kriegsende
+    laender: [JPN, USA, CHN, GBR, AUS, PHL, KOR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: vereinte_nationen
+    datum: "1945-10-24"
+    art: abkommen
+    laender: [USA, GBR, FRA, RUS, CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: indien_pakistan
+    datum: "1947-08-15"
+    art: staatsgruendung
+    laender: [IND, PAK, BGD]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: gatt
+    datum: "1947-10-30"
+    art: abkommen
+    laender: [USA, GBR, FRA, CAN, BEL, NLD, LUX, AUS, BRA, CHL, CHN, CUB, CZE, IND, LBN, NZL, NOR, PAK, MMR, LKA, SYR, ZAF, ZWE]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: marshallplan
+    datum: "1948-04-03"
+    art: abkommen
+    laender: [USA, DEU, FRA, GBR, ITA, NLD, BEL, AUT, GRC, TUR, DNK, NOR, SWE, PRT, IRL, ISL, LUX, CHE]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: israel
+    datum: "1948-05-14"
+    art: staatsgruendung
+    laender: [ISR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: berlin_blockade
+    datum: "1948-06-24"
+    art: krise
+    laender: [DEU, RUS, USA, GBR, FRA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: nato
+    datum: "1949-04-04"
+    art: abkommen
+    laender: [USA, GBR, FRA, CAN, BEL, NLD, LUX, NOR, DNK, ISL, ITA, PRT]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: bundesrepublik
+    datum: "1949-05-23"
+    art: staatsgruendung
+    laender: [DEU]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: volksrepublik_china
+    datum: "1949-10-01"
+    art: revolution
+    laender: [CHN, TWN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: koreakrieg
+    datum: "1950-06-25"
+    art: krieg
+    laender: [KOR, PRK, USA, CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: montanunion
+    datum: "1951-04-18"
+    art: abkommen
+    laender: [FRA, DEU, ITA, BEL, NLD, LUX]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: waffenstillstand_korea
+    datum: "1953-07-27"
+    art: kriegsende
+    laender: [KOR, PRK, USA, CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: containerschiff
+    datum: "1956-04-26"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: ungarnaufstand
+    datum: "1956-10-23"
+    art: revolution
+    laender: [HUN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: suezkrise
+    datum: "1956-10-29"
+    art: krise
+    laender: [EGY, ISR, GBR, FRA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: roemische_vertraege
+    datum: "1957-03-25"
+    art: abkommen
+    laender: [FRA, DEU, ITA, BEL, NLD, LUX]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: sputnik
+    datum: "1957-10-04"
+    art: technik
+    laender: [RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: kubanische_revolution
+    datum: "1959-01-01"
+    art: revolution
+    laender: [CUB]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: opec
+    datum: "1960-09-14"
+    art: abkommen
+    laender: [IRN, IRQ, KWT, SAU, VEN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: afrikanisches_jahr
+    datum: "1960-10-01"
+    art: staatsgruendung
+    laender: [NGA, COD, SEN, CIV, CMR, MDG, MLI, NER, TCD, TGO, BEN, BFA, GAB, COG, CAF, MRT, SOM]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: gagarin
+    datum: "1961-04-12"
+    art: technik
+    laender: [RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: berliner_mauer
+    datum: "1961-08-13"
+    art: krise
+    laender: [DEU]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: kubakrise
+    datum: "1962-10-22"
+    art: krise
+    laender: [CUB, USA, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: shinkansen
+    datum: "1964-10-01"
+    art: technik
+    laender: [JPN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: vietnamkrieg
+    datum: "1965-03-08"
+    art: krieg
+    laender: [VNM, USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: sechstagekrieg
+    datum: "1967-06-05"
+    art: krieg
+    laender: [ISR, EGY, SYR, JOR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: prager_fruehling
+    datum: "1968-08-21"
+    art: krise
+    laender: [CZE, SVK, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: mondlandung
+    datum: "1969-07-20"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: jumbojet
+    datum: "1970-01-22"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: nixon_schock
+    datum: "1971-08-15"
+    art: reform
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: eg_erweiterung_1973
+    datum: "1973-01-01"
+    art: abkommen
+    laender: [GBR, IRL, DNK]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: oelkrise_1973
+    datum: "1973-10-17"
+    art: krise
+    laender: [SAU, KWT, IRQ, USA, NLD, JPN, DEU, FRA, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: fall_saigons
+    datum: "1975-04-30"
+    art: kriegsende
+    laender: [VNM, USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: reform_china
+    datum: "1978-12-18"
+    art: reform
+    laender: [CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: iranische_revolution
+    datum: "1979-02-11"
+    art: revolution
+    laender: [IRN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: iran_irak_krieg
+    datum: "1980-09-22"
+    art: krieg
+    laender: [IRN, IRQ]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: personal_computer
+    datum: "1981-08-12"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: schuldenkrise_lateinamerika
+    datum: "1982-08-20"
+    art: krise
+    laender: [MEX, BRA, ARG, CHL, PER, VEN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: plaza_abkommen
+    datum: "1985-09-22"
+    art: abkommen
+    laender: [USA, JPN, DEU, FRA, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: tschernobyl
+    datum: "1986-04-26"
+    art: katastrophe
+    laender: [UKR, BLR, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: schwarzer_montag
+    datum: "1987-10-19"
+    art: krise
+    laender: [USA, GBR, JPN, DEU, AUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: mauerfall
+    datum: "1989-11-09"
+    art: revolution
+    laender: [DEU]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: deutsche_einheit
+    datum: "1990-10-03"
+    art: staatsgruendung
+    laender: [DEU]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: zweiter_golfkrieg
+    datum: "1991-01-17"
+    art: krieg
+    laender: [IRQ, KWT, USA, SAU, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: ende_sowjetunion
+    datum: "1991-12-26"
+    art: staatsgruendung
+    laender: [RUS, UKR, BLR, KAZ, UZB, GEO, AZE, ARM, MDA, LTU, LVA, EST, KGZ, TJK, TKM]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: maastricht
+    datum: "1992-02-07"
+    art: abkommen
+    laender: [DEU, FRA, ITA, BEL, NLD, LUX, GBR, IRL, DNK, ESP, PRT, GRC]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: nafta
+    datum: "1994-01-01"
+    art: abkommen
+    laender: [USA, CAN, MEX]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: wto
+    datum: "1995-01-01"
+    art: abkommen
+    laender: [USA, DEU, FRA, GBR, JPN, CAN, IND, BRA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: asienkrise
+    datum: "1997-07-02"
+    art: krise
+    laender: [THA, IDN, KOR, MYS, PHL]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: russlandkrise
+    datum: "1998-08-17"
+    art: krise
+    laender: [RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: euro
+    datum: "1999-01-01"
+    art: reform
+    laender: [DEU, FRA, ITA, ESP, NLD, BEL, AUT, FIN, IRL, PRT, LUX]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: dotcom_blase
+    datum: "2000-03-10"
+    art: krise
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: anschlaege_11_september
+    datum: "2001-09-11"
+    art: krise
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: china_wto
+    datum: "2001-12-11"
+    art: abkommen
+    laender: [CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: irakkrieg
+    datum: "2003-03-20"
+    art: krieg
+    laender: [IRQ, USA, GBR, AUS, POL]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: eu_osterweiterung
+    datum: "2004-05-01"
+    art: abkommen
+    laender: [POL, CZE, SVK, HUN, SVN, EST, LVA, LTU, MLT, CYP]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: tsunami_2004
+    datum: "2004-12-26"
+    art: katastrophe
+    laender: [IDN, LKA, IND, THA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: smartphone
+    datum: "2007-01-09"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: lehman
+    datum: "2008-09-15"
+    art: krise
+    laender: [USA, GBR, DEU, ISL, IRL]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: eurokrise
+    datum: "2010-05-02"
+    art: krise
+    laender: [GRC, IRL, PRT, ESP, ITA, CYP]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: arabischer_fruehling
+    datum: "2011-01-14"
+    art: revolution
+    laender: [TUN, EGY, LBY, SYR, YEM]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: fukushima
+    datum: "2011-03-11"
+    art: katastrophe
+    laender: [JPN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: krim
+    datum: "2014-03-18"
+    art: krise
+    laender: [UKR, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: pariser_abkommen
+    datum: "2015-12-12"
+    art: abkommen
+    laender: [USA, CHN, IND, DEU, FRA, GBR, JPN, BRA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: brexit
+    datum: "2016-06-23"
+    art: krise
+    laender: [GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: handelskonflikt_usa_china
+    datum: "2018-07-06"
+    art: krise
+    laender: [USA, CHN]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: pandemie
+    datum: "2020-03-11"
+    art: katastrophe
+    laender: [CHN, ITA, ESP, USA, GBR, DEU, FRA, IND, BRA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: suezkanal_blockiert
+    datum: "2021-03-23"
+    art: krise
+    laender: [EGY]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: krieg_ukraine
+    datum: "2022-02-24"
+    art: krieg
+    laender: [UKR, RUS]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: sprachmodelle
+    datum: "2022-11-30"
+    art: technik
+    laender: [USA]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: krieg_gaza
+    datum: "2023-10-07"
+    art: krieg
+    laender: [ISR, PSE]
+    quelle: "Wikipedia (de), Stand 2026"
+
+  - id: us_zoelle_2025
+    datum: "2025-04-02"
+    art: krise
+    laender: [USA, CHN, CAN, MEX, DEU, JPN]
+    quelle: "Wikipedia (de), Stand 2026"

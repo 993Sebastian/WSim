@@ -3,7 +3,7 @@
 use std::collections::BTreeSet;
 
 use wsim_core::EARLIEST_START_YEAR;
-use wsim_core::currency::{Currency, CurrencyModel, Rate};
+use wsim_core::currency::{Currency, CurrencyModel, Period, Rate};
 
 use super::production::single;
 use super::{GAME_YEARS, KeyFormat, Keys, in_range, positive, provenance, register, resolve_index};
@@ -199,15 +199,24 @@ pub(super) fn currency_model(
         if v.periods.is_empty() {
             ctx.error(&l, messages::list_empty());
         }
-        let mut periods: Vec<(f64, usize)> = Vec::new();
+        let mut periods: Vec<Period> = Vec::new();
         for (i, p) in v.periods.iter().enumerate() {
             let pl = l.index(i);
             let currency = resolve_index(ctx, &keys, &p.currency, &pl.field("waehrung"));
             anchors.insert(currency);
+            let conversion = p
+                .conversion
+                .map(|c| positive(ctx, c, &pl.field("umrechnung")));
+            if conversion.is_some() && (i == 0 || v.periods[i - 1].currency == p.currency) {
+                ctx.error(
+                    &pl.field("umrechnung"),
+                    messages::conversion_without_change(),
+                );
+            }
             let Some(from) = period_start(ctx, &p.from, &pl.field("ab")) else {
                 continue;
             };
-            if periods.last().is_some_and(|&(last, _)| from <= last) {
+            if periods.last().is_some_and(|last| from <= last.from) {
                 ctx.error(&pl.field("ab"), messages::periods_not_ascending());
             }
             if i == 0 && from > f64::from(EARLIEST_START_YEAR) {
@@ -216,7 +225,11 @@ pub(super) fn currency_model(
                     messages::first_period_late(&p.from.0, EARLIEST_START_YEAR),
                 );
             }
-            periods.push((from, currency));
+            periods.push(Period {
+                from,
+                currency,
+                conversion,
+            });
         }
         if known {
             model.periods[index] = periods;

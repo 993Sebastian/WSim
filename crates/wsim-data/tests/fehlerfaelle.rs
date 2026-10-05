@@ -520,6 +520,45 @@ fn zeitraeume_absteigend_und_basisjahr_ohne_preis() {
 }
 
 #[test]
+fn umrechnung_nur_beim_wechsel_und_positiv() {
+    let d = Daten::neu().ersetze(
+        "waehrungen/a.yaml",
+        "{ab: \"1999-01\", waehrung: krone_neu}",
+        "{ab: \"1999-01\", waehrung: krone_neu, umrechnung: 2}",
+    );
+    let outcome = d.laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let catalog = outcome.data.unwrap().catalog;
+    let swe = catalog.countries.id("SWE").unwrap();
+    assert_eq!(
+        catalog.currencies.reform_at(swe, 1999.0).unwrap().factor,
+        2.0
+    );
+
+    let d = Daten::neu()
+        .ersetze(
+            "waehrungen/a.yaml",
+            "{ab: 1900, waehrung: krone}",
+            "{ab: 1900, waehrung: krone, umrechnung: 2}",
+        )
+        .ersetze(
+            "waehrungen/a.yaml",
+            "{ab: \"1999-01\", waehrung: krone_neu}",
+            "{ab: \"1999-01\", waehrung: krone_neu, umrechnung: -1}",
+        );
+    let outcome = d.laden();
+    let f = befund(&outcome, "„umrechnung“ gilt nur für einen Zeitraum");
+    assert_ort(
+        f,
+        "waehrungen/a.yaml",
+        d.zeile("waehrungen/a.yaml", "umrechnung: 2"),
+        "landeswaehrungen[0].perioden[0].umrechnung",
+    );
+    befund(&outcome, "Wert -1 muss größer als 0 sein");
+    nur_fehler(&outcome, 2);
+}
+
+#[test]
 fn leitwaehrung_braucht_kurs_eins() {
     let d = Daten::neu().ersetze(
         "waehrungen/a.yaml",

@@ -789,3 +789,34 @@ Eigenständige Entscheidungen:
     wurde zu Monatsbeginn mit dem damaligen Preis gesetzt. Zu Monatsbeginn stimmen beide
     genau überein, im Monat können sie leicht abweichen.
 
+### M28: Geschichte erzählen (05.10.2026)
+
+Vorschlag 7 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Regeln: `docs/FORMELN.md`, M28.
+
+  - **Daten:** 82 Weltereignisse von 1940 bis 2026 (`data/ereignisse/1940_2026.yaml`) mit
+    Titel und Beschreibung, neue Ereignisart „Wirtschaftspolitik“ (`reform`). Gesetzliche
+    Umstellungskurse (`umrechnung`) an 137 Währungswechseln: alle Euro-Einführungen mit
+    den amtlichen Kursen, Rentenmark, D-Mark, Schilling, Neuer Franc, die Rubel von 1961
+    und 1998 und weitere Währungsschnitte nach Inflationen.
+  - **Kern:** Meldung „Währungsumstellung“ am ersten Tag des Zeitraums, für das Land des
+    Firmensitzes und alle Länder mit eigenem Standort; sie erscheint wie ein Weltereignis
+    in einem eigenen Fenster und im Rundenbericht.
+  - **Oberfläche:** Das Ereignisfenster zeigt bei Währungen den Umstellungskurs und den
+    Hinweis, dass sich das Vermögen nicht ändert. Zahlen in Meldungen mit bis zu sechs
+    gültigen Stellen (1,95583), sehr große in Worten (400 Quadrilliarden).
+  - Tests: Kern (Meldung nur für Sitz- und Standortländer, Kurs aus Gesetz oder
+    Wechselkursen), Echtdaten (Euro 1999 als Weltereignis und als Umstellung mit
+    1,95583), Prüfregeln für `umrechnung`, Oberfläche (Fenster und Zahlenformat).
+
+Eigenständige Entscheidungen:
+
+  - Ohne gesetzlichen Kurs nennt die Meldung das Verhältnis der Wechselkurse; wo dieses
+    deutlich vom bekannten Umstellungskurs abwich (z. B. Euro, D-Mark 1948, Zloty 1995),
+    steht der gesetzliche Kurs jetzt in den Daten. Für die D-Mark gilt der Satz für
+    Bargeld und Guthaben (10 RM : 1 DM); Löhne, Mieten und Preise wurden 1 : 1
+    umgestellt (Kommentar in den Daten).
+  - Gemeldet wird nur, wo der Spieler sitzt oder einen Standort hat; sonst kämen über
+    das Jahrhundert mehrere hundert Meldungen zusammen.
+  - Die Monatsgenauigkeit der Daten bestimmt den Tag der Meldung (D-Mark: 1. Juni 1948
+    statt 20. Juni); der Text nennt deshalb nur Monat und Jahr.
+

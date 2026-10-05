@@ -371,6 +371,11 @@ impl Game {
             today,
         ));
         report.messages.extend(world_events(&self.catalog, today));
+        if today.day() == 1 {
+            report
+                .messages
+                .extend(currency_reforms(&self.state, &self.catalog, today));
+        }
 
         let next = today.next_day();
         if next.day() == 1 {
@@ -441,6 +446,47 @@ fn world_events(catalog: &Catalog, date: Date) -> Vec<Message> {
                             .collect(),
                     ),
                 )
+        })
+        .collect()
+}
+
+/// Changes of currency in the countries of the player's headquarters and sites (M28):
+/// history told along the way. Amounts in the game do not change; they are shown in
+/// the new currency from now on.
+fn currency_reforms(state: &GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    let model = &catalog.currencies;
+    // Periods start on the first day of a month: year + (month − 1)/12.
+    let t = f64::from(date.year()) + f64::from(date.month() - 1) / 12.0;
+    let mut countries = vec![state.companies[state.player.index()].headquarters];
+    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+        if !countries.contains(&s.country) {
+            countries.push(s.country);
+        }
+    }
+    countries
+        .into_iter()
+        .filter_map(|country| {
+            let reform = model.reform_at(country, t)?;
+            let old = &model.currencies[reform.old];
+            let new = &model.currencies[reform.new];
+            let key = catalog.countries.key(country).to_owned();
+            Some(
+                Message::new(MessageKind::WorldEvent, keys::CURRENCY_REFORM)
+                    .with(
+                        "ereignis",
+                        Param::TextKey(keys::CURRENCY_REFORM_TITLE.to_owned()),
+                    )
+                    .with("art", Param::TextKey(keys::EVENT_KIND_CURRENCY.to_owned()))
+                    .with("land", Param::Country(key.clone()))
+                    .with("monat", Param::TextKey(format!("monat.{}", date.month())))
+                    .with("jahr", Param::Integer(i64::from(date.year())))
+                    .with("alt", Param::TextKey(format!("waehrung.{}", old.key)))
+                    .with("symbol_alt", Param::Text(old.symbol.clone()))
+                    .with("neu", Param::TextKey(format!("waehrung.{}", new.key)))
+                    .with("symbol_neu", Param::Text(new.symbol.clone()))
+                    .with("faktor", Param::Number(reform.factor))
+                    .with("laender", Param::Countries(vec![key])),
+            )
         })
         .collect()
 }
@@ -545,4 +591,115 @@ fn fnv1a(bytes: &[u8]) -> u64 {
     bytes.iter().fold(0xCBF2_9CE4_8422_2325, |hash, &b| {
         (hash ^ u64::from(b)).wrapping_mul(0x0100_0000_01B3)
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use super::*;
+    use crate::catalog::{Provenance, SiteType, test_support};
+    use crate::currency::{Currency, CurrencyModel, Period, Rate};
+    use crate::state::StartForm;
+
+    /// AAA changes its currency in March 1901 at the ratio of the rates, BBB in May 1901
+    /// at a rate fixed by law.
+    fn game(site_in_bbb: bool) -> Game {
+        let mut catalog = test_support::production();
+        let currency = |key: &str, rate: f64| Currency {
+            key: key.to_owned(),
+            symbol: key.to_uppercase(),
+            rate: Rate::Points(vec![(1900.5, rate)]),
+            provenance: Provenance::default(),
+        };
+        let reform = |month: f64, conversion| Period {
+            from: 1901.0 + (month - 1.0) / 12.0,
+            currency: 2,
+            conversion,
+        };
+        catalog.currencies = CurrencyModel {
+            currencies: vec![
+                currency("usd", 1.0),
+                currency("mark", 4.0),
+                currency("neumark", 0.04),
+            ],
+            periods: vec![
+                vec![Period::new(1900.0, 1), reform(3.0, None)],
+                vec![Period::new(1900.0, 1), reform(5.0, Some(99.0))],
+            ],
+            lead: 0,
+            us_prices: vec![(1900.5, 10.0)],
+            base_year: 2026,
+            inflation_after: 0.0,
+            prices_provenance: Provenance::default(),
+        };
+        let catalog = Arc::new(catalog);
+        let settings = GameSettings {
+            seed: 1,
+            start_year: 1901,
+            start_country: catalog.countries.id("AAA").unwrap(),
+            start_capital: Money::from_usd(20_000_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Umsteller".into(),
+            research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
+        };
+        let mut game = Game::new(catalog.clone(), settings).unwrap();
+        if site_in_bbb {
+            game.apply(Command::FoundSite {
+                country: catalog.countries.id("BBB").unwrap(),
+                kind: SiteType::Factory,
+            })
+            .unwrap();
+        }
+        game
+    }
+
+    fn reforms_until_june(mut game: Game) -> Vec<(u32, Message)> {
+        let mut found = Vec::new();
+        for month in 1..=5 {
+            let report = game.advance(RoundLength::Month, |_| {});
+            found.extend(
+                report
+                    .messages
+                    .into_iter()
+                    .filter(|m| m.key == keys::CURRENCY_REFORM)
+                    .map(|m| (month, m)),
+            );
+        }
+        found
+    }
+
+    fn param(m: &Message, name: &str) -> Param {
+        m.params
+            .iter()
+            .find(|(k, _)| k == name)
+            .map(|(_, p)| p.clone())
+            .expect("parameter")
+    }
+
+    #[test]
+    fn changes_of_currency_are_told_where_the_player_is() {
+        // Only the headquarters' country: AAA in March, at 4 / 0.04 marks per new mark.
+        let only_home = reforms_until_june(game(false));
+        assert_eq!(only_home.len(), 1);
+        let (month, m) = &only_home[0];
+        assert_eq!(*month, 3);
+        assert_eq!(m.kind, MessageKind::WorldEvent);
+        assert_eq!(param(m, "land"), Param::Country("AAA".into()));
+        assert_eq!(param(m, "monat"), Param::TextKey("monat.3".into()));
+        assert_eq!(param(m, "jahr"), Param::Integer(1901));
+        assert_eq!(param(m, "alt"), Param::TextKey("waehrung.mark".into()));
+        assert_eq!(param(m, "symbol_neu"), Param::Text("NEUMARK".into()));
+        assert_eq!(param(m, "faktor"), Param::Number(100.0));
+
+        // With a site in BBB its change in May is told too, at the rate fixed by law.
+        let both = reforms_until_june(game(true));
+        assert_eq!(both.len(), 2);
+        let (month, m) = &both[1];
+        assert_eq!(*month, 5);
+        assert_eq!(param(m, "land"), Param::Country("BBB".into()));
+        assert_eq!(param(m, "faktor"), Param::Number(99.0));
+    }
 }

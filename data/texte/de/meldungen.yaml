@@ -31,6 +31,8 @@ fehler.spielstand.inhalt_fehlt: "Der Spielstand verwendet „{id}“ ({art}); di
 meldung.spielende: Die Partie ist mit dem 31.12.2100 zu Ende gegangen.
 meldung.neues_jahr: Das Jahr {jahr} beginnt.
 meldung.weltereignis: "{ereignis}"
+meldung.waehrungsreform: "Ab {monat} {jahr} rechnet {land} in {neu} statt in {alt}: 1 {symbol_neu} = {faktor} {symbol_alt}."
+meldung.waehrungsreform.titel: Währungsumstellung
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
 
 # Arten von Inhalten, für Meldungen

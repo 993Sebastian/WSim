@@ -35,6 +35,24 @@ pub fn asin(x: f64) -> f64 {
     libm::asin(x)
 }
 
+/// `x` to `digits` significant digits (zero and non-finite values unchanged).
+pub fn round_significant(x: f64, digits: i32) -> f64 {
+    if x == 0.0 || !x.is_finite() {
+        return x;
+    }
+    #[allow(clippy::cast_possible_truncation)]
+    let magnitude = libm::floor(libm::log10(x.abs())) as i32;
+    let shift = digits - 1 - magnitude;
+    // Scaling by an exact power of ten keeps round values such as 1e12 exact.
+    if shift >= 0 {
+        let scale = pow(10.0, f64::from(shift));
+        libm::round(x * scale) / scale
+    } else {
+        let scale = pow(10.0, f64::from(-shift));
+        libm::round(x / scale) * scale
+    }
+}
+
 /// Great-circle distance in km between two points given in degrees (haversine).
 pub fn great_circle_km(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     const EARTH_RADIUS_KM: f64 = 6_371.0;
@@ -172,6 +190,15 @@ mod tests {
         }
         let even = quintile_shares(0.01);
         assert!(even.iter().all(|s| (s - 0.2).abs() < 0.01));
+    }
+
+    #[test]
+    fn rounding_to_significant_digits() {
+        assert_eq!(round_significant(1.916_49, 3), 1.92);
+        assert_eq!(round_significant(0.750_7, 3), 0.751);
+        assert_eq!(round_significant(-1234.5, 2), -1200.0);
+        assert_eq!(round_significant(999_999_999_999.9, 3), 1e12);
+        assert_eq!(round_significant(0.0, 3), 0.0);
     }
 
     #[test]

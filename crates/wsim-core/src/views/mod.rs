@@ -912,16 +912,15 @@ fn country_currencies(game: &Game, id: CountryId) -> (Vec<CurrencyPeriodView>, O
     let t = game.state().date.year_fraction();
     let periods = m.periods_of(id);
     // As in `currency_at`: before the first period the first one applies.
-    let now = periods
-        .partition_point(|&(from, _)| from <= t)
-        .saturating_sub(1);
+    let now = periods.partition_point(|p| p.from <= t).saturating_sub(1);
     let views = periods
         .iter()
         .enumerate()
-        .map(|(i, &(from, c))| {
+        .map(|(i, p)| {
             // Periods start on the first day of a month: year + (month − 1)/12.
-            let year = from.floor();
-            let month = (from - year) * 12.0 + 1.0;
+            let year = p.from.floor();
+            let month = (p.from - year) * 12.0 + 1.0;
+            let c = p.currency;
             CurrencyPeriodView {
                 from: format!("{year:04.0}-{month:02.0}"),
                 currency: m.currencies[c].key.clone(),
@@ -1068,7 +1067,7 @@ mod tests {
     /// The test game with currencies: a krone everywhere, from November 1923 a new one.
     fn game_with_currencies() -> Game {
         use crate::catalog::Provenance;
-        use crate::currency::{Currency, CurrencyModel, Rate};
+        use crate::currency::{Currency, CurrencyModel, Period, Rate};
         let mut catalog = test_support::production();
         let currency = |key: &str, points: Vec<(f64, f64)>| Currency {
             key: key.to_owned(),
@@ -1082,7 +1081,10 @@ mod tests {
                 currency("krone", vec![(1900.5, 4.0), (2026.5, 9.0)]),
                 currency("krone_neu", vec![(1924.5, 9.0)]),
             ],
-            periods: vec![vec![(1900.0, 1), (1923.0 + 10.0 / 12.0, 2)]; catalog.countries.len()],
+            periods: vec![
+                vec![Period::new(1900.0, 1), Period::new(1923.0 + 10.0 / 12.0, 2)];
+                catalog.countries.len()
+            ],
             lead: 0,
             us_prices: vec![(1900.5, 10.0), (2026.5, 300.0)],
             base_year: 2026,
