@@ -91,6 +91,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   das Menü ☰ („Etappen zeigen“) wieder ein; die Wahl merkt sich der Browser. Erreichte
   Etappen stehen im Rundenbericht unter „Erreicht“; die Einführung zeigt den Bereich
   nach dem ersten Verkauf.
+- **Rang** (M29): Unter „Wettbewerb“ steht der Platz der eigenen Firma unter allen Firmen,
+  die nicht insolvent sind – nach Eigenkapital und nach Umsatz der letzten zwölf Monate,
+  mit der Veränderung gegenüber dem Vorjahr („↑ 5 gegenüber dem Vorjahr (Platz 12)“).
+  Zum Jahresende nennt der Rundenbericht beide Plätze.
 
 ### Produktion → Standorte und Werksansicht
 

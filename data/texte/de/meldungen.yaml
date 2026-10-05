@@ -33,6 +33,10 @@ meldung.neues_jahr: Das Jahr {jahr} beginnt.
 meldung.weltereignis: "{ereignis}"
 meldung.waehrungsreform: "Ab {monat} {jahr} rechnet {land} in {neu} statt in {alt}: 1 {symbol_neu} = {faktor} {symbol_alt}."
 meldung.waehrungsreform.titel: Währungsumstellung
+meldung.rang: "Rang zum Ende des Jahres {jahr} {kriterium}: Platz {platz} unter {firmen} Firmen."
+meldung.rang_vorjahr: "Rang zum Ende des Jahres {jahr} {kriterium}: Platz {platz} unter {firmen} Firmen (ein Jahr zuvor Platz {vorher})."
+rang.eigenkapital: nach Eigenkapital
+rang.umsatz: nach Umsatz
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
 
 # Arten von Inhalten, für Meldungen

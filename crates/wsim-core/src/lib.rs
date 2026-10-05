@@ -24,6 +24,7 @@ pub mod money;
 pub mod policy;
 pub mod population;
 pub mod production;
+pub mod ranking;
 pub mod reports;
 pub mod research;
 pub mod rng;

@@ -10170,6 +10170,15 @@
         "symbol": "USD"
       }
     },
+    "rank": {
+      "now": {
+        "companies": 101,
+        "date": "1914-08-01",
+        "equity": 101,
+        "revenue": 101
+      },
+      "year_before": null
+    },
     "start_year": 1914
   },
   "uebersicht_start": {
@@ -10376,6 +10385,15 @@
         "factor": 0.030151515151515148,
         "symbol": "USD"
       }
+    },
+    "rank": {
+      "now": {
+        "companies": 101,
+        "date": "1914-01-01",
+        "equity": 101,
+        "revenue": null
+      },
+      "year_before": null
     },
     "start_year": 1914
   },

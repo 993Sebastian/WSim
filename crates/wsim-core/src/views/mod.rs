@@ -26,6 +26,7 @@ use crate::ids::{CountryId, Id};
 use crate::ledger::{Account, CostType};
 use crate::message::{Message, MessageKind, Param};
 use crate::money::Money;
+use crate::ranking::equity;
 use crate::state::{Company, StartForm};
 
 /// Latest start year offered in stage 1 (docs/OFFENE_PUNKTE.md, point 7).
@@ -230,6 +231,47 @@ pub struct Overview {
     /// Goals after the introduction, in data order (M23).
     #[serde(default)]
     pub milestones: Vec<MilestoneView>,
+    /// The player's places among all active companies (M29); `None` without others.
+    #[serde(default)]
+    pub rank: Option<RankView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RankView {
+    pub now: StandingView,
+    /// The places a year before (start of the same month), if recorded.
+    pub year_before: Option<StandingView>,
+}
+
+/// Places by equity and by revenue of the last twelve closed months.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StandingView {
+    pub date: String,
+    pub equity: u32,
+    /// `None` without revenue in the last twelve months.
+    pub revenue: Option<u32>,
+    /// Active companies, the player included.
+    pub companies: u32,
+}
+
+impl From<crate::ranking::Standing> for StandingView {
+    fn from(s: crate::ranking::Standing) -> Self {
+        Self {
+            date: iso(s.date),
+            equity: s.equity,
+            revenue: s.revenue,
+            companies: s.companies,
+        }
+    }
+}
+
+fn rank(game: &Game) -> Option<RankView> {
+    let state = game.state();
+    let now = crate::ranking::standing(state, state.player);
+    (now.companies >= 2).then(|| RankView {
+        now: now.into(),
+        year_before: crate::ranking::year_before(state, state.date).map(Into::into),
+    })
 }
 
 /// A goal of the player (texts `etappe.<key>` and `etappe.<key>.hinweis`).
@@ -302,10 +344,6 @@ fn money_options(game: &Game) -> Option<MoneyOptions> {
         lead_then: m.lead(Some(t))?,
         base_year: m.base_year,
     })
-}
-
-fn equity(company: &Company) -> Money {
-    company.ledger.total_assets() - company.ledger.balance(Account::Loans)
 }
 
 fn company_view(game: &Game) -> CompanyView {
@@ -403,6 +441,7 @@ pub fn overview(game: &Game) -> Overview {
         history: history(&state.companies[state.player.index()].ledger),
         money: money_options(game),
         milestones: milestones(game),
+        rank: rank(game),
     }
 }
 
@@ -466,7 +505,13 @@ pub fn message_view(message: &Message) -> MessageView {
     // The view where the player can act on the message.
     let target = if message.key == crate::message::keys::INPUT_MISSING {
         Some("produktion")
-    } else if message.key == crate::message::keys::MILESTONE {
+    } else if [
+        crate::message::keys::MILESTONE,
+        crate::message::keys::RANK_YEAR_END,
+        crate::message::keys::RANK_YEAR_END_COMPARED,
+    ]
+    .contains(&message.key.as_str())
+    {
         Some("uebersicht")
     } else if [
         crate::message::keys::AI_NEW_SELLER,
@@ -492,6 +537,7 @@ pub fn message_view(message: &Message) -> MessageView {
     } else if message.key == crate::message::keys::MILESTONE {
         "erfolg"
     } else if message.key.starts_with("meldung.ki.")
+        || message.key.starts_with("meldung.rang")
         || message.key == crate::message::keys::COMPANY_INSOLVENT
     {
         "wettbewerb"
@@ -1050,6 +1096,35 @@ mod tests {
             ai: AiSettings::default(),
         };
         Game::new(catalog, settings).expect("valid settings")
+    }
+
+    #[test]
+    fn the_rank_needs_competitors_and_compares_with_a_year_before() {
+        let mut g = game();
+        assert_eq!(overview(&g).rank, None);
+        // A richer rival with the player's books.
+        let state = g.state_mut();
+        let mut rival = state.companies[0].clone();
+        "Rivale AG".clone_into(&mut rival.name);
+        rival.ledger.transfer(
+            Account::Cash,
+            Account::Equity,
+            Money::from_usd(1.0).expect("valid"),
+        );
+        state.companies.push(rival);
+        let rank = overview(&g).rank.expect("rank");
+        assert_eq!(
+            (rank.now.equity, rank.now.revenue, rank.now.companies),
+            (2, None, 2)
+        );
+        assert_eq!(rank.year_before, None);
+        // A year later the start is the year before.
+        for _ in 0..12 {
+            g.advance(RoundLength::Month, |_| {});
+        }
+        let rank = overview(&g).rank.expect("rank");
+        let before = rank.year_before.expect("a year before");
+        assert_eq!(before.date, "1900-01-01");
     }
 
     #[test]

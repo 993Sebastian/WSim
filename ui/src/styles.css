@@ -2567,3 +2567,18 @@ body {
     overflow: auto;
   }
 }
+
+/* The player's places among all companies (M29) */
+.rang-kopf {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.rang-kopf h3 {
+  margin-bottom: 0.4rem;
+}
+
+.rang .erklaerung-inhalt p:first-child {
+  margin-top: 0;
+}

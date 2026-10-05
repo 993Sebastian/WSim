@@ -8,8 +8,9 @@ import {
   landName,
   meldungText,
 } from "../format";
-import type { Etappe, Hinweis, Uebersicht } from "../kern";
+import type { Etappe, Hinweis, Rang, Uebersicht } from "../kern";
 import { t } from "../texte";
+import { Erklaerung } from "./gemeinsam";
 import { formatMonatKurz, Verlauf } from "./Grafik";
 
 function Kennzahl({
@@ -30,6 +31,48 @@ function Kennzahl({
         {wert}
         {zusatz && <small className="kennzahl-zusatz">{zusatz}</small>}
       </dd>
+    </div>
+  );
+}
+
+/** A place compared with the same month a year before (M29). */
+function rangVergleich(
+  jetzt: number | null,
+  vorher: number | null | undefined,
+): string | undefined {
+  if (jetzt === null || vorher === null || vorher === undefined) return undefined;
+  if (jetzt < vorher) return t("uebersicht.rang_besser", { plaetze: vorher - jetzt, vorher });
+  if (jetzt > vorher) return t("uebersicht.rang_schlechter", { plaetze: jetzt - vorher, vorher });
+  return t("uebersicht.rang_gleich");
+}
+
+/** The player's places among all companies (M29). */
+function RangAnzeige({ rang }: { rang: Rang }) {
+  const vorher = rang.year_before ?? undefined;
+  return (
+    <div className="rang" data-tour="rang">
+      <div className="rang-kopf">
+        <h3>{t("uebersicht.rang", { firmen: formatZahl(rang.now.companies) })}</h3>
+        <Erklaerung wert={t("uebersicht.rang_wert")}>
+          <p>{t("uebersicht.rang_hinweis")}</p>
+        </Erklaerung>
+      </div>
+      <dl className="kennzahlen">
+        <Kennzahl
+          titel={t("uebersicht.rang_eigenkapital")}
+          wert={t("uebersicht.platz", { platz: formatZahl(rang.now.equity) })}
+          zusatz={rangVergleich(rang.now.equity, vorher?.equity)}
+        />
+        <Kennzahl
+          titel={t("uebersicht.rang_umsatz")}
+          wert={
+            rang.now.revenue === null
+              ? t("uebersicht.kein_umsatz")
+              : t("uebersicht.platz", { platz: formatZahl(rang.now.revenue) })
+          }
+          zusatz={rangVergleich(rang.now.revenue, vorher?.revenue)}
+        />
+      </dl>
     </div>
   );
 }
@@ -299,6 +342,7 @@ export function UebersichtAnsicht({
 
       <section aria-labelledby="wettbewerb-titel">
         <h2 id="wettbewerb-titel">{t("uebersicht.wettbewerb")}</h2>
+        {uebersicht.rank && <RangAnzeige rang={uebersicht.rank} />}
         {uebersicht.competitors_active + uebersicht.competitors_bankrupt === 0 ? (
           <p>{t("uebersicht.keine_wettbewerber")}</p>
         ) : (

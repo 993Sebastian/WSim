@@ -1240,3 +1240,19 @@ Lastenheft §4.1, §3.6; Vorschlag 7. Nichts davon wirkt auf die Simulation zur�
     1 € = 1,95583 DM (amtlicher Kurs).
   - Das Vermögen im Spiel ändert sich nicht (es zählt in US-Dollar mit der Kaufkraft
     von 2026); bei „Preise der Zeit“ erscheinen Beträge ab dann in der neuen Währung.
+
+## M29 – Rang in der Übersicht
+
+Vorschlag 8. Nichts davon wirkt auf die Simulation zurück.
+
+- Gezählt werden alle Firmen, die nicht insolvent sind, der Spieler eingeschlossen.
+- Eigenkapital = Summe der Aktiva − Kredite (wie in der Übersicht).
+- Umsatz = Umsatzerlöse der letzten zwölf abgeschlossenen Monate.
+- Platz = 1 + Zahl der Firmen mit einem höheren Wert; gleiche Werte teilen sich einen
+  Platz. Ohne Umsatz in den zwölf Monaten gibt es keinen Platz nach Umsatz (zu
+  Spielbeginn stünden sonst alle auf Platz 1).
+- Die Plätze des Spielers werden zu Spielbeginn und am ersten Tag nach jedem Monatsende
+  festgehalten, die letzten 24. Der Vergleich gilt dem Stand zu Beginn desselben Monats
+  ein Jahr zuvor.
+- Zum Jahresende meldet der Rundenbericht den Platz nach Eigenkapital und, mit Umsatz,
+  nach Umsatz, jeweils mit dem Platz ein Jahr zuvor (nur mit Wettbewerbern).

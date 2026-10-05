@@ -210,3 +210,4 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Währungsumstellung (Meldung) | `currency::Reform`, `CurrencyModel::reform_at`, `game::currency_reforms`; Schlüssel `meldung.waehrungsreform`, Art `ereignisart.waehrung` |
 | Auf gültige Stellen runden | `math::round_significant` |
 | Ereignisart Wirtschaftspolitik | `reform` (`build::ai::EVENT_KINDS`) |
+| Rang (Platz unter allen Firmen) nach Eigenkapital und Umsatz | `ranking::standing`, `ranking::Standing` (`GameState::standings`), `ranking::equity`, `revenue_of_year`, `year_before`, `month_end`; Sicht `RankView`, `StandingView` (`Overview::rank`); Schlüssel `meldung.rang`, `meldung.rang_vorjahr`; UI: `RangAnzeige`, `Rang`, `Platzierung` |

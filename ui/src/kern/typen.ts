@@ -91,6 +91,24 @@ export interface Uebersicht {
   money: Geldoptionen | null;
   /** Goals after the introduction, in data order (M23). */
   milestones?: Etappe[];
+  /** The player's places among all active companies (M29); null without others. */
+  rank?: Rang | null;
+}
+
+/** Places by equity and by revenue of the last twelve closed months (M29). */
+export interface Platzierung {
+  date: string;
+  equity: number;
+  /** Null without revenue in the last twelve months. */
+  revenue: number | null;
+  /** Active companies, the player included. */
+  companies: number;
+}
+
+export interface Rang {
+  now: Platzierung;
+  /** A year before (start of the same month), null while not recorded. */
+  year_before: Platzierung | null;
 }
 
 /** A goal of the player (M23); texts `etappe.<key>` and `etappe.<key>.hinweis`. */

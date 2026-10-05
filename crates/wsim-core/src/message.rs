@@ -131,6 +131,10 @@ pub mod keys {
     pub const CURRENCY_REFORM: &str = "meldung.waehrungsreform";
     pub const CURRENCY_REFORM_TITLE: &str = "meldung.waehrungsreform.titel";
     pub const EVENT_KIND_CURRENCY: &str = "ereignisart.waehrung";
+    pub const RANK_YEAR_END: &str = "meldung.rang";
+    pub const RANK_YEAR_END_COMPARED: &str = "meldung.rang_vorjahr";
+    pub const RANK_BY_EQUITY: &str = "rang.eigenkapital";
+    pub const RANK_BY_REVENUE: &str = "rang.umsatz";
     // Hints of the overview (views::hints).
     pub const HINT_INPUT: &str = "hinweis.vorprodukt_fehlt";
     pub const HINT_LABOR: &str = "hinweis.arbeitskraefte";
@@ -212,6 +216,10 @@ pub mod keys {
         CURRENCY_REFORM,
         CURRENCY_REFORM_TITLE,
         EVENT_KIND_CURRENCY,
+        RANK_YEAR_END,
+        RANK_YEAR_END_COMPARED,
+        RANK_BY_EQUITY,
+        RANK_BY_REVENUE,
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,

@@ -206,6 +206,7 @@ impl Game {
             inventions: PerId::default(),
             milestones: PerId::default(),
             watched_markets: Vec::new(),
+            standings: Vec::new(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -214,6 +215,7 @@ impl Game {
         market::initial_demand(&mut state, &catalog, date);
         apply_start_setup(&mut state, &catalog)?;
         crate::population::populate(&mut state, &catalog);
+        crate::ranking::record(&mut state);
         Ok(Self {
             catalog,
             state,
@@ -398,6 +400,9 @@ impl Game {
                 &mut self.state,
                 &self.catalog,
             ));
+            report
+                .messages
+                .extend(crate::ranking::month_end(&mut self.state));
             crate::brand::month_start(&mut self.state, &self.catalog, next);
         }
         if next.ordinal() == 1 {

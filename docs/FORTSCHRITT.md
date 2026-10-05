@@ -820,3 +820,25 @@ Eigenständige Entscheidungen:
   - Die Monatsgenauigkeit der Daten bestimmt den Tag der Meldung (D-Mark: 1. Juni 1948
     statt 20. Juni); der Text nennt deshalb nur Monat und Jahr.
 
+### M29: Rang in der Übersicht (05.10.2026)
+
+Vorschlag 8 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Regeln: `docs/FORMELN.md`, M29.
+
+  - **Kern:** Platz des Spielers unter allen aktiven Firmen nach Eigenkapital und nach
+    Umsatz der letzten zwölf Monate (`ranking`). Die Plätze zu Spielbeginn und nach
+    jedem Monatsende stehen im Spielstand (`standings`, die letzten 24; ältere
+    Spielstände beginnen ohne). Zum Jahresende meldet der Rundenbericht unter
+    „Wettbewerb“ die Plätze mit denen des Vorjahrs.
+  - **Oberfläche:** In der Übersicht unter „Wettbewerb“ „Dein Rang unter n Firmen“ mit
+    beiden Plätzen und der Veränderung gegenüber dem Vorjahr, dazu eine Erklärung (ⓘ).
+  - Tests: Kern (Plätze, gleiche Werte, Insolvenz, Meldung zum Jahresende, Vergleich mit
+    dem Vorjahr), Sicht, Vorschau.
+
+Eigenständige Entscheidungen:
+
+  - Umsatz über die letzten zwölf abgeschlossenen Monate statt des laufenden Jahres:
+    Der Rang springt dann nicht jeden Januar.
+  - Gleiche Werte teilen sich einen Platz; ohne Umsatz gibt es keinen Platz nach Umsatz.
+  - Der Vergleich gilt dem Stand ein Jahr zuvor im selben Monat, nicht dem Jahresende:
+    So zeigt er auch im Januar eine Veränderung über ein ganzes Jahr.
+

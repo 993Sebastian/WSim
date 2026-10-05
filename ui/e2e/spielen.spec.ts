@@ -243,6 +243,30 @@ test("Etappen zeigen das nächste Ziel und lassen sich ausblenden", async ({ pag
   await expect(etappen).toBeVisible();
 });
 
+test("Der Rang zeigt den Platz unter allen Firmen", async ({ page }) => {
+  await starten(page);
+  const wettbewerb = page.getByRole("region", { name: "Wettbewerb" });
+  await expect(
+    wettbewerb.getByRole("heading", { name: "Dein Rang unter 101 Firmen" }),
+  ).toBeVisible();
+  const eigenkapital = wettbewerb.locator(".kennzahl", { hasText: "Nach Eigenkapital" });
+  const umsatz = wettbewerb.locator(".kennzahl", { hasText: "Nach Umsatz" });
+  // At the start nobody has revenue yet: no place by revenue.
+  await expect(eigenkapital).toContainText("Platz 101");
+  await expect(umsatz).toContainText("noch kein Umsatz");
+  await wettbewerb.getByLabel("Wie entsteht: Rang?").first().click();
+  await expect(wettbewerb.getByRole("note")).toContainText("deine eingeschlossen");
+
+  await page.keyboard.press("Control+Enter");
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  await page.keyboard.press("Escape");
+  await expect(umsatz).toContainText("Platz 101");
+  await bild(page, "rang");
+});
+
 test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Markt", exact: true }).click();

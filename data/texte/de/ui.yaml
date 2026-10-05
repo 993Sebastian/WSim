@@ -86,6 +86,16 @@ uebersicht.lager_leer: leer
 uebersicht.wettbewerb: Wettbewerb
 uebersicht.wettbewerb_zahlen: "{aktiv} aktive KI-Firmen, {pleite} ausgeschieden"
 uebersicht.keine_wettbewerber: Diese Partie läuft ohne KI-Firmen.
+uebersicht.rang: "Dein Rang unter {firmen} Firmen"
+uebersicht.rang_wert: Rang
+uebersicht.rang_eigenkapital: Nach Eigenkapital
+uebersicht.rang_umsatz: Nach Umsatz (12 Monate)
+uebersicht.platz: "Platz {platz}"
+uebersicht.kein_umsatz: noch kein Umsatz
+uebersicht.rang_besser: "↑ {plaetze} gegenüber dem Vorjahr (Platz {vorher})"
+uebersicht.rang_schlechter: "↓ {plaetze} gegenüber dem Vorjahr (Platz {vorher})"
+uebersicht.rang_gleich: wie vor einem Jahr
+uebersicht.rang_hinweis: Gezählt werden alle Firmen, die nicht insolvent sind, deine eingeschlossen; der Umsatz über die letzten zwölf abgeschlossenen Monate. Der Vergleich gilt dem Stand zu Beginn desselben Monats im Vorjahr.
 uebersicht.firma: Firma
 uebersicht.sitz: Sitz
 uebersicht.real: historisch

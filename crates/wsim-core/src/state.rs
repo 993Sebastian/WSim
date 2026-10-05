@@ -833,6 +833,10 @@ pub struct GameState {
     /// Markets the player sells in, with the competitors seen there (M24).
     #[serde(default)]
     pub watched_markets: Vec<WatchedMarket>,
+    /// The player's places among all companies at the start and after each month end,
+    /// the last two years (M29).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub standings: Vec<crate::ranking::Standing>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,
