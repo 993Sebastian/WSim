@@ -59,6 +59,8 @@ Windows-Runner.
               ▲
       crates/wsim-cli    Kommandozeile: Daten prüfen, Läufe ohne UI,
                          Balance- und Leistungsprotokolle
+      crates/wsim-web    Browser-Version: Spielsitzung als WebAssembly mit
+                         eingebauten Daten (statt Tauri-Adapter)
       data/              Spielinhalte (YAML) + Texte, getrennt vom Code
 ```
 
@@ -186,6 +188,23 @@ data/
   rechnet keine Spielwerte nach.
 - Tastaturkürzel zentral registriert; Texte nur über Textschlüssel.
 
+### 2.6 Browser-Version (Entscheidung vom 05.10.2026)
+
+Dieselbe Oberfläche läuft auch im Browser, etwa zum Prüfen neuer Stände vom iPhone:
+
+- `crates/wsim-web` übersetzt die Spielsitzung nach WebAssembly
+  (`wasm32-unknown-unknown`) und baut die Spieldaten ein. Anfragen und Antworten sind JSON
+  mit denselben Namen wie die Befehle der Desktop-App; Spielstände gehen als Bytes hin
+  und her. Die Grenze zu JavaScript braucht `unsafe` in einem kleinen Modul (`bridge`);
+  das Crate hat deshalb eigene Lint-Regeln statt des Verbots im Workspace.
+- `ui/src/kern/web.ts` und `kern.worker.ts`: Der Kern rechnet in einem Web Worker, die
+  Seite bleibt während einer Runde bedienbar; Spielstände liegen in IndexedDB.
+- `pnpm -C ui build:web` baut Modul und Seite nach `ui/dist-web`; CI prüft, dass Browser
+  und Desktop nach zwei Monaten denselben Zustands-Hash haben, testet die Seite gegen den
+  echten Kern (Desktop- und iPhone-Format) und veröffentlicht sie über den Zweig
+  `gh-pages` (GitHub Pages).
+- Leistung: ein Monat mit 100 KI-Firmen rechnet in Node etwa 1,5 s, Speicher rund 90 MB.
+
 ### 2.5 Was Stufe 1 schon für spätere Stufen vorsieht
 
 | Spätere Funktion | Vorbereitet durch |
@@ -276,6 +295,11 @@ mit dem Meilenstein freigegeben.
 | M14 | Oberfläche III: Spielen | Standorte bauen, Produktion, Produktionsketten mit Engpässen, Markt und Preise, Forschung, Finanzen; Tooltips mit Ursachen; Tastaturkürzel | Playwright-Tests; durchgespielte Partie 1900–1905 |
 | M15 | Spielbarkeit Stufe 1 | Balancing 1900–1930, Windows-Installer offline, Protokoll-Auswertung | Testpartie 1900–1930 ohne Abbruch; Abnahme durch dich |
 | M16 | Markteintritt und Marketing (Auftraggeber 04.10.2026) | Gesättigte Märkte zum Start, Markenbekanntheit in der Anbieterwahl, Werbebudget je Land und Warengruppe (Spieler und KI), Marktanteile in der Oberfläche, abwählbares Tutorial | Szenariotests (Neuling ohne Marke verliert gegen bekannte Marke bei gleichem Preis, Werbung holt auf), Testpartie, Playwright |
+| M17 | Browser-Version (05.10.2026) | Kern als WebAssembly im Web Worker, Spielstände im Browser, Grundlayout fürs Handy, Veröffentlichung über GitHub Pages | Gleicher Zustands-Hash in Browser und Desktop; Playwright gegen den echten Kern (Desktop, iPhone) |
+| M18 | Bedienung und Ansichten (05.10.2026) | Prüfung aller Ansichten auf Verständlichkeit, Werksansicht im Detail, Personal mit Lohnaufschlag, Preisänderungen, Menüs und Beschriftungen | Szenariotests (Lohnaufschlag), Playwright, Sichtprüfung |
+| M19 | Technologiebaum (05.10.2026) | Technologien, Verfahren, Produkte und Anlagen mit Abhängigkeiten und Status | Kern-Tests der Sicht, Playwright |
+| M20 | Tutorial (05.10.2026) | Geführte Schritte mit hervorgehobenen Schaltflächen bis zum ersten Verkauf | Playwright-Durchlauf bis zum Verkauf |
+| M21 | Landeswährungen (05.10.2026) | Währungen je Land und Zeitraum, Anzeige in Kaufkraft 2026 oder zeitgenössisch | Prüfregeln, Umrechnungstests, Playwright |
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.

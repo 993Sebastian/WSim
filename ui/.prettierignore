@@ -1,4 +1,6 @@
 dist
+dist-web
 playwright-report
 test-results
 src/kern/beispiel.json
+public/wsim_web.wasm

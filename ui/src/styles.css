@@ -258,6 +258,8 @@ select {
   inset: 0;
   z-index: 10;
   display: grid;
+  /* One column as wide as the screen: sized by its content, wide dialogs left it. */
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: 1rem;
   background: rgb(10 15 25 / 45%);
@@ -265,7 +267,10 @@ select {
 
 .dialog {
   width: min(30rem, 100%);
+  /* A grid item grows with its widest content unless allowed to shrink. */
+  min-width: 0;
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
   padding: 1.1rem 1.25rem 1.25rem;
   border: 1px solid var(--rahmen);
@@ -379,10 +384,13 @@ select {
   min-height: 100vh;
 }
 
-.kopfleiste {
+.kopfbereich {
   position: sticky;
   top: 0;
   z-index: 5;
+}
+
+.kopfleiste {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -426,6 +434,8 @@ select {
 
 .uebersicht {
   display: grid;
+  /* Wide tables scroll in their own frame instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.75rem;
   max-width: 76rem;
   margin: 0 auto;
@@ -822,6 +832,7 @@ table.ergebnis th[scope="row"] {
 /* Spielansichten: Produktion, Markt, Forschung, Finanzen */
 .ansicht {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   max-width: 80rem;
   margin: 0 auto;
@@ -981,4 +992,83 @@ button.spaltenkopf {
 
 .einfuehrung p {
   margin: 0 0 0.6rem;
+}
+
+/* Phones and narrow windows (browser version on the iPhone) */
+/* Nothing widens the page: on phones the browser would zoom out the whole screen. */
+html,
+body {
+  overflow-x: clip;
+}
+
+@media (max-width: 700px) {
+  .kopfleiste {
+    gap: 0.35rem 0.75rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.92rem;
+  }
+
+  .kopf-runde,
+  .kopf-menue {
+    gap: 0.35rem;
+  }
+
+  .kopf-menue button,
+  .kopf-runde select {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.85rem;
+  }
+
+  .kopf-runde .haupt {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  /* Label kept for screen readers, hidden for space. */
+  .nur-breit {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  /* One row of tabs to swipe through. */
+  .reiter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0.15rem 0.5rem 0;
+    scrollbar-width: none;
+  }
+
+  .reiter button {
+    flex: 0 0 auto;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .reiter .gedaempft {
+    margin-left: 0;
+  }
+
+  .ansicht,
+  .uebersicht {
+    padding: 0.9rem 0.75rem 2.5rem;
+  }
+
+  .dialog-hintergrund {
+    padding: 0.5rem;
+  }
+
+  .dialog {
+    padding: 0.8rem 0.9rem 1rem;
+  }
+
+  /* The introduction becomes a sheet at the bottom of the screen. */
+  .einfuehrung {
+    right: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    max-height: 45vh;
+  }
 }

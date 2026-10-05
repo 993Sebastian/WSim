@@ -1,6 +1,7 @@
-// Access to the simulation core. In the desktop app via Tauri IPC, in the browser
-// preview (development, UI tests) a stand-in that answers with example views of a
-// real game (beispiel.json, written by `wsim beispielsichten`).
+// Access to the simulation core. In the desktop app via Tauri IPC; in the browser
+// version (build mode "web") the core runs as WebAssembly in a worker; in the browser
+// preview (development, UI tests) a stand-in answers with example views of a real game
+// (beispiel.json, written by `wsim beispielsichten`).
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { Befehl } from "./befehle";
@@ -21,6 +22,7 @@ import type {
   Weltkarte,
 } from "./typen";
 import { vorschauKern } from "./vorschau";
+import { webKern } from "./web";
 
 export type * from "./typen";
 export type { Befehl, Preisart } from "./befehle";
@@ -87,5 +89,6 @@ const tauriKern: Kern = {
 };
 
 export function verbindeKern(): Kern {
-  return isTauri() ? tauriKern : vorschauKern();
+  if (isTauri()) return tauriKern;
+  return import.meta.env.VITE_KERN === "web" ? webKern() : vorschauKern();
 }

@@ -42,6 +42,42 @@ jobs:
       - run: pnpm -C ui exec playwright install --with-deps chromium
       - run: pnpm -C ui e2e
 
+  browser:
+    name: Browser-Version (WebAssembly)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: Swatinem/rust-cache@v2
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo clippy -p wsim-web --target wasm32-unknown-unknown -- -D warnings
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C ui build:web
+      - name: Browser und Desktop rechnen dasselbe Spiel
+        run: |
+          nativ=$(cargo run -q -p wsim-web --example zustand --release)
+          web=$(node ui/scripts/wasm-pruefen.mjs)
+          echo "nativ $nativ, Browser $web"
+          test "$nativ" = "$web"
+      - run: pnpm -C ui exec playwright install --with-deps chromium
+      - run: pnpm -C ui e2e:web
+      # Published from the work branch to the branch gh-pages, which GitHub Pages serves.
+      - name: Veröffentlichen (GitHub Pages)
+        if: github.ref == 'refs/heads/claude/architektur-vorschlag'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ui/dist-web
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "Browser-Version"
+
   windows:
     name: Windows-Installer
     runs-on: windows-latest

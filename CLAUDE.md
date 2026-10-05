@@ -26,6 +26,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
   `run --ki <n> --welt` zeigt einen Weltlauf; `beispielsichten ui/src/kern/beispiel.json`
   erneuert die Beispieldaten der Browser-Vorschau (nach Änderungen an den Sichten).
 - `app/src-tauri` – dünner Adapter zwischen Kern und Oberfläche.
+- `crates/wsim-web` – Browser-Version: Spielsitzung als WebAssembly mit eingebauten
+  Daten; `pnpm -C ui build:web` baut sie nach `ui/dist-web` (GitHub Pages).
 - `ui/` – TypeScript + React. **Keine Spiellogik**, keine nachgerechneten Spielwerte.
 - `data/` – alle Spielinhalte (YAML) und alle Texte (`data/texte/de/`).
 
@@ -86,6 +88,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - Daten: `cargo run -p wsim-cli -- validate data` (muss ohne Fehler und Warnungen enden)
 - UI: `pnpm -C ui typecheck`, `pnpm -C ui lint`, `pnpm -C ui test`, `pnpm -C ui e2e`
   (`pnpm -C ui format` behebt Formatierungsfehler)
+- Browser-Version: `cargo clippy -p wsim-web --target wasm32-unknown-unknown -- -D warnings`,
+  `pnpm -C ui e2e:web` (baut Modul und Seite, testet gegen den echten Kern)
 - Die Reproduzierbarkeits-Tests (`crates/wsim-core/src/determinism_tests.rs`,
   `crates/wsim-cli/tests/lauf.rs`) müssen grün sein.
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
@@ -99,6 +103,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
   sich hier mit `pnpm -C app tauri build --debug --no-bundle` bauen und unter
   `xvfb-run` starten.
 - Playwright ist auf 1.56.1 festgelegt, passend zum vorinstallierten Chromium.
+- Die Browser-Version braucht das Ziel `wasm32-unknown-unknown`
+  (`rustup target add wasm32-unknown-unknown`).
 
 ## Sprache
 

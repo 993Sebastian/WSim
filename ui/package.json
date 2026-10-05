@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:web": "node scripts/wasm-bauen.mjs && tsc -b && vite build --mode web --base ./ --outDir dist-web",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "e2e:web": "playwright test -c playwright.web.config.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.1",

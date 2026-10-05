@@ -528,6 +528,24 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.2 Entscheidungen vom 05.10.2026
+
+- **Browser-Version:** Neben dem Windows-Programm gibt es eine Browser-Version zum Prüfen
+  neuer Stände (auch vom iPhone). Der Simulationskern läuft dort als WebAssembly; sie
+  wird nach jedem Push über GitHub Pages veröffentlicht.
+- **Manager:** bleiben in Stufe 2, wie geplant.
+- **Arbeitskräfte:** Eingestellt wird weiter nach dem Produktionsplan. Die Werksansicht
+  zeigt Bedarf, Belegschaft, Lohn und freie Kräfte je Gruppe; je Standort setzt der
+  Spieler einen Lohnaufschlag. Sind Arbeitskräfte knapp, bekommen die besten Zahler sie
+  zuerst (vorgezogen aus 5.3).
+- **Währungen:** werden vorgezogen (sonst Stufe 4). Anzeige umschaltbar: in Kaufkraft
+  2026 ohne Inflation (Standard, wie 3.6) oder mit zeitgenössischen Preisen
+  einschließlich Inflation. Für Währungen, die es 1900 noch nicht gab, gelten Annahmen.
+- **Technologiebaum, Werksansicht, Tutorial:** Die Oberfläche wird auf Verständlichkeit
+  geprüft und überarbeitet; der Technologiebaum zeigt Technologien, Verfahren, Produkte
+  und Anlagen; das Tutorial begleitet mit hervorgehobenen Schaltflächen bis zum ersten
+  verkauften Produkt.
+
 ### 18.1 Entscheidungen vom 03.10.2026
 
 - **Staatlicher Markt:** Güter ohne eigene Produktionskette (z. B. Glas, Zinn, Schwefel, Inhalt von Konserven, Pferdekutsche) können vom staatlichen Markt bezogen werden. Er bietet die Ware in jedem Land zu einem Preis aus den Datendateien an.

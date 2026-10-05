@@ -1,8 +1,10 @@
 //! A game session for user interfaces: the loaded data, the running game and the
-//! saves on disk. It translates requests of the interface into settings and commands
-//! of the core and answers with views (`wsim_core::views`); errors are messages with
-//! text keys. No game logic lives here.
+//! saves (files on disk, or the browser's storage in the web version). It translates
+//! requests of the interface into settings and commands of the core and answers with
+//! views (`wsim_core::views`); errors are messages with text keys. No game logic lives
+//! here.
 
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -51,9 +53,103 @@ pub struct SaveEntry {
 /// Name of the save written after every round (Lastenheft §13.1).
 pub const AUTOSAVE_NAME: &str = "Automatisch";
 
-pub struct Session {
+/// Where the saves live, by name: files on disk (desktop) or memory that the browser
+/// persists (web version).
+pub trait SaveStore {
+    fn write(&mut self, name: &str, bytes: Vec<u8>) -> Result<(), String>;
+    fn read(&self, name: &str) -> Result<Vec<u8>, String>;
+    /// Names of all saves.
+    fn names(&self) -> Vec<String>;
+}
+
+/// Saves as files `<name>.wsim` in a directory.
+pub struct DirStore {
+    dir: PathBuf,
+}
+
+impl DirStore {
+    pub fn new(dir: PathBuf) -> Self {
+        Self { dir }
+    }
+
+    fn file(&self, name: &str) -> PathBuf {
+        self.dir.join(format!("{name}.{SAVE_EXTENSION}"))
+    }
+}
+
+impl SaveStore for DirStore {
+    fn write(&mut self, name: &str, bytes: Vec<u8>) -> Result<(), String> {
+        fs::create_dir_all(&self.dir)
+            .and_then(|()| fs::write(self.file(name), bytes))
+            .map_err(|e| e.to_string())
+    }
+
+    fn read(&self, name: &str) -> Result<Vec<u8>, String> {
+        fs::read(self.file(name)).map_err(|e| e.to_string())
+    }
+
+    fn names(&self) -> Vec<String> {
+        let Ok(dir) = fs::read_dir(&self.dir) else {
+            return Vec::new();
+        };
+        dir.filter_map(Result::ok)
+            .filter_map(|entry| {
+                let path = entry.path();
+                (path.extension()? == SAVE_EXTENSION)
+                    .then(|| path.file_stem().map(|s| s.to_string_lossy().into_owned()))?
+            })
+            .collect()
+    }
+}
+
+/// Saves in memory. The web version fills it from the browser's storage at the start
+/// and writes back what `take_written` hands out.
+#[derive(Default)]
+pub struct MemoryStore {
+    saves: BTreeMap<String, Vec<u8>>,
+    written: Vec<String>,
+}
+
+impl MemoryStore {
+    /// Names of the saves written since the last call, for persisting them elsewhere.
+    pub fn take_written(&mut self) -> Vec<String> {
+        std::mem::take(&mut self.written)
+    }
+
+    pub fn get(&self, name: &str) -> Option<&[u8]> {
+        self.saves.get(name).map(Vec::as_slice)
+    }
+
+    /// Adds a save kept elsewhere (without marking it as written).
+    pub fn put(&mut self, name: &str, bytes: Vec<u8>) {
+        self.saves.insert(name.to_owned(), bytes);
+    }
+}
+
+impl SaveStore for MemoryStore {
+    fn write(&mut self, name: &str, bytes: Vec<u8>) -> Result<(), String> {
+        self.saves.insert(name.to_owned(), bytes);
+        if !self.written.iter().any(|n| n == name) {
+            self.written.push(name.to_owned());
+        }
+        Ok(())
+    }
+
+    fn read(&self, name: &str) -> Result<Vec<u8>, String> {
+        self.saves
+            .get(name)
+            .cloned()
+            .ok_or_else(|| format!("„{name}“ fehlt"))
+    }
+
+    fn names(&self) -> Vec<String> {
+        self.saves.keys().cloned().collect()
+    }
+}
+
+pub struct Session<S: SaveStore = DirStore> {
     catalog: Arc<Catalog>,
-    saves: PathBuf,
+    store: S,
     game: Option<Game>,
     /// Result of the last round, for the comparison in the next report.
     last_period: Option<views::PeriodView>,
@@ -67,7 +163,7 @@ fn error_with(key: &str, name: &str, value: String) -> MessageView {
     views::message_view(&Message::error(key).with(name, Param::Text(value)))
 }
 
-impl Session {
+impl Session<DirStore> {
     /// Loads and checks the data; on errors returns the report as text.
     pub fn open(data: &Path, saves: PathBuf) -> Result<Self, String> {
         let outcome = wsim_data::load_dir(data);
@@ -79,12 +175,22 @@ impl Session {
     }
 
     pub fn with_catalog(catalog: Arc<Catalog>, saves: PathBuf) -> Self {
+        Session::with_store(catalog, DirStore::new(saves))
+    }
+}
+
+impl<S: SaveStore> Session<S> {
+    pub fn with_store(catalog: Arc<Catalog>, store: S) -> Self {
         Self {
             catalog,
-            saves,
+            store,
             game: None,
             last_period: None,
         }
+    }
+
+    pub fn store_mut(&mut self) -> &mut S {
+        &mut self.store
     }
 
     pub fn options(&self) -> NewGameOptions {
@@ -218,7 +324,8 @@ impl Session {
         Ok(view)
     }
 
-    fn path(&self, name: &str) -> Result<PathBuf, MessageView> {
+    /// The checked name of a save (it becomes a file name on the desktop).
+    fn checked_name(name: &str) -> Result<&str, MessageView> {
         let name = name.trim();
         let valid = !name.is_empty()
             && name.chars().count() <= MAX_SAVE_NAME
@@ -226,21 +333,23 @@ impl Session {
                 .chars()
                 .all(|c| c.is_alphanumeric() || matches!(c, ' ' | '-' | '_' | '.'))
             && !name.starts_with('.');
-        if !valid {
-            return Err(error(keys::INVALID_SAVE_NAME));
+        if valid {
+            Ok(name)
+        } else {
+            Err(error(keys::INVALID_SAVE_NAME))
         }
-        Ok(self.saves.join(format!("{name}.{SAVE_EXTENSION}")))
     }
 
-    pub fn save(&self, name: &str) -> Result<SaveEntry, MessageView> {
+    pub fn save(&mut self, name: &str) -> Result<SaveEntry, MessageView> {
         let game = self.game.as_ref().ok_or_else(|| error(keys::NO_GAME))?;
-        let path = self.path(name)?;
-        fs::create_dir_all(&self.saves)
-            .and_then(|()| fs::write(&path, save::encode(game)))
-            .map_err(|e| error_with(keys::SAVE_FAILED, "fehler", e.to_string()))?;
+        let name = Self::checked_name(name)?;
+        let bytes = save::encode(game);
         let o = views::overview(game);
+        self.store
+            .write(name, bytes)
+            .map_err(|e| error_with(keys::SAVE_FAILED, "fehler", e))?;
         Ok(SaveEntry {
-            name: name.trim().to_owned(),
+            name: name.to_owned(),
             date: o.date,
             company: o.company.name,
         })
@@ -248,18 +357,12 @@ impl Session {
 
     /// All saves, newest game date first.
     pub fn saves(&self) -> Vec<SaveEntry> {
-        let Ok(dir) = fs::read_dir(&self.saves) else {
-            return Vec::new();
-        };
-        let mut list: Vec<SaveEntry> = dir
-            .filter_map(Result::ok)
-            .filter_map(|entry| {
-                let path = entry.path();
-                if path.extension()? != SAVE_EXTENSION {
-                    return None;
-                }
-                let name = path.file_stem()?.to_string_lossy().into_owned();
-                let bytes = fs::read(&path).ok()?;
+        let mut list: Vec<SaveEntry> = self
+            .store
+            .names()
+            .into_iter()
+            .filter_map(|name| {
+                let bytes = self.store.read(&name).ok()?;
                 let header = save::read_header(&bytes).ok()?;
                 let d = header.date;
                 Some(SaveEntry {
@@ -274,9 +377,11 @@ impl Session {
     }
 
     pub fn load(&mut self, name: &str) -> Result<Overview, MessageView> {
-        let path = self.path(name)?;
-        let bytes =
-            fs::read(&path).map_err(|e| error_with(keys::LOAD_FAILED, "fehler", e.to_string()))?;
+        let name = Self::checked_name(name)?;
+        let bytes = self
+            .store
+            .read(name)
+            .map_err(|e| error_with(keys::LOAD_FAILED, "fehler", e))?;
         let loaded = save::decode(&bytes, self.catalog.clone())
             .map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&loaded.game);

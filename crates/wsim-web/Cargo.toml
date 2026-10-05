@@ -1,0 +1,26 @@
+[package]
+name = "wsim-web"
+description = "Browser-Version: die Spielsitzung als WebAssembly-Modul mit eingebauten Spieldaten"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+# cdylib: the WebAssembly module; rlib: native tests of the requests.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+wsim-core.workspace = true
+wsim-data.workspace = true
+wsim-session.workspace = true
+
+# Handing memory across the boundary to JavaScript needs `unsafe` in one small module
+# (`bridge`, built only for WebAssembly); everything else keeps the workspace rule.
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

@@ -60,6 +60,9 @@ export function Spiel({
   const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
+  // Every view starts at its top (and the game screen at its first view): the page
+  // kept the scroll position of the previous screen and hid the tabs.
+  useEffect(() => window.scrollTo(0, 0), [ansicht]);
   const [berichte, setBerichte] = useState<Rundenbericht[]>([]);
   // Counts loaded games: the views start afresh, even if the date is the same.
   const [ladung, setLadung] = useState(0);
@@ -133,78 +136,81 @@ export function Spiel({
 
   return (
     <div className="spiel">
-      <header className="kopfleiste">
-        <div className="kopf-firma">
-          <strong>{firma.name}</strong>
-          <span>
-            {t("spiel.datum")}:{" "}
-            <time dateTime={uebersicht.date}>{formatDatum(uebersicht.date)}</time>
-          </span>
-          <span>
-            {t("spiel.kasse")}:{" "}
-            <span className={firma.cash_usd < 0 ? "negativ" : ""}>
-              {formatGeld(firma.cash_usd)}
+      {/* Header and tabs stay on screen together while the view scrolls. */}
+      <div className="kopfbereich">
+        <header className="kopfleiste">
+          <div className="kopf-firma">
+            <strong>{firma.name}</strong>
+            <span>
+              {t("spiel.datum")}:{" "}
+              <time dateTime={uebersicht.date}>{formatDatum(uebersicht.date)}</time>
             </span>
-          </span>
-        </div>
-        <div className="kopf-runde">
-          <label>
-            {t("spiel.rundenlaenge")}
-            <select
-              id="rundenlaenge"
-              value={laenge}
-              onChange={(e) => setLaenge(e.target.value as Rundenlaenge)}
+            <span>
+              {t("spiel.kasse")}:{" "}
+              <span className={firma.cash_usd < 0 ? "negativ" : ""}>
+                {formatGeld(firma.cash_usd)}
+              </span>
+            </span>
+          </div>
+          <div className="kopf-runde">
+            <label>
+              <span className="nur-breit">{t("spiel.rundenlaenge")}</span>
+              <select
+                id="rundenlaenge"
+                value={laenge}
+                onChange={(e) => setLaenge(e.target.value as Rundenlaenge)}
+              >
+                {LAENGEN.map((l) => (
+                  <option key={l} value={l}>
+                    {t(`rundenlaenge.${l}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="haupt"
+              onClick={runde}
+              aria-keyshortcuts="Control+Enter"
+              disabled={uebersicht.game_over || fenster.art === "runde"}
             >
-              {LAENGEN.map((l) => (
-                <option key={l} value={l}>
-                  {t(`rundenlaenge.${l}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+              {t("spiel.runde_beenden")}
+            </button>
+          </div>
+          <nav className="kopf-menue">
+            <button type="button" onClick={() => setFenster({ art: "speichern" })}>
+              {t("spiel.speichern")}
+            </button>
+            <button type="button" onClick={() => setFenster({ art: "laden" })}>
+              {t("spiel.laden")}
+            </button>
+            <button type="button" onClick={() => onMenue(uebersicht)}>
+              {t("menue.hauptmenue")}
+            </button>
+          </nav>
+        </header>
+        <nav className="reiter" aria-label={t("spiel.ansichten")}>
+          {ANSICHTEN.map((a, i) => (
+            <button
+              key={a}
+              type="button"
+              aria-current={ansicht === a ? "page" : undefined}
+              aria-keyshortcuts={String(i + 1)}
+              onClick={() => setAnsicht(a)}
+            >
+              {t(`ansicht.${a}`)}
+            </button>
+          ))}
           <button
             type="button"
-            className="haupt"
-            onClick={runde}
-            aria-keyshortcuts="Control+Enter"
-            disabled={uebersicht.game_over || fenster.art === "runde"}
+            className="schlicht"
+            aria-keyshortcuts="?"
+            onClick={() => setFenster({ art: "hilfe" })}
           >
-            {t("spiel.runde_beenden")}
-          </button>
-        </div>
-        <nav className="kopf-menue">
-          <button type="button" onClick={() => setFenster({ art: "speichern" })}>
-            {t("spiel.speichern")}
-          </button>
-          <button type="button" onClick={() => setFenster({ art: "laden" })}>
-            {t("spiel.laden")}
-          </button>
-          <button type="button" onClick={() => onMenue(uebersicht)}>
-            {t("menue.hauptmenue")}
+            {t("tasten.knopf")}
           </button>
         </nav>
-      </header>
-      <nav className="reiter" aria-label={t("spiel.ansichten")}>
-        {ANSICHTEN.map((a, i) => (
-          <button
-            key={a}
-            type="button"
-            aria-current={ansicht === a ? "page" : undefined}
-            aria-keyshortcuts={String(i + 1)}
-            onClick={() => setAnsicht(a)}
-          >
-            {t(`ansicht.${a}`)}
-          </button>
-        ))}
-        <button
-          type="button"
-          className="schlicht"
-          aria-keyshortcuts="?"
-          onClick={() => setFenster({ art: "hilfe" })}
-        >
-          {t("tasten.knopf")}
-        </button>
-      </nav>
+      </div>
       <FehlerText fehler={fehler} />
       {uebersicht.game_over && <p className="fehlertext banner">{t("spiel.ende")}</p>}
       {/* A text key: with the number alone the views were drawn twice after a round. */}

@@ -7,3 +7,5 @@ node_modules/
 *.tsbuildinfo
 /tools/daten/.cache
 __pycache__/
+/ui/dist-web
+/ui/public/wsim_web.wasm

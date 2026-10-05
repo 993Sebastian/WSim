@@ -25,6 +25,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M15 | Spielbarkeit Stufe 1 | ✅ |
 | M16 | Markteintritt und Marketing | ✅ |
 | – | Nacharbeit zu M16: Plausibilität und Versorgung | ✅ |
+| M17 | Browser-Version (WebAssembly, GitHub Pages) | ✅ |
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -402,3 +403,31 @@ Vorgehen: Jede Änderung im Weltlauf gegen den vorherigen Stand gemessen; Varian
 parallel (Startpreis, Gleichgewichtsstart, Preisschritte 2/1, 1/0,5, 0,5/0,25 und
 0,25/0,125 % je Tag, Niederstwertprinzip, Mindestschritt nach Richtpreis, Ausbau über der
 Normalauslastung). Verworfen, was keine Verbesserung brachte (`docs/FORMELN.md`).
+
+### M17: Browser-Version (05.10.2026)
+
+Auftrag: eine Browser-Ansicht neben dem Windows-Programm, um neue Stände vom iPhone aus zu
+prüfen. Entscheidungen des Auftraggebers: Lastenheft §18.2.
+
+  - `crates/wsim-web`: die Spielsitzung als WebAssembly-Modul mit eingebauten Daten
+    (1,9 MB YAML, Modul 5,3 MB). Schnittstelle: JSON-Anfragen mit denselben Namen wie die
+    Befehle der Desktop-App; Spielstände als Bytes. Ohne wasm-bindgen: eine kleine
+    Brücke mit `unsafe` (Speicher zwischen JavaScript und Modul), dafür keine weiteren
+    Werkzeuge im Build. Das Crate hat eigene Lint-Regeln (`unsafe_code = "deny"`, im
+    Modul `bridge` erlaubt); sonst gilt das Verbot im Workspace weiter.
+  - Spielsitzung: Spielstände über `SaveStore` (Dateien am Desktop, Speicher im Browser);
+    die Web-Version legt geschriebene Stände in IndexedDB ab und beim Start wieder ein.
+  - Oberfläche: `ui/src/kern/web.ts` mit Web Worker (`kern.worker.ts`); Bauart „web“
+    (`pnpm -C ui build:web`). Grundlayout fürs Handy: Kopfleiste und Reiter als ein
+    fester Kopfbereich, Reiter zum Wischen, Dialoge in Bildschirmbreite, Tabellen in
+    eigenem Rahmen (vorher machten breite Tabellen die ganze Seite breiter, der Browser
+    zoomte heraus, und Knöpfe in Dialogen lagen außerhalb). Jede Ansicht beginnt oben.
+  - Prüfungen in CI (Job „Browser-Version“): Clippy für das WebAssembly-Ziel; gleicher
+    Zustands-Hash nach zwei Monaten mit 20 KI-Firmen in Browser und Desktop
+    (`f8e22892a572d015`); Playwright gegen den echten Kern im Desktop- und iPhone-Format
+    (Spiel beginnen, Woche spielen, speichern, Seite neu laden, Stand laden).
+    Veröffentlichung nach jedem Push auf `claude/architektur-vorschlag` in den Zweig
+    `gh-pages`.
+  - Leistung (Node, ein Kern): Daten laden 0,26 s, neues Spiel mit 100 KI-Firmen 0,07 s,
+    ein Monat 1,5–1,7 s; Speicher etwa 90 MB.
+
