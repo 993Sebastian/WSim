@@ -489,6 +489,26 @@ markt.staat_nachfrage: Staat
 markt.industrie: Firmen (Vorprodukt)
 markt.verbraucher_summe: "Verbraucher zusammen: {menge} je Monat."
 markt.marke_titel: Marke und Werbung
+markt.ketten: Produktionsketten
+ketten.hilfe: "Wie jedes Produkt entsteht, vom Rohstoff an – mit dem günstigsten Verfahren, das du nutzen kannst. Stückkosten und Preise gelten für {land}: Vorprodukte zu Marktpreisen, Anlagen bei normaler Auslastung. Ein Klick auf ein Produkt öffnet seinen Markt."
+ketten.endprodukt: Kette von
+ketten.deine_kette: deine Kette
+ketten.je: "{menge} je {einheit}"
+ketten.stellst_her: stellst du her
+ketten.kaufst_ein: kaufst du ein
+ketten.verkaufst: verkaufst du
+ketten.hakt.vorprodukt: "hakt: {produkt} fehlt"
+ketten.hakt.arbeitskraefte: "hakt: Arbeitskräfte fehlen"
+ketten.hakt.strom: "hakt: zu wenig Strom"
+ketten.hakt.lagerstaette: "hakt: Lagerstätte gibt nicht mehr her"
+ketten.verfahren: "{anlage}"
+ketten.abbau: "Abbau: {anlage}"
+ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"
+ketten.marge: "Marge {marge}"
+ketten.fehlt: "fehlt: {technologien}"
+ketten.staatsmarkt: "vom Staatsmarkt ({preis})"
+ketten.netz: "aus dem Netz ({preis})"
+ketten.nicht_erfunden: noch nicht erfunden
 markt.bekanntheit: Deine Bekanntheit
 markt.konkurrenz: Bekannteste Konkurrenz
 markt.werbebudget: Werbebudget

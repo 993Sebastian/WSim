@@ -243,6 +243,40 @@ test("Etappen zeigen das nächste Ziel und lassen sich ausblenden", async ({ pag
   await expect(etappen).toBeVisible();
 });
 
+test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Produktionsketten", exact: true }).click();
+  const ketten = page.getByRole("region", { name: "Produktionsketten" });
+  // The player's own chain comes first: nails from bought wire.
+  await expect(ketten.getByLabel("Kette von")).toHaveValue("naegel");
+  const naegel = ketten
+    .locator("li")
+    .filter({ has: page.getByRole("button", { name: "Markt für Nägel öffnen" }) })
+    .first();
+  await expect(naegel.getByText("stellst du her").first()).toBeVisible();
+  await expect(naegel.getByText("verkaufst du").first()).toBeVisible();
+  await expect(
+    ketten.getByText(/Nagelmaschine · Stückkosten ≈ [\d.]+ USD\/t · Marktpreis [\d.]+ USD\/t/),
+  ).toBeVisible();
+  await expect(ketten.getByText("kaufst du ein")).toBeVisible();
+  // Deeper levels open on demand.
+  const stahl = ketten
+    .locator("summary")
+    .filter({ has: page.getByRole("button", { name: "Markt für Stahl öffnen" }) })
+    .first();
+  await expect(ketten.getByText(/Abbau: Erzbergwerk/).first()).toBeHidden();
+  await stahl.click({ position: { x: 4, y: 8 } });
+  await expect(ketten.getByText(/Abbau: Erzbergwerk/).first()).toBeVisible();
+  await bild(page, "ketten");
+  // Another chain, then a product's market.
+  await ketten.getByLabel("Kette von").selectOption("automobil");
+  await expect(ketten.getByRole("button", { name: "Markt für Motor öffnen" })).toBeVisible();
+  await ketten.getByLabel("Kette von").selectOption("naegel");
+  await ketten.getByRole("button", { name: "Markt für Draht öffnen" }).first().click();
+  await expect(page.getByRole("region", { name: "Draht in Deutschland" })).toBeVisible();
+});
+
 test("Anlagen lassen sich stilllegen und verkaufen", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Standorte" }).click();

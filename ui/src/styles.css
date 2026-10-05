@@ -2430,3 +2430,46 @@ body {
 .alle-etappen li.erreicht > span:first-child {
   color: var(--erfolg);
 }
+
+/* Production chains (M25) */
+.kette,
+.kette ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kette ul {
+  margin-left: 0.6rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--rahmen);
+}
+
+.kette li {
+  margin: 0.25rem 0;
+}
+
+.kette summary {
+  cursor: pointer;
+}
+
+.kette .kettenblatt {
+  padding-left: 1.1rem;
+}
+
+.kettenzeile {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+}
+
+.kettenzeile > button.schlicht {
+  font-weight: 600;
+  padding: 0.1rem 0.2rem;
+}
+
+.kettenwerte {
+  color: var(--text-gedaempft);
+  font-size: 0.9em;
+}

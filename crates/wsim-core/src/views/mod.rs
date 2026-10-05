@@ -5,8 +5,10 @@
 
 use std::collections::BTreeMap;
 
+mod chains;
 mod hints;
 mod play;
+pub use chains::*;
 pub use hints::*;
 pub use play::*;
 

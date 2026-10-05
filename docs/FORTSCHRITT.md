@@ -33,7 +33,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M22 | Anlagen stilllegen und verkaufen; Balance-Runde | ✅ |
 | M23 | Etappenziele | ✅ |
 | M24 | Wettbewerb und Preise im Verlauf | ✅ |
-| M25 | Produktionsketten | offen |
+| M25 | Produktionsketten | ✅ |
 | M26 | Weiterlaufen bis … | offen |
 | M27 | Ursachen erklären | offen |
 | M28 | Geschichte erzählen | offen |
@@ -717,4 +717,30 @@ Eigenständige Entscheidungen:
   - Preissenkungen werden gegen den Höchststand seit der letzten Meldung gemessen, nicht
     gegen den Vormonat: Automatische Preise sinken höchstens etwa 4 % im Monat, ein
     Vergleich mit dem Vormonat meldete also nur feste Preise.
+
+### M25: Produktionsketten (05.10.2026)
+
+Vorschlag 4 aus `docs/OFFENE_PUNKTE.md`, Abschnitt E. Formeln: `docs/FORMELN.md`, M25.
+
+  - **Kern:** neue Sicht `chains` – für jede Spitze einer Kette das günstigste nutzbare
+    Rezept je Stufe bis zu den Rohstoffen, Stückkosten und Marge im Land des
+    Firmensitzes, fehlende Technologien, was der Spieler herstellt, einkauft oder
+    verkauft, und wo seine Anlagen haken. Über Sitzung, Tauri-Befehl `ketten`, die
+    Browser-Version und die Vorschau-Beispieldaten verfügbar.
+  - **Oberfläche:** Markt → „Produktionsketten“ als aufklappbarer Baum; die eigene Kette
+    steht vorne, ein Klick auf ein Produkt öffnet seinen Markt im Heimatland.
+  - Tests: Kern (Kette, Rezeptwahl, Kosten und Marge, eigene Anlage mit Engpass),
+    Vorschau (Baum, Aufklappen, Wechsel der Kette, Sprung zum Markt) und Browser-Version
+    mit echtem Kern.
+
+Eigenständige Entscheidungen:
+
+  - Ketten beginnen nicht nur bei Endprodukten, sondern bei jedem Produkt, aus dem nichts
+    weiter hergestellt wird – sonst fehlte die Kette der Startwerkstatt (Nägel gehen an
+    das Bauwesen).
+  - Unterreiter im Markt statt eigener Hauptreiter: Die Ketten beantworten „Was lohnt
+    sich?“ mit Preisen und Margen und führen in die Produktmärkte.
+  - Die Ansicht deckt Ungleichgewichte der Daten auf (1914: Motor 80 %, Fahrgestell 83 %
+    Marge mit dem Fließband); sie bleiben, wie im Weltlauf beobachtet, ein Restpunkt der
+    Balance (offener Punkt 38).
 

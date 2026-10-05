@@ -9,6 +9,7 @@ import type {
   Forschung,
   Landdetail,
   Markt,
+  Ketten,
   ProduktMarkt,
   Produktion,
   WeltMarkt,
@@ -31,6 +32,7 @@ const beispiel = beispielJson as unknown as {
   markt: Markt;
   produktmaerkte: Record<string, ProduktMarkt>;
   weltmarkt: WeltMarkt;
+  ketten: Ketten;
   forschung: Forschung;
   finanzen: Finanzen;
 };
@@ -132,6 +134,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       const c = { ...kopie(markt), country: land };
       for (const s of c.sellers) if (s.own) s.company = firma;
       return c;
+    },
+    ketten: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.ketten);
     },
     weltmarkt: async (produkt) => {
       if (!spiel) throw keinSpiel();

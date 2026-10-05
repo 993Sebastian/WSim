@@ -534,6 +534,40 @@ export interface Marktmonat {
   own_share: number | null;
 }
 
+/** Production chains of the end products (M25); prices and costs in the home country. */
+export interface Ketten {
+  country: string;
+  /** Tops of the chains in data order: products nothing else is made of. */
+  roots: string[];
+  products: KettenProdukt[];
+}
+
+export interface KettenProdukt {
+  product: string;
+  kind: "rohstoff" | "halbzeug" | "komponente" | "endprodukt" | "energie";
+  unit: string;
+  reference_usd: number;
+  price_usd: number;
+  /** How it is made; null for state-market goods, electricity and goods not invented. */
+  recipe: {
+    key: string;
+    facility: string;
+    extraction: boolean;
+    /** Technologies the player still needs. */
+    missing: string[];
+    /** Inputs per unit of output. */
+    inputs: [string, number][];
+    unit_cost_usd: number;
+    margin: number | null;
+  } | null;
+  state_market: boolean;
+  makes: boolean;
+  buys: boolean;
+  sells: boolean;
+  /** Why own plants made less: `vorprodukt` (with the input), `arbeitskraefte`, … */
+  stuck: [string, string | null][];
+}
+
 export interface WeltMarkt {
   date: string;
   product: string;

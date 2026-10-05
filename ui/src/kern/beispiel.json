@@ -2216,6 +2216,1196 @@
       "zinn": "t"
     }
   },
+  "ketten": {
+    "country": "DEU",
+    "products": [
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 103.8171,
+        "product": "eisenerz",
+        "recipe": {
+          "extraction": true,
+          "facility": "erzbergwerk",
+          "inputs": [],
+          "key": "eisenerz_abbau",
+          "margin": 0.3542664887436208,
+          "missing": [],
+          "unit_cost_usd": 67.03818051145464
+        },
+        "reference_usd": 86.1268,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 57.4931,
+        "product": "kohle",
+        "recipe": {
+          "extraction": true,
+          "facility": "kohlenzeche",
+          "inputs": [],
+          "key": "kohle_abbau",
+          "margin": 0.1248836643472026,
+          "missing": [],
+          "unit_cost_usd": 50.313150997319845
+        },
+        "reference_usd": 57.4179,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 773.3926,
+        "product": "stahl",
+        "recipe": {
+          "extraction": false,
+          "facility": "stahlwerk_konverter",
+          "inputs": [
+            [
+              "eisenerz",
+              1.9
+            ],
+            [
+              "kohle",
+              1.68
+            ]
+          ],
+          "key": "stahl_bessemer",
+          "margin": 0.33400890256167187,
+          "missing": [],
+          "unit_cost_usd": 515.072586424682
+        },
+        "reference_usd": 880.4212,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1171.9077,
+        "product": "blech",
+        "recipe": {
+          "extraction": false,
+          "facility": "walzwerk",
+          "inputs": [
+            [
+              "stahl",
+              1.12
+            ]
+          ],
+          "key": "blech_walzen",
+          "margin": 0.19341633195136665,
+          "missing": [],
+          "unit_cost_usd": 945.2416112804374
+        },
+        "reference_usd": 1467.3687,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": true,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1489.0548,
+        "product": "draht",
+        "recipe": {
+          "extraction": false,
+          "facility": "drahtzieherei",
+          "inputs": [
+            [
+              "stahl",
+              1.1
+            ]
+          ],
+          "key": "draht_ziehen",
+          "margin": 0.3541803040638299,
+          "missing": [],
+          "unit_cost_usd": 961.6609181682945
+        },
+        "reference_usd": 1467.3687,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1037.3393,
+        "product": "stabstahl",
+        "recipe": {
+          "extraction": false,
+          "facility": "walzwerk",
+          "inputs": [
+            [
+              "stahl",
+              1.08
+            ]
+          ],
+          "key": "stabstahl_walzen",
+          "margin": 0.1285278498270411,
+          "missing": [],
+          "unit_cost_usd": 904.0123102299121
+        },
+        "reference_usd": 1173.8949,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": true,
+        "price_usd": 1904.9956,
+        "product": "naegel",
+        "recipe": {
+          "extraction": false,
+          "facility": "nagelmaschine",
+          "inputs": [
+            [
+              "draht",
+              1.02
+            ]
+          ],
+          "key": "naegel_maschine",
+          "margin": 0.14762657488314532,
+          "missing": [],
+          "unit_cost_usd": 1623.7676244045376
+        },
+        "reference_usd": 1858.667,
+        "sells": true,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 2662.2766,
+        "product": "schrauben",
+        "recipe": {
+          "extraction": false,
+          "facility": "schraubenfabrik",
+          "inputs": [
+            [
+              "stahl",
+              1.35
+            ]
+          ],
+          "key": "schrauben_drehen",
+          "margin": 0.4130688899044509,
+          "missing": [],
+          "unit_cost_usd": 1562.5729602194042
+        },
+        "reference_usd": 2739.0882,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 2354.2925,
+        "product": "muttern",
+        "recipe": {
+          "extraction": false,
+          "facility": "schraubenfabrik",
+          "inputs": [
+            [
+              "stahl",
+              1.3
+            ]
+          ],
+          "key": "muttern_pressen",
+          "margin": 0.3992441651201183,
+          "missing": [],
+          "unit_cost_usd": 1414.354956388944
+        },
+        "reference_usd": 2445.6145,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 24.5088,
+        "product": "handwerkzeug",
+        "recipe": {
+          "extraction": false,
+          "facility": "werkzeugschmiede",
+          "inputs": [
+            [
+              "schnittholz",
+              0.0006
+            ],
+            [
+              "stahl",
+              0.0012
+            ]
+          ],
+          "key": "werkzeug_schmieden",
+          "margin": 0.23626052724969313,
+          "missing": [],
+          "unit_cost_usd": 18.71833798974272
+        },
+        "reference_usd": 27.4735,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 102.7548,
+        "product": "holz",
+        "recipe": {
+          "extraction": true,
+          "facility": "forstbetrieb",
+          "inputs": [],
+          "key": "holz_einschlag",
+          "margin": 0.5018559037520315,
+          "missing": [],
+          "unit_cost_usd": 51.186696981140756
+        },
+        "reference_usd": 66.9875,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 307.841,
+        "product": "schnittholz",
+        "recipe": {
+          "extraction": false,
+          "facility": "saegewerk",
+          "inputs": [
+            [
+              "holz",
+              1.8
+            ]
+          ],
+          "key": "schnittholz_saegen",
+          "margin": 0.2772040514023525,
+          "missing": [],
+          "unit_cost_usd": 222.5062276122484
+        },
+        "reference_usd": 293.4737,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1956.8967,
+        "product": "leim",
+        "recipe": null,
+        "reference_usd": 1956.4916,
+        "sells": false,
+        "state_market": true,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 167.7751,
+        "product": "moebel",
+        "recipe": {
+          "extraction": false,
+          "facility": "moebelfabrik",
+          "inputs": [
+            [
+              "leim",
+              0.0005
+            ],
+            [
+              "schnittholz",
+              0.035
+            ],
+            [
+              "schrauben",
+              0.0005
+            ]
+          ],
+          "key": "moebel_tischlern",
+          "margin": 0.330961260865355,
+          "missing": [],
+          "unit_cost_usd": 112.24804136218899
+        },
+        "reference_usd": 183.1563,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 5243.9582,
+        "product": "baumwolle",
+        "recipe": {
+          "extraction": true,
+          "facility": "baumwollplantage",
+          "inputs": [],
+          "key": "baumwolle_ernte",
+          "margin": 0.0983400337060067,
+          "missing": [],
+          "unit_cost_usd": 4728.26717385911
+        },
+        "reference_usd": 5741.7889,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 11348.0496,
+        "product": "garn",
+        "recipe": {
+          "extraction": false,
+          "facility": "spinnerei",
+          "inputs": [
+            [
+              "baumwolle",
+              1.15
+            ]
+          ],
+          "key": "garn_spinnen",
+          "margin": 0.3622937851321255,
+          "missing": [],
+          "unit_cost_usd": 7236.721756548897
+        },
+        "reference_usd": 11738.9495,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 16693.6435,
+        "product": "stoff",
+        "recipe": {
+          "extraction": false,
+          "facility": "weberei",
+          "inputs": [
+            [
+              "garn",
+              1.05
+            ]
+          ],
+          "key": "stoff_weben",
+          "margin": 0.18071095592771214,
+          "missing": [],
+          "unit_cost_usd": 13676.91922519856
+        },
+        "reference_usd": 17608.4242,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 32.0755,
+        "product": "kleidung",
+        "recipe": {
+          "extraction": false,
+          "facility": "konfektion",
+          "inputs": [
+            [
+              "stoff",
+              0.0007
+            ]
+          ],
+          "key": "kleidung_naehen",
+          "margin": 0.21001699120026002,
+          "missing": [],
+          "unit_cost_usd": 25.33909999875606
+        },
+        "reference_usd": 36.6313,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 905.9179,
+        "product": "getreide",
+        "recipe": {
+          "extraction": true,
+          "facility": "getreidefarm",
+          "inputs": [],
+          "key": "getreide_ernte",
+          "margin": 0.4112183401586684,
+          "missing": [],
+          "unit_cost_usd": 533.3878448419734
+        },
+        "reference_usd": 669.8754,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1421.7194,
+        "product": "mehl",
+        "recipe": {
+          "extraction": false,
+          "facility": "muehle",
+          "inputs": [
+            [
+              "getreide",
+              1.35
+            ]
+          ],
+          "key": "mehl_mahlen",
+          "margin": 0.11449385504469008,
+          "missing": [],
+          "unit_cost_usd": 1258.9412651021762
+        },
+        "reference_usd": 1076.0704,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 24462.8536,
+        "product": "zinn",
+        "recipe": null,
+        "reference_usd": 24456.1447,
+        "sells": false,
+        "state_market": true,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 3750.3905,
+        "product": "weissblech",
+        "recipe": {
+          "extraction": false,
+          "facility": "verzinnerei",
+          "inputs": [
+            [
+              "stahl",
+              1.14
+            ],
+            [
+              "zinn",
+              0.025
+            ]
+          ],
+          "key": "weissblech_verzinnen",
+          "margin": 0.5678571187654284,
+          "missing": [],
+          "unit_cost_usd": 1620.7045564247655
+        },
+        "reference_usd": 3130.3865,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1467.6476,
+        "product": "konserveninhalt",
+        "recipe": null,
+        "reference_usd": 1467.3687,
+        "sells": false,
+        "state_market": true,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 3.4195,
+        "product": "konserve",
+        "recipe": {
+          "extraction": false,
+          "facility": "konservenfabrik",
+          "inputs": [
+            [
+              "konserveninhalt",
+              0.0005
+            ],
+            [
+              "weissblech",
+              0.0001
+            ]
+          ],
+          "key": "konserve_abfuellen",
+          "margin": 0.2787622245292137,
+          "missing": [],
+          "unit_cost_usd": 2.466272573222354
+        },
+        "reference_usd": 3.6631,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 190.6139,
+        "product": "kupfererz",
+        "recipe": {
+          "extraction": true,
+          "facility": "kupferbergwerk",
+          "inputs": [],
+          "key": "kupfererz_abbau",
+          "margin": 0.40233343810905386,
+          "missing": [],
+          "unit_cost_usd": 113.92355426162462
+        },
+        "reference_usd": 143.5447,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 10873.0821,
+        "product": "kupfer",
+        "recipe": {
+          "extraction": false,
+          "facility": "kupferhuette",
+          "inputs": [
+            [
+              "kohle",
+              4.0
+            ],
+            [
+              "kupfererz",
+              55.0
+            ]
+          ],
+          "key": "kupfer_verhuetten",
+          "margin": -0.052850078691039096,
+          "missing": [],
+          "unit_cost_usd": 11447.725344599128
+        },
+        "reference_usd": 12717.1952,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 14165.1304,
+        "product": "kupferdraht",
+        "recipe": {
+          "extraction": false,
+          "facility": "kupferdrahtwerk",
+          "inputs": [
+            [
+              "kupfer",
+              1.03
+            ]
+          ],
+          "key": "kupferdraht_ziehen",
+          "margin": 0.19621324130951118,
+          "missing": [],
+          "unit_cost_usd": 11385.744250644108
+        },
+        "reference_usd": 14673.6868,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 2005.2074,
+        "product": "elektromotor",
+        "recipe": {
+          "extraction": false,
+          "facility": "elektromotorenwerk",
+          "inputs": [
+            [
+              "blech",
+              0.09
+            ],
+            [
+              "kupferdraht",
+              0.012
+            ],
+            [
+              "schrauben",
+              0.002
+            ],
+            [
+              "stabstahl",
+              0.04
+            ]
+          ],
+          "key": "elektromotor_bauen",
+          "margin": 0.1340903001310602,
+          "missing": [],
+          "unit_cost_usd": 1736.328537908977
+        },
+        "reference_usd": 2445.6145,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 363.3772,
+        "product": "rohoel",
+        "recipe": {
+          "extraction": true,
+          "facility": "oelfeld",
+          "inputs": [],
+          "key": "rohoel_foerdern",
+          "margin": 0.3036011039117689,
+          "missing": [],
+          "unit_cost_usd": 253.05548094363238
+        },
+        "reference_usd": 315.7984,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 998.2232,
+        "product": "petroleum",
+        "recipe": {
+          "extraction": false,
+          "facility": "raffinerie",
+          "inputs": [
+            [
+              "rohoel",
+              2.2222222222222223
+            ]
+          ],
+          "key": "rohoel_destillieren",
+          "margin": 0.28661537998100534,
+          "missing": [],
+          "unit_cost_usd": 712.1170782261449
+        },
+        "reference_usd": 1076.0704,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 1467.6475,
+        "product": "glas",
+        "recipe": null,
+        "reference_usd": 1467.3687,
+        "sells": false,
+        "state_market": true,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 17.2356,
+        "product": "petroleumlampe",
+        "recipe": {
+          "extraction": false,
+          "facility": "lampenfabrik",
+          "inputs": [
+            [
+              "blech",
+              0.0008
+            ],
+            [
+              "draht",
+              0.0001
+            ],
+            [
+              "glas",
+              0.0004
+            ]
+          ],
+          "key": "petroleumlampe_bauen",
+          "margin": 0.2007890086825942,
+          "missing": [],
+          "unit_cost_usd": 13.77488096195028
+        },
+        "reference_usd": 18.3156,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 8.4494,
+        "product": "gluehlampe",
+        "recipe": {
+          "extraction": false,
+          "facility": "gluehlampenfabrik",
+          "inputs": [
+            [
+              "glas",
+              0.00003
+            ],
+            [
+              "kupferdraht",
+              5e-6
+            ]
+          ],
+          "key": "gluehlampe_wolfram",
+          "margin": 0.4503726096443833,
+          "missing": [],
+          "unit_cost_usd": 4.644021672070748
+        },
+        "reference_usd": 9.1578,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "rohstoff",
+        "makes": false,
+        "price_usd": 38008.7066,
+        "product": "kautschuk",
+        "recipe": {
+          "extraction": true,
+          "facility": "kautschukplantage",
+          "inputs": [],
+          "key": "kautschuk_zapfen",
+          "margin": -0.001810957873767293,
+          "missing": [],
+          "unit_cost_usd": 38077.53876648898
+        },
+        "reference_usd": 47848.2411,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 880.6631,
+        "product": "schwefel",
+        "recipe": null,
+        "reference_usd": 880.4212,
+        "sells": false,
+        "state_market": true,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 46570.2587,
+        "product": "gummi",
+        "recipe": {
+          "extraction": false,
+          "facility": "gummiwerk",
+          "inputs": [
+            [
+              "kautschuk",
+              0.9
+            ],
+            [
+              "schwefel",
+              0.05
+            ]
+          ],
+          "key": "gummi_vulkanisieren",
+          "margin": 0.2520449479590145,
+          "missing": [],
+          "unit_cost_usd": 34832.460269520656
+        },
+        "reference_usd": 58694.7473,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 66.9825,
+        "product": "fahrradreifen",
+        "recipe": {
+          "extraction": false,
+          "facility": "reifenwerk",
+          "inputs": [
+            [
+              "gummi",
+              0.0008
+            ],
+            [
+              "stahl",
+              0.000055
+            ]
+          ],
+          "key": "fahrradreifen_bauen",
+          "margin": 0.2549845355954211,
+          "missing": [],
+          "unit_cost_usd": 49.902998344479705
+        },
+        "reference_usd": 68.4772,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 800.5637,
+        "product": "autoreifen",
+        "recipe": {
+          "extraction": false,
+          "facility": "reifenwerk",
+          "inputs": [
+            [
+              "gummi",
+              0.011
+            ],
+            [
+              "stahl",
+              0.00055
+            ]
+          ],
+          "key": "autoreifen_bauen",
+          "margin": 0.2847484823733361,
+          "missing": [],
+          "unit_cost_usd": 572.6044013818173
+        },
+        "reference_usd": 978.2458,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 529.3661,
+        "product": "naehmaschine",
+        "recipe": {
+          "extraction": false,
+          "facility": "naehmaschinenfabrik",
+          "inputs": [
+            [
+              "muttern",
+              0.0002
+            ],
+            [
+              "schrauben",
+              0.0005
+            ],
+            [
+              "stabstahl",
+              0.004
+            ],
+            [
+              "stahl",
+              0.008
+            ]
+          ],
+          "key": "naehmaschine_bauen",
+          "margin": 0.21209907154279967,
+          "missing": [],
+          "unit_cost_usd": 417.08804168376713
+        },
+        "reference_usd": 641.0472,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 557.4472,
+        "product": "fahrrad",
+        "recipe": {
+          "extraction": false,
+          "facility": "fahrradfabrik",
+          "inputs": [
+            [
+              "blech",
+              0.002
+            ],
+            [
+              "fahrradreifen",
+              2.0
+            ],
+            [
+              "schrauben",
+              0.0008
+            ],
+            [
+              "stabstahl",
+              0.011
+            ]
+          ],
+          "key": "fahrrad_bauen",
+          "margin": 0.3287553186820977,
+          "missing": [],
+          "unit_cost_usd": 374.18346811555693
+        },
+        "reference_usd": 641.0472,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "halbzeug",
+        "makes": false,
+        "price_usd": 766.4761,
+        "product": "benzin",
+        "recipe": {
+          "extraction": false,
+          "facility": "crackanlage",
+          "inputs": [
+            [
+              "rohoel",
+              2.5
+            ]
+          ],
+          "key": "rohoel_cracken",
+          "margin": 0.16279343564828672,
+          "missing": [],
+          "unit_cost_usd": 641.6988223387002
+        },
+        "reference_usd": 880.4212,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "t"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 2939.122,
+        "product": "motor",
+        "recipe": {
+          "extraction": false,
+          "facility": "motorenwerk_fliessband",
+          "inputs": [
+            [
+              "stahl",
+              0.19
+            ]
+          ],
+          "key": "motor_fliessband",
+          "margin": 0.796981421777765,
+          "missing": [],
+          "unit_cost_usd": 596.6963696616915
+        },
+        "reference_usd": 2934.7374,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 3086.0781,
+        "product": "fahrgestell",
+        "recipe": {
+          "extraction": false,
+          "facility": "fahrgestellwerk_fliessband",
+          "inputs": [
+            [
+              "stahl",
+              0.33
+            ]
+          ],
+          "key": "fahrgestell_fliessband",
+          "margin": 0.8309740858884707,
+          "missing": [],
+          "unit_cost_usd": 521.6271718720717
+        },
+        "reference_usd": 2934.7374,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "komponente",
+        "makes": false,
+        "price_usd": 1936.012,
+        "product": "karosserie",
+        "recipe": {
+          "extraction": false,
+          "facility": "karosseriewerk",
+          "inputs": [
+            [
+              "glas",
+              0.01
+            ],
+            [
+              "stahl",
+              0.229
+            ]
+          ],
+          "key": "karosserie_stahl",
+          "margin": 0.5913479716226868,
+          "missing": [],
+          "unit_cost_usd": 791.1552307628187
+        },
+        "reference_usd": 2445.6145,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 21468.8889,
+        "product": "automobil",
+        "recipe": {
+          "extraction": false,
+          "facility": "automobilwerk_fliessband",
+          "inputs": [
+            [
+              "autoreifen",
+              4.0
+            ],
+            [
+              "fahrgestell",
+              1.0
+            ],
+            [
+              "karosserie",
+              1.0
+            ],
+            [
+              "motor",
+              1.0
+            ]
+          ],
+          "key": "automobil_fliessband",
+          "margin": 0.42755204204245056,
+          "missing": [],
+          "unit_cost_usd": 12289.821610422501
+        },
+        "reference_usd": 27473.4501,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      }
+    ],
+    "roots": [
+      "naegel",
+      "handwerkzeug",
+      "moebel",
+      "kleidung",
+      "mehl",
+      "konserve",
+      "elektromotor",
+      "petroleum",
+      "petroleumlampe",
+      "gluehlampe",
+      "naehmaschine",
+      "fahrrad",
+      "benzin",
+      "automobil"
+    ]
+  },
   "laender": {
     "DEU": {
       "companies": [

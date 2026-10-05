@@ -60,6 +60,13 @@ test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, 
     .click();
   await expect(page.locator(".kopfleiste")).toContainText("08.01.1900");
   await expect(page.locator(".kopfleiste")).toContainText("Browser AG");
+
+  // The production chains from the real core (M25).
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Produktionsketten", exact: true }).click();
+  const ketten = page.getByRole("region", { name: "Produktionsketten" });
+  await expect(ketten.getByLabel("Kette von")).toHaveValue("naegel");
+  await expect(ketten.getByText(/Nagelmaschine · Stückkosten ≈/)).toBeVisible();
 });
 
 // Research with the real core: found a center, build a laboratory, pick a technology.

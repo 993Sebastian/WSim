@@ -10,6 +10,7 @@ import type {
   Finanzen,
   Forschung,
   Markt,
+  Ketten,
   ProduktMarkt,
   Produktion,
   WeltMarkt,
@@ -48,6 +49,8 @@ export interface Kern {
   produktion(): Promise<Produktion>;
   markt(land: string): Promise<Markt>;
   produktmarkt(land: string, produkt: string): Promise<ProduktMarkt>;
+  /** Production chains of the end products (M25). */
+  ketten(): Promise<Ketten>;
   weltmarkt(produkt: string): Promise<WeltMarkt>;
   forschung(): Promise<Forschung>;
   finanzen(): Promise<Finanzen>;
@@ -89,6 +92,7 @@ const tauriKern: Kern = {
   produktion: () => aufruf("produktion"),
   markt: (land) => aufruf("markt", { land }),
   produktmarkt: (land, produkt) => aufruf("produktmarkt", { land, produkt }),
+  ketten: () => aufruf("ketten"),
   weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
   forschung: () => aufruf("forschung"),
   finanzen: () => aufruf("finanzen"),

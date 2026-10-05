@@ -137,6 +137,12 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   dem Richtpreis als gestrichelter Linie, Absatz je Monat und den eigenen Anteil.
   Der Rundenbericht nennt unter „Wettbewerb“ neue und ausgeschiedene Anbieter in den
   eigenen Märkten und Preissenkungen ab 10 %; „Ansehen“ führt zum Markt.
+- **Produktionsketten** (M25): dritter Unterreiter im Markt. Wählbar ist die Spitze einer
+  Kette (zuerst die eigene, z. B. Nägel); der Baum zeigt je Stufe Menge je Einheit, Anlage,
+  Stückkosten gegen Marktpreis im Land des Firmensitzes, Marge, fehlende Technologien und
+  Kennzeichen „stellst du her“, „kaufst du ein“, „verkaufst du“, „hakt: …“. Die ersten
+  zwei Stufen sind offen, tiefere klappen auf; ein Klick auf ein Produkt öffnet seinen
+  Markt.
 
 ### Forschung → Technologiebaum (M19)
 

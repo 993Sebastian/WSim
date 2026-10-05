@@ -1160,3 +1160,25 @@ Lastenheft §13.2, §14.2; Vorschlag 3. Parameter: `marktmodell.verlauf_monate`,
     sinken höchstens etwa 4 % im Monat), kleine Schwankungen aber nicht.
   - Der erste Monat in einem neuen Markt des Spielers merkt sich nur die Anbieter.
 
+## M25 – Produktionsketten (Anzeige)
+
+Lastenheft §14.1; Vorschlag 4. Nur Anzeige, keine Wirkung auf die Simulation.
+
+- **Spitzen der Ketten:** alle Produkte mit Rezept, aus denen kein Rezept etwas anderes
+  herstellt (Endprodukte, aber auch Nägel für das Bauwesen oder Petroleum und Benzin für
+  Lampen und Autos); Strom nicht. Von dort geht es über das gezeigte Rezept zu den
+  Vorprodukten bis zu den Rohstoffen.
+- **Gezeigtes Rezept je Produkt:** unter den bis heute erfundenen Rezepten zuerst die,
+  die der Spieler nutzen darf (Technologien von Rezept und Anlage bekannt), darunter das
+  billigste. Ohne nutzbares Rezept das billigste erfundene mit den fehlenden
+  Technologien.
+- **Stückkosten** im Land des Firmensitzes wie in der Plausibilitätsprüfung (M16,
+  `health::unit_cost`): Vorprodukte und Nebenprodukte zu Marktpreisen dort, Löhne und
+  Arbeitsproduktivität des Landes, Strompreis, Gemeinkosten, Abschreibung und Wartung der
+  Anlage bei `auslastung_normal`, Pacht der Rohstoffe. **Marge** = (Marktpreis −
+  Stückkosten) / Marktpreis.
+- **Eigene Abdeckung:** „stellst du her“ (eine laufende eigene Anlage macht das Produkt),
+  „kaufst du ein“ (Einkaufsauftrag), „verkaufst du“ (Angebot); „hakt“ mit der Ursache, die
+  eigene Anlagen des Produkts am letzten Tag bremste (Vorprodukt, Arbeitskräfte, Strom,
+  Lagerstätte).
+

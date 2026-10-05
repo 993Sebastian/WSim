@@ -12,7 +12,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
+    ChainsView, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
     ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
     WorldMarketView,
 };
@@ -135,6 +135,11 @@ fn produktmarkt(
 }
 
 #[tauri::command]
+fn ketten(state: State<'_, Shared>) -> Result<ChainsView, Fehler> {
+    mit_sitzung(&state, |s| s.chains())
+}
+
+#[tauri::command]
 fn weltmarkt(state: State<'_, Shared>, produkt: String) -> Result<WorldMarketView, Fehler> {
     mit_sitzung(&state, |s| s.world_market(&produkt))
 }
@@ -207,6 +212,7 @@ fn main() {
             produktion,
             markt,
             produktmarkt,
+            ketten,
             weltmarkt,
             forschung,
             finanzen,

@@ -19,8 +19,8 @@ use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
 use wsim_core::views::{
-    self, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions, Overview,
-    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    self, ChainsView, CountryDetail, FinanceView, MarketView, MessageView, NewGameOptions,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
     WorldMarketView,
 };
 
@@ -292,6 +292,11 @@ impl<S: SaveStore> Session<S> {
             return Err(error(keys::UNKNOWN_COUNTRY));
         }
         views::product_market(game, country, product).ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
+    }
+
+    /// Production chains of the end products (M25).
+    pub fn chains(&self) -> Result<ChainsView, MessageView> {
+        self.view(views::chains)
     }
 
     /// One product in all countries (world map).

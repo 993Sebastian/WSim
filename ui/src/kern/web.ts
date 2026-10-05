@@ -60,6 +60,7 @@ export function webKern(): Kern {
     produktion: () => aufruf("produktion"),
     markt: (land) => aufruf("markt", { land }),
     produktmarkt: (land, produkt) => aufruf("produktmarkt", { land, produkt }),
+    ketten: () => aufruf("ketten"),
     weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
     forschung: () => aufruf("forschung"),
     finanzen: () => aufruf("finanzen"),
