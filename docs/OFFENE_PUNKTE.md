@@ -455,6 +455,16 @@ und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41)
    mittlere Anlage zu füllen, bekommt in der Startbesetzung jetzt eine kleine Anlage.
    Vorher fehlte es, und alle Stufen darüber fielen weg (Start ab 1920 ohne Aluminium,
    ab 1970 ohne Transistoren, ab 2000 ohne Akkus, Mobiltelefone und Laptops).
+7. **Bekannte Grenzen (Weltläufe bis 2026):** Neue Märkte haben lange nur ein bis drei
+   Hersteller und kosten bis zum Vierfachen des Richtpreises (Smartphone in einem Lauf bis
+   2018 nur zu 4 % versorgt); Solarmodule und Windkraftanlagen bleiben bis etwa 2020 knapp.
+   Das Mobiltelefon wird vom Smartphone nur teilweise verdrängt.
+8. **Rohstoffvorräte ab 2018** (🟡 Vorschlag, wird umgesetzt): Die abbauwürdigen Vorräte
+   einer Lagerstätte wachsen mit dem Förderindex ihres Rohstoffs, wie in der Wirklichkeit
+   Erkundung und Technik die Reserven trotz Förderung wachsen ließen. Bisher waren bis 2026
+   zwölf von 26 Eisenerz-Lagerstätten und die größten Ölfelder leer. Für Baumwolle und
+   Getreide steigt der Förderindex nach 2010 weiter (Ersatz für Polyester und
+   Ertragssteigerung, die das Spiel nicht eigens abbildet).
 
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 

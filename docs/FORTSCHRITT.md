@@ -49,7 +49,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39 | Produkte 1965–1989 | ✅ |
 | M40 | Produkte 1990–2009 | ✅ |
-| M41 | Produkte 2010–2026 | in Arbeit (Daten committet, Weltläufe bis 2026 laufen) |
+| M41 | Produkte 2010–2026 | ✅ (Rohstoffvorräte ab 2018 werden nachgestellt) |
 | M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
@@ -1390,7 +1390,7 @@ Produktnamen je Firma folgen mit M42.
   Brothers, Ever Given). Die IDs (`nylon`, `bakelit`, `ford_model_t` …) bleiben, damit
   Spielstände gültig bleiben; angezeigt werden sie nirgends.
 
-### M41: Produkte 2010–2026 (06.10.2026, Zwischenstand)
+### M41: Produkte 2010–2026 (06.10.2026)
 
 - **Daten** (Entwurf eines Hilfsagenten, geprüft und übernommen): Ketten 42–48 –
   Smartphone, Tablet, Elektroauto mit Traktionsbatterie (kWh) und Elektroantrieb,
@@ -1404,7 +1404,32 @@ Produktnamen je Firma folgen mit M42.
 - **Korrekturen:** Die KI baut ein Produkt, das noch niemand herstellt, auch bei knappen
   Vorprodukten (Szenariotest); Förderindex für Kohle (neu), Eisenerz, Kupfererz und
   Kobalt nach der Welterzeugung; Kobaltgewinnung mit einem Viertel der Stunden.
-  Weltläufe 1900–2026 (Seeds 1 und 2) zur Abnahme laufen.
+- **Weltläufe 1900–2026** (100 KI-Firmen, Seeds 1 und 2, je rund 80 Minuten). Versorgung
+  (Anteil der Nachfrage, den Angebote decken):
+
+  | Produkt | Seed 1 | Seed 2 |
+  |---|---|---|
+  | Smartphone | ab 2012 ein Hersteller, bis 2018 4 %, 2022 89 %, 2025 100 % | ab 2014; 2016–2020 99–100 %, 2025 100 % |
+  | Tablet | 2014 13 %, ab 2016 100 % | 2016 21 %, ab 2018 99–100 % |
+  | Elektroauto | 2018 5 %, 2020 24 %, ab 2022 98–100 % | 2016–2018 4–5 %, ab 2020 99–100 % |
+  | Solarmodul | bis 2022 13–29 %, 2025 76 % | bis 2018 14–23 %, 2020 59 %, 2025 93 % |
+  | Windkraftanlage | bis 2014 100 %, 2018–2022 53–72 %, 2025 100 % | bis 2016 18–34 %, 2020–2022 100 %, 2025 59 % |
+  | Wärmepumpe | ab 2010 88–100 % | ab 2010 100 % |
+  | LED-Lampe | 2014 10 %, ab 2016 89–100 % | 2010 13 %, ab 2012 100 % |
+
+  Die Glühlampe verliert von 2012 bis 2025 drei Viertel ihrer Nachfrage (Seed 1: 1,6 Mrd.
+  → 0,4 Mrd. Stück; Seed 2 ab 2008 vier Fünftel). Das Mobiltelefon wächst bis 2016 und
+  bleibt dann etwa gleich; das Smartphone verdrängt es nur zum Teil. Neue Märkte haben
+  lange ein bis drei Hersteller und kosten bis zum Vierfachen des Richtpreises, bis
+  weitere Werke kommen (Smartphone in Seed 1 bis 2018).
+- **Rohstoffe:** bis 2015 nahe am Richtpreis (Kohle beim 1,5- bis 1,9-Fachen). Ab 2018–2020
+  kosten Eisenerz (2,7- bis 3,8-fach) und Baumwolle (3,4- bis 3,9-fach) in beiden Läufen
+  viel zu viel, Getreide das Doppelte, Rohöl in Seed 1 ab 2022 das Dreifache. Ursache:
+  Bis 2026 sind zwölf der 26 Eisenerz-Lagerstätten leer (Kiruna, Mesabi, Kursk, Itabira,
+  Labrador …) und fünf der größten Ölfelder (Samotlor, Rumaila, Romaschkino …). Die
+  Förderindizes ab 1980 lassen jede Lagerstätte schneller fördern, die Vorräte in den
+  Daten sind dabei gleich geblieben. Baumwolle und Getreide (nachwachsend) fehlt nach 2010
+  die zulässige Ernte. Korrektur und neue Weltläufe: direkt im Anschluss.
 - **Späte Startjahre** (Startbesetzung, `docs/FORMELN.md` Schritt 4): Ein Vorprodukt, das
   zu wenig gebraucht wird, um eine mittlere Anlage zu füllen, bekam keine Anlage, und die
   Stufen darüber wurden auf null verkleinert – ab Startjahr 1920 fehlten so Bauxit und
