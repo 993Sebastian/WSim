@@ -1021,6 +1021,7 @@ fn found_company(
     state.companies.push(Company {
         brands,
         advertising: Vec::new(),
+        auction_until: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

@@ -135,5 +135,19 @@ pub(super) fn deal_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Dea
                 &k.field("gegen_schwelle"),
             ),
         },
+        insolvency_days: months(
+            ctx,
+            m.insolvency.days,
+            0,
+            365,
+            &l.field("insolvenz").field("tage"),
+        ),
+        insolvency_min_share: in_range(
+            ctx,
+            m.insolvency.min_share,
+            0.0,
+            1.0,
+            &l.field("insolvenz").field("mindestpreis"),
+        ),
     }
 }

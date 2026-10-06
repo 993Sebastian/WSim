@@ -718,9 +718,24 @@ pub(crate) fn make_offer(
         .company(seller)
         .ok_or(CommandError::UnknownCompany(seller))?;
     if other.bankrupt {
-        return Err(CommandError::SellerBankrupt);
+        // Bids for the sites of an insolvent company while they are auctioned (M38).
+        let DealObject::Site(site) = object else {
+            return Err(CommandError::SellerBankrupt);
+        };
+        if !in_auction(state, seller) {
+            return Err(CommandError::SellerBankrupt);
+        }
+        let s = state.site(site).ok_or(CommandError::UnknownSite)?;
+        if s.owner != seller {
+            return Err(CommandError::NotSellersObject);
+        }
+        let minimum = auction_minimum(state, catalog, site);
+        if price < minimum {
+            return Err(CommandError::BelowMinimumBid { minimum });
+        }
+    } else {
+        check_object(state, catalog, buyer, seller, object)?;
     }
-    check_object(state, catalog, buyer, seller, object)?;
     if price <= Money::ZERO {
         return Err(CommandError::InvalidPrice);
     }
@@ -1226,15 +1241,20 @@ fn ai_answer(state: &GameState, catalog: &Catalog, offer: &Offer) -> OfferAnswer
 /// One day of offers: expiry, the AI companies' answers, and cleaning up. Returns the
 /// messages for the player.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
-    let mut messages = Vec::new();
+    let mut messages = close_auctions(state, catalog, date);
     let player = state.player;
     if state.offers.is_empty() {
         return messages;
     }
-    // Offers of companies that went bankrupt are void.
+    // Offers of companies that went bankrupt are void, except bids for the sites of an
+    // insolvent company in its auction (M38).
+    let auctions: Vec<bool> = (0..state.companies.len())
+        .map(|i| in_auction(state, CompanyId(u32::try_from(i).unwrap_or(u32::MAX))))
+        .collect();
     for o in &mut state.offers {
-        let gone =
-            state.companies[o.buyer.index()].bankrupt || state.companies[o.seller.index()].bankrupt;
+        let bid = auctions[o.seller.index()] && matches!(o.object, DealObject::Site(_));
+        let gone = state.companies[o.buyer.index()].bankrupt
+            || (state.companies[o.seller.index()].bankrupt && !bid);
         if o.status == OfferStatus::Open && gone {
             o.status = OfferStatus::Withdrawn;
             o.closed = Some(date);
@@ -1356,6 +1376,174 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     state.offers.retain(|o| {
         o.status == OfferStatus::Open || o.closed.is_some_and(|c| c.add_months(keep_months) > date)
     });
+    messages
+}
+
+/// Whether the sites of a company are being auctioned (M38).
+pub fn in_auction(state: &GameState, company: CompanyId) -> bool {
+    state
+        .companies
+        .get(company.index())
+        .and_then(|c| c.auction_until)
+        .is_some_and(|until| until >= state.date)
+}
+
+/// The lowest bid for a site in an auction (M38): a share of its base value.
+pub fn auction_minimum(state: &GameState, catalog: &Catalog, site: SiteId) -> Money {
+    site_value(state, catalog, site)
+        .base
+        .scale(catalog.deal_model.insolvency_min_share)
+}
+
+/// The auctions whose last day has passed (M38): every site goes to the highest bid at
+/// the second highest price (at least the minimum); sites without a bid are given up.
+fn close_auctions(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    let ending: Vec<CompanyId> = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.auction_until.is_some_and(|until| until < date))
+        .map(|(i, _)| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .collect();
+    let mut messages = Vec::new();
+    for seller in ending {
+        let sites: Vec<SiteId> = state
+            .sites
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| s.owner == seller)
+            .map(|(i, _)| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
+            .collect();
+        for site in sites {
+            messages.extend(auction_site(state, catalog, seller, site, date));
+        }
+        state.companies[seller.index()].auction_until = None;
+    }
+    messages
+}
+
+/// The bids for a site: open offers and the highest price of every active AI company
+/// that its cash allows; the highest first, among equals companies present in the
+/// site's country first, then by number.
+fn auction_bids(
+    state: &GameState,
+    catalog: &Catalog,
+    seller: CompanyId,
+    site: SiteId,
+    minimum: Money,
+) -> Vec<(Money, CompanyId)> {
+    let object = DealObject::Site(site);
+    let mut bids: Vec<(Money, CompanyId)> = state
+        .offers
+        .iter()
+        .filter(|o| {
+            o.status == OfferStatus::Open
+                && o.seller == seller
+                && o.object == object
+                && !state.companies[o.buyer.index()].bankrupt
+                && o.price >= minimum
+                && state.companies[o.buyer.index()].ledger.cash() >= o.price
+        })
+        .map(|o| (o.price, o.buyer))
+        .collect();
+    let share = catalog.deal_model.ai.cash_share_max;
+    for (i, c) in state.companies.iter().enumerate() {
+        let buyer = CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
+        if c.bankrupt || c.ai.is_none() || bids.iter().any(|&(_, b)| b == buyer) {
+            continue;
+        }
+        let bid =
+            ai_maximum(state, catalog, buyer, seller, object).min(c.ledger.cash().scale(share));
+        if bid >= minimum && bid > Money::ZERO {
+            bids.push((bid, buyer));
+        }
+    }
+    let country = state.sites[site.index()].country;
+    let present = |b: CompanyId| {
+        state.companies[b.index()].headquarters == country
+            || state
+                .sites
+                .iter()
+                .any(|s| s.owner == b && s.country == country)
+    };
+    bids.sort_by(|a, b| {
+        b.0.cmp(&a.0)
+            .then(present(b.1).cmp(&present(a.1)))
+            .then(a.1.cmp(&b.1))
+    });
+    bids
+}
+
+fn auction_site(
+    state: &mut GameState,
+    catalog: &Catalog,
+    seller: CompanyId,
+    site: SiteId,
+    date: Date,
+) -> Vec<Message> {
+    let player = state.player;
+    let minimum = auction_minimum(state, catalog, site);
+    let bids = auction_bids(state, catalog, seller, site, minimum);
+    let object = DealObject::Site(site);
+    let player_bid = bids.iter().any(|&(_, b)| b == player)
+        || state.offers.iter().any(|o| {
+            o.status == OfferStatus::Open
+                && o.buyer == player
+                && o.seller == seller
+                && o.object == object
+        });
+    let mut messages = Vec::new();
+    let winner = bids.first().map(|&(top, buyer)| {
+        let price = bids
+            .get(1)
+            .map_or(minimum, |&(second, _)| second.max(minimum));
+        (buyer, price.min(top))
+    });
+    match winner {
+        Some((buyer, price)) => {
+            // Described before the hand-over, while the insolvent company owns the site.
+            let firm = |c: CompanyId| Param::Text(state.companies[c.index()].name.clone());
+            let message = if buyer == player {
+                Some(Message::new(MessageKind::Info, keys::AUCTION_WON).with("firma", firm(seller)))
+            } else if player_bid {
+                Some(
+                    Message::new(MessageKind::Info, keys::AUCTION_LOST)
+                        .with("firma", firm(seller))
+                        .with("kaeufer", firm(buyer)),
+                )
+            } else {
+                let mine = state
+                    .sites
+                    .iter()
+                    .filter(|s| s.owner == player)
+                    .flat_map(|s| s.offers.keys().copied())
+                    .collect::<BTreeSet<ProductId>>();
+                site_products(state, catalog, site)
+                    .iter()
+                    .any(|p| mine.contains(p))
+                    .then(|| {
+                        Message::new(MessageKind::Info, keys::AUCTION_SOLD)
+                            .with("firma", firm(seller))
+                            .with("kaeufer", firm(buyer))
+                    })
+            };
+            messages.extend(message.map(|m| {
+                describe(m, state, catalog, seller, object).with("preis", Param::Money(price))
+            }));
+            hand_over(state, catalog, buyer, seller, site, price);
+        }
+        None => crate::ai::give_up_site(state, site),
+    }
+    for o in &mut state.offers {
+        if o.status == OfferStatus::Open && o.seller == seller && o.object == object {
+            o.status = if winner.is_some_and(|(b, _)| b == o.buyer) {
+                OfferStatus::Accepted
+            } else {
+                OfferStatus::Declined
+            };
+            o.closed = Some(date);
+        }
+    }
     messages
 }
 

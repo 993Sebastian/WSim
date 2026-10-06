@@ -195,9 +195,7 @@ impl Protocol {
                 if sl.ready > state.date {
                     continue;
                 }
-                let planned = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * sl.utilization;
+                let planned = sl.full_runs(catalog) * sl.utilization;
                 for &(p, q) in &r.inputs {
                     self.year.entry(p).or_default().input_need += q * planned * days;
                 }
@@ -230,10 +228,7 @@ impl Protocol {
                         continue;
                     };
                     if r.product == product && sl.ready <= state.date {
-                        capacity += catalog.facilities.get(sl.facility).runs_per_day
-                            * f64::from(sl.count)
-                            * r.output
-                            * 365.0;
+                        capacity += sl.full_runs(catalog) * r.output * 365.0;
                         producers.insert(s.owner);
                     }
                 }
@@ -860,9 +855,7 @@ fn by_country(game: &Game) -> String {
             if sl.ready > state.date {
                 continue;
             }
-            let planned = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * sl.utilization;
+            let planned = sl.full_runs(catalog) * sl.utilization;
             for &(p, q) in &r.inputs {
                 rows.entry((p, s.country)).or_default().need += q * planned * 30.0;
             }

@@ -625,9 +625,7 @@ fn markets_are_saturated_and_newcomers_must_compete() {
         .iter()
         .filter_map(|sl| {
             let r = c.recipes.get(sl.recipe?);
-            (r.product == nails).then(|| {
-                c.facilities.get(sl.facility).runs_per_day * f64::from(sl.count) * r.output * 30.0
-            })
+            (r.product == nails).then(|| sl.full_runs(&c) * r.output * 30.0)
         })
         .sum();
     let sold = s.offers[&nails].sold_last_month;

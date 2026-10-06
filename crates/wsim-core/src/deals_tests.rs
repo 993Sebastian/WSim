@@ -936,3 +936,124 @@ fn the_player_sees_areas_and_offers_for_them() {
         (None, None)
     );
 }
+
+/// The game of `new_game` with auctions (M38) and a third company, "Pleite AG" (AI),
+/// that owns a works and has just become insolvent.
+fn insolvency(rival_cash: f64) -> (Game, CompanyId, CompanyId, SiteId) {
+    let mut c = catalog();
+    c.deal_model.insolvency_days = 30;
+    let (mut game, rival) = new_game(c, true);
+    let state = game.state_mut();
+    state.companies[rival.index()].ledger = Ledger::new(state.date, usd(rival_cash));
+    let mut broke = state.companies[rival.index()].clone();
+    "Pleite AG".clone_into(&mut broke.name);
+    broke.ledger = Ledger::new(state.date, usd(10_000_000.0));
+    state.companies.push(broke);
+    let broke = CompanyId(2);
+    let site = works(&mut game, broke);
+    days(&mut game, 25);
+    let state = game.state_mut();
+    state.companies[broke.index()].ledger.expense(
+        CostType::Other,
+        crate::ledger::CostCenter::default(),
+        Account::Cash,
+        usd(1e12),
+    );
+    let catalog = game.catalog().clone();
+    let messages = crate::finance::check_insolvency(game.state_mut(), &catalog);
+    assert!(
+        messages
+            .iter()
+            .any(|m| m.key == keys::COMPANY_INSOLVENT_AUCTION),
+        "{messages:?}"
+    );
+    (game, rival, broke, site)
+}
+
+#[test]
+fn an_insolvent_site_goes_to_the_highest_bid_at_the_second_price() {
+    let (mut game, rival, broke, site) = insolvency(50_000_000.0);
+    let state = game.state();
+    assert!(crate::deals::in_auction(state, broke));
+    let minimum = crate::deals::auction_minimum(state, game.catalog(), site);
+    assert!(minimum > Money::ZERO);
+    // The site waits: no staff, no production.
+    assert!(state.sites[site.index()].workforce.values().sum::<f64>() < 1e-9);
+    // Bids start at the minimum.
+    let low = Command::MakeOffer {
+        seller: broke,
+        object: DealObject::Site(site),
+        price: minimum.scale(0.5),
+    };
+    assert_eq!(
+        game.apply(low),
+        Err(CommandError::BelowMinimumBid { minimum })
+    );
+    // Licences and areas of an insolvent company are not for sale.
+    use crate::ids::Id;
+    let licence = Command::MakeOffer {
+        seller: broke,
+        object: DealObject::License(crate::ids::TechnologyId::from_index(0)),
+        price: minimum,
+    };
+    assert_eq!(game.apply(licence), Err(CommandError::SellerBankrupt));
+    let before = game.state().companies[0].ledger.cash();
+    let bid = minimum.scale(10.0);
+    game.apply(Command::MakeOffer {
+        seller: broke,
+        object: DealObject::Site(site),
+        price: bid,
+    })
+    .unwrap();
+    let keys = days(&mut game, 32);
+    assert!(keys.iter().any(|k| k == keys::AUCTION_WON), "{keys:?}");
+    let state = game.state();
+    assert_eq!(state.sites[site.index()].owner, game.player());
+    assert!(!crate::deals::in_auction(state, broke));
+    // The rival bid less: the player pays its price (the second bid), not the own one.
+    let paid = before - state.companies[0].ledger.cash();
+    assert!(
+        paid >= minimum && paid < bid,
+        "{paid:?} {minimum:?} {bid:?}"
+    );
+    let offer = state
+        .offers
+        .iter()
+        .find(|o| o.seller == broke)
+        .expect("kept while it blocks");
+    assert_eq!(offer.status, OfferStatus::Accepted);
+    assert!(state.companies[rival.index()].ledger.is_balanced());
+    assert!(state.companies[0].ledger.is_balanced());
+    assert!(state.companies[broke.index()].ledger.is_balanced());
+}
+
+#[test]
+fn an_ai_company_takes_over_an_insolvent_site_at_the_minimum() {
+    let (mut game, rival, broke, site) = insolvency(50_000_000.0);
+    let minimum = crate::deals::auction_minimum(game.state(), game.catalog(), site);
+    let cash = game.state().companies[rival.index()].ledger.cash();
+    days(&mut game, 32);
+    let state = game.state();
+    assert_eq!(state.sites[site.index()].owner, rival);
+    // The only bidder pays the minimum of the last day.
+    let paid = cash - state.companies[rival.index()].ledger.cash();
+    assert!(
+        (paid.to_usd() - minimum.to_usd()).abs() < 0.2 * minimum.to_usd(),
+        "{paid:?} {minimum:?}"
+    );
+    let _ = broke;
+}
+
+#[test]
+fn a_site_nobody_wants_is_given_up_after_the_auction() {
+    let (mut game, _, broke, site) = insolvency(0.0);
+    days(&mut game, 20);
+    // Still the insolvent company's while the auction runs.
+    assert_eq!(game.state().sites[site.index()].owner, broke);
+    assert!(crate::deals::in_auction(game.state(), broke));
+    days(&mut game, 12);
+    let state = game.state();
+    assert_eq!(state.sites[site.index()].owner, broke);
+    assert!(!crate::deals::in_auction(state, broke));
+    assert_eq!(state.companies[broke.index()].auction_until, None);
+}

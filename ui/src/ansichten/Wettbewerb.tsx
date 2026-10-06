@@ -336,6 +336,11 @@ function FirmenListe({
                   </button>
                 )}{" "}
                 {c.real && <span className="marke">{t("uebersicht.real")}</span>}
+                {c.auction_until && (
+                  <span className="marke warnmarke">
+                    {t("wettbewerb.versteigerung_bis", { datum: formatDatum(c.auction_until) })}
+                  </span>
+                )}
               </td>
               <td data-spalte={t("uebersicht.sitz")}>{landName(c.headquarters)}</td>
               <td className="zahl" data-spalte={t("uebersicht.eigenkapital")}>
@@ -423,10 +428,16 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
         })}
       </p>
       <h3>{t("wettbewerb.standorte")}</h3>
-      <p className="gedaempft">
-        {t("wettbewerb.kaufen_hilfe")}
-        {d.min_age_months > 0 && ` ${t("wettbewerb.mindestalter", { monate: d.min_age_months })}`}
-      </p>
+      {c.auction_until ? (
+        <p className="erklaerung">
+          {t("wettbewerb.versteigerung_hilfe", { datum: formatDatum(c.auction_until) })}
+        </p>
+      ) : (
+        <p className="gedaempft">
+          {t("wettbewerb.kaufen_hilfe")}
+          {d.min_age_months > 0 && ` ${t("wettbewerb.mindestalter", { monate: d.min_age_months })}`}
+        </p>
+      )}
       <div className="karten">
         {d.sites.map((s) => (
           <article
@@ -442,7 +453,13 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
             </h4>
             {s.products.length > 0 && <p>{s.products.map((p) => t(`produkt.${p}`)).join(", ")}</p>}
             <p className="gedaempft">
-              {s.facilities.map(([f, n]) => `${n} × ${t(`anlage.${f}`)}`).join(", ")}
+              {s.facilities
+                .map(
+                  ([f, n, g]) =>
+                    `${n} × ${t(`anlage.${f}`)}` +
+                    (g === "mittel" ? "" : ` (${t(`anlagengroesse.${g}`)})`),
+                )
+                .join(", ")}
               {" · "}
               {t("wettbewerb.beschaeftigte", { anzahl: formatZahl(s.workers) })}
             </p>
@@ -452,18 +469,31 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
             <p>
               {t("wettbewerb.neubau")}: {formatGeld(s.new_build_usd)}
             </p>
-            {s.needed && <p className="gedaempft">{t("wettbewerb.selbst_gebraucht")}</p>}
+            {s.needed && !c.auction_until && (
+              <p className="gedaempft">{t("wettbewerb.selbst_gebraucht")}</p>
+            )}
+            {s.min_bid_usd !== null && (
+              <p>
+                <strong>{t("wettbewerb.mindestgebot")}:</strong> {formatGeld(s.min_bid_usd)}
+              </p>
+            )}
             {s.blocked === null ? (
               <Preisformular
                 key={`${s.site}/${geldSchluessel()}`}
                 ort={`kauf/${s.site}`}
                 vorschlag={
-                  s.needed
-                    ? Math.max(s.value.base_usd * 1.1, s.new_build_usd)
-                    : s.value.base_usd * 1.1
+                  s.min_bid_usd !== null
+                    ? s.min_bid_usd
+                    : s.needed
+                      ? Math.max(s.value.base_usd * 1.1, s.new_build_usd)
+                      : s.value.base_usd * 1.1
                 }
-                knopf={t("wettbewerb.anbieten")}
-                erfolg={t("wettbewerb.angebot_gesendet")}
+                knopf={s.min_bid_usd !== null ? t("wettbewerb.bieten") : t("wettbewerb.anbieten")}
+                erfolg={
+                  s.min_bid_usd !== null
+                    ? t("wettbewerb.gebot_abgegeben")
+                    : t("wettbewerb.angebot_gesendet")
+                }
                 befehl={(price) => ({
                   MakeOffer: { seller: c.index, object: { Site: s.site }, price },
                 })}

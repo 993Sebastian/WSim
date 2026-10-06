@@ -1027,6 +1027,18 @@ pub struct RawDealModel {
     #[serde(rename = "qualifiziert_ab_stufe")]
     pub qualified_rank: u8,
     pub ki: RawDealAi,
+    #[serde(rename = "insolvenz")]
+    pub insolvency: RawInsolvency,
+}
+
+/// Auction of the sites of an insolvent company (M38).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawInsolvency {
+    #[serde(rename = "tage")]
+    pub days: u32,
+    #[serde(rename = "mindestpreis")]
+    pub min_share: f64,
 }
 
 #[derive(Debug, Deserialize)]

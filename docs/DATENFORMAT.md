@@ -371,6 +371,7 @@ Standorte und Lizenzen (M30). Formeln in `docs/FORMELN.md` (M30). Werte der Form
 | **ertrag_mindestmonate** | 1–12: kürzer bestehende Standorte haben noch keinen Ertragswert |
 | **firmenwert_jahre** | 1–40: Abschreibung eines gekauften Firmenwerts |
 | **qualifiziert_ab_stufe** | Qualifikationsstufe, ab der Beschäftigte als qualifiziert zählen (eine Stufe aus `qualifikationen`) |
+| **insolvenz** | Pleiten (M38): `tage` (0–365; so lange werden die Standorte einer zahlungsunfähigen KI-Firma versteigert, 0 = sofort aufgeben), `mindestpreis` (0–1, Mindestgebot als Anteil des Grundwerts) |
 | **ki** | Verhalten der KI-Firmen: `angebot_chance` (je 0–1, Wahrscheinlichkeit je Monat), `offene_angebote_max` (0–20), `spieler_angebote_je_monat` (0–10, von allen KI-Firmen zusammen), `wettbewerb_aufschlag` (je 0–5), `fachkraefte_aufschlag` (0–5), `bauzeit_aufschlag` (0–5), `neubau_anteil` (0–1), `mindestvorteil` (0–5), `gebotsaufschlag` (je 0–5), `mindestpreis_usd` (≥ 0), `kasse_anteil_max` (0–1), `lizenz_gebot` (je 0–2), `lizenz_hoechst` (0–2), `verkaufsaufschlag` (je 0–5), `kern_anteil` (0–1), `kern_aufschlag` (0–10), `lizenz_mindest` (0–2), `wettbewerb_lizenz` (0–10), `gegen_schwelle` (0–1) |
 
 ## grundstuecksmodell

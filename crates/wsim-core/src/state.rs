@@ -299,6 +299,9 @@ pub struct Company {
     /// Advertising budgets per month (M16).
     #[serde(default)]
     pub advertising: Vec<Advertising>,
+    /// Last day of the auction of an insolvent company's sites (M38).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auction_until: Option<Date>,
 }
 
 /// How well consumers in a country know a company's brand for a goods group (0–1).

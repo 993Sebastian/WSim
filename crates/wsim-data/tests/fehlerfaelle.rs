@@ -588,6 +588,11 @@ fn kaufmodell_wird_geprueft() {
             "parameter/kaufmodell.yaml",
             "angebot_chance: {bei_0: 0.02,",
             "angebot_chance: {bei_0: 1.5,",
+        )
+        .ersetze(
+            "parameter/kaufmodell.yaml",
+            "insolvenz: {tage: 30, mindestpreis: 0.5}",
+            "insolvenz: {tage: 400, mindestpreis: 1.2}",
         );
     let outcome = d.laden();
     let f = befund(&outcome, "Qualifikationsstufe 9 gibt es nicht");
@@ -598,7 +603,22 @@ fn kaufmodell_wird_geprueft() {
         "kaufmodell.qualifiziert_ab_stufe",
     );
     befund(&outcome, "1.5");
-    nur_fehler(&outcome, 2);
+    // The auction of insolvent companies (M38): at most a year, a share of the base value.
+    let f = befund(&outcome, "400");
+    assert_ort(
+        f,
+        "parameter/kaufmodell.yaml",
+        d.zeile("parameter/kaufmodell.yaml", "insolvenz:"),
+        "kaufmodell.insolvenz.tage",
+    );
+    let f = befund(&outcome, "1.2");
+    assert_ort(
+        f,
+        "parameter/kaufmodell.yaml",
+        d.zeile("parameter/kaufmodell.yaml", "insolvenz:"),
+        "kaufmodell.insolvenz.mindestpreis",
+    );
+    nur_fehler(&outcome, 4);
 
     let ohne = Daten::neu().ohne("parameter/kaufmodell.yaml");
     let outcome = ohne.laden();

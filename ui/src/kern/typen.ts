@@ -884,6 +884,8 @@ export interface Firmenzeile {
   sites: number;
   real: boolean;
   player: boolean;
+  /** Last day of the auction of an insolvent company's sites (M38). */
+  auction_until: string | null;
 }
 
 export interface Firmen {
@@ -894,7 +896,8 @@ export interface FremderStandort {
   site: number;
   site_type: string;
   country: string;
-  facilities: [string, number][];
+  /** Facility, number of units and size (M36). */
+  facilities: [string, number, string][];
   products: string[];
   workers: number;
   value: Standortwert;
@@ -906,6 +909,8 @@ export interface FremderStandort {
   blocked: "zu_jung" | "angebot_offen" | "gesperrt" | null;
   blocked_until: string | null;
   open_offer: number | null;
+  /** Lowest bid while the site is auctioned (M38). */
+  min_bid_usd: number | null;
 }
 
 export interface Lizenzmoeglichkeit {

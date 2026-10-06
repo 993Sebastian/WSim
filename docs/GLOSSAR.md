@@ -243,3 +243,4 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Grundstück, Kauf, Pacht (Besitz) | `state::Plot`, `PlotId`, `Tenure` (`Owned`, `Leased`), `GameState::plots`, `Site::plot`; Konto `Account::Land`; Befehle `FoundSiteOnPlot`, `BuyPlot`; Modul `plots` |
 | Gewerbefläche eines Landes, freie Grundstücke | Sichten `LandView`, `PlotView` (`land_view`), `SitePlotView`; UI: `GrundstueckWahl`, `useGewerbeflaeche`, `GrundstueckKarte`, `Gewerbeflaechen` |
 | Anlagengröße (sehr klein bis sehr groß), Kapazitätsfaktor | `catalog::FacilitySize`, `SizeModel` (`ProductionModel::sizes`, `produktionsmodell.anlagengroessen`; M36) |
+| Versteigerung der Standorte einer insolventen Firma, Mindestgebot, Zuschlag | `Company::auction_until`, `deals::in_auction`, `deals::auction_minimum`, `close_auctions`, `auction_site`; `DealModel::insolvency_days`, `insolvency_min_share` (`kaufmodell.insolvenz`; M38) |

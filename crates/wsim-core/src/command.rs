@@ -257,6 +257,10 @@ pub enum CommandError {
     /// An offer to the acting company itself (M30).
     OwnObject,
     SellerBankrupt,
+    /// A bid in an auction below its minimum (M38).
+    BelowMinimumBid {
+        minimum: Money,
+    },
     /// The site or technology does not (or no longer) belong to the seller.
     NotSellersObject,
     SiteTooYoung {
@@ -346,6 +350,9 @@ impl CommandError {
             CommandError::PlotOwned => e(keys::COMMAND_PLOT_OWNED),
             CommandError::OwnObject => e(keys::COMMAND_OWN_OBJECT),
             CommandError::SellerBankrupt => e(keys::COMMAND_SELLER_BANKRUPT),
+            CommandError::BelowMinimumBid { minimum } => {
+                e(keys::COMMAND_BELOW_MINIMUM_BID).with("mindestgebot", Param::Money(*minimum))
+            }
             CommandError::NotSellersObject => e(keys::COMMAND_NOT_SELLERS_OBJECT),
             CommandError::SiteTooYoung { months } => {
                 e(keys::COMMAND_SITE_TOO_YOUNG).with("monate", Param::Integer(i64::from(*months)))

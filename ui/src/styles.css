@@ -569,6 +569,12 @@ td {
   color: var(--warnung);
 }
 
+/* Insolvent companies whose sites are auctioned (M38) */
+.marke.warnmarke {
+  background: var(--warnung);
+  color: var(--flaeche);
+}
+
 .ereignis-kopf {
   display: flex;
   flex-wrap: wrap;

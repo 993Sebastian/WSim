@@ -536,6 +536,10 @@ pub struct DealModel {
     /// Workers from this qualification rank on count as qualified.
     pub qualified_rank: u8,
     pub ai: DealAi,
+    /// Days the sites of an insolvent AI company are auctioned (M38; 0: given up at once).
+    pub insolvency_days: u32,
+    /// Lowest bid in such an auction, as share of a site's base value.
+    pub insolvency_min_share: f64,
 }
 
 /// How AI companies buy and sell (spans over aggressiveness).
@@ -614,6 +618,9 @@ impl Default for DealModel {
                 license_competition: 1.0,
                 counter_threshold: 0.7,
             },
+            // Catalogs without auctions give the sites up at once.
+            insolvency_days: 0,
+            insolvency_min_share: 0.5,
         }
     }
 }

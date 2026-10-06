@@ -87,6 +87,7 @@ pub(super) fn decode_v2(
             Ok(Company {
                 brands: Vec::new(),
                 advertising: Vec::new(),
+                auction_until: None,
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

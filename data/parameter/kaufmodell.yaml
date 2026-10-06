@@ -11,6 +11,10 @@ kaufmodell:
   ertrag_mindestmonate: 3        # kürzer bestehende Standorte haben noch keinen Ertragswert
   firmenwert_jahre: 10           # Abschreibung eines gekauften Firmenwerts (wie HGB § 253 Abs. 3)
   qualifiziert_ab_stufe: 3       # Fachkräfte und Akademiker zählen als qualifiziert
+  # Pleiten (M38): Die Standorte einer zahlungsunfähigen KI-Firma werden so viele Tage
+  # versteigert; das Mindestgebot ist dieser Anteil ihres Grundwerts. Was keiner nimmt,
+  # wird aufgegeben (Konzession und Grundstück werden frei).
+  insolvenz: {tage: 30, mindestpreis: 0.5}
 
   ki:
     angebot_chance: {bei_0: 0.02, bei_1: 0.06}   # je Firma und Monat

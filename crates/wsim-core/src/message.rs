@@ -105,8 +105,13 @@ pub mod keys {
     pub const COMMAND_PLOT_NOT_NEEDED: &str = "fehler.befehl.grundstueck_unnoetig";
     pub const COMMAND_PLOT_TOO_SMALL: &str = "fehler.befehl.grundstueck_zu_klein";
     pub const COMMAND_PLOT_OWNED: &str = "fehler.befehl.grundstueck_gekauft";
+    pub const COMMAND_BELOW_MINIMUM_BID: &str = "fehler.befehl.unter_mindestgebot";
     pub const GAME_OVER_INSOLVENT: &str = "meldung.spielende_insolvenz";
     pub const COMPANY_INSOLVENT: &str = "meldung.firma_insolvent";
+    pub const COMPANY_INSOLVENT_AUCTION: &str = "meldung.firma_insolvent_versteigerung";
+    pub const AUCTION_WON: &str = "meldung.versteigerung.ersteigert";
+    pub const AUCTION_LOST: &str = "meldung.versteigerung.verloren";
+    pub const AUCTION_SOLD: &str = "meldung.versteigerung.verkauft";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
@@ -236,8 +241,13 @@ pub mod keys {
         COMMAND_PLOT_NOT_NEEDED,
         COMMAND_PLOT_TOO_SMALL,
         COMMAND_PLOT_OWNED,
+        COMMAND_BELOW_MINIMUM_BID,
         GAME_OVER_INSOLVENT,
         COMPANY_INSOLVENT,
+        COMPANY_INSOLVENT_AUCTION,
+        AUCTION_WON,
+        AUCTION_LOST,
+        AUCTION_SOLD,
         OVERDRAFT,
         NAME_EMPTY,
         NAME_TOO_LONG,

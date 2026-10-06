@@ -594,12 +594,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
             .flat_map(|s| s.slots.iter())
             .filter_map(|sl| {
                 let r = catalog.recipes.get(sl.recipe?);
-                (r.product == product).then(|| {
-                    catalog.facilities.get(sl.facility).runs_per_day
-                        * f64::from(sl.count)
-                        * r.output
-                        * 30.0
-                })
+                (r.product == product).then(|| sl.full_runs(catalog) * r.output * 30.0)
             })
             .sum();
         if sold <= 0.0 && demand <= 0.0 && capacity <= 0.0 {

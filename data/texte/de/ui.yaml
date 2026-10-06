@@ -883,6 +883,11 @@ wettbewerb.grundwert_bereich_hilfe: Die Grundwerte aller Standorte des Bereichs 
 wettbewerb.ertrag_fehlt: Ertragswert (noch kein Jahresergebnis)
 wettbewerb.ertragswert: "Ertragswert: Ergebnis {ergebnis} im Jahr × {jahre}"
 wettbewerb.restwert: Restwert der Anlagen
+wettbewerb.versteigerung_bis: "insolvent – Versteigerung bis {datum}"
+wettbewerb.versteigerung_hilfe: "Die Firma ist zahlungsunfähig. Ihre Standorte werden bis {datum} versteigert, mit Anlagen, Lager, Grundstück und erschlossener Lagerstätte. Biete mindestens das Mindestgebot: Den Zuschlag bekommt das höchste Gebot, bezahlt wird aber nur das zweithöchste (mindestens das Mindestgebot). Was niemand ersteigert, wird aufgegeben."
+wettbewerb.mindestgebot: Mindestgebot
+wettbewerb.bieten: Bieten
+wettbewerb.gebot_abgegeben: Gebot abgegeben – der Zuschlag fällt am Ende der Versteigerung.
 wettbewerb.grundstueck: Grundstück (heutiger Wert)
 wettbewerb.im_bau: Anlagen im Bau
 wettbewerb.lager: Lager

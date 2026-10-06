@@ -93,6 +93,10 @@ fehler.befehl.laufzeit_ungueltig: Die Laufzeit muss zwischen 1 und {max} Jahren 
 fehler.befehl.kredit_unbekannt: Diesen Kredit gibt es nicht.
 meldung.spielende_insolvenz: Die Firma ist zahlungsunfähig, und keine Bank gibt mehr Kredit. Die Partie ist zu Ende.
 meldung.firma_insolvent: „{firma}“ ist zahlungsunfähig.
+meldung.firma_insolvent_versteigerung: "„{firma}“ ist zahlungsunfähig. Ihre {anzahl} Standorte werden bis {datum} versteigert – Gebote ab dem halben Grundwert unter „Wettbewerb“."
+meldung.versteigerung.ersteigert: "Ersteigert: {art} in {land} aus der Insolvenz von „{firma}“ für {preis}."
+meldung.versteigerung.verloren: "Versteigerung verloren: {art} in {land} aus der Insolvenz von „{firma}“ ging an „{kaeufer}“ für {preis}."
+meldung.versteigerung.verkauft: "„{kaeufer}“ übernimmt {art} in {land} aus der Insolvenz von „{firma}“ für {preis}."
 warnung.konto_ueberzogen: Das Konto ist um {betrag} überzogen (Kreditlinie {limit}). Ohne neuen Kredit droht die Zahlungsunfähigkeit.
 
 # Konten und Kostenarten (Berichte)
@@ -147,6 +151,7 @@ fehler.befehl.zu_viele_einheiten: "Die Anlage hat nur {anzahl} Einheiten."
 # Kaufangebote (M30)
 fehler.befehl.eigenes_angebot: Der eigenen Firma kann man nichts abkaufen.
 fehler.befehl.verkaeufer_insolvent: Diese Firma ist insolvent.
+fehler.befehl.unter_mindestgebot: "Das Gebot liegt unter dem Mindestgebot von {mindestgebot}."
 fehler.befehl.nicht_im_besitz: Das gehört dieser Firma nicht (mehr).
 fehler.befehl.standort_zu_jung: "Ein Standort lässt sich erst {monate} Monate nach seiner Gründung kaufen."
 fehler.befehl.lizenz_unmoeglich: Eine Lizenz gibt es nur auf eine Technologie, die der Verkäufer kennt und der Käufer noch nicht.

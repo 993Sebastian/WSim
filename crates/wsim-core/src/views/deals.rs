@@ -283,11 +283,15 @@ pub struct CompanyRowView {
     pub sites: u32,
     pub real: bool,
     pub player: bool,
+    /// Last day of the auction of an insolvent company's sites (M38).
+    #[serde(default)]
+    pub auction_until: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CompaniesView {
-    /// Active companies, largest equity first.
+    /// Active companies and insolvent ones whose sites are auctioned (M38), largest
+    /// equity first.
     pub companies: Vec<CompanyRowView>,
 }
 
@@ -303,6 +307,10 @@ fn row(state: &GameState, catalog: &crate::catalog::Catalog, id: CompanyId) -> C
             .unwrap_or(u32::MAX),
         real: c.ai.as_ref().is_some_and(|a| a.real.is_some()),
         player: id == state.player,
+        auction_until: deals::in_auction(state, id)
+            .then_some(c.auction_until)
+            .flatten()
+            .map(iso),
     }
 }
 
@@ -312,7 +320,9 @@ pub fn companies(game: &Game) -> CompaniesView {
         .companies
         .iter()
         .enumerate()
-        .filter(|(_, c)| !c.bankrupt)
+        .filter(|(i, c)| {
+            !c.bankrupt || deals::in_auction(state, CompanyId(u32::try_from(*i).unwrap_or(0)))
+        })
         .map(|(i, _)| {
             row(
                 state,
@@ -336,8 +346,8 @@ pub struct ForeignSiteView {
     /// Text key of the site type.
     pub site_type: String,
     pub country: String,
-    /// Facility keys with their number of units.
-    pub facilities: Vec<(String, u32)>,
+    /// Facility keys with their number of units and their size (M36).
+    pub facilities: Vec<(String, u32, String)>,
     pub products: Vec<String>,
     pub workers: f64,
     pub value: SiteValueView,
@@ -351,6 +361,9 @@ pub struct ForeignSiteView {
     pub blocked: Option<String>,
     pub blocked_until: Option<String>,
     pub open_offer: Option<u32>,
+    /// Lowest bid while the site is auctioned (M38).
+    #[serde(default)]
+    pub min_bid_usd: Option<f64>,
 }
 
 /// A technology of another company the player could license.
@@ -431,7 +444,9 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
     let catalog = game.catalog();
     let id = CompanyId(index);
     let company = state.companies.get(id.index())?;
-    if company.bankrupt {
+    // Insolvent companies show while their sites are auctioned (M38).
+    let auction = deals::in_auction(state, id);
+    if company.bankrupt && !auction {
         return None;
     }
     let player = state.player;
@@ -449,6 +464,8 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
                 (None, None)
             } else if let Some(_offer) = open {
                 (Some("angebot_offen"), None)
+            } else if auction {
+                (None, None)
             } else if ready > state.date {
                 (Some("zu_jung"), Some(ready))
             } else if let Some(until) = blocked {
@@ -463,7 +480,13 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
                 facilities: s
                     .slots
                     .iter()
-                    .map(|sl| (catalog.facilities.key(sl.facility).to_owned(), sl.count))
+                    .map(|sl| {
+                        (
+                            catalog.facilities.key(sl.facility).to_owned(),
+                            sl.count,
+                            sl.size.key().to_owned(),
+                        )
+                    })
                     .collect(),
                 products: products_of(game, site),
                 workers: s.workforce.values().sum(),
@@ -473,6 +496,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
                 blocked: reason.map(str::to_owned),
                 blocked_until: until.map(iso),
                 open_offer: open,
+                min_bid_usd: auction.then(|| usd(deals::auction_minimum(state, catalog, site))),
             }
         })
         .collect();
@@ -480,7 +504,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == id && deals::area_kind(s.kind))
+        .filter(|(_, s)| s.owner == id && !company.bankrupt && deals::area_kind(s.kind))
         .flat_map(|(i, _)| {
             deals::site_groups(state, catalog, SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
         })
@@ -525,7 +549,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
             }
         })
         .collect();
-    let licenses = if id == player {
+    let licenses = if id == player || company.bankrupt {
         Vec::new()
     } else {
         catalog

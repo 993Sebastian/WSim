@@ -1775,3 +1775,33 @@ Zahl = max(1, round(U / k)). Beispiele: U = 0,3 → 1 × sehr klein; U = 1 → 1
 U = 3 → 2 × groß; U = 5 → 1 × sehr groß; U = 12 → 3 × sehr groß. Reichen Grundstück
 (M35) oder Budget nicht, baut sie so viele Einheiten, wie passen; passt nicht einmal eine,
 versucht sie die nächstkleinere Größe mit ihrer Zahl.
+
+## M38 – Pleiten: Versteigerung der Standorte
+
+Offene Punkte, Abschnitt K. Parameter: `data/parameter/kaufmodell.yaml`, Abschnitt
+`insolvenz`.
+
+Wird eine KI-Firma zahlungsunfähig (M6), stehen ihre Werke nicht mehr einfach still und
+verschwinden: Der Insolvenzverwalter versteigert jeden Standort `insolvenz.tage` Tage lang.
+
+- **Während der Versteigerung** ruht der Standort: keine Erzeugung, die Belegschaft ist
+  entlassen, Angebote und Einkäufe enden. Anlagen, Lager, die erschlossene Konzession und
+  das Grundstück bleiben.
+- **Mindestgebot** = `insolvenz.mindestpreis` · Grundwert des Standorts (M30) am Tag des
+  Gebots bzw. am Ende.
+- **Gebote:** Der Spieler bietet wie bei Kaufangeboten (Wettbewerb → Firma → Standort),
+  mindestens das Mindestgebot, höchstens seine Kasse. Jede aktive KI-Firma bietet am Ende
+  ihren Höchstpreis (M30: Grundwert · (1 + Aufschläge)), wenn er das Mindestgebot erreicht
+  und in `kasse_anteil_max` ihrer Kasse passt.
+- **Zuschlag** am letzten Tag, Standort für Standort in ihrer Reihenfolge: das höchste
+  Gebot; bezahlt wird das zweithöchste Gebot, mindestens das Mindestgebot (wer am meisten
+  bietet, zahlt nicht mehr als nötig). Die Übergabe bucht wie ein Kauf (M30): Anlagen,
+  Lager, Grundstück und Konzession gehen an den Käufer; ein Erlös über dem Buchwert ist
+  ein Ertrag der insolventen Firma.
+- **Ohne Gebot** wird der Standort aufgegeben wie bisher: Konzession und Grundstück
+  werden frei.
+
+Der Käufer übernimmt den Standort mit erschlossener Konzession und fertigen Anlagen und
+stellt nur Personal ein; so fällt die Erzeugung höchstens für die Dauer der Versteigerung
+aus statt für Erschließung und Bau (1955 kostete Erz nach dem Ausfall eines Förderers
+das 3,7-Fache des Richtpreises).

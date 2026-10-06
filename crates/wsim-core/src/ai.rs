@@ -2247,6 +2247,7 @@ fn research_plan(
 /// Bankrupt companies leave the market: their staff is released, their offers and
 /// orders end and their concessions become free.
 pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
+    stop_operations(state, id);
     let given_up: Vec<SiteId> = state
         .sites
         .iter()
@@ -2255,12 +2256,14 @@ pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
         .map(|(i, _)| site_id(i))
         .collect();
     for site in given_up {
-        crate::plots::release(state, site);
+        give_up_site(state, site);
     }
-    for (i, s) in state.sites.iter_mut().enumerate() {
-        if s.owner != id {
-            continue;
-        }
+}
+
+/// An insolvent company stops working: its staff is released, its offers and purchases
+/// end, its research stops (M38: its sites wait for the auction).
+pub(crate) fn stop_operations(state: &mut GameState, id: CompanyId) {
+    for s in state.sites.iter_mut().filter(|s| s.owner == id) {
         for w in s.workforce.iter_mut().map(|(_, w)| w) {
             *w = 0.0;
         }
@@ -2268,14 +2271,18 @@ pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
         s.orders.clear();
         s.research = None;
         s.staffing_due = false;
-        if let Some(d) = s.deposit {
-            let site = site_id(i);
-            for c in &mut state.deposits.get_mut(d).concessions {
-                if c.site == Some(site) {
-                    c.site = None;
-                    c.ready = None;
-                    c.development_cost = Money::ZERO;
-                }
+    }
+}
+
+/// A site nobody took over: its plot and its concession become free.
+pub(crate) fn give_up_site(state: &mut GameState, site: SiteId) {
+    crate::plots::release(state, site);
+    if let Some(d) = state.sites[site.index()].deposit {
+        for c in &mut state.deposits.get_mut(d).concessions {
+            if c.site == Some(site) {
+                c.site = None;
+                c.ready = None;
+                c.development_cost = Money::ZERO;
             }
         }
     }
@@ -2945,6 +2952,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
     state.companies.push(Company {
         brands: Vec::new(),
         advertising: Vec::new(),
+        auction_until: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3108,6 +3116,7 @@ mod tests {
         state.companies.push(Company {
             brands: Vec::new(),
             advertising: Vec::new(),
+            auction_until: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

@@ -95,6 +95,7 @@ fn competitor(game: &mut Game) -> CompanyId {
     state.companies.push(Company {
         brands: Vec::new(),
         advertising: Vec::new(),
+        auction_until: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Käufer".into(),
         kind: CompanyKind::Ai,

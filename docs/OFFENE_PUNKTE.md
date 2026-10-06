@@ -565,6 +565,14 @@ die Standorte zuerst anderen Firmen an (Auktion zum halben Grundwert, M30, auch 
 Spieler); was keiner nimmt, wird stillgelegt. Die Erschließung einer Konzession bleibt
 erhalten, ein neuer Betreiber muss nur die Anlagen bauen.
 
+Umgesetzt mit M38 (Formeln: `docs/FORMELN.md`, Abschnitt M38). 🟡 Eigenständig
+entschieden: Die Versteigerung dauert 30 Tage, das Mindestgebot ist der halbe Grundwert.
+Den Zuschlag bekommt das höchste Gebot zum Preis des zweithöchsten (so bietet jeder
+ehrlich, was ihm der Standort wert ist); jede KI-Firma bietet ihren Höchstpreis aus M30,
+soweit ihre Kasse reicht. Bei Gleichstand gewinnt eine Firma, die im Land schon vertreten
+ist. Ein Standort ohne Gebot wird wie bisher aufgegeben (Konzession und Grundstück frei).
+Lizenzen und Bereiche einer insolventen Firma werden nicht versteigert.
+
 ## L Bedienung und Tests (Anfrage vom 06.10.2026)
 
 Auftrag: „Bitte führe reichlich komplette Testläufe durch. Achte dabei auch auf

@@ -43,16 +43,16 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M32 | Produkte 1915–1939 | ✅ |
 | M33 | Produkte 1940–1964 | ✅ |
 | M34 | Regionen | ✅ |
-| M35 | Grundstücke mit Lage | offen |
-| M36 | Anlagen in fünf Größen | offen |
+| M35 | Grundstücke mit Lage | ✅ |
+| M36 | Anlagen in fünf Größen | ✅ |
 | M37 | Weiterentwicklung erforschter Produkte | offen |
-| M38 | Pleiten: Standorte weitergeben | offen |
+| M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39–M41 | Produktepochen 1965–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
 (Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
-M39–M41; M30–M34 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
+M39–M41; M30–M36 und M38 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
 und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
 
 ## Eigenständige Entscheidungen (für das Review)
@@ -1150,6 +1150,14 @@ Standort (offene Punkte, Abschnitt H; entschieden: Lage gleich mit).
   Grundstück; Rundgang der Einführung mit „Standorte und Grundstücke“.
 - Tests: acht Kerntests (`plots_tests`), Prüfregeln, Oberfläche (Gründen auf gewähltem
   Grundstück, Kauf, volle Grundstücke, Länderdetail, Einführung).
+- **Weltläufe 1900–1965** (Seed 1, 100 KI-Firmen): Im ersten Lauf wurde fast jeder
+  Ausbau ein eigener Standort (6 507 statt 2 143 Standorte 1965, 47 statt 21 Minuten
+  Rechenzeit): Der volle älteste Standort blieb der beste Kandidat, neue Grundstücke
+  fassten keinen weiteren Ausbau. Seitdem baut die KI auf freier Fläche eines anderen
+  eigenen Standorts im Land weiter, und neue Grundstücke fassen das Dreifache des
+  Vorhabens (`ki_reserve`). Zweiter Lauf: 23 Minuten, 12 Pleiten bis 1965 (M34: 9),
+  Versorgung weltweit 209 Verstöße (M34: 136) – Ausbauten auf neuen Grundstücken
+  brauchen länger; die Anlagengrößen (M36) gleichen das wieder aus.
 
 ### M36: Anlagen in fünf Größen (06.10.2026)
 
@@ -1172,4 +1180,32 @@ Abschnitt H, Punkt 9).
   die Größe.
 - Tests: Größenmodell, große Anlage (Kosten, Leistung, Personal, Stückkosten),
   Spielstände und alte Befehle, Größenwahl der KI bei Geld- und Platzmangel.
+- **Weltlauf 1900–1965** (Seed 1, 100 KI-Firmen): 22 Minuten, 2 412 Standorte, 11 Pleiten.
+  Gegenüber dem zweiten M35-Lauf: Versorgung weltweit 147 statt 209 Verstöße, Erzeugung
+  ohne Vorprodukte 68 statt 138, ohne Arbeitskräfte 25 statt 52 (M34: 91), Margen außerhalb
+  −20 % bis 50 % 234 statt 363 (M34: 309). Billig bleiben Automobil, Fahrgestell, Blech
+  und Glühlampe (unter dem halben Richtpreis).
+- Nachtrag (mit M38): Balance-Protokoll und Weltbericht der Kommandozeile rechneten die
+  Kapazität und den Bedarf an Vorprodukten noch ohne Anlagengröße; die Rohstoff-Prüfung
+  dieses Laufs (Kohle 57 %, Bauxit 74 %) war dadurch verzerrt. Behoben.
+
+### M38: Pleiten – Standorte werden versteigert (06.10.2026)
+
+Auftrag aus dem Weltlauf (offene Punkte, Abschnitt K): Geht eine KI-Firma pleite, sollen
+ihre Werke nicht einfach verschwinden.
+
+- **Daten und Formeln:** `kaufmodell.insolvenz` (30 Tage Versteigerung, Mindestgebot der
+  halbe Grundwert; 0 Tage = sofort aufgeben wie bisher). Formeln: `docs/FORMELN.md`,
+  Abschnitt M38. Prüfregeln mit Fehlerfall-Test.
+- **Kern:** Eine zahlungsunfähige KI-Firma ruht (keine Erzeugung, kein Personal, keine
+  Angebote und Einkäufe); ihre Standorte werden versteigert. Gebote des Spielers über
+  `MakeOffer` (mindestens das Mindestgebot, sonst Fehler), die KI bietet am Ende ihren
+  Höchstpreis aus M30, soweit die Kasse reicht. Zuschlag zum zweithöchsten Gebot; die
+  Übergabe bucht wie ein Kauf (Anlagen, Lager, Grundstück, Konzession). Ohne Gebot wird
+  der Standort aufgegeben. Meldungen für Pleite, Zuschlag, Verlust und Verkauf.
+- **Oberfläche:** Firmenliste mit „insolvent – Versteigerung bis …“, Firmenseite mit
+  Erklärung, Mindestgebot je Standort und Knopf „Bieten“; fremde Standorte nennen die
+  Größe ihrer Anlagen.
+- Tests: Zuschlag zum zweiten Preis, Übernahme durch die KI zum Mindestgebot, Aufgabe ohne
+  Gebot (Kern); Versteigerung in der Wettbewerbsansicht (Oberfläche).
 

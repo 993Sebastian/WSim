@@ -176,6 +176,7 @@ impl Game {
         let player = Company {
             brands: Vec::new(),
             advertising: Vec::new(),
+            auction_until: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,

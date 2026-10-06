@@ -198,6 +198,10 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Firma einen Standort selbst – den Strom eines Kraftwerks für ihre Werke im Land oder
   ihr einziges Labor –, steht das dabei: Unter dem Neubaupreis verkauft sie ihn nicht,
   und der Preisvorschlag beginnt dort.
+- **Versteigerungen (M38):** Zahlungsunfähige Firmen bleiben in der Firmenliste, solange
+  ihre Standorte versteigert werden („insolvent – Versteigerung bis …“). Ihre Seite
+  erklärt den Ablauf; jeder Standort zeigt das Mindestgebot, das Preisfeld schlägt es vor,
+  der Knopf heißt „Bieten“. Der Rundenbericht meldet Zuschlag oder Verlust.
 - **Bereiche (M31):** Unter den Standorten einer Firma stehen ihre Bereiche – je
   Warengruppe alle Standorte, die Waren der Gruppe herstellen oder anbieten, mit der
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und

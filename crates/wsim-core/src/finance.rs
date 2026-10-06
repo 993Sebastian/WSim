@@ -181,6 +181,23 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
         if id == state.player {
             state.game_over = true;
             messages.push(Message::new(MessageKind::Crisis, keys::GAME_OVER_INSOLVENT));
+        } else if catalog.deal_model.insolvency_days > 0 {
+            // The sites are auctioned before they are given up (M38).
+            crate::ai::stop_operations(state, id);
+            let until = state
+                .date
+                .add_days(i32::try_from(catalog.deal_model.insolvency_days).unwrap_or(i32::MAX));
+            state.companies[index].auction_until = Some(until);
+            let sites = state.sites.iter().filter(|s| s.owner == id).count();
+            messages.push(
+                Message::new(MessageKind::Info, keys::COMPANY_INSOLVENT_AUCTION)
+                    .with("firma", Param::Text(state.companies[index].name.clone()))
+                    .with(
+                        "anzahl",
+                        Param::Integer(i64::try_from(sites).unwrap_or(i64::MAX)),
+                    )
+                    .with("datum", Param::Date(until)),
+            );
         } else {
             crate::ai::release_assets(state, id);
             messages.push(
