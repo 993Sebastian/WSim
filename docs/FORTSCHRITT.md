@@ -48,8 +48,9 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M37 | Weiterentwicklung erforschter Produkte | ✅ |
 | M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39 | Produkte 1965–1989 | ✅ |
-| M40 | Produkte 1990–2009 | in Arbeit (Daten committet, Weltläufe bis 2010 laufen) |
-| M41 | Produkte 2010–2026 | offen |
+| M40 | Produkte 1990–2009 | ✅ |
+| M41 | Produkte 2010–2026 | in Arbeit |
+| M42 | Produktnamen je Firma | in Arbeit (nach M41) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1125,6 +1126,15 @@ Wunsch: „Mehr KI-Gegner. Mache einen Simulationslauf mit 500 Gegnern.“
   Bestandsaufnahme für alle Firmen, bis gebaut wird. Bei 500 Firmen sinkt die Rechenzeit
   für 1900–1901 von 32 auf 22 Sekunden. Die Ergebnisse bleiben gleich (gleiche
   Zustands-Hashes bei 100 und 500 Firmen).
+- **Weltlauf 1900–1990 mit 500 KI-Firmen** (Stand M39, Seed 1): 184 Minuten, im Mittel
+  2 Minuten je Spieljahr (100 Firmen: 43 Minuten). Am Ende 582 Firmen, davon 82 pleite,
+  9 724 Standorte. Gegen den Lauf mit 100 Firmen: weniger Versorgungslücken (weltweit
+  158 statt 204 Verstöße, je Land 4 096 statt 5 440), mehr Preise außerhalb des 0,5- bis
+  2-Fachen des Richtpreises (1 583 statt 1 262; mehr Wettbewerb drückt die Preise).
+  Rohstoffe bleiben bis 1970 wie mit 100 Firmen beim 0,9- bis 1,1-Fachen; ab 1980 werden
+  Holz (2,4-fach), Getreide (1,3- bis 1,7-fach) und Baumwolle (1,6-fach) knapp,
+  Schnittholz ist 1989 nur zu 55 % versorgt – dieselbe Holzknappheit wie mit 100 Firmen,
+  nur zehn Jahre früher. Das prüft der Weltlauf bis 2010 (M40).
 
 ### M35: Grundstücke (06.10.2026)
 
@@ -1321,7 +1331,7 @@ Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
   53 % versorgt) – das prüft der Weltlauf bis 2010 (M40). Siliziumwerk und Quarzbruch
   sind nach diesen Läufen verkleinert.
 
-### M40: Produkte 1990–2009 (06.10.2026, Zwischenstand)
+### M40: Produkte 1990–2009 (06.10.2026)
 
 - **Daten** (Entwurf eines Hilfsagenten im Scratchpad, geprüft und übernommen): Ketten
   35–41 – Lithium-Ionen-Akku mit Lithium und Kobalt (10 bzw. 8 Lagerstätten),
@@ -1335,6 +1345,30 @@ Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
   10 ha statt 25 ha Fläche.
 - **Oberfläche:** Beispieldaten der Vorschau mit den Daten bis 2009 erneuert; die
   Oberflächentests nennen die neuen Werte (Marge, Kaufangebot, Standortnummer).
+- **Weltläufe 1900–2010** (100 KI-Firmen, je gut eine Stunde; am Ende 120 Firmen, davon
+  20 pleite). Erste Ware / zu 90 % versorgt, Preis 2009 gegen den Richtpreis:
+
+  | | Seed 1 | Seed 2 |
+  | --- | --- | --- |
+  | Mobiltelefon (1992) | 1997 / 2004, 2,4-fach | 1997 / 2001, 0,8-fach |
+  | Laptop (1989) | 1998 / 2005, 1,2-fach | 1999 / 2003, 1,3-fach |
+  | Digitalkamera (1991) | 1998 / 2004, 1,0-fach | 1997 / 2000, 0,8-fach |
+  | Flachbildfernseher (2001) | 2004 / 2008, 2,7-fach | 2006 / 2009, 2,7-fach |
+  | DVD-Spieler (1996) | 1998 / nie (2009: 30 %), 3,3-fach | 1997 / 1999, 0,7-fach |
+  | LCD-Panel, Akku, Mikrochip 2009 | 3,0- / 2,3- / 1,0-fach | 3,9- / 1,7- / 0,9-fach |
+
+- **Ursache der hohen Preise** (neues Diagnosekommando `wsim angebote <spielstand>
+  <produkt>`: Angebote mit Preis, Preisboden, Auslastung, Lager und die Firmen, die das
+  Verfahren kennen): 2009 kennen 25 Firmen die LCD-Technik, drei bauen Panels. In den USA
+  kosten sie 11 000 USD je m², in China 3 000–5 800 USD bei halb leeren Werken. Händler
+  beliefern nur Märkte mit offener Nachfrage; ein Land, das sich zu hohen Preisen selbst
+  versorgt, bekommt keine billigere Ware. Vorschlag (Arbitragehandel) in
+  `docs/OFFENE_PUNKTE.md`, Abschnitt G – erst nach Freigabe, weil er alle Märkte ändert.
+- **Holz und Baumwolle:** Holz kostete ab 1997 das 2- bis 2,5-Fache, Schnittholz war 2009
+  nur zu 42–67 % versorgt, Baumwolle bis zum 3,6-Fachen. Der Förderindex der Baumwolle
+  folgt jetzt der Welternte (2010 das 6,9-Fache von 1900 statt 5,0); Holz bekommt ab 1980
+  einen Zuschlag für Altpapier, Sägenebenprodukte und Plantagenholz (2000: 4,0 statt 3,4).
+  Die Wirkung prüft der Weltlauf bis 2026 (M41).
 
 ### Keine echten Produktnamen (06.10.2026)
 

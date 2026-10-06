@@ -22,7 +22,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - `crates/wsim-session` – Spielsitzung für Oberflächen (neues Spiel, Runden,
   Spielstände); antwortet mit Sichten aus `wsim_core::views`.
 - `crates/wsim-cli` – Läufe ohne Oberfläche, `validate`, Balance-Protokolle;
-  `land <ISO>` und `route <von> <nach>` zeigen Länderwerte und Transportwege;
+  `land <ISO>` und `route <von> <nach>` zeigen Länderwerte und Transportwege,
+  `angebote <spielstand> <produkt>` die Angebote eines Produkts in einem Spielstand;
   `run --ki <n> --welt` zeigt einen Weltlauf; `beispielsichten ui/src/kern/beispiel.json`
   erneuert die Beispieldaten der Browser-Vorschau (nach Änderungen an den Sichten).
 - `app/src-tauri` – dünner Adapter zwischen Kern und Oberfläche.

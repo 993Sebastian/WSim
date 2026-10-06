@@ -13,9 +13,10 @@ produkte:
     transportklasse: schuettgut   # in Ballen
     richtpreis_usd: 6000          # um 1900 etwa 9 Cent je lb
     # Höchstförderung der Lagerstätten gegenüber 1900 (mehr Fläche, höhere Erträge):
-    # Baumwollernte der Welt etwa 3,6 Mio. t (1900), 6,0 (1930), 6,6 (1950); dazu Wolle,
-    # Flachs und ab den 1920ern Kunstseide. Fasern insgesamt 1930 etwa das 1,6-Fache.
-    foerderindex: {1900: 1.0, 1930: 1.65, 1950: 1.9, 1970: 3.0, 2000: 4.5, 2026: 5.5}
+    # Baumwollernte der Welt etwa 3,6 Mio. t (1900), 6,0 (1930), 6,6 (1950), 11,7 (1970),
+    # 18,9 (1990), 19,3 (2000), 25 (2010); dazu Wolle, Flachs und ab den 1920ern
+    # Kunstseide. Fasern insgesamt 1930 etwa das 1,6-Fache.
+    foerderindex: {1900: 1.0, 1930: 1.65, 1950: 1.9, 1970: 3.2, 1990: 5.2, 2000: 5.4, 2010: 6.9, 2026: 6.9}
     # Pacht je Tonne als Anteil am Richtpreis: Pächter und Teilpächter im Baumwollgürtel
     # gaben um 1900 ein Drittel bis die Hälfte der Ernte an die Landbesitzer ab.
     pacht_anteil: 0.5

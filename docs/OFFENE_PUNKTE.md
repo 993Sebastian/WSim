@@ -412,6 +412,27 @@ Farbbildröhre und Magnetron als Vorprodukte; Transistoren auch aus Silizium (Ei
    voll versorgt (Taschenrechner 1973–1977, Personal Computer 1983, CD-Spieler
    1987–1989); Holz wird in einem der Weltläufe ab 1986 teuer.
 
+✅ **M40 (1990–2009) umgesetzt:** Mobiltelefon, Laptop, Digitalkamera,
+Lithium-Ionen-Akku (mit Lithium und Kobalt), LCD-Panel, Flachbildfernseher und
+DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschieden:
+
+1. **LCD-Panel in m² Bildfläche** (neue Einheit `m2`), so passen Laptop, Mobiltelefon,
+   Digitalkamera und Fernseher mit ihren Bildgrößen an dasselbe Vorprodukt.
+2. **Chipgehäuse aus Glas und Keramik** statt Phenolharz: Phenolharz war in den
+   Chipländern knapp, und nach der Ausbauregel baute niemand mehr aus.
+3. **Holz und Baumwolle:** Der Förderindex folgt bei Baumwolle der Welternte (2010 das
+   6,9-Fache von 1900); bei Holz kommt ab 1980 ein Zuschlag für Altpapier,
+   Sägenebenprodukte und Plantagenholz hinzu, die das Spiel nicht eigens abbildet.
+4. **Bekannte Grenze, mit Vorschlag:** Neue Elektronik bleibt in einzelnen Ländern lange
+   beim 2,5- bis 3-Fachen des Richtpreises, obwohl sie anderswo billig zu haben ist
+   (2009: LCD-Panel in den USA 11 000 USD je m², in China 3 000–5 800 USD; 25 Firmen
+   kennen das Verfahren, drei bauen). Grund: Händler beliefern nur Märkte mit offener
+   Nachfrage. Ist ein Land zu hohen Preisen versorgt, kommt keine billigere Ware herein.
+   🟡 Vorschlag: Händler kaufen auch dann im Ausland, wenn die Ware dort samt Fracht und
+   Händlerspanne deutlich billiger ist als im Land (Arbitrage), bis sich die Preise auf
+   den Frachtabstand angleichen. Das ändert alle Märkte und braucht Weltläufe über alle
+   Epochen; deshalb erst nach Freigabe.
+
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 
 Auftrag: „Es sollte verschiedene Größen von Werken geben. In jedem Land stehen nur

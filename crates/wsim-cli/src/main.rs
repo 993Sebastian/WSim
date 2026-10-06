@@ -67,6 +67,16 @@ enum Command {
         #[arg(long, default_value = "data")]
         daten: PathBuf,
     },
+    /// Zeigt alle Angebote eines Produkts in einem Spielstand (Preis, Preisboden,
+    /// Auslastung, Lager) und welche Firmen seine Technologien kennen.
+    Angebote {
+        /// Spielstand
+        spielstand: PathBuf,
+        /// Produkt-ID, z. B. lcd_panel
+        produkt: String,
+        #[arg(long, default_value = "data")]
+        daten: PathBuf,
+    },
     /// Zeigt den günstigsten Transportweg zwischen zwei Ländern je Transportklasse.
     Route {
         /// ISO-Code des Abgangslands, z. B. GBR
@@ -190,6 +200,17 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Command::Angebote {
+            spielstand,
+            produkt,
+            daten,
+        } => match show_offers(&daten, &spielstand, &produkt) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(message) => {
+                eprintln!("{message}");
+                ExitCode::FAILURE
+            }
+        },
         Command::Beispielsichten { datei, daten } => match example_views(&daten, &datei) {
             Ok(()) => ExitCode::SUCCESS,
             Err(message) => {
@@ -294,6 +315,92 @@ fn load_data(directory: &Path) -> Result<GameData, String> {
             findings.join("\n\n")
         )
     })
+}
+
+/// Offers of a product in a save, for balancing: why a price stays where it is.
+fn show_offers(daten: &Path, path: &Path, key: &str) -> Result<(), String> {
+    use wsim_core::state::{CompanyId, PriceMode};
+    let data = load_data(daten)?;
+    let catalog = Arc::new(data.catalog.clone());
+    let bytes = fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let game = save::decode(&bytes, catalog)
+        .map_err(|e| data.texts.render(&e.message()))?
+        .game;
+    let (state, c) = (game.state(), game.catalog());
+    let product = c
+        .products
+        .id(key)
+        .ok_or_else(|| format!("Produkt „{key}“ gibt es in den Spieldaten nicht."))?;
+    println!("{key} am {}", format_date(state.date));
+    for (i, s) in state.sites.iter().enumerate() {
+        let Some(o) = s.offers.get(&product) else {
+            continue;
+        };
+        let owner = &state.companies[s.owner.index()];
+        if owner.bankrupt {
+            continue;
+        }
+        let (mut units, mut used) = (0.0, 0.0);
+        for sl in s.slots.iter().filter(|sl| {
+            sl.recipe
+                .is_some_and(|r| c.recipes.get(r).product == product)
+        }) {
+            units += f64::from(sl.count);
+            used += f64::from(sl.count) * sl.utilization;
+        }
+        let floor = match o.mode {
+            PriceMode::Market { floor, .. } => format!("{:.0}", floor.to_usd()),
+            PriceMode::Fixed(p) => format!("fest {:.0}", p.to_usd()),
+        };
+        let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
+        let reference = wsim_core::market::local_reference(c, state, s.country, product);
+        let market = wsim_core::market::market_price(c, state, s.country, product);
+        println!(
+            "{i:>6} {} {:<38} Preis {:>9.0}  Boden {:>9}  Markt {:>9.0}  Richt {:>9.0}  \
+             Auslastung {:>3.0} % von {units:>3}  Lager {stock:>11.0}  verkauft {:>11.0}",
+            c.countries.key(s.country),
+            owner.name,
+            o.price.to_usd(),
+            floor,
+            market.to_usd(),
+            reference.to_usd(),
+            if units > 0.0 {
+                used / units * 100.0
+            } else {
+                0.0
+            },
+            o.sold_last_month,
+        );
+    }
+    let mut seen = Vec::new();
+    for r in c.recipes.values().filter(|r| r.product == product) {
+        for t in [r.technology, c.facilities.get(r.facility).technology]
+            .into_iter()
+            .flatten()
+        {
+            if seen.contains(&t) {
+                continue;
+            }
+            seen.push(t);
+            let knowers: Vec<&str> = state
+                .companies
+                .iter()
+                .enumerate()
+                .filter(|(i, co)| {
+                    let id = CompanyId(u32::try_from(*i).unwrap_or(u32::MAX));
+                    !co.bankrupt && state.knows(c, id, t)
+                })
+                .map(|(_, co)| co.name.as_str())
+                .collect();
+            println!(
+                "Technologie {}: {} Firmen ({})",
+                c.technologies.key(t),
+                knowers.len(),
+                knowers.join(", ")
+            );
+        }
+    }
+    Ok(())
 }
 
 fn run(args: &RunArgs) -> Result<(), String> {
