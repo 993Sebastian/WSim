@@ -2644,3 +2644,27 @@ body {
 .rang .erklaerung-inhalt p:first-child {
   margin-top: 0;
 }
+
+/* Development levels (M37): one dot per level, filled when reached. */
+.stufen {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+.stufen .stufe {
+  width: 0.65rem;
+  height: 0.65rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 50%;
+}
+.stufen .stufe.erreicht {
+  background: var(--akzent);
+  border-color: var(--akzent);
+}
+.entwicklung > label.schalter {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0 0 0.75rem;
+}

@@ -60,9 +60,12 @@ export function GrundstueckWahl({
   const [lage, setLage] = useState("alle");
   const [klasse, setKlasse] = useState("alle");
   const lagen = flaeche.price_per_ha_usd.map(([l]) => l);
-  const passend = flaeche.free.filter(
-    (g) => (lage === "alle" || g.location === lage) && (klasse === "alle" || g.class === klasse),
-  );
+  // Cheapest first: most look for a plot that is just large enough.
+  const passend = flaeche.free
+    .filter(
+      (g) => (lage === "alle" || g.location === lage) && (klasse === "alle" || g.class === klasse),
+    )
+    .sort((a, b) => a.value_usd - b.value_usd || a.id - b.id);
   const sichtbar =
     lage === "alle"
       ? lagen.flatMap((l) => passend.filter((g) => g.location === l).slice(0, ZEILEN_JE_LAGE))

@@ -11,6 +11,7 @@ use wsim_core::game::Game;
 use wsim_core::ids::{CountryId, ProductId};
 use wsim_core::ledger::Account;
 use wsim_core::market;
+use wsim_core::state::CompanyId;
 use wsim_data::Texts;
 
 /// Thresholds of the anomalies (only for the protocol, not for the game).
@@ -99,6 +100,9 @@ struct CompanyYear {
     active: usize,
     bankrupt: usize,
     founded: usize,
+    /// Sites of insolvent companies sold in their auction and given up after it (M38).
+    auction_sold: usize,
+    auction_given_up: usize,
     profitable: usize,
     median_equity_usd: f64,
     player_equity_usd: f64,
@@ -116,6 +120,16 @@ pub struct Protocol {
     player_start_equity_usd: f64,
     products: Vec<ProductYear>,
     companies: Vec<CompanyYear>,
+    /// Owner of each site and the companies in auction at the last month end (M38).
+    owners: Vec<CompanyId>,
+    in_auction: Vec<CompanyId>,
+    auction_sold: usize,
+    auction_given_up: usize,
+    /// Sites each company bought in auctions, and the bankrupt ones seen so far.
+    auction_buys: BTreeMap<CompanyId, usize>,
+    bankrupt_seen: Vec<CompanyId>,
+    /// Bankruptcies of companies that had bought sites in auctions: (year, company, sites).
+    bankrupt_buyers: Vec<(i32, String, usize)>,
 }
 
 fn usd(m: wsim_core::money::Money) -> f64 {
@@ -151,7 +165,41 @@ impl Protocol {
         }
     }
 
+    /// Sites of insolvent companies that changed hands in an auction, and those left
+    /// when an auction ended (M38).
+    fn count_auctions(&mut self, game: &Game) {
+        let state = game.state();
+        for (site, &before) in self.owners.iter().enumerate() {
+            let now = state.sites[site].owner;
+            if now != before && state.companies[before.index()].bankrupt {
+                self.auction_sold += 1;
+                *self.auction_buys.entry(now).or_default() += 1;
+            }
+        }
+        for (i, c) in state.companies.iter().enumerate() {
+            let id = CompanyId(u32::try_from(i).expect("company count fits u32"));
+            if c.bankrupt && !self.bankrupt_seen.contains(&id) {
+                self.bankrupt_seen.push(id);
+                if let Some(&n) = self.auction_buys.get(&id) {
+                    self.bankrupt_buyers
+                        .push((state.date.year(), c.name.clone(), n));
+                }
+            }
+        }
+        for &c in &self.in_auction {
+            if state.companies[c.index()].auction_until.is_none() {
+                self.auction_given_up += state.sites.iter().filter(|s| s.owner == c).count();
+            }
+        }
+        self.owners = state.sites.iter().map(|s| s.owner).collect();
+        self.in_auction = (0..state.companies.len())
+            .filter(|&i| state.companies[i].auction_until.is_some())
+            .map(|i| CompanyId(u32::try_from(i).expect("company count fits u32")))
+            .collect();
+    }
+
     fn add_month(&mut self, game: &Game) {
+        self.count_auctions(game);
         let state = game.state();
         let catalog = game.catalog();
         let closed = state.date.add_days(-1);
@@ -340,6 +388,8 @@ impl Protocol {
             active: ai.iter().filter(|c| !c.bankrupt).count(),
             bankrupt: ai.iter().filter(|c| c.bankrupt).count(),
             founded: state.companies.len() - self.companies_before,
+            auction_sold: std::mem::take(&mut self.auction_sold),
+            auction_given_up: std::mem::take(&mut self.auction_given_up),
             profitable: ai
                 .iter()
                 .filter(|c| !c.bankrupt)
@@ -400,16 +450,18 @@ impl Protocol {
         write(dir, "produkte.csv", &csv)?;
 
         let mut csv = String::from(
-            "jahr;ki_aktiv;ki_pleite;gegruendet;mit_gewinn;median_eigenkapital_usd;spieler_eigenkapital_usd;spieler_kasse_usd;spieler_ergebnis_usd\n",
+            "jahr;ki_aktiv;ki_pleite;gegruendet;versteigert;aufgegeben;mit_gewinn;median_eigenkapital_usd;spieler_eigenkapital_usd;spieler_kasse_usd;spieler_ergebnis_usd\n",
         );
         for c in &self.companies {
             let _ = writeln!(
                 csv,
-                "{};{};{};{};{};{:.0};{:.0};{:.0};{:.0}",
+                "{};{};{};{};{};{};{};{:.0};{:.0};{:.0};{:.0}",
                 c.year,
                 c.active,
                 c.bankrupt,
                 c.founded,
+                c.auction_sold,
+                c.auction_given_up,
                 c.profitable,
                 c.median_equity_usd,
                 c.player_equity_usd,
@@ -432,20 +484,33 @@ impl Protocol {
         );
         let (section, passed, total) = self.plausibility(game, &name);
         md.push_str(&section);
-        md.push_str("## Firmen je Jahr\n\n| Jahr | KI aktiv | pleite (gesamt) | gegründet | mit Gewinn | Median Eigenkapital | Spieler Eigenkapital | Spieler Ergebnis |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
+        md.push_str("## Firmen je Jahr\n\nStandorte insolventer Firmen: versteigert bzw. nach der Versteigerung aufgegeben (M38).\n\n| Jahr | KI aktiv | pleite (gesamt) | gegründet | versteigert | aufgegeben | mit Gewinn | Median Eigenkapital | Spieler Eigenkapital | Spieler Ergebnis |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n");
         for c in &self.companies {
             let _ = writeln!(
                 md,
-                "| {} | {} | {} | {} | {} | {} | {} | {} |",
+                "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |",
                 c.year,
                 c.active,
                 c.bankrupt,
                 c.founded,
+                c.auction_sold,
+                c.auction_given_up,
                 c.profitable,
                 money(c.median_equity_usd),
                 money(c.player_equity_usd),
                 money(c.player_result_usd)
             );
+        }
+        if !self.bankrupt_buyers.is_empty() {
+            let _ = writeln!(
+                md,
+                "\nPleiten von Firmen, die vorher Standorte ersteigert hatten (M38): {} von {}.\n",
+                self.bankrupt_buyers.len(),
+                self.bankrupt_seen.len()
+            );
+            for (year, name, n) in &self.bankrupt_buyers {
+                let _ = writeln!(md, "- {year}: {name} ({n} ersteigerte Standorte)");
+            }
         }
         md.push_str("\n## Auffälligkeiten je Produkt\n\nJahre mit Auffälligkeit (teuer > 1,5 × Richtpreis, billig < 0,6 ×, Mangel < 85 % der Nachfrage von Verbrauchern und Staaten bzw. des Vorproduktbedarfs gedeckt, Überkapazität > 2 × Bedarf, sehr profitabel > 40 % Marge über Vollkosten, Verlust < −10 %).\n\n| Produkt | Jahre | teuer | billig | Mangel | Überkapazität | sehr profitabel | Verlust |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
         let mut by_product: BTreeMap<ProductId, (usize, BTreeMap<&str, usize>)> = BTreeMap::new();

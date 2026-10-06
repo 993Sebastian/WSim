@@ -1776,6 +1776,94 @@ U = 3 → 2 × groß; U = 5 → 1 × sehr groß; U = 12 → 3 × sehr groß. Rei
 (M35) oder Budget nicht, baut sie so viele Einheiten, wie passen; passt nicht einmal eine,
 versucht sie die nächstkleinere Größe mit ihrer Zahl.
 
+## M37 – Weiterentwicklung erforschter Produkte
+
+Offene Punkte, Abschnitt J. Parameter: `data/parameter/forschungsmodell.yaml`, Abschnitt
+`weiterentwicklung`.
+
+Jede Firma kann jedes Produkt, das sie herstellen darf, in ihren Forschungszentren
+weiterentwickeln – Endprodukte ebenso wie Rohstoffe, Halbzeuge und Bauteile (besseres
+Garn, reinerer Stahl, sparsamerer Motor). Das geschieht Stufe für Stufe bis `stufen`.
+
+### Stufe einer Firma
+
+    L(f, p, t) = max(L_eigen(f, p), L_gemein(p, t))
+
+- L_eigen: die Stufen, die die Firma selbst erforscht hat.
+- L_gemein: Gemeingut – die Zahl der Stufen, die irgendeine Firma vor mindestens
+  `gemeingut_nach_jahren` Jahren als erste erreicht hat (Wissen verbreitet sich). Wer
+  vorn liegt, hat so viele Jahre Vorsprung.
+
+### Wirkung
+
+In allen Rezepten der Firma für das Produkt p, mit L = L(f, p, t):
+
+    Qualität              + L · je_stufe.qualitaet          (vor der Begrenzung auf 0–100)
+    Arbeitsstunden        · (1 − L · je_stufe.arbeit)        je Durchlauf
+    Vorprodukte           · (1 − L · je_stufe.vorprodukte)   je Durchlauf
+
+Erzeugung, Nebenprodukte und Strom je Durchlauf bleiben gleich. Mit den Datenwerten bringt
+Stufe 5 +20 Qualitätspunkte, −15 % Arbeit und −10 % Vorprodukte. Bessere Vorprodukte
+heben die Qualität der daraus gebauten Waren (bestehende Regel: `produktionsmodell.qualitaet.vorprodukte`
+je Punkt über 50), bessere Qualität bringt Marktanteile (Kaufentscheidung, M16).
+
+### Voraussetzung und Fachgebiet
+
+- Weiterentwickeln darf eine Firma ein Produkt, wenn sie ein Rezept dafür nutzen darf
+  (dessen Technologie kennt oder es braucht keine) und L < `stufen`.
+- Fachgebiet der Forscher: das Fachgebiet der Technologie des ersten Rezepts mit
+  Technologie (Reihenfolge der Daten); für Produkte ohne Technologie (Ernte, einfacher
+  Abbau) das Fachgebiet der Branche aus `fachgebiete`.
+
+### Aufwand
+
+Für die nächste Stufe n = L + 1:
+
+    Punkte(n) = B(p) · aufwand.anteil · aufwand.wachstum^(n − 1) · N
+    B(p)      = max(aufwand.grundaufwand, größter Forschungsaufwand der Technologien
+                    der Rezepte von p)
+    N         = max(nachzuegler.minimum, (1 − nachzuegler.rabatt_je_jahr)^(t − E_n))
+                wenn eine Firma die Stufe n schon zum Zeitpunkt E_n erreicht hat, sonst 1
+
+Beispiel B = 10 000 (Grundaufwand; Median der Technologien 12 000), anteil 1, wachstum 1,7:
+Stufe 1 10 000, Stufe 2 17 000, Stufe 3 28 900, Stufe 4 49 130, Stufe 5 83 521 Punkte,
+zusammen 188 551 – mit einem Labor (20 Forscher, Effizienz 1) 500, 850, 1 445, 2 457 und
+4 176 Tage, rund 26 Jahre. (Im ersten Weltlauf mit anteil 0,2 und wachstum 1,6 erreichten
+die großen Firmen alle Stufen ihrer Produkte in etwa fünf Jahren, bis 1930 war fast alles
+Gemeingut; Preise unter dem halben Richtpreis kamen doppelt so oft vor.)
+
+### Forschen
+
+- Ein Forschungszentrum arbeitet entweder an einer Technologie (M9) oder an der
+  Weiterentwicklung eines Produkts. Forscher, Punkte je Tag und Kosten wie in M9, mit
+  dem Fachgebiet des Produkts. Die Punkte gehören der Firma, je Produkt.
+- Erreichen die Punkte den Aufwand der nächsten Stufe, ist sie erreicht; die Punkte
+  beginnen wieder bei 0 und das Zentrum arbeitet an der folgenden Stufe weiter, bis
+  `stufen` erreicht ist.
+- Lizenzen (M30) und Kaufangebote übertragen keine Stufen: Nachzügler forschen billiger,
+  und nach `gemeingut_nach_jahren` Jahren hat jeder die Stufe.
+
+### KI
+
+Eine Firma, die forscht (M10: Kompetenz und Umsatz), aber keine Technologie für ihre
+Branchen oder eine Marktlücke findet, entwickelt ihr umsatzstärkstes Produkt des
+Vorjahres weiter, das noch nicht ausgereizt ist, dessen Umsatz U
+`forschung_mindestumsatz_usd` erreicht und dessen nächste Stufe sich bezahlt macht:
+
+    U · entwicklung_nutzen_je_stufe · entwicklung_amortisation_jahre ≥ Punkte(n) · K
+    K = (Stundenlohn der Forscher · Stunden je Tag + sachkosten · Preisniveau) / Effizienz
+
+(K: Kosten eines Forschungspunkts im Land ihres Forschungszentrums bzw. ihres Sitzes,
+Parameter in `data/parameter/kimodell.yaml`.) Sie bleibt dabei, solange das gilt und keine
+Technologie ansteht. Mit den Datenwerten (3 % des Umsatzes je Stufe und Jahr, 5 Jahre)
+lohnt Stufe 1 eines Produkts mit B = 10 000 in Deutschland 1914 (etwa 1,4 Mio. USD) ab
+rund 9,5 Mio. USD Jahresumsatz, Stufe 5 (etwa 12 Mio. USD) erst ab rund 80 Mio. USD.
+
+### Spielstände
+
+Neue Felder (Stufen und Punkte je Firma und Produkt, Projekt eines Zentrums, Tag der
+ersten Erreichung je Stufe) sind optional; ältere Spielstände beginnen mit Stufe 0.
+
 ## M38 – Pleiten: Versteigerung der Standorte
 
 Offene Punkte, Abschnitt K. Parameter: `data/parameter/kaufmodell.yaml`, Abschnitt
@@ -1790,9 +1878,13 @@ verschwinden: Der Insolvenzverwalter versteigert jeden Standort `insolvenz.tage`
 - **Mindestgebot** = `insolvenz.mindestpreis` · Grundwert des Standorts (M30) am Tag des
   Gebots bzw. am Ende.
 - **Gebote:** Der Spieler bietet wie bei Kaufangeboten (Wettbewerb → Firma → Standort),
-  mindestens das Mindestgebot, höchstens seine Kasse. Jede aktive KI-Firma bietet am Ende
-  ihren Höchstpreis (M30: Grundwert · (1 + Aufschläge)), wenn er das Mindestgebot erreicht
-  und in `kasse_anteil_max` ihrer Kasse passt.
+  mindestens das Mindestgebot, höchstens seine Kasse. Eine KI-Firma bietet nur, wenn sie
+  den Standort auch sonst kaufen würde (M30: im Land vertreten, Vorteil mindestens
+  `mindestvorteil`, Labore und Kraftwerke nur im eigenen Geschäft), und zwar wie bei einem
+  Kaufangebot Grundwert · (1 + `gebotsaufschlag`), höchstens ihren Höchstpreis und
+  `kasse_anteil_max` ihrer Kasse, mindestens das Mindestgebot. (Im ersten Weltlauf bot
+  jede KI-Firma ihren vollen Höchstpreis; Käufer zahlten so oft weit über Grundwert, und
+  bis 1958 gingen 14 statt 9 bzw. 7 Firmen pleite.)
 - **Zuschlag** am letzten Tag, Standort für Standort in ihrer Reihenfolge: das höchste
   Gebot; bezahlt wird das zweithöchste Gebot, mindestens das Mindestgebot (wer am meisten
   bietet, zahlt nicht mehr als nötig). Die Übergabe bucht wie ein Kauf (M30): Anlagen,
@@ -1805,3 +1897,10 @@ Der Käufer übernimmt den Standort mit erschlossener Konzession und fertigen An
 stellt nur Personal ein; so fällt die Erzeugung höchstens für die Dauer der Versteigerung
 aus statt für Erschließung und Bau (1955 kostete Erz nach dem Ausfall eines Förderers
 das 3,7-Fache des Richtpreises).
+
+**Während der Versteigerung** zählt die insolvente Firma bei Neugründungen von KI-Firmen
+(M10) noch mit, und ihre Anlagen gelten für die Suche nach unversorgter Nachfrage wie
+Anlagen im Bau als kommende Versorgung. Sonst füllt eine neue Firma die vorübergehende
+Lücke, und nach dem Zuschlag stehen doppelt so viele Anlagen im Markt: In den ersten
+Weltläufen gingen dadurch bis 1958 doppelt bis dreimal so viele Firmen pleite wie ohne
+Versteigerung (Seed 2: 20 statt 7; nur 3 der 20 hatten selbst Standorte ersteigert).

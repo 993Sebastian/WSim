@@ -1724,6 +1724,1870 @@
   "forschung": {
     "centers": [],
     "date": "1914-08-01",
+    "development_levels": 5,
+    "development_per_level": {
+      "inputs_saved": 0.020000000000000018,
+      "labor_saved": 0.030000000000000027,
+      "quality": 4.0
+    },
+    "developments": [
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "eisenerz",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kohle",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "stahl",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "blech",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "draht",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "stabstahl",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": true,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "naegel",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "schrauben",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "muttern",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "handwerkzeug",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "holz_bau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "holz",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "holz_bau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "schnittholz",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "holz_bau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "moebel",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "textil",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "baumwolle",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "textil",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "garn",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "textil",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "stoff",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kleidung",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "lebensmittel",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "getreide",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "lebensmittel",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "mehl",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "weissblech",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "lebensmittel",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "konserve",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "elektro",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1222297.750148421,
+          "country": "DEU",
+          "days": 497.31250384318616,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "strom",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kupfererz",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kupfer",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kupferdraht",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "elektro",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1222297.750148421,
+          "country": "DEU",
+          "days": 497.31250384318616,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "elektromotor",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "rohoel",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "petroleum",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "petroleumlampe",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "elektro",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1222297.750148421,
+          "country": "DEU",
+          "days": 497.31250384318616,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "gluehlampe",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 30000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 3019794.441543157,
+          "country": "DEU",
+          "days": 1228.6544212596364,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kautschuk",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "gummi",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "fahrradreifen",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "autoreifen",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "naehmaschine",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "fahrrad",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 15000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1509897.2207715786,
+          "country": "DEU",
+          "days": 614.3272106298182,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "benzin",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 30000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 4278042.125519472,
+          "country": "DEU",
+          "days": 1740.5937634511513,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "motor",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 30000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 4278042.125519472,
+          "country": "DEU",
+          "days": 1740.5937634511513,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "fahrgestell",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 12000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "karosserie",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 30000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 4278042.125519472,
+          "country": "DEU",
+          "days": 1740.5937634511513,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "automobil",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "bauxit",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "tonerde",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "aluminium",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "metall",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1316320.6540059915,
+          "country": "DEU",
+          "days": 535.5673118311234,
+          "points_per_day": 18.67178929537288,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kochtopf",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "zellstoff",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 12000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1207917.7766172627,
+          "country": "DEU",
+          "days": 491.4617685038545,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kunstseide",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 20000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 2013196.294362105,
+          "country": "DEU",
+          "days": 819.1029475064242,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "strumpf",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1006598.1471810525,
+          "country": "DEU",
+          "days": 409.5514737532121,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "bakelit",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "elektro",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1222297.750148421,
+          "country": "DEU",
+          "days": 497.31250384318616,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "radioroehre",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "elektro",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1222297.750148421,
+          "country": "DEU",
+          "days": 497.31250384318616,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "kleinmotor",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "staubsauger",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 12000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "lastwagen",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "maschinenbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1426014.041839824,
+          "country": "DEU",
+          "days": 580.1979211503838,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "flugmotor",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "chilesalpeter",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 25000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 2516495.3679526313,
+          "country": "DEU",
+          "days": 1023.8786843830303,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "ammoniak",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "chemie",
+        "level": 0,
+        "needed": 25000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 2516495.3679526313,
+          "country": "DEU",
+          "days": 1023.8786843830303,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "stickstoffduenger",
+        "public_level": 0,
+        "sites": []
+      },
+      {
+        "best_rival": 0,
+        "days": null,
+        "effect": {
+          "inputs_saved": 0.0,
+          "labor_saved": 0.0,
+          "quality": 0.0
+        },
+        "field": "bergbau",
+        "level": 0,
+        "needed": 10000.0,
+        "next": 1,
+        "next_effect": {
+          "inputs_saved": 0.020000000000000018,
+          "labor_saved": 0.030000000000000027,
+          "quality": 4.0
+        },
+        "one_lab": {
+          "cost_usd": 1711216.850207789,
+          "country": "DEU",
+          "days": 696.2375053804606,
+          "points_per_day": 14.36291484259452,
+          "researchers": 20.0
+        },
+        "own": false,
+        "own_level": 0,
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "product": "germanium",
+        "public_level": 0,
+        "sites": []
+      }
+    ],
     "laboratory": "forschungslabor",
     "laboratory_posts": 20.0,
     "laboratory_usd": 500000.0,
@@ -8058,7 +9922,7 @@
           "demand_last_month": 0.0,
           "price_usd": 15265.7804,
           "product": "stoff",
-          "sold_last_month": 2521.5545818985715
+          "sold_last_month": 2521.5545818985674
         },
         {
           "demand_last_month": 5819.0,
@@ -8082,19 +9946,19 @@
           "demand_last_month": 148.33280628755372,
           "price_usd": 14165.1327,
           "product": "kupferdraht",
-          "sold_last_month": 1073.610962875071
+          "sold_last_month": 1073.61096287507
         },
         {
           "demand_last_month": 1031191.8569889709,
           "price_usd": 8.9732,
           "product": "strumpf",
-          "sold_last_month": 1692932.1509280368
+          "sold_last_month": 1692932.150928012
         },
         {
-          "demand_last_month": 2909.105969120531,
+          "demand_last_month": 2909.1059691205237,
           "price_usd": 12034.8283,
           "product": "garn",
-          "sold_last_month": 1064.3579343410333
+          "sold_last_month": 1064.3579343410295
         },
         {
           "demand_last_month": 2805.1093700320666,
@@ -8118,7 +9982,7 @@
           "demand_last_month": 33952.33667181377,
           "price_usd": 164.5581,
           "product": "moebel",
-          "sold_last_month": 55555.6302375737
+          "sold_last_month": 55555.63023757369
         },
         {
           "demand_last_month": 84153.01152360348,
@@ -8136,7 +10000,7 @@
           "demand_last_month": 39.5593092718939,
           "price_usd": 48428.0996,
           "product": "gummi",
-          "sold_last_month": 168.4807700973274
+          "sold_last_month": 168.48077009732725
         },
         {
           "demand_last_month": 2217033.0899195755,
@@ -8157,10 +10021,10 @@
           "sold_last_month": 23403.46753473877
         },
         {
-          "demand_last_month": 151.96415418963306,
+          "demand_last_month": 151.9641541896329,
           "price_usd": 37307.6472,
           "product": "kautschuk",
-          "sold_last_month": 151.96415418963306
+          "sold_last_month": 151.9641541896329
         },
         {
           "demand_last_month": 1661.0786226356415,
@@ -8169,10 +10033,10 @@
           "sold_last_month": 4669.2029648057205
         },
         {
-          "demand_last_month": 6163.181865987801,
+          "demand_last_month": 6163.181865987802,
           "price_usd": 785.6712,
           "product": "stahl",
-          "sold_last_month": 6163.181865987801
+          "sold_last_month": 6163.181865987802
         },
         {
           "demand_last_month": 1004.3428623955256,
@@ -8184,19 +10048,19 @@
           "demand_last_month": 308684.45132669515,
           "price_usd": 8.411,
           "product": "gluehlampe",
-          "sold_last_month": 462891.3525800924
+          "sold_last_month": 462891.35258009256
         },
         {
           "demand_last_month": 2013.7527555133377,
           "price_usd": 520.2305,
           "product": "naehmaschine",
-          "sold_last_month": 7207.561738087488
+          "sold_last_month": 7207.561738087491
         },
         {
           "demand_last_month": 367.40000000000003,
           "price_usd": 4157.8955,
           "product": "weissblech",
-          "sold_last_month": 729.6874992638116
+          "sold_last_month": 729.687499263822
         },
         {
           "demand_last_month": 147.5930927189387,
@@ -8217,22 +10081,22 @@
           "sold_last_month": 1757.0
         },
         {
-          "demand_last_month": 87.74285959836753,
+          "demand_last_month": 87.74285959836718,
           "price_usd": 27889.6136,
           "product": "kunstseide",
-          "sold_last_month": 87.74285959836753
+          "sold_last_month": 87.74285959836718
         },
         {
           "demand_last_month": 28052.787788643534,
           "price_usd": 66.1997,
           "product": "fahrradreifen",
-          "sold_last_month": 33890.87199070303
+          "sold_last_month": 33890.87199070304
         },
         {
           "demand_last_month": 39198.013242655776,
           "price_usd": 25.6852,
           "product": "handwerkzeug",
-          "sold_last_month": 71358.39838859212
+          "sold_last_month": 71358.39838859208
         },
         {
           "demand_last_month": 159.18656530226664,
@@ -8256,7 +10120,7 @@
           "demand_last_month": 17759.637516259958,
           "price_usd": 17.3009,
           "product": "petroleumlampe",
-          "sold_last_month": 43951.82328364927
+          "sold_last_month": 43951.82328364924
         },
         {
           "demand_last_month": 464.218687581378,
@@ -8316,7 +10180,7 @@
           "demand_last_month": 31.702833543631428,
           "price_usd": 1467.6475,
           "product": "glas",
-          "sold_last_month": 31.702833543631424
+          "sold_last_month": 31.702833543631428
         },
         {
           "demand_last_month": 14.51631613743974,
@@ -8325,10 +10189,10 @@
           "sold_last_month": 14.51631613743974
         },
         {
-          "demand_last_month": 8.442453010535171,
+          "demand_last_month": 8.442453010535157,
           "price_usd": 880.5904,
           "product": "schwefel",
-          "sold_last_month": 8.442453010535171
+          "sold_last_month": 8.442453010535157
         },
         {
           "demand_last_month": 6111.610245001259,
@@ -10132,25 +11996,25 @@
           "demand_last_month": 21882.113851887927,
           "price_usd": 1179.4592,
           "product": "mehl",
-          "sold_last_month": 75717.55752317286
+          "sold_last_month": 75717.55752317271
         },
         {
           "demand_last_month": 998.1600000000003,
           "price_usd": 13136.8695,
           "product": "garn",
-          "sold_last_month": 6401.439999999991
+          "sold_last_month": 6401.439999999995
         },
         {
           "demand_last_month": 131.86062467850786,
           "price_usd": 14974.4162,
           "product": "stoff",
-          "sold_last_month": 5545.014873783365
+          "sold_last_month": 5545.014873783375
         },
         {
           "demand_last_month": 1689584.1336571204,
           "price_usd": 31.5703,
           "product": "kleidung",
-          "sold_last_month": 2559256.5630274755
+          "sold_last_month": 2559256.5630274746
         },
         {
           "demand_last_month": 10672.0,
@@ -10174,7 +12038,7 @@
           "demand_last_month": 972494.9964583358,
           "price_usd": 9.5984,
           "product": "strumpf",
-          "sold_last_month": 1412096.0421898635
+          "sold_last_month": 1412096.042189849
         },
         {
           "demand_last_month": 27517.481248701173,
@@ -10186,10 +12050,10 @@
           "demand_last_month": 2771725.9175546737,
           "price_usd": 3.3653,
           "product": "konserve",
-          "sold_last_month": 3528477.1838220926
+          "sold_last_month": 3528477.1838220903
         },
         {
-          "demand_last_month": 93192.84804636937,
+          "demand_last_month": 93192.84804636938,
           "price_usd": 62.7914,
           "product": "kohle",
           "sold_last_month": 181833.77781112705
@@ -10198,7 +12062,7 @@
           "demand_last_month": 35204.976695020494,
           "price_usd": 164.1603,
           "product": "moebel",
-          "sold_last_month": 69374.2528254776
+          "sold_last_month": 69374.25282547758
         },
         {
           "demand_last_month": 80910.0,
@@ -10210,13 +12074,13 @@
           "demand_last_month": 3780.020930131857,
           "price_usd": 1359.7942,
           "product": "draht",
-          "sold_last_month": 5196.024811841248
+          "sold_last_month": 5196.024811841246
         },
         {
-          "demand_last_month": 77815.54388945035,
+          "demand_last_month": 77815.54388945037,
           "price_usd": 89.2956,
           "product": "eisenerz",
-          "sold_last_month": 77815.54388945035
+          "sold_last_month": 77815.54388945037
         },
         {
           "demand_last_month": 1255.8656170895215,
@@ -10231,13 +12095,13 @@
           "sold_last_month": 16770.0
         },
         {
-          "demand_last_month": 159.622263984073,
+          "demand_last_month": 159.62226398407273,
           "price_usd": 38405.8263,
           "product": "kautschuk",
-          "sold_last_month": 159.622263984073
+          "sold_last_month": 159.62226398407273
         },
         {
-          "demand_last_month": 2552.447203551232,
+          "demand_last_month": 2552.447203551233,
           "price_usd": 1171.2028,
           "product": "blech",
           "sold_last_month": 4622.608987261387
@@ -10246,7 +12110,7 @@
           "demand_last_month": 62.67730598789285,
           "price_usd": 48808.95,
           "product": "gummi",
-          "sold_last_month": 100.64486158070082
+          "sold_last_month": 100.64486158070044
         },
         {
           "demand_last_month": 2159.97729997187,
@@ -10264,13 +12128,13 @@
           "demand_last_month": 410656.41938845674,
           "price_usd": 8.444,
           "product": "gluehlampe",
-          "sold_last_month": 568199.5555571673
+          "sold_last_month": 568199.5555571674
         },
         {
           "demand_last_month": 251.07971036745224,
           "price_usd": 14861.9186,
           "product": "kupferdraht",
-          "sold_last_month": 278.5092669831571
+          "sold_last_month": 278.50926698315715
         },
         {
           "demand_last_month": 2443.0,
@@ -10279,22 +12143,22 @@
           "sold_last_month": 2443.0
         },
         {
-          "demand_last_month": 310.2156249258321,
+          "demand_last_month": 310.21562492583234,
           "price_usd": 11637.0814,
           "product": "kupfer",
-          "sold_last_month": 310.2156249258321
+          "sold_last_month": 310.21562492583234
         },
         {
           "demand_last_month": 668.6000000000001,
           "price_usd": 4094.4315,
           "product": "weissblech",
-          "sold_last_month": 876.6778285921914
+          "sold_last_month": 876.6778285921915
         },
         {
           "demand_last_month": 27832.546801374225,
           "price_usd": 66.9953,
           "product": "fahrradreifen",
-          "sold_last_month": 36581.604074323244
+          "sold_last_month": 36581.60407432324
         },
         {
           "demand_last_month": 236.61236095558218,
@@ -10306,13 +12170,13 @@
           "demand_last_month": 2242.5037902647155,
           "price_usd": 263.3303,
           "product": "staubsauger",
-          "sold_last_month": 4923.189256453186
+          "sold_last_month": 4923.1892564531845
         },
         {
           "demand_last_month": 36966.54933202042,
           "price_usd": 25.7205,
           "product": "handwerkzeug",
-          "sold_last_month": 49184.172856015866
+          "sold_last_month": 49184.17285601588
         },
         {
           "demand_last_month": 2240.017298170143,
@@ -10333,10 +12197,10 @@
           "sold_last_month": 1506.4782622047135
         },
         {
-          "demand_last_month": 1371.6376055699193,
+          "demand_last_month": 1371.637605569919,
           "price_usd": 750.492,
           "product": "stahl",
-          "sold_last_month": 1371.6376055699193
+          "sold_last_month": 1371.637605569919
         },
         {
           "demand_last_month": 803.5665635974638,
@@ -10351,16 +12215,16 @@
           "sold_last_month": 36.75
         },
         {
-          "demand_last_month": 2439.3412773431337,
+          "demand_last_month": 2439.3412773430646,
           "price_usd": 780.6479,
           "product": "zellstoff",
           "sold_last_month": 1078.0
         },
         {
-          "demand_last_month": 191.92927793344117,
+          "demand_last_month": 191.9292779334412,
           "price_usd": 2835.7726,
           "product": "schrauben",
-          "sold_last_month": 191.92927793344117
+          "sold_last_month": 191.9292779334412
         },
         {
           "demand_last_month": 251.07971036745224,
@@ -10369,16 +12233,16 @@
           "sold_last_month": 251.07971036745224
         },
         {
-          "demand_last_month": 596.8804035546708,
+          "demand_last_month": 596.8804035546707,
           "price_usd": 896.4507,
           "product": "schwefel",
-          "sold_last_month": 596.8804035546708
+          "sold_last_month": 596.8804035546707
         },
         {
-          "demand_last_month": 3071.1479488696114,
+          "demand_last_month": 3071.147948869555,
           "price_usd": 164.7624,
           "product": "kupfererz",
-          "sold_last_month": 3071.1479488696114
+          "sold_last_month": 3071.147948869555
         },
         {
           "demand_last_month": 100.87913915258825,
@@ -10390,13 +12254,13 @@
           "demand_last_month": 13186.274937277309,
           "price_usd": 17.4745,
           "product": "petroleumlampe",
-          "sold_last_month": 13186.274937277309
+          "sold_last_month": 13186.27493727731
         },
         {
-          "demand_last_month": 34.2650553478812,
+          "demand_last_month": 34.265055347881216,
           "price_usd": 1992.1102,
           "product": "leim",
-          "sold_last_month": 34.2650553478812
+          "sold_last_month": 34.265055347881216
         },
         {
           "demand_last_month": 80.50128530639603,
@@ -10405,10 +12269,10 @@
           "sold_last_month": 80.50128530639603
         },
         {
-          "demand_last_month": 26.955628478223108,
+          "demand_last_month": 26.95562847822318,
           "price_usd": 1494.083,
           "product": "glas",
-          "sold_last_month": 26.955628478223108
+          "sold_last_month": 26.95562847822318
         },
         {
           "demand_last_month": 5851.52120023578,
@@ -13428,19 +15292,19 @@
           "demand_last_month": 449139.23357038054,
           "price_usd": 6622.1798,
           "product": "baumwolle",
-          "sold_last_month": 56421.961296351255
+          "sold_last_month": 56421.96129635125
         },
         {
-          "demand_last_month": 87780.16219637207,
+          "demand_last_month": 87780.16219637256,
           "price_usd": 746.1134,
           "product": "getreide",
-          "sold_last_month": 230908.06394797628
+          "sold_last_month": 230908.06394797753
         },
         {
           "demand_last_month": 52511.06445712231,
           "price_usd": 1253.2078,
           "product": "mehl",
-          "sold_last_month": 101712.65020924812
+          "sold_last_month": 101712.65020925089
         },
         {
           "demand_last_month": 3905326.2369877105,
@@ -13452,13 +15316,13 @@
           "demand_last_month": 4.649999999999999,
           "price_usd": 14864.2451,
           "product": "stoff",
-          "sold_last_month": 6130.522755646343
+          "sold_last_month": 6130.522755646359
         },
         {
-          "demand_last_month": 69294.25819888923,
+          "demand_last_month": 69294.25819888928,
           "price_usd": 11911.5793,
           "product": "garn",
-          "sold_last_month": 7411.557809452771
+          "sold_last_month": 7411.557809452776
         },
         {
           "demand_last_month": 27571.278248125553,
@@ -13476,85 +15340,85 @@
           "demand_last_month": 6306925.746171304,
           "price_usd": 3.3105,
           "product": "konserve",
-          "sold_last_month": 9184250.076342493
+          "sold_last_month": 9184250.076342482
         },
         {
           "demand_last_month": 19736.236650973544,
           "price_usd": 309.4873,
           "product": "rohoel",
-          "sold_last_month": 91932.60205482412
+          "sold_last_month": 91932.6020548241
         },
         {
-          "demand_last_month": 1593.237694715029,
+          "demand_last_month": 1593.2376947150292,
           "price_usd": 10163.8939,
           "product": "kupfer",
-          "sold_last_month": 2645.57601233561
+          "sold_last_month": 2645.5760123356104
         },
         {
           "demand_last_month": 72524.16509665185,
           "price_usd": 262.6224,
           "product": "schnittholz",
-          "sold_last_month": 77895.58592608213
+          "sold_last_month": 77895.58592608216
         },
         {
-          "demand_last_month": 129036.07484107785,
+          "demand_last_month": 129036.07484107798,
           "price_usd": 101.7479,
           "product": "holz",
-          "sold_last_month": 176856.5397306441
+          "sold_last_month": 176856.53973064435
         },
         {
           "demand_last_month": 246.3000000000002,
           "price_usd": 27859.911,
           "product": "kunstseide",
-          "sold_last_month": 623.5927315967468
+          "sold_last_month": 623.5927315967452
         },
         {
           "demand_last_month": 3202.961851460105,
           "price_usd": 1859.0178,
           "product": "naegel",
-          "sold_last_month": 8559.74897783083
+          "sold_last_month": 8559.748977830837
         },
         {
           "demand_last_month": 18943.46064079271,
           "price_usd": 550.1168,
           "product": "fahrrad",
-          "sold_last_month": 28775.273876421714
+          "sold_last_month": 28775.27387642172
         },
         {
           "demand_last_month": 685.6190979473467,
           "price_usd": 14762.684,
           "product": "kupferdraht",
-          "sold_last_month": 981.5266494948562
+          "sold_last_month": 981.5266494948567
         },
         {
-          "demand_last_month": 179025.33395878482,
+          "demand_last_month": 179025.33395878493,
           "price_usd": 62.9496,
           "product": "kohle",
-          "sold_last_month": 220390.34447023043
+          "sold_last_month": 220390.34447023066
         },
         {
           "demand_last_month": 80226.02248617135,
           "price_usd": 164.9678,
           "product": "moebel",
-          "sold_last_month": 80426.60796139885
+          "sold_last_month": 80426.60796139887
         },
         {
           "demand_last_month": 8603.131907673334,
           "price_usd": 1342.0455,
           "product": "draht",
-          "sold_last_month": 9322.8561714421
+          "sold_last_month": 9322.856171442098
         },
         {
-          "demand_last_month": 296.0002107039249,
+          "demand_last_month": 296.0002107039231,
           "price_usd": 54794.8221,
           "product": "gummi",
-          "sold_last_month": 215.64591622582628
+          "sold_last_month": 215.6459162258261
         },
         {
-          "demand_last_month": 120696.60865408037,
+          "demand_last_month": 120696.60865408069,
           "price_usd": 81.5347,
           "product": "eisenerz",
-          "sold_last_month": 141073.89768090867
+          "sold_last_month": 141073.89768090897
         },
         {
           "demand_last_month": 6990.095374393685,
@@ -13566,7 +15430,7 @@
           "demand_last_month": 1023599.5850109706,
           "price_usd": 8.4712,
           "product": "gluehlampe",
-          "sold_last_month": 1060520.3733977482
+          "sold_last_month": 1060520.373397748
         },
         {
           "demand_last_month": 4694.535374999519,
@@ -13581,22 +15445,22 @@
           "sold_last_month": 13795.93950665583
         },
         {
-          "demand_last_month": 1326.5485393880995,
+          "demand_last_month": 1326.5485393881036,
           "price_usd": 3954.0088,
           "product": "weissblech",
           "sold_last_month": 1862.444580440572
         },
         {
-          "demand_last_month": 4743.911420830529,
+          "demand_last_month": 4743.911420830526,
           "price_usd": 1500.0,
           "product": "konserveninhalt",
-          "sold_last_month": 4743.911420830529
+          "sold_last_month": 4743.911420830526
         },
         {
           "demand_last_month": 67137.68196002851,
           "price_usd": 66.4171,
           "product": "fahrradreifen",
-          "sold_last_month": 91118.23737251748
+          "sold_last_month": 91118.2373725175
         },
         {
           "demand_last_month": 154.349999999999,
@@ -13632,7 +15496,7 @@
           "demand_last_month": 86152.78527950883,
           "price_usd": 25.5342,
           "product": "handwerkzeug",
-          "sold_last_month": 96231.67541579722
+          "sold_last_month": 96231.6754157972
         },
         {
           "demand_last_month": 2232.59747174196,
@@ -13644,13 +15508,13 @@
           "demand_last_month": 2526.1450019498275,
           "price_usd": 719.1089,
           "product": "stahl",
-          "sold_last_month": 2883.1439610651273
+          "sold_last_month": 2883.143961065127
         },
         {
-          "demand_last_month": 496.6712743978163,
+          "demand_last_month": 496.6712743978164,
           "price_usd": 2748.3133,
           "product": "schrauben",
-          "sold_last_month": 718.2036053914622
+          "sold_last_month": 718.2036053914624
         },
         {
           "demand_last_month": 5333.19451858123,
@@ -13662,7 +15526,7 @@
           "demand_last_month": 306.5993930882851,
           "price_usd": 778.1547,
           "product": "autoreifen",
-          "sold_last_month": 2223.8274200519404
+          "sold_last_month": 2223.8274200519377
         },
         {
           "demand_last_month": 61.5,
@@ -13683,16 +15547,16 @@
           "sold_last_month": 478.6663111341377
         },
         {
-          "demand_last_month": 3682.0000000000186,
+          "demand_last_month": 3682.0000000000337,
           "price_usd": 703.3824,
           "product": "zellstoff",
-          "sold_last_month": 1549.9999999999957
+          "sold_last_month": 1549.9999999999943
         },
         {
-          "demand_last_month": 863.325,
+          "demand_last_month": 863.3249999999995,
           "price_usd": 900.0,
           "product": "schwefel",
-          "sold_last_month": 863.325
+          "sold_last_month": 863.3249999999995
         },
         {
           "demand_last_month": 28730.82855437839,
@@ -13707,10 +15571,10 @@
           "sold_last_month": 66.66998539163475
         },
         {
-          "demand_last_month": 50.57875362369134,
+          "demand_last_month": 50.578753623691334,
           "price_usd": 1500.0005,
           "product": "glas",
-          "sold_last_month": 50.57875362369134
+          "sold_last_month": 50.578753623691334
         },
         {
           "demand_last_month": 13206.938525781012,
@@ -13853,7 +15717,7 @@
       },
       {
         "chances": [],
-        "demand_last_month": 6163.181865987801,
+        "demand_last_month": 6163.181865987802,
         "exported_last_month": 0.0,
         "group": "eisen_stahl",
         "imported_last_month": 0.0,
@@ -13862,12 +15726,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 788.2864899722263,
+        "price_last_month_usd": 788.2864899722261,
         "price_usd": 785.6712,
         "product": "stahl",
         "reference_usd": 880.4212,
         "sellers": 3,
-        "sold_last_month": 6163.181865987801,
+        "sold_last_month": 6163.181865987802,
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
@@ -13940,7 +15804,7 @@
         "demand_last_month": 1004.3428623955256,
         "exported_last_month": 1151.60614113495,
         "group": "metallwaren",
-        "imported_last_month": 1.4490035304752242,
+        "imported_last_month": 1.4490035304752245,
         "leader": "Lorenz KG",
         "leader_share": 0.9921384951579465,
         "own_price_usd": 1887.2139,
@@ -13982,7 +15846,7 @@
       {
         "chances": [],
         "demand_last_month": 59.87723708757551,
-        "exported_last_month": 89.58464672133904,
+        "exported_last_month": 89.58464672133906,
         "group": "metallwaren",
         "imported_last_month": 0.0,
         "leader": "Lorenz KG",
@@ -14003,20 +15867,20 @@
       {
         "chances": [],
         "demand_last_month": 39198.013242655776,
-        "exported_last_month": 32160.38514593636,
+        "exported_last_month": 32160.385145936314,
         "group": "metallwaren",
-        "imported_last_month": 337.9657271472373,
+        "imported_last_month": 337.9657271472413,
         "leader": "Lorenz KG",
-        "leader_share": 0.9952638268966352,
+        "leader_share": 0.9952638268966351,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 25.75810878336425,
+        "price_last_month_usd": 25.758108783364264,
         "price_usd": 25.6852,
         "product": "handwerkzeug",
         "reference_usd": 27.4735,
         "sellers": 1,
-        "sold_last_month": 71358.39838859212,
+        "sold_last_month": 71358.39838859208,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14091,7 +15955,7 @@
       {
         "chances": [],
         "demand_last_month": 33952.33667181377,
-        "exported_last_month": 21603.29356575992,
+        "exported_last_month": 21603.293565759923,
         "group": "moebel_hausrat",
         "imported_last_month": 0.0,
         "leader": "Barker Corporation",
@@ -14099,14 +15963,14 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 165.66269676255854,
+        "price_last_month_usd": 165.66269676255857,
         "price_usd": 164.5581,
         "product": "moebel",
         "reference_usd": 183.1563,
         "sellers": 1,
-        "sold_last_month": 55555.6302375737,
+        "sold_last_month": 55555.63023757369,
         "state_price_usd": null,
-        "supply": 1.0,
+        "supply": 0.9999999999999998,
         "unmet_last_month": 0.0
       },
       {
@@ -14137,29 +16001,29 @@
           "mangel",
           "wenige_anbieter"
         ],
-        "demand_last_month": 2909.105969120531,
-        "exported_last_month": 511.2959788597491,
+        "demand_last_month": 2909.1059691205237,
+        "exported_last_month": 511.29597885974954,
         "group": "textilien",
-        "imported_last_month": 553.0619554812841,
+        "imported_last_month": 553.06195548128,
         "leader": "Zürcher Spinnerei und Weberei & Co.",
-        "leader_share": 0.4803797316325765,
+        "leader_share": 0.4803797316325787,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 11780.77936071679,
+        "price_last_month_usd": 11780.779360716831,
         "price_usd": 12034.8283,
         "product": "garn",
         "reference_usd": 11738.9495,
         "sellers": 1,
-        "sold_last_month": 1064.3579343410333,
+        "sold_last_month": 1064.3579343410295,
         "state_price_usd": null,
         "supply": null,
-        "unmet_last_month": 1844.7480347794976
+        "unmet_last_month": 1844.7480347794942
       },
       {
         "chances": [],
         "demand_last_month": 0.0,
-        "exported_last_month": 2521.5545818985715,
+        "exported_last_month": 2521.5545818985674,
         "group": "textilien",
         "imported_last_month": 0.0,
         "leader": "Zürcher Spinnerei und Weberei & Co.",
@@ -14167,12 +16031,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 15127.851051742331,
+        "price_last_month_usd": 15127.851051742357,
         "price_usd": 15265.7804,
         "product": "stoff",
         "reference_usd": 17608.4242,
         "sellers": 1,
-        "sold_last_month": 2521.5545818985715,
+        "sold_last_month": 2521.5545818985674,
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
@@ -14224,9 +16088,9 @@
           "wenige_anbieter"
         ],
         "demand_last_month": 21760.608539029807,
-        "exported_last_month": 37184.78275421418,
+        "exported_last_month": 37184.782754214175,
         "group": "lebensmittel",
-        "imported_last_month": 45.39129324399656,
+        "imported_last_month": 45.39129324399655,
         "leader": "Albrecht AG",
         "leader_share": 0.9992299433043342,
         "own_price_usd": null,
@@ -14271,20 +16135,20 @@
           "wenige_anbieter"
         ],
         "demand_last_month": 367.40000000000003,
-        "exported_last_month": 378.28749926381147,
+        "exported_last_month": 378.2874992638222,
         "group": "eisen_stahl",
-        "imported_last_month": 2.9046602966230752,
+        "imported_last_month": 2.9046602966230695,
         "leader": "Hoffmann & Vogt & Co.",
-        "leader_share": 0.996019309225451,
+        "leader_share": 0.9960193092254513,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 4119.749314100778,
+        "price_last_month_usd": 4119.749314100719,
         "price_usd": 4157.8955,
         "product": "weissblech",
         "reference_usd": 3130.3865,
         "sellers": 1,
-        "sold_last_month": 729.6874992638116,
+        "sold_last_month": 729.687499263822,
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
@@ -14381,7 +16245,7 @@
       {
         "chances": [],
         "demand_last_month": 148.33280628755372,
-        "exported_last_month": 925.278156587517,
+        "exported_last_month": 925.2781565875167,
         "group": "nichteisenmetalle",
         "imported_last_month": 0.0,
         "leader": "Allgemeine Elektricitäts-Gesellschaft",
@@ -14389,12 +16253,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 14194.08118653242,
+        "price_last_month_usd": 14194.08118653243,
         "price_usd": 14165.1327,
         "product": "kupferdraht",
         "reference_usd": 14673.6868,
         "sellers": 2,
-        "sold_last_month": 1073.610962875071,
+        "sold_last_month": 1073.61096287507,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14477,33 +16341,33 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 1467.6340818547035,
+        "price_last_month_usd": 1467.6340818547033,
         "price_usd": 1467.6475,
         "product": "glas",
         "reference_usd": 1467.3687,
         "sellers": 0,
-        "sold_last_month": 31.702833543631424,
+        "sold_last_month": 31.702833543631428,
         "state_price_usd": 1467.3687,
         "supply": null,
-        "unmet_last_month": 3.552713678800501e-15
+        "unmet_last_month": 0.0
       },
       {
         "chances": [],
         "demand_last_month": 17759.637516259958,
-        "exported_last_month": 26192.185767389296,
+        "exported_last_month": 26192.18576738928,
         "group": "moebel_hausrat",
-        "imported_last_month": 68.82014992717417,
+        "imported_last_month": 68.82014992717413,
         "leader": "Barker Corporation",
-        "leader_share": 0.998434191239734,
+        "leader_share": 0.9984341912397344,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 17.301920423012326,
+        "price_last_month_usd": 17.301920423012337,
         "price_usd": 17.3009,
         "product": "petroleumlampe",
         "reference_usd": 18.3156,
         "sellers": 1,
-        "sold_last_month": 43951.82328364927,
+        "sold_last_month": 43951.82328364924,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14511,41 +16375,41 @@
       {
         "chances": [],
         "demand_last_month": 308684.45132669515,
-        "exported_last_month": 154206.90125339746,
+        "exported_last_month": 154206.90125339763,
         "group": "elektro",
         "imported_last_month": 0.0,
         "leader": "Siemens & Halske",
-        "leader_share": 0.4067408121195081,
+        "leader_share": 0.40674081211950813,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 8.427146857372,
+        "price_last_month_usd": 8.427146857371996,
         "price_usd": 8.411,
         "product": "gluehlampe",
         "reference_usd": 9.1578,
         "sellers": 3,
-        "sold_last_month": 462891.3525800924,
+        "sold_last_month": 462891.35258009256,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
       },
       {
         "chances": [],
-        "demand_last_month": 151.96415418963306,
+        "demand_last_month": 151.9641541896329,
         "exported_last_month": 0.0,
         "group": "gummi",
-        "imported_last_month": 151.96415418963306,
+        "imported_last_month": 151.9641541896329,
         "leader": null,
         "leader_share": 0.0,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 37555.54714750839,
+        "price_last_month_usd": 37555.547147508434,
         "price_usd": 37307.6472,
         "product": "kautschuk",
         "reference_usd": 47848.2411,
         "sellers": 0,
-        "sold_last_month": 151.96415418963306,
+        "sold_last_month": 151.9641541896329,
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
@@ -14554,7 +16418,7 @@
         "chances": [
           "wenige_anbieter"
         ],
-        "demand_last_month": 8.442453010535171,
+        "demand_last_month": 8.442453010535157,
         "exported_last_month": 0.0,
         "group": "chemie",
         "imported_last_month": 0.0,
@@ -14563,12 +16427,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 880.5803941962051,
+        "price_last_month_usd": 880.5803941962066,
         "price_usd": 880.5904,
         "product": "schwefel",
         "reference_usd": 880.4212,
         "sellers": 0,
-        "sold_last_month": 8.442453010535171,
+        "sold_last_month": 8.442453010535157,
         "state_price_usd": 880.4212,
         "supply": null,
         "unmet_last_month": 0.0
@@ -14576,7 +16440,7 @@
       {
         "chances": [],
         "demand_last_month": 39.5593092718939,
-        "exported_last_month": 128.9214608254336,
+        "exported_last_month": 128.92146082543346,
         "group": "gummi",
         "imported_last_month": 0.0,
         "leader": "Continental-Caoutchouc- und Gutta-Percha Compagnie",
@@ -14584,12 +16448,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 48498.02316952738,
+        "price_last_month_usd": 48498.02316952742,
         "price_usd": 48428.0996,
         "product": "gummi",
         "reference_usd": 58694.7473,
         "sellers": 1,
-        "sold_last_month": 168.4807700973274,
+        "sold_last_month": 168.48077009732725,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14597,20 +16461,20 @@
       {
         "chances": [],
         "demand_last_month": 28052.787788643534,
-        "exported_last_month": 5838.084202059489,
+        "exported_last_month": 5838.084202059488,
         "group": "gummi",
-        "imported_last_month": 374.83313173232256,
+        "imported_last_month": 374.8331317323225,
         "leader": "Continental-Caoutchouc- und Gutta-Percha Compagnie",
-        "leader_share": 0.521870674626434,
+        "leader_share": 0.5218706746264339,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 66.47311968597322,
+        "price_last_month_usd": 66.4731196859732,
         "price_usd": 66.1997,
         "product": "fahrradreifen",
         "reference_usd": 68.4772,
         "sellers": 2,
-        "sold_last_month": 33890.87199070303,
+        "sold_last_month": 33890.87199070304,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14639,7 +16503,7 @@
       {
         "chances": [],
         "demand_last_month": 2013.7527555133377,
-        "exported_last_month": 5193.808982574154,
+        "exported_last_month": 5193.808982574156,
         "group": "maschinen",
         "imported_last_month": 0.0,
         "leader": "Adam Opel",
@@ -14647,12 +16511,12 @@
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 524.0254069890499,
+        "price_last_month_usd": 524.0254069890497,
         "price_usd": 520.2305,
         "product": "naehmaschine",
         "reference_usd": 641.0472,
         "sellers": 1,
-        "sold_last_month": 7207.561738087488,
+        "sold_last_month": 7207.561738087491,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -14919,21 +16783,21 @@
           "teuer",
           "wenige_anbieter"
         ],
-        "demand_last_month": 87.74285959836753,
+        "demand_last_month": 87.74285959836718,
         "exported_last_month": 0.0,
         "group": "textilien",
-        "imported_last_month": 87.74285959836753,
+        "imported_last_month": 87.74285959836718,
         "leader": null,
         "leader_share": 0.0,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 27753.070343803865,
+        "price_last_month_usd": 27753.070343803975,
         "price_usd": 27889.6136,
         "product": "kunstseide",
         "reference_usd": 21521.4073,
         "sellers": 0,
-        "sold_last_month": 87.74285959836753,
+        "sold_last_month": 87.74285959836718,
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
@@ -14941,20 +16805,20 @@
       {
         "chances": [],
         "demand_last_month": 1031191.8569889709,
-        "exported_last_month": 661740.293939066,
+        "exported_last_month": 661740.2939390412,
         "group": "bekleidung",
-        "imported_last_month": 127516.69419656057,
+        "imported_last_month": 127516.69419656042,
         "leader": "Zürcher Spinnerei und Weberei & Co.",
-        "leader_share": 0.9246770202062391,
+        "leader_share": 0.9246770202062382,
         "own_price_usd": null,
         "own_share": 0.0,
         "own_sold_last_month": 0.0,
-        "price_last_month_usd": 8.940406158748285,
+        "price_last_month_usd": 8.940406158748415,
         "price_usd": 8.9732,
         "product": "strumpf",
         "reference_usd": 9.1578,
         "sellers": 1,
-        "sold_last_month": 1692932.1509280368,
+        "sold_last_month": 1692932.150928012,
         "state_price_usd": null,
         "supply": 1.0,
         "unmet_last_month": 0.0
@@ -22024,6 +23888,7 @@
         "country": "DEU",
         "deposit": null,
         "deposit_ready": null,
+        "development": null,
         "free_deposits": [],
         "index": 0,
         "inputs": [
@@ -22798,6 +24663,7 @@
             "cause": null,
             "condition": 0.9612785388127887,
             "count": 1,
+            "development_level": 0,
             "facility": "nagelmaschine",
             "index": 0,
             "inputs_per_day": [
@@ -23035,6 +24901,7 @@
       "sellers": [
         {
           "company": "Hoffmann & Vogt & Co.",
+          "level": 0,
           "own": false,
           "price_usd": 1348.0505,
           "real": false,
@@ -23043,6 +24910,7 @@
         },
         {
           "company": "Thyssen & Co.",
+          "level": 0,
           "own": false,
           "price_usd": 1348.0505,
           "real": true,
@@ -23116,7 +24984,7 @@
         "reference_usd": 160.5128705931472,
         "season": 1.0
       },
-      "exported_last_month": 21603.29356575992,
+      "exported_last_month": 21603.293565759923,
       "group": "moebel_hausrat",
       "history": [
         {
@@ -23166,7 +25034,7 @@
       "imported_last_month": 0.0,
       "outside_demand_last_month": 33952.33667181377,
       "own_awareness": 0.0,
-      "price_last_month_usd": 165.66269676255854,
+      "price_last_month_usd": 165.66269676255857,
       "price_parts": {
         "import_share": 0.0,
         "level_factor": 0.9157816696465176,
@@ -23177,7 +25045,7 @@
         "reference_usd": 183.1563,
         "sellers": 1,
         "situation": 0.898457219325789,
-        "supply": 1.0,
+        "supply": 0.9999999999999998,
         "unmet_share": 0.0,
         "world_reference_usd": 200.0
       },
@@ -23187,17 +25055,18 @@
       "sellers": [
         {
           "company": "Barker Corporation",
+          "level": 0,
           "own": false,
           "price_usd": 162.5903,
           "real": false,
           "share": 1.0,
-          "sold_last_month": 55555.6302375737
+          "sold_last_month": 55555.63023757369
         }
       ],
-      "sold_last_month": 55555.6302375737,
+      "sold_last_month": 55555.63023757369,
       "state_per_month": 0.0,
       "state_price_usd": null,
-      "supply": 1.0,
+      "supply": 0.9999999999999998,
       "unit": "stueck",
       "unmet_last_month": 0.0
     },
@@ -23307,12 +25176,12 @@
         }
       ],
       "import_price_usd": 1968.9837,
-      "imported_last_month": 1.4490035304752242,
+      "imported_last_month": 1.4490035304752245,
       "outside_demand_last_month": 1004.3428623955256,
       "own_awareness": 0.0,
       "price_last_month_usd": 1848.0646045316719,
       "price_parts": {
-        "import_share": 0.0006720954568509773,
+        "import_share": 0.0006720954568509775,
         "level_factor": 0.9782457878929504,
         "level_share": 0.1,
         "price_level": 0.802564352965736,
@@ -23331,6 +25200,7 @@
       "sellers": [
         {
           "company": "Lorenz KG",
+          "level": 0,
           "own": false,
           "price_usd": 1847.699,
           "real": false,
@@ -23339,6 +25209,7 @@
         },
         {
           "company": "Neue Firma",
+          "level": 0,
           "own": true,
           "price_usd": 1887.2139,
           "real": false,
@@ -23408,7 +25279,7 @@
         "real": false
       },
       {
-        "equity_usd": 2152717549.167,
+        "equity_usd": 2152717549.1671,
         "headquarters": "GBR",
         "name": "Holloway Electric Ltd.",
         "real": false
@@ -23432,13 +25303,13 @@
         "real": false
       },
       {
-        "equity_usd": 1336803342.6733,
+        "equity_usd": 1336803342.6732,
         "headquarters": "IND",
         "name": "Morgan & Morgan Ltd.",
         "real": false
       },
       {
-        "equity_usd": 1213545319.5803,
+        "equity_usd": 1213545319.5802,
         "headquarters": "DEU",
         "name": "Zürcher Spinnerei und Weberei & Co.",
         "real": false
@@ -26833,8 +28704,8 @@
         "price_usd": 2013.7916,
         "reference_usd": 1775.0794,
         "sellers": 1,
-        "supply": 0.9999999999999994,
-        "unmet_last_month": 5.684341886080802e-14
+        "supply": 0.9999999999999997,
+        "unmet_last_month": 2.842170943040401e-14
       },
       {
         "country": "IRQ",
@@ -27153,7 +29024,7 @@
         "price_usd": 1951.5998,
         "reference_usd": 1784.1018,
         "sellers": 1,
-        "supply": 1.0,
+        "supply": 1.0000000000000002,
         "unmet_last_month": 0.0
       },
       {
@@ -27363,8 +29234,8 @@
         "price_usd": 2049.6512,
         "reference_usd": 1816.5536,
         "sellers": 0,
-        "supply": 0.9999999999999999,
-        "unmet_last_month": 8.881784197001252e-16
+        "supply": 1.0,
+        "unmet_last_month": 0.0
       },
       {
         "country": "XHA",
@@ -27533,7 +29404,7 @@
         "price_usd": 2135.1976,
         "reference_usd": 1796.7649,
         "sellers": 1,
-        "supply": 1.0,
+        "supply": 1.0000000000000004,
         "unmet_last_month": 0.0
       },
       {

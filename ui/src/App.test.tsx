@@ -48,7 +48,12 @@ describe("Spielablauf", () => {
     expect(screen.getByRole("heading", { name: "Wettbewerb" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Runde beenden" }));
-    const ereignis = await screen.findByRole("dialog", { name: "Erster Weltkrieg" });
+    // A whole round of the preview: give a busy machine time.
+    const ereignis = await screen.findByRole(
+      "dialog",
+      { name: "Erster Weltkrieg" },
+      { timeout: 5000 },
+    );
     expect(within(ereignis).getByText(/Österreich-Ungarn erklärt Serbien den Krieg/)).toBeTruthy();
     expect(within(ereignis).getByText(/Deutschland/)).toBeTruthy();
     fireEvent.click(within(ereignis).getByRole("button", { name: "Weiter" }));

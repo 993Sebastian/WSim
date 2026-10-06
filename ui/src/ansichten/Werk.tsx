@@ -278,6 +278,12 @@ function AnlageKarte({
         </dd>
         <dt>{t("werk.zustand")}</dt>
         <dd>{formatProzent(a.condition)}</dd>
+        {a.product && a.development_level > 0 && (
+          <>
+            <dt>{t("werk.entwicklung")}</dt>
+            <dd>{t("werk.entwicklung_stufe", { stufe: a.development_level })}</dd>
+          </>
+        )}
       </dl>
       <form
         className="formular-zeile"

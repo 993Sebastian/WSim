@@ -680,14 +680,18 @@ pub(crate) fn slot_flows(
     recipe: RecipeId,
     (count, size): (u32, crate::catalog::FacilitySize),
     utilization: f64,
-    wage_factor: f64,
+    (wage_factor, developed): (f64, crate::development::Effect),
 ) -> SlotFlows {
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
     let sizes = &catalog.production_model.sizes;
     let runs = f.runs_per_day * f64::from(count) * sizes.capacity(size) * utilization;
     let c = state.countries.get(country);
-    let inputs: Vec<(ProductId, f64)> = r.inputs.iter().map(|&(p, q)| (p, q * runs)).collect();
+    let inputs: Vec<(ProductId, f64)> = r
+        .inputs
+        .iter()
+        .map(|&(p, q)| (p, q * developed.inputs * runs))
+        .collect();
     let input_cost: f64 = inputs
         .iter()
         .map(|&(p, q)| q * market::market_price(catalog, state, country, p).to_usd())
@@ -698,6 +702,7 @@ pub(crate) fn slot_flows(
         .map(|&(g, h)| h * runs * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
         .sum::<f64>()
         * wage_factor
+        * developed.labor
         * sizes.labor(size)
         / c.labor_productivity.max(1e-9);
     let energy = r.energy_mwh * runs * c.electricity_price_usd_mwh;
@@ -850,7 +855,7 @@ fn found_company(
                 p.recipe,
                 (p.count, crate::catalog::FacilitySize::Medium),
                 start.utilization,
-                1.0,
+                (1.0, crate::development::Effect::NONE),
             );
             daily_cost += flows.cost_per_day;
             let e = produced
@@ -956,6 +961,7 @@ fn found_company(
             offers,
             orders,
             research: None,
+            development: None,
             wage_premium: 0.0,
             acquired: None,
             goodwill: None,
@@ -1022,6 +1028,7 @@ fn found_company(
         brands,
         advertising: Vec::new(),
         auction_until: None,
+        development: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

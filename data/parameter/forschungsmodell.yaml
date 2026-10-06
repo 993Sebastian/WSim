@@ -16,3 +16,39 @@ forschungsmodell:
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)
   sachkosten_usd_je_forschertag: 40
+
+  # Weiterentwicklung erforschter Produkte (M37, docs/FORMELN.md): Jede Firma kann jedes
+  # Produkt, das sie herstellen darf, Stufe für Stufe verbessern.
+  weiterentwicklung:
+    stufen: 5
+    # Wirkung je Stufe in allen Rezepten der Firma für das Produkt: Qualitätspunkte,
+    # eingesparter Anteil der Arbeitsstunden und der Vorprodukte je Durchlauf.
+    je_stufe: {qualitaet: 4, arbeit: 0.03, vorprodukte: 0.02}
+    # Stufe n kostet B · anteil · wachstum^(n − 1) Forschungspunkte; B ist der größte
+    # Forschungsaufwand der Technologien des Produkts, mindestens grundaufwand. Mit einem
+    # Labor (20 Forscher) dauert der Weg bis Stufe 5 so rund 25 Jahre: Wer vorn sein will,
+    # forscht früh und mit mehreren Laboren (im ersten Weltlauf mit anteil 0,2 und
+    # wachstum 1,6 hatten die großen Firmen alle Stufen schon nach 5 Jahren).
+    aufwand: {anteil: 1.0, wachstum: 1.7, grundaufwand: 10_000}
+    # So viele Jahre, nachdem eine Firma eine Stufe als erste erreicht hat, hat sie jeder.
+    gemeingut_nach_jahren: 15
+    # Fachgebiet der Forscher für Produkte ohne Technologie (Ernte, einfacher Abbau),
+    # nach Branche; sonst gilt das Fachgebiet der Technologie.
+    fachgebiete:
+      bergbau: bergbau
+      metallurgie: metall
+      chemie: chemie
+      energie: elektro
+      holz_papier: holz_bau
+      textil: textil
+      lebensmittel: lebensmittel
+      bau: holz_bau
+      maschinenbau: maschinenbau
+      fahrzeuge: maschinenbau
+      schiffbau: maschinenbau
+      luftfahrt: maschinenbau
+      raumfahrt: maschinenbau
+      elektro: elektro
+      konsumgueter: metall
+      pharma: chemie
+      ruestung: maschinenbau

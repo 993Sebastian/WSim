@@ -12,6 +12,7 @@ pub mod competition;
 pub mod country_model;
 pub mod currency;
 pub mod deals;
+pub mod development;
 pub mod finance;
 pub mod game;
 pub mod health;
@@ -41,6 +42,8 @@ pub mod views;
 mod deals_tests;
 #[cfg(test)]
 mod determinism_tests;
+#[cfg(test)]
+mod development_tests;
 #[cfg(test)]
 mod facility_tests;
 #[cfg(test)]

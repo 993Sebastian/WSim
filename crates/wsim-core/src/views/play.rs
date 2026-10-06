@@ -11,7 +11,7 @@ use crate::catalog::{Catalog, FacilitySize, SiteType};
 use crate::command::site_type_key;
 use crate::finance;
 use crate::game::Game;
-use crate::ids::{CountryId, GoodsGroupId, Id};
+use crate::ids::{CountryId, GoodsGroupId, Id, ProductId};
 use crate::market;
 use crate::money::Money;
 use crate::reports;
@@ -55,6 +55,9 @@ pub struct SlotDetail {
     pub condition: f64,
     /// Inputs per day at the planned utilization.
     pub inputs_per_day: Vec<(String, f64)>,
+    /// The company's development level of the product (M37).
+    #[serde(default)]
+    pub development_level: u8,
     /// `laeuft`, `stillgelegt` or `wiederanlauf` (M22).
     pub operation: String,
     /// Shut down since, or producing again from (`stillgelegt`, `wiederanlauf`).
@@ -214,6 +217,9 @@ pub struct SiteDetail {
     pub orders: Vec<OrderView>,
     pub inputs: Vec<InputSupply>,
     pub research: Option<String>,
+    /// Product the research center develops (M37).
+    #[serde(default)]
+    pub development: Option<String>,
     /// Premium over the country's wages (0.1 = 10 %) and its highest allowed value.
     pub wage_premium: f64,
     pub wage_premium_max: f64,
@@ -525,15 +531,24 @@ pub fn production(game: &Game) -> ProductionView {
                         ready: iso(sl.ready),
                         planned_per_day: recipe.map_or(0.0, |r| runs * r.output),
                         made_per_day: recipe.map_or(0.0, |r| sl.last_runs * r.output),
+                        development_level: recipe.map_or(0, |r| {
+                            crate::development::level(catalog, state, s.owner, r.product)
+                        }),
                         cause: cause.map(|(key, detail)| Cause {
                             key: key.to_owned(),
                             detail,
                         }),
                         condition: sl.condition,
                         inputs_per_day: recipe.map_or_else(Vec::new, |r| {
+                            // The company's development level saves inputs (M37).
+                            let saved =
+                                crate::development::effect(catalog, state, s.owner, r.product)
+                                    .inputs;
                             r.inputs
                                 .iter()
-                                .map(|&(p, q)| (catalog.products.key(p).to_owned(), q * runs))
+                                .map(|&(p, q)| {
+                                    (catalog.products.key(p).to_owned(), q * saved * runs)
+                                })
                                 .collect()
                         }),
                         operation: match sl.operation {
@@ -661,6 +676,7 @@ pub fn production(game: &Game) -> ProductionView {
                     .collect(),
                 inputs,
                 research: s.research.map(|t| catalog.technologies.key(t).to_owned()),
+                development: s.development.map(|p| catalog.products.key(p).to_owned()),
                 wage_premium: s.wage_premium,
                 wage_premium_max: catalog.production_model.wage_premium_max,
                 rival_premium_max,
@@ -1079,6 +1095,9 @@ pub struct SellerLine {
     pub sold_last_month: f64,
     /// Share of the market's sales last month (0–1).
     pub share: f64,
+    /// The company's development level of the product (M37).
+    #[serde(default)]
+    pub level: u8,
 }
 
 /// One product on the market of a country (M18): prices, demand by buyer, sellers.
@@ -1373,6 +1392,7 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
                 price_usd: usd(o.price),
                 sold_last_month: o.sold_last_month,
                 share: 0.0,
+                level: crate::development::level(catalog, state, s.owner, p),
             }),
         }
     }
@@ -1622,12 +1642,63 @@ pub struct RecipeUnlock {
     pub inputs_per_day: Vec<(String, f64)>,
 }
 
+/// A product the player may develop or has developed (M37).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DevelopmentView {
+    pub product: String,
+    /// The player makes it in a facility of its own.
+    pub own: bool,
+    pub level: u8,
+    /// Levels by own research and those that became common knowledge.
+    pub own_level: u8,
+    pub public_level: u8,
+    /// Highest level of another company.
+    pub best_rival: u8,
+    /// The next level, the points it takes today and the points collected.
+    pub next: Option<u8>,
+    pub needed: Option<f64>,
+    pub points: f64,
+    /// Points per day of the own research centers working on it, and days to go.
+    pub points_per_day: f64,
+    pub days: Option<f64>,
+    /// What one fully used laboratory would take for the next level.
+    pub one_lab: Option<LabEstimate>,
+    /// Field of its researchers.
+    pub field: String,
+    /// What the level changes now, and with the next level.
+    pub effect: EffectView,
+    pub next_effect: Option<EffectView>,
+    /// Research centers developing it.
+    pub sites: Vec<u32>,
+}
+
+/// What a development level changes (M37): quality points, shares of labor and inputs
+/// saved per run.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct EffectView {
+    pub quality: f64,
+    pub labor_saved: f64,
+    pub inputs_saved: f64,
+}
+
+impl From<crate::development::Effect> for EffectView {
+    fn from(e: crate::development::Effect) -> Self {
+        Self {
+            quality: e.quality,
+            labor_saved: 1.0 - e.labor,
+            inputs_saved: 1.0 - e.inputs,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ResearchCenterView {
     pub site: u32,
     pub country: String,
     pub researchers: f64,
     pub project: Option<String>,
+    /// Product it develops instead of researching a technology (M37).
+    pub development: Option<String>,
     /// A laboratory is ready.
     pub ready: bool,
     /// Day the first laboratory is ready while all are still being built.
@@ -1648,6 +1719,10 @@ pub struct LabView {
 pub struct ResearchOverview {
     pub date: String,
     pub technologies: Vec<TechnologyView>,
+    /// Products to develop (M37), the highest level and what one level brings.
+    pub developments: Vec<DevelopmentView>,
+    pub development_levels: u8,
+    pub development_per_level: EffectView,
     pub centers: Vec<ResearchCenterView>,
     /// Facility for research centers (to build a laboratory).
     pub laboratory: Option<String>,
@@ -1664,14 +1739,13 @@ fn lab_estimate(
     catalog: &Catalog,
     state: &crate::state::GameState,
     country: CountryId,
-    technology: crate::ids::TechnologyId,
+    field: crate::ids::SpecializationId,
     remaining: f64,
 ) -> Option<LabEstimate> {
     let lab = catalog
         .facilities
         .values()
         .find(|f| f.site_type == SiteType::ResearchCenter)?;
-    let field = catalog.technologies.get(technology).field;
     let group = catalog
         .research_model
         .researchers
@@ -1700,6 +1774,105 @@ fn lab_estimate(
         days,
         cost_usd: days * per_day,
     })
+}
+
+/// Products the player may develop or has developed, with their levels, the effort of
+/// the next level and what it brings (M37).
+fn developments(game: &Game) -> Vec<DevelopmentView> {
+    use crate::development;
+    let state = game.state();
+    let catalog = game.catalog();
+    let player = state.player;
+    let company = &state.companies[player.index()];
+    let top = catalog.research_model.development.levels;
+    let lab_country = state
+        .sites
+        .iter()
+        .find(|s| s.owner == player && s.kind == SiteType::ResearchCenter)
+        .map_or(company.headquarters, |s| s.country);
+    let made: BTreeSet<ProductId> = state
+        .sites
+        .iter()
+        .filter(|s| s.owner == player)
+        .flat_map(|s| &s.slots)
+        .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product))
+        .collect();
+    catalog
+        .products
+        .ids()
+        .filter_map(|p| {
+            let (field, _) = development::basis(catalog, p)?;
+            let level = development::level(catalog, state, player, p);
+            if level < top && !development::can_develop(catalog, state, player, p) {
+                return None;
+            }
+            let next = development::next_effort(catalog, state, player, p, state.date);
+            let points = company.development.points.get(&p).copied().unwrap_or(0.0);
+            let remaining = next.map(|(_, needed)| (needed - points).max(0.0));
+            let working: Vec<usize> = state
+                .sites
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| s.owner == player && s.development == Some(p))
+                .map(|(i, _)| i)
+                .collect();
+            let points_per_day: f64 = working
+                .iter()
+                .map(|&i| {
+                    let s = &state.sites[i];
+                    let researchers = catalog
+                        .research_model
+                        .researchers
+                        .get(field.index())
+                        .copied()
+                        .flatten()
+                        .map_or(0.0, |g| *s.workforce.get(g));
+                    researchers
+                        * state
+                            .countries
+                            .get(s.country)
+                            .research_efficiency
+                            .get(field.index())
+                            .copied()
+                            .unwrap_or(1.0)
+                })
+                .sum();
+            let best_rival = state
+                .companies
+                .iter()
+                .enumerate()
+                .filter(|&(i, c)| i != player.index() && !c.bankrupt)
+                .map(|(i, _)| {
+                    development::level(catalog, state, crate::state::CompanyId(i as u32), p)
+                })
+                .max()
+                .unwrap_or(0);
+            Some(DevelopmentView {
+                product: catalog.products.key(p).to_owned(),
+                own: made.contains(&p),
+                level,
+                own_level: company.development.level(p),
+                public_level: development::public_level(catalog, state, p, state.date),
+                best_rival,
+                next: next.map(|(n, _)| n),
+                needed: next.map(|(_, needed)| needed),
+                points,
+                points_per_day,
+                days: remaining
+                    .filter(|_| points_per_day > 0.0)
+                    .map(|r| r / points_per_day),
+                one_lab: remaining
+                    .and_then(|r| lab_estimate(catalog, state, lab_country, field, r)),
+                field: catalog.specializations.key(field).to_owned(),
+                effect: development::Effect::of_level(catalog, level).into(),
+                next_effect: next.map(|(n, _)| development::Effect::of_level(catalog, n).into()),
+                sites: working
+                    .iter()
+                    .map(|&i| u32::try_from(i).unwrap_or(u32::MAX))
+                    .collect(),
+            })
+        })
+        .collect()
 }
 
 pub fn research_overview(game: &Game) -> ResearchOverview {
@@ -1840,7 +2013,8 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                 days: remaining
                     .filter(|_| points_per_day > 0.0)
                     .map(|r| r / points_per_day),
-                one_lab: remaining.and_then(|r| lab_estimate(catalog, state, lab_country, id, r)),
+                one_lab: remaining
+                    .and_then(|r| lab_estimate(catalog, state, lab_country, t.field, r)),
                 facilities,
                 recipes,
                 products,
@@ -1875,6 +2049,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             country: catalog.countries.key(s.country).to_owned(),
             researchers: s.workforce.values().sum(),
             project: s.research.map(|t| catalog.technologies.key(t).to_owned()),
+            development: s.development.map(|p| catalog.products.key(p).to_owned()),
             ready: s.slots.iter().any(|sl| sl.operating(state.date)),
             building_until: s
                 .slots
@@ -1899,6 +2074,9 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
     ResearchOverview {
         date: iso(state.date),
         technologies,
+        developments: developments(game),
+        development_levels: catalog.research_model.development.levels,
+        development_per_level: crate::development::Effect::of_level(catalog, 1).into(),
         centers,
         laboratory: catalog
             .facilities

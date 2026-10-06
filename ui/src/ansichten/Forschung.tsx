@@ -13,7 +13,14 @@ import {
   zahlFeld,
   zahlLesen,
 } from "../format";
-import type { Forschung, Kern, Technologie, Uebersicht } from "../kern";
+import type {
+  Entwicklungswirkung,
+  Forschung,
+  Kern,
+  Technologie,
+  Uebersicht,
+  Weiterentwicklung,
+} from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import {
@@ -56,7 +63,7 @@ export function ForschungAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.forschung(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const [bereich, setBereich] = useState<"baum" | "zentren">("baum");
+  const [bereich, setBereich] = useState<"baum" | "entwicklung" | "zentren">("baum");
   if (!daten) return <FehlerText fehler={fehler} />;
   return (
     <main className="ansicht" id="forschung">
@@ -66,18 +73,24 @@ export function ForschungAnsicht({
           name={t("forschung.bereiche")}
           bereiche={[
             { key: "baum", text: t("forschung.baum") },
+            { key: "entwicklung", text: t("forschung.entwicklung") },
             {
               key: "zentren",
               text: t("forschung.zentren"),
-              zaehler: daten.centers.filter((z) => z.project === null).length,
+              zaehler: daten.centers.filter((z) => z.project === null && z.development === null)
+                .length,
             },
           ]}
           aktiv={bereich}
           onWahl={setBereich}
         />
-        {bereich === "baum" ? (
+        {bereich === "baum" && (
           <Baum daten={daten} onZentren={() => setBereich("zentren")} onStandorte={onStandorte} />
-        ) : (
+        )}
+        {bereich === "entwicklung" && (
+          <Entwicklung daten={daten} onZentren={() => setBereich("zentren")} />
+        )}
+        {bereich === "zentren" && (
           <Zentren kern={kern} daten={daten} heimat={uebersicht.company.headquarters} />
         )}
       </Befehle>
@@ -618,6 +631,227 @@ function TechnologieDetail({
 
 // --- Research centers ---
 
+/** Own products first, then by name. */
+function sortiert(liste: Weiterentwicklung[]): Weiterentwicklung[] {
+  return [...liste].sort(
+    (a, b) =>
+      Number(b.own) - Number(a.own) ||
+      produktName(a.product).localeCompare(produktName(b.product), "de"),
+  );
+}
+
+function wirkungText(w: Entwicklungswirkung): string {
+  return t("forschung.wirkung_text", {
+    qualitaet: formatZahl(w.quality, 0),
+    arbeit: formatProzent(w.labor_saved),
+    vorprodukte: formatProzent(w.inputs_saved),
+  });
+}
+
+/**
+ * Development of products (M37): what each level brings, where the player and the
+ * competitors stand, and what the next level costs; a research center works on it.
+ */
+function Entwicklung({ daten, onZentren }: { daten: Forschung; onZentren: () => void }) {
+  const eigene = daten.developments.filter((d) => d.own);
+  const [nurEigene, setNurEigene] = useState(eigene.length > 0);
+  const liste = sortiert(nurEigene ? eigene : daten.developments);
+  const id = useId();
+  return (
+    <div className="entwicklung" data-tour="weiterentwicklung">
+      <p className="erklaerung">
+        {t("forschung.entwicklung_erklaerung", {
+          stufen: daten.development_levels,
+          wirkung: wirkungText(daten.development_per_level),
+        })}
+      </p>
+      <label className="schalter" htmlFor={`${id}-eigene`}>
+        <input
+          id={`${id}-eigene`}
+          type="checkbox"
+          checked={nurEigene}
+          onChange={(e) => setNurEigene(e.target.checked)}
+        />{" "}
+        {t("forschung.nur_eigene", { anzahl: eigene.length })}
+      </label>
+      {liste.length === 0 ? (
+        <p className="gedaempft">{t("forschung.entwicklung_leer")}</p>
+      ) : (
+        <div className="karten">
+          {liste.map((d) => (
+            <EntwicklungKarte key={d.product} d={d} daten={daten} onZentren={onZentren} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EntwicklungKarte({
+  d,
+  daten,
+  onZentren,
+}: {
+  d: Weiterentwicklung;
+  daten: Forschung;
+  onZentren: () => void;
+}) {
+  const name = produktName(d.product);
+  const { los, antwort } = useAktion(`entwicklung/${d.product}`);
+  const dabei = daten.centers.filter((z) => z.development === d.product);
+  const bereit = daten.centers.filter((z) => z.labs.length > 0 && z.development !== d.product);
+  const [zentrum, setZentrum] = useState(bereit[0]?.site ?? -1);
+  const formId = useId();
+  const fortschritt = d.needed ? Math.min(d.points / d.needed, 1) : 0;
+  return (
+    <article className="karte entwicklungkarte" aria-label={name}>
+      <h3>
+        {name}{" "}
+        <span
+          className="stufen"
+          aria-label={t("forschung.stufe_von", { stufe: d.level, von: daten.development_levels })}
+        >
+          {Array.from({ length: daten.development_levels }, (_, i) => (
+            <span key={i} className={i < d.level ? "stufe erreicht" : "stufe"} />
+          ))}
+        </span>
+      </h3>
+      <dl className="werte">
+        <dt>{t("forschung.stufe")}</dt>
+        <dd>
+          {t("forschung.stufe_von", { stufe: d.level, von: daten.development_levels })}
+          {d.public_level > d.own_level && (
+            <small className="gedaempft">
+              {" "}
+              {t("forschung.davon_gemeingut", { stufe: d.public_level })}
+            </small>
+          )}
+        </dd>
+        <dt>{t("forschung.wirkung")}</dt>
+        <dd>{d.level > 0 ? wirkungText(d.effect) : t("forschung.wirkung_keine")}</dd>
+        <dt>{t("forschung.wettbewerber")}</dt>
+        <dd>
+          {d.best_rival > d.level
+            ? t("forschung.wettbewerber_vorn", { stufe: d.best_rival })
+            : t("forschung.wettbewerber_hinten", { stufe: d.best_rival })}
+        </dd>
+        {d.next !== null && d.needed !== null ? (
+          <>
+            <dt>{t("forschung.naechste_stufe", { stufe: d.next })}</dt>
+            <dd>
+              {d.next_effect && wirkungText(d.next_effect)}
+              <br />
+              <span className="technik-fortschritt">
+                <progress max={1} value={fortschritt} aria-label={t("forschung.fortschritt")} />
+                <span className="zahl">{formatProzent(fortschritt)}</span>
+              </span>{" "}
+              <small className="gedaempft">
+                {t("forschung.punkte", {
+                  punkte: formatZahl(d.points, 0),
+                  bedarf: formatZahl(d.needed, 0),
+                })}
+              </small>
+            </dd>
+            <dt>{t("forschung.dauer")}</dt>
+            <dd>
+              {d.days !== null ? (
+                <>
+                  {t("forschung.tage_etwa", { tage: formatZahl(Math.ceil(d.days)) })}{" "}
+                  <small className="gedaempft">
+                    {t("forschung.mit_deinen_zentren", {
+                      punkte: formatZahl(d.points_per_day, 1),
+                    })}
+                  </small>
+                </>
+              ) : d.one_lab ? (
+                <>
+                  {t("forschung.tage_etwa", { tage: formatZahl(Math.ceil(d.one_lab.days)) })}{" "}
+                  <small className="gedaempft">
+                    {t("forschung.mit_einem_labor", { land: landName(d.one_lab.country) })}
+                  </small>
+                </>
+              ) : (
+                "–"
+              )}
+            </dd>
+            {d.one_lab && (
+              <>
+                <dt>{t("forschung.kosten")}</dt>
+                <dd>
+                  {t("forschung.kosten_etwa", { kosten: formatGeld(d.one_lab.cost_usd) })}{" "}
+                  <small className="gedaempft">
+                    {t("forschung.kosten_hinweis", {
+                      forscher: formatZahl(d.one_lab.researchers),
+                    })}
+                  </small>
+                </dd>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <dt>{t("forschung.naechste")}</dt>
+            <dd>{t("forschung.ausgereizt")}</dd>
+          </>
+        )}
+        {dabei.length > 0 && (
+          <>
+            <dt>{t("forschung.forscht_daran")}</dt>
+            <dd>{dabei.map((z) => landName(z.country)).join(", ")}</dd>
+          </>
+        )}
+      </dl>
+      {d.next !== null &&
+        (bereit.length === 0 ? (
+          dabei.length === 0 && (
+            <p className="erklaerung">
+              {t("forschung.erst_zentrum", { betrag: formatGeld(daten.laboratory_usd) })}{" "}
+              <button type="button" className="schlicht" onClick={onZentren}>
+                {t("forschung.zu_den_zentren")}
+              </button>
+            </p>
+          )
+        ) : (
+          <form
+            className="formular-zeile"
+            aria-label={t("forschung.entwickeln_an", { produkt: name })}
+            onSubmit={(e) => {
+              e.preventDefault();
+              void los(
+                [{ SetDevelopment: { site: zentrum, product: d.product } }],
+                t("forschung.entwicklung_gestartet", { produkt: name }),
+              );
+            }}
+          >
+            <div className="feld">
+              <label htmlFor={`${formId}-zentrum`}>{t("forschung.zentrum")}</label>
+              <select
+                id={`${formId}-zentrum`}
+                value={zentrum}
+                onChange={(e) => setZentrum(Number(e.target.value))}
+              >
+                {bereit.map((z) => (
+                  <option key={z.site} value={z.site}>
+                    {landName(z.country)}
+                    {z.project
+                      ? ` (${t("forschung.statt", { technologie: technologieName(z.project) })})`
+                      : z.development
+                        ? ` (${t("forschung.statt", { technologie: produktName(z.development) })})`
+                        : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className="haupt">
+              {t("forschung.weiterentwickeln")}
+            </button>
+          </form>
+        ))}
+      <Rueckmeldung meldung={antwort} />
+    </article>
+  );
+}
+
 function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat: string }) {
   const erforschbar = daten.technologies.filter(
     (x) => x.status === "erforschbar" || x.status === "in_arbeit",
@@ -649,12 +883,17 @@ function Zentrum({
   erforschbar: Technologie[];
 }) {
   const { los, antwort } = useAktion(`zentrum/${z.site}`);
-  const [projekt, setProjekt] = useState(z.project ?? "");
+  // "t:<technology>" or "p:<product>" (M37); empty: no project.
+  const [projekt, setProjekt] = useState(
+    z.project ? `t:${z.project}` : z.development ? `p:${z.development}` : "",
+  );
   const id = useId();
   const titel = t("forschung.zentrum_in", { land: landName(z.country) });
   const fertig = z.labs.filter((l) => l.ready <= daten.date);
   const plaetze = fertig.reduce((n, l) => n + l.count * daten.laboratory_posts * l.utilization, 0);
   const tech = daten.technologies.find((x) => x.key === z.project);
+  const entwicklung = daten.developments.find((d) => d.product === z.development);
+  const entwickelbar = sortiert(daten.developments.filter((d) => d.next !== null));
   return (
     <article className="karte zentrumkarte" aria-label={titel}>
       <h3>{titel}</h3>
@@ -687,6 +926,24 @@ function Zentrum({
             </dd>
           </>
         )}
+        {entwicklung && entwicklung.needed !== null && entwicklung.next !== null && (
+          <>
+            <dt>{t("forschung.fortschritt")}</dt>
+            <dd>
+              {t("forschung.entwicklung_stand", {
+                produkt: produktName(entwicklung.product),
+                stufe: entwicklung.next,
+                anteil: formatProzent(Math.min(entwicklung.points / entwicklung.needed, 1)),
+              })}
+              {entwicklung.days !== null && (
+                <small className="gedaempft">
+                  {" "}
+                  {t("forschung.noch_tage", { tage: formatZahl(Math.ceil(entwicklung.days)) })}
+                </small>
+              )}
+            </dd>
+          </>
+        )}
       </dl>
       {z.labs.length === 0 && <p className="gedaempft">{t("forschung.erst_labor")}</p>}
       {z.labs.length > 0 && (
@@ -695,12 +952,26 @@ function Zentrum({
           aria-label={t("forschung.projekt_von", { land: landName(z.country) })}
           onSubmit={(e) => {
             e.preventDefault();
-            void los(
-              [{ SetResearch: { site: z.site, technology: projekt || null } }],
-              projekt
-                ? t("forschung.gestartet", { technologie: technologieName(projekt) })
-                : t("forschung.angehalten"),
-            );
+            const [art, key] = [projekt.slice(0, 1), projekt.slice(2)];
+            if (art === "t") {
+              void los(
+                [{ SetResearch: { site: z.site, technology: key } }],
+                t("forschung.gestartet", { technologie: technologieName(key) }),
+              );
+            } else if (art === "p") {
+              void los(
+                [{ SetDevelopment: { site: z.site, product: key } }],
+                t("forschung.entwicklung_gestartet", { produkt: produktName(key) }),
+              );
+            } else {
+              void los(
+                [
+                  { SetResearch: { site: z.site, technology: null } },
+                  { SetDevelopment: { site: z.site, product: null } },
+                ],
+                t("forschung.angehalten"),
+              );
+            }
           }}
         >
           <div className="feld">
@@ -711,11 +982,25 @@ function Zentrum({
               onChange={(e) => setProjekt(e.target.value)}
             >
               <option value="">{t("forschung.kein_projekt")}</option>
-              {erforschbar.map((x) => (
-                <option key={x.key} value={x.key}>
-                  {technologieName(x.key)}
-                </option>
-              ))}
+              <optgroup label={t("forschung.technologien")}>
+                {erforschbar.map((x) => (
+                  <option key={x.key} value={`t:${x.key}`}>
+                    {technologieName(x.key)}
+                  </option>
+                ))}
+              </optgroup>
+              {entwickelbar.length > 0 && (
+                <optgroup label={t("forschung.entwicklung")}>
+                  {entwickelbar.map((d) => (
+                    <option key={d.product} value={`p:${d.product}`}>
+                      {t("forschung.entwicklung_option", {
+                        produkt: produktName(d.product),
+                        stufe: d.next ?? 0,
+                      })}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
           <button type="submit">{t("werk.uebernehmen")}</button>

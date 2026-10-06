@@ -634,6 +634,45 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
             price
         );
     }
+    print_developments(texts, game);
+}
+
+/// Development levels (M37): per product the highest level, who holds it, how many
+/// companies have a level, and the levels that are common knowledge.
+fn print_developments(texts: &wsim_data::Texts, game: &Game) {
+    let state = game.state();
+    let catalog = game.catalog();
+    let mut lines = Vec::new();
+    for (product, _) in catalog.products.iter() {
+        let firsts = state.developments.get(product);
+        if firsts.is_empty() {
+            continue;
+        }
+        let holders: Vec<(&str, u8)> = state
+            .companies
+            .iter()
+            .filter(|c| !c.bankrupt)
+            .map(|c| (c.name.as_str(), c.development.level(product)))
+            .filter(|&(_, l)| l > 0)
+            .collect();
+        let best = holders.iter().max_by_key(|&&(_, l)| l);
+        let public = wsim_core::development::public_level(catalog, state, product, state.date);
+        lines.push(format!(
+            "  {:<16} höchste Stufe {} seit {} ({}), {} Firmen mit Stufe, Gemeingut {}",
+            texts
+                .get(&format!("produkt.{}", catalog.products.key(product)))
+                .unwrap_or_default(),
+            firsts.len(),
+            format_date(*firsts.last().expect("not empty")),
+            best.map_or("–", |b| b.0),
+            holders.len(),
+            public
+        ));
+    }
+    println!("Weiterentwicklung (M37): {} Produkte", lines.len());
+    for l in lines {
+        println!("{l}");
+    }
 }
 
 fn show_country(directory: &Path, key: &str, year: i32) -> Result<(), String> {

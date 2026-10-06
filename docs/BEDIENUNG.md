@@ -222,6 +222,22 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Detail mit Fortschritt, Aufwandsfaktor, Dauer und Kosten je Labor, „Schaltet frei“ und
   Forschung starten; Forschungszentren als eigener Unterreiter.
 
+### Forschung → Weiterentwicklung (M37)
+
+- Ziel: Der Spieler sieht für jedes Produkt, das er herstellt (umschaltbar: alle, die er
+  herstellen darf), wo er steht und was die nächste Stufe bringt und kostet – und wo die
+  Wettbewerber stehen.
+- Umgesetzt: eigener Unterreiter zwischen Technologiebaum und Forschungszentren. Oben
+  die Erklärung mit der Wirkung je Stufe; je Produkt eine Karte mit Stufe (Punkte,
+  „Stufe 2 von 5“, Hinweis auf Gemeingut), Wirkung jetzt, bester Wettbewerber, nächste
+  Stufe mit Wirkung, Fortschritt, Dauer (mit den eigenen Zentren oder mit einem Labor,
+  dann mit Kosten) und Knopf „Weiterentwickeln“ mit Wahl des Zentrums. Ohne Zentrum führt
+  die Karte zu den Forschungszentren.
+- Forschungszentren: Das Projekt wählt eine Technologie oder ein Produkt („Nägel →
+  Stufe 2“); „kein Projekt“ hält beides an. Der Stand zeigt den Fortschritt der Stufe.
+- Markt: Die Anbieter eines Produkts zeigen ihre Entwicklungsstufe (Spalte „Stufe“).
+- Rundgang der Einführung: Schritt „Produkte weiterentwickeln“ zeigt auf den Unterreiter.
+
 ### Finanzen
 
 - Ist: Bilanz, Erfolgsrechnung (Vormonat, Jahr, Vorjahr), Geldfluss, Kredite. Klar

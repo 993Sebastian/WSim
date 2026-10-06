@@ -349,6 +349,8 @@ export interface AnlageDetail {
   condition: number;
   /** [product, quantity per day at the planned utilization] */
   inputs_per_day: [string, number][];
+  /** Development level of the product made here (M37). */
+  development_level: number;
   /** Running, shut down or starting up again (M22). */
   operation: "laeuft" | "stillgelegt" | "wiederanlauf";
   /** Shut down since, or producing again from. */
@@ -455,6 +457,8 @@ export interface StandortDetail {
   orders: Einkauf[];
   inputs: Versorgung[];
   research: string | null;
+  /** Product a research center develops (M37). */
+  development: string | null;
   wage_premium: number;
   wage_premium_max: number;
   rival_premium_max: number;
@@ -605,6 +609,8 @@ export interface ProduktMarkt {
     price_usd: number;
     sold_last_month: number;
     share: number;
+    /** Development level of the seller for the product (M37). */
+    level: number;
   }[];
   own_awareness: number;
   chances: string[];
@@ -707,6 +713,40 @@ export interface WeltMarkt {
   }[];
 }
 
+/** What a development level changes (M37): quality points, shares saved per run. */
+export interface Entwicklungswirkung {
+  quality: number;
+  labor_saved: number;
+  inputs_saved: number;
+}
+
+/** A product the player may develop or has developed (M37). */
+export interface Weiterentwicklung {
+  product: string;
+  /** The player makes it in a facility of its own. */
+  own: boolean;
+  level: number;
+  own_level: number;
+  public_level: number;
+  best_rival: number;
+  next: number | null;
+  needed: number | null;
+  points: number;
+  points_per_day: number;
+  days: number | null;
+  one_lab: {
+    country: string;
+    researchers: number;
+    points_per_day: number;
+    days: number;
+    cost_usd: number;
+  } | null;
+  field: string;
+  effect: Entwicklungswirkung;
+  next_effect: Entwicklungswirkung | null;
+  sites: number[];
+}
+
 export interface Forschung {
   date: string;
   technologies: {
@@ -752,11 +792,17 @@ export interface Forschung {
     }[];
     products: string[];
   }[];
+  /** Products to develop (M37) and the highest level. */
+  developments: Weiterentwicklung[];
+  development_levels: number;
+  development_per_level: Entwicklungswirkung;
   centers: {
     site: number;
     country: string;
     researchers: number;
     project: string | null;
+    /** Product developed instead of a technology (M37). */
+    development: string | null;
     ready: boolean;
     building_until: string | null;
     labs: { slot: number; count: number; utilization: number; ready: string }[];

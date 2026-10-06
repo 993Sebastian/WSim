@@ -598,6 +598,9 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                   <th className="zahl">{t("markt.preis_anbieter")}</th>
                   <th className="zahl">{t("markt.verkauft_vormonat")}</th>
                   <th>{t("markt.anteil_markt")}</th>
+                  <th className="zahl" title={t("markt.stufe_hilfe")}>
+                    {t("markt.stufe")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -619,6 +622,9 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                         <span style={{ width: `${s.share * 100}%` }} />
                       </span>{" "}
                       {formatProzent(s.share)}
+                    </td>
+                    <td className="zahl" data-spalte={t("markt.stufe")}>
+                      {s.level > 0 ? s.level : "–"}
                     </td>
                   </tr>
                 ))}

@@ -191,6 +191,16 @@ impl PeriodResult {
             .sum()
     }
 
+    /// Sum of a cost type over the centers of a product (all sites).
+    pub fn product_type(&self, product: ProductId, cost: CostType) -> Money {
+        self.by_center
+            .iter()
+            .filter(|(c, _)| c.product == Some(product))
+            .filter_map(|(_, t)| t.get(&cost))
+            .copied()
+            .sum()
+    }
+
     pub fn total(&self) -> Money {
         self.by_type.values().copied().sum()
     }

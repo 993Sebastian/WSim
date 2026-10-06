@@ -125,7 +125,10 @@ pub fn last_month(state: &GameState, catalog: &Catalog) -> Vec<ProductHealth> {
                 sl.recipe.expect("set"),
                 (sl.count, sl.size),
                 sl.utilization,
-                1.0 + site.wage_premium,
+                (
+                    1.0 + site.wage_premium,
+                    crate::development::effect(catalog, state, site.owner, r.product),
+                ),
             );
             let h = &mut health[r.product.index()];
             h.capacity += runs * r.output;

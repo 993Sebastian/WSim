@@ -556,6 +556,14 @@ auch für Vormaterialien oder Halbzeuge.“
 5. **Anzeige:** Forschungsansicht mit „Weiterentwickeln“ je Produkt; Produkt- und
    Marktansicht zeigen die Stufe der eigenen Firma und der Wettbewerber.
 
+Umgesetzt mit M37 (Formeln: `docs/FORMELN.md`, Abschnitt M37). 🟡 Eigenständig
+entschieden: Grundlage des Aufwands ist der größte Forschungsaufwand der Technologien des
+Produkts, mindestens 10 000 Punkte (Produkte ohne erforschte Technologie); Produkte ohne
+Technologie (Ernte, Abbau) forschen im Fachgebiet ihrer Branche. Ein Zentrum arbeitet nach
+einer Stufe an der nächsten weiter. Die KI entwickelt nur, wenn sich die nächste Stufe in
+5 Jahren bezahlt macht (geschätzt 3 % des Umsatzes je Stufe und Jahr). Lizenzen und
+Kaufangebote übertragen vorerst keine Stufen.
+
 ## K Pleiten: Standorte weitergeben statt aufgeben (aus dem Weltlauf, 06.10.2026)
 
 Beobachtung: Geht eine KI-Firma pleite, werden ihre Konzessionen frei und müssen neu
@@ -567,9 +575,9 @@ erhalten, ein neuer Betreiber muss nur die Anlagen bauen.
 
 Umgesetzt mit M38 (Formeln: `docs/FORMELN.md`, Abschnitt M38). 🟡 Eigenständig
 entschieden: Die Versteigerung dauert 30 Tage, das Mindestgebot ist der halbe Grundwert.
-Den Zuschlag bekommt das höchste Gebot zum Preis des zweithöchsten (so bietet jeder
-ehrlich, was ihm der Standort wert ist); jede KI-Firma bietet ihren Höchstpreis aus M30,
-soweit ihre Kasse reicht. Bei Gleichstand gewinnt eine Firma, die im Land schon vertreten
+Den Zuschlag bekommt das höchste Gebot zum Preis des zweithöchsten; eine KI-Firma bietet
+nur für Standorte, die sie auch sonst kaufen würde, und zwar ihr übliches Kaufangebot
+(M30), soweit ihre Kasse reicht. Bei Gleichstand gewinnt eine Firma, die im Land schon vertreten
 ist. Ein Standort ohne Gebot wird wie bisher aufgegeben (Konzession und Grundstück frei).
 Lizenzen und Bereiche einer insolventen Firma werden nicht versteigert.
 

@@ -94,6 +94,12 @@ pub enum Command {
         site: SiteId,
         technology: Option<TechnologyId>,
     },
+    /// A research center develops a product to its next levels (M37) instead of
+    /// researching a technology; `None` stops it.
+    SetDevelopment {
+        site: SiteId,
+        product: Option<ProductId>,
+    },
     /// Sets who besides consumers and governments may buy the company's goods
     /// (`None` removes the policy of this scope, the more general one applies).
     SetSalesPolicy {
@@ -228,6 +234,8 @@ pub enum CommandError {
     NoOffer(String),
     /// Already known, or prerequisites missing (key of the technology).
     NotResearchable(String),
+    /// The company cannot make the product or it is fully developed (M37).
+    NotDevelopable(String),
     /// No transport route for the product between the two countries.
     NoRoute {
         product: String,
@@ -330,6 +338,8 @@ impl CommandError {
                 .with("produkt", Param::TextKey(format!("produkt.{product}"))),
             CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
+            CommandError::NotDevelopable(p) => e(keys::COMMAND_NOT_DEVELOPABLE)
+                .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NoRoute { product, from, to } => e(keys::COMMAND_NO_ROUTE)
                 .with("produkt", Param::TextKey(format!("produkt.{product}")))
                 .with("von", Param::TextKey(format!("land.{from}")))
@@ -463,6 +473,7 @@ fn found_site(
         offers: Default::default(),
         orders: Default::default(),
         research: None,
+        development: None,
         wage_premium: 0.0,
         acquired: None,
         goodwill: None,
@@ -986,6 +997,30 @@ pub(crate) fn execute(
             }
             let s = state.site_mut(*site).expect("checked above");
             s.research = *technology;
+            if technology.is_some() {
+                s.development = None;
+            }
+            s.staffing_due = true;
+        }
+        Command::SetDevelopment { site, product } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::ResearchCenter {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::ResearchCenter,
+                });
+            }
+            if let Some(p) = product
+                && !crate::development::can_develop(catalog, state, actor, *p)
+            {
+                return Err(CommandError::NotDevelopable(
+                    catalog.products.key(*p).to_owned(),
+                ));
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            s.development = *product;
+            if product.is_some() {
+                s.research = None;
+            }
             s.staffing_due = true;
         }
         Command::SetSalesPolicy { buyer, scope, rule } => {

@@ -430,8 +430,12 @@ pub(crate) fn build(
     let (market_model, media_keys) = production::market_model(b.ctx, raw);
     b.catalog.market_model = market_model;
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
-    b.catalog.research_model =
-        production::research_model(b.ctx, &b.catalog, raw, &qualification_keys);
+    b.catalog.research_model = production::research_model(
+        b.ctx,
+        &b.catalog,
+        raw,
+        (&qualification_keys, &branch_keys, &specialization_keys),
+    );
     for e in &vehicles {
         let vehicle = production::vehicle(b.ctx, e, &transport_keys);
         b.catalog.vehicles.insert(&e.value.id, vehicle);
@@ -647,6 +651,7 @@ pub(crate) fn build(
     }
     b.check_electricity(raw);
     production::check_start_setups(b.ctx, &b.catalog, raw);
+    production::check_development_fields(b.ctx, &b.catalog, raw);
     b.check_complements(&products);
 
     let all_keys = [

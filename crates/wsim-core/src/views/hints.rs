@@ -147,7 +147,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
                 hint(at(keys::HINT_STAFF), Some(s.index), Some("personal")),
             ));
         }
-        if research && s.research.is_none() {
+        if research && s.research.is_none() && s.development.is_none() {
             let mut m = at(keys::HINT_NO_RESEARCH);
             m.kind = MessageKind::Info;
             let mut h = hint(m, Some(s.index), None);

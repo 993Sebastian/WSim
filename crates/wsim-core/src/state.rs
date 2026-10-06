@@ -302,6 +302,30 @@ pub struct Company {
     /// Last day of the auction of an insolvent company's sites (M38).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub auction_until: Option<Date>,
+    /// Development levels of its products and the points towards the next (M37).
+    #[serde(default, skip_serializing_if = "Development::is_empty")]
+    pub development: Development,
+}
+
+/// Development of a company's products (M37): levels reached by own research and the
+/// research points collected towards the next level.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Development {
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub levels: BTreeMap<ProductId, u8>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub points: BTreeMap<ProductId, f64>,
+}
+
+impl Development {
+    pub fn is_empty(&self) -> bool {
+        self.levels.is_empty() && self.points.is_empty()
+    }
+
+    /// Level reached by own research.
+    pub fn level(&self, product: ProductId) -> u8 {
+        self.levels.get(&product).copied().unwrap_or(0)
+    }
 }
 
 /// How well consumers in a country know a company's brand for a goods group (0–1).
@@ -573,6 +597,9 @@ pub struct Site {
     /// Technology the research center works on.
     #[serde(default)]
     pub research: Option<TechnologyId>,
+    /// Product the research center develops instead (M37).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub development: Option<ProductId>,
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
@@ -932,6 +959,9 @@ pub struct GameState {
     /// Day each technology was first acquired by research in this game.
     #[serde(default)]
     pub inventions: PerId<TechnologyId, Option<Date>>,
+    /// Day each development level of a product was first reached, level 1 first (M37).
+    #[serde(default)]
+    pub developments: PerId<ProductId, Vec<Date>>,
     /// Day the player reached each milestone (M23).
     #[serde(default)]
     pub milestones: PerId<MilestoneId, Option<Date>>,
@@ -1040,6 +1070,8 @@ impl GameState {
         }
         self.inventions
             .resize_with(catalog.technologies.len(), || None);
+        self.developments
+            .resize_with(catalog.products.len(), Vec::new);
         self.milestones
             .resize_with(catalog.milestones.len(), || None);
         let countries = catalog.countries.len();

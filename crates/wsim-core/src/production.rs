@@ -3,6 +3,7 @@
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, FacilitySize, Recipe, SiteType};
+use crate::development;
 use crate::ids::{CountryId, Id, LaborGroupId, ProductId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
@@ -356,7 +357,8 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 1.0
             };
             let runs = sl.full_runs(catalog) * utilization;
-            let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+            let developed = development::effect(catalog, state, s.owner, recipe.product);
+            let cost_factor = deposit_cost_factor(catalog, state, site, recipe) * developed.labor;
             let labor: f64 = hours_per_run(
                 catalog,
                 (recipe, sl.size),
@@ -369,7 +371,11 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             .sum::<f64>()
                 * wage_factor;
             let energy = recipe.energy_mwh * c.electricity_price_usd_mwh;
-            let material: f64 = recipe.inputs.iter().map(|&(p, q)| q * price(p)).sum();
+            let material: f64 = recipe
+                .inputs
+                .iter()
+                .map(|&(p, q)| q * developed.inputs * price(p))
+                .sum();
             let overhead = overhead_usd(
                 catalog,
                 recipe,
@@ -412,7 +418,9 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
         };
         let recipe = catalog.recipes.get(recipe_id);
         let sl = &state.sites[index].slots[slot];
-        let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+        let owner = state.sites[index].owner;
+        let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
+            * development::effect(catalog, state, owner, recipe.product).labor;
         for (g, h) in hours_per_run(
             catalog,
             (recipe, sl.size),
@@ -423,18 +431,15 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
             needed[g.index()] += runs * h / worker_hours;
         }
     }
-    if let Some(technology) = state.sites[index].research {
-        let field = catalog.technologies.get(technology).field;
-        if let Some(group) = catalog
+    if let Some(field) = development::project_field(catalog, state, site)
+        && let Some(group) = catalog
             .research_model
             .researchers
             .get(field.index())
             .copied()
             .flatten()
-        {
-            needed[group.index()] +=
-                crate::research::wanted_researchers(catalog, state, site, date);
-        }
+    {
+        needed[group.index()] += crate::research::wanted_researchers(catalog, state, site, date);
     }
     needed
 }
@@ -547,7 +552,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let sl = &state.sites[index].slots[slot];
             (sl.automation, sl.size)
         };
-        let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
+        // The company's development level of the product (M37).
+        let developed = development::effect(catalog, state, owner, recipe.product);
+        let cost_factor = deposit_cost_factor(catalog, state, site, recipe) * developed.labor;
         let per_run = hours_per_run(catalog, (recipe, size), automation, affinity, cost_factor);
         let rent_per_run = rent_per_run_usd(catalog, state, country, recipe);
 
@@ -567,7 +574,11 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
                 .inventory
                 .get(&p)
                 .map_or(0.0, |s| s.quantity);
-            bound(&mut runs, available / q, Limit::Input(p));
+            bound(
+                &mut runs,
+                available / (q * developed.inputs),
+                Limit::Input(p),
+            );
         }
         for &(g, h) in &per_run {
             if h > 0.0 {
@@ -616,9 +627,10 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let s = &mut state.sites[index];
         for &(p, q) in &recipe.inputs {
             let stock = s.inventory.entry(p).or_default();
-            input_quality += stock.quality * q * runs;
-            input_quantity += q * runs;
-            value += stock.take(q * runs);
+            let used = q * developed.inputs * runs;
+            input_quality += stock.quality * used;
+            input_quantity += used;
+            value += stock.take(used);
         }
         let ledger = &mut state.companies[owner.index()].ledger;
         let center = CostCenter::product(site, recipe.product);
@@ -675,7 +687,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let quality = (recipe.base_quality
             + model.quality_inputs * (average_input - 50.0)
             + model.quality_automation * sl.automation
-            - model.quality_condition * (1.0 - sl.condition))
+            - model.quality_condition * (1.0 - sl.condition)
+            + developed.quality)
             .clamp(0.0, 100.0);
 
         let mut outputs = vec![(recipe.product, recipe.output * runs)];
@@ -892,9 +905,10 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
                 continue;
             }
             let r = catalog.recipes.get(recipe);
+            let developed = development::effect(catalog, state, s.owner, r.product);
             for &(input, q) in &r.inputs {
                 let stock = s.inventory.get(&input).map_or(0.0, |x| x.quantity);
-                if stock < q && !reported.contains(&input) {
+                if stock < q * developed.inputs && !reported.contains(&input) {
                     reported.push(input);
                     messages.push(
                         Message::new(MessageKind::Warning, keys::INPUT_MISSING)

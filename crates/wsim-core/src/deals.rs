@@ -1447,18 +1447,31 @@ fn auction_bids(
         .map(|o| (o.price, o.buyer))
         .collect();
     let share = catalog.deal_model.ai.cash_share_max;
+    let country = state.sites[site.index()].country;
     for (i, c) in state.companies.iter().enumerate() {
         let buyer = CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
         if c.bankrupt || c.ai.is_none() || bids.iter().any(|&(_, b)| b == buyer) {
             continue;
         }
-        let bid =
-            ai_maximum(state, catalog, buyer, seller, object).min(c.ledger.cash().scale(share));
+        // Only companies that would buy the site anyway (M30): in one of their countries,
+        // with an advantage; they bid as in an offer.
+        let present = c.headquarters == country
+            || state
+                .sites
+                .iter()
+                .any(|s| s.owner == buyer && s.country == country);
+        if !present {
+            continue;
+        }
+        let business = business(state, catalog, buyer);
+        let Some(offer) = ai_site_bid(state, catalog, buyer, &business, site) else {
+            continue;
+        };
+        let bid = offer.bid.min(c.ledger.cash().scale(share));
         if bid >= minimum && bid > Money::ZERO {
             bids.push((bid, buyer));
         }
     }
-    let country = state.sites[site.index()].country;
     let present = |b: CompanyId| {
         state.companies[b.index()].headquarters == country
             || state
@@ -1592,6 +1605,52 @@ fn ai_deal_news(state: &GameState, catalog: &Catalog, offer: &Offer) -> Option<M
     ))
 }
 
+/// What an AI company would offer for a site (M30).
+struct SiteBid {
+    /// Base value plus the bid markup, at most the highest price.
+    bid: Money,
+    /// Base value plus all advantages.
+    highest: Money,
+    /// What the same site would cost to build.
+    anew: Money,
+}
+
+/// The offer of an AI company for a site, `None` if it does not want it: a laboratory or
+/// power plant outside its business, no base value, or too little advantage. The
+/// countries are the caller's to check.
+fn ai_site_bid(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    business: &(BTreeSet<ProductId>, BTreeSet<(ProductId, CountryId)>),
+    site: SiteId,
+) -> Option<SiteBid> {
+    let ai = &catalog.deal_model.ai;
+    let s = &state.sites[site.index()];
+    // Laboratories and power plants serve only the owner's own work.
+    if matches!(s.kind, SiteType::ResearchCenter | SiteType::PowerPlant)
+        && !in_business(state, catalog, buyer, site, &business.0)
+    {
+        return None;
+    }
+    let value = site_value(state, catalog, site);
+    if value.base <= Money::ZERO {
+        return None;
+    }
+    let anew = new_site_cost(state, catalog, site);
+    let adv = advantages_for(state, catalog, buyer, business, &[site], value.base, anew);
+    if adv.total() < ai.min_advantage {
+        return None;
+    }
+    let (_, aggressiveness) = crate::ai::traits(state, buyer);
+    let highest = value.base.scale(1.0 + adv.total());
+    let bid = value
+        .base
+        .scale(1.0 + ai.bid_markup.at(aggressiveness))
+        .min(highest);
+    Some(SiteBid { bid, highest, anew })
+}
+
 /// The best deal an AI company could offer for now: object, seller and price.
 pub(crate) fn best_deal(
     state: &GameState,
@@ -1660,26 +1719,14 @@ pub(crate) fn best_deal(
         {
             continue;
         }
-        // Laboratories and power plants serve only the owner's own work.
-        if matches!(s.kind, SiteType::ResearchCenter | SiteType::PowerPlant)
-            && !in_business(state, catalog, buyer, site, &business.0)
-        {
+        let Some(SiteBid {
+            bid: mut price,
+            highest,
+            anew,
+        }) = ai_site_bid(state, catalog, buyer, &business, site)
+        else {
             continue;
-        }
-        let value = site_value(state, catalog, site);
-        if value.base <= Money::ZERO {
-            continue;
-        }
-        let anew = new_site_cost(state, catalog, site);
-        let adv = advantages_for(state, catalog, buyer, &business, &[site], value.base, anew);
-        if adv.total() < ai.min_advantage {
-            continue;
-        }
-        let highest = value.base.scale(1.0 + adv.total());
-        let mut price = value
-            .base
-            .scale(1.0 + ai.bid_markup.at(aggressiveness))
-            .min(highest);
+        };
         // An owner gives up a site it needs only for what a new one would cost.
         if needed_by_owner(state, catalog, site) {
             if highest < anew {

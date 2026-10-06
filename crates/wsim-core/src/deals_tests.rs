@@ -938,11 +938,13 @@ fn the_player_sees_areas_and_offers_for_them() {
 }
 
 /// The game of `new_game` with auctions (M38) and a third company, "Pleite AG" (AI),
-/// that owns a works and has just become insolvent.
+/// that owns a works and has just become insolvent. The rival smelts iron as well, so
+/// the works is in its business (M30: it bids only for what it would buy anyway).
 fn insolvency(rival_cash: f64) -> (Game, CompanyId, CompanyId, SiteId) {
     let mut c = catalog();
     c.deal_model.insolvency_days = 30;
     let (mut game, rival) = new_game(c, true);
+    works(&mut game, rival);
     let state = game.state_mut();
     state.companies[rival.index()].ledger = Ledger::new(state.date, usd(rival_cash));
     let mut broke = state.companies[rival.index()].clone();

@@ -73,6 +73,11 @@ kimodell:
     forschung_vorgriff_jahre: {bei_0: 0, bei_1: 2}    # Kompetenz
     forschung_mindestumsatz_usd: 2_000_000
     forschung_mindestkompetenz: 0.4
+    # Weiterentwicklung (M37): Eine Stufe bringt geschätzt diesen Anteil des Umsatzes mit
+    # dem Produkt im Jahr (Kosten und Marktanteil); entwickelt wird, wenn sich die nächste
+    # Stufe in so vielen Jahren bezahlt macht.
+    entwicklung_nutzen_je_stufe: 0.03
+    entwicklung_amortisation_jahre: 5
     # Die folgenden Firmenzahlen gelten für firmen_standard KI-Firmen; mit mehr Firmen
     # (größere Märkte) wachsen sie im selben Verhältnis.
     # Marktlücken (M32): Produkte, nach denen gefragt wird, die aber keine Firma herstellen

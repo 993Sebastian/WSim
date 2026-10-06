@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 
+use wsim_core::ids::Id as _;
 use wsim_data::{Finding, LoadOutcome, Severity, Source, load_sources};
 
 const META: &str = "meta:\n  datenversion: 1\n";
@@ -159,6 +160,14 @@ forschungsmodell:
   gemeingut_nach_jahren: 25
   forscher: fachkraft
   sachkosten_usd_je_forschertag: 40
+  weiterentwicklung:
+    stufen: 5
+    je_stufe: {qualitaet: 4, arbeit: 0.03, vorprodukte: 0.02}
+    aufwand: {anteil: 0.2, wachstum: 1.6, grundaufwand: 10_000}
+    gemeingut_nach_jahren: 15
+    fachgebiete:
+      bergbau: bergbau
+      metallurgie: metall
 ";
 
 const VERKEHR: &str = "\
@@ -1766,6 +1775,59 @@ fn forschungsmodell_wird_geprueft() {
         &d.laden(),
         "Wert 0.5 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
     );
+}
+
+#[test]
+fn weiterentwicklung_wird_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    let data = Daten::neu().laden().data.unwrap();
+    let m = &data.catalog.research_model.development;
+    assert_eq!(m.levels, 5);
+    let bergbau = data.catalog.branches.id("bergbau").unwrap();
+    assert_eq!(
+        m.fields[bergbau.index()].map(|f| data.catalog.specializations.key(f).to_owned()),
+        Some("bergbau".to_owned())
+    );
+
+    let d = Daten::neu()
+        .ersetze(datei, "stufen: 5", "stufen: 0")
+        .ersetze(datei, "arbeit: 0.03", "arbeit: 0.2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "stufen:"),
+        "forschungsmodell.weiterentwicklung.stufen",
+    );
+    let f = befund(
+        &outcome,
+        "Wert 0.2 liegt außerhalb des erlaubten Bereichs 0 bis 0.09.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "forschungsmodell.weiterentwicklung.je_stufe.arbeit"
+    );
+    nur_fehler(&outcome, 2);
+
+    // The ore is mined without a technology: its branch needs a research field.
+    let d = Daten::neu().ersetze(datei, "      bergbau: bergbau\n", "");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Produkt „erz“ wird ohne Technologie hergestellt, und seine Branche „bergbau“ hat kein Fachgebiet",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "forschungsmodell.weiterentwicklung.fachgebiete"
+    );
+    nur_fehler(&outcome, 1);
+
+    let d = Daten::neu().ersetze(datei, "bergbau: bergbau", "bergbau: holz");
+    befund(&d.laden(), "Fachrichtung „holz“ ist nicht definiert.");
 }
 
 #[test]

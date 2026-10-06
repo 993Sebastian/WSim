@@ -839,6 +839,47 @@ pub struct RawResearchModel {
     pub researchers: String,
     #[serde(rename = "sachkosten_usd_je_forschertag")]
     pub material_usd_per_day: f64,
+    #[serde(rename = "weiterentwicklung")]
+    pub development: RawProductDevelopment,
+}
+
+/// Development of researched products (M37).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProductDevelopment {
+    #[serde(rename = "stufen")]
+    pub levels: u32,
+    #[serde(rename = "je_stufe")]
+    pub per_level: RawDevelopmentPerLevel,
+    #[serde(rename = "aufwand")]
+    pub effort: RawDevelopmentEffort,
+    #[serde(rename = "gemeingut_nach_jahren")]
+    pub public_domain_years: u32,
+    /// Research field by branch, for products without a technology.
+    #[serde(rename = "fachgebiete")]
+    pub fields: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDevelopmentPerLevel {
+    #[serde(rename = "qualitaet")]
+    pub quality: f64,
+    #[serde(rename = "arbeit")]
+    pub labor: f64,
+    #[serde(rename = "vorprodukte")]
+    pub inputs: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDevelopmentEffort {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "wachstum")]
+    pub growth: f64,
+    #[serde(rename = "grundaufwand")]
+    pub base: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1173,6 +1214,10 @@ pub struct RawAiBehavior {
     pub research_min_revenue_usd: f64,
     #[serde(rename = "forschung_mindestkompetenz")]
     pub research_competence_min: f64,
+    #[serde(rename = "entwicklung_nutzen_je_stufe")]
+    pub development_benefit_per_level: f64,
+    #[serde(rename = "entwicklung_amortisation_jahre")]
+    pub development_payback_years: f64,
     #[serde(rename = "forschung_luecke_firmen")]
     pub research_gap_companies: u32,
     #[serde(rename = "kasse_min_monate")]

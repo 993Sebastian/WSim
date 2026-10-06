@@ -3,10 +3,10 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, FacilitySize, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup,
-    TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, ProductionModel, ResearchModel, SiteType, SizeModel,
+    StartSetup, TransportModel, Vehicle, Way,
 };
-use wsim_core::ids::QualificationId;
+use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
 
 use super::{
@@ -14,7 +14,9 @@ use super::{
     time_series, year,
 };
 use crate::messages;
-use crate::raw::{RawFacilitySizes, RawLimits, RawProductionModel, RawVehicle, RawWay};
+use crate::raw::{
+    RawFacilitySizes, RawLimits, RawProductDevelopment, RawProductionModel, RawVehicle, RawWay,
+};
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
 use crate::texts::TextIndex;
@@ -660,7 +662,7 @@ pub(super) fn research_model(
     ctx: &mut Ctx,
     catalog: &Catalog,
     raw: &RawData,
-    qualifications: &Keys,
+    (qualifications, branches, specializations): (&Keys, &Keys, &Keys),
 ) -> ResearchModel {
     let Some(entry) = single(
         ctx,
@@ -710,7 +712,113 @@ pub(super) fn research_model(
             m.material_usd_per_day,
             &l.field("sachkosten_usd_je_forschertag"),
         ),
+        development: development_model(
+            ctx,
+            &m.development,
+            &l.field("weiterentwicklung"),
+            (&researchers, &m.researchers),
+            (branches, specializations),
+        ),
         researchers,
+    }
+}
+
+/// Development of researched products (M37): levels, effects, effort and the research
+/// field by branch for products without a technology.
+fn development_model(
+    ctx: &mut Ctx,
+    d: &RawProductDevelopment,
+    l: &Loc,
+    (researchers, qualification): (&[Option<wsim_core::ids::LaborGroupId>], &str),
+    (branches, specializations): (&Keys, &Keys),
+) -> DevelopmentModel {
+    let per_level = l.field("je_stufe");
+    let effort = l.field("aufwand");
+    let levels = in_range(ctx, f64::from(d.levels), 1.0, 10.0, &l.field("stufen"));
+    let mut fields: Vec<Option<SpecializationId>> = vec![None; branches.index.len()];
+    for (branch, field) in &d.fields {
+        let loc = l.field("fachgebiete").field(branch);
+        let b: BranchId = resolve(ctx, branches, branch, &loc);
+        let f: SpecializationId = resolve(ctx, specializations, field, &loc);
+        if specializations.index.contains_key(field)
+            && researchers.get(f.index()).copied().flatten().is_none()
+        {
+            ctx.error(
+                &loc,
+                messages::development_field_without_researchers(field, qualification),
+            );
+        }
+        if let Some(slot) = fields.get_mut(b.index()) {
+            *slot = Some(f);
+        }
+    }
+    DevelopmentModel {
+        // At most 10 levels: the cast cannot truncate.
+        levels: levels as u8,
+        quality_per_level: in_range(
+            ctx,
+            d.per_level.quality,
+            0.0,
+            20.0,
+            &per_level.field("qualitaet"),
+        ),
+        labor_per_level: in_range(
+            ctx,
+            d.per_level.labor,
+            0.0,
+            0.09,
+            &per_level.field("arbeit"),
+        ),
+        inputs_per_level: in_range(
+            ctx,
+            d.per_level.inputs,
+            0.0,
+            0.09,
+            &per_level.field("vorprodukte"),
+        ),
+        effort_share: in_range(ctx, d.effort.share, 0.01, 2.0, &effort.field("anteil")),
+        effort_growth: in_range(ctx, d.effort.growth, 1.0, 3.0, &effort.field("wachstum")),
+        base_effort: positive(ctx, d.effort.base, &effort.field("grundaufwand")),
+        public_domain_years: in_range(
+            ctx,
+            f64::from(d.public_domain_years),
+            1.0,
+            100.0,
+            &l.field("gemeingut_nach_jahren"),
+        ),
+        fields,
+    }
+}
+
+/// Every product made without any technology needs a research field for its branch
+/// (`forschungsmodell.weiterentwicklung.fachgebiete`, M37).
+pub(super) fn check_development_fields(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) {
+    let Some(entry) = raw.research_model.first() else {
+        return;
+    };
+    let loc = entry.loc.field("weiterentwicklung").field("fachgebiete");
+    for (product, p) in catalog.products.iter() {
+        let mut recipes = catalog.recipes.values().filter(|r| r.product == product);
+        let Some(first) = recipes.next() else {
+            continue;
+        };
+        let with_technology = first.technology.is_some() || recipes.any(|r| r.technology.is_some());
+        let field = catalog
+            .research_model
+            .development
+            .fields
+            .get(p.branch.index())
+            .copied()
+            .flatten();
+        if !with_technology && field.is_none() {
+            ctx.error(
+                &loc,
+                messages::development_field_missing(
+                    catalog.products.key(product),
+                    catalog.branches.key(p.branch),
+                ),
+            );
+        }
     }
 }
 

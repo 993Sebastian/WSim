@@ -45,14 +45,14 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M34 | Regionen | ✅ |
 | M35 | Grundstücke mit Lage | ✅ |
 | M36 | Anlagen in fünf Größen | ✅ |
-| M37 | Weiterentwicklung erforschter Produkte | offen |
+| M37 | Weiterentwicklung erforschter Produkte | ✅ |
 | M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39–M41 | Produktepochen 1965–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
 (Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
-M39–M41; M30–M36 und M38 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
+M39–M41; M30–M38 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
 und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
 
 ## Eigenständige Entscheidungen (für das Review)
@@ -1208,4 +1208,58 @@ ihre Werke nicht einfach verschwinden.
   Größe ihrer Anlagen.
 - Tests: Zuschlag zum zweiten Preis, Übernahme durch die KI zum Mindestgebot, Aufgabe ohne
   Gebot (Kern); Versteigerung in der Wettbewerbsansicht (Oberfläche).
+- **Nachbesserung nach den Weltläufen (mit M37 committet):** Das Balance-Protokoll zählt
+  jetzt versteigerte und aufgegebene Standorte und die Pleiten von Firmen, die vorher
+  ersteigert hatten. Erster Vergleich mit und ohne Versteigerung (je zwei Seeds,
+  1900–1958): mit Versteigerung 14 statt 9 bzw. 14 statt 7 Pleiten. Eine vorsichtigere
+  Gebotsregel (die KI bietet wie bei Kaufangeboten und nur, wo sie im Land vertreten ist
+  und einen Vorteil hat) änderte daran nichts (15 bzw. 20). Nur 3 der 20 Pleitefirmen
+  hatten selbst ersteigert; die Ursache war die vorübergehende Lücke: Während der
+  Versteigerung gründete sich sofort eine neue Firma in die stillstehende Nachfrage, nach
+  dem Zuschlag lief beides. Jetzt zählt eine Firma in der Versteigerung bei Neugründungen
+  noch mit, und ihre Werke gelten bei der Suche nach Nachfrage als kommende Versorgung.
+  Ergebnis Seed 2: 12 statt 20 Pleiten (ohne Versteigerung 7), Versorgung weltweit 123
+  statt 138 Verstöße, Erzeugung ohne Vorprodukte 74 statt 110; Seed 1 bis 1965: 14 Pleiten
+  (ohne Versteigerung 11), Versorgung 128 statt 147 Verstöße, 34 Standorte versteigert,
+  13 ohne Gebot aufgegeben.
+
+### M37: Weiterentwicklung erforschter Produkte (06.10.2026)
+
+Auftrag: „Wenn ein erforschtes Produkt weiter erforscht wird, dann soll das betreffende
+Produkt weiterentwickelt und verbessert werden können. Das gilt auch für Vormaterialien
+oder Halbzeuge.“ (Offene Punkte, Abschnitt J.)
+
+- **Daten und Formeln:** `forschungsmodell.weiterentwicklung` (5 Stufen; je Stufe +4
+  Qualität, −3 % Arbeit, −2 % Vorprodukte; Aufwand der Stufe n = B · 1,7^(n − 1) mit B =
+  größter Forschungsaufwand der Technologien des Produkts, mindestens 10 000 Punkte;
+  Gemeingut nach 15 Jahren; Fachgebiete je Branche für Produkte ohne Technologie),
+  `kimodell.verhalten.entwicklung_*` (Nutzen 3 % des Umsatzes je Stufe und Jahr,
+  Amortisation 5 Jahre). Formeln: `docs/FORMELN.md`, Abschnitt M37. Prüfregeln mit
+  Fehlerfall-Test.
+- **Kern:** Stufen und Punkte je Firma und Produkt, Projekt je Forschungszentrum
+  (Technologie oder Produkt), Tag der ersten Erreichung je Stufe; Befehl `SetDevelopment`;
+  die Stufe wirkt in Produktion (Arbeit, Vorprodukte, Qualität), Stückkosten, Personal,
+  Vollkosten und der Planung der KI. Nachzügler forschen billiger, Stufen werden Gemeingut.
+  Meldungen für erreichte Stufen und für Wettbewerber, die als erste eine Stufe erreichen.
+- **KI:** Wer nichts zu erforschen hat, entwickelt sein umsatzstärkstes Produkt weiter,
+  wenn sich die nächste Stufe in fünf Jahren bezahlt macht.
+- **Oberfläche:** Forschung mit drittem Unterreiter „Weiterentwicklung“ (Karte je Produkt:
+  Stufe, Wirkung, bester Wettbewerber, nächste Stufe mit Fortschritt, Dauer und Kosten,
+  „Weiterentwickeln“); Forschungszentren wählen Technologie oder Produkt; Markt mit Spalte
+  „Stufe“ je Anbieter; Anlagenkarte mit der Stufe; Rundgang mit „Produkte
+  weiterentwickeln“. Außerdem: freie Grundstücke nach Kaufpreis sortiert (die günstigen
+  zuerst).
+- Tests: Aufwand, Gemeingut, Forschen Stufe für Stufe, Wirkung auf Erz, Arbeit, Qualität
+  und Kosten, Befehl und Spielstand, Wahl der KI (Kern); Reiter und Projektwahl
+  (Komponententest), Reiter und Marktspalte (Browser), Rundgang.
+- **Weltläufe 1900–1965** (Seed 1, 100 KI-Firmen): Im ersten Lauf (Stufe 1 = 20 % von B,
+  Wachstum 1,6) hatten die großen Firmen alle Stufen ihrer Produkte nach etwa fünf Jahren,
+  bis 1930 war fast alles Gemeingut, und Preise unter dem halben Richtpreis kamen doppelt
+  so oft vor (1 121 statt 522 Produktjahre). Mit Stufe 1 = B und Wachstum 1,7 verteilt
+  sich die Entwicklung über Jahrzehnte: Kohle Stufe 5 seit 1932, Nägel 1944, Stahl Stufe 4
+  seit 1927, Automobil Stufe 3 seit 1956, 1965 sind 47 Produkte weiterentwickelt. Gegenüber
+  dem Lauf ohne Weiterentwicklung: 13 statt 14 Pleiten, Versorgung 147 statt 128 Verstöße,
+  teurer als das Doppelte des Richtpreises 42 statt 72 Produktjahre, billiger als die
+  Hälfte 717 statt 524 – die gesunkenen Kosten drücken die Preise unter den festen
+  Richtpreis. 22 Minuten Rechenzeit wie zuvor.
 

@@ -426,7 +426,7 @@ fn retire(
                 r,
                 (sl.count, sl.size),
                 1.0,
-                wage,
+                (wage, developed(state, catalog, s.owner, r)),
             );
             let unit = flows.cost_per_day.to_usd() / flows.output.max(1e-9);
             by_product
@@ -755,7 +755,10 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 recipe,
                 (sl.count, sl.size),
                 utilization,
-                1.0 + s.wage_premium,
+                (
+                    1.0 + s.wage_premium,
+                    developed(state, catalog, s.owner, recipe),
+                ),
             );
             for (input, q) in &flows.inputs {
                 *need.entry(*input).or_default() += q;
@@ -1160,7 +1163,7 @@ fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
                     r,
                     (sl.count, sl.size),
                     sl.utilization,
-                    1.0 + s.wage_premium,
+                    (1.0 + s.wage_premium, developed(state, catalog, s.owner, r)),
                 )
                 .cost_per_day;
             }
@@ -1249,7 +1252,7 @@ fn expand(
                 r,
                 (sl.count, sl.size),
                 sl.utilization,
-                1.0 + s.wage_premium,
+                (1.0 + s.wage_premium, developed(state, catalog, s.owner, r)),
             );
             for &(input, q) in &flows.inputs {
                 *own_use.entry(input).or_default() += q;
@@ -2117,6 +2120,16 @@ fn open_deposit(
     }
 }
 
+/// What the development level of a company changes in a recipe (M37).
+fn developed(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    recipe: RecipeId,
+) -> crate::development::Effect {
+    crate::development::effect(catalog, state, company, catalog.recipes.get(recipe).product)
+}
+
 /// Whether an AI company is competent and large enough to research (M10).
 pub(crate) fn wants_research(state: &GameState, catalog: &Catalog, id: CompanyId) -> bool {
     let b = &catalog.ai_model.behavior;
@@ -2198,9 +2211,15 @@ fn research_plan(
         .iter()
         .copied()
         .find(|&s| state.sites[s.index()].kind == SiteType::ResearchCenter);
-    let Some(target) = target else {
-        return;
+    // Nothing to research: develop the best-selling product further (M37).
+    let develop = if target.is_none() {
+        development_target(state, catalog, id, center)
+    } else {
+        None
     };
+    if target.is_none() && develop.is_none() {
+        return;
+    }
     let center = match center {
         Some(c) => c,
         None => {
@@ -2235,13 +2254,70 @@ fn research_plan(
             site
         }
     };
-    if state.sites[center.index()].research != Some(target) {
-        let command = Command::SetResearch {
+    let command = match (target, develop) {
+        (Some(t), _) if state.sites[center.index()].research != Some(t) => Command::SetResearch {
             site: center,
-            technology: Some(target),
+            technology: Some(t),
+        },
+        (None, Some(p)) if state.sites[center.index()].development != Some(p) => {
+            Command::SetDevelopment {
+                site: center,
+                product: Some(p),
+            }
+        }
+        _ => return,
+    };
+    run(state, catalog, id, &command);
+}
+
+/// The product an AI company develops when it has nothing to research (M37): the one it
+/// is developing while its next level still pays, else its best seller of the last year
+/// that sells at least the research revenue threshold and whose next level pays for
+/// itself within the payback years.
+fn development_target(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    center: Option<SiteId>,
+) -> Option<ProductId> {
+    use crate::development;
+    let b = &catalog.ai_model.behavior;
+    let company = &state.companies[id.index()];
+    let year = company.ledger.years.last()?;
+    let country = center.map_or(company.headquarters, |c| state.sites[c.index()].country);
+    let revenue = |p: ProductId| year.product_type(p, CostType::Revenue).to_usd();
+    let pays = |p: ProductId| {
+        let Some((_, needed)) = development::next_effort(catalog, state, id, p, state.date) else {
+            return false;
         };
-        run(state, catalog, id, &command);
+        let Some((field, _)) = development::basis(catalog, p) else {
+            return false;
+        };
+        development::cost_per_point(catalog, state, country, field).is_some_and(|per_point| {
+            revenue(p) * b.development_benefit_per_level * b.development_payback_years
+                >= needed * per_point
+        })
+    };
+    let worth = |p: ProductId| {
+        revenue(p) >= b.research_min_revenue_usd
+            && development::can_develop(catalog, state, id, p)
+            && pays(p)
+    };
+    let current = center.and_then(|c| state.sites[c.index()].development);
+    if let Some(p) = current
+        && worth(p)
+    {
+        return Some(p);
     }
+    let mut products: Vec<ProductId> = year.by_center.keys().filter_map(|c| c.product).collect();
+    products.sort_unstable();
+    products.dedup();
+    products
+        .into_iter()
+        .filter(|&p| worth(p))
+        .map(|p| (p, revenue(p)))
+        .max_by(|a, b| a.1.total_cmp(&b.1).then(b.0.cmp(&a.0)))
+        .map(|(p, _)| p)
 }
 
 /// Bankrupt companies leave the market: their staff is released, their offers and
@@ -2270,6 +2346,7 @@ pub(crate) fn stop_operations(state: &mut GameState, id: CompanyId) {
         s.offers.clear();
         s.orders.clear();
         s.research = None;
+        s.development = None;
         s.staffing_due = false;
     }
 }
@@ -2291,10 +2368,12 @@ pub(crate) fn give_up_site(state: &mut GameState, site: SiteId) {
 /// New companies take the place of bankrupt ones where demand is unserved.
 fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<Message>) {
     let wanted = usize::try_from(state.settings.ai.companies).unwrap_or(usize::MAX);
+    // A company whose sites are being auctioned still counts (M38): its works stand still
+    // for the auction only, and a newcomer in that gap would double the capacity.
     let active = state
         .companies
         .iter()
-        .filter(|c| c.ai.is_some() && !c.bankrupt)
+        .filter(|c| c.ai.is_some() && (!c.bankrupt || c.auction_until.is_some()))
         .count();
     let n = wanted.saturating_sub(active).min(per_companies(
         state,
@@ -2613,10 +2692,17 @@ impl Scan {
         let u = catalog.ai_model.start.utilization;
         let mut coming: BTreeMap<ProductId, f64> = BTreeMap::new();
         for s in &state.sites {
-            if state.companies[s.owner.index()].bankrupt {
+            let owner = &state.companies[s.owner.index()];
+            // Works being auctioned will run again under a new owner (M38).
+            let auctioned = owner.bankrupt && owner.auction_until.is_some();
+            if owner.bankrupt && !auctioned {
                 continue;
             }
-            for sl in s.slots.iter().filter(|sl| sl.ready > state.date) {
+            for sl in s
+                .slots
+                .iter()
+                .filter(|sl| sl.ready > state.date || (auctioned && !sl.mothballed()))
+            {
                 if let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) {
                     *coming.entry(r.product).or_default() += sl.full_runs(catalog) * r.output * u;
                 }
@@ -2953,6 +3039,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         brands: Vec::new(),
         advertising: Vec::new(),
         auction_until: None,
+        development: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3117,6 +3204,7 @@ mod tests {
             brands: Vec::new(),
             advertising: Vec::new(),
             auction_until: None,
+            development: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,
@@ -3372,6 +3460,67 @@ mod tests {
         assert_eq!((product, country), (ore, aaa));
         assert_eq!(deposit, catalog.deposits.id("grube"));
         assert_eq!(Some(recipe), catalog.recipes.id("erz_abbau"));
+    }
+
+    /// M37: a competent company with nothing to research develops its best seller and
+    /// stays with it until the top level.
+    #[test]
+    fn nothing_to_research_develops_the_best_seller() {
+        let mut catalog = test_support::research();
+        let metal = catalog.specializations.id("metall").expect("exists");
+        let mut fields = vec![None; catalog.branches.len()];
+        fields[0] = Some(metal);
+        catalog.research_model.development = crate::catalog::DevelopmentModel {
+            levels: 5,
+            fields,
+            ..Default::default()
+        };
+        let iron = catalog.products.id("eisen").expect("exists");
+        let ore = catalog.products.id("erz").expect("exists");
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        state.date = Date::new(1903, 1, 1).expect("valid");
+        let date = state.date;
+        let usd = |v: f64| Money::from_usd(v).expect("valid");
+        let mut last_year = crate::ledger::PeriodResult::default();
+        last_year
+            .by_type
+            .insert(CostType::Revenue, usd(15_000_000.0));
+        let center = |p| crate::ledger::CostCenter::product(works, p);
+        last_year
+            .by_center
+            .insert(center(iron), [(CostType::Revenue, usd(9_000_000.0))].into());
+        last_year
+            .by_center
+            .insert(center(ore), [(CostType::Revenue, usd(6_000_000.0))].into());
+        state.companies[id.index()].ledger.years.push(last_year);
+        let developing = |state: &GameState| {
+            state
+                .sites
+                .iter()
+                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .and_then(|s| s.development)
+        };
+        research_plan(state, &catalog, id, &[works], date, &[]);
+        assert_eq!(developing(state), Some(iron), "the best seller");
+        // It stays with iron while there is a next level, then turns to the ore.
+        let lab = state
+            .sites
+            .iter()
+            .position(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+            .map(site_id)
+            .expect("built");
+        state.companies[id.index()]
+            .development
+            .levels
+            .insert(iron, 5);
+        assert_eq!(
+            development_target(state, &catalog, id, Some(lab)),
+            Some(ore)
+        );
+        research_plan(state, &catalog, id, &[works, lab], date, &[]);
+        assert_eq!(developing(state), Some(ore));
     }
 
     /// M32: a competent company researches a technology outside its branches when

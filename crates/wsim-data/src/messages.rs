@@ -576,3 +576,15 @@ pub fn country_currencies_duplicate(country: &str, first: &str) -> String {
 pub fn currency_unused(currency: &str) -> String {
     format!("Die Währung „{currency}“ wird von keinem Land verwendet und ist an nichts gebunden.")
 }
+
+pub fn development_field_without_researchers(field: &str, qualification: &str) -> String {
+    format!(
+        "Für das Fachgebiet „{field}“ gibt es keine Forscher (Arbeitskräftegruppe „{qualification}.{field}“ fehlt)."
+    )
+}
+
+pub fn development_field_missing(product: &str, branch: &str) -> String {
+    format!(
+        "Produkt „{product}“ wird ohne Technologie hergestellt, und seine Branche „{branch}“ hat kein Fachgebiet für die Weiterentwicklung (forschungsmodell.weiterentwicklung.fachgebiete)."
+    )
+}

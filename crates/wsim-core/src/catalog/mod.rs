@@ -210,6 +210,8 @@ pub struct ResearchModel {
     pub material_usd_per_day: f64,
     /// Labor group of the researchers per field, indexed by `SpecializationId`.
     pub researchers: Vec<Option<LaborGroupId>>,
+    /// Development of researched products (M37).
+    pub development: DevelopmentModel,
 }
 
 impl Default for ResearchModel {
@@ -221,6 +223,44 @@ impl Default for ResearchModel {
             public_domain_years: 25,
             material_usd_per_day: 40.0,
             researchers: Vec::new(),
+            development: DevelopmentModel::default(),
+        }
+    }
+}
+
+/// Development of researched products level by level (M37, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DevelopmentModel {
+    /// Highest level; 0 turns development off.
+    pub levels: u8,
+    /// Per level in all recipes of the product: quality points, and the shares of the
+    /// labor hours and of the inputs saved per run.
+    pub quality_per_level: f64,
+    pub labor_per_level: f64,
+    pub inputs_per_level: f64,
+    /// Effort of level n: base · share · growth^(n − 1); the base is the largest research
+    /// effort of the product's technologies, at least `base_effort`.
+    pub effort_share: f64,
+    pub effort_growth: f64,
+    pub base_effort: f64,
+    /// Years after the first company reached a level when every company has it.
+    pub public_domain_years: f64,
+    /// Research field of products without a technology, indexed by `BranchId`.
+    pub fields: Vec<Option<SpecializationId>>,
+}
+
+impl Default for DevelopmentModel {
+    fn default() -> Self {
+        Self {
+            levels: 0,
+            quality_per_level: 4.0,
+            labor_per_level: 0.03,
+            inputs_per_level: 0.02,
+            effort_share: 0.2,
+            effort_growth: 1.6,
+            base_effort: 10_000.0,
+            public_domain_years: 15.0,
+            fields: Vec::new(),
         }
     }
 }
@@ -704,6 +744,10 @@ pub struct AiBehavior {
     pub research_competence_min: f64,
     /// Companies researching the same technology for a market gap at once (M32).
     pub research_gap_companies: u32,
+    /// Development (M37): yearly benefit of one level as share of the product's revenue,
+    /// and the years in which the next level must pay for itself.
+    pub development_benefit_per_level: f64,
+    pub development_payback_years: f64,
     pub cash_min_months: f64,
     pub cash_max_months: f64,
     pub loan_years: u32,
@@ -797,6 +841,8 @@ impl Default for AiModel {
                 research_min_revenue_usd: 5_000_000.0,
                 research_competence_min: 0.5,
                 research_gap_companies: 2,
+                development_benefit_per_level: 0.03,
+                development_payback_years: 5.0,
                 cash_min_months: 2.0,
                 cash_max_months: 6.0,
                 loan_years: 10,

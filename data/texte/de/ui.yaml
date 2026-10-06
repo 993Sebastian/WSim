@@ -376,6 +376,8 @@ werk.anlage_steuern: "{anlage} steuern"
 werk.verfahren: Verfahren
 werk.auslastung: Geplante Auslastung
 werk.uebernehmen: Übernehmen
+werk.entwicklung: Entwicklung
+werk.entwicklung_stufe: "Stufe {stufe} – mehr Qualität, weniger Arbeit und Vorprodukte (Forschung → Weiterentwicklung)"
 werk.auslastung_bereich: Die Auslastung muss zwischen 0 und 100 % liegen.
 werk.anlage_geaendert: Gespeichert – gilt ab der nächsten Runde.
 werk.stilllegen_verkaufen: Stilllegen oder verkaufen
@@ -549,6 +551,8 @@ markt.keine_anbieter: Im Land bietet keine Firma dieses Produkt an.
 markt.preis_anbieter: Preis heute
 markt.verkauft_vormonat: Verkauft im Vormonat
 markt.anteil_markt: Marktanteil
+markt.stufe: Stufe
+markt.stufe_hilfe: Entwicklungsstufe des Produkts beim Anbieter – höhere Stufen bringen mehr Qualität und niedrigere Kosten (Forschung → Weiterentwicklung).
 markt.du: du
 markt.einfuhr: Einfuhr durch Händler
 markt.ausfuhr: Ausfuhr durch Händler
@@ -602,6 +606,28 @@ markt.marke_hinweis: "Kunden wählen nach Preis, Qualität, Bekanntheit und dana
 forschung.zentren: Forschungszentren
 forschung.bereiche: Bereiche der Forschung
 forschung.baum: Technologiebaum
+forschung.entwicklung: Weiterentwicklung
+forschung.technologien: Technologien
+forschung.entwicklung_erklaerung: "Jedes Produkt, das du herstellen darfst, kannst du in einem Forschungszentrum Stufe für Stufe verbessern, bis Stufe {stufen} – Rohstoffe und Vorprodukte ebenso wie Endprodukte. Jede Stufe bringt in allen deinen Rezepten für das Produkt {wirkung}. Bessere Vorprodukte heben auch die Qualität der Waren, die daraus entstehen, und bessere Qualität bringt Käufer. Was eine Firma als erste erreicht, wird nach einigen Jahren Gemeingut; Nachzügler forschen billiger."
+forschung.wirkung_text: "+{qualitaet} Qualität, −{arbeit} Arbeit, −{vorprodukte} Vorprodukte je Stück"
+forschung.nur_eigene: "Nur eigene Produkte ({anzahl})"
+forschung.entwicklung_leer: Noch keine eigenen Produkte – sobald du etwas herstellst, kannst du es hier weiterentwickeln. Ohne Haken siehst du alle Produkte, die du herstellen darfst.
+forschung.stufe: Stufe
+forschung.stufe_von: "Stufe {stufe} von {von}"
+forschung.davon_gemeingut: "(Stufe {stufe} ist Gemeingut)"
+forschung.wirkung: Wirkung
+forschung.wirkung_keine: noch keine
+forschung.wettbewerber: Wettbewerber
+forschung.wettbewerber_vorn: "Der beste Wettbewerber ist auf Stufe {stufe} – vor dir."
+forschung.wettbewerber_hinten: "Der beste Wettbewerber ist auf Stufe {stufe}."
+forschung.naechste: Nächste Stufe
+forschung.naechste_stufe: "Stufe {stufe}"
+forschung.ausgereizt: ausgereizt – die höchste Stufe ist erreicht
+forschung.entwickeln_an: "Weiterentwicklung von {produkt}"
+forschung.entwicklung_gestartet: "Das Zentrum entwickelt jetzt {produkt} weiter, Stufe für Stufe."
+forschung.weiterentwickeln: Weiterentwickeln
+forschung.entwicklung_option: "{produkt} → Stufe {stufe}"
+forschung.entwicklung_stand: "{produkt}, Stufe {stufe}: {anteil}"
 forschung.erklaerung: Jede Technologie öffnet Verfahren, Anlagen und Produkte. Erforschbar ist, wessen Voraussetzungen bekannt sind – auch vor dem historischen Jahr, dann aber teurer. Ein Klick zeigt Kosten, Dauer und was die Technologie bringt.
 forschung.darstellung: Darstellung
 forschung.darstellung.baum: Baum
@@ -652,7 +678,7 @@ forschung.braucht_anlage: "Anlage: {anlage}"
 forschung.anlage_fehlt: "(erst mit {technologie})"
 forschung.produkte: Produkte
 forschung.anlage_bauen: Anlage bauen (zu den Standorten)
-forschung.zentren_erklaerung: "Ein Forschungszentrum arbeitet an einer Technologie. Jedes Labor hat {plaetze} Forscherplätze und kostet {betrag}; die Auslastung bestimmt, wie viele Forscher eingestellt werden. Forscher sind Akademiker des Fachgebiets; ihre Löhne und Sachkosten sind Forschungskosten."
+forschung.zentren_erklaerung: "Ein Forschungszentrum arbeitet an einer Technologie oder entwickelt ein Produkt weiter. Jedes Labor hat {plaetze} Forscherplätze und kostet {betrag}; die Auslastung bestimmt, wie viele Forscher eingestellt werden. Forscher sind Akademiker des Fachgebiets; ihre Löhne und Sachkosten sind Forschungskosten."
 forschung.zentrum_in: "Forschungszentrum in {land}"
 forschung.stand_zentrum: Stand
 forschung.projekt: Projekt
@@ -789,6 +815,8 @@ einfuehrung.werbung.titel: Marke und Werbung
 einfuehrung.werbung.text: "Unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
 einfuehrung.forschung.titel: Forschung
 einfuehrung.forschung.text: Der Technologiebaum zeigt, welche Verfahren, Anlagen und Produkte jede Technologie freischaltet und was sie kostet. Geforscht wird in Forschungszentren mit Laboren – auch vor der historischen Zeit, dann aber teurer.
+einfuehrung.weiterentwicklung.titel: Produkte weiterentwickeln
+einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe für Stufe verbessern – auch Rohstoffe und Vorprodukte. Jede Stufe bringt mehr Qualität und spart Arbeit und Vorprodukte; die Karte zeigt, wo deine Wettbewerber stehen und was die nächste Stufe kostet. Ein Forschungszentrum mit Labor arbeitet daran, bis das Produkt ausgereizt ist."
 einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.weltkarte.titel: Weltkarte

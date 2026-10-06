@@ -223,7 +223,7 @@ test("Standort auf einem gewählten Grundstück gründen und das Grundstück kau
   // No plot chosen yet.
   await expect(knopf).toBeDisabled();
   await expect(wahl).toContainText("Wähle oben ein Grundstück.");
-  // All locations: the largest four of each.
+  // All locations: the cheapest four of each.
   const liste = wahl.getByRole("table", { name: "Freie Grundstücke" });
   await expect(liste.getByRole("radio")).toHaveCount(12);
   await wahl.getByLabel("Lage", { exact: true }).selectOption("hafen");
@@ -441,6 +441,37 @@ test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", 
   await expect(page.getByRole("region", { name: "Draht in Deutschland" })).toBeVisible();
 });
 
+test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
+  page,
+}) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Forschung", exact: true }).click();
+  await page.getByRole("button", { name: "Weiterentwicklung", exact: true }).click();
+  const wirkung = page.getByText(/\+4 Qualität, −3 % Arbeit, −2 % Vorprodukte je Stück/);
+  await expect(wirkung.first()).toBeVisible();
+  const naegel = page.getByRole("article", { name: "Nägel" });
+  await expect(naegel).toContainText("Stufe 0 von 5");
+  await expect(naegel).toContainText("Der beste Wettbewerber ist auf Stufe");
+  await expect(naegel).toContainText("mit einem voll besetzten Labor in Deutschland");
+  await expect(naegel).toContainText(
+    /Kostenetwa [\d.,]+ (Mio\. )?USD mit einem Labor: 20 Forscher/,
+  );
+  // Without a research center the card leads there.
+  await expect(naegel).toContainText("Zum Forschen brauchst du ein Forschungszentrum");
+  await bild(page, "weiterentwicklung");
+  // The sellers of a market show their level.
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Produktionsketten", exact: true }).click();
+  await page
+    .getByRole("region", { name: "Produktionsketten" })
+    .getByRole("button", { name: "Markt für Draht öffnen" })
+    .first()
+    .click();
+  const draht = page.getByRole("region", { name: "Draht in Deutschland" });
+  const anbieter = draht.getByRole("table", { name: "Anbieter im Vormonat" });
+  await expect(anbieter.getByRole("row").first()).toContainText("Stufe");
+});
+
 test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Runde beenden" }).click();
@@ -554,12 +585,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 19")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 20")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 19 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 20 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -628,7 +659,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(titel("Markt")).toBeVisible();
   await weiter.click();
   await expect(titel("Marke und Werbung")).toBeVisible();
-  for (let i = 0; i < 3; i++) await weiter.click();
+  await weiter.click();
+  await expect(titel("Forschung")).toBeVisible();
+  await weiter.click();
+  await expect(titel("Produkte weiterentwickeln")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Weiterentwicklung" })).toBeVisible();
+  for (let i = 0; i < 2; i++) await weiter.click();
   await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
     "aria-current",
     "page",
@@ -642,7 +678,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 19")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 20")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });

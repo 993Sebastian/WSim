@@ -112,6 +112,9 @@ pub mod keys {
     pub const AUCTION_WON: &str = "meldung.versteigerung.ersteigert";
     pub const AUCTION_LOST: &str = "meldung.versteigerung.verloren";
     pub const AUCTION_SOLD: &str = "meldung.versteigerung.verkauft";
+    pub const DEVELOPMENT_DONE: &str = "meldung.weiterentwicklung.erreicht";
+    pub const DEVELOPMENT_TOP: &str = "meldung.weiterentwicklung.ausgereizt";
+    pub const DEVELOPMENT_RIVAL: &str = "meldung.weiterentwicklung.wettbewerber";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
@@ -125,6 +128,7 @@ pub mod keys {
     pub const NEW_YEAR: &str = "meldung.neues_jahr";
     pub const RESEARCH_DONE: &str = "meldung.forschung_abgeschlossen";
     pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
+    pub const COMMAND_NOT_DEVELOPABLE: &str = "fehler.befehl.nicht_weiterentwickelbar";
     pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
     pub const NEW_GAME_TOO_MANY_COMPANIES: &str = "fehler.spielstart.zu_viele_firmen";
     pub const NEW_GAME_START_FORM: &str = "fehler.spielstart.startform";
@@ -248,6 +252,9 @@ pub mod keys {
         AUCTION_WON,
         AUCTION_LOST,
         AUCTION_SOLD,
+        DEVELOPMENT_DONE,
+        DEVELOPMENT_TOP,
+        DEVELOPMENT_RIVAL,
         OVERDRAFT,
         NAME_EMPTY,
         NAME_TOO_LONG,
@@ -261,6 +268,7 @@ pub mod keys {
         NEW_YEAR,
         RESEARCH_DONE,
         COMMAND_NOT_RESEARCHABLE,
+        COMMAND_NOT_DEVELOPABLE,
         NEW_GAME_RESEARCH_FACTOR,
         NEW_GAME_TOO_MANY_COMPANIES,
         NEW_GAME_START_FORM,
