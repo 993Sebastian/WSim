@@ -716,6 +716,12 @@ Epochen bekommen deshalb neue Nummern.
 | M38 | Pleiten: Standorte weitergeben (Abschnitt K) |
 | M39–M41 | Produkte 1965–1989, 1990–2009, 2010–2026 (Abschnitt G; Daten für 1965–1989 liegen als Entwurf vor) |
 | M42 | Produktnamen je Firma (Abschnitt M) |
+| MA0–MA6 | Manager-System (`docs/MANAGER.md`, Abschnitt 11; vorgezogen aus Stufe 2, nach M41) |
+| ZA1–ZA3 | Hauptsitz und Zentralabteilungen (`docs/BETEILIGUNGEN.md`, Abschnitt 8) |
+| SU1–SU3 | Start-ups und Beteiligungen (`docs/BETEILIGUNGEN.md`, Abschnitt 8; vorgezogen aus Stufe 3) |
+
+✅ Entschieden am 06.10.2026 abends: Manager-System und Beteiligungen „direkt mit
+einbinden“ – in dieser Reihenfolge nach M41.
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

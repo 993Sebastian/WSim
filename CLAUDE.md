@@ -2,7 +2,8 @@
 
 Rundenbasierte Wirtschaftssimulation 1900–2100 für Windows (Einzelspieler, Deutsch).
 Anforderungen: `docs/LASTENHEFT.md`. Architektur: `docs/ARCHITEKTUR.md`.
-Offene Fragen: `docs/OFFENE_PUNKTE.md`.
+Offene Fragen: `docs/OFFENE_PUNKTE.md`. Manager-System (nach M41): `docs/MANAGER.md`.
+Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEILIGUNGEN.md`.
 
 ## Umfang und Arbeitsweise
 
