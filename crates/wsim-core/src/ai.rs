@@ -1292,7 +1292,35 @@ fn expand(
         return;
     };
     let facility = catalog.recipes.get(recipe).facility;
-    // A full plot (M35): the company builds on a new plot in the same country.
+    // A full plot (M35): another own site of the kind in the country with room – one
+    // already making the product first, then the one with the most room – else a new
+    // plot. Without this, the full oldest site stayed the best one and every expansion
+    // founded a site of its own (185 one-mill sites of one company by 1965).
+    let full = crate::plots::units_that_fit(catalog, state, site, facility) == 0;
+    let site = if full {
+        let makes = |o: SiteId| {
+            state.sites[o.index()].slots.iter().any(|sl| {
+                sl.recipe
+                    .is_some_and(|r| catalog.recipes.get(r).product == product)
+            })
+        };
+        sites
+            .iter()
+            .copied()
+            .filter(|&o| {
+                let s = &state.sites[o.index()];
+                o != site && s.country == place && s.kind == kind
+            })
+            .map(|o| {
+                let room = crate::plots::units_that_fit(catalog, state, o, facility);
+                (makes(o), room, std::cmp::Reverse(o), o)
+            })
+            .filter(|&(_, room, ..)| room > 0)
+            .max()
+            .map_or(site, |(.., o)| o)
+    } else {
+        site
+    };
     let fit = crate::plots::units_that_fit(catalog, state, site, facility);
     if fit == 0 {
         let company = &state.companies[id.index()];
@@ -1347,6 +1375,18 @@ fn expand(
             utilization: catalog.ai_model.start.utilization,
         };
         run(state, catalog, id, &produce);
+        if !state.sites[site.index()].offers.contains_key(&product) {
+            let sell = Command::SetSale {
+                site,
+                product,
+                mode: Some(PriceMode::Market {
+                    markup: 0.0,
+                    floor: Money::ZERO,
+                }),
+                keep: 0.0,
+            };
+            run(state, catalog, id, &sell);
+        }
         news.extend(news_expansion(state, catalog, id, site, recipe, count));
     }
 }

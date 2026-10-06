@@ -1711,8 +1711,12 @@ geben ihr Grundstück frei.
 - **Kauf oder Pacht:** gekauft, wenn danach noch `kasse_min_monate` laufende Kosten in
   der Kasse bleiben, sonst gepachtet.
 - **Ausbau (M10):** Fasst das Grundstück nicht alle geplanten Einheiten, baut die KI so
-  viele, wie passen; passt keine mehr, gründet sie im selben Land einen Standort auf
-  einem neuen Grundstück und baut dort.
+  viele, wie passen. Passt keine mehr, baut sie auf einem anderen eigenen Standort
+  derselben Art im Land mit freier Fläche weiter (zuerst einem, der das Produkt schon
+  herstellt, sonst dem mit dem meisten Platz für die Anlage) und bietet das Produkt dort
+  an; erst ohne einen solchen gründet sie einen Standort auf einem neuen Grundstück.
+  (Erster Weltlauf: Mit `ki_reserve` 0,5 und ohne diese Regel wurde fast jeder Ausbau ein
+  eigener Standort – 6 507 statt 2 143 Standorte 1965, eine Firma mit 185 Mühlen.)
 
 ### Spielstände
 

@@ -31,5 +31,7 @@ grundstuecksmodell:
   # Fläche der Anlagen ohne eigenen Wert (anlagen[].flaeche_ha): Investition / so viel je
   # ha; dazu der Zuschlag für Wege, Lager und Verwaltung; jeder Standort mindestens so viel.
   anlagenflaeche: {investition_je_ha_usd: 10_000_000, zuschlag: 0.2, mindestflaeche_ha: 0.2}
-  # Die KI sucht ein Grundstück, das ihr Vorhaben mit dieser Reserve fasst.
-  ki_reserve: 0.5
+  # Die KI sucht ein Grundstück, das ihr Vorhaben mit dieser Reserve fasst: Raum für
+  # mehrere Ausbauten (mit 0,5 war schon der erste Ausbau zu groß, und jede Erweiterung
+  # wurde ein eigener Standort).
+  ki_reserve: 2.0
