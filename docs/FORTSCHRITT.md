@@ -47,13 +47,13 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M36 | Anlagen in fünf Größen | ✅ |
 | M37 | Weiterentwicklung erforschter Produkte | ✅ |
 | M38 | Pleiten: Standorte weitergeben | ✅ |
-| M39 | Produkte 1965–1989 | in Arbeit (Daten, Kern und Oberfläche committet; Weltläufe laufen) |
+| M39 | Produkte 1965–1989 | ✅ |
 | M40–M41 | Produktepochen 1990–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
 (Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
-M39–M41; M30–M38 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
+M39–M41; M30–M39 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
 und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
 
 ## Eigenständige Entscheidungen (für das Review)
@@ -1264,7 +1264,7 @@ oder Halbzeuge.“ (Offene Punkte, Abschnitt J.)
   Hälfte 717 statt 524 – die gesunkenen Kosten drücken die Preise unter den festen
   Richtpreis. 22 Minuten Rechenzeit wie zuvor.
 
-### M39: Produkte 1965–1989 (06.10.2026, Zwischenstand)
+### M39: Produkte 1965–1989 (06.10.2026)
 
 Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
 
@@ -1297,4 +1297,26 @@ Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
 - Tests: Staatsbedarf mit Verlauf (Kern), Prüfregeln für `verlauf` und
   `forschung_vorlauf_jahre`, Vorlauf der Forschung (KI), Marktfilter und Suche
   (Komponententests), Rundgang (Browser).
+- **Weltläufe 1900–1990** mit allen Änderungen (100 KI-Firmen, 43 Minuten je Lauf):
+
+  | | Seed 1 | Seed 2 |
+  | --- | --- | --- |
+  | Taschenrechner (1971): erste Ware / voll versorgt | 1973 / 1977 | 1972 / 1973 |
+  | Farbfernseher (1965) | 1970 / 1971 | 1970 / 1972 |
+  | Personal Computer (1977) | 1980 / 1983 | 1980 / 1983 |
+  | Videorekorder (1976) | 1983 / 1983 | 1979 / 1982 |
+  | CD-Spieler (1982) | 1986 / 1989 | 1986 / 1987 |
+  | Pleiten bis 1990 (KI-Firmen gesamt) | 21 (121) | 20 (120) |
+
+  Eisenerz bleibt bis 1989 beim 0,9- bis 1,1-Fachen des Richtpreises (die Gruben wachsen
+  von 18 auf 77 Mio. t Kapazität), Kupfererz beim 0,9-Fachen, Kupferdraht ist durchweg
+  versorgt (vorher 1970–1978 zu 0–32 %). Stickstoffdünger wächst von 3,6 Mio. t (1964)
+  auf 17,6 Mio. t (1989) und bleibt versorgt. Erdöl kostet 1975–1980 vorübergehend das
+  Zwei- bis 2,7-Fache, bis neue Felder fördern; Mikrochips 1980–1986 bis zum Dreifachen,
+  als Personal Computer und Videorekorder zugleich anlaufen.
+- **Bekannte Grenzen:** Neue Elektronik braucht nach dem Erfindungsjahr drei bis sechs
+  Jahre bis zur Versorgung (Forschung, dann Chipwerk, Endmontage); Düsenflugzeuge bleiben
+  bis 1985 knapp; Holz wird ab 1986 teuer (Seed 1: bis 2,8-fach, Schnittholz 1986 nur zu
+  53 % versorgt) – das prüft der Weltlauf bis 2010 (M40). Siliziumwerk und Quarzbruch
+  sind nach diesen Läufen verkleinert.
 

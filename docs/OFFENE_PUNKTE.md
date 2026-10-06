@@ -408,6 +408,9 @@ Farbbildröhre und Magnetron als Vorprodukte; Transistoren auch aus Silizium (Ei
    1975 oder bis 1976 gar nicht, Personal Computer (1977) und Videorekorder (1976) 1978
    noch nicht, weil ihre Voraussetzungen (Reinstsilizium, Planartechnik, integrierte
    Schaltung, Mikroprozessor) erst mit der ersten Nachfrage erforscht wurden.
+6. **Bekannte Grenzen:** Neue Elektronik ist drei bis sechs Jahre nach dem Erfindungsjahr
+   voll versorgt (Taschenrechner 1973–1977, Personal Computer 1983, CD-Spieler
+   1987–1989); Holz wird in einem der Weltläufe ab 1986 teuer.
 
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 
