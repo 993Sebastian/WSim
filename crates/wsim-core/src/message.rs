@@ -119,6 +119,11 @@ pub mod keys {
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
     pub const NAME_TAKEN: &str = "fehler.name.vergeben";
+    pub const NAME_EXCLUDED: &str = "fehler.name.echter_name";
+    pub const COMMAND_NOT_NAMEABLE: &str = "fehler.befehl.ohne_produktnamen";
+    pub const AI_NEW_SELLER_NAMED: &str = "meldung.ki.anbieter_neu_name";
+    pub const AI_SELLER_GONE_NAMED: &str = "meldung.ki.anbieter_weg_name";
+    pub const AI_PRICE_CUT_NAMED: &str = "meldung.ki.preissenkung_name";
     pub const SAVE_NOT_A_SAVE: &str = "fehler.spielstand.kein_spielstand";
     pub const SAVE_TOO_NEW: &str = "fehler.spielstand.zu_neu";
     pub const SAVE_TOO_OLD: &str = "fehler.spielstand.zu_alt";
@@ -194,6 +199,7 @@ pub mod keys {
     pub const HINT_UNSOLD: &str = "hinweis.nichts_verkauft";
     pub const HINT_STAFF: &str = "hinweis.personal";
     pub const HINT_NO_RESEARCH: &str = "hinweis.forschung_ohne_projekt";
+    pub const HINT_NO_PRODUCT_NAME: &str = "hinweis.produkt_ohne_namen";
     pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
     pub const HINT_CASH: &str = "hinweis.kasse";
     pub const HINT_OFFER_SITE: &str = "hinweis.angebot.standort";
@@ -259,6 +265,11 @@ pub mod keys {
         NAME_EMPTY,
         NAME_TOO_LONG,
         NAME_TAKEN,
+        NAME_EXCLUDED,
+        COMMAND_NOT_NAMEABLE,
+        AI_NEW_SELLER_NAMED,
+        AI_SELLER_GONE_NAMED,
+        AI_PRICE_CUT_NAMED,
         SAVE_NOT_A_SAVE,
         SAVE_TOO_NEW,
         SAVE_TOO_OLD,
@@ -333,6 +344,7 @@ pub mod keys {
         HINT_UNSOLD,
         HINT_STAFF,
         HINT_NO_RESEARCH,
+        HINT_NO_PRODUCT_NAME,
         HINT_OVERDRAWN,
         HINT_CASH,
         HINT_OFFER_SITE,

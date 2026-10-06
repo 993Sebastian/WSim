@@ -155,6 +155,30 @@ pub fn hints(game: &Game) -> Vec<HintView> {
             found.push((3, h));
         }
     }
+    // End products the player sells without an own name (M42): named in the market.
+    let catalog = game.catalog();
+    let player = &state.companies[state.player.index()];
+    let mut offered: Vec<crate::ids::ProductId> = state
+        .sites
+        .iter()
+        .filter(|s| s.owner == state.player)
+        .flat_map(|s| s.offers.keys().copied())
+        .filter(|&p| {
+            catalog.product_naming.style(catalog, p).is_some()
+                && !player.product_names.contains_key(&p)
+        })
+        .collect();
+    offered.sort();
+    offered.dedup();
+    for p in offered {
+        let m = Message::new(MessageKind::Info, keys::HINT_NO_PRODUCT_NAME).with(
+            "produkt",
+            Param::TextKey(format!("produkt.{}", catalog.products.key(p))),
+        );
+        let mut h = hint(m, None, None);
+        h.message.target = Some("markt".to_owned());
+        found.push((3, h));
+    }
     // Offers waiting for the player's answer expire (M30).
     for m in super::deals::offer_hints(game) {
         let mut h = hint(m, None, None);

@@ -26,6 +26,7 @@ pub mod money;
 pub mod plots;
 pub mod policy;
 pub mod population;
+pub mod product_names;
 pub mod production;
 pub mod ranking;
 pub mod reports;
@@ -52,6 +53,8 @@ mod finance_tests;
 mod market_tests;
 #[cfg(test)]
 mod plots_tests;
+#[cfg(test)]
+mod product_names_tests;
 #[cfg(test)]
 mod production_tests;
 #[cfg(test)]

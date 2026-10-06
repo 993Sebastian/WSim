@@ -1277,6 +1277,46 @@ pub struct RawNameGroup {
     pub branch_words: BTreeMap<String, String>,
 }
 
+/// Name parts for the product names of companies (`data/ki/produktnamen.yaml`, M42).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProductNaming {
+    #[serde(rename = "hausmarke")]
+    pub house_brand: f64,
+    #[serde(rename = "ausgeschlossen", default)]
+    pub excluded: Vec<String>,
+    #[serde(rename = "stile")]
+    pub styles: Vec<RawNamingStyle>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawNamingStyle {
+    pub id: String,
+    #[serde(rename = "warengruppen")]
+    pub goods_groups: Vec<String>,
+    #[serde(rename = "staemme")]
+    pub stems: Vec<String>,
+    #[serde(rename = "muster")]
+    pub patterns: Vec<RawNamePattern>,
+    #[serde(rename = "zahlen", default)]
+    pub numbers: Vec<u32>,
+    #[serde(rename = "buchstaben", default)]
+    pub letters: Vec<String>,
+    #[serde(rename = "zusaetze", default)]
+    pub additions: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawNamePattern {
+    pub text: String,
+    #[serde(default)]
+    pub ab: Option<i32>,
+    #[serde(default)]
+    pub bis: Option<i32>,
+}
+
 /// A historical company (`data/ki/reale_firmen.yaml`).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

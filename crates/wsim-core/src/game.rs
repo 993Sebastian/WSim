@@ -178,6 +178,7 @@ impl Game {
             advertising: Vec::new(),
             auction_until: None,
             development: Default::default(),
+            product_names: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,

@@ -305,6 +305,9 @@ pub struct Company {
     /// Development levels of its products and the points towards the next (M37).
     #[serde(default, skip_serializing_if = "Development::is_empty")]
     pub development: Development,
+    /// The names the company gave its end products (M42).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub product_names: BTreeMap<ProductId, String>,
 }
 
 /// Development of a company's products (M37): levels reached by own research and the

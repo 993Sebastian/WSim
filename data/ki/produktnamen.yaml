@@ -1,0 +1,57 @@
+# Bausteine für erfundene Produktnamen (M42, Formeln: docs/FORMELN.md). Jede Firma benennt
+# ihre Endprodukte selbst; Rohstoffe, Halbzeuge, Bauteile und Strom bleiben namenlos.
+# Platzhalter im Muster: {stamm}, {zahl}, {buchstabe}, {zusatz}. Die Stämme sind
+# erfunden; echte Produkt- und Markennamen stehen in `ausgeschlossen` und werden weder
+# erzeugt noch vom Spieler angenommen (jedes Wort des Namens wird geprüft).
+
+produktnamen:
+  hausmarke: 0.6              # Anteil: weiteres Produkt unter einem eigenen Stamm desselben Stils
+
+  ausgeschlossen: [iPhone, iPad, iPod, iMac, Macintosh, Walkman, Discman, Trinitron,
+                   Betamax, Kindle, ThinkPad, Vaio, Aquos, Bravia, Lumia, Xperia,
+                   PlayStation, Xbox, Gameboy, Tamagotchi, Tesla, Nissan, Toyota, Prius,
+                   Corolla, Volkswagen, Käfer, Passat, Kadett, Trabant, Wartburg, Jeep,
+                   Unimog, Fordson, Boeing, Airbus, Concorde, Zeppelin, Apple, Samsung,
+                   Sony, Nokia, Motorola, IBM, Microsoft, Google, Intel, Philips,
+                   Panasonic, Toshiba, Casio, Kodak, Polaroid, Leica, Canon, Nikon, Rolex,
+                   Persil, Nivea, Odol, Tempo, Tesa, Aspirin, Valium, Nylon, Perlon,
+                   Bakelit, Teflon, Plexiglas, Styropor, Thermos, Tupperware, Lego, Barbie,
+                   Coca-Cola, Pepsi, Fanta, Maggi, Knorr, Nutella, Milka, Hoover,
+                   Frigidaire, Miele, Bosch, Grundig, Telefunken, Blaupunkt,
+                   ChatGPT]
+
+  stile:
+    - id: technik             # Geräte, Maschinen und Fahrzeuge: Modellnamen
+      warengruppen: [elektro, maschinen, fahrzeuge]
+      staemme: [Altrix, Arvon, Belkor, Borvex, Bravik, Brennar, Calvar, Carvex, Corvel,
+                Darvel, Delvin, Dexar, Dorvan, Elvan, Erlon, Estor, Fendor, Fennik,
+                Fraxis, Galtor, Gildar, Gorvan, Halvor, Holvin, Irvok, Istrel, Jandor,
+                Jorvik, Kelvor, Kestrin, Korval, Larvik, Lorvan, Marvik, Mendor, Morvan,
+                Navor, Nordel, Norvan, Ortan, Orvix, Ostrel, Pellar, Pentor, Pravin,
+                Quarnis, Quintor, Rendal, Rovan, Savorn, Selvan, Sentor, Solvar, Tarvin,
+                Tolvar, Trevan, Ulmar, Valtor, Varnel, Velnor, Vorrel, Wendrik, Wexor,
+                Wildar, Xerran, Zandor, Zelvor, Zenvar]
+      muster:
+        - {text: "{stamm} Typ {zahl}", bis: 1939}
+        - {text: "{stamm} {zahl}"}
+        - {text: "{stamm} {buchstabe}{zahl}", ab: 1950}
+        - {text: "{stamm} {zusatz}", ab: 1950}
+      zahlen: [2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 30, 40, 50, 60, 80, 100, 120, 150,
+               200, 250, 300, 400, 500, 600, 700, 800, 900]
+      buchstaben: [A, C, D, E, K, L, M, R, S, T, X, Z]
+      zusaetze: [Super, Spezial, Standard, Plus]
+
+    - id: marke               # Waren des täglichen Bedarfs: Markennamen
+      warengruppen: [metallwaren, moebel_hausrat, bekleidung, lebensmittel, chemie]
+      staemme: [Albina, Amarel, Aurela, Belisa, Bellora, Brisana, Calvina, Cendra,
+                Corvina, Dalvita, Darina, Delmira, Eliana, Elora, Esmera, Felora, Fiorel,
+                Florina, Genita, Gilvana, Halina, Hermina, Ilvana, Ivora, Jessara,
+                Jolina, Juvela, Kirana, Lavessa, Lirena, Marvita, Melvina, Mirava,
+                Nalvita, Nerola, Olvina, Orisa, Orvena, Palina, Parena, Perlina, Quelia,
+                Ravella, Savora, Serina, Solvina, Tavella, Terrina, Tilvia, Ulvira,
+                Umbrina, Uvala, Valessa, Velina, Vendra, Wellara, Wilvana, Wisara,
+                Ysella, Zanita, Zerella, Zylvia]
+      muster:
+        - {text: "{stamm}"}
+        - {text: "{stamm} {zusatz}"}
+      zusaetze: [Extra, Classic, Gold, Royal, Fein, Plus, Natur]

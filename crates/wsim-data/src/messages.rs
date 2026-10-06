@@ -471,6 +471,53 @@ pub fn name_country_twice(country: &str, first: &str) -> String {
     format!("Land „{country}“ gehört schon zur Namensgruppe „{first}“.")
 }
 
+// --- Product names (M42) ---
+
+pub fn naming_placeholder_unknown(placeholder: &str) -> String {
+    format!(
+        "Platzhalter „{{{placeholder}}}“ ist unbekannt; erlaubt sind {{stamm}}, {{zahl}}, \
+         {{buchstabe}} und {{zusatz}}."
+    )
+}
+
+pub fn naming_stem_missing() -> String {
+    "Das Muster braucht den Platzhalter {stamm}.".into()
+}
+
+pub fn naming_list_needed(placeholder: &str, field: &str) -> String {
+    format!("Das Muster nutzt {{{placeholder}}}; dafür darf „{field}“ nicht leer sein.")
+}
+
+pub fn naming_group_twice(group: &str, first: &str) -> String {
+    format!("Warengruppe „{group}“ gehört schon zum Stil „{first}“.")
+}
+
+pub fn naming_excluded(word: &str) -> String {
+    format!("„{word}“ steht unter „ausgeschlossen“ (echte Produkt- und Markennamen).")
+}
+
+pub fn naming_word_twice(word: &str) -> String {
+    format!("„{word}“ steht doppelt in der Liste.")
+}
+
+pub fn naming_word_empty() -> String {
+    "Leere Einträge sind nicht erlaubt.".into()
+}
+
+pub fn naming_years(from: i32, until: i32) -> String {
+    format!("„ab“ ({from}) liegt nach „bis“ ({until}).")
+}
+
+pub fn naming_no_open_pattern() -> String {
+    "Mindestens ein Muster braucht weder „ab“ noch „bis“, damit es in jedem Jahr einen \
+     Namen gibt."
+        .into()
+}
+
+pub fn naming_number_zero() -> String {
+    "Zahlen müssen größer als 0 sein.".into()
+}
+
 pub fn real_deposit_other_country(deposit: &str, country: &str) -> String {
     format!("Lagerstätte „{deposit}“ liegt nicht in „{country}“.")
 }

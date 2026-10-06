@@ -978,3 +978,74 @@ fn currencies_cover_every_country_and_year() {
     let usa = c.countries.id("USA").expect("USA");
     assert!((m.at_base(usa).expect("currency").factor - 1.0).abs() < 1e-12);
 }
+
+/// M42: Every AI company names the end products it makes or offers, with invented names
+/// that are free for their product; new products get names during the game.
+#[test]
+fn companies_name_their_end_products() {
+    use std::collections::{BTreeMap, BTreeSet};
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::game::Game;
+    use wsim_core::ids::ProductId;
+    use wsim_core::product_names;
+    use wsim_core::state::{AiSettings, CompanyId, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 3,
+        start_year: 1960,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Namen".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 100,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        },
+    };
+    let mut game = Game::new(c.clone(), settings).unwrap();
+    for _ in 0..3 {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    // Plants built at the end of the quarter get their names at the next operations of
+    // their company, at most 14 days later.
+    for _ in 0..15 {
+        game.advance(RoundLength::Day, |_| {});
+    }
+    let state = game.state();
+    let naming = &c.product_naming;
+    let mut per_product: BTreeMap<ProductId, BTreeSet<String>> = BTreeMap::new();
+    for (i, company) in state.companies.iter().enumerate() {
+        if company.ai.is_none() || company.bankrupt {
+            continue;
+        }
+        let id = CompanyId(u32::try_from(i).unwrap());
+        for p in product_names::named_products(&c, state, id) {
+            let key = c.products.key(p);
+            let name = company
+                .product_names
+                .get(&p)
+                .unwrap_or_else(|| panic!("{} has no name for {key}", company.name));
+            assert!(!naming.is_excluded(name), "{name}");
+            let style = naming.style(&c, p).unwrap();
+            assert!(
+                style.stems.iter().any(|s| name.starts_with(s.as_str())),
+                "{name} ({key})"
+            );
+            assert!(
+                per_product
+                    .entry(p)
+                    .or_default()
+                    .insert(name.to_lowercase()),
+                "{name} twice for {key}"
+            );
+        }
+    }
+    let named: usize = per_product.values().map(BTreeSet::len).sum();
+    assert!(named > 20, "{named} names");
+}

@@ -107,12 +107,12 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                 *e = (*e).min(o.price);
             }
         }
-        let message = |key: &str, company: CompanyId| {
-            Message::new(MessageKind::Info, key)
-                .with(
-                    "firma",
-                    Param::Text(state.companies[company.index()].name.clone()),
-                )
+        // With the competitor's own name for the product, if it gave one (M42).
+        let message = |(key, named): (&str, &str), company: CompanyId| {
+            let c = &state.companies[company.index()];
+            let name = c.product_names.get(&product);
+            let m = Message::new(MessageKind::Info, if name.is_some() { named } else { key })
+                .with("firma", Param::Text(c.name.clone()))
                 .with(
                     "produkt",
                     Param::TextKey(format!("produkt.{}", catalog.products.key(product))),
@@ -120,7 +120,11 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                 .with(
                     "land",
                     Param::Country(catalog.countries.key(country).to_owned()),
-                )
+                );
+            match name {
+                Some(n) => m.with("name", Param::Text(n.clone())),
+                None => m,
+            }
         };
         let before = state
             .watched_markets
@@ -134,7 +138,8 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                 None => sellers.push((company, price)),
                 Some(None) => {
                     news.push(
-                        message(keys::AI_NEW_SELLER, company).with("preis", Param::Money(price)),
+                        message((keys::AI_NEW_SELLER, keys::AI_NEW_SELLER_NAMED), company)
+                            .with("preis", Param::Money(price)),
                     );
                     sellers.push((company, price));
                 }
@@ -143,7 +148,7 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                     #[allow(clippy::cast_possible_truncation)]
                     let percent = ((1.0 - price.to_usd() / high.to_usd()) * 100.0).round() as i64;
                     news.push(
-                        message(keys::AI_PRICE_CUT, company)
+                        message((keys::AI_PRICE_CUT, keys::AI_PRICE_CUT_NAMED), company)
                             .with("prozent", Param::Integer(percent))
                             .with("preis", Param::Money(price)),
                     );
@@ -155,7 +160,10 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
         if let Some(w) = before {
             for &(company, _) in &w.sellers {
                 if !now.contains_key(&company) {
-                    news.push(message(keys::AI_SELLER_GONE, company));
+                    news.push(message(
+                        (keys::AI_SELLER_GONE, keys::AI_SELLER_GONE_NAMED),
+                        company,
+                    ));
                 }
             }
         }

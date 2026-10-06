@@ -558,6 +558,17 @@ markt.anteil_markt: Marktanteil
 markt.stufe: Stufe
 markt.stufe_hilfe: Entwicklungsstufe des Produkts beim Anbieter – höhere Stufen bringen mehr Qualität und niedrigere Kosten (Forschung → Weiterentwicklung).
 markt.du: du
+markt.produktname: Produktname
+markt.ohne_namen: ohne Namen
+markt.produktname_titel: Dein Produktname
+markt.produktname_ohne: "Dein Angebot heißt bisher einfach „{produkt}“. Die Wettbewerber verkaufen ihre Ware unter eigenen Namen."
+markt.produktname_aktuell: "Dein {produkt} heißt „{name}“."
+markt.produktname_speichern: Namen speichern
+markt.produktname_entfernen: Namen entfernen
+markt.produktname_vorschlaege: "Vorschläge:"
+markt.produktname_hilfe: Der Name gilt in allen Ländern. Erfunden muss er sein – echte Produkt- und Markennamen nimmt das Spiel nicht an –, und für dasselbe Produkt darf ihn noch keine andere Firma tragen.
+markt.produktname_gesetzt: "Dein {produkt} heißt jetzt „{name}“."
+markt.produktname_entfernt: "Dein {produkt} trägt keinen eigenen Namen mehr."
 markt.einfuhr: Einfuhr durch Händler
 markt.ausfuhr: Ausfuhr durch Händler
 markt.staatsmarkt: Staatlicher Markt
@@ -817,7 +828,7 @@ einfuehrung.etappen.text: "Wie geht es weiter? Die Etappen in der Übersicht nen
 einfuehrung.grundstuecke.titel: Standorte und Grundstücke
 einfuehrung.grundstuecke.text: "Neue Werke, Kraftwerke und Lager gründest du hier unter „Neuer Standort“. Jeder Standort steht auf einem Grundstück: In der Stadt klein und teuer, aber Arbeitskräfte kommen lieber; am Hafen wird Fracht über See billiger; auf dem Land groß und billig, dafür mit Lieferkosten zu den Kunden. Kaufen bindet Geld, Pachten kostet jeden Monat. Ist ein Grundstück voll, passt keine weitere Anlage darauf – dann gründest du im Land einen weiteren Standort. Neue Grundstücke kommen jedes Jahr hinzu, die guten sind schnell vergeben."
 einfuehrung.markt.titel: Markt
-einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
+einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen. Endprodukte verkauft jede Firma unter eigenem Namen – deinen gibst du dort unter „Dein Produktname“."
 einfuehrung.werbung.titel: Marke und Werbung
 einfuehrung.werbung.text: "Unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
 einfuehrung.wettbewerb.titel: Wettbewerb
@@ -959,6 +970,7 @@ wettbewerb.status.abgelaufen: "{datum}: {gegenstand} – abgelaufen ({firma}, {p
 wettbewerb.status.zurueckgezogen: "{datum}: {gegenstand} – zurückgezogen ({firma}, {preis})"
 wettbewerb.umsatz: Umsatz (12 Monate)
 wettbewerb.standorte: Standorte
+wettbewerb.produkte: Produkte unter eigenem Namen
 wettbewerb.alle_firmen: Alle Firmen
 wettbewerb.firma_kopf: "Sitz: {land} · Eigenkapital {eigenkapital} · Umsatz {umsatz} in zwölf Monaten"
 wettbewerb.kaufen_hilfe: Biete für einen Standort; die Firma antwortet in der nächsten Runde mit Ja, Nein oder einem höheren Preis.

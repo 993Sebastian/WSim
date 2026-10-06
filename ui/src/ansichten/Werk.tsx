@@ -1045,6 +1045,7 @@ function AngebotKarte({
     >
       <h3>
         {name}
+        {o?.product_name && <small>„{o.product_name}“</small>}
         {!o && <small>{t("werk.nicht_angeboten")}</small>}
       </h3>
       <dl className="werte">

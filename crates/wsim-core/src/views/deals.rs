@@ -396,12 +396,22 @@ pub struct AreaView {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CompanyDetailView {
     pub company: CompanyRowView,
+    /// The names the company gave its products (M42), in product order.
+    #[serde(default)]
+    pub products: Vec<NamedProductView>,
     pub sites: Vec<ForeignSiteView>,
     pub areas: Vec<AreaView>,
     pub licenses: Vec<LicenseView>,
     /// The player's cash (for the offer form).
     pub cash_usd: f64,
     pub min_age_months: u32,
+}
+
+/// A product with the name a company gave it (M42).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct NamedProductView {
+    pub product: String,
+    pub name: String,
 }
 
 /// Until when the player is blocked for an object of `seller`, and its open offer.
@@ -568,8 +578,17 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
             })
             .collect()
     };
+    let products = state.companies[id.index()]
+        .product_names
+        .iter()
+        .map(|(p, name)| NamedProductView {
+            product: catalog.products.key(*p).to_owned(),
+            name: name.clone(),
+        })
+        .collect();
     Some(CompanyDetailView {
         company: row(state, catalog, id),
+        products,
         sites,
         areas,
         licenses,
