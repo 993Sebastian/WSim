@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, ProductKind, RealCompany, SiteType};
+use crate::catalog::{Catalog, FacilitySize, ProductKind, RealCompany, SiteType};
 use crate::ids::{BranchId, CountryId, DepositId, FacilityId, Id, ProductId, RecipeId};
 use crate::ledger::{Account, Ledger};
 use crate::market;
@@ -100,6 +100,32 @@ struct Placement {
     deposit: Option<DepositId>,
     recipe: RecipeId,
     count: u32,
+    size: FacilitySize,
+}
+
+impl Placement {
+    /// Capacity in facilities of the data size.
+    fn units(&self, catalog: &Catalog) -> f64 {
+        f64::from(self.count) * catalog.production_model.sizes.capacity(self.size)
+    }
+
+    fn investment(&self, catalog: &Catalog) -> f64 {
+        let f = catalog.recipes.get(self.recipe).facility;
+        catalog.facilities.get(f).investment.to_usd()
+            * catalog.production_model.sizes.investment(self.size)
+            * f64::from(self.count)
+    }
+}
+
+/// The smallest facility size that covers `facilities` of the data size (else the data
+/// size).
+fn smallest_size(catalog: &Catalog, facilities: f64) -> FacilitySize {
+    let sizes = &catalog.production_model.sizes;
+    FacilitySize::ALL
+        .into_iter()
+        .filter(|&size| sizes.capacity(size) >= facilities)
+        .min_by(|a, b| sizes.capacity(*a).total_cmp(&sizes.capacity(*b)))
+        .unwrap_or(FacilitySize::Medium)
 }
 
 /// Plants planned for one company.
@@ -110,13 +136,7 @@ struct Plan {
 
 impl Plan {
     fn value(&self, catalog: &Catalog) -> f64 {
-        self.placements
-            .iter()
-            .map(|p| {
-                let f = catalog.recipes.get(p.recipe).facility;
-                catalog.facilities.get(f).investment.to_usd() * f64::from(p.count)
-            })
-            .sum()
+        self.placements.iter().map(|p| p.investment(catalog)).sum()
     }
 
     /// Branch and country with the largest investment.
@@ -124,9 +144,8 @@ impl Plan {
         let mut by: BTreeMap<(BranchId, CountryId), f64> = BTreeMap::new();
         for p in &self.placements {
             let r = catalog.recipes.get(p.recipe);
-            let value = catalog.facilities.get(r.facility).investment.to_usd() * f64::from(p.count);
             *by.entry((catalog.products.get(r.product).branch, p.country))
-                .or_default() += value;
+                .or_default() += p.investment(catalog);
         }
         by.into_iter()
             .max_by(|a, b| a.1.total_cmp(&b.1))
@@ -138,21 +157,23 @@ impl Plan {
 /// Demand per day by product and country that the planned plants still have to cover.
 struct Need {
     rate: Vec<Vec<f64>>,
+    /// Products that planned or historical plants use.
+    input: Vec<bool>,
 }
 
 impl Need {
     fn add_inputs(&mut self, catalog: &Catalog, p: &Placement, utilization: f64) {
         let r = catalog.recipes.get(p.recipe);
-        let runs =
-            catalog.facilities.get(r.facility).runs_per_day * f64::from(p.count) * utilization;
+        let runs = catalog.facilities.get(r.facility).runs_per_day * p.units(catalog) * utilization;
         for &(input, q) in &r.inputs {
             self.rate[input.index()][p.country.index()] += runs * q;
+            self.input[input.index()] |= runs * q > 0.0;
         }
     }
 
     fn cover(&mut self, catalog: &Catalog, p: &Placement, utilization: f64) {
         let product = catalog.recipes.get(p.recipe).product;
-        let out = output_per_day(catalog, p.recipe) * f64::from(p.count) * utilization;
+        let out = output_per_day(catalog, p.recipe) * p.units(catalog) * utilization;
         let n = &mut self.rate[product.index()][p.country.index()];
         *n = (*n - out).max(0.0);
     }
@@ -240,6 +261,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                     .collect()
             })
             .collect(),
+        input: vec![false; catalog.products.len()],
     };
     let mut free: Vec<u32> = catalog
         .deposits
@@ -282,6 +304,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                     deposit: site.deposit,
                     recipe,
                     count,
+                    size: FacilitySize::Medium,
                 });
             }
         }
@@ -309,9 +332,15 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         // lasting price war, since idle plants lower their prices.
         let facilities: f64 =
             rates.iter().sum::<f64>() * start.market_cover[p.kind.index()] / per_day;
-        if facilities < start.min_plant_share {
+        // An input of planned plants gets one plant of the size it fills, or else every
+        // stage above it would be scaled down to nothing (M41).
+        let size = if facilities >= start.min_plant_share {
+            FacilitySize::Medium
+        } else if need.input[product.index()] && facilities > 0.0 {
+            smallest_size(catalog, facilities)
+        } else {
             continue;
-        }
+        };
         let mut places: Vec<Placement> = Vec::new();
         if catalog.recipes.get(recipe).extraction {
             let deposits: Vec<DepositId> = catalog
@@ -343,6 +372,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                         deposit: Some(d),
                         recipe,
                         count,
+                        size,
                     });
                 }
             }
@@ -367,6 +397,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                         deposit: None,
                         recipe,
                         count: n,
+                        size,
                     });
                 }
             }
@@ -488,7 +519,7 @@ fn fit_to_inputs(
         let mut used = vec![0.0; n];
         for p in placements {
             let r = catalog.recipes.get(p.recipe);
-            let full = catalog.facilities.get(r.facility).runs_per_day * f64::from(p.count);
+            let full = catalog.facilities.get(r.facility).runs_per_day * p.units(catalog);
             supply[r.product.index()] += full * r.output;
             for &(i, q) in &r.inputs {
                 used[i.index()] += full * u * q * cover(i);
@@ -631,13 +662,8 @@ fn split(catalog: &Catalog, plan: &mut Plan) -> Plan {
     let half = plan.value(catalog) / 2.0;
     let mut taken = Plan::default();
     if plan.placements.len() > 1 {
-        plan.placements.sort_by(|a, b| {
-            let v = |p: &Placement| {
-                let f = catalog.recipes.get(p.recipe).facility;
-                catalog.facilities.get(f).investment.to_usd() * f64::from(p.count)
-            };
-            v(b).total_cmp(&v(a))
-        });
+        plan.placements
+            .sort_by(|a, b| b.investment(catalog).total_cmp(&a.investment(catalog)));
         while plan.placements.len() > 1 && taken.value(catalog) < half {
             let p = plan.placements.pop().expect("more than one");
             taken.placements.push(p);
@@ -782,7 +808,7 @@ fn found_company(
         for p in &plan.placements {
             let r = catalog.recipes.get(p.recipe);
             let runs = catalog.facilities.get(r.facility).runs_per_day
-                * f64::from(p.count)
+                * p.units(catalog)
                 * start.utilization;
             let grid = state.countries.get(p.country).grid_share;
             *by_country.entry(p.country).or_default() += r.energy_mwh * runs * (1.0 - grid);
@@ -815,6 +841,7 @@ fn found_company(
             deposit: None,
             recipe,
             count,
+            size: FacilitySize::Medium,
         });
     }
     for (country, kind, deposit, placements) in sites {
@@ -831,7 +858,7 @@ fn found_company(
                 .facilities
                 .get(r.facility)
                 .investment
-                .scale(f64::from(p.count));
+                .scale(catalog.production_model.sizes.investment(p.size) * f64::from(p.count));
             construction += cost;
             slots.push(Slot {
                 facility: r.facility,
@@ -846,14 +873,14 @@ fn found_company(
                 last_runs: 0.0,
                 limit: None,
                 operation: crate::state::Operation::Running,
-                size: crate::catalog::FacilitySize::Medium,
+                size: p.size,
             });
             let flows = slot_flows(
                 catalog,
                 state,
                 country,
                 p.recipe,
-                (p.count, crate::catalog::FacilitySize::Medium),
+                (p.count, p.size),
                 start.utilization,
                 (1.0, crate::development::Effect::NONE),
             );

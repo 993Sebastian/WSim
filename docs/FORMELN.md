@@ -477,6 +477,13 @@ erschlossene Lagerstätte als Konzession mit Anteil 1.
    Entwicklung^*w* (*w* je Produktart aus `gewicht_entwicklung`), bei Rohstoffen auf
    Lagerstätten mit freien Konzessionen nach Förderung / Kostenfaktor (höchstens die
    Förderung). Ganze Zahlen nach dem größten Rest, Summe round(*F*), mindestens 1.
+   **Vorprodukte geplanter Anlagen** (Nacharbeit zu M41): Liegt *F* unter
+   `anlage_mindestanteil`, brauchen aber schon geplante oder reale Anlagen das Produkt,
+   gibt es trotzdem eine Anlage, und zwar in der kleinsten Größe (M36), deren Leistung
+   *F* deckt. Sonst fehlte das Vorprodukt ganz, und Schritt 5 verkleinerte alle Stufen
+   darüber auf null: Bei einem Start ab 1920 fehlten so Bauxit und Phenolharz (Aluminium,
+   Kochtöpfe, Flugzeuge, Röhrenradios), ab 1970 Reinstsilizium (Transistoren,
+   Farbfernseher) und ab 2000 Lithium (Akkus, Mobiltelefone, Laptops, Digitalkameras).
 5. **Vorprodukte begrenzen:** Von den Rohstoffen aufwärts wird jede Stufe auf den
    Anteil verkleinert, den ihre Vorprodukte weltweit decken (Staatsmarkt und Strom
    unbegrenzt) – sonst entstünden Werke ohne Material. Gedeckt heißt (Nacharbeit zu M16):
@@ -1754,7 +1761,9 @@ Forschungszentrum beschäftigt `Durchläufe je Tag · k · Einheiten · Auslastu
   Absatz; kleine passen in kleine Märkte und auf kleine Grundstücke und laufen dort voll
   statt halb.
 - Spielstände und Befehle von vor M36 meinen die Größe mittel; die Startbesetzung (M10)
-  und die Startformen bauen weiter mittelgroße Anlagen (die Daten sind darauf abgestimmt).
+  und die Startformen bauen weiter mittelgroße Anlagen (die Daten sind darauf abgestimmt),
+  außer für Vorprodukte, deren Bedarf keine mittlere Anlage füllt (Startbesetzung,
+  Schritt 4).
 
 ### KI
 

@@ -1049,3 +1049,89 @@ fn companies_name_their_end_products() {
     let named: usize = per_product.values().map(BTreeSet::len).sum();
     assert!(named > 20, "{named} names");
 }
+
+/// Start population (docs/FORMELN.md, Startbesetzung step 4, after M41): in every start
+/// year the start plants make each input the start plants use (state markets and
+/// electricity aside), also inputs needed too little to fill a facility of the data
+/// size. Without them every stage above was scaled down to nothing: from 1920 bauxite
+/// was missing (aluminium, pots), from 1970 pure silicon (transistors, colour TVs), and
+/// a start in 2006 had no plants for mobile phones, laptops or their batteries.
+#[test]
+fn start_plants_make_every_input_they_use() {
+    use std::sync::Arc;
+    use wsim_core::game::Game;
+    use wsim_core::ids::Id;
+    use wsim_core::state::{AiSettings, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let chains = [
+        (1920, ["bauxit", "aluminium", "kochtopf", "roehrenradio"]),
+        (
+            1970,
+            [
+                "reinstsilizium",
+                "transistor",
+                "farbfernseher",
+                "transistorradio",
+            ],
+        ),
+        (
+            2006,
+            ["lithium", "lithium_ionen_akku", "mobiltelefon", "laptop"],
+        ),
+    ];
+    for (year, products) in chains {
+        let settings = GameSettings {
+            seed: 3,
+            start_year: year,
+            start_country: c.countries.id("DEU").unwrap(),
+            start_capital: Money::from_usd(100_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Start".into(),
+            research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: AiSettings {
+                companies: 100,
+                competence: 0.5,
+                aggressiveness: 0.5,
+            },
+        };
+        let game = Game::new(c.clone(), settings).unwrap();
+        let state = game.state();
+        let mut made = vec![0.0; c.products.len()];
+        let mut used = vec![false; c.products.len()];
+        for slot in state.sites.iter().flat_map(|s| &s.slots) {
+            let Some(r) = slot.recipe.map(|r| c.recipes.get(r)) else {
+                continue;
+            };
+            made[r.product.index()] +=
+                f64::from(slot.count) * c.production_model.sizes.capacity(slot.size);
+            for &(input, _) in &r.inputs {
+                used[input.index()] = true;
+            }
+        }
+        let missing: Vec<&str> = c
+            .products
+            .iter()
+            .filter(|(id, p)| {
+                used[id.index()]
+                    && made[id.index()] == 0.0
+                    && p.state_market.is_none()
+                    && p.kind != ProductKind::Energy
+            })
+            .map(|(id, _)| c.products.key(id))
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{year}: no start plant makes {missing:?}"
+        );
+        for key in products {
+            let p = c.products.id(key).unwrap();
+            assert!(made[p.index()] > 0.0, "{year}: no start plant for {key}");
+        }
+        for company in &state.companies {
+            assert!(company.ledger.is_balanced(), "{}", company.name);
+        }
+    }
+}

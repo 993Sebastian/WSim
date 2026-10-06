@@ -1405,6 +1405,26 @@ Produktnamen je Firma folgen mit M42.
   Vorprodukten (Szenariotest); Förderindex für Kohle (neu), Eisenerz, Kupfererz und
   Kobalt nach der Welterzeugung; Kobaltgewinnung mit einem Viertel der Stunden.
   Weltläufe 1900–2026 (Seeds 1 und 2) zur Abnahme laufen.
+- **Späte Startjahre** (Startbesetzung, `docs/FORMELN.md` Schritt 4): Ein Vorprodukt, das
+  zu wenig gebraucht wird, um eine mittlere Anlage zu füllen, bekam keine Anlage, und die
+  Stufen darüber wurden auf null verkleinert – ab Startjahr 1920 fehlten so Bauxit und
+  Phenolharz (Aluminium, Kochtöpfe, Flugzeuge, Röhrenradios), ab 1970 Reinstsilizium
+  (Transistoren, Farbfernseher), ab 2000 Lithium (Akkus, Mobiltelefone, Laptops,
+  Digitalkameras). Jetzt bekommt es eine Anlage der kleinsten Größe, die den Bedarf deckt.
+  Der Start 1900 bleibt gleich. Weltlauf ab 2006 (Seed 3, bis 2011), Versorgung vorher →
+  nachher:
+
+  | Produkt | 2006 | 2008 | 2010 |
+  |---|---|---|---|
+  | Mobiltelefon | 8 % → 74 % | 10 % → 52 % | 26 % → 99 % |
+  | Laptop | 8 % → 75 % | 0 → 56 % | 0 → 99 % |
+  | Digitalkamera | 8 % → 74 % | 0 → 60 % | 0 → 99 % |
+  | Kochtopf | 8 % → 100 % | 2 % → 99 % | 34 % → 100 % |
+  | Düsenflugzeug | 8 % → 57 % | 0 → 56 % | 0 → 83 % |
+
+  Der Akkupreis steigt bis 2010 auf das Dreifache: Kobalt und Kohle kosten dort das 2- bis
+  3-fache ihres Richtpreises, und die Akkuwerke bauen deshalb nicht aus (Regel
+  `ausbau_vorprodukt_preis_max`). Das gehört zu den Rohstoffpreisen (Preisinseln, M40).
 
 ### M42: Produktnamen je Firma (06.10.2026)
 

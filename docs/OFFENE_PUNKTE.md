@@ -451,6 +451,10 @@ und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41)
    nach der Welterzeugung; die Kobaltgewinnung braucht ein Viertel der Stunden.
 5. **Bewusst weggelassen:** Reifen am Elektroauto, Aluminiumrahmen am Solarmodul,
    Nickel, Mangan, Elektrolyt und Separator der Zellen (höchstens vier Vorprodukte).
+6. **Späte Startjahre:** Ein Vorprodukt, das zum Start zu wenig gebraucht wird, um eine
+   mittlere Anlage zu füllen, bekommt in der Startbesetzung jetzt eine kleine Anlage.
+   Vorher fehlte es, und alle Stufen darüber fielen weg (Start ab 1920 ohne Aluminium,
+   ab 1970 ohne Transistoren, ab 2000 ohne Akkus, Mobiltelefone und Laptops).
 
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 

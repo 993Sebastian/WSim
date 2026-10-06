@@ -253,3 +253,4 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Produktname in Sichten | `SellerLine::product_name`, `OfferView::product_name`, `ProductMarketView::{nameable, own_name, name_suggestions}`, `CompanyDetailView::products` (`NamedProductView`); UI: `Produktname` (Markt) |
 | Engpass ohne Ausweg (KI baut ein Produkt, das niemand herstellt, trotz knapper Vorprodukte) | `ai::Chain::bottleneck` mit `Chain::makers` (M41) |
 | Angebote eines Produkts in einem Spielstand (Diagnose) | `wsim angebote <spielstand> <produkt>` (`show_offers` in `wsim-cli`) |
+| Vorprodukt geplanter Anlagen (Startbesetzung: eine Anlage in der kleinsten passenden Größe) | `Need::input`, `smallest_size`, `Placement::size` in `population` |
