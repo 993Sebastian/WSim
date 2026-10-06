@@ -128,6 +128,9 @@ pub struct PeriodResult {
     /// Kept for the running and the last closed periods only, to keep saves small.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub by_center: BTreeMap<CostCenter, BTreeMap<CostType, Money>>,
+    /// Revenue per site (MA2: the budgets of its positions).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub site_revenue: BTreeMap<SiteId, Money>,
 }
 
 /// Change of cash in a period by activity (Kapitalflussrechnung).
@@ -169,6 +172,9 @@ impl PeriodResult {
         *self.by_type.entry(cost).or_default() += amount;
         if let Some(site) = center.site {
             *self.by_site.entry(site).or_default() += amount;
+            if cost == CostType::Revenue {
+                *self.site_revenue.entry(site).or_default() += amount;
+            }
         }
         if let Some(product) = center.product {
             *self.by_product.entry(product).or_default() += amount;

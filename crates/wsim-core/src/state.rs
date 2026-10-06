@@ -14,6 +14,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::calendar::Date;
 use crate::catalog::{Catalog, FacilitySize, SiteType};
 pub use crate::country_model::CountryState;
+use crate::decision::{ChoiceKind, Decision, Topic};
 use crate::ids::{
     self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, MilestoneId, ProductId,
     RecipeId, TechnologyId,
@@ -308,6 +309,106 @@ pub struct Company {
     /// The names the company gave its end products (M42).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub product_names: BTreeMap<ProductId, String>,
+    /// Budgets and settings of its positions (MA2), in the order they were first used.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub positions: Vec<PositionState>,
+}
+
+/// What a company set and recorded for one of its positions (MA2): it stays with the
+/// position when the manager changes.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PositionState {
+    pub position: Position,
+    /// Shares of the reference per decision and per year set by the player; `None`: the
+    /// defaults of the level.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget: Option<(f64, f64)>,
+    /// Counted against the budget in `year`.
+    pub spent: Money,
+    pub year: i32,
+    /// Topics the player asked not to be asked about again.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub muted: BTreeSet<Topic>,
+    /// Topics declined, resting until the date.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub blocked: BTreeMap<Topic, Date>,
+    /// The latest decisions the position took itself, newest last.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub log: Vec<PositionLog>,
+}
+
+/// A decision a position took itself.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PositionLog {
+    pub date: Date,
+    pub topic: Topic,
+    pub kind: ChoiceKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product: Option<ProductId>,
+    pub amount: Money,
+    /// Estimated effect on the result of a year.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effect: Option<Money>,
+}
+
+/// An option of a concern as the position assessed it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConcernOption {
+    /// Counted against a budget.
+    pub amount: Money,
+    /// Forecast of the yearly effect as a range; none without an estimate.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forecast: Option<(Money, Money)>,
+    /// One-off effect on the result.
+    pub once: Money,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConcernStatus {
+    Open,
+    /// The player chose an option.
+    Chosen(usize),
+    /// The player let the position decide; it took its recommendation.
+    Delegated(usize),
+    /// The player asked not to be asked about the topic again.
+    Muted,
+    Declined,
+    /// The deadline passed; nothing changed.
+    Expired,
+}
+
+/// A question of a position to the player (MA2): a decision over its budget or authority.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Concern {
+    pub id: u32,
+    pub company: CompanyId,
+    pub position: Position,
+    pub manager: ManagerId,
+    pub decision: Decision,
+    /// The option the position recommends.
+    pub recommended: usize,
+    pub options: Vec<ConcernOption>,
+    pub created: Date,
+    pub deadline: Date,
+    pub status: ConcernStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub closed: Option<Date>,
+}
+
+/// A report due on the effect of an executed option (MA2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Followup {
+    pub company: CompanyId,
+    pub site: SiteId,
+    pub topic: Topic,
+    pub kind: ChoiceKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product: Option<ProductId>,
+    /// Forecast of the yearly effect.
+    pub forecast: Money,
+    /// Mean monthly result of the site before.
+    pub baseline: Money,
+    pub due: Date,
 }
 
 /// Development of a company's products (M37): levels reached by own research and the
@@ -1037,6 +1138,14 @@ pub struct GameState {
     pub managers: BTreeMap<ManagerId, Manager>,
     #[serde(default)]
     pub next_manager: u32,
+    /// Questions of positions to their companies (MA2), open and closed in the last year.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub concerns: Vec<Concern>,
+    #[serde(default)]
+    pub next_concern: u32,
+    /// Reports due on the effects of decisions (MA2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub followups: Vec<Followup>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

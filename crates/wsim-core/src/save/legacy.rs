@@ -90,6 +90,7 @@ pub(super) fn decode_v2(
                 auction_until: None,
                 development: Default::default(),
                 product_names: Default::default(),
+                positions: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,
@@ -139,6 +140,9 @@ pub(super) fn decode_v2(
         next_offer: 0,
         managers: Default::default(),
         next_manager: 0,
+        concerns: Vec::new(),
+        next_concern: 0,
+        followups: Vec::new(),
         player: s.player,
         game_over: s.game_over,
     };

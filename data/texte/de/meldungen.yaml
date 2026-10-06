@@ -173,6 +173,12 @@ fehler.befehl.manager_angestellt: Dieser Manager arbeitet schon für eine Firma.
 fehler.befehl.manager_nicht_bei_dir: Dieser Manager arbeitet nicht für deine Firma.
 fehler.befehl.stelle_unbekannt: Diese Stelle gibt es an dem Standort nicht.
 fehler.befehl.stelle_besetzt: Die Stelle ist schon besetzt.
+fehler.befehl.anliegen_unbekannt: Dieses Anliegen gibt es nicht.
+fehler.befehl.anliegen_erledigt: Dieses Anliegen ist schon beantwortet oder verfallen.
+fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
+meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
+meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
+meldung.anliegen.folge: "{massnahme} in {standort} ({land}): Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}."
 meldung.angebot.erhalten.standort: "{firma} bietet {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
 meldung.angebot.erhalten.lizenz: "{firma} bietet {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.angebot.gegenangebot.standort: "{firma} verlangt {preis} für den Standort ({art} in {land}). Antwort bis {frist}."

@@ -1292,6 +1292,12 @@ pub struct RawManagement {
     pub levels: Vec<RawManagementLevel>,
     #[serde(rename = "standorttypen")]
     pub site_types: BTreeMap<String, Vec<String>>,
+    #[serde(rename = "routine_themen", default)]
+    pub routine_topics: Vec<String>,
+    #[serde(rename = "budget_sockel_gehaelter")]
+    pub budget_floor: RawBudgetFloor,
+    #[serde(rename = "anliegen")]
+    pub concerns: RawConcerns,
     #[serde(rename = "leitung_ohne_fach_abschlag")]
     pub head_discount: f64,
     #[serde(rename = "bemerken_grund")]
@@ -1327,6 +1333,37 @@ pub struct RawManagementLevel {
     pub salary_specialist: f64,
     #[serde(rename = "gehalt_leitung")]
     pub salary_head: f64,
+    /// Share of the unit's revenue per decision and per year.
+    #[serde(rename = "budget_fach")]
+    pub budget_specialist: [f64; 2],
+    #[serde(rename = "budget_leitung")]
+    pub budget_head: [f64; 2],
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBudgetFloor {
+    #[serde(rename = "entscheidung")]
+    pub decision: f64,
+    #[serde(rename = "jahr")]
+    pub year: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawConcerns {
+    #[serde(rename = "frist_tage")]
+    pub deadline_days: u32,
+    #[serde(rename = "sperre_tage")]
+    pub block_days: u32,
+    #[serde(rename = "offen_je_stelle")]
+    pub open_per_position: u32,
+    #[serde(rename = "wirkzeit_tage")]
+    pub followup_days: u32,
+    #[serde(rename = "schaetzfehler")]
+    pub estimate_error: f64,
+    #[serde(rename = "empfehlung_grund")]
+    pub recommend_base: f64,
 }
 
 #[derive(Debug, Deserialize)]

@@ -179,6 +179,7 @@ impl Game {
             auction_until: None,
             development: Default::default(),
             product_names: Default::default(),
+            positions: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -216,6 +217,9 @@ impl Game {
             next_offer: 0,
             managers: Default::default(),
             next_manager: 0,
+            concerns: Vec::new(),
+            next_concern: 0,
+            followups: Vec::new(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -372,7 +376,11 @@ impl Game {
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
-        crate::management::simulate_day(&mut self.state, &self.catalog, today);
+        report.messages.extend(crate::management::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         report
             .messages
             .extend(crate::ai::decide(&mut self.state, &self.catalog, today));

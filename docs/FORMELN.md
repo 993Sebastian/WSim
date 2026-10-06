@@ -2184,7 +2184,7 @@ Summe über die Schritte (Abschnitt 5.1 der Vorgabe):
 | `BuyPlot` | Kaufpreis |
 | `MakeOffer` | gebotener Preis |
 | `SetWagePremium` (höher) | Mehrkosten der Arbeit für 365 Tage bei geplanter Auslastung |
-| `SetPurchase` (höherer Höchstpreis) | (neuer − alter Höchstpreis) · Lagerziel / Lagertage · 365 |
+| `SetPurchase` (höherer Höchstpreis) | (neuer − alter Höchstpreis) · Lagerziel / Lagertage · 365; als alter Höchstpreis gilt mindestens der übliche der Regeln (Marktpreis im Land mit `einkauf_aufschlag`), ein neuer Auftrag zu diesem Preis zählt nichts |
 | `SetAdvertising` (höher) | (neues − altes Monatsbudget) · 12 |
 | `MothballFacility`, `SellFacility` | Restbuchwert der Einheiten |
 | `RestartFacility` | Wiederanlaufkosten |
@@ -2343,3 +2343,95 @@ Beträge stehen getrennt.
 
 Neue Felder mit Vorgabewerten: alte Stände laden ohne Manager; der Pool entsteht am
 ersten Monatsanfang.
+
+## MA2 – Budget und Anliegen auf Standortebene
+
+`docs/MANAGER.md` Abschnitte 5, 6 und 12. Daten: `parameter/management.yaml` (Budget je
+Ebene, Anliegen), Themen der Bereiche erweitert. Kern: Modul `management`.
+
+### Themen der Stellen
+
+| Bereich | Themen (MA0) | Neu in MA2 |
+| --- | --- | --- |
+| Produktion | `produktion` | `ueberkapazitaet`, `stillgelegt`, `wiederanfahren`, `ausbau` |
+| Einkauf und Lager | `einkauf`, `eigenversorgung` | – |
+| Vertrieb und Marketing | `verkauf` | – |
+| Personal | – | `lohn` |
+| Forschung | – | `forschung`, `weiterentwicklung` (Labore: Laborleitung) |
+| Logistik, Finanzen | – | (Stufe 2 bzw. MA5) |
+
+### Wann welche Regel läuft
+
+Für Standorte mit besetzter Stelle laufen die Regeln der KI wie bei KI-Firmen, über den
+Entscheider der Stellen:
+
+- an jedem Prüftermin des Standorts (MA1): Betrieb (`produktion`, `verkauf`, `einkauf`,
+  `lohn`) und Lieferungen (`eigenversorgung`);
+- am letzten Tag eines Quartals für alle besetzten Standorte: Stilllegen, Verkaufen und
+  Wiederanfahren (`ueberkapazitaet`, `stillgelegt`, `wiederanfahren`) und Ausbau am
+  Standort (`ausbau`, je Standort geprüft); Kraftwerke und Lagerstätten sind Sache von Land
+  und Kontinent (MA3);
+- im Labor an seinem Prüftermin, wenn es kein Ziel hat, und am 1. Januar: das nächste
+  Forschungs- oder Entwicklungsziel (`forschung`, `weiterentwicklung`, nur Technologien der
+  eigenen Branchen).
+
+Am Quartalstag zieht jede Stelle ihr Bemerken (MA1) für die Themen dieses Tages.
+
+### Budget je Stelle
+
+    Bezug B = Umsatz des Standorts in den letzten 12 abgeschlossenen Monaten;
+              ohne Umsatz (Labor, Kraftwerk, Lager) seine Kosten in dieser Zeit
+    je Entscheidung = max(a · B, s_E · Jahresgehalt)
+    je Jahr         = max(b · B, s_J · Jahresgehalt)
+
+*a*, *b* je Ebene und Rolle aus den Daten (Standort: Fachstelle 2 % / 5 %, Leitung
+5 % / 10 %), *s_E* = 1, *s_J* = 3 (`budget_sockel_gehaelter`). Der Spieler setzt *a* und
+*b* je Stelle (`SetBudget`); 0 heißt „immer fragen“ (dann gilt auch kein Sockel). Das
+Jahresbudget beginnt am 1. Januar neu. Was nach einer Freigabe des Spielers ausgeführt
+wird, zählt nicht. Umsatz und Ergebnis je Standort führt das Hauptbuch dafür je Monat.
+
+### Entscheiden
+
+Für jede Entscheidung, deren Thema eine Stelle am Standort abdeckt und bemerkt hat:
+
+1. **Bewerten** (MA0): angerechneter Betrag *A_i*, Wirkung *W_i* (Ergebnis je Jahr plus
+   einmalige Wirkung) je Option; ohne Schätzung *W_i* = 0 für „Beibehalten“, sonst gilt die
+   Option der Regeln als beste.
+2. **Empfehlen:** Mit der Wahrscheinlichkeit *g* + (1 − *g*) · Urteilsvermögen / 100
+   (*g* = `empfehlung_grund`, Vorgabe 0,5) die Option
+   mit der höchsten wahren Wirkung, sonst die mit der höchsten geschätzten Wirkung
+   *W_i* · (1 + ε_i), ε_i gleichverteilt in ±*f*, *f* = `schaetzfehler` · (1 −
+   Fachkompetenz / 100). Zufall aus dem Strom des Managers.
+3. **Im Rahmen:** *A* der Empfehlung ≤ Rest je Entscheidung und ≤ Rest im Jahr, keine
+   Kredite in den Schritten (dürfen erst Finanzen und CEO, MA5): Die Stelle führt sie aus
+   und bucht *A* auf ihr Jahresbudget; Entscheidungen mit Betrag oder Wirkung kommen ins
+   Protokoll der Stelle.
+4. **Sonst Anliegen** an den Spieler (MA3: an die nächste Stelle), außer das Thema ist für
+   die Stelle stummgeschaltet oder gesperrt, die Stelle hat schon `offen_je_stelle` offene
+   Anliegen oder dasselbe Anliegen (Thema, Standort, Produkt) ist offen. Bis zur Antwort
+   bleibt alles, wie es ist.
+
+### Anliegen
+
+- Inhalt: Stelle und Manager, Thema, Standort und Produkt, die Optionen mit Befehlen,
+  Betrag und Prognose als Spanne *W_i* · (1 ± *f*), die Empfehlung, Frist =
+  Tag + `frist_tage`.
+- Antworten (`AnswerConcern`): eine Option wählen (sofort als Befehlsliste ausgeführt);
+  „Entscheide selbst“ (die Empfehlung wird ausgeführt); „Zu diesem Thema nicht mehr
+  fragen“ (die Stelle entscheidet das Thema weiter im Budget, darüber bleibt es ohne
+  Rückfrage, wie es ist); „Ablehnen“ (das Thema ruht an dieser Stelle `sperre_tage`).
+- Nach der Frist: Das Anliegen verfällt, nichts ändert sich.
+- Ein neues Anliegen ist eine Warnung: „bis zur nächsten Warnung“ (M26) hält an.
+
+### Rückmeldung zu Folgen
+
+Für ausgeführte Optionen mit Wirkung an einem Standort: Basis = mittleres
+Monatsergebnis des Standorts in den drei abgeschlossenen Monaten davor. Nach
+`wirkzeit_tage` meldet die Stelle (oder für den Spieler der Standort)
+(Mittel der drei letzten abgeschlossenen Monate − Basis) · 12 gegen die Prognose.
+
+### Hinweise
+
+Hinweise aus „Zu erledigen“ zu einem Standort entfallen, wenn die Stelle des Bereichs
+besetzt ist (Einkauf → Einkauf und Lager, Verkauf → Vertrieb und Marketing, Personal →
+Personal, Anlagen → Produktion; die Leitung deckt die übrigen).

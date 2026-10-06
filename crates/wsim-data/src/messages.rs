@@ -462,6 +462,12 @@ pub fn management_pool_bounds(min: u32, max: u32) -> String {
     format!("Der Pool braucht `max` ({max}) mindestens so groß wie `min` ({min}).")
 }
 
+pub fn management_budget_order(decision: f64, year: f64) -> String {
+    format!(
+        "Das Budget je Entscheidung ({decision}) darf nicht größer sein als das je Jahr ({year})."
+    )
+}
+
 pub fn list_empty() -> String {
     "Die Liste darf nicht leer sein.".into()
 }

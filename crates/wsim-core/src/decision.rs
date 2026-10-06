@@ -458,11 +458,17 @@ pub fn amount(
             max_price,
             ..
         } => {
-            let old = state
-                .sites
-                .get(site.index())
-                .and_then(|s| s.orders.get(product))
-                .map_or(Money::ZERO, |o| o.max_price);
+            // Extra costs only above the usual ceiling of the rules, the market price with
+            // their markup (MA2): a new order at that ceiling counts nothing.
+            let Some(s) = state.sites.get(site.index()) else {
+                return Money::ZERO;
+            };
+            let usual = crate::market::market_price(catalog, state, s.country, *product)
+                .scale(1.0 + catalog.ai_model.behavior.purchase_markup);
+            let old = s
+                .orders
+                .get(product)
+                .map_or(usual, |o| o.max_price.max(usual));
             if *max_price <= old {
                 return Money::ZERO;
             }

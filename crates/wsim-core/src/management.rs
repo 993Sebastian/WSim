@@ -3,16 +3,22 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use serde::{Deserialize, Serialize};
+
 use crate::calendar::{Date, days_in_month};
-use crate::catalog::{Catalog, SiteType};
-use crate::command::CommandError;
-use crate::decision::{Decider, Decision, Topic, Verdict};
-use crate::ids::{CountryId, Id};
+use crate::catalog::{Catalog, ConcernModel, SiteType};
+use crate::command::{Command, CommandError, site_type_key};
+use crate::decision::{self, Assessment, ChoiceKind, Decider, Decision, Topic, Verdict};
+use crate::ids::{CountryId, Id, ProductId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
+use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
-use crate::state::{CompanyId, GameState, Job, Manager, ManagerId, Position, Role, SiteId};
+use crate::state::{
+    CompanyId, Concern, ConcernOption, ConcernStatus, Followup, GameState, Job, Manager, ManagerId,
+    Position, PositionLog, PositionState, Role, SiteId,
+};
 
 /// Keys of the skills besides the expertise per function (impressions, views).
 pub const DETECTION: &str = "erkennen";
@@ -408,6 +414,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
         return;
     }
     end_void_jobs(state, catalog, date);
+    tidy_concerns(state, catalog, date);
     let mut rng = SimRng::for_stream(
         state.settings.seed,
         Stream::ManagerMarket {
@@ -583,34 +590,390 @@ fn manager_name(
     name
 }
 
-/// The decider of a company's site positions on a day: a topic runs at a site where a
-/// position noticed it; everything else stays as it is.
-struct Staff {
-    noticed: BTreeSet<(SiteId, Topic)>,
+/// Decisions kept per position for display (MA2).
+const LOG_KEPT: usize = 12;
+/// Closed months a site's result is averaged over for the effect of a decision (MA2).
+const RESULT_MONTHS: usize = 3;
+
+/// The player's answer to a concern (MA2).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConcernAnswer {
+    /// Carry out this option.
+    Choose(usize),
+    /// Let the position decide: it carries out its recommendation.
+    Delegate,
+    /// Not to be asked about the topic again: the position decides it within its budget,
+    /// beyond it things stay as they are.
+    NeverAsk,
+    /// The topic rests at the position for a while.
+    Decline,
 }
 
-impl Decider for Staff {
+/// The recorded state of a position of a company, if any.
+pub fn position_state<'a>(
+    state: &'a GameState,
+    company: CompanyId,
+    position: &Position,
+) -> Option<&'a PositionState> {
+    state.companies[company.index()]
+        .positions
+        .iter()
+        .find(|p| p.position == *position)
+}
+
+fn position_state_mut<'a>(
+    state: &'a mut GameState,
+    company: CompanyId,
+    position: &Position,
+) -> &'a mut PositionState {
+    let year = state.date.year();
+    let positions = &mut state.companies[company.index()].positions;
+    let index = match positions.iter().position(|p| p.position == *position) {
+        Some(i) => i,
+        None => {
+            positions.push(PositionState {
+                position: position.clone(),
+                budget: None,
+                spent: Money::ZERO,
+                year,
+                muted: BTreeSet::new(),
+                blocked: BTreeMap::new(),
+                log: Vec::new(),
+            });
+            positions.len() - 1
+        }
+    };
+    let p = &mut positions[index];
+    // The budget of a year starts anew on 1 January.
+    if p.year != year {
+        p.year = year;
+        p.spent = Money::ZERO;
+    }
+    p
+}
+
+/// What a position's budget refers to (docs/FORMELN.md, MA2): the site's revenue in the
+/// last twelve closed months, without revenue its costs.
+pub fn budget_base(state: &GameState, company: CompanyId, site: SiteId) -> Money {
+    let months = &state.companies[company.index()].ledger.months;
+    let recent = &months[months.len().saturating_sub(12)..];
+    let revenue: Money = recent
+        .iter()
+        .filter_map(|m| m.site_revenue.get(&site))
+        .copied()
+        .sum();
+    if revenue > Money::ZERO {
+        return revenue;
+    }
+    let result: Money = recent
+        .iter()
+        .filter_map(|m| m.by_site.get(&site))
+        .copied()
+        .sum();
+    (-result).max(Money::ZERO)
+}
+
+/// The shares of the reference a position may spend per decision and per year: the
+/// player's, else the defaults of its level and role.
+pub fn budget_shares(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    position: &Position,
+) -> (f64, f64) {
+    if let Some(set) = position_state(state, company, position).and_then(|p| p.budget) {
+        return set;
+    }
+    catalog
+        .management
+        .levels
+        .first()
+        .map_or((0.0, 0.0), |l| match position.role {
+            Role::Head => l.budget_head,
+            Role::Specialist(_) => l.budget_specialist,
+        })
+}
+
+/// A position's budget per decision and per year (docs/FORMELN.md, MA2); a share of 0
+/// means "always ask", without the floor.
+pub fn budget(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    position: &Position,
+    salary: Money,
+) -> (Money, Money) {
+    let (a, b) = budget_shares(catalog, state, company, position);
+    let base = budget_base(state, company, position.site);
+    let (floor_decision, floor_year) = catalog.management.budget_floor;
+    let limit = |share: f64, floor: f64| {
+        if share <= 0.0 {
+            Money::ZERO
+        } else {
+            base.scale(share).max(salary.scale(floor))
+        }
+    };
+    (limit(a, floor_decision), limit(b, floor_year))
+}
+
+/// What a position spent of its budget this year.
+pub fn spent(state: &GameState, company: CompanyId, position: &Position) -> Money {
+    position_state(state, company, position)
+        .filter(|p| p.year == state.date.year())
+        .map_or(Money::ZERO, |p| p.spent)
+}
+
+/// Mean monthly result of a site in the last closed months.
+fn mean_result(state: &GameState, company: CompanyId, site: SiteId) -> Money {
+    let months = &state.companies[company.index()].ledger.months;
+    let recent = &months[months.len().saturating_sub(RESULT_MONTHS)..];
+    if recent.is_empty() {
+        return Money::ZERO;
+    }
+    let sum: Money = recent
+        .iter()
+        .filter_map(|m| m.by_site.get(&site))
+        .copied()
+        .sum();
+    // A few months; the cast is exact.
+    Money::from_units(sum.units() / recent.len() as i64)
+}
+
+/// The amount an option counts against a budget (docs/MANAGER.md 5.1).
+fn choice_amount(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    choice: &decision::Choice,
+) -> Money {
+    choice
+        .steps
+        .iter()
+        .map(|s| decision::amount(catalog, state, company, &s.command))
+        .sum()
+}
+
+/// Loans are for the finance department and the CEO (MA5).
+fn needs_finance(choice: &decision::Choice) -> bool {
+    choice.steps.iter().any(|s| {
+        matches!(
+            s.command,
+            Command::TakeLoan { .. } | Command::RepayLoan { .. }
+        )
+    })
+}
+
+/// Forecast range of an effect with a relative error.
+fn forecast(effect: Money, error: f64) -> (Money, Money) {
+    let a = effect.scale(1.0 - error);
+    let b = effect.scale(1.0 + error);
+    (a.min(b), a.max(b))
+}
+
+/// An amount a position counted against its budget, with its log entry.
+type Spent = (Position, Money, Option<PositionLog>);
+
+/// Who takes care of topics at a site on a day, with what it may still spend.
+struct Responsible {
+    position: Position,
+    manager: ManagerId,
+    /// Expertise in the function (a head standing in with its discount).
+    expertise: f64,
+    judgment: f64,
+    per_decision: Money,
+    left: Money,
+    muted: BTreeSet<Topic>,
+    blocked: BTreeSet<Topic>,
+    open: u32,
+}
+
+/// The decider of a company's site positions on a day (docs/FORMELN.md, MA1, MA2): a
+/// topic runs at a site where a position noticed it; within its budget the position
+/// carries out its recommendation, beyond it the player gets a concern. Everything else
+/// stays as it is.
+struct Staff<'a> {
+    noticed: BTreeSet<(SiteId, Topic)>,
+    responsible: BTreeMap<(SiteId, Topic), usize>,
+    positions: Vec<Responsible>,
+    model: &'a ConcernModel,
+    routine: &'a [Topic],
+    rngs: BTreeMap<ManagerId, SimRng>,
+    seed: u64,
+    day: u32,
+    today: Date,
+    open: BTreeSet<(Topic, SiteId, Option<ProductId>)>,
+    spent: Vec<Spent>,
+    concerns: Vec<Concern>,
+    followups: Vec<Followup>,
+}
+
+impl Staff<'_> {
+    fn rng(&mut self, manager: ManagerId) -> &mut SimRng {
+        let (seed, day) = (self.seed, self.day);
+        self.rngs
+            .entry(manager)
+            .or_insert_with(|| SimRng::for_stream(seed, Stream::Manager { id: manager.0, day }))
+    }
+
+    /// The option a position recommends (docs/FORMELN.md, MA2): the best by the true
+    /// effects with a chance after its judgment, else the best by its own estimate.
+    fn recommend(
+        &mut self,
+        decision: &Decision,
+        assessments: &[Assessment],
+        (manager, expertise, judgment): (ManagerId, f64, f64),
+    ) -> usize {
+        if assessments.iter().all(|a| a.effect.is_none()) {
+            return decision.rule;
+        }
+        let values: Vec<f64> = assessments
+            .iter()
+            .map(|a| a.effect.unwrap_or(Money::ZERO).to_usd() + a.once.to_usd())
+            .collect();
+        let best = |values: &[f64]| {
+            let mut best = decision.rule;
+            for (i, &v) in values.iter().enumerate() {
+                if v > values[best] {
+                    best = i;
+                }
+            }
+            best
+        };
+        let base = self.model.recommend_base;
+        let error = self.model.estimate_error * (1.0 - expertise / 100.0);
+        let rng = self.rng(manager);
+        if rng.chance(base + (1.0 - base) * judgment / 100.0) {
+            return best(&values);
+        }
+        let estimated: Vec<f64> = values
+            .iter()
+            .map(|v| v * (1.0 + (rng.next_f64() * 2.0 - 1.0) * error))
+            .collect();
+        best(&estimated)
+    }
+}
+
+impl Decider for Staff<'_> {
     fn looks(&self) -> bool {
         true
     }
 
-    fn decide(&mut self, _: &GameState, _: &Catalog, decision: &Decision) -> Verdict {
-        match decision.site {
-            Some(site) if self.noticed.contains(&(site, decision.topic)) => Verdict::Rule,
-            _ => Verdict::Hold,
+    fn decide(&mut self, state: &GameState, catalog: &Catalog, d: &Decision) -> Verdict {
+        let Some(site) = d.site else {
+            return Verdict::Hold;
+        };
+        if !self.noticed.contains(&(site, d.topic)) {
+            return Verdict::Hold;
         }
+        let Some(&index) = self.responsible.get(&(site, d.topic)) else {
+            return Verdict::Hold;
+        };
+        let routine = self.routine.contains(&d.topic);
+        // The routine follows the rules; other topics are assessed and recommended.
+        let (choice, assessments) = if routine {
+            (d.rule, None)
+        } else {
+            let a = decision::assess(catalog, state, d);
+            let r = &self.positions[index];
+            let who = (r.manager, r.expertise, r.judgment);
+            (self.recommend(d, &a, who), Some(a))
+        };
+        let Some(option) = d.choices.get(choice) else {
+            return Verdict::Hold;
+        };
+        let amount = assessments.as_ref().map_or_else(
+            || choice_amount(catalog, state, d.company, option),
+            |a| a[choice].amount,
+        );
+        let r = &mut self.positions[index];
+        if !needs_finance(option) && amount <= r.per_decision && amount <= r.left {
+            r.left -= amount;
+            let kind = option.kind;
+            let effect = assessments.as_ref().and_then(|a| a[choice].effect);
+            let acted = !routine && kind != ChoiceKind::Keep;
+            let log = (amount > Money::ZERO || acted).then_some(PositionLog {
+                date: self.today,
+                topic: d.topic,
+                kind,
+                product: d.product,
+                amount,
+                effect,
+            });
+            self.spent.push((r.position.clone(), amount, log));
+            if let Some(effect) = effect.filter(|_| acted) {
+                self.followups.push(Followup {
+                    company: d.company,
+                    site,
+                    topic: d.topic,
+                    kind,
+                    product: d.product,
+                    forecast: effect,
+                    baseline: mean_result(state, d.company, site),
+                    due: self
+                        .today
+                        .add_days(i32::try_from(self.model.followup_days).unwrap_or(i32::MAX)),
+                });
+            }
+            return if choice == d.rule {
+                Verdict::Rule
+            } else {
+                Verdict::Choice(choice)
+            };
+        }
+        let key = (d.topic, site, d.product);
+        if r.muted.contains(&d.topic)
+            || r.blocked.contains(&d.topic)
+            || r.open >= self.model.open_per_position
+            || self.open.contains(&key)
+        {
+            return Verdict::Hold;
+        }
+        r.open += 1;
+        let (position, manager, expertise) = (r.position.clone(), r.manager, r.expertise);
+        self.open.insert(key);
+        let assessments = assessments.unwrap_or_else(|| decision::assess(catalog, state, d));
+        let error = self.model.estimate_error * (1.0 - expertise / 100.0);
+        let options = assessments
+            .iter()
+            .map(|a| ConcernOption {
+                amount: a.amount,
+                forecast: a.effect.map(|e| forecast(e, error)),
+                once: a.once,
+            })
+            .collect();
+        self.concerns.push(Concern {
+            id: 0,
+            company: d.company,
+            position,
+            manager,
+            decision: d.clone(),
+            recommended: choice,
+            options,
+            created: self.today,
+            deadline: self
+                .today
+                .add_days(i32::try_from(self.model.deadline_days).unwrap_or(i32::MAX)),
+            status: ConcernStatus::Open,
+            closed: None,
+        });
+        Verdict::Hold
     }
 }
 
 /// Positions held, per company and site.
 type Held = BTreeMap<CompanyId, BTreeMap<SiteId, Vec<(Role, ManagerId)>>>;
 
-/// The routine of the site positions due today (docs/FORMELN.md, MA1), before the AI
-/// companies decide.
-pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
+/// The work of the site positions due today (docs/FORMELN.md, MA1, MA2), before the AI
+/// companies decide: concerns expire, effects are reported, the routine runs, at the end
+/// of a quarter the structure of the sites, in idle laboratories the next target.
+/// Returns the messages for the round report.
+pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    let mut news = Vec::new();
+    expire_concerns(state, catalog, date, &mut news);
+    report_followups(state, catalog, date, &mut news);
     let m = &catalog.management;
     let Some(level) = m.levels.first() else {
-        return;
+        return news;
     };
     let mut held: Held = BTreeMap::new();
     for (&id, x) in &state.managers {
@@ -623,54 +986,59 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
         }
     }
     let day = day_number(date);
+    let quarter_end = date.next_day().day() == 1 && date.month().is_multiple_of(3);
+    let first_of_year = date.ordinal() == 1;
     for (company, sites) in held {
         if state.companies[company.index()].bankrupt {
             continue;
         }
-        let mut noticed = BTreeSet::new();
-        let mut due = Vec::new();
-        let mut rngs: BTreeMap<ManagerId, SimRng> = BTreeMap::new();
+        let mut staff = Staff {
+            noticed: BTreeSet::new(),
+            responsible: BTreeMap::new(),
+            positions: Vec::new(),
+            model: &m.concerns,
+            routine: &m.routine_topics,
+            rngs: BTreeMap::new(),
+            seed: state.settings.seed,
+            day,
+            today: date,
+            open: state
+                .concerns
+                .iter()
+                .filter(|c| c.company == company && c.status == ConcernStatus::Open)
+                .filter_map(|c| Some((c.decision.topic, c.decision.site?, c.decision.product)))
+                .collect(),
+            spent: Vec::new(),
+            concerns: Vec::new(),
+            followups: Vec::new(),
+        };
+        let (mut weekly, mut structural, mut labs) = (Vec::new(), Vec::new(), Vec::new());
         for (&site, roles) in &sites {
-            // Staggered by the site number, like the AI companies. Laboratories have no
-            // routine yet (their topics follow with the budgets of MA2).
-            let kind = state.sites[site.index()].kind;
-            if !(day + site.0).is_multiple_of(level.check_days) || kind == SiteType::ResearchCenter
-            {
+            let s = &state.sites[site.index()];
+            // Staggered by the site number, like the AI companies.
+            let check = (day + site.0).is_multiple_of(level.check_days);
+            let lab = s.kind == SiteType::ResearchCenter;
+            let idle = s.research.is_none() && s.development.is_none();
+            let lab_due = lab && ((check && idle) || first_of_year);
+            if !(lab_due || (!lab && (check || quarter_end))) {
                 continue;
             }
-            let specialists = m.specialists_of(kind);
-            let head = roles.iter().find(|(r, _)| *r == Role::Head).map(|r| r.1);
-            for (index, function) in m.functions.iter().enumerate() {
-                if function.topics.is_empty() {
-                    continue;
+            let any = notice(state, catalog, (company, site), roles, &mut staff);
+            if !any {
+                continue;
+            }
+            if lab_due {
+                labs.push(site);
+            } else {
+                if check {
+                    weekly.push(site);
                 }
-                let specialist = roles
-                    .iter()
-                    .find(|(r, _)| matches!(r, Role::Specialist(k) if *k == function.key))
-                    .filter(|_| specialists.contains(&index))
-                    .map(|r| r.1);
-                let (manager, discount) = match (specialist, head) {
-                    (Some(s), _) => (s, 0.0),
-                    (None, Some(h)) => (h, m.head_discount),
-                    (None, None) => continue,
-                };
-                let x = &state.managers[&manager];
-                let skill = f64::from(expertise(x, &function.key)) * (1.0 - discount);
-                let diligence = (skill + f64::from(x.detection)) / 2.0;
-                let chance = m.notice_base + (1.0 - m.notice_base) * diligence / 100.0;
-                let seed = state.settings.seed;
-                let rng = rngs.entry(manager).or_insert_with(|| {
-                    SimRng::for_stream(seed, Stream::Manager { id: manager.0, day })
-                });
-                if rng.chance(chance) {
-                    noticed.extend(function.topics.iter().map(|&t| (site, t)));
-                    if due.last() != Some(&site) {
-                        due.push(site);
-                    }
+                if quarter_end {
+                    structural.push(site);
                 }
             }
         }
-        if due.is_empty() {
+        if weekly.is_empty() && structural.is_empty() && labs.is_empty() {
             continue;
         }
         let own: Vec<SiteId> = state
@@ -681,13 +1049,407 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
             // Few sites; the cast is exact.
             .map(|(i, _)| SiteId(i as u32))
             .collect();
-        crate::ai::site_routine(
+        if !weekly.is_empty() {
+            crate::ai::site_routine(state, catalog, company, (&own, &weekly), date, &mut staff);
+        }
+        if !structural.is_empty() {
+            crate::ai::site_structure(
+                state,
+                catalog,
+                company,
+                (&own, &structural),
+                date,
+                &mut staff,
+            );
+        }
+        for lab in labs {
+            crate::ai::lab_target(state, catalog, company, (&own, lab), date, &mut staff);
+        }
+        let Staff {
+            spent,
+            concerns,
+            followups,
+            ..
+        } = staff;
+        record(
             state,
             catalog,
             company,
-            (&own, &due),
-            date,
-            &mut Staff { noticed },
+            (spent, concerns, followups),
+            &mut news,
         );
+    }
+    news
+}
+
+/// The positions at a site that notice their topics today (docs/FORMELN.md, MA1): one
+/// draw per function from the stream of the responsible manager. Registers who is
+/// responsible with what budget; returns whether anything was noticed.
+fn notice(
+    state: &GameState,
+    catalog: &Catalog,
+    (company, site): (CompanyId, SiteId),
+    roles: &[(Role, ManagerId)],
+    staff: &mut Staff,
+) -> bool {
+    let m = &catalog.management;
+    let specialists = m.specialists_of(state.sites[site.index()].kind);
+    let head = roles.iter().find(|(r, _)| *r == Role::Head).map(|r| r.1);
+    let mut any = false;
+    for (index, function) in m.functions.iter().enumerate() {
+        if function.topics.is_empty() {
+            continue;
+        }
+        let specialist = roles
+            .iter()
+            .find(|(r, _)| matches!(r, Role::Specialist(k) if *k == function.key))
+            .filter(|_| specialists.contains(&index))
+            .map(|r| r.1);
+        let (manager, discount) = match (specialist, head) {
+            (Some(s), _) => (s, 0.0),
+            (None, Some(h)) => (h, m.head_discount),
+            (None, None) => continue,
+        };
+        let x = &state.managers[&manager];
+        let Some(job) = &x.job else { continue };
+        let skill = f64::from(expertise(x, &function.key)) * (1.0 - discount);
+        let diligence = (skill + f64::from(x.detection)) / 2.0;
+        let chance = m.notice_base + (1.0 - m.notice_base) * diligence / 100.0;
+        if !staff.rng(manager).chance(chance) {
+            continue;
+        }
+        any = true;
+        let index = match staff
+            .positions
+            .iter()
+            .position(|p| p.position == job.position)
+        {
+            Some(i) => i,
+            None => {
+                let (per_decision, per_year) =
+                    budget(catalog, state, company, &job.position, job.salary);
+                let ps = position_state(state, company, &job.position);
+                let today = state.date;
+                staff.positions.push(Responsible {
+                    position: job.position.clone(),
+                    manager,
+                    expertise: skill,
+                    judgment: f64::from(x.judgment),
+                    per_decision,
+                    left: (per_year - spent(state, company, &job.position)).max(Money::ZERO),
+                    muted: ps.map(|p| p.muted.clone()).unwrap_or_default(),
+                    blocked: ps
+                        .map(|p| {
+                            p.blocked
+                                .iter()
+                                .filter(|(_, until)| **until > today)
+                                .map(|(&t, _)| t)
+                                .collect()
+                        })
+                        .unwrap_or_default(),
+                    open: u32::try_from(
+                        state
+                            .concerns
+                            .iter()
+                            .filter(|c| {
+                                c.company == company
+                                    && c.position == job.position
+                                    && c.status == ConcernStatus::Open
+                            })
+                            .count(),
+                    )
+                    .unwrap_or(u32::MAX),
+                });
+                staff.positions.len() - 1
+            }
+        };
+        for &topic in &function.topics {
+            staff.noticed.insert((site, topic));
+            staff.responsible.insert((site, topic), index);
+        }
+    }
+    any
+}
+
+/// Records what the positions of a company did and asked on a day.
+fn record(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    (spent, concerns, followups): (Vec<Spent>, Vec<Concern>, Vec<Followup>),
+    news: &mut Vec<Message>,
+) {
+    for (position, amount, log) in spent {
+        let p = position_state_mut(state, company, &position);
+        p.spent += amount;
+        if let Some(log) = log {
+            p.log.push(log);
+            let excess = p.log.len().saturating_sub(LOG_KEPT);
+            p.log.drain(..excess);
+        }
+    }
+    for mut concern in concerns {
+        concern.id = state.next_concern;
+        state.next_concern += 1;
+        if company == state.player {
+            news.push(concern_message(
+                catalog,
+                state,
+                keys::CONCERN_NEW,
+                MessageKind::Warning,
+                &concern,
+            ));
+        }
+        state.concerns.push(concern);
+    }
+    state.followups.extend(followups);
+}
+
+/// Name of a position for messages: the head of a site type or a function.
+fn position_param(state: &GameState, position: &Position) -> Param {
+    match &position.role {
+        Role::Head => {
+            let kind = site_type_key(state.sites[position.site.index()].kind);
+            Param::TextKey(kind.replace("standorttyp.", "leitung."))
+        }
+        Role::Specialist(f) => Param::TextKey(format!("bereich.{f}")),
+    }
+}
+
+fn concern_message(
+    catalog: &Catalog,
+    state: &GameState,
+    key: &str,
+    kind: MessageKind,
+    c: &Concern,
+) -> Message {
+    let site = &state.sites[c.position.site.index()];
+    Message::new(kind, key)
+        .with("stelle", position_param(state, &c.position))
+        .with("standort", Param::TextKey(site_type_key(site.kind)))
+        .with(
+            "land",
+            Param::Country(catalog.countries.key(site.country).to_owned()),
+        )
+        .with(
+            "thema",
+            Param::TextKey(format!("thema.{}", c.decision.topic.key())),
+        )
+        .with("frist", Param::Date(c.deadline))
+}
+
+/// Open concerns whose deadline passed expire: nothing changes.
+fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: &mut Vec<Message>) {
+    let player = state.player;
+    let expired: Vec<usize> = state
+        .concerns
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.status == ConcernStatus::Open && c.deadline < today)
+        .map(|(i, _)| i)
+        .collect();
+    for i in expired {
+        let c = &mut state.concerns[i];
+        c.status = ConcernStatus::Expired;
+        c.closed = Some(today);
+        if c.company == player {
+            let c = state.concerns[i].clone();
+            news.push(concern_message(
+                catalog,
+                state,
+                keys::CONCERN_EXPIRED,
+                MessageKind::Info,
+                &c,
+            ));
+        }
+    }
+}
+
+/// Reports on the effects of decisions that are due (docs/FORMELN.md, MA2).
+fn report_followups(
+    state: &mut GameState,
+    catalog: &Catalog,
+    today: Date,
+    news: &mut Vec<Message>,
+) {
+    let due: Vec<Followup> = state
+        .followups
+        .iter()
+        .filter(|f| f.due <= today)
+        .cloned()
+        .collect();
+    state.followups.retain(|f| f.due > today);
+    for f in due {
+        let site = &state.sites[f.site.index()];
+        if f.company != state.player || site.owner != f.company {
+            continue;
+        }
+        let actual =
+            Money::from_units((mean_result(state, f.company, f.site) - f.baseline).units() * 12);
+        let mut m = Message::new(MessageKind::Info, keys::CONCERN_EFFECT)
+            .with(
+                "massnahme",
+                Param::TextKey(format!("option.{}", f.kind.key())),
+            )
+            .with("standort", Param::TextKey(site_type_key(site.kind)))
+            .with(
+                "land",
+                Param::Country(catalog.countries.key(site.country).to_owned()),
+            )
+            .with("prognose", Param::Money(f.forecast))
+            .with("ist", Param::Money(actual));
+        if let Some(p) = f.product {
+            m = m.with(
+                "produkt",
+                Param::TextKey(format!("produkt.{}", catalog.products.key(p))),
+            );
+        }
+        news.push(m);
+    }
+}
+
+/// `AnswerConcern`: the player answers a concern of one of the company's positions.
+pub(crate) fn answer(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    concern: u32,
+    answer: ConcernAnswer,
+) -> Result<(), CommandError> {
+    let index = state
+        .concerns
+        .iter()
+        .position(|c| c.id == concern && c.company == actor)
+        .ok_or(CommandError::UnknownConcern)?;
+    let c = state.concerns[index].clone();
+    if c.status != ConcernStatus::Open {
+        return Err(CommandError::ConcernClosed);
+    }
+    let today = state.date;
+    let carry_out = |state: &mut GameState, choice: usize| -> Result<(), CommandError> {
+        let option = c
+            .decision
+            .choices
+            .get(choice)
+            .ok_or(CommandError::UnknownOption)?;
+        // The first step decides whether anything happens; later ones may fail.
+        if let Some(first) = option.steps.first() {
+            crate::command::execute(state, catalog, actor, &first.command)?;
+        }
+        let rest = decision::Choice {
+            kind: option.kind,
+            steps: option.steps.iter().skip(1).cloned().collect(),
+        };
+        decision::execute(state, catalog, actor, &rest);
+        if let (Some(site), Some((low, high))) = (
+            c.decision.site,
+            c.options.get(choice).and_then(|o| o.forecast),
+        ) && option.kind != ChoiceKind::Keep
+        {
+            let days = catalog.management.concerns.followup_days;
+            let baseline = mean_result(state, actor, site);
+            state.followups.push(Followup {
+                company: actor,
+                site,
+                topic: c.decision.topic,
+                kind: option.kind,
+                product: c.decision.product,
+                forecast: Money::from_units((low.units() + high.units()) / 2),
+                baseline,
+                due: today.add_days(i32::try_from(days).unwrap_or(i32::MAX)),
+            });
+        }
+        Ok(())
+    };
+    let status = match answer {
+        ConcernAnswer::Choose(choice) => {
+            carry_out(state, choice)?;
+            ConcernStatus::Chosen(choice)
+        }
+        ConcernAnswer::Delegate => {
+            carry_out(state, c.recommended)?;
+            ConcernStatus::Delegated(c.recommended)
+        }
+        ConcernAnswer::NeverAsk => {
+            position_state_mut(state, actor, &c.position)
+                .muted
+                .insert(c.decision.topic);
+            ConcernStatus::Muted
+        }
+        ConcernAnswer::Decline => {
+            let days = catalog.management.concerns.block_days;
+            let until = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));
+            position_state_mut(state, actor, &c.position)
+                .blocked
+                .insert(c.decision.topic, until);
+            ConcernStatus::Declined
+        }
+    };
+    let c = &mut state.concerns[index];
+    c.status = status;
+    c.closed = Some(today);
+    Ok(())
+}
+
+/// `SetBudget`: the shares of a position's reference per decision and per year; `None`
+/// restores the defaults of its level.
+pub(crate) fn set_budget(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    position: &Position,
+    shares: Option<(f64, f64)>,
+) -> Result<(), CommandError> {
+    let site = state
+        .sites
+        .get(position.site.index())
+        .ok_or(CommandError::UnknownSite)?;
+    if site.owner != actor {
+        return Err(CommandError::NotOwner);
+    }
+    if !positions(catalog, state, position.site).contains(position) {
+        return Err(CommandError::UnknownPosition);
+    }
+    if let Some((a, b)) = shares
+        && !((0.0..=1.0).contains(&a) && (0.0..=1.0).contains(&b) && a <= b)
+    {
+        return Err(CommandError::InvalidShare);
+    }
+    position_state_mut(state, actor, position).budget = shares;
+    Ok(())
+}
+
+/// Concerns closed more than a year ago are dropped; open ones of positions the company
+/// no longer has expire, and so do the settings of such positions.
+fn tidy_concerns(state: &mut GameState, catalog: &Catalog, today: Date) {
+    let gone: Vec<usize> = state
+        .concerns
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| {
+            c.status == ConcernStatus::Open
+                && (state.sites[c.position.site.index()].owner != c.company
+                    || !positions(catalog, state, c.position.site).contains(&c.position))
+        })
+        .map(|(i, _)| i)
+        .collect();
+    for i in gone {
+        let c = &mut state.concerns[i];
+        c.status = ConcernStatus::Expired;
+        c.closed = Some(today);
+    }
+    let year_ago = today.add_days(-365);
+    state
+        .concerns
+        .retain(|c| c.closed.is_none_or(|closed| closed >= year_ago));
+    for (i, company) in state.companies.iter_mut().enumerate() {
+        // Few companies; the cast is exact.
+        let id = CompanyId(i as u32);
+        company.positions.retain(|p| {
+            state
+                .sites
+                .get(p.position.site.index())
+                .is_some_and(|s| s.owner == id)
+        });
     }
 }

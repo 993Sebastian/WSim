@@ -120,7 +120,7 @@ fn the_market_has_candidates_from_the_start() {
     let names: BTreeSet<&str> = managers.values().map(|m| m.name.as_str()).collect();
     assert_eq!(names.len(), managers.len(), "names are unique");
     let keys = management::skill_keys(&c);
-    assert_eq!(keys.len(), 4 + 5);
+    assert_eq!(keys.len(), 5 + 5);
     for m in managers.values() {
         assert!(m.job.is_none());
         assert_eq!(
@@ -128,7 +128,7 @@ fn the_market_has_candidates_from_the_start() {
             c.continents.ids().next().unwrap()
         );
         assert!(c.management.function(&m.focus).is_some());
-        assert_eq!(m.expertise.len(), 4);
+        assert_eq!(m.expertise.len(), 5);
         for key in &keys {
             let value = management::skill(m, key).unwrap();
             assert!(value <= 100);
@@ -425,4 +425,379 @@ fn skills_show_in_five_levels() {
     assert_eq!(shown_level(100, 15), 4);
     assert_eq!(shown_level(70, 15), 4, "the impression shifts the level");
     assert_eq!(shown_level(10, -15), 0);
+}
+
+// MA2: budgets and concerns.
+
+/// A works with three furnaces for a market that takes a small part of their iron, with
+/// ore for months and a head who notices everything and judges well.
+fn weak_works(catalog: Catalog) -> (Game, SiteId, ManagerId) {
+    let mut game = new_game(catalog);
+    let (mine, works) = mine_and_works(&mut game);
+    let c = game.catalog().clone();
+    game.apply(Command::BuildFacility {
+        site: works,
+        facility: c.facilities.id("ofen").unwrap(),
+        count: 2,
+        size: crate::catalog::FacilitySize::Medium,
+    })
+    .unwrap();
+    days(&mut game, 40);
+    let ore = c.products.id("erz").unwrap();
+    let iron = c.products.id("eisen").unwrap();
+    game.apply(Command::TransferGoods {
+        from: mine,
+        to: works,
+        product: ore,
+        quantity: 900.0,
+    })
+    .unwrap();
+    // Ore for months (without value: no booking), so that purchasing stays quiet.
+    game.state_mut().sites[works.index()]
+        .inventory
+        .get_mut(&ore)
+        .unwrap()
+        .quantity += 100_000.0;
+    for slot in 0..2 {
+        game.apply(Command::SetProduction {
+            site: works,
+            slot,
+            recipe: c.recipes.id("eisen_schmelzen"),
+            utilization: 1.0,
+        })
+        .unwrap();
+    }
+    game.apply(Command::SetSale {
+        site: works,
+        product: iron,
+        mode: Some(crate::state::PriceMode::Market {
+            markup: 0.0,
+            floor: Money::ZERO,
+        }),
+        keep: 0.0,
+    })
+    .unwrap();
+    let head_id = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: head_id,
+        position: head(works),
+    })
+    .unwrap();
+    let m = game.state_mut().managers.get_mut(&head_id).unwrap();
+    m.detection = 100;
+    m.judgment = 100;
+    for v in m.expertise.values_mut() {
+        *v = 100;
+    }
+    (game, works, head_id)
+}
+
+/// Units of the works standing still.
+fn mothballed(game: &Game, works: SiteId) -> u32 {
+    game.state().sites[works.index()]
+        .slots
+        .iter()
+        .filter(|sl| sl.mothballed())
+        .map(|sl| sl.count)
+        .sum()
+}
+
+/// Advances to the last day of March and through it (the end of the quarter).
+fn through_quarter_end(game: &mut Game) {
+    while game.date() < Date::new(1900, 4, 1).unwrap() {
+        days(game, 1);
+    }
+}
+
+/// Cheap furnaces: shutting two down stays within the floor of the budget.
+fn cheap_furnaces() -> Catalog {
+    let mut c = test_support::management();
+    let ofen = c.facilities.id("ofen").unwrap();
+    c.facilities.get_mut(ofen).investment = usd(1_000.0);
+    c
+}
+
+#[test]
+fn with_a_budget_the_head_shuts_down_a_weak_facility() {
+    let (mut game, works, _) = weak_works(cheap_furnaces());
+    assert_eq!(mothballed(&game, works), 0);
+    through_quarter_end(&mut game);
+    assert!(
+        mothballed(&game, works) > 0,
+        "the head shut units down within its budget"
+    );
+    assert!(game.state().concerns.is_empty());
+    let ps = management::position_state(game.state(), game.player(), &head(works)).unwrap();
+    assert!(
+        ps.spent > Money::ZERO,
+        "the book value counts against the budget"
+    );
+    assert!(
+        ps.log
+            .iter()
+            .any(|l| l.topic == crate::decision::Topic::Overcapacity)
+    );
+    let ledger = &game.state().company(game.player()).unwrap().ledger;
+    assert!(ledger.is_balanced());
+}
+
+#[test]
+fn without_a_budget_a_concern_asks_and_its_deadline_changes_nothing() {
+    let (mut game, works, _) = weak_works(cheap_furnaces());
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    through_quarter_end(&mut game);
+    assert_eq!(mothballed(&game, works), 0, "nothing without an answer");
+    let concerns = &game.state().concerns;
+    assert_eq!(concerns.len(), 1, "{concerns:?}");
+    let c = &concerns[0];
+    assert_eq!(c.decision.topic, crate::decision::Topic::Overcapacity);
+    assert_eq!(c.status, crate::state::ConcernStatus::Open);
+    assert_eq!(c.position, head(works));
+    assert!(c.options.len() >= 2);
+    assert!(c.options[c.recommended].amount > Money::ZERO);
+    assert_eq!(c.deadline, c.created.add_days(30));
+    // The deadline passes: nothing changes.
+    days(&mut game, 31);
+    let c = &game.state().concerns[0];
+    assert_eq!(c.status, crate::state::ConcernStatus::Expired);
+    assert_eq!(mothballed(&game, works), 0);
+}
+
+#[test]
+fn answers_carry_out_mute_or_decline() {
+    let catalog = cheap_furnaces();
+    let ask = |game: &mut Game, works: SiteId| {
+        game.apply(Command::SetBudget {
+            position: head(works),
+            shares: Some((0.0, 0.0)),
+        })
+        .unwrap();
+        through_quarter_end(game);
+        game.state().concerns[0].id
+    };
+    // An option chosen is carried out at once.
+    let (mut game, works, _) = weak_works(catalog.clone());
+    let id = ask(&mut game, works);
+    let c = game.state().concerns[0].clone();
+    let shut = c
+        .decision
+        .choices
+        .iter()
+        .position(|o| o.kind == crate::decision::ChoiceKind::Mothball)
+        .unwrap();
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::Choose(shut),
+    })
+    .unwrap();
+    assert!(mothballed(&game, works) > 0);
+    assert_eq!(
+        game.state().concerns[0].status,
+        crate::state::ConcernStatus::Chosen(shut)
+    );
+    assert_eq!(
+        game.apply(Command::AnswerConcern {
+            concern: id,
+            answer: management::ConcernAnswer::Delegate,
+        }),
+        Err(CommandError::ConcernClosed)
+    );
+    assert_eq!(
+        game.apply(Command::AnswerConcern {
+            concern: 99,
+            answer: management::ConcernAnswer::Delegate,
+        }),
+        Err(CommandError::UnknownConcern)
+    );
+
+    // "Decide yourself": the recommendation.
+    let (mut game, works, _) = weak_works(catalog.clone());
+    let id = ask(&mut game, works);
+    let recommended = game.state().concerns[0].recommended;
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::Delegate,
+    })
+    .unwrap();
+    assert_eq!(
+        game.state().concerns[0].status,
+        crate::state::ConcernStatus::Delegated(recommended)
+    );
+
+    // Muted: no more questions on the topic, also at the next quarter.
+    let topic = crate::decision::Topic::Overcapacity;
+    let (mut game, works, _) = weak_works(catalog.clone());
+    let id = ask(&mut game, works);
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::NeverAsk,
+    })
+    .unwrap();
+    assert_eq!(
+        game.state().concerns[0].status,
+        crate::state::ConcernStatus::Muted
+    );
+    let ps = management::position_state(game.state(), game.player(), &head(works)).unwrap();
+    assert!(ps.muted.contains(&topic));
+    while game.date() < Date::new(1900, 7, 1).unwrap() {
+        days(&mut game, 1);
+    }
+    assert_eq!(game.state().concerns.len(), 1);
+    assert_eq!(mothballed(&game, works), 0);
+
+    // Declined: the topic rests at the position for the blocking days.
+    let (mut game, works, _) = weak_works(catalog);
+    let id = ask(&mut game, works);
+    let asked = game.date();
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::Decline,
+    })
+    .unwrap();
+    assert_eq!(
+        game.state().concerns[0].status,
+        crate::state::ConcernStatus::Declined
+    );
+    let ps = management::position_state(game.state(), game.player(), &head(works)).unwrap();
+    assert_eq!(ps.blocked.get(&topic), Some(&asked.add_days(90)));
+    assert_eq!(mothballed(&game, works), 0);
+}
+
+#[test]
+fn budgets_follow_the_revenue_with_a_floor_of_salaries() {
+    let mut game = new_game(test_support::management());
+    let works = found(&mut game, SiteType::Factory);
+    let a = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: a,
+        position: head(works),
+    })
+    .unwrap();
+    let salary = game.state().managers[&a].job.as_ref().unwrap().salary;
+    let (c, s, p) = (game.catalog().clone(), game.state(), game.player());
+    // Without revenue: the floor of one and three salaries.
+    assert_eq!(
+        management::budget(&c, s, p, &head(works), salary),
+        (salary, salary.scale(3.0))
+    );
+    // With revenue: 5 % and 10 % of the last twelve months for a head.
+    let month = &mut game.state_mut().companies[0].ledger.months;
+    month.push(Default::default());
+    month
+        .last_mut()
+        .unwrap()
+        .site_revenue
+        .insert(works, usd(100_000_000.0));
+    let s = game.state();
+    assert_eq!(
+        management::budget(&c, s, p, &head(works), salary),
+        (usd(5_000_000.0), usd(10_000_000.0))
+    );
+    // Shares set by the player; 0 always asks.
+    assert_eq!(
+        game.apply(Command::SetBudget {
+            position: head(works),
+            shares: Some((0.2, 0.1)),
+        }),
+        Err(CommandError::InvalidShare)
+    );
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    assert_eq!(
+        management::budget(&c, game.state(), p, &head(works), salary),
+        (Money::ZERO, Money::ZERO)
+    );
+}
+
+#[test]
+fn the_position_reports_the_effect_of_its_decision() {
+    let (mut game, works, _) = weak_works(cheap_furnaces());
+    through_quarter_end(&mut game);
+    assert!(mothballed(&game, works) > 0);
+    assert_eq!(game.state().followups.len(), 1);
+    let due = game.state().followups[0].due;
+    assert_eq!(due, Date::new(1900, 3, 31).unwrap().add_days(91));
+    let mut reported = Vec::new();
+    while game.date() <= due {
+        let report = game.advance(RoundLength::Day, |_| {});
+        reported.extend(
+            report
+                .messages
+                .into_iter()
+                .filter(|m| m.key == crate::message::keys::CONCERN_EFFECT),
+        );
+    }
+    assert_eq!(reported.len(), 1, "one report on the effect");
+    assert!(game.state().followups.is_empty());
+}
+
+#[test]
+fn an_idle_laboratory_gets_its_next_target_from_its_head() {
+    use crate::catalog::{Recipe, Technology};
+    let mut catalog = test_support::management();
+    // A better way to make iron, to be researched.
+    let metal = catalog.specializations.id("metall").unwrap();
+    let smelting = catalog.technologies.id("schmelzen").unwrap();
+    let casting = catalog
+        .technologies
+        .insert(
+            "giessen",
+            Technology {
+                field: metal,
+                // Invented after the start: not known to everybody.
+                invention_year: 1901,
+                prerequisites: vec![smelting],
+                research_effort: Some(300.0),
+                provenance: Default::default(),
+            },
+        )
+        .unwrap();
+    let base = catalog.recipes.id("eisen_schmelzen").unwrap();
+    let recipe = Recipe {
+        technology: Some(casting),
+        ..catalog.recipes.get(base).clone()
+    };
+    catalog.recipes.insert("eisen_giessen", recipe);
+    let mut game = new_game(catalog);
+    let (_, works) = mine_and_works(&mut game);
+    game.apply(Command::SetProduction {
+        site: works,
+        slot: 0,
+        recipe: game.catalog().recipes.id("eisen_schmelzen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    let lab = found(&mut game, SiteType::ResearchCenter);
+    game.apply(Command::BuildFacility {
+        site: lab,
+        facility: game.catalog().facilities.id("labor").unwrap(),
+        count: 1,
+        size: crate::catalog::FacilitySize::Medium,
+    })
+    .unwrap();
+    let a = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: a,
+        position: head(lab),
+    })
+    .unwrap();
+    let m = game.state_mut().managers.get_mut(&a).unwrap();
+    m.detection = 100;
+    for v in m.expertise.values_mut() {
+        *v = 100;
+    }
+    // The laboratory is built in ten days; the head looks at it every week.
+    days(&mut game, 24);
+    assert_eq!(
+        game.state().sites[lab.index()].research,
+        game.catalog().technologies.id("giessen"),
+        "the head of the laboratory chose the technology of the own branch"
+    );
 }

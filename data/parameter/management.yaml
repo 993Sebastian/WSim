@@ -4,31 +4,55 @@
 
 management:
   # Bereiche und die Themen der Entscheidungen (MA0), die eine Stelle des Bereichs
-  # erledigt. Personal, Logistik, Forschung und Finanzen bekommen ihre Themen mit dem
-  # Budget (MA2) bzw. mit der Logistik (Stufe 2).
+  # erledigt. Logistik bekommt Themen mit Stufe 2, Finanzen mit dem Vorstand (MA5).
   bereiche:
     - id: produktion
-      themen: [produktion]
+      themen: [produktion, ueberkapazitaet, stillgelegt, wiederanfahren, ausbau]
     - id: einkauf_lager
       themen: [einkauf, eigenversorgung]
     - id: vertrieb_marketing
       themen: [verkauf]
     - id: personal
-      themen: []
+      themen: [lohn]
     - id: logistik
       themen: []
     - id: forschung
-      themen: []
+      themen: [forschung, weiterentwicklung]
     - id: finanzen
       themen: []
 
-  # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung.
-  # In MA1 lassen sich nur Stellen der Standorte besetzen.
+  # Themen der laufenden Routine: Hier folgt die Stelle der Option der Regeln; bei allen
+  # anderen empfiehlt sie nach ihrem Urteilsvermögen (MA2).
+  routine_themen: [produktion, verkauf, einkauf, eigenversorgung, lohn]
+
+  # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung,
+  # Budget je Entscheidung und je Jahr als Anteil am Umsatz der Einheit in zwölf Monaten
+  # (Vorgabe, Abschnitt 5.2). Bisher lassen sich nur Stellen der Standorte besetzen.
   ebenen:
-    - {id: standort, pruefung_tage: 7, gehalt_fach: 1.5, gehalt_leitung: 2.5}
-    - {id: land, pruefung_tage: 30, gehalt_fach: 3, gehalt_leitung: 4}
-    - {id: kontinent, pruefung_tage: 30, gehalt_fach: 5, gehalt_leitung: 7}
-    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15}
+    - {id: standort, pruefung_tage: 7, gehalt_fach: 1.5, gehalt_leitung: 2.5,
+       budget_fach: [0.02, 0.05], budget_leitung: [0.05, 0.10]}
+    - {id: land, pruefung_tage: 30, gehalt_fach: 3, gehalt_leitung: 4,
+       budget_fach: [0.03, 0.06], budget_leitung: [0.05, 0.12]}
+    - {id: kontinent, pruefung_tage: 30, gehalt_fach: 5, gehalt_leitung: 7,
+       budget_fach: [0.03, 0.08], budget_leitung: [0.06, 0.15]}
+    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15,
+       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20]}
+
+  # Mindestbudget in Jahresgehältern des Managers: je Entscheidung und je Jahr.
+  budget_sockel_gehaelter: {entscheidung: 1, jahr: 3}
+
+  # Anliegen (MA2): Frist der Antwort, Ruhe nach einer Ablehnung, höchstens so viele
+  # offene Anliegen je Stelle, Rückmeldung zu den Folgen nach dieser Zeit, größter
+  # Schätzfehler der Prognose (ohne Fachkompetenz; mit voller Fachkompetenz keiner),
+  # Wahrscheinlichkeit, dass ganz ohne Urteilsvermögen die Empfehlung die beste Option
+  # ist (mit vollem Urteilsvermögen immer).
+  anliegen:
+    frist_tage: 30
+    sperre_tage: 90
+    offen_je_stelle: 2
+    wirkzeit_tage: 91
+    schaetzfehler: 0.5
+    empfehlung_grund: 0.5
 
   # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
   standorttypen:

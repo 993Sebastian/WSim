@@ -167,6 +167,17 @@ pub enum Command {
     },
     /// Dismisses a manager of the company against a severance pay (MA1).
     DismissManager { manager: ManagerId },
+    /// Answers a concern of one of the company's positions (MA2).
+    AnswerConcern {
+        concern: u32,
+        answer: crate::management::ConcernAnswer,
+    },
+    /// Sets the budget of a position as shares of its reference per decision and per
+    /// year; `None` restores the defaults (MA2).
+    SetBudget {
+        position: Position,
+        shares: Option<(f64, f64)>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -323,6 +334,11 @@ pub enum CommandError {
     /// The site has no such position.
     UnknownPosition,
     PositionTaken,
+    /// No such concern of the acting company (MA2).
+    UnknownConcern,
+    /// The concern was answered or expired already.
+    ConcernClosed,
+    UnknownOption,
 }
 
 impl CommandError {
@@ -422,6 +438,9 @@ impl CommandError {
             CommandError::NotYourManager => e(keys::COMMAND_NOT_YOUR_MANAGER),
             CommandError::UnknownPosition => e(keys::COMMAND_UNKNOWN_POSITION),
             CommandError::PositionTaken => e(keys::COMMAND_POSITION_TAKEN),
+            CommandError::UnknownConcern => e(keys::COMMAND_UNKNOWN_CONCERN),
+            CommandError::ConcernClosed => e(keys::COMMAND_CONCERN_CLOSED),
+            CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
         }
     }
 }
@@ -640,6 +659,12 @@ pub(crate) fn execute(
         }
         Command::DismissManager { manager } => {
             crate::management::dismiss(state, catalog, actor, *manager)?;
+        }
+        Command::AnswerConcern { concern, answer } => {
+            crate::management::answer(state, catalog, actor, *concern, *answer)?;
+        }
+        Command::SetBudget { position, shares } => {
+            crate::management::set_budget(state, catalog, actor, position, *shares)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

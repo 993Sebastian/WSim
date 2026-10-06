@@ -98,7 +98,7 @@ pub fn decide_with(
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
         }
         if end_of_quarter {
-            retire(state, catalog, id, own, date, (&mut news, decider));
+            retire(state, catalog, id, (own, own), date, (&mut news, decider));
             expand(state, catalog, id, own, date, (&mut news, decider));
         }
         if first_of_year {
@@ -184,6 +184,44 @@ pub(crate) fn site_routine(
 ) {
     operate(state, catalog, id, (own, due), date, decider);
     supply_own(state, catalog, id, (own, due), decider);
+}
+
+/// The structure of a company's sites due (MA2): shutting down, selling and restarting
+/// units, and building more at each of them, through the decider of the positions.
+pub(crate) fn site_structure(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (own, due): (&[SiteId], &[SiteId]),
+    date: Date,
+    decider: &mut dyn Decider,
+) {
+    let mut news = Vec::new();
+    retire(state, catalog, id, (own, due), date, (&mut news, decider));
+    for &site in due {
+        expand(state, catalog, id, &[site], date, (&mut news, decider));
+    }
+}
+
+/// The next target of a company's laboratory (MA2): a technology of its branches or the
+/// development of a product, through the decider of the positions.
+pub(crate) fn lab_target(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (own, lab): (&[SiteId], SiteId),
+    date: Date,
+    decider: &mut dyn Decider,
+) {
+    // The laboratory first: the rules plan for the first one among the sites.
+    let sites: Vec<SiteId> = std::iter::once(lab)
+        .chain(
+            own.iter()
+                .copied()
+                .filter(|&s| state.sites[s.index()].kind != SiteType::ResearchCenter),
+        )
+        .collect();
+    plan_research(state, catalog, id, &sites, (date, &[]), decider);
 }
 
 /// Counts in the AI rules (researchers per gap, foundings, diversifications, makers of a
@@ -509,13 +547,13 @@ fn retire(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
-    sites: &[SiteId],
+    (own, due): (&[SiteId], &[SiteId]),
     date: Date,
     (news, decider): (&mut Vec<Message>, &mut dyn Decider),
 ) {
     let b = &catalog.ai_model.behavior;
     let watched = player_products(state, catalog);
-    for &site in sites {
+    for &site in due {
         if state.sites[site.index()].kind == SiteType::ResearchCenter {
             continue;
         }
@@ -561,9 +599,9 @@ fn retire(
 
         // Per product: the running units with their planned utilization and their cost
         // per unit at full load; what is taken per day against what they could make.
-        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, own, date);
         restart_where_short(state, catalog, id, site, (&full_output, &taken), decider);
-        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, own, date);
         let s = &state.sites[site.index()];
         let wage = 1.0 + s.wage_premium;
         let mut by_product: BTreeMap<ProductId, Vec<RunningUnits>> = BTreeMap::new();
@@ -2584,11 +2622,23 @@ fn research_plan(
     (date, gaps): (Date, &[TechnologyId]),
     decider: &mut dyn Decider,
 ) {
+    if wants_research(state, catalog, id) {
+        plan_research(state, catalog, id, sites, (date, gaps), decider);
+    }
+}
+
+/// The research target of the company's first laboratory among `sites` (the rules of
+/// `research_plan` without asking whether the company wants research at all).
+fn plan_research(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    (date, gaps): (Date, &[TechnologyId]),
+    decider: &mut dyn Decider,
+) {
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(state, id);
-    if !wants_research(state, catalog, id) {
-        return;
-    }
     // Branches the company works in.
     let mut branches = Vec::new();
     for &site in sites {
@@ -2803,7 +2853,8 @@ fn research_decision(
         ),
         (None, None) => (Topic::Research, Choice::keep()),
     };
-    let mut decision = Decision::new(topic, id, first);
+    // At the laboratory, or where the founding steps put it.
+    let mut decision = Decision::new(topic, id, first).at(site);
     if let Some(t) = target {
         let branches: Vec<_> = sites
             .iter()
@@ -3642,6 +3693,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         auction_until: None,
         development: Default::default(),
         product_names: Default::default(),
+        positions: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3808,6 +3860,7 @@ mod tests {
             auction_until: None,
             development: Default::default(),
             product_names: Default::default(),
+            positions: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,
@@ -3936,7 +3989,14 @@ mod tests {
         let state = game.state_mut();
         let date = state.date;
         let mut news = Vec::new();
-        retire(state, &catalog, id, &[site], date, (&mut news, &mut Rules));
+        retire(
+            state,
+            &catalog,
+            id,
+            (&[site], &[site]),
+            date,
+            (&mut news, &mut Rules),
+        );
         // A fifth of ten furnaces is two; at 80 % three are needed, seven stand still.
         let slots = &state.sites[site.index()].slots;
         assert_eq!(slots.len(), 2);
@@ -3950,7 +4010,14 @@ mod tests {
         let cash = state.companies[id.index()].ledger.cash();
         state.date = Date::new(1902, 2, 1).expect("valid");
         let later = state.date;
-        retire(state, &catalog, id, &[site], later, (&mut news, &mut Rules));
+        retire(
+            state,
+            &catalog,
+            id,
+            (&[site], &[site]),
+            later,
+            (&mut news, &mut Rules),
+        );
         let slots = &state.sites[site.index()].slots;
         assert_eq!(slots.len(), 1);
         assert_eq!(slots[0].count, 3);
@@ -3973,7 +4040,7 @@ mod tests {
             state,
             &catalog,
             id,
-            &[site],
+            (&[site], &[site]),
             date,
             (&mut Vec::new(), &mut recorder),
         );
@@ -4090,7 +4157,7 @@ mod tests {
             state,
             &catalog,
             id,
-            &[site],
+            (&[site], &[site]),
             date,
             (&mut Vec::new(), &mut Rules),
         );
@@ -4112,7 +4179,7 @@ mod tests {
             state,
             &catalog,
             id,
-            &[site],
+            (&[site], &[site]),
             date,
             (&mut Vec::new(), &mut Rules),
         );

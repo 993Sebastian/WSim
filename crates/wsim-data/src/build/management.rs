@@ -1,8 +1,8 @@
 //! Positions, managers and their market (MA1, docs/FORMELN.md, docs/MANAGER.md).
 
 use wsim_core::catalog::{
-    Catalog, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel, SiteType,
-    SkillModel,
+    Catalog, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
+    SiteType, SkillModel,
 };
 use wsim_core::decision::Topic;
 
@@ -102,6 +102,12 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
                         &ll.field("gehalt_fach"),
                     ),
                     salary_head: positive(ctx, level.salary_head, &ll.field("gehalt_leitung")),
+                    budget_specialist: budget(
+                        ctx,
+                        level.budget_specialist,
+                        &ll.field("budget_fach"),
+                    ),
+                    budget_head: budget(ctx, level.budget_head, &ll.field("budget_leitung")),
                 });
             }
         }
@@ -142,6 +148,51 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         }
         specialists.push((kind, indices));
     }
+
+    let mut routine_topics = Vec::new();
+    for (i, key) in v.routine_topics.iter().enumerate() {
+        let tl = l.field("routine_themen").index(i);
+        match Topic::from_key(key) {
+            Some(topic) if routine_topics.contains(&topic) => {
+                ctx.error(&tl, messages::duplicate_key("Thema", key, "routine_themen"));
+            }
+            Some(topic) => routine_topics.push(topic),
+            None => {
+                let suggested = crate::suggest::closest(key, topic_keys.iter().copied());
+                ctx.error(&tl, messages::unknown_reference("Thema", key, suggested));
+            }
+        }
+    }
+    let fl = l.field("budget_sockel_gehaelter");
+    let budget_floor = (
+        non_negative(ctx, v.budget_floor.decision, &fl.field("entscheidung")),
+        non_negative(ctx, v.budget_floor.year, &fl.field("jahr")),
+    );
+    let cl = l.field("anliegen");
+    let c = &v.concerns;
+    for (value, field) in [
+        (c.deadline_days, "frist_tage"),
+        (c.open_per_position, "offen_je_stelle"),
+        (c.followup_days, "wirkzeit_tage"),
+    ] {
+        if value == 0 {
+            ctx.error(&cl.field(field), messages::not_positive(0.0));
+        }
+    }
+    let concerns = ConcernModel {
+        deadline_days: c.deadline_days.max(1),
+        block_days: c.block_days,
+        open_per_position: c.open_per_position.max(1),
+        followup_days: c.followup_days.max(1),
+        estimate_error: in_range(ctx, c.estimate_error, 0.0, 1.0, &cl.field("schaetzfehler")),
+        recommend_base: in_range(
+            ctx,
+            c.recommend_base,
+            0.0,
+            1.0,
+            &cl.field("empfehlung_grund"),
+        ),
+    };
 
     let salary_group = catalog.labor_groups.id(&v.salary_group);
     if salary_group.is_none() {
@@ -199,6 +250,9 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         functions,
         levels,
         specialists,
+        routine_topics,
+        budget_floor,
+        concerns,
         head_discount: in_range(
             ctx,
             v.head_discount,
@@ -213,6 +267,17 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         skills,
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
+}
+
+/// Shares of the revenue per decision and per year: each 0–1, the first at most the
+/// second.
+fn budget(ctx: &mut Ctx, [decision, year]: [f64; 2], loc: &Loc) -> (f64, f64) {
+    let decision = in_range(ctx, decision, 0.0, 1.0, &loc.index(0));
+    let year = in_range(ctx, year, 0.0, 1.0, &loc.index(1));
+    if decision > year {
+        ctx.error(loc, messages::management_budget_order(decision, year));
+    }
+    (decision, year)
 }
 
 /// Prefix of the texts of the functions.

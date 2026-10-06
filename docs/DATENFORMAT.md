@@ -418,7 +418,10 @@ Optional: ohne den Abschnitt gibt es keine Manager.
 | Feld | Bedeutung |
 |---|---|
 | **bereiche** | Liste: `id` (Bereich, Text `bereich.<id>`), `themen` (Themen der Entscheidungen aus MA0, die eine Stelle des Bereichs erledigt; jedes Thema höchstens in einem Bereich) |
-| **ebenen** | Genau die Ebenen `standort`, `land`, `kontinent`, `vorstand`: `pruefung_tage` (≥ 1), `gehalt_fach`, `gehalt_leitung` (> 0, Vielfaches des Jahreslohns der Lohngruppe) |
+| **ebenen** | Genau die Ebenen `standort`, `land`, `kontinent`, `vorstand`: `pruefung_tage` (≥ 1), `gehalt_fach`, `gehalt_leitung` (> 0, Vielfaches des Jahreslohns der Lohngruppe), `budget_fach`, `budget_leitung` (je `[Entscheidung, Jahr]`, Anteile 0–1 am Umsatz der Einheit in zwölf Monaten, das erste höchstens das zweite) |
+| routine_themen | Themen, bei denen die Stelle der Option der Regeln folgt (Routine); bei den übrigen empfiehlt sie nach ihrem Urteilsvermögen |
+| **budget_sockel_gehaelter** | `entscheidung`, `jahr` (≥ 0): Mindestbudget in Jahresgehältern des Managers |
+| **anliegen** | `frist_tage`, `offen_je_stelle`, `wirkzeit_tage` (≥ 1), `sperre_tage` (≥ 0), `schaetzfehler` (0–1, größter Fehler der Prognose ohne Fachkompetenz), `empfehlung_grund` (0–1, Wahrscheinlichkeit einer besten Empfehlung ohne Urteilsvermögen) |
 | **standorttypen** | Je Standorttyp (`werk`, `foerderstaette`, `kraftwerk`, `lager`, `niederlassung`, `forschungszentrum`) die Bereiche seiner Fachstellen; jeder Standort hat dazu eine Leitung |
 | **leitung_ohne_fach_abschlag** | 0–1: so viel weniger Fachkompetenz hat eine Leitung in einem Bereich ohne besetzte Fachstelle |
 | **bemerken_grund** | 0–1: Wahrscheinlichkeit, mit der eine Stelle ganz ohne Sorgfalt eine Lage am Prüftermin bemerkt; mit voller Sorgfalt 1 |

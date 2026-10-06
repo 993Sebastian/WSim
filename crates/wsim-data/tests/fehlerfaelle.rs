@@ -2569,7 +2569,11 @@ fn management_wird_geprueft() {
             .enabled()
     );
 
-    let d = basis().ersetze(datei, "themen: [produktion]", "themen: [produktio]");
+    let d = basis().ersetze(
+        datei,
+        "themen: [produktion, ueberkapazitaet",
+        "themen: [produktio, ueberkapazitaet",
+    );
     let outcome = d.laden();
     let f = befund(
         &outcome,
@@ -2578,7 +2582,7 @@ fn management_wird_geprueft() {
     assert_ort(
         f,
         datei,
-        d.zeile(datei, "themen: [produktio]"),
+        d.zeile(datei, "themen: [produktio,"),
         "management.bereiche[0].themen[0]",
     );
 
@@ -2590,7 +2594,7 @@ fn management_wird_geprueft() {
 
     let d = basis().ersetze(
         datei,
-        "    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15}\n",
+        "    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20]}\n",
         "",
     );
     befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
@@ -2641,6 +2645,34 @@ fn management_wird_geprueft() {
         datei,
         d.zeile(datei, "bemerken_grund: 1.2"),
         "management.bemerken_grund",
+    );
+
+    let d = basis().ersetze(
+        datei,
+        "budget_fach: [0.02, 0.05]",
+        "budget_fach: [0.06, 0.05]",
+    );
+    befund(
+        &d.laden(),
+        "Das Budget je Entscheidung (0.06) darf nicht größer sein als das je Jahr (0.05).",
+    );
+    let d = basis().ersetze(
+        datei,
+        "routine_themen: [produktion,",
+        "routine_themen: [produktio,",
+    );
+    befund(
+        &d.laden(),
+        "Thema „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
+    );
+    let d = basis().ersetze(datei, "frist_tage: 30", "frist_tage: 0");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "frist_tage: 0"),
+        "management.anliegen.frist_tage",
     );
 
     let d = basis().ersetze("texte/de/bereiche.yaml", "bereich.logistik: Logistik\n", "");

@@ -531,17 +531,18 @@ pub fn power() -> Catalog {
     c
 }
 
-/// The production catalog with managers (MA1): four functions, the four levels, heads and
-/// specialists for works and mines; salaries follow the metal workers, whose
-/// qualification also counts as academics. One name group for everybody.
+/// The research catalog with managers (MA1, MA2): five functions, the four levels, heads
+/// and specialists for works and mines, heads only in laboratories; salaries follow the
+/// metal workers, whose qualification also counts as academics. One name group for
+/// everybody.
 pub fn management() -> Catalog {
     use super::{
-        ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel, NameGroup,
-        SiteType, SkillModel,
+        ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
+        NameGroup, SiteType, SkillModel,
     };
     use crate::decision::Topic;
 
-    let mut c = production();
+    let mut c = research();
     let function = |key: &str, topics: Vec<Topic>| ManagementFunction {
         key: key.to_owned(),
         topics,
@@ -551,13 +552,25 @@ pub fn management() -> Catalog {
         check_days,
         salary_specialist,
         salary_head,
+        budget_specialist: (0.02, 0.05),
+        budget_head: (0.05, 0.10),
     };
     c.management = ManagementModel {
         functions: vec![
-            function("produktion", vec![Topic::Production]),
+            function(
+                "produktion",
+                vec![
+                    Topic::Production,
+                    Topic::Overcapacity,
+                    Topic::Idle,
+                    Topic::Restart,
+                    Topic::Expansion,
+                ],
+            ),
             function("einkauf_lager", vec![Topic::Purchase, Topic::OwnSupply]),
             function("vertrieb_marketing", vec![Topic::Sale]),
-            function("personal", Vec::new()),
+            function("personal", vec![Topic::Wage]),
+            function("forschung", vec![Topic::Research, Topic::Development]),
         ],
         levels: vec![
             level("standort", 7, 1.5, 2.5),
@@ -569,6 +582,22 @@ pub fn management() -> Catalog {
             (SiteType::Factory, vec![0, 1, 2, 3]),
             (SiteType::Extraction, vec![0, 2]),
         ],
+        routine_topics: vec![
+            Topic::Production,
+            Topic::Sale,
+            Topic::Purchase,
+            Topic::OwnSupply,
+            Topic::Wage,
+        ],
+        budget_floor: (1.0, 3.0),
+        concerns: ConcernModel {
+            deadline_days: 30,
+            block_days: 90,
+            open_per_position: 2,
+            followup_days: 91,
+            estimate_error: 0.5,
+            recommend_base: 0.5,
+        },
         head_discount: 0.2,
         notice_base: 0.5,
         salary_group: c.labor_groups.id("fachkraft.metall"),

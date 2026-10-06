@@ -98,6 +98,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         auction_until: None,
         development: Default::default(),
         product_names: Default::default(),
+        positions: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Konkurrenz".into(),
         kind: CompanyKind::Ai,

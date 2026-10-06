@@ -75,6 +75,11 @@ pub struct ManagementModel {
     pub levels: Vec<ManagementLevel>,
     /// Specialist functions per site type (indices into `functions`).
     pub specialists: Vec<(SiteType, Vec<usize>)>,
+    /// Topics of the running routine: positions take the rules' option (MA2).
+    pub routine_topics: Vec<crate::decision::Topic>,
+    /// Least budget in yearly salaries of the manager: per decision, per year.
+    pub budget_floor: (f64, f64),
+    pub concerns: ConcernModel,
     /// Less expertise for a head doing the work of a missing specialist.
     pub head_discount: f64,
     /// Chance that a position without any diligence notices a situation (0–1).
@@ -121,6 +126,24 @@ pub struct ManagementLevel {
     /// Salary factors on the yearly wage of the salary group.
     pub salary_specialist: f64,
     pub salary_head: f64,
+    /// Budget as shares of the unit's revenue: per decision, per year (MA2).
+    pub budget_specialist: (f64, f64),
+    pub budget_head: (f64, f64),
+}
+
+/// Concerns of positions (MA2).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ConcernModel {
+    pub deadline_days: u32,
+    /// Rest of a topic at a position after the player declined it.
+    pub block_days: u32,
+    pub open_per_position: u32,
+    /// The position reports the effect of an executed option after these days.
+    pub followup_days: u32,
+    /// Largest relative error of a forecast without expertise.
+    pub estimate_error: f64,
+    /// Chance that a recommendation without any judgment is the best option.
+    pub recommend_base: f64,
 }
 
 /// Candidates per continent (MA1).

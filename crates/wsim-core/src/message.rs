@@ -171,6 +171,12 @@ pub mod keys {
     pub const COMMAND_NOT_YOUR_MANAGER: &str = "fehler.befehl.manager_nicht_bei_dir";
     pub const COMMAND_UNKNOWN_POSITION: &str = "fehler.befehl.stelle_unbekannt";
     pub const COMMAND_POSITION_TAKEN: &str = "fehler.befehl.stelle_besetzt";
+    pub const COMMAND_UNKNOWN_CONCERN: &str = "fehler.befehl.anliegen_unbekannt";
+    pub const COMMAND_CONCERN_CLOSED: &str = "fehler.befehl.anliegen_erledigt";
+    pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
+    pub const CONCERN_NEW: &str = "meldung.anliegen.neu";
+    pub const CONCERN_EXPIRED: &str = "meldung.anliegen.verfallen";
+    pub const CONCERN_EFFECT: &str = "meldung.anliegen.folge";
     pub const OFFER_RECEIVED_SITE: &str = "meldung.angebot.erhalten.standort";
     pub const OFFER_RECEIVED_LICENSE: &str = "meldung.angebot.erhalten.lizenz";
     pub const OFFER_COUNTER_SITE: &str = "meldung.angebot.gegenangebot.standort";
@@ -320,6 +326,12 @@ pub mod keys {
         COMMAND_NOT_YOUR_MANAGER,
         COMMAND_UNKNOWN_POSITION,
         COMMAND_POSITION_TAKEN,
+        COMMAND_UNKNOWN_CONCERN,
+        COMMAND_CONCERN_CLOSED,
+        COMMAND_UNKNOWN_OPTION,
+        CONCERN_NEW,
+        CONCERN_EXPIRED,
+        CONCERN_EFFECT,
         OFFER_RECEIVED_SITE,
         OFFER_RECEIVED_LICENSE,
         OFFER_COUNTER_SITE,
