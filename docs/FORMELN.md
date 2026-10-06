@@ -2360,6 +2360,10 @@ Ebene, Anliegen), Themen der Bereiche erweitert. Kern: Modul `management`.
 | Forschung | – | `forschung`, `weiterentwicklung` (Labore: Laborleitung) |
 | Logistik, Finanzen | – | (Stufe 2 bzw. MA5) |
 
+Forschung und Weiterentwicklung kommen nur in Laboren vor, alle anderen Themen nur
+außerhalb davon; eine Stelle zeigt und übernimmt nur die Themen, die an ihrem Standorttyp
+vorkommen.
+
 ### Wann welche Regel läuft
 
 Für Standorte mit besetzter Stelle laufen die Regeln der KI wie bei KI-Firmen, über den
@@ -2409,7 +2413,9 @@ Für jede Entscheidung, deren Thema eine Stelle am Standort abdeckt und bemerkt 
 4. **Sonst Anliegen** an den Spieler (MA3: an die nächste Stelle), außer das Thema ist für
    die Stelle stummgeschaltet oder gesperrt, die Stelle hat schon `offen_je_stelle` offene
    Anliegen oder dasselbe Anliegen (Thema, Standort, Produkt) ist offen. Bis zur Antwort
-   bleibt alles, wie es ist.
+   bleibt alles, wie es ist. Der **Grund** wird festgehalten: Kredit in den Schritten
+   (`kredit`), sonst Budget 0 (`immer`), sonst *A* > Budget je Entscheidung
+   (`entscheidung`), sonst reicht das Jahresbudget nicht (`jahr`).
 
 ### Anliegen
 
@@ -2420,8 +2426,21 @@ Für jede Entscheidung, deren Thema eine Stelle am Standort abdeckt und bemerkt 
   „Entscheide selbst“ (die Empfehlung wird ausgeführt); „Zu diesem Thema nicht mehr
   fragen“ (die Stelle entscheidet das Thema weiter im Budget, darüber bleibt es ohne
   Rückfrage, wie es ist); „Ablehnen“ (das Thema ruht an dieser Stelle `sperre_tage`).
+- „Wieder fragen“ (`AskAgain`) hebt Stummschaltung und Sperre eines Themas an einer
+  Stelle auf.
 - Nach der Frist: Das Anliegen verfällt, nichts ändert sich.
-- Ein neues Anliegen ist eine Warnung: „bis zur nächsten Warnung“ (M26) hält an.
+- **Erledigt:** Jeder ausgeführte Befehl der Firma schließt ihre offenen Anliegen, deren
+  Optionen dasselbe Objekt betreffen – dieselbe Anlage (Auslastung, Automatisierung,
+  Stilllegen, Wiederanfahren, Verkaufen), dasselbe Produkt am Standort im Verkauf (Preis,
+  Angebot) oder im Einkauf, dieselbe Lieferung (Ziel, Produkt), Lohnaufschlag, Ausbau,
+  Labor oder Lagerstätte des Standorts. Das gilt für eine Entscheidung des Spielers in einer
+  Ansicht wie für eine spätere Entscheidung der Stelle im Budget.
+- **Wichtig** ist ein Anliegen, dessen Thema nicht zur Routine (`routine_themen`) gehört.
+- **Anhalten:** Mehrere Runden am Stück (M26) halten nach der Runde an, in der ein neues
+  Anliegen entstand – je nach Einstellung bei allen, nur bei wichtigen (Vorgabe) oder nie.
+  Die Meldung eines neuen Anliegens zählt dafür nicht als Warnung.
+- **Bündelung:** Offene Anliegen mit gleichem Thema und gleicher Art der Empfehlung stehen
+  in einer Gruppe; „für alle übernehmen“ beantwortet jedes mit „Entscheide selbst“.
 
 ### Rückmeldung zu Folgen
 
@@ -2433,5 +2452,9 @@ Monatsergebnis des Standorts in den drei abgeschlossenen Monaten davor. Nach
 ### Hinweise
 
 Hinweise aus „Zu erledigen“ zu einem Standort entfallen, wenn die Stelle des Bereichs
-besetzt ist (Einkauf → Einkauf und Lager, Verkauf → Vertrieb und Marketing, Personal →
-Personal, Anlagen → Produktion; die Leitung deckt die übrigen).
+besetzt ist oder die Leitung des Standorts ihn mangels Fachstelle übernimmt: fehlende
+Vorprodukte und kein Einkauf → Einkauf und Lager; kein Verkauf, Preis unter den
+Stückkosten, nichts verkauft → Vertrieb und Marketing; fehlende Arbeitskräfte und
+Personal → Personal; Anlage ohne Verfahren oder ruhend → Produktion; Labor ohne Ziel →
+Forschung. Strom und Lagerstätten bleiben (Sache von Land und Kontinent, MA3). Offene
+Anliegen stehen als eigener Hinweis mit der frühesten Frist in der Übersicht.

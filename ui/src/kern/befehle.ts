@@ -41,7 +41,13 @@ export type Befehl =
   | { NameProduct: { product: string; name: string | null } }
   | { HireManager: { manager: number; position: Stellenangabe } }
   | { MoveManager: { manager: number; position: Stellenangabe } }
-  | { DismissManager: { manager: number } };
+  | { DismissManager: { manager: number } }
+  | { AnswerConcern: { concern: number; answer: Anliegenantwort } }
+  | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
+  | { AskAgain: { position: Stellenangabe; topic: string } };
+
+/** The player's answer to a concern (MA2). */
+export type Anliegenantwort = { Choose: number } | "Delegate" | "NeverAsk" | "Decline";
 
 /** A position (MA1): a site's head or the specialist of a function there. */
 export type Stellenangabe = { site: number; role: "Head" | { Specialist: string } };

@@ -98,7 +98,9 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                         let laenge: String = argument(args, "laenge")?;
                         let bis: Option<String> = argument(args, "bis")?;
                         let bis = bis.as_deref().unwrap_or("runde");
-                        wert(s.end_round_until(&laenge, bis, |p| {
+                        let anhalten: Option<String> = argument(args, "anhalten")?;
+                        let anhalten = anhalten.as_deref().unwrap_or("wichtige");
+                        wert(s.end_rounds(&laenge, bis, anhalten, |p| {
                             fortschritt(p.done, p.total);
                         })?)
                     }
@@ -131,6 +133,7 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     "forschung" => wert(s.research()?),
                     "finanzen" => wert(s.finance()?),
                     "organisation" => wert(s.organisation()?),
+                    "anliegen" => wert(s.concerns()?),
                     "managermarkt" => {
                         let standort: u32 = argument(args, "standort")?;
                         let stelle: String = argument(args, "stelle")?;

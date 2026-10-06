@@ -750,9 +750,10 @@ entschieden:
 6. **Markt über Kontinente hinweg:** Jede Stelle lässt sich aus jedem Kontinent besetzen;
    der Markt zeigt den eigenen Kontinent zuerst. Die Gehaltsforderung richtet sich nach
    dem Land des Standorts, nicht nach der Heimat.
-7. **Stellen ohne Aufgaben** (Personal, Logistik, Forschung, Finanzen, Labore) sind im
-   Organigramm sichtbar, aber erst mit ihren Themen besetzbar (MA2, Logistik Stufe 2). Der
-   Befehl selbst erlaubt sie schon.
+7. **Stellen ohne Aufgaben** (Logistik, Finanzen) sind im Organigramm sichtbar, aber erst
+   mit ihren Themen besetzbar (Logistik Stufe 2, Finanzen MA5). Der Befehl selbst erlaubt
+   sie schon. Seit MA2 haben Personal (Lohnaufschlag) und die Laborleitungen (Forschungs-
+   und Entwicklungsziel) Aufgaben.
 8. **Verkauf eines Standorts:** Die Stellen enden ohne Abfindung; die Manager gehen
    nicht mit an den Käufer.
 9. **Namen:** Die Namensgruppen decken Europa, Amerika, Japan und China ab; Manager aus
@@ -760,6 +761,36 @@ entschieden:
    Vorschlag: Gruppen arabisch, indisch, ostafrikanisch, portugiesisch-brasilianisch,
    koreanisch und türkisch in `data/ki/namen.yaml` ergänzen (betrifft auch neue
    KI-Firmen).
+
+✅ **MA2 umgesetzt** (Budget je Stelle, Anliegen, Postfach, Runden-Halt, Bündelung,
+Rückmeldung; Einzelheiten: `docs/FORMELN.md`, MA2).
+🟡 Vorläufig entschieden:
+
+10. **Einkauf im Budget:** Ein neuer Einkaufsauftrag zählt nur mit dem Teil, um den sein
+    Höchstpreis über dem üblichen Höchstpreis der Regeln liegt (Marktpreis plus Aufschlag)
+    – sonst würde jeder Routineeinkauf das Budget sofort aufbrauchen.
+11. **Risikoneigung und Fragefreude** wirken noch nicht: Die Stelle empfiehlt nach
+    Urteilsvermögen und Fachkompetenz und fragt genau dann, wenn Budget oder Befugnis
+    nicht reichen. Vorschlag: Mit MA3 verschiebt die Risikoneigung die Wahl zwischen
+    Optionen mit breiter Prognose, die Fragefreude lässt knapp unter dem Budget fragen.
+12. **Struktur am Quartalsende:** Stilllegen, Verkaufen, Wiederanfahren und Ausbau prüfen
+    die Stellen nur am letzten Tag eines Quartals (wie die Überkapazitätsprüfung der KI),
+    die Routine an jedem Prüftermin.
+13. **Erledigt durch eigene Entscheidung:** Ein Befehl des Spielers (oder eine spätere
+    Entscheidung der Stelle im Budget) schließt offene Anliegen, deren Optionen dieselbe
+    Anlage, dasselbe Produkt im Verkauf oder Einkauf, dieselbe Lieferung, den Lohn, den
+    Ausbau, das Labor oder die Lagerstätte desselben Standorts betreffen.
+14. **Runden-Halt:** Vorgabe „bei wichtigen“; wichtig ist, was nicht zur Routine gehört
+    (Überkapazität, stillgelegte Anlagen, Wiederanfahren, Ausbau, Forschung,
+    Weiterentwicklung). Die Einstellung merkt sich der Browser bzw. die App, nicht der
+    Spielstand. Die Meldung eines neuen Anliegens hält „bis zur nächsten Meldung“ nur noch
+    nach dieser Einstellung an, nicht mehr als Warnung.
+15. **Bündelung:** gleiches Thema und gleiche Art der Empfehlung; „Empfehlung für alle
+    übernehmen“ antwortet jedem Anliegen der Gruppe mit „Entscheide selbst“.
+16. **Kredit als Grund:** Optionen mit Kredit legt jede Stelle vor (Finanzen und CEO
+    entscheiden ab MA5), auch wenn der Betrag ins Budget passte.
+17. **Zurücknehmen:** „Nicht mehr fragen“ und „Ablehnen“ hebt „Wieder fragen“ in der
+    Organisation auf (Befehl `AskAgain`; in der Vorgabe nicht vorgesehen).
 
 ## Reihenfolge der neuen Punkte
 

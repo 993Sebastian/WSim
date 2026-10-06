@@ -93,6 +93,8 @@ export interface Uebersicht {
   milestones?: Etappe[];
   /** The player's places among all active companies (M29); null without others. */
   rank?: Rang | null;
+  /** Concerns of the player's positions waiting for an answer (MA2). */
+  concerns_open?: number;
 }
 
 /** Places by equity and by revenue of the last twelve closed months (M29). */
@@ -237,6 +239,9 @@ export type Rundenlaenge = "tag" | "woche" | "monat" | "quartal";
 /** How far "end round" goes (M26): one round, rounds up to the year's end, or up to the
  * next warning or world event (at most a year). */
 export type Weiterlaufen = "runde" | "jahresende" | "meldung";
+
+/** Which new concerns halt a run of rounds (MA2). */
+export type Anhalten = "alle" | "wichtige" | "nie";
 
 export interface Fortschritt {
   done: number;
@@ -1029,12 +1034,57 @@ export interface Stelleninhaber {
   severance_usd: number;
 }
 
+/** What a position may spend without asking (MA2). */
+export interface Budget {
+  /** Shares of the reference per decision and per year. */
+  shares: [number, number];
+  /** The shares of its level and role. */
+  defaults: [number, number];
+  /** Set by the player. */
+  custom: boolean;
+  /** The site's revenue in the last twelve closed months, without revenue its costs. */
+  base_usd: number;
+  per_decision_usd: number;
+  per_year_usd: number;
+  spent_usd: number;
+}
+
+/** A decision a position took itself. */
+export interface Stellenentscheidung {
+  date: string;
+  /** Topic (text `thema.<topic>`). */
+  topic: string;
+  /** Kind of the option (text `option.<kind>`). */
+  kind: string;
+  product: string | null;
+  amount_usd: number;
+  /** The position's estimate of the effect on a year's result. */
+  effect_usd: number | null;
+}
+
+/** A topic the position does not ask about. */
+export interface StillesThema {
+  /** For the command `AskAgain`. */
+  id: string;
+  /** Text `thema.<topic>`. */
+  topic: string;
+  /** Declined: quiet until then; null: not to be asked again. */
+  until: string | null;
+}
+
 export interface Stelle {
   /** `leitung` or the key of the function of a specialist position. */
   role: string;
   /** Topics (`thema.<key>`) the position takes care of now. */
   topics: string[];
   holder: Stelleninhaber | null;
+  /** Only for a filled position (MA2). */
+  budget?: Budget | null;
+  /** Its latest own decisions, the newest first. */
+  log?: Stellenentscheidung[];
+  quiet?: StillesThema[];
+  /** Its concerns waiting for an answer. */
+  open_concerns?: number;
 }
 
 export interface StandortOrganisation {
@@ -1064,6 +1114,8 @@ export interface Organisation {
   severance_months: number;
   /** Free candidates in all markets. */
   candidates: number;
+  /** Least budget of a position in its yearly salaries: per decision and per year. */
+  budget_floor?: [number, number];
 }
 
 export interface Kandidat {
@@ -1072,6 +1124,80 @@ export interface Kandidat {
   demand_usd: number;
   /** An own manager's position now. */
   current: { site: number; role: string } | null;
+}
+
+/** An option of a concern as the position assessed it (MA2). */
+export interface AnliegenOption {
+  /** Kind of the option (text `option.<kind>`). */
+  kind: string;
+  /** What the option does, step by step. */
+  steps: Meldung[];
+  /** Counted against a budget. */
+  amount_usd: number;
+  /** Forecast of the effect on a year's result as a range; null without an estimate. */
+  forecast_usd: [number, number] | null;
+  /** One-off effect on the result. */
+  once_usd: number;
+}
+
+export type AnliegenStatus =
+  | "offen"
+  | "gewaehlt"
+  | "delegiert"
+  | "nicht_mehr_fragen"
+  | "abgelehnt"
+  | "abgelaufen"
+  | "erledigt";
+
+/** A question of a position to the player (MA2). */
+export interface Anliegen {
+  id: number;
+  site: number;
+  /** `leitung` or the function of a specialist position. */
+  role: string;
+  /** Text key of the site type. */
+  kind_text: string;
+  country: string;
+  /** The manager who asks. */
+  manager: string;
+  /** Topic (text `thema.<topic>`). */
+  topic: string;
+  product: string | null;
+  /** Why the position asks (text `anliegen.grund.<reason>`). */
+  reason: "entscheidung" | "jahr" | "immer" | "kredit";
+  options: AnliegenOption[];
+  recommended: number;
+  /** Why the position recommends its option. */
+  because: Meldung;
+  per_decision_usd: number;
+  left_usd: number;
+  /** Mean monthly result of the site in the last closed months. */
+  site_result_usd: number;
+  created: string;
+  deadline: string;
+  status: AnliegenStatus;
+  /** The option carried out. */
+  carried_out: number | null;
+  closed: string | null;
+  /** Beyond the routine of the sites: a run of rounds halts for it. */
+  important: boolean;
+}
+
+/** Open concerns of several sites alike: the same topic and recommendation. */
+export interface AnliegenGruppe {
+  topic: string;
+  /** Kind of the recommended option. */
+  kind: string;
+  concerns: Anliegen[];
+}
+
+export interface AnliegenListe {
+  /** Open concerns in groups, the earliest deadline first. */
+  open: AnliegenGruppe[];
+  /** Concerns closed in the last year, the newest first. */
+  closed: Anliegen[];
+  deadline_days: number;
+  block_days: number;
 }
 
 export interface Managermarkt {

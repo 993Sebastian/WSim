@@ -6,11 +6,13 @@
 use std::collections::BTreeMap;
 
 mod chains;
+mod concerns;
 mod deals;
 mod hints;
 mod organisation;
 mod play;
 pub use chains::*;
+pub use concerns::*;
 pub use deals::{
     AreaView, CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView,
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
@@ -241,6 +243,9 @@ pub struct Overview {
     /// The player's places among all active companies (M29); `None` without others.
     #[serde(default)]
     pub rank: Option<RankView>,
+    /// Concerns of the player's positions waiting for an answer (MA2).
+    #[serde(default)]
+    pub concerns_open: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -449,6 +454,16 @@ pub fn overview(game: &Game) -> Overview {
         money: money_options(game),
         milestones: milestones(game),
         rank: rank(game),
+        concerns_open: u32::try_from(
+            state
+                .concerns
+                .iter()
+                .filter(|c| {
+                    c.company == state.player && c.status == crate::state::ConcernStatus::Open
+                })
+                .count(),
+        )
+        .unwrap_or(u32::MAX),
     }
 }
 
@@ -537,6 +552,8 @@ pub fn message_view(message: &Message) -> MessageView {
         Some("markt")
     } else if message.key.starts_with("meldung.forschung") {
         Some("forschung")
+    } else if message.key.starts_with("meldung.anliegen.") {
+        Some("organisation")
     } else if matches!(
         message.kind,
         MessageKind::Warning | MessageKind::Crisis | MessageKind::Success

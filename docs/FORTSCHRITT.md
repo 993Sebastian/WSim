@@ -53,6 +53,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
 | MA0 | Manager-System: Entscheidungsbausteine | ✅ |
 | MA1 | Manager-System: Stellen und Manager | ✅ |
+| MA2 | Manager-System: Budget und Anliegen | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -111,6 +112,42 @@ Regeln: `docs/FORMELN.md`, Abschnitt MA1; Bedienung: `docs/BEDIENUNG.md`, „Org
   Stellen entfallen mit dem Standort, alte Spielstände bekommen ihren Markt, Laden und
   Wiederholen ergeben denselben Zustand, Stufen der Anzeige); Oberflächentest
   „Stellen besetzen“.
+
+### MA2: Budget und Anliegen (06.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA2; Bedienung: `docs/BEDIENUNG.md`, „Organisation“;
+vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 10–17.
+
+- **Daten:** Budget je Ebene und Rolle als Anteil am Umsatz der Einheit in zwölf Monaten,
+  Sockel in Jahresgehältern, Parameter der Anliegen (Frist 30 Tage, Ruhe nach Ablehnung
+  90 Tage, höchstens zwei offene je Stelle, Rückmeldung nach 91 Tagen, Schätzfehler,
+  Trefferchance der Empfehlung), Routinethemen; die Bereiche übernehmen Stilllegen,
+  Verkaufen, Wiederanfahren, Ausbau (Produktion), Lohnaufschlag (Personal), Forschung und
+  Weiterentwicklung (Laborleitung).
+- **Kern:** Stellen entscheiden im Budget selbst (Protokoll je Stelle) und legen darüber
+  hinaus ein Anliegen vor – mit Optionen, Schritten, Betrag, Prognose als Spanne,
+  Empfehlung nach Urteilsvermögen und Fachkompetenz, Grund und Frist. Antworten über
+  `AnswerConcern` (Option, „Entscheide selbst“, „Nicht mehr fragen“, „Ablehnen“),
+  `SetBudget` und `AskAgain`; nach der Frist bleibt alles, wie es ist; eine eigene
+  Entscheidung des Spielers schließt passende Anliegen; nach drei Monaten meldet die Stelle
+  die Wirkung gegen ihre Prognose. Struktur (Stilllegen, Verkaufen, Wiederanfahren,
+  Ausbau) am Quartalsende, Labore ohne Ziel an ihrem Prüftermin.
+- **Oberfläche:** „Organisation“ mit den Unterreitern „Stellen“ (Budget, Protokoll und
+  stille Themen je Stelle) und „Anliegen“ (Postfach mit Gruppen gleicher Anliegen und
+  „Empfehlung für alle übernehmen“, erledigte Anliegen); Zähler am Reiter; Hinweis in der
+  Übersicht; Hinweise zu Bereichen mit besetzter Stelle entfallen; Einstellung „Bei
+  Anliegen anhalten“ im Menü, „bis Jahresende“ und „bis zur nächsten Meldung“ halten
+  danach an. Die Browser-Vorschau zeigt ein echtes Anliegen (Ausbau einer Nagelmaschine).
+- **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5, vor (1e34cf9) und
+  nach MA2: identische Protokolldateien (der Zustands-Hash enthält jetzt den Umsatz je
+  Standort im Hauptbuch).
+- **Tests:** zwölf Szenariotests (mit Budget legt die Werksleitung eine schwache Anlage
+  still; ohne Budget entsteht ein Anliegen, dessen Frist nichts ändert; Antworten;
+  Budget nach Umsatz mit Sockel; Rückmeldung; Laborleitung wählt ein Ziel; Grund des
+  Anliegens; eine Entscheidung des Spielers erledigt es; „Wieder fragen“; Sichten mit
+  Gruppe, Budget und stillen Themen; Hinweise entfallen mit besetzter Stelle; Laden mit
+  Anliegen), Sitzungstest „Runden halten bei Anliegen“, Oberflächentests (vitest und
+  Playwright) für Postfach und Budget.
 
 ## Eigenständige Entscheidungen (für das Review)
 

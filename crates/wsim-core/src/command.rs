@@ -178,6 +178,11 @@ pub enum Command {
         position: Position,
         shares: Option<(f64, f64)>,
     },
+    /// A position asks about a muted or declined topic again (MA2).
+    AskAgain {
+        position: Position,
+        topic: crate::decision::Topic,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -616,6 +621,17 @@ pub(crate) fn execute(
     actor: CompanyId,
     command: &Command,
 ) -> Result<(), CommandError> {
+    run(state, catalog, actor, command)?;
+    crate::management::settle(state, actor, command);
+    Ok(())
+}
+
+fn run(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    command: &Command,
+) -> Result<(), CommandError> {
     if state.game_over {
         return Err(CommandError::GameOver);
     }
@@ -665,6 +681,9 @@ pub(crate) fn execute(
         }
         Command::SetBudget { position, shares } => {
             crate::management::set_budget(state, catalog, actor, position, *shares)?;
+        }
+        Command::AskAgain { position, topic } => {
+            crate::management::ask_again(state, catalog, actor, position, *topic)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

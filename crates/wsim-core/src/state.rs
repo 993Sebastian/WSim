@@ -375,6 +375,23 @@ pub enum ConcernStatus {
     Declined,
     /// The deadline passed; nothing changed.
     Expired,
+    /// Decided otherwise before an answer: by the player in a view or by the position
+    /// within its budget.
+    Settled,
+}
+
+/// Why a position asks instead of deciding itself (MA2).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ConcernReason {
+    /// The option costs more than the position may spend on one decision.
+    #[default]
+    Decision,
+    /// The budget of the year is used up.
+    Year,
+    /// The player set the budget to nothing: the position always asks.
+    Always,
+    /// The option needs a loan, a matter of the finance department and the CEO.
+    Finance,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -388,6 +405,8 @@ pub struct Concern {
     /// The option the position recommends.
     pub recommended: usize,
     pub options: Vec<ConcernOption>,
+    #[serde(default)]
+    pub reason: ConcernReason,
     pub created: Date,
     pub deadline: Date,
     pub status: ConcernStatus,

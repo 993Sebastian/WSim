@@ -12,9 +12,9 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, ManagerMarketView,
-    MarketView, MessageView, NewGameOptions, OffersView, OrganisationView, Overview,
-    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
+    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
     WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
@@ -87,11 +87,14 @@ async fn runde_beenden(
     state: State<'_, Shared>,
     laenge: String,
     bis: Option<String>,
+    anhalten: Option<String>,
 ) -> Result<RoundReportView, Fehler> {
     let shared = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         mit_sitzung(&shared, |s| {
-            s.end_round_until(&laenge, bis.as_deref().unwrap_or("runde"), |p| {
+            let bis = bis.as_deref().unwrap_or("runde");
+            let anhalten = anhalten.as_deref().unwrap_or("wichtige");
+            s.end_rounds(&laenge, bis, anhalten, |p| {
                 // A lost progress event only delays the bar.
                 let _ = app.emit(
                     "fortschritt",
@@ -177,6 +180,11 @@ fn organisation(state: State<'_, Shared>) -> Result<OrganisationView, Fehler> {
 }
 
 #[tauri::command]
+fn anliegen(state: State<'_, Shared>) -> Result<ConcernsView, Fehler> {
+    mit_sitzung(&state, |s| s.concerns())
+}
+
+#[tauri::command]
 fn managermarkt(
     state: State<'_, Shared>,
     standort: u32,
@@ -251,6 +259,7 @@ fn main() {
             forschung,
             finanzen,
             organisation,
+            anliegen,
             managermarkt,
             befehl,
             speichern,

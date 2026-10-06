@@ -185,3 +185,49 @@ fn companies_and_offers_for_the_competition_tab() {
         .unwrap_err();
     assert_eq!(err.key, "fehler.befehl.standort_zu_jung");
 }
+
+/// A run of rounds halts for new concerns of the player's positions as the player set it
+/// (MA2): all, the important ones, or none.
+#[test]
+fn runs_halt_for_concerns() {
+    use serde_json::json;
+    let start = |halt: &str| {
+        let dir = tempfile::tempdir().unwrap();
+        let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+        session.new_game(&request()).unwrap();
+        // A head for the workshop who asks about every expense.
+        let site = session.organisation().unwrap().continents[0].countries[0].sites[0].site;
+        let manager = session.manager_market(site, "leitung").unwrap().candidates[0]
+            .manager
+            .id;
+        let head = json!({"site": site, "role": "Head"});
+        session
+            .command(json!({"HireManager": {"manager": manager, "position": head}}))
+            .unwrap();
+        session
+            .command(json!({"SetBudget": {"position": head, "shares": [0.0, 0.0]}}))
+            .unwrap();
+        let run = session.end_rounds("monat", "jahresende", halt, |_| {});
+        (session, run, dir)
+    };
+    let (_, run, _dir) = start("manchmal");
+    assert_eq!(run.unwrap_err().key, keys::UNKNOWN_HALT);
+
+    let (session, run, _dir) = start("alle");
+    let run = run.unwrap();
+    assert_eq!(run.stop.as_deref(), Some("anliegen"));
+    assert!(run.rounds < 12);
+    let concerns = session.concerns().unwrap();
+    assert!(!concerns.open.is_empty());
+    assert!(
+        run.messages
+            .iter()
+            .any(|m| m.key == "meldung.anliegen.neu" && m.target.as_deref() == Some("organisation"))
+    );
+
+    // Never: up to the end of the year, the concerns wait (or expire).
+    let (_, run, _dir) = start("nie");
+    let run = run.unwrap();
+    assert_eq!(run.stop.as_deref(), Some("jahresende"));
+    assert_eq!(run.rounds, 12);
+}

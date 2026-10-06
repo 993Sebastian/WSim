@@ -43,6 +43,96 @@
       }
     ]
   },
+  "anliegen": {
+    "block_days": 90,
+    "closed": [],
+    "deadline_days": 30,
+    "open": [
+      {
+        "concerns": [
+          {
+            "because": {
+              "group": "allgemein",
+              "key": "anliegen.begruendung.ergebnis",
+              "kind": "info",
+              "params": {
+                "bis": {
+                  "type": "money",
+                  "value": 54139.4724
+                },
+                "von": {
+                  "type": "money",
+                  "value": 21899.1124
+                }
+              },
+              "target": null
+            },
+            "carried_out": null,
+            "closed": null,
+            "country": "DEU",
+            "created": "1914-12-31",
+            "deadline": "1915-01-30",
+            "id": 0,
+            "important": true,
+            "kind_text": "standorttyp.werk",
+            "left_usd": 0.0,
+            "manager": "Alain Moreau",
+            "options": [
+              {
+                "amount_usd": 24622.8883,
+                "forecast_usd": [
+                  21899.1124,
+                  54139.4724
+                ],
+                "kind": "bauen",
+                "once_usd": 0.0,
+                "steps": [
+                  {
+                    "group": "allgemein",
+                    "key": "schritt.bauen",
+                    "kind": "info",
+                    "params": {
+                      "anlage": {
+                        "type": "text_key",
+                        "value": "anlage.nagelmaschine"
+                      },
+                      "anzahl": {
+                        "type": "integer",
+                        "value": 1
+                      },
+                      "groesse": {
+                        "type": "text_key",
+                        "value": "anlagengroesse.klein"
+                      }
+                    },
+                    "target": null
+                  }
+                ]
+              },
+              {
+                "amount_usd": 0.0,
+                "forecast_usd": null,
+                "kind": "beibehalten",
+                "once_usd": 0.0,
+                "steps": []
+              }
+            ],
+            "per_decision_usd": 0.0,
+            "product": "naegel",
+            "reason": "immer",
+            "recommended": 0,
+            "role": "leitung",
+            "site": 0,
+            "site_result_usd": -207.7966,
+            "status": "offen",
+            "topic": "ausbau"
+          }
+        ],
+        "kind": "bauen",
+        "topic": "ausbau"
+      }
+    ]
+  },
   "bericht": {
     "cash_after_usd": 58473.257,
     "cash_before_usd": 54365.7436,
@@ -18240,17 +18330,17 @@
     "candidates": [
       {
         "current": null,
-        "demand_usd": 55173.9765,
+        "demand_usd": 56879.0861,
         "manager": {
           "continent": "europa",
           "focus": "produktion",
-          "home": "BLR",
-          "id": 32,
-          "name": "Dmitri Lebedev",
+          "home": "UKR",
+          "id": 181,
+          "name": "Anna Putilov",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 3
+              "level": 4
             },
             {
               "key": "fach.einkauf_lager",
@@ -18258,11 +18348,11 @@
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.personal",
-              "level": 2
+              "level": 4
             },
             {
               "key": "fach.logistik",
@@ -18282,7 +18372,7 @@
             },
             {
               "key": "urteil",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fuehrung",
@@ -18290,18 +18380,18 @@
             },
             {
               "key": "risiko",
-              "level": 3
+              "level": 4
             },
             {
               "key": "fragefreude",
-              "level": 0
+              "level": 4
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 54179.8508,
+        "demand_usd": 52839.3783,
         "manager": {
           "continent": "europa",
           "focus": "produktion",
@@ -18362,7 +18452,7 @@
       },
       {
         "current": null,
-        "demand_usd": 56333.7898,
+        "demand_usd": 54940.0264,
         "manager": {
           "continent": "europa",
           "focus": "logistik",
@@ -18423,25 +18513,86 @@
       },
       {
         "current": null,
-        "demand_usd": 49540.5975,
+        "demand_usd": 45567.9042,
         "manager": {
           "continent": "europa",
-          "focus": "forschung",
-          "home": "SWE",
-          "id": 117,
-          "name": "Annika van Dijk",
+          "focus": "vertrieb_marketing",
+          "home": "HUN",
+          "id": 180,
+          "name": "Charles Carter",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
               "level": 1
             },
             {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
               "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
               "level": 0
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 2
+            },
+            {
+              "key": "fragefreude",
+              "level": 4
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50577.1419,
+        "manager": {
+          "continent": "europa",
+          "focus": "logistik",
+          "home": "GBR",
+          "id": 182,
+          "name": "Charles Hale",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
             },
             {
               "key": "fach.personal",
@@ -18449,11 +18600,72 @@
             },
             {
               "key": "fach.logistik",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
               "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 0
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 49769.2004,
+        "manager": {
+          "continent": "europa",
+          "focus": "logistik",
+          "home": "GBR",
+          "id": 179,
+          "name": "Edward Sutton",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 1
+            },
+            {
+              "key": "fach.logistik",
+              "level": 4
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
             },
             {
               "key": "fach.finanzen",
@@ -18473,18 +18685,18 @@
             },
             {
               "key": "risiko",
-              "level": 0
+              "level": 4
             },
             {
               "key": "fragefreude",
-              "level": 1
+              "level": 0
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 55836.7269,
+        "demand_usd": 54455.2614,
         "manager": {
           "continent": "europa",
           "focus": "personal",
@@ -18545,7 +18757,7 @@
       },
       {
         "current": null,
-        "demand_usd": 55339.6641,
+        "demand_usd": 53970.4965,
         "manager": {
           "continent": "europa",
           "focus": "personal",
@@ -18606,21 +18818,21 @@
       },
       {
         "current": null,
-        "demand_usd": 50700.4108,
+        "demand_usd": 44598.3743,
         "manager": {
           "continent": "europa",
           "focus": "einkauf_lager",
-          "home": "XWB",
-          "id": 89,
-          "name": "Karen Dawson",
+          "home": "DEU",
+          "id": 194,
+          "name": "Margarete Hartmann",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 0
+              "level": 1
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.vertrieb_marketing",
@@ -18632,7 +18844,7 @@
             },
             {
               "key": "fach.logistik",
-              "level": 0
+              "level": 1
             },
             {
               "key": "fach.forschung",
@@ -18640,11 +18852,11 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 2
+              "level": 0
             },
             {
               "key": "erkennen",
-              "level": 3
+              "level": 2
             },
             {
               "key": "urteil",
@@ -18656,7 +18868,7 @@
             },
             {
               "key": "risiko",
-              "level": 2
+              "level": 3
             },
             {
               "key": "fragefreude",
@@ -18667,68 +18879,7 @@
       },
       {
         "current": null,
-        "demand_usd": 52854.3498,
-        "manager": {
-          "continent": "europa",
-          "focus": "forschung",
-          "home": "CHE",
-          "id": 30,
-          "name": "Klaus Pfeiffer",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 4
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 46558.2204,
+        "demand_usd": 45406.3159,
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
@@ -18789,68 +18940,7 @@
       },
       {
         "current": null,
-        "demand_usd": 58653.4164,
-        "manager": {
-          "continent": "europa",
-          "focus": "vertrieb_marketing",
-          "home": "RUS",
-          "id": 110,
-          "name": "Piotr Volkov",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 4
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 1
-            },
-            {
-              "key": "fragefreude",
-              "level": 4
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 55008.2889,
+        "demand_usd": 53647.3199,
         "manager": {
           "continent": "europa",
           "focus": "personal",
@@ -18911,7 +19001,7 @@
       },
       {
         "current": null,
-        "demand_usd": 52688.6622,
+        "demand_usd": 51385.0835,
         "manager": {
           "continent": "europa",
           "focus": "forschung",
@@ -18972,82 +19062,82 @@
       },
       {
         "current": null,
-        "demand_usd": 46226.8452,
-        "manager": {
-          "continent": "europa",
-          "focus": "logistik",
-          "home": "DEU",
-          "id": 29,
-          "name": "Thomas Becker",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 3
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 4
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 1
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 0
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 1
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 49374.9099,
+        "demand_usd": 47183.7873,
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
-          "home": "DEU",
-          "id": 33,
-          "name": "Wilhelm Hoffmann",
+          "home": "FRA",
+          "id": 150,
+          "name": "Simone Perrin",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 0
+              "level": 1
             },
             {
               "key": "fach.einkauf_lager",
               "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 3
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 48153.3172,
+        "manager": {
+          "continent": "europa",
+          "focus": "logistik",
+          "home": "RUS",
+          "id": 148,
+          "name": "Tatjana Putilov",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 3
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
             },
             {
               "key": "fach.vertrieb_marketing",
@@ -19059,11 +19149,72 @@
             },
             {
               "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 3
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 3
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 47830.1406,
+        "manager": {
+          "continent": "europa",
+          "focus": "finanzen",
+          "home": "DEU",
+          "id": 193,
+          "name": "Thomas Hahn",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 1
+            },
+            {
+              "key": "fach.logistik",
               "level": 2
             },
             {
               "key": "fach.forschung",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.finanzen",
@@ -19083,18 +19234,18 @@
             },
             {
               "key": "risiko",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fragefreude",
-              "level": 3
+              "level": 0
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 45564.0947,
+        "demand_usd": 44436.786,
         "manager": {
           "continent": "nordamerika",
           "focus": "produktion",
@@ -19155,129 +19306,7 @@
       },
       {
         "current": null,
-        "demand_usd": 55505.3517,
-        "manager": {
-          "continent": "asien",
-          "focus": "produktion",
-          "home": "JPN",
-          "id": 15,
-          "name": "Asano Michiko",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 0
-            },
-            {
-              "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 3
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 0
-            },
-            {
-              "key": "fragefreude",
-              "level": 0
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 48049.4089,
-        "manager": {
-          "continent": "asien",
-          "focus": "produktion",
-          "home": "IND",
-          "id": 12,
-          "name": "Charles Grant",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 3
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
-              "level": 0
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 0
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 51031.786,
+        "demand_usd": 49769.2004,
         "manager": {
           "continent": "ozeanien",
           "focus": "produktion",
@@ -19338,7 +19367,7 @@
       },
       {
         "current": null,
-        "demand_usd": 47552.3461,
+        "demand_usd": 46375.8458,
         "manager": {
           "continent": "afrika",
           "focus": "produktion",
@@ -19399,74 +19428,13 @@
       },
       {
         "current": null,
-        "demand_usd": 49209.2223,
+        "demand_usd": 43628.8445,
         "manager": {
-          "continent": "afrika",
+          "continent": "suedamerika",
           "focus": "produktion",
-          "home": "ETH",
-          "id": 97,
-          "name": "George Whitfield",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 0
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 2
-            },
-            {
-              "key": "fragefreude",
-              "level": 1
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 51528.8489,
-        "manager": {
-          "continent": "afrika",
-          "focus": "produktion",
-          "home": "ZAF",
-          "id": 108,
-          "name": "James Grant",
+          "home": "XPU",
+          "id": 172,
+          "name": "Francesca Vázquez",
           "skills": [
             {
               "key": "fach.produktion",
@@ -19474,15 +19442,15 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 1
+              "level": 3
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 1
+              "level": 3
             },
             {
               "key": "fach.personal",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.logistik",
@@ -19490,7 +19458,7 @@
             },
             {
               "key": "fach.forschung",
-              "level": 0
+              "level": 1
             },
             {
               "key": "fach.finanzen",
@@ -19502,36 +19470,36 @@
             },
             {
               "key": "urteil",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fuehrung",
-              "level": 3
+              "level": 1
             },
             {
               "key": "risiko",
-              "level": 2
+              "level": 0
             },
             {
               "key": "fragefreude",
-              "level": 4
+              "level": 2
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 47055.2832,
+        "demand_usd": 51061.9069,
         "manager": {
-          "continent": "nordamerika",
+          "continent": "ozeanien",
           "focus": "produktion",
-          "home": "USA",
-          "id": 133,
-          "name": "William Mitchell",
+          "home": "AUS",
+          "id": 173,
+          "name": "George Morgan",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 2
+              "level": 3
             },
             {
               "key": "fach.einkauf_lager",
@@ -19539,15 +19507,15 @@
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 3
+              "level": 0
             },
             {
               "key": "fach.personal",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fach.logistik",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.forschung",
@@ -19555,34 +19523,34 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 2
+              "level": 1
             },
             {
               "key": "erkennen",
-              "level": 2
+              "level": 1
             },
             {
               "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
               "level": 2
             },
             {
-              "key": "risiko",
+              "key": "fuehrung",
               "level": 3
             },
             {
-              "key": "fragefreude",
+              "key": "risiko",
               "level": 0
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 58487.7288,
+        "demand_usd": 57040.6744,
         "manager": {
           "continent": "suedamerika",
           "focus": "einkauf_lager",
@@ -19643,25 +19611,25 @@
       },
       {
         "current": null,
-        "demand_usd": 56002.4146,
+        "demand_usd": 51708.2601,
         "manager": {
           "continent": "suedamerika",
-          "focus": "einkauf_lager",
-          "home": "CHL",
-          "id": 56,
-          "name": "Antonio Ortega",
+          "focus": "finanzen",
+          "home": "ARG",
+          "id": 184,
+          "name": "Ana Rossi",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
               "level": 3
             },
             {
-              "key": "fach.vertrieb_marketing",
+              "key": "fach.einkauf_lager",
               "level": 0
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
             },
             {
               "key": "fach.personal",
@@ -19673,7 +19641,7 @@
             },
             {
               "key": "fach.forschung",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.finanzen",
@@ -19681,11 +19649,11 @@
             },
             {
               "key": "erkennen",
-              "level": 3
+              "level": 1
             },
             {
               "key": "urteil",
-              "level": 2
+              "level": 3
             },
             {
               "key": "fuehrung",
@@ -19697,14 +19665,14 @@
             },
             {
               "key": "fragefreude",
-              "level": 3
+              "level": 4
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 49871.9727,
+        "demand_usd": 48638.0822,
         "manager": {
           "continent": "asien",
           "focus": "personal",
@@ -19765,7 +19733,190 @@
       },
       {
         "current": null,
-        "demand_usd": 45398.4071,
+        "demand_usd": 47183.7873,
+        "manager": {
+          "continent": "nordamerika",
+          "focus": "finanzen",
+          "home": "USA",
+          "id": 196,
+          "name": "Arthur Dawson",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 0
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 3
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 3
+            },
+            {
+              "key": "erkennen",
+              "level": 4
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 1
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 46052.6692,
+        "manager": {
+          "continent": "suedamerika",
+          "focus": "vertrieb_marketing",
+          "home": "VEN",
+          "id": 185,
+          "name": "Carmen Moretti",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 3
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 0
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 0
+            },
+            {
+              "key": "fach.forschung",
+              "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 0
+            },
+            {
+              "key": "erkennen",
+              "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 0
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50415.5536,
+        "manager": {
+          "continent": "afrika",
+          "focus": "vertrieb_marketing",
+          "home": "MDG",
+          "id": 175,
+          "name": "Charles Barker",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 3
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 1
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 4
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 44275.1977,
         "manager": {
           "continent": "ozeanien",
           "focus": "finanzen",
@@ -19826,68 +19977,7 @@
       },
       {
         "current": null,
-        "demand_usd": 50369.0356,
-        "manager": {
-          "continent": "asien",
-          "focus": "forschung",
-          "home": "VNM",
-          "id": 16,
-          "name": "Charles Fletcher",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 3
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 3
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 0
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 46889.5956,
+        "demand_usd": 45729.4925,
         "manager": {
           "continent": "afrika",
           "focus": "vertrieb_marketing",
@@ -19948,7 +20038,7 @@
       },
       {
         "current": null,
-        "demand_usd": 48877.847,
+        "demand_usd": 47668.5523,
         "manager": {
           "continent": "nordamerika",
           "focus": "logistik",
@@ -20009,68 +20099,7 @@
       },
       {
         "current": null,
-        "demand_usd": 57824.9783,
-        "manager": {
-          "continent": "asien",
-          "focus": "finanzen",
-          "home": "CHN",
-          "id": 26,
-          "name": "Chen Fang",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 0
-            },
-            {
-              "key": "fach.forschung",
-              "level": 1
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 1
-            },
-            {
-              "key": "fragefreude",
-              "level": 1
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 55173.9765,
+        "demand_usd": 53808.9082,
         "manager": {
           "continent": "asien",
           "focus": "logistik",
@@ -20131,68 +20160,7 @@
       },
       {
         "current": null,
-        "demand_usd": 59813.2298,
-        "manager": {
-          "continent": "ozeanien",
-          "focus": "forschung",
-          "home": "NZL",
-          "id": 70,
-          "name": "David Lawrence",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 4
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 3
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 56002.4146,
+        "demand_usd": 54616.8497,
         "manager": {
           "continent": "ozeanien",
           "focus": "einkauf_lager",
@@ -20253,68 +20221,7 @@
       },
       {
         "current": null,
-        "demand_usd": 47718.0337,
-        "manager": {
-          "continent": "nordamerika",
-          "focus": "forschung",
-          "home": "USA",
-          "id": 141,
-          "name": "Edward Hughes",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 3
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 0
-            },
-            {
-              "key": "fragefreude",
-              "level": 1
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 50534.7232,
+        "demand_usd": 49284.4354,
         "manager": {
           "continent": "suedamerika",
           "focus": "personal",
@@ -20375,13 +20282,13 @@
       },
       {
         "current": null,
-        "demand_usd": 54842.6012,
+        "demand_usd": 48153.3172,
         "manager": {
-          "continent": "ozeanien",
-          "focus": "forschung",
-          "home": "AUS",
-          "id": 76,
-          "name": "Elizabeth Holloway",
+          "continent": "asien",
+          "focus": "vertrieb_marketing",
+          "home": "KAZ",
+          "id": 190,
+          "name": "Elena Orlov",
           "skills": [
             {
               "key": "fach.produktion",
@@ -20389,15 +20296,15 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
               "level": 1
             },
             {
+              "key": "fach.vertrieb_marketing",
+              "level": 3
+            },
+            {
               "key": "fach.personal",
-              "level": 0
+              "level": 1
             },
             {
               "key": "fach.logistik",
@@ -20413,91 +20320,91 @@
             },
             {
               "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 3
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 2
+            },
+            {
+              "key": "fragefreude",
+              "level": 2
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50092.377,
+        "manager": {
+          "continent": "nordamerika",
+          "focus": "personal",
+          "home": "USA",
+          "id": 197,
+          "name": "Elizabeth Pemberton",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 3
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 3
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 0
+            },
+            {
+              "key": "fragefreude",
               "level": 4
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 0
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 53682.7879,
-        "manager": {
-          "continent": "afrika",
-          "focus": "finanzen",
-          "home": "XWA",
-          "id": 138,
-          "name": "Elizabeth Morgan",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 0
-            },
-            {
-              "key": "fach.personal",
-              "level": 3
-            },
-            {
-              "key": "fach.logistik",
-              "level": 0
-            },
-            {
-              "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 2
-            },
-            {
-              "key": "fragefreude",
-              "level": 3
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 52854.3498,
+        "demand_usd": 51546.6718,
         "manager": {
           "continent": "suedamerika",
           "focus": "einkauf_lager",
@@ -20558,7 +20465,129 @@
       },
       {
         "current": null,
-        "demand_usd": 48546.4718,
+        "demand_usd": 50577.1419,
+        "manager": {
+          "continent": "afrika",
+          "focus": "personal",
+          "home": "EGY",
+          "id": 156,
+          "name": "George Lawrence",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 0
+            },
+            {
+              "key": "fach.personal",
+              "level": 3
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 1
+            },
+            {
+              "key": "fragefreude",
+              "level": 4
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 46699.0224,
+        "manager": {
+          "continent": "nordamerika",
+          "focus": "personal",
+          "home": "MEX",
+          "id": 195,
+          "name": "Giuseppe López",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 4
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 0
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 47345.3757,
         "manager": {
           "continent": "nordamerika",
           "focus": "logistik",
@@ -20619,7 +20648,190 @@
       },
       {
         "current": null,
-        "demand_usd": 53848.4755,
+        "demand_usd": 48799.6705,
+        "manager": {
+          "continent": "asien",
+          "focus": "personal",
+          "home": "UZB",
+          "id": 192,
+          "name": "Ivan Lebedev",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 0
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 3
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 3
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 3
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 1
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 3
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50900.3185,
+        "manager": {
+          "continent": "asien",
+          "focus": "finanzen",
+          "home": "IND",
+          "id": 167,
+          "name": "James Bradley",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 4
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 4
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 1
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 53647.3199,
+        "manager": {
+          "continent": "ozeanien",
+          "focus": "einkauf_lager",
+          "home": "AUS",
+          "id": 153,
+          "name": "James Fletcher",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 4
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 0
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 3
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 3
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 52516.2017,
         "manager": {
           "continent": "nordamerika",
           "focus": "vertrieb_marketing",
@@ -20680,13 +20892,13 @@
       },
       {
         "current": null,
-        "demand_usd": 48380.7842,
+        "demand_usd": 50415.5536,
         "manager": {
-          "continent": "ozeanien",
-          "focus": "einkauf_lager",
-          "home": "AUS",
-          "id": 75,
-          "name": "John Lawrence",
+          "continent": "afrika",
+          "focus": "forschung",
+          "home": "NGA",
+          "id": 155,
+          "name": "John Carter",
           "skills": [
             {
               "key": "fach.produktion",
@@ -20694,7 +20906,7 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.vertrieb_marketing",
@@ -20702,7 +20914,7 @@
             },
             {
               "key": "fach.personal",
-              "level": 3
+              "level": 2
             },
             {
               "key": "fach.logistik",
@@ -20714,7 +20926,7 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 1
+              "level": 2
             },
             {
               "key": "erkennen",
@@ -20726,11 +20938,72 @@
             },
             {
               "key": "fuehrung",
-              "level": 1
+              "level": 2
             },
             {
               "key": "risiko",
               "level": 3
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50900.3185,
+        "manager": {
+          "continent": "ozeanien",
+          "focus": "vertrieb_marketing",
+          "home": "AUS",
+          "id": 202,
+          "name": "John Grant",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 3
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 0
             },
             {
               "key": "fragefreude",
@@ -20741,7 +21014,68 @@
       },
       {
         "current": null,
-        "demand_usd": 44735.6566,
+        "demand_usd": 57363.8511,
+        "manager": {
+          "continent": "afrika",
+          "focus": "vertrieb_marketing",
+          "home": "XSA",
+          "id": 176,
+          "name": "John Holloway",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 3
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 3
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 4
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 4
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 43628.8445,
         "manager": {
           "continent": "suedamerika",
           "focus": "finanzen",
@@ -20802,13 +21136,13 @@
       },
       {
         "current": null,
-        "demand_usd": 50203.348,
+        "demand_usd": 50577.1419,
         "manager": {
           "continent": "suedamerika",
-          "focus": "finanzen",
+          "focus": "einkauf_lager",
           "home": "ARG",
-          "id": 123,
-          "name": "José Moretti",
+          "id": 199,
+          "name": "José García",
           "skills": [
             {
               "key": "fach.produktion",
@@ -20816,15 +21150,15 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
+              "level": 3
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.personal",
-              "level": 1
+              "level": 0
             },
             {
               "key": "fach.logistik",
@@ -20832,19 +21166,19 @@
             },
             {
               "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
               "level": 1
             },
             {
-              "key": "erkennen",
+              "key": "fach.finanzen",
               "level": 2
             },
             {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
               "key": "urteil",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fuehrung",
@@ -20856,19 +21190,19 @@
             },
             {
               "key": "fragefreude",
-              "level": 1
+              "level": 0
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 52191.5994,
+        "demand_usd": 45567.9042,
         "manager": {
           "continent": "asien",
           "focus": "logistik",
           "home": "CHN",
-          "id": 22,
+          "id": 189,
           "name": "Li Lei",
           "skills": [
             {
@@ -20877,27 +21211,27 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 3
-            },
-            {
-              "key": "fach.vertrieb_marketing",
               "level": 2
             },
             {
+              "key": "fach.vertrieb_marketing",
+              "level": 0
+            },
+            {
               "key": "fach.personal",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.logistik",
-              "level": 4
-            },
-            {
-              "key": "fach.forschung",
               "level": 1
             },
             {
-              "key": "fach.finanzen",
+              "key": "fach.forschung",
               "level": 0
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
             },
             {
               "key": "erkennen",
@@ -20909,22 +21243,22 @@
             },
             {
               "key": "fuehrung",
-              "level": 2
+              "level": 3
             },
             {
               "key": "risiko",
-              "level": 0
+              "level": 4
             },
             {
               "key": "fragefreude",
-              "level": 4
+              "level": 0
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 56333.7898,
+        "demand_usd": 54940.0264,
         "manager": {
           "continent": "asien",
           "focus": "personal",
@@ -20985,7 +21319,7 @@
       },
       {
         "current": null,
-        "demand_usd": 44072.9061,
+        "demand_usd": 42982.4912,
         "manager": {
           "continent": "suedamerika",
           "focus": "vertrieb_marketing",
@@ -21046,129 +21380,7 @@
       },
       {
         "current": null,
-        "demand_usd": 47220.9709,
-        "manager": {
-          "continent": "suedamerika",
-          "focus": "personal",
-          "home": "ARG",
-          "id": 124,
-          "name": "Luis Bianchi",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 2
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 0
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
-              "level": 4
-            },
-            {
-              "key": "risiko",
-              "level": 1
-            },
-            {
-              "key": "fragefreude",
-              "level": 0
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 49540.5975,
-        "manager": {
-          "continent": "suedamerika",
-          "focus": "finanzen",
-          "home": "CHL",
-          "id": 93,
-          "name": "Luis Ferrari",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 2
-            },
-            {
-              "key": "fach.logistik",
-              "level": 0
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 3
-            },
-            {
-              "key": "fragefreude",
-              "level": 1
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 51528.8489,
+        "demand_usd": 50253.9653,
         "manager": {
           "continent": "suedamerika",
           "focus": "vertrieb_marketing",
@@ -21229,25 +21441,25 @@
       },
       {
         "current": null,
-        "demand_usd": 57162.2279,
+        "demand_usd": 55424.7913,
         "manager": {
-          "continent": "suedamerika",
+          "continent": "ozeanien",
           "focus": "einkauf_lager",
-          "home": "ARG",
-          "id": 136,
-          "name": "Marco López",
+          "home": "AUS",
+          "id": 152,
+          "name": "Margaret Fletcher",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
+              "level": 3
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.personal",
@@ -21255,7 +21467,7 @@
             },
             {
               "key": "fach.logistik",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fach.forschung",
@@ -21263,11 +21475,11 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 3
+              "level": 1
             },
             {
               "key": "erkennen",
-              "level": 4
+              "level": 2
             },
             {
               "key": "urteil",
@@ -21283,75 +21495,14 @@
             },
             {
               "key": "fragefreude",
-              "level": 1
+              "level": 2
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 52357.287,
-        "manager": {
-          "continent": "nordamerika",
-          "focus": "personal",
-          "home": "USA",
-          "id": 119,
-          "name": "Margaret Dawson",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 3
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 3
-            },
-            {
-              "key": "fach.logistik",
-              "level": 0
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 3
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 3
-            },
-            {
-              "key": "risiko",
-              "level": 3
-            },
-            {
-              "key": "fragefreude",
-              "level": 3
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 46226.8452,
+        "demand_usd": 45083.1393,
         "manager": {
           "continent": "afrika",
           "focus": "finanzen",
@@ -21412,7 +21563,7 @@
       },
       {
         "current": null,
-        "demand_usd": 48877.847,
+        "demand_usd": 47668.5523,
         "manager": {
           "continent": "afrika",
           "focus": "logistik",
@@ -21473,68 +21624,7 @@
       },
       {
         "current": null,
-        "demand_usd": 50700.4108,
-        "manager": {
-          "continent": "ozeanien",
-          "focus": "finanzen",
-          "home": "NZL",
-          "id": 66,
-          "name": "Margaret Mitchell",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 52854.3498,
+        "demand_usd": 51546.6718,
         "manager": {
           "continent": "nordamerika",
           "focus": "personal",
@@ -21595,7 +21685,7 @@
       },
       {
         "current": null,
-        "demand_usd": 52854.3498,
+        "demand_usd": 51546.6718,
         "manager": {
           "continent": "ozeanien",
           "focus": "logistik",
@@ -21656,41 +21746,41 @@
       },
       {
         "current": null,
-        "demand_usd": 52854.3498,
+        "demand_usd": 46860.6107,
         "manager": {
           "continent": "ozeanien",
-          "focus": "logistik",
+          "focus": "vertrieb_marketing",
           "home": "AUS",
-          "id": 127,
-          "name": "Michael Bradley",
+          "id": 201,
+          "name": "Mary Hughes",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
               "level": 3
             },
             {
-              "key": "fach.forschung",
+              "key": "fach.vertrieb_marketing",
+              "level": 3
+            },
+            {
+              "key": "fach.personal",
               "level": 2
             },
             {
-              "key": "fach.finanzen",
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
               "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
             },
             {
               "key": "erkennen",
@@ -21698,56 +21788,56 @@
             },
             {
               "key": "urteil",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fuehrung",
-              "level": 2
+              "level": 3
             },
             {
               "key": "risiko",
+              "level": 1
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 51061.9069,
+        "manager": {
+          "continent": "ozeanien",
+          "focus": "personal",
+          "home": "AUS",
+          "id": 186,
+          "name": "Michael Dawson",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 0
+            },
+            {
+              "key": "fach.personal",
               "level": 4
             },
             {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 52357.287,
-        "manager": {
-          "continent": "afrika",
-          "focus": "personal",
-          "home": "ZAF",
-          "id": 4,
-          "name": "Michael Grant",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 2
-            },
-            {
               "key": "fach.logistik",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.forschung",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.finanzen",
@@ -21759,31 +21849,31 @@
             },
             {
               "key": "urteil",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fuehrung",
-              "level": 2
+              "level": 3
             },
             {
               "key": "risiko",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fragefreude",
-              "level": 2
+              "level": 4
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 47552.3461,
+        "demand_usd": 53485.7315,
         "manager": {
-          "continent": "ozeanien",
-          "focus": "personal",
-          "home": "AUS",
-          "id": 95,
+          "continent": "nordamerika",
+          "focus": "einkauf_lager",
+          "home": "CAN",
+          "id": 183,
           "name": "Michael Holloway",
           "skills": [
             {
@@ -21792,72 +21882,11 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 0
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 0
-            },
-            {
-              "key": "fach.personal",
-              "level": 2
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 0
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 0
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
               "level": 4
             },
             {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 42581.7176,
-        "manager": {
-          "continent": "asien",
-          "focus": "vertrieb_marketing",
-          "home": "PHL",
-          "id": 115,
-          "name": "Michael Pemberton",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 3
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
               "key": "fach.vertrieb_marketing",
-              "level": 1
+              "level": 0
             },
             {
               "key": "fach.personal",
@@ -21869,7 +21898,7 @@
             },
             {
               "key": "fach.forschung",
-              "level": 1
+              "level": 0
             },
             {
               "key": "fach.finanzen",
@@ -21877,19 +21906,19 @@
             },
             {
               "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
               "level": 2
             },
             {
+              "key": "urteil",
+              "level": 3
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
               "key": "risiko",
-              "level": 0
+              "level": 3
             },
             {
               "key": "fragefreude",
@@ -21900,74 +21929,13 @@
       },
       {
         "current": null,
-        "demand_usd": 49374.9099,
-        "manager": {
-          "continent": "ozeanien",
-          "focus": "finanzen",
-          "home": "NZL",
-          "id": 143,
-          "name": "Patricia Lawrence",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 1
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 0
-            },
-            {
-              "key": "fach.personal",
-              "level": 2
-            },
-            {
-              "key": "fach.logistik",
-              "level": 3
-            },
-            {
-              "key": "fach.forschung",
-              "level": 3
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 53682.7879,
+        "demand_usd": 50900.3185,
         "manager": {
           "continent": "suedamerika",
-          "focus": "logistik",
+          "focus": "vertrieb_marketing",
           "home": "BRA",
-          "id": 125,
-          "name": "Patricia Morgan",
+          "id": 200,
+          "name": "Michael Sutton",
           "skills": [
             {
               "key": "fach.produktion",
@@ -21979,15 +21947,15 @@
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 3
-            },
-            {
-              "key": "fach.personal",
               "level": 2
             },
             {
+              "key": "fach.personal",
+              "level": 0
+            },
+            {
               "key": "fach.logistik",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fach.forschung",
@@ -21995,7 +21963,7 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 0
+              "level": 1
             },
             {
               "key": "erkennen",
@@ -22015,20 +21983,20 @@
             },
             {
               "key": "fragefreude",
-              "level": 4
+              "level": 2
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 48049.4089,
+        "demand_usd": 43628.8445,
         "manager": {
           "continent": "asien",
           "focus": "personal",
           "home": "KAZ",
-          "id": 99,
-          "name": "Piotr Putilov",
+          "id": 146,
+          "name": "Natalia Wiśniewski",
           "skills": [
             {
               "key": "fach.produktion",
@@ -22052,11 +22020,11 @@
             },
             {
               "key": "fach.forschung",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fach.finanzen",
-              "level": 0
+              "level": 1
             },
             {
               "key": "erkennen",
@@ -22064,7 +22032,68 @@
             },
             {
               "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
               "level": 3
+            },
+            {
+              "key": "fragefreude",
+              "level": 2
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 49769.2004,
+        "manager": {
+          "continent": "nordamerika",
+          "focus": "finanzen",
+          "home": "USA",
+          "id": 162,
+          "name": "Patricia Barker",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 0
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 0
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 2
             },
             {
               "key": "fuehrung",
@@ -22072,7 +22101,190 @@
             },
             {
               "key": "risiko",
+              "level": 2
+            },
+            {
+              "key": "fragefreude",
+              "level": 2
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50415.5536,
+        "manager": {
+          "continent": "suedamerika",
+          "focus": "personal",
+          "home": "BRA",
+          "id": 163,
+          "name": "Patricia Bradley",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
               "level": 0
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 3
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 0
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 51223.4952,
+        "manager": {
+          "continent": "afrika",
+          "focus": "personal",
+          "home": "LBY",
+          "id": 187,
+          "name": "Patricia Harris",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 1
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 49769.2004,
+        "manager": {
+          "continent": "asien",
+          "focus": "einkauf_lager",
+          "home": "NPL",
+          "id": 191,
+          "name": "Richard Harris",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 0
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 3
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 3
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 1
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 2
+            },
+            {
+              "key": "risiko",
+              "level": 1
             },
             {
               "key": "fragefreude",
@@ -22083,7 +22295,68 @@
       },
       {
         "current": null,
-        "demand_usd": 56333.7898,
+        "demand_usd": 44921.551,
+        "manager": {
+          "continent": "nordamerika",
+          "focus": "logistik",
+          "home": "USA",
+          "id": 198,
+          "name": "Richard Lawrence",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 1
+            },
+            {
+              "key": "fach.logistik",
+              "level": 3
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 0
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 1
+            },
+            {
+              "key": "fragefreude",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 54940.0264,
         "manager": {
           "continent": "asien",
           "focus": "logistik",
@@ -22144,68 +22417,68 @@
       },
       {
         "current": null,
-        "demand_usd": 59150.4793,
+        "demand_usd": 43628.8445,
         "manager": {
-          "continent": "nordamerika",
-          "focus": "logistik",
-          "home": "USA",
-          "id": 132,
-          "name": "Robert Fletcher",
+          "continent": "afrika",
+          "focus": "vertrieb_marketing",
+          "home": "TZA",
+          "id": 188,
+          "name": "Robert Dawson",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 1
+              "level": 3
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.personal",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.logistik",
-              "level": 3
-            },
-            {
-              "key": "fach.forschung",
-              "level": 3
-            },
-            {
-              "key": "fach.finanzen",
               "level": 1
             },
             {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
               "key": "erkennen",
-              "level": 4
+              "level": 1
             },
             {
               "key": "urteil",
-              "level": 3
+              "level": 2
             },
             {
               "key": "fuehrung",
-              "level": 3
+              "level": 2
             },
             {
               "key": "risiko",
-              "level": 0
+              "level": 3
             },
             {
               "key": "fragefreude",
-              "level": 4
+              "level": 2
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 62961.2945,
+        "demand_usd": 61403.5589,
         "manager": {
           "continent": "nordamerika",
           "focus": "finanzen",
@@ -22266,98 +22539,37 @@
       },
       {
         "current": null,
-        "demand_usd": 48546.4718,
-        "manager": {
-          "continent": "nordamerika",
-          "focus": "einkauf_lager",
-          "home": "USA",
-          "id": 112,
-          "name": "Robert Sutton",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 2
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 3
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
-              "level": 4
-            },
-            {
-              "key": "fach.forschung",
-              "level": 1
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 1
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 1
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 47718.0337,
+        "demand_usd": 44921.551,
         "manager": {
           "continent": "asien",
-          "focus": "finanzen",
+          "focus": "logistik",
           "home": "CHN",
-          "id": 131,
-          "name": "Rong Tao",
+          "id": 158,
+          "name": "Sheng Lan",
           "skills": [
             {
               "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
               "level": 2
             },
             {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
               "key": "fach.vertrieb_marketing",
-              "level": 3
+              "level": 2
             },
             {
               "key": "fach.personal",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.logistik",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.forschung",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.finanzen",
@@ -22369,32 +22581,32 @@
             },
             {
               "key": "urteil",
-              "level": 3
+              "level": 2
             },
             {
               "key": "fuehrung",
-              "level": 0
+              "level": 1
             },
             {
               "key": "risiko",
-              "level": 3
+              "level": 2
             },
             {
               "key": "fragefreude",
-              "level": 2
+              "level": 0
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 47883.7213,
+        "demand_usd": 48314.9055,
         "manager": {
-          "continent": "afrika",
-          "focus": "finanzen",
-          "home": "XHA",
-          "id": 9,
-          "name": "Sarah Grant",
+          "continent": "asien",
+          "focus": "vertrieb_marketing",
+          "home": "CHN",
+          "id": 170,
+          "name": "Wang Jian",
           "skills": [
             {
               "key": "fach.produktion",
@@ -22402,72 +22614,11 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 2
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 1
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
-              "level": 1
-            },
-            {
-              "key": "fach.forschung",
-              "level": 2
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 2
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 4
-            },
-            {
-              "key": "fragefreude",
-              "level": 2
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 54345.5384,
-        "manager": {
-          "continent": "afrika",
-          "focus": "einkauf_lager",
-          "home": "UGA",
-          "id": 137,
-          "name": "Sarah Sutton",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
               "level": 3
             },
             {
               "key": "fach.vertrieb_marketing",
-              "level": 1
+              "level": 2
             },
             {
               "key": "fach.personal",
@@ -22475,7 +22626,7 @@
             },
             {
               "key": "fach.logistik",
-              "level": 2
+              "level": 1
             },
             {
               "key": "fach.forschung",
@@ -22483,100 +22634,39 @@
             },
             {
               "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
               "level": 1
             },
             {
-              "key": "urteil",
+              "key": "erkennen",
               "level": 4
             },
             {
+              "key": "urteil",
+              "level": 0
+            },
+            {
               "key": "fuehrung",
-              "level": 3
+              "level": 1
             },
             {
               "key": "risiko",
-              "level": 2
+              "level": 4
             },
             {
               "key": "fragefreude",
-              "level": 0
+              "level": 3
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 55836.7269,
-        "manager": {
-          "continent": "afrika",
-          "focus": "forschung",
-          "home": "GHA",
-          "id": 106,
-          "name": "Susan Bradley",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 0
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 2
-            },
-            {
-              "key": "fach.personal",
-              "level": 1
-            },
-            {
-              "key": "fach.logistik",
-              "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 4
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 2
-            },
-            {
-              "key": "erkennen",
-              "level": 2
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 2
-            },
-            {
-              "key": "risiko",
-              "level": 1
-            },
-            {
-              "key": "fragefreude",
-              "level": 4
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 46226.8452,
+        "demand_usd": 53970.4965,
         "manager": {
           "continent": "asien",
           "focus": "einkauf_lager",
           "home": "CHN",
-          "id": 139,
+          "id": 169,
           "name": "Wang Li",
           "skills": [
             {
@@ -22585,7 +22675,7 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.vertrieb_marketing",
@@ -22609,7 +22699,68 @@
             },
             {
               "key": "erkennen",
+              "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 3
+            },
+            {
+              "key": "risiko",
+              "level": 4
+            },
+            {
+              "key": "fragefreude",
               "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 54293.6731,
+        "manager": {
+          "continent": "ozeanien",
+          "focus": "personal",
+          "home": "AUS",
+          "id": 203,
+          "name": "William Carter",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 0
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 2
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 2
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 3
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 1
+            },
+            {
+              "key": "erkennen",
+              "level": 3
             },
             {
               "key": "urteil",
@@ -22617,7 +22768,7 @@
             },
             {
               "key": "fuehrung",
-              "level": 1
+              "level": 3
             },
             {
               "key": "risiko",
@@ -22625,14 +22776,75 @@
             },
             {
               "key": "fragefreude",
-              "level": 4
+              "level": 1
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 52025.9118,
+        "demand_usd": 52193.025,
+        "manager": {
+          "continent": "ozeanien",
+          "focus": "personal",
+          "home": "AUS",
+          "id": 165,
+          "name": "William Grant",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 2
+            },
+            {
+              "key": "fach.personal",
+              "level": 3
+            },
+            {
+              "key": "fach.logistik",
+              "level": 2
+            },
+            {
+              "key": "fach.forschung",
+              "level": 2
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 2
+            },
+            {
+              "key": "erkennen",
+              "level": 3
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 1
+            },
+            {
+              "key": "risiko",
+              "level": 0
+            },
+            {
+              "key": "fragefreude",
+              "level": 0
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 50738.7302,
         "manager": {
           "continent": "afrika",
           "focus": "logistik",
@@ -22693,13 +22905,13 @@
       },
       {
         "current": null,
-        "demand_usd": 48049.4089,
+        "demand_usd": 45083.1393,
         "manager": {
-          "continent": "ozeanien",
-          "focus": "vertrieb_marketing",
-          "home": "AUS",
-          "id": 68,
-          "name": "William Hughes",
+          "continent": "afrika",
+          "focus": "forschung",
+          "home": "XSA",
+          "id": 177,
+          "name": "William Morgan",
           "skills": [
             {
               "key": "fach.produktion",
@@ -22707,68 +22919,7 @@
             },
             {
               "key": "fach.einkauf_lager",
-              "level": 1
-            },
-            {
-              "key": "fach.vertrieb_marketing",
-              "level": 3
-            },
-            {
-              "key": "fach.personal",
-              "level": 0
-            },
-            {
-              "key": "fach.logistik",
               "level": 2
-            },
-            {
-              "key": "fach.forschung",
-              "level": 1
-            },
-            {
-              "key": "fach.finanzen",
-              "level": 3
-            },
-            {
-              "key": "erkennen",
-              "level": 1
-            },
-            {
-              "key": "urteil",
-              "level": 3
-            },
-            {
-              "key": "fuehrung",
-              "level": 1
-            },
-            {
-              "key": "risiko",
-              "level": 1
-            },
-            {
-              "key": "fragefreude",
-              "level": 0
-            }
-          ]
-        }
-      },
-      {
-        "current": null,
-        "demand_usd": 54842.6012,
-        "manager": {
-          "continent": "nordamerika",
-          "focus": "einkauf_lager",
-          "home": "USA",
-          "id": 51,
-          "name": "William Sutton",
-          "skills": [
-            {
-              "key": "fach.produktion",
-              "level": 3
-            },
-            {
-              "key": "fach.einkauf_lager",
-              "level": 3
             },
             {
               "key": "fach.vertrieb_marketing",
@@ -22784,15 +22935,15 @@
             },
             {
               "key": "fach.forschung",
-              "level": 0
+              "level": 2
             },
             {
               "key": "fach.finanzen",
-              "level": 1
+              "level": 2
             },
             {
               "key": "erkennen",
-              "level": 2
+              "level": 3
             },
             {
               "key": "urteil",
@@ -22804,18 +22955,18 @@
             },
             {
               "key": "risiko",
-              "level": 3
+              "level": 1
             },
             {
               "key": "fragefreude",
-              "level": 3
+              "level": 4
             }
           ]
         }
       },
       {
         "current": null,
-        "demand_usd": 50369.0356,
+        "demand_usd": 49122.8471,
         "manager": {
           "continent": "asien",
           "focus": "vertrieb_marketing",
@@ -22876,7 +23027,7 @@
       },
       {
         "current": null,
-        "demand_usd": 55008.2889,
+        "demand_usd": 53647.3199,
         "manager": {
           "continent": "asien",
           "focus": "vertrieb_marketing",
@@ -22931,6 +23082,67 @@
             {
               "key": "fragefreude",
               "level": 2
+            }
+          ]
+        }
+      },
+      {
+        "current": null,
+        "demand_usd": 57687.0277,
+        "manager": {
+          "continent": "asien",
+          "focus": "finanzen",
+          "home": "CHN",
+          "id": 144,
+          "name": "Zhou Yong",
+          "skills": [
+            {
+              "key": "fach.produktion",
+              "level": 2
+            },
+            {
+              "key": "fach.einkauf_lager",
+              "level": 1
+            },
+            {
+              "key": "fach.vertrieb_marketing",
+              "level": 1
+            },
+            {
+              "key": "fach.personal",
+              "level": 1
+            },
+            {
+              "key": "fach.logistik",
+              "level": 1
+            },
+            {
+              "key": "fach.forschung",
+              "level": 1
+            },
+            {
+              "key": "fach.finanzen",
+              "level": 4
+            },
+            {
+              "key": "erkennen",
+              "level": 2
+            },
+            {
+              "key": "urteil",
+              "level": 2
+            },
+            {
+              "key": "fuehrung",
+              "level": 4
+            },
+            {
+              "key": "risiko",
+              "level": 2
+            },
+            {
+              "key": "fragefreude",
+              "level": 3
             }
           ]
         }
@@ -24812,7 +25024,11 @@
     }
   },
   "organisation": {
-    "candidates": 77,
+    "budget_floor": [
+      1.0,
+      3.0
+    ],
+    "candidates": 79,
     "check_days": 7,
     "continents": [
       {
@@ -24824,10 +25040,25 @@
               {
                 "country": "DEU",
                 "kind_text": "standorttyp.werk",
-                "next_check": "1914-08-03",
+                "next_check": "1915-01-04",
                 "own_topics": [],
                 "positions": [
                   {
+                    "budget": {
+                      "base_usd": 370282.0633,
+                      "custom": true,
+                      "defaults": [
+                        0.05,
+                        0.1
+                      ],
+                      "per_decision_usd": 0.0,
+                      "per_year_usd": 0.0,
+                      "shares": [
+                        0.0,
+                        0.0
+                      ],
+                      "spent_usd": 0.0
+                    },
                     "holder": {
                       "manager": {
                         "continent": "europa",
@@ -24890,23 +25121,52 @@
                       "severance_usd": 20641.9156,
                       "since": "1914-08-01"
                     },
+                    "log": [
+                      {
+                        "amount_usd": 24622.8883,
+                        "date": "1914-09-30",
+                        "effect_usd": 29940.1753,
+                        "kind": "bauen",
+                        "product": "naegel",
+                        "topic": "ausbau"
+                      }
+                    ],
+                    "open_concerns": 1,
+                    "quiet": [],
                     "role": "leitung",
                     "topics": [
                       "produktion",
+                      "ueberkapazitaet",
+                      "stillgelegt",
+                      "wiederanfahren",
+                      "ausbau",
                       "einkauf",
                       "eigenversorgung",
-                      "verkauf"
+                      "verkauf",
+                      "lohn"
                     ]
                   },
                   {
+                    "budget": null,
                     "holder": null,
+                    "log": [],
+                    "open_concerns": 0,
+                    "quiet": [],
                     "role": "produktion",
                     "topics": [
-                      "produktion"
+                      "produktion",
+                      "ueberkapazitaet",
+                      "stillgelegt",
+                      "wiederanfahren",
+                      "ausbau"
                     ]
                   },
                   {
+                    "budget": null,
                     "holder": null,
+                    "log": [],
+                    "open_concerns": 0,
+                    "quiet": [],
                     "role": "einkauf_lager",
                     "topics": [
                       "einkauf",
@@ -24914,19 +25174,33 @@
                     ]
                   },
                   {
+                    "budget": null,
                     "holder": null,
+                    "log": [],
+                    "open_concerns": 0,
+                    "quiet": [],
                     "role": "vertrieb_marketing",
                     "topics": [
                       "verkauf"
                     ]
                   },
                   {
+                    "budget": null,
                     "holder": null,
+                    "log": [],
+                    "open_concerns": 0,
+                    "quiet": [],
                     "role": "personal",
-                    "topics": []
+                    "topics": [
+                      "lohn"
+                    ]
                   },
                   {
+                    "budget": null,
                     "holder": null,
+                    "log": [],
+                    "open_concerns": 0,
+                    "quiet": [],
                     "role": "logistik",
                     "topics": []
                   }

@@ -15,12 +15,13 @@ use wsim_core::calendar::RoundLength;
 use wsim_core::catalog::Catalog;
 use wsim_core::command::Command;
 use wsim_core::game::{Game, Progress, RoundReport};
-use wsim_core::message::{Message, MessageKind, Param};
+use wsim_core::management;
+use wsim_core::message::{Message, MessageKind, Param, keys as core_keys};
 use wsim_core::money::Money;
 use wsim_core::save;
-use wsim_core::state::{AiSettings, GameSettings};
+use wsim_core::state::{AiSettings, ConcernStatus, GameSettings};
 use wsim_core::views::{
-    self, ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView,
+    self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
     WorldMarketView,
@@ -322,6 +323,11 @@ impl<S: SaveStore> Session<S> {
         self.view(views::organisation)
     }
 
+    /// The concerns of the player's positions (MA2).
+    pub fn concerns(&self) -> Result<ConcernsView, MessageView> {
+        self.view(views::concerns)
+    }
+
     /// Candidates for a position of the player: `role` is `leitung` or a function (MA1).
     pub fn manager_market(&self, site: u32, role: &str) -> Result<ManagerMarketView, MessageView> {
         self.view(|g| views::manager_market(g, site, role))?
@@ -365,11 +371,24 @@ impl<S: SaveStore> Session<S> {
 
     /// Simulates rounds of `length` one after the other (M26): one (`runde`), up to the
     /// end of the year (`jahresende`), or up to the next warning or world event, at most
-    /// a year (`meldung`). The report covers all of them.
+    /// a year (`meldung`). New important concerns halt as well. The report covers all
+    /// of them.
     pub fn end_round_until(
         &mut self,
         length: &str,
         until: &str,
+        progress: impl FnMut(Progress),
+    ) -> Result<RoundReportView, MessageView> {
+        self.end_rounds(length, until, "wichtige", progress)
+    }
+
+    /// Like `end_round_until`; `halt` says which new concerns of the player's positions
+    /// halt a run (MA2): `alle`, `wichtige` (beyond the routine of the sites) or `nie`.
+    pub fn end_rounds(
+        &mut self,
+        length: &str,
+        until: &str,
+        halt: &str,
         mut progress: impl FnMut(Progress),
     ) -> Result<RoundReportView, MessageView> {
         let length = match length {
@@ -381,6 +400,9 @@ impl<S: SaveStore> Session<S> {
         };
         if !["runde", "jahresende", "meldung"].contains(&until) {
             return Err(error(keys::UNKNOWN_UNTIL));
+        }
+        if !["alle", "wichtige", "nie"].contains(&halt) {
+            return Err(error(keys::UNKNOWN_HALT));
         }
         let game = self.game.as_mut().ok_or_else(|| error(keys::NO_GAME))?;
         let before = views::snapshot(game);
@@ -394,9 +416,19 @@ impl<S: SaveStore> Session<S> {
         };
         let mut rounds = 0;
         let stop = loop {
+            let first_new = game.state().next_concern;
             let report = game.advance(length, &mut progress);
             rounds += 1;
+            let concern = halt != "nie"
+                && game.state().concerns.iter().any(|c| {
+                    c.id >= first_new
+                        && c.company == game.player()
+                        && c.status == ConcernStatus::Open
+                        && (halt == "alle" || management::important(game.catalog(), c))
+                });
             let news = report.messages.iter().find_map(|m| match m.kind {
+                // Concerns halt by their own rule.
+                _ if m.key == core_keys::CONCERN_NEW => None,
                 MessageKind::WorldEvent => Some("weltereignis"),
                 MessageKind::Warning | MessageKind::Crisis => Some("warnung"),
                 // An offer waits for the player's answer (M30).
@@ -415,9 +447,10 @@ impl<S: SaveStore> Session<S> {
                 Some("spielende")
             } else {
                 match until {
+                    "runde" => Some("runde"),
+                    _ if concern => Some("anliegen"),
                     "jahresende" => next_year.then_some("jahresende"),
-                    "meldung" => news.or((game.date() >= year_later).then_some("ein_jahr")),
-                    _ => Some("runde"),
+                    _ => news.or((game.date() >= year_later).then_some("ein_jahr")),
                 }
             };
             if let Some(stop) = stop {
@@ -516,6 +549,7 @@ pub mod keys {
     pub const UNKNOWN_UNTIL: &str = "fehler.sitzung.unbekanntes_ziel";
     pub const UNKNOWN_COMPANY: &str = "fehler.sitzung.unbekannte_firma";
     pub const UNKNOWN_POSITION: &str = "fehler.sitzung.unbekannte_stelle";
+    pub const UNKNOWN_HALT: &str = "fehler.sitzung.unbekannter_halt";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -531,5 +565,6 @@ pub mod keys {
         UNKNOWN_UNTIL,
         UNKNOWN_COMPANY,
         UNKNOWN_POSITION,
+        UNKNOWN_HALT,
     ];
 }

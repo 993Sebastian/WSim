@@ -5,6 +5,7 @@ import { KernFehler } from "./fehler";
 import type { Kern } from "./index";
 import type { Befehl } from "./befehle";
 import type {
+  AnliegenListe,
   Angebote,
   Finanzen,
   Firmen,
@@ -44,6 +45,7 @@ const beispiel = beispielJson as unknown as {
   forschung: Forschung;
   finanzen: Finanzen;
   organisation: Organisation;
+  anliegen: AnliegenListe;
   managermarkt: Managermarkt;
 };
 
@@ -188,6 +190,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     organisation: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.organisation);
+    },
+    anliegen: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.anliegen);
     },
     managermarkt: async (standort, stelle) => {
       if (!spiel) throw keinSpiel();

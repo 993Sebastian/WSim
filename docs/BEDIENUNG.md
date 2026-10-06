@@ -221,10 +221,12 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
-### Organisation (MA1)
+### Organisation (MA1, MA2)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
-und was bleibt bei mir?“
+und was bleibt bei mir?“ Zwei Unterreiter: „Stellen“ und „Anliegen“ (mit Zähler der
+offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort). Der Reiter
+„Organisation“ trägt denselben Zähler.
 
 - **Organigramm:** Kopfzeile mit Zahl der Manager, Gehältern je Jahr und Bewerbern (ⓘ:
   wie Stellen arbeiten). Darunter Kontinent → Land → Standort; je Standort eine Karte mit
@@ -240,10 +242,39 @@ und was bleibt bei mir?“
   „Hierher versetzen“ (Gehalt danach). Fähigkeiten erscheinen nur als Stufen von
   „schwach“ bis „herausragend“ – als Einschätzung, die um eine Stufe danebenliegen kann.
 - **Entlassen:** fragt nach und nennt die Abfindung.
-- Stellen ohne Aufgaben (Personal, Logistik, Labore) stehen da, lassen sich aber erst
-  besetzen, wenn sie Aufgaben bekommen (ab MA2).
+- Stellen ohne Aufgaben (Logistik) stehen da, lassen sich aber erst besetzen, wenn sie
+  Aufgaben bekommen. Laborleitungen wählen das nächste Forschungsziel (MA2).
+- **Budget und Entscheidungen (MA2):** Unter den Stellen eines Standorts je besetzter
+  Stelle eine aufklappbare Zeile „Werksleitung · Budget 18.500 USD je Entscheidung,
+  37.000 USD im Jahr“ (oder „fragt bei jeder Ausgabe“) mit dem Zähler ihrer offenen
+  Anliegen. Darin: Budget je Entscheidung und im Jahr mit Anteil, im Jahr verbraucht,
+  Umsatz des Standorts in zwölf Monaten; Erklärung des Budgets (Anteil am Umsatz, Sockel
+  in Jahresgehältern, 0 % = immer fragen); zwei Prozentfelder mit „Budget übernehmen“ und
+  „Standard wiederherstellen (5 % / 10 %)“; „Was die Stelle selbst entschieden hat“ (die
+  letzten Entscheidungen mit Datum, Thema, Produkt, Option, Betrag und erwarteter
+  Wirkung); „Fragt nicht nach“ mit stummgeschalteten und abgelehnten Themen und je einem
+  Knopf „Wieder fragen“; „Zu den Anliegen (n)“.
+- **Anliegen (MA2):** Hinweistext (was ein Anliegen ist, Frist). Je offenes Anliegen eine
+  Karte: Thema und Produkt (Marke „wichtig“ außerhalb der Routine), Stelle · Standort ·
+  Land · „Name fragt“ · „Antwort bis …“, der Grund („Kostet mehr als das Budget je
+  Entscheidung …“, „Dafür braucht es einen Kredit …“) und das letzte Monatsergebnis des
+  Standorts. Tabelle der Optionen: Name (Marke „empfohlen“) mit ihren Schritten in Worten
+  („1 × Nagelmaschine bauen (klein)“), Betrag aufs Budget, Ergebnis im Jahr als Spanne,
+  einmalige Wirkung, Knopf „Umsetzen“. Darunter „Empfehlung: … “ mit Begründung und die
+  Knöpfe „Entscheide selbst“, „Nicht mehr fragen“, „Ablehnen“. Gleiche Anliegen mehrerer
+  Standorte stehen in einer Gruppe mit „Empfehlung für alle übernehmen“. Unten
+  aufklappbar „Erledigte Anliegen“ mit dem Ausgang (gewählt, von der Stelle entschieden,
+  abgelehnt, Frist verstrichen, anderweitig entschieden).
+- **Rundenbericht und Übersicht:** Neue Anliegen, verfallene Anliegen und die Rückmeldung
+  zur Wirkung erscheinen im Bericht mit Sprung zur Organisation; „Zu erledigen“ nennt die
+  Zahl der offenen Anliegen und die erste Frist. Hinweise zu Bereichen, die eine besetzte
+  Stelle übernimmt, entfallen.
+- **Anhalten:** Im Menü (☰) „Bei Anliegen anhalten: bei allen / bei wichtigen / nie“
+  (Vorgabe: bei wichtigen; im Browser gemerkt). „Bis Jahresende“ und „bis zur nächsten
+  Meldung“ halten danach an („Angehalten wegen eines Anliegens deiner Manager“).
 - Übersicht: Ab drei Standorten ohne einen Manager weist „Zu erledigen“ auf die
-  Organisation hin. Rundgang der Einführung: Schritt „Organisation“.
+  Organisation hin. Rundgang der Einführung: Schritt „Organisation“ (nennt Budget und
+  Anliegen).
 
 ### Forschung → Technologiebaum (M19)
 

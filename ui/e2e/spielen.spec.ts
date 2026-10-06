@@ -708,9 +708,9 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(werk).toContainText("Werksleitung");
   await expect(werk).toContainText("Alain Moreau");
   await expect(werk).toContainText("82.568 USD");
-  await expect(werk).toContainText("Nächste Prüfung: 03.08.1914");
+  await expect(werk).toContainText("Nächste Prüfung: 04.01.1915");
   // The head takes care of the functions without a specialist.
-  await expect(werk).toContainText("Auslastung und Rezept, Einkauf");
+  await expect(werk).toContainText("Auslastung und Rezept, Überkapazität");
   // All skills as levels behind the ⓘ.
   await werk.getByLabel("Wie entsteht: Fähigkeiten?").first().click();
   await expect(werk.getByRole("note")).toContainText("Fachkompetenz Vertrieb und Marketing");
@@ -724,17 +724,17 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
     page.getByRole("heading", { name: "Produktion · Werk · Deutschland" }),
   ).toBeVisible();
   const bewerber = page.getByRole("table", { name: "Bewerber" });
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Dmitri Lebedev");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Belarus");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("stark");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Anna Putilov");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Ukraine");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("herausragend");
   // Candidates of other continents on request.
   const vorher = await bewerber.getByRole("row").count();
   await page.getByLabel("Bewerber aus").selectOption("alle");
   expect(await bewerber.getByRole("row").count()).toBeGreaterThan(vorher);
   await bild(page, "managermarkt");
-  await bewerber.getByRole("button", { name: "Einstellen: Dmitri Lebedev" }).click();
+  await bewerber.getByRole("button", { name: "Einstellen: Anna Putilov" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    HireManager: { manager: 32, position: { site: 0, role: { Specialist: "produktion" } } },
+    HireManager: { manager: 181, position: { site: 0, role: { Specialist: "produktion" } } },
   });
   // The own head could move here instead.
   const eigene = page.getByRole("table", { name: "Eigene Manager versetzen" });
@@ -749,6 +749,54 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(werk).toContainText("Alain Moreau entlassen? Abfindung 20.642 USD.");
   await werk.getByRole("button", { name: "Ja, entlassen" }).click();
   expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 34 } });
+});
+
+test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page }) => {
+  await starten(page);
+  await page.keyboard.press("7");
+  const reiter = page.getByRole("navigation", { name: "Organisation" });
+  await reiter.getByRole("button", { name: /Anliegen/ }).click();
+  const karte = page.getByRole("article", { name: /^Ausbau · Nägel/ });
+  await expect(karte).toContainText("Alain Moreau fragt");
+  await expect(karte).toContainText("Antwort bis 30.01.1915");
+  await expect(karte).toContainText("Diese Stelle soll bei jeder Ausgabe fragen.");
+  await expect(karte).toContainText("1 × Nagelmaschine bauen (klein)");
+  await expect(karte).toContainText("Empfehlung: Ausbauen.");
+  await bild(page, "anliegen");
+  await karte.getByRole("button", { name: "Entscheide selbst" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    AnswerConcern: { concern: 0, answer: "Delegate" },
+  });
+  await karte.getByRole("button", { name: "Nicht mehr fragen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    AnswerConcern: { concern: 0, answer: "NeverAsk" },
+  });
+
+  // The head's budget: it asks about every expense; the player gives it room again.
+  await reiter.getByRole("button", { name: "Stellen" }).click();
+  const werk = page.getByRole("article", { name: "Werk · Deutschland" });
+  await werk.getByText("Werksleitung", { exact: true }).last().click();
+  await expect(werk).toContainText("fragt bei jeder Ausgabe");
+  await expect(werk).toContainText("Was die Stelle selbst entschieden hat");
+  await expect(werk).toContainText("30.09.1914 · Ausbau · Nägel: Ausbauen");
+  const formular = werk.getByRole("form", { name: "Budget: Werksleitung" });
+  await formular.getByLabel("Je Entscheidung").fill("3");
+  await formular.getByLabel("Im Jahr").fill("8");
+  await formular.getByRole("button", { name: "Budget übernehmen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    SetBudget: { position: { site: 0, role: "Head" }, shares: [0.03, 0.08] },
+  });
+  await bild(page, "budget");
+
+  // Which concerns halt a run of rounds: a choice in the menu, kept in the browser.
+  await page.getByRole("button", { name: "Menü" }).click();
+  const halt = page.getByRole("group", { name: "Bei Anliegen anhalten" });
+  await expect(halt.getByRole("menuitemradio", { name: "bei wichtigen" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await halt.getByRole("menuitemradio", { name: "bei allen" }).click();
+  expect(await page.evaluate(() => localStorage.getItem("wsim-anhalten"))).toBe("alle");
 });
 
 test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {

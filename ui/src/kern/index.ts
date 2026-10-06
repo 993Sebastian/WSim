@@ -7,6 +7,8 @@ import { listen } from "@tauri-apps/api/event";
 import type { Befehl } from "./befehle";
 import { KernFehler } from "./fehler";
 import type {
+  Anhalten,
+  AnliegenListe,
   Angebote,
   Finanzen,
   Firmen,
@@ -34,7 +36,14 @@ import { vorschauKern } from "./vorschau";
 import { webKern } from "./web";
 
 export type * from "./typen";
-export type { Antwort, Befehl, Gegenstand, Preisart, Stellenangabe } from "./befehle";
+export type {
+  Anliegenantwort,
+  Antwort,
+  Befehl,
+  Gegenstand,
+  Preisart,
+  Stellenangabe,
+} from "./befehle";
 export { geld } from "./befehle";
 export { KernFehler } from "./fehler";
 
@@ -53,6 +62,8 @@ export interface Kern {
     laenge: Rundenlaenge,
     fortschritt: (f: Fortschritt) => void,
     bis?: Weiterlaufen,
+    /** Which new concerns halt a run of rounds (MA2). */
+    anhalten?: Anhalten,
   ): Promise<Rundenbericht>;
   weltkarte(): Promise<Weltkarte>;
   land(schluessel: string): Promise<Landdetail>;
@@ -72,6 +83,8 @@ export interface Kern {
   finanzen(): Promise<Finanzen>;
   /** The company's positions and their managers (MA1). */
   organisation(): Promise<Organisation>;
+  /** The concerns of the player's positions (MA2). */
+  anliegen(): Promise<AnliegenListe>;
   /** Candidates for a position: `stelle` is `leitung` or the key of a function (MA1). */
   managermarkt(standort: number, stelle: string): Promise<Managermarkt>;
   /** Carries out a decision; answers with the new overview. */
@@ -99,10 +112,10 @@ const tauriKern: Kern = {
   optionen: () => aufruf("optionen"),
   neuesSpiel: (einstellungen) => aufruf("neues_spiel", { einstellungen }),
   uebersicht: () => aufruf("uebersicht"),
-  rundeBeenden: async (laenge, fortschritt, bis = "runde") => {
+  rundeBeenden: async (laenge, fortschritt, bis = "runde", anhalten = "wichtige") => {
     const abmelden = await listen<Fortschritt>("fortschritt", (e) => fortschritt(e.payload));
     try {
-      return await aufruf<Rundenbericht>("runde_beenden", { laenge, bis });
+      return await aufruf<Rundenbericht>("runde_beenden", { laenge, bis, anhalten });
     } finally {
       abmelden();
     }
@@ -120,6 +133,7 @@ const tauriKern: Kern = {
   forschung: () => aufruf("forschung"),
   finanzen: () => aufruf("finanzen"),
   organisation: () => aufruf("organisation"),
+  anliegen: () => aufruf("anliegen"),
   managermarkt: (standort, stelle) => aufruf("managermarkt", { standort, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),

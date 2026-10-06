@@ -201,6 +201,23 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         h.message.target = Some("organisation".to_owned());
         found.push((3, h));
     }
+    // Concerns of the player's positions wait for an answer (MA2).
+    let open: Vec<&crate::state::Concern> = state
+        .concerns
+        .iter()
+        .filter(|c| c.company == state.player && c.status == crate::state::ConcernStatus::Open)
+        .collect();
+    if let Some(deadline) = open.iter().map(|c| c.deadline).min() {
+        let m = Message::new(MessageKind::Info, keys::HINT_CONCERNS)
+            .with(
+                "anzahl",
+                Param::Integer(i64::try_from(open.len()).unwrap_or(i64::MAX)),
+            )
+            .with("frist", Param::Date(deadline));
+        let mut h = hint(m, None, None);
+        h.message.target = Some("organisation".to_owned());
+        found.push((1, h));
+    }
     // Offers waiting for the player's answer expire (M30).
     for m in super::deals::offer_hints(game) {
         let mut h = hint(m, None, None);
@@ -226,6 +243,23 @@ pub fn hints(game: &Game) -> Vec<HintView> {
             found.push((0, hint(m, None, None)));
         }
     }
+    // A filled position takes care of what its function handles at its site (MA2).
+    let function = |key: &str| match key {
+        keys::HINT_INPUT | keys::HINT_NO_PURCHASE => Some("einkauf_lager"),
+        keys::HINT_NO_OFFER | keys::HINT_BELOW_COST | keys::HINT_UNSOLD => {
+            Some("vertrieb_marketing")
+        }
+        keys::HINT_LABOR | keys::HINT_STAFF => Some("personal"),
+        keys::HINT_NO_RECIPE | keys::HINT_IDLE => Some("produktion"),
+        keys::HINT_NO_RESEARCH => Some("forschung"),
+        _ => None,
+    };
+    found.retain(|(_, h)| match (h.site, function(&h.message.key)) {
+        (Some(site), Some(f)) => {
+            !crate::management::covered(catalog, state, crate::state::SiteId(site), f)
+        }
+        _ => true,
+    });
     // Stable order: urgency, then the order found (sites, facilities).
     found.sort_by_key(|(rank, _)| *rank);
     found.into_iter().map(|(_, h)| h).collect()

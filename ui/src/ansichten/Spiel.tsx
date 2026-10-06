@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatDatum, formatGeld, landName, setzeGeldanzeige } from "../format";
 import type {
+  Anhalten,
   Fortschritt,
   Geldanzeige,
   Geldoptionen,
@@ -116,6 +117,27 @@ function etappenMerken(zeigen: boolean) {
   }
 }
 
+/** Which new concerns halt a run of rounds (MA2); kept in the browser like the currency. */
+export const ANHALTEN_SPEICHER = "wsim-anhalten";
+const ANHALTEN: Anhalten[] = ["alle", "wichtige", "nie"];
+
+function anhaltenLesen(): Anhalten {
+  try {
+    const wert = localStorage.getItem(ANHALTEN_SPEICHER);
+    return wert === "alle" || wert === "nie" ? wert : "wichtige";
+  } catch {
+    return "wichtige";
+  }
+}
+
+function anhaltenMerken(wahl: Anhalten) {
+  try {
+    localStorage.setItem(ANHALTEN_SPEICHER, wahl);
+  } catch {
+    // Without storage the choice holds for this session only.
+  }
+}
+
 function geldWahlMerken(wahl: GeldWahl) {
   try {
     localStorage.setItem(GELD_SPEICHER, JSON.stringify(wahl));
@@ -177,6 +199,11 @@ export function Spiel({
   const [ladung, setLadung] = useState(0);
   const [geldWahl, setGeldWahl] = useState(geldWahlLesen);
   const [etappenZeigen, setEtappenZeigen] = useState(etappenLesen);
+  const [anhalten, setAnhalten] = useState(anhaltenLesen);
+  const waehleAnhalten = (wahl: Anhalten) => {
+    setAnhalten(wahl);
+    anhaltenMerken(wahl);
+  };
   const zeigeEtappen = (zeigen: boolean) => {
     setEtappenZeigen(zeigen);
     etappenMerken(zeigen);
@@ -220,6 +247,7 @@ export function Spiel({
               : alt,
           ),
         mehrere ? (laenge as Weiterlaufen) : "runde",
+        anhalten,
       );
       setUebersicht(await kern.uebersicht());
       setBerichte((alt) => [bericht, ...alt].slice(0, ARCHIV));
@@ -306,6 +334,8 @@ export function Spiel({
   ).length;
   // Offers waiting for the player's answer (M30).
   const offeneAngebote = uebersicht.hints.filter((h) => h.message.target === "wettbewerb").length;
+  // Concerns of the player's positions (MA2).
+  const offeneAnliegen = uebersicht.concerns_open ?? 0;
   const vormonat = uebersicht.history.at(-1);
   const trend = vormonat ? firma.cash_usd - vormonat.cash_usd : null;
   const menuePunkt = (aktion: () => void) => () => {
@@ -422,6 +452,23 @@ export function Spiel({
                 >
                   {t("etappen.einblenden")}
                 </button>
+                <div role="group" aria-label={t("spiel.anhalten")} className="menue-gruppe">
+                  <span className="menue-titel" aria-hidden="true">
+                    {t("spiel.anhalten")}
+                  </span>
+                  {ANHALTEN.map((w) => (
+                    <button
+                      key={w}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={anhalten === w}
+                      className="menue-wahl"
+                      onClick={menuePunkt(() => waehleAnhalten(w))}
+                    >
+                      {t(`spiel.anhalten_${w}`)}
+                    </button>
+                  ))}
+                </div>
                 {geldoptionen && (
                   <GeldMenue
                     optionen={geldoptionen}
@@ -456,6 +503,11 @@ export function Spiel({
               {a === "wettbewerb" && offeneAngebote > 0 && (
                 <span className="zaehler" title={t("spiel.offene_angebote")}>
                   {offeneAngebote}
+                </span>
+              )}
+              {a === "organisation" && offeneAnliegen > 0 && (
+                <span className="zaehler" title={t("spiel.offene_anliegen")}>
+                  {offeneAnliegen}
                 </span>
               )}
             </button>

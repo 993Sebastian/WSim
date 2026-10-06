@@ -15,6 +15,7 @@ fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
 fehler.sitzung.unbekanntes_ziel: So weit kann das Spiel nicht weiterlaufen.
 fehler.sitzung.unbekannte_firma: Diese Firma gibt es nicht mehr.
 fehler.sitzung.unbekannte_stelle: Diese Stelle gibt es bei deinen Standorten nicht.
+fehler.sitzung.unbekannter_halt: Unbekannte Einstellung, bei welchen Anliegen die Runden anhalten.
 fehler.sitzung.name_ungueltig: "Der Name des Spielstands darf 1 bis 60 Zeichen haben: Buchstaben, Ziffern, Leerzeichen, Punkt, Binde- und Unterstrich."
 fehler.sitzung.speichern: "Der Spielstand konnte nicht gespeichert werden: {fehler}"
 fehler.sitzung.laden: "Der Spielstand konnte nicht geladen werden: {fehler}"
@@ -179,6 +180,30 @@ fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.folge: "{massnahme} in {standort} ({land}): Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}."
+schritt.stilllegen: "{anzahl} × {anlage} stilllegen"
+schritt.verkaufen: "{anzahl} × {anlage} verkaufen"
+schritt.anfahren: "{anlage} wieder anfahren"
+schritt.bauen: "{anzahl} × {anlage} bauen ({groesse})"
+schritt.kredit: "Kredit über {betrag} auf {jahre} Jahre aufnehmen"
+schritt.tilgen: "{betrag} Kredit tilgen"
+schritt.produktion: "{anlage}: {rezept}, Auslastung {auslastung} %"
+schritt.produktion_aus: "{anlage} anhalten"
+schritt.automatisierung: "{anlage}: Automatisierung {stufe} %"
+schritt.verkauf_ende: "{produkt} nicht mehr anbieten"
+schritt.preis: "{produkt} für {preis} je {einheit} anbieten"
+schritt.verkauf_markt: "{produkt} zum Marktpreis anbieten ({aufschlag} % Aufschlag)"
+schritt.einkauf_ende: "Einkauf von {produkt} beenden"
+schritt.einkauf: "{produkt} einkaufen: Vorrat {menge} {einheit}, höchstens {preis} je {einheit}"
+schritt.lieferung: "{menge} {einheit} {produkt} aus {standort} ({land}) liefern"
+schritt.lohn: "Lohnaufschlag {aufschlag} %"
+schritt.forschung: "Forschung an {technologie}"
+schritt.forschung_ende: Labor ohne Ziel lassen
+schritt.weiterentwicklung: "{produkt} weiterentwickeln"
+schritt.lagerstaette: "Lagerstätte {lagerstaette} erschließen"
+anliegen.begruendung.ergebnis: "Bringt nach meiner Schätzung {von} bis {bis} im Jahr."
+anliegen.begruendung.erloes: "Bringt einmalig {betrag}."
+anliegen.begruendung.abwarten: Abwarten – die anderen Wege kosten nach meiner Schätzung mehr, als sie bringen.
+anliegen.begruendung.regel: So handhaben wir es üblicherweise.
 meldung.angebot.erhalten.standort: "{firma} bietet {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
 meldung.angebot.erhalten.lizenz: "{firma} bietet {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.angebot.gegenangebot.standort: "{firma} verlangt {preis} für den Standort ({art} in {land}). Antwort bis {frist}."
@@ -200,6 +225,7 @@ meldung.angebot.abgelaufen.bereich: "Das Angebot mit {firma} für den Bereich {w
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)
+hinweis.anliegen: "{anzahl} Anliegen deiner Manager warten auf deine Antwort – die erste Frist endet am {frist}."
 hinweis.ohne_manager: "Du führst {anzahl} Standorte ganz allein. Manager können die Routine übernehmen – Auslastung, Einkauf, Verkauf. Stellen besetzt du unter „Organisation“."
 hinweis.produkt_ohne_namen: "{produkt} trägt noch keinen eigenen Namen. Im Markt kannst du ihm einen geben – die Wettbewerber haben ihre Produkte längst benannt."
 hinweis.vorprodukt_fehlt: "{anlage} ({standort} {land}) steht teilweise still: {produkt} fehlt. Einkauf erhöhen oder selbst herstellen."

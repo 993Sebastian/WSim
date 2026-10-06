@@ -569,21 +569,24 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
     });
-    // MA1: a head for the workshop, then the chart and the market for its production.
-    let (organisation, market) = example_organisation(&mut session)?;
+    // MA1, MA2: a head for the workshop, then the chart, the market for its production
+    // and the head's concerns.
+    let (organisation, market, concerns) = example_organisation(&mut session)?;
     json["organisation"] = organisation;
     json["managermarkt"] = market;
+    json["anliegen"] = concerns;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
     Ok(())
 }
 
-/// The player's organisation with a head hired for the first site, and the market for
-/// its production position (MA1).
+/// The player's organisation with a head hired for the first site, the market for its
+/// production position (MA1) and the head's concerns: two months within its default
+/// budget, then it asks about every expense (MA2).
 fn example_organisation(
     session: &mut wsim_session::Session,
-) -> Result<(serde_json::Value, serde_json::Value), String> {
+) -> Result<(serde_json::Value, serde_json::Value, serde_json::Value), String> {
     let message = |m: wsim_core::views::MessageView| m.key;
     let organisation = session.organisation().map_err(message)?;
     let site = organisation
@@ -600,6 +603,19 @@ fn example_organisation(
             "HireManager": {"manager": manager, "position": {"site": site, "role": "Head"}}
         }))
         .map_err(message)?;
+    for _ in 0..2 {
+        session.end_round("monat", |_| {}).map_err(message)?;
+    }
+    let head = serde_json::json!({"site": site, "role": "Head"});
+    session
+        .command(serde_json::json!({"SetBudget": {"position": head, "shares": [0.0, 0.0]}}))
+        .map_err(message)?;
+    for _ in 0..3 {
+        if !session.concerns().map_err(message)?.open.is_empty() {
+            break;
+        }
+        session.end_round("monat", |_| {}).map_err(message)?;
+    }
     let to_value = |v: serde_json::Result<serde_json::Value>| v.map_err(|e| e.to_string());
     Ok((
         to_value(serde_json::to_value(
@@ -610,6 +626,7 @@ fn example_organisation(
                 .manager_market(site, "produktion")
                 .map_err(message)?,
         ))?,
+        to_value(serde_json::to_value(session.concerns().map_err(message)?))?,
     ))
 }
 

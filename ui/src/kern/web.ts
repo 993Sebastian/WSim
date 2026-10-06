@@ -47,10 +47,10 @@ export function webKern(): Kern {
     optionen: () => aufruf("optionen"),
     neuesSpiel: (einstellungen) => aufruf("neues_spiel", { einstellungen }),
     uebersicht: () => aufruf("uebersicht"),
-    rundeBeenden: async (laenge, melden, bis = "runde") => {
+    rundeBeenden: async (laenge, melden, bis = "runde", anhalten = "wichtige") => {
       fortschritt = melden;
       try {
-        return await aufruf("runde_beenden", { laenge, bis });
+        return await aufruf("runde_beenden", { laenge, bis, anhalten });
       } finally {
         fortschritt = null;
       }
@@ -68,6 +68,7 @@ export function webKern(): Kern {
     forschung: () => aufruf("forschung"),
     finanzen: () => aufruf("finanzen"),
     organisation: () => aufruf("organisation"),
+    anliegen: () => aufruf("anliegen"),
     managermarkt: (standort, stelle) => aufruf("managermarkt", { standort, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),

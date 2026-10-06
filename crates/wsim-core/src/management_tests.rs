@@ -801,3 +801,213 @@ fn an_idle_laboratory_gets_its_next_target_from_its_head() {
         "the head of the laboratory chose the technology of the own branch"
     );
 }
+
+/// A works whose head always asks, with its concern about the overcapacity at the end of
+/// the first quarter.
+fn asked(catalog: Catalog) -> (Game, SiteId) {
+    let (mut game, works, _) = weak_works(catalog);
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    through_quarter_end(&mut game);
+    assert_eq!(game.state().concerns.len(), 1);
+    (game, works)
+}
+
+/// The slot an option of the open concern acts on.
+fn concern_slot(game: &Game, kind: crate::decision::ChoiceKind) -> usize {
+    let c = &game.state().concerns[0];
+    let option = c.decision.choices.iter().find(|o| o.kind == kind).unwrap();
+    match option.steps[0].command {
+        Command::MothballFacility { slot, .. } | Command::SellFacility { slot, .. } => slot,
+        ref other => panic!("{other:?}"),
+    }
+}
+
+#[test]
+fn concerns_tell_why_the_position_asks() {
+    use crate::state::ConcernReason;
+    let (game, _) = asked(cheap_furnaces());
+    assert_eq!(game.state().concerns[0].reason, ConcernReason::Always);
+    // With its default budget the head asks only when the furnaces cost more than it may
+    // spend on one decision.
+    let (mut game, _, _) = weak_works(test_support::management());
+    through_quarter_end(&mut game);
+    let concerns = &game.state().concerns;
+    assert_eq!(concerns.len(), 1, "{concerns:?}");
+    assert_eq!(concerns[0].reason, ConcernReason::Decision);
+}
+
+#[test]
+fn a_decision_of_the_player_settles_the_concern() {
+    use crate::decision::ChoiceKind;
+    use crate::state::ConcernStatus;
+    let (mut game, works) = asked(cheap_furnaces());
+    // Something else at the works leaves the concern open.
+    game.apply(Command::SetWagePremium {
+        site: works,
+        premium: 0.1,
+    })
+    .unwrap();
+    assert_eq!(game.state().concerns[0].status, ConcernStatus::Open);
+    // The player shuts a unit of the same facility down in the plant view.
+    let slot = concern_slot(&game, ChoiceKind::Mothball);
+    game.apply(Command::MothballFacility {
+        site: works,
+        slot,
+        count: 1,
+    })
+    .unwrap();
+    let c = &game.state().concerns[0];
+    assert_eq!(c.status, ConcernStatus::Settled);
+    assert_eq!(c.closed, Some(game.date()));
+    assert_eq!(
+        game.apply(Command::AnswerConcern {
+            concern: c.id,
+            answer: management::ConcernAnswer::Delegate,
+        }),
+        Err(CommandError::ConcernClosed)
+    );
+    assert_eq!(crate::views::overview(&game).concerns_open, 0);
+}
+
+#[test]
+fn a_muted_topic_can_be_asked_about_again() {
+    let topic = crate::decision::Topic::Overcapacity;
+    let (mut game, works) = asked(cheap_furnaces());
+    let id = game.state().concerns[0].id;
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::NeverAsk,
+    })
+    .unwrap();
+    let quiet = |game: &Game| {
+        management::position_state(game.state(), game.player(), &head(works))
+            .unwrap()
+            .muted
+            .contains(&topic)
+    };
+    assert!(quiet(&game));
+    assert_eq!(
+        game.apply(Command::AskAgain {
+            position: specialist(works, "forschung"),
+            topic,
+        }),
+        Err(CommandError::UnknownPosition)
+    );
+    game.apply(Command::AskAgain {
+        position: head(works),
+        topic,
+    })
+    .unwrap();
+    assert!(!quiet(&game));
+    // At the end of the next quarter it asks again.
+    while game.date() < Date::new(1900, 7, 1).unwrap() {
+        days(&mut game, 1);
+    }
+    let open = game
+        .state()
+        .concerns
+        .iter()
+        .filter(|c| c.status == crate::state::ConcernStatus::Open)
+        .count();
+    assert_eq!(open, 1);
+}
+
+#[test]
+fn the_views_show_concerns_budgets_and_decisions() {
+    use crate::views;
+    let (mut game, works) = asked(cheap_furnaces());
+    // A second concern alike (as from another site) joins the first in a group.
+    let mut twin = game.state().concerns[0].clone();
+    twin.id = 77;
+    game.state_mut().concerns.push(twin);
+    let v = views::concerns(&game);
+    assert_eq!(v.open.len(), 1);
+    let g = &v.open[0];
+    assert_eq!(g.topic, "ueberkapazitaet");
+    assert_eq!(g.concerns.len(), 2);
+    let c = &g.concerns[0];
+    assert_eq!(c.reason, "immer");
+    assert_eq!(c.status, "offen");
+    assert_eq!(c.role, "leitung");
+    assert_eq!(g.kind, c.options[c.recommended].kind);
+    let shut = c.options.iter().find(|o| o.kind == "stilllegen").unwrap();
+    assert_eq!(shut.steps[0].key, crate::message::keys::STEP_MOTHBALL);
+    assert!(shut.amount_usd > 0.0);
+    assert!(c.important, "overcapacity is beyond the routine");
+    assert_eq!(views::overview(&game).concerns_open, 2);
+    // Answered, it moves to the closed ones.
+    game.apply(Command::AnswerConcern {
+        concern: 77,
+        answer: management::ConcernAnswer::Decline,
+    })
+    .unwrap();
+    let v = views::concerns(&game);
+    assert_eq!(v.open[0].concerns.len(), 1);
+    assert_eq!(v.closed.len(), 1);
+    assert_eq!(v.closed[0].status, "abgelehnt");
+    // The position: its budget of nothing, and the declined topic resting.
+    let org = views::organisation(&game);
+    let site = org.continents[0].countries[0]
+        .sites
+        .iter()
+        .find(|s| s.site == works.0)
+        .unwrap();
+    let p = &site.positions[0];
+    let b = p.budget.as_ref().unwrap();
+    assert!(b.custom);
+    assert_eq!(b.per_decision_usd, 0.0);
+    assert_eq!(p.open_concerns, 1);
+    assert_eq!(p.quiet.len(), 1);
+    assert_eq!(p.quiet[0].topic, "ueberkapazitaet");
+    assert!(p.quiet[0].until.is_some());
+}
+
+#[test]
+fn a_position_takes_the_hints_of_its_functions() {
+    use crate::message::keys;
+    use crate::views;
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    // The furnace is ready and stands still without a recipe.
+    days(&mut game, 40);
+    let idle = |game: &Game| {
+        views::overview(game)
+            .hints
+            .iter()
+            .any(|h| h.site == Some(works.0) && h.message.key == keys::HINT_NO_RECIPE)
+    };
+    assert!(idle(&game), "a furnace without a recipe");
+    let a = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: a,
+        position: head(works),
+    })
+    .unwrap();
+    // The same state: the hint is gone at once, before the head's first check.
+    assert!(!idle(&game), "the head takes care of production");
+}
+
+#[test]
+fn games_with_concerns_load_identically() {
+    let catalog = Arc::new(cheap_furnaces());
+    let (mut a, _) = asked((*catalog).clone());
+    let id = a.state().concerns[0].id;
+    a.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::Decline,
+    })
+    .unwrap();
+    let mut loaded = save::decode(&save::encode(&a), catalog).unwrap().game;
+    assert_eq!(loaded.state_hash(), a.state_hash());
+    for game in [&mut a, &mut loaded] {
+        for _ in 0..4 {
+            game.advance(RoundLength::Month, |_| {});
+        }
+    }
+    assert_eq!(loaded.state_hash(), a.state_hash());
+    assert!(a.state().companies[0].ledger.is_balanced());
+}

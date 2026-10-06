@@ -177,6 +177,31 @@ pub mod keys {
     pub const CONCERN_NEW: &str = "meldung.anliegen.neu";
     pub const CONCERN_EXPIRED: &str = "meldung.anliegen.verfallen";
     pub const CONCERN_EFFECT: &str = "meldung.anliegen.folge";
+    // What the options of a concern do, and why a position recommends one (MA2).
+    pub const STEP_MOTHBALL: &str = "schritt.stilllegen";
+    pub const STEP_SELL: &str = "schritt.verkaufen";
+    pub const STEP_RESTART: &str = "schritt.anfahren";
+    pub const STEP_BUILD: &str = "schritt.bauen";
+    pub const STEP_LOAN: &str = "schritt.kredit";
+    pub const STEP_REPAY: &str = "schritt.tilgen";
+    pub const STEP_PRODUCTION: &str = "schritt.produktion";
+    pub const STEP_PRODUCTION_OFF: &str = "schritt.produktion_aus";
+    pub const STEP_AUTOMATION: &str = "schritt.automatisierung";
+    pub const STEP_SALE_END: &str = "schritt.verkauf_ende";
+    pub const STEP_PRICE: &str = "schritt.preis";
+    pub const STEP_SALE_MARKET: &str = "schritt.verkauf_markt";
+    pub const STEP_PURCHASE_END: &str = "schritt.einkauf_ende";
+    pub const STEP_PURCHASE: &str = "schritt.einkauf";
+    pub const STEP_SUPPLY: &str = "schritt.lieferung";
+    pub const STEP_WAGE: &str = "schritt.lohn";
+    pub const STEP_RESEARCH: &str = "schritt.forschung";
+    pub const STEP_RESEARCH_END: &str = "schritt.forschung_ende";
+    pub const STEP_DEVELOP: &str = "schritt.weiterentwicklung";
+    pub const STEP_DEPOSIT: &str = "schritt.lagerstaette";
+    pub const BECAUSE_RESULT: &str = "anliegen.begruendung.ergebnis";
+    pub const BECAUSE_PROCEEDS: &str = "anliegen.begruendung.erloes";
+    pub const BECAUSE_WAIT: &str = "anliegen.begruendung.abwarten";
+    pub const BECAUSE_RULE: &str = "anliegen.begruendung.regel";
     pub const OFFER_RECEIVED_SITE: &str = "meldung.angebot.erhalten.standort";
     pub const OFFER_RECEIVED_LICENSE: &str = "meldung.angebot.erhalten.lizenz";
     pub const OFFER_COUNTER_SITE: &str = "meldung.angebot.gegenangebot.standort";
@@ -212,6 +237,7 @@ pub mod keys {
     pub const HINT_NO_RESEARCH: &str = "hinweis.forschung_ohne_projekt";
     pub const HINT_NO_PRODUCT_NAME: &str = "hinweis.produkt_ohne_namen";
     pub const HINT_NO_MANAGERS: &str = "hinweis.ohne_manager";
+    pub const HINT_CONCERNS: &str = "hinweis.anliegen";
     pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
     pub const HINT_CASH: &str = "hinweis.kasse";
     pub const HINT_OFFER_SITE: &str = "hinweis.angebot.standort";
@@ -332,6 +358,30 @@ pub mod keys {
         CONCERN_NEW,
         CONCERN_EXPIRED,
         CONCERN_EFFECT,
+        STEP_MOTHBALL,
+        STEP_SELL,
+        STEP_RESTART,
+        STEP_BUILD,
+        STEP_LOAN,
+        STEP_REPAY,
+        STEP_PRODUCTION,
+        STEP_PRODUCTION_OFF,
+        STEP_AUTOMATION,
+        STEP_SALE_END,
+        STEP_PRICE,
+        STEP_SALE_MARKET,
+        STEP_PURCHASE_END,
+        STEP_PURCHASE,
+        STEP_SUPPLY,
+        STEP_WAGE,
+        STEP_RESEARCH,
+        STEP_RESEARCH_END,
+        STEP_DEVELOP,
+        STEP_DEPOSIT,
+        BECAUSE_RESULT,
+        BECAUSE_PROCEEDS,
+        BECAUSE_WAIT,
+        BECAUSE_RULE,
         OFFER_RECEIVED_SITE,
         OFFER_RECEIVED_LICENSE,
         OFFER_COUNTER_SITE,
@@ -369,6 +419,7 @@ pub mod keys {
         HINT_NO_RESEARCH,
         HINT_NO_PRODUCT_NAME,
         HINT_NO_MANAGERS,
+        HINT_CONCERNS,
         HINT_OVERDRAWN,
         HINT_CASH,
         HINT_OFFER_SITE,

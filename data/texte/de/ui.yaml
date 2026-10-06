@@ -45,6 +45,11 @@ spiel.menue: Menü
 spiel.kasse_trend: Veränderung seit Ende des Vormonats
 spiel.offene_hinweise: Offene Hinweise
 spiel.offene_angebote: Angebote, die auf deine Antwort warten
+spiel.offene_anliegen: Anliegen deiner Manager, die auf deine Antwort warten
+spiel.anhalten: Bei Anliegen anhalten
+spiel.anhalten_alle: bei allen
+spiel.anhalten_wichtige: bei wichtigen
+spiel.anhalten_nie: nie
 spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
 geld.waehrung: Währung der Beträge
 geld.heimat: "{waehrung} (Firmensitz)"
@@ -178,6 +183,7 @@ bericht.halt.angebot: Angehalten wegen eines Angebots, das auf deine Antwort war
 bericht.halt.ein_jahr: Ein Jahr lang ohne Warnung – angehalten, damit du nachsehen kannst.
 bericht.halt.spielende: Das Spiel ist zu Ende.
 bericht.halt.runde: Eine Runde.
+bericht.halt.anliegen: Angehalten wegen eines Anliegens deiner Manager – du findest es unter „Organisation“.
 bericht.gruppe.welt: Weltgeschehen
 bericht.gruppe.warnung: Warnungen
 bericht.gruppe.wettbewerb: Wettbewerb
@@ -841,7 +847,7 @@ einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe fü
 einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.organisation.titel: Organisation
-einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du."
+einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -992,7 +998,7 @@ wettbewerb.lizenz_anfragen: Lizenz anfragen
 
 # Organisation und Manager (MA1)
 organisation.kopf: "{anzahl} Manager · Gehälter {gehalt} im Jahr · {bewerber} Bewerber auf dem Markt"
-organisation.hilfe: "Besetzte Stellen prüfen ihren Standort alle {tage} Tage und erledigen die Routine ihres Bereichs selbst: Auslastung und Rezept, Einkauf und Lieferungen zwischen deinen Standorten, Verkauf. Eine Leitung übernimmt die Bereiche, deren Fachstelle leer ist – etwas weniger gründlich. Was niemand erledigt, entscheidest du selbst. Deine eigenen Einstellungen gelten bis zur nächsten Prüfung."
+organisation.hilfe: "Besetzte Stellen prüfen ihren Standort alle {tage} Tage und erledigen die Routine ihres Bereichs selbst: Auslastung und Rezept, Einkauf und Lieferungen zwischen deinen Standorten, Verkauf. Am Quartalsende kümmern sie sich auch um Überkapazität, stillgelegte Anlagen und den Ausbau, Laborleitungen um das nächste Forschungsziel. Was ihr Budget übersteigt oder einen Kredit braucht, legen sie dir als Anliegen vor. Eine Leitung übernimmt die Bereiche, deren Fachstelle leer ist – etwas weniger gründlich. Was niemand erledigt, entscheidest du selbst. Deine eigenen Einstellungen gelten bis zur nächsten Prüfung."
 organisation.spaeter: Stellen für Länder, Kontinente und den Vorstand kommen in einer späteren Ausbaustufe hinzu.
 organisation.aus: In diesen Spieldaten gibt es keine Manager.
 organisation.keine_standorte: Gründe zuerst einen Standort; dann kannst du seine Stellen besetzen.
@@ -1034,6 +1040,74 @@ organisation.gehalt_danach: Gehalt danach
 organisation.versetzen: Hierher versetzen
 organisation.versetzt: "{name} ist jetzt {stelle} ({standort})."
 organisation.fach_der_stelle: Fachkompetenz der Stelle
+organisation.reiter_stellen: Stellen
+organisation.reiter_anliegen: Anliegen
+organisation.budget_kurz: "Budget {entscheidung} je Entscheidung, {jahr} im Jahr"
+organisation.budget_immer: fragt bei jeder Ausgabe
+organisation.budget_titel: "Budget: {stelle}"
+organisation.budget_entscheidung: Je Entscheidung
+organisation.budget_jahr: Im Jahr
+organisation.budget_verbraucht: Verbraucht in diesem Jahr
+organisation.budget_basis: Umsatz des Standorts in zwölf Monaten
+organisation.budget_hilfe: "Das Budget ist ein Anteil am Umsatz des Standorts der letzten zwölf Monate (ohne Umsatz an seinen Kosten), mindestens {entscheidung} Jahresgehalt je Entscheidung und {jahr} Jahresgehälter im Jahr. Was darüber hinausgeht oder einen Kredit braucht, wird ein Anliegen an dich. 0 % heißt: Die Stelle fragt bei jeder Ausgabe."
+organisation.budget_je_entscheidung: Je Entscheidung
+organisation.budget_je_jahr: Im Jahr
+organisation.budget_uebernehmen: Budget übernehmen
+organisation.budget_standard: "Standard wiederherstellen ({entscheidung} / {jahr})"
+organisation.budget_bereich: Die Anteile liegen zwischen 0 und 100 %, und je Entscheidung darf nicht mehr sein als im Jahr.
+organisation.budget_gesetzt: "Das Budget von {stelle} ist geändert."
+organisation.entscheidungen: Was die Stelle selbst entschieden hat
+organisation.keine_entscheidungen: Noch keine eigenen Entscheidungen über ihr Budget.
+organisation.erwartet: "erwartet {wirkung} im Jahr"
+organisation.stille_themen: Fragt nicht nach
+organisation.still_immer: "{thema}: nicht mehr fragen (entscheidet im Budget selbst, darüber hinaus bleibt es, wie es ist)"
+organisation.still_bis: "{thema}: abgelehnt, ruht bis {datum}"
+organisation.wieder_fragen: Wieder fragen
+organisation.wieder_fragen_erfolg: "{stelle} fragt wieder zu „{thema}“."
+organisation.offene_anliegen: "{anzahl} offene Anliegen"
+organisation.zu_den_anliegen: "Zu den Anliegen ({anzahl})"
+anliegen.titel: Anliegen
+anliegen.hilfe: "Ein Anliegen ist eine Frage einer Stelle: Die Entscheidung kostet mehr, als ihr Budget erlaubt, oder braucht einen Kredit. Antwortest du nicht binnen {tage} Tagen, bleibt alles, wie es ist."
+anliegen.leer: Keine offenen Anliegen. Deine Manager entscheiden im Rahmen ihres Budgets selbst; was darüber hinausgeht, landet hier.
+anliegen.fragt: "{name} fragt"
+anliegen.frist: "Antwort bis {datum}"
+anliegen.wichtig: wichtig
+anliegen.grund.entscheidung: "Kostet mehr als das Budget je Entscheidung ({budget})."
+anliegen.grund.jahr: "Das Budget dieses Jahres reicht nicht mehr (übrig: {rest})."
+anliegen.grund.immer: Diese Stelle soll bei jeder Ausgabe fragen.
+anliegen.grund.kredit: Dafür braucht es einen Kredit – darüber entscheidest du.
+anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
+anliegen.optionen: Optionen
+anliegen.option: Option
+anliegen.kosten: Zählt aufs Budget
+anliegen.prognose: Ergebnis im Jahr (Schätzung)
+anliegen.einmalig: Einmalig
+anliegen.spanne: "{von} bis {bis}"
+anliegen.keine_schaetzung: keine Schätzung
+anliegen.unveraendert: keine Änderung
+anliegen.empfohlen: empfohlen
+anliegen.empfehlung: "Empfehlung: {option}."
+anliegen.waehlen: Umsetzen
+anliegen.selbst: Entscheide selbst
+anliegen.nie: Nicht mehr fragen
+anliegen.nie_hilfe: Die Stelle entscheidet das Thema künftig im Rahmen ihres Budgets selbst; was darüber hinausgeht, bleibt, wie es ist.
+anliegen.ablehnen: Ablehnen
+anliegen.ablehnen_hilfe: "Es bleibt, wie es ist, und das Thema ruht {tage} Tage an dieser Stelle."
+anliegen.erfolg.gewaehlt: "Umgesetzt: {option}."
+anliegen.erfolg.delegiert: "Die Stelle setzt ihre Empfehlung um: {option}."
+anliegen.erfolg.nie: "{stelle} fragt zu „{thema}“ nicht mehr."
+anliegen.erfolg.abgelehnt: "Abgelehnt. Das Thema ruht {tage} Tage."
+anliegen.gruppe: "{anzahl} gleiche Anliegen: {thema} – Empfehlung „{option}“"
+anliegen.alle_uebernehmen: Empfehlung für alle übernehmen
+anliegen.alle_erfolg: "{anzahl} Anliegen entschieden."
+anliegen.erledigte: "Erledigte Anliegen ({anzahl})"
+anliegen.status.offen: offen
+anliegen.status.gewaehlt: "du hast gewählt: {option}"
+anliegen.status.delegiert: "die Stelle hat entschieden: {option}"
+anliegen.status.nicht_mehr_fragen: nicht mehr fragen
+anliegen.status.abgelehnt: abgelehnt
+anliegen.status.abgelaufen: Frist verstrichen, es blieb, wie es war
+anliegen.status.erledigt: anderweitig entschieden
 bereich.produktion: Produktion
 bereich.einkauf_lager: Einkauf und Lager
 bereich.vertrieb_marketing: Vertrieb und Marketing
@@ -1086,3 +1160,18 @@ thema.lagerstaette: Lagerstätten
 thema.engpass: Engpässe
 thema.forschung: Forschungsziel
 thema.weiterentwicklung: Weiterentwicklung
+option.beibehalten: So lassen
+option.anpassen: Anpassen
+option.liefern: Liefern
+option.benennen: Benennen
+option.kredit: Kredit aufnehmen
+option.tilgen: Tilgen
+option.stilllegen: Stilllegen
+option.verkaufen: Verkaufen
+option.anfahren: Wieder anfahren
+option.bauen: Ausbauen
+option.anbieten: Anbieten
+option.annehmen: Annehmen
+option.ablehnen: Ablehnen
+option.forschen: Forschen
+option.weiterentwickeln: Weiterentwickeln

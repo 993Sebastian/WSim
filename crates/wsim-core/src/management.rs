@@ -16,8 +16,8 @@ use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
-    CompanyId, Concern, ConcernOption, ConcernStatus, Followup, GameState, Job, Manager, ManagerId,
-    Position, PositionLog, PositionState, Role, SiteId,
+    CompanyId, Concern, ConcernOption, ConcernReason, ConcernStatus, Followup, GameState, Job,
+    Manager, ManagerId, Position, PositionLog, PositionState, Role, SiteId,
 };
 
 /// Keys of the skills besides the expertise per function (impressions, views).
@@ -100,6 +100,38 @@ pub fn positions(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Posi
         )
         .map(|role| Position { site, role })
         .collect()
+}
+
+/// Whether a topic comes up at a site of a type (MA2): research and development only in
+/// laboratories, everything else only outside them.
+pub fn arises(kind: SiteType, topic: Topic) -> bool {
+    matches!(topic, Topic::Research | Topic::Development) == (kind == SiteType::ResearchCenter)
+}
+
+/// Whether a filled position takes care of a function at a site (MA2): the specialist of
+/// the function where the site type has one, else the head; functions without topics
+/// are taken care of by nobody.
+pub fn covered(catalog: &Catalog, state: &GameState, site: SiteId, function: &str) -> bool {
+    let m = &catalog.management;
+    let Some(s) = state.sites.get(site.index()) else {
+        return false;
+    };
+    let Some(index) = m
+        .function(function)
+        .filter(|&i| m.functions[i].topics.iter().any(|&t| arises(s.kind, t)))
+    else {
+        return false;
+    };
+    let specialist = Position {
+        site,
+        role: Role::Specialist(function.to_owned()),
+    };
+    let head = Position {
+        site,
+        role: Role::Head,
+    };
+    (m.specialists_of(s.kind).contains(&index) && holder(state, &specialist).is_some())
+        || holder(state, &head).is_some()
 }
 
 /// Who holds a position.
@@ -681,14 +713,18 @@ pub fn budget_shares(
     company: CompanyId,
     position: &Position,
 ) -> (f64, f64) {
-    if let Some(set) = position_state(state, company, position).and_then(|p| p.budget) {
-        return set;
-    }
+    position_state(state, company, position)
+        .and_then(|p| p.budget)
+        .unwrap_or_else(|| default_shares(catalog, &position.role))
+}
+
+/// The budget shares of the level of the sites for a role.
+pub fn default_shares(catalog: &Catalog, role: &Role) -> (f64, f64) {
     catalog
         .management
         .levels
         .first()
-        .map_or((0.0, 0.0), |l| match position.role {
+        .map_or((0.0, 0.0), |l| match role {
             Role::Head => l.budget_head,
             Role::Specialist(_) => l.budget_specialist,
         })
@@ -724,7 +760,7 @@ pub fn spent(state: &GameState, company: CompanyId, position: &Position) -> Mone
 }
 
 /// Mean monthly result of a site in the last closed months.
-fn mean_result(state: &GameState, company: CompanyId, site: SiteId) -> Money {
+pub fn mean_result(state: &GameState, company: CompanyId, site: SiteId) -> Money {
     let months = &state.companies[company.index()].ledger.months;
     let recent = &months[months.len().saturating_sub(RESULT_MONTHS)..];
     if recent.is_empty() {
@@ -928,6 +964,15 @@ impl Decider for Staff<'_> {
         {
             return Verdict::Hold;
         }
+        let reason = if needs_finance(option) {
+            ConcernReason::Finance
+        } else if r.per_decision == Money::ZERO {
+            ConcernReason::Always
+        } else if amount > r.per_decision {
+            ConcernReason::Decision
+        } else {
+            ConcernReason::Year
+        };
         r.open += 1;
         let (position, manager, expertise) = (r.position.clone(), r.manager, r.expertise);
         self.open.insert(key);
@@ -949,6 +994,7 @@ impl Decider for Staff<'_> {
             decision: d.clone(),
             recommended: choice,
             options,
+            reason,
             created: self.today,
             deadline: self
                 .today
@@ -1416,6 +1462,102 @@ pub(crate) fn set_budget(
         return Err(CommandError::InvalidShare);
     }
     position_state_mut(state, actor, position).budget = shares;
+    Ok(())
+}
+
+/// What a command acts on, to find the concerns it settles (MA2).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Object {
+    Slot(SiteId, usize),
+    Sale(SiteId, ProductId),
+    Purchase(SiteId, ProductId),
+    Supply(SiteId, ProductId),
+    Wage(SiteId),
+    Build(SiteId),
+    Laboratory(SiteId),
+    Deposit(SiteId),
+}
+
+fn object(command: &Command) -> Option<Object> {
+    Some(match *command {
+        Command::SetProduction { site, slot, .. }
+        | Command::SetAutomation { site, slot, .. }
+        | Command::MothballFacility { site, slot, .. }
+        | Command::RestartFacility { site, slot }
+        | Command::SellFacility { site, slot, .. } => Object::Slot(site, slot),
+        Command::SetSale { site, product, .. } | Command::SetPrice { site, product, .. } => {
+            Object::Sale(site, product)
+        }
+        Command::SetPurchase { site, product, .. } => Object::Purchase(site, product),
+        Command::TransferGoods { to, product, .. } => Object::Supply(to, product),
+        Command::SetWagePremium { site, .. } => Object::Wage(site),
+        Command::BuildFacility { site, .. } => Object::Build(site),
+        Command::SetResearch { site, .. } | Command::SetDevelopment { site, .. } => {
+            Object::Laboratory(site)
+        }
+        Command::DevelopDeposit { site, .. } => Object::Deposit(site),
+        _ => return None,
+    })
+}
+
+/// A decision taken settles the company's open concerns about the same thing
+/// (docs/MANAGER.md 6.3): the player's in a view, a position's within its budget.
+pub(crate) fn settle(state: &mut GameState, company: CompanyId, command: &Command) {
+    if state.concerns.is_empty() {
+        return;
+    }
+    let Some(target) = object(command) else {
+        return;
+    };
+    let today = state.date;
+    for c in state
+        .concerns
+        .iter_mut()
+        .filter(|c| c.company == company && c.status == ConcernStatus::Open)
+    {
+        let touches = c
+            .decision
+            .choices
+            .iter()
+            .flat_map(|choice| &choice.steps)
+            .any(|s| object(&s.command) == Some(target));
+        if touches {
+            c.status = ConcernStatus::Settled;
+            c.closed = Some(today);
+        }
+    }
+}
+
+/// Whether a concern counts as important for halting a run of rounds (docs/MANAGER.md
+/// 6.6): everything beyond the routine of the sites.
+pub fn important(catalog: &Catalog, concern: &Concern) -> bool {
+    !catalog
+        .management
+        .routine_topics
+        .contains(&concern.decision.topic)
+}
+
+/// `AskAgain`: a position asks about a topic again that the player muted or declined.
+pub(crate) fn ask_again(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    position: &Position,
+    topic: Topic,
+) -> Result<(), CommandError> {
+    let site = state
+        .sites
+        .get(position.site.index())
+        .ok_or(CommandError::UnknownSite)?;
+    if site.owner != actor {
+        return Err(CommandError::NotOwner);
+    }
+    if !positions(catalog, state, position.site).contains(position) {
+        return Err(CommandError::UnknownPosition);
+    }
+    let p = position_state_mut(state, actor, position);
+    p.muted.remove(&topic);
+    p.blocked.remove(&topic);
     Ok(())
 }
 

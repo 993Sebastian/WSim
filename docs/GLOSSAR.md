@@ -271,3 +271,17 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Routine der Standortstellen, Prüftermin, Bemerken | `management::simulate_day` mit dem Entscheider `Staff`; `ai::site_routine`; Zufallsstrom `Stream::Manager` |
 | Stelle entfällt mit dem Standort | `management::release_site` (aus `deals::hand_over`) |
 | Namensfolge (Familienname zuerst) | `NameGroup::surname_first` (`namensgruppen[].familienname_zuerst`) |
+| Budget je Stelle (Anteil je Entscheidung und Jahr, Bezug, Sockel), verbraucht | `ManagementLevel::{budget_specialist, budget_head}`, `ManagementModel::budget_floor` (`budget_fach`, `budget_leitung`, `budget_sockel_gehaelter`); `management::{budget, budget_base, budget_shares, default_shares, spent}`; `PositionState` (`budget`, `spent`, `year`); Befehl `SetBudget` (MA2) |
+| Routinethemen | `ManagementModel::routine_topics` (`routine_themen`) |
+| Anliegen, Option eines Anliegens, Empfehlung, Frist | `state::Concern` (`recommended`, `options`, `deadline`), `ConcernOption` (`amount`, `forecast`, `once`), `GameState::concerns`, `next_concern`; Parameter `ConcernModel` (`anliegen`) |
+| Grund eines Anliegens (Budget je Entscheidung, Jahresbudget, immer fragen, Kredit) | `state::ConcernReason::{Decision, Year, Always, Finance}` |
+| Antwort: Option wählen, „Entscheide selbst“, „Nicht mehr fragen“, „Ablehnen“ | Befehl `AnswerConcern` mit `management::ConcernAnswer::{Choose, Delegate, NeverAsk, Decline}`; Ausgang `ConcernStatus::{Chosen, Delegated, Muted, Declined}` |
+| Anliegen verfallen, anderweitig erledigt | `ConcernStatus::Expired`, `ConcernStatus::Settled` (`management::settle` nach jedem Befehl) |
+| Stummgeschaltete und abgelehnte Themen, „Wieder fragen“ | `PositionState::{muted, blocked}`; Befehl `AskAgain` |
+| Protokoll der Stelle („Was die Stelle selbst entschieden hat“) | `PositionState::log` (`PositionLog`) |
+| Rückmeldung zur Wirkung | `state::Followup`, `GameState::followups`; Meldung `meldung.anliegen.folge` |
+| Wichtiges Anliegen, Anhalten bei Anliegen (alle, wichtige, nie) | `management::important`; `Session::end_rounds` (`anhalten`), Halt `anliegen`; UI: `Anhalten`, `ANHALTEN_SPEICHER` |
+| Thema kommt am Standorttyp vor | `management::arises` |
+| Hinweis entfällt, weil eine Stelle den Bereich übernimmt | `management::covered` (in `views::hints`) |
+| Sichten der Anliegen, Gruppe gleicher Anliegen, Schritt in Worten | `views::{concerns, ConcernsView, ConcernGroupView, ConcernView, ConcernOptionView}`; Textschlüssel `schritt.*`, `anliegen.begruendung.*`; UI: `AnliegenListe` (`Anliegen.tsx`) |
+| Budget und Protokoll in der Organisation | `PositionView::{budget, log, quiet, open_concerns}` (`BudgetView`, `DecisionLogView`, `QuietTopicView`); UI: `StellenDetails` |
