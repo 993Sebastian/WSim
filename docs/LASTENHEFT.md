@@ -100,6 +100,7 @@ Anfangs steuert der Spieler alles selbst; mit wachsender Größe delegiert er an
 ### 5.1 Firmensitz und Tochterfirmen
 
 - Der Firmensitz liegt im gewählten Startland und bestimmt Steuern und Startbedingungen. Er ist später verlegbar (mit Kosten).
+- Der Firmensitz ist zugleich Hauptsitz mit den Zentralabteilungen (Strategie, Finanzen, Personal, Recht, Marketing); Einzelheiten in `docs/BETEILIGUNGEN.md`.
 - Der Spieler kann Tochterfirmen gründen, z. B. für Logistik, mit eigener Bilanz und eigenem Management.
 - Tochterfirmen können eigene Anteile haben und an die Börse gebracht werden.
 - Lieferungen und Leistungen zwischen Konzernfirmen werden intern verrechnet und im Controlling getrennt ausgewiesen.
@@ -156,6 +157,7 @@ In einer eigenen Strategieansicht trifft der Spieler strategische Entscheidungen
 | Personal | Lohnniveau relativ zum Markt, Arbeitsbedingungen, Schulungsziel |
 | Logistik | Eigene Flotte, staatlicher Transport, KI-Dienstleister |
 | Investitionen | Budget, Wachstumsziele, Zielländer |
+| Beteiligungen | Budget für Start-ups und Übernahmen, Risikobereitschaft, Betrag, bis zu dem Zentralabteilungen selbst entscheiden |
 | Marketing | Budget, Zielmärkte, Markenpositionierung |
 | Forschung | Schwerpunkte, Budget, Patente anmelden, Lizenzen vergeben |
 | Finanzen und Risiko | Kreditrahmen, Liquiditätsreserve, Dividendenpolitik |
@@ -208,7 +210,7 @@ Der Technologiebaum bildet die reale Entwicklung ab; wer der Geschichte vorausei
 - Forschungsstandorte arbeiten je nach Land und Fachgebiet unterschiedlich effizient (siehe 3.2).
 - KI-Firmen forschen ebenfalls. Ohne Zutun des Spielers entwickelt sich die Welt ungefähr historisch.
 - Ist eine Technologie einmal erfunden, wird sie für Nachzügler günstiger.
-- Ab 2026 kommen keine neuen Technologien hinzu.
+- Ab 2026 kommen keine neuen Technologien hinzu. Verbesserungen bestehender Technologien durch Start-ups bleiben möglich (`docs/BETEILIGUNGEN.md`).
 
 ### 7.2 Patente und Lizenzen
 
@@ -311,6 +313,7 @@ Der Spieler finanziert sich über Eigenkapital, Kredite und den Kapitalmarkt; ei
 - KI-Investoren kaufen und verkaufen Anteile, auch am Unternehmen des Spielers.
 - Der Spieler kann Anteile anderer Firmen kaufen, Beteiligungen aufbauen und Mehrheiten übernehmen.
 - Übernahmen, auch feindliche, sowie Fusionen.
+- Beteiligungen an Start-ups und Erfindern, die an Technologien forschen, sowie eigene Ausgründungen (`docs/BETEILIGUNGEN.md`).
 - Auch das Unternehmen des Spielers kann übernommen werden, sobald es an der Börse ist und Investoren oder KI-Firmen die Mehrheit kaufen. Verliert der Spieler so die Kontrolle, endet das Spiel.
 
 ### 11.3 Insolvenz
@@ -374,10 +377,11 @@ Die Oberfläche ist nüchtern und modern; ein ausgeprägtes Controlling zeigt ge
 | Forschung | Technologiebaum, laufende Projekte, Patente, Lizenzen |
 | Markt und Preise | Nachfrage, Preise, Marktanteile je Land und Produkt |
 | Börse | Kurse, Beteiligungen, Investoren, Übernahmen |
+| Beteiligungen | Start-ups und Erfinder, eigenes Portfolio, Empfehlungen der Strategieabteilung |
 | Finanzen | Bilanz, GuV, Kapitalfluss, Kredite |
 | Controlling | Siehe 14.2 |
 | Strategie | Strategievorgaben je Ebene nach 5.6 |
-| Organisation | Manager, Personal, Schulung, Tochterfirmen |
+| Organisation | Manager, Personal, Schulung, Tochterfirmen, Hauptsitz und Zentralabteilungen |
 | Logistik | Flotten, Routen, Transportaufträge, Lager |
 | Verträge | Lieferverträge, Lizenzen |
 | Berichte | Rundenberichte und Meldungsarchiv |
@@ -421,6 +425,7 @@ Die Einstellmöglichkeiten orientieren sich am Umfang von Capitalism Lab; ein Sc
 - Dynamik von Zöllen und Handelsbeschränkungen
 - Häufigkeit und Stärke zufälliger Ereignisse ab 2027
 - Kostenfaktor für Forschung vor dem historischen Jahr
+- Anzahl neuer Start-ups pro Jahr
 - Zufallswert (Seed) für reproduzierbare Partien
 
 ## 16 Technische Anforderungen
@@ -460,8 +465,8 @@ Das Spiel ist ein installierbares Windows-Programm, das offline läuft; Spielinh
 Das Spiel wird in sechs Stufen umgesetzt; jede Stufe ist für sich spielbar, und das Fundament aus Stufe 1 trägt alle späteren.
 
 1. **Fundament:** Simulationskern, Datenformat, alle Länder mit Grundwerten, Rohstoffe, 12 Produktionsketten nach 17.1, Rundenablauf mit wählbarer Länge, Markt- und Preisbildung, KI-Firmen mit Grundverhalten, Grundfinanzen, Weltkarte, Rundenbericht, Speichern. Spielbar etwa 1900 bis 1930.
-2. **Wachstum:** Manager-System, Schulung, Tochterfirmen, Logistik mit eigener Flotte, staatlichem und KI-Transport, Zölle, Lieferverträge, Marketing, ausgebautes Controlling.
-3. **Kapitalmarkt:** Börse, Börsengänge, Investoren, Beteiligungen, Übernahmen, Insolvenzen, Anleihen; Spiel als reiner Investor oder als Bank (17.3).
+2. **Wachstum:** Manager-System, Hauptsitz und Zentralabteilungen, Schulung, Tochterfirmen, Logistik mit eigener Flotte, staatlichem und KI-Transport, Zölle, Lieferverträge, Marketing, ausgebautes Controlling.
+3. **Kapitalmarkt:** Börse, Börsengänge, Investoren, Beteiligungen, Start-ups und Ausgründungen, Übernahmen, Insolvenzen, Anleihen; Spiel als reiner Investor oder als Bank (17.3).
 4. **Geschichte:** historische Ereignisse, Regulierung und Umwelt, Währungen und Wechselkurse.
 5. **Breite:** vollständige Produkt- und Technologiedaten bis 2026 (Ziel rund 500 Endprodukte über alle Epochen, Regeln nach 17.2), inklusive Elektronik, Luft- und Raumfahrt, Rüstung; reale Firmen mit Gründungsjahren; Patente und Lizenzen.
 6. **Feinschliff:** zufällige Ereignisse ab 2027, Töne, Balancing, Leistungsoptimierung.
@@ -527,6 +532,29 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
+
+### 18.6 Entscheidungen vom 06.10.2026 (Hauptsitz, Zentralabteilungen, Start-ups)
+
+Die vollständige Vorgabe steht in `docs/BETEILIGUNGEN.md` (Meilensteine ZA1–ZA3 und
+SU1–SU3). Umgesetzt wird erst nach Freigabe; Vorschlag: Zentralabteilungen nach dem
+Manager-System, Start-ups mit Stufe 3.
+
+- Der Firmensitz wird zum **Hauptsitz**: frei wählbar, verlegbar, mit Wirkung auf
+  Steuern, Personal und Risiken in Kriegszeiten.
+- **Zentralabteilungen** Strategie, Finanzen, Personal, Recht, Marketing mit Leitung und
+  Angestellten; ab Spielbeginn einrichtbar, aber teuer. Sie geben begründete
+  **Empfehlungen** als Anliegen; bis zu welchem Betrag sie selbst entscheiden, legt der
+  Spieler im Strategiefeld „Beteiligungen“ fest.
+- Die **Trefferquote** jeder Leitung ist sichtbar und erhöht ihre Gehaltsforderung
+  exponentiell.
+- **Start-ups** (je Epoche „Erfinder“, „Wagniskapital“, „Start-ups“) forschen an neuen
+  Technologien oder an Verbesserungen bestehender, auch nach 2026. Drei Phasen,
+  Misserfolgsquote 60 bis 70 %, Häufigkeit pro Jahr einstellbar, historische und
+  fiktive Namen.
+- Anteile oder Fördergeld; unter 25 % nur finanzieller Gewinn, ab 25 % Sperrminorität,
+  über 50 % Lenkung und Eingliedern als Tochterfirma (erst dann Nutzung des Patents).
+- Eigene Ausgründungen sind möglich; KI-Firmen und KI-Investoren handeln nach denselben
+  Regeln.
 
 ### 18.5 Entscheidungen vom 06.10.2026 (Manager-System)
 
