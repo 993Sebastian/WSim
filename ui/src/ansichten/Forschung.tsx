@@ -25,6 +25,7 @@ import {
   useSicht,
   ZahlFeld,
 } from "./gemeinsam";
+import { GrundstueckWahl, useGewerbeflaeche, type GrundstueckWahlWert } from "./Grundstuecke";
 import { LAENDER } from "./laender";
 
 const technologieName = (k: string) => t(`technologie.${k}`);
@@ -77,7 +78,7 @@ export function ForschungAnsicht({
         {bereich === "baum" ? (
           <Baum daten={daten} onZentren={() => setBereich("zentren")} onStandorte={onStandorte} />
         ) : (
-          <Zentren daten={daten} heimat={uebersicht.company.headquarters} />
+          <Zentren kern={kern} daten={daten} heimat={uebersicht.company.headquarters} />
         )}
       </Befehle>
     </main>
@@ -617,7 +618,7 @@ function TechnologieDetail({
 
 // --- Research centers ---
 
-function Zentren({ daten, heimat }: { daten: Forschung; heimat: string }) {
+function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat: string }) {
   const erforschbar = daten.technologies.filter(
     (x) => x.status === "erforschbar" || x.status === "in_arbeit",
   );
@@ -633,7 +634,7 @@ function Zentren({ daten, heimat }: { daten: Forschung; heimat: string }) {
       {daten.centers.map((z) => (
         <Zentrum key={z.site} z={z} daten={daten} erforschbar={erforschbar} />
       ))}
-      <ZentrumGruenden heimat={heimat} />
+      <ZentrumGruenden kern={kern} heimat={heimat} datum={daten.date} />
     </div>
   );
 }
@@ -800,18 +801,34 @@ function LaborAuslastung({
   );
 }
 
-function ZentrumGruenden({ heimat }: { heimat: string }) {
+function ZentrumGruenden({ kern, heimat, datum }: { kern: Kern; heimat: string; datum: string }) {
   const [land, setLand] = useState(heimat);
   const { los, antwort } = useAktion("zentrum-gruenden");
   const id = useId();
+  const flaeche = useGewerbeflaeche(kern, land, datum);
+  const [wahl, setWahl] = useState<GrundstueckWahlWert>({ plot: null, lease: false });
+  const grundstueck = flaeche?.free.find((g) => g.id === wahl.plot) ?? null;
+  // Without plots (null) the core founds the center without one.
+  const bereit = flaeche === null || grundstueck !== null;
   return (
     <form
       className="karte"
       aria-label={t("forschung.gruenden")}
       onSubmit={(e) => {
         e.preventDefault();
+        if (!bereit) return;
         void los(
-          [{ FoundSite: { country: land, kind: "ResearchCenter" } }],
+          [
+            grundstueck
+              ? {
+                  FoundSiteOnPlot: {
+                    plot: grundstueck.id,
+                    kind: "ResearchCenter",
+                    lease: wahl.lease,
+                  },
+                }
+              : { FoundSite: { country: land, kind: "ResearchCenter" } },
+          ],
           t("forschung.gegruendet", { land: landName(land) }),
         );
       }}
@@ -820,7 +837,14 @@ function ZentrumGruenden({ heimat }: { heimat: string }) {
       <div className="formular-zeile">
         <div className="feld">
           <label htmlFor={`${id}-land`}>{t("produktion.land")}</label>
-          <select id={`${id}-land`} value={land} onChange={(e) => setLand(e.target.value)}>
+          <select
+            id={`${id}-land`}
+            value={land}
+            onChange={(e) => {
+              setLand(e.target.value);
+              setWahl({ ...wahl, plot: null });
+            }}
+          >
             {LAENDER.map((k) => (
               <option key={k} value={k}>
                 {landName(k)}
@@ -828,7 +852,12 @@ function ZentrumGruenden({ heimat }: { heimat: string }) {
             ))}
           </select>
         </div>
-        <button type="submit">{t("produktion.gruenden_knopf")}</button>
+      </div>
+      {flaeche && <GrundstueckWahl flaeche={flaeche} wert={wahl} onWert={setWahl} />}
+      <div className="knopfreihe links">
+        <button type="submit" disabled={!bereit}>
+          {t("produktion.gruenden_knopf")}
+        </button>
       </div>
       <Rueckmeldung meldung={antwort} />
     </form>

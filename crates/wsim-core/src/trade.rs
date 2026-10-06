@@ -68,6 +68,8 @@ struct Source {
     country: CountryId,
     price: Money,
     available: f64,
+    /// Factor on freight by sea from the site's plot (M35).
+    sea_freight: f64,
 }
 
 /// Today's plan of the traders for one product.
@@ -109,6 +111,7 @@ pub(crate) fn plan(
                     country: s.country,
                     price: offer.price,
                     available,
+                    sea_freight: crate::plots::sea_freight(catalog, state, s),
                 });
             }
         }
@@ -128,11 +131,12 @@ pub(crate) fn plan(
     }
     // What fresh goods would cost where traders hold stock: other traders would sell at
     // that, so old stock bought dearly cannot ask more (M16).
-    // The freight depends on the countries only: the cheapest offer of each country.
-    let mut cheapest_from: BTreeMap<CountryId, Money> = BTreeMap::new();
+    // The freight depends on the countries and the sea freight factor only: the
+    // cheapest offer of each.
+    let mut cheapest_from: BTreeMap<(CountryId, u64), Money> = BTreeMap::new();
     for s in &sources {
         cheapest_from
-            .entry(s.country)
+            .entry((s.country, s.sea_freight.to_bits()))
             .and_modify(|p| *p = (*p).min(s.price))
             .or_insert(s.price);
     }
@@ -143,9 +147,14 @@ pub(crate) fn plan(
         }
         let cheapest = cheapest_from
             .iter()
-            .filter(|&(&from, _)| from != country)
-            .filter_map(|(&from, &price)| {
-                let (transport, _) = state.routes.for_product(catalog, product, from, country)?;
+            .filter(|&(&(from, _), _)| from != country)
+            .filter_map(|(&(from, sea), &price)| {
+                let (transport, _) = state.routes.for_product_via(
+                    catalog,
+                    product,
+                    (from, country),
+                    f64::from_bits(sea),
+                )?;
                 Some(price + transport)
             })
             .min();
@@ -187,18 +196,24 @@ pub(crate) fn plan(
         let ceiling = market::local_reference(catalog, state, country, product)
             .scale(model.price_max_factor)
             .max(price);
-        // The route depends on the countries only: looked up once per source country.
-        let mut routes: BTreeMap<CountryId, Option<(Money, u32)>> = BTreeMap::new();
+        // The route depends on the countries and the sea freight factor only: looked up
+        // once for each.
+        let mut routes: BTreeMap<(CountryId, u64), Option<(Money, u32)>> = BTreeMap::new();
         let mut candidates: Vec<Reverse<(Money, usize, Money, u32)>> = Vec::new();
         for (i, s) in sources.iter().enumerate() {
             if s.country == country {
                 continue;
             }
-            let route = *routes.entry(s.country).or_insert_with(|| {
-                state
-                    .routes
-                    .for_product(catalog, product, s.country, country)
-            });
+            let route = *routes
+                .entry((s.country, s.sea_freight.to_bits()))
+                .or_insert_with(|| {
+                    state.routes.for_product_via(
+                        catalog,
+                        product,
+                        (s.country, country),
+                        s.sea_freight,
+                    )
+                });
             let Some((transport, days)) = route else {
                 continue;
             };

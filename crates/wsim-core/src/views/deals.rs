@@ -26,7 +26,10 @@ pub struct SiteValueView {
     pub liquidation_usd: f64,
     /// U: facilities and development under construction.
     pub under_construction_usd: f64,
-    /// G = max(E, Q) + U + L; for an area the sum over its sites and the brand.
+    /// A bought plot at today's value (M35); 0 for a leased one.
+    #[serde(default)]
+    pub land_usd: f64,
+    /// G = max(E, Q) + U + L + land; for an area the sum over its sites and the brand.
     pub base_usd: f64,
     pub earnings_years: f64,
     /// W: the brand of an area (M31), 0 for a site.
@@ -41,6 +44,7 @@ fn value_view(game: &Game, v: &SiteValue) -> SiteValueView {
         earnings_value_usd: usd(v.earnings_value),
         liquidation_usd: usd(v.liquidation),
         under_construction_usd: usd(v.under_construction),
+        land_usd: usd(v.land),
         base_usd: usd(v.base),
         earnings_years: game.catalog().deal_model.earnings_years,
         brand_usd: 0.0,

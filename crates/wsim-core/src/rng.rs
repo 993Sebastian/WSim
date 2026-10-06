@@ -17,6 +17,11 @@ pub struct SimRng {
 pub enum Stream {
     World,
     Company(u32),
+    /// New plots of a country in a year (M35).
+    Plots {
+        country: u16,
+        year: u16,
+    },
 }
 
 impl Stream {
@@ -24,6 +29,9 @@ impl Stream {
         match self {
             Stream::World => 1,
             Stream::Company(id) => (1 << 32) | u64::from(id),
+            Stream::Plots { country, year } => {
+                (2 << 32) | (u64::from(year) << 16) | u64::from(country)
+            }
         }
     }
 }

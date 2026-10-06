@@ -2,10 +2,11 @@
 // month's result, staff, bottlenecks – and the plant view behind it.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatGeld, landName } from "../format";
-import type { Kern, Produktion, StandortDetail, Uebersicht } from "../kern";
+import type { Befehl, Kern, Produktion, StandortDetail, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Befehle, Rueckmeldung, useAktion, useBefehl, useSicht } from "./gemeinsam";
+import { GrundstueckWahl, useGewerbeflaeche, type GrundstueckWahlWert } from "./Grundstuecke";
 import { formatKoepfe, standortTitel, ursacheText, Werk } from "./Werk";
 
 export function ProduktionAnsicht({
@@ -55,6 +56,7 @@ export function ProduktionAnsicht({
             </div>
             <StandortGruenden
               key={gruendenIn ?? "heimat"}
+              kern={kern}
               produktion={daten}
               heimat={gruendenIn ?? uebersicht.company.headquarters}
               hervorheben={gruendenIn !== null}
@@ -128,10 +130,12 @@ function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => v
 }
 
 function StandortGruenden({
+  kern,
   produktion,
   heimat,
   hervorheben,
 }: {
+  kern: Kern;
   produktion: Produktion;
   heimat: string;
   /** Scroll to the form (the country was chosen on the map). */
@@ -153,7 +157,13 @@ function StandortGruenden({
         .sort((a, b) => a.name.localeCompare(b.name, "de")),
     [],
   );
+  const flaeche = useGewerbeflaeche(kern, land, produktion.date);
+  const [wahl, setWahl] = useState<GrundstueckWahlWert>({ plot: null, lease: false });
   const typ = produktion.site_types.find((s) => s.kind === art);
+  // Extraction sites stand on their concession; without plots the core picks none.
+  const mitGrundstueck = art !== "Extraction" && flaeche !== null;
+  const grundstueck = flaeche?.free.find((g) => g.id === wahl.plot) ?? null;
+  const bereit = !mitGrundstueck || grundstueck !== null;
   return (
     <form
       ref={ref}
@@ -161,8 +171,12 @@ function StandortGruenden({
       aria-label={t("produktion.gruenden")}
       onSubmit={(e) => {
         e.preventDefault();
+        if (!bereit) return;
+        const befehl: Befehl = grundstueck
+          ? { FoundSiteOnPlot: { plot: grundstueck.id, kind: art, lease: wahl.lease } }
+          : { FoundSite: { country: land, kind: art } };
         void los(
-          [{ FoundSite: { country: land, kind: art } }],
+          [befehl],
           t("werk.gegruendet", { art: typ ? t(typ.kind_text) : art, land: landName(land) }),
         );
       }}
@@ -172,7 +186,14 @@ function StandortGruenden({
       <div className="formular-zeile">
         <div className="feld">
           <label htmlFor={`${id}-land`}>{t("produktion.land")}</label>
-          <select id={`${id}-land`} value={land} onChange={(e) => setLand(e.target.value)}>
+          <select
+            id={`${id}-land`}
+            value={land}
+            onChange={(e) => {
+              setLand(e.target.value);
+              setWahl({ ...wahl, plot: null });
+            }}
+          >
             {laender.map(({ k, name }) => (
               <option key={k} value={k}>
                 {name}
@@ -190,7 +211,23 @@ function StandortGruenden({
             ))}
           </select>
         </div>
-        <button type="submit">{t("produktion.gruenden_knopf")}</button>
+      </div>
+      {mitGrundstueck && flaeche && (
+        <GrundstueckWahl flaeche={flaeche} wert={wahl} onWert={setWahl} />
+      )}
+      <div className="knopfreihe links">
+        <button type="submit" disabled={!bereit}>
+          {t("produktion.gruenden_knopf")}
+        </button>
+        {typ && (
+          <span className="gedaempft">
+            {t("grundstueck.kosten_jetzt", {
+              betrag: formatGeld(
+                typ.cost_usd + (grundstueck && !wahl.lease ? grundstueck.value_usd : 0),
+              ),
+            })}
+          </span>
+        )}
       </div>
       <Rueckmeldung meldung={antwort} />
     </form>

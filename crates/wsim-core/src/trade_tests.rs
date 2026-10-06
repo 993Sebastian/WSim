@@ -70,6 +70,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> Sit
         wage_premium: 0.0,
         acquired: None,
         goodwill: None,
+        plot: None,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     if quantity > 0.0 {

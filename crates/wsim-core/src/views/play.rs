@@ -221,6 +221,27 @@ pub struct SiteDetail {
     pub last_month: Option<SiteResult>,
     /// Prices of all products in the site's country.
     pub prices: BTreeMap<String, PriceInfo>,
+    /// The plot the site stands on (M35); `None` for extraction sites.
+    #[serde(default)]
+    pub plot: Option<SitePlotView>,
+}
+
+/// The plot of a site (M35).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SitePlotView {
+    /// Key of the location (text `lage.<key>`).
+    pub location: String,
+    pub area_ha: f64,
+    /// Land the facilities take with ways and offices.
+    pub used_ha: f64,
+    pub owned: bool,
+    /// Today's value of the land.
+    pub value_usd: f64,
+    /// Rent per year while leased.
+    pub rent_usd_year: Option<f64>,
+    /// Units of each known facility of the site's type that still fit on the plot.
+    #[serde(default)]
+    pub fits: BTreeMap<String, u32>,
 }
 
 /// Price index and reference price of a product in a country.
@@ -247,6 +268,9 @@ pub struct FacilityOption {
     pub automation_max: f64,
     /// Recipes of this facility the company knows.
     pub recipes: Vec<String>,
+    /// Land per unit with ways and offices (M35; 0 without plots).
+    #[serde(default)]
+    pub area_ha: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -341,6 +365,11 @@ pub fn production(game: &Game) -> ProductionView {
                 build_days: f.build_days,
                 runs_per_day: f.runs_per_day,
                 automation_max: f.automation_max,
+                area_ha: if catalog.plot_model.enabled() {
+                    crate::plots::facility_area(catalog, id) * (1.0 + catalog.plot_model.overhead)
+                } else {
+                    0.0
+                },
             }
         })
         .collect();
@@ -612,6 +641,30 @@ pub fn production(game: &Game) -> ProductionView {
                         )
                     })
                     .collect(),
+                plot: s.plot.map(|plot| {
+                    let p = &state.plots[plot.index()];
+                    let value = usd(crate::plots::value(catalog, state, plot));
+                    let leased = p.tenure == crate::state::Tenure::Leased;
+                    SitePlotView {
+                        location: p.location.key().to_owned(),
+                        area_ha: p.area_ha,
+                        used_ha: crate::plots::site_area(catalog, s, None),
+                        owned: !leased,
+                        value_usd: value,
+                        rent_usd_year: leased.then(|| value * catalog.plot_model.rent_share),
+                        fits: catalog
+                            .facilities
+                            .iter()
+                            .filter(|(_, f)| f.site_type == s.kind && knows(f.technology))
+                            .map(|(f, _)| {
+                                (
+                                    catalog.facilities.key(f).to_owned(),
+                                    crate::plots::units_that_fit(catalog, state, site_id, f),
+                                )
+                            })
+                            .collect(),
+                    }
+                }),
             }
         })
         .collect();

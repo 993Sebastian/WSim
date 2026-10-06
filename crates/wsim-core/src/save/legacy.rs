@@ -123,6 +123,7 @@ pub(super) fn decode_v2(
         sites: Vec::new(),
         markets: PerId::default(),
         shipments: Vec::new(),
+        plots: Vec::new(),
         routes: Default::default(),
         import_markets: Default::default(),
         deposits: PerId::default(),

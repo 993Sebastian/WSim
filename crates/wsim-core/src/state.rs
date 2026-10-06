@@ -199,6 +199,43 @@ impl CompanyId {
     }
 }
 
+/// Plots are numbered in the order they come on the market; IDs are never reused (M35).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct PlotId(pub u32);
+
+impl PlotId {
+    pub fn index(self) -> usize {
+        self.0 as usize
+    }
+}
+
+/// A plot of commercial land (M35).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Plot {
+    pub country: CountryId,
+    pub location: crate::catalog::Location,
+    pub area_ha: f64,
+    /// Size class (index into the plot model's classes).
+    pub class: u8,
+    /// Year it came on the market.
+    pub since: i32,
+    /// The site on it; `None` while it is free.
+    pub site: Option<SiteId>,
+    /// How the site holds it (meaningless while free).
+    pub tenure: Tenure,
+}
+
+/// How a site holds its plot (M35).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub enum Tenure {
+    /// Bought; the price is the book value of the land.
+    Owned(Money),
+    /// Rented month by month.
+    #[default]
+    Leased,
+}
+
 /// Sites are numbered in the order they are founded; IDs are never reused.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -516,6 +553,9 @@ pub struct Site {
     /// Goodwill paid above the book values when the site was bought (M30).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub goodwill: Option<Goodwill>,
+    /// The plot the site stands on (M35); none for extraction sites.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plot: Option<PlotId>,
 }
 
 /// Goodwill of a bought site: written off linearly from the day of purchase (M30).
@@ -885,6 +925,9 @@ pub struct GameState {
     /// Goods on the way, in the order they were sent.
     #[serde(default)]
     pub shipments: Vec<Shipment>,
+    /// Commercial land of all countries, free and occupied (M35).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub plots: Vec<Plot>,
     /// Cheapest transport routes of the current year; derived, not saved.
     #[serde(skip)]
     pub routes: Routes,
@@ -991,6 +1034,7 @@ impl GameState {
             })
             .collect();
         self.refresh_countries(catalog);
+        crate::plots::fit_loaded(self, catalog);
     }
 }
 

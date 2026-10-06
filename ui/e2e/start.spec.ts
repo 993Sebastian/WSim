@@ -105,6 +105,10 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await expect(detail.getByRole("heading", { name: "Arbeitskräfte und Löhne" })).toBeVisible();
   await expect(detail.getByText("Ruhrgebiet")).toBeVisible();
   await expect(detail.getByText("Kartenprobe")).toBeVisible();
+  // Commercial land: how much is taken, free plots and land prices by location.
+  await expect(detail.getByRole("heading", { name: "Gewerbeflächen" })).toBeVisible();
+  await expect(detail).toContainText(/[\d.]+ ha, davon [\d,]+ % belegt/);
+  await expect(detail.getByRole("cell", { name: "Hafen" })).toBeVisible();
   // The currency of the time with its rate, and the ones that followed.
   await expect(detail).toContainText("Mark (M) · 4,22 M je US-Dollar (1914)");
   await expect(detail).toContainText(

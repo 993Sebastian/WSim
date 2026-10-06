@@ -200,6 +200,7 @@ impl Game {
             sites: Vec::new(),
             markets: PerId::default(),
             shipments: Vec::new(),
+            plots: Vec::new(),
             routes: Default::default(),
             import_markets: Default::default(),
             deposits: PerId::default(),
@@ -215,6 +216,7 @@ impl Game {
         state.refresh_countries(&catalog);
         state.fit_to_catalog(&catalog);
         market::initial_demand(&mut state, &catalog, date);
+        crate::plots::supply(&mut state, &catalog, date.year());
         apply_start_setup(&mut state, &catalog)?;
         crate::population::populate(&mut state, &catalog);
         crate::ranking::record(&mut state);
@@ -400,6 +402,7 @@ impl Game {
                 .messages
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
+            crate::plots::month_start(&mut self.state, &self.catalog, next);
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);
             market::reset_site_months(&mut self.state);
@@ -580,6 +583,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
             (product, order)
         })
         .collect();
+    let site = crate::state::SiteId(u32::try_from(state.sites.len()).expect("site count fits u32"));
     state.sites.push(Site {
         owner: state.player,
         country,
@@ -597,7 +601,17 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         wage_premium: 0.0,
         acquired: None,
         goodwill: None,
+        plot: None,
     });
+    // The workshop leases its plot: the start capital pays only building and facilities.
+    if crate::plots::needs_plot(catalog, setup.site_type) {
+        let s = &state.sites[site.index()];
+        let need =
+            crate::plots::site_area(catalog, s, None) * (1.0 + catalog.plot_model.ai_reserve);
+        let revenue = crate::plots::planned_revenue(state, catalog, s);
+        let plot = crate::plots::for_existing(state, catalog, country, (need, revenue));
+        crate::plots::occupy(state, plot, site, crate::state::Tenure::Leased);
+    }
     Ok(())
 }
 

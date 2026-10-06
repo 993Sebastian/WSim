@@ -306,6 +306,8 @@ export interface Landdetail {
   currencies: { from: string; currency: string; symbol: string; current: boolean }[];
   /** Units of the current currency per US dollar of the game date (null: the dollar). */
   currency_per_usd: number | null;
+  /** Commercial land and free plots (null without plots). */
+  land: Gewerbeflaeche | null;
 }
 
 export interface Ursache {
@@ -445,6 +447,42 @@ export interface StandortDetail {
   last_month: StandortErgebnis | null;
   /** Market and reference price in the site's country, by product. */
   prices: Record<string, { market_usd: number; reference_usd: number }>;
+  /** The plot the site stands on (none for extraction sites). */
+  plot: StandortGrundstueck | null;
+}
+
+/** The plot of a site: location (text `lage.<key>`), area and land in use (ha). */
+export interface StandortGrundstueck {
+  location: string;
+  area_ha: number;
+  used_ha: number;
+  owned: boolean;
+  value_usd: number;
+  /** Rent per year while leased. */
+  rent_usd_year: number | null;
+  /** Units of each facility of the site's type that still fit on the plot. */
+  fits: Record<string, number>;
+}
+
+/** A free plot of a country (texts `lage.<location>`, `grundstuecksklasse.<class>`). */
+export interface Grundstueck {
+  id: number;
+  location: string;
+  class: string;
+  area_ha: number;
+  value_usd: number;
+  rent_usd_year: number;
+}
+
+/** Commercial land of a country with its free plots. */
+export interface Gewerbeflaeche {
+  area_ha: number;
+  occupied_ha: number;
+  /** Land price per ha by location key. */
+  price_per_ha_usd: [string, number][];
+  /** Size classes, the smallest first (texts `grundstuecksklasse.<key>`). */
+  classes: string[];
+  free: Grundstueck[];
 }
 
 export interface Produktion {
@@ -460,6 +498,8 @@ export interface Produktion {
     runs_per_day: number;
     automation_max: number;
     recipes: string[];
+    /** Land per unit with ways and offices (ha; 0 without plots). */
+    area_ha: number;
   }[];
   recipes: {
     key: string;
@@ -764,8 +804,10 @@ export interface Standortwert {
   earnings_value_usd: number;
   liquidation_usd: number;
   under_construction_usd: number;
-  /** Base value G = max(earnings value, liquidation) + under construction + stocks;
-   * for an area the sum over its sites and the brand. */
+  /** A bought plot at today's value (M35); 0 for a leased one. */
+  land_usd: number;
+  /** Base value G = max(earnings value, liquidation) + under construction + stocks +
+   * bought plot; for an area the sum over its sites and the brand. */
   base_usd: number;
   earnings_years: number;
   /** Brand value W of an area (advertising for the same awareness); 0 for a site. */

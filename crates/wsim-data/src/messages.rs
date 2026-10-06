@@ -379,6 +379,29 @@ pub fn neighbor_asymmetric(neighbor: &str, key: &str) -> String {
     format!("„{neighbor}“ führt „{key}“ nicht als Nachbarn.")
 }
 
+pub fn size_medium_not_one(capacity: f64) -> String {
+    format!(
+        "Die Größe „mittel“ muss die Kapazität 1 haben (hier {capacity}): Für sie gelten die \
+         Werte der Anlagen in den Daten."
+    )
+}
+
+pub fn sizes_not_increasing(smaller: &str, larger: &str) -> String {
+    format!(
+        "Die Kapazität muss mit der Größe wachsen: „{larger}“ hat nicht mehr Kapazität als \
+         „{smaller}“."
+    )
+}
+
+pub fn plot_classes_missing() -> String {
+    "Mindestens eine Größenklasse für Grundstücke ist nötig.".to_owned()
+}
+
+pub fn shares_not_one(what: &str, sum: f64) -> String {
+    let sum = (sum * 1000.0).round() / 1000.0;
+    format!("Die Anteile „{what}“ ergeben zusammen {sum} statt 1.")
+}
+
 pub fn region_too_small(region: &str) -> String {
     format!("Region „{region}“ muss mindestens zwei Länder umfassen.")
 }

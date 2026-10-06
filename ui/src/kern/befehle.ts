@@ -9,6 +9,8 @@ export type Preisart = { Market: { markup: number; floor: number } } | { Fixed: 
 export type Befehl =
   | { RenameCompany: { name: string } }
   | { FoundSite: { country: string; kind: string } }
+  | { FoundSiteOnPlot: { plot: number; kind: string; lease: boolean } }
+  | { BuyPlot: { site: number } }
   | { BuildFacility: { site: number; facility: string; count: number } }
   | { DevelopDeposit: { site: number; deposit: string } }
   | { SetProduction: { site: number; slot: number; recipe: string | null; utilization: number } }

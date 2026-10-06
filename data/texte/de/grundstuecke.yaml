@@ -1,0 +1,8 @@
+# Grundstücke (M35): Größenklassen und Lagen aus data/parameter/grundstuecksmodell.yaml.
+grundstuecksklasse.klein: klein
+grundstuecksklasse.mittel: mittel
+grundstuecksklasse.gross: groß
+grundstuecksklasse.sehr_gross: sehr groß
+lage.stadt: Stadt
+lage.hafen: Hafen
+lage.land: Land

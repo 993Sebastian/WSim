@@ -108,14 +108,18 @@ pub struct SiteValue {
     pub earnings_value: Money,
     /// Q: proceeds of selling all finished facilities (M22).
     pub liquidation: Money,
-    /// G = max(E, Q) + U + L.
+    /// Bought plot at its purchase price (M35).
+    pub land_book: Money,
+    /// Bought plot at today's value (M35); leased plots count nothing.
+    pub land: Money,
+    /// G = max(E, Q) + U + L + land.
     pub base: Money,
 }
 
 impl SiteValue {
     /// B: everything on the books except the stocks.
     pub fn book(&self) -> Money {
-        self.fixed_assets + self.under_construction + self.goodwill
+        self.fixed_assets + self.under_construction + self.goodwill + self.land_book
     }
 }
 
@@ -190,7 +194,13 @@ pub fn site_value(state: &GameState, catalog: &Catalog, site: SiteId) -> SiteVal
     v.earnings_value = v.result_year.map_or(Money::ZERO, |r| {
         r.max(Money::ZERO).scale(model.earnings_years)
     });
-    v.base = v.earnings_value.max(v.liquidation) + v.under_construction + v.inventory;
+    if let Some(plot) = s.plot
+        && let crate::state::Tenure::Owned(price) = state.plots[plot.index()].tenure
+    {
+        v.land_book = price;
+        v.land = crate::plots::value(catalog, state, plot);
+    }
+    v.base = v.earnings_value.max(v.liquidation) + v.under_construction + v.inventory + v.land;
     v
 }
 
@@ -280,6 +290,8 @@ impl AreaValue {
             v.inventory += s.inventory;
             v.earnings_value += s.earnings_value;
             v.liquidation += s.liquidation;
+            v.land_book += s.land_book;
+            v.land += s.land;
             if let Some(r) = s.result_year {
                 v.result_year = Some(v.result_year.unwrap_or(Money::ZERO) + r);
             }
@@ -871,6 +883,7 @@ fn hand_over(
     );
     l.transfer(Account::Cash, Account::Goodwill, v.goodwill);
     l.transfer(Account::Cash, Account::Inventory, v.inventory);
+    l.transfer(Account::Cash, Account::Land, v.land_book);
     let book = v.book() + v.inventory;
     if price >= book {
         l.income(CostType::Other, center, Account::Cash, price - book);
@@ -886,7 +899,8 @@ fn hand_over(
         v.under_construction,
     );
     l.transfer(Account::Inventory, Account::Cash, v.inventory);
-    let assets = v.fixed_assets + v.under_construction + v.inventory;
+    l.transfer(Account::Land, Account::Cash, v.land);
+    let assets = v.fixed_assets + v.under_construction + v.inventory + v.land;
     let goodwill = if price >= assets {
         let amount = price - assets;
         l.transfer(Account::Goodwill, Account::Cash, amount);
@@ -905,6 +919,15 @@ fn hand_over(
     s.acquired = Some(today);
     s.goodwill = goodwill;
     s.staffing_due = true;
+    // A bought plot goes over at today's value; a leased one stays leased (M35).
+    if let Some(plot) = s.plot
+        && matches!(
+            state.plots[plot.index()].tenure,
+            crate::state::Tenure::Owned(_)
+        )
+    {
+        state.plots[plot.index()].tenure = crate::state::Tenure::Owned(v.land);
+    }
 }
 
 /// Hands an area over: its sites, with the price split by their base values, and the

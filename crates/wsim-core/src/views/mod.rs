@@ -952,6 +952,96 @@ pub struct CountryDetail {
     /// Units of the current currency per US dollar of the game date; `None` for the
     /// lead currency itself or without currency data.
     pub currency_per_usd: Option<f64>,
+    /// Commercial land and its free plots (M35); `None` without plots.
+    #[serde(default)]
+    pub land: Option<LandView>,
+}
+
+/// Commercial land of a country (M35).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LandView {
+    pub area_ha: f64,
+    pub occupied_ha: f64,
+    /// Land price per ha by location key (`stadt`, `hafen`, `land`).
+    pub price_per_ha_usd: Vec<(String, f64)>,
+    /// Keys of the size classes, the smallest first (texts `grundstuecksklasse.<key>`).
+    #[serde(default)]
+    pub classes: Vec<String>,
+    /// Free plots, by location (city, port, country side), the largest first.
+    pub free: Vec<PlotView>,
+}
+
+/// A free plot (M35).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PlotView {
+    /// For `FoundSiteOnPlot`.
+    pub id: u32,
+    /// Key of the location (text `lage.<key>`).
+    pub location: String,
+    /// Key of the size class (text `grundstuecksklasse.<key>`).
+    pub class: String,
+    pub area_ha: f64,
+    /// Price when bought today.
+    pub value_usd: f64,
+    pub rent_usd_year: f64,
+}
+
+/// The commercial land of a country with its free plots.
+pub fn land_view(game: &Game, country: CountryId) -> Option<LandView> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let m = &catalog.plot_model;
+    if !m.enabled() {
+        return None;
+    }
+    let (area_ha, occupied_ha) = crate::plots::land(state, country);
+    let mut free: Vec<PlotView> = state
+        .plots
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| p.country == country && p.site.is_none())
+        .map(|(i, p)| {
+            let id = crate::state::PlotId(u32::try_from(i).unwrap_or(u32::MAX));
+            let value = usd(crate::plots::value(catalog, state, id));
+            PlotView {
+                id: id.0,
+                location: p.location.key().to_owned(),
+                class: m
+                    .classes
+                    .get(usize::from(p.class))
+                    .map_or_else(String::new, |c| c.key.clone()),
+                area_ha: p.area_ha,
+                value_usd: value,
+                rent_usd_year: value * m.rent_share,
+            }
+        })
+        .collect();
+    let order = |key: &str| {
+        crate::catalog::Location::ALL
+            .iter()
+            .position(|l| l.key() == key)
+            .unwrap_or(0)
+    };
+    free.sort_by(|a, b| {
+        order(&a.location)
+            .cmp(&order(&b.location))
+            .then(b.area_ha.total_cmp(&a.area_ha))
+            .then(a.id.cmp(&b.id))
+    });
+    Some(LandView {
+        area_ha,
+        occupied_ha,
+        price_per_ha_usd: crate::catalog::Location::ALL
+            .iter()
+            .map(|&l| {
+                (
+                    l.key().to_owned(),
+                    usd(crate::plots::price_per_ha(catalog, state, country, l)),
+                )
+            })
+            .collect(),
+        classes: m.classes.iter().map(|c| c.key.clone()).collect(),
+        free,
+    })
 }
 
 /// A currency of a country from a month on (M21).
@@ -1049,6 +1139,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
     });
     let map = world_map(game);
     let (currencies, currency_per_usd) = country_currencies(game, id);
+    let land = land_view(game, id);
     Some(CountryDetail {
         key: key.to_owned(),
         members: catalog.countries.get(id).members.clone(),
@@ -1081,6 +1172,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         markets,
         currencies,
         currency_per_usd,
+        land,
     })
 }
 

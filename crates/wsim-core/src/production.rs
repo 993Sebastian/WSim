@@ -441,31 +441,27 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
             employed[s.country.index()][g.index()] += w;
         }
     }
+    // What draws workers: the wage premium and the location of the plot (M35).
+    let pull: Vec<f64> = state
+        .sites
+        .iter()
+        .map(|s| s.wage_premium + crate::plots::hiring(catalog, state, s))
+        .collect();
     let mut due: Vec<usize> = (0..state.sites.len())
         .filter(|&i| state.sites[i].staffing_due)
         .collect();
-    due.sort_by(|&a, &b| {
-        let (pa, pb) = (state.sites[a].wage_premium, state.sites[b].wage_premium);
-        pb.total_cmp(&pa).then(a.cmp(&b))
-    });
+    due.sort_by(|&a, &b| pull[b].total_cmp(&pull[a]).then(a.cmp(&b)));
     for index in due {
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));
         let country = state.sites[index].country;
-        let premium = state.sites[index].wage_premium;
+        let premium = pull[index];
         let needed = needed_workers(catalog, state, site, date);
-        // Who can be hired away: same country, lower premium; lowest premium first, the
-        // youngest site first among equals.
+        // Who can be hired away: same country, less pull; least pull first, the youngest
+        // site first among equals.
         let mut rivals: Vec<usize> = (0..state.sites.len())
-            .filter(|&i| {
-                i != index
-                    && state.sites[i].country == country
-                    && state.sites[i].wage_premium < premium
-            })
+            .filter(|&i| i != index && state.sites[i].country == country && pull[i] < premium)
             .collect();
-        rivals.sort_by(|&a, &b| {
-            let (pa, pb) = (state.sites[a].wage_premium, state.sites[b].wage_premium);
-            pa.total_cmp(&pb).then(b.cmp(&a))
-        });
+        rivals.sort_by(|&a, &b| pull[a].total_cmp(&pull[b]).then(b.cmp(&a)));
         let pool = &state.countries.get(country).labor_available;
         let free: Vec<f64> = (0..groups)
             .map(|g| (pool.get(g).copied().unwrap_or(0.0) - employed[country.index()][g]).max(0.0))

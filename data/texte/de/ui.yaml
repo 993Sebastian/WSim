@@ -242,6 +242,11 @@ landdetail.gruppe: Gruppe
 landdetail.personen: Personen
 landdetail.verfuegbar: im Spiel
 landdetail.lohn: Lohn/h
+landdetail.gewerbeflaeche: Gewerbeflächen
+landdetail.gewerbeflaeche_wert: "{gesamt} ha, davon {anteil} belegt. Mit der Wirtschaft wächst die Fläche jedes Jahr am 1. Januar."
+landdetail.freie_grundstuecke: frei
+landdetail.groesstes: größtes
+landdetail.bodenpreis: Bodenpreis je ha
 landdetail.lagerstaetten: Lagerstätten
 landdetail.konzessionen: "{frei} von {gesamt} Konzessionen frei"
 landdetail.firmen: Firmen im Land
@@ -288,6 +293,47 @@ produktion.erschliessen_knopf: Erschließen
 produktion.erschliessung_bis: "Die Lagerstätte wird bis {datum} erschlossen."
 produktion.foerderung_jahr: "{menge} je Jahr"
 produktion.keine_lagerstaette: "Im Land ist {jahr} keine entdeckte Lagerstätte mit freier Konzession."
+
+# Grundstücke (M35)
+grundstueck.titel: Grundstück
+grundstueck.waehlen: Grundstück wählen
+grundstueck.hinweis: "Jeder Standort außer einer Förderstätte steht auf einem Grundstück. Im Land sind {frei} von {gesamt} ha Gewerbefläche frei; Bodenpreis je ha: {preise}."
+grundstueck.lagen_titel: Was bedeuten Lage, Kauf und Pacht?
+grundstueck.lage_stadt: Kleine, teure Grundstücke; Arbeitskräfte kommen lieber – das wirkt wie ein Lohnaufschlag.
+grundstueck.lage_hafen: Mittelgroße Grundstücke an der Küste; Fracht über See wird billiger.
+grundstueck.lage_land: Große, billige Grundstücke; dafür Lieferkosten zu den Kunden im Land, und Arbeitskräfte kommen ungern.
+grundstueck.kauf_pacht: "Kaufen bindet Geld, aber das Grundstück gehört dir und steht in der Bilanz. Pachten kostet vorab nichts, dafür jeden Monat Pacht; kaufen kannst du später in der Werksansicht. Ist ein Grundstück voll, passt keine weitere Anlage darauf – dann gründest du einen weiteren Standort."
+grundstueck.keins_frei: Im Land ist gerade kein Grundstück frei. Neue kommen jedes Jahr am 1. Januar hinzu, wenn die Wirtschaft wächst – oder gründe in einem anderen Land.
+grundstueck.keins_passend: Kein freies Grundstück passt zu dieser Auswahl.
+grundstueck.lage: Lage
+grundstueck.alle_lagen: alle Lagen
+grundstueck.groesse: Größe
+grundstueck.alle_groessen: alle Größen
+grundstueck.freie: Freie Grundstücke
+grundstueck.wahl: Auswahl
+grundstueck.flaeche: Fläche
+grundstueck.kaufpreis: Kaufpreis
+grundstueck.pacht: Pacht je Jahr
+grundstueck.name: "{lage}, {flaeche} ha"
+grundstueck.weitere: "{anzahl} weitere – Lage oder Größe wählen, um sie zu sehen."
+grundstueck.besitz: Kaufen oder pachten
+grundstueck.kaufen: Kaufen
+grundstueck.pachten: Pachten
+grundstueck.gewaehlt_kauf: "Gewählt: {grundstueck} – Kaufpreis {preis}."
+grundstueck.gewaehlt_pacht: "Gewählt: {grundstueck} – Pacht {pacht} je Jahr, monatlich gezahlt."
+grundstueck.noch_keins: Wähle oben ein Grundstück.
+grundstueck.kosten_jetzt: "Kosten jetzt: {betrag}"
+grundstueck.belegt: "{belegt} von {gesamt} ha belegt ({anteil})"
+grundstueck.eigen: "Eigentum, heute {wert} wert"
+grundstueck.gepachtet: "Gepachtet für {pacht} je Jahr (Kaufpreis heute {wert})"
+grundstueck.voll: Das Grundstück ist voll – hier passt keine weitere Anlage. Für mehr gründe einen weiteren Standort im Land.
+grundstueck.kaufen_knopf: "Grundstück kaufen ({preis})"
+grundstueck.gekauft_meldung: "Grundstück für {preis} gekauft – die Pacht entfällt."
+grundstueck.passt_nicht: passt nicht aufs Grundstück
+grundstueck.flaechenbedarf: Fläche
+grundstueck.passen_noch: "noch Platz für {anzahl}"
+grundstueck.kein_platz: Diese Anlage passt nicht mehr aufs Grundstück. Gründe für sie einen weiteren Standort.
+grundstueck.zu_viele: "Auf dem Grundstück ist nur noch Platz für {anzahl} – weniger bauen oder einen weiteren Standort gründen."
 
 feld.keine_zahl: Bitte eine Zahl eingeben, z. B. 1.800 oder 2,5.
 monat.1: Januar
@@ -731,6 +777,8 @@ einfuehrung.geschafft.titel: Deine Firma läuft
 einfuehrung.geschafft.text: "Ab jetzt zeigt dir die Übersicht unter „Zu erledigen“, wo es hakt – ein Klick führt direkt an die Stelle. Neue Märkte und Produkte findest du im Markt, neue Werke gründest du unter „Standorte“, neue Verfahren erforschst du in der Forschung. Ein kurzer Rundgang zeigt dir diese Ansichten – oder beende die Einführung."
 einfuehrung.etappen.titel: Etappen
 einfuehrung.etappen.text: "Wie geht es weiter? Die Etappen in der Übersicht nennen dir das nächste lohnende Ziel – vom ersten Monat mit Gewinn bis zum verdoppelten Eigenkapital – und wie du es erreichst. Erreichte Etappen stehen im Rundenbericht. Im Menü ☰ kannst du sie ausblenden."
+einfuehrung.grundstuecke.titel: Standorte und Grundstücke
+einfuehrung.grundstuecke.text: "Neue Werke, Kraftwerke und Lager gründest du hier unter „Neuer Standort“. Jeder Standort steht auf einem Grundstück: In der Stadt klein und teuer, aber Arbeitskräfte kommen lieber; am Hafen wird Fracht über See billiger; auf dem Land groß und billig, dafür mit Lieferkosten zu den Kunden. Kaufen bindet Geld, Pachten kostet jeden Monat. Ist ein Grundstück voll, passt keine weitere Anlage darauf – dann gründest du im Land einen weiteren Standort. Neue Grundstücke kommen jedes Jahr hinzu, die guten sind schnell vergeben."
 einfuehrung.markt.titel: Markt
 einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung
@@ -831,10 +879,11 @@ wettbewerb.grundwert_bereich_hilfe: Die Grundwerte aller Standorte des Bereichs 
 wettbewerb.ertrag_fehlt: Ertragswert (noch kein Jahresergebnis)
 wettbewerb.ertragswert: "Ertragswert: Ergebnis {ergebnis} im Jahr × {jahre}"
 wettbewerb.restwert: Restwert der Anlagen
+wettbewerb.grundstueck: Grundstück (heutiger Wert)
 wettbewerb.im_bau: Anlagen im Bau
 wettbewerb.lager: Lager
 wettbewerb.grundwert: Grundwert
-wettbewerb.grundwert_hilfe: Der höhere Wert aus Ertragswert und Restwert der Anlagen, dazu Anlagen im Bau und Lager. Danach richten sich die Firmen beim Kaufen und Verkaufen; wer im selben Geschäft ist, zahlt mehr.
+wettbewerb.grundwert_hilfe: Der höhere Wert aus Ertragswert und Restwert der Anlagen, dazu Anlagen im Bau, Lager und ein gekauftes Grundstück. Danach richten sich die Firmen beim Kaufen und Verkaufen; wer im selben Geschäft ist, zahlt mehr.
 wettbewerb.buchwert: Buchwert (Anlagen, Gebäude, Firmenwert)
 wettbewerb.preis: Preis
 wettbewerb.preis_fehlt: Bitte einen Preis über 0 eintragen.

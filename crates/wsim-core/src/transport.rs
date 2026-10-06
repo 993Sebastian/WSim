@@ -149,6 +149,22 @@ impl Routes {
         *row.get(to.index())?
     }
 
+    /// `for_product` for goods sent from or to a site at a port (M35): freight by sea
+    /// costs `sea_freight` times as much.
+    pub fn for_product_via(
+        &self,
+        catalog: &Catalog,
+        product: ProductId,
+        (from, to): (CountryId, CountryId),
+        sea_freight: f64,
+    ) -> Option<(Money, u32)> {
+        let p = catalog.products.get(product);
+        let route = self.get(p.transport_class, from, to)?;
+        let factor = if route.by_sea { sea_freight } else { 1.0 };
+        let cost = Money::from_usd(route.cost_per_t * p.weight_kg / 1000.0 * factor)?;
+        Some((cost, route.whole_days()))
+    }
+
     /// Transport cost per unit of a product and the whole days on the way.
     pub fn for_product(
         &self,

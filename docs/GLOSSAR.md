@@ -238,3 +238,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Früherer Schlüssel eines Eintrags (Spielstände) | `KeyTable::add_alias`, `ids::take_last_rank` (Vorrang in `PerId`) |
 | Firmenzahlen der KI-Regeln mit der Zahl der KI-Firmen | `ai::per_companies` |
 | Anbieter und Käufer eines Produkts je Land (Markträumung) | `market::Traders` |
+| Grundstücksmodell (Parameter), Größenklasse, Lage (Stadt, Hafen, Land) | `catalog::PlotModel`, `PlotClass`, `Location` (`City`, `Port`, `Rural`), `LocationModel` (`parameter/grundstuecksmodell.yaml`; M35) |
+| Fläche einer Anlage | `Facility::area_ha` (`anlagen[].flaeche_ha`) |
+| Grundstück, Kauf, Pacht (Besitz) | `state::Plot`, `PlotId`, `Tenure` (`Owned`, `Leased`), `GameState::plots`, `Site::plot`; Konto `Account::Land`; Befehle `FoundSiteOnPlot`, `BuyPlot`; Modul `plots` |
+| Gewerbefläche eines Landes, freie Grundstücke | Sichten `LandView`, `PlotView` (`land_view`), `SitePlotView`; UI: `GrundstueckWahl`, `useGewerbeflaeche`, `GrundstueckKarte`, `Gewerbeflaechen` |
+| Anlagengröße (sehr klein bis sehr groß), Kapazitätsfaktor | `catalog::FacilitySize`, `SizeModel` (`ProductionModel::sizes`, `produktionsmodell.anlagengroessen`; M36) |

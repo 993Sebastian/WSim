@@ -273,6 +273,8 @@ export function Spiel({
     setFuehrung({ ...fuehrung, schritt: n });
     const a = PFADE[fuehrung.pfad][n]?.ansicht;
     if (a) setAnsicht(a as Ansicht);
+    // The tour shows the list of sites with the founding form, not a plant.
+    if (a === "produktion") setWerk(null);
   };
 
   const springe = (ziel: string) => {

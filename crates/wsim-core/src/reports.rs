@@ -16,6 +16,7 @@ impl Account {
             Account::RetainedEarnings => "konto.gewinnruecklagen",
             Account::Result => "konto.jahresergebnis",
             Account::Goodwill => "konto.firmenwert",
+            Account::Land => "konto.grundstuecke",
         }
     }
 }

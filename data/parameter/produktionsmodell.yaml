@@ -47,6 +47,17 @@ produktionsmodell:
   # Nebenprodukte, die über so viele Tage ihrer Erzeugung hinaus auf Lager lägen, werden
   # entsorgt (abgefackelt, verkippt): Um 1900 fand Benzin kaum Käufer.
   nebenprodukte_lager_tage: 90
+  # Anlagengrößen (M36): Kapazität als Vielfaches der Datenwerte, die für „mittel“ gelten.
+  # Investition, Fläche und Bauzeit wachsen mit Kapazität^Exponent, die Arbeitsstunden je
+  # Durchlauf mit Kapazität^arbeit_exponent (negativ: große Anlagen brauchen je Stück
+  # weniger Arbeit). Größenvorteile der Industrie: Investition etwa mit Kapazität^0,6–0,7
+  # („six-tenths rule“), Arbeit je Stück sinkt schwächer.
+  anlagengroessen:
+    kapazitaet: {sehr_klein: 0.25, klein: 0.5, mittel: 1, gross: 2, sehr_gross: 4}
+    investition_exponent: 0.7
+    arbeit_exponent: -0.15
+    flaeche_exponent: 0.7
+    bauzeit_exponent: 0.3
 
   # Was eine neue Firma zu Beginn besitzt (Lastenheft §2, §15); bezahlt aus dem
   # Startkapital. Die Werkstatt stellt Nägel aus Draht her und verkauft sie zum

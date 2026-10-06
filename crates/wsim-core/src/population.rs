@@ -956,11 +956,33 @@ fn found_company(
             wage_premium: 0.0,
             acquired: None,
             goodwill: None,
+            plot: None,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);
-    let mut ledger = Ledger::new(date, fixed + construction + stock_value + cash);
+    // Start companies own their plots (M35): a free one that holds the site with room to
+    // grow, else one of that size; the land is part of the start capital.
+    let mut land = Money::ZERO;
+    let reserve = 1.0 + catalog.plot_model.ai_reserve;
+    for (i, site) in new_sites.iter_mut().enumerate() {
+        if !crate::plots::needs_plot(catalog, site.kind) {
+            continue;
+        }
+        let need = crate::plots::site_area(catalog, site, None) * reserve;
+        let revenue = crate::plots::planned_revenue(state, catalog, site);
+        let plot = crate::plots::for_existing(state, catalog, site.country, (need, revenue));
+        let value = crate::plots::value(catalog, state, plot);
+        land += value;
+        let p = &mut state.plots[plot.index()];
+        p.site = Some(SiteId(
+            u32::try_from(state.sites.len() + i).unwrap_or(u32::MAX),
+        ));
+        p.tenure = crate::state::Tenure::Owned(value);
+        site.plot = Some(plot);
+    }
+    let mut ledger = Ledger::new(date, fixed + construction + stock_value + cash + land);
     ledger.transfer(Account::FixedAssets, Account::Cash, fixed);
+    ledger.transfer(Account::Land, Account::Cash, land);
     ledger.transfer(
         Account::AssetsUnderConstruction,
         Account::Cash,

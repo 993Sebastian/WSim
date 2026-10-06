@@ -22,6 +22,7 @@ pub mod math;
 pub mod message;
 pub mod milestones;
 pub mod money;
+pub mod plots;
 pub mod policy;
 pub mod population;
 pub mod production;
@@ -46,6 +47,8 @@ mod facility_tests;
 mod finance_tests;
 #[cfg(test)]
 mod market_tests;
+#[cfg(test)]
+mod plots_tests;
 #[cfg(test)]
 mod production_tests;
 #[cfg(test)]

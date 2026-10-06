@@ -113,6 +113,72 @@ fn per_companies(state: &GameState, catalog: &Catalog, count: u32) -> usize {
     (f64::from(count) * factor).round() as usize
 }
 
+/// Where a company would found a site of `kind` for `units` of a facility (M35): the
+/// command and how many of the units fit. Extraction sites need no plot; other sites go
+/// on the free plot that holds the units with the reserve of the plot model (the
+/// cheapest per ha, else the largest free one), bought while the cash keeps
+/// `kasse_min_monate` of running costs, else leased. `None` without a plot for one unit.
+fn site_plan(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (country, kind): (CountryId, SiteType),
+    (units, revenue): (Option<(FacilityId, u32)>, f64),
+) -> Option<(Command, u32)> {
+    let wanted = units.map_or(u32::MAX, |(_, n)| n);
+    if !crate::plots::needs_plot(catalog, kind) {
+        return Some((Command::FoundSite { country, kind }, wanted));
+    }
+    let m = &catalog.plot_model;
+    let need = units.map_or(m.min_site_area_ha, |(f, n)| {
+        crate::plots::project_area(catalog, f, n)
+    }) * (1.0 + m.ai_reserve);
+    let plot = crate::plots::choose(catalog, state, country, need, revenue)?;
+    let area = state.plots[plot.index()].area_ha;
+    let fit = units.map_or(u32::MAX, |(f, n)| {
+        let per_unit = crate::plots::facility_area(catalog, f) * (1.0 + m.overhead);
+        // Small counts; the cast saturates.
+        let fit = if per_unit > 0.0 {
+            (area / per_unit + 1e-9).floor() as u32
+        } else {
+            n
+        };
+        if area + 1e-9 < m.min_site_area_ha {
+            0
+        } else {
+            fit.min(n)
+        }
+    });
+    if fit == 0 {
+        return None;
+    }
+    let own: Vec<SiteId> = state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.owner == id)
+        .map(|(i, _)| site_id(i))
+        .collect();
+    let price =
+        catalog.production_model.site_cost(kind) + crate::plots::value(catalog, state, plot);
+    let reserve =
+        daily_cost(catalog, state, &own).scale(30.0 * catalog.ai_model.behavior.cash_min_months);
+    let lease = state.companies[id.index()].ledger.cash() < price + reserve;
+    Some((Command::FoundSiteOnPlot { plot, kind, lease }, fit))
+}
+
+/// Founds a site as `site_plan` says; the new site and how many units fit there.
+fn found_site_for(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    place: (CountryId, SiteType),
+    project: (Option<(FacilityId, u32)>, f64),
+) -> Option<(SiteId, u32)> {
+    let (found, fit) = site_plan(state, catalog, id, place, project)?;
+    run(state, catalog, id, &found).then(|| (site_id(state.sites.len() - 1), fit))
+}
+
 /// Products the player makes or offers: competitors' moves in them are news.
 fn player_products(state: &GameState, catalog: &Catalog) -> Vec<ProductId> {
     let mut products = Vec::new();
@@ -1226,6 +1292,24 @@ fn expand(
         return;
     };
     let facility = catalog.recipes.get(recipe).facility;
+    // A full plot (M35): the company builds on a new plot in the same country.
+    let fit = crate::plots::units_that_fit(catalog, state, site, facility);
+    if fit == 0 {
+        let company = &state.companies[id.index()];
+        let budget = (company.ledger.cash().max(Money::ZERO)
+            + finance::credit_limit(catalog, company))
+        .scale(b.invest_share_max);
+        let Some(count) = affordable(state, catalog, (None, recipe, count), budget) else {
+            return;
+        };
+        let o = (product, place, None, recipe, count);
+        if build_in_bottleneck(state, catalog, id, o) {
+            let new = site_id(state.sites.len() - 1);
+            news.extend(news_expansion(state, catalog, id, new, recipe, count));
+        }
+        return;
+    }
+    count = count.min(fit);
     let company = &state.companies[id.index()];
     let budget = (company.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, company))
         .scale(b.invest_share_max);
@@ -1368,21 +1452,28 @@ fn own_power(
             },
         );
     }
+    // An existing power plant site of the country while its plot has room (M35).
     let existing = sites.iter().copied().find(|&s| {
-        let s = &state.sites[s.index()];
-        s.country == country && s.kind == f.site_type
+        let st = &state.sites[s.index()];
+        st.country == country
+            && st.kind == f.site_type
+            && crate::plots::units_that_fit(catalog, state, s, r.facility) > 0
     });
-    let site = match existing {
-        Some(site) => site,
+    let (site, count) = match existing {
+        Some(site) => (
+            site,
+            count.min(crate::plots::units_that_fit(
+                catalog, state, site, r.facility,
+            )),
+        ),
         None => {
-            let found = Command::FoundSite {
-                country,
-                kind: f.site_type,
-            };
-            if !run(state, catalog, id, &found) {
+            let place = (country, f.site_type);
+            let Some((site, fit)) =
+                found_site_for(state, catalog, id, place, (Some((r.facility, count)), 0.0))
+            else {
                 return false;
-            }
-            site_id(state.sites.len() - 1)
+            };
+            (site, count.min(fit))
         }
     };
     let build = Command::BuildFacility {
@@ -1637,14 +1728,18 @@ fn build_in_bottleneck(
             },
         );
     }
-    let found = Command::FoundSite {
-        country,
-        kind: f.site_type,
-    };
-    if !run(state, catalog, id, &found) {
+    let place = (country, f.site_type);
+    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+    let Some((site, fit)) = found_site_for(
+        state,
+        catalog,
+        id,
+        place,
+        (Some((r.facility, count)), revenue),
+    ) else {
         return false;
-    }
-    let site = site_id(state.sites.len() - 1);
+    };
+    let count = count.min(fit);
     if let Some(d) = deposit {
         run(
             state,
@@ -1972,14 +2067,11 @@ fn research_plan(
                 return;
             };
             let country = state.companies[id.index()].headquarters;
-            let found = Command::FoundSite {
-                country,
-                kind: SiteType::ResearchCenter,
-            };
-            if !run(state, catalog, id, &found) {
+            let place = (country, SiteType::ResearchCenter);
+            let Some((site, _)) = found_site_for(state, catalog, id, place, (Some((lab, 1)), 0.0))
+            else {
                 return;
-            }
-            let site = site_id(state.sites.len() - 1);
+            };
             let build = Command::BuildFacility {
                 site,
                 facility: lab,
@@ -2003,6 +2095,16 @@ fn research_plan(
 /// Bankrupt companies leave the market: their staff is released, their offers and
 /// orders end and their concessions become free.
 pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
+    let given_up: Vec<SiteId> = state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.owner == id)
+        .map(|(i, _)| site_id(i))
+        .collect();
+    for site in given_up {
+        crate::plots::release(state, site);
+    }
     for (i, s) in state.sites.iter_mut().enumerate() {
         if s.owner != id {
             continue;
@@ -2637,6 +2739,20 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
             .development_cost
             .scale(state.settings.market_scale);
     }
+    // Without a plot for the works there is no company (M35); its capital buys the land.
+    if crate::plots::needs_plot(catalog, f.site_type) {
+        let m = &catalog.plot_model;
+        let need = crate::plots::project_area(catalog, r.facility, count) * (1.0 + m.ai_reserve);
+        let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+        let Some(plot) = crate::plots::choose(catalog, state, country, need, revenue) else {
+            return false;
+        };
+        let per_unit = crate::plots::facility_area(catalog, r.facility) * (1.0 + m.overhead);
+        if state.plots[plot.index()].area_ha + 1e-9 < per_unit.max(m.min_site_area_ha) {
+            return false;
+        }
+        investment += crate::plots::value(catalog, state, plot);
+    }
     let capital = investment.scale(model.behavior.founding_capital_factor);
     let index = u32::try_from(state.companies.len()).unwrap_or(u32::MAX);
     let id = CompanyId(index);
@@ -2671,14 +2787,18 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
             next_operations: date.add_days(1),
         }),
     });
-    let found = Command::FoundSite {
-        country,
-        kind: f.site_type,
-    };
-    if !run(state, catalog, id, &found) {
+    let place = (country, f.site_type);
+    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+    let Some((site, fit)) = found_site_for(
+        state,
+        catalog,
+        id,
+        place,
+        (Some((r.facility, count)), revenue),
+    ) else {
         return false;
-    }
-    let site = site_id(state.sites.len() - 1);
+    };
+    let count = count.min(fit);
     if let Some(d) = deposit {
         run(
             state,

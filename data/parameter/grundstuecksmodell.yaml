@@ -1,0 +1,35 @@
+# Grundstücke (offene Punkte, Abschnitt H; M35). Formeln: docs/FORMELN.md, Abschnitt M35.
+# Erster eigener Maßstab; die Zahlen werden in Weltläufen nachgestellt.
+
+grundstuecksmodell:
+  # Gewerbefläche eines Landes je Mrd. USD BIP (Kaufkraft 2026), mal Marktmaßstab. Jedes
+  # Jahr am 1. Januar kommen Grundstücke hinzu, bis die Fläche aller Grundstücke so groß ist.
+  flaeche_ha_je_mrd_bip: 25
+  # Neue Grundstücke werden mit der Zeit größer: Faktor 1 + (Jahr − ab_jahr) / jahre
+  wachstum: {ab_jahr: 1900, jahre: 30}
+  # Wohlstand eines Landes nach BIP je Kopf (USD Kaufkraft 2026)
+  wohlstand: {reich_ab_usd: 15_000, arm_unter_usd: 5_000}
+  # Größenklassen: Fläche um 1900 und Anteil an den neuen Grundstücken
+  klassen:
+    - {id: klein, flaeche_ha: {von: 0.5, bis: 2}, anteile: {reich: 0.40, mittel: 0.55, arm: 0.70}}
+    - {id: mittel, flaeche_ha: {von: 2, bis: 6}, anteile: {reich: 0.35, mittel: 0.30, arm: 0.25}}
+    - {id: gross, flaeche_ha: {von: 6, bis: 20}, anteile: {reich: 0.18, mittel: 0.12, arm: 0.05}}
+    - {id: sehr_gross, flaeche_ha: {von: 20, bis: 60}, anteile: {reich: 0.07, mittel: 0.03, arm: 0}}
+  # Lagen: Anteil an den neuen Grundstücken (Hafen nur mit Küste), Faktor auf die Fläche
+  # und den Bodenpreis, Vorteil beim Anwerben (wie ein Lohnaufschlag), Faktor auf die
+  # Fracht über See, Lieferkosten als Anteil am Umsatz im eigenen Land.
+  lagen:
+    stadt: {anteil: 0.4, flaeche: 0.5, bodenpreis: 2.0, anwerben: 0.1, fracht_see: 1, lieferkosten: 0}
+    hafen: {anteil: 0.2, flaeche: 1.0, bodenpreis: 1.2, anwerben: 0, fracht_see: 0.8, lieferkosten: 0}
+    land: {anteil: 0.4, flaeche: 2.0, bodenpreis: 0.5, anwerben: -0.1, fracht_see: 1, lieferkosten: 0.02}
+  # Bodenpreis je ha bei Preisniveau 1; er steigt mit dem belegten Anteil der Gewerbefläche:
+  # × (1 + knappheit · Anteil)
+  bodenpreis_usd_je_ha: 200_000
+  knappheit: 2
+  # Jährliche Pacht als Anteil des heutigen Bodenwerts (monatlich gebucht)
+  pacht_anteil: 0.05
+  # Fläche der Anlagen ohne eigenen Wert (anlagen[].flaeche_ha): Investition / so viel je
+  # ha; dazu der Zuschlag für Wege, Lager und Verwaltung; jeder Standort mindestens so viel.
+  anlagenflaeche: {investition_je_ha_usd: 10_000_000, zuschlag: 0.2, mindestflaeche_ha: 0.2}
+  # Die KI sucht ein Grundstück, das ihr Vorhaben mit dieser Reserve fasst.
+  ki_reserve: 0.5

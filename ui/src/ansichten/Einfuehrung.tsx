@@ -29,6 +29,7 @@ const abschluss = (runde: string): Schritt[] => [
   { key: "bericht", ziele: ["was-lief", "ereignis-weiter"], fertig: ["!bericht"] },
   { key: "geschafft", ansicht: "uebersicht", ziele: ["zu-erledigen"] },
   { key: "etappen", ansicht: "uebersicht", ziele: ["etappen"] },
+  { key: "grundstuecke", ansicht: "produktion", ziele: ["grundstueck", "reiter-produktion"] },
   { key: "markt", ansicht: "markt", ziele: ["reiter-markt"] },
   { key: "werbung", ansicht: "markt", ziele: ["bereich-marke"] },
   { key: "forschung", ansicht: "forschung", ziele: ["reiter-forschung"] },

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatGeld, formatProzent, formatZahl, formatZahlKurz, landName } from "../format";
-import type { Kern, Landdetail } from "../kern";
+import type { Gewerbeflaeche, Kern, Landdetail } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
@@ -38,6 +38,51 @@ function Waehrung({ land }: { land: Landdetail }) {
           <small className="feld-hilfe">{t("landdetail.waehrungen", { liste: verlauf })}</small>
         )}
       </dd>
+    </>
+  );
+}
+
+/** Commercial land: how much is taken, the free plots by location and their price. */
+function Gewerbeflaechen({ flaeche }: { flaeche: Gewerbeflaeche }) {
+  const anteil = flaeche.area_ha > 0 ? flaeche.occupied_ha / flaeche.area_ha : 0;
+  return (
+    <>
+      <h3>{t("landdetail.gewerbeflaeche")}</h3>
+      <p>
+        {t("landdetail.gewerbeflaeche_wert", {
+          gesamt: formatZahl(flaeche.area_ha),
+          anteil: formatProzent(anteil),
+        })}
+      </p>
+      <div className="tabelle">
+        <table>
+          <thead>
+            <tr>
+              <th>{t("grundstueck.lage")}</th>
+              <th className="zahl">{t("landdetail.freie_grundstuecke")}</th>
+              <th className="zahl">{t("landdetail.groesstes")}</th>
+              <th className="zahl">{t("landdetail.bodenpreis")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {flaeche.price_per_ha_usd.map(([lage, preis]) => {
+              const frei = flaeche.free.filter((g) => g.location === lage);
+              return (
+                <tr key={lage}>
+                  <td>{t(`lage.${lage}`)}</td>
+                  <td className="zahl">{formatZahl(frei.length)}</td>
+                  <td className="zahl">
+                    {frei.length > 0
+                      ? `${formatZahl(Math.max(...frei.map((g) => g.area_ha)), 1)} ha`
+                      : "–"}
+                  </td>
+                  <td className="zahl">{formatGeld(preis)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
@@ -146,6 +191,8 @@ export function Laenderdetail({
             <dt>{t("landdetail.stabilitaet")}</dt>
             <dd>{formatProzent(land.stability)}</dd>
           </dl>
+
+          {land.land && <Gewerbeflaechen flaeche={land.land} />}
 
           <h3>{t("landdetail.arbeitskraefte")}</h3>
           <div className="tabelle">

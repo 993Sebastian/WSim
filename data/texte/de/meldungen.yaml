@@ -105,6 +105,7 @@ konto.eigenkapital: Gezeichnetes Kapital
 konto.gewinnruecklagen: Gewinnrücklagen
 konto.jahresergebnis: Jahresergebnis
 konto.firmenwert: Firmenwert
+konto.grundstuecke: Grundstücke
 kostenart.umsatz: Umsatzerlöse
 kostenart.bestandsveraenderung: Bestandsveränderung
 kostenart.material: Materialaufwand
@@ -133,6 +134,12 @@ meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
 meldung.ki.stilllegung: "{firma} legt in {land} {anzahl} × {anlage} für {produkt} still."
 meldung.ki.verkauf: "{firma} verkauft in {land} {anzahl} × {anlage} für {produkt}."
 fehler.befehl.anlage_im_bau: Die Anlage ist noch im Bau.
+fehler.befehl.kein_grundstueck: In diesem Land ist kein Grundstück frei. Neue kommen jedes Jahr am 1. Januar hinzu.
+fehler.befehl.grundstueck_unbekannt: Dieses Grundstück gibt es nicht.
+fehler.befehl.grundstueck_belegt: Auf diesem Grundstück steht schon ein Standort.
+fehler.befehl.grundstueck_unnoetig: Förderstätten stehen auf ihrer Konzession und brauchen kein Grundstück.
+fehler.befehl.grundstueck_zu_klein: "Das Grundstück ist zu klein: Der Standort bräuchte {benoetigt} ha, das Grundstück hat {flaeche} ha. Gründe im selben Land einen weiteren Standort auf einem neuen Grundstück."
+fehler.befehl.grundstueck_gekauft: Das Grundstück gehört der Firma schon.
 fehler.befehl.schon_stillgelegt: Die Anlage ist schon stillgelegt.
 fehler.befehl.nicht_stillgelegt: Die Anlage ist nicht stillgelegt.
 fehler.befehl.zu_viele_einheiten: "Die Anlage hat nur {anzahl} Einheiten."

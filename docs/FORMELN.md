@@ -1618,3 +1618,156 @@ Unter der Standardzahl bleibt es bei den Werten der Daten; 0 schaltet eine Regel
 Liste je Produkt und Land statt unter allen Standorten des Landes, und die Händler
 bestimmen den Weg je Herkunftsland einmal statt je Anbieter. Die Ergebnisse bleiben
 gleich (gleicher Zustands-Hash).
+
+## M35 – Grundstücke
+
+Offene Punkte, Abschnitt H. Parameter: `data/parameter/grundstuecksmodell.yaml`; Fläche
+einzelner Anlagen: `anlagen[].flaeche_ha`.
+
+### Fläche eines Standorts
+
+Jeder Standort außer Förderstätten (sie stehen auf ihrer Konzession) liegt auf genau einem
+Grundstück. Eine Anlage braucht je Einheit
+
+    a = flaeche_ha der Anlage, sonst Investition / investition_je_ha_usd
+
+Ein Standort braucht max(`mindestflaeche_ha`, (1 + `zuschlag`) · Σ a · Einheiten) – auch
+für stillgelegte Einheiten und Anlagen im Bau. Ein Bauauftrag, nach dem der Bedarf die
+Fläche des Grundstücks überstiege, wird abgelehnt („Grundstück zu klein“); dann hilft
+nur ein weiterer Standort auf einem neuen Grundstück im selben Land.
+
+### Angebot je Land
+
+Die Gewerbefläche, die ein Land anbietet, folgt seiner Wirtschaft:
+
+    Ziel(t) = flaeche_ha_je_mrd_bip · BIP(t) in Mrd. USD (Kaufkraft 2026) · Marktmaßstab
+
+Zu Spielbeginn und an jedem 1. Januar kommen Grundstücke hinzu, bis die Fläche aller
+Grundstücke des Landes (belegt und frei) das Ziel erreicht. Jedes neue Grundstück wird
+mit einem eigenen Zufallsstrom je Land und Jahr gezogen:
+
+1. **Lage** nach den Anteilen von `lagen` (Hafen nur in Ländern mit Küste; sein Anteil
+   geht dann an die anderen Lagen im Verhältnis ihrer Anteile).
+2. **Größenklasse** nach den Anteilen der Klasse für den Wohlstand des Landes: reich ab
+   `reich_ab_usd` BIP je Kopf, arm unter `arm_unter_usd`, sonst mittel.
+3. **Fläche** gleichverteilt zwischen den Grenzen der Klasse, mal
+   `1 + (Jahr − wachstum_ab_jahr) / wachstum_jahre` (Industriegebiete werden größer)
+   und mal dem Flächenfaktor der Lage, auf 0,01 ha gerundet.
+
+Grundstücke werden nie kleiner oder knapper als nötig, um zu starten: Für die
+Startstandorte (KI und Spieler) entsteht, wo kein freies Grundstück passt, eines in der
+nötigen Größe (Lage Stadt, Klasse nach der Fläche). Aufgegebene Standorte (Pleite)
+geben ihr Grundstück frei.
+
+### Preis, Kauf und Pacht
+
+    Bodenpreis je ha = bodenpreis_usd_je_ha · Preisniveau des Landes
+                       · (1 + knappheit · belegter Anteil der Gewerbefläche des Landes)
+                       · Preisfaktor der Lage
+    Wert eines Grundstücks = Bodenpreis je ha · Fläche
+
+- **Kauf:** Der Wert wird bei der Gründung bezahlt und steht als „Grundstücke“ im
+  Anlagevermögen, ohne Abschreibung. Wird der Standort verkauft (M30), geht das
+  Grundstück mit; sein Grundwert enthält den heutigen Wert des Grundstücks.
+- **Pacht:** keine Zahlung bei der Gründung; jeden Monatsersten `pacht_anteil` / 12 des
+  heutigen Werts als Pacht (Kostenart Pacht, Kostenstelle Standort). Ein gepachtetes
+  Grundstück geht bei einem Verkauf des Standorts als Pacht mit.
+- Die bisherigen Standortkosten (`standortkosten_usd`) bleiben als Gebäude und
+  Erschließung.
+- Wer gründet, wählt ein freies Grundstück und Kauf oder Pacht. Ohne Wahl (Befehl
+  `FoundSite`) nimmt der Standort das größte freie Grundstück des Landes, gekauft, wenn
+  die Kasse Gebäude und Boden trägt, sonst gepachtet.
+
+### Lage
+
+| Lage | Wirkung |
+| --- | --- |
+| Stadt | teurer Boden, kleinere Grundstücke; wirbt Arbeitskräfte leichter an |
+| Hafen | Fracht über See für Lieferungen von und zu diesem Standort günstiger |
+| Land | billiger Boden, große Grundstücke; wirbt schwerer an; Lieferkosten auf den Absatz im Land |
+
+- **Anwerben:** Bei der Reihenfolge der Einstellung und beim Abwerben (M18) zählt ein
+  Standort mit Lohnaufschlag + `anwerben` der Lage (Stadt mehr, Land weniger). Gezahlt
+  wird der eigene Lohnaufschlag.
+- **Seefracht:** Händler, die bei einem Standort in Hafenlage kaufen, und Lieferungen
+  einer Firma an oder aus einem solchen Standort zahlen auf Wegen über See
+  `fracht_see` · Fracht.
+- **Lieferkosten:** Was ein Standort auf dem Markt seines Landes verkauft, kostet ihn
+  `lieferkosten` · Umsatz (Kostenart Transport).
+
+### KI
+
+- **Grundstückswahl:** gebraucht wird die Fläche des Vorhabens mal (1 + `ki_reserve`);
+  unter den freien Grundstücken des Landes, die das fassen, das mit den geringsten
+  jährlichen Kosten
+
+      pacht_anteil · Wert des Grundstücks + lieferkosten der Lage · erwarteter Umsatz
+
+  (erwarteter Umsatz: geplante Erzeugung der Waren, die der Standort anbietet, zum
+  Marktpreis im Land; Kraftwerke und Labore verkaufen nichts), bei Gleichstand das
+  kleinere; sonst das größte freie. Ohne Grundstück für wenigstens eine Anlage fällt das
+  Vorhaben in diesem Land aus (Neugründung und Diversifizierung suchen das nächste).
+  Startstandorte und Standorte aus alten Spielständen wählen genauso.
+- **Kauf oder Pacht:** gekauft, wenn danach noch `kasse_min_monate` laufende Kosten in
+  der Kasse bleiben, sonst gepachtet.
+- **Ausbau (M10):** Fasst das Grundstück nicht alle geplanten Einheiten, baut die KI so
+  viele, wie passen; passt keine mehr, gründet sie im selben Land einen Standort auf
+  einem neuen Grundstück und baut dort.
+
+### Spielstände
+
+Standorte aus Spielständen vor M35 bekommen beim Laden ein gekauftes Grundstück in ihrem
+Land, das ihre Anlagen mit `reserve` fasst (Lage Stadt). Es steht ohne Buchung im
+Anlagevermögen: der Kaufpreis steckte bisher in den Standortkosten.
+
+## M36 – Anlagen in fünf Größen
+
+Offene Punkte, Abschnitt H, Punkt 9. Parameter: `data/parameter/produktionsmodell.yaml`,
+Abschnitt `anlagengroessen`.
+
+Jede Anlage gibt es in fünf Größen. Die Datenwerte einer Anlage (Investition, Durchläufe
+je Tag, Fläche, Bauzeit) und ihrer Rezepte (Arbeitsstunden je Durchlauf) gelten für die
+Größe **mittel**. Eine Größe mit dem Kapazitätsfaktor *k* ändert sie so:
+
+| Wert | Formel | sehr klein | klein | mittel | groß | sehr groß |
+| --- | --- | --- | --- | --- | --- | --- |
+| Kapazität (Durchläufe je Tag) | · k | 0,25 | 0,5 | 1 | 2 | 4 |
+| Investition | · k^0,7 | 0,38 | 0,62 | 1 | 1,62 | 2,64 |
+| Investition je Kapazität | k^−0,3 | 1,52 | 1,23 | 1 | 0,81 | 0,66 |
+| Arbeitsstunden je Durchlauf | · k^−0,15 | 1,23 | 1,11 | 1 | 0,90 | 0,81 |
+| Fläche je Einheit (M35) | · k^0,7 | 0,38 | 0,62 | 1 | 1,62 | 2,64 |
+| Bauzeit (gerundet, mind. 1 Tag) | · k^0,3 | 0,66 | 0,81 | 1 | 1,23 | 1,52 |
+
+(Exponenten: `investition_exponent`, `arbeit_exponent`, `flaeche_exponent`,
+`bauzeit_exponent`.) Vorprodukte, Strom und Nebenprodukte je Durchlauf bleiben gleich,
+ebenso die Qualität. Was von der Investition abhängt, folgt ihr: Abschreibung, Wartung,
+Kosten der Automatisierung, Wiederanlauf und Verkaufserlös (M22). Ein Labor im
+Forschungszentrum beschäftigt `Durchläufe je Tag · k · Einheiten · Auslastung` Forscher.
+
+- Eine Anlage am Standort hat eine Größe; ihre Einheiten sind gleich groß. Wer dieselbe
+  Anlage in einer anderen Größe baut, bekommt eine weitere Anlage am Standort.
+- Große Anlagen sparen Investition und Arbeit je Stück, brauchen aber Kapital, Fläche und
+  Absatz; kleine passen in kleine Märkte und auf kleine Grundstücke und laufen dort voll
+  statt halb.
+- Spielstände und Befehle von vor M36 meinen die Größe mittel; die Startbesetzung (M10)
+  und die Startformen bauen weiter mittelgroße Anlagen (die Daten sind darauf abgestimmt).
+
+### KI
+
+Die KI plant wie bisher eine gewünschte Kapazität *U*, gemessen in Anlagen der Größe
+mittel (bisher die Anlagenzahl, jetzt ungerundet):
+
+- Neugründung, Diversifizierung und Engpass: U = offene Nachfrage / Erzeugung einer
+  mittleren Anlage bei Normalauslastung, begrenzt auf die kleinste Größe bis 20 und bei
+  Förderung auf die Konzession.
+- Ausbau: U = max(25 % der Kapazität des Produkts am Standort, min(1, Kapazität)) – kleine
+  Werke verdoppeln sich, große wachsen um ein Viertel, mindestens um eine mittlere Anlage
+  (bis M36: 25 % der Anlagenzahl, mindestens 1).
+- Eigenstrom: U = fehlender Strom / Leistung einer mittleren Anlage bei Normalauslastung.
+- Neue Konzession: U = `anlagen_je_konzession`, begrenzt auf die Konzession.
+
+Daraus Größe und Zahl: die größte Größe mit k ≤ U (sonst die kleinste) und
+Zahl = max(1, round(U / k)). Beispiele: U = 0,3 → 1 × sehr klein; U = 1 → 1 × mittel;
+U = 3 → 2 × groß; U = 5 → 1 × sehr groß; U = 12 → 3 × sehr groß. Reichen Grundstück
+(M35) oder Budget nicht, baut sie so viele Einheiten, wie passen; passt nicht einmal eine,
+versucht sie die nächstkleinere Größe mit ihrer Zahl.

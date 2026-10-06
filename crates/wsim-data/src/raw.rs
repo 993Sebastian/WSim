@@ -406,6 +406,8 @@ pub struct RawFacility {
     pub automation_max: f64,
     #[serde(rename = "technologie", default)]
     pub technology: Option<String>,
+    #[serde(rename = "flaeche_ha", default)]
+    pub area_ha: Option<f64>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -530,6 +532,24 @@ pub struct RawProductionModel {
     pub facility_sale: RawFacilitySale,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
+    #[serde(rename = "anlagengroessen")]
+    pub sizes: RawFacilitySizes,
+}
+
+/// Facility sizes (M36): capacity per size and the powers of the capacity.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFacilitySizes {
+    #[serde(rename = "kapazitaet")]
+    pub capacity: BTreeMap<String, f64>,
+    #[serde(rename = "investition_exponent")]
+    pub investment_exponent: f64,
+    #[serde(rename = "arbeit_exponent")]
+    pub labor_exponent: f64,
+    #[serde(rename = "flaeche_exponent")]
+    pub area_exponent: f64,
+    #[serde(rename = "bauzeit_exponent")]
+    pub build_exponent: f64,
 }
 
 /// Shut down facilities (M22).
@@ -876,6 +896,116 @@ pub struct RawDifficulty {
     pub competence: f64,
     #[serde(rename = "aggressivitaet")]
     pub aggressiveness: f64,
+}
+
+/// Plots of land (`parameter/grundstuecksmodell.yaml`, M35).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPlotModel {
+    #[serde(rename = "flaeche_ha_je_mrd_bip")]
+    pub area_per_gdp_bn_ha: f64,
+    #[serde(rename = "wachstum")]
+    pub growth: RawPlotGrowth,
+    #[serde(rename = "wohlstand")]
+    pub wealth: RawWealth,
+    #[serde(rename = "klassen")]
+    pub classes: Vec<RawPlotClass>,
+    #[serde(rename = "lagen")]
+    pub locations: RawPlotLocations,
+    #[serde(rename = "bodenpreis_usd_je_ha")]
+    pub land_price_usd_per_ha: f64,
+    #[serde(rename = "knappheit")]
+    pub scarcity: f64,
+    #[serde(rename = "pacht_anteil")]
+    pub rent_share: f64,
+    #[serde(rename = "anlagenflaeche")]
+    pub facility_area: RawFacilityArea,
+    #[serde(rename = "ki_reserve")]
+    pub ai_reserve: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPlotGrowth {
+    #[serde(rename = "ab_jahr")]
+    pub from_year: i32,
+    #[serde(rename = "jahre")]
+    pub years: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawWealth {
+    #[serde(rename = "reich_ab_usd")]
+    pub rich_from_usd: f64,
+    #[serde(rename = "arm_unter_usd")]
+    pub poor_below_usd: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPlotClass {
+    pub id: String,
+    #[serde(rename = "flaeche_ha")]
+    pub area_ha: RawAreaRange,
+    #[serde(rename = "anteile")]
+    pub shares: RawWealthShares,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAreaRange {
+    #[serde(rename = "von")]
+    pub from: f64,
+    #[serde(rename = "bis")]
+    pub to: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawWealthShares {
+    #[serde(rename = "reich")]
+    pub rich: f64,
+    #[serde(rename = "mittel")]
+    pub middle: f64,
+    #[serde(rename = "arm")]
+    pub poor: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPlotLocations {
+    pub stadt: RawPlotLocation,
+    pub hafen: RawPlotLocation,
+    pub land: RawPlotLocation,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPlotLocation {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "flaeche")]
+    pub area_factor: f64,
+    #[serde(rename = "bodenpreis")]
+    pub price_factor: f64,
+    #[serde(rename = "anwerben")]
+    pub hiring: f64,
+    #[serde(rename = "fracht_see")]
+    pub sea_freight: f64,
+    #[serde(rename = "lieferkosten")]
+    pub delivery_cost: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFacilityArea {
+    #[serde(rename = "investition_je_ha_usd")]
+    pub investment_per_ha_usd: f64,
+    #[serde(rename = "zuschlag")]
+    pub overhead: f64,
+    #[serde(rename = "mindestflaeche_ha")]
+    pub min_site_area_ha: f64,
 }
 
 /// Offers between companies (`parameter/kaufmodell.yaml`, M30).

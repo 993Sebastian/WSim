@@ -461,6 +461,30 @@ Zahlen werden im Weltlauf nachgestellt):
 10. **Spielstände:** Bestehende Standorte bekommen beim Laden ein passendes, gekauftes
     Grundstück.
 
+Umgesetzt mit M35 (Punkte 1–8 und 10; Formeln: `docs/FORMELN.md`, Abschnitt M35);
+Punkt 9 folgt mit M36. 🟡 Eigenständig entschieden:
+
+1. **Pacht ohne Laufzeit:** Die Pacht läuft, bis der Standort aufgegeben oder das
+   Grundstück gekauft wird; sie folgt jeden Monat dem heutigen Bodenwert. Eine Laufzeit
+   mit Verlängerung brächte nur eine weitere Frist ohne Entscheidung.
+2. **Wahl der KI nach Kosten statt nach Preis je ha:** Unter den passenden Grundstücken
+   nimmt die KI das mit den geringsten jährlichen Kosten aus Pacht auf den Wert und
+   Lieferkosten auf den erwarteten Umsatz. Nach dem Preis je ha allein hätte sie fast
+   nur Grundstücke auf dem Land genommen (im Test 1903: 233 Stadt, 257 Hafen, 60 Land
+   statt fast nur Land).
+3. **Lagefaktoren:** Stadt Fläche ×0,5, Boden ×2, Anwerben +10 % (wie ein
+   Lohnaufschlag); Hafen Fläche ×1, Boden ×1,2, Seefracht ×0,8; Land Fläche ×2,
+   Boden ×0,5, Anwerben −10 %, Lieferkosten 2 % des Umsatzes im Land.
+4. **Startstandorte:** Die der KI-Firmen stehen auf gekauften Grundstücken (Teil des
+   Startkapitals), die Werkstatt oder Niederlassung des Spielers auf einem gepachteten,
+   damit die Startkasse bleibt. Fehlt ein passendes Grundstück, entsteht eines (Stadt).
+5. **Ohne Wahl** (Befehl `FoundSite`, z. B. in Kopflos-Läufen) nimmt ein Standort das
+   größte freie Grundstück. In der Oberfläche wählt der Spieler immer selbst.
+6. **Anzeige:** Gründen mit Liste der freien Grundstücke (Filter Lage und Größe), Kauf
+   oder Pacht; in der Werksansicht belegte Fläche, Besitz und „Grundstück kaufen“; beim
+   Bauen Fläche und „noch Platz für …“; im Länderdetail die Gewerbeflächen; im
+   Rundgang der Einführung ein Schritt dazu.
+
 ## I Länder zu Regionen zusammenfassen (Anfrage vom 06.10.2026)
 
 Auftrag: „Du kannst bei den Ländern und Regionen gerne einiges zusammenfassen. Bspw.

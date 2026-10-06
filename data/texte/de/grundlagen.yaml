@@ -91,3 +91,10 @@ verkehrsmittel.frachtflugzeug: Frachtflugzeug
 schwierigkeit.leicht: Leicht
 schwierigkeit.mittel: Mittel
 schwierigkeit.schwer: Schwer
+
+# Anlagengrößen (M36, data/parameter/produktionsmodell.yaml)
+anlagengroesse.sehr_klein: sehr klein
+anlagengroesse.klein: klein
+anlagengroesse.mittel: mittel
+anlagengroesse.gross: groß
+anlagengroesse.sehr_gross: sehr groß

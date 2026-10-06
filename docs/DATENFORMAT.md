@@ -63,7 +63,8 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
   `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`,
-  `schwierigkeit`, `ereignis`, `waehrung`, außerdem `teilland` für die Länder in Regionen.
+  `schwierigkeit`, `ereignis`, `waehrung`, außerdem `teilland` für die Länder in Regionen,
+  `grundstuecksklasse` und `lage` für Grundstücke.
   Namen von Firmen sind Eigennamen und brauchen keinen Text.
   Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
@@ -159,6 +160,7 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **einspeiseverguetung** | Anteil (0–1) des Industriestrompreises für überschüssigen Eigenstrom |
 | **gemeinkosten_anteil** | Verwaltung, Vertrieb und Logistik als Zuschlag (0–5) auf die Umwandlungskosten eines Laufs (Arbeit, Strom, Anlage), je Produktart: `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie` |
 | **nebenprodukte_lager_tage** | Nebenprodukte über so viele Tage ihrer Erzeugung hinaus werden entsorgt (> 0) |
+| **anlagengroessen** | Anlagengrößen (M36): **kapazitaet** je Größe `sehr_klein`, `klein`, `mittel`, `gross`, `sehr_gross` (alle nötig, > 0, mit der Größe wachsend, `mittel` = 1 – für sie gelten die Werte der Anlagen); **investition_exponent** (0–1,5), **arbeit_exponent** (−1–1, auf die Stunden je Durchlauf), **flaeche_exponent** (0–1,5), **bauzeit_exponent** (0–1). Namen als `anlagengroesse.<größe>`. |
 | **richtpreis_marge** | `{minimum, maximum}` (je −1 bis 1): Bereich der Marge, den das beste Rezept eines Produkts zu Richtpreisen erreichen soll; außerhalb warnt die Prüfung (Förderung nur unter `minimum`) |
 | **startformen** | `werkstatt` und `handel` (beide nötig), je: **standorttyp**, **gebaeude_usd**, `anlagen` (Liste `{anlage, rezept, auslastung}`), `einkauf` (Liste `{produkt, ziel, hoechstpreis_usd}`), `verkauf` (Liste von Produkten, Angebot zum Marktpreis). Anlagen und Rezepte müssen 1900 bekannt sein und zum Standorttyp passen. Kosten werden vom Startkapital bezahlt. |
 
@@ -273,6 +275,7 @@ Gebrauchsgut sein.
 | **wartung_je_jahr** | Anteil der Investition (0–1) |
 | **automatisierung_max** | Höchster erreichbarer Automatisierungsgrad (0–1) |
 | technologie | Nötige Technologie, um die Anlage zu bauen |
+| flaeche_ha | Fläche je Einheit in ha (> 0), wo die Regel des Grundstücksmodells (Investition je ha) nicht passt, etwa bei Raffinerien (M35) |
 
 ## rezepte
 
@@ -369,6 +372,24 @@ Standorte und Lizenzen (M30). Formeln in `docs/FORMELN.md` (M30). Werte der Form
 | **firmenwert_jahre** | 1–40: Abschreibung eines gekauften Firmenwerts |
 | **qualifiziert_ab_stufe** | Qualifikationsstufe, ab der Beschäftigte als qualifiziert zählen (eine Stufe aus `qualifikationen`) |
 | **ki** | Verhalten der KI-Firmen: `angebot_chance` (je 0–1, Wahrscheinlichkeit je Monat), `offene_angebote_max` (0–20), `spieler_angebote_je_monat` (0–10, von allen KI-Firmen zusammen), `wettbewerb_aufschlag` (je 0–5), `fachkraefte_aufschlag` (0–5), `bauzeit_aufschlag` (0–5), `neubau_anteil` (0–1), `mindestvorteil` (0–5), `gebotsaufschlag` (je 0–5), `mindestpreis_usd` (≥ 0), `kasse_anteil_max` (0–1), `lizenz_gebot` (je 0–2), `lizenz_hoechst` (0–2), `verkaufsaufschlag` (je 0–5), `kern_anteil` (0–1), `kern_aufschlag` (0–10), `lizenz_mindest` (0–2), `wettbewerb_lizenz` (0–10), `gegen_schwelle` (0–1) |
+
+## grundstuecksmodell
+
+Ein einziger Abschnitt (in `parameter/grundstuecksmodell.yaml`): Grundstücke der
+Standorte (M35). Formeln in `docs/FORMELN.md` (M35).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **flaeche_ha_je_mrd_bip** | > 0: Gewerbefläche eines Landes je Mrd. USD BIP (mal Marktmaßstab) |
+| **wachstum** | `{ab_jahr, jahre}`: neue Grundstücke wachsen um den Faktor 1 + (Jahr − ab_jahr) / jahre |
+| **wohlstand** | `{reich_ab_usd, arm_unter_usd}`: BIP je Kopf, ab dem ein Land reich bzw. unter dem es arm ist (arm < reich) |
+| **klassen** | Größenklassen, mindestens eine: `id`, `flaeche_ha: {von, bis}` (> 0, von ≤ bis), `anteile: {reich, mittel, arm}` (je 0–1; je Wohlstand zusammen 1). Jede braucht den Text `grundstuecksklasse.<id>` |
+| **lagen** | `stadt`, `hafen`, `land` mit `anteil` (0–1, zusammen 1), `flaeche` und `bodenpreis` (Faktoren 0,1–10), `anwerben` (−1 bis 1, wirkt wie ein Lohnaufschlag beim Anwerben), `fracht_see` (0,1–2, Faktor auf die Fracht über See), `lieferkosten` (0–0,5 des Umsatzes im eigenen Land). Texte `lage.<lage>` |
+| **bodenpreis_usd_je_ha** | ≥ 0: Bodenpreis bei Preisniveau 1 |
+| **knappheit** | 0–20: der Bodenpreis steigt um diesen Faktor mal den belegten Anteil der Gewerbefläche |
+| **pacht_anteil** | 0–1: jährliche Pacht als Anteil des Bodenwerts |
+| **anlagenflaeche** | `investition_je_ha_usd` (> 0), `zuschlag` (0–5, für Wege, Lager und Verwaltung), `mindestflaeche_ha` (≥ 0, je Standort) |
+| **ki_reserve** | 0–5: die KI sucht ein Grundstück, das ihr Vorhaben mit dieser Reserve fasst |
 
 ## namensgruppen
 

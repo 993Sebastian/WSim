@@ -212,6 +212,7 @@ pub fn production() -> Catalog {
         maintenance_share: 0.0365,
         automation_max: 0.5,
         technology,
+        area_ha: None,
         provenance: Provenance::default(),
     };
     let mine = c
@@ -449,6 +450,7 @@ pub fn research() -> Catalog {
             maintenance_share: 0.02,
             automation_max: 0.0,
             technology: None,
+            area_ha: None,
             provenance: Provenance::default(),
         },
     );
@@ -500,6 +502,7 @@ pub fn power() -> Catalog {
                 maintenance_share: 0.02,
                 automation_max: 0.0,
                 technology: None,
+                area_ha: None,
                 provenance: Provenance::default(),
             },
         )

@@ -95,6 +95,12 @@ function Wertteile({ w, bereich }: { w: Standortwert; bereich: boolean }) {
       )}
       <dt>{t("wettbewerb.lager")}</dt>
       <dd>{formatGeld(w.inventory_usd)}</dd>
+      {w.land_usd > 0 && (
+        <>
+          <dt>{t("wettbewerb.grundstueck")}</dt>
+          <dd>{formatGeld(w.land_usd)}</dd>
+        </>
+      )}
       <dt className="summe">{t("wettbewerb.grundwert")}</dt>
       <dd className="summe">{formatGeld(w.base_usd)}</dd>
       <dt>{t("wettbewerb.buchwert")}</dt>

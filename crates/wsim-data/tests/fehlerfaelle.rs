@@ -90,6 +90,12 @@ produktionsmodell:
   gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
   richtpreis_marge: {minimum: 0.05, maximum: 0.45}
   nebenprodukte_lager_tage: 90
+  anlagengroessen:
+    kapazitaet: {sehr_klein: 0.25, klein: 0.5, mittel: 1, gross: 2, sehr_gross: 4}
+    investition_exponent: 0.7
+    arbeit_exponent: -0.15
+    flaeche_exponent: 0.7
+    bauzeit_exponent: 0.3
   startformen:
     werkstatt:
       standorttyp: werk
@@ -236,6 +242,8 @@ lagerstaetten:
 
 const KI: &str = include_str!("../../../data/parameter/kimodell.yaml");
 const KAUF: &str = include_str!("../../../data/parameter/kaufmodell.yaml");
+const GRUNDSTUECKE: &str = include_str!("../../../data/parameter/grundstuecksmodell.yaml");
+const GRUNDSTUECKE_TEXTE: &str = include_str!("../../../data/texte/de/grundstuecke.yaml");
 
 const KI_NAMEN: &str = "\
 namensgruppen:
@@ -315,6 +323,11 @@ rezept.eisen_schmelzen: Eisen schmelzen
 technologie.schmelzen: Schmelzen
 lagerstaette.grube: Grube
 verkehrsmittel.fuhrwerk: Fuhrwerk
+anlagengroesse.sehr_klein: sehr klein
+anlagengroesse.klein: klein
+anlagengroesse.mittel: mittel
+anlagengroesse.gross: groß
+anlagengroesse.sehr_gross: sehr groß
 ";
 
 struct Daten {
@@ -338,8 +351,10 @@ impl Daten {
             ("ketten/a.yaml", KETTE),
             ("parameter/kimodell.yaml", KI),
             ("parameter/kaufmodell.yaml", KAUF),
+            ("parameter/grundstuecksmodell.yaml", GRUNDSTUECKE),
             ("ki/a.yaml", KI_NAMEN),
             ("texte/de/a.yaml", TEXTE),
+            ("texte/de/grundstuecke.yaml", GRUNDSTUECKE_TEXTE),
         ];
         Self {
             files: files
@@ -588,6 +603,71 @@ fn kaufmodell_wird_geprueft() {
     let ohne = Daten::neu().ohne("parameter/kaufmodell.yaml");
     let outcome = ohne.laden();
     befund(&outcome, "Abschnitt „kaufmodell“ fehlt");
+}
+
+#[test]
+fn grundstuecksmodell_wird_geprueft() {
+    let datei = "parameter/grundstuecksmodell.yaml";
+    let d = Daten::neu()
+        .ersetze(datei, "anteile: {reich: 0.40,", "anteile: {reich: 0.50,")
+        .ersetze(
+            datei,
+            "flaeche_ha: {von: 2, bis: 6}",
+            "flaeche_ha: {von: 7, bis: 6}",
+        )
+        .ersetze(datei, "stadt: {anteil: 0.4,", "stadt: {anteil: 0.5,")
+        .ersetze(datei, "pacht_anteil: 0.05", "pacht_anteil: 1.5");
+    let outcome = d.laden();
+    befund(
+        &outcome,
+        "Die Anteile „klassen.anteile.reich“ ergeben zusammen 1.1 statt 1.",
+    );
+    let f = befund(&outcome, "„von“ muss kleiner als „bis“ sein.");
+    assert_eq!(
+        f.path.to_string(),
+        "grundstuecksmodell.klassen[1].flaeche_ha.von"
+    );
+    let f = befund(&outcome, "„lagen.anteil“ ergeben zusammen 1.1 statt 1.");
+    assert_eq!(f.path.to_string(), "grundstuecksmodell.lagen");
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "pacht_anteil"),
+        "grundstuecksmodell.pacht_anteil",
+    );
+    nur_fehler(&outcome, 4);
+
+    // Every size class and location needs a name.
+    let outcome = Daten::neu()
+        .ersetze(
+            "texte/de/grundstuecke.yaml",
+            "grundstuecksklasse.mittel: mittel\n",
+            "",
+        )
+        .ersetze("texte/de/grundstuecke.yaml", "lage.hafen: Hafen\n", "")
+        .laden();
+    let f = befund(&outcome, "Text „grundstuecksklasse.mittel“ fehlt");
+    assert_eq!(f.path.to_string(), "grundstuecksmodell.klassen[1].id");
+    let f = befund(&outcome, "Text „lage.hafen“ fehlt");
+    assert_eq!(f.path.to_string(), "grundstuecksmodell.lagen.hafen");
+
+    // The area of a facility is positive.
+    let outcome = Daten::neu()
+        .ersetze(
+            "ketten/a.yaml",
+            "    standorttyp: werk\n",
+            "    standorttyp: werk\n    flaeche_ha: -1\n",
+        )
+        .laden();
+    let f = befund(&outcome, "Wert -1 muss größer als 0 sein");
+    assert!(f.path.to_string().ends_with(".flaeche_ha"), "{}", f.path);
+
+    let outcome = Daten::neu().ohne(datei).laden();
+    befund(&outcome, "Abschnitt „grundstuecksmodell“ fehlt");
 }
 
 #[test]
@@ -1149,10 +1229,70 @@ fn zeitreihe_ausserhalb_des_spielzeitraums() {
 }
 
 #[test]
+fn anlagengroessen_werden_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let d = Daten::neu()
+        .ersetze(datei, "mittel: 1, gross: 2", "mittel: 1.5, gross: 1.2")
+        .ersetze(datei, "sehr_gross: 4}", "riesig: 8}")
+        .ersetze(datei, "arbeit_exponent: -0.15", "arbeit_exponent: -2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Die Größe „mittel“ muss die Kapazität 1 haben (hier 1.5)",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.anlagengroessen.kapazitaet.mittel"
+    );
+    let f = befund(&outcome, "Unbekannter Wert „riesig“");
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.anlagengroessen.kapazitaet.riesig"
+    );
+    befund(&outcome, "Eintrag für Anlagengröße „sehr_gross“ fehlt.");
+    let f = befund(
+        &outcome,
+        "Wert -2 liegt außerhalb des erlaubten Bereichs -1 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "arbeit_exponent"),
+        "produktionsmodell.anlagengroessen.arbeit_exponent",
+    );
+    nur_fehler(&outcome, 4);
+
+    // Capacities grow with the size.
+    let outcome = Daten::neu()
+        .ersetze(datei, "klein: 0.5, mittel", "klein: 0.2, mittel")
+        .laden();
+    let f = befund(
+        &outcome,
+        "Die Kapazität muss mit der Größe wachsen: „klein“ hat nicht mehr Kapazität als \
+         „sehr_klein“.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.anlagengroessen.kapazitaet.klein"
+    );
+
+    // Every size needs a name.
+    let outcome = Daten::neu()
+        .ersetze("texte/de/a.yaml", "anlagengroesse.gross: groß\n", "")
+        .laden();
+    let f = befund(&outcome, "Text „anlagengroesse.gross“ fehlt");
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.anlagengroessen.kapazitaet.gross"
+    );
+}
+
+#[test]
 fn meta_und_texte_muessen_vorhanden_sein() {
     let outcome = Daten::neu()
         .ohne("meta.yaml")
         .ohne("texte/de/a.yaml")
+        .ohne("texte/de/grundstuecke.yaml")
         .laden();
     befund(&outcome, "Abschnitt „meta“ fehlt");
     befund(&outcome, "Ordner texte/de/ fehlt.");

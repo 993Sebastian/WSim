@@ -9,9 +9,9 @@ use crate::messages;
 use crate::raw::{
     RawAiModel, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency, RawDealModel,
     RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawMarketModel, RawMeta, RawMilestone,
-    RawNameGroup, RawPriceIndex, RawProduct, RawProductionModel, RawQualification, RawRealCompany,
-    RawRecipe, RawResearchModel, RawSimple, RawTechnology, RawTransportClass, RawTransportModel,
-    RawUnit, RawVehicle,
+    RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct, RawProductionModel, RawQualification,
+    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTechnology, RawTransportClass,
+    RawTransportModel, RawUnit, RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -172,6 +172,7 @@ pub(crate) struct RawData {
     pub vehicles: Vec<Entry<RawVehicle>>,
     pub ai_model: Vec<Entry<RawAiModel>>,
     pub deal_model: Vec<Entry<RawDealModel>>,
+    pub plot_model: Vec<Entry<RawPlotModel>>,
     pub name_groups: Vec<Entry<RawNameGroup>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
     pub events: Vec<Entry<RawEvent>>,
@@ -205,6 +206,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "verkehrsmittel",
     "kimodell",
     "kaufmodell",
+    "grundstuecksmodell",
     "namensgruppen",
     "reale_firmen",
     "ereignisse",
@@ -267,6 +269,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "kaufmodell" => match de::from_node::<RawDealModel>(value, &loc.path) {
                 Ok(model) => raw.deal_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "grundstuecksmodell" => match de::from_node::<RawPlotModel>(value, &loc.path) {
+                Ok(model) => raw.plot_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "preisindex" => match de::from_node::<RawPriceIndex>(value, &loc.path) {

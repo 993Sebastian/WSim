@@ -57,7 +57,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
   await expect(naegel.getByText("15,5 t")).toBeVisible();
   await expect(naegel.getByText("Stückkosten", { exact: true }).first()).toBeVisible();
-  await expect(naegel.getByText(/Marge 23 %/)).toBeVisible();
+  await expect(naegel.getByText(/Marge 21 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
   await werk.getByRole("button", { name: "Einkauf" }).click();
@@ -211,6 +211,50 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   ]);
 });
 
+test("Standort auf einem gewählten Grundstück gründen und das Grundstück kaufen", async ({
+  page,
+}) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Standorte" }).click();
+  const gruenden = page.getByRole("form", { name: "Neuer Standort" });
+  const wahl = gruenden.getByRole("group", { name: "Grundstück wählen" });
+  await expect(wahl).toContainText("ha Gewerbefläche frei");
+  const knopf = gruenden.getByRole("button", { name: "Gründen" });
+  // No plot chosen yet.
+  await expect(knopf).toBeDisabled();
+  await expect(wahl).toContainText("Wähle oben ein Grundstück.");
+  // All locations: the largest four of each.
+  const liste = wahl.getByRole("table", { name: "Freie Grundstücke" });
+  await expect(liste.getByRole("radio")).toHaveCount(12);
+  await wahl.getByLabel("Lage", { exact: true }).selectOption("hafen");
+  await expect(liste.getByRole("cell", { name: "Stadt" })).toHaveCount(0);
+  await liste.getByRole("radio").first().check();
+  await wahl.getByLabel("Pachten", { exact: true }).check();
+  await expect(wahl).toContainText(/Gewählt: Hafen, [\d,]+ ha – Pacht [\d.]+ USD je Jahr/);
+  await expect(gruenden).toContainText("Kosten jetzt:");
+  await expect(knopf).toBeEnabled();
+  await knopf.click();
+  await bild(page, "grundstueck_waehlen");
+
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
+  const grundstueck = page.getByRole("region", { name: "Grundstück" });
+  await expect(grundstueck).toContainText("0,2 von 0,38 ha belegt");
+  await expect(grundstueck).toContainText("Gepachtet für");
+  await grundstueck.getByRole("button", { name: /Grundstück kaufen/ }).click();
+  const bauen = page.getByRole("form", { name: "Anlage bauen" });
+  await expect(bauen).toContainText("noch Platz für 78");
+  // A facility that does not fit: marked in the list, the button stays off.
+  await bauen.getByLabel("Anlage").selectOption("spinnerei");
+  await expect(bauen).toContainText("passt nicht mehr aufs Grundstück");
+  await expect(bauen.getByRole("button", { name: "Bauen" })).toBeDisabled();
+
+  const gesendet = await befehle(page);
+  expect(gesendet).toEqual([
+    { FoundSiteOnPlot: { plot: expect.any(Number), kind: "Factory", lease: true } },
+    { BuyPlot: { site: 0 } },
+  ]);
+});
+
 test("Zahlenfelder setzen beim Tippen Tausenderpunkte", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Finanzen", exact: true }).click();
@@ -308,12 +352,12 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
     name: "Kaufangebot von Zürcher Spinnerei und Weberei & Co.",
   });
   await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
-  await expect(angebot).toContainText("33.827 USD");
+  await expect(angebot).toContainText("33.831 USD");
   await expect(angebot).toContainText("01.04.1914");
   // The base value with its parts.
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
   await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
-  await expect(angebot.getByRole("note")).toContainText("27.061 USD");
+  await expect(angebot.getByRole("note")).toContainText("27.065 USD");
   await bild(page, "angebot");
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
 
@@ -505,12 +549,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 18")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 19")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 18 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 19 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -573,6 +617,9 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(titel("Etappen")).toBeVisible();
   await expect(page.getByRole("region", { name: /Etappen/ })).toBeVisible();
   await weiter.click();
+  await expect(titel("Standorte und Grundstücke")).toBeVisible();
+  await expect(page.getByRole("group", { name: "Grundstück wählen" })).toBeVisible();
+  await weiter.click();
   await expect(titel("Markt")).toBeVisible();
   await weiter.click();
   await expect(titel("Marke und Werbung")).toBeVisible();
@@ -590,7 +637,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 18")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 19")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });

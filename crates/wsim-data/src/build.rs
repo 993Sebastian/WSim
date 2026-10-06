@@ -24,6 +24,7 @@ mod countries;
 mod currencies;
 mod deals;
 mod milestones;
+mod plots;
 mod production;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
@@ -536,6 +537,9 @@ pub(crate) fn build(
                 .technology
                 .as_ref()
                 .map(|t| resolve(b.ctx, &technology_keys, t, &l.field("technologie"))),
+            area_ha: v
+                .area_ha
+                .map(|a| positive(b.ctx, a, &l.field("flaeche_ha"))),
             provenance: provenance(v.approximation, v.source.as_ref()),
         };
         b.catalog.facilities.insert(&v.id, facility);
@@ -598,6 +602,7 @@ pub(crate) fn build(
     let (ai_model, difficulty_keys) = ai::ai_model(b.ctx, raw);
     b.catalog.ai_model = ai_model;
     b.catalog.deal_model = deals::deal_model(b.ctx, &b.catalog, raw);
+    b.catalog.plot_model = plots::plot_model(b.ctx, raw);
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
     let (_, real_companies) = register(
         b.ctx,
@@ -667,6 +672,8 @@ pub(crate) fn build(
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
     countries::check_regions(b.ctx, &countries, &country_keys, texts, all_files_read);
+    plots::check_texts(b.ctx, &b.catalog.plot_model, raw, texts, all_files_read);
+    production::check_size_texts(b.ctx, raw, texts, all_files_read);
 
     let catalog = b.catalog;
     (ctx.report.errors().count() == errors_before).then_some(catalog)

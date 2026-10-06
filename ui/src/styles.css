@@ -1678,6 +1678,51 @@ tr.eigen .anteilbalken span {
   width: 100%;
 }
 
+/* Plots (M35): the free plots of a country to choose from */
+fieldset.grundstuecke {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem 0.75rem;
+  border: 1px solid var(--rahmen);
+  border-radius: 6px;
+}
+
+fieldset.grundstuecke > legend {
+  padding: 0 0.25rem;
+  font-weight: 600;
+}
+
+fieldset.grundstuecke p {
+  margin: 0;
+}
+
+fieldset.grundstuecke tbody tr {
+  cursor: pointer;
+}
+
+.fuellstand {
+  display: block;
+  max-width: 16rem;
+  height: 0.5rem;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  border: 1px solid var(--rahmen);
+  border-radius: 3px;
+  background: var(--hintergrund);
+}
+
+.fuellstand > span {
+  display: block;
+  height: 100%;
+  background: var(--skala-2);
+}
+
+fieldset.grundstuecke tbody tr:hover,
+fieldset.grundstuecke tbody tr.gewaehlt {
+  background: var(--hervorhebung);
+}
+
 .hochladen {
   margin-top: 1rem;
   padding-top: 0.75rem;

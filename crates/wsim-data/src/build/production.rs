@@ -3,7 +3,8 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, ProductionModel, ResearchModel, SiteType, StartSetup, TransportModel, Vehicle, Way,
+    Catalog, FacilitySize, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup,
+    TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::QualificationId;
 use wsim_core::state::StartForm;
@@ -13,9 +14,13 @@ use super::{
     time_series, year,
 };
 use crate::messages;
-use crate::raw::{RawLimits, RawProductionModel, RawVehicle, RawWay};
+use crate::raw::{RawFacilitySizes, RawLimits, RawProductionModel, RawVehicle, RawWay};
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
+use crate::texts::TextIndex;
+
+/// Text prefix of the facility sizes.
+const SIZE_TEXT: &str = "anlagengroesse";
 
 /// The one entry of a parameter section; reports a missing or repeated section.
 pub(super) fn single<'r, T>(
@@ -190,6 +195,110 @@ pub(super) fn production_model(
             &l.field("verkauf").field("schrottwert"),
         ),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
+        sizes: sizes(ctx, &m.sizes, &l.field("anlagengroessen")),
+    }
+}
+
+/// Facility sizes (M36): every size with a capacity, growing with the size, 1 for
+/// `mittel` (the size of the data values).
+fn sizes(ctx: &mut Ctx, m: &RawFacilitySizes, loc: &Loc) -> SizeModel {
+    let caps = loc.field("kapazitaet");
+    let names: Vec<&str> = FacilitySize::ALL.iter().map(|s| s.key()).collect();
+    for key in m.capacity.keys() {
+        if !names.contains(&key.as_str()) {
+            ctx.error(
+                &caps.key(key),
+                messages::unknown_value(key, &names, suggest::closest(key, names.iter().copied())),
+            );
+        }
+    }
+    let mut capacity = [1.0; 5];
+    let mut complete = true;
+    for size in FacilitySize::ALL {
+        match m.capacity.get(size.key()) {
+            Some(&k) => capacity[size.index()] = positive(ctx, k, &caps.field(size.key())),
+            None => {
+                complete = false;
+                ctx.error(&caps, messages::entry_missing("Anlagengröße", size.key()));
+            }
+        }
+    }
+    let medium = capacity[FacilitySize::Medium.index()];
+    if (medium - 1.0).abs() > 1e-9 {
+        ctx.error(&caps.field("mittel"), messages::size_medium_not_one(medium));
+    }
+    if complete {
+        for pair in FacilitySize::ALL.windows(2) {
+            if capacity[pair[1].index()] <= capacity[pair[0].index()] {
+                ctx.error(
+                    &caps.field(pair[1].key()),
+                    messages::sizes_not_increasing(pair[0].key(), pair[1].key()),
+                );
+            }
+        }
+    }
+    SizeModel {
+        capacity,
+        investment_exponent: in_range(
+            ctx,
+            m.investment_exponent,
+            0.0,
+            1.5,
+            &loc.field("investition_exponent"),
+        ),
+        labor_exponent: in_range(
+            ctx,
+            m.labor_exponent,
+            -1.0,
+            1.0,
+            &loc.field("arbeit_exponent"),
+        ),
+        area_exponent: in_range(
+            ctx,
+            m.area_exponent,
+            0.0,
+            1.5,
+            &loc.field("flaeche_exponent"),
+        ),
+        build_exponent: in_range(
+            ctx,
+            m.build_exponent,
+            0.0,
+            1.0,
+            &loc.field("bauzeit_exponent"),
+        ),
+    }
+}
+
+/// Every facility size has a name (`anlagengroesse.<key>`), and no name lacks its size.
+pub(super) fn check_size_texts(
+    ctx: &mut Ctx,
+    raw: &RawData,
+    texts: &TextIndex,
+    report_unused: bool,
+) {
+    let Some(entry) = raw.production_model.first() else {
+        return;
+    };
+    let caps = entry.loc.field("anlagengroessen").field("kapazitaet");
+    for size in FacilitySize::ALL {
+        let key = format!("{SIZE_TEXT}.{}", size.key());
+        if texts.texts.get(&key).is_none() {
+            ctx.error(
+                &caps.field(size.key()),
+                messages::text_missing(&key, crate::LANGUAGE),
+            );
+        }
+    }
+    if !report_unused {
+        return;
+    }
+    for (text_key, loc) in &texts.locations {
+        if let Some((SIZE_TEXT, rest)) = text_key.split_once('.')
+            && !FacilitySize::ALL.iter().any(|s| s.key() == rest)
+        {
+            ctx.warning(loc, messages::text_unused(text_key));
+        }
     }
 }
 

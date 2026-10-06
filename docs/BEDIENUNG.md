@@ -139,6 +139,17 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
     Arbeitskräfte“) und Kosten.
   - **Kosten:** Stückkosten je Erzeugnis aufgeschlüsselt (Material, Personal, Energie,
     Anlage, Verwaltung und Vertrieb, Pacht) und Ergebnis des Vormonats.
+- **Grundstücke (M35):** „Neuer Standort“ (auch das Forschungszentrum) zeigt unter Land
+  und Art die freien Grundstücke des Landes: Gewerbefläche frei/gesamt, Bodenpreis je
+  Lage, Filter nach Lage und Größe, eine Liste (Lage, Größe, Fläche, Kaufpreis, Pacht je
+  Jahr; ohne Filter die vier größten je Lage) und „Kaufen oder pachten“. „Gründen“ geht
+  erst mit gewähltem Grundstück; daneben stehen die Kosten jetzt. Was die Lagen bewirken,
+  steht aufklappbar darüber. Förderstätten brauchen kein Grundstück.
+  In der Werksansicht steht unter den Anlagen die Karte **Grundstück** mit Lage (und
+  ihrer Wirkung), belegter Fläche als Balken, Eigentum oder Pacht und „Grundstück
+  kaufen“. „Anlage bauen“ nennt die Fläche und wie viele Anlagen noch passen; Anlagen,
+  die nicht mehr passen, sind in der Auswahl markiert, und „Bauen“ bleibt dann aus –
+  mit dem Hinweis, einen weiteren Standort zu gründen.
 
 ### Markt
 
@@ -216,6 +227,9 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Richtpreis); im Länderdetail Sprung „Standort hier gründen“.
 - M21: Das Länderdetail nennt die Währung des Landes zum Spieldatum mit ihrem Kurs je
   US-Dollar der Zeit und die Abfolge der Währungen (Umstellungen und Reformen).
+- M34/M35: Bei Regionen steht „Umfasst“ mit den Ländern der Region. **Gewerbeflächen**
+  zeigt die Fläche des Landes und ihren belegten Anteil, je Lage die Zahl der freien
+  Grundstücke, das größte und den Bodenpreis je ha.
 
 ### Rundenbericht
 
@@ -252,6 +266,8 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Ohne Verkauf folgt eine weitere Runde mit den üblichen Ursachen, danach ein Rundgang.
   Die Tafel verdeckt nichts: Dialoge und auf breiten Bildschirmen auch die Ansicht
   lassen ihr Platz; auf dem Handy lässt sie sich einklappen.
+- M35: Der Rundgang zeigt nach den Etappen „Standorte und Grundstücke“ mit dem
+  Gründungsformular (Lagen, Kauf oder Pacht, volle Grundstücke).
 
 ### Tastenhilfe, Speichern und Laden
 

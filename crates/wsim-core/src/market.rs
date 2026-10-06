@@ -387,6 +387,8 @@ struct Offer {
     sold: f64,
     to_traders: f64,
     to_companies: f64,
+    /// Share of sales in the country the seller pays for deliveries (M35).
+    delivery: f64,
 }
 
 #[derive(Clone, Copy)]
@@ -614,20 +616,24 @@ fn clear_market(
         sold: 0.0,
         to_traders: 0.0,
         to_companies: 0.0,
+        delivery: 0.0,
     };
     for &site in sites {
         let s = &state.sites[site.index()];
         if let Some(o) = s.offers.get(&product) {
             let stock = s.inventory.get(&product);
-            offers.push(offer(
-                Seller::Site {
-                    site,
-                    owner: s.owner,
-                },
-                o.price,
-                stock.map_or(0.0, |st| (st.quantity - o.keep).max(0.0)),
-                stock.map_or(50.0, |st| st.quality),
-            ));
+            offers.push(Offer {
+                delivery: crate::plots::delivery_cost(catalog, state, s),
+                ..offer(
+                    Seller::Site {
+                        site,
+                        owner: s.owner,
+                    },
+                    o.price,
+                    stock.map_or(0.0, |st| (st.quantity - o.keep).max(0.0)),
+                    stock.map_or(50.0, |st| st.quality),
+                )
+            });
         }
     }
     let imports = &state.markets.get(product).get(country).imports;
@@ -1069,6 +1075,11 @@ fn trade(
             let center = CostCenter::product(site, product);
             ledger.income(CostType::Revenue, center, Account::Cash, amount);
             ledger.expense(CostType::InventoryChange, center, Account::Inventory, value);
+            // Deliveries from plots far from the customers (M35); traders collect.
+            if offer.delivery > 0.0 && !matches!(buyer, Buyer::Trader { .. }) {
+                let delivery = amount.scale(offer.delivery);
+                ledger.expense(CostType::Transport, center, Account::Cash, delivery);
+            }
         }
         Seller::Importer => {
             state

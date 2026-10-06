@@ -99,6 +99,12 @@ pub mod keys {
     pub const COMMAND_ALREADY_MOTHBALLED: &str = "fehler.befehl.schon_stillgelegt";
     pub const COMMAND_NOT_MOTHBALLED: &str = "fehler.befehl.nicht_stillgelegt";
     pub const COMMAND_TOO_MANY_UNITS: &str = "fehler.befehl.zu_viele_einheiten";
+    pub const COMMAND_NO_FREE_PLOT: &str = "fehler.befehl.kein_grundstueck";
+    pub const COMMAND_UNKNOWN_PLOT: &str = "fehler.befehl.grundstueck_unbekannt";
+    pub const COMMAND_PLOT_TAKEN: &str = "fehler.befehl.grundstueck_belegt";
+    pub const COMMAND_PLOT_NOT_NEEDED: &str = "fehler.befehl.grundstueck_unnoetig";
+    pub const COMMAND_PLOT_TOO_SMALL: &str = "fehler.befehl.grundstueck_zu_klein";
+    pub const COMMAND_PLOT_OWNED: &str = "fehler.befehl.grundstueck_gekauft";
     pub const GAME_OVER_INSOLVENT: &str = "meldung.spielende_insolvenz";
     pub const COMPANY_INSOLVENT: &str = "meldung.firma_insolvent";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
@@ -224,6 +230,12 @@ pub mod keys {
         COMMAND_ALREADY_MOTHBALLED,
         COMMAND_NOT_MOTHBALLED,
         COMMAND_TOO_MANY_UNITS,
+        COMMAND_NO_FREE_PLOT,
+        COMMAND_UNKNOWN_PLOT,
+        COMMAND_PLOT_TAKEN,
+        COMMAND_PLOT_NOT_NEEDED,
+        COMMAND_PLOT_TOO_SMALL,
+        COMMAND_PLOT_OWNED,
         GAME_OVER_INSOLVENT,
         COMPANY_INSOLVENT,
         OVERDRAFT,

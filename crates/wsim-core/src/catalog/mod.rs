@@ -9,6 +9,8 @@ pub(crate) mod test_support;
 
 pub use table::Table;
 
+use serde::{Deserialize, Serialize};
+
 use crate::ids::{IdKind, KeyTable};
 
 use crate::ids::{
@@ -49,6 +51,8 @@ pub struct Catalog {
     pub ai_model: AiModel,
     /// Offers between companies for sites and licences (M30).
     pub deal_model: DealModel,
+    /// Plots of land for the sites (M35); without size classes there are none.
+    pub plot_model: PlotModel,
     /// Historical companies of the start population and later foundings.
     pub real_companies: Vec<RealCompany>,
     /// Historical events, sorted by date (Lastenheft §4.1; effects follow in stage 4).
@@ -244,6 +248,274 @@ pub struct Difficulty {
     pub key: String,
     pub competence: f64,
     pub aggressiveness: f64,
+}
+
+/// Where a plot lies (M35).
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
+)]
+pub enum Location {
+    #[default]
+    City,
+    Port,
+    Rural,
+}
+
+impl Location {
+    pub const ALL: [Location; 3] = [Location::City, Location::Port, Location::Rural];
+
+    /// Key in the data and texts (`lage.<key>`).
+    pub fn key(self) -> &'static str {
+        match self {
+            Location::City => "stadt",
+            Location::Port => "hafen",
+            Location::Rural => "land",
+        }
+    }
+
+    pub fn index(self) -> usize {
+        self as usize
+    }
+}
+
+/// Size of a facility (M36); the data values of a facility are those of `Medium`.
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
+)]
+pub enum FacilitySize {
+    VerySmall,
+    Small,
+    #[default]
+    Medium,
+    Large,
+    VeryLarge,
+}
+
+impl FacilitySize {
+    pub const ALL: [FacilitySize; 5] = [
+        FacilitySize::VerySmall,
+        FacilitySize::Small,
+        FacilitySize::Medium,
+        FacilitySize::Large,
+        FacilitySize::VeryLarge,
+    ];
+
+    /// Key in the data and texts (`anlagengroesse.<key>`).
+    pub fn key(self) -> &'static str {
+        match self {
+            FacilitySize::VerySmall => "sehr_klein",
+            FacilitySize::Small => "klein",
+            FacilitySize::Medium => "mittel",
+            FacilitySize::Large => "gross",
+            FacilitySize::VeryLarge => "sehr_gross",
+        }
+    }
+
+    pub fn index(self) -> usize {
+        self as usize
+    }
+
+    /// The next smaller size, if any.
+    pub fn smaller(self) -> Option<FacilitySize> {
+        self.index().checked_sub(1).map(|i| FacilitySize::ALL[i])
+    }
+
+    /// Steps away from `Medium`.
+    fn steps_from_medium(self) -> usize {
+        self.index().abs_diff(FacilitySize::Medium.index())
+    }
+}
+
+/// What the size of a facility changes (M36): capacity by its factor `k`, investment,
+/// area and construction time by `k` to a power, labor per run by `k` to a power.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SizeModel {
+    /// `k` per size (`FacilitySize::index`); 1 for `Medium`.
+    pub capacity: [f64; 5],
+    pub investment_exponent: f64,
+    pub labor_exponent: f64,
+    pub area_exponent: f64,
+    pub build_exponent: f64,
+}
+
+impl Default for SizeModel {
+    /// Every size like `Medium` (catalogs without sizes, tests).
+    fn default() -> Self {
+        Self {
+            capacity: [1.0; 5],
+            investment_exponent: 0.0,
+            labor_exponent: 0.0,
+            area_exponent: 0.0,
+            build_exponent: 0.0,
+        }
+    }
+}
+
+impl SizeModel {
+    pub fn capacity(&self, size: FacilitySize) -> f64 {
+        self.capacity[size.index()]
+    }
+
+    fn power(&self, size: FacilitySize, exponent: f64) -> f64 {
+        if size == FacilitySize::Medium {
+            1.0
+        } else {
+            libm::pow(self.capacity(size), exponent)
+        }
+    }
+
+    /// Factor on the investment of the data size.
+    pub fn investment(&self, size: FacilitySize) -> f64 {
+        self.power(size, self.investment_exponent)
+    }
+
+    /// Factor on the labor hours per run of the data size.
+    pub fn labor(&self, size: FacilitySize) -> f64 {
+        self.power(size, self.labor_exponent)
+    }
+
+    /// Factor on the land per unit of the data size (M35).
+    pub fn area(&self, size: FacilitySize) -> f64 {
+        self.power(size, self.area_exponent)
+    }
+
+    /// Construction time of a size for the days of the data size (at least one day).
+    pub fn build_days(&self, size: FacilitySize, days: u32) -> u32 {
+        if size == FacilitySize::Medium {
+            return days;
+        }
+        // Construction times are a few hundred days; the cast cannot overflow.
+        (f64::from(days) * self.power(size, self.build_exponent))
+            .round()
+            .max(1.0) as u32
+    }
+
+    /// Size and number of units for `wanted` capacity in units of the data size: the
+    /// largest size with `k <= wanted` (else the smallest), as many units as round
+    /// `wanted / k` (at least one). Among sizes of equal capacity the one nearest to
+    /// `Medium` wins.
+    pub fn units_for(&self, wanted: f64) -> (FacilitySize, u32) {
+        let better = |a: FacilitySize, b: FacilitySize, larger: bool| {
+            let (ka, kb) = (self.capacity(a), self.capacity(b));
+            if ka == kb {
+                a.steps_from_medium() < b.steps_from_medium()
+            } else {
+                (ka > kb) == larger
+            }
+        };
+        let mut best: Option<FacilitySize> = None;
+        for size in FacilitySize::ALL {
+            if self.capacity(size) <= wanted + 1e-9 && best.is_none_or(|b| better(size, b, true)) {
+                best = Some(size);
+            }
+        }
+        let size = best.unwrap_or_else(|| {
+            FacilitySize::ALL
+                .into_iter()
+                .reduce(|b, s| if better(s, b, false) { s } else { b })
+                .unwrap_or_default()
+        });
+        // Small counts; the cast cannot overflow.
+        let count = (wanted / self.capacity(size)).round().max(1.0) as u32;
+        (size, count)
+    }
+}
+
+/// What a location means for plots and sites (M35).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct LocationModel {
+    /// Share of the new plots (ports only where there is a coast).
+    pub share: f64,
+    pub area_factor: f64,
+    pub price_factor: f64,
+    /// Added to the wage premium when sites compete for workers (M18).
+    pub hiring: f64,
+    /// Factor on freight by sea to and from sites here.
+    pub sea_freight: f64,
+    /// Share of the revenue on the home market paid for deliveries.
+    pub delivery_cost: f64,
+}
+
+impl Default for LocationModel {
+    fn default() -> Self {
+        Self {
+            share: 0.0,
+            area_factor: 1.0,
+            price_factor: 1.0,
+            hiring: 0.0,
+            sea_freight: 1.0,
+            delivery_cost: 0.0,
+        }
+    }
+}
+
+/// A size class of new plots (M35).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PlotClass {
+    pub key: String,
+    /// Smallest and largest area in ha in the reference year.
+    pub area_ha: (f64, f64),
+    /// Share of the new plots in rich, middle and poor countries.
+    pub shares: [f64; 3],
+}
+
+/// Plots of land (`parameter/grundstuecksmodell.yaml`, formulas in docs/FORMELN.md, M35).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PlotModel {
+    /// Commercial land per bn USD of GDP (times the market scale).
+    pub area_per_gdp_bn_ha: f64,
+    /// New plots grow by 1 + (year − `growth_from_year`) / `growth_years`.
+    pub growth_from_year: i32,
+    pub growth_years: f64,
+    pub rich_from_usd: f64,
+    pub poor_below_usd: f64,
+    /// Size classes; none means the game has no plots (small test catalogs).
+    pub classes: Vec<PlotClass>,
+    /// Indexed by `Location::index`.
+    pub locations: [LocationModel; 3],
+    pub land_price_usd_per_ha: f64,
+    /// Land prices rise by this times the occupied share of a country's land.
+    pub scarcity: f64,
+    /// Yearly rent as share of the land value.
+    pub rent_share: f64,
+    /// Area of facilities without their own value: investment per ha.
+    pub investment_per_ha_usd: f64,
+    /// Added to the facilities' area for ways, stores and offices.
+    pub overhead: f64,
+    pub min_site_area_ha: f64,
+    /// Room the AI keeps for growth when it chooses a plot.
+    pub ai_reserve: f64,
+}
+
+impl PlotModel {
+    pub fn enabled(&self) -> bool {
+        !self.classes.is_empty()
+    }
+
+    pub fn location(&self, location: Location) -> &LocationModel {
+        &self.locations[location.index()]
+    }
+}
+
+impl Default for PlotModel {
+    fn default() -> Self {
+        Self {
+            area_per_gdp_bn_ha: 25.0,
+            growth_from_year: 1900,
+            growth_years: 30.0,
+            rich_from_usd: 15_000.0,
+            poor_below_usd: 5_000.0,
+            classes: Vec::new(),
+            locations: [LocationModel::default(); 3],
+            land_price_usd_per_ha: 200_000.0,
+            scarcity: 2.0,
+            rent_share: 0.05,
+            investment_per_ha_usd: 10_000_000.0,
+            overhead: 0.2,
+            min_site_area_ha: 0.2,
+            ai_reserve: 0.5,
+        }
+    }
 }
 
 /// Offers between companies (`data/parameter/kaufmodell.yaml`, docs/FORMELN.md M30).
@@ -887,6 +1159,8 @@ pub struct ProductionModel {
     pub scrap_share: f64,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
+    /// Facility sizes (M36).
+    pub sizes: SizeModel,
 }
 
 /// The first site of a new company, paid from the start capital.
@@ -953,6 +1227,7 @@ impl Default for ProductionModel {
             sale_proceeds_share: 0.5,
             scrap_share: 0.03,
             start_setups: Vec::new(),
+            sizes: SizeModel::default(),
         }
     }
 }
@@ -1193,6 +1468,8 @@ pub struct Facility {
     /// Highest possible degree of automation (0–1).
     pub automation_max: f64,
     pub technology: Option<TechnologyId>,
+    /// Land per unit in ha where the rule of the plot model does not fit (M35).
+    pub area_ha: Option<f64>,
     pub provenance: Provenance,
 }
 

@@ -1123,3 +1123,31 @@ Wunsch: „Mehr KI-Gegner. Mache einen Simulationslauf mit 500 Gegnern.“
   Bestandsaufnahme für alle Firmen, bis gebaut wird. Bei 500 Firmen sinkt die Rechenzeit
   für 1900–1901 von 32 auf 22 Sekunden. Die Ergebnisse bleiben gleich (gleiche
   Zustands-Hashes bei 100 und 500 Firmen).
+
+### M35: Grundstücke (06.10.2026)
+
+Auftrag: begrenzte, verschieden große Grundstücke je Land, kaufen oder pachten, ein
+kleiner Wettbewerb um gute Grundstücke, volle Grundstücke zwingen zu einem neuen
+Standort (offene Punkte, Abschnitt H; entschieden: Lage gleich mit).
+
+- **Daten und Formeln:** `parameter/grundstuecksmodell.yaml` (Fläche je Mrd. USD BIP,
+  vier Größenklassen nach Wohlstand, Lagen Stadt/Hafen/Land, Bodenpreis mit Knappheit,
+  Pacht, Fläche der Anlagen); `anlagen[].flaeche_ha` für flächenhungrige Anlagen.
+  Formeln: `docs/FORMELN.md`, Abschnitt M35. Prüfregeln mit Fehlerfall-Test.
+- **Kern:** Grundstücke im Spielstand (`plots`), Angebot jedes Jahr am 1. Januar,
+  Standort auf genau einem Grundstück (außer Förderstätten), Flächenprüfung beim Bauen,
+  Befehle `FoundSiteOnPlot` und `BuyPlot`, Konto „Grundstücke“, monatliche Pacht, Lage
+  wirkt auf Anwerben, Seefracht und Lieferkosten. Kaufangebote (M30) übergeben das
+  Grundstück mit; der Grundwert enthält ein gekauftes Grundstück. Pleiten geben
+  Grundstücke frei. Alte Spielstände bekommen gekaufte Grundstücke.
+- **KI:** wählt das Grundstück mit den geringsten jährlichen Kosten (Pacht und
+  Lieferkosten), das ihr Vorhaben mit Reserve fasst; kauft, wenn die Kasse es trägt;
+  baut auf einem neuen Grundstück weiter, wenn das alte voll ist.
+- **Oberfläche:** Gründen mit Grundstückswahl (Filter Lage und Größe, Kauf oder Pacht,
+  Kosten), auch für Forschungszentren; Werksansicht mit Karte „Grundstück“ (belegte
+  Fläche, Besitz, „Grundstück kaufen“); Bauen zeigt Fläche und „noch Platz für …“ und
+  sperrt, was nicht passt; Länderdetail mit Gewerbeflächen; Grundwert nennt das
+  Grundstück; Rundgang der Einführung mit „Standorte und Grundstücke“.
+- Tests: acht Kerntests (`plots_tests`), Prüfregeln, Oberfläche (Gründen auf gewähltem
+  Grundstück, Kauf, volle Grundstücke, Länderdetail, Einführung).
+

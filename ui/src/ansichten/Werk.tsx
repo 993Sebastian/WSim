@@ -25,6 +25,7 @@ import type {
   Befehl,
   Produktion,
   StandortDetail,
+  StandortGrundstueck,
   Stueckkosten,
   Versorgung,
 } from "../kern";
@@ -177,6 +178,7 @@ function Anlagen({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         />
       ))}
       {s.kind === "Extraction" && <Erschliessung s={s} datum={produktion.date} />}
+      {s.plot && <GrundstueckKarte s={s} plot={s.plot} produktion={produktion} />}
       <AnlageBauen s={s} produktion={produktion} />
     </div>
   );
@@ -442,6 +444,73 @@ function AnlageAbbau({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name:
   );
 }
 
+/** The plot of a site: room left for facilities, bought or leased (M35). */
+function GrundstueckKarte({
+  s,
+  plot: g,
+  produktion,
+}: {
+  s: StandortDetail;
+  plot: StandortGrundstueck;
+  produktion: Produktion;
+}) {
+  const { los, antwort } = useAktion(`grundstueck/${s.index}`);
+  const anteil = g.area_ha > 0 ? Math.min(g.used_ha / g.area_ha, 1) : 1;
+  // Full when not even one more unit of any facility of this site type fits.
+  const voll = produktion.facilities
+    .filter((f) => f.site_type === s.kind)
+    .every((f) => (g.fits[f.key] ?? 0) === 0);
+  return (
+    <section className="karte" aria-label={t("grundstueck.titel")} data-tour="werk-grundstueck">
+      <h3>{t("grundstueck.titel")}</h3>
+      <dl className="werte">
+        <dt>{t("grundstueck.lage")}</dt>
+        <dd>
+          {t(`lage.${g.location}`)}
+          <small className="feld-hilfe">{t(`grundstueck.lage_${g.location}`)}</small>
+        </dd>
+        <dt>{t("grundstueck.flaeche")}</dt>
+        <dd>
+          {t("grundstueck.belegt", {
+            belegt: formatZahl(g.used_ha, 2),
+            gesamt: formatZahl(g.area_ha, 2),
+            anteil: formatProzent(anteil),
+          })}
+          <span className="fuellstand" aria-hidden="true">
+            <span style={{ width: `${anteil * 100}%` }} />
+          </span>
+        </dd>
+        <dt>{t("grundstueck.besitz")}</dt>
+        <dd>
+          {g.owned
+            ? t("grundstueck.eigen", { wert: formatGeld(g.value_usd) })
+            : t("grundstueck.gepachtet", {
+                pacht: formatGeld(g.rent_usd_year ?? 0),
+                wert: formatGeld(g.value_usd),
+              })}
+        </dd>
+      </dl>
+      {voll && <p className="warntext">{t("grundstueck.voll")}</p>}
+      {!g.owned && (
+        <div className="knopfreihe links">
+          <button
+            type="button"
+            onClick={() =>
+              void los(
+                [{ BuyPlot: { site: s.index } }],
+                t("grundstueck.gekauft_meldung", { preis: formatGeld(g.value_usd) }),
+              )
+            }
+          >
+            {t("grundstueck.kaufen_knopf", { preis: formatGeld(g.value_usd) })}
+          </button>
+        </div>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
   const baubar = produktion.facilities
     .filter((f) => f.site_type === s.kind)
@@ -454,6 +523,9 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
   const f = baubar.find((x) => x.key === anlage) ?? baubar[0]!;
   const rezepte = produktion.recipes.filter((r) => f.recipes.includes(r.key));
   const zahl = Math.floor(zahlLesen(anzahl) ?? 0);
+  // Units that still fit on the plot (none: no plot, no limit).
+  const passen = s.plot ? (s.plot.fits[f.key] ?? 0) : null;
+  const zuGross = passen !== null && zahl > passen;
   return (
     <form
       className="karte bauen"
@@ -475,6 +547,7 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
             {baubar.map((x) => (
               <option key={x.key} value={x.key}>
                 {t(`anlage.${x.key}`)} – {formatGeld(x.investment_usd)}
+                {s.plot && (s.plot.fits[x.key] ?? 0) === 0 && ` (${t("grundstueck.passt_nicht")})`}
               </option>
             ))}
           </select>
@@ -494,6 +567,18 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
         </dd>
         <dt>{t("werk.bauzeit")}</dt>
         <dd>{t("produktion.tage", { tage: f.build_days })}</dd>
+        {passen !== null && (
+          <>
+            <dt>{t("grundstueck.flaechenbedarf")}</dt>
+            <dd>
+              {formatZahl(f.area_ha * Math.max(zahl, 1), 2)} ha
+              <small className="gedaempft">
+                {" "}
+                ({t("grundstueck.passen_noch", { anzahl: formatZahl(passen) })})
+              </small>
+            </dd>
+          </>
+        )}
         <dt>{t("werk.leistung")}</dt>
         <dd>
           {rezepte.length === 0 && <span className="gedaempft">{t("werk.kein_verfahren")}</span>}
@@ -508,8 +593,15 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
           </ul>
         </dd>
       </dl>
+      {zuGross && (
+        <p className="warntext">
+          {passen === 0
+            ? t("grundstueck.kein_platz")
+            : t("grundstueck.zu_viele", { anzahl: formatZahl(passen) })}
+        </p>
+      )}
       <div className="knopfreihe links">
-        <button type="submit" className="haupt" disabled={zahl < 1}>
+        <button type="submit" className="haupt" disabled={zahl < 1 || zuGross}>
           {t("produktion.bauen_knopf")}
         </button>
       </div>

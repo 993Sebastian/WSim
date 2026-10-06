@@ -14,18 +14,28 @@ use crate::ids::{
 use crate::ledger::{Account, CostCenter, CostType, Ledger};
 use crate::message::{Message, Param, keys};
 use crate::money::Money;
+use crate::plots;
 use crate::policy::{self, BuyerGroup, SalesRule, Scope};
 use crate::state::{
-    CompanyId, Consignee, GameState, Operation, PerId, PriceMode, PurchaseOrder, SaleOffer,
-    Shipment, Site, SiteId, Slot,
+    CompanyId, Consignee, GameState, Operation, PerId, PlotId, PriceMode, PurchaseOrder, SaleOffer,
+    Shipment, Site, SiteId, Slot, Tenure,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Command {
     /// Renames the acting company.
     RenameCompany { name: String },
-    /// Founds a site (land and buildings) in a country.
+    /// Founds a site (land and buildings) in a country, on the largest free plot (M35),
+    /// bought when the cash pays building and land, else leased.
     FoundSite { country: CountryId, kind: SiteType },
+    /// Founds a site on a free plot, bought or leased (M35).
+    FoundSiteOnPlot {
+        plot: PlotId,
+        kind: SiteType,
+        lease: bool,
+    },
+    /// Buys the leased plot of a site at today's value (M35).
+    BuyPlot { site: SiteId },
     /// Builds `count` identical units of a facility at a site, working together in one
     /// slot; they produce after the construction time.
     BuildFacility {
@@ -226,6 +236,18 @@ pub enum CommandError {
     UnderConstruction,
     AlreadyMothballed,
     NotMothballed,
+    /// No free plot in the country (M35).
+    NoFreePlot,
+    UnknownPlot,
+    PlotTaken,
+    /// Extraction sites stand on their concession.
+    PlotNotNeeded,
+    /// The site would need more land than its plot has (ha).
+    PlotTooSmall {
+        needed_ha: f64,
+        area_ha: f64,
+    },
+    PlotOwned,
     /// More units than the facility has (M22).
     TooManyUnits {
         count: u32,
@@ -312,6 +334,14 @@ impl CommandError {
             CommandError::TooManyUnits { count } => {
                 e(keys::COMMAND_TOO_MANY_UNITS).with("anzahl", Param::Integer(i64::from(*count)))
             }
+            CommandError::NoFreePlot => e(keys::COMMAND_NO_FREE_PLOT),
+            CommandError::UnknownPlot => e(keys::COMMAND_UNKNOWN_PLOT),
+            CommandError::PlotTaken => e(keys::COMMAND_PLOT_TAKEN),
+            CommandError::PlotNotNeeded => e(keys::COMMAND_PLOT_NOT_NEEDED),
+            CommandError::PlotTooSmall { needed_ha, area_ha } => e(keys::COMMAND_PLOT_TOO_SMALL)
+                .with("benoetigt", Param::Number(*needed_ha))
+                .with("flaeche", Param::Number(*area_ha)),
+            CommandError::PlotOwned => e(keys::COMMAND_PLOT_OWNED),
             CommandError::OwnObject => e(keys::COMMAND_OWN_OBJECT),
             CommandError::SellerBankrupt => e(keys::COMMAND_SELLER_BANKRUPT),
             CommandError::NotSellersObject => e(keys::COMMAND_NOT_SELLERS_OBJECT),
@@ -386,6 +416,61 @@ fn pay(ledger: &mut Ledger, asset: Account, amount: Money) -> Result<(), Command
     Ok(())
 }
 
+/// A new site with its building and, where it needs one, its plot (M35): the land is
+/// paid with the building unless leased.
+fn found_site(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    today: Date,
+    (country, kind): (CountryId, SiteType),
+    (plot, lease): (Option<PlotId>, bool),
+) -> Result<(), CommandError> {
+    let cost = catalog.production_model.site_cost(kind);
+    let land = plot
+        .filter(|_| !lease)
+        .map_or(Money::ZERO, |p| plots::value(catalog, state, p));
+    let company = state.company_mut(actor).expect("checked above");
+    if company.ledger.cash() < cost + land {
+        return Err(CommandError::NotEnoughCash {
+            needed: cost + land,
+        });
+    }
+    pay(&mut company.ledger, Account::FixedAssets, cost)?;
+    if land > Money::ZERO {
+        pay(&mut company.ledger, Account::Land, land)?;
+    }
+    state.sites.push(Site {
+        owner: actor,
+        country,
+        kind,
+        founded: today,
+        building_cost: cost,
+        deposit: None,
+        slots: Vec::new(),
+        inventory: Default::default(),
+        workforce: PerId::from_fn(catalog.labor_groups.len(), |_| 0.0),
+        staffing_due: false,
+        offers: Default::default(),
+        orders: Default::default(),
+        research: None,
+        wage_premium: 0.0,
+        acquired: None,
+        goodwill: None,
+        plot: None,
+    });
+    if let Some(p) = plot {
+        let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
+        let tenure = if lease {
+            Tenure::Leased
+        } else {
+            Tenure::Owned(land)
+        };
+        plots::occupy(state, p, site, tenure);
+    }
+    Ok(())
+}
+
 fn own_site(state: &GameState, actor: CompanyId, site: SiteId) -> Result<&Site, CommandError> {
     let s = state.site(site).ok_or(CommandError::UnknownSite)?;
     if s.owner != actor {
@@ -440,27 +525,60 @@ pub(crate) fn execute(
             if country.index() >= catalog.countries.len() {
                 return Err(CommandError::DifferentCountries);
             }
+            // Without a choice the largest free plot: the most room to grow.
+            let plot = if plots::needs_plot(catalog, *kind) {
+                Some(
+                    plots::choose(catalog, state, *country, f64::INFINITY, 0.0)
+                        .ok_or(CommandError::NoFreePlot)?,
+                )
+            } else {
+                None
+            };
+            // Bought when the cash pays building and land, else leased.
             let cost = catalog.production_model.site_cost(*kind);
+            let cash = state.company(actor).expect("checked above").ledger.cash();
+            let lease = plot.is_some_and(|p| cash < cost + plots::value(catalog, state, p));
+            found_site(
+                state,
+                catalog,
+                actor,
+                today,
+                (*country, *kind),
+                (plot, lease),
+            )?;
+        }
+        Command::FoundSiteOnPlot { plot, kind, lease } => {
+            let p = state
+                .plots
+                .get(plot.index())
+                .ok_or(CommandError::UnknownPlot)?;
+            if p.site.is_some() {
+                return Err(CommandError::PlotTaken);
+            }
+            if !plots::needs_plot(catalog, *kind) {
+                return Err(CommandError::PlotNotNeeded);
+            }
+            let country = p.country;
+            found_site(
+                state,
+                catalog,
+                actor,
+                today,
+                (country, *kind),
+                (Some(*plot), *lease),
+            )?;
+        }
+        Command::BuyPlot { site } => {
+            let plot = own_site(state, actor, *site)?
+                .plot
+                .ok_or(CommandError::UnknownPlot)?;
+            if matches!(state.plots[plot.index()].tenure, Tenure::Owned(_)) {
+                return Err(CommandError::PlotOwned);
+            }
+            let price = plots::value(catalog, state, plot);
             let company = state.company_mut(actor).expect("checked above");
-            pay(&mut company.ledger, Account::FixedAssets, cost)?;
-            state.sites.push(Site {
-                owner: actor,
-                country: *country,
-                kind: *kind,
-                founded: today,
-                building_cost: cost,
-                deposit: None,
-                slots: Vec::new(),
-                inventory: Default::default(),
-                workforce: PerId::from_fn(catalog.labor_groups.len(), |_| 0.0),
-                staffing_due: false,
-                offers: Default::default(),
-                orders: Default::default(),
-                research: None,
-                wage_premium: 0.0,
-                acquired: None,
-                goodwill: None,
-            });
+            pay(&mut company.ledger, Account::Land, price)?;
+            state.plots[plot.index()].tenure = Tenure::Owned(price);
         }
         Command::BuildFacility {
             site,
@@ -476,6 +594,13 @@ pub(crate) fn execute(
                 return Err(CommandError::WrongSiteType {
                     required: f.site_type,
                 });
+            }
+            if let Some(plot) = s.plot {
+                let needed_ha = plots::site_area(catalog, s, Some((*facility, *count)));
+                let area_ha = state.plots[plot.index()].area_ha;
+                if needed_ha > area_ha + 1e-9 {
+                    return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
+                }
             }
             if let Some(t) = f.technology.filter(|&t| !state.knows(catalog, actor, t)) {
                 return Err(unknown_technology(catalog, t));
@@ -623,13 +748,16 @@ pub(crate) fn execute(
             let source = own_site(state, actor, *from)?;
             let target = own_site(state, actor, *to)?;
             let (from_country, to_country) = (source.country, target.country);
+            // Sea freight is cheaper where either end lies at a port (M35).
+            let sea = plots::sea_freight(catalog, state, source)
+                .min(plots::sea_freight(catalog, state, target));
             let route = if from_country == to_country {
                 None
             } else {
                 Some(
                     state
                         .routes
-                        .for_product(catalog, *product, from_country, to_country)
+                        .for_product_via(catalog, *product, (from_country, to_country), sea)
                         .ok_or_else(|| CommandError::NoRoute {
                             product: catalog.products.key(*product).to_owned(),
                             from: catalog.countries.key(from_country).to_owned(),
