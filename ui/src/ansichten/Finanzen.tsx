@@ -215,6 +215,7 @@ function Kreditaufnahme({ jahreMax }: { jahreMax: number }) {
         <ZahlFeld
           name={t("finanzen.laufzeit")}
           einheit={t("finanzen.jahre")}
+          ganzzahlig
           wert={jahre}
           onWert={setJahre}
           hilfe={t("finanzen.laufzeit_hilfe", { max: jahreMax })}

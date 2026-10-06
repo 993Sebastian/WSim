@@ -1,9 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { formatGeld, landName } from "../format";
+import { formatGeld, landName, zahlFeld, zahlLesen } from "../format";
 import type { Kern, NeuesSpiel, Optionen, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
+import { ZahlEingabe } from "./gemeinsam";
+
+/** The number fields: they keep the typed text until the game starts. */
+type Zahlfeld = "start_year" | "companies" | "capital_usd" | "research_factor" | "seed";
+const ZAHLFELDER: Zahlfeld[] = [
+  "start_year",
+  "companies",
+  "capital_usd",
+  "research_factor",
+  "seed",
+];
 
 /** New game with the settings of Lastenheft §15 that stage 1 knows. */
 export function NeuesSpielAnsicht({
@@ -16,7 +27,8 @@ export function NeuesSpielAnsicht({
   onZurueck: () => void;
 }) {
   const [optionen, setOptionen] = useState<Optionen | null>(null);
-  const [werte, setWerte] = useState<NeuesSpiel | null>(null);
+  const [werte, setWerte] = useState<Omit<NeuesSpiel, Zahlfeld> | null>(null);
+  const [zahlen, setZahlen] = useState<Record<Zahlfeld, string> | null>(null);
   // Part of the interface only: the core does not know the introduction.
   const [einfuehrung, setEinfuehrung] = useState(true);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -30,15 +42,18 @@ export function NeuesSpielAnsicht({
         if (!aktiv) return;
         setOptionen(o);
         setWerte({
-          seed: Math.floor(Math.random() * 1_000_000_000),
-          start_year: o.start_year.default,
           country: o.default_country,
-          capital_usd: o.start_capital_usd.default,
           start_form: o.start_forms[0]?.key ?? "",
           company_name: "",
-          companies: o.companies.default,
           difficulty: o.default_difficulty,
-          research_factor: o.research_factor.default,
+        });
+        // Year and seed name something: no thousands separators.
+        setZahlen({
+          start_year: String(o.start_year.default),
+          companies: zahlFeld(o.companies.default, 0),
+          capital_usd: zahlFeld(o.start_capital_usd.default),
+          research_factor: zahlFeld(o.research_factor.default),
+          seed: String(Math.floor(Math.random() * 1_000_000_000)),
         });
       })
       .catch((e: unknown) => aktiv && setFehler(fehlerText(e)));
@@ -55,7 +70,7 @@ export function NeuesSpielAnsicht({
     [optionen],
   );
 
-  if (!optionen || !werte) {
+  if (!optionen || !werte || !zahlen) {
     return (
       <main className="seite">
         <h1>{t("neu.titel")}</h1>
@@ -64,19 +79,34 @@ export function NeuesSpielAnsicht({
     );
   }
 
-  const setze = <K extends keyof NeuesSpiel>(feld: K, wert: NeuesSpiel[K]) =>
+  const setze = <K extends keyof typeof werte>(feld: K, wert: (typeof werte)[K]) =>
     setWerte({ ...werte, [feld]: wert });
-  const zahl = (s: string) => (s.trim() === "" ? NaN : Number(s));
+  const zahlFeldProps = (feld: Zahlfeld) => ({
+    wert: zahlen[feld],
+    onWert: (text: string) => setZahlen({ ...zahlen, [feld]: text }),
+  });
 
   const starten = async (e: FormEvent) => {
     e.preventDefault();
+    const zahl = (feld: Zahlfeld) => zahlLesen(zahlen[feld]) ?? NaN;
+    const einstellungen: NeuesSpiel = {
+      ...werte,
+      company_name: werte.company_name.trim(),
+      start_year: zahl("start_year"),
+      companies: zahl("companies"),
+      capital_usd: zahl("capital_usd"),
+      research_factor: zahl("research_factor"),
+      seed: zahl("seed"),
+    };
+    // Whether the numbers fit the ranges is the core's to say.
+    if (ZAHLFELDER.some((feld) => Number.isNaN(einstellungen[feld]))) {
+      setFehler(t("feld.keine_zahl"));
+      return;
+    }
     setFehler(null);
     setStartet(true);
     try {
-      onStart(
-        await kern.neuesSpiel({ ...werte, company_name: werte.company_name.trim() }),
-        einfuehrung,
-      );
+      onStart(await kern.neuesSpiel(einstellungen), einfuehrung);
     } catch (err) {
       setFehler(fehlerText(err));
       setStartet(false);
@@ -114,13 +144,11 @@ export function NeuesSpielAnsicht({
           </label>
           <label>
             {t("neu.startjahr")}
-            <input
+            <ZahlEingabe
               id="startjahr"
-              type="number"
-              min={optionen.start_year.min}
-              max={optionen.start_year.max}
-              value={werte.start_year}
-              onChange={(e) => setze("start_year", zahl(e.target.value))}
+              ganzzahlig
+              gruppieren={false}
+              {...zahlFeldProps("start_year")}
             />
           </label>
         </div>
@@ -174,52 +202,26 @@ export function NeuesSpielAnsicht({
             <div className="feldreihe">
               <label>
                 {t("neu.ki_firmen")}
-                <input
-                  id="ki_firmen"
-                  type="number"
-                  min={optionen.companies.min}
-                  max={optionen.companies.max}
-                  value={werte.companies}
-                  onChange={(e) => setze("companies", zahl(e.target.value))}
-                />
+                <ZahlEingabe id="ki_firmen" ganzzahlig {...zahlFeldProps("companies")} />
                 <small className="feld-hilfe">{t("neu.ki_firmen_hilfe")}</small>
               </label>
               <label>
                 {t("neu.startkapital")}
-                <input
-                  id="startkapital"
-                  type="number"
-                  min={optionen.start_capital_usd.min}
-                  step="any"
-                  value={werte.capital_usd}
-                  onChange={(e) => setze("capital_usd", zahl(e.target.value))}
-                />
+                <ZahlEingabe id="startkapital" {...zahlFeldProps("capital_usd")} />
               </label>
             </div>
             <div className="feldreihe">
               <label>
                 {t("neu.forschungsfaktor")}
-                <input
+                <ZahlEingabe
                   id="forschungsfaktor"
-                  type="number"
-                  min={optionen.research_factor.min}
-                  max={optionen.research_factor.max}
-                  step={0.25}
-                  value={werte.research_factor}
-                  onChange={(e) => setze("research_factor", zahl(e.target.value))}
+                  gruppieren={false}
+                  {...zahlFeldProps("research_factor")}
                 />
               </label>
               <label>
                 {t("neu.seed")}
-                <input
-                  id="seed"
-                  type="number"
-                  min={0}
-                  value={werte.seed}
-                  onChange={(e) =>
-                    setze("seed", Math.max(0, Math.floor(zahl(e.target.value) || 0)))
-                  }
-                />
+                <ZahlEingabe id="seed" ganzzahlig gruppieren={false} {...zahlFeldProps("seed")} />
               </label>
             </div>
           </div>

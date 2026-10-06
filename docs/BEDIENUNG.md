@@ -50,7 +50,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
 4. **Rückmeldung am Ort der Handlung:** Erfolg oder Fehler erscheint beim Knopf, nicht
    oben auf der Seite.
 5. **Deutsche Zahleneingabe:** „1.800“ ist 1800 und „1,5“ ist 1,5; Felder zeigen ihren
-   Wert formatiert.
+   Wert formatiert und setzen schon beim Tippen die Tausenderpunkte („200.000.000“). Ein
+   getippter Punkt trennt Tausender; nur nach einer Null („0.5“) und in Feldern ohne
+   Tausenderpunkte (Prozent, Jahr, Zufallswert) gilt er als Komma. Eingefügter Text wird
+   als Ganzes gelesen („1.5“ ist 1,5). Felder für ganze Zahlen nehmen kein Komma.
 6. **Übersicht vor Detail:** Listen zeigen das Wichtigste je Zeile; ein Klick öffnet die
    Detailansicht (Werk, Produktmarkt, Land, Technologie).
 7. **Handy:** Karten statt breiter Tabellen, Eingaben untereinander, ein kompakter

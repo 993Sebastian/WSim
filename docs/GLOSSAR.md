@@ -192,6 +192,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Geldanzeige (Währung und Faktor), Anzeigeoptionen | `MoneyDisplay`, `MoneyOptions` (`Overview::money`); UI: `Geldanzeige`, `Geldoptionen`, `setzeGeldanzeige` |
 | Kaufkraft 2026 / Preise der Zeit | `MoneyOptions::home_base`, `lead_base` / `home_then`, `lead_then`; UI: `GeldWahl.preise` (`basis`, `zeit`) |
 | Betrag in der gezeigten Währung, zurück in Spieldollar (UI) | `inAnzeige`, `ausAnzeige`, `geldFeld`, `geldEinheit` |
+| Zahlenfeld mit Tausenderpunkten beim Tippen; ganze Zahl, negativ, mit Tausenderpunkten (UI) | `ZahlFeld`, `ZahlEingabe`, `zahlEingeben`, `zahlGlaetten`; `Zahlart` (`ganzzahlig`, `negativ`, `gruppieren`) |
+| Deutsch getippte Zahl lesen, in Teile zerlegen (UI) | `zahlLesen`, `zahlTeile` (`Zahlteile`) |
 | Währungen eines Landes im Länderdetail, Kurs der Zeit | `CountryDetail::currencies` (`CurrencyPeriodView`), `currency_per_usd`, `CurrencyModel::periods_of` |
 | Stilllegen, wieder anfahren, verkaufen (Anlage) | `Command::MothballFacility`, `RestartFacility`, `SellFacility` (M22) |
 | Betriebszustand einer Anlage (läuft, stillgelegt, fährt wieder an) | `state::Operation` (`Running`, `Mothballed`, `Restarting`), `Slot::operating` |

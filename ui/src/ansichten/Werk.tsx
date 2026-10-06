@@ -299,6 +299,7 @@ function AnlageKarte({
           einheit="%"
           wert={auslastung}
           onWert={setAuslastung}
+          gruppieren={false}
         />
         <button type="submit">{t("werk.uebernehmen")}</button>
         {fehler && <p className="fehlertext">{fehler}</p>}
@@ -315,7 +316,7 @@ function AnlageKarte({
  */
 function AnlageAbbau({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name: string }) {
   const { los, antwort } = useAktion(`abbau/${s.index}/${a.index}`);
-  const [einheiten, setEinheiten] = useState(String(a.count));
+  const [einheiten, setEinheiten] = useState(zahlFeld(a.count, 0));
   const [frage, setFrage] = useState(false);
   const id = useId();
   const k = Math.floor(zahlLesen(einheiten) ?? 0);
@@ -349,6 +350,7 @@ function AnlageAbbau({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name:
         <ZahlFeld
           name={t("werk.einheiten")}
           einheit={t("werk.von_einheiten", { anzahl: a.count })}
+          ganzzahlig
           wert={einheiten}
           onWert={(w) => {
             setEinheiten(w);
@@ -477,7 +479,7 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
             ))}
           </select>
         </div>
-        <ZahlFeld name={t("produktion.anzahl")} wert={anzahl} onWert={setAnzahl} />
+        <ZahlFeld name={t("produktion.anzahl")} ganzzahlig wert={anzahl} onWert={setAnzahl} />
       </div>
       <dl className="werte">
         <dt>{t("werk.investition")}</dt>
@@ -1182,6 +1184,7 @@ function Personal({ s }: { s: StandortDetail }) {
             wert={aufschlag}
             onWert={setAufschlag}
             hilfe={t("werk.aufschlag_hilfe", { max: formatZahl(max) })}
+            gruppieren={false}
           />
           <button type="submit">{t("werk.uebernehmen")}</button>
         </div>
