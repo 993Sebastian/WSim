@@ -251,3 +251,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Produktname, Namensstil, Stamm, Muster, Hausmarke, ausgeschlossene Namen | `Company::product_names`; `catalog::ProductNaming` (`house_brand`, `excluded`, `styles`, `style_of_group`), `NamingStyle` (`stems`, `patterns`, `numbers`, `letters`, `additions`), `NamePattern` (`ki/produktnamen.yaml`; M42) |
 | Namen bilden und prüfen, Vorschläge | Modul `product_names` (`generate`, `suggestions`, `taken`, `same_name`, `named_products`, `name_new_company`); `command::check_product_name`; Zufallsstrom `Stream::ProductName`; Befehl `NameProduct`; Fehler `NameError::Excluded`, `CommandError::NotNameable` |
 | Produktname in Sichten | `SellerLine::product_name`, `OfferView::product_name`, `ProductMarketView::{nameable, own_name, name_suggestions}`, `CompanyDetailView::products` (`NamedProductView`); UI: `Produktname` (Markt) |
+| Engpass ohne Ausweg (KI baut ein Produkt, das niemand herstellt, trotz knapper Vorprodukte) | `ai::Chain::bottleneck` mit `Chain::makers` (M41) |
+| Angebote eines Produkts in einem Spielstand (Diagnose) | `wsim angebote <spielstand> <produkt>` (`show_offers` in `wsim-cli`) |

@@ -446,3 +446,51 @@ produkt.dvd_spieler: DVD-Spieler
 anlage.dvd_spielerwerk: DVD-Spieler-Werk
 rezept.dvd_spieler_bauen: DVD-Spieler bauen
 technologie.dvd: DVD
+
+# Epoche 2010–2026 (M41)
+produkt.smartphone: Smartphone
+anlage.smartphonewerk: Smartphonewerk
+rezept.smartphone_bauen: Smartphones bauen
+technologie.smartphone: Smartphone (Touchscreen und mobiles Internet)
+produkt.tablet: Tablet
+anlage.tabletwerk: Tabletwerk
+rezept.tablet_bauen: Tablets bauen
+technologie.tablet: Tablet
+produkt.traktionsbatterie: Traktionsbatterie
+produkt.elektroantrieb: Elektroantrieb
+produkt.elektroauto: Elektroauto
+anlage.batteriewerk: Batteriewerk
+anlage.batteriegrosswerk: Batterie-Großwerk
+anlage.elektroantriebswerk: Elektroantriebswerk
+anlage.elektroautowerk: Elektroautowerk
+rezept.traktionsbatterie_bauen: Traktionsbatterien bauen
+rezept.traktionsbatterie_grossserie: Traktionsbatterien in Großserie
+rezept.elektroantrieb_bauen: Elektroantriebe bauen
+rezept.elektroauto_bauen: Elektroautos bauen
+technologie.traktionsbatterie: Traktionsbatterie (großformatige Lithium-Ionen-Zellen)
+technologie.elektroauto: Elektroauto
+technologie.grosszellfertigung: Zellfertigung in Großserie
+produkt.rohsilizium: Rohsilizium
+produkt.solarsilizium: Solarsilizium
+produkt.solarmodul: Solarmodul
+anlage.polysiliziumwerk: Polysiliziumwerk
+anlage.solarmodulwerk: Solarmodulwerk
+anlage.solargrossfabrik: Solar-Großfabrik
+rezept.solarsilizium_herstellen: Solarsilizium herstellen
+rezept.solarmodul_herstellen: Solarmodule herstellen
+rezept.solarmodul_grossserie: Solarmodule in Großserie
+technologie.solarsilizium: Solarsilizium in Großanlagen
+technologie.solarmodul: Kristalline Solarmodule in Großserie
+technologie.perc_solarzelle: Solarzelle mit passivierter Rückseite (PERC)
+produkt.windkraftanlage: Windkraftanlage
+anlage.windkraftanlagenwerk: Windkraftanlagenwerk
+rezept.windkraftanlage_bauen: Windkraftanlagen bauen
+technologie.windkraftanlage: Windkraftanlage der Megawattklasse
+produkt.waermepumpe: Wärmepumpe
+anlage.waermepumpenwerk: Wärmepumpenwerk
+rezept.waermepumpe_bauen: Wärmepumpen bauen
+technologie.waermepumpe: Luft-Wasser-Wärmepumpe
+produkt.led_lampe: LED-Lampe
+anlage.led_lampenwerk: LED-Lampenwerk
+rezept.led_lampe_bauen: LED-Lampen bauen
+technologie.led_lampe: LED-Lampe (weiße Leuchtdiode)

@@ -1972,6 +1972,51 @@ solange ein Vorprodukt mehr als `ausbau_vorprodukt_preis_max` × Richtpreis kost
 keine Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache. Das Chipwerk bekommt
 eine eigene Fläche (10 ha statt 25 ha nach der Regel „Investition je ha“).
 
+## M41 – Produkte 2010–2026
+
+Lastenheft §18.4. Neue Produkte, Anlagen, Rezepte und Technologien stehen in
+`data/ketten/42_*.yaml` bis `48_*.yaml` (Entwurf eines Hilfsagenten, geprüft und
+übernommen; Annäherungen und Quellen in den Kommentaren der Daten):
+
+| Kette | Neue Produkte | Technologien (Jahr) |
+| --- | --- | --- |
+| 42 Smartphone | Smartphone (verdrängt Mobiltelefon und Digitalkamera) | Smartphone (2007) |
+| 43 Tablet | Tablet | Tablet (2010) |
+| 44 Elektroauto | Traktionsbatterie (in kWh, neue Einheit `kwh`), Elektroantrieb, Elektroauto (verdrängt das Automobil) | Traktionsbatterie (2009), Elektroauto (2010), Zellfertigung in Großserie (2017) |
+| 45 Solarmodul | Rohsilizium (Staatsmarkt), Solarsilizium, Solarmodul (in kWp, neue Einheit `kwp`, Staatsbedarf) | Solarsilizium, Solarmodul (2006), PERC-Solarzelle (2016) |
+| 46 Windkraftanlage | Windkraftanlage (2,5 MW, Staatsbedarf) | Windkraftanlage (2000) |
+| 47 Wärmepumpe | Wärmepumpe | Luft-Wasser-Wärmepumpe (2008) |
+| 48 LED-Lampe | LED-Lampe (verdrängt die Glühlampe) | LED-Lampe (2009) |
+
+Solarmodule und Windkraftanlagen kauft der Staat; `staatsnachfrage.verlauf` (M39) folgt
+dem Zubau der Welt (Solar: 2010 = 0,15, 2020 = 0,95, 2024 = 2,6 je Mio. USD BIP; Wind:
+2010 = 0,55, 2020 = 1,0 als Faktor auf den Grundwert). Die zweiten Rezepte (Batterie ab
+2017, Modul ab 2016) senken die Kosten um etwa 40 %.
+
+### Engpass ohne Ausweg (KI)
+
+Die Suche nach einem Engpass (M32, „Engpass mit Ausweichen“) steigt bei knappen
+Vorprodukten in deren Ketten ab. Führt keine davon zu einem Werk (alle Konzessionen
+vergeben, kein bekanntes Verfahren), gilt neu:
+
+- Stellt schon eine Firma das Produkt her, bleibt es wie bisher: kein Werk (es würde nur
+  um dieselben knappen Vorprodukte konkurrieren).
+- Stellt es noch niemand her, wird es trotzdem gebaut; das Werk bietet wie jeder Käufer
+  um seine Vorprodukte (M16).
+
+Im ersten Weltlauf bis 2026 entstand sonst nie ein Batteriewerk: Kobalt und Kohle waren
+knapp, alle ihre Konzessionen vergeben, und die zwölf Elektroautowerke standen zehn Jahre
+still.
+
+### Rohstoffe bis 2026
+
+Der Förderindex folgt der Welterzeugung, wo die Lagerstätten des Spiels sie sonst nicht
+abbilden: Kohle neu ab 1980 (2010 = 2,2, 2026 = 2,6; vorher ab 2000 das 1,8- bis 3,9-Fache
+des Richtpreises), Eisenerz 2010 = 3,0 und 2026 = 3,4 (vorher 2,2), Kupfererz 2010 = 3,6
+und 2026 = 4,6 (vorher 3,0), Kobalt 2015 = 1,5, 2020 = 1,7, 2024 = 3,5. Die Kobaltgewinnung
+braucht 230 statt 910 Stunden je t (Anteil neben Kupfer und Nickel; in den Ländern mit
+geringer Produktivität standen die Gruben zu drei Vierteln still).
+
 ## M42 – Produktnamen je Firma
 
 Offene Punkte, Abschnitt M. Bausteine: `data/ki/produktnamen.yaml` (Format:

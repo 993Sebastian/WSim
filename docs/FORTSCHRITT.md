@@ -49,7 +49,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39 | Produkte 1965–1989 | ✅ |
 | M40 | Produkte 1990–2009 | ✅ |
-| M41 | Produkte 2010–2026 | in Arbeit |
+| M41 | Produkte 2010–2026 | in Arbeit (Daten committet, Weltläufe bis 2026 laufen) |
 | M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
@@ -1389,6 +1389,22 @@ Produktnamen je Firma folgen mit M42.
   Startbesetzung (Lastenheft §10) sowie Firmen und Schiffe in Weltereignissen (Lehman
   Brothers, Ever Given). Die IDs (`nylon`, `bakelit`, `ford_model_t` …) bleiben, damit
   Spielstände gültig bleiben; angezeigt werden sie nirgends.
+
+### M41: Produkte 2010–2026 (06.10.2026, Zwischenstand)
+
+- **Daten** (Entwurf eines Hilfsagenten, geprüft und übernommen): Ketten 42–48 –
+  Smartphone, Tablet, Elektroauto mit Traktionsbatterie (kWh) und Elektroantrieb,
+  Solarmodul (kWp) mit Roh- und Solarsilizium, Windkraftanlage, Wärmepumpe, LED-Lampe;
+  Förderindex für Lithium. Formeln: `docs/FORMELN.md`, Abschnitt M41.
+- **Erster Weltlauf 1900–2026** (Agent, Seed 1, Daten vor den Korrekturen): Smartphone ab
+  2012 (voll versorgt ab 2014), Tablet ab 2013, Solarmodule ab 2008 (voll ab 2019),
+  Windkraft ab 2002, Wärmepumpe ab 2009, LED-Lampe ab 2010; die Glühlampe verliert bis
+  2025 81 % ihres Absatzes, das Mobiltelefon 50 %. Elektroautos gab es nie: Kein Werk baute
+  Traktionsbatterien, weil Kobalt und Kohle knapp und alle Konzessionen vergeben waren.
+- **Korrekturen:** Die KI baut ein Produkt, das noch niemand herstellt, auch bei knappen
+  Vorprodukten (Szenariotest); Förderindex für Kohle (neu), Eisenerz, Kupfererz und
+  Kobalt nach der Welterzeugung; Kobaltgewinnung mit einem Viertel der Stunden.
+  Weltläufe 1900–2026 (Seeds 1 und 2) zur Abnahme laufen.
 
 ### M42: Produktnamen je Firma (06.10.2026)
 

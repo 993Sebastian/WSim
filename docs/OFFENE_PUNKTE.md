@@ -433,6 +433,25 @@ DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschie
    den Frachtabstand angleichen. Das ändert alle Märkte und braucht Weltläufe über alle
    Epochen; deshalb erst nach Freigabe.
 
+✅ **M41 (2010–2026) umgesetzt:** Smartphone, Tablet, Elektroauto (mit Traktionsbatterie
+und Elektroantrieb), Solarmodul (mit Roh- und Solarsilizium), Windkraftanlage, Wärmepumpe
+und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41).
+🟡 Vorläufig entschieden:
+
+1. **Neue Einheiten** `kwh` (Traktionsbatterie) und `kwp` (Solarmodul): Fahrzeuge und
+   Module brauchen sehr verschiedene Mengen desselben Vorprodukts.
+2. **Rohsilizium vom Staatsmarkt:** Sonst wären etwa 0,5 Mio. t Quarz im Jahr aus den
+   kleinen Quarzbrüchen nötig. Solarsilizium ist ein eigenes Produkt, damit die
+   Solarnachfrage nicht in die Chips greift.
+3. **Batterie mit Kobalt und Graphit:** Im ersten Weltlauf entstand kein Batteriewerk,
+   weil Kobalt und Kohle knapp und alle ihre Konzessionen vergeben waren. Statt die
+   Batterie ohne diese Stoffe zu bauen (Vorschlag des Hilfsagenten), baut die KI ein
+   Produkt, das noch niemand herstellt, jetzt auch bei knappen Vorprodukten (Kern, M41).
+4. **Rohstoffe bis 2026:** Förderindex für Kohle (neu), Eisenerz, Kupfererz und Kobalt
+   nach der Welterzeugung; die Kobaltgewinnung braucht ein Viertel der Stunden.
+5. **Bewusst weggelassen:** Reifen am Elektroauto, Aluminiumrahmen am Solarmodul,
+   Nickel, Mangan, Elektrolyt und Separator der Zellen (höchstens vier Vorprodukte).
+
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 
 Auftrag: „Es sollte verschiedene Größen von Werken geben. In jedem Land stehen nur

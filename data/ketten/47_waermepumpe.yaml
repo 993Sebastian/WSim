@@ -1,0 +1,68 @@
+# Kette 47 – Wärmepumpe (M41, Epoche 2010–2026)
+# Kleinmotoren (Verdichter, Lüfter), Kupfer (Wärmetauscher, Kältemittelleitungen), Blech
+# (Gehäuse, Rahmen) und Mikrochips (drehzahlgeregelter Verdichter, Regelung) →
+# Luft-Wasser-Wärmepumpe für die Heizung eines Hauses (8–10 kW). Wärmepumpen heizten seit
+# den 1980ern vor allem in Skandinavien und der Schweiz; mit drehzahlgeregelten
+# Verdichtern wurden sie ab etwa 2008 auch für Altbauten tauglich. In Europa wurden 2010
+# etwa 0,8 Mio. und 2022 etwa 3 Mio. Wärmepumpen verkauft.
+# Alle Zahlen sind Annäherungen für etwa 2015.
+
+produkte:
+  - id: waermepumpe
+    art: endprodukt
+    branche: maschinenbau
+    einheit: stueck
+    gewicht_kg: 150
+    verwendung: konsum
+    warengruppe: maschinen
+    transportklasse: stueckgut
+    richtpreis_usd: 4500          # Gerät ohne Einbau, 2015 etwa 4 000 bis 8 000 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 18, max_besitzquote: 0.3}
+      kaufschwelle: 30
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: waermepumpenwerk          # Wärmetauscher löten, Kältekreis füllen, Montage, Prüfstand
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: waermepumpe
+    annaeherung: true
+
+rezepte:
+  - id: waermepumpe_bauen
+    produkt: waermepumpe
+    menge: 1
+    dauer_tage: 2
+    anlage: waermepumpenwerk
+    technologie: waermepumpe
+    eingang:
+      kleinmotor: 2               # Verdichter und Lüfter
+      kupfer: 0.012               # Wärmetauscher und Leitungen
+      blech: 0.08                 # Gehäuse, Rahmen, Speicher
+      mikrochip: 20               # Umrichter für den Verdichter, Regelung
+    arbeit_stunden:
+      angelernt: 60
+      fachkraft.maschinenbau: 22
+      fachkraft.elektro: 9
+      akademiker.maschinenbau: 1.5
+    energie_mwh: 0.1
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: waermepumpe               # Luft-Wasser-Wärmepumpe mit drehzahlgeregeltem Verdichter
+    fachgebiet: maschinenbau
+    erfindungsjahr: 2008
+    voraussetzungen: [kompressionskuehlschrank, mikroprozessor]
+    forschungsaufwand: 20000
+    annaeherung: true

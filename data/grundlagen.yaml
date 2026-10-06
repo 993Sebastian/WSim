@@ -10,6 +10,8 @@ einheiten:
     gewicht_kg: 0         # Strom wird über das Netz geliefert
   - id: m3                # Gewicht steht beim Produkt
   - id: m2                # Fläche (LCD-Panels, M40); Gewicht steht beim Produkt
+  - id: kwh               # Speicherinhalt (Traktionsbatterien, M41); Gewicht steht beim Produkt
+  - id: kwp               # Spitzenleistung (Solarmodule, M41); Gewicht steht beim Produkt
 
 kontinente:
   - id: afrika

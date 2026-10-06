@@ -1,0 +1,68 @@
+# Kette 42 – Smartphone (M41, Epoche 2010–2026)
+# Mikrochips (Anwendungsprozessor, Speicher, Funkteil, Bildsensoren), Touchscreen,
+# Lithium-Ionen-Akku und Deckglas → Smartphone. Taschencomputer mit Telefon gab es seit den
+# 1990ern; Geräte mit großem berührungsempfindlichem Bildschirm und mobilem Internet
+# kamen 2007 auf, ab 2010 wurden sie zur Massenware (2010 knapp 300 Mio., 2013 knapp
+# 1 Mrd., 2016 etwa 1,5 Mrd. Geräte im Jahr). Sie verdrängen das einfache Mobiltelefon
+# und die Kompaktkamera.
+# Alle Zahlen sind Annäherungen für etwa 2015.
+
+produkte:
+  - id: smartphone
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.17
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 500           # 2010 etwa 600 USD ohne Vertrag (Spitzengeräte), 2015 im Mittel etwa 300 USD
+    ersetzt: [mobiltelefon, digitalkamera]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 3, max_besitzquote: 1.0}
+      kaufschwelle: 10
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.3
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: smartphonewerk            # Bestücken, Montage, Prüfen; Großwerke von Auftragsfertigern
+    standorttyp: werk
+    investition_usd: 150_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 10_000
+    lebensdauer_jahre: 8
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.7
+    technologie: smartphone
+    annaeherung: true
+
+rezepte:
+  - id: smartphone_bauen
+    produkt: smartphone
+    menge: 1
+    dauer_tage: 1
+    anlage: smartphonewerk
+    technologie: smartphone
+    eingang:
+      mikrochip: 40               # Anwendungsprozessor, Speicher, Funkteil, Bildsensoren
+      lcd_panel: 0.007            # Touchscreen (LCD oder OLED), 5 Zoll
+      lithium_ionen_akku: 1       # Akku mit etwa 10 Wh (eine Zelle von 2015 statt zwei von 1995)
+      glas: 0.00003               # gehärtetes Deckglas vorn und hinten
+    arbeit_stunden:
+      angelernt: 5
+      fachkraft.elektro: 1.2
+      akademiker.elektro: 0.4
+    energie_mwh: 0.001
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: smartphone                # großer Touchscreen und mobiles Internet, 2007
+    fachgebiet: elektro
+    erfindungsjahr: 2007
+    voraussetzungen: [mobilfunk, tft_lcd]
+    forschungsaufwand: 40000
+    annaeherung: true

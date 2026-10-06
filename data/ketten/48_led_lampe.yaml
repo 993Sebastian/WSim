@@ -1,0 +1,69 @@
+# Kette 48 – LED-Lampe (M41, Epoche 2010–2026)
+# Mikrochips (Leuchtdioden und Treiberschaltung), Glas (Kolben), Kupfer (Platine, Sockel)
+# und Kunststoff (Gehäuse, Kühlkörper) → LED-Lampe mit Schraubsockel. Blaue Leuchtdioden
+# (1993) machten weißes Licht möglich; Lampen als Ersatz der 60-W-Glühlampe kamen um 2009
+# auf den Markt und kosteten 2012 etwa 20 USD, 2016 etwa 5 USD und 2020 etwa 2 USD. Sie
+# brauchen ein Sechstel des Stroms und halten 15 000 bis 25 000 Stunden. Ab 2009 wurden
+# Glühlampen in vielen Ländern schrittweise verboten; um 2020 waren die meisten verkauften
+# Lampen LED-Lampen. Die LED-Lampe ersetzt die Glühlampe über den Besitz.
+# Alle Zahlen sind Annäherungen für etwa 2014.
+
+produkte:
+  - id: led_lampe
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.06
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 10            # 2012 etwa 20 USD, 2016 etwa 5 USD, 2020 etwa 2 USD
+    ersetzt: [gluehlampe]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 15, max_besitzquote: 3}
+      kaufschwelle: 150
+      preisempfindlichkeit: 1.2
+      einkommensempfindlichkeit: 1.5
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: led_lampenwerk            # Leuchtdioden bestücken, Treiber, Montage; 70 Mio. Lampen im Jahr
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 200_000
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.8
+    technologie: led_lampe
+    annaeherung: true
+
+rezepte:
+  - id: led_lampe_bauen
+    produkt: led_lampe
+    menge: 1
+    dauer_tage: 1
+    anlage: led_lampenwerk
+    technologie: led_lampe
+    eingang:
+      mikrochip: 1                # Leuchtdioden und Treiberschaltung
+      glas: 0.00003               # Kolben
+      kupfer: 0.00001             # Platine, Drähte, Sockel
+      polyethylen: 0.00002        # Gehäuse und Kühlkörper aus Kunststoff
+    arbeit_stunden:
+      angelernt: 0.12
+      fachkraft.elektro: 0.025
+      akademiker.elektro: 0.002
+    energie_mwh: 0.0005
+    qualitaet_basis: 60
+    annaeherung: true
+
+technologien:
+  - id: led_lampe                 # weiße Leuchtdioden (blaue LED 1993) als Ersatz der Glühlampe
+    fachgebiet: elektro
+    erfindungsjahr: 2009
+    voraussetzungen: [integrierte_schaltung, wolframgluehlampe]
+    forschungsaufwand: 25000
+    annaeherung: true

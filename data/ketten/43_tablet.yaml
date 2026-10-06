@@ -1,0 +1,65 @@
+# Kette 43 – Tablet (M41, Epoche 2010–2026)
+# Mikrochips, Touchscreen (knapp 10 Zoll), Lithium-Ionen-Akku und Deckglas → Tablet. Flache
+# Rechner mit Stift gab es seit den 1990ern in kleinen Stückzahlen; die Bauart des
+# Smartphones mit großem Bildschirm kam 2010 auf den Markt. 2014 wurden gut 200 Mio.
+# Geräte verkauft, danach pendelte der Absatz um 150 Mio. im Jahr.
+# Alle Zahlen sind Annäherungen für etwa 2014.
+
+produkte:
+  - id: tablet
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.5
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 600           # 2010 etwa 500 bis 830 USD, 2014 im Mittel etwa 300 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 4, max_besitzquote: 0.3}
+      kaufschwelle: 30
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 1.8
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: tabletwerk                # Bestücken, Montage, Prüfen
+    standorttyp: werk
+    investition_usd: 100_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 5000
+    lebensdauer_jahre: 8
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.7
+    technologie: tablet
+    annaeherung: true
+
+rezepte:
+  - id: tablet_bauen
+    produkt: tablet
+    menge: 1
+    dauer_tage: 1
+    anlage: tabletwerk
+    technologie: tablet
+    eingang:
+      mikrochip: 40               # Prozessor, Speicher, Funk, Kameras
+      lcd_panel: 0.03             # Touchscreen, knapp 10 Zoll
+      lithium_ionen_akku: 3       # Akku mit etwa 25 Wh
+      glas: 0.0001                # Deckglas
+    arbeit_stunden:
+      angelernt: 5
+      fachkraft.elektro: 1.2
+      akademiker.elektro: 0.3
+    energie_mwh: 0.002
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: tablet                    # Bauart des Smartphones mit großem Bildschirm, 2010
+    fachgebiet: elektro
+    erfindungsjahr: 2010
+    voraussetzungen: [smartphone, laptop]
+    forschungsaufwand: 25000
+    annaeherung: true

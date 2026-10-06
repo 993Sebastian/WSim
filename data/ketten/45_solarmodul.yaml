@@ -1,0 +1,170 @@
+# Kette 45 – Solarmodul (M41, Epoche 2010–2026)
+# Rohsilizium (Siliziummetall aus dem Lichtbogenofen) → Solarsilizium (Polysilizium aus
+# Abscheidereaktoren in Großanlagen) → Solarmodul: Blöcke ziehen oder gießen, in Scheiben
+# sägen, Zellen dotieren und bedrucken, mit Glas, Folie (EVA, Rückseitenfolie) und
+# Kupferbändchen laminieren. Gemessen in kWp (Spitzenleistung). Einspeisevergütungen
+# machten Solarstrom ab 2004 zum Massenmarkt; die Welt baute 2010 etwa 17 GW zu, 2020 etwa
+# 140 GW und 2024 etwa 450 GW. Module kosteten 2010 etwa 1,8 USD je Watt, 2015 etwa 0,6 und
+# 2020 etwa 0,2; Zellen mit passivierter Rückseite (PERC), dünnere Scheiben aus
+# Diamantdrahtsägen und Fabriken mit mehreren GW im Jahr senkten ab etwa 2016 Silizium und
+# Arbeit je kWp.
+# Käufer sind in Stufe 1 die Staaten (Bedarf je BIP, wie Lastwagen und Flugzeuge);
+# Energieversorger und Haushalte als eigene Kunden kommen mit späteren Stufen.
+# Rohsilizium kommt vom Staatsmarkt (wie Glas): Es ist ein Massengut aus vielen
+# Elektroofenwerken. Rahmen aus Aluminium und Anschlussdosen sind nicht eigens geführt.
+# Alle Zahlen sind Annäherungen für etwa 2012.
+
+produkte:
+  - id: rohsilizium
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Siliziummetall, 98–99 % Si
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 3000          # 2010 etwa 2 500 USD je t
+    staatsmarkt:
+      preis_usd: 3000
+    annaeherung: true
+
+  - id: solarsilizium
+    art: halbzeug
+    branche: chemie
+    einheit: kg                   # Polysilizium für Solarzellen (Reinheit 6N–9N)
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 25            # 2008 kurz über 400 USD je kg, 2011 etwa 30, 2015 etwa 15, 2020 etwa 9
+    annaeherung: true
+
+  - id: solarmodul
+    art: endprodukt
+    branche: elektro
+    einheit: kwp                  # Spitzenleistung; 2012 etwa vier Module mit je 250 W
+    gewicht_kg: 65
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1000          # 2010 etwa 1 800 USD je kWp, 2012 etwa 800, 2020 etwa 200
+    # Zubau der Welt je Mio. USD BIP (1 = 2020, etwa 140 GW): 2006 etwa 1,6 GW, 2010 17 GW,
+    # 2016 75 GW, 2020 140 GW, 2022 240 GW, 2024 etwa 450 GW.
+    staatsnachfrage:
+      je_mio_usd_bip: 1.0
+      verlauf: {2006: 0.02, 2008: 0.06, 2010: 0.15, 2012: 0.25, 2014: 0.3, 2016: 0.55, 2018: 0.7, 2020: 0.95, 2022: 1.5, 2024: 2.6}
+    annaeherung: true
+
+anlagen:
+  - id: polysiliziumwerk          # Trichlorsilan, Abscheidereaktoren, Rückgewinnung; 7 000 t im Jahr
+    standorttyp: werk
+    investition_usd: 350_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 20_000     # kg
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: solarsilizium
+    flaeche_ha: 15                # nach der Investition wären es 35 ha
+    annaeherung: true
+
+  - id: solarmodulwerk            # Blöcke, Scheiben, Zellen und Module; 500 MW im Jahr
+    standorttyp: werk
+    investition_usd: 300_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 1400       # kWp
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.7
+    technologie: solarmodul
+    flaeche_ha: 12                # nach der Investition wären es 30 ha
+    annaeherung: true
+
+  - id: solargrossfabrik          # 5 GW im Jahr, ab etwa 2016
+    standorttyp: werk
+    investition_usd: 1_000_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 14_000     # kWp
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.85
+    technologie: perc_solarzelle
+    flaeche_ha: 40                # nach der Investition wären es 100 ha
+    annaeherung: true
+
+rezepte:
+  - id: solarsilizium_herstellen
+    produkt: solarsilizium
+    menge: 1                      # kg
+    dauer_tage: 3
+    anlage: polysiliziumwerk
+    technologie: solarsilizium
+    eingang:
+      rohsilizium: 0.0013         # 1,3 kg Siliziummetall je kg
+    arbeit_stunden:
+      angelernt: 0.03
+      fachkraft.chemie: 0.02
+      akademiker.chemie: 0.002
+    energie_mwh: 0.05             # Abscheiden bei 1 100 °C, etwa 50 kWh je kg
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: solarmodul_herstellen
+    produkt: solarmodul
+    menge: 1                      # kWp
+    dauer_tage: 3
+    anlage: solarmodulwerk
+    technologie: solarmodul
+    eingang:
+      solarsilizium: 6            # kg, mit Sägeverlust; etwa 6 g je Watt
+      glas: 0.06                  # Frontglas, 3,2 mm, knapp 7 m² je kWp
+      polyethylen: 0.008          # Folie zum Einbetten (EVA) und Rückseitenfolie
+      kupfer: 0.0008              # Bändchen, Anschlussdose, Kabel
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.elektro: 2.5
+      fachkraft.chemie: 1
+      akademiker.elektro: 0.3
+    energie_mwh: 0.15             # Kristallziehen, Diffusionsöfen, Laminieren
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: solarmodul_grossserie
+    produkt: solarmodul
+    menge: 1
+    dauer_tage: 2
+    anlage: solargrossfabrik
+    technologie: perc_solarzelle
+    eingang:
+      solarsilizium: 3.5          # dünnere Scheiben, Diamantdraht, höherer Wirkungsgrad
+      glas: 0.055                 # mehr Module mit Glas auf beiden Seiten
+      polyethylen: 0.006
+      kupfer: 0.0006
+    arbeit_stunden:
+      angelernt: 5.5
+      fachkraft.elektro: 1.8
+      fachkraft.chemie: 0.7
+      akademiker.elektro: 0.2
+    energie_mwh: 0.08
+    qualitaet_basis: 60
+    annaeherung: true
+
+technologien:
+  - id: solarsilizium             # Polysilizium in Großanlagen für Solarzellen
+    fachgebiet: chemie
+    erfindungsjahr: 2006
+    voraussetzungen: [reinstsilizium]
+    forschungsaufwand: 20000
+    annaeherung: true
+
+  - id: solarmodul                # kristalline Solarzellen und Module in Großserie
+    fachgebiet: elektro
+    erfindungsjahr: 2006
+    voraussetzungen: [planartechnik]
+    forschungsaufwand: 30000
+    annaeherung: true
+
+  - id: perc_solarzelle           # passivierte Rückseite, Diamantdraht, Fabriken mit GW
+    fachgebiet: elektro
+    erfindungsjahr: 2016
+    voraussetzungen: [solarmodul]
+    forschungsaufwand: 30000
+    annaeherung: true

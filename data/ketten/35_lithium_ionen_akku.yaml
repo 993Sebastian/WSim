@@ -16,6 +16,9 @@ produkte:
     transportklasse: stueckgut
     richtpreis_usd: 5000          # 1996 etwa 4 300 USD je t Lithiumcarbonat
     pacht_anteil: 0.3
+    # Neue Gruben und Solebecken für Traktionsbatterien (M41): Die Welt förderte 2010 etwa
+    # 150 000 t LCE, 2016 etwa 200 000, 2020 etwa 450 000 und 2024 etwa 1,2 Mio. t.
+    foerderindex: {2010: 1.0, 2016: 1.2, 2020: 2.5, 2024: 6.0}
     annaeherung: true
 
   - id: kobalt
@@ -27,6 +30,9 @@ produkte:
     transportklasse: stueckgut
     richtpreis_usd: 70_000        # 1995 etwa 64 000 USD je t, 2002 etwa 15 000
     pacht_anteil: 0.4             # Anteil der Kupfer- und Nickelgruben, die es mitgewinnen
+    # Mehr Kupfer- und Nickelgruben, vor allem im Kongo (M41): Die Welt förderte 2010
+    # etwa 90 000 t Kobalt, 2015 etwa 125 000, 2020 etwa 140 000 und 2024 etwa 290 000 t.
+    foerderindex: {2010: 1.0, 2015: 1.5, 2020: 1.7, 2024: 3.5}
     annaeherung: true
 
   - id: lithium_ionen_akku
@@ -96,10 +102,10 @@ rezepte:
     anlage: kobaltgewinnung
     abbau: true
     arbeit_stunden:
-      ungelernt: 500              # Erz mit 0,3 % Kobalt, Anteil neben dem Kupfer
-      fachkraft.bergbau: 300
-      fachkraft.chemie: 100
-      akademiker.chemie: 10
+      ungelernt: 125              # Anteil neben dem Kupfer (M41: vorher 910 Stunden je t;
+      fachkraft.bergbau: 75       # im Kongo bei geringer Produktivität das Zehnfache, und
+      fachkraft.chemie: 25        # die Gruben standen 2010–2023 zu drei Vierteln still)
+      akademiker.chemie: 3
     energie_mwh: 3                # Elektrolyse
     qualitaet_basis: 60
     annaeherung: true

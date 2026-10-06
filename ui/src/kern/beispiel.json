@@ -4506,7 +4506,9 @@
         "invention_year": 1903,
         "key": "turbogenerator",
         "known": true,
-        "leads_to": [],
+        "leads_to": [
+          "windkraftanlage"
+        ],
         "needed": 2951.825297703815,
         "one_lab": null,
         "opens": [
@@ -4807,7 +4809,9 @@
         "invention_year": 1906,
         "key": "wolframgluehlampe",
         "known": true,
-        "leads_to": [],
+        "leads_to": [
+          "led_lampe"
+        ],
         "needed": 2429.4858417315345,
         "one_lab": null,
         "opens": [
@@ -5283,7 +5287,9 @@
         "invention_year": 1913,
         "key": "fliessband",
         "known": true,
-        "leads_to": [],
+        "leads_to": [
+          "elektroauto"
+        ],
         "needed": 25397.256826581295,
         "one_lab": null,
         "opens": [
@@ -5950,7 +5956,9 @@
         "invention_year": 1918,
         "key": "kompressionskuehlschrank",
         "known": false,
-        "leads_to": [],
+        "leads_to": [
+          "waermepumpe"
+        ],
         "needed": 32169.465972371894,
         "one_lab": {
           "cost_usd": 4587411.019509073,
@@ -7287,7 +7295,8 @@
         "key": "reinstsilizium",
         "known": false,
         "leads_to": [
-          "planartechnik"
+          "planartechnik",
+          "solarsilizium"
         ],
         "needed": 605040408.3118875,
         "one_lab": {
@@ -7342,7 +7351,8 @@
         "key": "planartechnik",
         "known": false,
         "leads_to": [
-          "integrierte_schaltung"
+          "integrierte_schaltung",
+          "solarmodul"
         ],
         "needed": 504200340.2599063,
         "one_lab": {
@@ -7416,7 +7426,8 @@
           "taschenrechner",
           "videorekorder",
           "lithium_ionen_akku",
-          "tft_lcd"
+          "tft_lcd",
+          "led_lampe"
         ],
         "needed": 1575626063.3122072,
         "one_lab": {
@@ -7478,7 +7489,8 @@
           "personal_computer",
           "compact_disc",
           "mobilfunk",
-          "digitalkamera"
+          "digitalkamera",
+          "waermepumpe"
         ],
         "needed": 17608993462.98211,
         "one_lab": {
@@ -8105,7 +8117,9 @@
         "invention_year": 1991,
         "key": "lithium_ionen_akku",
         "known": false,
-        "leads_to": [],
+        "leads_to": [
+          "traktionsbatterie"
+        ],
         "needed": 1018224478285.24,
         "one_lab": {
           "cost_usd": 102494287325631.64,
@@ -8180,7 +8194,8 @@
         "known": false,
         "leads_to": [
           "laptop",
-          "flachbildfernseher"
+          "flachbildfernseher",
+          "smartphone"
         ],
         "needed": 1018224478285.24,
         "one_lab": {
@@ -8254,7 +8269,9 @@
         "invention_year": 1992,
         "key": "mobilfunk",
         "known": false,
-        "leads_to": [],
+        "leads_to": [
+          "smartphone"
+        ],
         "needed": 1272780597856.5498,
         "one_lab": {
           "cost_usd": 155571686119262.28,
@@ -8326,7 +8343,9 @@
         "invention_year": 1992,
         "key": "laptop",
         "known": false,
-        "leads_to": [],
+        "leads_to": [
+          "tablet"
+        ],
         "needed": 954585448392.4125,
         "one_lab": {
           "cost_usd": 116678764589446.73,
@@ -8596,6 +8615,828 @@
         "researchable": false,
         "sites": [],
         "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 300,
+            "investment_usd": 150000000.0,
+            "key": "smartphonewerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "smartphone_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 904365008.0233688,
+        "field": "elektro",
+        "invention_year": 2007,
+        "key": "smartphone",
+        "known": false,
+        "leads_to": [
+          "tablet"
+        ],
+        "needed": 36174600320934.75,
+        "one_lab": {
+          "cost_usd": 4421613258479688.5,
+          "country": "DEU",
+          "days": 1799008106113.0586,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.smartphonewerk",
+          "rezept.smartphone_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "mobilfunk",
+          "tft_lcd"
+        ],
+        "products": [
+          "smartphone"
+        ],
+        "recipes": [
+          {
+            "facility": "smartphonewerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                0.3
+              ],
+              [
+                "lcd_panel",
+                70.0
+              ],
+              [
+                "lithium_ionen_akku",
+                10000.0
+              ],
+              [
+                "mikrochip",
+                400000.0
+              ]
+            ],
+            "key": "smartphone_bauen",
+            "output_per_day": 10000.0,
+            "product": "smartphone"
+          }
+        ],
+        "remaining": 36174600320934.75,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 300,
+            "investment_usd": 100000000.0,
+            "key": "tabletwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "tablet_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 1766337906.2956424,
+        "field": "elektro",
+        "invention_year": 2010,
+        "key": "tablet",
+        "known": false,
+        "leads_to": [],
+        "needed": 44158447657391.06,
+        "one_lab": {
+          "cost_usd": 5397477122167590.0,
+          "country": "DEU",
+          "days": 2196054817032.5427,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.tabletwerk",
+          "rezept.tablet_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "smartphone",
+          "laptop"
+        ],
+        "products": [
+          "tablet"
+        ],
+        "recipes": [
+          {
+            "facility": "tabletwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                0.5
+              ],
+              [
+                "lcd_panel",
+                150.0
+              ],
+              [
+                "lithium_ionen_akku",
+                15000.0
+              ],
+              [
+                "mikrochip",
+                200000.0
+              ]
+            ],
+            "key": "tablet_bauen",
+            "output_per_day": 5000.0,
+            "product": "tablet"
+          }
+        ],
+        "remaining": 44158447657391.06,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 540,
+            "investment_usd": 750000000.0,
+            "key": "batteriewerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "traktionsbatterie_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 1413070325.0365138,
+        "field": "chemie",
+        "invention_year": 2009,
+        "key": "traktionsbatterie",
+        "known": false,
+        "leads_to": [
+          "elektroauto",
+          "grosszellfertigung"
+        ],
+        "needed": 42392109751095.414,
+        "one_lab": {
+          "cost_usd": 4267181913054847.0,
+          "country": "DEU",
+          "days": 1736175102406.904,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.batteriewerk",
+          "rezept.traktionsbatterie_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "lithium_ionen_akku"
+        ],
+        "products": [
+          "traktionsbatterie"
+        ],
+        "recipes": [
+          {
+            "facility": "batteriewerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "kobalt",
+                1.6
+              ],
+              [
+                "kohle",
+                9.6
+              ],
+              [
+                "kupfer",
+                9.6
+              ],
+              [
+                "lithium",
+                6.4
+              ]
+            ],
+            "key": "traktionsbatterie_bauen",
+            "output_per_day": 8000.0,
+            "product": "traktionsbatterie"
+          }
+        ],
+        "remaining": 42392109751095.414,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 360,
+            "investment_usd": 150000000.0,
+            "key": "elektroantriebswerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "elektroantrieb_bauen"
+            ],
+            "site_type": "Factory"
+          },
+          {
+            "build_days": 540,
+            "investment_usd": 600000000.0,
+            "key": "elektroautowerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "elektroauto_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 1766337906.2956424,
+        "field": "maschinenbau",
+        "invention_year": 2010,
+        "key": "elektroauto",
+        "known": false,
+        "leads_to": [],
+        "needed": 61821826720347.484,
+        "one_lab": {
+          "cost_usd": 8815879299540396.0,
+          "country": "DEU",
+          "days": 3586889534486.486,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.elektroantriebswerk",
+          "anlage.elektroautowerk",
+          "rezept.elektroantrieb_bauen",
+          "rezept.elektroauto_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "traktionsbatterie",
+          "fliessband"
+        ],
+        "products": [
+          "elektroantrieb",
+          "elektroauto"
+        ],
+        "recipes": [
+          {
+            "facility": "elektroantriebswerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "kupfer",
+                12.0
+              ],
+              [
+                "stahl",
+                60.0
+              ]
+            ],
+            "key": "elektroantrieb_bauen",
+            "output_per_day": 1000.0,
+            "product": "elektroantrieb"
+          },
+          {
+            "facility": "elektroautowerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "elektroantrieb",
+                200.0
+              ],
+              [
+                "fahrgestell",
+                200.0
+              ],
+              [
+                "karosserie",
+                200.0
+              ],
+              [
+                "traktionsbatterie",
+                11000.0
+              ]
+            ],
+            "key": "elektroauto_bauen",
+            "output_per_day": 200.0,
+            "product": "elektroauto"
+          }
+        ],
+        "remaining": 61821826720347.484,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 720,
+            "investment_usd": 5000000000.0,
+            "key": "batteriegrosswerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "traktionsbatterie_grossserie"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 8422555476.644718,
+        "field": "chemie",
+        "invention_year": 2017,
+        "key": "grosszellfertigung",
+        "known": false,
+        "leads_to": [],
+        "needed": 336902219065788.75,
+        "one_lab": {
+          "cost_usd": 3.3912514949280796e+16,
+          "country": "DEU",
+          "days": 13797880032912.129,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.batteriegrosswerk",
+          "rezept.traktionsbatterie_grossserie"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "traktionsbatterie"
+        ],
+        "products": [
+          "traktionsbatterie"
+        ],
+        "recipes": [
+          {
+            "facility": "batteriegrosswerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "kobalt",
+                9.6
+              ],
+              [
+                "kohle",
+                105.60000000000001
+              ],
+              [
+                "kupfer",
+                96.0
+              ],
+              [
+                "lithium",
+                67.2
+              ]
+            ],
+            "key": "traktionsbatterie_grossserie",
+            "output_per_day": 96000.0,
+            "product": "traktionsbatterie"
+          }
+        ],
+        "remaining": 336902219065788.75,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 540,
+            "investment_usd": 350000000.0,
+            "key": "polysiliziumwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "solarsilizium_herstellen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 723492006.4186951,
+        "field": "chemie",
+        "invention_year": 2006,
+        "key": "solarsilizium",
+        "known": false,
+        "leads_to": [],
+        "needed": 14469840128373.902,
+        "one_lab": {
+          "cost_usd": 1456531426322721.0,
+          "country": "DEU",
+          "days": 592614434954.8899,
+          "points_per_day": 24.416955232410686,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.polysiliziumwerk",
+          "rezept.solarsilizium_herstellen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "reinstsilizium"
+        ],
+        "products": [
+          "solarsilizium"
+        ],
+        "recipes": [
+          {
+            "facility": "polysiliziumwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "rohsilizium",
+                26.0
+              ]
+            ],
+            "key": "solarsilizium_herstellen",
+            "output_per_day": 20000.0,
+            "product": "solarsilizium"
+          }
+        ],
+        "remaining": 14469840128373.902,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 360,
+            "investment_usd": 300000000.0,
+            "key": "solarmodulwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "solarmodul_herstellen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 723492006.4186951,
+        "field": "elektro",
+        "invention_year": 2006,
+        "key": "solarmodul",
+        "known": false,
+        "leads_to": [
+          "perc_solarzelle"
+        ],
+        "needed": 21704760192560.85,
+        "one_lab": {
+          "cost_usd": 2652967955087813.5,
+          "country": "DEU",
+          "days": 1079404863667.8353,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.solarmodulwerk",
+          "rezept.solarmodul_herstellen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "planartechnik"
+        ],
+        "products": [
+          "solarmodul"
+        ],
+        "recipes": [
+          {
+            "facility": "solarmodulwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                84.0
+              ],
+              [
+                "kupfer",
+                1.12
+              ],
+              [
+                "polyethylen",
+                11.200000000000001
+              ],
+              [
+                "solarsilizium",
+                8400.0
+              ]
+            ],
+            "key": "solarmodul_herstellen",
+            "output_per_day": 1400.0,
+            "product": "solarmodul"
+          }
+        ],
+        "remaining": 21704760192560.85,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 450,
+            "investment_usd": 1000000000.0,
+            "key": "solargrossfabrik",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "solarmodul_grossserie"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 6738044381.315774,
+        "field": "elektro",
+        "invention_year": 2016,
+        "key": "perc_solarzelle",
+        "known": false,
+        "leads_to": [],
+        "needed": 202141331439473.22,
+        "one_lab": {
+          "cost_usd": 2.4707689463047436e+16,
+          "country": "DEU",
+          "days": 10052741166835.979,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.solargrossfabrik",
+          "rezept.solarmodul_grossserie"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "solarmodul"
+        ],
+        "products": [
+          "solarmodul"
+        ],
+        "recipes": [
+          {
+            "facility": "solargrossfabrik",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                770.0
+              ],
+              [
+                "kupfer",
+                8.399999999999999
+              ],
+              [
+                "polyethylen",
+                84.0
+              ],
+              [
+                "solarsilizium",
+                49000.0
+              ]
+            ],
+            "key": "solarmodul_grossserie",
+            "output_per_day": 14000.0,
+            "product": "solarmodul"
+          }
+        ],
+        "remaining": 202141331439473.22,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 450,
+            "investment_usd": 300000000.0,
+            "key": "windkraftanlagenwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "windkraftanlage_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 189659088.53062242,
+        "field": "maschinenbau",
+        "invention_year": 2000,
+        "key": "windkraftanlage",
+        "known": false,
+        "leads_to": [],
+        "needed": 5689772655918.673,
+        "one_lab": {
+          "cost_usd": 811369570221629.9,
+          "country": "DEU",
+          "days": 330119426678.2312,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.windkraftanlagenwerk",
+          "rezept.windkraftanlage_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "turbogenerator"
+        ],
+        "products": [
+          "windkraftanlage"
+        ],
+        "recipes": [
+          {
+            "facility": "windkraftanlagenwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                36.0
+              ],
+              [
+                "kupfer",
+                6.0
+              ],
+              [
+                "polyethylen",
+                18.0
+              ],
+              [
+                "stahl",
+                600.0
+              ]
+            ],
+            "key": "windkraftanlage_bauen",
+            "output_per_day": 2.0,
+            "product": "windkraftanlage"
+          }
+        ],
+        "remaining": 5689772655918.673,
+        "researchable": true,
+        "sites": [],
+        "status": "erforschbar"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 300,
+            "investment_usd": 60000000.0,
+            "key": "waermepumpenwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "waermepumpe_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 1130456260.029211,
+        "field": "maschinenbau",
+        "invention_year": 2008,
+        "key": "waermepumpe",
+        "known": false,
+        "leads_to": [],
+        "needed": 22609125200584.223,
+        "one_lab": {
+          "cost_usd": 3224093000974773.0,
+          "country": "DEU",
+          "days": 1311776744040.772,
+          "points_per_day": 17.235497811113426,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.waermepumpenwerk",
+          "rezept.waermepumpe_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "kompressionskuehlschrank",
+          "mikroprozessor"
+        ],
+        "products": [
+          "waermepumpe"
+        ],
+        "recipes": [
+          {
+            "facility": "waermepumpenwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "blech",
+                24.0
+              ],
+              [
+                "kleinmotor",
+                600.0
+              ],
+              [
+                "kupfer",
+                3.6
+              ],
+              [
+                "mikrochip",
+                6000.0
+              ]
+            ],
+            "key": "waermepumpe_bauen",
+            "output_per_day": 300.0,
+            "product": "waermepumpe"
+          }
+        ],
+        "remaining": 22609125200584.223,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
+      },
+      {
+        "days": null,
+        "facilities": [
+          {
+            "build_days": 240,
+            "investment_usd": 60000000.0,
+            "key": "led_lampenwerk",
+            "kind_text": "standorttyp.werk",
+            "recipes": [
+              "led_lampe_bauen"
+            ],
+            "site_type": "Factory"
+          }
+        ],
+        "factor": 1413070325.0365138,
+        "field": "elektro",
+        "invention_year": 2009,
+        "key": "led_lampe",
+        "known": false,
+        "leads_to": [],
+        "needed": 35326758125912.84,
+        "one_lab": {
+          "cost_usd": 4317981697734071.5,
+          "country": "DEU",
+          "days": 1756843853626.034,
+          "points_per_day": 20.108080779632328,
+          "researchers": 20.0
+        },
+        "opens": [
+          "anlage.led_lampenwerk",
+          "rezept.led_lampe_bauen"
+        ],
+        "points": 0.0,
+        "points_per_day": -0.0,
+        "prerequisites": [
+          "integrierte_schaltung",
+          "wolframgluehlampe"
+        ],
+        "products": [
+          "led_lampe"
+        ],
+        "recipes": [
+          {
+            "facility": "led_lampenwerk",
+            "facility_missing": null,
+            "inputs_per_day": [
+              [
+                "glas",
+                6.0
+              ],
+              [
+                "kupfer",
+                2.0
+              ],
+              [
+                "mikrochip",
+                200000.0
+              ],
+              [
+                "polyethylen",
+                4.0
+              ]
+            ],
+            "key": "led_lampe_bauen",
+            "output_per_day": 200000.0,
+            "product": "led_lampe"
+          }
+        ],
+        "remaining": 35326758125912.84,
+        "researchable": false,
+        "sites": [],
+        "status": "gesperrt"
       }
     ],
     "units": {
@@ -8616,6 +9457,8 @@
       "duesenflugzeug": "stueck",
       "dvd_spieler": "stueck",
       "eisenerz": "t",
+      "elektroantrieb": "stueck",
+      "elektroauto": "stueck",
       "elektromotor": "stueck",
       "ethylen": "t",
       "fahrgestell": "stueck",
@@ -8652,6 +9495,7 @@
       "laptop": "stueck",
       "lastwagen": "stueck",
       "lcd_panel": "m2",
+      "led_lampe": "stueck",
       "leim": "t",
       "lithium": "t",
       "lithium_ionen_akku": "stueck",
@@ -8677,9 +9521,13 @@
       "reinstsilizium": "kg",
       "roehrenradio": "stueck",
       "rohoel": "t",
+      "rohsilizium": "t",
       "schnittholz": "t",
       "schrauben": "t",
       "schwefel": "t",
+      "smartphone": "stueck",
+      "solarmodul": "kwp",
+      "solarsilizium": "kg",
       "stabstahl": "t",
       "stahl": "t",
       "staubsauger": "stueck",
@@ -8688,15 +9536,19 @@
       "strahltriebwerk": "stueck",
       "strom": "mwh",
       "strumpf": "stueck",
+      "tablet": "stueck",
       "taschenrechner": "stueck",
       "tonerde": "t",
+      "traktionsbatterie": "kwh",
       "traktor": "stueck",
       "transistor": "stueck",
       "transistorradio": "stueck",
       "verkehrsflugzeug": "stueck",
       "videorekorder": "stueck",
+      "waermepumpe": "stueck",
       "waschmaschine": "stueck",
       "weissblech": "t",
+      "windkraftanlage": "stueck",
       "zellstoff": "t",
       "zinn": "t"
     }
@@ -10470,6 +11322,97 @@
         "state_market": false,
         "stuck": [],
         "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 460.6334,
+        "product": "smartphone",
+        "recipe": null,
+        "reference_usd": 457.8908,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 552.7601,
+        "product": "tablet",
+        "recipe": null,
+        "reference_usd": 549.469,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 41457.0072,
+        "product": "elektroauto",
+        "recipe": null,
+        "reference_usd": 41210.1751,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 921.2668,
+        "product": "solarmodul",
+        "recipe": null,
+        "reference_usd": 915.7817,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "kwp"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 2763800.479,
+        "product": "windkraftanlage",
+        "recipe": null,
+        "reference_usd": 2747345.0089,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 4145.7007,
+        "product": "waermepumpe",
+        "recipe": null,
+        "reference_usd": 4121.0175,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
+      },
+      {
+        "buys": false,
+        "kind": "endprodukt",
+        "makes": false,
+        "price_usd": 9.2127,
+        "product": "led_lampe",
+        "recipe": null,
+        "reference_usd": 9.1578,
+        "sells": false,
+        "state_market": false,
+        "stuck": [],
+        "unit": "stueck"
       }
     ],
     "roots": [
@@ -10511,7 +11454,14 @@
       "laptop",
       "digitalkamera",
       "flachbildfernseher",
-      "dvd_spieler"
+      "dvd_spieler",
+      "smartphone",
+      "tablet",
+      "elektroauto",
+      "solarmodul",
+      "windkraftanlage",
+      "waermepumpe",
+      "led_lampe"
     ]
   },
   "laender": {
@@ -18786,6 +19736,27 @@
         "state_price_usd": null,
         "supply": null,
         "unmet_last_month": 0.0
+      },
+      {
+        "chances": [],
+        "demand_last_month": 0.0,
+        "exported_last_month": 0.0,
+        "group": "chemie",
+        "imported_last_month": 0.0,
+        "leader": null,
+        "leader_share": 0.0,
+        "own_price_usd": null,
+        "own_share": 0.0,
+        "own_sold_last_month": 0.0,
+        "price_last_month_usd": null,
+        "price_usd": 2934.7374,
+        "product": "rohsilizium",
+        "reference_usd": 2934.7374,
+        "sellers": 0,
+        "sold_last_month": 0.0,
+        "state_price_usd": 2934.7374,
+        "supply": null,
+        "unmet_last_month": 0.0
       }
     ],
     "medium": "zeitung",
@@ -18808,6 +19779,8 @@
       "duesenflugzeug": "stueck",
       "dvd_spieler": "stueck",
       "eisenerz": "t",
+      "elektroantrieb": "stueck",
+      "elektroauto": "stueck",
       "elektromotor": "stueck",
       "ethylen": "t",
       "fahrgestell": "stueck",
@@ -18844,6 +19817,7 @@
       "laptop": "stueck",
       "lastwagen": "stueck",
       "lcd_panel": "m2",
+      "led_lampe": "stueck",
       "leim": "t",
       "lithium": "t",
       "lithium_ionen_akku": "stueck",
@@ -18869,9 +19843,13 @@
       "reinstsilizium": "kg",
       "roehrenradio": "stueck",
       "rohoel": "t",
+      "rohsilizium": "t",
       "schnittholz": "t",
       "schrauben": "t",
       "schwefel": "t",
+      "smartphone": "stueck",
+      "solarmodul": "kwp",
+      "solarsilizium": "kg",
       "stabstahl": "t",
       "stahl": "t",
       "staubsauger": "stueck",
@@ -18880,15 +19858,19 @@
       "strahltriebwerk": "stueck",
       "strom": "mwh",
       "strumpf": "stueck",
+      "tablet": "stueck",
       "taschenrechner": "stueck",
       "tonerde": "t",
+      "traktionsbatterie": "kwh",
       "traktor": "stueck",
       "transistor": "stueck",
       "transistorradio": "stueck",
       "verkehrsflugzeug": "stueck",
       "videorekorder": "stueck",
+      "waermepumpe": "stueck",
       "waschmaschine": "stueck",
       "weissblech": "t",
+      "windkraftanlage": "stueck",
       "zellstoff": "t",
       "zinn": "t"
     }
@@ -23116,7 +24098,18 @@
       "laptop",
       "digitalkamera",
       "flachbildfernseher",
-      "dvd_spieler"
+      "dvd_spieler",
+      "smartphone",
+      "tablet",
+      "traktionsbatterie",
+      "elektroantrieb",
+      "elektroauto",
+      "rohsilizium",
+      "solarsilizium",
+      "solarmodul",
+      "windkraftanlage",
+      "waermepumpe",
+      "led_lampe"
     ],
     "recipes": [
       {
@@ -25876,19 +26869,19 @@
         "labor_hours": [
           [
             "akademiker.chemie",
-            10.0
+            3.0
           ],
           [
             "fachkraft.bergbau",
-            300.0
+            75.0
           ],
           [
             "fachkraft.chemie",
-            100.0
+            25.0
           ],
           [
             "ungelernt",
-            500.0
+            125.0
           ]
         ],
         "output": 1.0,
@@ -26445,6 +27438,14 @@
             "market_usd": 103.8083,
             "reference_usd": 86.1268
           },
+          "elektroantrieb": {
+            "market_usd": 1467.3687,
+            "reference_usd": 1467.3687
+          },
+          "elektroauto": {
+            "market_usd": 41457.0072,
+            "reference_usd": 41210.1751
+          },
           "elektromotor": {
             "market_usd": 1997.56,
             "reference_usd": 2445.6145
@@ -26589,6 +27590,10 @@
             "market_usd": 3912.9832,
             "reference_usd": 3912.9832
           },
+          "led_lampe": {
+            "market_usd": 9.2127,
+            "reference_usd": 9.1578
+          },
           "leim": {
             "market_usd": 1956.9531,
             "reference_usd": 1956.4916
@@ -26689,6 +27694,10 @@
             "market_usd": 358.9221,
             "reference_usd": 315.7984
           },
+          "rohsilizium": {
+            "market_usd": 2934.7374,
+            "reference_usd": 2934.7374
+          },
           "schnittholz": {
             "market_usd": 287.5743,
             "reference_usd": 293.4737
@@ -26700,6 +27709,18 @@
           "schwefel": {
             "market_usd": 880.5972,
             "reference_usd": 880.4212
+          },
+          "smartphone": {
+            "market_usd": 460.6334,
+            "reference_usd": 457.8908
+          },
+          "solarmodul": {
+            "market_usd": 921.2668,
+            "reference_usd": 915.7817
+          },
+          "solarsilizium": {
+            "market_usd": 24.4561,
+            "reference_usd": 24.4561
           },
           "stabstahl": {
             "market_usd": 1029.3354,
@@ -26733,6 +27754,10 @@
             "market_usd": 8.5476,
             "reference_usd": 9.1578
           },
+          "tablet": {
+            "market_usd": 552.7601,
+            "reference_usd": 549.469
+          },
           "taschenrechner": {
             "market_usd": 32.2443,
             "reference_usd": 32.0524
@@ -26740,6 +27765,10 @@
           "tonerde": {
             "market_usd": 782.5966,
             "reference_usd": 782.5966
+          },
+          "traktionsbatterie": {
+            "market_usd": 293.4737,
+            "reference_usd": 293.4737
           },
           "traktor": {
             "market_usd": 6909.5012,
@@ -26761,6 +27790,10 @@
             "market_usd": 552.7601,
             "reference_usd": 549.469
           },
+          "waermepumpe": {
+            "market_usd": 4145.7007,
+            "reference_usd": 4121.0175
+          },
           "waschmaschine": {
             "market_usd": 1059.4569,
             "reference_usd": 1053.1489
@@ -26768,6 +27801,10 @@
           "weissblech": {
             "market_usd": 3476.948,
             "reference_usd": 3130.3865
+          },
+          "windkraftanlage": {
+            "market_usd": 2763800.479,
+            "reference_usd": 2747345.0089
           },
           "zellstoff": {
             "market_usd": 586.9475,
@@ -26877,6 +27914,8 @@
       "duesenflugzeug": "stueck",
       "dvd_spieler": "stueck",
       "eisenerz": "t",
+      "elektroantrieb": "stueck",
+      "elektroauto": "stueck",
       "elektromotor": "stueck",
       "ethylen": "t",
       "fahrgestell": "stueck",
@@ -26913,6 +27952,7 @@
       "laptop": "stueck",
       "lastwagen": "stueck",
       "lcd_panel": "m2",
+      "led_lampe": "stueck",
       "leim": "t",
       "lithium": "t",
       "lithium_ionen_akku": "stueck",
@@ -26938,9 +27978,13 @@
       "reinstsilizium": "kg",
       "roehrenradio": "stueck",
       "rohoel": "t",
+      "rohsilizium": "t",
       "schnittholz": "t",
       "schrauben": "t",
       "schwefel": "t",
+      "smartphone": "stueck",
+      "solarmodul": "kwp",
+      "solarsilizium": "kg",
       "stabstahl": "t",
       "stahl": "t",
       "staubsauger": "stueck",
@@ -26949,15 +27993,19 @@
       "strahltriebwerk": "stueck",
       "strom": "mwh",
       "strumpf": "stueck",
+      "tablet": "stueck",
       "taschenrechner": "stueck",
       "tonerde": "t",
+      "traktionsbatterie": "kwh",
       "traktor": "stueck",
       "transistor": "stueck",
       "transistorradio": "stueck",
       "verkehrsflugzeug": "stueck",
       "videorekorder": "stueck",
+      "waermepumpe": "stueck",
       "waschmaschine": "stueck",
       "weissblech": "t",
+      "windkraftanlage": "stueck",
       "zellstoff": "t",
       "zinn": "t"
     }
@@ -31086,7 +32134,18 @@
       "laptop",
       "digitalkamera",
       "flachbildfernseher",
-      "dvd_spieler"
+      "dvd_spieler",
+      "smartphone",
+      "tablet",
+      "traktionsbatterie",
+      "elektroantrieb",
+      "elektroauto",
+      "rohsilizium",
+      "solarsilizium",
+      "solarmodul",
+      "windkraftanlage",
+      "waermepumpe",
+      "led_lampe"
     ],
     "resources": [
       "baumwolle",

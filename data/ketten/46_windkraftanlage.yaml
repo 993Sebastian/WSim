@@ -1,0 +1,67 @@
+# Kette 46 – Windkraftanlage (M41, Epoche 2010–2026)
+# Stahl (Turm, Maschinenhaus, Nabe), Kupfer (Generator, Umrichter, Kabel), Glasfasern und
+# Kunstharz (Rotorblätter) → Windkraftanlage an Land mit 2,5 MW (Rotor etwa 100 m). Anlagen
+# der Megawattklasse wurden ab etwa 2000 in Serie gebaut; die Welt baute 2000 knapp 4 GW
+# zu, 2010 etwa 39 GW, 2020 etwa 93 GW und 2024 etwa 117 GW. Turbinen kosteten um 2015 etwa
+# 1 Mio. USD je MW ohne Fundament und Netzanschluss.
+# Käufer sind in Stufe 1 die Staaten (Bedarf je BIP, wie Lastwagen und Flugzeuge).
+# Alle Zahlen sind Annäherungen für etwa 2012.
+
+produkte:
+  - id: windkraftanlage
+    art: endprodukt
+    branche: maschinenbau
+    einheit: stueck               # 2,5 MW an Land
+    gewicht_kg: 350_000           # ohne Fundament
+    verwendung: industrie
+    warengruppe: maschinen
+    transportklasse: stueckgut
+    richtpreis_usd: 3_000_000     # 2010 etwa 1,3 Mio. USD je MW, 2020 etwa 0,8 Mio.
+    # Zubau der Welt je Mio. USD BIP (1 = 2020, etwa 37 000 Anlagen zu 2,5 MW = 93 GW):
+    # 2000 knapp 4 GW, 2005 11 GW, 2010 39 GW, 2015 64 GW, 2024 117 GW.
+    staatsnachfrage:
+      je_mio_usd_bip: 0.00025
+      verlauf: {2000: 0.08, 2005: 0.2, 2008: 0.42, 2010: 0.55, 2015: 0.75, 2020: 1.0, 2024: 1.1}
+    annaeherung: true
+
+anlagen:
+  - id: windkraftanlagenwerk      # Maschinenhaus montieren, Rotorblätter laminieren, Türme schweißen
+    standorttyp: werk
+    investition_usd: 300_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 2
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: windkraftanlage
+    annaeherung: true
+
+rezepte:
+  - id: windkraftanlage_bauen
+    produkt: windkraftanlage
+    menge: 1
+    dauer_tage: 10
+    anlage: windkraftanlagenwerk
+    technologie: windkraftanlage
+    eingang:
+      stahl: 300                  # Turm 100 m (etwa 200 t), Maschinenhaus, Getriebe, Nabe
+      kupfer: 3                   # Generator, Umrichter, Kabel im Turm
+      glas: 18                    # Glasfasern der drei Rotorblätter
+      polyethylen: 9              # Kunstharz der Rotorblätter (Epoxid)
+    arbeit_stunden:
+      angelernt: 28000
+      fachkraft.metall: 18000
+      fachkraft.maschinenbau: 10000
+      fachkraft.elektro: 5000
+      akademiker.maschinenbau: 1200
+    energie_mwh: 50
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: windkraftanlage           # Windkraftanlagen der Megawattklasse in Serie, um 2000
+    fachgebiet: maschinenbau
+    erfindungsjahr: 2000
+    voraussetzungen: [turbogenerator]
+    forschungsaufwand: 30000
+    annaeherung: true

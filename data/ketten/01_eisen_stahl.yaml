@@ -20,8 +20,9 @@ produkte:
     # Förderzins an die Grubenbesitzer (Mesabi um 1900 etwa ein Siebtel des Erzpreises).
     pacht_anteil: 0.15
     # Größere Tagebaue und Pellets aus armem Erz (M39): Die Welt förderte 1900 etwa 100,
-    # 1950 250, 1970 770 und 1990 980 Mio. t Erz.
-    foerderindex: {1900: 1.0, 1950: 1.2, 1970: 1.5, 1990: 1.8, 2026: 2.2}
+    # 1950 250, 1970 770, 1990 980 Mio. t Erz, 2010 2,6 und 2020 2,4 Mrd. t (M41: mit
+    # 2,2 im Jahr 2026 kostete Erz 2020–2025 das 1,7- bis 2,4-Fache).
+    foerderindex: {1900: 1.0, 1950: 1.2, 1970: 1.5, 1990: 1.8, 2000: 2.0, 2010: 3.0, 2026: 3.4}
 
   - id: kohle
     art: rohstoff
@@ -32,6 +33,11 @@ produkte:
     transportklasse: schuettgut
     richtpreis_usd: 60
     heizwert_mwh: 8.1             # Steinkohle, etwa 29 GJ/t
+    # Höchstförderung (M41): Bis 1980 decken die Lagerstätten den Bedarf; danach kamen die
+    # Großtagebaue in China, Indien, Indonesien und Australien hinzu (Welt 1980 etwa 3,8,
+    # 2000 4,7, 2010 7,2 und 2020 7,7 Mrd. t). Ohne sie kostete Kohle in den Weltläufen ab
+    # 2000 das 1,8- bis 3,9-Fache des Richtpreises.
+    foerderindex: {1980: 1.0, 1990: 1.2, 2000: 1.5, 2010: 2.2, 2026: 2.6}
 
   - id: stahl
     art: halbzeug

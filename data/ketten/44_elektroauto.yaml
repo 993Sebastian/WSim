@@ -1,0 +1,206 @@
+# Kette 44 – Elektroauto (M41, Epoche 2010–2026)
+# Lithium, Kobalt, Kupfer und Kohle (Graphit der Anode) → Traktionsbatterie (Zellen und Pack
+# in einem Werk, gemessen in kWh); Stahl und Kupfer → Elektroantrieb (Motor, Wechselrichter,
+# Getriebe); Traktionsbatterie, Elektroantrieb, Fahrgestell und Karosserie → Elektroauto.
+# Erste Serienfahrzeuge mit Lithium-Ionen-Akku kamen 2010 auf den Markt, Großserien ab
+# etwa 2012. Batteriepacks kosteten 2010 etwa 1 000 USD je kWh, 2015 etwa 400 und 2020 etwa
+# 140; ab etwa 2017 entstanden Zellfabriken mit 20–35 GWh im Jahr und Kathoden mit weniger
+# Kobalt. 2024 waren gut 10 Mio. der etwa 75 Mio. neuen Autos reine Elektroautos.
+# Das Elektroauto ersetzt das Automobil über den Besitz; mit ihm sinkt der Benzinbedarf.
+# Reifen sind nicht eigens geführt (höchstens vier Vorprodukte), ebenso Nickel, Mangan,
+# Elektrolyt und Separator der Zellen; ihre Kosten stecken in Arbeit und Anlage. (Im ersten
+# Weltlauf baute die KI kein einziges Batteriewerk, weil Kobalt und Kohle knapp und alle
+# ihre Konzessionen vergeben waren; seit M41 baut sie ein Produkt, das noch niemand
+# herstellt, auch dann, wenn seine Vorprodukte knapp sind.)
+# Alle Zahlen sind Annäherungen für etwa 2015.
+
+produkte:
+  - id: traktionsbatterie
+    art: komponente
+    branche: elektro
+    einheit: kwh                  # Speicherinhalt des Packs
+    gewicht_kg: 7                 # Pack um 2015 etwa 150 Wh je kg
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 300           # 2010 etwa 1 000 USD je kWh, 2015 etwa 400, 2020 etwa 140
+    annaeherung: true
+
+  - id: elektroantrieb
+    art: komponente
+    branche: fahrzeuge
+    einheit: stueck               # Motor, Wechselrichter und Getriebe, um 150 kW
+    gewicht_kg: 90
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 1500          # 2015 etwa 1 500 bis 2 000 USD
+    annaeherung: true
+
+  - id: elektroauto
+    art: endprodukt
+    branche: fahrzeuge
+    einheit: stueck
+    gewicht_kg: 1700
+    verwendung: konsum
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 45_000        # 2011 etwa 33 000 USD (Kompaktwagen), 2017 etwa 45 000 USD (Mittelklasse)
+    ersetzt: [automobil]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 12, max_besitzquote: 0.3}
+      kaufschwelle: 10            # die Hälfte einer Schicht kauft ab etwa 450 000 USD Einkommen
+      preisempfindlichkeit: 3     # billigere Batterien öffnen den Markt
+      einkommensempfindlichkeit: 1.5
+      netzabhaengig: true         # geladen wird am Netz
+    annaeherung: true
+
+anlagen:
+  - id: batteriewerk              # Elektroden, Zellen, Formieren und Packs; um 2012 etwa 3 GWh im Jahr
+    standorttyp: werk
+    investition_usd: 750_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 8000       # kWh
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.06
+    automatisierung_max: 0.8
+    technologie: traktionsbatterie
+    flaeche_ha: 15                # Trockenräume und Formierung; nach der Investition wären es 75 ha
+    annaeherung: true
+
+  - id: batteriegrosswerk         # Zellfabrik mit 35 GWh im Jahr, ab etwa 2017
+    standorttyp: werk
+    investition_usd: 5_000_000_000
+    bauzeit_tage: 720
+    kapazitaet_je_tag: 96_000     # kWh
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.85
+    technologie: grosszellfertigung
+    flaeche_ha: 60                # nach der Investition wären es 500 ha
+    annaeherung: true
+
+  - id: elektroantriebswerk       # Motoren wickeln, Leistungselektronik, Getriebe, Prüfstand
+    standorttyp: werk
+    investition_usd: 150_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 1000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.7
+    technologie: elektroauto
+    annaeherung: true
+
+  - id: elektroautowerk           # Rohbau, Lackierung, Montage mit Batterieeinbau
+    standorttyp: werk
+    investition_usd: 600_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 200
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.8
+    technologie: elektroauto
+    flaeche_ha: 40                # nach der Investition wären es 60 ha
+    annaeherung: true
+
+rezepte:
+  - id: traktionsbatterie_bauen
+    produkt: traktionsbatterie
+    menge: 1                      # kWh
+    dauer_tage: 14                # Formieren und Lagern
+    anlage: batteriewerk
+    technologie: traktionsbatterie
+    eingang:                      # ohne Nickel, Mangan, Elektrolyt und Separator (siehe oben)
+      lithium: 0.0008             # 0,8 kg Lithiumcarbonat-Äquivalent
+      kobalt: 0.0002              # Kathoden mit Nickel, Kobalt und Mangan oder Aluminium
+      kupfer: 0.0012              # Anodenfolie, Ableiter, Leitungen im Pack
+      kohle: 0.0012               # Graphit der Anode (synthetisch aus Koks oder Naturgraphit)
+    arbeit_stunden:
+      angelernt: 3.5
+      fachkraft.chemie: 1.4
+      fachkraft.elektro: 1
+      akademiker.chemie: 0.25
+    energie_mwh: 0.05             # Trockenräume, Trocknen der Elektroden, Formieren
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: traktionsbatterie_grossserie  # große Zellfabrik, Kathoden mit wenig oder ohne Kobalt
+    produkt: traktionsbatterie
+    menge: 1
+    dauer_tage: 10
+    anlage: batteriegrosswerk
+    technologie: grosszellfertigung
+    eingang:
+      lithium: 0.0007
+      kobalt: 0.0001              # kobaltarme Kathoden
+      kupfer: 0.001
+      kohle: 0.0011
+    arbeit_stunden:
+      angelernt: 2.5
+      fachkraft.chemie: 1
+      fachkraft.elektro: 0.7
+      akademiker.chemie: 0.15
+    energie_mwh: 0.04
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: elektroantrieb_bauen
+    produkt: elektroantrieb
+    menge: 1
+    dauer_tage: 1
+    anlage: elektroantriebswerk
+    technologie: elektroauto
+    eingang:
+      stahl: 0.06                 # Blechpaket, Welle, Gehäuse, Getriebe
+      kupfer: 0.012               # Wicklungen, Stromschienen, Leitungen
+    arbeit_stunden:
+      angelernt: 28
+      fachkraft.elektro: 9
+      fachkraft.maschinenbau: 7
+      akademiker.elektro: 0.7
+    energie_mwh: 0.3
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: elektroauto_bauen
+    produkt: elektroauto
+    menge: 1
+    dauer_tage: 2
+    anlage: elektroautowerk
+    technologie: elektroauto
+    eingang:
+      traktionsbatterie: 55       # kWh; 2010 eher 25, 2024 im Mittel etwa 65
+      elektroantrieb: 1
+      fahrgestell: 1              # Achsen, Lenkung, Bremsen
+      karosserie: 1
+    arbeit_stunden:
+      angelernt: 20
+      fachkraft.maschinenbau: 8
+      fachkraft.elektro: 4
+      akademiker.maschinenbau: 1
+    energie_mwh: 1.0
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: traktionsbatterie         # großformatige Lithium-Ionen-Zellen und Packs für Fahrzeuge
+    fachgebiet: chemie
+    erfindungsjahr: 2009
+    voraussetzungen: [lithium_ionen_akku]
+    forschungsaufwand: 30000
+    annaeherung: true
+
+  - id: elektroauto               # erste Serienfahrzeuge 2010, Großserie ab 2012
+    fachgebiet: maschinenbau
+    erfindungsjahr: 2010
+    voraussetzungen: [traktionsbatterie, fliessband]
+    forschungsaufwand: 35000
+    annaeherung: true
+
+  - id: grosszellfertigung        # Zellfabriken mit 20–35 GWh im Jahr, kobaltarme Kathoden
+    fachgebiet: chemie
+    erfindungsjahr: 2017
+    voraussetzungen: [traktionsbatterie]
+    forschungsaufwand: 40000
+    annaeherung: true

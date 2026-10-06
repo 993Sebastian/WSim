@@ -6,6 +6,8 @@ einheit.stueck: Stück
 einheit.mwh: MWh
 einheit.m3: m³
 einheit.m2: m²
+einheit.kwh: kWh
+einheit.kwp: kWp
 
 kontinent.afrika: Afrika
 kontinent.asien: Asien

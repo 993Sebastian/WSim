@@ -2881,6 +2881,7 @@ fn opportunity_in(
         taken,
         builder,
         piling: &scan.piling,
+        makers: &scan.makers,
         open: &open,
     };
     candidates
@@ -2896,6 +2897,8 @@ struct Chain<'a> {
     builder: CompanyId,
     /// `piling` per product.
     piling: &'a [bool],
+    /// Companies making each product (`makers`).
+    makers: &'a BTreeMap<ProductId, Vec<CompanyId>>,
     /// Unserved demand of a product: value per day, country with the most, quantity.
     open: &'a dyn Fn(ProductId) -> (f64, CountryId, f64),
 }
@@ -3000,9 +3003,16 @@ impl Chain<'_> {
             .collect();
         if !short.is_empty() {
             short.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
-            return short
+            let below = short
                 .into_iter()
                 .find_map(|(_, input)| self.bottleneck(input, depth + 1));
+            // No chain below leads anywhere (every concession taken, M41): a product no
+            // company makes yet is built all the same and bids for its inputs like any
+            // buyer. Otherwise a new chain never starts (traction batteries short of
+            // cobalt and graphite: the electric car works stood idle for ten years).
+            if below.is_some() || self.makers.contains_key(&product) {
+                return below;
+            }
         }
         // Products piling up somewhere need trade, not new companies.
         if self.piling[product.index()] || self.taken.contains(&product) {
@@ -3517,6 +3527,48 @@ mod tests {
         assert_eq!((product, country), (ore, aaa));
         assert_eq!(deposit, catalog.deposits.id("grube"));
         assert_eq!(Some(recipe), catalog.recipes.id("erz_abbau"));
+    }
+
+    /// M41: an input is short and no chain below it leads anywhere (no free deposit). A
+    /// product nobody makes yet is built all the same, else a new chain never starts.
+    #[test]
+    fn a_new_product_is_built_although_its_input_is_short() {
+        let mut catalog = test_support::research();
+        // The ore deposit is found only in 1950: no mine can be opened in 1900.
+        let pit = catalog.deposits.id("grube").expect("exists");
+        catalog.deposits.get_mut(pit).discovered = Some(1950);
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        let furnaces = std::mem::take(&mut state.sites[works.index()].slots);
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        let iron = catalog.products.id("eisen").expect("exists");
+        let ore = catalog.products.id("erz").expect("exists");
+        for (product, open) in [(iron, 1000.0), (ore, 1000.0)] {
+            let m = state.markets.get_mut(product).get_mut(aaa);
+            m.open_demand = open;
+            m.idle_since = None;
+        }
+        let makes_iron = |state: &GameState| {
+            state.sites.iter().any(|s| {
+                s.slots.iter().any(|sl| {
+                    sl.recipe
+                        .is_some_and(|r| catalog.recipes.get(r).product == iron)
+                })
+            })
+        };
+        assert!(!makes_iron(state));
+        let (product, country, deposit, recipe, _) =
+            opportunity(state, &catalog, &[], id, None).expect("iron works");
+        assert_eq!((product, country, deposit), (iron, aaa, None));
+        assert_eq!(Some(recipe), catalog.recipes.id("eisen_schmelzen"));
+        // Once a company makes iron, the short ore leaves the market to it.
+        state.sites[works.index()].slots = furnaces;
+        assert!(makes_iron(state));
+        assert_eq!(
+            opportunity(state, &catalog, &[], id, None).map(|o| o.0),
+            None
+        );
     }
 
     /// M37: a competent company with nothing to research develops its best seller and
