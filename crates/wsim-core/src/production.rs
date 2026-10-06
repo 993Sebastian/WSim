@@ -598,7 +598,6 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         };
         if recipe.extraction {
             let deposit = state.sites[index].deposit.expect("checked in planned_runs");
-            let d = catalog.deposits.get(deposit);
             let ds = state.deposits.get(deposit);
             let field = ds.concession_of(site).expect("checked in planned_runs");
             let scale = state.settings.market_scale;
@@ -610,7 +609,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let mut room =
                 catalog.max_output(deposit, date.year()) * scale * field.share * year_gone
                     - field.extracted_this_year;
-            if let Some(reserve) = d.reserve {
+            if let Some(reserve) = catalog.reserve(deposit, date.year()) {
                 room = room.min(reserve * scale - ds.extracted);
             }
             bound(&mut runs, room.max(0.0) / recipe.output, Limit::Deposit);

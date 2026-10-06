@@ -130,7 +130,8 @@ Parameter: `data/parameter/produktionsmodell.yaml`.
   täglich `Investition · wartung_je_jahr / 365`.
 - Zustand: sinkt linear von 1 auf `zustand_minimum` über die Lebensdauer.
 - Lagerstätten: Erschließung kostet und dauert laut Daten; danach Abbau bis zur
-  Höchstförderung je Kalenderjahr und bis der Vorrat erschöpft ist. Die Jahresmenge
+  Höchstförderung je Kalenderjahr und bis der Vorrat erschöpft ist (der Vorrat wächst mit
+  dem Förderindex, M41). Die Jahresmenge
   verteilt sich über das Jahr: Bis zum Tag *t* darf höchstens der Anteil *t* / Tage des
   Jahres gefördert sein (M33). Die Erschließung wird über
   `erschliessung_lebensdauer_jahre` abgeschrieben.
@@ -1563,7 +1564,7 @@ Für die KI (alle Firmen gleich, M10):
   Startauslastung)⌉ Anlagen, mindestens eine. Vorher standen zwanzig Bohrtürme auf einem
   Ölfeld, das zwei auslastete.
 - **Lagerstätte für eine neue Konzession:** entdeckt, mit freier Konzession, deren
-  Restvorrat (Vorrat · *s* − Gefördertes) wenigstens `vorrat_jahre_min` Jahre ihrer
+  Restvorrat (Vorrat · Förderindex · *s* − Gefördertes, M41) wenigstens `vorrat_jahre_min` Jahre ihrer
   Höchstförderung trägt; unter diesen die mit der billigsten Fracht in das
   Land mit der größten offenen Nachfrage (für Förderfirmen vorher die erste in den Daten).
 - **Ausbau nach zwei Monaten:** Ein Standort gilt beim Ausbau (M10) als ausverkauft,
@@ -2025,6 +2026,19 @@ des Richtpreises), Eisenerz 2010 = 3,0 und 2026 = 3,4 (vorher 2,2), Kupfererz 20
 und 2026 = 4,6 (vorher 3,0), Kobalt 2015 = 1,5, 2020 = 1,7, 2024 = 3,5. Die Kobaltgewinnung
 braucht 230 statt 910 Stunden je t (Anteil neben Kupfer und Nickel; in den Ländern mit
 geringer Produktivität standen die Gruben zu drei Vierteln still).
+
+**Vorräte wachsen mit dem Förderindex** (Nacharbeit zu M41): Der abbauwürdige Vorrat einer
+Lagerstätte im Jahr *t* ist Vorrat (Daten) · Förderindex ihres Rohstoffs im Jahr *t* · *s*;
+die Förderung zählt dagegen wie bisher. So wachsen die Reserven wie in der Wirklichkeit
+mit Erkundung und Technik, statt dass ein höherer Index die Lagerstätten nur schneller
+leert. Vorher waren in den Weltläufen bis 2026 zwölf der 26 Eisenerz-Lagerstätten
+(Kiruna, Mesabi, Kursk …) und die größten Ölfelder leer, Eisenerz kostete ab 2018 das 2,7-
+bis 3,8-Fache des Richtpreises. Das gilt für die Grenze der Förderung (M33) und für die
+Wahl einer Konzession durch die KI (`vorrat_jahre_min`). Nachwachsende Rohstoffe haben
+keinen Vorrat; für Baumwolle (2020 = 8,0, 2026 = 8,5; vorher 6,9) und Getreide (2010 = 7,5,
+2020 = 9,0, 2026 = 9,5; vorher 8,5 im Jahr 2026) steigt der Index nach 2010 weiter
+(Polyester und Ertragssteigerung, die das Spiel nicht eigens abbildet; vorher kosteten sie
+ab 2020 das 3,4- bis 3,9-Fache bzw. das Doppelte).
 
 ## M42 – Produktnamen je Firma
 

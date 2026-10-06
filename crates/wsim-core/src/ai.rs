@@ -2547,7 +2547,7 @@ fn deposit_for(
         let Some(field) = ds.concessions.iter().find(|c| c.site.is_none()) else {
             return false;
         };
-        let lasts = dep.reserve.is_none_or(|reserve| {
+        let lasts = catalog.reserve(d, year).is_none_or(|reserve| {
             reserve * scale - ds.extracted
                 >= catalog.max_output(d, year) * scale * field.share * years
         });

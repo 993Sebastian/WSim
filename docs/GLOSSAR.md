@@ -152,6 +152,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Normalauslastung (freie Anlagen) | `MarketModel::normal_utilization` (`auslastung_normal`) |
 | Lagerziel, Ausgleich (KI-Auslastung) | `AiBehavior::stock_target_days`, `stock_adjust_days` |
 | Förderindex, Höchstförderung im Jahr | `Product::output_index` (`foerderindex`), `Catalog::max_output` |
+| Abbauwürdiger Vorrat im Jahr (wächst mit dem Förderindex) | `Catalog::reserve` |
 | Spielstandspeicher (Dateien, Browser) | `wsim_session::SaveStore`, `DirStore`, `MemoryStore` |
 | Browser-Version, Brücke zu JavaScript | Crate `wsim-web`, Modul `bridge`, `ui/src/kern/web.ts`, `kern.worker.ts` |
 | Pacht und Förderabgaben | `Product::rent_share` (`pacht_anteil`), `CostType::Rent`, `production::rent_per_run_usd` |

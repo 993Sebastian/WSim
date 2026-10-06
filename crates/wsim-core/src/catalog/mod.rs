@@ -79,6 +79,21 @@ impl Catalog {
         d.max_output_per_year * index
     }
 
+    /// Workable reserve of a deposit in a year (before the market scale), `None` for
+    /// renewable deposits: the deposit's value times the output index of its raw
+    /// material, as exploration and technology let the reserves grow with the output
+    /// (M41).
+    pub fn reserve(&self, deposit: DepositId, year: i32) -> Option<f64> {
+        let d = self.deposits.get(deposit);
+        let index = self
+            .products
+            .get(d.resource)
+            .output_index
+            .as_ref()
+            .map_or(1.0, |i| i.value_at(f64::from(year)));
+        d.reserve.map(|r| r * index)
+    }
+
     /// Keys of all entries by kind, for saving and loading.
     pub fn key_table(&self) -> KeyTable {
         let keys = IdKind::ALL

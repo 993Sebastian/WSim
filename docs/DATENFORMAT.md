@@ -240,7 +240,7 @@ Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
 | staatsmarkt.**preis_usd** | Ware ist in jedem Land vom staatlichen Markt zu diesem Preis erhältlich |
 | staatsmarkt.verfuegbar_ab / verfuegbar_bis | Jahre, in denen der Staatsmarkt die Ware anbietet |
 | ersetzt | Liste von Produkten, die dieses Produkt nach und nach verdrängt: als Gebrauchsgut über seinen Besitz (M9), mit Staatsnachfrage deren Staatsbedarf über `verdraengung_staat_jahre` (M33) |
-| foerderindex | Nur Rohstoffe: Jahreswerte, mit denen die Höchstförderung aller Lagerstätten des Rohstoffs gegenüber ihren Datenwerten wächst (mehr Fläche, bessere Erträge), z. B. `{1900: 1.0, 1930: 1.45}`; ohne Angabe 1 |
+| foerderindex | Nur Rohstoffe: Jahreswerte, mit denen die Höchstförderung und der Vorrat aller Lagerstätten des Rohstoffs gegenüber ihren Datenwerten wachsen (mehr Fläche, bessere Erträge, Erkundung), z. B. `{1900: 1.0, 1930: 1.45}`; ohne Angabe 1 |
 | pacht_anteil | Nur Rohstoffe, 0–0,9: Pacht und Förderabgaben je geförderter Einheit als Anteil am Richtpreis im Land (Bodenrente, Förderzins, Konzessionsabgaben); als Kostenart „Pacht und Förderabgaben“ gebucht; ohne Angabe 0 |
 | sehr_komplex | `true`, wenn der Produktbaum fünf oder sechs Ebenen braucht (Lastenheft §17.2); sonst Warnung ab fünf Ebenen |
 
@@ -318,7 +318,7 @@ Technologien bis zum frühesten Startjahr 1900 sind bei Spielbeginn allen bekann
 | **id** | |
 | **land** | Verweis auf ein Land (heutige Grenzen) |
 | **rohstoff** | Verweis auf ein Produkt der Art `rohstoff` |
-| vorrat | Gesamtvorrat in Produkteinheiten; Pflicht, außer bei erneuerbaren |
+| vorrat | Gesamtvorrat in Produkteinheiten beim Förderindex 1; er wächst mit dem Förderindex des Rohstoffs (M41). Pflicht, außer bei erneuerbaren |
 | erneuerbar | `true` für Wald, Plantagen, Ackerland: kein Vorrat, nur Höchstförderung |
 | entdeckt | Jahr der Entdeckung; vorher nicht nutzbar |
 | **erschliessung.investition_usd**, **erschliessung.dauer_tage** | Kosten und Dauer der Erschließung |

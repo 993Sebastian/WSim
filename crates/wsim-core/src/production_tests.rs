@@ -182,6 +182,31 @@ fn yearly_cap_and_reserve_limit_extraction() {
     assert!((deposit.extracted - 10_000.0).abs() < 1e-6);
 }
 
+/// M41: the workable reserve grows with the output index of the raw material. With the
+/// index doubled from 1901 the reserve of 5 000 t yields 10 000 t (before, 5 000 t).
+#[test]
+fn the_reserve_grows_with_the_output_index() {
+    let mut catalog = test_support::production();
+    let grube = catalog.deposits.id("grube").unwrap();
+    let d = catalog.deposits.get_mut(grube);
+    d.max_output_per_year = 5_000.0;
+    d.reserve = Some(5_000.0);
+    let ore = d.resource;
+    catalog.products.get_mut(ore).output_index =
+        Some(crate::time_series::TimeSeries::new(vec![(1900, 1.0), (1901, 2.0)]).unwrap());
+    assert_eq!(catalog.reserve(grube, 1900), Some(5_000.0));
+    assert_eq!(catalog.reserve(grube, 1901), Some(10_000.0));
+    let mut game = new_game(catalog);
+    mine(&mut game);
+    days(&mut game, 365 * 3);
+    let deposit = game.state().deposits.get(grube);
+    assert!(
+        (deposit.extracted - 10_000.0).abs() < 1e-6,
+        "{}",
+        deposit.extracted
+    );
+}
+
 /// Mine plus furnace; ore is moved to the furnace once.
 fn chain(game: &mut Game) -> (SiteId, SiteId) {
     let c = game.catalog().clone();
