@@ -1483,7 +1483,28 @@ Produktnamen je Firma folgen mit M42.
   Labrador …) und fünf der größten Ölfelder (Samotlor, Rumaila, Romaschkino …). Die
   Förderindizes ab 1980 lassen jede Lagerstätte schneller fördern, die Vorräte in den
   Daten sind dabei gleich geblieben. Baumwolle und Getreide (nachwachsend) fehlt nach 2010
-  die zulässige Ernte. Korrektur und neue Weltläufe: direkt im Anschluss.
+  die zulässige Ernte.
+- **Korrektur: Vorräte wachsen mit dem Förderindex** (`docs/FORMELN.md`, M41), dazu ein
+  Förderindex für Baumwolle und Getreide nach 2010. Weltläufe 1900–2026 danach (Seeds 1
+  und 2, Preis je Richtpreis):
+
+  | Rohstoff | 2020 vorher → nachher | 2025 vorher → nachher |
+  |---|---|---|
+  | Eisenerz | 2,7/3,3 → 1,0/1,3 | 3,8/3,8 → 1,0/2,6 |
+  | Kupfererz | 1,0/1,2 → 1,1/2,1 | 2,2/1,0 → 1,0/1,0 |
+  | Baumwolle | 1,2/3,6 → 3,1/1,6 | 3,9/3,4 → 2,0/1,4 |
+  | Getreide | 1,7/2,2 → 1,6/1,8 | 1,9/2,2 → 1,4/1,9 |
+  | Rohöl | 1,1/1,1 → 1,1/2,6 | 3,4/1,1 → 3,9/1,3 |
+
+  Eisen- und Kupfererz reichen jetzt bis 2026 (alle Eisenerz-Lagerstätten haben Vorrat).
+  Rohöl: Große Felder fördern bis zum Ende mit voller Leistung und sind dann leer
+  (Samotlor, Cantarell, Forties-Brent, Hassi Messaoud); neue Felder (Tengiz, Zakum)
+  bleiben fast ungenutzt. Seed 2 erholt sich nach dem Sprung 2015–2019 bis 2022, Seed 1
+  bleibt ab 2023 beim Vierfachen. Baumwolle: Die günstigen Plantagen (China, Pakistan,
+  Indien, Ägypten) laufen voll, wachsen je Firma aber nur einen Standort je Quartal; die
+  US-Plantagen kosten 2026 fast den Marktpreis (Lohnniveau) und bleiben bei einem Achtel
+  ihrer Konzession. Beides steht als Vorschlag in `docs/OFFENE_PUNKTE.md`, Abschnitt G,
+  Punkt 9.
 - **Späte Startjahre** (Startbesetzung, `docs/FORMELN.md` Schritt 4): Ein Vorprodukt, das
   zu wenig gebraucht wird, um eine mittlere Anlage zu füllen, bekam keine Anlage, und die
   Stufen darüber wurden auf null verkleinert – ab Startjahr 1920 fehlten so Bauxit und

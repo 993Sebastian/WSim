@@ -459,12 +459,23 @@ und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41)
    Hersteller und kosten bis zum Vierfachen des Richtpreises (Smartphone in einem Lauf bis
    2018 nur zu 4 % versorgt); Solarmodule und Windkraftanlagen bleiben bis etwa 2020 knapp.
    Das Mobiltelefon wird vom Smartphone nur teilweise verdrängt.
-8. **Rohstoffvorräte ab 2018** (🟡 Vorschlag, wird umgesetzt): Die abbauwürdigen Vorräte
+8. ✅ **Rohstoffvorräte ab 2018** (umgesetzt, Weltläufe in `docs/FORTSCHRITT.md`, M41): Die abbauwürdigen Vorräte
    einer Lagerstätte wachsen mit dem Förderindex ihres Rohstoffs, wie in der Wirklichkeit
    Erkundung und Technik die Reserven trotz Förderung wachsen ließen. Bisher waren bis 2026
    zwölf von 26 Eisenerz-Lagerstätten und die größten Ölfelder leer. Für Baumwolle und
    Getreide steigt der Förderindex nach 2010 weiter (Ersatz für Polyester und
    Ertragssteigerung, die das Spiel nicht eigens abbildet).
+
+9. **Rohöl und Baumwolle nach 2015** (🟡 Vorschlag, offen): Die Vorräte reichen jetzt,
+   trotzdem kosten Rohöl (in einem von zwei Läufen ab 2023) und Baumwolle (2005–2025) das
+   Zwei- bis Vierfache. Ursachen aus dem Spielstand 2026: (a) Ölfelder fördern bis zuletzt
+   mit voller Leistung und sind dann schlagartig leer; neue Felder erschließt die KI nur
+   zögerlich. (b) Eine Firma baut je Quartal nur am besten Standort aus, um ein Viertel –
+   bei zwölf Plantagen einer Firma dauert das Jahrzehnte. (c) US-Plantagen sind zu heutigen
+   Löhnen kaum rentabel. Vorschlag: Förderkurve (nach der Hälfte des Vorrats sinkt die
+   zulässige Förderung mit dem Restvorrat), Ausbau an allen Standorten eines Produkts mit
+   hoher Marge im selben Quartal, und der Arbitragehandel aus M40, Punkt 4 (Preisinseln).
+   Ändert alle Weltläufe; erst nach Freigabe.
 
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 
