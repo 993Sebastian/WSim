@@ -1193,7 +1193,7 @@ impl Builder<'_, '_> {
         products: &[&Entry<RawProduct>],
     ) {
         let c = &self.catalog;
-        let chains = longest_chains(c);
+        let chains = product_chains(c);
         let mut findings = Vec::new();
         for (id, r) in c.recipes.iter() {
             let path = recipe_chain(c, &chains, r);
@@ -1323,9 +1323,12 @@ fn check_texts(ctx: &mut Ctx, all_keys: &[&Keys], texts: &TextIndex, report_unus
     }
 }
 
-/// Longest chain of inputs that ends with each product, raw material first. Goods
-/// without a processing recipe are raw materials; electricity is a production factor.
-pub(crate) fn longest_chains(c: &Catalog) -> BTreeMap<ProductId, Vec<ProductId>> {
+/// Chain of inputs that ends with each product, raw material first: through each recipe
+/// the longest chain of its inputs, of several recipes the shortest (M33: synthetic
+/// rubber from crude oil does not make rubber goods more complex than tapped rubber).
+/// Goods without a processing recipe or with an extraction recipe are raw materials;
+/// electricity is a production factor.
+pub(crate) fn product_chains(c: &Catalog) -> BTreeMap<ProductId, Vec<ProductId>> {
     fn visit(
         p: ProductId,
         c: &Catalog,
@@ -1339,22 +1342,28 @@ pub(crate) fn longest_chains(c: &Catalog) -> BTreeMap<ProductId, Vec<ProductId>>
             // A cycle: stop here, the chain is reported where it is long enough.
             return vec![p];
         }
-        let mut best: Vec<ProductId> = Vec::new();
+        let extracted = c.recipes.values().any(|r| r.product == p && r.extraction);
+        let mut best: Option<Vec<ProductId>> = extracted.then(Vec::new);
         for (_, r) in c
             .recipes
             .iter()
             .filter(|(_, r)| r.product == p && !r.extraction)
         {
+            let mut route: Vec<ProductId> = Vec::new();
             for &(input, _) in &r.inputs {
                 if c.products.get(input).kind == ProductKind::Energy {
                     continue;
                 }
                 let sub = visit(input, c, memo, active);
-                if sub.len() > best.len() {
-                    best = sub;
+                if sub.len() > route.len() {
+                    route = sub;
                 }
             }
+            if best.as_ref().is_none_or(|b| route.len() < b.len()) {
+                best = Some(route);
+            }
         }
+        let mut best = best.unwrap_or_default();
         active.remove(&p);
         best.push(p);
         memo.insert(p, best.clone());

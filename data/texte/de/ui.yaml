@@ -437,8 +437,8 @@ ursache.arbeitskraefte: "Zu wenig {detail}"
 ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gruppe frei. Ein höherer Lohnaufschlag (Bereich Personal) wirbt sie bei anderen ab; sonst Auslastung senken oder in einem anderen Land produzieren.
 ursache.strom: Zu wenig Strom
 ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
-ursache.lagerstaette: Lagerstätte erschöpft
-ursache.lagerstaette.hilfe: Die Förderung ist durch die Lagerstätte begrenzt.
+ursache.lagerstaette: Höchstförderung erreicht
+ursache.lagerstaette.hilfe: "Die Konzession erlaubt im Jahr nur eine bestimmte Menge, verteilt über das Jahr: Bis heute ist der bisherige Anteil gefördert. Oder der Vorrat der Lagerstätte ist erschöpft."
 ursache.im_bau: im Bau
 ursache.im_bau.hilfe: Die Anlage arbeitet ab dem Fertigstellungstag.
 ursache.kein_rezept: kein Rezept gewählt

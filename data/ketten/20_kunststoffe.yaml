@@ -1,0 +1,147 @@
+# Kette 20 – Kunststoffe (M33, Epoche 1940–1964)
+# Rohöl → Ethylen (Dampfspaltung, Benzin fällt an) → Polyethylen (Hochdruckverfahren
+# von ICI) → Haushaltswaren aus Kunststoff (Spritzguss: Eimer, Schüsseln, Dosen).
+# Polyethylen steckt auch in den Gehäusen der Transistorradios (Kette 24).
+# Alle Zahlen sind Annäherungen für etwa 1960.
+
+produkte:
+  - id: ethylen
+    art: halbzeug
+    branche: chemie
+    einheit: t
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: gas
+    richtpreis_usd: 1300          # um 1960 etwa 5 Cent je lb
+    annaeherung: true
+
+  - id: polyethylen
+    art: halbzeug
+    branche: chemie
+    einheit: t                    # Granulat
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: schuettgut
+    richtpreis_usd: 3600          # um 1960 etwa 15 Cent je lb
+    annaeherung: true
+
+  - id: kunststoffwaren
+    art: endprodukt
+    branche: konsumgueter
+    einheit: kg
+    verwendung: konsum
+    warengruppe: moebel_hausrat
+    transportklasse: stueckgut
+    richtpreis_usd: 12            # ein Eimer um 1960 etwa 50 Cent
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      verbrauch: {je_kopf_und_jahr: 3}
+      kaufschwelle: 500
+      preisempfindlichkeit: 1.3
+      einkommensempfindlichkeit: 1.5
+    annaeherung: true
+
+anlagen:
+  - id: dampfspalter              # Steamcracker: Spaltöfen, Kühlung, Trennkolonnen
+    standorttyp: werk
+    investition_usd: 120_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: dampfspaltung
+    annaeherung: true
+
+  - id: polyethylenanlage         # Hochdruckreaktoren um 1.500 bar
+    standorttyp: werk
+    investition_usd: 80_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 60
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: hochdruck_polyethylen
+    annaeherung: true
+
+  - id: spritzgiesserei
+    standorttyp: werk
+    investition_usd: 6_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 10_000     # kg
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: spritzguss
+    annaeherung: true
+
+rezepte:
+  - id: ethylen_dampfspaltung
+    produkt: ethylen
+    menge: 1
+    nebenprodukte:
+      benzin: 0.8                 # Pyrolysebenzin und überschüssiges Rohbenzin
+    dauer_tage: 1
+    anlage: dampfspalter
+    technologie: dampfspaltung
+    eingang:
+      rohoel: 2.5
+    arbeit_stunden:
+      angelernt: 1.5
+      fachkraft.chemie: 1.5
+      akademiker.chemie: 0.1
+    energie_mwh: 1.5
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: polyethylen_hochdruck
+    produkt: polyethylen
+    menge: 1
+    dauer_tage: 1
+    anlage: polyethylenanlage
+    technologie: hochdruck_polyethylen
+    eingang:
+      ethylen: 1.05
+    arbeit_stunden:
+      angelernt: 3
+      fachkraft.chemie: 3
+      akademiker.chemie: 0.2
+    energie_mwh: 1.2              # Verdichter
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: kunststoffwaren_spritzgiessen
+    produkt: kunststoffwaren
+    menge: 1
+    dauer_tage: 1
+    anlage: spritzgiesserei
+    technologie: spritzguss
+    eingang:
+      polyethylen: 0.00105
+    arbeit_stunden:
+      angelernt: 0.2
+      fachkraft.maschinenbau: 0.03
+    energie_mwh: 0.002
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: hochdruck_polyethylen     # ICI, Fawcett und Gibson 1933, Produktion ab 1939
+    fachgebiet: chemie
+    erfindungsjahr: 1939
+    forschungsaufwand: 20000
+    annaeherung: true
+
+  - id: dampfspaltung             # Ethylen aus Erdölfraktionen (Standard Oil, Union Carbide)
+    fachgebiet: chemie
+    erfindungsjahr: 1941
+    voraussetzungen: [thermisches_cracken]
+    forschungsaufwand: 25000
+    annaeherung: true
+
+  - id: spritzguss                # Schneckenspritzgießmaschine (Hendry 1946)
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1946
+    voraussetzungen: [hochdruck_polyethylen]
+    forschungsaufwand: 8000
+    annaeherung: true

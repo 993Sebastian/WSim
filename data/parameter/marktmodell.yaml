@@ -20,6 +20,10 @@ marktmodell:
     # um das Vielfache „aufholen_max“ (M22). Sonst bräuchte er Jahre, um aufzuholen.
     aufholen_max: 20
   staat_hoechstpreis: 1.5         # Staaten zahlen höchstens das 1,5-Fache des Richtpreises
+  # Ersetzt ein Gut mit Staatsnachfrage ein anderes (Düsen- statt Propellerflugzeug),
+  # sinkt der Staatsbedarf des alten ab der Erfindung des neuen über so viele Jahre auf
+  # null (M33).
+  verdraengung_staat_jahre: 15
   # Verläufe und Wettbewerbsmeldungen im Rundenbericht (M24): Monate der Preis- und
   # Absatzreihe je Markt; Preissenkung eines Wettbewerbers seit seinem letzten Höchststand
   # oder der letzten Meldung, ab der der Bericht sie nennt.

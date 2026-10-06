@@ -45,6 +45,8 @@ jobs:
   browser:
     name: Browser-Version (WebAssembly)
     runs-on: ubuntu-latest
+    # Vorerst zurückgestellt (Wunsch vom 06.10.2026): ein Fehler hier hält die CI nicht auf.
+    continue-on-error: true
     permissions:
       contents: write
     steps:

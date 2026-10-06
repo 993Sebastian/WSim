@@ -425,6 +425,15 @@ pub struct AiBehavior {
     pub foundings_per_month: u32,
     /// Rich companies that build in another company's bottleneck per quarter.
     pub diversifications_per_quarter: u32,
+    /// Markets that pay at least this multiple of the reference price draw newcomers
+    /// (M33) while fewer than `entry_companies_max` companies make the product (0: never);
+    /// a newcomer plans for `entry_share` of what sells.
+    pub entry_price_factor: f64,
+    pub entry_companies_max: u32,
+    pub entry_share: f64,
+    /// A new concession only where the remaining reserve lasts this many years of its
+    /// full output (M33).
+    pub reserve_years_min: f64,
     pub founding_capital_factor: f64,
     /// Below this planned utilization of a product at a site the AI shuts down the
     /// units it does not need at the target utilization (M22).
@@ -508,6 +517,10 @@ impl Default for AiModel {
                 loan_years: 10,
                 foundings_per_month: 2,
                 diversifications_per_quarter: 4,
+                entry_price_factor: 1.3,
+                entry_companies_max: 0,
+                entry_share: 0.25,
+                reserve_years_min: 10.0,
                 founding_capital_factor: 1.5,
                 mothball_utilization: 0.5,
                 mothball_target_utilization: 0.8,
@@ -719,6 +732,9 @@ pub struct MarketModel {
     pub catch_up_max: f64,
     /// Governments pay at most this multiple of the reference price.
     pub state_price_cap: f64,
+    /// Years over which a successor with state demand displaces the state demand of the
+    /// product it replaces (M33).
+    pub state_displacement_years: f64,
     /// Closed months kept per market for the charts (M24).
     pub history_months: u32,
     /// A competitor's price cut since its last high (or last report) that the round
@@ -808,6 +824,7 @@ impl Default for MarketModel {
             price_max_factor: 20.0,
             catch_up_max: 20.0,
             state_price_cap: 1.5,
+            state_displacement_years: 15.0,
             history_months: 24,
             price_cut_report: 0.1,
             price_level_share: [1.0; 5],

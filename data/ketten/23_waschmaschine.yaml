@@ -1,0 +1,64 @@
+# Kette 23 – Waschmaschine (M33, Epoche 1940–1964)
+# Kleinmotor, Blech, Stahl, Gummi → Waschvollautomat (Bendix 1937). In Europa begann
+# der Massenmarkt Mitte der 1950er-Jahre; 1960 hatte in Deutschland knapp ein Drittel
+# der Haushalte eine Waschmaschine.
+# Alle Zahlen sind Annäherungen für etwa 1955.
+
+produkte:
+  - id: waschmaschine
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 80
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1150          # um 1955 etwa 110 USD (Halbautomat), Vollautomat mehr
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 12, max_besitzquote: 0.3}
+      kaufschwelle: 8
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: waschmaschinenwerk        # Bottiche ziehen, emaillieren, montieren
+    standorttyp: werk
+    investition_usd: 20_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 300
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: waschvollautomat
+    annaeherung: true
+
+rezepte:
+  - id: waschmaschine_bauen
+    produkt: waschmaschine
+    menge: 1
+    dauer_tage: 1
+    anlage: waschmaschinenwerk
+    technologie: waschvollautomat
+    eingang:
+      kleinmotor: 1
+      blech: 0.04
+      stahl: 0.015                # Rahmen, Trommel
+      gummi: 0.002                # Schläuche, Dichtungen
+    arbeit_stunden:
+      angelernt: 20
+      fachkraft.maschinenbau: 7
+      fachkraft.elektro: 2
+    energie_mwh: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: waschvollautomat          # Bendix Home Laundry 1937: waschen, spülen, schleudern
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1937
+    voraussetzungen: [drehstrommotor]
+    forschungsaufwand: 12000
+    annaeherung: true

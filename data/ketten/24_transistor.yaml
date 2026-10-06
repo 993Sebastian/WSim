@@ -1,0 +1,144 @@
+# Kette 24 – Transistor (M33, Epoche 1940–1964)
+# Germanium (aus Zink- und Kupfererzen gewonnen) → Transistor (Bell Labs 1947/48) →
+# Transistorradio (Regency TR-1, 1954). Das Taschenradio läuft mit Batterie und
+# verdrängt das Röhrenradio.
+# Alle Zahlen sind Annäherungen für etwa 1960.
+
+produkte:
+  - id: germanium
+    art: rohstoff
+    branche: bergbau
+    einheit: kg
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 2500          # um 1960 etwa 250 USD je kg
+    pacht_anteil: 0.5             # Anteil der Erzgrube und Hütte, die es mitgewinnt
+    annaeherung: true
+
+  - id: transistor
+    art: komponente
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.002
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 3.8           # um 1960 etwa 35 Cent
+    annaeherung: true
+
+  - id: transistorradio
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.4
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 140           # um 1960 etwa 13 USD (japanische Geräte)
+    ersetzt: [roehrenradio]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 6, max_besitzquote: 0.5}
+      kaufschwelle: 20
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.2
+    annaeherung: true
+
+anlagen:
+  - id: germaniumgewinnung        # Laugen der Erze, Reinigen, Zonenschmelzen
+    standorttyp: foerderstaette
+    investition_usd: 8_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 100        # kg
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: halbleiterwerk            # Kristall ziehen, Legieren, Kontaktieren, Verkapseln
+    standorttyp: werk
+    investition_usd: 25_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 50_000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.5
+    technologie: transistor
+    annaeherung: true
+
+  - id: taschenradiowerk
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 180
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: transistorradio
+    annaeherung: true
+
+rezepte:
+  - id: germanium_gewinnung
+    produkt: germanium
+    menge: 1
+    dauer_tage: 1
+    anlage: germaniumgewinnung
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 8
+      fachkraft.chemie: 6
+      akademiker.chemie: 0.4
+    energie_mwh: 0.1
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: transistor_bauen
+    produkt: transistor
+    menge: 1
+    dauer_tage: 1
+    anlage: halbleiterwerk
+    technologie: transistor
+    eingang:
+      germanium: 0.00002          # 20 mg
+      kupfer: 0.0000002           # Anschlussdrähte
+      glas: 0.000001              # Gehäuse
+    arbeit_stunden:
+      angelernt: 0.2                # Handmontage, viel Ausschuss
+      fachkraft.elektro: 0.03
+      akademiker.elektro: 0.001
+    energie_mwh: 0.00002
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: transistorradio_bauen
+    produkt: transistorradio
+    menge: 1
+    dauer_tage: 1
+    anlage: taschenradiowerk
+    technologie: transistorradio
+    eingang:
+      transistor: 6
+      kupferdraht: 0.0002
+      polyethylen: 0.0003         # Gehäuse
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.elektro: 0.6
+    energie_mwh: 0.002
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: transistor                # Bardeen, Brattain, Shockley; Flächentransistor 1951
+    fachgebiet: elektro
+    erfindungsjahr: 1948
+    voraussetzungen: [elektronenroehre]
+    forschungsaufwand: 30000
+    annaeherung: true
+
+  - id: transistorradio           # Regency TR-1, 1954
+    fachgebiet: elektro
+    erfindungsjahr: 1954
+    voraussetzungen: [transistor, rundfunk]
+    forschungsaufwand: 10000
+    annaeherung: true

@@ -225,6 +225,16 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         loan_years: b.loan_years.max(1),
         foundings_per_month: b.foundings_per_month,
         diversifications_per_quarter: b.diversifications_per_quarter,
+        entry_price_factor: in_range(
+            ctx,
+            b.entry_price_factor,
+            1.0,
+            10.0,
+            &bl.field("einstieg_preisfaktor"),
+        ),
+        entry_companies_max: b.entry_companies_max,
+        entry_share: in_range(ctx, b.entry_share, 0.01, 1.0, &bl.field("einstieg_anteil")),
+        reserve_years_min: non_negative(ctx, b.reserve_years_min, &bl.field("vorrat_jahre_min")),
         founding_capital_factor: positive(
             ctx,
             b.founding_capital_factor,

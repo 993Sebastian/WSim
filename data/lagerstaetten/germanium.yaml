@@ -1,0 +1,31 @@
+# Germanium-Lagerstätten (M33). Germanium wurde aus Zink- und Kupfererzen und deren
+# Hüttenrückständen gewonnen; Vorrat und Förderung in kg Germanium, etwa Stand 1960.
+# Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: tsumeb_germanium   # Tsumeb, Germanit und Renierit
+    land: NAM
+    rohstoff: germanium
+    vorrat: 1_000_000
+    entdeckt: 1947
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 40_000
+    annaeherung: true
+
+  - id: kipushi_germanium   # Prince-Léopold-Mine, Verarbeitung in Belgien
+    land: COD
+    rohstoff: germanium
+    vorrat: 800_000
+    entdeckt: 1952
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 30_000
+    annaeherung: true
+
+  - id: tristate_germanium   # Zinkhütten im Tri-State-Bezirk (Missouri, Kansas, Oklahoma)
+    land: USA
+    rohstoff: germanium
+    vorrat: 500_000
+    entdeckt: 1941
+    erschliessung: {investition_usd: 5_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 20_000
+    annaeherung: true

@@ -1,0 +1,112 @@
+# Kette 25 – Düsenflugzeug (M33, Epoche 1940–1964)
+# Stahl, Aluminium, Kupferdraht → Strahltriebwerk (He 178 und Whittle 1939);
+# Strahltriebwerke, Aluminium, Stahl, Gummi → Düsenverkehrsflugzeug (Comet 1952,
+# Boeing 707 1958). Fluggesellschaften kaufen wie beim Verkehrsflugzeug als
+# Staatsbedarf; das Düsenflugzeug verdrängt das Propellerflugzeug über 15 Jahre.
+# Alle Zahlen sind Annäherungen für etwa 1960.
+
+produkte:
+  - id: strahltriebwerk
+    art: komponente
+    branche: luftfahrt
+    einheit: stueck
+    gewicht_kg: 2000
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 800_000       # Pratt & Whitney JT3 um 1958 etwa 200 000 USD; Löhne von 1939
+    annaeherung: true
+
+  - id: duesenflugzeug
+    art: endprodukt
+    branche: luftfahrt
+    einheit: stueck
+    gewicht_kg: 60_000
+    verwendung: industrie
+    warengruppe: fahrzeuge
+    transportklasse: stueckgut
+    richtpreis_usd: 35_000_000    # Boeing 707 um 1958 etwa 5,5 Mio. USD; Löhne von 1952
+    ersetzt: [verkehrsflugzeug]
+    staatsnachfrage:
+      je_mio_usd_bip: 0.000015
+      kriegsfaktor: 5
+    sehr_komplex: true
+    annaeherung: true
+
+anlagen:
+  - id: triebwerkswerk
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 0.2
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    technologie: strahltriebwerk
+    annaeherung: true
+
+  - id: grossflugzeugwerk         # Montagehallen, Vorrichtungen, Prüfstände
+    standorttyp: werk
+    investition_usd: 500_000_000
+    bauzeit_tage: 720
+    kapazitaet_je_tag: 0.05
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.03
+    automatisierung_max: 0.2
+    technologie: duesenverkehrsflugzeug
+    annaeherung: true
+
+rezepte:
+  - id: strahltriebwerk_bauen
+    produkt: strahltriebwerk
+    menge: 1
+    dauer_tage: 30
+    anlage: triebwerkswerk
+    technologie: strahltriebwerk
+    eingang:
+      stahl: 1.2                  # warmfeste Legierungen
+      aluminium: 0.4
+      kupferdraht: 0.02
+    arbeit_stunden:
+      angelernt: 10_000
+      fachkraft.maschinenbau: 20_000
+      akademiker.maschinenbau: 1500
+      akademiker.metall: 500
+    energie_mwh: 20
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: duesenflugzeug_bauen
+    produkt: duesenflugzeug
+    menge: 1
+    dauer_tage: 120
+    anlage: grossflugzeugwerk
+    technologie: duesenverkehrsflugzeug
+    eingang:
+      strahltriebwerk: 4
+      aluminium: 30
+      stahl: 6
+      gummi: 0.6
+    arbeit_stunden:
+      angelernt: 300_000
+      fachkraft.maschinenbau: 500_000
+      fachkraft.elektro: 80_000
+      akademiker.maschinenbau: 40_000
+    energie_mwh: 300
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: strahltriebwerk           # Hans von Ohain (He 178) und Frank Whittle
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1939
+    voraussetzungen: [flugmotor]
+    forschungsaufwand: 40000
+    annaeherung: true
+
+  - id: duesenverkehrsflugzeug    # de Havilland Comet 1952, Boeing 707 1958
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1952
+    voraussetzungen: [strahltriebwerk, ganzmetallflugzeug]
+    forschungsaufwand: 60000
+    annaeherung: true

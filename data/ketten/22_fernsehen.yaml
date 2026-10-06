@@ -1,0 +1,111 @@
+# Kette 22 – Fernsehen (M33, Epoche 1940–1964)
+# Glas, Stahl, Kupferdraht → Bildröhre; Bildröhre, Radioröhren, Kupferdraht, Holz →
+# Schwarzweiß-Fernseher. Nach den Olympischen Spielen 1936 in Berlin begann der
+# Massenmarkt erst nach dem Krieg (USA 1950: 9 % der Haushalte, 1960: 87 %).
+# Alle Zahlen sind Annäherungen für etwa 1955.
+
+produkte:
+  - id: bildroehre
+    art: komponente
+    branche: elektro
+    einheit: stueck               # 21-Zoll-Bildröhre
+    gewicht_kg: 12
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 200           # um 1955 etwa 18 USD
+    annaeherung: true
+
+  - id: fernseher
+    art: endprodukt
+    branche: elektro
+    einheit: stueck               # Schwarzweiß-Tischgerät
+    gewicht_kg: 30
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1400          # um 1955 etwa 130 USD (Tischgerät)
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.3}
+      kaufschwelle: 8
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: bildroehrenwerk           # Kolbenfertigung, Leuchtschicht, Evakuieren
+    standorttyp: werk
+    investition_usd: 25_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 1000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: bildroehre
+    annaeherung: true
+
+  - id: fernsehgeraetewerk        # Chassis bestücken, abgleichen, Gehäuse
+    standorttyp: werk
+    investition_usd: 15_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 500
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: fernsehen
+    annaeherung: true
+
+rezepte:
+  - id: bildroehre_bauen
+    produkt: bildroehre
+    menge: 1
+    dauer_tage: 1
+    anlage: bildroehrenwerk
+    technologie: bildroehre
+    eingang:
+      glas: 0.01
+      stahl: 0.002                # Elektronenkanone, Halterungen
+      kupfer: 0.0002
+    arbeit_stunden:
+      angelernt: 7
+      fachkraft.elektro: 2
+      akademiker.elektro: 0.05
+    energie_mwh: 0.02
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: fernseher_bauen
+    produkt: fernseher
+    menge: 1
+    dauer_tage: 1
+    anlage: fernsehgeraetewerk
+    technologie: fernsehen
+    eingang:
+      bildroehre: 1
+      radioroehre: 15
+      kupferdraht: 0.002
+      holz: 0.02                  # Gehäuse
+    arbeit_stunden:
+      angelernt: 20
+      fachkraft.elektro: 8
+      akademiker.elektro: 0.2
+    energie_mwh: 0.02
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: bildroehre                # Braunsche Röhre für das Fernsehbild (Zworykin, von Ardenne)
+    fachgebiet: elektro
+    erfindungsjahr: 1934
+    voraussetzungen: [elektronenroehre]
+    forschungsaufwand: 15000
+    annaeherung: true
+
+  - id: fernsehen                 # Regelbetrieb Berlin 1935/36, BBC 1936, NBC 1939; in
+    fachgebiet: elektro           # Serie gebaute Geräte erst nach dem Krieg (RCA 630TS 1946)
+    erfindungsjahr: 1946
+    voraussetzungen: [bildroehre, rundfunk]
+    forschungsaufwand: 25000
+    annaeherung: true

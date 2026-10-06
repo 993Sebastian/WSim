@@ -655,6 +655,8 @@ pub struct RawMarketModel {
     pub price_adjustment: RawPriceAdjustment,
     #[serde(rename = "staat_hoechstpreis")]
     pub state_price_cap: f64,
+    #[serde(rename = "verdraengung_staat_jahre")]
+    pub state_displacement_years: f64,
     #[serde(rename = "verlauf_monate")]
     pub history_months: u32,
     #[serde(rename = "meldung_preissenkung")]
@@ -1039,6 +1041,14 @@ pub struct RawAiBehavior {
     pub foundings_per_month: u32,
     #[serde(rename = "diversifikationen_je_quartal")]
     pub diversifications_per_quarter: u32,
+    #[serde(rename = "einstieg_preisfaktor")]
+    pub entry_price_factor: f64,
+    #[serde(rename = "einstieg_firmen_max")]
+    pub entry_companies_max: u32,
+    #[serde(rename = "einstieg_anteil")]
+    pub entry_share: f64,
+    #[serde(rename = "vorrat_jahre_min")]
+    pub reserve_years_min: f64,
     #[serde(rename = "gruendung_kapitalfaktor")]
     pub founding_capital_factor: f64,
     #[serde(rename = "stilllegen_auslastung")]

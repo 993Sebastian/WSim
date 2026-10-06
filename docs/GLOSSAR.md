@@ -82,6 +82,9 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Kaufschwelle, Kaufneigung | `purchase_threshold`, `propensity` |
 | Besitzquote | `ownership` |
 | Verfügbarkeit eines Produkts (Nachfrage erst, wenn es sich herstellen lässt, M32) | `market::available` |
+| Verfügbar seit (frühestes Jahr eines Rezepts), Verdrängung beim Staatsbedarf (M33) | `market::available_since`, `market::state_demand_left`, `MarketModel::state_displacement_years` (`verdraengung_staat_jahre`) |
+| Einstieg in teure Märkte (M33) | `AiBehavior::entry_price_factor`, `entry_companies_max`, `entry_share` (`einstieg_preisfaktor`, `einstieg_firmen_max`, `einstieg_anteil`) |
+| Lagerstätte für eine neue Konzession, Anlagen je Konzession (M33) | `ai::deposit_for`, `ai::units_for_concession`, `AiBehavior::reserve_years_min` (`vorrat_jahre_min`) |
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
 | Handel (Menge, Umsatz) | `Trade` |

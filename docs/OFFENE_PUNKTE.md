@@ -1,6 +1,6 @@
 # Offene Punkte zum Lastenheft
 
-Stand 03.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
+Stand 06.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
 
 **Status:** ✅ entschieden · 🟡 Vorschlag gilt vorläufig (nicht ausdrücklich bestätigt,
 bei Bedarf widersprechen) · ❓ offen
@@ -320,9 +320,9 @@ Anlage, Erfindungsjahr, Richtpreis und Nachfrage; Regeln aus Lastenheft §17.2):
 | --- | --- | --- |
 | M32 | 1915–1939 | Aluminium (Bauxit), Kunstseide, Bakelit, Röhrenradio, Kühlschrank, Staubsauger, Lastwagen, Traktor, Verkehrsflugzeug, Stickstoffdünger |
 | M33 | 1940–1964 | Erdöl-Kunststoffe, Nylon, Fernseher, Waschmaschine, Transistorradio, Düsenflugzeug, Antibiotika |
-| M34 | 1965–1989 | Halbleiter und Mikrochip, Taschenrechner, Farbfernseher, Mikrowelle, Personal Computer, Videorekorder, CD-Spieler |
-| M35 | 1990–2009 | Mobiltelefon, Laptop, Digitalkamera, Lithium-Ionen-Akku, Flachbildfernseher |
-| M36 | 2010–2026 | Smartphone, Tablet, Elektroauto, Solarmodul, Windkraftanlage, Wärmepumpe, LED-Lampe |
+| M39 | 1965–1989 | Halbleiter und Mikrochip, Taschenrechner, Farbfernseher, Mikrowelle, Personal Computer, Videorekorder, CD-Spieler |
+| M40 | 1990–2009 | Mobiltelefon, Laptop, Digitalkamera, Lithium-Ionen-Akku, Flachbildfernseher |
+| M41 | 2010–2026 | Smartphone, Tablet, Elektroauto, Solarmodul, Windkraftanlage, Wärmepumpe, LED-Lampe |
 
 Je Epoche: neue Rohstoffe mit Lagerstätten, Technologien mit Erfindungsjahr, Verdrängung
 älterer Produkte (z. B. Transistorradio verdrängt Röhrenradio, LED die Glühlampe), Texte,
@@ -354,6 +354,206 @@ Ammoniak und Chilesalpeter als Vorprodukte (Einzelheiten: `docs/FORTSCHRITT.md`,
    Ware, bis die ersten Werke fertig sind. Die Aluminiumhütten wurden für den Anlauf der
    Kochtopf-Nachfrage gebaut und stehen danach großteils still (Verlust); einzelne
    Anlagen je Standort legt die KI nicht still (Regel aus M22).
+
+✅ **M33 (1940–1964) umgesetzt** wie in der Tabelle, dazu Ethylen, Polyethylen,
+Bildröhre, Germanium, Transistor, Strahltriebwerk und Synthesekautschuk (Einzelheiten:
+`docs/FORTSCHRITT.md`, M33). 🟡 Vorläufig entschieden:
+
+1. **Einführungsjahre** sind die der Serienfertigung für Verbraucher: Fernseher 1946
+   (Regelbetrieb gab es ab 1935/36, in Serie gebaute Geräte erst nach dem Krieg),
+   Waschvollautomat 1937, Transistorradio 1954, Düsenverkehrsflugzeug 1952, Penicillin
+   1943 (Tiefentank-Fermentation).
+2. **Penicillin** ist ein Verbrauchsgut des Grundbedarfs (0,5 Behandlungen je Kopf und
+   Jahr); **Kunststoffwaren** sind ein Sammelgut in kg (Eimer, Schüsseln, Folien).
+3. **Germanium** kommt aus eigenen Lagerstätten (Tsumeb, Kipushi, Tri-State); in
+   Wirklichkeit fiel es in Zink- und Kupferhütten an, Zink gibt es im Spiel noch nicht.
+4. **Verdrängung beim Staatsbedarf:** Das Düsenflugzeug ersetzt das Verkehrsflugzeug über
+   15 Jahre (`verdraengung_staat_jahre`), gerechnet ab dem Jahr, in dem es sich bauen ließ.
+5. **Zweite Wege:** Kautschuk auch synthetisch aus Ethylen und Benzin (1937), Nylon auch
+   aus Kohle (Teer der Kokereien). Für die Ebenen des Produktbaums zählt bei mehreren
+   Rezepten der einfachste Weg.
+6. **KI** (alle Firmen gleich, `docs/FORMELN.md`, M33): Verfahrenswahl mit Knappheit,
+   Einstieg in teure Märkte samt Forschung für deren Verfahren, Gruben passend zur
+   Konzession, neue Konzessionen nur mit Restvorrat für 10 Jahre, nur Lager von Verkäufern
+   zählen als Halde.
+7. **Förderung übers Jahr verteilt:** Eine Konzession darf bis zu einem Tag höchstens den
+   bisherigen Anteil ihrer Jahresmenge fördern (vorher förderte sie die Jahresmenge in
+   wenigen Wochen und stand dann still).
+8. **Bekannte Grenzen:** Kupfererz ist ab 1954 knapp (1,8- bis 2,4-facher Richtpreis, ein
+   bis zwei Förderer); Kupferdraht für den Staat fällt dann zeitweise aus. Düsenflugzeuge
+   baut bis 1964 nur eine Firma. Vorschlag: neue Kupferlagerstätten und ein Förderindex
+   für Erze mit den Epochen ab 1965 (M39).
+
+## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
+
+Auftrag: „Es sollte verschiedene Größen von Werken geben. In jedem Land stehen nur
+begrenzt Grundstücke zur Verfügung. Diese sind auch noch verschieden groß. Wenn auf den
+Grundstücken Gebäude ausgebaut werden, dann kann es sein, dass sie an die
+Grundstücksgröße kommen und nicht erweiterbar sind. In diesem Fall muss in dem Land ein
+neues Grundstück angelegt werden. […] Bei den Grundstücken und den Größen soll es schon
+einen kleinen Wettbewerb um gute Grundstücke geben. Man soll Grundstücke kaufen und/oder
+pachten können.“
+
+✅ Entschieden am 06.10.2026: Grundstücke mit Größe, Preis **und Lage** gleich im ersten
+Schritt; Anlagen in **fünf Größenklassen**. 🟡 Ausgestaltung (erster eigener Maßstab;
+Zahlen werden im Weltlauf nachgestellt):
+
+1. **Grundstücke je Land.** Jedes Land (bzw. jede Region, Abschnitt I) bietet eine Liste
+   freier Gewerbegrundstücke an. Jeder Standort – Werk, Kraftwerk, Lager, Niederlassung,
+   Forschungszentrum – steht auf genau einem Grundstück. Förderstätten bleiben an ihre
+   Konzession gebunden; die Konzession ist ihr Grundstück.
+2. **Fläche der Anlagen.** Jede Anlage braucht Fläche: als Regel 1 ha je 10 Mio. USD
+   Investition (mindestens 0,2 ha), dazu 20 % für Wege, Lager und Verwaltung. Flächenhungrige
+   Anlagen bekommen in den Daten einen eigenen Wert (`flaeche_ha`: Raffinerie, Hüttenwerk,
+   Flugzeugwerk, Kraftwerk). Beispiele: 10 Hochöfen um 1900 ≈ 2,4 ha; Großflugzeugwerk
+   1960 ≈ 60 ha.
+3. **Werksgröße = Grundstück.** Ein Werk wächst mit seinen Anlagen, bis die Fläche des
+   Grundstücks belegt ist. Danach baut die Firma im selben Land auf einem neuen Grundstück
+   weiter (eigener Standort mit eigenen Löhnen, Lagern und Angeboten). Die KI tut das von
+   selbst; der Spieler sieht die belegte und freie Fläche je Standort.
+4. **Menge im Spielverlauf.** Die Gewerbefläche eines Landes wächst mit seiner Wirtschaft:
+
+       Fläche(t) = 25 ha je Mrd. USD BIP(t) (Kaufkraft 2026) · Marktmaßstab
+
+   Jedes Jahr am 1. Januar kommen neue Grundstücke hinzu, bis die angebotene Fläche
+   (belegt und frei) diesen Wert erreicht; aufgegebene Standorte geben ihr Grundstück
+   zurück. Beispiele bei 100 KI-Firmen (Maßstab 0,1):
+
+   | Land | 1900 | 1960 | 2026 |
+   | --- | --- | --- | --- |
+   | Deutschland | 914 ha ≈ 150 Grundstücke | 3 633 ha ≈ 200 | 18 433 ha ≈ 580 |
+   | USA | 2 750 ha ≈ 450 | 12 375 ha ≈ 680 | 94 028 ha ≈ 2 970 |
+   | Brasilien | 70 ha ≈ 11 | 989 ha ≈ 55 | 15 119 ha ≈ 480 |
+   | Baltikum | 55 ha ≈ 9 | 209 ha ≈ 11 | 944 ha ≈ 30 |
+   | Mittelafrika | 10 ha ≈ 2 | 43 ha ≈ 2 | 639 ha ≈ 20 |
+
+5. **Größen.** Neue Grundstücke kommen in vier Klassen; die Flächen wachsen mit der Zeit
+   (Industriegebiete werden größer) um den Faktor 1 + (Jahr − 1900) / 30 (1900: 1, 1960: 3,
+   2026: 5,2):
+
+   | Klasse | Fläche um 1900 | Anteil reich / mittel / arm |
+   | --- | --- | --- |
+   | klein | 0,5–2 ha | 40 / 55 / 70 % |
+   | mittel | 2–6 ha | 35 / 30 / 25 % |
+   | groß | 6–20 ha | 18 / 12 / 5 % |
+   | sehr groß | 20–60 ha | 7 / 3 / 0 % |
+
+   „Reich“ ab 15 000 USD BIP je Kopf, „arm“ unter 5 000 USD.
+6. **Preis und Wettbewerb.** Bodenpreis je ha = 200 000 USD · Preisniveau des Landes ·
+   (1 + 2 · belegter Anteil der Gewerbefläche). Wer zuerst kommt, nimmt die großen und
+   günstigen Grundstücke; danach bleiben kleine und teure. Die KI wählt das günstigste
+   Grundstück (je ha), das ihren Bedarf plus 50 % Reserve fasst, sonst das größte freie.
+7. **Kaufen oder pachten.** Kauf: Bodenpreis sofort, als „Grundstücke“ im
+   Anlagevermögen ohne Abschreibung; beim Verkauf des Standorts geht das Grundstück mit.
+   Pacht: jährlich 5 % des aktuellen Bodenwerts (Kostenart Pacht), Laufzeit 30 Jahre mit
+   Verlängerung; keine Kapitalbindung. Die KI pachtet, wenn ihr Kassenstand den Kauf nicht
+   trägt. Die bisherigen Standortkosten bleiben als Gebäude- und Erschließungskosten.
+8. **Lage:** Jedes Grundstück liegt in der Stadt, am Hafen (nur Länder mit Küste) oder
+   auf dem Land. Stadt: teurer Boden, mehr und besser ausgebildete Arbeitskräfte, kleinere
+   Grundstücke. Hafen: billigere Fracht über See für alles, was der Standort ein- und
+   verkauft. Land: billiger Boden, große Grundstücke, weniger Arbeitskräfte und längere
+   Wege zum Kunden. Die genauen Faktoren folgen mit den Formeln (`docs/FORMELN.md`).
+9. **Anlagengrößen:** Jede Anlage gibt es in fünf Größen – sehr klein, klein, mittel,
+   groß, sehr groß (Kapazität 0,25 / 0,5 / 1 / 2 / 4 der Datenwerte). Größere Anlagen
+   kosten je Kapazität weniger Investition (Investition wächst mit Kapazität^0,7) und
+   weniger Arbeit je Einheit (Kapazität^−0,15), brauchen aber mehr Fläche, Kapital und
+   Absatz; kleine Anlagen passen in kleine Märkte und auf kleine Grundstücke.
+10. **Spielstände:** Bestehende Standorte bekommen beim Laden ein passendes, gekauftes
+    Grundstück.
+
+## I Länder zu Regionen zusammenfassen (Anfrage vom 06.10.2026)
+
+Auftrag: „Du kannst bei den Ländern und Regionen gerne einiges zusammenfassen. Bspw.
+Ozeanien […]. In Afrika kannst du gerne ein paar niedrig bevölkerte Länder zu Gruppen
+zusammenfassen. Bspw. ‚Mittelafrika‘. Wenn ich am Ende 100 Länder/zusammengefasste
+Regionen habe, ist das ein guter Zielwert.“
+
+✅ Entschieden am 06.10.2026 (Umsetzung vor den restlichen Epochen). 🟡 Ausgestaltung:
+197 → **111 Einträge**. Kleinstaaten gehen im Nachbarland auf, kleine
+Länder bilden Regionen. Bevölkerung, BIP, Fläche, Grenzen und Karte werden addiert; BIP je
+Kopf und Gini gewichtet; Hauptstadt und Währung sind die des größten Mitglieds. Eine
+Region behält den ISO-Code ihres größten Mitglieds, wenn es mehr als die Hälfte der
+Einwohner stellt („Belgien und Luxemburg“), sonst bekommt sie einen frei verfügbaren
+ISO-Code X__.
+
+| Kontinent | vorher → nachher | Zusammenfassungen |
+| --- | --- | --- |
+| Europa | 44 → 26 | Andorra → Spanien; Monaco → Frankreich; San Marino, Malta → Italien; Liechtenstein → Schweiz; Luxemburg → Belgien; Island → Norwegen; Moldau → Rumänien; Slowakei → Tschechien; Zypern → Griechenland; **Baltikum** (EST, LVA, LTU); **Westbalkan** (SRB, HRV, BIH, MNE, MKD, ALB, Kosovo, SVN) |
+| Asien | 49 → 33 | Osttimor → Indonesien; Brunei → Malaysia; Bhutan → Nepal; Malediven → Sri Lanka; Laos → Kambodscha; **Kaukasus** (AZE, GEO, ARM); **Zentralasien** (TJK, KGZ, TKM); **Golfstaaten** (ARE, KWT, QAT, BHR, OMN); **Levante** (JOR, LBN, PSE) |
+| Afrika | 55 → 32 | Westsahara → Marokko; Südsudan → Sudan; Gambia → Senegal; Mauritius, Komoren, Seychellen → Madagaskar; **Mittelafrika** (TCD, CAF, COG, GAB, GNQ, STP); **Westafrika** (GIN, SLE, LBR, GNB, CPV, MRT); **Togo und Benin**; **Ruanda und Burundi**; **Horn von Afrika** (SOM, DJI, ERI); **Südliches Afrika** (NAM, BWA, LSO, SWZ) |
+| Nordamerika | 23 → 7 | **Mittelamerika** (GTM, HND, NIC, SLV, CRI, PAN, BLZ); **Hispaniola** (HTI, DOM); **Karibik** (JAM, TTO, BHS, BRB, LCA, GRD, VCT, ATG, DMA, KNA); USA, Mexiko, Kanada, Kuba bleiben |
+| Südamerika | 12 → 10 | **Paraguay und Uruguay**; **Guayana** (GUY, SUR) |
+| Ozeanien | 14 → 3 | Australien, Neuseeland, **Ozeanien** (PNG, FJI, SLB, VUT, WSM, KIR, FSM, TON, MHL, PLW, NRU, TUV) |
+
+Folgen: Lagerstätten, Weltereignisse, Namensgruppen, reale Firmen und Währungen verweisen
+dann auf die Region; Spielstände mit den alten Ländern werden beim Laden umgerechnet
+(Standorte und Märkte gehen in die Region über).
+
+## J Weiterentwicklung erforschter Produkte (Anfrage vom 06.10.2026)
+
+Auftrag: „Bei der Forschungskette: Wenn ein erforschtes Produkt weiter erforscht wird,
+dann soll das betreffende Produkt weiterentwickelt und verbessert werden können. Das gilt
+auch für Vormaterialien oder Halbzeuge.“
+
+🟡 Vorschlag:
+
+1. **Entwicklungsstufen je Produkt und Firma.** Kennt eine Firma die Technologien eines
+   Produkts, kann ihr Forschungszentrum es weiterentwickeln, Stufe für Stufe (1–5). Das
+   gilt für jedes Produkt, auch Rohstoffe, Halbzeuge und Bauteile (besseres Garn,
+   reinerer Stahl, sparsamerer Motor).
+2. **Wirkung je Stufe:** +4 Qualitätspunkte des Produkts (alle Rezepte der Firma) und
+   −3 % Arbeitsstunden sowie −2 % Vorprodukte je Einheit. Bessere Vorprodukte heben die
+   Qualität der daraus gebauten Waren (bestehende Regel: +0,3 je Punkt), bessere
+   Qualität bringt Marktanteile (Kaufentscheidung, M16).
+3. **Aufwand:** Stufe *n* kostet 20 % des Forschungsaufwands der Technologie des Produkts
+   × 1,6^(*n* − 1). Nachzügler forschen billiger (wie bei Technologien: −10 % je Jahr
+   seit der ersten Firma, höchstens −80 %); Stufen werden nach 15 Jahren Allgemeingut.
+4. **KI:** Kompetente Firmen entwickeln ihre umsatzstärksten Produkte weiter, wenn keine
+   neue Technologie ansteht. Lizenzen (M30) können auch Entwicklungsstufen umfassen.
+5. **Anzeige:** Forschungsansicht mit „Weiterentwickeln“ je Produkt; Produkt- und
+   Marktansicht zeigen die Stufe der eigenen Firma und der Wettbewerber.
+
+## K Pleiten: Standorte weitergeben statt aufgeben (aus dem Weltlauf, 06.10.2026)
+
+Beobachtung: Geht eine KI-Firma pleite, werden ihre Konzessionen frei und müssen neu
+erschlossen werden (bis zu zwei Jahre). 1955 fiel so ein großer Eisenerzförderer aus; Erz
+kostete 1956 das 3,7-Fache des Richtpreises. 🟡 Vorschlag: Der Insolvenzverwalter bietet
+die Standorte zuerst anderen Firmen an (Auktion zum halben Grundwert, M30, auch dem
+Spieler); was keiner nimmt, wird stillgelegt. Die Erschließung einer Konzession bleibt
+erhalten, ein neuer Betreiber muss nur die Anlagen bauen.
+
+## L Bedienung und Tests (Anfrage vom 06.10.2026)
+
+Auftrag: „Bitte führe reichlich komplette Testläufe durch. Achte dabei auch auf
+Usability. Bring gerne in Eingabefelder auch noch automatische 1.000er-Punkte zur
+Trennung ein. Teile unübersichtliche Übersichten gerne nochmal auf. Binde alles
+Notwendige in das Tutorial ein.“
+
+Dazu am selben Tag: „Stelle die Browser-Version erstmal zurück. […] Mehr KI-Gegner.
+Mache einen Simulationslauf mit 500 Gegnern.“
+
+✅ Entschieden: Die Browser-Version ist vorerst zurückgestellt (lokal keine Prüfung, in der
+CI ohne Abbruch). Ein Weltlauf mit 500 KI-Firmen prüft Tempo und Balance bei mehr
+Gegnern. Zahlenfelder zeigen beim Tippen Tausenderpunkte (200.000.000, Dezimalkomma
+wo nötig); überladene Ansichten werden nach einer Bedienbarkeitsprüfung aufgeteilt; das
+Tutorial erklärt Regionen, Grundstücke, Anlagengrößen und die Weiterentwicklung; jeder
+Meilenstein endet mit kompletten Testläufen (Weltlauf, Testpartie, Oberflächentests,
+Browser-Version).
+
+## Reihenfolge der neuen Punkte
+
+✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie
+ändern, wo und wie die Firmen bauen; die Epochen würden sonst zweimal abgestimmt. Die
+Epochen bekommen deshalb neue Nummern.
+
+| Meilenstein | Inhalt |
+| --- | --- |
+| M34 | Regionen (Abschnitt I): Länderdaten, Karte, Verweise, Spielstände |
+| M35 | Grundstücke mit Lage (Abschnitt H, Punkte 1–8 und 10): Kern, Daten, KI, Oberfläche |
+| M36 | Anlagen in fünf Größen (Abschnitt H, Punkt 9) |
+| M37 | Weiterentwicklung erforschter Produkte (Abschnitt J) |
+| M38 | Pleiten: Standorte weitergeben (Abschnitt K) |
+| M39–M41 | Produkte 1965–1989, 1990–2009, 2010–2026 (Abschnitt G; Daten für 1965–1989 liegen als Entwurf vor) |
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

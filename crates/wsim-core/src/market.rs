@@ -206,6 +206,47 @@ pub fn available(state: &GameState, catalog: &Catalog, product: ProductId, year:
             .any(|r| usable(r.technology) && usable(catalog.facilities.get(r.facility).technology))
 }
 
+/// The year, as a fraction, from which a product can be made (M33): the earliest among
+/// its recipes in which all technologies of recipe and facility were invented –
+/// historically or earlier in the game. `None` if it has no recipe.
+pub fn available_since(state: &GameState, catalog: &Catalog, product: ProductId) -> Option<f64> {
+    let since = |t: Option<crate::ids::TechnologyId>| {
+        t.map_or(f64::NEG_INFINITY, |t| {
+            let historical = f64::from(catalog.technologies.get(t).invention_year);
+            state
+                .inventions
+                .get(t)
+                .map_or(historical, |d| d.year_fraction().min(historical))
+        })
+    };
+    catalog
+        .recipes
+        .values()
+        .filter(|r| r.product == product)
+        .map(|r| since(r.technology).max(since(catalog.facilities.get(r.facility).technology)))
+        .min_by(f64::total_cmp)
+}
+
+/// Share of a product's state demand left while successors with state demand take
+/// over (M33): it falls evenly to zero over `verdraengung_staat_jahre` from the time each
+/// successor could first be made.
+pub(crate) fn state_demand_left(
+    state: &GameState,
+    catalog: &Catalog,
+    product: ProductId,
+    date: Date,
+) -> f64 {
+    let years = catalog.market_model.state_displacement_years;
+    catalog
+        .products
+        .iter()
+        .filter(|(_, q)| q.replaces.contains(&product) && q.state_demand.is_some())
+        .filter_map(|(id, _)| available_since(state, catalog, id))
+        .fold(1.0, |left, since| {
+            left * (1.0 - (date.year_fraction() - since) / years).clamp(0.0, 1.0)
+        })
+}
+
 /// Durables that displace a product (§6.4) with their highest ownership per head.
 pub(crate) fn successors(catalog: &Catalog, product: ProductId) -> Vec<(ProductId, f64)> {
     catalog
@@ -242,6 +283,7 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
         let owned_at_start = initial && available_at_start(catalog, product, date.year());
         // Nobody asks for what cannot be made yet.
         let open = available(state, catalog, product, date.year());
+        let state_left = state_demand_left(state, catalog, product, date);
         let successors = successors(catalog, product);
         for country in catalog.countries.ids() {
             let cs = state.countries.get(country);
@@ -318,7 +360,7 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                 }
             }
             if let Some(s) = &p.state_demand {
-                market.state_rate = s.per_million_gdp * gdp / 1.0e6 / 365.0;
+                market.state_rate = s.per_million_gdp * gdp / 1.0e6 / 365.0 * state_left;
             }
         }
     }

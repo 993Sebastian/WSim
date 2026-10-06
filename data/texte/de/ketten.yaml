@@ -290,3 +290,75 @@ rezept.ammoniak_haber_bosch: Ammoniak nach Haber-Bosch
 rezept.duenger_salpeter: Dünger aus Salpeter
 rezept.duenger_ammoniak: Dünger aus Ammoniak
 technologie.haber_bosch: Haber-Bosch-Verfahren
+
+# Kette 20 – Kunststoffe (M33)
+produkt.ethylen: Ethylen
+produkt.polyethylen: Polyethylen
+produkt.kunststoffwaren: Kunststoffwaren
+anlage.dampfspalter: Steamcracker
+anlage.polyethylenanlage: Polyethylenanlage
+anlage.spritzgiesserei: Spritzgießerei
+rezept.ethylen_dampfspaltung: Ethylen durch Dampfspaltung
+rezept.polyethylen_hochdruck: Polyethylen im Hochdruckverfahren
+rezept.kunststoffwaren_spritzgiessen: Kunststoffwaren spritzgießen
+technologie.hochdruck_polyethylen: Hochdruck-Polyethylen
+technologie.dampfspaltung: Dampfspaltung
+technologie.spritzguss: Spritzguss
+
+# Kette 21 – Nylon (M33)
+produkt.nylon: Nylon
+anlage.polyamidanlage: Polyamidanlage
+rezept.nylon_synthese: Nylon synthetisieren
+rezept.strumpf_nylon: Nylonstrümpfe wirken
+technologie.polyamid: Polyamid (Nylon, Perlon)
+
+# Kette 22 – Fernsehen (M33)
+produkt.bildroehre: Bildröhre
+produkt.fernseher: Fernseher
+anlage.bildroehrenwerk: Bildröhrenwerk
+anlage.fernsehgeraetewerk: Fernsehgerätewerk
+rezept.bildroehre_bauen: Bildröhren bauen
+rezept.fernseher_bauen: Fernseher bauen
+technologie.bildroehre: Bildröhre
+technologie.fernsehen: Fernsehen
+
+# Kette 23 – Waschmaschine (M33)
+produkt.waschmaschine: Waschmaschine
+anlage.waschmaschinenwerk: Waschmaschinenwerk
+rezept.waschmaschine_bauen: Waschmaschinen bauen
+technologie.waschvollautomat: Waschvollautomat
+
+# Kette 24 – Transistor (M33)
+produkt.germanium: Germanium
+produkt.transistor: Transistor
+produkt.transistorradio: Transistorradio
+anlage.germaniumgewinnung: Germaniumgewinnung
+anlage.halbleiterwerk: Halbleiterwerk
+anlage.taschenradiowerk: Taschenradiowerk
+rezept.germanium_gewinnung: Germanium gewinnen
+rezept.transistor_bauen: Transistoren bauen
+rezept.transistorradio_bauen: Transistorradios bauen
+technologie.transistor: Transistor
+technologie.transistorradio: Transistorradio
+
+# Kette 25 – Düsenflugzeug (M33)
+produkt.strahltriebwerk: Strahltriebwerk
+produkt.duesenflugzeug: Düsenflugzeug
+anlage.triebwerkswerk: Triebwerkswerk
+anlage.grossflugzeugwerk: Großflugzeugwerk
+rezept.strahltriebwerk_bauen: Strahltriebwerke bauen
+rezept.duesenflugzeug_bauen: Düsenflugzeuge bauen
+technologie.strahltriebwerk: Strahltriebwerk
+technologie.duesenverkehrsflugzeug: Düsenverkehrsflugzeug
+
+# Kette 26 – Antibiotika (M33)
+produkt.penicillin: Penicillin
+anlage.pharmawerk: Pharmawerk
+rezept.penicillin_fermentation: Penicillin durch Fermentation
+technologie.penicillin_produktion: Penicillin-Produktion
+rezept.nylon_aus_kohle: Nylon aus Steinkohlenteer
+
+# Kette 27 – Synthesekautschuk (M33)
+anlage.kautschuksynthese: Kautschuksynthese
+rezept.kautschuk_synthese: Synthesekautschuk (Buna)
+technologie.synthesekautschuk: Synthesekautschuk

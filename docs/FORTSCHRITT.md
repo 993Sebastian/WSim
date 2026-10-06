@@ -41,12 +41,19 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M30 | Kaufangebote I: Standorte, Labore, Lizenzen | ✅ |
 | M31 | Kaufangebote II: ganze Bereiche | ✅ |
 | M32 | Produkte 1915–1939 | ✅ |
-| M33–M36 | Produktepochen bis 2026 | offen |
+| M33 | Produkte 1940–1964 | ✅ |
+| M34 | Regionen | offen |
+| M35 | Grundstücke mit Lage | offen |
+| M36 | Anlagen in fünf Größen | offen |
+| M37 | Weiterentwicklung erforschter Produkte | offen |
+| M38 | Pleiten: Standorte weitergeben | offen |
+| M39–M41 | Produktepochen 1965–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
-(Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M36; M30–M32
-sind umgesetzt.
+(Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
+M39–M41; M30–M33 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
+und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
 
 ## Eigenständige Entscheidungen (für das Review)
 
@@ -1012,3 +1019,62 @@ Eigenständige Entscheidungen:
   - Bekannte Grenzen (offene Punkte, Abschnitt G): dünner Markt für Verkehrsflugzeuge,
     stillstehende Aluminiumhütten nach dem Anlauf, Chilesalpeter wird auch ohne Käufer
     weiter auf Mindestauslastung gefördert (Förderung legt die KI nicht still, M22).
+
+### M33: Produkte 1940–1964 (06.10.2026)
+
+Lastenheft §18.4, Abschnitt G der offenen Punkte. Formeln: `docs/FORMELN.md`, M33 (und
+M10: Lagerstätten, Konzessionen, Forschung).
+
+  - **Daten** (`data/ketten/20_*.yaml` bis `27_*.yaml`): 13 Produkte, 15 Rezepte und 12
+    Technologien (erfunden 1934–1954) in acht Ketten – Kunststoffe (Ethylen aus dem
+    Dampfspalter → Polyethylen → Kunststoffwaren im Spritzguss), Nylon (aus Benzin oder
+    aus Kohle, mit Ammoniak) für Strümpfe, Fernsehen (Bildröhre → Schwarzweiß-Fernseher,
+    in Serie ab 1946), Waschmaschine, Transistor (Germanium → Transistor →
+    Transistorradio, verdrängt das Röhrenradio), Düsenflugzeug (Strahltriebwerk →
+    Düsenverkehrsflugzeug, verdrängt das Propellerflugzeug), Penicillin und
+    Synthesekautschuk. Dazu drei Germanium-Lagerstätten (Tsumeb, Kipushi, Tri-State).
+    Alle Werte sind als Annäherung gekennzeichnet; die Margen zum Richtpreis liegen bei
+    5–45 %, die Produktbäume bei höchstens fünf Ebenen (Düsenflugzeug `sehr_komplex`).
+  - **Verdrängung beim Staatsbedarf:** Ersetzt ein Produkt mit Staatsnachfrage ein
+    anderes, sinkt der Staatsbedarf des alten über `verdraengung_staat_jahre` (15) auf
+    null, ab dem Jahr, in dem sich das neue herstellen ließ.
+  - **KI** (für alle Firmen gleich): Verfahrenswahl mit Knappheit (teure Vorprodukte
+    zählen mit ihrem Aufpreis); Ausbau nach dem Absatz seit Beginn des Vormonats;
+    **Einstieg in teure Märkte** (zahlen Käufer das 1,3-Fache des Richtpreises und
+    stellen weniger als vier Firmen ein Produkt her, steigt eine weitere ein und
+    erforscht dafür auch dessen Verfahren); Gruben bekommen so viele Anlagen, wie ihre
+    Konzession beschäftigt; neue Konzessionen nur, wo der Restvorrat noch 10 Jahre
+    reicht, an der Lagerstätte mit der billigsten Fracht; als Halde zählen nur die Lager
+    der Verkäufer.
+  - **Förderung übers Jahr verteilt:** Eine Konzession darf bis zu einem Tag höchstens
+    den bisherigen Anteil ihrer Jahresmenge fördern.
+  - **Prüfung der Daten:** Für die Ebenen des Produktbaums zählt bei mehreren Rezepten
+    eines Vorprodukts der einfachste Weg; ein Rohstoff mit Abbau-Rezept ist die erste
+    Ebene.
+  - **Weltlauf 1900–1965** (Seed 1, 100 KI-Firmen): Alle neuen Produkte werden
+    hergestellt; Fernseher, Waschmaschinen, Strümpfe, Gummi, Kunststoffwaren (ab 1954),
+    Transistorradios und Penicillin (ab 1951) sind zu 100 % versorgt, Öl kostet
+    durchgehend den Richtpreis (im ersten M33-Stand 1959–1964 das Drei- bis Vierfache,
+    weil die Raffinerien mit vollen Eingangslagern den Mangel verdeckten und neue
+    Ölfelder zwanzig Bohrtürme für zwei bekamen). Gegen den ersten M33-Stand:
+    Mangeljahre 1940–1964 97 → 66, Versorgung weltweit 171 → 134 Verstöße, je Land
+    3 351 → 3 098, Erzeugung ohne Vorprodukte 140 → 85, ohne Arbeitskräfte 111 → 64,
+    Förderung gegen Bedarf 233 → 168. 1900–1939 wie bei M32 (65 → 67 Mangeljahre, davon
+    zwei der neuen Waschmaschine).
+  - Tests: Staatsbedarf weicht dem Nachfolger, Förderung über das Jahr verteilt, KI-Tests
+    für teure Märkte (Einstieg und Forschung), Gruben passend zur Konzession und zum
+    Vorrat, Lager nur von Verkäufern; Prüfregeln für die neuen Parameter und für den
+    einfachsten Weg im Produktbaum.
+
+Eigenständige Entscheidungen:
+
+  - Einführungsjahre der Serienfertigung (Fernseher 1946 statt der ersten Sendungen
+    1936); Penicillin als Grundbedarf, Kunststoffwaren als Sammelgut in kg; Germanium aus
+    eigenen Lagerstätten (Zink gibt es noch nicht).
+  - Teure Märkte: ab dem 1,3-Fachen des Richtpreises, bis vier Hersteller, ein Viertel
+    des Absatzes für den Neuen (`kimodell`); Lagerstätten brauchen 10 Jahre Restvorrat.
+  - Bekannte Grenzen (offene Punkte, Abschnitt G): Kupfererz ist ab 1954 knapp (das
+    1,8- bis 2,4-Fache des Richtpreises, ein bis zwei Förderer), Kupferdraht für den
+    Staat fällt dann zeitweise aus; Düsenflugzeuge baut bis 1964 nur eine Firma (zu
+    10–30 % versorgt); Pleiten geben Konzessionen frei, die neu erschlossen werden müssen
+    (Abschnitt K).

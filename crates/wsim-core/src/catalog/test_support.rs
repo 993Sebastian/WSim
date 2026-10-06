@@ -264,11 +264,12 @@ pub fn production() -> Catalog {
             Deposit {
                 country: c.countries.id("AAA").expect("exists"),
                 resource: ore,
-                reserve: Some(10_000.0),
+                reserve: Some(2_000_000.0),
                 discovered: None,
                 development_cost: usd(500_000.0),
                 development_days: 30,
-                max_output_per_year: 5_000.0,
+                // A mine of 100 t a day all year (the yearly output spreads over the year).
+                max_output_per_year: 36_500.0,
                 cost_factor: 1.0,
                 provenance: Provenance::default(),
             },

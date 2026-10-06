@@ -419,6 +419,11 @@ pub(super) fn market_model(
             &adjust.field("aufholen_max"),
         ),
         state_price_cap: positive(ctx, m.state_price_cap, &l.field("staat_hoechstpreis")),
+        state_displacement_years: positive(
+            ctx,
+            m.state_displacement_years,
+            &l.field("verdraengung_staat_jahre"),
+        ),
         history_months: {
             let loc = l.field("verlauf_monate");
             in_range(ctx, f64::from(m.history_months), 1.0, 120.0, &loc);

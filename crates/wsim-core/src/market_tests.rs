@@ -624,3 +624,54 @@ fn demand_waits_for_the_technology() {
     game.advance(RoundLength::Month, |_| {});
     assert!(rate(&game) > 0.0);
 }
+
+/// M33: a successor with state demand displaces the state demand of the good it
+/// replaces evenly over `verdraengung_staat_jahre` from its invention – earlier if a
+/// company invents it ahead of history.
+#[test]
+fn a_successor_displaces_the_state_demand() {
+    let mut catalog = test_support::research();
+    let turbine = catalog.technologies.id("turbine").unwrap();
+    let iron = catalog.products.id("eisen").unwrap();
+    let mut steel = catalog.products.get(iron).clone();
+    steel.replaces = vec![iron];
+    let steel = catalog.products.insert("stahl", steel).unwrap();
+    let smelting = catalog.recipes.id("eisen_schmelzen").unwrap();
+    let mut making = catalog.recipes.get(smelting).clone();
+    making.product = steel;
+    making.technology = Some(turbine);
+    catalog.recipes.insert("stahl_schmelzen", making).unwrap();
+    let years = catalog.market_model.state_displacement_years;
+    let settings = new_game().state().settings.clone();
+    let mut game = Game::new(Arc::new(catalog), settings).unwrap();
+    let catalog = game.catalog().clone();
+    let at = |year: f64| {
+        let y = year.floor();
+        // Whole days into the year; the cast cannot overflow.
+        Date::new(y as i32, 1, 1)
+            .unwrap()
+            .add_days(((year - y) * 365.0).round() as i32)
+    };
+    // The turbine is invented in 1902: full demand before, half after half the years.
+    assert_eq!(
+        market::available_since(game.state(), &catalog, steel),
+        Some(1902.0)
+    );
+    let left =
+        |game: &Game, year: f64| market::state_demand_left(game.state(), &catalog, iron, at(year));
+    assert_eq!(left(&game, 1901.0), 1.0);
+    assert!((left(&game, 1902.0 + years / 2.0) - 0.5).abs() < 0.01);
+    assert_eq!(left(&game, 1902.0 + years + 1.0), 0.0);
+    // The successor itself keeps its demand.
+    assert_eq!(
+        market::state_demand_left(game.state(), &catalog, steel, at(1950.0)),
+        1.0
+    );
+    // A company invents it in 1901: the displacement starts then.
+    *game.state_mut().inventions.get_mut(turbine) = Some(Date::new(1901, 1, 1).unwrap());
+    assert_eq!(
+        market::available_since(game.state(), &catalog, steel),
+        Some(1901.0)
+    );
+    assert!((left(&game, 1901.0 + years / 2.0) - 0.5).abs() < 0.01);
+}

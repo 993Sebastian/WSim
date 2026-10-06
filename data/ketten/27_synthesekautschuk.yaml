@@ -1,0 +1,44 @@
+# Kette 27 – Synthesekautschuk (M33, Epoche 1940–1964)
+# Ethylen und Benzin (Butadien und Styrol) → Synthesekautschuk (Buna-S der IG Farben
+# 1937, GR-S im amerikanischen Kriegsprogramm ab 1942). Er geht wie Naturkautschuk in
+# das Gummi; um 1960 deckte er gut die Hälfte des Weltbedarfs. Die Kosten liegen bei
+# rund zwei Dritteln des Naturkautschuks (Preise im Spiel).
+# Alle Zahlen sind Annäherungen für etwa 1955.
+
+anlagen:
+  - id: kautschuksynthese         # Butadien- und Styrolanlage, Emulsionspolymerisation
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    technologie: synthesekautschuk
+    annaeherung: true
+
+rezepte:
+  - id: kautschuk_synthese
+    produkt: kautschuk
+    menge: 1
+    dauer_tage: 2
+    anlage: kautschuksynthese
+    technologie: synthesekautschuk
+    eingang:
+      ethylen: 0.4                # für das Styrol
+      benzin: 1.2                 # Butadien aus der C4-Fraktion und Benzol
+    arbeit_stunden:
+      angelernt: 300
+      fachkraft.chemie: 250
+      akademiker.chemie: 15
+    energie_mwh: 6
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: synthesekautschuk         # Buna-S (Butadien und Styrol), IG Farben
+    fachgebiet: chemie
+    erfindungsjahr: 1937
+    voraussetzungen: [vulkanisation]
+    forschungsaufwand: 30000
+    annaeherung: true

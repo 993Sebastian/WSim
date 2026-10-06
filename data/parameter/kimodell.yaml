@@ -81,6 +81,15 @@ kimodell:
     kredit_jahre: 10
     gruendungen_je_monat: 2
     diversifikationen_je_quartal: 4                   # reiche Firmen bauen in fremden Engpässen
+    # Teure Märkte (M33): Zahlen die Käufer weltweit wenigstens das Vielfache des
+    # Richtpreises, steigt eine weitere Firma ein, solange weniger als so viele Firmen das
+    # Produkt herstellen; sie plant für diesen Anteil des Absatzes.
+    einstieg_preisfaktor: 1.3
+    einstieg_firmen_max: 4
+    einstieg_anteil: 0.25
+    # Eine neue Konzession nur, wenn der Restvorrat der Lagerstätte noch so viele Jahre
+    # ihrer Höchstförderung reicht (M33).
+    vorrat_jahre_min: 10
     gruendung_kapitalfaktor: 1.5
     # Überkapazität abbauen (M22): Liegt der Abgang (Verkauf und Eigenverbrauch) eines
     # angebotenen Produkts am Standort zum Quartalsende unter stilllegen_auslastung der

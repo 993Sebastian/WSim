@@ -1,0 +1,58 @@
+# Kette 26 – Antibiotika (M33, Epoche 1940–1964)
+# Getreide (Maisquellwasser und Milchzucker als Nährlösung) → Penicillin aus der
+# Tiefentank-Fermentation (Pfizer 1943). Eine Einheit ist eine Behandlung.
+# Alle Zahlen sind Annäherungen für etwa 1955.
+
+produkte:
+  - id: penicillin
+    art: endprodukt
+    branche: pharma
+    einheit: stueck               # eine Behandlung
+    gewicht_kg: 0.05
+    verwendung: konsum
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 5.5           # um 1955 etwa 50 Cent
+    nachfrage:
+      bedarfsklasse: grundbedarf
+      verbrauch: {je_kopf_und_jahr: 0.5}
+      kaufschwelle: 100
+      preisempfindlichkeit: 0.6
+      einkommensempfindlichkeit: 1.0
+    annaeherung: true
+
+anlagen:
+  - id: pharmawerk                # Fermenter, Extraktion, sterile Abfüllung
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 20_000
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.5
+    technologie: penicillin_produktion
+    annaeherung: true
+
+rezepte:
+  - id: penicillin_fermentation
+    produkt: penicillin
+    menge: 1
+    dauer_tage: 7
+    anlage: pharmawerk
+    technologie: penicillin_produktion
+    eingang:
+      getreide: 0.0005
+    arbeit_stunden:
+      angelernt: 0.08
+      fachkraft.chemie: 0.04
+      akademiker.chemie: 0.005
+    energie_mwh: 0.0005
+    qualitaet_basis: 60
+    annaeherung: true
+
+technologien:
+  - id: penicillin_produktion     # Fleming 1928, Florey und Chain 1940, Tiefentank 1943
+    fachgebiet: chemie
+    erfindungsjahr: 1943
+    forschungsaufwand: 25000
+    annaeherung: true

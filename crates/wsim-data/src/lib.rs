@@ -31,7 +31,7 @@ use texts::TextIndex;
 /// Levels of every product's tree from the raw material (1) to the product itself
 /// (Lastenheft §17.2), indexed by product.
 pub fn product_levels(catalog: &Catalog) -> Vec<usize> {
-    let chains = build::longest_chains(catalog);
+    let chains = build::product_chains(catalog);
     catalog
         .products
         .iter()

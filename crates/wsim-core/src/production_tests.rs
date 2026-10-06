@@ -153,9 +153,22 @@ fn wages_are_paid_every_day() {
 
 #[test]
 fn yearly_cap_and_reserve_limit_extraction() {
-    let mut game = new_game(test_support::production());
+    let mut catalog = test_support::production();
+    let grube = catalog.deposits.id("grube").unwrap();
+    let d = catalog.deposits.get_mut(grube);
+    d.max_output_per_year = 5_000.0;
+    d.reserve = Some(10_000.0);
+    let mut game = new_game(catalog);
     let site = mine(&mut game);
-    days(&mut game, 365);
+    days(&mut game, 100);
+    // The yearly output spreads over the year (M33): by 10 April a hundred days' share.
+    let share = 5_000.0 * 100.0 / 365.0;
+    assert!(
+        (stock(&game, site, "erz") - share).abs() < 1.0,
+        "{}",
+        stock(&game, site, "erz")
+    );
+    days(&mut game, 265);
     // At most 5 000 t per year.
     assert!((stock(&game, site, "erz") - 5_000.0).abs() < 1e-6);
     days(&mut game, 365 * 2);

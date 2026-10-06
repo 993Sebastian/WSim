@@ -89,7 +89,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - UI: `pnpm -C ui typecheck`, `pnpm -C ui lint`, `pnpm -C ui test`, `pnpm -C ui e2e`
   (`pnpm -C ui format` behebt Formatierungsfehler)
 - Browser-Version: `cargo clippy -p wsim-web --target wasm32-unknown-unknown -- -D warnings`,
-  `pnpm -C ui e2e:web` (baut Modul und Seite, testet gegen den echten Kern)
+  `pnpm -C ui e2e:web` (baut Modul und Seite, testet gegen den echten Kern). Auf Wunsch
+  vom 06.10.2026 vorerst zurückgestellt: lokal nicht nötig, in der CI ohne Abbruch.
 - Die Reproduzierbarkeits-Tests (`crates/wsim-core/src/determinism_tests.rs`,
   `crates/wsim-cli/tests/lauf.rs`) müssen grün sein.
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).

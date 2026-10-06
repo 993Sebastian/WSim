@@ -120,6 +120,7 @@ marktmodell:
   aneignung_je_jahr: 0.25
   preisanpassung: {hoch: 0.02, runter: 0.01, lagertage: 30, auslastung_normal: 0.85, hoechstfaktor: 20, aufholen_max: 20}
   staat_hoechstpreis: 1.5
+  verdraengung_staat_jahre: 15
   verlauf_monate: 24
   meldung_preissenkung: 0.1
   preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
@@ -1620,6 +1621,32 @@ fn kimodell_wird_geprueft() {
         "„stilllegen_zielauslastung“ muss kleiner als „wiederanfahren_auslastung“ sein.",
     );
 
+    // Newcomers enter markets paying at least the reference price (M33).
+    let d = Daten::neu().ersetze(
+        datei,
+        "einstieg_preisfaktor: 1.3",
+        "einstieg_preisfaktor: 0.8",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0.8 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "kimodell.verhalten.einstieg_preisfaktor"
+    );
+    let d = Daten::neu().ersetze(datei, "einstieg_anteil: 0.25", "einstieg_anteil: 0");
+    befund(
+        &d.laden(),
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+    );
+    // New concessions only where the reserve lasts (M33).
+    let d = Daten::neu().ersetze(datei, "vorrat_jahre_min: 10", "vorrat_jahre_min: -1");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert -1 darf nicht negativ sein.");
+    assert_eq!(f.path.to_string(), "kimodell.verhalten.vorrat_jahre_min");
+
     let d = Daten::neu().ohne(datei);
     befund(
         &d.laden(),
@@ -1749,6 +1776,21 @@ fn verlauf_und_preismeldung_im_marktmodell() {
     );
     assert_eq!(f.path.to_string(), "marktmodell.meldung_preissenkung");
     nur_fehler(&outcome, 2);
+}
+
+/// M33: the years over which a successor displaces the state demand must be positive.
+#[test]
+fn verdraengung_des_staatsbedarfs_braucht_jahre() {
+    let outcome = Daten::neu()
+        .ersetze(
+            "parameter/marktmodell.yaml",
+            "verdraengung_staat_jahre: 15",
+            "verdraengung_staat_jahre: 0",
+        )
+        .laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "marktmodell.verdraengung_staat_jahre");
+    nur_fehler(&outcome, 1);
 }
 
 #[test]
@@ -1916,6 +1958,62 @@ fn produktbaum_hoechstens_sechs_ebenen() {
     let f = befund(&outcome, "Der Produktbaum hat hier 7 Ebenen");
     assert_eq!(f.severity, Severity::Error);
     assert!(f.message.contains("erlaubt sind höchstens 6"));
+}
+
+#[test]
+fn produktbaum_zaehlt_den_einfachsten_weg() {
+    // A second, short recipe for stufe4 shortens everything built from it.
+    let (kette, texte) = tiefe_kette(5, false);
+    let kette = kette.replace(
+        "rezepte:\n",
+        "rezepte:\n  - id: stufe4_direkt\n    produkt: stufe4\n    menge: 1\n    dauer_tage: 1\n    anlage: ofen\n    eingang:\n      erz: 3\n    arbeit_stunden:\n      ungelernt: 1\n    qualitaet_basis: 50\n",
+    );
+    let texte = texte + "rezept.stufe4_direkt: Stufe 4 direkt\n";
+    let outcome = Daten::neu()
+        .datei("ketten/b.yaml", &kette)
+        .datei("texte/de/a.yaml", &texte)
+        .laden();
+    assert!(
+        outcome
+            .report
+            .findings()
+            .iter()
+            .all(|f| !f.message.contains("Ebenen")),
+        "{:?}",
+        outcome.report.findings()
+    );
+    let levels = wsim_data::product_levels(&outcome.data.unwrap().catalog);
+    assert_eq!(levels.iter().max(), Some(&3));
+
+    // A raw material that can also be synthesised counts as a leaf.
+    let (kette, texte) = tiefe_kette(6, false);
+    let kette = kette
+        .replace(
+            "  - id: stufe3\n    art: komponente\n",
+            "  - id: stufe3\n    art: rohstoff\n",
+        )
+        .replace(
+            "rezepte:\n",
+            "rezepte:\n  - id: stufe3_abbau\n    produkt: stufe3\n    menge: 1\n    dauer_tage: 1\n    anlage: mine\n    abbau: true\n    arbeit_stunden:\n      ungelernt: 1\n    qualitaet_basis: 50\n",
+        )
+        + "lagerstaetten:\n  - id: stufe3_grube\n    land: SWE\n    rohstoff: stufe3\n    vorrat: 1_000_000\n    erschliessung: {investition_usd: 500_000, dauer_tage: 100}\n    foerderung_max_je_jahr: 10_000\n";
+    let texte =
+        texte + "rezept.stufe3_abbau: Stufe 3 fördern\nlagerstaette.stufe3_grube: Grube 3\n";
+    let outcome = Daten::neu()
+        .datei("ketten/b.yaml", &kette)
+        .datei("texte/de/a.yaml", &texte)
+        .laden();
+    assert!(
+        outcome
+            .report
+            .findings()
+            .iter()
+            .all(|f| !f.message.contains("Ebenen")),
+        "{:?}",
+        outcome.report.findings()
+    );
+    let levels = wsim_data::product_levels(&outcome.data.unwrap().catalog);
+    assert_eq!(levels.iter().max(), Some(&4));
 }
 
 #[test]

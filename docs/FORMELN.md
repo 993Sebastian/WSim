@@ -130,8 +130,10 @@ Parameter: `data/parameter/produktionsmodell.yaml`.
   täglich `Investition · wartung_je_jahr / 365`.
 - Zustand: sinkt linear von 1 auf `zustand_minimum` über die Lebensdauer.
 - Lagerstätten: Erschließung kostet und dauert laut Daten; danach Abbau bis zur
-  Höchstförderung je Kalenderjahr und bis der Vorrat erschöpft ist. Die
-  Erschließung wird über `erschliessung_lebensdauer_jahre` abgeschrieben.
+  Höchstförderung je Kalenderjahr und bis der Vorrat erschöpft ist. Die Jahresmenge
+  verteilt sich über das Jahr: Bis zum Tag *t* darf höchstens der Anteil *t* / Tage des
+  Jahres gefördert sein (M33). Die Erschließung wird über
+  `erschliessung_lebensdauer_jahre` abgeschrieben.
 
 ### Tagesproduktion je Anlage
 
@@ -453,7 +455,8 @@ Ohne KI-Firmen gilt *s* = 1.
 Eine Lagerstätte hat *n* = clamp(⌊Förderung_max · *s* / (`anlagen_je_konzession` ·
 Jahresleistung einer Förderanlage)⌋, 1, `konzessionen_max`) gleich große Konzessionen.
 Jede Konzession gehört höchstens einem Standort; ihre Jahresförderung ist höchstens
-Förderung_max · *s* · Anteil, der Vorrat (× *s*) gilt für alle gemeinsam. Erschließen
+Förderung_max · *s* · Anteil, bis zum Tag *t* des Jahres höchstens dieser Wert · *t* /
+Tage des Jahres (M33), der Vorrat (× *s*) gilt für alle gemeinsam. Erschließen
 kostet Erschließungskosten · *s* · Anteil. Spielstände vor M10 übernehmen die eine
 erschlossene Lagerstätte als Konzession mit Anteil 1.
 
@@ -585,7 +588,8 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
     Konzession mehr erlaubt, als sie fördern (Höchstförderung · Maßstab · Anteil / 365 −
     Vollleistung, in ganzen Anlagen).
   - Sonst erschließen Förderfirmen eine freie Konzession, wenn ihr Rohstoff weltweit offen
-    nachgefragt ist und sich nirgends stapelt.
+    nachgefragt ist und sich nirgends stapelt (Lagerstätte und Zahl der Anlagen wie
+    bei der Neugründung, M33).
 - **Forschung** zum Jahresbeginn bei *k* ≥ `forschung_mindestkompetenz` und
   Vorjahresumsatz ≥ `forschung_mindestumsatz_usd`: die Technologie mit dem geringsten
   Aufwand unter denen, die ein Rezept oder eine Anlage der eigenen Branchen betreffen
@@ -597,7 +601,11 @@ geschrieben, weil sie sich bei der Wiederholung aus dem Zustand ergeben.
   Voraussetzungen erforscht eine Firma, die in den eigenen Branchen nichts zu
   erforschen hat (wieder die billigste), höchstens `forschung_luecke_firmen` Firmen
   zugleich je Technologie; eine Firma behält ihre Lücke. Sonst erforschte niemand
-  Produkte neuer Branchen (Luftfahrt). Die Lücken werden einmal je Jahr vor den
+  Produkte neuer Branchen (Luftfahrt). Seit M33 zählen auch die Technologien der
+  Rezepte teurer Märkte (Einstieg in teure Märkte, M33), solange weniger als
+  `einstieg_firmen_max` Firmen das Produkt herstellen: Technologien werden erst
+  `gemeingut_nach_jahren` nach ihrer Erfindung Allgemeingut, und ohne eigene Forschung
+  käme bis dahin kein Wettbewerber hinzu. Die Lücken werden einmal je Jahr vor den
   Forschungsplänen bestimmt.
 - **Pleite:** Eine zahlungsunfähige KI-Firma scheidet aus; ihre Belegschaft wird frei,
   Angebote und Aufträge enden, ihre Konzessionen werden frei.
@@ -1503,3 +1511,61 @@ M10) außerdem:
   Flugzeugwerk).
 - **Markt-Ansicht:** Waren, die noch niemand herstellen kann, stehen nicht in der Liste
   eines Landesmarkts.
+
+## M33 – Produkte 1940–1964
+
+Lastenheft §18.4. Neue Produkte, Rohstoffe, Anlagen, Rezepte und Technologien stehen
+in `data/ketten/20_*.yaml` bis `27_*.yaml` und `data/lagerstaetten/germanium.yaml`
+(Annäherungen in den Kommentaren der Daten). An Formeln kommt hinzu:
+
+- **Verdrängung beim Staatsbedarf:** Ersetzt ein Produkt mit Staatsnachfrage ein anderes
+  (`ersetzt`), sinkt der Staatsbedarf des alten ab dem Zeitpunkt *v*, zu dem sich das
+  neue erstmals herstellen ließ, gleichmäßig über *J* = `verdraengung_staat_jahre`
+  (Marktmodell) auf null: Faktor = min(1, max(0, 1 − (heute − *v*) / *J*)), bei
+  mehreren Nachfolgern das Produkt der Faktoren. *v* ist das früheste Jahr unter den
+  Rezepten des Nachfolgers, in dem alle Technologien von Rezept und Anlage erfunden
+  waren – historisch oder früher im Spiel (erste Erfindung durch eine Firma). Bei
+  Gebrauchsgütern bleibt es bei der Verdrängung über den Besitz (M9).
+
+Für die KI (alle Firmen gleich, M10):
+
+- **Verfahrenswahl mit Knappheit:** Wählt eine Firma für einen Standort zwischen
+  mehreren Rezepten desselben Produkts, zählt zu den Stückkosten zum Richtpreis (M10)
+  je Vorprodukt Menge × max(0, Marktpreis − Richtpreis im Land) / Ausbringung. Ein
+  Verfahren, dessen Vorprodukt knapp und teuer ist, verdrängt so kein laufendes
+  (vorher stellten alle Strumpfwerke auf Nylon um, während Nylon das Dreifache seines
+  Richtpreises kostete). Ohne Land (Planung) bleibt es beim Richtpreis.
+- **Einstieg in teure Märkte:** Zahlen die Käufer im Vormonat weltweit zusammen
+  wenigstens `einstieg_preisfaktor` × den Wert zum Richtpreis (Σ Umsatz ≥ Faktor ·
+  Σ Menge · Richtpreis im Land) und stellen weniger als `einstieg_firmen_max` Firmen das
+  Produkt her (die bauende Firma nicht darunter), zählt für Diversifizierung und
+  Neugründung zur offenen Nachfrage eine Menge *q* = `einstieg_anteil` · Absatz des
+  Vormonats je Tag hinzu (abzüglich der Anlagen im Bau), im Wert von *q* zum gezahlten
+  Durchschnittspreis. Gebaut wird – wenn es keine offene Nachfrage gibt – im Land mit dem
+  größten Aufpreis (Umsatz − Menge · Richtpreis). Die Technologien solcher Produkte
+  erforschen Firmen wie Marktlücken (M10, Forschung). Vorher blieb Penicillin zwanzig
+  Jahre bei einem Hersteller, der das Vierfache des Richtpreises nahm: Wo alle Käufer
+  bedient waren, sah niemand eine Lücke.
+- **Was sich stapelt (M22) – nur bei Verkäufern:** Für die Frage, ob eine Ware irgendwo
+  auf Händler wartet, zählen nur die Lager der Standorte, die sie herstellen oder
+  anbieten. Die Eingangslager der Verarbeiter gehören nicht dazu; das Rohöl in den
+  Raffinerien verdeckte sonst den Ölmangel der 1960er.
+- **Gruben passend zur Konzession:** Ein neuer Förderstandort (Neugründung,
+  Diversifizierung, weitere Konzession einer Förderfirma) bekommt höchstens
+  ⌈Höchstförderung · *s* · Anteil / 365 / (Ausbringung je Anlage und Tag ·
+  Startauslastung)⌉ Anlagen, mindestens eine. Vorher standen zwanzig Bohrtürme auf einem
+  Ölfeld, das zwei auslastete.
+- **Lagerstätte für eine neue Konzession:** entdeckt, mit freier Konzession, deren
+  Restvorrat (Vorrat · *s* − Gefördertes) wenigstens `vorrat_jahre_min` Jahre ihrer
+  Höchstförderung trägt; unter diesen die mit der billigsten Fracht in das
+  Land mit der größten offenen Nachfrage (für Förderfirmen vorher die erste in den Daten).
+- **Ausbau nach zwei Monaten:** Ein Standort gilt beim Ausbau (M10) als ausverkauft,
+  wenn Verkauf seit Beginn des Vormonats plus eigener Verbrauch wenigstens neun
+  Zehntel der Erzeugung dieser Tage erreichen (vorher nur der laufende Monat: Waren,
+  die in wenigen Stücken verkauft werden wie Verkehrsflugzeuge, erschienen in manchen
+  Monaten unverkauft).
+
+Bei den Daten kommt hinzu: Kautschuk lässt sich auch synthetisch aus Ethylen und Benzin
+herstellen (1937, `27_synthesekautschuk.yaml`), Nylon auch aus Kohle statt aus Benzin.
+Für die Ebenen des Produktbaums (Lastenheft §17.2) zählt bei mehreren Rezepten eines
+Vorprodukts der einfachste Weg; ein Rohstoff mit Abbau-Rezept ist die erste Ebene.
