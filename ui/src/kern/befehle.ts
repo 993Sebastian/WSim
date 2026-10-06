@@ -11,7 +11,7 @@ export type Befehl =
   | { FoundSite: { country: string; kind: string } }
   | { FoundSiteOnPlot: { plot: number; kind: string; lease: boolean } }
   | { BuyPlot: { site: number } }
-  | { BuildFacility: { site: number; facility: string; count: number } }
+  | { BuildFacility: { site: number; facility: string; count: number; size?: string } }
   | { DevelopDeposit: { site: number; deposit: string } }
   | { SetProduction: { site: number; slot: number; recipe: string | null; utilization: number } }
   | { SetAutomation: { site: number; slot: number; level: number } }

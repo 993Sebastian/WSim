@@ -52,6 +52,7 @@ fn mine(game: &mut Game) -> SiteId {
         site,
         facility: c.facilities.id("mine").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::DevelopDeposit {
@@ -195,6 +196,7 @@ fn chain(game: &mut Game) -> (SiteId, SiteId) {
         site: works,
         facility: c.facilities.id("ofen").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::SetProduction {
@@ -284,7 +286,8 @@ fn commands_are_checked() {
             Command::BuildFacility {
                 site: works,
                 facility: c.facilities.id("mine").unwrap(),
-                count: 1
+                count: 1,
+                size: crate::catalog::FacilitySize::Medium,
             }
         ),
         CommandError::WrongSiteType {
@@ -297,7 +300,8 @@ fn commands_are_checked() {
             Command::BuildFacility {
                 site: works,
                 facility: c.facilities.id("ofen_2000").unwrap(),
-                count: 1
+                count: 1,
+                size: crate::catalog::FacilitySize::Medium,
             }
         ),
         CommandError::TechnologyUnknown("hochofen_2000".into())
@@ -321,6 +325,7 @@ fn commands_are_checked() {
         site: SiteId(1),
         facility: c.facilities.id("mine").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     assert_eq!(
@@ -378,6 +383,7 @@ fn commands_are_checked() {
         site: works,
         facility: c.facilities.id("ofen").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     };
     for _ in 0..4 {
         game.apply(expensive.clone()).unwrap();
@@ -514,6 +520,7 @@ fn power_plant(game: &mut Game, mine_site: SiteId) -> SiteId {
         site: plant,
         facility: c.facilities.id("kraftwerk").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::SetProduction {
@@ -608,6 +615,7 @@ fn a_higher_wage_premium_hires_workers_away() {
         site: second,
         facility: c.facilities.id("ofen").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::SetProduction {

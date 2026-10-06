@@ -238,13 +238,18 @@ test("Standort auf einem gewählten Grundstück gründen und das Grundstück kau
 
   await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
   const grundstueck = page.getByRole("region", { name: "Grundstück" });
-  await expect(grundstueck).toContainText("0,2 von 0,38 ha belegt");
+  await expect(grundstueck).toContainText(/0,2 von [\d,]+ ha belegt/);
   await expect(grundstueck).toContainText("Gepachtet für");
   await grundstueck.getByRole("button", { name: /Grundstück kaufen/ }).click();
   const bauen = page.getByRole("form", { name: "Anlage bauen" });
-  await expect(bauen).toContainText("noch Platz für 78");
+  await expect(bauen).toContainText(/noch Platz für \d+/);
+  // Sizes (M36): a very large unit costs more and makes four times as much.
+  await bauen.getByLabel("Größe").selectOption("VeryLarge");
+  await expect(bauen.getByLabel("Größe")).toHaveValue("VeryLarge");
+  await bauen.scrollIntoViewIfNeeded();
+  await bild(page, "bauen_groesse");
   // A facility that does not fit: marked in the list, the button stays off.
-  await bauen.getByLabel("Anlage").selectOption("spinnerei");
+  await bauen.getByLabel("Anlage").selectOption("aluminiumhuette");
   await expect(bauen).toContainText("passt nicht mehr aufs Grundstück");
   await expect(bauen.getByRole("button", { name: "Bauen" })).toBeDisabled();
 
@@ -352,12 +357,12 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
     name: "Kaufangebot von Zürcher Spinnerei und Weberei & Co.",
   });
   await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
-  await expect(angebot).toContainText("33.831 USD");
+  await expect(angebot).toContainText("33.827 USD");
   await expect(angebot).toContainText("01.04.1914");
   // The base value with its parts.
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
   await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
-  await expect(angebot.getByRole("note")).toContainText("27.065 USD");
+  await expect(angebot.getByRole("note")).toContainText("27.061 USD");
   await bild(page, "angebot");
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
 

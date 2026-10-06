@@ -5,7 +5,7 @@
 //! grows with its facilities until its plot is full.
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, Location, SiteType};
+use crate::catalog::{Catalog, FacilitySize, Location, SiteType};
 use crate::ids::{CountryId, FacilityId, Id};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::money::Money;
@@ -19,27 +19,43 @@ pub fn facility_area(catalog: &Catalog, facility: FacilityId) -> f64 {
         .unwrap_or_else(|| f.investment.to_usd() / catalog.plot_model.investment_per_ha_usd)
 }
 
+/// Land one unit of a facility of a size takes (ha, M36).
+pub fn unit_area(catalog: &Catalog, facility: FacilityId, size: FacilitySize) -> f64 {
+    facility_area(catalog, facility) * catalog.production_model.sizes.area(size)
+}
+
 /// Land of the units standing or under construction at a site, without the overhead.
 fn units_area(catalog: &Catalog, site: &Site) -> f64 {
     site.slots
         .iter()
-        .map(|sl| facility_area(catalog, sl.facility) * f64::from(sl.count))
+        .map(|sl| unit_area(catalog, sl.facility, sl.size) * f64::from(sl.count))
         .sum()
 }
 
 /// Land a site needs, with `extra` more units of a facility (ha). Standing units and
 /// units under construction count too.
-pub fn site_area(catalog: &Catalog, site: &Site, extra: Option<(FacilityId, u32)>) -> f64 {
+pub fn site_area(
+    catalog: &Catalog,
+    site: &Site,
+    extra: Option<(FacilityId, FacilitySize, u32)>,
+) -> f64 {
     let m = &catalog.plot_model;
     let units = units_area(catalog, site)
-        + extra.map_or(0.0, |(f, n)| facility_area(catalog, f) * f64::from(n));
+        + extra.map_or(0.0, |(f, size, n)| {
+            unit_area(catalog, f, size) * f64::from(n)
+        });
     (units * (1.0 + m.overhead)).max(m.min_site_area_ha)
 }
 
-/// Land a new site needs for `count` units of a facility (ha).
-pub fn project_area(catalog: &Catalog, facility: FacilityId, count: u32) -> f64 {
+/// Land a new site needs for `count` units of a facility of a size (ha).
+pub fn project_area(
+    catalog: &Catalog,
+    facility: FacilityId,
+    size: FacilitySize,
+    count: u32,
+) -> f64 {
     let m = &catalog.plot_model;
-    (facility_area(catalog, facility) * f64::from(count) * (1.0 + m.overhead))
+    (unit_area(catalog, facility, size) * f64::from(count) * (1.0 + m.overhead))
         .max(m.min_site_area_ha)
 }
 
@@ -90,12 +106,12 @@ pub fn value(catalog: &Catalog, state: &GameState, plot: PlotId) -> Money {
     price_per_ha(catalog, state, p.country, p.location).scale(p.area_ha)
 }
 
-/// Units of a facility that still fit on a site's plot; unlimited without one.
+/// Units of a facility of a size that still fit on a site's plot; unlimited without one.
 pub fn units_that_fit(
     catalog: &Catalog,
     state: &GameState,
     site: SiteId,
-    facility: FacilityId,
+    (facility, size): (FacilityId, FacilitySize),
 ) -> u32 {
     let s = &state.sites[site.index()];
     let Some(plot) = s.plot else {
@@ -106,7 +122,7 @@ pub fn units_that_fit(
     if area + 1e-9 < m.min_site_area_ha {
         return 0;
     }
-    let per_unit = facility_area(catalog, facility) * (1.0 + m.overhead);
+    let per_unit = unit_area(catalog, facility, size) * (1.0 + m.overhead);
     if per_unit <= 0.0 {
         return u32::MAX;
     }
@@ -370,8 +386,7 @@ pub fn planned_revenue(state: &GameState, catalog: &Catalog, site: &Site) -> f64
         .filter_map(|sl| {
             let r = catalog.recipes.get(sl.recipe?);
             site.offers.contains_key(&r.product).then(|| {
-                catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
+                sl.full_runs(catalog)
                     * sl.utilization
                     * r.output
                     * crate::market::market_price(catalog, state, site.country, r.product).to_usd()
@@ -381,18 +396,19 @@ pub fn planned_revenue(state: &GameState, catalog: &Catalog, site: &Site) -> f64
         * 365.0
 }
 
-/// Yearly revenue of `units` of a facility making `product` at the start utilization,
-/// at the market price of the country (USD; for the choice of plots).
+/// Yearly revenue of `capacity` (units of the data size, M36) of a facility making
+/// `product` at the start utilization, at the market price of the country (USD; for the
+/// choice of plots).
 pub fn project_revenue(
     state: &GameState,
     catalog: &Catalog,
     country: CountryId,
     recipe: crate::ids::RecipeId,
-    units: u32,
+    capacity: f64,
 ) -> f64 {
     let r = catalog.recipes.get(recipe);
     let runs = catalog.facilities.get(r.facility).runs_per_day
-        * f64::from(units)
+        * capacity
         * catalog.ai_model.start.utilization;
     runs * r.output
         * crate::market::market_price(catalog, state, country, r.product).to_usd()

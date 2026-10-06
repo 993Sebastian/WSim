@@ -1416,6 +1416,7 @@ mod tests {
                 site,
                 facility: c.facilities.id(facility).expect("exists"),
                 count: 1,
+                size: crate::catalog::FacilitySize::Medium,
             })
             .expect("valid");
             g.apply(Command::SetProduction {

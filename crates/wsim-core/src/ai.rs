@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, ProductKind, Recipe, SiteType};
+use crate::catalog::{Catalog, FacilitySize, ProductKind, Recipe, SiteType};
 use crate::command::{self, Command};
 use crate::finance;
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
@@ -113,6 +113,65 @@ fn per_companies(state: &GameState, catalog: &Catalog, count: u32) -> usize {
     (f64::from(count) * factor).round() as usize
 }
 
+/// Units of a facility to build: the facility, their size (M36) and how many.
+type Units = (FacilityId, FacilitySize, u32);
+
+/// Size and number of units for `wanted` capacity in units of the data size (M36): the
+/// plan of the size model, as many of them as `room` (units of a size that fit on the
+/// plot) and the budget hold with `fixed` costs on top; else the next smaller size.
+fn plan_units(
+    catalog: &Catalog,
+    want: (FacilityId, f64),
+    room: impl Fn(FacilitySize) -> u32,
+    money: (Money, Money),
+) -> Option<(FacilitySize, u32)> {
+    plan_units_by(catalog, want, room, money, f64::round)
+}
+
+/// As `plan_units`, but with enough units to reach the wanted capacity (own power).
+fn plan_units_up(
+    catalog: &Catalog,
+    want: (FacilityId, f64),
+    room: impl Fn(FacilitySize) -> u32,
+    money: (Money, Money),
+) -> Option<(FacilitySize, u32)> {
+    plan_units_by(catalog, want, room, money, f64::ceil)
+}
+
+fn plan_units_by(
+    catalog: &Catalog,
+    (facility, wanted): (FacilityId, f64),
+    room: impl Fn(FacilitySize) -> u32,
+    (fixed, budget): (Money, Money),
+    round: fn(f64) -> f64,
+) -> Option<(FacilitySize, u32)> {
+    let sizes = &catalog.production_model.sizes;
+    let investment = catalog.facilities.get(facility).investment;
+    let (mut size, _) = sizes.units_for(wanted);
+    loop {
+        // Small counts; the cast cannot overflow.
+        let count = round(wanted / sizes.capacity(size)).max(1.0) as u32;
+        let unit = investment.scale(sizes.investment(size));
+        let mut n = count.min(room(size));
+        while n > 0 && fixed + unit.scale(f64::from(n)) > budget {
+            n -= 1;
+        }
+        if n > 0 {
+            return Some((size, n));
+        }
+        size = size.smaller()?;
+    }
+}
+
+/// A loan for what the cash lacks, if anything.
+fn take_loan(state: &mut GameState, catalog: &Catalog, id: CompanyId, amount: Money) {
+    if amount > Money::ZERO {
+        let b = &catalog.ai_model.behavior;
+        let years = b.loan_years.min(catalog.finance_model.max_term_years);
+        run(state, catalog, id, &Command::TakeLoan { amount, years });
+    }
+}
+
 /// Where a company would found a site of `kind` for `units` of a facility (M35): the
 /// command and how many of the units fit. Extraction sites need no plot; other sites go
 /// on the free plot that holds the units with the reserve of the plot model (the
@@ -123,20 +182,20 @@ fn site_plan(
     catalog: &Catalog,
     id: CompanyId,
     (country, kind): (CountryId, SiteType),
-    (units, revenue): (Option<(FacilityId, u32)>, f64),
+    (units, revenue): (Option<Units>, f64),
 ) -> Option<(Command, u32)> {
-    let wanted = units.map_or(u32::MAX, |(_, n)| n);
+    let wanted = units.map_or(u32::MAX, |(_, _, n)| n);
     if !crate::plots::needs_plot(catalog, kind) {
         return Some((Command::FoundSite { country, kind }, wanted));
     }
     let m = &catalog.plot_model;
-    let need = units.map_or(m.min_site_area_ha, |(f, n)| {
-        crate::plots::project_area(catalog, f, n)
+    let need = units.map_or(m.min_site_area_ha, |(f, size, n)| {
+        crate::plots::project_area(catalog, f, size, n)
     }) * (1.0 + m.ai_reserve);
     let plot = crate::plots::choose(catalog, state, country, need, revenue)?;
     let area = state.plots[plot.index()].area_ha;
-    let fit = units.map_or(u32::MAX, |(f, n)| {
-        let per_unit = crate::plots::facility_area(catalog, f) * (1.0 + m.overhead);
+    let fit = units.map_or(u32::MAX, |(f, size, n)| {
+        let per_unit = crate::plots::unit_area(catalog, f, size) * (1.0 + m.overhead);
         // Small counts; the cast saturates.
         let fit = if per_unit > 0.0 {
             (area / per_unit + 1e-9).floor() as u32
@@ -173,7 +232,7 @@ fn found_site_for(
     catalog: &Catalog,
     id: CompanyId,
     place: (CountryId, SiteType),
-    project: (Option<(FacilityId, u32)>, f64),
+    project: (Option<Units>, f64),
 ) -> Option<(SiteId, u32)> {
     let (found, fit) = site_plan(state, catalog, id, place, project)?;
     run(state, catalog, id, &found).then(|| (site_id(state.sites.len() - 1), fit))
@@ -202,7 +261,7 @@ fn news_expansion(
     id: CompanyId,
     site: SiteId,
     recipe: RecipeId,
-    count: u32,
+    (size, count): (FacilitySize, u32),
 ) -> Option<Message> {
     let r = catalog.recipes.get(recipe);
     if !player_products(state, catalog).contains(&r.product) {
@@ -227,6 +286,10 @@ fn news_expansion(
             .with(
                 "anlage",
                 Param::TextKey(format!("anlage.{}", catalog.facilities.key(r.facility))),
+            )
+            .with(
+                "groesse",
+                Param::TextKey(format!("anlagengroesse.{}", size.key())),
             )
             .with(
                 "produkt",
@@ -356,7 +419,15 @@ fn retire(
             {
                 continue;
             }
-            let flows = population::slot_flows(catalog, state, s.country, r, sl.count, 1.0, wage);
+            let flows = population::slot_flows(
+                catalog,
+                state,
+                s.country,
+                r,
+                (sl.count, sl.size),
+                1.0,
+                wage,
+            );
             let unit = flows.cost_per_day.to_usd() / flows.output.max(1e-9);
             by_product
                 .entry(product)
@@ -466,9 +537,7 @@ fn restart_where_short(
             .filter(|(_, sl)| sl.mothballed() && of(sl))
             .map(|(i, sl)| {
                 let r = catalog.recipes.get(sl.recipe.expect("filtered"));
-                let output = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * r.output;
+                let output = sl.full_runs(catalog) * r.output;
                 (i, output)
             })
             .collect();
@@ -659,9 +728,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 } else {
                     utilization
                 };
-                let planned = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * sl.utilization;
+                let planned = sl.full_runs(catalog) * sl.utilization;
                 // Held back by missing inputs or labour: planning more would not help.
                 // The grid, by contrast, delivers a share of whatever is planned.
                 let limited = sl.last_runs < 0.9 * planned && sl.limit != Some(Limit::Electricity);
@@ -686,7 +753,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
                 state,
                 country,
                 recipe,
-                sl.count,
+                (sl.count, sl.size),
                 utilization,
                 1.0 + s.wage_premium,
             );
@@ -725,8 +792,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             }
             // Fixed costs per unit at the normal utilization, so that a quiet month
             // does not push the floor up: plant, maintenance and deposit development.
-            let full = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
+            let full = sl.full_runs(catalog)
                 * catalog.recipes.get(recipe).output
                 * model.start.utilization;
             let mut fixed = (flows.cost_per_day - flows.variable_per_day).to_usd();
@@ -951,7 +1017,7 @@ fn output_and_offtake(
         let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
             continue;
         };
-        let runs = catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count);
+        let runs = sl.full_runs(catalog);
         *full_output.entry(r.product).or_default() += runs * r.output;
         for &(input, q) in &r.inputs {
             *taken.entry(input).or_default() += runs * sl.utilization * q;
@@ -997,9 +1063,7 @@ fn output_and_offtake(
             .filter(|sl| sl.operating(date))
             .filter_map(|sl| sl.recipe.map(|r| (sl, catalog.recipes.get(r))))
             .map(|(sl, r)| {
-                let runs = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * sl.utilization;
+                let runs = sl.full_runs(catalog) * sl.utilization;
                 r.inputs
                     .iter()
                     .filter(|&&(i, _)| i == product)
@@ -1094,7 +1158,7 @@ fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
                     state,
                     s.country,
                     r,
-                    sl.count,
+                    (sl.count, sl.size),
                     sl.utilization,
                     1.0 + s.wage_premium,
                 )
@@ -1141,10 +1205,12 @@ fn expand(
     let (_, aggressiveness) = traits(state, id);
     let min_utilization = b.expand_utilization.at(aggressiveness);
     let min_margin = b.expand_margin.at(aggressiveness);
-    let mut best: Option<(f64, SiteId, ProductId, u32)> = None;
+    // Best expansion: margin, site, product, wanted capacity and the most the
+    // concession allows (in units of the data size, M36).
+    let mut best: Option<(f64, SiteId, ProductId, f64, f64)> = None;
     for &site in sites {
         let s = &state.sites[site.index()];
-        let mut by_product: BTreeMap<ProductId, (f64, u32, Money, f64)> = BTreeMap::new();
+        let mut by_product: BTreeMap<ProductId, (f64, f64, Money, f64)> = BTreeMap::new();
         // What the site's own facilities use per day (vertically integrated works).
         let mut own_use: BTreeMap<ProductId, f64> = BTreeMap::new();
         // Products whose facilities wait for workers or run short of an input (stock
@@ -1165,9 +1231,7 @@ fn expand(
                 continue;
             }
             let recipe = catalog.recipes.get(r);
-            let runs = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * sl.utilization;
+            let runs = sl.full_runs(catalog) * sl.utilization;
             let short = recipe.inputs.iter().any(|&(input, q)| {
                 let stock = s.inventory.get(&input).map_or(0.0, |x| x.quantity);
                 let price = market::market_price(catalog, state, s.country, input);
@@ -1183,7 +1247,7 @@ fn expand(
                 state,
                 s.country,
                 r,
-                sl.count,
+                (sl.count, sl.size),
                 sl.utilization,
                 1.0 + s.wage_premium,
             );
@@ -1192,23 +1256,21 @@ fn expand(
             }
             if recipe.extraction {
                 *extracting.entry(recipe.product).or_default() +=
-                    catalog.facilities.get(sl.facility).runs_per_day
-                        * f64::from(sl.count)
-                        * recipe.output;
+                    sl.full_runs(catalog) * recipe.output;
             }
             let e = by_product
                 .entry(flows.product)
-                .or_insert((0.0, 0, Money::ZERO, 0.0));
-            e.0 += sl.utilization * f64::from(sl.count);
-            e.1 += sl.count;
+                .or_insert((0.0, 0.0, Money::ZERO, 0.0));
+            e.0 += sl.utilization * sl.units(catalog);
+            e.1 += sl.units(catalog);
             e.2 += flows.cost_per_day;
             e.3 += flows.output;
         }
-        for (product, (weighted, count, daily, output)) in by_product {
-            if count == 0 || output <= 1e-9 {
+        for (product, (weighted, capacity, daily, output)) in by_product {
+            if capacity <= 1e-9 || output <= 1e-9 {
                 continue;
             }
-            let utilization = weighted / f64::from(count);
+            let utilization = weighted / capacity;
             let unit = daily.to_usd() / output;
             let offer = s.offers.get(&product);
             let price = offer.map_or_else(
@@ -1224,7 +1286,10 @@ fn expand(
             let used = own_use.get(&product).copied().unwrap_or(0.0) * days;
             let sold = offer.map_or(0.0, |o| o.sold_last_month + o.sold_month);
             let sells = sold + used >= 0.9 * made;
-            let mut add = (f64::from(count) * 0.25).round().max(1.0);
+            // Small works double, large ones grow by a quarter, at least by one unit of
+            // the data size (M36).
+            let add = (capacity * 0.25).max(capacity.min(1.0));
+            let mut cap = f64::INFINITY;
             if let Some(&made_full) = extracting.get(&product) {
                 let allowed = s.deposit.and_then(|d| {
                     let field = state.deposits.get(d).concession_of(site)?;
@@ -1235,28 +1300,31 @@ fn expand(
                             / 365.0,
                     )
                 });
-                let per_facility = made_full / f64::from(count);
-                add = add.min(((allowed.unwrap_or(0.0) - made_full) / per_facility).floor());
+                let per_unit = made_full / capacity;
+                cap = (allowed.unwrap_or(0.0) - made_full) / per_unit;
             }
+            let smallest = catalog
+                .production_model
+                .sizes
+                .capacity(FacilitySize::VerySmall);
             if utilization >= min_utilization
                 && sells
                 && margin >= min_margin
-                && add >= 1.0
+                && add.min(cap) + 1e-9 >= smallest
                 && !held_back.contains(&product)
                 && best.is_none_or(|(m, ..)| margin > m)
             {
-                // Small counts; the cast cannot overflow.
-                best = Some((margin, site, product, add as u32));
+                best = Some((margin, site, product, add.min(cap), cap));
             }
         }
     }
-    let Some((_, site, product, mut count)) = best else {
+    let Some((_, site, product, add, cap)) = best else {
         open_deposit(state, catalog, id, sites, date, news);
         return;
     };
     // Units of the product standing still at the site start up before new ones are
     // built (M22).
-    let standing: Vec<(usize, u32)> = state.sites[site.index()]
+    let standing: Vec<(usize, f64)> = state.sites[site.index()]
         .slots
         .iter()
         .enumerate()
@@ -1266,18 +1334,18 @@ fn expand(
                     .recipe
                     .is_some_and(|r| catalog.recipes.get(r).product == product)
         })
-        .map(|(i, sl)| (i, sl.count))
+        .map(|(i, sl)| (i, sl.units(catalog)))
         .collect();
-    let mut restarted = 0;
+    let mut restarted = 0.0;
     for (slot, units) in standing {
-        if restarted >= count {
+        if restarted >= add {
             break;
         }
         if run(state, catalog, id, &Command::RestartFacility { site, slot }) {
             restarted += units;
         }
     }
-    if restarted > 0 {
+    if restarted > 0.0 {
         return;
     }
     let kind = state.sites[site.index()].kind;
@@ -1292,12 +1360,34 @@ fn expand(
         return;
     };
     let facility = catalog.recipes.get(recipe).facility;
+    let sizes = &catalog.production_model.sizes;
+    let company = &state.companies[id.index()];
+    let budget = (company.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, company))
+        .scale(b.invest_share_max);
+    // Units of a size the concession still allows (extraction).
+    let within = |size: FacilitySize| -> u32 {
+        if cap.is_finite() {
+            // Small counts; the cast saturates.
+            (cap / sizes.capacity(size) + 1e-9).floor().max(0.0) as u32
+        } else {
+            u32::MAX
+        }
+    };
+    let plan_at = |o: SiteId| {
+        plan_units(
+            catalog,
+            (facility, add),
+            |size| {
+                crate::plots::units_that_fit(catalog, state, o, (facility, size)).min(within(size))
+            },
+            (Money::ZERO, budget),
+        )
+    };
     // A full plot (M35): another own site of the kind in the country with room – one
     // already making the product first, then the one with the most room – else a new
     // plot. Without this, the full oldest site stayed the best one and every expansion
     // founded a site of its own (185 one-mill sites of one company by 1965).
-    let full = crate::plots::units_that_fit(catalog, state, site, facility) == 0;
-    let site = if full {
+    let target = plan_at(site).map(|p| (site, p)).or_else(|| {
         let makes = |o: SiteId| {
             state.sites[o.index()].slots.iter().any(|sl| {
                 sl.recipe
@@ -1311,43 +1401,34 @@ fn expand(
                 let s = &state.sites[o.index()];
                 o != site && s.country == place && s.kind == kind
             })
-            .map(|o| {
-                let room = crate::plots::units_that_fit(catalog, state, o, facility);
-                (makes(o), room, std::cmp::Reverse(o), o)
+            .filter_map(|o| {
+                let room = crate::plots::units_that_fit(
+                    catalog,
+                    state,
+                    o,
+                    (facility, FacilitySize::Medium),
+                );
+                plan_at(o).map(|p| (makes(o), room, std::cmp::Reverse(o), p))
             })
-            .filter(|&(_, room, ..)| room > 0)
-            .max()
-            .map_or(site, |(.., o)| o)
-    } else {
-        site
-    };
-    let fit = crate::plots::units_that_fit(catalog, state, site, facility);
-    if fit == 0 {
-        let company = &state.companies[id.index()];
-        let budget = (company.ledger.cash().max(Money::ZERO)
-            + finance::credit_limit(catalog, company))
-        .scale(b.invest_share_max);
-        let Some(count) = affordable(state, catalog, (None, recipe, count), budget) else {
+            .max_by(|a, b| (a.0, a.1, a.2).cmp(&(b.0, b.1, b.2)))
+            .map(|(.., std::cmp::Reverse(o), p)| (o, p))
+    });
+    let Some((site, (size, count))) = target else {
+        let Some(units) = affordable(state, catalog, (None, recipe, (add, cap)), budget) else {
             return;
         };
-        let o = (product, place, None, recipe, count);
+        let o = (product, place, None, recipe, units);
         if build_in_bottleneck(state, catalog, id, o) {
             let new = site_id(state.sites.len() - 1);
-            news.extend(news_expansion(state, catalog, id, new, recipe, count));
+            news.extend(news_expansion(state, catalog, id, new, recipe, units));
         }
         return;
-    }
-    count = count.min(fit);
-    let company = &state.companies[id.index()];
-    let budget = (company.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, company))
-        .scale(b.invest_share_max);
-    let unit = catalog.facilities.get(facility).investment;
-    while count > 0 && unit.scale(f64::from(count)) > budget {
-        count -= 1;
-    }
-    if count == 0 {
-        return;
-    }
+    };
+    let unit = catalog
+        .facilities
+        .get(facility)
+        .investment
+        .scale(sizes.investment(size));
     let cash_needed = unit.scale(f64::from(count)) - company.ledger.cash();
     if cash_needed > Money::ZERO {
         let years = b.loan_years.min(catalog.finance_model.max_term_years);
@@ -1365,6 +1446,7 @@ fn expand(
         site,
         facility,
         count,
+        size,
     };
     if run(state, catalog, id, &build) {
         let slot = state.sites[site.index()].slots.len() - 1;
@@ -1387,7 +1469,14 @@ fn expand(
             };
             run(state, catalog, id, &sell);
         }
-        news.extend(news_expansion(state, catalog, id, site, recipe, count));
+        news.extend(news_expansion(
+            state,
+            catalog,
+            id,
+            site,
+            recipe,
+            (size, count),
+        ));
     }
 }
 
@@ -1415,9 +1504,7 @@ fn own_power(
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };
-            let planned = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * sl.utilization;
+            let planned = sl.full_runs(catalog) * sl.utilization;
             *lacking.entry(s.country).or_default() +=
                 r.energy_mwh * (planned - sl.last_runs).max(0.0);
         }
@@ -1438,10 +1525,7 @@ fn own_power(
             .filter(|sl| !sl.operating(date) && !sl.mothballed())
         {
             let output = sl.recipe.map_or(1.0, |r| catalog.recipes.get(r).output);
-            *lack -= catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * output
-                * catalog.ai_model.start.utilization;
+            *lack -= sl.full_runs(catalog) * output * catalog.ai_model.start.utilization;
         }
     }
     let Some((country, mwh)) = lacking
@@ -1459,67 +1543,64 @@ fn own_power(
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
     let per_plant = f.runs_per_day * r.output * catalog.ai_model.start.utilization;
-    // Plant counts are small; the cast cannot overflow.
-    let mut count = (mwh / per_plant.max(1e-9)).ceil().max(1.0) as u32;
+    // Enough plants for the electricity lacking, in units of the data size (M36).
+    let wanted = mwh / per_plant.max(1e-9);
     let b = &catalog.ai_model.behavior;
     let company = &state.companies[id.index()];
     let budget = (company.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, company))
         .scale(b.invest_share_max);
-    let site_cost = if sites.iter().any(|&s| {
-        let s = &state.sites[s.index()];
-        s.country == country && s.kind == f.site_type
-    }) {
-        Money::ZERO
-    } else {
-        catalog.production_model.site_cost(f.site_type)
+    let unit_of = |size: FacilitySize| {
+        f.investment
+            .scale(catalog.production_model.sizes.investment(size))
     };
-    while count > 0 && f.investment.scale(f64::from(count)) + site_cost > budget {
-        count -= 1;
-    }
-    if count == 0 {
-        return false;
-    }
-    let cash_needed = f.investment.scale(f64::from(count)) + site_cost - company.ledger.cash();
-    if cash_needed > Money::ZERO {
-        let years = b.loan_years.min(catalog.finance_model.max_term_years);
-        run(
-            state,
-            catalog,
-            id,
-            &Command::TakeLoan {
-                amount: cash_needed,
-                years,
-            },
-        );
-    }
-    // An existing power plant site of the country while its plot has room (M35).
-    let existing = sites.iter().copied().find(|&s| {
+    // An existing power plant site of the country while its plot has room (M35), else a
+    // new one.
+    let existing = sites.iter().copied().find_map(|s| {
         let st = &state.sites[s.index()];
-        st.country == country
-            && st.kind == f.site_type
-            && crate::plots::units_that_fit(catalog, state, s, r.facility) > 0
+        if st.country != country || st.kind != f.site_type {
+            return None;
+        }
+        let room = |size| crate::plots::units_that_fit(catalog, state, s, (r.facility, size));
+        plan_units_up(catalog, (r.facility, wanted), room, (Money::ZERO, budget))
+            .map(|units| (s, units))
     });
-    let (site, count) = match existing {
-        Some(site) => (
-            site,
-            count.min(crate::plots::units_that_fit(
-                catalog, state, site, r.facility,
-            )),
-        ),
+    let (site, size, count) = match existing {
+        Some((site, (size, count))) => {
+            let cash_needed = unit_of(size).scale(f64::from(count)) - company.ledger.cash();
+            take_loan(state, catalog, id, cash_needed);
+            (site, size, count)
+        }
         None => {
-            let place = (country, f.site_type);
-            let Some((site, fit)) =
-                found_site_for(state, catalog, id, place, (Some((r.facility, count)), 0.0))
-            else {
+            let site_cost = catalog.production_model.site_cost(f.site_type);
+            let Some((size, count)) = plan_units_up(
+                catalog,
+                (r.facility, wanted),
+                |_| u32::MAX,
+                (site_cost, budget),
+            ) else {
                 return false;
             };
-            (site, count.min(fit))
+            let cash_needed =
+                unit_of(size).scale(f64::from(count)) + site_cost - company.ledger.cash();
+            take_loan(state, catalog, id, cash_needed);
+            let place = (country, f.site_type);
+            let Some((site, fit)) = found_site_for(
+                state,
+                catalog,
+                id,
+                place,
+                (Some((r.facility, size, count)), 0.0),
+            ) else {
+                return false;
+            };
+            (site, size, count.min(fit))
         }
     };
     let build = Command::BuildFacility {
         site,
         facility: r.facility,
         count,
+        size,
     };
     if !run(state, catalog, id, &build) {
         return false;
@@ -1609,12 +1690,12 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
         }
         // With the processes this company knows: it may have researched one that is not
         // public yet (M22; cracking 1913 was public only in 1938).
-        let Some((product, country, deposit, recipe, count)) =
+        let Some((product, country, deposit, recipe, want)) =
             opportunity_in(&scan, state, catalog, &taken, id, None)
         else {
             continue;
         };
-        let Some(count) = affordable(state, catalog, (deposit, recipe, count), budget) else {
+        let Some(units) = affordable(state, catalog, (deposit, recipe, want), budget) else {
             // The richest cannot afford it; the others cannot either.
             break;
         };
@@ -1623,7 +1704,7 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
             state,
             catalog,
             id,
-            (product, country, deposit, recipe, count),
+            (product, country, deposit, recipe, units),
         );
         scan = Scan::new(state, catalog);
         if built {
@@ -1634,7 +1715,7 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
                 id,
                 site_id(state.sites.len() - 1),
                 recipe,
-                count,
+                units,
             ));
         }
     }
@@ -1689,12 +1770,12 @@ fn pioneer(
     let mut taken: Vec<ProductId> = Vec::new();
     let mut scan = Scan::new(state, catalog);
     for &(budget, id) in rich {
-        let Some((product, country, deposit, recipe, count)) =
+        let Some((product, country, deposit, recipe, want)) =
             opportunity_in(&scan, state, catalog, &taken, id, Some(&new))
         else {
             continue;
         };
-        let Some(count) = affordable(state, catalog, (deposit, recipe, count), budget) else {
+        let Some(units) = affordable(state, catalog, (deposit, recipe, want), budget) else {
             continue;
         };
         taken.push(product);
@@ -1702,7 +1783,7 @@ fn pioneer(
             state,
             catalog,
             id,
-            (product, country, deposit, recipe, count),
+            (product, country, deposit, recipe, units),
         );
         scan = Scan::new(state, catalog);
         if built {
@@ -1712,21 +1793,23 @@ fn pioneer(
                 id,
                 site_id(state.sites.len() - 1),
                 recipe,
-                count,
+                units,
             ));
         }
     }
 }
 
-/// The number of facilities a budget pays for, with the site and the development of the
-/// deposit; `None` if not even one.
+/// Size and number of facilities for the wanted capacity that a budget pays for, with
+/// the site and the development of the deposit (M36: a smaller size if not even one
+/// unit); `None` if not even the smallest.
 fn affordable(
     state: &GameState,
     catalog: &Catalog,
-    (deposit, recipe, count): (Option<DepositId>, RecipeId, u32),
+    (deposit, recipe, (wanted, cap)): (Option<DepositId>, RecipeId, Want),
     budget: Money,
-) -> Option<u32> {
-    let f = catalog.facilities.get(catalog.recipes.get(recipe).facility);
+) -> Option<(FacilitySize, u32)> {
+    let facility = catalog.recipes.get(recipe).facility;
+    let f = catalog.facilities.get(facility);
     let fixed = catalog.production_model.site_cost(f.site_type)
         + deposit.map_or(Money::ZERO, |d| {
             catalog
@@ -1735,11 +1818,25 @@ fn affordable(
                 .development_cost
                 .scale(state.settings.market_scale)
         });
-    let mut count = count;
-    while count > 0 && fixed + f.investment.scale(f64::from(count)) > budget {
-        count -= 1;
+    plan_units(
+        catalog,
+        (facility, wanted),
+        |size| within_cap(catalog, cap, size),
+        (fixed, budget),
+    )
+}
+
+/// Units of a size that stay within `cap` capacity (units of the data size; infinite for
+/// no limit).
+fn within_cap(catalog: &Catalog, cap: f64, size: FacilitySize) -> u32 {
+    if cap.is_finite() {
+        // Small counts; the cast saturates.
+        (cap / catalog.production_model.sizes.capacity(size) + 1e-9)
+            .floor()
+            .max(0.0) as u32
+    } else {
+        u32::MAX
     }
-    (count > 0).then_some(count)
 }
 
 /// Builds a new site for an opportunity in an existing company (loan if needed).
@@ -1747,14 +1844,16 @@ fn build_in_bottleneck(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
-    o: Opportunity,
+    o: Planned,
 ) -> bool {
-    let (product, country, deposit, recipe, count) = o;
+    let (product, country, deposit, recipe, (size, count)) = o;
     let b = &catalog.ai_model.behavior;
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
-    let cost =
-        catalog.production_model.site_cost(f.site_type) + f.investment.scale(f64::from(count));
+    let unit = f
+        .investment
+        .scale(catalog.production_model.sizes.investment(size));
+    let cost = catalog.production_model.site_cost(f.site_type) + unit.scale(f64::from(count));
     let cash_needed = cost - state.companies[id.index()].ledger.cash();
     if cash_needed > Money::ZERO {
         let years = b.loan_years.min(catalog.finance_model.max_term_years);
@@ -1769,13 +1868,14 @@ fn build_in_bottleneck(
         );
     }
     let place = (country, f.site_type);
-    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+    let capacity = f64::from(count) * catalog.production_model.sizes.capacity(size);
+    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
     let Some((site, fit)) = found_site_for(
         state,
         catalog,
         id,
         place,
-        (Some((r.facility, count)), revenue),
+        (Some((r.facility, size, count)), revenue),
     ) else {
         return false;
     };
@@ -1792,6 +1892,7 @@ fn build_in_bottleneck(
         site,
         facility: r.facility,
         count,
+        size,
     };
     if !run(state, catalog, id, &build) {
         return false;
@@ -1928,15 +2029,21 @@ fn open_deposit(
         };
         let d = catalog.deposits.get(deposit);
         let facility = catalog.recipes.get(recipe).facility;
-        let count = catalog
+        let sizes = &catalog.production_model.sizes;
+        let cap = concession_capacity(state, catalog, deposit, recipe);
+        let wanted = catalog
             .ai_model
             .plants_per_concession
             .round()
             .max(1.0)
-            .min(f64::from(units_for_concession(
-                state, catalog, deposit, recipe,
-            )));
-        let cost = catalog.facilities.get(facility).investment.scale(count)
+            .min(cap);
+        let (size, count) = sizes.units_for(wanted);
+        let count = count.min(within_cap(catalog, cap, size)).max(1);
+        let cost = catalog
+            .facilities
+            .get(facility)
+            .investment
+            .scale(sizes.investment(size) * f64::from(count))
             + d.development_cost.scale(state.settings.market_scale)
             + catalog.production_model.site_cost(SiteType::Extraction);
         let company = &state.companies[id.index()];
@@ -1973,11 +2080,11 @@ fn open_deposit(
             id,
             &Command::DevelopDeposit { site, deposit },
         );
-        // Plant counts are small; the cast cannot overflow.
         let build = Command::BuildFacility {
             site,
             facility,
-            count: count as u32,
+            count,
+            size,
         };
         if run(state, catalog, id, &build) {
             let produce = Command::SetProduction {
@@ -1997,14 +2104,13 @@ fn open_deposit(
                 keep: 0.0,
             };
             run(state, catalog, id, &sell);
-            // Plant counts are small; the cast cannot overflow.
             news.extend(news_expansion(
                 state,
                 catalog,
                 id,
                 site,
                 recipe,
-                count as u32,
+                (size, count),
             ));
         }
         return;
@@ -2108,14 +2214,20 @@ fn research_plan(
             };
             let country = state.companies[id.index()].headquarters;
             let place = (country, SiteType::ResearchCenter);
-            let Some((site, _)) = found_site_for(state, catalog, id, place, (Some((lab, 1)), 0.0))
-            else {
+            let Some((site, _)) = found_site_for(
+                state,
+                catalog,
+                id,
+                place,
+                (Some((lab, FacilitySize::Medium, 1)), 0.0),
+            ) else {
                 return;
             };
             let build = Command::BuildFacility {
                 site,
                 facility: lab,
                 count: 1,
+                size: FacilitySize::Medium,
             };
             if !run(state, catalog, id, &build) {
                 return;
@@ -2211,7 +2323,21 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
     }
 }
 
-type Opportunity = (ProductId, CountryId, Option<DepositId>, RecipeId, u32);
+/// Wanted capacity in units of the data size and the most a concession allows (M36;
+/// infinite without a limit).
+type Want = (f64, f64);
+
+/// A product to make, where, from which deposit, with which recipe and how much.
+type Opportunity = (ProductId, CountryId, Option<DepositId>, RecipeId, Want);
+
+/// An opportunity with its size and number of facilities.
+type Planned = (
+    ProductId,
+    CountryId,
+    Option<DepositId>,
+    RecipeId,
+    (FacilitySize, u32),
+);
 
 /// The companies making each product (main product of a recipe set on a facility,
 /// bankrupt companies left out).
@@ -2327,15 +2453,16 @@ fn deposit_for(
         .map(|(d, _)| d)
 }
 
-/// Units of an extraction recipe that a free concession of a deposit keeps busy at the
-/// start utilization, at least one (M33: twenty oil wells on a field that allowed two
-/// used up its year in weeks and stood still for the rest).
-fn units_for_concession(
+/// Capacity of an extraction recipe (units of the data size, in steps of the smallest
+/// size, M36) that a free concession of a deposit keeps busy at the start utilization,
+/// at least the smallest size (M33: twenty oil wells on a field that allowed two used
+/// up its year in weeks and stood still for the rest).
+fn concession_capacity(
     state: &GameState,
     catalog: &Catalog,
     deposit: DepositId,
     recipe: RecipeId,
-) -> u32 {
+) -> f64 {
     let share = state
         .deposits
         .get(deposit)
@@ -2347,8 +2474,11 @@ fn units_for_concession(
         catalog.max_output(deposit, state.date.year()) * state.settings.market_scale * share
             / 365.0;
     let per_unit = population::output_per_day(catalog, recipe) * catalog.ai_model.start.utilization;
-    // Small counts; the cast cannot overflow.
-    (allowed / per_unit.max(1e-9)).ceil().clamp(1.0, 20.0) as u32
+    let smallest = catalog
+        .production_model
+        .sizes
+        .capacity(FacilitySize::VerySmall);
+    ((allowed / per_unit.max(1e-9) / smallest).ceil() * smallest).clamp(smallest, 20.0)
 }
 
 /// Whether some active company could use a recipe: it knows the technologies of the
@@ -2481,11 +2611,7 @@ impl Scan {
             }
             for sl in s.slots.iter().filter(|sl| sl.ready > state.date) {
                 if let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) {
-                    *coming.entry(r.product).or_default() +=
-                        catalog.facilities.get(sl.facility).runs_per_day
-                            * f64::from(sl.count)
-                            * r.output
-                            * u;
+                    *coming.entry(r.product).or_default() += sl.full_runs(catalog) * r.output * u;
                 }
             }
         }
@@ -2755,23 +2881,34 @@ impl Chain<'_> {
             };
         }
         let per_day = population::output_per_day(catalog, recipe) * u;
-        // Small counts; the cast cannot overflow.
-        let count = (total / per_day.max(1e-9)).round().clamp(1.0, 20.0) as u32;
-        let count = deposit.map_or(count, |d| {
-            count.min(units_for_concession(state, catalog, d, recipe))
+        // Capacity in units of the data size (M36), from the smallest size to twenty.
+        let smallest = catalog
+            .production_model
+            .sizes
+            .capacity(FacilitySize::VerySmall);
+        let wanted = (total / per_day.max(1e-9)).clamp(smallest, 20.0);
+        let cap = deposit.map_or(f64::INFINITY, |d| {
+            concession_capacity(state, catalog, d, recipe)
         });
-        Some((product, place, deposit, recipe, count))
+        Some((product, place, deposit, recipe, (wanted.min(cap), cap)))
     }
 }
 
 /// Founds a company for an opportunity; true when it could start production.
 fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunity) -> bool {
-    let (product, country, deposit, recipe, count) = o;
+    let (product, country, deposit, recipe, (wanted, cap)) = o;
     let model = &catalog.ai_model;
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
-    let mut investment =
-        f.investment.scale(f64::from(count)) + catalog.production_model.site_cost(f.site_type);
+    let sizes = &catalog.production_model.sizes;
+    // The capital follows the plan; there is no budget to keep within.
+    let (size, count) = sizes.units_for(wanted);
+    let count = count.min(within_cap(catalog, cap, size)).max(1);
+    let capacity = f64::from(count) * sizes.capacity(size);
+    let mut investment = f
+        .investment
+        .scale(sizes.investment(size) * f64::from(count))
+        + catalog.production_model.site_cost(f.site_type);
     if let Some(d) = deposit {
         investment += catalog
             .deposits
@@ -2782,12 +2919,13 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
     // Without a plot for the works there is no company (M35); its capital buys the land.
     if crate::plots::needs_plot(catalog, f.site_type) {
         let m = &catalog.plot_model;
-        let need = crate::plots::project_area(catalog, r.facility, count) * (1.0 + m.ai_reserve);
-        let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+        let need =
+            crate::plots::project_area(catalog, r.facility, size, count) * (1.0 + m.ai_reserve);
+        let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
         let Some(plot) = crate::plots::choose(catalog, state, country, need, revenue) else {
             return false;
         };
-        let per_unit = crate::plots::facility_area(catalog, r.facility) * (1.0 + m.overhead);
+        let per_unit = crate::plots::unit_area(catalog, r.facility, size) * (1.0 + m.overhead);
         if state.plots[plot.index()].area_ha + 1e-9 < per_unit.max(m.min_site_area_ha) {
             return false;
         }
@@ -2828,13 +2966,13 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         }),
     });
     let place = (country, f.site_type);
-    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, count);
+    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
     let Some((site, fit)) = found_site_for(
         state,
         catalog,
         id,
         place,
-        (Some((r.facility, count)), revenue),
+        (Some((r.facility, size, count)), revenue),
     ) else {
         return false;
     };
@@ -2851,6 +2989,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         site,
         facility: r.facility,
         count,
+        size,
     };
     if !run(state, catalog, id, &build) {
         return false;
@@ -2878,6 +3017,59 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
 mod tests {
     use super::*;
     use crate::catalog::test_support;
+
+    #[test]
+    fn large_demand_gets_large_units_and_short_money_or_land_smaller_ones() {
+        let mut catalog = test_support::production();
+        catalog.production_model.sizes = crate::catalog::SizeModel {
+            capacity: [0.25, 0.5, 1.0, 2.0, 4.0],
+            investment_exponent: 0.7,
+            labor_exponent: -0.15,
+            area_exponent: 0.7,
+            build_exponent: 0.3,
+        };
+        let furnace = catalog.facilities.id("ofen").expect("exists");
+        let rich = (Money::ZERO, Money::from_usd(1e9).expect("valid"));
+        let any = |_: FacilitySize| u32::MAX;
+        assert_eq!(
+            plan_units(&catalog, (furnace, 5.0), any, rich),
+            Some((FacilitySize::VeryLarge, 1))
+        );
+        assert_eq!(
+            plan_units(&catalog, (furnace, 0.4), any, rich),
+            Some((FacilitySize::VerySmall, 2))
+        );
+        // A furnace costs 2 000 000 USD, a very large one 5 278 031: 2 500 000 pay for
+        // one medium furnace.
+        let poor = (Money::ZERO, Money::from_usd(2_500_000.0).expect("valid"));
+        assert_eq!(
+            plan_units(&catalog, (furnace, 5.0), any, poor),
+            Some((FacilitySize::Medium, 1))
+        );
+        // A plot without room for a very large unit takes two large ones.
+        let room = |s: FacilitySize| {
+            if s == FacilitySize::VeryLarge {
+                0
+            } else {
+                u32::MAX
+            }
+        };
+        assert_eq!(
+            plan_units(&catalog, (furnace, 4.0), room, rich),
+            Some((FacilitySize::Large, 2))
+        );
+        // Own power covers the whole lack.
+        assert_eq!(
+            plan_units_up(&catalog, (furnace, 1.3), any, rich),
+            Some((FacilitySize::Medium, 2))
+        );
+        assert_eq!(
+            plan_units(&catalog, (furnace, 1.3), any, rich),
+            Some((FacilitySize::Medium, 1))
+        );
+        let nothing = (Money::ZERO, Money::from_usd(100.0).expect("valid"));
+        assert_eq!(plan_units(&catalog, (furnace, 5.0), any, nothing), None);
+    }
 
     /// An AI company with a works of ten furnaces making iron at `utilization`; it sells
     /// that share of their full output.
@@ -2959,6 +3151,7 @@ mod tests {
             last_runs: 0.0,
             limit: None,
             operation: Operation::Running,
+            size: crate::catalog::FacilitySize::Medium,
         });
         // Ten furnaces make 500 t a day; last month sold the planned share.
         let price = reference.scale(0.5);
@@ -3376,6 +3569,7 @@ mod tests {
             last_runs: 0.0,
             limit: None,
             operation: Operation::Running,
+            size: crate::catalog::FacilitySize::Medium,
         });
         state.sites[mine.index()].offers.insert(
             ore,
@@ -3419,11 +3613,11 @@ mod tests {
         let m = state.markets.get_mut(ore).get_mut(aaa);
         m.open_demand = 10_000.0;
         m.idle_since = None;
-        let (product, _, deposit, _, count) =
+        let (product, _, deposit, _, want) =
             opportunity(state, &catalog, &[], id, Some(&[ore])).expect("a mine");
         assert_eq!((product, deposit), (ore, Some(grube)));
         // 36 500 t a year are 100 t a day: two mines of 100 t at 90 %, not twenty.
-        assert_eq!(count, 2);
+        assert_eq!(want, (2.0, 2.0));
         // Most of the reserve is gone: ten years at full output no longer fit.
         let reserve = catalog.deposits.get(grube).reserve.expect("finite");
         state.deposits.get_mut(grube).extracted = reserve - 10.0 * 36_500.0 + 1.0;
@@ -3490,10 +3684,13 @@ mod tests {
                 expected,
                 "{entry_max} {companies} {paid_factor} {newcomer}: {found:?}"
             );
-            if let Some((product, country, deposit, _, count)) = found {
+            if let Some((product, country, deposit, _, (wanted, _))) = found {
                 assert_eq!((product, country, deposit), (iron, aaa, None));
                 // A quarter of 1000 t a day, furnaces of 50 t at 90 %.
-                assert_eq!(count, 6);
+                assert_eq!(
+                    catalog.production_model.sizes.units_for(wanted),
+                    (FacilitySize::Medium, 6)
+                );
             }
         }
     }

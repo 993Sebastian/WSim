@@ -406,9 +406,7 @@ fn stock_traders(state: &mut GameState, catalog: &Catalog) {
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };
-            let runs = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * sl.utilization;
+            let runs = sl.full_runs(catalog) * sl.utilization;
             supply[r.product.index()][s.country.index()] += runs * r.output;
             for &(p, q) in &r.inputs {
                 need[p.index()][s.country.index()] += runs * q;
@@ -680,13 +678,14 @@ pub(crate) fn slot_flows(
     state: &GameState,
     country: CountryId,
     recipe: RecipeId,
-    count: u32,
+    (count, size): (u32, crate::catalog::FacilitySize),
     utilization: f64,
     wage_factor: f64,
 ) -> SlotFlows {
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
-    let runs = f.runs_per_day * f64::from(count) * utilization;
+    let sizes = &catalog.production_model.sizes;
+    let runs = f.runs_per_day * f64::from(count) * sizes.capacity(size) * utilization;
     let c = state.countries.get(country);
     let inputs: Vec<(ProductId, f64)> = r.inputs.iter().map(|&(p, q)| (p, q * runs)).collect();
     let input_cost: f64 = inputs
@@ -699,12 +698,15 @@ pub(crate) fn slot_flows(
         .map(|&(g, h)| h * runs * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
         .sum::<f64>()
         * wage_factor
+        * sizes.labor(size)
         / c.labor_productivity.max(1e-9);
     let energy = r.energy_mwh * runs * c.electricity_price_usd_mwh;
-    let conversion = labor + energy + crate::production::capital_per_run_usd(catalog, r) * runs;
+    let conversion =
+        labor + energy + crate::production::capital_per_run_usd(catalog, r, size) * runs;
     let overhead = crate::production::overhead_usd(catalog, r, conversion)
         + crate::production::rent_per_run_usd(catalog, state, country, r) * runs;
     let capital = f.investment.to_usd()
+        * sizes.investment(size)
         * f64::from(count)
         * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
         / 365.0;
@@ -839,13 +841,14 @@ fn found_company(
                 last_runs: 0.0,
                 limit: None,
                 operation: crate::state::Operation::Running,
+                size: crate::catalog::FacilitySize::Medium,
             });
             let flows = slot_flows(
                 catalog,
                 state,
                 country,
                 p.recipe,
-                p.count,
+                (p.count, crate::catalog::FacilitySize::Medium),
                 start.utilization,
                 1.0,
             );

@@ -238,6 +238,7 @@ function AnlageKarte({
       <h3>
         {a.count > 1 ? `${a.count} × ` : ""}
         {name}
+        {a.size !== "mittel" && ` (${t(`anlagengroesse.${a.size}`)})`}
         {imBau && <small>{t("uebersicht.im_bau", { datum: formatDatum(a.ready) })}</small>}
         {a.operation !== "laeuft" && a.operation_date && (
           <small>
@@ -459,7 +460,7 @@ function GrundstueckKarte({
   // Full when not even one more unit of any facility of this site type fits.
   const voll = produktion.facilities
     .filter((f) => f.site_type === s.kind)
-    .every((f) => (g.fits[f.key] ?? 0) === 0);
+    .every((f) => (g.fits[f.key] ?? [0]).every((n) => n === 0));
   return (
     <section className="karte" aria-label={t("grundstueck.titel")} data-tour="werk-grundstueck">
       <h3>{t("grundstueck.titel")}</h3>
@@ -517,15 +518,31 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
     .sort((a, b) => a.investment_usd - b.investment_usd);
   const [anlage, setAnlage] = useState(baubar[0]?.key ?? "");
   const [anzahl, setAnzahl] = useState("1");
+  const [groesse, setGroesse] = useState("Medium");
   const { los, antwort } = useAktion(`bauen/${s.index}`);
   const id = useId();
   if (baubar.length === 0) return null;
   const f = baubar.find((x) => x.key === anlage) ?? baubar[0]!;
   const rezepte = produktion.recipes.filter((r) => f.recipes.includes(r.key));
   const zahl = Math.floor(zahlLesen(anzahl) ?? 0);
+  // The chosen size (M36); without sizes the data size.
+  const nr = Math.max(
+    0,
+    f.sizes.findIndex((g) => g.size === groesse),
+  );
+  const g = f.sizes[nr] ?? {
+    size: "Medium",
+    key: "mittel",
+    capacity: 1,
+    investment_usd: f.investment_usd,
+    build_days: f.build_days,
+    area_ha: f.area_ha,
+    labor_per_unit: 1,
+  };
   // Units that still fit on the plot (none: no plot, no limit).
-  const passen = s.plot ? (s.plot.fits[f.key] ?? 0) : null;
+  const passen = s.plot ? (s.plot.fits[f.key]?.[nr] ?? 0) : null;
   const zuGross = passen !== null && zahl > passen;
+  const keinePasst = (key: string) => (s.plot?.fits[key] ?? [0]).every((n) => n === 0);
   return (
     <form
       className="karte bauen"
@@ -534,8 +551,8 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
         e.preventDefault();
         if (zahl < 1) return;
         void los(
-          [{ BuildFacility: { site: s.index, facility: f.key, count: zahl } }],
-          t("werk.bau_begonnen", { anlage: t(`anlage.${f.key}`), tage: f.build_days }),
+          [{ BuildFacility: { site: s.index, facility: f.key, count: zahl, size: g.size } }],
+          t("werk.bau_begonnen", { anlage: t(`anlage.${f.key}`), tage: g.build_days }),
         );
       }}
     >
@@ -547,31 +564,57 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
             {baubar.map((x) => (
               <option key={x.key} value={x.key}>
                 {t(`anlage.${x.key}`)} – {formatGeld(x.investment_usd)}
-                {s.plot && (s.plot.fits[x.key] ?? 0) === 0 && ` (${t("grundstueck.passt_nicht")})`}
+                {s.plot && keinePasst(x.key) && ` (${t("grundstueck.passt_nicht")})`}
               </option>
             ))}
           </select>
         </div>
+        {f.sizes.length > 0 && (
+          <div className="feld">
+            <label htmlFor={`${id}-groesse`}>{t("werk.groesse")}</label>
+            <select
+              id={`${id}-groesse`}
+              value={g.size}
+              onChange={(e) => setGroesse(e.target.value)}
+            >
+              {f.sizes.map((o, i) => (
+                <option key={o.size} value={o.size}>
+                  {t("werk.groesse_option", {
+                    groesse: t(`anlagengroesse.${o.key}`),
+                    leistung: formatZahl(o.capacity, 2),
+                    betrag: formatGeld(o.investment_usd),
+                  })}
+                  {s.plot &&
+                    (s.plot.fits[f.key]?.[i] ?? 0) === 0 &&
+                    ` (${t("grundstueck.passt_nicht")})`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <ZahlFeld name={t("produktion.anzahl")} ganzzahlig wert={anzahl} onWert={setAnzahl} />
       </div>
+      <p className="erklaerung">{t("werk.groesse_hinweis")}</p>
       <dl className="werte">
         <dt>{t("werk.investition")}</dt>
         <dd>
-          {formatGeld(f.investment_usd * Math.max(zahl, 1))}
+          {formatGeld(g.investment_usd * Math.max(zahl, 1))}
           {zahl > 1 && (
             <small className="gedaempft">
               {" "}
-              ({t("werk.je_anlage", { betrag: formatGeld(f.investment_usd) })})
+              ({t("werk.je_anlage", { betrag: formatGeld(g.investment_usd) })})
             </small>
           )}
         </dd>
         <dt>{t("werk.bauzeit")}</dt>
-        <dd>{t("produktion.tage", { tage: f.build_days })}</dd>
+        <dd>{t("produktion.tage", { tage: g.build_days })}</dd>
+        <dt>{t("werk.arbeit_je_stueck")}</dt>
+        <dd>{formatProzent(g.labor_per_unit)}</dd>
         {passen !== null && (
           <>
             <dt>{t("grundstueck.flaechenbedarf")}</dt>
             <dd>
-              {formatZahl(f.area_ha * Math.max(zahl, 1), 2)} ha
+              {formatZahl(g.area_ha * Math.max(zahl, 1), 2)} ha
               <small className="gedaempft">
                 {" "}
                 ({t("grundstueck.passen_noch", { anzahl: formatZahl(passen) })})
@@ -585,8 +628,12 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
           <ul className="schlicht-liste">
             {rezepte.map((r) => (
               <li key={r.key}>
-                {r.inputs_per_day.length > 0 && `${mengen(produktion, r.inputs_per_day)} → `}
-                {formatMenge(r.output_per_day)} {einheit(produktion, r.product)}{" "}
+                {r.inputs_per_day.length > 0 &&
+                  `${mengen(
+                    produktion,
+                    r.inputs_per_day.map(([p, q]) => [p, q * g.capacity]),
+                  )} → `}
+                {formatMenge(r.output_per_day * g.capacity)} {einheit(produktion, r.product)}{" "}
                 {produktName(r.product)} {t("werk.je_tag")}
               </li>
             ))}

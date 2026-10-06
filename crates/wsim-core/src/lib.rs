@@ -54,6 +54,8 @@ mod production_tests;
 #[cfg(test)]
 mod research_tests;
 #[cfg(test)]
+mod size_tests;
+#[cfg(test)]
 mod trade_tests;
 
 pub use calendar::{Date, RoundLength};

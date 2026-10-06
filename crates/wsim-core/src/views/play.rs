@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
-use crate::catalog::{Catalog, SiteType};
+use crate::catalog::{Catalog, FacilitySize, SiteType};
 use crate::command::site_type_key;
 use crate::finance;
 use crate::game::Game;
@@ -34,6 +34,12 @@ pub struct SlotDetail {
     pub index: usize,
     pub facility: String,
     pub count: u32,
+    /// Size of the units (M36; text `anlagengroesse.<key>`) and their capacity as a
+    /// multiple of the data size.
+    #[serde(default = "medium_key")]
+    pub size: String,
+    #[serde(default = "one")]
+    pub capacity: f64,
     pub recipe: Option<String>,
     pub product: Option<String>,
     pub utilization: f64,
@@ -239,9 +245,10 @@ pub struct SitePlotView {
     pub value_usd: f64,
     /// Rent per year while leased.
     pub rent_usd_year: Option<f64>,
-    /// Units of each known facility of the site's type that still fit on the plot.
+    /// Units of each known facility of the site's type that still fit on the plot, by
+    /// size (`FacilitySize::ALL` order, M36).
     #[serde(default)]
-    pub fits: BTreeMap<String, u32>,
+    pub fits: BTreeMap<String, Vec<u32>>,
 }
 
 /// Price index and reference price of a product in a country.
@@ -271,6 +278,34 @@ pub struct FacilityOption {
     /// Land per unit with ways and offices (M35; 0 without plots).
     #[serde(default)]
     pub area_ha: f64,
+    /// The sizes to build (M36), the smallest first.
+    #[serde(default)]
+    pub sizes: Vec<SizeOption>,
+}
+
+/// A size of a facility to build (M36).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SizeOption {
+    /// For `BuildFacility`, e.g. `Large`.
+    pub size: FacilitySize,
+    /// Text key `anlagengroesse.<key>`.
+    pub key: String,
+    /// Capacity as a multiple of the data size.
+    pub capacity: f64,
+    pub investment_usd: f64,
+    pub build_days: u32,
+    /// Land per unit with ways and offices (0 without plots).
+    pub area_ha: f64,
+    /// Labor per unit made as a multiple of the data size.
+    pub labor_per_unit: f64,
+}
+
+fn medium_key() -> String {
+    FacilitySize::Medium.key().to_owned()
+}
+
+fn one() -> f64 {
+    1.0
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -370,6 +405,26 @@ pub fn production(game: &Game) -> ProductionView {
                 } else {
                     0.0
                 },
+                sizes: FacilitySize::ALL
+                    .iter()
+                    .map(|&size| {
+                        let sizes = &catalog.production_model.sizes;
+                        SizeOption {
+                            size,
+                            key: size.key().to_owned(),
+                            capacity: sizes.capacity(size),
+                            investment_usd: usd(f.investment.scale(sizes.investment(size))),
+                            build_days: sizes.build_days(size, f.build_days),
+                            area_ha: if catalog.plot_model.enabled() {
+                                crate::plots::unit_area(catalog, id, size)
+                                    * (1.0 + catalog.plot_model.overhead)
+                            } else {
+                                0.0
+                            },
+                            labor_per_unit: sizes.labor(size),
+                        }
+                    })
+                    .collect(),
             }
         })
         .collect();
@@ -417,7 +472,7 @@ pub fn production(game: &Game) -> ProductionView {
                     let runs = if sl.mothballed() {
                         0.0
                     } else {
-                        f.runs_per_day * f64::from(sl.count) * sl.utilization
+                        sl.full_runs(catalog) * sl.utilization
                     };
                     if let Some(r) = recipe {
                         for &(p, q) in &r.inputs {
@@ -460,6 +515,8 @@ pub fn production(game: &Game) -> ProductionView {
                         index,
                         facility: catalog.facilities.key(sl.facility).to_owned(),
                         count: sl.count,
+                        size: sl.size.key().to_owned(),
+                        capacity: catalog.production_model.sizes.capacity(sl.size),
                         recipe: sl.recipe.map(|r| catalog.recipes.key(r).to_owned()),
                         product: recipe.map(|r| catalog.products.key(r.product).to_owned()),
                         utilization: sl.utilization,
@@ -659,7 +716,17 @@ pub fn production(game: &Game) -> ProductionView {
                             .map(|(f, _)| {
                                 (
                                     catalog.facilities.key(f).to_owned(),
-                                    crate::plots::units_that_fit(catalog, state, site_id, f),
+                                    FacilitySize::ALL
+                                        .iter()
+                                        .map(|&size| {
+                                            crate::plots::units_that_fit(
+                                                catalog,
+                                                state,
+                                                site_id,
+                                                (f, size),
+                                            )
+                                        })
+                                        .collect(),
                                 )
                             })
                             .collect(),

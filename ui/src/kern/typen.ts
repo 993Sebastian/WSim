@@ -315,10 +315,27 @@ export interface Ursache {
   detail: string | null;
 }
 
+/** A size of a facility to build (M36; text `anlagengroesse.<key>`). */
+export interface Anlagengroesse {
+  /** For `BuildFacility`, e.g. `Large`. */
+  size: string;
+  key: string;
+  /** Capacity as a multiple of the data size. */
+  capacity: number;
+  investment_usd: number;
+  build_days: number;
+  area_ha: number;
+  /** Labor per unit made as a multiple of the data size. */
+  labor_per_unit: number;
+}
+
 export interface AnlageDetail {
   index: number;
   facility: string;
   count: number;
+  /** Size of the units (text `anlagengroesse.<key>`) and their capacity factor (M36). */
+  size: string;
+  capacity: number;
   recipe: string | null;
   product: string | null;
   utilization: number;
@@ -460,8 +477,9 @@ export interface StandortGrundstueck {
   value_usd: number;
   /** Rent per year while leased. */
   rent_usd_year: number | null;
-  /** Units of each facility of the site's type that still fit on the plot. */
-  fits: Record<string, number>;
+  /** Units of each facility of the site's type that still fit on the plot, by size
+   * (smallest first). */
+  fits: Record<string, number[]>;
 }
 
 /** A free plot of a country (texts `lage.<location>`, `grundstuecksklasse.<class>`). */
@@ -500,6 +518,8 @@ export interface Produktion {
     recipes: string[];
     /** Land per unit with ways and offices (ha; 0 without plots). */
     area_ha: number;
+    /** Sizes to build (M36), the smallest first. */
+    sizes: Anlagengroesse[];
   }[];
   recipes: {
     key: string;

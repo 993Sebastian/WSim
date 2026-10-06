@@ -2,7 +2,7 @@
 //! (Lastenheft §5.2, §6.1–6.3; formulas in docs/FORMELN.md, section M5).
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, Recipe, SiteType};
+use crate::catalog::{Catalog, FacilitySize, Recipe, SiteType};
 use crate::ids::{CountryId, Id, LaborGroupId, ProductId, RecipeId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
@@ -52,23 +52,33 @@ pub fn rent_per_run_usd(
         * crate::market::local_reference(catalog, state, country, recipe.product).to_usd()
 }
 
-/// Depreciation and maintenance of a recipe's facility per run at normal utilization.
-pub fn capital_per_run_usd(catalog: &Catalog, recipe: &Recipe) -> f64 {
+/// Depreciation and maintenance of a recipe's facility of a size per run at normal
+/// utilization (M36: the investment per capacity falls with the size).
+pub fn capital_per_run_usd(catalog: &Catalog, recipe: &Recipe, size: FacilitySize) -> f64 {
     let f = catalog.facilities.get(recipe.facility);
-    f.investment.to_usd() * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
-        / (365.0 * f.runs_per_day.max(1e-9) * catalog.market_model.normal_utilization.max(1e-9))
+    let sizes = &catalog.production_model.sizes;
+    f.investment.to_usd()
+        * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
+        * sizes.investment(size)
+        / (365.0
+            * f.runs_per_day.max(1e-9)
+            * sizes.capacity(size)
+            * catalog.market_model.normal_utilization.max(1e-9))
 }
 
-/// Labor hours per run for each group, including automation, deposit difficulty and
-/// the country's labor productivity.
+/// Labor hours per run for each group, including automation, deposit difficulty, the
+/// country's labor productivity and the size of the facility (M36).
 fn hours_per_run(
     catalog: &Catalog,
-    recipe: &Recipe,
+    (recipe, size): (&Recipe, FacilitySize),
     automation: f64,
     (affinity, productivity): (f64, f64),
     cost_factor: f64,
 ) -> Vec<(LaborGroupId, f64)> {
-    let factor = labor_factor(catalog, automation, affinity) * cost_factor / productivity.max(1e-9);
+    let factor = labor_factor(catalog, automation, affinity)
+        * cost_factor
+        * catalog.production_model.sizes.labor(size)
+        / productivity.max(1e-9);
     recipe
         .labor_hours
         .iter()
@@ -191,13 +201,7 @@ fn complete_constructions(state: &mut GameState, catalog: &Catalog, date: Date) 
             .slots
             .iter()
             .filter(|s| s.ready == date)
-            .map(|s| {
-                catalog
-                    .facilities
-                    .get(s.facility)
-                    .investment
-                    .scale(f64::from(s.count))
-            })
+            .map(|s| s.investment(catalog))
             .sum();
         if finished != Money::ZERO {
             state.sites[site].staffing_due = true;
@@ -248,10 +252,7 @@ fn planned_runs(
             return None;
         }
     }
-    Some((
-        recipe,
-        catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count) * sl.utilization,
-    ))
+    Some((recipe, sl.full_runs(catalog) * sl.utilization))
 }
 
 fn deposit_cost_factor(catalog: &Catalog, state: &GameState, site: SiteId, recipe: &Recipe) -> f64 {
@@ -354,19 +355,25 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             } else {
                 1.0
             };
-            let runs = f.runs_per_day * f64::from(sl.count) * utilization;
+            let runs = sl.full_runs(catalog) * utilization;
             let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
-            let labor: f64 = hours_per_run(catalog, recipe, sl.automation, affinity, cost_factor)
-                .iter()
-                .map(|&(g, h)| h * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
-                .sum::<f64>()
+            let labor: f64 = hours_per_run(
+                catalog,
+                (recipe, sl.size),
+                sl.automation,
+                affinity,
+                cost_factor,
+            )
+            .iter()
+            .map(|&(g, h)| h * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
+            .sum::<f64>()
                 * wage_factor;
             let energy = recipe.energy_mwh * c.electricity_price_usd_mwh;
             let material: f64 = recipe.inputs.iter().map(|&(p, q)| q * price(p)).sum();
             let overhead = overhead_usd(
                 catalog,
                 recipe,
-                labor + energy + capital_per_run_usd(catalog, recipe),
+                labor + energy + capital_per_run_usd(catalog, recipe, sl.size),
             );
             let rent = rent_per_run_usd(catalog, state, s.country, recipe);
             let facility = sl.cost.to_usd()
@@ -404,9 +411,15 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
             continue;
         };
         let recipe = catalog.recipes.get(recipe_id);
-        let automation = state.sites[index].slots[slot].automation;
+        let sl = &state.sites[index].slots[slot];
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
-        for (g, h) in hours_per_run(catalog, recipe, automation, affinity, cost_factor) {
+        for (g, h) in hours_per_run(
+            catalog,
+            (recipe, sl.size),
+            sl.automation,
+            affinity,
+            cost_factor,
+        ) {
             needed[g.index()] += runs * h / worker_hours;
         }
     }
@@ -530,9 +543,12 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             continue;
         };
         let recipe = catalog.recipes.get(recipe_id);
-        let automation = state.sites[index].slots[slot].automation;
+        let (automation, size) = {
+            let sl = &state.sites[index].slots[slot];
+            (sl.automation, sl.size)
+        };
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe);
-        let per_run = hours_per_run(catalog, recipe, automation, affinity, cost_factor);
+        let per_run = hours_per_run(catalog, (recipe, size), automation, affinity, cost_factor);
         let rent_per_run = rent_per_run_usd(catalog, state, country, recipe);
 
         let mut runs = planned;
@@ -631,7 +647,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             value += own_value;
         }
         // Administration, sales and logistics on labor, electricity and plant.
-        let conversion = (value - materials).to_usd() + capital_per_run_usd(catalog, recipe) * runs;
+        let conversion =
+            (value - materials).to_usd() + capital_per_run_usd(catalog, recipe, size) * runs;
         let overhead =
             Money::from_usd(overhead_usd(catalog, recipe, conversion)).unwrap_or(Money::ZERO);
         if overhead > Money::ZERO {

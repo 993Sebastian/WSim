@@ -129,7 +129,7 @@ fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abs
 fehler.befehl.nicht_erforschbar: „{technologie}“ lässt sich nicht erforschen – sie ist schon bekannt, oder es fehlen Voraussetzungen.
 fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} nach {nach} befördern – es gibt kein passendes Verkehrsmittel.
 meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
-meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} für {produkt}."
+meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} ({groesse}) für {produkt}."
 meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
 meldung.ki.stilllegung: "{firma} legt in {land} {anzahl} × {anlage} für {produkt} still."
 meldung.ki.verkauf: "{firma} verkauft in {land} {anzahl} × {anlage} für {produkt}."

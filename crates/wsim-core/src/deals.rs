@@ -141,7 +141,7 @@ pub fn site_value(state: &GameState, catalog: &Catalog, site: SiteId) -> SiteVal
         let f = catalog.facilities.get(sl.facility);
         if sl.ready > date {
             // Completion moves the catalog investment off the construction account.
-            v.under_construction += f.investment.scale(f64::from(sl.count));
+            v.under_construction += sl.investment(catalog);
         } else {
             v.fixed_assets += sl.book_value(f.lifetime_years, sl.count, date);
             v.liquidation += crate::production::sale_value(catalog, sl, sl.count, date).1;
@@ -372,13 +372,7 @@ pub fn new_site_cost(state: &GameState, catalog: &Catalog, site: SiteId) -> Mone
     let s = &state.sites[site.index()];
     s.slots
         .iter()
-        .map(|sl| {
-            catalog
-                .facilities
-                .get(sl.facility)
-                .investment
-                .scale(f64::from(sl.count))
-        })
+        .map(|sl| sl.investment(catalog))
         .sum::<Money>()
         + catalog.production_model.site_cost(s.kind)
 }
@@ -404,7 +398,7 @@ fn electricity_balance(
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };
-            let runs = catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count);
+            let runs = sl.full_runs(catalog);
             need += r.energy_mwh * runs * sl.utilization;
             if r.product == power {
                 capacity += runs * r.output;

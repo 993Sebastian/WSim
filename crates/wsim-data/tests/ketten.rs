@@ -42,6 +42,7 @@ impl Scenario {
             site,
             facility: c.facilities.id(facility).expect(facility),
             count: 1,
+            size: wsim_core::catalog::FacilitySize::Medium,
         });
         let slot = self.game.state().sites[site.index()].slots.len() - 1;
         self.apply(Command::SetProduction {

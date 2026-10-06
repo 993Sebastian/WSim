@@ -6,7 +6,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, SiteType};
+use crate::catalog::{Catalog, FacilitySize, SiteType};
 use crate::deals::{DealObject, OfferAnswer};
 use crate::ids::{
     CountryId, DepositId, FacilityId, GoodsGroupId, Id, ProductId, RecipeId, TechnologyId,
@@ -36,13 +36,15 @@ pub enum Command {
     },
     /// Buys the leased plot of a site at today's value (M35).
     BuyPlot { site: SiteId },
-    /// Builds `count` identical units of a facility at a site, working together in one
-    /// slot; they produce after the construction time.
+    /// Builds `count` identical units of a facility in a size (M36; default medium) at
+    /// a site, working together in one slot; they produce after the construction time.
     BuildFacility {
         site: SiteId,
         facility: FacilityId,
         #[serde(default = "one_unit")]
         count: u32,
+        #[serde(default)]
+        size: FacilitySize,
     },
     /// Develops a deposit for an extraction site in the same country.
     DevelopDeposit { site: SiteId, deposit: DepositId },
@@ -584,6 +586,7 @@ pub(crate) fn execute(
             site,
             facility,
             count,
+            size,
         } => {
             if *count == 0 {
                 return Err(CommandError::InvalidQuantity);
@@ -596,7 +599,7 @@ pub(crate) fn execute(
                 });
             }
             if let Some(plot) = s.plot {
-                let needed_ha = plots::site_area(catalog, s, Some((*facility, *count)));
+                let needed_ha = plots::site_area(catalog, s, Some((*facility, *size, *count)));
                 let area_ha = state.plots[plot.index()].area_ha;
                 if needed_ha > area_ha + 1e-9 {
                     return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
@@ -606,13 +609,17 @@ pub(crate) fn execute(
                 return Err(unknown_technology(catalog, t));
             }
             let company = state.company_mut(actor).expect("checked above");
-            let investment = f.investment.scale(f64::from(*count));
+            let sizes = &catalog.production_model.sizes;
+            let investment = f
+                .investment
+                .scale(sizes.investment(*size) * f64::from(*count));
             pay(
                 &mut company.ledger,
                 Account::AssetsUnderConstruction,
                 investment,
             )?;
-            let ready = today.add_days(i32::try_from(f.build_days).unwrap_or(i32::MAX));
+            let days = sizes.build_days(*size, f.build_days);
+            let ready = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));
             state
                 .site_mut(*site)
                 .expect("checked above")
@@ -635,6 +642,7 @@ pub(crate) fn execute(
                     last_runs: 0.0,
                     limit: None,
                     operation: crate::state::Operation::Running,
+                    size: *size,
                 });
         }
         Command::DevelopDeposit { site, deposit } => {
@@ -726,6 +734,7 @@ pub(crate) fn execute(
             let cost = f.investment.scale(
                 (level - sl.automation).max(0.0)
                     * catalog.production_model.automation_cost_share
+                    * catalog.production_model.sizes.investment(sl.size)
                     * f64::from(sl.count),
             );
             let company = state.company_mut(actor).expect("checked above");

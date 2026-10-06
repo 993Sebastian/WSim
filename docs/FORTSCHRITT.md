@@ -1151,3 +1151,25 @@ Standort (offene Punkte, Abschnitt H; entschieden: Lage gleich mit).
 - Tests: acht Kerntests (`plots_tests`), Prüfregeln, Oberfläche (Gründen auf gewähltem
   Grundstück, Kauf, volle Grundstücke, Länderdetail, Einführung).
 
+### M36: Anlagen in fünf Größen (06.10.2026)
+
+Auftrag: „verschiedene Größen von Werken … jeweils fünf Größen“ (offene Punkte,
+Abschnitt H, Punkt 9).
+
+- **Daten und Formeln:** `produktionsmodell.anlagengroessen` – Kapazität 0,25 / 0,5 / 1 /
+  2 / 4 der Datenwerte (sehr klein bis sehr groß); Investition, Fläche und Bauzeit
+  wachsen mit Kapazität^0,7 bzw. ^0,3, die Arbeitsstunden je Durchlauf sinken mit
+  Kapazität^−0,15. Prüfregeln mit Fehlerfall-Test (alle Größen, wachsend, mittel = 1).
+  Formeln: `docs/FORMELN.md`, Abschnitt M36.
+- **Kern:** Größe je Anlage (`Slot::size`, Spielstände ohne Größe sind mittel),
+  `BuildFacility` mit Größe; Kapazität, Arbeit, Kapitalkosten, Stückkosten, Fläche,
+  Grundwert und Forscherzahl rechnen mit der Größe.
+- **KI:** plant eine gewünschte Kapazität und wählt die größte Größe, die sie nicht
+  übersteigt; bei knappem Geld oder Platz eine kleinere. Ausbau: kleine Werke
+  verdoppeln sich, große wachsen um ein Viertel. Meldungen nennen die Größe.
+- **Oberfläche:** Bauformular mit Größenwahl (Leistung, Preis, Bauzeit, Arbeit je
+  Stück, Fläche, „noch Platz für …“, Hinweis auf den Tausch); die Anlagenkarte nennt
+  die Größe.
+- Tests: Größenmodell, große Anlage (Kosten, Leistung, Personal, Stückkosten),
+  Spielstände und alte Befehle, Größenwahl der KI bei Geld- und Platzmangel.
+

@@ -117,13 +117,13 @@ pub fn last_month(state: &GameState, catalog: &Catalog) -> Vec<ProductHealth> {
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };
-            let runs = catalog.facilities.get(sl.facility).runs_per_day * f64::from(sl.count);
+            let runs = sl.full_runs(catalog);
             let flows = crate::population::slot_flows(
                 catalog,
                 state,
                 site.country,
                 sl.recipe.expect("set"),
-                sl.count,
+                (sl.count, sl.size),
                 sl.utilization,
                 1.0 + site.wage_premium,
             );
@@ -202,7 +202,9 @@ pub fn unit_cost(
         * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
         / (365.0 * f.runs_per_day.max(1e-9) * utilization.max(1e-9));
     let energy = r.energy_mwh * country.electricity_price_usd_mwh;
-    let conversion = labor + energy + crate::production::capital_per_run_usd(catalog, r);
+    let conversion = labor
+        + energy
+        + crate::production::capital_per_run_usd(catalog, r, crate::catalog::FacilitySize::Medium);
     UnitCost {
         inputs: r.inputs.iter().map(|&(p, q)| q * price(p)).sum::<f64>() * per_unit,
         labor: labor * per_unit,

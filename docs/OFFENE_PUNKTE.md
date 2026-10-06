@@ -461,8 +461,8 @@ Zahlen werden im Weltlauf nachgestellt):
 10. **Spielstände:** Bestehende Standorte bekommen beim Laden ein passendes, gekauftes
     Grundstück.
 
-Umgesetzt mit M35 (Punkte 1–8 und 10; Formeln: `docs/FORMELN.md`, Abschnitt M35);
-Punkt 9 folgt mit M36. 🟡 Eigenständig entschieden:
+Umgesetzt mit M35 (Punkte 1–8 und 10; Formeln: `docs/FORMELN.md`, Abschnitt M35) und
+M36 (Punkt 9; Abschnitt M36). 🟡 Eigenständig entschieden:
 
 1. **Pacht ohne Laufzeit:** Die Pacht läuft, bis der Standort aufgegeben oder das
    Grundstück gekauft wird; sie folgt jeden Monat dem heutigen Bodenwert. Eine Laufzeit
@@ -484,6 +484,11 @@ Punkt 9 folgt mit M36. 🟡 Eigenständig entschieden:
    oder Pacht; in der Werksansicht belegte Fläche, Besitz und „Grundstück kaufen“; beim
    Bauen Fläche und „noch Platz für …“; im Länderdetail die Gewerbeflächen; im
    Rundgang der Einführung ein Schritt dazu.
+7. **Anlagengrößen (M36):** Fläche und Bauzeit wachsen wie die Investition bzw. mit
+   Kapazität^0,3; Strom und Vorprodukte je Stück bleiben gleich. Die KI wählt die größte
+   Größe, die ihre gewünschte Kapazität nicht übersteigt, und weicht bei knappem Geld
+   oder Platz auf kleinere aus. Startbesetzung und Startformen bleiben mittel, weil die
+   Daten darauf abgestimmt sind; alte Spielstände und Befehle meinen mittel.
 
 ## I Länder zu Regionen zusammenfassen (Anfrage vom 06.10.2026)
 

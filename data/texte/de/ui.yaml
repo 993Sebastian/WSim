@@ -404,6 +404,10 @@ werk.anlage: Anlage
 werk.investition: Investition
 werk.je_anlage: "{betrag} je Anlage"
 werk.bauzeit: Bauzeit
+werk.groesse: Größe
+werk.groesse_option: "{groesse} – {leistung}× Leistung, {betrag}"
+werk.groesse_hinweis: "Größere Anlagen leisten mehr und kosten je Stück Leistung weniger Investition und Arbeit – brauchen aber mehr Kapital, Fläche und Absatz. Kleine passen in kleine Märkte und auf kleine Grundstücke."
+werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte

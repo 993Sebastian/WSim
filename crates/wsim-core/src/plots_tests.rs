@@ -222,12 +222,18 @@ fn a_full_plot_takes_no_more_facilities() {
     let site = last_site(&game);
     let furnace = game.catalog().facilities.id("ofen").unwrap();
     // 2.4 ha per furnace with ways: one or two fit on 4–8 ha, never four.
-    let fit = plots::units_that_fit(game.catalog(), game.state(), site, furnace);
+    let fit = plots::units_that_fit(
+        game.catalog(),
+        game.state(),
+        site,
+        (furnace, crate::catalog::FacilitySize::Medium),
+    );
     assert_eq!(fit, (area / 2.4 + 1e-9).floor() as u32);
     game.apply(Command::BuildFacility {
         site,
         facility: furnace,
         count: fit,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     let Err(CommandError::PlotTooSmall { needed_ha, area_ha }) =
@@ -235,6 +241,7 @@ fn a_full_plot_takes_no_more_facilities() {
             site,
             facility: furnace,
             count: 1,
+            size: crate::catalog::FacilitySize::Medium,
         })
     else {
         panic!("the plot is full");

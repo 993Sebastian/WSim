@@ -273,6 +273,7 @@ fn chain_one_runs_in_britain() {
                 site,
                 facility: c.facilities.id(facility).unwrap(),
                 count: 1,
+                size: wsim_core::catalog::FacilitySize::Medium,
             },
         );
         apply(
@@ -306,6 +307,7 @@ fn chain_one_runs_in_britain() {
             site: works,
             facility: c.facilities.id("stahlwerk_konverter").unwrap(),
             count: 1,
+            size: wsim_core::catalog::FacilitySize::Medium,
         },
     );
     apply(

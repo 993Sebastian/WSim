@@ -150,6 +150,13 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   kaufen“. „Anlage bauen“ nennt die Fläche und wie viele Anlagen noch passen; Anlagen,
   die nicht mehr passen, sind in der Auswahl markiert, und „Bauen“ bleibt dann aus –
   mit dem Hinweis, einen weiteren Standort zu gründen.
+- **Anlagengrößen (M36):** „Anlage bauen“ hat neben Anlage und Anzahl die **Größe**
+  (sehr klein bis sehr groß, je mit Leistungsfaktor und Preis; vorgewählt: mittel). Die
+  Werte darunter gelten für die gewählte Größe: Investition, Bauzeit, „Arbeit je Stück“
+  gegenüber mittel, Fläche mit „noch Platz für …“ und Leistung je Tag. Größen, die nicht
+  mehr aufs Grundstück passen, sind markiert. Ein kurzer Hinweis erklärt den Tausch:
+  große Anlagen sparen je Stück, brauchen aber Kapital, Fläche und Absatz. Die Karte
+  einer Anlage nennt ihre Größe, wenn sie nicht mittel ist.
 
 ### Markt
 

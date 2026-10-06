@@ -290,6 +290,7 @@ mod tests {
             site,
             facility: c.facilities.id("ofen").unwrap(),
             count: 1,
+            size: crate::catalog::FacilitySize::Medium,
         })
         .unwrap();
         game.apply(Command::SetProduction {

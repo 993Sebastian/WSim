@@ -86,6 +86,7 @@ fn works(game: &mut Game, owner: CompanyId) -> SiteId {
             site,
             facility: c.facilities.id("ofen").unwrap(),
             count: 1,
+            size: crate::catalog::FacilitySize::Medium,
         },
     )
     .unwrap();
@@ -520,6 +521,7 @@ fn power_plant(game: &mut Game, owner: CompanyId, count: u32) -> SiteId {
             site,
             facility: c.facilities.id("kraftwerk").unwrap(),
             count,
+            size: crate::catalog::FacilitySize::Medium,
         },
     )
     .unwrap();
@@ -642,6 +644,7 @@ fn an_ai_company_keeps_its_only_laboratory_while_it_researches() {
                     site,
                     facility: c.facilities.id("labor").unwrap(),
                     count: 1,
+                    size: crate::catalog::FacilitySize::Medium,
                 },
             )
             .unwrap();
@@ -808,6 +811,7 @@ fn an_ai_company_asks_more_for_its_whole_production() {
                     site,
                     facility: furnace,
                     count: 1,
+                    size: crate::catalog::FacilitySize::Medium,
                 },
             )
             .unwrap();

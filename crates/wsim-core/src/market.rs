@@ -978,9 +978,7 @@ fn utilization(
         .filter_map(|sl| {
             let r = catalog.recipes.get(sl.recipe?);
             (r.product == product).then(|| {
-                let full = catalog.facilities.get(sl.facility).runs_per_day
-                    * f64::from(sl.count)
-                    * r.output;
+                let full = sl.full_runs(catalog) * r.output;
                 (full * sl.utilization, full)
             })
         })
@@ -1008,9 +1006,7 @@ fn production_rate(
             } else {
                 r.by_products.iter().find(|(p, _)| *p == product)?.1
             };
-            let runs = catalog.facilities.get(sl.facility).runs_per_day
-                * f64::from(sl.count)
-                * sl.utilization;
+            let runs = sl.full_runs(catalog) * sl.utilization;
             Some(runs * per_run)
         })
         .sum()

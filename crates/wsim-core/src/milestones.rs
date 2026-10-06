@@ -215,6 +215,7 @@ mod tests {
             site,
             facility: furnace,
             count: 2,
+            size: crate::catalog::FacilitySize::Medium,
         })
         .unwrap();
         let ready = game.state().sites[site.index()].slots[0].ready;
@@ -375,6 +376,7 @@ mod tests {
             last_runs: 0.0,
             limit: None,
             operation: crate::state::Operation::Running,
+            size: crate::catalog::FacilitySize::Medium,
         };
         let site = state.sites.len() - 1;
         state.sites[site].slots.push(slot(mine, "erz_abbau"));

@@ -12,7 +12,7 @@ use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, SiteType};
+use crate::catalog::{Catalog, FacilitySize, SiteType};
 pub use crate::country_model::CountryState;
 use crate::ids::{
     self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, MilestoneId, ProductId,
@@ -462,6 +462,13 @@ pub struct Slot {
     /// Running, shut down or starting up again (M22).
     #[serde(default)]
     pub operation: Operation,
+    /// Size of the units (M36); saves before M36 hold medium units.
+    #[serde(default, skip_serializing_if = "is_medium")]
+    pub size: FacilitySize,
+}
+
+fn is_medium(size: &FacilitySize) -> bool {
+    *size == FacilitySize::Medium
 }
 
 /// Whether a finished facility works (M22).
@@ -488,6 +495,25 @@ impl Slot {
 
     pub fn mothballed(&self) -> bool {
         matches!(self.operation, Operation::Mothballed { .. })
+    }
+
+    /// Capacity of all units in units of the data size (M36): count × size factor.
+    pub fn units(&self, catalog: &Catalog) -> f64 {
+        f64::from(self.count) * catalog.production_model.sizes.capacity(self.size)
+    }
+
+    /// Runs per day of all units at full utilization.
+    pub fn full_runs(&self, catalog: &Catalog) -> f64 {
+        catalog.facilities.get(self.facility).runs_per_day * self.units(catalog)
+    }
+
+    /// Investment of all units at today's prices, without automation (M36).
+    pub fn investment(&self, catalog: &Catalog) -> Money {
+        catalog
+            .facilities
+            .get(self.facility)
+            .investment
+            .scale(catalog.production_model.sizes.investment(self.size) * f64::from(self.count))
     }
 
     /// Book value of `units` of the facility on `date`: the investment less straight-line

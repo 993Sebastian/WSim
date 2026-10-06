@@ -46,6 +46,7 @@ fn research_center(game: &mut Game) -> SiteId {
         site,
         facility: c.facilities.id("labor").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::SetProduction {

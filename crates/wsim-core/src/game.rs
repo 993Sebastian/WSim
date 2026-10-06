@@ -546,6 +546,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
             last_runs: 0.0,
             limit: None,
             operation: crate::state::Operation::Running,
+            size: crate::catalog::FacilitySize::Medium,
         })
         .collect();
     let offers = setup

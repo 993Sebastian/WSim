@@ -48,6 +48,7 @@ fn with_collateral(game: &mut Game) {
         site: SiteId(0),
         facility: c.facilities.id("ofen").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
 }

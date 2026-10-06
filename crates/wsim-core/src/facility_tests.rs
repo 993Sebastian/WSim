@@ -51,6 +51,7 @@ fn mine(game: &mut Game) -> SiteId {
         site,
         facility: c.facilities.id("mine").unwrap(),
         count: 1,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     game.apply(Command::DevelopDeposit {
@@ -81,6 +82,7 @@ fn works(game: &mut Game, count: u32) -> SiteId {
         site,
         facility: c.facilities.id("ofen").unwrap(),
         count,
+        size: crate::catalog::FacilitySize::Medium,
     })
     .unwrap();
     site
