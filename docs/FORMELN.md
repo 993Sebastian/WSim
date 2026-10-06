@@ -1599,3 +1599,22 @@ für eine Region in einem Spielstand mehr als ein Eintrag (etwa Märkte von Belg
 Luxemburg), gilt der unter dem eigenen Code, sonst der des Landes, das in `umfasst` am
 weitesten vorn steht. Die übrigen entfallen. Abgeleitete Länderwerte werden nach dem Laden
 ohnehin neu berechnet.
+
+## Mehr KI-Firmen (06.10.2026)
+
+Wunsch: „Mehr KI-Gegner. Mache einen Simulationslauf mit 500 Gegnern.“ Mit *N* KI-Firmen
+wächst der Marktmaßstab (M10: *s* = *N* / `firmen_bei_realer_groesse`) und mit ihm jeder
+Markt. Firmenzahlen in den Regeln der KI galten bisher absolut; bei 500 Firmen blieben
+neue Märkte (Radio, Kühlschrank) jahrelang bei einem Hersteller, der das Doppelte des
+Richtpreises nahm, während etablierte Märkte fünfmal so viele Anbieter hatten.
+Seitdem gilt für `forschung_luecke_firmen`, `gruendungen_je_monat`,
+`diversifikationen_je_quartal` und `einstieg_firmen_max`:
+
+  wirksame Zahl = runden(Zahl · max(1, *N* / `firmen_standard`))
+
+Unter der Standardzahl bleibt es bei den Werten der Daten; 0 schaltet eine Regel weiter ab.
+
+**Tempo:** Die tägliche Markträumung sucht die Anbieter und Käufer eines Produkts in einer
+Liste je Produkt und Land statt unter allen Standorten des Landes, und die Händler
+bestimmen den Weg je Herkunftsland einmal statt je Anbieter. Die Ergebnisse bleiben
+gleich (gleicher Zustands-Hash).

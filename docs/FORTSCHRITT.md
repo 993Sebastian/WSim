@@ -1099,3 +1099,27 @@ Abschnitt I).
 - Tests: Prüfregeln (`regionen_werden_geprueft`), echte Daten (111 Einträge, Belgien
   mit Luxemburg, Baltikum), Spielstände mit zusammengefassten Ländern (Kern), Vorrang
   des eigenen Eintrags beim Laden.
+- **Weltlauf 1900–1965** (Seed 1, 100 KI-Firmen): 21 statt 34 Minuten Rechenzeit.
+  Mangeljahre 1900–1939 wie bei M33 (67), 1940–1964 69 statt 66; Versorgung weltweit 136
+  statt 134 Verstöße. Düsenflugzeuge kommen erst nach 1964 (bei M33 1964 mit 9 %
+  Versorgung; bekannte Grenze, offene Punkte G).
+
+### Mehr KI-Firmen (06.10.2026)
+
+Wunsch: „Mehr KI-Gegner. Mache einen Simulationslauf mit 500 Gegnern.“
+
+- **Erster Lauf mit 500 KI-Firmen** (1900–1930, vor den Änderungen): 17 Minuten, gut
+  34 s je Spieljahr. Etablierte Märkte hatten fünfmal so viele Anbieter wie mit 100 Firmen,
+  neue Märkte aber weiter einen: Kühlschrank und Radio kosteten das Doppelte des
+  Richtpreises, 71 Mangeljahre (100 Firmen: 54).
+- **Firmenzahlen wachsen mit:** Forscher je Marktlücke, Neugründungen je Monat,
+  Diversifizierungen je Quartal und Hersteller teurer Märkte gelten für 100 Firmen und
+  wachsen mit mehr Firmen im selben Verhältnis (`ai::per_companies`). Zweiter Lauf:
+  45 Mangeljahre, Kühlschrank 2,8 statt 0,9 Hersteller zum 0,78-Fachen statt zum
+  2,05-Fachen des Richtpreises, Versorgung weltweit 45 statt 71 Verstöße.
+- **Tempo:** Markträumung mit Listen je Produkt und Land, Wege je Herkunftsland statt je
+  Anbieter, Händlerauswahl über einen Haufen statt Sortieren, Anziehung der Angebote
+  einmal je Schicht, Preisfaktoren einmal je Monat, Engpass-Suche mit einer
+  Bestandsaufnahme für alle Firmen, bis gebaut wird. Bei 500 Firmen sinkt die Rechenzeit
+  für 1900–1901 von 32 auf 22 Sekunden. Die Ergebnisse bleiben gleich (gleiche
+  Zustands-Hashes bei 100 und 500 Firmen).

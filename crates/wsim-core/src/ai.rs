@@ -102,6 +102,17 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
     news
 }
 
+/// Counts in the AI rules (researchers per gap, foundings, diversifications, makers of a
+/// dear market) are meant for the default number of companies; with more companies the
+/// markets are larger (market scale), so the counts grow alike. 0 stays off.
+fn per_companies(state: &GameState, catalog: &Catalog, count: u32) -> usize {
+    let m = &catalog.ai_model;
+    let factor =
+        (f64::from(state.settings.ai.companies) / f64::from(m.default_companies.max(1))).max(1.0);
+    // Counts stay far below u32::MAX; the cast saturates anyway.
+    (f64::from(count) * factor).round() as usize
+}
+
 /// Products the player makes or offers: competitors' moves in them are news.
 fn player_products(state: &GameState, catalog: &Catalog) -> Vec<ProductId> {
     let mut products = Vec::new();
@@ -1452,18 +1463,23 @@ fn advertise(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[S
 /// that also guides new companies): at most `diversifications_per_quarter` per quarter,
 /// the richest first, each in another chain.
 fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) {
-    let b = &catalog.ai_model.behavior;
+    let most = per_companies(
+        state,
+        catalog,
+        catalog.ai_model.behavior.diversifications_per_quarter,
+    );
     pioneer(state, catalog, &by_budget(state, catalog), news);
     let mut taken: Vec<ProductId> = Vec::new();
     let mut done = 0;
+    let mut scan = Scan::new(state, catalog);
     for (budget, id) in by_budget(state, catalog) {
-        if done >= b.diversifications_per_quarter {
+        if done >= most {
             break;
         }
         // With the processes this company knows: it may have researched one that is not
         // public yet (M22; cracking 1913 was public only in 1938).
         let Some((product, country, deposit, recipe, count)) =
-            opportunity(state, catalog, &taken, id, None)
+            opportunity_in(&scan, state, catalog, &taken, id, None)
         else {
             continue;
         };
@@ -1472,12 +1488,14 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
             break;
         };
         taken.push(product);
-        if build_in_bottleneck(
+        let built = build_in_bottleneck(
             state,
             catalog,
             id,
             (product, country, deposit, recipe, count),
-        ) {
+        );
+        scan = Scan::new(state, catalog);
+        if built {
             done += 1;
             news.extend(news_expansion(
                 state,
@@ -1538,9 +1556,10 @@ fn pioneer(
         .filter(|p| !made.contains(p))
         .collect();
     let mut taken: Vec<ProductId> = Vec::new();
+    let mut scan = Scan::new(state, catalog);
     for &(budget, id) in rich {
         let Some((product, country, deposit, recipe, count)) =
-            opportunity(state, catalog, &taken, id, Some(&new))
+            opportunity_in(&scan, state, catalog, &taken, id, Some(&new))
         else {
             continue;
         };
@@ -1548,12 +1567,14 @@ fn pioneer(
             continue;
         };
         taken.push(product);
-        if build_in_bottleneck(
+        let built = build_in_bottleneck(
             state,
             catalog,
             id,
             (product, country, deposit, recipe, count),
-        ) {
+        );
+        scan = Scan::new(state, catalog);
+        if built {
             news.extend(news_expansion(
                 state,
                 catalog,
@@ -1670,33 +1691,56 @@ fn build_in_bottleneck(
 /// Whether the stocks of a product exceed `stock_high_days` of its current output: then
 /// it lacks trade, not production.
 fn piling(state: &GameState, catalog: &Catalog, product: ProductId) -> bool {
-    let mut stock = 0.0;
-    let mut output = 0.0;
+    piling_all(state, catalog)[product.index()]
+}
+
+/// `piling` for every product in one pass over the sites (the search for bottlenecks
+/// asks for many products in turn).
+fn piling_all(state: &GameState, catalog: &Catalog) -> Vec<bool> {
+    let n = catalog.products.len();
+    let mut stock = vec![0.0; n];
+    let mut output = vec![0.0; n];
+    let mut made_here: Vec<usize> = Vec::new();
     for s in &state.sites {
         if state.companies[s.owner.index()].bankrupt {
             continue;
         }
-        let mut makes = false;
+        made_here.clear();
         for sl in &s.slots {
             let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                 continue;
             };
             // By-products count too: petrol from the stills is output, not a heap (M22).
-            let made = std::iter::once((r.product, r.output))
-                .chain(r.by_products.iter().copied())
-                .filter(|&(p, _)| p == product)
-                .map(|(_, q)| q)
-                .sum::<f64>();
-            makes |= made > 0.0;
-            output += sl.last_runs * made;
+            let outputs =
+                || std::iter::once((r.product, r.output)).chain(r.by_products.iter().copied());
+            for (i, (product, _)) in outputs().enumerate() {
+                // Each product once per slot, its quantities summed in order.
+                if outputs().take(i).any(|(p, _)| p == product) {
+                    continue;
+                }
+                let made = outputs()
+                    .filter(|&(p, _)| p == product)
+                    .map(|(_, q)| q)
+                    .sum::<f64>();
+                if made > 0.0 && !made_here.contains(&product.index()) {
+                    made_here.push(product.index());
+                }
+                output[product.index()] += sl.last_runs * made;
+            }
         }
         // Only what sellers hold: the stocks plants keep of their inputs are no heap
         // (M33; the refineries' crude oil hid the shortage of the 1960s).
-        if makes || s.offers.contains_key(&product) {
-            stock += s.inventory.get(&product).map_or(0.0, |x| x.quantity);
+        for (&product, stock_of) in &s.inventory {
+            let p = product.index();
+            if made_here.contains(&p) || s.offers.contains_key(&product) {
+                stock[p] += stock_of.quantity;
+            }
         }
     }
-    stock > catalog.ai_model.behavior.stock_high_days * output.max(1e-9)
+    let high = catalog.ai_model.behavior.stock_high_days;
+    (0..n)
+        .map(|p| stock[p] > high * output[p].max(1e-9))
+        .collect()
 }
 
 /// An extraction company whose raw material is short opens a free concession of a
@@ -1906,7 +1950,7 @@ fn research_plan(
             .filter(|s| s.research == Some(t) && !view.companies[s.owner.index()].bankrupt)
             .count();
         gaps.contains(&t)
-            && (mine || others < usize::try_from(b.research_gap_companies).unwrap_or(0))
+            && (mine || others < per_companies(view, catalog, b.research_gap_companies))
     };
     let target = cheapest(&own_branch).or_else(|| cheapest(&gap));
     let center = sites
@@ -1991,9 +2035,11 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
         .iter()
         .filter(|c| c.ai.is_some() && !c.bankrupt)
         .count();
-    let n = wanted
-        .saturating_sub(active)
-        .min(catalog.ai_model.behavior.foundings_per_month as usize);
+    let n = wanted.saturating_sub(active).min(per_companies(
+        state,
+        catalog,
+        catalog.ai_model.behavior.foundings_per_month,
+    ));
     for _ in 0..n {
         let Some((product, country, deposit, recipe, count)) =
             opportunity(state, catalog, &[], CompanyId(u32::MAX), None)
@@ -2211,7 +2257,9 @@ fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
         .ids()
         .filter(|p| {
             let n = makers.get(p).map_or(0, Vec::len);
-            n > 0 && n < b.entry_companies_max as usize && is_dear(state, catalog, *p)
+            n > 0
+                && n < per_companies(state, catalog, b.entry_companies_max)
+                && is_dear(state, catalog, *p)
         })
         .collect();
     let mut todo: Vec<ProductId> = catalog
@@ -2263,6 +2311,114 @@ fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
     techs
 }
 
+/// What the search for opportunities reads of the world apart from the company that
+/// looks. It stays valid until something is built: with hundreds of companies asking
+/// in turn, the search was most of a quarter's work.
+struct Scan {
+    makers: BTreeMap<ProductId, Vec<CompanyId>>,
+    piling: Vec<bool>,
+    /// Per product: value of the unserved demand per day, the country with the most and
+    /// the quantity, less what facilities under construction will make.
+    unserved: Vec<(f64, Option<CountryId>, f64)>,
+    /// Per product: the same for a newcomer to a dear market (M33), for a company that
+    /// does not make the product yet.
+    dear: Vec<(f64, Option<CountryId>, f64)>,
+}
+
+impl Scan {
+    fn new(state: &GameState, catalog: &Catalog) -> Self {
+        let model = &catalog.market_model;
+        // Facilities under construction will serve part of the demand (M32): without
+        // this, the same bottleneck was built again every quarter until the first plant
+        // ran.
+        let u = catalog.ai_model.start.utilization;
+        let mut coming: BTreeMap<ProductId, f64> = BTreeMap::new();
+        for s in &state.sites {
+            if state.companies[s.owner.index()].bankrupt {
+                continue;
+            }
+            for sl in s.slots.iter().filter(|sl| sl.ready > state.date) {
+                if let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) {
+                    *coming.entry(r.product).or_default() +=
+                        catalog.facilities.get(sl.facility).runs_per_day
+                            * f64::from(sl.count)
+                            * r.output
+                            * u;
+                }
+            }
+        }
+        let makers = makers(state, catalog);
+        let unserved = |product: ProductId| -> (f64, Option<CountryId>, f64) {
+            let mut total = 0.0;
+            let mut value = 0.0;
+            let mut best = (0.0, None);
+            for (country, m) in state.markets.get(product).iter() {
+                let o = market::open_demand(m, model, state.date);
+                total += o;
+                value += o * market::market_price(catalog, state, country, product).to_usd();
+                if o > best.0 {
+                    best = (o, Some(country));
+                }
+            }
+            let left = (total - coming.get(&product).copied().unwrap_or(0.0)).max(0.0);
+            let value = if total > 0.0 {
+                value * left / total
+            } else {
+                0.0
+            };
+            (value, best.1, left)
+        };
+        // Markets that pay far more than the reference price draw newcomers (M33): a
+        // single producer earning several times its costs otherwise stayed alone for
+        // decades (penicillin, nylon). The newcomer plans for a share of last month's
+        // sales, in the country where buyers pay the most above the reference.
+        let b = &catalog.ai_model.behavior;
+        let last = state.date.first_of_month().add_days(-1);
+        let days = f64::from(crate::calendar::days_in_month(last.year(), last.month()));
+        let entry_max = per_companies(state, catalog, b.entry_companies_max);
+        let dear = |product: ProductId| -> (f64, Option<CountryId>, f64) {
+            let owners = makers.get(&product).map_or(&[][..], Vec::as_slice);
+            if owners.is_empty() || owners.len() >= entry_max || !is_dear(state, catalog, product) {
+                return (0.0, None, 0.0);
+            }
+            let s = last_month_sales(state, catalog, product);
+            let quantity = (b.entry_share * s.sold / days
+                - coming.get(&product).copied().unwrap_or(0.0))
+            .max(0.0);
+            (quantity * s.paid / s.sold, s.dearest, quantity)
+        };
+        let unserved = catalog.products.ids().map(unserved).collect();
+        let dear = catalog.products.ids().map(dear).collect();
+        Self {
+            piling: piling_all(state, catalog),
+            makers,
+            unserved,
+            dear,
+        }
+    }
+
+    /// Unserved demand of a product as `builder` sees it: value per day, country with
+    /// the most, quantity.
+    fn open(&self, product: ProductId, builder: CompanyId) -> (f64, CountryId, f64) {
+        let (value, country, left) = self.unserved[product.index()];
+        let makes = self
+            .makers
+            .get(&product)
+            .is_some_and(|owners| owners.contains(&builder));
+        let (more, dear_country, quantity) = if makes {
+            (0.0, None, 0.0)
+        } else {
+            self.dear[product.index()]
+        };
+        let country = country
+            .filter(|_| left > 0.0)
+            .or(dear_country)
+            .or(country)
+            .unwrap_or(CountryId::from_index(0));
+        (value + more, country, left + quantity)
+    }
+}
+
 /// Where a new company is most needed: the product with the largest unserved demand
 /// by value, or, if its inputs are short, the input that is the bottleneck. Raw
 /// materials need a free concession; chains without one are left out. `builder` is the
@@ -2275,77 +2431,26 @@ fn opportunity(
     builder: CompanyId,
     only: Option<&[ProductId]>,
 ) -> Option<Opportunity> {
-    let model = &catalog.market_model;
-    // Facilities under construction will serve part of the demand (M32): without this,
-    // the same bottleneck was built again every quarter until the first plant ran.
-    let u = catalog.ai_model.start.utilization;
-    let mut coming: BTreeMap<ProductId, f64> = BTreeMap::new();
-    for s in &state.sites {
-        if state.companies[s.owner.index()].bankrupt {
-            continue;
-        }
-        for sl in s.slots.iter().filter(|sl| sl.ready > state.date) {
-            if let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) {
-                *coming.entry(r.product).or_default() +=
-                    catalog.facilities.get(sl.facility).runs_per_day
-                        * f64::from(sl.count)
-                        * r.output
-                        * u;
-            }
-        }
-    }
-    let makers = makers(state, catalog);
-    let unserved = |product: ProductId| -> (f64, Option<CountryId>, f64) {
-        let mut total = 0.0;
-        let mut value = 0.0;
-        let mut best = (0.0, None);
-        for (country, m) in state.markets.get(product).iter() {
-            let o = market::open_demand(m, model, state.date);
-            total += o;
-            value += o * market::market_price(catalog, state, country, product).to_usd();
-            if o > best.0 {
-                best = (o, Some(country));
-            }
-        }
-        let left = (total - coming.get(&product).copied().unwrap_or(0.0)).max(0.0);
-        let value = if total > 0.0 {
-            value * left / total
-        } else {
-            0.0
-        };
-        (value, best.1, left)
-    };
-    // Markets that pay far more than the reference price draw newcomers (M33): a single
-    // producer earning several times its costs otherwise stayed alone for decades
-    // (penicillin, nylon). The newcomer plans for a share of last month's sales, in the
-    // country where buyers pay the most above the reference.
-    let b = &catalog.ai_model.behavior;
-    let last = state.date.first_of_month().add_days(-1);
-    let days = f64::from(crate::calendar::days_in_month(last.year(), last.month()));
-    let dear = |product: ProductId| -> (f64, Option<CountryId>, f64) {
-        let owners = makers.get(&product).map_or(&[][..], Vec::as_slice);
-        if owners.is_empty()
-            || owners.len() >= b.entry_companies_max as usize
-            || owners.contains(&builder)
-            || !is_dear(state, catalog, product)
-        {
-            return (0.0, None, 0.0);
-        }
-        let s = last_month_sales(state, catalog, product);
-        let quantity =
-            (b.entry_share * s.sold / days - coming.get(&product).copied().unwrap_or(0.0)).max(0.0);
-        (quantity * s.paid / s.sold, s.dearest, quantity)
-    };
-    let open = |product: ProductId| -> (f64, CountryId, f64) {
-        let (value, country, left) = unserved(product);
-        let (more, dear_country, quantity) = dear(product);
-        let country = country
-            .filter(|_| left > 0.0)
-            .or(dear_country)
-            .or(country)
-            .unwrap_or(CountryId::from_index(0));
-        (value + more, country, left + quantity)
-    };
+    opportunity_in(
+        &Scan::new(state, catalog),
+        state,
+        catalog,
+        taken,
+        builder,
+        only,
+    )
+}
+
+/// `opportunity` with the world as `scan` saw it (unchanged since).
+fn opportunity_in(
+    scan: &Scan,
+    state: &GameState,
+    catalog: &Catalog,
+    taken: &[ProductId],
+    builder: CompanyId,
+    only: Option<&[ProductId]>,
+) -> Option<Opportunity> {
+    let open = |product: ProductId| scan.open(product, builder);
     let mut candidates: Vec<(f64, ProductId)> = catalog
         .products
         .iter()
@@ -2359,6 +2464,7 @@ fn opportunity(
         catalog,
         taken,
         builder,
+        piling: &scan.piling,
         open: &open,
     };
     candidates
@@ -2372,6 +2478,8 @@ struct Chain<'a> {
     catalog: &'a Catalog,
     taken: &'a [ProductId],
     builder: CompanyId,
+    /// `piling` per product.
+    piling: &'a [bool],
     /// Unserved demand of a product: value per day, country with the most, quantity.
     open: &'a dyn Fn(ProductId) -> (f64, CountryId, f64),
 }
@@ -2470,7 +2578,7 @@ impl Chain<'_> {
             .inputs
             .iter()
             .filter(|(i, _)| catalog.products.get(*i).state_market.is_none())
-            .filter(|(i, _)| !piling(state, catalog, *i))
+            .filter(|(i, _)| !self.piling[i.index()])
             .map(|&(i, q)| ((self.open)(i).2 / (q * runs).max(1e-9), i))
             .filter(|(ratio, _)| *ratio > 0.5)
             .collect();
@@ -2481,7 +2589,7 @@ impl Chain<'_> {
                 .find_map(|(_, input)| self.bottleneck(input, depth + 1));
         }
         // Products piling up somewhere need trade, not new companies.
-        if piling(state, catalog, product) || self.taken.contains(&product) {
+        if self.piling[product.index()] || self.taken.contains(&product) {
             return None;
         }
         let recipe = own?;
@@ -3189,18 +3297,23 @@ mod tests {
     /// enough companies make the product.
     #[test]
     fn a_dear_market_draws_a_newcomer() {
-        for (entry_max, paid_factor, newcomer, expected) in [
-            (3, 2.0, true, true),
-            (0, 2.0, true, false),
-            (3, 1.1, true, false),
-            (3, 2.0, false, false),
-            (1, 2.0, true, false),
+        // With three times the default number of companies, three may make a product
+        // where one would do (counts grow with the companies).
+        for (entry_max, companies, paid_factor, newcomer, expected) in [
+            (3, 100, 2.0, true, true),
+            (0, 100, 2.0, true, false),
+            (3, 100, 1.1, true, false),
+            (3, 100, 2.0, false, false),
+            (1, 100, 2.0, true, false),
+            (1, 300, 2.0, true, true),
+            (0, 300, 2.0, true, false),
         ] {
             let mut catalog = test_support::trading();
             catalog.ai_model.behavior.entry_companies_max = entry_max;
             let (mut game, id, _) = idle_works_in(catalog, 0.9);
             let catalog = game.catalog().clone();
             let state = game.state_mut();
+            state.settings.ai.companies = companies;
             let aaa = catalog.countries.id("AAA").expect("exists");
             let iron = catalog.products.id("eisen").expect("exists");
             let reference = market::local_reference(&catalog, state, aaa, iron);
@@ -3215,7 +3328,7 @@ mod tests {
             assert_eq!(
                 found.is_some(),
                 expected,
-                "{entry_max} {paid_factor} {newcomer}: {found:?}"
+                "{entry_max} {companies} {paid_factor} {newcomer}: {found:?}"
             );
             if let Some((product, country, deposit, _, count)) = found {
                 assert_eq!((product, country, deposit), (iron, aaa, None));

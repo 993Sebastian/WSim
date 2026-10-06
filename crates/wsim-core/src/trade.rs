@@ -6,11 +6,12 @@
 //! trading network outside the companies; their profits leave the game. Companies
 //! move their own goods with `TransferGoods`.
 
-use std::collections::BTreeMap;
+use std::cmp::Reverse;
+use std::collections::{BTreeMap, BinaryHeap};
 
 use crate::calendar::Date;
 use crate::catalog::Catalog;
-use crate::ids::{CountryId, Id, ProductId};
+use crate::ids::{CountryId, ProductId};
 use crate::market;
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup};
@@ -86,12 +87,12 @@ pub(crate) fn plan(
     state: &GameState,
     catalog: &Catalog,
     product: ProductId,
-    sites_by_country: &[Vec<SiteId>],
+    traders: &market::Traders,
     in_transit: &BTreeMap<(ProductId, CountryId), f64>,
 ) -> Plan {
     let model = &catalog.market_model;
     let mut sources: Vec<Source> = Vec::new();
-    for sites in sites_by_country {
+    for sites in traders.values() {
         for &site in sites {
             let s = &state.sites[site.index()];
             let Some(offer) = s.offers.get(&product) else {
@@ -127,19 +128,25 @@ pub(crate) fn plan(
     }
     // What fresh goods would cost where traders hold stock: other traders would sell at
     // that, so old stock bought dearly cannot ask more (M16).
+    // The freight depends on the countries only: the cheapest offer of each country.
+    let mut cheapest_from: BTreeMap<CountryId, Money> = BTreeMap::new();
+    for s in &sources {
+        cheapest_from
+            .entry(s.country)
+            .and_modify(|p| *p = (*p).min(s.price))
+            .or_insert(s.price);
+    }
     let mut replacement = BTreeMap::new();
     for &(p, country) in &state.import_markets {
         if p != product {
             continue;
         }
-        let cheapest = sources
+        let cheapest = cheapest_from
             .iter()
-            .filter(|s| s.country != country)
-            .filter_map(|s| {
-                let (transport, _) = state
-                    .routes
-                    .for_product(catalog, product, s.country, country)?;
-                Some(s.price + transport)
+            .filter(|&(&from, _)| from != country)
+            .filter_map(|(&from, &price)| {
+                let (transport, _) = state.routes.for_product(catalog, product, from, country)?;
+                Some(price + transport)
             })
             .min();
         if let Some(landed) = cheapest {
@@ -152,8 +159,8 @@ pub(crate) fn plan(
         country: CountryId,
         need: f64,
         margin: f64,
-        /// (landed cost, source index, transport per unit, days), cheapest first
-        candidates: Vec<(Money, usize, Money, u32)>,
+        /// (landed cost, source index, transport per unit, days), cheapest on top
+        candidates: BinaryHeap<Reverse<(Money, usize, Money, u32)>>,
     }
     let mut destinations: Vec<Destination> = Vec::new();
     for country in catalog.countries.ids() {
@@ -164,7 +171,9 @@ pub(crate) fn plan(
         }
         // Companies that keep a stock state what they would pay; a market without
         // sellers has no price movement that could show it.
-        let bid = sites_by_country[country.index()]
+        let bid = traders
+            .get(&country)
+            .map_or(&[][..], Vec::as_slice)
             .iter()
             .filter_map(|&s| state.sites[s.index()].orders.get(&product))
             .filter(|o| o.target > 0.0)
@@ -178,32 +187,41 @@ pub(crate) fn plan(
         let ceiling = market::local_reference(catalog, state, country, product)
             .scale(model.price_max_factor)
             .max(price);
-        let mut candidates: Vec<(Money, usize, Money, u32)> = sources
-            .iter()
-            .enumerate()
-            .filter(|(_, s)| s.country != country)
-            .filter_map(|(i, s)| {
-                let (transport, days) = state
+        // The route depends on the countries only: looked up once per source country.
+        let mut routes: BTreeMap<CountryId, Option<(Money, u32)>> = BTreeMap::new();
+        let mut candidates: Vec<Reverse<(Money, usize, Money, u32)>> = Vec::new();
+        for (i, s) in sources.iter().enumerate() {
+            if s.country == country {
+                continue;
+            }
+            let route = *routes.entry(s.country).or_insert_with(|| {
+                state
                     .routes
-                    .for_product(catalog, product, s.country, country)?;
-                let landed = s.price + transport;
-                (landed.scale(1.0 + model.trader_margin) <= ceiling)
-                    .then_some((landed, i, transport, days))
-            })
-            .collect();
-        if candidates.is_empty() {
-            continue;
+                    .for_product(catalog, product, s.country, country)
+            });
+            let Some((transport, days)) = route else {
+                continue;
+            };
+            let landed = s.price + transport;
+            if landed.scale(1.0 + model.trader_margin) <= ceiling {
+                candidates.push(Reverse((landed, i, transport, days)));
+            }
         }
-        candidates.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+        // Taken cheapest first, as long as the need lasts: a heap instead of sorting
+        // all. The source index makes every key unique, so the order is that of a sort.
+        let candidates = BinaryHeap::from(candidates);
+        let Some(&Reverse(cheapest)) = candidates.peek() else {
+            continue;
+        };
         // Stock and goods on the way cover the days at sea as well: with the cover
         // alone, a route longer than it would only ever bring part of the demand.
         let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
-        let days = f64::from(candidates[0].3);
+        let days = f64::from(cheapest.3);
         let need = (model.trader_cover_days + days) * open - m.imports.quantity - transit;
         if need <= 1e-9 {
             continue;
         }
-        let margin = (price - candidates[0].0).to_usd() / price.to_usd().max(1e-9);
+        let margin = (price - cheapest.0).to_usd() / price.to_usd().max(1e-9);
         destinations.push(Destination {
             country,
             need,
@@ -222,7 +240,8 @@ pub(crate) fn plan(
     let mut unserved = 0.0;
     for d in destinations {
         let mut need = d.need;
-        for (_, i, transport, days) in d.candidates {
+        let mut candidates = d.candidates;
+        while let Some(Reverse((_, i, transport, days))) = candidates.pop() {
             if need <= 1e-9 {
                 break;
             }

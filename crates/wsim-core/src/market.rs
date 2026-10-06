@@ -111,7 +111,7 @@ pub fn price_factor(
     country: CountryId,
     product: ProductId,
 ) -> f64 {
-    level_factor(catalog, state.countries.get(country).price_level, product)
+    state.countries.get(country).price_factors[catalog.products.get(product).kind.index()]
 }
 
 /// `price_factor` for a price level.
@@ -405,16 +405,21 @@ enum Buyer {
 /// consumer or government demand rest: nobody but perhaps the state market sells there,
 /// and their days are booked together later (`settle_idle`).
 pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
-    let countries = catalog.countries.len();
-    let mut sites_by_country: Vec<Vec<SiteId>> = vec![Vec::new(); countries];
+    // Sites that offer or order a product, by product and country, in site order. With
+    // many companies, scanning all sites of a country for every product was most of a
+    // day's work.
+    let mut traders: Vec<Traders> = vec![BTreeMap::new(); catalog.products.len()];
     // Markets to clear today, by product.
     let mut active: BTreeMap<ProductId, BTreeSet<CountryId>> = BTreeMap::new();
     for (i, site) in state.sites.iter().enumerate() {
         let trades = !site.offers.is_empty() || !site.orders.is_empty();
         if trades && !state.companies[site.owner.index()].bankrupt {
-            sites_by_country[site.country.index()]
-                .push(SiteId(u32::try_from(i).expect("fits u32")));
+            let id = SiteId(u32::try_from(i).expect("fits u32"));
             for &product in site.offers.keys().chain(site.orders.keys()) {
+                let list = traders[product.index()].entry(site.country).or_default();
+                if list.last() != Some(&id) {
+                    list.push(id);
+                }
                 active.entry(product).or_default().insert(site.country);
             }
         }
@@ -425,7 +430,8 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
     let in_transit = trade::to_importers(state);
     let model = &catalog.market_model;
     for (product, _) in catalog.products.iter() {
-        let plan = trade::plan(state, catalog, product, &sites_by_country, &in_transit);
+        let traders = &traders[product.index()];
+        let plan = trade::plan(state, catalog, product, traders, &in_transit);
         // Demand abroad the traders could not buy for counts as scarcity too.
         let export_shortage = plan.unserved > 1e-9;
         let mut markets = active.remove(&product).unwrap_or_default();
@@ -454,7 +460,7 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
                 state,
                 catalog,
                 (country, product, date),
-                &sites_by_country[country.index()],
+                traders.get(&country).map_or(&[], Vec::as_slice),
                 (state_price, plan.replacement.get(&country).copied()),
                 (&exports, export_shortage),
             );
@@ -471,6 +477,9 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
         }
     }
 }
+
+/// Sites that offer or order one product, by country, in site order.
+pub(crate) type Traders = BTreeMap<CountryId, Vec<SiteId>>;
 
 /// Books the idle days of all markets before `until`, with the prices of the running
 /// month (called before the country values change at the start of a month).
@@ -775,27 +784,37 @@ fn clear_market(
         .collect();
     let mut bought = [0.0; 5];
     let mut weights = vec![0.0; offers.len()];
+    // Price, quality and brand do not change while the layers buy: the attraction of
+    // an offer is computed once per layer, only what is left changes.
+    let log_relative: Vec<f64> = offers
+        .iter()
+        .map(|o| math::ln((o.price.to_usd() / reference).max(1e-6)))
+        .collect();
+    let mut attraction = vec![0.0; offers.len()];
     for q in (0..5).rev() {
         let mut need = rates[q];
         day.demand += need;
         flows.outside_demand += need;
         day.outside_demand += need;
+        if need > 1e-9 && reference > 0.0 {
+            for (i, a) in attraction.iter_mut().enumerate() {
+                *a = presence[i]
+                    * math::exp(
+                        -model.price_weight[q] * log_relative[i]
+                            + model.quality_weight[q] * (offers[i].quality - 50.0) / 25.0
+                            + model.brand.weight[q] * brand[i],
+                    );
+            }
+        }
         for _ in 0..8 {
             if need <= 1e-9 {
                 break;
             }
             for (i, w) in weights.iter_mut().enumerate() {
-                let o = &offers[i];
-                *w = if o.available <= 1e-12 || reference <= 0.0 {
+                *w = if offers[i].available <= 1e-12 || reference <= 0.0 {
                     0.0
                 } else {
-                    let relative = (o.price.to_usd() / reference).max(1e-6);
-                    presence[i]
-                        * math::exp(
-                            -model.price_weight[q] * math::ln(relative)
-                                + model.quality_weight[q] * (o.quality - 50.0) / 25.0
-                                + model.brand.weight[q] * brand[i],
-                        )
+                    attraction[i]
                 };
             }
             let total: f64 = weights.iter().sum();

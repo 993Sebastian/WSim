@@ -236,3 +236,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Ansicht Wettbewerb (Angebote, Firmen) | Sichten `OffersView`, `CompaniesView`, `CompanyDetailView` (`offers`, `companies`, `company_detail`); Befehle `angebote`, `firmen`, `firma`; UI: `WettbewerbAnsicht`, `BereichKarte` (Typ `Geschaeftsbereich`) |
 | Region, umfasste Länder (`umfasst`), Teilland (`teilland.<ISO>`) | `Country::members`; Sicht `CountryDetail::members`; Prüfung `countries::check_regions` (M34) |
 | Früherer Schlüssel eines Eintrags (Spielstände) | `KeyTable::add_alias`, `ids::take_last_rank` (Vorrang in `PerId`) |
+| Firmenzahlen der KI-Regeln mit der Zahl der KI-Firmen | `ai::per_companies` |
+| Anbieter und Käufer eines Produkts je Land (Markträumung) | `market::Traders` |

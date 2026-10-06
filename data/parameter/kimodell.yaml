@@ -73,6 +73,8 @@ kimodell:
     forschung_vorgriff_jahre: {bei_0: 0, bei_1: 2}    # Kompetenz
     forschung_mindestumsatz_usd: 2_000_000
     forschung_mindestkompetenz: 0.4
+    # Die folgenden Firmenzahlen gelten für firmen_standard KI-Firmen; mit mehr Firmen
+    # (größere Märkte) wachsen sie im selben Verhältnis.
     # Marktlücken (M32): Produkte, nach denen gefragt wird, die aber keine Firma herstellen
     # kann, erforschen Firmen ohne Aufgabe in den eigenen Branchen – so viele zugleich.
     forschung_luecke_firmen: 2

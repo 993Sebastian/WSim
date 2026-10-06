@@ -58,6 +58,10 @@ pub struct CountryState {
     /// Labor productivity against the reference: recipe hours are divided by it (M16).
     pub labor_productivity: f64,
     pub automation_affinity: f64,
+    /// `market::level_factor` of the price level per product kind, computed once with
+    /// the values (prices ask for it thousands of times a day).
+    #[serde(default)]
+    pub price_factors: [f64; 5],
 }
 
 /// Point in time for the yearly data: values apply to the middle of the year.
@@ -223,6 +227,9 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
         research_efficiency,
         labor_productivity,
         automation_affinity,
+        price_factors: std::array::from_fn(|kind| {
+            math::pow(price_level, catalog.market_model.price_level_share[kind])
+        }),
     }
 }
 
