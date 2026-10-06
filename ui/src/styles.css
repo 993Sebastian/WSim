@@ -902,8 +902,19 @@ form.inline {
   gap: 0.3rem;
 }
 
+/* Number fields: room for "200.000.000,5"; where the browser can, they grow with the
+   number (amounts of the hyperinflation). */
 input.schmal {
-  width: 6.5rem;
+  width: 8rem;
+}
+
+@supports (field-sizing: content) {
+  input.schmal {
+    width: auto;
+    min-width: 6.5rem;
+    max-width: 100%;
+    field-sizing: content;
+  }
 }
 
 td input.schmal {

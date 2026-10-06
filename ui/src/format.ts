@@ -107,12 +107,18 @@ export function formatPreis(usd: number, einheit: string): string {
   return `${formatGeld(usd)}/${einheit}`;
 }
 
-/**
- * Reads a number as typed in German: "1.800" is 1800, "1,5" is 1.5, "1.800,50" is
- * 1800.5. A point is a decimal point only where it cannot be a thousands separator
- * ("1.5", "12.75", "0.005"). Empty or invalid input gives null.
- */
-export function zahlLesen(text: string): number | null {
+/** A typed number in parts, its digits as typed: "1.800,50" is 1800 and 50. */
+export interface Zahlteile {
+  minus: boolean;
+  /** Digits before the decimal separator (may be empty: ",5"). */
+  ganz: string;
+  /** Has a decimal separator (possibly without decimals: "12,"). */
+  komma: boolean;
+  bruch: string;
+}
+
+/** Reads typed text into its parts by the rules of `zahlLesen`; null if it is no number. */
+export function zahlTeile(text: string): Zahlteile | null {
   const s = text
     .trim()
     .replace(/\s|\u00a0/g, "")
@@ -123,15 +129,27 @@ export function zahlLesen(text: string): number | null {
   else if (/^-?[1-9]\d{0,2}(\.\d{3})+$/.test(s)) normal = s.replace(/\./g, "");
   else normal = s;
   if (!/^-?\d*\.?\d+$/.test(normal) && !/^-?\d+\.?$/.test(normal)) return null;
-  const wert = Number(normal);
+  const [, minus, ganz = "", komma, bruch = ""] = /^(-?)(\d*)(\.?)(\d*)$/.exec(normal) ?? [];
+  return { minus: minus === "-", ganz, komma: komma === ".", bruch };
+}
+
+/**
+ * Reads a number as typed in German: "1.800" is 1800, "1,5" is 1.5, "1.800,50" is
+ * 1800.5. A point is a decimal point only where it cannot be a thousands separator
+ * ("1.5", "12.75", "0.005"). Empty or invalid input gives null.
+ */
+export function zahlLesen(text: string): number | null {
+  const z = zahlTeile(text);
+  if (!z) return null;
+  const wert = Number(`${z.minus ? "-" : ""}${z.ganz}${z.komma ? "." : ""}${z.bruch}`);
   return Number.isFinite(wert) ? wert : null;
 }
 
-/** A number for an input field, without thousands separators ("1800,5"). */
+/** A number for an input field as the field shows it, with thousands separators ("1.800,5"). */
 export function zahlFeld(wert: number, stellen = 2): string {
   return new Intl.NumberFormat("de-DE", {
     maximumFractionDigits: stellen,
-    useGrouping: false,
+    useGrouping: true,
   }).format(wert);
 }
 

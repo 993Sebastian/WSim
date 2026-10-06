@@ -167,6 +167,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await einkauf.getByLabel("Ziellager").fill("30");
   // German input: the point separates thousands.
   await einkauf.getByLabel("Höchstpreis").fill("2.500");
+  await expect(einkauf.getByLabel("Höchstpreis")).toHaveValue("2.500");
   await einkauf.getByRole("button", { name: /Einkauf (ändern|starten)/ }).click();
 
   await page.getByRole("button", { name: "Verkauf" }).click();
@@ -174,6 +175,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await verkauf.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();
   await verkauf.getByLabel("Fester Preis").check();
   await verkauf.getByLabel("Preis", { exact: true }).fill("2.400,50");
+  await expect(verkauf.getByLabel("Preis", { exact: true })).toHaveValue("2.400,50");
   await verkauf.getByRole("button", { name: "Übernehmen" }).click();
 
   await page.getByRole("button", { name: "Personal" }).click();
@@ -211,6 +213,34 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     { TakeLoan: { amount: 200_000_000, years: 8 } },
     { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
   ]);
+});
+
+test("Zahlenfelder setzen beim Tippen Tausenderpunkte", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  const kredit = page.getByRole("form", { name: "Kredit aufnehmen" });
+  const betrag = kredit.getByLabel("Betrag");
+  const cursor = () =>
+    betrag.evaluate((e) => (e as { selectionStart: number | null }).selectionStart);
+  await betrag.pressSequentially("1234567");
+  await expect(betrag).toHaveValue("1.234.567");
+  // Typing in the middle keeps the caret behind the typed digit.
+  for (let i = 0; i < 3; i++) await betrag.press("ArrowLeft");
+  await betrag.pressSequentially("09");
+  await expect(betrag).toHaveValue("123.409.567");
+  expect(await cursor()).toBe(7);
+  // Backspace removes digits, not the separators.
+  await betrag.press("Backspace");
+  await betrag.press("Backspace");
+  await expect(betrag).toHaveValue("1.234.567");
+  expect(await cursor()).toBe(5);
+  await betrag.press("End");
+  await betrag.pressSequentially(",5");
+  await expect(betrag).toHaveValue("1.234.567,5");
+  await kredit.getByRole("button", { name: "Aufnehmen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    TakeLoan: { amount: 12_345_675_000, years: 10 },
+  });
 });
 
 test("Etappen zeigen das nächste Ziel und lassen sich ausblenden", async ({ page }) => {
@@ -293,6 +323,7 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
 
   await angebot.getByRole("button", { name: "Annehmen" }).click();
   await angebot.getByLabel("Preis").fill("50000");
+  await expect(angebot.getByLabel("Preis")).toHaveValue("50.000");
   await angebot.getByRole("button", { name: "Gegenangebot machen" }).click();
   const befehleNachAntwort = await befehle(page);
   expect(befehleNachAntwort.slice(-2)).toEqual([
@@ -317,11 +348,13 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await expect(bereich.getByRole("note")).toContainText("Marke (Werbung für dieselbe Bekanntheit)");
   await bereich.getByLabel("Wie entsteht: Grundwert?").first().click();
   await bereich.getByLabel("Preis").fill("250000000");
+  await expect(bereich.getByLabel("Preis")).toHaveValue("250.000.000");
   await bereich.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     MakeOffer: { seller: 58, object: { Area: "bekleidung" }, price: 2_500_000_000_000 },
   });
   await werk.getByLabel("Preis").fill("200000000");
+  await expect(werk.getByLabel("Preis")).toHaveValue("200.000.000");
   await werk.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     MakeOffer: { seller: 58, object: { Site: 313 }, price: 2_000_000_000_000 },

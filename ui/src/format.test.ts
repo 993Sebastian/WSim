@@ -12,6 +12,7 @@ import {
   setzeGeldanzeige,
   zahlFeld,
   zahlLesen,
+  zahlTeile,
 } from "./format";
 
 describe("Formate", () => {
@@ -50,8 +51,18 @@ describe("Formate", () => {
     expect(zahlLesen("0.005")).toBe(0.005);
   });
 
-  it("schreibt Zahlen für Eingabefelder ohne Tausenderpunkt", () => {
-    expect(zahlFeld(1800.5)).toBe("1800,5");
+  it("zerlegt Zahlen in Vorzeichen, Ziffern und Nachkommastellen, wie getippt", () => {
+    expect(zahlTeile("1.800,50")).toEqual({ minus: false, ganz: "1800", komma: true, bruch: "50" });
+    expect(zahlTeile("-1.5")).toEqual({ minus: true, ganz: "1", komma: true, bruch: "5" });
+    expect(zahlTeile(",5")).toEqual({ minus: false, ganz: "", komma: true, bruch: "5" });
+    expect(zahlTeile("12,")).toEqual({ minus: false, ganz: "12", komma: true, bruch: "" });
+    expect(zahlTeile("007")).toEqual({ minus: false, ganz: "007", komma: false, bruch: "" });
+    expect(zahlTeile("1.800.5")).toBeNull();
+  });
+
+  it("schreibt Zahlen für Eingabefelder mit Tausenderpunkten", () => {
+    expect(zahlFeld(1800.5)).toBe("1.800,5");
+    expect(zahlFeld(200_000_000, 0)).toBe("200.000.000");
     expect(zahlFeld(0.125, 3)).toBe("0,125");
     expect(zahlLesen(zahlFeld(1234567.89))).toBe(1234567.89);
   });
@@ -93,6 +104,7 @@ describe("Geldanzeige", () => {
     expect(geldEinheit()).toBe("€");
     expect(ausAnzeige(870)).toBeCloseTo(1000, 9);
     expect(geldFeld(1000)).toBe("870");
+    expect(geldFeld(2129)).toBe("1.852,23");
     setzeGeldanzeige(null);
     expect(formatGeld(1000)).toBe("1.000 USD");
   });

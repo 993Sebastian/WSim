@@ -791,6 +791,7 @@ function LaborAuslastung({
         wert={prozent}
         onWert={setProzent}
         hilfe={t("forschung.labor_hilfe")}
+        gruppieren={false}
       />
       <button type="submit">{t("werk.uebernehmen")}</button>
       {fehler && <p className="fehlertext">{fehler}</p>}

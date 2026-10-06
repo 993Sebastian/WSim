@@ -4,12 +4,15 @@ import {
   useContext,
   useEffect,
   useId,
+  useRef,
   useState,
+  type InputHTMLAttributes,
   type ReactNode,
 } from "react";
 import { zahlLesen } from "../format";
 import type { Befehl, Kern, Uebersicht } from "../kern";
 import { t } from "../texte";
+import { zahlEingeben, zahlGlaetten, type Eingabeart, type Zahlart } from "../zahleingabe";
 import { fehlerText } from "./fehler";
 
 /** Loads a view of the core and reloads it on `neu()` or when `stand` changes. */
@@ -115,9 +118,95 @@ export function Rueckmeldung({ meldung }: { meldung: { fehler: boolean; text: st
   );
 }
 
+/** A number field's text changed: the new text and the number it means (null: none). */
+export type ZahlMeldung = (text: string, zahl: number | null) => void;
+
 /**
- * A labelled number field for German input ("1.800" or "1,5"), with its unit next to
- * it and an optional explanation below. The parent keeps the text; `zahlLesen` reads it.
+ * The input of a number field for German input: it sets thousands separators while one
+ * types ("200.000.000", see `zahlEingeben`) and accepts the comma for decimals where
+ * the field allows them. The parent keeps the text; `onWert` also gets the number.
+ */
+export function ZahlEingabe({
+  wert,
+  onWert,
+  ganzzahlig = false,
+  negativ = false,
+  gruppieren = true,
+  onBlur,
+  ...rest
+}: Zahlart & {
+  wert: string;
+  onWert: ZahlMeldung;
+} & Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "value" | "defaultValue" | "onChange" | "type" | "inputMode"
+  >) {
+  const feld = useRef<HTMLInputElement>(null);
+  // The selection an edit replaces, as the browser reports it just before the edit.
+  const vorher = useRef<Eingabeart | null>(null);
+  useEffect(() => {
+    const el = feld.current;
+    if (!el) return;
+    const merken = (e: InputEvent) => {
+      vorher.current = {
+        auswahl: [el.selectionStart ?? 0, el.selectionEnd ?? 0],
+        typ: e.inputType,
+      };
+    };
+    el.addEventListener("beforeinput", merken);
+    return () => el.removeEventListener("beforeinput", merken);
+  }, []);
+  const art: Zahlart = { ganzzahlig, negativ, gruppieren };
+  const melden = (text: string) => onWert(text, zahlLesen(text));
+  return (
+    <input
+      type="text"
+      // Phone keyboards: digits, with the decimal separator where decimals are allowed
+      // (their number pads have no minus).
+      inputMode={negativ ? "text" : ganzzahlig ? "numeric" : "decimal"}
+      autoComplete="off"
+      aria-invalid={(wert.trim() !== "" && zahlLesen(wert) === null) || undefined}
+      {...rest}
+      ref={feld}
+      value={wert}
+      onChange={(e) => {
+        const el = e.currentTarget;
+        const nativ = e.nativeEvent as Partial<InputEvent>;
+        // Only the record of this very edit (the same kind of input) is used.
+        const eingabe: Eingabeart =
+          vorher.current && vorher.current.typ === nativ.inputType
+            ? vorher.current
+            : { typ: nativ.inputType };
+        vorher.current = null;
+        // While an input method composes, the text stays as it is (shaped on leaving).
+        if (nativ.isComposing) {
+          melden(el.value);
+          return;
+        }
+        const neu = zahlEingeben(
+          wert,
+          el.value,
+          el.selectionStart ?? el.value.length,
+          art,
+          eingabe,
+        );
+        // Set here, before React renders the same text, so that the caret stays put.
+        if (el.value !== neu.text) el.value = neu.text;
+        if (document.activeElement === el) el.setSelectionRange(neu.cursor, neu.cursor);
+        melden(neu.text);
+      }}
+      onBlur={(e) => {
+        const glatt = zahlGlaetten(wert, art);
+        if (glatt !== wert) melden(glatt);
+        onBlur?.(e);
+      }}
+    />
+  );
+}
+
+/**
+ * A labelled number field (see `ZahlEingabe`), with its unit next to it and an optional
+ * explanation below.
  */
 export function ZahlFeld({
   name,
@@ -126,11 +215,12 @@ export function ZahlFeld({
   onWert,
   hilfe,
   breit = false,
-}: {
+  ...art
+}: Zahlart & {
   name: string;
   einheit?: string;
   wert: string;
-  onWert: (text: string) => void;
+  onWert: ZahlMeldung;
   hilfe?: ReactNode;
   breit?: boolean;
 }) {
@@ -140,16 +230,13 @@ export function ZahlFeld({
     <div className="feld">
       <label htmlFor={id}>{name}</label>
       <span className="feld-eingabe">
-        <input
+        <ZahlEingabe
           id={id}
           className={breit ? undefined : "schmal"}
-          type="text"
-          inputMode="decimal"
-          autoComplete="off"
-          value={wert}
-          aria-invalid={ungueltig || undefined}
+          wert={wert}
+          onWert={onWert}
           aria-describedby={hilfe ? `${id}-hilfe` : undefined}
-          onChange={(e) => onWert(e.target.value)}
+          {...art}
         />
         {einheit && <span className="einheit">{einheit}</span>}
       </span>
