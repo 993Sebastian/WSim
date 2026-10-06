@@ -73,9 +73,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const markt = page.getByRole("table", { name: "Markt Deutschland" });
   await expect(markt).toBeVisible();
   // Newcomer against the established companies: the leader and its share.
-  await expect(
-    markt.getByRole("cell", { name: "99 % Lorenz KG" }).first(),
-  ).toBeVisible();
+  await expect(markt.getByRole("cell", { name: "99 % Lorenz KG" }).first()).toBeVisible();
   // Openings for a newcomer.
   await page.getByLabel("Chancen").check();
   await expect(markt.getByRole("button", { name: "Markt für Eisenerz öffnen" })).toBeVisible();
@@ -86,9 +84,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await markt.getByRole("button", { name: "Markt für Nägel öffnen" }).click();
   const naegelMarkt = page.getByRole("region", { name: "Nägel in Deutschland" });
   await expect(
-    naegelMarkt
-      .getByRole("table", { name: "Anbieter im Vormonat" })
-      .getByText("Lorenz KG"),
+    naegelMarkt.getByRole("table", { name: "Anbieter im Vormonat" }).getByText("Lorenz KG"),
   ).toBeVisible();
   await expect(naegelMarkt.getByText("Ärmstes Fünftel")).toBeVisible();
   // The last months: price against the reference price, sales and the own share (M24).
