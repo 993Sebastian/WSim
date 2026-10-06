@@ -19,6 +19,7 @@ pub mod game;
 pub mod health;
 pub mod ids;
 pub mod ledger;
+pub mod management;
 pub mod market;
 pub mod math;
 pub mod message;
@@ -50,6 +51,8 @@ mod development_tests;
 mod facility_tests;
 #[cfg(test)]
 mod finance_tests;
+#[cfg(test)]
+mod management_tests;
 #[cfg(test)]
 mod market_tests;
 #[cfg(test)]

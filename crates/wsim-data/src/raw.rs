@@ -1267,6 +1267,11 @@ pub struct RawNameGroup {
     pub is_default: bool,
     #[serde(rename = "familiennamen")]
     pub surnames: Vec<String>,
+    #[serde(rename = "vornamen")]
+    pub first_names: Vec<String>,
+    /// Managers' names with the family name first (East Asia).
+    #[serde(rename = "familienname_zuerst", default)]
+    pub surname_first: bool,
     #[serde(rename = "orte")]
     pub places: Vec<String>,
     #[serde(rename = "rechtsformen")]
@@ -1275,6 +1280,86 @@ pub struct RawNameGroup {
     pub patterns: Vec<String>,
     #[serde(rename = "branchen")]
     pub branch_words: BTreeMap<String, String>,
+}
+
+/// Positions, managers and their market (`data/parameter/management.yaml`, MA1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawManagement {
+    #[serde(rename = "bereiche")]
+    pub functions: Vec<RawManagementFunction>,
+    #[serde(rename = "ebenen")]
+    pub levels: Vec<RawManagementLevel>,
+    #[serde(rename = "standorttypen")]
+    pub site_types: BTreeMap<String, Vec<String>>,
+    #[serde(rename = "leitung_ohne_fach_abschlag")]
+    pub head_discount: f64,
+    #[serde(rename = "bemerken_grund")]
+    pub notice_base: f64,
+    #[serde(rename = "gehalt_lohngruppe")]
+    pub salary_group: String,
+    #[serde(rename = "abfindung_monate")]
+    pub severance_months: f64,
+    pub pool: RawManagerPool,
+    #[serde(rename = "faehigkeiten")]
+    pub skills: RawSkills,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawManagementFunction {
+    pub id: String,
+    #[serde(rename = "themen")]
+    pub topics: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawManagementLevel {
+    pub id: String,
+    #[serde(rename = "pruefung_tage")]
+    pub check_days: u32,
+    #[serde(rename = "gehalt_fach")]
+    pub salary_specialist: f64,
+    #[serde(rename = "gehalt_leitung")]
+    pub salary_head: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawManagerPool {
+    #[serde(rename = "je_mio_akademiker")]
+    pub per_million_academics: f64,
+    pub min: u32,
+    pub max: u32,
+    #[serde(rename = "abgang_monat")]
+    pub leave_per_month: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSkills {
+    #[serde(rename = "schwerpunkt")]
+    pub focus: RawSpread,
+    #[serde(rename = "sonst")]
+    pub other: RawSpread,
+    #[serde(rename = "allgemein")]
+    pub general: RawSpread,
+    #[serde(rename = "eindruck_unschaerfe")]
+    pub impression_blur: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSpread {
+    #[serde(rename = "mittel")]
+    pub mean: f64,
+    #[serde(rename = "streuung")]
+    pub spread: f64,
 }
 
 /// Name parts for the product names of companies (`data/ki/produktnamen.yaml`, M42).

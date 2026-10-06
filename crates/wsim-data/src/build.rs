@@ -23,6 +23,7 @@ mod ai;
 mod countries;
 mod currencies;
 mod deals;
+mod management;
 mod milestones;
 mod names;
 mod plots;
@@ -610,6 +611,7 @@ pub(crate) fn build(
     b.catalog.plot_model = plots::plot_model(b.ctx, raw);
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
     b.catalog.product_naming = names::product_naming(b.ctx, &b.catalog, raw, &group_keys);
+    b.catalog.management = management::management(b.ctx, &b.catalog, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,
@@ -681,6 +683,7 @@ pub(crate) fn build(
     countries::check_regions(b.ctx, &countries, &country_keys, texts, all_files_read);
     plots::check_texts(b.ctx, &b.catalog.plot_model, raw, texts, all_files_read);
     production::check_size_texts(b.ctx, raw, texts, all_files_read);
+    management::check_texts(b.ctx, &b.catalog.management, raw, texts, all_files_read);
 
     let catalog = b.catalog;
     (ctx.report.errors().count() == errors_before).then_some(catalog)

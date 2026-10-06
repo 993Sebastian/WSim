@@ -221,6 +221,30 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
+### Organisation (MA1)
+
+Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
+und was bleibt bei mir?“
+
+- **Organigramm:** Kopfzeile mit Zahl der Manager, Gehältern je Jahr und Bewerbern (ⓘ:
+  wie Stellen arbeiten). Darunter Kontinent → Land → Standort; je Standort eine Karte mit
+  seinen Stellen (Leitung, z. B. „Werksleitung“, und Fachstellen), dem Inhaber
+  (Schwerpunkt, Fachkompetenz der Stelle, Erkennen, seit wann; alle Fähigkeiten hinter
+  ⓘ), den Themen, die die Stelle erledigt, und dem Gehalt. Die Leitung zeigt die Themen
+  leerer Fachstellen, die sie mit übernimmt; „Entscheidest du selbst: …“ nennt, was
+  niemand erledigt; „Nächste Prüfung“ den nächsten Prüftermin.
+- **Besetzen:** öffnet den Managermarkt für die Stelle – Bewerber des eigenen Kontinents
+  zuerst (Auswahl „Bewerber aus“: andere Kontinente oder alle), mit Schwerpunkt,
+  Fachkompetenz der Stelle, Erkennen, Urteilsvermögen (bei Leitungen auch Führung) und
+  der Gehaltsforderung für genau diese Stelle; „Einstellen“. Darunter eigene Manager mit
+  „Hierher versetzen“ (Gehalt danach). Fähigkeiten erscheinen nur als Stufen von
+  „schwach“ bis „herausragend“ – als Einschätzung, die um eine Stufe danebenliegen kann.
+- **Entlassen:** fragt nach und nennt die Abfindung.
+- Stellen ohne Aufgaben (Personal, Logistik, Labore) stehen da, lassen sich aber erst
+  besetzen, wenn sie Aufgaben bekommen (ab MA2).
+- Übersicht: Ab drei Standorten ohne einen Manager weist „Zu erledigen“ auf die
+  Organisation hin. Rundgang der Einführung: Schritt „Organisation“.
+
 ### Forschung → Technologiebaum (M19)
 
 - Ist: Liste der Technologien mit Erfindungsjahr, Stand, Voraussetzungen, „ermöglicht“.

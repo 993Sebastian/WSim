@@ -339,6 +339,7 @@ pub(super) fn name_groups(
         let l = &e.loc;
         for (field, list) in [
             ("familiennamen", &v.surnames),
+            ("vornamen", &v.first_names),
             ("orte", &v.places),
             ("rechtsformen", &v.legal_forms),
             ("muster", &v.patterns),
@@ -383,6 +384,8 @@ pub(super) fn name_groups(
             countries: group_countries,
             is_default: v.is_default,
             surnames: v.surnames.clone(),
+            first_names: v.first_names.clone(),
+            surname_first: v.surname_first,
             places: v.places.clone(),
             legal_forms: v.legal_forms.clone(),
             patterns: v.patterns.clone(),

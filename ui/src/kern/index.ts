@@ -12,8 +12,10 @@ import type {
   Firmen,
   Firmendetail,
   Forschung,
+  Managermarkt,
   Markt,
   Ketten,
+  Organisation,
   ProduktMarkt,
   Produktion,
   WeltMarkt,
@@ -32,7 +34,7 @@ import { vorschauKern } from "./vorschau";
 import { webKern } from "./web";
 
 export type * from "./typen";
-export type { Antwort, Befehl, Gegenstand, Preisart } from "./befehle";
+export type { Antwort, Befehl, Gegenstand, Preisart, Stellenangabe } from "./befehle";
 export { geld } from "./befehle";
 export { KernFehler } from "./fehler";
 
@@ -68,6 +70,10 @@ export interface Kern {
   weltmarkt(produkt: string): Promise<WeltMarkt>;
   forschung(): Promise<Forschung>;
   finanzen(): Promise<Finanzen>;
+  /** The company's positions and their managers (MA1). */
+  organisation(): Promise<Organisation>;
+  /** Candidates for a position: `stelle` is `leitung` or the key of a function (MA1). */
+  managermarkt(standort: number, stelle: string): Promise<Managermarkt>;
   /** Carries out a decision; answers with the new overview. */
   befehl(befehl: Befehl): Promise<Uebersicht>;
   speichern(name: string): Promise<Spielstand>;
@@ -113,6 +119,8 @@ const tauriKern: Kern = {
   weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
   forschung: () => aufruf("forschung"),
   finanzen: () => aufruf("finanzen"),
+  organisation: () => aufruf("organisation"),
+  managermarkt: (standort, stelle) => aufruf("managermarkt", { standort, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),
   spielstaende: () => aufruf("spielstaende"),

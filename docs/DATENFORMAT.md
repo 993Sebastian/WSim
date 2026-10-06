@@ -405,8 +405,28 @@ Sitzlandes, sonst die eine Gruppe mit `standard: true`.
 | laender | Länder der Gruppe; jedes Land gehört zu höchstens einer Gruppe |
 | standard | `true` für genau eine Gruppe |
 | **familiennamen**, **orte**, **rechtsformen** | Nicht leere Listen von Namensteilen |
+| **vornamen** | Nicht leere Liste; Vornamen der Manager aus Ländern der Gruppe (MA1) |
+| familienname_zuerst | Wahrheitswert, Vorgabe `false`: Namen der Manager mit dem Familiennamen zuerst (Ostasien) |
 | **muster** | Namensmuster mit `{familienname}`, `{ort}`, `{rechtsform}`, `{branche}` |
 | **branchen** | Wort für das Geschäft je Branche, z. B. `metallurgie: Hüttenwerke` |
+
+## management
+
+`data/parameter/management.yaml` (MA1; Regeln: `docs/FORMELN.md`, Vorgabe: `docs/MANAGER.md`).
+Optional: ohne den Abschnitt gibt es keine Manager.
+
+| Feld | Bedeutung |
+|---|---|
+| **bereiche** | Liste: `id` (Bereich, Text `bereich.<id>`), `themen` (Themen der Entscheidungen aus MA0, die eine Stelle des Bereichs erledigt; jedes Thema höchstens in einem Bereich) |
+| **ebenen** | Genau die Ebenen `standort`, `land`, `kontinent`, `vorstand`: `pruefung_tage` (≥ 1), `gehalt_fach`, `gehalt_leitung` (> 0, Vielfaches des Jahreslohns der Lohngruppe) |
+| **standorttypen** | Je Standorttyp (`werk`, `foerderstaette`, `kraftwerk`, `lager`, `niederlassung`, `forschungszentrum`) die Bereiche seiner Fachstellen; jeder Standort hat dazu eine Leitung |
+| **leitung_ohne_fach_abschlag** | 0–1: so viel weniger Fachkompetenz hat eine Leitung in einem Bereich ohne besetzte Fachstelle |
+| **bemerken_grund** | 0–1: Wahrscheinlichkeit, mit der eine Stelle ganz ohne Sorgfalt eine Lage am Prüftermin bemerkt; mit voller Sorgfalt 1 |
+| **gehalt_lohngruppe** | Arbeitskräftegruppe, deren Lohn die Gehälter bestimmt (z. B. `akademiker.kaufmaennisch`) |
+| **abfindung_monate** | ≥ 0: Monatsgehälter beim Entlassen |
+| **pool** | `je_mio_akademiker` (> 0), `min` (≥ 1), `max` (≥ `min`): Kandidaten je Kontinent; `abgang_monat` (0–1) |
+| **faehigkeiten** | `schwerpunkt`, `sonst`, `allgemein`: je `mittel` (0–100) und `streuung` (0–50); `eindruck_unschaerfe` (0–50) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## produktnamen
 

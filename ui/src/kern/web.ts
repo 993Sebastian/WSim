@@ -67,6 +67,8 @@ export function webKern(): Kern {
     weltmarkt: (produkt) => aufruf("weltmarkt", { produkt }),
     forschung: () => aufruf("forschung"),
     finanzen: () => aufruf("finanzen"),
+    organisation: () => aufruf("organisation"),
+    managermarkt: (standort, stelle) => aufruf("managermarkt", { standort, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),
     spielstaende: () => aufruf("spielstaende"),

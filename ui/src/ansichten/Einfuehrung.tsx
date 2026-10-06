@@ -36,6 +36,7 @@ const abschluss = (runde: string): Schritt[] => [
   { key: "forschung", ansicht: "forschung", ziele: ["reiter-forschung"] },
   { key: "weiterentwicklung", ansicht: "forschung", ziele: ["bereich-entwicklung"] },
   { key: "finanzen", ansicht: "finanzen", ziele: ["reiter-finanzen"] },
+  { key: "organisation", ansicht: "organisation", ziele: ["reiter-organisation"] },
   { key: "weltkarte", ansicht: "weltkarte", ziele: ["reiter-weltkarte"] },
 ];
 

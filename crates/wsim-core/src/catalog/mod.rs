@@ -63,6 +63,86 @@ pub struct Catalog {
     pub product_naming: ProductNaming,
     /// Currencies of the countries, for display only (M21).
     pub currencies: crate::currency::CurrencyModel,
+    /// Positions, managers and their market (MA1); without functions there are none.
+    pub management: ManagementModel,
+}
+
+/// The management of companies (MA1, docs/MANAGER.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ManagementModel {
+    pub functions: Vec<ManagementFunction>,
+    /// Site, country, continent, board (in this order).
+    pub levels: Vec<ManagementLevel>,
+    /// Specialist functions per site type (indices into `functions`).
+    pub specialists: Vec<(SiteType, Vec<usize>)>,
+    /// Less expertise for a head doing the work of a missing specialist.
+    pub head_discount: f64,
+    /// Chance that a position without any diligence notices a situation (0–1).
+    pub notice_base: f64,
+    /// Labor group whose wage the salaries follow.
+    pub salary_group: Option<LaborGroupId>,
+    pub severance_months: f64,
+    pub pool: ManagerPoolModel,
+    pub skills: SkillModel,
+    pub provenance: Provenance,
+}
+
+impl ManagementModel {
+    pub fn enabled(&self) -> bool {
+        !self.functions.is_empty() && !self.levels.is_empty()
+    }
+
+    /// Specialist functions of a site type.
+    pub fn specialists_of(&self, kind: SiteType) -> &[usize] {
+        self.specialists
+            .iter()
+            .find(|(k, _)| *k == kind)
+            .map_or(&[], |(_, f)| f.as_slice())
+    }
+
+    pub fn function(&self, key: &str) -> Option<usize> {
+        self.functions.iter().position(|f| f.key == key)
+    }
+}
+
+/// A function of a company (production, purchasing …) and the topics of decisions it
+/// takes care of.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ManagementFunction {
+    pub key: String,
+    pub topics: Vec<crate::decision::Topic>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ManagementLevel {
+    pub key: String,
+    /// Days between the checks of a position.
+    pub check_days: u32,
+    /// Salary factors on the yearly wage of the salary group.
+    pub salary_specialist: f64,
+    pub salary_head: f64,
+}
+
+/// Candidates per continent (MA1).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ManagerPoolModel {
+    pub per_million_academics: f64,
+    pub min: u32,
+    pub max: u32,
+    /// Chance that a free candidate leaves the market at the start of a month.
+    pub leave_per_month: f64,
+}
+
+/// Distributions of the skills of new managers (0–100).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SkillModel {
+    /// Mean and spread of the expertise in the focus function.
+    pub focus: (f64, f64),
+    pub other: (f64, f64),
+    /// Detection, judgment and leadership.
+    pub general: (f64, f64),
+    /// Largest offset of the shown impression from the true skill.
+    pub impression_blur: f64,
 }
 
 impl Catalog {
@@ -932,6 +1012,10 @@ pub struct NameGroup {
     pub countries: Vec<CountryId>,
     pub is_default: bool,
     pub surnames: Vec<String>,
+    /// First names of managers (MA1).
+    pub first_names: Vec<String>,
+    /// Managers' names with the family name first.
+    pub surname_first: bool,
     pub places: Vec<String>,
     pub legal_forms: Vec<String>,
     /// Patterns with `{familienname}`, `{ort}`, `{rechtsform}`, `{branche}`.

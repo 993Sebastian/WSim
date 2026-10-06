@@ -17,8 +17,8 @@ use crate::money::Money;
 use crate::plots;
 use crate::policy::{self, BuyerGroup, SalesRule, Scope};
 use crate::state::{
-    CompanyId, Consignee, GameState, Operation, PerId, PlotId, PriceMode, PurchaseOrder, SaleOffer,
-    Shipment, Site, SiteId, Slot, Tenure,
+    CompanyId, Consignee, GameState, ManagerId, Operation, PerId, PlotId, Position, PriceMode,
+    PurchaseOrder, SaleOffer, Shipment, Site, SiteId, Slot, Tenure,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -155,6 +155,18 @@ pub enum Command {
         product: ProductId,
         name: Option<String>,
     },
+    /// Hires a free manager of the market for a free position of the company (MA1).
+    HireManager {
+        manager: ManagerId,
+        position: Position,
+    },
+    /// Moves a manager of the company to another free position of it (MA1).
+    MoveManager {
+        manager: ManagerId,
+        position: Position,
+    },
+    /// Dismisses a manager of the company against a severance pay (MA1).
+    DismissManager { manager: ManagerId },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -302,6 +314,15 @@ pub enum CommandError {
     NotYourTurn,
     NoCounter,
     BuyerCannotPay,
+    /// No such manager (any more) in the market or a company (MA1).
+    UnknownManager,
+    /// The manager works for a company already.
+    ManagerEmployed,
+    /// The manager does not work for the acting company.
+    NotYourManager,
+    /// The site has no such position.
+    UnknownPosition,
+    PositionTaken,
 }
 
 impl CommandError {
@@ -396,6 +417,11 @@ impl CommandError {
             CommandError::NotYourTurn => e(keys::COMMAND_NOT_YOUR_TURN),
             CommandError::NoCounter => e(keys::COMMAND_NO_COUNTER),
             CommandError::BuyerCannotPay => e(keys::COMMAND_BUYER_CANNOT_PAY),
+            CommandError::UnknownManager => e(keys::COMMAND_UNKNOWN_MANAGER),
+            CommandError::ManagerEmployed => e(keys::COMMAND_MANAGER_EMPLOYED),
+            CommandError::NotYourManager => e(keys::COMMAND_NOT_YOUR_MANAGER),
+            CommandError::UnknownPosition => e(keys::COMMAND_UNKNOWN_POSITION),
+            CommandError::PositionTaken => e(keys::COMMAND_POSITION_TAKEN),
         }
     }
 }
@@ -605,6 +631,15 @@ pub(crate) fn execute(
                 Some(name) => company.product_names.insert(*product, name),
                 None => company.product_names.remove(product),
             };
+        }
+        Command::HireManager { manager, position } => {
+            crate::management::hire(state, catalog, actor, *manager, position)?;
+        }
+        Command::MoveManager { manager, position } => {
+            crate::management::move_to(state, catalog, actor, *manager, position)?;
+        }
+        Command::DismissManager { manager } => {
+            crate::management::dismiss(state, catalog, actor, *manager)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

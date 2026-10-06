@@ -61,6 +61,10 @@ impl Topic {
         Topic::Development,
     ];
 
+    pub fn from_key(key: &str) -> Option<Topic> {
+        Topic::ALL.into_iter().find(|t| t.key() == key)
+    }
+
     pub fn key(self) -> &'static str {
         match self {
             Topic::Production => "produktion",

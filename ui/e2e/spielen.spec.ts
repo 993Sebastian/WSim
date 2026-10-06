@@ -585,12 +585,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 21")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 22")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 21 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 22 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -670,7 +670,15 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await weiter.click();
   await expect(titel("Produkte weiterentwickeln")).toBeVisible();
   await expect(page.getByRole("button", { name: "Weiterentwicklung" })).toBeVisible();
-  for (let i = 0; i < 2; i++) await weiter.click();
+  await weiter.click();
+  await expect(titel("Finanzen")).toBeVisible();
+  await weiter.click();
+  await expect(titel("Organisation")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Organisation" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await weiter.click();
   await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
     "aria-current",
     "page",
@@ -684,9 +692,63 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 21")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 22")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
+});
+
+test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page }) => {
+  await starten(page);
+  await page.keyboard.press("7");
+  await expect(page.getByRole("button", { name: "Organisation" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  const werk = page.getByRole("article", { name: "Werk · Deutschland" });
+  await expect(werk).toContainText("Werksleitung");
+  await expect(werk).toContainText("Alain Moreau");
+  await expect(werk).toContainText("82.568 USD");
+  await expect(werk).toContainText("Nächste Prüfung: 03.08.1914");
+  // The head takes care of the functions without a specialist.
+  await expect(werk).toContainText("Auslastung und Rezept, Einkauf");
+  // All skills as levels behind the ⓘ.
+  await werk.getByLabel("Wie entsteht: Fähigkeiten?").first().click();
+  await expect(werk.getByRole("note")).toContainText("Fachkompetenz Vertrieb und Marketing");
+  await expect(werk.getByRole("note")).toContainText("herausragend");
+  await werk.getByLabel("Wie entsteht: Fähigkeiten?").first().click();
+  await bild(page, "organisation");
+
+  // Fill the production position from the market.
+  await werk.getByRole("button", { name: "Besetzen Produktion (Werk · Deutschland)" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Produktion · Werk · Deutschland" }),
+  ).toBeVisible();
+  const bewerber = page.getByRole("table", { name: "Bewerber" });
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Dmitri Lebedev");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Belarus");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("stark");
+  // Candidates of other continents on request.
+  const vorher = await bewerber.getByRole("row").count();
+  await page.getByLabel("Bewerber aus").selectOption("alle");
+  expect(await bewerber.getByRole("row").count()).toBeGreaterThan(vorher);
+  await bild(page, "managermarkt");
+  await bewerber.getByRole("button", { name: "Einstellen: Dmitri Lebedev" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    HireManager: { manager: 32, position: { site: 0, role: { Specialist: "produktion" } } },
+  });
+  // The own head could move here instead.
+  const eigene = page.getByRole("table", { name: "Eigene Manager versetzen" });
+  await eigene.getByRole("button", { name: "Hierher versetzen: Alain Moreau" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    MoveManager: { manager: 34, position: { site: 0, role: { Specialist: "produktion" } } },
+  });
+
+  // Dismissing asks first and names the severance.
+  await page.getByRole("button", { name: "← Organisation" }).click();
+  await werk.getByRole("button", { name: "Entlassen: Alain Moreau, Werksleitung" }).click();
+  await expect(werk).toContainText("Alain Moreau entlassen? Abfindung 20.642 USD.");
+  await werk.getByRole("button", { name: "Ja, entlassen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 34 } });
 });
 
 test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
@@ -706,7 +768,7 @@ test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
 
 test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {
   await starten(page);
-  await page.keyboard.press("8");
+  await page.keyboard.press("9");
   await expect(page.getByText("Noch keine Runde beendet.")).toBeVisible();
 
   await page.keyboard.press("Control+Enter");

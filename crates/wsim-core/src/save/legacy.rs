@@ -137,6 +137,8 @@ pub(super) fn decode_v2(
         standings: Vec::new(),
         offers: Vec::new(),
         next_offer: 0,
+        managers: Default::default(),
+        next_manager: 0,
         player: s.player,
         game_over: s.game_over,
     };

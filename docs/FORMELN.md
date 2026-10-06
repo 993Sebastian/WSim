@@ -2229,3 +2229,117 @@ Beträge stehen getrennt.
   1985–1992, Seed 6) enden mit demselben Zustands-Hash und denselben Protokolldateien.
 - Test: Ein Entscheider, der jede Entscheidung bilden lässt, aufzeichnet und „Regel“
   antwortet, ergibt denselben Zustand wie die KI ohne ihn (das Bilden ändert nichts).
+
+## MA1 – Stellen und Manager
+
+`docs/MANAGER.md` Abschnitte 2–4 und 11. Daten: `data/parameter/management.yaml`
+(Format: `docs/DATENFORMAT.md`, Abschnitt `management`), Vornamen je Namensgruppe in
+`data/ki/namen.yaml`. Kern: Modul `management`.
+
+### Stellen
+
+- Jeder Standort hat eine **Leitung** und die **Fachstellen** seines Standorttyps aus den
+  Daten (Werk: Produktion, Einkauf und Lager, Vertrieb und Marketing, Personal, Logistik;
+  Förderstätte: Produktion, Vertrieb und Marketing, Personal; Kraftwerk: Produktion,
+  Einkauf und Lager; Lager: Logistik; Niederlassung: Vertrieb und Marketing;
+  Forschungszentrum: keine). Die Stellen entstehen mit dem Standort und vergehen mit ihm;
+  wer auf einer Stelle eines verkauften oder versteigerten Standorts sitzt, kehrt in den
+  Bewerberpool zurück.
+- Stellen der Länder, Kontinente und des Vorstands folgen mit MA3 und MA5. Das Organigramm
+  zeigt die Ebenen schon (Konzern → Kontinent → Land → Standort).
+- Jeder **Bereich** deckt Themen der Entscheidungen (MA0) ab, in den Daten änderbar:
+  Produktion – `produktion`; Einkauf und Lager – `einkauf`, `eigenversorgung`; Vertrieb
+  und Marketing – `verkauf`; Personal, Logistik, Forschung, Finanzen – in MA1 keine (mit
+  Budget ab MA2: `lohn`, `werbung`, `kasse` …).
+- Zuständig für ein Thema an einem Standort ist die Fachstelle seines Bereichs, wenn der
+  Standorttyp sie hat und sie besetzt ist, sonst die Leitung (mit Abschlag, unten). Ist
+  beides leer, entscheidet der Spieler selbst.
+
+### Manager
+
+- Fähigkeiten 0–100: Fachkompetenz je Bereich, Erkennen, Urteilsvermögen, Führung,
+  Risikoneigung, Fragefreude (Wirkung von Urteilsvermögen, Führung und Fragefreude ab
+  MA2). Jeder Manager hat einen **Schwerpunkt** (ein Bereich). Ziehung aus dem Strom des
+  Managermarkts: Fachkompetenz im Schwerpunkt ~ N(`schwerpunkt.mittel`,
+  `schwerpunkt.streuung`), in den übrigen Bereichen ~ N(`sonst.mittel`, `sonst.streuung`),
+  Erkennen, Urteilsvermögen und Führung ~ N(`allgemein.mittel`, `allgemein.streuung`),
+  Risikoneigung und Fragefreude gleichverteilt; alles auf 0–100 begrenzt und gerundet.
+- Name: Vorname und Familienname der Namensgruppe des Heimatlands (sonst der
+  Standardgruppe; `familienname_zuerst` dreht die Folge), frei unter den Managern: bis zu
+  20 Versuche, danach mit Initiale („Erik B. Holm“). Heimatland nach der Zahl der
+  Akademiker der Länder des Kontinents gewichtet. Schwerpunkt gleichverteilt über die
+  Bereiche.
+- **Anzeige:** fünf Stufen („schwach“ unter 20, „mäßig“ unter 40, „solide“ unter 60,
+  „stark“ unter 80, sonst „herausragend“), aus Wert + Eindruck (auf 0–100 begrenzt). Der Eindruck je Fähigkeit
+  wird bei der Ziehung gleichverteilt aus ±`eindruck_unschaerfe` gezogen und bleibt fest
+  (ein starkes Personalressort macht ihn ab MA5 kleiner). Der Kern liefert nur die Stufe.
+
+### Bewerberpool
+
+- Je Kontinent *N* = clamp(round(Akademiker des Kontinents in Mio. ·
+  `pool.je_mio_akademiker`), `pool.min`, `pool.max`) Kandidaten, die Akademiker aller
+  Fachrichtungen der Länder des Kontinents nach dem Ländermodell des Jahres.
+- Zum Spielbeginn gezogen. Am Monatsanfang verlässt jeder freie Kandidat den Markt mit
+  `pool.abgang_monat`, dann wird jeder Kontinent auf *N* aufgefüllt (alte Spielstände:
+  am ersten Monatsanfang nach dem Laden).
+- Entlassene Manager kehren in den Pool ihres Heimatkontinents zurück.
+
+### Gehalt
+
+    Gehalt je Jahr = Gehaltsfaktor der Stelle · (0,5 + Stärke / 100)
+                     · Stundenlohn akademiker.kaufmaennisch im Land des Standorts
+                     · Jahresarbeitsstunden (Ländermodell)
+    Stärke = Mittel aus Fachkompetenz im Schwerpunkt, Erkennen und Urteilsvermögen
+
+- Gehaltsfaktoren (× Akademikerlohn): Fachstelle Standort 1,5, Leitung Standort 2,5 (Land
+  3/4, Kontinent 5/7, Vorstand 10/15 ab MA3/MA5; Vorgabe 3).
+- Festgelegt bei der Einstellung; beim Versetzen gilt das höhere aus bisherigem Gehalt und
+  Forderung für die neue Stelle.
+- Gebucht am Monatsende: ein Zwölftel als Personalkosten (Kostenart Personal) der
+  Kostenstelle Standort, im Monat des Eintritts nach Tagen (Zwölftel · Tage seit dem
+  Eintritt / Tage des Monats). Wer im Lauf des Monats geht oder versetzt wird, bekommt
+  die Tage bis dahin sofort, gebucht auf den bisherigen Standort.
+- **Abfindung** beim Entlassen: `abfindung_monate` · Jahresgehalt / 12, sofort, ebenso
+  gebucht. Wer mit einem verkauften oder versteigerten Standort seine Stelle verliert,
+  bekommt keine Abfindung.
+
+### Befehle
+
+- `HireManager { manager, position }`: Der Kandidat ist frei, die Stelle gehört zu einem
+  eigenen Standort, passt zu seinem Typ und ist frei.
+- `MoveManager { manager, position }`: eigener Manager auf eine freie eigene Stelle.
+- `DismissManager { manager }`: eigener Manager; Abfindung, zurück in den Pool.
+- Stelle = Standort + Rolle (Leitung oder Fachstelle eines Bereichs).
+
+### Routine der Standortstellen
+
+- Prüftermin je Standort alle `pruefung_tage` (Standort: 7) Tage, gestaffelt nach der
+  Standortnummer: fällig, wenn (Tage seit dem 1.1.1900 + Standortnummer) durch
+  `pruefung_tage` teilbar ist. In Forschungszentren läuft keine Routine (ihre Themen
+  kommen mit dem Budget, MA2).
+- Am Prüftermin laufen für den Standort die Betriebsregeln der KI (MA0: Produktion,
+  Verkauf, Einkauf, Eigenversorgung) über einen Entscheider der Firma: Ein Thema läuft,
+  wenn eine besetzte Stelle es abdeckt (Fachstelle des Bereichs, sonst die Leitung) und
+  die Stelle die Lage bemerkt. Sonst bleibt es, wie es ist (der Spieler entscheidet
+  selbst).
+- **Bemerken** je Bereich und Prüftermin mit der Wahrscheinlichkeit
+  `bemerken_grund` + (1 − `bemerken_grund`) · Sorgfalt / 100 (Vorgabe 0,5: zwischen 50 %
+  und 100 %), Sorgfalt = (Fachkompetenz im Bereich + Erkennen) / 2; die Leitung anstelle
+  der Fachstelle mit Fachkompetenz · (1 − `leitung_ohne_fach_abschlag`). Zufall aus dem
+  eigenen Strom des Managers und Tages (eine Ziehung je Bereich, Bereiche in der
+  Reihenfolge der Daten).
+- Die Regeln nehmen für die Firma des Spielers mittlere Kompetenz und Aggressivität
+  (0,5). Feste Preise des Spielers bleiben (die Regeln setzen nur Untergrenzen im
+  Marktpreis-Modus); Auslastung und Einkauf führt die Stelle selbst. Was der Standort
+  herstellt und weder anbietet noch selbst braucht, bietet der Vertrieb zum Marktpreis
+  an (wie die KI bei Nebenprodukten); Lieferungen zwischen eigenen Standorten
+  (`eigenversorgung`) bestellt der Einkauf des empfangenden Standorts bei Standorten, die
+  die Ware anbieten.
+- Bis zum nächsten Prüftermin gelten Änderungen des Spielers; die Stelle passt sie danach
+  nach den Regeln an.
+- KI-Firmen haben in MA1 keine Manager (ab MA6).
+
+### Spielstände
+
+Neue Felder mit Vorgabewerten: alte Stände laden ohne Manager; der Pool entsteht am
+ersten Monatsanfang.

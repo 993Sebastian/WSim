@@ -46,7 +46,7 @@ pub(super) fn single<'r, T>(
     }
 }
 
-const SITE_TYPES: &[(&str, SiteType)] = &[
+pub(super) const SITE_TYPES: &[(&str, SiteType)] = &[
     ("foerderstaette", SiteType::Extraction),
     ("werk", SiteType::Factory),
     ("kraftwerk", SiteType::PowerPlant),

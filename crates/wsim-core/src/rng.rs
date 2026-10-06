@@ -27,6 +27,15 @@ pub enum Stream {
         company: u32,
         product: u32,
     },
+    /// The market of managers in a month (MA1).
+    ManagerMarket {
+        month: u32,
+    },
+    /// A manager's checks on a day (MA1).
+    Manager {
+        id: u32,
+        day: u32,
+    },
 }
 
 impl Stream {
@@ -40,6 +49,8 @@ impl Stream {
             Stream::ProductName { company, product } => {
                 (3 << 56) | (u64::from(company) << 24) | u64::from(product)
             }
+            Stream::ManagerMarket { month } => (4 << 56) | u64::from(month),
+            Stream::Manager { id, day } => (5 << 56) | (u64::from(id) << 24) | u64::from(day),
         }
     }
 }

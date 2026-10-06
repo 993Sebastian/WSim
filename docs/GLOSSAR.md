@@ -261,3 +261,13 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Bewertung einer Option (angerechneter Betrag, Wirkung je Jahr, einmalig) | `decision::assess` → `Assessment { amount, effect, once }`, `decision::amount` |
 | KI-Entscheidungen mit eigenem Entscheider | `ai::decide_with` (`ai::decide` nutzt `Rules`) |
 | Fingerabdruck eines Spielzustands | `game::hash_of` |
+| Manager-System (Parameter): Bereich, Ebene, Fachstellen je Standorttyp, Pool, Fähigkeiten | `catalog::ManagementModel` (`functions`, `levels`, `specialists`, `head_discount`, `notice_base`, `salary_group`, `severance_months`, `pool`, `skills`), `ManagementFunction`, `ManagementLevel`, `ManagerPoolModel`, `SkillModel` (`parameter/management.yaml`; MA1) |
+| Manager, Schwerpunkt, Fachkompetenz, Erkennen, Urteilsvermögen, Führung, Risikoneigung, Fragefreude, Eindruck | `state::Manager` (`focus`, `expertise`, `detection`, `judgment`, `leadership`, `risk`, `talkativeness`, `impression`), `ManagerId`, `GameState::managers`, `next_manager` |
+| Stelle (Leitung, Fachstelle), Anstellung, Gehalt | `state::Position` (`site`, `role`), `Role::{Head, Specialist}`, `Job` (`company`, `position`, `salary`, `since`) |
+| Stellen eines Standorts, Inhaber, Gehaltsforderung, Stärke, angezeigte Stufe | `management::{positions, holder, salary_demand, strength, shown_level, skill, skill_keys}` |
+| Bewerberpool je Kontinent, Monatswechsel | `management::{month_start, pool_size}`; Zufallsstrom `Stream::ManagerMarket` |
+| Gehälter, Abfindung | `management::month_end`, `dismiss` (Kostenart `Personnel`, Kostenstelle Standort) |
+| Einstellen, Versetzen, Entlassen | Befehle `HireManager`, `MoveManager`, `DismissManager`; Fehler `UnknownManager`, `ManagerEmployed`, `NotYourManager`, `UnknownPosition`, `PositionTaken` |
+| Routine der Standortstellen, Prüftermin, Bemerken | `management::simulate_day` mit dem Entscheider `Staff`; `ai::site_routine`; Zufallsstrom `Stream::Manager` |
+| Stelle entfällt mit dem Standort | `management::release_site` (aus `deals::hand_over`) |
+| Namensfolge (Familienname zuerst) | `NameGroup::surname_first` (`namensgruppen[].familienname_zuerst`) |

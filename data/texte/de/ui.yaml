@@ -192,6 +192,7 @@ ansicht.markt: Markt
 ansicht.wettbewerb: Wettbewerb
 ansicht.forschung: Forschung
 ansicht.finanzen: Finanzen
+ansicht.organisation: Organisation
 
 karte.titel: Weltkarte
 karte.ebene: Kartenebene
@@ -839,6 +840,8 @@ einfuehrung.weiterentwicklung.titel: Produkte weiterentwickeln
 einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe für Stufe verbessern – auch Rohstoffe und Vorprodukte. Jede Stufe bringt mehr Qualität und spart Arbeit und Vorprodukte; die Karte zeigt, wo deine Wettbewerber stehen und was die nächste Stufe kostet. Ein Forschungszentrum mit Labor arbeitet daran, bis das Produkt ausgereizt ist."
 einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
+einfuehrung.organisation.titel: Organisation
+einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -987,3 +990,99 @@ wettbewerb.lizenzen: Lizenzen
 wettbewerb.keine_lizenzen: Diese Firma kennt keine Technologie, die dir fehlt.
 wettbewerb.lizenz_anfragen: Lizenz anfragen
 
+# Organisation und Manager (MA1)
+organisation.kopf: "{anzahl} Manager · Gehälter {gehalt} im Jahr · {bewerber} Bewerber auf dem Markt"
+organisation.hilfe: "Besetzte Stellen prüfen ihren Standort alle {tage} Tage und erledigen die Routine ihres Bereichs selbst: Auslastung und Rezept, Einkauf und Lieferungen zwischen deinen Standorten, Verkauf. Eine Leitung übernimmt die Bereiche, deren Fachstelle leer ist – etwas weniger gründlich. Was niemand erledigt, entscheidest du selbst. Deine eigenen Einstellungen gelten bis zur nächsten Prüfung."
+organisation.spaeter: Stellen für Länder, Kontinente und den Vorstand kommen in einer späteren Ausbaustufe hinzu.
+organisation.aus: In diesen Spieldaten gibt es keine Manager.
+organisation.keine_standorte: Gründe zuerst einen Standort; dann kannst du seine Stellen besetzen.
+organisation.konzern: Konzern
+organisation.stelle: Stelle
+organisation.inhaber: Besetzt mit
+organisation.erledigt: Erledigt
+organisation.gehalt: Gehalt im Jahr
+organisation.frei: frei
+organisation.besetzen: Besetzen
+organisation.keine_aufgaben: noch keine Aufgaben
+organisation.entlassen: Entlassen
+organisation.entlassen_ja: Ja, entlassen
+organisation.entlassen_frage: "{name} entlassen? Abfindung {abfindung}."
+organisation.entlassen_erfolg: "{name} ist entlassen und kehrt auf den Managermarkt zurück."
+organisation.naechste_pruefung: "Nächste Prüfung: {datum}"
+organisation.selbst: "Entscheidest du selbst: {themen}"
+organisation.nichts: "–"
+organisation.seit: "seit {datum}"
+organisation.schwerpunkt: "Schwerpunkt {bereich}"
+organisation.schwerpunkt_kurz: Schwerpunkt
+organisation.faehigkeiten: Fähigkeiten
+organisation.einschaetzung: Die Fähigkeiten sind eine Einschätzung aus Lebenslauf und Gespräch; sie kann um eine Stufe danebenliegen.
+organisation.zurueck: ← Organisation
+organisation.markt_titel: "{stelle} · {standort}"
+organisation.markt_hilfe: Die Gehaltsforderung richtet sich nach den Fähigkeiten und dem Lohnniveau im Land des Standorts. Ein Manager kostet sein Gehalt jeden Monat; wer entlassen wird, bekommt eine Abfindung.
+organisation.kontinent_wahl: Bewerber aus
+organisation.alle_kontinente: allen Kontinenten
+organisation.bewerber: Bewerber
+organisation.keine_bewerber: Im Moment gibt es hier keine Bewerber; am Monatsanfang kommen neue.
+organisation.name: Name
+organisation.heimat: Heimat
+organisation.forderung: Forderung im Jahr
+organisation.einstellen: Einstellen
+organisation.eingestellt: "{name} ist jetzt {stelle} ({standort})."
+organisation.eigene: Eigene Manager versetzen
+organisation.jetzt: Jetzt
+organisation.gehalt_danach: Gehalt danach
+organisation.versetzen: Hierher versetzen
+organisation.versetzt: "{name} ist jetzt {stelle} ({standort})."
+organisation.fach_der_stelle: Fachkompetenz der Stelle
+bereich.produktion: Produktion
+bereich.einkauf_lager: Einkauf und Lager
+bereich.vertrieb_marketing: Vertrieb und Marketing
+bereich.personal: Personal
+bereich.logistik: Logistik
+bereich.forschung: Forschung
+bereich.finanzen: Finanzen
+leitung.werk: Werksleitung
+leitung.foerderstaette: Betriebsleitung
+leitung.kraftwerk: Kraftwerksleitung
+leitung.lager: Lagerleitung
+leitung.niederlassung: Niederlassungsleitung
+leitung.forschungszentrum: Laborleitung
+faehigkeit.fach: "Fachkompetenz {bereich}"
+faehigkeit.erkennen: Erkennen
+faehigkeit.urteil: Urteilsvermögen
+faehigkeit.fuehrung: Führung
+faehigkeit.risiko: Risikoneigung
+faehigkeit.fragefreude: Fragefreude
+stufe.0: schwach
+stufe.1: mäßig
+stufe.2: solide
+stufe.3: stark
+stufe.4: herausragend
+risiko.0: sehr vorsichtig
+risiko.1: vorsichtig
+risiko.2: ausgewogen
+risiko.3: mutig
+risiko.4: sehr mutig
+fragefreude.0: verschlossen
+fragefreude.1: zurückhaltend
+fragefreude.2: ausgewogen
+fragefreude.3: gesprächig
+fragefreude.4: sehr gesprächig
+thema.produktion: Auslastung und Rezept
+thema.verkauf: Verkauf
+thema.einkauf: Einkauf
+thema.lohn: Lohnaufschlag
+thema.eigenversorgung: Lieferungen zwischen eigenen Standorten
+thema.produktname: Produktnamen
+thema.kasse: Kredite
+thema.werbung: Werbung
+thema.kaufangebot: Kaufangebote
+thema.ueberkapazitaet: Überkapazität
+thema.stillgelegt: Stillgelegte Anlagen
+thema.wiederanfahren: Wiederanfahren
+thema.ausbau: Ausbau
+thema.kraftwerk: Eigenes Kraftwerk
+thema.lagerstaette: Lagerstätten
+thema.engpass: Engpässe
+thema.forschung: Forschungsziel
+thema.weiterentwicklung: Weiterentwicklung

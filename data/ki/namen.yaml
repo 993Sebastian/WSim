@@ -1,4 +1,5 @@
-# Namensbausteine für erzeugte KI-Firmen (Lastenheft §10). Eine Firma bekommt die
+# Namensbausteine für erzeugte KI-Firmen (Lastenheft §10) und für Manager (Vor- und
+# Familienname, docs/MANAGER.md, MA1). Eine Firma bekommt die
 # Namensgruppe ihres Sitzlandes, sonst die Standardgruppe. Platzhalter im Muster:
 # {familienname}, {ort}, {rechtsform}, {branche}. Namen sind Eigennamen und werden nicht
 # übersetzt; reale Firmennamen stehen in reale_firmen.yaml und werden nicht erzeugt.
@@ -8,6 +9,7 @@ namensgruppen:
     laender: [DEU, AUT, CHE]
     familiennamen: [Becker, Hoffmann, Brandt, Lehmann, Vogt, Kessler, Hartmann, Albrecht,
                     Wendt, Körber, Steinbach, Reuter, Hahn, Lorenz, Pfeiffer, Ebert]
+    vornamen: [Friedrich, Wilhelm, Hermann, Karl, Ernst, Otto, Heinrich, Paul, Walter, Klaus, Jürgen, Thomas, Margarete, Gertrud, Ursula, Ingrid, Sabine, Andrea, Katrin, Julia]
     orte: [Dortmunder, Bochumer, Kölner, Chemnitzer, Leipziger, Bremer, Stuttgarter,
            Wiener, Grazer, Zürcher, Mannheimer, Hagener]
     rechtsformen: [AG, GmbH, "& Co.", "& Söhne", KG]
@@ -31,6 +33,7 @@ namensgruppen:
     standard: true
     familiennamen: [Harris, Whitfield, Morgan, Bradley, Hughes, Carter, Fletcher, Dawson,
                     Pemberton, Hale, Sutton, Barker, Lawrence, Grant, Mitchell, Holloway]
+    vornamen: [William, George, Henry, Arthur, Charles, Edward, Robert, James, Richard, David, Michael, John, Mary, Margaret, Dorothy, Elizabeth, Susan, Patricia, Karen, Sarah]
     orte: [Pittsburgh, Cleveland, Sheffield, Birmingham, Manchester, Glasgow, Toronto,
            Chicago, Detroit, Newcastle, Baltimore, Melbourne]
     rechtsformen: [Company, Corporation, Ltd., "& Co.", "& Sons"]
@@ -53,6 +56,7 @@ namensgruppen:
     laender: [FRA, BEL]
     familiennamen: [Durand, Lefèvre, Moreau, Girard, Bonnet, Fontaine, Rousseau, Mercier,
                     Blanchard, Gauthier, Perrin, Chevalier]
+    vornamen: [Louis, Henri, Pierre, Jean, Paul, André, Jacques, Michel, Philippe, Alain, Marie, Jeanne, Marguerite, Louise, Simone, Monique, Nathalie, Sophie]
     orte: [Lyon, Lille, Saint-Étienne, Rouen, Nancy, Liège, Charleroi, Marseille]
     rechtsformen: ["S.A.", "& Cie", "Frères", "et Fils"]
     muster: ["{familienname} {rechtsform}", "{branche} de {ort}",
@@ -74,6 +78,7 @@ namensgruppen:
     laender: [ITA, ESP, MEX, ARG, CHL, PER, COL, VEN, XPU, CUB, BOL, ECU]
     familiennamen: [Rossi, Ferrari, Colombo, Bianchi, García, Fernández, López, Martínez,
                     Ortega, Romano, Vázquez, Moretti]
+    vornamen: [Giuseppe, Giovanni, Antonio, Francesco, José, Manuel, Carlos, Luis, Javier, Marco, María, Carmen, Rosa, Ana, Giulia, Lucía, Elena, Francesca]
     orte: [Milano, Torino, Genova, Bilbao, Barcelona, Monterrey, Rosario, Valparaíso]
     rechtsformen: ["S.A.", "y Cía.", "e Figli", "Hermanos"]
     muster: ["{familienname} {rechtsform}", "{branche} {ort}", "{familienname} & {familienname}"]
@@ -94,6 +99,7 @@ namensgruppen:
     laender: [RUS, UKR, BLR, KAZ, XKA, UZB, POL]
     familiennamen: [Morozov, Putilov, Demidov, Ryabushinsky, Kovalenko, Sokolov, Volkov,
                     Orlov, Wiśniewski, Kowalski, Shevchenko, Lebedev]
+    vornamen: [Ivan, Nikolai, Alexei, Sergei, Dmitri, Mikhail, Andrei, Jan, Piotr, Olga, Tatjana, Irina, Natalia, Anna, Elena, Maria, Katarzyna, Svetlana]
     orte: [Petersburg, Moskau, Jekaterinburg, Charkow, Odessa, Warschau, Łódź, Baku]
     rechtsformen: [Gesellschaft, "& Söhne", Werke]
     muster: ["{familienname}-{rechtsform}", "{ort}er {branche}", "{branche} {familienname}"]
@@ -114,6 +120,7 @@ namensgruppen:
     laender: [SWE, NOR, DNK, FIN, NLD]
     familiennamen: [Lindqvist, Berg, Holm, Nyström, Hansen, Larsen, Virtanen, de Vries,
                     van Dijk, Bakker, Sandberg, Åkerlund]
+    vornamen: [Erik, Lars, Johan, Nils, Olav, Pieter, Jan, Hendrik, Mikko, Anders, Ingrid, Astrid, Karin, Maria, Annika, Sanne, Liisa, Birgitta]
     orte: [Göteborg, Stockholm, Bergen, Oslo, Kopenhagen, Rotterdam, Eindhoven, Tampere]
     rechtsformen: [AB, AS, "N.V.", "& Co."]
     muster: ["{familienname} {rechtsform}", "{ort} {branche} {rechtsform}"]
@@ -132,8 +139,10 @@ namensgruppen:
 
   - id: japanisch
     laender: [JPN]
+    familienname_zuerst: true
     familiennamen: [Mitsui, Yasuda, Furukawa, Asano, Okura, Fujita, Kuhara, Nakajima,
                     Shibusawa, Morimura]
+    vornamen: [Hiroshi, Takashi, Kenji, Kazuo, Ichiro, Yoshio, Masao, Haruki, Akira, Satoshi, Yoko, Keiko, Michiko, Haruko, Akiko, Yumi, Naomi, Sachiko]
     orte: [Osaka, Tokio, Yokohama, Kobe, Nagoya, Yawata]
     rechtsformen: [Gōmei, Kabushiki Kaisha, Shōkai]
     muster: ["{familienname} {rechtsform}", "{ort} {branche}"]
@@ -152,7 +161,9 @@ namensgruppen:
 
   - id: chinesisch
     laender: [CHN, TWN]
+    familienname_zuerst: true
     familiennamen: [Zhang, Li, Wang, Chen, Liu, Zhou, Sheng, Rong]
+    vornamen: [Wei, Jun, Ming, Hao, Jian, Lei, Qiang, Yong, Bo, Tao, Mei, Hua, Li, Fang, Xiu, Ying, Lan, Jing]
     orte: [Shanghai, Tianjin, Hankou, Kanton, Wuxi, Nantong]
     rechtsformen: [Gongsi, Hang, Ju]
     muster: ["{ort} {familienname} {rechtsform}", "{familienname} {branche} {rechtsform}"]

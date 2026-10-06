@@ -530,3 +530,75 @@ pub fn power() -> Catalog {
     c.recipes.get_mut(smelting).energy_mwh = 2.0;
     c
 }
+
+/// The production catalog with managers (MA1): four functions, the four levels, heads and
+/// specialists for works and mines; salaries follow the metal workers, whose
+/// qualification also counts as academics. One name group for everybody.
+pub fn management() -> Catalog {
+    use super::{
+        ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel, NameGroup,
+        SiteType, SkillModel,
+    };
+    use crate::decision::Topic;
+
+    let mut c = production();
+    let function = |key: &str, topics: Vec<Topic>| ManagementFunction {
+        key: key.to_owned(),
+        topics,
+    };
+    let level = |key: &str, check_days, salary_specialist, salary_head| ManagementLevel {
+        key: key.to_owned(),
+        check_days,
+        salary_specialist,
+        salary_head,
+    };
+    c.management = ManagementModel {
+        functions: vec![
+            function("produktion", vec![Topic::Production]),
+            function("einkauf_lager", vec![Topic::Purchase, Topic::OwnSupply]),
+            function("vertrieb_marketing", vec![Topic::Sale]),
+            function("personal", Vec::new()),
+        ],
+        levels: vec![
+            level("standort", 7, 1.5, 2.5),
+            level("land", 30, 3.0, 4.0),
+            level("kontinent", 30, 5.0, 7.0),
+            level("vorstand", 91, 10.0, 15.0),
+        ],
+        specialists: vec![
+            (SiteType::Factory, vec![0, 1, 2, 3]),
+            (SiteType::Extraction, vec![0, 2]),
+        ],
+        head_discount: 0.2,
+        notice_base: 0.5,
+        salary_group: c.labor_groups.id("fachkraft.metall"),
+        severance_months: 3.0,
+        pool: ManagerPoolModel {
+            per_million_academics: 4.0,
+            min: 6,
+            max: 12,
+            leave_per_month: 0.15,
+        },
+        skills: SkillModel {
+            focus: (60.0, 15.0),
+            other: (35.0, 15.0),
+            general: (50.0, 15.0),
+            impression_blur: 15.0,
+        },
+        provenance: Provenance::default(),
+    };
+    let names = |list: &[&str]| list.iter().map(|n| (*n).to_owned()).collect::<Vec<_>>();
+    c.name_groups = vec![NameGroup {
+        key: "test".into(),
+        countries: Vec::new(),
+        is_default: true,
+        surnames: names(&["Berg", "Holm", "Lind", "Stein", "Wald"]),
+        first_names: names(&["Anna", "Erik", "Karl", "Lena", "Nils", "Olga"]),
+        surname_first: false,
+        places: names(&["Nord"]),
+        legal_forms: names(&["AG"]),
+        patterns: names(&["{familienname} {rechtsform}"]),
+        branch_words: Vec::new(),
+    }];
+    c
+}

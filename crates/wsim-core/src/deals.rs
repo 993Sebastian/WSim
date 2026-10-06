@@ -926,6 +926,8 @@ fn hand_over(
     let s = &mut state.sites[site.index()];
     s.owner = buyer;
     s.acquired = Some(today);
+    crate::management::release_site(state, site);
+    let s = &mut state.sites[site.index()];
     s.goodwill = goodwill;
     s.staffing_due = true;
     // A bought plot goes over at today's value; a leased one stays leased (M35).

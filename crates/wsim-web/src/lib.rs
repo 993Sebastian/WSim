@@ -130,6 +130,12 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     }
                     "forschung" => wert(s.research()?),
                     "finanzen" => wert(s.finance()?),
+                    "organisation" => wert(s.organisation()?),
+                    "managermarkt" => {
+                        let standort: u32 = argument(args, "standort")?;
+                        let stelle: String = argument(args, "stelle")?;
+                        wert(s.manager_market(standort, &stelle)?)
+                    }
                     "befehl" => {
                         let befehl: Value = argument(args, "befehl")?;
                         wert(s.command(befehl)?)

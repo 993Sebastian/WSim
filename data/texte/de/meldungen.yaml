@@ -14,6 +14,7 @@ fehler.sitzung.unbekannte_schwierigkeit: Diese Schwierigkeit gibt es nicht.
 fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
 fehler.sitzung.unbekanntes_ziel: So weit kann das Spiel nicht weiterlaufen.
 fehler.sitzung.unbekannte_firma: Diese Firma gibt es nicht mehr.
+fehler.sitzung.unbekannte_stelle: Diese Stelle gibt es bei deinen Standorten nicht.
 fehler.sitzung.name_ungueltig: "Der Name des Spielstands darf 1 bis 60 Zeichen haben: Buchstaben, Ziffern, Leerzeichen, Punkt, Binde- und Unterstrich."
 fehler.sitzung.speichern: "Der Spielstand konnte nicht gespeichert werden: {fehler}"
 fehler.sitzung.laden: "Der Spielstand konnte nicht geladen werden: {fehler}"
@@ -167,6 +168,11 @@ fehler.befehl.angebot_unbekannt: Dieses Angebot gibt es nicht mehr; es ist abges
 fehler.befehl.nicht_am_zug: Auf dieses Angebot antwortet die andere Firma.
 fehler.befehl.kein_gegenangebot: Ein Gegenangebot macht nur der Verkäufer, einmal und über dem gebotenen Preis.
 fehler.befehl.kaeufer_zahlt_nicht: Der Käufer kann den Preis nicht mehr bezahlen.
+fehler.befehl.manager_unbekannt: Diesen Manager gibt es nicht mehr; er hat den Markt verlassen.
+fehler.befehl.manager_angestellt: Dieser Manager arbeitet schon für eine Firma.
+fehler.befehl.manager_nicht_bei_dir: Dieser Manager arbeitet nicht für deine Firma.
+fehler.befehl.stelle_unbekannt: Diese Stelle gibt es an dem Standort nicht.
+fehler.befehl.stelle_besetzt: Die Stelle ist schon besetzt.
 meldung.angebot.erhalten.standort: "{firma} bietet {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
 meldung.angebot.erhalten.lizenz: "{firma} bietet {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.angebot.gegenangebot.standort: "{firma} verlangt {preis} für den Standort ({art} in {land}). Antwort bis {frist}."
@@ -188,6 +194,7 @@ meldung.angebot.abgelaufen.bereich: "Das Angebot mit {firma} für den Bereich {w
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)
+hinweis.ohne_manager: "Du führst {anzahl} Standorte ganz allein. Manager können die Routine übernehmen – Auslastung, Einkauf, Verkauf. Stellen besetzt du unter „Organisation“."
 hinweis.produkt_ohne_namen: "{produkt} trägt noch keinen eigenen Namen. Im Markt kannst du ihm einen geben – die Wettbewerber haben ihre Produkte längst benannt."
 hinweis.vorprodukt_fehlt: "{anlage} ({standort} {land}) steht teilweise still: {produkt} fehlt. Einkauf erhöhen oder selbst herstellen."
 hinweis.arbeitskraefte: "{anlage} ({standort} {land}) wartet auf Arbeitskräfte. Lohnaufschlag erhöhen oder Auslastung senken."

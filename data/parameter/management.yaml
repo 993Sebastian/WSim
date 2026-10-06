@@ -1,0 +1,68 @@
+# Manager-System (docs/MANAGER.md; Regeln: docs/FORMELN.md, MA1). Gehaltsfaktoren nach
+# der Vorgabe (Abschnitt 3): Vielfaches des Jahreslohns eines kaufmännischen Akademikers
+# im Land der Stelle. Fähigkeiten 0–100.
+
+management:
+  # Bereiche und die Themen der Entscheidungen (MA0), die eine Stelle des Bereichs
+  # erledigt. Personal, Logistik, Forschung und Finanzen bekommen ihre Themen mit dem
+  # Budget (MA2) bzw. mit der Logistik (Stufe 2).
+  bereiche:
+    - id: produktion
+      themen: [produktion]
+    - id: einkauf_lager
+      themen: [einkauf, eigenversorgung]
+    - id: vertrieb_marketing
+      themen: [verkauf]
+    - id: personal
+      themen: []
+    - id: logistik
+      themen: []
+    - id: forschung
+      themen: []
+    - id: finanzen
+      themen: []
+
+  # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung.
+  # In MA1 lassen sich nur Stellen der Standorte besetzen.
+  ebenen:
+    - {id: standort, pruefung_tage: 7, gehalt_fach: 1.5, gehalt_leitung: 2.5}
+    - {id: land, pruefung_tage: 30, gehalt_fach: 3, gehalt_leitung: 4}
+    - {id: kontinent, pruefung_tage: 30, gehalt_fach: 5, gehalt_leitung: 7}
+    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15}
+
+  # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
+  standorttypen:
+    werk: [produktion, einkauf_lager, vertrieb_marketing, personal, logistik]
+    foerderstaette: [produktion, vertrieb_marketing, personal]
+    kraftwerk: [produktion, einkauf_lager]
+    lager: [logistik]
+    niederlassung: [vertrieb_marketing]
+    forschungszentrum: []
+
+  # Eine Leitung ohne die Fachstelle eines Bereichs erledigt ihn mit so viel weniger
+  # Fachkompetenz (Vorgabe: 20 %).
+  leitung_ohne_fach_abschlag: 0.2
+  # Wahrscheinlichkeit, mit der eine Stelle eine Lage am Prüftermin bemerkt:
+  # bemerken_grund + (1 − bemerken_grund) · Sorgfalt / 100.
+  bemerken_grund: 0.5
+  # Lohngruppe, nach der sich die Gehälter richten.
+  gehalt_lohngruppe: akademiker.kaufmaennisch
+  abfindung_monate: 3
+
+  # Bewerberpool je Kontinent: Kandidaten je Million Akademiker, begrenzt; am
+  # Monatsanfang verlässt jeder freie Kandidat den Markt mit dieser Wahrscheinlichkeit.
+  pool:
+    je_mio_akademiker: 4
+    min: 12
+    max: 60
+    abgang_monat: 0.15
+
+  # Verteilung der Fähigkeiten (Normalverteilung, auf 0–100 begrenzt); Risikoneigung und
+  # Fragefreude sind gleichverteilt. Der Eindruck verschiebt die angezeigte Stufe.
+  faehigkeiten:
+    schwerpunkt: {mittel: 60, streuung: 15}
+    sonst: {mittel: 35, streuung: 15}
+    allgemein: {mittel: 50, streuung: 15}
+    eindruck_unschaerfe: 15
+
+  annaeherung: true

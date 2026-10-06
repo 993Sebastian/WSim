@@ -547,7 +547,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
             Ok((k.to_owned(), value))
         })
         .collect::<Result<_, String>>()?;
-    let json = serde_json::json!({
+    let mut json = serde_json::json!({
         "optionen": options,
         "uebersicht_start": start,
         "bericht": report,
@@ -569,10 +569,48 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
     });
+    // MA1: a head for the workshop, then the chart and the market for its production.
+    let (organisation, market) = example_organisation(&mut session)?;
+    json["organisation"] = organisation;
+    json["managermarkt"] = market;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
     Ok(())
+}
+
+/// The player's organisation with a head hired for the first site, and the market for
+/// its production position (MA1).
+fn example_organisation(
+    session: &mut wsim_session::Session,
+) -> Result<(serde_json::Value, serde_json::Value), String> {
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let organisation = session.organisation().map_err(message)?;
+    let site = organisation
+        .continents
+        .first()
+        .and_then(|k| k.countries.first())
+        .and_then(|l| l.sites.first())
+        .map(|s| s.site)
+        .ok_or("kein Standort")?;
+    let head = session.manager_market(site, "leitung").map_err(message)?;
+    let manager = head.candidates.first().ok_or("keine Bewerber")?.manager.id;
+    session
+        .command(serde_json::json!({
+            "HireManager": {"manager": manager, "position": {"site": site, "role": "Head"}}
+        }))
+        .map_err(message)?;
+    let to_value = |v: serde_json::Result<serde_json::Value>| v.map_err(|e| e.to_string());
+    Ok((
+        to_value(serde_json::to_value(
+            session.organisation().map_err(message)?,
+        ))?,
+        to_value(serde_json::to_value(
+            session
+                .manager_market(site, "produktion")
+                .map_err(message)?,
+        ))?,
+    ))
 }
 
 /// Offers for the preview (M30): sites can be bought only after a year, so a second

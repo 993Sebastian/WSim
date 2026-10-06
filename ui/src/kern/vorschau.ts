@@ -11,8 +11,10 @@ import type {
   Firmendetail,
   Forschung,
   Landdetail,
+  Managermarkt,
   Markt,
   Ketten,
+  Organisation,
   ProduktMarkt,
   Produktion,
   WeltMarkt,
@@ -41,6 +43,8 @@ const beispiel = beispielJson as unknown as {
   firma: Firmendetail;
   forschung: Forschung;
   finanzen: Finanzen;
+  organisation: Organisation;
+  managermarkt: Managermarkt;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -180,6 +184,15 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     finanzen: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.finanzen);
+    },
+    organisation: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.organisation);
+    },
+    managermarkt: async (standort, stelle) => {
+      if (!spiel) throw keinSpiel();
+      // The preview knows the market of one position; it shows it for every position.
+      return { ...kopie(beispiel.managermarkt), site: standort, role: stelle };
     },
     befehl: async (befehl) => {
       if (!spiel) throw keinSpiel();

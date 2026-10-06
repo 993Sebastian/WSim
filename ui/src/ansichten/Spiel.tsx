@@ -23,6 +23,7 @@ import { Einfuehrung, PFADE, type Pfad } from "./Einfuehrung";
 import { FinanzenAnsicht } from "./Finanzen";
 import { ForschungAnsicht } from "./Forschung";
 import { MarktAnsicht } from "./Markt";
+import { OrganisationAnsicht } from "./Organisation";
 import { ProduktionAnsicht } from "./Produktion";
 import { Tastenhilfe } from "./Tastenhilfe";
 import { UebersichtAnsicht } from "./Uebersicht";
@@ -36,6 +37,7 @@ type Ansicht =
   | "wettbewerb"
   | "forschung"
   | "finanzen"
+  | "organisation"
   | "weltkarte"
   | "berichte";
 export const ANSICHTEN: Ansicht[] = [
@@ -45,6 +47,7 @@ export const ANSICHTEN: Ansicht[] = [
   "wettbewerb",
   "forschung",
   "finanzen",
+  "organisation",
   "weltkarte",
   "berichte",
 ];
@@ -514,6 +517,9 @@ export function Spiel({
         )}
         {ansicht === "finanzen" && (
           <FinanzenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "organisation" && (
+          <OrganisationAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "weltkarte" && (
           <WeltkarteAnsicht

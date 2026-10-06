@@ -452,6 +452,16 @@ pub fn default_difficulty_unknown(key: &str) -> String {
     format!("Schwierigkeit „{key}“ ist unter „schwierigkeiten“ nicht aufgeführt.")
 }
 
+pub fn management_topic_twice(topic: &str, first: &str) -> String {
+    format!(
+        "Das Thema „{topic}“ gehört schon zum Bereich „{first}“; jedes Thema gehört zu höchstens einem Bereich."
+    )
+}
+
+pub fn management_pool_bounds(min: u32, max: u32) -> String {
+    format!("Der Pool braucht `max` ({max}) mindestens so groß wie `min` ({min}).")
+}
+
 pub fn list_empty() -> String {
     "Die Liste darf nicht leer sein.".into()
 }

@@ -77,8 +77,8 @@ pub fn decide_with(
         let own = sites.get(&id).unwrap_or(&none);
         let ai = state.companies[id.index()].ai.clone().expect("AI company");
         if ai.next_operations <= date {
-            operate(state, catalog, id, own, date, decider);
-            supply_own(state, catalog, id, own, decider);
+            operate(state, catalog, id, (own, own), date, decider);
+            supply_own(state, catalog, id, (own, own), decider);
             name_products(state, catalog, id, own, decider);
             let days = catalog
                 .ai_model
@@ -169,6 +169,21 @@ fn act(
     decision::decided(decider, state, catalog, |st| {
         routine(catalog, st, id, command)
     }) && run(state, catalog, id, command)
+}
+
+/// The routine of a company's site positions (MA1, docs/FORMELN.md): operations,
+/// purchases and supplies of its own sites for the sites due, through the decider of the
+/// positions. `own` are all of the company's sites.
+pub(crate) fn site_routine(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (own, due): (&[SiteId], &[SiteId]),
+    date: Date,
+    decider: &mut dyn Decider,
+) {
+    operate(state, catalog, id, (own, due), date, decider);
+    supply_own(state, catalog, id, (own, due), decider);
 }
 
 /// Counts in the AI rules (researchers per gap, foundings, diversifications, makers of a
@@ -914,12 +929,12 @@ fn best_recipe(
         .map(|(rid, _)| rid)
 }
 
-/// Production, prices and purchases of every site.
+/// Production, prices and purchases of the sites due (`own`: all of the company's).
 fn operate(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
-    sites: &[SiteId],
+    (own, due): (&[SiteId], &[SiteId]),
     date: Date,
     decider: &mut dyn Decider,
 ) {
@@ -927,7 +942,7 @@ fn operate(
     let b = &model.behavior;
     let (_, aggressiveness) = traits(state, id);
     let floor_factor = b.floor_factor.at(aggressiveness);
-    for &site in sites {
+    for &site in due {
         let s = &state.sites[site.index()];
         if s.kind == SiteType::ResearchCenter {
             continue;
@@ -937,7 +952,7 @@ fn operate(
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut willing: BTreeMap<ProductId, f64> = BTreeMap::new();
         let mut cost: BTreeMap<ProductId, (Money, f64, f64, f64)> = BTreeMap::new();
-        let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
+        let (full_output, taken) = output_and_offtake(state, catalog, site, own, date);
         for (index, sl) in s.slots.iter().enumerate() {
             // Shut down facilities wait for a restart (M22).
             if sl.mothballed() {
@@ -1390,7 +1405,7 @@ fn supply_own(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
-    sites: &[SiteId],
+    (own, due): (&[SiteId], &[SiteId]),
     decider: &mut dyn Decider,
 ) {
     let mut moves: Vec<Command> = Vec::new();
@@ -1403,7 +1418,7 @@ fn supply_own(
             *underway.entry((site, sh.product)).or_default() += sh.quantity;
         }
     }
-    for &to in sites {
+    for &to in due {
         let s = &state.sites[to.index()];
         for (&product, order) in &s.orders {
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
@@ -1412,7 +1427,7 @@ fn supply_own(
             if deficit <= 1e-9 {
                 continue;
             }
-            let mut sources: Vec<(bool, SiteId, f64)> = sites
+            let mut sources: Vec<(bool, SiteId, f64)> = own
                 .iter()
                 .filter(|&&from| from != to)
                 .filter_map(|&from| {
@@ -4127,7 +4142,7 @@ mod tests {
             .entry(gas)
             .or_default()
             .add(50.0, Money::ZERO, 50.0);
-        operate(state, &catalog, id, &[site], date, &mut Rules);
+        operate(state, &catalog, id, (&[site], &[site]), date, &mut Rules);
         let ore_price = market::market_price(&catalog, state, aaa, ore).to_usd();
         let offer = state.sites[site.index()].offers.get(&gas).expect("offered");
         let PriceMode::Market { floor, .. } = offer.mode else {

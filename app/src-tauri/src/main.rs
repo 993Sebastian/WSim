@@ -12,9 +12,10 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, MarketView,
-    MessageView, NewGameOptions, OffersView, Overview, ProductMarketView, ProductionView,
-    ResearchOverview, RoundReportView, WorldMap, WorldMarketView,
+    ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, ManagerMarketView,
+    MarketView, MessageView, NewGameOptions, OffersView, OrganisationView, Overview,
+    ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -170,6 +171,20 @@ fn finanzen(state: State<'_, Shared>) -> Result<FinanceView, Fehler> {
     mit_sitzung(&state, |s| s.finance())
 }
 
+#[tauri::command]
+fn organisation(state: State<'_, Shared>) -> Result<OrganisationView, Fehler> {
+    mit_sitzung(&state, |s| s.organisation())
+}
+
+#[tauri::command]
+fn managermarkt(
+    state: State<'_, Shared>,
+    standort: u32,
+    stelle: String,
+) -> Result<ManagerMarketView, Fehler> {
+    mit_sitzung(&state, |s| s.manager_market(standort, &stelle))
+}
+
 /// A decision of the player, as JSON command with keys (see `Session::command`).
 #[tauri::command]
 fn befehl(state: State<'_, Shared>, befehl: serde_json::Value) -> Result<Overview, Fehler> {
@@ -235,6 +250,8 @@ fn main() {
             weltmarkt,
             forschung,
             finanzen,
+            organisation,
+            managermarkt,
             befehl,
             speichern,
             spielstaende,

@@ -166,6 +166,11 @@ pub mod keys {
     pub const COMMAND_NOT_YOUR_TURN: &str = "fehler.befehl.nicht_am_zug";
     pub const COMMAND_NO_COUNTER: &str = "fehler.befehl.kein_gegenangebot";
     pub const COMMAND_BUYER_CANNOT_PAY: &str = "fehler.befehl.kaeufer_zahlt_nicht";
+    pub const COMMAND_UNKNOWN_MANAGER: &str = "fehler.befehl.manager_unbekannt";
+    pub const COMMAND_MANAGER_EMPLOYED: &str = "fehler.befehl.manager_angestellt";
+    pub const COMMAND_NOT_YOUR_MANAGER: &str = "fehler.befehl.manager_nicht_bei_dir";
+    pub const COMMAND_UNKNOWN_POSITION: &str = "fehler.befehl.stelle_unbekannt";
+    pub const COMMAND_POSITION_TAKEN: &str = "fehler.befehl.stelle_besetzt";
     pub const OFFER_RECEIVED_SITE: &str = "meldung.angebot.erhalten.standort";
     pub const OFFER_RECEIVED_LICENSE: &str = "meldung.angebot.erhalten.lizenz";
     pub const OFFER_COUNTER_SITE: &str = "meldung.angebot.gegenangebot.standort";
@@ -200,6 +205,7 @@ pub mod keys {
     pub const HINT_STAFF: &str = "hinweis.personal";
     pub const HINT_NO_RESEARCH: &str = "hinweis.forschung_ohne_projekt";
     pub const HINT_NO_PRODUCT_NAME: &str = "hinweis.produkt_ohne_namen";
+    pub const HINT_NO_MANAGERS: &str = "hinweis.ohne_manager";
     pub const HINT_OVERDRAWN: &str = "hinweis.konto_ueberzogen";
     pub const HINT_CASH: &str = "hinweis.kasse";
     pub const HINT_OFFER_SITE: &str = "hinweis.angebot.standort";
@@ -309,6 +315,11 @@ pub mod keys {
         COMMAND_NOT_YOUR_TURN,
         COMMAND_NO_COUNTER,
         COMMAND_BUYER_CANNOT_PAY,
+        COMMAND_UNKNOWN_MANAGER,
+        COMMAND_MANAGER_EMPLOYED,
+        COMMAND_NOT_YOUR_MANAGER,
+        COMMAND_UNKNOWN_POSITION,
+        COMMAND_POSITION_TAKEN,
         OFFER_RECEIVED_SITE,
         OFFER_RECEIVED_LICENSE,
         OFFER_COUNTER_SITE,
@@ -345,6 +356,7 @@ pub mod keys {
         HINT_STAFF,
         HINT_NO_RESEARCH,
         HINT_NO_PRODUCT_NAME,
+        HINT_NO_MANAGERS,
         HINT_OVERDRAWN,
         HINT_CASH,
         HINT_OFFER_SITE,

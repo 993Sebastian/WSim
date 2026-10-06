@@ -733,6 +733,23 @@ entschieden:
 5. **Kredite** zählen mit ihrem Betrag auf das Budget (Vorgabe 5.1 nennt sie nur als
    Befugnis von Finanzressort und CEO).
 
+✅ **MA1 umgesetzt** (Stellen der Standorte, Managermarkt, Gehälter, Routine).
+🟡 Vorläufig entschieden:
+
+6. **Markt über Kontinente hinweg:** Jede Stelle lässt sich aus jedem Kontinent besetzen;
+   der Markt zeigt den eigenen Kontinent zuerst. Die Gehaltsforderung richtet sich nach
+   dem Land des Standorts, nicht nach der Heimat.
+7. **Stellen ohne Aufgaben** (Personal, Logistik, Forschung, Finanzen, Labore) sind im
+   Organigramm sichtbar, aber erst mit ihren Themen besetzbar (MA2, Logistik Stufe 2). Der
+   Befehl selbst erlaubt sie schon.
+8. **Verkauf eines Standorts:** Die Stellen enden ohne Abfindung; die Manager gehen
+   nicht mit an den Käufer.
+9. **Namen:** Die Namensgruppen decken Europa, Amerika, Japan und China ab; Manager aus
+   Afrika, Arabien, Süd- und Südostasien tragen die Namen der Standardgruppe (englisch).
+   Vorschlag: Gruppen arabisch, indisch, ostafrikanisch, portugiesisch-brasilianisch,
+   koreanisch und türkisch in `data/ki/namen.yaml` ergänzen (betrifft auch neue
+   KI-Firmen).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

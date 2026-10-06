@@ -1001,3 +1001,87 @@ export interface Firmendetail {
   cash_usd: number;
   min_age_months: number;
 }
+
+/** A skill as the player sees it (MA1): a level, never the number. */
+export interface Faehigkeit {
+  /** `fach.<bereich>`, `erkennen`, `urteil`, `fuehrung`, `risiko`, `fragefreude`. */
+  key: string;
+  /** 0 (weak) … 4 (outstanding). */
+  level: number;
+}
+
+export interface Manager {
+  id: number;
+  name: string;
+  /** Home country (ISO). */
+  home: string;
+  continent: string;
+  /** Function the manager is best at. */
+  focus: string;
+  skills: Faehigkeit[];
+}
+
+export interface Stelleninhaber {
+  manager: Manager;
+  salary_usd: number;
+  since: string;
+  /** What a dismissal costs now. */
+  severance_usd: number;
+}
+
+export interface Stelle {
+  /** `leitung` or the key of the function of a specialist position. */
+  role: string;
+  /** Topics (`thema.<key>`) the position takes care of now. */
+  topics: string[];
+  holder: Stelleninhaber | null;
+}
+
+export interface StandortOrganisation {
+  site: number;
+  /** Text key of the site type. */
+  kind_text: string;
+  country: string;
+  positions: Stelle[];
+  /** Next check of the positions; null without a manager there. */
+  next_check: string | null;
+  /** Topics nobody takes care of here: the player decides them. */
+  own_topics: string[];
+}
+
+export interface Organisation {
+  /** False without manager data. */
+  enabled: boolean;
+  continents: {
+    continent: string;
+    countries: { country: string; sites: StandortOrganisation[] }[];
+  }[];
+  managers: number;
+  /** Salaries of all managers per year. */
+  salaries_usd: number;
+  /** Days between the checks of a site's positions. */
+  check_days: number;
+  severance_months: number;
+  /** Free candidates in all markets. */
+  candidates: number;
+}
+
+export interface Kandidat {
+  manager: Manager;
+  /** Salary per year for the position. */
+  demand_usd: number;
+  /** An own manager's position now. */
+  current: { site: number; role: string } | null;
+}
+
+export interface Managermarkt {
+  site: number;
+  role: string;
+  kind_text: string;
+  country: string;
+  continent: string;
+  /** Free candidates, those of the site's continent first. */
+  candidates: Kandidat[];
+  /** The company's managers on other positions. */
+  own: Kandidat[];
+}

@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 mod chains;
 mod deals;
 mod hints;
+mod organisation;
 mod play;
 pub use chains::*;
 pub use deals::{
@@ -15,6 +16,7 @@ pub use deals::{
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
 };
 pub use hints::*;
+pub use organisation::*;
 pub use play::*;
 
 use serde::{Deserialize, Serialize};

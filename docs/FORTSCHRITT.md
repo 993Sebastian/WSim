@@ -52,6 +52,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M41 | Produkte 2010–2026 | ✅ (Rohstoffvorräte ab 2018 werden nachgestellt) |
 | M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
 | MA0 | Manager-System: Entscheidungsbausteine | ✅ |
+| MA1 | Manager-System: Stellen und Manager | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -78,6 +79,38 @@ MA0–MA6 → ZA1–ZA3 → SU1–SU3). Regeln: `docs/FORMELN.md`, Abschnitt MA0
   Ausbau, Kredit und Themen ohne Schätzung; mit echten Daten (1960, 40 KI-Firmen): das
   Bilden der Entscheidungen ändert an drei Stichtagen nichts, jede bietet „Beibehalten“,
   alle Optionen lassen sich bewerten.
+
+### MA1: Stellen und Manager (06.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA1; Bedienung: `docs/BEDIENUNG.md`, „Organisation“.
+
+- **Daten:** `parameter/management.yaml` mit Bereichen und ihren Themen, den vier Ebenen
+  (Prüfrhythmus, Gehaltsfaktoren), Fachstellen je Standorttyp, Gehalt nach dem Lohn der
+  kaufmännischen Akademiker, Abfindung, Bewerberpool je Kontinent, Verteilung der
+  Fähigkeiten und Grundchance des Bemerkens; Vornamen je Namensgruppe (Ostasien mit dem
+  Familiennamen zuerst). Prüfregeln mit Fehlerfall-Test.
+- **Kern:** Modul `management`. Bewerberpool je Kontinent nach der Zahl der Akademiker
+  (mindestens 12, höchstens 60), monatlicher Wechsel aus eigenem Zufallsstrom; Manager mit
+  Fähigkeiten, festem Eindruck und Name aus dem Heimatland. Befehle `HireManager`,
+  `MoveManager`, `DismissManager` (mit Prüfungen und Fehlermeldungen). Gehälter am
+  Monatsende als Personalkosten des Standorts, im Eintrittsmonat nach Tagen; Abfindung
+  beim Entlassen. Wer mit einem verkauften oder versteigerten Standort seine Stelle
+  verliert, kehrt auf den Markt zurück. Besetzte Stellen prüfen ihren Standort jede Woche
+  und lassen dort die Betriebsregeln der KI für ihre Themen laufen (Produktion, Einkauf,
+  Lieferungen, Verkauf) – über einen eigenen Entscheider aus MA0, mit Bemerken nach
+  Fachkompetenz und Erkennen.
+- **Oberfläche:** Ansicht „Organisation“ mit Organigramm und Managermarkt, Hinweis in der
+  Übersicht, Schritt im Rundgang der Einführung. Die Browser-Vorschau zeigt die neuen
+  Sichten aus einem echten Spiel; die übrigen Beispielsichten bleiben auf dem bisherigen
+  Stand.
+- **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5, vor und nach MA1:
+  identische Protokolldateien (der Zustands-Hash enthält jetzt den Managermarkt).
+- **Tests:** zehn Szenariotests (Markt zum Spielbeginn und monatlicher Wechsel,
+  Prüfungen beim Einstellen, Versetzen und Entlassen, Gehälter und Abfindung, ein Werk mit
+  Leitungen arbeitet ohne Befehle des Spielers, eine Stelle ohne Sorgfalt ändert nichts,
+  Stellen entfallen mit dem Standort, alte Spielstände bekommen ihren Markt, Laden und
+  Wiederholen ergeben denselben Zustand, Stufen der Anzeige); Oberflächentest
+  „Stellen besetzen“.
 
 ## Eigenständige Entscheidungen (für das Review)
 

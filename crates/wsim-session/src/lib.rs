@@ -20,9 +20,10 @@ use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings};
 use wsim_core::views::{
-    self, ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView, MarketView,
-    MessageView, NewGameOptions, OffersView, Overview, ProductMarketView, ProductionView,
-    ResearchOverview, RoundReportView, WorldMap, WorldMarketView,
+    self, ChainsView, CompaniesView, CompanyDetailView, CountryDetail, FinanceView,
+    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
+    WorldMarketView,
 };
 
 /// File extension of saves.
@@ -316,6 +317,17 @@ impl<S: SaveStore> Session<S> {
             .ok_or_else(|| error(keys::UNKNOWN_COMPANY))
     }
 
+    /// The player's positions and their managers (MA1).
+    pub fn organisation(&self) -> Result<OrganisationView, MessageView> {
+        self.view(views::organisation)
+    }
+
+    /// Candidates for a position of the player: `role` is `leitung` or a function (MA1).
+    pub fn manager_market(&self, site: u32, role: &str) -> Result<ManagerMarketView, MessageView> {
+        self.view(|g| views::manager_market(g, site, role))?
+            .ok_or_else(|| error(keys::UNKNOWN_POSITION))
+    }
+
     /// One product in all countries (world map).
     pub fn world_market(&self, product: &str) -> Result<WorldMarketView, MessageView> {
         self.view(|g| views::world_market(g, product))?
@@ -503,6 +515,7 @@ pub mod keys {
     pub const UNKNOWN_PRODUCT: &str = "fehler.sitzung.unbekanntes_produkt";
     pub const UNKNOWN_UNTIL: &str = "fehler.sitzung.unbekanntes_ziel";
     pub const UNKNOWN_COMPANY: &str = "fehler.sitzung.unbekannte_firma";
+    pub const UNKNOWN_POSITION: &str = "fehler.sitzung.unbekannte_stelle";
 
     pub const ALL: &[&str] = &[
         NO_GAME,
@@ -517,5 +530,6 @@ pub mod keys {
         UNKNOWN_PRODUCT,
         UNKNOWN_UNTIL,
         UNKNOWN_COMPANY,
+        UNKNOWN_POSITION,
     ];
 }

@@ -38,7 +38,13 @@ export type Befehl =
   | { MakeOffer: { seller: number; object: Gegenstand; price: number } }
   | { AnswerOffer: { offer: number; answer: Antwort } }
   | { WithdrawOffer: { offer: number } }
-  | { NameProduct: { product: string; name: string | null } };
+  | { NameProduct: { product: string; name: string | null } }
+  | { HireManager: { manager: number; position: Stellenangabe } }
+  | { MoveManager: { manager: number; position: Stellenangabe } }
+  | { DismissManager: { manager: number } };
+
+/** A position (MA1): a site's head or the specialist of a function there. */
+export type Stellenangabe = { site: number; role: "Head" | { Specialist: string } };
 
 /** What an offer is for (M30): a site by its number, or a licence on a technology. */
 export type Gegenstand = { Site: number } | { License: string } | { Area: string };

@@ -339,6 +339,57 @@ pub struct Brand {
     pub awareness: f64,
 }
 
+/// Identifier of a manager (MA1); stays the same while the manager exists.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct ManagerId(pub u32);
+
+/// A manager (MA1, docs/MANAGER.md 4): in the market of the home continent or employed by
+/// a company. Skills are 0–100; the player sees them only as levels.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Manager {
+    pub name: String,
+    pub home: CountryId,
+    /// Function the manager is best at (key of the catalog's functions).
+    pub focus: String,
+    /// Expertise per function key.
+    pub expertise: BTreeMap<String, u8>,
+    pub detection: u8,
+    pub judgment: u8,
+    pub leadership: u8,
+    pub risk: u8,
+    pub talkativeness: u8,
+    /// Offset of the shown impression per skill key (`fach.<bereich>`, `erkennen` …).
+    pub impression: BTreeMap<String, i8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub job: Option<Job>,
+}
+
+/// Employment of a manager.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Job {
+    pub company: CompanyId,
+    pub position: Position,
+    /// Salary per year.
+    pub salary: Money,
+    pub since: Date,
+}
+
+/// A position: a site's head or the specialist of a function there (MA1; other levels
+/// follow with MA3 and MA5).
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct Position {
+    pub site: SiteId,
+    pub role: Role,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Role {
+    Head,
+    /// Key of the function.
+    Specialist(String),
+}
+
 /// Monthly advertising budget of a company in a country for a goods group.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Advertising {
@@ -981,6 +1032,11 @@ pub struct GameState {
     /// Number of the next offer.
     #[serde(default)]
     pub next_offer: u32,
+    /// Managers in the market and in companies (MA1).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub managers: BTreeMap<ManagerId, Manager>,
+    #[serde(default)]
+    pub next_manager: u32,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

@@ -16,6 +16,9 @@ use crate::money::Money;
 const STOCK_LOW_DAYS: f64 = 7.0;
 /// With a loss last month, the cash running out within this many months is reported.
 const CASH_WARNING_MONTHS: f64 = 12.0;
+/// From this many own sites without a single manager the overview points to the
+/// organisation (MA1).
+const MANAGER_HINT_SITES: usize = 3;
 
 /// A hint with the place to act on it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -177,6 +180,25 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         );
         let mut h = hint(m, None, None);
         h.message.target = Some("markt".to_owned());
+        found.push((3, h));
+    }
+    // Many sites and nobody to run them (MA1).
+    let sites = state
+        .sites
+        .iter()
+        .filter(|s| s.owner == state.player)
+        .count();
+    let managed = state
+        .managers
+        .values()
+        .any(|m| m.job.as_ref().is_some_and(|j| j.company == state.player));
+    if catalog.management.enabled() && sites >= MANAGER_HINT_SITES && !managed {
+        let m = Message::new(MessageKind::Info, keys::HINT_NO_MANAGERS).with(
+            "anzahl",
+            Param::Integer(i64::try_from(sites).unwrap_or(i64::MAX)),
+        );
+        let mut h = hint(m, None, None);
+        h.message.target = Some("organisation".to_owned());
         found.push((3, h));
     }
     // Offers waiting for the player's answer expire (M30).

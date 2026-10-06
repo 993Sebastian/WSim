@@ -214,6 +214,8 @@ impl Game {
             standings: Vec::new(),
             offers: Vec::new(),
             next_offer: 0,
+            managers: Default::default(),
+            next_manager: 0,
             player: CompanyId(0),
             game_over: false,
         };
@@ -223,6 +225,7 @@ impl Game {
         crate::plots::supply(&mut state, &catalog, date.year());
         apply_start_setup(&mut state, &catalog)?;
         crate::population::populate(&mut state, &catalog);
+        crate::management::month_start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
         Ok(Self {
             catalog,
@@ -369,6 +372,7 @@ impl Game {
     /// markets and finance join from M5 on.
     fn simulate_day(&mut self, report: &mut RoundReport) {
         let today = self.state.date;
+        crate::management::simulate_day(&mut self.state, &self.catalog, today);
         report
             .messages
             .extend(crate::ai::decide(&mut self.state, &self.catalog, today));
@@ -398,6 +402,7 @@ impl Game {
         }
         self.state.date = next;
         if next.day() == 1 {
+            crate::management::month_end(&mut self.state, today);
             finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);
@@ -406,6 +411,7 @@ impl Game {
                 .messages
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
+            crate::management::month_start(&mut self.state, &self.catalog, next);
             crate::plots::month_start(&mut self.state, &self.catalog, next);
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);

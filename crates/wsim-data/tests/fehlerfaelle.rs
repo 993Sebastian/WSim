@@ -260,6 +260,7 @@ namensgruppen:
     laender: [SWE]
     standard: true
     familiennamen: [Berg]
+    vornamen: [Lars]
     orte: [Kiruna]
     rechtsformen: [AB]
     muster: [\"{familienname} {branche} {rechtsform}\"]
@@ -2033,6 +2034,12 @@ fn namensgruppen_werden_geprueft() {
     let d = Daten::neu().ersetze(datei, "orte: [Kiruna]", "orte: []");
     befund(&d.laden(), "Die Liste darf nicht leer sein.");
 
+    // Managers need first names (MA1).
+    let d = Daten::neu().ersetze(datei, "vornamen: [Lars]", "vornamen: []");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Die Liste darf nicht leer sein.");
+    assert_eq!(f.path.to_string(), "namensgruppen[0].vornamen");
+
     let d = Daten::neu().ersetze(datei, "{bergbau: Gruv}", "{bergbaau: Gruv}");
     befund(
         &d.laden(),
@@ -2518,5 +2525,145 @@ fn produktnamen_werden_geprueft() {
     befund(
         &d.laden(),
         "Abschnitt „produktnamen“ darf es nur einmal geben",
+    );
+}
+
+const MANAGEMENT: &str = include_str!("../../../data/parameter/management.yaml");
+/// Texts of the functions (the real ones are part of the interface texts).
+const BEREICH_TEXTE: &str = "bereich.produktion: Produktion
+bereich.einkauf_lager: Einkauf und Lager
+bereich.vertrieb_marketing: Vertrieb und Marketing
+bereich.personal: Personal
+bereich.logistik: Logistik
+bereich.forschung: Forschung
+bereich.finanzen: Finanzen
+";
+
+/// MA1: Positions, salaries and the market for managers.
+#[test]
+fn management_wird_geprueft() {
+    use wsim_core::catalog::SiteType;
+    let datei = "parameter/management.yaml";
+    // The test data have no academics; the salaries follow skilled metal workers.
+    let daten = MANAGEMENT.replace("akademiker.kaufmaennisch", "fachkraft.metall");
+    let basis = || {
+        Daten::neu()
+            .datei(datei, &daten)
+            .datei("texte/de/bereiche.yaml", BEREICH_TEXTE)
+    };
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let m = outcome.data.unwrap().catalog.management;
+    assert!(m.enabled());
+    assert_eq!(m.levels.len(), 4);
+    assert_eq!(m.specialists_of(SiteType::Factory).len(), 5);
+    assert!(m.specialists_of(SiteType::ResearchCenter).is_empty());
+    // Without the section there are no managers.
+    assert!(
+        !Daten::neu()
+            .laden()
+            .data
+            .unwrap()
+            .catalog
+            .management
+            .enabled()
+    );
+
+    let d = basis().ersetze(datei, "themen: [produktion]", "themen: [produktio]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Thema „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "themen: [produktio]"),
+        "management.bereiche[0].themen[0]",
+    );
+
+    let d = basis().ersetze(datei, "themen: [verkauf]", "themen: [verkauf, produktion]");
+    befund(
+        &d.laden(),
+        "Das Thema „produktion“ gehört schon zum Bereich „produktion“; jedes Thema gehört zu höchstens einem Bereich.",
+    );
+
+    let d = basis().ersetze(
+        datei,
+        "    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15}\n",
+        "",
+    );
+    befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
+
+    let d = basis().ersetze(datei, "pruefung_tage: 7,", "pruefung_tage: 0,");
+    befund(&d.laden(), "Wert 0 muss größer als 0 sein.");
+
+    let d = basis().ersetze(datei, "lager: [logistik]", "lager: [logistk]");
+    befund(
+        &d.laden(),
+        "Bereich „logistk“ ist nicht definiert. Meinten Sie „logistik“?",
+    );
+
+    let d = basis().ersetze(
+        datei,
+        "    lager: [logistik]\n",
+        "    lagerhaus: [logistik]\n",
+    );
+    let outcome = d.laden();
+    let f = outcome
+        .report
+        .findings()
+        .iter()
+        .find(|f| f.message.starts_with("Unbekannter Wert „lagerhaus“."))
+        .unwrap_or_else(|| panic!("{}", alle(&outcome)));
+    assert_eq!(f.path.to_string(), "management.standorttypen.lagerhaus");
+
+    let d = basis().ersetze(datei, "max: 60", "max: 6");
+    befund(
+        &d.laden(),
+        "Der Pool braucht `max` (6) mindestens so groß wie `min` (12).",
+    );
+
+    let d = basis().ersetze(datei, "abgang_monat: 0.15", "abgang_monat: 1.5");
+    befund(
+        &d.laden(),
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+
+    let d = basis().ersetze(datei, "bemerken_grund: 0.5", "bemerken_grund: 1.2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "bemerken_grund: 1.2"),
+        "management.bemerken_grund",
+    );
+
+    let d = basis().ersetze("texte/de/bereiche.yaml", "bereich.logistik: Logistik\n", "");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Text „bereich.logistik“ fehlt in texte/de/.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "- id: logistik"),
+        "management.bereiche[4].id",
+    );
+    let d = basis().ersetze(
+        "texte/de/bereiche.yaml",
+        "bereich.finanzen: Finanzen\n",
+        "bereich.finanzen: Finanzen\nbereich.recht: Recht\n",
+    );
+    befund(&d.laden(), "Text „bereich.recht“ gehört zu keinem Eintrag.");
+
+    let d = Daten::neu()
+        .datei(datei, MANAGEMENT)
+        .datei("texte/de/bereiche.yaml", BEREICH_TEXTE);
+    befund(
+        &d.laden(),
+        "Arbeitskräftegruppe „akademiker.kaufmaennisch“ ist nicht definiert.",
     );
 }
