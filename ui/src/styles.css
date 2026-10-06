@@ -1601,6 +1601,14 @@ button.verweis {
   margin-left: 0;
 }
 
+/* Suggested product names (M42): small rounded buttons after the label. */
+.vorschlaege button {
+  margin: 0 0.35rem 0.35rem 0;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
 .richtbalken {
   display: inline-flex;
   align-items: center;

@@ -797,7 +797,7 @@ function Produktname({ m }: { m: ProduktMarkt }) {
         <p className="vorschlaege">
           {t("markt.produktname_vorschlaege")}{" "}
           {m.name_suggestions?.map((v) => (
-            <button key={v} type="button" className="chip" onClick={() => setName(v)}>
+            <button key={v} type="button" onClick={() => setName(v)}>
               {v}
             </button>
           ))}

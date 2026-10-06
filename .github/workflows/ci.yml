@@ -100,3 +100,5 @@ jobs:
           name: wsim-installer-windows
           path: target/release/bundle/nsis/*.exe
           if-no-files-found: error
+          # A week is enough to test a build; 90 days of installers filled the storage quota.
+          retention-days: 7
