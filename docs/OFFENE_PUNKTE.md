@@ -711,6 +711,28 @@ entschieden:
    nicht. Vorschlag für später: Die KI bringt mit einer neuen Stufe ein Nachfolgemodell
    unter demselben Stamm heraus („Kelvor M80“ → „Kelvor M90“).
 
+## N Manager-System (Vorgabe `docs/MANAGER.md`, Auftrag vom 06.10.2026)
+
+✅ **MA0 umgesetzt** (Einzelheiten: `docs/FORMELN.md` und `docs/FORTSCHRITT.md`, MA0).
+🟡 Vorläufig entschieden, abweichend von der Vorgabe oder dort offen:
+
+1. **Vorlegen statt Vorschlagsliste:** Die Regeln liefern ihre Optionen nicht vorab als
+   fertige Befehlslisten zum Ausführen, sondern legen ihr Vorhaben einem Entscheider vor
+   und handeln danach selbst wie bisher. Grund: Manche Regeln planen einen Schritt erst
+   nach dem vorigen (Grundstück kaufen oder pachten erst nach dem Kredit, Bauzahl nach der
+   Grundstücksgröße). Eine fertige Liste hätte die KI in Einzelfällen verändert; so bleibt
+   sie sicher bitgleich. Wählt ein Manager eine andere Option, wird sie als Befehlsliste
+   ausgeführt.
+2. **Bewertung auf Nachfrage:** Betrag und Wirkung rechnet erst, wer sie braucht (Manager,
+   Ansichten); die KI bildet die Entscheidungen gar nicht erst. 1 000 KI-Firmen werden
+   dadurch nicht langsamer (MA6).
+3. **Ohne Schätzung** bleiben Einkauf, Preisuntergrenze, Lieferungen, Namen, Forschung,
+   Weiterentwicklung und Kaufangebote; den Mehrabsatz durch Werbung schätzt erst MA2.
+4. **Später:** Die Antworten der KI auf Kaufangebote und ihre Gebote bei Versteigerungen
+   werden mit der Landes- und Kontinentebene (MA3) zu Entscheidungen.
+5. **Kredite** zählen mit ihrem Betrag auf das Budget (Vorgabe 5.1 nennt sie nur als
+   Befugnis von Finanzressort und CEO).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

@@ -12,6 +12,7 @@ pub mod competition;
 pub mod country_model;
 pub mod currency;
 pub mod deals;
+pub mod decision;
 pub mod development;
 pub mod finance;
 pub mod game;

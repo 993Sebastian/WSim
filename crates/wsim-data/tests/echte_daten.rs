@@ -1135,3 +1135,81 @@ fn start_plants_make_every_input_they_use() {
         }
     }
 }
+
+/// MA0 (docs/FORMELN.md): the AI's rules put every decision to a decider before they
+/// act. Forming the decisions for a decider that looks at them changes nothing; every
+/// decision offers keeping things as they are, and every option can be assessed.
+#[test]
+fn decisions_of_the_ai_change_nothing() {
+    use std::collections::BTreeSet;
+    use std::sync::Arc;
+    use wsim_core::calendar::{Date, RoundLength};
+    use wsim_core::decision::{self, ChoiceKind, Recorder, Topic};
+    use wsim_core::game::{Game, hash_of};
+    use wsim_core::state::{AiSettings, GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 5,
+        start_year: 1960,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Entscheidungen".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: AiSettings {
+            companies: 40,
+            competence: 0.5,
+            aggressiveness: 0.5,
+        },
+    };
+    let mut game = Game::new(c.clone(), settings).unwrap();
+    for _ in 0..2 {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    let mut topics = BTreeSet::new();
+    // The end of a quarter, the start of a month and the start of a year.
+    for (y, m, d) in [(1960, 3, 31), (1960, 4, 1), (1961, 1, 1)] {
+        let date = Date::new(y, m, d).unwrap();
+        let mut plain = game.state().clone();
+        plain.date = date;
+        let before = plain.clone();
+        let mut looked = plain.clone();
+        wsim_core::ai::decide(&mut plain, &c, date);
+        let mut recorder = Recorder::default();
+        wsim_core::ai::decide_with(&mut looked, &c, date, &mut recorder);
+        assert_eq!(hash_of(&plain), hash_of(&looked), "{y}-{m}-{d}");
+        for d in &recorder.decisions {
+            assert!(d.rule < d.choices.len(), "{d:?}");
+            let keep: Vec<_> = d
+                .choices
+                .iter()
+                .filter(|c| c.kind == ChoiceKind::Keep)
+                .collect();
+            assert_eq!(keep.len(), 1, "{d:?}");
+            assert!(keep[0].steps.is_empty());
+            let assessed = decision::assess(&c, &before, d);
+            assert_eq!(assessed.len(), d.choices.len());
+            for (choice, a) in d.choices.iter().zip(&assessed) {
+                assert!(a.amount >= Money::ZERO, "{d:?}");
+                if choice.kind == ChoiceKind::Keep {
+                    assert_eq!(a.amount, Money::ZERO);
+                }
+            }
+            topics.insert(d.topic);
+        }
+    }
+    for topic in [
+        Topic::Production,
+        Topic::Sale,
+        Topic::Purchase,
+        Topic::Cash,
+        Topic::Advertising,
+        Topic::Expansion,
+    ] {
+        assert!(topics.contains(&topic), "{topic:?} missing in {topics:?}");
+    }
+    assert!(topics.len() >= 10, "{topics:?}");
+}

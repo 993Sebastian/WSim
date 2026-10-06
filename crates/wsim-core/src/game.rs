@@ -436,9 +436,14 @@ impl Game {
     }
 
     pub fn state_hash(&self) -> StateHash {
-        let bytes = rmp_serde::to_vec_named(&self.state).expect("state is serializable");
-        StateHash(fnv1a(&bytes))
+        hash_of(&self.state)
     }
+}
+
+/// Fingerprint of a game state.
+pub fn hash_of(state: &GameState) -> StateHash {
+    let bytes = rmp_serde::to_vec_named(state).expect("state is serializable");
+    StateHash(fnv1a(&bytes))
 }
 
 /// Historical events of the day as world news (Lastenheft §4.1, §13.2).

@@ -12,6 +12,7 @@ use std::collections::BTreeMap;
 use crate::calendar::Date;
 use crate::catalog::{Catalog, FacilitySize, ProductKind, Recipe, SiteType};
 use crate::command::{self, Command};
+use crate::decision::{self, Choice, ChoiceKind, Decider, Decision, Rules, Topic};
 use crate::finance;
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
 use crate::ledger::{CostType, Ledger};
@@ -27,7 +28,17 @@ use crate::state::{
 
 /// Runs the decisions due today, before the day is simulated. Returns news about
 /// competitors for the player's round report.
-pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+pub fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    decide_with(state, catalog, date, &mut Rules)
+}
+
+/// Like `decide`, with every decision of the companies put to `decider` first (MA0).
+pub fn decide_with(
+    state: &mut GameState,
+    catalog: &Catalog,
+    date: Date,
+    decider: &mut dyn Decider,
+) -> Vec<Message> {
     let mut news = Vec::new();
     let first_of_month = date.day() == 1;
     // Expansion looks at the sales of the closing month, so it runs on its last day.
@@ -66,9 +77,9 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
         let own = sites.get(&id).unwrap_or(&none);
         let ai = state.companies[id.index()].ai.clone().expect("AI company");
         if ai.next_operations <= date {
-            operate(state, catalog, id, own, date);
-            supply_own(state, catalog, id, own);
-            name_products(state, catalog, id, own);
+            operate(state, catalog, id, own, date, decider);
+            supply_own(state, catalog, id, own, decider);
+            name_products(state, catalog, id, own, decider);
             let days = catalog
                 .ai_model
                 .behavior
@@ -82,25 +93,82 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
             }
         }
         if first_of_month {
-            manage_cash(state, catalog, id, own);
-            advertise(state, catalog, id, own);
-            news.extend(crate::deals::ai_offers(state, catalog, id));
+            manage_cash(state, catalog, id, own, decider);
+            advertise(state, catalog, id, own, decider);
+            news.extend(crate::deals::ai_offers(state, catalog, id, decider));
         }
         if end_of_quarter {
-            retire(state, catalog, id, own, date, &mut news);
-            expand(state, catalog, id, own, date, &mut news);
+            retire(state, catalog, id, own, date, (&mut news, decider));
+            expand(state, catalog, id, own, date, (&mut news, decider));
         }
         if first_of_year {
-            research_plan(state, catalog, id, own, date, &gaps);
+            research_plan(state, catalog, id, own, (date, &gaps), decider);
         }
     }
     if first_of_month {
         found_companies(state, catalog, date, &mut news);
     }
     if end_of_quarter {
-        diversify(state, catalog, &mut news);
+        diversify(state, catalog, &mut news, decider);
     }
     news
+}
+
+/// The decision of the routine behind a command of the AI's operations (MA0): its
+/// topic from the command, adjusting or keeping things as they are.
+fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Command) -> Decision {
+    let (topic, kind, site, product) = match command {
+        Command::SetProduction {
+            site, slot, recipe, ..
+        } => {
+            let product = recipe
+                .or_else(|| state.sites[site.index()].slots.get(*slot)?.recipe)
+                .map(|r| catalog.recipes.get(r).product);
+            (Topic::Production, ChoiceKind::Adjust, Some(*site), product)
+        }
+        Command::SetSale { site, product, .. } => {
+            (Topic::Sale, ChoiceKind::Adjust, Some(*site), Some(*product))
+        }
+        Command::SetPurchase { site, product, .. } => (
+            Topic::Purchase,
+            ChoiceKind::Adjust,
+            Some(*site),
+            Some(*product),
+        ),
+        Command::SetWagePremium { site, .. } => {
+            (Topic::Wage, ChoiceKind::Adjust, Some(*site), None)
+        }
+        Command::TransferGoods { to, product, .. } => (
+            Topic::OwnSupply,
+            ChoiceKind::Supply,
+            Some(*to),
+            Some(*product),
+        ),
+        Command::NameProduct { product, .. } => {
+            (Topic::ProductName, ChoiceKind::Name, None, Some(*product))
+        }
+        Command::SetAdvertising { .. } => (Topic::Advertising, ChoiceKind::Adjust, None, None),
+        Command::TakeLoan { .. } => (Topic::Cash, ChoiceKind::Borrow, None, None),
+        Command::RepayLoan { .. } => (Topic::Cash, ChoiceKind::Repay, None, None),
+        _ => (Topic::Production, ChoiceKind::Adjust, None, None),
+    };
+    let mut d = Decision::new(topic, id, Choice::one(kind, command.clone()));
+    d.site = site;
+    d.product = product;
+    d
+}
+
+/// Runs a command of the routine for an AI company if its decider lets the rules act.
+fn act(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    command: &Command,
+    decider: &mut dyn Decider,
+) -> bool {
+    decision::decided(decider, state, catalog, |st| {
+        routine(catalog, st, id, command)
+    }) && run(state, catalog, id, command)
 }
 
 /// Counts in the AI rules (researchers per gap, foundings, diversifications, makers of a
@@ -161,6 +229,44 @@ fn plan_units_by(
             return Some((size, n));
         }
         size = size.smaller()?;
+    }
+}
+
+/// An option that starts with a loan for what the cash lacks, if anything (MA0).
+fn loan_steps(catalog: &Catalog, amount: Money, kind: ChoiceKind) -> Choice {
+    let choice = Choice {
+        kind,
+        steps: Vec::new(),
+    };
+    if amount > Money::ZERO {
+        let b = &catalog.ai_model.behavior;
+        let years = b.loan_years.min(catalog.finance_model.max_term_years);
+        choice.then(Command::TakeLoan { amount, years }, false)
+    } else {
+        choice
+    }
+}
+
+/// The start production of a new facility.
+fn production(catalog: &Catalog, site: SiteId, slot: usize, recipe: RecipeId) -> Command {
+    Command::SetProduction {
+        site,
+        slot,
+        recipe: Some(recipe),
+        utilization: catalog.ai_model.start.utilization,
+    }
+}
+
+/// An offer at the market price, without a floor yet.
+fn sale(site: SiteId, product: ProductId) -> Command {
+    Command::SetSale {
+        site,
+        product,
+        mode: Some(PriceMode::Market {
+            markup: 0.0,
+            floor: Money::ZERO,
+        }),
+        keep: 0.0,
     }
 }
 
@@ -225,6 +331,45 @@ fn site_plan(
         daily_cost(catalog, state, &own).scale(30.0 * catalog.ai_model.behavior.cash_min_months);
     let lease = state.companies[id.index()].ledger.cash() < price + reserve;
     Some((Command::FoundSiteOnPlot { plot, kind, lease }, fit))
+}
+
+/// The option of founding a site and building there (MA0): a loan for what the cash
+/// lacks, the site as `site_plan` plans it now, the deposit, the units that fit, the
+/// production and an offer of the product.
+fn new_site_steps(
+    st: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (cash_needed, place, project): (Money, (CountryId, SiteType), (Option<Units>, f64)),
+    (deposit, facility, recipe, sell): (Option<DepositId>, FacilityId, RecipeId, Option<ProductId>),
+) -> Choice {
+    let mut choice = loan_steps(catalog, cash_needed, ChoiceKind::Build);
+    let Some((found, fit)) = site_plan(st, catalog, id, place, project) else {
+        return choice;
+    };
+    let site = site_id(st.sites.len());
+    choice = choice.then(found, true);
+    if let Some(deposit) = deposit {
+        choice = choice.then(Command::DevelopDeposit { site, deposit }, false);
+    }
+    let (size, count) = project
+        .0
+        .map_or((FacilitySize::Medium, 1), |(_, size, n)| (size, n.min(fit)));
+    choice = choice
+        .then(
+            Command::BuildFacility {
+                site,
+                facility,
+                count,
+                size,
+            },
+            true,
+        )
+        .then(production(catalog, site, 0, recipe), false);
+    match sell {
+        Some(product) => choice.then(sale(site, product), false),
+        None => choice,
+    }
 }
 
 /// Founds a site as `site_plan` says; the new site and how many units fit there.
@@ -351,7 +496,7 @@ fn retire(
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
-    news: &mut Vec<Message>,
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
 ) {
     let b = &catalog.ai_model.behavior;
     let watched = player_products(state, catalog);
@@ -375,12 +520,17 @@ fn retire(
             })
             .collect();
         for (slot, count, facility, product) in sell {
-            let sold = run(
-                state,
-                catalog,
-                id,
-                &Command::SellFacility { site, slot, count },
-            );
+            let command = Command::SellFacility { site, slot, count };
+            let sold = decision::decided(decider, state, catalog, |_| {
+                let mut d = Decision::new(
+                    Topic::Idle,
+                    id,
+                    Choice::one(ChoiceKind::Sell, command.clone()),
+                )
+                .at(site);
+                d.product = product;
+                d
+            }) && run(state, catalog, id, &command);
             if let Some(p) = product.filter(|p| sold && watched.contains(p)) {
                 let key = keys::AI_SELLS;
                 news.push(news_capacity(
@@ -397,11 +547,11 @@ fn retire(
         // Per product: the running units with their planned utilization and their cost
         // per unit at full load; what is taken per day against what they could make.
         let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
-        restart_where_short(state, catalog, id, site, (&full_output, &taken));
+        restart_where_short(state, catalog, id, site, (&full_output, &taken), decider);
         let (full_output, taken) = output_and_offtake(state, catalog, site, sites, date);
         let s = &state.sites[site.index()];
         let wage = 1.0 + s.wage_premium;
-        let mut by_product: BTreeMap<ProductId, Vec<(usize, u32, f64, f64)>> = BTreeMap::new();
+        let mut by_product: BTreeMap<ProductId, Vec<RunningUnits>> = BTreeMap::new();
         for (i, sl) in s.slots.iter().enumerate() {
             let Some(r) = sl.recipe.filter(|_| sl.operating(date)) else {
                 continue;
@@ -449,6 +599,12 @@ fn retire(
             let mut excess = n.saturating_sub(keep);
             // The dearest first.
             slots.sort_by(|a, b| b.3.total_cmp(&a.3));
+            let decided = decision::decided(decider, state, catalog, |st| {
+                overcapacity(catalog, st, id, (site, product, date), (&slots, excess, u))
+            });
+            if !decided {
+                continue;
+            }
             let mut shut = 0;
             let mut facility = None;
             for &(slot, count, _, _) in &slots {
@@ -506,6 +662,74 @@ fn retire(
     }
 }
 
+/// Running units of a product at a site: slot, count, planned utilization, unit cost.
+type RunningUnits = (usize, u32, f64, f64);
+
+/// The decision about overcapacity of a product at a site (MA0): shut down the dearest
+/// units that are not needed and let the others make what all of them made, sell those
+/// units instead, or keep them. `slots` are the running units (slot, count, planned
+/// utilization, unit cost), the dearest first; `u` their mean planned utilization.
+fn overcapacity(
+    catalog: &Catalog,
+    st: &GameState,
+    id: CompanyId,
+    (site, product, date): (SiteId, ProductId, Date),
+    (slots, excess, u): (&[RunningUnits], u32, f64),
+) -> Decision {
+    let n: u32 = slots.iter().map(|x| x.1).sum();
+    let mut left = excess;
+    let mut plan: Vec<(usize, u32, bool)> = Vec::new();
+    for &(slot, count, _, _) in slots {
+        if left == 0 {
+            break;
+        }
+        let k = count.min(left);
+        left -= k;
+        plan.push((slot, k, k == count));
+    }
+    let shut: u32 = plan.iter().map(|x| x.1).sum();
+    let next = (u * f64::from(n) / f64::from((n - shut).max(1))).min(1.0);
+    let rest: Vec<Command> = st.sites[site.index()]
+        .slots
+        .iter()
+        .enumerate()
+        .filter(|(i, sl)| {
+            sl.operating(date) && !plan.iter().any(|&(slot, _, all)| slot == *i && all)
+        })
+        .filter_map(|(i, sl)| {
+            let r = sl.recipe?;
+            (catalog.recipes.get(r).product == product).then_some(Command::SetProduction {
+                site,
+                slot: i,
+                recipe: Some(r),
+                utilization: next,
+            })
+        })
+        .collect();
+    let mothball = Choice::each(
+        ChoiceKind::Mothball,
+        plan.iter()
+            .map(|&(slot, count, _)| Command::MothballFacility { site, slot, count })
+            .chain(rest.iter().cloned()),
+    );
+    // Selling whole facilities moves the later ones up: the last first, after the rest
+    // got their new utilization.
+    let mut sold: Vec<(usize, u32)> = plan.iter().map(|&(slot, k, _)| (slot, k)).collect();
+    sold.sort_by_key(|x| std::cmp::Reverse(x.0));
+    let sell =
+        Choice::each(
+            ChoiceKind::Sell,
+            rest.iter().cloned().chain(
+                sold.into_iter()
+                    .map(|(slot, count)| Command::SellFacility { site, slot, count }),
+            ),
+        );
+    Decision::new(Topic::Overcapacity, id, mothball)
+        .or(sell)
+        .at(site)
+        .of(product)
+}
+
 /// More is taken of a product than its running facilities make at the restart
 /// utilization: shut down units of it start up again until those running and starting
 /// would be at the target utilization (M22). Not while some are starting up already.
@@ -515,6 +739,7 @@ fn restart_where_short(
     id: CompanyId,
     site: SiteId,
     (full_output, taken): (&BTreeMap<ProductId, f64>, &BTreeMap<ProductId, f64>),
+    decider: &mut dyn Decider,
 ) {
     let b = &catalog.ai_model.behavior;
     for (&product, &wanted) in taken {
@@ -547,11 +772,31 @@ fn restart_where_short(
             if wanted <= b.mothball_target_utilization * capacity {
                 break;
             }
-            if run(state, catalog, id, &Command::RestartFacility { site, slot }) {
+            if restart(state, catalog, id, (site, slot, product), decider) {
                 capacity += output;
             }
         }
     }
+}
+
+/// Restarts shut down units of a product if the decider lets the rules act.
+fn restart(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (site, slot, product): (SiteId, usize, ProductId),
+    decider: &mut dyn Decider,
+) -> bool {
+    let command = Command::RestartFacility { site, slot };
+    decision::decided(decider, state, catalog, |_| {
+        Decision::new(
+            Topic::Restart,
+            id,
+            Choice::one(ChoiceKind::Restart, command.clone()),
+        )
+        .at(site)
+        .of(product)
+    }) && run(state, catalog, id, &command)
 }
 
 fn company_id(index: usize) -> CompanyId {
@@ -564,7 +809,13 @@ fn site_id(index: usize) -> SiteId {
 
 /// Executes a command for an AI company; a refused command is simply not carried out.
 /// Gives the end products the company makes or offers a name, if they have none (M42).
-fn name_products(state: &mut GameState, catalog: &Catalog, id: CompanyId, own: &[SiteId]) {
+fn name_products(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    own: &[SiteId],
+    decider: &mut dyn Decider,
+) {
     let mut products = std::collections::BTreeSet::new();
     for &site in own {
         let s = &state.sites[site.index()];
@@ -584,7 +835,13 @@ fn name_products(state: &mut GameState, catalog: &Catalog, id: CompanyId, own: &
         }
         if let Some(name) = crate::product_names::generate(catalog, state, id, product) {
             let name = Some(name);
-            run(state, catalog, id, &Command::NameProduct { product, name });
+            act(
+                state,
+                catalog,
+                id,
+                &Command::NameProduct { product, name },
+                decider,
+            );
         }
     }
 }
@@ -658,7 +915,14 @@ fn best_recipe(
 }
 
 /// Production, prices and purchases of every site.
-fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId], date: Date) {
+fn operate(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    date: Date,
+    decider: &mut dyn Decider,
+) {
     let model = &catalog.ai_model;
     let b = &model.behavior;
     let (_, aggressiveness) = traits(state, id);
@@ -1000,7 +1264,7 @@ fn operate(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[Sit
             commands.push(Command::SetWagePremium { site, premium });
         }
         for c in &commands {
-            run(state, catalog, id, c);
+            act(state, catalog, id, c, decider);
         }
     }
 }
@@ -1033,7 +1297,7 @@ fn fuel_value(
         .unwrap_or(Money::ZERO)
 }
 
-fn output_and_offtake(
+pub(crate) fn output_and_offtake(
     state: &GameState,
     catalog: &Catalog,
     site: SiteId,
@@ -1122,7 +1386,13 @@ fn next_wage_premium(catalog: &Catalog, current: f64, short_of_staff: bool) -> f
 
 /// Inputs the company makes itself go from its producing sites to the sites that need
 /// them (a company cannot buy its own goods on the market): same country first.
-fn supply_own(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId]) {
+fn supply_own(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    decider: &mut dyn Decider,
+) {
     let mut moves: Vec<Command> = Vec::new();
     let mut taken: BTreeMap<(SiteId, ProductId), f64> = BTreeMap::new();
     let mut underway: BTreeMap<(SiteId, ProductId), f64> = BTreeMap::new();
@@ -1172,7 +1442,7 @@ fn supply_own(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[
         }
     }
     for m in &moves {
-        run(state, catalog, id, m);
+        act(state, catalog, id, m, decider);
     }
 }
 
@@ -1200,7 +1470,13 @@ fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
 }
 
 /// Loans keep the cash between the minimum and maximum months of running cost.
-fn manage_cash(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId]) {
+fn manage_cash(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    decider: &mut dyn Decider,
+) {
     let b = &catalog.ai_model.behavior;
     let monthly = daily_cost(catalog, state, sites).scale(30.0);
     let company = &state.companies[id.index()];
@@ -1210,11 +1486,23 @@ fn manage_cash(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &
         let amount = (target - cash).min(finance::credit_limit(catalog, company));
         if amount > Money::ZERO {
             let years = b.loan_years.min(catalog.finance_model.max_term_years);
-            run(state, catalog, id, &Command::TakeLoan { amount, years });
+            act(
+                state,
+                catalog,
+                id,
+                &Command::TakeLoan { amount, years },
+                decider,
+            );
         }
     } else if cash > monthly.scale(b.cash_max_months) && !company.loans.is_empty() {
         let amount = cash - target;
-        run(state, catalog, id, &Command::RepayLoan { loan: 0, amount });
+        act(
+            state,
+            catalog,
+            id,
+            &Command::RepayLoan { loan: 0, amount },
+            decider,
+        );
     }
 }
 
@@ -1226,9 +1514,9 @@ fn expand(
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
-    news: &mut Vec<Message>,
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
 ) {
-    if own_power(state, catalog, id, sites, date) {
+    if own_power(state, catalog, id, sites, date, decider) {
         return;
     }
     let b = &catalog.ai_model.behavior;
@@ -1349,7 +1637,7 @@ fn expand(
         }
     }
     let Some((_, site, product, add, cap)) = best else {
-        open_deposit(state, catalog, id, sites, date, news);
+        open_deposit(state, catalog, id, sites, date, (news, decider));
         return;
     };
     // Units of the product standing still at the site start up before new ones are
@@ -1371,7 +1659,7 @@ fn expand(
         if restarted >= add {
             break;
         }
-        if run(state, catalog, id, &Command::RestartFacility { site, slot }) {
+        if restart(state, catalog, id, (site, slot, product), decider) {
             restarted += units;
         }
     }
@@ -1448,7 +1736,7 @@ fn expand(
             return;
         };
         let o = (product, place, None, recipe, units);
-        if build_in_bottleneck(state, catalog, id, o) {
+        if build_in_bottleneck(state, catalog, id, o, (Topic::Expansion, decider)) {
             let new = site_id(state.sites.len() - 1);
             news.extend(news_expansion(state, catalog, id, new, recipe, units));
         }
@@ -1460,6 +1748,30 @@ fn expand(
         .investment
         .scale(sizes.investment(size));
     let cash_needed = unit.scale(f64::from(count)) - company.ledger.cash();
+    let build = Command::BuildFacility {
+        site,
+        facility,
+        count,
+        size,
+    };
+    let decided = decision::decided(decider, state, catalog, |st| {
+        let slot = st.sites[site.index()].slots.len();
+        let sell = !st.sites[site.index()].offers.contains_key(&product);
+        let choice = loan_steps(catalog, cash_needed, ChoiceKind::Build)
+            .then(build.clone(), true)
+            .then(production(catalog, site, slot, recipe), false);
+        let choice = if sell {
+            choice.then(sale(site, product), false)
+        } else {
+            choice
+        };
+        Decision::new(Topic::Expansion, id, choice)
+            .at(site)
+            .of(product)
+    });
+    if !decided {
+        return;
+    }
     if cash_needed > Money::ZERO {
         let years = b.loan_years.min(catalog.finance_model.max_term_years);
         run(
@@ -1472,12 +1784,6 @@ fn expand(
             },
         );
     }
-    let build = Command::BuildFacility {
-        site,
-        facility,
-        count,
-        size,
-    };
     if run(state, catalog, id, &build) {
         let slot = state.sites[site.index()].slots.len() - 1;
         let produce = Command::SetProduction {
@@ -1519,6 +1825,7 @@ fn own_power(
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
+    decider: &mut dyn Decider,
 ) -> bool {
     let Some(electricity) = catalog.production_model.electricity else {
         return false;
@@ -1597,6 +1904,24 @@ fn own_power(
     let (site, size, count) = match existing {
         Some((site, (size, count))) => {
             let cash_needed = unit_of(size).scale(f64::from(count)) - company.ledger.cash();
+            let decided = decision::decided(decider, state, catalog, |st| {
+                let slot = st.sites[site.index()].slots.len();
+                let build = Command::BuildFacility {
+                    site,
+                    facility: r.facility,
+                    count,
+                    size,
+                };
+                let choice = loan_steps(catalog, cash_needed, ChoiceKind::Build)
+                    .then(build, true)
+                    .then(production(catalog, site, slot, recipe), false);
+                Decision::new(Topic::Power, id, choice)
+                    .at(site)
+                    .of(electricity)
+            });
+            if !decided {
+                return false;
+            }
             take_loan(state, catalog, id, cash_needed);
             (site, size, count)
         }
@@ -1612,15 +1937,23 @@ fn own_power(
             };
             let cash_needed =
                 unit_of(size).scale(f64::from(count)) + site_cost - company.ledger.cash();
+            let project = (Some((r.facility, size, count)), 0.0);
+            let decided = decision::decided(decider, state, catalog, |st| {
+                let choice = new_site_steps(
+                    st,
+                    catalog,
+                    id,
+                    (cash_needed, (country, f.site_type), project),
+                    (None, r.facility, recipe, None),
+                );
+                Decision::new(Topic::Power, id, choice).of(electricity)
+            });
+            if !decided {
+                return false;
+            }
             take_loan(state, catalog, id, cash_needed);
             let place = (country, f.site_type);
-            let Some((site, fit)) = found_site_for(
-                state,
-                catalog,
-                id,
-                place,
-                (Some((r.facility, size, count)), 0.0),
-            ) else {
+            let Some((site, fit)) = found_site_for(state, catalog, id, place, project) else {
                 return false;
             };
             (site, size, count.min(fit))
@@ -1652,7 +1985,13 @@ fn own_power(
 
 /// Advertising for every country and goods group where the company sold end products
 /// last month: a share of that revenue (M16).
-fn advertise(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[SiteId]) {
+fn advertise(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    decider: &mut dyn Decider,
+) {
     let (_, aggressiveness) = traits(state, id);
     let share = catalog
         .ai_model
@@ -1697,20 +2036,25 @@ fn advertise(state: &mut GameState, catalog: &Catalog, id: CompanyId, sites: &[S
         }
     }
     for c in &commands {
-        run(state, catalog, id, c);
+        act(state, catalog, id, c, decider);
     }
 }
 
 /// Rich companies build where the world's largest unserved demand is (the bottleneck
 /// that also guides new companies): at most `diversifications_per_quarter` per quarter,
 /// the richest first, each in another chain.
-fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) {
+fn diversify(
+    state: &mut GameState,
+    catalog: &Catalog,
+    news: &mut Vec<Message>,
+    decider: &mut dyn Decider,
+) {
     let most = per_companies(
         state,
         catalog,
         catalog.ai_model.behavior.diversifications_per_quarter,
     );
-    pioneer(state, catalog, &by_budget(state, catalog), news);
+    pioneer(state, catalog, &by_budget(state, catalog), (news, decider));
     let mut taken: Vec<ProductId> = Vec::new();
     let mut done = 0;
     let mut scan = Scan::new(state, catalog);
@@ -1735,6 +2079,7 @@ fn diversify(state: &mut GameState, catalog: &Catalog, news: &mut Vec<Message>) 
             catalog,
             id,
             (product, country, deposit, recipe, units),
+            (Topic::Bottleneck, decider),
         );
         scan = Scan::new(state, catalog);
         if built {
@@ -1776,7 +2121,7 @@ fn pioneer(
     state: &mut GameState,
     catalog: &Catalog,
     rich: &[(Money, CompanyId)],
-    news: &mut Vec<Message>,
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
 ) {
     let mut made: Vec<ProductId> = Vec::new();
     for s in &state.sites {
@@ -1814,6 +2159,7 @@ fn pioneer(
             catalog,
             id,
             (product, country, deposit, recipe, units),
+            (Topic::Bottleneck, decider),
         );
         scan = Scan::new(state, catalog);
         if built {
@@ -1875,6 +2221,7 @@ fn build_in_bottleneck(
     catalog: &Catalog,
     id: CompanyId,
     o: Planned,
+    (topic, decider): (Topic, &mut dyn Decider),
 ) -> bool {
     let (product, country, deposit, recipe, (size, count)) = o;
     let b = &catalog.ai_model.behavior;
@@ -1885,6 +2232,25 @@ fn build_in_bottleneck(
         .scale(catalog.production_model.sizes.investment(size));
     let cost = catalog.production_model.site_cost(f.site_type) + unit.scale(f64::from(count));
     let cash_needed = cost - state.companies[id.index()].ledger.cash();
+    let capacity = f64::from(count) * catalog.production_model.sizes.capacity(size);
+    let decided = decision::decided(decider, state, catalog, |st| {
+        let revenue = crate::plots::project_revenue(st, catalog, country, recipe, capacity);
+        let choice = new_site_steps(
+            st,
+            catalog,
+            id,
+            (
+                cash_needed,
+                (country, f.site_type),
+                (Some((r.facility, size, count)), revenue),
+            ),
+            (deposit, r.facility, recipe, Some(product)),
+        );
+        Decision::new(topic, id, choice).of(product)
+    });
+    if !decided {
+        return false;
+    }
     if cash_needed > Money::ZERO {
         let years = b.loan_years.min(catalog.finance_model.max_term_years);
         run(
@@ -1898,7 +2264,6 @@ fn build_in_bottleneck(
         );
     }
     let place = (country, f.site_type);
-    let capacity = f64::from(count) * catalog.production_model.sizes.capacity(size);
     let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
     let Some((site, fit)) = found_site_for(
         state,
@@ -2017,7 +2382,7 @@ fn open_deposit(
     id: CompanyId,
     sites: &[SiteId],
     date: Date,
-    news: &mut Vec<Message>,
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
 ) {
     let model = &catalog.market_model;
     let b = &catalog.ai_model.behavior;
@@ -2084,6 +2449,29 @@ fn open_deposit(
             continue;
         }
         let missing = cost - company.ledger.cash();
+        let decided = decision::decided(decider, state, catalog, |st| {
+            let site = site_id(st.sites.len());
+            let found = Command::FoundSite {
+                country: d.country,
+                kind: SiteType::Extraction,
+            };
+            let build = Command::BuildFacility {
+                site,
+                facility,
+                count,
+                size,
+            };
+            let choice = loan_steps(catalog, missing, ChoiceKind::Build)
+                .then(found, true)
+                .then(Command::DevelopDeposit { site, deposit }, false)
+                .then(build, true)
+                .then(production(catalog, site, 0, recipe), false)
+                .then(sale(site, product), false);
+            Decision::new(Topic::Deposit, id, choice).of(product)
+        });
+        if !decided {
+            return;
+        }
         if missing > Money::ZERO {
             let years = b.loan_years.min(catalog.finance_model.max_term_years);
             run(
@@ -2148,7 +2536,7 @@ fn open_deposit(
 }
 
 /// What the development level of a company changes in a recipe (M37).
-fn developed(
+pub(crate) fn developed(
     state: &GameState,
     catalog: &Catalog,
     company: CompanyId,
@@ -2178,8 +2566,8 @@ fn research_plan(
     catalog: &Catalog,
     id: CompanyId,
     sites: &[SiteId],
-    date: Date,
-    gaps: &[TechnologyId],
+    (date, gaps): (Date, &[TechnologyId]),
+    decider: &mut dyn Decider,
 ) {
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(state, id);
@@ -2247,6 +2635,24 @@ fn research_plan(
     if target.is_none() && develop.is_none() {
         return;
     }
+    // Nothing changes at a lab that works on it already.
+    if let Some(c) = center {
+        let lab = &state.sites[c.index()];
+        let same = match (target, develop) {
+            (Some(t), _) => lab.research == Some(t),
+            (None, Some(p)) => lab.development == Some(p),
+            (None, None) => true,
+        };
+        if same {
+            return;
+        }
+    }
+    let decided = decision::decided(decider, state, catalog, |st| {
+        research_decision(catalog, st, id, (sites, center), (target, develop), horizon)
+    });
+    if !decided {
+        return;
+    }
     let center = match center {
         Some(c) => c,
         None => {
@@ -2295,6 +2701,121 @@ fn research_plan(
         _ => return,
     };
     run(state, catalog, id, &command);
+}
+
+/// The decision about what a company's lab works on (MA0): the rules' target, up to two
+/// other technologies of the company's branches that it can research, keeping things.
+/// Without a lab the options found one (site and laboratory) first.
+fn research_decision(
+    catalog: &Catalog,
+    st: &GameState,
+    id: CompanyId,
+    (sites, center): (&[SiteId], Option<SiteId>),
+    (target, develop): (Option<TechnologyId>, Option<ProductId>),
+    horizon: f64,
+) -> Decision {
+    let lab = catalog
+        .facilities
+        .iter()
+        .find(|(_, f)| f.site_type == SiteType::ResearchCenter)
+        .map(|(f, _)| f);
+    // The lab's site, and the steps that found it first.
+    let (site, founding) = match center {
+        Some(c) => (c, Vec::new()),
+        None => {
+            let place = (
+                st.companies[id.index()].headquarters,
+                SiteType::ResearchCenter,
+            );
+            let site = site_id(st.sites.len());
+            let mut steps = Vec::new();
+            if let (Some(lab), Some((found, _))) = (
+                lab,
+                lab.and_then(|lab| {
+                    site_plan(
+                        st,
+                        catalog,
+                        id,
+                        place,
+                        (Some((lab, FacilitySize::Medium, 1)), 0.0),
+                    )
+                }),
+            ) {
+                steps.push(decision::Step {
+                    command: found,
+                    required: true,
+                });
+                steps.push(decision::Step {
+                    command: Command::BuildFacility {
+                        site,
+                        facility: lab,
+                        count: 1,
+                        size: FacilitySize::Medium,
+                    },
+                    required: true,
+                });
+            }
+            (site, steps)
+        }
+    };
+    let with = |kind: ChoiceKind, command: Command| {
+        Choice {
+            kind,
+            steps: founding.clone(),
+        }
+        .then(command, true)
+    };
+    let research = |t: TechnologyId| {
+        with(
+            ChoiceKind::Research,
+            Command::SetResearch {
+                site,
+                technology: Some(t),
+            },
+        )
+    };
+    let (topic, first) = match (target, develop) {
+        (Some(t), _) => (Topic::Research, research(t)),
+        (None, Some(p)) => (
+            Topic::Development,
+            with(
+                ChoiceKind::Develop,
+                Command::SetDevelopment {
+                    site,
+                    product: Some(p),
+                },
+            ),
+        ),
+        (None, None) => (Topic::Research, Choice::keep()),
+    };
+    let mut decision = Decision::new(topic, id, first);
+    if let Some(t) = target {
+        let branches: Vec<_> = sites
+            .iter()
+            .flat_map(|&s| st.sites[s.index()].slots.iter().filter_map(|sl| sl.recipe))
+            .map(|r| catalog.products.get(catalog.recipes.get(r).product).branch)
+            .collect();
+        let mut others: Vec<(TechnologyId, f64)> = catalog
+            .technologies
+            .iter()
+            .filter(|&(o, tech)| {
+                o != t
+                    && f64::from(tech.invention_year) <= horizon
+                    && research::can_research(catalog, st, id, o)
+                    && catalog.recipes.values().any(|r| {
+                        (r.technology == Some(o)
+                            || catalog.facilities.get(r.facility).technology == Some(o))
+                            && branches.contains(&catalog.products.get(r.product).branch)
+                    })
+            })
+            .filter_map(|(o, _)| research::effort(catalog, st, o, st.date).map(|e| (o, e.points)))
+            .collect();
+        others.sort_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)));
+        for (o, _) in others.into_iter().take(2) {
+            decision = decision.or(research(o));
+        }
+    }
+    decision
 }
 
 /// The product an AI company develops when it has nothing to research (M37): the one it
@@ -3365,7 +3886,14 @@ mod tests {
                 .map(|sl| sl.count)
                 .sum()
         };
-        assert!(own_power(state, &catalog, id, &owned(state), date));
+        assert!(own_power(
+            state,
+            &catalog,
+            id,
+            &owned(state),
+            date,
+            &mut Rules
+        ));
         assert_eq!(plants(state), 1);
         assert!(
             state
@@ -3375,7 +3903,14 @@ mod tests {
                 .any(|sl| sl.ready > date)
         );
         // The works still wait for power, but the plant being built covers them.
-        assert!(!own_power(state, &catalog, id, &owned(state), date));
+        assert!(!own_power(
+            state,
+            &catalog,
+            id,
+            &owned(state),
+            date,
+            &mut Rules
+        ));
         assert_eq!(plants(state), 1);
     }
 
@@ -3386,7 +3921,7 @@ mod tests {
         let state = game.state_mut();
         let date = state.date;
         let mut news = Vec::new();
-        retire(state, &catalog, id, &[site], date, &mut news);
+        retire(state, &catalog, id, &[site], date, (&mut news, &mut Rules));
         // A fifth of ten furnaces is two; at 80 % three are needed, seven stand still.
         let slots = &state.sites[site.index()].slots;
         assert_eq!(slots.len(), 2);
@@ -3400,12 +3935,134 @@ mod tests {
         let cash = state.companies[id.index()].ledger.cash();
         state.date = Date::new(1902, 2, 1).expect("valid");
         let later = state.date;
-        retire(state, &catalog, id, &[site], later, &mut news);
+        retire(state, &catalog, id, &[site], later, (&mut news, &mut Rules));
         let slots = &state.sites[site.index()].slots;
         assert_eq!(slots.len(), 1);
         assert_eq!(slots[0].count, 3);
         assert!(state.companies[id.index()].ledger.cash() > cash);
         assert!(state.companies[id.index()].ledger.is_balanced());
+    }
+
+    /// MA0: idle capacity is one decision with three options – shut down the dearest
+    /// units while the others make what all made, sell them, or keep them – assessed on
+    /// request; looking at the decision changes nothing.
+    #[test]
+    fn overcapacity_is_one_decision_with_assessed_options() {
+        let (mut game, id, site) = idle_works(0.2);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        let date = state.date;
+        let before = state.clone();
+        let mut recorder = decision::Recorder::default();
+        retire(
+            state,
+            &catalog,
+            id,
+            &[site],
+            date,
+            (&mut Vec::new(), &mut recorder),
+        );
+        let slots = &state.sites[site.index()].slots;
+        assert_eq!((slots[0].count, slots[1].count), (3, 7));
+        let d = recorder
+            .decisions
+            .iter()
+            .find(|d| d.topic == Topic::Overcapacity)
+            .expect("decided");
+        let kinds: Vec<ChoiceKind> = d.choices.iter().map(|c| c.kind).collect();
+        assert_eq!(
+            kinds,
+            [ChoiceKind::Mothball, ChoiceKind::Sell, ChoiceKind::Keep]
+        );
+        assert_eq!(d.rule, 0);
+        assert_eq!(
+            (d.site, d.product),
+            (Some(site), catalog.products.id("eisen"))
+        );
+        let a = decision::assess(&catalog, &before, d);
+        // Counted against a budget: the book value of the seven furnaces.
+        let (book, _) =
+            crate::production::sale_value(&catalog, &before.sites[site.index()].slots[0], 7, date);
+        assert_eq!(a[0].amount, book);
+        assert_eq!(a[1].amount, book);
+        assert_eq!(a[2].amount, Money::ZERO);
+        // The three make what the ten made: shutting down saves most of the
+        // maintenance, selling also the depreciation, at a loss against the book value.
+        let effect = |i: usize| a[i].effect.expect("estimated").to_usd();
+        assert!(effect(0) > 0.0, "{}", effect(0));
+        assert!(effect(1) > effect(0), "{} {}", effect(1), effect(0));
+        assert!(a[1].once < Money::ZERO);
+        assert_eq!(a[2].effect, Some(Money::ZERO));
+    }
+
+    /// MA0: what a loan or new furnaces would mean, and topics without an estimate.
+    #[test]
+    fn options_are_assessed_by_their_commands() {
+        let (game, id, site) = idle_works(0.2);
+        let catalog = game.catalog();
+        let state = game.state();
+        let furnace = catalog.facilities.id("ofen").expect("exists");
+        let slot = state.sites[site.index()].slots.len();
+        let build = Choice::one(
+            ChoiceKind::Build,
+            Command::BuildFacility {
+                site,
+                facility: furnace,
+                count: 2,
+                size: FacilitySize::Medium,
+            },
+        )
+        .then(
+            production(
+                catalog,
+                site,
+                slot,
+                catalog.recipes.id("eisen_schmelzen").unwrap(),
+            ),
+            false,
+        );
+        let d = Decision::new(Topic::Expansion, id, build).at(site);
+        let a = decision::assess(catalog, state, &d);
+        assert_eq!(
+            a[0].amount,
+            catalog.facilities.get(furnace).investment.scale(2.0)
+        );
+        // New capacity counts as sold at today's price: 365 · (output · price − cost).
+        let iron = catalog.products.id("eisen").unwrap();
+        let aaa = state.sites[site.index()].country;
+        let recipe = catalog.recipes.id("eisen_schmelzen").unwrap();
+        let utilization = catalog.ai_model.start.utilization;
+        let flows = population::slot_flows(
+            catalog,
+            state,
+            aaa,
+            recipe,
+            (2, FacilitySize::Medium),
+            utilization,
+            (1.0, crate::development::Effect::NONE),
+        );
+        let price = market::market_price(catalog, state, aaa, iron).to_usd();
+        let expected = 365.0 * (flows.output * price - flows.cost_per_day.to_usd());
+        let effect = a[0].effect.expect("estimated").to_usd();
+        assert!((effect - expected).abs() < 0.01, "{effect} {expected}");
+
+        let amount = Money::from_usd(1_000_000.0).unwrap();
+        let loan = Command::TakeLoan { amount, years: 5 };
+        let d = Decision::new(Topic::Cash, id, Choice::one(ChoiceKind::Borrow, loan));
+        let a = decision::assess(catalog, state, &d);
+        assert_eq!(a[0].amount, amount);
+        let rate = finance::loan_rate(catalog, &state.companies[id.index()], amount, state.date);
+        let interest = a[0].effect.expect("estimated").to_usd();
+        assert!((interest + 1_000_000.0 * rate).abs() < 0.01, "{interest}");
+
+        let iron = catalog.products.id("eisen").unwrap();
+        let name = Command::NameProduct {
+            product: iron,
+            name: Some("Ferrox".into()),
+        };
+        let d = Decision::new(Topic::ProductName, id, Choice::one(ChoiceKind::Name, name));
+        let a = decision::assess(catalog, state, &d);
+        assert_eq!((a[0].amount, a[0].effect), (Money::ZERO, None));
     }
 
     #[test]
@@ -3414,7 +4071,14 @@ mod tests {
         let catalog = game.catalog().clone();
         let state = game.state_mut();
         let date = state.date;
-        retire(state, &catalog, id, &[site], date, &mut Vec::new());
+        retire(
+            state,
+            &catalog,
+            id,
+            &[site],
+            date,
+            (&mut Vec::new(), &mut Rules),
+        );
         assert_eq!(state.sites[site.index()].slots.len(), 1);
         assert_eq!(state.sites[site.index()].slots[0].count, 10);
     }
@@ -3429,7 +4093,14 @@ mod tests {
         let iron = catalog.products.id("eisen").expect("exists");
         let reference = market::local_reference(&catalog, state, aaa, iron);
         state.markets.get_mut(iron).get_mut(aaa).price = reference;
-        retire(state, &catalog, id, &[site], date, &mut Vec::new());
+        retire(
+            state,
+            &catalog,
+            id,
+            &[site],
+            date,
+            (&mut Vec::new(), &mut Rules),
+        );
         assert_eq!(state.sites[site.index()].slots.len(), 1);
     }
 
@@ -3456,7 +4127,7 @@ mod tests {
             .entry(gas)
             .or_default()
             .add(50.0, Money::ZERO, 50.0);
-        operate(state, &catalog, id, &[site], date);
+        operate(state, &catalog, id, &[site], date, &mut Rules);
         let ore_price = market::market_price(&catalog, state, aaa, ore).to_usd();
         let offer = state.sites[site.index()].offers.get(&gas).expect("offered");
         let PriceMode::Market { floor, .. } = offer.mode else {
@@ -3611,7 +4282,7 @@ mod tests {
                 .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
                 .and_then(|s| s.development)
         };
-        research_plan(state, &catalog, id, &[works], date, &[]);
+        research_plan(state, &catalog, id, &[works], (date, &[]), &mut Rules);
         assert_eq!(developing(state), Some(iron), "the best seller");
         // It stays with iron while there is a next level, then turns to the ore.
         let lab = state
@@ -3628,7 +4299,7 @@ mod tests {
             development_target(state, &catalog, id, Some(lab)),
             Some(ore)
         );
-        research_plan(state, &catalog, id, &[works, lab], date, &[]);
+        research_plan(state, &catalog, id, &[works, lab], (date, &[]), &mut Rules);
         assert_eq!(developing(state), Some(ore));
     }
 
@@ -3718,7 +4389,7 @@ mod tests {
         // Nobody asks for bicycles: the iron works have nothing to research.
         assert!(gap_technologies(state, &catalog).is_empty());
         let gaps = gap_technologies(state, &catalog);
-        research_plan(state, &catalog, id, &[works], date, &gaps);
+        research_plan(state, &catalog, id, &[works], (date, &gaps), &mut Rules);
         assert_eq!(researching(state), None);
         // Consumers ask for them; nobody knows how to make them.
         let aaa = catalog.countries.id("AAA").expect("exists");
@@ -3733,7 +4404,7 @@ mod tests {
                 turbine
             ]
         );
-        research_plan(state, &catalog, id, &[works], date, &gaps);
+        research_plan(state, &catalog, id, &[works], (date, &gaps), &mut Rules);
         assert_eq!(researching(state), Some(turbine));
         // Once a company knows it, the gap is closed.
         let player = state.player;
@@ -3797,11 +4468,21 @@ mod tests {
         };
         // Nobody knows how to build bicycles.
         let mut news = Vec::new();
-        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        pioneer(
+            state,
+            &catalog,
+            &by_budget(state, &catalog),
+            (&mut news, &mut Rules),
+        );
         assert_eq!(making(state), 0);
         // The company learns it and builds the first works.
         state.companies[id.index()].technologies.insert(turbine);
-        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        pioneer(
+            state,
+            &catalog,
+            &by_budget(state, &catalog),
+            (&mut news, &mut Rules),
+        );
         assert_eq!(making(state), 1);
         let new = state.sites.last().expect("built");
         assert!(new.slots[0].ready > date);
@@ -3810,7 +4491,12 @@ mod tests {
             opportunity(state, &catalog, &[], id, Some(&[bicycle])),
             None
         );
-        pioneer(state, &catalog, &by_budget(state, &catalog), &mut news);
+        pioneer(
+            state,
+            &catalog,
+            &by_budget(state, &catalog),
+            (&mut news, &mut Rules),
+        );
         assert_eq!(making(state), 1);
     }
 

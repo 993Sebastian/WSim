@@ -1828,6 +1828,7 @@ pub(crate) fn ai_offers(
     state: &mut GameState,
     catalog: &Catalog,
     buyer: CompanyId,
+    decider: &mut dyn crate::decision::Decider,
 ) -> Option<Message> {
     let ai = &catalog.deal_model.ai;
     let (_, aggressiveness) = crate::ai::traits(state, buyer);
@@ -1851,6 +1852,17 @@ pub(crate) fn ai_offers(
         object,
         price,
     };
+    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    let decided = crate::decision::decided(decider, state, catalog, |_| {
+        Decision::new(
+            Topic::Offer,
+            buyer,
+            Choice::one(ChoiceKind::Offer, command.clone()),
+        )
+    });
+    if !decided {
+        return None;
+    }
     command::execute(state, catalog, buyer, &command).ok()?;
     if seller != state.player {
         return None;

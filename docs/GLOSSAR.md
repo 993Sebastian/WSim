@@ -255,3 +255,9 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Engpass ohne Ausweg (KI baut ein Produkt, das niemand herstellt, trotz knapper Vorprodukte) | `ai::Chain::bottleneck` mit `Chain::makers` (M41) |
 | Angebote eines Produkts in einem Spielstand (Diagnose) | `wsim angebote <spielstand> <produkt>` (`show_offers` in `wsim-cli`) |
 | Vorprodukt geplanter Anlagen (Startbesetzung: eine Anlage in der kleinsten passenden Größe) | `Need::input`, `smallest_size`, `Placement::size` in `population` |
+| Entscheidung, Thema, Option (Art), Schritt (MA0) | `decision::Decision`, `Topic`, `Choice` (`ChoiceKind`), `Step` |
+| Entscheider, Antwort (Regel, andere Option, nichts jetzt) | `decision::Decider`, `Verdict::{Rule, Choice, Hold}`; KI: `Rules`; Aufzeichnung: `Recorder` |
+| Entscheidung vorlegen, bevor eine Regel handelt | `decision::decided`, in `ai`: `act`, `routine`, `overcapacity`, `research_decision`, `new_site_steps` |
+| Bewertung einer Option (angerechneter Betrag, Wirkung je Jahr, einmalig) | `decision::assess` → `Assessment { amount, effect, once }`, `decision::amount` |
+| KI-Entscheidungen mit eigenem Entscheider | `ai::decide_with` (`ai::decide` nutzt `Rules`) |
+| Fingerabdruck eines Spielzustands | `game::hash_of` |

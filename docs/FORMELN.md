@@ -2116,3 +2116,116 @@ verschiebt keine anderen Zufallszahlen, und derselbe Spielstand ergibt denselben
 Neues optionales Feld je Firma (Name je Produkt). Ältere Spielstände laden ohne Namen;
 KI-Firmen benennen ihre Produkte bei ihrer nächsten Betriebsentscheidung (ohne Meldung,
 weil sie schon verkaufen), der Spieler bei Bedarf selbst.
+
+## MA0 – Entscheidungsbausteine
+
+`docs/MANAGER.md` Abschnitte 5.1, 6.2 und 11. Bevor eine Regel der KI handelt, legt sie
+ihr Vorhaben als **Entscheidung** mit Optionen einem Entscheider vor. Der Entscheider der
+KI lässt die Regel immer handeln wie bisher: Ihr Verhalten bleibt bitgleich. Ab MA2 prüfen
+Manager an denselben Stellen gegen Budget und Befugnis (Modul `decision`).
+
+### Entscheidung, Option, Schritt
+
+- Eine **Entscheidung** (`Decision`) hat ein Thema (`Topic`), die Firma, wo nötig Standort
+  und Produkt, zwei bis vier **Optionen** (`Choice`) und die Option, die die Regeln wählen.
+- Eine Option hat eine Art (Textschlüssel `option.<art>`) und **Schritte** (`Step`): je
+  einen Befehl und ob er Pflicht ist. Wird eine Option als Befehlsliste ausgeführt, dann
+  der Reihe nach; schlägt ein Pflichtschritt fehl, entfallen die folgenden.
+- Jede Entscheidung bietet **Beibehalten** (keine Schritte).
+- **Ablauf:** Die Regel bildet die Entscheidung und legt sie einem **Entscheider** vor
+  (`Decider`). Er antwortet mit „Regel“ (die Regel führt ihre Option aus wie bisher), mit
+  einer anderen Option (sie wird sofort als Befehlsliste ausgeführt) oder mit „nichts
+  jetzt“ (beibehalten oder nachgefragt, ab MA2). Der Entscheider der KI antwortet immer
+  „Regel“ und lässt die Entscheidung gar nicht erst bilden; ihr Verhalten und ihr Tempo
+  bleiben gleich.
+- Warum die Regel ihre eigene Option selbst ausführt: Manche Regeln planen einen Schritt
+  erst, wenn der vorige getan ist (das Grundstück wird nach dem Kredit gekauft oder
+  gepachtet, je nach der Kasse danach; die Bauzahl folgt aus der Größe des gefundenen
+  Grundstücks). Die Schritte der Regel-Option beschreiben den Plan zum Zeitpunkt der
+  Entscheidung; Manager, die sie später ausführen, führen diesen Plan aus.
+- Die **Bewertung** (`Assessment`) je Option wird erst auf Nachfrage gerechnet.
+
+### Themen
+
+| Thema (`thema.<id>`) | Regel der KI | Termin | Optionen (die Wahl der Regeln zuerst) |
+| --- | --- | --- | --- |
+| `produktion` | Betrieb: Rezept und Auslastung je Anlage | alle paar Tage | neue Werte; beibehalten |
+| `verkauf` | Betrieb: Preisuntergrenze und Vorrat je Angebot, Verkauf von Nebenprodukten | alle paar Tage | neue Werte; beibehalten |
+| `einkauf` | Betrieb: Lagerziel und Höchstpreis je Vorprodukt | alle paar Tage | neue Werte; beibehalten |
+| `lohn` | Betrieb: Lohnaufschlag je Standort | alle paar Tage | neuer Aufschlag; beibehalten |
+| `eigenversorgung` | Lieferungen an eigene Standorte | alle paar Tage | liefern; beibehalten |
+| `produktname` | Namen für Endprodukte (M42) | alle paar Tage | Name; ohne Namen |
+| `kasse` | Kredit aufnehmen oder tilgen | monatlich | Kredit bzw. Tilgung; beibehalten |
+| `werbung` | Werbebudget je Land und Warengruppe | monatlich | neues Budget; beibehalten |
+| `kaufangebot` | Angebote für Standorte anderer Firmen (M30) | monatlich | anbieten; nicht anbieten |
+| `ueberkapazitaet` | Einheiten stilllegen (M22), je Produkt und Standort | Quartal | stilllegen, die übrigen übernehmen die Erzeugung; dieselben Einheiten verkaufen; beibehalten |
+| `stillgelegt` | lange stillgelegte Einheiten verkaufen (M22) | Quartal | verkaufen; stillgelegt lassen |
+| `wiederanfahren` | stillgelegte Einheiten wieder anfahren | Quartal | anfahren; stillgelegt lassen |
+| `ausbau` | Ausbau am Standort oder auf weiterem Grundstück | Quartal | bauen (Größe, Anzahl, nötiger Kredit); beibehalten |
+| `kraftwerk` | eigenes Kraftwerk bei Strommangel | Quartal | bauen; beibehalten |
+| `lagerstaette` | Konzession erschließen | Quartal | gründen, erschließen, bauen; beibehalten |
+| `engpass` | Bauen in einem Engpass oder als Pionier (Diversifizierung) | Quartal | bauen; beibehalten |
+| `forschung` | Forschungsziel des Labors (ohne Labor: erst Standort und Labor gründen) | jährlich | Ziel nach Regel, bis zu zwei weitere erforschbare Technologien der eigenen Branchen (die billigsten); beibehalten |
+| `weiterentwicklung` | Entwicklungsziel (M37) | jährlich | Ziel nach Regel; beibehalten |
+
+Nicht dazu gehören die Gründung neuer KI-Firmen und die Startbesetzung: Sie sind Sache
+der Welt, nicht einer Firma. Die Antworten der KI auf Kaufangebote und ihre Gebote bei
+Versteigerungen folgen mit der Landes- und Kontinentebene (MA3).
+
+### Angerechneter Betrag je Option
+
+Summe über die Schritte (Abschnitt 5.1 der Vorgabe):
+
+| Befehl | Betrag |
+| --- | --- |
+| `BuildFacility` | Investition · Größenfaktor · Anzahl |
+| `DevelopDeposit` | Erschließungskosten der Konzession |
+| `FoundSite`, `FoundSiteOnPlot` | Gebäude; dazu Kaufpreis des Grundstücks bzw. eine Jahrespacht |
+| `BuyPlot` | Kaufpreis |
+| `MakeOffer` | gebotener Preis |
+| `SetWagePremium` (höher) | Mehrkosten der Arbeit für 365 Tage bei geplanter Auslastung |
+| `SetPurchase` (höherer Höchstpreis) | (neuer − alter Höchstpreis) · Lagerziel / Lagertage · 365 |
+| `SetAdvertising` (höher) | (neues − altes Monatsbudget) · 12 |
+| `MothballFacility`, `SellFacility` | Restbuchwert der Einheiten |
+| `RestartFacility` | Wiederanlaufkosten |
+| `TakeLoan`, `RepayLoan` | Betrag (nur Ressort Finanzen oder CEO, ab MA5) |
+| alle übrigen (Preis, Verkauf, Produktion, Forschung, Lieferung, Name) | 0 |
+
+Ein Höchstpreis, ein Aufschlag oder ein Budget, das sinkt, zählt 0.
+
+### Geschätzte Wirkung je Option
+
+Ergebniswirkung in einem Jahr gegenüber „Beibehalten“, zu heutigen Preisen; einmalige
+Beträge stehen getrennt.
+
+- **Produkt an einem Standort** (Themen `produktion`, `lohn` – dort alle Produkte des
+  Standorts –, `ueberkapazitaet`, `stillgelegt`, `wiederanfahren`):
+
+      E = 365 · (min(A, Q) · p − Q · v) − F
+
+  *A* Abgang je Tag wie beim Stilllegen (Verkäufe des Vormonats und des laufenden Monats
+  je Tag plus Verbrauch eigener Anlagen am Standort), *Q* Erzeugung je Tag der laufenden
+  Einheiten bei geplanter Auslastung, *p* Angebotspreis (ohne Angebot der Marktpreis im
+  Land), *v* variable Stückkosten (Vorprodukte zum Marktpreis, Arbeit mit Lohnaufschlag,
+  Strom), *F* feste Kosten je Jahr (Abschreibung und Wartung; stillgelegt nur
+  `instandhaltung_anteil` der Wartung und die Abschreibung; verkauft keine). Wirkung =
+  E(Option) − E(beibehalten).
+  - Ausbau, Kraftwerk, Lagerstätte, Engpass: Die neue Leistung *ΔQ* bei
+    `start.auslastung` gilt als verkauft (die Regeln bauen nur, wo der Markt mehr
+    abnimmt): Wirkung = 365 · ΔQ · (p − v) − ΔF − Zinsen eines nötigen Kredits.
+  - Einmalig (Ergebnis): Verkaufserlös − Restbuchwert (`verkaufen`),
+    Wiederanlaufkosten (`wiederanfahren`). Investition und Erschließung sind kein
+    Aufwand: Sie stehen im angerechneten Betrag und wirken über Abschreibung und Wartung,
+    die Erschließung über `erschliessung_lebensdauer_jahre`.
+- **Kasse:** − Zinsen des Kredits für ein Jahr; Tilgung: + ersparte Zinsen.
+- **Werbung:** − (neues − altes Budget) · 12; den Mehrabsatz schätzt erst MA2.
+- **Einkauf, Verkauf (Preisuntergrenze), Lieferungen, Namen, Forschung,
+  Weiterentwicklung, Kaufangebote:** ohne Schätzung („–“). Sie halten den Betrieb in Gang
+  oder wirken erst nach Jahren.
+
+### Nachweis „bitgleich“
+
+- Referenzläufe mit dem Stand vor MA0 und danach (100 KI-Firmen; 1900–1912, Seed 5;
+  1985–1992, Seed 6) enden mit demselben Zustands-Hash und denselben Protokolldateien.
+- Test: Ein Entscheider, der jede Entscheidung bilden lässt, aufzeichnet und „Regel“
+  antwortet, ergibt denselben Zustand wie die KI ohne ihn (das Bilden ändert nichts).

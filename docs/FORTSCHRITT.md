@@ -51,12 +51,33 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M40 | Produkte 1990–2009 | ✅ |
 | M41 | Produkte 2010–2026 | ✅ (Rohstoffvorräte ab 2018 werden nachgestellt) |
 | M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
+| MA0 | Manager-System: Entscheidungsbausteine | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
 (Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
 M39–M41; M30–M39 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
 und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
+
+### MA0: Entscheidungsbausteine (06.10.2026)
+
+Vorgabe `docs/MANAGER.md` (Auftrag: „bitte binde dieses direkt mit ein“; Reihenfolge M41 →
+MA0–MA6 → ZA1–ZA3 → SU1–SU3). Regeln: `docs/FORMELN.md`, Abschnitt MA0.
+
+- **Kern:** Modul `decision` mit Entscheidung (Thema, Firma, Standort, Produkt, Optionen,
+  Wahl der Regeln), Optionen aus Befehlsschritten, Entscheider und Bewertung auf Nachfrage
+  (angerechneter Betrag nach Abschnitt 5.1 der Vorgabe, geschätzte Wirkung je Jahr,
+  einmalige Wirkung). Alle Regeln der KI legen ihr Vorhaben vor, bevor sie handeln: 18
+  Themen von Produktion, Preisen, Einkauf und Löhnen über Kasse, Werbung und Kaufangebote
+  bis zu Stilllegen, Verkaufen, Wiederanfahren, Ausbau, Kraftwerk, Lagerstätte, Engpass,
+  Forschung und Weiterentwicklung. Überkapazität ist je Produkt eine Entscheidung
+  (stilllegen samt höherer Auslastung der übrigen, verkaufen, beibehalten).
+- **Bitgleich:** Referenzläufe mit 100 KI-Firmen (1900–1912 und 1985–1992) enden vor und
+  nach dem Umbau mit demselben Zustands-Hash und denselben Protokolldateien.
+- **Tests:** Überkapazität als eine Entscheidung mit drei bewerteten Optionen; Bewertung von
+  Ausbau, Kredit und Themen ohne Schätzung; mit echten Daten (1960, 40 KI-Firmen): das
+  Bilden der Entscheidungen ändert an drei Stichtagen nichts, jede bietet „Beibehalten“,
+  alle Optionen lassen sich bewerten.
 
 ## Eigenständige Entscheidungen (für das Review)
 
