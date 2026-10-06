@@ -528,6 +528,26 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.5 Entscheidungen vom 06.10.2026 (Manager-System)
+
+Das Manager-System (§5.5, §5.6) wird aus Stufe 2 vorgezogen und nach M41 umgesetzt
+(Meilensteine MA0–MA6). Die vollständige Vorgabe steht in `docs/MANAGER.md` und gilt bei
+Widerspruch vor §5.5 und §5.6.
+
+- Ebenen: Standort, Land, Kontinent, Vorstand mit CEO. Die Weltebene fällt mit dem
+  Vorstand zusammen.
+- Manager übernehmen die Routine ihres Bereichs und fragen den Spieler nur über
+  **Anliegen** (Lage, Optionen, Empfehlung, Frist). Ein Anliegen geht zur nächsten
+  besetzten Stelle darüber; der Spieler hört nur die oberste besetzte Stelle.
+- Jeder Manager hat ein **Budget je Entscheidung und je Jahr**; darunter entscheidet er
+  ohne Rückfrage. Standardwerte als Anteil am Umsatz seiner Einheit, je Stelle änderbar.
+- Der CEO bekommt einen Strategieauftrag und hält Strategierücksprachen im gewählten
+  Abstand (monatlich bis jährlich).
+- Bei Fristablauf bleibt alles, wie es ist. Fähigkeiten erscheinen als Stufen.
+  KI-Firmen nutzen ab MA6 denselben Managermarkt.
+- Das Datenmodell bereitet die spätere Personenperspektive vor (ein CEO je Firma, Spieler
+  als Eigentümer mehrerer Firmen).
+
 ### 18.4 Entscheidungen vom 05.10.2026 (Kaufangebote, Produkte bis 2026)
 
 - **Kaufangebote zwischen Firmen** (vorgezogen; ergänzt die Übernahmen über Anteile aus
