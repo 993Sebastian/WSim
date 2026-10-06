@@ -425,7 +425,7 @@ Grenzen gelten für alle Produkte und Länder gleich):
 Preise 1929 gegen den Richtpreis im Land (Endstand): Rohstoffe 0,81–1,07 (vorher
 Getreide 0,36, Kautschuk 0,37, Rohöl 0,41), Mehl 0,90, Kupfer 0,80, Petroleum 0,86;
 Baumwolle 1,06 und Kleidung 0,66 (vorher 3,83 und 1,40); Stahlkette 0,45–0,66 (real
-fielen diese Preise bis 1929 ebenfalls); Auto 0,32 mit Fließband (Ford: Model T 1909 bis
+fielen diese Preise bis 1929 ebenfalls); Auto 0,32 mit Fließband (der Preis des ersten Massenautos fiel 1909 bis
 1925 real auf etwa ein Siebtel). Im ersten Jahr schwankt Getreide nicht mehr zwischen 0,55
 und 3,9 des Richtpreises. Offen: `docs/OFFENE_PUNKTE.md` 38.
 
@@ -972,7 +972,7 @@ Formeln: `docs/FORMELN.md`, M32 (und M10, Forschung).
   - **Daten** (`data/ketten/14_*.yaml` bis `19_*.yaml`): 20 Produkte, 21 Rezepte und 15
     Technologien (erfunden 1874–1920) in sechs Ketten – Aluminium (Bauxit → Tonerde nach
     Bayer → Schmelzflusselektrolyse → Kochtopf), Kunstseide (Zellstoff → Viskose →
-    Strümpfe), Elektrogeräte (Bakelit, Radioröhre, Röhrenradio, Kleinmotor, Staubsauger,
+    Strümpfe), Elektrogeräte (Phenolharz, Radioröhre, Röhrenradio, Kleinmotor, Staubsauger,
     Kühlschrank), Nutzfahrzeuge (Lastwagen, Traktor), Luftfahrt (Flugmotor,
     Ganzmetall-Verkehrsflugzeug) und Stickstoff (Chilesalpeter, Ammoniak nach
     Haber-Bosch, Dünger auf beiden Wegen). Dazu elf Bauxit-Lagerstätten und die
@@ -1029,7 +1029,7 @@ M10: Lagerstätten, Konzessionen, Forschung).
 
   - **Daten** (`data/ketten/20_*.yaml` bis `27_*.yaml`): 13 Produkte, 15 Rezepte und 12
     Technologien (erfunden 1934–1954) in acht Ketten – Kunststoffe (Ethylen aus dem
-    Dampfspalter → Polyethylen → Kunststoffwaren im Spritzguss), Nylon (aus Benzin oder
+    Dampfspalter → Polyethylen → Kunststoffwaren im Spritzguss), Polyamid (aus Benzin oder
     aus Kohle, mit Ammoniak) für Strümpfe, Fernsehen (Bildröhre → Schwarzweiß-Fernseher,
     in Serie ab 1946), Waschmaschine, Transistor (Germanium → Transistor →
     Transistorradio, verdrängt das Röhrenradio), Düsenflugzeug (Strahltriebwerk →
@@ -1329,10 +1329,29 @@ Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
   Flachbildfernseher (verdrängt den Farbfernseher), DVD-Spieler (verdrängt den
   Videorekorder). Formeln: `docs/FORMELN.md`, Abschnitt M40.
 - **Nachbesserung M39:** Im Weltlauf des Agenten bis 2010 standen alle Chipwerke in den
-  USA, wo Bakelit (Chipgehäuse) das Vierfache kostete; nach der Ausbauregel baute keine
+  USA, wo Phenolharz (Chipgehäuse) das Vierfache kostete; nach der Ausbauregel baute keine
   Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache – alle neuen Geräte
   hungerten. Das Gehäuse ist jetzt Glas und Keramik (Staatsmarkt); das Chipwerk bekommt
   10 ha statt 25 ha Fläche.
 - **Oberfläche:** Beispieldaten der Vorschau mit den Daten bis 2009 erneuert; die
   Oberflächentests nennen die neuen Werte (Marge, Kaufangebot, Standortnummer).
 
+### Keine echten Produktnamen (06.10.2026)
+
+Auftrag: keine echten Produkte, Modelle oder Marken im Spiel, nur Gattungsbegriffe; eigene
+Produktnamen je Firma folgen mit M42.
+
+- **Weltereignisse:** „Ford Modell T“ heißt jetzt „Das Auto für alle“, „Fließband bei
+  Ford“ „Fließband im Autobau“, „Boeing 747 im Liniendienst“ „Großraumflugzeuge im
+  Liniendienst“, „IBM Personal Computer“ „Der Personal Computer wird Standard“, „Das
+  iPhone“ „Das Smartphone“; auch die Texte nennen kein Produkt und keinen Hersteller mehr.
+- **Produkte und Verfahren:** Bakelit → Phenolharz, Nylon → Polyamid (Technologie
+  „Polyamidfaser“, Strümpfe aus Polyamid), Buna → Synthesekautschuk aus Butadien,
+  Siemens-Verfahren → Gasphasenabscheidung, Compact Disc → Optische Speicherplatte (CD).
+- **Kommentare in den Daten:** 76 Stellen nennen statt Modell und Hersteller nur Jahr und
+  Sachverhalt („das erste Massenauto 1909: 850 USD“).
+- **Bleibt (eigene Entscheidung):** Verfahren, die nach ihren Erfindern heißen
+  (Siemens-Martin, Bayer, Haber-Bosch), Namen von Erfindern, die realen Firmen der
+  Startbesetzung (Lastenheft §10) sowie Firmen und Schiffe in Weltereignissen (Lehman
+  Brothers, Ever Given). Die IDs (`nylon`, `bakelit`, `ford_model_t` …) bleiben, damit
+  Spielstände gültig bleiben; angezeigt werden sie nirgends.

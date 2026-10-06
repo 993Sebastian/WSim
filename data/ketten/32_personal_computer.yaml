@@ -1,6 +1,6 @@
 # Kette 32 – Personal Computer (M39, Epoche 1965–1989)
 # Mikrochips (Prozessor, Speicher, Logik), Bildröhre, Stahlblech, Kunststoff → Personal
-# Computer (Apple II, Commodore PET und TRS-80 1977, IBM PC 1981). Der Monitor zählt mit;
+# Computer (erste Komplettgeräte 1977, Bürostandard ab 1981). Der Monitor zählt mit;
 # Heimcomputer am Fernseher sind im Mittel enthalten.
 # Alle Zahlen sind Annäherungen für etwa 1985.
 
@@ -24,7 +24,7 @@ produkte:
     annaeherung: true
 
 anlagen:
-  - id: computerwerk              # Apple Fremont 1984: 20 Mio. USD, 1 100 Beschäftigte
+  - id: computerwerk              # ein großes Werk 1984: 20 Mio. USD, 1 100 Beschäftigte
     standorttyp: werk
     investition_usd: 60_000_000
     bauzeit_tage: 300
@@ -56,7 +56,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: personal_computer         # Altair 1975, Apple II 1977, IBM PC 1981
+  - id: personal_computer         # Bausätze 1975, Komplettgeräte 1977, Bürostandard 1981
     fachgebiet: elektro
     erfindungsjahr: 1977
     voraussetzungen: [mikroprozessor, bildroehre]

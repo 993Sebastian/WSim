@@ -57,7 +57,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: dvd                       # Sony und Philips mit Toshiba und Panasonic, Standard 1995
+  - id: dvd                       # gemeinsamer Standard mehrerer Hersteller 1995
     fachgebiet: elektro
     erfindungsjahr: 1996
     voraussetzungen: [compact_disc]

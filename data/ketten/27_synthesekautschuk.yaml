@@ -1,6 +1,6 @@
 # Kette 27 – Synthesekautschuk (M33, Epoche 1940–1964)
-# Ethylen und Benzin (Butadien und Styrol) → Synthesekautschuk (Buna-S der IG Farben
-# 1937, GR-S im amerikanischen Kriegsprogramm ab 1942). Er geht wie Naturkautschuk in
+# Ethylen und Benzin (Butadien und Styrol) → Synthesekautschuk (Butadien-Styrol-
+# Kautschuk 1937, im amerikanischen Kriegsprogramm ab 1942). Er geht wie Naturkautschuk in
 # das Gummi; um 1960 deckte er gut die Hälfte des Weltbedarfs. Die Kosten liegen bei
 # rund zwei Dritteln des Naturkautschuks (Preise im Spiel).
 # Alle Zahlen sind Annäherungen für etwa 1955.
@@ -36,7 +36,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: synthesekautschuk         # Buna-S (Butadien und Styrol), IG Farben
+  - id: synthesekautschuk         # Butadien-Styrol-Kautschuk, 1937
     fachgebiet: chemie
     erfindungsjahr: 1937
     voraussetzungen: [vulkanisation]

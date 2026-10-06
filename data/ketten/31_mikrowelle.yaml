@@ -1,7 +1,7 @@
 # Kette 31 – Mikrowelle (M39, Epoche 1965–1989)
 # Kupfer, Stahl, Glas → Magnetron (kompakte Röhre aus Japan, 1964); Stahlblech, Magnetron,
-# Kupferdraht, Kleinmotor → Mikrowellenherd (Amana Radarange 1967, erstes Tischgerät für
-# Haushalte). In den USA 1975 erstmals mehr verkauft als Gasherde.
+# Kupferdraht, Kleinmotor → Mikrowellenherd (erstes Tischgerät für
+# Haushalte 1967). In den USA 1975 erstmals mehr verkauft als Gasherde.
 # Alle Zahlen sind Annäherungen für etwa 1980.
 
 produkte:
@@ -101,7 +101,7 @@ technologien:
     forschungsaufwand: 15000
     annaeherung: true
 
-  - id: mikrowellenherd           # Amana Radarange 1967
+  - id: mikrowellenherd           # erstes Tischgerät für Haushalte 1967
     fachgebiet: elektro
     erfindungsjahr: 1967
     voraussetzungen: [magnetron, drehstrommotor]

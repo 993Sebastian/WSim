@@ -616,7 +616,7 @@ fn best_recipe(
             let mut cost = population::reference_unit_cost(catalog, rid, energy);
             // At a site, inputs dearer than their reference count with the premium (M33):
             // a process whose input is scarce must not replace one that runs (all
-            // stocking mills switched to nylon while nylon cost three times its reference).
+            // stocking mills switched to polyamide while it cost three times its reference).
             if let Some(c) = country {
                 for &(input, q) in &r.inputs {
                     let premium = market::market_price(catalog, state, c, input).to_usd()
@@ -2759,7 +2759,7 @@ impl Scan {
         };
         // Markets that pay far more than the reference price draw newcomers (M33): a
         // single producer earning several times its costs otherwise stayed alone for
-        // decades (penicillin, nylon). The newcomer plans for a share of last month's
+        // decades (penicillin, polyamide). The newcomer plans for a share of last month's
         // sales, in the country where buyers pay the most above the reference.
         let b = &catalog.ai_model.behavior;
         let last = state.date.first_of_month().add_days(-1);

@@ -1,6 +1,6 @@
 # Kette 34 – CD-Spieler (M39, Epoche 1965–1989)
 # Stahlblech, Mikrochips (Servo, Dekoder, Wandler) mit Laserdiode, Kleinmotoren,
-# Kunststoff → CD-Spieler (Sony CDP-101, 1. Oktober 1982). 1988 wurden in den USA mehr
+# Kunststoff → CD-Spieler (erste Geräte am 1. Oktober 1982). 1988 wurden in den USA mehr
 # CDs verkauft als Langspielplatten.
 # Alle Zahlen sind Annäherungen für etwa 1986.
 
@@ -55,7 +55,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: compact_disc              # Philips und Sony, Red Book 1980; CDP-101 1982
+  - id: compact_disc              # Standard 1980, erste Geräte 1982
     fachgebiet: elektro
     erfindungsjahr: 1982
     voraussetzungen: [mikroprozessor]

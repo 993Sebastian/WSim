@@ -1,6 +1,6 @@
 # Kette 24 – Transistor (M33, Epoche 1940–1964)
-# Germanium (aus Zink- und Kupfererzen gewonnen) → Transistor (Bell Labs 1947/48) →
-# Transistorradio (Regency TR-1, 1954). Das Taschenradio läuft mit Batterie und
+# Germanium (aus Zink- und Kupfererzen gewonnen) → Transistor (erfunden 1947/48) →
+# Transistorradio (erstes Seriengerät 1954). Das Taschenradio läuft mit Batterie und
 # verdrängt das Röhrenradio.
 # Alle Zahlen sind Annäherungen für etwa 1960.
 
@@ -136,7 +136,7 @@ technologien:
     forschungsaufwand: 30000
     annaeherung: true
 
-  - id: transistorradio           # Regency TR-1, 1954
+  - id: transistorradio           # erstes Seriengerät 1954
     fachgebiet: elektro
     erfindungsjahr: 1954
     voraussetzungen: [transistor, rundfunk]

@@ -66,12 +66,12 @@ produkte:
     verwendung: konsum
     warengruppe: fahrzeuge
     transportklasse: stueckgut
-    richtpreis_usd: 30_000        # Ford Modell T 1909: 850 USD
+    richtpreis_usd: 30_000        # das erste Massenauto 1909: 850 USD
     nachfrage:
       bedarfsklasse: luxus
       gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.3}
       kaufschwelle: 80            # zum Richtpreis kauft fast niemand; erst billige Autos
-      preisempfindlichkeit: 4     # schaffen den Massenmarkt (Ford Modell T)
+      preisempfindlichkeit: 4     # schaffen den Massenmarkt (Massenauto ab 1908)
       einkommensempfindlichkeit: 1.5
     staatsnachfrage:              # Post, Heer, Verwaltung
       je_mio_usd_bip: 0.005
@@ -201,7 +201,7 @@ rezepte:
     qualitaet_basis: 50
     annaeherung: true
 
-  - id: motor_fliessband          # Ford: etwa ein Sechstel der Stunden der Werkstattfertigung
+  - id: motor_fliessband          # am Fließband etwa ein Sechstel der Stunden der Werkstattfertigung
     produkt: motor
     menge: 1
     dauer_tage: 1
@@ -341,12 +341,12 @@ technologien:
     fachgebiet: maschinenbau
     erfindungsjahr: 1876
 
-  - id: automobil                 # Carl Benz
+  - id: automobil                 # erstes Motorwagen-Patent 1886
     fachgebiet: maschinenbau
     erfindungsjahr: 1886
     voraussetzungen: [ottomotor]
 
-  - id: fliessband                # Henry Ford, Highland Park
+  - id: fliessband                # erste Fließbandfertigung von Autos 1913
     fachgebiet: maschinenbau
     erfindungsjahr: 1913
     voraussetzungen: [automobil]

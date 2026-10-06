@@ -1,7 +1,7 @@
 # Kette 39 – Digitalkamera (M40, Epoche 1990–2009)
 # Mikrochips (CCD-Bildsensor, Bildprozessor, Speicher), LCD-Anzeige, Lithium-Ionen-Akku und
-# Glas für das Objektiv → Digitalkamera (Kodak DCS 1991 für Berufsfotografen, Apple QuickTake
-# 1994, Casio QV-10 1995 als erste mit Bildschirm). Um 2003 überholten Digital- die
+# Glas für das Objektiv → Digitalkamera (für Berufsfotografen ab 1991, für Verbraucher
+# ab 1994, mit Bildschirm ab 1995). Um 2003 überholten Digital- die
 # Filmkameras; ab etwa 2010 ersetzen Mobiltelefone die Kompaktkameras.
 # Alle Zahlen sind Annäherungen für etwa 2000.
 
@@ -14,7 +14,7 @@ produkte:
     verwendung: konsum
     warengruppe: elektro
     transportklasse: stueckgut
-    richtpreis_usd: 330           # 1995 etwa 700 USD (Casio QV-10), 2003 etwa 300 USD
+    richtpreis_usd: 330           # 1995 etwa 700 USD, 2003 etwa 300 USD
     nachfrage:
       bedarfsklasse: gebrauchsgut
       gebrauch: {nutzungsdauer_jahre: 5, max_besitzquote: 0.4}
@@ -57,7 +57,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: digitalkamera             # Apple QuickTake 1994, Casio QV-10 1995
+  - id: digitalkamera             # erste Verbrauchergeräte 1994/95
     fachgebiet: elektro
     erfindungsjahr: 1995
     voraussetzungen: [mikroprozessor]  # Bildsensor und Bildverarbeitung

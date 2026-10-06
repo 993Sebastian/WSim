@@ -1,7 +1,7 @@
 # Kette 30 – Farbfernsehen (M39, Epoche 1965–1989)
-# Glas, Stahl, Kupfer → Farbbildröhre (Lochmaske, RCA 1954); Farbbildröhre, Transistoren,
-# Kupferdraht, Kunststoff → Farbfernseher. Den RCA CT-100 von 1954 kauften keine 5 000
-# Menschen; der Massenmarkt begann in den USA 1964/65, in Deutschland 1967 (PAL). Er
+# Glas, Stahl, Kupfer → Farbbildröhre (Lochmaske, 1954); Farbbildröhre, Transistoren,
+# Kupferdraht, Kunststoff → Farbfernseher. Das erste Seriengerät von 1954 kauften keine
+# 5 000 Menschen; der Massenmarkt begann in den USA 1964/65, in Deutschland 1967 (PAL). Er
 # verdrängt den Schwarzweiß-Fernseher.
 # Alle Zahlen sind Annäherungen für etwa 1975.
 
@@ -48,7 +48,7 @@ anlagen:
     technologie: farbbildroehre
     annaeherung: true
 
-  - id: farbfernsehwerk           # Sony San Diego 1981: 750 000 Geräte im Jahr
+  - id: farbfernsehwerk           # große Werke um 1981: 750 000 Geräte im Jahr
     standorttyp: werk
     investition_usd: 40_000_000
     bauzeit_tage: 300
@@ -97,7 +97,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: farbbildroehre            # Lochmaskenröhre von RCA, 1954
+  - id: farbbildroehre            # Lochmaskenröhre, 1954
     fachgebiet: elektro
     erfindungsjahr: 1954
     voraussetzungen: [bildroehre]

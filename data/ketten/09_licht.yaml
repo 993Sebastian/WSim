@@ -213,7 +213,7 @@ technologien:
     erfindungsjahr: 1865
     annaeherung: true
 
-  - id: gluehlampe                # Edison, Swan
+  - id: gluehlampe                # Kohlefadenlampe 1879/80
     fachgebiet: elektro
     erfindungsjahr: 1879
 

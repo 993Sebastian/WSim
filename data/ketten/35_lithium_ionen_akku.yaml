@@ -1,7 +1,7 @@
 # Kette 35 – Lithium-Ionen-Akku (M40, Epoche 1990–2009)
 # Lithium (Lithiumcarbonat aus Salzseen und Pegmatiten), Kobalt (aus Kupfer- und
 # Nickelerzen), Kupfer und Kohlenstoff → Lithium-Ionen-Akku (Kathode aus Lithiumkobaltoxid:
-# Goodenough 1980; Anode aus Kohlenstoff: Yoshino 1985; erste Zellen von Sony 1991). Er macht
+# Goodenough 1980; Anode aus Kohlenstoff: Yoshino 1985; erste Serienzellen 1991). Er macht
 # Mobiltelefone, Laptops und Digitalkameras klein und leicht. Rundzellen wurden je kWh von
 # 1992 bis 2016 jedes Jahr um rund 13 % billiger.
 # Alle Zahlen sind Annäherungen für etwa 1995.
@@ -61,7 +61,7 @@ anlagen:
     automatisierung_max: 0.5
     annaeherung: true
 
-  - id: akkuwerk                  # Elektroden beschichten, wickeln, formieren (Sony Koriyama 1991)
+  - id: akkuwerk                  # Elektroden beschichten, wickeln, formieren (erste Serienfertigung 1991)
     standorttyp: werk
     investition_usd: 150_000_000
     bauzeit_tage: 450
@@ -125,7 +125,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: lithium_ionen_akku        # Goodenough 1980, Yoshino 1985, Sony 1991
+  - id: lithium_ionen_akku        # Goodenough 1980, Yoshino 1985, Serienzellen 1991
     fachgebiet: chemie
     erfindungsjahr: 1991
     voraussetzungen: [hochdruck_polyethylen, integrierte_schaltung]  # Separator, Schutzschaltung

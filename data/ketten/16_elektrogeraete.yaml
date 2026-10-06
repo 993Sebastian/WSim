@@ -1,5 +1,5 @@
 # Kette 16 – Rundfunk und Haushaltsgeräte (M32, Epoche 1915–1939)
-# Kohle → Bakelit (Phenolharz); Glas, Kupfer → Radioröhre → Röhrenradio;
+# Kohle → Phenolharz; Glas, Kupfer → Radioröhre → Röhrenradio;
 # Kupfer, Stahl → Kleinmotor → Staubsauger, Kühlschrank.
 # Die Geräte brauchen einen Stromanschluss im Haushalt.
 # Alle Zahlen sind Annäherungen für etwa 1930.
@@ -276,14 +276,14 @@ technologien:
     forschungsaufwand: 15000
     annaeherung: true
 
-  - id: staubsauger               # Spangler und Hoover
+  - id: staubsauger               # Patent 1907, Serie ab 1908
     fachgebiet: maschinenbau
     erfindungsjahr: 1908
     voraussetzungen: [drehstrommotor]
     forschungsaufwand: 5000
     annaeherung: true
 
-  - id: kompressionskuehlschrank  # Kelvinator, Frigidaire
+  - id: kompressionskuehlschrank  # Haushaltsgeräte ab 1918
     fachgebiet: maschinenbau
     erfindungsjahr: 1918
     voraussetzungen: [drehstrommotor]

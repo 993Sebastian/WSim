@@ -68,7 +68,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: elektrizitaetswerk        # Pearl Street Station, Edison
+  - id: elektrizitaetswerk        # erstes öffentliches Kraftwerk 1882
     fachgebiet: elektro
     erfindungsjahr: 1882
 

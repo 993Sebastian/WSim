@@ -1533,7 +1533,7 @@ Für die KI (alle Firmen gleich, M10):
   mehreren Rezepten desselben Produkts, zählt zu den Stückkosten zum Richtpreis (M10)
   je Vorprodukt Menge × max(0, Marktpreis − Richtpreis im Land) / Ausbringung. Ein
   Verfahren, dessen Vorprodukt knapp und teuer ist, verdrängt so kein laufendes
-  (vorher stellten alle Strumpfwerke auf Nylon um, während Nylon das Dreifache seines
+  (vorher stellten alle Strumpfwerke auf Polyamid um, während Polyamid das Dreifache seines
   Richtpreises kostete). Ohne Land (Planung) bleibt es beim Richtpreis.
 - **Einstieg in teure Märkte:** Zahlen die Käufer im Vormonat weltweit zusammen
   wenigstens `einstieg_preisfaktor` × den Wert zum Richtpreis (Σ Umsatz ≥ Faktor ·
@@ -1566,7 +1566,7 @@ Für die KI (alle Firmen gleich, M10):
   Monaten unverkauft).
 
 Bei den Daten kommt hinzu: Kautschuk lässt sich auch synthetisch aus Ethylen und Benzin
-herstellen (1937, `27_synthesekautschuk.yaml`), Nylon auch aus Kohle statt aus Benzin.
+herstellen (1937, `27_synthesekautschuk.yaml`), Polyamid auch aus Kohle statt aus Benzin.
 Für die Ebenen des Produktbaums (Lastenheft §17.2) zählt bei mehreren Rezepten eines
 Vorprodukts der einfachste Weg; ein Rohstoff mit Abbau-Rezept ist die erste Ebene.
 
@@ -1919,7 +1919,7 @@ und Quellen in den Kommentaren der Daten):
 | 31 Mikrowelle | Magnetron, Mikrowelle | Magnetron (1964), Mikrowellenherd (1967) |
 | 32 Personal Computer | Personal Computer (mit Monitor) | Personal Computer (1977) |
 | 33 Videorekorder | Videorekorder | Videorekorder (1976) |
-| 34 CD-Spieler | CD-Spieler | Compact Disc (1982) |
+| 34 CD-Spieler | CD-Spieler | Optische Speicherplatte (1982) |
 
 Alle neuen Endprodukte sind Gebrauchsgüter mit den Nachfrageformeln aus M7 und M9; der
 Mikrochip ist das gemeinsame Vorprodukt (Taschenrechner 2, CD-Spieler 10, Videorekorder
@@ -1966,8 +1966,8 @@ Lastenheft §18.4. Neue Produkte, Rohstoffe, Anlagen, Rezepte und Technologien s
 | 41 DVD-Spieler | DVD-Spieler (verdrängt den Videorekorder) | DVD (1996) |
 
 Neue Formeln braucht die Epoche nicht. Geändert ist das Rezept des Mikrochips (M39): Sein
-Gehäuse ist Glas und Keramik statt Bakelit. Im ersten Weltlauf bis 2010 standen alle
-Chipwerke in den USA, wo Bakelit das Vierfache kostete; nach der Ausbauregel (kein Ausbau,
+Gehäuse ist Glas und Keramik statt Phenolharz. Im ersten Weltlauf bis 2010 standen alle
+Chipwerke in den USA, wo Phenolharz das Vierfache kostete; nach der Ausbauregel (kein Ausbau,
 solange ein Vorprodukt mehr als `ausbau_vorprodukt_preis_max` × Richtpreis kostet) baute
 keine Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache. Das Chipwerk bekommt
 eine eigene Fläche (10 ha statt 25 ha nach der Regel „Investition je ha“).

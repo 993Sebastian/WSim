@@ -318,8 +318,8 @@ Anlage, Erfindungsjahr, Richtpreis und Nachfrage; Regeln aus Lastenheft §17.2):
 
 | Meilenstein | Epoche | Beispiele für neue Ketten und Produkte |
 | --- | --- | --- |
-| M32 | 1915–1939 | Aluminium (Bauxit), Kunstseide, Bakelit, Röhrenradio, Kühlschrank, Staubsauger, Lastwagen, Traktor, Verkehrsflugzeug, Stickstoffdünger |
-| M33 | 1940–1964 | Erdöl-Kunststoffe, Nylon, Fernseher, Waschmaschine, Transistorradio, Düsenflugzeug, Antibiotika |
+| M32 | 1915–1939 | Aluminium (Bauxit), Kunstseide, Phenolharz, Röhrenradio, Kühlschrank, Staubsauger, Lastwagen, Traktor, Verkehrsflugzeug, Stickstoffdünger |
+| M33 | 1940–1964 | Erdöl-Kunststoffe, Polyamid, Fernseher, Waschmaschine, Transistorradio, Düsenflugzeug, Antibiotika |
 | M39 | 1965–1989 | Halbleiter und Mikrochip, Taschenrechner, Farbfernseher, Mikrowelle, Personal Computer, Videorekorder, CD-Spieler |
 | M40 | 1990–2009 | Mobiltelefon, Laptop, Digitalkamera, Lithium-Ionen-Akku, Flachbildfernseher |
 | M41 | 2010–2026 | Smartphone, Tablet, Elektroauto, Solarmodul, Windkraftanlage, Wärmepumpe, LED-Lampe |
@@ -369,7 +369,7 @@ Bildröhre, Germanium, Transistor, Strahltriebwerk und Synthesekautschuk (Einzel
    Wirklichkeit fiel es in Zink- und Kupferhütten an, Zink gibt es im Spiel noch nicht.
 4. **Verdrängung beim Staatsbedarf:** Das Düsenflugzeug ersetzt das Verkehrsflugzeug über
    15 Jahre (`verdraengung_staat_jahre`), gerechnet ab dem Jahr, in dem es sich bauen ließ.
-5. **Zweite Wege:** Kautschuk auch synthetisch aus Ethylen und Benzin (1937), Nylon auch
+5. **Zweite Wege:** Kautschuk auch synthetisch aus Ethylen und Benzin (1937), Polyamid auch
    aus Kohle (Teer der Kokereien). Für die Ebenen des Produktbaums zählt bei mehreren
    Rezepten der einfachste Weg.
 6. **KI** (alle Firmen gleich, `docs/FORMELN.md`, M33): Verfahrenswahl mit Knappheit,

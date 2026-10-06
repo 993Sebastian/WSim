@@ -12,7 +12,7 @@ produkte:
     verwendung: beides
     warengruppe: maschinen
     transportklasse: stueckgut
-    richtpreis_usd: 700           # Singer um 1900 etwa 20 USD
+    richtpreis_usd: 700           # Marktführer um 1900 etwa 20 USD
     nachfrage:
       bedarfsklasse: gebrauchsgut
       gebrauch: {nutzungsdauer_jahre: 25, max_besitzquote: 0.15}
@@ -74,7 +74,7 @@ rezepte:
       stabstahl: 0.004
       schrauben: 0.0005
       muttern: 0.0002
-    arbeit_stunden:               # Singer um 1900: etwa 35–40 Stunden je Maschine
+    arbeit_stunden:               # Großserie um 1900: etwa 35–40 Stunden je Maschine
       angelernt: 25
       fachkraft.maschinenbau: 15
       akademiker.maschinenbau: 0.3
@@ -99,7 +99,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: naehmaschine              # Elias Howe, Isaac Singer
+  - id: naehmaschine              # Patente 1846–1851
     fachgebiet: maschinenbau
     erfindungsjahr: 1851
 

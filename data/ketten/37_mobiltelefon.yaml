@@ -1,8 +1,8 @@
 # Kette 37 – Mobiltelefon (M40, Epoche 1990–2009)
 # Mikrochips (Prozessor, Signalprozessor, Hochfrequenzteil, Speicher), Lithium-Ionen-Akku,
 # LCD-Anzeige und Kunststoff → Mobiltelefon für das digitale GSM-Netz (erstes Gespräch 1991
-# in Finnland, D-Netze 1992; Nokia 1011 1992, Nokia 2110 1994). Analoge Geräte wie der
-# Motorola DynaTAC (1983) blieben teure Ausnahmen. 2008 wurden 1,2 Mrd. Geräte verkauft.
+# in Finnland, D-Netze 1992; erste Geräte 1992, Massengeräte ab 1994). Analoge Geräte (ab
+# 1983) blieben teure Ausnahmen. 2008 wurden 1,2 Mrd. Geräte verkauft.
 # Alle Zahlen sind Annäherungen für etwa 1998.
 
 produkte:
@@ -14,7 +14,7 @@ produkte:
     verwendung: konsum
     warengruppe: elektro
     transportklasse: stueckgut
-    richtpreis_usd: 400           # 1995 etwa 700 USD ohne Vertrag (Nokia 2110), 1998 etwa 350 USD
+    richtpreis_usd: 400           # 1995 etwa 700 USD ohne Vertrag, 1998 etwa 350 USD
     nachfrage:
       bedarfsklasse: gebrauchsgut
       gebrauch: {nutzungsdauer_jahre: 3, max_besitzquote: 1.0}
@@ -25,7 +25,7 @@ produkte:
     annaeherung: true
 
 anlagen:
-  - id: mobiltelefonwerk          # Bestücken, Hochfrequenzabgleich, Prüfen (Nokia Salo, Bochum)
+  - id: mobiltelefonwerk          # Bestücken, Hochfrequenzabgleich, Prüfen (große Werke in Europa)
     standorttyp: werk
     investition_usd: 120_000_000
     bauzeit_tage: 300

@@ -1,6 +1,6 @@
 # Kette 40 – Flachbildfernseher (M40, Epoche 1990–2009)
-# LCD-Panel (32 Zoll), Mikrochips, Kunststoff und Kupferdraht → Flachbildfernseher (Sharp
-# Aquos 2001; Plasmafernseher von Fujitsu und Pioneer ab 1997 sind im Mittel enthalten). Er
+# LCD-Panel (32 Zoll), Mikrochips, Kunststoff und Kupferdraht → Flachbildfernseher (LCD-
+# Geräte ab 2001; Plasmafernseher ab 1997 sind im Mittel enthalten). Er
 # verdrängt den Farbfernseher mit Bildröhre: 2008 wurden weltweit erstmals mehr
 # LCD-Fernseher als Röhrengeräte verkauft.
 # Alle Zahlen sind Annäherungen für etwa 2005.
@@ -57,7 +57,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: flachbildfernseher        # Sharp Aquos 2001
+  - id: flachbildfernseher        # erste LCD-Fernseher 2001
     fachgebiet: elektro
     erfindungsjahr: 2001
     voraussetzungen: [tft_lcd, farbfernsehen]

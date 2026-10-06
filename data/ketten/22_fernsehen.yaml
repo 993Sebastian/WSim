@@ -104,7 +104,7 @@ technologien:
     annaeherung: true
 
   - id: fernsehen                 # Regelbetrieb Berlin 1935/36, BBC 1936, NBC 1939; in
-    fachgebiet: elektro           # Serie gebaute Geräte erst nach dem Krieg (RCA 630TS 1946)
+    fachgebiet: elektro           # Serie gebaute Geräte erst nach dem Krieg (ab 1946)
     erfindungsjahr: 1946
     voraussetzungen: [bildroehre, rundfunk]
     forschungsaufwand: 25000

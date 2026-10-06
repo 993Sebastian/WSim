@@ -2,7 +2,7 @@
 # Forscher sammelt einen Forschungspunkt je Tag (docs/FORMELN.md, M9).
 
 anlagen:
-  - id: forschungslabor           # Industrielabor wie Siemens (1905) oder GE (1900)
+  - id: forschungslabor           # Industrielabore der Großfirmen ab etwa 1900
     standorttyp: forschungszentrum
     investition_usd: 500_000
     bauzeit_tage: 120

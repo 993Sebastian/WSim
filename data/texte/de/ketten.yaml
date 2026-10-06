@@ -234,7 +234,7 @@ technologie.sulfitverfahren: Sulfitverfahren
 technologie.viskoseverfahren: Viskoseverfahren
 
 # Kette 16 – Rundfunk und Haushaltsgeräte (M32)
-produkt.bakelit: Bakelit
+produkt.bakelit: Phenolharz
 produkt.radioroehre: Radioröhre
 produkt.roehrenradio: Röhrenradio
 produkt.kleinmotor: Kleinmotor
@@ -246,7 +246,7 @@ anlage.radiofabrik: Radiofabrik
 anlage.kleinmotorenwerk: Kleinmotorenwerk
 anlage.haushaltsgeraetewerk: Haushaltsgerätewerk
 anlage.kuehlschrankfabrik: Kühlschrankfabrik
-rezept.bakelit_pressmasse: Bakelit-Pressmasse
+rezept.bakelit_pressmasse: Phenolharz-Pressmasse
 rezept.radioroehre_bauen: Radioröhren bauen
 rezept.roehrenradio_bauen: Röhrenradios bauen
 rezept.kleinmotor_bauen: Kleinmotoren bauen
@@ -305,12 +305,12 @@ technologie.hochdruck_polyethylen: Hochdruck-Polyethylen
 technologie.dampfspaltung: Dampfspaltung
 technologie.spritzguss: Spritzguss
 
-# Kette 21 – Nylon (M33)
-produkt.nylon: Nylon
+# Kette 21 – Polyamid (M33)
+produkt.nylon: Polyamid
 anlage.polyamidanlage: Polyamidanlage
-rezept.nylon_synthese: Nylon synthetisieren
-rezept.strumpf_nylon: Nylonstrümpfe wirken
-technologie.polyamid: Polyamid (Nylon, Perlon)
+rezept.nylon_synthese: Polyamid synthetisieren
+rezept.strumpf_nylon: Strümpfe aus Polyamid wirken
+technologie.polyamid: Polyamidfaser
 
 # Kette 22 – Fernsehen (M33)
 produkt.bildroehre: Bildröhre
@@ -356,11 +356,11 @@ produkt.penicillin: Penicillin
 anlage.pharmawerk: Pharmawerk
 rezept.penicillin_fermentation: Penicillin durch Fermentation
 technologie.penicillin_produktion: Penicillin-Produktion
-rezept.nylon_aus_kohle: Nylon aus Steinkohlenteer
+rezept.nylon_aus_kohle: Polyamid aus Steinkohlenteer
 
 # Kette 27 – Synthesekautschuk (M33)
 anlage.kautschuksynthese: Kautschuksynthese
-rezept.kautschuk_synthese: Synthesekautschuk (Buna)
+rezept.kautschuk_synthese: Synthesekautschuk aus Butadien
 technologie.synthesekautschuk: Synthesekautschuk
 
 # Epoche 1965–1989 (M39)
@@ -374,7 +374,7 @@ rezept.quarz_abbau: Quarz brechen
 rezept.reinstsilizium_herstellen: Reinstsilizium herstellen
 rezept.mikrochip_herstellen: Mikrochips herstellen
 rezept.transistor_silizium: Transistoren aus Silizium bauen
-technologie.reinstsilizium: Reinstsilizium (Siemens-Verfahren)
+technologie.reinstsilizium: Reinstsilizium (Gasphasenabscheidung)
 technologie.planartechnik: Planartechnik
 technologie.integrierte_schaltung: Integrierte Schaltung
 technologie.mikroprozessor: Mikroprozessor
@@ -409,7 +409,7 @@ technologie.videorekorder: Videokassette und Videorekorder
 produkt.cd_spieler: CD-Spieler
 anlage.cd_spielerwerk: CD-Spieler-Werk
 rezept.cd_spieler_bauen: CD-Spieler bauen
-technologie.compact_disc: Compact Disc
+technologie.compact_disc: Optische Speicherplatte (CD)
 
 # Epoche 1990–2009 (M40)
 produkt.lithium: Lithium

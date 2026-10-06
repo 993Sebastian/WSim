@@ -1,8 +1,8 @@
 # Kette 36 – Flüssigkristallbildschirm (M40, Epoche 1990–2009)
 # Dünnglas, Silizium (als Silan), Stahl und Kupfer → LCD-Panel: Aktivmatrix aus
 # Dünnschicht-Transistoren (TFT) auf Glas, Farbfilter, Flüssigkristall und
-# Hintergrundbeleuchtung (Sharp zeigt 1988 ein 14-Zoll-Farbpanel; Serienfertigung für
-# Notebooks ab 1990/91 bei Sharp, NEC und DTI, einem Werk von IBM und Toshiba). Gemessen in
+# Hintergrundbeleuchtung (ein erstes 14-Zoll-Farbpanel 1988; Serienfertigung für
+# Notebooks ab 1990/91 in Japan). Gemessen in
 # m² Bildfläche: Mobiltelefon 0,001, Laptop 0,06, Fernseher 0,28. Jede größere Glasscheibe
 # („Generation“, die 5. ab 2002) senkte die Kosten je m²; Ende 2004 kostete ein Panel für
 # Notebooks (14–15 Zoll) 145–180 USD.
@@ -55,9 +55,9 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: tft_lcd                   # Sharp 1988, Serienfertigung für Notebooks 1990/91
+  - id: tft_lcd                   # erstes Farbpanel 1988, Serienfertigung für Notebooks 1990/91
     fachgebiet: elektro
     erfindungsjahr: 1990
-    voraussetzungen: [integrierte_schaltung, taschenrechner]  # LCD der Taschenrechner (Sharp 1973)
+    voraussetzungen: [integrierte_schaltung, taschenrechner]  # LCD der Taschenrechner (1973)
     forschungsaufwand: 50000
     annaeherung: true

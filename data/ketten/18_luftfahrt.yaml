@@ -1,6 +1,6 @@
 # Kette 18 – Luftfahrt (M32, Epoche 1915–1939)
 # Aluminium, Stahl, Kupferdraht → Flugmotor; Flugmotor, Aluminium, Stahl, Gummi →
-# Verkehrsflugzeug (Ganzmetall, z. B. Junkers F 13, Ju 52, Douglas DC-3).
+# Verkehrsflugzeug (Ganzmetall, ab 1919; Großserie der zweimotorigen Maschinen ab 1936).
 # Bauxit → Tonerde → Aluminium → Flugmotor → Flugzeug: fünf Ebenen.
 # Fluggesellschaften und Post kaufen als Staatsbedarf je BIP.
 # Alle Zahlen sind Annäherungen für etwa 1935.
@@ -25,7 +25,7 @@ produkte:
     verwendung: industrie
     warengruppe: fahrzeuge
     transportklasse: stueckgut
-    richtpreis_usd: 850_000       # Douglas DC-3 1936: rund 110 000 USD
+    richtpreis_usd: 850_000       # zweimotoriges Verkehrsflugzeug 1936: rund 110 000 USD
     staatsnachfrage:
       je_mio_usd_bip: 0.0001
       kriegsfaktor: 20
@@ -99,7 +99,7 @@ technologien:
     forschungsaufwand: 10000
     annaeherung: true
 
-  - id: ganzmetallflugzeug        # Junkers F 13
+  - id: ganzmetallflugzeug        # erstes Ganzmetall-Verkehrsflugzeug 1919
     fachgebiet: maschinenbau
     erfindungsjahr: 1919
     voraussetzungen: [flugmotor, schmelzflusselektrolyse]

@@ -133,7 +133,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: haber_bosch               # BASF Oppau
+  - id: haber_bosch               # erste Großanlage 1913
     fachgebiet: chemie
     erfindungsjahr: 1913
     forschungsaufwand: 25000

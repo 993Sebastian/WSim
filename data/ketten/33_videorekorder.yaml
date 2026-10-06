@@ -1,6 +1,6 @@
 # Kette 33 – Videorekorder (M39, Epoche 1965–1989)
 # Stahlblech, Kleinmotoren (Kopftrommel, Capstan, Wickel), Mikrochips, Kunststoff →
-# Videorekorder (Sony Betamax 1975, JVC VHS 1976). Japan baute 1983 18 Mio. Geräte.
+# Videorekorder (erste Heimgeräte 1975/76, zwei Kassettenformate). Japan baute 1983 18 Mio. Geräte.
 # Alle Zahlen sind Annäherungen für etwa 1983.
 
 produkte:
@@ -55,7 +55,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: videorekorder             # Sony Betamax 1975, JVC VHS 1976
+  - id: videorekorder             # erste Heimgeräte 1975/76
     fachgebiet: elektro
     erfindungsjahr: 1976
     voraussetzungen: [integrierte_schaltung, fernsehen]

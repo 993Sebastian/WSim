@@ -1,6 +1,6 @@
 # Kette 28 – Halbleiter (M39, Epoche 1965–1989)
-# Quarz (Stückquarz) → Reinstsilizium (Lichtbogenofen, Trichlorsilan, Siemens-Reaktor;
-# Wacker Burghausen 1959) → Mikrochip (integrierte Schaltung: Kilby und Noyce 1958/59,
+# Quarz (Stückquarz) → Reinstsilizium (Lichtbogenofen, Trichlorsilan, Abscheidereaktor;
+# erste Großanlage 1959) → Mikrochip (integrierte Schaltung: Kilby und Noyce 1958/59,
 # erste käufliche ICs 1961; Wafer und Gehäuse im Chipwerk). Siliziumtransistoren
 # verdrängen ab den 1960ern die aus Germanium.
 # Alle Zahlen sind Annäherungen für etwa 1980.
@@ -49,7 +49,7 @@ anlagen:
     automatisierung_max: 0.4
     annaeherung: true
 
-  - id: siliziumwerk              # Lichtbogenofen, Destillation, Siemens-Reaktoren, eigenes Kraftwerk
+  - id: siliziumwerk              # Lichtbogenofen, Destillation, Abscheidereaktoren, eigenes Kraftwerk
     standorttyp: werk
     investition_usd: 30_000_000   # eine Linie; der Weltbedarf um 1975 waren wenige 100 t
     bauzeit_tage: 450
@@ -112,7 +112,7 @@ rezepte:
     eingang:
       reinstsilizium: 0.0003      # 0,3 g, mit Verlust beim Ziehen und Sägen
       kupfer: 0.000001            # Anschlussrahmen
-      glas: 0.000002              # Gehäuse aus Keramik und Glas (M40; vorher Bakelit, das es
+      glas: 0.000002              # Gehäuse aus Keramik und Glas (M40; vorher Phenolharz, das es
                                   # in den Chipländern kaum gab: Chips kosteten 1999–2009
                                   # das Vierfache, und keine Firma baute aus)
     arbeit_stunden:
@@ -142,28 +142,28 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: reinstsilizium            # Siemens-Verfahren 1953–56, Wacker Burghausen 1959
+  - id: reinstsilizium            # Gasphasenabscheidung 1953–56, erste Großanlage 1959
     fachgebiet: chemie
     erfindungsjahr: 1959
     voraussetzungen: [transistor]
     forschungsaufwand: 30000
     annaeherung: true
 
-  - id: planartechnik             # Hoerni (Fairchild) 1959/60
+  - id: planartechnik             # Hoerni 1959/60
     fachgebiet: elektro
     erfindungsjahr: 1960
     voraussetzungen: [transistor, reinstsilizium]
     forschungsaufwand: 20000
     annaeherung: true
 
-  - id: integrierte_schaltung     # Kilby (TI), Noyce (Fairchild); erste käufliche ICs 1961
+  - id: integrierte_schaltung     # Kilby und Noyce 1958/59; erste käufliche ICs 1961
     fachgebiet: elektro
     erfindungsjahr: 1961
     voraussetzungen: [planartechnik]
     forschungsaufwand: 50000
     annaeherung: true
 
-  - id: mikroprozessor            # Intel 4004 (1971), 8080 (1974)
+  - id: mikroprozessor            # erster Mikroprozessor 1971, 8-Bit-Prozessoren ab 1974
     fachgebiet: elektro
     erfindungsjahr: 1971
     voraussetzungen: [integrierte_schaltung]

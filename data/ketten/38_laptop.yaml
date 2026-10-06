@@ -1,6 +1,6 @@
 # Kette 38 – Laptop (M40, Epoche 1990–2009)
-# Mikrochips, LCD-Bildschirm, Lithium-Ionen-Akku und Kunststoff → Laptop (Compaq LTE 1989,
-# Apple PowerBook 1991, IBM ThinkPad 700C 1992 mit 10,4-Zoll-Farbbildschirm). Ab etwa 1994
+# Mikrochips, LCD-Bildschirm, Lithium-Ionen-Akku und Kunststoff → Laptop (erste Notebooks
+# 1989, mit 10,4-Zoll-Farbbildschirm ab 1992). Ab etwa 1994
 # ersetzen Lithium-Ionen-Akkus die Nickel-Akkus. 2008 wurden erstmals mehr Laptops als
 # Tischrechner verkauft.
 # Alle Zahlen sind Annäherungen für etwa 1998.
@@ -25,7 +25,7 @@ produkte:
     annaeherung: true
 
 anlagen:
-  - id: laptopwerk                # Toshiba Ome; ab 2000 Auftragsfertiger in China (Quanta, Compal)
+  - id: laptopwerk                # ab 2000 meist Auftragsfertiger in China
     standorttyp: werk
     investition_usd: 70_000_000
     bauzeit_tage: 300
@@ -57,7 +57,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: laptop                    # Apple PowerBook 1991, IBM ThinkPad 700C 1992
+  - id: laptop                    # Notebooks 1991, mit Farbbildschirm 1992
     fachgebiet: elektro
     erfindungsjahr: 1992
     voraussetzungen: [personal_computer, tft_lcd]

@@ -1,7 +1,7 @@
 # Kette 25 – Düsenflugzeug (M33, Epoche 1940–1964)
-# Stahl, Aluminium, Kupferdraht → Strahltriebwerk (He 178 und Whittle 1939);
-# Strahltriebwerke, Aluminium, Stahl, Gummi → Düsenverkehrsflugzeug (Comet 1952,
-# Boeing 707 1958). Fluggesellschaften kaufen wie beim Verkehrsflugzeug als
+# Stahl, Aluminium, Kupferdraht → Strahltriebwerk (erste Strahlflugzeuge 1939);
+# Strahltriebwerke, Aluminium, Stahl, Gummi → Düsenverkehrsflugzeug (erste
+# Linienflüge 1952, Großserie ab 1958). Fluggesellschaften kaufen wie beim Verkehrsflugzeug als
 # Staatsbedarf; das Düsenflugzeug verdrängt das Propellerflugzeug über 15 Jahre.
 # Alle Zahlen sind Annäherungen für etwa 1960.
 
@@ -14,7 +14,7 @@ produkte:
     verwendung: industrie
     warengruppe: fahrzeuge
     transportklasse: stueckgut
-    richtpreis_usd: 800_000       # Pratt & Whitney JT3 um 1958 etwa 200 000 USD; Löhne von 1939
+    richtpreis_usd: 800_000       # ein Strahltriebwerk um 1958 etwa 200 000 USD; Löhne von 1939
     annaeherung: true
 
   - id: duesenflugzeug
@@ -25,7 +25,7 @@ produkte:
     verwendung: industrie
     warengruppe: fahrzeuge
     transportklasse: stueckgut
-    richtpreis_usd: 35_000_000    # Boeing 707 um 1958 etwa 5,5 Mio. USD; Löhne von 1952
+    richtpreis_usd: 35_000_000    # vierstrahliges Verkehrsflugzeug um 1958 etwa 5,5 Mio. USD; Löhne von 1952
     ersetzt: [verkehrsflugzeug]
     staatsnachfrage:
       je_mio_usd_bip: 0.000015
@@ -104,7 +104,7 @@ technologien:
     forschungsaufwand: 40000
     annaeherung: true
 
-  - id: duesenverkehrsflugzeug    # de Havilland Comet 1952, Boeing 707 1958
+  - id: duesenverkehrsflugzeug    # erste Linienflüge 1952, Großserie ab 1958
     fachgebiet: maschinenbau
     erfindungsjahr: 1952
     voraussetzungen: [strahltriebwerk, ganzmetallflugzeug]

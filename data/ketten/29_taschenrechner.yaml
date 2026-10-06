@@ -1,6 +1,6 @@
 # Kette 29 – Taschenrechner (M39, Epoche 1965–1989)
-# Mikrochips, Kunststoff, Kupfer, Glas → elektronischer Taschenrechner (Busicom LE-120A
-# 1971, Casio Mini 1972, Sharp EL-805 mit Flüssigkristallanzeige 1973). Der Preis fiel
+# Mikrochips, Kunststoff, Kupfer, Glas → elektronischer Taschenrechner (erste Taschen-
+# geräte 1971/72, mit Flüssigkristallanzeige ab 1973). Der Preis fiel
 # von 400 USD (1971) auf unter 20 USD (1980).
 # Alle Zahlen sind Annäherungen für etwa 1978.
 
@@ -23,7 +23,7 @@ produkte:
     annaeherung: true
 
 anlagen:
-  - id: rechnerwerk               # Bestücken, Löten, Gehäuse (Casio Kofu: 200 000 je Monat)
+  - id: rechnerwerk               # Bestücken, Löten, Gehäuse (große Werke um 1975: 200 000 je Monat)
     standorttyp: werk
     investition_usd: 30_000_000
     bauzeit_tage: 240
@@ -54,7 +54,7 @@ rezepte:
     annaeherung: true
 
 technologien:
-  - id: taschenrechner            # TI „Cal Tech“ 1967, Busicom LE-120A 1971
+  - id: taschenrechner            # Prototyp 1967, erste Geräte 1971
     fachgebiet: elektro
     erfindungsjahr: 1971
     voraussetzungen: [integrierte_schaltung]
