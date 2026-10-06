@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_221_652
     hauptstadt: {breite: -33.92, laenge: 18.43}
     binnenland: false
-    nachbarn: [BWA, LSO, MOZ, NAM, SWZ, ZWE]
+    nachbarn: [MOZ, XSA, ZWE]
     werte:
       bevoelkerung: {
         1900: 5_162_258, 1901: 5_237_782, 1902: 5_320_991, 1903: 5_412_092, 1904: 5_504_750, 1905: 5_598_991, 1906: 5_694_844, 1907: 5_792_335,
@@ -57,11 +57,11 @@ laender:
         1972: 0.682, 1973: 0.679, 1974: 0.676, 1975: 0.673, 1976: 0.67, 1977: 0.667, 1978: 0.664, 1979: 0.661,
         1980: 0.658, 1981: 0.654, 1982: 0.65, 1983: 0.646, 1984: 0.637, 1985: 0.629, 1986: 0.622, 1987: 0.615,
         1988: 0.61, 1989: 0.604, 1990: 0.6, 1991: 0.596, 1992: 0.594, 1993: 0.593, 1994: 0.598, 1995: 0.602,
-        1996: 0.607, 1997: 0.6, 1998: 0.592, 1999: 0.585, 2000: 0.578, 2001: 0.591, 2002: 0.605, 2003: 0.619,
+        1996: 0.607, 1997: 0.599, 1998: 0.592, 1999: 0.585, 2000: 0.578, 2001: 0.591, 2002: 0.605, 2003: 0.619,
         2004: 0.633, 2005: 0.648, 2006: 0.642, 2007: 0.636, 2008: 0.63, 2009: 0.632, 2010: 0.634, 2011: 0.633,
         2012: 0.632, 2013: 0.631, 2014: 0.63, 2015: 0.627, 2016: 0.63, 2017: 0.633, 2018: 0.633, 2019: 0.633,
         2020: 0.64, 2021: 0.649, 2022: 0.657, 2023: 0.662, 2024: 0.666, 2025: 0.663, 2026: 0.66, 2030: 0.648,
         2035: 0.639, 2040: 0.639, 2045: 0.639, 2050: 0.639, 2055: 0.639, 2060: 0.639, 2065: 0.639, 2070: 0.639,
         2075: 0.639, 2080: 0.639, 2085: 0.639, 2090: 0.639, 2095: 0.639, 2100: 0.639}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

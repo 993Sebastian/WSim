@@ -42,7 +42,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M31 | Kaufangebote II: ganze Bereiche | ✅ |
 | M32 | Produkte 1915–1939 | ✅ |
 | M33 | Produkte 1940–1964 | ✅ |
-| M34 | Regionen | offen |
+| M34 | Regionen | ✅ |
 | M35 | Grundstücke mit Lage | offen |
 | M36 | Anlagen in fünf Größen | offen |
 | M37 | Weiterentwicklung erforschter Produkte | offen |
@@ -52,7 +52,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
 (Lastenheft §18.4, Abschnitte F und G der offenen Punkte) folgen als M30–M33 und
-M39–M41; M30–M33 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
+M39–M41; M30–M34 sind umgesetzt. Regionen, Grundstücke, Anlagengrößen, Weiterentwicklung
 und Pleiten (Abschnitte H–K, 06.10.2026) kommen als M34–M38 vor den letzten Epochen.
 
 ## Eigenständige Entscheidungen (für das Review)
@@ -1078,3 +1078,24 @@ Eigenständige Entscheidungen:
     Staat fällt dann zeitweise aus; Düsenflugzeuge baut bis 1964 nur eine Firma (zu
     10–30 % versorgt); Pleiten geben Konzessionen frei, die neu erschlossen werden müssen
     (Abschnitt K).
+
+### M34: Regionen (06.10.2026)
+
+Auftrag: kleine Länder zusammenfassen, Ziel um 100 Länder und Regionen (offene Punkte,
+Abschnitt I).
+
+- **Daten:** 197 Länder → 111 Länder und Regionen (`tools/daten/regionen.py`). Die
+  Länderdateien, die Namen und die Karte erzeugen `tools/daten/laender.py` und
+  `karte.py` aus denselben Quellen; Regionen tragen `umfasst` mit ihren Ländern, deren
+  Namen als `teilland.<ISO>` und auf der Karte einen Umriss ohne innere Grenzen.
+  Lagerstätten, reale Firmen, Ereignisse, Namensgruppen und Währungen verweisen auf die
+  Region; 75 Währungen ohne Land entfallen.
+- **Prüfung:** `umfasst` braucht gültige Codes, mindestens zwei Länder, keins davon ein
+  eigenes Land oder in zwei Regionen, und für jedes einen Namen.
+- **Spielstände:** Die Codes der aufgegangenen Länder lesen sich als ihre Region
+  (`KeyTable::add_alias`); bei Werten je Land gilt der Eintrag der Region selbst bzw.
+  des führenden Landes.
+- **Oberfläche:** Das Länderdetail nennt die Länder einer Region („Umfasst“).
+- Tests: Prüfregeln (`regionen_werden_geprueft`), echte Daten (111 Einträge, Belgien
+  mit Luxemburg, Baltikum), Spielstände mit zusammengefassten Ländern (Kern), Vorrang
+  des eigenen Eintrags beim Laden.

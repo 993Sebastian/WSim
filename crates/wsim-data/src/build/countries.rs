@@ -10,6 +10,7 @@ use super::{Keys, in_range, positive, provenance, resolve, time_series};
 use crate::messages;
 use crate::raw::{RawCountry, RawCountryModel, RawSeries};
 use crate::read::{Ctx, Entry, Loc, RawData};
+use crate::texts::TextIndex;
 
 /// Time series with values between `min` and `max`.
 fn bounded(ctx: &mut Ctx, values: &RawSeries, min: f64, max: f64, loc: &Loc) -> TimeSeries {
@@ -101,6 +102,7 @@ pub(super) fn country(
         },
         landlocked: v.landlocked,
         neighbors,
+        members: v.members.clone(),
         values: CountryValues {
             population: time_series(ctx, &v.values.population, &values.field("bevoelkerung")),
             gdp_per_capita_usd: time_series(
@@ -129,6 +131,56 @@ pub(super) fn country(
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }
+
+/// Countries merged into regions (M34): ISO codes, none a country of its own or part of
+/// two regions. Every member needs a display text `teilland.<ISO>`.
+pub(super) fn check_regions(
+    ctx: &mut Ctx,
+    entries: &[&Entry<RawCountry>],
+    countries: &Keys,
+    texts: &TextIndex,
+    report_unused: bool,
+) {
+    let mut members: BTreeMap<&str, Loc> = BTreeMap::new();
+    for e in entries {
+        let v = &e.value;
+        let list = e.loc.field("umfasst");
+        if v.members.len() == 1 {
+            ctx.error(&list, messages::region_too_small(&v.id));
+        }
+        for (i, member) in v.members.iter().enumerate() {
+            let loc = list.index(i);
+            if !super::is_country_code(member) {
+                ctx.error(&loc, messages::invalid_country_code(member));
+            } else if member != &v.id && countries.index.contains_key(member) {
+                ctx.error(&loc, messages::region_member_is_country(member, &v.id));
+            } else if let Some(first) = members.get(member.as_str()) {
+                let first = ctx.describe(first);
+                ctx.error(&loc, messages::region_member_twice(member, &first));
+            } else {
+                let text_key = format!("{MEMBER_TEXT}.{member}");
+                if texts.texts.get(&text_key).is_none() {
+                    ctx.error(&loc, messages::text_missing(&text_key, crate::LANGUAGE));
+                }
+                members.insert(member, loc);
+            }
+        }
+    }
+    if report_unused {
+        for (text_key, loc) in &texts.locations {
+            if let Some(member) = text_key
+                .strip_prefix(MEMBER_TEXT)
+                .and_then(|r| r.strip_prefix('.'))
+                && !members.contains_key(member)
+            {
+                ctx.warning(loc, messages::text_unused(text_key));
+            }
+        }
+    }
+}
+
+/// Text prefix for the names of countries within a region.
+const MEMBER_TEXT: &str = "teilland";
 
 /// Neighbourhood must be mutual; reported as warning.
 pub(super) fn check_neighbors(ctx: &mut Ctx, catalog: &Catalog, entries: &[&Entry<RawCountry>]) {

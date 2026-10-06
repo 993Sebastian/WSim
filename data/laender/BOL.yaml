@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_090_269
     hauptstadt: {breite: -16.50, laenge: -68.15}
     binnenland: true
-    nachbarn: [ARG, BRA, CHL, PER, PRY]
+    nachbarn: [ARG, BRA, CHL, PER, XPU]
     werte:
       bevoelkerung: {
         1900: 1_813_486, 1901: 1_840_563, 1902: 1_863_006, 1903: 1_880_650, 1904: 1_898_457, 1905: 1_916_428, 1906: 1_934_566, 1907: 1_952_871,
@@ -60,8 +60,8 @@ laender:
         1996: 0.562, 1997: 0.582, 1998: 0.581, 1999: 0.581, 2000: 0.616, 2001: 0.574, 2002: 0.593, 2003: 0.571,
         2004: 0.55, 2005: 0.585, 2006: 0.567, 2007: 0.545, 2008: 0.508, 2009: 0.492, 2010: 0.476, 2011: 0.461,
         2012: 0.466, 2013: 0.476, 2014: 0.478, 2015: 0.467, 2016: 0.453, 2017: 0.446, 2018: 0.426, 2019: 0.416,
-        2020: 0.422, 2021: 0.43, 2022: 0.435, 2023: 0.439, 2024: 0.442, 2025: 0.44, 2026: 0.438, 2030: 0.428,
+        2020: 0.422, 2021: 0.43, 2022: 0.435, 2023: 0.439, 2024: 0.442, 2025: 0.44, 2026: 0.438, 2030: 0.429,
         2035: 0.422, 2040: 0.422, 2045: 0.422, 2050: 0.422, 2055: 0.422, 2060: 0.422, 2065: 0.422, 2070: 0.422,
         2075: 0.422, 2080: 0.422, 2085: 0.422, 2090: 0.422, 2095: 0.422, 2100: 0.422}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

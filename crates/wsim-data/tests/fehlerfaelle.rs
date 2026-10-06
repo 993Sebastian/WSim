@@ -1266,6 +1266,93 @@ fn nachbarn_werden_geprueft() {
 }
 
 #[test]
+fn regionen_werden_geprueft() {
+    let region = |umfasst: &str, texte: &str| {
+        Daten::neu()
+            .ersetze(
+                "laender/SWE.yaml",
+                "    binnenland: false",
+                &format!("    binnenland: false\n    umfasst: {umfasst}"),
+            )
+            .ersetze(
+                "texte/de/a.yaml",
+                "land.SWE: Schweden\n",
+                &format!("land.SWE: Schweden\n{texte}"),
+            )
+    };
+    let gut = region(
+        "[SWE, ALA]",
+        "teilland.SWE: Schweden\nteilland.ALA: Åland\n",
+    )
+    .laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let swe = gut
+        .data
+        .as_ref()
+        .expect("Daten laden")
+        .catalog
+        .countries
+        .id("SWE");
+    assert_eq!(
+        gut.data
+            .as_ref()
+            .unwrap()
+            .catalog
+            .countries
+            .get(swe.unwrap())
+            .members,
+        ["SWE", "ALA"]
+    );
+
+    let outcome = region("[SWE]", "teilland.SWE: Schweden\n").laden();
+    let f = befund(
+        &outcome,
+        "Region „SWE“ muss mindestens zwei Länder umfassen.",
+    );
+    assert_eq!(f.path.to_string(), "laender[0].umfasst");
+
+    let outcome = region(
+        "[SWE, ala, ALA, ALA]",
+        "teilland.SWE: Schweden\nteilland.ALA: Åland\nteilland.FIN: Finnland\n",
+    )
+    .laden();
+    let f = befund(&outcome, "Ungültiger Ländercode „ala“");
+    assert_eq!(f.path.to_string(), "laender[0].umfasst[1]");
+    let f = befund(
+        &outcome,
+        "Land „ALA“ ist mehr als einmal einer Region zugeordnet",
+    );
+    assert_eq!(f.path.to_string(), "laender[0].umfasst[3]");
+    let w = befund(&outcome, "Text „teilland.FIN“ gehört zu keinem Eintrag.");
+    assert_eq!(w.severity, Severity::Warning);
+
+    let outcome = region("[SWE, ALA]", "teilland.SWE: Schweden\n").laden();
+    let f = befund(&outcome, "Text „teilland.ALA“ fehlt in texte/de/.");
+    assert_eq!(f.path.to_string(), "laender[0].umfasst[1]");
+
+    // A country of its own cannot be part of a region.
+    let outcome = region(
+        "[SWE, NOR]",
+        "teilland.SWE: Schweden\nteilland.NOR: Norwegen\n",
+    )
+    .datei(
+        "laender/NOR.yaml",
+        &LAND.replace("SWE", "NOR").replace("59.33", "59.91"),
+    )
+    .ersetze(
+        "texte/de/a.yaml",
+        "land.SWE: Schweden\n",
+        "land.SWE: Schweden\nland.NOR: Norwegen\n",
+    )
+    .laden();
+    let f = befund(
+        &outcome,
+        "„NOR“ ist ein eigenes Land und kann nicht zu „SWE“ gehören.",
+    );
+    assert_eq!(f.path.to_string(), "laender[0].umfasst[1]");
+}
+
+#[test]
 fn gini_und_stabilitaet_im_bereich() {
     let d = Daten::neu().ersetze(
         "laender/SWE.yaml",

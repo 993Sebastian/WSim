@@ -63,7 +63,8 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
   `<art>.<id>`, z. B. `produkt.roheisen: Roheisen`. Arten: `einheit`, `kontinent`,
   `branche`, `warengruppe`, `transportklasse`, `qualifikation`, `fachrichtung`, `land`,
   `produkt`, `anlage`, `rezept`, `technologie`, `lagerstaette`, `verkehrsmittel`,
-  `schwierigkeit`, `ereignis`, `waehrung`. Namen von Firmen sind Eigennamen und brauchen keinen Text.
+  `schwierigkeit`, `ereignis`, `waehrung`, außerdem `teilland` für die Länder in Regionen.
+  Namen von Firmen sind Eigennamen und brauchen keinen Text.
   Zusätzliche Texte wie
   `produkt.eisenerz.info` sind erlaubt.
 
@@ -92,16 +93,18 @@ wie die Qualifikation (`ungelernt`), mit Fachrichtung `qualifikation.fachrichtun
 
 Die Länderdateien werden von `tools/daten/laender.py` aus Gapminder und Natural Earth
 erzeugt; Änderungen gehören in das Skript (oder bewusst von Hand, dann im Skript
-nachziehen).
+nachziehen). Welche Länder zu Regionen zusammengefasst werden, steht in
+`tools/daten/regionen.py` (Formeln: `docs/FORMELN.md`, Abschnitt M34).
 
 | Feld | Bedeutung |
 | --- | --- |
-| **id** | ISO-3166-Code, z. B. `DEU` (Kosovo: `XKX`) |
+| **id** | ISO-3166-Code, z. B. `DEU`; Regionen ohne namensgebendes Land einen frei verfügbaren Code `X..` (`XBA` Baltikum) |
 | **kontinent** | Verweis auf einen Kontinent |
 | **flaeche_km2** | Fläche |
 | **hauptstadt** | `{breite, laenge}` in Grad; Bezugspunkt für Entfernungen |
 | **binnenland** | `true` ohne Meereszugang |
 | nachbarn | Länder mit gemeinsamer Landgrenze (muss beidseitig eingetragen sein) |
+| umfasst | Nur bei Regionen (M34): ISO-Codes der zusammengefassten Länder, mindestens zwei, das namensgebende oder größte zuerst. Keins davon darf ein eigenes Land sein oder zu einer zweiten Region gehören. Jedes braucht einen Text `teilland.<ISO>`. |
 | **werte.bevoelkerung** | Einwohner, Jahreswerte |
 | **werte.bip_je_kopf_usd** | BIP je Einwohner zu Kaufkraftparität in USD, Jahreswerte |
 | **werte.gini** | Gini-Koeffizient der Einkommen (0–0,95), Jahreswerte |

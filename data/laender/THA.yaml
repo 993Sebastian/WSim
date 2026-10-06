@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 515_729
     hauptstadt: {breite: 13.75, laenge: 100.51}
     binnenland: false
-    nachbarn: [KHM, LAO, MMR, MYS]
+    nachbarn: [KHM, MMR, MYS]
     werte:
       bevoelkerung: {
         1900: 7_416_284, 1901: 7_502_325, 1902: 7_594_362, 1903: 7_692_521, 1904: 7_791_948, 1905: 7_892_661, 1906: 7_994_674, 1907: 8_098_006,
@@ -56,7 +56,7 @@ laender:
         1964: 0.422, 1965: 0.423, 1966: 0.425, 1967: 0.426, 1968: 0.428, 1969: 0.429, 1970: 0.43, 1971: 0.432,
         1972: 0.434, 1973: 0.435, 1974: 0.437, 1975: 0.438, 1976: 0.44, 1977: 0.442, 1978: 0.444, 1979: 0.447,
         1980: 0.449, 1981: 0.452, 1982: 0.45, 1983: 0.448, 1984: 0.446, 1985: 0.444, 1986: 0.442, 1987: 0.44,
-        1988: 0.438, 1989: 0.445, 1990: 0.453, 1991: 0.465, 1992: 0.479, 1993: 0.456, 1994: 0.435, 1995: 0.432,
+        1988: 0.438, 1989: 0.446, 1990: 0.453, 1991: 0.465, 1992: 0.479, 1993: 0.456, 1994: 0.435, 1995: 0.432,
         1996: 0.429, 1997: 0.422, 1998: 0.415, 1999: 0.431, 2000: 0.428, 2001: 0.424, 2002: 0.419, 2003: 0.422,
         2004: 0.425, 2005: 0.422, 2006: 0.418, 2007: 0.398, 2008: 0.403, 2009: 0.396, 2010: 0.394, 2011: 0.375,
         2012: 0.393, 2013: 0.379, 2014: 0.37, 2015: 0.36, 2016: 0.369, 2017: 0.365, 2018: 0.364, 2019: 0.349,
@@ -64,4 +64,4 @@ laender:
         2035: 0.348, 2040: 0.348, 2045: 0.348, 2050: 0.348, 2055: 0.348, 2060: 0.348, 2065: 0.348, 2070: 0.348,
         2075: 0.348, 2080: 0.348, 2085: 0.348, 2090: 0.348, 2095: 0.348, 2100: 0.348}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

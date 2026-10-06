@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 92_959
     hauptstadt: {breite: 47.50, laenge: 19.08}
     binnenland: true
-    nachbarn: [AUT, HRV, ROU, SRB, SVK, SVN, UKR]
+    nachbarn: [AUT, CZE, ROU, UKR, XWB]
     werte:
       bevoelkerung: {
         1900: 7_106_191, 1901: 7_156_715, 1902: 7_207_102, 1903: 7_257_348, 1904: 7_307_945, 1905: 7_358_895, 1906: 7_410_200, 1907: 7_461_862,
@@ -48,7 +48,7 @@ laender:
         1900: 0.29, 1901: 0.288, 1902: 0.286, 1903: 0.284, 1904: 0.282, 1905: 0.28, 1906: 0.278, 1907: 0.276,
         1908: 0.274, 1909: 0.272, 1910: 0.271, 1911: 0.269, 1912: 0.267, 1913: 0.265, 1914: 0.263, 1915: 0.261,
         1916: 0.26, 1917: 0.258, 1918: 0.256, 1919: 0.254, 1920: 0.252, 1921: 0.251, 1922: 0.249, 1923: 0.247,
-        1924: 0.245, 1925: 0.244, 1926: 0.242, 1927: 0.241, 1928: 0.24, 1929: 0.239, 1930: 0.238, 1931: 0.237,
+        1924: 0.246, 1925: 0.244, 1926: 0.242, 1927: 0.241, 1928: 0.24, 1929: 0.239, 1930: 0.238, 1931: 0.237,
         1932: 0.236, 1933: 0.236, 1934: 0.235, 1935: 0.234, 1936: 0.234, 1937: 0.234, 1938: 0.233, 1939: 0.233,
         1940: 0.232, 1941: 0.232, 1942: 0.231, 1943: 0.231, 1944: 0.231, 1945: 0.23, 1946: 0.23, 1947: 0.229,
         1948: 0.229, 1949: 0.228, 1950: 0.228, 1951: 0.228, 1952: 0.227, 1953: 0.227, 1954: 0.226, 1955: 0.226,
@@ -65,4 +65,4 @@ laender:
         2075: 0.301, 2080: 0.301, 2085: 0.301, 2090: 0.301, 2095: 0.301, 2100: 0.301}
       stabilitaet: {1900: 0.8, 1918: 0.3, 1919: 0.15, 1920: 0.5, 1944: 0.2, 1948: 0.5, 1956: 0.2, 1957: 0.55, 1990: 0.75, 2026: 0.75}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

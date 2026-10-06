@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 356_163
     hauptstadt: {breite: 52.52, laenge: 13.40}
     binnenland: false
-    nachbarn: [AUT, BEL, CHE, CZE, DNK, FRA, LUX, NLD, POL]
+    nachbarn: [AUT, BEL, CHE, CZE, DNK, FRA, NLD, POL]
     werte:
       bevoelkerung: {
         1900: 43_265_500, 1901: 43_888_263, 1902: 44_530_514, 1903: 45_192_684, 1904: 45_864_698, 1905: 46_546_702, 1906: 47_238_845, 1907: 47_941_277,
@@ -53,9 +53,9 @@ laender:
         1940: 0.365, 1941: 0.371, 1942: 0.374, 1943: 0.371, 1944: 0.366, 1945: 0.36, 1946: 0.355, 1947: 0.35,
         1948: 0.345, 1949: 0.34, 1950: 0.335, 1951: 0.331, 1952: 0.328, 1953: 0.325, 1954: 0.322, 1955: 0.32,
         1956: 0.32, 1957: 0.323, 1958: 0.326, 1959: 0.329, 1960: 0.333, 1961: 0.338, 1962: 0.34, 1963: 0.334,
-        1964: 0.328, 1965: 0.322, 1966: 0.317, 1967: 0.311, 1968: 0.306, 1969: 0.3, 1970: 0.297, 1971: 0.294,
-        1972: 0.292, 1973: 0.289, 1974: 0.289, 1975: 0.288, 1976: 0.288, 1977: 0.288, 1978: 0.288, 1979: 0.289,
-        1980: 0.289, 1981: 0.29, 1982: 0.29, 1983: 0.291, 1984: 0.297, 1985: 0.283, 1986: 0.282, 1987: 0.278,
+        1964: 0.328, 1965: 0.322, 1966: 0.317, 1967: 0.311, 1968: 0.306, 1969: 0.3, 1970: 0.297, 1971: 0.295,
+        1972: 0.292, 1973: 0.289, 1974: 0.289, 1975: 0.288, 1976: 0.288, 1977: 0.288, 1978: 0.288, 1979: 0.288,
+        1980: 0.289, 1981: 0.29, 1982: 0.291, 1983: 0.291, 1984: 0.297, 1985: 0.283, 1986: 0.282, 1987: 0.278,
         1988: 0.285, 1989: 0.289, 1990: 0.292, 1991: 0.292, 1992: 0.292, 1993: 0.292, 1994: 0.292, 1995: 0.289,
         1996: 0.287, 1997: 0.285, 1998: 0.283, 1999: 0.286, 2000: 0.288, 2001: 0.303, 2002: 0.299, 2003: 0.3,
         2004: 0.304, 2005: 0.321, 2006: 0.313, 2007: 0.313, 2008: 0.311, 2009: 0.305, 2010: 0.302, 2011: 0.305,
@@ -69,4 +69,4 @@ laender:
       fachrichtungen: {chemie: 1.5, metall: 1.3, elektro: 1.4, maschinenbau: 1.2, bergbau: 1.2}
       forschung: {chemie: 1.7, elektro: 1.4, metall: 1.3, maschinenbau: 1.2}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

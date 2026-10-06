@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 22_050
     hauptstadt: {breite: 31.78, laenge: 35.21}
     binnenland: false
-    nachbarn: [EGY, JOR, LBN, PSE, SYR]
+    nachbarn: [EGY, SYR, XLE]
     werte:
       bevoelkerung: {
         1900: 360_335, 1901: 365_150, 1902: 370_102, 1903: 375_193, 1904: 380_354, 1905: 385_586, 1906: 390_890, 1907: 396_267,
@@ -60,8 +60,8 @@ laender:
         1996: 0.376, 1997: 0.381, 1998: 0.383, 1999: 0.385, 2000: 0.387, 2001: 0.39, 2002: 0.396, 2003: 0.404,
         2004: 0.411, 2005: 0.418, 2006: 0.414, 2007: 0.411, 2008: 0.416, 2009: 0.42, 2010: 0.425, 2011: 0.419,
         2012: 0.414, 2013: 0.405, 2014: 0.398, 2015: 0.394, 2016: 0.39, 2017: 0.386, 2018: 0.385, 2019: 0.385,
-        2020: 0.39, 2021: 0.398, 2022: 0.403, 2023: 0.407, 2024: 0.41, 2025: 0.408, 2026: 0.406, 2030: 0.396,
+        2020: 0.39, 2021: 0.398, 2022: 0.403, 2023: 0.407, 2024: 0.41, 2025: 0.408, 2026: 0.406, 2030: 0.397,
         2035: 0.39, 2040: 0.39, 2045: 0.39, 2050: 0.39, 2055: 0.39, 2060: 0.39, 2065: 0.39, 2070: 0.39,
         2075: 0.39, 2080: 0.39, 2085: 0.39, 2090: 0.39, 2095: 0.39, 2100: 0.39}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

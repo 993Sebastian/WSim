@@ -80,7 +80,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: liberia_plantagen   # Firestone
-    land: LBR
+    land: XWA
     rohstoff: kautschuk
     erneuerbar: true
     entdeckt: 1926

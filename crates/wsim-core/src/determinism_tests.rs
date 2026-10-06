@@ -331,6 +331,44 @@ fn saves_survive_changed_data() {
     );
 }
 
+#[test]
+fn saves_find_countries_merged_into_regions() {
+    let game = played(1, &script(2, 10));
+    let bytes = save::encode(&game);
+    let started_in = |catalog: Catalog| {
+        let catalog = Arc::new(catalog);
+        let loaded = save::decode(&bytes, catalog.clone()).unwrap();
+        assert!(loaded.data_changed);
+        let state = loaded.game.state();
+        assert_eq!(state.countries.len(), catalog.countries.len());
+        assert_eq!(
+            state.company(state.player).unwrap().headquarters,
+            state.settings.start_country
+        );
+        catalog
+            .countries
+            .key(state.settings.start_country)
+            .to_owned()
+    };
+    // The game started in BBB (M34): AAA takes it in, or a new region of both.
+    assert_eq!(
+        started_in(test_support::with_region(
+            &["AAA", "BBB"],
+            "AAA",
+            &["AAA", "BBB"]
+        )),
+        "AAA"
+    );
+    assert_eq!(
+        started_in(test_support::with_region(
+            &["AAA", "BBB"],
+            "XAB",
+            &["BBB", "AAA"]
+        )),
+        "XAB"
+    );
+}
+
 /// Saves of every format version. They must stay loadable in every later version.
 const FIXTURES: &[(u32, &[u8])] = &[
     (1, include_bytes!("../tests/fixtures/saves/v1.wsim")),

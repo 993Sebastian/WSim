@@ -9,19 +9,14 @@ waehrung.euro: Euro
 waehrung.franc: Franc
 waehrung.neuer_franc: Neuer Franc
 waehrung.franc_belgien: Belgischer Franc
-waehrung.franc_luxemburg: Luxemburgischer Franc
 waehrung.franken_schweiz: Schweizer Franken
 waehrung.lira: Lira
 waehrung.peseta: Peseta
 waehrung.escudo: Escudo
 waehrung.gulden: Gulden
-waehrung.lira_malta: Maltesische Lira
-waehrung.pfund_zypern: Zypern-Pfund
 waehrung.krone_schweden: Schwedische Krone
 waehrung.krone_norwegen: Norwegische Krone
 waehrung.krone_daenemark: Dänische Krone
-waehrung.krone_island_alt: Isländische Krone
-waehrung.krone_island: Isländische Krone
 waehrung.markka_alt: Finnische Mark
 waehrung.markka: Finnische Mark
 waehrung.krone_oesterreich: Krone
@@ -31,26 +26,18 @@ waehrung.pengoe: Pengő
 waehrung.forint: Forint
 waehrung.krone_tschechoslowakei: Tschechoslowakische Krone
 waehrung.krone_tschechien: Tschechische Krone
-waehrung.krone_slowakei: Slowakische Krone
 waehrung.polnische_mark: Polnische Mark
 waehrung.zloty_alt: Złoty
 waehrung.zloty: Złoty
 waehrung.leu_alt: Leu
 waehrung.leu: Leu
-waehrung.leu_moldau: Moldauischer Leu
 waehrung.lew_alt: Lew
 waehrung.lew: Lew
 waehrung.dinar_serbien_alt: Serbischer Dinar
 waehrung.dinar_jugoslawien: Jugoslawischer Dinar
 waehrung.dinar_serbien: Serbischer Dinar
-waehrung.kuna: Kuna
-waehrung.tolar: Tolar
-waehrung.konvertible_mark: Konvertible Mark
-waehrung.denar: Denar
-waehrung.perper: Perper
 waehrung.drachme_alt: Drachme
 waehrung.drachme: Drachme
-waehrung.lek: Lek
 waehrung.lira_osmanisch: Osmanische Lira
 waehrung.lira_tuerkei_alt: Türkische Lira
 waehrung.lira_tuerkei: Türkische Lira
@@ -58,11 +45,6 @@ waehrung.rubel_zarenreich: Rubel
 waehrung.rubel_sowjet: Sowjetischer Rubel
 waehrung.rubel_1961: Sowjetischer Rubel
 waehrung.rubel: Rubel
-waehrung.estnische_mark: Estnische Mark
-waehrung.kroon_alt: Estnische Krone
-waehrung.kroon: Estnische Krone
-waehrung.lats_alt: Lats
-waehrung.lats: Lats
 waehrung.litas_alt: Litas
 waehrung.litas: Litas
 waehrung.karbowanez: Karbowanez
@@ -71,15 +53,10 @@ waehrung.rubel_belarus_alt: Belarus-Rubel
 waehrung.rubel_belarus: Belarus-Rubel
 waehrung.tenge: Tenge
 waehrung.som_usbekistan: Usbekischer Som
-waehrung.som_kirgisistan: Kirgisischer Som
 waehrung.rubel_tadschikistan: Tadschikischer Rubel
 waehrung.somoni: Somoni
-waehrung.manat_turkmenistan_alt: Turkmenistan-Manat
-waehrung.manat_turkmenistan: Turkmenistan-Manat
 waehrung.manat_aserbaidschan_alt: Aserbaidschan-Manat
 waehrung.manat_aserbaidschan: Aserbaidschan-Manat
-waehrung.dram: Dram
-waehrung.lari: Lari
 waehrung.tugrik: Tögrög
 waehrung.yen: Yen
 waehrung.won_alt: Won
@@ -91,19 +68,16 @@ waehrung.renminbi: Renminbi
 waehrung.taiwan_dollar_alt: Taiwan-Dollar
 waehrung.taiwan_dollar: Neuer Taiwan-Dollar
 waehrung.rupie_indien: Indische Rupie
-waehrung.ngultrum: Ngultrum
 waehrung.rupie_pakistan: Pakistanische Rupie
 waehrung.taka: Taka
 waehrung.rupie_ceylon: Ceylon-Rupie
 waehrung.rupie_nepal: Nepalesische Rupie
-waehrung.rufiyaa: Rufiyaa
 waehrung.kyat: Kyat
 waehrung.afghani_alt: Afghani
 waehrung.afghani: Afghani
 waehrung.straits_dollar: Straits-Dollar
 waehrung.ringgit: Ringgit
 waehrung.singapur_dollar: Singapur-Dollar
-waehrung.brunei_dollar: Brunei-Dollar
 waehrung.gulden_indien: Niederländisch-Indischer Gulden
 waehrung.rupiah: Rupiah
 waehrung.peso_philippinen: Philippinischer Peso
@@ -111,16 +85,11 @@ waehrung.baht: Baht
 waehrung.piaster_indochina: Indochina-Piaster
 waehrung.dong: Đồng
 waehrung.riel: Riel
-waehrung.kip: Kip
 waehrung.rial_iran: Rial
 waehrung.dinar_irak: Irakischer Dinar
 waehrung.riyal_saudi: Saudi-Riyal
 waehrung.riyal_katar_dubai: Katar-Dubai-Riyal
 waehrung.dirham_vae: VAE-Dirham
-waehrung.riyal_katar: Katar-Riyal
-waehrung.dinar_bahrain: Bahrain-Dinar
-waehrung.dinar_kuwait: Kuwait-Dinar
-waehrung.rial_oman: Omanischer Rial
 waehrung.taler_maria_theresia: Maria-Theresien-Taler
 waehrung.rial_jemen: Jemen-Rial
 waehrung.pfund_aegypten: Ägyptisches Pfund
@@ -130,24 +99,18 @@ waehrung.pfund_israel: Israelisches Pfund
 waehrung.schekel_alt: Schekel
 waehrung.schekel: Neuer Schekel
 waehrung.pfund_syrien_libanon: Syrisch-libanesisches Pfund
-waehrung.pfund_libanon: Libanesisches Pfund
 waehrung.pfund_syrien: Syrisches Pfund
 waehrung.pfund_sudan_alt: Sudanesisches Pfund
 waehrung.dinar_sudan: Sudanesischer Dinar
 waehrung.pfund_sudan: Sudanesisches Pfund
-waehrung.pfund_suedsudan: Südsudanesisches Pfund
 waehrung.pfund_libyen: Libysches Pfund
 waehrung.dinar_libyen: Libyscher Dinar
 waehrung.dinar_algerien: Algerischer Dinar
 waehrung.dinar_tunesien: Tunesischer Dinar
 waehrung.dirham_marokko: Marokkanischer Dirham
 waehrung.franc_marokko: Marokkanischer Franc
-waehrung.ouguiya_alt: Ouguiya
-waehrung.ouguiya: Ouguiya
 waehrung.franc_cfa: CFA-Franc
 waehrung.franc_guinea: Guinea-Franc
-waehrung.franc_komoren: Komoren-Franc
-waehrung.franc_dschibuti: Dschibuti-Franc
 waehrung.ariary: Ariary
 waehrung.rupie_ostafrika: Ostafrikanische Rupie
 waehrung.schilling_ostafrika: Ostafrikanischer Schilling
@@ -156,14 +119,10 @@ waehrung.schilling_uganda: Uganda-Schilling
 waehrung.schilling_tansania: Tansania-Schilling
 waehrung.schilling_somalia: Somalia-Schilling
 waehrung.birr: Birr
-waehrung.nakfa: Nakfa
 waehrung.rupie_ostafrika_deutsch: Deutsch-Ostafrikanische Rupie
 waehrung.pfund_suedafrika: Südafrikanisches Pfund
 waehrung.rand: Rand
-waehrung.namibia_dollar: Namibia-Dollar
 waehrung.loti: Loti
-waehrung.lilangeni: Lilangeni
-waehrung.pula: Pula
 waehrung.rhodesien_dollar: Rhodesischer Dollar
 waehrung.simbabwe_dollar: Simbabwe-Dollar
 waehrung.zig: Zimbabwe Gold
@@ -174,53 +133,27 @@ waehrung.kwanza_alt: Kwanza
 waehrung.kwanza: Kwanza
 waehrung.metical_alt: Metical
 waehrung.metical: Metical
-waehrung.peso_guinea_bissau: Guinea-Bissau-Peso
-waehrung.escudo_kap_verde: Kap-Verde-Escudo
-waehrung.dobra_alt: Dobra
-waehrung.dobra: Dobra
 waehrung.franc_kongo_belgisch: Kongo-Franc
 waehrung.franc_kongo_alt: Kongo-Franc
 waehrung.zaire: Zaire
 waehrung.neuer_zaire: Neuer Zaire
 waehrung.franc_kongo: Kongo-Franc
 waehrung.franc_ruanda: Ruanda-Franc
-waehrung.franc_burundi: Burundi-Franc
 waehrung.naira: Naira
 waehrung.pfund_nigeria: Nigerianisches Pfund
 waehrung.pfund_westafrika: Westafrikanisches Pfund
 waehrung.cedi_alt: Cedi
 waehrung.cedi: Cedi
-waehrung.leone_alt: Leone
-waehrung.leone: Leone
-waehrung.dalasi: Dalasi
-waehrung.liberia_dollar: Liberianischer Dollar
-waehrung.rupie_mauritius: Mauritius-Rupie
-waehrung.rupie_seychellen: Seychellen-Rupie
 waehrung.dollar_kanada: Kanadischer Dollar
 waehrung.peso_mexiko_alt: Mexikanischer Peso
 waehrung.peso_mexiko: Mexikanischer Peso
 waehrung.peso_guatemala: Guatemaltekischer Peso
 waehrung.quetzal: Quetzal
-waehrung.colon_el_salvador: Colón
-waehrung.lempira: Lempira
-waehrung.peso_honduras: Peso
-waehrung.cordoba_alt: Córdoba
-waehrung.cordoba: Córdoba Oro
-waehrung.colon_costa_rica: Costa-Rica-Colón
-waehrung.balboa: Balboa
 waehrung.peso_kuba: Kubanischer Peso
 waehrung.peso_dominikanisch: Dominikanischer Peso
-waehrung.gourde: Gourde
 waehrung.jamaika_dollar: Jamaika-Dollar
 waehrung.bwi_dollar: Britisch-Westindischer Dollar
-waehrung.ec_dollar: Ostkaribischer Dollar
-waehrung.barbados_dollar: Barbados-Dollar
-waehrung.tt_dollar: Trinidad-und-Tobago-Dollar
-waehrung.bahama_dollar: Bahama-Dollar
-waehrung.belize_dollar: Belize-Dollar
 waehrung.guyana_dollar: Guyana-Dollar
-waehrung.suriname_gulden: Suriname-Gulden
-waehrung.suriname_dollar: Suriname-Dollar
 waehrung.mil_reis: Mil-Réis
 waehrung.cruzeiro: Cruzeiro
 waehrung.cruzeiro_novo: Cruzeiro novo
@@ -243,9 +176,6 @@ waehrung.bolivar_alt: Bolívar
 waehrung.bolivar_fuerte: Bolívar fuerte
 waehrung.bolivar_soberano: Bolívar soberano
 waehrung.bolivar: Bolívar digital
-waehrung.peso_uruguay_alt: Uruguayischer Peso
-waehrung.nuevo_peso_uruguay: Nuevo Peso
-waehrung.peso_uruguay: Uruguayischer Peso
 waehrung.peso_paraguay: Paraguayischer Peso
 waehrung.guarani: Guaraní
 waehrung.boliviano_alt: Boliviano
@@ -256,9 +186,4 @@ waehrung.pfund_australien: Australisches Pfund
 waehrung.australischer_dollar: Australischer Dollar
 waehrung.pfund_neuseeland: Neuseeland-Pfund
 waehrung.neuseeland_dollar: Neuseeland-Dollar
-waehrung.fidschi_dollar: Fidschi-Dollar
 waehrung.kina: Kina
-waehrung.salomonen_dollar: Salomonen-Dollar
-waehrung.vatu: Vatu
-waehrung.tala: Tala
-waehrung.paanga: Paʻanga

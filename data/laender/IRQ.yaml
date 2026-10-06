@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 437_457
     hauptstadt: {breite: 33.34, laenge: 44.39}
     binnenland: false
-    nachbarn: [IRN, JOR, KWT, SAU, SYR, TUR]
+    nachbarn: [IRN, SAU, SYR, TUR, XGO, XLE]
     werte:
       bevoelkerung: {
         1900: 2_398_006, 1901: 2_448_404, 1902: 2_494_226, 1903: 2_535_236, 1904: 2_576_916, 1905: 2_619_275, 1906: 2_662_327, 1907: 2_706_081,
@@ -58,10 +58,10 @@ laender:
         1980: 0.299, 1981: 0.297, 1982: 0.295, 1983: 0.294, 1984: 0.292, 1985: 0.29, 1986: 0.288, 1987: 0.287,
         1988: 0.286, 1989: 0.286, 1990: 0.286, 1991: 0.286, 1992: 0.286, 1993: 0.286, 1994: 0.286, 1995: 0.286,
         1996: 0.286, 1997: 0.286, 1998: 0.286, 1999: 0.286, 2000: 0.286, 2001: 0.286, 2002: 0.286, 2003: 0.286,
-        2004: 0.286, 2005: 0.286, 2006: 0.286, 2007: 0.287, 2008: 0.289, 2009: 0.291, 2010: 0.292, 2011: 0.294,
+        2004: 0.286, 2005: 0.286, 2006: 0.286, 2007: 0.288, 2008: 0.289, 2009: 0.291, 2010: 0.292, 2011: 0.294,
         2012: 0.295, 2013: 0.295, 2014: 0.295, 2015: 0.295, 2016: 0.295, 2017: 0.295, 2018: 0.295, 2019: 0.295,
         2020: 0.302, 2021: 0.31, 2022: 0.315, 2023: 0.319, 2024: 0.322, 2025: 0.32, 2026: 0.318, 2030: 0.308,
         2035: 0.302, 2040: 0.302, 2045: 0.302, 2050: 0.302, 2055: 0.302, 2060: 0.302, 2065: 0.302, 2070: 0.302,
         2075: 0.302, 2080: 0.302, 2085: 0.302, 2090: 0.302, 2095: 0.302, 2100: 0.302}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

@@ -9,6 +9,9 @@ Quellen (werden nach tools/daten/.cache/ geladen):
 
 Aufruf: python3 tools/daten/laender.py   (aus dem Projektverzeichnis)
 
+Kleine Länder werden zu Regionen zusammengefasst (tools/daten/regionen.py, M34): Summen
+für Bevölkerung, BIP und Fläche, bevölkerungsgewichtete Mittel für BIP je Kopf und Gini.
+
 Alle Werte gelten in heutigen Grenzen (Lastenheft §3.2) und zeigen den realen
 Verlauf (Entscheidung 13). Korrekturen und Schätzungen sind unten dokumentiert und
 werden in den Dateien als Annäherung gekennzeichnet.
@@ -19,7 +22,11 @@ import csv
 import json
 import math
 import os
+import sys
 import urllib.request
+
+sys.path.insert(0, os.path.dirname(__file__))
+import regionen  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 CACHE = os.path.join(os.path.dirname(__file__), ".cache")
@@ -43,7 +50,8 @@ YEARS = list(range(1900, 2027)) + list(range(2030, 2101, 5))
 QUELLE = (
     "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 "
     f"mit Faktor {USD_2017_TO_2026} auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. "
-    "Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    "Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. "
+    "bevölkerungsgewichtete Mittel ihrer Länder."
 )
 
 # ---------------------------------------------------------------------------------------
@@ -315,37 +323,81 @@ def main():
         if best is None or p["pop_max"] > best[2]:
             capitals[iso] = (p["latitude"], p["longitude"], p["pop_max"])
 
+    # --- Regionen (M34) ------------------------------------------------------------------
+    missing = sorted(iso for iso in series if iso not in names)
+    if missing:
+        raise SystemExit(f"Ohne Natural-Earth-Gebiet: {missing}")
+    region_of = regionen.region_of()
+    groups = collections.defaultdict(list)
+    for iso in sorted(series):
+        groups[region_of.get(iso, iso)].append(iso)
+    unknown = sorted(set(region_of) - set(series))
+    if unknown:
+        raise SystemExit(f"Regionen mit unbekannten Ländern: {unknown}")
+
+    def landlocked_of(iso):
+        g = geo.get(iso.lower(), {})
+        return g.get("landlocked") == "landlocked" if g else iso == "XKX"
+
+    def capital_of(iso):
+        lat, lon = capitals.get(iso, (None, None, None))[:2]
+        if lat is None:
+            g = geo[iso.lower()]
+            lat, lon = float(g["latitude"]), float(g["longitude"])
+        return lat, lon
+
+    regions = {}
+    for code, isos in groups.items():
+        pops = {iso: {y: interpolate(series[iso]["pop"], y) for y in YEARS} for iso in isos}
+        pop_y = {y: sum(pops[iso][y] for iso in isos) for y in YEARS}
+        weighted = lambda key, factor: {
+            y: sum(pops[iso][y] * interpolate(series[iso][key], y) for iso in isos) / pop_y[y] * factor
+            for y in YEARS
+        }
+        largest = max(isos, key=lambda iso: (pops[iso][2000], iso))
+        head = code if code in isos else largest
+        # Das namensgebende bzw. größte Land zuerst: Alte Spielstände übernehmen dessen
+        # Zustand für die Region.
+        ordered = [head] + sorted((iso for iso in isos if iso != head), key=lambda iso: (-pops[iso][2000], iso))
+        regions[code] = {
+            "members": ordered,
+            "pop": pop_y,
+            "gdp": weighted("gdp", USD_2017_TO_2026),
+            "gini": weighted("gini", 0.01),
+            "area": sum(area[iso] for iso in isos),
+            "capital": capital_of(head),
+            "landlocked": all(landlocked_of(iso) for iso in isos),
+            "continent": continent_of(*continents[head]),
+            "neighbours": sorted({region_of.get(n, n) for iso in isos for n in neighbours[iso]} - {code}),
+            "name": regionen.NAMEN.get(code) or german_name(code, names[code]),
+        }
+
     # --- Dateien schreiben ---------------------------------------------------------------
     out_dir = os.path.join(ROOT, "data", "laender")
     for old in os.listdir(out_dir):
         if old.endswith(".yaml"):
             os.remove(os.path.join(out_dir, old))
     texts = []
-    missing = []
-    for iso in sorted(series):
-        s = series[iso]
-        if iso not in names:
-            missing.append(iso)
-            continue
-        code = iso.lower()
-        g = geo.get(code, {})
-        lat, lon = capitals.get(iso, (None, None, None))[:2]
-        if lat is None:
-            lat, lon = float(g["latitude"]), float(g["longitude"])
-        landlocked = g.get("landlocked") == "landlocked" if g else iso == "XKX"
-        continent = continent_of(*continents[iso])
+    member_texts = []
+    for iso in sorted(regions):
+        r = regions[iso]
+        lat, lon = r["capital"]
         lines = [
             "laender:",
             f"  - id: {iso}",
-            f"    kontinent: {continent}",
-            f"    flaeche_km2: {group(round(area[iso]))}",
+            f"    kontinent: {r['continent']}",
+            f"    flaeche_km2: {group(round(r['area']))}",
             f"    hauptstadt: {{breite: {lat:.2f}, laenge: {lon:.2f}}}",
-            f"    binnenland: {'true' if landlocked else 'false'}",
-            f"    nachbarn: [{', '.join(sorted(neighbours[iso]))}]",
+            f"    binnenland: {'true' if r['landlocked'] else 'false'}",
+            f"    nachbarn: [{', '.join(r['neighbours'])}]",
+        ]
+        if len(r["members"]) > 1:
+            lines.append(f"    umfasst: [{', '.join(r['members'])}]")
+        lines += [
             "    werte:",
-            f"      bevoelkerung: {series_yaml({y: interpolate(s['pop'], y) for y in YEARS}, 0)}",
-            f"      bip_je_kopf_usd: {series_yaml({y: interpolate(s['gdp'], y) * USD_2017_TO_2026 for y in YEARS}, 0)}",
-            f"      gini: {series_yaml({y: interpolate(s['gini'], y) / 100 for y in YEARS}, 3)}",
+            f"      bevoelkerung: {series_yaml(r['pop'], 0)}",
+            f"      bip_je_kopf_usd: {series_yaml(r['gdp'], 0)}",
+            f"      gini: {series_yaml(r['gini'], 3)}",
         ]
         if iso in CORPORATE_TAX:
             lines.append(f"      steuer_unternehmen: {inline(CORPORATE_TAX[iso], 3)}")
@@ -364,18 +416,20 @@ def main():
         lines.append(f"    quelle: \"{QUELLE}\"")
         with open(os.path.join(out_dir, f"{iso}.yaml"), "w") as f:
             f.write("\n".join(lines) + "\n")
-        texts.append(f"land.{iso}: {german_name(iso, names[iso])}")
-    if missing:
-        raise SystemExit(f"Ohne Natural-Earth-Gebiet: {missing}")
+        texts.append(f"land.{iso}: {r['name']}")
+        if len(r["members"]) > 1:
+            member_texts += [f"teilland.{m}: {german_name(m, names[m])}" for m in r["members"]]
     with open(os.path.join(ROOT, "data", "texte", "de", "laender.yaml"), "w") as f:
         f.write("# Erzeugt von tools/daten/laender.py – Namen nach Natural Earth (NAME_DE).\n")
         f.write("\n".join(texts) + "\n")
-    print(f"{len(texts)} Länder geschrieben.")
+        f.write("\n# Länder innerhalb der Regionen (tools/daten/regionen.py)\n")
+        f.write("\n".join(sorted(member_texts)) + "\n")
+    print(f"{len(texts)} Länder und Regionen geschrieben.")
     world = lambda y: sum(interpolate(s["pop"], y) for s in series.values()) / 1e9
     print(f"Weltbevölkerung 1900: {world(1900):.2f} Mrd., 1930: {world(1930):.2f} Mrd., 2020: {world(2020):.2f} Mrd.")
-    for iso in ("DEU", "GBR", "IRL", "POL", "FRA"):
-        print(iso, round(interpolate(series[iso]["pop"], 1900) / 1e6, 1), "Mio. (1900)",
-              "Nachbarn:", ", ".join(sorted(neighbours[iso])))
+    for iso in ("DEU", "GBR", "IRL", "POL", "FRA", "XBA"):
+        print(iso, round(regions[iso]["pop"][1900] / 1e6, 1), "Mio. (1900)",
+              "Nachbarn:", ", ".join(regions[iso]["neighbours"]))
 
 
 # Abweichende deutsche Kurznamen

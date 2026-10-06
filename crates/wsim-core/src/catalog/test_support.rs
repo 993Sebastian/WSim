@@ -13,6 +13,7 @@ fn country(catalog: &Catalog, population: &[(i32, f64)]) -> Country {
         },
         landlocked: false,
         neighbors: Vec::new(),
+        members: Vec::new(),
         values: CountryValues {
             population: TimeSeries::new(population.to_vec()).expect("valid"),
             gdp_per_capita_usd: TimeSeries::new(vec![(1900, 5_000.0), (1930, 8_000.0)])
@@ -42,6 +43,25 @@ pub fn with_countries(keys: &[&str]) -> Catalog {
         );
         catalog.countries.insert(key, c);
     }
+    catalog
+}
+
+/// Like `with_countries`, but `region` (a new key or one of the countries) takes over
+/// `members` (M34): they leave the catalog and become its aliases.
+pub fn with_region(keys: &[&str], region: &str, members: &[&str]) -> Catalog {
+    let mut catalog = with_countries(
+        &keys
+            .iter()
+            .copied()
+            .filter(|k| *k == region || !members.contains(k))
+            .collect::<Vec<_>>(),
+    );
+    if catalog.countries.id(region).is_none() {
+        let c = country(&catalog, &[(1900, 1_000_000.0)]);
+        catalog.countries.insert(region, c);
+    }
+    let id = catalog.countries.id(region).expect("region exists");
+    catalog.countries.get_mut(id).members = members.iter().map(|m| (*m).to_owned()).collect();
     catalog
 }
 

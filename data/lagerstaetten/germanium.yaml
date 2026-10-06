@@ -4,7 +4,7 @@
 
 lagerstaetten:
   - id: tsumeb_germanium   # Tsumeb, Germanit und Renierit
-    land: NAM
+    land: XSA
     rohstoff: germanium
     vorrat: 1_000_000
     entdeckt: 1947

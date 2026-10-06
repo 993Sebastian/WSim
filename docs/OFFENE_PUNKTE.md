@@ -489,6 +489,20 @@ Folgen: Lagerstätten, Weltereignisse, Namensgruppen, reale Firmen und Währunge
 dann auf die Region; Spielstände mit den alten Ländern werden beim Laden umgerechnet
 (Standorte und Märkte gehen in die Region über).
 
+Umgesetzt mit M34 (Formeln: `docs/FORMELN.md`, Abschnitt M34). 🟡 Eigenständig entschieden:
+
+1. **Gini einer Region** als bevölkerungsgewichtetes Mittel (die Ungleichheit zwischen
+   den Ländern fehlt; für Regionen aus ähnlich reichen Ländern genügt das).
+2. **Währungen**, die nach dem Zusammenfassen kein Land mehr verwendet (75, etwa der
+   Luxemburger Franc), entfallen; sie bleiben in der Versionsgeschichte.
+3. **Alte Spielstände:** Standorte, Firmensitze und Befehle gehen in die Region über. Bei
+   Werten je Land (Märkte) gilt der Eintrag unter dem Code der Region bzw. des
+   führenden Landes; die der übrigen Länder entfallen statt addiert zu werden (Preise
+   und Bekanntheit lassen sich nicht sinnvoll addieren, Länderwerte werden ohnehin neu
+   berechnet).
+4. **Anzeige:** Das Länderdetail nennt unter „Umfasst“ die Länder einer Region; die
+   Karte zeigt ihren Umriss ohne innere Grenzen.
+
 ## J Weiterentwicklung erforschter Produkte (Anfrage vom 06.10.2026)
 
 Auftrag: „Bei der Forschungskette: Wenn ein erforschtes Produkt weiter erforscht wird,

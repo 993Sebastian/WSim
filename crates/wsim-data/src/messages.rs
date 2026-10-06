@@ -379,6 +379,18 @@ pub fn neighbor_asymmetric(neighbor: &str, key: &str) -> String {
     format!("„{neighbor}“ führt „{key}“ nicht als Nachbarn.")
 }
 
+pub fn region_too_small(region: &str) -> String {
+    format!("Region „{region}“ muss mindestens zwei Länder umfassen.")
+}
+
+pub fn region_member_is_country(member: &str, region: &str) -> String {
+    format!("„{member}“ ist ein eigenes Land und kann nicht zu „{region}“ gehören.")
+}
+
+pub fn region_member_twice(member: &str, first: &str) -> String {
+    format!("Land „{member}“ ist mehr als einmal einer Region zugeordnet; erste Angabe in {first}.")
+}
+
 pub fn range_inverted(min: &str, max: &str) -> String {
     format!("„{min}“ muss kleiner als „{max}“ sein.")
 }

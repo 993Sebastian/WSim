@@ -94,6 +94,8 @@ pub trait Id: Copy + Ord {
 pub struct KeyTable {
     keys: Vec<Vec<String>>,
     index: Vec<BTreeMap<String, usize>>,
+    /// Former keys that now belong to an entry, with their rank (1 = first alias).
+    aliases: Vec<BTreeMap<String, (usize, u32)>>,
 }
 
 impl KeyTable {
@@ -107,21 +109,54 @@ impl KeyTable {
                     .collect()
             })
             .collect();
-        Self { keys, index }
+        Self {
+            keys,
+            index,
+            aliases: Vec::new(),
+        }
+    }
+
+    /// Lets `alias` (a key of earlier data, e.g. a country merged into a region) read
+    /// as the entry `index`. Own keys win over aliases; of several aliases for the same
+    /// entry, the one added first wins (see `PerId`).
+    pub fn add_alias(&mut self, kind: IdKind, alias: &str, index: usize) {
+        if self.lookup_ranked(kind, alias).is_some() {
+            return;
+        }
+        if self.aliases.len() <= kind.slot() {
+            self.aliases.resize_with(kind.slot() + 1, BTreeMap::new);
+        }
+        let ranks = &mut self.aliases[kind.slot()];
+        let rank = 1 + ranks.values().filter(|(i, _)| *i == index).count();
+        ranks.insert(
+            alias.to_owned(),
+            (index, u32::try_from(rank).unwrap_or(u32::MAX)),
+        );
     }
 
     pub fn keys(&self, kind: IdKind) -> &[String] {
         self.keys.get(kind.slot()).map_or(&[], Vec::as_slice)
     }
 
-    fn lookup(&self, kind: IdKind, key: &str) -> Option<usize> {
-        self.index.get(kind.slot())?.get(key).copied()
+    /// Index of `key` and its rank: 0 for an own key, from 1 for aliases.
+    fn lookup_ranked(&self, kind: IdKind, key: &str) -> Option<(usize, u32)> {
+        if let Some(&index) = self.index.get(kind.slot()).and_then(|m| m.get(key)) {
+            return Some((index, 0));
+        }
+        self.aliases.get(kind.slot())?.get(key).copied()
     }
 }
 
 thread_local! {
     static ACTIVE: RefCell<Option<KeyTable>> = const { RefCell::new(None) };
     static MISSING: RefCell<Option<(IdKind, String)>> = const { RefCell::new(None) };
+    static LAST_RANK: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+
+/// Rank of the last ID read as key (0: own key, from 1: alias). `PerId` uses it to
+/// prefer an entry's own state over that of the entries merged into it.
+pub(crate) fn take_last_rank() -> u32 {
+    LAST_RANK.with(|r| r.replace(0))
 }
 
 /// Runs `f` with IDs (de)serialized as keys. Returns the first key that was not found
@@ -189,9 +224,12 @@ impl<I: Id> Visitor<'_> for IdVisitor<I> {
     }
 
     fn visit_str<E: de::Error>(self, key: &str) -> Result<I, E> {
-        let found = ACTIVE.with(|a| a.borrow().as_ref().map(|t| t.lookup(I::KIND, key)));
+        let found = ACTIVE.with(|a| a.borrow().as_ref().map(|t| t.lookup_ranked(I::KIND, key)));
         match found {
-            Some(Some(index)) => Ok(I::from_index(index)),
+            Some(Some((index, rank))) => {
+                LAST_RANK.with(|r| r.set(rank));
+                Ok(I::from_index(index))
+            }
             Some(None) => {
                 MISSING.with(|m| {
                     m.borrow_mut()

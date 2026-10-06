@@ -146,9 +146,23 @@ impl<'de, I: Id + Deserialize<'de>, T: Deserialize<'de> + Default> Deserialize<'
             }
 
             fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+                // An entry's own key wins over the keys merged into it (M34), whatever
+                // the order in the save.
                 let mut entries: Vec<(I, T)> = Vec::new();
-                while let Some(entry) = map.next_entry()? {
-                    entries.push(entry);
+                let mut ranks: BTreeMap<I, u32> = BTreeMap::new();
+                while let Some(id) = map.next_key::<I>()? {
+                    let rank = ids::take_last_rank();
+                    let item: T = map.next_value()?;
+                    match ranks.insert(id, rank) {
+                        None => entries.push((id, item)),
+                        Some(best) if best <= rank => {
+                            ranks.insert(id, best);
+                        }
+                        Some(_) => {
+                            entries.retain(|(i, _)| *i != id);
+                            entries.push((id, item));
+                        }
+                    }
                 }
                 let len = ids::active_len(I::KIND).unwrap_or_else(|| {
                     entries
@@ -995,5 +1009,41 @@ mod tests {
         // Taking more than there is empties the stock exactly.
         assert_eq!(stock.take(100.0), Money::from_usd(300.0).unwrap());
         assert_eq!((stock.quantity, stock.value), (0.0, Money::ZERO));
+    }
+
+    fn country_table(keys: &[&str], aliases: &[(&str, usize)]) -> ids::KeyTable {
+        let mut all = vec![Vec::new(); ids::IdKind::ALL.len()];
+        all[ids::IdKind::Country as usize] = keys.iter().map(|k| (*k).to_owned()).collect();
+        let mut table = ids::KeyTable::new(all);
+        for &(alias, index) in aliases {
+            table.add_alias(ids::IdKind::Country, alias, index);
+        }
+        table
+    }
+
+    #[test]
+    fn merged_entries_keep_the_state_of_their_own_key_or_first_alias() {
+        let saved: PerId<CountryId, u32> =
+            PerId::from_fn(3, |c: CountryId| 10 + u32::try_from(c.index()).unwrap());
+        let (bytes, _) = ids::with_keys(&country_table(&["AAA", "BBB", "CCC"], &[]), || {
+            rmp_serde::to_vec_named(&saved).unwrap()
+        });
+        let read = |table: &ids::KeyTable| {
+            let (result, missing) = ids::with_keys(table, || {
+                rmp_serde::from_slice::<PerId<CountryId, u32>>(&bytes).unwrap()
+            });
+            assert!(missing.is_none());
+            result.values().copied().collect::<Vec<_>>()
+        };
+        // BBB takes in CCC: its own entry wins, although CCC comes later.
+        assert_eq!(
+            read(&country_table(&["AAA", "BBB"], &[("CCC", 1)])),
+            [10, 11]
+        );
+        // A new region XXX takes in CCC (leading) and BBB: CCC's entry wins.
+        assert_eq!(
+            read(&country_table(&["AAA", "XXX"], &[("CCC", 1), ("BBB", 1)])),
+            [10, 12]
+        );
     }
 }

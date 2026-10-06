@@ -5,7 +5,7 @@
 
 namensgruppen:
   - id: deutsch
-    laender: [DEU, AUT, CHE, LIE, LUX]
+    laender: [DEU, AUT, CHE]
     familiennamen: [Becker, Hoffmann, Brandt, Lehmann, Vogt, Kessler, Hartmann, Albrecht,
                     Wendt, Körber, Steinbach, Reuter, Hahn, Lorenz, Pfeiffer, Ebert]
     orte: [Dortmunder, Bochumer, Kölner, Chemnitzer, Leipziger, Bremer, Stuttgarter,
@@ -50,7 +50,7 @@ namensgruppen:
       konsumgueter: Manufacturing
 
   - id: franzoesisch
-    laender: [FRA, BEL, MCO]
+    laender: [FRA, BEL]
     familiennamen: [Durand, Lefèvre, Moreau, Girard, Bonnet, Fontaine, Rousseau, Mercier,
                     Blanchard, Gauthier, Perrin, Chevalier]
     orte: [Lyon, Lille, Saint-Étienne, Rouen, Nancy, Liège, Charleroi, Marseille]
@@ -71,7 +71,7 @@ namensgruppen:
       konsumgueter: Manufacture
 
   - id: italienisch_spanisch
-    laender: [ITA, ESP, MEX, ARG, CHL, PER, COL, VEN, URY, CUB, BOL, ECU]
+    laender: [ITA, ESP, MEX, ARG, CHL, PER, COL, VEN, XPU, CUB, BOL, ECU]
     familiennamen: [Rossi, Ferrari, Colombo, Bianchi, García, Fernández, López, Martínez,
                     Ortega, Romano, Vázquez, Moretti]
     orte: [Milano, Torino, Genova, Bilbao, Barcelona, Monterrey, Rosario, Valparaíso]
@@ -91,7 +91,7 @@ namensgruppen:
       konsumgueter: Manifattura
 
   - id: russisch
-    laender: [RUS, UKR, BLR, KAZ, AZE, GEO, ARM, UZB, POL]
+    laender: [RUS, UKR, BLR, KAZ, XKA, UZB, POL]
     familiennamen: [Morozov, Putilov, Demidov, Ryabushinsky, Kovalenko, Sokolov, Volkov,
                     Orlov, Wiśniewski, Kowalski, Shevchenko, Lebedev]
     orte: [Petersburg, Moskau, Jekaterinburg, Charkow, Odessa, Warschau, Łódź, Baku]
@@ -111,7 +111,7 @@ namensgruppen:
       konsumgueter: Fabrik
 
   - id: skandinavisch_niederlaendisch
-    laender: [SWE, NOR, DNK, FIN, ISL, NLD]
+    laender: [SWE, NOR, DNK, FIN, NLD]
     familiennamen: [Lindqvist, Berg, Holm, Nyström, Hansen, Larsen, Virtanen, de Vries,
                     van Dijk, Bakker, Sandberg, Åkerlund]
     orte: [Göteborg, Stockholm, Bergen, Oslo, Kopenhagen, Rotterdam, Eindhoven, Tampere]

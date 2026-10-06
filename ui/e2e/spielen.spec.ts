@@ -57,7 +57,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
   await expect(naegel.getByText("15,5 t")).toBeVisible();
   await expect(naegel.getByText("Stückkosten", { exact: true }).first()).toBeVisible();
-  await expect(naegel.getByText(/Marge 17 %/)).toBeVisible();
+  await expect(naegel.getByText(/Marge 23 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
   await werk.getByRole("button", { name: "Einkauf" }).click();
@@ -74,7 +74,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(markt).toBeVisible();
   // Newcomer against the established companies: the leader and its share.
   await expect(
-    markt.getByRole("cell", { name: "99 % Maschinenfabrik Lehmann & Söhne" }).first(),
+    markt.getByRole("cell", { name: "99 % Lorenz KG" }).first(),
   ).toBeVisible();
   // Openings for a newcomer.
   await page.getByLabel("Chancen").check();
@@ -88,7 +88,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(
     naegelMarkt
       .getByRole("table", { name: "Anbieter im Vormonat" })
-      .getByText("Maschinenfabrik Lehmann & Söhne"),
+      .getByText("Lorenz KG"),
   ).toBeVisible();
   await expect(naegelMarkt.getByText("Ärmstes Fünftel")).toBeVisible();
   // The last months: price against the reference price, sales and the own share (M24).
@@ -96,7 +96,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(verlauf.getByText("Gestrichelt: Richtpreis im Land.")).toBeVisible();
   await expect(
     verlauf.getByRole("img", {
-      name: /^Bezahlter Preis je Monat: 1\.837 USD\/t \(Jan 1914\) bis 1\.825 USD\/t \(Jul 1914\)$/,
+      name: /^Bezahlter Preis je Monat: 1\.846 USD\/t \(Jan 1914\) bis 1\.848 USD\/t \(Jul 1914\)$/,
     }),
   ).toBeVisible();
   await expect(
@@ -204,8 +204,8 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
-    // 1 852,15 USD − 5 %, rounded to cents
-    { SetPrice: { site: 0, product: "naegel", price: 17_595_400 } },
+    // 1 887,21 USD − 5 %, rounded to cents
+    { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
     { SetWagePremium: { site: 0, premium: 0.125 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },
@@ -279,15 +279,15 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   // The preview's competitor bids for the workshop (hint and counter: core tests).
   await page.keyboard.press("4");
   const angebot = page.getByRole("article", {
-    name: "Kaufangebot von Leipziger Spinnerei und Weberei AG",
+    name: "Kaufangebot von Zürcher Spinnerei und Weberei & Co.",
   });
   await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
-  await expect(angebot).toContainText("33.836 USD");
+  await expect(angebot).toContainText("33.827 USD");
   await expect(angebot).toContainText("01.04.1914");
   // The base value with its parts.
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
   await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
-  await expect(angebot.getByRole("note")).toContainText("27.069 USD");
+  await expect(angebot.getByRole("note")).toContainText("27.061 USD");
   await bild(page, "angebot");
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
 
@@ -296,15 +296,15 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await angebot.getByRole("button", { name: "Gegenangebot machen" }).click();
   const befehleNachAntwort = await befehle(page);
   expect(befehleNachAntwort.slice(-2)).toEqual([
-    { AnswerOffer: { offer: 5, answer: "Accept" } },
-    { AnswerOffer: { offer: 5, answer: { Counter: { price: 500_000_000 } } } },
+    { AnswerOffer: { offer: 6, answer: "Accept" } },
+    { AnswerOffer: { offer: 6, answer: { Counter: { price: 500_000_000 } } } },
   ]);
 
   // Bid for a competitor's site.
   await page.getByRole("button", { name: "Firmen", exact: true }).click();
-  await page.getByRole("button", { name: "Leipziger Spinnerei und Weberei AG" }).click();
+  await page.getByRole("button", { name: "Zürcher Spinnerei und Weberei & Co." }).click();
   await expect(
-    page.getByRole("heading", { name: "Leipziger Spinnerei und Weberei AG" }),
+    page.getByRole("heading", { name: "Zürcher Spinnerei und Weberei & Co." }),
   ).toBeVisible();
   const werk = page.getByRole("article", { name: "Werk in Deutschland" });
   await expect(werk).toContainText("Kleidung, Strümpfe, Stoff, Garn");
@@ -319,12 +319,12 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await bereich.getByLabel("Preis").fill("250000000");
   await bereich.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MakeOffer: { seller: 59, object: { Area: "bekleidung" }, price: 2_500_000_000_000 },
+    MakeOffer: { seller: 58, object: { Area: "bekleidung" }, price: 2_500_000_000_000 },
   });
   await werk.getByLabel("Preis").fill("200000000");
   await werk.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MakeOffer: { seller: 59, object: { Site: 317 }, price: 2_000_000_000_000 },
+    MakeOffer: { seller: 58, object: { Site: 313 }, price: 2_000_000_000_000 },
   });
   await bild(page, "firma");
 });
@@ -379,8 +379,8 @@ test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page })
   const preis = page.getByRole("note", { name: "Wie entsteht: Marktpreis?" });
   await expect(preis).toContainText("Richtpreis (Preisniveau 1)1.900 USD/t");
   await expect(preis).toContainText("Preisniveau Deutschland 0,8, davon wirkt 10 %× 0,98");
-  await expect(preis).toContainText("Marktlage: 2 % unter dem Richtpreis× 0,98");
-  await expect(preis).toContainText("Marktpreis= 1.825 USD/t");
+  await expect(preis).toContainText("Marktlage: 1 % unter dem Richtpreis× 0,99");
+  await expect(preis).toContainText("Marktpreis= 1.848 USD/t");
   await bild(page, "erklaerung_preis");
   await page.getByRole("button", { name: /Alle Produkte/ }).click();
 
@@ -529,7 +529,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(titel("Dein erster Umsatz")).toBeVisible();
   await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
-  await expect(einfuehrung).toContainText("28.708 USD");
+  await expect(einfuehrung).toContainText("29.252 USD");
   await bild(page, "einfuehrung_bericht");
   await bericht.getByRole("button", { name: "Weiter" }).click();
   await expect(titel("Deine Firma läuft")).toBeVisible();

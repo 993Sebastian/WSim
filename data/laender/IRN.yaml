@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_622_819
     hauptstadt: {breite: 35.67, laenge: 51.42}
     binnenland: false
-    nachbarn: [AFG, ARM, AZE, IRQ, PAK, TKM, TUR]
+    nachbarn: [AFG, IRQ, PAK, TUR, XKA, XZA]
     werte:
       bevoelkerung: {
         1900: 9_977_121, 1901: 10_075_971, 1902: 10_173_666, 1903: 10_270_174, 1904: 10_367_597, 1905: 10_465_944, 1906: 10_565_224, 1907: 10_665_447,
@@ -52,7 +52,7 @@ laender:
         1932: 0.469, 1933: 0.471, 1934: 0.474, 1935: 0.476, 1936: 0.478, 1937: 0.481, 1938: 0.483, 1939: 0.486,
         1940: 0.488, 1941: 0.49, 1942: 0.493, 1943: 0.495, 1944: 0.498, 1945: 0.5, 1946: 0.504, 1947: 0.508,
         1948: 0.512, 1949: 0.518, 1950: 0.524, 1951: 0.531, 1952: 0.538, 1953: 0.547, 1954: 0.556, 1955: 0.566,
-        1956: 0.575, 1957: 0.582, 1958: 0.587, 1959: 0.589, 1960: 0.589, 1961: 0.588, 1962: 0.584, 1963: 0.578,
+        1956: 0.575, 1957: 0.582, 1958: 0.586, 1959: 0.589, 1960: 0.589, 1961: 0.588, 1962: 0.584, 1963: 0.578,
         1964: 0.571, 1965: 0.561, 1966: 0.549, 1967: 0.538, 1968: 0.527, 1969: 0.517, 1970: 0.508, 1971: 0.499,
         1972: 0.491, 1973: 0.483, 1974: 0.475, 1975: 0.468, 1976: 0.461, 1977: 0.455, 1978: 0.448, 1979: 0.442,
         1980: 0.436, 1981: 0.445, 1982: 0.455, 1983: 0.473, 1984: 0.475, 1985: 0.475, 1986: 0.474, 1987: 0.464,
@@ -65,4 +65,4 @@ laender:
         2075: 0.427, 2080: 0.427, 2085: 0.427, 2090: 0.427, 2095: 0.427, 2100: 0.427}
       stabilitaet: {1900: 0.5, 1905: 0.35, 1911: 0.4, 1925: 0.55, 1979: 0.2, 1981: 0.4, 2026: 0.4}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_626_511
     hauptstadt: {breite: 32.89, laenge: 13.18}
     binnenland: false
-    nachbarn: [DZA, EGY, NER, SDN, TCD, TUN]
+    nachbarn: [DZA, EGY, NER, SDN, TUN, XMA]
     werte:
       bevoelkerung: {
         1900: 514_648, 1901: 522_708, 1902: 530_830, 1903: 539_014, 1904: 547_324, 1905: 555_761, 1906: 564_327, 1907: 573_023,
@@ -50,7 +50,7 @@ laender:
         1916: 0.409, 1917: 0.409, 1918: 0.409, 1919: 0.409, 1920: 0.409, 1921: 0.409, 1922: 0.409, 1923: 0.409,
         1924: 0.409, 1925: 0.409, 1926: 0.409, 1927: 0.408, 1928: 0.408, 1929: 0.408, 1930: 0.408, 1931: 0.408,
         1932: 0.408, 1933: 0.408, 1934: 0.408, 1935: 0.408, 1936: 0.408, 1937: 0.408, 1938: 0.408, 1939: 0.408,
-        1940: 0.408, 1941: 0.407, 1942: 0.407, 1943: 0.407, 1944: 0.407, 1945: 0.407, 1946: 0.407, 1947: 0.407,
+        1940: 0.408, 1941: 0.408, 1942: 0.408, 1943: 0.408, 1944: 0.407, 1945: 0.407, 1946: 0.407, 1947: 0.407,
         1948: 0.407, 1949: 0.407, 1950: 0.407, 1951: 0.406, 1952: 0.405, 1953: 0.405, 1954: 0.407, 1955: 0.405,
         1956: 0.403, 1957: 0.405, 1958: 0.405, 1959: 0.406, 1960: 0.404, 1961: 0.406, 1962: 0.404, 1963: 0.402,
         1964: 0.4, 1965: 0.401, 1966: 0.399, 1967: 0.398, 1968: 0.393, 1969: 0.391, 1970: 0.391, 1971: 0.392,
@@ -64,4 +64,4 @@ laender:
         2035: 0.383, 2040: 0.383, 2045: 0.383, 2050: 0.383, 2055: 0.383, 2060: 0.383, 2065: 0.383, 2070: 0.383,
         2075: 0.383, 2080: 0.383, 2085: 0.383, 2090: 0.383, 2095: 0.383, 2100: 0.383}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

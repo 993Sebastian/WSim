@@ -666,6 +666,7 @@ pub(crate) fn build(
         &currency_keys,
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
+    countries::check_regions(b.ctx, &countries, &country_keys, texts, all_files_read);
 
     let catalog = b.catalog;
     (ctx.report.errors().count() == errors_before).then_some(catalog)

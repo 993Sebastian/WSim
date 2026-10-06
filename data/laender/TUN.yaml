@@ -54,7 +54,7 @@ laender:
         1948: 0.51, 1949: 0.515, 1950: 0.518, 1951: 0.525, 1952: 0.535, 1953: 0.546, 1954: 0.559, 1955: 0.574,
         1956: 0.588, 1957: 0.604, 1958: 0.618, 1959: 0.631, 1960: 0.646, 1961: 0.656, 1962: 0.665, 1963: 0.671,
         1964: 0.674, 1965: 0.674, 1966: 0.673, 1967: 0.672, 1968: 0.669, 1969: 0.66, 1970: 0.648, 1971: 0.618,
-        1972: 0.59, 1973: 0.563, 1974: 0.538, 1975: 0.519, 1976: 0.497, 1977: 0.479, 1978: 0.464, 1979: 0.452,
+        1972: 0.59, 1973: 0.563, 1974: 0.538, 1975: 0.519, 1976: 0.497, 1977: 0.479, 1978: 0.464, 1979: 0.451,
         1980: 0.442, 1981: 0.435, 1982: 0.431, 1983: 0.43, 1984: 0.431, 1985: 0.434, 1986: 0.428, 1987: 0.421,
         1988: 0.415, 1989: 0.409, 1990: 0.402, 1991: 0.405, 1992: 0.408, 1993: 0.411, 1994: 0.414, 1995: 0.417,
         1996: 0.415, 1997: 0.413, 1998: 0.411, 1999: 0.41, 2000: 0.408, 2001: 0.402, 2002: 0.395, 2003: 0.389,
@@ -64,4 +64,4 @@ laender:
         2035: 0.333, 2040: 0.333, 2045: 0.333, 2050: 0.333, 2055: 0.333, 2060: 0.333, 2065: 0.333, 2070: 0.333,
         2075: 0.333, 2080: 0.333, 2085: 0.333, 2090: 0.333, 2095: 0.333, 2100: 0.333}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

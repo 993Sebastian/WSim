@@ -136,10 +136,10 @@ reale_firmen:
     sitz: RUS
     gegruendet: 1879
     standorte:
-      - land: AZE
+      - land: XKA
         lagerstaette: baku
         anlagen: [{anlage: oelfeld, anzahl: 25}]
-      - land: AZE
+      - land: XKA
         anlagen: [{anlage: raffinerie, anzahl: 10}]
     annaeherung: true
 

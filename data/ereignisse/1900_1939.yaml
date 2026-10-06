@@ -91,13 +91,13 @@ ereignisse:
   - id: erster_balkankrieg
     datum: "1912-10-08"
     art: krieg
-    laender: [MNE, SRB, BGR, GRC, TUR, ALB, MKD]
+    laender: [XWB, BGR, GRC, TUR]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: albanien_unabhaengig
     datum: "1912-11-28"
     art: staatsgruendung
-    laender: [ALB]
+    laender: [XWB]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: fliessband_highland_park
@@ -109,13 +109,13 @@ ereignisse:
   - id: erster_weltkrieg
     datum: "1914-07-28"
     art: krieg
-    laender: [AUT, HUN, SRB, DEU, RUS, FRA, GBR, BEL, LUX, POL, CZE, SVK, SVN, HRV, BIH, UKR, BLR, LTU, LVA, EST, TUR, BGR, ROU, ITA, GRC, MNE, JPN, CAN, AUS, NZL, ZAF, IND]
+    laender: [AUT, HUN, XWB, DEU, RUS, FRA, GBR, BEL, POL, CZE, UKR, BLR, XBA, TUR, BGR, ROU, ITA, GRC, JPN, CAN, AUS, NZL, ZAF, IND]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: panamakanal
     datum: "1914-08-15"
     art: technik
-    laender: [PAN]
+    laender: [XME]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: usa_kriegseintritt
@@ -127,7 +127,7 @@ ereignisse:
   - id: oktoberrevolution
     datum: "1917-11-07"
     art: revolution
-    laender: [RUS, UKR, BLR, KAZ, GEO, ARM, AZE, UZB]
+    laender: [RUS, UKR, BLR, KAZ, XKA, UZB]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: finnland_unabhaengig
@@ -144,13 +144,13 @@ ereignisse:
   - id: baltische_staaten
     datum: "1918-02-24"
     art: staatsgruendung
-    laender: [EST, LVA, LTU]
+    laender: [XBA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: tschechoslowakei
     datum: "1918-10-28"
     art: staatsgruendung
-    laender: [CZE, SVK]
+    laender: [CZE]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: waffenstillstand_1918
@@ -168,7 +168,7 @@ ereignisse:
   - id: jugoslawien
     datum: "1918-12-01"
     art: staatsgruendung
-    laender: [SRB, HRV, SVN, BIH, MNE, MKD]
+    laender: [XWB]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: versailler_vertrag
@@ -186,7 +186,7 @@ ereignisse:
   - id: sowjetunion
     datum: "1922-12-30"
     art: staatsgruendung
-    laender: [RUS, UKR, BLR, GEO, ARM, AZE]
+    laender: [RUS, UKR, BLR, XKA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: ruhrbesetzung

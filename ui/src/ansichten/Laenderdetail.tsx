@@ -108,6 +108,12 @@ export function Laenderdetail({
       {land && land.key === schluessel && (
         <>
           <dl className="werte">
+            {land.members.length > 0 && (
+              <>
+                <dt>{t("landdetail.umfasst")}</dt>
+                <dd>{land.members.map((m) => t(`teilland.${m}`)).join(", ")}</dd>
+              </>
+            )}
             <dt>{t("landdetail.bevoelkerung")}</dt>
             <dd>{formatZahl(land.population)}</dd>
             <dt>{t("landdetail.bip_je_kopf")}</dt>

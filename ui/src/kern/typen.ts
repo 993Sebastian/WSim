@@ -277,6 +277,8 @@ export interface Weltkarte {
 
 export interface Landdetail {
   key: string;
+  /** Countries merged into this region (ISO codes, texts `teilland.<ISO>`), else empty. */
+  members: string[];
   date: string;
   population: number;
   gdp_per_capita_usd: number;

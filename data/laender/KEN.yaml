@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 594_835
     hauptstadt: {breite: -1.28, laenge: 36.81}
     binnenland: false
-    nachbarn: [ETH, SOM, SSD, TZA, UGA]
+    nachbarn: [ETH, SDN, TZA, UGA, XHA]
     werte:
       bevoelkerung: {
         1900: 3_948_167, 1901: 3_917_849, 1902: 3_885_401, 1903: 3_850_858, 1904: 3_816_618, 1905: 3_782_680, 1906: 3_749_041, 1907: 3_715_697,
@@ -47,7 +47,7 @@ laender:
       gini: {
         1900: 0.467, 1901: 0.476, 1902: 0.485, 1903: 0.495, 1904: 0.504, 1905: 0.514, 1906: 0.523, 1907: 0.532,
         1908: 0.54, 1909: 0.548, 1910: 0.556, 1911: 0.562, 1912: 0.568, 1913: 0.574, 1914: 0.579, 1915: 0.583,
-        1916: 0.587, 1917: 0.591, 1918: 0.594, 1919: 0.598, 1920: 0.602, 1921: 0.605, 1922: 0.609, 1923: 0.613,
+        1916: 0.587, 1917: 0.591, 1918: 0.594, 1919: 0.598, 1920: 0.602, 1921: 0.606, 1922: 0.609, 1923: 0.613,
         1924: 0.617, 1925: 0.62, 1926: 0.624, 1927: 0.627, 1928: 0.629, 1929: 0.632, 1930: 0.634, 1931: 0.635,
         1932: 0.637, 1933: 0.638, 1934: 0.638, 1935: 0.639, 1936: 0.639, 1937: 0.64, 1938: 0.64, 1939: 0.64,
         1940: 0.641, 1941: 0.641, 1942: 0.641, 1943: 0.642, 1944: 0.642, 1945: 0.642, 1946: 0.644, 1947: 0.647,
@@ -64,4 +64,4 @@ laender:
         2035: 0.411, 2040: 0.411, 2045: 0.411, 2050: 0.411, 2055: 0.411, 2060: 0.411, 2065: 0.411, 2070: 0.411,
         2075: 0.411, 2080: 0.411, 2085: 0.411, 2090: 0.411, 2095: 0.411, 2100: 0.411}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

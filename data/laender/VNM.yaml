@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 328_941
     hauptstadt: {breite: 21.04, laenge: 105.85}
     binnenland: false
-    nachbarn: [CHN, KHM, LAO]
+    nachbarn: [CHN, KHM]
     werte:
       bevoelkerung: {
         1900: 11_797_851, 1901: 12_196_386, 1902: 12_730_842, 1903: 13_408_775, 1904: 14_122_808, 1905: 14_874_865, 1906: 15_666_968, 1907: 16_501_253,
@@ -64,4 +64,4 @@ laender:
         2035: 0.356, 2040: 0.356, 2045: 0.356, 2050: 0.356, 2055: 0.356, 2060: 0.356, 2065: 0.356, 2070: 0.356,
         2075: 0.356, 2080: 0.356, 2085: 0.356, 2090: 0.356, 2095: 0.356, 2100: 0.356}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

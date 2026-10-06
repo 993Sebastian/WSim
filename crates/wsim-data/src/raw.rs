@@ -53,6 +53,8 @@ pub struct RawCountry {
     pub landlocked: bool,
     #[serde(rename = "nachbarn", default)]
     pub neighbors: Vec<String>,
+    #[serde(rename = "umfasst", default)]
+    pub members: Vec<String>,
     #[serde(rename = "werte")]
     pub values: RawCountryValues,
     #[serde(rename = "praegung", default)]

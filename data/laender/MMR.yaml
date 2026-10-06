@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 662_766
     hauptstadt: {breite: 19.77, laenge: 96.12}
     binnenland: false
-    nachbarn: [BGD, CHN, IND, LAO, THA]
+    nachbarn: [BGD, CHN, IND, KHM, THA]
     werte:
       bevoelkerung: {
         1900: 9_413_427, 1901: 9_605_885, 1902: 9_774_435, 1903: 9_917_973, 1904: 10_063_598, 1905: 10_211_340, 1906: 10_361_230, 1907: 10_513_297,
@@ -46,8 +46,8 @@ laender:
         2075: 25_601, 2080: 28_422, 2085: 31_427, 2090: 34_596, 2095: 37_909, 2100: 41_341}
       gini: {
         1900: 0.282, 1901: 0.282, 1902: 0.282, 1903: 0.282, 1904: 0.282, 1905: 0.282, 1906: 0.282, 1907: 0.282,
-        1908: 0.282, 1909: 0.282, 1910: 0.282, 1911: 0.283, 1912: 0.283, 1913: 0.283, 1914: 0.283, 1915: 0.283,
-        1916: 0.283, 1917: 0.283, 1918: 0.283, 1919: 0.283, 1920: 0.284, 1921: 0.284, 1922: 0.284, 1923: 0.284,
+        1908: 0.282, 1909: 0.282, 1910: 0.283, 1911: 0.283, 1912: 0.283, 1913: 0.283, 1914: 0.283, 1915: 0.283,
+        1916: 0.283, 1917: 0.283, 1918: 0.283, 1919: 0.283, 1920: 0.283, 1921: 0.284, 1922: 0.284, 1923: 0.284,
         1924: 0.284, 1925: 0.284, 1926: 0.284, 1927: 0.284, 1928: 0.284, 1929: 0.284, 1930: 0.284, 1931: 0.284,
         1932: 0.285, 1933: 0.285, 1934: 0.285, 1935: 0.285, 1936: 0.285, 1937: 0.285, 1938: 0.285, 1939: 0.285,
         1940: 0.285, 1941: 0.285, 1942: 0.286, 1943: 0.286, 1944: 0.286, 1945: 0.286, 1946: 0.286, 1947: 0.287,
@@ -64,4 +64,4 @@ laender:
         2035: 0.312, 2040: 0.312, 2045: 0.312, 2050: 0.312, 2055: 0.312, 2060: 0.312, 2065: 0.312, 2070: 0.312,
         2075: 0.312, 2080: 0.312, 2085: 0.312, 2090: 0.312, 2095: 0.312, 2100: 0.312}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

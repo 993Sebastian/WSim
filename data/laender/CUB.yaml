@@ -47,7 +47,7 @@ laender:
       gini: {
         1900: 0.418, 1901: 0.418, 1902: 0.417, 1903: 0.416, 1904: 0.416, 1905: 0.415, 1906: 0.413, 1907: 0.415,
         1908: 0.413, 1909: 0.412, 1910: 0.414, 1911: 0.413, 1912: 0.411, 1913: 0.41, 1914: 0.41, 1915: 0.409,
-        1916: 0.409, 1917: 0.408, 1918: 0.407, 1919: 0.407, 1920: 0.407, 1921: 0.407, 1922: 0.407, 1923: 0.406,
+        1916: 0.409, 1917: 0.408, 1918: 0.408, 1919: 0.407, 1920: 0.407, 1921: 0.407, 1922: 0.407, 1923: 0.406,
         1924: 0.405, 1925: 0.405, 1926: 0.405, 1927: 0.405, 1928: 0.404, 1929: 0.404, 1930: 0.406, 1931: 0.406,
         1932: 0.406, 1933: 0.405, 1934: 0.405, 1935: 0.404, 1936: 0.403, 1937: 0.403, 1938: 0.403, 1939: 0.402,
         1940: 0.402, 1941: 0.401, 1942: 0.401, 1943: 0.401, 1944: 0.396, 1945: 0.393, 1946: 0.39, 1947: 0.386,
@@ -64,4 +64,4 @@ laender:
         2035: 0.433, 2040: 0.433, 2045: 0.433, 2050: 0.433, 2055: 0.433, 2060: 0.433, 2065: 0.433, 2070: 0.433,
         2075: 0.433, 2080: 0.433, 2085: 0.433, 2090: 0.433, 2095: 0.433, 2100: 0.433}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

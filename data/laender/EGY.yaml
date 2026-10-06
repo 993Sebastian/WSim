@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_003_584
     hauptstadt: {breite: 30.05, laenge: 31.25}
     binnenland: false
-    nachbarn: [ISR, LBY, PSE, SDN]
+    nachbarn: [ISR, LBY, SDN, XLE]
     werte:
       bevoelkerung: {
         1900: 9_939_630, 1901: 10_076_755, 1902: 10_214_563, 1903: 10_353_046, 1904: 10_493_404, 1905: 10_635_662, 1906: 10_779_847, 1907: 10_925_984,
@@ -64,4 +64,4 @@ laender:
         2035: 0.32, 2040: 0.32, 2045: 0.32, 2050: 0.32, 2055: 0.32, 2060: 0.32, 2065: 0.32, 2070: 0.32,
         2075: 0.32, 2080: 0.32, 2085: 0.32, 2090: 0.32, 2095: 0.32, 2100: 0.32}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

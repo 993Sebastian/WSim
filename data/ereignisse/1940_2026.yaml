@@ -7,7 +7,7 @@ ereignisse:
   - id: westfeldzug
     datum: "1940-05-10"
     art: krieg
-    laender: [DEU, FRA, BEL, NLD, LUX, GBR]
+    laender: [DEU, FRA, BEL, NLD, GBR]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: leih_und_pachtgesetz
@@ -19,7 +19,7 @@ ereignisse:
   - id: angriff_sowjetunion
     datum: "1941-06-22"
     art: krieg
-    laender: [DEU, RUS, UKR, BLR, LTU, LVA, EST]
+    laender: [DEU, RUS, UKR, BLR, XBA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: pearl_harbor
@@ -79,13 +79,13 @@ ereignisse:
   - id: gatt
     datum: "1947-10-30"
     art: abkommen
-    laender: [USA, GBR, FRA, CAN, BEL, NLD, LUX, AUS, BRA, CHL, CHN, CUB, CZE, IND, LBN, NZL, NOR, PAK, MMR, LKA, SYR, ZAF, ZWE]
+    laender: [USA, GBR, FRA, CAN, BEL, NLD, AUS, BRA, CHL, CHN, CUB, CZE, IND, XLE, NZL, NOR, PAK, MMR, LKA, SYR, ZAF, ZWE]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: marshallplan
     datum: "1948-04-03"
     art: abkommen
-    laender: [USA, DEU, FRA, GBR, ITA, NLD, BEL, AUT, GRC, TUR, DNK, NOR, SWE, PRT, IRL, ISL, LUX, CHE]
+    laender: [USA, DEU, FRA, GBR, ITA, NLD, BEL, AUT, GRC, TUR, DNK, NOR, SWE, PRT, IRL, CHE]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: israel
@@ -103,7 +103,7 @@ ereignisse:
   - id: nato
     datum: "1949-04-04"
     art: abkommen
-    laender: [USA, GBR, FRA, CAN, BEL, NLD, LUX, NOR, DNK, ISL, ITA, PRT]
+    laender: [USA, GBR, FRA, CAN, BEL, NLD, NOR, DNK, ITA, PRT]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: bundesrepublik
@@ -127,7 +127,7 @@ ereignisse:
   - id: montanunion
     datum: "1951-04-18"
     art: abkommen
-    laender: [FRA, DEU, ITA, BEL, NLD, LUX]
+    laender: [FRA, DEU, ITA, BEL, NLD]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: waffenstillstand_korea
@@ -157,7 +157,7 @@ ereignisse:
   - id: roemische_vertraege
     datum: "1957-03-25"
     art: abkommen
-    laender: [FRA, DEU, ITA, BEL, NLD, LUX]
+    laender: [FRA, DEU, ITA, BEL, NLD]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: sputnik
@@ -175,13 +175,13 @@ ereignisse:
   - id: opec
     datum: "1960-09-14"
     art: abkommen
-    laender: [IRN, IRQ, KWT, SAU, VEN]
+    laender: [IRN, IRQ, XGO, SAU, VEN]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: afrikanisches_jahr
     datum: "1960-10-01"
     art: staatsgruendung
-    laender: [NGA, COD, SEN, CIV, CMR, MDG, MLI, NER, TCD, TGO, BEN, BFA, GAB, COG, CAF, MRT, SOM]
+    laender: [NGA, COD, SEN, CIV, CMR, MDG, MLI, NER, XMA, XTB, BFA, XWA, XHA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: gagarin
@@ -217,13 +217,13 @@ ereignisse:
   - id: sechstagekrieg
     datum: "1967-06-05"
     art: krieg
-    laender: [ISR, EGY, SYR, JOR]
+    laender: [ISR, EGY, SYR, XLE]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: prager_fruehling
     datum: "1968-08-21"
     art: krise
-    laender: [CZE, SVK, RUS]
+    laender: [CZE, RUS]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: mondlandung
@@ -253,7 +253,7 @@ ereignisse:
   - id: oelkrise_1973
     datum: "1973-10-17"
     art: krise
-    laender: [SAU, KWT, IRQ, USA, NLD, JPN, DEU, FRA, GBR]
+    laender: [SAU, XGO, IRQ, USA, NLD, JPN, DEU, FRA, GBR]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: fall_saigons
@@ -325,19 +325,19 @@ ereignisse:
   - id: zweiter_golfkrieg
     datum: "1991-01-17"
     art: krieg
-    laender: [IRQ, KWT, USA, SAU, GBR]
+    laender: [IRQ, XGO, USA, SAU, GBR]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: ende_sowjetunion
     datum: "1991-12-26"
     art: staatsgruendung
-    laender: [RUS, UKR, BLR, KAZ, UZB, GEO, AZE, ARM, MDA, LTU, LVA, EST, KGZ, TJK, TKM]
+    laender: [RUS, UKR, BLR, KAZ, UZB, XKA, ROU, XBA, XZA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: maastricht
     datum: "1992-02-07"
     art: abkommen
-    laender: [DEU, FRA, ITA, BEL, NLD, LUX, GBR, IRL, DNK, ESP, PRT, GRC]
+    laender: [DEU, FRA, ITA, BEL, NLD, GBR, IRL, DNK, ESP, PRT, GRC]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: nafta
@@ -367,7 +367,7 @@ ereignisse:
   - id: euro
     datum: "1999-01-01"
     art: reform
-    laender: [DEU, FRA, ITA, ESP, NLD, BEL, AUT, FIN, IRL, PRT, LUX]
+    laender: [DEU, FRA, ITA, ESP, NLD, BEL, AUT, FIN, IRL, PRT]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: dotcom_blase
@@ -397,7 +397,7 @@ ereignisse:
   - id: eu_osterweiterung
     datum: "2004-05-01"
     art: abkommen
-    laender: [POL, CZE, SVK, HUN, SVN, EST, LVA, LTU, MLT, CYP]
+    laender: [POL, CZE, HUN, XWB, XBA, ITA, GRC]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: tsunami_2004
@@ -415,13 +415,13 @@ ereignisse:
   - id: lehman
     datum: "2008-09-15"
     art: krise
-    laender: [USA, GBR, DEU, ISL, IRL]
+    laender: [USA, GBR, DEU, NOR, IRL]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: eurokrise
     datum: "2010-05-02"
     art: krise
-    laender: [GRC, IRL, PRT, ESP, ITA, CYP]
+    laender: [GRC, IRL, PRT, ESP, ITA]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: arabischer_fruehling
@@ -487,7 +487,7 @@ ereignisse:
   - id: krieg_gaza
     datum: "2023-10-07"
     art: krieg
-    laender: [ISR, PSE]
+    laender: [ISR, XLE]
     quelle: "Wikipedia (de), Stand 2026"
 
   - id: us_zoelle_2025

@@ -60,7 +60,8 @@ Offene Fragen: `docs/OFFENE_PUNKTE.md`.
 - Länderdaten gelten in **heutigen Grenzen** für den ganzen Zeitraum.
 - `data/laender/*.yaml` und `data/texte/de/laender.yaml` erzeugt
   `python3 tools/daten/laender.py` aus Gapminder und Natural Earth (Quellen werden nach
-  `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript.
+  `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript,
+  die Zusammenfassung kleiner Länder zu Regionen in `tools/daten/regionen.py`.
   Die Umrisse der Weltkarte (`ui/src/karte/welt.json`) erzeugt `tools/daten/karte.py`.
 - Fortschritt und eigenständige Entscheidungen: `docs/FORTSCHRITT.md`.
 

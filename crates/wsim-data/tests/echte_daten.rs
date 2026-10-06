@@ -90,7 +90,8 @@ fn country_values_interpolate() {
 fn all_countries_with_complete_values() {
     let data = load_dir(&data_dir()).data.expect("data loads");
     let c = &data.catalog;
-    assert_eq!(c.countries.len(), 197);
+    // 197 countries, small ones merged into 111 countries and regions (M34).
+    assert_eq!(c.countries.len(), 111);
     for (id, country) in c.countries.iter() {
         let key = c.countries.key(id);
         for series in [
@@ -128,11 +129,25 @@ fn all_countries_with_complete_values() {
     neighbors.sort_unstable();
     assert_eq!(
         neighbors,
-        [
-            "AUT", "BEL", "CHE", "CZE", "DNK", "FRA", "LUX", "NLD", "POL"
-        ]
+        ["AUT", "BEL", "CHE", "CZE", "DNK", "FRA", "NLD", "POL"]
     );
     assert_eq!(data.texts.get("land.DEU"), Some("Deutschland"));
+    assert!(deu.members.is_empty());
+
+    // Regions: Luxembourg went to Belgium, the Baltic states form a region of their own.
+    let bel = c.countries.get(c.countries.id("BEL").unwrap());
+    assert_eq!(bel.members, ["BEL", "LUX"]);
+    assert_eq!(data.texts.get("teilland.LUX"), Some("Luxemburg"));
+    assert!(c.countries.id("LUX").is_none());
+    let baltic = c.countries.get(c.countries.id("XBA").unwrap());
+    assert_eq!(baltic.members, ["LTU", "LVA", "EST"]);
+    assert_eq!(data.texts.get("land.XBA"), Some("Baltikum"));
+    let merged: usize = c
+        .countries
+        .iter()
+        .map(|(_, k)| k.members.len().max(1))
+        .sum();
+    assert_eq!(merged, 197);
 }
 
 #[test]

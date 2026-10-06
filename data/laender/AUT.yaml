@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 83_911
     hauptstadt: {breite: 48.20, laenge: 16.36}
     binnenland: true
-    nachbarn: [CHE, CZE, DEU, HUN, ITA, LIE, SVK, SVN]
+    nachbarn: [CHE, CZE, DEU, HUN, ITA, XWB]
     werte:
       bevoelkerung: {
         1900: 5_979_182, 1901: 6_040_563, 1902: 6_102_571, 1903: 6_165_213, 1904: 6_228_499, 1905: 6_292_433, 1906: 6_357_025, 1907: 6_422_279,
@@ -57,7 +57,7 @@ laender:
         1972: 0.451, 1973: 0.445, 1974: 0.437, 1975: 0.429, 1976: 0.42, 1977: 0.412, 1978: 0.391, 1979: 0.371,
         1980: 0.351, 1981: 0.332, 1982: 0.314, 1983: 0.296, 1984: 0.279, 1985: 0.262, 1986: 0.246, 1987: 0.23,
         1988: 0.241, 1989: 0.252, 1990: 0.263, 1991: 0.275, 1992: 0.287, 1993: 0.3, 1994: 0.313, 1995: 0.311,
-        1996: 0.306, 1997: 0.302, 1998: 0.298, 1999: 0.293, 2000: 0.288, 2001: 0.29, 2002: 0.293, 2003: 0.295,
+        1996: 0.306, 1997: 0.302, 1998: 0.298, 1999: 0.293, 2000: 0.288, 2001: 0.291, 2002: 0.293, 2003: 0.295,
         2004: 0.298, 2005: 0.287, 2006: 0.296, 2007: 0.306, 2008: 0.304, 2009: 0.315, 2010: 0.302, 2011: 0.308,
         2012: 0.305, 2013: 0.307, 2014: 0.305, 2015: 0.305, 2016: 0.308, 2017: 0.297, 2018: 0.308, 2019: 0.308,
         2020: 0.315, 2021: 0.322, 2022: 0.327, 2023: 0.331, 2024: 0.334, 2025: 0.332, 2026: 0.33, 2030: 0.32,
@@ -65,4 +65,4 @@ laender:
         2075: 0.314, 2080: 0.314, 2085: 0.314, 2090: 0.314, 2095: 0.314, 2100: 0.314}
       stabilitaet: {1900: 0.8, 1918: 0.3, 1920: 0.45, 1927: 0.5, 1934: 0.35, 1938: 0.4, 1945: 0.3, 1955: 0.85, 2026: 0.9}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

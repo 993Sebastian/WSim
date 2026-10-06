@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_925_841
     hauptstadt: {breite: 24.64, laenge: 46.77}
     binnenland: false
-    nachbarn: [ARE, IRQ, JOR, KWT, OMN, QAT, YEM]
+    nachbarn: [IRQ, XGO, XLE, YEM]
     werte:
       bevoelkerung: {
         1900: 1_456_078, 1901: 1_442_238, 1902: 1_429_526, 1903: 1_417_892, 1904: 1_406_033, 1905: 1_393_947, 1906: 1_381_629, 1907: 1_369_079,
@@ -52,7 +52,7 @@ laender:
         1932: 0.416, 1933: 0.415, 1934: 0.414, 1935: 0.414, 1936: 0.413, 1937: 0.412, 1938: 0.411, 1939: 0.411,
         1940: 0.41, 1941: 0.409, 1942: 0.409, 1943: 0.408, 1944: 0.407, 1945: 0.407, 1946: 0.406, 1947: 0.405,
         1948: 0.405, 1949: 0.404, 1950: 0.403, 1951: 0.402, 1952: 0.401, 1953: 0.4, 1954: 0.398, 1955: 0.398,
-        1956: 0.397, 1957: 0.396, 1958: 0.396, 1959: 0.395, 1960: 0.393, 1961: 0.391, 1962: 0.39, 1963: 0.388,
+        1956: 0.397, 1957: 0.397, 1958: 0.396, 1959: 0.395, 1960: 0.393, 1961: 0.391, 1962: 0.39, 1963: 0.388,
         1964: 0.387, 1965: 0.385, 1966: 0.383, 1967: 0.382, 1968: 0.381, 1969: 0.38, 1970: 0.379, 1971: 0.377,
         1972: 0.375, 1973: 0.372, 1974: 0.37, 1975: 0.37, 1976: 0.37, 1977: 0.368, 1978: 0.369, 1979: 0.369,
         1980: 0.368, 1981: 0.368, 1982: 0.369, 1983: 0.372, 1984: 0.373, 1985: 0.376, 1986: 0.378, 1987: 0.378,
@@ -64,4 +64,4 @@ laender:
         2035: 0.36, 2040: 0.36, 2045: 0.36, 2050: 0.36, 2055: 0.36, 2060: 0.36, 2065: 0.36, 2070: 0.36,
         2075: 0.36, 2080: 0.36, 2085: 0.36, 2090: 0.36, 2095: 0.36, 2100: 0.36}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

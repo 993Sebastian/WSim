@@ -1569,3 +1569,33 @@ Bei den Daten kommt hinzu: Kautschuk lässt sich auch synthetisch aus Ethylen un
 herstellen (1937, `27_synthesekautschuk.yaml`), Nylon auch aus Kohle statt aus Benzin.
 Für die Ebenen des Produktbaums (Lastenheft §17.2) zählt bei mehreren Rezepten eines
 Vorprodukts der einfachste Weg; ein Rohstoff mit Abbau-Rezept ist die erste Ebene.
+
+## M34 – Regionen
+
+Offene Punkte, Abschnitt I. Aus 197 Ländern werden 111 Länder und Regionen
+(`tools/daten/regionen.py`): Kleinstaaten gehen im Nachbarland auf (Luxemburg in Belgien,
+Monaco in Frankreich), dünn besiedelte Nachbarn bilden Regionen (Baltikum, Mittelafrika,
+Ozeanien). Eine Region behält den ISO-Code ihres namensgebenden Landes oder bekommt einen
+frei verfügbaren Code (`X..`). Ihre Werte entstehen aus denen ihrer Länder *i*:
+
+- **Bevölkerung, Fläche:** Summen Σ *Pᵢ*, Σ *Aᵢ*.
+- **BIP je Kopf:** Σ *Pᵢ* · *yᵢ* / Σ *Pᵢ* je Jahr (Gesamt-BIP durch Gesamtbevölkerung).
+- **Gini:** bevölkerungsgewichtetes Mittel Σ *Pᵢ* · *Gᵢ* / Σ *Pᵢ* (Annäherung: Die
+  Ungleichheit zwischen den Ländern fehlt).
+- **Hauptstadt, Kontinent:** die des namensgebenden Landes, sonst die des Landes mit den
+  meisten Einwohnern im Jahr 2000. Dieses Land steht in `umfasst` vorn.
+- **Binnenland** nur, wenn alle Länder Binnenländer sind; **Nachbarn** sind die
+  Nachbarn aller Länder (als Regionen) ohne die Region selbst.
+- **Steuern, Stabilität, Prägung:** Schätzungen gab es nur für einzelne große Länder;
+  Regionen nehmen die Standardwerte des Ländermodells.
+- **Währung:** eine Region mit eigenem Code behält ihre Währungen, eine `X..`-Region nimmt
+  die des Landes, das in `umfasst` vorn steht. Währungen, die danach kein Land mehr
+  verwendet, entfallen.
+- **Verweise:** Lagerstätten, reale Firmen, Ereignisse und Namensgruppen nennen die
+  Region statt des Landes.
+
+**Alte Spielstände:** Die Codes der aufgegangenen Länder lesen sich als ihre Region. Steht
+für eine Region in einem Spielstand mehr als ein Eintrag (etwa Märkte von Belgien und
+Luxemburg), gilt der unter dem eigenen Code, sonst der des Landes, das in `umfasst` am
+weitesten vorn steht. Die übrigen entfallen. Abgeleitete Länderwerte werden nach dem Laden
+ohnehin neu berechnet.

@@ -923,6 +923,9 @@ pub struct CountryMarket {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CountryDetail {
     pub key: String,
+    /// Countries merged into this region (ISO codes, texts `teilland.<ISO>`; M34),
+    /// empty for a single country.
+    pub members: Vec<String>,
     pub date: String,
     pub population: f64,
     pub gdp_per_capita_usd: f64,
@@ -1048,6 +1051,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
     let (currencies, currency_per_usd) = country_currencies(game, id);
     Some(CountryDetail {
         key: key.to_owned(),
+        members: catalog.countries.get(id).members.clone(),
         date: iso(state.date),
         population: v.population,
         gdp_per_capita_usd: v.gdp_per_capita_usd,

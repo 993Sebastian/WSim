@@ -31,7 +31,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: dalmatien_bauxit   # Istrien und Dalmatien
-    land: HRV
+    land: XWB
     rohstoff: bauxit
     vorrat: 60_000_000
     entdeckt: 1910
@@ -40,7 +40,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: herzegowina_bauxit   # bei Mostar
-    land: BIH
+    land: XWB
     rohstoff: bauxit
     vorrat: 60_000_000
     entdeckt: 1912
@@ -68,7 +68,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: demerara_bauxit   # Mackenzie (Linden)
-    land: GUY
+    land: XGU
     rohstoff: bauxit
     vorrat: 150_000_000
     entdeckt: 1914
@@ -77,7 +77,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: moengo_bauxit
-    land: SUR
+    land: XGU
     rohstoff: bauxit
     vorrat: 150_000_000
     entdeckt: 1915

@@ -1,33 +1,16 @@
 # Erzeugt von tools/daten/laender.py – Namen nach Natural Earth (NAME_DE).
 land.AFG: Afghanistan
 land.AGO: Angola
-land.ALB: Albanien
-land.AND: Andorra
-land.ARE: Vereinigte Arabische Emirate
 land.ARG: Argentinien
-land.ARM: Armenien
-land.ATG: Antigua und Barbuda
 land.AUS: Australien
 land.AUT: Österreich
-land.AZE: Aserbaidschan
-land.BDI: Burundi
-land.BEL: Belgien
-land.BEN: Benin
+land.BEL: Belgien und Luxemburg
 land.BFA: Burkina Faso
 land.BGD: Bangladesch
 land.BGR: Bulgarien
-land.BHR: Bahrain
-land.BHS: Bahamas
-land.BIH: Bosnien und Herzegowina
 land.BLR: Belarus
-land.BLZ: Belize
 land.BOL: Bolivien
 land.BRA: Brasilien
-land.BRB: Barbados
-land.BRN: Brunei
-land.BTN: Bhutan
-land.BWA: Botswana
-land.CAF: Zentralafrikanische Republik
 land.CAN: Kanada
 land.CHE: Schweiz
 land.CHL: Chile
@@ -35,164 +18,219 @@ land.CHN: China
 land.CIV: Elfenbeinküste
 land.CMR: Kamerun
 land.COD: Demokratische Republik Kongo
-land.COG: Republik Kongo
 land.COL: Kolumbien
-land.COM: Komoren
-land.CPV: Kap Verde
-land.CRI: Costa Rica
 land.CUB: Kuba
-land.CYP: Zypern
-land.CZE: Tschechien
+land.CZE: Tschechien und Slowakei
 land.DEU: Deutschland
-land.DJI: Dschibuti
-land.DMA: Dominica
 land.DNK: Dänemark
-land.DOM: Dominikanische Republik
 land.DZA: Algerien
 land.ECU: Ecuador
 land.EGY: Ägypten
-land.ERI: Eritrea
-land.ESH: Westsahara
 land.ESP: Spanien
-land.EST: Estland
 land.ETH: Äthiopien
 land.FIN: Finnland
-land.FJI: Fidschi
 land.FRA: Frankreich
-land.FSM: Mikronesien
-land.GAB: Gabun
 land.GBR: Vereinigtes Königreich
-land.GEO: Georgien
 land.GHA: Ghana
-land.GIN: Guinea
-land.GMB: Gambia
-land.GNB: Guinea-Bissau
-land.GNQ: Äquatorialguinea
-land.GRC: Griechenland
-land.GRD: Grenada
-land.GTM: Guatemala
-land.GUY: Guyana
-land.HND: Honduras
-land.HRV: Kroatien
-land.HTI: Haiti
+land.GRC: Griechenland und Zypern
 land.HUN: Ungarn
-land.IDN: Indonesien
+land.IDN: Indonesien und Osttimor
 land.IND: Indien
 land.IRL: Irland
 land.IRN: Iran
 land.IRQ: Irak
-land.ISL: Island
 land.ISR: Israel
-land.ITA: Italien
-land.JAM: Jamaika
-land.JOR: Jordanien
+land.ITA: Italien und Malta
 land.JPN: Japan
 land.KAZ: Kasachstan
 land.KEN: Kenia
-land.KGZ: Kirgisistan
-land.KHM: Kambodscha
-land.KIR: Kiribati
-land.KNA: St. Kitts und Nevis
+land.KHM: Kambodscha und Laos
 land.KOR: Südkorea
-land.KWT: Kuwait
-land.LAO: Laos
-land.LBN: Libanon
-land.LBR: Liberia
 land.LBY: Libyen
-land.LCA: St. Lucia
-land.LIE: Liechtenstein
-land.LKA: Sri Lanka
-land.LSO: Lesotho
-land.LTU: Litauen
-land.LUX: Luxemburg
-land.LVA: Lettland
-land.MAR: Marokko
-land.MCO: Monaco
-land.MDA: Moldau
-land.MDG: Madagaskar
-land.MDV: Malediven
+land.LKA: Sri Lanka und Malediven
+land.MAR: Marokko und Westsahara
+land.MDG: Madagaskar und Inseln
 land.MEX: Mexiko
-land.MHL: Marshallinseln
-land.MKD: Nordmazedonien
 land.MLI: Mali
-land.MLT: Malta
 land.MMR: Myanmar
-land.MNE: Montenegro
 land.MNG: Mongolei
 land.MOZ: Mosambik
-land.MRT: Mauretanien
-land.MUS: Mauritius
 land.MWI: Malawi
-land.MYS: Malaysia
-land.NAM: Namibia
+land.MYS: Malaysia und Brunei
 land.NER: Niger
 land.NGA: Nigeria
-land.NIC: Nicaragua
 land.NLD: Niederlande
-land.NOR: Norwegen
-land.NPL: Nepal
-land.NRU: Nauru
+land.NOR: Norwegen und Island
+land.NPL: Nepal und Bhutan
 land.NZL: Neuseeland
-land.OMN: Oman
 land.PAK: Pakistan
-land.PAN: Panama
 land.PER: Peru
 land.PHL: Philippinen
-land.PLW: Palau
-land.PNG: Papua-Neuguinea
 land.POL: Polen
 land.PRK: Nordkorea
 land.PRT: Portugal
-land.PRY: Paraguay
-land.PSE: Palästina
-land.QAT: Katar
-land.ROU: Rumänien
+land.ROU: Rumänien und Moldau
 land.RUS: Russland
-land.RWA: Ruanda
 land.SAU: Saudi-Arabien
-land.SDN: Sudan
-land.SEN: Senegal
+land.SDN: Sudan und Südsudan
+land.SEN: Senegal und Gambia
 land.SGP: Singapur
-land.SLB: Salomonen
-land.SLE: Sierra Leone
-land.SLV: El Salvador
-land.SMR: San Marino
-land.SOM: Somalia
-land.SRB: Serbien
-land.SSD: Südsudan
-land.STP: São Tomé und Príncipe
-land.SUR: Suriname
-land.SVK: Slowakei
-land.SVN: Slowenien
 land.SWE: Schweden
-land.SWZ: Eswatini
-land.SYC: Seychellen
 land.SYR: Syrien
-land.TCD: Tschad
-land.TGO: Togo
 land.THA: Thailand
-land.TJK: Tadschikistan
-land.TKM: Turkmenistan
-land.TLS: Osttimor
-land.TON: Tonga
-land.TTO: Trinidad und Tobago
 land.TUN: Tunesien
 land.TUR: Türkei
-land.TUV: Tuvalu
 land.TWN: Taiwan
 land.TZA: Tansania
 land.UGA: Uganda
 land.UKR: Ukraine
-land.URY: Uruguay
 land.USA: Vereinigte Staaten
 land.UZB: Usbekistan
-land.VCT: St. Vincent und die Grenadinen
 land.VEN: Venezuela
 land.VNM: Vietnam
-land.VUT: Vanuatu
-land.WSM: Samoa
-land.XKX: Kosovo
+land.XBA: Baltikum
+land.XGO: Golfstaaten
+land.XGU: Guayana
+land.XHA: Horn von Afrika
+land.XHI: Hispaniola
+land.XKA: Kaukasus
+land.XKB: Karibik
+land.XLE: Levante
+land.XMA: Mittelafrika
+land.XME: Mittelamerika
+land.XOZ: Ozeanien
+land.XPU: Paraguay und Uruguay
+land.XRB: Ruanda und Burundi
+land.XSA: Südliches Afrika
+land.XTB: Togo und Benin
+land.XWA: Westafrika
+land.XWB: Westbalkan
+land.XZA: Zentralasien
 land.YEM: Jemen
 land.ZAF: Südafrika
 land.ZMB: Sambia
 land.ZWE: Simbabwe
+
+# Länder innerhalb der Regionen (tools/daten/regionen.py)
+teilland.ALB: Albanien
+teilland.AND: Andorra
+teilland.ARE: Vereinigte Arabische Emirate
+teilland.ARM: Armenien
+teilland.ATG: Antigua und Barbuda
+teilland.AZE: Aserbaidschan
+teilland.BDI: Burundi
+teilland.BEL: Belgien
+teilland.BEN: Benin
+teilland.BHR: Bahrain
+teilland.BHS: Bahamas
+teilland.BIH: Bosnien und Herzegowina
+teilland.BLZ: Belize
+teilland.BRB: Barbados
+teilland.BRN: Brunei
+teilland.BTN: Bhutan
+teilland.BWA: Botswana
+teilland.CAF: Zentralafrikanische Republik
+teilland.CHE: Schweiz
+teilland.COG: Republik Kongo
+teilland.COM: Komoren
+teilland.CPV: Kap Verde
+teilland.CRI: Costa Rica
+teilland.CYP: Zypern
+teilland.CZE: Tschechien
+teilland.DJI: Dschibuti
+teilland.DMA: Dominica
+teilland.DOM: Dominikanische Republik
+teilland.ERI: Eritrea
+teilland.ESH: Westsahara
+teilland.ESP: Spanien
+teilland.EST: Estland
+teilland.FJI: Fidschi
+teilland.FRA: Frankreich
+teilland.FSM: Mikronesien
+teilland.GAB: Gabun
+teilland.GEO: Georgien
+teilland.GIN: Guinea
+teilland.GMB: Gambia
+teilland.GNB: Guinea-Bissau
+teilland.GNQ: Äquatorialguinea
+teilland.GRC: Griechenland
+teilland.GRD: Grenada
+teilland.GTM: Guatemala
+teilland.GUY: Guyana
+teilland.HND: Honduras
+teilland.HRV: Kroatien
+teilland.HTI: Haiti
+teilland.IDN: Indonesien
+teilland.ISL: Island
+teilland.ITA: Italien
+teilland.JAM: Jamaika
+teilland.JOR: Jordanien
+teilland.KGZ: Kirgisistan
+teilland.KHM: Kambodscha
+teilland.KIR: Kiribati
+teilland.KNA: St. Kitts und Nevis
+teilland.KWT: Kuwait
+teilland.LAO: Laos
+teilland.LBN: Libanon
+teilland.LBR: Liberia
+teilland.LCA: St. Lucia
+teilland.LIE: Liechtenstein
+teilland.LKA: Sri Lanka
+teilland.LSO: Lesotho
+teilland.LTU: Litauen
+teilland.LUX: Luxemburg
+teilland.LVA: Lettland
+teilland.MAR: Marokko
+teilland.MCO: Monaco
+teilland.MDA: Moldau
+teilland.MDG: Madagaskar
+teilland.MDV: Malediven
+teilland.MHL: Marshallinseln
+teilland.MKD: Nordmazedonien
+teilland.MLT: Malta
+teilland.MNE: Montenegro
+teilland.MRT: Mauretanien
+teilland.MUS: Mauritius
+teilland.MYS: Malaysia
+teilland.NAM: Namibia
+teilland.NIC: Nicaragua
+teilland.NOR: Norwegen
+teilland.NPL: Nepal
+teilland.NRU: Nauru
+teilland.OMN: Oman
+teilland.PAN: Panama
+teilland.PLW: Palau
+teilland.PNG: Papua-Neuguinea
+teilland.PRY: Paraguay
+teilland.PSE: Palästina
+teilland.QAT: Katar
+teilland.ROU: Rumänien
+teilland.RWA: Ruanda
+teilland.SDN: Sudan
+teilland.SEN: Senegal
+teilland.SLB: Salomonen
+teilland.SLE: Sierra Leone
+teilland.SLV: El Salvador
+teilland.SMR: San Marino
+teilland.SOM: Somalia
+teilland.SRB: Serbien
+teilland.SSD: Südsudan
+teilland.STP: São Tomé und Príncipe
+teilland.SUR: Suriname
+teilland.SVK: Slowakei
+teilland.SVN: Slowenien
+teilland.SWZ: Eswatini
+teilland.SYC: Seychellen
+teilland.TCD: Tschad
+teilland.TGO: Togo
+teilland.TJK: Tadschikistan
+teilland.TKM: Turkmenistan
+teilland.TLS: Osttimor
+teilland.TON: Tonga
+teilland.TTO: Trinidad und Tobago
+teilland.TUV: Tuvalu
+teilland.URY: Uruguay
+teilland.VCT: St. Vincent und die Grenadinen
+teilland.VUT: Vanuatu
+teilland.WSM: Samoa
+teilland.XKX: Kosovo

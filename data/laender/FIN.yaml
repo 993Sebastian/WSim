@@ -64,4 +64,4 @@ laender:
         2035: 0.273, 2040: 0.273, 2045: 0.273, 2050: 0.273, 2055: 0.273, 2060: 0.273, 2065: 0.273, 2070: 0.273,
         2075: 0.273, 2080: 0.273, 2085: 0.273, 2090: 0.273, 2095: 0.273, 2100: 0.273}
     annaeherung: true
-    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen."
+    quelle: "Bevölkerung, BIP je Kopf und Gini: Gapminder Fast Track (CC BY 4.0), BIP von int.-$ 2017 mit Faktor 1.33 auf USD 2026 umgerechnet; Fläche, Nachbarn, Hauptstadt: Natural Earth. Steuern, Stabilität und Prägungen: eigene Schätzungen. Regionen: Summen bzw. bevölkerungsgewichtete Mittel ihrer Länder."

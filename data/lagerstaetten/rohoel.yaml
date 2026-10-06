@@ -43,7 +43,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: baku
-    land: AZE
+    land: XKA
     rohstoff: rohoel
     vorrat: 2_000_000_000
     entdeckt: 1871
@@ -130,7 +130,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: trinidad
-    land: TTO
+    land: XKB
     rohstoff: rohoel
     vorrat: 100_000_000
     entdeckt: 1908
@@ -168,7 +168,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: burgan
-    land: KWT
+    land: XGO
     rohstoff: rohoel
     vorrat: 10_000_000_000
     entdeckt: 1938

@@ -96,7 +96,13 @@ impl Catalog {
                 IdKind::Milestone => self.milestones.keys().to_vec(),
             })
             .collect();
-        KeyTable::new(keys)
+        let mut table = KeyTable::new(keys);
+        for (id, country) in self.countries.iter() {
+            for member in &country.members {
+                table.add_alias(IdKind::Country, member, crate::ids::Id::index(id));
+            }
+        }
+        table
     }
 }
 
@@ -642,6 +648,9 @@ pub struct Country {
     pub landlocked: bool,
     /// Countries with a land border.
     pub neighbors: Vec<CountryId>,
+    /// ISO codes of the countries merged into this entry (M34), the leading one first;
+    /// empty for a single country. Old saves find a merged country under its region.
+    pub members: Vec<String>,
     pub values: CountryValues,
     pub profile: CountryProfile,
     pub provenance: Provenance,
