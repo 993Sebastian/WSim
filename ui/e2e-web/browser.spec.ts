@@ -95,10 +95,10 @@ test("Forschungszentrum gründen und eine Technologie erforschen", async ({ page
 
   await page.getByRole("button", { name: "Forschung", exact: true }).click();
   await page.getByRole("button", { name: "Forschungszentren", exact: true }).click();
-  await page
-    .getByRole("form", { name: "Neues Forschungszentrum" })
-    .getByRole("button", { name: "Gründen" })
-    .click();
+  // Every site but a mine stands on a plot (M35): take the cheapest free one.
+  const neu = page.getByRole("form", { name: "Neues Forschungszentrum" });
+  await neu.getByRole("table", { name: "Freie Grundstücke" }).getByRole("radio").first().check();
+  await neu.getByRole("button", { name: "Gründen" }).click();
   const zentrum = page.getByRole("article", { name: "Forschungszentrum in Deutschland" });
   await zentrum.getByRole("button", { name: /Labor bauen/ }).click();
   await expect(zentrum).toContainText("Labor im Bau bis");

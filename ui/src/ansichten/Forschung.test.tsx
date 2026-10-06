@@ -77,9 +77,13 @@ describe("Weiterentwicklung", () => {
     ).toBeTruthy();
     expect(gesendet).toEqual([{ SetDevelopment: { site: 99, product: "naegel" } }]);
 
-    // All products the company may make, not only its own.
+    // All products the company may make, not only its own, with a search by name.
     fireEvent.click(screen.getByRole("checkbox", { name: /Nur eigene Produkte/ }));
     expect(screen.getAllByRole("article").length).toBeGreaterThan(10);
+    fireEvent.change(screen.getByLabelText("Produkt suchen"), { target: { value: "draht" } });
+    const treffer = screen.getAllByRole("article").map((a) => a.getAttribute("aria-label"));
+    expect(treffer.length).toBeGreaterThan(0);
+    expect(treffer.every((n) => n?.toLowerCase().includes("draht"))).toBe(true);
   });
 
   it("lässt das Forschungszentrum ein Produkt statt einer Technologie bearbeiten", async () => {

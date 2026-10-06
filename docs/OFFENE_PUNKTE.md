@@ -384,6 +384,31 @@ Bildröhre, Germanium, Transistor, Strahltriebwerk und Synthesekautschuk (Einzel
    baut bis 1964 nur eine Firma. Vorschlag: neue Kupferlagerstätten und ein Förderindex
    für Erze mit den Epochen ab 1965 (M39).
 
+✅ **M39 (1965–1989) umgesetzt** wie in der Tabelle, dazu Quarz, Reinstsilizium,
+Farbbildröhre und Magnetron als Vorprodukte; Transistoren auch aus Silizium (Einzelheiten:
+`docs/FORTSCHRITT.md`, M39). 🟡 Vorläufig entschieden:
+
+1. **Mikrochip als Sammelgut:** ein Durchschnittschip (Prozessor, Speicher, Logik) um
+   1980; Taschenrechner brauchen 2, CD-Spieler 10, Videorekorder 15, Personal Computer
+   150. Den Preisverfall der Chips bildet die Weiterentwicklung (M37) nur gedämpft ab.
+2. **Personal Computer** zählen samt Monitor; Heimcomputer am Fernseher sind im Mittel
+   enthalten.
+3. **Rohstoffe für die Epoche** (Vorschlag aus M33): Eisenerz, Kupfererz und Erdöl
+   bekommen die großen Funde nach 1950 mit Entdeckungsjahr (12 Eisenerz-, 13 Kupfererz-,
+   16 Ölfelder) und Eisen- und Kupfererz einen Förderindex. Bis M38 waren 1964 alle
+   Eisenerzgruben ausgelastet; nach 1965 kostete Erz das Vierfache, Kupfererz das
+   2,5-Fache des Richtpreises.
+4. **Dünger wächst schneller als das BIP:** `staatsnachfrage.verlauf` (neu) gibt dem
+   Staatsbedarf einen Verlauf über die Jahre; beim Stickstoffdünger folgt er dem
+   Verbrauch je BIP (1913 = 1, 1970 = 8, 1980–1990 = 10, 2020 = 5). Dasselbe Feld dient
+   ab M41 für Windkraftanlagen und Solarmodule.
+5. **KI bereitet kommende Produkte vor:** Produkte, die sich historisch in fünf Jahren
+   herstellen lassen, zählen schon als Marktlücke für die Forschung
+   (`forschung_vorlauf_jahre`). Vorher gab es Taschenrechner (1971) im Weltlauf erst ab
+   1975 oder bis 1976 gar nicht, Personal Computer (1977) und Videorekorder (1976) 1978
+   noch nicht, weil ihre Voraussetzungen (Reinstsilizium, Planartechnik, integrierte
+   Schaltung, Mikroprozessor) erst mit der ersten Nachfrage erforscht wurden.
+
 ## H Grundstücke und Werksgrößen (Anfrage vom 06.10.2026)
 
 Auftrag: „Es sollte verschiedene Größen von Werken geben. In jedem Land stehen nur

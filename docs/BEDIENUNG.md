@@ -150,6 +150,7 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   kaufen“. „Anlage bauen“ nennt die Fläche und wie viele Anlagen noch passen; Anlagen,
   die nicht mehr passen, sind in der Auswahl markiert, und „Bauen“ bleibt dann aus –
   mit dem Hinweis, einen weiteren Standort zu gründen.
+  Flächen unter einem Hektar stehen in Quadratmetern („40 m²“ statt „0 ha“).
 - **Anlagengrößen (M36):** „Anlage bauen“ hat neben Anlage und Anzahl die **Größe**
   (sehr klein bis sehr groß, je mit Leistungsfaktor und Preis; vorgewählt: mittel). Die
   Werte darunter gelten für die gewählte Größe: Investition, Bauzeit, „Arbeit je Stück“
@@ -180,6 +181,10 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Kennzeichen „stellst du her“, „kaufst du ein“, „verkaufst du“, „hakt: …“. Die ersten
   zwei Stufen sind offen, tiefere klappen auf; ein Klick auf ein Produkt öffnet seinen
   Markt.
+- **Warengruppe und Suche** (nach M38): Mit den Epochen bis 1989 wächst die Liste auf
+  über 90 Produkte. Eine Auswahl „Warengruppe“ (mit der Zahl der Produkte je Gruppe) und
+  ein Suchfeld „Produkt suchen“ grenzen sie ein; beides wirkt zusammen mit „Zeigen“ und
+  der Sortierung.
 
 ### Wettbewerb (M30, M31)
 
@@ -221,6 +226,9 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Voraussetzungen, alternativ Liste (Handy: voreingestellt, Details unter dem Eintrag);
   Detail mit Fortschritt, Aufwandsfaktor, Dauer und Kosten je Labor, „Schaltet frei“ und
   Forschung starten; Forschungszentren als eigener Unterreiter.
+- Nach M38: Die Spalten folgen bis 1919 den Jahrzehnten, danach den Produktepochen
+  (1920–1939, 1940–1964, 1965–1989, ab 1990); vorher stand alles ab 1920 in einer
+  Spalte, mit den Epochen bis 1989 gut zwanzig Technologien untereinander.
 
 ### Forschung → Weiterentwicklung (M37)
 
@@ -235,6 +243,7 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   die Karte zu den Forschungszentren.
 - Forschungszentren: Das Projekt wählt eine Technologie oder ein Produkt („Nägel →
   Stufe 2“); „kein Projekt“ hält beides an. Der Stand zeigt den Fortschritt der Stufe.
+- Mit „alle Produkte“ (Häkchen „Nur eigene Produkte“ aus) sucht ein Feld nach dem Namen.
 - Markt: Die Anbieter eines Produkts zeigen ihre Entwicklungsstufe (Spalte „Stufe“).
 - Rundgang der Einführung: Schritt „Produkte weiterentwickeln“ zeigt auf den Unterreiter.
 
@@ -295,6 +304,9 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   lassen ihr Platz; auf dem Handy lässt sie sich einklappen.
 - M35: Der Rundgang zeigt nach den Etappen „Standorte und Grundstücke“ mit dem
   Gründungsformular (Lagen, Kauf oder Pacht, volle Grundstücke).
+- Nach M38: Der Rundgang zeigt nach „Marke und Werbung“ den Reiter „Wettbewerb“
+  (Kaufangebote für Standorte, Bereiche und Lizenzen, Angebote an den Spieler,
+  Versteigerungen nach Pleiten); die Einführung hat damit 21 Schritte.
 
 ### Tastenhilfe, Speichern und Laden
 

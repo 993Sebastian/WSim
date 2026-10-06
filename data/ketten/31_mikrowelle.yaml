@@ -1,0 +1,109 @@
+# Kette 31 – Mikrowelle (M39, Epoche 1965–1989)
+# Kupfer, Stahl, Glas → Magnetron (kompakte Röhre aus Japan, 1964); Stahlblech, Magnetron,
+# Kupferdraht, Kleinmotor → Mikrowellenherd (Amana Radarange 1967, erstes Tischgerät für
+# Haushalte). In den USA 1975 erstmals mehr verkauft als Gasherde.
+# Alle Zahlen sind Annäherungen für etwa 1980.
+
+produkte:
+  - id: magnetron
+    art: komponente
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.8
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 28            # um 1980 etwa 20 USD
+    annaeherung: true
+
+  - id: mikrowelle
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 18
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 380           # 1980 im Mittel 425 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 9, max_besitzquote: 0.3}
+      kaufschwelle: 45
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.8
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: magnetronwerk
+    standorttyp: werk
+    investition_usd: 20_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: magnetron
+    annaeherung: true
+
+  - id: mikrowellenwerk
+    standorttyp: werk
+    investition_usd: 50_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: mikrowellenherd
+    annaeherung: true
+
+rezepte:
+  - id: magnetron_bauen
+    produkt: magnetron
+    menge: 1
+    dauer_tage: 1
+    anlage: magnetronwerk
+    technologie: magnetron
+    eingang:
+      kupfer: 0.0003              # Anodenblock
+      stahl: 0.00045              # Joch, Ferritmagnete ersatzweise als Stahl
+      glas: 0.00005               # Keramik
+    arbeit_stunden:
+      angelernt: 0.6
+      fachkraft.elektro: 0.2
+    energie_mwh: 0.002
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: mikrowelle_bauen
+    produkt: mikrowelle
+    menge: 1
+    dauer_tage: 1
+    anlage: mikrowellenwerk
+    technologie: mikrowellenherd
+    eingang:
+      blech: 0.014                # Gehäuse, Garraum, Trafokern
+      magnetron: 1
+      kupferdraht: 0.0012         # Hochspannungstrafo
+      kleinmotor: 1               # Lüfter und Drehteller
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.elektro: 1
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: magnetron                 # Randall und Boot 1940; kompakte Röhre für Herde 1964
+    fachgebiet: elektro
+    erfindungsjahr: 1964
+    voraussetzungen: [elektronenroehre]
+    forschungsaufwand: 15000
+    annaeherung: true
+
+  - id: mikrowellenherd           # Amana Radarange 1967
+    fachgebiet: elektro
+    erfindungsjahr: 1967
+    voraussetzungen: [magnetron, drehstrommotor]
+    forschungsaufwand: 15000
+    annaeherung: true

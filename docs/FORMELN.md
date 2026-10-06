@@ -1904,3 +1904,47 @@ Anlagen im Bau als kommende Versorgung. Sonst füllt eine neue Firma die vorübe
 Lücke, und nach dem Zuschlag stehen doppelt so viele Anlagen im Markt: In den ersten
 Weltläufen gingen dadurch bis 1958 doppelt bis dreimal so viele Firmen pleite wie ohne
 Versteigerung (Seed 2: 20 statt 7; nur 3 der 20 hatten selbst Standorte ersteigert).
+
+## M39 – Produkte 1965–1989
+
+Lastenheft §18.4. Neue Produkte, Rohstoffe, Anlagen, Rezepte und Technologien stehen in
+`data/ketten/28_*.yaml` bis `34_*.yaml` und `data/lagerstaetten/quarz.yaml` (Annäherungen
+und Quellen in den Kommentaren der Daten):
+
+| Kette | Neue Produkte | Technologien (Jahr) |
+| --- | --- | --- |
+| 28 Halbleiter | Quarz, Reinstsilizium, Mikrochip; Transistoren auch aus Silizium | Reinstsilizium (1959), Planartechnik (1960), integrierte Schaltung (1961), Mikroprozessor (1971) |
+| 29 Taschenrechner | Taschenrechner | elektronischer Taschenrechner (1971) |
+| 30 Farbfernsehen | Farbbildröhre, Farbfernseher (verdrängt den Fernseher) | Lochmasken-Farbbildröhre (1954), Farbfernsehen (1965) |
+| 31 Mikrowelle | Magnetron, Mikrowelle | Magnetron (1964), Mikrowellenherd (1967) |
+| 32 Personal Computer | Personal Computer (mit Monitor) | Personal Computer (1977) |
+| 33 Videorekorder | Videorekorder | Videorekorder (1976) |
+| 34 CD-Spieler | CD-Spieler | Compact Disc (1982) |
+
+Alle neuen Endprodukte sind Gebrauchsgüter mit den Nachfrageformeln aus M7 und M9; der
+Mikrochip ist das gemeinsame Vorprodukt (Taschenrechner 2, CD-Spieler 10, Videorekorder
+15, Personal Computer 150 Stück).
+
+- **Staatsbedarf im Zeitverlauf:** Der staatliche Bedarf eines Produkts je Tag ist
+
+      je_mio_usd_bip · BIP / 10⁶ / 365 · Verdrängungsfaktor (M33) · v(t)
+
+  mit v(t) aus `staatsnachfrage.verlauf` (Jahreswerte, dazwischen linear, vor dem ersten
+  und nach dem letzten Jahr deren Wert; ohne Angabe 1), t das Datum als Jahr mit Bruchteil.
+  So wächst ein Bedarf schneller oder langsamer als das BIP: Stickstoffdünger 1913 mit 1,
+  danach mit dem Verbrauch je BIP (Welt: 1913 etwa 0,26 kg Stickstoff je 1 000 USD BIP,
+  1970 2,3, 1990 2,9, 2020 1,3).
+- **Vorlauf für kommende Produkte (KI):** Für die Marktlücken der Forschung (M32) zählen
+  auch Produkte mit Verbraucher- oder Staatsnachfrage, die es noch nicht gibt, die sich
+  aber historisch in höchstens *L* = `forschung_vorlauf_jahre` Jahren herstellen lassen
+  (ein Rezept, dessen Technologien samt Anlage bis dahin erfunden sind), samt den
+  Vorprodukten ihrer Rezepte. Ihre Technologien mit allen Voraussetzungen sind Lücken;
+  erforscht wird wie bisher nur, was erfunden ist oder im Vorgriff der Firma liegt (M10).
+  Vorher begann die Forschung erst mit der Nachfrage: Für den Taschenrechner (1971)
+  mussten Reinstsilizium, Planartechnik und integrierte Schaltung erst danach erforscht
+  werden, und bis 1976 baute niemand Mikrochips.
+- **Später erschlossene Lagerstätten:** Eisenerz, Kupfererz und Erdöl bekommen die großen
+  Funde und Tagebaue nach 1950 (Pilbara, Carajás, Labrador, Escondida, Ghawar, Samotlor,
+  Nordsee, Prudhoe Bay …) mit ihrem Entdeckungsjahr, dazu einen Förderindex für Eisen- und
+  Kupfererz (Tagebaue, Pellets, Laugung). Bis M38 war 1964 jede Eisenerzgrube ausgelastet
+  (Kapazität 1950 und 1964 gleich), und die Ölfelder waren zu 85 % belegt.

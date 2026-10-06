@@ -2631,6 +2631,34 @@ fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
                 .any(|(_, m)| m.state_rate > 0.0 || m.consumer_rate.iter().any(|&r| r > 0.0))
         })
         .collect();
+    // Products that come within the lead time (M39), with the inputs of their recipes:
+    // their processes are prepared before the first buyer asks.
+    let year = state.date.year();
+    let lead = i32::try_from(b.research_lead_years).unwrap_or(0);
+    let coming: Vec<ProductId> = if lead > 0 {
+        catalog
+            .products
+            .iter()
+            .filter(|&(id, p)| {
+                (p.consumer_demand.is_some() || p.state_demand.is_some())
+                    && !market::available(state, catalog, id, year)
+                    && market::available_at_start(catalog, id, year + lead)
+            })
+            .map(|(id, _)| id)
+            .collect()
+    } else {
+        Vec::new()
+    };
+    for &p in &coming {
+        for r in catalog.recipes.values().filter(|r| r.product == p) {
+            for &(input, _) in &r.inputs {
+                if !todo.contains(&input) && !coming.contains(&input) {
+                    todo.push(input);
+                }
+            }
+        }
+    }
+    todo.extend(coming.iter().copied());
     let mut seen = todo.clone();
     let mut techs: Vec<TechnologyId> = Vec::new();
     while let Some(product) = todo.pop() {
@@ -3521,6 +3549,49 @@ mod tests {
         );
         research_plan(state, &catalog, id, &[works, lab], date, &[]);
         assert_eq!(developing(state), Some(ore));
+    }
+
+    /// M39: a product that comes within the lead time counts as a market gap already,
+    /// with the prerequisites of its process; the process itself waits for its year.
+    #[test]
+    fn research_prepares_coming_products() {
+        let mut catalog = test_support::research();
+        let turbine = catalog.technologies.id("turbine").expect("exists");
+        let mut nozzle = catalog.technologies.get(turbine).clone();
+        nozzle.invention_year = 1908;
+        nozzle.prerequisites = vec![turbine];
+        let nozzle = catalog.technologies.insert("duese", nozzle).expect("new");
+        let iron = catalog.products.id("eisen").expect("exists");
+        let bicycle = catalog.products.id("rad").expect("exists");
+        let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+        let mut building = catalog.recipes.get(smelting).clone();
+        building.product = bicycle;
+        building.technology = Some(nozzle);
+        building.inputs = vec![(iron, 0.1)];
+        catalog.recipes.insert("rad_bauen", building).expect("new");
+        let (mut game, _, _) = idle_works_in(catalog, 0.6);
+        let mut catalog = game.catalog().as_ref().clone();
+        let state = game.state_mut();
+        state.date = Date::new(1904, 1, 1).expect("valid");
+        // Without a lead nobody asks for bicycles yet: no gap.
+        assert!(gap_technologies(state, &catalog).is_empty());
+        // The bicycle comes in 1908: three years ahead is not near enough, four are.
+        catalog.ai_model.behavior.research_lead_years = 3;
+        assert!(gap_technologies(state, &catalog).is_empty());
+        catalog.ai_model.behavior.research_lead_years = 4;
+        let mut gaps = gap_technologies(state, &catalog);
+        gaps.sort();
+        let melting = catalog.technologies.id("schmelzen").expect("exists");
+        let mut expected = vec![melting, turbine, nozzle];
+        expected.sort();
+        assert_eq!(gaps, expected);
+        // Researched now is the turbine; the nozzle lies beyond the company's lookahead.
+        let researchable: Vec<TechnologyId> = gaps
+            .iter()
+            .copied()
+            .filter(|&t| f64::from(catalog.technologies.get(t).invention_year) <= 1906.0)
+            .collect();
+        assert!(researchable.contains(&turbine) && !researchable.contains(&nozzle));
     }
 
     /// M32: a competent company researches a technology outside its branches when

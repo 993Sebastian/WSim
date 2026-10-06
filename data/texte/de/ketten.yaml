@@ -362,3 +362,51 @@ rezept.nylon_aus_kohle: Nylon aus Steinkohlenteer
 anlage.kautschuksynthese: Kautschuksynthese
 rezept.kautschuk_synthese: Synthesekautschuk (Buna)
 technologie.synthesekautschuk: Synthesekautschuk
+
+# Epoche 1965–1989 (M39)
+produkt.quarz: Quarz
+produkt.reinstsilizium: Reinstsilizium
+produkt.mikrochip: Mikrochip
+anlage.quarzbruch: Quarzbruch
+anlage.siliziumwerk: Siliziumwerk
+anlage.chipwerk: Chipwerk
+rezept.quarz_abbau: Quarz brechen
+rezept.reinstsilizium_herstellen: Reinstsilizium herstellen
+rezept.mikrochip_herstellen: Mikrochips herstellen
+rezept.transistor_silizium: Transistoren aus Silizium bauen
+technologie.reinstsilizium: Reinstsilizium (Siemens-Verfahren)
+technologie.planartechnik: Planartechnik
+technologie.integrierte_schaltung: Integrierte Schaltung
+technologie.mikroprozessor: Mikroprozessor
+produkt.taschenrechner: Taschenrechner
+anlage.rechnerwerk: Rechnerwerk
+rezept.taschenrechner_bauen: Taschenrechner bauen
+technologie.taschenrechner: Elektronischer Taschenrechner
+produkt.farbbildroehre: Farbbildröhre
+produkt.farbfernseher: Farbfernseher
+anlage.farbbildroehrenwerk: Farbbildröhrenwerk
+anlage.farbfernsehwerk: Farbfernsehwerk
+rezept.farbbildroehre_bauen: Farbbildröhren bauen
+rezept.farbfernseher_bauen: Farbfernseher bauen
+technologie.farbbildroehre: Lochmasken-Farbbildröhre
+technologie.farbfernsehen: Farbfernsehen
+produkt.magnetron: Magnetron
+produkt.mikrowelle: Mikrowelle
+anlage.magnetronwerk: Magnetronwerk
+anlage.mikrowellenwerk: Mikrowellenwerk
+rezept.magnetron_bauen: Magnetrons bauen
+rezept.mikrowelle_bauen: Mikrowellen bauen
+technologie.magnetron: Magnetron
+technologie.mikrowellenherd: Mikrowellenherd
+produkt.personal_computer: Personal Computer
+anlage.computerwerk: Computerwerk
+rezept.personal_computer_bauen: Personal Computer bauen
+technologie.personal_computer: Personal Computer
+produkt.videorekorder: Videorekorder
+anlage.videorekorderwerk: Videorekorderwerk
+rezept.videorekorder_bauen: Videorekorder bauen
+technologie.videorekorder: Videokassette und Videorekorder
+produkt.cd_spieler: CD-Spieler
+anlage.cd_spielerwerk: CD-Spieler-Werk
+rezept.cd_spieler_bauen: CD-Spieler bauen
+technologie.compact_disc: Compact Disc

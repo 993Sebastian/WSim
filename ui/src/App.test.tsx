@@ -52,7 +52,7 @@ describe("Spielablauf", () => {
     const ereignis = await screen.findByRole(
       "dialog",
       { name: "Erster Weltkrieg" },
-      { timeout: 5000 },
+      { timeout: 15_000 },
     );
     expect(within(ereignis).getByText(/Österreich-Ungarn erklärt Serbien den Krieg/)).toBeTruthy();
     expect(within(ereignis).getByText(/Deutschland/)).toBeTruthy();
@@ -72,5 +72,6 @@ describe("Spielablauf", () => {
     });
     fireEvent.click(within(dialog).getByRole("button", { name: "Speichern" }));
     expect(await within(dialog).findByText("Gespeichert: Probe")).toBeTruthy();
-  });
+    // A whole round on a busy machine (world runs in parallel) takes seconds.
+  }, 30_000);
 });

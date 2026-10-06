@@ -35,11 +35,13 @@ produkte:
     transportklasse: schuettgut
     richtpreis_usd: 600
     # Bedarf wie um 1913: gut 1,8 Mio. t Chilesalpeter gingen als Dünger auf die Felder.
-    # Danach stieg der Verbrauch je BIP stark (Haber-Bosch); das folgt mit den späteren
-    # Epochen.
+    # Danach stieg der Verbrauch je BIP stark (Haber-Bosch, Grüne Revolution): weltweit
+    # 1913 etwa 0,26 kg Stickstoff je 1 000 USD BIP, 1950 0,7, 1970 2,3, 1980 3,0,
+    # 1990 2,9, 2000 2,3, 2020 1,3 (M39). Der Verlauf folgt dem gedämpft.
     staatsnachfrage:
       je_mio_usd_bip: 0.3
       kriegsfaktor: 2.0           # auch für Sprengstoff
+      verlauf: {1913: 1.0, 1950: 2.5, 1960: 4.5, 1970: 8.0, 1980: 10.0, 1990: 10.0, 2000: 8.5, 2010: 7.5, 2020: 5.0}
     annaeherung: true
 
 anlagen:

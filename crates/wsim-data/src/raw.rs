@@ -353,6 +353,8 @@ pub struct RawStateDemand {
     pub per_million_gdp: f64,
     #[serde(rename = "kriegsfaktor", default = "one")]
     pub war_factor: f64,
+    #[serde(rename = "verlauf", default)]
+    pub index: Option<RawSeries>,
 }
 
 fn one() -> f64 {
@@ -1220,6 +1222,8 @@ pub struct RawAiBehavior {
     pub development_payback_years: f64,
     #[serde(rename = "forschung_luecke_firmen")]
     pub research_gap_companies: u32,
+    #[serde(rename = "forschung_vorlauf_jahre", default)]
+    pub research_lead_years: u32,
     #[serde(rename = "kasse_min_monate")]
     pub cash_min_months: f64,
     #[serde(rename = "kasse_max_monate")]

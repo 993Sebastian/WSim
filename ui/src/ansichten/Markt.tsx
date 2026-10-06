@@ -171,17 +171,25 @@ export function MarktAnsicht({
 function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) => void }) {
   const [filter, setFilter] = useState<Filter>("alle");
   const [sortierung, setSortierung] = useState<Sortierung>("name");
+  const [gruppe, setGruppe] = useState("alle");
+  const [suche, setSuche] = useState("");
   const id = useId();
   // Products nobody asks for or offers here yet (e.g. cars in 1900) are left out.
   const aktiv = daten.lines.filter(
     (z) => z.demand_last_month > 0 || z.sellers > 0 || z.sold_last_month > 0,
   );
   const ohneMarkt = daten.lines.length - aktiv.length;
+  const gruppen = [...new Set(aktiv.map((z) => z.group))].sort((a, b) =>
+    t(`warengruppe.${a}`).localeCompare(t(`warengruppe.${b}`), "de"),
+  );
+  const gesucht = suche.trim().toLocaleLowerCase("de");
   const gefiltert = aktiv.filter(
     (z) =>
-      filter === "alle" ||
-      (filter === "eigene" && (z.own_price_usd !== null || z.own_share > 0)) ||
-      (filter === "chancen" && z.chances.length > 0),
+      (filter === "alle" ||
+        (filter === "eigene" && (z.own_price_usd !== null || z.own_share > 0)) ||
+        (filter === "chancen" && z.chances.length > 0)) &&
+      (gruppe === "alle" || z.group === gruppe) &&
+      (gesucht === "" || t(`produkt.${z.product}`).toLocaleLowerCase("de").includes(gesucht)),
   );
   const wert = (z: Zeile): number => {
     switch (sortierung) {
@@ -230,6 +238,27 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
               </option>
             ))}
           </select>
+        </div>
+        <div className="feld">
+          <label htmlFor={`${id}-gruppe`}>{t("markt.warengruppe")}</label>
+          <select id={`${id}-gruppe`} value={gruppe} onChange={(e) => setGruppe(e.target.value)}>
+            <option value="alle">{t("markt.alle_gruppen")}</option>
+            {gruppen.map((g) => (
+              <option key={g} value={g}>
+                {t(`warengruppe.${g}`)} ({aktiv.filter((z) => z.group === g).length})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="feld">
+          <label htmlFor={`${id}-suche`}>{t("markt.suchen")}</label>
+          <input
+            id={`${id}-suche`}
+            type="search"
+            value={suche}
+            placeholder={t("markt.suchen_platzhalter")}
+            onChange={(e) => setSuche(e.target.value)}
+          />
         </div>
       </div>
       {zeilen.length === 0 && <p className="gedaempft">{t("markt.keine_produkte")}</p>}

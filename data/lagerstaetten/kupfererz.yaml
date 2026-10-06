@@ -144,3 +144,130 @@ lagerstaetten:
     foerderung_max_je_jahr: 1_000_000
     foerderkosten_faktor: 1.3
     annaeherung: true
+
+  # Später erschlossen (M39): große Tagebaue und Funde nach 1950. Zusammen mit dem
+  # Förderindex beim Kupfererz (Kette 8) folgt die Förderung so dem Bedarf bis 1990.
+  - id: bingham_canyon   # Utah Copper, Tagebau ab 1906
+    land: USA
+    rohstoff: kupfererz
+    vorrat: 3_000_000_000
+    entdeckt: 1906
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 12_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: dscheskasgan   # Kasachstan, mit Kounrad am Balchaschsee
+    land: KAZ
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1928
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: norilsk   # Nickel-Kupfer-Erz jenseits des Polarkreises
+    land: RUS
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1935
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.4
+    annaeherung: true
+
+  - id: ertsberg_grasberg   # Neuguinea, Förderung ab 1972, Grasberg ab 1988
+    land: IDN
+    rohstoff: kupfererz
+    vorrat: 3_000_000_000
+    entdeckt: 1936
+    erschliessung: {investition_usd: 300_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 15_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: almalyk
+    land: UZB
+    rohstoff: kupfererz
+    vorrat: 800_000_000
+    entdeckt: 1954
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: toquepala   # Southern Peru Copper, Förderung ab 1960
+    land: PER
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1955
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 8_000_000
+    annaeherung: true
+
+  - id: palabora   # Transvaal, Förderung ab 1966
+    land: ZAF
+    rohstoff: kupfererz
+    vorrat: 600_000_000
+    entdeckt: 1956
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 5_000_000
+    annaeherung: true
+
+  - id: lubin   # Kupferschiefer in Niederschlesien (KGHM)
+    land: POL
+    rohstoff: kupfererz
+    vorrat: 1_500_000_000
+    entdeckt: 1957
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 10_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: dexing   # Jiangxi
+    land: CHN
+    rohstoff: kupfererz
+    vorrat: 1_000_000_000
+    entdeckt: 1957
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 8_000_000
+    annaeherung: true
+
+  - id: panguna   # Bougainville, Förderung 1972–1989
+    land: XOZ
+    rohstoff: kupfererz
+    vorrat: 500_000_000
+    entdeckt: 1964
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 8_000_000
+    annaeherung: true
+
+  - id: la_caridad   # Sonora
+    land: MEX
+    rohstoff: kupfererz
+    vorrat: 800_000_000
+    entdeckt: 1968
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 6_000_000
+    annaeherung: true
+
+  - id: olympic_dam   # Südaustralien, Kupfer mit Uran und Gold
+    land: AUS
+    rohstoff: kupfererz
+    vorrat: 2_000_000_000
+    entdeckt: 1975
+    erschliessung: {investition_usd: 200_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: escondida   # Atacama, größte Kupfermine der Welt (Förderung ab 1990)
+    land: CHL
+    rohstoff: kupfererz
+    vorrat: 5_000_000_000
+    entdeckt: 1981
+    erschliessung: {investition_usd: 250_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 20_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true

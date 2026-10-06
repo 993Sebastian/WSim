@@ -47,7 +47,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M36 | Anlagen in fünf Größen | ✅ |
 | M37 | Weiterentwicklung erforschter Produkte | ✅ |
 | M38 | Pleiten: Standorte weitergeben | ✅ |
-| M39–M41 | Produktepochen 1965–2026 | offen |
+| M39 | Produkte 1965–1989 | in Arbeit (Daten, Kern und Oberfläche committet; Weltläufe laufen) |
+| M40–M41 | Produktepochen 1990–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1262,4 +1263,38 @@ oder Halbzeuge.“ (Offene Punkte, Abschnitt J.)
   teurer als das Doppelte des Richtpreises 42 statt 72 Produktjahre, billiger als die
   Hälfte 717 statt 524 – die gesunkenen Kosten drücken die Preise unter den festen
   Richtpreis. 22 Minuten Rechenzeit wie zuvor.
+
+### M39: Produkte 1965–1989 (06.10.2026, Zwischenstand)
+
+Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
+
+- **Daten:** Ketten 28–34 (Halbleiter mit Quarz, Reinstsilizium und Mikrochip,
+  Taschenrechner, Farbfernsehen, Mikrowelle, Personal Computer, Videorekorder,
+  CD-Spieler), Quarz-Lagerstätten; Transistoren auch aus Silizium. Formeln:
+  `docs/FORMELN.md`, Abschnitt M39.
+- **Rohstoffe:** In den ersten Weltläufen bis 1990 (beide Seeds) waren nach 1965 alle
+  Eisenerzgruben ausgelastet (Kapazität 1950 und 1975 gleich, Erz bis zum Vierfachen des
+  Richtpreises), Kupfererz kostete das 1,5- bis 3,3-Fache bei nur zwei bis drei Förderern,
+  und Kupferdraht für Staaten und Verbraucher war 1970–1978 kaum oder gar nicht versorgt.
+  Dazu kommen die großen Funde nach 1950 (12 Eisenerz-, 13 Kupfererz-, 16 Ölfelder) mit
+  Entdeckungsjahr und ein Förderindex für Eisen- und Kupfererz.
+- **Staatsbedarf im Zeitverlauf** (`staatsnachfrage.verlauf`, neu): Stickstoffdünger folgt
+  dem Verbrauch je BIP (1913 = 1, bis 1980 auf das Zehnfache).
+- **KI:** Vorlauf für kommende Produkte (`forschung_vorlauf_jahre: 5`): Ohne ihn gab es
+  Taschenrechner erst 1975 (Seed 1) bzw. bis 1976 gar nicht (Seed 2); Mikrochips wurden
+  erst erforscht, als schon jemand Taschenrechner kaufen wollte.
+- **Daten nachgestellt:** Siliziumwerk (500 kg je Tag, 30 Mio. USD) und Quarzbruch
+  (5 t je Tag) passen zum kleinen Markt; vorher liefen sie mit 5 % Auslastung und Verlust.
+- **Weltläufe:** Der passive Spieler (Werkstatt ohne Entscheidungen) ging 1976 bzw. 1979
+  pleite, damit endete das Spiel und der Lauf. Lange Weltläufe starten ihn deshalb mit
+  10 Mio. USD (`--kapital 10000000`).
+- **Bedienung:** Markt mit Auswahl „Warengruppe“ (mit Zahl der Produkte) und Suchfeld;
+  Technologiebaum mit Spalten je Produktepoche (vorher alles ab 1920 in einer Spalte);
+  Suchfeld bei „Weiterentwicklung“ mit allen Produkten; Rundgang mit dem Schritt
+  „Wettbewerb“ (21 Schritte); Flächen unter einem Hektar in m² („40 m²“ statt „0 ha“).
+- **Browser-Version:** Der Test „Forschungszentrum gründen“ wählt jetzt ein Grundstück
+  (seit M35 nötig; die CI meldete ihn seither rot, ohne abzubrechen).
+- Tests: Staatsbedarf mit Verlauf (Kern), Prüfregeln für `verlauf` und
+  `forschung_vorlauf_jahre`, Vorlauf der Forschung (KI), Marktfilter und Suche
+  (Komponententests), Rundgang (Browser).
 

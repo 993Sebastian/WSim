@@ -13,6 +13,10 @@ produkte:
     richtpreis_usd: 150
     # Förderabgaben, Grubenpacht und Erkundung.
     pacht_anteil: 0.35
+    # Größere Tagebaue, Flotation und Laugung (M39): Die Welt förderte 1900 etwa 0,5,
+    # 1950 2,5, 1970 6,4 und 1990 9 Mio. t Kupfer.
+    foerderindex: {1900: 1.0, 1950: 1.3, 1970: 1.8, 1990: 2.4, 2026: 3.0}
+    annaeherung: true
 
   - id: kupfer
     art: halbzeug

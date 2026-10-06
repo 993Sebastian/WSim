@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { formatGeld, formatProzent, formatZahl, formatZahlKurz, landName } from "../format";
+import {
+  formatFlaeche,
+  formatGeld,
+  formatProzent,
+  formatZahl,
+  formatZahlKurz,
+  landName,
+} from "../format";
 import type { Gewerbeflaeche, Kern, Landdetail } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -50,7 +57,7 @@ function Gewerbeflaechen({ flaeche }: { flaeche: Gewerbeflaeche }) {
       <h3>{t("landdetail.gewerbeflaeche")}</h3>
       <p>
         {t("landdetail.gewerbeflaeche_wert", {
-          gesamt: formatZahl(flaeche.area_ha),
+          gesamt: formatFlaeche(flaeche.area_ha),
           anteil: formatProzent(anteil),
         })}
       </p>
@@ -72,9 +79,7 @@ function Gewerbeflaechen({ flaeche }: { flaeche: Gewerbeflaeche }) {
                   <td>{t(`lage.${lage}`)}</td>
                   <td className="zahl">{formatZahl(frei.length)}</td>
                   <td className="zahl">
-                    {frei.length > 0
-                      ? `${formatZahl(Math.max(...frei.map((g) => g.area_ha)), 1)} ha`
-                      : "–"}
+                    {frei.length > 0 ? formatFlaeche(Math.max(...frei.map((g) => g.area_ha))) : "–"}
                   </td>
                   <td className="zahl">{formatGeld(preis)}</td>
                 </tr>

@@ -1,0 +1,63 @@
+# Kette 33 – Videorekorder (M39, Epoche 1965–1989)
+# Stahlblech, Kleinmotoren (Kopftrommel, Capstan, Wickel), Mikrochips, Kunststoff →
+# Videorekorder (Sony Betamax 1975, JVC VHS 1976). Japan baute 1983 18 Mio. Geräte.
+# Alle Zahlen sind Annäherungen für etwa 1983.
+
+produkte:
+  - id: videorekorder
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 8
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 600           # 1983 etwa 600 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 8, max_besitzquote: 0.3}
+      kaufschwelle: 30
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 1.8
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: videorekorderwerk         # Feinmechanik der Kopftrommel, Bestücken, Prüfen
+    standorttyp: werk
+    investition_usd: 80_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 3000
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: videorekorder
+    annaeherung: true
+
+rezepte:
+  - id: videorekorder_bauen
+    produkt: videorekorder
+    menge: 1
+    dauer_tage: 1
+    anlage: videorekorderwerk
+    technologie: videorekorder
+    eingang:
+      blech: 0.0035               # Chassis und Gehäuse
+      kleinmotor: 3
+      mikrochip: 15
+      polyethylen: 0.0015
+    arbeit_stunden:
+      angelernt: 5
+      fachkraft.elektro: 1.2
+      fachkraft.maschinenbau: 0.8
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: videorekorder             # Sony Betamax 1975, JVC VHS 1976
+    fachgebiet: elektro
+    erfindungsjahr: 1976
+    voraussetzungen: [integrierte_schaltung, fernsehen]
+    forschungsaufwand: 40000
+    annaeherung: true

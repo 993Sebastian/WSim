@@ -5,6 +5,7 @@ import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react
 import {
   ausAnzeige,
   formatDatum,
+  formatFlaeche,
   formatGeld,
   formatMenge,
   formatPreis,
@@ -479,8 +480,8 @@ function GrundstueckKarte({
         <dt>{t("grundstueck.flaeche")}</dt>
         <dd>
           {t("grundstueck.belegt", {
-            belegt: formatZahl(g.used_ha, 2),
-            gesamt: formatZahl(g.area_ha, 2),
+            belegt: formatFlaeche(g.used_ha),
+            gesamt: formatFlaeche(g.area_ha),
             anteil: formatProzent(anteil),
           })}
           <span className="fuellstand" aria-hidden="true">
@@ -620,7 +621,7 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
           <>
             <dt>{t("grundstueck.flaechenbedarf")}</dt>
             <dd>
-              {formatZahl(g.area_ha * Math.max(zahl, 1), 2)} ha
+              {formatFlaeche(g.area_ha * Math.max(zahl, 1))}
               <small className="gedaempft">
                 {" "}
                 ({t("grundstueck.passen_noch", { anzahl: formatZahl(passen) })})

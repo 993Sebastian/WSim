@@ -1,0 +1,70 @@
+# Quarz-Lagerstätten (Stückquarz und Quarzit für Silizium). Vorrat praktisch unbegrenzt;
+# begrenzend sind Reinheit und billiger Strom. Förderung in t je Jahr.
+# Länder in heutigen Grenzen. Alle Werte sind grobe Annäherungen.
+
+lagerstaetten:
+  - id: spruce_pine   # North Carolina, hochreiner Pegmatitquarz
+    land: USA
+    rohstoff: quarz
+    vorrat: 100_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    annaeherung: true
+
+  - id: tana   # Finnmark, größter Quarzitbruch der Welt
+    land: NOR
+    rohstoff: quarz
+    vorrat: 100_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    annaeherung: true
+
+  - id: serrabal   # Galicien
+    land: ESP
+    rohstoff: quarz
+    vorrat: 50_000_000
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 500_000
+    annaeherung: true
+
+  - id: minas_gerais_quarz   # größte bekannte Reserve an hochreinem Quarz
+    land: BRA
+    rohstoff: quarz
+    vorrat: 200_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: ural_quarz
+    land: RUS
+    rohstoff: quarz
+    vorrat: 100_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 800_000
+    annaeherung: true
+
+  - id: guangxi_quarz
+    land: CHN
+    rohstoff: quarz
+    vorrat: 100_000_000
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 1_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: limpopo_quarz
+    land: ZAF
+    rohstoff: quarz
+    vorrat: 50_000_000
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 400_000
+    annaeherung: true
+
+  - id: kemerton_quarz   # Westaustralien
+    land: AUS
+    rohstoff: quarz
+    vorrat: 50_000_000
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 400_000
+    annaeherung: true

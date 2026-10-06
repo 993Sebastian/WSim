@@ -32,6 +32,7 @@ const abschluss = (runde: string): Schritt[] => [
   { key: "grundstuecke", ansicht: "produktion", ziele: ["grundstueck", "reiter-produktion"] },
   { key: "markt", ansicht: "markt", ziele: ["reiter-markt"] },
   { key: "werbung", ansicht: "markt", ziele: ["bereich-marke"] },
+  { key: "wettbewerb", ansicht: "wettbewerb", ziele: ["reiter-wettbewerb"] },
   { key: "forschung", ansicht: "forschung", ziele: ["reiter-forschung"] },
   { key: "weiterentwicklung", ansicht: "forschung", ziele: ["bereich-entwicklung"] },
   { key: "finanzen", ansicht: "finanzen", ziele: ["reiter-finanzen"] },

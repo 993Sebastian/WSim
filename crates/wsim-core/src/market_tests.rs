@@ -19,7 +19,11 @@ fn usd(v: f64) -> Money {
 }
 
 fn new_game() -> Game {
-    let catalog = Arc::new(test_support::production());
+    game_with(test_support::production())
+}
+
+fn game_with(catalog: crate::catalog::Catalog) -> Game {
+    let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 9,
         start_year: 1900,
@@ -476,6 +480,44 @@ fn governments_buy_up_to_a_price_cap() {
         .state_rate;
     assert!(rate > 0.0);
     assert!((1e6 - stock(&game, site, "eisen") - rate).abs() < 1e-6);
+}
+
+#[test]
+fn state_demand_follows_its_profile_over_time() {
+    use crate::catalog::StateDemand;
+    use crate::time_series::TimeSeries;
+    let rate = |index: Option<TimeSeries>| {
+        let mut catalog = test_support::production();
+        let iron = catalog.products.id("eisen").unwrap();
+        catalog
+            .products
+            .get_mut(iron)
+            .state_demand
+            .as_mut()
+            .unwrap()
+            .index = index;
+        let mut game = game_with(catalog);
+        day(&mut game);
+        game.state().markets.get(iron).get(aaa(&game)).state_rate
+    };
+    let plain = rate(None);
+    assert!(plain > 0.0);
+    let doubled = rate(Some(TimeSeries::new(vec![(1900, 2.0)]).unwrap()));
+    assert!((doubled / plain - 2.0).abs() < 1e-9, "{plain} {doubled}");
+    // Between two years the factor follows the date.
+    let demand = StateDemand {
+        per_million_gdp: 0.5,
+        war_factor: 1.0,
+        index: Some(TimeSeries::new(vec![(1900, 1.0), (1910, 3.0)]).unwrap()),
+    };
+    let mid = Date::new(1905, 1, 1).unwrap();
+    assert!((demand.per_million_gdp_at(mid) - 1.0).abs() < 1e-12);
+    let later = demand.per_million_gdp_at(Date::new(1905, 7, 2).unwrap());
+    assert!(later > 1.04 && later < 1.06, "{later}");
+    assert_eq!(
+        demand.per_million_gdp_at(Date::new(1920, 1, 1).unwrap()),
+        1.5
+    );
 }
 
 #[test]

@@ -1,0 +1,64 @@
+# Kette 32 – Personal Computer (M39, Epoche 1965–1989)
+# Mikrochips (Prozessor, Speicher, Logik), Bildröhre, Stahlblech, Kunststoff → Personal
+# Computer (Apple II, Commodore PET und TRS-80 1977, IBM PC 1981). Der Monitor zählt mit;
+# Heimcomputer am Fernseher sind im Mittel enthalten.
+# Alle Zahlen sind Annäherungen für etwa 1985.
+
+produkte:
+  - id: personal_computer
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 12
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1300          # um 1985 etwa 1 500 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 6, max_besitzquote: 0.25}
+      kaufschwelle: 18
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: computerwerk              # Apple Fremont 1984: 20 Mio. USD, 1 100 Beschäftigte
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 1500
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: personal_computer
+    annaeherung: true
+
+rezepte:
+  - id: personal_computer_bauen
+    produkt: personal_computer
+    menge: 1
+    dauer_tage: 1
+    anlage: computerwerk
+    technologie: personal_computer
+    eingang:
+      mikrochip: 150              # Prozessor, Speicher, Logik
+      bildroehre: 1               # Monitor
+      blech: 0.005                # Gehäuse und Netzteil
+      polyethylen: 0.002          # Tastatur und Gehäuseteile
+    arbeit_stunden:
+      angelernt: 9
+      fachkraft.elektro: 4
+      akademiker.elektro: 0.8
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: personal_computer         # Altair 1975, Apple II 1977, IBM PC 1981
+    fachgebiet: elektro
+    erfindungsjahr: 1977
+    voraussetzungen: [mikroprozessor, bildroehre]
+    forschungsaufwand: 40000
+    annaeherung: true

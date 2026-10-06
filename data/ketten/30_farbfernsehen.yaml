@@ -1,0 +1,112 @@
+# Kette 30 – Farbfernsehen (M39, Epoche 1965–1989)
+# Glas, Stahl, Kupfer → Farbbildröhre (Lochmaske, RCA 1954); Farbbildröhre, Transistoren,
+# Kupferdraht, Kunststoff → Farbfernseher. Den RCA CT-100 von 1954 kauften keine 5 000
+# Menschen; der Massenmarkt begann in den USA 1964/65, in Deutschland 1967 (PAL). Er
+# verdrängt den Schwarzweiß-Fernseher.
+# Alle Zahlen sind Annäherungen für etwa 1975.
+
+produkte:
+  - id: farbbildroehre
+    art: komponente
+    branche: elektro
+    einheit: stueck               # 20-Zoll-Lochmaskenröhre
+    gewicht_kg: 18
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 200           # um 1975 etwa 70 USD
+    annaeherung: true
+
+  - id: farbfernseher
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 30
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 900           # um 1975 etwa 400 USD
+    ersetzt: [fernseher]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 12, max_besitzquote: 0.35}
+      kaufschwelle: 16
+      preisempfindlichkeit: 1.4
+      einkommensempfindlichkeit: 1.8
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: farbbildroehrenwerk       # Schirm und Konus, Leuchtstoffe, Lochmaske, Evakuieren
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 1000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: farbbildroehre
+    annaeherung: true
+
+  - id: farbfernsehwerk           # Sony San Diego 1981: 750 000 Geräte im Jahr
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 15
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: farbfernsehen
+    annaeherung: true
+
+rezepte:
+  - id: farbbildroehre_bauen
+    produkt: farbbildroehre
+    menge: 1
+    dauer_tage: 2
+    anlage: farbbildroehrenwerk
+    technologie: farbbildroehre
+    eingang:
+      glas: 0.016
+      stahl: 0.0025               # Lochmaske, Rahmen, Abschirmung
+      kupfer: 0.0002
+    arbeit_stunden:
+      angelernt: 3
+      fachkraft.elektro: 1
+      fachkraft.chemie: 0.4
+    energie_mwh: 0.05
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: farbfernseher_bauen
+    produkt: farbfernseher
+    menge: 1
+    dauer_tage: 1
+    anlage: farbfernsehwerk
+    technologie: farbfernsehen
+    eingang:
+      farbbildroehre: 1
+      transistor: 50
+      kupferdraht: 0.0012         # Ablenkeinheit und Zeilentrafo
+      polyethylen: 0.004          # Gehäuse
+    arbeit_stunden:
+      angelernt: 6
+      fachkraft.elektro: 2
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: farbbildroehre            # Lochmaskenröhre von RCA, 1954
+    fachgebiet: elektro
+    erfindungsjahr: 1954
+    voraussetzungen: [bildroehre]
+    forschungsaufwand: 25000
+    annaeherung: true
+
+  - id: farbfernsehen             # Massenmarkt USA 1964/65, PAL in Deutschland 1967
+    fachgebiet: elektro
+    erfindungsjahr: 1965
+    voraussetzungen: [farbbildroehre, fernsehen, transistor]
+    forschungsaufwand: 30000
+    annaeherung: true

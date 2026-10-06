@@ -162,7 +162,7 @@ pub(crate) fn initial_demand(state: &mut GameState, catalog: &Catalog, date: Dat
 
 /// Whether households could own a product at the start: some recipe for it uses only
 /// technologies known by then, or the state market sells it.
-fn available_at_start(catalog: &Catalog, product: ProductId, year: i32) -> bool {
+pub(crate) fn available_at_start(catalog: &Catalog, product: ProductId, year: i32) -> bool {
     let known = |t: Option<crate::ids::TechnologyId>| {
         t.is_none_or(|t| catalog.technologies.get(t).invention_year <= year)
     };
@@ -360,7 +360,7 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                 }
             }
             if let Some(s) = &p.state_demand {
-                market.state_rate = s.per_million_gdp * gdp / 1.0e6 / 365.0 * state_left;
+                market.state_rate = s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0 * state_left;
             }
         }
     }

@@ -33,6 +33,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Transportklasse | `TransportClass` |
 | Staatsmarkt | `StateMarketOffer` |
 | Staatsnachfrage | `StateDemand` |
+| Verlauf des Staatsbedarfs (Faktor je Jahr, M39) | `StateDemand::index` (`verlauf`), `StateDemand::per_million_gdp_at` |
 | Endkunden-Nachfrage | `ConsumerDemand` |
 | Abbau (Rezept) | `extraction` |
 | Nebenprodukt | `by_products` |
@@ -208,6 +209,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Engpass-Suche mit Ausweichen, Standortwahl nach Fracht (M32) | `Chain::bottleneck`, `Chain::site_for` |
 | Pionier (Produkt, das noch niemand herstellt; M32) | `ai::pioneer` |
 | Marktlücke (Forschung, M32) | `gap_technologies`, `research_gap_companies` (`forschung_luecke_firmen`) |
+| Vorlauf für kommende Produkte (M39) | `AiBehavior::research_lead_years` (`forschung_vorlauf_jahre`), `market::available_at_start` |
 | Etappe (Etappenziel), Art, Wert | `catalog::Milestone`, `MilestoneCondition` (`etappen`: `art`, `wert`), `MilestoneId` |
 | Erreichte Etappen des Spielers, Fortschritt | `GameState::milestones`, `milestones::check`, `milestones::progress`; Sicht `MilestoneView` (`Overview::milestones`); UI: `Etappen`, `ETAPPEN_SPEICHER` |
 | Monatsreihe eines Markts (Preis, Absatz, eigener Absatz) | `state::MarketHistory` (`Market::history`), `competition::record_history`, `marktmodell.verlauf_monate`; Sicht `MarketMonthView` (`ProductMarketView::history`); UI: `MarktVerlauf`, `Marktmonat` |

@@ -1,0 +1,168 @@
+# Kette 28 – Halbleiter (M39, Epoche 1965–1989)
+# Quarz (Stückquarz) → Reinstsilizium (Lichtbogenofen, Trichlorsilan, Siemens-Reaktor;
+# Wacker Burghausen 1959) → Mikrochip (integrierte Schaltung: Kilby und Noyce 1958/59,
+# erste käufliche ICs 1961; Wafer und Gehäuse im Chipwerk). Siliziumtransistoren
+# verdrängen ab den 1960ern die aus Germanium.
+# Alle Zahlen sind Annäherungen für etwa 1980.
+
+produkte:
+  - id: quarz
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # Stückquarz, über 98 % SiO2
+    verwendung: industrie
+    warengruppe: erze
+    transportklasse: schuettgut
+    richtpreis_usd: 70            # um 1980 etwa 30 USD je t
+    pacht_anteil: 0.2
+    annaeherung: true
+
+  - id: reinstsilizium
+    art: halbzeug
+    branche: chemie
+    einheit: kg                   # Polysilizium für Halbleiter
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 70            # 1975 etwa 50 USD je kg
+    annaeherung: true
+
+  - id: mikrochip
+    art: komponente
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.003
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 2.8           # Durchschnitt um 1980 etwa 1,50 USD
+    annaeherung: true
+
+anlagen:
+  - id: quarzbruch               # nur der Stückquarz für Silizium: kleine Brüche
+    standorttyp: foerderstaette
+    investition_usd: 200_000
+    bauzeit_tage: 120
+    kapazitaet_je_tag: 5          # t
+    lebensdauer_jahre: 30
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    annaeherung: true
+
+  - id: siliziumwerk              # Lichtbogenofen, Destillation, Siemens-Reaktoren, eigenes Kraftwerk
+    standorttyp: werk
+    investition_usd: 30_000_000   # eine Linie; der Weltbedarf um 1975 waren wenige 100 t
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 500        # kg
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.6
+    technologie: reinstsilizium
+    annaeherung: true
+
+  - id: chipwerk                  # Reinraum: Kristall, Wafer, Lithografie, Montage, Test
+    standorttyp: werk
+    investition_usd: 250_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 200_000
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.06
+    automatisierung_max: 0.7
+    technologie: integrierte_schaltung
+    annaeherung: true
+
+rezepte:
+  - id: quarz_abbau
+    produkt: quarz
+    menge: 1
+    dauer_tage: 1
+    anlage: quarzbruch
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 0.6
+      angelernt: 0.2
+    energie_mwh: 0.005
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: reinstsilizium_herstellen
+    produkt: reinstsilizium
+    menge: 1
+    dauer_tage: 3
+    anlage: siliziumwerk
+    technologie: reinstsilizium
+    eingang:
+      quarz: 0.0055               # 2,7 t Quarz je t Rohsilizium, 2 kg Rohsilizium je kg
+      kohle: 0.0025               # Reduktionsmittel und Elektroden
+    arbeit_stunden:
+      angelernt: 1.2
+      fachkraft.chemie: 0.8
+      akademiker.chemie: 0.08
+    energie_mwh: 0.02             # Rest aus dem eigenen Kraftwerk
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: mikrochip_herstellen
+    produkt: mikrochip
+    menge: 1
+    dauer_tage: 30
+    anlage: chipwerk
+    technologie: integrierte_schaltung
+    eingang:
+      reinstsilizium: 0.0003      # 0,3 g, mit Verlust beim Ziehen und Sägen
+      kupfer: 0.000001            # Anschlussrahmen
+      bakelit: 0.000002           # Gehäuse aus Pressmasse
+    arbeit_stunden:
+      angelernt: 0.08
+      fachkraft.elektro: 0.02
+      akademiker.elektro: 0.004
+    energie_mwh: 0.00005
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: transistor_silizium       # Planartechnik: Silizium statt Germanium
+    produkt: transistor
+    menge: 1
+    dauer_tage: 1
+    anlage: halbleiterwerk
+    technologie: planartechnik
+    eingang:
+      reinstsilizium: 0.00002
+      kupfer: 0.0000002
+      glas: 0.000001
+    arbeit_stunden:
+      angelernt: 0.06
+      fachkraft.elektro: 0.012
+      akademiker.elektro: 0.0005
+    energie_mwh: 0.00002
+    qualitaet_basis: 60
+    annaeherung: true
+
+technologien:
+  - id: reinstsilizium            # Siemens-Verfahren 1953–56, Wacker Burghausen 1959
+    fachgebiet: chemie
+    erfindungsjahr: 1959
+    voraussetzungen: [transistor]
+    forschungsaufwand: 30000
+    annaeherung: true
+
+  - id: planartechnik             # Hoerni (Fairchild) 1959/60
+    fachgebiet: elektro
+    erfindungsjahr: 1960
+    voraussetzungen: [transistor, reinstsilizium]
+    forschungsaufwand: 20000
+    annaeherung: true
+
+  - id: integrierte_schaltung     # Kilby (TI), Noyce (Fairchild); erste käufliche ICs 1961
+    fachgebiet: elektro
+    erfindungsjahr: 1961
+    voraussetzungen: [planartechnik]
+    forschungsaufwand: 50000
+    annaeherung: true
+
+  - id: mikroprozessor            # Intel 4004 (1971), 8080 (1974)
+    fachgebiet: elektro
+    erfindungsjahr: 1971
+    voraussetzungen: [integrierte_schaltung]
+    forschungsaufwand: 60000
+    annaeherung: true

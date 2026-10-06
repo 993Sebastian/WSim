@@ -131,3 +131,120 @@ lagerstaetten:
     foerderung_max_je_jahr: 1_500_000
     foerderkosten_faktor: 1.0
     annaeherung: true
+
+  # Später erschlossen (M39): Ohne sie war 1950 bis 1964 jede Grube ausgelastet und kein
+  # Ausbau mehr möglich. Dazu kommt der Förderindex beim Eisenerz (Kette 1).
+  - id: itabira   # Quadrilátero Ferrífero, Itabira Iron Ore Company 1911, Vale ab 1942
+    land: BRA
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    entdeckt: 1910
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 30_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: anshan   # Mandschurei, armes Magnetiterz
+    land: CHN
+    rohstoff: eisenerz
+    vorrat: 2_000_000_000
+    entdeckt: 1916
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 30_000_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: kursker_magnetanomalie   # Lebedinski, Michailowski, Stoilenski
+    land: RUS
+    rohstoff: eisenerz
+    vorrat: 5_000_000_000
+    entdeckt: 1923
+    erschliessung: {investition_usd: 200_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 60_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: sishen   # Nordkap, Förderung ab 1953
+    land: ZAF
+    rohstoff: eisenerz
+    vorrat: 1_500_000_000
+    entdeckt: 1940
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 25_000_000
+    annaeherung: true
+
+  - id: cerro_bolivar   # Orinoco, US Steel ab 1954
+    land: VEN
+    rohstoff: eisenerz
+    vorrat: 800_000_000
+    entdeckt: 1947
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 15_000_000
+    annaeherung: true
+
+  - id: zouerat   # Kédia d'Idjil, Erzbahn nach Nouadhibou ab 1963
+    land: XWA
+    rohstoff: eisenerz
+    vorrat: 800_000_000
+    entdeckt: 1952
+    erschliessung: {investition_usd: 200_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 12_000_000
+    annaeherung: true
+
+  - id: labrador_trough   # Schefferville ab 1954, Labrador City und Wabush ab 1962
+    land: CAN
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    entdeckt: 1954
+    erschliessung: {investition_usd: 250_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 40_000_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: nimba_bong   # Liberia, LAMCO und Bong Mining ab 1963
+    land: XWA
+    rohstoff: eisenerz
+    vorrat: 600_000_000
+    entdeckt: 1955
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 15_000_000
+    annaeherung: true
+
+  - id: mount_whaleback   # Pilbara, Mount Newman ab 1969
+    land: AUS
+    rohstoff: eisenerz
+    vorrat: 2_000_000_000
+    entdeckt: 1957
+    erschliessung: {investition_usd: 250_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 40_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: bailadila   # Chhattisgarh, NMDC ab 1968
+    land: IND
+    rohstoff: eisenerz
+    vorrat: 1_000_000_000
+    entdeckt: 1960
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 15_000_000
+    annaeherung: true
+
+  - id: hamersley   # Pilbara, Mount Tom Price ab 1966
+    land: AUS
+    rohstoff: eisenerz
+    vorrat: 3_000_000_000
+    entdeckt: 1962
+    erschliessung: {investition_usd: 300_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 60_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: carajas   # Pará, größte Eisenerzgrube der Welt (Förderung ab 1985)
+    land: BRA
+    rohstoff: eisenerz
+    vorrat: 7_000_000_000
+    entdeckt: 1967
+    erschliessung: {investition_usd: 400_000_000, dauer_tage: 1440}
+    foerderung_max_je_jahr: 50_000_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true

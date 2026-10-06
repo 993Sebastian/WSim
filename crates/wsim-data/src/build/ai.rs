@@ -220,6 +220,16 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             &bl.field("forschung_mindestkompetenz"),
         ),
         research_gap_companies: b.research_gap_companies,
+        research_lead_years: {
+            in_range(
+                ctx,
+                f64::from(b.research_lead_years),
+                0.0,
+                30.0,
+                &bl.field("forschung_vorlauf_jahre"),
+            );
+            b.research_lead_years
+        },
         development_benefit_per_level: in_range(
             ctx,
             b.development_benefit_per_level,

@@ -1,7 +1,7 @@
 // Plots (M35): the free plots of a country to found a site on, bought or leased. The
 // core decides which plots exist and what they cost; this only shows them for a choice.
 import { useEffect, useId, useState } from "react";
-import { formatGeld, formatZahl } from "../format";
+import { formatFlaeche, formatGeld } from "../format";
 import type { Gewerbeflaeche, Grundstueck, Kern } from "../kern";
 import { t } from "../texte";
 
@@ -42,7 +42,7 @@ export interface GrundstueckWahlWert {
 export function grundstueckName(g: Grundstueck): string {
   return t("grundstueck.name", {
     lage: t(`lage.${g.location}`),
-    flaeche: formatZahl(g.area_ha, 2),
+    flaeche: formatFlaeche(g.area_ha),
   });
 }
 
@@ -77,8 +77,8 @@ export function GrundstueckWahl({
       <legend>{t("grundstueck.waehlen")}</legend>
       <p className="erklaerung">
         {t("grundstueck.hinweis", {
-          frei: formatZahl(frei, 0),
-          gesamt: formatZahl(flaeche.area_ha, 0),
+          frei: formatFlaeche(frei),
+          gesamt: formatFlaeche(flaeche.area_ha),
           preise: flaeche.price_per_ha_usd
             .map(([l, preis]) => `${t(`lage.${l}`)} ${formatGeld(preis)}`)
             .join(", "),
@@ -162,7 +162,7 @@ export function GrundstueckWahl({
                       </td>
                       <td>{t(`lage.${g.location}`)}</td>
                       <td>{t(`grundstuecksklasse.${g.class}`)}</td>
-                      <td className="zahl">{formatZahl(g.area_ha, 2)} ha</td>
+                      <td className="zahl">{formatFlaeche(g.area_ha)}</td>
                       <td className="zahl">{formatGeld(g.value_usd)}</td>
                       <td className="zahl">{formatGeld(g.rent_usd_year)}</td>
                     </tr>

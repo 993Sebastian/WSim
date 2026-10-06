@@ -46,7 +46,10 @@ const EPOCHEN: { bis: number; key: string }[] = [
   { bis: 1899, key: "bis_1899" },
   { bis: 1909, key: "bis_1909" },
   { bis: 1919, key: "bis_1919" },
-  { bis: Infinity, key: "ab_1920" },
+  { bis: 1939, key: "bis_1939" },
+  { bis: 1964, key: "bis_1964" },
+  { bis: 1989, key: "bis_1989" },
+  { bis: Infinity, key: "ab_1990" },
 ];
 
 export function ForschungAnsicht({
@@ -655,7 +658,11 @@ function wirkungText(w: Entwicklungswirkung): string {
 function Entwicklung({ daten, onZentren }: { daten: Forschung; onZentren: () => void }) {
   const eigene = daten.developments.filter((d) => d.own);
   const [nurEigene, setNurEigene] = useState(eigene.length > 0);
-  const liste = sortiert(nurEigene ? eigene : daten.developments);
+  const [suche, setSuche] = useState("");
+  const gesucht = suche.trim().toLocaleLowerCase("de");
+  const liste = sortiert(nurEigene ? eigene : daten.developments).filter(
+    (d) => gesucht === "" || produktName(d.product).toLocaleLowerCase("de").includes(gesucht),
+  );
   const id = useId();
   return (
     <div className="entwicklung" data-tour="weiterentwicklung">
@@ -674,6 +681,18 @@ function Entwicklung({ daten, onZentren }: { daten: Forschung; onZentren: () => 
         />{" "}
         {t("forschung.nur_eigene", { anzahl: eigene.length })}
       </label>
+      {!nurEigene && (
+        <div className="feld">
+          <label htmlFor={`${id}-suche`}>{t("markt.suchen")}</label>
+          <input
+            id={`${id}-suche`}
+            type="search"
+            value={suche}
+            placeholder={t("markt.suchen_platzhalter")}
+            onChange={(e) => setSuche(e.target.value)}
+          />
+        </div>
+      )}
       {liste.length === 0 ? (
         <p className="gedaempft">{t("forschung.entwicklung_leer")}</p>
       ) : (

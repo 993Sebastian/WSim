@@ -1098,6 +1098,41 @@ fn foerderindex_nur_fuer_rohstoffe() {
 }
 
 #[test]
+fn staatsnachfrage_verlauf_wird_geprueft() {
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    staatsnachfrage:\n      je_mio_usd_bip: 0.5\n      verlauf: {1900: 1.0, 1950: -2.0, 2200: 3.0}\n",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert -2 darf nicht negativ sein");
+    assert_eq!(
+        f.path.to_string(),
+        "produkte[1].staatsnachfrage.verlauf.1950"
+    );
+    let f = befund(&outcome, "Jahr 2200 liegt außerhalb");
+    assert_eq!(
+        f.path.to_string(),
+        "produkte[1].staatsnachfrage.verlauf.2200"
+    );
+
+    // A valid profile reaches the catalog.
+    let d = Daten::neu().ersetze(
+        "ketten/a.yaml",
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    staatsnachfrage:\n      je_mio_usd_bip: 0.5\n      verlauf: {1900: 1.0, 1950: 3.0}\n",
+    );
+    let outcome = d.laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let catalog = outcome.data.unwrap().catalog;
+    let eisen = catalog.products.id("eisen").unwrap();
+    let demand = catalog.products.get(eisen).state_demand.clone().unwrap();
+    let date = |y| wsim_core::calendar::Date::new(y, 1, 1).unwrap();
+    assert_eq!(demand.per_million_gdp_at(date(1900)), 0.5);
+    assert_eq!(demand.per_million_gdp_at(date(1950)), 1.5);
+}
+
+#[test]
 fn pacht_nur_fuer_rohstoffe() {
     let d = Daten::neu().ersetze(
         "ketten/a.yaml",
@@ -1949,6 +1984,21 @@ fn kimodell_wird_geprueft() {
     befund(
         &d.laden(),
         "Wert 0 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+    );
+    // Research prepares coming products at most 30 years ahead (M39).
+    let d = Daten::neu().ersetze(
+        datei,
+        "forschung_vorlauf_jahre: 5",
+        "forschung_vorlauf_jahre: 40",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 40 liegt außerhalb des erlaubten Bereichs 0 bis 30.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "kimodell.verhalten.forschung_vorlauf_jahre"
     );
     // New concessions only where the reserve lasts (M33).
     let d = Daten::neu().ersetze(datei, "vorrat_jahre_min: 10", "vorrat_jahre_min: -1");

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   ausAnzeige,
   formatDatum,
+  formatFlaeche,
   formatGeld,
   formatMenge,
   formatPreis,
@@ -29,6 +30,14 @@ describe("Formate", () => {
     expect(formatMenge(57)).toBe("57");
     expect(formatMenge(1234.6)).toBe("1.235");
     expect(formatMenge(0)).toBe("0");
+  });
+
+  it("zeigt kleine Flächen in Quadratmetern", () => {
+    expect(formatFlaeche(0.004)).toBe("40 m²");
+    expect(formatFlaeche(0.25)).toBe("2.500 m²");
+    expect(formatFlaeche(0)).toBe("0 ha");
+    expect(formatFlaeche(3.456)).toBe("3,46 ha");
+    expect(formatFlaeche(12_345.6)).toBe("12.346 ha");
   });
 
   it("liest Zahlen, wie man sie deutsch eintippt", () => {

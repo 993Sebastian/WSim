@@ -230,7 +230,7 @@ test("Standort auf einem gewählten Grundstück gründen und das Grundstück kau
   await expect(liste.getByRole("cell", { name: "Stadt" })).toHaveCount(0);
   await liste.getByRole("radio").first().check();
   await wahl.getByLabel("Pachten", { exact: true }).check();
-  await expect(wahl).toContainText(/Gewählt: Hafen, [\d,]+ ha – Pacht [\d.]+ USD je Jahr/);
+  await expect(wahl).toContainText(/Gewählt: Hafen, [\d.,]+ (m²|ha) – Pacht [\d.]+ USD je Jahr/);
   await expect(gruenden).toContainText("Kosten jetzt:");
   await expect(knopf).toBeEnabled();
   await knopf.click();
@@ -238,7 +238,7 @@ test("Standort auf einem gewählten Grundstück gründen und das Grundstück kau
 
   await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
   const grundstueck = page.getByRole("region", { name: "Grundstück" });
-  await expect(grundstueck).toContainText(/0,2 von [\d,]+ ha belegt/);
+  await expect(grundstueck).toContainText(/[\d.,]+ (m²|ha) von [\d.,]+ (m²|ha) belegt/);
   await expect(grundstueck).toContainText("Gepachtet für");
   await grundstueck.getByRole("button", { name: /Grundstück kaufen/ }).click();
   const bauen = page.getByRole("form", { name: "Anlage bauen" });
@@ -585,12 +585,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 20")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 21")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 20 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 21 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -660,6 +660,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await weiter.click();
   await expect(titel("Marke und Werbung")).toBeVisible();
   await weiter.click();
+  await expect(titel("Wettbewerb")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Wettbewerb" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await weiter.click();
   await expect(titel("Forschung")).toBeVisible();
   await weiter.click();
   await expect(titel("Produkte weiterentwickeln")).toBeVisible();
@@ -678,7 +684,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 20")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 21")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });

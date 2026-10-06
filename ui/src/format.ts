@@ -9,6 +9,13 @@ export function formatZahl(wert: number, stellen = 0): string {
   return zahl(stellen).format(wert);
 }
 
+/** Areas in hectares; below one hectare in square meters, so that the few hundred square
+ * meters of a small facility do not read as "0 ha". */
+export function formatFlaeche(ha: number): string {
+  if (ha > 0 && ha < 1) return `${zahl(0).format(ha * 10_000)} m²`;
+  return `${zahl(ha < 100 ? 2 : 0).format(ha)} ha`;
+}
+
 /** Quantities of goods: small ones with three significant digits ("0,021 t"), large
  * ones whole. */
 export function formatMenge(wert: number): string {

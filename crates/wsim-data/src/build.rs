@@ -915,6 +915,10 @@ impl Builder<'_, '_> {
                         &loc.field("je_mio_usd_bip"),
                     ),
                     war_factor: non_negative(self.ctx, d.war_factor, &loc.field("kriegsfaktor")),
+                    index: d
+                        .index
+                        .as_ref()
+                        .map(|values| time_series(self.ctx, values, &loc.field("verlauf"))),
                 }
             }),
             state_market: v

@@ -243,7 +243,7 @@ landdetail.personen: Personen
 landdetail.verfuegbar: im Spiel
 landdetail.lohn: Lohn/h
 landdetail.gewerbeflaeche: Gewerbeflächen
-landdetail.gewerbeflaeche_wert: "{gesamt} ha, davon {anteil} belegt. Mit der Wirtschaft wächst die Fläche jedes Jahr am 1. Januar."
+landdetail.gewerbeflaeche_wert: "{gesamt}, davon {anteil} belegt. Mit der Wirtschaft wächst die Fläche jedes Jahr am 1. Januar."
 landdetail.freie_grundstuecke: frei
 landdetail.groesstes: größtes
 landdetail.bodenpreis: Bodenpreis je ha
@@ -297,7 +297,7 @@ produktion.keine_lagerstaette: "Im Land ist {jahr} keine entdeckte Lagerstätte 
 # Grundstücke (M35)
 grundstueck.titel: Grundstück
 grundstueck.waehlen: Grundstück wählen
-grundstueck.hinweis: "Jeder Standort außer einer Förderstätte steht auf einem Grundstück. Im Land sind {frei} von {gesamt} ha Gewerbefläche frei; Bodenpreis je ha: {preise}."
+grundstueck.hinweis: "Jeder Standort außer einer Förderstätte steht auf einem Grundstück. Im Land sind {frei} von {gesamt} Gewerbefläche frei; Bodenpreis je ha: {preise}."
 grundstueck.lagen_titel: Was bedeuten Lage, Kauf und Pacht?
 grundstueck.lage_stadt: Kleine, teure Grundstücke; Arbeitskräfte kommen lieber – das wirkt wie ein Lohnaufschlag.
 grundstueck.lage_hafen: Mittelgroße Grundstücke an der Küste; Fracht über See wird billiger.
@@ -314,7 +314,7 @@ grundstueck.wahl: Auswahl
 grundstueck.flaeche: Fläche
 grundstueck.kaufpreis: Kaufpreis
 grundstueck.pacht: Pacht je Jahr
-grundstueck.name: "{lage}, {flaeche} ha"
+grundstueck.name: "{lage}, {flaeche}"
 grundstueck.weitere: "{anzahl} weitere – Lage oder Größe wählen, um sie zu sehen."
 grundstueck.besitz: Kaufen oder pachten
 grundstueck.kaufen: Kaufen
@@ -323,7 +323,7 @@ grundstueck.gewaehlt_kauf: "Gewählt: {grundstueck} – Kaufpreis {preis}."
 grundstueck.gewaehlt_pacht: "Gewählt: {grundstueck} – Pacht {pacht} je Jahr, monatlich gezahlt."
 grundstueck.noch_keins: Wähle oben ein Grundstück.
 grundstueck.kosten_jetzt: "Kosten jetzt: {betrag}"
-grundstueck.belegt: "{belegt} von {gesamt} ha belegt ({anteil})"
+grundstueck.belegt: "{belegt} von {gesamt} belegt ({anteil})"
 grundstueck.eigen: "Eigentum, heute {wert} wert"
 grundstueck.gepachtet: "Gepachtet für {pacht} je Jahr (Kaufpreis heute {wert})"
 grundstueck.voll: Das Grundstück ist voll – hier passt keine weitere Anlage. Für mehr gründe einen weiteren Standort im Land.
@@ -521,6 +521,10 @@ markt.sort.nachfrage: Nachfrage (größte zuerst)
 markt.sort.preis: Preis zum Richtpreis (höchster zuerst)
 markt.sort.versorgung: Versorgung (schlechteste zuerst)
 markt.keine_produkte: Keine Produkte für diese Auswahl.
+markt.warengruppe: Warengruppe
+markt.alle_gruppen: alle Warengruppen
+markt.suchen: Produkt suchen
+markt.suchen_platzhalter: Name, z. B. Stahl
 markt.ohne_markt: "{anzahl} Produkte ohne Nachfrage und Anbieter in diesem Land sind ausgeblendet."
 markt.preis: Marktpreis
 markt.zum_richtpreis: Preis zum Richtpreis
@@ -641,7 +645,10 @@ forschung.epoche.bis_1875: 1851–1875
 forschung.epoche.bis_1899: 1876–1899
 forschung.epoche.bis_1909: 1900–1909
 forschung.epoche.bis_1919: 1910–1919
-forschung.epoche.ab_1920: ab 1920
+forschung.epoche.bis_1939: 1920–1939
+forschung.epoche.bis_1964: 1940–1964
+forschung.epoche.bis_1989: 1965–1989
+forschung.epoche.ab_1990: ab 1990
 forschung.erfunden: "erfunden {jahr}"
 forschung.fortschritt: Fortschritt
 forschung.punkte: "{punkte} von {bedarf} Punkten"
@@ -813,6 +820,8 @@ einfuehrung.markt.titel: Markt
 einfuehrung.markt.text: "Preise, Nachfrage und Anbieter jedes Landes im Vormonat; „Chancen“ zeigt Märkte mit Mangel, hohen Preisen oder wenigen Anbietern, ein Klick auf ein Produkt seine Anbieter und Käufer. Wer mehr Ware in die Läden bringt, wird öfter gekauft; ein kleiner Neuling mit hohem Preis bleibt auf seiner Ware sitzen."
 einfuehrung.werbung.titel: Marke und Werbung
 einfuehrung.werbung.text: "Unter „Marke und Werbung“ steht deine Bekanntheit je Warengruppe neben der bekanntesten Konkurrenz. Ein monatliches Werbebudget macht dich bekannt, Verkäufe an Verbraucher ebenso; ohne beides verblasst die Marke. Industriekunden und Staaten kaufen allein nach dem Preis."
+einfuehrung.wettbewerb.titel: Wettbewerb
+einfuehrung.wettbewerb.text: "Unter „Firmen“ stehen alle Firmen mit Rang, Umsatz und Standorten; dort kaufst du Wettbewerbern Standorte, ganze Bereiche mit ihrer Marke oder Lizenzen auf Technologien ab. Unter „Angebote“ landen ihre Angebote an dich – annehmen, ablehnen oder mit einem Gegenangebot antworten. Geht eine Firma pleite, werden ihre Standorte einige Wochen lang versteigert: Das höchste Gebot gewinnt und zahlt das zweithöchste."
 einfuehrung.forschung.titel: Forschung
 einfuehrung.forschung.text: Der Technologiebaum zeigt, welche Verfahren, Anlagen und Produkte jede Technologie freischaltet und was sie kostet. Geforscht wird in Forschungszentren mit Laboren – auch vor der historischen Zeit, dann aber teurer.
 einfuehrung.weiterentwicklung.titel: Produkte weiterentwickeln

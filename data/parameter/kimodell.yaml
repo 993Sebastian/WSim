@@ -83,6 +83,9 @@ kimodell:
     # Marktlücken (M32): Produkte, nach denen gefragt wird, die aber keine Firma herstellen
     # kann, erforschen Firmen ohne Aufgabe in den eigenen Branchen – so viele zugleich.
     forschung_luecke_firmen: 2
+    # Vorlauf (M39): Produkte, die sich historisch in so vielen Jahren herstellen lassen,
+    # zählen für die Marktlücken schon mit – ihre Voraussetzungen werden vorher erforscht.
+    forschung_vorlauf_jahre: 5
     kasse_min_monate: 2
     kasse_max_monate: 6
     kredit_jahre: 10

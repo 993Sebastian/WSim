@@ -19,6 +19,9 @@ produkte:
     richtpreis_usd: 90
     # Förderzins an die Grubenbesitzer (Mesabi um 1900 etwa ein Siebtel des Erzpreises).
     pacht_anteil: 0.15
+    # Größere Tagebaue und Pellets aus armem Erz (M39): Die Welt förderte 1900 etwa 100,
+    # 1950 250, 1970 770 und 1990 980 Mio. t Erz.
+    foerderindex: {1900: 1.0, 1950: 1.2, 1970: 1.5, 1990: 1.8, 2026: 2.2}
 
   - id: kohle
     art: rohstoff

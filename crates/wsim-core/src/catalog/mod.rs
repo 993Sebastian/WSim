@@ -744,6 +744,9 @@ pub struct AiBehavior {
     pub research_competence_min: f64,
     /// Companies researching the same technology for a market gap at once (M32).
     pub research_gap_companies: u32,
+    /// Products that can be made historically within this many years count as market
+    /// gaps for research already (M39); 0 = off.
+    pub research_lead_years: u32,
     /// Development (M37): yearly benefit of one level as share of the product's revenue,
     /// and the years in which the next level must pay for itself.
     pub development_benefit_per_level: f64,
@@ -841,6 +844,7 @@ impl Default for AiModel {
                 research_min_revenue_usd: 5_000_000.0,
                 research_competence_min: 0.5,
                 research_gap_companies: 2,
+                research_lead_years: 0,
                 development_benefit_per_level: 0.03,
                 development_payback_years: 5.0,
                 cash_min_months: 2.0,
@@ -1478,12 +1482,25 @@ pub struct ConsumerDemand {
 }
 
 /// Government demand (Lastenheft §9.1).
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StateDemand {
     /// Units per year and million USD of GDP.
     pub per_million_gdp: f64,
     /// Multiplier in times of war (effective from stage 4).
     pub war_factor: f64,
+    /// Factor over time on the demand per GDP (M39); none means 1.
+    pub index: Option<TimeSeries>,
+}
+
+impl StateDemand {
+    /// Units per year and million USD of GDP on a date.
+    pub fn per_million_gdp_at(&self, date: crate::calendar::Date) -> f64 {
+        self.per_million_gdp
+            * self
+                .index
+                .as_ref()
+                .map_or(1.0, |i| i.value_at(date.year_fraction()))
+    }
 }
 
 /// Goods without their own production chain can be bought from the state market in

@@ -1,0 +1,63 @@
+# Kette 34 – CD-Spieler (M39, Epoche 1965–1989)
+# Stahlblech, Mikrochips (Servo, Dekoder, Wandler) mit Laserdiode, Kleinmotoren,
+# Kunststoff → CD-Spieler (Sony CDP-101, 1. Oktober 1982). 1988 wurden in den USA mehr
+# CDs verkauft als Langspielplatten.
+# Alle Zahlen sind Annäherungen für etwa 1986.
+
+produkte:
+  - id: cd_spieler
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 4
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 400           # 1986 etwa 300 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 8, max_besitzquote: 0.3}
+      kaufschwelle: 45
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 1.6
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: cd_spielerwerk
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: compact_disc
+    annaeherung: true
+
+rezepte:
+  - id: cd_spieler_bauen
+    produkt: cd_spieler
+    menge: 1
+    dauer_tage: 1
+    anlage: cd_spielerwerk
+    technologie: compact_disc
+    eingang:
+      blech: 0.0025
+      mikrochip: 10
+      kleinmotor: 3               # Spindel, Schlitten, Lade
+      polyethylen: 0.0007
+    arbeit_stunden:
+      angelernt: 3
+      fachkraft.elektro: 0.8
+    energie_mwh: 0.005
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: compact_disc              # Philips und Sony, Red Book 1980; CDP-101 1982
+    fachgebiet: elektro
+    erfindungsjahr: 1982
+    voraussetzungen: [mikroprozessor]
+    forschungsaufwand: 30000
+    annaeherung: true

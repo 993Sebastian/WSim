@@ -380,6 +380,7 @@ pub fn production() -> Catalog {
     c.products.get_mut(iron_product).state_demand = Some(StateDemand {
         per_million_gdp: 0.5,
         war_factor: 1.0,
+        index: None,
     });
 
     c.production_model = ProductionModel {
