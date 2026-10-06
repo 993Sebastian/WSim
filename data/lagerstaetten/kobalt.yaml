@@ -1,0 +1,84 @@
+# Kobalt-Lagerstätten (M40). Kobalt fällt fast nur in Kupfer- und Nickelgruben an; jede
+# Lagerstätte steht für den Kobaltanteil ihrer Gruben und Hütten. Vorrat und Förderung in t
+# Kobalt, Förderung etwa nach dem Stand um 2008. Länder in heutigen Grenzen. Alle Werte sind
+# grobe Annäherungen.
+
+lagerstaetten:
+  - id: katanga_kobalt   # Kolwezi, Kamoto (Gécamines); 1990 stürzte die Kamoto-Grube ein
+    land: COD
+    rohstoff: kobalt
+    vorrat: 3_500_000
+    entdeckt: 1906
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 30_000
+    foerderkosten_faktor: 0.8
+    annaeherung: true
+
+  - id: copperbelt_kobalt   # Nkana, Chambishi
+    land: ZMB
+    rohstoff: kobalt
+    vorrat: 300_000
+    entdeckt: 1923
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 7_000
+    annaeherung: true
+
+  - id: norilsk_kobalt   # Nickel-Kupfer-Erz von Norilsk und Talnach
+    land: RUS
+    rohstoff: kobalt
+    vorrat: 300_000
+    entdeckt: 1921
+    erschliessung: {investition_usd: 150_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 6_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: sudbury_kobalt   # Nickelraffination von Inco und Falconbridge
+    land: CAN
+    rohstoff: kobalt
+    vorrat: 150_000
+    entdeckt: 1883
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 5_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: jinchuan   # Nickel-Kupfer-Erz in Gansu
+    land: CHN
+    rohstoff: kobalt
+    vorrat: 150_000
+    entdeckt: 1958
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 3_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: moa_bay   # Laterit, Säurelaugung (Freeport 1959, Sherritt seit 1994)
+    land: CUB
+    rohstoff: kobalt
+    vorrat: 500_000
+    entdeckt: 1950
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 900}
+    foerderung_max_je_jahr: 4_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: murrin_murrin   # Laterit, Drucklaugung seit 1999
+    land: AUS
+    rohstoff: kobalt
+    vorrat: 300_000
+    entdeckt: 1970
+    erschliessung: {investition_usd: 300_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 4_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: bou_azzer   # Kobalterz als Hauptprodukt (Arsenide), Abbau seit den 1930ern
+    land: MAR
+    rohstoff: kobalt
+    vorrat: 60_000
+    entdeckt: 1928
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 2_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true

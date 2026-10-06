@@ -57,7 +57,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
   await expect(naegel.getByText("15,5 t")).toBeVisible();
   await expect(naegel.getByText("Stückkosten", { exact: true }).first()).toBeVisible();
-  await expect(naegel.getByText(/Marge 21 %/)).toBeVisible();
+  await expect(naegel.getByText(/Marge 20 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
   await werk.getByRole("button", { name: "Einkauf" }).click();
@@ -357,12 +357,12 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
     name: "Kaufangebot von Zürcher Spinnerei und Weberei & Co.",
   });
   await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
-  await expect(angebot).toContainText("33.827 USD");
+  await expect(angebot).toContainText("33.821 USD");
   await expect(angebot).toContainText("01.04.1914");
   // The base value with its parts.
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
   await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
-  await expect(angebot.getByRole("note")).toContainText("27.061 USD");
+  await expect(angebot.getByRole("note")).toContainText("27.057 USD");
   await bild(page, "angebot");
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
 
@@ -372,8 +372,8 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await angebot.getByRole("button", { name: "Gegenangebot machen" }).click();
   const befehleNachAntwort = await befehle(page);
   expect(befehleNachAntwort.slice(-2)).toEqual([
-    { AnswerOffer: { offer: 6, answer: "Accept" } },
-    { AnswerOffer: { offer: 6, answer: { Counter: { price: 500_000_000 } } } },
+    { AnswerOffer: { offer: 5, answer: "Accept" } },
+    { AnswerOffer: { offer: 5, answer: { Counter: { price: 500_000_000 } } } },
   ]);
 
   // Bid for a competitor's site.
@@ -402,7 +402,7 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await expect(werk.getByLabel("Preis")).toHaveValue("200.000.000");
   await werk.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MakeOffer: { seller: 58, object: { Site: 313 }, price: 2_000_000_000_000 },
+    MakeOffer: { seller: 58, object: { Site: 315 }, price: 2_000_000_000_000 },
   });
   await bild(page, "firma");
 });

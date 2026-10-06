@@ -1,0 +1,65 @@
+# Kette 40 – Flachbildfernseher (M40, Epoche 1990–2009)
+# LCD-Panel (32 Zoll), Mikrochips, Kunststoff und Kupferdraht → Flachbildfernseher (Sharp
+# Aquos 2001; Plasmafernseher von Fujitsu und Pioneer ab 1997 sind im Mittel enthalten). Er
+# verdrängt den Farbfernseher mit Bildröhre: 2008 wurden weltweit erstmals mehr
+# LCD-Fernseher als Röhrengeräte verkauft.
+# Alle Zahlen sind Annäherungen für etwa 2005.
+
+produkte:
+  - id: flachbildfernseher
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 15
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 2000          # 2005 etwa 1 500 USD (32 Zoll), 2001 ein Vielfaches
+    ersetzt: [farbfernseher]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 8, max_besitzquote: 0.4}
+      kaufschwelle: 8
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.8
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: flachbildfernsehwerk      # Panel, Elektronik und Gehäuse montieren
+    standorttyp: werk
+    investition_usd: 50_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.7
+    technologie: flachbildfernseher
+    annaeherung: true
+
+rezepte:
+  - id: flachbildfernseher_bauen
+    produkt: flachbildfernseher
+    menge: 1
+    dauer_tage: 1
+    anlage: flachbildfernsehwerk
+    technologie: flachbildfernseher
+    eingang:
+      lcd_panel: 0.28             # 32 Zoll, 16:9
+      mikrochip: 25               # Bildprozessor, Empfänger, Ansteuerung
+      polyethylen: 0.005          # Gehäuse und Fuß
+      kupferdraht: 0.0003         # Netzteil und Lautsprecher
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.elektro: 1
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: flachbildfernseher        # Sharp Aquos 2001
+    fachgebiet: elektro
+    erfindungsjahr: 2001
+    voraussetzungen: [tft_lcd, farbfernsehen]
+    forschungsaufwand: 30000
+    annaeherung: true

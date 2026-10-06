@@ -1,0 +1,63 @@
+# Kette 36 – Flüssigkristallbildschirm (M40, Epoche 1990–2009)
+# Dünnglas, Silizium (als Silan), Stahl und Kupfer → LCD-Panel: Aktivmatrix aus
+# Dünnschicht-Transistoren (TFT) auf Glas, Farbfilter, Flüssigkristall und
+# Hintergrundbeleuchtung (Sharp zeigt 1988 ein 14-Zoll-Farbpanel; Serienfertigung für
+# Notebooks ab 1990/91 bei Sharp, NEC und DTI, einem Werk von IBM und Toshiba). Gemessen in
+# m² Bildfläche: Mobiltelefon 0,001, Laptop 0,06, Fernseher 0,28. Jede größere Glasscheibe
+# („Generation“, die 5. ab 2002) senkte die Kosten je m²; Ende 2004 kostete ein Panel für
+# Notebooks (14–15 Zoll) 145–180 USD.
+# Alle Zahlen sind Annäherungen für etwa 2000.
+
+produkte:
+  - id: lcd_panel
+    art: komponente
+    branche: elektro
+    einheit: m2                   # Bildfläche; Modul mit Treibern und Hintergrundbeleuchtung
+    gewicht_kg: 12
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 4000          # 2000 etwa 5 000 USD je m², 2004 etwa 2 500 USD
+    annaeherung: true
+
+anlagen:
+  - id: panelwerk                 # Reinraum: Transistoren, Farbfilter, Zellen, Module
+    standorttyp: werk
+    investition_usd: 300_000_000  # eine Linie mit Glas der 2. Generation, um 1993
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 100        # m²
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.06
+    automatisierung_max: 0.8
+    technologie: tft_lcd
+    flaeche_ha: 8                 # Reinraumfabrik; nach der Investition wären es 30 ha
+    annaeherung: true
+
+rezepte:
+  - id: lcd_panel_herstellen
+    produkt: lcd_panel
+    menge: 1
+    dauer_tage: 10
+    anlage: panelwerk
+    technologie: tft_lcd
+    eingang:
+      glas: 0.004                 # zwei Scheiben Dünnglas (0,7 mm), Diffusor, Lampen
+      reinstsilizium: 0.005       # Silan für die Transistorschicht, wenig genutzt (kg)
+      stahl: 0.005                # Rahmen und Rückwand der Beleuchtung
+      kupfer: 0.0002              # Leiterbahnen, Folienleiter, Lampenanschlüsse
+    arbeit_stunden:
+      angelernt: 8
+      fachkraft.elektro: 3
+      fachkraft.chemie: 1
+      akademiker.elektro: 0.5
+    energie_mwh: 0.4              # Reinraum, Beschichtung im Vakuum
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: tft_lcd                   # Sharp 1988, Serienfertigung für Notebooks 1990/91
+    fachgebiet: elektro
+    erfindungsjahr: 1990
+    voraussetzungen: [integrierte_schaltung, taschenrechner]  # LCD der Taschenrechner (Sharp 1973)
+    forschungsaufwand: 50000
+    annaeherung: true

@@ -1,0 +1,65 @@
+# Kette 39 – Digitalkamera (M40, Epoche 1990–2009)
+# Mikrochips (CCD-Bildsensor, Bildprozessor, Speicher), LCD-Anzeige, Lithium-Ionen-Akku und
+# Glas für das Objektiv → Digitalkamera (Kodak DCS 1991 für Berufsfotografen, Apple QuickTake
+# 1994, Casio QV-10 1995 als erste mit Bildschirm). Um 2003 überholten Digital- die
+# Filmkameras; ab etwa 2010 ersetzen Mobiltelefone die Kompaktkameras.
+# Alle Zahlen sind Annäherungen für etwa 2000.
+
+produkte:
+  - id: digitalkamera
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.3
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 330           # 1995 etwa 700 USD (Casio QV-10), 2003 etwa 300 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 5, max_besitzquote: 0.4}
+      kaufschwelle: 42
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 1.6
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: kamerawerk                # Bildsensor einsetzen, Objektiv justieren, Montage
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 3000
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: digitalkamera
+    annaeherung: true
+
+rezepte:
+  - id: digitalkamera_bauen
+    produkt: digitalkamera
+    menge: 1
+    dauer_tage: 1
+    anlage: kamerawerk
+    technologie: digitalkamera
+    eingang:
+      mikrochip: 25               # Bildsensor, Bildprozessor, Speicher
+      lcd_panel: 0.0012           # Bildschirm, 2 Zoll
+      lithium_ionen_akku: 1
+      glas: 0.00003               # Objektiv
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.elektro: 1.2
+      akademiker.elektro: 0.25
+    energie_mwh: 0.002
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: digitalkamera             # Apple QuickTake 1994, Casio QV-10 1995
+    fachgebiet: elektro
+    erfindungsjahr: 1995
+    voraussetzungen: [mikroprozessor]  # Bildsensor und Bildverarbeitung
+    forschungsaufwand: 25000
+    annaeherung: true

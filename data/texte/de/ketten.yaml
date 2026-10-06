@@ -410,3 +410,39 @@ produkt.cd_spieler: CD-Spieler
 anlage.cd_spielerwerk: CD-Spieler-Werk
 rezept.cd_spieler_bauen: CD-Spieler bauen
 technologie.compact_disc: Compact Disc
+
+# Epoche 1990–2009 (M40)
+produkt.lithium: Lithium
+produkt.kobalt: Kobalt
+produkt.lithium_ionen_akku: Lithium-Ionen-Akku
+anlage.lithiumgewinnung: Lithiumgewinnung
+anlage.kobaltgewinnung: Kobaltgewinnung
+anlage.akkuwerk: Akkuwerk
+rezept.lithium_gewinnung: Lithium gewinnen
+rezept.kobalt_gewinnung: Kobalt gewinnen
+rezept.lithium_ionen_akku_bauen: Lithium-Ionen-Akkus bauen
+technologie.lithium_ionen_akku: Lithium-Ionen-Akku
+produkt.lcd_panel: LCD-Panel
+anlage.panelwerk: LCD-Panelwerk
+rezept.lcd_panel_herstellen: LCD-Panels herstellen
+technologie.tft_lcd: Aktivmatrix-Flüssigkristallanzeige (TFT-LCD)
+produkt.mobiltelefon: Mobiltelefon
+anlage.mobiltelefonwerk: Mobiltelefonwerk
+rezept.mobiltelefon_bauen: Mobiltelefone bauen
+technologie.mobilfunk: Digitaler Mobilfunk (GSM)
+produkt.laptop: Laptop
+anlage.laptopwerk: Laptopwerk
+rezept.laptop_bauen: Laptops bauen
+technologie.laptop: Laptop
+produkt.digitalkamera: Digitalkamera
+anlage.kamerawerk: Kamerawerk
+rezept.digitalkamera_bauen: Digitalkameras bauen
+technologie.digitalkamera: Digitalkamera
+produkt.flachbildfernseher: Flachbildfernseher
+anlage.flachbildfernsehwerk: Flachbildfernsehwerk
+rezept.flachbildfernseher_bauen: Flachbildfernseher bauen
+technologie.flachbildfernseher: Flachbildfernseher (LCD)
+produkt.dvd_spieler: DVD-Spieler
+anlage.dvd_spielerwerk: DVD-Spieler-Werk
+rezept.dvd_spieler_bauen: DVD-Spieler bauen
+technologie.dvd: DVD

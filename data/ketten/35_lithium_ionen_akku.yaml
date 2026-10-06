@@ -1,0 +1,133 @@
+# Kette 35 – Lithium-Ionen-Akku (M40, Epoche 1990–2009)
+# Lithium (Lithiumcarbonat aus Salzseen und Pegmatiten), Kobalt (aus Kupfer- und
+# Nickelerzen), Kupfer und Kohlenstoff → Lithium-Ionen-Akku (Kathode aus Lithiumkobaltoxid:
+# Goodenough 1980; Anode aus Kohlenstoff: Yoshino 1985; erste Zellen von Sony 1991). Er macht
+# Mobiltelefone, Laptops und Digitalkameras klein und leicht. Rundzellen wurden je kWh von
+# 1992 bis 2016 jedes Jahr um rund 13 % billiger.
+# Alle Zahlen sind Annäherungen für etwa 1995.
+
+produkte:
+  - id: lithium
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # Lithiumcarbonat-Äquivalent (LCE)
+    verwendung: industrie
+    warengruppe: chemie
+    transportklasse: stueckgut
+    richtpreis_usd: 5000          # 1996 etwa 4 300 USD je t Lithiumcarbonat
+    pacht_anteil: 0.3
+    annaeherung: true
+
+  - id: kobalt
+    art: rohstoff
+    branche: bergbau
+    einheit: t                    # Kobaltmetall
+    verwendung: industrie
+    warengruppe: nichteisenmetalle
+    transportklasse: stueckgut
+    richtpreis_usd: 70_000        # 1995 etwa 64 000 USD je t, 2002 etwa 15 000
+    pacht_anteil: 0.4             # Anteil der Kupfer- und Nickelgruben, die es mitgewinnen
+    annaeherung: true
+
+  - id: lithium_ionen_akku
+    art: komponente
+    branche: elektro
+    einheit: stueck               # Rundzelle 18650, um 1995 etwa 1,5 Ah (5 Wh)
+    gewicht_kg: 0.045
+    verwendung: industrie
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 9             # 1995 etwa 15 USD je Zelle, 2005 etwa 5 USD
+    annaeherung: true
+
+anlagen:
+  - id: lithiumgewinnung          # Sole: Becken und Carbonatanlage; Spodumen: Grube
+    standorttyp: foerderstaette
+    investition_usd: 40_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 10         # t (SCL am Salar de Atacama 1984: 6 300 t im Jahr)
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    annaeherung: true
+
+  - id: kobaltgewinnung           # Anteil an Grube und Laugerei, Elektrolyse
+    standorttyp: foerderstaette
+    investition_usd: 60_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 5          # t (Bou Azzer um 2000: 1 500 t im Jahr)
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    annaeherung: true
+
+  - id: akkuwerk                  # Elektroden beschichten, wickeln, formieren (Sony Koriyama 1991)
+    standorttyp: werk
+    investition_usd: 150_000_000
+    bauzeit_tage: 450
+    kapazitaet_je_tag: 30_000
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.06
+    automatisierung_max: 0.8
+    technologie: lithium_ionen_akku
+    flaeche_ha: 5                 # nach der Investition wären es 15 ha
+    annaeherung: true
+
+rezepte:
+  - id: lithium_gewinnung
+    produkt: lithium
+    menge: 1
+    dauer_tage: 1
+    anlage: lithiumgewinnung
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 6
+      angelernt: 4
+      fachkraft.chemie: 4
+      akademiker.chemie: 0.4
+    energie_mwh: 0.1              # Carbonatanlage; das Verdunsten besorgt die Sonne
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: kobalt_gewinnung
+    produkt: kobalt
+    menge: 1
+    dauer_tage: 1
+    anlage: kobaltgewinnung
+    abbau: true
+    arbeit_stunden:
+      ungelernt: 500              # Erz mit 0,3 % Kobalt, Anteil neben dem Kupfer
+      fachkraft.bergbau: 300
+      fachkraft.chemie: 100
+      akademiker.chemie: 10
+    energie_mwh: 3                # Elektrolyse
+    qualitaet_basis: 60
+    annaeherung: true
+
+  - id: lithium_ionen_akku_bauen
+    produkt: lithium_ionen_akku
+    menge: 1
+    dauer_tage: 21                # Formieren und Lagern
+    anlage: akkuwerk
+    technologie: lithium_ionen_akku
+    eingang:                      # ohne Stahlbecher, Aluminiumfolie, Separator, Elektrolyt
+      lithium: 0.000005           # 5 g Lithiumcarbonat für Kathode und Leitsalz
+      kobalt: 0.000008            # 8 g in 13 g Lithiumkobaltoxid
+      kupfer: 0.000005            # Anodenfolie und Ableiter
+      kohle: 0.000008             # Anode aus Kohlenstoff (Koks, später Graphit)
+    arbeit_stunden:
+      angelernt: 0.06
+      fachkraft.chemie: 0.015
+      fachkraft.elektro: 0.01
+      akademiker.chemie: 0.002
+    energie_mwh: 0.00005          # Trockenräume und Formieren
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: lithium_ionen_akku        # Goodenough 1980, Yoshino 1985, Sony 1991
+    fachgebiet: chemie
+    erfindungsjahr: 1991
+    voraussetzungen: [hochdruck_polyethylen, integrierte_schaltung]  # Separator, Schutzschaltung
+    forschungsaufwand: 40000
+    annaeherung: true

@@ -1,0 +1,65 @@
+# Kette 37 – Mobiltelefon (M40, Epoche 1990–2009)
+# Mikrochips (Prozessor, Signalprozessor, Hochfrequenzteil, Speicher), Lithium-Ionen-Akku,
+# LCD-Anzeige und Kunststoff → Mobiltelefon für das digitale GSM-Netz (erstes Gespräch 1991
+# in Finnland, D-Netze 1992; Nokia 1011 1992, Nokia 2110 1994). Analoge Geräte wie der
+# Motorola DynaTAC (1983) blieben teure Ausnahmen. 2008 wurden 1,2 Mrd. Geräte verkauft.
+# Alle Zahlen sind Annäherungen für etwa 1998.
+
+produkte:
+  - id: mobiltelefon
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 0.2
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 400           # 1995 etwa 700 USD ohne Vertrag (Nokia 2110), 1998 etwa 350 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 3, max_besitzquote: 1.0}
+      kaufschwelle: 12
+      preisempfindlichkeit: 1.5
+      einkommensempfindlichkeit: 1.3
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: mobiltelefonwerk          # Bestücken, Hochfrequenzabgleich, Prüfen (Nokia Salo, Bochum)
+    standorttyp: werk
+    investition_usd: 120_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 10_000
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.7
+    technologie: mobilfunk
+    annaeherung: true
+
+rezepte:
+  - id: mobiltelefon_bauen
+    produkt: mobiltelefon
+    menge: 1
+    dauer_tage: 1
+    anlage: mobiltelefonwerk
+    technologie: mobilfunk
+    eingang:
+      mikrochip: 40               # Prozessoren, Hochfrequenzteil, Speicher
+      lithium_ionen_akku: 1
+      lcd_panel: 0.001            # Anzeige, gut 1,5 Zoll
+      polyethylen: 0.00008        # Gehäuse und Tastatur
+    arbeit_stunden:
+      angelernt: 4
+      fachkraft.elektro: 1
+      akademiker.elektro: 0.3
+    energie_mwh: 0.0005
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: mobilfunk                 # GSM: erstes Gespräch 1991, Netze und Geräte ab 1992
+    fachgebiet: elektro
+    erfindungsjahr: 1992
+    voraussetzungen: [mikroprozessor]  # digitale Signalverarbeitung; Akku und Anzeige kauft man zu
+    forschungsaufwand: 40000
+    annaeherung: true

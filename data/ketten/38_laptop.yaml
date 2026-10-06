@@ -1,0 +1,65 @@
+# Kette 38 – Laptop (M40, Epoche 1990–2009)
+# Mikrochips, LCD-Bildschirm, Lithium-Ionen-Akku und Kunststoff → Laptop (Compaq LTE 1989,
+# Apple PowerBook 1991, IBM ThinkPad 700C 1992 mit 10,4-Zoll-Farbbildschirm). Ab etwa 1994
+# ersetzen Lithium-Ionen-Akkus die Nickel-Akkus. 2008 wurden erstmals mehr Laptops als
+# Tischrechner verkauft.
+# Alle Zahlen sind Annäherungen für etwa 1998.
+
+produkte:
+  - id: laptop
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 3
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 1500          # 1995 etwa 2 500 USD, 2005 etwa 1 000 USD
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 4, max_besitzquote: 0.3}
+      kaufschwelle: 15
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 2.0
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: laptopwerk                # Toshiba Ome; ab 2000 Auftragsfertiger in China (Quanta, Compal)
+    standorttyp: werk
+    investition_usd: 70_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 2000
+    lebensdauer_jahre: 10
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.6
+    technologie: laptop
+    annaeherung: true
+
+rezepte:
+  - id: laptop_bauen
+    produkt: laptop
+    menge: 1
+    dauer_tage: 1
+    anlage: laptopwerk
+    technologie: laptop
+    eingang:
+      mikrochip: 180              # Prozessor, Speicher, Grafik, Laufwerkselektronik
+      lcd_panel: 0.06             # 12,1 bis 14,1 Zoll
+      lithium_ionen_akku: 6       # Akkupack
+      polyethylen: 0.0008         # Gehäuse und Tastatur
+    arbeit_stunden:
+      angelernt: 5
+      fachkraft.elektro: 2
+      akademiker.elektro: 0.4
+    energie_mwh: 0.01
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: laptop                    # Apple PowerBook 1991, IBM ThinkPad 700C 1992
+    fachgebiet: elektro
+    erfindungsjahr: 1992
+    voraussetzungen: [personal_computer, tft_lcd]
+    forschungsaufwand: 30000
+    annaeherung: true

@@ -1,0 +1,103 @@
+# Lithium-Lagerstätten (M40): Salzseen (Sole, durch Verdunsten angereichert) und Pegmatite
+# (Spodumen, Petalit). Vorrat und Förderung in t Lithiumcarbonat-Äquivalent (LCE), Förderung
+# etwa nach dem Stand um 2008. Länder in heutigen Grenzen. Alle Werte sind grobe
+# Annäherungen.
+
+lagerstaetten:
+  - id: atacama_lithium   # Sole; SCL (Foote) seit 1984, SQM seit 1996/97
+    land: CHL
+    rohstoff: lithium
+    vorrat: 35_000_000
+    entdeckt: 1962
+    erschliessung: {investition_usd: 100_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 60_000
+    foerderkosten_faktor: 0.7
+    annaeherung: true
+
+  - id: hombre_muerto   # Sole in der Puna; FMC seit 1997/98
+    land: ARG
+    rohstoff: lithium
+    vorrat: 4_000_000
+    entdeckt: 1975
+    erschliessung: {investition_usd: 120_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 20_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: greenbushes   # Pegmatit in Westaustralien; Zinn seit 1888, Spodumen seit 1983
+    land: AUS
+    rohstoff: lithium
+    vorrat: 3_000_000
+    entdeckt: 1888
+    erschliessung: {investition_usd: 60_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 35_000
+    annaeherung: true
+
+  - id: clayton_valley   # Sole bei Silver Peak (Nevada); Foote seit 1966
+    land: USA
+    rohstoff: lithium
+    vorrat: 300_000
+    entdeckt: 1964
+    erschliessung: {investition_usd: 30_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 8_000
+    annaeherung: true
+
+  - id: kings_mountain   # Spodumen in North Carolina; die Gruben schlossen 1998 gegen die Sole
+    land: USA
+    rohstoff: lithium
+    vorrat: 2_000_000
+    entdeckt: 1940
+    erschliessung: {investition_usd: 40_000_000, dauer_tage: 540}
+    foerderung_max_je_jahr: 15_000
+    foerderkosten_faktor: 1.4
+    annaeherung: true
+
+  - id: qinghai_lithium   # Salzseen im Qaidam-Becken; Sole mit viel Magnesium
+    land: CHN
+    rohstoff: lithium
+    vorrat: 15_000_000
+    entdeckt: 1957
+    erschliessung: {investition_usd: 80_000_000, dauer_tage: 720}
+    foerderung_max_je_jahr: 20_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: koktokay   # Pegmatit im Altai (Xinjiang)
+    land: CHN
+    rohstoff: lithium
+    vorrat: 300_000
+    entdeckt: 1950
+    erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 5_000
+    foerderkosten_faktor: 1.3
+    annaeherung: true
+
+  - id: bikita   # Petalit und Lepidolith
+    land: ZWE
+    rohstoff: lithium
+    vorrat: 300_000
+    entdeckt: 1950
+    erschliessung: {investition_usd: 15_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 5_000
+    foerderkosten_faktor: 1.1
+    annaeherung: true
+
+  - id: tanco   # Pegmatit am Bernic Lake (Manitoba)
+    land: CAN
+    rohstoff: lithium
+    vorrat: 400_000
+    entdeckt: 1929
+    erschliessung: {investition_usd: 25_000_000, dauer_tage: 360}
+    foerderung_max_je_jahr: 5_000
+    foerderkosten_faktor: 1.2
+    annaeherung: true
+
+  - id: uyuni   # größter Salzsee der Erde; bis 2009 ungenutzt (Regenzeit, viel Magnesium)
+    land: BOL
+    rohstoff: lithium
+    vorrat: 50_000_000
+    entdeckt: 1976
+    erschliessung: {investition_usd: 300_000_000, dauer_tage: 1080}
+    foerderung_max_je_jahr: 40_000
+    foerderkosten_faktor: 1.6
+    annaeherung: true

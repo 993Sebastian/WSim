@@ -65,6 +65,7 @@ anlagen:
     investition_usd: 250_000_000
     bauzeit_tage: 540
     kapazitaet_je_tag: 200_000
+    flaeche_ha: 10                # Reinraumfabrik; nach der Investition wären es 25 ha
     lebensdauer_jahre: 12
     wartung_je_jahr: 0.06
     automatisierung_max: 0.7
@@ -111,7 +112,9 @@ rezepte:
     eingang:
       reinstsilizium: 0.0003      # 0,3 g, mit Verlust beim Ziehen und Sägen
       kupfer: 0.000001            # Anschlussrahmen
-      bakelit: 0.000002           # Gehäuse aus Pressmasse
+      glas: 0.000002              # Gehäuse aus Keramik und Glas (M40; vorher Bakelit, das es
+                                  # in den Chipländern kaum gab: Chips kosteten 1999–2009
+                                  # das Vierfache, und keine Firma baute aus)
     arbeit_stunden:
       angelernt: 0.08
       fachkraft.elektro: 0.02

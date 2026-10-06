@@ -1,0 +1,65 @@
+# Kette 41 – DVD-Spieler (M40, Epoche 1990–2009)
+# Stahlblech, Mikrochips (MPEG-2-Dekoder, Servo, Wandler) mit roter Laserdiode,
+# Kleinmotoren und Kunststoff → DVD-Spieler (Standard 1995; Geräte in Japan ab November
+# 1996, in den USA ab März 1997). Er verdrängt den Videorekorder: 2003 wurden in den USA
+# erstmals mehr DVDs als Videokassetten verliehen.
+# Alle Zahlen sind Annäherungen für etwa 1998.
+
+produkte:
+  - id: dvd_spieler
+    art: endprodukt
+    branche: elektro
+    einheit: stueck
+    gewicht_kg: 3
+    verwendung: konsum
+    warengruppe: elektro
+    transportklasse: stueckgut
+    richtpreis_usd: 550           # 1997 etwa 600 USD, 2002 unter 100 USD
+    ersetzt: [videorekorder]
+    nachfrage:
+      bedarfsklasse: gebrauchsgut
+      gebrauch: {nutzungsdauer_jahre: 7, max_besitzquote: 0.3}
+      kaufschwelle: 30
+      preisempfindlichkeit: 1.6
+      einkommensempfindlichkeit: 1.6
+      netzabhaengig: true
+    annaeherung: true
+
+anlagen:
+  - id: dvd_spielerwerk
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 300
+    kapazitaet_je_tag: 3000
+    lebensdauer_jahre: 12
+    wartung_je_jahr: 0.05
+    automatisierung_max: 0.7
+    technologie: dvd
+    annaeherung: true
+
+rezepte:
+  - id: dvd_spieler_bauen
+    produkt: dvd_spieler
+    menge: 1
+    dauer_tage: 1
+    anlage: dvd_spielerwerk
+    technologie: dvd
+    eingang:
+      blech: 0.0025
+      mikrochip: 12               # Dekoder, Servo, Wandler, Laserdiode
+      kleinmotor: 3               # Spindel, Schlitten, Lade
+      polyethylen: 0.0007
+    arbeit_stunden:
+      angelernt: 2.5
+      fachkraft.elektro: 0.6
+    energie_mwh: 0.005
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: dvd                       # Sony und Philips mit Toshiba und Panasonic, Standard 1995
+    fachgebiet: elektro
+    erfindungsjahr: 1996
+    voraussetzungen: [compact_disc]
+    forschungsaufwand: 25000
+    annaeherung: true

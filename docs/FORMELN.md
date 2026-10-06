@@ -1948,3 +1948,26 @@ Mikrochip ist das gemeinsame Vorprodukt (Taschenrechner 2, CD-Spieler 10, Videor
   Nordsee, Prudhoe Bay …) mit ihrem Entdeckungsjahr, dazu einen Förderindex für Eisen- und
   Kupfererz (Tagebaue, Pellets, Laugung). Bis M38 war 1964 jede Eisenerzgrube ausgelastet
   (Kapazität 1950 und 1964 gleich), und die Ölfelder waren zu 85 % belegt.
+
+## M40 – Produkte 1990–2009
+
+Lastenheft §18.4. Neue Produkte, Rohstoffe, Anlagen, Rezepte und Technologien stehen in
+`data/ketten/35_*.yaml` bis `41_*.yaml` und `data/lagerstaetten/lithium.yaml`,
+`kobalt.yaml` (Annäherungen und Quellen in den Kommentaren der Daten):
+
+| Kette | Neue Produkte | Technologien (Jahr) |
+| --- | --- | --- |
+| 35 Lithium-Ionen-Akku | Lithium, Kobalt, Lithium-Ionen-Akku (Zelle) | Lithium-Ionen-Akku (1991) |
+| 36 Flüssigkristallbildschirm | LCD-Panel (in m² Bildfläche, neue Einheit `m2`) | TFT-LCD (1990) |
+| 37 Mobiltelefon | Mobiltelefon | Mobilfunk (1992) |
+| 38 Laptop | Laptop | Laptop (1992) |
+| 39 Digitalkamera | Digitalkamera | Digitalkamera (1995) |
+| 40 Flachbildfernseher | Flachbildfernseher (verdrängt den Farbfernseher) | Flachbildfernseher (2001) |
+| 41 DVD-Spieler | DVD-Spieler (verdrängt den Videorekorder) | DVD (1996) |
+
+Neue Formeln braucht die Epoche nicht. Geändert ist das Rezept des Mikrochips (M39): Sein
+Gehäuse ist Glas und Keramik statt Bakelit. Im ersten Weltlauf bis 2010 standen alle
+Chipwerke in den USA, wo Bakelit das Vierfache kostete; nach der Ausbauregel (kein Ausbau,
+solange ein Vorprodukt mehr als `ausbau_vorprodukt_preis_max` × Richtpreis kostet) baute
+keine Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache. Das Chipwerk bekommt
+eine eigene Fläche (10 ha statt 25 ha nach der Regel „Investition je ha“).

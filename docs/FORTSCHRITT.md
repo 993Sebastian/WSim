@@ -48,7 +48,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M37 | Weiterentwicklung erforschter Produkte | ✅ |
 | M38 | Pleiten: Standorte weitergeben | ✅ |
 | M39 | Produkte 1965–1989 | ✅ |
-| M40–M41 | Produktepochen 1990–2026 | offen |
+| M40 | Produkte 1990–2009 | in Arbeit (Daten committet, Weltläufe bis 2010 laufen) |
+| M41 | Produkte 2010–2026 | offen |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1319,4 +1320,19 @@ Auftrag: Produktepochen bis 2026 (Lastenheft §18.4), hier 1965–1989.
   bis 1985 knapp; Holz wird ab 1986 teuer (Seed 1: bis 2,8-fach, Schnittholz 1986 nur zu
   53 % versorgt) – das prüft der Weltlauf bis 2010 (M40). Siliziumwerk und Quarzbruch
   sind nach diesen Läufen verkleinert.
+
+### M40: Produkte 1990–2009 (06.10.2026, Zwischenstand)
+
+- **Daten** (Entwurf eines Hilfsagenten im Scratchpad, geprüft und übernommen): Ketten
+  35–41 – Lithium-Ionen-Akku mit Lithium und Kobalt (10 bzw. 8 Lagerstätten),
+  LCD-Panel in m² Bildfläche (neue Einheit `m2`), Mobiltelefon, Laptop, Digitalkamera,
+  Flachbildfernseher (verdrängt den Farbfernseher), DVD-Spieler (verdrängt den
+  Videorekorder). Formeln: `docs/FORMELN.md`, Abschnitt M40.
+- **Nachbesserung M39:** Im Weltlauf des Agenten bis 2010 standen alle Chipwerke in den
+  USA, wo Bakelit (Chipgehäuse) das Vierfache kostete; nach der Ausbauregel baute keine
+  Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache – alle neuen Geräte
+  hungerten. Das Gehäuse ist jetzt Glas und Keramik (Staatsmarkt); das Chipwerk bekommt
+  10 ha statt 25 ha Fläche.
+- **Oberfläche:** Beispieldaten der Vorschau mit den Daten bis 2009 erneuert; die
+  Oberflächentests nennen die neuen Werte (Marge, Kaufangebot, Standortnummer).
 
