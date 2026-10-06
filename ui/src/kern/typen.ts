@@ -383,6 +383,8 @@ export interface Angebot {
   margin: number | null;
   /** The site uses the product itself. */
   used_here: boolean;
+  /** The company's own name for the product (M42). */
+  product_name?: string | null;
 }
 
 export interface Einkauf {
@@ -611,6 +613,8 @@ export interface ProduktMarkt {
     share: number;
     /** Development level of the seller for the product (M37). */
     level: number;
+    /** The seller's own name for the product (M42). */
+    product_name?: string | null;
   }[];
   own_awareness: number;
   chances: string[];
@@ -650,6 +654,12 @@ export interface ProduktMarkt {
       per_head_year: number;
     }[];
   } | null;
+  /** Companies give the product their own names (M42). */
+  nameable?: boolean;
+  /** The player's name for the product. */
+  own_name?: string | null;
+  /** Three free names from the name parts of the data. */
+  name_suggestions?: string[];
 }
 
 /** One closed month of a market (M24). */
@@ -983,6 +993,8 @@ export interface Geschaeftsbereich {
 
 export interface Firmendetail {
   company: Firmenzeile;
+  /** The names the company gave its products (M42). */
+  products?: { product: string; name: string }[];
   sites: FremderStandort[];
   areas: Geschaeftsbereich[];
   licenses: Lizenzmoeglichkeit[];

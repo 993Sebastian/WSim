@@ -68,6 +68,7 @@ pub(crate) fn decide(state: &mut GameState, catalog: &Catalog, date: Date) -> Ve
         if ai.next_operations <= date {
             operate(state, catalog, id, own, date);
             supply_own(state, catalog, id, own);
+            name_products(state, catalog, id, own);
             let days = catalog
                 .ai_model
                 .behavior
@@ -562,6 +563,32 @@ fn site_id(index: usize) -> SiteId {
 }
 
 /// Executes a command for an AI company; a refused command is simply not carried out.
+/// Gives the end products the company makes or offers a name, if they have none (M42).
+fn name_products(state: &mut GameState, catalog: &Catalog, id: CompanyId, own: &[SiteId]) {
+    let mut products = std::collections::BTreeSet::new();
+    for &site in own {
+        let s = &state.sites[site.index()];
+        let made = s
+            .slots
+            .iter()
+            .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product));
+        products.extend(made.chain(s.offers.keys().copied()));
+    }
+    for product in products {
+        if catalog.product_naming.style(catalog, product).is_none()
+            || state.companies[id.index()]
+                .product_names
+                .contains_key(&product)
+        {
+            continue;
+        }
+        if let Some(name) = crate::product_names::generate(catalog, state, id, product) {
+            let name = Some(name);
+            run(state, catalog, id, &Command::NameProduct { product, name });
+        }
+    }
+}
+
 fn run(state: &mut GameState, catalog: &Catalog, actor: CompanyId, command: &Command) -> bool {
     command::execute(state, catalog, actor, command).is_ok()
 }
@@ -3068,6 +3095,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),
+        product_names: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3233,6 +3261,7 @@ mod tests {
             advertising: Vec::new(),
             auction_until: None,
             development: Default::default(),
+            product_names: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

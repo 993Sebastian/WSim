@@ -97,6 +97,9 @@ pub struct OfferView {
     pub margin: Option<f64>,
     /// The site uses the product itself (an input of its facilities).
     pub used_here: bool,
+    /// The company's own name for the product (M42).
+    #[serde(default)]
+    pub product_name: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -659,6 +662,10 @@ pub fn production(game: &Game) -> ProductionView {
                                 .map(|c| 1.0 - c / usd(o.price)),
                             unit_cost_usd,
                             used_here: used_here.contains(p),
+                            product_name: state.companies[s.owner.index()]
+                                .product_names
+                                .get(p)
+                                .cloned(),
                         }
                     })
                     .collect(),
@@ -1098,6 +1105,9 @@ pub struct SellerLine {
     /// The company's development level of the product (M37).
     #[serde(default)]
     pub level: u8,
+    /// The company's own name for the product (M42).
+    #[serde(default)]
+    pub product_name: Option<String>,
 }
 
 /// One product on the market of a country (M18): prices, demand by buyer, sellers.
@@ -1139,6 +1149,14 @@ pub struct ProductMarketView {
     /// How the consumer demand comes about (M27); `None` without consumer demand.
     #[serde(default)]
     pub demand_parts: Option<DemandParts>,
+    /// Whether companies give the product their own names (M42), the player's name and
+    /// three free suggestions for it.
+    #[serde(default)]
+    pub nameable: bool,
+    #[serde(default)]
+    pub own_name: Option<String>,
+    #[serde(default)]
+    pub name_suggestions: Vec<String>,
 }
 
 /// The market price as reference price × price level factor × market situation (M27).
@@ -1393,6 +1411,7 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
                 sold_last_month: o.sold_last_month,
                 share: 0.0,
                 level: crate::development::level(catalog, state, s.owner, p),
+                product_name: company.product_names.get(&p).cloned(),
             }),
         }
     }
@@ -1436,6 +1455,12 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         history: market_history(state, m),
         price_parts: Some(price_parts(game, c, p)),
         demand_parts: demand_parts(game, c, p),
+        nameable: catalog.product_naming.style(catalog, p).is_some(),
+        own_name: state.companies[state.player.index()]
+            .product_names
+            .get(&p)
+            .cloned(),
+        name_suggestions: crate::product_names::suggestions(catalog, state, state.player, p, 3),
     })
 }
 

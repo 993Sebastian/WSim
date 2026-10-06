@@ -427,6 +427,19 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
           umsatz: formatGeld(c.revenue_year_usd),
         })}
       </p>
+      {(d.products?.length ?? 0) > 0 && (
+        <>
+          <h3>{t("wettbewerb.produkte")}</h3>
+          <ul className="produktnamen" aria-label={t("wettbewerb.produkte")}>
+            {d.products?.map((p) => (
+              <li key={p.product}>
+                <strong>{p.name}</strong>{" "}
+                <span className="gedaempft">{t(`produkt.${p.product}`)}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <h3>{t("wettbewerb.standorte")}</h3>
       {c.auction_until ? (
         <p className="erklaerung">

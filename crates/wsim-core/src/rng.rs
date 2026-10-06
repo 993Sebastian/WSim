@@ -22,6 +22,11 @@ pub enum Stream {
         country: u16,
         year: u16,
     },
+    /// Names of a company for a product (M42).
+    ProductName {
+        company: u32,
+        product: u32,
+    },
 }
 
 impl Stream {
@@ -31,6 +36,9 @@ impl Stream {
             Stream::Company(id) => (1 << 32) | u64::from(id),
             Stream::Plots { country, year } => {
                 (2 << 32) | (u64::from(year) << 16) | u64::from(country)
+            }
+            Stream::ProductName { company, product } => {
+                (3 << 56) | (u64::from(company) << 24) | u64::from(product)
             }
         }
     }

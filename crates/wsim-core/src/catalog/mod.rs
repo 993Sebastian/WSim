@@ -11,7 +11,7 @@ pub use table::Table;
 
 use serde::{Deserialize, Serialize};
 
-use crate::ids::{IdKind, KeyTable};
+use crate::ids::{Id, IdKind, KeyTable};
 
 use crate::ids::{
     BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId,
@@ -59,6 +59,8 @@ pub struct Catalog {
     pub events: Vec<HistoricalEvent>,
     /// Parts for the names of generated companies.
     pub name_groups: Vec<NameGroup>,
+    /// Parts for the names companies give their end products (M42).
+    pub product_naming: ProductNaming,
     /// Currencies of the countries, for display only (M21).
     pub currencies: crate::currency::CurrencyModel,
 }
@@ -921,6 +923,71 @@ pub struct NameGroup {
     pub patterns: Vec<String>,
     /// Word for the business per branch, indexed by `BranchId`.
     pub branch_words: Vec<Option<String>>,
+}
+
+/// Parts for the invented names companies give their end products (M42,
+/// `data/ki/produktnamen.yaml`).
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct ProductNaming {
+    /// Chance that a further product gets a stem the company already uses in the style.
+    pub house_brand: f64,
+    /// Real product and brand names: no word of a product name may be one of them.
+    pub excluded: Vec<String>,
+    pub styles: Vec<NamingStyle>,
+    /// Style per goods group, indexed by `GoodsGroupId`.
+    pub style_of_group: Vec<Option<usize>>,
+}
+
+impl ProductNaming {
+    /// The naming style of a product: end products of a goods group with a style.
+    pub fn style(&self, catalog: &Catalog, product: ProductId) -> Option<&NamingStyle> {
+        let p = catalog.products.get(product);
+        if p.kind != ProductKind::EndProduct {
+            return None;
+        }
+        let index = self
+            .style_of_group
+            .get(p.goods_group.index())
+            .copied()
+            .flatten()?;
+        self.styles.get(index)
+    }
+
+    /// Whether a word of `name` is a real product or brand name.
+    pub fn is_excluded(&self, name: &str) -> bool {
+        name.split_whitespace().any(|word| {
+            self.excluded
+                .iter()
+                .any(|e| crate::product_names::same_name(e, word))
+        })
+    }
+}
+
+/// How the products of some goods groups are named (M42).
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct NamingStyle {
+    pub key: String,
+    /// Invented words a name starts with.
+    pub stems: Vec<String>,
+    pub patterns: Vec<NamePattern>,
+    pub numbers: Vec<u32>,
+    pub letters: Vec<String>,
+    pub additions: Vec<String>,
+}
+
+/// A name pattern with `{stamm}`, `{zahl}`, `{buchstabe}` and `{zusatz}`, used in the
+/// years from `from` to `until` (both optional).
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct NamePattern {
+    pub text: String,
+    pub from: Option<i32>,
+    pub until: Option<i32>,
+}
+
+impl NamePattern {
+    pub fn applies(&self, year: i32) -> bool {
+        self.from.is_none_or(|a| year >= a) && self.until.is_none_or(|b| year <= b)
+    }
 }
 
 /// Parameters of transport (`data/parameter/transportmodell.yaml`).

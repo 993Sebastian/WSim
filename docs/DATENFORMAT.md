@@ -40,9 +40,9 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
-`namensgruppen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
+`namensgruppen`, `produktnamen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
 `landeswaehrungen`, `etappen`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
-`preisindex` und die Modelle in `parameter/` sind einmalige Zuordnungen).
+`preisindex`, `produktnamen` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
 
@@ -407,6 +407,23 @@ Sitzlandes, sonst die eine Gruppe mit `standard: true`.
 | **familiennamen**, **orte**, **rechtsformen** | Nicht leere Listen von Namensteilen |
 | **muster** | Namensmuster mit `{familienname}`, `{ort}`, `{rechtsform}`, `{branche}` |
 | **branchen** | Wort für das Geschäft je Branche, z. B. `metallurgie: Hüttenwerke` |
+
+## produktnamen
+
+Bausteine für die erfundenen Namen, die Firmen ihren Endprodukten geben (in `ki/`, M42;
+Regeln: `docs/FORMELN.md`, Abschnitt M42). Optional: ohne den Abschnitt tragen Produkte
+keine Namen. Eine einmalige Zuordnung:
+
+| Feld | Bedeutung |
+| --- | --- |
+| **hausmarke** | 0–1: Anteil, mit dem eine Firma für ein weiteres Produkt desselben Stils einen eigenen Stamm wiederverwendet |
+| ausgeschlossen | Echte Produkt- und Markennamen. Kein Stamm, Buchstabe oder Zusatz darf eines dieser Wörter enthalten; Namen mit einem solchen Wort erzeugt das Spiel nicht und nimmt es vom Spieler nicht an (ohne Unterschied von Groß- und Kleinschreibung) |
+| **stile** | Liste der Namensstile: `id` (eindeutig), `warengruppen` (nicht leer, jede Warengruppe in höchstens einem Stil; benannt werden die Endprodukte dieser Gruppen), `staemme` (erfundene Wörter, nicht leer, ohne Doppelte), `muster` (nicht leer, siehe unten), `zahlen` (über 0, ohne Doppelte), `buchstaben`, `zusaetze` |
+
+Ein Muster ist `{text, ab, bis}`: `text` mit `{stamm}` (Pflicht) und wahlweise `{zahl}`,
+`{buchstabe}`, `{zusatz}` – jeder benutzte Platzhalter braucht eine nicht leere Liste;
+`ab` und `bis` (Jahre, beide optional, `ab` ≤ `bis`) begrenzen, wann das Muster gilt.
+Mindestens ein Muster je Stil gilt ohne Zeitgrenzen.
 
 ## reale_firmen
 

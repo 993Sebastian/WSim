@@ -648,6 +648,36 @@ Tutorial erklärt Regionen, Grundstücke, Anlagengrößen und die Weiterentwickl
 Meilenstein endet mit kompletten Testläufen (Weltlauf, Testpartie, Oberflächentests,
 Browser-Version).
 
+## M Produktnamen je Firma (Anfrage vom 06.10.2026)
+
+Auftrag: „In den Produkten hast du konkrete Produktnamen eingetragen. Bspw. Tesla oder
+Nissan Leaf oder iPhone. Das sollte alles neutralisiert werden in Elektrofahrzeug bspw.
+oder Smartphone. Jede Firma vergibt individuelle Produktnamen. Keine echten Produkte.“
+
+✅ Entschieden: Echte Namen sind aus Texten, Weltereignissen und Datenkommentaren entfernt
+(`docs/FORTSCHRITT.md`, „Keine echten Produktnamen“). Eigene Produktnamen je Firma kommen
+als M42 gleich nach M41 (Antwort vom 06.10.2026: „Ja, gleich nach M41“).
+
+✅ **M42 umgesetzt** (Regeln: `docs/FORMELN.md`, Abschnitt M42). 🟡 Eigenständig
+entschieden:
+
+1. **Nur Endprodukte** tragen Namen; Rohstoffe, Halbzeuge, Bauteile und Strom bleiben
+   Gattungsware.
+2. **Zwei Stile:** Modellnamen für Geräte, Maschinen und Fahrzeuge („Kelvor M80“, bis
+   1939 auch „Marvik Typ 12“), Markennamen für Waren des täglichen Bedarfs („Nerola
+   Classic“). Die Stämme sind erfundene, sprachneutrale Wörter; eine Liste echter
+   Produkt- und Markennamen (`ausgeschlossen`) sichert sie ab und gilt auch für den
+   Spieler.
+3. **Hausmarken:** Eine Firma nimmt für ein weiteres Produkt desselben Stils mit 60 %
+   einen ihrer Stämme wieder; Stämme anderer Firmen nimmt sie erst, wenn keine freien
+   mehr übrig sind. Derselbe Name für dasselbe Produkt ist nie zweimal vergeben.
+4. **Der Spieler** benennt selbst (Markt → Produkt → „Dein Produktname“, drei
+   Vorschläge); ohne Namen verkauft er unter dem Gattungsnamen, ein Hinweis erinnert
+   daran.
+5. **Nachfolgemodelle** (neuer Name mit jeder Entwicklungsstufe, M37) gibt es noch
+   nicht. Vorschlag für später: Die KI bringt mit einer neuen Stufe ein Nachfolgemodell
+   unter demselben Stamm heraus („Kelvor M80“ → „Kelvor M90“).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie
@@ -662,6 +692,7 @@ Epochen bekommen deshalb neue Nummern.
 | M37 | Weiterentwicklung erforschter Produkte (Abschnitt J) |
 | M38 | Pleiten: Standorte weitergeben (Abschnitt K) |
 | M39–M41 | Produkte 1965–1989, 1990–2009, 2010–2026 (Abschnitt G; Daten für 1965–1989 liegen als Entwurf vor) |
+| M42 | Produktnamen je Firma (Abschnitt M) |
 
 ## Vorschlag zu Punkt 15: Arbeitskräfte
 

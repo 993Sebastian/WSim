@@ -50,7 +50,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | M39 | Produkte 1965–1989 | ✅ |
 | M40 | Produkte 1990–2009 | ✅ |
 | M41 | Produkte 2010–2026 | in Arbeit |
-| M42 | Produktnamen je Firma | in Arbeit (nach M41) |
+| M42 | Produktnamen je Firma | ✅ (parallel zu M41 fertig, vorgezogen) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1389,3 +1389,30 @@ Produktnamen je Firma folgen mit M42.
   Startbesetzung (Lastenheft §10) sowie Firmen und Schiffe in Weltereignissen (Lehman
   Brothers, Ever Given). Die IDs (`nylon`, `bakelit`, `ford_model_t` …) bleiben, damit
   Spielstände gültig bleiben; angezeigt werden sie nirgends.
+
+### M42: Produktnamen je Firma (06.10.2026)
+
+Auftrag: „Jede Firma vergibt individuelle Produktnamen. Keine echten Produkte.“ (Antwort
+auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Abschnitt M42.
+
+- **Daten:** `data/ki/produktnamen.yaml` – Modellnamen für Geräte, Maschinen und Fahrzeuge
+  (68 erfundene Stämme, Zahlen, Buchstaben, Zusätze; „Typ 12“ nur bis 1939), Markennamen
+  für Waren des täglichen Bedarfs (62 Stämme, Zusätze wie „Classic“ oder „Fein“), eine
+  Liste echter Produkt- und Markennamen, die weder erzeugt noch vom Spieler angenommen
+  werden. Prüfregeln mit Fehlerfall-Test (Platzhalter, Pflicht-Stamm, leere Listen,
+  echte Namen, doppelte Stämme, Warengruppen, Zeiträume).
+- **Kern:** Modul `product_names`: Namen aus einem eigenen Zufallsstrom je Firma und
+  Produkt (verschiebt keine anderen Zufallszahlen; Weltläufe bleiben gleich), frei je
+  Produkt, Stämme gehören ihrer Firma, Hausmarken (60 %). Befehl `NameProduct` mit
+  Prüfung; Namen bei der Gründung; KI benennt neue Endprodukte bei ihren
+  Betriebsentscheidungen. Die Meldungen über Wettbewerber (neuer Anbieter,
+  Preissenkung, Rückzug) nennen den Produktnamen. Spielstände: neues optionales Feld.
+- **Oberfläche:** Anbieterliste mit Spalte „Produktname“; „Dein Produktname“ im
+  Produktmarkt mit drei Vorschlägen, Speichern und Entfernen; Produkte einer Firma im
+  Wettbewerb; Name beim Verkauf in der Werksansicht; Hinweis unter „Zu erledigen“ für
+  verkaufte Endprodukte ohne Namen; die Einführung erwähnt die Namen.
+- **Tests:** Kern (Namen je Jahr, frei und reproduzierbar, Befehlsprüfung, Hausmarken,
+  Spielstand und Wiedergabe des Journals), echte Daten (alle KI-Firmen benennen ihre
+  Endprodukte 1960 eindeutig und ohne echte Namen), Oberfläche (Benennen mit Vorschlag).
+  Beispiel aus dem Testlauf 1960: Kühlschränke „Kelvor M80“, „Mendor R250“, Kleidung
+  „Nerola Classic“, „Halina Royal“, Autos „Irvok 500“.

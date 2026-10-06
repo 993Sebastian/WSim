@@ -526,6 +526,9 @@ pub fn message_view(message: &Message) -> MessageView {
         crate::message::keys::AI_NEW_SELLER,
         crate::message::keys::AI_SELLER_GONE,
         crate::message::keys::AI_PRICE_CUT,
+        crate::message::keys::AI_NEW_SELLER_NAMED,
+        crate::message::keys::AI_SELLER_GONE_NAMED,
+        crate::message::keys::AI_PRICE_CUT_NAMED,
     ]
     .contains(&message.key.as_str())
     {

@@ -1971,3 +1971,80 @@ Chipwerke in den USA, wo Phenolharz das Vierfache kostete; nach der Ausbauregel 
 solange ein Vorprodukt mehr als `ausbau_vorprodukt_preis_max` × Richtpreis kostet) baute
 keine Firma mehr aus, und Chips kosteten 1999–2009 das Vierfache. Das Chipwerk bekommt
 eine eigene Fläche (10 ha statt 25 ha nach der Regel „Investition je ha“).
+
+## M42 – Produktnamen je Firma
+
+Offene Punkte, Abschnitt M. Bausteine: `data/ki/produktnamen.yaml` (Format:
+`docs/DATENFORMAT.md`, Abschnitt `produktnamen`).
+
+Jede Firma gibt ihren Endprodukten eigene, erfundene Namen; echte Produkte, Modelle und
+Marken kommen nicht vor. Rohstoffe, Halbzeuge, Bauteile und Strom bleiben Gattungsware
+ohne Namen.
+
+### Welche Produkte einen Namen tragen
+
+Ein Produkt p trägt Namen, wenn es ein Endprodukt ist und seine Warengruppe einem
+Namensstil zugeordnet ist (`stile[].warengruppen`). Mit den Daten:
+
+| Stil | Warengruppen | Beispiele |
+| --- | --- | --- |
+| `technik` | Elektro, Maschinen, Fahrzeuge | „Kelvor M80“, „Marvik Typ 12“, „Irvok 500“ |
+| `marke` | Metallwaren, Möbel und Hausrat, Bekleidung, Lebensmittel, Chemie | „Aurela“, „Nerola Classic“ |
+
+### Name bilden
+
+Für Firma f, Produkt p mit Stil S am Tag t:
+
+1. Muster: die Muster von S, deren Zeitraum das Jahr von t enthält (`ab` ≤ Jahr ≤ `bis`,
+   fehlende Grenze = offen).
+2. Stamm: Mit Wahrscheinlichkeit `hausmarke` nimmt f einen Stamm, den sie schon für ein
+   anderes Produkt desselben Stils verwendet (eine Hausmarke), sonst einen Stamm aus S,
+   den noch keine andere Firma verwendet (sind alle vergeben: irgendeinen). Der Stamm
+   eines Namens ist sein erstes Wort.
+3. Ein Muster zufällig, die Platzhalter `{stamm}`, `{zahl}`, `{buchstabe}`, `{zusatz}`
+   zufällig aus den Listen von S.
+4. Der Name ist frei, wenn keine andere Firma p schon so nennt (ohne Unterschied von
+   Groß- und Kleinschreibung) und keines seiner Wörter in `ausgeschlossen` steht.
+   Bis zu 30 Versuche; danach bekommt der letzte Versuch die kleinste freie Nummer
+   angehängt („Corvel 300 2“).
+
+Die Zufallszahlen kommen aus einem eigenen Strom je Firma und Produkt: ein Name
+verschiebt keine anderen Zufallszahlen, und derselbe Spielstand ergibt denselben Namen.
+
+### Wann Firmen Namen vergeben
+
+- **Neue Firmen** (Startbesetzung und spätere Gründungen) benennen bei ihrer Gründung
+  jedes Endprodukt ihrer Anlagen.
+- **KI-Firmen** benennen bei ihren Betriebsentscheidungen (alle 7 bis 14 Tage, M10)
+  jedes Endprodukt, das sie herstellen (eine Anlage mit Rezept dafür, auch im Bau) oder
+  anbieten und das noch keinen Namen hat – mit dem Befehl `NameProduct`, wie jede
+  Handlung.
+- **Der Spieler** benennt seine Produkte selbst (`NameProduct`), jederzeit und für jedes
+  Endprodukt mit Stil, auch vor der ersten Herstellung. Die Ansicht schlägt drei Namen
+  aus denselben Bausteinen vor. Ohne Namen erscheint sein Angebot unter dem
+  Gattungsnamen („Automobil“); ein Hinweis erinnert daran.
+
+### Befehl `NameProduct { product, name }`
+
+- `name = None` löscht den Namen.
+- Geprüft wird: p trägt Namen (sonst Fehler „trägt keinen eigenen Namen“); der Name ist
+  nach dem Entfernen äußerer Leerzeichen nicht leer, höchstens 40 Zeichen lang, bei
+  keiner anderen Firma für p vergeben und enthält kein Wort aus `ausgeschlossen`.
+- Namen gehören der Firma: Verkauf von Standorten (M30) und Versteigerung (M38)
+  übertragen keine Namen; eine insolvente Firma behält ihre Namen.
+
+### Anzeige
+
+- Markt: Anbieterliste eines Produkts mit dem Produktnamen jedes Anbieters; eigenes
+  Angebot mit Namen, Vorschlägen und Ändern.
+- Wettbewerb: Firmenansicht mit den Namen ihrer Produkte.
+- Rundenbericht: Die Meldungen über Wettbewerber in den eigenen Märkten (neuer Anbieter,
+  Preissenkung, Rückzug, M24) nennen den Produktnamen: „Becker AG bietet jetzt
+  „Corvel 300“ (Automobil) in Deutschland an, für 5.200 USD.“
+- Werksansicht: Name des Produkts beim Verkauf.
+
+### Spielstände
+
+Neues optionales Feld je Firma (Name je Produkt). Ältere Spielstände laden ohne Namen;
+KI-Firmen benennen ihre Produkte bei ihrer nächsten Betriebsentscheidung (ohne Meldung,
+weil sie schon verkaufen), der Spieler bei Bedarf selbst.

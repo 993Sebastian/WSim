@@ -24,6 +24,7 @@ mod countries;
 mod currencies;
 mod deals;
 mod milestones;
+mod names;
 mod plots;
 mod production;
 use crate::raw::{
@@ -608,6 +609,7 @@ pub(crate) fn build(
     b.catalog.deal_model = deals::deal_model(b.ctx, &b.catalog, raw);
     b.catalog.plot_model = plots::plot_model(b.ctx, raw);
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
+    b.catalog.product_naming = names::product_naming(b.ctx, &b.catalog, raw, &group_keys);
     let (_, real_companies) = register(
         b.ctx,
         raw,

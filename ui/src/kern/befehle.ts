@@ -37,7 +37,8 @@ export type Befehl =
   | { SellFacility: { site: number; slot: number; count: number } }
   | { MakeOffer: { seller: number; object: Gegenstand; price: number } }
   | { AnswerOffer: { offer: number; answer: Antwort } }
-  | { WithdrawOffer: { offer: number } };
+  | { WithdrawOffer: { offer: number } }
+  | { NameProduct: { product: string; name: string | null } };
 
 /** What an offer is for (M30): a site by its number, or a licence on a technology. */
 export type Gegenstand = { Site: number } | { License: string } | { Area: string };

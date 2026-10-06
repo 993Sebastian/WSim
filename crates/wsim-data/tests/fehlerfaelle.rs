@@ -2409,3 +2409,114 @@ fn marke_und_werbung_werden_geprueft() {
     let f = befund(&outcome, "1.5");
     assert_eq!(f.path.to_string(), "marktmodell.marke.bekanntheit_start");
 }
+
+const PRODUKTNAMEN: &str = "\
+produktnamen:
+  hausmarke: 0.5
+  ausgeschlossen: [Tesla]
+  stile:
+    - id: technik
+      warengruppen: [erze]
+      staemme: [Arvon, Belkor]
+      muster:
+        - {text: \"{stamm} Typ {zahl}\", bis: 1939}
+        - {text: \"{stamm} {zahl}\"}
+      zahlen: [2, 300]
+";
+
+#[test]
+fn produktnamen_werden_geprueft() {
+    let datei = "ki/produktnamen.yaml";
+    let basis = || Daten::neu().datei(datei, PRODUKTNAMEN);
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let naming = outcome.data.unwrap().catalog.product_naming;
+    assert_eq!(naming.styles.len(), 1);
+    assert_eq!(naming.styles[0].patterns[0].until, Some(1939));
+    assert!(naming.is_excluded("Neuer tesla 3"));
+    // Without the section no product has a name.
+    let ohne = Daten::neu().laden().data.unwrap().catalog.product_naming;
+    assert!(ohne.styles.is_empty());
+
+    let d = basis().ersetze(datei, "{stamm} {zahl}\"}", "{stamm} {nummer}\"}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Platzhalter „{nummer}“ ist unbekannt; erlaubt sind {stamm}, {zahl}, {buchstabe} und {zusatz}.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "{stamm} {nummer}"),
+        "produktnamen.stile[0].muster[1].text",
+    );
+
+    let d = basis().ersetze(datei, "\"{stamm} {zahl}\"}", "\"Modell {zahl}\"}");
+    befund(&d.laden(), "Das Muster braucht den Platzhalter {stamm}.");
+
+    let d = basis().ersetze(
+        datei,
+        "\"{stamm} {zahl}\"}",
+        "\"{stamm} {buchstabe}{zahl}\"}",
+    );
+    befund(
+        &d.laden(),
+        "Das Muster nutzt {buchstabe}; dafür darf „buchstaben“ nicht leer sein.",
+    );
+
+    let d = basis().ersetze(datei, "[Arvon, Belkor]", "[Arvon, Tesla]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "„Tesla“ steht unter „ausgeschlossen“ (echte Produkt- und Markennamen).",
+    );
+    assert_eq!(f.path.to_string(), "produktnamen.stile[0].staemme[1]");
+
+    let d = basis().ersetze(datei, "[Arvon, Belkor]", "[Arvon, arvon]");
+    befund(&d.laden(), "„arvon“ steht doppelt in der Liste.");
+
+    let d = basis().ersetze(datei, "[erze]", "[erzee]");
+    befund(
+        &d.laden(),
+        "Warengruppe „erzee“ ist nicht definiert. Meinten Sie „erze“?",
+    );
+
+    let zweiter = "\n    - id: marke\n      warengruppen: [erze]\n      staemme: [Aurela]\n      muster:\n        - {text: \"{stamm}\"}\n";
+    let d = basis().ersetze(
+        datei,
+        "      zahlen: [2, 300]\n",
+        &format!("      zahlen: [2, 300]{zweiter}"),
+    );
+    befund(
+        &d.laden(),
+        "Warengruppe „erze“ gehört schon zum Stil „technik“.",
+    );
+
+    let d = basis().ersetze(datei, "bis: 1939}", "ab: 1950, bis: 1939}");
+    befund(&d.laden(), "„ab“ (1950) liegt nach „bis“ (1939).");
+
+    let d = basis().ersetze(
+        datei,
+        "\"{stamm} {zahl}\"}",
+        "\"{stamm} {zahl}\", ab: 1950}",
+    );
+    befund(
+        &d.laden(),
+        "Mindestens ein Muster braucht weder „ab“ noch „bis“, damit es in jedem Jahr einen Namen gibt.",
+    );
+
+    let d = basis().ersetze(datei, "hausmarke: 0.5", "hausmarke: 1.5");
+    befund(
+        &d.laden(),
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+
+    let d = basis().ersetze(datei, "zahlen: [2, 300]", "zahlen: [0, 300]");
+    befund(&d.laden(), "Zahlen müssen größer als 0 sein.");
+
+    let d = basis().datei("ki/zweite.yaml", PRODUKTNAMEN);
+    befund(
+        &d.laden(),
+        "Abschnitt „produktnamen“ darf es nur einmal geben",
+    );
+}

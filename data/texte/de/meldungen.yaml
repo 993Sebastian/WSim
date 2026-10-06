@@ -23,6 +23,7 @@ fehler.befehl.firma_unbekannt: Die Firma Nr. {firma} gibt es nicht.
 fehler.name.leer: Der Name darf nicht leer sein.
 fehler.name.zu_lang: Der Name darf höchstens {max} Zeichen lang sein.
 fehler.name.vergeben: Der Name „{name}“ ist bereits vergeben.
+fehler.name.echter_name: "„{name}“ enthält einen echten Produkt- oder Markennamen – bitte einen erfundenen Namen wählen."
 fehler.spielstand.kein_spielstand: Die Datei ist kein WSim-Spielstand.
 fehler.spielstand.zu_neu: Der Spielstand stammt aus einer neueren Spielversion (Format {version}, diese Version kann bis Format {unterstuetzt} laden).
 fehler.spielstand.zu_alt: Der Spielstand hat das veraltete Format {version} und kann nicht geladen werden.
@@ -134,6 +135,7 @@ fehler.befehl.lohnaufschlag_ungueltig: Der Lohnaufschlag muss zwischen 0 und {ma
 fehler.befehl.kein_angebot: Dieser Standort bietet {produkt} nicht zum Verkauf an.
 fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
 fehler.befehl.nicht_erforschbar: „{technologie}“ lässt sich nicht erforschen – sie ist schon bekannt, oder es fehlen Voraussetzungen.
+fehler.befehl.ohne_produktnamen: „{produkt}“ trägt keinen eigenen Namen – nur Endprodukte wie Geräte, Fahrzeuge, Kleidung oder Lebensmittel haben Produktnamen.
 fehler.befehl.nicht_weiterentwickelbar: „{produkt}“ lässt sich nicht weiterentwickeln – die Firma beherrscht kein Verfahren dafür, oder die höchste Stufe ist erreicht.
 fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} nach {nach} befördern – es gibt kein passendes Verkehrsmittel.
 meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
@@ -186,6 +188,7 @@ meldung.angebot.abgelaufen.bereich: "Das Angebot mit {firma} für den Bereich {w
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)
+hinweis.produkt_ohne_namen: "{produkt} trägt noch keinen eigenen Namen. Im Markt kannst du ihm einen geben – die Wettbewerber haben ihre Produkte längst benannt."
 hinweis.vorprodukt_fehlt: "{anlage} ({standort} {land}) steht teilweise still: {produkt} fehlt. Einkauf erhöhen oder selbst herstellen."
 hinweis.arbeitskraefte: "{anlage} ({standort} {land}) wartet auf Arbeitskräfte. Lohnaufschlag erhöhen oder Auslastung senken."
 hinweis.strom: "{anlage} ({standort} {land}) bekommt zu wenig Strom. Ein eigenes Kraftwerk hilft."
@@ -210,5 +213,8 @@ meldung.etappe: "Etappe erreicht: {etappe}"
 meldung.ki.anbieter_neu: "{firma} bietet jetzt {produkt} in {land} an, für {preis}."
 meldung.ki.anbieter_weg: "{firma} bietet {produkt} in {land} nicht mehr an."
 meldung.ki.preissenkung: "{firma} senkt den Preis für {produkt} in {land} um {prozent} % auf {preis}."
+meldung.ki.anbieter_neu_name: "{firma} bietet jetzt „{name}“ ({produkt}) in {land} an, für {preis}."
+meldung.ki.anbieter_weg_name: "{firma} bietet „{name}“ ({produkt}) in {land} nicht mehr an."
+meldung.ki.preissenkung_name: "{firma} senkt den Preis für „{name}“ ({produkt}) in {land} um {prozent} % auf {preis}."
 meldung.ki.kauf_standort: "{kaeufer} kauft von {verkaeufer} einen Standort ({art} in {land}) für {preis}."
 meldung.ki.kauf_bereich: "{kaeufer} kauft von {verkaeufer} den Bereich {warengruppe} mit Marke (Standorte: {standorte}) für {preis}."

@@ -9,9 +9,9 @@ use crate::messages;
 use crate::raw::{
     RawAiModel, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency, RawDealModel,
     RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawMarketModel, RawMeta, RawMilestone,
-    RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct, RawProductionModel, RawQualification,
-    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTechnology, RawTransportClass,
-    RawTransportModel, RawUnit, RawVehicle,
+    RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel,
+    RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTechnology,
+    RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -174,6 +174,7 @@ pub(crate) struct RawData {
     pub deal_model: Vec<Entry<RawDealModel>>,
     pub plot_model: Vec<Entry<RawPlotModel>>,
     pub name_groups: Vec<Entry<RawNameGroup>>,
+    pub product_naming: Vec<Entry<RawProductNaming>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
     pub events: Vec<Entry<RawEvent>>,
     pub price_index: Vec<Entry<RawPriceIndex>>,
@@ -208,6 +209,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "kaufmodell",
     "grundstuecksmodell",
     "namensgruppen",
+    "produktnamen",
     "reale_firmen",
     "ereignisse",
     "preisindex",
@@ -273,6 +275,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "grundstuecksmodell" => match de::from_node::<RawPlotModel>(value, &loc.path) {
                 Ok(model) => raw.plot_model.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "produktnamen" => match de::from_node::<RawProductNaming>(value, &loc.path) {
+                Ok(naming) => raw.product_naming.push(Entry { loc, value: naming }),
                 Err(e) => ctx.de_error(file, e),
             },
             "preisindex" => match de::from_node::<RawPriceIndex>(value, &loc.path) {

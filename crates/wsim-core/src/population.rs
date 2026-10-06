@@ -1029,6 +1029,7 @@ fn found_company(
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),
+        product_names: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -1051,6 +1052,7 @@ fn found_company(
         }),
     });
     state.sites.extend(new_sites);
+    crate::product_names::name_new_company(catalog, state, id);
 }
 
 /// A generated name from the name group of the country, unique among all companies and

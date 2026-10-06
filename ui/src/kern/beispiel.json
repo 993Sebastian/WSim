@@ -551,6 +551,16 @@
     },
     "licenses": [],
     "min_age_months": 0,
+    "products": [
+      {
+        "name": "Olvina",
+        "product": "kleidung"
+      },
+      {
+        "name": "Olvina",
+        "product": "strumpf"
+      }
+    ],
     "sites": [
       {
         "blocked": null,
@@ -25987,6 +25997,7 @@
             "mode": "markt",
             "price_usd": 1887.2139,
             "product": "naegel",
+            "product_name": null,
             "reference_usd": 1858.667,
             "sold_last_month": 15.5,
             "sold_month": 0.0,
@@ -27013,8 +27024,11 @@
       ],
       "import_price_usd": null,
       "imported_last_month": 0.0,
+      "name_suggestions": [],
+      "nameable": false,
       "outside_demand_last_month": 0.0,
       "own_awareness": 0.0,
+      "own_name": null,
       "price_last_month_usd": 1389.8548183959726,
       "price_parts": {
         "import_share": 0.0,
@@ -27039,6 +27053,7 @@
           "level": 0,
           "own": false,
           "price_usd": 1389.1307,
+          "product_name": null,
           "real": false,
           "share": 0.5835051835669778,
           "sold_last_month": 3100.0
@@ -27048,6 +27063,7 @@
           "level": 0,
           "own": false,
           "price_usd": 1390.8693,
+          "product_name": null,
           "real": true,
           "share": 0.416494816433022,
           "sold_last_month": 2212.7205846735465
@@ -27167,8 +27183,15 @@
       ],
       "import_price_usd": null,
       "imported_last_month": 0.0,
+      "name_suggestions": [
+        "Valessa",
+        "Lavessa Classic",
+        "Tilvia"
+      ],
+      "nameable": true,
       "outside_demand_last_month": 33952.33667181377,
       "own_awareness": 0.0,
+      "own_name": null,
       "price_last_month_usd": 165.66269690920376,
       "price_parts": {
         "import_share": 0.0,
@@ -27193,6 +27216,7 @@
           "level": 0,
           "own": false,
           "price_usd": 162.5903,
+          "product_name": "Zylvia Extra",
           "real": false,
           "share": 1.0,
           "sold_last_month": 55555.62847769068
@@ -27312,8 +27336,11 @@
       ],
       "import_price_usd": 1968.9837,
       "imported_last_month": 1.4495150383836777,
+      "name_suggestions": [],
+      "nameable": false,
       "outside_demand_last_month": 1004.3428623955256,
       "own_awareness": 0.0,
+      "own_name": null,
       "price_last_month_usd": 1848.0646320834946,
       "price_parts": {
         "import_share": 0.0006723325515151828,
@@ -27338,6 +27365,7 @@
           "level": 0,
           "own": false,
           "price_usd": 1847.699,
+          "product_name": null,
           "real": false,
           "share": 0.9921382597689992,
           "sold_last_month": 2139.0
@@ -27347,6 +27375,7 @@
           "level": 0,
           "own": true,
           "price_usd": 1887.2139,
+          "product_name": null,
           "real": false,
           "share": 0.007189407679485501,
           "sold_last_month": 15.5

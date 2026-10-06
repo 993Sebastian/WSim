@@ -150,13 +150,26 @@ pub enum Command {
     AnswerOffer { offer: u32, answer: OfferAnswer },
     /// Withdraws the price the acting company named last.
     WithdrawOffer { offer: u32 },
+    /// Gives an end product of the company its own name (M42); `None` removes it.
+    NameProduct {
+        product: ProductId,
+        name: Option<String>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NameError {
     Empty,
-    TooLong { max: usize },
-    Taken { name: String },
+    TooLong {
+        max: usize,
+    },
+    Taken {
+        name: String,
+    },
+    /// A word of the name is a real product or brand name (M42).
+    Excluded {
+        name: String,
+    },
 }
 
 /// Longest allowed company name in characters.
@@ -171,6 +184,9 @@ impl NameError {
             }
             NameError::Taken { name } => {
                 Message::error(keys::NAME_TAKEN).with("name", Param::Text(name.clone()))
+            }
+            NameError::Excluded { name } => {
+                Message::error(keys::NAME_EXCLUDED).with("name", Param::Text(name.clone()))
             }
         }
     }
@@ -236,6 +252,8 @@ pub enum CommandError {
     NotResearchable(String),
     /// The company cannot make the product or it is fully developed (M37).
     NotDevelopable(String),
+    /// Raw materials, semi-finished goods, components and power have no names (M42).
+    NotNameable(String),
     /// No transport route for the product between the two countries.
     NoRoute {
         product: String,
@@ -340,6 +358,8 @@ impl CommandError {
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
             CommandError::NotDevelopable(p) => e(keys::COMMAND_NOT_DEVELOPABLE)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
+            CommandError::NotNameable(p) => e(keys::COMMAND_NOT_NAMEABLE)
+                .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NoRoute { product, from, to } => e(keys::COMMAND_NO_ROUTE)
                 .with("produkt", Param::TextKey(format!("produkt.{product}")))
                 .with("von", Param::TextKey(format!("land.{from}")))
@@ -421,6 +441,32 @@ pub fn check_company_name(
         }
     }
     Ok(name.to_owned())
+}
+
+/// Checks a product name (M42) and returns it trimmed: not empty, not too long, no real
+/// product or brand name and not used by another company for the product.
+pub fn check_product_name(
+    catalog: &Catalog,
+    state: &GameState,
+    product: ProductId,
+    name: &str,
+    own: CompanyId,
+) -> Result<String, NameError> {
+    let name = name.split_whitespace().collect::<Vec<_>>().join(" ");
+    if name.is_empty() {
+        return Err(NameError::Empty);
+    }
+    let max = crate::product_names::MAX_LENGTH;
+    if name.chars().count() > max {
+        return Err(NameError::TooLong { max });
+    }
+    if catalog.product_naming.is_excluded(&name) {
+        return Err(NameError::Excluded { name });
+    }
+    if crate::product_names::taken(state, product, &name, own) {
+        return Err(NameError::Taken { name });
+    }
+    Ok(name)
 }
 
 fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
@@ -540,6 +586,25 @@ pub(crate) fn execute(
             let name =
                 check_company_name(Some(state), name, Some(actor)).map_err(CommandError::Name)?;
             state.company_mut(actor).expect("checked above").name = name;
+        }
+        Command::NameProduct { product, name } => {
+            if catalog.product_naming.style(catalog, *product).is_none() {
+                return Err(CommandError::NotNameable(
+                    catalog.products.key(*product).to_owned(),
+                ));
+            }
+            let names = match name {
+                Some(name) => Some(
+                    check_product_name(catalog, state, *product, name, actor)
+                        .map_err(CommandError::Name)?,
+                ),
+                None => None,
+            };
+            let company = state.company_mut(actor).expect("checked above");
+            match names {
+                Some(name) => company.product_names.insert(*product, name),
+                None => company.product_names.remove(product),
+            };
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

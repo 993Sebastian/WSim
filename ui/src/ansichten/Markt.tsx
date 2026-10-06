@@ -614,6 +614,8 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
 
       <MarktVerlauf m={m} einheit={e} />
 
+      {m.nameable && <Produktname m={m} />}
+
       <section className="karte" aria-label={t("markt.anbieter_titel")}>
         <h3>{t("markt.anbieter_titel")}</h3>
         {m.sellers.length === 0 ? (
@@ -624,6 +626,7 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
               <thead>
                 <tr>
                   <th>{t("uebersicht.firma")}</th>
+                  {m.nameable && <th>{t("markt.produktname")}</th>}
                   <th className="zahl">{t("markt.preis_anbieter")}</th>
                   <th className="zahl">{t("markt.verkauft_vormonat")}</th>
                   <th>{t("markt.anteil_markt")}</th>
@@ -640,6 +643,13 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                       {s.own && <span className="marke">{t("markt.du")}</span>}
                       {s.real && <span className="marke">{t("uebersicht.real")}</span>}
                     </td>
+                    {m.nameable && (
+                      <td data-spalte={t("markt.produktname")}>
+                        {s.product_name ?? (
+                          <span className="gedaempft">{t("markt.ohne_namen")}</span>
+                        )}
+                      </td>
+                    )}
                     <td className="zahl" data-spalte={t("markt.preis_anbieter")}>
                       {formatPreis(s.price_usd, e)}
                     </td>
@@ -731,6 +741,71 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
         <p className="feld-hilfe">{t("markt.verbraucher_summe", { menge: menge(verbraucher) })}</p>
       </section>
     </>
+  );
+}
+
+/** The player's own name for an end product (M42), with suggestions from the core. */
+function Produktname({ m }: { m: ProduktMarkt }) {
+  const produkt = t(`produkt.${m.product}`);
+  const [gespeichert, setGespeichert] = useState(m.own_name ?? null);
+  const [name, setName] = useState(m.own_name ?? m.name_suggestions?.[0] ?? "");
+  const { los, antwort } = useAktion(`produktname/${m.product}`);
+  const id = useId();
+  const speichern = async (neu: string | null) => {
+    const sauber = neu === null ? null : neu.trim().replace(/\s+/g, " ");
+    const ok = await los(
+      [{ NameProduct: { product: m.product, name: sauber } }],
+      sauber === null
+        ? t("markt.produktname_entfernt", { produkt })
+        : t("markt.produktname_gesetzt", { produkt, name: sauber }),
+    );
+    if (ok) setGespeichert(sauber);
+  };
+  return (
+    <form
+      className="karte"
+      aria-label={t("markt.produktname_titel")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void speichern(name);
+      }}
+    >
+      <h3>{t("markt.produktname_titel")}</h3>
+      <p>
+        {gespeichert === null
+          ? t("markt.produktname_ohne", { produkt })
+          : t("markt.produktname_aktuell", { produkt, name: gespeichert })}
+      </p>
+      <div className="formular-zeile">
+        <div className="feld">
+          <label htmlFor={`${id}-name`}>{t("markt.produktname")}</label>
+          <input
+            id={`${id}-name`}
+            value={name}
+            maxLength={40}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <button type="submit">{t("markt.produktname_speichern")}</button>
+        {gespeichert !== null && (
+          <button type="button" className="schlicht" onClick={() => void speichern(null)}>
+            {t("markt.produktname_entfernen")}
+          </button>
+        )}
+      </div>
+      {(m.name_suggestions?.length ?? 0) > 0 && (
+        <p className="vorschlaege">
+          {t("markt.produktname_vorschlaege")}{" "}
+          {m.name_suggestions?.map((v) => (
+            <button key={v} type="button" className="chip" onClick={() => setName(v)}>
+              {v}
+            </button>
+          ))}
+        </p>
+      )}
+      <p className="gedaempft">{t("markt.produktname_hilfe")}</p>
+      <Rueckmeldung meldung={antwort} />
+    </form>
   );
 }
 

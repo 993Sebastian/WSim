@@ -185,6 +185,12 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   über 90 Produkte. Eine Auswahl „Warengruppe“ (mit der Zahl der Produkte je Gruppe) und
   ein Suchfeld „Produkt suchen“ grenzen sie ein; beides wirkt zusammen mit „Zeigen“ und
   der Sortierung.
+- **Produktnamen** (M42): Bei Endprodukten (Geräte, Fahrzeuge, Kleidung, Lebensmittel …)
+  zeigt die Anbieterliste den Namen, unter dem jede Firma verkauft („Kelvor M80“). Darunter
+  „Dein Produktname“: das Feld mit dem ersten von drei Vorschlägen aus den Namensbausteinen,
+  die anderen zwei als Knöpfe, „Namen speichern“ und „Namen entfernen“. Echte Produkt- und
+  Markennamen und Namen, die eine andere Firma für dasselbe Produkt trägt, lehnt das Spiel
+  mit einer Meldung ab. Ein verkauftes Endprodukt ohne Namen steht unter „Zu erledigen“.
 
 ### Wettbewerb (M30, M31)
 
@@ -207,6 +213,9 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   ihre Standorte versteigert werden („insolvent – Versteigerung bis …“). Ihre Seite
   erklärt den Ablauf; jeder Standort zeigt das Mindestgebot, das Preisfeld schlägt es vor,
   der Knopf heißt „Bieten“. Der Rundenbericht meldet Zuschlag oder Verlust.
+- **Produkte unter eigenem Namen (M42):** Die Seite einer Firma nennt über ihren
+  Standorten die Namen ihrer Produkte („Kelvor M80 – Kühlschrank“); der Rundenbericht
+  nennt sie in den Meldungen über neue Anbieter, Preissenkungen und Rückzüge.
 - **Bereiche (M31):** Unter den Standorten einer Firma stehen ihre Bereiche – je
   Warengruppe alle Standorte, die Waren der Gruppe herstellen oder anbieten, mit der
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
