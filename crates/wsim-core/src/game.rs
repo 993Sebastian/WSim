@@ -459,6 +459,8 @@ impl Game {
                 next,
             ));
             crate::plots::month_start(&mut self.state, &self.catalog, next);
+            crate::training::ai_month_start(&mut self.state, &self.catalog, next);
+            crate::training::month_start(&mut self.state, &self.catalog);
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);
             market::reset_site_months(&mut self.state);
@@ -667,6 +669,8 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         research: None,
         development: None,
         wage_premium: 0.0,
+        training: 0.0,
+        training_target: None,
         acquired: None,
         goodwill: None,
         plot: None,

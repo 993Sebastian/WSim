@@ -116,6 +116,8 @@ pub enum Command {
     /// Wage premium of a site over the country's wages (M18, 0.1 = 10 %): when workers
     /// are scarce, better payers get them first and hire them away from others.
     SetWagePremium { site: SiteId, premium: f64 },
+    /// Sets a site's training target, 0–1; `None` follows the strategy (W1).
+    SetTraining { site: SiteId, target: Option<f64> },
     /// Sets the asking price of an existing offer (M18): a fixed price becomes this
     /// price; an automatic price goes on from here (never below its floor).
     SetPrice {
@@ -353,6 +355,8 @@ pub enum CommandError {
     InvalidWagePremium {
         max: f64,
     },
+    /// A training target outside 0–1 (W1).
+    InvalidTraining,
     /// The site offers no such product (key of the product).
     NoOffer(String),
     /// Already known, or prerequisites missing (key of the technology).
@@ -530,6 +534,7 @@ impl CommandError {
             CommandError::InvalidWagePremium { max } => {
                 e(keys::COMMAND_INVALID_WAGE_PREMIUM).with("max", Param::Number(*max * 100.0))
             }
+            CommandError::InvalidTraining => e(keys::COMMAND_INVALID_TRAINING),
             CommandError::NoOffer(product) => e(keys::COMMAND_NO_OFFER)
                 .with("produkt", Param::TextKey(format!("produkt.{product}"))),
             CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
@@ -738,6 +743,8 @@ fn found_site(
         research: None,
         development: None,
         wage_premium: 0.0,
+        training: 0.0,
+        training_target: None,
         acquired: None,
         goodwill: None,
         plot: None,
@@ -1460,6 +1467,16 @@ fn run(
             s.wage_premium = *premium;
             // A higher premium may hire workers away from others at once.
             s.staffing_due = true;
+        }
+        Command::SetTraining { site, target } => {
+            if target.is_some_and(|t| !(t.is_finite() && (0.0..=1.0).contains(&t))) {
+                return Err(CommandError::InvalidTraining);
+            }
+            own_site(state, actor, *site)?;
+            state
+                .site_mut(*site)
+                .expect("checked above")
+                .training_target = *target;
         }
         Command::SetPrice {
             site,

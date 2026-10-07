@@ -70,6 +70,8 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> Sit
         research: None,
         development: None,
         wage_premium: 0.0,
+        training: 0.0,
+        training_target: None,
         acquired: None,
         goodwill: None,
         plot: None,

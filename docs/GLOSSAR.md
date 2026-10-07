@@ -170,6 +170,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Lohnaufschlag (über die Landeslöhne) | `Site::wage_premium`, `SetWagePremium`, `ProductionModel::wage_premium_max` (`lohnaufschlag_max`) |
 | Abwerben (Besetzung nach Lohnaufschlag) | `production::staff_sites` |
 | Personalbedarf eines Standorts | `production::needed_workers`, `StaffLine` (Sicht) |
+| Schulung je Standort: Niveau, Ziel, Kosten, Wirkung (W1) | `Site::{training, training_target}`, Befehl `SetTraining`, `ProductionModel::training` (`TrainingModel`, `produktionsmodell.schulung`), Modul `training` (`target`, `labor_factor`, `quality`, `daily_cost`, `month_start`, `ai_month_start`) |
+| Schulungsziel der KI | `AiBehavior::training` (`verhalten.schulung`) |
 | Lohnaufschlag der KI | `AiBehavior::wage_premium_step`, `wage_premium_max` (`lohnaufschlag_schritt`, `lohnaufschlag_max`), `ai::next_wage_premium` |
 | Preis setzen (auch bei automatischem Preis) | `Command::SetPrice`, `CommandError::NoOffer` |
 | Stückkosten eines Standorts (Material, Personal, Energie, Gemeinkosten, Pacht, Anlage) | `production::UnitCost`, `production::unit_costs`, `UnitCostView` |
@@ -298,13 +300,14 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Strategisches Anliegen, Teil eines Anliegens | `Concern::parts`, `state::ConcernPart`, `management::bundle` (`anliegen.buendel_ab`, `ConcernModel::bundle_from`); Sicht `ConcernPartView` |
 | Struktur und Werbung von Land und Kontinent | `ai::{unit_structure, unit_advertising}`; `management::{sites_cared_for, countries_cared_for}` |
 | Strategievorgabe, Geltungsbereich (Firma, Kontinent, Land, Standort) | `strategy::{StrategySetting, StrategyScope}`, `Company::strategies`; Befehl `SetStrategy`; `strategy::{setting, effective, for_site}` (MA4) |
-| Strategiefeld | `strategy::StrategyField::{Price, Stock, Wages, Supply, Investment, Reserve}` (`preis`, `lager`, `personal`, `eigenfertigung`, `investition`, `reserve`) |
+| Strategiefeld | `strategy::StrategyField::{Price, Stock, Wages, Supply, Investment, Reserve, Training}` (`preis`, `lager`, `personal`, `eigenfertigung`, `investition`, `reserve`, `schulung`) |
 | Preisstrategie: Marktpreis, Premium, Kampfpreis, Mindestmarge | `strategy::PriceStrategy::{Market, Premium, Fight, MinMargin}`; `strategy::price_terms`; Daten `management.strategie` (`StrategyModel`) |
 | Lager-Vorgabe (Reichweite der Vorprodukte, Lagerziel der Fertigwaren) | `strategy::StockStrategy { input_min_days, input_max_days, output_days }` |
 | Lohnaufschlag-Spanne | `strategy::WageStrategy { min, max }` |
 | Eigenfertigung oder Zukauf: eigene Ware zuerst, nach Preis, nur Zukauf | `strategy::SupplyStrategy::{OwnFirst, ByPrice, Buy}` (UI: `Bezugsweg`) |
 | Investitionsbudget, Rest, bindendes Budget | `StrategyValue::Investment`, `strategy::{InvestmentBudget, investment_budgets, binding_budget, count_investment}` |
 | Liquiditätsreserve (Monate laufender Kosten) | `StrategyValue::Reserve`, `strategy::{reserve_months, monthly_cost}` |
+| Schulungsziel als Strategievorgabe (`schulung`) | `StrategyField::Training`, `StrategyValue::Training`, `strategy::training_for_site` (W1) |
 | Anliegen wegen Reserve bzw. Investitionsbudget | `ConcernReason::{Reserve, Investment}` (`reserve`, `investition`); Sicht `ConcernView::{strategy_limit_usd, strategy_scope}` |
 | Strategieansicht | `views::{strategy, StrategyView, StrategyUnitView, StrategyEntryView}`; UI: `StrategieAnsicht` (`Strategie.tsx`) |
 | Verkaufsweg (Regel für KI-Händler oder andere Firmen) | `policy::{SalesPolicy, SalesRule, BuyerGroup, Scope}`; Befehl `SetSalesPolicy`; Sicht `SalesChannelView`; UI: `Verkaufswege` (`Strategie.tsx`) |

@@ -48,6 +48,7 @@ export type Befehl =
   | { DismissManager: { manager: number } }
   | { SetHiringByHead: { position: Stellenangabe; enabled: boolean } }
   | { RaiseSalary: { manager: number; salary: number } }
+  | { SetTraining: { site: number; target: number | null } }
   | { PoachManager: { manager: number; position: Stellenangabe } }
   | { SetHeadquarters: { country: string } }
   | { StaffDepartment: { department: string; staff: number } }

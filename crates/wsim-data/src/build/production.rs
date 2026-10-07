@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, ProductionModel, ResearchModel, SiteType, SizeModel,
-    StartSetup, TransportModel, Vehicle, Way,
+    StartSetup, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -102,6 +102,41 @@ pub(super) fn production_model(
             &l.field("erschliessung_lebensdauer_jahre"),
         ),
         decline_from: in_range(ctx, m.decline_from, 0.0, 1.0, &l.field("foerderkurve_ab")),
+        training: {
+            let t = &m.training;
+            let tl = l.field("schulung");
+            TrainingModel {
+                cost_share: in_range(ctx, t.cost_share, 0.0, 1.0, &tl.field("kosten_anteil_lohn")),
+                gain_per_month: in_range(
+                    ctx,
+                    t.gain_per_month,
+                    0.0,
+                    1.0,
+                    &tl.field("aufbau_je_monat"),
+                ),
+                loss_per_month: in_range(
+                    ctx,
+                    t.loss_per_month,
+                    0.0,
+                    1.0,
+                    &tl.field("verlust_je_monat"),
+                ),
+                labor_saving: in_range(
+                    ctx,
+                    t.labor_saving,
+                    0.0,
+                    0.9,
+                    &tl.field("arbeitsersparnis"),
+                ),
+                quality_points: in_range(
+                    ctx,
+                    t.quality_points,
+                    0.0,
+                    50.0,
+                    &tl.field("qualitaet_punkte"),
+                ),
+            }
+        },
         automation_labor_saving: in_range(
             ctx,
             m.automation.labor_saving,

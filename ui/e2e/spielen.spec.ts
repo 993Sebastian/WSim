@@ -178,6 +178,11 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   const lohn = page.getByRole("form", { name: "Lohnaufschlag" });
   await lohn.getByLabel("Lohnaufschlag").fill("12,5");
   await lohn.getByRole("button", { name: "Übernehmen" }).click();
+  // Training (W1): the target comes from the strategy until the site sets its own.
+  const schulung = page.getByRole("form", { name: "Schulung" });
+  await expect(schulung).toContainText("aus der Strategie");
+  await schulung.getByLabel("Schulungsziel").fill("80");
+  await schulung.getByRole("button", { name: "Übernehmen" }).click();
 
   await page.getByRole("button", { name: "Finanzen", exact: true }).click();
   const kredit = page.getByRole("form", { name: "Kredit aufnehmen" });
@@ -206,6 +211,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
     { SetWagePremium: { site: 0, premium: 0.125 } },
+    { SetTraining: { site: 0, target: 0.8 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },
     { SetAdvertising: { country: "DEU", group: "metallwaren", budget: 50_000_000 } },
   ]);

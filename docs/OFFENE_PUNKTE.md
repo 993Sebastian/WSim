@@ -1069,6 +1069,24 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
    einen Vorschlag. Mit den Zahlen der Daten springt „M80“ auf „M100“ (90 steht nicht in
    der Liste); nach der größten Zahl folgen „II“, „III“ … bis „X“.
 
+✅ **W1 umgesetzt** (Schulung je Standort; Regeln: `docs/FORMELN.md`, Abschnitt W1).
+🟡 Eigenständig entschieden:
+
+1. **Ein Niveau je Standort**, nicht je Arbeitskräftegruppe: Die Wirkung (weniger Arbeit,
+   bessere Qualität) gilt für alle Gruppen des Standorts. Getrennte Niveaus je
+   Qualifikation wären genauer, aber in der Oberfläche kaum zu steuern.
+2. **Ziel statt Budget:** Der Spieler setzt ein Zielniveau; die Kosten folgen dem Ziel
+   (Anteil der Lohnsumme), die Wirkung dem erreichten Niveau. Ohne Ziel sinkt das Niveau
+   langsam (Fluktuation).
+3. **Strategie als Rückfall:** Ohne eigenes Ziel gilt die Strategievorgabe „Schulung“
+   (Standort, Land, Kontinent, Firma) – so hält die Personalstelle ein Niveau auf jeder
+   Ebene, wie im Lastenheft §5.4 verlangt.
+4. **Forschungszentren schulen nicht** (Forscher sind Akademiker; die Forschung hat eigene
+   Regeln).
+5. **KI nach Kompetenz:** KI-Firmen schulen bis 0 % (Kompetenz 0) bis 80 % (Kompetenz 1).
+   Ihre Ausbauschätzung rechnet die Schulung nicht ein – sie unterschätzt den Vorteil
+   leicht, wie ein vorsichtiger Planer.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

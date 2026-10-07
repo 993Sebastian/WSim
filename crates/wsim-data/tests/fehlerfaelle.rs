@@ -82,6 +82,7 @@ produktionsmodell:
   gebaeude_lebensdauer_jahre: 50
   erschliessung_lebensdauer_jahre: 30
   foerderkurve_ab: 0.5
+  schulung: {kosten_anteil_lohn: 0.05, aufbau_je_monat: 0.08, verlust_je_monat: 0.03, arbeitsersparnis: 0.1, qualitaet_punkte: 8}
   automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
@@ -1309,6 +1310,17 @@ fn foerderkurve_wird_geprueft() {
         datei,
         d.zeile(datei, "foerderkurve_ab"),
         "produktionsmodell.foerderkurve_ab",
+    );
+    // Training of the sites (W1).
+    let d = Daten::neu().ersetze(datei, "arbeitsersparnis: 0.1,", "arbeitsersparnis: 0.95,");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.schulung.arbeitsersparnis"
     );
     // Expansions per check (C2).
     let d = Daten::neu().ersetze(

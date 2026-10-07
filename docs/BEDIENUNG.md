@@ -136,7 +136,12 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
     „Fester Preis“; Schnellknöpfe −5 %/+5 %; Rückmeldung am Knopf.
   - **Personal:** je Gruppe Bedarf, Beschäftigte, freie Kräfte im Land, Lohn je Stunde;
     **Lohnaufschlag** des Standorts mit Wirkung („bekommt bei Knappheit zuerst
-    Arbeitskräfte“) und Kosten.
+    Arbeitskräfte“) und Kosten. Darunter **Schulung** (W1, ⓘ: Niveau steigt Monat für
+    Monat zum Ziel, sinkt ohne Schulung langsam; Kosten nach dem Ziel, Wirkung nach dem
+    Niveau): erreichtes Niveau, Schulungsziel mit Herkunft („eigenes Ziel des Standorts“,
+    „aus der Strategie“, „kein Ziel“), Schulungskosten je Tag und „Wirkung jetzt“ (weniger
+    Arbeit, Qualitätspunkte); Feld „Schulungsziel“ in %, „Übernehmen“ und – bei eigenem
+    Ziel – „Ziel der Strategie folgen“.
   - **Kosten:** Stückkosten je Erzeugnis aufgeschlüsselt (Material, Personal, Energie,
     Anlage, Verwaltung und Vertrieb, Pacht) und Ergebnis des Vormonats.
 - **Grundstücke (M35):** „Neuer Standort“ (auch das Forschungszentrum) zeigt unter Land
@@ -348,17 +353,17 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
 - **Strategie (MA4):** Frage: „Welche Vorgabe gilt wo, woher stammt sie, und wer setzt sie
   um?“ Hinweistext (ⓘ: Vererbung Standort → Land → Kontinent → Firma → Standard, Vorrang
   eigener Entscheidungen, Wirkung der Fähigkeiten). Tabelle „Wo gilt was“: je Einheit
-  (Firma, Kontinent, Land, Standort, eingerückt) die sechs Felder Preis, Lager, Personal,
-  Eigenfertigung oder Zukauf, Investitionsbudget, Liquiditätsreserve – je Zelle der
+  (Firma, Kontinent, Land, Standort, eingerückt) die sieben Felder Preis, Lager, Personal,
+  Eigenfertigung oder Zukauf, Investitionsbudget, Liquiditätsreserve, Schulung (W1) – je Zelle der
   geltende Wert (fett, wenn hier festgelegt) und darunter „hier festgelegt“, „von Europa“
   oder „Standard“; „Bearbeiten“ wählt die Einheit. Darunter „Vorgaben: <Einheit>“ mit
-  Auswahlfeld der Einheit und sechs Karten (je ⓘ mit der Wirkung des Felds): „Gilt: …“ mit
+  Auswahlfeld der Einheit und sieben Karten (je ⓘ mit der Wirkung des Felds): „Gilt: …“ mit
   Herkunft, an Standorten „Umgesetzt von: Werksleitung (Name)“ oder „Keine Stelle besetzt –
   hier entscheidest du selbst“, beim Investitionsbudget der Rest des Jahres und welches
   Budget bindet, bei der Reserve die laufenden Kosten im Monat. Eingaben je Feld
   (Preisstrategie mit Untergrenze und Startaufschlag, Mindestmarge in %, Reichweiten in
   Tagen, Lohnaufschlag in %, Lieferungen, Budget in der angezeigten Währung, Reserve in
-  Monaten), „Hier festlegen“ und – bei eigener Vorgabe – „Vorgabe hier entfernen“ (bei der
+  Monaten, Schulungsziel in %), „Hier festlegen“ und – bei eigener Vorgabe – „Vorgabe hier entfernen“ (bei der
   Firma „Auf Standard zurücksetzen“). Werte außerhalb der Grenzen meldet die Karte vor dem
   Senden.
 - **Verkaufswege (M8, in der Strategie):** Abschnitt „Verkaufswege“ unter den Karten

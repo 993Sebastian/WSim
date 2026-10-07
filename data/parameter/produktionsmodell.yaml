@@ -15,6 +15,14 @@ produktionsmodell:
   # sinkt die zulässige Förderung im selben Verhältnis (bei der Hälfte des Anteils auf die
   # Hälfte). 0: volle Förderung bis zum letzten Fass.
   foerderkurve_ab: 0.5
+  # Schulung je Standort (W1, Lastenheft §5.4): Kosten als Anteil der Lohnsumme beim Ziel 1,
+  # Aufbau und Verlust des Niveaus je Monat, Wirkung bei vollem Niveau.
+  schulung:
+    kosten_anteil_lohn: 0.05
+    aufbau_je_monat: 0.08
+    verlust_je_monat: 0.03
+    arbeitsersparnis: 0.1         # Anteil weniger Arbeitsstunden
+    qualitaet_punkte: 8
   automatisierung:
     arbeitsersparnis: 0.8       # Anteil der Arbeit, den volle Automatisierung bei voller Prägung spart
     kostenanteil: 0.5           # Kosten für Automatisierung 0 → 1 als Anteil der Investition

@@ -76,16 +76,19 @@ pub enum StrategyField {
     Supply,
     Investment,
     Reserve,
+    /// Training target of the sites (W1).
+    Training,
 }
 
 impl StrategyField {
-    pub const ALL: [StrategyField; 6] = [
+    pub const ALL: [StrategyField; 7] = [
         StrategyField::Price,
         StrategyField::Stock,
         StrategyField::Wages,
         StrategyField::Supply,
         StrategyField::Investment,
         StrategyField::Reserve,
+        StrategyField::Training,
     ];
 
     /// Key of the texts (`strategie.feld.<key>`).
@@ -97,6 +100,7 @@ impl StrategyField {
             StrategyField::Supply => "eigenfertigung",
             StrategyField::Investment => "investition",
             StrategyField::Reserve => "reserve",
+            StrategyField::Training => "schulung",
         }
     }
 }
@@ -151,6 +155,8 @@ pub enum StrategyValue {
     Investment(Money),
     /// Cash the positions keep, in months of running costs.
     Reserve(f64),
+    /// Training target of the sites, 0–1 (W1).
+    Training(f64),
 }
 
 impl StrategyValue {
@@ -162,6 +168,7 @@ impl StrategyValue {
             StrategyValue::Supply(_) => StrategyField::Supply,
             StrategyValue::Investment(_) => StrategyField::Investment,
             StrategyValue::Reserve(_) => StrategyField::Reserve,
+            StrategyValue::Training(_) => StrategyField::Training,
         }
     }
 }
@@ -228,6 +235,25 @@ pub fn default_value(catalog: &Catalog, field: StrategyField) -> Option<Strategy
         StrategyField::Supply => Some(StrategyValue::Supply(d.supply)),
         StrategyField::Investment => None,
         StrategyField::Reserve => Some(StrategyValue::Reserve(0.0)),
+        StrategyField::Training => Some(StrategyValue::Training(0.0)),
+    }
+}
+
+/// The training target the company's strategy sets for a site (W1); `None` without a
+/// setting.
+pub fn training_for_site(
+    state: &GameState,
+    company: CompanyId,
+    site: SiteId,
+    catalog: &Catalog,
+) -> Option<f64> {
+    let c = state.companies.get(company.index())?;
+    if c.strategies.is_empty() {
+        return None;
+    }
+    match setting(catalog, state, c, Unit::Site(site), StrategyField::Training)?.value {
+        StrategyValue::Training(t) => Some(t),
+        _ => None,
     }
 }
 
@@ -483,5 +509,6 @@ fn valid(catalog: &Catalog, value: &StrategyValue) -> bool {
         }
         StrategyValue::Investment(amount) => amount >= Money::ZERO,
         StrategyValue::Reserve(months) => between(months, 0.0, m.reserve_months_max),
+        StrategyValue::Training(t) => between(t, 0.0, 1.0),
     }
 }

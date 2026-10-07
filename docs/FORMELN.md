@@ -3689,3 +3689,48 @@ zuerst) und baut die ersten `ausbau_je_pruefung_max` (4) aus – jeden wie bishe
 Viertel, kleine Werke ums Doppelte. Vorher baute sie nur den besten aus; eine Firma mit
 zwölf Plantagen brauchte so Jahrzehnte, bis alle wuchsen. Die Kasse begrenzt jeden
 Ausbau wie bisher (`ausbau_anteil_kasse_max`, Kredit).
+
+## W1 – Schulung
+
+Lastenheft §5.4, Stufe 2. Daten: `parameter/produktionsmodell.yaml` (`schulung`),
+`parameter/kimodell.yaml` (`verhalten.schulung`). Kern: Modul `training`.
+
+### Schulungsniveau je Standort
+
+Jeder Standort hat ein Schulungsniveau s ∈ [0, 1] und ein Ziel z ∈ [0, 1]. Das Ziel ist
+
+1. das eigene Ziel des Standorts (Befehl `SetTraining { site, target }`), sonst
+2. die Strategievorgabe „Schulung“ der Firma für den Standort (MA4: Standort, Land,
+   Kontinent, weltweit; der genaueste Geltungsbereich gilt) – so hält die Personalstelle
+   ein Zielniveau auf Landes-, Kontinent- oder Weltebene –, sonst
+3. 0 (keine Schulung).
+
+Zum Monatsanfang nähert sich s dem Ziel:
+
+  s ← min(z, s + `aufbau_je_monat`)   wenn s < z,
+  s ← max(z, s − `verlust_je_monat`)  wenn s > z.
+
+Ohne Schulung verliert ein Standort also langsam, was er gelernt hat (Fluktuation).
+
+### Kosten
+
+Jeden Tag: Lohnsumme des Standorts · `kosten_anteil_lohn` · z, gebucht als
+Personalkosten des Standorts. Die Kosten folgen dem Ziel, die Wirkung dem erreichten
+Niveau: Wer schult, zahlt sofort und gewinnt erst nach und nach.
+
+### Wirkung
+
+- **Arbeit:** Die Arbeitsstunden je Durchlauf sinken um den Faktor
+  (1 − `arbeitsersparnis` · s), zusätzlich zu Automatisierung, Größe und Entwicklung.
+- **Qualität:** + `qualitaet_punkte` · s Punkte auf die Qualität der Erzeugnisse.
+
+Mit den Daten (Ziel 1 nach etwa einem Jahr erreicht): 10 % weniger Arbeit und 8 Punkte
+Qualität für 5 % der Lohnsumme. Lohnt sich bei arbeitsintensiven Werken, kaum bei
+Förderstätten mit wenig Personal.
+
+### KI-Firmen
+
+Zum Monatsanfang setzen KI-Firmen für jeden Standort (außer Forschungszentren) das Ziel
+`verhalten.schulung` nach ihrer Kompetenz (0 bei Kompetenz 0, 0,8 bei 1), auf 0,05
+gerundet, mit demselben Befehl. Forschungszentren schulen nicht (ihre Forscher sind
+Akademiker; die Forschung hat eigene Regeln).

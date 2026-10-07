@@ -473,6 +473,14 @@ export interface StandortDetail {
   development: string | null;
   wage_premium: number;
   wage_premium_max: number;
+  /** Training (W1): level reached and target, 0–1, and where the target comes from. */
+  training?: number;
+  training_target?: number;
+  training_source?: "standort" | "strategie" | "keine";
+  training_cost_per_day_usd?: number;
+  /** Effect of the level: share of labor hours saved, quality points. */
+  training_labor_saving?: number;
+  training_quality?: number;
   rival_premium_max: number;
   staff: Personal[];
   wage_cost_per_day_usd: number;
@@ -1475,16 +1483,18 @@ export type Vorgabe =
   | { Wages: Lohnvorgabe }
   | { Supply: Bezugsweg }
   | { Investment: number }
-  | { Reserve: number };
+  | { Reserve: number }
+  | { Training: number };
 
-export type Vorgabefeld = "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve";
+export type Vorgabefeld =
+  "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve" | "Training";
 
 /** Where a strategy holds (MA4). */
 export type Geltung = "Company" | { Continent: string } | { Country: string } | { Site: number };
 
 /** One field at one unit (MA4). */
 export interface VorgabeEintrag {
-  field: "preis" | "lager" | "personal" | "eigenfertigung" | "investition" | "reserve";
+  field: "preis" | "lager" | "personal" | "eigenfertigung" | "investition" | "reserve" | "schulung";
   /** What holds; null: no investment budget. */
   value: Vorgabe | null;
   /** The unit it comes from (`firma`, `kontinent:europa`, `land:DEU`, `standort:3`); null: the default. */

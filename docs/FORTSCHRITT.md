@@ -70,6 +70,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | B2 | Können der KI-Manager wirkt auf Preise und Ausbau (Schätzfehler) | ✅ |
 | C1 | Händler gleichen Preisinseln aus (Arbitrage) | ✅ |
 | C2 | Rohstoffe nach 2015: Förderkurve, Ausbau an allen Standorten | ✅ |
+| W1 | Schulung je Standort (Stufe 2) | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -613,6 +614,22 @@ Paket C, offener Punkt G (M41) 9. Regeln: `docs/FORMELN.md`, Abschnitt C2.
   nur den besten.
 - **Tests:** Kern (Förderkurve, zwei ausgelastete Werke wachsen zusammen), Fehlerfälle für
   beide Parameter.
+
+### W1: Schulung je Standort (07.10.2026)
+
+Stufe 2, Lastenheft §5.4. Regeln: `docs/FORMELN.md`, Abschnitt W1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Kern:** Jeder Standort hat ein Schulungsniveau und ein Ziel (Befehl `SetTraining`,
+  sonst die neue Strategievorgabe „Schulung“). Das Niveau steigt um 8 Punkte im Monat bis
+  zum Ziel und sinkt ohne Schulung um 3. Kosten je Tag: 5 % der Lohnsumme mal Ziel, gebucht
+  als Personalkosten. Wirkung bei 100 %: 10 % weniger Arbeitsstunden, +8 Qualitätspunkte.
+- **KI:** schult nach Kompetenz bis 80 %, über denselben Befehl.
+- **Oberfläche:** „Werk“ → „Personal“ → Karte „Schulung“; Strategie mit siebtem Feld
+  „Schulung“.
+- **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
+- **Tests:** Kern (Niveau, Kosten, Arbeit; Strategie gegen eigenes Ziel; KI nach
+  Kompetenz), Fehlerfall `arbeitsersparnis`, vitest (Strategie), Playwright (Werk).
 
 ## Eigenständige Entscheidungen (für das Review)
 

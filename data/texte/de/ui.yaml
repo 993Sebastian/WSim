@@ -481,6 +481,20 @@ werk.aufschlag_bereich: "Der Lohnaufschlag muss zwischen 0 und {max} % liegen."
 werk.aufschlag_gesetzt: "Lohnaufschlag {prozent} % gilt ab sofort."
 werk.lohnaufschlag: Lohnaufschlag
 werk.lohnaufschlag_erklaerung: Ein Aufschlag auf die Löhne des Landes macht den Standort zum begehrten Arbeitgeber. Sind Arbeitskräfte knapp, bekommt der Standort mit dem höheren Aufschlag sie zuerst und wirbt sie bei Standorten mit niedrigerem Aufschlag im selben Land ab. Der Aufschlag erhöht die Lohnkosten und damit die Stückkosten.
+werk.schulung: Schulung
+werk.schulung_erklaerung: Schulung macht die Belegschaft geübter. Je höher das erreichte Niveau, desto weniger Arbeitsstunden braucht der Standort und desto besser werden seine Erzeugnisse. Das Niveau steigt Monat für Monat zum Ziel; ohne Schulung sinkt es langsam, weil Leute gehen. Die Kosten richten sich nach dem Ziel, die Wirkung nach dem erreichten Niveau.
+werk.schulung_niveau: Erreichtes Niveau
+werk.schulung_ziel: Schulungsziel
+werk.schulung_quelle.standort: eigenes Ziel des Standorts
+werk.schulung_quelle.strategie: aus der Strategie
+werk.schulung_quelle.keine: kein Ziel
+werk.schulung_kosten_tag: Schulungskosten je Tag
+werk.schulung_wirkung: Wirkung jetzt
+werk.schulung_wirkung_wert: "{arbeit} weniger Arbeit, +{punkte} Qualitätspunkte"
+werk.schulung_bereich: Das Schulungsziel liegt zwischen 0 und 100 %.
+werk.schulung_gesetzt: "Schulungsziel {prozent} % gesetzt."
+werk.schulung_vorgabe: Ziel der Strategie folgen
+werk.schulung_vorgabe_gesetzt: Der Standort folgt jetzt dem Schulungsziel der Strategie.
 werk.aufschlag_jetzt: Dein Aufschlag
 werk.aufschlag_konkurrenz: Höchster Aufschlag der Konkurrenz im Land
 werk.aufschlag_hilfe: "0 bis {max} % über den Löhnen des Landes."
@@ -1286,6 +1300,7 @@ strategie.feld.personal: Personal
 strategie.feld.eigenfertigung: Eigenfertigung oder Zukauf
 strategie.feld.investition: Investitionsbudget
 strategie.feld.reserve: Liquiditätsreserve
+strategie.feld.schulung: Schulung
 strategie.feldhilfe.preis: "Untergrenze der Preise im Marktpreis-Modus und Startpreis neuer Angebote. Über der Untergrenze bestimmt der Markt den Preis; feste Preise bleiben, wie du sie setzt."
 strategie.feldhilfe.lager: "Vorprodukte: Unter der Mindestreichweite bietet der Einkauf mehr, bis zur Höchstreichweite kauft er ein. Fertigwaren: Die Produktion hält so viele Tage Absatz auf Lager."
 strategie.feldhilfe.personal: "Spanne des Lohnaufschlags auf den Marktlohn. Fehlen Arbeitskräfte, steigt er Schritt für Schritt bis zum Höchstwert, sonst sinkt er bis zum Mindestwert."
@@ -1319,6 +1334,9 @@ strategie.investition.rest: "Übrig in diesem Jahr: {rest} (Budget: {wo})"
 strategie.reserve.wert: "{monate} Monate (≈ {betrag})"
 strategie.reserve.wert_eins: "1 Monat (≈ {betrag})"
 strategie.reserve.keine: keine
+strategie.schulung.wert: "Schulungsziel {ziel}"
+strategie.schulung.ziel: Schulungsziel
+strategie.schulung.hilfe: Die Standorte ohne eigenes Ziel schulen bis zu diesem Niveau. Schulung kostet einen Anteil der Löhne und spart Arbeit, sobald das Niveau erreicht ist.
 strategie.reserve.monate: Reserve
 strategie.reserve.einheit: Monate
 strategie.reserve.hilfe: "Laufende Kosten aller Standorte: {betrag} im Monat."
@@ -1327,6 +1345,7 @@ strategie.grenzen.lager: "Reichweiten liegen zwischen 0 und {max} Tagen; die Min
 strategie.grenzen.personal: "Der Lohnaufschlag liegt zwischen 0 und {max}, der Mindestwert nicht über dem Höchstwert."
 strategie.grenzen.investition: Das Budget darf nicht negativ sein.
 strategie.grenzen.reserve: "Die Reserve liegt zwischen 0 und {max} Monaten."
+strategie.grenzen.schulung: Das Schulungsziel liegt zwischen 0 und 100 %.
 verkaufswege.titel: Verkaufswege
 verkaufswege.hilfe: "Endkunden und Staaten kaufen immer. Ob auch KI-Händler (für die Ausfuhr) und andere Firmen bei dir kaufen dürfen, legst du hier fest."
 verkaufswege.erklaerung: "Eine Regel gilt für die ganze Firma, ein Land, ein Produkt oder ein Produkt in einem Land; die genaueste gilt. Ohne Regel dürfen alle kaufen. Mit Mindestpreis kaufen sie nur, solange dein Preis mindestens so hoch ist; die Höchstmenge gilt je Angebot und Monat."

@@ -63,6 +63,7 @@ kimodell:
     # Schätzfehler (B2): Stückkosten und Marge sieht eine Firma je Produkt und Jahr um bis
     # zu diesen Anteil zu hoch oder zu tief – Kompetenz (mit dem Können ihrer Manager).
     schaetzfehler: {bei_0: 0.15, bei_1: 0.0}
+    schulung: {bei_0: 0.0, bei_1: 0.8}                # Schulungsziel der Standorte (W1), Kompetenz
     werbeanteil: {bei_0: 0.01, bei_1: 0.03}           # Werbung je Monat, Anteil am Umsatz, Aggressivität
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität

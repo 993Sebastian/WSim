@@ -140,6 +140,7 @@ kostenart.lizenzen: Lizenzen
 kostenart.beteiligungen: Beteiligungen
 kostenart.sonstiges: Sonstiges
 fehler.befehl.lohnaufschlag_ungueltig: Der Lohnaufschlag muss zwischen 0 und {max} % liegen.
+fehler.befehl.schulung_ungueltig: Das Schulungsziel muss zwischen 0 und 100 % liegen.
 fehler.befehl.kein_angebot: Dieser Standort bietet {produkt} nicht zum Verkauf an.
 fehler.befehl.preis_ungueltig: Der Preis muss größer als 0 sein (Auf- oder Abschlag zwischen −90 % und +200 %).
 fehler.befehl.nicht_erforschbar: „{technologie}“ lässt sich nicht erforschen – sie ist schon bekannt, oder es fehlen Voraussetzungen.

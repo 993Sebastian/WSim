@@ -1338,7 +1338,82 @@ function Personal({ s }: { s: StandortDetail }) {
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      <Schulung key={`${s.training_target}/${s.training_source}`} s={s} />
     </div>
+  );
+}
+
+/** The site's training (W1): level, target and where it comes from, cost and effect. */
+function Schulung({ s }: { s: StandortDetail }) {
+  const { los, antwort } = useAktion(`schulung/${s.index}`);
+  const [ziel, setZiel] = useState(zahlFeld((s.training_target ?? 0) * 100, 0));
+  const [fehler, setFehler] = useState<string | null>(null);
+  const quelle = s.training_source ?? "keine";
+  return (
+    <form
+      className="karte"
+      aria-label={t("werk.schulung")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const p = zahlLesen(ziel);
+        if (p === null || p < 0 || p > 100) {
+          setFehler(t("werk.schulung_bereich"));
+          return;
+        }
+        setFehler(null);
+        void los(
+          [{ SetTraining: { site: s.index, target: p / 100 } }],
+          t("werk.schulung_gesetzt", { prozent: formatZahl(p) }),
+        );
+      }}
+    >
+      <h3>{t("werk.schulung")}</h3>
+      <p>{t("werk.schulung_erklaerung")}</p>
+      <dl className="werte">
+        <dt>{t("werk.schulung_niveau")}</dt>
+        <dd>{formatProzent(s.training ?? 0)}</dd>
+        <dt>{t("werk.schulung_ziel")}</dt>
+        <dd>
+          {formatProzent(s.training_target ?? 0)}{" "}
+          <small className="gedaempft">({t(`werk.schulung_quelle.${quelle}`)})</small>
+        </dd>
+        <dt>{t("werk.schulung_kosten_tag")}</dt>
+        <dd>{formatGeld(s.training_cost_per_day_usd ?? 0)}</dd>
+        <dt>{t("werk.schulung_wirkung")}</dt>
+        <dd>
+          {t("werk.schulung_wirkung_wert", {
+            arbeit: formatProzent(s.training_labor_saving ?? 0),
+            punkte: formatZahl(s.training_quality ?? 0, 1),
+          })}
+        </dd>
+      </dl>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("werk.schulung_ziel")}
+          einheit="%"
+          wert={ziel}
+          onWert={setZiel}
+          gruppieren={false}
+        />
+        <button type="submit">{t("werk.uebernehmen")}</button>
+        {quelle === "standort" && (
+          <button
+            type="button"
+            className="schlicht"
+            onClick={() =>
+              void los(
+                [{ SetTraining: { site: s.index, target: null } }],
+                t("werk.schulung_vorgabe_gesetzt"),
+              )
+            }
+          >
+            {t("werk.schulung_vorgabe")}
+          </button>
+        )}
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
   );
 }
 

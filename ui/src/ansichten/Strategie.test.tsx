@@ -141,6 +141,26 @@ describe("Strategie", () => {
     ]);
   });
 
+  it("legt das Schulungsziel der Standorte fest (W1)", async () => {
+    const { gesendet } = await strategieOeffnen();
+    const bereich = screen.getByRole("region", { name: "Vorgaben: Firma" });
+    const schulung = within(bereich).getByRole("form", { name: "Schulung: Firma" });
+    expect(within(schulung).getByText(/Gilt: Schulungsziel 60 %/)).toBeTruthy();
+    fireEvent.change(within(schulung).getByLabelText("Schulungsziel"), {
+      target: { value: "150" },
+    });
+    fireEvent.click(within(schulung).getByRole("button", { name: "Hier festlegen" }));
+    expect(await within(schulung).findByText(/zwischen 0 und 100 %/)).toBeTruthy();
+    fireEvent.change(within(schulung).getByLabelText("Schulungsziel"), {
+      target: { value: "70" },
+    });
+    fireEvent.click(within(schulung).getByRole("button", { name: "Hier festlegen" }));
+    await within(schulung).findByText(/festgelegt/);
+    expect(gesendet).toEqual([
+      { SetStrategy: { scope: "Company", field: "Training", value: { Training: 0.7 } } },
+    ]);
+  });
+
   it("zeigt die Verkaufswege und legt Regeln fest", async () => {
     const { gesendet } = await strategieOeffnen();
     const wege = screen.getByRole("region", { name: "Verkaufswege" });

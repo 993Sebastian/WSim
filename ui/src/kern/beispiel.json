@@ -35364,6 +35364,12 @@
             "value_usd": 6945.6544
           }
         ],
+        "training": 0.25,
+        "training_cost_per_day_usd": 0.672,
+        "training_labor_saving": 0.025,
+        "training_quality": 2.0,
+        "training_source": "strategie",
+        "training_target": 0.6,
         "unit_costs": [
           {
             "energy_usd": 0.0,
@@ -36819,6 +36825,19 @@
             "value": {
               "Reserve": 1.0
             }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "schulung",
+            "left_usd": null,
+            "origin": "firma",
+            "own": true,
+            "reserve_usd": null,
+            "value": {
+              "Training": 0.6
+            }
           }
         ],
         "key": "firma",
@@ -36913,6 +36932,19 @@
             "reserve_usd": 30805.401,
             "value": {
               "Reserve": 1.0
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "schulung",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Training": 0.6
             }
           }
         ],
@@ -37010,6 +37042,19 @@
             "reserve_usd": 30805.401,
             "value": {
               "Reserve": 1.0
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "schulung",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Training": 0.6
             }
           }
         ],
@@ -37167,6 +37212,19 @@
             "reserve_usd": 30805.401,
             "value": {
               "Reserve": 1.0
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "schulung",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Training": 0.6
             }
           }
         ],

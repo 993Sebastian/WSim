@@ -176,6 +176,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         ),
         floor_factor: span(ctx, &b.floor_factor, &bl.field("preisuntergrenze")),
         estimate_error: share_span(ctx, &b.estimate_error, &bl.field("schaetzfehler")),
+        training: share_span(ctx, &b.training, &bl.field("schulung")),
         advertising_share: span(ctx, &b.advertising_share, &bl.field("werbeanteil")),
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),

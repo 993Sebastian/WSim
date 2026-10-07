@@ -87,8 +87,6 @@ fn hours_per_run(
         .collect()
 }
 
-/// One simulated day for all sites. `date` is the day being simulated. Power plants
-/// run first so that factories can use the electricity of the same day.
 /// Allowed yearly output of a deposit (before the market scale) with its decline (C2,
 /// docs/FORMELN.md): below `foerderkurve_ab` of the reserve left, it falls in proportion
 /// to what is left. Renewable deposits keep their full output.
@@ -111,6 +109,8 @@ pub fn deposit_output(
     full * (left / from).min(1.0)
 }
 
+/// One simulated day for all sites. `date` is the day being simulated. Power plants
+/// run first so that factories can use the electricity of the same day.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
     complete_constructions(state, catalog, date);
     staff_sites(state, catalog, date);
@@ -380,7 +380,9 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             };
             let runs = sl.full_runs(catalog) * utilization;
             let developed = development::effect(catalog, state, s.owner, recipe.product);
-            let cost_factor = deposit_cost_factor(catalog, state, site, recipe) * developed.labor;
+            let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
+                * developed.labor
+                * crate::training::labor_factor(catalog, s.training);
             let labor: f64 = hours_per_run(
                 catalog,
                 (recipe, sl.size),
@@ -442,7 +444,8 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
         let sl = &state.sites[index].slots[slot];
         let owner = state.sites[index].owner;
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
-            * development::effect(catalog, state, owner, recipe.product).labor;
+            * development::effect(catalog, state, owner, recipe.product).labor
+            * crate::training::labor_factor(catalog, state.sites[index].training);
         for (g, h) in hours_per_run(
             catalog,
             (recipe, sl.size),
@@ -576,7 +579,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         };
         // The company's development level of the product (M37).
         let developed = development::effect(catalog, state, owner, recipe.product);
-        let cost_factor = deposit_cost_factor(catalog, state, site, recipe) * developed.labor;
+        let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
+            * developed.labor
+            * crate::training::labor_factor(catalog, state.sites[index].training);
         let per_run = hours_per_run(catalog, (recipe, size), automation, affinity, cost_factor);
         let rent_per_run = rent_per_run_usd(catalog, state, country, recipe);
 
@@ -711,8 +716,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             + model.quality_inputs * (average_input - 50.0)
             + model.quality_automation * sl.automation
             - model.quality_condition * (1.0 - sl.condition)
-            + developed.quality)
-            .clamp(0.0, 100.0);
+            + developed.quality
+            + crate::training::quality(catalog, state.sites[index].training))
+        .clamp(0.0, 100.0);
 
         let mut outputs = vec![(recipe.product, recipe.output * runs)];
         outputs.extend(recipe.by_products.iter().map(|&(p, q)| (p, q * runs)));
@@ -855,13 +861,15 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
     } else {
         CostType::Personnel
     };
+    // Training costs a share of the wage bill (W1).
+    let training = crate::training::daily_cost(catalog, state, site, wage_bill);
     let ledger = &mut state.companies[owner.index()].ledger;
     let center = CostCenter::site(site);
     ledger.expense(
         wage_type,
         center,
         Account::Cash,
-        Money::from_usd(wage_bill).unwrap_or(Money::ZERO),
+        Money::from_usd(wage_bill + training).unwrap_or(Money::ZERO),
     );
     ledger.expense(CostType::Maintenance, center, Account::Cash, maintenance);
     ledger.expense(

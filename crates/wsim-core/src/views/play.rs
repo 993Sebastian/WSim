@@ -231,6 +231,22 @@ pub struct SiteDetail {
     pub staff: Vec<StaffLine>,
     /// Wages per day of the staff employed now.
     pub wage_cost_per_day_usd: f64,
+    /// Training (W1): level reached and target, 0–1.
+    #[serde(default)]
+    pub training: f64,
+    #[serde(default)]
+    pub training_target: f64,
+    /// Where the target comes from: `standort`, `strategie` or `keine`.
+    #[serde(default)]
+    pub training_source: String,
+    /// Training costs per day at today's wages.
+    #[serde(default)]
+    pub training_cost_per_day_usd: f64,
+    /// Effect of the level reached: share of labor hours saved, quality points.
+    #[serde(default)]
+    pub training_labor_saving: f64,
+    #[serde(default)]
+    pub training_quality: f64,
     pub unit_costs: Vec<UnitCostView>,
     /// Result of the last closed month, if the site existed then.
     pub last_month: Option<SiteResult>,
@@ -599,6 +615,8 @@ pub fn production(game: &Game) -> ProductionView {
             let unit_costs = crate::production::unit_costs(catalog, state, site_id);
             let used_here: Vec<crate::ids::ProductId> = need.iter().map(|&(p, _)| p).collect();
             let (staff, rival_premium_max, wage_cost_per_day_usd) = site_staff(game, site_id);
+            let (training_target, training_source) =
+                crate::training::target(catalog, state, site_id);
             SiteDetail {
                 index: u32::try_from(i).unwrap_or(u32::MAX),
                 country: catalog.countries.key(s.country).to_owned(),
@@ -689,6 +707,22 @@ pub fn production(game: &Game) -> ProductionView {
                 rival_premium_max,
                 staff,
                 wage_cost_per_day_usd,
+                training: s.training,
+                training_target,
+                training_source: match training_source {
+                    crate::training::TargetSource::Site => "standort",
+                    crate::training::TargetSource::Strategy => "strategie",
+                    crate::training::TargetSource::None => "keine",
+                }
+                .into(),
+                training_cost_per_day_usd: crate::training::daily_cost(
+                    catalog,
+                    state,
+                    site_id,
+                    wage_cost_per_day_usd,
+                ),
+                training_labor_saving: 1.0 - crate::training::labor_factor(catalog, s.training),
+                training_quality: crate::training::quality(catalog, s.training),
                 unit_costs: unit_costs
                     .iter()
                     .map(|u| UnitCostView {

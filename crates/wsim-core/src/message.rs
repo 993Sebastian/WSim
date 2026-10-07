@@ -95,6 +95,7 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_LOAN: &str = "fehler.befehl.kredit_unbekannt";
     pub const COMMAND_INVALID_PRICE: &str = "fehler.befehl.preis_ungueltig";
     pub const COMMAND_INVALID_WAGE_PREMIUM: &str = "fehler.befehl.lohnaufschlag_ungueltig";
+    pub const COMMAND_INVALID_TRAINING: &str = "fehler.befehl.schulung_ungueltig";
     pub const COMMAND_NO_OFFER: &str = "fehler.befehl.kein_angebot";
     pub const COMMAND_NO_ROUTE: &str = "fehler.befehl.keine_route";
     pub const COMMAND_UNDER_CONSTRUCTION: &str = "fehler.befehl.anlage_im_bau";
@@ -385,6 +386,7 @@ pub mod keys {
         COMMAND_UNKNOWN_LOAN,
         COMMAND_INVALID_PRICE,
         COMMAND_INVALID_WAGE_PREMIUM,
+        COMMAND_INVALID_TRAINING,
         COMMAND_NO_OFFER,
         COMMAND_NO_ROUTE,
         COMMAND_UNDER_CONSTRUCTION,

@@ -1198,6 +1198,12 @@ pub struct Site {
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
+    /// Training level reached, 0–1 (W1).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub training: f64,
+    /// The site's own training target (W1); none: the strategy's, else none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub training_target: Option<f64>,
     /// Day the current owner bought the site (M30); `None` for sites it founded.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub acquired: Option<Date>,

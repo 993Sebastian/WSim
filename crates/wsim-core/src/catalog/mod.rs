@@ -1235,6 +1235,8 @@ pub struct AiBehavior {
     pub floor_factor: Span,
     /// Error of an AI company's estimates of cost and margin (competence; B2).
     pub estimate_error: Span,
+    /// Training target of an AI company's sites (competence; W1).
+    pub training: Span,
     /// Monthly advertising as share of the revenue of a goods group in a country.
     pub advertising_share: Span,
     pub purchase_markup: f64,
@@ -1334,6 +1336,7 @@ impl Default for AiModel {
                     at_1: 0.9,
                 },
                 estimate_error: Span::default(),
+                training: Span::default(),
                 advertising_share: Span {
                     at_0: 0.01,
                     at_1: 0.03,
@@ -1769,6 +1772,19 @@ impl Default for MarketModel {
 
 /// Parameters of production (`data/parameter/produktionsmodell.yaml`, formulas in
 /// docs/FORMELN.md).
+/// Training of the sites (`produktionsmodell.schulung`, W1, docs/FORMELN.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TrainingModel {
+    /// Daily cost as share of the site's wage bill at the target 1.
+    pub cost_share: f64,
+    pub gain_per_month: f64,
+    pub loss_per_month: f64,
+    /// Share of labor hours saved at the full level.
+    pub labor_saving: f64,
+    /// Quality points at the full level.
+    pub quality_points: f64,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ProductionModel {
     /// Cost of founding a site (land, buildings) per site type.
@@ -1778,6 +1794,8 @@ pub struct ProductionModel {
     /// Remaining share of a deposit's reserve below which its allowed output falls in
     /// proportion (C2); 0: full output to the end.
     pub decline_from: f64,
+    /// Training of the sites (W1).
+    pub training: TrainingModel,
     /// Share of labor that full automation saves at full automation affinity.
     pub automation_labor_saving: f64,
     /// Cost of raising automation from 0 to 1, as share of the facility investment.
@@ -1862,6 +1880,7 @@ impl Default for ProductionModel {
             building_lifetime_years: 50.0,
             development_lifetime_years: 30.0,
             decline_from: 0.0,
+            training: TrainingModel::default(),
             automation_labor_saving: 0.8,
             automation_cost_share: 0.5,
             quality_inputs: 0.3,

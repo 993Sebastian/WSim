@@ -512,6 +512,8 @@ pub struct RawProductionModel {
     pub development_lifetime_years: f64,
     #[serde(rename = "foerderkurve_ab")]
     pub decline_from: f64,
+    #[serde(rename = "schulung")]
+    pub training: RawTraining,
     #[serde(rename = "automatisierung")]
     pub automation: RawAutomationCost,
     #[serde(rename = "qualitaet")]
@@ -831,6 +833,22 @@ pub struct RawTraders {
     /// Price islands (C1).
     #[serde(rename = "arbitrage")]
     pub arbitrage: RawArbitrage,
+}
+
+/// Training of the sites (W1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTraining {
+    #[serde(rename = "kosten_anteil_lohn")]
+    pub cost_share: f64,
+    #[serde(rename = "aufbau_je_monat")]
+    pub gain_per_month: f64,
+    #[serde(rename = "verlust_je_monat")]
+    pub loss_per_month: f64,
+    #[serde(rename = "arbeitsersparnis")]
+    pub labor_saving: f64,
+    #[serde(rename = "qualitaet_punkte")]
+    pub quality_points: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1210,6 +1228,8 @@ pub struct RawAiBehavior {
     pub floor_factor: RawSpan,
     #[serde(rename = "schaetzfehler")]
     pub estimate_error: RawSpan,
+    #[serde(rename = "schulung")]
+    pub training: RawSpan,
     #[serde(rename = "werbeanteil")]
     pub advertising_share: RawSpan,
     #[serde(rename = "einkauf_aufschlag")]

@@ -993,6 +993,8 @@ fn found_company(
             research: None,
             development: None,
             wage_premium: 0.0,
+            training: 0.0,
+            training_target: None,
             acquired: None,
             goodwill: None,
             plot: None,

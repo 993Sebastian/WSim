@@ -41,6 +41,7 @@ const FELDER: Record<Feld, Vorgabefeld> = {
   eigenfertigung: "Supply",
   investition: "Investment",
   reserve: "Reserve",
+  schulung: "Training",
 };
 
 const PREISE: Record<Exclude<Preisstrategie, { MinMargin: number }>, string> = {
@@ -111,6 +112,7 @@ export function wertText(e: VorgabeEintrag): string {
   if ("Investment" in v) {
     return t("strategie.investition.wert", { betrag: formatGeld(e.budget_usd ?? 0) });
   }
+  if ("Training" in v) return t("strategie.schulung.wert", { ziel: formatProzent(v.Training) });
   if (v.Reserve <= 0) return t("strategie.reserve.keine");
   return t(v.Reserve === 1 ? "strategie.reserve.wert_eins" : "strategie.reserve.wert", {
     monate: formatZahl(v.Reserve, 1),
@@ -398,6 +400,28 @@ function useReserve(e: VorgabeEintrag, daten: Strategie): Eingabe {
   };
 }
 
+function useSchulung(e: VorgabeEintrag): Eingabe {
+  const start = e.value && "Training" in e.value ? e.value.Training : null;
+  const [ziel, setZiel] = useState(start === null ? "" : zahlFeld(start * 100, 0));
+  return {
+    felder: (
+      <ZahlFeld
+        name={t("strategie.schulung.ziel")}
+        einheit="%"
+        wert={ziel}
+        onWert={setZiel}
+        gruppieren={false}
+        hilfe={t("strategie.schulung.hilfe")}
+      />
+    ),
+    wert: () => {
+      const z = zahlLesen(ziel);
+      return z === null || z < 0 || z > 100 ? null : { Training: z / 100 };
+    },
+    grenzen: t("strategie.grenzen.schulung"),
+  };
+}
+
 interface KarteDaten {
   e: VorgabeEintrag;
   einheit: VorgabeEinheit;
@@ -425,6 +449,9 @@ function InvestitionKarte(p: KarteDaten) {
 function ReserveKarte(p: KarteDaten) {
   return <FeldKarte {...p} eingabe={useReserve(p.e, p.daten)} />;
 }
+function SchulungKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={useSchulung(p.e)} />;
+}
 
 const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
   preis: PreisKarte,
@@ -433,6 +460,7 @@ const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
   eigenfertigung: VersorgungKarte,
   investition: InvestitionKarte,
   reserve: ReserveKarte,
+  schulung: SchulungKarte,
 };
 
 /** Name of the unit a budget is set for: "ganze Firma", "Europa" … */
