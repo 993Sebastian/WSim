@@ -83,6 +83,7 @@ pub mod keys {
     pub const COMMAND_RECIPE_NOT_FOR_FACILITY: &str = "fehler.befehl.rezept_passt_nicht";
     pub const COMMAND_RECIPE_NEEDS_DEPOSIT: &str = "fehler.befehl.rezept_braucht_lagerstaette";
     pub const COMMAND_INVALID_SHARE: &str = "fehler.befehl.anteil_ungueltig";
+    pub const COMMAND_INVALID_STRATEGY: &str = "fehler.befehl.vorgabe_ungueltig";
     pub const COMMAND_AUTOMATION_TOO_HIGH: &str = "fehler.befehl.automatisierung_zu_hoch";
     pub const COMMAND_INVALID_QUANTITY: &str = "fehler.befehl.menge_ungueltig";
     pub const COMMAND_NOT_ENOUGH_GOODS: &str = "fehler.befehl.ware_fehlt";
@@ -271,6 +272,7 @@ pub mod keys {
         COMMAND_RECIPE_NOT_FOR_FACILITY,
         COMMAND_RECIPE_NEEDS_DEPOSIT,
         COMMAND_INVALID_SHARE,
+        COMMAND_INVALID_STRATEGY,
         COMMAND_AUTOMATION_TOO_HIGH,
         COMMAND_INVALID_QUANTITY,
         COMMAND_NOT_ENOUGH_GOODS,

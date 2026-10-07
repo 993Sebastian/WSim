@@ -39,6 +39,18 @@ function weg(a: Anliegen): string {
     .join(" → ");
 }
 
+/** Where an investment budget is set (MA4): "ganze Firma", "Europa", "Werk · Deutschland". */
+function budgetOrt(a: Anliegen): string {
+  const [ebene, wert = ""] = (a.strategy_scope ?? "").split(":");
+  if (ebene === "firma") return t("strategie.ganze_firma");
+  if (ebene === "kontinent") return t(`kontinent.${wert}`);
+  if (ebene === "land") return landName(wert);
+  if (ebene === "standort" && a.site_kind_text && a.site_country) {
+    return `${t(a.site_kind_text)} · ${landName(a.site_country)}`;
+  }
+  return "";
+}
+
 /** "Überkapazität" or "Einkauf · Roheisen". */
 function thema(a: Anliegen): string {
   const text = t(`thema.${a.topic}`);
@@ -74,7 +86,9 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
       <p>
         {t(`anliegen.grund.${a.reason}`, {
           budget: formatGeld(a.per_decision_usd),
-          rest: formatGeld(a.left_usd),
+          rest: formatGeld(a.reason === "investition" ? (a.strategy_limit_usd ?? 0) : a.left_usd),
+          reserve: formatGeld(a.strategy_limit_usd ?? 0),
+          wo: budgetOrt(a),
         })}{" "}
         {a.site_result_usd !== null &&
           t("anliegen.lage", { betrag: formatGeld(a.site_result_usd) })}

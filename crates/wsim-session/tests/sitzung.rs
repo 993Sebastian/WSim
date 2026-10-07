@@ -236,3 +236,53 @@ fn runs_halt_for_concerns() {
     assert_eq!(run.stop.as_deref(), Some("jahresende"));
     assert_eq!(run.rounds, 12);
 }
+
+/// Strategies come as JSON with keys and show where they hold (MA4).
+#[test]
+fn strategies_with_keys_and_their_origin() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    session
+        .command(json!({"SetStrategy": {
+            "scope": {"Continent": "europa"},
+            "field": "Price",
+            "value": {"Price": "Premium"}
+        }}))
+        .unwrap();
+    session
+        .command(json!({"SetStrategy": {
+            "scope": "Company",
+            "field": "Investment",
+            "value": {"Investment": 50_000_000_000_i64}
+        }}))
+        .unwrap();
+    let wrong = session.command(json!({"SetStrategy": {
+        "scope": "Company",
+        "field": "Reserve",
+        "value": {"Reserve": 1000.0}
+    }}));
+    assert_eq!(wrong.unwrap_err().key, "fehler.befehl.vorgabe_ungueltig");
+    let v = session.strategy().unwrap();
+    assert!(v.enabled);
+    let keys: Vec<&str> = v.units.iter().map(|u| u.key.as_str()).collect();
+    assert_eq!(&keys[..3], ["firma", "kontinent:europa", "land:DEU"]);
+    let site = &v.units[3];
+    assert_eq!(site.level, "standort");
+    let price = &site.entries[0];
+    assert_eq!(price.field, "preis");
+    assert_eq!(price.origin.as_deref(), Some("kontinent:europa"));
+    assert_eq!(
+        serde_json::to_value(price.value).unwrap(),
+        json!({"Price": "Premium"})
+    );
+    let invest = site
+        .entries
+        .iter()
+        .find(|e| e.field == "investition")
+        .unwrap();
+    assert_eq!(invest.budget_usd, Some(5_000_000.0));
+    assert_eq!(invest.left_usd, Some(5_000_000.0));
+    assert_eq!(invest.binding.as_deref(), Some("firma"));
+}

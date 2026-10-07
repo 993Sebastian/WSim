@@ -63,6 +63,7 @@ fehler.befehl.standort_hat_lagerstaette: Der Standort erschließt bereits eine L
 fehler.befehl.rezept_passt_nicht: Dieses Verfahren läuft nicht auf dieser Anlage.
 fehler.befehl.rezept_braucht_lagerstaette: Für den Abbau braucht der Standort eine erschlossene Lagerstätte dieses Rohstoffs.
 fehler.befehl.anteil_ungueltig: Der Wert muss zwischen 0 und 100 % liegen.
+fehler.befehl.vorgabe_ungueltig: Diese Vorgabe liegt außerhalb ihrer Grenzen.
 fehler.befehl.automatisierung_zu_hoch: Diese Anlage lässt sich höchstens zu {max} % automatisieren.
 fehler.befehl.menge_ungueltig: Die Menge muss größer als 0 sein.
 fehler.befehl.ware_fehlt: So viel ist nicht auf Lager; vorhanden sind {menge}.

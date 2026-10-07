@@ -14,8 +14,8 @@ use wsim_core::CoreInfo;
 use wsim_core::views::{
     ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
-    WorldMarketView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, StrategyView,
+    WorldMap, WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -185,6 +185,11 @@ fn anliegen(state: State<'_, Shared>) -> Result<ConcernsView, Fehler> {
 }
 
 #[tauri::command]
+fn strategie(state: State<'_, Shared>) -> Result<StrategyView, Fehler> {
+    mit_sitzung(&state, |s| s.strategy())
+}
+
+#[tauri::command]
 fn managermarkt(
     state: State<'_, Shared>,
     einheit: String,
@@ -260,6 +265,7 @@ fn main() {
             finanzen,
             organisation,
             anliegen,
+            strategie,
             managermarkt,
             befehl,
             speichern,

@@ -36,6 +36,7 @@ pub mod research;
 pub mod rng;
 pub mod save;
 pub mod state;
+pub mod strategy;
 pub mod time_series;
 pub mod trade;
 pub mod transport;
@@ -65,6 +66,8 @@ mod production_tests;
 mod research_tests;
 #[cfg(test)]
 mod size_tests;
+#[cfg(test)]
+mod strategy_tests;
 #[cfg(test)]
 mod trade_tests;
 

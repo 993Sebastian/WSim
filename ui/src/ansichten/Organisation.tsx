@@ -36,6 +36,7 @@ import {
   ZahlFeld,
 } from "./gemeinsam";
 import { einheitName, stellenangabe, stellenName } from "./stellen";
+import { StrategieAnsicht } from "./Strategie";
 
 /** Where the answers of this view appear: above the chart, also after hiring. */
 const ORT = "organisation";
@@ -820,7 +821,7 @@ export function OrganisationAnsicht({
   const [wahl, setWahl] = useState<{ einheit: string; rolle: string } | null>(null);
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
-  const [bereich, setBereich] = useState<"stellen" | "anliegen">(
+  const [bereich, setBereich] = useState<"stellen" | "anliegen" | "strategie">(
     offen > 0 ? "anliegen" : "stellen",
   );
   const stand = `${uebersicht.date}/${zaehler}`;
@@ -835,20 +836,21 @@ export function OrganisationAnsicht({
               bereiche={[
                 { key: "stellen", text: t("organisation.reiter_stellen") },
                 { key: "anliegen", text: t("organisation.reiter_anliegen"), zaehler: offen },
+                { key: "strategie", text: t("organisation.reiter_strategie") },
               ]}
               aktiv={bereich}
               onWahl={setBereich}
             />
-            {bereich === "stellen" ? (
+            {bereich === "stellen" && (
               <Organigramm
                 kern={kern}
                 stand={stand}
                 onBesetzen={(einheit, rolle) => setWahl({ einheit, rolle })}
                 onAnliegen={() => setBereich("anliegen")}
               />
-            ) : (
-              <AnliegenListe kern={kern} stand={stand} />
             )}
+            {bereich === "anliegen" && <AnliegenListe kern={kern} stand={stand} />}
+            {bereich === "strategie" && <StrategieAnsicht kern={kern} stand={stand} />}
           </>
         ) : (
           <Managermarkt

@@ -23,6 +23,7 @@ import type {
   Rundenbericht,
   Rundenlaenge,
   Spielstand,
+  Strategie,
   Uebersicht,
   Weltkarte,
 } from "./typen";
@@ -46,6 +47,7 @@ const beispiel = beispielJson as unknown as {
   finanzen: Finanzen;
   organisation: Organisation;
   anliegen: AnliegenListe;
+  strategie: Strategie;
   managermarkt: Managermarkt;
 };
 
@@ -194,6 +196,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     anliegen: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.anliegen);
+    },
+    strategie: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.strategie);
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

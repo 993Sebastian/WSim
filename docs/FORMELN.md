@@ -2558,3 +2558,130 @@ für alle Teile; jeder Teil wird für sich ausgeführt (scheitert einer, laufen 
   besetzte Stelle der Kette das Thema Kraftwerk bzw. Lagerstätte übernimmt.
 - Stellen alter Spielstände (Standort und Rolle) werden als Stellen ihres Standorts
   gelesen; das Format bleibt lesbar ohne neue Version.
+
+## MA4 – Strategievorgaben
+
+`docs/MANAGER.md` Abschnitt 7, Lastenheft §5.6. Daten: `parameter/management.yaml`
+(`strategie`). Kern: Modul `strategy`.
+
+### Geltungsbereiche und Vererbung
+
+- Eine Vorgabe gilt für die ganze Firma (in Stufe 1 zugleich „weltweit“ und
+  „Gesamtkonzern“; Tochterfirmen mit Stufe 2), einen Kontinent, ein Land oder einen
+  Standort. Länder und Kontinente dürfen auch solche sein, in denen die Firma noch keinen
+  Standort hat: Die Vorgabe gilt dann für neue Standorte dort.
+- An einem Standort gilt je Feld die Vorgabe des Standorts, sonst die seines Landes,
+  seines Kontinents, der Firma, sonst der **Standardwert**. Für ein Land und einen
+  Kontinent gilt dasselbe ab ihrer Ebene. Eine untere Ebene überschreibt so gezielt eine
+  geerbte Vorgabe; entfernt sie ihre eigene, gilt wieder die geerbte.
+- Vorgaben richten sich an die Manager (MA1–MA3): Sie wirken, wo eine besetzte Stelle
+  entscheidet. Was der Spieler selbst entscheidet, gilt sofort und hat Vorrang – ein
+  fester Preis bleibt fest; Auslastung, Einkauf, Lohn und Lieferungen passt die
+  zuständige Stelle an ihrem nächsten Prüftermin wieder nach der Vorgabe an. Wer an einem
+  Ort dauerhaft anders will, setzt dort eine eigene Vorgabe.
+- **Wie gut** eine Vorgabe umgesetzt wird, hängt vom Manager ab: Eine Stelle handelt am
+  Prüftermin nur, wenn sie die Lage bemerkt (MA1) – eine geänderte Vorgabe setzt ein
+  schwacher Manager also später um –, und bei Ermessensentscheidungen empfiehlt sie nach
+  ihrem Urteilsvermögen (MA2).
+- KI-Firmen haben keine Vorgaben (bis MA6). Ihre Regeln laufen mit den Standardwerten,
+  die genau ihr bisheriges Verhalten sind.
+
+### Felder
+
+| Feld | Einstellungen | Standard | Wirkung |
+| --- | --- | --- | --- |
+| Preis | Marktpreis, Premium, Kampfpreis, Mindestmarge *m* | Marktpreis | Preisuntergrenze und Startpreis der Angebote im Marktpreis-Modus |
+| Lager | Reichweite der Vorprodukte min/max, Lagerziel der Fertigwaren (Tage) | 7 / 20 / 14 | Einkauf und Erzeugung |
+| Personal | Lohnaufschlag min/max | 0 % / 30 % | Lohnaufschlag je Standort |
+| Eigenfertigung oder Zukauf | eigene Ware zuerst, nach Preis, nur Zukauf | eigene Ware zuerst | Lieferungen zwischen eigenen Standorten |
+| Investitionsbudget | Betrag je Kalenderjahr | ohne | Investitionen der Stellen im Geltungsbereich |
+| Liquiditätsreserve | Monate laufender Kosten | 0 | Investitionen nur über der Reserve |
+
+Die Standardwerte von Lager und Personal sind die Werte der KI
+(`verhalten.lager_niedrig_tage`, `start.lager_eingang_tage`, `verhalten.lager_ziel_tage`;
+min(`verhalten.lohnaufschlag_max`, `produktionsmodell.lohnaufschlag_max`)).
+
+**Preis.** Die Stelle setzt für jedes Angebot im Marktpreis-Modus
+
+    Preisuntergrenze = Vollkosten je Stück · u        Startpreis = Marktpreis · (1 + s)
+
+| Strategie | *u* | *s* |
+| --- | --- | --- |
+| Marktpreis | `verhalten.preisuntergrenze` der Regeln (bei Aggressivität 0,5: 1,15) | 0 |
+| Premium | `strategie.premium.untergrenze` (1,35) | `strategie.premium.aufschlag` (+15 %) |
+| Kampfpreis | `strategie.kampfpreis.untergrenze` (0,95) | `strategie.kampfpreis.aufschlag` (−10 %) |
+| Mindestmarge *m* | 1 + *m* (0 ≤ *m* ≤ `strategie.mindestmarge_max`) | 0 |
+
+Vollkosten je Stück wie bisher (M16, M22). Über der Untergrenze bestimmt der Markt den
+Preis (M16); der Startpreis gilt, wenn das Angebot neu ist oder seine Strategie wechselt.
+Die Stelle setzt das Angebot neu, wenn sich die Untergrenze um mehr als 5 %, der
+zurückgehaltene Vorrat um mehr als 10 % oder der Startaufschlag ändert.
+
+**Lager.** Mit Reichweite *min* und *max* der Vorprodukte und Lagerziel *z* der
+Fertigwaren:
+
+- Einkauf: Lagerziel = Verbrauch je Tag · *max*; liegt der Vorrat unter Verbrauch · *min*,
+  steigt das Gebot (M16); liegt er über Verbrauch · `lager_hoch_tage` · *max* /
+  `start.lager_eingang_tage`, sinkt es.
+- Ein Angebot hält vom eigenen Erzeugnis zurück, was der Standort selbst braucht:
+  Verbrauch · *max*.
+- Erzeugung: steuert das Fertigwarenlager auf Abgang je Tag · *z* (M16).
+- Grenzen: 0 < *min* ≤ *max* ≤ `strategie.lager_tage_max`, 0 ≤ *z* ≤
+  `strategie.lager_tage_max`.
+
+**Personal.** Mit Grenzen *a* ≤ *b* (0 ≤ *a*, *b* ≤ `produktionsmodell.lohnaufschlag_max`):
+Warten Anlagen auf Arbeitskräfte, steigt der Aufschlag um `lohnaufschlag_schritt` bis *b*
+(mindestens auf *a*), sonst sinkt er um den Schritt bis *a*.
+
+**Eigenfertigung oder Zukauf** (Lieferungen, MA1):
+
+- *eigene Ware zuerst*: Fehlt einem Standort ein Vorprodukt bis zum Lagerziel, liefern
+  eigene Standorte mit freiem Vorrat, gleiches Land zuerst (wie bisher).
+- *nach Preis*: nur Standorte, deren Angebotspreis plus Fracht je Stück zum Empfänger
+  den Marktpreis im Land des Empfängers nicht übersteigt.
+- *nur Zukauf*: keine Lieferungen; der Einkauf kauft am Markt, die eigenen Standorte
+  verkaufen ihre Ware.
+
+**Investitionsbudget.**
+
+- Investition einer Option = angerechneter Betrag (MA0) ihrer Schritte Bauen,
+  Erschließen, Standort gründen, Grundstück kaufen und Wiederanfahren.
+- Jede Vorgabe begrenzt die Investitionen, die Stellen im Kalenderjahr für Orte ihres
+  Geltungsbereichs beschließen (Ort = Standort der Entscheidung; ein neuer Standort zählt
+  für sein Land). Es gelten **alle** Budgets, deren Bereich den Ort enthält (z. B. Firma
+  und Europa). Rest = Budget − beschlossene Investitionen des Jahres; was der Spieler
+  freigibt, zählt nicht (wie MA2). Ändert der Spieler den Betrag, bleibt das Verbrauchte.
+- Passt die Investition einer Empfehlung nicht in den kleinsten Rest, entscheidet keine
+  Stelle der Kette: Anliegen an den Spieler mit dem Grund `investition` (Weg wie MA3).
+
+**Liquiditätsreserve.** Reserve = Monate · laufende Kosten eines Monats (alle Standorte
+bei geplanter Erzeugung, wie die Kassenregel der KI). Eine Stelle beschließt eine
+Investition nur, wenn Kasse − Investition ≥ Reserve am Ort; sonst Anliegen mit dem Grund
+`reserve`. 0 ≤ Monate ≤ `strategie.liquiditaet_monate_max`.
+
+Gründe eines Anliegens in dieser Reihenfolge: Kredit, Reserve, Investitionsbudget, Budget
+0, je Entscheidung, Jahr.
+
+### Befehl
+
+`SetStrategy { scope, field, value }` setzt die Vorgabe eines Felds für einen
+Geltungsbereich, `value: null` entfernt sie. Geprüft werden: ein Standort gehört der
+Firma, der Wert passt zum Feld und liegt in seinen Grenzen, ein Budget ist nicht negativ.
+
+### Anzeige
+
+Die Sicht `strategy` zeigt die Einheiten wie das Organigramm (Firma, Kontinente, Länder,
+Standorte; dazu Länder und Kontinente mit eigener Vorgabe ohne Standort) und je Einheit
+und Feld den geltenden Wert, seine **Herkunft** (diese Ebene, Land, Kontinent, Firma oder
+Standard) und ob die Einheit eine eigene Vorgabe hat. Beim Investitionsbudget steht der
+kleinste Rest mit seinem Geltungsbereich, bei der Reserve der Betrag. An Standorten nennt
+sie je Feld die Stelle, die es umsetzt: die erste besetzte Stelle der Kette (MA3) für das
+Thema des Felds (Preis – `verkauf`, Lager – `einkauf`, Personal – `lohn`, Eigenfertigung –
+`eigenversorgung`, Investition und Reserve – `ausbau`); ohne sie entscheidet der Spieler
+selbst.
+
+### Spielstände
+
+Neue Felder mit Vorgabewerten: Alte Stände laden ohne Vorgaben, das Format bleibt
+lesbar ohne neue Version. Vorschläge der Manager zu Vorgaben folgen mit der
+Strategierücksprache (MA5).

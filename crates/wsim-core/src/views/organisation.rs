@@ -228,7 +228,7 @@ pub fn role_key(role: &Role) -> String {
 }
 
 /// Key of a level in views.
-fn level_key(unit: Unit) -> &'static str {
+pub(super) fn level_key(unit: Unit) -> &'static str {
     match unit {
         Unit::Site(_) => "standort",
         Unit::Country(_) => "land",
@@ -257,7 +257,7 @@ pub fn unit_from_key(catalog: &Catalog, key: &str) -> Option<Unit> {
 }
 
 /// Text key of a unit's kind: the site type, else the level.
-fn kind_text(state: &GameState, unit: Unit) -> String {
+pub(super) fn kind_text(state: &GameState, unit: Unit) -> String {
     match unit {
         Unit::Site(s) => site_type_key(state.sites[s.index()].kind),
         Unit::Country(_) => "ebene.land".into(),

@@ -2,14 +2,14 @@
 
 use wsim_core::catalog::{
     Catalog, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-    SiteType, SkillModel,
+    SiteType, SkillModel, StrategyModel,
 };
 use wsim_core::decision::Topic;
 
 use super::production::SITE_TYPES;
 use super::{in_range, non_negative, positive, provenance};
 use crate::messages;
-use crate::raw::RawSpread;
+use crate::raw::{RawPriceStrategy, RawSpread};
 use crate::read::{Ctx, Loc, RawData};
 use crate::texts::TextIndex;
 
@@ -241,6 +241,8 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         bundle_from: c.bundle_from.max(1),
     };
 
+    let strategy = strategy(ctx, catalog, &v.strategy, &l.field("strategie"));
+
     let salary_group = catalog.labor_groups.id(&v.salary_group);
     if salary_group.is_none() {
         ctx.error(
@@ -300,6 +302,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         routine_topics,
         budget_floor,
         concerns,
+        strategy,
         head_discount: in_range(
             ctx,
             v.head_discount,
@@ -314,6 +317,48 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         skills,
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
+}
+
+/// Strategies of the managers (MA4): price floors and start markups, the largest
+/// settings. The defaults of the stock strategy are the AI's days, so they must be
+/// settable.
+fn strategy(
+    ctx: &mut Ctx,
+    catalog: &Catalog,
+    raw: &crate::raw::RawStrategy,
+    loc: &Loc,
+) -> StrategyModel {
+    // Markups as a sale offer accepts them (`Command::SetSale`).
+    let price = |ctx: &mut Ctx, p: &RawPriceStrategy, loc: &Loc| {
+        (
+            positive(ctx, p.floor, &loc.field("untergrenze")),
+            in_range(ctx, p.markup, -0.9, 2.0, &loc.field("aufschlag")),
+        )
+    };
+    let model = StrategyModel {
+        premium: price(ctx, &raw.premium, &loc.field("premium")),
+        fight: price(ctx, &raw.fight, &loc.field("kampfpreis")),
+        min_margin_max: positive(ctx, raw.min_margin_max, &loc.field("mindestmarge_max")),
+        stock_days_max: positive(ctx, raw.stock_days_max, &loc.field("lager_tage_max")),
+        reserve_months_max: positive(
+            ctx,
+            raw.reserve_months_max,
+            &loc.field("liquiditaet_monate_max"),
+        ),
+    };
+    let ai = &catalog.ai_model;
+    let needed = ai
+        .behavior
+        .stock_low_days
+        .max(ai.start.input_stock_days)
+        .max(ai.behavior.stock_target_days);
+    if model.stock_days_max < needed {
+        ctx.error(
+            &loc.field("lager_tage_max"),
+            messages::management_stock_days_max(model.stock_days_max, needed),
+        );
+    }
+    model
 }
 
 /// Shares of the revenue per decision and per year: each 0–1, the first at most the

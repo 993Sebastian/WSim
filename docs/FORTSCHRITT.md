@@ -55,6 +55,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA1 | Manager-System: Stellen und Manager | ✅ |
 | MA2 | Manager-System: Budget und Anliegen | ✅ |
 | MA3 | Manager-System: Land und Kontinent | ✅ |
+| MA4 | Manager-System: Strategievorgaben | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -179,6 +180,32 @@ vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 18–25.
   Budget dort an den Spieler mit Weg; Vorgaben und Deckel; das Land kümmert sich um ein Werk
   ohne Leitung; gebündeltes Anliegen mit Erledigen eines Teils und einer Antwort für alle;
   Stellen alter Spielstände), Oberflächentests für Vorgaben, Weg und Landesstellen.
+
+### MA4: Strategievorgaben (07.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA4; Bedienung: `docs/BEDIENUNG.md`, „Organisation“ →
+„Strategie“; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 26–33.
+
+- **Daten:** `management.strategie` (Untergrenze und Startaufschlag für Premium und
+  Kampfpreis, größte Mindestmarge, Lagertage und Reservemonate). Prüfregeln mit
+  Fehlerfall-Test; die Lagertage der KI müssen einstellbar sein.
+- **Kern:** Modul `strategy`. Sechs Felder – Preis, Lager, Personal, Eigenfertigung oder
+  Zukauf, Investitionsbudget, Liquiditätsreserve – für Firma, Kontinent, Land oder
+  Standort (`SetStrategy`); es gilt die engste Vorgabe, sonst der Standardwert. Die Regeln
+  der Stellen lesen sie: Preisuntergrenze und Startaufschlag, Reichweiten im Einkauf und
+  Lagerziel der Produktion, Grenzen des Lohnaufschlags, Lieferungen zwischen eigenen
+  Standorten (auch „nach Preis“ mit Fracht). Investitionen der Stellen bleiben in allen
+  Budgets ihres Orts und über der Reserve, sonst fragen sie (neue Gründe des Anliegens).
+  Wechselt ein Standort den Besitzer, entfallen seine Vorgaben.
+- **Oberfläche:** Unterreiter „Strategie“ in der Organisation: Tabelle „Wo gilt was“ mit
+  Herkunft je Wert, Karten je Feld mit umsetzender Stelle, Festlegen und Entfernen;
+  Anliegen nennen Reserve und bindendes Budget. Vorschau mit Vorgaben auf allen Ebenen.
+- **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5: derselbe
+  Zustands-Hash wie MA3 (5e9fb77ece748974) und dieselben Protokolldateien wie vor MA2.
+- **Tests:** neun Szenariotests (Vererbung und Überschreiben samt Sicht, Grenzen, Preis,
+  Reichweiten, Lohn, Lieferungen, Investitionsbudget und Reserve, Speichern und
+  Wiederholen, Standortverkauf), Sitzungstest mit Schlüsseln, vitest und Playwright für die
+  Strategieansicht.
 
 ## Eigenständige Entscheidungen (für das Review)
 

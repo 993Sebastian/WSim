@@ -1234,13 +1234,20 @@ export interface Anliegen {
   topic: string;
   product: string | null;
   /** Why the position asks (text `anliegen.grund.<reason>`). */
-  reason: "entscheidung" | "jahr" | "immer" | "kredit";
+  reason: "entscheidung" | "jahr" | "immer" | "kredit" | "reserve" | "investition";
   options: AnliegenOption[];
   recommended: number;
   /** Why the position recommends its option. */
   because: Meldung;
   per_decision_usd: number;
   left_usd: number;
+  /**
+   * For the reasons `reserve` and `investition` (MA4): the liquidity reserve, or what is
+   * left of the investment budget that binds first and where it is set (`firma`,
+   * `land:DEU` …).
+   */
+  strategy_limit_usd: number | null;
+  strategy_scope: string | null;
   /** Mean monthly result of the site in the last closed months; null without a site. */
   site_result_usd: number | null;
   created: string;
@@ -1282,4 +1289,90 @@ export interface Managermarkt {
   candidates: Kandidat[];
   /** The company's managers on other positions. */
   own: Kandidat[];
+}
+
+/** How the positions price their offers (MA4). */
+export type Preisstrategie = "Market" | "Premium" | "Fight" | { MinMargin: number };
+
+/** Whether inputs come from the company's own sites or from the market (MA4). */
+export type Bezugsweg = "OwnFirst" | "ByPrice" | "Buy";
+
+/** Stock reach in days (MA4). */
+export interface Lagervorgabe {
+  input_min_days: number;
+  input_max_days: number;
+  output_days: number;
+}
+
+/** Bounds of the wage premium (shares, MA4). */
+export interface Lohnvorgabe {
+  min: number;
+  max: number;
+}
+
+/** A strategy as `SetStrategy` takes it; the budget in Money units (MA4). */
+export type Vorgabe =
+  | { Price: Preisstrategie }
+  | { Stock: Lagervorgabe }
+  | { Wages: Lohnvorgabe }
+  | { Supply: Bezugsweg }
+  | { Investment: number }
+  | { Reserve: number };
+
+export type Vorgabefeld = "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve";
+
+/** Where a strategy holds (MA4). */
+export type Geltung = "Company" | { Continent: string } | { Country: string } | { Site: number };
+
+/** One field at one unit (MA4). */
+export interface VorgabeEintrag {
+  field: "preis" | "lager" | "personal" | "eigenfertigung" | "investition" | "reserve";
+  /** What holds; null: no investment budget. */
+  value: Vorgabe | null;
+  /** The unit it comes from (`firma`, `kontinent:europa`, `land:DEU`, `standort:3`); null: the default. */
+  origin: string | null;
+  /** The unit sets it itself. */
+  own: boolean;
+  budget_usd: number | null;
+  /** What is left this year of the budget that binds first, and where it is set. */
+  left_usd: number | null;
+  binding: string | null;
+  /** The liquidity reserve at today's running costs. */
+  reserve_usd: number | null;
+  /** At sites: the position that follows it; null where the player decides. */
+  carrier: { position: AnliegenStelle; manager: string } | null;
+}
+
+/** A unit of the company with its strategies (MA4). */
+export interface VorgabeEinheit {
+  /** `firma`, `kontinent:europa`, `land:DEU`, `standort:3`. */
+  key: string;
+  level: "firma" | "kontinent" | "land" | "standort";
+  /** Text key: the site type, `ebene.land`, `ebene.kontinent` or `ebene.firma`. */
+  kind_text: string;
+  country: string | null;
+  continent: string | null;
+  site: number | null;
+  /** The unit above; null for the company. */
+  parent: string | null;
+  /** The company's sites in the unit. */
+  sites: number;
+  entries: VorgabeEintrag[];
+}
+
+/** The strategies of the company's units (MA4). */
+export interface Strategie {
+  enabled: boolean;
+  units: VorgabeEinheit[];
+  limits: {
+    min_margin_max: number;
+    stock_days_max: number;
+    wage_premium_max: number;
+    reserve_months_max: number;
+  };
+  /** Price floor on the full unit cost and start markup: `marktpreis`, `premium`, `kampfpreis`. */
+  prices: { kind: string; floor: number; markup: number }[];
+  /** Running costs of a month of all sites. */
+  monthly_cost_usd: number;
+  settings: number;
 }

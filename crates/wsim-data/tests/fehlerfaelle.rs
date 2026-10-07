@@ -2712,6 +2712,49 @@ fn management_wird_geprueft() {
         "management.anliegen.frist_tage",
     );
 
+    // MA4: strategies.
+    let d = basis().ersetze(
+        datei,
+        "premium: {untergrenze: 1.35,",
+        "premium: {untergrenze: 0,",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "premium: {untergrenze: 0,"),
+        "management.strategie.premium.untergrenze",
+    );
+    let d = basis().ersetze(datei, "aufschlag: -0.1}", "aufschlag: -1.5}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert -1.5 liegt außerhalb des erlaubten Bereichs -0.9 bis 2.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "management.strategie.kampfpreis.aufschlag"
+    );
+    let d = basis().ersetze(datei, "lager_tage_max: 180", "lager_tage_max: 10");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "`lager_tage_max` (10) liegt unter den Lagertagen der KI (20); ihre Werte sind die Standardwerte der Vorgabe „Lager“ und müssen sich einstellen lassen.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "lager_tage_max: 10"),
+        "management.strategie.lager_tage_max",
+    );
+    let d = basis().ersetze(
+        datei,
+        "liquiditaet_monate_max: 24",
+        "liquiditaet_monate_max: -1",
+    );
+    befund(&d.laden(), "Wert -1 muss größer als 0 sein.");
+
     let d = basis().ersetze("texte/de/bereiche.yaml", "bereich.logistik: Logistik\n", "");
     let outcome = d.laden();
     let f = befund(&outcome, "Text „bereich.logistik“ fehlt in texte/de/.");

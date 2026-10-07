@@ -25,6 +25,7 @@ use crate::rng::{SimRng, Stream};
 use crate::state::{
     AiState, Company, CompanyId, CompanyKind, GameState, Limit, Operation, PriceMode, SiteId,
 };
+use crate::strategy::{self, SupplyStrategy, WageStrategy};
 
 /// Runs the decisions due today, before the day is simulated. Returns news about
 /// competitors for the player's round report.
@@ -1007,12 +1008,16 @@ fn operate(
     let model = &catalog.ai_model;
     let b = &model.behavior;
     let (_, aggressiveness) = traits(state, id);
-    let floor_factor = b.floor_factor.at(aggressiveness);
+    let rules_floor = b.floor_factor.at(aggressiveness);
     for &site in due {
         let s = &state.sites[site.index()];
         if s.kind == SiteType::ResearchCenter {
             continue;
         }
+        // The strategy of the site (MA4); AI companies have none, the defaults are the
+        // rules' own values.
+        let st = strategy::for_site(catalog, state, id, site);
+        let (floor_factor, markup) = strategy::price_terms(catalog, st.price, rules_floor);
         let country = s.country;
         let mut commands = Vec::new();
         let mut need: BTreeMap<ProductId, f64> = BTreeMap::new();
@@ -1086,7 +1091,7 @@ fn operate(
                 let next = if wanted > 1e-9 {
                     // Make what is taken and steer the stock to its target (M16). The old
                     // steps of ±0.1 needed months to follow the demand.
-                    let target = b.stock_target_days * wanted;
+                    let target = st.stock.output_days * wanted;
                     let next = ((wanted + (target - stock) / b.stock_adjust_days) / full)
                         .clamp(b.utilization_min, 1.0);
                     if scarce {
@@ -1237,18 +1242,19 @@ fn operate(
             }
             let unit = daily.to_usd() / output + fixed / full.max(1e-9);
             let floor = Money::from_usd(unit * floor_factor).unwrap_or(Money::ZERO);
-            let keep = need.get(&product).copied().unwrap_or(0.0) * model.start.input_stock_days;
-            let old = match offer.mode {
-                PriceMode::Market { floor, .. } => floor,
+            let keep = need.get(&product).copied().unwrap_or(0.0) * st.stock.input_max_days;
+            let (old, old_markup) = match offer.mode {
+                PriceMode::Market { floor, markup } => (floor, markup),
                 PriceMode::Fixed(_) => continue,
             };
             let changed = (floor.to_usd() - old.to_usd()).abs() > 0.05 * old.to_usd().max(1e-9)
-                || (keep - offer.keep).abs() > 0.1 * offer.keep.max(1.0);
+                || (keep - offer.keep).abs() > 0.1 * offer.keep.max(1.0)
+                || markup != old_markup;
             if changed {
                 commands.push(Command::SetSale {
                     site,
                     product,
-                    mode: Some(PriceMode::Market { markup: 0.0, floor }),
+                    mode: Some(PriceMode::Market { markup, floor }),
                     keep,
                 });
             }
@@ -1279,12 +1285,19 @@ fn operate(
                 });
             }
         }
-        // Purchases keep a stock of the inputs; short inputs are bid up.
+        // Purchases keep a stock of the inputs; short inputs are bid up. Bids fall above
+        // the high mark, which moves with the strategy's reach (the ratio first: with the
+        // default reach it is exactly 1).
+        let high_days = if model.start.input_stock_days > 0.0 {
+            b.stock_high_days * (st.stock.input_max_days / model.start.input_stock_days)
+        } else {
+            b.stock_high_days
+        };
         for (&product, &per_day) in &need {
             if per_day <= 1e-9 {
                 continue;
             }
-            let target = per_day * model.start.input_stock_days;
+            let target = per_day * st.stock.input_max_days;
             let price = market::market_price(catalog, state, country, product);
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
             let normal = price.scale(1.0 + b.purchase_markup);
@@ -1301,12 +1314,12 @@ fn operate(
                 )
                 .max(normal);
             let max_price = match s.orders.get(&product) {
-                Some(o) if stock < per_day * b.stock_low_days => o
+                Some(o) if stock < per_day * st.stock.input_min_days => o
                     .max_price
                     .scale(1.0 + b.utilization_step)
                     .min(most)
                     .max(normal),
-                Some(o) if o.max_price > normal && stock >= per_day * b.stock_high_days => {
+                Some(o) if o.max_price > normal && stock >= per_day * high_days => {
                     normal.max(o.max_price.scale(1.0 - b.utilization_step))
                 }
                 Some(o) => o.max_price.min(most).max(normal),
@@ -1340,7 +1353,7 @@ fn operate(
             .slots
             .iter()
             .any(|sl| matches!(sl.limit, Some(Limit::Labor(_))));
-        let premium = next_wage_premium(catalog, s.wage_premium, short_of_staff);
+        let premium = next_wage_premium(catalog, s.wage_premium, short_of_staff, st.wages);
         if (premium - s.wage_premium).abs() > 1e-9 {
             commands.push(Command::SetWagePremium { site, premium });
         }
@@ -1453,15 +1466,21 @@ pub(crate) fn output_and_offtake(
 }
 
 /// Wage premium of a site after an operating decision (M18): a step up while facilities
-/// wait for workers, a step down otherwise.
-fn next_wage_premium(catalog: &Catalog, current: f64, short_of_staff: bool) -> f64 {
+/// wait for workers, a step down otherwise, within the bounds of the strategy (MA4; the
+/// default bounds are 0 and the rules' highest premium).
+fn next_wage_premium(
+    catalog: &Catalog,
+    current: f64,
+    short_of_staff: bool,
+    bounds: WageStrategy,
+) -> f64 {
     let b = &catalog.ai_model.behavior;
     if short_of_staff {
         (current + b.wage_premium_step)
-            .min(b.wage_premium_max)
-            .min(catalog.production_model.wage_premium_max)
+            .min(bounds.max)
+            .max(bounds.min)
     } else {
-        (current - b.wage_premium_step).max(0.0)
+        (current - b.wage_premium_step).max(bounds.min)
     }
 }
 
@@ -1486,6 +1505,11 @@ fn supply_own(
     }
     for &to in due {
         let s = &state.sites[to.index()];
+        // Make or buy (MA4): without deliveries the purchases buy on the market.
+        let supply = strategy::for_site(catalog, state, id, to).supply;
+        if supply == SupplyStrategy::Buy {
+            continue;
+        }
         for (&product, order) in &s.orders {
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
             let coming = underway.get(&(to, product)).copied().unwrap_or(0.0);
@@ -1493,12 +1517,20 @@ fn supply_own(
             if deficit <= 1e-9 {
                 continue;
             }
+            let market = (supply == SupplyStrategy::ByPrice)
+                .then(|| market::market_price(catalog, state, s.country, product));
             let mut sources: Vec<(bool, SiteId, f64)> = own
                 .iter()
                 .filter(|&&from| from != to)
                 .filter_map(|&from| {
                     let f = &state.sites[from.index()];
                     let offer = f.offers.get(&product)?;
+                    if let Some(market) = market
+                        && delivery_freight(catalog, state, product, (from, to))
+                            .is_none_or(|freight| offer.price + freight > market)
+                    {
+                        return None;
+                    }
                     let stock = f.inventory.get(&product).map_or(0.0, |x| x.quantity);
                     let used = taken.get(&(from, product)).copied().unwrap_or(0.0);
                     let free = stock - offer.keep - used;
@@ -1527,8 +1559,28 @@ fn supply_own(
     }
 }
 
+/// Freight per unit of a delivery between two of a company's sites, as `TransferGoods`
+/// books it; `None` without a route.
+fn delivery_freight(
+    catalog: &Catalog,
+    state: &GameState,
+    product: ProductId,
+    (from, to): (SiteId, SiteId),
+) -> Option<Money> {
+    let (a, b) = (&state.sites[from.index()], &state.sites[to.index()]);
+    if a.country == b.country {
+        return Some(Money::ZERO);
+    }
+    let sea = crate::plots::sea_freight(catalog, state, a)
+        .min(crate::plots::sea_freight(catalog, state, b));
+    state
+        .routes
+        .for_product_via(catalog, product, (a.country, b.country), sea)
+        .map(|(per_unit, _)| per_unit)
+}
+
 /// Running cost per day of a company's sites at their planned production.
-fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
+pub(crate) fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId]) -> Money {
     let mut total = Money::ZERO;
     for &site in sites {
         let s = &state.sites[site.index()];
@@ -3726,6 +3778,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         product_names: Default::default(),
         positions: Vec::new(),
         budget_rules: Vec::new(),
+        strategies: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3894,6 +3947,7 @@ mod tests {
             product_names: Default::default(),
             positions: Vec::new(),
             budget_rules: Vec::new(),
+            strategies: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,
@@ -4260,17 +4314,26 @@ mod tests {
     fn wage_premium_rises_while_short_of_staff_and_falls_back() {
         let catalog = test_support::production();
         let b = &catalog.ai_model.behavior;
+        let bounds = strategy::SiteStrategy::defaults(&catalog).wages;
         let mut premium = 0.0;
         for _ in 0..100 {
-            premium = next_wage_premium(&catalog, premium, true);
+            premium = next_wage_premium(&catalog, premium, true, bounds);
         }
         assert!((premium - b.wage_premium_max).abs() < 1e-9, "{premium}");
-        premium = next_wage_premium(&catalog, premium, false);
+        premium = next_wage_premium(&catalog, premium, false, bounds);
         assert!((premium - (b.wage_premium_max - b.wage_premium_step)).abs() < 1e-9);
         for _ in 0..100 {
-            premium = next_wage_premium(&catalog, premium, false);
+            premium = next_wage_premium(&catalog, premium, false, bounds);
         }
         assert_eq!(premium, 0.0);
+        // A strategy keeps the premium between its bounds (MA4).
+        let bounds = WageStrategy {
+            min: 0.1,
+            max: 0.15,
+        };
+        assert!((next_wage_premium(&catalog, 0.0, false, bounds) - 0.1).abs() < 1e-12);
+        assert!((next_wage_premium(&catalog, 0.0, true, bounds) - 0.1).abs() < 1e-12);
+        assert!((next_wage_premium(&catalog, 0.12, true, bounds) - 0.15).abs() < 1e-12);
     }
 
     /// M32: a bottleneck is built by a company that knows how to make it, even if it

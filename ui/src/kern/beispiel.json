@@ -175,6 +175,8 @@
             "site_kind_text": "standorttyp.werk",
             "site_result_usd": -207.7966,
             "status": "offen",
+            "strategy_limit_usd": null,
+            "strategy_scope": null,
             "topic": "ausbau"
           }
         ],
@@ -34131,6 +34133,480 @@
       "unit": "t",
       "unmet_last_month": 0.0
     }
+  },
+  "strategie": {
+    "enabled": true,
+    "limits": {
+      "min_margin_max": 2.0,
+      "reserve_months_max": 24.0,
+      "stock_days_max": 180.0,
+      "wage_premium_max": 1.0
+    },
+    "monthly_cost_usd": 30805.401,
+    "prices": [
+      {
+        "floor": 1.15,
+        "kind": "marktpreis",
+        "markup": 0.0
+      },
+      {
+        "floor": 1.35,
+        "kind": "premium",
+        "markup": 0.15
+      },
+      {
+        "floor": 0.95,
+        "kind": "kampfpreis",
+        "markup": -0.1
+      }
+    ],
+    "settings": 5,
+    "units": [
+      {
+        "continent": null,
+        "country": null,
+        "entries": [
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "preis",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Price": "Market"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "lager",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Stock": {
+                "input_max_days": 20.0,
+                "input_min_days": 7.0,
+                "output_days": 14.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "personal",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Wages": {
+                "max": 0.3,
+                "min": 0.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "eigenfertigung",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Supply": "OwnFirst"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "investition",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": null
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "reserve",
+            "left_usd": null,
+            "origin": "firma",
+            "own": true,
+            "reserve_usd": 30805.401,
+            "value": {
+              "Reserve": 1.0
+            }
+          }
+        ],
+        "key": "firma",
+        "kind_text": "ebene.firma",
+        "level": "firma",
+        "parent": null,
+        "site": null,
+        "sites": 1
+      },
+      {
+        "continent": "europa",
+        "country": null,
+        "entries": [
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "preis",
+            "left_usd": null,
+            "origin": "kontinent:europa",
+            "own": true,
+            "reserve_usd": null,
+            "value": {
+              "Price": "Premium"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "lager",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Stock": {
+                "input_max_days": 20.0,
+                "input_min_days": 7.0,
+                "output_days": 14.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "personal",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Wages": {
+                "max": 0.3,
+                "min": 0.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "eigenfertigung",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Supply": "OwnFirst"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "investition",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": null
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "reserve",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": 30805.401,
+            "value": {
+              "Reserve": 1.0
+            }
+          }
+        ],
+        "key": "kontinent:europa",
+        "kind_text": "ebene.kontinent",
+        "level": "kontinent",
+        "parent": "firma",
+        "site": null,
+        "sites": 1
+      },
+      {
+        "continent": null,
+        "country": "DEU",
+        "entries": [
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "preis",
+            "left_usd": null,
+            "origin": "kontinent:europa",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Price": "Premium"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "lager",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Stock": {
+                "input_max_days": 20.0,
+                "input_min_days": 7.0,
+                "output_days": 14.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "personal",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Wages": {
+                "max": 0.3,
+                "min": 0.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "eigenfertigung",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Supply": "OwnFirst"
+            }
+          },
+          {
+            "binding": "land:DEU",
+            "budget_usd": 2000000.0,
+            "carrier": null,
+            "field": "investition",
+            "left_usd": 2000000.0,
+            "origin": "land:DEU",
+            "own": true,
+            "reserve_usd": null,
+            "value": {
+              "Investment": 20000000000
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": null,
+            "field": "reserve",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": 30805.401,
+            "value": {
+              "Reserve": 1.0
+            }
+          }
+        ],
+        "key": "land:DEU",
+        "kind_text": "ebene.land",
+        "level": "land",
+        "parent": "kontinent:europa",
+        "site": null,
+        "sites": 1
+      },
+      {
+        "continent": null,
+        "country": "DEU",
+        "entries": [
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "preis",
+            "left_usd": null,
+            "origin": "kontinent:europa",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Price": "Premium"
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "lager",
+            "left_usd": null,
+            "origin": "standort:0",
+            "own": true,
+            "reserve_usd": null,
+            "value": {
+              "Stock": {
+                "input_max_days": 30.0,
+                "input_min_days": 10.0,
+                "output_days": 14.0
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "personal",
+            "left_usd": null,
+            "origin": "standort:0",
+            "own": true,
+            "reserve_usd": null,
+            "value": {
+              "Wages": {
+                "max": 0.25,
+                "min": 0.05
+              }
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "eigenfertigung",
+            "left_usd": null,
+            "origin": null,
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Supply": "OwnFirst"
+            }
+          },
+          {
+            "binding": "land:DEU",
+            "budget_usd": 2000000.0,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "investition",
+            "left_usd": 2000000.0,
+            "origin": "land:DEU",
+            "own": false,
+            "reserve_usd": null,
+            "value": {
+              "Investment": 20000000000
+            }
+          },
+          {
+            "binding": null,
+            "budget_usd": null,
+            "carrier": {
+              "manager": "Alain Moreau",
+              "position": {
+                "continent": null,
+                "country": "DEU",
+                "kind_text": "standorttyp.werk",
+                "level": "standort",
+                "role": "leitung",
+                "unit": "standort:0"
+              }
+            },
+            "field": "reserve",
+            "left_usd": null,
+            "origin": "firma",
+            "own": false,
+            "reserve_usd": 30805.401,
+            "value": {
+              "Reserve": 1.0
+            }
+          }
+        ],
+        "key": "standort:0",
+        "kind_text": "standorttyp.werk",
+        "level": "standort",
+        "parent": "land:DEU",
+        "site": 0,
+        "sites": 1
+      }
+    ]
   },
   "uebersicht": {
     "company": {

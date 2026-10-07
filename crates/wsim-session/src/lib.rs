@@ -23,8 +23,8 @@ use wsim_core::state::{AiSettings, ConcernStatus, GameSettings};
 use wsim_core::views::{
     self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, WorldMap,
-    WorldMarketView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, StrategyView,
+    WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -326,6 +326,11 @@ impl<S: SaveStore> Session<S> {
     /// The concerns of the player's positions (MA2).
     pub fn concerns(&self) -> Result<ConcernsView, MessageView> {
         self.view(views::concerns)
+    }
+
+    /// The strategies of the player's units, with their origins (MA4).
+    pub fn strategy(&self) -> Result<StrategyView, MessageView> {
+        self.view(views::strategy)
     }
 
     /// Candidates for a position of the player: `unit` is `standort:<Nummer>`,

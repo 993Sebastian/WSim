@@ -171,7 +171,14 @@ describe("Anliegen", () => {
       "forschen",
       "weiterentwickeln",
     ];
-    const gruende: Anliegen["reason"][] = ["entscheidung", "jahr", "immer", "kredit"];
+    const gruende: Anliegen["reason"][] = [
+      "entscheidung",
+      "jahr",
+      "immer",
+      "kredit",
+      "reserve",
+      "investition",
+    ];
     const ausgaenge: Anliegen["status"][] = [
       "offen",
       "gewaehlt",

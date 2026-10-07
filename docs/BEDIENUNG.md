@@ -221,12 +221,12 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
-### Organisation (MA1–MA3)
+### Organisation (MA1–MA4)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
-und was bleibt bei mir?“ Zwei Unterreiter: „Stellen“ und „Anliegen“ (mit Zähler der
-offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort). Der Reiter
-„Organisation“ trägt denselben Zähler.
+und was bleibt bei mir?“ Drei Unterreiter: „Stellen“, „Anliegen“ (mit Zähler der
+offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort) und „Strategie“.
+Der Reiter „Organisation“ trägt denselben Zähler.
 
 - **Organigramm:** Kopfzeile mit Zahl der Manager, Gehältern je Jahr und Bewerbern (ⓘ:
   wie Stellen arbeiten). Darunter Kontinent → Land → Standort; je Standort eine Karte mit
@@ -286,6 +286,24 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort). Der Reit
   Landesleitung (…)“). Ein strategisches Anliegen zeigt eine Tabelle „Standorte“ mit den
   Schritten, Beträgen und Prognosen je Standort; „Umsetzen“ oder „Entscheide selbst“ gilt
   für alle.
+- **Strategie (MA4):** Frage: „Welche Vorgabe gilt wo, woher stammt sie, und wer setzt sie
+  um?“ Hinweistext (ⓘ: Vererbung Standort → Land → Kontinent → Firma → Standard, Vorrang
+  eigener Entscheidungen, Wirkung der Fähigkeiten). Tabelle „Wo gilt was“: je Einheit
+  (Firma, Kontinent, Land, Standort, eingerückt) die sechs Felder Preis, Lager, Personal,
+  Eigenfertigung oder Zukauf, Investitionsbudget, Liquiditätsreserve – je Zelle der
+  geltende Wert (fett, wenn hier festgelegt) und darunter „hier festgelegt“, „von Europa“
+  oder „Standard“; „Bearbeiten“ wählt die Einheit. Darunter „Vorgaben: <Einheit>“ mit
+  Auswahlfeld der Einheit und sechs Karten (je ⓘ mit der Wirkung des Felds): „Gilt: …“ mit
+  Herkunft, an Standorten „Umgesetzt von: Werksleitung (Name)“ oder „Keine Stelle besetzt –
+  hier entscheidest du selbst“, beim Investitionsbudget der Rest des Jahres und welches
+  Budget bindet, bei der Reserve die laufenden Kosten im Monat. Eingaben je Feld
+  (Preisstrategie mit Untergrenze und Startaufschlag, Mindestmarge in %, Reichweiten in
+  Tagen, Lohnaufschlag in %, Lieferungen, Budget in der angezeigten Währung, Reserve in
+  Monaten), „Hier festlegen“ und – bei eigener Vorgabe – „Vorgabe hier entfernen“ (bei der
+  Firma „Auf Standard zurücksetzen“). Werte außerhalb der Grenzen meldet die Karte vor dem
+  Senden.
+- **Anliegen wegen Vorgaben (MA4):** „Danach läge die Kasse unter der Liquiditätsreserve
+  (…)“ oder „Das Investitionsbudget (Deutschland) reicht nicht mehr (übrig: …)“.
 - **Anhalten:** Im Menü (☰) „Bei Anliegen anhalten: bei allen / bei wichtigen / nie“
   (Vorgabe: bei wichtigen; im Browser gemerkt). „Bis Jahresende“ und „bis zur nächsten
   Meldung“ halten danach an („Angehalten wegen eines Anliegens deiner Manager“).

@@ -1,0 +1,549 @@
+// Strategies (MA4, docs/BEDIENUNG.md): what the managers follow on every level. "Which
+// rule holds here, where does it come from, and who carries it out?"
+import { useId, useState, type FormEvent, type ReactNode } from "react";
+import {
+  ausAnzeige,
+  formatGeld,
+  formatProzent,
+  formatZahl,
+  geldEinheit,
+  inAnzeige,
+  landName,
+  zahlFeld,
+  zahlLesen,
+} from "../format";
+import {
+  geld,
+  type Geltung,
+  type Kern,
+  type Preisstrategie,
+  type Strategie,
+  type Bezugsweg,
+  type Vorgabe,
+  type VorgabeEinheit,
+  type VorgabeEintrag,
+  type Vorgabefeld,
+} from "../kern";
+import { t } from "../texte";
+import { FehlerText } from "./Dialog";
+import { Erklaerung, Rueckmeldung, ZahlFeld, useAktion, useSicht } from "./gemeinsam";
+import { einheitName, stellenName } from "./stellen";
+
+type Feld = VorgabeEintrag["field"];
+
+const FELDER: Record<Feld, Vorgabefeld> = {
+  preis: "Price",
+  lager: "Stock",
+  personal: "Wages",
+  eigenfertigung: "Supply",
+  investition: "Investment",
+  reserve: "Reserve",
+};
+
+const PREISE: Record<Exclude<Preisstrategie, { MinMargin: number }>, string> = {
+  Market: "marktpreis",
+  Premium: "premium",
+  Fight: "kampfpreis",
+};
+
+/** The levels from the top, for the indentation of the units. */
+const EBENEN: VorgabeEinheit["level"][] = ["firma", "kontinent", "land", "standort"];
+
+const VERSORGUNGEN: Record<Bezugsweg, string> = {
+  OwnFirst: "eigene",
+  ByPrice: "preis",
+  Buy: "zukauf",
+};
+
+function grundTitel(e: VorgabeEinheit): string {
+  if (e.level === "firma") return t("ebene.firma");
+  if (e.level === "kontinent") return t(`kontinent.${e.continent ?? ""}`);
+  if (e.level === "land") return landName(e.country ?? "");
+  return einheitName(e);
+}
+
+/**
+ * "Firma", "Europa", "Deutschland", "Werk · Deutschland"; several sites of the same name
+ * are numbered in their order ("Werk · Deutschland (2)").
+ */
+export function einheitTitel(e: VorgabeEinheit, daten: Strategie): string {
+  const titel = grundTitel(e);
+  if (e.level !== "standort") return titel;
+  const gleich = daten.units.filter((u) => u.level === "standort" && grundTitel(u) === titel);
+  return gleich.length > 1 ? `${titel} (${gleich.findIndex((u) => u.key === e.key) + 1})` : titel;
+}
+
+/** The scope of a unit as `SetStrategy` takes it. */
+function geltung(e: VorgabeEinheit): Geltung {
+  if (e.level === "kontinent") return { Continent: e.continent ?? "" };
+  if (e.level === "land") return { Country: e.country ?? "" };
+  if (e.level === "standort") return { Site: e.site ?? 0 };
+  return "Company";
+}
+
+/** The value that holds, as text. */
+export function wertText(e: VorgabeEintrag): string {
+  const v = e.value;
+  if (!v) return t("strategie.investition.ohne");
+  if ("Price" in v) {
+    const p = v.Price;
+    return typeof p === "string"
+      ? t(`strategie.preis.${PREISE[p]}`)
+      : t("strategie.preis.mindestmarge_wert", { marge: formatProzent(p.MinMargin) });
+  }
+  if ("Stock" in v) {
+    return t("strategie.lager.wert", {
+      min: formatZahl(v.Stock.input_min_days, 1),
+      max: formatZahl(v.Stock.input_max_days, 1),
+      ziel: formatZahl(v.Stock.output_days, 1),
+    });
+  }
+  if ("Wages" in v) {
+    return t("strategie.personal.wert", {
+      min: formatProzent(v.Wages.min),
+      max: formatProzent(v.Wages.max),
+    });
+  }
+  if ("Supply" in v) return t(`strategie.versorgung.${VERSORGUNGEN[v.Supply]}`);
+  if ("Investment" in v) {
+    return t("strategie.investition.wert", { betrag: formatGeld(e.budget_usd ?? 0) });
+  }
+  if (v.Reserve <= 0) return t("strategie.reserve.keine");
+  return t(v.Reserve === 1 ? "strategie.reserve.wert_eins" : "strategie.reserve.wert", {
+    monate: formatZahl(v.Reserve, 1),
+    betrag: formatGeld(e.reserve_usd ?? 0),
+  });
+}
+
+/** Where a value comes from: "hier festgelegt", "von Europa", "Standard". */
+function herkunft(e: VorgabeEintrag, daten: Strategie): string {
+  if (e.own) return t("strategie.hier");
+  if (!e.origin) return t("strategie.standard");
+  const von = daten.units.find((u) => u.key === e.origin);
+  return t("strategie.von", { wo: von ? einheitTitel(von, daten) : e.origin });
+}
+
+/** The position that carries a strategy out at a site, with its manager. */
+function traeger(e: VorgabeEintrag): string {
+  if (!e.carrier) return t("strategie.niemand");
+  const p = e.carrier.position;
+  const stelle = stellenName(p.role, p.kind_text);
+  const wo = p.level === "standort" ? "" : ` · ${einheitName(p)}`;
+  return t("strategie.umgesetzt_von", { stelle: `${stelle}${wo} (${e.carrier.manager})` });
+}
+
+/** All units with the value of every field and where it comes from. */
+function Uebersicht({
+  daten,
+  auswahl,
+  onWahl,
+}: {
+  daten: Strategie;
+  auswahl: string;
+  onWahl: (key: string) => void;
+}) {
+  const felder = daten.units[0]?.entries.map((e) => e.field) ?? [];
+  return (
+    <div className="tabelle">
+      <table className="mobil-karten strategie-tabelle" aria-label={t("strategie.uebersicht")}>
+        <thead>
+          <tr>
+            <th>{t("strategie.einheit")}</th>
+            {felder.map((f) => (
+              <th key={f}>{t(`strategie.feld.${f}`)}</th>
+            ))}
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {daten.units.map((u) => (
+            <tr key={u.key} className={u.key === auswahl ? "gewaehlt" : undefined}>
+              <td className={`ebene-${u.level}`}>{einheitTitel(u, daten)}</td>
+              {u.entries.map((e) => (
+                <td key={e.field} data-spalte={t(`strategie.feld.${e.field}`)}>
+                  <span className={e.own ? "eigen" : "geerbt"}>{wertText(e)}</span>
+                  <small className="feld-hilfe">{herkunft(e, daten)}</small>
+                </td>
+              ))}
+              <td>
+                <button
+                  type="button"
+                  className="schlicht"
+                  aria-label={`${t("strategie.bearbeiten")}: ${einheitTitel(u, daten)}`}
+                  onClick={() => onWahl(u.key)}
+                >
+                  {t("strategie.bearbeiten")}
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The input of one field: its form fields and the value they make (null: invalid). */
+interface Eingabe {
+  felder: ReactNode;
+  wert: () => Vorgabe | null;
+  grenzen: string;
+}
+
+function usePreis(e: VorgabeEintrag, daten: Strategie, id: string): Eingabe {
+  const start = e.value && "Price" in e.value ? e.value.Price : "Market";
+  const [art, setArt] = useState(typeof start === "string" ? PREISE[start] : "mindestmarge");
+  const [marge, setMarge] = useState(
+    typeof start === "string" ? "" : zahlFeld(start.MinMargin * 100, 1),
+  );
+  const max = daten.limits.min_margin_max;
+  const preis = daten.prices.find((p) => p.kind === art);
+  return {
+    felder: (
+      <>
+        <div className="feld">
+          <label htmlFor={`${id}-art`}>{t("strategie.preis.art")}</label>
+          <select id={`${id}-art`} value={art} onChange={(ev) => setArt(ev.target.value)}>
+            {["marktpreis", "premium", "kampfpreis", "mindestmarge"].map((k) => (
+              <option key={k} value={k}>
+                {t(`strategie.preis.${k}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+        {art === "mindestmarge" && (
+          <ZahlFeld
+            name={t("strategie.preis.marge")}
+            einheit="%"
+            wert={marge}
+            onWert={setMarge}
+            gruppieren={false}
+          />
+        )}
+        {preis && (
+          <p className="feld-hilfe">
+            {t("strategie.preis.erklaerung", {
+              untergrenze: formatProzent(preis.floor),
+              start:
+                preis.markup >= 0
+                  ? `+${formatProzent(preis.markup)}`
+                  : `−${formatProzent(-preis.markup)}`,
+            })}
+          </p>
+        )}
+      </>
+    ),
+    wert: () => {
+      if (art !== "mindestmarge") {
+        const p = (Object.keys(PREISE) as (keyof typeof PREISE)[]).find((k) => PREISE[k] === art);
+        return p ? { Price: p } : null;
+      }
+      const m = zahlLesen(marge);
+      return m === null || m < 0 || m / 100 > max ? null : { Price: { MinMargin: m / 100 } };
+    },
+    grenzen: t("strategie.grenzen.preis", { max: formatProzent(max) }),
+  };
+}
+
+function useLager(e: VorgabeEintrag, daten: Strategie): Eingabe {
+  const start = e.value && "Stock" in e.value ? e.value.Stock : null;
+  const feld = (tage: number | undefined) => (tage === undefined ? "" : zahlFeld(tage, 1));
+  const [min, setMin] = useState(feld(start?.input_min_days));
+  const [max, setMax] = useState(feld(start?.input_max_days));
+  const [ziel, setZiel] = useState(feld(start?.output_days));
+  const grenze = daten.limits.stock_days_max;
+  const tage = t("strategie.lager.tage");
+  return {
+    felder: (
+      <>
+        <ZahlFeld
+          name={t("strategie.lager.min")}
+          einheit={tage}
+          wert={min}
+          onWert={setMin}
+          gruppieren={false}
+        />
+        <ZahlFeld
+          name={t("strategie.lager.max")}
+          einheit={tage}
+          wert={max}
+          onWert={setMax}
+          gruppieren={false}
+        />
+        <ZahlFeld
+          name={t("strategie.lager.ziel")}
+          einheit={tage}
+          wert={ziel}
+          onWert={setZiel}
+          gruppieren={false}
+        />
+      </>
+    ),
+    wert: () => {
+      const [a, b, z] = [zahlLesen(min), zahlLesen(max), zahlLesen(ziel)];
+      if (a === null || b === null || z === null) return null;
+      if (a <= 0 || a > b || b > grenze || z < 0 || z > grenze) return null;
+      return { Stock: { input_min_days: a, input_max_days: b, output_days: z } };
+    },
+    grenzen: t("strategie.grenzen.lager", { max: formatZahl(grenze) }),
+  };
+}
+
+function usePersonal(e: VorgabeEintrag, daten: Strategie): Eingabe {
+  const start = e.value && "Wages" in e.value ? e.value.Wages : null;
+  const feld = (anteil: number | undefined) =>
+    anteil === undefined ? "" : zahlFeld(anteil * 100, 1);
+  const [min, setMin] = useState(feld(start?.min));
+  const [max, setMax] = useState(feld(start?.max));
+  const grenze = daten.limits.wage_premium_max;
+  return {
+    felder: (
+      <>
+        <ZahlFeld
+          name={t("strategie.personal.min")}
+          einheit="%"
+          wert={min}
+          onWert={setMin}
+          gruppieren={false}
+        />
+        <ZahlFeld
+          name={t("strategie.personal.max")}
+          einheit="%"
+          wert={max}
+          onWert={setMax}
+          gruppieren={false}
+        />
+      </>
+    ),
+    wert: () => {
+      const [a, b] = [zahlLesen(min), zahlLesen(max)];
+      if (a === null || b === null) return null;
+      if (a < 0 || a > b || b / 100 > grenze) return null;
+      return { Wages: { min: a / 100, max: b / 100 } };
+    },
+    grenzen: t("strategie.grenzen.personal", { max: formatProzent(grenze) }),
+  };
+}
+
+function useVersorgung(e: VorgabeEintrag, id: string): Eingabe {
+  const start = e.value && "Supply" in e.value ? e.value.Supply : "OwnFirst";
+  const [art, setArt] = useState<Bezugsweg>(start);
+  return {
+    felder: (
+      <div className="feld">
+        <label htmlFor={`${id}-art`}>{t("strategie.versorgung.art")}</label>
+        <select
+          id={`${id}-art`}
+          value={art}
+          onChange={(ev) => setArt(ev.target.value as Bezugsweg)}
+        >
+          {(Object.keys(VERSORGUNGEN) as Bezugsweg[]).map((k) => (
+            <option key={k} value={k}>
+              {t(`strategie.versorgung.${VERSORGUNGEN[k]}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+    ),
+    wert: () => ({ Supply: art }),
+    grenzen: "",
+  };
+}
+
+function useInvestition(e: VorgabeEintrag): Eingabe {
+  const [betrag, setBetrag] = useState(
+    e.budget_usd === null ? "" : zahlFeld(inAnzeige(e.budget_usd), 0),
+  );
+  return {
+    felder: (
+      <ZahlFeld
+        name={t("strategie.investition.betrag")}
+        einheit={geldEinheit()}
+        wert={betrag}
+        onWert={setBetrag}
+        breit
+      />
+    ),
+    wert: () => {
+      const b = zahlLesen(betrag);
+      return b === null || b < 0 ? null : { Investment: geld(ausAnzeige(b)) };
+    },
+    grenzen: t("strategie.grenzen.investition"),
+  };
+}
+
+function useReserve(e: VorgabeEintrag, daten: Strategie): Eingabe {
+  const start = e.value && "Reserve" in e.value ? e.value.Reserve : null;
+  const [monate, setMonate] = useState(start === null ? "" : zahlFeld(start, 1));
+  const grenze = daten.limits.reserve_months_max;
+  return {
+    felder: (
+      <ZahlFeld
+        name={t("strategie.reserve.monate")}
+        einheit={t("strategie.reserve.einheit")}
+        wert={monate}
+        onWert={setMonate}
+        gruppieren={false}
+        hilfe={t("strategie.reserve.hilfe", { betrag: formatGeld(daten.monthly_cost_usd) })}
+      />
+    ),
+    wert: () => {
+      const m = zahlLesen(monate);
+      return m === null || m < 0 || m > grenze ? null : { Reserve: m };
+    },
+    grenzen: t("strategie.grenzen.reserve", { max: formatZahl(grenze) }),
+  };
+}
+
+interface KarteDaten {
+  e: VorgabeEintrag;
+  einheit: VorgabeEinheit;
+  daten: Strategie;
+}
+
+// One component per field, each with its own inputs.
+function PreisKarte(p: KarteDaten) {
+  const id = useId();
+  return <FeldKarte {...p} eingabe={usePreis(p.e, p.daten, id)} />;
+}
+function LagerKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={useLager(p.e, p.daten)} />;
+}
+function PersonalKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={usePersonal(p.e, p.daten)} />;
+}
+function VersorgungKarte(p: KarteDaten) {
+  const id = useId();
+  return <FeldKarte {...p} eingabe={useVersorgung(p.e, id)} />;
+}
+function InvestitionKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={useInvestition(p.e)} />;
+}
+function ReserveKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={useReserve(p.e, p.daten)} />;
+}
+
+const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
+  preis: PreisKarte,
+  lager: LagerKarte,
+  personal: PersonalKarte,
+  eigenfertigung: VersorgungKarte,
+  investition: InvestitionKarte,
+  reserve: ReserveKarte,
+};
+
+/** Name of the unit a budget is set for: "ganze Firma", "Europa" … */
+function budgetOrt(daten: Strategie, key: string | null, sonst: VorgabeEinheit): string {
+  const u = daten.units.find((x) => x.key === key) ?? sonst;
+  return u.level === "firma" ? t("strategie.ganze_firma") : einheitTitel(u, daten);
+}
+
+/** One field of the chosen unit: what holds, where from, who follows it, and a form. */
+function FeldKarte({ e, einheit, daten, eingabe }: KarteDaten & { eingabe: Eingabe }) {
+  const { los, antwort } = useAktion(`strategie:${e.field}`);
+  const [fehler, setFehler] = useState<string | null>(null);
+  const feld = t(`strategie.feld.${e.field}`);
+  const name = einheitTitel(einheit, daten);
+  const senden = (value: Vorgabe | null, erfolg: string) =>
+    void los([{ SetStrategy: { scope: geltung(einheit), field: FELDER[e.field], value } }], erfolg);
+  const festlegen = (ev: FormEvent) => {
+    ev.preventDefault();
+    const wert = eingabe.wert();
+    if (!wert) {
+      setFehler(eingabe.grenzen);
+      return;
+    }
+    setFehler(null);
+    senden(wert, t("strategie.gesetzt", { feld, einheit: name }));
+  };
+  return (
+    <form className="karte" aria-label={`${feld}: ${name}`} onSubmit={festlegen}>
+      <h3>
+        {feld}{" "}
+        <Erklaerung wert={feld}>
+          <p>{t(`strategie.feldhilfe.${e.field}`)}</p>
+        </Erklaerung>
+      </h3>
+      <p>
+        <strong>{t("strategie.gilt", { wert: wertText(e) })}</strong> · {herkunft(e, daten)}
+      </p>
+      {e.field === "investition" && e.left_usd !== null && (
+        <p className="feld-hilfe">
+          {t("strategie.investition.rest", {
+            rest: formatGeld(e.left_usd),
+            wo: budgetOrt(daten, e.binding, einheit),
+          })}
+        </p>
+      )}
+      {einheit.level === "standort" && <p className="feld-hilfe">{traeger(e)}</p>}
+      <div className="formular-zeile">{eingabe.felder}</div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <div className="knopfreihe links">
+        <button type="submit">{t("strategie.festlegen")}</button>
+        {e.own && (
+          <button
+            type="button"
+            className="schlicht"
+            onClick={() => senden(null, t("strategie.entfernt", { feld, einheit: name }))}
+          >
+            {einheit.level === "firma" ? t("strategie.zuruecksetzen") : t("strategie.entfernen")}
+          </button>
+        )}
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/**
+ * The strategies of the company (MA4): an overview of every unit, then the fields of the
+ * chosen unit to set or remove.
+ */
+export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string }) {
+  const { daten, fehler } = useSicht(() => kern.strategie(), stand);
+  const [auswahl, setAuswahl] = useState("firma");
+  const auswahlId = useId();
+  if (!daten) return <FehlerText fehler={fehler} />;
+  if (!daten.enabled) return <p>{t("organisation.aus")}</p>;
+  const einheit = daten.units.find((u) => u.key === auswahl) ?? daten.units[0];
+  if (!einheit) return null;
+  return (
+    <section aria-label={t("strategie.titel")}>
+      <p className="feld-hilfe">
+        {t("strategie.hilfe")}{" "}
+        <Erklaerung wert={t("strategie.titel")}>
+          <p>{t("strategie.erklaerung")}</p>
+        </Erklaerung>
+      </p>
+      <Uebersicht daten={daten} auswahl={einheit.key} onWahl={setAuswahl} />
+      <section aria-label={t("strategie.vorgaben_fuer", { einheit: einheitTitel(einheit, daten) })}>
+        <div className="werk-kopf">
+          <h2>{t("strategie.vorgaben_fuer", { einheit: einheitTitel(einheit, daten) })}</h2>
+          <div className="feld">
+            <label htmlFor={auswahlId}>{t("strategie.einheit")}</label>
+            <select id={auswahlId} value={einheit.key} onChange={(e) => setAuswahl(e.target.value)}>
+              {daten.units.map((u) => (
+                <option key={u.key} value={u.key}>
+                  {`${"\u00a0".repeat(2 * EBENEN.indexOf(u.level))}${einheitTitel(u, daten)}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <p className="feld-hilfe">
+          {einheit.level === "firma" ? t("strategie.vererbung_firma") : t("strategie.vererbung")}{" "}
+          {einheit.level !== "standort" &&
+            t("strategie.standorte", { anzahl: formatZahl(einheit.sites) })}
+        </p>
+        <div className="vorgaben-karten">
+          {einheit.entries.map((e) => {
+            const Karte = KARTEN[e.field];
+            return (
+              <Karte key={`${einheit.key}/${e.field}`} e={e} einheit={einheit} daten={daten} />
+            );
+          })}
+        </div>
+      </section>
+    </section>
+  );
+}

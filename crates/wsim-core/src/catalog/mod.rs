@@ -80,6 +80,7 @@ pub struct ManagementModel {
     /// Least budget in yearly salaries of the manager: per decision, per year.
     pub budget_floor: (f64, f64),
     pub concerns: ConcernModel,
+    pub strategy: StrategyModel,
     /// Less expertise for a head doing the work of a missing specialist.
     pub head_discount: f64,
     /// Chance that a position without any diligence notices a situation (0–1).
@@ -152,6 +153,19 @@ pub struct ConcernModel {
     /// From this many alike concerns of different sites on a day the position above
     /// asks once (MA3).
     pub bundle_from: u32,
+}
+
+/// Strategies the player sets for the managers (MA4, docs/FORMELN.md).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct StrategyModel {
+    /// Price floor on the full unit cost and markup an offer starts at on the market
+    /// price: premium and fighting price.
+    pub premium: (f64, f64),
+    pub fight: (f64, f64),
+    /// Largest settings: margin on the full cost, stock days, reserve in months.
+    pub min_margin_max: f64,
+    pub stock_days_max: f64,
+    pub reserve_months_max: f64,
 }
 
 /// Candidates per continent (MA1).

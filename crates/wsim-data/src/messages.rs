@@ -479,6 +479,12 @@ pub fn management_budget_order(decision: f64, year: f64) -> String {
     )
 }
 
+pub fn management_stock_days_max(max: f64, needed: f64) -> String {
+    format!(
+        "`lager_tage_max` ({max}) liegt unter den Lagertagen der KI ({needed}); ihre Werte sind die Standardwerte der Vorgabe „Lager“ und müssen sich einstellen lassen."
+    )
+}
+
 pub fn list_empty() -> String {
     "Die Liste darf nicht leer sein.".into()
 }

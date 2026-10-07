@@ -828,6 +828,26 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   expect(await page.evaluate(() => localStorage.getItem("wsim-anhalten"))).toBe("alle");
 });
 
+test("Vorgaben je Ebene in der Strategie", async ({ page }) => {
+  await starten(page);
+  await page.keyboard.press("7");
+  const reiter = page.getByRole("navigation", { name: "Organisation" });
+  await reiter.getByRole("button", { name: "Strategie" }).click();
+  const tabelle = page.getByRole("table", { name: "Wo gilt was" });
+  await expect(tabelle).toContainText("Premium");
+  await expect(tabelle).toContainText("von Europa");
+  await expect(tabelle).toContainText("hier festgelegt");
+  await page.getByRole("button", { name: "Bearbeiten: Deutschland" }).click();
+  const preis = page.getByRole("form", { name: "Preis: Deutschland" });
+  await expect(preis).toContainText("Gilt: Premium · von Europa");
+  await preis.getByLabel("Preisstrategie").selectOption("kampfpreis");
+  await preis.getByRole("button", { name: "Hier festlegen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    SetStrategy: { scope: { Country: "DEU" }, field: "Price", value: { Price: "Fight" } },
+  });
+  await bild(page, "strategie");
+});
+
 test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
   await starten(page);
   await page.getByLabel("Rundenlänge").selectOption("jahresende");

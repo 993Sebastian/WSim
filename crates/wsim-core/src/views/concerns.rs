@@ -18,6 +18,7 @@ use crate::money::Money;
 use crate::state::{
     Concern, ConcernReason, ConcernStatus, GameState, Position, PriceMode, SiteId, Slot, Unit,
 };
+use crate::strategy;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernOptionView {
@@ -96,6 +97,11 @@ pub struct ConcernView {
     /// What the position may spend on one decision, and what is left of its year.
     pub per_decision_usd: f64,
     pub left_usd: f64,
+    /// For the reasons `reserve` and `investition` (MA4): the liquidity reserve, or what
+    /// is left of the investment budget that binds first and where it is set
+    /// (`firma`, `land:DEU` …).
+    pub strategy_limit_usd: Option<f64>,
+    pub strategy_scope: Option<String>,
     /// Mean monthly result of the site in the last closed months.
     pub site_result_usd: Option<f64>,
     pub created: String,
@@ -150,6 +156,8 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Year => "jahr",
         ConcernReason::Always => "immer",
         ConcernReason::Finance => "kredit",
+        ConcernReason::Reserve => "reserve",
+        ConcernReason::Investment => "investition",
     }
 }
 
@@ -334,7 +342,11 @@ fn because(c: &Concern) -> Message {
 }
 
 /// A position as concerns show it.
-fn position_view(catalog: &Catalog, state: &GameState, p: &Position) -> ConcernPositionView {
+pub(super) fn position_view(
+    catalog: &Catalog,
+    state: &GameState,
+    p: &Position,
+) -> ConcernPositionView {
     let (level, kind_text, country, continent) = match p.unit {
         Unit::Site(s) => {
             let site = &state.sites[s.index()];
@@ -379,6 +391,38 @@ fn option_view(
     }
 }
 
+/// The limit of the strategy a concern ran into (MA4): the reserve, or the investment
+/// budget that binds first at its place.
+fn strategy_limit(
+    catalog: &Catalog,
+    state: &GameState,
+    c: &Concern,
+) -> (Option<Money>, Option<String>) {
+    let place = management::place_of(state, &c.decision).or_else(|| {
+        c.parts
+            .first()
+            .and_then(|p| management::place_of(state, &p.decision))
+    });
+    let Some(place) = place else {
+        return (None, None);
+    };
+    match c.reason {
+        ConcernReason::Reserve => {
+            let months = strategy::reserve_months(catalog, state, c.company, place);
+            let reserve = strategy::monthly_cost(catalog, state, c.company).scale(months);
+            (Some(reserve), None)
+        }
+        ConcernReason::Investment => {
+            let budgets =
+                strategy::investment_budgets(catalog, state, c.company, place, state.date.year());
+            strategy::binding_budget(&budgets).map_or((None, None), |b| {
+                (Some(b.left), Some(super::scope_key(catalog, b.scope)))
+            })
+        }
+        _ => (None, None),
+    }
+}
+
 fn concern_view(game: &Game, c: &Concern) -> ConcernView {
     let catalog = game.catalog();
     let state = game.state();
@@ -391,6 +435,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         .map_or(Money::ZERO, |j| j.salary);
     let (per_decision, per_year) = management::budget(catalog, state, c.company, asker, salary);
     let left = (per_year - management::spent(state, c.company, asker)).max(Money::ZERO);
+    let (strategy_limit, strategy_scope) = strategy_limit(catalog, state, c);
     let options = c
         .decision
         .choices
@@ -455,6 +500,8 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         because: message_view(&because(c)),
         per_decision_usd: usd(per_decision),
         left_usd: usd(left),
+        strategy_limit_usd: strategy_limit.map(usd),
+        strategy_scope,
         site_result_usd: c
             .decision
             .site

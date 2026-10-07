@@ -538,7 +538,7 @@ pub fn power() -> Catalog {
 pub fn management() -> Catalog {
     use super::{
         ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-        NameGroup, SiteType, SkillModel,
+        NameGroup, SiteType, SkillModel, StrategyModel,
     };
     use crate::decision::Topic;
 
@@ -630,6 +630,13 @@ pub fn management() -> Catalog {
             estimate_error: 0.5,
             recommend_base: 0.5,
             bundle_from: 3,
+        },
+        strategy: StrategyModel {
+            premium: (1.35, 0.15),
+            fight: (0.95, -0.1),
+            min_margin_max: 2.0,
+            stock_days_max: 180.0,
+            reserve_months_max: 24.0,
         },
         head_discount: 0.2,
         notice_base: 0.5,

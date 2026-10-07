@@ -69,6 +69,18 @@ management:
     empfehlung_grund: 0.5
     buendel_ab: 3
 
+  # Strategievorgaben (MA4): Premium und Kampfpreis setzen die Preisuntergrenze als
+  # Vielfaches der Vollkosten je Stück und den Aufschlag, mit dem ein Angebot auf den
+  # Marktpreis startet („Marktpreis“ nimmt die Untergrenze der Regeln). Dazu die größten
+  # Werte, die sich einstellen lassen: Mindestmarge auf die Vollkosten, Reichweiten des
+  # Lagers in Tagen, Liquiditätsreserve in Monaten laufender Kosten.
+  strategie:
+    premium: {untergrenze: 1.35, aufschlag: 0.15}
+    kampfpreis: {untergrenze: 0.95, aufschlag: -0.1}
+    mindestmarge_max: 2
+    lager_tage_max: 180
+    liquiditaet_monate_max: 24
+
   # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
   standorttypen:
     werk: [produktion, einkauf_lager, vertrieb_marketing, personal, logistik]

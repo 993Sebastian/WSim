@@ -13,11 +13,11 @@ use crate::money::Money;
 use crate::save;
 use crate::state::{GameSettings, ManagerId, Position, Role, SiteId, StartForm, Unit};
 
-fn usd(v: f64) -> Money {
+pub(crate) fn usd(v: f64) -> Money {
     Money::from_usd(v).unwrap()
 }
 
-fn new_game(catalog: Catalog) -> Game {
+pub(crate) fn new_game(catalog: Catalog) -> Game {
     let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 7,
@@ -33,13 +33,13 @@ fn new_game(catalog: Catalog) -> Game {
     Game::new(catalog, settings).unwrap()
 }
 
-fn days(game: &mut Game, n: u32) {
+pub(crate) fn days(game: &mut Game, n: u32) {
     for _ in 0..n {
         game.advance(RoundLength::Day, |_| {});
     }
 }
 
-fn found(game: &mut Game, kind: SiteType) -> SiteId {
+pub(crate) fn found(game: &mut Game, kind: SiteType) -> SiteId {
     let aaa = game.catalog().countries.id("AAA").unwrap();
     game.apply(Command::FoundSite { country: aaa, kind })
         .unwrap();
@@ -48,7 +48,7 @@ fn found(game: &mut Game, kind: SiteType) -> SiteId {
 
 /// A mine producing ore (as the player sets it up) and a works with a furnace on which
 /// nobody chose a recipe yet.
-fn mine_and_works(game: &mut Game) -> (SiteId, SiteId) {
+pub(crate) fn mine_and_works(game: &mut Game) -> (SiteId, SiteId) {
     let c = game.catalog().clone();
     let mine = found(game, SiteType::Extraction);
     game.apply(Command::BuildFacility {
@@ -82,7 +82,7 @@ fn mine_and_works(game: &mut Game) -> (SiteId, SiteId) {
 }
 
 /// Free candidates, in ID order.
-fn free(game: &Game) -> Vec<ManagerId> {
+pub(crate) fn free(game: &Game) -> Vec<ManagerId> {
     game.state()
         .managers
         .iter()
@@ -91,11 +91,11 @@ fn free(game: &Game) -> Vec<ManagerId> {
         .collect()
 }
 
-fn head(site: SiteId) -> Position {
+pub(crate) fn head(site: SiteId) -> Position {
     Position::at_site(site, Role::Head)
 }
 
-fn specialist(site: SiteId, function: &str) -> Position {
+pub(crate) fn specialist(site: SiteId, function: &str) -> Position {
     Position::at_site(site, Role::Specialist(function.into()))
 }
 
@@ -426,7 +426,7 @@ fn skills_show_in_five_levels() {
 
 /// A works with three furnaces for a market that takes a small part of their iron, with
 /// ore for months and a head who notices everything and judges well.
-fn weak_works(catalog: Catalog) -> (Game, SiteId, ManagerId) {
+pub(crate) fn weak_works(catalog: Catalog) -> (Game, SiteId, ManagerId) {
     let mut game = new_game(catalog);
     let (mine, works) = mine_and_works(&mut game);
     let c = game.catalog().clone();
@@ -498,14 +498,14 @@ fn mothballed(game: &Game, works: SiteId) -> u32 {
 }
 
 /// Advances to the last day of March and through it (the end of the quarter).
-fn through_quarter_end(game: &mut Game) {
+pub(crate) fn through_quarter_end(game: &mut Game) {
     while game.date() < Date::new(1900, 4, 1).unwrap() {
         days(game, 1);
     }
 }
 
 /// Cheap furnaces: shutting two down stays within the floor of the budget.
-fn cheap_furnaces() -> Catalog {
+pub(crate) fn cheap_furnaces() -> Catalog {
     let mut c = test_support::management();
     let ofen = c.facilities.id("ofen").unwrap();
     c.facilities.get_mut(ofen).investment = usd(1_000.0);
@@ -1010,13 +1010,13 @@ fn games_with_concerns_load_identically() {
 // MA3: countries and continents.
 
 /// The head of the player's company in the test country.
-fn country_head(game: &Game) -> Position {
+pub(crate) fn country_head(game: &Game) -> Position {
     let aaa = game.catalog().countries.id("AAA").unwrap();
     Position::new(Unit::Country(aaa), Role::Head)
 }
 
 /// Hires a free candidate who notices and judges everything for a position.
-fn hire_sharp(game: &mut Game, position: Position) -> ManagerId {
+pub(crate) fn hire_sharp(game: &mut Game, position: Position) -> ManagerId {
     let id = free(game)[0];
     game.apply(Command::HireManager {
         manager: id,

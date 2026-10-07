@@ -1042,6 +1042,7 @@ organisation.versetzt: "{name} ist jetzt {stelle} ({standort})."
 organisation.fach_der_stelle: Fachkompetenz der Stelle
 organisation.reiter_stellen: Stellen
 organisation.reiter_anliegen: Anliegen
+organisation.reiter_strategie: Strategie
 organisation.budget_kurz: "Budget {entscheidung} je Entscheidung, {jahr} im Jahr"
 organisation.budget_immer: fragt bei jeder Ausgabe
 organisation.budget_titel: "Budget: {stelle}"
@@ -1086,6 +1087,8 @@ anliegen.grund.entscheidung: "Kostet mehr als das Budget je Entscheidung ({budge
 anliegen.grund.jahr: "Das Budget dieses Jahres reicht nicht mehr (übrig: {rest})."
 anliegen.grund.immer: Diese Stelle soll bei jeder Ausgabe fragen.
 anliegen.grund.kredit: Dafür braucht es einen Kredit – darüber entscheidest du.
+anliegen.grund.reserve: "Danach läge die Kasse unter der Liquiditätsreserve ({reserve})."
+anliegen.grund.investition: "Das Investitionsbudget ({wo}) reicht nicht mehr (übrig: {rest})."
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1141,6 +1144,76 @@ leitung.land: Landesleitung
 leitung.kontinent: Kontinentvorstand
 ebene.land: Land
 ebene.kontinent: Kontinent
+ebene.firma: Firma
+strategie.titel: Strategie
+strategie.hilfe: "Vorgaben sagen deinen Managern, wie sie entscheiden: Preise, Lager, Löhne, Lieferungen zwischen deinen Standorten, Investitionen und Liquiditätsreserve. Eine Vorgabe gilt auf der Ebene, auf der du sie setzt, und für alles darunter – bis eine untere Ebene eine eigene hat."
+strategie.erklaerung: "Für einen Standort gilt je Feld seine eigene Vorgabe, sonst die seines Landes, seines Kontinents, der Firma, sonst der Standardwert. Vorgaben wirken, wo eine besetzte Stelle entscheidet. Was du selbst entscheidest, gilt sofort und hat Vorrang – ein fester Preis bleibt fest; anderes passt die Stelle an ihrer nächsten Prüfung wieder an die Vorgabe an. Wer an einem Ort dauerhaft anders will, setzt dort eine eigene Vorgabe. Wie gut eine Vorgabe umgesetzt wird, hängt vom Manager ab: Ein schwacher bemerkt eine Änderung später."
+strategie.uebersicht: Wo gilt was
+strategie.einheit: Einheit
+strategie.bearbeiten: Bearbeiten
+strategie.vorgaben_fuer: "Vorgaben: {einheit}"
+strategie.vererbung: Ohne eigene Vorgabe gilt die der Ebene darüber.
+strategie.vererbung_firma: Ohne Vorgabe der Firma gilt der Standardwert.
+strategie.standorte: "Standorte darunter: {anzahl}"
+strategie.hier: hier festgelegt
+strategie.standard: Standard
+strategie.von: "von {wo}"
+strategie.gilt: "Gilt: {wert}"
+strategie.umgesetzt_von: "Umgesetzt von: {stelle}"
+strategie.niemand: Keine Stelle besetzt – hier entscheidest du selbst.
+strategie.festlegen: Hier festlegen
+strategie.entfernen: Vorgabe hier entfernen
+strategie.zuruecksetzen: Auf Standard zurücksetzen
+strategie.gesetzt: "Vorgabe „{feld}“ für {einheit} festgelegt."
+strategie.entfernt: "Vorgabe „{feld}“ für {einheit} entfernt – es gilt wieder die Ebene darüber."
+strategie.ganze_firma: ganze Firma
+strategie.feld.preis: Preis
+strategie.feld.lager: Lager
+strategie.feld.personal: Personal
+strategie.feld.eigenfertigung: Eigenfertigung oder Zukauf
+strategie.feld.investition: Investitionsbudget
+strategie.feld.reserve: Liquiditätsreserve
+strategie.feldhilfe.preis: "Untergrenze der Preise im Marktpreis-Modus und Startpreis neuer Angebote. Über der Untergrenze bestimmt der Markt den Preis; feste Preise bleiben, wie du sie setzt."
+strategie.feldhilfe.lager: "Vorprodukte: Unter der Mindestreichweite bietet der Einkauf mehr, bis zur Höchstreichweite kauft er ein. Fertigwaren: Die Produktion hält so viele Tage Absatz auf Lager."
+strategie.feldhilfe.personal: "Spanne des Lohnaufschlags auf den Marktlohn. Fehlen Arbeitskräfte, steigt er Schritt für Schritt bis zum Höchstwert, sonst sinkt er bis zum Mindestwert."
+strategie.feldhilfe.eigenfertigung: "Ob sich deine Standorte gegenseitig beliefern oder am Markt kaufen. „Nach Preis“: nur, wenn die eigene Ware samt Fracht nicht teurer ist als der Markt beim Empfänger."
+strategie.feldhilfe.investition: "So viel dürfen deine Manager im Kalenderjahr für Orte dieser Ebene höchstens investieren (Bauen, Erschließen, Gründen, Grundstücke, Wiederanfahren). Es gelten alle Budgets der Ebenen darüber zugleich; was nicht hineinpasst, legen sie dir als Anliegen vor."
+strategie.feldhilfe.reserve: "Deine Manager investieren nur, solange die Kasse danach über dieser Reserve bleibt – gemessen in Monaten laufender Kosten aller Standorte."
+strategie.preis.art: Preisstrategie
+strategie.preis.marktpreis: Marktpreis
+strategie.preis.premium: Premium
+strategie.preis.kampfpreis: Kampfpreis
+strategie.preis.mindestmarge: Mindestmarge
+strategie.preis.mindestmarge_wert: "Mindestmarge {marge}"
+strategie.preis.marge: Marge auf die Vollkosten
+strategie.preis.erklaerung: "Untergrenze {untergrenze} der Vollkosten je Stück, Start {start} zum Marktpreis."
+strategie.lager.wert: "Vorprodukte {min}–{max} Tage, Fertigwaren {ziel} Tage"
+strategie.lager.min: Vorprodukte mindestens
+strategie.lager.max: Vorprodukte höchstens
+strategie.lager.ziel: Fertigwaren
+strategie.lager.tage: Tage
+strategie.personal.wert: "Lohnaufschlag {min} bis {max}"
+strategie.personal.min: Aufschlag mindestens
+strategie.personal.max: Aufschlag höchstens
+strategie.versorgung.art: Lieferungen
+strategie.versorgung.eigene: Eigene Ware zuerst
+strategie.versorgung.preis: Nach Preis
+strategie.versorgung.zukauf: Nur Zukauf
+strategie.investition.wert: "{betrag} im Jahr"
+strategie.investition.ohne: ohne Budget
+strategie.investition.betrag: Budget im Jahr
+strategie.investition.rest: "Übrig in diesem Jahr: {rest} (Budget: {wo})"
+strategie.reserve.wert: "{monate} Monate (≈ {betrag})"
+strategie.reserve.wert_eins: "1 Monat (≈ {betrag})"
+strategie.reserve.keine: keine
+strategie.reserve.monate: Reserve
+strategie.reserve.einheit: Monate
+strategie.reserve.hilfe: "Laufende Kosten aller Standorte: {betrag} im Monat."
+strategie.grenzen.preis: "Die Mindestmarge liegt zwischen 0 und {max}."
+strategie.grenzen.lager: "Reichweiten liegen zwischen 0 und {max} Tagen; die Mindestreichweite der Vorprodukte ist größer als 0 und nicht größer als die Höchstreichweite."
+strategie.grenzen.personal: "Der Lohnaufschlag liegt zwischen 0 und {max}, der Mindestwert nicht über dem Höchstwert."
+strategie.grenzen.investition: Das Budget darf nicht negativ sein.
+strategie.grenzen.reserve: "Die Reserve liegt zwischen 0 und {max} Monaten."
 faehigkeit.fach: "Fachkompetenz {bereich}"
 faehigkeit.erkennen: Erkennen
 faehigkeit.urteil: Urteilsvermögen

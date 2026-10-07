@@ -571,22 +571,30 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     });
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
-    let (organisation, market, concerns) = example_organisation(&mut session)?;
+    let (organisation, market, concerns, strategy) = example_organisation(&mut session)?;
     json["organisation"] = organisation;
     json["managermarkt"] = market;
     json["anliegen"] = concerns;
+    json["strategie"] = strategy;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
     Ok(())
 }
 
+/// The views of the example's organisation (MA1–MA4).
+type OrganisationViews = (
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+    serde_json::Value,
+);
+
 /// The player's organisation with a head hired for the first site, the market for its
 /// production position (MA1) and the head's concerns: two months within its default
-/// budget, then it asks about every expense (MA2).
-fn example_organisation(
-    session: &mut wsim_session::Session,
-) -> Result<(serde_json::Value, serde_json::Value, serde_json::Value), String> {
+/// budget, then it asks about every expense (MA2). At last strategies on every level
+/// (MA4).
+fn example_organisation(session: &mut wsim_session::Session) -> Result<OrganisationViews, String> {
     let message = |m: wsim_core::views::MessageView| m.key;
     let organisation = session.organisation().map_err(message)?;
     let site = organisation
@@ -636,6 +644,43 @@ fn example_organisation(
         }
         session.end_round("monat", |_| {}).map_err(message)?;
     }
+    // Strategies on every level: the company keeps a reserve, Europe sells at premium
+    // prices, Germany has an investment budget, the works its own stock and wages.
+    for (scope, field, value) in [
+        (
+            serde_json::json!("Company"),
+            "Reserve",
+            serde_json::json!({"Reserve": 1.0}),
+        ),
+        (
+            serde_json::json!({"Continent": "europa"}),
+            "Price",
+            serde_json::json!({"Price": "Premium"}),
+        ),
+        (
+            serde_json::json!({"Country": "DEU"}),
+            "Investment",
+            serde_json::json!({"Investment": 20_000_000_000_i64}),
+        ),
+        (
+            serde_json::json!({"Site": site}),
+            "Stock",
+            serde_json::json!({"Stock": {
+                "input_min_days": 10.0, "input_max_days": 30.0, "output_days": 14.0
+            }}),
+        ),
+        (
+            serde_json::json!({"Site": site}),
+            "Wages",
+            serde_json::json!({"Wages": {"min": 0.05, "max": 0.25}}),
+        ),
+    ] {
+        session
+            .command(serde_json::json!({"SetStrategy": {
+                "scope": scope, "field": field, "value": value
+            }}))
+            .map_err(message)?;
+    }
     let to_value = |v: serde_json::Result<serde_json::Value>| v.map_err(|e| e.to_string());
     Ok((
         to_value(serde_json::to_value(
@@ -647,6 +692,7 @@ fn example_organisation(
                 .map_err(message)?,
         ))?,
         to_value(serde_json::to_value(session.concerns().map_err(message)?))?,
+        to_value(serde_json::to_value(session.strategy().map_err(message)?))?,
     ))
 }
 

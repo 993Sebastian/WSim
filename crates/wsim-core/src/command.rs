@@ -190,6 +190,12 @@ pub enum Command {
         scope: crate::state::RuleScope,
         shares: Option<(f64, f64)>,
     },
+    /// The strategy of a field for a scope; `None` removes it (MA4).
+    SetStrategy {
+        scope: crate::strategy::StrategyScope,
+        field: crate::strategy::StrategyField,
+        value: Option<crate::strategy::StrategyValue>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -261,6 +267,8 @@ pub enum CommandError {
     RecipeNotForFacility,
     RecipeNeedsDeposit,
     InvalidShare,
+    /// A strategy outside its bounds or for another field (MA4).
+    InvalidStrategy,
     AutomationTooHigh {
         max: f64,
     },
@@ -381,6 +389,7 @@ impl CommandError {
             CommandError::RecipeNotForFacility => e(keys::COMMAND_RECIPE_NOT_FOR_FACILITY),
             CommandError::RecipeNeedsDeposit => e(keys::COMMAND_RECIPE_NEEDS_DEPOSIT),
             CommandError::InvalidShare => e(keys::COMMAND_INVALID_SHARE),
+            CommandError::InvalidStrategy => e(keys::COMMAND_INVALID_STRATEGY),
             CommandError::AutomationTooHigh { max } => {
                 e(keys::COMMAND_AUTOMATION_TOO_HIGH).with("max", Param::Number(*max * 100.0))
             }
@@ -698,6 +707,13 @@ fn run(
             shares,
         } => {
             crate::management::set_budget_rule(state, catalog, actor, kind, *scope, *shares)?;
+        }
+        Command::SetStrategy {
+            scope,
+            field,
+            value,
+        } => {
+            crate::strategy::set(state, catalog, actor, (*scope, *field), *value)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

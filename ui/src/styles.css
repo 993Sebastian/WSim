@@ -2676,3 +2676,38 @@ body {
   align-items: center;
   margin: 0 0 0.75rem;
 }
+
+/* Strategies (MA4): units indented by their level, inherited values quieter. */
+.strategie-tabelle td.ebene-kontinent {
+  padding-left: 1.25rem;
+}
+
+.strategie-tabelle td.ebene-land {
+  padding-left: 2.25rem;
+}
+
+.strategie-tabelle td.ebene-standort {
+  padding-left: 3.25rem;
+}
+
+.strategie-tabelle td small {
+  display: block;
+}
+
+.strategie-tabelle .geerbt {
+  color: var(--text-gedaempft);
+}
+
+.strategie-tabelle .eigen {
+  font-weight: 600;
+}
+
+.strategie-tabelle tr.gewaehlt {
+  background: var(--hervorhebung);
+}
+
+.vorgaben-karten {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}

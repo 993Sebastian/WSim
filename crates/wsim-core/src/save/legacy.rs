@@ -92,6 +92,7 @@ pub(super) fn decode_v2(
                 product_names: Default::default(),
                 positions: Vec::new(),
                 budget_rules: Vec::new(),
+                strategies: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

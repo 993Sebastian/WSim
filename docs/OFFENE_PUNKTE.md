@@ -818,6 +818,35 @@ strategische Anliegen; Einzelheiten: `docs/FORMELN.md`, MA3).
     das Thema heute bemerkt hat; hat die Landesstelle nicht hingesehen, kann der Kontinent
     für das Land entscheiden.
 
+✅ **MA4 umgesetzt** (Strategievorgaben je Firma, Kontinent, Land und Standort mit
+Herkunft; Einzelheiten: `docs/FORMELN.md`, MA4).
+🟡 Vorläufig entschieden:
+
+26. **Geltungsbereiche ohne Produkt:** Vorgaben gelten je Einheit, nicht je Produkt. Ein
+    abweichender Preis für ein einzelnes Produkt geht über den Standort (oder einen festen
+    Preis). Vorschlag: Produkt als zusätzlicher Geltungsbereich, wenn sich im Spiel zeigt,
+    dass er fehlt.
+27. **Wie gut umgesetzt wird:** Die Fähigkeiten wirken über das Bemerken am Prüftermin
+    (MA1) und die Empfehlung (MA2); einen zusätzlichen Umsetzungsfehler gibt es nicht
+    (er würde Preise zufällig schwanken lassen).
+28. **Direkte Entscheidung hat Vorrang:** Sie gilt sofort; feste Preise bleiben dauerhaft,
+    alles andere passt die Stelle an ihrer nächsten Prüfung wieder der Vorgabe an. Wer
+    dauerhaft abweichen will, setzt eine Vorgabe für den Standort.
+29. **Investition** umfasst Bauen, Erschließen, Standort gründen, Grundstück kaufen und
+    Wiederanfahren; alle Budgets der Ebenen über dem Ort gelten zugleich; was der Spieler
+    freigibt, zählt nicht. Budget als fester Betrag je Kalenderjahr (nicht als
+    Umsatzanteil wie die Stellenbudgets).
+30. **Liquiditätsreserve** in Monaten laufender Kosten (wächst mit der Firma) und nur für
+    Investitionen; Kredite bleiben bis MA5 beim Spieler.
+31. **Verkaufswege** (Lastenheft §9.2, im Kern seit M8 vorhanden) haben noch keine
+    Oberfläche. Vorschlag: als siebtes Feld der Strategieansicht mit den Geltungsbereichen
+    Firma, Land, Produkt (nächster Bedienungsschritt).
+32. **Vorschläge der Manager zu Vorgaben** (MANAGER.md §7) kommen mit der
+    Strategierücksprache des CEO (MA5).
+33. **Qualität, Partner, Logistik, Marketing, Forschung als Strategiefelder** folgen mit den
+    Meilensteinen, die diese Entscheidungen den Managern geben (Logistik Stufe 2, Werbung
+    und Forschung mit MA5/ZA).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

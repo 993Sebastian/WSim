@@ -315,6 +315,9 @@ pub struct Company {
     /// Budgets for types of positions (MA3), in the order they were set.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub budget_rules: Vec<BudgetRule>,
+    /// Strategies for the managers (MA4), by field and scope.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub strategies: Vec<crate::strategy::StrategySetting>,
 }
 
 /// What a company set and recorded for one of its positions (MA2): it stays with the
@@ -395,6 +398,10 @@ pub enum ConcernReason {
     Always,
     /// The option needs a loan, a matter of the finance department and the CEO.
     Finance,
+    /// The investment would bring the cash below the liquidity reserve (MA4).
+    Reserve,
+    /// The investment exceeds what is left of an investment budget (MA4).
+    Investment,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.

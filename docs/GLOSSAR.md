@@ -294,4 +294,14 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Budget-Vorgabe je Stellentyp, Geltungsbereich | `state::BudgetRule`, `PositionKind`, `UnitLevel`, `RuleScope`, `Company::budget_rules`; Befehl `SetBudgetRule`; `management::{rule_for, kind_of}`; Sichten `BudgetRuleView`, `PositionKindView`; UI: `Budgetvorgaben` |
 | Strategisches Anliegen, Teil eines Anliegens | `Concern::parts`, `state::ConcernPart`, `management::bundle` (`anliegen.buendel_ab`, `ConcernModel::bundle_from`); Sicht `ConcernPartView` |
 | Struktur und Werbung von Land und Kontinent | `ai::{unit_structure, unit_advertising}`; `management::{sites_cared_for, countries_cared_for}` |
+| Strategievorgabe, Geltungsbereich (Firma, Kontinent, Land, Standort) | `strategy::{StrategySetting, StrategyScope}`, `Company::strategies`; Befehl `SetStrategy`; `strategy::{setting, effective, for_site}` (MA4) |
+| Strategiefeld | `strategy::StrategyField::{Price, Stock, Wages, Supply, Investment, Reserve}` (`preis`, `lager`, `personal`, `eigenfertigung`, `investition`, `reserve`) |
+| Preisstrategie: Marktpreis, Premium, Kampfpreis, Mindestmarge | `strategy::PriceStrategy::{Market, Premium, Fight, MinMargin}`; `strategy::price_terms`; Daten `management.strategie` (`StrategyModel`) |
+| Lager-Vorgabe (Reichweite der Vorprodukte, Lagerziel der Fertigwaren) | `strategy::StockStrategy { input_min_days, input_max_days, output_days }` |
+| Lohnaufschlag-Spanne | `strategy::WageStrategy { min, max }` |
+| Eigenfertigung oder Zukauf: eigene Ware zuerst, nach Preis, nur Zukauf | `strategy::SupplyStrategy::{OwnFirst, ByPrice, Buy}` (UI: `Bezugsweg`) |
+| Investitionsbudget, Rest, bindendes Budget | `StrategyValue::Investment`, `strategy::{InvestmentBudget, investment_budgets, binding_budget, count_investment}` |
+| Liquiditätsreserve (Monate laufender Kosten) | `StrategyValue::Reserve`, `strategy::{reserve_months, monthly_cost}` |
+| Anliegen wegen Reserve bzw. Investitionsbudget | `ConcernReason::{Reserve, Investment}` (`reserve`, `investition`); Sicht `ConcernView::{strategy_limit_usd, strategy_scope}` |
+| Strategieansicht | `views::{strategy, StrategyView, StrategyUnitView, StrategyEntryView}`; UI: `StrategieAnsicht` (`Strategie.tsx`) |
 | Organisation je Einheit, Managermarkt je Einheit | Sichten `UnitOrgView`, `CountryOrgView::unit`, `ContinentOrgView::unit`, `views::{unit_key, unit_from_key}`; `Session::manager_market(einheit, stelle)`; UI: `EinheitKarte`, `einheitName`, `stellenangabe` |

@@ -1298,6 +1298,8 @@ pub struct RawManagement {
     pub budget_floor: RawBudgetFloor,
     #[serde(rename = "anliegen")]
     pub concerns: RawConcerns,
+    #[serde(rename = "strategie")]
+    pub strategy: RawStrategy,
     #[serde(rename = "leitung_ohne_fach_abschlag")]
     pub head_discount: f64,
     #[serde(rename = "bemerken_grund")]
@@ -1372,6 +1374,32 @@ pub struct RawConcerns {
     pub recommend_base: f64,
     #[serde(rename = "buendel_ab")]
     pub bundle_from: u32,
+}
+
+/// Strategies of the managers (MA4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStrategy {
+    pub premium: RawPriceStrategy,
+    #[serde(rename = "kampfpreis")]
+    pub fight: RawPriceStrategy,
+    #[serde(rename = "mindestmarge_max")]
+    pub min_margin_max: f64,
+    #[serde(rename = "lager_tage_max")]
+    pub stock_days_max: f64,
+    #[serde(rename = "liquiditaet_monate_max")]
+    pub reserve_months_max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPriceStrategy {
+    /// Price floor as a multiple of the full unit cost.
+    #[serde(rename = "untergrenze")]
+    pub floor: f64,
+    /// Markup on the market price an offer starts at.
+    #[serde(rename = "aufschlag")]
+    pub markup: f64,
 }
 
 #[derive(Debug, Deserialize)]

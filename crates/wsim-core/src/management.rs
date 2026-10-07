@@ -20,6 +20,7 @@ use crate::state::{
     Followup, GameState, Hop, Job, Manager, ManagerId, Position, PositionKind, PositionLog,
     PositionState, Role, RuleScope, SiteId, Unit, UnitLevel,
 };
+use crate::strategy;
 
 /// Keys of the skills besides the expertise per function (impressions, views).
 pub const DETECTION: &str = "erkennen";
@@ -540,6 +541,11 @@ pub(crate) fn release_site(state: &mut GameState, site: SiteId) {
     let today = state.date;
     for id in ended {
         end_job(state, id, today);
+    }
+    // Strategies for the site were its former owner's (MA4).
+    for c in &mut state.companies {
+        c.strategies
+            .retain(|s| s.scope != strategy::StrategyScope::Site(site));
     }
 }
 
@@ -1138,9 +1144,35 @@ struct Responsible {
     open: u32,
 }
 
+/// The investments of an option (docs/FORMELN.md, MA4): building, developing, founding,
+/// buying land and restarting.
+fn investment(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    choice: &decision::Choice,
+) -> Money {
+    choice
+        .steps
+        .iter()
+        .filter(|s| {
+            matches!(
+                s.command,
+                Command::BuildFacility { .. }
+                    | Command::DevelopDeposit { .. }
+                    | Command::FoundSite { .. }
+                    | Command::FoundSiteOnPlot { .. }
+                    | Command::BuyPlot { .. }
+                    | Command::RestartFacility { .. }
+            )
+        })
+        .map(|s| decision::amount(catalog, state, company, &s.command))
+        .sum()
+}
+
 /// Where a decision is taken (MA3): its site, else where the first step of the rules'
 /// option acts (a new site's country, an advertising country).
-fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
+pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
     if let Some(site) = d.site {
         return Some(Unit::Site(site));
     }
@@ -1195,9 +1227,49 @@ struct Staff<'a> {
     spent: Vec<Spent>,
     concerns: Vec<Concern>,
     followups: Vec<Followup>,
+    /// Investments decided today and their places (MA4).
+    invested: Vec<(Unit, Money)>,
 }
 
 impl Staff<'_> {
+    /// Why an investment at a place does not fit the company's strategies (MA4): the
+    /// liquidity reserve, then the investment budgets with what was decided today;
+    /// `None` if it fits.
+    fn beyond_strategy(
+        &self,
+        catalog: &Catalog,
+        state: &GameState,
+        place: Unit,
+        invest: Money,
+    ) -> Option<ConcernReason> {
+        if invest <= Money::ZERO {
+            return None;
+        }
+        let company = self.company;
+        if state.companies[company.index()].strategies.is_empty() {
+            return None;
+        }
+        let months = strategy::reserve_months(catalog, state, company, place);
+        if months > 0.0 {
+            let reserve = strategy::monthly_cost(catalog, state, company).scale(months);
+            if state.companies[company.index()].ledger.cash() - invest < reserve {
+                return Some(ConcernReason::Reserve);
+            }
+        }
+        for b in strategy::investment_budgets(catalog, state, company, place, self.today.year()) {
+            let today: Money = self
+                .invested
+                .iter()
+                .filter(|(u, _)| b.scope.contains(catalog, state, *u))
+                .map(|&(_, m)| m)
+                .sum();
+            if invest > b.left - today {
+                return Some(ConcernReason::Investment);
+            }
+        }
+        None
+    }
+
     fn rng(&mut self, manager: ManagerId) -> &mut SimRng {
         let (seed, day) = (self.seed, self.day);
         self.rngs
@@ -1344,8 +1416,14 @@ impl Decider for Staff<'_> {
                 || choice_amount(catalog, state, d.company, option),
                 |a| a[choice].amount,
             );
+            let invest = investment(catalog, state, d.company, option);
+            let beyond = self.beyond_strategy(catalog, state, place, invest);
             let r = &mut self.positions[index];
-            if !needs_finance(option) && amount <= r.per_decision && amount <= r.left {
+            if !needs_finance(option)
+                && beyond.is_none()
+                && amount <= r.per_decision
+                && amount <= r.left
+            {
                 r.left -= amount;
                 let kind = option.kind;
                 let effect = assessments.as_ref().and_then(|a| a[choice].effect);
@@ -1375,6 +1453,9 @@ impl Decider for Staff<'_> {
                 }
                 if structural(d.topic) && kind != ChoiceKind::Keep {
                     self.done.insert(done);
+                }
+                if invest > Money::ZERO {
+                    self.invested.push((place, invest));
                 }
                 return if choice == d.rule {
                     Verdict::Rule
@@ -1416,9 +1497,17 @@ impl Decider for Staff<'_> {
         let assessments = assessments.unwrap_or_else(|| decision::assess(catalog, state, d));
         let amount = assessments[top.recommended].amount;
         let (index, skill) = asker;
+        let beyond = self.beyond_strategy(
+            catalog,
+            state,
+            place,
+            investment(catalog, state, d.company, option),
+        );
         let r = &self.positions[index];
         let reason = if needs_finance(option) {
             ConcernReason::Finance
+        } else if let Some(reason) = beyond {
+            reason
         } else if r.per_decision == Money::ZERO {
             ConcernReason::Always
         } else if amount > r.per_decision {
@@ -1460,6 +1549,41 @@ impl Decider for Staff<'_> {
         });
         Verdict::Hold
     }
+}
+
+/// Puts one decision to a company's positions as on a day of theirs on which every unit
+/// noticed its topic (tests): the verdict, the concerns and the investments decided.
+#[cfg(test)]
+pub(crate) fn decide_now(
+    state: &GameState,
+    catalog: &Catalog,
+    decision: &Decision,
+) -> (Verdict, Vec<Concern>, Vec<(Unit, Money)>) {
+    let m = &catalog.management;
+    let company = decision.company;
+    let mut staff = Staff {
+        company,
+        noticed: units(catalog, state, company)
+            .into_iter()
+            .map(|u| (u, decision.topic))
+            .collect(),
+        positions: Vec::new(),
+        model: &m.concerns,
+        routine: &m.routine_topics,
+        head_discount: m.head_discount,
+        rngs: BTreeMap::new(),
+        seed: state.settings.seed,
+        day: day_number(state.date),
+        today: state.date,
+        open: open_keys(state, company),
+        done: BTreeSet::new(),
+        spent: Vec::new(),
+        concerns: Vec::new(),
+        followups: Vec::new(),
+        invested: Vec::new(),
+    };
+    let verdict = staff.decide(state, catalog, decision);
+    (verdict, staff.concerns, staff.invested)
 }
 
 /// The position that asks the player about a concern: the last of its way.
@@ -1678,6 +1802,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             spent: Vec::new(),
             concerns: Vec::new(),
             followups: Vec::new(),
+            invested: Vec::new(),
         };
         let (mut weekly, mut structural, mut labs) = (Vec::new(), Vec::new(), Vec::new());
         let (mut unit_structure, mut unit_checks) = (Vec::new(), Vec::new());
@@ -1785,6 +1910,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             spent,
             concerns,
             followups,
+            invested,
             ..
         } = staff;
         let concerns = bundle(concerns, m.concerns.bundle_from);
@@ -1795,6 +1921,9 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             (spent, concerns, followups),
             &mut news,
         );
+        for (place, amount) in invested {
+            strategy::count_investment(catalog, state, company, place, (amount, date.year()));
+        }
     }
     news
 }

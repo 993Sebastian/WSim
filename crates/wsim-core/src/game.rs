@@ -181,6 +181,7 @@ impl Game {
             product_names: Default::default(),
             positions: Vec::new(),
             budget_rules: Vec::new(),
+            strategies: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
