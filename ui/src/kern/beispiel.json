@@ -25268,6 +25268,572 @@
       3.0
     ],
     "candidates": 79,
+    "central": {
+      "countries": [
+        {
+          "country": "AFG",
+          "tax": 0.0625,
+          "wage_usd": 3208.45178392808
+        },
+        {
+          "country": "AGO",
+          "tax": 0.0625,
+          "wage_usd": 2235.2469233080606
+        },
+        {
+          "country": "ARG",
+          "tax": 0.0625,
+          "wage_usd": 35768.02891694473
+        },
+        {
+          "country": "AUS",
+          "tax": 0.0625,
+          "wage_usd": 55647.64867246369
+        },
+        {
+          "country": "AUT",
+          "tax": 0.0625,
+          "wage_usd": 29814.752007923416
+        },
+        {
+          "country": "BEL",
+          "tax": 0.0625,
+          "wage_usd": 42794.28116179224
+        },
+        {
+          "country": "BFA",
+          "tax": 0.0625,
+          "wage_usd": 2977.1817383440384
+        },
+        {
+          "country": "BGD",
+          "tax": 0.0625,
+          "wage_usd": 4138.018718370967
+        },
+        {
+          "country": "BGR",
+          "tax": 0.0625,
+          "wage_usd": 9430.540075836636
+        },
+        {
+          "country": "BLR",
+          "tax": 0.0625,
+          "wage_usd": 10235.238192629187
+        },
+        {
+          "country": "BOL",
+          "tax": 0.0625,
+          "wage_usd": 9843.874001294691
+        },
+        {
+          "country": "BRA",
+          "tax": 0.0625,
+          "wage_usd": 4848.544260728985
+        },
+        {
+          "country": "CAN",
+          "tax": 0.0625,
+          "wage_usd": 45942.55803403732
+        },
+        {
+          "country": "CHE",
+          "tax": 0.0625,
+          "wage_usd": 52958.93443395507
+        },
+        {
+          "country": "CHL",
+          "tax": 0.0625,
+          "wage_usd": 26440.86011618574
+        },
+        {
+          "country": "CHN",
+          "tax": 0.0625,
+          "wage_usd": 4683.794104664726
+        },
+        {
+          "country": "CIV",
+          "tax": 0.0625,
+          "wage_usd": 2393.072584412906
+        },
+        {
+          "country": "CMR",
+          "tax": 0.0625,
+          "wage_usd": 3107.1332009909993
+        },
+        {
+          "country": "COD",
+          "tax": 0.0625,
+          "wage_usd": 1717.9374894406672
+        },
+        {
+          "country": "COL",
+          "tax": 0.0625,
+          "wage_usd": 7187.495164701928
+        },
+        {
+          "country": "CUB",
+          "tax": 0.0625,
+          "wage_usd": 12530.707070676179
+        },
+        {
+          "country": "CZE",
+          "tax": 0.0625,
+          "wage_usd": 22436.3993512448
+        },
+        {
+          "country": "DEU",
+          "tax": 0.05416666666666667,
+          "wage_usd": 32317.662567962583
+        },
+        {
+          "country": "DNK",
+          "tax": 0.0625,
+          "wage_usd": 43729.73370590867
+        },
+        {
+          "country": "DZA",
+          "tax": 0.0625,
+          "wage_usd": 10421.219642081322
+        },
+        {
+          "country": "ECU",
+          "tax": 0.0625,
+          "wage_usd": 8260.875380675694
+        },
+        {
+          "country": "EGY",
+          "tax": 0.0625,
+          "wage_usd": 9021.005336282653
+        },
+        {
+          "country": "ESP",
+          "tax": 0.0625,
+          "wage_usd": 18689.56739269817
+        },
+        {
+          "country": "ETH",
+          "tax": 0.0625,
+          "wage_usd": 2732.866670891954
+        },
+        {
+          "country": "FIN",
+          "tax": 0.0625,
+          "wage_usd": 19741.800969889027
+        },
+        {
+          "country": "FRA",
+          "tax": 0.07411764705882354,
+          "wage_usd": 35406.09991079008
+        },
+        {
+          "country": "GBR",
+          "tax": 0.1075,
+          "wage_usd": 58997.25597546484
+        },
+        {
+          "country": "GHA",
+          "tax": 0.0625,
+          "wage_usd": 6539.635109736932
+        },
+        {
+          "country": "GRC",
+          "tax": 0.0625,
+          "wage_usd": 12166.97757249717
+        },
+        {
+          "country": "HUN",
+          "tax": 0.0625,
+          "wage_usd": 20597.38659711347
+        },
+        {
+          "country": "IDN",
+          "tax": 0.0625,
+          "wage_usd": 6875.568831216425
+        },
+        {
+          "country": "IND",
+          "tax": 0.0625,
+          "wage_usd": 5453.3378822437135
+        },
+        {
+          "country": "IRL",
+          "tax": 0.0625,
+          "wage_usd": 29028.906339302925
+        },
+        {
+          "country": "IRN",
+          "tax": 0.0625,
+          "wage_usd": 6707.159263915688
+        },
+        {
+          "country": "IRQ",
+          "tax": 0.0625,
+          "wage_usd": 6627.789400595777
+        },
+        {
+          "country": "ISR",
+          "tax": 0.0625,
+          "wage_usd": 5519.132721390213
+        },
+        {
+          "country": "ITA",
+          "tax": 0.0625,
+          "wage_usd": 24891.526728848345
+        },
+        {
+          "country": "JPN",
+          "tax": 0.0625,
+          "wage_usd": 14580.221082731816
+        },
+        {
+          "country": "KAZ",
+          "tax": 0.0625,
+          "wage_usd": 15428.401226698672
+        },
+        {
+          "country": "KEN",
+          "tax": 0.0625,
+          "wage_usd": 3292.628381104024
+        },
+        {
+          "country": "KHM",
+          "tax": 0.0625,
+          "wage_usd": 3485.1992042856555
+        },
+        {
+          "country": "KOR",
+          "tax": 0.0625,
+          "wage_usd": 6339.078853345978
+        },
+        {
+          "country": "LBY",
+          "tax": 0.0625,
+          "wage_usd": 7021.136315552091
+        },
+        {
+          "country": "LKA",
+          "tax": 0.0625,
+          "wage_usd": 10371.687271775705
+        },
+        {
+          "country": "MAR",
+          "tax": 0.0625,
+          "wage_usd": 5750.706674656207
+        },
+        {
+          "country": "MDG",
+          "tax": 0.0625,
+          "wage_usd": 4080.9739945951837
+        },
+        {
+          "country": "MEX",
+          "tax": 0.0625,
+          "wage_usd": 11319.200159976393
+        },
+        {
+          "country": "MLI",
+          "tax": 0.0625,
+          "wage_usd": 2982.0902290914214
+        },
+        {
+          "country": "MMR",
+          "tax": 0.0625,
+          "wage_usd": 5961.3415925301015
+        },
+        {
+          "country": "MNG",
+          "tax": 0.0625,
+          "wage_usd": 1567.923658992803
+        },
+        {
+          "country": "MOZ",
+          "tax": 0.0625,
+          "wage_usd": 1500.4288982514531
+        },
+        {
+          "country": "MWI",
+          "tax": 0.0625,
+          "wage_usd": 1872.8795938238977
+        },
+        {
+          "country": "MYS",
+          "tax": 0.0625,
+          "wage_usd": 7903.959716326662
+        },
+        {
+          "country": "NER",
+          "tax": 0.0625,
+          "wage_usd": 3195.116170971605
+        },
+        {
+          "country": "NGA",
+          "tax": 0.0625,
+          "wage_usd": 4463.79281671316
+        },
+        {
+          "country": "NLD",
+          "tax": 0.0625,
+          "wage_usd": 43171.26082266422
+        },
+        {
+          "country": "NOR",
+          "tax": 0.0625,
+          "wage_usd": 29231.88601546588
+        },
+        {
+          "country": "NPL",
+          "tax": 0.0625,
+          "wage_usd": 3946.3623323607335
+        },
+        {
+          "country": "NZL",
+          "tax": 0.0625,
+          "wage_usd": 58109.94865906563
+        },
+        {
+          "country": "PAK",
+          "tax": 0.0625,
+          "wage_usd": 5726.236686766675
+        },
+        {
+          "country": "PER",
+          "tax": 0.0625,
+          "wage_usd": 9086.425752249661
+        },
+        {
+          "country": "PHL",
+          "tax": 0.0625,
+          "wage_usd": 7622.704788151855
+        },
+        {
+          "country": "POL",
+          "tax": 0.0625,
+          "wage_usd": 17545.695529691697
+        },
+        {
+          "country": "PRK",
+          "tax": 0.0625,
+          "wage_usd": 6306.969627397356
+        },
+        {
+          "country": "PRT",
+          "tax": 0.0625,
+          "wage_usd": 11236.553112896172
+        },
+        {
+          "country": "ROU",
+          "tax": 0.0625,
+          "wage_usd": 8309.973956372165
+        },
+        {
+          "country": "RUS",
+          "tax": 0.0625,
+          "wage_usd": 15196.068447438684
+        },
+        {
+          "country": "SAU",
+          "tax": 0.0625,
+          "wage_usd": 4803.035127702399
+        },
+        {
+          "country": "SDN",
+          "tax": 0.0625,
+          "wage_usd": 2627.805455492133
+        },
+        {
+          "country": "SEN",
+          "tax": 0.0625,
+          "wage_usd": 3994.908335257206
+        },
+        {
+          "country": "SGP",
+          "tax": 0.0625,
+          "wage_usd": 12735.13596856672
+        },
+        {
+          "country": "SWE",
+          "tax": 0.0625,
+          "wage_usd": 32398.242691011244
+        },
+        {
+          "country": "SYR",
+          "tax": 0.0625,
+          "wage_usd": 12273.599538028237
+        },
+        {
+          "country": "THA",
+          "tax": 0.0625,
+          "wage_usd": 6824.772456483616
+        },
+        {
+          "country": "TUN",
+          "tax": 0.0625,
+          "wage_usd": 7389.675810864182
+        },
+        {
+          "country": "TUR",
+          "tax": 0.0625,
+          "wage_usd": 6248.191962718723
+        },
+        {
+          "country": "TWN",
+          "tax": 0.0625,
+          "wage_usd": 6389.0945556035895
+        },
+        {
+          "country": "TZA",
+          "tax": 0.0625,
+          "wage_usd": 2191.3185404448855
+        },
+        {
+          "country": "UGA",
+          "tax": 0.0625,
+          "wage_usd": 3266.193229782105
+        },
+        {
+          "country": "UKR",
+          "tax": 0.0625,
+          "wage_usd": 8766.06225045955
+        },
+        {
+          "country": "USA",
+          "tax": 0.017857142857142856,
+          "wage_usd": 64262.795083596226
+        },
+        {
+          "country": "UZB",
+          "tax": 0.0625,
+          "wage_usd": 5541.679411986616
+        },
+        {
+          "country": "VEN",
+          "tax": 0.0625,
+          "wage_usd": 11517.2654141026
+        },
+        {
+          "country": "VNM",
+          "tax": 0.0625,
+          "wage_usd": 5691.31762097531
+        },
+        {
+          "country": "XBA",
+          "tax": 0.0625,
+          "wage_usd": 16149.443365702567
+        },
+        {
+          "country": "XGO",
+          "tax": 0.0625,
+          "wage_usd": 5659.928859986714
+        },
+        {
+          "country": "XGU",
+          "tax": 0.0625,
+          "wage_usd": 15383.166615390031
+        },
+        {
+          "country": "XHA",
+          "tax": 0.0625,
+          "wage_usd": 3386.280897422408
+        },
+        {
+          "country": "XHI",
+          "tax": 0.0625,
+          "wage_usd": 5618.133968450643
+        },
+        {
+          "country": "XKA",
+          "tax": 0.0625,
+          "wage_usd": 7589.32172908312
+        },
+        {
+          "country": "XKB",
+          "tax": 0.0625,
+          "wage_usd": 8518.375068060594
+        },
+        {
+          "country": "XLE",
+          "tax": 0.0625,
+          "wage_usd": 12277.704326095916
+        },
+        {
+          "country": "XMA",
+          "tax": 0.0625,
+          "wage_usd": 2795.4467810337624
+        },
+        {
+          "country": "XME",
+          "tax": 0.0625,
+          "wage_usd": 10875.243317871305
+        },
+        {
+          "country": "XOZ",
+          "tax": 0.0625,
+          "wage_usd": 3633.881731827664
+        },
+        {
+          "country": "XPU",
+          "tax": 0.0625,
+          "wage_usd": 21033.8242613499
+        },
+        {
+          "country": "XRB",
+          "tax": 0.0625,
+          "wage_usd": 2616.7254680229453
+        },
+        {
+          "country": "XSA",
+          "tax": 0.0625,
+          "wage_usd": 4657.0097981273075
+        },
+        {
+          "country": "XTB",
+          "tax": 0.0625,
+          "wage_usd": 5046.779877363636
+        },
+        {
+          "country": "XWA",
+          "tax": 0.0625,
+          "wage_usd": 3521.459225426736
+        },
+        {
+          "country": "XWB",
+          "tax": 0.0625,
+          "wage_usd": 11770.95180408346
+        },
+        {
+          "country": "XZA",
+          "tax": 0.0625,
+          "wage_usd": 8066.976372952613
+        },
+        {
+          "country": "YEM",
+          "tax": 0.0625,
+          "wage_usd": 6097.330724063184
+        },
+        {
+          "country": "ZAF",
+          "tax": 0.0625,
+          "wage_usd": 10276.725619452865
+        },
+        {
+          "country": "ZMB",
+          "tax": 0.0625,
+          "wage_usd": 2662.7070978965057
+        },
+        {
+          "country": "ZWE",
+          "tax": 0.0625,
+          "wage_usd": 4167.420200968213
+        }
+      ],
+      "country": "DEU",
+      "move_cost_usd": 250000.0,
+      "move_months": 6,
+      "moving_share": 0.6,
+      "relocation": null,
+      "tax": 0.05416666666666667,
+      "wage_usd": 32317.662567962583
+    },
     "check_days": 7,
     "continents": [
       {

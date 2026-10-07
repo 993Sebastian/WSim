@@ -65,6 +65,8 @@ pub struct Catalog {
     pub currencies: crate::currency::CurrencyModel,
     /// Positions, managers and their market (MA1); without functions there are none.
     pub management: ManagementModel,
+    /// Headquarters and central departments (ZA1–ZA3).
+    pub central: CentralModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -184,6 +186,23 @@ pub struct MandateModel {
     pub reviews_kept: u32,
     /// How much a personnel board member with full expertise sharpens the impression.
     pub personnel_sharpness: f64,
+}
+
+/// Headquarters and central departments (ZA1–ZA3, docs/FORMELN.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CentralModel {
+    pub headquarters: HeadquartersModel,
+    pub provenance: Provenance,
+}
+
+/// Moving the headquarters (ZA1).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct HeadquartersModel {
+    pub months: u32,
+    pub cost_base: Money,
+    pub cost_per_employee: Money,
+    /// Share of the central departments' employees who move along.
+    pub moving_share: f64,
 }
 
 /// The living market of managers (MA6, docs/FORMELN.md). All zero: nothing moves.

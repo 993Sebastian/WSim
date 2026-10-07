@@ -186,6 +186,10 @@ fehler.befehl.eigener_manager: Dieser Manager arbeitet schon für deine Firma.
 fehler.befehl.manager_hat_angebot: Dieser Manager hat schon ein offenes Angebot.
 fehler.befehl.manager_umworben: "Dieser Manager hat gerade erst ein Angebot bekommen; das nächste ab {datum}."
 fehler.befehl.kein_abwerbeangebot: Für diesen Manager liegt kein Angebot einer anderen Firma vor.
+fehler.befehl.land_unbekannt: Dieses Land gibt es nicht.
+fehler.befehl.hauptsitz_gleich: Der Hauptsitz ist schon in diesem Land.
+fehler.befehl.umzug_laeuft: "Der Hauptsitz zieht gerade um – fertig zum Monatsanfang ab {datum}."
+meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."

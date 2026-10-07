@@ -1104,6 +1104,28 @@ export interface Stelle {
   hires?: boolean | null;
 }
 
+/** A country the headquarters could move to (ZA1). */
+export interface Sitzland {
+  country: string;
+  /** Profit tax (share). */
+  tax: number;
+  /** Yearly wage of the managers' salary group: what the board's salaries follow. */
+  wage_usd: number;
+}
+
+/** The headquarters and the central departments (ZA1–ZA3). */
+export interface Zentrale {
+  country: string;
+  tax: number;
+  wage_usd: number;
+  /** A move under way: the new seat from the first month start on or after `until`. */
+  relocation: { country: string; until: string } | null;
+  move_cost_usd: number;
+  move_months: number;
+  moving_share: number;
+  countries: Sitzland[];
+}
+
 /** The positions of a unit: a site, a country, a continent (MA1, MA3) or the board (MA5). */
 export interface EinheitOrganisation {
   level: "standort" | "land" | "kontinent" | "vorstand";
@@ -1175,6 +1197,8 @@ export interface Organisation {
   rules?: Budgetvorgabe[];
   /** Types of positions the company has, for new rules. */
   kinds?: Stellentyp[];
+  /** The headquarters and the central departments (ZA1–ZA3). */
+  central?: Zentrale;
 }
 
 export interface Kandidat {

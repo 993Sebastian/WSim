@@ -183,6 +183,11 @@ pub mod keys {
     pub const COMMAND_MANAGER_HAS_OFFER: &str = "fehler.befehl.manager_hat_angebot";
     pub const COMMAND_MANAGER_COURTED: &str = "fehler.befehl.manager_umworben";
     pub const COMMAND_NO_POACH_OFFER: &str = "fehler.befehl.kein_abwerbeangebot";
+    pub const COMMAND_UNKNOWN_COUNTRY: &str = "fehler.befehl.land_unbekannt";
+    pub const COMMAND_SAME_HEADQUARTERS: &str = "fehler.befehl.hauptsitz_gleich";
+    pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
+    // Headquarters and central departments (ZA1–ZA3).
+    pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -420,6 +425,10 @@ pub mod keys {
         COMMAND_MANAGER_HAS_OFFER,
         COMMAND_MANAGER_COURTED,
         COMMAND_NO_POACH_OFFER,
+        COMMAND_UNKNOWN_COUNTRY,
+        COMMAND_SAME_HEADQUARTERS,
+        COMMAND_RELOCATION_UNDER_WAY,
+        HEADQUARTERS_MOVED,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,

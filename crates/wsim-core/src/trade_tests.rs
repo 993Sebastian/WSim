@@ -104,6 +104,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         strategies: Vec::new(),
         mandate: crate::mandate::Mandate::default(),
         reviews: Vec::new(),
+        relocation: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Käufer".into(),
         kind: CompanyKind::Ai,

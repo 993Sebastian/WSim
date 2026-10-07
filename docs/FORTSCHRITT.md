@@ -58,6 +58,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA4 | Manager-System: Strategievorgaben | ✅ |
 | MA5 | Manager-System: Vorstand, Strategieauftrag, Rücksprache | ✅ |
 | MA6 | Manager-System: Lebendiger Managermarkt | ✅ |
+| ZA1 | Hauptsitz: Verlegen, Wirkung auf Steuern und Gehälter | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -293,6 +294,22 @@ Regeln: `docs/FORMELN.md`, Abschnitt MA6; Bedienung: `docs/BEDIENUNG.md`, „Org
   Abwerbung mit Gegenangebot, Gehen lassen und Fristablauf, Personalstelle entscheidet
   selbst, KI hält oder lässt gehen, Prüfungen der Befehle, Speichern und Wiederholen),
   vitest und Playwright.
+
+### ZA1: Hauptsitz (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitt 3; Regeln: `docs/FORMELN.md`, Abschnitt ZA1;
+vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
+
+- **Daten:** neue Datei `parameter/zentrale.yaml` mit Block `hauptsitz` (Dauer, Kosten,
+  Anteil der Angestellten, der mitzieht), optional, mit Prüfregeln und Fehlerfall-Test.
+- **Kern:** neues Modul `central`. Befehl `SetHeadquarters`: Kosten sofort als sonstiger
+  Aufwand, der neue Sitz gilt am ersten Monatsanfang nach der Dauer (Meldung). Nur ein
+  Umzug zugleich; die Kasse muss die Kosten decken. Steuern, Gehälter des Vorstands und
+  Präsenz für Kaufangebote folgen dem Sitz schon bisher.
+- **Oberfläche:** Organisation, „Hauptsitz und Zentrale“: Sitzland mit Steuer und
+  Lohnniveau, Umzug mit Länderauswahl (Steuer und Lohn je Land), Kosten und Dauer.
+- **Tests:** Szenario Umzug (Kosten, Dauer, nur einer zugleich, Sitz und Gehaltsland
+  danach), fehlende Kasse; Fehlerfälle der Daten; vitest.
 
 ## Eigenständige Entscheidungen (für das Review)
 

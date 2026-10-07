@@ -95,6 +95,7 @@ pub(super) fn decode_v2(
                 strategies: Vec::new(),
                 mandate: crate::mandate::Mandate::default(),
                 reviews: Vec::new(),
+                relocation: None,
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

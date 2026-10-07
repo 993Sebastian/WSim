@@ -252,6 +252,12 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   lassen sich nur erhöhen. Bei Leitungen der Schalter „Besetzt freie Fachstellen selbst“:
   Die Leitung stellt je Monat höchstens eine Fachstelle mit Aufgaben aus dem Managermarkt
   ein, im Rahmen ihres Jahresbudgets; die Meldung im Rundenbericht nennt Name und Gehalt.
+- **Hauptsitz (ZA1):** Unter dem Vorstand die Überschrift „Hauptsitz und Zentrale“ mit der
+  Karte „Hauptsitz: Deutschland“ (ⓘ: was der Sitz bewirkt): Gewinnsteuer und Lohnniveau der
+  Manager im Sitzland; Formular „Hauptsitz verlegen“ mit Auswahl „Neues Land“ (je Land
+  Steuer und Lohn, nach Namen sortiert), Kosten, Dauer und Anteil der Angestellten, der
+  mitzieht. Während des Umzugs steht dort „Umzug nach … läuft – der neue Sitz gilt zum
+  Monatsanfang ab …“; der Rundenbericht meldet den Abschluss.
 - **Abwerbung (MA6):** Will eine KI-Firma einen Manager abwerben, kommt ein Anliegen
   „Abwerbung“ (wichtig) der Personalstelle seiner Einheit, sonst der nächsten darüber, sonst
   des Managers selbst: „Gegenangebot“ (Gehalt auf das Angebot, er bleibt zufrieden) oder

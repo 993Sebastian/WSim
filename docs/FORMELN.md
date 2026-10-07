@@ -2961,3 +2961,120 @@ Stellen-Kette des Spielers.
 - Die KI ändert sich gewollt (Gehälter, Kompetenz). Mit `ki.einstellungen_monat: 0`
   bleibt sie bitgleich zu MA5. Benchmark: Weltlauf mit 1 000 KI-Firmen ohne deutlichen
   Leistungsverlust gegenüber MA5.
+
+## ZA1 – Hauptsitz
+
+`docs/BETEILIGUNGEN.md` Abschnitt 3. Daten: `parameter/zentrale.yaml`, Block `hauptsitz`.
+Kern: Modul `central`.
+
+- Der Firmensitz (`Company::headquarters`) ist der **Hauptsitz**: beim neuen Spiel das
+  Startland. Er bestimmt schon heute die Gewinnsteuer (M6), das Lohnniveau der Gehälter
+  des Vorstands (MA5) und das Land, in dem die Firma für Kaufangebote präsent ist (M30).
+  Mit ZA2 kommen die Angestellten der Zentralabteilungen dazu (Lohn des Landes).
+- **Verlegen** (`SetHeadquarters { country }`): in ein anderes Land, nicht während eines
+  Umzugs. Kosten sofort, als sonstiger Aufwand der Firma (Gemeinkosten):
+
+      Kosten = kosten_grund_usd + kosten_je_angestelltem_usd · Angestellte der Zentrale
+
+  Die Kasse muss sie decken. Der Umzug dauert `verlegung_monate`; am ersten
+  Monatsanfang ab diesem Datum gilt der neue Sitz. Von den Angestellten der
+  Zentralabteilungen ziehen `mitziehen` mit (abgerundet je Abteilung); die übrigen
+  scheiden aus, ohne Abfindung. Meldung an den Spieler.
+- Kriegsrisiken des Sitzlands (Ausfall, Beschlagnahme) kommen mit Stufe 4; die Daten
+  sehen sie noch nicht vor.
+- KI-Firmen verlegen ihren Sitz nicht.
+
+## ZA2 – Zentralabteilungen
+
+`docs/BETEILIGUNGEN.md` Abschnitte 4.1, 4.2 und 6. Daten: `parameter/zentrale.yaml`, Liste
+`abteilungen`; neue Bereiche `strategie` und `recht` in `parameter/management.yaml`
+(Ressorts des Vorstands, gleiche Gehaltsfaktoren). Kern: Modul `central`.
+
+### Aufbau und Kosten
+
+- Je Abteilung: `bereich` (das Ressort des Vorstands, dessen Manager die **Leitung** ist),
+  `lohngruppe` der Angestellten, `buero_usd` (Bürokosten je Angestelltem und Jahr),
+  `faelle_je_angestelltem` (was ein Angestellter im Monat bearbeitet) und die Wirkung.
+- **Angestellte** (`StaffDepartment { department, staff }`): eine Zahl je Abteilung, keine
+  Einzelpersonen, eingestellt im Land des Hauptsitzes. Kosten je Monat, gebucht am
+  Monatsende als Gemeinkosten:
+
+      Personal = Angestellte · Jahreslohn(lohngruppe, Sitzland) / 12
+      Büro     = Angestellte · buero_usd / 12
+
+  Mit den Werten der Daten kostet eine kleine Abteilung samt Ressortleitung rund eine
+  halbe Million USD im Jahr – eine Werkstatt trägt das nicht.
+- Ohne Leitung arbeitet eine Abteilung nicht (die Angestellten kosten trotzdem).
+
+### Leistung
+
+Für eine Abteilung mit Leitung *L* und *n* Angestellten:
+
+    Kapazität K = n · faelle_je_angestelltem          (Fälle je Monat)
+    Güte      G = Fachkompetenz(L, bereich) / 100
+    Abdeckung A = min(1, K / Arbeitslast)              (Arbeitslast je Abteilung, unten)
+    Wirkung     = wirkung · G · A
+
+- **Genauigkeit:** Anliegen und Entscheidungen der Leitung haben einen kleineren
+  Schätzfehler und treffen öfter die beste Option:
+
+      Schätzfehler   ← Schätzfehler · (1 − genauigkeit · A)
+      Urteilsvermögen ← U + (100 − U) · genauigkeit · A
+
+| Abteilung | Arbeitslast | Wirkung (`wirkung`) |
+| --- | --- | --- |
+| Strategie | – (A = 1 ab einem Angestellten) | beobachtet K Länder ohne eigenen Standort mit dem größten Markt der eigenen Warengruppen: Dort sucht der Vorstand Kaufangebote mit (MA5) |
+| Finanzen | Zahl der Kredite + 1 | Risikoaufschlag neuer Kredite × (1 − Wirkung) |
+| Personal | Zahl der eigenen Manager | Schulung: Erfahrung je Monat × (1 + Wirkung) (MA6) |
+| Recht | Zahl der Forschungsziele + 1 | prüft Lizenzen statt Forschung (ZA3) |
+| Marketing | Zahl der Werbebudgets (Land × Warengruppe) | Werbewirkung × (1 + Wirkung) (M16) |
+
+### Vorgabe „Beteiligungen“
+
+Ein Feld der ganzen Firma (Befehl `SetParticipations`), in der Strategieansicht:
+
+- **Budget je Jahr** für Übernahmen (Kaufangebote der Firma, M30) und ab SU1 Start-ups.
+  Darüber fragt die Stelle (Grund „Beteiligungsbudget“). Ohne Angabe: keine Grenze.
+- **Risikobereitschaft** 0–1 (Vorgabe 0,5): ab SU1 die Mindestchance der Start-ups, die
+  die Strategie empfiehlt.
+- **Freigabegrenze je Abteilung:** bis zu diesem Betrag entscheidet die Leitung selbst,
+  darüber fragt sie. Sie begrenzt ihr Budget je Entscheidung zusätzlich (MA2); ohne
+  Angabe gilt das Budget allein.
+
+## ZA3 – Empfehlungen und Trefferquote
+
+`docs/BETEILIGUNGEN.md` Abschnitte 4.3 und 4.4. Daten: `parameter/zentrale.yaml`, Block
+`trefferquote` und die Empfehlungen je Abteilung.
+
+### Empfehlungen
+
+Am Prüftermin des Vorstands arbeiten die Abteilungen mit Leitung und Angestellten ihre
+Fälle ab (höchstens K): jede ist eine Entscheidung (MA0) ihres Themas mit den Optionen
+„umsetzen“ und „so lassen“. Im Budget und unter der Freigabegrenze setzt die Leitung sie
+um, sonst wird sie eine **Empfehlung** (ein Anliegen der Leitung mit Begründung).
+
+| Abteilung | Thema | Fall | Wirkung (Schätzung) | Begründung |
+| --- | --- | --- | --- | --- |
+| Finanzen | `umschuldung` | Kredit, dessen Zins um `mindestvorteil` über dem eines neuen Kredits gleicher Restlaufzeit liegt | ersparte Zinsen im Jahr | Ersparnis |
+| Personal | `gehaltsrunde` | Manager mit Zufriedenheit unter `zufriedenheit.stufen[1]` und Gehalt unter dem Marktwert | – (Kosten: Erhöhung im Jahr) | Halten |
+| Recht | `lizenz` | Forschungsziel, das eine andere Firma schon kennt, wenn der Lizenzpreis unter den restlichen Forschungskosten liegt | ersparte Forschungskosten (einmalig) | Abkürzung |
+| Marketing | `kampagne` | Land und Warengruppe mit eigenem Absatz, aber Bekanntheit unter `bekanntheit_ziel` und ohne Werbebudget | Mehrumsatz × Marge (Schätzung) | Reichweite |
+| Strategie | `kaufangebot` | wie MA5, dazu die beobachteten Länder | Ergebnis des Objekts | Rendite, Passung (eigene Warengruppe), Abwehr (Konkurrent würde Marktführer), Streuung (neue Warengruppe) |
+
+### Trefferquote
+
+- Jede Entscheidung und Empfehlung einer Abteilungsleitung wird nach
+  `bewertung_monate` bewertet: **Treffer**, wenn die empfohlene Option nach den wahren
+  Werten (ohne Schätzfehler) die beste war. Abgelehnte Empfehlungen zählen ebenso.
+- Trefferquote mit Vorgewicht (damit wenige Fälle nicht täuschen):
+
+      q = (Treffer + mittelwert · vorgewicht) / (bewertet + vorgewicht)
+
+  Sichtbar im Managermarkt und in der Organisation, mit der Zahl der Fälle.
+- **Gehaltsforderung** (MA1) mal
+
+      e^(k · (q − mittelwert))
+
+  `k` aus den Daten; eine Leitung mit 90 % bei 50 % Mittel fordert mit k = 2 das 2,2-Fache.
+- **Abwerbung** (MA6): Die KI vergleicht die Stärke mal demselben Faktor; Leitungen mit
+  hoher Trefferquote werden häufiger umworben.

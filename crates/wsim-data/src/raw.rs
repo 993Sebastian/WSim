@@ -1794,3 +1794,28 @@ pub struct RawCurrencyPeriod {
     #[serde(rename = "umrechnung", default)]
     pub conversion: Option<f64>,
 }
+
+/// Headquarters and central departments (`parameter/zentrale.yaml`, ZA1–ZA3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCentral {
+    #[serde(rename = "hauptsitz")]
+    pub headquarters: RawHeadquarters,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHeadquarters {
+    #[serde(rename = "verlegung_monate")]
+    pub months: u32,
+    #[serde(rename = "kosten_grund_usd")]
+    pub cost_base_usd: f64,
+    #[serde(rename = "kosten_je_angestelltem_usd")]
+    pub cost_per_employee_usd: f64,
+    #[serde(rename = "mitziehen")]
+    pub moving_share: f64,
+}

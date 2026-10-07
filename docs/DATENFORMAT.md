@@ -435,6 +435,17 @@ Optional: ohne den Abschnitt gibt es keine Manager.
 | **faehigkeiten** | `schwerpunkt`, `sonst`, `allgemein`: je `mittel` (0–100) und `streuung` (0–50); `eindruck_unschaerfe` (0–50) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## zentrale
+
+`data/parameter/zentrale.yaml` (ZA1–ZA3; Regeln: `docs/FORMELN.md`, Vorgabe:
+`docs/BETEILIGUNGEN.md`). Optional: ohne den Abschnitt kostet ein Umzug nichts und dauert
+bis zum nächsten Monatsanfang.
+
+| Feld | Bedeutung |
+|---|---|
+| **hauptsitz** | `verlegung_monate` (0–60), `kosten_grund_usd` und `kosten_je_angestelltem_usd` (≥ 0, USD Kaufkraft 2026), `mitziehen` (0–1: Anteil der Angestellten der Zentrale, der beim Umzug mitkommt) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## produktnamen
 
 Bausteine für die erfundenen Namen, die Firmen ihren Endprodukten geben (in `ki/`, M42;

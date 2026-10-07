@@ -2851,3 +2851,38 @@ fn management_wird_geprueft() {
         "Arbeitskräftegruppe „akademiker.kaufmaennisch“ ist nicht definiert.",
     );
 }
+
+const ZENTRALE: &str = "zentrale:
+  hauptsitz: {verlegung_monate: 6, kosten_grund_usd: 250000, kosten_je_angestelltem_usd: 25000,
+              mitziehen: 0.6}
+  annaeherung: true
+";
+
+/// Headquarters and central departments (ZA1–ZA3).
+#[test]
+fn zentrale_wird_geprueft() {
+    let datei = "parameter/zentrale.yaml";
+    let basis = || Daten::neu().datei(datei, ZENTRALE);
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let c = outcome.data.unwrap().catalog.central;
+    assert_eq!(c.headquarters.months, 6);
+    assert!((c.headquarters.moving_share - 0.6).abs() < 1e-9);
+    // Optional: without it a move is free.
+    let outcome = Daten::neu().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let d = basis().ersetze(datei, "mitziehen: 0.6", "mitziehen: 1.5");
+    befund(
+        &d.laden(),
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    let d = basis().ersetze(datei, "verlegung_monate: 6", "verlegung_monate: 100");
+    befund(
+        &d.laden(),
+        "Wert 100 liegt außerhalb des erlaubten Bereichs 0 bis 60.",
+    );
+    let d = basis().ersetze(datei, "kosten_grund_usd: 250000", "kosten_grund_usd: -5");
+    befund(&d.laden(), "-5");
+    let d = basis().datei("parameter/zentrale2.yaml", ZENTRALE);
+    befund(&d.laden(), "Abschnitt „zentrale“ darf es nur einmal geben");
+}

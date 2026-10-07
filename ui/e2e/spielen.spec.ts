@@ -826,6 +826,13 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
     SetHiringByHead: { position: { unit: { Site: 0 }, role: "Head" }, enabled: true },
   });
 
+  // The headquarters (ZA1): a move to another country.
+  const sitz = page.getByRole("article", { name: "Hauptsitz" });
+  await expect(sitz).toContainText("Hauptsitz: Deutschland");
+  await sitz.getByLabel("Neues Land").selectOption("FRA");
+  await sitz.getByRole("button", { name: "Hauptsitz verlegen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({ SetHeadquarters: { country: "FRA" } });
+
   // Which concerns halt a run of rounds: a choice in the menu, kept in the browser.
   await page.getByRole("button", { name: "Menü" }).click();
   const halt = page.getByRole("group", { name: "Bei Anliegen anhalten" });

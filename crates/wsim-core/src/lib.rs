@@ -7,6 +7,7 @@ pub mod ai;
 pub mod brand;
 pub mod calendar;
 pub mod catalog;
+pub mod central;
 pub mod command;
 pub mod competition;
 pub mod country_model;
@@ -47,6 +48,8 @@ pub mod views;
 
 #[cfg(test)]
 mod board_tests;
+#[cfg(test)]
+mod central_tests;
 #[cfg(test)]
 mod deals_tests;
 #[cfg(test)]

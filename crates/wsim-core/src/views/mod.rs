@@ -5,6 +5,7 @@
 
 use std::collections::BTreeMap;
 
+mod central;
 mod chains;
 mod concerns;
 mod deals;
@@ -13,6 +14,7 @@ mod organisation;
 mod play;
 mod review;
 mod strategy;
+pub use central::*;
 pub use chains::*;
 pub use concerns::*;
 pub use deals::{

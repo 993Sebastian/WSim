@@ -1008,6 +1008,18 @@ organisation.stelle: Stelle
 organisation.inhaber: Besetzt mit
 organisation.erledigt: Erledigt
 organisation.gehalt: Gehalt im Jahr
+zentrale.titel: Hauptsitz und Zentrale
+zentrale.hauptsitz: Hauptsitz
+zentrale.hilfe: "Im Land des Hauptsitzes zahlt die Firma ihre Gewinnsteuer; nach seinem Lohnniveau richten sich die Gehälter des Vorstands und der Zentrale. Ein Umzug kostet sofort, dauert einige Monate, und nicht alle Angestellten der Zentrale ziehen mit."
+zentrale.steuer: Gewinnsteuer
+zentrale.lohn: Lohnniveau der Manager (Jahreslohn)
+zentrale.umzug: "Umzug nach {land} läuft – der neue Sitz gilt zum Monatsanfang ab {datum}."
+zentrale.verlegen: Hauptsitz verlegen
+zentrale.ziel: Neues Land
+zentrale.ziel_waehlen: Land wählen …
+zentrale.ziel_option: "{land} – Steuer {steuer}, Lohn {lohn}"
+zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Angestellten der Zentrale ziehen mit."
+zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
 organisation.zufriedenheit.0: unzufrieden
 organisation.zufriedenheit.1: gemischt
 organisation.zufriedenheit.2: zufrieden

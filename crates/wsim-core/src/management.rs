@@ -331,7 +331,7 @@ pub fn holder(state: &GameState, company: CompanyId, position: &Position) -> Opt
 }
 
 /// Yearly wage of the salary group in a country (USD, docs/FORMELN.md, MA1).
-fn yearly_wage(catalog: &Catalog, state: &GameState, country: CountryId) -> f64 {
+pub fn yearly_wage(catalog: &Catalog, state: &GameState, country: CountryId) -> f64 {
     let Some(group) = catalog.management.salary_group else {
         return 0.0;
     };

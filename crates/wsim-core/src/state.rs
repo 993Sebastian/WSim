@@ -324,6 +324,17 @@ pub struct Company {
     /// The latest strategy reviews with the CEO, oldest first (MA5).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub reviews: Vec<crate::review::Review>,
+    /// A move of the headquarters under way (ZA1).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relocation: Option<Relocation>,
+}
+
+/// A move of a company's headquarters (ZA1): the new country from the first month start
+/// on or after `until`.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Relocation {
+    pub country: CountryId,
+    pub until: Date,
 }
 
 /// What a company set and recorded for one of its positions (MA2): it stays with the

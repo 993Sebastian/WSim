@@ -184,6 +184,7 @@ impl Game {
             strategies: Vec::new(),
             mandate: crate::mandate::Mandate::default(),
             reviews: Vec::new(),
+            relocation: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -430,6 +431,11 @@ impl Game {
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
             crate::management::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::central::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             report.messages.extend(crate::staffing::month_start(
                 &mut self.state,
                 &self.catalog,

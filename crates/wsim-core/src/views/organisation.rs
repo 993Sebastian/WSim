@@ -208,6 +208,8 @@ pub struct OrganisationView {
     pub rules: Vec<BudgetRuleView>,
     /// Types of positions the company has, for new rules.
     pub kinds: Vec<PositionKindView>,
+    /// The headquarters and the central departments (ZA1–ZA3).
+    pub central: super::CentralView,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -663,6 +665,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
         budget_floor: m.budget_floor,
         rules,
         kinds,
+        central: super::central(game),
     }
 }
 

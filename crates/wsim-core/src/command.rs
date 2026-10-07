@@ -211,6 +211,8 @@ pub enum Command {
     MatchOffer { manager: ManagerId },
     /// Lets a manager of the company go to the company that made him an offer (MA6).
     LetGo { manager: ManagerId },
+    /// Moves the headquarters to another country (ZA1).
+    SetHeadquarters { country: CountryId },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -392,6 +394,14 @@ pub enum CommandError {
     },
     /// No open offer to the manager.
     NoPoachOffer,
+    /// No such country (ZA1).
+    UnknownCountry,
+    /// The headquarters are there already.
+    SameHeadquarters,
+    /// A move is under way until the date.
+    RelocationUnderWay {
+        until: Date,
+    },
 }
 
 impl CommandError {
@@ -505,6 +515,11 @@ impl CommandError {
                 e(keys::COMMAND_MANAGER_COURTED).with("datum", Param::Date(*until))
             }
             CommandError::NoPoachOffer => e(keys::COMMAND_NO_POACH_OFFER),
+            CommandError::UnknownCountry => e(keys::COMMAND_UNKNOWN_COUNTRY),
+            CommandError::SameHeadquarters => e(keys::COMMAND_SAME_HEADQUARTERS),
+            CommandError::RelocationUnderWay { until } => {
+                e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
+            }
         }
     }
 }
@@ -775,6 +790,9 @@ fn run(
         }
         Command::LetGo { manager } => {
             crate::staffing::let_go(state, catalog, actor, *manager)?;
+        }
+        Command::SetHeadquarters { country } => {
+            crate::central::set_headquarters(state, catalog, actor, *country)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

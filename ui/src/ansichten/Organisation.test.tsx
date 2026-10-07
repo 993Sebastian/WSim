@@ -213,6 +213,30 @@ describe("Anliegen", () => {
     ]);
   });
 
+  it("zeigt den Hauptsitz mit Steuer und Lohn und verlegt ihn", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    const karte = await screen.findByRole("article", { name: "Hauptsitz" });
+    expect(within(karte).getByText(/Hauptsitz: Deutschland/)).toBeTruthy();
+    expect(within(karte).getByText("Gewinnsteuer")).toBeTruthy();
+    const formular = within(karte).getByRole("form", { name: "Hauptsitz verlegen" });
+    expect(within(formular).getByText(/Kosten jetzt 250\.000 .*6 Monate/)).toBeTruthy();
+    const knopf = within(formular).getByRole("button", { name: "Hauptsitz verlegen" });
+    expect((knopf as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(within(formular).getByLabelText(/Neues Land/), {
+      target: { value: "FRA" },
+    });
+    fireEvent.click(knopf);
+    await screen.findByText("Der Umzug nach Frankreich beginnt; er dauert 6 Monate.");
+    expect(gesendet).toEqual([{ SetHeadquarters: { country: "FRA" } }]);
+  });
+
   it("hat Texte für alle Optionen, Gründe und Ausgänge", () => {
     const optionen = [
       "beibehalten",

@@ -1,0 +1,9 @@
+# Hauptsitz und Zentralabteilungen (ZA1–ZA3, docs/BETEILIGUNGEN.md; Formeln:
+# docs/FORMELN.md, Abschnitte ZA1–ZA3). Beträge in USD Kaufkraft 2026.
+
+zentrale:
+  # Verlegen des Hauptsitzes: Dauer in Monaten, Kosten (Grundbetrag und je Angestelltem
+  # der Zentralabteilungen) und Anteil der Angestellten, der mitzieht.
+  hauptsitz: {verlegung_monate: 6, kosten_grund_usd: 250000, kosten_je_angestelltem_usd: 25000,
+              mitziehen: 0.6}
+  annaeherung: true

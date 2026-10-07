@@ -897,6 +897,20 @@ entschieden:
 47. **Obergrenze der Erfahrung** aus der höchsten Fachkompetenz bei der Ziehung (statt
     der des Schwerpunkts): einheitlich für neue Bewerber und ältere Spielstände.
 
+## O Hauptsitz, Zentralabteilungen, Start-ups (Vorgabe `docs/BETEILIGUNGEN.md`)
+
+✅ **ZA1 umgesetzt** (Hauptsitz verlegen). 🟡 Vorläufig entschieden:
+
+1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
+   Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
+   bewirkt (z. B. mit der Logistik).
+2. **Immer sichtbar:** Die Karte „Hauptsitz und Zentrale“ steht von Anfang an in der
+   Organisation – sonst fände der Spieler nicht, wo er die erste Abteilung einrichtet.
+3. **Kosten** 250.000 USD plus 25.000 USD je Angestelltem der Zentrale, Dauer sechs
+   Monate, 60 % ziehen mit (Schätzungen in `parameter/zentrale.yaml`).
+4. **Kriegsrisiken** des Sitzlands kommen mit Stufe 4.
+5. **KI-Firmen** verlegen ihren Sitz nicht.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

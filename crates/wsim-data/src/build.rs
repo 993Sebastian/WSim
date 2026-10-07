@@ -20,6 +20,7 @@ use wsim_core::time_series::TimeSeries;
 use crate::messages;
 
 mod ai;
+mod central;
 mod countries;
 mod currencies;
 mod deals;
@@ -612,6 +613,7 @@ pub(crate) fn build(
     b.catalog.name_groups = ai::name_groups(b.ctx, &b.catalog, raw, (&country_keys, &branch_keys));
     b.catalog.product_naming = names::product_naming(b.ctx, &b.catalog, raw, &group_keys);
     b.catalog.management = management::management(b.ctx, &b.catalog, raw);
+    b.catalog.central = central::central_model(b.ctx, &b.catalog, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

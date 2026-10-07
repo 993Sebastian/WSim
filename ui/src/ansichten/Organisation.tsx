@@ -26,6 +26,7 @@ import type {
   Stelle,
   Stellentyp,
   Uebersicht,
+  Zentrale,
 } from "../kern";
 import { t } from "../texte";
 import { AnliegenListe } from "./Anliegen";
@@ -247,6 +248,87 @@ function GehaltUndZufriedenheit({ s, stelle }: { s: EinheitOrganisation; stelle:
         </label>
       )}
     </>
+  );
+}
+
+/**
+ * The headquarters (ZA1): where it is, what that means for taxes and salaries, and a
+ * move to another country.
+ */
+function Hauptsitz({ z }: { z: Zentrale }) {
+  const { los } = useAktion(ORT);
+  const [ziel, setZiel] = useState("");
+  const laender = [...z.countries]
+    .filter((l) => l.country !== z.country)
+    .map((l) => ({ ...l, name: landName(l.country) }))
+    .sort((a, b) => a.name.localeCompare(b.name, "de"));
+  const gewaehlt = laender.find((l) => l.country === ziel);
+  return (
+    <section aria-label={t("zentrale.titel")}>
+      <h2>{t("zentrale.titel")}</h2>
+      <article className="karte" aria-label={t("zentrale.hauptsitz")}>
+        <h4>
+          {t("zentrale.hauptsitz")}: {landName(z.country)}{" "}
+          <Erklaerung wert={t("zentrale.hauptsitz")}>
+            <p>{t("zentrale.hilfe")}</p>
+          </Erklaerung>
+        </h4>
+        <dl className="werte">
+          <dt>{t("zentrale.steuer")}</dt>
+          <dd>{formatProzent(z.tax)}</dd>
+          <dt>{t("zentrale.lohn")}</dt>
+          <dd>{formatGeld(z.wage_usd)}</dd>
+        </dl>
+        {z.relocation ? (
+          <p className="warnung-text">
+            {t("zentrale.umzug", {
+              land: landName(z.relocation.country),
+              datum: formatDatum(z.relocation.until),
+            })}
+          </p>
+        ) : (
+          <form
+            aria-label={t("zentrale.verlegen")}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!gewaehlt) return;
+              void los(
+                [{ SetHeadquarters: { country: gewaehlt.country } }],
+                t("zentrale.verlegt", { land: gewaehlt.name, monate: z.move_months }),
+              ).then((ok) => ok && setZiel(""));
+            }}
+          >
+            <div className="formular-zeile">
+              <label>
+                {t("zentrale.ziel")}{" "}
+                <select value={ziel} onChange={(e) => setZiel(e.target.value)}>
+                  <option value="">{t("zentrale.ziel_waehlen")}</option>
+                  {laender.map((l) => (
+                    <option key={l.country} value={l.country}>
+                      {t("zentrale.ziel_option", {
+                        land: l.name,
+                        steuer: formatProzent(l.tax),
+                        lohn: formatGeld(l.wage_usd),
+                      })}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button type="submit" disabled={!gewaehlt}>
+                {t("zentrale.verlegen")}
+              </button>
+            </div>
+            <p className="feld-hilfe">
+              {t("zentrale.kosten", {
+                betrag: formatGeld(z.move_cost_usd),
+                monate: z.move_months,
+                anteil: formatProzent(z.moving_share),
+              })}
+            </p>
+          </form>
+        )}
+      </article>
+    </section>
   );
 }
 
@@ -722,6 +804,7 @@ function Organigramm({
           />
         </section>
       )}
+      {daten.central && <Hauptsitz z={daten.central} />}
       {daten.continents.map((k) => (
         <section key={k.continent} aria-label={t(`kontinent.${k.continent}`)}>
           <h2>{t(`kontinent.${k.continent}`)}</h2>

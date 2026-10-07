@@ -323,4 +323,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Leitung stellt ein | Befehl `SetHiringByHead`, `PositionState::hires`, `staffing::{heads_hire, has_work}`; Sicht `PositionView::hires` |
 | Abwerbung, Angebot an einen Manager, Sperrfrist | `state::PoachOffer`, `GameState::poach_offers`, `Manager::courted`; Befehl `PoachManager`; `staffing::{poach, poach_salary, courted_until}`; `PoachingModel` (`markt.abwerbung`) |
 | Gegenangebot, Gehen lassen | Befehle `MatchOffer`, `LetGo`; `ChoiceKind::{Counter, LetGo}` (`gegenangebot`, `gehen_lassen`); Thema `Topic::Poaching` (`abwerbung`); `ConcernReason::Poaching` |
+| Hauptsitz, Umzug (Verlegen) | `Company::{headquarters, relocation}`, `state::Relocation`; Befehl `SetHeadquarters`; Modul `central` (`set_headquarters`, `relocation_cost`, `month_start`); Daten `zentrale.hauptsitz` (`CentralModel`, `HeadquartersModel`); Sicht `CentralView` (`OrganisationView::central`); UI: `Hauptsitz` (`Organisation.tsx`) |
 | KI stellt ein, Kompetenz durch Manager | `staffing::{ai_staffing, next_position, fill, poach_target, ai_competence}`, `AiState::{staff, skill}`, `rng::Stream::Staffing`; `AiHiringModel` (`markt.ki`) |
