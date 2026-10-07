@@ -324,6 +324,8 @@ fn unit_view(game: &Game, unit: Option<Unit>, (sites, monthly): (u32, f64)) -> S
             unit_key(c, Unit::Continent(c.countries.get(k).continent)),
         ),
         Unit::Continent(k) => (None, Some(k), "firma".into()),
+        // The board is the company's level, shown as `firma`.
+        Unit::Board => (None, None, "firma".into()),
     };
     StrategyUnitView {
         key: unit_key(c, u),
@@ -402,7 +404,7 @@ pub fn strategy(game: &Game) -> StrategyView {
     }
     let (sales, sale_products, sale_countries) = sales_channels(game, &own);
     let m = &c.management.strategy;
-    let (_, aggressiveness) = crate::ai::traits(state, player);
+    let (_, aggressiveness) = crate::ai::traits(c, state, player);
     let rules_floor = c.ai_model.behavior.floor_factor.at(aggressiveness);
     StrategyView {
         enabled: c.management.enabled(),

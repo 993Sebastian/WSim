@@ -318,6 +318,12 @@ pub struct Company {
     /// Strategies for the managers (MA4), by field and scope.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub strategies: Vec<crate::strategy::StrategySetting>,
+    /// Mandate to the board (MA5).
+    #[serde(default, skip_serializing_if = "crate::mandate::Mandate::is_default")]
+    pub mandate: crate::mandate::Mandate,
+    /// The latest strategy reviews with the CEO, oldest first (MA5).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub reviews: Vec<crate::review::Review>,
 }
 
 /// What a company set and recorded for one of its positions (MA2): it stays with the
@@ -402,6 +408,10 @@ pub enum ConcernReason {
     Reserve,
     /// The investment exceeds what is left of an investment budget (MA4).
     Investment,
+    /// The loan would take the debt over the limit of the mandate (MA5).
+    Debt,
+    /// A proposal of the CEO at the strategy review (MA5).
+    Proposal,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -532,12 +542,14 @@ pub struct Job {
     pub since: Date,
 }
 
-/// Where a position sits (MA3): a site, or a country or continent of its company.
+/// Where a position sits (MA3, MA5): a site, a country or continent of its company, or
+/// its board.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Unit {
     Site(SiteId),
     Country(CountryId),
     Continent(ContinentId),
+    Board,
 }
 
 /// A position: the head of a unit or the specialist of a function there (MA1, MA3; the
@@ -595,6 +607,7 @@ pub enum UnitLevel {
     Site(SiteType),
     Country,
     Continent,
+    Board,
 }
 
 /// A type of position: all heads or all specialists of a function at a level (MA3).

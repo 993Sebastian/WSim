@@ -131,6 +131,9 @@ pub struct PeriodResult {
     /// Revenue per site (MA2: the budgets of its positions).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub site_revenue: BTreeMap<SiteId, Money>,
+    /// Revenue per product (MA5: the strategy review).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub product_revenue: BTreeMap<ProductId, Money>,
 }
 
 /// Change of cash in a period by activity (Kapitalflussrechnung).
@@ -178,6 +181,9 @@ impl PeriodResult {
         }
         if let Some(product) = center.product {
             *self.by_product.entry(product).or_default() += amount;
+            if cost == CostType::Revenue {
+                *self.product_revenue.entry(product).or_default() += amount;
+            }
         }
         *self
             .by_center

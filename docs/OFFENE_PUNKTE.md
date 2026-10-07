@@ -847,6 +847,32 @@ Herkunft; Einzelheiten: `docs/FORMELN.md`, MA4).
     Meilensteinen, die diese Entscheidungen den Managern geben (Logistik Stufe 2, Werbung
     und Forschung mit MA5/ZA).
 
+✅ **MA5 umgesetzt** (Vorstand mit CEO und Ressorts, Kasse und Kaufangebote,
+Strategieauftrag, Strategierücksprache; Einzelheiten: `docs/FORMELN.md`, MA5).
+🟡 Vorläufig entschieden:
+
+34. **Regelthemen:** Kredite und Werbung folgen der Regel, weil ihre Bewertung nur Kosten
+    zählt (Zins, Mehrbudget). Vorher hätte eine urteilsstarke Stelle nie einen Kredit
+    aufgenommen und – schon seit MA3 – nie die Werbung erhöht. Anliegen dazu bleiben
+    wichtig. Vorschlag: den Mehrabsatz durch Werbung später schätzen (MA0, Punkt 3).
+35. **Ein offenes Anliegen je Thema am Vorstand:** Kommen mehrere Kaufangebote zugleich und
+    reicht das Budget nicht, ist nur eines als Anliegen offen; die übrigen beantwortet der
+    Vorstand am nächsten Prüftermin (Angebote gelten zwei Monate).
+36. **Sperren gelten für die Stellen,** nicht für den Spieler; Lizenzen sind nie gesperrt.
+37. **CEO und kleine Firmen:** Ein CEO kostet das 15-Fache eines Akademikerlohns; eine
+    Werkstatt mit 100.000 USD Startkapital geht daran in wenigen Monaten pleite. Die
+    Gehaltsforderung steht im Managermarkt. Vorschlag: dort warnen, wenn das Jahresgehalt
+    die Kasse übersteigt.
+38. **Aggressivität der Spielerfirma:** Leitlinie „Ertrag“ = 0,5, genau der bisherige Wert;
+    ohne Auftrag ändert sich nichts.
+39. **Rücksprache mit dem CEO allein:** Ressorts sind dafür nicht nötig; ohne CEO gibt es
+    keine Rücksprache (die Ansicht sagt, wie es dazu kommt).
+40. **Stellen je Firma:** Land, Kontinent und Vorstand sind als Einheit nicht
+    firmenbezogen; das reicht, solange nur der Spieler Manager hat. Vor den
+    KI-Einstellungen (MA6) wird die Suche nach dem Inhaber firmenbezogen.
+41. **Umsatz je Produkt** wird je Monat aufgezeichnet (für den Bericht). Dadurch ändert
+    sich der Zustands-Hash der Weltläufe, nicht ihr Verlauf: Die Protokolle bleiben gleich.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

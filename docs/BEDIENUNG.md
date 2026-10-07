@@ -221,12 +221,12 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
-### Organisation (MA1–MA4)
+### Organisation (MA1–MA5)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
-und was bleibt bei mir?“ Drei Unterreiter: „Stellen“, „Anliegen“ (mit Zähler der
-offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort) und „Strategie“.
-Der Reiter „Organisation“ trägt denselben Zähler.
+und was bleibt bei mir?“ Vier Unterreiter: „Stellen“, „Anliegen“ (mit Zähler der
+offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strategie“ und
+„Rücksprache“. Der Reiter „Organisation“ trägt denselben Zähler.
 
 - **Organigramm:** Kopfzeile mit Zahl der Manager, Gehältern je Jahr und Bewerbern (ⓘ:
   wie Stellen arbeiten). Darunter Kontinent → Land → Standort; je Standort eine Karte mit
@@ -312,12 +312,42 @@ Der Reiter „Organisation“ trägt denselben Zähler.
   Grenze).
 - **Anliegen wegen Vorgaben (MA4):** „Danach läge die Kasse unter der Liquiditätsreserve
   (…)“ oder „Das Investitionsbudget (Deutschland) reicht nicht mehr (übrig: …)“.
+- **Vorstand (MA5):** Über den Kontinenten eine Karte „Vorstand“ (Hinweis: was CEO und
+  Ressorts tun) mit CEO und den Ressorts („Ressort Finanzen“, „Ressort Produktion“ …),
+  gleiche Spalten wie bei Standorten. Das Ressort Personal hat keine Themen, lässt sich
+  aber besetzen („Schätzt Bewerber und Manager genauer ein“). „Entscheidest du selbst“
+  nennt ohne Vorstand Kredite, Kaufangebote und die Antworten darauf. Was der Vorstand
+  selbst entscheidet (Kredit, Gebot, Verkauf, Ablehnung, Gegenangebot), steht im
+  Rundenbericht („Der Vorstand verkauft …“).
+- **Anliegen des Vorstands (MA5):** „CEO · Vorstand · Name fragt“; neue Gründe „Danach
+  wären die Kredite höher, als der Strategieauftrag erlaubt (Spielraum: …)“ und „Ein
+  Antrag des CEO aus der Strategierücksprache – unabhängig vom Budget“. Schritte von
+  Kaufangeboten in Worten („Angebot von X annehmen: 1,2 Mio. USD für den Standort (Werk in
+  Deutschland)“, „… verlangen“, „… ablehnen“, „… bieten“).
+- **Rücksprache (MA5):** Oben das Formular „Strategieauftrag an den Vorstand“ (ⓘ: Wirkung
+  der Leitlinie auf alle Stellen, Ziele, Grenzen; Investitionsbudget und Reserve stehen in
+  der Strategie): Leitlinie (Wachstum, Ertrag, Sicherheit, Marktführerschaft mit Auswahl der
+  Warengruppe; darunter, was sie bewirkt, mit der Aggressivität), Takt der Rücksprache,
+  Ziele (Umsatzwachstum, Umsatzrendite, Eigenkapitalquote in %, Rang nach Umsatz; leer =
+  ohne Ziel), Grenzen (Kredite höchstens in % der Bilanzsumme, gesperrte Länder und
+  Warengruppen als Liste mit „×“ und „hinzufügen …“), „Auftrag übernehmen“; Werte
+  außerhalb der Grenzen meldet das Formular vor dem Senden. Darunter „Strategierücksprachen“:
+  ohne CEO der Hinweis, wie es dazu kommt; sonst „Nächste Rücksprache mit Name: Datum“,
+  „Ziele heute“ (Vorgabe, Ist, erreicht/verfehlt) und die letzte Rücksprache als Karte
+  („Rücksprache 01.01.1914 – 31.03.1914“, „Bericht von Name · Rücksprache quartalsweise“):
+  Tabelle Umsatz und Ergebnis (Firma, je Kontinent, Gemeinkosten), Tabelle Warengruppen
+  (Umsatz, Marge), Ziele des Abschnitts, Chancen (Produkte mit der höchsten Marge je Umsatz,
+  Anträge) und Risiken (Standorte mit Verlust, verfehlte Ziele, Kasse unter der Reserve,
+  Verschuldung über der Grenze), „Zu den Anträgen (n)“. Ältere Rücksprachen aufklappbar mit
+  Umsatz und Ergebnis in der Zeile.
 - **Anhalten:** Im Menü (☰) „Bei Anliegen anhalten: bei allen / bei wichtigen / nie“
   (Vorgabe: bei wichtigen; im Browser gemerkt). „Bis Jahresende“ und „bis zur nächsten
-  Meldung“ halten danach an („Angehalten wegen eines Anliegens deiner Manager“).
+  Meldung“ halten danach an („Angehalten wegen eines Anliegens deiner Manager“). Eine
+  Strategierücksprache hält immer an („Angehalten: Strategierücksprache“); ein Kaufangebot
+  an die Firma hält nicht mehr an, solange der Vorstand Antworten übernimmt.
 - Übersicht: Ab drei Standorten ohne einen Manager weist „Zu erledigen“ auf die
   Organisation hin. Rundgang der Einführung: Schritt „Organisation“ (nennt Budget und
-  Anliegen).
+  Anliegen, den Vorstand und die Rücksprache).
 
 ### Forschung → Technologiebaum (M19)
 

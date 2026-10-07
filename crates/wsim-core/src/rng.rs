@@ -36,6 +36,11 @@ pub enum Stream {
         id: u32,
         day: u32,
     },
+    /// A company's strategy review at a month end (MA5).
+    Review {
+        company: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -51,6 +56,9 @@ impl Stream {
             }
             Stream::ManagerMarket { month } => (4 << 56) | u64::from(month),
             Stream::Manager { id, day } => (5 << 56) | (u64::from(id) << 24) | u64::from(day),
+            Stream::Review { company, month } => {
+                (6 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
         }
     }
 }

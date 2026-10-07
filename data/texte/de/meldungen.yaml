@@ -64,6 +64,7 @@ fehler.befehl.rezept_passt_nicht: Dieses Verfahren läuft nicht auf dieser Anlag
 fehler.befehl.rezept_braucht_lagerstaette: Für den Abbau braucht der Standort eine erschlossene Lagerstätte dieses Rohstoffs.
 fehler.befehl.anteil_ungueltig: Der Wert muss zwischen 0 und 100 % liegen.
 fehler.befehl.vorgabe_ungueltig: Diese Vorgabe liegt außerhalb ihrer Grenzen.
+fehler.befehl.auftrag_ungueltig: Dieser Strategieauftrag liegt außerhalb der erlaubten Grenzen.
 fehler.befehl.automatisierung_zu_hoch: Diese Anlage lässt sich höchstens zu {max} % automatisieren.
 fehler.befehl.menge_ungueltig: Die Menge muss größer als 0 sein.
 fehler.befehl.ware_fehlt: So viel ist nicht auf Lager; vorhanden sind {menge}.
@@ -184,7 +185,10 @@ meldung.anliegen.neu_land: "{stelle} ({land}) fragt: {thema}. Antwort bis {frist
 meldung.anliegen.neu_kontinent: "{stelle} ({kontinent}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen_land: "Anliegen von {stelle} ({land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.verfallen_kontinent: "Anliegen von {stelle} ({kontinent}) zu „{thema}“ verfallen; es bleibt, wie es ist."
+meldung.anliegen.neu_vorstand: "{stelle} (Vorstand) fragt: {thema}. Antwort bis {frist}."
+meldung.anliegen.verfallen_vorstand: "Anliegen von {stelle} (Vorstand) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.folge: "{massnahme} in {standort} ({land}): Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}."
+meldung.ruecksprache: "Strategierücksprache: {name} ({stelle}) legt den Bericht für {von} bis {bis} vor – Anträge: {antraege}."
 schritt.stilllegen: "{anzahl} × {anlage} stilllegen"
 schritt.verkaufen: "{anzahl} × {anlage} verkaufen"
 schritt.anfahren: "{anlage} wieder anfahren"
@@ -205,6 +209,18 @@ schritt.forschung: "Forschung an {technologie}"
 schritt.forschung_ende: Labor ohne Ziel lassen
 schritt.weiterentwicklung: "{produkt} weiterentwickeln"
 schritt.lagerstaette: "Lagerstätte {lagerstaette} erschließen"
+schritt.bieten.standort: "{preis} für den Standort von {firma} bieten ({art} in {land})"
+schritt.bieten.lizenz: "{preis} für eine Lizenz auf „{technologie}“ von {firma} bieten"
+schritt.bieten.bereich: "{preis} für den Bereich {warengruppe} von {firma} bieten (Standorte: {standorte})"
+schritt.annehmen.standort: "Angebot von {firma} annehmen: {preis} für den Standort ({art} in {land})"
+schritt.annehmen.lizenz: "Angebot von {firma} annehmen: {preis} für eine Lizenz auf „{technologie}“"
+schritt.annehmen.bereich: "Angebot von {firma} annehmen: {preis} für den Bereich {warengruppe} (Standorte: {standorte})"
+schritt.gegenangebot.standort: "{preis} von {firma} für den Standort verlangen ({art} in {land})"
+schritt.gegenangebot.lizenz: "{preis} von {firma} für die Lizenz auf „{technologie}“ verlangen"
+schritt.gegenangebot.bereich: "{preis} von {firma} für den Bereich {warengruppe} verlangen (Standorte: {standorte})"
+schritt.ablehnen.standort: "Angebot von {firma} über {preis} ablehnen (Standort: {art} in {land})"
+schritt.ablehnen.lizenz: "Angebot von {firma} über {preis} für „{technologie}“ ablehnen"
+schritt.ablehnen.bereich: "Angebot von {firma} über {preis} für den Bereich {warengruppe} ablehnen"
 anliegen.begruendung.ergebnis: "Bringt nach meiner Schätzung {von} bis {bis} im Jahr."
 anliegen.begruendung.erloes: "Bringt einmalig {betrag}."
 anliegen.begruendung.abwarten: Abwarten – die anderen Wege kosten nach meiner Schätzung mehr, als sie bringen.
@@ -227,6 +243,21 @@ meldung.angebot.gekauft.bereich: "Gekauft: {firma} verkauft dir den Bereich {war
 meldung.angebot.verkauft.bereich: "Verkauft: {firma} übernimmt deinen Bereich {warengruppe} mit Marke (Standorte: {standorte}) für {preis}."
 meldung.angebot.abgelehnt.bereich: "{firma} lehnt das Angebot für den Bereich {warengruppe} ab."
 meldung.angebot.abgelaufen.bereich: "Das Angebot mit {firma} für den Bereich {warengruppe} ist abgelaufen."
+meldung.vorstand.angebot.standort: "Der Vorstand bietet {firma} {preis} für ihren Standort ({art} in {land}). Antwort bis {frist}."
+meldung.vorstand.angebot.lizenz: "Der Vorstand bietet {firma} {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
+meldung.vorstand.angebot.bereich: "Der Vorstand bietet {firma} {preis} für ihren Bereich {warengruppe} mit Marke (Standorte: {standorte}). Antwort bis {frist}."
+meldung.vorstand.verkauft.standort: "Der Vorstand verkauft {firma} deinen Standort ({art} in {land}) für {preis}."
+meldung.vorstand.verkauft.lizenz: "Der Vorstand verkauft {firma} eine Lizenz auf „{technologie}“ für {preis}."
+meldung.vorstand.verkauft.bereich: "Der Vorstand verkauft {firma} deinen Bereich {warengruppe} mit Marke (Standorte: {standorte}) für {preis}."
+meldung.vorstand.gekauft.standort: "Der Vorstand kauft von {firma} den Standort ({art} in {land}) für {preis}."
+meldung.vorstand.gekauft.lizenz: "Der Vorstand kauft von {firma} eine Lizenz auf „{technologie}“ für {preis}."
+meldung.vorstand.gekauft.bereich: "Der Vorstand kauft von {firma} den Bereich {warengruppe} mit Marke (Standorte: {standorte}) für {preis}."
+meldung.vorstand.abgelehnt.standort: "Der Vorstand lehnt das Angebot von {firma} über {preis} für den Standort ({art} in {land}) ab."
+meldung.vorstand.abgelehnt.lizenz: "Der Vorstand lehnt das Angebot von {firma} über {preis} für eine Lizenz auf „{technologie}“ ab."
+meldung.vorstand.abgelehnt.bereich: "Der Vorstand lehnt das Angebot von {firma} über {preis} für den Bereich {warengruppe} ab."
+meldung.vorstand.gegenangebot.standort: "Der Vorstand verlangt von {firma} {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
+meldung.vorstand.gegenangebot.lizenz: "Der Vorstand verlangt von {firma} {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
+meldung.vorstand.gegenangebot.bereich: "Der Vorstand verlangt von {firma} {preis} für deinen Bereich {warengruppe} mit Marke (Standorte: {standorte}). Antwort bis {frist}."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
 
 # Hinweise der Übersicht („Zu erledigen“)

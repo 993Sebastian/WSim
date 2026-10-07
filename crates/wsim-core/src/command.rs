@@ -196,6 +196,8 @@ pub enum Command {
         field: crate::strategy::StrategyField,
         value: Option<crate::strategy::StrategyValue>,
     },
+    /// The mandate to the board (MA5).
+    SetMandate { mandate: crate::mandate::Mandate },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -269,6 +271,8 @@ pub enum CommandError {
     InvalidShare,
     /// A strategy outside its bounds or for another field (MA4).
     InvalidStrategy,
+    /// A mandate outside its bounds (MA5).
+    InvalidMandate,
     AutomationTooHigh {
         max: f64,
     },
@@ -390,6 +394,7 @@ impl CommandError {
             CommandError::RecipeNeedsDeposit => e(keys::COMMAND_RECIPE_NEEDS_DEPOSIT),
             CommandError::InvalidShare => e(keys::COMMAND_INVALID_SHARE),
             CommandError::InvalidStrategy => e(keys::COMMAND_INVALID_STRATEGY),
+            CommandError::InvalidMandate => e(keys::COMMAND_INVALID_MANDATE),
             CommandError::AutomationTooHigh { max } => {
                 e(keys::COMMAND_AUTOMATION_TOO_HIGH).with("max", Param::Number(*max * 100.0))
             }
@@ -714,6 +719,9 @@ fn run(
             value,
         } => {
             crate::strategy::set(state, catalog, actor, (*scope, *field), *value)?;
+        }
+        Command::SetMandate { mandate } => {
+            crate::mandate::set(state, catalog, actor, mandate)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

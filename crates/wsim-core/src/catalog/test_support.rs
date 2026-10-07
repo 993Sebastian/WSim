@@ -538,7 +538,7 @@ pub fn power() -> Catalog {
 pub fn management() -> Catalog {
     use super::{
         ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-        NameGroup, SiteType, SkillModel, StrategyModel,
+        MandateModel, NameGroup, SiteType, SkillModel, StrategyModel,
     };
     use crate::decision::Topic;
 
@@ -569,6 +569,12 @@ pub fn management() -> Catalog {
         Topic::Deposit,
         Topic::Advertising,
     ];
+    // The board: the units' topics, the cash and offers (MA5).
+    let board_topics: Vec<Topic> = unit_topics
+        .iter()
+        .copied()
+        .chain([Topic::Cash, Topic::Offer, Topic::OfferAnswer])
+        .collect();
     let level = |key: &str, check_days, (salary_specialist, salary_head), topics: &[Topic]| {
         ManagementLevel {
             key: key.to_owned(),
@@ -577,10 +583,10 @@ pub fn management() -> Catalog {
             salary_head,
             budget_specialist: (0.02, 0.05),
             budget_head: (0.05, 0.10),
-            specialists: if key == "standort" {
-                Vec::new()
-            } else {
-                vec![0, 1, 2, 3, 4]
+            specialists: match key {
+                "standort" => Vec::new(),
+                "vorstand" => vec![0, 1, 2, 3, 4, 5],
+                _ => vec![0, 1, 2, 3, 4],
             },
             topics: topics.to_vec(),
         }
@@ -603,12 +609,16 @@ pub fn management() -> Catalog {
             function("vertrieb_marketing", vec![Topic::Sale, Topic::Advertising]),
             function("personal", vec![Topic::Wage]),
             function("forschung", vec![Topic::Research, Topic::Development]),
+            function(
+                "finanzen",
+                vec![Topic::Cash, Topic::Offer, Topic::OfferAnswer],
+            ),
         ],
         levels: vec![
             level("standort", 7, (1.5, 2.5), &site_topics),
             level("land", 30, (3.0, 4.0), &unit_topics),
             level("kontinent", 30, (5.0, 7.0), &unit_topics),
-            level("vorstand", 91, (10.0, 15.0), &[]),
+            level("vorstand", 30, (10.0, 15.0), &board_topics),
         ],
         specialists: vec![
             (SiteType::Factory, vec![0, 1, 2, 3]),
@@ -621,6 +631,7 @@ pub fn management() -> Catalog {
             Topic::OwnSupply,
             Topic::Wage,
         ],
+        rule_topics: vec![Topic::Cash, Topic::Advertising],
         budget_floor: (1.0, 3.0),
         concerns: ConcernModel {
             deadline_days: 30,
@@ -637,6 +648,13 @@ pub fn management() -> Catalog {
             min_margin_max: 2.0,
             stock_days_max: 180.0,
             reserve_months_max: 24.0,
+        },
+        mandate: MandateModel {
+            guidelines: [0.8, 0.5, 0.2, 0.8],
+            proposals_max: 3,
+            chances_risks: 3,
+            reviews_kept: 8,
+            personnel_sharpness: 0.8,
         },
         head_discount: 0.2,
         notice_base: 0.5,

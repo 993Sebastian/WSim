@@ -1,6 +1,6 @@
 // Decisions of the player as the core reads them (crates/wsim-core/src/command.rs):
 // content by key, amounts as Money units (hundredths of a cent).
-import type { Geltung, Vorgabe, Vorgabefeld } from "./typen";
+import type { Auftrag, Geltung, Vorgabe, Vorgabefeld } from "./typen";
 
 /** USD → Money units of the core. */
 export const geld = (usd: number): number => Math.round(usd * 10_000);
@@ -47,6 +47,7 @@ export type Befehl =
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
   | { AskAgain: { position: Stellenangabe; topic: string } }
   | { SetStrategy: { scope: Geltung; field: Vorgabefeld; value: Vorgabe | null } }
+  | { SetMandate: { mandate: Auftrag } }
   | {
       SetSalesPolicy: {
         buyer: "Traders" | "Companies";
@@ -60,7 +61,7 @@ export type Befehl =
     }
   | {
       SetBudgetRule: {
-        kind: { level: { Site: string } | "Country" | "Continent"; role: Rolle };
+        kind: { level: { Site: string } | "Country" | "Continent" | "Board"; role: Rolle };
         scope: "Company" | { Continent: string } | { Country: string };
         shares: [number, number] | null;
       };
@@ -72,8 +73,8 @@ export type Anliegenantwort = { Choose: number } | "Delegate" | "NeverAsk" | "De
 /** A role: the head of a unit or the specialist of a function. */
 export type Rolle = "Head" | { Specialist: string };
 
-/** A unit: a site by its number, a country or a continent by its key (MA3). */
-export type Einheit = { Site: number } | { Country: string } | { Continent: string };
+/** A unit: a site by its number, a country or a continent by its key (MA3), the board (MA5). */
+export type Einheit = { Site: number } | { Country: string } | { Continent: string } | "Board";
 
 /** A position (MA1, MA3): the head of a unit or the specialist of a function there. */
 export type Stellenangabe = { unit: Einheit; role: Rolle };

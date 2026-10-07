@@ -2,7 +2,7 @@
 
 use wsim_core::catalog::{
     Catalog, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-    SiteType, SkillModel, StrategyModel,
+    MandateModel, SiteType, SkillModel, StrategyModel,
 };
 use wsim_core::decision::Topic;
 
@@ -194,17 +194,29 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         specialists.push((kind, indices));
     }
 
+    // Topics of the routine and topics whose effect counts only costs (MA5): in both the
+    // positions take the rules' option; a topic belongs to one list at most.
     let mut routine_topics = Vec::new();
-    for (i, key) in v.routine_topics.iter().enumerate() {
-        let tl = l.field("routine_themen").index(i);
-        match Topic::from_key(key) {
-            Some(topic) if routine_topics.contains(&topic) => {
-                ctx.error(&tl, messages::duplicate_key("Thema", key, "routine_themen"));
-            }
-            Some(topic) => routine_topics.push(topic),
-            None => {
-                let suggested = crate::suggest::closest(key, topic_keys.iter().copied());
-                ctx.error(&tl, messages::unknown_reference("Thema", key, suggested));
+    let mut rule_topics = Vec::new();
+    for (list, keys) in [
+        ("routine_themen", &v.routine_topics),
+        ("regel_themen", &v.rule_topics),
+    ] {
+        for (i, key) in keys.iter().enumerate() {
+            let tl = l.field(list).index(i);
+            match Topic::from_key(key) {
+                Some(topic) if routine_topics.contains(&topic) => {
+                    ctx.error(&tl, messages::duplicate_key("Thema", key, "routine_themen"));
+                }
+                Some(topic) if rule_topics.contains(&topic) => {
+                    ctx.error(&tl, messages::duplicate_key("Thema", key, "regel_themen"));
+                }
+                Some(topic) if list == "routine_themen" => routine_topics.push(topic),
+                Some(topic) => rule_topics.push(topic),
+                None => {
+                    let suggested = crate::suggest::closest(key, topic_keys.iter().copied());
+                    ctx.error(&tl, messages::unknown_reference("Thema", key, suggested));
+                }
             }
         }
     }
@@ -242,6 +254,36 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
     };
 
     let strategy = strategy(ctx, catalog, &v.strategy, &l.field("strategie"));
+    let ml = l.field("strategieauftrag");
+    let gl = ml.field("leitlinien");
+    let g = &v.mandate.guidelines;
+    let mandate = MandateModel {
+        guidelines: [
+            in_range(ctx, g.growth, 0.0, 1.0, &gl.field("wachstum")),
+            in_range(ctx, g.profit, 0.0, 1.0, &gl.field("ertrag")),
+            in_range(ctx, g.safety, 0.0, 1.0, &gl.field("sicherheit")),
+            in_range(ctx, g.leadership, 0.0, 1.0, &gl.field("marktfuehrung")),
+        ],
+        proposals_max: v.mandate.proposals_max.max(1),
+        chances_risks: v.mandate.chances_risks.max(1),
+        reviews_kept: v.mandate.reviews_kept.max(1),
+        personnel_sharpness: in_range(
+            ctx,
+            v.mandate.personnel_sharpness,
+            0.0,
+            1.0,
+            &ml.field("personal_schaerfe"),
+        ),
+    };
+    for (value, field) in [
+        (v.mandate.proposals_max, "antraege_max"),
+        (v.mandate.chances_risks, "chancen_risiken"),
+        (v.mandate.reviews_kept, "ruecksprachen_behalten"),
+    ] {
+        if value == 0 {
+            ctx.error(&ml.field(field), messages::not_positive(0.0));
+        }
+    }
 
     let salary_group = catalog.labor_groups.id(&v.salary_group);
     if salary_group.is_none() {
@@ -300,9 +342,11 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         levels,
         specialists,
         routine_topics,
+        rule_topics,
         budget_floor,
         concerns,
         strategy,
+        mandate,
         head_discount: in_range(
             ctx,
             v.head_discount,

@@ -525,7 +525,7 @@ fn advantages_for(
 ) -> Advantages {
     let model = &catalog.deal_model;
     let ai = &model.ai;
-    let (_, aggressiveness) = crate::ai::traits(state, buyer);
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, buyer);
     let (made, offered) = business;
 
     let mut share = 0.0;
@@ -1079,10 +1079,40 @@ fn news(
     describe(message, state, catalog, offer.seller, offer.object)
 }
 
+/// What accepting an open offer counts against a budget (docs/FORMELN.md, MA5): as the
+/// seller the book value of the sites given away (nothing for a licence), as the buyer
+/// answering a counter-offer the price.
+pub(crate) fn accepted_amount(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    id: u32,
+) -> Money {
+    let Some(o) = state
+        .offers
+        .iter()
+        .find(|o| o.id == id && o.status == OfferStatus::Open)
+    else {
+        return Money::ZERO;
+    };
+    if o.buyer == company {
+        return o.price;
+    }
+    let sites = match o.object {
+        DealObject::Site(site) => vec![site],
+        DealObject::Area(group) => area_sites(state, catalog, o.seller, group),
+        DealObject::License(_) => Vec::new(),
+    };
+    sites
+        .into_iter()
+        .map(|s| site_value(state, catalog, s).book())
+        .sum()
+}
+
 /// The lowest price an AI seller accepts.
 fn ai_minimum(state: &GameState, catalog: &Catalog, offer: &Offer) -> Money {
     let ai = &catalog.deal_model.ai;
-    let (_, aggressiveness) = crate::ai::traits(state, offer.seller);
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, offer.seller);
     match offer.object {
         DealObject::Site(site) => {
             let value = site_value(state, catalog, site);
@@ -1644,7 +1674,7 @@ fn ai_site_bid(
     if adv.total() < ai.min_advantage {
         return None;
     }
-    let (_, aggressiveness) = crate::ai::traits(state, buyer);
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, buyer);
     let highest = value.base.scale(1.0 + adv.total());
     let bid = value
         .base
@@ -1659,9 +1689,20 @@ pub(crate) fn best_deal(
     catalog: &Catalog,
     buyer: CompanyId,
 ) -> Option<(DealObject, CompanyId, Money)> {
+    best_deal_for(state, catalog, buyer, None)
+}
+
+/// The best deal by the AI's rule; with a mandate (MA5) without the objects it bans and
+/// those of its leading goods group first.
+pub(crate) fn best_deal_for(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    mandate: Option<&crate::mandate::Mandate>,
+) -> Option<(DealObject, CompanyId, Money)> {
     let model = &catalog.deal_model;
     let ai = &model.ai;
-    let (_, aggressiveness) = crate::ai::traits(state, buyer);
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, buyer);
     let company = &state.companies[buyer.index()];
     let budget = company.ledger.cash().scale(ai.cash_share_max);
     let min_price = Money::from_usd(ai.min_price_usd).unwrap_or(Money::ZERO);
@@ -1692,16 +1733,31 @@ pub(crate) fn best_deal(
         .collect();
     countries.insert(company.headquarters);
 
+    let first = mandate.and_then(crate::mandate::Mandate::first_group);
+    let leading = |object: DealObject| match (first, object) {
+        (Some(g), DealObject::Site(site)) => site_groups(state, catalog, site).contains(&g),
+        (Some(g), DealObject::Area(group)) => group == g,
+        _ => false,
+    };
     // The deal with the most room per dollar: small but attractive objects count as
-    // much as large ones.
-    let mut best: Option<(f64, DealObject, CompanyId, Money)> = None;
+    // much as large ones; a mandate's leading group first.
+    let mut best: Option<(bool, f64, DealObject, CompanyId, Money)> = None;
     let mut consider = |room: Money, object: DealObject, seller: CompanyId, price: Money| {
         if price < min_price || price > budget || room <= Money::ZERO || price <= Money::ZERO {
             return;
         }
+        if mandate
+            .is_some_and(|m| crate::mandate::blocked_object(catalog, state, m, seller, object))
+        {
+            return;
+        }
+        let lead = leading(object);
         let score = room.to_usd() / price.to_usd();
-        if best.as_ref().is_none_or(|b| score > b.0) {
-            best = Some((score, object, seller, price));
+        if best
+            .as_ref()
+            .is_none_or(|b| (lead && !b.0) || (lead == b.0 && score > b.1))
+        {
+            best = Some((lead, score, object, seller, price));
         }
     };
 
@@ -1821,7 +1877,7 @@ pub(crate) fn best_deal(
         let highest = value.scale(ai.license_max);
         consider(highest - price, object, seller, price);
     }
-    best.map(|(_, object, seller, price)| (object, seller, price))
+    best.map(|(_, _, object, seller, price)| (object, seller, price))
 }
 
 /// An AI company's monthly look for a deal (docs/FORMELN.md, M30). Returns the news for
@@ -1833,7 +1889,7 @@ pub(crate) fn ai_offers(
     decider: &mut dyn crate::decision::Decider,
 ) -> Option<Message> {
     let ai = &catalog.deal_model.ai;
-    let (_, aggressiveness) = crate::ai::traits(state, buyer);
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, buyer);
     if !state.companies[buyer.index()]
         .rng
         .chance(ai.chance.at(aggressiveness))
@@ -1881,4 +1937,270 @@ pub(crate) fn ai_offers(
         &offer,
         buyer,
     ))
+}
+
+/// Bids of a company for the sites of insolvent companies being auctioned (MA5): in its
+/// countries, with an advantage, as an AI company would bid at the close (M38) within its
+/// cash share; objects the mandate bans left out, those of its leading group first.
+fn auction_candidates(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+) -> Vec<(CompanyId, DealObject, Money)> {
+    let c = &state.companies[buyer.index()];
+    let mandate = &c.mandate;
+    let cash = c.ledger.cash().scale(catalog.deal_model.ai.cash_share_max);
+    let countries: BTreeSet<CountryId> = state
+        .sites
+        .iter()
+        .filter(|s| s.owner == buyer)
+        .map(|s| s.country)
+        .chain(std::iter::once(c.headquarters))
+        .collect();
+    let business = business(state, catalog, buyer);
+    let mut out = Vec::new();
+    for (i, s) in state.sites.iter().enumerate() {
+        let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+        let (seller, object) = (s.owner, DealObject::Site(site));
+        if seller == buyer || !countries.contains(&s.country) || !in_auction(state, seller) {
+            continue;
+        }
+        let taken = state.offers.iter().any(|o| {
+            o.status == OfferStatus::Open
+                && o.buyer == buyer
+                && o.seller == seller
+                && o.object == object
+        });
+        if taken || crate::mandate::blocked_object(catalog, state, mandate, seller, object) {
+            continue;
+        }
+        let Some(bid) = ai_site_bid(state, catalog, buyer, &business, site) else {
+            continue;
+        };
+        let price = bid.bid.min(cash);
+        if price > Money::ZERO && price >= auction_minimum(state, catalog, site) {
+            out.push((seller, object, price));
+        }
+    }
+    if let Some(g) = mandate.first_group() {
+        out.sort_by_key(|&(_, object, _)| match object {
+            DealObject::Site(site) => !site_groups(state, catalog, site).contains(&g),
+            _ => true,
+        });
+    }
+    out
+}
+
+/// An offer the board would make, put to the company's positions; the news when it went
+/// out.
+fn board_offer(
+    state: &mut GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    (seller, object, price): (CompanyId, DealObject, Money),
+    decider: &mut dyn crate::decision::Decider,
+) -> Option<Message> {
+    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    let command = Command::MakeOffer {
+        seller,
+        object,
+        price,
+    };
+    let decided = crate::decision::decided(decider, state, catalog, |_| {
+        Decision::new(
+            Topic::Offer,
+            buyer,
+            Choice::one(ChoiceKind::Offer, command.clone()),
+        )
+    });
+    if !decided {
+        return None;
+    }
+    command::execute(state, catalog, buyer, &command).ok()?;
+    let offer = state.offers.last()?.clone();
+    Some(news(
+        state,
+        catalog,
+        [
+            keys::BOARD_OFFER_SITE,
+            keys::BOARD_OFFER_LICENSE,
+            keys::BOARD_OFFER_AREA,
+        ],
+        &offer,
+        seller,
+    ))
+}
+
+/// The offers of a company's board at its check (docs/FORMELN.md, MA5): bids in the
+/// auctions of insolvent companies, then the best deal by the AI's rule without its
+/// chance, each put to the positions while the company has fewer open offers than the
+/// AI may. Returns the news for the player.
+pub(crate) fn board_offers(
+    state: &mut GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    decider: &mut dyn crate::decision::Decider,
+) -> Vec<Message> {
+    let open_max = catalog.deal_model.ai.open_max;
+    let full = |state: &GameState| {
+        let open = state
+            .offers
+            .iter()
+            .filter(|o| o.status == OfferStatus::Open && o.buyer == buyer)
+            .count();
+        u32::try_from(open).unwrap_or(u32::MAX) >= open_max
+    };
+    let mut out = Vec::new();
+    for bid in auction_candidates(state, catalog, buyer) {
+        if full(state) {
+            return out;
+        }
+        out.extend(board_offer(state, catalog, buyer, bid, decider));
+    }
+    if full(state) {
+        return out;
+    }
+    let mandate = state.companies[buyer.index()].mandate.clone();
+    if let Some((object, seller, price)) = best_deal_for(state, catalog, buyer, Some(&mandate)) {
+        out.extend(board_offer(
+            state,
+            catalog,
+            buyer,
+            (seller, object, price),
+            decider,
+        ));
+    }
+    out
+}
+
+/// The decision about an offer a company has to answer (MA5): the AI's answer first, the
+/// other answers, then leaving it open.
+fn answer_decision(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    offer: &Offer,
+) -> crate::decision::Decision {
+    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    let rule = ai_answer(state, catalog, offer);
+    let choice = |answer: OfferAnswer| {
+        let kind = match answer {
+            OfferAnswer::Accept => ChoiceKind::Accept,
+            OfferAnswer::Decline => ChoiceKind::Decline,
+            OfferAnswer::Counter { .. } => ChoiceKind::Counter,
+        };
+        Choice::one(
+            kind,
+            Command::AnswerOffer {
+                offer: offer.id,
+                answer,
+            },
+        )
+    };
+    let mut others = vec![OfferAnswer::Accept];
+    if !offer.counter {
+        let minimum = ai_minimum(state, catalog, offer);
+        if minimum > offer.price {
+            others.push(OfferAnswer::Counter { price: minimum });
+        }
+    }
+    others.push(OfferAnswer::Decline);
+    let same = |a: &OfferAnswer| std::mem::discriminant(a) == std::mem::discriminant(&rule);
+    others.into_iter().filter(|a| !same(a)).fold(
+        Decision::new(Topic::OfferAnswer, company, choice(rule)),
+        |d, a| d.or(choice(a)),
+    )
+}
+
+/// The answers of a company's board to the offers it has to answer (docs/FORMELN.md,
+/// MA5): the AI's rule – as the seller accept from the lowest price it asks, counter from
+/// the threshold, else decline; as the buyer of a counter-offer accept what it would pay
+/// at most – put to the positions. Returns the news for the player.
+pub(crate) fn board_answers(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    decider: &mut dyn crate::decision::Decider,
+) -> Vec<Message> {
+    let today = state.date;
+    let due: Vec<u32> = state
+        .offers
+        .iter()
+        .filter(|o| o.status == OfferStatus::Open && o.answering() == company && o.date < today)
+        .map(|o| o.id)
+        .collect();
+    let mut out = Vec::new();
+    for id in due {
+        // An answer before may have closed it.
+        let Some(offer) = state
+            .offers
+            .iter()
+            .find(|o| o.id == id && o.status == OfferStatus::Open)
+            .cloned()
+        else {
+            continue;
+        };
+        let d = answer_decision(state, catalog, company, &offer);
+        let chosen = match decider.decide(state, catalog, &d) {
+            crate::decision::Verdict::Rule => d.rule,
+            crate::decision::Verdict::Choice(i) => i,
+            crate::decision::Verdict::Hold => continue,
+        };
+        let Some(Command::AnswerOffer { answer, .. }) = d
+            .choices
+            .get(chosen)
+            .and_then(|c| c.steps.first())
+            .map(|s| &s.command)
+        else {
+            continue;
+        };
+        let answer = *answer;
+        let buying = offer.buyer == company;
+        let (keys, other) = match answer {
+            OfferAnswer::Accept if buying => (
+                [
+                    keys::BOARD_BOUGHT_SITE,
+                    keys::BOARD_BOUGHT_LICENSE,
+                    keys::BOARD_BOUGHT_AREA,
+                ],
+                offer.seller,
+            ),
+            OfferAnswer::Accept => (
+                [
+                    keys::BOARD_SOLD_SITE,
+                    keys::BOARD_SOLD_LICENSE,
+                    keys::BOARD_SOLD_AREA,
+                ],
+                offer.buyer,
+            ),
+            OfferAnswer::Decline => (
+                [
+                    keys::BOARD_DECLINED_SITE,
+                    keys::BOARD_DECLINED_LICENSE,
+                    keys::BOARD_DECLINED_AREA,
+                ],
+                if buying { offer.seller } else { offer.buyer },
+            ),
+            OfferAnswer::Counter { .. } => (
+                [
+                    keys::BOARD_COUNTER_SITE,
+                    keys::BOARD_COUNTER_LICENSE,
+                    keys::BOARD_COUNTER_AREA,
+                ],
+                offer.buyer,
+            ),
+        };
+        // Described before the hand-over, with the price and deadline after the answer.
+        let mut after = offer.clone();
+        if let OfferAnswer::Counter { price } = answer {
+            after.price = price;
+            after.date = today;
+        }
+        let message = news(state, catalog, keys, &after, other);
+        let command = Command::AnswerOffer { offer: id, answer };
+        if command::execute(state, catalog, company, &command).is_ok() {
+            out.push(message);
+        }
+    }
+    out
 }

@@ -77,10 +77,14 @@ pub struct ManagementModel {
     pub specialists: Vec<(SiteType, Vec<usize>)>,
     /// Topics of the running routine: positions take the rules' option (MA2).
     pub routine_topics: Vec<crate::decision::Topic>,
+    /// Topics whose effect counts only costs (loans, advertising): positions take the
+    /// rules' option, but concerns about them are important (MA5).
+    pub rule_topics: Vec<crate::decision::Topic>,
     /// Least budget in yearly salaries of the manager: per decision, per year.
     pub budget_floor: (f64, f64),
     pub concerns: ConcernModel,
     pub strategy: StrategyModel,
+    pub mandate: MandateModel,
     /// Less expertise for a head doing the work of a missing specialist.
     pub head_discount: f64,
     /// Chance that a position without any diligence notices a situation (0–1).
@@ -166,6 +170,19 @@ pub struct StrategyModel {
     pub min_margin_max: f64,
     pub stock_days_max: f64,
     pub reserve_months_max: f64,
+}
+
+/// Mandate and strategy review (MA5, docs/FORMELN.md).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct MandateModel {
+    /// Aggressiveness of the rules per guideline: growth, profit, safety, leadership.
+    pub guidelines: [f64; 4],
+    pub proposals_max: u32,
+    /// Chances and risks in a report, each.
+    pub chances_risks: u32,
+    pub reviews_kept: u32,
+    /// How much a personnel board member with full expertise sharpens the impression.
+    pub personnel_sharpness: f64,
 }
 
 /// Candidates per continent (MA1).

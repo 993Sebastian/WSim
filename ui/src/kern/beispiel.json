@@ -25143,6 +25143,119 @@
     }
   },
   "organisation": {
+    "board": {
+      "continent": null,
+      "country": null,
+      "key": "vorstand",
+      "kind_text": "ebene.vorstand",
+      "level": "vorstand",
+      "next_check": null,
+      "own_topics": [
+        "engpass",
+        "kasse",
+        "kaufangebot",
+        "antwort"
+      ],
+      "positions": [
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "leitung",
+          "topics": [
+            "ueberkapazitaet",
+            "stillgelegt",
+            "wiederanfahren",
+            "ausbau",
+            "kraftwerk",
+            "lagerstaette",
+            "engpass",
+            "werbung",
+            "kasse",
+            "kaufangebot",
+            "antwort"
+          ]
+        },
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "produktion",
+          "topics": [
+            "ueberkapazitaet",
+            "stillgelegt",
+            "wiederanfahren",
+            "ausbau",
+            "kraftwerk",
+            "lagerstaette",
+            "engpass"
+          ]
+        },
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "einkauf_lager",
+          "topics": []
+        },
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "vertrieb_marketing",
+          "topics": [
+            "werbung"
+          ]
+        },
+        {
+          "budget": null,
+          "effect": "organisation.wirkung_personal",
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "personal",
+          "topics": []
+        },
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "forschung",
+          "topics": []
+        },
+        {
+          "budget": null,
+          "effect": null,
+          "holder": null,
+          "log": [],
+          "open_concerns": 0,
+          "quiet": [],
+          "role": "finanzen",
+          "topics": [
+            "kasse",
+            "kaufangebot",
+            "antwort"
+          ]
+        }
+      ],
+      "site": null
+    },
     "budget_floor": [
       1.0,
       3.0
@@ -25181,6 +25294,7 @@
                       ],
                       "spent_usd": 0.0
                     },
+                    "effect": null,
                     "holder": {
                       "manager": {
                         "continent": "europa",
@@ -25270,6 +25384,7 @@
                   },
                   {
                     "budget": null,
+                    "effect": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25285,6 +25400,7 @@
                   },
                   {
                     "budget": null,
+                    "effect": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25297,6 +25413,7 @@
                   },
                   {
                     "budget": null,
+                    "effect": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25308,6 +25425,7 @@
                   },
                   {
                     "budget": null,
+                    "effect": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25319,6 +25437,7 @@
                   },
                   {
                     "budget": null,
+                    "effect": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25355,6 +25474,7 @@
                     ],
                     "spent_usd": 0.0
                   },
+                  "effect": null,
                   "holder": {
                     "manager": {
                       "continent": "europa",
@@ -25433,6 +25553,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25449,6 +25570,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25458,6 +25580,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25469,6 +25592,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25478,6 +25602,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25487,6 +25612,7 @@
                 },
                 {
                   "budget": null,
+                  "effect": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25510,6 +25636,7 @@
           "positions": [
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25527,6 +25654,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25543,6 +25671,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25552,6 +25681,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25563,6 +25693,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25572,6 +25703,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25581,6 +25713,7 @@
             },
             {
               "budget": null,
+              "effect": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25713,6 +25846,48 @@
         "kind_text": "ebene.kontinent",
         "level": "kontinent",
         "role": "forschung",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "leitung",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "produktion",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "einkauf_lager",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "vertrieb_marketing",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "personal",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "forschung",
+        "site_type": null
+      },
+      {
+        "kind_text": "ebene.vorstand",
+        "level": "vorstand",
+        "role": "finanzen",
         "site_type": null
       }
     ],
@@ -34133,6 +34308,313 @@
       "unit": "t",
       "unmet_last_month": 0.0
     }
+  },
+  "ruecksprache": {
+    "ceo": "Alain Moreau",
+    "countries": [
+      "AFG",
+      "AGO",
+      "ARG",
+      "AUS",
+      "AUT",
+      "BEL",
+      "BFA",
+      "BGD",
+      "BGR",
+      "BLR",
+      "BOL",
+      "BRA",
+      "CAN",
+      "CHE",
+      "CHL",
+      "CHN",
+      "CIV",
+      "CMR",
+      "COD",
+      "COL",
+      "CUB",
+      "CZE",
+      "DEU",
+      "DNK",
+      "DZA",
+      "ECU",
+      "EGY",
+      "ESP",
+      "ETH",
+      "FIN",
+      "FRA",
+      "GBR",
+      "GHA",
+      "GRC",
+      "HUN",
+      "IDN",
+      "IND",
+      "IRL",
+      "IRN",
+      "IRQ",
+      "ISR",
+      "ITA",
+      "JPN",
+      "KAZ",
+      "KEN",
+      "KHM",
+      "KOR",
+      "LBY",
+      "LKA",
+      "MAR",
+      "MDG",
+      "MEX",
+      "MLI",
+      "MMR",
+      "MNG",
+      "MOZ",
+      "MWI",
+      "MYS",
+      "NER",
+      "NGA",
+      "NLD",
+      "NOR",
+      "NPL",
+      "NZL",
+      "PAK",
+      "PER",
+      "PHL",
+      "POL",
+      "PRK",
+      "PRT",
+      "ROU",
+      "RUS",
+      "SAU",
+      "SDN",
+      "SEN",
+      "SGP",
+      "SWE",
+      "SYR",
+      "THA",
+      "TUN",
+      "TUR",
+      "TWN",
+      "TZA",
+      "UGA",
+      "UKR",
+      "USA",
+      "UZB",
+      "VEN",
+      "VNM",
+      "XBA",
+      "XGO",
+      "XGU",
+      "XHA",
+      "XHI",
+      "XKA",
+      "XKB",
+      "XLE",
+      "XMA",
+      "XME",
+      "XOZ",
+      "XPU",
+      "XRB",
+      "XSA",
+      "XTB",
+      "XWA",
+      "XWB",
+      "XZA",
+      "YEM",
+      "ZAF",
+      "ZMB",
+      "ZWE"
+    ],
+    "enabled": true,
+    "goals_now": [
+      {
+        "actual": null,
+        "goal": "wachstum",
+        "met": null,
+        "target": 0.1
+      },
+      {
+        "actual": -2.4670456482746257,
+        "goal": "rendite",
+        "met": false,
+        "target": 0.05
+      },
+      {
+        "actual": 101.0,
+        "goal": "rang",
+        "met": false,
+        "target": 50.0
+      }
+    ],
+    "groups": [
+      "erze",
+      "brennstoffe",
+      "eisen_stahl",
+      "nichteisenmetalle",
+      "holz",
+      "papier",
+      "agrarrohstoffe",
+      "lebensmittel",
+      "textilien",
+      "bekleidung",
+      "chemie",
+      "mineraloel",
+      "gummi",
+      "glas_keramik",
+      "metallwaren",
+      "maschinen",
+      "elektro",
+      "fahrzeuge",
+      "moebel_hausrat",
+      "ruestung",
+      "strom"
+    ],
+    "guidelines": [
+      {
+        "aggressiveness": 0.8,
+        "key": "wachstum"
+      },
+      {
+        "aggressiveness": 0.5,
+        "key": "ertrag"
+      },
+      {
+        "aggressiveness": 0.2,
+        "key": "sicherheit"
+      },
+      {
+        "aggressiveness": 0.8,
+        "key": "marktfuehrung"
+      }
+    ],
+    "intervals": [
+      "monatlich",
+      "quartalsweise",
+      "halbjaehrlich",
+      "jaehrlich"
+    ],
+    "mandate": {
+      "blocked_countries": [
+        "RUS"
+      ],
+      "blocked_groups": [],
+      "equity_ratio": null,
+      "growth": 0.1,
+      "guideline": "wachstum",
+      "leading_group": null,
+      "margin": 0.05,
+      "max_debt": 0.4,
+      "rank": 50,
+      "review": "quartalsweise"
+    },
+    "next_review": "1914-07-01",
+    "reviews": [
+      {
+        "chances": [
+          {
+            "concern": null,
+            "kind": "produkt",
+            "margin_usd": 15341.7049,
+            "open": false,
+            "product": "naegel",
+            "revenue_usd": 83659.4336,
+            "topic": null
+          },
+          {
+            "concern": 0,
+            "kind": "antrag",
+            "margin_usd": 0.0,
+            "open": true,
+            "product": "stoff",
+            "revenue_usd": 0.0,
+            "topic": "engpass"
+          },
+          {
+            "concern": 1,
+            "kind": "antrag",
+            "margin_usd": 0.0,
+            "open": true,
+            "product": "draht",
+            "revenue_usd": 0.0,
+            "topic": "engpass"
+          },
+          {
+            "concern": 2,
+            "kind": "antrag",
+            "margin_usd": 0.0,
+            "open": true,
+            "product": "schnittholz",
+            "revenue_usd": 0.0,
+            "topic": "engpass"
+          }
+        ],
+        "continents": [
+          {
+            "key": "europa",
+            "result_usd": 10514.6509,
+            "revenue_usd": 83659.4336
+          }
+        ],
+        "date": "1914-04-01",
+        "from": "1914-01-01",
+        "goals": [
+          {
+            "actual": null,
+            "goal": "wachstum",
+            "met": null,
+            "target": 0.1
+          },
+          {
+            "actual": -2.4670456482746257,
+            "goal": "rendite",
+            "met": false,
+            "target": 0.05
+          },
+          {
+            "actual": 101.0,
+            "goal": "rang",
+            "met": false,
+            "target": 50.0
+          }
+        ],
+        "groups": [
+          {
+            "key": "metallwaren",
+            "result_usd": 15341.7049,
+            "revenue_usd": 83659.4336
+          }
+        ],
+        "interval": "quartalsweise",
+        "manager": "Alain Moreau",
+        "overhead_usd": -216906.2925,
+        "result_usd": -206391.6416,
+        "revenue_usd": 83659.4336,
+        "risks": [
+          {
+            "amount_usd": null,
+            "country": null,
+            "goal": "rendite",
+            "kind": "ziel",
+            "limit_usd": null,
+            "max": null,
+            "share": null,
+            "site": null,
+            "site_kind_text": null
+          },
+          {
+            "amount_usd": null,
+            "country": null,
+            "goal": "rang",
+            "kind": "ziel",
+            "limit_usd": null,
+            "max": null,
+            "share": null,
+            "site": null,
+            "site_kind_text": null
+          }
+        ],
+        "to": "1914-03-31"
+      }
+    ]
   },
   "strategie": {
     "enabled": true,

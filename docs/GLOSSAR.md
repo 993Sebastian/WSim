@@ -306,3 +306,12 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Strategieansicht | `views::{strategy, StrategyView, StrategyUnitView, StrategyEntryView}`; UI: `StrategieAnsicht` (`Strategie.tsx`) |
 | Verkaufsweg (Regel für KI-Händler oder andere Firmen) | `policy::{SalesPolicy, SalesRule, BuyerGroup, Scope}`; Befehl `SetSalesPolicy`; Sicht `SalesChannelView`; UI: `Verkaufswege` (`Strategie.tsx`) |
 | Organisation je Einheit, Managermarkt je Einheit | Sichten `UnitOrgView`, `CountryOrgView::unit`, `ContinentOrgView::unit`, `views::{unit_key, unit_from_key}`; `Session::manager_market(einheit, stelle)`; UI: `EinheitKarte`, `einheitName`, `stellenangabe` |
+| Vorstand, CEO, Ressort | `state::Unit::Board`, `UnitLevel::Board`, Leitung = CEO (`leitung.vorstand`), Fachstellen = Ressorts; `management::ceo_of`; Sicht `OrganisationView::board` (MA5) |
+| Regelthemen (Kredite, Werbung: Stelle folgt der Regel) | `ManagementModel::rule_topics` (`regel_themen`) |
+| Kasse, Kaufangebote und Antworten des Vorstands | `ai::manage_cash`, `deals::{board_offers, board_answers, best_deal_for}`, `decision::Topic::OfferAnswer` (`antwort`), `ChoiceKind::Counter` (`gegenangebot`) |
+| Befugnis für Kredite, Verschuldungsgrenze | `management::lends`, `mandate::{over_debt, debt_share, loan_room}`; `ConcernReason::Debt` (`verschuldung`) |
+| Strategieauftrag (Leitlinie, Ziele, Grenzen, Takt) | `mandate::{Mandate, Guideline, Goals, ReviewInterval}`, `Company::mandate`; Befehl `SetMandate`; `mandate::{aggressiveness, banned, blocked_object}`; Daten `management.strategieauftrag` (`MandateModel`) |
+| Leitlinie: Wachstum, Ertrag, Sicherheit, Marktführerschaft | `Guideline::{Growth, Profit, Safety, Leadership}` (`wachstum`, `ertrag`, `sicherheit`, `marktfuehrung`) |
+| Strategierücksprache, Bericht, Ziel, Chance, Risiko, Antrag | `review::{Review, Figures, GoalCheck, Goal, Chance, Risk, month_end, report, goals}`, `Company::reviews`; `ConcernReason::Proposal` (`antrag`); `ai::opportunities`; Sicht `views::{reviews, ReviewsView}`; UI: `RuecksprachenAnsicht` (`Ruecksprache.tsx`) |
+| Umsatz je Produkt (Hauptbuch) | `ledger::PeriodResult::product_revenue` |
+| Eindruck schärfen (Ressort Personal) | `management::{impression_share, shown_impression}`, `strategieauftrag.personal_schaerfe` |

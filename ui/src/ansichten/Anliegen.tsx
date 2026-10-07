@@ -86,7 +86,11 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
       <p>
         {t(`anliegen.grund.${a.reason}`, {
           budget: formatGeld(a.per_decision_usd),
-          rest: formatGeld(a.reason === "investition" ? (a.strategy_limit_usd ?? 0) : a.left_usd),
+          rest: formatGeld(
+            a.reason === "investition" || a.reason === "verschuldung"
+              ? (a.strategy_limit_usd ?? 0)
+              : a.left_usd,
+          ),
           reserve: formatGeld(a.strategy_limit_usd ?? 0),
           wo: budgetOrt(a),
         })}{" "}

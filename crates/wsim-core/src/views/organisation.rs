@@ -102,12 +102,15 @@ pub struct PositionView {
     pub quiet: Vec<QuietTopicView>,
     /// Its concerns waiting for an answer.
     pub open_concerns: u32,
+    /// Text key of what the position does besides topics (MA5: the personnel member of
+    /// the board sees candidates more sharply).
+    pub effect: Option<String>,
 }
 
 /// The positions of a unit of the player: a site, a country or a continent (MA1, MA3).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UnitOrgView {
-    /// `standort`, `land` or `kontinent`.
+    /// `standort`, `land`, `kontinent` or `vorstand`.
     pub level: String,
     /// The site's number (sites).
     pub site: Option<u32>,
@@ -115,9 +118,10 @@ pub struct UnitOrgView {
     pub country: Option<String>,
     /// The continent (continents).
     pub continent: Option<String>,
-    /// Text key of the site type, else `ebene.land` or `ebene.kontinent`.
+    /// Text key of the site type, else `ebene.land`, `ebene.kontinent` or `ebene.vorstand`.
     pub kind_text: String,
-    /// The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`.
+    /// The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`,
+    /// `vorstand`.
     pub key: String,
     pub positions: Vec<PositionView>,
     /// Next check of the positions; none without a manager there.
@@ -170,6 +174,8 @@ pub struct BudgetRuleView {
 pub struct OrganisationView {
     /// False without manager data.
     pub enabled: bool,
+    /// The board: CEO and members (MA5); none without a site.
+    pub board: Option<UnitOrgView>,
     pub continents: Vec<ContinentOrgView>,
     pub managers: u32,
     /// Salaries of all managers per year.
@@ -233,20 +239,26 @@ pub(super) fn level_key(unit: Unit) -> &'static str {
         Unit::Site(_) => "standort",
         Unit::Country(_) => "land",
         Unit::Continent(_) => "kontinent",
+        Unit::Board => "vorstand",
     }
 }
 
-/// A unit as views and the market name it: `standort:3`, `land:DEU`, `kontinent:europa`.
+/// A unit as views and the market name it: `standort:3`, `land:DEU`, `kontinent:europa`,
+/// `vorstand`.
 pub fn unit_key(catalog: &Catalog, unit: Unit) -> String {
     match unit {
         Unit::Site(s) => format!("standort:{}", s.0),
         Unit::Country(c) => format!("land:{}", catalog.countries.key(c)),
         Unit::Continent(k) => format!("kontinent:{}", catalog.continents.key(k)),
+        Unit::Board => "vorstand".into(),
     }
 }
 
 /// The unit a key names (`unit_key`).
 pub fn unit_from_key(catalog: &Catalog, key: &str) -> Option<Unit> {
+    if key == "vorstand" {
+        return Some(Unit::Board);
+    }
     let (level, rest) = key.split_once(':')?;
     match level {
         "standort" => rest.parse().ok().map(|n| Unit::Site(SiteId(n))),
@@ -262,16 +274,20 @@ pub(super) fn kind_text(state: &GameState, unit: Unit) -> String {
         Unit::Site(s) => site_type_key(state.sites[s.index()].kind),
         Unit::Country(_) => "ebene.land".into(),
         Unit::Continent(_) => "ebene.kontinent".into(),
+        Unit::Board => "ebene.vorstand".into(),
     }
 }
 
 fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
     let c = game.catalog();
+    // The personnel member of the board sees more sharply (MA5).
+    let share = management::impression_share(c, game.state(), game.player());
     let skills = management::skill_keys(c)
         .into_iter()
         .map(|key| {
             let value = management::skill(m, &key).unwrap_or(0);
-            let impression = m.impression.get(&key).copied().unwrap_or(0);
+            let impression =
+                management::shown_impression(m.impression.get(&key).copied().unwrap_or(0), share);
             SkillView {
                 level: shown_level(value, impression),
                 key,
@@ -337,14 +353,20 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
         }
     }
     // Topics a position above takes care of are not the player's; those of a continent
-    // only where one of its countries has nobody for them (MA3).
+    // or the board only where one of its countries has nobody for them (MA3, MA5).
     let countries: Vec<crate::ids::CountryId> = match unit {
         Unit::Site(_) => Vec::new(),
         Unit::Country(k) => vec![k],
-        Unit::Continent(k) => state
+        Unit::Continent(_) | Unit::Board => state
             .sites
             .iter()
-            .filter(|s| s.owner == player && c.countries.get(s.country).continent == k)
+            .filter(|s| {
+                s.owner == player
+                    && match unit {
+                        Unit::Continent(k) => c.countries.get(s.country).continent == k,
+                        _ => true,
+                    }
+            })
             .map(|s| s.country)
             .collect::<std::collections::BTreeSet<_>>()
             .into_iter()
@@ -431,6 +453,13 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
                     && x.status == ConcernStatus::Open
             })
             .count();
+        let personnel = management::function_of(c, Topic::Wage).map(|i| &m.functions[i].key);
+        let effect = match (&position.role, unit) {
+            (Role::Specialist(f), Unit::Board) if Some(f) == personnel => {
+                Some("organisation.wirkung_personal".to_owned())
+            }
+            _ => None,
+        };
         PositionView {
             role: role_key(&position.role),
             topics: topic_keys(topics),
@@ -439,6 +468,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
             log,
             quiet,
             open_concerns: u32::try_from(open_concerns).unwrap_or(u32::MAX),
+            effect,
         }
     };
     let positions = all
@@ -457,7 +487,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
     let country = match unit {
         Unit::Site(s) => Some(state.sites[s.index()].country),
         Unit::Country(k) => Some(k),
-        Unit::Continent(_) => None,
+        Unit::Continent(_) | Unit::Board => None,
     };
     UnitOrgView {
         level: level_key(unit).into(),
@@ -490,6 +520,7 @@ fn kind_view(state: &GameState, level: UnitLevel, role: &Role) -> PositionKindVi
         UnitLevel::Site(t) => ("standort", Some(t), site_type_key(t)),
         UnitLevel::Country => ("land", None, "ebene.land".into()),
         UnitLevel::Continent => ("kontinent", None, "ebene.kontinent".into()),
+        UnitLevel::Board => ("vorstand", None, "ebene.vorstand".into()),
     };
     let _ = state;
     PositionKindView {
@@ -588,6 +619,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
     }
     OrganisationView {
         enabled: m.enabled(),
+        board: m.enabled().then(|| with_positions(Unit::Board)).flatten(),
         continents,
         managers: u32::try_from(employed().count()).unwrap_or(u32::MAX),
         salaries_usd: usd(employed().map(|j| j.salary).sum::<Money>()),

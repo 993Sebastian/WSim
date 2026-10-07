@@ -20,6 +20,7 @@ pub mod health;
 pub mod ids;
 pub mod ledger;
 pub mod management;
+pub mod mandate;
 pub mod market;
 pub mod math;
 pub mod message;
@@ -33,6 +34,7 @@ pub mod production;
 pub mod ranking;
 pub mod reports;
 pub mod research;
+pub mod review;
 pub mod rng;
 pub mod save;
 pub mod state;
@@ -42,6 +44,8 @@ pub mod trade;
 pub mod transport;
 pub mod views;
 
+#[cfg(test)]
+mod board_tests;
 #[cfg(test)]
 mod deals_tests;
 #[cfg(test)]

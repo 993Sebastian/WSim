@@ -28,6 +28,8 @@ pub enum Topic {
     Cash,
     Advertising,
     Offer,
+    /// Answers to offers for the company's sites and technologies (MA5).
+    OfferAnswer,
     Overcapacity,
     Idle,
     Restart,
@@ -40,7 +42,7 @@ pub enum Topic {
 }
 
 impl Topic {
-    pub const ALL: [Topic; 18] = [
+    pub const ALL: [Topic; 19] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -50,6 +52,7 @@ impl Topic {
         Topic::Cash,
         Topic::Advertising,
         Topic::Offer,
+        Topic::OfferAnswer,
         Topic::Overcapacity,
         Topic::Idle,
         Topic::Restart,
@@ -76,6 +79,7 @@ impl Topic {
             Topic::Cash => "kasse",
             Topic::Advertising => "werbung",
             Topic::Offer => "kaufangebot",
+            Topic::OfferAnswer => "antwort",
             Topic::Overcapacity => "ueberkapazitaet",
             Topic::Idle => "stillgelegt",
             Topic::Restart => "wiederanfahren",
@@ -105,6 +109,8 @@ pub enum ChoiceKind {
     Offer,
     Accept,
     Decline,
+    /// Answering an offer with a higher price (MA5).
+    Counter,
     Research,
     Develop,
 }
@@ -125,6 +131,7 @@ impl ChoiceKind {
             ChoiceKind::Offer => "anbieten",
             ChoiceKind::Accept => "annehmen",
             ChoiceKind::Decline => "ablehnen",
+            ChoiceKind::Counter => "gegenangebot",
             ChoiceKind::Research => "forschen",
             ChoiceKind::Develop => "weiterentwickeln",
         }
@@ -252,6 +259,37 @@ pub(crate) fn execute(
             ran
         })
         .collect()
+}
+
+/// The site a step of a new site's option acts on (MA3, MA5): the steps that follow
+/// founding it.
+pub(crate) fn site_of(command: &Command) -> Option<SiteId> {
+    match *command {
+        Command::DevelopDeposit { site, .. }
+        | Command::BuildFacility { site, .. }
+        | Command::SetProduction { site, .. }
+        | Command::SetSale { site, .. }
+        | Command::SetPurchase { site, .. }
+        | Command::BuyPlot { site } => Some(site),
+        _ => None,
+    }
+}
+
+/// Points a step at another site if it acts on `from`.
+pub(crate) fn move_site(command: &mut Command, from: SiteId, to: SiteId) {
+    match command {
+        Command::DevelopDeposit { site, .. }
+        | Command::BuildFacility { site, .. }
+        | Command::SetProduction { site, .. }
+        | Command::SetSale { site, .. }
+        | Command::SetPurchase { site, .. }
+        | Command::BuyPlot { site }
+            if *site == from =>
+        {
+            *site = to;
+        }
+        _ => {}
+    }
 }
 
 /// What a decider makes of a decision.
@@ -421,6 +459,10 @@ pub fn amount(
             .and_then(|s| s.plot)
             .map_or(Money::ZERO, |p| crate::plots::value(catalog, state, p)),
         Command::MakeOffer { price, .. } => *price,
+        Command::AnswerOffer {
+            offer,
+            answer: crate::deals::OfferAnswer::Accept,
+        } => crate::deals::accepted_amount(catalog, state, company, *offer),
         Command::SetWagePremium { site, premium } => {
             let Some(s) = state.sites.get(site.index()) else {
                 return Money::ZERO;

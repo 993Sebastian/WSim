@@ -2689,3 +2689,151 @@ Höchstmenge; die allgemeinen Regeln zuerst.
 Neue Felder mit Vorgabewerten: Alte Stände laden ohne Vorgaben, das Format bleibt
 lesbar ohne neue Version. Vorschläge der Manager zu Vorgaben folgen mit der
 Strategierücksprache (MA5).
+
+## MA5 – Vorstand, CEO, Strategieauftrag und Strategierücksprache
+
+`docs/MANAGER.md` Abschnitte 3, 5, 8, 11 und 12. Daten: `parameter/management.yaml`
+(Ebene `vorstand`, Themen der Bereiche, `regel_themen`, `strategieauftrag`). Kern: Module
+`management`, `mandate` (Strategieauftrag), `deals` (Angebote des Vorstands) und `review`
+(Rücksprache).
+
+### Einheit Vorstand
+
+- Jede Firma mit mindestens einem Standort hat die Einheit **Vorstand**: CEO (Leitung)
+  und Ressorts (Fachstellen der Ebene `vorstand`; Vorgabe: Produktion und Technik,
+  Einkauf und Logistik, Vertrieb und Marketing, Personal, Forschung und Entwicklung,
+  Finanzen – die Bereiche aus MA1).
+- **Gehalt:** Faktor der Ebene (Ressort 10, CEO 15) × (0,5 + Stärke / 100) × Jahreslohn
+  der Akademiker im Land des Firmensitzes; Gemeinkosten der Firma (wie MA3).
+- **Budget:** Bezug = Umsatz der Firma in zwölf Monaten (ohne Umsatz ihre Kosten);
+  Anteile Ressort 3 % / 8 %, CEO 8 % / 20 %; Sockel wie MA2. Deckel: Ressorts und
+  Kontinentvorstände höchstens das Budget des CEO, sobald er besetzt ist (MA3); für alle
+  gilt das Investitionsbudget der Firma (MA4).
+- **Prüfrhythmus** des Vorstands: alle `pruefung_tage` (Vorgabe 30) Tage; die
+  Rücksprache mit dem Spieler hat ihren eigenen Abstand (unten).
+- **Kette:** … → Kontinentvorstand → Ressort des Bereichs → CEO → Spieler. Ohne CEO und
+  Ressort entscheidet der Spieler wie bisher.
+
+### Themen des Vorstands
+
+| Thema | Bereich | Regel | Wann |
+| --- | --- | --- | --- |
+| Überkapazität, stillgelegt, Wiederanfahren, Ausbau, Kraftwerk, Lagerstätte, Werbung | wie MA3 | wie MA3, für Standorte und Länder ohne zuständige Stelle darunter | Quartalsende bzw. Prüftermin |
+| `kasse` | Finanzen | Kassenregel der KI: Kredit unter `kasse_min_monate`, Tilgung über `kasse_max_monate` laufender Kosten | Prüftermin |
+| `kaufangebot` | Finanzen | während einer Versteigerung (M38) Gebote für Standorte in eigenen Ländern mit Vorteil (Gebot wie die KI am Schluss, höchstens `kasse_anteil_max` der Kasse, mindestens das Mindestgebot), dann das beste Geschäft nach der Regel der KI (M30) – ohne ihren Zufall –; jeweils solange die Firma weniger als `offen_max` offene Angebote hat | Prüftermin |
+| `antwort` (neu) | Finanzen | Antwort auf Kaufangebote an die Firma nach der Regel der KI: annehmen ab der Mindestforderung, Gegenangebot ab `gegen_schwelle`, sonst ablehnen | Prüftermin (Angebote gelten `gueltig_monate`) |
+| `engpass` | Produktion | neue Kette oder neues Land: Gelegenheit der KI-Regel (M32/M33) für die eigene Firma | nur bei der Rücksprache, als Antrag |
+
+- **Optionen einer Antwort:** die Antwort der Regel zuerst, dann die übrigen (Annehmen;
+  Gegenangebot zur Mindestforderung, wenn sie über dem Preis liegt und noch keines
+  gemacht ist; Ablehnen), zuletzt „So lassen“ (das Angebot bleibt offen). Ein Anliegen zu
+  einem Angebot, das inzwischen geschlossen ist, gilt als erledigt; ebenso, wenn der
+  Spieler das Angebot selbst beantwortet.
+- **Meldungen:** Was der Vorstand selbst entscheidet (Gebot, Verkauf, Kauf, Ablehnung,
+  Gegenangebot), meldet er im Rundenbericht. Solange eine Stelle des Vorstands Antworten
+  übernimmt, hält ein eingehendes Angebot mehrere Runden am Stück nicht mehr an; was
+  über ihr Budget geht, kommt als Anliegen (das hält wie jedes wichtige Anliegen).
+- **Regelthemen** (`regel_themen`, Vorgabe `kasse`, `werbung`): Ihre Wirkung zählt nur
+  Kosten (Zins, Mehrbudget) – den Nutzen (Zahlungsfähigkeit, Mehrabsatz) schätzt die
+  Bewertung nicht. Wie bei der Routine folgt die Stelle deshalb der Option der Regeln;
+  Anliegen dazu gelten aber als wichtig. (Bis MA4 hätte eine urteilsstarke Stelle so nie
+  Werbung erhöht und nie einen Kredit aufgenommen.)
+- **Angerechnete Beträge** (MA0) neu: Annahme eines Kaufangebots für eigene Standorte –
+  deren Buchwert (Abgabe von Vermögen, bei einem Bereich aller seiner Standorte, bei einer
+  Lizenz nichts); Annahme eines Gegenangebots als Käufer – der Preis; ein Gebot
+  (`MakeOffer`) – der Preis; Gegenangebot und Ablehnung – nichts.
+- **Kredite** (`TakeLoan`, `RepayLoan`) entscheiden nur das Ressort des Bereichs, der die
+  Kasse führt (Finanzen), und der CEO; für alle anderen Stellen bleibt der Grund `kredit`
+  (MA2). Kredite allein gehören zum Vorstand (Ort der Entscheidung). Nach dem Kredit
+  dürfen die Kredite höchstens die Grenze des Strategieauftrags betragen:
+  (K + m) / (A + m) ≤ v (K Kredite, A Bilanzsumme, m neuer Kredit, v Grenze), sonst
+  Anliegen mit dem Grund `verschuldung`; das Anliegen zeigt den Spielraum
+  m_max = (v · A − K) / (1 − v).
+- **Sperren** des Strategieauftrags: Keine Stelle gründet Standorte in gesperrten Ländern,
+  baut (Ausbau, Kraftwerk, Lagerstätte, Engpass) für Produkte gesperrter Warengruppen
+  oder bietet für Standorte in gesperrten Ländern oder mit Produkten gesperrter
+  Warengruppen und für Bereiche gesperrter Warengruppen (oder mit einem Standort in einem
+  gesperrten Land). Solche Entscheidungen hält die Stelle zurück, ohne zu fragen;
+  Gelegenheiten dort entfallen. Der Spieler selbst darf weiter alles.
+
+### Strategieauftrag
+
+Je Firma (`SetMandate`), Standard „Ertrag“, ohne Ziele und Sperren, Rücksprache
+quartalsweise:
+
+- **Leitlinie:** Wachstum, Ertrag, Sicherheit oder Marktführerschaft in einer
+  Warengruppe. Sie gibt den Regeln, nach denen die Stellen der Firma entscheiden, ihre
+  **Aggressivität** (`strategieauftrag.leitlinien`; Vorgabe 0,8 / 0,5 / 0,2 / 0,8) – wie
+  bei KI-Firmen: Preisuntergrenze „Marktpreis“, Schwellen für Ausbau, Werbeanteil,
+  Gebotsaufschlag. Bei Marktführerschaft wählt der CEO Gelegenheiten und Kaufangebote in
+  der Warengruppe zuerst.
+- **Ziele** (je optional): Umsatzwachstum in % je Jahr, Umsatzrendite in %,
+  Eigenkapitalquote in %, Rang nach Umsatz.
+- **Grenzen:** höchste Verschuldung (Kredite / Bilanzsumme, optional), gesperrte Länder,
+  gesperrte Warengruppen. Investitionsbudget und Liquiditätsreserve sind die Vorgaben der
+  Firma aus MA4.
+- **Rücksprache:** monatlich, quartalsweise, halbjährlich oder jährlich.
+
+### Strategierücksprache
+
+- **Fällig**, wenn der CEO besetzt ist, nach dem Monatsabschluss am Ende jedes Abschnitts
+  (Monat, Quartal, Halbjahr, Jahr – Kalenderabschnitte). Mehrere Runden am Stück halten
+  danach immer an (Halt „ruecksprache“).
+- **Bericht** über den abgeschlossenen Abschnitt, aus dem Hauptbuch wie das Controlling:
+  - Umsatz und Ergebnis der Firma, je Kontinent (Kostenstellen der Standorte des
+    Kontinents) und je Warengruppe (Kostenstellen der Produkte der Gruppe: Umsatz und
+    Marge); Gemeinkosten der Firma getrennt.
+  - Ziele gegen Ist: Umsatzwachstum = Umsatz der letzten 12 abgeschlossenen Monate / der
+    12 davor − 1 (ohne Vorjahr kein Wert); Umsatzrendite = Ergebnis / Umsatz der letzten
+    12 Monate; Eigenkapitalquote = Eigenkapital / Bilanzsumme heute; Rang nach Umsatz
+    (M29). Je Ziel „erreicht“ oder „verfehlt“.
+  - **Chancen:** die Produkte mit der höchsten Marge je Umsatz im Abschnitt (bis
+    `chancen_risiken`) und die Anträge. **Risiken:** Standorte mit Verlust im Abschnitt
+    (größter zuerst), verfehlte Ziele, Kasse unter der Liquiditätsreserve, Verschuldung
+    über der Grenze.
+- **Anträge:** Der CEO prüft die strategischen Themen (`engpass`, dazu `kaufangebot`) und
+  legt bis zu `antraege_max` als Anliegen der Rücksprache vor (Grund `antrag`, wichtig),
+  mit seiner Empfehlung (MA2), unabhängig vom Budget. Der Spieler genehmigt (Option
+  wählen), überlässt dem CEO die Entscheidung, lehnt ab oder ändert den Auftrag.
+- Zwischen den Rücksprachen meldet der CEO nur, was über sein Budget geht (Anliegen, wie
+  MA3), und Kaufangebote an die Firma, die er nicht selbst beantworten darf; drohende
+  Zahlungsunfähigkeit meldet die Kasse wie bisher (M5).
+- Gespeichert bleiben die letzten `ruecksprachen_behalten` Rücksprachen.
+- **Umsetzung:** Die Rücksprache folgt dem Monatsabschluss und dem Rang (M29), wenn der
+  abgeschlossene Monat einen Abschnitt beendet (Monat m mit m mod Länge = 0). Der Bericht
+  nimmt die letzten Länge abgeschlossenen Monate des Hauptbuchs (weniger, wenn die Firma
+  jünger ist; „von“ ist der Anfang des ersten): Umsatz und Ergebnis der Firma, je Kontinent
+  Umsatz der Standorte und Ergebnis ihrer Kostenstellen, Gemeinkosten = Ergebnis − Summe der
+  Standorte, je Warengruppe Umsatz und Marge der Produkt-Kostenstellen. Dafür führt jeder
+  Monat neben dem Umsatz je Standort (MA2) den **Umsatz je Produkt** (nur Aufzeichnung, kein
+  Einfluss auf die Simulation). Umsatz und Marge je Warengruppe stimmen mit dem Rundenbericht
+  desselben Zeitraums überein.
+- **Chancen** nur mit Umsatz und Marge > 0, nach Marge / Umsatz, bei Gleichstand das
+  Produkt mit der kleineren Nummer; **Risiken** zuerst die größten Verluste, dann
+  verfehlte Ziele, Reserve (Liquiditätsreserve der Firma aus MA4 · laufende Kosten),
+  Verschuldung.
+- **Anträge:** das beste Kaufangebot nach `best_deal` mit den Sperren und der
+  Marktführerschaft des Auftrags (ein Platz, wenn es eines gibt), die übrigen Plätze die
+  Gelegenheiten der Diversifizierung (M32/M33) für die eigene Firma: je Produkt die
+  Gelegenheit samt Engpass darunter, finanzierbar mit (Kasse + Kreditrahmen) ·
+  `ausbau_anteil_kasse_max`, gesperrte Länder und Warengruppen übersprungen; bei
+  Marktführerschaft zuerst die Ketten der Warengruppe. Kein Antrag, wenn zu Thema, Ort und
+  Produkt schon ein Anliegen offen ist. Empfehlung wie MA2 mit dem Urteilsvermögen und der
+  Fachkompetenz des CEO (Leitungsabschlag), Zufall aus dem Strom der Rücksprache (Firma,
+  Monat).
+- **Neue Standorte in späteren Antworten:** Gründet eine Option einen Standort, bekommt er
+  beim Ausführen die nächste freie Nummer; die folgenden Schritte (Lagerstätte, Anlage,
+  Produktion, Verkauf) werden auf ihn umgestellt. (Vorher konnte ein inzwischen von einer
+  anderen Firma gegründeter Standort die geplante Nummer tragen – dann schlug der Bau fehl.)
+
+### Ressort Personal
+
+Die angezeigte Stufe einer Fähigkeit (MA1) nimmt den Eindruck nur zum Teil: Eindruck ·
+(1 − `personal_schaerfe` · Fachkompetenz Personal des Personalressorts / 100); ohne
+Ressort ganz.
+
+### Spielstände und KI
+
+Neue Felder mit Vorgabewerten (Auftrag, Rücksprachen, Bezug der Anliegen); alte Stände
+laden ohne neue Version. KI-Firmen haben keinen Vorstand (bis MA6); ihr Verhalten bleibt
+bitgleich.

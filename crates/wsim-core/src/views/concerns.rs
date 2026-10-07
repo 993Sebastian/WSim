@@ -9,6 +9,7 @@ use super::{MessageView, iso, message_view, usd};
 use crate::catalog::Catalog;
 use crate::command::Command;
 use crate::command::site_type_key;
+use crate::deals::{self, OfferAnswer};
 use crate::decision::ChoiceKind;
 use crate::game::Game;
 use crate::ids::ProductId;
@@ -99,7 +100,8 @@ pub struct ConcernView {
     pub left_usd: f64,
     /// For the reasons `reserve` and `investition` (MA4): the liquidity reserve, or what
     /// is left of the investment budget that binds first and where it is set
-    /// (`firma`, `land:DEU` …).
+    /// (`firma`, `land:DEU` …); for `verschuldung` (MA5) the loans the mandate still
+    /// allows.
     pub strategy_limit_usd: Option<f64>,
     pub strategy_scope: Option<String>,
     /// Mean monthly result of the site in the last closed months.
@@ -158,6 +160,8 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Finance => "kredit",
         ConcernReason::Reserve => "reserve",
         ConcernReason::Investment => "investition",
+        ConcernReason::Debt => "verschuldung",
+        ConcernReason::Proposal => "antrag",
     }
 }
 
@@ -315,6 +319,56 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
             "lagerstaette",
             Param::TextKey(format!("lagerstaette.{}", catalog.deposits.key(*deposit))),
         ),
+        Command::MakeOffer {
+            seller,
+            object,
+            price,
+        } => {
+            let keys = [
+                keys::STEP_BID_SITE,
+                keys::STEP_BID_LICENSE,
+                keys::STEP_BID_AREA,
+            ];
+            let name = &state.companies.get(seller.index())?.name;
+            let message = m(deals::object_key(*object, keys))
+                .with("firma", Param::Text(name.clone()))
+                .with("preis", Param::Money(*price));
+            deals::describe(message, state, catalog, *seller, *object)
+        }
+        Command::AnswerOffer { offer, answer } => {
+            let o = state.offers.iter().find(|o| o.id == *offer)?;
+            let (keys, price) = match answer {
+                OfferAnswer::Accept => (
+                    [
+                        keys::STEP_ACCEPT_SITE,
+                        keys::STEP_ACCEPT_LICENSE,
+                        keys::STEP_ACCEPT_AREA,
+                    ],
+                    o.price,
+                ),
+                OfferAnswer::Decline => (
+                    [
+                        keys::STEP_DECLINE_SITE,
+                        keys::STEP_DECLINE_LICENSE,
+                        keys::STEP_DECLINE_AREA,
+                    ],
+                    o.price,
+                ),
+                OfferAnswer::Counter { price } => (
+                    [
+                        keys::STEP_COUNTER_SITE,
+                        keys::STEP_COUNTER_LICENSE,
+                        keys::STEP_COUNTER_AREA,
+                    ],
+                    *price,
+                ),
+            };
+            let name = &state.companies.get(o.bidding().index())?.name;
+            let message = m(deals::object_key(o.object, keys))
+                .with("firma", Param::Text(name.clone()))
+                .with("preis", Param::Money(price));
+            deals::describe(message, state, catalog, o.seller, o.object)
+        }
         _ => return None,
     })
 }
@@ -358,6 +412,7 @@ pub(super) fn position_view(
             )
         }
         Unit::Country(k) => ("land", "ebene.land".to_owned(), Some(k), None),
+        Unit::Board => ("vorstand", "ebene.vorstand".to_owned(), None, None),
         Unit::Continent(k) => ("kontinent", "ebene.kontinent".to_owned(), None, Some(k)),
     };
     ConcernPositionView {
@@ -418,6 +473,13 @@ fn strategy_limit(
             strategy::binding_budget(&budgets).map_or((None, None), |b| {
                 (Some(b.left), Some(super::scope_key(catalog, b.scope)))
             })
+        }
+        ConcernReason::Debt => {
+            let max = state.companies[c.company.index()]
+                .mandate
+                .max_debt
+                .unwrap_or(1.0);
+            (Some(crate::mandate::loan_room(state, c.company, max)), None)
         }
         _ => (None, None),
     }

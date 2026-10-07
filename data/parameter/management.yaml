@@ -4,11 +4,11 @@
 
 management:
   # Bereiche und die Themen der Entscheidungen (MA0), die eine Stelle des Bereichs
-  # erledigt. Logistik bekommt Themen mit Stufe 2, Finanzen mit dem Vorstand (MA5).
+  # erledigt. Logistik bekommt Themen mit Stufe 2; Finanzen sind Sache des Vorstands (MA5).
   bereiche:
     - id: produktion
       themen: [produktion, ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
-               lagerstaette]
+               lagerstaette, engpass]
     - id: einkauf_lager
       themen: [einkauf, eigenversorgung]
     - id: vertrieb_marketing
@@ -20,11 +20,14 @@ management:
     - id: forschung
       themen: [forschung, weiterentwicklung]
     - id: finanzen
-      themen: []
+      themen: [kasse, kaufangebot, antwort]
 
   # Themen der laufenden Routine: Hier folgt die Stelle der Option der Regeln; bei allen
   # anderen empfiehlt sie nach ihrem Urteilsvermögen (MA2).
   routine_themen: [produktion, verkauf, einkauf, eigenversorgung, lohn]
+  # Themen, deren Wirkung nur Kosten zählt (Zins, Werbebudget): Auch hier folgt die Stelle
+  # der Regel; Anliegen dazu sind aber wichtig (MA5).
+  regel_themen: [kasse, werbung]
 
   # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung,
   # Budget je Entscheidung und je Jahr als Anteil am Umsatz der Einheit in zwölf Monaten
@@ -48,8 +51,12 @@ management:
                      forschung],
        themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
                 lagerstaette, werbung]}
-    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15,
-       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20]}
+    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,
+       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],
+       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,
+                     finanzen],
+       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
+                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass]}
 
   # Mindestbudget in Jahresgehältern des Managers: je Entscheidung und je Jahr.
   budget_sockel_gehaelter: {entscheidung: 1, jahr: 3}
@@ -80,6 +87,18 @@ management:
     mindestmarge_max: 2
     lager_tage_max: 180
     liquiditaet_monate_max: 24
+
+  # Strategieauftrag und Strategierücksprache (MA5): Aggressivität der Regeln (0–1, wie
+  # bei den KI-Firmen) je Leitlinie; höchstens so viele Anträge je Rücksprache, so viele
+  # Chancen und Risiken im Bericht, so viele Rücksprachen bleiben gespeichert. Ein
+  # Personalressort mit voller Fachkompetenz macht den Eindruck der Fähigkeiten um diesen
+  # Anteil genauer.
+  strategieauftrag:
+    leitlinien: {wachstum: 0.8, ertrag: 0.5, sicherheit: 0.2, marktfuehrung: 0.8}
+    antraege_max: 3
+    chancen_risiken: 3
+    ruecksprachen_behalten: 8
+    personal_schaerfe: 0.8
 
   # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
   standorttypen:

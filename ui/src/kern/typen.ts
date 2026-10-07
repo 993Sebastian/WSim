@@ -1085,20 +1085,25 @@ export interface Stelle {
   quiet?: StillesThema[];
   /** Its concerns waiting for an answer. */
   open_concerns?: number;
+  /** Text key of what it does besides topics (MA5: the personnel member of the board). */
+  effect?: string | null;
 }
 
-/** The positions of a unit: a site, a country or a continent (MA1, MA3). */
+/** The positions of a unit: a site, a country, a continent (MA1, MA3) or the board (MA5). */
 export interface EinheitOrganisation {
-  level: "standort" | "land" | "kontinent";
+  level: "standort" | "land" | "kontinent" | "vorstand";
   /** The site's number (sites). */
   site: number | null;
   /** The country (sites and countries). */
   country: string | null;
   /** The continent (continents). */
   continent: string | null;
-  /** Text key of the site type, else `ebene.land` or `ebene.kontinent`. */
+  /** Text key of the site type, else `ebene.land`, `ebene.kontinent` or `ebene.vorstand`. */
   kind_text: string;
-  /** The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`. */
+  /**
+   * The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`,
+   * `vorstand`.
+   */
   key: string;
   positions: Stelle[];
   /** Next check of the positions; null without a manager there. */
@@ -1109,7 +1114,7 @@ export interface EinheitOrganisation {
 
 /** A type of position budget rules apply to (MA3). */
 export interface Stellentyp {
-  level: "standort" | "land" | "kontinent";
+  level: "standort" | "land" | "kontinent" | "vorstand";
   /** The site type as commands name it (`Factory` …), for sites. */
   site_type: string | null;
   kind_text: string;
@@ -1128,6 +1133,8 @@ export interface Budgetvorgabe {
 export interface Organisation {
   /** False without manager data. */
   enabled: boolean;
+  /** The board: CEO and members (MA5); null without a site. */
+  board?: EinheitOrganisation | null;
   continents: {
     continent: string;
     /** The positions of the continent (MA3). */
@@ -1234,7 +1241,15 @@ export interface Anliegen {
   topic: string;
   product: string | null;
   /** Why the position asks (text `anliegen.grund.<reason>`). */
-  reason: "entscheidung" | "jahr" | "immer" | "kredit" | "reserve" | "investition";
+  reason:
+    | "entscheidung"
+    | "jahr"
+    | "immer"
+    | "kredit"
+    | "reserve"
+    | "investition"
+    | "verschuldung"
+    | "antrag";
   options: AnliegenOption[];
   recommended: number;
   /** Why the position recommends its option. */
@@ -1394,4 +1409,114 @@ export interface Verkaufsweg {
   max_per_month: number | null;
   /** Text key of the product's unit. */
   unit: string | null;
+}
+
+/** The guideline of the mandate as `SetMandate` takes it (MA5). */
+export type Leitlinie = "Growth" | "Profit" | "Safety" | { Leadership: string };
+
+/** How often the CEO reviews the strategy (MA5). */
+export type Ruecksprachetakt = "Monthly" | "Quarterly" | "HalfYearly" | "Yearly";
+
+/** The mandate to the board as `SetMandate` takes it (MA5). */
+export interface Auftrag {
+  guideline: Leitlinie;
+  goals: {
+    growth?: number | null;
+    margin?: number | null;
+    equity_ratio?: number | null;
+    rank?: number | null;
+  };
+  max_debt?: number | null;
+  blocked_countries?: string[];
+  blocked_groups?: string[];
+  review: Ruecksprachetakt;
+}
+
+/** Revenue and result of a part of the company in a review (MA5). */
+export interface Kennzahlen {
+  /** Key of the continent or goods group. */
+  key: string;
+  revenue_usd: number;
+  /** Result; for a goods group the margin of its products. */
+  result_usd: number;
+}
+
+/** A goal against what was reached (MA5). */
+export interface Zielstand {
+  goal: "wachstum" | "rendite" | "eigenkapitalquote" | "rang";
+  /** Shares as fractions, the rank as a place. */
+  target: number;
+  actual: number | null;
+  met: boolean | null;
+}
+
+export interface Chance {
+  kind: "produkt" | "antrag";
+  product: string | null;
+  revenue_usd: number;
+  margin_usd: number;
+  concern: number | null;
+  topic: string | null;
+  open: boolean;
+}
+
+export interface Risiko {
+  kind: "verlust" | "ziel" | "reserve" | "verschuldung";
+  site: number | null;
+  site_kind_text: string | null;
+  country: string | null;
+  /** The loss, or the cash. */
+  amount_usd: number | null;
+  /** The liquidity reserve. */
+  limit_usd: number | null;
+  goal: string | null;
+  share: number | null;
+  max: number | null;
+}
+
+/** One strategy review of the CEO (MA5). */
+export interface Ruecksprache {
+  date: string;
+  from: string;
+  to: string;
+  interval: string;
+  manager: string;
+  revenue_usd: number;
+  result_usd: number;
+  overhead_usd: number;
+  continents: Kennzahlen[];
+  groups: Kennzahlen[];
+  goals: Zielstand[];
+  chances: Chance[];
+  risks: Risiko[];
+}
+
+/** The mandate as the form shows it (MA5). */
+export interface AuftragSicht {
+  guideline: "wachstum" | "ertrag" | "sicherheit" | "marktfuehrung";
+  leading_group: string | null;
+  growth: number | null;
+  margin: number | null;
+  equity_ratio: number | null;
+  rank: number | null;
+  max_debt: number | null;
+  blocked_countries: string[];
+  blocked_groups: string[];
+  review: "monatlich" | "quartalsweise" | "halbjaehrlich" | "jaehrlich";
+}
+
+/** The mandate to the board and the CEO's strategy reviews (MA5). */
+export interface Ruecksprachen {
+  enabled: boolean;
+  mandate: AuftragSicht;
+  guidelines: { key: string; aggressiveness: number }[];
+  intervals: string[];
+  groups: string[];
+  countries: string[];
+  /** The CEO's name; null without a CEO. */
+  ceo: string | null;
+  next_review: string | null;
+  goals_now: Zielstand[];
+  /** The reviews kept, the newest first. */
+  reviews: Ruecksprache[];
 }

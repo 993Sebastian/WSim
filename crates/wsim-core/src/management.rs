@@ -72,6 +72,34 @@ pub fn shown_level(value: u8, impression: i8) -> u8 {
     level.min(i16::from(SHOWN_LEVELS) - 1) as u8
 }
 
+/// The share of the impression in the levels the player sees of a company's candidates
+/// and managers (docs/FORMELN.md, MA5): all of it without a board member for personnel,
+/// less the more expertise that member has.
+pub fn impression_share(catalog: &Catalog, state: &GameState, company: CompanyId) -> f64 {
+    let Some(f) = function_of(catalog, Topic::Wage) else {
+        return 1.0;
+    };
+    let key = &catalog.management.functions[f].key;
+    let position = Position {
+        unit: Unit::Board,
+        role: Role::Specialist(key.clone()),
+    };
+    if !positions(catalog, state, company, Unit::Board).contains(&position) {
+        return 1.0;
+    }
+    holder(state, &position).map_or(1.0, |id| {
+        let x = &state.managers[&id];
+        let sharpness = catalog.management.mandate.personnel_sharpness;
+        (1.0 - sharpness * f64::from(expertise(x, key)) / 100.0).clamp(0.0, 1.0)
+    })
+}
+
+/// The impression shown with a share of it.
+pub fn shown_impression(impression: i8, share: f64) -> i8 {
+    // |impression| ≤ 100 and share in 0–1; the cast is exact.
+    (f64::from(impression) * share).round() as i8
+}
+
 /// Expertise of a manager in a function (0–100).
 pub fn expertise(manager: &Manager, function: &str) -> u8 {
     manager.expertise.get(function).copied().unwrap_or(0)
@@ -91,6 +119,7 @@ pub fn level_of(unit: Unit) -> usize {
         Unit::Site(_) => 0,
         Unit::Country(_) => 1,
         Unit::Continent(_) => 2,
+        Unit::Board => 3,
     }
 }
 
@@ -101,12 +130,15 @@ fn unit_number(unit: Unit) -> u32 {
         Unit::Site(s) => s.0,
         Unit::Country(c) => c.index() as u32,
         Unit::Continent(k) => k.index() as u32,
+        Unit::Board => 0,
     }
 }
 
-/// Whether a company has a unit (MA3): its site, or a site in the country or continent.
+/// Whether a company has a unit (MA3, MA5): its site, a site in the country or
+/// continent, or any site for the board.
 pub fn has_unit(catalog: &Catalog, state: &GameState, company: CompanyId, unit: Unit) -> bool {
     match unit {
+        Unit::Board => state.sites.iter().any(|x| x.owner == company),
         Unit::Site(s) => state
             .sites
             .get(s.index())
@@ -122,7 +154,8 @@ pub fn has_unit(catalog: &Catalog, state: &GameState, company: CompanyId, unit: 
     }
 }
 
-/// The units of a company: its sites, then its countries and continents (MA3).
+/// The units of a company: its sites, then its countries and continents (MA3), then its
+/// board (MA5).
 pub fn units(catalog: &Catalog, state: &GameState, company: CompanyId) -> Vec<Unit> {
     let mut countries = BTreeSet::new();
     let mut continents = BTreeSet::new();
@@ -138,6 +171,9 @@ pub fn units(catalog: &Catalog, state: &GameState, company: CompanyId) -> Vec<Un
     }
     out.extend(countries.into_iter().map(Unit::Country));
     out.extend(continents.into_iter().map(Unit::Continent));
+    if !out.is_empty() {
+        out.push(Unit::Board);
+    }
     out
 }
 
@@ -202,7 +238,7 @@ pub fn arises(catalog: &Catalog, state: &GameState, unit: Unit, topic: Topic) ->
 }
 
 /// The function a topic belongs to.
-fn function_of(catalog: &Catalog, topic: Topic) -> Option<usize> {
+pub(crate) fn function_of(catalog: &Catalog, topic: Topic) -> Option<usize> {
     catalog
         .management
         .functions
@@ -215,13 +251,14 @@ fn country_of(state: &GameState, unit: Unit) -> Option<CountryId> {
     match unit {
         Unit::Site(s) => state.sites.get(s.index()).map(|x| x.country),
         Unit::Country(c) => Some(c),
-        Unit::Continent(_) => None,
+        Unit::Continent(_) | Unit::Board => None,
     }
 }
 
-/// The chain of positions for a topic at a site or in a country (docs/FORMELN.md, MA3):
-/// the specialist of its function and the head of each unit from the place up – at a
-/// site only where the topic comes up there. Filled or not.
+/// The chain of positions for a topic at a site, in a country or at the board
+/// (docs/FORMELN.md, MA3, MA5): the specialist of its function and the head of each unit
+/// from the place up to the board – at a site only where the topic comes up there.
+/// Filled or not.
 pub fn chain(
     catalog: &Catalog,
     state: &GameState,
@@ -255,6 +292,7 @@ pub fn chain(
     }
     let continent = match place {
         Unit::Continent(k) => Some(k),
+        Unit::Board => None,
         _ => country_of(state, place).map(|c| {
             add(Unit::Country(c), &mut out);
             catalog.countries.get(c).continent
@@ -263,6 +301,7 @@ pub fn chain(
     if let Some(k) = continent {
         add(Unit::Continent(k), &mut out);
     }
+    add(Unit::Board, &mut out);
     out
 }
 
@@ -305,9 +344,10 @@ fn yearly_wage(catalog: &Catalog, state: &GameState, country: CountryId) -> f64 
             .value_at(f64::from(state.date.year()))
 }
 
-/// The country whose wages a unit's salaries follow (docs/FORMELN.md, MA3): a site's
-/// and a country's own; for a continent the headquarters' country if it lies there, else
-/// the one with the most of the company's sites.
+/// The country whose wages a unit's salaries follow (docs/FORMELN.md, MA3, MA5): a
+/// site's and a country's own; for a continent the headquarters' country if it lies
+/// there, else the one with the most of the company's sites; for the board the
+/// headquarters' country.
 pub fn seat_country(
     catalog: &Catalog,
     state: &GameState,
@@ -316,6 +356,7 @@ pub fn seat_country(
 ) -> Option<CountryId> {
     match unit {
         Unit::Site(_) | Unit::Country(_) => country_of(state, unit),
+        Unit::Board => Some(state.companies.get(company.index())?.headquarters),
         Unit::Continent(k) => {
             let hq = state.companies.get(company.index())?.headquarters;
             if catalog.countries.get(hq).continent == k {
@@ -915,6 +956,7 @@ fn in_unit(catalog: &Catalog, state: &GameState, site: SiteId, unit: Unit) -> bo
         Unit::Site(x) => x == site,
         Unit::Country(c) => s.country == c,
         Unit::Continent(k) => catalog.countries.get(s.country).continent == k,
+        Unit::Board => true,
     }
 }
 
@@ -947,6 +989,7 @@ pub fn kind_of(state: &GameState, position: &Position) -> Option<PositionKind> {
         Unit::Site(s) => UnitLevel::Site(state.sites.get(s.index())?.kind),
         Unit::Country(_) => UnitLevel::Country,
         Unit::Continent(_) => UnitLevel::Continent,
+        Unit::Board => UnitLevel::Board,
     };
     Some(PositionKind {
         level,
@@ -1010,8 +1053,9 @@ pub fn default_shares(catalog: &Catalog, position: &Position) -> (f64, f64) {
         })
 }
 
-/// The next filled head above a position (MA3): for a specialist the head of its unit,
-/// for a head that of the next higher unit; units without a filled head are skipped.
+/// The next filled head above a position (MA3, MA5): for a specialist the head of its
+/// unit, for a head that of the next higher unit up to the CEO; units without a filled
+/// head are skipped.
 pub fn superior(
     catalog: &Catalog,
     state: &GameState,
@@ -1029,8 +1073,10 @@ pub fn superior(
                 units.push(Unit::Country(c));
             }
             units.push(Unit::Continent(catalog.countries.get(c).continent));
+            units.push(Unit::Board);
         }
-        Unit::Continent(_) => {}
+        Unit::Continent(_) => units.push(Unit::Board),
+        Unit::Board => {}
     }
     units.into_iter().find_map(|unit| {
         let head = Position {
@@ -1113,6 +1159,19 @@ fn choice_amount(
         .sum()
 }
 
+/// Whether a position may decide about loans (MA5): the CEO and the board's specialist
+/// of the function that handles the cash.
+fn lends(catalog: &Catalog, position: &Position) -> bool {
+    if position.unit != Unit::Board {
+        return false;
+    }
+    match &position.role {
+        Role::Head => true,
+        Role::Specialist(f) => function_of(catalog, Topic::Cash)
+            .is_some_and(|i| catalog.management.functions[i].key == *f),
+    }
+}
+
 /// Loans are for the finance department and the CEO (MA5).
 fn needs_finance(choice: &decision::Choice) -> bool {
     choice.steps.iter().any(|s| {
@@ -1124,7 +1183,7 @@ fn needs_finance(choice: &decision::Choice) -> bool {
 }
 
 /// Forecast range of an effect with a relative error.
-fn forecast(effect: Money, error: f64) -> (Money, Money) {
+pub(crate) fn forecast(effect: Money, error: f64) -> (Money, Money) {
     let a = effect.scale(1.0 - error);
     let b = effect.scale(1.0 + error);
     (a.min(b), a.max(b))
@@ -1170,20 +1229,23 @@ fn investment(
         .sum()
 }
 
-/// Where a decision is taken (MA3): its site, else where the first step of the rules'
-/// option acts (a new site's country, an advertising country).
+/// Where a decision is taken (MA3, MA5): its site, else where the first step of the
+/// rules' option acts (a new site's country, an advertising country); loans alone and
+/// offers at the board.
 pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
     if let Some(site) = d.site {
         return Some(Unit::Site(site));
     }
-    let first = d
-        .choices
-        .get(d.rule)?
-        .steps
+    let steps = &d.choices.get(d.rule)?.steps;
+    let Some(first) = steps
         .iter()
         .map(|s| &s.command)
-        .find(|c| !matches!(c, Command::TakeLoan { .. } | Command::RepayLoan { .. }))?;
+        .find(|c| !matches!(c, Command::TakeLoan { .. } | Command::RepayLoan { .. }))
+    else {
+        return (!steps.is_empty()).then_some(Unit::Board);
+    };
     match *first {
+        Command::MakeOffer { .. } | Command::AnswerOffer { .. } => Some(Unit::Board),
         Command::FoundSite { country, .. } | Command::SetAdvertising { country, .. } => {
             Some(Unit::Country(country))
         }
@@ -1326,42 +1388,72 @@ impl Staff<'_> {
         self.positions.len() - 1
     }
 
-    /// The option a position recommends (docs/FORMELN.md, MA2): the best by the true
-    /// effects with a chance after its judgment, else the best by its own estimate.
+    /// The option a position recommends (docs/FORMELN.md, MA2).
     fn recommend(
         &mut self,
         decision: &Decision,
         assessments: &[Assessment],
         (manager, expertise, judgment): (ManagerId, f64, f64),
     ) -> usize {
-        if assessments.iter().all(|a| a.effect.is_none()) {
-            return decision.rule;
-        }
-        let values: Vec<f64> = assessments
-            .iter()
-            .map(|a| a.effect.unwrap_or(Money::ZERO).to_usd() + a.once.to_usd())
-            .collect();
-        let best = |values: &[f64]| {
-            let mut best = decision.rule;
-            for (i, &v) in values.iter().enumerate() {
-                if v > values[best] {
-                    best = i;
-                }
-            }
-            best
-        };
-        let base = self.model.recommend_base;
-        let error = self.model.estimate_error * (1.0 - expertise / 100.0);
-        let rng = self.rng(manager);
-        if rng.chance(base + (1.0 - base) * judgment / 100.0) {
-            return best(&values);
-        }
-        let estimated: Vec<f64> = values
-            .iter()
-            .map(|v| v * (1.0 + (rng.next_f64() * 2.0 - 1.0) * error))
-            .collect();
-        best(&estimated)
+        let model = self.model;
+        recommend_with(
+            model,
+            self.rng(manager),
+            (decision, assessments),
+            (expertise, judgment),
+        )
     }
+}
+
+/// The option a manager recommends (docs/FORMELN.md, MA2): the best by the true effects
+/// with a chance after its judgment, else the best by its own estimate.
+pub(crate) fn recommend_with(
+    model: &ConcernModel,
+    rng: &mut SimRng,
+    (decision, assessments): (&Decision, &[Assessment]),
+    (expertise, judgment): (f64, f64),
+) -> usize {
+    if assessments.iter().all(|a| a.effect.is_none()) {
+        return decision.rule;
+    }
+    let values: Vec<f64> = assessments
+        .iter()
+        .map(|a| a.effect.unwrap_or(Money::ZERO).to_usd() + a.once.to_usd())
+        .collect();
+    let best = |values: &[f64]| {
+        let mut best = decision.rule;
+        for (i, &v) in values.iter().enumerate() {
+            if v > values[best] {
+                best = i;
+            }
+        }
+        best
+    };
+    let base = model.recommend_base;
+    let error = model.estimate_error * (1.0 - expertise / 100.0);
+    if rng.chance(base + (1.0 - base) * judgment / 100.0) {
+        return best(&values);
+    }
+    let estimated: Vec<f64> = values
+        .iter()
+        .map(|v| v * (1.0 + (rng.next_f64() * 2.0 - 1.0) * error))
+        .collect();
+    best(&estimated)
+}
+
+/// The CEO of a company (MA5).
+pub fn ceo_of(state: &GameState, company: CompanyId) -> Option<ManagerId> {
+    state
+        .managers
+        .iter()
+        .find(|(_, m)| {
+            m.job.as_ref().is_some_and(|j| {
+                j.company == company
+                    && j.position.unit == Unit::Board
+                    && j.position.role == Role::Head
+            })
+        })
+        .map(|(&id, _)| id)
 }
 
 impl Decider for Staff<'_> {
@@ -1373,6 +1465,9 @@ impl Decider for Staff<'_> {
         let Some(place) = place_of(state, d) else {
             return Verdict::Hold;
         };
+        if crate::mandate::banned(catalog, state, d, d.chosen()) {
+            return Verdict::Hold;
+        }
         let filled: Vec<(Position, ManagerId)> =
             chain(catalog, state, self.company, place, d.topic)
                 .into_iter()
@@ -1389,8 +1484,10 @@ impl Decider for Staff<'_> {
             return Verdict::Hold;
         }
         let routine = self.routine.contains(&d.topic);
-        // The routine follows the rules; other topics are assessed and recommended.
-        let assessments = (!routine).then(|| decision::assess(catalog, state, d));
+        // The routine and topics whose effect counts only costs follow the rules; other
+        // topics are assessed and recommended.
+        let by_rule = routine || catalog.management.rule_topics.contains(&d.topic);
+        let assessments = (!by_rule).then(|| decision::assess(catalog, state, d));
         let function = function_of(catalog, d.topic).map(|f| &catalog.management.functions[f].key);
         let mut hops: Vec<Hop> = Vec::new();
         let mut asker = (0, 0.0);
@@ -1418,8 +1515,12 @@ impl Decider for Staff<'_> {
             );
             let invest = investment(catalog, state, d.company, option);
             let beyond = self.beyond_strategy(catalog, state, place, invest);
+            let borrows = needs_finance(option);
+            let may_borrow = !borrows || lends(catalog, position);
+            let debt = borrows && crate::mandate::over_debt(state, d.company, option);
             let r = &mut self.positions[index];
-            if !needs_finance(option)
+            if may_borrow
+                && !debt
                 && beyond.is_none()
                 && amount <= r.per_decision
                 && amount <= r.left
@@ -1504,8 +1605,11 @@ impl Decider for Staff<'_> {
             investment(catalog, state, d.company, option),
         );
         let r = &self.positions[index];
-        let reason = if needs_finance(option) {
+        let borrows = needs_finance(option);
+        let reason = if borrows && !lends(catalog, &top.position) {
             ConcernReason::Finance
+        } else if borrows && crate::mandate::over_debt(state, d.company, option) {
+            ConcernReason::Debt
         } else if let Some(reason) = beyond {
             reason
         } else if r.per_decision == Money::ZERO {
@@ -1764,6 +1868,7 @@ fn countries_cared_for(
 pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let mut news = Vec::new();
     expire_concerns(state, catalog, date, &mut news);
+    settle_closed_offers(state, date);
     report_followups(state, catalog, date, &mut news);
     let m = &catalog.management;
     if !m.enabled() {
@@ -1806,6 +1911,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
         };
         let (mut weekly, mut structural, mut labs) = (Vec::new(), Vec::new(), Vec::new());
         let (mut unit_structure, mut unit_checks) = (Vec::new(), Vec::new());
+        let mut board_check = false;
         for (&unit, roles) in &units {
             let check = checks(catalog, unit, day);
             match unit {
@@ -1840,6 +1946,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
                     }
                     if check {
                         unit_checks.push(unit);
+                        board_check |= unit == Unit::Board;
                     }
                 }
             }
@@ -1906,6 +2013,12 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
                 );
             }
         }
+        if board_check {
+            let done = board_work(state, catalog, company, &own, &mut staff);
+            if company == state.player {
+                news.extend(done);
+            }
+        }
         let Staff {
             spent,
             concerns,
@@ -1926,6 +2039,59 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
         }
     }
     news
+}
+
+/// The board's own topics at its check (docs/FORMELN.md, MA5): the cash, the answers to
+/// offers, new offers. Returns the news of what it decided.
+fn board_work(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    own: &[SiteId],
+    staff: &mut Staff,
+) -> Vec<Message> {
+    let mut news = Vec::new();
+    if staff.noticed.contains(&(Unit::Board, Topic::Cash)) {
+        crate::ai::manage_cash(state, catalog, company, own, staff);
+    }
+    if staff.noticed.contains(&(Unit::Board, Topic::OfferAnswer)) {
+        news.extend(crate::deals::board_answers(state, catalog, company, staff));
+    }
+    if staff.noticed.contains(&(Unit::Board, Topic::Offer)) {
+        news.extend(crate::deals::board_offers(state, catalog, company, staff));
+    }
+    news
+}
+
+/// The offer a decision answers, if it does.
+fn answered_offer(d: &Decision) -> Option<u32> {
+    d.choices
+        .iter()
+        .flat_map(|c| &c.steps)
+        .find_map(|s| match s.command {
+            Command::AnswerOffer { offer, .. } => Some(offer),
+            _ => None,
+        })
+}
+
+/// Concerns about answering offers that closed meanwhile are settled (MA5).
+fn settle_closed_offers(state: &mut GameState, today: Date) {
+    let open: BTreeSet<u32> = state
+        .offers
+        .iter()
+        .filter(|o| o.status == crate::deals::OfferStatus::Open)
+        .map(|o| o.id)
+        .collect();
+    for c in state
+        .concerns
+        .iter_mut()
+        .filter(|c| c.status == ConcernStatus::Open && c.decision.topic == Topic::OfferAnswer)
+    {
+        if answered_offer(&c.decision).is_some_and(|id| !open.contains(&id)) {
+            c.status = ConcernStatus::Settled;
+            c.closed = Some(today);
+        }
+    }
 }
 
 /// The places of a company's open concerns and their parts: topic, place, product.
@@ -2042,15 +2208,17 @@ pub fn position_param(state: &GameState, position: &Position) -> Param {
         }
         (Role::Head, Unit::Country(_)) => Param::TextKey("leitung.land".into()),
         (Role::Head, Unit::Continent(_)) => Param::TextKey("leitung.kontinent".into()),
+        (Role::Head, Unit::Board) => Param::TextKey("leitung.vorstand".into()),
         (Role::Specialist(f), _) => Param::TextKey(format!("bereich.{f}")),
     }
 }
 
-/// A message about a concern, from the position that asks (site, country or continent).
+/// A message about a concern, from the position that asks (site, country, continent or
+/// board).
 fn concern_message(
     catalog: &Catalog,
     state: &GameState,
-    (site_key, country_key, continent_key): (&str, &str, &str),
+    (site_key, country_key, continent_key, board_key): (&str, &str, &str, &str),
     kind: MessageKind,
     c: &Concern,
 ) -> Message {
@@ -2073,6 +2241,7 @@ fn concern_message(
             "kontinent",
             Param::TextKey(format!("kontinent.{}", catalog.continents.key(k))),
         ),
+        Unit::Board => Message::new(kind, board_key),
     };
     m.with("stelle", position_param(state, who))
         .with(
@@ -2082,15 +2251,17 @@ fn concern_message(
         .with("frist", Param::Date(c.deadline))
 }
 
-const NEW_KEYS: (&str, &str, &str) = (
+const NEW_KEYS: (&str, &str, &str, &str) = (
     keys::CONCERN_NEW,
     keys::CONCERN_NEW_COUNTRY,
     keys::CONCERN_NEW_CONTINENT,
+    keys::CONCERN_NEW_BOARD,
 );
-const EXPIRED_KEYS: (&str, &str, &str) = (
+const EXPIRED_KEYS: (&str, &str, &str, &str) = (
     keys::CONCERN_EXPIRED,
     keys::CONCERN_EXPIRED_COUNTRY,
     keys::CONCERN_EXPIRED_CONTINENT,
+    keys::CONCERN_EXPIRED_BOARD,
 );
 
 /// Open concerns whose deadline passed expire: nothing changes.
@@ -2189,21 +2360,42 @@ fn followup_for(
 }
 
 /// Carries out an option of a decision; the first step decides whether anything
-/// happens, later ones may fail.
+/// happens, later ones may fail (a required one skips the rest). The option was formed
+/// earlier: a site it founds gets the next number now, and the steps that follow are
+/// pointed at it.
 fn carry_out(
     state: &mut GameState,
     catalog: &Catalog,
     actor: CompanyId,
     option: &decision::Choice,
 ) -> Result<(), CommandError> {
-    if let Some(first) = option.steps.first() {
-        crate::command::execute(state, catalog, actor, &first.command)?;
+    let mut steps: Vec<decision::Step> = option.steps.clone();
+    let mut skip = false;
+    for i in 0..steps.len() {
+        if skip {
+            break;
+        }
+        let ran = crate::command::execute(state, catalog, actor, &steps[i].command);
+        if i == 0 {
+            ran.clone()?;
+        }
+        skip = steps[i].required && ran.is_err();
+        let founds = matches!(
+            steps[i].command,
+            Command::FoundSite { .. } | Command::FoundSiteOnPlot { .. }
+        );
+        if ran.is_ok() && founds {
+            let actual = SiteId(u32::try_from(state.sites.len() - 1).unwrap_or(u32::MAX));
+            let planned = steps[i + 1..]
+                .iter()
+                .find_map(|s| decision::site_of(&s.command));
+            if let Some(planned) = planned.filter(|&p| p != actual) {
+                for s in &mut steps[i + 1..] {
+                    decision::move_site(&mut s.command, planned, actual);
+                }
+            }
+        }
     }
-    let rest = decision::Choice {
-        kind: option.kind,
-        steps: option.steps.iter().skip(1).cloned().collect(),
-    };
-    decision::execute(state, catalog, actor, &rest);
     Ok(())
 }
 
@@ -2333,6 +2525,7 @@ pub(crate) fn set_budget_rule(
         UnitLevel::Site(site_type) => m.specialists_of(site_type),
         UnitLevel::Country => m.levels.get(1).map_or(&[], |l| l.specialists.as_slice()),
         UnitLevel::Continent => m.levels.get(2).map_or(&[], |l| l.specialists.as_slice()),
+        UnitLevel::Board => m.levels.get(3).map_or(&[], |l| l.specialists.as_slice()),
     };
     let known = match &kind.role {
         Role::Head => true,
@@ -2365,6 +2558,8 @@ enum Object {
     Laboratory(SiteId),
     Deposit(SiteId),
     Advertising(CountryId, crate::ids::GoodsGroupId),
+    Answer(u32),
+    Bid(CompanyId, crate::deals::DealObject),
 }
 
 fn object(command: &Command) -> Option<Object> {
@@ -2386,6 +2581,8 @@ fn object(command: &Command) -> Option<Object> {
         }
         Command::DevelopDeposit { site, .. } => Object::Deposit(site),
         Command::SetAdvertising { country, group, .. } => Object::Advertising(country, group),
+        Command::AnswerOffer { offer, .. } => Object::Answer(offer),
+        Command::MakeOffer { seller, object, .. } => Object::Bid(seller, object),
         _ => return None,
     })
 }

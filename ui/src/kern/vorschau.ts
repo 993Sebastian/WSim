@@ -23,6 +23,7 @@ import type {
   Rundenbericht,
   Rundenlaenge,
   Spielstand,
+  Ruecksprachen,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -48,6 +49,7 @@ const beispiel = beispielJson as unknown as {
   organisation: Organisation;
   anliegen: AnliegenListe;
   strategie: Strategie;
+  ruecksprache: Ruecksprachen;
   managermarkt: Managermarkt;
 };
 
@@ -200,6 +202,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     strategie: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.strategie);
+    },
+    ruecksprache: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.ruecksprache);
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

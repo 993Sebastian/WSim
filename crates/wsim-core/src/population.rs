@@ -1060,6 +1060,8 @@ fn found_company(
         positions: Vec::new(),
         budget_rules: Vec::new(),
         strategies: Vec::new(),
+        mandate: crate::mandate::Mandate::default(),
+        reviews: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

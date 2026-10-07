@@ -70,6 +70,7 @@ export function webKern(): Kern {
     organisation: () => aufruf("organisation"),
     anliegen: () => aufruf("anliegen"),
     strategie: () => aufruf("strategie"),
+    ruecksprache: () => aufruf("ruecksprache"),
     managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),

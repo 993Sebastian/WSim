@@ -182,6 +182,8 @@ impl Game {
             positions: Vec::new(),
             budget_rules: Vec::new(),
             strategies: Vec::new(),
+            mandate: crate::mandate::Mandate::default(),
+            reviews: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -433,6 +435,11 @@ impl Game {
             report
                 .messages
                 .extend(crate::ranking::month_end(&mut self.state));
+            report.messages.extend(crate::review::month_end(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             crate::brand::month_start(&mut self.state, &self.catalog, next);
         }
         if next.ordinal() == 1 {

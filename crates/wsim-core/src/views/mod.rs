@@ -11,6 +11,7 @@ mod deals;
 mod hints;
 mod organisation;
 mod play;
+mod review;
 mod strategy;
 pub use chains::*;
 pub use concerns::*;
@@ -21,6 +22,7 @@ pub use deals::{
 pub use hints::*;
 pub use organisation::*;
 pub use play::*;
+pub use review::*;
 pub use strategy::*;
 
 use serde::{Deserialize, Serialize};

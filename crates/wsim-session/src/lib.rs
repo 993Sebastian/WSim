@@ -14,17 +14,18 @@ use wsim_core::calendar::Date;
 use wsim_core::calendar::RoundLength;
 use wsim_core::catalog::Catalog;
 use wsim_core::command::Command;
+use wsim_core::decision::Topic;
 use wsim_core::game::{Game, Progress, RoundReport};
 use wsim_core::management;
 use wsim_core::message::{Message, MessageKind, Param, keys as core_keys};
 use wsim_core::money::Money;
 use wsim_core::save;
-use wsim_core::state::{AiSettings, ConcernStatus, GameSettings};
+use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
 use wsim_core::views::{
     self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, RoundReportView, StrategyView,
-    WorldMap, WorldMarketView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
+    StrategyView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -333,6 +334,11 @@ impl<S: SaveStore> Session<S> {
         self.view(views::strategy)
     }
 
+    /// The mandate to the board and the CEO's strategy reviews (MA5).
+    pub fn reviews(&self) -> Result<ReviewsView, MessageView> {
+        self.view(views::reviews)
+    }
+
     /// Candidates for a position of the player: `unit` is `standort:<Nummer>`,
     /// `land:<ISO>` or `kontinent:<Schlüssel>` (MA3), `role` is `leitung` or a function
     /// (MA1).
@@ -433,19 +439,32 @@ impl<S: SaveStore> Session<S> {
                         && c.status == ConcernStatus::Open
                         && (halt == "alle" || management::important(game.catalog(), c))
                 });
+            // The board answers offers itself (MA5); what it may not decide comes as a
+            // concern.
+            let board_answers = management::first_taker(
+                game.catalog(),
+                game.state(),
+                game.player(),
+                Unit::Board,
+                Topic::OfferAnswer,
+            )
+            .is_some();
             let news = report.messages.iter().find_map(|m| match m.kind {
-                // Concerns halt by their own rule.
-                _ if m.key == core_keys::CONCERN_NEW => None,
+                // Concerns of every level halt by their own rule.
+                _ if m.key.starts_with(core_keys::CONCERN_NEW) => None,
                 MessageKind::WorldEvent => Some("weltereignis"),
                 MessageKind::Warning | MessageKind::Crisis => Some("warnung"),
                 // An offer waits for the player's answer (M30).
-                _ if m.key.starts_with("meldung.angebot.erhalten")
-                    || m.key.starts_with("meldung.angebot.gegenangebot") =>
+                _ if !board_answers
+                    && (m.key.starts_with("meldung.angebot.erhalten")
+                        || m.key.starts_with("meldung.angebot.gegenangebot")) =>
                 {
                     Some("angebot")
                 }
                 _ => None,
             });
+            // The CEO's strategy review always halts (MA5).
+            let review = report.messages.iter().any(|m| m.key == core_keys::REVIEW);
             all.to = report.to;
             all.days += report.days;
             all.messages.extend(report.messages);
@@ -455,6 +474,7 @@ impl<S: SaveStore> Session<S> {
             } else {
                 match until {
                     "runde" => Some("runde"),
+                    _ if review => Some("ruecksprache"),
                     _ if concern => Some("anliegen"),
                     "jahresende" => next_year.then_some("jahresende"),
                     _ => news.or((game.date() >= year_later).then_some("ein_jahr")),

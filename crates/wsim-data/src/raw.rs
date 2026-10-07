@@ -1294,12 +1294,16 @@ pub struct RawManagement {
     pub site_types: BTreeMap<String, Vec<String>>,
     #[serde(rename = "routine_themen", default)]
     pub routine_topics: Vec<String>,
+    #[serde(rename = "regel_themen", default)]
+    pub rule_topics: Vec<String>,
     #[serde(rename = "budget_sockel_gehaelter")]
     pub budget_floor: RawBudgetFloor,
     #[serde(rename = "anliegen")]
     pub concerns: RawConcerns,
     #[serde(rename = "strategie")]
     pub strategy: RawStrategy,
+    #[serde(rename = "strategieauftrag")]
+    pub mandate: RawMandateModel,
     #[serde(rename = "leitung_ohne_fach_abschlag")]
     pub head_discount: f64,
     #[serde(rename = "bemerken_grund")]
@@ -1389,6 +1393,36 @@ pub struct RawStrategy {
     pub stock_days_max: f64,
     #[serde(rename = "liquiditaet_monate_max")]
     pub reserve_months_max: f64,
+}
+
+/// Mandate and strategy review (MA5).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMandateModel {
+    #[serde(rename = "leitlinien")]
+    pub guidelines: RawGuidelines,
+    #[serde(rename = "antraege_max")]
+    pub proposals_max: u32,
+    #[serde(rename = "chancen_risiken")]
+    pub chances_risks: u32,
+    #[serde(rename = "ruecksprachen_behalten")]
+    pub reviews_kept: u32,
+    #[serde(rename = "personal_schaerfe")]
+    pub personnel_sharpness: f64,
+}
+
+/// Aggressiveness of the rules per guideline (0–1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawGuidelines {
+    #[serde(rename = "wachstum")]
+    pub growth: f64,
+    #[serde(rename = "ertrag")]
+    pub profit: f64,
+    #[serde(rename = "sicherheit")]
+    pub safety: f64,
+    #[serde(rename = "marktfuehrung")]
+    pub leadership: f64,
 }
 
 #[derive(Debug, Deserialize)]

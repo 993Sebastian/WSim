@@ -2598,7 +2598,7 @@ fn management_wird_geprueft() {
 
     let d = basis().ersetze(
         datei,
-        "    - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20]}\n",
+        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass]}\n",
         "",
     );
     befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
@@ -2669,6 +2669,25 @@ fn management_wird_geprueft() {
         &d.laden(),
         "Thema „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
     );
+    // MA5: a topic follows the rules either as routine or as a topic of costs only.
+    let d = basis().ersetze(
+        datei,
+        "regel_themen: [kasse, werbung]",
+        "regel_themen: [kasse, werbung, lohn]",
+    );
+    befund(
+        &d.laden(),
+        "Thema „lohn“ ist doppelt definiert; erste Definition in routine_themen.",
+    );
+    let d = basis().ersetze(
+        datei,
+        "regel_themen: [kasse, werbung]",
+        "regel_themen: [kasse, werbng]",
+    );
+    befund(
+        &d.laden(),
+        "Thema „werbng“ ist nicht definiert. Meinten Sie „werbung“?",
+    );
     // MA3: specialists and topics of the levels, bundling.
     let d = basis().ersetze(
         datei,
@@ -2690,11 +2709,15 @@ fn management_wird_geprueft() {
         "Bereich „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
     );
     assert_eq!(f.path.to_string(), "management.ebenen[1].fachstellen[0]");
-    let d = basis().ersetze(datei, "lagerstaette, werbung]}", "lagerstaette, kasse]}");
+    let d = basis().ersetze(
+        datei,
+        "lagerstaette, werbung]}",
+        "lagerstaette, produktname]}",
+    );
     let outcome = d.laden();
     let f = befund(
         &outcome,
-        "Das Thema „kasse“ gehört zu keinem Bereich; eine Ebene kann nur Themen ihrer Bereiche aufgreifen.",
+        "Das Thema „produktname“ gehört zu keinem Bereich; eine Ebene kann nur Themen ihrer Bereiche aufgreifen.",
     );
     assert_eq!(f.path.to_string(), "management.ebenen[1].themen[6]");
     let d = basis().ersetze(datei, "buendel_ab: 3", "buendel_ab: 0");
@@ -2754,6 +2777,39 @@ fn management_wird_geprueft() {
         "liquiditaet_monate_max: -1",
     );
     befund(&d.laden(), "Wert -1 muss größer als 0 sein.");
+
+    // MA5: the board and the mandate.
+    let m = basis().laden().data.unwrap().catalog.management;
+    assert_eq!(m.levels[3].specialists.len(), 6);
+    assert!(
+        m.levels[3]
+            .topics
+            .contains(&wsim_core::decision::Topic::OfferAnswer)
+    );
+    let d = basis().ersetze(datei, "sicherheit: 0.2,", "sicherheit: 1.2,");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "management.strategieauftrag.leitlinien.sicherheit"
+    );
+    let d = basis().ersetze(datei, "antraege_max: 3", "antraege_max: 0");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "antraege_max: 0"),
+        "management.strategieauftrag.antraege_max",
+    );
+    let d = basis().ersetze(datei, "kaufangebot, antwort]", "kaufangebot, antwrt]");
+    befund(
+        &d.laden(),
+        "Thema „antwrt“ ist nicht definiert. Meinten Sie „antwort“?",
+    );
 
     let d = basis().ersetze("texte/de/bereiche.yaml", "bereich.logistik: Logistik\n", "");
     let outcome = d.laden();

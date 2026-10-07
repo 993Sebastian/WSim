@@ -93,6 +93,8 @@ pub(super) fn decode_v2(
                 positions: Vec::new(),
                 budget_rules: Vec::new(),
                 strategies: Vec::new(),
+                mandate: crate::mandate::Mandate::default(),
+                reviews: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

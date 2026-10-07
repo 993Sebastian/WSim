@@ -36,6 +36,7 @@ import {
   ZahlFeld,
 } from "./gemeinsam";
 import { einheitName, stellenangabe, stellenName } from "./stellen";
+import { RuecksprachenAnsicht } from "./Ruecksprache";
 import { StrategieAnsicht } from "./Strategie";
 
 /** Where the answers of this view appear: above the chart, also after hiring. */
@@ -378,14 +379,15 @@ function EinheitKarte({
                     </td>
                     <td data-spalte={t("organisation.erledigt")}>
                       <Themen themen={p.topics} />
+                      {p.effect && <span className="feld-hilfe">{t(p.effect)}</span>}
                     </td>
                     <td className="zahl" data-spalte={t("organisation.gehalt")}>
                       {t("organisation.nichts")}
                     </td>
                     <td>
                       {/* Without topics yet (personnel, logistics …) a manager would
-                          only cost his salary. */}
-                      {p.topics.length > 0 && (
+                          only cost his salary, unless the position works otherwise. */}
+                      {(p.topics.length > 0 || p.effect) && (
                         <button
                           type="button"
                           aria-label={`${t("organisation.besetzen")} ${stellenName(p.role, s.kind_text)} (${titel})`}
@@ -613,6 +615,18 @@ function Organigramm({
       </p>
       {daten.continents.length === 0 && <p>{t("organisation.keine_standorte")}</p>}
       <Budgetvorgaben daten={daten} />
+      {daten.board && (
+        <section aria-label={t("ebene.vorstand")}>
+          <h2>{t("ebene.vorstand")}</h2>
+          <p className="feld-hilfe">{t("organisation.vorstand_hilfe")}</p>
+          <EinheitKarte
+            s={daten.board}
+            sockel={daten.budget_floor ?? [0, 0]}
+            onBesetzen={onBesetzen}
+            onAnliegen={onAnliegen}
+          />
+        </section>
+      )}
       {daten.continents.map((k) => (
         <section key={k.continent} aria-label={t(`kontinent.${k.continent}`)}>
           <h2>{t(`kontinent.${k.continent}`)}</h2>
@@ -821,7 +835,7 @@ export function OrganisationAnsicht({
   const [wahl, setWahl] = useState<{ einheit: string; rolle: string } | null>(null);
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
-  const [bereich, setBereich] = useState<"stellen" | "anliegen" | "strategie">(
+  const [bereich, setBereich] = useState<"stellen" | "anliegen" | "strategie" | "ruecksprache">(
     offen > 0 ? "anliegen" : "stellen",
   );
   const stand = `${uebersicht.date}/${zaehler}`;
@@ -837,6 +851,7 @@ export function OrganisationAnsicht({
                 { key: "stellen", text: t("organisation.reiter_stellen") },
                 { key: "anliegen", text: t("organisation.reiter_anliegen"), zaehler: offen },
                 { key: "strategie", text: t("organisation.reiter_strategie") },
+                { key: "ruecksprache", text: t("organisation.reiter_ruecksprache") },
               ]}
               aktiv={bereich}
               onWahl={setBereich}
@@ -851,6 +866,13 @@ export function OrganisationAnsicht({
             )}
             {bereich === "anliegen" && <AnliegenListe kern={kern} stand={stand} />}
             {bereich === "strategie" && <StrategieAnsicht kern={kern} stand={stand} />}
+            {bereich === "ruecksprache" && (
+              <RuecksprachenAnsicht
+                kern={kern}
+                stand={stand}
+                onAnliegen={() => setBereich("anliegen")}
+              />
+            )}
           </>
         ) : (
           <Managermarkt

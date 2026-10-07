@@ -184,6 +184,7 @@ bericht.halt.ein_jahr: Ein Jahr lang ohne Warnung – angehalten, damit du nachs
 bericht.halt.spielende: Das Spiel ist zu Ende.
 bericht.halt.runde: Eine Runde.
 bericht.halt.anliegen: Angehalten wegen eines Anliegens deiner Manager – du findest es unter „Organisation“.
+bericht.halt.ruecksprache: Angehalten zur Strategierücksprache – Bericht und Anträge des CEO findest du unter „Organisation“ → „Rücksprache“.
 bericht.gruppe.welt: Weltgeschehen
 bericht.gruppe.warnung: Warnungen
 bericht.gruppe.wettbewerb: Wettbewerb
@@ -847,7 +848,7 @@ einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe fü
 einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.organisation.titel: Organisation
-einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du."
+einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du. Über allen steht der Vorstand: Ein CEO bespricht mit dir unter „Rücksprache“ regelmäßig Bericht und Anträge nach deinem Strategieauftrag – er ist aber teuer, erst für eine größere Firma."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -999,7 +1000,7 @@ wettbewerb.lizenz_anfragen: Lizenz anfragen
 # Organisation und Manager (MA1)
 organisation.kopf: "{anzahl} Manager · Gehälter {gehalt} im Jahr · {bewerber} Bewerber auf dem Markt"
 organisation.hilfe: "Besetzte Stellen prüfen ihren Standort alle {tage} Tage und erledigen die Routine ihres Bereichs selbst: Auslastung und Rezept, Einkauf und Lieferungen zwischen deinen Standorten, Verkauf. Am Quartalsende kümmern sie sich auch um Überkapazität, stillgelegte Anlagen und den Ausbau, Laborleitungen um das nächste Forschungsziel. Was ihr Budget übersteigt oder einen Kredit braucht, legen sie dir als Anliegen vor. Eine Leitung übernimmt die Bereiche, deren Fachstelle leer ist – etwas weniger gründlich. Was niemand erledigt, entscheidest du selbst. Deine eigenen Einstellungen gelten bis zur nächsten Prüfung."
-organisation.spaeter: "Landesleitungen und Kontinentvorstände entscheiden, was den Standorten zu teuer ist, kümmern sich um Standorte ohne eigene Leitung, um Kraftwerke, Lagerstätten und die Werbung im Land. Der Vorstand mit CEO folgt."
+organisation.spaeter: "Landesleitungen und Kontinentvorstände entscheiden, was den Standorten zu teuer ist, kümmern sich um Standorte ohne eigene Leitung, um Kraftwerke, Lagerstätten und die Werbung im Land. Darüber steht der Vorstand: Der CEO und die Ressorts nehmen Kredite auf, beantworten Kaufangebote, bieten selbst und besprechen mit dir in der Rücksprache Bericht und Anträge."
 organisation.aus: In diesen Spieldaten gibt es keine Manager.
 organisation.keine_standorte: Gründe zuerst einen Standort; dann kannst du seine Stellen besetzen.
 organisation.konzern: Konzern
@@ -1016,6 +1017,9 @@ organisation.entlassen_frage: "{name} entlassen? Abfindung {abfindung}."
 organisation.entlassen_erfolg: "{name} ist entlassen und kehrt auf den Managermarkt zurück."
 organisation.naechste_pruefung: "Nächste Prüfung: {datum}"
 organisation.selbst: "Entscheidest du selbst: {themen}"
+organisation.ressort: "Ressort {bereich}"
+organisation.vorstand_hilfe: "Der CEO und die Ressorts führen die Firma: Das Ressort Finanzen nimmt Kredite auf und tilgt, beantwortet Kaufangebote an die Firma und bietet selbst; der Vorstand entscheidet, was den Kontinenten zu teuer ist, und kümmert sich um alles, wofür darunter niemand zuständig ist. Der CEO bespricht mit dir regelmäßig Bericht und Anträge (Reiter „Rücksprache“). Ohne CEO und Ressorts entscheidest du das selbst."
+organisation.wirkung_personal: Schätzt Bewerber und Manager genauer ein.
 organisation.nichts: "–"
 organisation.seit: "seit {datum}"
 organisation.schwerpunkt: "Schwerpunkt {bereich}"
@@ -1043,6 +1047,7 @@ organisation.fach_der_stelle: Fachkompetenz der Stelle
 organisation.reiter_stellen: Stellen
 organisation.reiter_anliegen: Anliegen
 organisation.reiter_strategie: Strategie
+organisation.reiter_ruecksprache: Rücksprache
 organisation.budget_kurz: "Budget {entscheidung} je Entscheidung, {jahr} im Jahr"
 organisation.budget_immer: fragt bei jeder Ausgabe
 organisation.budget_titel: "Budget: {stelle}"
@@ -1089,6 +1094,8 @@ anliegen.grund.immer: Diese Stelle soll bei jeder Ausgabe fragen.
 anliegen.grund.kredit: Dafür braucht es einen Kredit – darüber entscheidest du.
 anliegen.grund.reserve: "Danach läge die Kasse unter der Liquiditätsreserve ({reserve})."
 anliegen.grund.investition: "Das Investitionsbudget ({wo}) reicht nicht mehr (übrig: {rest})."
+anliegen.grund.verschuldung: "Danach wären die Kredite höher, als der Strategieauftrag erlaubt (Spielraum: {rest})."
+anliegen.grund.antrag: Ein Antrag des CEO aus der Strategierücksprache – er legt ihn dir unabhängig vom Budget vor.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1142,9 +1149,11 @@ leitung.niederlassung: Niederlassungsleitung
 leitung.forschungszentrum: Laborleitung
 leitung.land: Landesleitung
 leitung.kontinent: Kontinentvorstand
+leitung.vorstand: CEO
 ebene.land: Land
 ebene.kontinent: Kontinent
 ebene.firma: Firma
+ebene.vorstand: Vorstand
 strategie.titel: Strategie
 strategie.hilfe: "Vorgaben sagen deinen Managern, wie sie entscheiden: Preise, Lager, Löhne, Lieferungen zwischen deinen Standorten, Investitionen und Liquiditätsreserve. Eine Vorgabe gilt auf der Ebene, auf der du sie setzt, und für alles darunter – bis eine untere Ebene eine eigene hat."
 strategie.erklaerung: "Für einen Standort gilt je Feld seine eigene Vorgabe, sonst die seines Landes, seines Kontinents, der Firma, sonst der Standardwert. Vorgaben wirken, wo eine besetzte Stelle entscheidet. Was du selbst entscheidest, gilt sofort und hat Vorrang – ein fester Preis bleibt fest; anderes passt die Stelle an ihrer nächsten Prüfung wieder an die Vorgabe an. Wer an einem Ort dauerhaft anders will, setzt dort eine eigene Vorgabe. Wie gut eine Vorgabe umgesetzt wird, hängt vom Manager ab: Ein schwacher bemerkt eine Änderung später."
@@ -1273,6 +1282,7 @@ thema.produktname: Produktnamen
 thema.kasse: Kredite
 thema.werbung: Werbung
 thema.kaufangebot: Kaufangebote
+thema.antwort: Antwort auf Kaufangebote
 thema.ueberkapazitaet: Überkapazität
 thema.stillgelegt: Stillgelegte Anlagen
 thema.wiederanfahren: Wiederanfahren
@@ -1297,3 +1307,82 @@ option.annehmen: Annehmen
 option.ablehnen: Ablehnen
 option.forschen: Forschen
 option.weiterentwickeln: Weiterentwickeln
+option.gegenangebot: Gegenangebot
+
+# Strategieauftrag und Strategierücksprache (MA5)
+auftrag.titel: Strategieauftrag an den Vorstand
+auftrag.erklaerung: "Die Leitlinie gibt den Regeln, nach denen alle Stellen der Firma entscheiden, ihre Aggressivität – wie bei den KI-Firmen: Preisuntergrenze, Schwellen für den Ausbau, Werbung und Gebote. Die Ziele misst der CEO bei jeder Rücksprache. Die Grenzen gelten für alle Stellen: Über die Verschuldungsgrenze hinaus nimmt niemand Kredite auf, in gesperrten Ländern und Warengruppen gründet, baut und bietet niemand. Investitionsbudget und Liquiditätsreserve legst du im Reiter „Strategie“ fest."
+auftrag.hilfe: Was soll der Vorstand anstreben? Der Auftrag gilt ab sofort für alle Stellen deiner Firma.
+auftrag.leitlinie_titel: Leitlinie
+auftrag.leitlinie.wachstum: Wachstum
+auftrag.leitlinie.ertrag: Ertrag
+auftrag.leitlinie.sicherheit: Sicherheit
+auftrag.leitlinie.marktfuehrung: Marktführerschaft
+auftrag.leitlinie_hilfe.wachstum: "Ausbau und Gebote zuerst – Aggressivität {wert}."
+auftrag.leitlinie_hilfe.ertrag: "Ausgewogen – Aggressivität {wert}."
+auftrag.leitlinie_hilfe.sicherheit: "Vorsichtig: höhere Preisuntergrenze, wenig Ausbau – Aggressivität {wert}."
+auftrag.leitlinie_hilfe.marktfuehrung: "Gelegenheiten und Kaufangebote in der gewählten Warengruppe zuerst – Aggressivität {wert}."
+auftrag.warengruppe: Warengruppe
+auftrag.ruecksprache_titel: Rücksprache
+auftrag.ruecksprache.monatlich: monatlich
+auftrag.ruecksprache.quartalsweise: quartalsweise
+auftrag.ruecksprache.halbjaehrlich: halbjährlich
+auftrag.ruecksprache.jaehrlich: jährlich
+auftrag.ziele: Ziele
+auftrag.ziele_hilfe: Leer heißt ohne Ziel. Der CEO misst die Ziele bei jeder Rücksprache.
+auftrag.rang_hilfe: Platz nach Umsatz unter allen Firmen.
+auftrag.grenzen_titel: Grenzen
+auftrag.verschuldung: Kredite höchstens
+auftrag.verschuldung_hilfe: Anteil an der Bilanzsumme nach einem neuen Kredit; leer heißt ohne Grenze.
+auftrag.gesperrte_laender: Gesperrte Länder
+auftrag.gesperrte_gruppen: Gesperrte Warengruppen
+auftrag.hinzufuegen: hinzufügen …
+auftrag.entfernen: Entfernen
+auftrag.sperren_hilfe: In gesperrten Ländern gründen deine Stellen keine Standorte und bieten für keine; für gesperrte Warengruppen bauen sie nicht aus und bieten nicht. Du selbst darfst weiterhin alles.
+auftrag.grenzen: "Wachstum zwischen −100 und 1.000 %, Rendite zwischen −100 und 100 %, Eigenkapitalquote und Kredite zwischen 0 und 100 %, der Rang ab Platz 1."
+auftrag.uebernehmen: Auftrag übernehmen
+auftrag.gesetzt: Der Strategieauftrag ist übernommen.
+ziel.wachstum: Umsatzwachstum im Jahr
+ziel.rendite: Umsatzrendite
+ziel.eigenkapitalquote: Eigenkapitalquote
+ziel.rang: Rang nach Umsatz
+ruecksprache.ansicht: Strategieauftrag und Rücksprache
+ruecksprache.berichte: Strategierücksprachen
+ruecksprache.ohne_ceo: "Ohne CEO gibt es keine Rücksprache. Besetze im Reiter „Stellen“ die Leitung des Vorstands: Dann legt dir der CEO am Ende jedes Abschnitts einen Bericht und seine Anträge vor."
+ruecksprache.naechste: "Nächste Rücksprache mit {name}: {datum}"
+ruecksprache.keine: Noch keine Rücksprache.
+ruecksprache.titel: "Rücksprache {von} – {bis}"
+ruecksprache.von: "Bericht von {name} · Rücksprache {takt}"
+ruecksprache.zeitraum: "{von} – {bis}"
+ruecksprache.zahlen: "Umsatz und Ergebnis {zeitraum}"
+ruecksprache.gruppen: "Warengruppen {zeitraum}"
+ruecksprache.teil: Bereich
+ruecksprache.umsatz: Umsatz
+ruecksprache.ergebnis: Ergebnis
+ruecksprache.marge: Marge
+ruecksprache.gemeinkosten: Gemeinkosten der Firma
+ruecksprache.ziele: Ziele
+ruecksprache.ziele_zeitraum: "Ziele {zeitraum}"
+ruecksprache.ziele_heute: Ziele heute
+ruecksprache.keine_ziele: Der Auftrag setzt keine Ziele.
+ruecksprache.ziel: Ziel
+ruecksprache.vorgabe: Vorgabe
+ruecksprache.ist: Ist
+ruecksprache.stand: Stand
+ruecksprache.erreicht: erreicht
+ruecksprache.verfehlt: verfehlt
+ruecksprache.kein_wert: noch kein Wert
+ruecksprache.platz: "Platz {platz}"
+ruecksprache.chancen: Chancen
+ruecksprache.risiken: Risiken
+ruecksprache.keine_chancen: Keine besonderen Chancen.
+ruecksprache.keine_risiken: Keine besonderen Risiken.
+ruecksprache.chance.produkt: "{produkt}: {marge} Marge ({anteil} vom Umsatz)"
+ruecksprache.chance.antrag: "Antrag: {antrag}"
+ruecksprache.chance.antrag_offen: "Antrag: {antrag} – wartet auf deine Antwort"
+ruecksprache.risiko.verlust: "{standort}: Verlust {betrag}"
+ruecksprache.risiko.ziel: "Ziel verfehlt: {ziel}"
+ruecksprache.risiko.reserve: "Kasse {kasse} unter der Liquiditätsreserve {reserve}"
+ruecksprache.risiko.verschuldung: "Kredite {anteil} der Bilanzsumme – Grenze {grenze}"
+ruecksprache.zu_antraegen: "Zu den Anträgen ({anzahl})"
+ruecksprache.kurz: "Umsatz {umsatz}, Ergebnis {ergebnis}"

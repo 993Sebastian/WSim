@@ -932,11 +932,15 @@ fn run(state: &mut GameState, catalog: &Catalog, actor: CompanyId, command: &Com
     command::execute(state, catalog, actor, command).is_ok()
 }
 
-pub(crate) fn traits(state: &GameState, id: CompanyId) -> (f64, f64) {
-    state.companies[id.index()]
-        .ai
-        .as_ref()
-        .map_or((0.5, 0.5), |ai| (ai.competence, ai.aggressiveness))
+/// Competence and aggressiveness of a company's rules: an AI company's character; for
+/// the player a middling competence and the aggressiveness of the mandate's guideline
+/// (MA5).
+pub(crate) fn traits(catalog: &Catalog, state: &GameState, id: CompanyId) -> (f64, f64) {
+    let c = &state.companies[id.index()];
+    c.ai.as_ref().map_or_else(
+        || (0.5, crate::mandate::aggressiveness(catalog, &c.mandate)),
+        |ai| (ai.competence, ai.aggressiveness),
+    )
 }
 
 /// The cheapest recipe a company knows for a product, optionally on one facility.
@@ -1007,7 +1011,7 @@ fn operate(
 ) {
     let model = &catalog.ai_model;
     let b = &model.behavior;
-    let (_, aggressiveness) = traits(state, id);
+    let (_, aggressiveness) = traits(catalog, state, id);
     let rules_floor = b.floor_factor.at(aggressiveness);
     for &site in due {
         let s = &state.sites[site.index()];
@@ -1603,7 +1607,7 @@ pub(crate) fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId])
 }
 
 /// Loans keep the cash between the minimum and maximum months of running cost.
-fn manage_cash(
+pub(crate) fn manage_cash(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
@@ -1653,7 +1657,7 @@ fn expand(
         return;
     }
     let b = &catalog.ai_model.behavior;
-    let (_, aggressiveness) = traits(state, id);
+    let (_, aggressiveness) = traits(catalog, state, id);
     let min_utilization = b.expand_utilization.at(aggressiveness);
     let min_margin = b.expand_margin.at(aggressiveness);
     // Best expansion: margin, site, product, wanted capacity and the most the
@@ -2126,7 +2130,7 @@ fn advertise(
     (sites, only): (&[SiteId], Option<&[CountryId]>),
     decider: &mut dyn Decider,
 ) {
-    let (_, aggressiveness) = traits(state, id);
+    let (_, aggressiveness) = traits(catalog, state, id);
     let share = catalog
         .ai_model
         .behavior
@@ -2351,6 +2355,103 @@ fn within_cap(catalog: &Catalog, cap: f64, size: FacilitySize) -> u32 {
     }
 }
 
+/// What a new site for a planned opportunity costs: the site and its facilities.
+fn new_site_cost(catalog: &Catalog, o: &Planned) -> Money {
+    let &(_, _, _, recipe, (size, count)) = o;
+    let f = catalog.facilities.get(catalog.recipes.get(recipe).facility);
+    let unit = f
+        .investment
+        .scale(catalog.production_model.sizes.investment(size));
+    catalog.production_model.site_cost(f.site_type) + unit.scale(f64::from(count))
+}
+
+/// The decision about a new site for a planned opportunity: founding it with its
+/// facilities (a loan for what the cash lacks first), or keeping things as they are.
+fn new_site_decision(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (o, topic): (Planned, Topic),
+) -> Decision {
+    let (product, country, deposit, recipe, (size, count)) = o;
+    let r = catalog.recipes.get(recipe);
+    let f = catalog.facilities.get(r.facility);
+    let cash_needed = new_site_cost(catalog, &o) - state.companies[id.index()].ledger.cash();
+    let capacity = f64::from(count) * catalog.production_model.sizes.capacity(size);
+    let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
+    let choice = new_site_steps(
+        state,
+        catalog,
+        id,
+        (
+            cash_needed,
+            (country, f.site_type),
+            (Some((r.facility, size, count)), revenue),
+        ),
+        (deposit, r.facility, recipe, Some(product)),
+    );
+    Decision::new(topic, id, choice).of(product)
+}
+
+/// New chains and countries a company's CEO proposes at a strategy review
+/// (docs/FORMELN.md, MA5): the opportunities of the AI's diversification (M32/M33) for
+/// the company, different products, within its investment budget like an AI company's,
+/// up to `max`; those of the mandate's leading goods group first, what it bans left out.
+pub(crate) fn opportunities(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    max: usize,
+) -> Vec<Decision> {
+    let b = &catalog.ai_model.behavior;
+    let c = &state.companies[id.index()];
+    let budget = (c.ledger.cash().max(Money::ZERO) + finance::credit_limit(catalog, c))
+        .scale(b.invest_share_max);
+    let mandate = &c.mandate;
+    let lead: Option<Vec<ProductId>> = mandate.first_group().map(|g| {
+        catalog
+            .products
+            .iter()
+            .filter(|(_, p)| p.goods_group == g)
+            .map(|(id, _)| id)
+            .collect()
+    });
+    let scan = Scan::new(state, catalog);
+    let mut taken: Vec<ProductId> = Vec::new();
+    let mut out = Vec::new();
+    for only in [lead.as_deref(), None] {
+        // Each round takes a product, wanted or not: the search ends.
+        for _ in 0..catalog.products.len() {
+            if out.len() >= max {
+                return out;
+            }
+            let Some((product, country, deposit, recipe, want)) =
+                opportunity_in(&scan, state, catalog, &taken, id, only)
+            else {
+                break;
+            };
+            taken.push(product);
+            let group = catalog.products.get(product).goods_group;
+            if mandate.blocked_groups.contains(&group)
+                || mandate.blocked_countries.contains(&country)
+            {
+                continue;
+            }
+            let Some(units) = affordable(state, catalog, (deposit, recipe, want), budget) else {
+                continue;
+            };
+            let o = (product, country, deposit, recipe, units);
+            out.push(new_site_decision(
+                state,
+                catalog,
+                id,
+                (o, Topic::Bottleneck),
+            ));
+        }
+    }
+    out
+}
+
 /// Builds a new site for an opportunity in an existing company (loan if needed).
 fn build_in_bottleneck(
     state: &mut GameState,
@@ -2363,26 +2464,10 @@ fn build_in_bottleneck(
     let b = &catalog.ai_model.behavior;
     let r = catalog.recipes.get(recipe);
     let f = catalog.facilities.get(r.facility);
-    let unit = f
-        .investment
-        .scale(catalog.production_model.sizes.investment(size));
-    let cost = catalog.production_model.site_cost(f.site_type) + unit.scale(f64::from(count));
-    let cash_needed = cost - state.companies[id.index()].ledger.cash();
+    let cash_needed = new_site_cost(catalog, &o) - state.companies[id.index()].ledger.cash();
     let capacity = f64::from(count) * catalog.production_model.sizes.capacity(size);
     let decided = decision::decided(decider, state, catalog, |st| {
-        let revenue = crate::plots::project_revenue(st, catalog, country, recipe, capacity);
-        let choice = new_site_steps(
-            st,
-            catalog,
-            id,
-            (
-                cash_needed,
-                (country, f.site_type),
-                (Some((r.facility, size, count)), revenue),
-            ),
-            (deposit, r.facility, recipe, Some(product)),
-        );
-        Decision::new(topic, id, choice).of(product)
+        new_site_decision(st, catalog, id, (o, topic))
     });
     if !decided {
         return false;
@@ -2684,7 +2769,7 @@ pub(crate) fn developed(
 /// Whether an AI company is competent and large enough to research (M10).
 pub(crate) fn wants_research(state: &GameState, catalog: &Catalog, id: CompanyId) -> bool {
     let b = &catalog.ai_model.behavior;
-    let (competence, _) = traits(state, id);
+    let (competence, _) = traits(catalog, state, id);
     let revenue = state.companies[id.index()]
         .ledger
         .years
@@ -2721,7 +2806,7 @@ fn plan_research(
     decider: &mut dyn Decider,
 ) {
     let b = &catalog.ai_model.behavior;
-    let (competence, _) = traits(state, id);
+    let (competence, _) = traits(catalog, state, id);
     // Branches the company works in.
     let mut branches = Vec::new();
     for &site in sites {
@@ -3779,6 +3864,8 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         positions: Vec::new(),
         budget_rules: Vec::new(),
         strategies: Vec::new(),
+        mandate: crate::mandate::Mandate::default(),
+        reviews: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3948,6 +4035,8 @@ mod tests {
             positions: Vec::new(),
             budget_rules: Vec::new(),
             strategies: Vec::new(),
+            mandate: crate::mandate::Mandate::default(),
+            reviews: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

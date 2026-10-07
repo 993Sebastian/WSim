@@ -37,6 +37,7 @@ impl StrategyScope {
             Unit::Site(s) => StrategyScope::Site(s),
             Unit::Country(c) => StrategyScope::Country(c),
             Unit::Continent(k) => StrategyScope::Continent(k),
+            Unit::Board => StrategyScope::Company,
         }
     }
 
@@ -55,7 +56,7 @@ fn country_of(state: &GameState, unit: Unit) -> Option<CountryId> {
     match unit {
         Unit::Site(s) => state.sites.get(s.index()).map(|x| x.country),
         Unit::Country(c) => Some(c),
-        Unit::Continent(_) => None,
+        Unit::Continent(_) | Unit::Board => None,
     }
 }
 

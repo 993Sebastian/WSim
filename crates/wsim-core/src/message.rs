@@ -84,6 +84,7 @@ pub mod keys {
     pub const COMMAND_RECIPE_NEEDS_DEPOSIT: &str = "fehler.befehl.rezept_braucht_lagerstaette";
     pub const COMMAND_INVALID_SHARE: &str = "fehler.befehl.anteil_ungueltig";
     pub const COMMAND_INVALID_STRATEGY: &str = "fehler.befehl.vorgabe_ungueltig";
+    pub const COMMAND_INVALID_MANDATE: &str = "fehler.befehl.auftrag_ungueltig";
     pub const COMMAND_AUTOMATION_TOO_HIGH: &str = "fehler.befehl.automatisierung_zu_hoch";
     pub const COMMAND_INVALID_QUANTITY: &str = "fehler.befehl.menge_ungueltig";
     pub const COMMAND_NOT_ENOUGH_GOODS: &str = "fehler.befehl.ware_fehlt";
@@ -181,7 +182,11 @@ pub mod keys {
     pub const CONCERN_NEW_CONTINENT: &str = "meldung.anliegen.neu_kontinent";
     pub const CONCERN_EXPIRED_COUNTRY: &str = "meldung.anliegen.verfallen_land";
     pub const CONCERN_EXPIRED_CONTINENT: &str = "meldung.anliegen.verfallen_kontinent";
+    pub const CONCERN_NEW_BOARD: &str = "meldung.anliegen.neu_vorstand";
+    pub const CONCERN_EXPIRED_BOARD: &str = "meldung.anliegen.verfallen_vorstand";
     pub const CONCERN_EFFECT: &str = "meldung.anliegen.folge";
+    /// The CEO's strategy review (MA5).
+    pub const REVIEW: &str = "meldung.ruecksprache";
     // What the options of a concern do, and why a position recommends one (MA2).
     pub const STEP_MOTHBALL: &str = "schritt.stilllegen";
     pub const STEP_SELL: &str = "schritt.verkaufen";
@@ -203,6 +208,34 @@ pub mod keys {
     pub const STEP_RESEARCH_END: &str = "schritt.forschung_ende";
     pub const STEP_DEVELOP: &str = "schritt.weiterentwicklung";
     pub const STEP_DEPOSIT: &str = "schritt.lagerstaette";
+    // What the board decided about offers, and the steps of offers in concerns (MA5).
+    pub const BOARD_OFFER_SITE: &str = "meldung.vorstand.angebot.standort";
+    pub const BOARD_OFFER_LICENSE: &str = "meldung.vorstand.angebot.lizenz";
+    pub const BOARD_OFFER_AREA: &str = "meldung.vorstand.angebot.bereich";
+    pub const BOARD_SOLD_SITE: &str = "meldung.vorstand.verkauft.standort";
+    pub const BOARD_SOLD_LICENSE: &str = "meldung.vorstand.verkauft.lizenz";
+    pub const BOARD_SOLD_AREA: &str = "meldung.vorstand.verkauft.bereich";
+    pub const BOARD_BOUGHT_SITE: &str = "meldung.vorstand.gekauft.standort";
+    pub const BOARD_BOUGHT_LICENSE: &str = "meldung.vorstand.gekauft.lizenz";
+    pub const BOARD_BOUGHT_AREA: &str = "meldung.vorstand.gekauft.bereich";
+    pub const BOARD_DECLINED_SITE: &str = "meldung.vorstand.abgelehnt.standort";
+    pub const BOARD_DECLINED_LICENSE: &str = "meldung.vorstand.abgelehnt.lizenz";
+    pub const BOARD_DECLINED_AREA: &str = "meldung.vorstand.abgelehnt.bereich";
+    pub const BOARD_COUNTER_SITE: &str = "meldung.vorstand.gegenangebot.standort";
+    pub const BOARD_COUNTER_LICENSE: &str = "meldung.vorstand.gegenangebot.lizenz";
+    pub const BOARD_COUNTER_AREA: &str = "meldung.vorstand.gegenangebot.bereich";
+    pub const STEP_BID_SITE: &str = "schritt.bieten.standort";
+    pub const STEP_BID_LICENSE: &str = "schritt.bieten.lizenz";
+    pub const STEP_BID_AREA: &str = "schritt.bieten.bereich";
+    pub const STEP_ACCEPT_SITE: &str = "schritt.annehmen.standort";
+    pub const STEP_ACCEPT_LICENSE: &str = "schritt.annehmen.lizenz";
+    pub const STEP_ACCEPT_AREA: &str = "schritt.annehmen.bereich";
+    pub const STEP_COUNTER_SITE: &str = "schritt.gegenangebot.standort";
+    pub const STEP_COUNTER_LICENSE: &str = "schritt.gegenangebot.lizenz";
+    pub const STEP_COUNTER_AREA: &str = "schritt.gegenangebot.bereich";
+    pub const STEP_DECLINE_SITE: &str = "schritt.ablehnen.standort";
+    pub const STEP_DECLINE_LICENSE: &str = "schritt.ablehnen.lizenz";
+    pub const STEP_DECLINE_AREA: &str = "schritt.ablehnen.bereich";
     pub const BECAUSE_RESULT: &str = "anliegen.begruendung.ergebnis";
     pub const BECAUSE_PROCEEDS: &str = "anliegen.begruendung.erloes";
     pub const BECAUSE_WAIT: &str = "anliegen.begruendung.abwarten";
@@ -273,6 +306,7 @@ pub mod keys {
         COMMAND_RECIPE_NEEDS_DEPOSIT,
         COMMAND_INVALID_SHARE,
         COMMAND_INVALID_STRATEGY,
+        COMMAND_INVALID_MANDATE,
         COMMAND_AUTOMATION_TOO_HIGH,
         COMMAND_INVALID_QUANTITY,
         COMMAND_NOT_ENOUGH_GOODS,
@@ -365,9 +399,12 @@ pub mod keys {
         CONCERN_EXPIRED,
         CONCERN_NEW_COUNTRY,
         CONCERN_NEW_CONTINENT,
+        CONCERN_NEW_BOARD,
+        CONCERN_EXPIRED_BOARD,
         CONCERN_EXPIRED_COUNTRY,
         CONCERN_EXPIRED_CONTINENT,
         CONCERN_EFFECT,
+        REVIEW,
         STEP_MOTHBALL,
         STEP_SELL,
         STEP_RESTART,
@@ -388,6 +425,33 @@ pub mod keys {
         STEP_RESEARCH_END,
         STEP_DEVELOP,
         STEP_DEPOSIT,
+        BOARD_OFFER_SITE,
+        BOARD_OFFER_LICENSE,
+        BOARD_OFFER_AREA,
+        BOARD_SOLD_SITE,
+        BOARD_SOLD_LICENSE,
+        BOARD_SOLD_AREA,
+        BOARD_BOUGHT_SITE,
+        BOARD_BOUGHT_LICENSE,
+        BOARD_BOUGHT_AREA,
+        BOARD_DECLINED_SITE,
+        BOARD_DECLINED_LICENSE,
+        BOARD_DECLINED_AREA,
+        BOARD_COUNTER_SITE,
+        BOARD_COUNTER_LICENSE,
+        BOARD_COUNTER_AREA,
+        STEP_BID_SITE,
+        STEP_BID_LICENSE,
+        STEP_BID_AREA,
+        STEP_ACCEPT_SITE,
+        STEP_ACCEPT_LICENSE,
+        STEP_ACCEPT_AREA,
+        STEP_COUNTER_SITE,
+        STEP_COUNTER_LICENSE,
+        STEP_COUNTER_AREA,
+        STEP_DECLINE_SITE,
+        STEP_DECLINE_LICENSE,
+        STEP_DECLINE_AREA,
         BECAUSE_RESULT,
         BECAUSE_PROCEEDS,
         BECAUSE_WAIT,

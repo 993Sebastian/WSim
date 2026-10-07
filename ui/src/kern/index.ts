@@ -27,6 +27,7 @@ import type {
   Optionen,
   Rundenbericht,
   Rundenlaenge,
+  Ruecksprachen,
   Spielstand,
   Strategie,
   Uebersicht,
@@ -90,6 +91,8 @@ export interface Kern {
   anliegen(): Promise<AnliegenListe>;
   /** The strategies of the company's units and where they come from (MA4). */
   strategie(): Promise<Strategie>;
+  /** The mandate to the board and the CEO's strategy reviews (MA5). */
+  ruecksprache(): Promise<Ruecksprachen>;
   /**
    * Candidates for a position: `einheit` is `standort:3`, `land:DEU` or `kontinent:europa`
    * (MA3), `stelle` is `leitung` or the key of a function (MA1).
@@ -143,6 +146,7 @@ const tauriKern: Kern = {
   organisation: () => aufruf("organisation"),
   anliegen: () => aufruf("anliegen"),
   strategie: () => aufruf("strategie"),
+  ruecksprache: () => aufruf("ruecksprache"),
   managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),

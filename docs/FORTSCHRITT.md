@@ -209,6 +209,48 @@ Regeln: `docs/FORMELN.md`, Abschnitt MA4; Bedienung: `docs/BEDIENUNG.md`, „Org
   Wiederholen, Standortverkauf), Sitzungstest mit Schlüsseln, vitest und Playwright für die
   Strategieansicht.
 
+### MA5: Vorstand, Strategieauftrag, Rücksprache (07.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA5; Bedienung: `docs/BEDIENUNG.md`, „Organisation“
+(Vorstand, Rücksprache); vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 34–41.
+
+- **Daten:** Ebene `vorstand` mit Ressorts und Themen, Bereich Finanzen mit `kasse`,
+  `kaufangebot`, `antwort`, Liste `regel_themen`, Block `strategieauftrag` (Aggressivität
+  je Leitlinie, Anträge, Chancen und Risiken, behaltene Rücksprachen, Schärfe des
+  Personalressorts). Prüfregeln mit Fehlerfall-Test.
+- **Kern:** Einheit Vorstand an der Spitze jeder Kette (CEO deckelt Ressorts und
+  Kontinentvorstände). Am Prüftermin führt der Vorstand die Kasse nach der KI-Regel,
+  beantwortet Kaufangebote an die Firma (annehmen, Gegenangebot, ablehnen) und bietet in
+  Versteigerungen und für das beste Geschäft – jeweils als Entscheidung im Budget, sonst
+  als Anliegen. Kredite nur durch Finanzressort und CEO, mit Verschuldungsgrenze. Modul
+  `mandate` (Befehl `SetMandate`): Leitlinie gibt den Regeln der Spielerfirma ihre
+  Aggressivität, Sperren für Länder und Warengruppen. Modul `review`: Rücksprache am Ende
+  jedes Abschnitts mit Bericht aus dem Hauptbuch (neu: Umsatz je Produkt), Zielen,
+  Chancen, Risiken und bis zu drei Anträgen des CEO (neue Ketten, Kaufangebot). Ressort
+  Personal macht den Eindruck der Fähigkeiten genauer.
+- **Behoben:** Optionen, die einen Standort gründen und später beantwortet werden, bauen
+  jetzt auf dem tatsächlich gegründeten Standort (vorher konnte die geplante Nummer
+  inzwischen einem anderen Standort gehören). Urteilsstarke Stellen erhöhten nie die
+  Werbung (die Bewertung zählt nur ihre Kosten); Werbung und Kredite folgen nun der Regel.
+  Neue Anliegen von Land, Kontinent und Vorstand hielten „bis zur nächsten Meldung“ als
+  Warnung an – jetzt nur nach der Einstellung für Anliegen.
+- **Sitzung:** Rücksprache hält mehrere Runden immer an (`ruecksprache`); Kaufangebote
+  halten nicht mehr an, solange der Vorstand Antworten übernimmt.
+- **Oberfläche:** Vorstandskarte im Organigramm (CEO, Ressorts), Unterreiter „Rücksprache“
+  mit Formular „Strategieauftrag an den Vorstand“ und den Berichten; neue Gründe und
+  Schritte in den Anliegen. Vorschau: Rücksprache aus einer zweiten Partie mit mehr
+  Kapital (ein CEO kostet mehr, als die Beispielwerkstatt verdient).
+- **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5: alle Protokolldateien
+  gleich wie vor MA2. Der Zustands-Hash ist neu (14b5c2be0b4173b7), allein wegen der
+  Aufzeichnung des Umsatzes je Produkt: Ohne sie ergibt derselbe Lauf den Hash von MA3/MA4
+  (5e9fb77ece748974).
+- **Tests:** 14 Szenariotests (Kette und Deckel, CEO entscheidet, Kreditbefugnis und
+  Verschuldung, Kasse am Prüftermin, Antworten und Anliegen dazu, Gebote und Sperren,
+  Versteigerung, Auftrag und Aggressivität, Personalressort, Rücksprache je Abschnitt und
+  Bericht, Antrag des CEO, nachträglich gegründeter Standort, Speichern und Wiederholen),
+  Sitzungstest (Auftrag mit Schlüsseln, Quartals-Rücksprache hält an, Bericht = Runde),
+  vitest und Playwright.
+
 ## Eigenständige Entscheidungen (für das Review)
 
 Entscheidungen, die ohne Rückfrage getroffen wurden. Alle sind änderbar.

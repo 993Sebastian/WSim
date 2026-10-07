@@ -848,6 +848,28 @@ test("Vorgaben je Ebene in der Strategie", async ({ page }) => {
   await bild(page, "strategie");
 });
 
+test("Vorstand, Strategieauftrag und Rücksprache", async ({ page }) => {
+  await starten(page);
+  await page.keyboard.press("7");
+  const reiter = page.getByRole("navigation", { name: "Organisation" });
+  await reiter.getByRole("button", { name: "Stellen" }).click();
+  const vorstand = page.getByRole("region", { name: "Vorstand" });
+  await expect(vorstand).toContainText("CEO");
+  await expect(vorstand).toContainText("Ressort Finanzen");
+  await reiter.getByRole("button", { name: "Rücksprache" }).click();
+  const bericht = page.getByRole("article", { name: "Rücksprache 01.01.1914 – 31.03.1914" });
+  await expect(bericht.getByRole("region", { name: "Chancen" })).toContainText("Antrag");
+  await expect(bericht.getByRole("region", { name: "Risiken" })).toContainText("Ziel verfehlt");
+  const auftrag = page.getByRole("form", { name: "Strategieauftrag an den Vorstand" });
+  await auftrag.getByLabel("Leitlinie").selectOption("sicherheit");
+  await auftrag.getByRole("button", { name: "Auftrag übernehmen" }).click();
+  const gesendet = (await befehle(page)).at(-1) as {
+    SetMandate: { mandate: { guideline: unknown } };
+  };
+  expect(gesendet.SetMandate.mandate.guideline).toBe("Safety");
+  await bild(page, "ruecksprache");
+});
+
 test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
   await starten(page);
   await page.getByLabel("Rundenlänge").selectOption("jahresende");

@@ -576,6 +576,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     json["managermarkt"] = market;
     json["anliegen"] = concerns;
     json["strategie"] = strategy;
+    json["ruecksprache"] = example_review(data)?;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
@@ -716,6 +717,61 @@ fn example_organisation(session: &mut wsim_session::Session) -> Result<Organisat
         to_value(serde_json::to_value(session.concerns().map_err(message)?))?,
         to_value(serde_json::to_value(session.strategy().map_err(message)?))?,
     ))
+}
+
+/// The mandate and a strategy review for the preview (MA5): a CEO costs more than the
+/// example's workshop earns, so a second game of the same start with more capital hires
+/// a CEO and a finance member, sets a mandate and runs to the end of the quarter.
+fn example_review(data: &Path) -> Result<serde_json::Value, String> {
+    use wsim_session::{NewGameRequest, Session};
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let saves = std::env::temp_dir().join("wsim-beispielsichten-ruecksprache");
+    let mut session = Session::open(data, saves)?;
+    let options = session.options();
+    let request = NewGameRequest {
+        seed: 1,
+        start_year: 1914,
+        country: "DEU".into(),
+        capital_usd: 20_000_000.0,
+        start_form: "werkstatt".into(),
+        company_name: "Neue Firma".into(),
+        companies: options.companies.default,
+        difficulty: options.default_difficulty.clone(),
+        research_factor: 1.0,
+    };
+    session.new_game(&request).map_err(message)?;
+    for role in ["leitung", "finanzen"] {
+        let market = session.manager_market("vorstand", role).map_err(message)?;
+        let manager = market
+            .candidates
+            .first()
+            .ok_or("keine Bewerber")?
+            .manager
+            .id;
+        let position = if role == "leitung" {
+            serde_json::json!({"unit": "Board", "role": "Head"})
+        } else {
+            serde_json::json!({"unit": "Board", "role": {"Specialist": role}})
+        };
+        session
+            .command(serde_json::json!({
+                "HireManager": {"manager": manager, "position": position}
+            }))
+            .map_err(message)?;
+    }
+    session
+        .command(serde_json::json!({"SetMandate": {"mandate": {
+            "guideline": "Growth",
+            "goals": {"growth": 0.1, "margin": 0.05, "rank": 50},
+            "max_debt": 0.4,
+            "blocked_countries": ["RUS"],
+            "review": "Quarterly"
+        }}}))
+        .map_err(message)?;
+    session
+        .end_rounds("monat", "jahresende", "nie", |_| {})
+        .map_err(message)?;
+    serde_json::to_value(session.reviews().map_err(message)?).map_err(|e| e.to_string())
 }
 
 /// Offers for the preview (M30): sites can be bought only after a year, so a second

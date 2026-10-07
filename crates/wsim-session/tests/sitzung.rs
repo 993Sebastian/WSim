@@ -286,3 +286,84 @@ fn strategies_with_keys_and_their_origin() {
     assert_eq!(invest.left_usd, Some(5_000_000.0));
     assert_eq!(invest.binding.as_deref(), Some("firma"));
 }
+
+/// The mandate comes as JSON with keys; the CEO reviews the strategy at the end of the
+/// quarter, a run of rounds halts there, and the report is the round's (MA5).
+#[test]
+fn the_ceo_reviews_the_quarter() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    // A CEO costs more than a workshop earns.
+    let request = NewGameRequest {
+        capital_usd: 20_000_000.0,
+        ..request()
+    };
+    session.new_game(&request).unwrap();
+    let group = session.reviews().unwrap().groups[0].clone();
+    session
+        .command(json!({"SetMandate": {"mandate": {
+            "guideline": {"Leadership": group},
+            "goals": {"growth": 0.1, "rank": 3},
+            "max_debt": 0.5,
+            "blocked_countries": ["RUS"]
+        }}}))
+        .unwrap();
+    let wrong = session.command(json!({"SetMandate": {"mandate": {"max_debt": 2.0}}}));
+    assert_eq!(wrong.unwrap_err().key, "fehler.befehl.auftrag_ungueltig");
+    let v = session.reviews().unwrap();
+    assert!(v.enabled);
+    assert_eq!(v.mandate.guideline, "marktfuehrung");
+    assert_eq!(v.mandate.leading_group.as_deref(), Some(group.as_str()));
+    assert_eq!(v.mandate.blocked_countries, ["RUS"]);
+    assert_eq!(v.mandate.review, "quartalsweise");
+    assert_eq!(v.guidelines.len(), 4);
+    assert!(v.ceo.is_none() && v.next_review.is_none());
+
+    // A CEO.
+    let manager = session
+        .manager_market("vorstand", "leitung")
+        .unwrap()
+        .candidates[0]
+        .manager
+        .id;
+    session
+        .command(json!({"HireManager": {
+            "manager": manager,
+            "position": {"unit": "Board", "role": "Head"}
+        }}))
+        .unwrap();
+    let v = session.reviews().unwrap();
+    assert_eq!(v.next_review.as_deref(), Some("1900-04-01"));
+
+    // Month by month up to the end of the year: the review halts at the end of March,
+    // whatever the concerns.
+    let run = session
+        .end_rounds("monat", "jahresende", "nie", |_| {})
+        .unwrap();
+    assert_eq!(run.stop.as_deref(), Some("ruecksprache"));
+    assert_eq!(run.rounds, 3);
+    assert!(run.messages.iter().any(|m| m.key == "meldung.ruecksprache"));
+    let v = session.reviews().unwrap();
+    let r = &v.reviews[0];
+    assert_eq!(
+        (r.from.as_str(), r.to.as_str()),
+        ("1900-01-01", "1900-03-31")
+    );
+    assert!(
+        (r.revenue_usd - run.period.revenue_usd).abs() < 0.01,
+        "{} vs {}",
+        r.revenue_usd,
+        run.period.revenue_usd
+    );
+    let products: f64 = run.products.iter().map(|p| p.revenue_usd).sum();
+    let groups: f64 = r.groups.iter().map(|g| g.revenue_usd).sum();
+    assert!((products - groups).abs() < 0.01, "{products} vs {groups}");
+    let margins: f64 = run.products.iter().map(|p| p.margin_usd).sum();
+    let group_margins: f64 = r.groups.iter().map(|g| g.result_usd).sum();
+    assert!(
+        (margins - group_margins).abs() < 0.01,
+        "{margins} vs {group_margins}"
+    );
+    assert_eq!(r.goals.len(), 2);
+}
