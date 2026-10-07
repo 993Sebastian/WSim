@@ -3867,6 +3867,8 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         mandate: crate::mandate::Mandate::default(),
         reviews: Vec::new(),
         relocation: None,
+        departments: Default::default(),
+        participations: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4040,6 +4042,8 @@ mod tests {
             mandate: crate::mandate::Mandate::default(),
             reviews: Vec::new(),
             relocation: None,
+            departments: Default::default(),
+            participations: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,
@@ -4313,7 +4317,13 @@ mod tests {
         let d = Decision::new(Topic::Cash, id, Choice::one(ChoiceKind::Borrow, loan));
         let a = decision::assess(catalog, state, &d);
         assert_eq!(a[0].amount, amount);
-        let rate = finance::loan_rate(catalog, &state.companies[id.index()], amount, state.date);
+        let rate = finance::loan_rate(
+            catalog,
+            &state.companies[id.index()],
+            amount,
+            state.date,
+            0.0,
+        );
         let interest = a[0].effect.expect("estimated").to_usd();
         assert!((interest + 1_000_000.0 * rate).abs() < 0.01, "{interest}");
 

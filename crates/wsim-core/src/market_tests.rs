@@ -104,6 +104,8 @@ fn competitor(game: &mut Game) -> CompanyId {
         mandate: crate::mandate::Mandate::default(),
         reviews: Vec::new(),
         relocation: None,
+        departments: Default::default(),
+        participations: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Konkurrenz".into(),
         kind: CompanyKind::Ai,

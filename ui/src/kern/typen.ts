@@ -1124,6 +1124,54 @@ export interface Zentrale {
   move_months: number;
   moving_share: number;
   countries: Sitzland[];
+  /** The departments of the data, in their order (ZA2). */
+  departments: Abteilung[];
+  employees: number;
+  /** Salaries and offices of all departments a month. */
+  monthly_cost_usd: number;
+  participations: Beteiligungen;
+}
+
+/** A central department (ZA2). */
+export interface Abteilung {
+  /** As `StaffDepartment` names it, e.g. `Finance`. */
+  kind: string;
+  /** Text key `abteilung.<key>`. */
+  key: string;
+  /** The board's function whose member heads it (`bereich.<function>`). */
+  function: string;
+  staff: number;
+  /** The head's name; null while the position is vacant. */
+  head: string | null;
+  /** The head's expertise as the player sees it (1–5). */
+  head_level: number | null;
+  /** Cases per month: employees · cases each. */
+  capacity: number;
+  cases_each: number;
+  workload: number;
+  /** Share of the workload covered (0–1). */
+  coverage: number;
+  /** With head and employees. */
+  working: boolean;
+  /** Its effect at full quality and coverage. */
+  effect: number;
+  /** Countries observed (strategy), technologies checked (legal); 0 for the others. */
+  reach: number;
+  monthly_cost_usd: number;
+  cost_per_employee_usd: number;
+  release_limit_usd: number | null;
+}
+
+/** The policy „Beteiligungen“ (ZA2). */
+export interface Beteiligungen {
+  /** Per year; null: no limit. */
+  budget_usd: number | null;
+  risk: number;
+  /** Bought this year: takeovers and licences. */
+  spent_usd: number;
+  open_bids_usd: number;
+  left_usd: number | null;
+  limits: { kind: string; key: string; limit_usd: number | null }[];
 }
 
 /** The positions of a unit: a site, a country, a continent (MA1, MA3) or the board (MA5). */
@@ -1289,7 +1337,9 @@ export interface Anliegen {
     | "investition"
     | "verschuldung"
     | "antrag"
-    | "abwerbung";
+    | "abwerbung"
+    | "freigabe"
+    | "beteiligung";
   options: AnliegenOption[];
   recommended: number;
   /** Why the position recommends its option. */
@@ -1436,6 +1486,8 @@ export interface Strategie {
   sale_products: { product: string; unit: string }[];
   /** Countries of its sites and rules. */
   sale_countries: string[];
+  /** The policy „Beteiligungen“ (ZA2). */
+  participations: Beteiligungen;
 }
 
 /** A rule for traders or other companies buying the company's goods (M8). */

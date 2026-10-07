@@ -46,6 +46,14 @@ export type Befehl =
   | { SetHiringByHead: { position: Stellenangabe; enabled: boolean } }
   | { RaiseSalary: { manager: number; salary: number } }
   | { SetHeadquarters: { country: string } }
+  | { StaffDepartment: { department: string; staff: number } }
+  | {
+      SetParticipations: {
+        budget: number | null;
+        risk: number;
+        limits: Record<string, number>;
+      };
+    }
   | { AnswerConcern: { concern: number; answer: Anliegenantwort } }
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
   | { AskAgain: { position: Stellenangabe; topic: string } }

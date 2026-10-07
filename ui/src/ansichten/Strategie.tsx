@@ -8,6 +8,7 @@ import {
   formatProzent,
   formatZahl,
   geldEinheit,
+  geldFeld,
   inAnzeige,
   landName,
   zahlFeld,
@@ -720,9 +721,117 @@ function Verkaufswege({ daten }: { daten: Strategie }) {
   );
 }
 
+/** "1.000.000" for a money field, "" for none. */
+function geldText(usd: number | null): string {
+  return usd === null ? "" : geldFeld(usd);
+}
+
+/**
+ * The policy „Beteiligungen“ (ZA2): a yearly budget for takeovers and licences, the
+ * readiness for risks, and up to which amount each department's head decides alone.
+ */
+function Beteiligungen({ daten }: { daten: Strategie }) {
+  const p = daten.participations;
+  const { los, antwort } = useAktion("beteiligungen");
+  const [budget, setBudget] = useState(geldText(p.budget_usd));
+  const [risiko, setRisiko] = useState(zahlFeld(p.risk * 100, 0));
+  const [grenzen, setGrenzen] = useState<Record<string, string>>(() =>
+    Object.fromEntries(p.limits.map((l) => [l.kind, geldText(l.limit_usd)])),
+  );
+  const [fehler, setFehler] = useState<string | null>(null);
+  const festlegen = (ev: FormEvent) => {
+    ev.preventDefault();
+    const b = budget.trim() === "" ? null : zahlLesen(budget);
+    const r = zahlLesen(risiko);
+    const limits: Record<string, number> = {};
+    let falsch = (budget.trim() !== "" && (b === null || b < 0)) || r === null || r < 0 || r > 100;
+    for (const l of p.limits) {
+      const text = grenzen[l.kind] ?? "";
+      if (text.trim() === "") continue;
+      const g = zahlLesen(text);
+      if (g === null || g < 0) falsch = true;
+      else limits[l.kind] = geld(ausAnzeige(g));
+    }
+    if (falsch || r === null) {
+      setFehler(t("beteiligungen.werte"));
+      return;
+    }
+    setFehler(null);
+    void los(
+      [
+        {
+          SetParticipations: {
+            budget: b === null ? null : geld(ausAnzeige(b)),
+            risk: r / 100,
+            limits,
+          },
+        },
+      ],
+      t("beteiligungen.gesetzt"),
+    );
+  };
+  return (
+    <section aria-label={t("beteiligungen.titel")}>
+      <h2>
+        {t("beteiligungen.titel")}{" "}
+        <Erklaerung wert={t("beteiligungen.titel")}>
+          <p>{t("beteiligungen.erklaerung")}</p>
+        </Erklaerung>
+      </h2>
+      <p className="feld-hilfe">
+        {t("beteiligungen.stand", {
+          gekauft: formatGeld(p.spent_usd),
+          offen: formatGeld(p.open_bids_usd),
+        })}{" "}
+        {p.left_usd !== null && t("beteiligungen.rest", { rest: formatGeld(p.left_usd) })}
+      </p>
+      <form className="karte" aria-label={t("beteiligungen.titel")} onSubmit={festlegen}>
+        <div className="formular-zeile">
+          <ZahlFeld
+            name={t("beteiligungen.budget")}
+            einheit={geldEinheit()}
+            wert={budget}
+            onWert={setBudget}
+            hilfe={t("beteiligungen.budget_hilfe")}
+          />
+          <ZahlFeld
+            name={t("beteiligungen.risiko")}
+            einheit="%"
+            wert={risiko}
+            onWert={setRisiko}
+            hilfe={t("beteiligungen.risiko_hilfe")}
+          />
+        </div>
+        {p.limits.length > 0 && (
+          <>
+            <h3>{t("beteiligungen.freigabe")}</h3>
+            <p className="feld-hilfe">{t("beteiligungen.freigabe_hilfe")}</p>
+            <div className="formular-zeile">
+              {p.limits.map((l) => (
+                <ZahlFeld
+                  key={l.kind}
+                  name={t(`abteilung.${l.key}`)}
+                  einheit={geldEinheit()}
+                  wert={grenzen[l.kind] ?? ""}
+                  onWert={(text) => setGrenzen((g) => ({ ...g, [l.kind]: text }))}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        {fehler && <p className="fehlertext">{fehler}</p>}
+        <div className="knopfreihe links">
+          <button type="submit">{t("beteiligungen.festlegen")}</button>
+        </div>
+      </form>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /**
  * The strategies of the company (MA4): an overview of every unit, then the fields of the
- * chosen unit to set or remove, and the sales channels.
+ * chosen unit to set or remove, the sales channels and the participations (ZA2).
  */
 export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string }) {
   const { daten, fehler } = useSicht(() => kern.strategie(), stand);
@@ -770,6 +879,7 @@ export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string })
         </div>
       </section>
       <Verkaufswege daten={daten} />
+      <Beteiligungen daten={daten} />
     </section>
   );
 }

@@ -184,4 +184,37 @@ describe("Strategie", () => {
     ].filter((k) => !hatText(k));
     expect(fehlend).toEqual([]);
   });
+  it("legt Budget, Risikobereitschaft und Freigabegrenzen für Beteiligungen fest", async () => {
+    const { gesendet } = await strategieOeffnen();
+    const bereich = screen.getByRole("region", { name: "Beteiligungen" });
+    expect(within(bereich).getByText(/In diesem Jahr gekauft: 0/)).toBeTruthy();
+    const formular = within(bereich).getByRole("form", { name: "Beteiligungen" });
+    fireEvent.change(within(formular).getByLabelText("Budget im Jahr"), {
+      target: { value: "2000000" },
+    });
+    fireEvent.change(within(formular).getByLabelText("Risikobereitschaft"), {
+      target: { value: "30" },
+    });
+    fireEvent.change(within(formular).getByLabelText("Finanzen"), {
+      target: { value: "50000" },
+    });
+    fireEvent.click(within(formular).getByRole("button", { name: "Beteiligungen festlegen" }));
+    await screen.findByText("Die Vorgaben für Beteiligungen gelten ab sofort.");
+    expect(gesendet).toEqual([
+      {
+        SetParticipations: {
+          budget: 2_000_000 * 10_000,
+          risk: 0.3,
+          limits: { Finance: 50_000 * 10_000 },
+        },
+      },
+    ]);
+    // A readiness beyond 100 % is refused before it is sent.
+    fireEvent.change(within(formular).getByLabelText("Risikobereitschaft"), {
+      target: { value: "150" },
+    });
+    fireEvent.click(within(formular).getByRole("button", { name: "Beteiligungen festlegen" }));
+    expect(within(formular).getByText(/zwischen 0 und 100 %/)).toBeTruthy();
+    expect(gesendet).toHaveLength(1);
+  });
 });

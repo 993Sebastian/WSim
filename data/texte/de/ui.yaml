@@ -848,7 +848,7 @@ einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe fü
 einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.organisation.titel: Organisation
-einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du. Über allen steht der Vorstand: Ein CEO bespricht mit dir unter „Rücksprache“ regelmäßig Bericht und Anträge nach deinem Strategieauftrag – er ist aber teuer, erst für eine größere Firma."
+einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du. Über allen steht der Vorstand: Ein CEO bespricht mit dir unter „Rücksprache“ regelmäßig Bericht und Anträge nach deinem Strategieauftrag – er ist aber teuer, erst für eine größere Firma. Unter „Hauptsitz und Zentrale“ verlegst du den Firmensitz und richtest Zentralabteilungen ein; sie arbeiten für die ganze Firma, kosten aber jeden Monat – zu früh ruinieren sie dich."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -1020,6 +1020,49 @@ zentrale.ziel_waehlen: Land wählen …
 zentrale.ziel_option: "{land} – Steuer {steuer}, Lohn {lohn}"
 zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Angestellten der Zentrale ziehen mit."
 zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
+zentrale.abteilungen: Zentralabteilungen
+zentrale.abteilungen_hilfe: "Zentralabteilungen arbeiten für die ganze Firma: Strategie sucht Übernahmeziele auch in Ländern ohne eigenen Standort, Finanzen senkt den Risikoaufschlag neuer Kredite, Personal schult die Manager, Recht prüft Lizenzen für Technologien deiner Warengruppen, Marketing verstärkt die Werbung. Eine Abteilung arbeitet nur mit Leitung – dem Vorstandsmitglied ihres Ressorts – und Angestellten. Die Angestellten sind Akademiker im Land des Hauptsitzes; sie kosten Lohn und Büro jeden Monat, ob die Abteilung arbeitet oder nicht. Zu früh aufgebaut ruinieren sie eine kleine Firma."
+zentrale.abteilungen_genauigkeit: "Je mehr der anfallenden Fälle die Angestellten bearbeiten (Abdeckung), desto genauer schätzt die Leitung in ihrem Ressort und desto seltener irrt sie sich bei Empfehlungen."
+zentrale.abteilungen_leer: Noch keine Angestellten – die Zentralabteilungen arbeiten nicht.
+zentrale.abteilungen_kosten: "{anzahl} Angestellte kosten zusammen {betrag} im Monat (Lohn und Büro)."
+zentrale.abteilung: Abteilung
+zentrale.leitung: Leitung
+zentrale.leitung_frei: "Leitung frei – im Vorstand „{bereich}“ besetzen"
+zentrale.angestellte: Angestellte
+zentrale.angestellte_von: "Angestellte der Abteilung {abteilung}"
+zentrale.festlegen: Festlegen
+zentrale.besetzt: "{abteilung}: jetzt {anzahl} Angestellte."
+zentrale.abdeckung: Abdeckung
+zentrale.faelle: "({faelle} Fälle für {last} im Monat)"
+zentrale.wirkung: Wirkung
+zentrale.kosten_monat: Kosten im Monat
+zentrale.je_angestelltem: "({betrag} je Angestelltem)"
+zentrale.freigabe_bis: "entscheidet bis {betrag} allein"
+zentrale.keine_angestellten: Keine Angestellten
+zentrale.ohne_leitung: "Arbeitet nicht: Ohne Leitung im Vorstand „{bereich}“ bleiben die Angestellten untätig."
+abteilung.strategie: Strategie
+abteilung.finanzen: Finanzen
+abteilung.personal: Personal
+abteilung.recht: Recht
+abteilung.marketing: Marketing
+abteilung.wirkung.strategie: "Beobachtet {anzahl} weitere Länder nach Übernahmezielen."
+abteilung.wirkung.finanzen: "Senkt den Risikoaufschlag neuer Kredite um bis zu {anteil}."
+abteilung.wirkung.personal: "Schult die Manager: bis zu {anteil} schneller Erfahrung."
+abteilung.wirkung.recht: "Prüft Lizenzen für {anzahl} Technologien deiner Warengruppen."
+abteilung.wirkung.marketing: "Die Werbung wirkt bis zu {anteil} stärker."
+beteiligungen.titel: Beteiligungen
+beteiligungen.erklaerung: "Hier legst du fest, wie viel die Firma im Jahr für Übernahmen und Lizenzen ausgeben darf, die der Vorstand anbietet, und bis zu welchem Betrag die Leitung jeder Zentralabteilung allein entscheidet. Was darüber liegt, legt sie dir als Anliegen vor. Die Risikobereitschaft gilt später für Start-ups."
+beteiligungen.stand: "In diesem Jahr gekauft: {gekauft}; offene Gebote: {offen}."
+beteiligungen.rest: "Übrig: {rest}."
+beteiligungen.budget: Budget im Jahr
+beteiligungen.budget_hilfe: Leer heißt ohne Grenze.
+beteiligungen.risiko: Risikobereitschaft
+beteiligungen.risiko_hilfe: "0 % nur sichere, 100 % auch gewagte Beteiligungen (Start-ups)."
+beteiligungen.freigabe: Freigabegrenzen der Zentralabteilungen
+beteiligungen.freigabe_hilfe: "Bis zu diesem Betrag entscheidet die Leitung selbst, darüber fragt sie. Leer: nur ihr Budget je Entscheidung gilt."
+beteiligungen.festlegen: Beteiligungen festlegen
+beteiligungen.gesetzt: Die Vorgaben für Beteiligungen gelten ab sofort.
+beteiligungen.werte: "Budget und Grenzen dürfen nicht negativ sein, die Risikobereitschaft liegt zwischen 0 und 100 %."
 organisation.zufriedenheit.0: unzufrieden
 organisation.zufriedenheit.1: gemischt
 organisation.zufriedenheit.2: zufrieden
@@ -1126,6 +1169,8 @@ anliegen.grund.investition: "Das Investitionsbudget ({wo}) reicht nicht mehr (ü
 anliegen.grund.verschuldung: "Danach wären die Kredite höher, als der Strategieauftrag erlaubt (Spielraum: {rest})."
 anliegen.grund.antrag: Ein Antrag des CEO aus der Strategierücksprache – er legt ihn dir unabhängig vom Budget vor.
 anliegen.grund.abwerbung: Eine andere Firma will den Manager abwerben – ob du ihn hältst, entscheidest du.
+anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({grenze}) – darüber entscheidet sie nicht allein."
+anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1171,6 +1216,8 @@ bereich.personal: Personal
 bereich.logistik: Logistik
 bereich.forschung: Forschung
 bereich.finanzen: Finanzen
+bereich.strategie: Strategie
+bereich.recht: Recht
 leitung.werk: Werksleitung
 leitung.foerderstaette: Betriebsleitung
 leitung.kraftwerk: Kraftwerksleitung
@@ -1323,6 +1370,9 @@ thema.engpass: Engpässe
 thema.forschung: Forschungsziel
 thema.weiterentwicklung: Weiterentwicklung
 thema.abwerbung: Abwerbung
+thema.lizenz: Lizenzen
+thema.umschuldung: Umschuldung
+thema.gehaltsrunde: Gehaltsrunde
 option.beibehalten: So lassen
 option.anpassen: Anpassen
 option.liefern: Liefern
@@ -1340,6 +1390,7 @@ option.forschen: Forschen
 option.weiterentwickeln: Weiterentwickeln
 option.gegenangebot: Gegenangebot
 option.gehen_lassen: Gehen lassen
+option.umschulden: Umschulden
 
 # Strategieauftrag und Strategierücksprache (MA5)
 auftrag.titel: Strategieauftrag an den Vorstand

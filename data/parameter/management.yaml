@@ -4,7 +4,9 @@
 
 management:
   # Bereiche und die Themen der Entscheidungen (MA0), die eine Stelle des Bereichs
-  # erledigt. Logistik bekommt Themen mit Stufe 2; Finanzen sind Sache des Vorstands (MA5).
+  # erledigt. Logistik bekommt Themen mit Stufe 2; Finanzen sind Sache des Vorstands (MA5),
+  # Strategie (Übernahmen) und Recht (Lizenzen) Ressorts des Vorstands mit Zentralabteilung
+  # (ZA2).
   bereiche:
     - id: produktion
       themen: [produktion, ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
@@ -14,20 +16,24 @@ management:
     - id: vertrieb_marketing
       themen: [verkauf, werbung]
     - id: personal
-      themen: [lohn, abwerbung]
+      themen: [lohn, abwerbung, gehaltsrunde]
     - id: logistik
       themen: []
     - id: forschung
       themen: [forschung, weiterentwicklung]
     - id: finanzen
-      themen: [kasse, kaufangebot, antwort]
+      themen: [kasse, umschuldung]
+    - id: strategie
+      themen: [kaufangebot, antwort]
+    - id: recht
+      themen: [lizenz]
 
   # Themen der laufenden Routine: Hier folgt die Stelle der Option der Regeln; bei allen
   # anderen empfiehlt sie nach ihrem Urteilsvermögen (MA2).
   routine_themen: [produktion, verkauf, einkauf, eigenversorgung, lohn]
   # Themen, deren Wirkung nur Kosten zählt (Zins, Werbebudget): Auch hier folgt die Stelle
   # der Regel; Anliegen dazu sind aber wichtig (MA5).
-  regel_themen: [kasse, werbung]
+  regel_themen: [kasse, werbung, gehaltsrunde]
 
   # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung,
   # Budget je Entscheidung und je Jahr als Anteil am Umsatz der Einheit in zwölf Monaten
@@ -54,9 +60,10 @@ management:
     - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,
        budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],
        fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,
-                     finanzen],
+                     finanzen, strategie, recht],
        themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
-                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass]}
+                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,
+                umschuldung, gehaltsrunde]}
 
   # Mindestbudget in Jahresgehältern des Managers: je Entscheidung und je Jahr.
   budget_sockel_gehaelter: {entscheidung: 1, jahr: 3}

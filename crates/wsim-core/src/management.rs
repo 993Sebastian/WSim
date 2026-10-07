@@ -6,10 +6,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use crate::calendar::{Date, days_in_month};
-use crate::catalog::{Catalog, ConcernModel, SiteType};
+use crate::catalog::{Catalog, ConcernModel, DepartmentKind, SiteType};
 use crate::command::{Command, CommandError, site_type_key};
 use crate::decision::{self, Assessment, ChoiceKind, Decider, Decision, Topic, Verdict};
-use crate::ids::{CountryId, Id, ProductId};
+use crate::ids::{CountryId, Id, LaborGroupId, ProductId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
@@ -332,9 +332,18 @@ pub fn holder(state: &GameState, company: CompanyId, position: &Position) -> Opt
 
 /// Yearly wage of the salary group in a country (USD, docs/FORMELN.md, MA1).
 pub fn yearly_wage(catalog: &Catalog, state: &GameState, country: CountryId) -> f64 {
-    let Some(group) = catalog.management.salary_group else {
-        return 0.0;
-    };
+    catalog.management.salary_group.map_or(0.0, |group| {
+        group_yearly_wage(catalog, state, country, group)
+    })
+}
+
+/// The yearly wage of a labour group in a country today.
+pub fn group_yearly_wage(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    group: LaborGroupId,
+) -> f64 {
     let hourly = state
         .countries
         .get(country)
@@ -1209,6 +1218,14 @@ fn lends(catalog: &Catalog, position: &Position) -> bool {
     }
 }
 
+/// Whether an option bids for a takeover or a licence (ZA2).
+fn bids(choice: &decision::Choice) -> bool {
+    choice
+        .steps
+        .iter()
+        .any(|s| matches!(s.command, Command::MakeOffer { .. }))
+}
+
 /// Loans are for the finance department and the CEO (MA5).
 fn needs_finance(choice: &decision::Choice) -> bool {
     choice.steps.iter().any(|s| {
@@ -1234,6 +1251,11 @@ struct Responsible {
     position: Position,
     judgment: f64,
     per_decision: Money,
+    /// The release limit of its department, where it is below the budget per decision
+    /// (ZA2).
+    limit: Option<Money>,
+    /// How much a working department narrows its errors (ZA2).
+    accuracy: f64,
     left: Money,
     muted: BTreeSet<Topic>,
     blocked: BTreeSet<Topic>,
@@ -1392,12 +1414,22 @@ impl Staff<'_> {
         let x = &state.managers[&manager];
         let salary = x.job.as_ref().map_or(Money::ZERO, |j| j.salary);
         let (per_decision, per_year) = budget(catalog, state, company, position, salary);
+        let limit = crate::central::release_limit(catalog, state, company, position)
+            .filter(|&l| l < per_decision);
+        let accuracy = crate::central::accuracy(catalog, state, company, position);
+        let judgment = f64::from(x.judgment);
         let ps = position_state(state, company, position);
         let today = state.date;
         self.positions.push(Responsible {
             position: position.clone(),
-            judgment: f64::from(x.judgment),
-            per_decision,
+            judgment: if accuracy > 0.0 {
+                judgment + (100.0 - judgment) * accuracy
+            } else {
+                judgment
+            },
+            per_decision: limit.unwrap_or(per_decision),
+            limit,
+            accuracy,
             left: (per_year - spent(state, company, position)).max(Money::ZERO),
             muted: ps.map(|p| p.muted.clone()).unwrap_or_default(),
             blocked: ps
@@ -1526,6 +1558,9 @@ impl Decider for Staff<'_> {
         let by_rule = routine || catalog.management.rule_topics.contains(&d.topic);
         let assessments = (!by_rule).then(|| decision::assess(catalog, state, d));
         let function = function_of(catalog, d.topic).map(|f| &catalog.management.functions[f].key);
+        // Takeovers and licences count against the yearly budget of the participations
+        // policy (ZA2); the open bids are in it.
+        let participations = crate::central::participations_left(state, d.company);
         let mut hops: Vec<Hop> = Vec::new();
         let mut asker = (0, 0.0);
         for (position, manager) in &filled[start..] {
@@ -1536,6 +1571,13 @@ impl Decider for Staff<'_> {
                 Role::Specialist(_) => 0.0,
             };
             let skill = function.map_or(0.0, |f| f64::from(expertise(x, f))) * (1.0 - discount);
+            // A working department narrows the estimate error of its head (ZA2).
+            let accuracy = self.positions[index].accuracy;
+            let skill = if accuracy > 0.0 {
+                100.0 - (100.0 - skill) * (1.0 - accuracy)
+            } else {
+                skill
+            };
             let choice = match &assessments {
                 None => d.rule,
                 Some(a) => {
@@ -1555,10 +1597,13 @@ impl Decider for Staff<'_> {
             let borrows = needs_finance(option);
             let may_borrow = !borrows || lends(catalog, position);
             let debt = borrows && crate::mandate::over_debt(state, d.company, option);
+            let over_participations =
+                participations.is_some_and(|left| bids(option) && amount > left);
             let r = &mut self.positions[index];
             if may_borrow
                 && !debt
                 && beyond.is_none()
+                && !over_participations
                 && amount <= r.per_decision
                 && amount <= r.left
             {
@@ -1649,8 +1694,12 @@ impl Decider for Staff<'_> {
             ConcernReason::Debt
         } else if let Some(reason) = beyond {
             reason
+        } else if participations.is_some_and(|left| bids(option) && amount > left) {
+            ConcernReason::Participations
         } else if r.per_decision == Money::ZERO {
             ConcernReason::Always
+        } else if r.limit.is_some_and(|l| amount > l) {
+            ConcernReason::Limit
         } else if amount > r.per_decision {
             ConcernReason::Decision
         } else {
@@ -2090,14 +2139,32 @@ fn board_work(
     staff: &mut Staff,
 ) -> Vec<Message> {
     let mut news = Vec::new();
-    if staff.noticed.contains(&(Unit::Board, Topic::Cash)) {
+    let noticed = |staff: &Staff, topic: Topic| staff.noticed.contains(&(Unit::Board, topic));
+    if noticed(staff, Topic::Cash) {
         crate::ai::manage_cash(state, catalog, company, own, staff);
     }
-    if staff.noticed.contains(&(Unit::Board, Topic::OfferAnswer)) {
-        news.extend(crate::deals::board_answers(state, catalog, company, staff));
+    let answers = (
+        noticed(staff, Topic::OfferAnswer),
+        noticed(staff, Topic::License),
+    );
+    if answers.0 || answers.1 {
+        news.extend(crate::deals::board_answers(
+            state, catalog, company, staff, answers,
+        ));
     }
-    if staff.noticed.contains(&(Unit::Board, Topic::Offer)) {
-        news.extend(crate::deals::board_offers(state, catalog, company, staff));
+    let plan = crate::deals::BoardPlan {
+        offers: noticed(staff, Topic::Offer),
+        licenses: noticed(staff, Topic::License),
+        countries: crate::central::observed_countries(catalog, state, company),
+        technologies: crate::central::legal_technologies(catalog, state, company),
+        offer_cases: crate::central::cases(catalog, state, company, DepartmentKind::Strategy)
+            .max(1),
+        license_cases: crate::central::cases(catalog, state, company, DepartmentKind::Legal).max(1),
+    };
+    if plan.offers || plan.licenses {
+        news.extend(crate::deals::board_offers(
+            state, catalog, company, staff, &plan,
+        ));
     }
     news
 }
@@ -2121,11 +2188,10 @@ fn settle_closed_offers(state: &mut GameState, today: Date) {
         .filter(|o| o.status == crate::deals::OfferStatus::Open)
         .map(|o| o.id)
         .collect();
-    for c in state
-        .concerns
-        .iter_mut()
-        .filter(|c| c.status == ConcernStatus::Open && c.decision.topic == Topic::OfferAnswer)
-    {
+    for c in state.concerns.iter_mut().filter(|c| {
+        c.status == ConcernStatus::Open
+            && matches!(c.decision.topic, Topic::OfferAnswer | Topic::License)
+    }) {
         if answered_offer(&c.decision).is_some_and(|id| !open.contains(&id)) {
             c.status = ConcernStatus::Settled;
             c.closed = Some(today);

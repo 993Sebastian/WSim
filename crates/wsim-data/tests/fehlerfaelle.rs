@@ -2537,6 +2537,8 @@ bereich.personal: Personal
 bereich.logistik: Logistik
 bereich.forschung: Forschung
 bereich.finanzen: Finanzen
+bereich.strategie: Strategie
+bereich.recht: Recht
 ";
 
 /// MA1: Positions, salaries and the market for managers.
@@ -2598,7 +2600,7 @@ fn management_wird_geprueft() {
 
     let d = basis().ersetze(
         datei,
-        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass]}\n",
+        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen, strategie, recht],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,\n                umschuldung, gehaltsrunde]}\n",
         "",
     );
     befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
@@ -2688,8 +2690,8 @@ fn management_wird_geprueft() {
     // MA5: a topic follows the rules either as routine or as a topic of costs only.
     let d = basis().ersetze(
         datei,
-        "regel_themen: [kasse, werbung]",
-        "regel_themen: [kasse, werbung, lohn]",
+        "regel_themen: [kasse, werbung, gehaltsrunde]",
+        "regel_themen: [kasse, werbung, gehaltsrunde, lohn]",
     );
     befund(
         &d.laden(),
@@ -2697,8 +2699,8 @@ fn management_wird_geprueft() {
     );
     let d = basis().ersetze(
         datei,
-        "regel_themen: [kasse, werbung]",
-        "regel_themen: [kasse, werbng]",
+        "regel_themen: [kasse, werbung, gehaltsrunde]",
+        "regel_themen: [kasse, werbng, gehaltsrunde]",
     );
     befund(
         &d.laden(),
@@ -2796,7 +2798,7 @@ fn management_wird_geprueft() {
 
     // MA5: the board and the mandate.
     let m = basis().laden().data.unwrap().catalog.management;
-    assert_eq!(m.levels[3].specialists.len(), 6);
+    assert_eq!(m.levels[3].specialists.len(), 8);
     assert!(
         m.levels[3]
             .topics
@@ -2839,9 +2841,12 @@ fn management_wird_geprueft() {
     let d = basis().ersetze(
         "texte/de/bereiche.yaml",
         "bereich.finanzen: Finanzen\n",
-        "bereich.finanzen: Finanzen\nbereich.recht: Recht\n",
+        "bereich.finanzen: Finanzen\nbereich.vertrieb: Vertrieb\n",
     );
-    befund(&d.laden(), "Text „bereich.recht“ gehört zu keinem Eintrag.");
+    befund(
+        &d.laden(),
+        "Text „bereich.vertrieb“ gehört zu keinem Eintrag.",
+    );
 
     let d = Daten::neu()
         .datei(datei, MANAGEMENT)
@@ -2885,4 +2890,116 @@ fn zentrale_wird_geprueft() {
     befund(&d.laden(), "-5");
     let d = basis().datei("parameter/zentrale2.yaml", ZENTRALE);
     befund(&d.laden(), "Abschnitt „zentrale“ darf es nur einmal geben");
+
+    // ZA2, ZA3: departments headed by the board's members, recommendations, hit rate.
+    let management = MANAGEMENT.replace("akademiker.kaufmaennisch", "fachkraft.metall");
+    let mit_abteilungen = ZENTRALE.replace(
+        "  annaeherung: true\n",
+        "  abteilungen:
+    - {id: strategie, bereich: strategie, lohngruppe: fachkraft.metall, buero_usd: 15000,
+       faelle: 2, wirkung: 0}
+    - {id: marketing, bereich: vertrieb_marketing, lohngruppe: fachkraft.metall,
+       buero_usd: 15000, faelle: 5, wirkung: 0.3}
+  genauigkeit: 0.5
+  umschuldung: {mindestvorteil: 0.01, gebuehr: 0.01}
+  trefferquote: {bewertung_monate: 12, mittelwert: 0.5, vorgewicht: 4, k: 2}
+  annaeherung: true
+",
+    );
+    let basis = || {
+        Daten::neu()
+            .datei(datei, &mit_abteilungen)
+            .datei("parameter/management.yaml", &management)
+            .datei("texte/de/bereiche.yaml", BEREICH_TEXTE)
+    };
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let c = outcome.data.unwrap().catalog.central;
+    assert_eq!(c.departments.len(), 2);
+    assert_eq!(
+        c.departments[1].kind,
+        wsim_core::catalog::DepartmentKind::Marketing
+    );
+    assert!((c.accuracy - 0.5).abs() < 1e-9);
+    assert_eq!(c.hit_rate.months, 12);
+    let d = basis().ersetze(datei, "{id: strategie, bereich", "{id: strategy, bereich");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Abteilung „strategy“ ist nicht definiert. Meinten Sie „strategie“?",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "{id: strategy,"),
+        "zentrale.abteilungen[0].id",
+    );
+    let d = basis().ersetze(datei, "{id: marketing, bereich", "{id: strategie, bereich");
+    befund(
+        &d.laden(),
+        "Abteilung „strategie“ ist doppelt definiert; erste Definition in abteilungen.",
+    );
+    let d = basis().ersetze(datei, "bereich: vertrieb_marketing", "bereich: logistik");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Abteilung „marketing“: Bereich „logistik“ ist kein Ressort des Vorstands",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.abteilungen[1].bereich");
+    let d = basis().ersetze(
+        "parameter/management.yaml",
+        "finanzen, strategie, recht],",
+        "finanzen, recht],",
+    );
+    befund(
+        &d.laden(),
+        "Abteilung „strategie“: Bereich „strategie“ ist kein Ressort des Vorstands",
+    );
+    let d = basis().ersetze(datei, "bereich: strategie,", "bereich: strategi,");
+    befund(
+        &d.laden(),
+        "Bereich „strategi“ ist nicht definiert. Meinten Sie „strategie“?",
+    );
+    let d = basis().ersetze(
+        datei,
+        "lohngruppe: fachkraft.metall, buero_usd: 15000,\n       faelle: 2",
+        "lohngruppe: akademiker, buero_usd: 15000,\n       faelle: 2",
+    );
+    befund(
+        &d.laden(),
+        "Arbeitskräftegruppe „akademiker“ ist nicht definiert.",
+    );
+    let d = basis().ersetze(datei, "faelle: 5, wirkung: 0.3", "faelle: 5, wirkung: 1.3");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.3 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.abteilungen[1].wirkung");
+    let d = basis().ersetze(datei, "faelle: 2, wirkung: 0}", "faelle: -2, wirkung: 0}");
+    befund(&d.laden(), "-2");
+    let d = basis().ersetze(datei, "genauigkeit: 0.5", "genauigkeit: 2");
+    befund(
+        &d.laden(),
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    let d = basis().ersetze(datei, "gebuehr: 0.01", "gebuehr: 1.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.umschuldung.gebuehr");
+    let d = basis().ersetze(datei, "bewertung_monate: 12", "bewertung_monate: 0");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 120.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.trefferquote.bewertung_monate");
+    let d = basis().ersetze(datei, "k: 2}", "k: 20}");
+    befund(
+        &d.laden(),
+        "Wert 20 liegt außerhalb des erlaubten Bereichs 0 bis 10.",
+    );
 }

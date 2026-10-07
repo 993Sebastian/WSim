@@ -12,7 +12,7 @@ use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, FacilitySize, SiteType};
+use crate::catalog::{Catalog, DepartmentKind, FacilitySize, SiteType};
 pub use crate::country_model::CountryState;
 use crate::decision::{ChoiceKind, Decision, Topic};
 use crate::ids::{
@@ -327,6 +327,63 @@ pub struct Company {
     /// A move of the headquarters under way (ZA1).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relocation: Option<Relocation>,
+    /// Employees of the central departments (ZA2); departments without any left out.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub departments: BTreeMap<DepartmentKind, u32>,
+    /// The policy on takeovers, licences and start-ups (ZA2).
+    #[serde(default, skip_serializing_if = "Participations::is_default")]
+    pub participations: Participations,
+}
+
+/// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
+/// licences, the readiness for risks and up to which amount each department's head
+/// decides alone.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Participations {
+    /// Per year; `None`: no limit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget: Option<Money>,
+    /// 0–1 (SU1).
+    #[serde(default = "Participations::default_risk")]
+    pub risk: f64,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub limits: BTreeMap<DepartmentKind, Money>,
+    /// Bought in `year`: takeovers and licences.
+    #[serde(default)]
+    pub spent: Money,
+    #[serde(default)]
+    pub year: i32,
+}
+
+impl Participations {
+    fn default_risk() -> f64 {
+        0.5
+    }
+
+    pub fn is_default(&self) -> bool {
+        *self == Self::default()
+    }
+
+    /// Bought this year.
+    pub fn spent_in(&self, year: i32) -> Money {
+        if self.year == year {
+            self.spent
+        } else {
+            Money::ZERO
+        }
+    }
+}
+
+impl Default for Participations {
+    fn default() -> Self {
+        Self {
+            budget: None,
+            risk: Self::default_risk(),
+            limits: BTreeMap::new(),
+            spent: Money::ZERO,
+            year: 0,
+        }
+    }
 }
 
 /// A move of a company's headquarters (ZA1): the new country from the first month start
@@ -428,6 +485,10 @@ pub enum ConcernReason {
     Proposal,
     /// Another company wants to hire the manager away (MA6).
     Poaching,
+    /// The amount exceeds the release limit of the department (ZA2).
+    Limit,
+    /// The bid exceeds what is left of the budget for participations (ZA2).
+    Participations,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.

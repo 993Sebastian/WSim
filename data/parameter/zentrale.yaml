@@ -6,4 +6,30 @@ zentrale:
   # der Zentralabteilungen) und Anteil der Angestellten, der mitzieht.
   hauptsitz: {verlegung_monate: 6, kosten_grund_usd: 250000, kosten_je_angestelltem_usd: 25000,
               mitziehen: 0.6}
+
+  # Zentralabteilungen (ZA2): das Ressort des Vorstands, das sie leitet, die Lohngruppe der
+  # Angestellten (Lohn im Land des Hauptsitzes), Bürokosten je Angestelltem und Jahr, Fälle
+  # je Angestelltem und Monat und die Wirkung bei voller Güte und Abdeckung. Was eine
+  # Abteilung tut, steht im Kern; die Liste wählt aus, welche es gibt.
+  abteilungen:
+    - {id: strategie, bereich: strategie, lohngruppe: akademiker.kaufmaennisch,
+       buero_usd: 15000, faelle: 2, wirkung: 0}
+    - {id: finanzen, bereich: finanzen, lohngruppe: akademiker.kaufmaennisch,
+       buero_usd: 15000, faelle: 4, wirkung: 0.4}
+    - {id: personal, bereich: personal, lohngruppe: akademiker.kaufmaennisch,
+       buero_usd: 15000, faelle: 15, wirkung: 0.5}
+    - {id: recht, bereich: recht, lohngruppe: akademiker.kaufmaennisch,
+       buero_usd: 15000, faelle: 3, wirkung: 0}
+    - {id: marketing, bereich: vertrieb_marketing, lohngruppe: akademiker.kaufmaennisch,
+       buero_usd: 15000, faelle: 5, wirkung: 0.3}
+
+  # So viel kleiner werden Schätzfehler einer voll ausgestatteten Abteilung, und so viel
+  # öfter trifft ihre Leitung die beste Option.
+  genauigkeit: 0.5
+
+  # Empfehlungen (ZA3): Umschuldung ab diesem Zinsvorteil (absolut), Gebühr als Anteil der
+  # Restschuld; Trefferquote der Leitungen: Bewertung nach Monaten, Mittelwert, Vorgewicht
+  # in Fällen und Exponent k der Gehaltsforderung.
+  umschuldung: {mindestvorteil: 0.01, gebuehr: 0.01}
+  trefferquote: {bewertung_monate: 12, mittelwert: 0.5, vorgewicht: 4, k: 2}
   annaeherung: true

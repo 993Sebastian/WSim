@@ -39,16 +39,30 @@ pub fn overdraft_limit(catalog: &Catalog, ledger: &Ledger) -> Money {
         .scale(catalog.finance_model.overdraft_share)
 }
 
-/// Interest rate for a new loan of `amount`.
-pub fn loan_rate(catalog: &Catalog, company: &Company, amount: Money, date: Date) -> f64 {
-    let m = &catalog.finance_model;
+/// Interest rate for a new loan of `amount`; the finance department saves `cut` of the
+/// risk premium (ZA2).
+pub fn loan_rate(catalog: &Catalog, company: &Company, amount: Money, date: Date, cut: f64) -> f64 {
     let assets = company.ledger.total_assets() + amount;
+    rate_for_debt(catalog, (outstanding(company) + amount, assets), date, cut)
+}
+
+/// Interest rate at a debt and total assets.
+pub fn rate_for_debt(
+    catalog: &Catalog,
+    (debt, assets): (Money, Money),
+    date: Date,
+    cut: f64,
+) -> f64 {
+    let m = &catalog.finance_model;
     let debt_ratio = if assets > Money::ZERO {
-        (outstanding(company) + amount).to_usd() / assets.to_usd()
+        debt.to_usd() / assets.to_usd()
     } else {
         1.0
     };
-    base_rate(catalog, date) + m.premium_min + m.premium_per_debt_ratio * debt_ratio.clamp(0.0, 2.0)
+    let keep = 1.0 - cut;
+    base_rate(catalog, date)
+        + m.premium_min * keep
+        + m.premium_per_debt_ratio * debt_ratio.clamp(0.0, 2.0) * keep
 }
 
 /// Monthly instalment of an annuity loan.
@@ -65,11 +79,11 @@ pub fn instalment(principal: Money, rate: f64, months: u32) -> Money {
 pub(crate) fn grant_loan(
     catalog: &Catalog,
     company: &mut Company,
-    amount: Money,
-    years: u32,
+    (amount, years): (Money, u32),
     date: Date,
+    cut: f64,
 ) {
-    let rate = loan_rate(catalog, company, amount, date);
+    let rate = loan_rate(catalog, company, amount, date, cut);
     let months = years * 12;
     company.loans.push(Loan {
         principal: amount,

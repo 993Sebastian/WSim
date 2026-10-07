@@ -237,6 +237,33 @@ describe("Anliegen", () => {
     expect(gesendet).toEqual([{ SetHeadquarters: { country: "FRA" } }]);
   });
 
+  it("zeigt die Zentralabteilungen und stellt Angestellte ein", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    const karte = await screen.findByRole("article", { name: "Zentralabteilungen" });
+    expect(within(karte).getByText(/Noch keine Angestellten/)).toBeTruthy();
+    const tabelle = within(karte).getByRole("table", { name: "Zentralabteilungen" });
+    // Header and the five departments of the data, none headed yet.
+    expect(within(tabelle).getAllByRole("row")).toHaveLength(6);
+    expect(within(tabelle).getAllByText(/Leitung frei/)).toHaveLength(5);
+    expect(within(tabelle).getByText(/Leitung frei – im Vorstand „Recht“ besetzen/)).toBeTruthy();
+    const formular = within(tabelle).getByRole("form", {
+      name: "Angestellte der Abteilung Finanzen",
+    });
+    const knopf = within(formular).getByRole("button", { name: "Festlegen" });
+    expect((knopf as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(within(formular).getByRole("textbox"), { target: { value: "3" } });
+    fireEvent.click(knopf);
+    await screen.findByText("Finanzen: jetzt 3 Angestellte.");
+    expect(gesendet).toEqual([{ StaffDepartment: { department: "Finance", staff: 3 } }]);
+  });
+
   it("hat Texte für alle Optionen, Gründe und Ausgänge", () => {
     const optionen = [
       "beibehalten",

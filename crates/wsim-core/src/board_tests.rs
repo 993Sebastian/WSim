@@ -23,16 +23,16 @@ use crate::state::{
     AiState, CompanyId, ConcernReason, ConcernStatus, Position, Role, SiteId, Unit,
 };
 
-fn ceo() -> Position {
+pub(crate) fn ceo() -> Position {
     Position::new(Unit::Board, Role::Head)
 }
 
-fn member(function: &str) -> Position {
+pub(crate) fn member(function: &str) -> Position {
     Position::new(Unit::Board, Role::Specialist(function.into()))
 }
 
 /// Message keys of the days.
-fn news(game: &mut Game, n: u32) -> Vec<String> {
+pub(crate) fn news(game: &mut Game, n: u32) -> Vec<String> {
     let mut out = Vec::new();
     for _ in 0..n {
         let report = game.advance(RoundLength::Day, |_| {});
@@ -247,7 +247,7 @@ fn seller_game(floor: f64) -> (Game, CompanyId, SiteId, SiteId) {
     rival.ledger = Ledger::new(state.date, usd(50_000_000.0));
     rival.positions.clear();
     state.companies.push(rival);
-    hire_sharp(&mut game, member("finanzen"));
+    hire_sharp(&mut game, member("strategie"));
     days(&mut game, 25);
     (game, CompanyId(1), mine, works)
 }
@@ -302,7 +302,7 @@ fn the_board_answers_offers_like_the_ai() {
 fn an_answer_beyond_the_budget_comes_as_a_concern() {
     let (mut game, rival, _, works) = seller_game(1.0);
     game.apply(Command::SetBudget {
-        position: member("finanzen"),
+        position: member("strategie"),
         shares: Some((0.0, 0.0)),
     })
     .unwrap();
@@ -335,7 +335,7 @@ fn an_answer_beyond_the_budget_comes_as_a_concern() {
     // A concern about an offer that closed meanwhile is settled.
     let (mut game, rival, _, works) = seller_game(1.0);
     game.apply(Command::SetBudget {
-        position: member("finanzen"),
+        position: member("strategie"),
         shares: Some((0.0, 0.0)),
     })
     .unwrap();
@@ -374,8 +374,15 @@ fn an_answer_beyond_the_budget_comes_as_a_concern() {
 
 /// The player and a rival (AI, not acting on its own) both smelting iron in AAA: the
 /// rival's works is in the player's business.
-fn buyer_game(floor: f64) -> (Game, CompanyId, SiteId) {
-    let mut c = test_support::management();
+pub(crate) fn buyer_game(floor: f64) -> (Game, CompanyId, SiteId) {
+    buyer_game_with(test_support::management(), floor)
+}
+
+/// `buyer_game` with another catalog.
+pub(crate) fn buyer_game_with(
+    mut c: crate::catalog::Catalog,
+    floor: f64,
+) -> (Game, CompanyId, SiteId) {
     c.deal_model.min_age_months = 0;
     c.deal_model.ai.min_advantage = 0.0;
     c.deal_model.ai.min_price_usd = 0.0;
@@ -439,7 +446,7 @@ fn buyer_game(floor: f64) -> (Game, CompanyId, SiteId) {
     )
     .unwrap();
     days(&mut game, 25);
-    hire_sharp(&mut game, member("finanzen"));
+    hire_sharp(&mut game, member("strategie"));
     (game, rival, site)
 }
 

@@ -2987,94 +2987,117 @@ Kern: Modul `central`.
 ## ZA2 – Zentralabteilungen
 
 `docs/BETEILIGUNGEN.md` Abschnitte 4.1, 4.2 und 6. Daten: `parameter/zentrale.yaml`, Liste
-`abteilungen`; neue Bereiche `strategie` und `recht` in `parameter/management.yaml`
-(Ressorts des Vorstands, gleiche Gehaltsfaktoren). Kern: Modul `central`.
+`abteilungen` und `genauigkeit`; in `parameter/management.yaml` die neuen Bereiche
+`strategie` (Themen `kaufangebot`, `antwort`) und `recht` (Thema `lizenz`: Lizenzen kaufen
+und verkaufen) als Ressorts des Vorstands (gleiche Gehaltsfaktoren). Kern: Modul `central`.
 
 ### Aufbau und Kosten
 
-- Je Abteilung: `bereich` (das Ressort des Vorstands, dessen Manager die **Leitung** ist),
-  `lohngruppe` der Angestellten, `buero_usd` (Bürokosten je Angestelltem und Jahr),
-  `faelle_je_angestelltem` (was ein Angestellter im Monat bearbeitet) und die Wirkung.
+- Abteilungen mit fester Aufgabe im Kern: `strategie`, `finanzen`, `personal`, `recht`,
+  `marketing`; die Liste in den Daten wählt aus, welche es gibt. Je Abteilung: `bereich`
+  (das Ressort des Vorstands, dessen Manager die **Leitung** ist), `lohngruppe` der
+  Angestellten, `buero_usd` (Bürokosten je Angestelltem und Jahr), `faelle` (was ein
+  Angestellter im Monat bearbeitet) und `wirkung`.
 - **Angestellte** (`StaffDepartment { department, staff }`): eine Zahl je Abteilung, keine
-  Einzelpersonen, eingestellt im Land des Hauptsitzes. Kosten je Monat, gebucht am
-  Monatsende als Gemeinkosten:
+  Einzelpersonen, im Land des Hauptsitzes, sofort eingestellt und entlassen (ohne
+  Abfindung). Kosten je Monat, am Monatsende als Kosten des Hauptsitzes (ohne Standort)
+  gebucht:
 
-      Personal = Angestellte · Jahreslohn(lohngruppe, Sitzland) / 12
-      Büro     = Angestellte · buero_usd / 12
+      Personal (Personalkosten) = Angestellte · Stundenlohn(lohngruppe, Sitzland) · Jahresstunden / 12
+      Büro (Gemeinkosten)       = Angestellte · buero_usd / 12
 
-  Mit den Werten der Daten kostet eine kleine Abteilung samt Ressortleitung rund eine
-  halbe Million USD im Jahr – eine Werkstatt trägt das nicht.
-- Ohne Leitung arbeitet eine Abteilung nicht (die Angestellten kosten trotzdem).
+  Eine kleine Abteilung kostet samt Ressortleitung rund eine halbe Million USD im Jahr –
+  eine Werkstatt trägt das nicht: Mit je einem Angestellten in Finanzen und Marketing
+  (1900, Deutschland, rund 8 000 USD im Monat) ist sie nach einem Jahr zahlungsunfähig.
+- Ohne Leitung arbeitet eine Abteilung nicht (die Angestellten kosten trotzdem). Beim
+  Umzug des Hauptsitzes bleiben je Abteilung ⌊Angestellte · mitziehen⌋; Meldung, wie viele
+  nicht mitgezogen sind.
+- KI-Firmen richten (noch) keine Zentralabteilungen ein; ihre Manager wirken über die
+  Kompetenz (MA6).
 
 ### Leistung
 
 Für eine Abteilung mit Leitung *L* und *n* Angestellten:
 
-    Kapazität K = n · faelle_je_angestelltem          (Fälle je Monat)
+    Kapazität K = n · faelle                          (Fälle je Monat)
     Güte      G = Fachkompetenz(L, bereich) / 100
-    Abdeckung A = min(1, K / Arbeitslast)              (Arbeitslast je Abteilung, unten)
-    Wirkung     = wirkung · G · A
+    Abdeckung A = min(1, K / Arbeitslast)
+    Stärke    W = wirkung · G · A
 
-- **Genauigkeit:** Anliegen und Entscheidungen der Leitung haben einen kleineren
-  Schätzfehler und treffen öfter die beste Option:
-
-      Schätzfehler   ← Schätzfehler · (1 − genauigkeit · A)
-      Urteilsvermögen ← U + (100 − U) · genauigkeit · A
-
-| Abteilung | Arbeitslast | Wirkung (`wirkung`) |
+| Abteilung | Arbeitslast | Wirkung |
 | --- | --- | --- |
-| Strategie | – (A = 1 ab einem Angestellten) | beobachtet K Länder ohne eigenen Standort mit dem größten Markt der eigenen Warengruppen: Dort sucht der Vorstand Kaufangebote mit (MA5) |
-| Finanzen | Zahl der Kredite + 1 | Risikoaufschlag neuer Kredite × (1 − Wirkung) |
-| Personal | Zahl der eigenen Manager | Schulung: Erfahrung je Monat × (1 + Wirkung) (MA6) |
-| Recht | Zahl der Forschungsziele + 1 | prüft Lizenzen statt Forschung (ZA3) |
-| Marketing | Zahl der Werbebudgets (Land × Warengruppe) | Werbewirkung × (1 + Wirkung) (M16) |
+| Strategie | 1 | beobachtet ⌊K⌋ Länder ohne eigenen Standort und außer dem Sitzland, die größten Volkswirtschaften (Einwohner · BIP je Kopf): Dort sucht der Vorstand Übernahmeziele mit (MA5) |
+| Finanzen | Kredite + 1 | Risikoaufschlag neuer Kredite × (1 − W); Umschuldung (ZA3) |
+| Personal | Manager der Firma | Schulung: Chance auf Erfahrung je Monat × (1 + W), höchstens 1 (MA6); Gehaltsrunde (ZA3) |
+| Recht | 1 | prüft Lizenzen auch für Technologien, die Rezepte der eigenen Warengruppen brauchen (was die Firma herstellt oder anbietet), die sie weder kennt noch erforscht und die eine andere Firma lizenzieren könnte: die ⌊K⌋ mit dem höchsten Lizenzwert (M30) |
+| Marketing | Werbebudgets + 1 | Werbewirkung × (1 + W) (M16) |
+
+- **Fälle je Prüfung des Vorstands:** Ohne Abteilung bietet der Vorstand wie in MA5 je
+  Prüfung das beste Übernahmeziel (Ressort Strategie) und die beste Lizenz (Ressort Recht)
+  an; mit arbeitender Abteilung bis zu ⌊K⌋ der besten (mindestens eins), solange die Firma
+  weniger offene Angebote hat, als die KI darf.
+- **Genauigkeit** der Leitung bei Entscheidungen ihres Ressorts (die Vorstandsfachstelle
+  der Abteilung):
+
+      Schätzfehler    ← Schätzfehler · (1 − genauigkeit · A)
+      Urteilsvermögen ← U + (100 − U) · genauigkeit · A
 
 ### Vorgabe „Beteiligungen“
 
-Ein Feld der ganzen Firma (Befehl `SetParticipations`), in der Strategieansicht:
+Für die ganze Firma (Befehl `SetParticipations { budget, risk, limits }`), in der
+Strategieansicht:
 
-- **Budget je Jahr** für Übernahmen (Kaufangebote der Firma, M30) und ab SU1 Start-ups.
-  Darüber fragt die Stelle (Grund „Beteiligungsbudget“). Ohne Angabe: keine Grenze.
+- **Budget je Jahr** für Übernahmen und Lizenzen. Es zählen die Käufe des Jahres (auch die
+  des Spielers selbst und Zuschläge in Versteigerungen) und die offenen Gebote der Firma.
+  Übersteigt ein Gebot einer Stelle den Rest, entscheidet keine Stelle selbst: Anliegen
+  mit dem Grund „Beteiligungsbudget“. Ohne Angabe: keine Grenze. (Ab SU1 auch Start-ups.)
 - **Risikobereitschaft** 0–1 (Vorgabe 0,5): ab SU1 die Mindestchance der Start-ups, die
   die Strategie empfiehlt.
-- **Freigabegrenze je Abteilung:** bis zu diesem Betrag entscheidet die Leitung selbst,
-  darüber fragt sie. Sie begrenzt ihr Budget je Entscheidung zusätzlich (MA2); ohne
-  Angabe gilt das Budget allein.
+- **Freigabegrenze je Abteilung:** Bis zu diesem Betrag entscheidet die Leitung (die
+  Vorstandsfachstelle des Ressorts) selbst; die Grenze senkt ihr Budget je Entscheidung
+  (MA2), darüber geht die Entscheidung den Weg der Stellen (CEO) und sonst als Anliegen mit
+  dem Grund „Freigabegrenze“ an den Spieler. Ohne Angabe gilt das Budget allein.
 
 ## ZA3 – Empfehlungen und Trefferquote
 
-`docs/BETEILIGUNGEN.md` Abschnitte 4.3 und 4.4. Daten: `parameter/zentrale.yaml`, Block
-`trefferquote` und die Empfehlungen je Abteilung.
+`docs/BETEILIGUNGEN.md` Abschnitte 4.3 und 4.4. Daten: `parameter/zentrale.yaml`, Blöcke
+`umschuldung` und `trefferquote`; Themen `umschuldung` (Finanzen) und `gehaltsrunde`
+(Personal) auf der Ebene Vorstand.
 
 ### Empfehlungen
 
-Am Prüftermin des Vorstands arbeiten die Abteilungen mit Leitung und Angestellten ihre
-Fälle ab (höchstens K): jede ist eine Entscheidung (MA0) ihres Themas mit den Optionen
-„umsetzen“ und „so lassen“. Im Budget und unter der Freigabegrenze setzt die Leitung sie
-um, sonst wird sie eine **Empfehlung** (ein Anliegen der Leitung mit Begründung).
+Am Prüftermin des Vorstands bearbeiten die Abteilungen mit Leitung und Angestellten bis
+zu ⌊K⌋ Fälle. Jeder Fall ist eine Entscheidung (MA0) mit „umsetzen“ und „so lassen“: im
+Budget und unter der Freigabegrenze setzt die Leitung ihn um, sonst wird er eine
+**Empfehlung** (ein Anliegen der Leitung mit Begründung).
 
-| Abteilung | Thema | Fall | Wirkung (Schätzung) | Begründung |
-| --- | --- | --- | --- | --- |
-| Finanzen | `umschuldung` | Kredit, dessen Zins um `mindestvorteil` über dem eines neuen Kredits gleicher Restlaufzeit liegt | ersparte Zinsen im Jahr | Ersparnis |
-| Personal | `gehaltsrunde` | Manager mit Zufriedenheit unter `zufriedenheit.stufen[1]` und Gehalt unter dem Marktwert | – (Kosten: Erhöhung im Jahr) | Halten |
-| Recht | `lizenz` | Forschungsziel, das eine andere Firma schon kennt, wenn der Lizenzpreis unter den restlichen Forschungskosten liegt | ersparte Forschungskosten (einmalig) | Abkürzung |
-| Marketing | `kampagne` | Land und Warengruppe mit eigenem Absatz, aber Bekanntheit unter `bekanntheit_ziel` und ohne Werbebudget | Mehrumsatz × Marge (Schätzung) | Reichweite |
-| Strategie | `kaufangebot` | wie MA5, dazu die beobachteten Länder | Ergebnis des Objekts | Rendite, Passung (eigene Warengruppe), Abwehr (Konkurrent würde Marktführer), Streuung (neue Warengruppe) |
+| Abteilung | Fall | Option | Begründung |
+| --- | --- | --- | --- |
+| Finanzen | Kredit, dessen Zins um `umschuldung.mindestvorteil` über dem Zins eines neuen Kredits gleicher Restschuld liegt | `RefinanceLoan`: der neue Zins für Restschuld und Restlaufzeit, Gebühr `umschuldung.gebuehr` der Restschuld (Zinsaufwand) | ersparte Zinsen im Jahr |
+| Personal | Manager mit Zufriedenheit unter `zufriedenheit.stufen[1]` und Gehalt unter dem Marktwert (die unzufriedensten zuerst) | `RaiseSalary` auf den Marktwert | Halten: Abstand zum Marktwert |
+| Strategie | das beste Übernahmeziel (MA5) in den eigenen und den beobachteten Ländern | Kaufangebot zum geschätzten Preis | Passung (eigene Warengruppe) oder Streuung (neue Warengruppe) |
+| Recht | die beste Lizenz für Forschungsziele und Technologien der eigenen Warengruppen | Kaufangebot zum geschätzten Preis | Abkürzung: ersparte Forschung |
+
+- **Schätzung von Strategie und Recht:** Statt des genauen Werts der Regeln (MA5) schätzt
+  die Leitung den Wert *V* eines Ziels und damit auch ihren Preis *P* mit
+
+      f = 1 + (2u − 1) · e,  e = Schätzfehler · (1 − Fachkompetenz/100) · (1 − genauigkeit · A)
+
+  (*u* gleichverteilt aus dem Strom der Leitung): Sie bietet P · f. Schwache Leitungen
+  überzahlen öfter (Fehlgriff) und bieten öfter zu wenig (übersehene Chance).
 
 ### Trefferquote
 
-- Jede Entscheidung und Empfehlung einer Abteilungsleitung wird nach
-  `bewertung_monate` bewertet: **Treffer**, wenn die empfohlene Option nach den wahren
-  Werten (ohne Schätzfehler) die beste war. Abgelehnte Empfehlungen zählen ebenso.
-- Trefferquote mit Vorgewicht (damit wenige Fälle nicht täuschen):
+- Jede Empfehlung und Entscheidung von Strategie und Recht über ein Ziel wird nach
+  `bewertung_monate` bewertet: **Treffer**, wenn der gebotene Preis den Wert *V* nach den
+  Regeln nicht übersteigt. Ob der Spieler annimmt oder ablehnt, zählt nicht. Die übrigen
+  Empfehlungen (Umschuldung, Gehaltsrunde) können nicht danebenliegen und zählen nicht.
+- Trefferquote mit Vorgewicht (wenige Fälle täuschen nicht):
 
       q = (Treffer + mittelwert · vorgewicht) / (bewertet + vorgewicht)
 
-  Sichtbar im Managermarkt und in der Organisation, mit der Zahl der Fälle.
-- **Gehaltsforderung** (MA1) mal
-
-      e^(k · (q − mittelwert))
-
-  `k` aus den Daten; eine Leitung mit 90 % bei 50 % Mittel fordert mit k = 2 das 2,2-Fache.
-- **Abwerbung** (MA6): Die KI vergleicht die Stärke mal demselben Faktor; Leitungen mit
-  hoher Trefferquote werden häufiger umworben.
+  Sichtbar im Managermarkt und in der Organisation, mit der Zahl der bewerteten Fälle.
+- **Gehaltsforderung** (MA1) mal `e^(k · (q − mittelwert))`; mit k = 2 fordert eine Leitung
+  mit q = 0,9 das 2,2-Fache, mit q = 0,2 das 0,55-Fache.
+- **Abwerbung** (MA6): Die KI vergleicht Stärke mal demselben Faktor; Leitungen mit hoher
+  Trefferquote werden häufiger umworben.

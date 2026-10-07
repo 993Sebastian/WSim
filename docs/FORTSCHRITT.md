@@ -59,6 +59,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA5 | Manager-System: Vorstand, Strategieauftrag, Rücksprache | ✅ |
 | MA6 | Manager-System: Lebendiger Managermarkt | ✅ |
 | ZA1 | Hauptsitz: Verlegen, Wirkung auf Steuern und Gehälter | ✅ |
+| ZA2 | Zentralabteilungen, Ressorts Strategie und Recht, Vorgabe „Beteiligungen“ | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -310,6 +311,40 @@ vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
   Lohnniveau, Umzug mit Länderauswahl (Steuer und Lohn je Land), Kosten und Dauer.
 - **Tests:** Szenario Umzug (Kosten, Dauer, nur einer zugleich, Sitz und Gehaltsland
   danach), fehlende Kasse; Fehlerfälle der Daten; vitest.
+
+### ZA2: Zentralabteilungen (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitte 4.1, 4.2 und 6; Regeln: `docs/FORMELN.md`,
+Abschnitt ZA2; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
+
+- **Daten:** `zentrale.yaml` mit fünf Abteilungen (Ressort, Lohngruppe, Büro, Fälle,
+  Wirkung), Genauigkeit, Umschuldung und Trefferquote (ZA3); `management.yaml` mit den
+  neuen Ressorts Strategie (Übernahmen, Antworten) und Recht (Lizenzen). Prüfregeln (u. a.
+  „Bereich ist kein Ressort des Vorstands“) mit Fehlerfall-Tests.
+- **Kern:** Angestellte je Abteilung (`StaffDepartment`), Kosten am Monatsende (Lohn im
+  Sitzland, Büro), Leistung aus Kapazität, Güte der Leitung und Abdeckung. Wirkungen:
+  Finanzen senkt den Risikoaufschlag neuer Kredite, Personal schult (mehr Erfahrung),
+  Marketing verstärkt die Werbung, Strategie beobachtet weitere Länder für Übernahmen,
+  Recht prüft Lizenzen für Technologien der eigenen Warengruppen; eine arbeitende Abteilung
+  macht ihre Leitung genauer. Der Vorstand trennt Übernahmen (Strategie) und Lizenzen
+  (Recht) und bietet mit Abteilung bis zu ⌊K⌋ je Prüfung an. Vorgabe „Beteiligungen“
+  (`SetParticipations`): Jahresbudget für Übernahmen und Lizenzen (Käufe und offene
+  Gebote), Risikobereitschaft, Freigabegrenzen je Abteilung – mit den Anliegen-Gründen
+  „Beteiligungsbudget“ und „Freigabegrenze“. Beim Umzug ziehen 60 % der Angestellten mit.
+  Befehl `RefinanceLoan` (Umschulden, für ZA3).
+- **Oberfläche:** Organisation, Karte „Zentralabteilungen“ (Leitung, Angestellte,
+  Abdeckung, Wirkung in Worten, Kosten); Strategie, Abschnitt „Beteiligungen“; Einführung
+  erwähnt die Zentrale.
+- **Tests:** Kosten und Buchung, Leistung (Kapazität, Güte, Abdeckung, Risikoaufschlag,
+  Genauigkeit, Schulung), Werbewirkung, Umzug, Beteiligungsbudget und Freigabegrenze binden
+  den Vorstand, Strategie und Recht erweitern die Suche (Lizenzangebot), Umschulden;
+  Szenario mit echten Daten: eine Werkstatt mit je einem Angestellten in Finanzen und
+  Marketing ist nach einem Jahr zahlungsunfähig, ohne läuft sie weiter; vitest, Playwright.
+- **Weltlauf:** Mit den Daten vor ZA2 ist der Weltlauf 1900–1906 (100 KI) bitgleich
+  (Produkte, Firmen, Länder): Der Code ändert die KI nicht. Die zwei neuen Ressorts ändern
+  die Ziehung der Manager und damit den Lauf (gewollt); bis 1930 zeigt er dasselbe Bild
+  wie zuvor (1 von 9 Prüfungen ohne Verstoß, keine Pleitewelle, Abweichungen im Rahmen
+  eines anderen Zufallswegs).
 
 ## Eigenständige Entscheidungen (für das Review)
 

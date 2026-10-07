@@ -192,7 +192,94 @@ pub struct MandateModel {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct CentralModel {
     pub headquarters: HeadquartersModel,
+    /// The central departments, in the order of the data (ZA2).
+    pub departments: Vec<Department>,
+    /// How much a fully covered department narrows its head's errors (ZA2).
+    pub accuracy: f64,
+    pub refinance: RefinanceModel,
+    pub hit_rate: HitRateModel,
     pub provenance: Provenance,
+}
+
+impl CentralModel {
+    pub fn department(&self, kind: DepartmentKind) -> Option<&Department> {
+        self.departments.iter().find(|d| d.kind == kind)
+    }
+}
+
+/// What a central department does; its work is part of the core (ZA2, ZA3).
+#[derive(
+    Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
+pub enum DepartmentKind {
+    Strategy,
+    Finance,
+    Personnel,
+    Legal,
+    Marketing,
+}
+
+impl DepartmentKind {
+    pub const ALL: [DepartmentKind; 5] = [
+        DepartmentKind::Strategy,
+        DepartmentKind::Finance,
+        DepartmentKind::Personnel,
+        DepartmentKind::Legal,
+        DepartmentKind::Marketing,
+    ];
+
+    /// Key of the data and the texts (`abteilung.<key>`).
+    pub fn key(self) -> &'static str {
+        match self {
+            DepartmentKind::Strategy => "strategie",
+            DepartmentKind::Finance => "finanzen",
+            DepartmentKind::Personnel => "personal",
+            DepartmentKind::Legal => "recht",
+            DepartmentKind::Marketing => "marketing",
+        }
+    }
+
+    pub fn from_key(key: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|k| k.key() == key)
+    }
+}
+
+/// A central department (ZA2).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Department {
+    pub kind: DepartmentKind,
+    /// The function (index into the management's functions) whose member of the board
+    /// heads it.
+    pub function: usize,
+    /// The group of its employees, paid in the country of the headquarters.
+    pub labor_group: LaborGroupId,
+    /// Office costs per employee and year.
+    pub office: Money,
+    /// Cases an employee works on in a month.
+    pub cases: f64,
+    /// Its effect at full quality and coverage.
+    pub effect: f64,
+}
+
+/// Loans at a lower rate (ZA3).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct RefinanceModel {
+    /// Least advantage of the rate (absolute).
+    pub min_advantage: f64,
+    /// Fee as a share of the outstanding amount.
+    pub fee: f64,
+}
+
+/// The hit rate of heads of departments (ZA3).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct HitRateModel {
+    /// Months after which a recommendation is judged.
+    pub months: u32,
+    pub mean: f64,
+    /// Weight of the mean in judged cases.
+    pub prior: f64,
+    /// Exponent of the salary demand.
+    pub k: f64,
 }
 
 /// Moving the headquarters (ZA1).

@@ -1213,3 +1213,61 @@ fn decisions_of_the_ai_change_nothing() {
     }
     assert!(topics.len() >= 10, "{topics:?}");
 }
+
+/// ZA2 (docs/BETEILIGUNGEN.md §8): central departments built too early ruin a workshop –
+/// their employees cost wages and offices every month, working or not. One employee each
+/// in finance and marketing: the losses of the first half year grow by their costs, and
+/// within a year the workshop is insolvent, while without them it carries on.
+#[test]
+fn early_central_departments_ruin_a_workshop() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::catalog::DepartmentKind;
+    use wsim_core::command::Command;
+    use wsim_core::game::Game;
+    use wsim_core::state::{GameSettings, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let settings = GameSettings {
+        seed: 4,
+        start_year: 1900,
+        start_country: c.countries.id("DEU").unwrap(),
+        start_capital: Money::from_usd(100_000.0).unwrap(),
+        start_form: StartForm::Workshop,
+        company_name: "Werkstatt".into(),
+        research_ahead_factor: 1.0,
+        market_scale: 1.0,
+        ai: Default::default(),
+    };
+    let mut plain = Game::new(c.clone(), settings.clone()).unwrap();
+    let mut early = Game::new(c.clone(), settings).unwrap();
+    for kind in [DepartmentKind::Finance, DepartmentKind::Marketing] {
+        early
+            .apply(Command::StaffDepartment {
+                department: kind,
+                staff: 1,
+            })
+            .unwrap();
+    }
+    let (personnel, office) = wsim_core::central::monthly_cost(&c, early.state(), early.player());
+    let monthly = personnel + office;
+    assert!(monthly > Money::from_usd(5_000.0).unwrap(), "{monthly:?}");
+    let result = |g: &Game| g.state().companies[0].ledger.year.total();
+    for _ in 0..6 {
+        plain.advance(RoundLength::Month, |_| {});
+        early.advance(RoundLength::Month, |_| {});
+    }
+    let (a, b) = (result(&plain), result(&early));
+    assert!(
+        a - b > monthly.scale(5.0),
+        "with departments {b:?}, without {a:?}, a month {monthly:?}"
+    );
+    assert!(early.state().companies[0].ledger.is_balanced());
+    for _ in 0..6 {
+        plain.advance(RoundLength::Month, |_| {});
+        early.advance(RoundLength::Month, |_| {});
+    }
+    assert!(!plain.state().companies[0].bankrupt);
+    assert!(early.state().companies[0].bankrupt);
+}

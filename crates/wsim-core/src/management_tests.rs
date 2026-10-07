@@ -114,7 +114,7 @@ fn the_market_has_candidates_from_the_start() {
     let names: BTreeSet<&str> = managers.values().map(|m| m.name.as_str()).collect();
     assert_eq!(names.len(), managers.len(), "names are unique");
     let keys = management::skill_keys(&c);
-    assert_eq!(keys.len(), 6 + 5);
+    assert_eq!(keys.len(), 8 + 5);
     for m in managers.values() {
         assert!(m.job.is_none());
         assert_eq!(
@@ -122,7 +122,7 @@ fn the_market_has_candidates_from_the_start() {
             c.continents.ids().next().unwrap()
         );
         assert!(c.management.function(&m.focus).is_some());
-        assert_eq!(m.expertise.len(), 6);
+        assert_eq!(m.expertise.len(), 8);
         for key in &keys {
             let value = management::skill(m, key).unwrap();
             assert!(value <= 100);

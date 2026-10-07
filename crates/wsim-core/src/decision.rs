@@ -41,10 +41,16 @@ pub enum Topic {
     Development,
     /// Another company's offer to a manager (MA6).
     Poaching,
+    /// Licences to buy and to sell (ZA2).
+    License,
+    /// Loans at a lower rate (ZA3).
+    Refinance,
+    /// Raises for unhappy managers (ZA3).
+    SalaryRound,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 20] = [
+    pub const ALL: [Topic; 23] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -65,6 +71,9 @@ impl Topic {
         Topic::Research,
         Topic::Development,
         Topic::Poaching,
+        Topic::License,
+        Topic::Refinance,
+        Topic::SalaryRound,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -93,6 +102,9 @@ impl Topic {
             Topic::Research => "forschung",
             Topic::Development => "weiterentwicklung",
             Topic::Poaching => "abwerbung",
+            Topic::License => "lizenz",
+            Topic::Refinance => "umschuldung",
+            Topic::SalaryRound => "gehaltsrunde",
         }
     }
 }
@@ -119,6 +131,8 @@ pub enum ChoiceKind {
     Develop,
     /// Letting a manager go to another company (MA6).
     LetGo,
+    /// A loan at a lower rate (ZA3).
+    Refinance,
 }
 
 impl ChoiceKind {
@@ -141,6 +155,7 @@ impl ChoiceKind {
             ChoiceKind::Research => "forschen",
             ChoiceKind::Develop => "weiterentwickeln",
             ChoiceKind::LetGo => "gehen_lassen",
+            ChoiceKind::Refinance => "umschulden",
         }
     }
 }
@@ -745,7 +760,13 @@ fn effect(
                 .map(|s| match &s.command {
                     Command::TakeLoan { amount, .. } => {
                         -amount.to_usd()
-                            * crate::finance::loan_rate(catalog, company, *amount, state.date)
+                            * crate::finance::loan_rate(
+                                catalog,
+                                company,
+                                *amount,
+                                state.date,
+                                crate::central::premium_cut(catalog, state, decision.company),
+                            )
                     }
                     Command::RepayLoan { loan, amount } => company
                         .loans
@@ -860,7 +881,13 @@ fn new_capacity(
             }
             Command::TakeLoan { amount, .. } => {
                 usd -= amount.to_usd()
-                    * crate::finance::loan_rate(catalog, owner, *amount, state.date);
+                    * crate::finance::loan_rate(
+                        catalog,
+                        owner,
+                        *amount,
+                        state.date,
+                        crate::central::premium_cut(catalog, state, company),
+                    );
             }
             _ => {}
         }

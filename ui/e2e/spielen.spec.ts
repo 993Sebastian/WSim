@@ -833,6 +833,16 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   await sitz.getByRole("button", { name: "Hauptsitz verlegen" }).click();
   expect((await befehle(page)).at(-1)).toEqual({ SetHeadquarters: { country: "FRA" } });
 
+  // The central departments (ZA2): employees for the finance department.
+  const abteilungen = page.getByRole("article", { name: "Zentralabteilungen" });
+  await expect(abteilungen).toContainText("Noch keine Angestellten");
+  const finanzen = abteilungen.getByRole("form", { name: "Angestellte der Abteilung Finanzen" });
+  await finanzen.getByRole("textbox").fill("2");
+  await finanzen.getByRole("button", { name: "Festlegen" }).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    StaffDepartment: { department: "Finance", staff: 2 },
+  });
+
   // Which concerns halt a run of rounds: a choice in the menu, kept in the browser.
   await page.getByRole("button", { name: "Menü" }).click();
   const halt = page.getByRole("group", { name: "Bei Anliegen anhalten" });

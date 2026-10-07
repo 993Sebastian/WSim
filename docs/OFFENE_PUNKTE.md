@@ -899,7 +899,8 @@ entschieden:
 
 ## O Hauptsitz, Zentralabteilungen, Start-ups (Vorgabe `docs/BETEILIGUNGEN.md`)
 
-✅ **ZA1 umgesetzt** (Hauptsitz verlegen). 🟡 Vorläufig entschieden:
+✅ **ZA1 umgesetzt** (Hauptsitz verlegen), ✅ **ZA2 umgesetzt** (Zentralabteilungen,
+Vorgabe „Beteiligungen“). 🟡 Vorläufig entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -910,6 +911,30 @@ entschieden:
    Monate, 60 % ziehen mit (Schätzungen in `parameter/zentrale.yaml`).
 4. **Kriegsrisiken** des Sitzlands kommen mit Stufe 4.
 5. **KI-Firmen** verlegen ihren Sitz nicht.
+6. **Angestellte ohne Einzelpersonen, sofort:** Die Zahl der Angestellten je Abteilung gilt
+   ab sofort, ohne Einstellungskosten, Abfindung oder Grenze durch den Akademiker-Pool des
+   Landes. Vorschlag: den Pool erst prüfen, wenn Zentralen groß werden (Stufe 2).
+7. **Kosten je Angestelltem:** Lohn der Gruppe `akademiker.kaufmaennisch` im Sitzland plus
+   15.000 USD Büro im Jahr – 1900 in Deutschland rund 4.000 USD im Monat. Mit der
+   Ressortleitung kostet eine kleine Abteilung rund eine halbe Million USD im Jahr; eine
+   Werkstatt mit je einem Angestellten in Finanzen und Marketing ist nach einem Jahr
+   zahlungsunfähig (Szenariotest).
+8. **Lizenzen sind Sache des Rechts:** Das Thema `lizenz` (kaufen und verkaufen) gehört dem
+   neuen Ressort Recht, Übernahmen und Antworten auf Angebote für Standorte und Bereiche
+   dem Ressort Strategie; der Vorstand bietet je Prüfung das beste Übernahmeziel und die
+   beste Lizenz an (vorher eines von beiden), mit arbeitender Abteilung bis zu ⌊K⌋ je Art.
+9. **Beteiligungsbudget:** Es zählen alle Käufe des Jahres – auch die, die der Spieler
+   selbst macht, und Zuschläge in Versteigerungen – und die offenen Gebote. Die
+   **Freigabegrenze** gilt für die Vorstandsfachstelle des Ressorts; darüber entscheidet
+   der CEO in seinem Budget, sonst fragt die Stelle den Spieler.
+10. **Wirkungen** (Schätzwerte in `zentrale.yaml`): Finanzen bis 40 % weniger
+    Risikoaufschlag, Personal bis 50 % mehr Erfahrung, Marketing bis 30 % stärkere Werbung;
+    Strategie und Recht wirken über die Zahl der Länder und Technologien, die sie prüfen.
+11. **KI-Firmen** richten noch keine Zentralabteilungen ein (ihre Manager wirken über die
+    Kompetenz, MA6); Vorschlag: mit SU3, wenn KI-Firmen sich beteiligen.
+12. **Welt mit neuen Ressorts:** Die zwei neuen Bereiche ändern die Ziehung der Manager
+    (mehr Fähigkeiten je Manager); deshalb weicht ein Weltlauf mit gleichem Startwert vom
+    Stand vor ZA2 ab. Mit den alten Daten ist er bitgleich.
 
 ## Reihenfolge der neuen Punkte
 

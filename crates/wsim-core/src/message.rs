@@ -186,8 +186,12 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_COUNTRY: &str = "fehler.befehl.land_unbekannt";
     pub const COMMAND_SAME_HEADQUARTERS: &str = "fehler.befehl.hauptsitz_gleich";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
+    pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
+    pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
+    pub const COMMAND_NO_ADVANTAGE: &str = "fehler.befehl.kein_vorteil";
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
+    pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -428,7 +432,11 @@ pub mod keys {
         COMMAND_UNKNOWN_COUNTRY,
         COMMAND_SAME_HEADQUARTERS,
         COMMAND_RELOCATION_UNDER_WAY,
+        COMMAND_UNKNOWN_DEPARTMENT,
+        COMMAND_INVALID_PARTICIPATIONS,
+        COMMAND_NO_ADVANTAGE,
         HEADQUARTERS_MOVED,
+        HEADQUARTERS_STAFF_LEFT,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,

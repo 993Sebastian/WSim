@@ -439,25 +439,33 @@ impl<S: SaveStore> Session<S> {
                         && c.status == ConcernStatus::Open
                         && (halt == "alle" || management::important(game.catalog(), c))
                 });
-            // The board answers offers itself (MA5); what it may not decide comes as a
-            // concern.
-            let board_answers = management::first_taker(
-                game.catalog(),
-                game.state(),
-                game.player(),
-                Unit::Board,
-                Topic::OfferAnswer,
-            )
-            .is_some();
+            // The board answers offers itself (MA5), those for licences its legal member
+            // (ZA2); what it may not decide comes as a concern.
+            let board_takes = |topic: Topic| {
+                management::first_taker(
+                    game.catalog(),
+                    game.state(),
+                    game.player(),
+                    Unit::Board,
+                    topic,
+                )
+                .is_some()
+            };
+            let (board_answers, board_licenses) =
+                (board_takes(Topic::OfferAnswer), board_takes(Topic::License));
             let news = report.messages.iter().find_map(|m| match m.kind {
                 // Concerns of every level halt by their own rule.
                 _ if m.key.starts_with(core_keys::CONCERN_NEW) => None,
                 MessageKind::WorldEvent => Some("weltereignis"),
                 MessageKind::Warning | MessageKind::Crisis => Some("warnung"),
                 // An offer waits for the player's answer (M30).
-                _ if !board_answers
-                    && (m.key.starts_with("meldung.angebot.erhalten")
-                        || m.key.starts_with("meldung.angebot.gegenangebot")) =>
+                _ if (m.key.starts_with("meldung.angebot.erhalten")
+                    || m.key.starts_with("meldung.angebot.gegenangebot"))
+                    && !(if m.key.ends_with(".lizenz") {
+                        board_licenses
+                    } else {
+                        board_answers
+                    }) =>
                 {
                     Some("angebot")
                 }

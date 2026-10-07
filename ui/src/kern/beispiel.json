@@ -25827,9 +25827,137 @@
         }
       ],
       "country": "DEU",
+      "departments": [
+        {
+          "capacity": 0.0,
+          "cases_each": 2.0,
+          "cost_per_employee_usd": 3943.1385473302153,
+          "coverage": 0.0,
+          "effect": 0.0,
+          "function": "strategie",
+          "head": null,
+          "head_level": null,
+          "key": "strategie",
+          "kind": "Strategy",
+          "monthly_cost_usd": 0.0,
+          "reach": 0,
+          "release_limit_usd": null,
+          "staff": 0,
+          "working": false,
+          "workload": 1.0
+        },
+        {
+          "capacity": 0.0,
+          "cases_each": 4.0,
+          "cost_per_employee_usd": 3943.1385473302153,
+          "coverage": 0.0,
+          "effect": 0.4,
+          "function": "finanzen",
+          "head": null,
+          "head_level": null,
+          "key": "finanzen",
+          "kind": "Finance",
+          "monthly_cost_usd": 0.0,
+          "reach": 0,
+          "release_limit_usd": null,
+          "staff": 0,
+          "working": false,
+          "workload": 1.0
+        },
+        {
+          "capacity": 0.0,
+          "cases_each": 15.0,
+          "cost_per_employee_usd": 3943.1385473302153,
+          "coverage": 0.0,
+          "effect": 0.5,
+          "function": "personal",
+          "head": null,
+          "head_level": null,
+          "key": "personal",
+          "kind": "Personnel",
+          "monthly_cost_usd": 0.0,
+          "reach": 0,
+          "release_limit_usd": null,
+          "staff": 0,
+          "working": false,
+          "workload": 2.0
+        },
+        {
+          "capacity": 0.0,
+          "cases_each": 3.0,
+          "cost_per_employee_usd": 3943.1385473302153,
+          "coverage": 0.0,
+          "effect": 0.0,
+          "function": "recht",
+          "head": null,
+          "head_level": null,
+          "key": "recht",
+          "kind": "Legal",
+          "monthly_cost_usd": 0.0,
+          "reach": 0,
+          "release_limit_usd": null,
+          "staff": 0,
+          "working": false,
+          "workload": 1.0
+        },
+        {
+          "capacity": 0.0,
+          "cases_each": 5.0,
+          "cost_per_employee_usd": 3943.1385473302153,
+          "coverage": 0.0,
+          "effect": 0.3,
+          "function": "vertrieb_marketing",
+          "head": null,
+          "head_level": null,
+          "key": "marketing",
+          "kind": "Marketing",
+          "monthly_cost_usd": 0.0,
+          "reach": 0,
+          "release_limit_usd": null,
+          "staff": 0,
+          "working": false,
+          "workload": 1.0
+        }
+      ],
+      "employees": 0,
+      "monthly_cost_usd": 0.0,
       "move_cost_usd": 250000.0,
       "move_months": 6,
       "moving_share": 0.6,
+      "participations": {
+        "budget_usd": null,
+        "left_usd": null,
+        "limits": [
+          {
+            "key": "strategie",
+            "kind": "Strategy",
+            "limit_usd": null
+          },
+          {
+            "key": "finanzen",
+            "kind": "Finance",
+            "limit_usd": null
+          },
+          {
+            "key": "personal",
+            "kind": "Personnel",
+            "limit_usd": null
+          },
+          {
+            "key": "recht",
+            "kind": "Legal",
+            "limit_usd": null
+          },
+          {
+            "key": "marketing",
+            "kind": "Marketing",
+            "limit_usd": null
+          }
+        ],
+        "open_bids_usd": 0.0,
+        "risk": 0.5,
+        "spent_usd": 0.0
+      },
       "relocation": null,
       "tax": 0.05416666666666667,
       "wage_usd": 32317.662567962583
@@ -35224,6 +35352,40 @@
       "wage_premium_max": 1.0
     },
     "monthly_cost_usd": 30805.401,
+    "participations": {
+      "budget_usd": null,
+      "left_usd": null,
+      "limits": [
+        {
+          "key": "strategie",
+          "kind": "Strategy",
+          "limit_usd": null
+        },
+        {
+          "key": "finanzen",
+          "kind": "Finance",
+          "limit_usd": null
+        },
+        {
+          "key": "personal",
+          "kind": "Personnel",
+          "limit_usd": null
+        },
+        {
+          "key": "recht",
+          "kind": "Legal",
+          "limit_usd": null
+        },
+        {
+          "key": "marketing",
+          "kind": "Marketing",
+          "limit_usd": null
+        }
+      ],
+      "open_bids_usd": 0.0,
+      "risk": 0.5,
+      "spent_usd": 0.0
+    },
     "prices": [
       {
         "floor": 1.15,

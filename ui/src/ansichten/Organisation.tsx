@@ -17,6 +17,7 @@ import {
 } from "../format";
 import { geld } from "../kern/befehle";
 import type {
+  Abteilung,
   Budgetvorgabe,
   EinheitOrganisation,
   Kandidat,
@@ -39,6 +40,7 @@ import {
   useAktion,
   useBefehl,
   useSicht,
+  ZahlEingabe,
   ZahlFeld,
 } from "./gemeinsam";
 import { einheitName, stellenangabe, stellenName } from "./stellen";
@@ -328,7 +330,145 @@ function Hauptsitz({ z }: { z: Zentrale }) {
           </form>
         )}
       </article>
+      <Abteilungen z={z} />
     </section>
+  );
+}
+
+/** What a department achieves, in words (ZA2). */
+function wirkungText(a: Abteilung): string {
+  if (!a.working) {
+    return a.staff === 0
+      ? t("zentrale.keine_angestellten")
+      : t("zentrale.ohne_leitung", { bereich: t(`bereich.${a.function}`) });
+  }
+  return t(`abteilung.wirkung.${a.key}`, {
+    anzahl: formatZahl(a.reach),
+    anteil: formatProzent(a.effect * a.coverage),
+  });
+}
+
+/** The central departments: employees, head, coverage, effect and costs (ZA2). */
+function Abteilungen({ z }: { z: Zentrale }) {
+  if (z.departments.length === 0) return null;
+  return (
+    <article className="karte" aria-label={t("zentrale.abteilungen")}>
+      <h4>
+        {t("zentrale.abteilungen")}{" "}
+        <Erklaerung wert={t("zentrale.abteilungen")}>
+          <p>{t("zentrale.abteilungen_hilfe")}</p>
+          <p>{t("zentrale.abteilungen_genauigkeit")}</p>
+        </Erklaerung>
+      </h4>
+      <p className="feld-hilfe">
+        {z.employees === 0
+          ? t("zentrale.abteilungen_leer")
+          : t("zentrale.abteilungen_kosten", {
+              anzahl: formatZahl(z.employees),
+              betrag: formatGeld(z.monthly_cost_usd),
+            })}
+      </p>
+      <div className="tabelle">
+        <table className="mobil-karten" aria-label={t("zentrale.abteilungen")}>
+          <thead>
+            <tr>
+              <th>{t("zentrale.abteilung")}</th>
+              <th>{t("zentrale.leitung")}</th>
+              <th>{t("zentrale.angestellte")}</th>
+              <th>{t("zentrale.abdeckung")}</th>
+              <th>{t("zentrale.wirkung")}</th>
+              <th>{t("zentrale.kosten_monat")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {z.departments.map((a) => (
+              <AbteilungZeile key={a.kind} a={a} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  );
+}
+
+function AbteilungZeile({ a }: { a: Abteilung }) {
+  const { los } = useAktion(ORT);
+  const [anzahl, setAnzahl] = useState(zahlFeld(a.staff, 0));
+  const n = zahlLesen(anzahl);
+  const gueltig = n !== null && n >= 0 && Number.isInteger(n);
+  const name = t(`abteilung.${a.key}`);
+  return (
+    <tr>
+      <td>
+        <strong>{name}</strong>
+      </td>
+      <td data-spalte={t("zentrale.leitung")}>
+        {a.head ? (
+          <>
+            {a.head}
+            {a.head_level !== null && (
+              <small className="feld-hilfe">
+                {" "}
+                · {faehigkeitName(`fach.${a.function}`)}: {stufeText("fach", a.head_level)}
+              </small>
+            )}
+          </>
+        ) : (
+          <span className="warnung-text">
+            {t("zentrale.leitung_frei", { bereich: t(`bereich.${a.function}`) })}
+          </span>
+        )}
+        {a.release_limit_usd !== null && (
+          <small className="feld-hilfe">
+            {" "}
+            · {t("zentrale.freigabe_bis", { betrag: formatGeld(a.release_limit_usd) })}
+          </small>
+        )}
+      </td>
+      <td data-spalte={t("zentrale.angestellte")}>
+        <form
+          className="formular-zeile"
+          aria-label={t("zentrale.angestellte_von", { abteilung: name })}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!gueltig || n === null) return;
+            void los(
+              [{ StaffDepartment: { department: a.kind, staff: n } }],
+              t("zentrale.besetzt", { abteilung: name, anzahl: formatZahl(n) }),
+            );
+          }}
+        >
+          <ZahlEingabe
+            className="schmal"
+            aria-label={t("zentrale.angestellte_von", { abteilung: name })}
+            wert={anzahl}
+            onWert={setAnzahl}
+            ganzzahlig
+          />
+          <button type="submit" disabled={!gueltig || n === a.staff}>
+            {t("zentrale.festlegen")}
+          </button>
+        </form>
+      </td>
+      <td data-spalte={t("zentrale.abdeckung")}>
+        {a.staff === 0 ? "–" : formatProzent(a.coverage)}
+        <small className="feld-hilfe">
+          {" "}
+          {t("zentrale.faelle", {
+            faelle: formatZahl(a.capacity),
+            last: formatZahl(a.workload),
+          })}
+        </small>
+      </td>
+      <td data-spalte={t("zentrale.wirkung")}>{wirkungText(a)}</td>
+      <td data-spalte={t("zentrale.kosten_monat")}>
+        {formatGeld(a.monthly_cost_usd)}
+        <small className="feld-hilfe">
+          {" "}
+          {t("zentrale.je_angestelltem", { betrag: formatGeld(a.cost_per_employee_usd) })}
+        </small>
+      </td>
+    </tr>
   );
 }
 

@@ -537,9 +537,10 @@ pub fn power() -> Catalog {
 /// everybody.
 pub fn management() -> Catalog {
     use super::{
-        AiHiringModel, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel,
-        ManagerMarketModel, ManagerPoolModel, MandateModel, NameGroup, PoachingModel,
-        SatisfactionModel, SiteType, SkillModel, StrategyModel,
+        AiHiringModel, ConcernModel, Department, DepartmentKind, HitRateModel, ManagementFunction,
+        ManagementLevel, ManagementModel, ManagerMarketModel, ManagerPoolModel, MandateModel,
+        NameGroup, PoachingModel, RefinanceModel, SatisfactionModel, SiteType, SkillModel,
+        StrategyModel,
     };
     use crate::decision::Topic;
     use crate::money::Money;
@@ -575,7 +576,14 @@ pub fn management() -> Catalog {
     let board_topics: Vec<Topic> = unit_topics
         .iter()
         .copied()
-        .chain([Topic::Cash, Topic::Offer, Topic::OfferAnswer])
+        .chain([
+            Topic::Cash,
+            Topic::Offer,
+            Topic::OfferAnswer,
+            Topic::License,
+            Topic::Refinance,
+            Topic::SalaryRound,
+        ])
         .collect();
     let level = |key: &str, check_days, (salary_specialist, salary_head), topics: &[Topic]| {
         ManagementLevel {
@@ -587,7 +595,7 @@ pub fn management() -> Catalog {
             budget_head: (0.05, 0.10),
             specialists: match key {
                 "standort" => Vec::new(),
-                "vorstand" => vec![0, 1, 2, 3, 4, 5],
+                "vorstand" => vec![0, 1, 2, 3, 4, 5, 6, 7],
                 _ => vec![0, 1, 2, 3, 4],
             },
             topics: topics.to_vec(),
@@ -609,12 +617,14 @@ pub fn management() -> Catalog {
             ),
             function("einkauf_lager", vec![Topic::Purchase, Topic::OwnSupply]),
             function("vertrieb_marketing", vec![Topic::Sale, Topic::Advertising]),
-            function("personal", vec![Topic::Wage, Topic::Poaching]),
-            function("forschung", vec![Topic::Research, Topic::Development]),
             function(
-                "finanzen",
-                vec![Topic::Cash, Topic::Offer, Topic::OfferAnswer],
+                "personal",
+                vec![Topic::Wage, Topic::Poaching, Topic::SalaryRound],
             ),
+            function("forschung", vec![Topic::Research, Topic::Development]),
+            function("finanzen", vec![Topic::Cash, Topic::Refinance]),
+            function("strategie", vec![Topic::Offer, Topic::OfferAnswer]),
+            function("recht", vec![Topic::License]),
         ],
         levels: vec![
             level("standort", 7, (1.5, 2.5), &site_topics),
@@ -633,7 +643,7 @@ pub fn management() -> Catalog {
             Topic::OwnSupply,
             Topic::Wage,
         ],
-        rule_topics: vec![Topic::Cash, Topic::Advertising],
+        rule_topics: vec![Topic::Cash, Topic::Advertising, Topic::SalaryRound],
         budget_floor: (1.0, 3.0),
         concerns: ConcernModel {
             deadline_days: 30,
@@ -706,6 +716,34 @@ pub fn management() -> Catalog {
             impression_blur: 15.0,
         },
         provenance: Provenance::default(),
+    };
+    // Central departments (ZA2, ZA3), headed by the board's specialists above.
+    let academic = c.labor_groups.id("fachkraft.metall").expect("test group");
+    let department = |kind, function, (cases, effect)| Department {
+        kind,
+        function,
+        labor_group: academic,
+        office: Money::from_usd(15_000.0).expect("valid"),
+        cases,
+        effect,
+    };
+    c.central.departments = vec![
+        department(DepartmentKind::Strategy, 6, (2.0, 0.0)),
+        department(DepartmentKind::Finance, 5, (4.0, 0.4)),
+        department(DepartmentKind::Personnel, 3, (15.0, 0.5)),
+        department(DepartmentKind::Legal, 7, (3.0, 0.0)),
+        department(DepartmentKind::Marketing, 2, (5.0, 0.3)),
+    ];
+    c.central.accuracy = 0.5;
+    c.central.refinance = RefinanceModel {
+        min_advantage: 0.01,
+        fee: 0.01,
+    };
+    c.central.hit_rate = HitRateModel {
+        months: 12,
+        mean: 0.5,
+        prior: 4.0,
+        k: 2.0,
     };
     let names = |list: &[&str]| list.iter().map(|n| (*n).to_owned()).collect::<Vec<_>>();
     c.name_groups = vec![NameGroup {

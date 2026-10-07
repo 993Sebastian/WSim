@@ -473,6 +473,12 @@ pub fn management_topic_without_function(topic: &str) -> String {
     )
 }
 
+pub fn department_not_on_board(department: &str, function: &str) -> String {
+    format!(
+        "Abteilung „{department}“: Bereich „{function}“ ist kein Ressort des Vorstands (Ebene vorstand, fachstellen) – die Abteilung hätte keine Leitung."
+    )
+}
+
 pub fn management_satisfaction_bands(low: u8, mid: u8) -> String {
     format!(
         "Die Stufen der Zufriedenheit steigen: „unzufrieden“ bis {low} darf nicht über „gemischt“ bis {mid} liegen."

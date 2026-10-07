@@ -829,6 +829,7 @@ pub(crate) fn answer_offer(
                     offer.price,
                 ),
             };
+            crate::central::count_purchase(state, offer.buyer, offer.price);
             let o = &mut state.offers[index];
             o.status = OfferStatus::Accepted;
             o.closed = Some(today);
@@ -1576,6 +1577,7 @@ fn auction_site(
                 describe(m, state, catalog, seller, object).with("preis", Param::Money(price))
             }));
             hand_over(state, catalog, buyer, seller, site, price);
+            crate::central::count_purchase(state, buyer, price);
         }
         None => crate::ai::give_up_site(state, site),
     }
@@ -1700,6 +1702,52 @@ pub(crate) fn best_deal_for(
     buyer: CompanyId,
     mandate: Option<&crate::mandate::Mandate>,
 ) -> Option<(DealObject, CompanyId, Money)> {
+    deals_for(state, catalog, buyer, mandate, &Search::all())
+        .first()
+        .map(|d| (d.object, d.seller, d.price))
+}
+
+/// What a search for deals covers (ZA2): sites and areas, licences, and beyond the AI's
+/// rule the countries a strategy department observes and the technologies a legal
+/// department checks.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub(crate) struct Search {
+    pub objects: bool,
+    pub licenses: bool,
+    pub countries: Vec<CountryId>,
+    pub technologies: Vec<TechnologyId>,
+}
+
+impl Search {
+    /// Everything the AI's rule looks at.
+    pub fn all() -> Self {
+        Self {
+            objects: true,
+            licenses: true,
+            ..Self::default()
+        }
+    }
+}
+
+/// A deal found by the rules: the price they bid and the most they would pay (the value
+/// of the object to the buyer).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) struct Deal {
+    pub object: DealObject,
+    pub seller: CompanyId,
+    pub price: Money,
+    pub value: Money,
+}
+
+/// The deals by the AI's rule, best first: those of a mandate's leading group, then the
+/// most room per dollar – small but attractive objects count as much as large ones.
+pub(crate) fn deals_for(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: CompanyId,
+    mandate: Option<&crate::mandate::Mandate>,
+    search: &Search,
+) -> Vec<Deal> {
     let model = &catalog.deal_model;
     let ai = &model.ai;
     let (_, aggressiveness) = crate::ai::traits(catalog, state, buyer);
@@ -1732,6 +1780,7 @@ pub(crate) fn best_deal_for(
         .map(|s| s.country)
         .collect();
     countries.insert(company.headquarters);
+    countries.extend(search.countries.iter().copied());
 
     let first = mandate.and_then(crate::mandate::Mandate::first_group);
     let leading = |object: DealObject| match (first, object) {
@@ -1739,10 +1788,9 @@ pub(crate) fn best_deal_for(
         (Some(g), DealObject::Area(group)) => group == g,
         _ => false,
     };
-    // The deal with the most room per dollar: small but attractive objects count as
-    // much as large ones; a mandate's leading group first.
-    let mut best: Option<(bool, f64, DealObject, CompanyId, Money)> = None;
-    let mut consider = |room: Money, object: DealObject, seller: CompanyId, price: Money| {
+    let mut found: Vec<(bool, f64, Deal)> = Vec::new();
+    let mut consider = |value: Money, object: DealObject, seller: CompanyId, price: Money| {
+        let room = value - price;
         if price < min_price || price > budget || room <= Money::ZERO || price <= Money::ZERO {
             return;
         }
@@ -1751,14 +1799,16 @@ pub(crate) fn best_deal_for(
         {
             return;
         }
-        let lead = leading(object);
-        let score = room.to_usd() / price.to_usd();
-        if best
-            .as_ref()
-            .is_none_or(|b| (lead && !b.0) || (lead == b.0 && score > b.1))
-        {
-            best = Some((lead, score, object, seller, price));
-        }
+        found.push((
+            leading(object),
+            room.to_usd() / price.to_usd(),
+            Deal {
+                object,
+                seller,
+                price,
+                value,
+            },
+        ));
     };
 
     let business = business(state, catalog, buyer);
@@ -1767,117 +1817,144 @@ pub(crate) fn best_deal_for(
             && !state.companies[seller.index()].bankrupt
             && !(seller == player && player_full)
     };
-    for (i, s) in state.sites.iter().enumerate() {
-        let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
-        let seller = s.owner;
-        if !available(seller)
-            || !countries.contains(&s.country)
-            || age_months(state, site) < model.min_age_months
-            || taken(seller, DealObject::Site(site))
-        {
-            continue;
-        }
-        let Some(SiteBid {
-            bid: mut price,
-            highest,
-            anew,
-        }) = ai_site_bid(state, catalog, buyer, &business, site)
-        else {
-            continue;
-        };
-        // An owner gives up a site it needs only for what a new one would cost.
-        if needed_by_owner(state, catalog, site) {
-            if highest < anew {
+    if search.objects {
+        for (i, s) in state.sites.iter().enumerate() {
+            let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+            let seller = s.owner;
+            if !available(seller)
+                || !countries.contains(&s.country)
+                || age_months(state, site) < model.min_age_months
+                || taken(seller, DealObject::Site(site))
+            {
                 continue;
             }
-            price = price.max(anew);
+            let Some(SiteBid {
+                bid: mut price,
+                highest,
+                anew,
+            }) = ai_site_bid(state, catalog, buyer, &business, site)
+            else {
+                continue;
+            };
+            // An owner gives up a site it needs only for what a new one would cost.
+            if needed_by_owner(state, catalog, site) {
+                if highest < anew {
+                    continue;
+                }
+                price = price.max(anew);
+            }
+            consider(highest, DealObject::Site(site), seller, price);
         }
-        consider(highest - price, DealObject::Site(site), seller, price);
+
+        // Areas (M31): with at least two sites or a brand – else it is the single site –
+        // and a site in one of the buyer's countries.
+        let mut areas: std::collections::BTreeMap<(CompanyId, GoodsGroupId), Vec<SiteId>> =
+            std::collections::BTreeMap::new();
+        for (i, s) in state.sites.iter().enumerate() {
+            if !area_kind(s.kind) || !available(s.owner) {
+                continue;
+            }
+            let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
+            for group in site_groups(state, catalog, site) {
+                areas.entry((s.owner, group)).or_default().push(site);
+            }
+        }
+        for ((seller, group), sites) in areas {
+            let object = DealObject::Area(group);
+            let brand = brand_value(state, catalog, seller, group);
+            if (sites.len() < 2 && brand <= Money::ZERO)
+                || !sites
+                    .iter()
+                    .any(|s| countries.contains(&state.sites[s.index()].country))
+                || sites
+                    .iter()
+                    .all(|&s| age_months(state, s) < model.min_age_months)
+                || taken(seller, object)
+            {
+                continue;
+            }
+            let value = area_value_of(state, catalog, seller, group, &sites);
+            if value.base <= Money::ZERO {
+                continue;
+            }
+            let adv = advantages_for(
+                state,
+                catalog,
+                buyer,
+                &business,
+                &sites,
+                value.base,
+                value.new_build,
+            );
+            if adv.total() < ai.min_advantage {
+                continue;
+            }
+            let highest = value.base.scale(1.0 + adv.total());
+            let price = value
+                .base
+                .scale(1.0 + ai.bid_markup.at(aggressiveness))
+                .min(highest);
+            consider(highest, object, seller, price);
+        }
     }
 
-    // Areas (M31): with at least two sites or a brand – else it is the single site – and
-    // a site in one of the buyer's countries.
-    let mut areas: std::collections::BTreeMap<(CompanyId, GoodsGroupId), Vec<SiteId>> =
-        std::collections::BTreeMap::new();
-    for (i, s) in state.sites.iter().enumerate() {
-        if !area_kind(s.kind) || !available(s.owner) {
-            continue;
-        }
-        let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
-        for group in site_groups(state, catalog, site) {
-            areas.entry((s.owner, group)).or_default().push(site);
+    // Licences for what the company is researching, and what a legal department checks,
+    // from the first company that knows it.
+    if search.licenses {
+        let researching: BTreeSet<TechnologyId> = company
+            .research
+            .keys()
+            .copied()
+            .chain(
+                state
+                    .sites
+                    .iter()
+                    .filter(|s| s.owner == buyer)
+                    .filter_map(|s| s.research),
+            )
+            .chain(search.technologies.iter().copied())
+            .collect();
+        for t in researching {
+            let object = DealObject::License(t);
+            if state.knows(catalog, buyer, t) {
+                continue;
+            }
+            let Some(seller) = (0..state.companies.len())
+                .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+                .find(|&id| available(id) && state.knows(catalog, id, t) && !taken(id, object))
+            else {
+                continue;
+            };
+            let Some(value) = license_value(state, catalog, buyer, t) else {
+                continue;
+            };
+            let price = value.scale(ai.license_bid.at(aggressiveness));
+            let highest = value.scale(ai.license_max);
+            consider(highest, object, seller, price);
         }
     }
-    for ((seller, group), sites) in areas {
-        let object = DealObject::Area(group);
-        let brand = brand_value(state, catalog, seller, group);
-        if (sites.len() < 2 && brand <= Money::ZERO)
-            || !sites
-                .iter()
-                .any(|s| countries.contains(&state.sites[s.index()].country))
-            || sites
-                .iter()
-                .all(|&s| age_months(state, s) < model.min_age_months)
-            || taken(seller, object)
-        {
-            continue;
-        }
-        let value = area_value_of(state, catalog, seller, group, &sites);
-        if value.base <= Money::ZERO {
-            continue;
-        }
-        let adv = advantages_for(
-            state,
-            catalog,
-            buyer,
-            &business,
-            &sites,
-            value.base,
-            value.new_build,
-        );
-        if adv.total() < ai.min_advantage {
-            continue;
-        }
-        let highest = value.base.scale(1.0 + adv.total());
-        let price = value
-            .base
-            .scale(1.0 + ai.bid_markup.at(aggressiveness))
-            .min(highest);
-        consider(highest - price, object, seller, price);
-    }
+    // Stable: among equals the first found stays first.
+    found.sort_by(|a, b| {
+        b.0.cmp(&a.0)
+            .then(b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal))
+    });
+    found.into_iter().map(|(_, _, d)| d).collect()
+}
 
-    // Licences for what the company is researching, from the first company that knows it.
-    let researching: BTreeSet<TechnologyId> = company
-        .research
-        .keys()
-        .copied()
-        .chain(
-            state
-                .sites
-                .iter()
-                .filter(|s| s.owner == buyer)
-                .filter_map(|s| s.research),
-        )
-        .collect();
-    for t in researching {
-        let object = DealObject::License(t);
-        if state.knows(catalog, buyer, t) {
-            continue;
-        }
-        let Some(seller) = (0..state.companies.len())
-            .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
-            .find(|&id| available(id) && state.knows(catalog, id, t) && !taken(id, object))
-        else {
-            continue;
-        };
-        let Some(value) = license_value(state, catalog, buyer, t) else {
-            continue;
-        };
-        let price = value.scale(ai.license_bid.at(aggressiveness));
-        let highest = value.scale(ai.license_max);
-        consider(highest - price, object, seller, price);
+/// The topic of a deal (ZA2): licences are for the legal department.
+pub fn deal_topic(object: DealObject) -> crate::decision::Topic {
+    match object {
+        DealObject::License(_) => crate::decision::Topic::License,
+        _ => crate::decision::Topic::Offer,
     }
-    best.map(|(_, _, object, seller, price)| (object, seller, price))
+}
+
+/// The topic of answering an offer (ZA2).
+pub fn answer_topic(object: DealObject) -> crate::decision::Topic {
+    match object {
+        DealObject::License(_) => crate::decision::Topic::License,
+        _ => crate::decision::Topic::OfferAnswer,
+    }
 }
 
 /// An AI company's monthly look for a deal (docs/FORMELN.md, M30). Returns the news for
@@ -2000,7 +2077,7 @@ fn board_offer(
     (seller, object, price): (CompanyId, DealObject, Money),
     decider: &mut dyn crate::decision::Decider,
 ) -> Option<Message> {
-    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    use crate::decision::{Choice, ChoiceKind, Decision};
     let command = Command::MakeOffer {
         seller,
         object,
@@ -2008,7 +2085,7 @@ fn board_offer(
     };
     let decided = crate::decision::decided(decider, state, catalog, |_| {
         Decision::new(
-            Topic::Offer,
+            deal_topic(object),
             buyer,
             Choice::one(ChoiceKind::Offer, command.clone()),
         )
@@ -2031,15 +2108,30 @@ fn board_offer(
     ))
 }
 
-/// The offers of a company's board at its check (docs/FORMELN.md, MA5): bids in the
-/// auctions of insolvent companies, then the best deal by the AI's rule without its
-/// chance, each put to the positions while the company has fewer open offers than the
-/// AI may. Returns the news for the player.
+/// What the board's check covers (docs/FORMELN.md, MA5, ZA2): the topics its positions
+/// noticed, what the departments add to the search and how many cases each kind may
+/// take.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub(crate) struct BoardPlan {
+    /// Takeovers: sites, areas and auctions.
+    pub offers: bool,
+    pub licenses: bool,
+    pub countries: Vec<CountryId>,
+    pub technologies: Vec<TechnologyId>,
+    pub offer_cases: usize,
+    pub license_cases: usize,
+}
+
+/// The offers of a company's board at its check (docs/FORMELN.md, MA5, ZA2): bids in the
+/// auctions of insolvent companies, then the best takeovers and the best licences by the
+/// AI's rule without its chance, each put to the positions while the company has fewer
+/// open offers than the AI may. Returns the news for the player.
 pub(crate) fn board_offers(
     state: &mut GameState,
     catalog: &Catalog,
     buyer: CompanyId,
     decider: &mut dyn crate::decision::Decider,
+    plan: &BoardPlan,
 ) -> Vec<Message> {
     let open_max = catalog.deal_model.ai.open_max;
     let full = |state: &GameState| {
@@ -2051,24 +2143,52 @@ pub(crate) fn board_offers(
         u32::try_from(open).unwrap_or(u32::MAX) >= open_max
     };
     let mut out = Vec::new();
-    for bid in auction_candidates(state, catalog, buyer) {
-        if full(state) {
-            return out;
+    if plan.offers {
+        for bid in auction_candidates(state, catalog, buyer) {
+            if full(state) {
+                return out;
+            }
+            out.extend(board_offer(state, catalog, buyer, bid, decider));
         }
-        out.extend(board_offer(state, catalog, buyer, bid, decider));
-    }
-    if full(state) {
-        return out;
     }
     let mandate = state.companies[buyer.index()].mandate.clone();
-    if let Some((object, seller, price)) = best_deal_for(state, catalog, buyer, Some(&mandate)) {
-        out.extend(board_offer(
-            state,
-            catalog,
-            buyer,
-            (seller, object, price),
-            decider,
-        ));
+    let searches = [
+        (
+            plan.offers,
+            Search {
+                objects: true,
+                countries: plan.countries.clone(),
+                ..Search::default()
+            },
+            plan.offer_cases,
+        ),
+        (
+            plan.licenses,
+            Search {
+                licenses: true,
+                technologies: plan.technologies.clone(),
+                ..Search::default()
+            },
+            plan.license_cases,
+        ),
+    ];
+    for (noticed, search, cases) in searches {
+        if !noticed {
+            continue;
+        }
+        let deals = deals_for(state, catalog, buyer, Some(&mandate), &search);
+        for d in deals.into_iter().take(cases) {
+            if full(state) {
+                return out;
+            }
+            out.extend(board_offer(
+                state,
+                catalog,
+                buyer,
+                (d.seller, d.object, d.price),
+                decider,
+            ));
+        }
     }
     out
 }
@@ -2081,7 +2201,7 @@ fn answer_decision(
     company: CompanyId,
     offer: &Offer,
 ) -> crate::decision::Decision {
-    use crate::decision::{Choice, ChoiceKind, Decision, Topic};
+    use crate::decision::{Choice, ChoiceKind, Decision};
     let rule = ai_answer(state, catalog, offer);
     let choice = |answer: OfferAnswer| {
         let kind = match answer {
@@ -2107,7 +2227,7 @@ fn answer_decision(
     others.push(OfferAnswer::Decline);
     let same = |a: &OfferAnswer| std::mem::discriminant(a) == std::mem::discriminant(&rule);
     others.into_iter().filter(|a| !same(a)).fold(
-        Decision::new(Topic::OfferAnswer, company, choice(rule)),
+        Decision::new(answer_topic(offer.object), company, choice(rule)),
         |d, a| d.or(choice(a)),
     )
 }
@@ -2121,12 +2241,17 @@ pub(crate) fn board_answers(
     catalog: &Catalog,
     company: CompanyId,
     decider: &mut dyn crate::decision::Decider,
+    (offers, licenses): (bool, bool),
 ) -> Vec<Message> {
     let today = state.date;
     let due: Vec<u32> = state
         .offers
         .iter()
         .filter(|o| o.status == OfferStatus::Open && o.answering() == company && o.date < today)
+        .filter(|o| match o.object {
+            DealObject::License(_) => licenses,
+            _ => offers,
+        })
         .map(|o| o.id)
         .collect();
     let mut out = Vec::new();

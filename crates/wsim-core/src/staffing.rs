@@ -110,11 +110,24 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
 /// A point of expertise in the function of the job, with a chance, up to the potential.
 fn experience(state: &mut GameState, catalog: &Catalog, streams: &mut Streams) {
     let chance = catalog.management.market.experience_chance;
+    // Training by a personnel department (ZA2).
+    let trained: BTreeMap<CompanyId, f64> = (0..state.companies.len())
+        // Few companies; the cast is exact.
+        .map(|i| CompanyId(i as u32))
+        .filter(|&c| !state.companies[c.index()].departments.is_empty())
+        .map(|c| {
+            (
+                c,
+                crate::central::experience_chance(catalog, state, c, chance),
+            )
+        })
+        .collect();
     for (&id, m) in &mut state.managers {
         let Some(job) = &m.job else {
             continue;
         };
-        let gains = streams.of(id).chance(chance);
+        let p = trained.get(&job.company).copied().unwrap_or(chance);
+        let gains = streams.of(id).chance(p);
         let function = job_function(m, job).to_owned();
         let cap = m.potential.unwrap_or(100);
         if let Some(x) = m

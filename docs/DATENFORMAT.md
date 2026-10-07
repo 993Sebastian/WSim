@@ -444,7 +444,15 @@ bis zum nächsten Monatsanfang.
 | Feld | Bedeutung |
 |---|---|
 | **hauptsitz** | `verlegung_monate` (0–60), `kosten_grund_usd` und `kosten_je_angestelltem_usd` (≥ 0, USD Kaufkraft 2026), `mitziehen` (0–1: Anteil der Angestellten der Zentrale, der beim Umzug mitkommt) |
+| abteilungen | Liste der Zentralabteilungen (ZA2): `id` (`strategie`, `finanzen`, `personal`, `recht` oder `marketing`, je höchstens einmal – was sie tut, steht im Kern), `bereich` (ein Bereich aus `management`, der unter den Fachstellen der Ebene `vorstand` steht: das Ressort, dessen Manager die Abteilung leitet), `lohngruppe` (Arbeitskräftegruppe der Angestellten, Lohn im Land des Hauptsitzes), `buero_usd` (≥ 0: Bürokosten je Angestelltem und Jahr), `faelle` (≥ 0: was ein Angestellter im Monat bearbeitet), `wirkung` (0–1: Wirkung bei voller Güte und Abdeckung). Ohne Liste gibt es keine Abteilungen. |
+| genauigkeit | 0–1: so viel kleiner werden Schätzfehler einer voll ausgestatteten Abteilung, und so viel der Lücke zum vollen Urteilsvermögen schließt sie (ZA2) |
+| umschuldung | `mindestvorteil` (0–1, absolut: ab diesem Zinsvorteil lohnt ein neuer Kredit) und `gebuehr` (0–1: Anteil der Restschuld) (ZA3) |
+| trefferquote | `bewertung_monate` (1–120), `mittelwert` (0–1), `vorgewicht` (≥ 0: Fälle, mit denen der Mittelwert zählt), `k` (0–10: Exponent der Gehaltsforderung) (ZA3) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
+
+Die Bereiche `strategie` (Themen `kaufangebot`, `antwort`) und `recht` (Thema `lizenz`)
+stehen in `management.yaml` als Ressorts des Vorstands; ihre Texte `bereich.<id>` in der
+Oberfläche, die der Abteilungen unter `abteilung.<id>`.
 
 ## produktnamen
 

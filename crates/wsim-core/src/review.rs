@@ -321,7 +321,7 @@ fn proposals(
     let offer = crate::deals::best_deal_for(state, catalog, company, Some(&c.mandate)).map(
         |(object, seller, price)| {
             Decision::new(
-                Topic::Offer,
+                crate::deals::deal_topic(object),
                 company,
                 Choice::one(
                     ChoiceKind::Offer,

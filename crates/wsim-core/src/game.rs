@@ -185,6 +185,8 @@ impl Game {
             mandate: crate::mandate::Mandate::default(),
             reviews: Vec::new(),
             relocation: None,
+            departments: Default::default(),
+            participations: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -422,6 +424,7 @@ impl Game {
         self.state.date = next;
         if next.day() == 1 {
             crate::management::month_end(&mut self.state, today);
+            crate::central::month_end(&mut self.state, &self.catalog);
             finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);

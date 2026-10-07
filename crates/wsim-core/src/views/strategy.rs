@@ -126,6 +126,8 @@ pub struct StrategyView {
     pub sale_products: Vec<SaleProductView>,
     /// Countries of its sites and rules, in the order of the data.
     pub sale_countries: Vec<String>,
+    /// The policy „Beteiligungen“ (ZA2).
+    pub participations: super::ParticipationsView,
 }
 
 fn unit_text(catalog: &Catalog, product: ProductId) -> String {
@@ -432,5 +434,6 @@ pub fn strategy(game: &Game) -> StrategyView {
         sales,
         sale_products,
         sale_countries,
+        participations: super::participations(game),
     }
 }

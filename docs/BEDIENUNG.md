@@ -257,7 +257,17 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Manager im Sitzland; Formular „Hauptsitz verlegen“ mit Auswahl „Neues Land“ (je Land
   Steuer und Lohn, nach Namen sortiert), Kosten, Dauer und Anteil der Angestellten, der
   mitzieht. Während des Umzugs steht dort „Umzug nach … läuft – der neue Sitz gilt zum
-  Monatsanfang ab …“; der Rundenbericht meldet den Abschluss.
+  Monatsanfang ab …“; der Rundenbericht meldet den Abschluss und wie viele Angestellte nicht
+  mitgezogen sind.
+- **Zentralabteilungen (ZA2):** Darunter die Karte „Zentralabteilungen“ (ⓘ: was jede tut,
+  dass sie nur mit Leitung arbeitet und auch ohne Arbeit kostet, wie die Abdeckung die
+  Genauigkeit der Leitung hebt) mit der Summe „n Angestellte kosten zusammen … im Monat“ und
+  einer Tabelle je Abteilung: Leitung (Name und Fachkompetenz als Stufe, sonst „Leitung frei
+  – im Vorstand „…“ besetzen“, ggf. „entscheidet bis … allein“), Angestellte (Zahlenfeld
+  und „Festlegen“), Abdeckung (z. B. „100 % (4 Fälle für 1 im Monat)“), Wirkung in Worten
+  („Senkt den Risikoaufschlag neuer Kredite um bis zu 24 %“, „Beobachtet 2 weitere Länder
+  nach Übernahmezielen“ …) und Kosten im Monat mit den Kosten je Angestelltem. Frage: „Lohnt
+  sich die Zentrale schon, und arbeitet sie?“
 - **Abwerbung (MA6):** Will eine KI-Firma einen Manager abwerben, kommt ein Anliegen
   „Abwerbung“ (wichtig) der Personalstelle seiner Einheit, sonst der nächsten darüber, sonst
   des Managers selbst: „Gegenangebot“ (Gehalt auf das Angebot, er bleibt zufrieden) oder
@@ -332,6 +342,15 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Firmen), Land und Produkt (je „alle“ oder eines der eigenen), Kaufen erlaubt/gesperrt,
   Mindestpreis in der angezeigten Währung je Einheit und Höchstmenge im Monat (leer: keine
   Grenze).
+- **Beteiligungen (ZA2, in der Strategie):** Abschnitt „Beteiligungen“ (ⓘ: wofür Budget
+  und Freigabegrenzen gelten, Risikobereitschaft für Start-ups) mit „In diesem Jahr gekauft:
+  …; offene Gebote: …. Übrig: …“ und einem Formular: „Budget im Jahr“ (leer: ohne
+  Grenze), „Risikobereitschaft“ in %, darunter „Freigabegrenzen der Zentralabteilungen“ je
+  Abteilung (leer: nur ihr Budget je Entscheidung), „Beteiligungen festlegen“. Werte
+  außerhalb der Grenzen meldet das Formular vor dem Senden. Reicht das Budget oder die
+  Freigabegrenze nicht, kommt ein Anliegen mit dem Grund „Das Budget für Beteiligungen
+  reicht in diesem Jahr nicht mehr (übrig: …)“ bzw. „Kostet mehr als die Freigabegrenze der
+  Abteilung (…)“.
 - **Anliegen wegen Vorgaben (MA4):** „Danach läge die Kasse unter der Liquiditätsreserve
   (…)“ oder „Das Investitionsbudget (Deutschland) reicht nicht mehr (übrig: …)“.
 - **Vorstand (MA5):** Über den Kontinenten eine Karte „Vorstand“ (Hinweis: was CEO und

@@ -213,6 +213,20 @@ pub enum Command {
     LetGo { manager: ManagerId },
     /// Moves the headquarters to another country (ZA1).
     SetHeadquarters { country: CountryId },
+    /// Sets the number of employees of a central department (ZA2).
+    StaffDepartment {
+        department: crate::catalog::DepartmentKind,
+        staff: u32,
+    },
+    /// The policy on takeovers, licences and start-ups (ZA2).
+    SetParticipations {
+        budget: Option<Money>,
+        risk: f64,
+        limits: std::collections::BTreeMap<crate::catalog::DepartmentKind, Money>,
+    },
+    /// Replaces a loan by a new one at today's rate for its balance and the months left
+    /// (ZA3).
+    RefinanceLoan { loan: usize },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -402,6 +416,12 @@ pub enum CommandError {
     RelocationUnderWay {
         until: Date,
     },
+    /// No such central department in the data (ZA2).
+    UnknownDepartment,
+    /// Budget or limits below zero, or the readiness for risks beyond 0–1 (ZA2).
+    InvalidParticipations,
+    /// A new loan would not be cheaper (ZA3).
+    NoAdvantage,
 }
 
 impl CommandError {
@@ -520,6 +540,9 @@ impl CommandError {
             CommandError::RelocationUnderWay { until } => {
                 e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
             }
+            CommandError::UnknownDepartment => e(keys::COMMAND_UNKNOWN_DEPARTMENT),
+            CommandError::InvalidParticipations => e(keys::COMMAND_INVALID_PARTICIPATIONS),
+            CommandError::NoAdvantage => e(keys::COMMAND_NO_ADVANTAGE),
         }
     }
 }
@@ -793,6 +816,19 @@ fn run(
         }
         Command::SetHeadquarters { country } => {
             crate::central::set_headquarters(state, catalog, actor, *country)?;
+        }
+        Command::StaffDepartment { department, staff } => {
+            crate::central::staff_department(state, catalog, actor, *department, *staff)?;
+        }
+        Command::SetParticipations {
+            budget,
+            risk,
+            limits,
+        } => {
+            crate::central::set_participations(state, catalog, actor, (*budget, *risk), limits)?;
+        }
+        Command::RefinanceLoan { loan } => {
+            crate::central::refinance(state, catalog, actor, *loan)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {
@@ -1100,12 +1136,13 @@ fn run(
             if *years == 0 || *years > max {
                 return Err(CommandError::InvalidTerm { max });
             }
+            let cut = crate::central::premium_cut(catalog, state, actor);
             let company = state.company_mut(actor).expect("checked above");
             let limit = crate::finance::credit_limit(catalog, company);
             if *amount > limit {
                 return Err(CommandError::LoanTooLarge { limit });
             }
-            crate::finance::grant_loan(catalog, company, *amount, *years, today);
+            crate::finance::grant_loan(catalog, company, (*amount, *years), today, cut);
         }
         Command::RepayLoan { loan, amount } => {
             if *amount <= Money::ZERO {

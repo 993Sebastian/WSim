@@ -54,7 +54,20 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         .ids()
         .map(|c| reach_usd(state, catalog, c))
         .collect();
+    // A marketing department strengthens advertising (ZA2): the effect × (1 + W).
+    let boost: Vec<f64> = (0..state.companies.len())
+        // Few companies; the cast is exact.
+        .map(|i| {
+            crate::central::strength(
+                catalog,
+                state,
+                crate::state::CompanyId(i as u32),
+                crate::catalog::DepartmentKind::Marketing,
+            )
+        })
+        .collect();
     for (index, company) in state.companies.iter_mut().enumerate() {
+        let effect = effect * (1.0 + boost[index]);
         if company.bankrupt {
             company.advertising.clear();
             continue;

@@ -163,6 +163,8 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Debt => "verschuldung",
         ConcernReason::Proposal => "antrag",
         ConcernReason::Poaching => "abwerbung",
+        ConcernReason::Limit => "freigabe",
+        ConcernReason::Participations => "beteiligung",
     }
 }
 
@@ -515,6 +517,13 @@ fn strategy_limit(
                 .max_debt
                 .unwrap_or(1.0);
             (Some(crate::mandate::loan_room(state, c.company, max)), None)
+        }
+        ConcernReason::Limit => (
+            crate::central::release_limit(catalog, state, c.company, management::asker(c)),
+            None,
+        ),
+        ConcernReason::Participations => {
+            (crate::central::participations_left(state, c.company), None)
         }
         _ => (None, None),
     }

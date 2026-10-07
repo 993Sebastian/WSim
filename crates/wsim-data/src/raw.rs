@@ -1801,6 +1801,14 @@ pub struct RawCurrencyPeriod {
 pub struct RawCentral {
     #[serde(rename = "hauptsitz")]
     pub headquarters: RawHeadquarters,
+    #[serde(rename = "abteilungen", default)]
+    pub departments: Vec<RawDepartment>,
+    #[serde(rename = "genauigkeit", default)]
+    pub accuracy: f64,
+    #[serde(rename = "umschuldung", default)]
+    pub refinance: Option<RawRefinance>,
+    #[serde(rename = "trefferquote", default)]
+    pub hit_rate: Option<RawHitRate>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -1818,4 +1826,41 @@ pub struct RawHeadquarters {
     pub cost_per_employee_usd: f64,
     #[serde(rename = "mitziehen")]
     pub moving_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDepartment {
+    pub id: String,
+    #[serde(rename = "bereich")]
+    pub function: String,
+    #[serde(rename = "lohngruppe")]
+    pub labor_group: String,
+    #[serde(rename = "buero_usd")]
+    pub office_usd: f64,
+    #[serde(rename = "faelle")]
+    pub cases: f64,
+    #[serde(rename = "wirkung")]
+    pub effect: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRefinance {
+    #[serde(rename = "mindestvorteil")]
+    pub min_advantage: f64,
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHitRate {
+    #[serde(rename = "bewertung_monate")]
+    pub months: u32,
+    #[serde(rename = "mittelwert")]
+    pub mean: f64,
+    #[serde(rename = "vorgewicht")]
+    pub prior: f64,
+    pub k: f64,
 }
