@@ -1323,3 +1323,200 @@ fn ai_companies_keep_contested_projects_in_house() {
     let p = view.spin_offs.iter().find(|p| p.site == own_lab.0).unwrap();
     assert_eq!(p.rivals, 1);
 }
+
+fn offer(game: &mut Game, minimum: Option<f64>) -> Result<(), CommandError> {
+    game.apply(Command::OfferVentureStake {
+        venture: 0,
+        minimum: minimum.map(usd),
+    })
+}
+
+#[test]
+fn companies_bid_for_a_stake_offered_to_them() {
+    let mut game = waiting_round();
+    invest(&mut game, 120_000.0).unwrap();
+    let me = CompanyId(0);
+    let rival = ai_rival(&mut game, 10_000_000.0);
+    let catalog = game.catalog().clone();
+    // Worth 240 000 after the round: half is 120 000 (investors would pay 96 000); the
+    // rival bids 20 % more, well below what it expects (sure phases).
+    let v = venture(&game, 0).clone();
+    assert_eq!(
+        ventures::stake_bid(&catalog, game.state(), rival, &v, 0.5),
+        Some(usd(144_000.0))
+    );
+    assert_eq!(
+        ventures::stake_bid(&catalog, game.state(), me, &v, 0.5),
+        None
+    );
+    assert_eq!(offer(&mut game, Some(0.0)), Err(CommandError::InvalidPrice));
+    // Too high a minimum: the player learns the best bid, the stake stays.
+    offer(&mut game, Some(150_000.0)).unwrap();
+    assert_eq!(venture(&game, 0).sales, vec![(me, usd(150_000.0))]);
+    let keys = until(&mut game, date(1900, 3, 2));
+    assert!(
+        keys.iter().any(|k| k == keys::VENTURE_STAKE_BEST_BID),
+        "{keys:?}"
+    );
+    assert!((ventures::share_of(venture(&game, 0), me) - 0.5).abs() < 1e-12);
+    assert!(venture(&game, 0).sales.is_empty(), "the offer ended");
+    // Withdrawn before the month start, nothing happens.
+    offer(&mut game, Some(100_000.0)).unwrap();
+    offer(&mut game, None).unwrap();
+    assert!(venture(&game, 0).sales.is_empty());
+    // From a lower minimum the best bid buys at its price.
+    offer(&mut game, Some(100_000.0)).unwrap();
+    let keys = until(&mut game, date(1900, 4, 1));
+    assert!(
+        keys.iter().any(|k| k == keys::VENTURE_STAKE_SOLD),
+        "{keys:?}"
+    );
+    let v = venture(&game, 0).clone();
+    assert_eq!(ventures::share_of(&v, me), 0.0);
+    assert!((ventures::share_of(&v, rival) - 0.5).abs() < 1e-12);
+    assert_eq!(ventures::amount_of(&v.book, rival), usd(144_000.0));
+    assert_eq!(ventures::amount_of(&v.book, me), Money::ZERO);
+    // The player's book of 120 000 leaves; 24 000 are a gain.
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert_eq!(by_type(&game, CostType::Investments), usd(24_000.0));
+    // The rival's financial assets hold the purchase besides its pledges elsewhere.
+    let r = &game.state().companies[rival.index()];
+    let held: Money = game
+        .state()
+        .ventures
+        .iter()
+        .map(|v| ventures::amount_of(&v.book, rival))
+        .sum();
+    assert_eq!(r.ledger.balance(Account::Participations), held);
+    assert!(r.participations.spent_in(1900) >= usd(144_000.0));
+    assert!(books(&game).is_balanced() && r.ledger.is_balanced());
+    // Nothing more to offer.
+    assert_eq!(
+        offer(&mut game, Some(1.0)),
+        Err(CommandError::NotEnoughShares)
+    );
+}
+
+#[test]
+fn a_blocking_minority_keeps_a_competitor_from_the_majority() {
+    let mut game = waiting_round();
+    invest(&mut game, 120_000.0).unwrap();
+    let me = CompanyId(0);
+    let rival = ai_rival(&mut game, 10_000_000.0);
+    let third = ai_rival(&mut game, 10_000_000.0);
+    // The player offers 30 %; the rival holds 25 %, the third company 30 %.
+    let v = game
+        .state_mut()
+        .ventures
+        .iter_mut()
+        .find(|v| v.id == 0)
+        .unwrap();
+    let stake = |holder, share| Stake { holder, share };
+    v.owners = vec![
+        stake(Holder::Private, 0.15),
+        stake(Holder::Company(me), 0.3),
+        stake(Holder::Company(rival), 0.25),
+        stake(Holder::Company(third), 0.3),
+    ];
+    let catalog = game.catalog().clone();
+    let v = venture(&game, 0).clone();
+    let mine = ventures::share_of(&v, me);
+    // The rival would get over half while the third company holds a blocking minority;
+    // the third company could buy (the rival's 25 % block only who gets the majority).
+    assert!(ventures::sale_blocked(
+        &catalog.ventures,
+        &v,
+        (rival, me),
+        mine
+    ));
+    assert!(ventures::sale_blocked(
+        &catalog.ventures,
+        &v,
+        (third, me),
+        mine
+    ));
+    let other = ai_rival(&mut game, 10_000_000.0);
+    let v = venture(&game, 0).clone();
+    assert!(!ventures::sale_blocked(
+        &catalog.ventures,
+        &v,
+        (other, me),
+        mine
+    ));
+    let best = ventures::best_stake_bid(&catalog, game.state(), &v, me).unwrap();
+    assert_eq!(best.0, other);
+    // A command of a blocked buyer fails like the player's would.
+    offer(&mut game, Some(1.0)).unwrap();
+    assert_eq!(
+        crate::command::execute(
+            game.state_mut(),
+            &catalog,
+            rival,
+            &Command::BuyVentureStake {
+                venture: 0,
+                seller: me,
+                price: usd(1_000_000.0),
+            },
+        ),
+        Err(CommandError::VentureBlocked)
+    );
+    assert_eq!(
+        crate::command::execute(
+            game.state_mut(),
+            &catalog,
+            other,
+            &Command::BuyVentureStake {
+                venture: 0,
+                seller: rival,
+                price: usd(1_000_000.0),
+            },
+        ),
+        Err(CommandError::NoStakeOffer)
+    );
+    assert_eq!(
+        crate::command::execute(
+            game.state_mut(),
+            &catalog,
+            other,
+            &Command::BuyVentureStake {
+                venture: 0,
+                seller: me,
+                price: Money::ZERO,
+            },
+        ),
+        Err(CommandError::BelowMinimumBid { minimum: usd(1.0) })
+    );
+}
+
+#[test]
+fn a_recommended_pledge_counts_by_how_the_start_up_turns_out() {
+    let mut game = waiting_round();
+    let catalog = game.catalog().clone();
+    let v = venture(&game, 0).clone();
+    let amount = v.capital - v.raised;
+    let share = amount.to_usd() * ventures::share_per_dollar(&catalog.ventures, &v);
+    let judgment = crate::state::Judgment {
+        manager: crate::state::ManagerId(0),
+        due: game.state().date,
+        hit: false,
+        appraisal: Some(crate::state::Appraisal::Venture {
+            venture: 0,
+            amount,
+            share,
+        }),
+    };
+    let hit = |game: &Game| crate::central::judged_hit(&catalog, game.state(), &judgment);
+    // Sure phases: the share is worth more than the pledge.
+    assert!(hit(&game));
+    // Hardly a chance any more: not worth it.
+    game.state_mut().ventures[0].chance = 0.01;
+    assert!(!hit(&game));
+    let set = |game: &mut Game, status| game.state_mut().ventures[0].status = status;
+    set(&mut game, VentureStatus::Succeeded(date(1900, 5, 1)));
+    assert!(hit(&game));
+    set(
+        &mut game,
+        VentureStatus::Failed(date(1900, 5, 1), VentureFailure::Phase),
+    );
+    assert!(!hit(&game));
+}

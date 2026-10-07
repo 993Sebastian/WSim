@@ -969,6 +969,83 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     }
     print_developments(texts, game);
     print_ventures(texts, game);
+    print_centrals(texts, game);
+}
+
+/// Central departments and headquarters of the AI companies (ZA4): how many have
+/// departments, which ones, and who moved.
+fn print_centrals(texts: &wsim_data::Texts, game: &Game) {
+    let state = game.state();
+    let catalog = game.catalog();
+    let ai: Vec<_> = state
+        .companies
+        .iter()
+        .filter(|c| c.ai.is_some() && !c.bankrupt)
+        .collect();
+    let with = ai.iter().filter(|c| !c.departments.is_empty()).count();
+    let employees: u32 = ai.iter().flat_map(|c| c.departments.values()).sum();
+    // Departments with a head work (ZA2).
+    let working = (0..state.companies.len())
+        .map(|i| wsim_core::state::CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .filter(|&id| state.companies[id.index()].ai.is_some())
+        .flat_map(|id| {
+            catalog
+                .central
+                .departments
+                .iter()
+                .map(move |d| (id, d.kind))
+        })
+        .filter(|&(id, kind)| wsim_core::central::performance(catalog, state, id, kind).is_some())
+        .count();
+    let kinds: Vec<String> = catalog
+        .central
+        .departments
+        .iter()
+        .map(|d| {
+            let n = ai
+                .iter()
+                .filter(|c| c.departments.contains_key(&d.kind))
+                .count();
+            format!(
+                "{} {}",
+                texts
+                    .get(&format!("abteilung.{}", d.kind.key()))
+                    .unwrap_or_default(),
+                n
+            )
+        })
+        .collect();
+    println!(
+        "Zentralen der KI (ZA4): {} von {} Firmen mit Abteilungen, {} Angestellte ({}); {} Abteilungen mit Leitung",
+        with,
+        ai.len(),
+        employees,
+        kinds.join(", "),
+        working
+    );
+    let moved: Vec<String> = ai
+        .iter()
+        .filter_map(|c| {
+            let date = c.relocated?;
+            Some(format!(
+                "{} nach {} ({})",
+                c.name,
+                texts
+                    .get(&format!("land.{}", catalog.countries.key(c.headquarters)))
+                    .unwrap_or_default(),
+                format_date(date)
+            ))
+        })
+        .collect();
+    println!(
+        "  Sitz verlegt: {}{}",
+        moved.len(),
+        if moved.is_empty() {
+            String::new()
+        } else {
+            format!(" – {}", moved.join("; "))
+        }
+    );
 }
 
 /// Start-ups (SU1): how many were founded, how those still in the list ended, and what

@@ -30,6 +30,10 @@ async function kernMitVersteigerung() {
     firma: async (index) => {
       const d: Firmendetail = await vorschau.firma(index);
       d.company.auction_until = "1914-02-15";
+      d.company.departments = ["finanzen", "marketing"];
+      d.company.central_staff = 3;
+      d.company.moving_to = "AUT";
+      d.company.moving_until = "1914-07-01";
       d.areas = [];
       d.licenses = [];
       for (const s of d.sites) {
@@ -64,6 +68,12 @@ describe("Versteigerung", () => {
 
     expect(
       await screen.findByText(/Ihre Standorte werden bis 15.02.1914 versteigert/),
+    ).toBeTruthy();
+    // Its central departments and a move of its headquarters (ZA4).
+    expect(
+      screen.getByText(
+        "Zentrale: Finanzen, Marketing (3 Angestellte). Verlegt den Hauptsitz nach Österreich (ab 01.07.1914).",
+      ),
     ).toBeTruthy();
     const standort = (await screen.findAllByRole("article"))[0] as HTMLElement;
     expect(within(standort).getByText("Mindestgebot:")).toBeTruthy();

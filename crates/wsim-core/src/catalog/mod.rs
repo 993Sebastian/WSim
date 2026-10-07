@@ -200,7 +200,27 @@ pub struct CentralModel {
     pub accuracy: f64,
     pub refinance: RefinanceModel,
     pub hit_rate: HitRateModel,
+    pub ai: CentralAiModel,
     pub provenance: Provenance,
+}
+
+/// How AI companies set up central departments and move their headquarters (ZA4).
+/// The default sets up none and never moves.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CentralAiModel {
+    /// Share of the revenue of twelve months the departments may cost a year, by
+    /// competence.
+    pub revenue_share: Span,
+    /// The departments in the order they are set up, each from its least workload.
+    pub order: Vec<(DepartmentKind, f64)>,
+    /// Least share of the revenue a country must bring to become the seat.
+    pub seat_revenue_share: f64,
+    /// Least GDP per capita of the new seat as a share of today's.
+    pub seat_gdp_share: f64,
+    /// Years in which the savings must pay for a move.
+    pub payback_years: f64,
+    /// Years the seat stays after a move.
+    pub lock_years: u32,
 }
 
 impl CentralModel {
@@ -755,7 +775,7 @@ impl Default for DevelopmentModel {
 }
 
 /// A value that depends on a company trait (competence or aggressiveness, 0–1).
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Span {
     pub at_0: f64,
     pub at_1: f64,

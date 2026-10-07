@@ -427,6 +427,19 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
           umsatz: formatGeld(c.revenue_year_usd),
         })}
       </p>
+      <p className="gedaempft">
+        {c.departments.length > 0
+          ? t("wettbewerb.zentrale", {
+              abteilungen: c.departments.map((k) => t(`abteilung.${k}`)).join(", "),
+              anzahl: formatZahl(c.central_staff),
+            })
+          : t("wettbewerb.zentrale_keine")}
+        {c.moving_to &&
+          ` ${t("wettbewerb.umzug", {
+            land: landName(c.moving_to),
+            datum: formatDatum(c.moving_until ?? ""),
+          })}`}
+      </p>
       {(d.products?.length ?? 0) > 0 && (
         <>
           <h3>{t("wettbewerb.produkte")}</h3>

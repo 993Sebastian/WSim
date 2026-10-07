@@ -61,6 +61,8 @@ export type Befehl =
   | { InvestInVenture: { venture: number; amount: number } }
   | { GrantVenture: { venture: number; amount: number } }
   | { SellVentureStake: { venture: number; share: number } }
+  | { OfferVentureStake: { venture: number; minimum: number | null } }
+  | { BuyVentureStake: { venture: number; seller: number; price: number } }
   | { SteerVenture: { venture: number; pace: Tempo } }
   | { IntegrateVenture: { venture: number } }
   | { SpinOff: { site: number; sell: number } }

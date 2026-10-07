@@ -438,7 +438,7 @@ Optional: ohne den Abschnitt gibt es keine Manager.
 
 ## zentrale
 
-`data/parameter/zentrale.yaml` (ZA1–ZA3; Regeln: `docs/FORMELN.md`, Vorgabe:
+`data/parameter/zentrale.yaml` (ZA1–ZA4; Regeln: `docs/FORMELN.md`, Vorgabe:
 `docs/BETEILIGUNGEN.md`). Optional: ohne den Abschnitt kostet ein Umzug nichts und dauert
 bis zum nächsten Monatsanfang.
 
@@ -449,6 +449,7 @@ bis zum nächsten Monatsanfang.
 | genauigkeit | 0–1: so viel kleiner werden Schätzfehler einer voll ausgestatteten Abteilung, und so viel der Lücke zum vollen Urteilsvermögen schließt sie (ZA2) |
 | umschuldung | `mindestvorteil` (0–1, absolut: ab diesem Zinsvorteil lohnt ein neuer Kredit) und `gebuehr` (0–1: Anteil der Restschuld) (ZA3) |
 | trefferquote | `bewertung_monate` (1–120), `mittelwert` (0–1), `vorgewicht` (≥ 0: Fälle, mit denen der Mittelwert zählt), `k` (0–10: Exponent der Gehaltsforderung) (ZA3) |
+| ki | Zentrale der KI-Firmen (ZA4): `anteil_umsatz` (`bei_0`, `bei_1`, je 0–1: so viel ihres Umsatzes der letzten zwölf Monate dürfen alle Abteilungen zusammen im Jahr kosten, nach Kompetenz), `reihenfolge` (Liste von Abteilungen aus `abteilungen`, je höchstens einmal: die eingerichtet werden, in dieser Reihenfolge), `mindestlast` (Zuordnung Abteilung → Arbeitslast ≥ 0, ab der sie eingerichtet wird; ohne Angabe 1), `sitz` mit `anteil_umsatz_min` (0–1: so viel ihres Umsatzes muss ein Land bringen, um Sitz zu werden), `bip_anteil_min` (0–10: so viel des BIP je Kopf des heutigen Sitzlands muss das neue Land mindestens haben), `amortisation_jahre` (0–100: in so vielen Jahren muss die Ersparnis die Kosten der Verlegung decken) und `sperre_jahre` (0–100: so lange bleibt der Sitz nach einem Umzug). Ohne den Block richten KI-Firmen keine Abteilungen ein und verlegen ihren Sitz nicht. |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 Die Bereiche `strategie` (Themen `kaufangebot`, `antwort`) und `recht` (Thema `lizenz`)

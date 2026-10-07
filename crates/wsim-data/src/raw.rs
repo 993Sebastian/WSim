@@ -1809,10 +1809,39 @@ pub struct RawCentral {
     pub refinance: Option<RawRefinance>,
     #[serde(rename = "trefferquote", default)]
     pub hit_rate: Option<RawHitRate>,
+    #[serde(rename = "ki", default)]
+    pub ai: Option<RawCentralAi>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// Central departments and headquarters of the AI companies (ZA4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCentralAi {
+    #[serde(rename = "anteil_umsatz")]
+    pub revenue_share: RawSpan,
+    #[serde(rename = "reihenfolge", default)]
+    pub order: Vec<String>,
+    #[serde(rename = "mindestlast", default)]
+    pub min_load: BTreeMap<String, f64>,
+    #[serde(rename = "sitz")]
+    pub seat: RawCentralAiSeat,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCentralAiSeat {
+    #[serde(rename = "anteil_umsatz_min")]
+    pub revenue_share_min: f64,
+    #[serde(rename = "bip_anteil_min")]
+    pub gdp_share_min: f64,
+    #[serde(rename = "amortisation_jahre")]
+    pub payback_years: f64,
+    #[serde(rename = "sperre_jahre")]
+    pub lock_years: u32,
 }
 
 #[derive(Debug, Deserialize)]

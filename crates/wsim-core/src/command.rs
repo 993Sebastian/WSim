@@ -234,6 +234,20 @@ pub enum Command {
     GrantVenture { venture: u32, amount: Money },
     /// Sells a share of a start-up to investors (SU2).
     SellVentureStake { venture: u32, share: f64 },
+    /// Offers all of the company's shares of a start-up to the other companies from a
+    /// minimum price until the next month start; without one the offer is withdrawn
+    /// (ZA4).
+    OfferVentureStake {
+        venture: u32,
+        minimum: Option<Money>,
+    },
+    /// Buys all shares another company offers of a start-up, at a price from its minimum
+    /// (ZA4).
+    BuyVentureStake {
+        venture: u32,
+        seller: CompanyId,
+        price: Money,
+    },
     /// The pace of a start-up the company holds the majority of (SU2).
     SteerVenture {
         venture: u32,
@@ -462,6 +476,8 @@ pub enum CommandError {
         progress: f64,
         min: f64,
     },
+    /// The company offers no shares of the start-up (ZA4).
+    NoStakeOffer,
 }
 
 impl CommandError {
@@ -596,6 +612,7 @@ impl CommandError {
             CommandError::SpinOffTooEarly { progress, min } => e(keys::COMMAND_SPIN_OFF_TOO_EARLY)
                 .with("fortschritt", Param::Number((*progress * 100.0).floor()))
                 .with("mindestens", Param::Number((*min * 100.0).round())),
+            CommandError::NoStakeOffer => e(keys::COMMAND_NO_STAKE_OFFER),
         }
     }
 }
@@ -891,6 +908,16 @@ fn run(
         }
         Command::SellVentureStake { venture, share } => {
             crate::ventures::sell(state, catalog, actor, *venture, *share)?;
+        }
+        Command::OfferVentureStake { venture, minimum } => {
+            crate::ventures::offer_stake(state, actor, *venture, *minimum)?;
+        }
+        Command::BuyVentureStake {
+            venture,
+            seller,
+            price,
+        } => {
+            crate::ventures::buy_stake(state, catalog, actor, *venture, (*seller, *price))?;
         }
         Command::SteerVenture { venture, pace } => {
             crate::ventures::steer(state, catalog, actor, *venture, *pace)?;

@@ -2,13 +2,14 @@
 //! ZA1–ZA3).
 
 use wsim_core::catalog::{
-    Catalog, CentralModel, Department, DepartmentKind, HeadquartersModel, HitRateModel,
-    RefinanceModel,
+    Catalog, CentralAiModel, CentralModel, Department, DepartmentKind, HeadquartersModel,
+    HitRateModel, RefinanceModel, Span,
 };
 use wsim_core::money::Money;
 
 use super::{in_range, non_negative, provenance};
 use crate::messages;
+use crate::raw::RawCentralAi;
 use crate::read::{Ctx, Loc, RawData};
 
 /// An amount in USD, at least zero.
@@ -122,6 +123,9 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
             k: in_range(ctx, t.k, 0.0, 10.0, &tl.field("k")),
         }
     });
+    let ai = c.ai.as_ref().map_or_else(CentralAiModel::default, |a| {
+        ai_model(ctx, a, &departments, &l.field("ki"))
+    });
     CentralModel {
         headquarters: HeadquartersModel {
             months: h.months,
@@ -137,6 +141,97 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
         accuracy: in_range(ctx, c.accuracy, 0.0, 1.0, &l.field("genauigkeit")),
         refinance,
         hit_rate,
+        ai,
         provenance: provenance(c.approximation, c.source.as_ref()),
+    }
+}
+
+/// A department of the list named by its key, with an error where there is none.
+fn listed(
+    ctx: &mut Ctx,
+    key: &str,
+    departments: &[Department],
+    loc: &Loc,
+) -> Option<DepartmentKind> {
+    let kind = DepartmentKind::from_key(key).filter(|&k| departments.iter().any(|d| d.kind == k));
+    if kind.is_none() {
+        let keys: Vec<&str> = departments.iter().map(|d| d.kind.key()).collect();
+        let suggested = crate::suggest::closest(key, keys.iter().copied());
+        ctx.error(
+            loc,
+            messages::unknown_reference("Abteilung", key, suggested),
+        );
+    }
+    kind
+}
+
+/// The rules of the AI companies for their central departments and headquarters (ZA4).
+fn ai_model(
+    ctx: &mut Ctx,
+    a: &RawCentralAi,
+    departments: &[Department],
+    l: &Loc,
+) -> CentralAiModel {
+    let sl = l.field("anteil_umsatz");
+    let revenue_share = Span {
+        at_0: in_range(ctx, a.revenue_share.at_0, 0.0, 1.0, &sl.field("bei_0")),
+        at_1: in_range(ctx, a.revenue_share.at_1, 0.0, 1.0, &sl.field("bei_1")),
+    };
+    let mut loads = std::collections::BTreeMap::new();
+    for (key, &load) in &a.min_load {
+        let ml = l.field("mindestlast").field(key);
+        if let Some(kind) = listed(ctx, key, departments, &ml) {
+            loads.insert(kind, non_negative(ctx, load, &ml));
+        }
+    }
+    let mut order: Vec<(DepartmentKind, f64)> = Vec::new();
+    for (i, key) in a.order.iter().enumerate() {
+        let ol = l.field("reihenfolge").index(i);
+        let Some(kind) = listed(ctx, key, departments, &ol) else {
+            continue;
+        };
+        if order.iter().any(|&(k, _)| k == kind) {
+            ctx.error(
+                &ol,
+                messages::duplicate_key("Abteilung", key, "reihenfolge"),
+            );
+            continue;
+        }
+        order.push((kind, loads.get(&kind).copied().unwrap_or(1.0)));
+    }
+    let tl = l.field("sitz");
+    let seat = &a.seat;
+    in_range(
+        ctx,
+        f64::from(seat.lock_years),
+        0.0,
+        100.0,
+        &tl.field("sperre_jahre"),
+    );
+    CentralAiModel {
+        revenue_share,
+        order,
+        seat_revenue_share: in_range(
+            ctx,
+            seat.revenue_share_min,
+            0.0,
+            1.0,
+            &tl.field("anteil_umsatz_min"),
+        ),
+        seat_gdp_share: in_range(
+            ctx,
+            seat.gdp_share_min,
+            0.0,
+            10.0,
+            &tl.field("bip_anteil_min"),
+        ),
+        payback_years: in_range(
+            ctx,
+            seat.payback_years,
+            0.0,
+            100.0,
+            &tl.field("amortisation_jahre"),
+        ),
+        lock_years: seat.lock_years,
     }
 }

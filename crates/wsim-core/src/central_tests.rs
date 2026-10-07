@@ -3,19 +3,19 @@
 
 use crate::board_tests::{buyer_game, buyer_game_with, member, news};
 use crate::calendar::{Date, RoundLength};
-use crate::catalog::{DepartmentKind, test_support};
+use crate::catalog::{Catalog, CentralAiModel, DepartmentKind, Span, test_support};
 use crate::central;
 use crate::command::{Command, CommandError};
 use crate::deals::DealObject;
 use crate::decision::Topic;
 use crate::finance;
 use crate::game::Game;
-use crate::ledger::CostType;
+use crate::ledger::{CostType, PeriodResult};
 use crate::management;
 use crate::management_tests::{days, hire_sharp, mine_and_works, new_game, usd};
 use crate::message::{Param, keys};
 use crate::money::Money;
-use crate::state::{CompanyId, ConcernReason, Unit};
+use crate::state::{AiState, CompanyId, CompanyKind, ConcernReason, SiteId, Unit};
 
 #[test]
 fn moving_the_headquarters_costs_and_takes_months() {
@@ -657,4 +657,288 @@ fn beyond_their_budget_departments_ask_with_reasons() {
     })
     .unwrap();
     assert!(game.state().companies[0].loans[0].rate < dear - 0.04);
+}
+
+/// An AI company like the player's with twelve closed months of revenue and result behind
+/// it (ZA4), and the sites earning part of the revenue.
+fn ai_company(
+    game: &mut Game,
+    (revenue, result): (f64, f64),
+    sites: &[(SiteId, f64)],
+) -> CompanyId {
+    let state = game.state_mut();
+    let id = CompanyId(u32::try_from(state.companies.len()).unwrap());
+    let mut c = state.companies[0].clone();
+    c.name = "Rivale AG".into();
+    c.kind = CompanyKind::Ai;
+    c.departments = Default::default();
+    c.ai = Some(AiState {
+        competence: 0.5,
+        aggressiveness: 0.5,
+        real: None,
+        next_operations: state.date,
+        staff: 0.0,
+    });
+    for _ in 0..12 {
+        let mut m = PeriodResult::default();
+        m.by_type.insert(CostType::Revenue, usd(revenue / 12.0));
+        m.by_type
+            .insert(CostType::Other, usd(result / 12.0) - usd(revenue / 12.0));
+        for &(site, earned) in sites {
+            m.site_revenue.insert(site, usd(earned / 12.0));
+        }
+        c.ledger.months.push(m);
+    }
+    state.companies.push(c);
+    id
+}
+
+/// A sales office in a country, handed to a company: a board needs a site (MA5).
+fn office_for(game: &mut Game, company: CompanyId, country: &str) -> SiteId {
+    let country = game.catalog().countries.id(country).unwrap();
+    game.apply(Command::FoundSite {
+        country,
+        kind: crate::catalog::SiteType::SalesOffice,
+    })
+    .unwrap();
+    let site = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.state_mut().sites[site.index()].owner = company;
+    site
+}
+
+fn ai_rules(order: Vec<(DepartmentKind, f64)>) -> Catalog {
+    let mut c = test_support::management();
+    c.central.ai = CentralAiModel {
+        revenue_share: Span::fixed(0.01),
+        order,
+        seat_revenue_share: 0.25,
+        seat_gdp_share: 0.75,
+        payback_years: 3.0,
+        lock_years: 10,
+    };
+    c
+}
+
+#[test]
+fn ai_companies_set_up_the_departments_they_can_afford() {
+    use DepartmentKind::{Finance, Legal, Marketing, Strategy};
+    let catalog = ai_rules(vec![
+        (Finance, 2.0),
+        (Strategy, 1.0),
+        (Legal, 1.0),
+        (Marketing, 1.0),
+    ]);
+    let mut game = new_game(catalog);
+    let catalog = game.catalog().clone();
+    let probe = ai_company(&mut game, (0.0, 0.0), &[]);
+    let one = central::yearly_cost(&catalog, game.state(), probe, Strategy, 1).to_usd();
+    assert!(one > 0.0);
+    // Enough for two and a half departments: finance has no loan to work on (its least
+    // workload is 2), so strategy and legal; marketing would overdraw the budget.
+    let rival = ai_company(&mut game, (2.5 * one / 0.01, 1e6), &[]);
+    office_for(&mut game, rival, "AAA");
+    let plan = central::ai_plan(&catalog, game.state(), rival);
+    assert_eq!(
+        plan.into_iter().collect::<Vec<_>>(),
+        vec![(Strategy, 1), (Legal, 1)]
+    );
+    // A company with a loss spares its central.
+    let poor = ai_company(&mut game, (2.5 * one / 0.01, -1e6), &[]);
+    assert!(central::ai_plan(&catalog, game.state(), poor).is_empty());
+
+    // In January it staffs them with the player's command and hires their heads.
+    game.state_mut().date = Date::new(1901, 1, 1).unwrap();
+    central::ai_month_start(game.state_mut(), &catalog, Date::new(1901, 1, 1).unwrap());
+    let state = game.state();
+    assert_eq!(central::staff(state, rival, Strategy), 1);
+    assert_eq!(central::staff(state, rival, Legal), 1);
+    assert_eq!(central::staff(state, rival, Marketing), 0);
+    assert!(state.companies[poor.index()].departments.is_empty());
+    for _ in 0..2 {
+        crate::staffing::month_start(game.state_mut(), &catalog, Date::new(1901, 1, 1).unwrap());
+    }
+    let state = game.state();
+    assert!(
+        central::head(&catalog, state, rival, Strategy).is_some(),
+        "head hired"
+    );
+    assert!(central::performance(&catalog, state, rival, Strategy).is_some());
+
+    // After a year with a loss it closes them and lets the heads go.
+    let head = central::head(&catalog, state, rival, Strategy).unwrap();
+    for m in &mut game.state_mut().companies[rival.index()].ledger.months {
+        m.by_type.insert(CostType::Other, -usd(1e9));
+    }
+    central::ai_month_start(game.state_mut(), &catalog, Date::new(1901, 1, 1).unwrap());
+    let state = game.state();
+    assert!(state.companies[rival.index()].departments.is_empty());
+    assert!(state.managers[&head].job.is_none(), "dismissed");
+    assert!(state.companies[rival.index()].ledger.is_balanced());
+}
+
+#[test]
+fn an_ai_finance_department_refinances_dear_loans() {
+    use DepartmentKind::Finance;
+    let mut game = new_game(ai_rules(vec![(Finance, 2.0)]));
+    let catalog = game.catalog().clone();
+    let rival = ai_company(&mut game, (1e9, 1e8), &[]);
+    office_for(&mut game, rival, "AAA");
+    let rate = central::refinance_rate(&catalog, game.state(), rival);
+    let date = game.state().date;
+    let loan = crate::state::Loan {
+        principal: usd(1e6),
+        balance: usd(1e6),
+        rate: rate + 0.05,
+        start: date,
+        months: 60,
+        instalment: finance::instalment(usd(1e6), rate + 0.05, 60),
+    };
+    game.state_mut().companies[rival.index()].loans.push(loan);
+    // In January it sets up a finance department (a loan to work on) and hires its head.
+    let january = Date::new(1901, 1, 1).unwrap();
+    game.state_mut().date = january;
+    central::ai_month_start(game.state_mut(), &catalog, january);
+    assert_eq!(central::staff(game.state(), rival, Finance), 1);
+    // One hire a month: the CEO first, then the head of finance.
+    for _ in 0..2 {
+        crate::staffing::month_start(game.state_mut(), &catalog, january);
+    }
+    assert!(central::head(&catalog, game.state(), rival, Finance).is_some());
+    // The next month start it refinances the dear loan.
+    let next = Date::new(1901, 2, 1).unwrap();
+    game.state_mut().date = next;
+    central::ai_month_start(game.state_mut(), &catalog, next);
+    let loans = &game.state().companies[rival.index()].loans;
+    assert!(
+        loans[0].rate < rate + 0.05 - 0.01,
+        "refinanced: {}",
+        loans[0].rate
+    );
+}
+
+#[test]
+fn ai_companies_move_where_their_business_pays_less_tax() {
+    let mut game = new_game(ai_rules(Vec::new()));
+    let catalog = game.catalog().clone();
+    let (aaa, bbb) = (
+        catalog.countries.id("AAA").unwrap(),
+        catalog.countries.id("BBB").unwrap(),
+    );
+    // Half of a revenue of 100 million comes from its site in BBB, a fifth is profit.
+    let next = SiteId(u32::try_from(game.state().sites.len()).unwrap());
+    let rival = ai_company(&mut game, (100e6, 20e6), &[(next, 50e6)]);
+    let site = office_for(&mut game, rival, "BBB");
+    assert_eq!(site, next);
+    let tax = |game: &mut Game, country, rate| {
+        game.state_mut().countries.get_mut(country).corporate_tax = rate;
+    };
+    tax(&mut game, aaa, 0.3);
+    tax(&mut game, bbb, 0.3);
+    let gdp = game.state().countries.get(aaa).gdp_per_capita_usd;
+    game.state_mut().countries.get_mut(bbb).gdp_per_capita_usd = gdp;
+    assert_eq!(
+        central::ai_seat(&catalog, game.state(), rival),
+        None,
+        "no saving"
+    );
+    tax(&mut game, bbb, 0.2);
+    // 10 % of 20 million saved a year pays for the move.
+    assert_eq!(
+        central::seat_saving(&catalog, game.state(), rival, bbb),
+        usd(2e6)
+    );
+    assert_eq!(central::ai_seat(&catalog, game.state(), rival), Some(bbb));
+    // Not into a much poorer country.
+    game.state_mut().countries.get_mut(bbb).gdp_per_capita_usd = gdp * 0.5;
+    assert_eq!(central::ai_seat(&catalog, game.state(), rival), None);
+    game.state_mut().countries.get_mut(bbb).gdp_per_capita_usd = gdp;
+    // Not where too little of its business is.
+    for m in &mut game.state_mut().companies[rival.index()].ledger.months {
+        m.site_revenue.insert(site, usd(1e6));
+    }
+    assert_eq!(central::ai_seat(&catalog, game.state(), rival), None);
+    for m in &mut game.state_mut().companies[rival.index()].ledger.months {
+        m.site_revenue.insert(site, usd(50e6 / 12.0));
+    }
+    // In January it moves through the command; the player hears of it.
+    let january = Date::new(1901, 1, 1).unwrap();
+    game.state_mut().date = january;
+    let news = central::ai_month_start(game.state_mut(), &catalog, january);
+    assert!(news.iter().any(|m| m.key == keys::RIVAL_HEADQUARTERS));
+    let r = game.state().companies[rival.index()].relocation.unwrap();
+    assert_eq!(r.country, bbb);
+    // When the move is done the seat stays for the years of the data.
+    let mut date = january;
+    while date < r.until {
+        date = date.add_months(1);
+    }
+    central::month_start(game.state_mut(), &catalog, date);
+    let c = &game.state().companies[rival.index()];
+    assert_eq!(c.headquarters, bbb);
+    assert_eq!(c.relocated, Some(date));
+    tax(&mut game, aaa, 0.0);
+    game.state_mut().date = date.add_months(12);
+    assert_eq!(
+        central::ai_seat(&catalog, game.state(), rival),
+        None,
+        "locked"
+    );
+}
+
+#[test]
+fn a_takeover_estimate_counts_by_what_the_object_is_worth_when_due() {
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    days(&mut game, 40);
+    let catalog = game.catalog().clone();
+    let now = crate::deals::site_value(game.state(), &catalog, works).base;
+    assert!(now > Money::ZERO);
+    let (seller, object) = (game.player(), DealObject::Site(works));
+    let judge = |game: &Game, base: Money, price: f64| {
+        let mut a = central::takeover_appraisal(
+            game.state(),
+            &catalog,
+            (seller, object),
+            usd(1e6),
+            usd(price),
+        )
+        .unwrap();
+        if let crate::state::Appraisal::Takeover { base: b, .. } = &mut a {
+            *b = base;
+        }
+        let j = crate::state::Judgment {
+            manager: crate::state::ManagerId(0),
+            due: game.state().date,
+            hit: false,
+            appraisal: Some(a),
+        };
+        central::judged_hit(&catalog, game.state(), &j)
+    };
+    // The rules would have paid a million for the site as it was then. Kept its base
+    // value: a price up to a million was right.
+    assert!(judge(&game, now, 1e6));
+    assert!(!judge(&game, now, 1.1e6));
+    // Halved since: only up to half a million was worth it.
+    assert!(!judge(&game, now.scale(2.0), 0.6e6));
+    assert!(judge(&game, now.scale(2.0), 0.5e6));
+    // A licence is settled when estimated.
+    let licence = DealObject::License(catalog.technologies.ids().next().unwrap());
+    assert!(
+        central::takeover_appraisal(
+            game.state(),
+            &catalog,
+            (seller, licence),
+            usd(1.0),
+            usd(1.0)
+        )
+        .is_none()
+    );
+    // Judgments of older saves keep their result.
+    let old = crate::state::Judgment {
+        manager: crate::state::ManagerId(0),
+        due: game.state().date,
+        hit: true,
+        appraisal: None,
+    };
+    assert!(central::judged_hit(&catalog, game.state(), &old));
 }

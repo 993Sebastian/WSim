@@ -952,6 +952,12 @@ export interface Firmenzeile {
   player: boolean;
   /** Last day of the auction of an insolvent company's sites (M38). */
   auction_until: string | null;
+  /** Its central departments (`abteilung.<key>`) and their employees (ZA4). */
+  departments: string[];
+  central_staff: number;
+  /** A move of its headquarters under way: the new country and the first day there. */
+  moving_to: string | null;
+  moving_until: string | null;
 }
 
 export interface Firmen {
@@ -1677,6 +1683,10 @@ export interface StartUp {
   invest_max_usd: number | null;
   /** What all of it fetches when selling now. */
   sale_value_usd: number;
+  /** The value of the player's shares now and the minimum price it offers them to the
+   * companies for until the next month start (ZA4). */
+  own_value_usd: number;
+  own_offer_usd: number | null;
   majority: boolean;
   /** Key of the pace (`startup.lenkung.<key>`). */
   pace: string;
@@ -1744,6 +1754,10 @@ export interface StartUps {
   grant_effect: number;
   /** Keys of the paces (`startup.lenkung.<key>`). */
   paces: string[];
+  /** When stakes offered to the companies go to the best bid, and the highest premium on
+   * the value a company bids (ZA4). */
+  offers_settle: string;
+  company_premium_max: number;
   /** Projects of the player's research centers and the progress from which they may be
    * spun off (SU3). */
   spin_offs: Ausgruendung[];

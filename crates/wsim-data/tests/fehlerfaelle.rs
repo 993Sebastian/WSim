@@ -3006,6 +3006,105 @@ fn zentrale_wird_geprueft() {
         &d.laden(),
         "Wert 20 liegt außerhalb des erlaubten Bereichs 0 bis 10.",
     );
+
+    // ZA4: central departments and headquarters of the AI companies.
+    let mit_ki = mit_abteilungen.replace(
+        "  annaeherung: true\n",
+        "  ki:
+    anteil_umsatz: {bei_0: 0, bei_1: 0.02}
+    reihenfolge: [marketing, strategie]
+    mindestlast: {marketing: 2}
+    sitz: {anteil_umsatz_min: 0.25, bip_anteil_min: 0.75, amortisation_jahre: 3,
+           sperre_jahre: 10}
+  annaeherung: true
+",
+    );
+    let basis = || {
+        Daten::neu()
+            .datei(datei, &mit_ki)
+            .datei("parameter/management.yaml", &management)
+            .datei("texte/de/bereiche.yaml", BEREICH_TEXTE)
+    };
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let ai = outcome.data.unwrap().catalog.central.ai;
+    use wsim_core::catalog::DepartmentKind::{Marketing, Strategy};
+    assert_eq!(ai.order, vec![(Marketing, 2.0), (Strategy, 1.0)]);
+    assert!((ai.revenue_share.at(0.5) - 0.01).abs() < 1e-12);
+    assert_eq!(ai.lock_years, 10);
+    // Without the block AI companies set up nothing and never move.
+    let outcome = Daten::neu()
+        .datei(datei, &mit_abteilungen)
+        .datei("parameter/management.yaml", &management)
+        .datei("texte/de/bereiche.yaml", BEREICH_TEXTE)
+        .laden();
+    let ai = outcome.data.unwrap().catalog.central.ai;
+    assert!(ai.order.is_empty() && ai.payback_years == 0.0);
+    let d = basis().ersetze(
+        datei,
+        "reihenfolge: [marketing, strategie]",
+        "reihenfolge: [marketing, finanzen]",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Abteilung „finanzen“ ist nicht definiert.");
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "reihenfolge:"),
+        "zentrale.ki.reihenfolge[1]",
+    );
+    let d = basis().ersetze(
+        datei,
+        "reihenfolge: [marketing, strategie]",
+        "reihenfolge: [marketing, marketing]",
+    );
+    befund(
+        &d.laden(),
+        "Abteilung „marketing“ ist doppelt definiert; erste Definition in reihenfolge.",
+    );
+    let d = basis().ersetze(
+        datei,
+        "mindestlast: {marketing: 2}",
+        "mindestlast: {marketng: 2}",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Abteilung „marketng“ ist nicht definiert. Meinten Sie „marketing“?",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.ki.mindestlast.marketng");
+    let d = basis().ersetze(
+        datei,
+        "mindestlast: {marketing: 2}",
+        "mindestlast: {marketing: -2}",
+    );
+    befund(&d.laden(), "-2");
+    let d = basis().ersetze(datei, "bei_1: 0.02}", "bei_1: 1.5}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.ki.anteil_umsatz.bei_1");
+    let d = basis().ersetze(datei, "anteil_umsatz_min: 0.25", "anteil_umsatz_min: 2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.ki.sitz.anteil_umsatz_min");
+    let d = basis().ersetze(datei, "bip_anteil_min: 0.75", "bip_anteil_min: -1");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert -1 liegt außerhalb des erlaubten Bereichs 0 bis 10.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.ki.sitz.bip_anteil_min");
+    let d = basis().ersetze(datei, "sperre_jahre: 10", "sperre_jahre: 500");
+    befund(
+        &d.laden(),
+        "Wert 500 liegt außerhalb des erlaubten Bereichs 0 bis 100.",
+    );
 }
 
 const STARTUPS: &str = include_str!("../../../data/parameter/startups.yaml");

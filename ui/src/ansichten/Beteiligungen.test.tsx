@@ -38,6 +38,8 @@ const LAUFEND: StartUp = {
   invest_mode: "anteile",
   invest_max_usd: 288_000,
   sale_value_usd: 192_000,
+  own_value_usd: 0,
+  own_offer_usd: null,
   majority: false,
   pace: "normal",
   integration_usd: null,
@@ -87,6 +89,8 @@ function daten(geschaetzt: boolean): StartUps {
     sale_discount: 0.2,
     grant_effect: 0.3,
     paces: ["normal", "zuegig", "gruendlich"],
+    offers_settle: "1914-09-01",
+    company_premium_max: 0.2,
     spin_offs: [
       {
         site: 4,
@@ -259,7 +263,7 @@ describe("Beteiligungen", () => {
     expect(detail.textContent).toContain("Ada Muster – Kompressionskühlschrank");
     expect(detail.textContent).toContain("Ab 25 % kann kein anderer");
     // Neither stake nor majority: no sale, no steering, no integration.
-    expect(within(detail).queryByRole("form", { name: "Anteile verkaufen" })).toBeNull();
+    expect(within(detail).queryByRole("form", { name: "An Investoren verkaufen" })).toBeNull();
     expect(within(detail).queryByRole("group", { name: "Lenken" })).toBeNull();
     expect(within(detail).queryByRole("group", { name: "Eingliedern" })).toBeNull();
 
@@ -328,7 +332,7 @@ describe("Beteiligungen", () => {
     const detail = oeffne();
     expect(detail.textContent).toContain("Test AG 60 %, Gründer 40 %");
 
-    const verkauf = within(detail).getByRole("form", { name: "Anteile verkaufen" });
+    const verkauf = within(detail).getByRole("form", { name: "An Investoren verkaufen" });
     fireEvent.change(within(verkauf).getByLabelText(/Teil deines Anteils/), {
       target: { value: "50" },
     });
@@ -350,5 +354,46 @@ describe("Beteiligungen", () => {
       { SteerVenture: { venture: 3, pace: "Fast" } },
       { IntegrateVenture: { venture: 3 } },
     ]);
+  });
+
+  it("bietet den ganzen Anteil den Firmen an und zieht das Angebot zurück", async () => {
+    const mit = (angebot: number | null) => (d: StartUps) => {
+      d.active = [
+        {
+          ...LAUFEND,
+          owners: [
+            { holder: "firma", company: "Test AG", share: 0.3 },
+            { holder: "gruender", company: null, share: 0.7 },
+          ],
+          own_share: 0.3,
+          own_book_usd: 50_000,
+          own_value_usd: 72_000,
+          own_offer_usd: angebot,
+        },
+      ];
+    };
+    const gesendet = await zeige(true, mit(null));
+    let detail = oeffne();
+    const firmen = within(detail).getByRole("form", { name: "An Firmen verkaufen" });
+    expect(firmen.textContent).toContain("(30 %, heute");
+    expect(firmen.textContent).toContain("Am 01.09.1914 kauft das beste Gebot");
+    expect(firmen.textContent).toContain("bis zu 20 % über dem Wert");
+    fireEvent.change(within(firmen).getByLabelText(/Mindestpreis/), {
+      target: { value: "80000" },
+    });
+    fireEvent.click(within(firmen).getByRole("button", { name: "Anbieten" }));
+    expect((await within(firmen).findByRole("status")).textContent).toContain(
+      "das Ergebnis kommt am 01.09.1914",
+    );
+    expect(gesendet).toEqual([{ OfferVentureStake: { venture: 3, minimum: 80_000 * 10_000 } }]);
+
+    cleanup();
+    const gesendet2 = await zeige(true, mit(80_000));
+    detail = oeffne();
+    const angebot = within(detail).getByRole("group", { name: "An Firmen verkaufen" });
+    expect(angebot.textContent).toContain("die Firmen bieten bis zum 01.09.1914");
+    fireEvent.click(within(angebot).getByRole("button", { name: "Angebot zurückziehen" }));
+    expect(await within(angebot).findByText("Angebot zurückgezogen.")).toBeTruthy();
+    expect(gesendet2).toEqual([{ OfferVentureStake: { venture: 3, minimum: null } }]);
   });
 });

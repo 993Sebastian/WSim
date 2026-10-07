@@ -327,6 +327,9 @@ pub struct Company {
     /// A move of the headquarters under way (ZA1).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relocation: Option<Relocation>,
+    /// The day the last move was done (ZA4).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relocated: Option<Date>,
     /// Employees of the central departments (ZA2); departments without any left out.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub departments: BTreeMap<DepartmentKind, u32>,
@@ -674,6 +677,10 @@ pub struct Venture {
     /// The company whose research project it was (SU3).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub origin: Option<CompanyId>,
+    /// Companies offering all their shares to the others until the next month start, with
+    /// their minimum price (ZA4).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sales: Vec<(CompanyId, Money)>,
 }
 
 /// How fast the majority owner drives a start-up (SU2).
@@ -744,11 +751,37 @@ pub enum VentureFailure {
 
 /// An estimate of a head waiting for its judgment (ZA3): whether the price stayed within
 /// the value of the target by the rules.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Judgment {
     pub manager: ManagerId,
     pub due: Date,
+    /// Settled when the estimate was made (licences; estimates of older saves).
     pub hit: bool,
+    /// What it is judged by when due (ZA4); none where `hit` is settled.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub appraisal: Option<Appraisal>,
+}
+
+/// What an estimate is judged by when it is due (docs/FORMELN.md, ZA4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum Appraisal {
+    /// A takeover of sites: a hit if the price stays within the value by the rules on the
+    /// day of the estimate, scaled by how the base value of the sites changed since (the
+    /// brand counted as on that day).
+    Takeover {
+        sites: Vec<SiteId>,
+        brand: Money,
+        base: Money,
+        value: Money,
+        price: Money,
+    },
+    /// A pledge to a start-up: a hit after a success, none after a failure, else if the
+    /// share it buys is worth the amount at the true chance.
+    Venture {
+        venture: u32,
+        amount: Money,
+        share: f64,
+    },
 }
 
 /// Employment of a manager.

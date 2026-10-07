@@ -4,14 +4,14 @@ use std::collections::BTreeMap;
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, DepartmentKind};
-use crate::command::CommandError;
+use crate::command::{self, Command, CommandError};
 use crate::ids::{CountryId, Id, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::state::{
-    CompanyId, GameState, Judgment, Manager, ManagerId, Position, Relocation, Role, Unit,
+    Appraisal, CompanyId, GameState, Judgment, Manager, ManagerId, Position, Relocation, Role, Unit,
 };
 
 /// Employees of a company's central departments.
@@ -547,20 +547,398 @@ pub(crate) fn record_judgment(
     hit: bool,
 ) {
     let due = state.date.add_months(catalog.central.hit_rate.months);
-    state.judgments.push(Judgment { manager, due, hit });
+    state.judgments.push(Judgment {
+        manager,
+        due,
+        hit,
+        appraisal: None,
+    });
+}
+
+/// An estimate judged by how things turned out when it is due (ZA4). A start-up counts
+/// once for a head while its judgment is pending.
+pub(crate) fn record_appraisal(
+    state: &mut GameState,
+    catalog: &Catalog,
+    manager: ManagerId,
+    appraisal: Appraisal,
+) {
+    if let Appraisal::Venture { venture, .. } = appraisal && state.judgments.iter().any(|j| {
+        j.manager == manager
+            && matches!(j.appraisal, Some(Appraisal::Venture { venture: v, .. }) if v == venture)
+    }) {
+        return;
+    }
+    let due = state.date.add_months(catalog.central.hit_rate.months);
+    state.judgments.push(Judgment {
+        manager,
+        due,
+        hit: false,
+        appraisal: Some(appraisal),
+    });
+}
+
+/// What a takeover estimate is judged by (docs/FORMELN.md, ZA4): the sites of the object,
+/// the brand and base value today, the value by the rules and the price; none for a
+/// licence.
+pub(crate) fn takeover_appraisal(
+    state: &GameState,
+    catalog: &Catalog,
+    (seller, object): (CompanyId, crate::deals::DealObject),
+    value: Money,
+    price: Money,
+) -> Option<Appraisal> {
+    use crate::deals::DealObject;
+    let (sites, brand, base) = match object {
+        DealObject::Site(site) => (
+            vec![site],
+            Money::ZERO,
+            crate::deals::site_value(state, catalog, site).base,
+        ),
+        DealObject::Area(group) => {
+            let v = crate::deals::area_value(state, catalog, seller, group);
+            (v.sites.iter().map(|&(s, _)| s).collect(), v.brand, v.base)
+        }
+        DealObject::License(_) => return None,
+    };
+    Some(Appraisal::Takeover {
+        sites,
+        brand,
+        base,
+        value,
+        price,
+    })
+}
+
+/// Whether a judgment that is due is a hit (docs/FORMELN.md, ZA3, ZA4).
+pub fn judged_hit(catalog: &Catalog, state: &GameState, j: &Judgment) -> bool {
+    match &j.appraisal {
+        None => j.hit,
+        Some(Appraisal::Takeover {
+            sites,
+            brand,
+            base,
+            value,
+            price,
+        }) => {
+            if *base <= Money::ZERO {
+                return price <= value;
+            }
+            let now = sites
+                .iter()
+                .filter(|s| s.index() < state.sites.len())
+                .map(|&s| crate::deals::site_value(state, catalog, s).base)
+                .sum::<Money>()
+                + *brand;
+            price.to_usd() <= value.to_usd() * now.to_usd() / base.to_usd()
+        }
+        Some(Appraisal::Venture {
+            venture,
+            amount,
+            share,
+        }) => {
+            let m = &catalog.ventures;
+            let Some(v) = state.ventures.iter().find(|v| v.id == *venture) else {
+                return false;
+            };
+            match v.status {
+                crate::state::VentureStatus::Succeeded(_) => true,
+                crate::state::VentureStatus::Failed(..) => false,
+                crate::state::VentureStatus::Active => {
+                    let expected = crate::ventures::success_chance(m, v)
+                        * crate::ventures::expected_success_value(state, m, v).to_usd()
+                        * share;
+                    expected >= amount.to_usd()
+                }
+            }
+        }
+    }
 }
 
 /// Judgments that are due count for their heads.
-fn judge(state: &mut GameState, date: Date) {
+fn judge(state: &mut GameState, catalog: &Catalog, date: Date) {
     let (due, rest): (Vec<Judgment>, Vec<Judgment>) =
-        state.judgments.iter().partition(|j| j.due <= date);
+        state.judgments.iter().cloned().partition(|j| j.due <= date);
     state.judgments = rest;
     for j in due {
+        let hit = judged_hit(catalog, state, &j);
         if let Some(m) = state.managers.get_mut(&j.manager) {
             m.judged += 1;
-            m.hits += u32::from(j.hit);
+            m.hits += u32::from(hit);
         }
     }
+}
+
+/// Revenue and result before taxes of a company over the last twelve closed months.
+pub fn year_figures(state: &GameState, company: CompanyId) -> (Money, Money) {
+    let months = &state.companies[company.index()].ledger.months;
+    let (mut revenue, mut result) = (Money::ZERO, Money::ZERO);
+    for m in &months[months.len().saturating_sub(12)..] {
+        for (&t, &amount) in &m.by_type {
+            if t == CostType::Revenue {
+                revenue += amount;
+            }
+            if t != CostType::Taxes {
+                result += amount;
+            }
+        }
+    }
+    (revenue, result)
+}
+
+/// What a department of `staff` employees costs a company a year (docs/FORMELN.md, ZA4):
+/// their wages and offices in the country of the headquarters and its head's salary – the
+/// one paid, else what a middling manager asks.
+pub fn yearly_cost(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    kind: DepartmentKind,
+    staff: u32,
+) -> Money {
+    let Some(d) = catalog.central.department(kind) else {
+        return Money::ZERO;
+    };
+    let hq = state.companies[company.index()].headquarters;
+    let wage = management::group_yearly_wage(catalog, state, hq, d.labor_group);
+    let employees = Money::from_usd(f64::from(staff) * wage).unwrap_or(Money::ZERO)
+        + d.office.scale(f64::from(staff));
+    let salary = match head(catalog, state, company, kind) {
+        Some(id) => state.managers[&id]
+            .job
+            .as_ref()
+            .map_or(Money::ZERO, |j| j.salary),
+        None => {
+            let factor = catalog
+                .management
+                .levels
+                .get(management::level_of(Unit::Board))
+                .map_or(0.0, |l| l.salary_specialist);
+            Money::from_usd(factor * management::yearly_wage(catalog, state, hq))
+                .unwrap_or(Money::ZERO)
+        }
+    };
+    employees + salary
+}
+
+/// The departments an AI company wants this year (docs/FORMELN.md, ZA4): those of the
+/// order whose workload reaches its least one, with full coverage, as long as all of
+/// them together cost at most its share of the revenue; none after a loss.
+pub fn ai_plan(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+) -> BTreeMap<DepartmentKind, u32> {
+    let model = &catalog.central.ai;
+    let mut wanted = BTreeMap::new();
+    let (competence, _) = crate::ai::traits(catalog, state, company);
+    let (revenue, result) = year_figures(state, company);
+    if result <= Money::ZERO || !catalog.management.enabled() {
+        return wanted;
+    }
+    let budget = revenue.scale(model.revenue_share.at(competence));
+    let mut spent = Money::ZERO;
+    for &(kind, least) in &model.order {
+        let Some(d) = catalog.central.department(kind) else {
+            continue;
+        };
+        let load = workload(state, company, kind);
+        if load < least || d.cases <= 0.0 {
+            continue;
+        }
+        // Workloads are small; the cast is exact.
+        let n = (load / d.cases).ceil().max(1.0) as u32;
+        let cost = yearly_cost(catalog, state, company, kind, n);
+        if spent + cost > budget {
+            break;
+        }
+        spent += cost;
+        wanted.insert(kind, n);
+    }
+    wanted
+}
+
+/// An AI company sets up the departments it wants and closes the others, letting their
+/// heads go (docs/FORMELN.md, ZA4).
+fn ai_departments(state: &mut GameState, catalog: &Catalog, company: CompanyId) {
+    let wanted = ai_plan(catalog, state, company);
+    for kind in catalog
+        .central
+        .departments
+        .iter()
+        .map(|d| d.kind)
+        .collect::<Vec<_>>()
+    {
+        let n = wanted.get(&kind).copied().unwrap_or(0);
+        if n != staff(state, company, kind) {
+            let command = Command::StaffDepartment {
+                department: kind,
+                staff: n,
+            };
+            let _ = command::execute(state, catalog, company, &command);
+        }
+        if n == 0
+            && let Some(manager) = head(catalog, state, company, kind)
+        {
+            let _ = command::execute(
+                state,
+                catalog,
+                company,
+                &Command::DismissManager { manager },
+            );
+        }
+    }
+}
+
+/// What moving to a country would save a company a year (docs/FORMELN.md, ZA4): profit
+/// tax on its result before taxes and the wages of its departments' employees.
+pub fn seat_saving(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    country: CountryId,
+) -> Money {
+    let c = &state.companies[company.index()];
+    let (_, result) = year_figures(state, company);
+    let hq = c.headquarters;
+    let tax = (state.countries.get(hq).corporate_tax - state.countries.get(country).corporate_tax)
+        * result.max(Money::ZERO).to_usd();
+    let mut wages = 0.0;
+    for (&kind, &n) in &c.departments {
+        let Some(d) = catalog.central.department(kind) else {
+            continue;
+        };
+        let now = management::group_yearly_wage(catalog, state, hq, d.labor_group);
+        let there = management::group_yearly_wage(catalog, state, country, d.labor_group);
+        wages += f64::from(n) * (now - there);
+    }
+    Money::from_usd(tax + wages).unwrap_or(Money::ZERO)
+}
+
+/// The country an AI company would move its headquarters to (docs/FORMELN.md, ZA4): of
+/// those where its sites bring enough of its revenue and that are not much poorer, the
+/// one saving most, if the savings pay for the move in the years of the data; none during
+/// a move or the years after one.
+pub fn ai_seat(catalog: &Catalog, state: &GameState, company: CompanyId) -> Option<CountryId> {
+    let own: Vec<crate::state::SiteId> = (0..state.sites.len())
+        // Few sites; the cast is exact.
+        .map(|i| crate::state::SiteId(i as u32))
+        .filter(|s| state.sites[s.index()].owner == company)
+        .collect();
+    ai_seat_among(catalog, state, company, &own)
+}
+
+/// `ai_seat` with the company's sites given (a January looks at all companies at once).
+fn ai_seat_among(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    own: &[crate::state::SiteId],
+) -> Option<CountryId> {
+    let model = &catalog.central.ai;
+    let c = &state.companies[company.index()];
+    if model.payback_years <= 0.0 || c.relocation.is_some() {
+        return None;
+    }
+    if c.relocated
+        .is_some_and(|d| d.add_months(model.lock_years * 12) > state.date)
+    {
+        return None;
+    }
+    let (revenue, _) = year_figures(state, company);
+    if revenue <= Money::ZERO {
+        return None;
+    }
+    let months = &c.ledger.months;
+    let recent = &months[months.len().saturating_sub(12)..];
+    let mut by_country: BTreeMap<CountryId, Money> = BTreeMap::new();
+    for &site in own {
+        let s = &state.sites[site.index()];
+        let earned: Money = recent
+            .iter()
+            .map(|m| m.site_revenue.get(&site).copied().unwrap_or(Money::ZERO))
+            .sum();
+        *by_country.entry(s.country).or_default() += earned;
+    }
+    let cost = relocation_cost(catalog, state, company);
+    let least = revenue.scale(model.seat_revenue_share);
+    let gdp = |country: CountryId| state.countries.get(country).gdp_per_capita_usd;
+    let poorest = gdp(c.headquarters) * model.seat_gdp_share;
+    let mut best: Option<(Money, CountryId)> = None;
+    for (country, earned) in by_country {
+        if country == c.headquarters
+            || earned < least
+            || earned <= Money::ZERO
+            || gdp(country) < poorest
+        {
+            continue;
+        }
+        let saving = seat_saving(catalog, state, company, country);
+        if saving <= Money::ZERO || saving.scale(model.payback_years) < cost {
+            continue;
+        }
+        // The largest saving; on a tie the first country of the data.
+        if best.is_none_or(|(b, _)| saving > b) {
+            best = Some((saving, country));
+        }
+    }
+    best.map(|(_, country)| country)
+}
+
+/// The AI companies' central departments and headquarters at a month start
+/// (docs/FORMELN.md, ZA4): in January they set up their departments and may move; every
+/// month their finance departments refinance loans. Returns the news for the player.
+pub fn ai_month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    let mut news = Vec::new();
+    let companies: Vec<CompanyId> = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| c.ai.is_some() && !c.bankrupt)
+        // Few companies; the cast is exact.
+        .map(|(i, _)| CompanyId(i as u32))
+        .collect();
+    let mut sites: BTreeMap<CompanyId, Vec<crate::state::SiteId>> = BTreeMap::new();
+    if date.month() == 1 {
+        for (i, s) in state.sites.iter().enumerate() {
+            // Few sites; the cast is exact.
+            sites
+                .entry(s.owner)
+                .or_default()
+                .push(crate::state::SiteId(i as u32));
+        }
+    }
+    let none = Vec::new();
+    for company in companies {
+        if date.month() == 1 {
+            ai_departments(state, catalog, company);
+            let own = sites.get(&company).unwrap_or(&none);
+            if let Some(country) = ai_seat_among(catalog, state, company, own) {
+                let command = Command::SetHeadquarters { country };
+                if command::execute(state, catalog, company, &command).is_ok() {
+                    let c = &state.companies[company.index()];
+                    let until = c.relocation.map_or(date, |r| r.until);
+                    news.push(
+                        Message::new(MessageKind::Info, keys::RIVAL_HEADQUARTERS)
+                            .with("firma", Param::Text(c.name.clone()))
+                            .with(
+                                "land",
+                                Param::Country(catalog.countries.key(country).to_owned()),
+                            )
+                            .with("datum", Param::Date(until)),
+                    );
+                }
+            }
+        }
+        let cases = cases(catalog, state, company, DepartmentKind::Finance);
+        for loan in refinance_candidates(catalog, state, company)
+            .into_iter()
+            .take(cases)
+        {
+            let _ = command::execute(state, catalog, company, &Command::RefinanceLoan { loan });
+        }
+    }
+    news
 }
 
 /// What moving the headquarters costs now (docs/FORMELN.md, ZA1).
@@ -606,7 +984,7 @@ pub(crate) fn set_headquarters(
 /// At a month start (docs/FORMELN.md, ZA1): moves that are due are done. Returns the news
 /// for the player.
 pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
-    judge(state, date);
+    judge(state, catalog, date);
     let mut news = Vec::new();
     let player = state.player;
     for (i, c) in state.companies.iter_mut().enumerate() {
@@ -618,6 +996,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
             continue;
         }
         c.headquarters = r.country;
+        c.relocated = Some(date);
         let share = catalog.central.headquarters.moving_share;
         let before: u32 = c.departments.values().sum();
         for n in c.departments.values_mut() {

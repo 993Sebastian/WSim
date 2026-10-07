@@ -997,8 +997,9 @@ fn revenue(state: &GameState, company: CompanyId, site: Option<SiteId>) -> Money
 }
 
 /// The position an AI company fills next and the revenue its salary is measured on
-/// (docs/FORMELN.md, MA6): the CEO from a revenue on, then the heads of its largest
-/// sites; none while it offered someone a position.
+/// (docs/FORMELN.md, MA6, ZA4): the CEO from a revenue on, then the heads of its central
+/// departments, then the heads of its largest sites; none while it offered someone a
+/// position.
 fn next_position(
     catalog: &Catalog,
     state: &GameState,
@@ -1013,11 +1014,24 @@ fn next_position(
         role: Role::Head,
     };
     let total = revenue(state, company, None);
+    let board = management::positions(catalog, state, company, Unit::Board);
     if total >= ai.ceo_revenue
-        && management::positions(catalog, state, company, Unit::Board).contains(&ceo)
+        && board.contains(&ceo)
         && management::holder(state, company, &ceo).is_none()
     {
         return Some((ceo, total));
+    }
+    // The heads of its central departments (ZA4).
+    for d in &catalog.central.departments {
+        if crate::central::staff(state, company, d.kind) == 0 {
+            continue;
+        }
+        if let Some(head) = crate::central::head_position(catalog, d.kind)
+            && board.contains(&head)
+            && management::holder(state, company, &head).is_none()
+        {
+            return Some((head, total));
+        }
     }
     let mut sites: Vec<(SiteId, Money)> = state
         .sites

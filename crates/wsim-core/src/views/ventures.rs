@@ -77,6 +77,10 @@ pub struct VentureView {
     pub invest_max_usd: Option<f64>,
     /// What all of it would fetch when selling now (with the discount).
     pub sale_value_usd: f64,
+    /// The value of the player's shares now and the minimum price it offers them to the
+    /// companies for until the next month start; none without an offer (ZA4).
+    pub own_value_usd: f64,
+    pub own_offer_usd: Option<f64>,
     /// More than half: the player may steer and integrate.
     pub majority: bool,
     /// Key of the pace (`startup.lenkung.<key>`).
@@ -165,6 +169,10 @@ pub struct VenturesView {
     pub grant_effect: f64,
     /// The paces a majority can choose (`startup.lenkung.<key>`).
     pub paces: Vec<String>,
+    /// When stakes offered to the companies go to the best bid (the next month start), and
+    /// the highest premium on the value a company bids (ZA4).
+    pub offers_settle: String,
+    pub company_premium_max: f64,
     /// The projects of the player's research centers (SU3) and the progress from which
     /// one may be spun off.
     pub spin_offs: Vec<SpinOffView>,
@@ -280,6 +288,12 @@ pub fn ventures(game: &Game) -> VenturesView {
             invest_mode: invest.map(|(mode, _)| mode.to_owned()),
             invest_max_usd: invest.map(|(_, max)| usd(max)),
             sale_value_usd: usd(ventures::value(m, v).scale(1.0 - m.stakes.sale_discount)),
+            own_value_usd: usd(ventures::value(m, v).scale(ventures::share_of(v, player))),
+            own_offer_usd: v
+                .sales
+                .iter()
+                .find(|&&(c, _)| c == player)
+                .map(|&(_, minimum)| usd(minimum)),
             majority,
             pace: v.pace.key().to_owned(),
             integration_usd: (active && majority && !blocked && v.parent != Some(player))
@@ -361,6 +375,8 @@ pub fn ventures(game: &Game) -> VenturesView {
             .iter()
             .map(|p| p.key().to_owned())
             .collect(),
+        offers_settle: iso(state.date.first_of_month().add_months(1)),
+        company_premium_max: c.deal_model.ai.bid_markup.at(1.0),
         spin_offs: spin_offs(game),
         spin_off_min: m.stakes.spin_off_progress_min,
         label: m.label(state.date.year()).map(str::to_owned),

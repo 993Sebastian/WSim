@@ -221,6 +221,7 @@ function BetragsForm({
   max,
   befehl,
   erfolg,
+  feld = t("beteiligungen.betrag"),
 }: {
   ort: string;
   titel: string;
@@ -229,6 +230,7 @@ function BetragsForm({
   max: number | null;
   befehl: (usd: number) => Befehl;
   erfolg: (usd: number) => string;
+  feld?: string;
 }) {
   const [betrag, setBetrag] = useState("");
   const [fehler, setFehler] = useState<string | null>(null);
@@ -253,7 +255,7 @@ function BetragsForm({
       <p className="feld-hilfe">{hilfe}</p>
       <div className="formular-zeile">
         <ZahlFeld
-          name={t("beteiligungen.betrag")}
+          name={feld}
           einheit={geldEinheit()}
           wert={betrag}
           onWert={setBetrag}
@@ -315,6 +317,50 @@ function Verkauf({ s, d }: { s: StartUp; d: StartUps }) {
       {fehler && <p className="fehlertext">{fehler}</p>}
       <Rueckmeldung meldung={antwort} />
     </form>
+  );
+}
+
+/** All of the player's shares offered to the companies from a minimum price (ZA4). */
+function AnFirmen({ s, d }: { s: StartUp; d: StartUps }) {
+  const titel = t("beteiligungen.an_firmen");
+  const { los, antwort } = useAktion("an_firmen");
+  const datum = formatDatum(d.offers_settle);
+  if (s.own_offer_usd !== null) {
+    return (
+      <div className="karte" role="group" aria-label={titel}>
+        <h4>{titel}</h4>
+        <p>{t("beteiligungen.angeboten", { preis: formatGeld(s.own_offer_usd), datum })}</p>
+        <button
+          type="button"
+          onClick={() =>
+            void los(
+              [{ OfferVentureStake: { venture: s.id, minimum: null } }],
+              t("beteiligungen.zurueckgezogen"),
+            )
+          }
+        >
+          {t("beteiligungen.zurueckziehen")}
+        </button>
+        <Rueckmeldung meldung={antwort} />
+      </div>
+    );
+  }
+  return (
+    <BetragsForm
+      ort="an_firmen"
+      titel={titel}
+      knopf={t("beteiligungen.anbieten_knopf")}
+      feld={t("beteiligungen.mindestpreis")}
+      hilfe={t("beteiligungen.an_firmen_hilfe", {
+        anteil: formatProzent(s.own_share),
+        wert: formatGeld(s.own_value_usd),
+        aufschlag: formatProzent(d.company_premium_max),
+        datum,
+      })}
+      max={null}
+      befehl={(usd) => ({ OfferVentureStake: { venture: s.id, minimum: geld(usd) } })}
+      erfolg={(usd) => t("beteiligungen.angeboten_meldung", { preis: formatGeld(usd), datum })}
+    />
   );
 }
 
@@ -465,6 +511,7 @@ function Detail({ s, d, onZurueck }: { s: StartUp; d: StartUps; onZurueck: () =>
           />
         )}
         {s.own_share > 0 && s.status === "aktiv" && <Verkauf s={s} d={d} />}
+        {s.own_share > 0 && s.status === "aktiv" && <AnFirmen s={s} d={d} />}
         {s.majority && s.status === "aktiv" && <Lenkung s={s} d={d} />}
         {s.integration_usd !== null && <Eingliedern s={s} />}
         {s.blocked && <p className="gedaempft">{t("beteiligungen.gesperrt")}</p>}

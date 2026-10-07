@@ -429,7 +429,7 @@ test("An einem Start-up beteiligen und es fördern", async ({ page }) => {
   await foerdern.getByLabel("Betrag").fill("5.000");
   await foerdern.getByRole("button", { name: "Fördern" }).click();
   // Without a stake neither sale nor steering.
-  await expect(detail.getByRole("form", { name: "Anteile verkaufen" })).toHaveCount(0);
+  await expect(detail.getByRole("form", { name: "An Investoren verkaufen" })).toHaveCount(0);
   await expect(detail.getByRole("group", { name: "Lenken" })).toHaveCount(0);
   await bild(page, "beteiligung");
   expect((await befehle(page)).slice(-2)).toEqual([

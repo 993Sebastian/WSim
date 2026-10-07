@@ -32,4 +32,20 @@ zentrale:
   # in Fällen und Exponent k der Gehaltsforderung.
   umschuldung: {mindestvorteil: 0.01, gebuehr: 0.01}
   trefferquote: {bewertung_monate: 12, mittelwert: 0.5, vorgewicht: 4, k: 2}
+
+  # KI-Firmen (ZA4): Zum Jahresbeginn richten sie Abteilungen in der Reihenfolge ein,
+  # solange alle zusammen (Angestellte, Büro, Leitung) höchstens anteil_umsatz ihres
+  # Umsatzes der letzten zwölf Monate kosten (nach Kompetenz; mit Verlust keine). Eine
+  # Abteilung nur ab ihrer Mindestlast (Arbeitslast wie ZA2: Finanzen Kredite + 1,
+  # Personal Manager, Marketing Werbebudgets + 1, sonst 1). Den Sitz verlegen sie in ein
+  # Land mit eigenen Standorten, die mindestens anteil_umsatz_min ihres Umsatzes bringen
+  # und dessen BIP je Kopf mindestens bip_anteil_min des heutigen Sitzlands beträgt (kein
+  # Umzug in ein viel ärmeres Land: Kapital, Manager, Verwaltung), wenn die Ersparnis an
+  # Gewinnsteuer und Löhnen der Zentrale die Kosten der Verlegung in amortisation_jahre
+  # deckt; danach bleibt der Sitz mindestens sperre_jahre.
+  ki:
+    anteil_umsatz: {bei_0: 0, bei_1: 0.02}
+    reihenfolge: [finanzen, marketing, personal, strategie, recht]
+    mindestlast: {finanzen: 2, marketing: 2, personal: 10}
+    sitz: {anteil_umsatz_min: 0.25, bip_anteil_min: 0.75, amortisation_jahre: 3, sperre_jahre: 10}
   annaeherung: true

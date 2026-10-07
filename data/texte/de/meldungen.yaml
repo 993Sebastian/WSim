@@ -200,12 +200,14 @@ fehler.befehl.startup_beendet: Dieses Start-up ist beendet.
 fehler.befehl.startup_tochter: Dieses Start-up ist die Tochterfirma einer anderen Firma.
 fehler.befehl.betrag_zu_hoch: "Das ist mehr, als zu haben ist: höchstens {max}."
 fehler.befehl.anteil_zu_klein: So viele Anteile hält deine Firma nicht.
+fehler.befehl.kein_verkaufsangebot: Diese Firma bietet ihre Anteile an dem Start-up nicht an.
 fehler.befehl.keine_mehrheit: Das darf nur, wer mehr als die Hälfte hält.
 fehler.befehl.sperrminoritaet: Eine andere Firma hält eine Sperrminorität (ein Viertel oder mehr).
 fehler.befehl.keine_ausgruendung: "Ausgründen lässt sich nur das Projekt eines eigenen Forschungszentrums, das an einer noch nicht erfundenen Technologie oder an einer Stufe arbeitet, die noch keine Firma erreicht hat."
 fehler.befehl.ausgruendung_zu_frueh: "Das Projekt ist erst zu {fortschritt} % fertig – ausgründen kannst du ab {mindestens} %."
 meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
+meldung.hauptsitz.konkurrenz: "{firma} verlegt ihren Hauptsitz nach {land} und spart dort Steuern und Löhne; der Umzug ist am {datum} abgeschlossen."
 meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."
 meldung.startup.weiterentwicklung: "{name} ({land}) hat {produkt} auf Stufe {stufe} weiterentwickelt. Nach {jahre} Jahren kennt jeder Hersteller die Stufe."
 meldung.startup.rueckzahlung: "Die Runde von {name} kam nicht zustande: Deine Zusage über {betrag} fließt zurück."
@@ -218,6 +220,9 @@ meldung.startup.boersengang: "{name} geht an die Börse: Du erhältst {betrag} f
 meldung.startup.neue_firma: "Aus {name} ({land}) wird die Firma {firma} – mit {ziel} als Vorsprung."
 meldung.startup.ausgruendung: "{firma} gründet ihre Forschung an {ziel} als Start-up aus: {name} ({land}) sucht Geld für die nächste Runde."
 meldung.startup.uebernahme: "{firma} übernimmt das Start-up {name} ({ziel}) – gelingt es, hat die Firma den Vorsprung."
+meldung.startup.anteil_verkauft: "{firma} kauft deinen Anteil an {name} für {betrag}."
+meldung.startup.anteil_nicht_verkauft: "Für deinen Anteil an {name} hat keine Firma geboten. Er bleibt bei dir."
+meldung.startup.anteil_bestes_gebot: "Für deinen Anteil an {name} bot keine Firma deinen Mindestpreis von {mindestpreis}; das beste Gebot kam von {firma} mit {betrag}. Der Anteil bleibt bei dir."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."

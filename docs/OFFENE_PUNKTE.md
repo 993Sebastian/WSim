@@ -903,7 +903,8 @@ entschieden:
 Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote), ✅ **SU1
 umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
 (Beteiligungen der Firmen), ✅ **SU3 umgesetzt** (Ausgründungen, KI-Firmen beteiligen
-sich). 🟡 Vorläufig entschieden:
+sich), ✅ **ZA4 umgesetzt** („Paket A“ vom 07.10.2026: Punkte 5, 11, 14, 29 und 36;
+Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -913,7 +914,10 @@ sich). 🟡 Vorläufig entschieden:
 3. **Kosten** 250.000 USD plus 25.000 USD je Angestelltem der Zentrale, Dauer sechs
    Monate, 60 % ziehen mit (Schätzungen in `parameter/zentrale.yaml`).
 4. **Kriegsrisiken** des Sitzlands kommen mit Stufe 4.
-5. **KI-Firmen** verlegen ihren Sitz nicht.
+5. ✅ **KI-Firmen verlegen ihren Sitz** (ZA4): zum Jahresbeginn in ein Land, in dem sie
+   mindestens ein Viertel ihres Umsatzes machen und das nicht viel ärmer ist, wenn die
+   Ersparnis an Gewinnsteuer und Löhnen der Zentrale die Kosten in drei Jahren deckt;
+   danach zehn Jahre Ruhe (Punkt 39).
 6. **Angestellte ohne Einzelpersonen, sofort:** Die Zahl der Angestellten je Abteilung gilt
    ab sofort, ohne Einstellungskosten, Abfindung oder Grenze durch den Akademiker-Pool des
    Landes. Vorschlag: den Pool erst prüfen, wenn Zentralen groß werden (Stufe 2).
@@ -933,17 +937,17 @@ sich). 🟡 Vorläufig entschieden:
 10. **Wirkungen** (Schätzwerte in `zentrale.yaml`): Finanzen bis 40 % weniger
     Risikoaufschlag, Personal bis 50 % mehr Erfahrung, Marketing bis 30 % stärkere Werbung;
     Strategie und Recht wirken über die Zahl der Länder und Technologien, die sie prüfen.
-11. **KI-Firmen** richten noch keine Zentralabteilungen ein (ihre Manager wirken über die
-    Kompetenz, MA6); Vorschlag: mit SU3, wenn KI-Firmen sich beteiligen.
+11. ✅ **KI-Firmen richten Zentralabteilungen ein** (ZA4): nach ihrem Umsatz, mit
+    denselben Befehlen und Wirkungen wie der Spieler (Punkte 37 und 38).
 12. **Welt mit neuen Ressorts:** Die zwei neuen Bereiche ändern die Ziehung der Manager
     (mehr Fähigkeiten je Manager); deshalb weicht ein Weltlauf mit gleichem Startwert vom
     Stand vor ZA2 ab. Mit den alten Daten ist er bitgleich.
 13. **Wer schätzt:** Jede Übernahme und Lizenz, die der Vorstand anbietet, schätzt die
     Stelle des Ressorts (sonst der CEO) – auch ohne Abteilung; die Abteilung macht die
     Schätzung genauer. Bewertet wird jede Schätzung, auch wenn das Angebot nicht abgeht.
-14. **Treffer** heißt: Das Angebot lag nicht über dem Wert nach den Regeln am Tag der
-    Schätzung. Vorschlag für später: den Wert nach der Frist neu bewerten (Erfolg der
-    Übernahme), sobald Beteiligungen einen Verlauf haben (SU2).
+14. ✅ **Treffer nach dem Erfolg** (ZA4): Übernahmen zählen nach der Frist mit dem
+    Grundwert, den der Gegenstand dann hat; Start-up-Empfehlungen werden ebenfalls
+    bewertet; Lizenzen bleiben bei der Bewertung am Tag der Schätzung (Punkt 41).
 15. **Gehaltsrunde** ist ein Regelthema: Die Personalstelle empfiehlt immer die Erhöhung
     auf den Marktwert; Umschuldung wird nach ersparten Zinsen und Gebühr bewertet.
 16. **Verbesserung = Stufe der Weiterentwicklung:** Ein Start-up „Verbesserung“ zielt auf
@@ -982,8 +986,9 @@ sich). 🟡 Vorläufig entschieden:
     Mutter wird verwässert – unter der Mehrheit ist es keine Tochter mehr.
 28. **Fördergeld wirkt nur auf die laufende Phase** und höchstens bis `chance_max`
     (0,98); es zählt nicht zum Budget „Beteiligungen“, weil es Forschungsaufwand ist.
-29. **Verkauf nur an Investoren außerhalb des Spiels** mit 20 % Abschlag; Verkäufe an
-    andere Firmen erst, wenn KI-Firmen mitbieten (SU3).
+29. ✅ **Verkauf an Firmen** (ZA4): Neben dem Sofortverkauf an Investoren (20 %
+    Abschlag) bietet der Spieler seinen ganzen Anteil allen Firmen an; zum nächsten
+    Monatsanfang kauft das beste Gebot ab seinem Mindestpreis (Punkt 40).
 30. **Meldungen** bekommt der Spieler zu seinen Beteiligungen (Rückzahlung, Verlust,
     Forschungsbonus, Tochter, Auszahlung, Übernahme, Börsengang) und wenn aus einem
     Start-up eine neue Firma wird; was KI-Firmen untereinander tun, meldet das Spiel nicht.
@@ -1011,11 +1016,40 @@ sich). 🟡 Vorläufig entschieden:
     mit Chance ≥ 30 % und für höchstens 20 % ihrer Kasse; eine Sperrminorität anderer (auch
     des Spielers) verhindert es. Ohne die Bedingung „schon beteiligt“ übernahmen im
     Weltlauf die KI-Firmen fast jedes nützliche Start-up, bevor es eine Runde weiter war.
-36. **Ausfallquote über dem Richtwert** (🟡 Vorschlag, offen): Im Weltlauf 1900–1915 mit
-    100 KI-Firmen scheitern 77–83 % der beendeten Start-ups (Richtwert 60–70 %). Allein die
-    Chancen der Phasen (0,65 · 0,8 · 0,9) lassen 53 % scheitern; Vorlauf und Überholen durch
-    forschende KI-Firmen kommen dazu. Vorschlag: erst einen langen Weltlauf (bis 1940)
-    abwarten; liegt er weiter über 70 %, die erste Phase auf 0,7 anheben.
+36. ✅ **Ausfallquote im Richtwert** (ZA4): Im Weltlauf 1900–1940 (100 KI-Firmen,
+    „normal“) scheitern 64 % der in den letzten zehn Jahren beendeten Start-ups
+    (Richtwert 60–70 %). Die 77–83 % der Läufe bis 1915 kamen vom Anlauf: Fehlschläge
+    enden früher als Erfolge, die alle drei Phasen brauchen (mindestens 54 Monate). Die
+    Chancen der Phasen bleiben.
+37. **Zentrale der KI nach Umsatz** (ZA4): Zum Jahresbeginn darf die Zentrale einer
+    KI-Firma 0–2 % ihres Umsatzes der letzten zwölf Monate kosten (nach Kompetenz), mit
+    Verlust nichts. Die Abteilungen kommen in der Reihenfolge Finanzen (nur mit Kredit),
+    Marketing (nur mit Werbung), Personal (ab zehn Managern), Strategie, Recht – jede voll
+    besetzt. Ein Nutzen in Geld lässt sich nur für Finanzen und Marketing schätzen; der
+    Anteil am Umsatz begrenzt, was eine Firma für alle ausgibt.
+38. **Was die Zentrale der KI tut:** dieselben Wirkungen wie beim Spieler (Kredite,
+    Schulung, Werbung) und dazu: Finanzen schulden um, Strategie sucht Übernahmen in den
+    beobachteten Ländern und sieht Start-ups schärfer, Recht prüft Lizenzen. Empfehlungen
+    und Trefferquoten gibt es bei KI-Firmen weiter nicht (ihre Leitungen werden nicht
+    bewertet). Leitungen stellt die KI wie den CEO ein (nach dem CEO, vor den Standorten).
+39. **Kein Umzug in ein viel ärmeres Land** (`bip_anteil_min` 0,75): Ohne diese Bedingung
+    zog im ersten Testlauf eine deutsche Weberei 1902 nach Indonesien, um Löhne für einige
+    Angestellte der Zentrale zu sparen. Mit ihr verlegen KI-Firmen ihren Sitz vor allem
+    wegen der Gewinnsteuer und selten (Weltlauf: siehe `docs/FORTSCHRITT.md`, ZA4).
+40. **Bieterverfahren statt Verhandlung:** Der Spieler nennt einen Mindestpreis, die
+    KI-Firmen bieten bis zum nächsten Monatsanfang, das höchste Gebot kauft zu seinem
+    Preis; der Spieler erfährt sonst das beste Gebot. Gebote: Wert des Anteils mit dem
+    Gebotsaufschlag der Kaufangebote, höchstens der erwartete Wert über dem
+    Mindestertrag. Eine Sperrminorität eines Dritten verhindert, dass ein Käufer so über
+    die Mehrheit kommt („Verkauf an Konkurrenten blockieren“). Noch nicht: Kaufangebote
+    des Spielers für Anteile anderer Firmen und Verkäufe der KI untereinander (Vorschlag:
+    mit der Börse, Stufe 3).
+41. **Treffer bei Übernahmen und Start-ups** (ZA4): Übernahme: Angebot ≤ Wert nach den
+    Regeln · Grundwert dann / Grundwert am Tag der Schätzung (der Markenwert eines Bereichs
+    zählt wie am Tag der Schätzung). Start-up-Empfehlung: Erfolg ist ein Treffer,
+    Scheitern keiner, sonst zählt der Wert des Anteils mit der wahren Chance gegen den
+    Einsatz. Je Start-up und Leitung eine ausstehende Bewertung (sonst zählte jede
+    monatliche Empfehlung derselben Runde).
 
 ## Reihenfolge der neuen Punkte
 

@@ -23,15 +23,17 @@ use crate::state::{
     VentureStatus, VentureTarget,
 };
 
-/// Start-ups at the start of a month: rounds and phases of the active ones, then the new
-/// ones, then closed ones leave the list. Returns messages for the player.
+/// Start-ups at the start of a month: stakes offered to the companies, rounds and phases
+/// of the active ones, then the new ones, then closed ones leave the list. Returns
+/// messages for the player.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let m = &catalog.ventures;
     if m.phases.is_empty() {
         return Vec::new();
     }
     let month = management::month_number(date);
-    let mut messages = Vec::new();
+    // Stakes offered during the month go first, at the state the sellers saw (ZA4).
+    let mut messages = settle_sales(state, catalog);
     for i in 0..state.ventures.len() {
         if state.ventures[i].status != VentureStatus::Active {
             continue;
@@ -804,6 +806,7 @@ fn found(state: &mut GameState, catalog: &Catalog, date: Date, month: u32) {
             pace: VenturePace::Normal,
             exit: None,
             origin: None,
+            sales: Vec::new(),
         };
         let gdp = state.countries.get(country).gdp_per_capita_usd;
         start_phase(m, &mut v, 0, gdp, date);
@@ -1110,6 +1113,223 @@ pub(crate) fn sell(
     Ok(())
 }
 
+/// `OfferVentureStake` (ZA4): all of the company's shares go to the best bid of the other
+/// companies from the minimum at the next month start; without a minimum the offer is
+/// withdrawn.
+pub(crate) fn offer_stake(
+    state: &mut GameState,
+    actor: CompanyId,
+    venture: u32,
+    minimum: Option<Money>,
+) -> Result<(), CommandError> {
+    let i = active(state, venture)?;
+    let v = &mut state.ventures[i];
+    let Some(minimum) = minimum else {
+        v.sales.retain(|&(c, _)| c != actor);
+        return Ok(());
+    };
+    if share_of(v, actor) <= 0.0 {
+        return Err(CommandError::NotEnoughShares);
+    }
+    if minimum <= Money::ZERO {
+        return Err(CommandError::InvalidPrice);
+    }
+    v.sales.retain(|&(c, _)| c != actor);
+    v.sales.push((actor, minimum));
+    Ok(())
+}
+
+/// Whether buying `share` from `seller` would take `buyer` over the majority while a
+/// third company holds a blocking minority (ZA4: the blocking minority keeps out a
+/// competitor).
+pub fn sale_blocked(
+    m: &VentureModel,
+    v: &Venture,
+    (buyer, seller): (CompanyId, CompanyId),
+    share: f64,
+) -> bool {
+    share_of(v, buyer) + share > m.stakes.majority
+        && companies_of(v)
+            .into_iter()
+            .any(|(c, s)| c != buyer && c != seller && s >= m.stakes.blocking)
+}
+
+/// `BuyVentureStake` (ZA4): a company buys all the shares another one offers, at a price
+/// from its minimum; booked like a sale for the seller (SU2) and a purchase for the
+/// buyer.
+pub(crate) fn buy_stake(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+    (seller, price): (CompanyId, Money),
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    let v = &state.ventures[i];
+    let Some(&(_, minimum)) = v.sales.iter().find(|&&(c, _)| c == seller) else {
+        return Err(CommandError::NoStakeOffer);
+    };
+    if actor == seller {
+        return Err(CommandError::OwnObject);
+    }
+    if price < minimum {
+        return Err(CommandError::BelowMinimumBid { minimum });
+    }
+    let share = share_of(v, seller);
+    if share <= 0.0 {
+        return Err(CommandError::NotEnoughShares);
+    }
+    if v.parent.is_some_and(|p| p != seller && p != actor) {
+        return Err(CommandError::VentureOfOther);
+    }
+    if sale_blocked(m, v, (actor, seller), share) {
+        return Err(CommandError::VentureBlocked);
+    }
+    check_amount(state, actor, price)?;
+    exit_stake(state, i, seller, share, price);
+    state.companies[actor.index()]
+        .ledger
+        .transfer(Account::Participations, Account::Cash, price);
+    let v = &mut state.ventures[i];
+    add_share(v, Holder::Company(actor), share);
+    add_to(&mut v.book, actor, price);
+    v.sales.retain(|&(c, _)| c != seller);
+    keep_parent(m, v);
+    crate::central::count_purchase(state, actor, price);
+    Ok(())
+}
+
+/// What is left of a share held today after the rounds still to come, the open one
+/// included, if the holder does not join them.
+fn kept_after_rounds(m: &VentureModel, v: &Venture) -> f64 {
+    let from = if v.round_until.is_some() {
+        v.phase
+    } else {
+        v.phase + 1
+    };
+    (from..m.phases.len())
+        .map(|j| m.phases[j].valuation / (m.phases[j].valuation + 1.0))
+        .product()
+}
+
+/// What an AI company bids for a share of a start-up (docs/FORMELN.md, ZA4): its value
+/// with the bid markup, at most its expected value over the minimum return and the share
+/// of its cash for takeovers; none where that would not beat what investors pay.
+pub fn stake_bid(
+    catalog: &Catalog,
+    state: &GameState,
+    bidder: CompanyId,
+    v: &Venture,
+    share: f64,
+) -> Option<Money> {
+    let m = &catalog.ventures;
+    let a = &m.stakes.ai;
+    let c = &state.companies[bidder.index()];
+    if c.ai.is_none() || c.bankrupt || c.ledger.cash() < a.cash_min || share <= 0.0 {
+        return None;
+    }
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, bidder);
+    let worth = value(m, v).to_usd() * share;
+    let chance = ai_chance(catalog, state, bidder, v);
+    let expected =
+        chance * expected_success_value(state, m, v).to_usd() * share * kept_after_rounds(m, v);
+    let wanted = 1.0 + (1.0 - aggressiveness) * a.min_return;
+    let markup = catalog.deal_model.ai.bid_markup.at(aggressiveness);
+    let bid = (worth * (1.0 + markup))
+        .min(expected / wanted)
+        .min(c.ledger.cash().scale(a.takeover_cash).to_usd());
+    let investors = worth * (1.0 - m.stakes.sale_discount);
+    if bid > investors {
+        Money::from_usd(bid)
+    } else {
+        None
+    }
+}
+
+/// The best bid of the companies for the shares a seller offers: the highest, on a tie
+/// the company with the lower number; none where nobody may or wants to buy.
+pub fn best_stake_bid(
+    catalog: &Catalog,
+    state: &GameState,
+    v: &Venture,
+    seller: CompanyId,
+) -> Option<(CompanyId, Money)> {
+    let m = &catalog.ventures;
+    let share = share_of(v, seller);
+    let mut best: Option<(CompanyId, Money)> = None;
+    for j in 0..state.companies.len() {
+        let bidder = CompanyId(u32::try_from(j).unwrap_or(u32::MAX));
+        if bidder == seller
+            || v.parent.is_some_and(|p| p != seller && p != bidder)
+            || sale_blocked(m, v, (bidder, seller), share)
+        {
+            continue;
+        }
+        let Some(bid) = stake_bid(catalog, state, bidder, v, share) else {
+            continue;
+        };
+        if best.is_none_or(|(_, b)| bid > b) {
+            best = Some((bidder, bid));
+        }
+    }
+    best
+}
+
+/// The stakes offered to the companies at a month start (docs/FORMELN.md, ZA4): the best
+/// bid from the minimum buys through the command; else the offer ends. Returns the news
+/// for the player.
+fn settle_sales(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
+    let player = state.player;
+    let mut news = Vec::new();
+    for i in 0..state.ventures.len() {
+        if state.ventures[i].sales.is_empty() {
+            continue;
+        }
+        let sales = state.ventures[i].sales.clone();
+        for (seller, minimum) in sales {
+            let v = &state.ventures[i];
+            let (id, name) = (v.id, v.name.clone());
+            let best = (v.status == VentureStatus::Active && share_of(v, seller) > 0.0)
+                .then(|| best_stake_bid(catalog, state, v, seller))
+                .flatten();
+            let firm = |c: CompanyId| Param::Text(state.companies[c.index()].name.clone());
+            let message = match best {
+                Some((buyer, price)) if price >= minimum => {
+                    let command = Command::BuyVentureStake {
+                        venture: id,
+                        seller,
+                        price,
+                    };
+                    let sold = Message::new(MessageKind::Info, keys::VENTURE_STAKE_SOLD)
+                        .with("firma", firm(buyer))
+                        .with("name", Param::Text(name))
+                        .with("betrag", Param::Money(price));
+                    crate::command::execute(state, catalog, buyer, &command)
+                        .is_ok()
+                        .then_some(sold)
+                }
+                Some((bidder, price)) => Some(
+                    Message::new(MessageKind::Info, keys::VENTURE_STAKE_BEST_BID)
+                        .with("name", Param::Text(name))
+                        .with("mindestpreis", Param::Money(minimum))
+                        .with("firma", firm(bidder))
+                        .with("betrag", Param::Money(price)),
+                ),
+                None => Some(
+                    Message::new(MessageKind::Info, keys::VENTURE_STAKE_UNSOLD)
+                        .with("name", Param::Text(name)),
+                ),
+            };
+            state.ventures[i].sales.retain(|&(c, _)| c != seller);
+            if seller == player {
+                news.extend(message);
+            }
+        }
+    }
+    news
+}
+
 /// `SteerVenture` (SU2): the majority sets the pace of the phases to come and of the
 /// current one while its round is open.
 pub(crate) fn steer(
@@ -1359,6 +1579,7 @@ fn spin_off_venture(
         pace: VenturePace::Normal,
         exit: None,
         origin: Some(company),
+        sales: Vec::new(),
     };
     let gdp = state.countries.get(plan.country).gdp_per_capita_usd;
     start_phase(&catalog.ventures, &mut v, plan.phase, gdp, date);
@@ -1460,12 +1681,22 @@ pub(crate) fn spin_off(
     Ok(())
 }
 
-/// The chance of success an AI company sees (SU3): blurred by the start-up's draw, the
-/// less the more competent the company is.
+/// The chance of success an AI company sees (SU3, ZA4): blurred by the start-up's draw,
+/// the less the more competent the company is and the better its strategy department
+/// works.
 fn ai_chance(catalog: &Catalog, state: &GameState, company: CompanyId, v: &Venture) -> f64 {
-    let m = &catalog.ventures;
+    seen_chance(&catalog.ventures, v, ai_sight(catalog, state, company))
+}
+
+/// How sharply an AI company sees start-ups: its competence and the insight of its
+/// strategy department (looked up once for all the start-ups it checks).
+fn ai_sight(catalog: &Catalog, state: &GameState, company: CompanyId) -> (f64, f64) {
     let (competence, _) = crate::ai::traits(catalog, state, company);
-    let blur = m.blur * (1.0 - competence);
+    (competence, insight(catalog, state, company).unwrap_or(0.0))
+}
+
+fn seen_chance(m: &VentureModel, v: &Venture, (competence, work): (f64, f64)) -> f64 {
+    let blur = m.blur * (1.0 - competence) * (1.0 - work);
     (success_chance(m, v) * (1.0 + v.blur * blur)).clamp(0.0, 1.0)
 }
 
@@ -1590,6 +1821,7 @@ fn ai_pledges(
         .ledger
         .cash()
         .scale(a.cash_share);
+    let sight = ai_sight(catalog, state, company);
     let mut found: Vec<(f64, u32, Money)> = state
         .ventures
         .iter()
@@ -1600,7 +1832,7 @@ fn ai_pledges(
                 && amount_of(&v.pledges, company) == Money::ZERO
         })
         .map(|v| {
-            let chance = ai_chance(catalog, state, company, v);
+            let chance = seen_chance(m, v, sight);
             (return_at(state, m, v, chance), v.id, v.capital - v.raised)
         })
         .filter(|&(e, _, open)| e >= wanted && open > Money::ZERO)
@@ -1674,6 +1906,7 @@ fn ai_takeover(
         .cash()
         .scale(a.takeover_cash);
     let wanted = m.stakes.majority + 0.01;
+    let sight = ai_sight(catalog, state, company);
     let best = state
         .ventures
         .iter()
@@ -1687,7 +1920,7 @@ fn ai_takeover(
                 && own <= m.stakes.majority
         })
         .filter_map(|v| {
-            let chance = ai_chance(catalog, state, company, v);
+            let chance = seen_chance(m, v, sight);
             let own_share = share_of(v, company);
             let outside: f64 = v
                 .owners

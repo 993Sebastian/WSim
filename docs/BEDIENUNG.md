@@ -220,6 +220,10 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Warengruppe alle Standorte, die Waren der Gruppe herstellen oder anbieten, mit der
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
+- **Zentrale der Konkurrenz (ZA4):** Unter dem Kopf einer Firma steht ihre Zentrale
+  („Zentrale: Finanzen, Marketing (3 Angestellte).“ oder „Keine Zentralabteilungen.“) und
+  ein laufender Umzug des Hauptsitzes („Verlegt den Hauptsitz nach … (ab …)“). Der
+  Rundenbericht meldet, wenn eine Firma ihren Sitz verlegt.
 
 ### Organisation (MA1–MA6)
 
@@ -443,8 +447,13 @@ was darf ich mit ihr?“
   - **In der Runde zusagen** (offene Runde, „Höchstens“ der offene Rest) oder **Anteile
     kaufen** (zwischen den Runden, mit Aufschlag) – Betrag mit Tausenderpunkten;
   - **Fördergeld geben** (immer bei laufenden Start-ups, mit Wirkung in einem Satz);
-  - **Anteile verkaufen** (mit eigenem Anteil): Teil deines Anteils in Prozent, Erlös für
-    alles in der Erklärung;
+  - **An Investoren verkaufen** (mit eigenem Anteil): Teil deines Anteils in Prozent,
+    sofort, mit Abschlag; Erlös für alles in der Erklärung;
+  - **An Firmen verkaufen** (ZA4, mit eigenem Anteil): der ganze Anteil mit
+    „Mindestpreis“; die Erklärung nennt Anteil, heutigen Wert, den höchsten Aufschlag der
+    Firmen und den Tag, an dem das beste Gebot kauft (nächster Monatsanfang). Danach zeigt
+    die Karte das laufende Angebot mit „Angebot zurückziehen“. Der Rundenbericht meldet
+    Käufer und Preis, sonst das beste Gebot (oder dass keine Firma bot);
   - **Lenken** (Mehrheit): Tempo normal, zügig, gründlich als Auswahl – wirkt sofort;
   - **Eingliedern** (Mehrheit, keine fremde Sperrminorität): Preis auf der Schaltfläche;
     hält eine andere Firma eine Sperrminorität, steht dort der Grund.

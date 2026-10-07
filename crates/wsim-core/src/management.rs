@@ -2265,6 +2265,20 @@ fn board_work(
             .into_iter()
             .take(cases)
         {
+            // Judged for its head by how the start-up turned out (ZA4).
+            if let Some(head) =
+                crate::central::head(catalog, state, company, DepartmentKind::Strategy)
+                && let Some(v) = state.ventures.iter().find(|v| v.id == venture)
+            {
+                let share =
+                    amount.to_usd() * crate::ventures::share_per_dollar(&catalog.ventures, v);
+                let appraisal = crate::state::Appraisal::Venture {
+                    venture,
+                    amount,
+                    share,
+                };
+                crate::central::record_appraisal(state, catalog, head, appraisal);
+            }
             let command = Command::InvestInVenture { venture, amount };
             recommend(
                 state,

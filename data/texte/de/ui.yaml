@@ -989,6 +989,9 @@ wettbewerb.standorte: Standorte
 wettbewerb.produkte: Produkte unter eigenem Namen
 wettbewerb.alle_firmen: Alle Firmen
 wettbewerb.firma_kopf: "Sitz: {land} · Eigenkapital {eigenkapital} · Umsatz {umsatz} in zwölf Monaten"
+wettbewerb.zentrale: "Zentrale: {abteilungen} ({anzahl} Angestellte)."
+wettbewerb.zentrale_keine: Keine Zentralabteilungen.
+wettbewerb.umzug: "Verlegt den Hauptsitz nach {land} (ab {datum})."
 wettbewerb.kaufen_hilfe: Biete für einen Standort; die Firma antwortet in der nächsten Runde mit Ja, Nein oder einem höheren Preis.
 wettbewerb.mindestalter: "Standorte lassen sich erst {monate} Monate nach der Gründung kaufen."
 wettbewerb.beschaeftigte: "{anzahl} Beschäftigte"
@@ -1558,11 +1561,19 @@ beteiligungen.foerdern: Fördergeld geben
 beteiligungen.foerdern_hilfe: "Fördergeld ist Forschungsaufwand ohne Anteile und Rechte. Es hebt die Chance der laufenden Phase: Ein Betrag in Höhe des Phasenkapitals schließt {wirkung} der Lücke zu 100 %. Gelingt das Start-up, ist die Technologie früher in der Welt – Nachforschen wird günstiger."
 beteiligungen.foerdern_knopf: Fördern
 beteiligungen.gefoerdert_meldung: "Du hast {betrag} Fördergeld gegeben."
-beteiligungen.verkaufen: Anteile verkaufen
 beteiligungen.verkaufen_hilfe: "Investoren kaufen deine Anteile zum heutigen Wert mit {abschlag} Abschlag – für alle bekämst du {wert}."
 beteiligungen.anteil_deines: Teil deines Anteils
 beteiligungen.verkaufen_knopf: Verkaufen
 beteiligungen.verkauft: "Du hast {anteil} verkauft, Erlös rund {betrag}."
+beteiligungen.verkaufen: An Investoren verkaufen
+beteiligungen.an_firmen: An Firmen verkaufen
+beteiligungen.an_firmen_hilfe: "Biete deinen ganzen Anteil ({anteil}, heute {wert} wert) allen Firmen an. Am {datum} kauft das beste Gebot ab deinem Mindestpreis. Firmen bieten bis zu {aufschlag} über dem Wert – je nachdem, wie sie die Chancen sehen und was sie in der Kasse haben. Bietet keine genug, bleibt der Anteil bei dir, und du erfährst das beste Gebot."
+beteiligungen.mindestpreis: Mindestpreis
+beteiligungen.anbieten_knopf: Anbieten
+beteiligungen.angeboten: "Dein Anteil ist ab {preis} angeboten; die Firmen bieten bis zum {datum}."
+beteiligungen.angeboten_meldung: "Angeboten ab {preis} – das Ergebnis kommt am {datum}."
+beteiligungen.zurueckziehen: Angebot zurückziehen
+beteiligungen.zurueckgezogen: Angebot zurückgezogen.
 beteiligungen.lenken: Lenken
 beteiligungen.lenken_hilfe: "Als Mehrheitseigner bestimmst du das Tempo: zügig verkürzt die Phasen, senkt aber die Chance; gründlich dauert länger und gelingt öfter. Es gilt für die nächsten Phasen und für die laufende, solange ihre Runde offen ist."
 beteiligungen.tempo: Tempo

@@ -132,6 +132,34 @@ fn months_between(from: Date, to: Date) -> u32 {
 }
 
 pub fn site_value(state: &GameState, catalog: &Catalog, site: SiteId) -> SiteValue {
+    let inbound = state
+        .shipments
+        .iter()
+        .filter(|sh| sh.to == Consignee::Site(site))
+        .map(|sh| sh.value)
+        .sum::<Money>();
+    site_value_with(state, catalog, site, inbound)
+}
+
+/// The value of goods on the way to each site: a search that values many sites looks the
+/// shipments through once.
+pub(crate) fn inbound_by_site(state: &GameState) -> std::collections::BTreeMap<SiteId, Money> {
+    let mut out = std::collections::BTreeMap::new();
+    for sh in &state.shipments {
+        if let Consignee::Site(site) = sh.to {
+            *out.entry(site).or_insert(Money::ZERO) += sh.value;
+        }
+    }
+    out
+}
+
+/// `site_value` with the goods on the way to the site given.
+fn site_value_with(
+    state: &GameState,
+    catalog: &Catalog,
+    site: SiteId,
+    inbound: Money,
+) -> SiteValue {
     let date = state.date;
     let model = &catalog.deal_model;
     let pm = &catalog.production_model;
@@ -168,13 +196,7 @@ pub fn site_value(state: &GameState, catalog: &Catalog, site: SiteId) -> SiteVal
     v.goodwill = s
         .goodwill
         .map_or(Money::ZERO, |g| g.book_value(model.goodwill_years, date));
-    v.inventory = s.inventory.values().map(|stock| stock.value).sum::<Money>()
-        + state
-            .shipments
-            .iter()
-            .filter(|sh| sh.to == Consignee::Site(site))
-            .map(|sh| sh.value)
-            .sum::<Money>();
+    v.inventory = s.inventory.values().map(|stock| stock.value).sum::<Money>() + inbound;
     let since = s.acquired.unwrap_or(s.founded).first_of_month();
     let ledger = &state.companies[s.owner.index()].ledger;
     let months: Vec<Money> = ledger
@@ -308,10 +330,32 @@ pub fn area_value_of(
     group: GoodsGroupId,
     sites: &[SiteId],
 ) -> AreaValue {
+    area_value_with(state, catalog, (company, group), sites, None)
+}
+
+/// `area_value_of`, with the goods on the way to the sites given when known.
+fn area_value_with(
+    state: &GameState,
+    catalog: &Catalog,
+    (company, group): (CompanyId, GoodsGroupId),
+    sites: &[SiteId],
+    inbound: Option<&std::collections::BTreeMap<SiteId, Money>>,
+) -> AreaValue {
     let brand = brand_value(state, catalog, company, group);
     let sites: Vec<(SiteId, SiteValue)> = sites
         .iter()
-        .map(|&s| (s, site_value(state, catalog, s)))
+        .map(|&s| {
+            let v = match inbound {
+                Some(map) => site_value_with(
+                    state,
+                    catalog,
+                    s,
+                    map.get(&s).copied().unwrap_or(Money::ZERO),
+                ),
+                None => site_value(state, catalog, s),
+            };
+            (s, v)
+        })
         .collect();
     let base = sites.iter().map(|(_, v)| v.base).sum::<Money>() + brand;
     let new_build = sites
@@ -1481,6 +1525,7 @@ fn auction_bids(
         .collect();
     let share = catalog.deal_model.ai.cash_share_max;
     let country = state.sites[site.index()].country;
+    let inbound = inbound_by_site(state);
     for (i, c) in state.companies.iter().enumerate() {
         let buyer = CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
         if c.bankrupt || c.ai.is_none() || bids.iter().any(|&(_, b)| b == buyer) {
@@ -1497,7 +1542,7 @@ fn auction_bids(
             continue;
         }
         let business = business(state, catalog, buyer);
-        let Some(offer) = ai_site_bid(state, catalog, buyer, &business, site) else {
+        let Some(offer) = ai_site_bid(state, catalog, (buyer, &business), site, &inbound) else {
             continue;
         };
         let bid = offer.bid.min(c.ledger.cash().scale(share));
@@ -1655,9 +1700,9 @@ struct SiteBid {
 fn ai_site_bid(
     state: &GameState,
     catalog: &Catalog,
-    buyer: CompanyId,
-    business: &(BTreeSet<ProductId>, BTreeSet<(ProductId, CountryId)>),
+    (buyer, business): (CompanyId, &Business),
     site: SiteId,
+    inbound: &std::collections::BTreeMap<SiteId, Money>,
 ) -> Option<SiteBid> {
     let ai = &catalog.deal_model.ai;
     let s = &state.sites[site.index()];
@@ -1667,7 +1712,12 @@ fn ai_site_bid(
     {
         return None;
     }
-    let value = site_value(state, catalog, site);
+    let value = site_value_with(
+        state,
+        catalog,
+        site,
+        inbound.get(&site).copied().unwrap_or(Money::ZERO),
+    );
     if value.base <= Money::ZERO {
         return None;
     }
@@ -1685,13 +1735,24 @@ fn ai_site_bid(
     Some(SiteBid { bid, highest, anew })
 }
 
-/// The best deal an AI company could offer for now: object, seller and price.
+/// What a company makes and where it sells it (see `business`).
+type Business = (BTreeSet<ProductId>, BTreeSet<(ProductId, CountryId)>);
+
+/// The best deal an AI company could offer for now: object, seller and price. Its
+/// departments widen the search like the player's (ZA4).
 pub(crate) fn best_deal(
     state: &GameState,
     catalog: &Catalog,
     buyer: CompanyId,
 ) -> Option<(DealObject, CompanyId, Money)> {
-    best_deal_for(state, catalog, buyer, None)
+    let search = Search {
+        countries: crate::central::observed_countries(catalog, state, buyer),
+        technologies: crate::central::legal_technologies(catalog, state, buyer),
+        ..Search::all()
+    };
+    deals_for(state, catalog, buyer, None, &search)
+        .first()
+        .map(|d| (d.object, d.seller, d.price))
 }
 
 /// The best deal by the AI's rule; with a mandate (MA5) without the objects it bans and
@@ -1812,6 +1873,7 @@ pub(crate) fn deals_for(
     };
 
     let business = business(state, catalog, buyer);
+    let inbound = inbound_by_site(state);
     let available = |seller: CompanyId| {
         seller != buyer
             && !state.companies[seller.index()].bankrupt
@@ -1832,7 +1894,7 @@ pub(crate) fn deals_for(
                 bid: mut price,
                 highest,
                 anew,
-            }) = ai_site_bid(state, catalog, buyer, &business, site)
+            }) = ai_site_bid(state, catalog, (buyer, &business), site, &inbound)
             else {
                 continue;
             };
@@ -1873,7 +1935,7 @@ pub(crate) fn deals_for(
             {
                 continue;
             }
-            let value = area_value_of(state, catalog, seller, group, &sites);
+            let value = area_value_with(state, catalog, (seller, group), &sites, Some(&inbound));
             if value.base <= Money::ZERO {
                 continue;
             }
@@ -2035,6 +2097,7 @@ fn auction_candidates(
         .chain(std::iter::once(c.headquarters))
         .collect();
     let business = business(state, catalog, buyer);
+    let inbound = inbound_by_site(state);
     let mut out = Vec::new();
     for (i, s) in state.sites.iter().enumerate() {
         let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
@@ -2051,7 +2114,7 @@ fn auction_candidates(
         if taken || crate::mandate::blocked_object(catalog, state, mandate, seller, object) {
             continue;
         }
-        let Some(bid) = ai_site_bid(state, catalog, buyer, &business, site) else {
+        let Some(bid) = ai_site_bid(state, catalog, (buyer, &business), site, &inbound) else {
             continue;
         };
         let price = bid.bid.min(cash);
@@ -2181,12 +2244,23 @@ pub(crate) fn board_offers(
             if full(state) {
                 return out;
             }
-            // The head handling it estimates the price; a hit if it stays within the
-            // value by the rules (ZA3).
+            // The head handling it estimates the price; judged by the value of the object
+            // when due, a licence by its value today (ZA3, ZA4).
             let estimate = decider.estimate(state, catalog, deal_topic(d.object));
             let price = estimate.map_or(d.price, |(_, f)| d.price.scale(f));
             if let Some((manager, _)) = estimate {
-                crate::central::record_judgment(state, catalog, manager, price <= d.value);
+                match crate::central::takeover_appraisal(
+                    state,
+                    catalog,
+                    (d.seller, d.object),
+                    d.value,
+                    price,
+                ) {
+                    Some(a) => crate::central::record_appraisal(state, catalog, manager, a),
+                    None => {
+                        crate::central::record_judgment(state, catalog, manager, price <= d.value);
+                    }
+                }
             }
             out.extend(board_offer(
                 state,

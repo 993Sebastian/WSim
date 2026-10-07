@@ -185,6 +185,7 @@ impl Game {
             mandate: crate::mandate::Mandate::default(),
             reviews: Vec::new(),
             relocation: None,
+            relocated: None,
             departments: Default::default(),
             participations: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
@@ -438,6 +439,11 @@ impl Game {
             self.state.refresh_countries(&self.catalog);
             crate::management::month_start(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::central::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
+            report.messages.extend(crate::central::ai_month_start(
                 &mut self.state,
                 &self.catalog,
                 next,

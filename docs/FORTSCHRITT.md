@@ -64,6 +64,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | SU1 | Start-ups: Entstehung, Arten, Phasen, Finanzierungsrunden, Erfolg und Scheitern | ✅ |
 | SU2 | Beteiligungen: Zusagen, Anteile, Fördergeld, Rechte, Tochterfirma, neue KI-Firma | ✅ |
 | SU3 | Ausgründungen, KI-Firmen beteiligen sich, übernehmen und gründen aus | ✅ |
+| ZA4 | Paket A: Zentralen und Sitz der KI, Anteile an Firmen verkaufen, Trefferquote nach Erfolg, Ausfallquote | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -487,6 +488,48 @@ Abschnitt SU3; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O 
   Anteil, Übernahme im Spielablauf, KI-Ausgründung, umkämpfte Projekte bleiben im Haus,
   Vorlauf-Regel, Sicht der Projekte), Fehlerfälle der Daten, vitest (Ausgründen,
   Herkunft, Warnungen), E2E-Schritt im Reiter „Ausgründen“.
+
+### ZA4: Paket A – Zentralen und Sitz der KI, Anteile an Firmen, Trefferquote nach Erfolg (07.10.2026)
+
+Auftrag vom 07.10.2026 („Setze A um“): offene Punkte O 5, 11, 14, 29 und 36. Regeln:
+`docs/FORMELN.md`, Abschnitt ZA4; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt O (37–41).
+
+- **Daten:** Block `ki` in `parameter/zentrale.yaml` (Anteil des Umsatzes nach Kompetenz,
+  Reihenfolge und Mindestlast der Abteilungen, Sitz: Umsatzanteil, BIP-Anteil,
+  Amortisation, Sperre); Prüfregeln mit Fehlerfällen.
+- **KI-Zentralen:** Zum Jahresbeginn richten KI-Firmen mit `StaffDepartment` Abteilungen
+  ein, solange sie zusammen höchstens 0–2 % des Umsatzes kosten (nach Kompetenz, mit
+  Verlust keine); Leitungen stellen sie nach dem CEO ein. Die Abteilungen wirken wie beim
+  Spieler, dazu Umschuldung, Übernahmesuche in beobachteten Ländern, schärferer Blick auf
+  Start-ups und Lizenzprüfung.
+- **Sitz der KI:** Umzug zum Jahresbeginn in ein Land mit mindestens einem Viertel des
+  Umsatzes, nicht viel ärmer (75 % des BIP je Kopf), wenn Gewinnsteuer und Löhne der
+  Zentrale die Kosten in drei Jahren hereinholen; zehn Jahre Sperre. Meldung im
+  Rundenbericht, Umzug und Zentrale in der Firmenansicht unter „Wettbewerb“.
+- **Anteile an Firmen verkaufen:** Befehle `OfferVentureStake` und `BuyVentureStake`;
+  Bieterverfahren bis zum nächsten Monatsanfang, das beste Gebot ab dem Mindestpreis kauft;
+  Sperrminorität eines Dritten verhindert eine Mehrheit des Käufers. Karte „An Firmen
+  verkaufen“ in „Beteiligungen“.
+- **Trefferquote nach Erfolg:** Übernahmen werden mit dem Grundwert nach der Frist bewertet,
+  Start-up-Empfehlungen nach ihrem Verlauf; ältere Bewertungen behalten ihr Ergebnis.
+- **Weltlauf 1900–1940** (100 KI-Firmen, „normal“): 504 Start-ups, 65 % der beendeten
+  gescheitert (vorher 64 %, Richtwert 60–70 %) – die Chancen der Phasen bleiben (O 36).
+  76 von 138 aktiven KI-Firmen mit Zentrale (378 Angestellte; Strategie 64, Recht 57,
+  Marketing 52, Personal 50, Finanzen 9), 222 Abteilungen mit Leitung. 11 Sitzverlegungen,
+  9 davon in die USA (niedrigere Gewinnsteuer), z. B. Royal Dutch Petroleum 1914, Adam
+  Opel 1930. Ein erster Lauf ohne BIP-Bedingung ließ eine deutsche Weberei 1902 nach
+  Indonesien ziehen.
+- **Leistung:** Mit Zentralen durchsuchte die KI für Übernahmen viel mehr Standorte, und
+  jede Bewertung ging alle Sendungen der Welt durch (rund 376 000 Rechenschritte je
+  Standort; 1900–1915 3:51 statt 3:19 Minuten). Jetzt werden die Sendungen je Suche einmal
+  zusammengezählt – bitgleich, und schneller als vorher: 1900–1915 (100 KI-Firmen, „viele“)
+  2:49 statt 3:19 Minuten, 1 000 KI-Firmen 1900–1901 43,6 statt 48,3 s.
+- **Tests:** Szenariotests für Zentralen der KI (Budget, Mindestlast, Verlust, Leitung,
+  Umschuldung), Sitzverlegung (Steuer, BIP, Umsatzanteil, Sperre), Bieterverfahren
+  (Gebot, Mindestpreis, bestes Gebot, Sperrminorität, Buchungen), Trefferquote nach
+  Erfolg (Übernahme, Start-up, alte Spielstände); Fehlerfälle der Daten; vitest „An Firmen
+  verkaufen“ und Zentrale der Konkurrenz.
 
 ## Eigenständige Entscheidungen (für das Review)
 

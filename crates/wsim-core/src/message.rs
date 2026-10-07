@@ -198,9 +198,11 @@ pub mod keys {
     pub const COMMAND_VENTURE_BLOCKED: &str = "fehler.befehl.sperrminoritaet";
     pub const COMMAND_NO_SPIN_OFF: &str = "fehler.befehl.keine_ausgruendung";
     pub const COMMAND_SPIN_OFF_TOO_EARLY: &str = "fehler.befehl.ausgruendung_zu_frueh";
+    pub const COMMAND_NO_STAKE_OFFER: &str = "fehler.befehl.kein_verkaufsangebot";
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
     pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
+    pub const RIVAL_HEADQUARTERS: &str = "meldung.hauptsitz.konkurrenz";
     // Start-ups (SU1).
     pub const VENTURE_INVENTION: &str = "meldung.startup.erfindung";
     pub const VENTURE_DEVELOPMENT: &str = "meldung.startup.weiterentwicklung";
@@ -215,6 +217,10 @@ pub mod keys {
     // Spin-offs and AI companies in start-ups (SU3).
     pub const VENTURE_SPIN_OFF: &str = "meldung.startup.ausgruendung";
     pub const VENTURE_TAKEN_OVER: &str = "meldung.startup.uebernahme";
+    // Stakes offered to the companies (ZA4).
+    pub const VENTURE_STAKE_SOLD: &str = "meldung.startup.anteil_verkauft";
+    pub const VENTURE_STAKE_UNSOLD: &str = "meldung.startup.anteil_nicht_verkauft";
+    pub const VENTURE_STAKE_BEST_BID: &str = "meldung.startup.anteil_bestes_gebot";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -476,8 +482,10 @@ pub mod keys {
         COMMAND_VENTURE_BLOCKED,
         COMMAND_NO_SPIN_OFF,
         COMMAND_SPIN_OFF_TOO_EARLY,
+        COMMAND_NO_STAKE_OFFER,
         HEADQUARTERS_MOVED,
         HEADQUARTERS_STAFF_LEFT,
+        RIVAL_HEADQUARTERS,
         VENTURE_INVENTION,
         VENTURE_DEVELOPMENT,
         VENTURE_REFUND,
@@ -490,6 +498,9 @@ pub mod keys {
         VENTURE_NEW_COMPANY,
         VENTURE_SPIN_OFF,
         VENTURE_TAKEN_OVER,
+        VENTURE_STAKE_SOLD,
+        VENTURE_STAKE_UNSOLD,
+        VENTURE_STAKE_BEST_BID,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,

@@ -96,6 +96,7 @@ pub(super) fn decode_v2(
                 mandate: crate::mandate::Mandate::default(),
                 reviews: Vec::new(),
                 relocation: None,
+                relocated: None,
                 departments: Default::default(),
                 participations: Default::default(),
                 owners: Vec::new(),

@@ -286,6 +286,18 @@ pub struct CompanyRowView {
     /// Last day of the auction of an insolvent company's sites (M38).
     #[serde(default)]
     pub auction_until: Option<String>,
+    /// The central departments it runs (`abteilung.<key>`) and their employees in all
+    /// (ZA2, ZA4).
+    #[serde(default)]
+    pub departments: Vec<String>,
+    #[serde(default)]
+    pub central_staff: u32,
+    /// A move of its headquarters under way: the new country and the first day there
+    /// (ZA1, ZA4).
+    #[serde(default)]
+    pub moving_to: Option<String>,
+    #[serde(default)]
+    pub moving_until: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -311,6 +323,18 @@ fn row(state: &GameState, catalog: &crate::catalog::Catalog, id: CompanyId) -> C
             .then_some(c.auction_until)
             .flatten()
             .map(iso),
+        departments: catalog
+            .central
+            .departments
+            .iter()
+            .filter(|d| c.departments.contains_key(&d.kind))
+            .map(|d| d.kind.key().to_owned())
+            .collect(),
+        central_staff: c.departments.values().sum(),
+        moving_to: c
+            .relocation
+            .map(|r| catalog.countries.key(r.country).to_owned()),
+        moving_until: c.relocation.map(|r| iso(r.until)),
     }
 }
 

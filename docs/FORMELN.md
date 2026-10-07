@@ -2982,7 +2982,7 @@ Kern: Modul `central`.
   scheiden aus, ohne Abfindung. Meldung an den Spieler.
 - Kriegsrisiken des Sitzlands (Ausfall, Beschlagnahme) kommen mit Stufe 4; die Daten
   sehen sie noch nicht vor.
-- KI-Firmen verlegen ihren Sitz nicht.
+- KI-Firmen verlegen ihren Sitz seit ZA4 nach Steuern und Löhnen (Abschnitt ZA4).
 
 ## ZA2 – Zentralabteilungen
 
@@ -3012,8 +3012,8 @@ und verkaufen) als Ressorts des Vorstands (gleiche Gehaltsfaktoren). Kern: Modul
 - Ohne Leitung arbeitet eine Abteilung nicht (die Angestellten kosten trotzdem). Beim
   Umzug des Hauptsitzes bleiben je Abteilung ⌊Angestellte · mitziehen⌋; Meldung, wie viele
   nicht mitgezogen sind.
-- KI-Firmen richten (noch) keine Zentralabteilungen ein; ihre Manager wirken über die
-  Kompetenz (MA6).
+- KI-Firmen richten seit ZA4 Zentralabteilungen nach ihrem Umsatz ein (Abschnitt ZA4);
+  ihre Manager wirken außerdem über die Kompetenz (MA6).
 
 ### Leistung
 
@@ -3101,7 +3101,9 @@ Abteilung 0). Schwache Leitungen überzahlen öfter (Fehlgriff) und bieten öfte
 
 - Jede Schätzung eines Ziels wird nach `bewertung_monate` bewertet (am ersten
   Monatsanfang danach): **Treffer**, wenn das Angebot den Wert *V* nach den Regeln am Tag
-  der Schätzung (was die Regeln höchstens zahlen würden) nicht übersteigt. Ob die Stelle
+  der Schätzung (was die Regeln höchstens zahlen würden) nicht übersteigt. Seit ZA4
+  zählt bei Übernahmen der Wert am Tag der Bewertung, und Start-up-Empfehlungen werden
+  ebenfalls bewertet (Abschnitt ZA4). Ob die Stelle
   es abgibt, der Spieler annimmt oder ablehnt, zählt nicht. Umschuldung und Gehaltsrunde
   können nicht danebenliegen und zählen nicht.
 - Trefferquote mit Vorgewicht (wenige Fälle täuschen nicht):
@@ -3404,3 +3406,134 @@ außerhalb des Spiels (`Holder::Investors`, SU1), die Runden decken und Anteile 
   mit Thema `startup`); der Spieler erfährt, wenn eine Firma ein Start-up übernimmt, an dem
   er beteiligt ist (er erhält W · (1 + `kauf_aufschlag`) für seinen Anteil), und wenn eine
   Firma ausgründet.
+
+## ZA4 – KI-Zentralen, Sitzverlegung der KI, Anteile an Firmen, Trefferquote nach Erfolg
+
+Auftrag vom 07.10.2026 („Paket A“): offene Punkte O 5, 11, 14, 29 und 36
+(`docs/OFFENE_PUNKTE.md`, Abschnitt O); `docs/BETEILIGUNGEN.md` Abschnitte 3, 4.2, 4.4, 5.4
+und 5.5. Daten: `parameter/zentrale.yaml`, Block `ki`; die Gebote nutzen
+`parameter/startups.yaml` (Block `ki`) und `parameter/kaufmodell.yaml`
+(`gebotsaufschlag`). Kern: Module `central` (Zentrale und Sitz der KI, Trefferquote) und
+`ventures` (Verkauf an Firmen). KI-Firmen nutzen dieselben Befehle wie der Spieler.
+
+### KI-Firmen richten Zentralabteilungen ein
+
+Zum Jahresbeginn (Monatsanfang im Januar) legt jede KI-Firma ihre Zentrale fest, mit
+`StaffDepartment` wie der Spieler:
+
+- **Budget im Jahr:** Z = `ki.anteil_umsatz`(Kompetenz) · Umsatz der letzten zwölf Monate;
+  Z = 0, wenn das Ergebnis der letzten zwölf Monate nicht positiv ist (eine Firma mit
+  Verlust spart an der Zentrale).
+- **Bedarf:** Die Abteilungen in der Reihenfolge `ki.reihenfolge`, jede nur ab ihrer
+  Arbeitslast `ki.mindestlast` (Arbeitslast wie ZA2: Finanzen Kredite + 1, Personal
+  Manager der Firma, Marketing Werbebudgets + 1, Strategie und Recht 1; ohne Angabe 1).
+  Angestellte n = ⌈Arbeitslast / `faelle`⌉, also volle Abdeckung.
+- **Kosten im Jahr:**
+
+      K = n · (Jahreslohn der Lohngruppe im Sitzland + buero_usd) + Gehalt der Leitung
+
+  Gehalt der Leitung: das heutige, sonst die Forderung eines mittleren Managers
+  (`gehalt_fach` des Vorstands · Jahreslohn nach `gehalt_lohngruppe` im Sitzland, MA1).
+- Die Abteilungen kommen in dieser Reihenfolge dazu, solange ihre Kosten zusammen Z nicht
+  übersteigen; die übrigen schließt die Firma (0 Angestellte) und entlässt deren Leitung
+  (`DismissManager`, Abfindung wie MA1).
+- **Leitung:** Die KI stellt sie ein wie den CEO (MA6): nach dem CEO, vor den
+  Standortleitungen, Gehalt höchstens `gehalt_anteil` des Umsatzes der Firma.
+
+Die Abteilungen wirken wie beim Spieler (ZA2): Finanzen senken den Risikoaufschlag neuer
+Kredite, Personal schult die Manager, Marketing verstärkt die Werbung. Dazu:
+
+- **Finanzen schulden um:** Am Monatsanfang ersetzt die KI bis zu ⌊K⌋ Kredite der
+  Umschuldungsliste (ZA3) mit `RefinanceLoan`.
+- **Strategie:** Die KI sucht Übernahmen auch in den beobachteten Ländern (ZA2) und sieht
+  Start-ups schärfer: Unschärfe · (1 − Kompetenz) · (1 − Einblick), Einblick = Güte ·
+  Abdeckung der Abteilung (SU1, SU3).
+- **Recht:** Die KI bietet auch für Lizenzen der Technologien, die ihre Rechtsabteilung
+  prüft (ZA2).
+
+Ohne Abteilungen ändert sich nichts an den Regeln der KI.
+
+### KI-Firmen verlegen ihren Sitz
+
+Zum Jahresbeginn prüft jede KI-Firma ohne laufenden Umzug, deren letzter Umzug
+mindestens `ki.sitz.sperre_jahre` zurückliegt:
+
+- **Kandidaten:** Länder mit eigenem Standort, deren Standorte zusammen mindestens
+  `ki.sitz.anteil_umsatz_min` des Umsatzes der letzten zwölf Monate bringen – eine Firma
+  zieht dorthin, wo ihr Geschäft ist, nicht in jedes Land mit einer Niederlassung – und
+  deren BIP je Kopf mindestens `ki.sitz.bip_anteil_min` des heutigen Sitzlands beträgt:
+  Kapital, Manager und Verwaltung bleiben in reichen Ländern (ohne diese Bedingung zog im
+  ersten Lauf eine deutsche Weberei 1902 nach Indonesien, um Löhne für einige Angestellte
+  zu sparen).
+- **Ersparnis im Jahr:**
+
+      S(L) = max(0, Ergebnis vor Steuern) · (Steuersatz heute − Steuersatz L)
+           + Σ Angestellte · (Jahreslohn heute − Jahreslohn in L)
+
+  Ergebnis vor Steuern über die letzten zwölf Monate; Steuersatz = Gewinnsteuer des
+  Landes heute (M6); die Summe über die Zentralabteilungen, Jahreslohn ihrer Lohngruppe.
+  Die Gehälter der Manager ändern sich mit dem Umzug nicht.
+- Sie verlegt den Sitz (`SetHeadquarters`) in das Land mit der größten Ersparnis, wenn
+  S · `ki.sitz.amortisation_jahre` ≥ Kosten der Verlegung (ZA1). Der Spieler erfährt es
+  als Nachricht über die Konkurrenz.
+
+### Anteile an Firmen verkaufen (Bieterverfahren)
+
+Neben dem Sofortverkauf an Investoren (SU2, mit Abschlag) bietet eine Firma ihren ganzen
+Anteil an einem laufenden Start-up allen Firmen an:
+
+- `OfferVentureStake { venture, minimum }` mit Mindestpreis; ein neues Angebot ersetzt das
+  alte, ohne Mindestpreis ist es zurückgezogen. Das Bieterverfahren endet am nächsten
+  Monatsanfang, bevor die Runden der Start-ups laufen.
+- **Gebot** einer KI-Firma F für den Anteil *s* des Verkäufers:
+  - Wert des Anteils A = s · W (W wie SU2).
+  - Erwarteter Wert E = Chance(F) · W_E · s · Π b_j / (b_j + 1) – W_E der Wert bei Erfolg,
+    wie er heute aussieht (SU2), das Produkt über die offene und die künftigen Runden
+    (Verwässerung, wenn F nicht nachschießt), Chance(F) wie F sie sieht (SU3, mit
+    Strategieabteilung schärfer).
+  - Höchstpreis H = E / (1 + (1 − Aggressivität) · `ki.rendite_mindest`) wie bei Zusagen.
+  - Gebot = min(H, A · (1 + `gebotsaufschlag`(Aggressivität)), `ki.uebernahme_kasse` ·
+    Kasse); kein Gebot, das nicht über dem Preis der Investoren A · (1 −
+    `verkauf_abschlag`) liegt.
+  - Es bieten KI-Firmen mit Kasse ≥ `ki.kasse_min_usd`, nicht der Verkäufer, keine Firma,
+    die damit über die Mehrheit käme, wenn ein Dritter eine Sperrminorität hält („Verkauf
+    an Konkurrenten blockieren“, BETEILIGUNGEN 5.5), und keine Firma in die Tochterfirma
+    eines anderen, außer die Mutter verkauft.
+- **Zuschlag:** Das höchste Gebot ab dem Mindestpreis (bei Gleichstand die Firma mit der
+  kleineren Nummer) kauft mit `BuyVentureStake { venture, seller, price }` zum Preis
+  seines Gebots. Sonst bleibt der Anteil, und das Angebot endet. Der Spieler erfährt den
+  Käufer und den Preis, sonst das beste Gebot (falls eines vorlag).
+- **Buchungen:** Verkäufer wie beim Verkauf (SU2: Erlös in die Kasse, Buchwert aus den
+  Finanzanlagen, der Unterschied als Beteiligungsergebnis); Käufer Kasse → Finanzanlagen,
+  zählt zum Budget „Beteiligungen“ (ZA2). Verkauft die Mutter, ist es keine Tochter mehr.
+- Endet das Start-up oder hat der Verkäufer keinen Anteil mehr, verfällt das Angebot.
+
+### Trefferquote nach dem Erfolg (ersetzt die Bewertung aus ZA3 für Übernahmen)
+
+- **Übernahmen** (Standorte und Bereiche) werden nach `bewertung_monate` am Wert des
+  Gegenstands dann bewertet: Treffer, wenn
+
+      Angebot ≤ V · G' / G
+
+  V Wert nach den Regeln am Tag der Schätzung (was die Regeln höchstens zahlen), G der
+  Grundwert der Standorte am Tag der Schätzung, G' ihr Grundwert am Tag der Bewertung
+  (M30; bei einem Bereich die Summe seiner Standorte, dazu jeweils der Markenwert vom Tag
+  der Schätzung). Ob die Übernahme zustande kam und bei wem die Standorte heute sind,
+  zählt nicht: Es zählt, ob der Gegenstand den Preis wert blieb. Mit G = 0 gilt die Regel
+  aus ZA3.
+- **Lizenzen** wie bisher am Tag der Schätzung: Eine gekaufte Lizenz hat für den Käufer
+  später keinen eigenen Wert mehr.
+- **Start-ups** (neu): Jede Zusage, die die Strategieabteilung empfiehlt oder selbst gibt
+  (SU2), wird für ihre Leitung bewertet – je Start-up und Leitung eine, solange sie
+  aussteht. Nach `bewertung_monate`: Treffer, wenn das Start-up Erfolg hatte, oder wenn es
+  noch läuft und mit der wahren Chance Chance · W_E · Anteil am Ende ≥ Betrag
+  (Anteil am Ende = Betrag · Anteil je Dollar am Tag der Empfehlung, SU2); gescheitert ist
+  kein Treffer.
+- Ausstehende Bewertungen alter Spielstände behalten ihr Ergebnis vom Tag der Schätzung.
+
+### Ausfallquote der Start-ups (O 36)
+
+- Weltlauf 1900–1940 (100 KI-Firmen, „normal“, vor ZA4): 491 gegründet, 64 % der in den
+  letzten zehn Jahren beendeten gescheitert – im Richtwert 60–70 %. Die 77–83 % der Läufe
+  bis 1915 kamen vom Anlauf: Fehlschläge enden früher als Erfolge (ein Erfolg braucht alle
+  drei Phasen, mindestens 54 Monate). Die Chancen der Phasen bleiben.
