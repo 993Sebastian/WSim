@@ -187,10 +187,10 @@ fn anliegen(state: State<'_, Shared>) -> Result<ConcernsView, Fehler> {
 #[tauri::command]
 fn managermarkt(
     state: State<'_, Shared>,
-    standort: u32,
+    einheit: String,
     stelle: String,
 ) -> Result<ManagerMarketView, Fehler> {
-    mit_sitzung(&state, |s| s.manager_market(standort, &stelle))
+    mit_sitzung(&state, |s| s.manager_market(&einheit, &stelle))
 }
 
 /// A decision of the player, as JSON command with keys (see `Session::command`).

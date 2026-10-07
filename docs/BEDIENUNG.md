@@ -221,7 +221,7 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
-### Organisation (MA1, MA2)
+### Organisation (MA1–MA3)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
 und was bleibt bei mir?“ Zwei Unterreiter: „Stellen“ und „Anliegen“ (mit Zähler der
@@ -269,6 +269,23 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort). Der Reit
   zur Wirkung erscheinen im Bericht mit Sprung zur Organisation; „Zu erledigen“ nennt die
   Zahl der offenen Anliegen und die erste Frist. Hinweise zu Bereichen, die eine besetzte
   Stelle übernimmt, entfallen.
+- **Länder und Kontinente (MA3):** Unter jeder Kontinent-Überschrift eine Karte
+  „Kontinent · Europa“ mit Kontinentvorstand und Fachstellen, unter jeder Länder-Überschrift
+  „Land · Deutschland“ mit Landesleitung und Fachstellen, darunter die Standorte. Gleiche
+  Spalten, „Besetzen“ öffnet den Managermarkt der Stelle („Produktion · Land · Deutschland“),
+  Budget und Protokoll wie bei Standorten. „Entscheidest du selbst“ nennt nur, was keine
+  Stelle darüber übernimmt.
+- **Budget-Vorgaben (MA3):** Aufklappbar über dem Organigramm „Budget-Vorgaben für
+  Stellentypen (n)“ (ⓘ: Reihenfolge eigene Einstellung → Land → Kontinent → Firma →
+  Standard, Deckel durch die Leitung): Liste der Vorgaben („Werk: Produktion · ganze
+  Firma: 3 % / 8 %“) mit „Entfernen“, darunter Stellentyp, „Gilt für“ (ganze Firma, ein
+  Kontinent oder Land der Firma), zwei Prozentfelder und „Vorgabe setzen“.
+- **Anliegen über mehrere Stellen (MA3):** Die Karte nennt die fragende Stelle
+  („Landesleitung · Land · Deutschland · Name fragt“), „Betrifft Werk · Deutschland“ und den
+  Weg mit den Empfehlungen („Weg: Werksleitung (Werk · Deutschland, empfiehlt Ausbauen) →
+  Landesleitung (…)“). Ein strategisches Anliegen zeigt eine Tabelle „Standorte“ mit den
+  Schritten, Beträgen und Prognosen je Standort; „Umsetzen“ oder „Entscheide selbst“ gilt
+  für alle.
 - **Anhalten:** Im Menü (☰) „Bei Anliegen anhalten: bei allen / bei wichtigen / nie“
   (Vorgabe: bei wichtigen; im Browser gemerkt). „Bis Jahresende“ und „bis zur nächsten
   Meldung“ halten danach an („Angehalten wegen eines Anliegens deiner Manager“).

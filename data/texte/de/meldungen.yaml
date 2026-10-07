@@ -179,6 +179,10 @@ fehler.befehl.anliegen_erledigt: Dieses Anliegen ist schon beantwortet oder verf
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
+meldung.anliegen.neu_land: "{stelle} ({land}) fragt: {thema}. Antwort bis {frist}."
+meldung.anliegen.neu_kontinent: "{stelle} ({kontinent}) fragt: {thema}. Antwort bis {frist}."
+meldung.anliegen.verfallen_land: "Anliegen von {stelle} ({land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
+meldung.anliegen.verfallen_kontinent: "Anliegen von {stelle} ({kontinent}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.folge: "{massnahme} in {standort} ({land}): Das Ergebnis des Standorts hat sich um {ist} im Jahr geändert; erwartet waren {prognose}."
 schritt.stilllegen: "{anzahl} × {anlage} stilllegen"
 schritt.verkaufen: "{anzahl} × {anlage} verkaufen"

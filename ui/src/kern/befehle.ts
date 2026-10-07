@@ -44,13 +44,26 @@ export type Befehl =
   | { DismissManager: { manager: number } }
   | { AnswerConcern: { concern: number; answer: Anliegenantwort } }
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
-  | { AskAgain: { position: Stellenangabe; topic: string } };
+  | { AskAgain: { position: Stellenangabe; topic: string } }
+  | {
+      SetBudgetRule: {
+        kind: { level: { Site: string } | "Country" | "Continent"; role: Rolle };
+        scope: "Company" | { Continent: string } | { Country: string };
+        shares: [number, number] | null;
+      };
+    };
 
 /** The player's answer to a concern (MA2). */
 export type Anliegenantwort = { Choose: number } | "Delegate" | "NeverAsk" | "Decline";
 
-/** A position (MA1): a site's head or the specialist of a function there. */
-export type Stellenangabe = { site: number; role: "Head" | { Specialist: string } };
+/** A role: the head of a unit or the specialist of a function. */
+export type Rolle = "Head" | { Specialist: string };
+
+/** A unit: a site by its number, a country or a continent by its key (MA3). */
+export type Einheit = { Site: number } | { Country: string } | { Continent: string };
+
+/** A position (MA1, MA3): the head of a unit or the specialist of a function there. */
+export type Stellenangabe = { unit: Einheit; role: Rolle };
 
 /** What an offer is for (M30): a site by its number, or a licence on a technology. */
 export type Gegenstand = { Site: number } | { License: string } | { Area: string };

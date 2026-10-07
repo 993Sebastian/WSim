@@ -328,9 +328,11 @@ impl<S: SaveStore> Session<S> {
         self.view(views::concerns)
     }
 
-    /// Candidates for a position of the player: `role` is `leitung` or a function (MA1).
-    pub fn manager_market(&self, site: u32, role: &str) -> Result<ManagerMarketView, MessageView> {
-        self.view(|g| views::manager_market(g, site, role))?
+    /// Candidates for a position of the player: `unit` is `standort:<Nummer>`,
+    /// `land:<ISO>` or `kontinent:<Schlüssel>` (MA3), `role` is `leitung` or a function
+    /// (MA1).
+    pub fn manager_market(&self, unit: &str, role: &str) -> Result<ManagerMarketView, MessageView> {
+        self.view(|g| views::manager_market(g, unit, role))?
             .ok_or_else(|| error(keys::UNKNOWN_POSITION))
     }
 

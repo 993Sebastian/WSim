@@ -1087,11 +1087,19 @@ export interface Stelle {
   open_concerns?: number;
 }
 
-export interface StandortOrganisation {
-  site: number;
-  /** Text key of the site type. */
+/** The positions of a unit: a site, a country or a continent (MA1, MA3). */
+export interface EinheitOrganisation {
+  level: "standort" | "land" | "kontinent";
+  /** The site's number (sites). */
+  site: number | null;
+  /** The country (sites and countries). */
+  country: string | null;
+  /** The continent (continents). */
+  continent: string | null;
+  /** Text key of the site type, else `ebene.land` or `ebene.kontinent`. */
   kind_text: string;
-  country: string;
+  /** The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`. */
+  key: string;
   positions: Stelle[];
   /** Next check of the positions; null without a manager there. */
   next_check: string | null;
@@ -1099,12 +1107,37 @@ export interface StandortOrganisation {
   own_topics: string[];
 }
 
+/** A type of position budget rules apply to (MA3). */
+export interface Stellentyp {
+  level: "standort" | "land" | "kontinent";
+  /** The site type as commands name it (`Factory` …), for sites. */
+  site_type: string | null;
+  kind_text: string;
+  /** `leitung` or the function. */
+  role: string;
+}
+
+/** A budget rule of the player (MA3). */
+export interface Budgetvorgabe {
+  kind: Stellentyp;
+  scope: "firma" | "kontinent" | "land";
+  scope_key: string | null;
+  shares: [number, number];
+}
+
 export interface Organisation {
   /** False without manager data. */
   enabled: boolean;
   continents: {
     continent: string;
-    countries: { country: string; sites: StandortOrganisation[] }[];
+    /** The positions of the continent (MA3). */
+    unit: EinheitOrganisation | null;
+    countries: {
+      country: string;
+      /** The positions of the country (MA3). */
+      unit: EinheitOrganisation | null;
+      sites: EinheitOrganisation[];
+    }[];
   }[];
   managers: number;
   /** Salaries of all managers per year. */
@@ -1116,6 +1149,10 @@ export interface Organisation {
   candidates: number;
   /** Least budget of a position in its yearly salaries: per decision and per year. */
   budget_floor?: [number, number];
+  /** The player's budget rules (MA3). */
+  rules?: Budgetvorgabe[];
+  /** Types of positions the company has, for new rules. */
+  kinds?: Stellentyp[];
 }
 
 export interface Kandidat {
@@ -1123,7 +1160,7 @@ export interface Kandidat {
   /** Salary per year for the position. */
   demand_usd: number;
   /** An own manager's position now. */
-  current: { site: number; role: string } | null;
+  current: { unit: string; site: number | null; role: string } | null;
 }
 
 /** An option of a concern as the position assessed it (MA2). */
@@ -1150,14 +1187,47 @@ export type AnliegenStatus =
   | "erledigt";
 
 /** A question of a position to the player (MA2). */
-export interface Anliegen {
-  id: number;
-  site: number;
+/** A position in concerns: its role and unit (MA3). */
+export interface AnliegenStelle {
   /** `leitung` or the function of a specialist position. */
   role: string;
-  /** Text key of the site type. */
+  level: "standort" | "land" | "kontinent";
+  /** Text key of the site type, `ebene.land` or `ebene.kontinent`. */
   kind_text: string;
-  country: string;
+  country: string | null;
+  continent: string | null;
+  unit: string;
+}
+
+/** A position a concern passed on its way (MA3). */
+export interface AnliegenWeg {
+  position: AnliegenStelle;
+  manager: string;
+  /** Kind of the option it recommended. */
+  recommended: string;
+}
+
+/** A site's part of a strategic concern (MA3). */
+export interface AnliegenTeil {
+  site: number | null;
+  kind_text: string | null;
+  country: string | null;
+  product: string | null;
+  option: AnliegenOption;
+}
+
+export interface Anliegen {
+  id: number;
+  /** The site the decision is about, if any. */
+  site: number | null;
+  site_kind_text: string | null;
+  site_country: string | null;
+  /** The position that asks the player. */
+  asker: AnliegenStelle;
+  /** The positions on the way, the first first; empty where it asks itself (MA3). */
+  path: AnliegenWeg[];
+  /** The sites' parts of a strategic concern (MA3). */
+  parts: AnliegenTeil[];
   /** The manager who asks. */
   manager: string;
   /** Topic (text `thema.<topic>`). */
@@ -1171,8 +1241,8 @@ export interface Anliegen {
   because: Meldung;
   per_decision_usd: number;
   left_usd: number;
-  /** Mean monthly result of the site in the last closed months. */
-  site_result_usd: number;
+  /** Mean monthly result of the site in the last closed months; null without a site. */
+  site_result_usd: number | null;
   created: string;
   deadline: string;
   status: AnliegenStatus;
@@ -1201,10 +1271,12 @@ export interface AnliegenListe {
 }
 
 export interface Managermarkt {
-  site: number;
+  /** The unit as in `EinheitOrganisation.key`. */
+  unit: string;
+  site: number | null;
   role: string;
   kind_text: string;
-  country: string;
+  country: string | null;
   continent: string;
   /** Free candidates, those of the site's continent first. */
   candidates: Kandidat[];

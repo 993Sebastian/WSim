@@ -594,22 +594,42 @@ fn example_organisation(
         .first()
         .and_then(|k| k.countries.first())
         .and_then(|l| l.sites.first())
-        .map(|s| s.site)
+        .and_then(|s| s.site)
         .ok_or("kein Standort")?;
-    let head = session.manager_market(site, "leitung").map_err(message)?;
-    let manager = head.candidates.first().ok_or("keine Bewerber")?.manager.id;
+    let unit = format!("standort:{site}");
+    // MA3: the head of the works and the head of the country, Germany.
+    let head = serde_json::json!({"unit": {"Site": site}, "role": "Head"});
+    let country = serde_json::json!({"unit": {"Country": "DEU"}, "role": "Head"});
+    for (key, position) in [(unit.as_str(), &head), ("land:DEU", &country)] {
+        let market = session.manager_market(key, "leitung").map_err(message)?;
+        let manager = market
+            .candidates
+            .first()
+            .ok_or("keine Bewerber")?
+            .manager
+            .id;
+        session
+            .command(serde_json::json!({
+                "HireManager": {"manager": manager, "position": position}
+            }))
+            .map_err(message)?;
+    }
     session
-        .command(serde_json::json!({
-            "HireManager": {"manager": manager, "position": {"site": site, "role": "Head"}}
-        }))
+        .command(serde_json::json!({"SetBudgetRule": {
+            "kind": {"level": {"Site": "Factory"}, "role": {"Specialist": "produktion"}},
+            "scope": "Company",
+            "shares": [0.03, 0.08]
+        }}))
         .map_err(message)?;
     for _ in 0..2 {
         session.end_round("monat", |_| {}).map_err(message)?;
     }
-    let head = serde_json::json!({"site": site, "role": "Head"});
-    session
-        .command(serde_json::json!({"SetBudget": {"position": head, "shares": [0.0, 0.0]}}))
-        .map_err(message)?;
+    // Then both ask about every expense: the concern goes up to the player.
+    for position in [&head, &country] {
+        session
+            .command(serde_json::json!({"SetBudget": {"position": position, "shares": [0.0, 0.0]}}))
+            .map_err(message)?;
+    }
     for _ in 0..3 {
         if !session.concerns().map_err(message)?.open.is_empty() {
             break;
@@ -623,7 +643,7 @@ fn example_organisation(
         ))?,
         to_value(serde_json::to_value(
             session
-                .manager_market(site, "produktion")
+                .manager_market(&unit, "produktion")
                 .map_err(message)?,
         ))?,
         to_value(serde_json::to_value(session.concerns().map_err(message)?))?,

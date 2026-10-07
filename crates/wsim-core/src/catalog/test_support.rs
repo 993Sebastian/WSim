@@ -547,13 +547,43 @@ pub fn management() -> Catalog {
         key: key.to_owned(),
         topics,
     };
-    let level = |key: &str, check_days, salary_specialist, salary_head| ManagementLevel {
-        key: key.to_owned(),
-        check_days,
-        salary_specialist,
-        salary_head,
-        budget_specialist: (0.02, 0.05),
-        budget_head: (0.05, 0.10),
+    let site_topics = vec![
+        Topic::Production,
+        Topic::Sale,
+        Topic::Purchase,
+        Topic::OwnSupply,
+        Topic::Wage,
+        Topic::Overcapacity,
+        Topic::Idle,
+        Topic::Restart,
+        Topic::Expansion,
+        Topic::Research,
+        Topic::Development,
+    ];
+    let unit_topics = vec![
+        Topic::Overcapacity,
+        Topic::Idle,
+        Topic::Restart,
+        Topic::Expansion,
+        Topic::Power,
+        Topic::Deposit,
+        Topic::Advertising,
+    ];
+    let level = |key: &str, check_days, (salary_specialist, salary_head), topics: &[Topic]| {
+        ManagementLevel {
+            key: key.to_owned(),
+            check_days,
+            salary_specialist,
+            salary_head,
+            budget_specialist: (0.02, 0.05),
+            budget_head: (0.05, 0.10),
+            specialists: if key == "standort" {
+                Vec::new()
+            } else {
+                vec![0, 1, 2, 3, 4]
+            },
+            topics: topics.to_vec(),
+        }
     };
     c.management = ManagementModel {
         functions: vec![
@@ -565,18 +595,20 @@ pub fn management() -> Catalog {
                     Topic::Idle,
                     Topic::Restart,
                     Topic::Expansion,
+                    Topic::Power,
+                    Topic::Deposit,
                 ],
             ),
             function("einkauf_lager", vec![Topic::Purchase, Topic::OwnSupply]),
-            function("vertrieb_marketing", vec![Topic::Sale]),
+            function("vertrieb_marketing", vec![Topic::Sale, Topic::Advertising]),
             function("personal", vec![Topic::Wage]),
             function("forschung", vec![Topic::Research, Topic::Development]),
         ],
         levels: vec![
-            level("standort", 7, 1.5, 2.5),
-            level("land", 30, 3.0, 4.0),
-            level("kontinent", 30, 5.0, 7.0),
-            level("vorstand", 91, 10.0, 15.0),
+            level("standort", 7, (1.5, 2.5), &site_topics),
+            level("land", 30, (3.0, 4.0), &unit_topics),
+            level("kontinent", 30, (5.0, 7.0), &unit_topics),
+            level("vorstand", 91, (10.0, 15.0), &[]),
         ],
         specialists: vec![
             (SiteType::Factory, vec![0, 1, 2, 3]),
@@ -597,6 +629,7 @@ pub fn management() -> Catalog {
             followup_days: 91,
             estimate_error: 0.5,
             recommend_base: 0.5,
+            bundle_from: 3,
         },
         head_discount: 0.2,
         notice_base: 0.5,

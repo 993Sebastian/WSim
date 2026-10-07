@@ -285,3 +285,13 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Hinweis entfällt, weil eine Stelle den Bereich übernimmt | `management::covered` (in `views::hints`) |
 | Sichten der Anliegen, Gruppe gleicher Anliegen, Schritt in Worten | `views::{concerns, ConcernsView, ConcernGroupView, ConcernView, ConcernOptionView}`; Textschlüssel `schritt.*`, `anliegen.begruendung.*`; UI: `AnliegenListe` (`Anliegen.tsx`) |
 | Budget und Protokoll in der Organisation | `PositionView::{budget, log, quiet, open_concerns}` (`BudgetView`, `DecisionLogView`, `QuietTopicView`); UI: `StellenDetails` |
+| Einheit (Standort, Land, Kontinent), Stelle einer Einheit | `state::Unit::{Site, Country, Continent}`, `Position { unit, role }` (`Position::at_site`, `site()`); `management::{units, has_unit, positions, level_of}` (MA3) |
+| Fachstellen und Themen je Ebene | `ManagementLevel::{specialists, topics}` (`ebenen[].fachstellen`, `ebenen[].themen`); `management::arises` |
+| Sitzland einer Einheit (Gehalt) | `management::seat_country` |
+| Zuständigkeitskette, erste übernehmende Stelle | `management::{chain, first_taker, covered}` |
+| Weiterleitung, Weg eines Anliegens, fragende Stelle | `state::Hop`, `Concern::path`, `management::asker`; Sichten `ConcernPositionView`, `HopView` |
+| Nächste Leitung, Deckel | `management::superior`, `management::budget` |
+| Budget-Vorgabe je Stellentyp, Geltungsbereich | `state::BudgetRule`, `PositionKind`, `UnitLevel`, `RuleScope`, `Company::budget_rules`; Befehl `SetBudgetRule`; `management::{rule_for, kind_of}`; Sichten `BudgetRuleView`, `PositionKindView`; UI: `Budgetvorgaben` |
+| Strategisches Anliegen, Teil eines Anliegens | `Concern::parts`, `state::ConcernPart`, `management::bundle` (`anliegen.buendel_ab`, `ConcernModel::bundle_from`); Sicht `ConcernPartView` |
+| Struktur und Werbung von Land und Kontinent | `ai::{unit_structure, unit_advertising}`; `management::{sites_cared_for, countries_cared_for}` |
+| Organisation je Einheit, Managermarkt je Einheit | Sichten `UnitOrgView`, `CountryOrgView::unit`, `ContinentOrgView::unit`, `views::{unit_key, unit_from_key}`; `Session::manager_market(einheit, stelle)`; UI: `EinheitKarte`, `einheitName`, `stellenangabe` |

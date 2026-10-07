@@ -11,7 +11,17 @@ import {
   zahlFeld,
   zahlLesen,
 } from "../format";
-import type { Kandidat, Kern, Manager, StandortOrganisation, Stelle, Uebersicht } from "../kern";
+import type {
+  Budgetvorgabe,
+  EinheitOrganisation,
+  Kandidat,
+  Kern,
+  Manager,
+  Organisation,
+  Stelle,
+  Stellentyp,
+  Uebersicht,
+} from "../kern";
 import { t } from "../texte";
 import { AnliegenListe } from "./Anliegen";
 import { FehlerText } from "./Dialog";
@@ -25,7 +35,7 @@ import {
   useSicht,
   ZahlFeld,
 } from "./gemeinsam";
-import { stellenangabe, stellenName } from "./stellen";
+import { einheitName, stellenangabe, stellenName } from "./stellen";
 
 /** Where the answers of this view appear: above the chart, also after hiring. */
 const ORT = "organisation";
@@ -77,7 +87,7 @@ function Themen({ themen }: { themen: string[] }) {
 }
 
 /** A filled position: the manager, and a dismissal with its cost after a question. */
-function Inhaber({ s, stelle }: { s: StandortOrganisation; stelle: Stelle }) {
+function Inhaber({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
   const h = stelle.holder!;
   const { los } = useAktion(ORT);
   const [frage, setFrage] = useState(false);
@@ -156,14 +166,14 @@ function StellenDetails({
   sockel,
   onAnliegen,
 }: {
-  s: StandortOrganisation;
+  s: EinheitOrganisation;
   stelle: Stelle;
   sockel: [number, number];
   onAnliegen: () => void;
 }) {
   const b = stelle.budget!;
   const name = stellenName(stelle.role, s.kind_text);
-  const position = stellenangabe(s.site, stelle.role);
+  const position = stellenangabe(s.key, stelle.role);
   const { los } = useAktion(ORT);
   const [je, setJe] = useState(zahlFeld(b.shares[0] * 100, 1));
   const [jahr, setJahr] = useState(zahlFeld(b.shares[1] * 100, 1));
@@ -323,18 +333,18 @@ function StellenDetails({
   );
 }
 
-function StandortKarte({
+function EinheitKarte({
   s,
   sockel,
   onBesetzen,
   onAnliegen,
 }: {
-  s: StandortOrganisation;
+  s: EinheitOrganisation;
   sockel: [number, number];
-  onBesetzen: (site: number, rolle: string) => void;
+  onBesetzen: (einheit: string, rolle: string) => void;
   onAnliegen: () => void;
 }) {
-  const titel = `${t(s.kind_text)} · ${landName(s.country)}`;
+  const titel = einheitName(s);
   return (
     <article className="karte" aria-label={titel}>
       <h4>{titel}</h4>
@@ -378,7 +388,7 @@ function StandortKarte({
                         <button
                           type="button"
                           aria-label={`${t("organisation.besetzen")} ${stellenName(p.role, s.kind_text)} (${titel})`}
-                          onClick={() => onBesetzen(s.site, p.role)}
+                          onClick={() => onBesetzen(s.key, p.role)}
                         >
                           {t("organisation.besetzen")}
                         </button>
@@ -407,6 +417,170 @@ function StandortKarte({
   );
 }
 
+/** "Werk: Werksleitung", "Land: Produktion" … */
+function typName(k: Stellentyp): string {
+  return `${t(k.kind_text)}: ${stellenName(k.role, k.kind_text)}`;
+}
+
+function geltungName(v: Pick<Budgetvorgabe, "scope" | "scope_key">): string {
+  if (v.scope === "firma") return t("organisation.vorgabe_firma");
+  if (v.scope === "kontinent") return t(`kontinent.${v.scope_key ?? ""}`);
+  return landName(v.scope_key ?? "");
+}
+
+/** The kind of a position as the command reads it. */
+function typBefehl(k: Stellentyp) {
+  const level =
+    k.level === "standort"
+      ? { Site: k.site_type ?? "" }
+      : k.level === "land"
+        ? ("Country" as const)
+        : ("Continent" as const);
+  return { level, role: k.role === "leitung" ? ("Head" as const) : { Specialist: k.role } };
+}
+
+function geltungBefehl(v: Pick<Budgetvorgabe, "scope" | "scope_key">) {
+  if (v.scope === "kontinent") return { Continent: v.scope_key ?? "" };
+  if (v.scope === "land") return { Country: v.scope_key ?? "" };
+  return "Company" as const;
+}
+
+/**
+ * Budgets for all positions of a type (MA3): "alle Werksleitungen in Europa 3 % / 8 %".
+ * A position's own budget comes first, then the rule of its country, its continent, the
+ * company.
+ */
+function Budgetvorgaben({ daten }: { daten: Organisation }) {
+  const { los } = useAktion(ORT);
+  const typen = daten.kinds ?? [];
+  const vorgaben = daten.rules ?? [];
+  const [typ, setTyp] = useState(0);
+  const [geltung, setGeltung] = useState("firma:");
+  const [je, setJe] = useState("3");
+  const [jahr, setJahr] = useState("8");
+  const [fehler, setFehler] = useState<string | null>(null);
+  const id = useId();
+  if (typen.length === 0) return null;
+  const geltungen = [
+    { scope: "firma" as const, scope_key: null },
+    ...daten.continents.map((k) => ({ scope: "kontinent" as const, scope_key: k.continent })),
+    ...daten.continents.flatMap((k) =>
+      k.countries.map((l) => ({ scope: "land" as const, scope_key: l.country })),
+    ),
+  ];
+  const gewaehlt =
+    geltungen.find((g) => `${g.scope}:${g.scope_key ?? ""}` === geltung) ?? geltungen[0]!;
+  return (
+    <details className="budgetvorgaben">
+      <summary>
+        {t("organisation.vorgaben", { anzahl: vorgaben.length })}{" "}
+        <Erklaerung wert={t("organisation.vorgaben_titel")}>
+          <p>{t("organisation.vorgaben_hilfe")}</p>
+        </Erklaerung>
+      </summary>
+      {vorgaben.length > 0 && (
+        <ul className="stellen-protokoll">
+          {vorgaben.map((v, i) => (
+            <li key={i}>
+              {typName(v.kind)} · {geltungName(v)}: {formatProzent(v.shares[0])} /{" "}
+              {formatProzent(v.shares[1])}{" "}
+              <button
+                type="button"
+                className="schlicht"
+                aria-label={`${t("organisation.vorgabe_entfernen")}: ${typName(v.kind)}, ${geltungName(v)}`}
+                onClick={() =>
+                  void los(
+                    [
+                      {
+                        SetBudgetRule: {
+                          kind: typBefehl(v.kind),
+                          scope: geltungBefehl(v),
+                          shares: null,
+                        },
+                      },
+                    ],
+                    t("organisation.vorgabe_entfernt"),
+                  )
+                }
+              >
+                {t("organisation.vorgabe_entfernen")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form
+        aria-label={t("organisation.vorgaben_titel")}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const a = zahlLesen(je);
+          const j = zahlLesen(jahr);
+          const k = typen[typ];
+          if (!k || a === null || j === null || a < 0 || j > 100 || a > j) {
+            setFehler(t("organisation.budget_bereich"));
+            return;
+          }
+          setFehler(null);
+          void los(
+            [
+              {
+                SetBudgetRule: {
+                  kind: typBefehl(k),
+                  scope: geltungBefehl(gewaehlt),
+                  shares: [a / 100, j / 100],
+                },
+              },
+            ],
+            t("organisation.vorgabe_gesetzt", { typ: typName(k), wo: geltungName(gewaehlt) }),
+          );
+        }}
+      >
+        <div className="formular-zeile">
+          <div className="feld">
+            <label htmlFor={`${id}-typ`}>{t("organisation.vorgabe_typ")}</label>
+            <select id={`${id}-typ`} value={typ} onChange={(e) => setTyp(Number(e.target.value))}>
+              {typen.map((k, i) => (
+                <option key={i} value={i}>
+                  {typName(k)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-wo`}>{t("organisation.vorgabe_wo")}</label>
+            <select id={`${id}-wo`} value={geltung} onChange={(e) => setGeltung(e.target.value)}>
+              {geltungen.map((g) => (
+                <option
+                  key={`${g.scope}:${g.scope_key ?? ""}`}
+                  value={`${g.scope}:${g.scope_key ?? ""}`}
+                >
+                  {geltungName(g)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <ZahlFeld
+            name={t("organisation.budget_je_entscheidung")}
+            einheit="%"
+            wert={je}
+            onWert={setJe}
+            gruppieren={false}
+          />
+          <ZahlFeld
+            name={t("organisation.budget_je_jahr")}
+            einheit="%"
+            wert={jahr}
+            onWert={setJahr}
+            gruppieren={false}
+          />
+          <button type="submit">{t("organisation.vorgabe_setzen")}</button>
+        </div>
+        {fehler && <p className="fehlertext">{fehler}</p>}
+      </form>
+    </details>
+  );
+}
+
 function Organigramm({
   kern,
   stand,
@@ -415,7 +589,7 @@ function Organigramm({
 }: {
   kern: Kern;
   stand: string;
-  onBesetzen: (site: number, rolle: string) => void;
+  onBesetzen: (einheit: string, rolle: string) => void;
   onAnliegen: () => void;
 }) {
   const { daten, fehler } = useSicht(() => kern.organisation(), stand);
@@ -437,15 +611,32 @@ function Organigramm({
         </Erklaerung>
       </p>
       {daten.continents.length === 0 && <p>{t("organisation.keine_standorte")}</p>}
+      <Budgetvorgaben daten={daten} />
       {daten.continents.map((k) => (
         <section key={k.continent} aria-label={t(`kontinent.${k.continent}`)}>
           <h2>{t(`kontinent.${k.continent}`)}</h2>
+          {k.unit && (
+            <EinheitKarte
+              s={k.unit}
+              sockel={daten.budget_floor ?? [0, 0]}
+              onBesetzen={onBesetzen}
+              onAnliegen={onAnliegen}
+            />
+          )}
           {k.countries.map((l) => (
             <section key={l.country} aria-label={landName(l.country)}>
               <h3>{landName(l.country)}</h3>
+              {l.unit && (
+                <EinheitKarte
+                  s={l.unit}
+                  sockel={daten.budget_floor ?? [0, 0]}
+                  onBesetzen={onBesetzen}
+                  onAnliegen={onAnliegen}
+                />
+              )}
               {l.sites.map((s) => (
-                <StandortKarte
-                  key={s.site}
+                <EinheitKarte
+                  key={s.key}
                   s={s}
                   sockel={daten.budget_floor ?? [0, 0]}
                   onBesetzen={onBesetzen}
@@ -501,30 +692,30 @@ function KandidatZeile({
 function Managermarkt({
   kern,
   stand,
-  site,
+  einheit,
   rolle,
   onZurueck,
 }: {
   kern: Kern;
   stand: string;
-  site: number;
+  einheit: string;
   rolle: string;
   onZurueck: () => void;
 }) {
-  const { daten, fehler } = useSicht(() => kern.managermarkt(site, rolle), stand);
+  const { daten, fehler } = useSicht(() => kern.managermarkt(einheit, rolle), stand);
   const { los } = useAktion(ORT);
   const [kontinent, setKontinent] = useState<string | null>(null);
   const auswahlId = useId();
   if (!daten) return <FehlerText fehler={fehler} />;
   const stelle = stellenName(rolle, daten.kind_text);
-  const standort = `${t(daten.kind_text)} · ${landName(daten.country)}`;
+  const standort = einheitName(daten);
   const gewaehlt = kontinent ?? daten.continent;
   const kontinente = [...new Set(daten.candidates.map((k) => k.manager.continent))];
   const liste = daten.candidates.filter(
     (k) => gewaehlt === "alle" || k.manager.continent === gewaehlt,
   );
   const nehmen = async (k: Kandidat) => {
-    const position = stellenangabe(site, rolle);
+    const position = stellenangabe(einheit, rolle);
     const manager = k.manager.id;
     const ok = await los(
       [k.current ? { MoveManager: { manager, position } } : { HireManager: { manager, position } }],
@@ -626,7 +817,7 @@ export function OrganisationAnsicht({
   // Every command reloads the chart; the overview keeps cash and counters.
   const [zaehler, setZaehler] = useState(0);
   const { senden, meldung } = useBefehl(kern, onGeaendert, () => setZaehler((z) => z + 1));
-  const [wahl, setWahl] = useState<{ site: number; rolle: string } | null>(null);
+  const [wahl, setWahl] = useState<{ einheit: string; rolle: string } | null>(null);
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
   const [bereich, setBereich] = useState<"stellen" | "anliegen">(
@@ -652,7 +843,7 @@ export function OrganisationAnsicht({
               <Organigramm
                 kern={kern}
                 stand={stand}
-                onBesetzen={(site, rolle) => setWahl({ site, rolle })}
+                onBesetzen={(einheit, rolle) => setWahl({ einheit, rolle })}
                 onAnliegen={() => setBereich("anliegen")}
               />
             ) : (
@@ -663,7 +854,7 @@ export function OrganisationAnsicht({
           <Managermarkt
             kern={kern}
             stand={stand}
-            site={wahl.site}
+            einheit={wahl.einheit}
             rolle={wahl.rolle}
             onZurueck={() => setWahl(null)}
           />

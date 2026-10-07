@@ -94,7 +94,7 @@ pub fn decide_with(
         }
         if first_of_month {
             manage_cash(state, catalog, id, own, decider);
-            advertise(state, catalog, id, own, decider);
+            advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
         }
         if end_of_quarter {
@@ -201,6 +201,34 @@ pub(crate) fn site_structure(
     for &site in due {
         expand(state, catalog, id, &[site], date, (&mut news, decider));
     }
+}
+
+/// The structure of the sites a country's or continent's positions take care of (MA3):
+/// shutting down, selling and restarting units, building more, with an own power plant,
+/// a new deposit or a new site, through the decider of the positions.
+pub(crate) fn unit_structure(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (own, sites): (&[SiteId], &[SiteId]),
+    date: Date,
+    decider: &mut dyn Decider,
+) {
+    let mut news = Vec::new();
+    retire(state, catalog, id, (own, sites), date, (&mut news, decider));
+    expand(state, catalog, id, sites, date, (&mut news, decider));
+}
+
+/// The advertising of the countries a country's or continent's positions take care of
+/// (MA3), from the sales of the company's sites there.
+pub(crate) fn unit_advertising(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    (sites, countries): (&[SiteId], &[CountryId]),
+    decider: &mut dyn Decider,
+) {
+    advertise(state, catalog, id, (sites, Some(countries)), decider);
 }
 
 /// The next target of a company's laboratory (MA2): a technology of its branches or the
@@ -2037,12 +2065,13 @@ fn own_power(
 }
 
 /// Advertising for every country and goods group where the company sold end products
-/// last month: a share of that revenue (M16).
+/// last month: a share of that revenue (M16). With `only` (MA3) other countries keep
+/// their advertising.
 fn advertise(
     state: &mut GameState,
     catalog: &Catalog,
     id: CompanyId,
-    sites: &[SiteId],
+    (sites, only): (&[SiteId], Option<&[CountryId]>),
     decider: &mut dyn Decider,
 ) {
     let (_, aggressiveness) = traits(state, id);
@@ -2080,7 +2109,9 @@ fn advertise(
         }
     }
     for a in &company.advertising {
-        if !revenue.contains_key(&(a.country, a.group)) {
+        if !revenue.contains_key(&(a.country, a.group))
+            && only.is_none_or(|c| c.contains(&a.country))
+        {
             commands.push(Command::SetAdvertising {
                 country: a.country,
                 group: a.group,
@@ -3694,6 +3725,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
         development: Default::default(),
         product_names: Default::default(),
         positions: Vec::new(),
+        budget_rules: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -3861,6 +3893,7 @@ mod tests {
             development: Default::default(),
             product_names: Default::default(),
             positions: Vec::new(),
+            budget_rules: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

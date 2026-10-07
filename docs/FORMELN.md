@@ -2458,3 +2458,103 @@ Stückkosten, nichts verkauft → Vertrieb und Marketing; fehlende Arbeitskräft
 Personal → Personal; Anlage ohne Verfahren oder ruhend → Produktion; Labor ohne Ziel →
 Forschung. Strom und Lagerstätten bleiben (Sache von Land und Kontinent, MA3). Offene
 Anliegen stehen als eigener Hinweis mit der frühesten Frist in der Übersicht.
+
+## MA3 – Land und Kontinent
+
+`docs/MANAGER.md` Abschnitte 3, 5.3, 6.5 und 11. Daten: `parameter/management.yaml`
+(Fachstellen und Themen je Ebene, `anliegen.buendel_ab`). Kern: Modul `management`.
+
+### Einheiten und Stellen
+
+- **Einheiten:** Standort, Land, Kontinent. Eine Firma hat die Einheit eines Landes
+  (Kontinents), solange ihr dort mindestens ein Standort gehört.
+- **Stellen:** je Einheit eine Leitung (Landesleitung, Kontinentvorstand) und die
+  Fachstellen ihrer Ebene (`ebenen[].fachstellen`; Vorgabe: Produktion, Einkauf und Lager,
+  Vertrieb und Marketing, Personal, Logistik, Forschung). Stellen ohne Themen ihrer Ebene
+  lassen sich nicht besetzen (wie MA1).
+- **Gehalt:** Faktor der Ebene × (0,5 + Stärke / 100) × Jahreslohn der Akademiker im
+  **Sitzland** der Einheit (MA1). Sitzland eines Landes ist das Land selbst, eines
+  Kontinents das Land des Firmensitzes, wenn es dort liegt, sonst das Land des Kontinents
+  mit den meisten eigenen Standorten (bei Gleichstand das erste in den Daten). Gehälter
+  und Abfindungen der höheren Stellen sind Gemeinkosten der Firma (Kostenstelle ohne
+  Standort).
+- Verliert die Firma ihren letzten Standort einer Einheit, enden deren Stellen zum
+  nächsten Monatsanfang (wie MA1).
+
+### Themen je Ebene
+
+Jede Ebene nennt die Themen, die ihre Stellen selbst aufgreifen (`ebenen[].themen`):
+
+| Ebene | Themen |
+| --- | --- |
+| Standort | Auslastung, Verkauf, Einkauf, Lieferungen, Lohn, Überkapazität, stillgelegte Anlagen, Wiederanfahren, Ausbau am Standort; im Labor nur Forschung und Weiterentwicklung |
+| Land, Kontinent | Überkapazität, stillgelegte Anlagen, Wiederanfahren, Ausbau (für Standorte ohne eigene zuständige Stelle und neue Standorte), Kraftwerk, Lagerstätte, Werbung |
+
+Eine Stelle erledigt die Themen ihres Bereichs, die Leitung die Themen der Bereiche ohne
+besetzte Fachstelle (MA1). Weitergeleitete Entscheidungen (unten) übernimmt eine höhere
+Stelle für jedes Thema ihres Bereichs.
+
+### Wann die höheren Stellen handeln
+
+- **Am letzten Tag eines Quartals** ziehen die Stellen jedes Landes ihr Bemerken (MA1).
+  Für die Standorte des Landes ohne eigene zuständige Stelle (weder Fachstelle Produktion
+  noch Leitung besetzt) laufen dann die Regeln für Stilllegen, Verkaufen und Wiederanfahren
+  und für den Ausbau; mit ihnen die Regeln für ein eigenes Kraftwerk, eine neue
+  Lagerstätte und einen neuen Standort, wenn der alte keinen Platz mehr hat. Der Kontinent
+  tut dasselbe für die Standorte seiner Länder ohne besetzte Landesstelle des Bereichs.
+- **An ihrem Prüftermin** (alle `pruefung_tage` der Ebene, gestaffelt nach der Nummer der
+  Einheit) die Werbung je Warengruppe in den Ländern der Einheit nach der Regel der KI
+  (M16).
+
+### Zuständigkeitskette und Weiterleitung
+
+Für eine Entscheidung zum Thema *T* (Bereich *B*) an einem Standort oder in einem Land
+gilt die Kette
+
+    Fachstelle B des Standorts → Leitung des Standorts → Fachstelle B des Landes →
+    Landesleitung → Fachstelle B des Kontinents → Kontinentvorstand → (MA5) → Spieler
+
+Nur besetzte Stellen zählen; Stellen am Standort nur, wenn das Thema dort vorkommt.
+
+1. Es beginnt die erste Stelle der Kette, die das Thema heute bemerkt hat.
+2. Jede Stelle ab dort empfiehlt mit ihrem Urteilsvermögen und ihrer Fachkompetenz (MA2)
+   und führt ihre Empfehlung aus, wenn deren Betrag in ihr Budget passt (je Entscheidung
+   und Rest im Jahr) und sie keinen Kredit braucht (Kredite: MA5). Der Betrag zählt dann
+   nur auf ihr eigenes Budget.
+3. Sonst geht die Entscheidung an die nächste Stelle. Kann keine entscheiden, wird sie ein
+   **Anliegen der obersten Stelle** an den Spieler, mit dem Weg: jede Stelle mit Manager und
+   Empfehlung. Empfehlung und Prognose des Anliegens sind die der obersten Stelle.
+4. Kein Anliegen entsteht, wenn das Thema an einer Stelle des Wegs stummgeschaltet oder
+   gesperrt ist, wenn die erste Stelle schon `offen_je_stelle` offene Anliegen hat oder
+   dasselbe Anliegen (Thema, Standort bzw. Land, Produkt) offen ist. „Nicht mehr fragen“,
+   „Ablehnen“ und „Wieder fragen“ gelten für die oberste Stelle.
+
+### Budget der höheren Stellen
+
+- **Bezug** *B*: Umsatz der Firma in den letzten 12 abgeschlossenen Monaten an den
+  Standorten des Landes (Kontinents); ohne Umsatz deren Kosten (wie MA2).
+- **Anteile** *a*, *b* je Ebene und Rolle aus den Daten (Land: Fachstelle 3 % / 6 %,
+  Leitung 5 % / 12 %; Kontinent: 3 % / 8 % und 6 % / 15 %); Sockel wie MA2.
+- **Vorgaben je Stellentyp** (`SetBudgetRule`): Anteile für einen Stellentyp – Ebene, bei
+  Standorten der Standorttyp, Leitung oder Bereich – für die ganze Firma, einen Kontinent
+  oder ein Land. Es gilt die eigene Einstellung der Stelle, sonst die Vorgabe ihres
+  Landes, ihres Kontinents, der Firma, sonst der Standardwert.
+- **Deckel:** Budget je Entscheidung und je Jahr einer Stelle sind höchstens die ihrer
+  nächsten besetzten Leitung: für Fachstellen die Leitung der eigenen Einheit, für
+  Leitungen die der nächsthöheren Einheit (Standort → Land → Kontinent). Ausgaben zählen nur
+  bei der Stelle, die entscheidet.
+
+### Strategische Anliegen
+
+Entstehen an einem Tag bei derselben obersten Stelle mindestens `buendel_ab` Anliegen mit
+gleichem Thema und gleicher Art der Empfehlung aus verschiedenen Standorten, legt sie diese
+als **ein** Anliegen vor: Optionen „An allen umsetzen“ (die Empfehlung je Standort) und „So
+lassen“; Betrag, Prognose und einmalige Wirkung sind die Summen der Teile. Die Antwort gilt
+für alle Teile; jeder Teil wird für sich ausgeführt (scheitert einer, laufen die übrigen).
+
+### Hinweise und Spielstände
+
+- Die Hinweise „Strom fehlt“ und „Lagerstätte“ eines Standorts entfallen, wenn eine
+  besetzte Stelle der Kette das Thema Kraftwerk bzw. Lagerstätte übernimmt.
+- Stellen alter Spielstände (Standort und Rolle) werden als Stellen ihres Standorts
+  gelesen; das Format bleibt lesbar ohne neue Version.

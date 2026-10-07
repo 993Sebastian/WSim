@@ -196,8 +196,13 @@ fn runs_halt_for_concerns() {
         let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
         session.new_game(&request()).unwrap();
         // A head for the workshop who asks about every expense.
-        let site = session.organisation().unwrap().continents[0].countries[0].sites[0].site;
-        let manager = session.manager_market(site, "leitung").unwrap().candidates[0]
+        let site = session.organisation().unwrap().continents[0].countries[0].sites[0]
+            .site
+            .unwrap();
+        let manager = session
+            .manager_market(&format!("standort:{site}"), "leitung")
+            .unwrap()
+            .candidates[0]
             .manager
             .id;
         let head = json!({"site": site, "role": "Head"});

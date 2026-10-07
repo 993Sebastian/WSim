@@ -11,7 +11,7 @@ use crate::ledger::CostType;
 use crate::management::{self, shown_level};
 use crate::money::Money;
 use crate::save;
-use crate::state::{GameSettings, ManagerId, Position, Role, SiteId, StartForm};
+use crate::state::{GameSettings, ManagerId, Position, Role, SiteId, StartForm, Unit};
 
 fn usd(v: f64) -> Money {
     Money::from_usd(v).unwrap()
@@ -92,17 +92,11 @@ fn free(game: &Game) -> Vec<ManagerId> {
 }
 
 fn head(site: SiteId) -> Position {
-    Position {
-        site,
-        role: Role::Head,
-    }
+    Position::at_site(site, Role::Head)
 }
 
 fn specialist(site: SiteId, function: &str) -> Position {
-    Position {
-        site,
-        role: Role::Specialist(function.into()),
-    }
+    Position::at_site(site, Role::Specialist(function.into()))
 }
 
 fn personnel(game: &Game, site: SiteId) -> Money {
@@ -191,7 +185,8 @@ fn hiring_moving_and_dismissing_are_checked() {
     let job = game.state().managers[&a].job.clone().unwrap();
     assert_eq!(job.company, game.player());
     let m = &game.state().managers[&a];
-    let demand = management::salary_demand(game.catalog(), game.state(), m, &head(works));
+    let demand =
+        management::salary_demand(game.catalog(), game.state(), game.player(), m, &head(works));
     assert_eq!(job.salary, demand);
     assert!(job.salary > Money::ZERO);
 
@@ -932,7 +927,7 @@ fn the_views_show_concerns_budgets_and_decisions() {
     let c = &g.concerns[0];
     assert_eq!(c.reason, "immer");
     assert_eq!(c.status, "offen");
-    assert_eq!(c.role, "leitung");
+    assert_eq!(c.asker.role, "leitung");
     assert_eq!(g.kind, c.options[c.recommended].kind);
     let shut = c.options.iter().find(|o| o.kind == "stilllegen").unwrap();
     assert_eq!(shut.steps[0].key, crate::message::keys::STEP_MOTHBALL);
@@ -954,7 +949,7 @@ fn the_views_show_concerns_budgets_and_decisions() {
     let site = org.continents[0].countries[0]
         .sites
         .iter()
-        .find(|s| s.site == works.0)
+        .find(|s| s.site == Some(works.0))
         .unwrap();
     let p = &site.positions[0];
     let b = p.budget.as_ref().unwrap();
@@ -1010,4 +1005,353 @@ fn games_with_concerns_load_identically() {
     }
     assert_eq!(loaded.state_hash(), a.state_hash());
     assert!(a.state().companies[0].ledger.is_balanced());
+}
+
+// MA3: countries and continents.
+
+/// The head of the player's company in the test country.
+fn country_head(game: &Game) -> Position {
+    let aaa = game.catalog().countries.id("AAA").unwrap();
+    Position::new(Unit::Country(aaa), Role::Head)
+}
+
+/// Hires a free candidate who notices and judges everything for a position.
+fn hire_sharp(game: &mut Game, position: Position) -> ManagerId {
+    let id = free(game)[0];
+    game.apply(Command::HireManager {
+        manager: id,
+        position,
+    })
+    .unwrap();
+    let m = game.state_mut().managers.get_mut(&id).unwrap();
+    m.detection = 100;
+    m.judgment = 100;
+    for v in m.expertise.values_mut() {
+        *v = 100;
+    }
+    id
+}
+
+#[test]
+fn a_concern_goes_to_the_country_head_before_the_player() {
+    // The head of the works always asks; the country's head decides within its budget.
+    let (mut game, works, _) = weak_works(cheap_furnaces());
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    let country = country_head(&game);
+    hire_sharp(&mut game, country.clone());
+    through_quarter_end(&mut game);
+    assert!(mothballed(&game, works) > 0, "the country's head decided");
+    assert!(game.state().concerns.is_empty());
+    let ps = management::position_state(game.state(), game.player(), &country).unwrap();
+    assert!(ps.spent > Money::ZERO, "on the country's budget");
+    assert!(
+        management::position_state(game.state(), game.player(), &head(works))
+            .is_none_or(|p| p.spent == Money::ZERO),
+        "not on the works' budget"
+    );
+    // Its salary is overhead of the company, not a cost of the works.
+    let overhead = crate::ledger::CostCenter {
+        site: None,
+        product: None,
+    };
+    let ledger = &game.state().companies[0].ledger;
+    let booked = ledger
+        .months
+        .iter()
+        .filter_map(|m| m.by_center.get(&overhead))
+        .any(|c| {
+            c.get(&CostType::Personnel)
+                .is_some_and(|v| *v < Money::ZERO)
+        });
+    assert!(booked, "salary of the country's head as overhead");
+    assert!(ledger.is_balanced());
+
+    // Without a budget there either: a concern of the country's head, with the way.
+    let (mut game, works, _) = weak_works(cheap_furnaces());
+    let country = country_head(&game);
+    hire_sharp(&mut game, country.clone());
+    for position in [head(works), country.clone()] {
+        game.apply(Command::SetBudget {
+            position,
+            shares: Some((0.0, 0.0)),
+        })
+        .unwrap();
+    }
+    through_quarter_end(&mut game);
+    assert_eq!(mothballed(&game, works), 0);
+    let c = &game.state().concerns[0];
+    assert_eq!(c.position, head(works), "raised at the works");
+    assert_eq!(
+        management::asker(c),
+        &country,
+        "asked by the country's head"
+    );
+    assert_eq!(c.path.len(), 2);
+    let v = crate::views::concerns(&game);
+    let shown = &v.open[0].concerns[0];
+    assert_eq!(shown.asker.level, "land");
+    assert_eq!(shown.path[0].position.role, "leitung");
+    assert_eq!(shown.site, Some(works.0));
+    // "Do not ask again" belongs to the country's head.
+    let id = c.id;
+    game.apply(Command::AnswerConcern {
+        concern: id,
+        answer: management::ConcernAnswer::NeverAsk,
+    })
+    .unwrap();
+    let ps = management::position_state(game.state(), game.player(), &country).unwrap();
+    assert!(ps.muted.contains(&crate::decision::Topic::Overcapacity));
+}
+
+#[test]
+fn budget_rules_and_the_cap_of_the_head() {
+    use crate::state::{PositionKind, RuleScope, UnitLevel};
+    let mut game = new_game(test_support::management());
+    let works = found(&mut game, SiteType::Factory);
+    let a = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: a,
+        position: head(works),
+    })
+    .unwrap();
+    let (c, p) = (game.catalog().clone(), game.player());
+    let aaa = c.countries.id("AAA").unwrap();
+    let shares =
+        |game: &Game, position: &Position| management::budget_shares(&c, game.state(), p, position);
+    assert_eq!(
+        shares(&game, &head(works)),
+        (0.05, 0.10),
+        "the data's default"
+    );
+    let kind = PositionKind {
+        level: UnitLevel::Site(SiteType::Factory),
+        role: Role::Head,
+    };
+    let rule = |game: &mut Game, scope, shares| {
+        game.apply(Command::SetBudgetRule {
+            kind: kind.clone(),
+            scope,
+            shares,
+        })
+        .unwrap();
+    };
+    rule(&mut game, RuleScope::Company, Some((0.03, 0.08)));
+    assert_eq!(shares(&game, &head(works)), (0.03, 0.08));
+    rule(&mut game, RuleScope::Country(aaa), Some((0.01, 0.02)));
+    assert_eq!(
+        shares(&game, &head(works)),
+        (0.01, 0.02),
+        "the country first"
+    );
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.2, 0.3)),
+    })
+    .unwrap();
+    assert_eq!(
+        shares(&game, &head(works)),
+        (0.2, 0.3),
+        "the position's own first"
+    );
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: None,
+    })
+    .unwrap();
+    rule(&mut game, RuleScope::Country(aaa), None);
+    assert_eq!(shares(&game, &head(works)), (0.03, 0.08));
+    assert_eq!(
+        game.apply(Command::SetBudgetRule {
+            kind: PositionKind {
+                level: UnitLevel::Country,
+                role: Role::Specialist("rechtsabteilung".into()),
+            },
+            scope: RuleScope::Company,
+            shares: Some((0.1, 0.2)),
+        }),
+        Err(CommandError::UnknownPosition)
+    );
+
+    // A specialist never has more than its head: with the head always asking, so does it.
+    let b = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: b,
+        position: specialist(works, "produktion"),
+    })
+    .unwrap();
+    let salary = |game: &Game, id| game.state().managers[&id].job.as_ref().unwrap().salary;
+    let budget = |game: &Game, position: &Position, id| {
+        management::budget(&c, game.state(), p, position, salary(game, id))
+    };
+    assert!(budget(&game, &specialist(works, "produktion"), b).0 > Money::ZERO);
+    game.apply(Command::SetBudget {
+        position: head(works),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    assert_eq!(
+        budget(&game, &specialist(works, "produktion"), b),
+        (Money::ZERO, Money::ZERO)
+    );
+}
+
+#[test]
+fn the_country_takes_care_of_works_without_a_head() {
+    let (mut game, works, head_id) = weak_works(cheap_furnaces());
+    game.apply(Command::DismissManager { manager: head_id })
+        .unwrap();
+    let country = country_head(&game);
+    hire_sharp(&mut game, country.clone());
+    through_quarter_end(&mut game);
+    assert!(
+        mothballed(&game, works) > 0,
+        "the country's head shut units down"
+    );
+    let ps = management::position_state(game.state(), game.player(), &country).unwrap();
+    assert!(
+        ps.log
+            .iter()
+            .any(|l| l.topic == crate::decision::Topic::Overcapacity)
+    );
+}
+
+#[test]
+fn alike_concerns_of_several_sites_become_one_strategic_concern() {
+    use crate::decision::{Choice, ChoiceKind, Decision, Step, Topic};
+    use crate::state::{Concern, ConcernOption, ConcernReason, ConcernStatus, Hop};
+    let mut game = new_game(cheap_furnaces());
+    let c = game.catalog().clone();
+    let ofen = c.facilities.id("ofen").unwrap();
+    let sites: Vec<SiteId> = (0..3)
+        .map(|_| {
+            let works = found(&mut game, SiteType::Factory);
+            game.apply(Command::BuildFacility {
+                site: works,
+                facility: ofen,
+                count: 2,
+                size: crate::catalog::FacilitySize::Medium,
+            })
+            .unwrap();
+            works
+        })
+        .collect();
+    days(&mut game, 40);
+    let country = country_head(&game);
+    let manager = hire_sharp(&mut game, country.clone());
+    let concern = |site: SiteId| {
+        let shut = Command::MothballFacility {
+            site,
+            slot: 0,
+            count: 1,
+        };
+        let decision = Decision {
+            topic: Topic::Overcapacity,
+            company: game.player(),
+            site: Some(site),
+            product: None,
+            choices: vec![
+                Choice {
+                    kind: ChoiceKind::Mothball,
+                    steps: vec![Step {
+                        command: shut,
+                        required: true,
+                    }],
+                },
+                Choice::keep(),
+            ],
+            rule: 0,
+        };
+        let option = |amount: f64| ConcernOption {
+            amount: usd(amount),
+            forecast: Some((usd(100.0), usd(300.0))),
+            once: Money::ZERO,
+        };
+        Concern {
+            id: 0,
+            company: game.player(),
+            position: head(site),
+            manager,
+            decision,
+            recommended: 0,
+            options: vec![option(1_000.0), option(0.0)],
+            reason: ConcernReason::Decision,
+            path: vec![
+                Hop {
+                    position: head(site),
+                    manager,
+                    recommended: 0,
+                },
+                Hop {
+                    position: country.clone(),
+                    manager,
+                    recommended: 0,
+                },
+            ],
+            parts: Vec::new(),
+            created: game.date(),
+            deadline: game.date().add_days(30),
+            status: ConcernStatus::Open,
+            closed: None,
+        }
+    };
+    let two = management::bundle(vec![concern(sites[0]), concern(sites[1])], 3);
+    assert_eq!(two.len(), 2, "two are not enough");
+    let mut one = management::bundle(sites.iter().map(|&s| concern(s)).collect(), 3);
+    assert_eq!(one.len(), 1);
+    let mut strategic = one.remove(0);
+    assert_eq!(strategic.parts.len(), 3);
+    assert_eq!(&strategic.position, &country);
+    assert_eq!(strategic.options[0].amount, usd(3_000.0));
+    assert_eq!(
+        strategic.options[0].forecast,
+        Some((usd(300.0), usd(900.0)))
+    );
+    strategic.id = 5;
+    game.state_mut().concerns.push(strategic);
+    let v = crate::views::concerns(&game);
+    assert_eq!(v.open[0].concerns[0].parts.len(), 3);
+    // The player shuts one works down himself: that part is settled.
+    game.apply(Command::MothballFacility {
+        site: sites[0],
+        slot: 0,
+        count: 1,
+    })
+    .unwrap();
+    let left = &game.state().concerns[0];
+    assert_eq!(left.parts.len(), 2);
+    assert_eq!(left.options[0].amount, usd(2_000.0));
+    // One answer for the rest.
+    game.apply(Command::AnswerConcern {
+        concern: 5,
+        answer: management::ConcernAnswer::Delegate,
+    })
+    .unwrap();
+    for &site in &sites {
+        assert_eq!(mothballed(&game, site), 1);
+    }
+}
+
+#[test]
+fn positions_of_saves_before_ma3_are_site_positions() {
+    #[derive(serde::Serialize)]
+    struct Old {
+        site: SiteId,
+        role: Role,
+    }
+    let old = Old {
+        site: SiteId(4),
+        role: Role::Specialist("produktion".into()),
+    };
+    let bytes = rmp_serde::to_vec_named(&old).unwrap();
+    let read: Position = rmp_serde::from_slice(&bytes).unwrap();
+    assert_eq!(read, specialist(SiteId(4), "produktion"));
+    let json: Position = serde_json::from_str(r#"{"site": 2, "role": "Head"}"#).unwrap();
+    assert_eq!(json, head(SiteId(2)));
+    let new = Position::new(Unit::Site(SiteId(2)), Role::Head);
+    let again: Position = rmp_serde::from_slice(&rmp_serde::to_vec_named(&new).unwrap()).unwrap();
+    assert_eq!(again, new);
 }

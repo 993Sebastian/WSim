@@ -129,6 +129,11 @@ pub struct ManagementLevel {
     /// Budget as shares of the unit's revenue: per decision, per year (MA2).
     pub budget_specialist: (f64, f64),
     pub budget_head: (f64, f64),
+    /// Specialist functions of a country or continent (indices into `functions`, MA3);
+    /// sites have theirs per site type.
+    pub specialists: Vec<usize>,
+    /// Topics the positions of the level take up themselves (MA3).
+    pub topics: Vec<crate::decision::Topic>,
 }
 
 /// Concerns of positions (MA2).
@@ -144,6 +149,9 @@ pub struct ConcernModel {
     pub estimate_error: f64,
     /// Chance that a recommendation without any judgment is the best option.
     pub recommend_base: f64,
+    /// From this many alike concerns of different sites on a day the position above
+    /// asks once (MA3).
+    pub bundle_from: u32,
 }
 
 /// Candidates per continent (MA1).

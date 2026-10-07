@@ -6,7 +6,7 @@ import type { Anliegen, AnliegenGruppe, AnliegenOption, Anliegenantwort, Kern } 
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useAktion, useSicht } from "./gemeinsam";
-import { stellenName } from "./stellen";
+import { einheitName, stellenName } from "./stellen";
 
 /** Where the answers appear: at the top of the list (an answered concern leaves it). */
 const ORT = "anliegen";
@@ -24,9 +24,19 @@ function wirkung(o: AnliegenOption): string {
   return t("anliegen.spanne", { von: mitVorzeichen(von), bis: mitVorzeichen(bis) });
 }
 
-/** "Werksleitung · Werk · Deutschland" */
+/** "Werksleitung · Werk · Deutschland", "Landesleitung · Land · Deutschland" */
 export function herkunft(a: Anliegen): string {
-  return `${stellenName(a.role, a.kind_text)} · ${t(a.kind_text)} · ${landName(a.country)}`;
+  return `${stellenName(a.asker.role, a.asker.kind_text)} · ${einheitName(a.asker)}`;
+}
+
+/** The way of a concern (MA3): each position with its recommendation. */
+function weg(a: Anliegen): string {
+  return a.path
+    .map(
+      (h) =>
+        `${stellenName(h.position.role, h.position.kind_text)} (${einheitName(h.position)}, ${t("anliegen.empfiehlt", { option: t(`option.${h.recommended}`) })})`,
+    )
+    .join(" → ");
 }
 
 /** "Überkapazität" or "Einkauf · Roheisen". */
@@ -44,7 +54,7 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
   const { los } = useAktion(ORT);
   const antworten = (answer: Anliegenantwort, erfolg: string) =>
     void los([{ AnswerConcern: { concern: a.id, answer } }], erfolg);
-  const stelle = stellenName(a.role, a.kind_text);
+  const stelle = stellenName(a.asker.role, a.asker.kind_text);
   return (
     <article className="karte anliegen" aria-label={`${thema(a)} – ${herkunft(a)}`}>
       <h3>
@@ -55,13 +65,60 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
         {herkunft(a)} · {t("anliegen.fragt", { name: a.manager })} ·{" "}
         <strong>{t("anliegen.frist", { datum: formatDatum(a.deadline) })}</strong>
       </p>
+      {a.site_kind_text && a.site_country && a.asker.level !== "standort" && (
+        <p className="feld-hilfe">
+          {t("anliegen.ort", { ort: `${t(a.site_kind_text)} · ${landName(a.site_country)}` })}
+        </p>
+      )}
+      {a.path.length > 1 && <p className="feld-hilfe">{t("anliegen.weg", { weg: weg(a) })}</p>}
       <p>
         {t(`anliegen.grund.${a.reason}`, {
           budget: formatGeld(a.per_decision_usd),
           rest: formatGeld(a.left_usd),
         })}{" "}
-        {t("anliegen.lage", { betrag: formatGeld(a.site_result_usd) })}
+        {a.site_result_usd !== null &&
+          t("anliegen.lage", { betrag: formatGeld(a.site_result_usd) })}
       </p>
+      {a.parts.length > 0 && (
+        <div className="tabelle">
+          <table className="mobil-karten" aria-label={t("anliegen.teile")}>
+            <thead>
+              <tr>
+                <th>{t("anliegen.teil")}</th>
+                <th className="zahl">{t("anliegen.kosten")}</th>
+                <th className="zahl">{t("anliegen.prognose")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {a.parts.map((teil, i) => (
+                <tr key={i}>
+                  <td>
+                    <strong>
+                      {teil.kind_text && teil.country
+                        ? `${t(teil.kind_text)} · ${landName(teil.country)}`
+                        : t("anliegen.ohne_ort")}
+                    </strong>
+                    {teil.product && ` · ${t(`produkt.${teil.product}`)}`}
+                    {teil.option.steps.length > 0 && (
+                      <ul className="schritte">
+                        {teil.option.steps.map((s, j) => (
+                          <li key={j}>{meldungText(s)}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                  <td className="zahl" data-spalte={t("anliegen.kosten")}>
+                    {formatGeld(teil.option.amount_usd)}
+                  </td>
+                  <td className="zahl" data-spalte={t("anliegen.prognose")}>
+                    {wirkung(teil.option)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="tabelle">
         <table className="mobil-karten" aria-label={t("anliegen.optionen")}>
           <thead>

@@ -195,10 +195,33 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.anliegen);
     },
-    managermarkt: async (standort, stelle) => {
+    managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();
       // The preview knows the market of one position; it shows it for every position.
-      return { ...kopie(beispiel.managermarkt), site: standort, role: stelle };
+      const markt = kopie(beispiel.managermarkt);
+      const [ebene, wert = ""] = einheit.split(":");
+      if (ebene === "land") {
+        return {
+          ...markt,
+          unit: einheit,
+          site: null,
+          role: stelle,
+          kind_text: "ebene.land",
+          country: wert,
+        };
+      }
+      if (ebene === "kontinent") {
+        return {
+          ...markt,
+          unit: einheit,
+          site: null,
+          role: stelle,
+          kind_text: "ebene.kontinent",
+          country: null,
+          continent: wert,
+        };
+      }
+      return { ...markt, unit: einheit, site: Number(wert), role: stelle };
     },
     befehl: async (befehl) => {
       if (!spiel) throw keinSpiel();

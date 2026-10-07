@@ -183,6 +183,13 @@ pub enum Command {
         position: Position,
         topic: crate::decision::Topic,
     },
+    /// Budget shares for all positions of a type in a scope; `None` removes the rule
+    /// (MA3).
+    SetBudgetRule {
+        kind: crate::state::PositionKind,
+        scope: crate::state::RuleScope,
+        shares: Option<(f64, f64)>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -684,6 +691,13 @@ fn run(
         }
         Command::AskAgain { position, topic } => {
             crate::management::ask_again(state, catalog, actor, position, *topic)?;
+        }
+        Command::SetBudgetRule {
+            kind,
+            scope,
+            shares,
+        } => {
+            crate::management::set_budget_rule(state, catalog, actor, kind, *scope, *shares)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

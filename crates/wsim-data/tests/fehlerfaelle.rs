@@ -2586,7 +2586,11 @@ fn management_wird_geprueft() {
         "management.bereiche[0].themen[0]",
     );
 
-    let d = basis().ersetze(datei, "themen: [verkauf]", "themen: [verkauf, produktion]");
+    let d = basis().ersetze(
+        datei,
+        "themen: [verkauf, werbung]",
+        "themen: [verkauf, werbung, produktion]",
+    );
     befund(
         &d.laden(),
         "Das Thema „produktion“ gehört schon zum Bereich „produktion“; jedes Thema gehört zu höchstens einem Bereich.",
@@ -2665,6 +2669,39 @@ fn management_wird_geprueft() {
         &d.laden(),
         "Thema „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
     );
+    // MA3: specialists and topics of the levels, bundling.
+    let d = basis().ersetze(
+        datei,
+        "budget_fach: [0.02, 0.05], budget_leitung: [0.05, 0.10],",
+        "budget_fach: [0.02, 0.05], budget_leitung: [0.05, 0.10], fachstellen: [produktion],",
+    );
+    befund(
+        &d.laden(),
+        "Die Fachstellen der Standorte stehen je Standorttyp unter `standorttypen`, nicht bei der Ebene.",
+    );
+    let d = basis().ersetze(
+        datei,
+        "fachstellen: [produktion, einkauf_lager,",
+        "fachstellen: [produktio, einkauf_lager,",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Bereich „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
+    );
+    assert_eq!(f.path.to_string(), "management.ebenen[1].fachstellen[0]");
+    let d = basis().ersetze(datei, "lagerstaette, werbung]}", "lagerstaette, kasse]}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Das Thema „kasse“ gehört zu keinem Bereich; eine Ebene kann nur Themen ihrer Bereiche aufgreifen.",
+    );
+    assert_eq!(f.path.to_string(), "management.ebenen[1].themen[6]");
+    let d = basis().ersetze(datei, "buendel_ab: 3", "buendel_ab: 0");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "management.anliegen.buendel_ab");
+
     let d = basis().ersetze(datei, "frist_tage: 30", "frist_tage: 0");
     let outcome = d.laden();
     let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");

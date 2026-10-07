@@ -1,16 +1,19 @@
-//! The company's organisation (MA1; docs/BEDIENUNG.md, "Organisation"): the positions of
-//! its sites and who holds them, and the market of managers for a position.
+//! The company's organisation (MA1–MA3; docs/BEDIENUNG.md, "Organisation"): the
+//! positions of its sites, countries and continents and who holds them, their budgets,
+//! the rules for types of positions, and the market of managers for a position.
 
 use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
+use crate::catalog::{Catalog, SiteType};
 use crate::command::site_type_key;
 use crate::decision::Topic;
 use crate::game::Game;
 use crate::management::{self, shown_level};
 use crate::money::Money;
 use crate::state::{
-    CompanyId, ConcernStatus, GameState, Manager, ManagerId, Position, Role, SiteId,
+    CompanyId, ConcernStatus, GameState, Manager, ManagerId, Position, Role, RuleScope, SiteId,
+    Unit, UnitLevel,
 };
 
 /// A skill as the player sees it: a level, never the number.
@@ -101,29 +104,66 @@ pub struct PositionView {
     pub open_concerns: u32,
 }
 
+/// The positions of a unit of the player: a site, a country or a continent (MA1, MA3).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SiteOrgView {
-    pub site: u32,
-    /// Text key of the site type.
+pub struct UnitOrgView {
+    /// `standort`, `land` or `kontinent`.
+    pub level: String,
+    /// The site's number (sites).
+    pub site: Option<u32>,
+    /// The country (sites and countries).
+    pub country: Option<String>,
+    /// The continent (continents).
+    pub continent: Option<String>,
+    /// Text key of the site type, else `ebene.land` or `ebene.kontinent`.
     pub kind_text: String,
-    pub country: String,
+    /// The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`.
+    pub key: String,
     pub positions: Vec<PositionView>,
     /// Next check of the positions; none without a manager there.
     pub next_check: Option<String>,
-    /// Topics nobody takes care of here: the player decides them.
+    /// Topics of the unit nobody takes care of: the player decides them.
     pub own_topics: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CountryOrgView {
     pub country: String,
-    pub sites: Vec<SiteOrgView>,
+    /// The positions of the country (MA3).
+    pub unit: Option<UnitOrgView>,
+    pub sites: Vec<UnitOrgView>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ContinentOrgView {
     pub continent: String,
+    /// The positions of the continent (MA3).
+    pub unit: Option<UnitOrgView>,
     pub countries: Vec<CountryOrgView>,
+}
+
+/// A type of position budget rules apply to (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PositionKindView {
+    /// `standort`, `land` or `kontinent`.
+    pub level: String,
+    /// The site type as commands name it (`Factory` …), for sites.
+    pub site_type: Option<SiteType>,
+    /// Text key of the site type, `ebene.land` or `ebene.kontinent`.
+    pub kind_text: String,
+    /// `leitung` or the function.
+    pub role: String,
+}
+
+/// A budget rule of the player (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BudgetRuleView {
+    pub kind: PositionKindView,
+    /// `firma`, `kontinent` or `land`.
+    pub scope: String,
+    /// Key of the continent or country.
+    pub scope_key: Option<String>,
+    pub shares: (f64, f64),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -141,11 +181,17 @@ pub struct OrganisationView {
     pub candidates: u32,
     /// Least budget of a position in its yearly salaries: per decision and per year.
     pub budget_floor: (f64, f64),
+    /// The player's budget rules (MA3).
+    pub rules: Vec<BudgetRuleView>,
+    /// Types of positions the company has, for new rules.
+    pub kinds: Vec<PositionKindView>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CurrentPositionView {
-    pub site: u32,
+    /// The unit as in `UnitOrgView::key`.
+    pub unit: String,
+    pub site: Option<u32>,
     pub role: String,
 }
 
@@ -160,12 +206,14 @@ pub struct CandidateView {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ManagerMarketView {
-    pub site: u32,
+    /// The unit as in `UnitOrgView::key`.
+    pub unit: String,
+    pub site: Option<u32>,
     pub role: String,
     pub kind_text: String,
-    pub country: String,
+    pub country: Option<String>,
     pub continent: String,
-    /// Free candidates, those of the site's continent first.
+    /// Free candidates, those of the unit's continent first.
     pub candidates: Vec<CandidateView>,
     /// The company's managers on other positions.
     pub own: Vec<CandidateView>,
@@ -176,6 +224,44 @@ pub fn role_key(role: &Role) -> String {
     match role {
         Role::Head => "leitung".into(),
         Role::Specialist(f) => f.clone(),
+    }
+}
+
+/// Key of a level in views.
+fn level_key(unit: Unit) -> &'static str {
+    match unit {
+        Unit::Site(_) => "standort",
+        Unit::Country(_) => "land",
+        Unit::Continent(_) => "kontinent",
+    }
+}
+
+/// A unit as views and the market name it: `standort:3`, `land:DEU`, `kontinent:europa`.
+pub fn unit_key(catalog: &Catalog, unit: Unit) -> String {
+    match unit {
+        Unit::Site(s) => format!("standort:{}", s.0),
+        Unit::Country(c) => format!("land:{}", catalog.countries.key(c)),
+        Unit::Continent(k) => format!("kontinent:{}", catalog.continents.key(k)),
+    }
+}
+
+/// The unit a key names (`unit_key`).
+pub fn unit_from_key(catalog: &Catalog, key: &str) -> Option<Unit> {
+    let (level, rest) = key.split_once(':')?;
+    match level {
+        "standort" => rest.parse().ok().map(|n| Unit::Site(SiteId(n))),
+        "land" => catalog.countries.id(rest).map(Unit::Country),
+        "kontinent" => catalog.continents.id(rest).map(Unit::Continent),
+        _ => None,
+    }
+}
+
+/// Text key of a unit's kind: the site type, else the level.
+fn kind_text(state: &GameState, unit: Unit) -> String {
+    match unit {
+        Unit::Site(s) => site_type_key(state.sites[s.index()].kind),
+        Unit::Country(_) => "ebene.land".into(),
+        Unit::Continent(_) => "ebene.kontinent".into(),
     }
 }
 
@@ -209,37 +295,39 @@ fn topic_keys(topics: &[Topic]) -> Vec<String> {
     topics.iter().map(|t| t.key().to_owned()).collect()
 }
 
-/// The positions of a site with the topics each takes care of, and the topics left to the
+/// The positions of a unit with the topics each takes care of, and the topics left to the
 /// player.
-fn site_view(game: &Game, site: SiteId) -> SiteOrgView {
+fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
     let c = game.catalog();
     let m = &c.management;
     let state = game.state();
-    let s = &state.sites[site.index()];
+    let player = game.player();
     let held = |role: &Role| {
         management::holder(
             state,
             &Position {
-                site,
+                unit,
                 role: role.clone(),
             },
         )
     };
     let head = held(&Role::Head);
-    let specialists = m.specialists_of(s.kind);
+    let all = management::positions(c, state, player, unit);
+    let has = |f: &str| {
+        all.iter()
+            .any(|p| matches!(&p.role, Role::Specialist(k) if k == f))
+    };
     let mut head_topics = Vec::new();
     let mut own_topics = Vec::new();
-    let mut positions = Vec::new();
     let arising = |topics: &[Topic]| -> Vec<Topic> {
         topics
             .iter()
             .copied()
-            .filter(|&t| management::arises(s.kind, t))
+            .filter(|&t| management::arises(c, state, unit, t))
             .collect()
     };
-    for (index, function) in m.functions.iter().enumerate() {
-        let filled =
-            specialists.contains(&index) && held(&Role::Specialist(function.key.clone())).is_some();
+    for function in &m.functions {
+        let filled = has(&function.key) && held(&Role::Specialist(function.key.clone())).is_some();
         if !filled {
             let topics = arising(&function.topics);
             head_topics.extend(topics.iter().copied());
@@ -248,6 +336,26 @@ fn site_view(game: &Game, site: SiteId) -> SiteOrgView {
             }
         }
     }
+    // Topics a position above takes care of are not the player's; those of a continent
+    // only where one of its countries has nobody for them (MA3).
+    let countries: Vec<crate::ids::CountryId> = match unit {
+        Unit::Site(_) => Vec::new(),
+        Unit::Country(k) => vec![k],
+        Unit::Continent(k) => state
+            .sites
+            .iter()
+            .filter(|s| s.owner == player && c.countries.get(s.country).continent == k)
+            .map(|s| s.country)
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect(),
+    };
+    own_topics.retain(|&t| match unit {
+        Unit::Site(s) => !management::covered(c, state, s, t),
+        _ => countries
+            .iter()
+            .any(|&k| management::first_taker(c, state, player, Unit::Country(k), t).is_none()),
+    });
     let holder_view = |id: ManagerId| {
         let manager = &state.managers[&id];
         let job = manager.job.as_ref().expect("holds the position");
@@ -258,24 +366,24 @@ fn site_view(game: &Game, site: SiteId) -> SiteOrgView {
             severance_usd: usd(job.salary.scale(m.severance_months / 12.0)),
         }
     };
-    let player = game.player();
-    let position_view = |role: Role, topics: &[Topic], holder: Option<ManagerId>| {
-        let position = Position { site, role };
-        let ps = management::position_state(state, player, &position);
+    let position_view = |position: &Position, topics: &[Topic]| {
+        let holder = management::holder(state, position);
+        let ps = management::position_state(state, player, position);
         let budget = holder
             .and_then(|id| state.managers[&id].job.as_ref())
             .map(|job| {
-                let shares = management::budget_shares(c, state, player, &position);
+                let shares = management::budget_shares(c, state, player, position);
                 let (per_decision, per_year) =
-                    management::budget(c, state, player, &position, job.salary);
+                    management::budget(c, state, player, position, job.salary);
                 BudgetView {
                     shares,
-                    defaults: management::default_shares(c, &position.role),
+                    defaults: management::rule_for(c, state, player, position)
+                        .map_or_else(|| management::default_shares(c, position), |r| r.shares),
                     custom: ps.is_some_and(|p| p.budget.is_some()),
-                    base_usd: usd(management::budget_base(state, player, site)),
+                    base_usd: usd(management::budget_base(c, state, player, unit)),
                     per_decision_usd: usd(per_decision),
                     per_year_usd: usd(per_year),
-                    spent_usd: usd(management::spent(state, player, &position)),
+                    spent_usd: usd(management::spent(state, player, position)),
                 }
             });
         let log = ps
@@ -318,7 +426,9 @@ fn site_view(game: &Game, site: SiteId) -> SiteOrgView {
             .concerns
             .iter()
             .filter(|x| {
-                x.company == player && x.position == position && x.status == ConcernStatus::Open
+                x.company == player
+                    && management::asker(x) == position
+                    && x.status == ConcernStatus::Open
             })
             .count();
         PositionView {
@@ -331,28 +441,67 @@ fn site_view(game: &Game, site: SiteId) -> SiteOrgView {
             open_concerns: u32::try_from(open_concerns).unwrap_or(u32::MAX),
         }
     };
-    positions.push(position_view(Role::Head, &head_topics, head));
-    for &index in specialists {
-        let function = &m.functions[index];
-        let role = Role::Specialist(function.key.clone());
-        let holder = held(&role);
-        positions.push(position_view(role, &arising(&function.topics), holder));
-    }
+    let positions = all
+        .iter()
+        .map(|p| match &p.role {
+            Role::Head => position_view(p, &head_topics),
+            Role::Specialist(f) => {
+                let topics = m
+                    .function(f)
+                    .map_or_else(Vec::new, |i| arising(&m.functions[i].topics));
+                position_view(p, &topics)
+            }
+        })
+        .collect::<Vec<_>>();
     let staffed = positions.iter().any(|p| p.holder.is_some());
-    SiteOrgView {
-        site: site.0,
-        kind_text: site_type_key(s.kind),
-        country: c.countries.key(s.country).to_owned(),
+    let country = match unit {
+        Unit::Site(s) => Some(state.sites[s.index()].country),
+        Unit::Country(k) => Some(k),
+        Unit::Continent(_) => None,
+    };
+    UnitOrgView {
+        level: level_key(unit).into(),
+        site: unit_site(unit),
+        country: country.map(|k| c.countries.key(k).to_owned()),
+        continent: match unit {
+            Unit::Continent(k) => Some(c.continents.key(k).to_owned()),
+            _ => None,
+        },
+        kind_text: kind_text(state, unit),
+        key: unit_key(c, unit),
         positions,
         next_check: staffed
-            .then(|| management::next_check(c, site, state.date))
+            .then(|| management::next_check(c, unit, state.date))
             .flatten()
             .map(iso),
         own_topics: topic_keys(&own_topics),
     }
 }
 
-/// The player's organisation: continents, countries and sites with their positions.
+fn unit_site(unit: Unit) -> Option<u32> {
+    match unit {
+        Unit::Site(s) => Some(s.0),
+        _ => None,
+    }
+}
+
+fn kind_view(state: &GameState, level: UnitLevel, role: &Role) -> PositionKindView {
+    let (level_key, site_type, kind_text) = match level {
+        UnitLevel::Site(t) => ("standort", Some(t), site_type_key(t)),
+        UnitLevel::Country => ("land", None, "ebene.land".into()),
+        UnitLevel::Continent => ("kontinent", None, "ebene.kontinent".into()),
+    };
+    let _ = state;
+    PositionKindView {
+        level: level_key.into(),
+        site_type,
+        kind_text,
+        role: role_key(role),
+    }
+}
+
+/// The player's organisation: continents and countries with their positions, and the
+/// sites with theirs.
 pub fn organisation(game: &Game) -> OrganisationView {
     let c = game.catalog();
     let m = &c.management;
@@ -367,6 +516,10 @@ pub fn organisation(game: &Game) -> OrganisationView {
         // Few sites; the cast is exact.
         .map(|(i, _)| SiteId(i as u32))
         .collect();
+    let with_positions = |unit: Unit| {
+        let view = unit_view(game, unit);
+        (!view.positions.is_empty()).then_some(view)
+    };
     if m.enabled() {
         for continent in c.continents.ids() {
             let mut countries: Vec<CountryOrgView> = Vec::new();
@@ -374,14 +527,15 @@ pub fn organisation(game: &Game) -> OrganisationView {
                 if c.countries.get(country).continent != continent {
                     continue;
                 }
-                let sites: Vec<SiteOrgView> = own
+                let sites: Vec<UnitOrgView> = own
                     .iter()
                     .filter(|&&s| state.sites[s.index()].country == country)
-                    .map(|&s| site_view(game, s))
+                    .map(|&s| unit_view(game, Unit::Site(s)))
                     .collect();
                 if !sites.is_empty() {
                     countries.push(CountryOrgView {
                         country: c.countries.key(country).to_owned(),
+                        unit: with_positions(Unit::Country(country)),
                         sites,
                     });
                 }
@@ -389,6 +543,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
             if !countries.is_empty() {
                 continents.push(ContinentOrgView {
                     continent: c.continents.key(continent).to_owned(),
+                    unit: with_positions(Unit::Continent(continent)),
                     countries,
                 });
             }
@@ -401,6 +556,36 @@ pub fn organisation(game: &Game) -> OrganisationView {
             .filter_map(|x| x.job.as_ref())
             .filter(|j| j.company == player)
     };
+    let company = &state.companies[player.index()];
+    let rules = company
+        .budget_rules
+        .iter()
+        .map(|r| {
+            let (scope, scope_key) = match r.scope {
+                RuleScope::Company => ("firma", None),
+                RuleScope::Continent(k) => ("kontinent", Some(c.continents.key(k).to_owned())),
+                RuleScope::Country(k) => ("land", Some(c.countries.key(k).to_owned())),
+            };
+            BudgetRuleView {
+                kind: kind_view(state, r.kind.level, &r.kind.role),
+                scope: scope.into(),
+                scope_key,
+                shares: r.shares,
+            }
+        })
+        .collect();
+    // The types of positions of the company's units, in the order of the units.
+    let mut kinds: Vec<PositionKindView> = Vec::new();
+    for unit in management::units(c, state, player) {
+        for p in management::positions(c, state, player, unit) {
+            if let Some(kind) = management::kind_of(state, &p) {
+                let view = kind_view(state, kind.level, &kind.role);
+                if !kinds.contains(&view) {
+                    kinds.push(view);
+                }
+            }
+        }
+    }
     OrganisationView {
         enabled: m.enabled(),
         continents,
@@ -411,45 +596,44 @@ pub fn organisation(game: &Game) -> OrganisationView {
         candidates: u32::try_from(state.managers.values().filter(|x| x.job.is_none()).count())
             .unwrap_or(u32::MAX),
         budget_floor: m.budget_floor,
+        rules,
+        kinds,
     }
 }
 
-/// The position of a site of the player by its role key, if it exists.
-fn player_position(game: &Game, site: u32, role: &str) -> Option<Position> {
-    let state = game.state();
-    let s = state.sites.get(usize::try_from(site).ok()?)?;
-    if s.owner != game.player() {
-        return None;
-    }
+/// The position of a unit of the player by its role key, if it exists.
+fn player_position(game: &Game, unit: Unit, role: &str) -> Option<Position> {
     let position = Position {
-        site: SiteId(site),
+        unit,
         role: if role == "leitung" {
             Role::Head
         } else {
             Role::Specialist(role.to_owned())
         },
     };
-    management::positions(game.catalog(), state, position.site)
+    management::positions(game.catalog(), game.state(), game.player(), unit)
         .contains(&position)
         .then_some(position)
 }
 
-/// Candidates for a position of the player (`leitung` or a function key); `None` for a
-/// position the player's site does not have.
-pub fn manager_market(game: &Game, site: u32, role: &str) -> Option<ManagerMarketView> {
-    let position = player_position(game, site, role)?;
+/// Candidates for a position of the player (`leitung` or a function key) of a unit
+/// (`unit_key`); `None` for a position the player does not have.
+pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMarketView> {
     let c = game.catalog();
     let state: &GameState = game.state();
-    let s = &state.sites[position.site.index()];
-    let continent = c.countries.get(s.country).continent;
+    let unit = unit_from_key(c, unit)?;
+    let position = player_position(game, unit, role)?;
     let player: CompanyId = game.player();
+    let seat = management::seat_country(c, state, player, unit)?;
+    let continent = c.countries.get(seat).continent;
     let candidate = |id: ManagerId, m: &Manager| {
-        let demand = management::salary_demand(c, state, m, &position);
+        let demand = management::salary_demand(c, state, player, m, &position);
         let (demand, current) = match &m.job {
             Some(j) => (
                 j.salary.max(demand),
                 Some(CurrentPositionView {
-                    site: j.position.site.0,
+                    unit: unit_key(c, j.position.unit),
+                    site: unit_site(j.position.unit),
                     role: role_key(&j.position.role),
                 }),
             ),
@@ -490,10 +674,14 @@ pub fn manager_market(game: &Game, site: u32, role: &str) -> Option<ManagerMarke
         .map(|(&id, m)| candidate(id, m))
         .collect();
     Some(ManagerMarketView {
-        site,
+        unit: unit_key(c, unit),
+        site: unit_site(unit),
         role: role.to_owned(),
-        kind_text: site_type_key(s.kind),
-        country: c.countries.key(s.country).to_owned(),
+        kind_text: kind_text(state, unit),
+        country: match unit {
+            Unit::Continent(_) => None,
+            _ => Some(c.countries.key(seat).to_owned()),
+        },
         continent: c.continents.key(continent).to_owned(),
         candidates,
         own,

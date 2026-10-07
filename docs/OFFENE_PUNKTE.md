@@ -792,6 +792,32 @@ Rückmeldung; Einzelheiten: `docs/FORMELN.md`, MA2).
 17. **Zurücknehmen:** „Nicht mehr fragen“ und „Ablehnen“ hebt „Wieder fragen“ in der
     Organisation auf (Befehl `AskAgain`; in der Vorgabe nicht vorgesehen).
 
+✅ **MA3 umgesetzt** (Land und Kontinent, Weiterleitung, Budget-Vorgaben, Deckel,
+strategische Anliegen; Einzelheiten: `docs/FORMELN.md`, MA3).
+🟡 Vorläufig entschieden:
+
+18. **Keine Routine von oben:** Land und Kontinent übernehmen nicht die wöchentliche
+    Routine von Standorten ohne Stelle (Auslastung, Preise, Einkauf), nur deren Struktur
+    am Quartalsende, Kraftwerke, Lagerstätten, neue Standorte und die Werbung. Vorschlag:
+    so lassen – sonst ersetzt eine Landesleitung alle Werksleitungen.
+19. **Kaufangebote und Versteigerungen** bleiben beim Spieler; sie kommen mit dem Vorstand
+    (MA5) zu Entscheidungen (Abweichung von MA0, Punkt 4).
+20. **Markteintritt** in Länder ohne eigenen Standort gibt es bei den Regeln der KI nur
+    über neue Ketten (`diversify`); er kommt mit dem CEO (MA5).
+21. **Einmal je Tag:** Ausbau, Kraftwerk und Lagerstätte entscheiden die Stellen einer Firma
+    höchstens einmal je Land und Produkt am Tag – sonst bauten zwei Werke desselben Landes
+    am Quartalsende doppelt.
+22. **Bündeln nur am selben Tag:** Strategische Anliegen entstehen aus Anliegen desselben
+    Tages (Quartalsende); einzelne Anliegen anderer Tage bleiben einzeln (die Oberfläche
+    gruppiert sie weiter).
+23. **Sitzland eines Kontinents:** Land des Firmensitzes, sonst das mit den meisten
+    eigenen Standorten.
+24. **Gehälter höherer Stellen** sind Gemeinkosten der Firma (Kostenstelle ohne Standort);
+    das Controlling je Ebene folgt mit den Zentralabteilungen (ZA).
+25. **Wer zuerst bemerkt:** Eine Entscheidung beginnt bei der ersten Stelle der Kette, die
+    das Thema heute bemerkt hat; hat die Landesstelle nicht hingesehen, kann der Kontinent
+    für das Land entscheiden.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

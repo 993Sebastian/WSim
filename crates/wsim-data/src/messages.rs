@@ -462,6 +462,17 @@ pub fn management_pool_bounds(min: u32, max: u32) -> String {
     format!("Der Pool braucht `max` ({max}) mindestens so groß wie `min` ({min}).")
 }
 
+pub fn management_site_specialists() -> String {
+    "Die Fachstellen der Standorte stehen je Standorttyp unter `standorttypen`, nicht bei der Ebene."
+        .to_owned()
+}
+
+pub fn management_topic_without_function(topic: &str) -> String {
+    format!(
+        "Das Thema „{topic}“ gehört zu keinem Bereich; eine Ebene kann nur Themen ihrer Bereiche aufgreifen."
+    )
+}
+
 pub fn management_budget_order(decision: f64, year: f64) -> String {
     format!(
         "Das Budget je Entscheidung ({decision}) darf nicht größer sein als das je Jahr ({year})."

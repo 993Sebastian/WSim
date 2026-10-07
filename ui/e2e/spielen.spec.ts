@@ -734,13 +734,19 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await bild(page, "managermarkt");
   await bewerber.getByRole("button", { name: "Einstellen: Anna Putilov" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    HireManager: { manager: 181, position: { site: 0, role: { Specialist: "produktion" } } },
+    HireManager: {
+      manager: 182,
+      position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
+    },
   });
   // The own head could move here instead.
   const eigene = page.getByRole("table", { name: "Eigene Manager versetzen" });
   await eigene.getByRole("button", { name: "Hierher versetzen: Alain Moreau" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MoveManager: { manager: 34, position: { site: 0, role: { Specialist: "produktion" } } },
+    MoveManager: {
+      manager: 34,
+      position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
+    },
   });
 
   // Dismissing asks first and names the severance.
@@ -749,6 +755,26 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(werk).toContainText("Alain Moreau entlassen? Abfindung 20.642 USD.");
   await werk.getByRole("button", { name: "Ja, entlassen" }).click();
   expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 34 } });
+
+  // The country's positions (MA3): its head, and a specialist from the market.
+  const land = page.getByRole("article", { name: "Land · Deutschland" });
+  await expect(land).toContainText("Landesleitung");
+  await expect(land).toContainText("Alexei Demidov");
+  await expect(land).toContainText("Kraftwerk");
+  await land.getByRole("button", { name: "Besetzen Produktion (Land · Deutschland)" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Produktion · Land · Deutschland" }),
+  ).toBeVisible();
+  await page
+    .getByRole("table", { name: "Bewerber" })
+    .getByRole("button", { name: "Einstellen: Anna Putilov" })
+    .click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    HireManager: {
+      manager: 182,
+      position: { unit: { Country: "DEU" }, role: { Specialist: "produktion" } },
+    },
+  });
 });
 
 test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page }) => {
@@ -757,10 +783,13 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   const reiter = page.getByRole("navigation", { name: "Organisation" });
   await reiter.getByRole("button", { name: /Anliegen/ }).click();
   const karte = page.getByRole("article", { name: /^Ausbau · Nägel/ });
-  await expect(karte).toContainText("Alain Moreau fragt");
+  await expect(karte).toContainText("Landesleitung · Land · Deutschland · Alexei Demidov fragt");
   await expect(karte).toContainText("Antwort bis 30.01.1915");
-  await expect(karte).toContainText("Diese Stelle soll bei jeder Ausgabe fragen.");
-  await expect(karte).toContainText("1 × Nagelmaschine bauen (klein)");
+  await expect(karte).toContainText(
+    "Weg: Werksleitung (Werk · Deutschland, empfiehlt Ausbauen) → Landesleitung",
+  );
+  await expect(karte).toContainText("Dafür braucht es einen Kredit");
+  await expect(karte).toContainText("1 × Nagelmaschine bauen (sehr klein)");
   await expect(karte).toContainText("Empfehlung: Ausbauen.");
   await bild(page, "anliegen");
   await karte.getByRole("button", { name: "Entscheide selbst" }).click();
@@ -784,7 +813,7 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   await formular.getByLabel("Im Jahr").fill("8");
   await formular.getByRole("button", { name: "Budget übernehmen" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    SetBudget: { position: { site: 0, role: "Head" }, shares: [0.03, 0.08] },
+    SetBudget: { position: { unit: { Site: 0 }, role: "Head" }, shares: [0.03, 0.08] },
   });
   await bild(page, "budget");
 

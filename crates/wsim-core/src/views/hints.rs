@@ -243,20 +243,22 @@ pub fn hints(game: &Game) -> Vec<HintView> {
             found.push((0, hint(m, None, None)));
         }
     }
-    // A filled position takes care of what its function handles at its site (MA2).
-    let function = |key: &str| match key {
-        keys::HINT_INPUT | keys::HINT_NO_PURCHASE => Some("einkauf_lager"),
-        keys::HINT_NO_OFFER | keys::HINT_BELOW_COST | keys::HINT_UNSOLD => {
-            Some("vertrieb_marketing")
-        }
-        keys::HINT_LABOR | keys::HINT_STAFF => Some("personal"),
-        keys::HINT_NO_RECIPE | keys::HINT_IDLE => Some("produktion"),
-        keys::HINT_NO_RESEARCH => Some("forschung"),
+    // A filled position takes care of what its topic is at its site (MA2), power and
+    // deposits those of the country and the continent (MA3).
+    use crate::decision::Topic;
+    let topic = |key: &str| match key {
+        keys::HINT_INPUT | keys::HINT_NO_PURCHASE => Some(Topic::Purchase),
+        keys::HINT_NO_OFFER | keys::HINT_BELOW_COST | keys::HINT_UNSOLD => Some(Topic::Sale),
+        keys::HINT_LABOR | keys::HINT_STAFF => Some(Topic::Wage),
+        keys::HINT_NO_RECIPE | keys::HINT_IDLE => Some(Topic::Production),
+        keys::HINT_NO_RESEARCH => Some(Topic::Research),
+        keys::HINT_POWER => Some(Topic::Power),
+        keys::HINT_DEPOSIT => Some(Topic::Deposit),
         _ => None,
     };
-    found.retain(|(_, h)| match (h.site, function(&h.message.key)) {
-        (Some(site), Some(f)) => {
-            !crate::management::covered(catalog, state, crate::state::SiteId(site), f)
+    found.retain(|(_, h)| match (h.site, topic(&h.message.key)) {
+        (Some(site), Some(t)) => {
+            !crate::management::covered(catalog, state, crate::state::SiteId(site), t)
         }
         _ => true,
     });

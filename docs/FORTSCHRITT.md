@@ -54,6 +54,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA0 | Manager-System: Entscheidungsbausteine | ✅ |
 | MA1 | Manager-System: Stellen und Manager | ✅ |
 | MA2 | Manager-System: Budget und Anliegen | ✅ |
+| MA3 | Manager-System: Land und Kontinent | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -148,6 +149,36 @@ vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 10–17.
   Gruppe, Budget und stillen Themen; Hinweise entfallen mit besetzter Stelle; Laden mit
   Anliegen), Sitzungstest „Runden halten bei Anliegen“, Oberflächentests (vitest und
   Playwright) für Postfach und Budget.
+
+### MA3: Land und Kontinent (07.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA3; Bedienung: `docs/BEDIENUNG.md`, „Organisation“;
+vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 18–25.
+
+- **Daten:** Fachstellen von Land und Kontinent, die Themen je Ebene (Standort: Routine und
+  Struktur; Land und Kontinent: Struktur der Standorte ohne eigene Stelle, Kraftwerk,
+  Lagerstätte, Werbung), die Bereiche Produktion und Vertrieb übernehmen Kraftwerk,
+  Lagerstätte und Werbung, Bündelung ab drei gleichen Anliegen. Prüfregeln mit
+  Fehlerfall-Test.
+- **Kern:** Stellen hängen an einer Einheit (Standort, Land, Kontinent); alte Spielstände
+  lesen ihre Standortstellen weiter. Landesleitung und Kontinentvorstand mit Fachstellen,
+  Gehalt nach dem Sitzland als Gemeinkosten. Jede Entscheidung läuft die
+  Zuständigkeitskette hinauf: Wer im Budget liegt, entscheidet mit eigenem Urteil, sonst
+  fragt die oberste Stelle mit dem Weg. Budget-Vorgaben je Stellentyp für Firma, Kontinent
+  oder Land (`SetBudgetRule`), Deckel durch die nächste Leitung, Budget der Einheit nach
+  ihrem Umsatz. Am Quartalsende kümmern sich Land und Kontinent um die Struktur der
+  Standorte ohne eigene Stelle, um Kraftwerke, Lagerstätten und neue Standorte, an ihrem
+  Prüftermin um die Werbung. Gleiche Anliegen mehrerer Standorte werden zu einem
+  strategischen Anliegen mit einer Antwort für alle.
+- **Oberfläche:** Organisation mit Karten für Kontinent und Land, Managermarkt je Einheit,
+  Budget-Vorgaben, Weg und Standorte im Anliegen. Vorschau mit Landesleitung und einem
+  Anliegen, das über sie zum Spieler kommt.
+- **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5: identische
+  Protokolldateien wie vor MA2 (1e34cf9).
+- **Tests:** sechs neue Szenariotests (Anliegen geht zuerst an die Landesleitung, ohne
+  Budget dort an den Spieler mit Weg; Vorgaben und Deckel; das Land kümmert sich um ein Werk
+  ohne Leitung; gebündeltes Anliegen mit Erledigen eines Teils und einer Antwort für alle;
+  Stellen alter Spielstände), Oberflächentests für Vorgaben, Weg und Landesstellen.
 
 ## Eigenständige Entscheidungen (für das Review)
 

@@ -70,6 +70,48 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
     }
 
     let mut levels: Vec<ManagementLevel> = Vec::new();
+    // Functions of a level's specialists and the topics it takes up (MA3).
+    let level_lists = |ctx: &mut Ctx, level: &crate::raw::RawManagementLevel, ll: &Loc| {
+        let mut indices: Vec<usize> = Vec::new();
+        for (j, f) in level.specialists.iter().enumerate() {
+            let fl = ll.field("fachstellen").index(j);
+            match functions.iter().position(|x| x.key == *f) {
+                Some(index) if indices.contains(&index) => {
+                    ctx.error(&fl, messages::duplicate_key("Bereich", f, &level.id));
+                }
+                Some(index) => indices.push(index),
+                None => {
+                    let suggested =
+                        crate::suggest::closest(f, functions.iter().map(|x| x.key.as_str()));
+                    ctx.error(&fl, messages::unknown_reference("Bereich", f, suggested));
+                }
+            }
+        }
+        if level.id == "standort" && !level.specialists.is_empty() {
+            ctx.error(
+                &ll.field("fachstellen"),
+                messages::management_site_specialists(),
+            );
+        }
+        let mut topics: Vec<Topic> = Vec::new();
+        for (j, key) in level.topics.iter().enumerate() {
+            let tl = ll.field("themen").index(j);
+            match Topic::from_key(key) {
+                Some(topic) if topics.contains(&topic) => {
+                    ctx.error(&tl, messages::duplicate_key("Thema", key, &level.id));
+                }
+                Some(topic) if !functions.iter().any(|f| f.topics.contains(&topic)) => {
+                    ctx.error(&tl, messages::management_topic_without_function(key));
+                }
+                Some(topic) => topics.push(topic),
+                None => {
+                    let suggested = crate::suggest::closest(key, topic_keys.iter().copied());
+                    ctx.error(&tl, messages::unknown_reference("Thema", key, suggested));
+                }
+            }
+        }
+        (indices, topics)
+    };
     for key in LEVELS {
         let found: Vec<_> = v
             .levels
@@ -93,6 +135,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
                         messages::not_positive(f64::from(level.check_days)),
                     );
                 }
+                let (specialists, topics) = level_lists(ctx, level, &ll);
                 levels.push(ManagementLevel {
                     key: (*key).to_owned(),
                     check_days: level.check_days.max(1),
@@ -108,6 +151,8 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
                         &ll.field("budget_fach"),
                     ),
                     budget_head: budget(ctx, level.budget_head, &ll.field("budget_leitung")),
+                    specialists,
+                    topics,
                 });
             }
         }
@@ -174,6 +219,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         (c.deadline_days, "frist_tage"),
         (c.open_per_position, "offen_je_stelle"),
         (c.followup_days, "wirkzeit_tage"),
+        (c.bundle_from, "buendel_ab"),
     ] {
         if value == 0 {
             ctx.error(&cl.field(field), messages::not_positive(0.0));
@@ -192,6 +238,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
             1.0,
             &cl.field("empfehlung_grund"),
         ),
+        bundle_from: c.bundle_from.max(1),
     };
 
     let salary_group = catalog.labor_groups.id(&v.salary_group);

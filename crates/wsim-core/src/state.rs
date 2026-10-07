@@ -16,8 +16,8 @@ use crate::catalog::{Catalog, FacilitySize, SiteType};
 pub use crate::country_model::CountryState;
 use crate::decision::{ChoiceKind, Decision, Topic};
 use crate::ids::{
-    self, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId, MilestoneId, ProductId,
-    RecipeId, TechnologyId,
+    self, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, Id, LaborGroupId,
+    MilestoneId, ProductId, RecipeId, TechnologyId,
 };
 use crate::ledger::Ledger;
 use crate::money::Money;
@@ -312,6 +312,9 @@ pub struct Company {
     /// Budgets and settings of its positions (MA2), in the order they were first used.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub positions: Vec<PositionState>,
+    /// Budgets for types of positions (MA3), in the order they were set.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub budget_rules: Vec<BudgetRule>,
 }
 
 /// What a company set and recorded for one of its positions (MA2): it stays with the
@@ -407,11 +410,38 @@ pub struct Concern {
     pub options: Vec<ConcernOption>,
     #[serde(default)]
     pub reason: ConcernReason,
+    /// The positions it passed on its way, the first (`position`) first and the one
+    /// asking the player last; empty where the first asks itself (MA3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub path: Vec<Hop>,
+    /// The alike concerns of several sites this one stands for (strategic, MA3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub parts: Vec<ConcernPart>,
     pub created: Date,
     pub deadline: Date,
     pub status: ConcernStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub closed: Option<Date>,
+}
+
+/// A position a concern passed (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Hop {
+    pub position: Position,
+    pub manager: ManagerId,
+    /// The option it recommended.
+    pub recommended: usize,
+}
+
+/// One concern within a strategic one: its decision with the option recommended for it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConcernPart {
+    /// The position that raised it.
+    pub position: Position,
+    pub decision: Decision,
+    pub recommended: usize,
+    /// The recommended option as assessed.
+    pub option: ConcernOption,
 }
 
 /// A report due on the effect of an executed option (MA2).
@@ -495,12 +525,93 @@ pub struct Job {
     pub since: Date,
 }
 
-/// A position: a site's head or the specialist of a function there (MA1; other levels
-/// follow with MA3 and MA5).
+/// Where a position sits (MA3): a site, or a country or continent of its company.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Unit {
+    Site(SiteId),
+    Country(CountryId),
+    Continent(ContinentId),
+}
+
+/// A position: the head of a unit or the specialist of a function there (MA1, MA3; the
+/// board follows with MA5).
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(from = "PositionRepr")]
 pub struct Position {
-    pub site: SiteId,
+    pub unit: Unit,
     pub role: Role,
+}
+
+impl Position {
+    pub fn new(unit: Unit, role: Role) -> Self {
+        Position { unit, role }
+    }
+
+    /// A position of a site.
+    pub fn at_site(site: SiteId, role: Role) -> Self {
+        Position {
+            unit: Unit::Site(site),
+            role,
+        }
+    }
+
+    /// The site of a site position.
+    pub fn site(&self) -> Option<SiteId> {
+        match self.unit {
+            Unit::Site(s) => Some(s),
+            _ => None,
+        }
+    }
+}
+
+/// How positions are read: with their unit, or as before MA3 a site and a role (saves,
+/// journals and commands of MA1 and MA2).
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum PositionRepr {
+    Unit { unit: Unit, role: Role },
+    Site { site: SiteId, role: Role },
+}
+
+impl From<PositionRepr> for Position {
+    fn from(r: PositionRepr) -> Self {
+        match r {
+            PositionRepr::Unit { unit, role } => Position { unit, role },
+            PositionRepr::Site { site, role } => Position::at_site(site, role),
+        }
+    }
+}
+
+/// A level of units for budget rules: sites of a type, countries or continents (MA3).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum UnitLevel {
+    Site(SiteType),
+    Country,
+    Continent,
+}
+
+/// A type of position: all heads or all specialists of a function at a level (MA3).
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct PositionKind {
+    pub level: UnitLevel,
+    pub role: Role,
+}
+
+/// Where a budget rule holds (MA3).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum RuleScope {
+    Company,
+    Continent(ContinentId),
+    Country(CountryId),
+}
+
+/// Budget shares the player set for all positions of a type in a scope (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BudgetRule {
+    pub kind: PositionKind,
+    pub scope: RuleScope,
+    /// Per decision and per year.
+    pub shares: (f64, f64),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

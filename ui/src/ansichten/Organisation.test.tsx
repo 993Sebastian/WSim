@@ -48,8 +48,15 @@ describe("Anliegen", () => {
     expect(karten).toHaveLength(2);
     const karte = karten[0]!;
     expect(within(karte).getByText(/Antwort bis 30\.01\.1915/)).toBeTruthy();
-    expect(within(karte).getByText(/Diese Stelle soll bei jeder Ausgabe fragen/)).toBeTruthy();
-    expect(within(karte).getByText(/1 × Nagelmaschine bauen \(klein\)/)).toBeTruthy();
+    // Asked by the country's head, on its way from the works (MA3).
+    expect(within(karte).getByText(/Landesleitung · Land · Deutschland/)).toBeTruthy();
+    expect(
+      within(karte).getByText(
+        "Weg: Werksleitung (Werk · Deutschland, empfiehlt Ausbauen) → Landesleitung (Land · Deutschland, empfiehlt Ausbauen)",
+      ),
+    ).toBeTruthy();
+    expect(within(karte).getByText(/Dafür braucht es einen Kredit/)).toBeTruthy();
+    expect(within(karte).getByText(/1 × Nagelmaschine bauen \(sehr klein\)/)).toBeTruthy();
     expect(within(karte).getByText(/Bringt nach meiner Schätzung/)).toBeTruthy();
 
     fireEvent.click(within(karte).getByRole("button", { name: "Entscheide selbst" }));
@@ -90,8 +97,8 @@ describe("Anliegen", () => {
     fireEvent.click(within(formular).getByRole("button", { name: "Budget übernehmen" }));
     await screen.findByText("Das Budget von Werksleitung ist geändert.");
     fireEvent.click(within(formular).getByRole("button", { name: /Standard wiederherstellen/ }));
-    const site = (await kern.organisation()).continents[0]!.countries[0]!.sites[0]!.site;
-    const position = { site, role: "Head" };
+    const site = (await kern.organisation()).continents[0]!.countries[0]!.sites[0]!.site!;
+    const position = { unit: { Site: site }, role: "Head" };
     expect(gesendet).toEqual([
       { SetBudget: { position, shares: [0.03, 0.08] } },
       { SetBudget: { position, shares: null } },
@@ -103,6 +110,47 @@ describe("Anliegen", () => {
     fireEvent.click(within(formular).getByRole("button", { name: "Budget übernehmen" }));
     expect(await within(formular).findByText(/je Entscheidung darf nicht mehr/)).toBeTruthy();
     expect(gesendet).toHaveLength(2);
+  });
+
+  it("setzt und entfernt Budget-Vorgaben für Stellentypen", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByText(/Budget-Vorgaben für Stellentypen \(1\)/));
+    expect(screen.getByText(/Werk: Produktion · ganze Firma: 3 % \/ 8 %/)).toBeTruthy();
+    const formular = screen.getByRole("form", { name: "Budget-Vorgabe für einen Stellentyp" });
+    fireEvent.change(within(formular).getByLabelText("Stellentyp"), {
+      target: { value: String(1) },
+    });
+    const typ = (within(formular).getByLabelText("Stellentyp") as HTMLSelectElement)
+      .selectedOptions[0]!.textContent;
+    fireEvent.change(within(formular).getByLabelText("Gilt für"), {
+      target: { value: "kontinent:europa" },
+    });
+    fireEvent.change(within(formular).getByLabelText("Je Entscheidung"), {
+      target: { value: "4" },
+    });
+    fireEvent.change(within(formular).getByLabelText("Im Jahr"), { target: { value: "9" } });
+    fireEvent.click(within(formular).getByRole("button", { name: "Vorgabe setzen" }));
+    await screen.findByText(`Vorgabe gesetzt: ${typ} – Europa.`);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Entfernen: Werk: Produktion, ganze Firma" }),
+    );
+    expect(gesendet[0]).toMatchObject({
+      SetBudgetRule: { scope: { Continent: "europa" }, shares: [0.04, 0.09] },
+    });
+    expect(gesendet[1]).toEqual({
+      SetBudgetRule: {
+        kind: { level: { Site: "Factory" }, role: { Specialist: "produktion" } },
+        scope: "Company",
+        shares: null,
+      },
+    });
   });
 
   it("hat Texte für alle Optionen, Gründe und Ausgänge", () => {

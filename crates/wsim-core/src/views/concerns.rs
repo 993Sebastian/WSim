@@ -1,9 +1,10 @@
-//! The concerns of the player's positions (MA2; docs/BEDIENUNG.md, "Anliegen"): what a
-//! position asks, its options with what they do, cost and bring, and its recommendation.
+//! The concerns of the player's positions (MA2, MA3; docs/BEDIENUNG.md, "Anliegen"): what
+//! a position asks, its way there, its options with what they do, cost and bring, and its
+//! recommendation.
 
 use serde::{Deserialize, Serialize};
 
-use super::organisation::role_key;
+use super::organisation::{role_key, unit_key};
 use super::{MessageView, iso, message_view, usd};
 use crate::catalog::Catalog;
 use crate::command::Command;
@@ -14,7 +15,9 @@ use crate::ids::ProductId;
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
-use crate::state::{Concern, ConcernReason, ConcernStatus, GameState, PriceMode, SiteId, Slot};
+use crate::state::{
+    Concern, ConcernReason, ConcernStatus, GameState, Position, PriceMode, SiteId, Slot, Unit,
+};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernOptionView {
@@ -31,15 +34,53 @@ pub struct ConcernOptionView {
     pub once_usd: f64,
 }
 
+/// A position in views of concerns: its role and unit (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConcernPositionView {
+    /// `leitung` or the function of a specialist position.
+    pub role: String,
+    /// `standort`, `land` or `kontinent`.
+    pub level: String,
+    /// Text key of the site type, `ebene.land` or `ebene.kontinent`.
+    pub kind_text: String,
+    pub country: Option<String>,
+    pub continent: Option<String>,
+    /// The unit as in the organisation (`standort:3`, `land:DEU` …).
+    pub unit: String,
+}
+
+/// A position a concern passed on its way, with its manager and recommendation (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HopView {
+    pub position: ConcernPositionView,
+    pub manager: String,
+    /// Kind of the option it recommended.
+    pub recommended: String,
+}
+
+/// A site's part of a strategic concern (MA3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ConcernPartView {
+    pub site: Option<u32>,
+    pub kind_text: Option<String>,
+    pub country: Option<String>,
+    pub product: Option<String>,
+    pub option: ConcernOptionView,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ConcernView {
     pub id: u32,
-    pub site: u32,
-    /// `leitung` or the function of a specialist position.
-    pub role: String,
-    /// Text key of the site type.
-    pub kind_text: String,
-    pub country: String,
+    /// The site the decision is about, if any.
+    pub site: Option<u32>,
+    pub site_kind_text: Option<String>,
+    pub site_country: Option<String>,
+    /// The position that asks the player.
+    pub asker: ConcernPositionView,
+    /// The positions on the way, the first first; empty where it asks itself (MA3).
+    pub path: Vec<HopView>,
+    /// The sites' parts of a strategic concern (MA3).
+    pub parts: Vec<ConcernPartView>,
     /// The manager who asks.
     pub manager: String,
     /// Topic (text `thema.<topic>`).
@@ -56,7 +97,7 @@ pub struct ConcernView {
     pub per_decision_usd: f64,
     pub left_usd: f64,
     /// Mean monthly result of the site in the last closed months.
-    pub site_result_usd: f64,
+    pub site_result_usd: Option<f64>,
     pub created: String,
     pub deadline: String,
     /// `offen`, `gewaehlt`, `delegiert`, `nicht_mehr_fragen`, `abgelehnt`, `abgelaufen`
@@ -292,43 +333,117 @@ fn because(c: &Concern) -> Message {
     }
 }
 
+/// A position as concerns show it.
+fn position_view(catalog: &Catalog, state: &GameState, p: &Position) -> ConcernPositionView {
+    let (level, kind_text, country, continent) = match p.unit {
+        Unit::Site(s) => {
+            let site = &state.sites[s.index()];
+            (
+                "standort",
+                site_type_key(site.kind),
+                Some(site.country),
+                None,
+            )
+        }
+        Unit::Country(k) => ("land", "ebene.land".to_owned(), Some(k), None),
+        Unit::Continent(k) => ("kontinent", "ebene.kontinent".to_owned(), None, Some(k)),
+    };
+    ConcernPositionView {
+        role: role_key(&p.role),
+        level: level.to_owned(),
+        kind_text,
+        country: country.map(|k| catalog.countries.key(k).to_owned()),
+        continent: continent.map(|k| catalog.continents.key(k).to_owned()),
+        unit: unit_key(catalog, p.unit),
+    }
+}
+
+/// An option as the concern shows it.
+fn option_view(
+    catalog: &Catalog,
+    state: &GameState,
+    choice: &crate::decision::Choice,
+    o: &crate::state::ConcernOption,
+) -> ConcernOptionView {
+    ConcernOptionView {
+        kind: choice.kind.key().to_owned(),
+        steps: choice
+            .steps
+            .iter()
+            .filter_map(|s| step(catalog, state, &s.command))
+            .map(|m| message_view(&m))
+            .collect(),
+        amount_usd: usd(o.amount),
+        forecast_usd: o.forecast.map(|(a, b)| (usd(a), usd(b))),
+        once_usd: usd(o.once),
+    }
+}
+
 fn concern_view(game: &Game, c: &Concern) -> ConcernView {
     let catalog = game.catalog();
     let state = game.state();
-    let site = &state.sites[c.position.site.index()];
+    let asker = management::asker(c);
+    let site = c.decision.site.and_then(|s| state.sites.get(s.index()));
     let (status, carried_out) = status_key(c.status);
     let holder = state.managers.get(&c.manager);
     let salary = holder
         .and_then(|m| m.job.as_ref())
         .map_or(Money::ZERO, |j| j.salary);
-    let (per_decision, per_year) =
-        management::budget(catalog, state, c.company, &c.position, salary);
-    let left = (per_year - management::spent(state, c.company, &c.position)).max(Money::ZERO);
+    let (per_decision, per_year) = management::budget(catalog, state, c.company, asker, salary);
+    let left = (per_year - management::spent(state, c.company, asker)).max(Money::ZERO);
     let options = c
         .decision
         .choices
         .iter()
         .zip(&c.options)
-        .map(|(choice, o)| ConcernOptionView {
-            kind: choice.kind.key().to_owned(),
-            steps: choice
-                .steps
-                .iter()
-                .filter_map(|s| step(catalog, state, &s.command))
-                .map(|m| message_view(&m))
-                .collect(),
-            amount_usd: usd(o.amount),
-            forecast_usd: o.forecast.map(|(a, b)| (usd(a), usd(b))),
-            once_usd: usd(o.once),
+        .map(|(choice, o)| option_view(catalog, state, choice, o))
+        .collect();
+    let name = |id| {
+        state
+            .managers
+            .get(&id)
+            .map_or_else(String::new, |m| m.name.clone())
+    };
+    let path = c
+        .path
+        .iter()
+        .map(|h| HopView {
+            position: position_view(catalog, state, &h.position),
+            manager: name(h.manager),
+            recommended: c
+                .decision
+                .choices
+                .get(h.recommended)
+                .map_or_else(String::new, |o| o.kind.key().to_owned()),
+        })
+        .collect();
+    let parts = c
+        .parts
+        .iter()
+        .filter_map(|p| {
+            let choice = p.decision.choices.get(p.recommended)?;
+            let s = p.decision.site.and_then(|s| state.sites.get(s.index()));
+            Some(ConcernPartView {
+                site: p.decision.site.map(|s| s.0),
+                kind_text: s.map(|s| site_type_key(s.kind)),
+                country: s.map(|s| catalog.countries.key(s.country).to_owned()),
+                product: p
+                    .decision
+                    .product
+                    .map(|x| catalog.products.key(x).to_owned()),
+                option: option_view(catalog, state, choice, &p.option),
+            })
         })
         .collect();
     ConcernView {
         id: c.id,
-        site: c.position.site.0,
-        role: role_key(&c.position.role),
-        kind_text: site_type_key(site.kind),
-        country: catalog.countries.key(site.country).to_owned(),
-        manager: holder.map(|m| m.name.clone()).unwrap_or_default(),
+        site: c.decision.site.map(|s| s.0),
+        site_kind_text: site.map(|s| site_type_key(s.kind)),
+        site_country: site.map(|s| catalog.countries.key(s.country).to_owned()),
+        asker: position_view(catalog, state, asker),
+        path,
+        parts,
+        manager: name(c.manager),
         topic: c.decision.topic.key().to_owned(),
         product: c
             .decision
@@ -340,7 +455,10 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         because: message_view(&because(c)),
         per_decision_usd: usd(per_decision),
         left_usd: usd(left),
-        site_result_usd: usd(management::mean_result(state, c.company, c.position.site)),
+        site_result_usd: c
+            .decision
+            .site
+            .map(|s| usd(management::mean_result(state, c.company, s))),
         created: iso(c.created),
         deadline: iso(c.deadline),
         status: status.to_owned(),

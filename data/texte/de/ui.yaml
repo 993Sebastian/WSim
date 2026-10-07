@@ -999,7 +999,7 @@ wettbewerb.lizenz_anfragen: Lizenz anfragen
 # Organisation und Manager (MA1)
 organisation.kopf: "{anzahl} Manager · Gehälter {gehalt} im Jahr · {bewerber} Bewerber auf dem Markt"
 organisation.hilfe: "Besetzte Stellen prüfen ihren Standort alle {tage} Tage und erledigen die Routine ihres Bereichs selbst: Auslastung und Rezept, Einkauf und Lieferungen zwischen deinen Standorten, Verkauf. Am Quartalsende kümmern sie sich auch um Überkapazität, stillgelegte Anlagen und den Ausbau, Laborleitungen um das nächste Forschungsziel. Was ihr Budget übersteigt oder einen Kredit braucht, legen sie dir als Anliegen vor. Eine Leitung übernimmt die Bereiche, deren Fachstelle leer ist – etwas weniger gründlich. Was niemand erledigt, entscheidest du selbst. Deine eigenen Einstellungen gelten bis zur nächsten Prüfung."
-organisation.spaeter: Stellen für Länder, Kontinente und den Vorstand kommen in einer späteren Ausbaustufe hinzu.
+organisation.spaeter: "Landesleitungen und Kontinentvorstände entscheiden, was den Standorten zu teuer ist, kümmern sich um Standorte ohne eigene Leitung, um Kraftwerke, Lagerstätten und die Werbung im Land. Der Vorstand mit CEO folgt."
 organisation.aus: In diesen Spieldaten gibt es keine Manager.
 organisation.keine_standorte: Gründe zuerst einen Standort; dann kannst du seine Stellen besetzen.
 organisation.konzern: Konzern
@@ -1066,6 +1066,16 @@ organisation.wieder_fragen: Wieder fragen
 organisation.wieder_fragen_erfolg: "{stelle} fragt wieder zu „{thema}“."
 organisation.offene_anliegen: "{anzahl} offene Anliegen"
 organisation.zu_den_anliegen: "Zu den Anliegen ({anzahl})"
+organisation.vorgaben: "Budget-Vorgaben für Stellentypen ({anzahl})"
+organisation.vorgaben_titel: Budget-Vorgabe für einen Stellentyp
+organisation.vorgaben_hilfe: "Eine Vorgabe gilt für alle Stellen eines Typs in der ganzen Firma, einem Kontinent oder einem Land – etwa alle Werksleitungen in Europa. Es gilt die eigene Einstellung einer Stelle, sonst die Vorgabe ihres Landes, ihres Kontinents, der Firma, sonst der Standardwert. Keine Stelle darf mehr ausgeben als ihre nächste besetzte Leitung."
+organisation.vorgabe_firma: ganze Firma
+organisation.vorgabe_typ: Stellentyp
+organisation.vorgabe_wo: Gilt für
+organisation.vorgabe_setzen: Vorgabe setzen
+organisation.vorgabe_gesetzt: "Vorgabe gesetzt: {typ} – {wo}."
+organisation.vorgabe_entfernen: Entfernen
+organisation.vorgabe_entfernt: Vorgabe entfernt.
 anliegen.titel: Anliegen
 anliegen.hilfe: "Ein Anliegen ist eine Frage einer Stelle: Die Entscheidung kostet mehr, als ihr Budget erlaubt, oder braucht einen Kredit. Antwortest du nicht binnen {tage} Tagen, bleibt alles, wie es ist."
 anliegen.leer: Keine offenen Anliegen. Deine Manager entscheiden im Rahmen ihres Budgets selbst; was darüber hinausgeht, landet hier.
@@ -1085,6 +1095,12 @@ anliegen.einmalig: Einmalig
 anliegen.spanne: "{von} bis {bis}"
 anliegen.keine_schaetzung: keine Schätzung
 anliegen.unveraendert: keine Änderung
+anliegen.empfiehlt: "empfiehlt {option}"
+anliegen.weg: "Weg: {weg}"
+anliegen.ort: "Betrifft {ort}"
+anliegen.teile: Standorte
+anliegen.teil: Standort
+anliegen.ohne_ort: ohne Standort
 anliegen.empfohlen: empfohlen
 anliegen.empfehlung: "Empfehlung: {option}."
 anliegen.waehlen: Umsetzen
@@ -1121,6 +1137,10 @@ leitung.kraftwerk: Kraftwerksleitung
 leitung.lager: Lagerleitung
 leitung.niederlassung: Niederlassungsleitung
 leitung.forschungszentrum: Laborleitung
+leitung.land: Landesleitung
+leitung.kontinent: Kontinentvorstand
+ebene.land: Land
+ebene.kontinent: Kontinent
 faehigkeit.fach: "Fachkompetenz {bereich}"
 faehigkeit.erkennen: Erkennen
 faehigkeit.urteil: Urteilsvermögen

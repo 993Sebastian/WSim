@@ -176,6 +176,10 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
     pub const CONCERN_NEW: &str = "meldung.anliegen.neu";
     pub const CONCERN_EXPIRED: &str = "meldung.anliegen.verfallen";
+    pub const CONCERN_NEW_COUNTRY: &str = "meldung.anliegen.neu_land";
+    pub const CONCERN_NEW_CONTINENT: &str = "meldung.anliegen.neu_kontinent";
+    pub const CONCERN_EXPIRED_COUNTRY: &str = "meldung.anliegen.verfallen_land";
+    pub const CONCERN_EXPIRED_CONTINENT: &str = "meldung.anliegen.verfallen_kontinent";
     pub const CONCERN_EFFECT: &str = "meldung.anliegen.folge";
     // What the options of a concern do, and why a position recommends one (MA2).
     pub const STEP_MOTHBALL: &str = "schritt.stilllegen";
@@ -357,6 +361,10 @@ pub mod keys {
         COMMAND_UNKNOWN_OPTION,
         CONCERN_NEW,
         CONCERN_EXPIRED,
+        CONCERN_NEW_COUNTRY,
+        CONCERN_NEW_CONTINENT,
+        CONCERN_EXPIRED_COUNTRY,
+        CONCERN_EXPIRED_CONTINENT,
         CONCERN_EFFECT,
         STEP_MOTHBALL,
         STEP_SELL,

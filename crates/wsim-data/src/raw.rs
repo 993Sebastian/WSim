@@ -1338,6 +1338,12 @@ pub struct RawManagementLevel {
     pub budget_specialist: [f64; 2],
     #[serde(rename = "budget_leitung")]
     pub budget_head: [f64; 2],
+    /// Specialist functions of a country or continent (MA3).
+    #[serde(rename = "fachstellen", default)]
+    pub specialists: Vec<String>,
+    /// Topics the level's positions take up themselves (MA3).
+    #[serde(rename = "themen", default)]
+    pub topics: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1364,6 +1370,8 @@ pub struct RawConcerns {
     pub estimate_error: f64,
     #[serde(rename = "empfehlung_grund")]
     pub recommend_base: f64,
+    #[serde(rename = "buendel_ab")]
+    pub bundle_from: u32,
 }
 
 #[derive(Debug, Deserialize)]

@@ -135,9 +135,9 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     "organisation" => wert(s.organisation()?),
                     "anliegen" => wert(s.concerns()?),
                     "managermarkt" => {
-                        let standort: u32 = argument(args, "standort")?;
+                        let einheit: String = argument(args, "einheit")?;
                         let stelle: String = argument(args, "stelle")?;
-                        wert(s.manager_market(standort, &stelle)?)
+                        wert(s.manager_market(&einheit, &stelle)?)
                     }
                     "befehl" => {
                         let befehl: Value = argument(args, "befehl")?;

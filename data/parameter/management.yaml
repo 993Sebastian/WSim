@@ -7,11 +7,12 @@ management:
   # erledigt. Logistik bekommt Themen mit Stufe 2, Finanzen mit dem Vorstand (MA5).
   bereiche:
     - id: produktion
-      themen: [produktion, ueberkapazitaet, stillgelegt, wiederanfahren, ausbau]
+      themen: [produktion, ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
+               lagerstaette]
     - id: einkauf_lager
       themen: [einkauf, eigenversorgung]
     - id: vertrieb_marketing
-      themen: [verkauf]
+      themen: [verkauf, werbung]
     - id: personal
       themen: [lohn]
     - id: logistik
@@ -27,14 +28,26 @@ management:
 
   # Ebenen: Prüfrhythmus in Tagen, Gehaltsfaktor der Fachstellen und der Leitung,
   # Budget je Entscheidung und je Jahr als Anteil am Umsatz der Einheit in zwölf Monaten
-  # (Vorgabe, Abschnitt 5.2). Bisher lassen sich nur Stellen der Standorte besetzen.
+  # (Vorgabe, Abschnitt 5.2), die Themen, die Stellen der Ebene selbst aufgreifen (MA3),
+  # und die Fachstellen von Land und Kontinent (die der Standorte: standorttypen). Den
+  # Vorstand gibt es mit MA5.
   ebenen:
     - {id: standort, pruefung_tage: 7, gehalt_fach: 1.5, gehalt_leitung: 2.5,
-       budget_fach: [0.02, 0.05], budget_leitung: [0.05, 0.10]}
+       budget_fach: [0.02, 0.05], budget_leitung: [0.05, 0.10],
+       themen: [produktion, verkauf, einkauf, eigenversorgung, lohn, ueberkapazitaet,
+                stillgelegt, wiederanfahren, ausbau, forschung, weiterentwicklung]}
     - {id: land, pruefung_tage: 30, gehalt_fach: 3, gehalt_leitung: 4,
-       budget_fach: [0.03, 0.06], budget_leitung: [0.05, 0.12]}
+       budget_fach: [0.03, 0.06], budget_leitung: [0.05, 0.12],
+       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, logistik,
+                     forschung],
+       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
+                lagerstaette, werbung]}
     - {id: kontinent, pruefung_tage: 30, gehalt_fach: 5, gehalt_leitung: 7,
-       budget_fach: [0.03, 0.08], budget_leitung: [0.06, 0.15]}
+       budget_fach: [0.03, 0.08], budget_leitung: [0.06, 0.15],
+       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, logistik,
+                     forschung],
+       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
+                lagerstaette, werbung]}
     - {id: vorstand, pruefung_tage: 91, gehalt_fach: 10, gehalt_leitung: 15,
        budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20]}
 
@@ -45,7 +58,8 @@ management:
   # offene Anliegen je Stelle, Rückmeldung zu den Folgen nach dieser Zeit, größter
   # Schätzfehler der Prognose (ohne Fachkompetenz; mit voller Fachkompetenz keiner),
   # Wahrscheinlichkeit, dass ganz ohne Urteilsvermögen die Empfehlung die beste Option
-  # ist (mit vollem Urteilsvermögen immer).
+  # ist (mit vollem Urteilsvermögen immer); ab so vielen gleichen Anliegen verschiedener
+  # Standorte an einem Tag fragt die Stelle darüber einmal für alle (MA3).
   anliegen:
     frist_tage: 30
     sperre_tage: 90
@@ -53,6 +67,7 @@ management:
     wirkzeit_tage: 91
     schaetzfehler: 0.5
     empfehlung_grund: 0.5
+    buendel_ab: 3
 
   # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
   standorttypen:

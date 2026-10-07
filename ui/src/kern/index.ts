@@ -40,8 +40,10 @@ export type {
   Anliegenantwort,
   Antwort,
   Befehl,
+  Einheit,
   Gegenstand,
   Preisart,
+  Rolle,
   Stellenangabe,
 } from "./befehle";
 export { geld } from "./befehle";
@@ -85,8 +87,11 @@ export interface Kern {
   organisation(): Promise<Organisation>;
   /** The concerns of the player's positions (MA2). */
   anliegen(): Promise<AnliegenListe>;
-  /** Candidates for a position: `stelle` is `leitung` or the key of a function (MA1). */
-  managermarkt(standort: number, stelle: string): Promise<Managermarkt>;
+  /**
+   * Candidates for a position: `einheit` is `standort:3`, `land:DEU` or `kontinent:europa`
+   * (MA3), `stelle` is `leitung` or the key of a function (MA1).
+   */
+  managermarkt(einheit: string, stelle: string): Promise<Managermarkt>;
   /** Carries out a decision; answers with the new overview. */
   befehl(befehl: Befehl): Promise<Uebersicht>;
   speichern(name: string): Promise<Spielstand>;
@@ -134,7 +139,7 @@ const tauriKern: Kern = {
   finanzen: () => aufruf("finanzen"),
   organisation: () => aufruf("organisation"),
   anliegen: () => aufruf("anliegen"),
-  managermarkt: (standort, stelle) => aufruf("managermarkt", { standort, stelle }),
+  managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),
   spielstaende: () => aufruf("spielstaende"),
