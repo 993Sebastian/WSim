@@ -3654,3 +3654,38 @@ günstigsten Einstandspreis E aus dem Ausland (Angebotspreis + Transport):
 
 Mit den Daten: Abstand 15 %, Anteil 25 % des Absatzes. Der Abstand verhindert, dass
 Händler wegen kleiner Unterschiede Ware hin- und herschieben.
+
+## C2 – Rohstoffe nach 2015: Förderkurve und Ausbau an allen Standorten
+
+Auftrag vom 07.10.2026, Paket C: offener Punkt G (M41) 9. Daten:
+`parameter/produktionsmodell.yaml` (`foerderkurve_ab`), `parameter/kimodell.yaml`
+(`verhalten.ausbau_je_pruefung_max`). Rohöl und Baumwolle kosteten nach 2015 das Zwei- bis
+Vierfache: Ölfelder förderten bis zuletzt voll und waren dann schlagartig leer, und eine
+Firma baute je Prüfung nur ihren besten Standort aus.
+
+### Förderkurve
+
+Für eine Lagerstätte mit endlichem Vorrat R (im Jahr j, mit dem Förderindex, M41) und der
+bisherigen Förderung F ist der Rest r = max(0, R − F/Marktskala) / R. Die zulässige
+Förderung im Jahr ist
+
+  Q = Q_max · min(1, r / `foerderkurve_ab`).
+
+Mit 0,5 fördert ein Feld voll, bis die Hälfte des Vorrats gefördert ist; danach sinkt die
+Förderung im selben Verhältnis wie der Rest (bei einem Viertel Rest die Hälfte). Erneuerbare
+Lagerstätten (Holz, Baumwolle, Kautschuk, Getreide) fördern immer voll. Die Kurve gilt
+für die Förderung, für die Größe neuer Konzessionen und für den Ausbau einer Konzession;
+eine neue Konzession verlangt wie bisher, dass der Rest `vorrat_jahre_min` Jahre voller
+Förderung reicht. Die sinkende Förderung zeigt den Firmen früh an, dass ein Feld
+ausläuft: Die Preise steigen allmählich, und neue Felder lohnen sich, bevor das alte leer
+ist.
+
+### Ausbau an allen Standorten
+
+Bei jeder Ausbauprüfung (KI vierteljährlich, Stellen nach ihrem Prüftermin) sammelt eine
+Firma alle Standorte und Produkte, die die Bedingungen aus M16 erfüllen (Auslastung,
+Absatz, Marge, keine knappen Vorprodukte), sortiert sie nach der Marge (die höchste
+zuerst) und baut die ersten `ausbau_je_pruefung_max` (4) aus – jeden wie bisher um ein
+Viertel, kleine Werke ums Doppelte. Vorher baute sie nur den besten aus; eine Firma mit
+zwölf Plantagen brauchte so Jahrzehnte, bis alle wuchsen. Die Kasse begrenzt jeden
+Ausbau wie bisher (`ausbau_anteil_kasse_max`, Kredit).

@@ -81,6 +81,7 @@ produktionsmodell:
   standortkosten_usd: {foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, niederlassung: 1, forschungszentrum: 1}
   gebaeude_lebensdauer_jahre: 50
   erschliessung_lebensdauer_jahre: 30
+  foerderkurve_ab: 0.5
   automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
   zustand_minimum: 0.2
@@ -1290,6 +1291,39 @@ fn zeitreihe_ausserhalb_des_spielzeitraums() {
         "laender/SWE.yaml",
         8,
         "laender[0].werte.bevoelkerung.2150",
+    );
+}
+
+#[test]
+fn foerderkurve_wird_geprueft() {
+    // Deposits yield less towards their end (C2).
+    let datei = "parameter/produktionsmodell.yaml";
+    let d = Daten::neu().ersetze(datei, "foerderkurve_ab: 0.5", "foerderkurve_ab: 1.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "foerderkurve_ab"),
+        "produktionsmodell.foerderkurve_ab",
+    );
+    // Expansions per check (C2).
+    let d = Daten::neu().ersetze(
+        "parameter/kimodell.yaml",
+        "ausbau_je_pruefung_max: 4",
+        "ausbau_je_pruefung_max: 0",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 50.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "kimodell.verhalten.ausbau_je_pruefung_max"
     );
 }
 

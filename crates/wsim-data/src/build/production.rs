@@ -101,6 +101,7 @@ pub(super) fn production_model(
             m.development_lifetime_years,
             &l.field("erschliessung_lebensdauer_jahre"),
         ),
+        decline_from: in_range(ctx, m.decline_from, 0.0, 1.0, &l.field("foerderkurve_ab")),
         automation_labor_saving: in_range(
             ctx,
             m.automation.labor_saving,

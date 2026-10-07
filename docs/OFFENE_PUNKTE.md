@@ -466,7 +466,7 @@ und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41)
    Getreide steigt der Förderindex nach 2010 weiter (Ersatz für Polyester und
    Ertragssteigerung, die das Spiel nicht eigens abbildet).
 
-9. **Rohöl und Baumwolle nach 2015** (🟡 Vorschlag, offen): Die Vorräte reichen jetzt,
+9. ✅ (C2: Förderkurve und Ausbau an allen Standorten, C1: Arbitrage; `docs/FORMELN.md`) **Rohöl und Baumwolle nach 2015** (vorher 🟡 Vorschlag, offen): Die Vorräte reichen jetzt,
    trotzdem kosten Rohöl (in einem von zwei Läufen ab 2023) und Baumwolle (2005–2025) das
    Zwei- bis Vierfache. Ursachen aus dem Spielstand 2026: (a) Ölfelder fördern bis zuletzt
    mit voller Leistung und sind dann schlagartig leer; neue Felder erschließt die KI nur

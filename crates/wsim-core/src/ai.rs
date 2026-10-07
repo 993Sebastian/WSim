@@ -1694,9 +1694,9 @@ fn expand(
     let (_, aggressiveness) = traits(catalog, state, id);
     let min_utilization = b.expand_utilization.at(aggressiveness);
     let min_margin = b.expand_margin.at(aggressiveness);
-    // Best expansion: margin, site, product, wanted capacity and the most the
-    // concession allows (in units of the data size, M36).
-    let mut best: Option<(f64, SiteId, ProductId, f64, f64)> = None;
+    // Expansions: margin, site, product, wanted capacity and the most the concession
+    // allows (in units of the data size, M36).
+    let mut found: Vec<(f64, SiteId, ProductId, f64, f64)> = Vec::new();
     for &site in sites {
         let s = &state.sites[site.index()];
         let mut by_product: BTreeMap<ProductId, (f64, f64, Money, f64)> = BTreeMap::new();
@@ -1785,7 +1785,7 @@ fn expand(
                 let allowed = s.deposit.and_then(|d| {
                     let field = state.deposits.get(d).concession_of(site)?;
                     Some(
-                        catalog.max_output(d, date.year())
+                        crate::production::deposit_output(catalog, state, d, date.year())
                             * state.settings.market_scale
                             * field.share
                             / 365.0,
@@ -1803,16 +1803,44 @@ fn expand(
                 && margin >= min_margin
                 && add.min(cap) + 1e-9 >= smallest
                 && !held_back.contains(&product)
-                && best.is_none_or(|(m, ..)| margin > m)
             {
-                best = Some((margin, site, product, add.min(cap), cap));
+                found.push((margin, site, product, add.min(cap), cap));
             }
         }
     }
-    let Some((_, site, product, add, cap)) = best else {
+    if found.is_empty() {
         open_deposit(state, catalog, id, sites, date, (news, decider));
         return;
-    };
+    }
+    // The best ones first, up to `ausbau_je_pruefung_max` at once (C2): with only the
+    // best one a company with twelve plantations needed decades to grow them all.
+    found.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)).then(a.2.cmp(&b.2)));
+    let most = usize::try_from(b.expansions_max)
+        .unwrap_or(usize::MAX)
+        .max(1);
+    for &(_, site, product, add, cap) in found.iter().take(most) {
+        expand_at(
+            state,
+            catalog,
+            id,
+            sites,
+            (site, product, add, cap),
+            (news, decider),
+        );
+    }
+}
+
+/// Builds `add` more capacity of a product at a site, or at another own site of the kind
+/// in the country, or on a new plot (M35); units standing still start up first (M22).
+fn expand_at(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    (site, product, add, cap): (SiteId, ProductId, f64, f64),
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
+) {
+    let b = &catalog.ai_model.behavior;
     // Units of the product standing still at the site start up before new ones are
     // built (M22).
     let standing: Vec<(usize, f64)> = state.sites[site.index()]
@@ -3445,9 +3473,10 @@ fn concession_capacity(
         .iter()
         .find(|c| c.site.is_none())
         .map_or(0.0, |c| c.share);
-    let allowed =
-        catalog.max_output(deposit, state.date.year()) * state.settings.market_scale * share
-            / 365.0;
+    let allowed = crate::production::deposit_output(catalog, state, deposit, state.date.year())
+        * state.settings.market_scale
+        * share
+        / 365.0;
     let per_unit = population::output_per_day(catalog, recipe) * catalog.ai_model.start.utilization;
     let smallest = catalog
         .production_model
@@ -5062,6 +5091,100 @@ mod tests {
         let reserve = catalog.deposits.get(grube).reserve.expect("finite");
         state.deposits.get_mut(grube).extracted = reserve - 10.0 * 36_500.0 + 1.0;
         assert_eq!(opportunity(state, &catalog, &[], id, Some(&[ore])), None);
+    }
+
+    /// C2: below `foerderkurve_ab` of the reserve left, a deposit yields less in
+    /// proportion; renewable deposits and the rule switched off keep the full output.
+    #[test]
+    fn a_deposit_yields_less_as_it_runs_low() {
+        let mut catalog = test_support::trading();
+        catalog.production_model.decline_from = 0.5;
+        let (mut game, _, _) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let grube = catalog.deposits.id("grube").expect("exists");
+        let full = catalog.max_output(grube, 1900);
+        let reserve = catalog.reserve(grube, 1900).expect("finite");
+        let output = |game: &mut crate::game::Game, extracted: f64| {
+            game.state_mut().deposits.get_mut(grube).extracted = extracted;
+            crate::production::deposit_output(&catalog, game.state(), grube, 1900)
+        };
+        assert_eq!(output(&mut game, 0.0), full);
+        assert_eq!(output(&mut game, 0.5 * reserve), full);
+        assert!((output(&mut game, 0.75 * reserve) - 0.5 * full).abs() < 1e-9);
+        assert_eq!(output(&mut game, reserve), 0.0);
+        let mut off = (*catalog).clone();
+        off.production_model.decline_from = 0.0;
+        let state = game.state();
+        assert_eq!(
+            crate::production::deposit_output(&off, state, grube, 1900),
+            full
+        );
+    }
+
+    /// C2: a company grows every site that sells all it makes at a good margin, up to
+    /// `ausbau_je_pruefung_max` at once, not only the best one.
+    #[test]
+    fn busy_sites_grow_together() {
+        let built = |most: u32| {
+            let mut catalog = test_support::production();
+            catalog.ai_model.behavior.expansions_max = most;
+            let (mut game, id, first) = idle_works_in(catalog, 1.0);
+            let catalog = game.catalog().clone();
+            let state = game.state_mut();
+            let aaa = catalog.countries.id("AAA").expect("exists");
+            let (iron, ore) = (
+                catalog.products.id("eisen").expect("exists"),
+                catalog.products.id("erz").expect("exists"),
+            );
+            // Iron sells dearly, ore is at hand.
+            let reference = market::local_reference(&catalog, state, aaa, iron);
+            state.markets.get_mut(iron).get_mut(aaa).price = reference.scale(3.0);
+            let found = Command::FoundSite {
+                country: aaa,
+                kind: SiteType::Factory,
+            };
+            assert!(run(state, &catalog, id, &found));
+            let second = site_id(state.sites.len() - 1);
+            let (slots, offers) = (
+                state.sites[first.index()].slots.clone(),
+                state.sites[first.index()].offers.clone(),
+            );
+            for site in [first, second] {
+                let s = &mut state.sites[site.index()];
+                s.slots = slots.clone();
+                s.offers = offers.clone();
+                if let Some(o) = s.offers.get_mut(&iron) {
+                    o.price = reference.scale(3.0);
+                }
+                s.inventory.entry(ore).or_default().add(
+                    1_000_000.0,
+                    Money::from_usd(1_000_000.0).expect("valid"),
+                    50.0,
+                );
+            }
+            let units = |state: &GameState| -> usize {
+                state
+                    .sites
+                    .iter()
+                    .filter(|s| s.owner == id)
+                    .map(|s| s.slots.len())
+                    .sum()
+            };
+            let before = units(state);
+            let date = state.date;
+            let mut news = Vec::new();
+            expand(
+                state,
+                &catalog,
+                id,
+                &[first, second],
+                date,
+                (&mut news, &mut Rules),
+            );
+            units(state) - before
+        };
+        assert_eq!(built(1), 1);
+        assert_eq!(built(4), 2);
     }
 
     /// M33: the stocks plants keep of their inputs are no heap; a seller's stock is.

@@ -1245,6 +1245,8 @@ pub struct AiBehavior {
     /// in the country: it is scarce (M16).
     pub expand_input_price_max: f64,
     pub invest_share_max: f64,
+    /// Expansions a company starts at most per check, the best first (C2).
+    pub expansions_max: u32,
     /// Wage premium of a site: raised by the step while a facility waits for workers,
     /// lowered otherwise, up to the maximum (M18).
     pub wage_premium_step: f64,
@@ -1347,6 +1349,7 @@ impl Default for AiModel {
                 },
                 expand_input_price_max: 1.5,
                 invest_share_max: 0.3,
+                expansions_max: 1,
                 wage_premium_step: 0.05,
                 wage_premium_max: 0.3,
                 research_lookahead_years: Span {
@@ -1772,6 +1775,9 @@ pub struct ProductionModel {
     pub site_cost: Vec<(SiteType, Money)>,
     pub building_lifetime_years: f64,
     pub development_lifetime_years: f64,
+    /// Remaining share of a deposit's reserve below which its allowed output falls in
+    /// proportion (C2); 0: full output to the end.
+    pub decline_from: f64,
     /// Share of labor that full automation saves at full automation affinity.
     pub automation_labor_saving: f64,
     /// Cost of raising automation from 0 to 1, as share of the facility investment.
@@ -1855,6 +1861,7 @@ impl Default for ProductionModel {
             site_cost: Vec::new(),
             building_lifetime_years: 50.0,
             development_lifetime_years: 30.0,
+            decline_from: 0.0,
             automation_labor_saving: 0.8,
             automation_cost_share: 0.5,
             quality_inputs: 0.3,

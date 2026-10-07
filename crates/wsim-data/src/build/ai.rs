@@ -206,6 +206,17 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             b.invest_share_max,
             &bl.field("ausbau_anteil_kasse_max"),
         ),
+        expansions_max: {
+            let n = in_range(
+                ctx,
+                f64::from(b.expansions_max),
+                1.0,
+                50.0,
+                &bl.field("ausbau_je_pruefung_max"),
+            );
+            // Checked to lie in 1–50; the cast is exact.
+            n as u32
+        },
         research_lookahead_years: Span {
             at_0: non_negative(
                 ctx,

@@ -11,6 +11,10 @@ produktionsmodell:
     forschungszentrum: 400_000
   gebaeude_lebensdauer_jahre: 50
   erschliessung_lebensdauer_jahre: 30
+  # Förderkurve (C2): Ist von einer Lagerstätte mit Vorrat weniger als dieser Anteil übrig,
+  # sinkt die zulässige Förderung im selben Verhältnis (bei der Hälfte des Anteils auf die
+  # Hälfte). 0: volle Förderung bis zum letzten Fass.
+  foerderkurve_ab: 0.5
   automatisierung:
     arbeitsersparnis: 0.8       # Anteil der Arbeit, den volle Automatisierung bei voller Prägung spart
     kostenanteil: 0.5           # Kosten für Automatisierung 0 → 1 als Anteil der Investition

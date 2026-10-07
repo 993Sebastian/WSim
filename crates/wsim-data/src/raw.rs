@@ -510,6 +510,8 @@ pub struct RawProductionModel {
     pub building_lifetime_years: f64,
     #[serde(rename = "erschliessung_lebensdauer_jahre")]
     pub development_lifetime_years: f64,
+    #[serde(rename = "foerderkurve_ab")]
+    pub decline_from: f64,
     #[serde(rename = "automatisierung")]
     pub automation: RawAutomationCost,
     #[serde(rename = "qualitaet")]
@@ -1220,6 +1222,8 @@ pub struct RawAiBehavior {
     pub expand_input_price_max: f64,
     #[serde(rename = "ausbau_anteil_kasse_max")]
     pub invest_share_max: f64,
+    #[serde(rename = "ausbau_je_pruefung_max")]
+    pub expansions_max: u32,
     #[serde(rename = "lohnaufschlag_schritt")]
     pub wage_premium_step: f64,
     #[serde(rename = "lohnaufschlag_max")]

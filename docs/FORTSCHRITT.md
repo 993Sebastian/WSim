@@ -69,6 +69,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | B1 | Manager-Restpunkte: Gehalt über der Kasse, Abwerben aus „Wettbewerb“, Nachfolgemodelle | ✅ |
 | B2 | Können der KI-Manager wirkt auf Preise und Ausbau (Schätzfehler) | ✅ |
 | C1 | Händler gleichen Preisinseln aus (Arbitrage) | ✅ |
+| C2 | Rohstoffe nach 2015: Förderkurve, Ausbau an allen Standorten | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -598,6 +599,20 @@ Paket C, offener Punkt G (M40) 4. Regeln: `docs/FORMELN.md`, Abschnitt C1.
   Verstöße „Preis gegen Richtpreis“): Die Märkte folgen dem billigsten Hersteller samt
   Fracht. Laufzeit 1900–1940: 793 statt 628 s (die Läufe teilten sich die Rechenzeit mit
   zwei weiteren).
+
+### C2: Förderkurve und Ausbau an allen Standorten (07.10.2026)
+
+Paket C, offener Punkt G (M41) 9. Regeln: `docs/FORMELN.md`, Abschnitt C2.
+
+- **Förderkurve:** Ist von einer Lagerstätte mit Vorrat weniger als die Hälfte übrig,
+  sinkt die zulässige Förderung im selben Verhältnis wie der Rest
+  (`produktionsmodell.foerderkurve_ab`); erneuerbare Lagerstätten fördern voll. Gilt für
+  die Förderung, neue Konzessionen und den Ausbau.
+- **Ausbau an allen Standorten:** Eine Firma baut je Prüfung bis zu vier lohnende Standorte
+  oder Produkte aus, die mit der höchsten Marge zuerst (`ausbau_je_pruefung_max`), statt
+  nur den besten.
+- **Tests:** Kern (Förderkurve, zwei ausgelastete Werke wachsen zusammen), Fehlerfälle für
+  beide Parameter.
 
 ## Eigenständige Entscheidungen (für das Review)
 

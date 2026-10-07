@@ -89,6 +89,28 @@ fn hours_per_run(
 
 /// One simulated day for all sites. `date` is the day being simulated. Power plants
 /// run first so that factories can use the electricity of the same day.
+/// Allowed yearly output of a deposit (before the market scale) with its decline (C2,
+/// docs/FORMELN.md): below `foerderkurve_ab` of the reserve left, it falls in proportion
+/// to what is left. Renewable deposits keep their full output.
+pub fn deposit_output(
+    catalog: &Catalog,
+    state: &GameState,
+    deposit: crate::ids::DepositId,
+    year: i32,
+) -> f64 {
+    let full = catalog.max_output(deposit, year);
+    let from = catalog.production_model.decline_from;
+    let Some(reserve) = catalog
+        .reserve(deposit, year)
+        .filter(|&r| r > 0.0 && from > 0.0)
+    else {
+        return full;
+    };
+    let scale = state.settings.market_scale.max(1e-12);
+    let left = (reserve - state.deposits.get(deposit).extracted / scale).max(0.0) / reserve;
+    full * (left / from).min(1.0)
+}
+
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) {
     complete_constructions(state, catalog, date);
     staff_sites(state, catalog, date);
@@ -606,9 +628,11 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             // stood still until January).
             let year_gone =
                 f64::from(date.ordinal()) / f64::from(crate::calendar::days_in_year(date.year()));
-            let mut room =
-                catalog.max_output(deposit, date.year()) * scale * field.share * year_gone
-                    - field.extracted_this_year;
+            let mut room = deposit_output(catalog, state, deposit, date.year())
+                * scale
+                * field.share
+                * year_gone
+                - field.extracted_this_year;
             if let Some(reserve) = catalog.reserve(deposit, date.year()) {
                 room = room.min(reserve * scale - ds.extracted);
             }

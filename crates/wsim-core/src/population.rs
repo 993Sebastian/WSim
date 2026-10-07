@@ -354,7 +354,10 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                 .map(|(id, _)| id)
                 .collect();
             let capacity = |d: DepositId| {
-                catalog.max_output(d, year) * state.settings.market_scale / 365.0 / per_day
+                crate::production::deposit_output(catalog, state, d, year)
+                    * state.settings.market_scale
+                    / 365.0
+                    / per_day
             };
             let weights: Vec<f64> = deposits
                 .iter()

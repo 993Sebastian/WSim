@@ -162,6 +162,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Zahlungsbereitschaft (Einkauf der KI) | `willing` in `ai::operate` |
 | Wiederbeschaffungspreis der Händler | `trade::Plan::replacement`, `import_floor` |
 | Preisinsel, Arbitrage der Händler | `trade::plan` (`Destination::{arbitrage, arbitrage_below}`), `MarketModel::{arbitrage_gap, arbitrage_share}` (`haendler.arbitrage`; C1) |
+| Förderkurve, Ausbau an mehreren Standorten | `production::deposit_output`, `ProductionModel::decline_from` (`foerderkurve_ab`); `ai::expand_at`, `AiBehavior::expansions_max` (`ausbau_je_pruefung_max`; C2) |
 | Ausbausperre bei knappem Vorprodukt | `AiBehavior::expand_input_price_max` (`ausbau_vorprodukt_preis_max`) |
 | Marktdeckung je Produktart | `AiStart::market_cover` (`[f64; 5]`) |
 | nur als Nebenprodukt hergestellt | `health::made_as_main` |

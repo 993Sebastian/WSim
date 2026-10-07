@@ -69,6 +69,9 @@ kimodell:
     ausbau_marge: {bei_0: 0.1, bei_1: 0.03}           # Aufschlag auf Vollkosten mit Gemeinkosten (M16), Aggressivität
     ausbau_vorprodukt_preis_max: 1.5                  # kein Ausbau, solange ein Vorprodukt mehr kostet (× Richtpreis im Land): knapp
     ausbau_anteil_kasse_max: 0.3
+    # So viele Ausbauten beginnt eine Firma je Prüfung höchstens, die mit der höchsten
+    # Marge zuerst (C2); vorher nur einen, und zwölf Plantagen wuchsen über Jahrzehnte.
+    ausbau_je_pruefung_max: 4
     # Lohnaufschlag je Standort (M18): + Schritt je Entscheidung, solange eine Anlage auf
     # Arbeitskräfte wartet, sonst − Schritt bis 0; höchstens so viel.
     lohnaufschlag_schritt: 0.05
