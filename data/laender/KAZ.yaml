@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 51.18, laenge: 71.43}
     binnenland: true
     nachbarn: [CHN, RUS, UZB, XZA]
+    staedte:
+      - {id: almaty, einwohner: 1_209_000, breite: 43.33, laenge: 76.91}
+      - {id: shymkent, einwohner: 465_392, breite: 42.32, laenge: 69.60}
+      - {id: qaraghandy, einwohner: 451_800, breite: 49.88, laenge: 73.12}
+      - {id: taraz, einwohner: 358_153, breite: 42.90, laenge: 71.36}
+      - {id: nur_sultan, einwohner: 345_604, breite: 51.18, laenge: 71.43, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 4_222_949, 1901: 4_261_367, 1902: 4_300_136, 1903: 4_339_256, 1904: 4_378_733, 1905: 4_418_569, 1906: 4_458_767, 1907: 4_499_330,

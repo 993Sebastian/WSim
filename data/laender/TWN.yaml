@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 25.04, laenge: 121.57}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: taipei, einwohner: 6_900_273, breite: 25.04, laenge: 121.57, hauptstadt: true}
+      - {id: kaohsiung, einwohner: 2_769_072, breite: 22.63, laenge: 120.27}
+      - {id: taichung, einwohner: 2_629_323, breite: 24.15, laenge: 120.68}
     werte:
       bevoelkerung: {
         1900: 2_802_269, 1901: 2_842_165, 1902: 2_881_613, 1903: 2_920_213, 1904: 2_958_276, 1905: 2_996_733, 1906: 3_036_953, 1907: 3_079_702,

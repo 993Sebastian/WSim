@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 12.37, laenge: -1.53}
     binnenland: true
     nachbarn: [CIV, GHA, MLI, NER, XTB]
+    staedte:
+      - {id: ouagadougou, einwohner: 1_149_000, breite: 12.37, laenge: -1.53, hauptstadt: true}
+      - {id: bobo_dioulasso, einwohner: 360_106, breite: 11.18, laenge: -4.29}
     werte:
       bevoelkerung: {
         1900: 2_299_057, 1901: 2_320_845, 1902: 2_345_612, 1903: 2_373_411, 1904: 2_401_537, 1905: 2_429_995, 1906: 2_458_789, 1907: 2_487_921,

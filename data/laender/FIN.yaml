@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 60.18, laenge: 24.93}
     binnenland: false
     nachbarn: [NOR, RUS, SWE]
+    staedte:
+      - {id: helsinki, einwohner: 1_115_000, breite: 60.18, laenge: 24.93, hauptstadt: true}
+      - {id: tampere, einwohner: 259_279, breite: 61.50, laenge: 23.75}
     werte:
       bevoelkerung: {
         1900: 2_641_885, 1901: 2_669_977, 1902: 2_697_777, 1903: 2_725_274, 1904: 2_753_052, 1905: 2_781_113, 1906: 2_809_460, 1907: 2_838_096,

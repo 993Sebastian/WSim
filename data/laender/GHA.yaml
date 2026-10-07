@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 5.55, laenge: -0.22}
     binnenland: false
     nachbarn: [BFA, CIV, XTB]
+    staedte:
+      - {id: accra, einwohner: 2_121_000, breite: 5.55, laenge: -0.22, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 2_718_670, 1901: 2_740_973, 1902: 2_763_460, 1903: 2_786_133, 1904: 2_808_990, 1905: 2_832_034, 1906: 2_855_266, 1907: 2_878_687,

@@ -12,6 +12,7 @@ import {
   geldFeld,
   geldSchluessel,
   landName,
+  stadtName,
   zahlFeld,
   zahlLesen,
 } from "../format";
@@ -24,6 +25,7 @@ import type {
   Kern,
   Manager,
   Organisation,
+  Stadt,
   Stelle,
   Stellentyp,
   Uebersicht,
@@ -269,20 +271,29 @@ function GehaltUndZufriedenheit({ s, stelle }: { s: EinheitOrganisation; stelle:
  * The headquarters (ZA1): where it is, what that means for taxes and salaries, and a
  * move to another country.
  */
+/** Place of a seat: „Stadt, Land“, or only the country without cities (W2). */
+function ortName(land: string, stadt: string | null): string {
+  return stadt
+    ? t("zentrale.ort", { stadt: stadtName(land, stadt), land: landName(land) })
+    : landName(land);
+}
+
 function Hauptsitz({ z }: { z: Zentrale }) {
   const { los } = useAktion(ORT);
   const [ziel, setZiel] = useState("");
+  const [zielStadt, setZielStadt] = useState("");
   const laender = [...z.countries]
     .filter((l) => l.country !== z.country)
     .map((l) => ({ ...l, name: landName(l.country) }))
     .sort((a, b) => a.name.localeCompare(b.name, "de"));
   const gewaehlt = laender.find((l) => l.country === ziel);
+  const stadt = gewaehlt ? zielStadt || gewaehlt.default_city || "" : "";
   return (
     <section aria-label={t("zentrale.titel")}>
       <h2>{t("zentrale.titel")}</h2>
       <article className="karte" aria-label={t("zentrale.hauptsitz")}>
         <h4>
-          {t("zentrale.hauptsitz")}: {landName(z.country)}{" "}
+          {t("zentrale.hauptsitz")}: {ortName(z.country, z.city)}{" "}
           <Erklaerung wert={t("zentrale.hauptsitz")}>
             <p>{t("zentrale.hilfe")}</p>
           </Erklaerung>
@@ -296,7 +307,7 @@ function Hauptsitz({ z }: { z: Zentrale }) {
         {z.relocation ? (
           <p className="warnung-text">
             {t("zentrale.umzug", {
-              land: landName(z.relocation.country),
+              land: ortName(z.relocation.country, z.relocation.city),
               datum: formatDatum(z.relocation.until),
             })}
           </p>
@@ -307,15 +318,35 @@ function Hauptsitz({ z }: { z: Zentrale }) {
               e.preventDefault();
               if (!gewaehlt) return;
               void los(
-                [{ SetHeadquarters: { country: gewaehlt.country } }],
-                t("zentrale.verlegt", { land: gewaehlt.name, monate: z.move_months }),
-              ).then((ok) => ok && setZiel(""));
+                [
+                  {
+                    SetHeadquarters: stadt
+                      ? { country: gewaehlt.country, city: stadt }
+                      : { country: gewaehlt.country },
+                  },
+                ],
+                t("zentrale.verlegt", {
+                  land: ortName(gewaehlt.country, stadt || null),
+                  monate: z.move_months,
+                }),
+              ).then((ok) => {
+                if (ok) {
+                  setZiel("");
+                  setZielStadt("");
+                }
+              });
             }}
           >
             <div className="formular-zeile">
               <label>
                 {t("zentrale.ziel")}{" "}
-                <select value={ziel} onChange={(e) => setZiel(e.target.value)}>
+                <select
+                  value={ziel}
+                  onChange={(e) => {
+                    setZiel(e.target.value);
+                    setZielStadt("");
+                  }}
+                >
                   <option value="">{t("zentrale.ziel_waehlen")}</option>
                   {laender.map((l) => (
                     <option key={l.country} value={l.country}>
@@ -328,6 +359,18 @@ function Hauptsitz({ z }: { z: Zentrale }) {
                   ))}
                 </select>
               </label>
+              {gewaehlt && gewaehlt.cities.length > 0 && (
+                <label>
+                  {t("zentrale.stadt")}{" "}
+                  <select value={stadt} onChange={(e) => setZielStadt(e.target.value)}>
+                    {gewaehlt.cities.map((s) => (
+                      <option key={s} value={s}>
+                        {stadtName(gewaehlt.country, s)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <button type="submit" disabled={!gewaehlt}>
                 {t("zentrale.verlegen")}
               </button>
@@ -341,9 +384,89 @@ function Hauptsitz({ z }: { z: Zentrale }) {
             </p>
           </form>
         )}
+        {z.cities.length > 0 && <Staedte z={z} />}
       </article>
       <Abteilungen z={z} />
     </section>
+  );
+}
+
+/**
+ * The cities of the country of the headquarters (W2): how many academics the central
+ * departments find there, how many all companies want, what offices cost; a move there.
+ */
+function Staedte({ z }: { z: Zentrale }) {
+  const { los } = useAktion(ORT);
+  const name = (s: Stadt) => stadtName(z.country, s.key);
+  return (
+    <>
+      <h4>
+        {t("zentrale.staedte", { land: landName(z.country) })}{" "}
+        <Erklaerung wert={t("zentrale.staedte", { land: landName(z.country) })}>
+          <p>{t("zentrale.staedte_hilfe")}</p>
+        </Erklaerung>
+      </h4>
+      <table
+        className="mobil-karten"
+        aria-label={t("zentrale.staedte", { land: landName(z.country) })}
+      >
+        <thead>
+          <tr>
+            <th>{t("zentrale.stadt_name")}</th>
+            <th>{t("zentrale.einwohner")}</th>
+            <th>{t("zentrale.akademiker")}</th>
+            <th>{t("zentrale.gewuenscht")}</th>
+            <th>{t("zentrale.buero")}</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {z.cities.map((s) => (
+            <tr key={s.key}>
+              <td>
+                <strong>{name(s)}</strong>
+                {s.capital && <small className="feld-hilfe"> · {t("zentrale.hauptstadt")}</small>}
+              </td>
+              <td data-spalte={t("zentrale.einwohner")}>{formatZahl(s.population)}</td>
+              <td data-spalte={t("zentrale.akademiker")}>{formatZahl(Math.floor(s.academics))}</td>
+              <td data-spalte={t("zentrale.gewuenscht")}>
+                <span className={s.wanted > s.academics ? "warnung-text" : undefined}>
+                  {formatZahl(s.wanted)}
+                </span>
+              </td>
+              <td data-spalte={t("zentrale.buero")}>{formatGeld(s.office_per_employee_usd)}</td>
+              <td>
+                {s.here ? (
+                  <strong>{t("zentrale.hier")}</strong>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={z.relocation !== null}
+                    onClick={() =>
+                      void los(
+                        [{ SetHeadquarters: { country: z.country, city: s.key } }],
+                        t("zentrale.stadt_verlegt", {
+                          stadt: name(s),
+                          monate: z.city_move_months,
+                        }),
+                      )
+                    }
+                  >
+                    {t("zentrale.hierher", { stadt: name(s) })}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="feld-hilfe">
+        {t("zentrale.stadt_kosten", {
+          betrag: formatGeld(z.city_move_cost_usd),
+          monate: z.city_move_months,
+        })}
+      </p>
+    </>
   );
 }
 
@@ -467,9 +590,14 @@ function AbteilungZeile({ a }: { a: Abteilung }) {
             {t("zentrale.festlegen")}
           </button>
         </form>
+        {a.staffed < a.staff && (
+          <small className="warnung-text">
+            {t("zentrale.nur_besetzt", { besetzt: formatZahl(a.staffed) })}
+          </small>
+        )}
       </td>
       <td data-spalte={t("zentrale.abdeckung")}>
-        {a.staff === 0 ? "–" : formatProzent(a.coverage)}
+        {a.staffed === 0 ? "–" : formatProzent(a.coverage)}
         <small className="feld-hilfe">
           {" "}
           {t("zentrale.faelle", {

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 50.44, laenge: 30.51}
     binnenland: false
     nachbarn: [BLR, CZE, HUN, POL, ROU, RUS]
+    staedte:
+      - {id: kiew, einwohner: 2_709_000, breite: 50.44, laenge: 30.51, hauptstadt: true}
+      - {id: kharkiv, einwohner: 1_461_000, breite: 50.00, laenge: 36.25}
+      - {id: dnipro, einwohner: 1_050_000, breite: 48.48, laenge: 35.00}
+      - {id: odessa, einwohner: 991_000, breite: 46.49, laenge: 30.71}
+      - {id: donetsk, einwohner: 988_000, breite: 48.00, laenge: 37.83}
     werte:
       bevoelkerung: {
         1900: 23_484_052, 1901: 23_703_409, 1902: 23_924_814, 1903: 24_148_286, 1904: 24_373_845, 1905: 24_601_511, 1906: 24_831_302, 1907: 25_063_239,

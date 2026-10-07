@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -25.29, laenge: -57.64}
     binnenland: false
     nachbarn: [ARG, BOL, BRA]
+    staedte:
+      - {id: asuncion, einwohner: 1_870_000, breite: -25.29, laenge: -57.64, hauptstadt: true}
+      - {id: montevideo, einwohner: 1_513_000, breite: -34.86, laenge: -56.17}
+      - {id: ciudad_del_este, einwohner: 320_872, breite: -25.52, laenge: -54.62}
     umfasst: [PRY, URY]
     werte:
       bevoelkerung: {

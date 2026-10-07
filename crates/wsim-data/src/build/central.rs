@@ -3,11 +3,11 @@
 
 use wsim_core::catalog::{
     Catalog, CentralAiModel, CentralModel, Department, DepartmentKind, HeadquartersModel,
-    HitRateModel, RefinanceModel, Span,
+    HitRateModel, HqCityModel, RefinanceModel, Span,
 };
 use wsim_core::money::Money;
 
-use super::{in_range, non_negative, provenance};
+use super::{in_range, non_negative, positive, provenance};
 use crate::messages;
 use crate::raw::RawCentralAi;
 use crate::read::{Ctx, Loc, RawData};
@@ -126,6 +126,48 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
     let ai = c.ai.as_ref().map_or_else(CentralAiModel::default, |a| {
         ai_model(ctx, a, &departments, &l.field("ki"))
     });
+    let city = c.city.as_ref().map(|s| {
+        let sl = l.field("stadt");
+        HqCityModel {
+            academics_concentration: in_range(
+                ctx,
+                s.academics_concentration,
+                0.0,
+                100.0,
+                &sl.field("akademiker_konzentration"),
+            ),
+            hq_share: in_range(ctx, s.hq_share, 0.0, 1.0, &sl.field("anteil_zentralen")),
+            office_reference_population: positive(
+                ctx,
+                s.office_reference_population,
+                &sl.field("buero_bezug_einwohner"),
+            ),
+            office_elasticity: in_range(
+                ctx,
+                s.office_elasticity,
+                0.0,
+                1.0,
+                &sl.field("buero_elastizitaet"),
+            ),
+            move_within_country: in_range(
+                ctx,
+                s.move_within_country,
+                0.0,
+                1.0,
+                &sl.field("umzug_im_land"),
+            ),
+            population_year: {
+                in_range(
+                    ctx,
+                    f64::from(s.population_year),
+                    1900.0,
+                    2100.0,
+                    &sl.field("einwohner_jahr"),
+                );
+                s.population_year
+            },
+        }
+    });
     CentralModel {
         headquarters: HeadquartersModel {
             months: h.months,
@@ -142,6 +184,7 @@ pub(super) fn central_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
         refinance,
         hit_rate,
         ai,
+        city,
         provenance: provenance(c.approximation, c.source.as_ref()),
     }
 }

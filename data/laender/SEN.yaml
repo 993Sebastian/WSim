@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 14.72, laenge: -17.48}
     binnenland: false
     nachbarn: [MLI, XWA]
+    staedte:
+      - {id: dakar, einwohner: 2_604_000, breite: 14.72, laenge: -17.48, hauptstadt: true}
+      - {id: kaolack, einwohner: 277_812, breite: 14.15, laenge: -16.10}
     umfasst: [SEN, GMB]
     werte:
       bevoelkerung: {

@@ -213,8 +213,12 @@ pub enum Command {
     MatchOffer { manager: ManagerId },
     /// Lets a manager of the company go to the company that made him an offer (MA6).
     LetGo { manager: ManagerId },
-    /// Moves the headquarters to another country (ZA1).
-    SetHeadquarters { country: CountryId },
+    /// Moves the headquarters to another country (ZA1) or city (W2; none: the capital).
+    SetHeadquarters {
+        country: CountryId,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        city: Option<String>,
+    },
     /// Sets the number of employees of a central department (ZA2).
     StaffDepartment {
         department: crate::catalog::DepartmentKind,
@@ -447,6 +451,8 @@ pub enum CommandError {
     UnknownCountry,
     /// The headquarters are there already.
     SameHeadquarters,
+    /// No such city in the country (W2).
+    UnknownCity,
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -598,6 +604,7 @@ impl CommandError {
             CommandError::NoPoachOffer => e(keys::COMMAND_NO_POACH_OFFER),
             CommandError::UnknownCountry => e(keys::COMMAND_UNKNOWN_COUNTRY),
             CommandError::SameHeadquarters => e(keys::COMMAND_SAME_HEADQUARTERS),
+            CommandError::UnknownCity => e(keys::COMMAND_UNKNOWN_CITY),
             CommandError::RelocationUnderWay { until } => {
                 e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
             }
@@ -891,8 +898,8 @@ fn run(
         Command::LetGo { manager } => {
             crate::staffing::let_go(state, catalog, actor, *manager)?;
         }
-        Command::SetHeadquarters { country } => {
-            crate::central::set_headquarters(state, catalog, actor, *country)?;
+        Command::SetHeadquarters { country, city } => {
+            crate::central::set_headquarters(state, catalog, actor, (*country, city.as_deref()))?;
         }
         Command::StaffDepartment { department, staff } => {
             crate::central::staff_department(state, catalog, actor, *department, *staff)?;

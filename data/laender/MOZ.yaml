@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -25.95, laenge: 32.59}
     binnenland: false
     nachbarn: [MWI, TZA, XSA, ZAF, ZMB, ZWE]
+    staedte:
+      - {id: maputo, einwohner: 1_446_000, breite: -25.95, laenge: 32.59, hauptstadt: true}
+      - {id: beira, einwohner: 530_604, breite: -19.82, laenge: 34.87}
+      - {id: nampula, einwohner: 388_526, breite: -15.14, laenge: 39.29}
+      - {id: nacala, einwohner: 224_795, breite: -14.52, laenge: 40.72}
+      - {id: quelimane, einwohner: 188_964, breite: -17.88, laenge: 36.89}
     werte:
       bevoelkerung: {
         1900: 4_246_017, 1901: 4_214_558, 1902: 4_179_946, 1903: 4_142_230, 1904: 4_104_851, 1905: 4_067_804, 1906: 4_031_087, 1907: 3_994_698,

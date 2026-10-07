@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 3.87, laenge: 11.51}
     binnenland: false
     nachbarn: [NGA, XMA]
+    staedte:
+      - {id: douala, einwohner: 1_906_000, breite: 4.06, laenge: 9.71}
+      - {id: yaounde, einwohner: 1_611_000, breite: 3.87, laenge: 11.51, hauptstadt: true}
+      - {id: bamenda, einwohner: 445_299, breite: 5.96, laenge: 10.15}
+      - {id: garoua, einwohner: 436_899, breite: 9.30, laenge: 13.39}
+      - {id: maroua, einwohner: 319_941, breite: 10.60, laenge: 14.32}
     werte:
       bevoelkerung: {
         1900: 3_224_542, 1901: 3_201_490, 1902: 3_175_612, 1903: 3_146_951, 1904: 3_118_547, 1905: 3_090_399, 1906: 3_062_504, 1907: 3_034_860,

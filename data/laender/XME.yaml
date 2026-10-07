@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 14.62, laenge: -90.53}
     binnenland: false
     nachbarn: [COL, MEX]
+    staedte:
+      - {id: san_salvador, einwohner: 1_433_000, breite: 13.71, laenge: -89.20}
+      - {id: san_jose, einwohner: 1_284_000, breite: 9.94, laenge: -84.09}
+      - {id: panama_stadt, einwohner: 1_281_000, breite: 8.97, laenge: -79.53}
+      - {id: guatemala_city, einwohner: 1_024_000, breite: 14.62, laenge: -90.53, hauptstadt: true}
+      - {id: tegucigalpa, einwohner: 946_000, breite: 14.10, laenge: -87.22}
     umfasst: [GTM, HND, SLV, NIC, CRI, PAN, BLZ]
     werte:
       bevoelkerung: {

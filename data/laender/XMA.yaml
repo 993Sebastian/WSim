@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 12.12, laenge: 15.05}
     binnenland: false
     nachbarn: [AGO, CMR, COD, LBY, NER, NGA, SDN]
+    staedte:
+      - {id: brazzaville, einwohner: 1_355_000, breite: -4.26, laenge: 15.28}
+      - {id: n_djamena, einwohner: 989_000, breite: 12.12, laenge: 15.05, hauptstadt: true}
+      - {id: bangui, einwohner: 831_925, breite: 4.37, laenge: 18.56}
+      - {id: pointe_noire, einwohner: 659_084, breite: -4.77, laenge: 11.88}
+      - {id: libreville, einwohner: 578_156, breite: 0.39, laenge: 9.46}
     umfasst: [TCD, CAF, COG, GAB, GNQ, STP]
     werte:
       bevoelkerung: {

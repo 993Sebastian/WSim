@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 52.35, laenge: 4.91}
     binnenland: false
     nachbarn: [BEL, DEU, FRA]
+    staedte:
+      - {id: den_haag, einwohner: 1_406_000, breite: 52.08, laenge: 4.27}
+      - {id: amsterdam, einwohner: 1_031_000, breite: 52.35, laenge: 4.91, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 5_147_863, 1901: 5_217_891, 1902: 5_290_503, 1903: 5_365_754, 1904: 5_442_076, 1905: 5_519_484, 1906: 5_597_993, 1907: 5_677_618,

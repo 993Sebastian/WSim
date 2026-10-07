@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 9.04, laenge: 38.70}
     binnenland: false
     nachbarn: [KEN, SDN, XHA]
+    staedte:
+      - {id: addis_abeba, einwohner: 3_100_000, breite: 9.04, laenge: 38.70, hauptstadt: true}
+      - {id: dire_dawa, einwohner: 252_279, breite: 9.59, laenge: 41.86}
+      - {id: bahir_dar, einwohner: 206_748, breite: 11.60, laenge: 37.38}
+      - {id: gondar, einwohner: 156_230, breite: 12.61, laenge: 37.46}
     werte:
       bevoelkerung: {
         1900: 17_690_191, 1901: 17_675_315, 1902: 17_660_438, 1903: 17_645_562, 1904: 17_630_686, 1905: 17_615_810, 1906: 17_600_934, 1907: 17_586_058,

@@ -23,6 +23,15 @@ zentrale:
     - {id: marketing, bereich: vertrieb_marketing, lohngruppe: akademiker.kaufmaennisch,
        buero_usd: 15000, faelle: 5, wirkung: 0.3}
 
+  # Stadt des Hauptsitzes (W2): Akademiker eines Landes in einer Stadt = Pool des Landes ·
+  # min(1, akademiker_konzentration · Anteil der Stadt an der Bevölkerung); davon steht
+  # anteil_zentralen allen Zentralen der Stadt zusammen offen. Bürokosten je Angestelltem
+  # = buero_usd · Preisniveau · (Einwohner / buero_bezug_einwohner)^buero_elastizitaet.
+  # Ein Umzug in eine andere Stadt desselben Landes kostet den Anteil umzug_im_land. Die
+  # Einwohner der Städte (Natural Earth) gelten als Anteil an der Bevölkerung von einwohner_jahr.
+  stadt: {akademiker_konzentration: 4, anteil_zentralen: 0.05, buero_bezug_einwohner: 1_000_000,
+          buero_elastizitaet: 0.15, umzug_im_land: 0.5, einwohner_jahr: 2020}
+
   # So viel kleiner werden Schätzfehler einer voll ausgestatteten Abteilung, und so viel
   # öfter trifft ihre Leitung die beste Option.
   genauigkeit: 0.5

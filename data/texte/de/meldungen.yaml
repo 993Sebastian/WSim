@@ -192,7 +192,8 @@ fehler.befehl.manager_hat_angebot: Dieser Manager hat schon ein offenes Angebot.
 fehler.befehl.manager_umworben: "Dieser Manager hat gerade erst ein Angebot bekommen; das nächste ab {datum}."
 fehler.befehl.kein_abwerbeangebot: Für diesen Manager liegt kein Angebot einer anderen Firma vor.
 fehler.befehl.land_unbekannt: Dieses Land gibt es nicht.
-fehler.befehl.hauptsitz_gleich: Der Hauptsitz ist schon in diesem Land.
+fehler.befehl.hauptsitz_gleich: Der Hauptsitz ist schon in dieser Stadt.
+fehler.befehl.stadt_unbekannt: Diese Stadt gibt es im gewählten Land nicht.
 fehler.befehl.umzug_laeuft: "Der Hauptsitz zieht gerade um – fertig zum Monatsanfang ab {datum}."
 fehler.befehl.abteilung_unbekannt: Diese Zentralabteilung gibt es in den Spieldaten nicht.
 fehler.befehl.beteiligungen_ungueltig: "Budget und Freigabegrenzen dürfen nicht negativ sein, die Risikobereitschaft liegt zwischen 0 und 100 %."
@@ -208,6 +209,7 @@ fehler.befehl.sperrminoritaet: Eine andere Firma hält eine Sperrminorität (ein
 fehler.befehl.keine_ausgruendung: "Ausgründen lässt sich nur das Projekt eines eigenen Forschungszentrums, das an einer noch nicht erfundenen Technologie oder an einer Stufe arbeitet, die noch keine Firma erreicht hat."
 fehler.befehl.ausgruendung_zu_frueh: "Das Projekt ist erst zu {fortschritt} % fertig – ausgründen kannst du ab {mindestens} %."
 meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
+meldung.hauptsitz.umgezogen_stadt: "Der Hauptsitz ist nach {stadt} ({land}) umgezogen. Gewinnsteuer und Gehälter richten sich nach dem Land, Akademiker und Büromieten nach der Stadt."
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
 meldung.hauptsitz.konkurrenz: "{firma} verlegt ihren Hauptsitz nach {land} und spart dort Steuern und Löhne; der Umzug ist am {datum} abgeschlossen."
 meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."

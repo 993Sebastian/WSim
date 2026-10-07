@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 17.98, laenge: -76.77}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: kingston, einwohner: 937_700, breite: 17.98, laenge: -76.77, hauptstadt: true}
+      - {id: port_of_spain, einwohner: 294_934, breite: 10.65, laenge: -61.52}
+      - {id: nassau, einwohner: 227_940, breite: 25.08, laenge: -77.35}
+      - {id: bridgetown, einwohner: 191_152, breite: 13.10, laenge: -59.62}
     umfasst: [JAM, TTO, BHS, BRB, LCA, VCT, GRD, ATG, DMA, KNA]
     werte:
       bevoelkerung: {

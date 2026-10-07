@@ -71,6 +71,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | C1 | Händler gleichen Preisinseln aus (Arbitrage) | ✅ |
 | C2 | Rohstoffe nach 2015: Förderkurve, Ausbau an allen Standorten | ✅ |
 | W1 | Schulung je Standort (Stufe 2) | ✅ |
+| W2 | Zentrale in der Stadt: Akademiker und Büromiete je Stadt | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -614,6 +615,21 @@ Paket C, offener Punkt G (M41) 9. Regeln: `docs/FORMELN.md`, Abschnitt C2.
   nur den besten.
 - **Tests:** Kern (Förderkurve, zwei ausgelastete Werke wachsen zusammen), Fehlerfälle für
   beide Parameter.
+- **Weltlauf 1990–2026** (100 KI, Startkapital 10 Mio. USD, gleicher Seed; C1 gegen C2):
+
+  | 2025 | C1 | C2 |
+  | --- | --- | --- |
+  | Rohöl: Preis/Richtpreis, Förderung | 2,78 ×, 47,7 Mio. | 1,08 ×, 79,4 Mio. |
+  | Getreide: Preis/Richtpreis | 1,81 × | 1,44 × |
+  | Baumwolle: Preis/Richtpreis | 1,06 × | 0,94 × |
+  | Kupfererz: Preis/Richtpreis | 1,12 × | 1,18 × |
+  | Verstöße Versorgung weltweit / je Land | 319 / 7 529 | 157 / 4 331 |
+  | Verstöße „wartet auf Vorprodukte“ | 228 | 156 |
+  | Benzin über 2 × Richtpreis | 2022–2025 (3,08 ×) | – |
+
+  Offen für C3: Lithium-Ionen-Akkus mit drei Herstellern, 2020 nur 42 % des Bedarfs bei
+  4 × Richtpreis. 2005–2006 gingen je 5 % der KI-Firmen pleite (Grenze). Laufzeit 1 775 statt
+  1 525 s (mehr Standorte).
 
 ### W1: Schulung je Standort (07.10.2026)
 
@@ -630,6 +646,28 @@ Stufe 2, Lastenheft §5.4. Regeln: `docs/FORMELN.md`, Abschnitt W1; Entscheidung
 - **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
 - **Tests:** Kern (Niveau, Kosten, Arbeit; Strategie gegen eigenes Ziel; KI nach
   Kompetenz), Fehlerfall `arbeitsersparnis`, vitest (Strategie), Playwright (Werk).
+
+### W2: Zentrale in der Stadt (07.10.2026)
+
+Stufe 2; offene Punkte O 1 und O 6. Regeln: `docs/FORMELN.md`, Abschnitt W2.
+
+- **Daten:** `tools/daten/laender.py` schreibt je Land bis zu fünf Städte (Natural Earth,
+  423 insgesamt) mit deutschen Namen (`stadt.<ISO>.<id>`); `zentrale.stadt` mit
+  Konzentration der Akademiker, Anteil für Zentralen, Bürokosten nach Stadtgröße, Umzug im
+  Land. Prüfregeln für IDs, Doppelte, eine Hauptstadt, Einwohner, Texte.
+- **Kern:** Der Hauptsitz liegt in einer Stadt (ohne Wahl die Hauptstadt). Die Stellen der
+  Zentralabteilungen werden aus den Akademikern der Stadt besetzt, anteilig, wenn alle
+  Firmen der Stadt zusammen mehr wollen; Leistung, Gehälter und Büro folgen den besetzten
+  Stellen. Büros kosten nach Preisniveau und Stadtgröße. `SetHeadquarters` nimmt eine Stadt;
+  ein Umzug im Land kostet die Hälfte und dauert halb so lange. KI-Firmen ziehen in die
+  Stadt mit den meisten Akademikern, wenn eine Abteilung nicht voll besetzt ist.
+- **Oberfläche:** Organisation → „Hauptsitz: Berlin, Deutschland“, Stadtwahl beim Umzug,
+  Tabelle „Städte in …“, Hinweis „nur n besetzt“ bei den Abteilungen.
+- **Spielstände:** Stadt und Umzugsziel mit Vorgabe, Besetzung wird nach dem Laden neu
+  berechnet; Format bleibt 3.
+- **Tests:** Kern (Grenze und Miete, Umzug im Land, Teilen einer Stadt, KI-Umzug),
+  Fehlerfälle Städte und `zentrale.stadt`, vitest (Umzug mit Stadt, Städtetabelle),
+  Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 

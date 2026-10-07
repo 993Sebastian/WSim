@@ -187,6 +187,7 @@ pub mod keys {
     pub const COMMAND_NO_POACH_OFFER: &str = "fehler.befehl.kein_abwerbeangebot";
     pub const COMMAND_UNKNOWN_COUNTRY: &str = "fehler.befehl.land_unbekannt";
     pub const COMMAND_SAME_HEADQUARTERS: &str = "fehler.befehl.hauptsitz_gleich";
+    pub const COMMAND_UNKNOWN_CITY: &str = "fehler.befehl.stadt_unbekannt";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -203,6 +204,7 @@ pub mod keys {
     pub const COMMAND_NO_STAKE_OFFER: &str = "fehler.befehl.kein_verkaufsangebot";
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
+    pub const HEADQUARTERS_MOVED_CITY: &str = "meldung.hauptsitz.umgezogen_stadt";
     pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
     pub const RIVAL_HEADQUARTERS: &str = "meldung.hauptsitz.konkurrenz";
     // Start-ups (SU1).
@@ -475,6 +477,7 @@ pub mod keys {
         COMMAND_NO_POACH_OFFER,
         COMMAND_UNKNOWN_COUNTRY,
         COMMAND_SAME_HEADQUARTERS,
+        COMMAND_UNKNOWN_CITY,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,
@@ -490,6 +493,7 @@ pub mod keys {
         COMMAND_SPIN_OFF_TOO_EARLY,
         COMMAND_NO_STAKE_OFFER,
         HEADQUARTERS_MOVED,
+        HEADQUARTERS_MOVED_CITY,
         HEADQUARTERS_STAFF_LEFT,
         RIVAL_HEADQUARTERS,
         VENTURE_INVENTION,

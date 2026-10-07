@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 53.90, laenge: 27.56}
     binnenland: true
     nachbarn: [POL, RUS, UKR, XBA]
+    staedte:
+      - {id: minsk, einwohner: 1_805_000, breite: 53.90, laenge: 27.56, hauptstadt: true}
+      - {id: brest, einwohner: 300_715, breite: 52.10, laenge: 23.70}
     werte:
       bevoelkerung: {
         1900: 4_617_109, 1901: 4_653_946, 1902: 4_691_071, 1903: 4_728_484, 1904: 4_766_190, 1905: 4_804_189, 1906: 4_842_484, 1907: 4_881_078,

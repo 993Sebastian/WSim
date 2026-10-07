@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 18.47, laenge: -69.90}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: santo_domingo, einwohner: 2_154_000, breite: 18.47, laenge: -69.90, hauptstadt: true}
+      - {id: port_au_prince, einwohner: 1_998_000, breite: 18.54, laenge: -72.34}
+      - {id: santiago, einwohner: 1_550_753, breite: 19.50, laenge: -70.67}
     umfasst: [DOM, HTI]
     werte:
       bevoelkerung: {

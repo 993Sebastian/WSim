@@ -19,12 +19,37 @@ pub struct SeatCountryView {
     /// Yearly wage of the salary group of managers (USD): what the board's salaries
     /// follow.
     pub wage_usd: f64,
+    /// Keys of its cities, the most populous first (W2; texts `stadt.<ISO>.<key>`).
+    #[serde(default)]
+    pub cities: Vec<String>,
+    /// The city a move without a choice goes to: the capital.
+    #[serde(default)]
+    pub default_city: Option<String>,
+}
+
+/// A city of the country of the headquarters (W2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CityView {
+    pub key: String,
+    pub capital: bool,
+    /// Inhabitants this year.
+    pub population: f64,
+    /// Academics open to the central departments of all companies there.
+    pub academics: f64,
+    /// Posts all companies with their headquarters there want.
+    pub wanted: u32,
+    /// Office costs per employee and month (USD).
+    pub office_per_employee_usd: f64,
+    pub here: bool,
 }
 
 /// A move under way.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RelocationView {
     pub country: String,
+    /// The new city (W2).
+    #[serde(default)]
+    pub city: Option<String>,
     /// The new seat holds from the first month start on or after this day.
     pub until: String,
 }
@@ -38,7 +63,11 @@ pub struct DepartmentView {
     pub key: String,
     /// The board's function whose member heads it (`bereich.<function>`).
     pub function: String,
+    /// Posts wanted.
     pub staff: u32,
+    /// Posts filled from the academics of the city (W2).
+    #[serde(default)]
+    pub staffed: u32,
     /// The head's name; none while the position is vacant.
     pub head: Option<String>,
     /// The head's expertise in the function as the player sees it (1–5).
@@ -128,6 +157,9 @@ pub fn participations(game: &Game) -> ParticipationsView {
 pub struct CentralView {
     /// The country of the headquarters.
     pub country: String,
+    /// Its city (W2); none for a country without cities in the data.
+    #[serde(default)]
+    pub city: Option<String>,
     pub tax: f64,
     pub wage_usd: f64,
     pub relocation: Option<RelocationView>,
@@ -135,6 +167,14 @@ pub struct CentralView {
     pub move_cost_usd: f64,
     pub move_months: u32,
     pub moving_share: f64,
+    /// The same for a move to another city of the country (W2).
+    #[serde(default)]
+    pub city_move_cost_usd: f64,
+    #[serde(default)]
+    pub city_move_months: u32,
+    /// The cities of the country of the headquarters (W2).
+    #[serde(default)]
+    pub cities: Vec<CityView>,
     /// All countries to choose from, in the order of the data.
     pub countries: Vec<SeatCountryView>,
     /// The departments of the data, in their order (ZA2).
@@ -156,8 +196,17 @@ pub fn central(game: &Game) -> CentralView {
         country: c.countries.key(country).to_owned(),
         tax: state.countries.get(country).corporate_tax,
         wage_usd: management::yearly_wage(c, state, country),
+        cities: c
+            .countries
+            .get(country)
+            .cities
+            .iter()
+            .map(|x| x.key.clone())
+            .collect(),
+        default_city: central::city_in(c, country, None).map(|x| x.key.clone()),
     };
     let here = seat(company.headquarters);
+    let city = central::hq_city(c, state, player);
     let share = management::impression_share(c, state, player);
     let departments = c
         .central
@@ -167,6 +216,7 @@ pub fn central(game: &Game) -> CentralView {
             let kind = d.kind;
             let function = c.management.functions[d.function].key.clone();
             let staff = central::staff(state, player, kind);
+            let staffed = central::staffed(state, player, kind);
             let head = central::head(c, state, player, kind).and_then(|id| state.managers.get(&id));
             let head_level = head.map(|m| {
                 let key = management::expertise_key(&function);
@@ -177,7 +227,7 @@ pub fn central(game: &Game) -> CentralView {
                 );
                 management::shown_level(value, impression)
             });
-            let capacity = f64::from(staff) * d.cases;
+            let capacity = f64::from(staffed) * d.cases;
             let workload = central::workload(state, player, kind);
             let reach = match kind {
                 DepartmentKind::Strategy => central::observed_countries(c, state, player).len(),
@@ -185,12 +235,15 @@ pub fn central(game: &Game) -> CentralView {
                 _ => 0,
             };
             let wage = management::group_yearly_wage(c, state, company.headquarters, d.labor_group);
-            let per_employee = wage / 12.0 + d.office.to_usd() / 12.0;
+            let office =
+                central::office_per_employee(c, state, company.headquarters, city, d.office);
+            let per_employee = wage / 12.0 + office.to_usd() / 12.0;
             DepartmentView {
                 kind: format!("{kind:?}"),
                 key: kind.key().to_owned(),
                 function,
                 staff,
+                staffed,
                 head: head.map(|m| m.name.clone()),
                 head_level,
                 head_hit_rate: head
@@ -208,24 +261,60 @@ pub fn central(game: &Game) -> CentralView {
                 working: central::performance(c, state, player, kind).is_some(),
                 effect: d.effect,
                 reach: u32::try_from(reach).unwrap_or(u32::MAX),
-                monthly_cost_usd: per_employee * f64::from(staff),
+                monthly_cost_usd: per_employee * f64::from(staffed),
                 cost_per_employee_usd: per_employee,
                 release_limit_usd: company.participations.limits.get(&kind).map(|&m| usd(m)),
             }
         })
         .collect();
     let (personnel, office) = central::monthly_cost(c, state, player);
+    let (city_cost, city_months) = central::move_terms(c, state, player, company.headquarters);
+    let cities = c.central.departments.first().map_or_else(Vec::new, |d| {
+        c.countries
+            .get(company.headquarters)
+            .cities
+            .iter()
+            .map(|x| CityView {
+                key: x.key.clone(),
+                capital: x.capital,
+                population: central::city_population(c, state, company.headquarters, Some(x)),
+                academics: central::city_academics(
+                    c,
+                    state,
+                    company.headquarters,
+                    Some(x),
+                    d.labor_group,
+                ),
+                wanted: central::city_wanted(c, state, company.headquarters, &x.key),
+                office_per_employee_usd: central::office_per_employee(
+                    c,
+                    state,
+                    company.headquarters,
+                    Some(x),
+                    d.office,
+                )
+                .to_usd()
+                    / 12.0,
+                here: city.is_some_and(|h| h.key == x.key),
+            })
+            .collect()
+    });
     CentralView {
         country: here.country,
+        city: city.map(|x| x.key.clone()),
         tax: here.tax,
         wage_usd: here.wage_usd,
-        relocation: company.relocation.map(|r| RelocationView {
+        relocation: company.relocation.as_ref().map(|r| RelocationView {
             country: c.countries.key(r.country).to_owned(),
+            city: r.city.clone(),
             until: iso(r.until),
         }),
         move_cost_usd: usd(central::relocation_cost(c, state, player)),
         move_months: h.months,
         moving_share: h.moving_share,
+        city_move_cost_usd: usd(city_cost),
+        city_move_months: city_months,
+        cities,
         countries: c.countries.ids().map(seat).collect(),
         departments,
         employees: central::employees(state, player),

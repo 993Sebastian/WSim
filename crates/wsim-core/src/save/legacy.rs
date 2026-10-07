@@ -98,6 +98,8 @@ pub(super) fn decode_v2(
                 relocation: None,
                 relocated: None,
                 departments: Default::default(),
+                departments_staffed: Default::default(),
+                hq_city: None,
                 participations: Default::default(),
                 owners: Vec::new(),
                 name: c.name,

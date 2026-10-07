@@ -1044,7 +1044,22 @@ organisation.erledigt: Erledigt
 organisation.gehalt: Gehalt im Jahr
 zentrale.titel: Hauptsitz und Zentrale
 zentrale.hauptsitz: Hauptsitz
-zentrale.hilfe: "Im Land des Hauptsitzes zahlt die Firma ihre Gewinnsteuer; nach seinem Lohnniveau richten sich die Gehälter des Vorstands und der Zentrale. Ein Umzug kostet sofort, dauert einige Monate, und nicht alle Angestellten der Zentrale ziehen mit."
+zentrale.hilfe: "Im Land des Hauptsitzes zahlt die Firma ihre Gewinnsteuer; nach seinem Lohnniveau richten sich die Gehälter des Vorstands und der Zentrale. Die Stadt bestimmt, wie viele Akademiker die Zentrale findet und was ihre Büros kosten. Ein Umzug kostet sofort, dauert einige Monate, und nicht alle Angestellten der Zentrale ziehen mit."
+zentrale.ort: "{stadt}, {land}"
+zentrale.stadt: Stadt
+zentrale.staedte: "Städte in {land}"
+zentrale.staedte_hilfe: "In einer großen Stadt findet die Zentrale mehr Akademiker, zahlt aber mehr Büromiete. Alle Firmen mit Sitz in einer Stadt teilen sich deren Akademiker: Wollen sie zusammen mehr, als es gibt, bekommt jede Abteilung nur ihren Anteil – die übrigen Stellen bleiben frei und kosten nichts."
+zentrale.stadt_name: Stadt
+zentrale.einwohner: Einwohner
+zentrale.akademiker: Akademiker für Zentralen
+zentrale.gewuenscht: Gewünscht (alle Firmen)
+zentrale.buero: Büro je Angestelltem und Monat
+zentrale.hauptstadt: Hauptstadt
+zentrale.hier: Sitz
+zentrale.hierher: "Nach {stadt} ziehen"
+zentrale.stadt_kosten: "Umzug in eine andere Stadt des Landes: Kosten jetzt {betrag}, Dauer {monate} Monate."
+zentrale.stadt_verlegt: "Der Umzug nach {stadt} beginnt; er dauert {monate} Monate."
+zentrale.nur_besetzt: "nur {besetzt} besetzt – zu wenige Akademiker in der Stadt"
 zentrale.steuer: Gewinnsteuer
 zentrale.lohn: Lohnniveau der Manager (Jahreslohn)
 zentrale.umzug: "Umzug nach {land} läuft – der neue Sitz gilt zum Monatsanfang ab {datum}."

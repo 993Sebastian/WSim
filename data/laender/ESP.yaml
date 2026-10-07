@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 40.40, laenge: -3.69}
     binnenland: false
     nachbarn: [FRA, PRT]
+    staedte:
+      - {id: madrid, einwohner: 5_567_000, breite: 40.40, laenge: -3.69, hauptstadt: true}
+      - {id: barcelona, einwohner: 4_920_000, breite: 41.39, laenge: 2.18}
+      - {id: sevilla, einwohner: 1_212_045, breite: 37.41, laenge: -5.98}
+      - {id: bilbao, einwohner: 875_552, breite: 43.25, laenge: -2.93}
+      - {id: valencia, einwohner: 808_000, breite: 39.49, laenge: -0.40}
     umfasst: [ESP, AND]
     werte:
       bevoelkerung: {

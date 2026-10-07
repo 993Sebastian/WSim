@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 54.68, laenge: 25.32}
     binnenland: false
     nachbarn: [BLR, POL, RUS]
+    staedte:
+      - {id: riga, einwohner: 742_572, breite: 56.95, laenge: 24.10}
+      - {id: vilnius, einwohner: 542_366, breite: 54.68, laenge: 25.32, hauptstadt: true}
+      - {id: tallinn, einwohner: 394_024, breite: 59.43, laenge: 24.73}
     umfasst: [LTU, LVA, EST]
     werte:
       bevoelkerung: {

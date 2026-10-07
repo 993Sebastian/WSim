@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -15.78, laenge: -47.92}
     binnenland: false
     nachbarn: [ARG, BOL, COL, FRA, PER, VEN, XGU, XPU]
+    staedte:
+      - {id: sao_paulo, einwohner: 18_845_000, breite: -23.56, laenge: -46.63}
+      - {id: rio_de_janeiro, einwohner: 11_748_000, breite: -22.92, laenge: -43.23}
+      - {id: belo_horizonte, einwohner: 5_575_000, breite: -19.91, laenge: -43.92}
+      - {id: porto_alegre, einwohner: 3_917_000, breite: -30.05, laenge: -51.20}
+      - {id: brasilia, einwohner: 3_716_996, breite: -15.78, laenge: -47.92, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 17_921_723, 1901: 18_321_281, 1902: 18_720_610, 1903: 19_119_497, 1904: 19_526_883, 1905: 19_942_950, 1906: 20_367_881, 1907: 20_801_867,

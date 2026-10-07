@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -13.98, laenge: 33.78}
     binnenland: true
     nachbarn: [MOZ, TZA, ZMB]
+    staedte:
+      - {id: lilongwe, einwohner: 646_750, breite: -13.98, laenge: 33.78, hauptstadt: true}
+      - {id: blantyre, einwohner: 584_877, breite: -15.79, laenge: 34.99}
+      - {id: mzuzu, einwohner: 110_201, breite: -11.46, laenge: 34.02}
     werte:
       bevoelkerung: {
         1900: 2_067_342, 1901: 2_054_808, 1902: 2_040_699, 1903: 2_025_032, 1904: 2_009_485, 1905: 1_994_058, 1906: 1_978_749, 1907: 1_963_557,

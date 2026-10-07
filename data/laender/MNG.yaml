@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 47.92, laenge: 106.91}
     binnenland: true
     nachbarn: [CHN, RUS]
+    staedte:
+      - {id: ulaanbaatar, einwohner: 885_000, breite: 47.92, laenge: 106.91, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 697_021, 1901: 698_852, 1902: 700_961, 1903: 703_348, 1904: 705_744, 1905: 708_147, 1906: 710_559, 1907: 712_979,

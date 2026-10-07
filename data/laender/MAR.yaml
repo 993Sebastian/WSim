@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 34.03, laenge: -6.84}
     binnenland: false
     nachbarn: [DZA, XWA]
+    staedte:
+      - {id: casablanca, einwohner: 3_181_000, breite: 33.60, laenge: -7.62}
+      - {id: rabat, einwohner: 1_705_000, breite: 34.03, laenge: -6.84, hauptstadt: true}
+      - {id: fez, einwohner: 1_002_000, breite: 34.06, laenge: -5.00}
+      - {id: marrakesh, einwohner: 872_000, breite: 31.63, laenge: -8.00}
+      - {id: oujda, einwohner: 409_391, breite: 34.69, laenge: -1.91}
     umfasst: [MAR, ESH]
     werte:
       bevoelkerung: {

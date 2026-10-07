@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -34.60, laenge: -58.40}
     binnenland: false
     nachbarn: [BOL, BRA, CHL, XPU]
+    staedte:
+      - {id: buenos_aires, einwohner: 12_795_000, breite: -34.60, laenge: -58.40, hauptstadt: true}
+      - {id: cordoba, einwohner: 1_452_000, breite: -31.40, laenge: -64.18}
+      - {id: rosario, einwohner: 1_203_000, breite: -32.95, laenge: -60.67}
+      - {id: mendoza, einwohner: 893_000, breite: -32.88, laenge: -68.82}
+      - {id: tucuman, einwohner: 830_000, breite: -26.81, laenge: -65.22}
     werte:
       bevoelkerung: {
         1900: 4_685_149, 1901: 4_855_566, 1902: 5_036_726, 1903: 5_229_179, 1904: 5_428_987, 1905: 5_636_429, 1906: 5_851_797, 1907: 6_075_395,

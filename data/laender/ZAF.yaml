@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -33.92, laenge: 18.43}
     binnenland: false
     nachbarn: [MOZ, XSA, ZWE]
+    staedte:
+      - {id: johannesburg, einwohner: 3_435_000, breite: -26.17, laenge: 28.03}
+      - {id: kapstadt, einwohner: 3_215_000, breite: -33.92, laenge: 18.43, hauptstadt: true}
+      - {id: durban, einwohner: 2_729_000, breite: -29.86, laenge: 30.98}
+      - {id: pretoria, einwohner: 1_338_000, breite: -25.70, laenge: 28.23}
+      - {id: port_elizabeth, einwohner: 1_021_000, breite: -33.97, laenge: 25.60}
     werte:
       bevoelkerung: {
         1900: 5_162_258, 1901: 5_237_782, 1902: 5_320_991, 1903: 5_412_092, 1904: 5_504_750, 1905: 5_598_991, 1906: 5_694_844, 1907: 5_792_335,

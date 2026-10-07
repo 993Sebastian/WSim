@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 59.92, laenge: 10.75}
     binnenland: false
     nachbarn: [FIN, RUS, SWE]
+    staedte:
+      - {id: oslo, einwohner: 835_000, breite: 59.92, laenge: 10.75, hauptstadt: true}
+      - {id: bergen, einwohner: 213_585, breite: 60.39, laenge: 5.32}
+      - {id: reykjavik, einwohner: 166_212, breite: 64.15, laenge: -21.95}
+      - {id: trondheim, einwohner: 147_139, breite: 63.42, laenge: 10.42}
     umfasst: [NOR, ISL]
     werte:
       bevoelkerung: {

@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 31.95, laenge: 35.93}
     binnenland: false
     nachbarn: [EGY, IRQ, ISR, SAU, SYR]
+    staedte:
+      - {id: beirut, einwohner: 1_846_000, breite: 33.87, laenge: 35.51}
+      - {id: amman, einwohner: 1_060_000, breite: 31.95, laenge: 35.93, hauptstadt: true}
+      - {id: gaza_city, einwohner: 505_700, breite: 31.53, laenge: 34.45}
     umfasst: [JOR, LBN, PSE]
     werte:
       bevoelkerung: {

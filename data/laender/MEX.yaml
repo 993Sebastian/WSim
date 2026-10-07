@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 19.44, laenge: -99.13}
     binnenland: false
     nachbarn: [USA, XME]
+    staedte:
+      - {id: mexiko_stadt, einwohner: 19_028_000, breite: 19.44, laenge: -99.13, hauptstadt: true}
+      - {id: guadalajara, einwohner: 4_198_000, breite: 20.67, laenge: -103.33}
+      - {id: monterrey, einwohner: 3_712_000, breite: 25.67, laenge: -100.33}
+      - {id: puebla, einwohner: 2_195_000, breite: 19.05, laenge: -98.20}
+      - {id: tijuana, einwohner: 1_553_000, breite: 32.50, laenge: -117.08}
     werte:
       bevoelkerung: {
         1900: 13_256_749, 1901: 13_407_183, 1902: 13_545_676, 1903: 13_671_927, 1904: 13_799_353, 1905: 13_927_963, 1906: 14_057_768, 1907: 14_188_781,

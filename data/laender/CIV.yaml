@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 5.32, laenge: -4.04}
     binnenland: false
     nachbarn: [BFA, GHA, MLI, XWA]
+    staedte:
+      - {id: abidjan, einwohner: 3_802_000, breite: 5.32, laenge: -4.04, hauptstadt: true}
+      - {id: bouake, einwohner: 567_481, breite: 7.69, laenge: -5.03}
+      - {id: yamoussoukro, einwohner: 206_499, breite: 6.82, laenge: -5.28}
     werte:
       bevoelkerung: {
         1900: 1_504_375, 1901: 1_513_884, 1902: 1_522_548, 1903: 1_530_354, 1904: 1_538_198, 1905: 1_546_081, 1906: 1_554_002, 1907: 1_561_961,

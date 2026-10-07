@@ -50,7 +50,7 @@ export type Befehl =
   | { RaiseSalary: { manager: number; salary: number } }
   | { SetTraining: { site: number; target: number | null } }
   | { PoachManager: { manager: number; position: Stellenangabe } }
-  | { SetHeadquarters: { country: string } }
+  | { SetHeadquarters: { country: string; city?: string } }
   | { StaffDepartment: { department: string; staff: number } }
   | {
       SetParticipations: {

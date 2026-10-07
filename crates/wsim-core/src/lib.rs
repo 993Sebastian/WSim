@@ -63,6 +63,8 @@ mod facility_tests;
 #[cfg(test)]
 mod finance_tests;
 #[cfg(test)]
+mod hq_city_tests;
+#[cfg(test)]
 mod management_tests;
 #[cfg(test)]
 mod market_tests;

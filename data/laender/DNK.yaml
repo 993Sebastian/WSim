@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 55.68, laenge: 12.56}
     binnenland: false
     nachbarn: [DEU]
+    staedte:
+      - {id: kopenhagen, einwohner: 1_085_000, breite: 55.68, laenge: 12.56, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 2_565_652, 1901: 2_595_376, 1902: 2_625_859, 1903: 2_657_115, 1904: 2_688_743, 1905: 2_720_747, 1906: 2_753_132, 1907: 2_785_903,

@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 3.17, laenge: 101.70}
     binnenland: false
     nachbarn: [IDN, THA]
+    staedte:
+      - {id: george_town, einwohner: 2_500_000, breite: 5.41, laenge: 100.33}
+      - {id: kuala_lumpur, einwohner: 1_448_000, breite: 3.17, laenge: 101.70, hauptstadt: true}
+      - {id: kuching, einwohner: 570_407, breite: 1.53, laenge: 110.33}
+      - {id: bandar_seri_begawan, einwohner: 296_500, breite: 4.88, laenge: 114.93}
     umfasst: [MYS, BRN]
     werte:
       bevoelkerung: {

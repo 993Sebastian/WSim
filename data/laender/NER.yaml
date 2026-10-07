@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 13.52, laenge: 2.11}
     binnenland: true
     nachbarn: [BFA, DZA, LBY, MLI, NGA, XMA, XTB]
+    staedte:
+      - {id: niamey, einwohner: 915_000, breite: 13.52, laenge: 2.11, hauptstadt: true}
+      - {id: niamey_2, einwohner: 232_555, breite: 13.49, laenge: 7.10}
+      - {id: zinder, einwohner: 230_358, breite: 13.80, laenge: 8.98}
+      - {id: agadez, einwohner: 117_770, breite: 17.00, laenge: 7.98}
+      - {id: tahoua, einwohner: 115_956, breite: 14.90, laenge: 5.26}
     werte:
       bevoelkerung: {
         1900: 1_331_788, 1901: 1_345_689, 1902: 1_361_609, 1903: 1_379_590, 1904: 1_397_802, 1905: 1_416_248, 1906: 1_434_930, 1907: 1_453_852,

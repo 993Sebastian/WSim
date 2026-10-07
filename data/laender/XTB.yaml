@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 6.40, laenge: 2.52}
     binnenland: false
     nachbarn: [BFA, GHA, NER, NGA]
+    staedte:
+      - {id: lome, einwohner: 1_452_000, breite: 6.13, laenge: 1.22}
+      - {id: cotonou, einwohner: 762_000, breite: 6.40, laenge: 2.52, hauptstadt: true}
+      - {id: porto_novo, einwohner: 300_000, breite: 6.48, laenge: 2.62}
+      - {id: parakou, einwohner: 188_853, breite: 9.34, laenge: 2.62}
     umfasst: [BEN, TGO]
     werte:
       bevoelkerung: {

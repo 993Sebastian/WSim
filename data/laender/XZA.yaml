@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 38.56, laenge: 68.77}
     binnenland: true
     nachbarn: [AFG, CHN, IRN, KAZ, UZB]
+    staedte:
+      - {id: dushanbe, einwohner: 1_086_244, breite: 38.56, laenge: 68.77, hauptstadt: true}
+      - {id: bishkek, einwohner: 837_000, breite: 42.88, laenge: 74.58}
+      - {id: ashgabat, einwohner: 727_700, breite: 37.95, laenge: 58.38}
+      - {id: tuerkmenabat, einwohner: 234_817, breite: 39.11, laenge: 63.58}
+      - {id: mary, einwohner: 178_708, breite: 37.60, laenge: 61.83}
     umfasst: [TJK, KGZ, TKM]
     werte:
       bevoelkerung: {

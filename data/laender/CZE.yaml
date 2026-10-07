@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 50.09, laenge: 14.46}
     binnenland: true
     nachbarn: [AUT, DEU, HUN, POL, UKR]
+    staedte:
+      - {id: prag, einwohner: 1_162_000, breite: 50.09, laenge: 14.46, hauptstadt: true}
+      - {id: bratislava, einwohner: 423_737, breite: 48.15, laenge: 17.12}
     umfasst: [CZE, SVK]
     werte:
       bevoelkerung: {

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -35.28, laenge: 149.13}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: sydney, einwohner: 4_630_000, breite: -33.92, laenge: 151.18}
+      - {id: melbourne, einwohner: 4_170_000, breite: -37.82, laenge: 144.97}
+      - {id: brisbane, einwohner: 1_860_000, breite: -27.45, laenge: 153.03}
+      - {id: perth, einwohner: 1_532_000, breite: -31.95, laenge: 115.84}
+      - {id: canberra, einwohner: 327_700, breite: -35.28, laenge: 149.13, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 3_693_191, 1901: 3_754_868, 1902: 3_815_391, 1903: 3_874_703, 1904: 3_934_936, 1905: 3_996_106, 1906: 4_058_226, 1907: 4_121_312,

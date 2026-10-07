@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 10.50, laenge: -66.92}
     binnenland: false
     nachbarn: [BRA, COL, XGU]
+    staedte:
+      - {id: caracas, einwohner: 2_985_000, breite: 10.50, laenge: -66.92, hauptstadt: true}
+      - {id: maracaibo, einwohner: 2_072_000, breite: 10.73, laenge: -71.66}
+      - {id: valencia, einwohner: 1_770_000, breite: 10.23, laenge: -67.98}
+      - {id: ciudad_guayana, einwohner: 746_535, breite: 8.37, laenge: -62.62}
+      - {id: san_cristobal, einwohner: 438_798, breite: 7.77, laenge: -72.25}
     werte:
       bevoelkerung: {
         1900: 2_699_649, 1901: 2_733_425, 1902: 2_765_697, 1903: 2_796_418, 1904: 2_827_476, 1905: 2_858_876, 1906: 2_890_619, 1907: 2_922_711,

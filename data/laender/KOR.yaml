@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 37.57, laenge: 127.00}
     binnenland: false
     nachbarn: [PRK]
+    staedte:
+      - {id: seoul, einwohner: 9_796_000, breite: 37.57, laenge: 127.00, hauptstadt: true}
+      - {id: busan, einwohner: 3_480_000, breite: 35.10, laenge: 129.01}
+      - {id: incheon, einwohner: 2_550_000, breite: 37.48, laenge: 126.64}
+      - {id: daejeon, einwohner: 1_468_000, breite: 36.34, laenge: 127.42}
+      - {id: gwangju, einwohner: 1_440_000, breite: 35.17, laenge: 126.91}
     werte:
       bevoelkerung: {
         1900: 9_563_803, 1901: 9_570_332, 1902: 9_579_760, 1903: 9_592_088, 1904: 9_604_427, 1905: 9_616_777, 1906: 9_629_137, 1907: 9_641_509,

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 4.60, laenge: -74.09}
     binnenland: false
     nachbarn: [BRA, ECU, PER, VEN, XME]
+    staedte:
+      - {id: bogota, einwohner: 7_772_000, breite: 4.60, laenge: -74.09, hauptstadt: true}
+      - {id: medellin, einwohner: 3_297_000, breite: 6.28, laenge: -75.58}
+      - {id: cali, einwohner: 2_254_000, breite: 3.40, laenge: -76.50}
+      - {id: barranquilla, einwohner: 1_798_000, breite: 10.96, laenge: -74.80}
+      - {id: cartagena, einwohner: 887_000, breite: 10.40, laenge: -75.52}
     werte:
       bevoelkerung: {
         1900: 4_034_025, 1901: 4_111_820, 1902: 4_193_603, 1903: 4_279_498, 1904: 4_367_152, 1905: 4_456_602, 1906: 4_547_884, 1907: 4_641_035,

@@ -3418,3 +3418,94 @@ fn startups_werden_geprueft() {
     );
     assert_eq!(f.path.to_string(), "startups.beteiligung.lenkung");
 }
+
+/// Cities of a country (W2): IDs, once each, one capital, a text each.
+#[test]
+fn staedte_werden_geprueft() {
+    let staedte = |liste: &str, texte: &str| {
+        Daten::neu()
+            .ersetze(
+                "laender/SWE.yaml",
+                "    binnenland: false",
+                &format!("    binnenland: false\n    staedte:\n{liste}"),
+            )
+            .ersetze(
+                "texte/de/a.yaml",
+                "land.SWE: Schweden\n",
+                &format!("land.SWE: Schweden\n{texte}"),
+            )
+    };
+    let zwei = "      - {id: malmoe, einwohner: 269_349, breite: 55.6, laenge: 13.0}
+      - {id: stockholm, einwohner: 1_264_000, breite: 59.33, laenge: 18.07, hauptstadt: true}
+";
+    let texte = "stadt.SWE.stockholm: Stockholm\nstadt.SWE.malmoe: Malmö\n";
+    let gut = staedte(zwei, texte).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let catalog = &gut.data.as_ref().unwrap().catalog;
+    let swe = catalog.countries.get(catalog.countries.id("SWE").unwrap());
+    // The most populous first.
+    let keys: Vec<&str> = swe.cities.iter().map(|c| c.key.as_str()).collect();
+    assert_eq!(keys, ["stockholm", "malmoe"]);
+    assert!(swe.cities[0].capital && !swe.cities[1].capital);
+
+    let ohne_text = staedte(zwei, "stadt.SWE.stockholm: Stockholm\n").laden();
+    let f = befund(&ohne_text, "Text „stadt.SWE.malmoe“ fehlt");
+    assert_eq!(f.path.to_string(), "laender[0].staedte[0].id");
+    befund(
+        &staedte(&zwei.replace("malmoe", "stockholm"), texte).laden(),
+        "Die Stadt „stockholm“ steht zweimal in diesem Land.",
+    );
+    befund(
+        &staedte(
+            &zwei.replace("laenge: 13.0}", "laenge: 13.0, hauptstadt: true}"),
+            texte,
+        )
+        .laden(),
+        "höchstens eine Hauptstadt",
+    );
+    befund(
+        &staedte(&zwei.replace("id: malmoe", "id: Malmö"), texte).laden(),
+        "Ungültige ID „Malmö“",
+    );
+    let ungenutzt = staedte(zwei, &format!("{texte}stadt.SWE.atlantis: Atlantis\n")).laden();
+    let f = befund(
+        &ungenutzt,
+        "Text „stadt.SWE.atlantis“ gehört zu keinem Eintrag.",
+    );
+    assert_eq!(f.severity, Severity::Warning);
+    let leer = staedte(&zwei.replace("einwohner: 269_349", "einwohner: 0"), texte).laden();
+    let f = befund(&leer, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "laender[0].staedte[0].einwohner");
+
+    // The city model of the headquarters.
+    let datei = "parameter/zentrale.yaml";
+    let mit_stadt = ZENTRALE.replace(
+        "  annaeherung: true\n",
+        "  stadt: {akademiker_konzentration: 4, anteil_zentralen: 0.05, buero_bezug_einwohner: 1_000_000,
+          buero_elastizitaet: 0.15, umzug_im_land: 0.5, einwohner_jahr: 2020}
+  annaeherung: true
+",
+    );
+    let outcome = Daten::neu().datei(datei, &mit_stadt).laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let m = outcome
+        .data
+        .unwrap()
+        .catalog
+        .central
+        .city
+        .expect("Stadtmodell");
+    assert!((m.hq_share - 0.05).abs() < 1e-12);
+    assert_eq!(m.population_year, 2020);
+    let zu_gross = Daten::neu()
+        .datei(
+            datei,
+            &mit_stadt.replace("anteil_zentralen: 0.05", "anteil_zentralen: 1.5"),
+        )
+        .laden();
+    let f = befund(
+        &zu_gross,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "zentrale.stadt.anteil_zentralen");
+}

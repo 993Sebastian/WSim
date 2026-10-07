@@ -26144,559 +26144,1365 @@
     ],
     "candidates": 79,
     "central": {
+      "cities": [
+        {
+          "academics": 1955.6,
+          "capital": true,
+          "here": true,
+          "key": "berlin",
+          "office_per_employee_usd": 1180.4,
+          "population": 1762707.0,
+          "wanted": 0
+        },
+        {
+          "academics": 1662.2,
+          "capital": false,
+          "here": false,
+          "key": "frankfurt",
+          "office_per_employee_usd": 1152.0,
+          "population": 1498249.0,
+          "wanted": 0
+        },
+        {
+          "academics": 1008.8,
+          "capital": false,
+          "here": false,
+          "key": "hamburg",
+          "office_per_employee_usd": 1080.3,
+          "population": 909300.0,
+          "wanted": 0
+        },
+        {
+          "academics": 732.1,
+          "capital": false,
+          "here": false,
+          "key": "muenchen",
+          "office_per_employee_usd": 1031.1,
+          "population": 659851.0,
+          "wanted": 0
+        },
+        {
+          "academics": 354.6,
+          "capital": false,
+          "here": false,
+          "key": "dresden",
+          "office_per_employee_usd": 933.6,
+          "population": 319582.0,
+          "wanted": 0
+        }
+      ],
+      "city": "berlin",
+      "city_move_cost_usd": 125000.0,
+      "city_move_months": 3,
       "countries": [
         {
+          "cities": [
+            "kabul",
+            "kandahar",
+            "herat",
+            "mazar_i_sharif"
+          ],
           "country": "AFG",
+          "default_city": "kabul",
           "tax": 0.0625,
           "wage_usd": 3208.45178392808
         },
         {
+          "cities": [
+            "luanda",
+            "huambo",
+            "benguela",
+            "mocamedes",
+            "malanje"
+          ],
           "country": "AGO",
+          "default_city": "luanda",
           "tax": 0.0625,
           "wage_usd": 2235.2469233080606
         },
         {
+          "cities": [
+            "buenos_aires",
+            "cordoba",
+            "rosario",
+            "mendoza",
+            "tucuman"
+          ],
           "country": "ARG",
+          "default_city": "buenos_aires",
           "tax": 0.0625,
           "wage_usd": 35768.02891694473
         },
         {
+          "cities": [
+            "sydney",
+            "melbourne",
+            "brisbane",
+            "perth",
+            "canberra"
+          ],
           "country": "AUS",
+          "default_city": "canberra",
           "tax": 0.0625,
           "wage_usd": 55647.64867246369
         },
         {
+          "cities": [
+            "wien"
+          ],
           "country": "AUT",
+          "default_city": "wien",
           "tax": 0.0625,
           "wage_usd": 29814.752007923416
         },
         {
+          "cities": [
+            "bruessel",
+            "luxemburg"
+          ],
           "country": "BEL",
+          "default_city": "bruessel",
           "tax": 0.0625,
           "wage_usd": 42794.28116179224
         },
         {
+          "cities": [
+            "ouagadougou",
+            "bobo_dioulasso"
+          ],
           "country": "BFA",
+          "default_city": "ouagadougou",
           "tax": 0.0625,
           "wage_usd": 2977.1817383440384
         },
         {
+          "cities": [
+            "dhaka",
+            "chattogram",
+            "khulna",
+            "rajshahi"
+          ],
           "country": "BGD",
+          "default_city": "dhaka",
           "tax": 0.0625,
           "wage_usd": 4138.018718370967
         },
         {
+          "cities": [
+            "sofia"
+          ],
           "country": "BGR",
+          "default_city": "sofia",
           "tax": 0.0625,
           "wage_usd": 9430.540075836636
         },
         {
+          "cities": [
+            "minsk",
+            "brest"
+          ],
           "country": "BLR",
+          "default_city": "minsk",
           "tax": 0.0625,
           "wage_usd": 10235.238192629187
         },
         {
+          "cities": [
+            "santa_cruz",
+            "la_paz",
+            "sucre",
+            "tarija"
+          ],
           "country": "BOL",
+          "default_city": "la_paz",
           "tax": 0.0625,
           "wage_usd": 9843.874001294691
         },
         {
+          "cities": [
+            "sao_paulo",
+            "rio_de_janeiro",
+            "belo_horizonte",
+            "porto_alegre",
+            "brasilia"
+          ],
           "country": "BRA",
+          "default_city": "brasilia",
           "tax": 0.0625,
           "wage_usd": 4848.544260728985
         },
         {
+          "cities": [
+            "toronto",
+            "montreal",
+            "vancouver",
+            "ottawa",
+            "calgary"
+          ],
           "country": "CAN",
+          "default_city": "ottawa",
           "tax": 0.0625,
           "wage_usd": 45942.55803403732
         },
         {
+          "cities": [
+            "genf",
+            "zuerich",
+            "bern"
+          ],
           "country": "CHE",
+          "default_city": "bern",
           "tax": 0.0625,
           "wage_usd": 52958.93443395507
         },
         {
+          "cities": [
+            "santiago",
+            "concepcion",
+            "valparaiso",
+            "antofagasta",
+            "iquique"
+          ],
           "country": "CHL",
+          "default_city": "santiago",
           "tax": 0.0625,
           "wage_usd": 26440.86011618574
         },
         {
+          "cities": [
+            "shanghai",
+            "peking",
+            "guangzhou",
+            "shenzhen",
+            "wuhan"
+          ],
           "country": "CHN",
+          "default_city": "peking",
           "tax": 0.0625,
           "wage_usd": 4683.794104664726
         },
         {
+          "cities": [
+            "abidjan",
+            "bouake",
+            "yamoussoukro"
+          ],
           "country": "CIV",
+          "default_city": "abidjan",
           "tax": 0.0625,
           "wage_usd": 2393.072584412906
         },
         {
+          "cities": [
+            "douala",
+            "yaounde",
+            "bamenda",
+            "garoua",
+            "maroua"
+          ],
           "country": "CMR",
+          "default_city": "yaounde",
           "tax": 0.0625,
           "wage_usd": 3107.1332009909993
         },
         {
+          "cities": [
+            "kinshasa",
+            "lubumbashi",
+            "mbuji_mayi",
+            "kananga",
+            "kikwit"
+          ],
           "country": "COD",
+          "default_city": "kinshasa",
           "tax": 0.0625,
           "wage_usd": 1717.9374894406672
         },
         {
+          "cities": [
+            "bogota",
+            "medellin",
+            "cali",
+            "barranquilla",
+            "cartagena"
+          ],
           "country": "COL",
+          "default_city": "bogota",
           "tax": 0.0625,
           "wage_usd": 7187.495164701928
         },
         {
+          "cities": [
+            "havanna",
+            "santiago_de_cuba"
+          ],
           "country": "CUB",
+          "default_city": "havanna",
           "tax": 0.0625,
           "wage_usd": 12530.707070676179
         },
         {
+          "cities": [
+            "prag",
+            "bratislava"
+          ],
           "country": "CZE",
+          "default_city": "prag",
           "tax": 0.0625,
           "wage_usd": 22436.3993512448
         },
         {
+          "cities": [
+            "berlin",
+            "frankfurt",
+            "hamburg",
+            "muenchen",
+            "dresden"
+          ],
           "country": "DEU",
+          "default_city": "berlin",
           "tax": 0.05416666666666667,
           "wage_usd": 32317.662567962583
         },
         {
+          "cities": [
+            "kopenhagen"
+          ],
           "country": "DNK",
+          "default_city": "kopenhagen",
           "tax": 0.0625,
           "wage_usd": 43729.73370590867
         },
         {
+          "cities": [
+            "algier",
+            "oran",
+            "constantine",
+            "annaba",
+            "ghardaia"
+          ],
           "country": "DZA",
+          "default_city": "algier",
           "tax": 0.0625,
           "wage_usd": 10421.219642081322
         },
         {
+          "cities": [
+            "guayaquil",
+            "quito",
+            "cuenca"
+          ],
           "country": "ECU",
+          "default_city": "quito",
           "tax": 0.0625,
           "wage_usd": 8260.875380675694
         },
         {
+          "cities": [
+            "kairo",
+            "alexandria",
+            "port_said",
+            "luxor",
+            "suez"
+          ],
           "country": "EGY",
+          "default_city": "kairo",
           "tax": 0.0625,
           "wage_usd": 9021.005336282653
         },
         {
+          "cities": [
+            "madrid",
+            "barcelona",
+            "sevilla",
+            "bilbao",
+            "valencia"
+          ],
           "country": "ESP",
+          "default_city": "madrid",
           "tax": 0.0625,
           "wage_usd": 18689.56739269817
         },
         {
+          "cities": [
+            "addis_abeba",
+            "dire_dawa",
+            "bahir_dar",
+            "gondar"
+          ],
           "country": "ETH",
+          "default_city": "addis_abeba",
           "tax": 0.0625,
           "wage_usd": 2732.866670891954
         },
         {
+          "cities": [
+            "helsinki",
+            "tampere"
+          ],
           "country": "FIN",
+          "default_city": "helsinki",
           "tax": 0.0625,
           "wage_usd": 19741.800969889027
         },
         {
+          "cities": [
+            "paris",
+            "lyon",
+            "marseille",
+            "lille",
+            "toulouse"
+          ],
           "country": "FRA",
+          "default_city": "paris",
           "tax": 0.07411764705882354,
           "wage_usd": 35406.09991079008
         },
         {
+          "cities": [
+            "london",
+            "birmingham",
+            "manchester",
+            "glasgow",
+            "cardiff"
+          ],
           "country": "GBR",
+          "default_city": "london",
           "tax": 0.1075,
           "wage_usd": 58997.25597546484
         },
         {
+          "cities": [
+            "accra"
+          ],
           "country": "GHA",
+          "default_city": "accra",
           "tax": 0.0625,
           "wage_usd": 6539.635109736932
         },
         {
+          "cities": [
+            "athen",
+            "thessaloniki",
+            "nikosia"
+          ],
           "country": "GRC",
+          "default_city": "athen",
           "tax": 0.0625,
           "wage_usd": 12166.97757249717
         },
         {
+          "cities": [
+            "budapest"
+          ],
           "country": "HUN",
+          "default_city": "budapest",
           "tax": 0.0625,
           "wage_usd": 20597.38659711347
         },
         {
+          "cities": [
+            "jakarta",
+            "surabaya",
+            "bandung",
+            "medan",
+            "palembang"
+          ],
           "country": "IDN",
+          "default_city": "jakarta",
           "tax": 0.0625,
           "wage_usd": 6875.568831216425
         },
         {
+          "cities": [
+            "mumbai",
+            "delhi",
+            "kolkata",
+            "chennai",
+            "new_delhi"
+          ],
           "country": "IND",
+          "default_city": "new_delhi",
           "tax": 0.0625,
           "wage_usd": 5453.3378822437135
         },
         {
+          "cities": [
+            "dublin"
+          ],
           "country": "IRL",
+          "default_city": "dublin",
           "tax": 0.0625,
           "wage_usd": 29028.906339302925
         },
         {
+          "cities": [
+            "teheran",
+            "mashhad",
+            "isfahan",
+            "tabriz",
+            "shiraz"
+          ],
           "country": "IRN",
+          "default_city": "teheran",
           "tax": 0.0625,
           "wage_usd": 6707.159263915688
         },
         {
+          "cities": [
+            "bagdad",
+            "mosul",
+            "basra",
+            "najaf",
+            "kirkuk"
+          ],
           "country": "IRQ",
+          "default_city": "bagdad",
           "tax": 0.0625,
           "wage_usd": 6627.789400595777
         },
         {
+          "cities": [
+            "tel_aviv",
+            "jerusalem"
+          ],
           "country": "ISR",
+          "default_city": "jerusalem",
           "tax": 0.0625,
           "wage_usd": 5519.132721390213
         },
         {
+          "cities": [
+            "rom",
+            "mailand",
+            "neapel",
+            "turin",
+            "florenz"
+          ],
           "country": "ITA",
+          "default_city": "rom",
           "tax": 0.0625,
           "wage_usd": 24891.526728848345
         },
         {
+          "cities": [
+            "tokio",
+            "osaka",
+            "nagoya",
+            "fukuoka",
+            "sapporo"
+          ],
           "country": "JPN",
+          "default_city": "tokio",
           "tax": 0.0625,
           "wage_usd": 14580.221082731816
         },
         {
+          "cities": [
+            "almaty",
+            "shymkent",
+            "qaraghandy",
+            "taraz",
+            "nur_sultan"
+          ],
           "country": "KAZ",
+          "default_city": "nur_sultan",
           "tax": 0.0625,
           "wage_usd": 15428.401226698672
         },
         {
+          "cities": [
+            "nairobi",
+            "mombasa",
+            "eldoret"
+          ],
           "country": "KEN",
+          "default_city": "nairobi",
           "tax": 0.0625,
           "wage_usd": 3292.628381104024
         },
         {
+          "cities": [
+            "phnom_penh",
+            "vientiane",
+            "battambang",
+            "siem_reap"
+          ],
           "country": "KHM",
+          "default_city": "phnom_penh",
           "tax": 0.0625,
           "wage_usd": 3485.1992042856555
         },
         {
+          "cities": [
+            "seoul",
+            "busan",
+            "incheon",
+            "daejeon",
+            "gwangju"
+          ],
           "country": "KOR",
+          "default_city": "seoul",
           "tax": 0.0625,
           "wage_usd": 6339.078853345978
         },
         {
+          "cities": [
+            "tripolis",
+            "banghazi",
+            "misrata",
+            "zuwara",
+            "sabha"
+          ],
           "country": "LBY",
+          "default_city": "tripolis",
           "tax": 0.0625,
           "wage_usd": 7021.136315552091
         },
         {
+          "cities": [
+            "colombo",
+            "sri_jayawardenepura_kotte",
+            "male",
+            "kandy"
+          ],
           "country": "LKA",
+          "default_city": "colombo",
           "tax": 0.0625,
           "wage_usd": 10371.687271775705
         },
         {
+          "cities": [
+            "casablanca",
+            "rabat",
+            "fez",
+            "marrakesh",
+            "oujda"
+          ],
           "country": "MAR",
+          "default_city": "rabat",
           "tax": 0.0625,
           "wage_usd": 5750.706674656207
         },
         {
+          "cities": [
+            "antananarivo",
+            "port_louis",
+            "fianarantsoa",
+            "mahajanga",
+            "moroni"
+          ],
           "country": "MDG",
+          "default_city": "antananarivo",
           "tax": 0.0625,
           "wage_usd": 4080.9739945951837
         },
         {
+          "cities": [
+            "mexiko_stadt",
+            "guadalajara",
+            "monterrey",
+            "puebla",
+            "tijuana"
+          ],
           "country": "MEX",
+          "default_city": "mexiko_stadt",
           "tax": 0.0625,
           "wage_usd": 11319.200159976393
         },
         {
+          "cities": [
+            "bamako",
+            "segou",
+            "gao"
+          ],
           "country": "MLI",
+          "default_city": "bamako",
           "tax": 0.0625,
           "wage_usd": 2982.0902290914214
         },
         {
+          "cities": [
+            "yangon",
+            "mandalay",
+            "naypyidaw",
+            "sittwe"
+          ],
           "country": "MMR",
+          "default_city": "naypyidaw",
           "tax": 0.0625,
           "wage_usd": 5961.3415925301015
         },
         {
+          "cities": [
+            "ulaanbaatar"
+          ],
           "country": "MNG",
+          "default_city": "ulaanbaatar",
           "tax": 0.0625,
           "wage_usd": 1567.923658992803
         },
         {
+          "cities": [
+            "maputo",
+            "beira",
+            "nampula",
+            "nacala",
+            "quelimane"
+          ],
           "country": "MOZ",
+          "default_city": "maputo",
           "tax": 0.0625,
           "wage_usd": 1500.4288982514531
         },
         {
+          "cities": [
+            "lilongwe",
+            "blantyre",
+            "mzuzu"
+          ],
           "country": "MWI",
+          "default_city": "lilongwe",
           "tax": 0.0625,
           "wage_usd": 1872.8795938238977
         },
         {
+          "cities": [
+            "george_town",
+            "kuala_lumpur",
+            "kuching",
+            "bandar_seri_begawan"
+          ],
           "country": "MYS",
+          "default_city": "kuala_lumpur",
           "tax": 0.0625,
           "wage_usd": 7903.959716326662
         },
         {
+          "cities": [
+            "niamey",
+            "niamey_2",
+            "zinder",
+            "agadez",
+            "tahoua"
+          ],
           "country": "NER",
+          "default_city": "niamey",
           "tax": 0.0625,
           "wage_usd": 3195.116170971605
         },
         {
+          "cities": [
+            "lagos",
+            "kano",
+            "ibadan",
+            "abuja",
+            "kaduna"
+          ],
           "country": "NGA",
+          "default_city": "abuja",
           "tax": 0.0625,
           "wage_usd": 4463.79281671316
         },
         {
+          "cities": [
+            "den_haag",
+            "amsterdam"
+          ],
           "country": "NLD",
+          "default_city": "amsterdam",
           "tax": 0.0625,
           "wage_usd": 43171.26082266422
         },
         {
+          "cities": [
+            "oslo",
+            "bergen",
+            "reykjavik",
+            "trondheim"
+          ],
           "country": "NOR",
+          "default_city": "oslo",
           "tax": 0.0625,
           "wage_usd": 29231.88601546588
         },
         {
+          "cities": [
+            "kathmandu"
+          ],
           "country": "NPL",
+          "default_city": "kathmandu",
           "tax": 0.0625,
           "wage_usd": 3946.3623323607335
         },
         {
+          "cities": [
+            "auckland",
+            "wellington",
+            "manukau",
+            "christchurch",
+            "hamilton"
+          ],
           "country": "NZL",
+          "default_city": "wellington",
           "tax": 0.0625,
           "wage_usd": 58109.94865906563
         },
         {
+          "cities": [
+            "karatschi",
+            "lahore",
+            "multan",
+            "gujranwala",
+            "islamabad"
+          ],
           "country": "PAK",
+          "default_city": "islamabad",
           "tax": 0.0625,
           "wage_usd": 5726.236686766675
         },
         {
+          "cities": [
+            "lima",
+            "arequipa",
+            "trujillo",
+            "iquitos",
+            "huancayo"
+          ],
           "country": "PER",
+          "default_city": "lima",
           "tax": 0.0625,
           "wage_usd": 9086.425752249661
         },
         {
+          "cities": [
+            "manila",
+            "davao",
+            "general_santos",
+            "cebu",
+            "zamboanga"
+          ],
           "country": "PHL",
+          "default_city": "manila",
           "tax": 0.0625,
           "wage_usd": 7622.704788151855
         },
         {
+          "cities": [
+            "warschau",
+            "krakau",
+            "danzig"
+          ],
           "country": "POL",
+          "default_city": "warschau",
           "tax": 0.0625,
           "wage_usd": 17545.695529691697
         },
         {
+          "cities": [
+            "pjoengjang",
+            "wonsan",
+            "sinuiju"
+          ],
           "country": "PRK",
+          "default_city": "pjoengjang",
           "tax": 0.0625,
           "wage_usd": 6306.969627397356
         },
         {
+          "cities": [
+            "lissabon",
+            "funchal"
+          ],
           "country": "PRT",
+          "default_city": "lissabon",
           "tax": 0.0625,
           "wage_usd": 11236.553112896172
         },
         {
+          "cities": [
+            "bukarest",
+            "chisinau",
+            "iasi",
+            "constanta"
+          ],
           "country": "ROU",
+          "default_city": "bukarest",
           "tax": 0.0625,
           "wage_usd": 8309.973956372165
         },
         {
+          "cities": [
+            "moskau",
+            "sankt_petersburg",
+            "novosibirsk",
+            "yekaterinburg",
+            "nizhny_novgorod"
+          ],
           "country": "RUS",
+          "default_city": "moskau",
           "tax": 0.0625,
           "wage_usd": 15196.068447438684
         },
         {
+          "cities": [
+            "riad",
+            "dschidda",
+            "makkah",
+            "medina",
+            "tabuk"
+          ],
           "country": "SAU",
+          "default_city": "riad",
           "tax": 0.0625,
           "wage_usd": 4803.035127702399
         },
         {
+          "cities": [
+            "khartum",
+            "omdurman",
+            "port_sudan",
+            "kassala",
+            "al_ubayyid"
+          ],
           "country": "SDN",
+          "default_city": "khartum",
           "tax": 0.0625,
           "wage_usd": 2627.805455492133
         },
         {
+          "cities": [
+            "dakar",
+            "kaolack"
+          ],
           "country": "SEN",
+          "default_city": "dakar",
           "tax": 0.0625,
           "wage_usd": 3994.908335257206
         },
         {
+          "cities": [
+            "singapur"
+          ],
           "country": "SGP",
+          "default_city": "singapur",
           "tax": 0.0625,
           "wage_usd": 12735.13596856672
         },
         {
+          "cities": [
+            "stockholm",
+            "malmoe"
+          ],
           "country": "SWE",
+          "default_city": "stockholm",
           "tax": 0.0625,
           "wage_usd": 32398.242691011244
         },
         {
+          "cities": [
+            "aleppo",
+            "damaskus"
+          ],
           "country": "SYR",
+          "default_city": "damaskus",
           "tax": 0.0625,
           "wage_usd": 12273.599538028237
         },
         {
+          "cities": [
+            "bangkok",
+            "chiang_mai",
+            "nakhon_ratchasima",
+            "surat_thani"
+          ],
           "country": "THA",
+          "default_city": "bangkok",
           "tax": 0.0625,
           "wage_usd": 6824.772456483616
         },
         {
+          "cities": [
+            "tunis",
+            "sousse"
+          ],
           "country": "TUN",
+          "default_city": "tunis",
           "tax": 0.0625,
           "wage_usd": 7389.675810864182
         },
         {
+          "cities": [
+            "istanbul",
+            "ankara",
+            "izmir",
+            "bursa",
+            "adana"
+          ],
           "country": "TUR",
+          "default_city": "ankara",
           "tax": 0.0625,
           "wage_usd": 6248.191962718723
         },
         {
+          "cities": [
+            "taipei",
+            "kaohsiung",
+            "taichung"
+          ],
           "country": "TWN",
+          "default_city": "taipei",
           "tax": 0.0625,
           "wage_usd": 6389.0945556035895
         },
         {
+          "cities": [
+            "dar_es_salaam",
+            "mwanza",
+            "zanzibar",
+            "arusha",
+            "mbeya"
+          ],
           "country": "TZA",
+          "default_city": "dar_es_salaam",
           "tax": 0.0625,
           "wage_usd": 2191.3185404448855
         },
         {
+          "cities": [
+            "kampala",
+            "mbale",
+            "jinja",
+            "arua",
+            "gulu"
+          ],
           "country": "UGA",
+          "default_city": "kampala",
           "tax": 0.0625,
           "wage_usd": 3266.193229782105
         },
         {
+          "cities": [
+            "kiew",
+            "kharkiv",
+            "dnipro",
+            "odessa",
+            "donetsk"
+          ],
           "country": "UKR",
+          "default_city": "kiew",
           "tax": 0.0625,
           "wage_usd": 8766.06225045955
         },
         {
+          "cities": [
+            "new_york",
+            "los_angeles",
+            "chicago",
+            "miami",
+            "washington_d_c"
+          ],
           "country": "USA",
+          "default_city": "washington_d_c",
           "tax": 0.017857142857142856,
           "wage_usd": 64262.795083596226
         },
         {
+          "cities": [
+            "taschkent",
+            "samarkand",
+            "andijan",
+            "bukhara",
+            "nukus"
+          ],
           "country": "UZB",
+          "default_city": "taschkent",
           "tax": 0.0625,
           "wage_usd": 5541.679411986616
         },
         {
+          "cities": [
+            "caracas",
+            "maracaibo",
+            "valencia",
+            "ciudad_guayana",
+            "san_cristobal"
+          ],
           "country": "VEN",
+          "default_city": "caracas",
           "tax": 0.0625,
           "wage_usd": 11517.2654141026
         },
         {
+          "cities": [
+            "ho_chi_minh_stadt",
+            "hanoi",
+            "haiphong",
+            "da_nang"
+          ],
           "country": "VNM",
+          "default_city": "hanoi",
           "tax": 0.0625,
           "wage_usd": 5691.31762097531
         },
         {
+          "cities": [
+            "riga",
+            "vilnius",
+            "tallinn"
+          ],
           "country": "XBA",
+          "default_city": "vilnius",
           "tax": 0.0625,
           "wage_usd": 16149.443365702567
         },
         {
+          "cities": [
+            "kuwait_city",
+            "doha",
+            "dubai",
+            "muscat",
+            "abu_dhabi"
+          ],
           "country": "XGO",
+          "default_city": "abu_dhabi",
           "tax": 0.0625,
           "wage_usd": 5659.928859986714
         },
         {
+          "cities": [
+            "georgetown",
+            "paramaribo"
+          ],
           "country": "XGU",
+          "default_city": "georgetown",
           "tax": 0.0625,
           "wage_usd": 15383.166615390031
         },
         {
+          "cities": [
+            "mogadishu",
+            "djibouti",
+            "asmara",
+            "hargeisa",
+            "berbera"
+          ],
           "country": "XHA",
+          "default_city": "mogadishu",
           "tax": 0.0625,
           "wage_usd": 3386.280897422408
         },
         {
+          "cities": [
+            "santo_domingo",
+            "port_au_prince",
+            "santiago"
+          ],
           "country": "XHI",
+          "default_city": "santo_domingo",
           "tax": 0.0625,
           "wage_usd": 5618.133968450643
         },
         {
+          "cities": [
+            "baku",
+            "jerewan",
+            "tiflis",
+            "batumi"
+          ],
           "country": "XKA",
+          "default_city": "baku",
           "tax": 0.0625,
           "wage_usd": 7589.32172908312
         },
         {
+          "cities": [
+            "kingston",
+            "port_of_spain",
+            "nassau",
+            "bridgetown"
+          ],
           "country": "XKB",
+          "default_city": "kingston",
           "tax": 0.0625,
           "wage_usd": 8518.375068060594
         },
         {
+          "cities": [
+            "beirut",
+            "amman",
+            "gaza_city"
+          ],
           "country": "XLE",
+          "default_city": "amman",
           "tax": 0.0625,
           "wage_usd": 12277.704326095916
         },
         {
+          "cities": [
+            "brazzaville",
+            "n_djamena",
+            "bangui",
+            "pointe_noire",
+            "libreville"
+          ],
           "country": "XMA",
+          "default_city": "n_djamena",
           "tax": 0.0625,
           "wage_usd": 2795.4467810337624
         },
         {
+          "cities": [
+            "san_salvador",
+            "san_jose",
+            "panama_stadt",
+            "guatemala_city",
+            "tegucigalpa"
+          ],
           "country": "XME",
+          "default_city": "guatemala_city",
           "tax": 0.0625,
           "wage_usd": 10875.243317871305
         },
         {
+          "cities": [
+            "port_moresby",
+            "suva",
+            "lae"
+          ],
           "country": "XOZ",
+          "default_city": "port_moresby",
           "tax": 0.0625,
           "wage_usd": 3633.881731827664
         },
         {
+          "cities": [
+            "asuncion",
+            "montevideo",
+            "ciudad_del_este"
+          ],
           "country": "XPU",
+          "default_city": "asuncion",
           "tax": 0.0625,
           "wage_usd": 21033.8242613499
         },
         {
+          "cities": [
+            "kigali",
+            "bujumbura"
+          ],
           "country": "XRB",
+          "default_city": "kigali",
           "tax": 0.0625,
           "wage_usd": 2616.7254680229453
         },
         {
+          "cities": [
+            "maseru",
+            "windhoek",
+            "gaborone"
+          ],
           "country": "XSA",
+          "default_city": "maseru",
           "tax": 0.0625,
           "wage_usd": 4657.0097981273075
         },
         {
+          "cities": [
+            "lome",
+            "cotonou",
+            "porto_novo",
+            "parakou"
+          ],
           "country": "XTB",
+          "default_city": "cotonou",
           "tax": 0.0625,
           "wage_usd": 5046.779877363636
         },
         {
+          "cities": [
+            "conakry",
+            "monrovia",
+            "freetown",
+            "nouakchott",
+            "bissau"
+          ],
           "country": "XWA",
+          "default_city": "conakry",
           "tax": 0.0625,
           "wage_usd": 3521.459225426736
         },
         {
+          "cities": [
+            "belgrad",
+            "tirana",
+            "zagreb",
+            "sarajevo",
+            "skopje"
+          ],
           "country": "XWB",
+          "default_city": "belgrad",
           "tax": 0.0625,
           "wage_usd": 11770.95180408346
         },
         {
+          "cities": [
+            "dushanbe",
+            "bishkek",
+            "ashgabat",
+            "tuerkmenabat",
+            "mary"
+          ],
           "country": "XZA",
+          "default_city": "dushanbe",
           "tax": 0.0625,
           "wage_usd": 8066.976372952613
         },
         {
+          "cities": [
+            "sanaa",
+            "aden",
+            "taizz"
+          ],
           "country": "YEM",
+          "default_city": "sanaa",
           "tax": 0.0625,
           "wage_usd": 6097.330724063184
         },
         {
+          "cities": [
+            "johannesburg",
+            "kapstadt",
+            "durban",
+            "pretoria",
+            "port_elizabeth"
+          ],
           "country": "ZAF",
+          "default_city": "kapstadt",
           "tax": 0.0625,
           "wage_usd": 10276.725619452865
         },
         {
+          "cities": [
+            "lusaka",
+            "kitwe",
+            "kabwe",
+            "livingstone",
+            "mufulira"
+          ],
           "country": "ZMB",
+          "default_city": "lusaka",
           "tax": 0.0625,
           "wage_usd": 2662.7070978965057
         },
         {
+          "cities": [
+            "harare",
+            "bulawayo",
+            "chitungwiza"
+          ],
           "country": "ZWE",
+          "default_city": "harare",
           "tax": 0.0625,
           "wage_usd": 4167.420200968213
         }
@@ -26720,6 +27526,7 @@
           "reach": 0,
           "release_limit_usd": null,
           "staff": 0,
+          "staffed": 0,
           "working": false,
           "workload": 1.0
         },
@@ -26740,6 +27547,7 @@
           "reach": 0,
           "release_limit_usd": null,
           "staff": 0,
+          "staffed": 0,
           "working": false,
           "workload": 1.0
         },
@@ -26760,6 +27568,7 @@
           "reach": 0,
           "release_limit_usd": null,
           "staff": 0,
+          "staffed": 0,
           "working": false,
           "workload": 2.0
         },
@@ -26780,6 +27589,7 @@
           "reach": 0,
           "release_limit_usd": null,
           "staff": 0,
+          "staffed": 0,
           "working": false,
           "workload": 1.0
         },
@@ -26800,6 +27610,7 @@
           "reach": 0,
           "release_limit_usd": null,
           "staff": 0,
+          "staffed": 0,
           "working": false,
           "workload": 1.0
         }

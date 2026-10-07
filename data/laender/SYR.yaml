@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 33.50, laenge: 36.30}
     binnenland: false
     nachbarn: [IRQ, ISR, TUR, XLE]
+    staedte:
+      - {id: aleppo, einwohner: 2_738_000, breite: 36.23, laenge: 37.17}
+      - {id: damaskus, einwohner: 2_466_000, breite: 33.50, laenge: 36.30, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 1_794_073, 1901: 1_811_391, 1902: 1_832_405, 1903: 1_857_177, 1904: 1_882_284, 1905: 1_907_730, 1906: 1_933_520, 1907: 1_959_658,

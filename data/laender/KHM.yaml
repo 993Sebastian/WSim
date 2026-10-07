@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 11.55, laenge: 104.91}
     binnenland: false
     nachbarn: [CHN, MMR, THA, VNM]
+    staedte:
+      - {id: phnom_penh, einwohner: 1_466_000, breite: 11.55, laenge: 104.91, hauptstadt: true}
+      - {id: vientiane, einwohner: 754_000, breite: 17.97, laenge: 102.60}
+      - {id: battambang, einwohner: 154_773, breite: 13.10, laenge: 103.20}
+      - {id: siem_reap, einwohner: 109_398, breite: 13.37, laenge: 103.85}
     umfasst: [KHM, LAO]
     werte:
       bevoelkerung: {

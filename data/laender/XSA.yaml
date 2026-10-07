@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -29.32, laenge: 27.48}
     binnenland: false
     nachbarn: [AGO, MOZ, ZAF, ZMB, ZWE]
+    staedte:
+      - {id: maseru, einwohner: 361_324, breite: -29.32, laenge: 27.48, hauptstadt: true}
+      - {id: windhoek, einwohner: 268_132, breite: -22.57, laenge: 17.08}
+      - {id: gaborone, einwohner: 208_411, breite: -24.65, laenge: 25.91}
     umfasst: [LSO, NAM, BWA, SWZ]
     werte:
       bevoelkerung: {

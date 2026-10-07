@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 21.04, laenge: 105.85}
     binnenland: false
     nachbarn: [CHN, KHM]
+    staedte:
+      - {id: ho_chi_minh_stadt, einwohner: 5_314_000, breite: 10.78, laenge: 106.69}
+      - {id: hanoi, einwohner: 4_378_000, breite: 21.04, laenge: 105.85, hauptstadt: true}
+      - {id: haiphong, einwohner: 1_969_000, breite: 20.83, laenge: 106.68}
+      - {id: da_nang, einwohner: 1_000_000, breite: 16.06, laenge: 108.25}
     werte:
       bevoelkerung: {
         1900: 11_797_851, 1901: 12_196_386, 1902: 12_730_842, 1903: 13_408_775, 1904: 14_122_808, 1905: 14_874_865, 1906: 15_666_968, 1907: 16_501_253,

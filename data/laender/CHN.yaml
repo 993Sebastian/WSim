@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 39.93, laenge: 116.39}
     binnenland: false
     nachbarn: [AFG, IND, KAZ, KHM, MMR, MNG, NPL, PAK, PRK, RUS, VNM, XZA]
+    staedte:
+      - {id: shanghai, einwohner: 14_987_000, breite: 31.22, laenge: 121.43}
+      - {id: peking, einwohner: 11_106_000, breite: 39.93, laenge: 116.39, hauptstadt: true}
+      - {id: guangzhou, einwohner: 8_829_000, breite: 23.15, laenge: 113.32}
+      - {id: shenzhen, einwohner: 7_581_000, breite: 22.55, laenge: 114.12}
+      - {id: wuhan, einwohner: 7_243_000, breite: 30.58, laenge: 114.27}
     werte:
       bevoelkerung: {
         1900: 396_275_290, 1901: 398_350_100, 1902: 400_472_793, 1903: 402_643_812, 1904: 404_826_906, 1905: 407_022_154, 1906: 409_229_637, 1907: 411_449_433,

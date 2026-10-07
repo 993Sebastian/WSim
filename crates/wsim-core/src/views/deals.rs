@@ -333,8 +333,9 @@ fn row(state: &GameState, catalog: &crate::catalog::Catalog, id: CompanyId) -> C
         central_staff: c.departments.values().sum(),
         moving_to: c
             .relocation
+            .as_ref()
             .map(|r| catalog.countries.key(r.country).to_owned()),
-        moving_until: c.relocation.map(|r| iso(r.until)),
+        moving_until: c.relocation.as_ref().map(|r| iso(r.until)),
     }
 }
 

@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -17.82, laenge: 31.04}
     binnenland: true
     nachbarn: [MOZ, XSA, ZAF, ZMB]
+    staedte:
+      - {id: harare, einwohner: 1_572_000, breite: -17.82, laenge: 31.04, hauptstadt: true}
+      - {id: bulawayo, einwohner: 699_385, breite: -20.17, laenge: 28.58}
+      - {id: chitungwiza, einwohner: 340_360, breite: -18.00, laenge: 31.10}
     werte:
       bevoelkerung: {
         1900: 1_111_250, 1901: 1_126_892, 1902: 1_144_169, 1903: 1_163_124, 1904: 1_182_392, 1905: 1_201_980, 1906: 1_221_892, 1907: 1_242_134,

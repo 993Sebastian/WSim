@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 23.73, laenge: 90.41}
     binnenland: false
     nachbarn: [IND, MMR]
+    staedte:
+      - {id: dhaka, einwohner: 12_797_394, breite: 23.73, laenge: 90.41, hauptstadt: true}
+      - {id: chattogram, einwohner: 4_529_000, breite: 22.33, laenge: 91.80}
+      - {id: khulna, einwohner: 1_553_000, breite: 22.84, laenge: 89.56}
+      - {id: rajshahi, einwohner: 810_000, breite: 24.38, laenge: 88.60}
     werte:
       bevoelkerung: {
         1900: 27_566_845, 1901: 27_694_656, 1902: 27_822_983, 1903: 27_951_827, 1904: 28_081_190, 1905: 28_211_073, 1906: 28_341_478, 1907: 28_472_406,

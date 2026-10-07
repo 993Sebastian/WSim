@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 48.20, laenge: 16.36}
     binnenland: true
     nachbarn: [CHE, CZE, DEU, HUN, ITA, XWB]
+    staedte:
+      - {id: wien, einwohner: 2_400_000, breite: 48.20, laenge: 16.36, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 5_979_182, 1901: 6_040_563, 1902: 6_102_571, 1903: 6_165_213, 1904: 6_228_499, 1905: 6_292_433, 1906: 6_357_025, 1907: 6_422_279,

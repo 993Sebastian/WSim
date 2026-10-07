@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 9.09, laenge: 7.53}
     binnenland: false
     nachbarn: [CMR, NER, XMA, XTB]
+    staedte:
+      - {id: lagos, einwohner: 9_466_000, breite: 6.45, laenge: 3.39}
+      - {id: kano, einwohner: 3_140_000, breite: 12.00, laenge: 8.52}
+      - {id: ibadan, einwohner: 2_628_000, breite: 7.38, laenge: 3.93}
+      - {id: abuja, einwohner: 1_576_000, breite: 9.09, laenge: 7.53, hauptstadt: true}
+      - {id: kaduna, einwohner: 1_442_000, breite: 10.52, laenge: 7.44}
     werte:
       bevoelkerung: {
         1900: 18_700_007, 1901: 18_869_114, 1902: 19_052_954, 1903: 19_251_787, 1904: 19_452_662, 1905: 19_655_599, 1906: 19_860_618, 1907: 20_067_742,

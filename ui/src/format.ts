@@ -191,6 +191,11 @@ export function landName(schluessel: string): string {
   return t(`land.${schluessel}`);
 }
 
+/** Name of a city (W2): text `stadt.<ISO>.<key>`. */
+export function stadtName(land: string, stadt: string): string {
+  return t(`stadt.${land}.${stadt}`);
+}
+
 const sechsStellen = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 });
 
 function parameterText(p: Parameter): string | number {

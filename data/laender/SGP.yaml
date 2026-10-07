@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 1.29, laenge: 103.85}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: singapur, einwohner: 5_183_700, breite: 1.29, laenge: 103.85, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 213_233, 1901: 221_248, 1902: 229_974, 1903: 239_455, 1904: 249_326, 1905: 259_604, 1906: 270_306, 1907: 281_448,

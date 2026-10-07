@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 31.78, laenge: 35.21}
     binnenland: false
     nachbarn: [EGY, SYR, XLE]
+    staedte:
+      - {id: tel_aviv, einwohner: 3_112_000, breite: 32.08, laenge: 34.77}
+      - {id: jerusalem, einwohner: 1_029_300, breite: 31.78, laenge: 35.21, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 360_335, 1901: 365_150, 1902: 370_102, 1903: 375_193, 1904: 380_354, 1905: 385_586, 1906: 390_890, 1907: 396_267,

@@ -1070,6 +1070,8 @@ fn found_company(
         relocation: None,
         relocated: None,
         departments: Default::default(),
+        departments_staffed: Default::default(),
+        hq_city: None,
         participations: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,

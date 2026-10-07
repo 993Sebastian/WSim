@@ -3734,3 +3734,65 @@ Zum Monatsanfang setzen KI-Firmen für jeden Standort (außer Forschungszentren)
 `verhalten.schulung` nach ihrer Kompetenz (0 bei Kompetenz 0, 0,8 bei 1), auf 0,05
 gerundet, mit demselben Befehl. Forschungszentren schulen nicht (ihre Forscher sind
 Akademiker; die Forschung hat eigene Regeln).
+
+## W2 – Zentrale in der Stadt
+
+`docs/BETEILIGUNGEN.md` Abschnitt 3 („Land und Stadt“), offene Punkte O 1 und O 6. Daten:
+`laender/*.yaml` (`staedte`), `parameter/zentrale.yaml` (Block `stadt`). Kern: Modul
+`central`.
+
+### Städte
+
+Jedes Land hat bis zu fünf Städte: die Hauptstadt und die größten Orte nach Natural Earth
+(Einwohner der Agglomeration heute), erzeugt von `tools/daten/laender.py`; Regionen haben
+die Städte ihrer Mitglieder. Eine Stadt behält ihren Anteil an der heutigen Bevölkerung
+des Landes über den ganzen Zeitraum:
+
+    a = Einwohner der Stadt / Bevölkerung des Landes (2026)
+    Einwohner(Jahr) = a · Bevölkerung des Landes (Jahr)
+
+Der Hauptsitz liegt in einer Stadt des Sitzlands (`Company::hq_city`, ohne Angabe die
+Hauptstadt, sonst die größte). Ein Land ohne Städte in den Daten zählt als eine Stadt mit
+a = 1.
+
+### Akademiker begrenzen die Zentrale
+
+Die Angestellten der Zentralabteilungen sind Akademiker der Lohngruppe ihrer Abteilung. In
+einer Stadt stehen allen Zentralen zusammen offen (Pool in realer Größe, ohne
+Marktmaßstab):
+
+    Pool_Stadt(g) = Pool(g, Land) · min(1, akademiker_konzentration · a) · anteil_zentralen
+
+Die Sollzahl einer Abteilung setzt der Befehl `StaffDepartment`; besetzt wird:
+
+    S = Summe der Sollzahlen aller Abteilungen der Lohngruppe g mit Sitz in der Stadt
+    besetzt = Soll                                 wenn S ≤ Pool_Stadt(g)
+    besetzt = ⌊Soll · Pool_Stadt(g) / S⌋           sonst
+
+Neu berechnet an jedem Monatsanfang und nach jeder Änderung einer Sollzahl oder eines
+Sitzes. Leistung (Kapazität K = besetzt · faelle), Gehälter, Büro und die Kosten eines
+Umzugs folgen den besetzten Stellen. Die Zentrale nimmt den Werken keine Arbeitskräfte weg:
+Die Werke rechnen im Marktmaßstab, die Zentrale in realer Größe; dafür steht ihr nur der
+Anteil `anteil_zentralen` offen.
+
+### Bürokosten
+
+    Büro je Angestelltem und Jahr = buero_usd · Preisniveau(Land)
+                                    · (Einwohner(Jahr) / buero_bezug_einwohner)^buero_elastizitaet
+
+Eine Metropole kostet mehr Miete, bietet aber mehr Akademiker; eine kleine Stadt ist
+günstig, aber schnell ausgeschöpft.
+
+### Verlegen
+
+`SetHeadquarters { country, city }`: in ein anderes Land (ohne Stadt: die Hauptstadt) oder
+in eine andere Stadt desselben Landes. Kosten und Dauer wie in ZA1; im selben Land kostet
+der Umzug nur den Anteil `umzug_im_land` und dauert halb so lange (aufgerundet). Unbekannte
+Städte und der heutige Sitz werden abgelehnt.
+
+### KI-Firmen
+
+Zum Jahresbeginn (ZA4), nach dem Einrichten der Abteilungen: Ist eine Abteilung nicht voll
+besetzt, zieht eine KI-Firma in die Stadt ihres Landes mit dem größten Pool_Stadt ihrer
+Lohngruppe, wenn er größer ist als der heutige und die Kasse die Kosten trägt. Ein Umzug
+in ein anderes Land (ZA4) geht in dessen Hauptstadt.

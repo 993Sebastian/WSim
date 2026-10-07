@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 28.60, laenge: 77.20}
     binnenland: false
     nachbarn: [BGD, CHN, MMR, NPL, PAK]
+    staedte:
+      - {id: mumbai, einwohner: 18_978_000, breite: 19.02, laenge: 72.86}
+      - {id: delhi, einwohner: 15_926_000, breite: 28.67, laenge: 77.23}
+      - {id: kolkata, einwohner: 14_787_000, breite: 22.50, laenge: 88.32}
+      - {id: chennai, einwohner: 7_163_000, breite: 13.09, laenge: 80.28}
+      - {id: new_delhi, einwohner: 317_797, breite: 28.60, laenge: 77.20, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 274_445_456, 1901: 275_412_409, 1902: 276_618_359, 1903: 278_064_592, 1904: 279_518_212, 1905: 280_979_256, 1906: 282_447_761, 1907: 283_923_764,

@@ -1165,18 +1165,44 @@ export interface Sitzland {
   tax: number;
   /** Yearly wage of the managers' salary group: what the board's salaries follow. */
   wage_usd: number;
+  /** Keys of its cities, the most populous first (W2; texts `stadt.<ISO>.<key>`). */
+  cities: string[];
+  /** The city a move without a choice goes to: the capital. */
+  default_city: string | null;
+}
+
+/** A city of the country of the headquarters (W2). */
+export interface Stadt {
+  key: string;
+  capital: boolean;
+  /** Inhabitants this year. */
+  population: number;
+  /** Academics open to the central departments of all companies there. */
+  academics: number;
+  /** Posts all companies with their headquarters there want. */
+  wanted: number;
+  /** Office costs per employee and month (USD). */
+  office_per_employee_usd: number;
+  here: boolean;
 }
 
 /** The headquarters and the central departments (ZA1–ZA3). */
 export interface Zentrale {
   country: string;
+  /** The city of the headquarters (W2); null for a country without cities. */
+  city: string | null;
   tax: number;
   wage_usd: number;
   /** A move under way: the new seat from the first month start on or after `until`. */
-  relocation: { country: string; until: string } | null;
+  relocation: { country: string; city: string | null; until: string } | null;
   move_cost_usd: number;
   move_months: number;
   moving_share: number;
+  /** A move to another city of the country (W2). */
+  city_move_cost_usd: number;
+  city_move_months: number;
+  /** The cities of the country of the headquarters (W2). */
+  cities: Stadt[];
   countries: Sitzland[];
   /** The departments of the data, in their order (ZA2). */
   departments: Abteilung[];
@@ -1194,7 +1220,10 @@ export interface Abteilung {
   key: string;
   /** The board's function whose member heads it (`bereich.<function>`). */
   function: string;
+  /** Posts wanted. */
   staff: number;
+  /** Posts filled from the academics of the city (W2). */
+  staffed: number;
   /** The head's name; null while the position is vacant. */
   head: string | null;
   /** The head's expertise as the player sees it (1–5). */

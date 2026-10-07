@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 36.77, laenge: 3.05}
     binnenland: false
     nachbarn: [LBY, MAR, MLI, NER, TUN, XWA]
+    staedte:
+      - {id: algier, einwohner: 3_354_000, breite: 36.77, laenge: 3.05, hauptstadt: true}
+      - {id: oran, einwohner: 798_000, breite: 35.71, laenge: -0.62}
+      - {id: constantine, einwohner: 605_179, breite: 36.36, laenge: 6.60}
+      - {id: annaba, einwohner: 503_524, breite: 36.92, laenge: 7.76}
+      - {id: ghardaia, einwohner: 125_480, breite: 32.49, laenge: 3.67}
     werte:
       bevoelkerung: {
         1900: 4_721_238, 1901: 4_786_566, 1902: 4_858_997, 1903: 4_938_707, 1904: 5_019_725, 1905: 5_102_072, 1906: 5_185_770, 1907: 5_270_840,

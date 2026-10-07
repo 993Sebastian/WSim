@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 24.47, laenge: 54.37}
     binnenland: false
     nachbarn: [IRQ, SAU, YEM]
+    staedte:
+      - {id: kuwait_city, einwohner: 2_063_000, breite: 29.37, laenge: 47.98}
+      - {id: doha, einwohner: 1_450_000, breite: 25.29, laenge: 51.53}
+      - {id: dubai, einwohner: 1_379_000, breite: 25.23, laenge: 55.28}
+      - {id: muscat, einwohner: 734_697, breite: 23.61, laenge: 58.59}
+      - {id: abu_dhabi, einwohner: 603_492, breite: 24.47, laenge: 54.37, hauptstadt: true}
     umfasst: [ARE, OMN, KWT, BHR, QAT]
     werte:
       bevoelkerung: {

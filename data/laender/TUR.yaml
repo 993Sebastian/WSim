@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 39.93, laenge: 32.86}
     binnenland: false
     nachbarn: [BGR, GRC, IRN, IRQ, SYR, XKA]
+    staedte:
+      - {id: istanbul, einwohner: 10_061_000, breite: 41.11, laenge: 29.01}
+      - {id: ankara, einwohner: 3_716_000, breite: 39.93, laenge: 32.86, hauptstadt: true}
+      - {id: izmir, einwohner: 2_587_000, breite: 38.44, laenge: 27.15}
+      - {id: bursa, einwohner: 1_492_000, breite: 40.20, laenge: 29.07}
+      - {id: adana, einwohner: 1_293_000, breite: 37.00, laenge: 35.32}
     werte:
       bevoelkerung: {
         1900: 13_994_198, 1901: 14_075_974, 1902: 14_158_227, 1903: 14_240_961, 1904: 14_324_178, 1905: 14_407_880, 1906: 14_492_071, 1907: 14_576_753,

@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 44.44, laenge: 26.10}
     binnenland: false
     nachbarn: [BGR, HUN, UKR, XWB]
+    staedte:
+      - {id: bukarest, einwohner: 1_942_000, breite: 44.44, laenge: 26.10, hauptstadt: true}
+      - {id: chisinau, einwohner: 688_134, breite: 47.01, laenge: 28.86}
+      - {id: iasi, einwohner: 325_914, breite: 47.17, laenge: 27.57}
+      - {id: constanta, einwohner: 303_399, breite: 44.20, laenge: 28.61}
     umfasst: [ROU, MDA]
     werte:
       bevoelkerung: {

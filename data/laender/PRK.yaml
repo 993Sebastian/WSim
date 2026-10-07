@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 39.02, laenge: 125.75}
     binnenland: false
     nachbarn: [CHN, KOR, RUS]
+    staedte:
+      - {id: pjoengjang, einwohner: 3_300_000, breite: 39.02, laenge: 125.75, hauptstadt: true}
+      - {id: wonsan, einwohner: 329_207, breite: 39.16, laenge: 127.43}
+      - {id: sinuiju, einwohner: 288_112, breite: 40.09, laenge: 124.42}
     werte:
       bevoelkerung: {
         1900: 5_437_103, 1901: 5_461_092, 1902: 5_485_157, 1903: 5_509_298, 1904: 5_533_515, 1905: 5_557_808, 1906: 5_582_178, 1907: 5_606_624,

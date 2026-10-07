@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 59.35, laenge: 18.10}
     binnenland: false
     nachbarn: [FIN, NOR]
+    staedte:
+      - {id: stockholm, einwohner: 1_264_000, breite: 59.35, laenge: 18.10, hauptstadt: true}
+      - {id: malmoe, einwohner: 269_349, breite: 55.58, laenge: 13.03}
     werte:
       bevoelkerung: {
         1900: 5_124_570, 1901: 5_158_142, 1902: 5_191_391, 1903: 5_224_312, 1904: 5_257_441, 1905: 5_290_781, 1906: 5_324_332, 1907: 5_358_095,

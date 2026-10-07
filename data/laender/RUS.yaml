@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 55.75, laenge: 37.61}
     binnenland: false
     nachbarn: [BLR, CHN, FIN, KAZ, MNG, NOR, POL, PRK, UKR, XBA, XKA]
+    staedte:
+      - {id: moskau, einwohner: 10_452_000, breite: 55.75, laenge: 37.61, hauptstadt: true}
+      - {id: sankt_petersburg, einwohner: 4_553_000, breite: 59.94, laenge: 30.31}
+      - {id: novosibirsk, einwohner: 1_389_000, breite: 55.03, laenge: 82.96}
+      - {id: yekaterinburg, einwohner: 1_313_000, breite: 56.85, laenge: 60.60}
+      - {id: nizhny_novgorod, einwohner: 1_278_000, breite: 56.33, laenge: 44.00}
     werte:
       bevoelkerung: {
         1900: 65_226_049, 1901: 65_826_511, 1902: 66_432_500, 1903: 67_044_068, 1904: 67_661_266, 1905: 68_284_146, 1906: 68_912_760, 1907: 69_547_160,

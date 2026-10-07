@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 46.92, laenge: 7.47}
     binnenland: true
     nachbarn: [AUT, DEU, FRA, ITA]
+    staedte:
+      - {id: genf, einwohner: 1_240_000, breite: 46.21, laenge: 6.14}
+      - {id: zuerich, einwohner: 1_108_000, breite: 47.38, laenge: 8.55}
+      - {id: bern, einwohner: 275_329, breite: 46.92, laenge: 7.47, hauptstadt: true}
     umfasst: [CHE, LIE]
     werte:
       bevoelkerung: {

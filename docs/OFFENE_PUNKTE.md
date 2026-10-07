@@ -907,9 +907,9 @@ umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
 sich), ✅ **ZA4 umgesetzt** („Paket A“ vom 07.10.2026: Punkte 5, 11, 14, 29 und 36;
 Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 
-1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
-   Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
-   bewirkt (z. B. mit der Logistik).
+1. ✅ (W2: Städte mit Akademikern und Büromiete) **Land statt Stadt:** Der Hauptsitz ist
+   ein Land. Städte gibt es im Spiel nicht (nur Grundstücke mit Lage Stadt, Hafen, Land);
+   Vorschlag: eine Stadt erst, wenn sie etwas bewirkt (z. B. mit der Logistik).
 2. **Immer sichtbar:** Die Karte „Hauptsitz und Zentrale“ steht von Anfang an in der
    Organisation – sonst fände der Spieler nicht, wo er die erste Abteilung einrichtet.
 3. **Kosten** 250.000 USD plus 25.000 USD je Angestelltem der Zentrale, Dauer sechs
@@ -919,9 +919,9 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
    mindestens ein Viertel ihres Umsatzes machen und das nicht viel ärmer ist, wenn die
    Ersparnis an Gewinnsteuer und Löhnen der Zentrale die Kosten in drei Jahren deckt;
    danach zehn Jahre Ruhe (Punkt 39).
-6. **Angestellte ohne Einzelpersonen, sofort:** Die Zahl der Angestellten je Abteilung gilt
-   ab sofort, ohne Einstellungskosten, Abfindung oder Grenze durch den Akademiker-Pool des
-   Landes. Vorschlag: den Pool erst prüfen, wenn Zentralen groß werden (Stufe 2).
+6. ✅ (W2: Grenze durch die Akademiker der Stadt) **Angestellte ohne Einzelpersonen,
+   sofort:** Die Zahl der Angestellten je Abteilung gilt ab sofort, ohne
+   Einstellungskosten, Abfindung oder Grenze durch den Akademiker-Pool des Landes. Vorschlag: den Pool erst prüfen, wenn Zentralen groß werden (Stufe 2).
 7. **Kosten je Angestelltem:** Lohn der Gruppe `akademiker.kaufmaennisch` im Sitzland plus
    15.000 USD Büro im Jahr – 1900 in Deutschland rund 4.000 USD im Monat. Mit der
    Ressortleitung kostet eine kleine Abteilung rund eine halbe Million USD im Jahr; eine
@@ -1086,6 +1086,27 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 5. **KI nach Kompetenz:** KI-Firmen schulen bis 0 % (Kompetenz 0) bis 80 % (Kompetenz 1).
    Ihre Ausbauschätzung rechnet die Schulung nicht ein – sie unterschätzt den Vorteil
    leicht, wie ein vorsichtiger Planer.
+6. **Weiterbildung der Manager** gab es schon: Die Personalabteilung (ZA2) hebt die Chance
+   der Manager auf Erfahrung um bis zu 50 %. W1 fügt dafür nichts Neues hinzu.
+
+✅ **W2 umgesetzt** (Zentrale in der Stadt; Regeln: `docs/FORMELN.md`, Abschnitt W2; löst
+die Punkte O 1 und O 6). 🟡 Eigenständig entschieden:
+
+1. **Städte aus Natural Earth:** bis fünf je Land (Hauptstadt und die größten Orte ab
+   100.000 Einwohnern), deutsche Namen über eine Liste im Skript. Die Einwohner gelten als
+   fester Anteil an der Bevölkerung des Landes – Städte wachsen mit dem Land, nicht für
+   sich (Berlin 1900 so groß wie heute im Verhältnis).
+2. **Akademiker der Stadt:** viermal so dicht wie im Landesschnitt, höchstens alle des
+   Landes; 5 % davon stehen Zentralen offen (Schätzungen). Die Zentrale rechnet in realer
+   Größe und nimmt den Werken (im Marktmaßstab) keine Arbeitskräfte weg.
+3. **Anteilige Besetzung:** Wollen die Firmen einer Stadt zusammen mehr Stellen, als es
+   Akademiker gibt, bekommt jede ihren Anteil – wer zuerst kam, hat keinen Vorrang. Nicht
+   besetzte Stellen kosten nichts.
+4. **Bürokosten** folgen dem Preisniveau des Landes und der Größe der Stadt (Elastizität
+   0,15): bisher kostete ein Büro überall 15.000 USD im Jahr.
+5. **Umzug im Land** kostet die Hälfte und dauert halb so lange wie ein Umzug ins Ausland.
+   KI-Firmen ziehen in die Stadt mit den meisten Akademikern, wenn eine Abteilung nicht voll
+   besetzt ist; ins Ausland gehen sie in die Hauptstadt.
 
 ## Reihenfolge der neuen Punkte
 

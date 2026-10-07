@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -1.28, laenge: 36.81}
     binnenland: false
     nachbarn: [ETH, SDN, TZA, UGA, XHA]
+    staedte:
+      - {id: nairobi, einwohner: 3_010_000, breite: -1.28, laenge: 36.81, hauptstadt: true}
+      - {id: mombasa, einwohner: 882_000, breite: -4.04, laenge: 39.69}
+      - {id: eldoret, einwohner: 353_381, breite: 0.52, laenge: 35.27}
     werte:
       bevoelkerung: {
         1900: 3_948_167, 1901: 3_917_849, 1902: 3_885_401, 1903: 3_850_858, 1904: 3_816_618, 1905: 3_782_680, 1906: 3_749_041, 1907: 3_715_697,

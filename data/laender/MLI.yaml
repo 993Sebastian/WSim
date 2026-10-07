@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 12.65, laenge: -8.00}
     binnenland: true
     nachbarn: [BFA, CIV, DZA, NER, SEN, XWA]
+    staedte:
+      - {id: bamako, einwohner: 1_494_000, breite: 12.65, laenge: -8.00, hauptstadt: true}
+      - {id: segou, einwohner: 122_952, breite: 13.44, laenge: -6.26}
+      - {id: gao, einwohner: 116_967, breite: 16.27, laenge: -0.05}
     werte:
       bevoelkerung: {
         1900: 2_332_094, 1901: 2_363_210, 1902: 2_397_525, 1903: 2_435_126, 1904: 2_473_265, 1905: 2_511_948, 1906: 2_551_182, 1907: 2_590_976,

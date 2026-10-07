@@ -333,6 +333,12 @@ pub struct Company {
     /// Employees of the central departments (ZA2); departments without any left out.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub departments: BTreeMap<DepartmentKind, u32>,
+    /// Of those, the posts filled from the academics of the city (W2); derived, not saved.
+    #[serde(skip)]
+    pub departments_staffed: BTreeMap<DepartmentKind, u32>,
+    /// The city of the headquarters (W2); `None`: the capital.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hq_city: Option<String>,
     /// The policy on takeovers, licences and start-ups (ZA2).
     #[serde(default, skip_serializing_if = "Participations::is_default")]
     pub participations: Participations,
@@ -391,10 +397,13 @@ impl Default for Participations {
 
 /// A move of a company's headquarters (ZA1): the new country from the first month start
 /// on or after `until`.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Relocation {
     pub country: CountryId,
     pub until: Date,
+    /// The new city (W2); `None`: the capital.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub city: Option<String>,
 }
 
 /// What a company set and recorded for one of its positions (MA2): it stays with the
@@ -1725,6 +1734,7 @@ impl GameState {
             .collect();
         self.refresh_countries(catalog);
         crate::plots::fit_loaded(self, catalog);
+        crate::central::refresh_staffing(self, catalog);
     }
 }
 

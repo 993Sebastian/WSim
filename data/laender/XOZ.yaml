@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -9.46, laenge: 147.19}
     binnenland: false
     nachbarn: [IDN]
+    staedte:
+      - {id: port_moresby, einwohner: 283_733, breite: -9.46, laenge: 147.19, hauptstadt: true}
+      - {id: suva, einwohner: 175_399, breite: -18.13, laenge: 178.44}
+      - {id: lae, einwohner: 131_052, breite: -6.73, laenge: 146.99}
     umfasst: [PNG, FJI, SLB, VUT, WSM, FSM, TON, KIR, MHL, PLW, NRU, TUV]
     werte:
       bevoelkerung: {

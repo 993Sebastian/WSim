@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 37.99, laenge: 23.73}
     binnenland: false
     nachbarn: [BGR, TUR, XWB]
+    staedte:
+      - {id: athen, einwohner: 3_242_000, breite: 37.99, laenge: 23.73, hauptstadt: true}
+      - {id: thessaloniki, einwohner: 828_000, breite: 40.70, laenge: 22.88}
+      - {id: nikosia, einwohner: 224_300, breite: 35.17, laenge: 33.37}
     umfasst: [GRC, CYP]
     werte:
       bevoelkerung: {

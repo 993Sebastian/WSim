@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 51.50, laenge: -0.12}
     binnenland: false
     nachbarn: [IRL]
+    staedte:
+      - {id: london, einwohner: 8_567_000, breite: 51.50, laenge: -0.12, hauptstadt: true}
+      - {id: birmingham, einwohner: 2_285_000, breite: 52.48, laenge: -1.92}
+      - {id: manchester, einwohner: 2_230_000, breite: 53.50, laenge: -2.25}
+      - {id: glasgow, einwohner: 1_160_000, breite: 55.88, laenge: -4.25}
+      - {id: cardiff, einwohner: 861_400, breite: 51.50, laenge: -3.23}
     werte:
       bevoelkerung: {
         1900: 37_949_029, 1901: 38_335_369, 1902: 38_716_937, 1903: 39_093_698, 1904: 39_473_666, 1905: 39_856_867, 1906: 40_243_331, 1907: 40_633_086,

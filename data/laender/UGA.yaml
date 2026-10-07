@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 0.32, laenge: 32.58}
     binnenland: true
     nachbarn: [COD, KEN, SDN, TZA, XRB]
+    staedte:
+      - {id: kampala, einwohner: 1_420_000, breite: 0.32, laenge: 32.58, hauptstadt: true}
+      - {id: mbale, einwohner: 402_368, breite: 1.09, laenge: 34.17}
+      - {id: jinja, einwohner: 301_619, breite: 0.44, laenge: 33.20}
+      - {id: arua, einwohner: 250_000, breite: 3.02, laenge: 30.90}
+      - {id: gulu, einwohner: 146_858, breite: 2.78, laenge: 32.28}
     werte:
       bevoelkerung: {
         1900: 3_774_191, 1901: 3_760_224, 1902: 3_741_024, 1903: 3_716_614, 1904: 3_692_354, 1905: 3_668_245, 1906: 3_644_286, 1907: 3_620_475,

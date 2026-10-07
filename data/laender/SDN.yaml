@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 15.59, laenge: 32.53}
     binnenland: false
     nachbarn: [COD, EGY, ETH, KEN, LBY, UGA, XHA, XMA]
+    staedte:
+      - {id: khartum, einwohner: 4_754_000, breite: 15.59, laenge: 32.53, hauptstadt: true}
+      - {id: omdurman, einwohner: 2_395_159, breite: 15.62, laenge: 32.48}
+      - {id: port_sudan, einwohner: 489_725, breite: 19.62, laenge: 37.22}
+      - {id: kassala, einwohner: 401_477, breite: 15.46, laenge: 36.39}
+      - {id: al_ubayyid, einwohner: 393_311, breite: 13.18, laenge: 30.22}
     umfasst: [SDN, SSD]
     werte:
       bevoelkerung: {

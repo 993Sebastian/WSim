@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 6.93, laenge: 79.86}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: colombo, einwohner: 217_000, breite: 6.93, laenge: 79.86, hauptstadt: true}
+      - {id: sri_jayawardenepura_kotte, einwohner: 115_826, breite: 6.90, laenge: 79.95}
+      - {id: male, einwohner: 112_927, breite: 4.17, laenge: 73.50}
+      - {id: kandy, einwohner: 111_701, breite: 7.28, laenge: 80.67}
     umfasst: [LKA, MDV]
     werte:
       bevoelkerung: {

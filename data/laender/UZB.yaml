@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 41.31, laenge: 69.29}
     binnenland: true
     nachbarn: [AFG, KAZ, XZA]
+    staedte:
+      - {id: taschkent, einwohner: 2_184_000, breite: 41.31, laenge: 69.29, hauptstadt: true}
+      - {id: samarkand, einwohner: 708_000, breite: 39.67, laenge: 66.94}
+      - {id: andijan, einwohner: 650_000, breite: 40.79, laenge: 72.34}
+      - {id: bukhara, einwohner: 319_476, breite: 39.78, laenge: 64.43}
+      - {id: nukus, einwohner: 230_006, breite: 42.47, laenge: 59.62}
     werte:
       bevoelkerung: {
         1900: 3_922_164, 1901: 3_956_871, 1902: 3_991_884, 1903: 4_027_207, 1904: 4_062_842, 1905: 4_098_792, 1906: 4_135_059, 1907: 4_171_647,

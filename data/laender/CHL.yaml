@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -33.45, laenge: -70.67}
     binnenland: false
     nachbarn: [ARG, BOL, PER]
+    staedte:
+      - {id: santiago, einwohner: 5_720_000, breite: -33.45, laenge: -70.67, hauptstadt: true}
+      - {id: concepcion, einwohner: 889_725, breite: -36.83, laenge: -73.05}
+      - {id: valparaiso, einwohner: 854_000, breite: -33.05, laenge: -71.62}
+      - {id: antofagasta, einwohner: 309_832, breite: -23.65, laenge: -70.40}
+      - {id: iquique, einwohner: 227_499, breite: -20.25, laenge: -70.13}
     werte:
       bevoelkerung: {
         1900: 3_146_329, 1901: 3_187_825, 1902: 3_229_092, 1903: 3_270_116, 1904: 3_311_657, 1905: 3_353_721, 1906: 3_396_314, 1907: 3_439_443,

@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 19.77, laenge: 96.12}
     binnenland: false
     nachbarn: [BGD, CHN, IND, KHM, THA]
+    staedte:
+      - {id: yangon, einwohner: 4_088_000, breite: 16.79, laenge: 96.16}
+      - {id: mandalay, einwohner: 1_300_000, breite: 21.97, laenge: 96.08}
+      - {id: naypyidaw, einwohner: 930_000, breite: 19.77, laenge: 96.12, hauptstadt: true}
+      - {id: sittwe, einwohner: 179_032, breite: 20.14, laenge: 92.88}
     werte:
       bevoelkerung: {
         1900: 9_413_427, 1901: 9_605_885, 1902: 9_774_435, 1903: 9_917_973, 1904: 10_063_598, 1905: 10_211_340, 1906: 10_361_230, 1907: 10_513_297,

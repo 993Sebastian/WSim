@@ -279,6 +279,14 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   mitzieht. Während des Umzugs steht dort „Umzug nach … läuft – der neue Sitz gilt zum
   Monatsanfang ab …“; der Rundenbericht meldet den Abschluss und wie viele Angestellte nicht
   mitgezogen sind.
+- **Stadt des Hauptsitzes (W2):** Die Karte heißt „Hauptsitz: Berlin, Deutschland“. Wer ein
+  neues Land wählt, wählt darunter die „Stadt“ (vorgewählt die Hauptstadt). Darunter die
+  Tabelle „Städte in Deutschland“ (ⓘ: große Stadt = mehr Akademiker, aber teurere Büros; alle
+  Firmen einer Stadt teilen sich deren Akademiker) mit Einwohnern, „Akademiker für
+  Zentralen“, „Gewünscht (alle Firmen)“ (rot, wenn mehr gewünscht als vorhanden), Büro je
+  Angestelltem und Monat und „Nach … ziehen“ bzw. „Sitz“; darunter Kosten und Dauer eines
+  Umzugs im Land. In den Zentralabteilungen steht unter dem Zahlenfeld „nur n besetzt – zu
+  wenige Akademiker in der Stadt“, wenn die Stadt nicht alle Stellen füllt.
 - **Zentralabteilungen (ZA2):** Darunter die Karte „Zentralabteilungen“ (ⓘ: was jede tut,
   dass sie nur mit Leitung arbeitet und auch ohne Arbeit kostet, wie die Abdeckung die
   Genauigkeit der Leitung hebt) mit der Summe „n Angestellte kosten zusammen … im Monat“ und

@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 6.80, laenge: -58.17}
     binnenland: false
     nachbarn: [BRA, FRA, VEN]
+    staedte:
+      - {id: georgetown, einwohner: 264_350, breite: 6.80, laenge: -58.17, hauptstadt: true}
+      - {id: paramaribo, einwohner: 254_169, breite: 5.84, laenge: -55.17}
     umfasst: [GUY, SUR]
     werte:
       bevoelkerung: {

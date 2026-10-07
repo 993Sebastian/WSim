@@ -685,6 +685,7 @@ pub(crate) fn build(
     ];
     check_texts(b.ctx, &all_keys, texts, all_files_read);
     countries::check_regions(b.ctx, &countries, &country_keys, texts, all_files_read);
+    countries::check_city_texts(b.ctx, &countries, texts, all_files_read);
     plots::check_texts(b.ctx, &b.catalog.plot_model, raw, texts, all_files_read);
     production::check_size_texts(b.ctx, raw, texts, all_files_read);
     management::check_texts(b.ctx, &b.catalog.management, raw, texts, all_files_read);

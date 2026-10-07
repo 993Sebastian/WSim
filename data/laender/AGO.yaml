@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -8.84, laenge: 13.23}
     binnenland: false
     nachbarn: [COD, XMA, XSA, ZMB]
+    staedte:
+      - {id: luanda, einwohner: 5_172_900, breite: -8.84, laenge: 13.23, hauptstadt: true}
+      - {id: huambo, einwohner: 1_100_000, breite: -12.75, laenge: 15.76}
+      - {id: benguela, einwohner: 151_226, breite: -12.58, laenge: 13.41}
+      - {id: mocamedes, einwohner: 132_900, breite: -15.19, laenge: 12.16}
+      - {id: malanje, einwohner: 125_856, breite: -9.54, laenge: 16.34}
     werte:
       bevoelkerung: {
         1900: 3_140_304, 1901: 3_123_196, 1902: 3_104_276, 1903: 3_083_560, 1904: 3_062_976, 1905: 3_042_524, 1906: 3_022_203, 1907: 3_002_013,

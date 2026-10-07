@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 30.05, laenge: 31.25}
     binnenland: false
     nachbarn: [ISR, LBY, SDN, XLE]
+    staedte:
+      - {id: kairo, einwohner: 11_893_000, breite: 30.05, laenge: 31.25, hauptstadt: true}
+      - {id: alexandria, einwohner: 4_165_000, breite: 31.20, laenge: 29.95}
+      - {id: port_said, einwohner: 623_864, breite: 31.26, laenge: 32.29}
+      - {id: luxor, einwohner: 609_248, breite: 25.70, laenge: 32.65}
+      - {id: suez, einwohner: 508_335, breite: 30.00, laenge: 32.55}
     werte:
       bevoelkerung: {
         1900: 9_939_630, 1901: 10_076_755, 1902: 10_214_563, 1903: 10_353_046, 1904: 10_493_404, 1905: 10_635_662, 1906: 10_779_847, 1907: 10_925_984,

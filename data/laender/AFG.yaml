@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 34.52, laenge: 69.18}
     binnenland: true
     nachbarn: [CHN, IRN, PAK, UZB, XZA]
+    staedte:
+      - {id: kabul, einwohner: 3_277_000, breite: 34.52, laenge: 69.18, hauptstadt: true}
+      - {id: kandahar, einwohner: 715_542, breite: 31.61, laenge: 65.69}
+      - {id: herat, einwohner: 481_009, breite: 34.33, laenge: 62.17}
+      - {id: mazar_i_sharif, einwohner: 458_151, breite: 36.70, laenge: 67.10}
     werte:
       bevoelkerung: {
         1900: 4_843_455, 1901: 4_891_067, 1902: 4_946_868, 1903: 5_010_996, 1904: 5_075_953, 1905: 5_141_750, 1906: 5_208_396, 1907: 5_275_903,

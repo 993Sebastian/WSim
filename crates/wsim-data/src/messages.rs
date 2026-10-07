@@ -136,6 +136,14 @@ pub fn invalid_country_code(key: &str) -> String {
     )
 }
 
+pub fn city_twice(key: &str) -> String {
+    format!("Die Stadt „{key}“ steht zweimal in diesem Land.")
+}
+
+pub fn capital_twice() -> String {
+    "Ein Land hat höchstens eine Hauptstadt (hauptstadt: true).".into()
+}
+
 pub fn duplicate_key(kind: &str, key: &str, other: &str) -> String {
     format!("{kind} „{key}“ ist doppelt definiert; erste Definition in {other}.")
 }

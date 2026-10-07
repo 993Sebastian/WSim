@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 24.64, laenge: 46.77}
     binnenland: false
     nachbarn: [IRQ, XGO, XLE, YEM]
+    staedte:
+      - {id: riad, einwohner: 4_465_000, breite: 24.64, laenge: 46.77, hauptstadt: true}
+      - {id: dschidda, einwohner: 3_012_000, breite: 21.52, laenge: 39.22}
+      - {id: makkah, einwohner: 1_385_000, breite: 21.43, laenge: 39.82}
+      - {id: medina, einwohner: 1_010_000, breite: 24.50, laenge: 39.58}
+      - {id: tabuk, einwohner: 547_957, breite: 28.38, laenge: 36.55}
     werte:
       bevoelkerung: {
         1900: 1_456_078, 1901: 1_442_238, 1902: 1_429_526, 1903: 1_417_892, 1904: 1_406_033, 1905: 1_393_947, 1906: 1_381_629, 1907: 1_369_079,

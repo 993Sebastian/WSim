@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 13.75, laenge: 100.51}
     binnenland: false
     nachbarn: [KHM, MMR, MYS]
+    staedte:
+      - {id: bangkok, einwohner: 6_704_000, breite: 13.75, laenge: 100.51, hauptstadt: true}
+      - {id: chiang_mai, einwohner: 397_211, breite: 18.80, laenge: 98.98}
+      - {id: nakhon_ratchasima, einwohner: 334_984, breite: 15.00, laenge: 102.10}
+      - {id: surat_thani, einwohner: 157_627, breite: 9.15, laenge: 99.34}
     werte:
       bevoelkerung: {
         1900: 7_416_284, 1901: 7_502_325, 1902: 7_594_362, 1903: 7_692_521, 1904: 7_791_948, 1905: 7_892_661, 1906: 7_994_674, 1907: 8_098_006,

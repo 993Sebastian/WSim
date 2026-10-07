@@ -30,12 +30,18 @@ fn moving_the_headquarters_costs_and_takes_months() {
     let player = CompanyId(0);
     assert_eq!(game.state().companies[0].headquarters, aaa);
     assert_eq!(
-        game.apply(Command::SetHeadquarters { country: aaa }),
+        game.apply(Command::SetHeadquarters {
+            country: aaa,
+            city: None,
+        }),
         Err(CommandError::SameHeadquarters)
     );
     let cash = game.state().companies[0].ledger.cash();
-    game.apply(Command::SetHeadquarters { country: bbb })
-        .unwrap();
+    game.apply(Command::SetHeadquarters {
+        country: bbb,
+        city: None,
+    })
+    .unwrap();
     let state = game.state();
     assert_eq!(state.companies[0].ledger.cash(), cash - usd(250_000.0));
     let other = state.companies[0]
@@ -47,11 +53,14 @@ fn moving_the_headquarters_costs_and_takes_months() {
         .unwrap_or(Money::ZERO);
     assert!(other <= -usd(250_000.0), "booked as other costs");
     assert!(state.companies[0].ledger.is_balanced());
-    let until = state.companies[0].relocation.unwrap().until;
+    let until = state.companies[0].relocation.clone().unwrap().until;
     assert_eq!(until, Date::new(1900, 3, 1).unwrap());
     // Only one move at a time.
     assert_eq!(
-        game.apply(Command::SetHeadquarters { country: aaa }),
+        game.apply(Command::SetHeadquarters {
+            country: aaa,
+            city: None,
+        }),
         Err(CommandError::RelocationUnderWay { until })
     );
     // Still the old seat until the move is done.
@@ -80,7 +89,10 @@ fn a_move_needs_the_cash() {
     let mut game = new_game(c);
     let bbb = game.catalog().countries.id("BBB").unwrap();
     assert!(matches!(
-        game.apply(Command::SetHeadquarters { country: bbb }),
+        game.apply(Command::SetHeadquarters {
+            country: bbb,
+            city: None,
+        }),
         Err(CommandError::NotEnoughCash { .. })
     ));
     assert!(game.state().companies[0].relocation.is_none());
@@ -281,8 +293,11 @@ fn a_move_keeps_part_of_the_staff() {
     staff(&mut game, DepartmentKind::Finance, 5);
     staff(&mut game, DepartmentKind::Legal, 1);
     let bbb = game.catalog().countries.id("BBB").unwrap();
-    game.apply(Command::SetHeadquarters { country: bbb })
-        .unwrap();
+    game.apply(Command::SetHeadquarters {
+        country: bbb,
+        city: None,
+    })
+    .unwrap();
     let mut seen = Vec::new();
     while game.state().companies[0].relocation.is_some() {
         let report = game.advance(RoundLength::Day, |_| {});
@@ -865,7 +880,10 @@ fn ai_companies_move_where_their_business_pays_less_tax() {
     game.state_mut().date = january;
     let news = central::ai_month_start(game.state_mut(), &catalog, january);
     assert!(news.iter().any(|m| m.key == keys::RIVAL_HEADQUARTERS));
-    let r = game.state().companies[rival.index()].relocation.unwrap();
+    let r = game.state().companies[rival.index()]
+        .relocation
+        .clone()
+        .unwrap();
     assert_eq!(r.country, bbb);
     // When the move is done the seat stays for the years of the data.
     let mut date = january;

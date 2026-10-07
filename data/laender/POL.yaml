@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 52.25, laenge: 21.00}
     binnenland: false
     nachbarn: [BLR, CZE, DEU, RUS, UKR, XBA]
+    staedte:
+      - {id: warschau, einwohner: 1_707_000, breite: 52.25, laenge: 21.00, hauptstadt: true}
+      - {id: krakau, einwohner: 756_000, breite: 50.06, laenge: 19.96}
+      - {id: danzig, einwohner: 740_000, breite: 54.36, laenge: 18.64}
     werte:
       bevoelkerung: {
         1900: 24_308_265, 1901: 24_485_193, 1902: 24_660_489, 1903: 24_834_119, 1904: 25_008_969, 1905: 25_185_047, 1906: 25_362_361, 1907: 25_540_920,

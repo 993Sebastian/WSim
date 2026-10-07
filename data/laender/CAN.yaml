@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 45.42, laenge: -75.70}
     binnenland: false
     nachbarn: [USA]
+    staedte:
+      - {id: toronto, einwohner: 5_213_000, breite: 43.70, laenge: -79.42}
+      - {id: montreal, einwohner: 3_678_000, breite: 45.50, laenge: -73.59}
+      - {id: vancouver, einwohner: 2_313_328, breite: 49.28, laenge: -123.12}
+      - {id: ottawa, einwohner: 1_145_000, breite: 45.42, laenge: -75.70, hauptstadt: true}
+      - {id: calgary, einwohner: 1_110_000, breite: 51.08, laenge: -114.08}
     werte:
       bevoelkerung: {
         1900: 5_414_039, 1901: 5_526_329, 1902: 5_660_054, 1903: 5_815_980, 1904: 5_976_202, 1905: 6_140_837, 1906: 6_310_006, 1907: 6_483_834,

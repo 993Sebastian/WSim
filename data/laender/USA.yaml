@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 38.90, laenge: -77.01}
     binnenland: false
     nachbarn: [CAN, MEX]
+    staedte:
+      - {id: new_york, einwohner: 19_040_000, breite: 40.75, laenge: -73.98}
+      - {id: los_angeles, einwohner: 12_500_000, breite: 33.99, laenge: -118.18}
+      - {id: chicago, einwohner: 8_990_000, breite: 41.83, laenge: -87.75}
+      - {id: miami, einwohner: 5_585_000, breite: 25.79, laenge: -80.23}
+      - {id: washington_d_c, einwohner: 4_338_000, breite: 38.90, laenge: -77.01, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 77_043_426, 1901: 78_547_423, 1902: 80_090_642, 1903: 81_674_041, 1904: 83_288_742, 1905: 84_935_363, 1906: 86_614_537, 1907: 88_326_905,

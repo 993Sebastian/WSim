@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 47.50, laenge: 19.08}
     binnenland: true
     nachbarn: [AUT, CZE, ROU, UKR, XWB]
+    staedte:
+      - {id: budapest, einwohner: 1_679_000, breite: 47.50, laenge: 19.08, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 7_106_191, 1901: 7_156_715, 1902: 7_207_102, 1903: 7_257_348, 1904: 7_307_945, 1905: 7_358_895, 1906: 7_410_200, 1907: 7_461_862,

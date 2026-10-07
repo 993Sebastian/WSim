@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 32.89, laenge: 13.18}
     binnenland: false
     nachbarn: [DZA, EGY, NER, SDN, TUN, XMA]
+    staedte:
+      - {id: tripolis, einwohner: 2_189_000, breite: 32.89, laenge: 13.18, hauptstadt: true}
+      - {id: banghazi, einwohner: 1_180_000, breite: 32.12, laenge: 20.06}
+      - {id: misrata, einwohner: 386_120, breite: 32.38, laenge: 15.10}
+      - {id: zuwara, einwohner: 180_310, breite: 32.93, laenge: 12.08}
+      - {id: sabha, einwohner: 100_249, breite: 27.03, laenge: 14.43}
     werte:
       bevoelkerung: {
         1900: 514_648, 1901: 522_708, 1902: 530_830, 1903: 539_014, 1904: 547_324, 1905: 555_761, 1906: 564_327, 1907: 573_023,

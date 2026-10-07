@@ -877,12 +877,16 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
     SetHiringByHead: { position: { unit: { Site: 0 }, role: "Head" }, enabled: true },
   });
 
-  // The headquarters (ZA1): a move to another country.
+  // The headquarters (ZA1, W2): a move to another country and city.
   const sitz = page.getByRole("article", { name: "Hauptsitz" });
-  await expect(sitz).toContainText("Hauptsitz: Deutschland");
+  await expect(sitz).toContainText("Hauptsitz: Berlin, Deutschland");
+  await expect(sitz.getByRole("table", { name: "Städte in Deutschland" })).toContainText("Hamburg");
   await sitz.getByLabel("Neues Land").selectOption("FRA");
+  await sitz.getByLabel(/^Stadt/).selectOption("marseille");
   await sitz.getByRole("button", { name: "Hauptsitz verlegen" }).click();
-  expect((await befehle(page)).at(-1)).toEqual({ SetHeadquarters: { country: "FRA" } });
+  expect((await befehle(page)).at(-1)).toEqual({
+    SetHeadquarters: { country: "FRA", city: "marseille" },
+  });
 
   // The central departments (ZA2): employees for the finance department.
   const abteilungen = page.getByRole("article", { name: "Zentralabteilungen" });

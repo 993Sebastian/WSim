@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 38.72, laenge: -9.15}
     binnenland: false
     nachbarn: [ESP]
+    staedte:
+      - {id: lissabon, einwohner: 2_812_000, breite: 38.72, laenge: -9.15, hauptstadt: true}
+      - {id: funchal, einwohner: 204_767, breite: 32.65, laenge: -16.88}
     werte:
       bevoelkerung: {
         1900: 5_403_473, 1901: 5_446_754, 1902: 5_491_796, 1903: 5_538_626, 1904: 5_585_854, 1905: 5_633_485, 1906: 5_681_523, 1907: 5_729_970,

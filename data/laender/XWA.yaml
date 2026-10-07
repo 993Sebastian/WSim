@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 9.53, laenge: -13.68}
     binnenland: false
     nachbarn: [CIV, DZA, MAR, MLI, SEN]
+    staedte:
+      - {id: conakry, einwohner: 1_494_000, breite: 9.53, laenge: -13.68, hauptstadt: true}
+      - {id: monrovia, einwohner: 1_041_000, breite: 6.31, laenge: -10.80}
+      - {id: freetown, einwohner: 827_000, breite: 8.47, laenge: -13.24}
+      - {id: nouakchott, einwohner: 742_144, breite: 18.09, laenge: -15.98}
+      - {id: bissau, einwohner: 403_339, breite: 11.87, laenge: -15.60}
     umfasst: [GIN, SLE, LBR, MRT, GNB, CPV]
     werte:
       bevoelkerung: {

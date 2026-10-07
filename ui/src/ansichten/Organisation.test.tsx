@@ -241,7 +241,7 @@ describe("Anliegen", () => {
       />,
     );
     const karte = await screen.findByRole("article", { name: "Hauptsitz" });
-    expect(within(karte).getByText(/Hauptsitz: Deutschland/)).toBeTruthy();
+    expect(within(karte).getByText(/Hauptsitz: Berlin, Deutschland/)).toBeTruthy();
     expect(within(karte).getByText("Gewinnsteuer")).toBeTruthy();
     const formular = within(karte).getByRole("form", { name: "Hauptsitz verlegen" });
     expect(within(formular).getByText(/Kosten jetzt 250\.000 .*6 Monate/)).toBeTruthy();
@@ -250,9 +250,37 @@ describe("Anliegen", () => {
     fireEvent.change(within(formular).getByLabelText(/Neues Land/), {
       target: { value: "FRA" },
     });
+    // The capital is preselected; another city can be chosen (W2).
+    const stadt = within(formular).getByLabelText(/^Stadt/) as HTMLSelectElement;
+    expect(stadt.value).toBe("paris");
+    fireEvent.change(stadt, { target: { value: "lyon" } });
     fireEvent.click(knopf);
-    await screen.findByText("Der Umzug nach Frankreich beginnt; er dauert 6 Monate.");
-    expect(gesendet).toEqual([{ SetHeadquarters: { country: "FRA" } }]);
+    await screen.findByText("Der Umzug nach Lyon, Frankreich beginnt; er dauert 6 Monate.");
+    expect(gesendet).toEqual([{ SetHeadquarters: { country: "FRA", city: "lyon" } }]);
+  });
+
+  it("zeigt die Städte des Sitzlands und zieht innerhalb des Landes um (W2)", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    const karte = await screen.findByRole("article", { name: "Hauptsitz" });
+    const tabelle = within(karte).getByRole("table", { name: "Städte in Deutschland" });
+    const zeilen = within(tabelle).getAllByRole("row");
+    expect(zeilen).toHaveLength(6);
+    const berlin = zeilen[1] as HTMLElement;
+    expect(within(berlin).getByText("Berlin")).toBeTruthy();
+    expect(within(berlin).getByText("Sitz")).toBeTruthy();
+    expect(
+      within(karte).getByText(/Umzug in eine andere Stadt des Landes: .*3 Monate/),
+    ).toBeTruthy();
+    fireEvent.click(within(tabelle).getByRole("button", { name: "Nach Hamburg ziehen" }));
+    await screen.findByText("Der Umzug nach Hamburg beginnt; er dauert 3 Monate.");
+    expect(gesendet).toEqual([{ SetHeadquarters: { country: "DEU", city: "hamburg" } }]);
   });
 
   it("zeigt die Zentralabteilungen und stellt Angestellte ein", async () => {

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 2.07, laenge: 45.36}
     binnenland: false
     nachbarn: [ETH, KEN, SDN]
+    staedte:
+      - {id: mogadishu, einwohner: 1_100_000, breite: 2.07, laenge: 45.36, hauptstadt: true}
+      - {id: djibouti, einwohner: 923_000, breite: 11.60, laenge: 43.15}
+      - {id: asmara, einwohner: 620_802, breite: 15.33, laenge: 38.93}
+      - {id: hargeisa, einwohner: 477_876, breite: 9.56, laenge: 44.07}
+      - {id: berbera, einwohner: 242_344, breite: 10.44, laenge: 45.02}
     umfasst: [SOM, ERI, DJI]
     werte:
       bevoelkerung: {

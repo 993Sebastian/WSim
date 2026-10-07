@@ -201,7 +201,28 @@ pub struct CentralModel {
     pub refinance: RefinanceModel,
     pub hit_rate: HitRateModel,
     pub ai: CentralAiModel,
+    /// The city of the headquarters (W2); `None`: no limit by academics, offices at the
+    /// price of the data.
+    pub city: Option<HqCityModel>,
     pub provenance: Provenance,
+}
+
+/// How the city of the headquarters limits and prices the central departments (W2).
+#[derive(Clone, Debug, PartialEq)]
+pub struct HqCityModel {
+    /// Academics of a country in a city: concentration × the city's share of the
+    /// population, at most all.
+    pub academics_concentration: f64,
+    /// Share of a city's academics open to the central departments of all companies.
+    pub hq_share: f64,
+    /// Inhabitants at which the offices cost what the data says.
+    pub office_reference_population: f64,
+    /// Elasticity of the office costs to the inhabitants of the city.
+    pub office_elasticity: f64,
+    /// Share of the cost of a move within the country (a different city).
+    pub move_within_country: f64,
+    /// The year whose population the inhabitants of the cities belong to.
+    pub population_year: i32,
 }
 
 /// How AI companies set up central departments and move their headquarters (ZA4).
@@ -1569,9 +1590,21 @@ pub struct Country {
     /// ISO codes of the countries merged into this entry (M34), the leading one first;
     /// empty for a single country. Old saves find a merged country under its region.
     pub members: Vec<String>,
+    /// The largest cities, the most populous first (W2); may be empty.
+    pub cities: Vec<City>,
     pub values: CountryValues,
     pub profile: CountryProfile,
     pub provenance: Provenance,
+}
+
+/// A city where a company can have its headquarters (W2).
+#[derive(Clone, Debug, PartialEq)]
+pub struct City {
+    pub key: String,
+    /// Inhabitants of the agglomeration today.
+    pub population: f64,
+    pub location: GeoPoint,
+    pub capital: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

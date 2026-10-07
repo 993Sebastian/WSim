@@ -3,9 +3,9 @@
 use std::collections::BTreeMap;
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, DepartmentKind};
+use crate::catalog::{Catalog, City, DepartmentKind};
 use crate::command::{self, Command, CommandError};
-use crate::ids::{CountryId, Id, TechnologyId};
+use crate::ids::{CountryId, Id, LaborGroupId, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
@@ -14,18 +14,200 @@ use crate::state::{
     Appraisal, CompanyId, GameState, Judgment, Manager, ManagerId, Position, Relocation, Role, Unit,
 };
 
-/// Employees of a company's central departments.
+/// Employees of a company's central departments: the posts filled (W2).
 pub fn employees(state: &GameState, company: CompanyId) -> u32 {
-    state.companies[company.index()].departments.values().sum()
+    state.companies[company.index()]
+        .departments_staffed
+        .values()
+        .sum()
 }
 
-/// Employees of one department.
+/// The posts of a department the company wants (`StaffDepartment`).
 pub fn staff(state: &GameState, company: CompanyId, kind: DepartmentKind) -> u32 {
     state.companies[company.index()]
         .departments
         .get(&kind)
         .copied()
         .unwrap_or(0)
+}
+
+/// The posts of a department filled from the academics of the city (W2).
+pub fn staffed(state: &GameState, company: CompanyId, kind: DepartmentKind) -> u32 {
+    state.companies[company.index()]
+        .departments_staffed
+        .get(&kind)
+        .copied()
+        .unwrap_or(0)
+}
+
+/// A city of a country (W2): the one named, else the capital, else the largest; `None`
+/// for a country without cities in the data or an unknown name.
+pub fn city_in<'a>(
+    catalog: &'a Catalog,
+    country: CountryId,
+    key: Option<&str>,
+) -> Option<&'a City> {
+    let cities = &catalog.countries.get(country).cities;
+    match key {
+        Some(k) => cities.iter().find(|c| c.key == k),
+        None => cities.iter().find(|c| c.capital).or_else(|| cities.first()),
+    }
+}
+
+/// The city of a company's headquarters (W2).
+pub fn hq_city<'a>(
+    catalog: &'a Catalog,
+    state: &GameState,
+    company: CompanyId,
+) -> Option<&'a City> {
+    let c = &state.companies[company.index()];
+    city_in(catalog, c.headquarters, c.hq_city.as_deref())
+        .or_else(|| city_in(catalog, c.headquarters, None))
+}
+
+/// The city's share of its country's population (W2); 1 for a country without cities.
+fn city_share(catalog: &Catalog, country: CountryId, city: Option<&City>) -> f64 {
+    let (Some(city), Some(m)) = (city, &catalog.central.city) else {
+        return 1.0;
+    };
+    let people = catalog
+        .countries
+        .get(country)
+        .values
+        .population
+        .value_at(f64::from(m.population_year));
+    if people > 0.0 {
+        (city.population / people).min(1.0)
+    } else {
+        1.0
+    }
+}
+
+/// Inhabitants of a city this year (W2): its share of the country's population.
+pub fn city_population(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    city: Option<&City>,
+) -> f64 {
+    city_share(catalog, country, city) * state.countries.get(country).population
+}
+
+/// Academics of a group open to the central departments of all companies in a city (W2);
+/// unlimited without the model.
+pub fn city_academics(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    city: Option<&City>,
+    group: LaborGroupId,
+) -> f64 {
+    let Some(m) = &catalog.central.city else {
+        return f64::INFINITY;
+    };
+    let pool = state
+        .countries
+        .get(country)
+        .labor_pool
+        .get(group.index())
+        .copied()
+        .unwrap_or(0.0);
+    pool * (m.academics_concentration * city_share(catalog, country, city)).min(1.0) * m.hq_share
+}
+
+/// Office costs per employee and year in a city (W2): the data's amount at the price
+/// level of the country, more in large cities.
+pub fn office_per_employee(
+    catalog: &Catalog,
+    state: &GameState,
+    country: CountryId,
+    city: Option<&City>,
+    office: Money,
+) -> Money {
+    let Some(m) = &catalog.central.city else {
+        return office;
+    };
+    let people = city_population(catalog, state, country, city).max(1.0);
+    let factor = state.countries.get(country).price_level
+        * crate::math::pow(people / m.office_reference_population, m.office_elasticity);
+    office.scale(factor)
+}
+
+/// Posts all companies with their headquarters in a city want (W2).
+pub fn city_wanted(catalog: &Catalog, state: &GameState, country: CountryId, city: &str) -> u32 {
+    state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(i, c)| {
+            // Few companies; the cast is exact.
+            !c.bankrupt
+                && c.headquarters == country
+                && hq_city(catalog, state, CompanyId(*i as u32)).is_some_and(|x| x.key == city)
+        })
+        .map(|(_, c)| c.departments.values().sum::<u32>())
+        .sum()
+}
+
+/// Where central departments hire (W2): country, city key and labor group.
+type Place = (CountryId, String, LaborGroupId);
+
+/// Fills the posts of all central departments from the academics of their cities (W2):
+/// where all companies of a city want more than there are, each gets its share.
+pub(crate) fn refresh_staffing(state: &mut GameState, catalog: &Catalog) {
+    // Posts wanted per country, city and labor group.
+    let mut wanted: BTreeMap<Place, u64> = BTreeMap::new();
+    let mut posts: Vec<Vec<(DepartmentKind, u32, Place)>> =
+        Vec::with_capacity(state.companies.len());
+    for (i, c) in state.companies.iter().enumerate() {
+        let mut own = Vec::new();
+        if !c.bankrupt && !c.departments.is_empty() {
+            // Few companies; the cast is exact.
+            let city = hq_city(catalog, state, CompanyId(i as u32))
+                .map(|x| x.key.clone())
+                .unwrap_or_default();
+            for (&kind, &n) in &c.departments {
+                let Some(d) = catalog.central.department(kind) else {
+                    continue;
+                };
+                let place = (c.headquarters, city.clone(), d.labor_group);
+                *wanted.entry(place.clone()).or_default() += u64::from(n);
+                own.push((kind, n, place));
+            }
+        }
+        posts.push(own);
+    }
+    let open: BTreeMap<Place, f64> = wanted
+        .keys()
+        .map(|place| {
+            let (country, city, group) = place;
+            let city = city_in(
+                catalog,
+                *country,
+                (!city.is_empty()).then_some(city.as_str()),
+            );
+            (
+                place.clone(),
+                city_academics(catalog, state, *country, city, *group),
+            )
+        })
+        .collect();
+    for (c, own) in state.companies.iter_mut().zip(posts) {
+        c.departments_staffed.clear();
+        for (kind, n, place) in own {
+            let all = wanted[&place] as f64;
+            let pool = open[&place];
+            let filled = if all <= pool {
+                n
+            } else {
+                // Posts are small counts; the cast saturates.
+                (f64::from(n) * pool / all).floor() as u32
+            };
+            if filled > 0 {
+                c.departments_staffed.insert(kind, filled);
+            }
+        }
+    }
 }
 
 /// The position heading a department: the board's specialist of its function.
@@ -90,7 +272,7 @@ pub fn performance(
     company: CompanyId,
     kind: DepartmentKind,
 ) -> Option<Performance> {
-    let n = staff(state, company, kind);
+    let n = staffed(state, company, kind);
     if n == 0 {
         return None;
     }
@@ -274,14 +456,16 @@ pub fn accuracy(
 /// employees at the wage of their group in the country of the headquarters, and offices.
 pub fn monthly_cost(catalog: &Catalog, state: &GameState, company: CompanyId) -> (Money, Money) {
     let c = &state.companies[company.index()];
+    let city = hq_city(catalog, state, company);
     let (mut personnel, mut office) = (Money::ZERO, Money::ZERO);
-    for (&kind, &n) in &c.departments {
+    for (&kind, &n) in &c.departments_staffed {
         let Some(d) = catalog.central.department(kind) else {
             continue;
         };
         let wage = management::group_yearly_wage(catalog, state, c.headquarters, d.labor_group);
         personnel += Money::from_usd(f64::from(n) * wage / 12.0).unwrap_or(Money::ZERO);
-        office += d.office.scale(f64::from(n) / 12.0);
+        office += office_per_employee(catalog, state, c.headquarters, city, d.office)
+            .scale(f64::from(n) / 12.0);
     }
     (personnel, office)
 }
@@ -332,6 +516,7 @@ pub(crate) fn staff_department(
     } else {
         departments.insert(kind, staff);
     }
+    refresh_staffing(state, catalog);
     Ok(())
 }
 
@@ -701,8 +886,15 @@ pub fn yearly_cost(
     };
     let hq = state.companies[company.index()].headquarters;
     let wage = management::group_yearly_wage(catalog, state, hq, d.labor_group);
+    let office = office_per_employee(
+        catalog,
+        state,
+        hq,
+        hq_city(catalog, state, company),
+        d.office,
+    );
     let employees = Money::from_usd(f64::from(staff) * wage).unwrap_or(Money::ZERO)
-        + d.office.scale(f64::from(staff));
+        + office.scale(f64::from(staff));
     let salary = match head(catalog, state, company, kind) {
         Some(id) => state.managers[&id]
             .job
@@ -885,6 +1077,38 @@ fn ai_seat_among(
     best.map(|(_, country)| country)
 }
 
+/// The city of its country an AI company moves its headquarters to (docs/FORMELN.md, W2):
+/// where a department is short of academics, the city with the most of them, if it has
+/// more than today's and the cash pays for the move.
+pub fn ai_city(catalog: &Catalog, state: &GameState, company: CompanyId) -> Option<String> {
+    catalog.central.city.as_ref()?;
+    let c = &state.companies[company.index()];
+    if c.relocation.is_some() {
+        return None;
+    }
+    let (&kind, _) = c
+        .departments
+        .iter()
+        .find(|&(&k, &n)| staffed(state, company, k) < n)?;
+    let group = catalog.central.department(kind)?.labor_group;
+    let here = hq_city(catalog, state, company);
+    let now = city_academics(catalog, state, c.headquarters, here, group);
+    let mut best: Option<(f64, &City)> = None;
+    for city in &catalog.countries.get(c.headquarters).cities {
+        let open = city_academics(catalog, state, c.headquarters, Some(city), group);
+        // The most academics; on a tie the larger city (first in the data).
+        if best.is_none_or(|(b, _)| open > b) {
+            best = Some((open, city));
+        }
+    }
+    let (open, city) = best?;
+    if open <= now || here.is_some_and(|h| h.key == city.key) {
+        return None;
+    }
+    let (cost, _) = move_terms(catalog, state, company, c.headquarters);
+    (c.ledger.cash() >= cost).then(|| city.key.clone())
+}
+
 /// The AI companies' central departments and headquarters at a month start
 /// (docs/FORMELN.md, ZA4): in January they set up their departments and may move; every
 /// month their finance departments refinance loans. Returns the news for the player.
@@ -913,11 +1137,25 @@ pub fn ai_month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> V
         if date.month() == 1 {
             ai_departments(state, catalog, company);
             let own = sites.get(&company).unwrap_or(&none);
-            if let Some(country) = ai_seat_among(catalog, state, company, own) {
-                let command = Command::SetHeadquarters { country };
+            let seat = ai_seat_among(catalog, state, company, own);
+            if seat.is_none()
+                && let Some(city) = ai_city(catalog, state, company)
+            {
+                let country = state.companies[company.index()].headquarters;
+                let command = Command::SetHeadquarters {
+                    country,
+                    city: Some(city),
+                };
+                let _ = command::execute(state, catalog, company, &command);
+            }
+            if let Some(country) = seat {
+                let command = Command::SetHeadquarters {
+                    country,
+                    city: None,
+                };
                 if command::execute(state, catalog, company, &command).is_ok() {
                     let c = &state.companies[company.index()];
-                    let until = c.relocation.map_or(date, |r| r.until);
+                    let until = c.relocation.as_ref().map_or(date, |r| r.until);
                     news.push(
                         Message::new(MessageKind::Info, keys::RIVAL_HEADQUARTERS)
                             .with("firma", Param::Text(c.name.clone()))
@@ -941,7 +1179,7 @@ pub fn ai_month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> V
     news
 }
 
-/// What moving the headquarters costs now (docs/FORMELN.md, ZA1).
+/// What moving the headquarters to another country costs now (docs/FORMELN.md, ZA1).
 pub fn relocation_cost(catalog: &Catalog, state: &GameState, company: CompanyId) -> Money {
     let h = &catalog.central.headquarters;
     h.cost_base
@@ -949,35 +1187,67 @@ pub fn relocation_cost(catalog: &Catalog, state: &GameState, company: CompanyId)
             .scale(f64::from(employees(state, company)))
 }
 
-/// `SetHeadquarters`: the move to another country starts; it costs at once and is done
-/// after the months of the data.
+/// What a move costs and how many months it takes (W2): to another city of the same
+/// country only the share of the data and half the time.
+pub fn move_terms(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    country: CountryId,
+) -> (Money, u32) {
+    let cost = relocation_cost(catalog, state, company);
+    let months = catalog.central.headquarters.months;
+    match &catalog.central.city {
+        Some(m) if state.companies[company.index()].headquarters == country => {
+            (cost.scale(m.move_within_country), months.div_ceil(2))
+        }
+        _ => (cost, months),
+    }
+}
+
+/// `SetHeadquarters`: the move to another country or city starts (W2: without a city the
+/// capital); it costs at once and is done after the months of the data.
 pub(crate) fn set_headquarters(
     state: &mut GameState,
     catalog: &Catalog,
     actor: CompanyId,
-    country: CountryId,
+    (country, city): (CountryId, Option<&str>),
 ) -> Result<(), CommandError> {
     if country.index() >= catalog.countries.len() {
         return Err(CommandError::UnknownCountry);
     }
+    let target = match city {
+        Some(key) => Some(
+            city_in(catalog, country, Some(key))
+                .ok_or(CommandError::UnknownCity)?
+                .key
+                .clone(),
+        ),
+        None => city_in(catalog, country, None).map(|c| c.key.clone()),
+    };
     let c = &state.companies[actor.index()];
-    if let Some(r) = c.relocation {
+    if let Some(r) = &c.relocation {
         return Err(CommandError::RelocationUnderWay { until: r.until });
     }
-    if c.headquarters == country {
+    let here = hq_city(catalog, state, actor).map(|c| c.key.clone());
+    if c.headquarters == country && here == target {
         return Err(CommandError::SameHeadquarters);
     }
-    let cost = relocation_cost(catalog, state, actor);
+    let (cost, months) = move_terms(catalog, state, actor, country);
     if c.ledger.cash() < cost {
         return Err(CommandError::NotEnoughCash { needed: cost });
     }
-    let until = state.date.add_months(catalog.central.headquarters.months);
+    let until = state.date.add_months(months);
     let c = &mut state.companies[actor.index()];
     if cost > Money::ZERO {
         c.ledger
             .expense(CostType::Other, CostCenter::default(), Account::Cash, cost);
     }
-    c.relocation = Some(Relocation { country, until });
+    c.relocation = Some(Relocation {
+        country,
+        until,
+        city: target,
+    });
     Ok(())
 }
 
@@ -988,7 +1258,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     let mut news = Vec::new();
     let player = state.player;
     for (i, c) in state.companies.iter_mut().enumerate() {
-        let Some(r) = c.relocation.filter(|r| r.until <= date) else {
+        let Some(r) = c.relocation.clone().filter(|r| r.until <= date) else {
             continue;
         };
         c.relocation = None;
@@ -996,6 +1266,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
             continue;
         }
         c.headquarters = r.country;
+        c.hq_city = r.city.clone();
         c.relocated = Some(date);
         let share = catalog.central.headquarters.moving_share;
         let before: u32 = c.departments.values().sum();
@@ -1007,12 +1278,15 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
         let left = before - c.departments.values().sum::<u32>();
         // Few companies; the cast is exact.
         if CompanyId(i as u32) == player {
-            news.push(
-                Message::new(MessageKind::Info, keys::HEADQUARTERS_MOVED).with(
-                    "land",
-                    Param::Country(catalog.countries.key(r.country).to_owned()),
-                ),
-            );
+            let land = Param::Country(catalog.countries.key(r.country).to_owned());
+            news.push(match &r.city {
+                Some(city) => Message::new(MessageKind::Info, keys::HEADQUARTERS_MOVED_CITY)
+                    .with("land", land)
+                    .with("stadt", Param::TextKey(city_text(catalog, r.country, city))),
+                None => {
+                    Message::new(MessageKind::Info, keys::HEADQUARTERS_MOVED).with("land", land)
+                }
+            });
             if left > 0 {
                 news.push(
                     Message::new(MessageKind::Info, keys::HEADQUARTERS_STAFF_LEFT)
@@ -1021,5 +1295,11 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
             }
         }
     }
+    refresh_staffing(state, catalog);
     news
+}
+
+/// Key of a city's display text (`stadt.<ISO>.<key>`, W2).
+pub fn city_text(catalog: &Catalog, country: CountryId, city: &str) -> String {
+    format!("stadt.{}.{city}", catalog.countries.key(country))
 }

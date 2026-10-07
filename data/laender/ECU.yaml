@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: -0.21, laenge: -78.50}
     binnenland: false
     nachbarn: [COL, PER]
+    staedte:
+      - {id: guayaquil, einwohner: 2_514_000, breite: -2.22, laenge: -79.92}
+      - {id: quito, einwohner: 1_701_000, breite: -0.21, laenge: -78.50, hauptstadt: true}
+      - {id: cuenca, einwohner: 286_878, breite: -2.90, laenge: -79.00}
     werte:
       bevoelkerung: {
         1900: 1_450_728, 1901: 1_470_655, 1902: 1_491_924, 1903: 1_514_567, 1904: 1_537_553, 1905: 1_560_888, 1906: 1_584_576, 1907: 1_608_622,

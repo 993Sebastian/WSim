@@ -234,3 +234,428 @@ teilland.VCT: St. Vincent und die Grenadinen
 teilland.VUT: Vanuatu
 teilland.WSM: Samoa
 teilland.XKX: Kosovo
+
+# Städte (W2; Natural Earth, deutsche Namen nach STADT_DE)
+stadt.AFG.kabul: Kabul
+stadt.AFG.kandahar: Kandahar
+stadt.AFG.herat: Herat
+stadt.AFG.mazar_i_sharif: Mazar-i-Sharif
+stadt.AGO.luanda: Luanda
+stadt.AGO.huambo: Huambo
+stadt.AGO.benguela: Benguela
+stadt.AGO.mocamedes: Moçâmedes
+stadt.AGO.malanje: Malanje
+stadt.ARG.buenos_aires: Buenos Aires
+stadt.ARG.cordoba: Córdoba
+stadt.ARG.rosario: Rosario
+stadt.ARG.mendoza: Mendoza
+stadt.ARG.tucuman: Tucumán
+stadt.AUS.sydney: Sydney
+stadt.AUS.melbourne: Melbourne
+stadt.AUS.brisbane: Brisbane
+stadt.AUS.perth: Perth
+stadt.AUS.canberra: Canberra
+stadt.AUT.wien: Wien
+stadt.BEL.bruessel: Brüssel
+stadt.BEL.luxemburg: Luxemburg
+stadt.BFA.ouagadougou: Ouagadougou
+stadt.BFA.bobo_dioulasso: Bobo Dioulasso
+stadt.BGD.dhaka: Dhaka
+stadt.BGD.chattogram: Chattogram
+stadt.BGD.khulna: Khulna
+stadt.BGD.rajshahi: Rajshahi
+stadt.BGR.sofia: Sofia
+stadt.BLR.minsk: Minsk
+stadt.BLR.brest: Brest
+stadt.BOL.santa_cruz: Santa Cruz
+stadt.BOL.la_paz: La Paz
+stadt.BOL.sucre: Sucre
+stadt.BOL.tarija: Tarija
+stadt.BRA.sao_paulo: São Paulo
+stadt.BRA.rio_de_janeiro: Rio de Janeiro
+stadt.BRA.belo_horizonte: Belo Horizonte
+stadt.BRA.porto_alegre: Porto Alegre
+stadt.BRA.brasilia: Brasília
+stadt.CAN.toronto: Toronto
+stadt.CAN.montreal: Montréal
+stadt.CAN.vancouver: Vancouver
+stadt.CAN.ottawa: Ottawa
+stadt.CAN.calgary: Calgary
+stadt.CHE.genf: Genf
+stadt.CHE.zuerich: Zürich
+stadt.CHE.bern: Bern
+stadt.CHL.santiago: Santiago
+stadt.CHL.concepcion: Concepción
+stadt.CHL.valparaiso: Valparaíso
+stadt.CHL.antofagasta: Antofagasta
+stadt.CHL.iquique: Iquique
+stadt.CHN.shanghai: Shanghai
+stadt.CHN.peking: Peking
+stadt.CHN.guangzhou: Guangzhou
+stadt.CHN.shenzhen: Shenzhen
+stadt.CHN.wuhan: Wuhan
+stadt.CIV.abidjan: Abidjan
+stadt.CIV.bouake: Bouaké
+stadt.CIV.yamoussoukro: Yamoussoukro
+stadt.CMR.douala: Douala
+stadt.CMR.yaounde: Yaoundé
+stadt.CMR.bamenda: Bamenda
+stadt.CMR.garoua: Garoua
+stadt.CMR.maroua: Maroua
+stadt.COD.kinshasa: Kinshasa
+stadt.COD.lubumbashi: Lubumbashi
+stadt.COD.mbuji_mayi: Mbuji-Mayi
+stadt.COD.kananga: Kananga
+stadt.COD.kikwit: Kikwit
+stadt.COL.bogota: Bogota
+stadt.COL.medellin: Medellín
+stadt.COL.cali: Cali
+stadt.COL.barranquilla: Barranquilla
+stadt.COL.cartagena: Cartagena
+stadt.CUB.havanna: Havanna
+stadt.CUB.santiago_de_cuba: Santiago de Cuba
+stadt.CZE.prag: Prag
+stadt.CZE.bratislava: Bratislava
+stadt.DEU.berlin: Berlin
+stadt.DEU.frankfurt: Frankfurt
+stadt.DEU.hamburg: Hamburg
+stadt.DEU.muenchen: München
+stadt.DEU.dresden: Dresden
+stadt.DNK.kopenhagen: Kopenhagen
+stadt.DZA.algier: Algier
+stadt.DZA.oran: Oran
+stadt.DZA.constantine: Constantine
+stadt.DZA.annaba: Annaba
+stadt.DZA.ghardaia: Ghardaia
+stadt.ECU.guayaquil: Guayaquil
+stadt.ECU.quito: Quito
+stadt.ECU.cuenca: Cuenca
+stadt.EGY.kairo: Kairo
+stadt.EGY.alexandria: Alexandria
+stadt.EGY.port_said: Port Said
+stadt.EGY.luxor: Luxor
+stadt.EGY.suez: Suez
+stadt.ESP.madrid: Madrid
+stadt.ESP.barcelona: Barcelona
+stadt.ESP.sevilla: Sevilla
+stadt.ESP.bilbao: Bilbao
+stadt.ESP.valencia: Valencia
+stadt.ETH.addis_abeba: Addis Abeba
+stadt.ETH.dire_dawa: Dire Dawa
+stadt.ETH.bahir_dar: Bahir Dar
+stadt.ETH.gondar: Gondar
+stadt.FIN.helsinki: Helsinki
+stadt.FIN.tampere: Tampere
+stadt.FRA.paris: Paris
+stadt.FRA.lyon: Lyon
+stadt.FRA.marseille: Marseille
+stadt.FRA.lille: Lille
+stadt.FRA.toulouse: Toulouse
+stadt.GBR.london: London
+stadt.GBR.birmingham: Birmingham
+stadt.GBR.manchester: Manchester
+stadt.GBR.glasgow: Glasgow
+stadt.GBR.cardiff: Cardiff
+stadt.GHA.accra: Accra
+stadt.GRC.athen: Athen
+stadt.GRC.thessaloniki: Thessaloniki
+stadt.GRC.nikosia: Nikosia
+stadt.HUN.budapest: Budapest
+stadt.IDN.jakarta: Jakarta
+stadt.IDN.surabaya: Surabaya
+stadt.IDN.bandung: Bandung
+stadt.IDN.medan: Medan
+stadt.IDN.palembang: Palembang
+stadt.IND.mumbai: Mumbai
+stadt.IND.delhi: Delhi
+stadt.IND.kolkata: Kolkata
+stadt.IND.chennai: Chennai
+stadt.IND.new_delhi: New Delhi
+stadt.IRL.dublin: Dublin
+stadt.IRN.teheran: Teheran
+stadt.IRN.mashhad: Mashhad
+stadt.IRN.isfahan: Isfahan
+stadt.IRN.tabriz: Tabriz
+stadt.IRN.shiraz: Shiraz
+stadt.IRQ.bagdad: Bagdad
+stadt.IRQ.mosul: Mosul
+stadt.IRQ.basra: Basra
+stadt.IRQ.najaf: Najaf
+stadt.IRQ.kirkuk: Kirkuk
+stadt.ISR.tel_aviv: Tel Aviv
+stadt.ISR.jerusalem: Jerusalem
+stadt.ITA.rom: Rom
+stadt.ITA.mailand: Mailand
+stadt.ITA.neapel: Neapel
+stadt.ITA.turin: Turin
+stadt.ITA.florenz: Florenz
+stadt.JPN.tokio: Tokio
+stadt.JPN.osaka: Osaka
+stadt.JPN.nagoya: Nagoya
+stadt.JPN.fukuoka: Fukuoka
+stadt.JPN.sapporo: Sapporo
+stadt.KAZ.almaty: Almaty
+stadt.KAZ.shymkent: Shymkent
+stadt.KAZ.qaraghandy: Qaraghandy
+stadt.KAZ.taraz: Taraz
+stadt.KAZ.nur_sultan: Nur-Sultan
+stadt.KEN.nairobi: Nairobi
+stadt.KEN.mombasa: Mombasa
+stadt.KEN.eldoret: Eldoret
+stadt.KHM.phnom_penh: Phnom Penh
+stadt.KHM.vientiane: Vientiane
+stadt.KHM.battambang: Battambang
+stadt.KHM.siem_reap: Siem Reap
+stadt.KOR.seoul: Seoul
+stadt.KOR.busan: Busan
+stadt.KOR.incheon: Incheon
+stadt.KOR.daejeon: Daejeon
+stadt.KOR.gwangju: Gwangju
+stadt.LBY.tripolis: Tripolis
+stadt.LBY.banghazi: Banghazi
+stadt.LBY.misrata: Misrata
+stadt.LBY.zuwara: Zuwara
+stadt.LBY.sabha: Sabha
+stadt.LKA.colombo: Colombo
+stadt.LKA.sri_jayawardenepura_kotte: Sri Jayawardenepura Kotte
+stadt.LKA.male: Malé
+stadt.LKA.kandy: Kandy
+stadt.MAR.casablanca: Casablanca
+stadt.MAR.rabat: Rabat
+stadt.MAR.fez: Fez
+stadt.MAR.marrakesh: Marrakesh
+stadt.MAR.oujda: Oujda
+stadt.MDG.antananarivo: Antananarivo
+stadt.MDG.port_louis: Port Louis
+stadt.MDG.fianarantsoa: Fianarantsoa
+stadt.MDG.mahajanga: Mahajanga
+stadt.MDG.moroni: Moroni
+stadt.MEX.mexiko_stadt: Mexiko-Stadt
+stadt.MEX.guadalajara: Guadalajara
+stadt.MEX.monterrey: Monterrey
+stadt.MEX.puebla: Puebla
+stadt.MEX.tijuana: Tijuana
+stadt.MLI.bamako: Bamako
+stadt.MLI.segou: Ségou
+stadt.MLI.gao: Gao
+stadt.MMR.yangon: Yangon
+stadt.MMR.mandalay: Mandalay
+stadt.MMR.naypyidaw: Naypyidaw
+stadt.MMR.sittwe: Sittwe
+stadt.MNG.ulaanbaatar: Ulaanbaatar
+stadt.MOZ.maputo: Maputo
+stadt.MOZ.beira: Beira
+stadt.MOZ.nampula: Nampula
+stadt.MOZ.nacala: Nacala
+stadt.MOZ.quelimane: Quelimane
+stadt.MWI.lilongwe: Lilongwe
+stadt.MWI.blantyre: Blantyre
+stadt.MWI.mzuzu: Mzuzu
+stadt.MYS.george_town: George Town
+stadt.MYS.kuala_lumpur: Kuala Lumpur
+stadt.MYS.kuching: Kuching
+stadt.MYS.bandar_seri_begawan: Bandar Seri Begawan
+stadt.NER.niamey: Niamey
+stadt.NER.niamey_2: Niamey
+stadt.NER.zinder: Zinder
+stadt.NER.agadez: Agadez
+stadt.NER.tahoua: Tahoua
+stadt.NGA.lagos: Lagos
+stadt.NGA.kano: Kano
+stadt.NGA.ibadan: Ibadan
+stadt.NGA.abuja: Abuja
+stadt.NGA.kaduna: Kaduna
+stadt.NLD.den_haag: Den Haag
+stadt.NLD.amsterdam: Amsterdam
+stadt.NOR.oslo: Oslo
+stadt.NOR.bergen: Bergen
+stadt.NOR.reykjavik: Reykjavík
+stadt.NOR.trondheim: Trondheim
+stadt.NPL.kathmandu: Kathmandu
+stadt.NZL.auckland: Auckland
+stadt.NZL.wellington: Wellington
+stadt.NZL.manukau: Manukau
+stadt.NZL.christchurch: Christchurch
+stadt.NZL.hamilton: Hamilton
+stadt.PAK.karatschi: Karatschi
+stadt.PAK.lahore: Lahore
+stadt.PAK.multan: Multan
+stadt.PAK.gujranwala: Gujranwala
+stadt.PAK.islamabad: Islamabad
+stadt.PER.lima: Lima
+stadt.PER.arequipa: Arequipa
+stadt.PER.trujillo: Trujillo
+stadt.PER.iquitos: Iquitos
+stadt.PER.huancayo: Huancayo
+stadt.PHL.manila: Manila
+stadt.PHL.davao: Davao
+stadt.PHL.general_santos: General Santos
+stadt.PHL.cebu: Cebu
+stadt.PHL.zamboanga: Zamboanga
+stadt.POL.warschau: Warschau
+stadt.POL.krakau: Krakau
+stadt.POL.danzig: Danzig
+stadt.PRK.pjoengjang: Pjöngjang
+stadt.PRK.wonsan: Wonsan
+stadt.PRK.sinuiju: Sinuiju
+stadt.PRT.lissabon: Lissabon
+stadt.PRT.funchal: Funchal
+stadt.ROU.bukarest: Bukarest
+stadt.ROU.chisinau: Chișinău
+stadt.ROU.iasi: Iași
+stadt.ROU.constanta: Constanța
+stadt.RUS.moskau: Moskau
+stadt.RUS.sankt_petersburg: Sankt Petersburg
+stadt.RUS.novosibirsk: Novosibirsk
+stadt.RUS.yekaterinburg: Yekaterinburg
+stadt.RUS.nizhny_novgorod: Nizhny Novgorod
+stadt.SAU.riad: Riad
+stadt.SAU.dschidda: Dschidda
+stadt.SAU.makkah: Makkah
+stadt.SAU.medina: Medina
+stadt.SAU.tabuk: Tabuk
+stadt.SDN.khartum: Khartum
+stadt.SDN.omdurman: Omdurman
+stadt.SDN.port_sudan: Port Sudan
+stadt.SDN.kassala: Kassala
+stadt.SDN.al_ubayyid: Al-Ubayyid
+stadt.SEN.dakar: Dakar
+stadt.SEN.kaolack: Kaolack
+stadt.SGP.singapur: Singapur
+stadt.SWE.stockholm: Stockholm
+stadt.SWE.malmoe: Malmö
+stadt.SYR.aleppo: Aleppo
+stadt.SYR.damaskus: Damaskus
+stadt.THA.bangkok: Bangkok
+stadt.THA.chiang_mai: Chiang Mai
+stadt.THA.nakhon_ratchasima: Nakhon Ratchasima
+stadt.THA.surat_thani: Surat Thani
+stadt.TUN.tunis: Tunis
+stadt.TUN.sousse: Sousse
+stadt.TUR.istanbul: Istanbul
+stadt.TUR.ankara: Ankara
+stadt.TUR.izmir: Izmir
+stadt.TUR.bursa: Bursa
+stadt.TUR.adana: Adana
+stadt.TWN.taipei: Taipei
+stadt.TWN.kaohsiung: Kaohsiung
+stadt.TWN.taichung: Taichung
+stadt.TZA.dar_es_salaam: Dar es Salaam
+stadt.TZA.mwanza: Mwanza
+stadt.TZA.zanzibar: Zanzibar
+stadt.TZA.arusha: Arusha
+stadt.TZA.mbeya: Mbeya
+stadt.UGA.kampala: Kampala
+stadt.UGA.mbale: Mbale
+stadt.UGA.jinja: Jinja
+stadt.UGA.arua: Arua
+stadt.UGA.gulu: Gulu
+stadt.UKR.kiew: Kiew
+stadt.UKR.kharkiv: Kharkiv
+stadt.UKR.dnipro: Dnipro
+stadt.UKR.odessa: Odessa
+stadt.UKR.donetsk: Donetsk
+stadt.USA.new_york: New York
+stadt.USA.los_angeles: Los Angeles
+stadt.USA.chicago: Chicago
+stadt.USA.miami: Miami
+stadt.USA.washington_d_c: Washington, D.C.
+stadt.UZB.taschkent: Taschkent
+stadt.UZB.samarkand: Samarkand
+stadt.UZB.andijan: Andijan
+stadt.UZB.bukhara: Bukhara
+stadt.UZB.nukus: Nukus
+stadt.VEN.caracas: Caracas
+stadt.VEN.maracaibo: Maracaibo
+stadt.VEN.valencia: Valencia
+stadt.VEN.ciudad_guayana: Ciudad Guayana
+stadt.VEN.san_cristobal: San Cristóbal
+stadt.VNM.ho_chi_minh_stadt: Ho-Chi-Minh-Stadt
+stadt.VNM.hanoi: Hanoi
+stadt.VNM.haiphong: Haiphong
+stadt.VNM.da_nang: Da Nang
+stadt.XBA.riga: Riga
+stadt.XBA.vilnius: Vilnius
+stadt.XBA.tallinn: Tallinn
+stadt.XGO.kuwait_city: Kuwait City
+stadt.XGO.doha: Doha
+stadt.XGO.dubai: Dubai
+stadt.XGO.muscat: Muscat
+stadt.XGO.abu_dhabi: Abu Dhabi
+stadt.XGU.georgetown: Georgetown
+stadt.XGU.paramaribo: Paramaribo
+stadt.XHA.mogadishu: Mogadishu
+stadt.XHA.djibouti: Djibouti
+stadt.XHA.asmara: Asmara
+stadt.XHA.hargeisa: Hargeisa
+stadt.XHA.berbera: Berbera
+stadt.XHI.santo_domingo: Santo Domingo
+stadt.XHI.port_au_prince: Port-au-Prince
+stadt.XHI.santiago: Santiago
+stadt.XKA.baku: Baku
+stadt.XKA.jerewan: Jerewan
+stadt.XKA.tiflis: Tiflis
+stadt.XKA.batumi: Batumi
+stadt.XKB.kingston: Kingston
+stadt.XKB.port_of_spain: Port-of-Spain
+stadt.XKB.nassau: Nassau
+stadt.XKB.bridgetown: Bridgetown
+stadt.XLE.beirut: Beirut
+stadt.XLE.amman: Amman
+stadt.XLE.gaza_city: Gaza City
+stadt.XMA.brazzaville: Brazzaville
+stadt.XMA.n_djamena: N'Djamena
+stadt.XMA.bangui: Bangui
+stadt.XMA.pointe_noire: Pointe-Noire
+stadt.XMA.libreville: Libreville
+stadt.XME.san_salvador: San Salvador
+stadt.XME.san_jose: San José
+stadt.XME.panama_stadt: Panama-Stadt
+stadt.XME.guatemala_city: Guatemala City
+stadt.XME.tegucigalpa: Tegucigalpa
+stadt.XOZ.port_moresby: Port Moresby
+stadt.XOZ.suva: Suva
+stadt.XOZ.lae: Lae
+stadt.XPU.asuncion: Asunción
+stadt.XPU.montevideo: Montevideo
+stadt.XPU.ciudad_del_este: Ciudad del Este
+stadt.XRB.kigali: Kigali
+stadt.XRB.bujumbura: Bujumbura
+stadt.XSA.maseru: Maseru
+stadt.XSA.windhoek: Windhoek
+stadt.XSA.gaborone: Gaborone
+stadt.XTB.lome: Lomé
+stadt.XTB.cotonou: Cotonou
+stadt.XTB.porto_novo: Porto-Novo
+stadt.XTB.parakou: Parakou
+stadt.XWA.conakry: Conakry
+stadt.XWA.monrovia: Monrovia
+stadt.XWA.freetown: Freetown
+stadt.XWA.nouakchott: Nouakchott
+stadt.XWA.bissau: Bissau
+stadt.XWB.belgrad: Belgrad
+stadt.XWB.tirana: Tirana
+stadt.XWB.zagreb: Zagreb
+stadt.XWB.sarajevo: Sarajevo
+stadt.XWB.skopje: Skopje
+stadt.XZA.dushanbe: Dushanbe
+stadt.XZA.bishkek: Bishkek
+stadt.XZA.ashgabat: Ashgabat
+stadt.XZA.tuerkmenabat: Türkmenabat
+stadt.XZA.mary: Mary
+stadt.YEM.sanaa: Sanaa
+stadt.YEM.aden: Aden
+stadt.YEM.taizz: Taizz
+stadt.ZAF.johannesburg: Johannesburg
+stadt.ZAF.kapstadt: Kapstadt
+stadt.ZAF.durban: Durban
+stadt.ZAF.pretoria: Pretoria
+stadt.ZAF.port_elizabeth: Port Elizabeth
+stadt.ZMB.lusaka: Lusaka
+stadt.ZMB.kitwe: Kitwe
+stadt.ZMB.kabwe: Kabwe
+stadt.ZMB.livingstone: Livingstone
+stadt.ZMB.mufulira: Mufulira
+stadt.ZWE.harare: Harare
+stadt.ZWE.bulawayo: Bulawayo
+stadt.ZWE.chitungwiza: Chitungwiza

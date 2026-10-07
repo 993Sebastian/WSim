@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -6.80, laenge: 39.27}
     binnenland: false
     nachbarn: [COD, KEN, MOZ, MWI, UGA, XRB, ZMB]
+    staedte:
+      - {id: dar_es_salaam, einwohner: 2_930_000, breite: -6.80, laenge: 39.27, hauptstadt: true}
+      - {id: mwanza, einwohner: 493_944, breite: -2.52, laenge: 32.93}
+      - {id: zanzibar, einwohner: 403_658, breite: -6.16, laenge: 39.20}
+      - {id: arusha, einwohner: 341_136, breite: -3.36, laenge: 36.67}
+      - {id: mbeya, einwohner: 291_649, breite: -8.89, laenge: 33.43}
     werte:
       bevoelkerung: {
         1900: 4_971_825, 1901: 4_943_198, 1902: 4_918_722, 1903: 4_898_345, 1904: 4_878_052, 1905: 4_857_844, 1906: 4_837_719, 1907: 4_817_677,

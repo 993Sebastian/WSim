@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -12.05, laenge: -77.05}
     binnenland: false
     nachbarn: [BOL, BRA, CHL, COL, ECU]
+    staedte:
+      - {id: lima, einwohner: 8_012_000, breite: -12.05, laenge: -77.05, hauptstadt: true}
+      - {id: arequipa, einwohner: 815_000, breite: -16.42, laenge: -71.53}
+      - {id: trujillo, einwohner: 765_171, breite: -8.12, laenge: -79.02}
+      - {id: iquitos, einwohner: 458_729, breite: -3.75, laenge: -73.25}
+      - {id: huancayo, einwohner: 412_733, breite: -12.08, laenge: -75.20}
     werte:
       bevoelkerung: {
         1900: 3_656_471, 1901: 3_697_013, 1902: 3_740_922, 1903: 3_788_266, 1904: 3_836_208, 1905: 3_884_757, 1906: 3_933_920, 1907: 3_983_706,

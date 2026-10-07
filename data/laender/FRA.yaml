@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 48.87, laenge: 2.33}
     binnenland: false
     nachbarn: [BEL, BRA, CHE, DEU, ESP, ITA, NLD, XGU]
+    staedte:
+      - {id: paris, einwohner: 9_904_000, breite: 48.87, laenge: 2.33, hauptstadt: true}
+      - {id: lyon, einwohner: 1_423_000, breite: 45.77, laenge: 4.83}
+      - {id: marseille, einwohner: 1_400_000, breite: 43.29, laenge: 5.37}
+      - {id: lille, einwohner: 1_044_000, breite: 50.65, laenge: 3.08}
+      - {id: toulouse, einwohner: 847_000, breite: 43.62, laenge: 1.45}
     umfasst: [FRA, MCO]
     werte:
       bevoelkerung: {

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 52.52, laenge: 13.40}
     binnenland: false
     nachbarn: [AUT, BEL, CHE, CZE, DNK, FRA, NLD, POL]
+    staedte:
+      - {id: berlin, einwohner: 3_406_000, breite: 52.52, laenge: 13.40, hauptstadt: true}
+      - {id: frankfurt, einwohner: 2_895_000, breite: 50.10, laenge: 8.68}
+      - {id: hamburg, einwohner: 1_757_000, breite: 53.55, laenge: 10.00}
+      - {id: muenchen, einwohner: 1_275_000, breite: 48.13, laenge: 11.57}
+      - {id: dresden, einwohner: 617_515, breite: 51.05, laenge: 13.75}
     werte:
       bevoelkerung: {
         1900: 43_265_500, 1901: 43_888_263, 1902: 44_530_514, 1903: 45_192_684, 1904: 45_864_698, 1905: 46_546_702, 1906: 47_238_845, 1907: 47_941_277,

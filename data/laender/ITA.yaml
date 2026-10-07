@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 41.90, laenge: 12.48}
     binnenland: false
     nachbarn: [AUT, CHE, FRA, XWB]
+    staedte:
+      - {id: rom, einwohner: 3_339_000, breite: 41.90, laenge: 12.48, hauptstadt: true}
+      - {id: mailand, einwohner: 2_945_000, breite: 45.47, laenge: 9.20}
+      - {id: neapel, einwohner: 2_250_000, breite: 40.84, laenge: 14.24}
+      - {id: turin, einwohner: 1_652_000, breite: 45.07, laenge: 7.67}
+      - {id: florenz, einwohner: 1_500_000, breite: 43.78, laenge: 11.25}
     umfasst: [ITA, MLT, SMR]
     werte:
       bevoelkerung: {

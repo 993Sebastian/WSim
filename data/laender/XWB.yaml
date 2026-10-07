@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 44.82, laenge: 20.47}
     binnenland: false
     nachbarn: [AUT, BGR, GRC, HUN, ITA, ROU]
+    staedte:
+      - {id: belgrad, einwohner: 1_099_000, breite: 44.82, laenge: 20.47, hauptstadt: true}
+      - {id: tirana, einwohner: 895_350, breite: 41.33, laenge: 19.82}
+      - {id: zagreb, einwohner: 722_526, breite: 45.80, laenge: 16.00}
+      - {id: sarajevo, einwohner: 696_731, breite: 43.85, laenge: 18.38}
+      - {id: skopje, einwohner: 494_087, breite: 42.00, laenge: 21.43}
     umfasst: [SRB, HRV, BIH, ALB, MKD, SVN, XKX, MNE]
     werte:
       bevoelkerung: {

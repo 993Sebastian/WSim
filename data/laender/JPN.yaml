@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 35.69, laenge: 139.75}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: tokio, einwohner: 35_676_000, breite: 35.69, laenge: 139.75, hauptstadt: true}
+      - {id: osaka, einwohner: 11_294_000, breite: 34.75, laenge: 135.46}
+      - {id: nagoya, einwohner: 3_230_000, breite: 35.16, laenge: 136.91}
+      - {id: fukuoka, einwohner: 2_792_000, breite: 33.60, laenge: 130.41}
+      - {id: sapporo, einwohner: 2_544_000, breite: 43.08, laenge: 141.34}
     werte:
       bevoelkerung: {
         1900: 45_239_465, 1901: 45_752_064, 1902: 46_288_864, 1903: 46_850_347, 1904: 47_418_629, 1905: 47_993_795, 1906: 48_575_925, 1907: 49_165_106,

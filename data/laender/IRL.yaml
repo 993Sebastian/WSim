@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 53.34, laenge: -6.25}
     binnenland: false
     nachbarn: [GBR]
+    staedte:
+      - {id: dublin, einwohner: 1_059_000, breite: 53.34, laenge: -6.25, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 3_180_957, 1901: 3_165_348, 1902: 3_152_910, 1903: 3_143_620, 1904: 3_134_348, 1905: 3_125_097, 1906: 3_115_864, 1907: 3_106_651,

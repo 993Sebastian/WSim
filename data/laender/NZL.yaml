@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -41.30, laenge: 174.78}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: auckland, einwohner: 1_377_200, breite: -36.85, laenge: 174.76}
+      - {id: wellington, einwohner: 393_400, breite: -41.30, laenge: 174.78, hauptstadt: true}
+      - {id: manukau, einwohner: 375_600, breite: -37.00, laenge: 174.88}
+      - {id: christchurch, einwohner: 363_200, breite: -43.54, laenge: 172.63}
+      - {id: hamilton, einwohner: 148_200, breite: -37.78, laenge: 175.29}
     werte:
       bevoelkerung: {
         1900: 808_990, 1901: 828_061, 1902: 848_659, 1903: 870_844, 1904: 893_610, 1905: 916_970, 1906: 940_941, 1907: 965_539,

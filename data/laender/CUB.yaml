@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 23.13, laenge: -82.37}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: havanna, einwohner: 2_174_000, breite: 23.13, laenge: -82.37, hauptstadt: true}
+      - {id: santiago_de_cuba, einwohner: 555_865, breite: 20.03, laenge: -75.82}
     werte:
       bevoelkerung: {
         1900: 1_719_184, 1901: 1_751_816, 1902: 1_794_860, 1903: 1_848_649, 1904: 1_904_051, 1905: 1_961_112, 1906: 2_019_884, 1907: 2_080_416,

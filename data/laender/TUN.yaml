@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 36.80, laenge: 10.18}
     binnenland: false
     nachbarn: [DZA, LBY]
+    staedte:
+      - {id: tunis, einwohner: 2_412_500, breite: 36.80, laenge: 10.18, hauptstadt: true}
+      - {id: sousse, einwohner: 327_004, breite: 35.83, laenge: 10.63}
     werte:
       bevoelkerung: {
         1900: 1_879_703, 1901: 1_906_299, 1902: 1_935_740, 1903: 1_968_099, 1904: 2_000_999, 1905: 2_034_449, 1906: 2_068_457, 1907: 2_103_034,

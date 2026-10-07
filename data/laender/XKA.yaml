@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: 40.40, laenge: 49.86}
     binnenland: false
     nachbarn: [IRN, RUS, TUR]
+    staedte:
+      - {id: baku, einwohner: 2_122_300, breite: 40.40, laenge: 49.86, hauptstadt: true}
+      - {id: jerewan, einwohner: 1_102_000, breite: 40.18, laenge: 44.51}
+      - {id: tiflis, einwohner: 1_100_000, breite: 41.73, laenge: 44.79}
+      - {id: batumi, einwohner: 155_542, breite: 41.60, laenge: 41.63}
     umfasst: [AZE, GEO, ARM]
     werte:
       bevoelkerung: {

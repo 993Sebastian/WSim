@@ -55,6 +55,8 @@ pub struct RawCountry {
     pub neighbors: Vec<String>,
     #[serde(rename = "umfasst", default)]
     pub members: Vec<String>,
+    #[serde(rename = "staedte", default)]
+    pub cities: Vec<RawCity>,
     #[serde(rename = "werte")]
     pub values: RawCountryValues,
     #[serde(rename = "praegung", default)]
@@ -63,6 +65,21 @@ pub struct RawCountry {
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// A city of a country (W2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCity {
+    pub id: String,
+    #[serde(rename = "einwohner")]
+    pub population: f64,
+    #[serde(rename = "breite")]
+    pub lat: f64,
+    #[serde(rename = "laenge")]
+    pub lon: f64,
+    #[serde(rename = "hauptstadt", default)]
+    pub capital: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1852,10 +1869,30 @@ pub struct RawCentral {
     pub hit_rate: Option<RawHitRate>,
     #[serde(rename = "ki", default)]
     pub ai: Option<RawCentralAi>,
+    #[serde(rename = "stadt", default)]
+    pub city: Option<RawHqCity>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// The city of the headquarters (W2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHqCity {
+    #[serde(rename = "akademiker_konzentration")]
+    pub academics_concentration: f64,
+    #[serde(rename = "anteil_zentralen")]
+    pub hq_share: f64,
+    #[serde(rename = "buero_bezug_einwohner")]
+    pub office_reference_population: f64,
+    #[serde(rename = "buero_elastizitaet")]
+    pub office_elasticity: f64,
+    #[serde(rename = "umzug_im_land")]
+    pub move_within_country: f64,
+    #[serde(rename = "einwohner_jahr")]
+    pub population_year: i32,
 }
 
 /// Central departments and headquarters of the AI companies (ZA4).

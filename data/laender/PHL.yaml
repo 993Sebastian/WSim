@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: 14.61, laenge: 120.98}
     binnenland: false
     nachbarn: []
+    staedte:
+      - {id: manila, einwohner: 11_100_000, breite: 14.61, laenge: 120.98, hauptstadt: true}
+      - {id: davao, einwohner: 1_402_000, breite: 7.11, laenge: 125.63}
+      - {id: general_santos, einwohner: 950_530, breite: 6.11, laenge: 125.17}
+      - {id: cebu, einwohner: 815_000, breite: 10.32, laenge: 123.90}
+      - {id: zamboanga, einwohner: 773_000, breite: 6.92, laenge: 122.08}
     werte:
       bevoelkerung: {
         1900: 6_742_227, 1901: 6_841_368, 1902: 6_951_185, 1903: 7_071_940, 1904: 7_194_768, 1905: 7_319_706, 1906: 7_446_787, 1907: 7_576_050,

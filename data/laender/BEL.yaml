@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: 50.84, laenge: 4.33}
     binnenland: false
     nachbarn: [DEU, FRA, NLD]
+    staedte:
+      - {id: bruessel, einwohner: 1_743_000, breite: 50.84, laenge: 4.33, hauptstadt: true}
+      - {id: luxemburg, einwohner: 107_260, breite: 49.61, laenge: 6.13}
     umfasst: [BEL, LUX]
     werte:
       bevoelkerung: {

@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -15.41, laenge: 28.28}
     binnenland: true
     nachbarn: [AGO, COD, MOZ, MWI, TZA, XSA, ZWE]
+    staedte:
+      - {id: lusaka, einwohner: 1_328_000, breite: -15.41, laenge: 28.28, hauptstadt: true}
+      - {id: kitwe, einwohner: 404_901, breite: -12.81, laenge: 28.22}
+      - {id: kabwe, einwohner: 188_979, breite: -14.44, laenge: 28.45}
+      - {id: livingstone, einwohner: 165_480, breite: -17.86, laenge: 25.86}
+      - {id: mufulira, einwohner: 153_624, breite: -12.55, laenge: 28.26}
     werte:
       bevoelkerung: {
         1900: 1_614_383, 1901: 1_606_865, 1902: 1_597_775, 1903: 1_587_125, 1904: 1_576_546, 1905: 1_566_037, 1906: 1_555_597, 1907: 1_545_226,

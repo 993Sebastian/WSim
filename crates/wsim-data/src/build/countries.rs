@@ -2,7 +2,9 @@
 
 use std::collections::BTreeMap;
 
-use wsim_core::catalog::{Catalog, Country, CountryModel, CountryProfile, CountryValues, GeoPoint};
+use wsim_core::catalog::{
+    Catalog, City, Country, CountryModel, CountryProfile, CountryValues, GeoPoint,
+};
 use wsim_core::ids::{CountryId, Id};
 use wsim_core::time_series::TimeSeries;
 
@@ -93,6 +95,7 @@ pub(super) fn country(
         }
     };
     let capital = l.field("hauptstadt");
+    let cities = cities(ctx, v, l);
     Country {
         continent: resolve(ctx, continents, &v.continent, &l.field("kontinent")),
         area_km2: positive(ctx, v.area_km2, &l.field("flaeche_km2")),
@@ -103,6 +106,7 @@ pub(super) fn country(
         landlocked: v.landlocked,
         neighbors,
         members: v.members.clone(),
+        cities,
         values: CountryValues {
             population: time_series(ctx, &v.values.population, &values.field("bevoelkerung")),
             gdp_per_capita_usd: time_series(
@@ -131,6 +135,76 @@ pub(super) fn country(
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }
+
+/// The cities of a country (W2): snake_case keys, once each, at most one capital, the most
+/// populous first in the catalog.
+fn cities(ctx: &mut Ctx, v: &RawCountry, l: &Loc) -> Vec<City> {
+    let list = l.field("staedte");
+    let mut cities: Vec<City> = Vec::new();
+    let mut capitals = 0;
+    for (i, c) in v.cities.iter().enumerate() {
+        let loc = list.index(i);
+        if !super::is_snake_key(&c.id) {
+            ctx.error(&loc.field("id"), messages::invalid_key(&c.id));
+        }
+        if cities.iter().any(|x| x.key == c.id) {
+            ctx.error(&loc.field("id"), messages::city_twice(&c.id));
+            continue;
+        }
+        if c.capital {
+            capitals += 1;
+            if capitals > 1 {
+                ctx.error(&loc.field("hauptstadt"), messages::capital_twice());
+            }
+        }
+        cities.push(City {
+            key: c.id.clone(),
+            population: positive(ctx, c.population, &loc.field("einwohner")),
+            location: GeoPoint {
+                lat: in_range(ctx, c.lat, -90.0, 90.0, &loc.field("breite")),
+                lon: in_range(ctx, c.lon, -180.0, 180.0, &loc.field("laenge")),
+            },
+            capital: c.capital,
+        });
+    }
+    cities.sort_by(|a, b| {
+        b.population
+            .total_cmp(&a.population)
+            .then(a.key.cmp(&b.key))
+    });
+    cities
+}
+
+/// Every city needs a display text `stadt.<ISO>.<id>` (W2); texts of unknown cities are
+/// reported as unused.
+pub(super) fn check_city_texts(
+    ctx: &mut Ctx,
+    entries: &[&Entry<RawCountry>],
+    texts: &TextIndex,
+    report_unused: bool,
+) {
+    let mut known: Vec<String> = Vec::new();
+    for e in entries {
+        for (i, c) in e.value.cities.iter().enumerate() {
+            let text_key = format!("{CITY_TEXT}.{}.{}", e.value.id, c.id);
+            if texts.texts.get(&text_key).is_none() {
+                let loc = e.loc.field("staedte").index(i).field("id");
+                ctx.error(&loc, messages::text_missing(&text_key, crate::LANGUAGE));
+            }
+            known.push(text_key);
+        }
+    }
+    if report_unused {
+        for (text_key, loc) in &texts.locations {
+            if text_key.starts_with(&format!("{CITY_TEXT}.")) && !known.contains(text_key) {
+                ctx.warning(loc, messages::text_unused(text_key));
+            }
+        }
+    }
+}
+
+/// Text prefix for the names of cities.
+const CITY_TEXT: &str = "stadt";
 
 /// Countries merged into regions (M34): ISO codes, none a country of its own or part of
 /// two regions. Every member needs a display text `teilland.<ISO>`.

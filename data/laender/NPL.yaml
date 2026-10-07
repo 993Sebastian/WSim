@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 27.72, laenge: 85.31}
     binnenland: true
     nachbarn: [CHN, IND]
+    staedte:
+      - {id: kathmandu, einwohner: 895_000, breite: 27.72, laenge: 85.31, hauptstadt: true}
     umfasst: [NPL, BTN]
     werte:
       bevoelkerung: {

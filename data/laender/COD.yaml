@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -4.33, laenge: 15.31}
     binnenland: true
     nachbarn: [AGO, SDN, TZA, UGA, XMA, XRB, ZMB]
+    staedte:
+      - {id: kinshasa, einwohner: 7_843_000, breite: -4.33, laenge: 15.31, hauptstadt: true}
+      - {id: lubumbashi, einwohner: 1_352_000, breite: -11.68, laenge: 27.48}
+      - {id: mbuji_mayi, einwohner: 1_295_000, breite: -6.15, laenge: 23.60}
+      - {id: kananga, einwohner: 765_000, breite: -5.89, laenge: 22.40}
+      - {id: kikwit, einwohner: 637_736, breite: -5.03, laenge: 18.85}
     werte:
       bevoelkerung: {
         1900: 9_450_783, 1901: 9_375_382, 1902: 9_291_434, 1903: 9_199_070, 1904: 9_107_625, 1905: 9_017_088, 1906: 8_927_451, 1907: 8_838_705,

@@ -5,6 +5,8 @@ laender:
     hauptstadt: {breite: 42.69, laenge: 23.31}
     binnenland: false
     nachbarn: [GRC, ROU, TUR, XWB]
+    staedte:
+      - {id: sofia, einwohner: 1_185_000, breite: 42.69, laenge: 23.31, hauptstadt: true}
     werte:
       bevoelkerung: {
         1900: 3_993_633, 1901: 4_047_035, 1902: 4_098_957, 1903: 4_149_349, 1904: 4_200_360, 1905: 4_251_998, 1906: 4_304_271, 1907: 4_357_187,

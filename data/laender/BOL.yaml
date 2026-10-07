@@ -5,6 +5,11 @@ laender:
     hauptstadt: {breite: -16.50, laenge: -68.15}
     binnenland: true
     nachbarn: [ARG, BRA, CHL, PER, XPU]
+    staedte:
+      - {id: santa_cruz, einwohner: 2_102_998, breite: -17.75, laenge: -63.23}
+      - {id: la_paz, einwohner: 1_590_000, breite: -16.50, laenge: -68.15, hauptstadt: true}
+      - {id: sucre, einwohner: 224_838, breite: -19.04, laenge: -65.26}
+      - {id: tarija, einwohner: 159_269, breite: -21.52, laenge: -64.75}
     werte:
       bevoelkerung: {
         1900: 1_813_486, 1901: 1_840_563, 1902: 1_863_006, 1903: 1_880_650, 1904: 1_898_457, 1905: 1_916_428, 1906: 1_934_566, 1907: 1_952_871,

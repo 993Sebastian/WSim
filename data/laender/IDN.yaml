@@ -5,6 +5,12 @@ laender:
     hauptstadt: {breite: -6.17, laenge: 106.83}
     binnenland: false
     nachbarn: [MYS, XOZ]
+    staedte:
+      - {id: jakarta, einwohner: 9_125_000, breite: -6.17, laenge: 106.83, hauptstadt: true}
+      - {id: surabaya, einwohner: 2_845_000, breite: -7.25, laenge: 112.75}
+      - {id: bandung, einwohner: 2_394_000, breite: -6.95, laenge: 107.57}
+      - {id: medan, einwohner: 2_115_000, breite: 3.58, laenge: 98.65}
+      - {id: palembang, einwohner: 1_749_000, breite: -2.98, laenge: 104.75}
     umfasst: [IDN, TLS]
     werte:
       bevoelkerung: {

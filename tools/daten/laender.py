@@ -22,7 +22,9 @@ import csv
 import json
 import math
 import os
+import re
 import sys
+import unicodedata
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -314,6 +316,20 @@ def main():
 
     capitals = {}
     places = json.load(open(os.path.join(CACHE, "ne_places.geojson")))
+    # Städte je Land (W2): alle Orte mit Einwohnerzahl, die Hauptstadt markiert.
+    towns = collections.defaultdict(list)
+    for f in places["features"]:
+        p = f["properties"]
+        if p["pop_max"] and p["pop_max"] > 0:
+            iso = NE_MERGE.get(p["adm0_a3"], p["adm0_a3"])
+            towns[iso].append({
+                "name": " ".join(p["name"].split()),
+                "ascii": " ".join(p["nameascii"].split()),
+                "pop": int(p["pop_max"]),
+                "lat": p["latitude"],
+                "lon": p["longitude"],
+                "capital": p["featurecla"] == "Admin-0 capital" and p.get("adm0cap") == 1,
+            })
     for f in places["features"]:
         p = f["properties"]
         if p["featurecla"] != "Admin-0 capital" or p.get("adm0cap") != 1:
@@ -370,6 +386,7 @@ def main():
             "continent": continent_of(*continents[head]),
             "neighbours": sorted({region_of.get(n, n) for iso in isos for n in neighbours[iso]} - {code}),
             "name": regionen.NAMEN.get(code) or german_name(code, names[code]),
+            "cities": cities_of(head, ordered, towns),
         }
 
     # --- Dateien schreiben ---------------------------------------------------------------
@@ -379,6 +396,7 @@ def main():
             os.remove(os.path.join(out_dir, old))
     texts = []
     member_texts = []
+    city_texts = []
     for iso in sorted(regions):
         r = regions[iso]
         lat, lon = r["capital"]
@@ -391,6 +409,15 @@ def main():
             f"    binnenland: {'true' if r['landlocked'] else 'false'}",
             f"    nachbarn: [{', '.join(r['neighbours'])}]",
         ]
+        if r["cities"]:
+            lines.append("    staedte:")
+            for c in r["cities"]:
+                capital = ", hauptstadt: true" if c["capital"] else ""
+                lines.append(
+                    f"      - {{id: {c['id']}, einwohner: {group(c['pop'])}, "
+                    f"breite: {c['lat']:.2f}, laenge: {c['lon']:.2f}{capital}}}"
+                )
+                city_texts.append(f"stadt.{iso}.{c['id']}: {c['german']}")
         if len(r["members"]) > 1:
             lines.append(f"    umfasst: [{', '.join(r['members'])}]")
         lines += [
@@ -424,6 +451,8 @@ def main():
         f.write("\n".join(texts) + "\n")
         f.write("\n# Länder innerhalb der Regionen (tools/daten/regionen.py)\n")
         f.write("\n".join(sorted(member_texts)) + "\n")
+        f.write("\n# Städte (W2; Natural Earth, deutsche Namen nach STADT_DE)\n")
+        f.write("\n".join(city_texts) + "\n")
     print(f"{len(texts)} Länder und Regionen geschrieben.")
     world = lambda y: sum(interpolate(s["pop"], y) for s in series.values()) / 1e9
     print(f"Weltbevölkerung 1900: {world(1900):.2f} Mrd., 1930: {world(1930):.2f} Mrd., 2020: {world(2020):.2f} Mrd.")
@@ -443,6 +472,73 @@ NAME_OVERRIDES = {
 
 def german_name(iso, name):
     return NAME_OVERRIDES.get(iso, name)
+
+
+# Städte (W2): höchstens so viele je Land oder Region, außer der Hauptstadt nur Orte ab
+# dieser Größe.
+MAX_STAEDTE = 5
+MIN_EINWOHNER = 100_000
+
+# Deutsche Namen der Städte, wo sie vom Namen in Natural Earth abweichen
+STADT_DE = {
+    "Munich": "München", "Cologne": "Köln", "Nuremberg": "Nürnberg", "Vienna": "Wien",
+    "Moscow": "Moskau", "St. Petersburg": "Sankt Petersburg", "Rome": "Rom", "Milan": "Mailand",
+    "Naples": "Neapel", "Florence": "Florenz", "Venice": "Venedig", "Genoa": "Genua",
+    "Geneva": "Genf", "Warsaw": "Warschau", "Kraków": "Krakau", "Gdańsk": "Danzig",
+    "Seville": "Sevilla", "Cairo": "Kairo", "Mexico City": "Mexiko-Stadt", "Prague": "Prag",
+    "København": "Kopenhagen", "Lisbon": "Lissabon", "Brussels": "Brüssel", "Athens": "Athen",
+    "The Hague": "Den Haag", "Beijing": "Peking", "Tokyo": "Tokio", "Ōsaka": "Osaka",
+    "Bur Said": "Port Said", "İzmir": "Izmir", "Belgrade": "Belgrad", "Bucharest": "Bukarest",
+    "Kiev": "Kiew", "Kyiv": "Kiew", "Algiers": "Algier", "Damascus": "Damaskus",
+    "Baghdad": "Bagdad", "Tehran": "Teheran", "Riyadh": "Riad", "Singapore": "Singapur",
+    "Ho Chi Minh City": "Ho-Chi-Minh-Stadt", "Pyongyang": "Pjöngjang", "Hong Kong": "Hongkong",
+    "Havana": "Havanna", "Panama City": "Panama-Stadt", "Guatemala": "Guatemala-Stadt",
+    "Addis Ababa": "Addis Abeba", "Cape Town": "Kapstadt", "Tripoli": "Tripolis",
+    "Khartoum": "Khartum", "Karachi": "Karatschi", "Tashkent": "Taschkent",
+    "Antwerp": "Antwerpen", "Gothenburg": "Göteborg", "Luxembourg": "Luxemburg",
+    "Nicosia": "Nikosia", "Tbilisi": "Tiflis", "Yerevan": "Jerewan", "Mecca": "Mekka",
+    "Jeddah": "Dschidda", "Kuwait": "Kuwait-Stadt", "Calcutta": "Kalkutta",
+    "Saint Petersburg": "Sankt Petersburg", "Thessaloniki": "Thessaloniki",
+}
+
+
+def city_id(german, taken):
+    """ID aus dem deutschen Namen: snake_case ohne Umlaute (München → muenchen)."""
+    text = german.lower()
+    for a, b in (("ä", "ae"), ("ö", "oe"), ("ü", "ue"), ("ß", "ss")):
+        text = text.replace(a, b)
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+    base = re.sub(r"[^a-z0-9]+", "_", text).strip("_") or "stadt"
+    key, n = base, 2
+    while key in taken:
+        key, n = f"{base}_{n}", n + 1
+    taken.add(key)
+    return key
+
+
+def cities_of(head, members, towns):
+    """Die Hauptstadt des namensgebenden Landes und die größten Orte aller Mitglieder."""
+    all_towns = [t for iso in members for t in towns.get(iso, [])]
+    chosen = []
+    capital = max((t for t in towns.get(head, []) if t["capital"]), key=lambda t: t["pop"], default=None)
+    if capital:
+        chosen.append(dict(capital, capital=True))
+    for t in sorted(all_towns, key=lambda t: (-t["pop"], t["ascii"])):
+        if len(chosen) >= MAX_STAEDTE:
+            break
+        if t["pop"] < MIN_EINWOHNER and chosen:
+            break
+        if capital and t is capital:
+            continue
+        if any(c["ascii"] == t["ascii"] for c in chosen):
+            continue
+        chosen.append(dict(t, capital=False))
+    chosen.sort(key=lambda t: (-t["pop"], t["ascii"]))
+    taken = set()
+    for c in chosen:
+        c["german"] = STADT_DE.get(c["name"], c["name"])
+        c["id"] = city_id(c["german"], taken)
+    return chosen
 
 
 def continent_of(continent, region, subregion):

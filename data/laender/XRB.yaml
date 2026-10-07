@@ -5,6 +5,9 @@ laender:
     hauptstadt: {breite: -1.95, laenge: 30.06}
     binnenland: true
     nachbarn: [COD, TZA, UGA]
+    staedte:
+      - {id: kigali, einwohner: 860_000, breite: -1.95, laenge: 30.06, hauptstadt: true}
+      - {id: bujumbura, einwohner: 331_700, breite: -3.38, laenge: 29.36}
     umfasst: [RWA, BDI]
     werte:
       bevoelkerung: {

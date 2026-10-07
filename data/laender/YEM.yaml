@@ -5,6 +5,10 @@ laender:
     hauptstadt: {breite: 15.36, laenge: 44.20}
     binnenland: false
     nachbarn: [SAU, XGO]
+    staedte:
+      - {id: sanaa, einwohner: 2_008_000, breite: 15.36, laenge: 44.20, hauptstadt: true}
+      - {id: aden, einwohner: 1_000_000, breite: 12.78, laenge: 45.01}
+      - {id: taizz, einwohner: 751_000, breite: 13.61, laenge: 44.04}
     werte:
       bevoelkerung: {
         1900: 2_922_518, 1901: 2_938_825, 1902: 2_959_477, 1903: 2_984_513, 1904: 3_009_760, 1905: 3_035_219, 1906: 3_060_892, 1907: 3_086_781,
