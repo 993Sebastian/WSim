@@ -900,8 +900,8 @@ entschieden:
 ## O Hauptsitz, Zentralabteilungen, Start-ups (Vorgabe `docs/BETEILIGUNGEN.md`)
 
 ✅ **ZA1 umgesetzt** (Hauptsitz verlegen), ✅ **ZA2 umgesetzt** (Zentralabteilungen,
-Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote). 🟡 Vorläufig
-entschieden:
+Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote), ✅ **SU1
+umgesetzt** (Start-ups ohne Beteiligung des Spielers). 🟡 Vorläufig entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -944,6 +944,24 @@ entschieden:
     Übernahme), sobald Beteiligungen einen Verlauf haben (SU2).
 15. **Gehaltsrunde** ist ein Regelthema: Die Personalstelle empfiehlt immer die Erhöhung
     auf den Marktwert; Umschuldung wird nach ersparten Zinsen und Gebühr bewertet.
+16. **Verbesserung = Stufe der Weiterentwicklung:** Ein Start-up „Verbesserung“ zielt auf
+    die nächste Stufe eines Produkts (M37), die noch niemand erreicht hat; Erfolg setzt
+    die Stufe weltweit, nach der Gemeingut-Frist kennt sie jeder. Nur Produkte, die
+    heute jemand herstellt (sonst arbeiteten Start-ups 1910 an Lithium).
+17. **Überholt:** Wird die Technologie vorher erfunden (Geschichte oder Forschung einer
+    Firma) oder die Stufe von einer Firma erreicht, geht das Start-up ein. Ohne diese
+    Regel endeten viele „Erfolge“ nach dem historischen Jahr ohne jede Wirkung.
+18. **Gründungsland** gewichtet mit Einwohnern · BIP je Kopf · Entwicklungsstand: Sonst
+    lägen um 1900 China und Indien vorn (große Wirtschaft, kaum Forschung).
+19. **Phasen und Chancen** (Schätzungen in `parameter/startups.yaml`): 12/18/24 Monate,
+    Chancen 0,65/0,8/0,9, Kapital 150.000/800.000/4 Mio. USD bei 50.000 USD BIP je Kopf;
+    Weltlauf bis 1940: 70 % gescheitert, 15 Technologien 1–10 Jahre früher erfunden.
+20. **Häufigkeit** wählbar beim neuen Spiel (keine, wenige 6, normal 12, viele 24 im
+    Jahr); alte Spielstände bekommen „normal“.
+21. **Investoren außerhalb des Spiels** (`Holder::Investors`) finanzieren die Runden
+    ganz; Spieler, Firmen und Fördergeld folgen mit SU2, KI-Investoren mit SU3.
+22. **Beendete bleiben zehn Jahre** in der Liste, historische Erfinder immer (so gründet
+    jeder nur einmal). Ein Spielstand wächst dadurch kaum (rund 150 Einträge).
 
 ## Reihenfolge der neuen Punkte
 

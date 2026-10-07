@@ -29,6 +29,7 @@ mod milestones;
 mod names;
 mod plots;
 mod production;
+mod ventures;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
     RawStateMarket, RawUsage,
@@ -614,6 +615,7 @@ pub(crate) fn build(
     b.catalog.product_naming = names::product_naming(b.ctx, &b.catalog, raw, &group_keys);
     b.catalog.management = management::management(b.ctx, &b.catalog, raw);
     b.catalog.central = central::central_model(b.ctx, &b.catalog, raw);
+    b.catalog.ventures = ventures::venture_model(b.ctx, &b.catalog, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,
@@ -686,6 +688,7 @@ pub(crate) fn build(
     plots::check_texts(b.ctx, &b.catalog.plot_model, raw, texts, all_files_read);
     production::check_size_texts(b.ctx, raw, texts, all_files_read);
     management::check_texts(b.ctx, &b.catalog.management, raw, texts, all_files_read);
+    ventures::check_texts(b.ctx, &b.catalog.ventures, raw, texts, all_files_read);
 
     let catalog = b.catalog;
     (ctx.report.errors().count() == errors_before).then_some(catalog)

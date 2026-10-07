@@ -1,0 +1,53 @@
+# Start-ups (SU1–SU3, docs/BETEILIGUNGEN.md; Formeln: docs/FORMELN.md, Abschnitt SU1).
+# Beträge in USD Kaufkraft 2026; der Kapitalbedarf folgt dem Einkommen im Land.
+
+startups:
+  # Wie das Spiel sie nennt, je Epoche (Texte startup.bezeichnung.<id>).
+  bezeichnungen:
+    - {id: erfinder, ab: 1900}
+    - {id: wagniskapital, ab: 1970}
+    - {id: startups, ab: 1990}
+
+  # Neue Start-ups je Jahr bei der Einstellung „normal“, davon der Anteil, der an einer
+  # neuen Technologie arbeitet (sonst an der Verbesserung eines Produkts). Neue
+  # Technologien liegen höchstens so viele Jahre vor ihrem historischen Jahr.
+  je_jahr: 12
+  anteil_neu: 0.5
+  vorlauf_jahre_max: 15
+
+  # Wahl beim neuen Spiel: Faktor auf je_jahr (Texte startup.haeufigkeit.<id>).
+  haeufigkeiten:
+    - {id: keine, faktor: 0}
+    - {id: wenige, faktor: 0.5}
+    - {id: normal, faktor: 1}
+    - {id: viele, faktor: 2}
+  haeufigkeit_standard: normal
+
+  # Phasen: Dauer, Kapitalbedarf bei bezug_bip_je_kopf_usd, Erfolgschance und Bewertung
+  # vor der Runde als Vielfaches des Kapitals. Je Jahr Vorlauf mehr Kapital und weniger
+  # Chance (höchstens bis chance_min).
+  phasen:
+    - {id: idee, monate: 12, kapital_usd: 150000, chance: 0.65, bewertung: 10}
+    - {id: prototyp, monate: 18, kapital_usd: 800000, chance: 0.8, bewertung: 5}
+    - {id: marktreife, monate: 24, kapital_usd: 4000000, chance: 0.9, bewertung: 2.5}
+  bezug_bip_je_kopf_usd: 50000
+  # Der Einkommensfaktor BIP je Kopf / Bezug bleibt in diesen Grenzen.
+  kapital_faktor_min: 0.05
+  kapital_faktor_max: 2
+  vorlauf_kapital: 0.08
+  vorlauf_chance: 0.02
+  chance_min: 0.05
+
+  # Investoren außerhalb des Spiels decken eine offene Runde je Monat mit dieser
+  # Wahrscheinlichkeit; ist sie nach der Frist nicht gedeckt, geht das Start-up ein.
+  investoren_chance_monat: 0.4
+  frist_monate: 6
+
+  # Unschärfe der gezeigten Erfolgschance ohne Strategieabteilung; ohne sie zeigt das
+  # Spiel nur die Stufe (gering, mittel ab, hoch ab). Beendete Start-ups bleiben so viele
+  # Jahre in der Liste.
+  unschaerfe: 0.5
+  stufe_mittel_ab: 0.2
+  stufe_hoch_ab: 0.4
+  aufbewahren_jahre: 10
+  annaeherung: true

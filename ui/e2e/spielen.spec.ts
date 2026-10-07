@@ -585,12 +585,12 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   const titel = (name: string | RegExp) => einfuehrung.getByRole("heading", { name });
   const ring = page.locator(".einfuehrung-rahmen");
   await expect(titel(/^Willkommen bei/)).toBeVisible();
-  await expect(einfuehrung.getByText("Schritt 1 von 22")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 23")).toBeVisible();
   await bild(page, "einfuehrung");
   // Folded to one line, to see more of the screen.
   await einfuehrung.getByRole("button", { name: "Einführung verkleinern" }).click();
   await expect(einfuehrung.getByRole("button", { name: "Weiter" })).toBeHidden();
-  await expect(einfuehrung).toContainText("Schritt 1 von 22 · Willkommen bei");
+  await expect(einfuehrung).toContainText("Schritt 1 von 23 · Willkommen bei");
   await einfuehrung.getByRole("button", { name: "Einführung aufklappen" }).click();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
 
@@ -679,6 +679,13 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     "page",
   );
   await weiter.click();
+  await expect(titel("Beteiligungen")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Beteiligungen" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.getByRole("heading", { name: "Erfinder und Gründungen" })).toBeVisible();
+  await weiter.click();
   await expect(page.getByRole("button", { name: "Weltkarte" })).toHaveAttribute(
     "aria-current",
     "page",
@@ -692,7 +699,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
     .getByRole("dialog", { name: "Tastaturkürzel" })
     .getByRole("button", { name: "Einführung starten" })
     .click();
-  await expect(einfuehrung.getByText("Schritt 1 von 22")).toBeVisible();
+  await expect(einfuehrung.getByText("Schritt 1 von 23")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Einführung beenden" }).click();
   await expect(einfuehrung).toBeHidden();
 });
@@ -913,7 +920,8 @@ test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
 
 test("Berichte sammeln die Runden der Sitzung", async ({ page }) => {
   await starten(page);
-  await page.keyboard.press("9");
+  // Berichte are the tenth view: key 0.
+  await page.keyboard.press("0");
   await expect(page.getByText("Noch keine Runde beendet.")).toBeVisible();
 
   await page.keyboard.press("Control+Enter");

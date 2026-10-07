@@ -402,6 +402,29 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Organisation hin. Rundgang der Einführung: Schritt „Organisation“ (nennt Budget und
   Anliegen, den Vorstand und die Rücksprache).
 
+### Beteiligungen (SU1)
+
+Frage des Spielers: „Wer arbeitet woran, wie weit sind sie, wie stehen die Chancen, und
+wem gehören sie?“
+
+- Neue Hauptansicht „Beteiligungen“ (Taste 8) nach der Organisation. Überschrift nach der
+  Epoche: „Erfinder und Gründungen“, ab 1970 „Wagniskapital“, ab 1990 „Start-ups“.
+- Kopf: ein Satz, was Start-ups sind und was ihr Erfolg bringt; Zahlen (neue im Jahr,
+  gegründet seit Spielbeginn, beendet mit Erfolg und gescheitert); Hinweis, ob die
+  Strategieabteilung die Chancen schätzt.
+- Unterreiter „Laufend“ (mit Zähler) und „Beendet“. Laufend: Gründer (Kennzeichen
+  „Erfinder“ für historische Erfinder), Land, Ziel („Technologie (neu, n Jahre vor der
+  Zeit)“ oder „Produkt: Stufe n“), Phase („Prototyp (2 von 3)“), Finanzierung („Runde
+  offen: sucht … bis …“ oder „… finanziert, Entscheidung am …“), Erfolgschance (Prozent mit
+  arbeitender Strategieabteilung, sonst gering/mittel/hoch), Eigner mit Anteilen.
+  Beendet: Ergebnis (Erfolg, Gescheitert, Kein Geld, Überholt – mit Erklärung beim
+  Darüberfahren) und Datum.
+- Auf dem Handy als Karten (Spaltenname über dem Wert).
+- Meldungen: wenn ein Start-up eine Technologie früher als erwartet zur Marktreife
+  bringt, und wenn es ein Produkt weiterentwickelt, das du verkaufst.
+- Rundgang der Einführung: Schritt „Beteiligungen“ nach „Organisation“ (23 Schritte).
+- Beteiligen (Anteile, Fördergeld, Rechte) folgt mit SU2.
+
 ### Forschung → Technologiebaum (M19)
 
 - Ist: Liste der Technologien mit Erfindungsjahr, Stand, Voraussetzungen, „ermöglicht“.
@@ -477,6 +500,8 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   über seinem Text.
 - Ziel: Grundeinstellungen oben (Name, Land, Startform), Weiteres aufklappbar; Kästchen
   links neben dem Text.
+- SU1: Unter „Weitere Einstellungen“ die Häufigkeit der Start-ups (keine, wenige, normal,
+  viele – mit der Zahl je Jahr), Vorgabe „normal“.
 
 ### Einführung (M20)
 
@@ -499,6 +524,8 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Versteigerungen nach Pleiten); die Einführung hat damit 21 Schritte.
 
 ### Tastenhilfe, Speichern und Laden
+
+- Ansichten mit 1–9 und 0 (SU1: 7 Organisation, 8 Beteiligungen, 9 Weltkarte, 0 Berichte).
 
 - In Ordnung; Laden zeigt Firma und Datum. Ziel: Spielstände in der Browser-Version
   zusätzlich als Datei herunterladen und hochladen (Wechsel zwischen Geräten).

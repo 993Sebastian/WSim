@@ -14,6 +14,7 @@ mod organisation;
 mod play;
 mod review;
 mod strategy;
+mod ventures;
 pub use central::*;
 pub use chains::*;
 pub use concerns::*;
@@ -26,6 +27,7 @@ pub use organisation::*;
 pub use play::*;
 pub use review::*;
 pub use strategy::*;
+pub use ventures::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -92,6 +94,14 @@ pub struct DifficultyOption {
     pub aggressiveness: f64,
 }
 
+/// A choice of how many start-ups there are (SU1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FrequencyOption {
+    pub key: String,
+    /// Start-ups a year with this choice.
+    pub per_year: f64,
+}
+
 /// What the new-game dialog offers (Lastenheft §15, stage 1).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NewGameOptions {
@@ -105,6 +115,9 @@ pub struct NewGameOptions {
     pub difficulties: Vec<DifficultyOption>,
     pub default_difficulty: String,
     pub research_factor: Range<f64>,
+    /// How many start-ups there are (SU1); empty without start-ups in the data.
+    pub startups: Vec<FrequencyOption>,
+    pub default_startups: Option<String>,
 }
 
 pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
@@ -163,6 +176,30 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             max: MAX_RESEARCH_FACTOR,
             default: 1.0,
         },
+        startups: if catalog.ventures.enabled() {
+            catalog
+                .ventures
+                .frequencies
+                .iter()
+                .map(|(key, factor)| FrequencyOption {
+                    key: key.clone(),
+                    per_year: catalog.ventures.per_year * factor,
+                })
+                .collect()
+        } else {
+            Vec::new()
+        },
+        default_startups: catalog
+            .ventures
+            .enabled()
+            .then(|| {
+                catalog
+                    .ventures
+                    .frequencies
+                    .get(catalog.ventures.default_frequency)
+            })
+            .flatten()
+            .map(|f| f.0.clone()),
     }
 }
 
@@ -1230,6 +1267,7 @@ mod tests {
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: AiSettings::default(),
+            ventures: 1.0,
         };
         Game::new(catalog, settings).expect("valid settings")
     }

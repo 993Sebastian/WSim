@@ -8,11 +8,11 @@ use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
     RawAiModel, RawCentral, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency,
-    RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawManagement,
+    RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor, RawManagement,
     RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct,
     RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
     RawResearchModel, RawSimple, RawTechnology, RawTransportClass, RawTransportModel, RawUnit,
-    RawVehicle,
+    RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -178,6 +178,8 @@ pub(crate) struct RawData {
     pub product_naming: Vec<Entry<RawProductNaming>>,
     pub management: Vec<Entry<RawManagement>>,
     pub central: Vec<Entry<RawCentral>>,
+    pub ventures: Vec<Entry<RawVentures>>,
+    pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
     pub events: Vec<Entry<RawEvent>>,
     pub price_index: Vec<Entry<RawPriceIndex>>,
@@ -215,6 +217,8 @@ pub(crate) const SECTIONS: &[&str] = &[
     "produktnamen",
     "management",
     "zentrale",
+    "startups",
+    "erfinder",
     "reale_firmen",
     "ereignisse",
     "preisindex",
@@ -294,6 +298,11 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
                 Ok(model) => raw.central.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
+            "startups" => match de::from_node::<RawVentures>(value, &loc.path) {
+                Ok(model) => raw.ventures.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "erfinder" => read_list(ctx, &loc, value, &mut raw.inventors, &mut raw.broken),
             "preisindex" => match de::from_node::<RawPriceIndex>(value, &loc.path) {
                 Ok(index) => raw.price_index.push(Entry { loc, value: index }),
                 Err(e) => ctx.de_error(file, e),

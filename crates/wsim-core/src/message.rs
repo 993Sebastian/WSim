@@ -192,6 +192,9 @@ pub mod keys {
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
     pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
+    // Start-ups (SU1).
+    pub const VENTURE_INVENTION: &str = "meldung.startup.erfindung";
+    pub const VENTURE_DEVELOPMENT: &str = "meldung.startup.weiterentwicklung";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -444,6 +447,8 @@ pub mod keys {
         COMMAND_NO_ADVANTAGE,
         HEADQUARTERS_MOVED,
         HEADQUARTERS_STAFF_LEFT,
+        VENTURE_INVENTION,
+        VENTURE_DEVELOPMENT,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,

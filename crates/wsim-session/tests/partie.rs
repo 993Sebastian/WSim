@@ -25,6 +25,7 @@ fn commands_from_the_interface() {
             companies: 20,
             difficulty: "mittel".into(),
             research_factor: 1.0,
+            startups: None,
         })
         .unwrap();
     // Unknown keys and refused commands answer with messages.
@@ -60,6 +61,7 @@ fn played_game_1900_to_1905() {
             companies: 20,
             difficulty: "mittel".into(),
             research_factor: 1.0,
+            startups: None,
         })
         .unwrap();
     let production = session.production().unwrap();
@@ -170,6 +172,7 @@ fn research_center_and_deposit_through_the_interface() {
             companies: 5,
             difficulty: "mittel".into(),
             research_factor: 1.0,
+            startups: None,
         })
         .unwrap();
     session

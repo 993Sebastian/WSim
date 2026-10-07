@@ -625,6 +625,64 @@ fn no_count(n: &u32) -> bool {
     *n == 0
 }
 
+/// A start-up (docs/FORMELN.md, SU1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Venture {
+    pub id: u32,
+    /// The inventor or the founder.
+    pub name: String,
+    /// Named after a historical inventor.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub inventor: bool,
+    pub country: CountryId,
+    pub target: VentureTarget,
+    /// Years ahead of history at the founding (new technologies).
+    pub lead: f64,
+    pub founded: Date,
+    /// Index of the phase it is in; the number of phases once it succeeded.
+    pub phase: usize,
+    /// Capital and chance of the current phase, fixed at its start.
+    pub capital: Money,
+    pub chance: f64,
+    /// Raised of the capital in the open round.
+    pub raised: Money,
+    /// Last day of the open round; none once it is funded.
+    pub round_until: Option<Date>,
+    /// When the funded phase is decided.
+    pub phase_until: Option<Date>,
+    pub owners: Vec<Stake>,
+    pub status: VentureStatus,
+    /// Draw for the shown chance, −1 … 1.
+    pub blur: f64,
+}
+
+/// What a start-up works on (SU1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VentureTarget {
+    /// A technology not yet invented.
+    Technology(TechnologyId),
+    /// The next level of a product's development no one has reached (M37).
+    Development { product: ProductId, level: u8 },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VentureStatus {
+    Active,
+    Succeeded(Date),
+    Failed(Date, VentureFailure),
+}
+
+/// Why a start-up failed (SU1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VentureFailure {
+    /// The draw at the end of a phase.
+    Phase,
+    /// Its round found no money in time.
+    Funding,
+    /// The world got there first: the technology was invented or the level reached.
+    Overtaken,
+}
+
 /// An estimate of a head waiting for its judgment (ZA3): whether the price stayed within
 /// the value of the target by the rules.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -762,6 +820,8 @@ pub enum Holder {
     Company(CompanyId),
     /// Founders, families and small shareholders.
     Private,
+    /// Investors outside the game: funds, banks, wealthy families (SU1).
+    Investors,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -1351,6 +1411,9 @@ pub struct GameSettings {
     /// AI competitors (Lastenheft §10, §15).
     #[serde(default)]
     pub ai: AiSettings,
+    /// Multiplies the start-ups of a year (SU1): none 0, few 0.5, normal 1, many 2.
+    #[serde(default = "one")]
+    pub ventures: f64,
 }
 
 /// Number and character of the AI companies; difficulty presets fill these values.
@@ -1440,6 +1503,12 @@ pub struct GameState {
     /// Estimates of heads waiting for their judgment, oldest first (ZA3).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub judgments: Vec<Judgment>,
+    /// Start-ups, oldest first; closed ones leave after some years (SU1).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ventures: Vec<Venture>,
+    /// Number of the next start-up.
+    #[serde(default)]
+    pub next_venture: u32,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

@@ -71,6 +71,7 @@ export function webKern(): Kern {
     anliegen: () => aufruf("anliegen"),
     strategie: () => aufruf("strategie"),
     ruecksprache: () => aufruf("ruecksprache"),
+    startups: () => aufruf("startups"),
     managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),

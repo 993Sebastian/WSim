@@ -25,7 +25,7 @@ use wsim_core::views::{
     self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
-    StrategyView, WorldMap, WorldMarketView,
+    StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -45,6 +45,9 @@ pub struct NewGameRequest {
     pub companies: u32,
     pub difficulty: String,
     pub research_factor: f64,
+    /// How many start-ups (SU1): key of a choice; none for the default.
+    #[serde(default)]
+    pub startups: Option<String>,
 }
 
 /// One save in the list of the load dialog.
@@ -220,6 +223,15 @@ impl<S: SaveStore> Session<S> {
             .iter()
             .find(|d| d.key == request.difficulty)
             .ok_or_else(|| error(keys::UNKNOWN_DIFFICULTY))?;
+        let frequencies = &c.ventures.frequencies;
+        let ventures = match &request.startups {
+            None => c.ventures.default_factor(),
+            Some(key) => frequencies
+                .iter()
+                .find(|(k, _)| k == key)
+                .map(|f| f.1)
+                .ok_or_else(|| error(keys::UNKNOWN_FREQUENCY))?,
+        };
         let settings = GameSettings {
             seed: request.seed,
             start_year: request.start_year,
@@ -234,6 +246,7 @@ impl<S: SaveStore> Session<S> {
                 competence: difficulty.competence,
                 aggressiveness: difficulty.aggressiveness,
             },
+            ventures,
         };
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&game);
@@ -337,6 +350,11 @@ impl<S: SaveStore> Session<S> {
     /// The mandate to the board and the CEO's strategy reviews (MA5).
     pub fn reviews(&self) -> Result<ReviewsView, MessageView> {
         self.view(views::reviews)
+    }
+
+    /// The start-ups of the world (SU1).
+    pub fn ventures(&self) -> Result<VenturesView, MessageView> {
+        self.view(views::ventures)
     }
 
     /// Candidates for a position of the player: `unit` is `standort:<Nummer>`,
@@ -575,6 +593,7 @@ pub mod keys {
     pub const UNKNOWN_COUNTRY: &str = "fehler.sitzung.unbekanntes_land";
     pub const UNKNOWN_START_FORM: &str = "fehler.sitzung.unbekannte_startform";
     pub const UNKNOWN_DIFFICULTY: &str = "fehler.sitzung.unbekannte_schwierigkeit";
+    pub const UNKNOWN_FREQUENCY: &str = "fehler.sitzung.unbekannte_haeufigkeit";
     pub const UNKNOWN_ROUND_LENGTH: &str = "fehler.sitzung.unbekannte_rundenlaenge";
     pub const INVALID_SAVE_NAME: &str = "fehler.sitzung.name_ungueltig";
     pub const SAVE_FAILED: &str = "fehler.sitzung.speichern";
@@ -591,6 +610,7 @@ pub mod keys {
         UNKNOWN_COUNTRY,
         UNKNOWN_START_FORM,
         UNKNOWN_DIFFICULTY,
+        UNKNOWN_FREQUENCY,
         UNKNOWN_ROUND_LENGTH,
         INVALID_SAVE_NAME,
         SAVE_FAILED,

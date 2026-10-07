@@ -248,6 +248,7 @@ fn chain_one_runs_in_britain() {
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: Default::default(),
+            ventures: 1.0,
         },
     )
     .unwrap();
@@ -382,6 +383,7 @@ fn government_demand_for_steel_bars() {
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: Default::default(),
+            ventures: 1.0,
         },
     )
     .unwrap();
@@ -466,6 +468,7 @@ fn start_forms_give_a_workshop_or_an_office() {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     };
 
     let mut workshop = Game::new(c.clone(), settings(StartForm::Workshop, 100_000.0)).unwrap();
@@ -520,6 +523,7 @@ fn ai_start_population() {
             competence: 0.5,
             aggressiveness: 0.5,
         },
+        ventures: 1.0,
     };
     let game = Game::new(c.clone(), settings.clone()).unwrap();
     let state = game.state();
@@ -591,6 +595,7 @@ fn markets_are_saturated_and_newcomers_must_compete() {
             competence: 0.5,
             aggressiveness: 0.5,
         },
+        ventures: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     let nails = c.products.id("naegel").unwrap();
@@ -684,6 +689,7 @@ fn ai_world_is_reproducible() {
             competence: 0.8,
             aggressiveness: 0.7,
         },
+        ventures: 1.0,
     };
     let run = || {
         let mut game = Game::new(c.clone(), settings.clone()).unwrap();
@@ -749,6 +755,7 @@ fn world_events_appear_in_the_round_report() {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     };
     let mut game = Game::new(c, settings).unwrap();
     let mut events = Vec::new();
@@ -799,6 +806,7 @@ fn the_euro_arrives_as_world_event_and_change_of_currency() {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     };
     let mut game = Game::new(c, settings).unwrap();
     let mut news = Vec::new();
@@ -873,6 +881,7 @@ fn world_stays_plausible_in_the_first_year() {
             competence: 0.5,
             aggressiveness: 0.5,
         },
+        ventures: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     let n = c.products.len();
@@ -1007,6 +1016,7 @@ fn companies_name_their_end_products() {
             competence: 0.5,
             aggressiveness: 0.5,
         },
+        ventures: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     for _ in 0..3 {
@@ -1096,6 +1106,7 @@ fn start_plants_make_every_input_they_use() {
                 competence: 0.5,
                 aggressiveness: 0.5,
             },
+            ventures: 1.0,
         };
         let game = Game::new(c.clone(), settings).unwrap();
         let state = game.state();
@@ -1164,6 +1175,7 @@ fn decisions_of_the_ai_change_nothing() {
             competence: 0.5,
             aggressiveness: 0.5,
         },
+        ventures: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     for _ in 0..2 {
@@ -1239,6 +1251,7 @@ fn early_central_departments_ruin_a_workshop() {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     };
     let mut plain = Game::new(c.clone(), settings.clone()).unwrap();
     let mut early = Game::new(c.clone(), settings).unwrap();

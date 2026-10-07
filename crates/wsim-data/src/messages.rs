@@ -452,6 +452,10 @@ pub fn default_difficulty_unknown(key: &str) -> String {
     format!("Schwierigkeit „{key}“ ist unter „schwierigkeiten“ nicht aufgeführt.")
 }
 
+pub fn default_frequency_unknown(key: &str) -> String {
+    format!("Häufigkeit „{key}“ ist unter „haeufigkeiten“ nicht aufgeführt.")
+}
+
 pub fn management_topic_twice(topic: &str, first: &str) -> String {
     format!(
         "Das Thema „{topic}“ gehört schon zum Bereich „{first}“; jedes Thema gehört zu höchstens einem Bereich."
@@ -679,4 +683,8 @@ pub fn development_field_missing(product: &str, branch: &str) -> String {
     format!(
         "Produkt „{product}“ wird ohne Technologie hergestellt, und seine Branche „{branch}“ hat kein Fachgebiet für die Weiterentwicklung (forschungsmodell.weiterentwicklung.fachgebiete)."
     )
+}
+
+pub fn inventors_without_ventures() -> String {
+    "Ohne Abschnitt „startups“ gibt es keine Start-ups; die Erfinder bleiben ungenutzt.".into()
 }

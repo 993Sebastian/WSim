@@ -1,0 +1,39 @@
+# Historische Erfinder zu ihren realen Erfindungen (SU1, docs/BETEILIGUNGEN.md §5.2):
+# Entsteht ein Start-up für eine dieser Technologien, trägt es den Namen des Erfinders
+# und sitzt in seinem Land (einmal je Erfinder). Nur Technologien nach 1900; Namen, die
+# heute Marken sind, fehlen bewusst.
+
+erfinder:
+  - {technologie: elektrostahl, name: Paul Héroult, land: FRA, quelle: Technikgeschichte}
+  - {technologie: turbogenerator, name: Charles Parsons, land: GBR, quelle: Technikgeschichte}
+  - {technologie: viskoseverfahren, name: Charles Frederick Cross, land: GBR, quelle: Technikgeschichte}
+  - {technologie: wolframgluehlampe, name: Alexander Just, land: HUN, quelle: Technikgeschichte}
+  - {technologie: phenolharz, name: Leo Baekeland, land: USA, quelle: Technikgeschichte}
+  - {technologie: staubsauger, name: James Murray Spangler, land: USA, quelle: Technikgeschichte}
+  - {technologie: flugmotor, name: Laurent Seguin, land: FRA, quelle: Technikgeschichte}
+  - {technologie: elektronenroehre, name: Robert von Lieben, land: AUT, quelle: Technikgeschichte}
+  - {technologie: thermisches_cracken, name: William Burton, land: USA, quelle: Technikgeschichte}
+  - {technologie: haber_bosch, name: Fritz Haber, land: DEU, quelle: Technikgeschichte}
+  - {technologie: ganzstahlkarosserie, name: Edward Budd, land: USA, quelle: Technikgeschichte}
+  - {technologie: kompressionskuehlschrank, name: Baltzar von Platen, land: SWE, quelle: Technikgeschichte}
+  - {technologie: rundfunk, name: Frank Conrad, land: USA, quelle: Technikgeschichte}
+  - {technologie: bildroehre, name: Manfred von Ardenne, land: DEU, quelle: Technikgeschichte}
+  - {technologie: waschvollautomat, name: John Chamberlain, land: USA, quelle: Technikgeschichte}
+  - {technologie: synthesekautschuk, name: Walter Bock, land: DEU, quelle: Technikgeschichte}
+  - {technologie: polyamid, name: Wallace Carothers, land: USA, quelle: Technikgeschichte}
+  - {technologie: hochdruck_polyethylen, name: Eric Fawcett, land: GBR, quelle: Technikgeschichte}
+  - {technologie: strahltriebwerk, name: Hans von Ohain, land: DEU, quelle: Technikgeschichte}
+  - {technologie: penicillin_produktion, name: Howard Florey, land: GBR, quelle: Technikgeschichte}
+  - {technologie: spritzguss, name: James Hendry, land: USA, quelle: Technikgeschichte}
+  - {technologie: fernsehen, name: Philo Farnsworth, land: USA, quelle: Technikgeschichte}
+  - {technologie: transistor, name: William Shockley, land: USA, quelle: Technikgeschichte}
+  - {technologie: planartechnik, name: Jean Hoerni, land: USA, quelle: Technikgeschichte}
+  - {technologie: integrierte_schaltung, name: Jack Kilby, land: USA, quelle: Technikgeschichte}
+  - {technologie: magnetron, name: Percy Spencer, land: USA, quelle: Technikgeschichte}
+  - {technologie: farbfernsehen, name: Walter Bruch, land: DEU, quelle: Technikgeschichte}
+  - {technologie: mikroprozessor, name: Federico Faggin, land: USA, quelle: Technikgeschichte}
+  - {technologie: tft_lcd, name: Peter Brody, land: USA, quelle: Technikgeschichte}
+  - {technologie: lithium_ionen_akku, name: Akira Yoshino, land: JPN, quelle: Technikgeschichte}
+  - {technologie: digitalkamera, name: Steven Sasson, land: USA, quelle: Technikgeschichte}
+  - {technologie: led_lampe, name: Shuji Nakamura, land: JPN, quelle: Technikgeschichte}
+  - {technologie: perc_solarzelle, name: Martin Green, land: AUS, quelle: Technikgeschichte}

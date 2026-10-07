@@ -55,6 +55,7 @@ fn settings(c: &Catalog, start_year: i32) -> GameSettings {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     }
 }
 

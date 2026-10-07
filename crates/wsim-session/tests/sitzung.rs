@@ -19,6 +19,7 @@ fn request() -> NewGameRequest {
         companies: 10,
         difficulty: "mittel".into(),
         research_factor: 1.0,
+        startups: None,
     }
 }
 
@@ -425,4 +426,50 @@ fn pay_and_a_head_that_hires() {
         .filter(|p| p.holder.is_some())
         .count();
     assert_eq!(filled, 2);
+}
+
+/// How many start-ups there are follows the choice of the new game (SU1).
+#[test]
+fn start_ups_follow_the_choice() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let options = session.options();
+    assert_eq!(options.default_startups.as_deref(), Some("normal"));
+    let many = options.startups.iter().find(|f| f.key == "viele").unwrap();
+    assert_eq!(many.per_year, 24.0);
+    let unknown = NewGameRequest {
+        startups: Some("unbekannt".into()),
+        ..request()
+    };
+    assert_eq!(
+        session.new_game(&unknown).unwrap_err().key,
+        "fehler.sitzung.unbekannte_haeufigkeit"
+    );
+    let none = NewGameRequest {
+        startups: Some("keine".into()),
+        ..request()
+    };
+    session.new_game(&none).unwrap();
+    for _ in 0..3 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let view = session.ventures().unwrap();
+    assert_eq!(view.per_year, 0.0);
+    assert_eq!(view.founded, 0);
+    assert!(view.active.is_empty());
+    // The default: about one a month, named for the epoch, chances only as levels.
+    session.new_game(&request()).unwrap();
+    for _ in 0..3 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let view = session.ventures().unwrap();
+    assert_eq!(view.per_year, 12.0);
+    assert_eq!(view.label.as_deref(), Some("erfinder"));
+    assert!(view.founded >= 2, "{}", view.founded);
+    assert!(!view.estimated);
+    let first = &view.active[0];
+    assert!(first.chance.is_none());
+    assert!(first.chance_level.is_some());
+    assert_eq!(first.phase.as_deref(), Some("idee"));
+    assert_eq!(first.owners[0].holder, "gruender");
 }

@@ -1864,3 +1864,94 @@ pub struct RawHitRate {
     pub prior: f64,
     pub k: f64,
 }
+
+/// Start-ups (`parameter/startups.yaml`, SU1–SU3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVentures {
+    #[serde(rename = "bezeichnungen")]
+    pub labels: Vec<RawVentureLabel>,
+    #[serde(rename = "je_jahr")]
+    pub per_year: f64,
+    #[serde(rename = "anteil_neu")]
+    pub new_share: f64,
+    #[serde(rename = "vorlauf_jahre_max")]
+    pub lead_years_max: u32,
+    #[serde(rename = "haeufigkeiten")]
+    pub frequencies: Vec<RawVentureFrequency>,
+    #[serde(rename = "haeufigkeit_standard")]
+    pub default_frequency: String,
+    #[serde(rename = "phasen")]
+    pub phases: Vec<RawVenturePhase>,
+    #[serde(rename = "bezug_bip_je_kopf_usd")]
+    pub reference_gdp_usd: f64,
+    #[serde(rename = "kapital_faktor_min")]
+    pub capital_factor_min: f64,
+    #[serde(rename = "kapital_faktor_max")]
+    pub capital_factor_max: f64,
+    #[serde(rename = "vorlauf_kapital")]
+    pub lead_capital: f64,
+    #[serde(rename = "vorlauf_chance")]
+    pub lead_chance: f64,
+    pub chance_min: f64,
+    #[serde(rename = "investoren_chance_monat")]
+    pub investor_chance: f64,
+    #[serde(rename = "frist_monate")]
+    pub deadline_months: u32,
+    #[serde(rename = "unschaerfe")]
+    pub blur: f64,
+    #[serde(rename = "stufe_mittel_ab")]
+    pub level_medium_from: f64,
+    #[serde(rename = "stufe_hoch_ab")]
+    pub level_high_from: f64,
+    #[serde(rename = "aufbewahren_jahre")]
+    pub keep_years: u32,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVentureFrequency {
+    pub id: String,
+    #[serde(rename = "faktor")]
+    pub factor: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVentureLabel {
+    pub id: String,
+    #[serde(rename = "ab")]
+    pub from: i32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVenturePhase {
+    pub id: String,
+    #[serde(rename = "monate")]
+    pub months: u32,
+    #[serde(rename = "kapital_usd")]
+    pub capital_usd: f64,
+    pub chance: f64,
+    #[serde(rename = "bewertung")]
+    pub valuation: f64,
+}
+
+/// A historical inventor of a technology (`startups/erfinder.yaml`, SU1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawInventor {
+    #[serde(rename = "technologie")]
+    pub technology: String,
+    pub name: String,
+    #[serde(rename = "land")]
+    pub country: String,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}

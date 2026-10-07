@@ -3118,3 +3118,101 @@ Abteilung 0). Schwache Leitungen überzahlen öfter (Fehlgriff) und bieten öfte
   Leitungen mit hoher Trefferquote werden häufiger umworben. KI-Firmen schätzen nach ihren
   Regeln; ihre Manager werden nicht bewertet.
 
+
+## SU1 – Start-ups
+
+`docs/BETEILIGUNGEN.md` Abschnitte 5.1–5.3 und 5.6. Daten: `parameter/startups.yaml`
+(Abschnitt `startups`) und `startups/erfinder.yaml` (Abschnitt `erfinder`). Kern: Modul
+`ventures`. Zufall aus eigenen Strömen: `Stream::Ventures { month }` für die Entstehung,
+`Stream::Venture { id, month }` je Start-up; alles am **Monatsanfang**, nach den Managern
+und vor den Märkten: erst die laufenden Start-ups, dann neue, dann wird die Liste
+gekürzt.
+
+### Bezeichnung je Epoche
+
+`bezeichnungen`: Liste von `{id, ab}` (Jahr); es gilt die letzte, deren `ab` erreicht ist:
+1900 „Erfinder und Gründungen“, ab 1970 „Wagniskapital“, ab 1990 „Start-ups“ (Texte
+`startup.bezeichnung.<id>`). Im Kern heißt alles `Venture`.
+
+### Entstehung
+
+- Je Monat entstehen im Mittel `je_jahr · Faktor / 12` Start-ups: ⌊Mittel⌋ sicher, eines
+  mehr mit der Wahrscheinlichkeit des Rests. Den Faktor wählt der Spieler beim neuen
+  Spiel (`haeufigkeiten`: keine 0, wenige 0,5, normal 1, viele 2; Vorgabe
+  `haeufigkeit_standard`); er steht in `GameSettings::ventures`.
+- **Art:** mit der Wahrscheinlichkeit `anteil_neu` eine **neue Technologie**, sonst eine
+  **Verbesserung**; gibt es keine passende neue Technologie, eine Verbesserung (und
+  umgekehrt); gibt es keins von beiden, entsteht keins.
+  - Neue Technologie: weder historisch (Jahr der Erfindung ≤ laufendes Jahr) noch im
+    Spiel erfunden, mit Forschungsaufwand, alle Voraussetzungen erfunden, historisches
+    Jahr höchstens `vorlauf_jahre_max` voraus und noch nicht Ziel eines laufenden
+    Start-ups; gleichverteilt. Vorlauf *v* = historisches Jahr − Jahr (≥ 1). Ab 2026
+    gibt es keine mehr (die Daten enden dort).
+  - Verbesserung: ein Produkt, das sich weiterentwickeln lässt (M37) und das eine
+    Anlage einer Firma, die nicht pleite ist, heute herstellt, dessen nächste Stufe noch
+    niemand erreicht hat und an dem kein laufendes Start-up arbeitet; Ziel ist die Stufe
+    nach der weltweit höchsten (`GameState::developments`); v = 0.
+- **Land:** gewichtet mit Einwohnern · BIP je Kopf · Entwicklungsstand (0–1): Erfinder
+  sitzen dort, wo Wirtschaft und Bildung sind.
+- **Name:** Gibt es für die Technologie einen historischen Erfinder (`erfinder`), der noch
+  kein Start-up hatte, heißt es nach ihm und sitzt in seinem Land; sonst ein Gründer aus
+  der Namensliste des Landes (Vor- und Familienname wie bei den Managern).
+- Eigner am Anfang: die Gründer (`Holder::Private`) mit 100 %.
+
+### Phasen und Finanzierung
+
+- Drei Phasen (`phasen`: Idee 12 Monate, Prototyp 18, Marktreife 24) mit Kapitalbedarf,
+  Chance und Bewertungsfaktor. Der Bedarf folgt dem Einkommen im Land; neue Technologien
+  sind mit dem Vorlauf teurer und riskanter:
+
+      Kapital = kapital_usd · clamp(BIP je Kopf / bezug_bip_je_kopf_usd,
+                                    kapital_faktor_min, kapital_faktor_max)
+                · (1 + vorlauf_kapital · v)
+      Chance  = max(chance_min, chance · (1 − vorlauf_chance · v))
+
+  Kapital und Chance werden zu Beginn der Phase festgehalten.
+- **Finanzierungsrunde:** Zu Beginn jeder Phase ist eine Runde über den Kapitalbedarf
+  offen. Investoren außerhalb des Spiels (`Holder::Investors`) finanzieren sie an jedem
+  folgenden Monatsanfang mit der Wahrscheinlichkeit `investoren_chance_monat` ganz (ab
+  SU2 auch Spieler und Firmen). Ist sie nach `frist_monate` nicht gedeckt, geht das
+  Start-up ein („kein Geld“).
+- Die Runde gibt neue Anteile aus: Bewertung vor der Runde B = Kapital · `bewertung`; die
+  Geber erhalten Betrag / (B + Kapital), alle bisherigen Eigner behalten B / (B + Kapital)
+  ihres Anteils. Mit den Daten (10, 5, 2,5) halten die Gründer nach drei Runden 54 %; die
+  Bewertungen sind so gewählt, dass ein Einstieg (SU2) im Mittel früh rund das 2,8-Fache,
+  spät rund das 1,2-Fache bringt (siehe SU2).
+- Ist die Phase finanziert, entscheidet nach ihrer Dauer ein Zug mit der Chance über die
+  nächste Phase oder das Scheitern. Alle drei bestanden: **Erfolg**.
+- **Überholt:** Ist das Ziel inzwischen in der Welt – die Technologie historisch oder im
+  Spiel erfunden, die Stufe von einer Firma erreicht –, geht das Start-up am nächsten
+  Monatsanfang ein („überholt“). Neue Technologien mit wenig Vorlauf schaffen es daher
+  selten: Alle Phasen dauern mit den Runden gut fünf Jahre.
+- Richtwert: insgesamt scheitern 60–70 %. Mit 0,65 · 0,8 · 0,9 ≈ 0,47 und einer
+  Finanzierung je Phase von 1 − 0,6⁶ ≈ 95 % bestehen Verbesserungen zu rund 40 %; neue
+  Technologien seltener (Vorlauf, Überholen). Weltlauf: siehe `docs/FORTSCHRITT.md`.
+
+### Erfolg und Scheitern
+
+- **Neue Technologie:** Sie gilt ab diesem Tag als erfunden (`GameState::inventions`),
+  wenn das früher ist als bisher: Nachforschen wird für alle günstiger (M9, Abschlag für
+  Nachzügler ab der Erfindung), und ihre Produkte sind ab dann verfügbar (M33). Meldung
+  an den Spieler. Das Patent liegt beim Start-up.
+- **Verbesserung:** Die Stufe gilt weltweit als erreicht (`GameState::developments`); nach
+  der Frist der Weiterentwicklung (M37, `gemeingut_nach_jahren`) kennt sie jeder Hersteller.
+  Meldung an den Spieler, wenn er das Produkt verkauft.
+- **Scheitern** (am Ende einer Phase, ohne Geld oder überholt): Die Anteile sind wertlos.
+- Was Eigner davon haben (Lizenz, Eingliedern, neue KI-Firma, Forschungsbonus), regelt SU2.
+- Beendete Start-ups bleiben `aufbewahren_jahre` in der Liste, die historischer Erfinder
+  immer (so gründet jeder Erfinder nur einmal).
+
+### Einschätzung
+
+Die Erfolgschance (Chance der laufenden Phase, festgehalten bei ihrem Beginn, mal die
+Chancen der folgenden Phasen mit demselben Vorlauf) zeigt das Spiel nur als Schätzung:
+Bei der Entstehung wird *u* gleichverteilt in −1 … 1 gezogen;
+
+    gezeigt = clamp(Chance · (1 + u · b), 0, 1),  b = unschaerfe · (1 − G · A)
+
+mit Güte G und Abdeckung A der Strategieabteilung des Spielers (ZA2). Ohne arbeitende
+Abteilung (b = unschaerfe) zeigt das Spiel nur die Stufe: gering unter `stufe_mittel_ab`
+(20 %), mittel unter `stufe_hoch_ab` (40 %), sonst hoch.

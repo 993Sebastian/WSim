@@ -31,6 +31,7 @@ data/
   verkehrsmittel.yaml  Verkehrsmittel mit Kosten und Geschwindigkeit
   waehrungen/          Preisindex, Währungen und ihre Zeiträume je Land (Anzeige)
   etappen.yaml         Etappenziele des Spielers nach der Einführung
+  startups/            historische Erfinder zu ihren Technologien (SU1)
   texte/de/            alle Anzeigetexte
 ```
 
@@ -41,7 +42,7 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
 `namensgruppen`, `produktnamen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
-`landeswaehrungen`, `etappen`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
+`landeswaehrungen`, `etappen`, `startups`, `erfinder`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
 `preisindex`, `produktnamen` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
 ## Allgemeine Regeln
@@ -453,6 +454,46 @@ bis zum nächsten Monatsanfang.
 Die Bereiche `strategie` (Themen `kaufangebot`, `antwort`) und `recht` (Thema `lizenz`)
 stehen in `management.yaml` als Ressorts des Vorstands; ihre Texte `bereich.<id>` in der
 Oberfläche, die der Abteilungen unter `abteilung.<id>`.
+
+## startups
+
+`data/parameter/startups.yaml` (SU1; Regeln: `docs/FORMELN.md`, Vorgabe:
+`docs/BETEILIGUNGEN.md` §5). Optional: ohne den Abschnitt gibt es keine Start-ups. Eine
+einmalige Zuordnung:
+
+| Feld | Bedeutung |
+|---|---|
+| **bezeichnungen** | Liste `{id, ab}` (nicht leer, `ab` aufsteigend): wie das Spiel die Start-ups ab diesem Jahr nennt; Texte `startup.bezeichnung.<id>` |
+| **je_jahr** | 0–1000: neue Start-ups je Jahr bei der Häufigkeit „normal“ |
+| **haeufigkeiten** | Liste `{id, faktor}` (nicht leer, `faktor` 0–10): die Wahl beim neuen Spiel, Faktor auf `je_jahr`; Texte `startup.haeufigkeit.<id>` |
+| **haeufigkeit_standard** | `id` einer Häufigkeit: die Vorgabe |
+| **anteil_neu** | 0–1: Anteil, der an einer neuen Technologie arbeitet (sonst an einer Verbesserung) |
+| **vorlauf_jahre_max** | 0–100: so viele Jahre darf eine neue Technologie ihrem historischen Jahr höchstens voraus sein |
+| **phasen** | Liste `{id, monate, kapital_usd, chance, bewertung}` (nicht leer, `id` eindeutig, `monate` > 0, `kapital_usd` ≥ 0, `chance` 0–1, `bewertung` > 0: Wert vor der Runde als Vielfaches des Kapitals); Texte `startup.phase.<id>` |
+| **bezug_bip_je_kopf_usd** | > 0: BIP je Kopf, bei dem `kapital_usd` gilt |
+| **kapital_faktor_min**, **kapital_faktor_max** | > 0, min ≤ max: Grenzen des Einkommensfaktors |
+| **vorlauf_kapital** | ≥ 0: mehr Kapital je Jahr Vorlauf (Anteil) |
+| **vorlauf_chance** | 0–1: weniger Chance je Jahr Vorlauf (Anteil), höchstens bis `chance_min` (0–1) |
+| **investoren_chance_monat** | 0–1: Wahrscheinlichkeit je Monat, dass Investoren eine offene Runde decken |
+| **frist_monate** | > 0: so lange bleibt eine Runde offen |
+| **unschaerfe** | 0–1: Unschärfe der gezeigten Chance ohne Strategieabteilung |
+| **stufe_mittel_ab**, **stufe_hoch_ab** | 0–1, mittel ≤ hoch: ab diesen gezeigten Chancen heißt die Stufe „mittel“ und „hoch“ |
+| **aufbewahren_jahre** | 0–100: so lange bleiben beendete Start-ups in der Liste |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
+## erfinder
+
+`data/startups/erfinder.yaml` (SU1): historische Erfinder zu ihren Erfindungen. Entsteht
+ein Start-up für die Technologie, trägt es den Namen und sitzt im Land des Erfinders
+(einmal je Erfinder). Ohne Abschnitt `startups` warnt die Prüfung, dass sie ungenutzt
+bleiben. Liste von Einträgen:
+
+| Feld | Bedeutung |
+|---|---|
+| **technologie** | `id` einer Technologie, je Technologie höchstens ein Erfinder |
+| **name** | nicht leer; keine Namen, die heute Marken sind |
+| **land** | ISO-Code eines Landes (heutige Grenzen) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## produktnamen
 

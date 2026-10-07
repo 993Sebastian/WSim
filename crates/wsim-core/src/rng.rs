@@ -55,6 +55,15 @@ pub enum Stream {
         company: u32,
         month: u32,
     },
+    /// New start-ups in a month (SU1).
+    Ventures {
+        month: u32,
+    },
+    /// A start-up's round and phase in a month (SU1).
+    Venture {
+        id: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -80,6 +89,8 @@ impl Stream {
             Stream::Staffing { company, month } => {
                 (9 << 56) | (u64::from(company) << 24) | u64::from(month)
             }
+            Stream::Ventures { month } => (10 << 56) | u64::from(month),
+            Stream::Venture { id, month } => (11 << 56) | (u64::from(id) << 24) | u64::from(month),
         }
     }
 }

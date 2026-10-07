@@ -61,6 +61,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | ZA1 | Hauptsitz: Verlegen, Wirkung auf Steuern und Gehälter | ✅ |
 | ZA2 | Zentralabteilungen, Ressorts Strategie und Recht, Vorgabe „Beteiligungen“ | ✅ |
 | ZA3 | Empfehlungen mit Begründung, Trefferquote, Gehaltsforderung exponentiell | ✅ |
+| SU1 | Start-ups: Entstehung, Arten, Phasen, Finanzierungsrunden, Erfolg und Scheitern | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -368,6 +369,42 @@ Abschnitt ZA3; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
   schwache Leitung irrt öfter (400 Schätzungen: ein Viertel Fehlgriffe gegen keine,
   Abteilung halbiert sie), Bewertung nach der Frist, Umschuldung und Gehaltsrunde im Budget
   und als Empfehlung mit Begründung, Befehl `RefinanceLoan`; vitest.
+
+### SU1: Start-ups (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitte 5.1–5.3 und 5.6; Regeln: `docs/FORMELN.md`,
+Abschnitt SU1; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O (16–22).
+
+- **Daten:** `parameter/startups.yaml` (Bezeichnungen je Epoche, Häufigkeiten, drei
+  Phasen, Kapital nach Einkommen und Vorlauf, Investoren, Unschärfe, Stufen) und
+  `startups/erfinder.yaml` (33 historische Erfinder ab 1900, ohne heutige Marken); Prüfregeln
+  mit Fehlerfall-Test.
+- **Kern:** Modul `ventures`: je Monat im Mittel ein Start-up (Einstellung „normal“), mit
+  eigenem Zufallsstrom für die Entstehung und je Start-up. Ziel ist eine Technologie
+  höchstens 15 Jahre vor ihrem historischen Jahr oder die nächste Stufe eines Produkts,
+  das jemand herstellt. Jede Phase braucht eine Runde, die Investoren außerhalb des Spiels
+  mit 40 % je Monat ganz finanzieren (neue Anteile, Gründer werden verwässert); nach der
+  Dauer entscheidet die Chance. Erfolg: Technologie gilt früher als erfunden (billigeres
+  Nachforschen für alle, Produkte früher verfügbar) bzw. die Stufe als erreicht. Scheitern
+  am Ende einer Phase, ohne Geld oder überholt. Meldungen an den Spieler.
+- **Oberfläche:** neue Hauptansicht „Beteiligungen“ (Taste 8; Weltkarte jetzt 9, Berichte
+  0) mit „Laufend“ und „Beendet“, Erfolgschance als Stufe oder – mit Strategieabteilung –
+  als Schätzung; Häufigkeit im Dialog „Neues Spiel“ (Weitere Einstellungen); Rundgang der
+  Einführung mit Schritt „Beteiligungen“ (23 Schritte). CLI: `run --startups`, Weltbericht
+  mit Start-ups.
+- **Weltlauf** 1900–1940 (Startwert 5, 30 KI-Firmen): 480 gegründet, 70 % gescheitert
+  (Richtwert 60–70 %), 15 Technologien 1–10 Jahre vor ihrem historischen Jahr erfunden
+  (z. B. Penicillin-Produktion 1933 statt 1943, Fernsehen 1938 statt 1946), 116
+  Produktstufen; Gründer vor allem in den USA, Großbritannien und Deutschland. Gegenlauf
+  ohne Start-ups (gleicher Startwert): dieselben größten Firmen mit ähnlichem
+  Eigenkapital, 12 statt 9 Pleiten, aber nur 22 statt 59 Produkte mit einer Stufe der
+  Weiterentwicklung – der gewollte Technologieschub. Mit „viele“ (Startwert 9): 760
+  gegründet (die Ziele werden knapp), ebenfalls 70 % gescheitert. Rechenzeit unverändert
+  (bis 1915: 2:25 gegen 2:23 Minuten ohne Start-ups).
+- **Tests:** sicherer Durchlauf (Kapital, Runden, Verwässerung, früheres Erfinden,
+  günstigeres Nachforschen), Runde ohne Geld, Überholen, Ausfallquote, Häufigkeit und
+  Einstellung, Determinismus, Verbesserung, historischer Erfinder, Schätzung mit
+  Strategieabteilung; Sitzung (Wahl beim neuen Spiel); vitest der Ansicht; E2E-Rundgang.
 
 ## Eigenständige Entscheidungen (für das Review)
 

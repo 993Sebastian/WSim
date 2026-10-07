@@ -23,6 +23,9 @@ neu.ki_firmen: Anzahl KI-Firmen
 neu.schwierigkeit: Schwierigkeit der KI
 neu.forschungsfaktor: Kostenfaktor für Forschung vor dem historischen Jahr
 neu.seed: Zufallswert (gleicher Wert und gleiche Entscheidungen ergeben dieselbe Partie)
+neu.startups: Start-ups (Erfinder und junge Firmen)
+neu.startups_wahl: "{wahl} (rund {je_jahr} im Jahr)"
+neu.startups_hilfe: Sie forschen an neuen Technologien und verbessern Produkte. Wer Erfolg hat, bringt eine Technologie früher in die Welt.
 neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
@@ -200,6 +203,7 @@ ansicht.wettbewerb: Wettbewerb
 ansicht.forschung: Forschung
 ansicht.finanzen: Finanzen
 ansicht.organisation: Organisation
+ansicht.beteiligungen: Beteiligungen
 
 karte.titel: Weltkarte
 karte.ebene: Kartenebene
@@ -774,7 +778,7 @@ finanzen.kein_umsatz: Noch kein Umsatz in diesem Zeitraum.
 tasten.knopf: Tasten (?)
 tasten.titel: Tastaturkürzel
 tasten.runde: Runde beenden
-tasten.ansichten: Ansicht wechseln (Übersicht, Standorte, Markt, Wettbewerb, Forschung, Finanzen, Weltkarte, Berichte)
+tasten.ansichten: Ansicht wechseln (1 Übersicht, 2 Standorte, 3 Markt, 4 Wettbewerb, 5 Forschung, 6 Finanzen, 7 Organisation, 8 Beteiligungen, 9 Weltkarte, 0 Berichte)
 tasten.speichern: Speichern
 tasten.laden: Laden
 tasten.hilfe: Diese Übersicht
@@ -849,6 +853,8 @@ einfuehrung.finanzen.titel: Finanzen
 einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, dazu „Womit verdienst du Geld?“ je Standort und Produkt. Behalte die Kasse im Blick: Ohne Geld kannst du nicht einkaufen, und wer zahlungsunfähig wird, scheidet aus."
 einfuehrung.organisation.titel: Organisation
 einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du. Über allen steht der Vorstand: Ein CEO bespricht mit dir unter „Rücksprache“ regelmäßig Bericht und Anträge nach deinem Strategieauftrag – er ist aber teuer, erst für eine größere Firma. Unter „Hauptsitz und Zentrale“ verlegst du den Firmensitz und richtest Zentralabteilungen ein; sie arbeiten für die ganze Firma, kosten aber jeden Monat – zu früh ruinieren sie dich."
+einfuehrung.beteiligungen.titel: Beteiligungen
+einfuehrung.beteiligungen.text: "Erfinder und junge Firmen arbeiten an neuen Technologien und verbessern Produkte – in jeder Phase brauchen sie Geld von Investoren, und die meisten scheitern. Wer es schafft, bringt eine Technologie Jahre früher in die Welt: Dann wird Nachforschen für alle günstiger, auch für dich. Hier siehst du, wer woran arbeitet, wie weit sie sind und wie die Chancen stehen – genau nur mit einer Strategieabteilung."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -1472,3 +1478,46 @@ ruecksprache.risiko.reserve: "Kasse {kasse} unter der Liquiditätsreserve {reser
 ruecksprache.risiko.verschuldung: "Kredite {anteil} der Bilanzsumme – Grenze {grenze}"
 ruecksprache.zu_antraegen: "Zu den Anträgen ({anzahl})"
 ruecksprache.kurz: "Umsatz {umsatz}, Ergebnis {ergebnis}"
+
+# Beteiligungen: Start-ups (SU1)
+beteiligungen.einleitung: Erfinder und junge Firmen arbeiten an neuen Technologien oder verbessern Produkte. Jede Phase braucht eine Finanzierungsrunde; viele scheitern. Wer es schafft, bringt eine Technologie früher in die Welt – Nachforschen wird dann für alle günstiger – oder hebt ein Produkt auf die nächste Stufe.
+beteiligungen.zahlen: "Rund {je_jahr} neue im Jahr · {gegruendet} gegründet seit Spielbeginn · beendet in den letzten {jahre} Jahren: {erfolg} mit Erfolg, {gescheitert} gescheitert"
+beteiligungen.aus: In dieser Partie entstehen keine neuen Start-ups (Einstellung beim neuen Spiel).
+beteiligungen.schaetzung_grob: Die Erfolgschance siehst du nur grob (gering, mittel, hoch). Eine Strategieabteilung (Organisation) schätzt sie genauer.
+beteiligungen.schaetzung_genau: Die Erfolgschancen schätzt deine Strategieabteilung – je besser sie besetzt ist, desto genauer.
+beteiligungen.laufend: Laufend
+beteiligungen.beendet: Beendet
+beteiligungen.keine_laufenden: Zurzeit arbeitet niemand an einer neuen Technologie oder Verbesserung.
+beteiligungen.keine_beendeten: Noch ist keines beendet.
+beteiligungen.name: Gründer
+beteiligungen.land: Land
+beteiligungen.ziel: Ziel
+beteiligungen.phase: Phase
+beteiligungen.finanzierung: Finanzierung
+beteiligungen.chance: Erfolgschance
+beteiligungen.eigner: Eigner
+beteiligungen.ergebnis: Ergebnis
+beteiligungen.ende: Ende
+beteiligungen.erfinder: Erfinder
+beteiligungen.erfinder_hilfe: Ein historischer Erfinder dieser Technologie
+beteiligungen.ziel_neu: "{technologie} (neu, {jahre} Jahre vor der Zeit)"
+beteiligungen.ziel_verbesserung: "{produkt}: Stufe {stufe}"
+beteiligungen.phase_von: "{phase} ({nummer} von {alle})"
+beteiligungen.runde_offen: "Runde offen: sucht {bedarf} bis {datum}"
+beteiligungen.finanziert: "{bedarf} finanziert, Entscheidung am {datum}"
+beteiligungen.stufe.gering: gering
+beteiligungen.stufe.mittel: mittel
+beteiligungen.stufe.hoch: hoch
+beteiligungen.eigner.gruender: Gründer
+beteiligungen.eigner.investoren: Investoren
+beteiligungen.eigner.spieler: du
+beteiligungen.eigner.firma: eine Firma
+beteiligungen.status.erfolg: Erfolg
+beteiligungen.status.gescheitert: Gescheitert
+beteiligungen.status.ohne_geld: Kein Geld
+beteiligungen.status.ueberholt: Überholt
+beteiligungen.status_hilfe.erfolg: Alle Phasen bestanden – die Technologie oder Stufe ist in der Welt.
+beteiligungen.status_hilfe.gescheitert: Am Ende einer Phase gescheitert.
+beteiligungen.status_hilfe.ohne_geld: Die Finanzierungsrunde fand nicht rechtzeitig Geldgeber.
+beteiligungen.status_hilfe.ueberholt: Andere waren schneller – die Technologie wurde erfunden oder die Stufe erreicht.
+beteiligungen.status_hilfe.aktiv: Arbeitet noch.

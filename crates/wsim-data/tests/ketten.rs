@@ -109,6 +109,7 @@ fn all_chains_run_from_raw_material_to_end_product() {
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: Default::default(),
+            ventures: 1.0,
         },
     )
     .unwrap();

@@ -11,6 +11,7 @@ fehler.sitzung.unbekanntes_land: Das gewählte Land gibt es in den Spieldaten ni
 fehler.sitzung.unbekanntes_produkt: Das gewählte Produkt gibt es in den Spieldaten nicht.
 fehler.sitzung.unbekannte_startform: Diese Startform gibt es nicht.
 fehler.sitzung.unbekannte_schwierigkeit: Diese Schwierigkeit gibt es nicht.
+fehler.sitzung.unbekannte_haeufigkeit: Diese Häufigkeit der Start-ups gibt es nicht.
 fehler.sitzung.unbekannte_rundenlaenge: Diese Rundenlänge gibt es nicht.
 fehler.sitzung.unbekanntes_ziel: So weit kann das Spiel nicht weiterlaufen.
 fehler.sitzung.unbekannte_firma: Diese Firma gibt es nicht mehr.
@@ -194,6 +195,8 @@ fehler.befehl.beteiligungen_ungueltig: "Budget und Freigabegrenzen dürfen nicht
 fehler.befehl.kein_vorteil: Ein neuer Kredit wäre nicht günstiger – die Umschuldung lohnt sich nicht.
 meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
+meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."
+meldung.startup.weiterentwicklung: "{name} ({land}) hat {produkt} auf Stufe {stufe} weiterentwickelt. Nach {jahre} Jahren kennt jeder Hersteller die Stufe."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."

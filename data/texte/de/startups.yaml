@@ -1,0 +1,12 @@
+# Texte der Start-ups (data/parameter/startups.yaml, SU1–SU3)
+
+startup.bezeichnung.erfinder: Erfinder und Gründungen
+startup.bezeichnung.wagniskapital: Wagniskapital
+startup.bezeichnung.startups: Start-ups
+startup.phase.idee: Idee
+startup.phase.prototyp: Prototyp
+startup.phase.marktreife: Marktreife
+startup.haeufigkeit.keine: Keine
+startup.haeufigkeit.wenige: Wenige
+startup.haeufigkeit.normal: Normal
+startup.haeufigkeit.viele: Viele

@@ -126,6 +126,7 @@ pub(super) fn decode_v2(
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: Default::default(),
+            ventures: 1.0,
         },
         date: s.date,
         world_rng: s.world_rng,
@@ -152,6 +153,8 @@ pub(super) fn decode_v2(
         followups: Vec::new(),
         poach_offers: Vec::new(),
         judgments: Vec::new(),
+        ventures: Vec::new(),
+        next_venture: 0,
         player: s.player,
         game_over: s.game_over,
     };

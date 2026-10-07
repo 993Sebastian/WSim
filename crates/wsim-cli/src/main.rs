@@ -137,6 +137,9 @@ struct RunArgs {
     /// Schwierigkeit der KI (Schlüssel aus kimodell.yaml, z. B. leicht, mittel, schwer)
     #[arg(long)]
     schwierigkeit: Option<String>,
+    /// Häufigkeit der Start-ups (Schlüssel aus startups.yaml, z. B. keine, normal, viele)
+    #[arg(long)]
+    startups: Option<String>,
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
@@ -403,6 +406,26 @@ fn show_offers(daten: &Path, path: &Path, key: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// The factor of the chosen frequency of start-ups, the default without a choice.
+fn venture_factor(catalog: &Catalog, args: &RunArgs) -> Result<f64, String> {
+    let m = &catalog.ventures;
+    match &args.startups {
+        None => Ok(m.default_factor()),
+        Some(key) => m
+            .frequencies
+            .iter()
+            .find(|(k, _)| k == key)
+            .map(|f| f.1)
+            .ok_or_else(|| {
+                let keys: Vec<&str> = m.frequencies.iter().map(|f| f.0.as_str()).collect();
+                format!(
+                    "Häufigkeit „{key}“ gibt es nicht (möglich: {}).",
+                    keys.join(", ")
+                )
+            }),
+    }
+}
+
 fn run(args: &RunArgs) -> Result<(), String> {
     let data = load_data(&args.daten)?;
     let texts = &data.texts;
@@ -435,6 +458,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 research_ahead_factor: 1.0,
                 market_scale: 1.0,
                 ai: ai_settings(&catalog, args)?,
+                ventures: venture_factor(&catalog, args)?,
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }
@@ -528,6 +552,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         companies: options.companies.default,
         difficulty: options.default_difficulty.clone(),
         research_factor: 1.0,
+        startups: None,
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
@@ -568,6 +593,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "firma": deals.2,
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
+        "startups": session.ventures().map_err(message)?,
     });
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
@@ -738,6 +764,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         companies: options.companies.default,
         difficulty: options.default_difficulty.clone(),
         research_factor: 1.0,
+        startups: None,
     };
     session.new_game(&request).map_err(message)?;
     for role in ["leitung", "finanzen"] {
@@ -941,6 +968,60 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
         );
     }
     print_developments(texts, game);
+    print_ventures(texts, game);
+}
+
+/// Start-ups (SU1): how many were founded, how those still in the list ended, and what
+/// the successful ones brought into the world.
+fn print_ventures(texts: &wsim_data::Texts, game: &Game) {
+    use wsim_core::state::{VentureStatus, VentureTarget};
+    let state = game.state();
+    let catalog = game.catalog();
+    let count =
+        |f: fn(&VentureStatus) -> bool| state.ventures.iter().filter(|v| f(&v.status)).count();
+    let active = count(|s| *s == VentureStatus::Active);
+    let won = count(|s| matches!(s, VentureStatus::Succeeded(_)));
+    let lost = count(|s| matches!(s, VentureStatus::Failed(..)));
+    let share = if won + lost > 0 {
+        // Small counts; the casts are exact.
+        format!("{:.0} %", 100.0 * lost as f64 / (won + lost) as f64)
+    } else {
+        "–".into()
+    };
+    println!(
+        "Start-ups (SU1): {} gegründet; in der Liste {} aktiv, {} erfolgreich, {} gescheitert ({} der beendeten)",
+        state.next_venture, active, won, lost, share
+    );
+    for v in &state.ventures {
+        let VentureStatus::Succeeded(date) = v.status else {
+            continue;
+        };
+        let target = match v.target {
+            VentureTarget::Technology(t) => format!(
+                "{} (historisch {})",
+                texts
+                    .get(&format!("technologie.{}", catalog.technologies.key(t)))
+                    .unwrap_or_default(),
+                catalog.technologies.get(t).invention_year
+            ),
+            VentureTarget::Development { product, level } => format!(
+                "{} Stufe {}",
+                texts
+                    .get(&format!("produkt.{}", catalog.products.key(product)))
+                    .unwrap_or_default(),
+                level
+            ),
+        };
+        println!(
+            "  {} {:<28} {:<20} {}",
+            format_date(date),
+            v.name,
+            texts
+                .get(&format!("land.{}", catalog.countries.key(v.country)))
+                .unwrap_or_default(),
+            target
+        );
+    }
 }
 
 /// Development levels (M37): per product the highest level, who holds it, how many

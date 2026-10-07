@@ -292,7 +292,7 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
 }
 
 /// Whether the player sells a product somewhere.
-fn player_offers(state: &GameState, product: ProductId) -> bool {
+pub(crate) fn player_offers(state: &GameState, product: ProductId) -> bool {
     state
         .sites
         .iter()

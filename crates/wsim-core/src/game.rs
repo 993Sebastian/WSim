@@ -229,6 +229,8 @@ impl Game {
             followups: Vec::new(),
             poach_offers: Vec::new(),
             judgments: Vec::new(),
+            ventures: Vec::new(),
+            next_venture: 0,
             player: CompanyId(0),
             game_over: false,
         };
@@ -441,6 +443,11 @@ impl Game {
                 next,
             ));
             report.messages.extend(crate::staffing::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
+            report.messages.extend(crate::ventures::month_start(
                 &mut self.state,
                 &self.catalog,
                 next,
@@ -727,6 +734,7 @@ mod tests {
             research_ahead_factor: 1.0,
             market_scale: 1.0,
             ai: Default::default(),
+            ventures: 1.0,
         };
         let mut game = Game::new(catalog.clone(), settings).unwrap();
         if site_in_bbb {

@@ -17,6 +17,9 @@ export interface Optionen {
   difficulties: { key: string; competence: number; aggressiveness: number }[];
   default_difficulty: string;
   research_factor: Bereich<number>;
+  /** How many start-ups there are (SU1); empty without start-ups in the data. */
+  startups: { key: string; per_year: number }[];
+  default_startups: string | null;
 }
 
 export interface NeuesSpiel {
@@ -29,6 +32,8 @@ export interface NeuesSpiel {
   companies: number;
   difficulty: string;
   research_factor: number;
+  /** Key of the frequency of start-ups; none for the default. */
+  startups?: string | null;
 }
 
 export interface Anlage {
@@ -1617,4 +1622,63 @@ export interface Ruecksprachen {
   goals_now: Zielstand[];
   /** The reviews kept, the newest first. */
   reviews: Ruecksprache[];
+}
+
+/** An owner of a start-up (SU1). */
+export interface StartUpEigner {
+  holder: "gruender" | "investoren" | "spieler" | "firma";
+  /** The company's name for `firma`. */
+  company: string | null;
+  share: number;
+}
+
+/** A start-up as the player sees it (SU1). */
+export interface StartUp {
+  id: number;
+  /** The inventor or the founder. */
+  name: string;
+  /** Named after a historical inventor. */
+  inventor: boolean;
+  country: string;
+  /** A new technology or the next level of a product. */
+  kind: "technologie" | "verbesserung";
+  /** Key of the technology or of the product. */
+  target: string;
+  level: number | null;
+  /** Years ahead of history at the founding. */
+  lead: number;
+  founded: string;
+  /** Key of the phase (`startup.phase.<key>`); none once closed. */
+  phase: string | null;
+  phase_number: number;
+  phases: number;
+  capital_usd: number;
+  raised_usd: number;
+  /** Last day of the open round; none once funded. */
+  round_until: string | null;
+  /** When the funded phase is decided. */
+  phase_until: string | null;
+  /** The strategy department's estimate; none without one or once closed. */
+  chance: number | null;
+  chance_level: "gering" | "mittel" | "hoch" | null;
+  owners: StartUpEigner[];
+  status: "aktiv" | "erfolg" | "gescheitert" | "ohne_geld" | "ueberholt";
+  ended: string | null;
+}
+
+/** The start-ups of the world (SU1). */
+export interface StartUps {
+  /** What the game calls them in this year (`startup.bezeichnung.<key>`). */
+  label: string | null;
+  per_year: number;
+  /** Whether the strategy department estimates their chances. */
+  estimated: boolean;
+  /** Newest first. */
+  active: StartUp[];
+  /** Ended most recently first. */
+  closed: StartUp[];
+  founded: number;
+  succeeded: number;
+  failed: number;
+  keep_years: number;
 }

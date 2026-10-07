@@ -774,7 +774,11 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
 }
 
 /// A country of a continent, weighted by its academics.
-fn pick_country(rng: &mut SimRng, countries: &[(CountryId, f64)], total: f64) -> CountryId {
+pub(crate) fn pick_country(
+    rng: &mut SimRng,
+    countries: &[(CountryId, f64)],
+    total: f64,
+) -> CountryId {
     if total <= 0.0 {
         let n = u64::try_from(countries.len()).unwrap_or(1);
         return countries[usize::try_from(rng.below(n)).unwrap_or(0)].0;
@@ -852,7 +856,7 @@ fn draw(
 }
 
 /// First and family name from the name group of the home country, not yet taken.
-fn manager_name(
+pub(crate) fn manager_name(
     catalog: &Catalog,
     rng: &mut SimRng,
     home: CountryId,

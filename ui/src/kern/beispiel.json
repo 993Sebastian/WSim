@@ -25261,6 +25261,7 @@
     ],
     "default_country": "DEU",
     "default_difficulty": "mittel",
+    "default_startups": "normal",
     "difficulties": [
       {
         "aggressiveness": 0.3,
@@ -25302,7 +25303,25 @@
       "default": 1900,
       "max": 1930,
       "min": 1900
-    }
+    },
+    "startups": [
+      {
+        "key": "keine",
+        "per_year": 0.0
+      },
+      {
+        "key": "wenige",
+        "per_year": 6.0
+      },
+      {
+        "key": "normal",
+        "per_year": 12.0
+      },
+      {
+        "key": "viele",
+        "per_year": 24.0
+      }
+    ]
   },
   "organisation": {
     "board": {
@@ -35518,6 +35537,246 @@
         "to": "1914-03-31"
       }
     ]
+  },
+  "startups": {
+    "active": [
+      {
+        "capital_usd": 32996.1358,
+        "chance": null,
+        "chance_level": "mittel",
+        "country": "SWE",
+        "ended": null,
+        "founded": "1914-08-01",
+        "id": 6,
+        "inventor": true,
+        "kind": "technologie",
+        "lead": 4.0,
+        "level": null,
+        "name": "Baltzar von Platen",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 1.0
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": null,
+        "phases": 3,
+        "raised_usd": 0.0,
+        "round_until": "1915-02-01",
+        "status": "aktiv",
+        "target": "kompressionskuehlschrank"
+      },
+      {
+        "capital_usd": 53726.4414,
+        "chance": null,
+        "chance_level": "mittel",
+        "country": "GBR",
+        "ended": null,
+        "founded": "1914-07-01",
+        "id": 5,
+        "inventor": false,
+        "kind": "technologie",
+        "lead": 3.0,
+        "level": null,
+        "name": "Richard Morgan",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 1.0
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": null,
+        "phases": 3,
+        "raised_usd": 0.0,
+        "round_until": "1915-01-01",
+        "status": "aktiv",
+        "target": "ackerschlepper"
+      },
+      {
+        "capital_usd": 33288.6411,
+        "chance": null,
+        "chance_level": "hoch",
+        "country": "BEL",
+        "ended": null,
+        "founded": "1914-06-01",
+        "id": 4,
+        "inventor": false,
+        "kind": "verbesserung",
+        "lead": 0.0,
+        "level": 1,
+        "name": "Paul Lefèvre",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 0.9090909090909091
+          },
+          {
+            "company": null,
+            "holder": "investoren",
+            "share": 0.0909090909090909
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": "1915-07-01",
+        "phases": 3,
+        "raised_usd": 33288.6411,
+        "round_until": null,
+        "status": "aktiv",
+        "target": "lastwagen"
+      },
+      {
+        "capital_usd": 34800.8425,
+        "chance": null,
+        "chance_level": "hoch",
+        "country": "CAN",
+        "ended": null,
+        "founded": "1914-05-01",
+        "id": 3,
+        "inventor": false,
+        "kind": "verbesserung",
+        "lead": 0.0,
+        "level": 1,
+        "name": "Dorothy Lawrence",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 0.9090909090909092
+          },
+          {
+            "company": null,
+            "holder": "investoren",
+            "share": 0.09090909090909091
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": "1915-07-01",
+        "phases": 3,
+        "raised_usd": 34800.8425,
+        "round_until": null,
+        "status": "aktiv",
+        "target": "ammoniak"
+      },
+      {
+        "capital_usd": 43435.4795,
+        "chance": null,
+        "chance_level": "hoch",
+        "country": "GBR",
+        "ended": null,
+        "founded": "1914-04-01",
+        "id": 2,
+        "inventor": false,
+        "kind": "verbesserung",
+        "lead": 0.0,
+        "level": 1,
+        "name": "Margaret Hale",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 0.9090909090909091
+          },
+          {
+            "company": null,
+            "holder": "investoren",
+            "share": 0.0909090909090909
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": "1915-07-01",
+        "phases": 3,
+        "raised_usd": 43435.4795,
+        "round_until": null,
+        "status": "aktiv",
+        "target": "blech"
+      },
+      {
+        "capital_usd": 74432.2756,
+        "chance": null,
+        "chance_level": "hoch",
+        "country": "USA",
+        "ended": null,
+        "founded": "1914-03-01",
+        "id": 1,
+        "inventor": true,
+        "kind": "technologie",
+        "lead": 6.0,
+        "level": null,
+        "name": "Frank Conrad",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 0.9090909090909092
+          },
+          {
+            "company": null,
+            "holder": "investoren",
+            "share": 0.09090909090909091
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": "1915-05-01",
+        "phases": 3,
+        "raised_usd": 74432.2756,
+        "round_until": null,
+        "status": "aktiv",
+        "target": "rundfunk"
+      },
+      {
+        "capital_usd": 70987.8879,
+        "chance": null,
+        "chance_level": "mittel",
+        "country": "USA",
+        "ended": null,
+        "founded": "1914-02-01",
+        "id": 0,
+        "inventor": false,
+        "kind": "technologie",
+        "lead": 5.0,
+        "level": null,
+        "name": "Arthur Pemberton",
+        "owners": [
+          {
+            "company": null,
+            "holder": "gruender",
+            "share": 0.9090909090909092
+          },
+          {
+            "company": null,
+            "holder": "investoren",
+            "share": 0.09090909090909093
+          }
+        ],
+        "phase": "idee",
+        "phase_number": 1,
+        "phase_until": "1915-03-01",
+        "phases": 3,
+        "raised_usd": 70987.8879,
+        "round_until": null,
+        "status": "aktiv",
+        "target": "ganzmetallflugzeug"
+      }
+    ],
+    "closed": [],
+    "estimated": false,
+    "failed": 0,
+    "founded": 7,
+    "keep_years": 10,
+    "label": "erfinder",
+    "per_year": 12.0,
+    "succeeded": 0
   },
   "strategie": {
     "enabled": true,

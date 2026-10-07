@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { formatGeld, landName, zahlFeld, zahlLesen } from "../format";
+import { formatGeld, formatZahl, landName, zahlFeld, zahlLesen } from "../format";
 import type { Kern, NeuesSpiel, Optionen, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -46,6 +46,7 @@ export function NeuesSpielAnsicht({
           start_form: o.start_forms[0]?.key ?? "",
           company_name: "",
           difficulty: o.default_difficulty,
+          startups: o.default_startups,
         });
         // Year and seed name something: no thousands separators.
         setZahlen({
@@ -224,6 +225,26 @@ export function NeuesSpielAnsicht({
                 <ZahlEingabe id="seed" ganzzahlig gruppieren={false} {...zahlFeldProps("seed")} />
               </label>
             </div>
+            {optionen.startups.length > 0 && (
+              <label>
+                {t("neu.startups")}
+                <select
+                  id="startups"
+                  value={werte.startups ?? ""}
+                  onChange={(e) => setze("startups", e.target.value)}
+                >
+                  {optionen.startups.map((f) => (
+                    <option key={f.key} value={f.key}>
+                      {t("neu.startups_wahl", {
+                        wahl: t(`startup.haeufigkeit.${f.key}`),
+                        je_jahr: formatZahl(f.per_year),
+                      })}
+                    </option>
+                  ))}
+                </select>
+                <small className="feld-hilfe">{t("neu.startups_hilfe")}</small>
+              </label>
+            )}
           </div>
         </details>
         <FehlerText fehler={fehler} />

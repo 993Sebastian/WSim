@@ -3003,3 +3003,144 @@ fn zentrale_wird_geprueft() {
         "Wert 20 liegt außerhalb des erlaubten Bereichs 0 bis 10.",
     );
 }
+
+const STARTUPS: &str = include_str!("../../../data/parameter/startups.yaml");
+const STARTUP_TEXTE: &str = include_str!("../../../data/texte/de/startups.yaml");
+const ERFINDER: &str = "erfinder:
+  - {technologie: schmelzen, name: Ada Muster, land: SWE, quelle: Test}
+";
+
+#[test]
+fn startups_werden_geprueft() {
+    let datei = "parameter/startups.yaml";
+    let erfinder = "startups/erfinder.yaml";
+    let basis = || {
+        Daten::neu()
+            .datei(datei, STARTUPS)
+            .datei(erfinder, ERFINDER)
+            .datei("texte/de/startups.yaml", STARTUP_TEXTE)
+    };
+    let outcome = basis().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let v = outcome.data.unwrap().catalog.ventures;
+    assert!(v.enabled());
+    assert_eq!(v.phases.len(), 3);
+    assert_eq!(v.frequencies.len(), 4);
+    assert_eq!(v.frequencies[v.default_frequency].0, "normal");
+    assert!((v.default_factor() - 1.0).abs() < 1e-9);
+    assert_eq!(v.label(1950), Some("erfinder"));
+    assert_eq!(v.label(1995), Some("startups"));
+    assert_eq!(v.inventors.len(), 1);
+    assert_eq!(v.inventors[0].name, "Ada Muster");
+    // Optional: without the section there are none; inventors alone are a warning.
+    let outcome = Daten::neu().laden();
+    assert!(outcome.report.findings().is_empty(), "{}", alle(&outcome));
+    let outcome = Daten::neu().datei(erfinder, ERFINDER).laden();
+    befund(
+        &outcome,
+        "Ohne Abschnitt „startups“ gibt es keine Start-ups; die Erfinder bleiben ungenutzt.",
+    );
+    assert_eq!(outcome.report.errors().count(), 0, "{}", alle(&outcome));
+
+    // The inventors: a known technology once, a known country, a name.
+    let d = basis().ersetze(erfinder, "technologie: schmelzen", "technologie: schmelzn");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Technologie „schmelzn“ ist nicht definiert. Meinten Sie „schmelzen“?",
+    );
+    assert_ort(
+        f,
+        erfinder,
+        d.zeile(erfinder, "technologie: schmelzn"),
+        "erfinder[0].technologie",
+    );
+    let d = basis().datei(
+        erfinder,
+        &format!("{ERFINDER}  - {{technologie: schmelzen, name: Bo Beispiel, land: SWE}}\n"),
+    );
+    befund(
+        &d.laden(),
+        "Erfinder der Technologie „schmelzen“ ist doppelt definiert",
+    );
+    let d = basis().ersetze(erfinder, "land: SWE", "land: XYZ");
+    befund(&d.laden(), "Land „XYZ“ ist nicht definiert.");
+    let d = basis().ersetze(erfinder, "name: Ada Muster", "name: \" \"");
+    befund(&d.laden(), "„name“ darf nicht leer sein.");
+
+    // The parameters.
+    let d = basis().ersetze(datei, "chance: 0.65", "chance: 1.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "startups.phasen[0].chance");
+    let d = basis().ersetze(datei, "monate: 12,", "monate: 0,");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "startups.phasen[0].monate");
+    let d = basis().ersetze(datei, "{id: prototyp,", "{id: idee,");
+    befund(
+        &d.laden(),
+        "Phase „idee“ ist doppelt definiert; erste Definition in phasen.",
+    );
+    let d = basis().ersetze(
+        datei,
+        "haeufigkeit_standard: normal",
+        "haeufigkeit_standard: mittel",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Häufigkeit „mittel“ ist unter „haeufigkeiten“ nicht aufgeführt.",
+    );
+    assert_eq!(f.path.to_string(), "startups.haeufigkeit_standard");
+    let d = basis().ersetze(datei, "{id: viele, faktor: 2}", "{id: viele, faktor: -2}");
+    befund(&d.laden(), "-2");
+    let d = basis().ersetze(datei, "kapital_faktor_max: 2", "kapital_faktor_max: 0.01");
+    befund(
+        &d.laden(),
+        "„kapital_faktor_min“ muss kleiner als „kapital_faktor_max“ sein.",
+    );
+    let d = basis().ersetze(datei, "stufe_hoch_ab: 0.4", "stufe_hoch_ab: 0.1");
+    befund(
+        &d.laden(),
+        "„stufe_mittel_ab“ muss kleiner als „stufe_hoch_ab“ sein.",
+    );
+    let d = basis().ersetze(
+        datei,
+        "{id: wagniskapital, ab: 1970}",
+        "{id: wagniskapital, ab: 1890}",
+    );
+    befund(
+        &d.laden(),
+        "Die Zeiträume müssen nach „ab“ aufsteigend sortiert sein.",
+    );
+    let d = basis().ersetze(datei, "frist_monate: 6", "frist_monate: 0");
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "startups.frist_monate");
+    let d = basis().datei("parameter/startups2.yaml", STARTUPS);
+    befund(&d.laden(), "Abschnitt „startups“ darf es nur einmal geben");
+
+    // Every phase, label and choice needs its text.
+    let d = basis().ersetze(
+        "texte/de/startups.yaml",
+        "startup.phase.prototyp: Prototyp\n",
+        "",
+    );
+    befund(
+        &d.laden(),
+        "Text „startup.phase.prototyp“ fehlt in texte/de/.",
+    );
+    let d = basis().ersetze(
+        "texte/de/startups.yaml",
+        "startup.haeufigkeit.viele: Viele\n",
+        "",
+    );
+    befund(
+        &d.laden(),
+        "Text „startup.haeufigkeit.viele“ fehlt in texte/de/.",
+    );
+}

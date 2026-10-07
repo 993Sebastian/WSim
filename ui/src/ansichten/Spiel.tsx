@@ -20,6 +20,7 @@ import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
 import { WeltereignisDialog } from "./Weltereignis";
 import { BerichteAnsicht } from "./Berichte";
+import { BeteiligungenAnsicht } from "./Beteiligungen";
 import { Einfuehrung, PFADE, type Pfad } from "./Einfuehrung";
 import { FinanzenAnsicht } from "./Finanzen";
 import { ForschungAnsicht } from "./Forschung";
@@ -39,6 +40,7 @@ type Ansicht =
   | "forschung"
   | "finanzen"
   | "organisation"
+  | "beteiligungen"
   | "weltkarte"
   | "berichte";
 export const ANSICHTEN: Ansicht[] = [
@@ -49,6 +51,7 @@ export const ANSICHTEN: Ansicht[] = [
   "forschung",
   "finanzen",
   "organisation",
+  "beteiligungen",
   "weltkarte",
   "berichte",
 ];
@@ -287,7 +290,8 @@ export function Spiel({
         e.preventDefault();
         if (!offen) setFenster({ art: "laden" });
       } else if (!offen && !eingabe && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        const nummer = Number(e.key);
+        // 1–9 and 0 for the tenth view.
+        const nummer = e.key === "0" ? 10 : Number(e.key);
         if (nummer >= 1 && nummer <= ANSICHTEN.length) setAnsicht(ANSICHTEN[nummer - 1]!);
         else if (e.key === "?" || e.key === "F1") {
           e.preventDefault();
@@ -572,6 +576,9 @@ export function Spiel({
         )}
         {ansicht === "organisation" && (
           <OrganisationAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
+        )}
+        {ansicht === "beteiligungen" && (
+          <BeteiligungenAnsicht kern={kern} uebersicht={uebersicht} />
         )}
         {ansicht === "weltkarte" && (
           <WeltkarteAnsicht

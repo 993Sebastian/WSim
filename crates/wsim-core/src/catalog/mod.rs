@@ -67,6 +67,8 @@ pub struct Catalog {
     pub management: ManagementModel,
     /// Headquarters and central departments (ZA1–ZA3).
     pub central: CentralModel,
+    /// Start-ups (SU1–SU3).
+    pub ventures: VentureModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -280,6 +282,86 @@ pub struct HitRateModel {
     pub prior: f64,
     /// Exponent of the salary demand.
     pub k: f64,
+}
+
+/// Start-ups (SU1–SU3, docs/FORMELN.md). Without phases or with none a year there are
+/// none.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct VentureModel {
+    /// What the game calls them from a year on (`startup.bezeichnung.<key>`), in order.
+    pub labels: Vec<(String, i32)>,
+    pub per_year: f64,
+    /// Choices of the new game: key (`startup.haeufigkeit.<key>`) and factor on
+    /// `per_year`, and the default one.
+    pub frequencies: Vec<(String, f64)>,
+    pub default_frequency: usize,
+    /// Share working on a new technology.
+    pub new_share: f64,
+    pub lead_years_max: u32,
+    pub phases: Vec<VenturePhase>,
+    /// GDP per capita at which the capital of the phases applies.
+    pub reference_gdp_usd: f64,
+    /// Bounds of the income factor on the capital.
+    pub capital_factor: (f64, f64),
+    /// Per year ahead of history: more capital, less chance.
+    pub lead_capital: f64,
+    pub lead_chance: f64,
+    pub chance_min: f64,
+    /// Chance per month that investors outside the game fund an open round.
+    pub investor_chance: f64,
+    pub deadline_months: u32,
+    /// Blur of the shown chance without a strategy department.
+    pub blur: f64,
+    /// From which shown chance the level is medium, and high.
+    pub chance_levels: (f64, f64),
+    /// Years closed start-ups stay in the list.
+    pub keep_years: u32,
+    pub inventors: Vec<Inventor>,
+    pub provenance: Provenance,
+}
+
+impl VentureModel {
+    pub fn enabled(&self) -> bool {
+        self.per_year > 0.0 && !self.phases.is_empty()
+    }
+
+    /// The factor of the default choice; 1 without choices.
+    pub fn default_factor(&self) -> f64 {
+        self.frequencies
+            .get(self.default_frequency)
+            .map_or(1.0, |f| f.1)
+    }
+
+    /// The label of a year: the last whose year is reached.
+    pub fn label(&self, year: i32) -> Option<&str> {
+        self.labels
+            .iter()
+            .rev()
+            .find(|(_, from)| *from <= year)
+            .or_else(|| self.labels.first())
+            .map(|(key, _)| key.as_str())
+    }
+}
+
+/// A phase of a start-up (SU1).
+#[derive(Clone, Debug, PartialEq)]
+pub struct VenturePhase {
+    /// Text `startup.phase.<key>`.
+    pub key: String,
+    pub months: u32,
+    pub capital: Money,
+    pub chance: f64,
+    /// Value before the round as a multiple of the capital raised.
+    pub valuation: f64,
+}
+
+/// A historical inventor of a technology (SU1).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Inventor {
+    pub technology: TechnologyId,
+    pub name: String,
+    pub country: CountryId,
+    pub provenance: Provenance,
 }
 
 /// Moving the headquarters (ZA1).

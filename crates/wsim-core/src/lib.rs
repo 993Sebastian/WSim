@@ -44,6 +44,7 @@ pub mod strategy;
 pub mod time_series;
 pub mod trade;
 pub mod transport;
+pub mod ventures;
 pub mod views;
 
 #[cfg(test)]
@@ -80,6 +81,8 @@ mod staffing_tests;
 mod strategy_tests;
 #[cfg(test)]
 mod trade_tests;
+#[cfg(test)]
+mod ventures_tests;
 
 pub use calendar::{Date, RoundLength};
 pub use game::{Game, JournalEntry, RoundReport, StateHash};

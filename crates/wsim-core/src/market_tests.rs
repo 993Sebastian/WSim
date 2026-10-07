@@ -34,6 +34,7 @@ fn game_with(catalog: crate::catalog::Catalog) -> Game {
         research_ahead_factor: 1.0,
         market_scale: 1.0,
         ai: Default::default(),
+        ventures: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }
