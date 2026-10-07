@@ -2006,6 +2006,18 @@ fn kimodell_wird_geprueft() {
     let outcome = d.laden();
     let f = befund(&outcome, "Wert -1 darf nicht negativ sein.");
     assert_eq!(f.path.to_string(), "kimodell.verhalten.vorrat_jahre_min");
+    // Estimates are off by a share (B2).
+    let d = Daten::neu().ersetze(
+        datei,
+        "schaetzfehler: {bei_0: 0.15, bei_1: 0.0}",
+        "schaetzfehler: {bei_0: 1.5, bei_1: 0.0}",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "kimodell.verhalten.schaetzfehler.bei_0");
 
     let d = Daten::neu().ohne(datei);
     befund(

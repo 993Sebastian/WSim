@@ -73,6 +73,12 @@ pub enum Stream {
         company: u32,
         month: u32,
     },
+    /// How an AI company misjudges cost and margin of a product in a year (B2).
+    Estimate {
+        company: u32,
+        product: u32,
+        year: u16,
+    },
 }
 
 impl Stream {
@@ -103,6 +109,16 @@ impl Stream {
             Stream::SpinOff { id } => (12 << 56) | u64::from(id),
             Stream::VentureBids { company, month } => {
                 (13 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
+            Stream::Estimate {
+                company,
+                product,
+                year,
+            } => {
+                (14 << 56)
+                    | (u64::from(company) << 32)
+                    | (u64::from(product & 0xFFFF) << 16)
+                    | u64::from(year)
             }
         }
     }

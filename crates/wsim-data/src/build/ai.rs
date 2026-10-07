@@ -33,6 +33,14 @@ fn share(ctx: &mut Ctx, value: f64, loc: &Loc) -> f64 {
     in_range(ctx, value, 0.0, 1.0, loc)
 }
 
+/// A span of shares: both ends from 0 to 1.
+fn share_span(ctx: &mut Ctx, s: &RawSpan, loc: &Loc) -> Span {
+    Span {
+        at_0: share(ctx, s.at_0, &loc.field("bei_0")),
+        at_1: share(ctx, s.at_1, &loc.field("bei_1")),
+    }
+}
+
 /// The AI model and the keys of the difficulties (for the text check).
 pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
     let mut difficulty_keys = Keys {
@@ -167,6 +175,7 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             &bl.field("lager_ausgleich_tage"),
         ),
         floor_factor: span(ctx, &b.floor_factor, &bl.field("preisuntergrenze")),
+        estimate_error: share_span(ctx, &b.estimate_error, &bl.field("schaetzfehler")),
         advertising_share: span(ctx, &b.advertising_share, &bl.field("werbeanteil")),
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),

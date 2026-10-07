@@ -3591,3 +3591,33 @@ oder ausgeschlossen, folgt der nächste Schritt (bis zu 30). Dann gilt:
 - Stile ohne `nachfolger` (Markennamen für Waren des täglichen Bedarfs) behalten den
   Namen. Marke und Bekanntheit hängen an Firma und Warengruppe, nicht am Namen: Ein
   Nachfolgemodell verliert keine Bekanntheit.
+
+## B2 – Können der KI-Manager wirkt auf Preise und Ausbau
+
+Auftrag vom 07.10.2026, Paket B: offener Punkt N 45. Daten: `parameter/kimodell.yaml`,
+`verhalten.schaetzfehler`. Bisher wirkte die Kompetenz k einer KI-Firma (ihr Charakter
+mit dem, was ihre Manager beitragen, MA6) nur auf die Häufigkeit der Betriebsprüfung und
+die Vorausplanung der Forschung. Jetzt schätzt eine Firma auch ihre Kosten und Margen
+nur so genau, wie ihre Leute es können.
+
+### Schätzfehler
+
+Je Firma f, Produkt p und Kalenderjahr j zieht der Zufallsstrom `Estimate { f, p, j }`
+zwei Zahlen u_K, u_M gleichverteilt in [−1, 1]. Mit der Spanne
+
+  F(k) = `schaetzfehler`.at(k)   (bei k = 0: 15 %, bei k = 1: 0 %)
+
+sieht die Firma
+
+- **Kosten:** Stückkosten K' = K · (1 + F(k) · u_K). Die Preisuntergrenze ist
+  K' · `preisuntergrenze` statt K · `preisuntergrenze`. Eine schwache Firma setzt ihre
+  Untergrenze also mal zu tief (sie verkauft mit Verlust und drückt den Markt), mal zu
+  hoch (sie verliert Absatz).
+- **Marge beim Ausbau:** (1 + m') = (1 + m) · (1 + F(k) · u_M). Ausgebaut wird, wenn m'
+  die Schwelle `ausbau_marge` erreicht (Auslastung und Absatz wie bisher). Eine schwache
+  Firma baut deshalb manchmal Anlagen für eine Marge, die es nicht gibt, und übersieht
+  manchmal eine gute.
+
+Die Zahlen gelten ein Kalenderjahr; im nächsten Jahr irrt die Firma anders. Der eigene
+Strom je Firma, Produkt und Jahr verschiebt keine anderen Zufallszahlen. Der Spieler ist
+nicht betroffen: Seine Stellen schätzen mit dem Prognosefehler der Manager (MA2).

@@ -1194,6 +1194,8 @@ pub struct RawAiBehavior {
     pub stock_adjust_days: f64,
     #[serde(rename = "preisuntergrenze")]
     pub floor_factor: RawSpan,
+    #[serde(rename = "schaetzfehler")]
+    pub estimate_error: RawSpan,
     #[serde(rename = "werbeanteil")]
     pub advertising_share: RawSpan,
     #[serde(rename = "einkauf_aufschlag")]

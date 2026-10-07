@@ -364,3 +364,4 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Forschungsbonus (beim Scheitern) | `ventures::research_bonus`, `VentureStakeModel::research_bonus` (`forschungsbonus`) |
 | Empfehlung einer Beteiligung, erwarteter Ertrag je Dollar | `ventures::{recommendations, expected_return}`, `decision::{Topic::Venture, ChoiceKind::Invest}` (`startup`, `beteiligen`), `VentureStakeModel::{min_return, cash_share}` (`rendite_mindest`, `einsatz_kasse`); `VentureView::expected_return` |
 | KI stellt ein, Kompetenz durch Manager | `staffing::{ai_staffing, next_position, fill, poach_target, ai_competence}`, `AiState::{staff, skill}`, `rng::Stream::Staffing`; `AiHiringModel` (`markt.ki`) |
+| Schätzfehler der KI (Kosten, Marge) | `ai::estimate`, `AiBehavior::estimate_error` (`verhalten.schaetzfehler`), `rng::Stream::Estimate` (B2) |

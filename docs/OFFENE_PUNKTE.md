@@ -887,7 +887,7 @@ entschieden:
 44. **KI-Firmen antworten sofort,** der Spieler bis zur Frist der Anliegen. Unbeantwortet,
     abgelehnt oder bei ruhendem Thema verfällt das Angebot; der Manager bleibt, die
     Zufriedenheit sinkt um `ignoriert_abzug`.
-45. **Manager der KI wirken nur über die Kompetenz** (Häufigkeit der Betriebsprüfung,
+45. ✅ (B2: Schätzfehler bei Kosten und Marge nach Kompetenz, `docs/FORMELN.md`) **Manager der KI wirken nur über die Kompetenz** (Häufigkeit der Betriebsprüfung,
     Vorausplanung der Forschung); sie entscheiden nicht über Stellen-Ketten und stellen
     keine Anliegen. Vorschlag für später: die Kompetenz auch in Preis- und
     Ausbauentscheidungen wirken lassen.

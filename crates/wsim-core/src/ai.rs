@@ -946,6 +946,36 @@ pub(crate) fn traits(catalog: &Catalog, state: &GameState, id: CompanyId) -> (f6
     )
 }
 
+/// How an AI company sees the unit cost and the margin of a product in a year (B2,
+/// docs/FORMELN.md): factors 1 + F(k)·u with u in [−1, 1] from its own stream per
+/// company, product and year. Exact for the player and for fully competent companies.
+pub(crate) fn estimate(
+    catalog: &Catalog,
+    state: &GameState,
+    id: CompanyId,
+    product: ProductId,
+    year: i32,
+) -> (f64, f64) {
+    let Some(ai) = &state.companies[id.index()].ai else {
+        return (1.0, 1.0);
+    };
+    let error = catalog.ai_model.behavior.estimate_error.at(ai.skill());
+    if error <= 0.0 {
+        return (1.0, 1.0);
+    }
+    let mut rng = SimRng::for_stream(
+        state.settings.seed,
+        Stream::Estimate {
+            company: id.0,
+            product: u32::try_from(product.index()).unwrap_or(u32::MAX),
+            year: u16::try_from(year).unwrap_or(0),
+        },
+    );
+    let mut factor = || 1.0 + error * (2.0 * rng.next_f64() - 1.0);
+    let cost = factor();
+    (cost, factor())
+}
+
 /// The cheapest recipe a company knows for a product, optionally on one facility.
 fn best_recipe(
     catalog: &Catalog,
@@ -1247,7 +1277,8 @@ fn operate(
             if output <= 1e-9 {
                 continue;
             }
-            let unit = daily.to_usd() / output + fixed / full.max(1e-9);
+            let (seen, _) = estimate(catalog, state, id, product, date.year());
+            let unit = (daily.to_usd() / output + fixed / full.max(1e-9)) * seen;
             let floor = Money::from_usd(unit * floor_factor).unwrap_or(Money::ZERO);
             let keep = need.get(&product).copied().unwrap_or(0.0) * st.stock.input_max_days;
             let (old, old_markup) = match offer.mode {
@@ -1735,7 +1766,9 @@ fn expand(
                 || market::market_price(catalog, state, s.country, product),
                 |o| o.price,
             );
-            let margin = price.to_usd() / unit.max(1e-9) - 1.0;
+            // How the company sees it (B2): with the error of its estimate.
+            let (_, seen) = estimate(catalog, state, id, product, date.year());
+            let margin = (price.to_usd() / unit.max(1e-9)) * seen - 1.0;
             // Sold since the start of last month, or used at the site, at least nine tenths
             // of the output: one month alone missed goods sold a few pieces at a time
             // (airliners, M33).
@@ -4029,6 +4062,47 @@ fn found_one(
 mod tests {
     use super::*;
     use crate::catalog::test_support;
+
+    /// The error of an AI company's estimates shrinks with its competence (B2); the
+    /// player and fully competent companies see exactly.
+    #[test]
+    fn estimates_err_by_competence_per_product_and_year() {
+        let mut catalog = test_support::production();
+        catalog.ai_model.behavior.estimate_error = crate::catalog::Span {
+            at_0: 0.15,
+            at_1: 0.0,
+        };
+        let (mut game, rival, _) = idle_works_in(catalog, 0.5);
+        let player = game.player();
+        game.state_mut().companies[rival.index()]
+            .ai
+            .as_mut()
+            .unwrap()
+            .competence = 0.0;
+        let (catalog, state) = (game.catalog().clone(), game.state().clone());
+        let product = catalog.products.id("eisen").unwrap();
+        assert_eq!(
+            estimate(&catalog, &state, player, product, 1900),
+            (1.0, 1.0)
+        );
+        let (cost, margin) = estimate(&catalog, &state, rival, product, 1900);
+        assert!((0.85..=1.15).contains(&cost) && (0.85..=1.15).contains(&margin));
+        assert!(cost != 1.0 && cost != margin);
+        // The same for the whole year, another one the next year.
+        assert_eq!(
+            estimate(&catalog, &state, rival, product, 1900),
+            (cost, margin)
+        );
+        assert_ne!(estimate(&catalog, &state, rival, product, 1901).0, cost);
+        // Competent: exact.
+        let mut state = state;
+        state.companies[rival.index()]
+            .ai
+            .as_mut()
+            .unwrap()
+            .competence = 1.0;
+        assert_eq!(estimate(&catalog, &state, rival, product, 1900), (1.0, 1.0));
+    }
 
     #[test]
     fn large_demand_gets_large_units_and_short_money_or_land_smaller_ones() {

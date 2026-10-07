@@ -60,6 +60,9 @@ kimodell:
     # Gleichgewicht Preis = Richtpreis bei einer Marge zum Richtpreis von 1 − 1/Faktor;
     # die Rezepte haben typisch 10–30 %.
     preisuntergrenze: {bei_0: 1.2, bei_1: 1.1}
+    # Schätzfehler (B2): Stückkosten und Marge sieht eine Firma je Produkt und Jahr um bis
+    # zu diesen Anteil zu hoch oder zu tief – Kompetenz (mit dem Können ihrer Manager).
+    schaetzfehler: {bei_0: 0.15, bei_1: 0.0}
     werbeanteil: {bei_0: 0.01, bei_1: 0.03}           # Werbung je Monat, Anteil am Umsatz, Aggressivität
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität

@@ -67,6 +67,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | ZA4 | Paket A: Zentralen und Sitz der KI, Anteile an Firmen verkaufen, Trefferquote nach Erfolg, Ausfallquote | ✅ |
 | D1 | CI: Browser-Version nur auf Wunsch; Plan für die Stufen 2–5 (Architektur §4.1) | ✅ |
 | B1 | Manager-Restpunkte: Gehalt über der Kasse, Abwerben aus „Wettbewerb“, Nachfolgemodelle | ✅ |
+| B2 | Können der KI-Manager wirkt auf Preise und Ausbau (Schätzfehler) | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -553,6 +554,19 @@ N 46 und M 5. Regeln: `docs/FORMELN.md`, Abschnitt B1; Entscheidungen:
 - **Tests:** Kern (Nachfolgeregeln, Umbenennen beim Erreichen einer Stufe, Abwerben von
   einer KI-Firma mit Gegenangebot und Wechsel, Warnung im Managermarkt), Oberfläche
   (Abwerben aus „Wettbewerb“, Warnung im Managermarkt).
+
+### B2: Können der KI-Manager wirkt auf Preise und Ausbau (07.10.2026)
+
+Paket B, offener Punkt N 45. Regeln: `docs/FORMELN.md`, Abschnitt B2.
+
+- **Schätzfehler:** Eine KI-Firma sieht Stückkosten und Marge eines Produkts je Jahr um
+  bis zu `schaetzfehler` daneben (15 % bei Kompetenz 0, 0 % bei 1; die Kompetenz enthält
+  das Können ihrer Manager). Die Preisuntergrenze folgt den geschätzten Kosten, der Ausbau
+  der geschätzten Marge. Eigener Zufallsstrom je Firma, Produkt und Jahr; der Spieler ist
+  nicht betroffen.
+- **Daten und Prüfung:** `verhalten.schaetzfehler` in `parameter/kimodell.yaml` (0–1),
+  Fehlerfall-Test; Kern-Test (genau bei voller Kompetenz und für den Spieler, sonst im
+  Band, gleich im Jahr, anders im nächsten).
 
 ## Eigenständige Entscheidungen (für das Review)
 

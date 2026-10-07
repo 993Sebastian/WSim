@@ -1233,6 +1233,8 @@ pub struct AiBehavior {
     pub stock_adjust_days: f64,
     /// Price floor = normal cost × this factor (aggressiveness).
     pub floor_factor: Span,
+    /// Error of an AI company's estimates of cost and margin (competence; B2).
+    pub estimate_error: Span,
     /// Monthly advertising as share of the revenue of a goods group in a country.
     pub advertising_share: Span,
     pub purchase_markup: f64,
@@ -1329,6 +1331,7 @@ impl Default for AiModel {
                     at_0: 1.05,
                     at_1: 0.9,
                 },
+                estimate_error: Span::default(),
                 advertising_share: Span {
                     at_0: 0.01,
                     at_1: 0.03,
