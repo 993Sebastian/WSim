@@ -533,6 +533,26 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.7 Entscheidungen vom 07.10.2026 (Lebenszyklus, Spielerfigur, Privatvermögen)
+
+Die vollständige Vorgabe steht in `docs/PERSON.md` (Meilensteine PE1–PE6). Freigabe am
+07.10.2026: PE1–PE6 direkt nach dem laufenden Meilenstein, vor den übrigen aus
+Architektur §4.1. Bei Widerspruch gilt `docs/PERSON.md` vor §2, §11.1, §11.2 und §11.3.
+
+- **Start als Person ohne Firma:** Der Spieler gibt vor Spielbeginn ein **Startgeld** als
+  Betrag ein; es liegt auf dem Privatkonto. Die erste Firma gründet er selbst, wann er will.
+- **Manager altern:** Geburtsdatum, Alterswirkungen, Ruhestand mit Anliegen „Nachfolge
+  regeln“, seltener Tod; KI-Firmen nach denselben Regeln.
+- **Spielerfigur als Person** (ersetzt den Satz „personenunabhängig“ in §2): Name,
+  Geburtsjahr, Familie, Lebenslauf, Rollen; immer sterblich; Erbe ist ein Kind, sonst ein
+  Neffe oder eine Nichte. Kinder können ab 25 als Manager arbeiten.
+- **Privatvermögen:** Gehalt als CEO, Dividenden, Lebensstil in vier Stufen mit Wirkung,
+  Einkommen-, Erbschaft- und Veräußerungsteuer vereinfacht je Land.
+- **Käufe und Verkäufe** von Anteilen und ganzen Firmen durch die Person; mehrere
+  kontrollierte Firmen; ohne CEO steuert der Spieler, mit CEO dieser.
+- **Spielende:** weder Pleite der Hauptfirma noch Tod beenden das Spiel; es endet erst
+  ohne Anteile und mit Guthaben unter der kleinsten Gründungssumme.
+
 ### 18.6 Entscheidungen vom 06.10.2026 (Hauptsitz, Zentralabteilungen, Start-ups)
 
 Die vollständige Vorgabe steht in `docs/BETEILIGUNGEN.md` (Meilensteine ZA1–ZA3 und
