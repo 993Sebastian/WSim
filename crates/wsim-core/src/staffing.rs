@@ -1115,7 +1115,7 @@ fn fill(
     let mut pool: Vec<(ManagerId, f64)> = candidates(catalog, state, company, position.unit)
         .into_iter()
         .filter(|id| affordable(state, id))
-        .map(|id| (id, strength(&state.managers[&id])))
+        .map(|id| (id, rated(catalog, &state.managers[&id])))
         .collect();
     // The strongest first; on a tie the lower number.
     pool.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
@@ -1156,6 +1156,12 @@ fn fill(
     command::execute(state, catalog, company, &hire).is_ok()
 }
 
+/// A manager's strength as companies see it when they hire (ZA3): times the factor of his
+/// hit rate.
+fn rated(catalog: &Catalog, m: &Manager) -> f64 {
+    strength(m) * crate::central::hit_factor(catalog, m)
+}
+
 /// The manager of another company an AI company would rather have (docs/FORMELN.md,
 /// MA6): from the continent of the position, strong enough, without an offer, and
 /// clearly stronger than the candidate it would take.
@@ -1182,7 +1188,7 @@ fn poach_target(
         {
             continue;
         }
-        let s = strength(m);
+        let s = rated(catalog, m);
         if s >= p.min_strength && best.is_none_or(|(_, b)| s > b) {
             best = Some((id, s));
         }

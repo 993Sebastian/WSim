@@ -2,6 +2,8 @@
 //! a position asks, its way there, its options with what they do, cost and bring, and its
 //! recommendation.
 
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
 
 use super::organisation::{role_key, unit_key};
@@ -12,7 +14,7 @@ use crate::command::site_type_key;
 use crate::deals::{self, OfferAnswer};
 use crate::decision::ChoiceKind;
 use crate::game::Game;
-use crate::ids::ProductId;
+use crate::ids::{GoodsGroupId, ProductId};
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
@@ -183,6 +185,11 @@ fn slot(state: &GameState, site: SiteId, slot: usize) -> Option<&Slot> {
 
 fn facility_param(catalog: &Catalog, sl: &Slot) -> Param {
     Param::TextKey(format!("anlage.{}", catalog.facilities.key(sl.facility)))
+}
+
+/// An interest rate in percent with two decimals: 5,25.
+fn rate_param(rate: f64) -> Param {
+    Param::Number((rate * 10_000.0).round() / 100.0)
 }
 
 fn percent(share: f64) -> Param {
@@ -380,6 +387,26 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("angebot", Param::Money(o.salary))
                 .with("gehalt", Param::Money(x.job.as_ref()?.salary))
         }
+        // The views show the player's concerns: the loan is the player's.
+        Command::RefinanceLoan { loan } => {
+            let l = state
+                .companies
+                .get(state.player.index())?
+                .loans
+                .get(*loan)?;
+            let rate = crate::central::refinance_rate(catalog, state, state.player);
+            m(keys::STEP_REFINANCE)
+                .with("betrag", Param::Money(l.balance))
+                .with("alt", rate_param(l.rate))
+                .with("neu", rate_param(rate))
+        }
+        Command::RaiseSalary { manager, salary } => {
+            let x = state.managers.get(manager)?;
+            m(keys::STEP_RAISE)
+                .with("name", Param::Text(x.name.clone()))
+                .with("gehalt", Param::Money(*salary))
+                .with("bisher", Param::Money(x.job.as_ref()?.salary))
+        }
         Command::LetGo { manager } => {
             let o = state.poach_offers.iter().find(|o| o.manager == *manager)?;
             let x = state.managers.get(manager)?;
@@ -394,13 +421,85 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
     })
 }
 
+/// Why a department recommends a takeover, a licence, a refinancing or a raise
+/// (docs/FORMELN.md, ZA3); none for other concerns.
+fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Option<Message> {
+    let m = |key: &str| Message::new(MessageKind::Info, key);
+    let option = c.options.get(c.recommended)?;
+    let command = &c
+        .decision
+        .choices
+        .get(c.recommended)?
+        .steps
+        .first()?
+        .command;
+    Some(match *command {
+        Command::MakeOffer { object, .. } => match object {
+            deals::DealObject::License(t) => {
+                let value =
+                    deals::license_value(state, catalog, c.company, t).unwrap_or(Money::ZERO);
+                m(keys::BECAUSE_SHORTCUT)
+                    .with(
+                        "technologie",
+                        Param::TextKey(format!("technologie.{}", catalog.technologies.key(t))),
+                    )
+                    .with("betrag", Param::Money(value))
+            }
+            _ => {
+                let groups: BTreeSet<GoodsGroupId> = match object {
+                    deals::DealObject::Site(site) => deals::site_groups(state, catalog, site),
+                    deals::DealObject::Area(group) => [group].into(),
+                    deals::DealObject::License(_) => BTreeSet::new(),
+                };
+                let own: BTreeSet<GoodsGroupId> = state
+                    .sites
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, s)| s.owner == c.company)
+                    // Few sites; the cast is exact.
+                    .flat_map(|(i, _)| deals::site_groups(state, catalog, SiteId(i as u32)))
+                    .collect();
+                match groups.intersection(&own).next() {
+                    Some(&g) => m(keys::BECAUSE_FIT).with(
+                        "gruppe",
+                        Param::TextKey(format!("warengruppe.{}", catalog.goods_groups.key(g))),
+                    ),
+                    None => m(keys::BECAUSE_SPREAD),
+                }
+            }
+        },
+        Command::RefinanceLoan { .. } => m(keys::BECAUSE_REFINANCE)
+            .with(
+                "betrag",
+                Param::Money(option.forecast.map_or(Money::ZERO, |(low, high)| {
+                    Money::from_units((low.units() + high.units()) / 2)
+                })),
+            )
+            .with("gebuehr", Param::Money(Money::ZERO - option.once)),
+        Command::RaiseSalary { manager, salary } => {
+            let x = state.managers.get(&manager)?;
+            let now = x.job.as_ref()?.salary;
+            m(keys::BECAUSE_SALARY_ROUND)
+                .with("name", Param::Text(x.name.clone()))
+                .with(
+                    "anteil",
+                    percent(1.0 - now.to_usd() / salary.to_usd().max(1.0)),
+                )
+        }
+        _ => return None,
+    })
+}
+
 /// Why the position recommends its option (docs/MANAGER.md 6.2).
-fn because(state: &GameState, c: &Concern) -> Message {
+fn because(catalog: &Catalog, state: &GameState, c: &Concern) -> Message {
     let m = |key: &str| Message::new(MessageKind::Info, key);
     let kind = c.decision.choices.get(c.recommended).map(|o| o.kind);
     let option = c.options.get(c.recommended);
     if kind == Some(ChoiceKind::Keep) {
         return m(keys::BECAUSE_WAIT);
+    }
+    if let Some(reason) = department_because(catalog, state, c) {
+        return reason;
     }
     // An offer to a manager (MA6): what it would mean on his salary.
     if let Some(o) = crate::staffing::offer_of(state, c) {
@@ -603,7 +702,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         reason: reason_key(c.reason).to_owned(),
         options,
         recommended: c.recommended,
-        because: message_view(&because(state, c)),
+        because: message_view(&because(catalog, state, c)),
         per_decision_usd: usd(per_decision),
         left_usd: usd(left),
         strategy_limit_usd: strategy_limit.map(usd),

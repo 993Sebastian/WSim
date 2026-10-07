@@ -410,7 +410,9 @@ pub fn salary_demand(
         return Money::ZERO;
     };
     let wage = yearly_wage(catalog, state, country);
-    Money::from_usd(factor * (0.5 + strength(manager) / 100.0) * wage).unwrap_or(Money::ZERO)
+    // The hit rate of a head of strategy or legal (ZA3).
+    let hits = crate::central::hit_factor(catalog, manager);
+    Money::from_usd(factor * (0.5 + strength(manager) / 100.0) * wage * hits).unwrap_or(Money::ZERO)
 }
 
 /// Salary of a job for the days from `from` up to (not including) `to`, within a month:
@@ -844,6 +846,8 @@ fn draw(
         job: None,
         potential: None,
         courted: None,
+        judged: 0,
+        hits: 0,
     }
 }
 
@@ -1304,7 +1308,10 @@ pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
         return (!steps.is_empty()).then_some(Unit::Board);
     };
     match *first {
-        Command::MakeOffer { .. } | Command::AnswerOffer { .. } => Some(Unit::Board),
+        Command::MakeOffer { .. }
+        | Command::AnswerOffer { .. }
+        | Command::RefinanceLoan { .. }
+        | Command::RaiseSalary { .. } => Some(Unit::Board),
         Command::FoundSite { country, .. } | Command::SetAdvertising { country, .. } => {
             Some(Unit::Country(country))
         }
@@ -1530,6 +1537,32 @@ impl Decider for Staff<'_> {
         true
     }
 
+    /// The estimate of the board's member of the topic's function, else of the CEO with
+    /// less expertise (docs/FORMELN.md, ZA3): f = 1 + (2u − 1) · e with
+    /// e = error · (1 − expertise/100) · (1 − accuracy · A).
+    fn estimate(
+        &mut self,
+        state: &GameState,
+        catalog: &Catalog,
+        topic: Topic,
+    ) -> Option<(ManagerId, f64)> {
+        let function = &catalog.management.functions[function_of(catalog, topic)?].key;
+        let member = Position::new(Unit::Board, Role::Specialist(function.clone()));
+        let ceo = Position::new(Unit::Board, Role::Head);
+        let (position, manager, discount) = match holder(state, self.company, &member) {
+            Some(id) => (member, id, 0.0),
+            None => {
+                let id = holder(state, self.company, &ceo)?;
+                (ceo, id, self.head_discount)
+            }
+        };
+        let skill = f64::from(expertise(&state.managers[&manager], function)) * (1.0 - discount);
+        let accuracy = crate::central::accuracy(catalog, state, self.company, &position);
+        let error = self.model.estimate_error * (1.0 - skill / 100.0) * (1.0 - accuracy);
+        let u = self.rng(manager).next_f64();
+        Some((manager, 1.0 + (2.0 * u - 1.0) * error))
+    }
+
     fn decide(&mut self, state: &GameState, catalog: &Catalog, d: &Decision) -> Verdict {
         let Some(place) = place_of(state, d) else {
             return Verdict::Hold;
@@ -1739,6 +1772,39 @@ impl Decider for Staff<'_> {
         });
         Verdict::Hold
     }
+}
+
+/// The estimates of a company's head of a topic on a number of days (tests, ZA3).
+#[cfg(test)]
+pub(crate) fn estimates(
+    state: &GameState,
+    catalog: &Catalog,
+    (company, topic): (CompanyId, Topic),
+    days: std::ops::Range<u32>,
+) -> Vec<(ManagerId, f64)> {
+    let m = &catalog.management;
+    days.filter_map(|day| {
+        let mut staff = Staff {
+            company,
+            noticed: BTreeSet::new(),
+            positions: Vec::new(),
+            model: &m.concerns,
+            routine: &m.routine_topics,
+            head_discount: m.head_discount,
+            rngs: BTreeMap::new(),
+            seed: state.settings.seed,
+            day,
+            today: state.date,
+            open: BTreeSet::new(),
+            done: BTreeSet::new(),
+            spent: Vec::new(),
+            concerns: Vec::new(),
+            followups: Vec::new(),
+            invested: Vec::new(),
+        };
+        staff.estimate(state, catalog, topic)
+    })
+    .collect()
 }
 
 /// Puts one decision to a company's positions as on a day of theirs on which every unit
@@ -2152,6 +2218,39 @@ fn board_work(
             state, catalog, company, staff, answers,
         ));
     }
+    // The recommendations of the finance and personnel departments (ZA3).
+    if noticed(staff, Topic::Refinance) {
+        let cases = crate::central::cases(catalog, state, company, DepartmentKind::Finance);
+        for loan in crate::central::refinance_candidates(catalog, state, company)
+            .into_iter()
+            .take(cases)
+        {
+            let command = Command::RefinanceLoan { loan };
+            recommend(
+                state,
+                catalog,
+                (company, Topic::Refinance),
+                (ChoiceKind::Refinance, command),
+                staff,
+            );
+        }
+    }
+    if noticed(staff, Topic::SalaryRound) {
+        let cases = crate::central::cases(catalog, state, company, DepartmentKind::Personnel);
+        for (manager, salary) in crate::central::salary_round_candidates(catalog, state, company)
+            .into_iter()
+            .take(cases)
+        {
+            let command = Command::RaiseSalary { manager, salary };
+            recommend(
+                state,
+                catalog,
+                (company, Topic::SalaryRound),
+                (ChoiceKind::Adjust, command),
+                staff,
+            );
+        }
+    }
     let plan = crate::deals::BoardPlan {
         offers: noticed(staff, Topic::Offer),
         licenses: noticed(staff, Topic::License),
@@ -2167,6 +2266,24 @@ fn board_work(
         ));
     }
     news
+}
+
+/// A department's case put to the positions (ZA3): carried out where one decides it, else
+/// a recommendation to the player.
+fn recommend(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (company, topic): (CompanyId, Topic),
+    (kind, command): (ChoiceKind, Command),
+    staff: &mut Staff,
+) {
+    let decided = decision::decided(staff, state, catalog, |_| {
+        Decision::new(topic, company, decision::Choice::one(kind, command.clone()))
+    });
+    if decided {
+        // Checked on the day; a failure leaves things as they are.
+        let _ = crate::command::execute(state, catalog, company, &command);
+    }
 }
 
 /// The offer a decision answers, if it does.
@@ -2665,6 +2782,10 @@ enum Object {
     Advertising(CountryId, crate::ids::GoodsGroupId),
     Answer(u32),
     Bid(CompanyId, crate::deals::DealObject),
+    /// A loan by its number (ZA3).
+    Loan(usize),
+    /// A manager's salary (ZA3).
+    Salary(ManagerId),
 }
 
 fn object(command: &Command) -> Option<Object> {
@@ -2688,6 +2809,8 @@ fn object(command: &Command) -> Option<Object> {
         Command::SetAdvertising { country, group, .. } => Object::Advertising(country, group),
         Command::AnswerOffer { offer, .. } => Object::Answer(offer),
         Command::MakeOffer { seller, object, .. } => Object::Bid(seller, object),
+        Command::RepayLoan { loan, .. } | Command::RefinanceLoan { loan } => Object::Loan(loan),
+        Command::RaiseSalary { manager, .. } => Object::Salary(manager),
         _ => return None,
     })
 }
@@ -2730,6 +2853,18 @@ pub(crate) fn settle(state: &mut GameState, company: CompanyId, command: &Comman
         } else if c.parts.len() < before {
             c.options = part_options(&c.parts);
         }
+    }
+}
+
+/// A company's open concerns of a topic are settled (ZA3): the loans they name changed
+/// their numbers.
+pub(crate) fn settle_topic(state: &mut GameState, company: CompanyId, topic: Topic) {
+    let today = state.date;
+    for c in state.concerns.iter_mut().filter(|c| {
+        c.company == company && c.status == ConcernStatus::Open && c.decision.topic == topic
+    }) {
+        c.status = ConcernStatus::Settled;
+        c.closed = Some(today);
     }
 }
 

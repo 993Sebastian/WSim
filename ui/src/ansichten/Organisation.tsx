@@ -85,9 +85,21 @@ function AlleFaehigkeiten({ m }: { m: Manager }) {
             <dd>{stufeText(s.key, s.level)}</dd>
           </Fragment>
         ))}
+        <dt>{t("organisation.trefferquote")}</dt>
+        <dd>{trefferquote(m.hit_rate, m.judged)}</dd>
       </dl>
     </Erklaerung>
   );
+}
+
+/** "62 % (8 bewertet)", or that nothing was judged yet (ZA3). */
+export function trefferquote(rate: number | null, judged: number): string {
+  return rate === null
+    ? t("organisation.trefferquote_keine")
+    : t("organisation.trefferquote_wert", {
+        anteil: formatProzent(rate),
+        anzahl: formatZahl(judged),
+      });
 }
 
 function Themen({ themen }: { themen: string[] }) {
@@ -410,6 +422,12 @@ function AbteilungZeile({ a }: { a: Abteilung }) {
               <small className="feld-hilfe">
                 {" "}
                 · {faehigkeitName(`fach.${a.function}`)}: {stufeText("fach", a.head_level)}
+              </small>
+            )}
+            {a.head_hit_rate !== null && (
+              <small className="feld-hilfe">
+                {" "}
+                · {t("organisation.trefferquote")}: {trefferquote(a.head_hit_rate, a.head_judged)}
               </small>
             )}
           </>

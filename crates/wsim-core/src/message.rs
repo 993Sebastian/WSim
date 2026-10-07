@@ -201,6 +201,13 @@ pub mod keys {
     pub const MANAGER_STAYED: &str = "meldung.manager.geblieben";
     pub const STEP_MATCH: &str = "schritt.gegenangebot.manager";
     pub const STEP_LET_GO: &str = "schritt.gehen_lassen";
+    pub const STEP_REFINANCE: &str = "schritt.umschulden";
+    pub const STEP_RAISE: &str = "schritt.gehalt_erhoehen";
+    pub const BECAUSE_REFINANCE: &str = "anliegen.begruendung.umschuldung";
+    pub const BECAUSE_SALARY_ROUND: &str = "anliegen.begruendung.gehaltsrunde";
+    pub const BECAUSE_FIT: &str = "anliegen.begruendung.passung";
+    pub const BECAUSE_SPREAD: &str = "anliegen.begruendung.streuung";
+    pub const BECAUSE_SHORTCUT: &str = "anliegen.begruendung.abkuerzung";
     pub const BECAUSE_KEEP: &str = "anliegen.begruendung.halten";
     pub const BECAUSE_LET_GO: &str = "anliegen.begruendung.ziehen_lassen";
     pub const CONCERN_NEW: &str = "meldung.anliegen.neu";
@@ -445,6 +452,13 @@ pub mod keys {
         MANAGER_STAYED,
         STEP_MATCH,
         STEP_LET_GO,
+        STEP_REFINANCE,
+        STEP_RAISE,
+        BECAUSE_REFINANCE,
+        BECAUSE_SALARY_ROUND,
+        BECAUSE_FIT,
+        BECAUSE_SPREAD,
+        BECAUSE_SHORTCUT,
         BECAUSE_KEEP,
         BECAUSE_LET_GO,
         CONCERN_NEW,

@@ -900,7 +900,8 @@ entschieden:
 ## O Hauptsitz, Zentralabteilungen, Start-ups (Vorgabe `docs/BETEILIGUNGEN.md`)
 
 ✅ **ZA1 umgesetzt** (Hauptsitz verlegen), ✅ **ZA2 umgesetzt** (Zentralabteilungen,
-Vorgabe „Beteiligungen“). 🟡 Vorläufig entschieden:
+Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote). 🟡 Vorläufig
+entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -935,6 +936,14 @@ Vorgabe „Beteiligungen“). 🟡 Vorläufig entschieden:
 12. **Welt mit neuen Ressorts:** Die zwei neuen Bereiche ändern die Ziehung der Manager
     (mehr Fähigkeiten je Manager); deshalb weicht ein Weltlauf mit gleichem Startwert vom
     Stand vor ZA2 ab. Mit den alten Daten ist er bitgleich.
+13. **Wer schätzt:** Jede Übernahme und Lizenz, die der Vorstand anbietet, schätzt die
+    Stelle des Ressorts (sonst der CEO) – auch ohne Abteilung; die Abteilung macht die
+    Schätzung genauer. Bewertet wird jede Schätzung, auch wenn das Angebot nicht abgeht.
+14. **Treffer** heißt: Das Angebot lag nicht über dem Wert nach den Regeln am Tag der
+    Schätzung. Vorschlag für später: den Wert nach der Frist neu bewerten (Erfolg der
+    Übernahme), sobald Beteiligungen einen Verlauf haben (SU2).
+15. **Gehaltsrunde** ist ein Regelthema: Die Personalstelle empfiehlt immer die Erhöhung
+    auf den Marktwert; Umschuldung wird nach ersparten Zinsen und Gebühr bewertet.
 
 ## Reihenfolge der neuen Punkte
 

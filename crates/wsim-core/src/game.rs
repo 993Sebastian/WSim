@@ -228,6 +228,7 @@ impl Game {
             next_concern: 0,
             followups: Vec::new(),
             poach_offers: Vec::new(),
+            judgments: Vec::new(),
             player: CompanyId(0),
             game_over: false,
         };

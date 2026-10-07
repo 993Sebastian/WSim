@@ -614,6 +614,24 @@ pub struct Manager {
     /// When another company last made him an offer (MA6).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub courted: Option<Date>,
+    /// His estimates of targets judged so far, and the hits among them (ZA3).
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub judged: u32,
+    #[serde(default, skip_serializing_if = "no_count")]
+    pub hits: u32,
+}
+
+fn no_count(n: &u32) -> bool {
+    *n == 0
+}
+
+/// An estimate of a head waiting for its judgment (ZA3): whether the price stayed within
+/// the value of the target by the rules.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Judgment {
+    pub manager: ManagerId,
+    pub due: Date,
+    pub hit: bool,
 }
 
 /// Employment of a manager.
@@ -1419,6 +1437,9 @@ pub struct GameState {
     /// Open offers to managers of other companies (MA6).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub poach_offers: Vec<PoachOffer>,
+    /// Estimates of heads waiting for their judgment, oldest first (ZA3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub judgments: Vec<Judgment>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { Anliegen, AnliegenListe, Befehl, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { hatText } from "../texte";
-import { OrganisationAnsicht } from "./Organisation";
+import { OrganisationAnsicht, trefferquote } from "./Organisation";
 
 /** The preview core whose example concern stands twice (as from two works), sending to a list. */
 async function kernMitAnliegen() {
@@ -264,6 +264,11 @@ describe("Anliegen", () => {
     expect(gesendet).toEqual([{ StaffDepartment: { department: "Finance", staff: 3 } }]);
   });
 
+  it("zeigt die Trefferquote einer Leitung", () => {
+    expect(trefferquote(null, 0)).toBe("noch nichts bewertet");
+    expect(trefferquote(0.625, 8)).toMatch(/^63\s?% \(8 bewertet\)$/);
+  });
+
   it("hat Texte für alle Optionen, Gründe und Ausgänge", () => {
     const optionen = [
       "beibehalten",
@@ -283,6 +288,7 @@ describe("Anliegen", () => {
       "weiterentwickeln",
       "gegenangebot",
       "gehen_lassen",
+      "umschulden",
     ];
     const gruende: Anliegen["reason"][] = [
       "entscheidung",
@@ -294,6 +300,8 @@ describe("Anliegen", () => {
       "verschuldung",
       "antrag",
       "abwerbung",
+      "freigabe",
+      "beteiligung",
     ];
     const ausgaenge: Anliegen["status"][] = [
       "offen",
@@ -311,6 +319,11 @@ describe("Anliegen", () => {
       ...["alle", "wichtige", "nie"].map((k) => `spiel.anhalten_${k}`),
       ...[0, 1, 2].map((k) => `organisation.zufriedenheit.${k}`),
       "thema.abwerbung",
+      ...["lizenz", "umschuldung", "gehaltsrunde"].map((k) => `thema.${k}`),
+      ...["strategie", "finanzen", "personal", "recht", "marketing"].flatMap((k) => [
+        `abteilung.${k}`,
+        `abteilung.wirkung.${k}`,
+      ]),
     ].filter((k) => !hatText(k));
     expect(fehlend).toEqual([]);
   });

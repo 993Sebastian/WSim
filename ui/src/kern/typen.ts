@@ -1024,6 +1024,9 @@ export interface Manager {
   /** Function the manager is best at. */
   focus: string;
   skills: Faehigkeit[];
+  /** Estimates of targets judged so far, and the hit rate (null before the first; ZA3). */
+  judged: number;
+  hit_rate: number | null;
 }
 
 /** Another company's offer to a manager of the player (MA6). */
@@ -1145,6 +1148,9 @@ export interface Abteilung {
   head: string | null;
   /** The head's expertise as the player sees it (1–5). */
   head_level: number | null;
+  /** The head's hit rate and judged estimates (strategy, legal; ZA3). */
+  head_hit_rate: number | null;
+  head_judged: number;
   /** Cases per month: employees · cases each. */
   capacity: number;
   cases_each: number;

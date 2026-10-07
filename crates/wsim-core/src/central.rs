@@ -10,7 +10,9 @@ use crate::ledger::{Account, CostCenter, CostType};
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
-use crate::state::{CompanyId, GameState, ManagerId, Position, Relocation, Role, Unit};
+use crate::state::{
+    CompanyId, GameState, Judgment, Manager, ManagerId, Position, Relocation, Role, Unit,
+};
 
 /// Employees of a company's central departments.
 pub fn employees(state: &GameState, company: CompanyId) -> u32 {
@@ -422,6 +424,48 @@ pub fn refinance_rate(catalog: &Catalog, state: &GameState, company: CompanyId) 
     )
 }
 
+/// Loans a finance department proposes to refinance (docs/FORMELN.md, ZA3): those whose
+/// rate lies the least advantage of the data above a new loan's, the dearest first.
+pub fn refinance_candidates(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+) -> Vec<usize> {
+    let rate = refinance_rate(catalog, state, company);
+    let min = catalog.central.refinance.min_advantage;
+    let mut loans: Vec<(usize, f64)> = state.companies[company.index()]
+        .loans
+        .iter()
+        .enumerate()
+        .filter(|(_, l)| l.rate - rate >= min && l.rate > rate)
+        .map(|(i, l)| (i, l.rate))
+        .collect();
+    loans.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+    loans.into_iter().map(|(i, _)| i).collect()
+}
+
+/// Managers a personnel department proposes to raise (docs/FORMELN.md, ZA3): less than
+/// content and paid below their market value, the unhappiest first; with that value.
+pub fn salary_round_candidates(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+) -> Vec<(ManagerId, Money)> {
+    let mixed = catalog.management.market.satisfaction.bands[1];
+    let mut out: Vec<(u8, ManagerId, Money)> = state
+        .managers
+        .iter()
+        .filter_map(|(&id, m)| {
+            let job = m.job.as_ref().filter(|j| j.company == company)?;
+            let happy = crate::staffing::satisfaction(catalog, job);
+            let value = crate::staffing::market_value(catalog, state, m);
+            (happy < mixed && value > job.salary).then_some((happy, id, value))
+        })
+        .collect();
+    out.sort_by_key(|&(happy, id, _)| (happy, id));
+    out.into_iter().map(|(_, id, value)| (id, value)).collect()
+}
+
 /// The months a loan still runs, at least one.
 pub fn months_left(loan: &crate::state::Loan, today: Date) -> u32 {
     let month = |d: Date| i64::from(d.year()) * 12 + i64::from(d.month());
@@ -474,6 +518,51 @@ pub(crate) fn refinance(
     Ok(())
 }
 
+/// A head's hit rate with the prior (docs/FORMELN.md, ZA3): few cases do not deceive.
+pub fn hit_rate(catalog: &Catalog, manager: &Manager) -> f64 {
+    let h = &catalog.central.hit_rate;
+    let n = f64::from(manager.judged) + h.prior;
+    if n > 0.0 {
+        (f64::from(manager.hits) + h.mean * h.prior) / n
+    } else {
+        h.mean
+    }
+}
+
+/// The factor of the hit rate on the salary demand and the strength others see
+/// (docs/FORMELN.md, ZA3): e^(k · (q − mean)); 1 before the first judgment.
+pub fn hit_factor(catalog: &Catalog, manager: &Manager) -> f64 {
+    if manager.judged == 0 {
+        return 1.0;
+    }
+    let h = &catalog.central.hit_rate;
+    crate::math::exp(h.k * (hit_rate(catalog, manager) - h.mean))
+}
+
+/// An estimate of a target is judged after the months of the data (ZA3).
+pub(crate) fn record_judgment(
+    state: &mut GameState,
+    catalog: &Catalog,
+    manager: ManagerId,
+    hit: bool,
+) {
+    let due = state.date.add_months(catalog.central.hit_rate.months);
+    state.judgments.push(Judgment { manager, due, hit });
+}
+
+/// Judgments that are due count for their heads.
+fn judge(state: &mut GameState, date: Date) {
+    let (due, rest): (Vec<Judgment>, Vec<Judgment>) =
+        state.judgments.iter().partition(|j| j.due <= date);
+    state.judgments = rest;
+    for j in due {
+        if let Some(m) = state.managers.get_mut(&j.manager) {
+            m.judged += 1;
+            m.hits += u32::from(j.hit);
+        }
+    }
+}
+
 /// What moving the headquarters costs now (docs/FORMELN.md, ZA1).
 pub fn relocation_cost(catalog: &Catalog, state: &GameState, company: CompanyId) -> Money {
     let h = &catalog.central.headquarters;
@@ -517,6 +606,7 @@ pub(crate) fn set_headquarters(
 /// At a month start (docs/FORMELN.md, ZA1): moves that are due are done. Returns the news
 /// for the player.
 pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
+    judge(state, date);
     let mut news = Vec::new();
     let player = state.player;
     for (i, c) in state.companies.iter_mut().enumerate() {

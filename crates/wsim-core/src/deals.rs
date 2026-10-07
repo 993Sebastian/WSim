@@ -2181,11 +2181,18 @@ pub(crate) fn board_offers(
             if full(state) {
                 return out;
             }
+            // The head handling it estimates the price; a hit if it stays within the
+            // value by the rules (ZA3).
+            let estimate = decider.estimate(state, catalog, deal_topic(d.object));
+            let price = estimate.map_or(d.price, |(_, f)| d.price.scale(f));
+            if let Some((manager, _)) = estimate {
+                crate::central::record_judgment(state, catalog, manager, price <= d.value);
+            }
             out.extend(board_offer(
                 state,
                 catalog,
                 buyer,
-                (d.seller, d.object, d.price),
+                (d.seller, d.object, price),
                 decider,
             ));
         }

@@ -1020,6 +1020,9 @@ zentrale.ziel_waehlen: Land wählen …
 zentrale.ziel_option: "{land} – Steuer {steuer}, Lohn {lohn}"
 zentrale.kosten: "Kosten jetzt {betrag}; Dauer {monate} Monate; {anteil} der Angestellten der Zentrale ziehen mit."
 zentrale.verlegt: "Der Umzug nach {land} beginnt; er dauert {monate} Monate."
+organisation.trefferquote: Trefferquote
+organisation.trefferquote_keine: noch nichts bewertet
+organisation.trefferquote_wert: "{anteil} ({anzahl} bewertet)"
 zentrale.abteilungen: Zentralabteilungen
 zentrale.abteilungen_hilfe: "Zentralabteilungen arbeiten für die ganze Firma: Strategie sucht Übernahmeziele auch in Ländern ohne eigenen Standort, Finanzen senkt den Risikoaufschlag neuer Kredite, Personal schult die Manager, Recht prüft Lizenzen für Technologien deiner Warengruppen, Marketing verstärkt die Werbung. Eine Abteilung arbeitet nur mit Leitung – dem Vorstandsmitglied ihres Ressorts – und Angestellten. Die Angestellten sind Akademiker im Land des Hauptsitzes; sie kosten Lohn und Büro jeden Monat, ob die Abteilung arbeitet oder nicht. Zu früh aufgebaut ruinieren sie eine kleine Firma."
 zentrale.abteilungen_genauigkeit: "Je mehr der anfallenden Fälle die Angestellten bearbeiten (Abdeckung), desto genauer schätzt die Leitung in ihrem Ressort und desto seltener irrt sie sich bei Empfehlungen."

@@ -137,7 +137,9 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
                 .transfer(Account::Loans, Account::Cash, repayment);
             loan.balance -= repayment;
         }
+        let before = company.loans.len();
         company.loans.retain(|l| l.balance > Money::ZERO);
+        let paid_off = company.loans.len() < before;
         let cash = company.ledger.cash();
         if cash.is_negative() {
             let interest = (-cash).scale(overdraft_rate / 12.0);
@@ -147,6 +149,11 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
         }
         if year_end {
             pay_profit_tax(company, tax_rate);
+        }
+        if paid_off {
+            // Few companies; the cast is exact.
+            let id = CompanyId(index as u32);
+            crate::management::settle_topic(state, id, crate::decision::Topic::Refinance);
         }
     }
 }

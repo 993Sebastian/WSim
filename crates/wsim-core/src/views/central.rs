@@ -43,6 +43,9 @@ pub struct DepartmentView {
     pub head: Option<String>,
     /// The head's expertise in the function as the player sees it (1–5).
     pub head_level: Option<u8>,
+    /// The head's hit rate and judged estimates (ZA3); the rate none before the first.
+    pub head_hit_rate: Option<f64>,
+    pub head_judged: u32,
     /// Cases per month: employees · cases each.
     pub capacity: f64,
     pub cases_each: f64,
@@ -190,6 +193,10 @@ pub fn central(game: &Game) -> CentralView {
                 staff,
                 head: head.map(|m| m.name.clone()),
                 head_level,
+                head_hit_rate: head
+                    .filter(|m| m.judged > 0)
+                    .map(|m| central::hit_rate(c, m)),
+                head_judged: head.map_or(0, |m| m.judged),
                 capacity,
                 cases_each: d.cases,
                 workload,

@@ -60,6 +60,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA6 | Manager-System: Lebendiger Managermarkt | ✅ |
 | ZA1 | Hauptsitz: Verlegen, Wirkung auf Steuern und Gehälter | ✅ |
 | ZA2 | Zentralabteilungen, Ressorts Strategie und Recht, Vorgabe „Beteiligungen“ | ✅ |
+| ZA3 | Empfehlungen mit Begründung, Trefferquote, Gehaltsforderung exponentiell | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -345,6 +346,28 @@ Abschnitt ZA2; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
   die Ziehung der Manager und damit den Lauf (gewollt); bis 1930 zeigt er dasselbe Bild
   wie zuvor (1 von 9 Prüfungen ohne Verstoß, keine Pleitewelle, Abweichungen im Rahmen
   eines anderen Zufallswegs).
+
+### ZA3: Empfehlungen und Trefferquote (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitte 4.3 und 4.4; Regeln: `docs/FORMELN.md`,
+Abschnitt ZA3; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O.
+
+- **Kern:** Am Prüftermin des Vorstands schlagen die arbeitenden Abteilungen bis zu ⌊K⌋
+  Fälle vor: Finanzen Umschuldungen (Zinsvorteil ab 1 Prozentpunkt, Gebühr 1 %), Personal
+  Gehaltsrunden für unzufriedene, unter Marktwert bezahlte Manager. Im Budget entscheidet
+  die Stelle, sonst wird es eine Empfehlung mit Begründung. Übernahme- und Lizenzangebote
+  des Vorstands schätzt die zuständige Stelle mit einem Fehler nach Fachkompetenz und
+  Abdeckung ihrer Abteilung; jede Schätzung wird nach zwölf Monaten bewertet (Treffer:
+  Angebot nicht über dem Wert). Trefferquote mit Vorgewicht; Gehaltsforderung und die
+  Stärke, die Firmen beim Einstellen und Abwerben sehen, steigen exponentiell mit ihr.
+  Offene Umschuldungs-Anliegen erledigen sich, wenn Kredite getilgt werden oder auslaufen.
+- **Oberfläche:** Trefferquote bei den Fähigkeiten jedes Managers und bei den Leitungen
+  von Strategie und Recht; Anliegen mit Schritten und Begründungen für Umschuldung,
+  Gehaltsrunde, Übernahmen (Passung/Streuung) und Lizenzen (ersparte Forschung).
+- **Tests:** Gehaltsformel (q = 0,9 → 2,2-fach, q = 0,2 → 0,55-fach, Vorgewicht),
+  schwache Leitung irrt öfter (400 Schätzungen: ein Viertel Fehlgriffe gegen keine,
+  Abteilung halbiert sie), Bewertung nach der Frist, Umschuldung und Gehaltsrunde im Budget
+  und als Empfehlung mit Begründung, Befehl `RefinanceLoan`; vitest.
 
 ## Eigenständige Entscheidungen (für das Review)
 

@@ -332,6 +332,17 @@ pub trait Decider {
     fn looks(&self) -> bool;
 
     fn decide(&mut self, state: &GameState, catalog: &Catalog, decision: &Decision) -> Verdict;
+
+    /// The estimate of a target's price by the manager who handles the topic (ZA3): who
+    /// estimated, and the factor on the price of the rules. None: the rules' price.
+    fn estimate(
+        &mut self,
+        _state: &GameState,
+        _catalog: &Catalog,
+        _topic: Topic,
+    ) -> Option<(crate::state::ManagerId, f64)> {
+        None
+    }
 }
 
 /// The AI: its rules decide.
@@ -416,7 +427,7 @@ pub fn assess(catalog: &Catalog, state: &GameState, decision: &Decision) -> Vec<
             let once = choice
                 .steps
                 .iter()
-                .map(|s| once(catalog, state, &s.command))
+                .map(|s| once(catalog, state, decision.company, &s.command))
                 .fold(Money::ZERO, |a, b| a + b);
             let effect = if choice.kind == ChoiceKind::Keep {
                 keep.map(|_| Money::ZERO)
@@ -481,6 +492,17 @@ pub fn amount(
             .and_then(|s| s.plot)
             .map_or(Money::ZERO, |p| crate::plots::value(catalog, state, p)),
         Command::MakeOffer { price, .. } => *price,
+        Command::RefinanceLoan { loan } => state.companies[company.index()]
+            .loans
+            .get(*loan)
+            .map_or(Money::ZERO, |l| {
+                l.balance.scale(catalog.central.refinance.fee)
+            }),
+        Command::RaiseSalary { manager, salary } => state
+            .managers
+            .get(manager)
+            .and_then(|m| m.job.as_ref())
+            .map_or(Money::ZERO, |j| (*salary - j.salary).max(Money::ZERO)),
         Command::MatchOffer { manager } => crate::staffing::raise_of(state, *manager),
         Command::AnswerOffer {
             offer,
@@ -571,8 +593,10 @@ pub fn amount(
 }
 
 /// One-off effect of a command on the result.
-fn once(catalog: &Catalog, state: &GameState, command: &Command) -> Money {
+fn once(catalog: &Catalog, state: &GameState, company: CompanyId, command: &Command) -> Money {
     match command {
+        // The fee of refinancing (ZA3).
+        Command::RefinanceLoan { .. } => Money::ZERO - amount(catalog, state, company, command),
         Command::SellFacility { site, slot, count } => state
             .sites
             .get(site.index())
@@ -801,6 +825,23 @@ fn effect(
         }
         Topic::Expansion | Topic::Power | Topic::Deposit | Topic::Bottleneck => {
             new_capacity(catalog, state, decision.company, choice)
+        }
+        // Interest saved in a year (ZA3); the fee is once.
+        Topic::Refinance => {
+            let company = &state.companies[decision.company.index()];
+            let rate = crate::central::refinance_rate(catalog, state, decision.company);
+            let usd: f64 = choice
+                .steps
+                .iter()
+                .map(|s| match &s.command {
+                    Command::RefinanceLoan { loan } => company
+                        .loans
+                        .get(*loan)
+                        .map_or(0.0, |l| l.balance.to_usd() * (l.rate - rate)),
+                    _ => 0.0,
+                })
+                .sum();
+            Money::from_usd(usd)
         }
         _ => {
             let keep = keep?;

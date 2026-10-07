@@ -18386,8 +18386,10 @@
         "manager": {
           "continent": "europa",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "UKR",
           "id": 182,
+          "judged": 0,
           "name": "Anna Putilov",
           "skills": [
             {
@@ -18447,8 +18449,10 @@
         "manager": {
           "continent": "europa",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "RUS",
           "id": 163,
+          "judged": 0,
           "name": "Nikolai Ryabushinsky",
           "skills": [
             {
@@ -18508,8 +18512,10 @@
         "manager": {
           "continent": "europa",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "SWE",
           "id": 117,
+          "judged": 0,
           "name": "Annika van Dijk",
           "skills": [
             {
@@ -18569,8 +18575,10 @@
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "HUN",
           "id": 181,
+          "judged": 0,
           "name": "Charles Carter",
           "skills": [
             {
@@ -18630,8 +18638,10 @@
         "manager": {
           "continent": "europa",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "GBR",
           "id": 180,
+          "judged": 0,
           "name": "Edward Sutton",
           "skills": [
             {
@@ -18691,8 +18701,10 @@
         "manager": {
           "continent": "europa",
           "focus": "personal",
+          "hit_rate": null,
           "home": "DEU",
           "id": 103,
+          "judged": 0,
           "name": "Friedrich Hahn",
           "skills": [
             {
@@ -18752,8 +18764,10 @@
         "manager": {
           "continent": "europa",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "ESP",
           "id": 147,
+          "judged": 0,
           "name": "Giuseppe Romano",
           "skills": [
             {
@@ -18813,8 +18827,10 @@
         "manager": {
           "continent": "europa",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "XWB",
           "id": 89,
+          "judged": 0,
           "name": "Karen Dawson",
           "skills": [
             {
@@ -18874,8 +18890,10 @@
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "POL",
           "id": 41,
+          "judged": 0,
           "name": "Olga Morozov",
           "skills": [
             {
@@ -18935,8 +18953,10 @@
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "RUS",
           "id": 149,
+          "judged": 0,
           "name": "Olga Putilov",
           "skills": [
             {
@@ -18996,8 +19016,10 @@
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "FRA",
           "id": 171,
+          "judged": 0,
           "name": "Paul Rousseau",
           "skills": [
             {
@@ -19057,8 +19079,10 @@
         "manager": {
           "continent": "europa",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "RUS",
           "id": 110,
+          "judged": 0,
           "name": "Piotr Volkov",
           "skills": [
             {
@@ -19118,8 +19142,10 @@
         "manager": {
           "continent": "europa",
           "focus": "personal",
+          "hit_rate": null,
           "home": "GBR",
           "id": 37,
+          "judged": 0,
           "name": "Richard Hughes",
           "skills": [
             {
@@ -19179,8 +19205,10 @@
         "manager": {
           "continent": "europa",
           "focus": "personal",
+          "hit_rate": null,
           "home": "CZE",
           "id": 196,
+          "judged": 0,
           "name": "Robert Fletcher",
           "skills": [
             {
@@ -19240,8 +19268,10 @@
         "manager": {
           "continent": "europa",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "NLD",
           "id": 102,
+          "judged": 0,
           "name": "Sanne Larsen",
           "skills": [
             {
@@ -19301,8 +19331,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "USA",
           "id": 46,
+          "judged": 0,
           "name": "Arthur Grant",
           "skills": [
             {
@@ -19362,8 +19394,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "EGY",
           "id": 10,
+          "judged": 0,
           "name": "David Pemberton",
           "skills": [
             {
@@ -19423,8 +19457,10 @@
         "manager": {
           "continent": "asien",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "BGD",
           "id": 145,
+          "judged": 0,
           "name": "Elizabeth Dawson",
           "skills": [
             {
@@ -19484,8 +19520,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "ETH",
           "id": 97,
+          "judged": 0,
           "name": "George Whitfield",
           "skills": [
             {
@@ -19545,8 +19583,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "produktion",
+          "hit_rate": null,
           "home": "XOZ",
           "id": 173,
+          "judged": 0,
           "name": "Patricia Hughes",
           "skills": [
             {
@@ -19606,8 +19646,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "ARG",
           "id": 202,
+          "judged": 0,
           "name": "Ana Moretti",
           "skills": [
             {
@@ -19667,8 +19709,10 @@
         "manager": {
           "continent": "asien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "IDN",
           "id": 79,
+          "judged": 0,
           "name": "Arthur Barker",
           "skills": [
             {
@@ -19728,8 +19772,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "AUS",
           "id": 154,
+          "judged": 0,
           "name": "Arthur Hughes",
           "skills": [
             {
@@ -19789,8 +19835,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "VEN",
           "id": 185,
+          "judged": 0,
           "name": "Carlos Rossi",
           "skills": [
             {
@@ -19850,8 +19898,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "MDG",
           "id": 176,
+          "judged": 0,
           "name": "Charles Barker",
           "skills": [
             {
@@ -19911,8 +19961,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "USA",
           "id": 183,
+          "judged": 0,
           "name": "Charles Hale",
           "skills": [
             {
@@ -19972,8 +20024,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "EGY",
           "id": 129,
+          "judged": 0,
           "name": "Charles Holloway",
           "skills": [
             {
@@ -20033,8 +20087,10 @@
         "manager": {
           "continent": "asien",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "KOR",
           "id": 78,
+          "judged": 0,
           "name": "David Hughes",
           "skills": [
             {
@@ -20094,8 +20150,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "AUS",
           "id": 77,
+          "judged": 0,
           "name": "Dorothy Sutton",
           "skills": [
             {
@@ -20155,8 +20213,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "USA",
           "id": 164,
+          "judged": 0,
           "name": "Edward Fletcher",
           "skills": [
             {
@@ -20216,8 +20276,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "USA",
           "id": 141,
+          "judged": 0,
           "name": "Edward Hughes",
           "skills": [
             {
@@ -20277,8 +20339,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "ECU",
           "id": 59,
+          "judged": 0,
           "name": "Elena García",
           "skills": [
             {
@@ -20338,8 +20402,10 @@
         "manager": {
           "continent": "asien",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "KAZ",
           "id": 191,
+          "judged": 0,
           "name": "Elena Orlov",
           "skills": [
             {
@@ -20399,8 +20465,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "AUS",
           "id": 174,
+          "judged": 0,
           "name": "Elizabeth Mitchell",
           "skills": [
             {
@@ -20460,8 +20528,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "USA",
           "id": 199,
+          "judged": 0,
           "name": "Elizabeth Morgan",
           "skills": [
             {
@@ -20521,8 +20591,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "ARG",
           "id": 54,
+          "judged": 0,
           "name": "Francesca Bianchi",
           "skills": [
             {
@@ -20582,8 +20654,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "VEN",
           "id": 186,
+          "judged": 0,
           "name": "Francesca López",
           "skills": [
             {
@@ -20643,8 +20717,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "AUS",
           "id": 203,
+          "judged": 0,
           "name": "George Hughes",
           "skills": [
             {
@@ -20704,8 +20780,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "EGY",
           "id": 157,
+          "judged": 0,
           "name": "George Lawrence",
           "skills": [
             {
@@ -20765,8 +20843,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "ARG",
           "id": 201,
+          "judged": 0,
           "name": "Giuseppe Ferrari",
           "skills": [
             {
@@ -20826,8 +20906,10 @@
         "manager": {
           "continent": "asien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "UZB",
           "id": 193,
+          "judged": 0,
           "name": "Ivan Lebedev",
           "skills": [
             {
@@ -20887,8 +20969,10 @@
         "manager": {
           "continent": "asien",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "IND",
           "id": 168,
+          "judged": 0,
           "name": "James Bradley",
           "skills": [
             {
@@ -20948,8 +21032,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "NGA",
           "id": 156,
+          "judged": 0,
           "name": "John Carter",
           "skills": [
             {
@@ -21009,8 +21095,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "XSA",
           "id": 177,
+          "judged": 0,
           "name": "John Holloway",
           "skills": [
             {
@@ -21070,8 +21158,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "BOL",
           "id": 83,
+          "judged": 0,
           "name": "José Ferrari",
           "skills": [
             {
@@ -21131,8 +21221,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "ARG",
           "id": 123,
+          "judged": 0,
           "name": "José Moretti",
           "skills": [
             {
@@ -21192,8 +21284,10 @@
         "manager": {
           "continent": "asien",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "CHN",
           "id": 190,
+          "judged": 0,
           "name": "Li Lei",
           "skills": [
             {
@@ -21253,8 +21347,10 @@
         "manager": {
           "continent": "asien",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "CHN",
           "id": 194,
+          "judged": 0,
           "name": "Liu Jun",
           "skills": [
             {
@@ -21314,8 +21410,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "PER",
           "id": 57,
+          "judged": 0,
           "name": "Lucía Fernández",
           "skills": [
             {
@@ -21375,8 +21473,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "CHL",
           "id": 93,
+          "judged": 0,
           "name": "Luis Ferrari",
           "skills": [
             {
@@ -21436,8 +21536,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "MEX",
           "id": 200,
+          "judged": 0,
           "name": "Manuel Moretti",
           "skills": [
             {
@@ -21497,8 +21599,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "ECU",
           "id": 63,
+          "judged": 0,
           "name": "Marco Bianchi",
           "skills": [
             {
@@ -21558,8 +21662,10 @@
         "manager": {
           "continent": "suedamerika",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "ARG",
           "id": 136,
+          "judged": 0,
           "name": "Marco López",
           "skills": [
             {
@@ -21619,8 +21725,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "AUS",
           "id": 166,
+          "judged": 0,
           "name": "Margaret Barker",
           "skills": [
             {
@@ -21680,8 +21788,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "ZMB",
           "id": 3,
+          "judged": 0,
           "name": "Margaret Harris",
           "skills": [
             {
@@ -21741,8 +21851,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "NGA",
           "id": 8,
+          "judged": 0,
           "name": "Margaret Holloway",
           "skills": [
             {
@@ -21802,8 +21914,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "USA",
           "id": 135,
+          "judged": 0,
           "name": "Mary Grant",
           "skills": [
             {
@@ -21863,8 +21977,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "USA",
           "id": 198,
+          "judged": 0,
           "name": "Mary Hale",
           "skills": [
             {
@@ -21924,8 +22040,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "AUS",
           "id": 127,
+          "judged": 0,
           "name": "Michael Bradley",
           "skills": [
             {
@@ -21985,8 +22103,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "CAN",
           "id": 184,
+          "judged": 0,
           "name": "Michael Hale",
           "skills": [
             {
@@ -22046,8 +22166,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "AUS",
           "id": 95,
+          "judged": 0,
           "name": "Michael Holloway",
           "skills": [
             {
@@ -22107,8 +22229,10 @@
         "manager": {
           "continent": "asien",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "PHL",
           "id": 115,
+          "judged": 0,
           "name": "Michael Pemberton",
           "skills": [
             {
@@ -22168,8 +22292,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "LBY",
           "id": 188,
+          "judged": 0,
           "name": "Patricia Harris",
           "skills": [
             {
@@ -22229,8 +22355,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "NZL",
           "id": 143,
+          "judged": 0,
           "name": "Patricia Lawrence",
           "skills": [
             {
@@ -22290,8 +22418,10 @@
         "manager": {
           "continent": "asien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "NPL",
           "id": 192,
+          "judged": 0,
           "name": "Richard Harris",
           "skills": [
             {
@@ -22351,8 +22481,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "TZA",
           "id": 189,
+          "judged": 0,
           "name": "Robert Dawson",
           "skills": [
             {
@@ -22412,8 +22544,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "USA",
           "id": 112,
+          "judged": 0,
           "name": "Robert Sutton",
           "skills": [
             {
@@ -22473,8 +22607,10 @@
         "manager": {
           "continent": "asien",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "CHN",
           "id": 131,
+          "judged": 0,
           "name": "Rong Tao",
           "skills": [
             {
@@ -22534,8 +22670,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "personal",
+          "hit_rate": null,
           "home": "NZL",
           "id": 187,
+          "judged": 0,
           "name": "Sarah Harris",
           "skills": [
             {
@@ -22595,8 +22733,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "personal",
+          "hit_rate": null,
           "home": "USA",
           "id": 151,
+          "judged": 0,
           "name": "Sarah Morgan",
           "skills": [
             {
@@ -22656,8 +22796,10 @@
         "manager": {
           "continent": "asien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "CHN",
           "id": 195,
+          "judged": 0,
           "name": "Sheng Bo",
           "skills": [
             {
@@ -22717,8 +22859,10 @@
         "manager": {
           "continent": "asien",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "CHN",
           "id": 159,
+          "judged": 0,
           "name": "Sheng Lan",
           "skills": [
             {
@@ -22778,8 +22922,10 @@
         "manager": {
           "continent": "afrika",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "GHA",
           "id": 106,
+          "judged": 0,
           "name": "Susan Bradley",
           "skills": [
             {
@@ -22839,8 +22985,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "AUS",
           "id": 153,
+          "judged": 0,
           "name": "Susan Whitfield",
           "skills": [
             {
@@ -22900,8 +23048,10 @@
         "manager": {
           "continent": "asien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "CHN",
           "id": 170,
+          "judged": 0,
           "name": "Wang Li",
           "skills": [
             {
@@ -22961,8 +23111,10 @@
         "manager": {
           "continent": "ozeanien",
           "focus": "einkauf_lager",
+          "hit_rate": null,
           "home": "AUS",
           "id": 204,
+          "judged": 0,
           "name": "William Hale",
           "skills": [
             {
@@ -23022,8 +23174,10 @@
         "manager": {
           "continent": "nordamerika",
           "focus": "finanzen",
+          "hit_rate": null,
           "home": "USA",
           "id": 197,
+          "judged": 0,
           "name": "William Holloway",
           "skills": [
             {
@@ -23083,8 +23237,10 @@
         "manager": {
           "continent": "asien",
           "focus": "forschung",
+          "hit_rate": null,
           "home": "KOR",
           "id": 178,
+          "judged": 0,
           "name": "William Morgan",
           "skills": [
             {
@@ -23144,8 +23300,10 @@
         "manager": {
           "continent": "asien",
           "focus": "vertrieb_marketing",
+          "hit_rate": null,
           "home": "CHN",
           "id": 114,
+          "judged": 0,
           "name": "Zhang Ming",
           "skills": [
             {
@@ -23214,8 +23372,10 @@
         "manager": {
           "continent": "europa",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "FRA",
           "id": 34,
+          "judged": 0,
           "name": "Alain Moreau",
           "skills": [
             {
@@ -23279,8 +23439,10 @@
         "manager": {
           "continent": "europa",
           "focus": "logistik",
+          "hit_rate": null,
           "home": "UKR",
           "id": 86,
+          "judged": 0,
           "name": "Alexei Demidov",
           "skills": [
             {
@@ -25836,6 +25998,8 @@
           "effect": 0.0,
           "function": "strategie",
           "head": null,
+          "head_hit_rate": null,
+          "head_judged": 0,
           "head_level": null,
           "key": "strategie",
           "kind": "Strategy",
@@ -25854,6 +26018,8 @@
           "effect": 0.4,
           "function": "finanzen",
           "head": null,
+          "head_hit_rate": null,
+          "head_judged": 0,
           "head_level": null,
           "key": "finanzen",
           "kind": "Finance",
@@ -25872,6 +26038,8 @@
           "effect": 0.5,
           "function": "personal",
           "head": null,
+          "head_hit_rate": null,
+          "head_judged": 0,
           "head_level": null,
           "key": "personal",
           "kind": "Personnel",
@@ -25890,6 +26058,8 @@
           "effect": 0.0,
           "function": "recht",
           "head": null,
+          "head_hit_rate": null,
+          "head_judged": 0,
           "head_level": null,
           "key": "recht",
           "kind": "Legal",
@@ -25908,6 +26078,8 @@
           "effect": 0.3,
           "function": "vertrieb_marketing",
           "head": null,
+          "head_hit_rate": null,
+          "head_judged": 0,
           "head_level": null,
           "key": "marketing",
           "kind": "Marketing",
@@ -26001,8 +26173,10 @@
                       "manager": {
                         "continent": "europa",
                         "focus": "logistik",
+                        "hit_rate": null,
                         "home": "FRA",
                         "id": 34,
+                        "judged": 0,
                         "name": "Alain Moreau",
                         "skills": [
                           {
@@ -26190,8 +26364,10 @@
                     "manager": {
                       "continent": "europa",
                       "focus": "logistik",
+                      "hit_rate": null,
                       "home": "UKR",
                       "id": 86,
+                      "judged": 0,
                       "name": "Alexei Demidov",
                       "skills": [
                         {

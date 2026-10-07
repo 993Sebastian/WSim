@@ -3062,42 +3062,59 @@ Strategieansicht:
 
 `docs/BETEILIGUNGEN.md` Abschnitte 4.3 und 4.4. Daten: `parameter/zentrale.yaml`, Blöcke
 `umschuldung` und `trefferquote`; Themen `umschuldung` (Finanzen) und `gehaltsrunde`
-(Personal) auf der Ebene Vorstand.
+(Personal) auf der Ebene Vorstand. Kern: Module `central`, `management` (Vorstand),
+`deals` (Angebote des Vorstands).
 
 ### Empfehlungen
 
-Am Prüftermin des Vorstands bearbeiten die Abteilungen mit Leitung und Angestellten bis
-zu ⌊K⌋ Fälle. Jeder Fall ist eine Entscheidung (MA0) mit „umsetzen“ und „so lassen“: im
-Budget und unter der Freigabegrenze setzt die Leitung ihn um, sonst wird er eine
-**Empfehlung** (ein Anliegen der Leitung mit Begründung).
+Am Prüftermin des Vorstands bearbeiten die arbeitenden Abteilungen (mit Leitung und
+Angestellten) bis zu ⌊K⌋ Fälle. Jeder Fall ist eine Entscheidung (MA0) mit „umsetzen“ und
+„so lassen“: im Budget und unter der Freigabegrenze setzt die Stelle ihn um, sonst wird er
+eine **Empfehlung** (ein Anliegen mit Begründung).
 
 | Abteilung | Fall | Option | Begründung |
 | --- | --- | --- | --- |
-| Finanzen | Kredit, dessen Zins um `umschuldung.mindestvorteil` über dem Zins eines neuen Kredits gleicher Restschuld liegt | `RefinanceLoan`: der neue Zins für Restschuld und Restlaufzeit, Gebühr `umschuldung.gebuehr` der Restschuld (Zinsaufwand) | ersparte Zinsen im Jahr |
-| Personal | Manager mit Zufriedenheit unter `zufriedenheit.stufen[1]` und Gehalt unter dem Marktwert (die unzufriedensten zuerst) | `RaiseSalary` auf den Marktwert | Halten: Abstand zum Marktwert |
+| Finanzen | Kredit, dessen Zins mindestens `umschuldung.mindestvorteil` über dem Zins eines neuen Kredits liegt (gleiche Schulden, Risikoaufschlag mit der Ersparnis von ZA2); die teuersten zuerst | `RefinanceLoan`: der neue Zins für Restschuld und Restlaufzeit; Gebühr `umschuldung.gebuehr` der Restschuld als Zinsaufwand. Wirkung: Restschuld · Zinsvorteil im Jahr, einmalig die Gebühr | ersparte Zinsen im Jahr und die Gebühr |
+| Personal | Manager der Firma mit Zufriedenheit unter `zufriedenheit.stufen[1]` und Gehalt unter dem Marktwert, die unzufriedensten zuerst | `RaiseSalary` auf den Marktwert (Regelthema: die Stelle folgt der Regel) | Abstand zum Marktwert, drohende Kündigung |
 | Strategie | das beste Übernahmeziel (MA5) in den eigenen und den beobachteten Ländern | Kaufangebot zum geschätzten Preis | Passung (eigene Warengruppe) oder Streuung (neue Warengruppe) |
-| Recht | die beste Lizenz für Forschungsziele und Technologien der eigenen Warengruppen | Kaufangebot zum geschätzten Preis | Abkürzung: ersparte Forschung |
+| Recht | die beste Lizenz für Forschungsziele und geprüfte Technologien (ZA2) | Kaufangebot zum geschätzten Preis | Abkürzung: ersparte Forschung (Lizenzwert, M30) |
 
-- **Schätzung von Strategie und Recht:** Statt des genauen Werts der Regeln (MA5) schätzt
-  die Leitung den Wert *V* eines Ziels und damit auch ihren Preis *P* mit
+- Ohne arbeitende Abteilung gibt es keine Umschuldungen und Gehaltsrunden; Übernahmen und
+  Lizenzen bietet der Vorstand wie in MA5 an (je eine je Prüfung).
+- Werden Kredite getilgt oder laufen aus, verschieben sich ihre Nummern: offene
+  Umschuldungs-Anliegen gelten dann als erledigt und kommen bei der nächsten Prüfung neu.
 
-      f = 1 + (2u − 1) · e,  e = Schätzfehler · (1 − Fachkompetenz/100) · (1 − genauigkeit · A)
+### Schätzung von Strategie und Recht
 
-  (*u* gleichverteilt aus dem Strom der Leitung): Sie bietet P · f. Schwache Leitungen
-  überzahlen öfter (Fehlgriff) und bieten öfter zu wenig (übersehene Chance).
+Statt des Preises der Regeln (MA5) schätzt die Stelle, die das Thema bearbeitet – die
+Vorstandsfachstelle des Ressorts, sonst der CEO mit dem Abschlag der Leitung –, den Preis
+*P* eines Ziels:
+
+    Angebot = P · f,  f = 1 + (2u − 1) · e
+    e = Schätzfehler · (1 − Fachkompetenz/100) · (1 − genauigkeit · A)
+
+(*u* gleichverteilt aus dem Tagesstrom der Stelle, A die Abdeckung ihrer Abteilung, ohne
+Abteilung 0). Schwache Leitungen überzahlen öfter (Fehlgriff) und bieten öfter zu wenig
+(übersehene Chance). Mit Schätzfehler 0,5: Fachkompetenz 20 streut ± 40 %, 90 nur ± 5 %.
 
 ### Trefferquote
 
-- Jede Empfehlung und Entscheidung von Strategie und Recht über ein Ziel wird nach
-  `bewertung_monate` bewertet: **Treffer**, wenn der gebotene Preis den Wert *V* nach den
-  Regeln nicht übersteigt. Ob der Spieler annimmt oder ablehnt, zählt nicht. Die übrigen
-  Empfehlungen (Umschuldung, Gehaltsrunde) können nicht danebenliegen und zählen nicht.
+- Jede Schätzung eines Ziels wird nach `bewertung_monate` bewertet (am ersten
+  Monatsanfang danach): **Treffer**, wenn das Angebot den Wert *V* nach den Regeln am Tag
+  der Schätzung (was die Regeln höchstens zahlen würden) nicht übersteigt. Ob die Stelle
+  es abgibt, der Spieler annimmt oder ablehnt, zählt nicht. Umschuldung und Gehaltsrunde
+  können nicht danebenliegen und zählen nicht.
 - Trefferquote mit Vorgewicht (wenige Fälle täuschen nicht):
 
       q = (Treffer + mittelwert · vorgewicht) / (bewertet + vorgewicht)
 
-  Sichtbar im Managermarkt und in der Organisation, mit der Zahl der bewerteten Fälle.
-- **Gehaltsforderung** (MA1) mal `e^(k · (q − mittelwert))`; mit k = 2 fordert eine Leitung
-  mit q = 0,9 das 2,2-Fache, mit q = 0,2 das 0,55-Fache.
-- **Abwerbung** (MA6): Die KI vergleicht Stärke mal demselben Faktor; Leitungen mit hoher
-  Trefferquote werden häufiger umworben.
+  Sichtbar bei den Fähigkeiten jedes Managers (Managermarkt, Organisation) und bei den
+  Leitungen der Zentralabteilungen, mit der Zahl der bewerteten Fälle.
+- **Gehaltsforderung** (MA1) mal `e^(k · (q − mittelwert))`, vor der ersten Bewertung 1;
+  mit k = 2 fordert eine Leitung mit q = 0,9 das 2,2-Fache, mit q = 0,2 das 0,55-Fache.
+  Der Marktwert (MA6) folgt der Forderung: Eine erfolgreiche Leitung wird unzufrieden,
+  wenn ihr Gehalt nicht mitwächst.
+- **Abwerbung und Einstellung** (MA6): Die KI vergleicht Stärke mal demselben Faktor;
+  Leitungen mit hoher Trefferquote werden häufiger umworben. KI-Firmen schätzen nach ihren
+  Regeln; ihre Manager werden nicht bewertet.
+

@@ -1156,7 +1156,11 @@ fn run(
             if company.ledger.cash() < amount {
                 return Err(CommandError::NotEnoughCash { needed: amount });
             }
+            let before = company.loans.len();
             crate::finance::repay(company, *loan, amount);
+            if company.loans.len() < before {
+                crate::management::settle_topic(state, actor, crate::decision::Topic::Refinance);
+            }
         }
         Command::SetSale {
             site,

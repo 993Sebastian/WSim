@@ -458,3 +458,203 @@ fn a_loan_is_refinanced_only_with_an_advantage() {
         Err(CommandError::NoAdvantage)
     );
 }
+
+#[test]
+fn the_salary_demand_grows_exponentially_with_the_hit_rate() {
+    let mut c = test_support::management();
+    c.central.hit_rate.prior = 0.0;
+    let catalog = c.clone();
+    let mut game = new_game(c);
+    mine_and_works(&mut game);
+    let id = hire_sharp(&mut game, member("strategie"));
+    let state = game.state();
+    let m = state.managers[&id].clone();
+    let position = m.job.as_ref().unwrap().position.clone();
+    let player = game.player();
+    let base = management::salary_demand(&catalog, state, player, &m, &position);
+    // Before the first judgment the factor is 1.
+    assert_eq!(central::hit_factor(&catalog, &m), 1.0);
+    let with = |judged: u32, hits: u32| {
+        let mut x = m.clone();
+        x.judged = judged;
+        x.hits = hits;
+        x
+    };
+    let good = with(10, 9);
+    assert!((central::hit_rate(&catalog, &good) - 0.9).abs() < 1e-12);
+    assert!((central::hit_factor(&catalog, &good) - 2.225_540_928_492_468).abs() < 1e-9);
+    let poor = with(10, 2);
+    assert!((central::hit_factor(&catalog, &poor) - 0.548_811_636_094_026_4).abs() < 1e-9);
+    let demand = |x: &crate::state::Manager| {
+        management::salary_demand(&catalog, state, player, x, &position).to_usd()
+    };
+    assert!((demand(&good) / base.to_usd() - 2.2255).abs() < 1e-3);
+    assert!((demand(&poor) / base.to_usd() - 0.5488).abs() < 1e-3);
+    // With a prior few cases do not deceive.
+    let mut c = catalog.clone();
+    c.central.hit_rate.prior = 4.0;
+    assert!((central::hit_rate(&c, &with(1, 1)) - 0.6).abs() < 1e-12);
+    assert!((central::hit_rate(&c, &with(0, 0)) - 0.5).abs() < 1e-12);
+}
+
+#[test]
+fn a_weak_head_errs_more_often() {
+    let (mut game, _, _) = buyer_game(1_000.0);
+    let catalog = game.catalog().clone();
+    let player = game.player();
+    let head = game
+        .state()
+        .managers
+        .iter()
+        .find(|(_, m)| {
+            m.job
+                .as_ref()
+                .is_some_and(|j| j.position == member("strategie"))
+        })
+        .map(|(&id, _)| id)
+        .unwrap();
+    let misses = |game: &mut Game, expertise: u8| {
+        game.state_mut()
+            .managers
+            .get_mut(&head)
+            .unwrap()
+            .expertise
+            .insert("strategie".into(), expertise);
+        let estimates =
+            management::estimates(game.state(), &catalog, (player, Topic::Offer), 0..400);
+        assert_eq!(estimates.len(), 400);
+        assert!(estimates.iter().all(|&(m, _)| m == head));
+        // A target worth 20 % more than the price of the rules.
+        estimates.iter().filter(|&&(_, f)| f > 1.2).count()
+    };
+    let weak = misses(&mut game, 20);
+    let strong = misses(&mut game, 90);
+    // Error 0.5: weak ± 40 % (a quarter above 1.2), strong ± 5 %.
+    assert!((70..=130).contains(&weak), "{weak}");
+    assert_eq!(strong, 0);
+    // A working department narrows the error further.
+    staff(&mut game, DepartmentKind::Strategy, 1);
+    let with_department = misses(&mut game, 20);
+    assert!(with_department < weak / 2, "{with_department} {weak}");
+
+    // The board's offers are estimated and judged after the months of the data.
+    let (mut game, _, _) = buyer_game(1_000.0);
+    days(&mut game, 31);
+    let judgments = game.state().judgments.clone();
+    assert!(!judgments.is_empty());
+    assert!(judgments.iter().all(|j| j.manager == head));
+    let due = judgments[0].due;
+    while game.state().date <= due {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    let m = &game.state().managers[&head];
+    assert!(m.judged >= 1, "{m:?}");
+    assert!(m.hits <= m.judged);
+}
+
+#[test]
+fn departments_recommend_refinancing_and_raises() {
+    let mut game = new_game(test_support::management());
+    let (_, works) = mine_and_works(&mut game);
+    let catalog = game.catalog().clone();
+    let player = game.player();
+    game.apply(Command::TakeLoan {
+        amount: usd(20_000.0),
+        years: 5,
+    })
+    .unwrap();
+    let dear = central::refinance_rate(&catalog, game.state(), player) + 0.05;
+    game.state_mut().companies[0].loans[0].rate = dear;
+    // A less than content manager paid below the market value (not so unhappy that he
+    // might resign).
+    let works_head = hire_sharp(&mut game, crate::management_tests::head(works));
+    let low =
+        crate::staffing::market_value(&catalog, game.state(), &game.state().managers[&works_head])
+            .scale(0.9);
+    {
+        let m = game.state_mut().managers.get_mut(&works_head).unwrap();
+        let job = m.job.as_mut().unwrap();
+        job.salary = low;
+        job.satisfaction = Some(45);
+    }
+    hire_sharp(&mut game, member("finanzen"));
+    hire_sharp(&mut game, member("personal"));
+    // Without departments nobody proposes anything.
+    days(&mut game, 31);
+    assert!((game.state().companies[0].loans[0].rate - dear).abs() < 1e-12);
+    let salary = |game: &Game| {
+        game.state().managers[&works_head]
+            .job
+            .as_ref()
+            .unwrap()
+            .salary
+    };
+    assert_eq!(salary(&game), low);
+    // With them the members decide within their budgets.
+    staff(&mut game, DepartmentKind::Finance, 1);
+    staff(&mut game, DepartmentKind::Personnel, 1);
+    days(&mut game, 31);
+    let state = game.state();
+    let rate = central::refinance_rate(&catalog, state, player);
+    assert!(state.companies[0].loans[0].rate < dear - 0.04, "refinanced");
+    assert!((state.companies[0].loans[0].rate - rate).abs() < 0.001);
+    let value = crate::staffing::market_value(&catalog, state, &state.managers[&works_head]);
+    assert!(salary(&game) > low);
+    assert!((salary(&game).to_usd() - value.to_usd()).abs() / value.to_usd() < 0.05);
+    assert!(state.companies[0].ledger.is_balanced());
+}
+
+#[test]
+fn beyond_their_budget_departments_ask_with_reasons() {
+    let mut game = new_game(test_support::management());
+    mine_and_works(&mut game);
+    let catalog = game.catalog().clone();
+    let player = game.player();
+    game.apply(Command::TakeLoan {
+        amount: usd(20_000.0),
+        years: 5,
+    })
+    .unwrap();
+    let dear = central::refinance_rate(&catalog, game.state(), player) + 0.05;
+    game.state_mut().companies[0].loans[0].rate = dear;
+    hire_sharp(&mut game, member("finanzen"));
+    staff(&mut game, DepartmentKind::Finance, 1);
+    game.apply(Command::SetBudget {
+        position: member("finanzen"),
+        shares: Some((0.0, 0.0)),
+    })
+    .unwrap();
+    days(&mut game, 31);
+    let concern = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| c.decision.topic == Topic::Refinance)
+        .expect("a recommendation")
+        .clone();
+    assert_eq!(concern.reason, ConcernReason::Always);
+    let view = crate::views::concerns(&game);
+    let shown = view
+        .open
+        .iter()
+        .flat_map(|g| &g.concerns)
+        .find(|c| c.id == concern.id)
+        .unwrap();
+    assert_eq!(shown.options[0].kind, "umschulden");
+    assert_eq!(shown.options[0].steps[0].key, keys::STEP_REFINANCE);
+    assert_eq!(shown.because.key, keys::BECAUSE_REFINANCE);
+    assert!(shown.options[0].once_usd < 0.0, "the fee");
+    assert!(
+        shown.options[0]
+            .forecast_usd
+            .is_some_and(|(_, high)| high > 0.0),
+        "interest saved"
+    );
+    // The player follows it: refinanced.
+    game.apply(Command::AnswerConcern {
+        concern: concern.id,
+        answer: management::ConcernAnswer::Delegate,
+    })
+    .unwrap();
+    assert!(game.state().companies[0].loans[0].rate < dear - 0.04);
+}

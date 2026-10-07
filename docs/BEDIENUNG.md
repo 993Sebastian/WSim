@@ -267,7 +267,19 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   und „Festlegen“), Abdeckung (z. B. „100 % (4 Fälle für 1 im Monat)“), Wirkung in Worten
   („Senkt den Risikoaufschlag neuer Kredite um bis zu 24 %“, „Beobachtet 2 weitere Länder
   nach Übernahmezielen“ …) und Kosten im Monat mit den Kosten je Angestelltem. Frage: „Lohnt
-  sich die Zentrale schon, und arbeitet sie?“
+  sich die Zentrale schon, und arbeitet sie?“ Bei Strategie und Recht steht neben der
+  Leitung ihre Trefferquote.
+- **Trefferquote (ZA3):** In den Fähigkeiten jedes Managers (ⓘ im Organigramm und im
+  Managermarkt) die Zeile „Trefferquote: 63 % (8 bewertet)“ bzw. „noch nichts bewertet“:
+  Wie oft die Schätzungen von Übernahmezielen und Lizenzen den Wert nicht überstiegen.
+  Eine hohe Quote hebt die Gehaltsforderung (exponentiell) und lockt Abwerber an.
+- **Empfehlungen der Zentrale (ZA3):** Anliegen „Umschuldung“ (Schritt „Kredit über …
+  umschulden: 4,5 % statt 9,5 % Zins, gleiche Restlaufzeit“, Begründung „Spart rund … Zinsen
+  im Jahr; die Gebühr kostet einmal …“) und „Gehaltsrunde“ („Gehalt von … auf … erhöhen“,
+  „… ist unzufrieden und verdient 10 % unter dem Marktwert – ohne Erhöhung droht die
+  Kündigung“). Kaufangebote des Vorstands begründen Übernahmen mit „Passt zum eigenen
+  Geschäft (…)“ oder „Streut das Risiko …“, Lizenzen mit „Erspart die eigene Forschung an
+  …“.
 - **Abwerbung (MA6):** Will eine KI-Firma einen Manager abwerben, kommt ein Anliegen
   „Abwerbung“ (wichtig) der Personalstelle seiner Einheit, sonst der nächsten darüber, sonst
   des Managers selbst: „Gegenangebot“ (Gehalt auf das Angebot, er bleibt zufrieden) oder

@@ -36,6 +36,10 @@ pub struct ManagerView {
     /// Function the manager is best at.
     pub focus: String,
     pub skills: Vec<SkillView>,
+    /// Estimates of targets judged so far and the hit rate with the prior (ZA3); the rate
+    /// is none before the first judgment.
+    pub judged: u32,
+    pub hit_rate: Option<f64>,
 }
 
 /// Another company's offer to a manager of the player (MA6).
@@ -323,6 +327,8 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
             .to_owned(),
         focus: m.focus.clone(),
         skills,
+        judged: m.judged,
+        hit_rate: (m.judged > 0).then(|| crate::central::hit_rate(c, m)),
     }
 }
 
