@@ -532,6 +532,24 @@ bleiben. Liste von Einträgen:
 | **land** | ISO-Code eines Landes (heutige Grenzen) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## zoelle
+
+`data/parameter/zoelle.yaml` (W3; Regeln: `docs/FORMELN.md`, Abschnitt W3). Ohne Abschnitt
+gibt es keine Zölle. Ein Abschnitt `zoelle` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **standard** | Zeitreihe Jahr → Durchschnittszoll (Anteil am Warenwert, 0–5) der Länder ohne eigene Angabe; linear zwischen den Jahren |
+| **laender** | Zuordnung ISO-Code → eigene Zeitreihe wie `standard` |
+| **warengruppen** | Zuordnung Warengruppe → Faktor (≥ 0) auf den Zoll; ohne Angabe 1 |
+| **produkte** | Zuordnung Produkt → Faktor (≥ 0) statt dem seiner Warengruppe (0 = zollfrei, z. B. Dünger) |
+| **zonen** | Liste von Handelszonen: `id`, `faktor` (0–1, Zoll zwischen Mitgliedern mal Faktor), `mitglieder` (ISO-Code → `[Beitritt]` oder `[Beitritt, Austritt]`, Austritt nach dem Beitritt; Mitglied bis vor dem Austrittsjahr) |
+| **sperren** | Liste von Handelssperren: `laender` (genau zwei verschiedene ISO-Codes), `von`, optional `bis` (Jahr, ausschließlich) |
+| **dynamik** | Änderung nach dem letzten Datenjahr: `standardabweichung` (0–1, je Jahr), `minimum`, `maximum` (0–5), `stufen` (Liste aus `id` und `faktor` 0–10 auf die Standardabweichung, Wahl beim neuen Spiel), `standard` (`id` einer Stufe) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
+Texte: `zoll.zone.<id>` je Zone, `zoll.dynamik.<id>` je Stufe.
+
 ## produktnamen
 
 Bausteine für die erfundenen Namen, die Firmen ihren Endprodukten geben (in `ki/`, M42;

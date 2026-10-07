@@ -13,6 +13,15 @@ bei Bedarf widersprechen) · ❓ offen
    Wege zwischen Hauptstädten, Seewege nach Luftlinie × Umwegfaktor (echte Seewege mit
    Kanälen ab Stufe 2), Waren bewegen sich innerhalb eines Landes ohne Kosten.
 2. 🟡 **Zölle.** Stufe 1 ohne Zölle; die Warengruppen sind im Datenformat schon da.
+   Umgesetzt mit W3 (`parameter/zoelle.yaml`, FORMELN W3): Durchschnittszoll je
+   Einfuhrland als Zeitreihe (15 große Länder eigen, sonst ein Standardverlauf nach
+   Bairoch/Clemens–Williamson), Faktor je Warengruppe, Handelszonen (EWG/EU, EFTA, NAFTA,
+   Mercosur, Empire-Präferenz, RGW) und drei Handelssperren. Vorschläge: (a) Zoll auf den
+   Einstandspreis (Preis + Fracht) der Händler und auf den Lagerwert eigener Lieferungen;
+   ein Zoll auf den Rechnungswert ohne Fracht (FOB, wie in den USA) wäre etwas niedriger.
+   (b) Die Zolleinnahmen verlassen das Spiel (keine Staatshaushalte in Stufe 2). (c) Nach
+   2026 ändern sich die Zölle zufällig (keine, normal, stark schwankend; Wahl beim neuen
+   Spiel); Handelskriege und Sanktionen als Ereignisse folgen mit Stufe 4.
 3. 🟡 **Währung.** Stufe 1 rechnet in USD (Kaufkraft 2026). Die Anzeige in
    Landeswährungen ist mit M21 vorgezogen (§18.2): umschaltbar zwischen Kaufkraft 2026
    und Preisen der Zeit. Vorschlag: „Kaufkraft 2026“ zeigt die Landeswährung des Jahres

@@ -29,6 +29,7 @@ mod milestones;
 mod names;
 mod plots;
 mod production;
+mod tariffs;
 mod ventures;
 use crate::raw::{
     RawConsumerDemand, RawNeedClass, RawPerKind, RawProduct, RawProductKind, RawSiteType,
@@ -616,6 +617,7 @@ pub(crate) fn build(
     b.catalog.management = management::management(b.ctx, &b.catalog, raw);
     b.catalog.central = central::central_model(b.ctx, &b.catalog, raw);
     b.catalog.ventures = ventures::venture_model(b.ctx, &b.catalog, raw);
+    b.catalog.tariffs = tariffs::tariff_model(b.ctx, &b.catalog, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,
@@ -690,6 +692,7 @@ pub(crate) fn build(
     production::check_size_texts(b.ctx, raw, texts, all_files_read);
     management::check_texts(b.ctx, &b.catalog.management, raw, texts, all_files_read);
     ventures::check_texts(b.ctx, &b.catalog.ventures, raw, texts, all_files_read);
+    tariffs::check_texts(b.ctx, &b.catalog.tariffs, raw, texts, all_files_read);
 
     let catalog = b.catalog;
     (ctx.report.errors().count() == errors_before).then_some(catalog)

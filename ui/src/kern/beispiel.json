@@ -13551,7 +13551,98 @@
       "members": [],
       "population": 49895611.16986301,
       "price_level": 0.802564352965736,
-      "stability": 0.7898972602739776
+      "stability": 0.7898972602739776,
+      "tariffs": {
+        "average": 0.13166666666666668,
+        "embargoes": [],
+        "groups": [
+          [
+            "bekleidung",
+            0.2106666666666667
+          ],
+          [
+            "lebensmittel",
+            0.18433333333333335
+          ],
+          [
+            "textilien",
+            0.18433333333333335
+          ],
+          [
+            "fahrzeuge",
+            0.1711666666666667
+          ],
+          [
+            "moebel_hausrat",
+            0.158
+          ],
+          [
+            "eisen_stahl",
+            0.13166666666666668
+          ],
+          [
+            "elektro",
+            0.13166666666666668
+          ],
+          [
+            "glas_keramik",
+            0.13166666666666668
+          ],
+          [
+            "metallwaren",
+            0.13166666666666668
+          ],
+          [
+            "ruestung",
+            0.13166666666666668
+          ],
+          [
+            "strom",
+            0.13166666666666668
+          ],
+          [
+            "chemie",
+            0.11850000000000002
+          ],
+          [
+            "gummi",
+            0.10533333333333335
+          ],
+          [
+            "maschinen",
+            0.10533333333333335
+          ],
+          [
+            "papier",
+            0.10533333333333335
+          ],
+          [
+            "agrarrohstoffe",
+            0.079
+          ],
+          [
+            "mineraloel",
+            0.06583333333333334
+          ],
+          [
+            "nichteisenmetalle",
+            0.06583333333333334
+          ],
+          [
+            "holz",
+            0.0395
+          ],
+          [
+            "brennstoffe",
+            0.026333333333333337
+          ],
+          [
+            "erze",
+            0.013166666666666669
+          ]
+        ],
+        "zones": []
+      }
     },
     "GBR": {
       "companies": [
@@ -15634,7 +15725,98 @@
       "members": [],
       "population": 42599576.11506849,
       "price_level": 0.9629995936577074,
-      "stability": 0.9
+      "stability": 0.9,
+      "tariffs": {
+        "average": 0.04666666666666667,
+        "embargoes": [],
+        "groups": [
+          [
+            "bekleidung",
+            0.07466666666666667
+          ],
+          [
+            "lebensmittel",
+            0.06533333333333333
+          ],
+          [
+            "textilien",
+            0.06533333333333333
+          ],
+          [
+            "fahrzeuge",
+            0.060666666666666674
+          ],
+          [
+            "moebel_hausrat",
+            0.056
+          ],
+          [
+            "eisen_stahl",
+            0.04666666666666667
+          ],
+          [
+            "elektro",
+            0.04666666666666667
+          ],
+          [
+            "glas_keramik",
+            0.04666666666666667
+          ],
+          [
+            "metallwaren",
+            0.04666666666666667
+          ],
+          [
+            "ruestung",
+            0.04666666666666667
+          ],
+          [
+            "strom",
+            0.04666666666666667
+          ],
+          [
+            "chemie",
+            0.042
+          ],
+          [
+            "gummi",
+            0.037333333333333336
+          ],
+          [
+            "maschinen",
+            0.037333333333333336
+          ],
+          [
+            "papier",
+            0.037333333333333336
+          ],
+          [
+            "agrarrohstoffe",
+            0.028
+          ],
+          [
+            "mineraloel",
+            0.023333333333333334
+          ],
+          [
+            "nichteisenmetalle",
+            0.023333333333333334
+          ],
+          [
+            "holz",
+            0.014
+          ],
+          [
+            "brennstoffe",
+            0.009333333333333334
+          ],
+          [
+            "erze",
+            0.004666666666666667
+          ]
+        ],
+        "zones": []
+      }
     },
     "USA": {
       "companies": [
@@ -18987,7 +19169,98 @@
       "members": [],
       "population": 99288675.78767118,
       "price_level": 1.0,
-      "stability": 0.894412372254838
+      "stability": 0.894412372254838,
+      "tariffs": {
+        "average": 0.26,
+        "embargoes": [],
+        "groups": [
+          [
+            "bekleidung",
+            0.41600000000000004
+          ],
+          [
+            "lebensmittel",
+            0.364
+          ],
+          [
+            "textilien",
+            0.364
+          ],
+          [
+            "fahrzeuge",
+            0.338
+          ],
+          [
+            "moebel_hausrat",
+            0.312
+          ],
+          [
+            "eisen_stahl",
+            0.26
+          ],
+          [
+            "elektro",
+            0.26
+          ],
+          [
+            "glas_keramik",
+            0.26
+          ],
+          [
+            "metallwaren",
+            0.26
+          ],
+          [
+            "ruestung",
+            0.26
+          ],
+          [
+            "strom",
+            0.26
+          ],
+          [
+            "chemie",
+            0.234
+          ],
+          [
+            "gummi",
+            0.20800000000000002
+          ],
+          [
+            "maschinen",
+            0.20800000000000002
+          ],
+          [
+            "papier",
+            0.20800000000000002
+          ],
+          [
+            "agrarrohstoffe",
+            0.156
+          ],
+          [
+            "mineraloel",
+            0.13
+          ],
+          [
+            "nichteisenmetalle",
+            0.13
+          ],
+          [
+            "holz",
+            0.078
+          ],
+          [
+            "brennstoffe",
+            0.052000000000000005
+          ],
+          [
+            "erze",
+            0.026000000000000002
+          ]
+        ],
+        "zones": []
+      }
     }
   },
   "managermarkt": {
@@ -25956,6 +26229,7 @@
     "default_country": "DEU",
     "default_difficulty": "mittel",
     "default_startups": "normal",
+    "default_tariffs": "normal",
     "difficulties": [
       {
         "aggressiveness": 0.3,
@@ -26015,6 +26289,11 @@
         "key": "viele",
         "per_year": 24.0
       }
+    ],
+    "tariffs": [
+      "keine",
+      "normal",
+      "stark"
     ]
   },
   "organisation": {
@@ -38522,6 +38801,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 7432282.112328745,
+        "tariff": 0.1525,
         "wage_usd": 0.25619448240003057
       },
       {
@@ -38534,6 +38814,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2909972.3260273975,
+        "tariff": 0.1525,
         "wage_usd": 0.17685125714799216
       },
       {
@@ -38546,6 +38827,7 @@
         "other_sites": 20,
         "own_sites": 0,
         "population": 7549152.858904102,
+        "tariff": 0.2733333333333333,
         "wage_usd": 3.0579487015609015
       },
       {
@@ -38558,6 +38840,7 @@
         "other_sites": 21,
         "own_sites": 0,
         "population": 4685166.81506849,
+        "tariff": 0.24000000000000002,
         "wage_usd": 5.120190187982514
       },
       {
@@ -38570,6 +38853,7 @@
         "other_sites": 10,
         "own_sites": 0,
         "population": 6556511.720547946,
+        "tariff": 0.1525,
         "wage_usd": 2.5647940978322183
       },
       {
@@ -38582,6 +38866,7 @@
         "other_sites": 8,
         "own_sites": 0,
         "population": 7756515.050684932,
+        "tariff": 0.1525,
         "wage_usd": 3.752593914975707
       },
       {
@@ -38594,6 +38879,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2671528.397260273,
+        "tariff": 0.1525,
         "wage_usd": 0.23916935851259888
       },
       {
@@ -38606,6 +38892,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 29139857.80410959,
+        "tariff": 0.1525,
         "wage_usd": 0.33740375213849566
       },
       {
@@ -38618,6 +38905,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 4737358.869863012,
+        "tariff": 0.1525,
         "wage_usd": 0.7644064169233308
       },
       {
@@ -38630,6 +38918,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 5163094.790410957,
+        "tariff": 0.1525,
         "wage_usd": 0.811276302832978
       },
       {
@@ -38642,6 +38931,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 2149104.019178081,
+        "tariff": 0.1525,
         "wage_usd": 0.7850312503946062
       },
       {
@@ -38654,6 +38944,7 @@
         "other_sites": 12,
         "own_sites": 0,
         "population": 24137057.246575322,
+        "tariff": 0.37666666666666665,
         "wage_usd": 0.38515618305916666
       },
       {
@@ -38666,6 +38957,7 @@
         "other_sites": 34,
         "own_sites": 0,
         "population": 7625077.26164383,
+        "tariff": 0.20733333333333334,
         "wage_usd": 3.935513399837789
       },
       {
@@ -38678,6 +38970,7 @@
         "other_sites": 5,
         "own_sites": 0,
         "population": 3796224.771232876,
+        "tariff": 0.1525,
         "wage_usd": 4.810494833376993
       },
       {
@@ -38690,6 +38983,7 @@
         "other_sites": 7,
         "own_sites": 0,
         "population": 3762399.2410958884,
+        "tariff": 0.1525,
         "wage_usd": 2.221381418785624
       },
       {
@@ -38702,6 +38996,7 @@
         "other_sites": 42,
         "own_sites": 0,
         "population": 437027916.2260272,
+        "tariff": 0.05,
         "wage_usd": 0.3764503350441517
       },
       {
@@ -38714,6 +39009,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1632684.261643835,
+        "tariff": 0.1525,
         "wage_usd": 0.19251143226026532
       },
       {
@@ -38726,6 +39022,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2895815.6863013706,
+        "tariff": 0.1525,
         "wage_usd": 0.24861656754749295
       },
       {
@@ -38738,6 +39035,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 8374832.990410961,
+        "tariff": 0.1525,
         "wage_usd": 0.13676695105049266
       },
       {
@@ -38750,6 +39048,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 5442409.690410954,
+        "tariff": 0.1525,
         "wage_usd": 0.5705480040424121
       },
       {
@@ -38762,6 +39061,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 2573976.4616438323,
+        "tariff": 0.1525,
         "wage_usd": 1.014714246359502
       },
       {
@@ -38774,6 +39074,7 @@
         "other_sites": 8,
         "own_sites": 0,
         "population": 13298926.879452053,
+        "tariff": 0.1525,
         "wage_usd": 1.815929735551398
       },
       {
@@ -38786,6 +39087,7 @@
         "other_sites": 41,
         "own_sites": 1,
         "population": 49895611.16986301,
+        "tariff": 0.13166666666666668,
         "wage_usd": 2.773575458036241
       },
       {
@@ -38798,6 +39100,7 @@
         "other_sites": 5,
         "own_sites": 0,
         "population": 3028920.749315067,
+        "tariff": 0.1525,
         "wage_usd": 3.9854200846466594
       },
       {
@@ -38810,6 +39113,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 5650918.808219177,
+        "tariff": 0.1525,
         "wage_usd": 0.8363332636594014
       },
       {
@@ -38822,6 +39126,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 1758722.860273972,
+        "tariff": 0.1525,
         "wage_usd": 0.6578100836154273
       },
       {
@@ -38834,6 +39139,7 @@
         "other_sites": 10,
         "own_sites": 0,
         "population": 11904836.38904109,
+        "tariff": 0.1525,
         "wage_usd": 0.7272538076001882
       },
       {
@@ -38846,6 +39152,7 @@
         "other_sites": 24,
         "own_sites": 0,
         "population": 20419557.241095886,
+        "tariff": 0.40555555555555556,
         "wage_usd": 1.5004606678500223
       },
       {
@@ -38858,6 +39165,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 17480721.693150684,
+        "tariff": 0.1525,
         "wage_usd": 0.2196304952312804
       },
       {
@@ -38870,6 +39178,7 @@
         "other_sites": 9,
         "own_sites": 0,
         "population": 3006853.9164383556,
+        "tariff": 0.1525,
         "wage_usd": 1.6400864142909093
       },
       {
@@ -38882,6 +39191,7 @@
         "other_sites": 31,
         "own_sites": 0,
         "population": 39624387.47260275,
+        "tariff": 0.20357142857142857,
         "wage_usd": 2.9894255861923185
       },
       {
@@ -38894,6 +39204,7 @@
         "other_sites": 28,
         "own_sites": 0,
         "population": 42599576.11506849,
+        "tariff": 0.04666666666666667,
         "wage_usd": 5.253820958943982
       },
       {
@@ -38906,6 +39217,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 3032117.4041095884,
+        "tariff": 0.1525,
         "wage_usd": 0.48082932532664163
       },
       {
@@ -38918,6 +39230,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 5800146.627397259,
+        "tariff": 0.1525,
         "wage_usd": 1.113694435247056
       },
       {
@@ -38930,6 +39243,7 @@
         "other_sites": 17,
         "own_sites": 0,
         "population": 7740033.576712328,
+        "tariff": 0.1525,
         "wage_usd": 1.6828186636900793
       },
       {
@@ -38942,6 +39256,7 @@
         "other_sites": 16,
         "own_sites": 0,
         "population": 44573251.92191779,
+        "tariff": 0.1525,
         "wage_usd": 0.5522501912767278
       },
       {
@@ -38954,6 +39269,7 @@
         "other_sites": 35,
         "own_sites": 0,
         "population": 288808840.44520545,
+        "tariff": 0.10833333333333334,
         "wage_usd": 0.4446516707290034
       },
       {
@@ -38966,6 +39282,7 @@
         "other_sites": 5,
         "own_sites": 0,
         "population": 3065634.5301369866,
+        "tariff": 0.1525,
         "wage_usd": 2.4007742255463524
       },
       {
@@ -38978,6 +39295,7 @@
         "other_sites": 6,
         "own_sites": 0,
         "population": 10113263.672602748,
+        "tariff": 0.1525,
         "wage_usd": 0.5337193167206994
       },
       {
@@ -38990,6 +39308,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 3088502.9890410933,
+        "tariff": 0.1525,
         "wage_usd": 0.5290467487160294
       },
       {
@@ -39002,6 +39321,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 428396.7712328766,
+        "tariff": 0.1525,
         "wage_usd": 0.4553595936410018
       },
       {
@@ -39014,6 +39334,7 @@
         "other_sites": 23,
         "own_sites": 0,
         "population": 36592775.113698624,
+        "tariff": 0.18166666666666667,
         "wage_usd": 2.060149664785774
       },
       {
@@ -39026,6 +39347,7 @@
         "other_sites": 13,
         "own_sites": 0,
         "population": 53633423.752054766,
+        "tariff": 0.25277777777777777,
         "wage_usd": 1.133711560128611
       },
       {
@@ -39038,6 +39360,7 @@
         "other_sites": 16,
         "own_sites": 0,
         "population": 4797323.724657533,
+        "tariff": 0.1525,
         "wage_usd": 1.2219921368095448
       },
       {
@@ -39050,6 +39373,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 3574529.341095891,
+        "tariff": 0.1525,
         "wage_usd": 0.26120816036278793
       },
       {
@@ -39062,6 +39386,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 4149317.816438358,
+        "tariff": 0.1525,
         "wage_usd": 0.2801554803669165
       },
       {
@@ -39074,6 +39399,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 10288439.024657529,
+        "tariff": 0.1525,
         "wage_usd": 0.5083847695477813
       },
       {
@@ -39086,6 +39412,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 632464.8109589037,
+        "tariff": 0.1525,
         "wage_usd": 0.5634648745521943
       },
       {
@@ -39098,6 +39425,7 @@
         "other_sites": 6,
         "own_sites": 0,
         "population": 5114057.954794518,
+        "tariff": 0.1525,
         "wage_usd": 0.8619612435000796
       },
       {
@@ -39110,6 +39438,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 5596351.084931506,
+        "tariff": 0.1525,
         "wage_usd": 0.4579051060725489
       },
       {
@@ -39122,6 +39451,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 3051748.1287671234,
+        "tariff": 0.1525,
         "wage_usd": 0.32522487414454276
       },
       {
@@ -39134,6 +39464,7 @@
         "other_sites": 13,
         "own_sites": 0,
         "population": 14520064.83150685,
+        "tariff": 0.3,
         "wage_usd": 0.9176570167239293
       },
       {
@@ -39146,6 +39477,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2854441.2780821905,
+        "tariff": 0.1525,
         "wage_usd": 0.23967441854643343
       },
       {
@@ -39158,6 +39490,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 11334324.957534242,
+        "tariff": 0.1525,
         "wage_usd": 0.46416713862937986
       },
       {
@@ -39170,6 +39503,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 725215.0369863013,
+        "tariff": 0.1525,
         "wage_usd": 0.12613208275983478
       },
       {
@@ -39182,6 +39516,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 3807988.219178083,
+        "tariff": 0.1525,
         "wage_usd": 0.1206100903264848
       },
       {
@@ -39194,6 +39529,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1889958.1260273976,
+        "tariff": 0.1525,
         "wage_usd": 0.15017540532855958
       },
       {
@@ -39206,6 +39542,7 @@
         "other_sites": 10,
         "own_sites": 0,
         "population": 2993484.0821917783,
+        "tariff": 0.1525,
         "wage_usd": 0.614351506927747
       },
       {
@@ -39218,6 +39555,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1575649.6452054789,
+        "tariff": 0.1525,
         "wage_usd": 0.25624584748059676
       },
       {
@@ -39230,6 +39568,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 21603659.46849314,
+        "tariff": 0.1525,
         "wage_usd": 0.3562975215209452
       },
       {
@@ -39242,6 +39581,7 @@
         "other_sites": 8,
         "own_sites": 0,
         "population": 6285286.594520545,
+        "tariff": 0.1525,
         "wage_usd": 3.7321226010639736
       },
       {
@@ -39254,6 +39594,7 @@
         "other_sites": 7,
         "own_sites": 0,
         "population": 2575241.490410958,
+        "tariff": 0.1525,
         "wage_usd": 2.389070207459648
       },
       {
@@ -39266,6 +39607,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 5630407.091780822,
+        "tariff": 0.1525,
         "wage_usd": 0.31779330582752435
       },
       {
@@ -39278,6 +39620,7 @@
         "other_sites": 5,
         "own_sites": 0,
         "population": 1118488.5602739719,
+        "tariff": 0.1525,
         "wage_usd": 5.327970923627167
       },
       {
@@ -39290,6 +39633,7 @@
         "other_sites": 10,
         "own_sites": 0,
         "population": 19192875.032876704,
+        "tariff": 0.1525,
         "wage_usd": 0.4670205992350825
       },
       {
@@ -39302,6 +39646,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 4354158.3657534225,
+        "tariff": 0.1525,
         "wage_usd": 0.7037967305891502
       },
       {
@@ -39314,6 +39659,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 8558554.872602735,
+        "tariff": 0.1525,
         "wage_usd": 0.640364827860011
       },
       {
@@ -39326,6 +39672,7 @@
         "other_sites": 11,
         "own_sites": 0,
         "population": 24946470.15890412,
+        "tariff": 0.1525,
         "wage_usd": 1.402960679329583
       },
       {
@@ -39338,6 +39685,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 6134560.605479447,
+        "tariff": 0.1525,
         "wage_usd": 0.493099948096533
       },
       {
@@ -39350,6 +39698,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 5935639.036986301,
+        "tariff": 0.1525,
         "wage_usd": 0.9154900368765138
       },
       {
@@ -39362,6 +39711,7 @@
         "other_sites": 18,
         "own_sites": 0,
         "population": 13849642.027397258,
+        "tariff": 0.1525,
         "wage_usd": 0.6404609880514311
       },
       {
@@ -39374,6 +39724,7 @@
         "other_sites": 36,
         "own_sites": 0,
         "population": 74180453.66438353,
+        "tariff": 0.7571428571428572,
         "wage_usd": 1.205674541109944
       },
       {
@@ -39386,6 +39737,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1285639.343835617,
+        "tariff": 0.1525,
         "wage_usd": 0.37912794449853904
       },
       {
@@ -39398,6 +39750,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 7381784.286301369,
+        "tariff": 0.1525,
         "wage_usd": 0.20947429399589107
       },
       {
@@ -39410,6 +39763,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1724690.6698630133,
+        "tariff": 0.1525,
         "wage_usd": 0.31820592153717964
       },
       {
@@ -39422,6 +39776,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 342604.6958904107,
+        "tariff": 0.1525,
         "wage_usd": 1.0137520975190135
       },
       {
@@ -39434,6 +39789,7 @@
         "other_sites": 14,
         "own_sites": 0,
         "population": 5632325.1986301355,
+        "tariff": 0.1525,
         "wage_usd": 2.6589854293872226
       },
       {
@@ -39446,6 +39802,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 2163804.2520547933,
+        "tariff": 0.1525,
         "wage_usd": 0.9786415694689801
       },
       {
@@ -39458,6 +39815,7 @@
         "other_sites": 3,
         "own_sites": 0,
         "population": 9014079.472602734,
+        "tariff": 0.1525,
         "wage_usd": 0.5501213616309136
       },
       {
@@ -39470,6 +39828,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 2259569.928767123,
+        "tariff": 0.1525,
         "wage_usd": 0.5924762415333782
       },
       {
@@ -39482,6 +39841,7 @@
         "other_sites": 17,
         "own_sites": 0,
         "population": 14359515.017808223,
+        "tariff": 0.1525,
         "wage_usd": 0.5330680675574679
       },
       {
@@ -39494,6 +39854,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 3419216.2150684916,
+        "tariff": 0.1525,
         "wage_usd": 0.5030255424596323
       },
       {
@@ -39506,6 +39867,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 4755186.879452054,
+        "tariff": 0.1525,
         "wage_usd": 0.1760775076539051
       },
       {
@@ -39518,6 +39880,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 3541939.7410958903,
+        "tariff": 0.1525,
         "wage_usd": 0.2585654654162263
       },
       {
@@ -39530,6 +39893,7 @@
         "other_sites": 18,
         "own_sites": 0,
         "population": 26768776.547945194,
+        "tariff": 0.1525,
         "wage_usd": 0.7228920942941852
       },
       {
@@ -39542,6 +39906,7 @@
         "other_sites": 111,
         "own_sites": 0,
         "population": 99288675.78767118,
+        "tariff": 0.26,
         "wage_usd": 5.972905569079991
       },
       {
@@ -39554,6 +39919,7 @@
         "other_sites": 7,
         "own_sites": 0,
         "population": 4440149.66438356,
+        "tariff": 0.1525,
         "wage_usd": 0.43879256922490784
       },
       {
@@ -39566,6 +39932,7 @@
         "other_sites": 11,
         "own_sites": 0,
         "population": 3116646.189041095,
+        "tariff": 0.1525,
         "wage_usd": 0.9265098246631149
       },
       {
@@ -39578,6 +39945,7 @@
         "other_sites": 5,
         "own_sites": 0,
         "population": 18877358.387671236,
+        "tariff": 0.1525,
         "wage_usd": 0.45854589220091097
       },
       {
@@ -39590,6 +39958,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 5734269.110958909,
+        "tariff": 0.1525,
         "wage_usd": 1.2784917621010785
       },
       {
@@ -39602,6 +39971,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 692621.5547945204,
+        "tariff": 0.1525,
         "wage_usd": 0.45813739815447285
       },
       {
@@ -39614,6 +39984,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 398371.9068493149,
+        "tariff": 0.1525,
         "wage_usd": 1.2263317646252931
       },
       {
@@ -39626,6 +39997,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2187930.197260274,
+        "tariff": 0.1525,
         "wage_usd": 0.2714605438123646
       },
       {
@@ -39638,6 +40010,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 2795211.213698628,
+        "tariff": 0.1525,
         "wage_usd": 0.4500755828170916
       },
       {
@@ -39650,6 +40023,7 @@
         "other_sites": 11,
         "own_sites": 0,
         "population": 5711767.620547943,
+        "tariff": 0.1525,
         "wage_usd": 0.6015377802169556
       },
       {
@@ -39662,6 +40036,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 1700905.8041095887,
+        "tariff": 0.1525,
         "wage_usd": 0.6789921066926436
       },
       {
@@ -39674,6 +40049,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 1285339.0849315068,
+        "tariff": 0.1525,
         "wage_usd": 0.9817352229837382
       },
       {
@@ -39686,6 +40062,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 3743969.715068494,
+        "tariff": 0.1525,
         "wage_usd": 0.2226042998751074
       },
       {
@@ -39698,6 +40075,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 4949182.850684928,
+        "tariff": 0.1525,
         "wage_usd": 0.8717605501396949
       },
       {
@@ -39710,6 +40088,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1273239.1602739738,
+        "tariff": 0.1525,
         "wage_usd": 0.29018759358127866
       },
       {
@@ -39722,6 +40101,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 1831496.5397260257,
+        "tariff": 0.1525,
         "wage_usd": 1.734572286540802
       },
       {
@@ -39734,6 +40114,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 2829892.1068493156,
+        "tariff": 0.1525,
         "wage_usd": 0.2101832413572425
       },
       {
@@ -39746,6 +40127,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 895449.4410958899,
+        "tariff": 0.1525,
         "wage_usd": 0.3722666474210041
       },
       {
@@ -39758,6 +40140,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 2184276.187671232,
+        "tariff": 0.1525,
         "wage_usd": 0.4050719522729857
       },
       {
@@ -39770,6 +40153,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 4413744.728767122,
+        "tariff": 0.1525,
         "wage_usd": 0.28275274380403304
       },
       {
@@ -39782,6 +40166,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 11538702.524657529,
+        "tariff": 0.1525,
         "wage_usd": 0.9487015075561656
       },
       {
@@ -39794,6 +40179,7 @@
         "other_sites": 2,
         "own_sites": 0,
         "population": 3240584.061643834,
+        "tariff": 0.1525,
         "wage_usd": 0.6400982365724912
       },
       {
@@ -39806,6 +40192,7 @@
         "other_sites": 1,
         "own_sites": 0,
         "population": 3280800.943835615,
+        "tariff": 0.1525,
         "wage_usd": 0.4899047002836078
       },
       {
@@ -39818,6 +40205,7 @@
         "other_sites": 4,
         "own_sites": 0,
         "population": 6507200.38356164,
+        "tariff": 0.1525,
         "wage_usd": 0.8261810919474101
       },
       {
@@ -39830,6 +40218,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1485831.77260274,
+        "tariff": 0.1525,
         "wage_usd": 0.21248924119042842
       },
       {
@@ -39842,6 +40231,7 @@
         "other_sites": 0,
         "own_sites": 0,
         "population": 1390086.0273972594,
+        "tariff": 0.1525,
         "wage_usd": 0.343317086612192
       }
     ],

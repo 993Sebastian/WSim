@@ -26,6 +26,8 @@ neu.seed: Zufallswert (gleicher Wert und gleiche Entscheidungen ergeben dieselbe
 neu.startups: Start-ups (Erfinder und junge Firmen)
 neu.startups_wahl: "{wahl} (rund {je_jahr} im Jahr)"
 neu.startups_hilfe: Sie forschen an neuen Technologien und verbessern Produkte. Wer Erfolg hat, bringt eine Technologie früher in die Welt.
+neu.zoelle: Zölle nach 2026
+neu.zoelle_hilfe: Bis 2026 folgen die Zölle der Geschichte. Danach ändern sie sich jedes Jahr zufällig – oder bleiben fest.
 neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
@@ -212,6 +214,7 @@ karte.ebene.lohn: Lohnniveau
 karte.ebene.bip: BIP je Kopf
 karte.ebene.bevoelkerung: Bevölkerung
 karte.ebene.rohstoffe: Rohstoffe
+karte.ebene.zoll: Zölle
 karte.ebene.standorte: Standorte
 karte.rohstoff: Rohstoff
 karte.produkt: Produkt
@@ -221,6 +224,7 @@ karte.absatz_hinweis: Farbe = Marktpreis im Verhältnis zum Richtpreis des Lande
 karte.legende.nachfrage: Nachfrage (Kreisgröße)
 karte.legende: Legende
 karte.standorte_titel: "{eigene} eigene, {fremde} fremde Standorte"
+karte.zoll_titel: "Einfuhrzoll im Schnitt {zoll}"
 karte.lagerstaetten_titel: "{anzahl} Lagerstätten"
 karte.lager.frei: "{frei} von {gesamt} Konzessionen frei"
 karte.lager.vergeben: alle Konzessionen vergeben
@@ -245,6 +249,13 @@ landdetail.steuern_wert: "Gewinn {gewinn}, Dividende {dividende}"
 landdetail.infrastruktur: Infrastruktur
 landdetail.infrastruktur_wert: "Schiene {schiene}, Straße {strasse}, Hafen {hafen}"
 landdetail.stabilitaet: Stabilität
+landdetail.zoelle: Einfuhrzölle
+landdetail.zoll_schnitt: Im Schnitt
+landdetail.zoll_hoechste: Am höchsten
+landdetail.zoll_zonen: Handelszonen
+landdetail.zoll_sperren: Handelssperren
+landdetail.zoll_keine: keine
+landdetail.zoll_hilfe: Der Zoll gilt auf Einfuhren aus anderen Ländern; innerhalb einer Handelszone ist er niedriger oder entfällt. Er hebt den Preis eingeführter Waren und schützt die Hersteller im Land.
 landdetail.waehrung: Währung
 landdetail.kurs: "{kurs} {zeichen} je US-Dollar ({jahr})"
 landdetail.waehrungen: "Im Lauf der Zeit: {liste}"

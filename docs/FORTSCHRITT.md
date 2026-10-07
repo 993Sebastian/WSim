@@ -74,6 +74,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | C4 | Plausibilität 1900–1930: Startkapazität, Ausbau-Bremse, Autos, Werkstatt | ✅ |
 | W1 | Schulung je Standort (Stufe 2) | ✅ |
 | W2 | Zentrale in der Stadt: Akademiker und Büromiete je Stadt | ✅ |
+| W3 | Zölle je Land und Warengruppe, Handelszonen, Sperren, Dynamik nach 2026 | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -679,6 +680,12 @@ Paket C, Weltlauf 1900–1930 nach W1. Regeln: `docs/FORMELN.md`, Abschnitt C4.
 
   Offen: Stahlwaren bleiben bei 0,55–0,75 × Richtpreis (Marge zum Richtpreis weiter hoch);
   die Werkstatt liegt 1901–1902 knapp über der Grenze von 50 %.
+- **Weltlauf 1990–2026** (C3 → C4): Preisverstöße 517 → 451, Versorgung weltweit 99 → 139,
+  je Land 3.052 → 4.022. Die Ausbau-Bremse hielt Kautschuk fest: Synthesewerke ohne Benzin
+  planten wenig, die vollen Plantagen durften nicht wachsen (Kautschuk 2016 beim
+  Vierfachen des Richtpreises, Gummi 2025 unversorgt). Behoben mit W3: Ein teurer Markt
+  (Käufer zahlten mindestens `einstieg_preisfaktor` · Richtpreis) darf trotz Bremse
+  wachsen.
 
 ### W1: Schulung je Standort (07.10.2026)
 
@@ -717,6 +724,40 @@ Stufe 2; offene Punkte O 1 und O 6. Regeln: `docs/FORMELN.md`, Abschnitt W2.
 - **Tests:** Kern (Grenze und Miete, Umzug im Land, Teilen einer Stadt, KI-Umzug),
   Fehlerfälle Städte und `zentrale.stadt`, vitest (Umzug mit Stadt, Städtetabelle),
   Playwright.
+
+### W3: Zölle (07.10.2026)
+
+Stufe 2, Lastenheft §8.2, offener Punkt A 2. Regeln: `docs/FORMELN.md`, Abschnitt W3.
+
+- **Daten:** `parameter/zoelle.yaml` – Durchschnittszoll je Einfuhrland 1900–2026 (15 große
+  Länder eigen, sonst ein Standardverlauf nach Bairoch und Clemens/Williamson), Faktor je
+  Warengruppe (Erze 0,1 bis Bekleidung 1,6), zollfreie Rohstoffe und Dünger, Handelszonen
+  (EWG/EU, EFTA, NAFTA, Mercosur: frei; Empire-Präferenz 1932–1973: halb; RGW: 0,3),
+  Handelssperren (USA–Kuba, –Nordkorea, –Iran), Dynamik nach 2026 in drei Stufen. Prüfregeln
+  mit Fehlerfall-Test.
+- **Kern:** Modul `tariffs` (Tabelle je Jahr, abgeleitet). Händler rechnen mit (Preis +
+  Fracht) · (1 + Zoll), bei einer Sperre kaufen sie nicht; eigene Lieferungen zahlen Zoll auf
+  den Lagerwert (Kostenart Zölle), eine Sperre lehnt sie ab; die KI zählt den Zoll bei
+  Standortwahl und Lieferungen dazu; die Startbesetzung bewertet Einfuhren mit Zoll. Nach
+  2026 ändert sich der Zoll jedes Landes jährlich zufällig (eigener Zufallsstrom).
+- **Spiel und Oberfläche:** neue Wahl „Zölle nach 2026“ (fest, normal, stark schwankend),
+  CLI `--zoelle`; Kartenebene „Zölle“; Länderdetail „Einfuhrzölle“ mit Schnitt, höchsten
+  Warengruppen, Zonen und Sperren.
+- **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
+- **Tests:** Kern (Satz je Zone, Sperre, Gruppe; Dynamik reproduzierbar und begrenzt; Zoll
+  auf Lieferungen; Sperre; Händlerpreis steigt um den Zoll), Fehlerfälle, Playwright (Karte,
+  Länderdetail, neues Spiel). Nachgezogen: zwei Tests, die seit C4 rot waren (Arbeit im
+  Bessemer-Stahlwerk; Halt bei Anliegen jetzt mit Start 1950, weil 1900 kein Nagelwerk mehr
+  ausbaut).
+- **Weltlauf 1900–1930** (C4 → W3): Preisverstöße 149 → 140, Marge 123 → 102, Förderung
+  75 → 48; Versorgung weltweit 36 → 44, je Land 911 → 1.060. Einfuhren sinken (Autoreifen
+  1929: 3,0 → 0,7 Mio. Stück, Autos 178.000 → 32.000), die Hersteller im Land gewinnen.
+  Gummi bleibt knapp (1929 zu 37 % versorgt): Die Plantagen fördern nicht mehr, und die
+  Gummiwaren aus den Industrieländern kosten nun Zoll. Ohne zollfreien Dünger bekam die Welt
+  1900 nur 42 % davon (Test `world_stays_plausible_in_the_first_year`).
+- **Weltlauf 1990–2026** (C4 → W3, mit der Ausnahme für teure Märkte): Versorgung weltweit
+  139 → 131, je Land 4.022 → 3.433, Preisverstöße 451 → 381, Marge 347 → 335. Gummi 2025
+  wieder voll versorgt (vorher 0 %), Kautschuk 0,67 statt 2,5 × Richtpreis.
 
 ## Eigenständige Entscheidungen (für das Review)
 

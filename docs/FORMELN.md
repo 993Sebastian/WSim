@@ -3838,12 +3838,58 @@ Autos im Jahr (real 5,3 Mio.).
 - **Ausbau nur, wo der Markt Anlagen braucht:** Eine Firma baut ein Produkt nur aus
   (M10, C2), wenn alle laufenden Anlagen dafür weltweit im Schnitt wenigstens
   `ausbau_markt_auslastung` (0,85, wie `auslastung_normal`: darunter senken die Anbieter ihre Preise) ihrer Leistung planen (geplante Auslastung, gewichtet mit der
-  Leistung, ohne stillgelegte und unfertige; ohne Anlagen 1). Vorher baute der billigste
-  Hersteller weiter aus, solange er selbst ausverkauft war – die anderen standen still,
-  und die Preise fielen auf die Vollkosten.
+  Leistung, ohne stillgelegte und unfertige; ohne Anlagen 1) oder der Markt teuer ist
+  (Käufer zahlten im Vormonat wenigstens `einstieg_preisfaktor` · Richtpreis, wie beim
+  Einstieg, M33). Vorher baute der billigste Hersteller weiter aus, solange er selbst
+  ausverkauft war – die anderen standen still, und die Preise fielen auf die Vollkosten.
+  Ohne die Ausnahme blieb Kautschuk 1990–2026 stecken: Synthesewerke ohne Benzin planten
+  wenig, die vollen Plantagen durften nicht wachsen (Preis bis 2,5 × Richtpreis).
 - **Auto:** `kaufschwelle` 16 statt 80 – bei einem Viertel des Richtpreises kauft die
   Hälfte einer Schicht, wenn ihr Einkommen je Kopf rund das Anderthalbfache des Autos
   beträgt (mit 10 baute die Welt 1929 umgerechnet 9,3 Mio. Autos, real 5,3 Mio.).
 - **Nägel der Startwerkstatt:** Richtpreis 1.800 statt 1.900 USD/t, Arbeit 14 + 3 statt
   8 + 2 Stunden je t (Zuführen, Sortieren, Packen).
 - **Protokoll:** Die Leistung im Balance-Protokoll zählt stillgelegte Anlagen nicht mehr.
+
+## W3 – Zölle
+
+Lastenheft §8.2, offener Punkt 2. Daten: `parameter/zoelle.yaml`. Kern: Modul `tariffs`.
+
+### Zollsatz
+
+Für eine Ware der Warengruppe *g* aus Land *a* nach Land *b* im Jahr *t*:
+
+    z(a, b, g, t) = 0                                   wenn a = b
+                  = gesperrt                            bei einer Handelssperre zwischen a und b
+                  = Z_b(t) · f_g · min(1, Faktoren der Zonen, in denen a und b zugleich sind)
+
+- Z_b(t): Durchschnittszoll des Einfuhrlands (`laender`, sonst `standard`), linear
+  zwischen den Jahren; ab 2027 zusätzlich die Dynamik (unten), höchstens `maximum`.
+- f_g: Faktor der Warengruppe (`warengruppen`, ohne Angabe 1); einzelne Produkte können
+  einen eigenen Faktor haben (`produkte`): Rohkautschuk, Rohbaumwolle, Chilesalpeter,
+  Stickstoffdünger und die Batterierohstoffe sind zollfrei wie fast überall in der
+  Geschichte – mit Zoll bekam die Welt 1900 nur 42 % des Düngers, weil der Salpeter aus
+  Chile mit Fracht und Zoll über der Preisgrenze lag.
+- Zonen (`zonen`): Mitglied von Beitritt bis vor Austritt; zwischen zwei Mitgliedern
+  derselben Zone gilt der Zoll mal ihren `faktor` (EU, EFTA, NAFTA, Mercosur: 0; Empire-
+  Präferenz 1932–1973: 0,5; RGW: 0,3).
+- Handelssperren (`sperren`): kein Handel zwischen den beiden Ländern in den Jahren.
+
+### Wirkung
+
+- **Händler (M8):** Einstandspreis = (Preis am Ursprung + Fracht) · (1 + z). Bei einer
+  Sperre kaufen Händler dort nicht ein. Der höhere Einstand hebt den Preis der Einfuhren und
+  schützt die Hersteller im Land.
+- **Eigene Lieferungen** zwischen Standorten in verschiedenen Ländern (`ShipGoods`): Zoll =
+  Wert der Ware (Herstellkosten im Lager) · z, gebucht als Kostenart Zölle beim
+  Empfänger-Standort; bei einer Sperre lehnt der Befehl ab.
+- **KI-Planung:** Wo die KI Fracht zwischen Ländern vergleicht (Standortwahl, Engpässe),
+  zählt der Zoll auf den Richtpreis im Zielland dazu.
+
+### Dynamik nach 2026
+
+Jedes Jahr am 1. Januar ab 2027 ändert sich der Zoll jedes Landes um eine gleichverteilte
+Zufallszahl mit Mittelwert 0 und Standardabweichung `standardabweichung` · Faktor der
+gewählten Stufe (Zufallsstrom „Zölle“), der
+Zoll bleibt zwischen `minimum` und `maximum`. Die Stufe wählt der Spieler beim neuen Spiel
+(`keine`, `normal`, `stark`); ohne Wahl gilt `standard`.

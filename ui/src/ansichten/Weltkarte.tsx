@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatGeld, formatPreis, formatZahl, landName } from "../format";
+import { formatGeld, formatPreis, formatProzent, formatZahl, landName } from "../format";
 import type { KartenLand, Kern, Lagerstaette, WeltMarkt, Weltkarte } from "../kern";
 import welt from "../karte/welt.json";
 import { t } from "../texte";
@@ -9,21 +9,24 @@ import { Laenderdetail } from "./Laenderdetail";
 
 const pfade = welt as Record<string, string>;
 
-export type Ebene = "absatz" | "lohn" | "bip" | "bevoelkerung" | "rohstoffe" | "standorte";
-const EBENEN: Ebene[] = ["absatz", "lohn", "bip", "bevoelkerung", "rohstoffe", "standorte"];
+export type Ebene = "absatz" | "lohn" | "bip" | "bevoelkerung" | "zoll" | "rohstoffe" | "standorte";
+const EBENEN: Ebene[] = ["absatz", "lohn", "bip", "bevoelkerung", "zoll", "rohstoffe", "standorte"];
 const STUFEN = 5;
 /** Price against the reference price: limits of the classes of the sales layer. */
 const PREISSTUFEN = [0.9, 1.0, 1.1, 1.3];
 
-const wert: Record<"lohn" | "bip" | "bevoelkerung", (l: KartenLand) => number> = {
+type Wertebene = "lohn" | "bip" | "bevoelkerung" | "zoll";
+const wert: Record<Wertebene, (l: KartenLand) => number> = {
   lohn: (l) => l.wage_usd,
   bip: (l) => l.gdp_per_capita_usd,
   bevoelkerung: (l) => l.population,
+  zoll: (l) => l.tariff ?? 0,
 };
-const anzeige: Record<"lohn" | "bip" | "bevoelkerung", (v: number) => string> = {
+const anzeige: Record<Wertebene, (v: number) => string> = {
   lohn: (v) => formatPreis(v, "h"),
   bip: (v) => formatGeld(v),
   bevoelkerung: (v) => formatZahl(v),
+  zoll: (v) => t("karte.zoll_titel", { zoll: formatProzent(v) }),
 };
 
 /** Class limits by quantiles, so every class holds about as many countries. */

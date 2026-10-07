@@ -453,6 +453,11 @@ pub enum CommandError {
     SameHeadquarters,
     /// No such city in the country (W2).
     UnknownCity,
+    /// An embargo forbids trade between the two countries (W3).
+    Embargo {
+        from: String,
+        to: String,
+    },
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -605,6 +610,9 @@ impl CommandError {
             CommandError::UnknownCountry => e(keys::COMMAND_UNKNOWN_COUNTRY),
             CommandError::SameHeadquarters => e(keys::COMMAND_SAME_HEADQUARTERS),
             CommandError::UnknownCity => e(keys::COMMAND_UNKNOWN_CITY),
+            CommandError::Embargo { from, to } => e(keys::COMMAND_EMBARGO)
+                .with("von", Param::TextKey(format!("land.{from}")))
+                .with("nach", Param::TextKey(format!("land.{to}"))),
             CommandError::RelocationUnderWay { until } => {
                 e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
             }
@@ -1193,15 +1201,30 @@ fn run(
                         })?,
                 )
             };
-            let available = source.inventory.get(product).map_or(0.0, |s| s.quantity);
+            let rate = state
+                .tariffs
+                .for_product(catalog, from_country, to_country, *product)
+                .ok_or_else(|| CommandError::Embargo {
+                    from: catalog.countries.key(from_country).to_owned(),
+                    to: catalog.countries.key(to_country).to_owned(),
+                })?;
+            let held = source.inventory.get(product);
+            let available = held.map_or(0.0, |s| s.quantity);
             if *quantity > available + 1e-9 {
                 return Err(CommandError::NotEnoughGoods { available });
             }
+            // Customs on the value of the goods in stock (W3).
+            let customs = held.map_or(Money::ZERO, |s| {
+                s.value
+                    .scale(rate * (*quantity / s.quantity.max(1e-12)).min(1.0))
+            });
             let freight = if let Some((per_unit, days)) = route {
                 let cost = Money::times(per_unit, *quantity);
                 let company = state.company_mut(actor).expect("checked above");
-                if company.ledger.cash() < cost {
-                    return Err(CommandError::NotEnoughCash { needed: cost });
+                if company.ledger.cash() < cost + customs {
+                    return Err(CommandError::NotEnoughCash {
+                        needed: cost + customs,
+                    });
                 }
                 company.ledger.expense(
                     CostType::Transport,
@@ -1209,6 +1232,14 @@ fn run(
                     Account::Cash,
                     cost,
                 );
+                if customs > Money::ZERO {
+                    company.ledger.expense(
+                        CostType::Customs,
+                        CostCenter::product(*to, *product),
+                        Account::Cash,
+                        customs,
+                    );
+                }
                 Some(days)
             } else {
                 None

@@ -3530,3 +3530,113 @@ fn staedte_werden_geprueft() {
     );
     assert_eq!(f.path.to_string(), "zentrale.stadt.anteil_zentralen");
 }
+
+const ZOELLE: &str = "\
+zoelle:
+  standard: {1900: 0.15, 2026: 0.06}
+  laender:
+    SWE: {1900: 0.1, 2026: 0.03}
+  warengruppen: {erze: 0.1}
+  zonen:
+    - id: nordisch
+      faktor: 0
+      mitglieder: {SWE: [1960]}
+  sperren: []
+  dynamik:
+    standardabweichung: 0.01
+    minimum: 0
+    maximum: 0.6
+    stufen: [{id: keine, faktor: 0}, {id: normal, faktor: 1}]
+    standard: normal
+  annaeherung: true
+";
+
+const ZOLL_TEXTE: &str = "\
+zoll.zone.nordisch: Nordisch
+zoll.dynamik.keine: Fest
+zoll.dynamik.normal: Normal
+";
+
+#[test]
+fn zoelle_werden_geprueft() {
+    let datei = "parameter/zoelle.yaml";
+    let zoelle = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &ZOELLE.replacen(alt, neu, 1))
+            .datei("texte/de/zoelle.yaml", ZOLL_TEXTE)
+            .laden()
+    };
+    let gut = zoelle("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let catalog = &gut.data.as_ref().unwrap().catalog;
+    let t = &catalog.tariffs;
+    assert!(t.enabled());
+    assert_eq!(t.last_year(), 2026);
+    assert!((t.groups[0] - 0.1).abs() < 1e-12);
+    assert!(t.countries[0].is_some());
+    assert!(t.products.iter().all(Option::is_none));
+    assert_eq!(t.zones[0].members[0].1, 1960);
+    assert!((t.default_factor() - 1.0).abs() < 1e-12);
+
+    for (alt, neu, meldung) in [
+        (
+            "    SWE: {1900",
+            "    NOR: {1900",
+            "Land „NOR“ ist nicht definiert.",
+        ),
+        (
+            "{erze: 0.1}",
+            "{holz: 0.1}",
+            "Warengruppe „holz“ ist nicht definiert.",
+        ),
+        (
+            "  zonen:",
+            "  produkte: {kupfer: 0}\n  zonen:",
+            "Produkt „kupfer“ ist nicht definiert.",
+        ),
+        (
+            "SWE: [1960]",
+            "SWE: [1960, 1950]",
+            "„Beitritt“ muss kleiner als „Austritt“ sein.",
+        ),
+        (
+            "SWE: [1960]",
+            "SWE: [1960, 1970, 1980]",
+            "angegeben sind 3 Jahre",
+        ),
+        (
+            "sperren: []",
+            "sperren: [{laender: [SWE, SWE], von: 1950}]",
+            "Eine Handelssperre braucht genau zwei verschiedene Länder.",
+        ),
+        (
+            "standard: normal",
+            "standard: stark",
+            "Stufe „stark“ ist unter „stufen“ nicht aufgeführt.",
+        ),
+        (
+            "{1900: 0.15, 2026",
+            "{1900: 7, 2026",
+            "Wert 7 liegt außerhalb des erlaubten Bereichs 0 bis 5.",
+        ),
+        (
+            "maximum: 0.6",
+            "maximum: 0.6\n    unbekannt: 1",
+            "unbekannt",
+        ),
+    ] {
+        befund(&zoelle(alt, neu), meldung);
+    }
+
+    // Every zone and level needs its text.
+    let ohne_text = Daten::neu().datei(datei, ZOELLE).laden();
+    let f = befund(&ohne_text, "Text „zoll.zone.nordisch“ fehlt");
+    assert_eq!(f.path.to_string(), "zoelle.zonen[0].id");
+    // Twice the section.
+    let doppelt = Daten::neu()
+        .datei(datei, ZOELLE)
+        .datei("parameter/zoelle2.yaml", ZOELLE)
+        .datei("texte/de/zoelle.yaml", ZOLL_TEXTE)
+        .laden();
+    befund(&doppelt, "Abschnitt „zoelle“ darf es nur einmal geben");
+}

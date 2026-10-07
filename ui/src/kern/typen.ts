@@ -20,6 +20,9 @@ export interface Optionen {
   /** How many start-ups there are (SU1); empty without start-ups in the data. */
   startups: { key: string; per_year: number }[];
   default_startups: string | null;
+  /** How the tariffs change after the data (W3; texts `zoll.dynamik.<key>`). */
+  tariffs?: string[];
+  default_tariffs?: string | null;
 }
 
 export interface NeuesSpiel {
@@ -34,6 +37,8 @@ export interface NeuesSpiel {
   research_factor: number;
   /** Key of the frequency of start-ups; none for the default. */
   startups?: string | null;
+  /** Key of the dynamics of the tariffs; none for the default. */
+  tariffs?: string | null;
 }
 
 export interface Anlage {
@@ -264,6 +269,8 @@ export interface KartenLand {
   grid_share: number;
   own_sites: number;
   other_sites: number;
+  /** Average import tariff (share of the value, W3). */
+  tariff?: number;
 }
 
 export interface Lagerstaette {
@@ -318,6 +325,20 @@ export interface Landdetail {
   currency_per_usd: number | null;
   /** Commercial land and free plots (null without plots). */
   land: Gewerbeflaeche | null;
+  /** Import tariffs, trade zones and embargoes (W3; null without tariffs). */
+  tariffs?: Zoelle | null;
+}
+
+/** Import tariffs of a country (W3). */
+export interface Zoelle {
+  /** Average import tariff (share of the value). */
+  average: number;
+  /** Tariff per goods group (key, share), highest first. */
+  groups: [string, number][];
+  /** Trade zones (texts `zoll.zone.<key>`). */
+  zones: string[];
+  /** Countries under an embargo with this one. */
+  embargoes: string[];
 }
 
 export interface Ursache {

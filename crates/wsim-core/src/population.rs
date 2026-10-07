@@ -472,16 +472,18 @@ fn stock_traders(state: &mut GameState, catalog: &Catalog) {
             if gap <= 1e-9 {
                 continue;
             }
-            // Imports cost what the cheapest exporting country asks plus transport, so
-            // that the traders keep buying when the first stock is sold.
+            // Imports cost what the cheapest exporting country asks plus transport and
+            // customs, so that the traders keep buying when the first stock is sold.
             let local = crate::market::local_reference(catalog, state, country, product);
             let (cost, days) = exporters
                 .iter()
                 .filter_map(|&from| {
+                    let tariff = state.tariffs.for_product(catalog, from, country, product)?;
                     let (transport, days) =
                         state.routes.for_product(catalog, product, from, country)?;
-                    let cost =
-                        crate::market::local_reference(catalog, state, from, product) + transport;
+                    let cost = (crate::market::local_reference(catalog, state, from, product)
+                        + transport)
+                        .scale(1.0 + tariff);
                     Some((cost, days))
                 })
                 .min()

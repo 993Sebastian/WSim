@@ -118,6 +118,12 @@ pub struct NewGameOptions {
     /// How many start-ups there are (SU1); empty without start-ups in the data.
     pub startups: Vec<FrequencyOption>,
     pub default_startups: Option<String>,
+    /// How the tariffs change after the data (W3): keys of the choices; empty without
+    /// tariffs in the data.
+    #[serde(default)]
+    pub tariffs: Vec<String>,
+    #[serde(default)]
+    pub default_tariffs: Option<String>,
 }
 
 pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
@@ -200,6 +206,29 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             })
             .flatten()
             .map(|f| f.0.clone()),
+        tariffs: if catalog.tariffs.enabled() {
+            catalog
+                .tariffs
+                .dynamics
+                .levels
+                .iter()
+                .map(|(key, _)| key.clone())
+                .collect()
+        } else {
+            Vec::new()
+        },
+        default_tariffs: catalog
+            .tariffs
+            .enabled()
+            .then(|| {
+                catalog
+                    .tariffs
+                    .dynamics
+                    .levels
+                    .get(catalog.tariffs.dynamics.default_level)
+            })
+            .flatten()
+            .map(|l| l.0.clone()),
     }
 }
 
@@ -859,6 +888,9 @@ pub struct MapCountry {
     pub grid_share: f64,
     pub own_sites: u32,
     pub other_sites: u32,
+    /// Average import tariff (share of the value, W3).
+    #[serde(default)]
+    pub tariff: f64,
 }
 
 /// A deposit on the world map, shown at its country's capital.
@@ -918,6 +950,7 @@ pub fn world_map(game: &Game) -> WorldMap {
                 grid_share: v.grid_share,
                 own_sites: own[id.index()],
                 other_sites: other[id.index()],
+                tariff: state.tariffs.average(id),
             }
         })
         .collect();
@@ -1022,6 +1055,22 @@ pub struct CountryDetail {
     /// Commercial land and its free plots (M35); `None` without plots.
     #[serde(default)]
     pub land: Option<LandView>,
+    /// Import tariffs, trade zones and embargoes (W3); `None` without tariffs.
+    #[serde(default)]
+    pub tariffs: Option<TariffView>,
+}
+
+/// Import tariffs of a country (W3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TariffView {
+    /// Average import tariff before goods group and zones (share of the value).
+    pub average: f64,
+    /// Tariff per goods group (keys, texts `warengruppe.<key>`), highest first.
+    pub groups: Vec<(String, f64)>,
+    /// Trade zones the country belongs to (texts `zoll.zone.<key>`).
+    pub zones: Vec<String>,
+    /// Countries it has an embargo with.
+    pub embargoes: Vec<String>,
 }
 
 /// Commercial land of a country (M35).
@@ -1207,6 +1256,36 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
     let map = world_map(game);
     let (currencies, currency_per_usd) = country_currencies(game, id);
     let land = land_view(game, id);
+    let year = state.date.year();
+    let tariffs = catalog.tariffs.enabled().then(|| {
+        let average = state.tariffs.average(id);
+        let mut groups: Vec<(String, f64)> = catalog
+            .goods_groups
+            .ids()
+            .map(|g| {
+                let factor = catalog
+                    .tariffs
+                    .groups
+                    .get(g.index())
+                    .copied()
+                    .unwrap_or(1.0);
+                (catalog.goods_groups.key(g).to_owned(), average * factor)
+            })
+            .collect();
+        groups.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+        TariffView {
+            average,
+            groups,
+            zones: crate::tariffs::zones_of(catalog, id, year)
+                .into_iter()
+                .map(str::to_owned)
+                .collect(),
+            embargoes: crate::tariffs::embargoes_of(catalog, id, year)
+                .into_iter()
+                .map(|c| catalog.countries.key(c).to_owned())
+                .collect(),
+        }
+    });
     Some(CountryDetail {
         key: key.to_owned(),
         members: catalog.countries.get(id).members.clone(),
@@ -1240,6 +1319,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         currencies,
         currency_per_usd,
         land,
+        tariffs,
     })
 }
 
@@ -1268,6 +1348,7 @@ mod tests {
             market_scale: 1.0,
             ai: AiSettings::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         };
         Game::new(catalog, settings).expect("valid settings")
     }

@@ -234,6 +234,8 @@ impl Game {
             judgments: Vec::new(),
             ventures: Vec::new(),
             next_venture: 0,
+            tariff_offsets: PerId::default(),
+            tariffs: Default::default(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -438,6 +440,9 @@ impl Game {
             report
                 .messages
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
+            if next.ordinal() == 1 {
+                crate::tariffs::new_year(&mut self.state, &self.catalog, next.year());
+            }
             self.state.refresh_countries(&self.catalog);
             crate::management::month_start(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::central::month_start(
@@ -747,6 +752,7 @@ mod tests {
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         };
         let mut game = Game::new(catalog.clone(), settings).unwrap();
         if site_in_bbb {

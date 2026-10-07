@@ -1598,7 +1598,8 @@ fn supply_own(
 }
 
 /// Freight per unit of a delivery between two of a company's sites, as `TransferGoods`
-/// books it; `None` without a route.
+/// books it, with the customs on the reference price at the destination (W3); `None`
+/// without a route or under an embargo.
 fn delivery_freight(
     catalog: &Catalog,
     state: &GameState,
@@ -1611,10 +1612,28 @@ fn delivery_freight(
     }
     let sea = crate::plots::sea_freight(catalog, state, a)
         .min(crate::plots::sea_freight(catalog, state, b));
-    state
-        .routes
-        .for_product_via(catalog, product, (a.country, b.country), sea)
-        .map(|(per_unit, _)| per_unit)
+    let tariff = state
+        .tariffs
+        .for_product(catalog, a.country, b.country, product)?;
+    let (per_unit, _) =
+        state
+            .routes
+            .for_product_via(catalog, product, (a.country, b.country), sea)?;
+    Some(per_unit + customs(state, catalog, product, b.country, tariff))
+}
+
+/// Customs per unit of a product imported into a country, on its reference price there.
+fn customs(
+    state: &GameState,
+    catalog: &Catalog,
+    product: ProductId,
+    to: CountryId,
+    tariff: f64,
+) -> Money {
+    if tariff <= 0.0 {
+        return Money::ZERO;
+    }
+    market::local_reference(catalog, state, to, product).scale(tariff)
 }
 
 /// Running cost per day of a company's sites at their planned production.
@@ -1803,7 +1822,8 @@ fn expand(
                 && margin >= min_margin
                 && add.min(cap) + 1e-9 >= smallest
                 && !held_back.contains(&product)
-                && market_load(state, catalog, product, date) >= b.expand_market_load
+                && (market_load(state, catalog, product, date) >= b.expand_market_load
+                    || is_dear(state, catalog, product))
             {
                 found.push((margin, site, product, add.min(cap), cap));
             }
@@ -3528,7 +3548,8 @@ fn is_dear(state: &GameState, catalog: &Catalog, product: ProductId) -> bool {
     s.sold > 1e-9 && s.paid >= s.reference * catalog.ai_model.behavior.entry_price_factor
 }
 
-/// Freight per unit of a product (USD); unreachable countries cost infinitely much.
+/// Freight and customs per unit of a product (USD); unreachable countries and those
+/// under an embargo cost infinitely much.
 fn freight(
     state: &GameState,
     catalog: &Catalog,
@@ -3536,10 +3557,15 @@ fn freight(
     from: CountryId,
     to: CountryId,
 ) -> f64 {
+    let Some(tariff) = state.tariffs.for_product(catalog, from, to, product) else {
+        return f64::INFINITY;
+    };
     state
         .routes
         .for_product(catalog, product, from, to)
-        .map_or(f64::INFINITY, |(cost, _)| cost.to_usd())
+        .map_or(f64::INFINITY, |(cost, _)| {
+            (cost + customs(state, catalog, product, to, tariff)).to_usd()
+        })
 }
 
 /// The deposit of a raw material where a new concession goes: discovered, with a free
@@ -4334,6 +4360,7 @@ mod tests {
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         };
         let mut game = crate::game::Game::new(catalog.clone(), settings).expect("valid");
         let state = game.state_mut();

@@ -188,6 +188,7 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_COUNTRY: &str = "fehler.befehl.land_unbekannt";
     pub const COMMAND_SAME_HEADQUARTERS: &str = "fehler.befehl.hauptsitz_gleich";
     pub const COMMAND_UNKNOWN_CITY: &str = "fehler.befehl.stadt_unbekannt";
+    pub const COMMAND_EMBARGO: &str = "fehler.befehl.handelssperre";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -478,6 +479,7 @@ pub mod keys {
         COMMAND_UNKNOWN_COUNTRY,
         COMMAND_SAME_HEADQUARTERS,
         COMMAND_UNKNOWN_CITY,
+        COMMAND_EMBARGO,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,

@@ -2140,3 +2140,73 @@ pub struct RawInventor {
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
 }
+
+/// Tariffs and trade embargoes (`parameter/zoelle.yaml`, W3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTariffs {
+    #[serde(rename = "standard")]
+    pub default: RawSeries,
+    #[serde(rename = "laender", default)]
+    pub countries: BTreeMap<String, RawSeries>,
+    #[serde(rename = "warengruppen", default)]
+    pub groups: BTreeMap<String, f64>,
+    /// Product → factor instead of its goods group's.
+    #[serde(rename = "produkte", default)]
+    pub products: BTreeMap<String, f64>,
+    #[serde(rename = "zonen", default)]
+    pub zones: Vec<RawTariffZone>,
+    #[serde(rename = "sperren", default)]
+    pub embargoes: Vec<RawEmbargo>,
+    #[serde(rename = "dynamik")]
+    pub dynamics: RawTariffDynamics,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTariffZone {
+    pub id: String,
+    #[serde(rename = "faktor")]
+    pub factor: f64,
+    /// Member → [entry year] or [entry year, exit year].
+    #[serde(rename = "mitglieder")]
+    pub members: BTreeMap<String, Vec<i32>>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEmbargo {
+    #[serde(rename = "laender")]
+    pub countries: Vec<String>,
+    #[serde(rename = "von")]
+    pub from: i32,
+    #[serde(rename = "bis", default)]
+    pub until: Option<i32>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTariffDynamics {
+    #[serde(rename = "standardabweichung")]
+    pub deviation: f64,
+    #[serde(rename = "minimum")]
+    pub min: f64,
+    #[serde(rename = "maximum")]
+    pub max: f64,
+    #[serde(rename = "stufen")]
+    pub levels: Vec<RawTariffLevel>,
+    #[serde(rename = "standard")]
+    pub default: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTariffLevel {
+    pub id: String,
+    #[serde(rename = "faktor")]
+    pub factor: f64,
+}

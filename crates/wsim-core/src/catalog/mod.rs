@@ -69,6 +69,8 @@ pub struct Catalog {
     pub central: CentralModel,
     /// Start-ups (SU1–SU3).
     pub ventures: VentureModel,
+    /// Import tariffs, trade zones and embargoes (W3); without a series there are none.
+    pub tariffs: TariffModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -361,6 +363,77 @@ pub struct VentureModel {
     pub keep_years: u32,
     pub inventors: Vec<Inventor>,
     pub provenance: Provenance,
+}
+
+/// Import tariffs (W3, docs/FORMELN.md). Without `default` there are no tariffs.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TariffModel {
+    /// Average import tariff of countries without their own series (share of the value).
+    pub default: Option<TimeSeries>,
+    /// Own series per country (index = `CountryId`).
+    pub countries: Vec<Option<TimeSeries>>,
+    /// Factor per goods group (index = `GoodsGroupId`), 1 without an entry.
+    pub groups: Vec<f64>,
+    /// Factor of single products instead of their group's (index = `ProductId`), e.g. 0
+    /// for duty-free fertilizer.
+    pub products: Vec<Option<f64>>,
+    pub zones: Vec<TariffZone>,
+    pub embargoes: Vec<Embargo>,
+    pub dynamics: TariffDynamics,
+    pub provenance: Provenance,
+}
+
+/// Countries trading at a fraction of the tariff among themselves.
+#[derive(Clone, Debug, PartialEq)]
+pub struct TariffZone {
+    pub key: String,
+    pub factor: f64,
+    /// Member, year of entry and year of exit (member before it).
+    pub members: Vec<(CountryId, i32, Option<i32>)>,
+}
+
+/// No trade between two countries from a year until before another.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Embargo {
+    pub countries: (CountryId, CountryId),
+    pub from: i32,
+    pub until: Option<i32>,
+}
+
+/// Random change of the tariffs after the data ends.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TariffDynamics {
+    /// Standard deviation of the yearly change.
+    pub deviation: f64,
+    pub min: f64,
+    pub max: f64,
+    /// Choices of the new game: key (`zoll.dynamik.<key>`) and factor on `deviation`.
+    pub levels: Vec<(String, f64)>,
+    pub default_level: usize,
+}
+
+impl TariffModel {
+    pub fn enabled(&self) -> bool {
+        self.default.is_some()
+    }
+
+    /// The factor of the default dynamics; 1 without choices.
+    pub fn default_factor(&self) -> f64 {
+        self.dynamics
+            .levels
+            .get(self.dynamics.default_level)
+            .map_or(1.0, |l| l.1)
+    }
+
+    /// Last year with data: the dynamics start after it.
+    pub fn last_year(&self) -> i32 {
+        self.default
+            .iter()
+            .chain(self.countries.iter().flatten())
+            .filter_map(|s| s.points().last().map(|p| p.0))
+            .max()
+            .unwrap_or(i32::MAX)
+    }
 }
 
 impl VentureModel {

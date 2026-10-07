@@ -1,0 +1,10 @@
+# Zölle und Handelszonen (W3)
+zoll.zone.ewg: EWG/EU
+zoll.zone.efta: EFTA
+zoll.zone.nafta: NAFTA
+zoll.zone.mercosur: Mercosur
+zoll.zone.empire: Empire-Präferenz
+zoll.zone.rgw: RGW
+zoll.dynamik.keine: Feste Zölle
+zoll.dynamik.normal: Normal
+zoll.dynamik.stark: Stark schwankend

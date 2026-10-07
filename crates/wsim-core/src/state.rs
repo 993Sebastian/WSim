@@ -1521,6 +1521,9 @@ pub struct GameSettings {
     /// Multiplies the start-ups of a year (SU1): none 0, few 0.5, normal 1, many 2.
     #[serde(default = "one")]
     pub ventures: f64,
+    /// Multiplies the yearly change of the tariffs after the data (W3).
+    #[serde(default = "one")]
+    pub tariff_dynamics: f64,
 }
 
 /// Number and character of the AI companies; difficulty presets fill these values.
@@ -1631,6 +1634,13 @@ pub struct GameState {
     /// Markets where traders hold imported goods; derived, not saved.
     #[serde(skip)]
     pub import_markets: BTreeSet<(ProductId, CountryId)>,
+    /// Change of each country's tariff by the dynamics after the data (W3); empty
+    /// before.
+    #[serde(default, skip_serializing_if = "PerId::is_empty")]
+    pub tariff_offsets: PerId<CountryId, f64>,
+    /// Tariffs of the current year; derived, not saved.
+    #[serde(skip)]
+    pub tariffs: crate::tariffs::TariffTable,
     pub player: CompanyId,
     pub game_over: bool,
 }
@@ -1677,6 +1687,10 @@ impl GameState {
         });
         if self.routes.year() != self.date.year() {
             self.routes = Routes::new(catalog, self.date.year(), Some(&self.routes));
+        }
+        if self.tariffs.year() != self.date.year() {
+            self.tariffs =
+                crate::tariffs::TariffTable::new(catalog, self.date.year(), &self.tariff_offsets);
         }
     }
 

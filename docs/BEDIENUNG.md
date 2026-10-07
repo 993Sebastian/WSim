@@ -564,6 +564,9 @@ es mir?“
 - M34/M35: Bei Regionen steht „Umfasst“ mit den Ländern der Region. **Gewerbeflächen**
   zeigt die Fläche des Landes und ihren belegten Anteil, je Lage die Zahl der freien
   Grundstücke, das größte und den Bodenpreis je ha.
+- W3: Kartenebene **Zölle** (Einfuhrzoll im Schnitt, fünf Stufen). Das Länderdetail
+  zeigt unter „Einfuhrzölle“ den Schnitt, die drei höchsten Warengruppen, die
+  Handelszonen des Landes und seine Handelssperren, mit einem Satz zur Wirkung.
 
 ### Rundenbericht
 
@@ -587,6 +590,8 @@ es mir?“
   links neben dem Text.
 - SU1: Unter „Weitere Einstellungen“ die Häufigkeit der Start-ups (keine, wenige, normal,
   viele – mit der Zahl je Jahr), Vorgabe „normal“.
+- W3: Darunter „Zölle nach 2026“ (feste Zölle, normal, stark schwankend), Vorgabe
+  „normal“; bis 2026 folgen die Zölle der Geschichte.
 
 ### Einführung (M20)
 

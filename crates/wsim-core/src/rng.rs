@@ -79,6 +79,10 @@ pub enum Stream {
         product: u32,
         year: u16,
     },
+    /// The change of the tariffs at the start of a year after the data (W3).
+    Tariffs {
+        year: u16,
+    },
 }
 
 impl Stream {
@@ -120,6 +124,7 @@ impl Stream {
                     | (u64::from(product & 0xFFFF) << 16)
                     | u64::from(year)
             }
+            Stream::Tariffs { year } => (15 << 56) | u64::from(year),
         }
     }
 }

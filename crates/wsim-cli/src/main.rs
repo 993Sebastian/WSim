@@ -140,6 +140,9 @@ struct RunArgs {
     /// Häufigkeit der Start-ups (Schlüssel aus startups.yaml, z. B. keine, normal, viele)
     #[arg(long)]
     startups: Option<String>,
+    /// Entwicklung der Zölle nach 2026 (Schlüssel aus zoelle.yaml: keine, normal, stark)
+    #[arg(long)]
+    zoelle: Option<String>,
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
@@ -426,6 +429,26 @@ fn venture_factor(catalog: &Catalog, args: &RunArgs) -> Result<f64, String> {
     }
 }
 
+/// The factor of the chosen dynamics of the tariffs, the default without a choice.
+fn tariff_factor(catalog: &Catalog, args: &RunArgs) -> Result<f64, String> {
+    let d = &catalog.tariffs.dynamics;
+    match &args.zoelle {
+        None => Ok(catalog.tariffs.default_factor()),
+        Some(key) => d
+            .levels
+            .iter()
+            .find(|(k, _)| k == key)
+            .map(|l| l.1)
+            .ok_or_else(|| {
+                let keys: Vec<&str> = d.levels.iter().map(|l| l.0.as_str()).collect();
+                format!(
+                    "Entwicklung der Zölle „{key}“ gibt es nicht (möglich: {}).",
+                    keys.join(", ")
+                )
+            }),
+    }
+}
+
 fn run(args: &RunArgs) -> Result<(), String> {
     let data = load_data(&args.daten)?;
     let texts = &data.texts;
@@ -459,6 +482,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 market_scale: 1.0,
                 ai: ai_settings(&catalog, args)?,
                 ventures: venture_factor(&catalog, args)?,
+                tariff_dynamics: tariff_factor(&catalog, args)?,
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }
@@ -553,6 +577,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         difficulty: options.default_difficulty.clone(),
         research_factor: 1.0,
         startups: None,
+        tariffs: None,
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
@@ -765,6 +790,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         difficulty: options.default_difficulty.clone(),
         research_factor: 1.0,
         startups: None,
+        tariffs: None,
     };
     session.new_game(&request).map_err(message)?;
     for role in ["leitung", "finanzen"] {

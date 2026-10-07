@@ -99,6 +99,7 @@ fn game_with(catalog: Catalog, seed: u64, ventures: f64) -> Game {
         market_scale: 1.0,
         ai: Default::default(),
         ventures,
+        tariff_dynamics: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }

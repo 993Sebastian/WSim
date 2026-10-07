@@ -48,6 +48,9 @@ pub struct NewGameRequest {
     /// How many start-ups (SU1): key of a choice; none for the default.
     #[serde(default)]
     pub startups: Option<String>,
+    /// How the tariffs change after the data (W3): key of a choice; none for the default.
+    #[serde(default)]
+    pub tariffs: Option<String>,
 }
 
 /// One save in the list of the load dialog.
@@ -232,6 +235,17 @@ impl<S: SaveStore> Session<S> {
                 .map(|f| f.1)
                 .ok_or_else(|| error(keys::UNKNOWN_FREQUENCY))?,
         };
+        let tariff_dynamics = match &request.tariffs {
+            None => c.tariffs.default_factor(),
+            Some(key) => c
+                .tariffs
+                .dynamics
+                .levels
+                .iter()
+                .find(|(k, _)| k == key)
+                .map(|l| l.1)
+                .ok_or_else(|| error(keys::UNKNOWN_TARIFF_DYNAMICS))?,
+        };
         let settings = GameSettings {
             seed: request.seed,
             start_year: request.start_year,
@@ -247,6 +261,7 @@ impl<S: SaveStore> Session<S> {
                 aggressiveness: difficulty.aggressiveness,
             },
             ventures,
+            tariff_dynamics,
         };
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&game);
@@ -594,6 +609,7 @@ pub mod keys {
     pub const UNKNOWN_START_FORM: &str = "fehler.sitzung.unbekannte_startform";
     pub const UNKNOWN_DIFFICULTY: &str = "fehler.sitzung.unbekannte_schwierigkeit";
     pub const UNKNOWN_FREQUENCY: &str = "fehler.sitzung.unbekannte_haeufigkeit";
+    pub const UNKNOWN_TARIFF_DYNAMICS: &str = "fehler.sitzung.unbekannte_zolldynamik";
     pub const UNKNOWN_ROUND_LENGTH: &str = "fehler.sitzung.unbekannte_rundenlaenge";
     pub const INVALID_SAVE_NAME: &str = "fehler.sitzung.name_ungueltig";
     pub const SAVE_FAILED: &str = "fehler.sitzung.speichern";
@@ -611,6 +627,7 @@ pub mod keys {
         UNKNOWN_START_FORM,
         UNKNOWN_DIFFICULTY,
         UNKNOWN_FREQUENCY,
+        UNKNOWN_TARIFF_DYNAMICS,
         UNKNOWN_ROUND_LENGTH,
         INVALID_SAVE_NAME,
         SAVE_FAILED,

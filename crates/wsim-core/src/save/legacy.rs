@@ -130,6 +130,7 @@ pub(super) fn decode_v2(
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         },
         date: s.date,
         world_rng: s.world_rng,
@@ -158,6 +159,8 @@ pub(super) fn decode_v2(
         judgments: Vec::new(),
         ventures: Vec::new(),
         next_venture: 0,
+        tariff_offsets: Default::default(),
+        tariffs: Default::default(),
         player: s.player,
         game_over: s.game_over,
     };

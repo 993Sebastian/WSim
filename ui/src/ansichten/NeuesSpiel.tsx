@@ -47,6 +47,7 @@ export function NeuesSpielAnsicht({
           company_name: "",
           difficulty: o.default_difficulty,
           startups: o.default_startups,
+          tariffs: o.default_tariffs ?? null,
         });
         // Year and seed name something: no thousands separators.
         setZahlen({
@@ -243,6 +244,23 @@ export function NeuesSpielAnsicht({
                   ))}
                 </select>
                 <small className="feld-hilfe">{t("neu.startups_hilfe")}</small>
+              </label>
+            )}
+            {(optionen.tariffs ?? []).length > 0 && (
+              <label>
+                {t("neu.zoelle")}
+                <select
+                  id="zoelle"
+                  value={werte.tariffs ?? ""}
+                  onChange={(e) => setze("tariffs", e.target.value)}
+                >
+                  {(optionen.tariffs ?? []).map((k) => (
+                    <option key={k} value={k}>
+                      {t(`zoll.dynamik.${k}`)}
+                    </option>
+                  ))}
+                </select>
+                <small className="feld-hilfe">{t("neu.zoelle_hilfe")}</small>
               </label>
             )}
           </div>

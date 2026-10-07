@@ -152,6 +152,7 @@ mod tests {
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         };
         let mut game = Game::new(catalog, settings).unwrap();
         let state = game.state_mut();

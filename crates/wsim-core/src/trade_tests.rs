@@ -36,6 +36,7 @@ fn new_game(catalog: Catalog) -> Game {
         market_scale: 1.0,
         ai: Default::default(),
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -500,4 +501,105 @@ fn traders_bring_cheap_goods_to_a_price_island() {
     let (some, sold_with, kept_with) = imported(0.25);
     assert!(some > 0.1 * sold_with, "{some} of {sold_with}");
     assert!(kept_with > kept, "the dear seller keeps more stock");
+}
+
+/// The trading catalog with one flat import tariff for all countries (W3), and an
+/// embargo between AAA and BBB if wanted.
+fn with_tariff(rate: f64, embargo: bool) -> Catalog {
+    use crate::catalog::{Embargo, TariffModel};
+    use crate::time_series::TimeSeries;
+    let mut catalog = test_support::trading();
+    let (a, b) = (
+        catalog.countries.id("AAA").unwrap(),
+        catalog.countries.id("BBB").unwrap(),
+    );
+    catalog.tariffs = TariffModel {
+        default: Some(TimeSeries::new(vec![(1900, rate)]).unwrap()),
+        countries: vec![None; catalog.countries.len()],
+        groups: vec![1.0; catalog.goods_groups.len()],
+        embargoes: if embargo {
+            vec![Embargo {
+                countries: (a, b),
+                from: 1900,
+                until: None,
+            }]
+        } else {
+            Vec::new()
+        },
+        ..TariffModel::default()
+    };
+    catalog
+}
+
+#[test]
+fn transfer_abroad_pays_customs() {
+    let mut game = new_game(with_tariff(0.2, false));
+    let player = game.player();
+    let home = warehouse(&mut game, player, "AAA", 100.0);
+    let abroad = warehouse(&mut game, player, "BBB", 0.0);
+    let product = iron(&game);
+    game.apply(Command::TransferGoods {
+        from: home,
+        to: abroad,
+        product,
+        quantity: 100.0,
+    })
+    .unwrap();
+    // 100 t worth 1 USD each, 20 % customs.
+    let ledger = &game.state().companies[player.index()].ledger;
+    assert_eq!(ledger.month.by_type[&CostType::Customs], -usd(20.0));
+    assert!(ledger.is_balanced());
+    assert!(inventory_matches(&game, player));
+}
+
+#[test]
+fn an_embargo_refuses_transfers_and_stops_traders() {
+    let mut game = new_game(with_tariff(0.0, true));
+    let player = game.player();
+    let home = warehouse(&mut game, player, "AAA", 100_000.0);
+    let abroad = warehouse(&mut game, player, "BBB", 0.0);
+    let product = iron(&game);
+    let err = game
+        .apply(Command::TransferGoods {
+            from: home,
+            to: abroad,
+            product,
+            quantity: 5.0,
+        })
+        .unwrap_err();
+    assert!(matches!(err, CommandError::Embargo { .. }), "{err:?}");
+    sell_fixed(&mut game, home, 50.0);
+    days(&mut game, 120);
+    let b = country(&game, "BBB");
+    assert_eq!(
+        game.state().markets.get(product).get(b).last_month.imported,
+        0.0
+    );
+}
+
+#[test]
+fn tariffs_raise_the_price_of_imports() {
+    let price_in_b = |rate: f64| {
+        let mut game = new_game(with_tariff(rate, false));
+        let player = game.player();
+        let site = warehouse(&mut game, player, "AAA", 100_000.0);
+        sell_fixed(&mut game, site, 50.0);
+        days(&mut game, 240);
+        let product = iron(&game);
+        let (a, b) = (country(&game, "AAA"), country(&game, "BBB"));
+        let state = game.state();
+        assert!(state.markets.get(product).get(b).last_month.imported > 0.0);
+        let (transport, _) = state
+            .routes
+            .for_product(game.catalog(), product, a, b)
+            .unwrap();
+        (
+            market::market_price(game.catalog(), state, b, product),
+            usd(50.0) + transport,
+        )
+    };
+    let (free, landed) = price_in_b(0.0);
+    let (taxed, _) = price_in_b(0.5);
+    assert!(taxed >= landed.scale(1.5), "{taxed:?} < {landed:?} · 1.5");
+    assert!(taxed > free, "{taxed:?} vs {free:?}");
 }

@@ -703,3 +703,17 @@ pub fn development_field_missing(product: &str, branch: &str) -> String {
 pub fn inventors_without_ventures() -> String {
     "Ohne Abschnitt „startups“ gibt es keine Start-ups; die Erfinder bleiben ungenutzt.".into()
 }
+
+pub fn tariff_level_unknown(key: &str) -> String {
+    format!("Stufe „{key}“ ist unter „stufen“ nicht aufgeführt.")
+}
+
+pub fn membership_years(count: usize) -> String {
+    format!(
+        "Eine Mitgliedschaft braucht [Beitritt] oder [Beitritt, Austritt]; angegeben sind {count} Jahre."
+    )
+}
+
+pub fn embargo_countries() -> String {
+    "Eine Handelssperre braucht genau zwei verschiedene Länder.".into()
+}

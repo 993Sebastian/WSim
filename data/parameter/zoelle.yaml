@@ -1,0 +1,91 @@
+# Zölle und Handelssperren (W3, Lastenheft §8.2; Formeln: docs/FORMELN.md, Abschnitt W3).
+# Durchschnittlicher Einfuhrzoll eines Landes als Anteil am Warenwert, grob nach der
+# Geschichte (Bairoch 1993, Clemens und Williamson 2004, WTO-Tarifdaten ab 1990). Zwischen
+# den Jahren wird linear gerechnet; nach 2026 verändern sich die Zölle mit der Dynamik,
+# die beim neuen Spiel gewählt wird.
+
+zoelle:
+  # Länder ohne eigene Angabe
+  standard: {1900: 0.15, 1913: 0.15, 1925: 0.18, 1931: 0.30, 1939: 0.30, 1950: 0.25,
+             1960: 0.20, 1975: 0.15, 1990: 0.12, 2000: 0.08, 2010: 0.06, 2026: 0.06}
+  laender:
+    USA: {1900: 0.40, 1913: 0.30, 1916: 0.18, 1923: 0.35, 1931: 0.48, 1935: 0.40, 1947: 0.15,
+          1960: 0.12, 1975: 0.07, 1990: 0.05, 2000: 0.03, 2018: 0.03, 2019: 0.07, 2025: 0.15,
+          2026: 0.15}
+    GBR: {1900: 0.0, 1915: 0.05, 1925: 0.05, 1932: 0.20, 1950: 0.20, 1960: 0.15, 1972: 0.10,
+          2000: 0.04, 2026: 0.04}
+    DEU: {1900: 0.10, 1913: 0.13, 1925: 0.15, 1931: 0.21, 1934: 0.30, 1950: 0.15, 1960: 0.10,
+          1970: 0.08, 1980: 0.06, 2000: 0.04, 2026: 0.04}
+    FRA: {1900: 0.20, 1913: 0.20, 1927: 0.25, 1931: 0.30, 1950: 0.18, 1960: 0.10, 1980: 0.06,
+          2000: 0.04, 2026: 0.04}
+    ITA: {1900: 0.20, 1913: 0.18, 1925: 0.20, 1931: 0.46, 1950: 0.25, 1960: 0.10, 1980: 0.06,
+          2000: 0.04, 2026: 0.04}
+    ESP: {1900: 0.30, 1913: 0.40, 1931: 0.50, 1950: 0.30, 1980: 0.15, 1986: 0.06, 2000: 0.04,
+          2026: 0.04}
+    RUS: {1900: 0.60, 1913: 0.80, 1920: 0.50, 1990: 0.50, 1995: 0.13, 2012: 0.08, 2026: 0.07}
+    JPN: {1900: 0.10, 1913: 0.25, 1931: 0.30, 1950: 0.20, 1970: 0.10, 1990: 0.03, 2026: 0.03}
+    CHN: {1900: 0.05, 1928: 0.05, 1930: 0.10, 1935: 0.25, 1950: 0.50, 1978: 0.50, 1992: 0.40,
+          2001: 0.15, 2010: 0.10, 2026: 0.07}
+    IND: {1900: 0.05, 1924: 0.15, 1931: 0.25, 1950: 0.30, 1980: 0.70, 1990: 0.80, 2000: 0.30,
+          2010: 0.10, 2026: 0.12}
+    BRA: {1900: 0.40, 1930: 0.35, 1960: 0.60, 1990: 0.30, 2000: 0.13, 2026: 0.12}
+    ARG: {1900: 0.25, 1930: 0.30, 1960: 0.50, 1990: 0.15, 2000: 0.13, 2026: 0.12}
+    MEX: {1900: 0.30, 1930: 0.30, 1960: 0.25, 1985: 0.25, 1990: 0.12, 2026: 0.07}
+    CAN: {1900: 0.17, 1930: 0.25, 1950: 0.15, 1990: 0.05, 2026: 0.04}
+    AUS: {1900: 0.10, 1910: 0.20, 1930: 0.40, 1950: 0.25, 1970: 0.25, 1990: 0.12, 2000: 0.04,
+          2026: 0.03}
+  # Faktor je Warengruppe auf den Zoll des Landes: Rohstoffe kaum, Konsumgüter stärker
+  warengruppen: {erze: 0.1, brennstoffe: 0.2, eisen_stahl: 1.0, nichteisenmetalle: 0.5,
+                 holz: 0.3, papier: 0.8, agrarrohstoffe: 0.6, lebensmittel: 1.4,
+                 textilien: 1.4, bekleidung: 1.6, chemie: 0.9, mineraloel: 0.5, gummi: 0.8,
+                 glas_keramik: 1.0, metallwaren: 1.0, maschinen: 0.8, elektro: 1.0,
+                 fahrzeuge: 1.3, moebel_hausrat: 1.2, ruestung: 1.0}
+  # Faktor einzelner Produkte statt dem ihrer Warengruppe: Rohstoffe, die die Einfuhrländer
+  # kaum selbst erzeugten, und Dünger waren fast überall zollfrei (US-Freiliste, Deutsches
+  # Reich, Großbritannien): Rohkautschuk, Rohbaumwolle, Salpeter, Batterierohstoffe.
+  produkte: {kautschuk: 0, baumwolle: 0, chilesalpeter: 0, stickstoffduenger: 0, lithium: 0,
+             kobalt: 0, germanium: 0}
+  # Zonen: zwischen ihren Mitgliedern gilt der Zoll mal faktor (0 = Freihandel), von Beitritt
+  # bis Austritt (Jahre). Ein Land kann in mehreren Zonen sein; es gilt der kleinste Faktor.
+  zonen:
+    - id: ewg                     # EWG, EG, EU (Binnenmarkt ohne Zölle)
+      faktor: 0
+      mitglieder: {BEL: [1958], DEU: [1958], FRA: [1958], ITA: [1958], NLD: [1958],
+                   DNK: [1973], IRL: [1973], GBR: [1973, 2020], GRC: [1981], ESP: [1986],
+                   PRT: [1986], AUT: [1995], FIN: [1995], SWE: [1995], POL: [2004],
+                   CZE: [2004], HUN: [2004], XBA: [2004], ROU: [2007], BGR: [2007]}
+    - id: efta                    # Europäische Freihandelsassoziation
+      faktor: 0
+      mitglieder: {AUT: [1960, 1995], CHE: [1960], DNK: [1960, 1973], NOR: [1960],
+                   PRT: [1960, 1986], SWE: [1960, 1995], GBR: [1960, 1973], FIN: [1986, 1995]}
+    - id: nafta                   # USA–Kanada 1989, NAFTA 1994, USMCA 2020
+      faktor: 0
+      mitglieder: {USA: [1989], CAN: [1989], MEX: [1994]}
+    - id: mercosur
+      faktor: 0
+      mitglieder: {ARG: [1991], BRA: [1991], XPU: [1991]}
+    - id: empire                  # Präferenzzölle des Empire (Ottawa 1932 bis zum EG-Beitritt)
+      faktor: 0.5
+      mitglieder: {GBR: [1932, 1973], CAN: [1932, 1973], AUS: [1932, 1973], NZL: [1932, 1973],
+                   IND: [1932, 1973], ZAF: [1932, 1973]}
+    - id: rgw                     # Rat für gegenseitige Wirtschaftshilfe (Staatshandel)
+      faktor: 0.3
+      mitglieder: {RUS: [1949, 1991], UKR: [1949, 1991], BLR: [1949, 1991], POL: [1949, 1991],
+                   CZE: [1949, 1991], HUN: [1949, 1991], ROU: [1949, 1991], BGR: [1949, 1991],
+                   XBA: [1949, 1991], MNG: [1962, 1991], CUB: [1972, 1991], VNM: [1978, 1991]}
+  # Handelssperren: kein Handel zwischen den beiden Ländern, von bis (Jahre; ohne Ende bis
+  # heute); weitere folgen mit den Ereignissen (Stufe 4).
+  sperren:
+    - {laender: [USA, CUB], von: 1962}
+    - {laender: [USA, PRK], von: 1950}
+    - {laender: [USA, IRN], von: 1995}
+  # Nach 2026: jährliche Änderung je Land, gleichverteilt mit dieser Standardabweichung mal
+  # dem Faktor der gewählten Dynamik, zwischen minimum und maximum.
+  dynamik:
+    standardabweichung: 0.01
+    minimum: 0
+    maximum: 0.6
+    stufen: [{id: keine, faktor: 0}, {id: normal, faktor: 1}, {id: stark, faktor: 3}]
+    standard: normal
+  annaeherung: true
+  quelle: "Bairoch, Economics and World History (1993); Clemens/Williamson, Why did the tariff-growth correlation change after 1950? (2004); WTO Tariff Profiles"

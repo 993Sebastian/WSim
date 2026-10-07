@@ -20,6 +20,7 @@ fn request() -> NewGameRequest {
         difficulty: "mittel".into(),
         research_factor: 1.0,
         startups: None,
+        tariffs: None,
     }
 }
 
@@ -195,7 +196,14 @@ fn runs_halt_for_concerns() {
     let start = |halt: &str| {
         let dir = tempfile::tempdir().unwrap();
         let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
-        session.new_game(&request()).unwrap();
+        // In 1950 the workshop's market wants more works; in 1900 the nail works of the
+        // world plan below the load at which anyone builds (C4).
+        let later = NewGameRequest {
+            start_year: 1950,
+            capital_usd: 200_000.0,
+            ..request()
+        };
+        session.new_game(&later).unwrap();
         // A head for the workshop who asks about every expense.
         let site = session.organisation().unwrap().continents[0].countries[0].sites[0]
             .site

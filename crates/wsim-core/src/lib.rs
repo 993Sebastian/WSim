@@ -41,6 +41,7 @@ pub mod save;
 pub mod staffing;
 pub mod state;
 pub mod strategy;
+pub mod tariffs;
 pub mod time_series;
 pub mod trade;
 pub mod training;
@@ -82,6 +83,8 @@ mod size_tests;
 mod staffing_tests;
 #[cfg(test)]
 mod strategy_tests;
+#[cfg(test)]
+mod tariffs_tests;
 #[cfg(test)]
 mod trade_tests;
 #[cfg(test)]

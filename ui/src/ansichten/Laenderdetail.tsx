@@ -7,7 +7,7 @@ import {
   formatZahlKurz,
   landName,
 } from "../format";
-import type { Gewerbeflaeche, Kern, Landdetail } from "../kern";
+import type { Gewerbeflaeche, Kern, Landdetail, Zoelle } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
@@ -88,6 +88,33 @@ function Gewerbeflaechen({ flaeche }: { flaeche: Gewerbeflaeche }) {
           </tbody>
         </table>
       </div>
+    </>
+  );
+}
+
+/** Import tariffs: the average, the highest groups, zones and embargoes (W3). */
+function Zollsaetze({ zoelle }: { zoelle: Zoelle }) {
+  const liste = (keys: string[], text: (k: string) => string) =>
+    keys.length > 0 ? keys.map(text).join(", ") : t("landdetail.zoll_keine");
+  return (
+    <>
+      <h3>{t("landdetail.zoelle")}</h3>
+      <dl className="werte">
+        <dt>{t("landdetail.zoll_schnitt")}</dt>
+        <dd>{formatProzent(zoelle.average)}</dd>
+        <dt>{t("landdetail.zoll_hoechste")}</dt>
+        <dd>
+          {zoelle.groups
+            .slice(0, 3)
+            .map(([g, z]) => `${t(`warengruppe.${g}`)} ${formatProzent(z)}`)
+            .join(", ")}
+        </dd>
+        <dt>{t("landdetail.zoll_zonen")}</dt>
+        <dd>{liste(zoelle.zones, (z) => t(`zoll.zone.${z}`))}</dd>
+        <dt>{t("landdetail.zoll_sperren")}</dt>
+        <dd>{liste(zoelle.embargoes, landName)}</dd>
+      </dl>
+      <small className="feld-hilfe">{t("landdetail.zoll_hilfe")}</small>
     </>
   );
 }
@@ -198,6 +225,7 @@ export function Laenderdetail({
           </dl>
 
           {land.land && <Gewerbeflaechen flaeche={land.land} />}
+          {land.tariffs && <Zollsaetze zoelle={land.tariffs} />}
 
           <h3>{t("landdetail.arbeitskraefte")}</h3>
           <div className="tabelle">

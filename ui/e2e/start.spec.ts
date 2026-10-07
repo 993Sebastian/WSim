@@ -16,6 +16,9 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await page.getByText(/Weitere Einstellungen/).click();
   await page.getByLabel("Anzahl KI-Firmen").fill("100");
   await page.getByLabel("Schwierigkeit der KI").selectOption("schwer");
+  // How the tariffs move after 2026 (W3).
+  await expect(page.getByLabel("Zölle nach 2026")).toHaveValue("normal");
+  await page.getByLabel("Zölle nach 2026").selectOption("stark");
   await page.getByRole("button", { name: "Spiel starten" }).click();
 
   const kopf = page.locator(".kopfleiste");
@@ -96,6 +99,12 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   // Amounts in the currency of the headquarters.
   await expect(page.getByRole("list", { name: "Legende" })).toContainText("€/h");
 
+  // Import tariffs by country (W3).
+  await page.getByRole("radio", { name: "Zölle" }).click();
+  await expect(karte.getByRole("button", { name: "Deutschland" })).toContainText(
+    /Einfuhrzoll im Schnitt [\d,]+ %/,
+  );
+
   await page.getByRole("radio", { name: "Rohstoffe" }).click();
   await page.getByLabel("Rohstoff").selectOption("kohle");
   await expect(page.getByRole("list", { name: "Legende" })).toContainText("Konzession frei");
@@ -109,6 +118,9 @@ test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await expect(detail.getByRole("heading", { name: "Gewerbeflächen" })).toBeVisible();
   await expect(detail).toContainText(/[\d.]+ ha, davon [\d,]+ % belegt/);
   await expect(detail.getByRole("cell", { name: "Hafen" })).toBeVisible();
+  // Import tariffs: average, highest goods groups, zones, embargoes (W3).
+  await expect(detail.getByRole("heading", { name: "Einfuhrzölle" })).toBeVisible();
+  await expect(detail).toContainText(/Am höchsten\s*Bekleidung [\d,]+ %/);
   // The currency of the time with its rate, and the ones that followed.
   await expect(detail).toContainText("Mark (M) · 4,22 M je US-Dollar (1914)");
   await expect(detail).toContainText(

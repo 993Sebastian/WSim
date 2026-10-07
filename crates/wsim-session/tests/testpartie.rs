@@ -29,6 +29,7 @@ fn test_game_1900_to_1930() {
             difficulty: options.default_difficulty.clone(),
             research_factor: 1.0,
             startups: None,
+            tariffs: None,
         })
         .unwrap();
     let site = session.production().unwrap().sites[0].index;

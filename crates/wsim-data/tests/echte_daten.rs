@@ -45,7 +45,7 @@ fn chain_one_is_complete() {
     assert_eq!(recipe.product, c.products.id("stahl").unwrap());
     assert!(recipe.inputs.contains(&(erz, 1.9)));
     let metal = c.labor_groups.id("fachkraft.metall").unwrap();
-    assert!(recipe.labor_hours.contains(&(metal, 3.5)));
+    assert!(recipe.labor_hours.contains(&(metal, 5.2)));
 
     let works = c
         .facilities
@@ -249,6 +249,7 @@ fn chain_one_runs_in_britain() {
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         },
     )
     .unwrap();
@@ -384,6 +385,7 @@ fn government_demand_for_steel_bars() {
             market_scale: 1.0,
             ai: Default::default(),
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         },
     )
     .unwrap();
@@ -469,6 +471,7 @@ fn start_forms_give_a_workshop_or_an_office() {
         market_scale: 1.0,
         ai: Default::default(),
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
 
     let mut workshop = Game::new(c.clone(), settings(StartForm::Workshop, 100_000.0)).unwrap();
@@ -524,6 +527,7 @@ fn ai_start_population() {
             aggressiveness: 0.5,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let game = Game::new(c.clone(), settings.clone()).unwrap();
     let state = game.state();
@@ -596,6 +600,7 @@ fn markets_are_saturated_and_newcomers_must_compete() {
             aggressiveness: 0.5,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     let nails = c.products.id("naegel").unwrap();
@@ -690,6 +695,7 @@ fn ai_world_is_reproducible() {
             aggressiveness: 0.7,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let run = || {
         let mut game = Game::new(c.clone(), settings.clone()).unwrap();
@@ -756,6 +762,7 @@ fn world_events_appear_in_the_round_report() {
         market_scale: 1.0,
         ai: Default::default(),
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c, settings).unwrap();
     let mut events = Vec::new();
@@ -807,6 +814,7 @@ fn the_euro_arrives_as_world_event_and_change_of_currency() {
         market_scale: 1.0,
         ai: Default::default(),
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c, settings).unwrap();
     let mut news = Vec::new();
@@ -882,6 +890,7 @@ fn world_stays_plausible_in_the_first_year() {
             aggressiveness: 0.5,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     let n = c.products.len();
@@ -1017,6 +1026,7 @@ fn companies_name_their_end_products() {
             aggressiveness: 0.5,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     for _ in 0..3 {
@@ -1107,6 +1117,7 @@ fn start_plants_make_every_input_they_use() {
                 aggressiveness: 0.5,
             },
             ventures: 1.0,
+            tariff_dynamics: 1.0,
         };
         let game = Game::new(c.clone(), settings).unwrap();
         let state = game.state();
@@ -1176,6 +1187,7 @@ fn decisions_of_the_ai_change_nothing() {
             aggressiveness: 0.5,
         },
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
     for _ in 0..2 {
@@ -1252,6 +1264,7 @@ fn early_central_departments_ruin_a_workshop() {
         market_scale: 1.0,
         ai: Default::default(),
         ventures: 1.0,
+        tariff_dynamics: 1.0,
     };
     let mut plain = Game::new(c.clone(), settings.clone()).unwrap();
     let mut early = Game::new(c.clone(), settings).unwrap();

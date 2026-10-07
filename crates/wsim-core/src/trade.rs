@@ -62,6 +62,9 @@ pub(crate) fn to_importers(state: &GameState) -> BTreeMap<(ProductId, CountryId)
     sums
 }
 
+/// Transport per unit, days and tariff from one country to another.
+type Leg = (Money, u32, f64);
+
 /// An offer traders may buy from.
 struct Source {
     site: SiteId,
@@ -155,7 +158,8 @@ pub(crate) fn plan(
                     (from, country),
                     f64::from_bits(sea),
                 )?;
-                Some(price + transport)
+                let tariff = state.tariffs.for_product(catalog, from, country, product)?;
+                Some((price + transport).scale(1.0 + tariff))
             })
             .min();
         if let Some(landed) = cheapest {
@@ -173,7 +177,8 @@ pub(crate) fn plan(
         /// Landed cost below which a source covers the arbitrage need.
         arbitrage_below: Money,
         margin: f64,
-        /// (landed cost, source index, transport per unit, days), cheapest on top
+        /// (landed cost, source index, transport and customs per unit, days), cheapest
+        /// on top
         candidates: BinaryHeap<Reverse<(Money, usize, Money, u32)>>,
     }
     let mut destinations: Vec<Destination> = Vec::new();
@@ -205,7 +210,8 @@ pub(crate) fn plan(
             .max(price);
         // The route depends on the countries and the sea freight factor only: looked up
         // once for each.
-        let mut routes: BTreeMap<(CountryId, u64), Option<(Money, u32)>> = BTreeMap::new();
+        // With the tariff on top (W3); `None` under an embargo.
+        let mut routes: BTreeMap<(CountryId, u64), Option<Leg>> = BTreeMap::new();
         let mut candidates: Vec<Reverse<(Money, usize, Money, u32)>> = Vec::new();
         for (i, s) in sources.iter().enumerate() {
             if s.country == country {
@@ -214,19 +220,24 @@ pub(crate) fn plan(
             let route = *routes
                 .entry((s.country, s.sea_freight.to_bits()))
                 .or_insert_with(|| {
-                    state.routes.for_product_via(
+                    let tariff = state
+                        .tariffs
+                        .for_product(catalog, s.country, country, product)?;
+                    let (transport, days) = state.routes.for_product_via(
                         catalog,
                         product,
                         (s.country, country),
                         s.sea_freight,
-                    )
+                    )?;
+                    Some((transport, days, tariff))
                 });
-            let Some((transport, days)) = route else {
+            let Some((transport, days, tariff)) = route else {
                 continue;
             };
-            let landed = s.price + transport;
+            // Transport and customs per unit go into the value of the imported goods.
+            let landed = (s.price + transport).scale(1.0 + tariff);
             if landed.scale(1.0 + model.trader_margin) <= ceiling {
-                candidates.push(Reverse((landed, i, transport, days)));
+                candidates.push(Reverse((landed, i, landed - s.price, days)));
             }
         }
         // Taken cheapest first, as long as the need lasts: a heap instead of sorting
