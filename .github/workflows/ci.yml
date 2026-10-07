@@ -3,6 +3,11 @@ name: CI
 on:
   push:
   workflow_dispatch:
+    inputs:
+      installer:
+        description: "Windows-Installer bauen"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -82,6 +87,9 @@ jobs:
 
   windows:
     name: Windows-Installer
+    # Nur auf Wunsch (Wunsch vom 07.10.2026, entlastet GitHub): „Run workflow“ mit
+    # „Windows-Installer bauen“.
+    if: github.event_name == 'workflow_dispatch' && inputs.installer
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7

@@ -97,7 +97,9 @@ Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEIL
 - Die Reproduzierbarkeits-Tests (`crates/wsim-core/src/determinism_tests.rs`,
   `crates/wsim-cli/tests/lauf.rs`) müssen grün sein.
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
-- CI (`.github/workflows/ci.yml`) führt dasselbe aus und baut den Windows-Installer.
+- CI (`.github/workflows/ci.yml`) führt dasselbe aus. Den Windows-Installer baut sie nur auf
+  Wunsch des Auftraggebers („Run workflow“ mit „Windows-Installer bauen“; Wunsch vom
+  07.10.2026, entlastet GitHub) – nicht nach jedem Schritt.
 
 ## Umgebung
 
