@@ -181,6 +181,13 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         purchase_markup: non_negative(ctx, b.purchase_markup, &bl.field("einkauf_aufschlag")),
         expand_utilization: span(ctx, &b.expand_utilization, &bl.field("ausbau_auslastung")),
         expand_margin: span(ctx, &b.expand_margin, &bl.field("ausbau_marge")),
+        expand_market_load: in_range(
+            ctx,
+            b.expand_market_load,
+            0.0,
+            1.0,
+            &bl.field("ausbau_markt_auslastung"),
+        ),
         expand_input_price_max: in_range(
             ctx,
             b.expand_input_price_max,
@@ -270,6 +277,16 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
         loan_years: b.loan_years.max(1),
         foundings_per_month: b.foundings_per_month,
         diversifications_per_quarter: b.diversifications_per_quarter,
+        entries_per_quarter: {
+            in_range(
+                ctx,
+                f64::from(b.entries_per_quarter),
+                0.0,
+                100.0,
+                &bl.field("einstiege_je_quartal"),
+            );
+            b.entries_per_quarter
+        },
         entry_price_factor: in_range(
             ctx,
             b.entry_price_factor,

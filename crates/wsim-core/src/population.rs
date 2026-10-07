@@ -297,14 +297,13 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
                 let Some(recipe) = recipe.filter(|&r| usable(catalog, r, year)) else {
                     continue;
                 };
-                // Plant counts are small; the cast cannot overflow.
-                let count = (count * state.settings.market_scale).round().max(1.0) as u32;
+                let (size, count) = real_plant(catalog, count, state.settings.market_scale);
                 plan.placements.push(Placement {
                     country: site.country,
                     deposit: site.deposit,
                     recipe,
                     count,
-                    size: FacilitySize::Medium,
+                    size,
                 });
             }
         }
@@ -568,6 +567,13 @@ fn fit_to_inputs(
         planned.retain(|p| p.count > 0);
     }
     planned
+}
+
+/// Size and number of a historical company's units at the market scale (C4): their
+/// capacity in the size that fits. At least one medium unit each doubled steel, ore and
+/// coal in 1900.
+fn real_plant(catalog: &Catalog, count: f64, scale: f64) -> (FacilitySize, u32) {
+    catalog.production_model.sizes.units_for(count * scale)
 }
 
 /// The first recipe usable on a facility (for historical plants without a recipe).
@@ -1215,7 +1221,22 @@ pub(crate) fn company_name_for(
 
 #[cfg(test)]
 mod tests {
-    use super::{distribute, family_name};
+    use super::{distribute, family_name, real_plant};
+    use crate::catalog::FacilitySize;
+
+    #[test]
+    fn historical_plants_shrink_with_the_market() {
+        let mut c = crate::catalog::test_support::production();
+        c.production_model.sizes.capacity = [0.25, 0.5, 1.0, 2.0, 4.0];
+        let sizes = &c.production_model.sizes;
+        // Real size: as many medium units as the data says.
+        assert_eq!(real_plant(&c, 3.0, 1.0), sizes.units_for(3.0));
+        // A tenth of one unit: the smallest size, not a whole medium unit.
+        let (size, n) = real_plant(&c, 1.0, 0.1);
+        assert_eq!(n, 1);
+        assert!(sizes.capacity(size) < sizes.capacity(FacilitySize::Medium));
+        assert_eq!(size, sizes.units_for(0.1).0);
+    }
 
     #[test]
     fn the_family_name_follows_the_name_group() {

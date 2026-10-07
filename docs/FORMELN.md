@@ -467,8 +467,11 @@ erschlossene Lagerstätte als Konzession mit Anteil 1.
    Stückkosten aus Vorprodukten zum Richtpreis, Arbeit zum `referenzlohn_usd`, Strom zum
    mittleren Strompreis der Länder und Abschreibung samt Wartung.
 2. **Reale Firmen** (höchstens die Hälfte von *N*, gegründet bis zum Startjahr, Name
-   nicht vom Spieler belegt) erhalten ihre Anlagen mit Anzahl max(1, round(Anzahl ·
-   *s*)); ihre Leistung deckt Nachfrage, ihr Bedarf erhöht die der Vorprodukte.
+   nicht vom Spieler belegt) erhalten ihre Anlagen mit der Leistung Anzahl · *s* (in
+   Einheiten der Datengröße), in der passenden Größe (M36: die größte, die nicht mehr
+   leistet, so viele davon, wie gerundet passen, mindestens eine; C4 – vorher mindestens
+   eine mittelgroße je Anlage); ihre Leistung deckt Nachfrage, ihr Bedarf erhöht die der
+   Vorprodukte.
 3. **Bedarf:** Produkte werden so geordnet, dass jedes nach allen Produkten kommt, die
    es verbrauchen. Je Produkt und Land gilt Bedarf = Verbraucher- + Staatsnachfrage pro
    Tag + Vorproduktbedarf der schon geplanten Anlagen − Leistung realer Anlagen.
@@ -3796,3 +3799,51 @@ Zum Jahresbeginn (ZA4), nach dem Einrichten der Abteilungen: Ist eine Abteilung 
 besetzt, zieht eine KI-Firma in die Stadt ihres Landes mit dem größten Pool_Stadt ihrer
 Lohngruppe, wenn er größer ist als der heutige und die Kasse die Kosten trägt. Ein Umzug
 in ein anderes Land (ZA4) geht in dessen Hauptstadt.
+
+## C3 – Neue Märkte mit mehr Herstellern
+
+Paket C, offener Punkt G (M41). Daten: `parameter/kimodell.yaml`
+(`verhalten.einstiege_je_quartal`). Kern: `ai::newcomers`.
+
+Bisher sah ein teurer Markt mit wenigen Herstellern (M33) nur die Diversifizierung der
+reichsten Firmen: Jede nahm ihre größte Lücke – fast immer Stahl, Öl oder Getreide. Penicillin
+blieb so bis 2015 bei einem Hersteller, obwohl 104 Firmen das Verfahren kannten; Solarmodule,
+Tablets und Windkraftanlagen ebenso.
+
+Jedes Quartal, nach den Pionieren (M32) und vor der Diversifizierung, bekommen bis zu
+`einstiege_je_quartal` Märkte (wächst mit der Zahl der KI-Firmen wie die übrigen
+Firmenzahlen) je einen neuen Hersteller:
+
+- **Märkte:** Produkte mit 1 bis unter `einstieg_firmen_max` Herstellern, die
+  - teuer sind (M33: Käufer zahlten im Vormonat wenigstens `einstieg_preisfaktor` × den
+    Wert zum Richtpreis) oder
+  - knapp sind: Die offene Nachfrage (abzüglich der Anlagen im Bau) ist mindestens
+    `einstieg_anteil` · Absatz des Vormonats je Tag.
+- **Reihenfolge:** nach dem Wert der Lücke (Menge · gezahlter Preis), der größte zuerst.
+- **Wer einsteigt:** die reichste KI-Firma (Investitionsbudget wie bei der
+  Diversifizierung), die das Produkt nicht herstellt, ein Verfahren dafür nutzen darf und
+  die Anlage bezahlen kann; gebaut wird wie bei der Diversifizierung (Engpass unter dem
+  Produkt, Standort, Größe). Je Markt und Quartal höchstens ein Einstieg.
+
+## C4 – Plausibilität 1900–1930
+
+Paket C, Weltlauf 1900–1930 (100 KI-Firmen) nach W1: Stahlwaren kosteten 0,44–0,65 × den
+Richtpreis bei 40–50 % Auslastung, die Startwerkstatt verdiente 1900–1902 je 65 % ihres
+Startkapitals, Kautschuk lief 1910–1920 bei 14–17 %, 1929 gab es umgerechnet 2,3 Mio.
+Autos im Jahr (real 5,3 Mio.).
+
+- **Startbesetzung der realen Firmen** (M10, Punkt 2): Leistung Anzahl · *s* in der
+  passenden Größe statt mindestens einer mittelgroßen Anlage. Bei *s* = 0,1 verdoppelte
+  die alte Regel 1900 Erz, Kohle und Stahl (Auslastung 31, 38 und 46 %).
+- **Ausbau nur, wo der Markt Anlagen braucht:** Eine Firma baut ein Produkt nur aus
+  (M10, C2), wenn alle laufenden Anlagen dafür weltweit im Schnitt wenigstens
+  `ausbau_markt_auslastung` (0,85, wie `auslastung_normal`: darunter senken die Anbieter ihre Preise) ihrer Leistung planen (geplante Auslastung, gewichtet mit der
+  Leistung, ohne stillgelegte und unfertige; ohne Anlagen 1). Vorher baute der billigste
+  Hersteller weiter aus, solange er selbst ausverkauft war – die anderen standen still,
+  und die Preise fielen auf die Vollkosten.
+- **Auto:** `kaufschwelle` 16 statt 80 – bei einem Viertel des Richtpreises kauft die
+  Hälfte einer Schicht, wenn ihr Einkommen je Kopf rund das Anderthalbfache des Autos
+  beträgt (mit 10 baute die Welt 1929 umgerechnet 9,3 Mio. Autos, real 5,3 Mio.).
+- **Nägel der Startwerkstatt:** Richtpreis 1.800 statt 1.900 USD/t, Arbeit 14 + 3 statt
+  8 + 2 Stunden je t (Zuführen, Sortieren, Packen).
+- **Protokoll:** Die Leistung im Balance-Protokoll zählt stillgelegte Anlagen nicht mehr.

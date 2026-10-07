@@ -1255,6 +1255,8 @@ pub struct RawAiBehavior {
     pub expand_utilization: RawSpan,
     #[serde(rename = "ausbau_marge")]
     pub expand_margin: RawSpan,
+    #[serde(rename = "ausbau_markt_auslastung", default)]
+    pub expand_market_load: f64,
     #[serde(rename = "ausbau_vorprodukt_preis_max")]
     pub expand_input_price_max: f64,
     #[serde(rename = "ausbau_anteil_kasse_max")]
@@ -1289,6 +1291,8 @@ pub struct RawAiBehavior {
     pub foundings_per_month: u32,
     #[serde(rename = "diversifikationen_je_quartal")]
     pub diversifications_per_quarter: u32,
+    #[serde(rename = "einstiege_je_quartal", default)]
+    pub entries_per_quarter: u32,
     #[serde(rename = "einstieg_preisfaktor")]
     pub entry_price_factor: f64,
     #[serde(rename = "einstieg_firmen_max")]

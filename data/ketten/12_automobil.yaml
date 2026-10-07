@@ -70,8 +70,12 @@ produkte:
     nachfrage:
       bedarfsklasse: luxus
       gebrauch: {nutzungsdauer_jahre: 10, max_besitzquote: 0.3}
-      kaufschwelle: 80            # zum Richtpreis kauft fast niemand; erst billige Autos
-      preisempfindlichkeit: 4     # schaffen den Massenmarkt (Massenauto ab 1908)
+      kaufschwelle: 16            # zum Richtpreis kauft fast niemand; erst billige Autos
+      preisempfindlichkeit: 4     # schaffen den Massenmarkt (Massenauto ab 1908). C4: bei
+                                  # einem Viertel des Richtpreises kauft die Hälfte, wer je Kopf
+                                  # rund das Anderthalbfache des Autos verdient (Weltlauf 1929:
+                                  # mit 80 umgerechnet 2,3 Mio. Autos im Jahr, mit 10 9,3 Mio.,
+                                  # real 5,3 Mio.)
       einkommensempfindlichkeit: 1.5
     staatsnachfrage:              # Post, Heer, Verwaltung
       je_mio_usd_bip: 0.005

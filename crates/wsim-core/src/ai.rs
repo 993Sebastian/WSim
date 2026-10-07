@@ -1803,6 +1803,7 @@ fn expand(
                 && margin >= min_margin
                 && add.min(cap) + 1e-9 >= smallest
                 && !held_back.contains(&product)
+                && market_load(state, catalog, product, date) >= b.expand_market_load
             {
                 found.push((margin, site, product, add.min(cap), cap));
             }
@@ -1827,6 +1828,32 @@ fn expand(
             (site, product, add, cap),
             (news, decider),
         );
+    }
+}
+
+/// The planned utilization of all running units making a product worldwide, weighted by
+/// their capacity (docs/FORMELN.md, C4); 1 where none runs. Below `ausbau_markt_auslastung`
+/// the market has more works than it needs, and none of them grows.
+fn market_load(state: &GameState, catalog: &Catalog, product: ProductId, date: Date) -> f64 {
+    let (mut planned, mut capacity) = (0.0, 0.0);
+    for s in &state.sites {
+        if state.companies[s.owner.index()].bankrupt {
+            continue;
+        }
+        for sl in &s.slots {
+            let Some(r) = sl.recipe else { continue };
+            if !sl.operating(date) || catalog.recipes.get(r).product != product {
+                continue;
+            }
+            let units = sl.units(catalog);
+            planned += sl.utilization * units;
+            capacity += units;
+        }
+    }
+    if capacity > 0.0 {
+        planned / capacity
+    } else {
+        1.0
     }
 }
 
@@ -2259,6 +2286,7 @@ fn diversify(
         catalog.ai_model.behavior.diversifications_per_quarter,
     );
     pioneer(state, catalog, &by_budget(state, catalog), (news, decider));
+    newcomers(state, catalog, &by_budget(state, catalog), (news, decider));
     let mut taken: Vec<ProductId> = Vec::new();
     let mut done = 0;
     let mut scan = Scan::new(state, catalog);
@@ -2375,6 +2403,102 @@ fn pioneer(
                 recipe,
                 units,
             ));
+        }
+    }
+}
+
+/// Dear or short markets with few makers get one more (docs/FORMELN.md, C3): up to
+/// `einstiege_je_quartal` of them a quarter, the largest gap first, each built by the
+/// richest company that does not make the product yet, may use a process for it and can
+/// pay for the works. In the general search they lost against steel, oil and grain.
+fn newcomers(
+    state: &mut GameState,
+    catalog: &Catalog,
+    rich: &[(Money, CompanyId)],
+    (news, decider): (&mut Vec<Message>, &mut dyn Decider),
+) {
+    let b = &catalog.ai_model.behavior;
+    let most = per_companies(state, catalog, b.entries_per_quarter);
+    if most == 0 {
+        return;
+    }
+    let entry_max = per_companies(state, catalog, b.entry_companies_max);
+    let last = state.date.first_of_month().add_days(-1);
+    let days = f64::from(crate::calendar::days_in_month(last.year(), last.month()));
+    let mut scan = Scan::new(state, catalog);
+    let mut markets: Vec<(f64, ProductId)> = catalog
+        .products
+        .ids()
+        .filter_map(|p| {
+            let n = scan.makers.get(&p).map_or(0, Vec::len);
+            if n == 0 || n >= entry_max {
+                return None;
+            }
+            let (dear, _, _) = scan.dear[p.index()];
+            let (open, _, left) = scan.unserved[p.index()];
+            let sold = last_month_sales(state, catalog, p).sold / days;
+            let short = left > 0.0 && left >= b.entry_share * sold;
+            let value = dear.max(if short { open } else { 0.0 });
+            (value > 0.0).then_some((value, p))
+        })
+        .collect();
+    markets.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+    let mut taken: Vec<ProductId> = Vec::new();
+    let mut done = 0;
+    for (_, product) in markets {
+        if done >= most {
+            break;
+        }
+        // Who knows a process for the product: the search below is costly.
+        let knows = |state: &GameState, id: CompanyId| {
+            catalog.recipes.values().any(|r| {
+                r.product == product
+                    && r.technology.is_none_or(|t| state.knows(catalog, id, t))
+                    && catalog
+                        .facilities
+                        .get(r.facility)
+                        .technology
+                        .is_none_or(|t| state.knows(catalog, id, t))
+            })
+        };
+        for &(budget, id) in rich {
+            if scan
+                .makers
+                .get(&product)
+                .is_some_and(|owners| owners.contains(&id))
+                || !knows(state, id)
+            {
+                continue;
+            }
+            let Some((top, country, deposit, recipe, want)) =
+                opportunity_in(&scan, state, catalog, &taken, id, Some(&[product]))
+            else {
+                continue;
+            };
+            let Some(units) = affordable(state, catalog, (deposit, recipe, want), budget) else {
+                continue;
+            };
+            taken.push(top);
+            let built = build_in_bottleneck(
+                state,
+                catalog,
+                id,
+                (top, country, deposit, recipe, units),
+                (Topic::Bottleneck, decider),
+            );
+            scan = Scan::new(state, catalog);
+            if built {
+                done += 1;
+                news.extend(news_expansion(
+                    state,
+                    catalog,
+                    id,
+                    site_id(state.sites.len() - 1),
+                    recipe,
+                    units,
+                ));
+            }
+            break;
         }
     }
 }
@@ -5191,6 +5315,72 @@ mod tests {
         assert_eq!(built(4), 2);
     }
 
+    /// C4: a sold-out works does not grow while the market's other works stand half idle;
+    /// it does once they are busy too.
+    #[test]
+    fn a_market_with_idle_works_does_not_grow() {
+        let built = |rival_load: f64| {
+            let mut catalog = test_support::production();
+            catalog.ai_model.behavior.expand_market_load = 0.75;
+            let (mut game, id, first) = idle_works_in(catalog, 1.0);
+            let catalog = game.catalog().clone();
+            let state = game.state_mut();
+            let aaa = catalog.countries.id("AAA").expect("exists");
+            let (iron, ore) = (
+                catalog.products.id("eisen").expect("exists"),
+                catalog.products.id("erz").expect("exists"),
+            );
+            let reference = market::local_reference(&catalog, state, aaa, iron);
+            state.markets.get_mut(iron).get_mut(aaa).price = reference.scale(3.0);
+            if let Some(o) = state.sites[first.index()].offers.get_mut(&iron) {
+                o.price = reference.scale(3.0);
+            }
+            state.sites[first.index()]
+                .inventory
+                .entry(ore)
+                .or_default()
+                .add(
+                    1_000_000.0,
+                    Money::from_usd(1_000_000.0).expect("valid"),
+                    50.0,
+                );
+            // Another company's works for the same product, as large.
+            let found = Command::FoundSite {
+                country: aaa,
+                kind: SiteType::Factory,
+            };
+            assert!(run(state, &catalog, id, &found));
+            let rival = site_id(state.sites.len() - 1);
+            let other = company_id(state.companies.len());
+            let copy = state.companies[id.index()].clone();
+            state.companies.push(copy);
+            let mut slots = state.sites[first.index()].slots.clone();
+            for sl in &mut slots {
+                sl.utilization = rival_load;
+            }
+            let s = &mut state.sites[rival.index()];
+            s.owner = other;
+            s.slots = slots;
+            let date = state.date;
+            let before = state.sites[first.index()].slots.len();
+            let units = |state: &GameState| -> usize {
+                state
+                    .sites
+                    .iter()
+                    .filter(|s| s.owner == id)
+                    .map(|s| s.slots.len())
+                    .sum()
+            };
+            let all_before = units(state);
+            let mut news = Vec::new();
+            expand(state, &catalog, id, &[first], date, (&mut news, &mut Rules));
+            assert!(state.sites[first.index()].slots.len() >= before);
+            units(state) > all_before
+        };
+        assert!(!built(0.2), "half the market idle");
+        assert!(built(0.9), "the market is busy");
+    }
+
     /// M33: the stocks plants keep of their inputs are no heap; a seller's stock is.
     #[test]
     fn only_sellers_stocks_pile_up() {
@@ -5211,6 +5401,61 @@ mod tests {
             .clone();
         state.sites[works.index()].offers.insert(ore, offer);
         assert!(piling(state, &catalog, ore));
+    }
+
+    /// C3: a dear or short market with one maker gets a second one each quarter, built by
+    /// the richest company that does not make it yet – not at a normal price with every
+    /// buyer served, not without entries in the data.
+    #[test]
+    fn newcomers_enter_dear_and_short_markets() {
+        for (entries, paid_factor, open, expected) in [
+            (1, 2.0, 0.0, true),
+            (1, 1.0, 900.0, true),
+            (1, 1.0, 0.0, false),
+            (0, 2.0, 0.0, false),
+        ] {
+            let mut catalog = test_support::trading();
+            catalog.ai_model.behavior.entry_companies_max = 3;
+            catalog.ai_model.behavior.entries_per_quarter = entries;
+            let (mut game, id, _) = idle_works_in(catalog, 0.9);
+            let catalog = game.catalog().clone();
+            let state = game.state_mut();
+            let aaa = catalog.countries.id("AAA").expect("exists");
+            let iron = catalog.products.id("eisen").expect("exists");
+            // A second company as rich as the maker, without sites.
+            let other = company_id(state.companies.len());
+            let mut rival = state.companies[id.index()].clone();
+            rival.name = "Neuling AG".into();
+            state.companies.push(rival);
+            let reference = market::local_reference(&catalog, state, aaa, iron);
+            let m = state.markets.get_mut(iron).get_mut(aaa);
+            m.open_demand = open;
+            m.idle_since = None;
+            m.last_month.sold = 31_000.0;
+            m.last_month.revenue = reference.scale(31_000.0 * paid_factor);
+            let makes = |state: &GameState, c: CompanyId| {
+                state.sites.iter().any(|s| {
+                    s.owner == c
+                        && s.slots.iter().any(|sl| {
+                            sl.recipe
+                                .is_some_and(|r| catalog.recipes.get(r).product == iron)
+                        })
+                })
+            };
+            assert!(!makes(state, other));
+            let mut news = Vec::new();
+            newcomers(
+                state,
+                &catalog,
+                &by_budget(state, &catalog),
+                (&mut news, &mut Rules),
+            );
+            assert_eq!(
+                makes(state, other),
+                expected,
+                "{entries} {paid_factor} {open}"
+            );
+        }
     }
 
     /// M33: a market paying far above the reference price draws a newcomer even though

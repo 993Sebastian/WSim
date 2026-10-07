@@ -170,6 +170,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Lohnaufschlag (über die Landeslöhne) | `Site::wage_premium`, `SetWagePremium`, `ProductionModel::wage_premium_max` (`lohnaufschlag_max`) |
 | Abwerben (Besetzung nach Lohnaufschlag) | `production::staff_sites` |
 | Personalbedarf eines Standorts | `production::needed_workers`, `StaffLine` (Sicht) |
+| Einstieg in teure oder knappe Märkte (C3) | `ai::newcomers`, `AiBehavior::entries_per_quarter` (`einstiege_je_quartal`) |
+| Auslastung des Markts als Ausbau-Bremse (C4) | `ai::market_load`, `AiBehavior::expand_market_load` (`ausbau_markt_auslastung`) |
 | Stadt (W2) | `catalog::City` (`Country::cities`, Daten `staedte`), Text `stadt.<ISO>.<id>` |
 | Stadt des Hauptsitzes, Akademiker der Zentrale, Bürokosten (W2) | `Company::{hq_city, departments_staffed}`, `HqCityModel` (`zentrale.stadt`), `central::{city_in, hq_city, city_population, city_academics, office_per_employee, refresh_staffing, staffed, city_wanted, move_terms, ai_city}`; Befehl `SetHeadquarters { country, city }`, Fehler `UnknownCity` |
 | Schulung je Standort: Niveau, Ziel, Kosten, Wirkung (W1) | `Site::{training, training_target}`, Befehl `SetTraining`, `ProductionModel::training` (`TrainingModel`, `produktionsmodell.schulung`), Modul `training` (`target`, `labor_factor`, `quality`, `daily_cost`, `month_start`, `ai_month_start`) |

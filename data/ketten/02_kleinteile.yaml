@@ -12,7 +12,7 @@ produkte:
     verwendung: beides
     warengruppe: metallwaren
     transportklasse: stueckgut
-    richtpreis_usd: 1900          # Drahtstifte um 1900 etwa 2,00–2,50 USD je 100 lb; nahe am Draht (M15)
+    richtpreis_usd: 1800          # Drahtstifte um 1900 etwa 2,00–2,50 USD je 100 lb; nahe am Draht (M15, C4)
     nachfrage:                    # Handwerk und Haushalte
       bedarfsklasse: grundbedarf
       verbrauch: {je_kopf_und_jahr: 0.0015}
@@ -80,9 +80,9 @@ rezepte:
     technologie: drahtstiftmaschine
     eingang:
       draht: 1.02                 # 2 % Verschnitt
-    arbeit_stunden:
-      angelernt: 8
-      fachkraft.metall: 2
+    arbeit_stunden:               # C4: Zuführen, Sortieren, Packen in der Werkstatt
+      angelernt: 14
+      fachkraft.metall: 3
     qualitaet_basis: 50
     annaeherung: true
 

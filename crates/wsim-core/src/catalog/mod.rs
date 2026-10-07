@@ -1264,6 +1264,9 @@ pub struct AiBehavior {
     /// Expansion when the utilization and the margin reach these (aggressiveness).
     pub expand_utilization: Span,
     pub expand_margin: Span,
+    /// Least planned utilization of all running units of a product worldwide for any of
+    /// them to grow (C4); 0: no limit.
+    pub expand_market_load: f64,
     /// No expansion while an input costs more than this multiple of its reference price
     /// in the country: it is scarce (M16).
     pub expand_input_price_max: f64,
@@ -1293,6 +1296,8 @@ pub struct AiBehavior {
     pub foundings_per_month: u32,
     /// Rich companies that build in another company's bottleneck per quarter.
     pub diversifications_per_quarter: u32,
+    /// Dear or short markets with few makers that get one more maker per quarter (C3).
+    pub entries_per_quarter: u32,
     /// Markets that pay at least this multiple of the reference price draw newcomers
     /// (M33) while fewer than `entry_companies_max` companies make the product (0: never);
     /// a newcomer plans for `entry_share` of what sells.
@@ -1371,6 +1376,7 @@ impl Default for AiModel {
                     at_0: 0.25,
                     at_1: 0.08,
                 },
+                expand_market_load: 0.0,
                 expand_input_price_max: 1.5,
                 invest_share_max: 0.3,
                 expansions_max: 1,
@@ -1391,6 +1397,7 @@ impl Default for AiModel {
                 loan_years: 10,
                 foundings_per_month: 2,
                 diversifications_per_quarter: 4,
+                entries_per_quarter: 0,
                 entry_price_factor: 1.3,
                 entry_companies_max: 0,
                 entry_share: 0.25,

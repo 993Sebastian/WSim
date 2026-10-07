@@ -324,7 +324,8 @@ impl Protocol {
                     let Some(r) = sl.recipe.map(|r| catalog.recipes.get(r)) else {
                         continue;
                     };
-                    if r.product == product && sl.ready <= state.date {
+                    // Units standing still do not count (C4): they hid the real load.
+                    if r.product == product && sl.ready <= state.date && !sl.mothballed() {
                         capacity += sl.full_runs(catalog) * r.output * 365.0;
                         producers.insert(s.owner);
                     }

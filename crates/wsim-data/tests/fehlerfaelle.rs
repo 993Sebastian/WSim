@@ -1337,6 +1337,27 @@ fn foerderkurve_wird_geprueft() {
         f.path.to_string(),
         "kimodell.verhalten.ausbau_je_pruefung_max"
     );
+    // Entries into dear or short markets (C3) and the brake on expansions (C4).
+    for (alt, neu, meldung, pfad) in [
+        (
+            "einstiege_je_quartal: 6",
+            "einstiege_je_quartal: 500",
+            "Wert 500 liegt außerhalb des erlaubten Bereichs 0 bis 100.",
+            "kimodell.verhalten.einstiege_je_quartal",
+        ),
+        (
+            "ausbau_markt_auslastung: 0.85",
+            "ausbau_markt_auslastung: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "kimodell.verhalten.ausbau_markt_auslastung",
+        ),
+    ] {
+        let outcome = Daten::neu()
+            .ersetze("parameter/kimodell.yaml", alt, neu)
+            .laden();
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
 }
 
 #[test]

@@ -68,6 +68,7 @@ kimodell:
     einkauf_aufschlag: 0.25                           # Höchstpreis über dem Marktpreis
     ausbau_auslastung: {bei_0: 0.95, bei_1: 0.8}      # Aggressivität
     ausbau_marge: {bei_0: 0.1, bei_1: 0.03}           # Aufschlag auf Vollkosten mit Gemeinkosten (M16), Aggressivität
+    ausbau_markt_auslastung: 0.85                     # kein Ausbau, solange alle Anlagen des Produkts weltweit im Schnitt weniger planen (C4)
     ausbau_vorprodukt_preis_max: 1.5                  # kein Ausbau, solange ein Vorprodukt mehr kostet (× Richtpreis im Land): knapp
     ausbau_anteil_kasse_max: 0.3
     # So viele Ausbauten beginnt eine Firma je Prüfung höchstens, die mit der höchsten
@@ -98,6 +99,7 @@ kimodell:
     kredit_jahre: 10
     gruendungen_je_monat: 2
     diversifikationen_je_quartal: 4                   # reiche Firmen bauen in fremden Engpässen
+    einstiege_je_quartal: 6                           # teure oder knappe Märkte mit wenigen Herstellern (C3)
     # Teure Märkte (M33): Zahlen die Käufer weltweit wenigstens das Vielfache des
     # Richtpreises, steigt eine weitere Firma ein, solange weniger als so viele Firmen das
     # Produkt herstellen; sie plant für diesen Anteil des Absatzes.

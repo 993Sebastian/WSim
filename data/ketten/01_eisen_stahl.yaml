@@ -191,11 +191,11 @@ rezepte:
     eingang:                      # 1,12 t Roheisen aus 1,7 t Erz und 1,5 t Kokskohle je t
       eisenerz: 1.9
       kohle: 1.68
-    arbeit_stunden:               # Hochofen und Birne
-      ungelernt: 9.0
-      angelernt: 3.7
-      fachkraft.metall: 3.5
-      akademiker.metall: 0.11
+    arbeit_stunden:               # Hochofen und Birne; C4: USA 1900 rund 58 h/t samt Walzen
+      ungelernt: 13.5
+      angelernt: 5.5
+      fachkraft.metall: 5.2
+      akademiker.metall: 0.16
     qualitaet_basis: 45           # spröder, schwer zu steuern
     annaeherung: true
 
@@ -208,11 +208,11 @@ rezepte:
     eingang:                      # 1,10 t Roheisen; dazu Generatorgas für den Herdofen
       eisenerz: 1.87
       kohle: 1.9
-    arbeit_stunden:               # Hochofen und Herdofen
-      ungelernt: 8.5
-      angelernt: 4.2
-      fachkraft.metall: 4.5
-      akademiker.metall: 0.14
+    arbeit_stunden:               # Hochofen und Herdofen (C4: wie Bessemer, × 1,5)
+      ungelernt: 12.8
+      angelernt: 6.3
+      fachkraft.metall: 6.8
+      akademiker.metall: 0.2
     qualitaet_basis: 65
     annaeherung: true
 

@@ -1089,6 +1089,35 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 6. **Weiterbildung der Manager** gab es schon: Die Personalabteilung (ZA2) hebt die Chance
    der Manager auf Erfahrung um bis zu 50 %. W1 fügt dafür nichts Neues hinzu.
 
+✅ **C3 umgesetzt** (neue Märkte; Regeln: `docs/FORMELN.md`, Abschnitt C3). 🟡 Eigenständig
+entschieden:
+
+1. **Eigener Weg für Neulinge:** Teure oder knappe Märkte mit 1 bis unter
+   `einstieg_firmen_max` Herstellern bekommen je Quartal einen weiteren (bis sechs Märkte
+   je Quartal bei 100 KI-Firmen), statt in der allgemeinen Rangliste gegen Stahl und Öl zu
+   verlieren. Es baut die reichste Firma, die ein Verfahren kennt.
+2. **Offen:** Akkus bleiben bis 2020 knapp, weil Kobalt (Bergbau mit Arbeitskräftemangel)
+   in beiden Läufen das Vierfache seines Richtpreises kostet; mit mehr Geräteherstellern
+   wird es spürbarer. Vorschlag: Kobalt-Lagerstätten und Arbeitskräfte im Kongo prüfen
+   (Balancing, Stufe 6).
+
+✅ **C4 umgesetzt** (Plausibilität 1900–1930; Regeln: `docs/FORMELN.md`, Abschnitt C4).
+🟡 Eigenständig entschieden:
+
+1. **Historische Firmen im Marktmaßstab:** Ihre Anlagen bekommen die passende Größe statt
+   mindestens einer mittelgroßen – das war der Hauptgrund für die Überkapazität bei Erz,
+   Kohle und Stahl.
+2. **Ausbau nur in ausgelasteten Märkten:** Liegt die geplante Auslastung aller Anlagen
+   eines Produkts weltweit unter 85 % (wie `auslastung_normal`), baut niemand aus. Neue
+   Hersteller über Lücken (Diversifizierung, C3) bleiben möglich.
+3. **Stahl braucht mehr Arbeit:** Bessemer und Siemens-Martin 1,5-mal so viele Stunden
+   (USA 1900 rund 58 Stunden je Tonne einschließlich Walzen); die Marge zum Richtpreis
+   1900 sinkt von 44 auf 39 %.
+4. **Auto-Nachfrage:** Kaufschwelle 16 statt 80. Gilt für alle Epochen; nach 1990 steigt
+   damit die Nachfrage in ärmeren Ländern.
+5. **Startwerkstatt:** Nägel 1.800 statt 1.900 USD/t, mehr Arbeit je Tonne. Im ersten Jahr
+   verdient die Werkstatt rund 40 % ihres Startkapitals.
+
 ✅ **W2 umgesetzt** (Zentrale in der Stadt; Regeln: `docs/FORMELN.md`, Abschnitt W2; löst
 die Punkte O 1 und O 6). 🟡 Eigenständig entschieden:
 

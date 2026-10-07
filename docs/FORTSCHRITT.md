@@ -70,6 +70,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | B2 | Können der KI-Manager wirkt auf Preise und Ausbau (Schätzfehler) | ✅ |
 | C1 | Händler gleichen Preisinseln aus (Arbitrage) | ✅ |
 | C2 | Rohstoffe nach 2015: Förderkurve, Ausbau an allen Standorten | ✅ |
+| C3 | Neue Märkte: eigener Einstieg in teure oder knappe Märkte | ✅ |
+| C4 | Plausibilität 1900–1930: Startkapazität, Ausbau-Bremse, Autos, Werkstatt | ✅ |
 | W1 | Schulung je Standort (Stufe 2) | ✅ |
 | W2 | Zentrale in der Stadt: Akademiker und Büromiete je Stadt | ✅ |
 
@@ -630,6 +632,53 @@ Paket C, offener Punkt G (M41) 9. Regeln: `docs/FORMELN.md`, Abschnitt C2.
   Offen für C3: Lithium-Ionen-Akkus mit drei Herstellern, 2020 nur 42 % des Bedarfs bei
   4 × Richtpreis. 2005–2006 gingen je 5 % der KI-Firmen pleite (Grenze). Laufzeit 1 775 statt
   1 525 s (mehr Standorte).
+
+### C3: Neue Märkte mit mehr Herstellern (07.10.2026)
+
+Paket C, offener Punkt G (M41) 10. Regeln: `docs/FORMELN.md`, Abschnitt C3.
+
+- **Ursache:** Teure Märkte mit wenigen Herstellern standen in der allgemeinen Rangliste der
+  Diversifizierung, aber die wenigen reichsten Firmen je Quartal wählten große Märkte.
+  Penicillin kannten 2010 schon 104 Firmen; hergestellt wurde es nur in China.
+- **Neu:** Je Quartal bekommen bis zu sechs teure oder knappe Märkte mit 1 bis unter
+  `einstieg_firmen_max` Herstellern einen weiteren (`einstiege_je_quartal`).
+- **Weltlauf 1990–2026** (gleiche Version, mit und ohne Einstiege):
+
+  | | ohne | mit |
+  | --- | --- | --- |
+  | Hersteller 2025: Penicillin, Windkraft, Solarmodul, Smartphone | 1, 2, 2, 2 | 9, 4, 3, 5 |
+  | Versorgung Windkraft 2005 / 2010 | 26 % / 27 % | 100 % / 63 % |
+  | Versorgung Solarmodul 2015 | 38 % | 100 % |
+  | Verstöße Versorgung weltweit / je Land | 136 / 4 246 | 99 / 3 052 |
+  | Verstöße Preis gegen Richtpreis | 544 | 517 |
+
+  Offen: Lithium-Ionen-Akkus kosten 2015–2025 das 3,6- bis 4-Fache (Kobalt knapp, siehe
+  offene Punkte P).
+
+### C4: Plausibilität 1900–1930 (07.10.2026)
+
+Paket C, Weltlauf 1900–1930 nach W1. Regeln: `docs/FORMELN.md`, Abschnitt C4.
+
+- **Startkapazität:** Historische Firmen bekamen je Anlage mindestens eine mittelgroße –
+  bei Marktmaßstab 0,1 doppelt so viel Erz, Kohle und Stahl wie gebraucht. Jetzt in der
+  passenden Größe.
+- **Ausbau-Bremse:** Kein Ausbau eines Produkts, solange alle Anlagen dafür weltweit im
+  Schnitt unter 85 % planen (`ausbau_markt_auslastung`).
+- **Daten:** Stahl 1,5-mal so viel Arbeit; Auto-Kaufschwelle 16 statt 80; Nägel 1.800 USD/t
+  mit mehr Arbeit. Das Protokoll zählt stillgelegte Anlagen nicht mehr als Leistung.
+- **Weltlauf 1900–1930** (W1 → C4):
+
+  | | W1 | C4 |
+  | --- | --- | --- |
+  | Auslastung Stahl / Erz / Kohle 1900 | 46 / 30 / 38 % | 93 / 58 / 75 % |
+  | Preis/Richtpreis 1929: Stahl, Handwerkzeug, Nägel | 0,64; 0,61; 0,46 | 0,71; 0,70; 0,57 |
+  | Autos 1929 (umgerechnet auf reale Größe; real 5,3 Mio.) | 2,3 Mio. | 4,9 Mio. |
+  | Kautschuk 1929: Auslastung, Preis/Richtpreis | 40 %, 0,83 | 77 %, 1,21 |
+  | Werkstatt ohne Befehle, Ergebnis 1900–1902 | 65 / 72 / 65 Tsd. USD | 38 / 55 / 52 Tsd. USD |
+  | Verstöße Preis / Versorgung weltweit / Förderung | 300 / 60 / 149 | 149 / 36 / 75 |
+
+  Offen: Stahlwaren bleiben bei 0,55–0,75 × Richtpreis (Marge zum Richtpreis weiter hoch);
+  die Werkstatt liegt 1901–1902 knapp über der Grenze von 50 %.
 
 ### W1: Schulung je Standort (07.10.2026)
 
