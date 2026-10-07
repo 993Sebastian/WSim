@@ -8,6 +8,10 @@ on:
         description: "Windows-Installer bauen"
         type: boolean
         default: false
+      browser:
+        description: "Browser-Version prüfen und veröffentlichen"
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -50,7 +54,10 @@ jobs:
   browser:
     name: Browser-Version (WebAssembly)
     runs-on: ubuntu-latest
-    # Vorerst zurückgestellt (Wunsch vom 06.10.2026): ein Fehler hier hält die CI nicht auf.
+    # Vorerst zurückgestellt (Wunsch vom 06.10.2026) und nur auf Wunsch (07.10.2026):
+    # „Run workflow“ mit „Browser-Version prüfen und veröffentlichen“. Ein Fehler hier
+    # hält die CI nicht auf.
+    if: github.event_name == 'workflow_dispatch' && inputs.browser
     continue-on-error: true
     permissions:
       contents: write
