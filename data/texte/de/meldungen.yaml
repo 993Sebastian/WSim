@@ -149,6 +149,10 @@ fehler.befehl.ohne_produktnamen: „{produkt}“ trägt keinen eigenen Namen –
 fehler.befehl.nicht_weiterentwickelbar: „{produkt}“ lässt sich nicht weiterentwickeln – die Firma beherrscht kein Verfahren dafür, oder die höchste Stufe ist erreicht.
 fehler.befehl.keine_route: „{produkt}“ lässt sich derzeit nicht von {von} nach {nach} befördern – es gibt kein passendes Verkehrsmittel.
 fehler.befehl.handelssperre: Zwischen {von} und {nach} gilt eine Handelssperre – Waren dürfen nicht dorthin.
+fehler.befehl.keine_vertraege: Lieferverträge gibt es in diesem Spiel nicht.
+fehler.befehl.vertrag_mit_sich: Ein Liefervertrag braucht eine andere Firma – beide Standorte gehören dir.
+fehler.befehl.vertrag_unbekannt: Diesen Vertrag gibt es nicht, oder du kannst ihn nicht beantworten oder kündigen.
+fehler.befehl.vertrag_abgelehnt: "Die Firma lehnt ab: {grund}"
 meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
 meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} ({groesse}) für {produkt}."
 meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
@@ -364,3 +368,8 @@ meldung.ki.anbieter_weg_name: "{firma} bietet „{name}“ ({produkt}) in {land}
 meldung.ki.preissenkung_name: "{firma} senkt den Preis für „{name}“ ({produkt}) in {land} um {prozent} % auf {preis}."
 meldung.ki.kauf_standort: "{kaeufer} kauft von {verkaeufer} einen Standort ({art} in {land}) für {preis}."
 meldung.ki.kauf_bereich: "{kaeufer} kauft von {verkaeufer} den Bereich {warengruppe} mit Marke (Standorte: {standorte}) für {preis}."
+meldung.vertrag.angebot: "{firma} bietet dir einen Liefervertrag über {produkt} an."
+meldung.vertrag.verfallen: Ein Vertragsangebot über {produkt} ist verfallen.
+meldung.vertrag.beendet: Der Liefervertrag über {produkt} ist ausgelaufen.
+meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe."
+meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe."

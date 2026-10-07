@@ -1146,6 +1146,30 @@ die Punkte O 1 und O 6). 🟡 Eigenständig entschieden:
    KI-Firmen ziehen in die Stadt mit den meisten Akademikern, wenn eine Abteilung nicht voll
    besetzt ist; ins Ausland gehen sie in die Hauptstadt.
 
+✅ **W3 umgesetzt** (Zölle; Regeln: `docs/FORMELN.md`, Abschnitt W3; Entscheidungen bei
+Punkt A 2). Zusätzlich 🟡: Ein teurer Markt (Käufer zahlen mindestens
+`einstieg_preisfaktor` · Richtpreis) darf trotz der Ausbau-Bremse aus C4 wachsen – sonst
+blieb Kautschuk 1990–2026 knapp, weil Synthesewerke ohne Benzin die weltweite Auslastung
+drückten.
+
+✅ **W4 umgesetzt** (Lieferverträge; Regeln: `docs/FORMELN.md`, Abschnitt W4). 🟡
+Eigenständig entschieden:
+
+1. **Preis frei Standort des Käufers:** Fracht und Zoll trägt der Verkäufer; der Käufer
+   kennt seinen Einstand sofort. Die Vorschläge der Lieferanten rechnen beides ein.
+2. **Nur zwischen Spieler und KI-Firmen** (Lastenheft §9.3). Verträge der KI-Firmen
+   untereinander würden die Weltläufe verändern; sie folgen bei Bedarf mit dem Balancing.
+3. **Die KI antwortet sofort** nach festen Regeln (Preis gegen eigenen bzw. Marktpreis,
+   höchstens die Hälfte ihrer Leistung oder ihres Bedarfs, Strafe bis 50 %). Ablehnungen
+   nennen den Grund. Verhandeln mit Gegenangebot gibt es (noch) nicht.
+4. **Wer ist schuld an fehlender Menge:** Fehlt Ware, zahlt der Verkäufer; fehlt dem Käufer
+   das Geld, zahlt er. Die Strafe ist ein Anteil am Wert der fehlenden Menge.
+5. **Kündigen kostet** die Strafe auf bis zu drei Monatsmengen; ein Angebot zurückziehen
+   ist kostenlos. Verträge enden ohne Strafe, wenn ein Standort den Besitzer wechselt
+   oder eine Firma pleitegeht.
+6. **Angebote der KI** an den Spieler: höchstens eines je Monat und Produkt des Spielers
+   (Chance 25 %), dasselbe Standortpaar erst wieder nach zwölf Monaten.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

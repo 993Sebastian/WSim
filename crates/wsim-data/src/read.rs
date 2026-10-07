@@ -7,12 +7,12 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawCentral, RawCountry, RawCountryCurrencies, RawCountryModel, RawCurrency,
-    RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor, RawManagement,
-    RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct,
-    RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
-    RawResearchModel, RawSimple, RawTariffs, RawTechnology, RawTransportClass, RawTransportModel,
-    RawUnit, RawVehicle, RawVentures,
+    RawAiModel, RawCentral, RawContracts, RawCountry, RawCountryCurrencies, RawCountryModel,
+    RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor,
+    RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel,
+    RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel, RawQualification,
+    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTariffs, RawTechnology,
+    RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -179,6 +179,7 @@ pub(crate) struct RawData {
     pub management: Vec<Entry<RawManagement>>,
     pub central: Vec<Entry<RawCentral>>,
     pub tariffs: Vec<Entry<RawTariffs>>,
+    pub contracts: Vec<Entry<RawContracts>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -219,6 +220,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "management",
     "zentrale",
     "zoelle",
+    "vertraege",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -302,6 +304,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "zoelle" => match de::from_node::<RawTariffs>(value, &loc.path) {
                 Ok(model) => raw.tariffs.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "vertraege" => match de::from_node::<RawContracts>(value, &loc.path) {
+                Ok(model) => raw.contracts.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

@@ -189,6 +189,15 @@ pub mod keys {
     pub const COMMAND_SAME_HEADQUARTERS: &str = "fehler.befehl.hauptsitz_gleich";
     pub const COMMAND_UNKNOWN_CITY: &str = "fehler.befehl.stadt_unbekannt";
     pub const COMMAND_EMBARGO: &str = "fehler.befehl.handelssperre";
+    pub const COMMAND_NO_CONTRACTS: &str = "fehler.befehl.keine_vertraege";
+    pub const COMMAND_CONTRACT_ITSELF: &str = "fehler.befehl.vertrag_mit_sich";
+    pub const COMMAND_UNKNOWN_CONTRACT: &str = "fehler.befehl.vertrag_unbekannt";
+    pub const COMMAND_CONTRACT_DECLINED: &str = "fehler.befehl.vertrag_abgelehnt";
+    pub const CONTRACT_PROPOSED: &str = "meldung.vertrag.angebot";
+    pub const CONTRACT_EXPIRED: &str = "meldung.vertrag.verfallen";
+    pub const CONTRACT_ENDED: &str = "meldung.vertrag.beendet";
+    pub const CONTRACT_SHORT_OWN: &str = "meldung.vertrag.fehlmenge_eigen";
+    pub const CONTRACT_SHORT_PARTNER: &str = "meldung.vertrag.fehlmenge_partner";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -480,6 +489,15 @@ pub mod keys {
         COMMAND_SAME_HEADQUARTERS,
         COMMAND_UNKNOWN_CITY,
         COMMAND_EMBARGO,
+        COMMAND_NO_CONTRACTS,
+        COMMAND_CONTRACT_ITSELF,
+        COMMAND_UNKNOWN_CONTRACT,
+        COMMAND_CONTRACT_DECLINED,
+        CONTRACT_PROPOSED,
+        CONTRACT_EXPIRED,
+        CONTRACT_ENDED,
+        CONTRACT_SHORT_OWN,
+        CONTRACT_SHORT_PARTNER,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,

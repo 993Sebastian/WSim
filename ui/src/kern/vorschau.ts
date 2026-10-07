@@ -25,6 +25,8 @@ import type {
   Spielstand,
   Ruecksprachen,
   StartUps,
+  Vertraege,
+  Vertragspartnerliste,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -53,6 +55,8 @@ const beispiel = beispielJson as unknown as {
   ruecksprache: Ruecksprachen;
   startups: StartUps;
   managermarkt: Managermarkt;
+  vertraege: Vertraege;
+  vertragspartner: Vertragspartnerliste;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -212,6 +216,15 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     startups: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.startups);
+    },
+    vertraege: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.vertraege);
+    },
+    vertragspartner: async (standort, produkt) => {
+      if (!spiel) throw keinSpiel();
+      // The preview knows the partners of one site and product; it shows them for all.
+      return { ...kopie(beispiel.vertragspartner), site: standort, product: produkt };
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

@@ -2210,3 +2210,43 @@ pub struct RawTariffLevel {
     #[serde(rename = "faktor")]
     pub factor: f64,
 }
+
+/// Supply contracts (`parameter/vertraege.yaml`, W4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawContracts {
+    #[serde(rename = "laufzeit_monate_max")]
+    pub months_max: u32,
+    #[serde(rename = "laufzeit_standard")]
+    pub months_default: u32,
+    #[serde(rename = "strafe_max")]
+    pub penalty_max: f64,
+    #[serde(rename = "strafe_standard")]
+    pub penalty_default: f64,
+    #[serde(rename = "kuendigung_monate")]
+    pub cancel_months: u32,
+    #[serde(rename = "angebot_tage")]
+    pub proposal_days: u32,
+    #[serde(rename = "aufbewahren_monate")]
+    pub keep_months: u32,
+    pub ki: RawContractAi,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawContractAi {
+    #[serde(rename = "abschlag_verkauf")]
+    pub sale_discount: f64,
+    #[serde(rename = "aufschlag_kauf")]
+    pub purchase_premium: f64,
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "strafe_max")]
+    pub penalty_max: f64,
+    #[serde(rename = "angebot_chance")]
+    pub proposal_chance: f64,
+}

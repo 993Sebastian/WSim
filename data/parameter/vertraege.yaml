@@ -1,0 +1,17 @@
+# Lieferverträge (W4, Lastenheft §9.3; Formeln: docs/FORMELN.md, Abschnitt W4).
+
+vertraege:
+  laufzeit_monate_max: 60
+  laufzeit_standard: 12
+  strafe_max: 1.0            # Anteil am Wert der fehlenden Menge
+  strafe_standard: 0.2
+  kuendigung_monate: 3       # wer kündigt, zahlt die Strafe auf so viele Monatsmengen
+  angebot_tage: 30           # so lange wartet ein Angebot der KI auf die Antwort
+  aufbewahren_monate: 12     # beendete Verträge bleiben so lange in der Liste
+  ki:
+    abschlag_verkauf: 0.05   # für sichere Abnahme verkauft die KI bis zu 5 % billiger
+    aufschlag_kauf: 0.05     # für sichere Lieferung zahlt sie bis zu 5 % mehr
+    anteil: 0.5              # höchstens die Hälfte ihrer Leistung oder ihres Bedarfs
+    strafe_max: 0.5
+    angebot_chance: 0.25     # je Monat und Produkt des Spielers
+  annaeherung: true

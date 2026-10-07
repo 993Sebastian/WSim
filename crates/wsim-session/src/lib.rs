@@ -22,10 +22,11 @@ use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
 use wsim_core::views::{
-    self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, CountryDetail, FinanceView,
-    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
-    StrategyView, VenturesView, WorldMap, WorldMarketView,
+    self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
+    ContractsView, CountryDetail, FinanceView, ManagerMarketView, MarketView, MessageView,
+    NewGameOptions, OffersView, OrganisationView, Overview, ProductMarketView, ProductionView,
+    ResearchOverview, ReviewsView, RoundReportView, StrategyView, VenturesView, WorldMap,
+    WorldMarketView,
 };
 
 /// File extension of saves.
@@ -370,6 +371,21 @@ impl<S: SaveStore> Session<S> {
     /// The start-ups of the world (SU1).
     pub fn ventures(&self) -> Result<VenturesView, MessageView> {
         self.view(views::ventures)
+    }
+
+    /// The player's supply contracts and the sites that could have some (W4).
+    pub fn contracts(&self) -> Result<ContractsView, MessageView> {
+        self.view(views::contracts)
+    }
+
+    /// Possible partners for a contract of an own site for a product (W4).
+    pub fn contract_partners(
+        &self,
+        site: u32,
+        product: &str,
+    ) -> Result<ContractPartnersView, MessageView> {
+        self.view(|g| views::contract_partners(g, site, product))?
+            .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
     }
 
     /// Candidates for a position of the player: `unit` is `standort:<Nummer>`,

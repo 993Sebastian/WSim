@@ -161,6 +161,8 @@ pub(super) fn decode_v2(
         next_venture: 0,
         tariff_offsets: Default::default(),
         tariffs: Default::default(),
+        contracts: Vec::new(),
+        next_contract: 0,
         player: s.player,
         game_over: s.game_over,
     };

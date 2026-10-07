@@ -485,6 +485,26 @@ test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", 
   await expect(page.getByRole("region", { name: "Draht in Deutschland" })).toBeVisible();
 });
 
+test("Lieferverträge: laufender Vertrag und neues Angebot an einen Lieferanten", async ({
+  page,
+}) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Lieferverträge", exact: true }).click();
+  const liste = page.getByRole("table", { name: "Lieferverträge" });
+  await expect(liste.getByRole("row").nth(1)).toContainText("Draht");
+  await expect(liste.getByRole("row").nth(1)).toContainText("Läuft");
+  await expect(liste.getByRole("button", { name: /^Kündigen/ })).toBeVisible();
+  const neu = page.getByRole("region", { name: "Neuer Liefervertrag" });
+  await neu.getByLabel("Produkt").selectOption("draht");
+  await expect(neu.getByLabel("Lieferant")).toContainText("Morgan Iron and Steel Corporation");
+  await neu.getByRole("button", { name: "Vertrag anbieten" }).click();
+  await expect
+    .poll(async () => JSON.stringify((await befehle(page)).at(-1)))
+    .toContain('"ProposeContract"');
+  await bild(page, "vertraege");
+});
+
 test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
   page,
 }) => {

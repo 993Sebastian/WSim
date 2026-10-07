@@ -3640,3 +3640,71 @@ fn zoelle_werden_geprueft() {
         .laden();
     befund(&doppelt, "Abschnitt „zoelle“ darf es nur einmal geben");
 }
+
+const VERTRAEGE: &str = "\
+vertraege:
+  laufzeit_monate_max: 60
+  laufzeit_standard: 12
+  strafe_max: 1.0
+  strafe_standard: 0.2
+  kuendigung_monate: 3
+  angebot_tage: 30
+  aufbewahren_monate: 12
+  ki:
+    abschlag_verkauf: 0.05
+    aufschlag_kauf: 0.05
+    anteil: 0.5
+    strafe_max: 0.5
+    angebot_chance: 0.25
+";
+
+#[test]
+fn vertraege_werden_geprueft() {
+    let datei = "parameter/vertraege.yaml";
+    let vertraege = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &VERTRAEGE.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = vertraege("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.contracts;
+    assert!(m.enabled());
+    assert_eq!(m.months_default, 12);
+    assert!((m.ai.share - 0.5).abs() < 1e-12);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "laufzeit_standard: 12",
+            "laufzeit_standard: 72",
+            "„laufzeit_standard“ muss kleiner als „laufzeit_monate_max“ sein.",
+            "vertraege.laufzeit_standard",
+        ),
+        (
+            "strafe_standard: 0.2",
+            "strafe_standard: 2",
+            "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "vertraege.strafe_standard",
+        ),
+        (
+            "anteil: 0.5",
+            "anteil: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "vertraege.ki.anteil",
+        ),
+        (
+            "angebot_tage: 30",
+            "angebot_tage: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 365.",
+            "vertraege.angebot_tage",
+        ),
+    ] {
+        let outcome = vertraege(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&vertraege("  ki:", "  unbekannt: 1\n  ki:"), "unbekannt");
+    // Without the section there are no contracts.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.contracts.enabled());
+}

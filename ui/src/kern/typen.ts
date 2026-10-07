@@ -1859,3 +1859,78 @@ export interface StartUps {
   spin_offs: Ausgruendung[];
   spin_off_min: number;
 }
+
+/** An own site and the products it could contract (W4). */
+export interface VertragsStandort {
+  site: number;
+  country: string;
+  kind_text: string;
+  /** Products the site makes or offers. */
+  sells: string[];
+  /** Products the site uses or orders. */
+  buys: string[];
+}
+
+/** A supply contract of the player (W4). */
+export interface Vertrag {
+  id: number;
+  /** The player's side. */
+  role: "verkauf" | "einkauf";
+  status:
+    "angeboten" | "laufend" | "beendet" | "gekuendigt" | "abgelehnt" | "verfallen" | "nichtig";
+  product: string;
+  unit: string;
+  own_site: number;
+  own_country: string;
+  own_kind_text: string;
+  partner: string;
+  partner_country: string;
+  per_month: number;
+  price_usd: number;
+  months: number;
+  min_quality: number;
+  penalty: number;
+  proposed: string;
+  start: string | null;
+  end: string | null;
+  closed: string | null;
+  delivered_month: number;
+  delivered_total: number;
+  penalties_paid_usd: number;
+  penalties_received_usd: number;
+  market_price_usd: number;
+  /** The player must answer this proposal. */
+  answer: boolean;
+  can_cancel: boolean;
+  cancel_fee_usd: number;
+}
+
+export interface Vertraege {
+  enabled: boolean;
+  months_max: number;
+  months_default: number;
+  penalty_max: number;
+  penalty_default: number;
+  cancel_months: number;
+  contracts: Vertrag[];
+  sites: VertragsStandort[];
+}
+
+export interface Vertragspartner {
+  site: number;
+  company: string;
+  country: string;
+  kind_text: string;
+  free_per_month: number;
+  suggested_price_usd: number;
+  delivery_cost_usd: number;
+}
+
+export interface Vertragspartnerliste {
+  site: number;
+  product: string;
+  unit: string;
+  role: "verkauf" | "einkauf";
+  own_per_month: number;
+  partners: Vertragspartner[];
+}

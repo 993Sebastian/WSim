@@ -69,6 +69,23 @@ pub enum Command {
         product: ProductId,
         quantity: f64,
     },
+    /// Proposes a supply contract between a site of the actor and one of another company
+    /// (W4); an AI company answers at once.
+    ProposeContract {
+        seller: SiteId,
+        buyer: SiteId,
+        product: ProductId,
+        per_month: f64,
+        price: Money,
+        months: u32,
+        #[serde(default)]
+        min_quality: f64,
+        penalty: f64,
+    },
+    /// Accepts or declines a proposed contract.
+    AnswerContract { contract: u32, accept: bool },
+    /// Ends a contract early (with the penalty) or withdraws a proposal.
+    CancelContract { contract: u32 },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -458,6 +475,16 @@ pub enum CommandError {
         from: String,
         to: String,
     },
+    /// The data have no contracts (W4).
+    NoContracts,
+    /// Both sites belong to the same company.
+    ContractWithItself,
+    /// No such contract, or none the company may answer or cancel.
+    UnknownContract,
+    /// The other company declines (reason: text `vertrag.abgelehnt.<key>`).
+    ContractDeclined {
+        reason: String,
+    },
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -613,6 +640,13 @@ impl CommandError {
             CommandError::Embargo { from, to } => e(keys::COMMAND_EMBARGO)
                 .with("von", Param::TextKey(format!("land.{from}")))
                 .with("nach", Param::TextKey(format!("land.{to}"))),
+            CommandError::NoContracts => e(keys::COMMAND_NO_CONTRACTS),
+            CommandError::ContractWithItself => e(keys::COMMAND_CONTRACT_ITSELF),
+            CommandError::UnknownContract => e(keys::COMMAND_UNKNOWN_CONTRACT),
+            CommandError::ContractDeclined { reason } => e(keys::COMMAND_CONTRACT_DECLINED).with(
+                "grund",
+                Param::TextKey(format!("vertrag.abgelehnt.{reason}")),
+            ),
             CommandError::RelocationUnderWay { until } => {
                 e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
             }
@@ -1270,6 +1304,34 @@ fn run(
                     arrival: today.add_days(i32::try_from(days).expect("short route")),
                 }),
             }
+        }
+        Command::ProposeContract {
+            seller,
+            buyer,
+            product,
+            per_month,
+            price,
+            months,
+            min_quality,
+            penalty,
+        } => {
+            let terms = crate::contracts::Terms {
+                seller: *seller,
+                buyer: *buyer,
+                product: *product,
+                per_month: *per_month,
+                price: *price,
+                months: *months,
+                min_quality: *min_quality,
+                penalty: *penalty,
+            };
+            crate::contracts::propose(state, catalog, actor, &terms)?;
+        }
+        Command::AnswerContract { contract, accept } => {
+            crate::contracts::answer(state, actor, *contract, *accept)?;
+        }
+        Command::CancelContract { contract } => {
+            crate::contracts::cancel(state, catalog, actor, *contract)?;
         }
         Command::TakeLoan { amount, years } => {
             if *amount <= Money::ZERO {

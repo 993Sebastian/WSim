@@ -38789,6 +38789,217 @@
     },
     "start_year": 1914
   },
+  "vertraege": {
+    "cancel_months": 3,
+    "contracts": [
+      {
+        "answer": false,
+        "can_cancel": true,
+        "cancel_fee_usd": 8722.8492,
+        "closed": null,
+        "delivered_month": 0.0,
+        "delivered_total": 0.0,
+        "end": "1916-02-01",
+        "id": 3,
+        "market_price_usd": 1322.106,
+        "min_quality": 0.0,
+        "months": 12,
+        "own_country": "DEU",
+        "own_kind_text": "standorttyp.werk",
+        "own_site": 0,
+        "partner": "Morgan Iron and Steel Corporation",
+        "partner_country": "USA",
+        "penalties_paid_usd": 0.0,
+        "penalties_received_usd": 0.0,
+        "penalty": 0.2,
+        "per_month": 9.5625,
+        "price_usd": 1520.3223,
+        "product": "draht",
+        "proposed": "1915-01-01",
+        "role": "einkauf",
+        "start": "1915-02-01",
+        "status": "laufend",
+        "unit": "t"
+      },
+      {
+        "answer": false,
+        "can_cancel": false,
+        "cancel_fee_usd": 0.0,
+        "closed": "1914-12-01",
+        "delivered_month": 0.0,
+        "delivered_total": 0.0,
+        "end": null,
+        "id": 2,
+        "market_price_usd": 1322.106,
+        "min_quality": 0.0,
+        "months": 12,
+        "own_country": "DEU",
+        "own_kind_text": "standorttyp.werk",
+        "own_site": 0,
+        "partner": "Bremer Hüttenwerke & Söhne",
+        "partner_country": "DEU",
+        "penalties_paid_usd": 0.0,
+        "penalties_received_usd": 0.0,
+        "penalty": 0.2,
+        "per_month": 9.5625,
+        "price_usd": 1341.5438,
+        "product": "draht",
+        "proposed": "1914-11-01",
+        "role": "einkauf",
+        "start": null,
+        "status": "verfallen",
+        "unit": "t"
+      },
+      {
+        "answer": false,
+        "can_cancel": false,
+        "cancel_fee_usd": 0.0,
+        "closed": "1914-08-31",
+        "delivered_month": 0.0,
+        "delivered_total": 0.0,
+        "end": null,
+        "id": 1,
+        "market_price_usd": 1322.106,
+        "min_quality": 0.0,
+        "months": 12,
+        "own_country": "DEU",
+        "own_kind_text": "standorttyp.werk",
+        "own_site": 0,
+        "partner": "Whitfield & Hughes Ltd.",
+        "partner_country": "GBR",
+        "penalties_paid_usd": 0.0,
+        "penalties_received_usd": 0.0,
+        "penalty": 0.2,
+        "per_month": 7.65,
+        "price_usd": 1676.9159,
+        "product": "draht",
+        "proposed": "1914-08-01",
+        "role": "einkauf",
+        "start": null,
+        "status": "verfallen",
+        "unit": "t"
+      },
+      {
+        "answer": false,
+        "can_cancel": false,
+        "cancel_fee_usd": 0.0,
+        "closed": "1914-07-01",
+        "delivered_month": 0.0,
+        "delivered_total": 0.0,
+        "end": null,
+        "id": 0,
+        "market_price_usd": 1322.106,
+        "min_quality": 0.0,
+        "months": 12,
+        "own_country": "DEU",
+        "own_kind_text": "standorttyp.werk",
+        "own_site": 0,
+        "partner": "Morgan Iron and Steel Corporation",
+        "partner_country": "USA",
+        "penalties_paid_usd": 0.0,
+        "penalties_received_usd": 0.0,
+        "penalty": 0.2,
+        "per_month": 7.65,
+        "price_usd": 1699.7091,
+        "product": "draht",
+        "proposed": "1914-06-01",
+        "role": "einkauf",
+        "start": null,
+        "status": "verfallen",
+        "unit": "t"
+      }
+    ],
+    "enabled": true,
+    "months_default": 12,
+    "months_max": 60,
+    "penalty_default": 0.2,
+    "penalty_max": 1.0,
+    "sites": [
+      {
+        "buys": [
+          "draht"
+        ],
+        "country": "DEU",
+        "kind_text": "standorttyp.werk",
+        "sells": [
+          "naegel"
+        ],
+        "site": 0
+      }
+    ]
+  },
+  "vertragspartner": {
+    "own_per_month": 19.125,
+    "partners": [
+      {
+        "company": "Morgan Iron and Steel Corporation",
+        "country": "USA",
+        "delivery_cost_usd": 312.6521,
+        "free_per_month": 7500.0,
+        "kind_text": "standorttyp.werk",
+        "site": 71,
+        "suggested_price_usd": 1520.3223
+      },
+      {
+        "company": "Whitfield & Hughes Ltd.",
+        "country": "GBR",
+        "delivery_cost_usd": 209.2401,
+        "free_per_month": 3000.0,
+        "kind_text": "standorttyp.werk",
+        "site": 68,
+        "suggested_price_usd": 1529.4162
+      },
+      {
+        "company": "Holloway Electric Ltd.",
+        "country": "RUS",
+        "delivery_cost_usd": 224.4659,
+        "free_per_month": 3000.0,
+        "kind_text": "standorttyp.werk",
+        "site": 845,
+        "suggested_price_usd": 3082.9757
+      },
+      {
+        "company": "Bremer Hüttenwerke & Söhne",
+        "country": "DEU",
+        "delivery_cost_usd": 0.0,
+        "free_per_month": 1500.0,
+        "kind_text": "standorttyp.werk",
+        "site": 66,
+        "suggested_price_usd": 1322.106
+      },
+      {
+        "company": "Bonnet & Durand",
+        "country": "FRA",
+        "delivery_cost_usd": 209.1769,
+        "free_per_month": 1500.0,
+        "kind_text": "standorttyp.werk",
+        "site": 67,
+        "suggested_price_usd": 1567.9743
+      },
+      {
+        "company": "Thyssen & Co.",
+        "country": "DEU",
+        "delivery_cost_usd": 0.0,
+        "free_per_month": 375.0,
+        "kind_text": "standorttyp.werk",
+        "site": 4,
+        "suggested_price_usd": 1337.9413
+      },
+      {
+        "company": "Holloway Electric Ltd.",
+        "country": "ITA",
+        "delivery_cost_usd": 215.4586,
+        "free_per_month": 375.0,
+        "kind_text": "standorttyp.werk",
+        "site": 865,
+        "suggested_price_usd": 1911.8033
+      }
+    ],
+    "product": "draht",
+    "role": "einkauf",
+    "site": 0,
+    "unit": "t"
+  },
   "weltkarte": {
     "countries": [
       {

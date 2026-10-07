@@ -628,10 +628,53 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     json["anliegen"] = concerns;
     json["strategie"] = strategy;
     json["ruecksprache"] = example_review(data)?;
+    let (contracts, partners) = example_contracts(&mut session)?;
+    json["vertraege"] = contracts;
+    json["vertragspartner"] = partners;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
     Ok(())
+}
+
+/// The example's supply contracts (W4): the workshop buys wire from the wire works with
+/// the most to spare.
+fn example_contracts(
+    session: &mut wsim_session::Session,
+) -> Result<(serde_json::Value, serde_json::Value), String> {
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let view = session.contracts().map_err(message)?;
+    let site = view
+        .sites
+        .iter()
+        .find(|s| s.buys.iter().any(|p| p == "draht"))
+        .ok_or("Die Werkstatt braucht keinen Draht.")?
+        .site;
+    let partners = session.contract_partners(site, "draht").map_err(message)?;
+    if let Some(seller) = partners.partners.first() {
+        // Half of what the workshop uses, or what the works can spare while it rests.
+        let wanted = if partners.own_per_month > 0.0 {
+            0.5 * partners.own_per_month
+        } else {
+            seller.free_per_month
+        };
+        let quantity = seller.free_per_month.min(wanted);
+        // Money units of the core: hundredths of a cent.
+        // The price is far below the i64 range.
+        #[allow(clippy::cast_possible_truncation)]
+        let price = (seller.suggested_price_usd * 10_000.0).round() as i64;
+        session
+            .command(serde_json::json!({"ProposeContract": {
+                "seller": seller.site, "buyer": site, "product": "draht",
+                "per_month": quantity, "price": price, "months": 12,
+                "min_quality": 0.0, "penalty": 0.2
+            }}))
+            .map_err(message)?;
+    }
+    let contracts =
+        serde_json::to_value(session.contracts().map_err(message)?).map_err(|e| e.to_string())?;
+    let partners = serde_json::to_value(partners).map_err(|e| e.to_string())?;
+    Ok((contracts, partners))
 }
 
 /// The views of the example's organisation (MA1–MA4).

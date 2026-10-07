@@ -3893,3 +3893,64 @@ Zufallszahl mit Mittelwert 0 und Standardabweichung `standardabweichung` · Fakt
 gewählten Stufe (Zufallsstrom „Zölle“), der
 Zoll bleibt zwischen `minimum` und `maximum`. Die Stufe wählt der Spieler beim neuen Spiel
 (`keine`, `normal`, `stark`); ohne Wahl gilt `standard`.
+
+## W4 – Lieferverträge
+
+Lastenheft §9.3. Daten: `parameter/vertraege.yaml`. Kern: Modul `contracts`.
+
+### Inhalt
+
+Ein Vertrag verbindet einen Standort des Verkäufers mit einem Standort des Käufers für ein
+Produkt: Monatsmenge *q*, Preis *P* je Einheit frei Standort des Käufers (Fracht und Zoll
+trägt der Verkäufer), Laufzeit *n* Monate ab dem nächsten Monatsersten, Mindestqualität
+*Q* und Vertragsstrafe *s* (Anteil am Wert der fehlenden Menge, höchstens `strafe_max`).
+Verträge gibt es zwischen dem Spieler und KI-Firmen (Stufe 2; Verträge zwischen KI-Firmen
+später).
+
+### Lieferung
+
+Jeden Tag nach der Produktion und vor dem Markt liefert der Verkäufer, was bis heute fällig
+ist:
+
+    fällig = q · Tag / Tage des Monats − geliefert im Monat
+    Menge  = min(fällig, Lager des Verkäufers, Kasse des Käufers / P)
+
+Ware unter der Mindestqualität wird nicht geliefert. Die Ware geht im selben Land sofort
+ins Lager des Käufers, sonst als Sendung (Fracht und Zoll wie bei eigenen Lieferungen,
+gebucht beim Verkäufer). Der Käufer zahlt P · Menge (Lagerwert P), der Verkäufer bucht
+Umsatz und den Abgang zum Lagerwert. Vertragsware ist für den Markt reserviert: Sie geht
+vor Verkäufen am Markt.
+
+### Monatsende
+
+Fehlende Menge f = q − geliefert im Monat. Fehlte Ware (Lager oder Qualität), zahlt der
+Verkäufer s · P · f an den Käufer; fehlte Geld beim Käufer, zahlt der Käufer s · P · f an
+den Verkäufer (Kostenart Sonstiges). Nach *n* Monaten endet der Vertrag.
+
+**Kündigung:** Wer kündigt, zahlt s · P · q · min(`kuendigung_monate`, Restmonate) an die
+andere Seite.
+
+### Abschluss
+
+Der Spieler bietet einen Vertrag an (Befehl `ProposeContract`); die KI-Firma antwortet
+sofort:
+
+- **als Verkäuferin** nimmt sie an, wenn P − Fracht − Zoll ≥ (1 − `ki.abschlag_verkauf`)
+  · ihr Angebotspreis am Standort (ohne Angebot: Marktpreis im Land), ihr Lager die
+  Mindestqualität hält und q höchstens `ki.anteil` ihrer Monatsleistung des Produkts am
+  Standort abzüglich laufender Verträge ist;
+- **als Käuferin** nimmt sie an, wenn P ≤ (1 + `ki.aufschlag_kauf`) · Marktpreis im Land des
+  Käufers und q höchstens `ki.anteil` ihres Monatsbedarfs am Standort (Rezepte bei
+  geplanter Auslastung) abzüglich laufender Verträge ist;
+- die Strafe höchstens `ki.strafe_max` ist.
+
+**Angebote der KI:** Zu jedem Monatsbeginn prüft je Produkt, das der Spieler anbietet
+(Verkaufsangebot eines Standorts), die KI-Firma mit dem größten Bedarf daran, und je
+Produkt, das der Spieler einkauft (Einkaufsauftrag), die KI-Firma mit dem größten freien
+Angebot. Mit Wahrscheinlichkeit `ki.angebot_chance` (Zufallsstrom „Verträge“) schlägt sie
+einen Vertrag vor: q = `ki.anteil` · ihr freier Bedarf bzw. ihre freie Leistung, höchstens
+die Monatsmenge des Spielers, P = Marktpreis im Land des Käufers, Laufzeit
+`laufzeit_standard`, Strafe `strafe_standard`. Der Spieler antwortet binnen `angebot_tage`
+Tagen (Befehl `AnswerContract`), sonst verfällt das Angebot. Dasselbe Paar aus Standorten
+bekommt für ein Produkt erst wieder ein Angebot, wenn der letzte Vertrag aus der Liste
+gefallen ist (`aufbewahren_monate` nach seinem Ende).

@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 mod central;
 mod chains;
 mod concerns;
+mod contracts;
 mod deals;
 mod hints;
 mod organisation;
@@ -18,6 +19,7 @@ mod ventures;
 pub use central::*;
 pub use chains::*;
 pub use concerns::*;
+pub use contracts::*;
 pub use deals::{
     AreaView, CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView,
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
@@ -620,6 +622,7 @@ pub fn message_view(message: &Message) -> MessageView {
         crate::message::keys::AI_PRICE_CUT_NAMED,
     ]
     .contains(&message.key.as_str())
+        || message.key.starts_with("meldung.vertrag.")
     {
         Some("markt")
     } else if message.key.starts_with("meldung.forschung") {

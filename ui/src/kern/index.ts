@@ -32,6 +32,8 @@ import type {
   StartUps,
   Strategie,
   Uebersicht,
+  Vertraege,
+  Vertragspartnerliste,
   Weiterlaufen,
   Weltkarte,
 } from "./typen";
@@ -97,6 +99,10 @@ export interface Kern {
   ruecksprache(): Promise<Ruecksprachen>;
   /** The start-ups of the world (SU1). */
   startups(): Promise<StartUps>;
+  /** The player's supply contracts (W4). */
+  vertraege(): Promise<Vertraege>;
+  /** Partners for a contract of an own site for a product (W4). */
+  vertragspartner(standort: number, produkt: string): Promise<Vertragspartnerliste>;
   /**
    * Candidates for a position: `einheit` is `standort:3`, `land:DEU` or `kontinent:europa`
    * (MA3), `stelle` is `leitung` or the key of a function (MA1).
@@ -152,6 +158,8 @@ const tauriKern: Kern = {
   strategie: () => aufruf("strategie"),
   ruecksprache: () => aufruf("ruecksprache"),
   startups: () => aufruf("startups"),
+  vertraege: () => aufruf("vertraege"),
+  vertragspartner: (standort, produkt) => aufruf("vertragspartner", { standort, produkt }),
   managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),

@@ -19,11 +19,11 @@ use crate::state::{
 };
 use crate::transport::Routes;
 
-fn usd(v: f64) -> Money {
+pub(super) fn usd(v: f64) -> Money {
     Money::from_usd(v).unwrap()
 }
 
-fn new_game(catalog: Catalog) -> Game {
+pub(super) fn new_game(catalog: Catalog) -> Game {
     let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 3,
@@ -41,16 +41,16 @@ fn new_game(catalog: Catalog) -> Game {
     Game::new(catalog, settings).unwrap()
 }
 
-fn country(game: &Game, key: &str) -> CountryId {
+pub(super) fn country(game: &Game, key: &str) -> CountryId {
     game.catalog().countries.id(key).unwrap()
 }
 
-fn iron(game: &Game) -> ProductId {
+pub(super) fn iron(game: &Game) -> ProductId {
     game.catalog().products.id("eisen").unwrap()
 }
 
 /// A warehouse of `owner` in `key` holding `quantity` iron (value 1 USD per tonne).
-fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> SiteId {
+pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> SiteId {
     let country = country(game, key);
     let p = iron(game);
     let groups = game.catalog().labor_groups.len();
@@ -93,7 +93,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64) -> Sit
     site
 }
 
-fn competitor(game: &mut Game) -> CompanyId {
+pub(super) fn competitor(game: &mut Game) -> CompanyId {
     let state = game.state_mut();
     let id = CompanyId(u32::try_from(state.companies.len()).unwrap());
     let date = state.date;
@@ -143,14 +143,14 @@ fn sell_fixed(game: &mut Game, site: SiteId, price: f64) {
     .unwrap();
 }
 
-fn stock(game: &Game, site: SiteId) -> f64 {
+pub(super) fn stock(game: &Game, site: SiteId) -> f64 {
     game.state().sites[site.index()]
         .inventory
         .get(&iron(game))
         .map_or(0.0, |s| s.quantity)
 }
 
-fn days(game: &mut Game, n: u32) {
+pub(super) fn days(game: &mut Game, n: u32) {
     for _ in 0..n {
         game.advance(RoundLength::Day, |_| {});
     }
@@ -168,7 +168,7 @@ fn exported_over(game: &mut Game, n: u32) -> f64 {
 }
 
 /// Inventory account equals the goods in warehouses and on the way.
-fn inventory_matches(game: &Game, company: CompanyId) -> bool {
+pub(super) fn inventory_matches(game: &Game, company: CompanyId) -> bool {
     let state = game.state();
     let in_sites: Money = state
         .sites
@@ -505,7 +505,7 @@ fn traders_bring_cheap_goods_to_a_price_island() {
 
 /// The trading catalog with one flat import tariff for all countries (W3), and an
 /// embargo between AAA and BBB if wanted.
-fn with_tariff(rate: f64, embargo: bool) -> Catalog {
+pub(super) fn with_tariff(rate: f64, embargo: bool) -> Catalog {
     use crate::catalog::{Embargo, TariffModel};
     use crate::time_series::TimeSeries;
     let mut catalog = test_support::trading();

@@ -622,6 +622,7 @@ markt.industrie: Firmen (Vorprodukt)
 markt.verbraucher_summe: "Verbraucher zusammen: {menge} je Monat."
 markt.marke_titel: Marke und Werbung
 markt.ketten: Produktionsketten
+markt.vertraege: Lieferverträge
 ketten.hilfe: "Wie jedes Produkt entsteht, vom Rohstoff an – mit dem günstigsten Verfahren, das du nutzen kannst. Stückkosten und Preise gelten für {land}: Vorprodukte zu Marktpreisen, Anlagen bei normaler Auslastung. Ein Klick auf ein Produkt öffnet seinen Markt."
 ketten.endprodukt: Kette von
 ketten.deine_kette: deine Kette
@@ -1661,3 +1662,52 @@ beteiligungen.grund.fortschritt: "Noch zu früh: Ausgründen geht ab {min} Forts
 beteiligungen.grund.nicht_moeglich: Nicht möglich – die Technologie ist schon erfunden oder die Stufe hat schon eine Firma.
 beteiligungen.herkunft: "Ausgründung von {firma}"
 beteiligungen.ausgruendung_marke: Ausgründung
+vertrag.hilfe: Ein Liefervertrag sichert Menge und Preis über Monate. Geliefert wird jeden Tag vor dem Markt, frei Standort des Käufers – Fracht und Zoll trägt der Verkäufer. Fehlt im Monat Ware, zahlt der Verkäufer die Vertragsstrafe; fehlt dem Käufer das Geld, zahlt er.
+vertrag.keine: In diesem Spiel gibt es keine Lieferverträge.
+vertrag.leer: Noch keine Lieferverträge. Biete unten einen an – oder warte auf Angebote anderer Firmen.
+vertrag.liste: Lieferverträge
+vertrag.produkt: Produkt
+vertrag.partner: Partner
+vertrag.menge: Menge je Monat
+vertrag.preis: Preis
+vertrag.laufzeit: Laufzeit
+vertrag.geliefert: Geliefert (Monat)
+vertrag.stand: Stand
+vertrag.zeitraum: "{von} bis {bis}"
+vertrag.monate: "{anzahl} Monate"
+vertrag.monat: Monat
+vertrag.monate_einheit: Monate
+vertrag.gesamt: "gesamt {menge}"
+vertrag.marktpreis: "Markt {preis}"
+vertrag.strafen: "Strafen gezahlt {gezahlt}, erhalten {erhalten}"
+vertrag.rolle.verkauf: Verkauf
+vertrag.rolle.einkauf: Einkauf
+vertrag.status.angeboten: Angeboten
+vertrag.status.laufend: Läuft
+vertrag.status.beendet: Ausgelaufen
+vertrag.status.gekuendigt: Gekündigt
+vertrag.status.abgelehnt: Abgelehnt
+vertrag.status.verfallen: Verfallen
+vertrag.status.nichtig: Hinfällig (Standort gewechselt)
+vertrag.annehmen: Annehmen
+vertrag.ablehnen: Ablehnen
+vertrag.zurueckziehen: Zurückziehen
+vertrag.kuendigen: "Kündigen ({strafe} Strafe)"
+vertrag.neu: Neuer Liefervertrag
+vertrag.neu_hilfe: Wähle einen deiner Standorte und ein Produkt, das er verkauft oder braucht. Die Liste zeigt Firmen, die es abnehmen oder liefern könnten, mit ihrem Preisvorschlag. Die Firma antwortet sofort.
+vertrag.standort: Dein Standort
+vertrag.abnehmer: Abnehmer
+vertrag.lieferant: Lieferant
+vertrag.partner_wahl: "{firma} ({land}) – bis {menge} im Monat, Vorschlag {preis}"
+vertrag.fracht: "Fracht und Zoll bis zu dir: {kosten} – im Preis enthalten, der Verkäufer zahlt sie."
+vertrag.eigen.verkauf: "Dein Standort erzeugt {menge} im Monat."
+vertrag.eigen.einkauf: "Dein Standort braucht {menge} im Monat."
+vertrag.preis_hilfe: Je Einheit, frei Standort des Käufers.
+vertrag.qualitaet: Mindestqualität
+vertrag.strafe: Vertragsstrafe
+vertrag.strafe_hilfe: "Anteil am Wert der fehlenden Menge (höchstens {max}). Wer kündigt, zahlt sie auf bis zu {monate} Monatsmengen."
+vertrag.anbieten: Vertrag anbieten
+vertrag.abgeschlossen: Die Firma nimmt an – der Vertrag beginnt am nächsten Monatsersten.
+vertrag.keine_standorte: Keiner deiner Standorte verkauft oder braucht ein Produkt, über das sich ein Vertrag schließen ließe.
+vertrag.keine_partner.verkauf: Keine andere Firma braucht dieses Produkt gerade in ihren Werken.
+vertrag.keine_partner.einkauf: Keine andere Firma bietet dieses Produkt gerade an.

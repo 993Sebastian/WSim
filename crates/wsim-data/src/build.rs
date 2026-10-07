@@ -21,6 +21,7 @@ use crate::messages;
 
 mod ai;
 mod central;
+mod contracts;
 mod countries;
 mod currencies;
 mod deals;
@@ -618,6 +619,7 @@ pub(crate) fn build(
     b.catalog.central = central::central_model(b.ctx, &b.catalog, raw);
     b.catalog.ventures = ventures::venture_model(b.ctx, &b.catalog, raw);
     b.catalog.tariffs = tariffs::tariff_model(b.ctx, &b.catalog, raw);
+    b.catalog.contracts = contracts::contract_model(b.ctx, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

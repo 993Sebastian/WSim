@@ -481,3 +481,58 @@ fn start_ups_follow_the_choice() {
     assert_eq!(first.phase.as_deref(), Some("idee"));
     assert_eq!(first.owners[0].holder, "gruender");
 }
+
+#[test]
+fn supply_contracts_with_ai_companies() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let later = NewGameRequest {
+        start_year: 1950,
+        capital_usd: 200_000.0,
+        ..request()
+    };
+    session.new_game(&later).unwrap();
+    let view = session.contracts().unwrap();
+    assert!(view.enabled);
+    assert!(view.contracts.is_empty());
+    // The workshop buys wire; sellers are the wire works.
+    let site = view
+        .sites
+        .iter()
+        .find(|s| s.buys.iter().any(|p| p == "draht"))
+        .expect("Werkstatt braucht Draht")
+        .site;
+    let partners = session.contract_partners(site, "draht").unwrap();
+    assert_eq!(partners.role, "einkauf");
+    let seller = partners.partners.first().expect("ein Lieferant").clone();
+    let quantity = seller.free_per_month.min(0.5 * partners.own_per_month);
+    assert!(quantity > 0.0);
+    let price = (seller.suggested_price_usd * 10_000.0).round() as i64;
+    session
+        .command(json!({"ProposeContract": {
+            "seller": seller.site, "buyer": site, "product": "draht",
+            "per_month": quantity, "price": price, "months": 6,
+            "min_quality": 0.0, "penalty": 0.2
+        }}))
+        .unwrap();
+    let view = session.contracts().unwrap();
+    let c = &view.contracts[0];
+    assert_eq!((c.status.as_str(), c.role.as_str()), ("laufend", "einkauf"));
+    assert_eq!(c.partner, seller.company);
+    assert!(c.can_cancel && c.cancel_fee_usd > 0.0);
+    // Too much is declined with the reason.
+    let err = session
+        .command(json!({"ProposeContract": {
+            "seller": seller.site, "buyer": site, "product": "draht",
+            "per_month": seller.free_per_month * 10.0, "price": price, "months": 6,
+            "min_quality": 0.0, "penalty": 0.2
+        }}))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.vertrag_abgelehnt");
+    for _ in 0..2 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let c = &session.contracts().unwrap().contracts[0];
+    assert!(c.delivered_total > 0.0, "{c:?}");
+}

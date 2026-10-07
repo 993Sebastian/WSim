@@ -1641,6 +1641,11 @@ pub struct GameState {
     /// Tariffs of the current year; derived, not saved.
     #[serde(skip)]
     pub tariffs: crate::tariffs::TariffTable,
+    /// Supply contracts, open ones and those closed in the last months (W4).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub contracts: Vec<crate::contracts::Contract>,
+    #[serde(default)]
+    pub next_contract: u32,
     pub player: CompanyId,
     pub game_over: bool,
 }

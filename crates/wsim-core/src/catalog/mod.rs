@@ -71,6 +71,8 @@ pub struct Catalog {
     pub ventures: VentureModel,
     /// Import tariffs, trade zones and embargoes (W3); without a series there are none.
     pub tariffs: TariffModel,
+    /// Supply contracts between companies (W4); without the section there are none.
+    pub contracts: ContractModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -363,6 +365,44 @@ pub struct VentureModel {
     pub keep_years: u32,
     pub inventors: Vec<Inventor>,
     pub provenance: Provenance,
+}
+
+/// Supply contracts (W4, docs/FORMELN.md). With `months_max` 0 there are none.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ContractModel {
+    pub months_max: u32,
+    pub months_default: u32,
+    /// Penalty as a share of the value of the missing quantity.
+    pub penalty_max: f64,
+    pub penalty_default: f64,
+    /// Whoever cancels pays the penalty on this many monthly quantities.
+    pub cancel_months: u32,
+    /// Days a proposal of an AI company waits for the player's answer.
+    pub proposal_days: u32,
+    /// Months closed contracts stay in the list.
+    pub keep_months: u32,
+    pub ai: ContractAiModel,
+    pub provenance: Provenance,
+}
+
+/// How AI companies answer and propose contracts.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ContractAiModel {
+    /// An AI seller takes up to this much less than its own price for a sure buyer.
+    pub sale_discount: f64,
+    /// An AI buyer pays up to this much more than the market price for sure supplies.
+    pub purchase_premium: f64,
+    /// At most this share of its output or need goes into contracts.
+    pub share: f64,
+    pub penalty_max: f64,
+    /// Chance per month and product of the player that an AI company proposes one.
+    pub proposal_chance: f64,
+}
+
+impl ContractModel {
+    pub fn enabled(&self) -> bool {
+        self.months_max > 0
+    }
 }
 
 /// Import tariffs (W3, docs/FORMELN.md). Without `default` there are no tariffs.

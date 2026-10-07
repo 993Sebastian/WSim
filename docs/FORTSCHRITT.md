@@ -75,6 +75,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W1 | Schulung je Standort (Stufe 2) | ✅ |
 | W2 | Zentrale in der Stadt: Akademiker und Büromiete je Stadt | ✅ |
 | W3 | Zölle je Land und Warengruppe, Handelszonen, Sperren, Dynamik nach 2026 | ✅ |
+| W4 | Lieferverträge zwischen Spieler und KI-Firmen | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -758,6 +759,30 @@ Stufe 2, Lastenheft §8.2, offener Punkt A 2. Regeln: `docs/FORMELN.md`, Abschni
 - **Weltlauf 1990–2026** (C4 → W3, mit der Ausnahme für teure Märkte): Versorgung weltweit
   139 → 131, je Land 4.022 → 3.433, Preisverstöße 451 → 381, Marge 347 → 335. Gummi 2025
   wieder voll versorgt (vorher 0 %), Kautschuk 0,67 statt 2,5 × Richtpreis.
+
+### W4: Lieferverträge (07.10.2026)
+
+Stufe 2, Lastenheft §9.3. Regeln: `docs/FORMELN.md`, Abschnitt W4; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/vertraege.yaml` – Laufzeit, Strafe, Kündigung, Antwortfrist und das
+  Verhalten der KI (Abschlag, Aufschlag, Anteil, Angebotschance); Prüfregeln mit
+  Fehlerfall-Test.
+- **Kern:** Modul `contracts`: Befehle `ProposeContract`, `AnswerContract`,
+  `CancelContract`; tägliche Lieferung nach der Produktion und vor dem Markt (frei Standort
+  des Käufers, Fracht und Zoll beim Verkäufer, Sendung bei Lieferung ins Ausland),
+  Monatsabrechnung mit Vertragsstrafe je nach Schuld, Kündigung mit Strafe, Verfall von
+  Angeboten, Ende bei Besitzerwechsel. KI-Firmen antworten sofort und schlagen dem
+  Spieler Verträge vor (eigener Zufallsstrom). Meldungen im Rundenbericht.
+- **Oberfläche:** Markt → „Lieferverträge“ mit Liste, Antworten, Kündigen und Formular mit
+  Partnersuche und Preisvorschlag; Beispieldaten der Vorschau mit einem laufenden Vertrag.
+- **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
+- **Tests:** Kern (monatliche Lieferung und Strafe, Ausland mit Fracht und Zoll, Kündigung,
+  Prüfung der Befehle, Antwort der KI nach Preis/Menge/Qualität/Strafe, Angebot der KI
+  und Verfall), Sitzung mit echten Daten (Drahtvertrag 1950), vitest (Kündigen, Annehmen,
+  neues Angebot), Playwright.
+- **Nachgezogen:** Ein Standort mit Vorprodukten im Lager zählt nicht mehr als Verkäufer
+  (die Partnersuche zeigte sonst Abnehmer statt Lieferanten).
 
 ## Eigenständige Entscheidungen (für das Review)
 

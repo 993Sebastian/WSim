@@ -83,6 +83,10 @@ pub enum Stream {
     Tariffs {
         year: u16,
     },
+    /// Proposals of AI companies for supply contracts in a month (W4).
+    Contracts {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -125,6 +129,7 @@ impl Stream {
                     | u64::from(year)
             }
             Stream::Tariffs { year } => (15 << 56) | u64::from(year),
+            Stream::Contracts { month } => (16 << 56) | u64::from(month),
         }
     }
 }

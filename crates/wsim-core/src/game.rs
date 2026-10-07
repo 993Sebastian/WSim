@@ -236,6 +236,8 @@ impl Game {
             next_venture: 0,
             tariff_offsets: PerId::default(),
             tariffs: Default::default(),
+            contracts: Vec::new(),
+            next_contract: 0,
             player: CompanyId(0),
             game_over: false,
         };
@@ -407,6 +409,11 @@ impl Game {
             .extend(crate::ai::decide(&mut self.state, &self.catalog, today));
         trade::deliver(&mut self.state, today);
         production::simulate_day(&mut self.state, &self.catalog, today);
+        report.messages.extend(crate::contracts::deliver(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         market::clear(&mut self.state, &self.catalog, today);
         report.messages.extend(research::simulate_day(
             &mut self.state,
@@ -431,6 +438,11 @@ impl Game {
         }
         self.state.date = next;
         if next.day() == 1 {
+            report.messages.extend(crate::contracts::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             crate::management::month_end(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             finance::month_end(&mut self.state, &self.catalog, today);

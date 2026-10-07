@@ -19,6 +19,20 @@ export type Befehl =
   | { DevelopDeposit: { site: number; deposit: string } }
   | { SetProduction: { site: number; slot: number; recipe: string | null; utilization: number } }
   | { SetAutomation: { site: number; slot: number; level: number } }
+  | {
+      ProposeContract: {
+        seller: number;
+        buyer: number;
+        product: string;
+        per_month: number;
+        price: number;
+        months: number;
+        min_quality: number;
+        penalty: number;
+      };
+    }
+  | { AnswerContract: { contract: number; accept: boolean } }
+  | { CancelContract: { contract: number } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }

@@ -550,6 +550,25 @@ gibt es keine Zölle. Ein Abschnitt `zoelle` mit:
 
 Texte: `zoll.zone.<id>` je Zone, `zoll.dynamik.<id>` je Stufe.
 
+## vertraege
+
+`data/parameter/vertraege.yaml` (W4; Regeln: `docs/FORMELN.md`, Abschnitt W4). Ohne Abschnitt
+gibt es keine Lieferverträge. Ein Abschnitt `vertraege` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **laufzeit_monate_max** | 1–600: längste Laufzeit |
+| **laufzeit_standard** | 1 bis `laufzeit_monate_max`: Laufzeit der Angebote der KI |
+| **strafe_max** | 0–10: höchste Vertragsstrafe (Anteil am Wert der fehlenden Menge) |
+| **strafe_standard** | 0 bis `strafe_max`: Strafe der Angebote der KI und Vorgabe im Formular |
+| **kuendigung_monate** | 0–600: wer kündigt, zahlt die Strafe auf so viele Monatsmengen |
+| **angebot_tage** | 1–365: so lange wartet ein Angebot der KI auf die Antwort |
+| **aufbewahren_monate** | 0–600: so lange bleiben beendete Verträge in der Liste |
+| **ki** | `abschlag_verkauf` und `aufschlag_kauf` (0–1: so viel unter dem eigenen bzw. über dem Marktpreis nimmt die KI an), `anteil` (0–1: Anteil von Leistung oder Bedarf, der in Verträge geht), `strafe_max` (0–10), `angebot_chance` (0–1 je Monat und Produkt des Spielers) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
+Texte: `vertrag.abgelehnt.<grund>` (`preis`, `menge`, `qualitaet`, `strafe`).
+
 ## produktnamen
 
 Bausteine für die erfundenen Namen, die Firmen ihren Endprodukten geben (in `ki/`, M42;

@@ -10,6 +10,7 @@ pub mod catalog;
 pub mod central;
 pub mod command;
 pub mod competition;
+pub mod contracts;
 pub mod country_model;
 pub mod currency;
 pub mod deals;
@@ -53,6 +54,8 @@ pub mod views;
 mod board_tests;
 #[cfg(test)]
 mod central_tests;
+#[cfg(test)]
+mod contracts_tests;
 #[cfg(test)]
 mod deals_tests;
 #[cfg(test)]

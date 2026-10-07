@@ -199,6 +199,13 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Nachfolgemodelle (B1): Erreicht ein benanntes Modell eine neue Entwicklungsstufe, schlägt
   der Rundenbericht das Nachfolgemodell vor („Aus Kelvor M80 könnte Kelvor M100 werden“);
   es steht dann als erster Vorschlag unter „Dein Produktname“. KI-Firmen benennen um.
+- W4: Unterreiter **Lieferverträge**: Liste der Verträge (Produkt mit Einkauf/Verkauf,
+  Partner mit Weg „Land → Land“, Menge je Monat, Preis gegen Marktpreis, Laufzeit,
+  geliefert im Monat und gesamt, Stand, Strafen) mit „Annehmen“/„Ablehnen“ für Angebote
+  anderer Firmen und „Kündigen (Strafe)“ bzw. „Zurückziehen“. Darunter „Neuer
+  Liefervertrag“: eigener Standort, Produkt (Verkauf oder Einkauf), Abnehmer bzw.
+  Lieferant mit freier Menge und Preisvorschlag, Menge, Preis, Laufzeit, Mindestqualität,
+  Strafe; die Firma antwortet sofort, eine Ablehnung nennt den Grund.
 
 ### Wettbewerb (M30, M31)
 
