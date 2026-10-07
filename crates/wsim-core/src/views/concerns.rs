@@ -162,6 +162,7 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Investment => "investition",
         ConcernReason::Debt => "verschuldung",
         ConcernReason::Proposal => "antrag",
+        ConcernReason::Poaching => "abwerbung",
     }
 }
 
@@ -369,17 +370,51 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("preis", Param::Money(price));
             deals::describe(message, state, catalog, o.seller, o.object)
         }
+        Command::MatchOffer { manager } => {
+            let o = state.poach_offers.iter().find(|o| o.manager == *manager)?;
+            let x = state.managers.get(manager)?;
+            m(keys::STEP_MATCH)
+                .with("name", Param::Text(x.name.clone()))
+                .with("angebot", Param::Money(o.salary))
+                .with("gehalt", Param::Money(x.job.as_ref()?.salary))
+        }
+        Command::LetGo { manager } => {
+            let o = state.poach_offers.iter().find(|o| o.manager == *manager)?;
+            let x = state.managers.get(manager)?;
+            m(keys::STEP_LET_GO)
+                .with("name", Param::Text(x.name.clone()))
+                .with(
+                    "firma",
+                    Param::Text(state.companies.get(o.bidder.index())?.name.clone()),
+                )
+        }
         _ => return None,
     })
 }
 
 /// Why the position recommends its option (docs/MANAGER.md 6.2).
-fn because(c: &Concern) -> Message {
+fn because(state: &GameState, c: &Concern) -> Message {
     let m = |key: &str| Message::new(MessageKind::Info, key);
     let kind = c.decision.choices.get(c.recommended).map(|o| o.kind);
     let option = c.options.get(c.recommended);
     if kind == Some(ChoiceKind::Keep) {
         return m(keys::BECAUSE_WAIT);
+    }
+    // An offer to a manager (MA6): what it would mean on his salary.
+    if let Some(o) = crate::staffing::offer_of(state, c) {
+        let salary = state
+            .managers
+            .get(&o.manager)
+            .and_then(|x| x.job.as_ref())
+            .map_or(Money::ZERO, |j| j.salary);
+        if salary > Money::ZERO {
+            let key = if kind == Some(ChoiceKind::LetGo) {
+                keys::BECAUSE_LET_GO
+            } else {
+                keys::BECAUSE_KEEP
+            };
+            return m(key).with("anteil", percent(o.salary.to_usd() / salary.to_usd() - 1.0));
+        }
     }
     match option {
         Some(o) if o.forecast.is_some_and(|(_, high)| high > Money::ZERO) => {
@@ -559,7 +594,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         reason: reason_key(c.reason).to_owned(),
         options,
         recommended: c.recommended,
-        because: message_view(&because(c)),
+        because: message_view(&because(state, c)),
         per_decision_usd: usd(per_decision),
         left_usd: usd(left),
         strategy_limit_usd: strategy_limit.map(usd),

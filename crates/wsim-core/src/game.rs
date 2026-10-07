@@ -224,6 +224,7 @@ impl Game {
             concerns: Vec::new(),
             next_concern: 0,
             followups: Vec::new(),
+            poach_offers: Vec::new(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -385,6 +386,11 @@ impl Game {
             &self.catalog,
             today,
         ));
+        report.messages.extend(crate::staffing::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         report
             .messages
             .extend(crate::ai::decide(&mut self.state, &self.catalog, today));
@@ -424,6 +430,11 @@ impl Game {
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
             self.state.refresh_countries(&self.catalog);
             crate::management::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::staffing::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             crate::plots::month_start(&mut self.state, &self.catalog, next);
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);

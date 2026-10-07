@@ -11,7 +11,7 @@ use wsim_core::game::Game;
 use wsim_core::ids::{CountryId, ProductId};
 use wsim_core::ledger::Account;
 use wsim_core::market;
-use wsim_core::state::CompanyId;
+use wsim_core::state::{CompanyId, ManagerId, Role, Unit};
 use wsim_data::Texts;
 
 /// Thresholds of the anomalies (only for the protocol, not for the game).
@@ -110,6 +110,30 @@ struct CompanyYear {
     player_result_usd: f64,
 }
 
+/// The market of managers at a year end (MA6).
+struct ManagerYear {
+    year: i32,
+    /// AI companies with a CEO, and heads of AI sites.
+    ai_ceos: usize,
+    ai_heads: usize,
+    /// Mean strength of the AI CEOs.
+    ceo_strength: f64,
+    /// What managers add to the AI companies' competence: mean over all active AI
+    /// companies and the largest.
+    staff_mean: f64,
+    staff_max: f64,
+    /// Managers who changed their employer, and jobs that ended, in the year.
+    moved: usize,
+    left: usize,
+    /// Employed managers, their mean satisfaction and those below the resignation
+    /// threshold.
+    employed: usize,
+    satisfaction: f64,
+    unhappy: usize,
+    /// Yearly salaries of the AI companies' managers at the year end.
+    ai_salaries_usd: f64,
+}
+
 #[derive(Default)]
 pub struct Protocol {
     month: Option<(i32, u32)>,
@@ -130,6 +154,12 @@ pub struct Protocol {
     bankrupt_seen: Vec<CompanyId>,
     /// Bankruptcies of companies that had bought sites in auctions: (year, company, sites).
     bankrupt_buyers: Vec<(i32, String, usize)>,
+    /// The employer of every employed manager at the last month end, and the changes of
+    /// the year so far (MA6).
+    jobs: BTreeMap<ManagerId, CompanyId>,
+    moved: usize,
+    left: usize,
+    managers: Vec<ManagerYear>,
 }
 
 fn usd(m: wsim_core::money::Money) -> f64 {
@@ -198,8 +228,27 @@ impl Protocol {
             .collect();
     }
 
+    /// Managers who changed their employer or lost their job since the last month (MA6).
+    fn count_jobs(&mut self, game: &Game) {
+        let state = game.state();
+        let now: BTreeMap<ManagerId, CompanyId> = state
+            .managers
+            .iter()
+            .filter_map(|(&id, m)| m.job.as_ref().map(|j| (id, j.company)))
+            .collect();
+        for (id, before) in &self.jobs {
+            match now.get(id) {
+                Some(c) if c != before => self.moved += 1,
+                Some(_) => {}
+                None => self.left += 1,
+            }
+        }
+        self.jobs = now;
+    }
+
     fn add_month(&mut self, game: &Game) {
         self.count_auctions(game);
+        self.count_jobs(game);
         let state = game.state();
         let catalog = game.catalog();
         let closed = state.date.add_days(-1);
@@ -408,6 +457,69 @@ impl Protocol {
             player_result_usd: player.ledger.years.last().map_or(0.0, |y| usd(y.total())),
         });
         self.companies_before = state.companies.len();
+        self.close_manager_year(game, year);
+    }
+
+    fn close_manager_year(&mut self, game: &Game, year: i32) {
+        let state = game.state();
+        let catalog = game.catalog();
+        let ai = |c: CompanyId| state.companies[c.index()].ai.is_some();
+        let mut ceos = Vec::new();
+        let (mut heads, mut employed, mut unhappy) = (0, 0, 0);
+        let (mut satisfaction, mut salaries) = (0.0, 0.0);
+        let threshold = catalog.management.market.resignation_threshold;
+        for m in state.managers.values() {
+            let Some(job) = &m.job else {
+                continue;
+            };
+            employed += 1;
+            let value = wsim_core::staffing::satisfaction(catalog, job);
+            satisfaction += f64::from(value);
+            if value < threshold {
+                unhappy += 1;
+            }
+            if !ai(job.company) {
+                continue;
+            }
+            salaries += usd(job.salary);
+            match (job.position.unit, &job.position.role) {
+                (Unit::Board, Role::Head) => ceos.push(wsim_core::management::strength(m)),
+                (Unit::Site(_), Role::Head) => heads += 1,
+                _ => {}
+            }
+        }
+        let staff: Vec<f64> = state
+            .companies
+            .iter()
+            .filter(|c| !c.bankrupt)
+            .filter_map(|c| c.ai.as_ref().map(|a| a.staff))
+            .collect();
+        self.managers.push(ManagerYear {
+            year,
+            ai_ceos: ceos.len(),
+            ai_heads: heads,
+            ceo_strength: if ceos.is_empty() {
+                0.0
+            } else {
+                ceos.iter().sum::<f64>() / ceos.len() as f64
+            },
+            staff_mean: if staff.is_empty() {
+                0.0
+            } else {
+                staff.iter().sum::<f64>() / staff.len() as f64
+            },
+            staff_max: staff.iter().copied().fold(0.0, f64::max),
+            moved: std::mem::take(&mut self.moved),
+            left: std::mem::take(&mut self.left),
+            employed,
+            satisfaction: if employed == 0 {
+                0.0
+            } else {
+                satisfaction / employed as f64
+            },
+            unhappy,
+            ai_salaries_usd: salaries,
+        });
     }
 
     pub fn write(&self, game: &Game, texts: &Texts, dir: &Path) -> Result<(), String> {
@@ -510,6 +622,31 @@ impl Protocol {
             );
             for (year, name, n) in &self.bankrupt_buyers {
                 let _ = writeln!(md, "- {year}: {name} ({n} ersteigerte Standorte)");
+            }
+        }
+        if self
+            .managers
+            .iter()
+            .any(|y| y.ai_ceos + y.ai_heads + y.moved + y.left > 0)
+        {
+            md.push_str("\n## Manager (MA6)\n\nKI-Firmen stellen CEO und Standortleitungen ein; Manager heben ihre Kompetenz (Mittel und Höchstwert über die aktiven KI-Firmen). Wechsel: Manager mit neuem Arbeitgeber (Abwerbung); beendet: Stellen, die endeten (Kündigung, Entlassung, Pleite, Standortverkauf).\n\n| Jahr | KI mit CEO | Stärke CEO | KI-Leitungen | Kompetenz + (Mittel/max) | Gehälter KI | angestellt | Zufriedenheit | unter Schwelle | Wechsel | beendet |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n");
+            for y in &self.managers {
+                let _ = writeln!(
+                    md,
+                    "| {} | {} | {:.0} | {} | {:.3} / {:.3} | {} | {} | {:.0} | {} | {} | {} |",
+                    y.year,
+                    y.ai_ceos,
+                    y.ceo_strength,
+                    y.ai_heads,
+                    y.staff_mean,
+                    y.staff_max,
+                    money(y.ai_salaries_usd),
+                    y.employed,
+                    y.satisfaction,
+                    y.unhappy,
+                    y.moved,
+                    y.left
+                );
             }
         }
         md.push_str("\n## Auffälligkeiten je Produkt\n\nJahre mit Auffälligkeit (teuer > 1,5 × Richtpreis, billig < 0,6 ×, Mangel < 85 % der Nachfrage von Verbrauchern und Staaten bzw. des Vorproduktbedarfs gedeckt, Überkapazität > 2 × Bedarf, sehr profitabel > 40 % Marge über Vollkosten, Verlust < −10 %).\n\n| Produkt | Jahre | teuer | billig | Mangel | Überkapazität | sehr profitabel | Verlust |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");

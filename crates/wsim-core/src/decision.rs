@@ -39,10 +39,12 @@ pub enum Topic {
     Bottleneck,
     Research,
     Development,
+    /// Another company's offer to a manager (MA6).
+    Poaching,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 19] = [
+    pub const ALL: [Topic; 20] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -62,6 +64,7 @@ impl Topic {
         Topic::Bottleneck,
         Topic::Research,
         Topic::Development,
+        Topic::Poaching,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -89,6 +92,7 @@ impl Topic {
             Topic::Bottleneck => "engpass",
             Topic::Research => "forschung",
             Topic::Development => "weiterentwicklung",
+            Topic::Poaching => "abwerbung",
         }
     }
 }
@@ -113,6 +117,8 @@ pub enum ChoiceKind {
     Counter,
     Research,
     Develop,
+    /// Letting a manager go to another company (MA6).
+    LetGo,
 }
 
 impl ChoiceKind {
@@ -134,6 +140,7 @@ impl ChoiceKind {
             ChoiceKind::Counter => "gegenangebot",
             ChoiceKind::Research => "forschen",
             ChoiceKind::Develop => "weiterentwickeln",
+            ChoiceKind::LetGo => "gehen_lassen",
         }
     }
 }
@@ -459,6 +466,7 @@ pub fn amount(
             .and_then(|s| s.plot)
             .map_or(Money::ZERO, |p| crate::plots::value(catalog, state, p)),
         Command::MakeOffer { price, .. } => *price,
+        Command::MatchOffer { manager } => crate::staffing::raise_of(state, *manager),
         Command::AnswerOffer {
             offer,
             answer: crate::deals::OfferAnswer::Accept,

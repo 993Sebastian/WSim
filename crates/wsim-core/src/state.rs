@@ -347,6 +347,9 @@ pub struct PositionState {
     /// The latest decisions the position took itself, newest last.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub log: Vec<PositionLog>,
+    /// A head fills the free specialist positions of its unit itself (MA6).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub hires: bool,
 }
 
 /// A decision a position took itself.
@@ -412,6 +415,8 @@ pub enum ConcernReason {
     Debt,
     /// A proposal of the CEO at the strategy review (MA5).
     Proposal,
+    /// Another company wants to hire the manager away (MA6).
+    Poaching,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -530,6 +535,13 @@ pub struct Manager {
     pub impression: BTreeMap<String, i8>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub job: Option<Job>,
+    /// The expertise experience can reach (MA6); set at the first month start after the
+    /// draw.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub potential: Option<u8>,
+    /// When another company last made him an offer (MA6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub courted: Option<Date>,
 }
 
 /// Employment of a manager.
@@ -540,6 +552,9 @@ pub struct Job {
     /// Salary per year.
     pub salary: Money,
     pub since: Date,
+    /// 0–100 (MA6); `None`: the start value of the data (older saves).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub satisfaction: Option<u8>,
 }
 
 /// Where a position sits (MA3, MA5): a site, a country or continent of its company, or
@@ -705,6 +720,39 @@ pub struct AiState {
     pub real: Option<String>,
     /// Day of the next operating decisions.
     pub next_operations: Date,
+    /// What its managers add to its competence (MA6), set at every month start.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub staff: f64,
+}
+
+fn is_zero(x: &f64) -> bool {
+    *x == 0.0
+}
+
+impl AiState {
+    /// The competence its rules act with: its own and what its managers add (MA6).
+    pub fn skill(&self) -> f64 {
+        (self.competence + self.staff).clamp(0.0, 1.0)
+    }
+}
+
+/// An offer of a company to another company's manager (MA6).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PoachOffer {
+    pub manager: ManagerId,
+    /// The company the manager works for when the offer is made.
+    pub employer: CompanyId,
+    /// The company that offers, and the position it offers.
+    pub bidder: CompanyId,
+    pub position: Position,
+    /// Salary per year offered.
+    pub salary: Money,
+    pub made: Date,
+    /// Last day the offer stands.
+    pub until: Date,
+    /// The employer took it up: answered it, asked about it or decided it.
+    #[serde(default)]
+    pub asked: bool,
 }
 
 /// A bank loan, repaid in equal monthly instalments (annuity).
@@ -1296,6 +1344,9 @@ pub struct GameState {
     /// Reports due on the effects of decisions (MA2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub followups: Vec<Followup>,
+    /// Open offers to managers of other companies (MA6).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub poach_offers: Vec<PoachOffer>,
     /// Markets by product and country.
     #[serde(default)]
     pub markets: PerId<ProductId, PerId<CountryId, Market>>,

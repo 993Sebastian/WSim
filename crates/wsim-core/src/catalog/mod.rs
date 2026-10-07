@@ -85,6 +85,7 @@ pub struct ManagementModel {
     pub concerns: ConcernModel,
     pub strategy: StrategyModel,
     pub mandate: MandateModel,
+    pub market: ManagerMarketModel,
     /// Less expertise for a head doing the work of a missing specialist.
     pub head_discount: f64,
     /// Chance that a position without any diligence notices a situation (0–1).
@@ -183,6 +184,59 @@ pub struct MandateModel {
     pub reviews_kept: u32,
     /// How much a personnel board member with full expertise sharpens the impression.
     pub personnel_sharpness: f64,
+}
+
+/// The living market of managers (MA6, docs/FORMELN.md). All zero: nothing moves.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ManagerMarketModel {
+    /// Chance per month of a point of expertise, and the room above the focus at the
+    /// draw that a manager can grow into.
+    pub experience_chance: f64,
+    pub experience_room: u8,
+    pub satisfaction: SatisfactionModel,
+    /// Below this satisfaction a manager may resign, at most with this chance a month.
+    pub resignation_threshold: u8,
+    pub resignation_chance: f64,
+    pub poaching: PoachingModel,
+    pub ai: AiHiringModel,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SatisfactionModel {
+    pub start: u8,
+    pub base: f64,
+    /// Points per percent of salary above (below) the market value.
+    pub salary_weight: f64,
+    pub loss_penalty: f64,
+    pub overruled_penalty: f64,
+    /// Share of the way to the target a month (0–1).
+    pub adjust: f64,
+    /// Upper bounds of the levels "unzufrieden" and "gemischt".
+    pub bands: [u8; 2],
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct PoachingModel {
+    pub min_strength: f64,
+    /// How much stronger than the best free candidate.
+    pub lead: f64,
+    pub markup: f64,
+    pub ignored_penalty: u8,
+    /// AI companies keep a manager up to this factor of his salary.
+    pub ai_counter_max: f64,
+    /// Months after an offer before the next one to the same manager.
+    pub pause_months: u32,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct AiHiringModel {
+    pub per_month: u32,
+    pub ceo_revenue: Money,
+    pub site_revenue: Money,
+    /// Salary at most this share of the unit's revenue in twelve months.
+    pub salary_share: f64,
+    pub competence_ceo: f64,
+    pub competence_heads: f64,
 }
 
 /// Candidates per continent (MA1).

@@ -198,6 +198,19 @@ pub enum Command {
     },
     /// The mandate to the board (MA5).
     SetMandate { mandate: crate::mandate::Mandate },
+    /// A head fills the free specialist positions of its unit itself, or no longer (MA6).
+    SetHiringByHead { position: Position, enabled: bool },
+    /// Raises the yearly salary of a manager of the company (MA6).
+    RaiseSalary { manager: ManagerId, salary: Money },
+    /// Offers another company's manager a free position of the company (MA6).
+    PoachManager {
+        manager: ManagerId,
+        position: Position,
+    },
+    /// Keeps a manager of the company at the salary another company offered him (MA6).
+    MatchOffer { manager: ManagerId },
+    /// Lets a manager of the company go to the company that made him an offer (MA6).
+    LetGo { manager: ManagerId },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -363,6 +376,22 @@ pub enum CommandError {
     /// The concern was answered or expired already.
     ConcernClosed,
     UnknownOption,
+    /// Only a head fills positions itself (MA6).
+    NotAHead,
+    /// A salary is only raised.
+    SalaryNotHigher,
+    /// The manager works for no company: hire him instead.
+    ManagerFree,
+    /// The manager works for the acting company itself.
+    OwnManager,
+    /// The manager has an open offer already.
+    ManagerHasOffer,
+    /// The manager had an offer lately; the next one from the date.
+    ManagerCourted {
+        until: Date,
+    },
+    /// No open offer to the manager.
+    NoPoachOffer,
 }
 
 impl CommandError {
@@ -467,6 +496,15 @@ impl CommandError {
             CommandError::UnknownConcern => e(keys::COMMAND_UNKNOWN_CONCERN),
             CommandError::ConcernClosed => e(keys::COMMAND_CONCERN_CLOSED),
             CommandError::UnknownOption => e(keys::COMMAND_UNKNOWN_OPTION),
+            CommandError::NotAHead => e(keys::COMMAND_NOT_A_HEAD),
+            CommandError::SalaryNotHigher => e(keys::COMMAND_SALARY_NOT_HIGHER),
+            CommandError::ManagerFree => e(keys::COMMAND_MANAGER_FREE),
+            CommandError::OwnManager => e(keys::COMMAND_OWN_MANAGER),
+            CommandError::ManagerHasOffer => e(keys::COMMAND_MANAGER_HAS_OFFER),
+            CommandError::ManagerCourted { until } => {
+                e(keys::COMMAND_MANAGER_COURTED).with("datum", Param::Date(*until))
+            }
+            CommandError::NoPoachOffer => e(keys::COMMAND_NO_POACH_OFFER),
         }
     }
 }
@@ -722,6 +760,21 @@ fn run(
         }
         Command::SetMandate { mandate } => {
             crate::mandate::set(state, catalog, actor, mandate)?;
+        }
+        Command::SetHiringByHead { position, enabled } => {
+            crate::staffing::set_hiring(state, catalog, actor, position, *enabled)?;
+        }
+        Command::RaiseSalary { manager, salary } => {
+            crate::staffing::raise_salary(state, actor, *manager, *salary)?;
+        }
+        Command::PoachManager { manager, position } => {
+            crate::staffing::poach(state, catalog, actor, *manager, position)?;
+        }
+        Command::MatchOffer { manager } => {
+            crate::staffing::match_offer(state, catalog, actor, *manager)?;
+        }
+        Command::LetGo { manager } => {
+            crate::staffing::let_go(state, catalog, actor, *manager)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

@@ -85,7 +85,7 @@ pub fn decide_with(
                 .ai_model
                 .behavior
                 .operations_days
-                .at(ai.competence)
+                .at(ai.skill())
                 .round()
                 .max(1.0);
             if let Some(ai) = state.companies[id.index()].ai.as_mut() {
@@ -932,14 +932,14 @@ fn run(state: &mut GameState, catalog: &Catalog, actor: CompanyId, command: &Com
     command::execute(state, catalog, actor, command).is_ok()
 }
 
-/// Competence and aggressiveness of a company's rules: an AI company's character; for
-/// the player a middling competence and the aggressiveness of the mandate's guideline
-/// (MA5).
+/// Competence and aggressiveness of a company's rules: an AI company's character with
+/// what its managers add (MA6); for the player a middling competence and the
+/// aggressiveness of the mandate's guideline (MA5).
 pub(crate) fn traits(catalog: &Catalog, state: &GameState, id: CompanyId) -> (f64, f64) {
     let c = &state.companies[id.index()];
     c.ai.as_ref().map_or_else(
         || (0.5, crate::mandate::aggressiveness(catalog, &c.mandate)),
-        |ai| (ai.competence, ai.aggressiveness),
+        |ai| (ai.skill(), ai.aggressiveness),
     )
 }
 
@@ -3884,6 +3884,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
             aggressiveness,
             real: None,
             next_operations: date.add_days(1),
+            staff: 0.0,
         }),
     });
     let place = (country, f.site_type);
@@ -4055,6 +4056,7 @@ mod tests {
                 aggressiveness: 0.5,
                 real: None,
                 next_operations: date,
+                staff: 0.0,
             }),
         });
         let found = Command::FoundSite {

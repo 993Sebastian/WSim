@@ -367,3 +367,62 @@ fn the_ceo_reviews_the_quarter() {
     );
     assert_eq!(r.goals.len(), 2);
 }
+
+/// A raise and a head that fills its unit's positions, as JSON with keys (MA6).
+#[test]
+fn pay_and_a_head_that_hires() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    let site = session.organisation().unwrap().continents[0].countries[0].sites[0]
+        .site
+        .unwrap();
+    let candidate = session
+        .manager_market(&format!("standort:{site}"), "leitung")
+        .unwrap()
+        .candidates[0]
+        .manager
+        .id;
+    let head = json!({"unit": {"Site": site}, "role": "Head"});
+    session
+        .command(json!({"HireManager": {"manager": candidate, "position": head}}))
+        .unwrap();
+    let holder = |session: &Session| {
+        let o = session.organisation().unwrap();
+        o.continents[0].countries[0].sites[0].positions[0].clone()
+    };
+    let position = holder(&session);
+    let h = position.holder.clone().unwrap();
+    assert_eq!(h.satisfaction, 2, "content at the start");
+    assert!(h.market_usd > 0.0 && h.offer.is_none());
+    assert_eq!(position.hires, Some(false));
+    // Raise by a tenth, in Money units (hundredths of a cent).
+    let salary = (h.salary_usd * 1.1 * 10_000.0).round() as i64;
+    session
+        .command(json!({"RaiseSalary": {"manager": candidate, "salary": salary}}))
+        .unwrap();
+    let lower = session.command(json!({"RaiseSalary": {"manager": candidate, "salary": 1}}));
+    assert_eq!(lower.unwrap_err().key, "fehler.befehl.gehalt_nicht_hoeher");
+    session
+        .command(json!({"SetHiringByHead": {"position": head, "enabled": true}}))
+        .unwrap();
+    let position = holder(&session);
+    assert_eq!(position.hires, Some(true));
+    assert!((position.holder.unwrap().salary_usd - h.salary_usd * 1.1).abs() < 0.01);
+    // At the next month start the head hires for the first position with work.
+    let run = session.end_round("monat", |_| {}).unwrap();
+    let hired = run
+        .messages
+        .iter()
+        .find(|m| m.key == "meldung.manager.eingestellt")
+        .expect("a hire");
+    assert_eq!(hired.target.as_deref(), Some("organisation"));
+    let o = session.organisation().unwrap();
+    let filled = o.continents[0].countries[0].sites[0]
+        .positions
+        .iter()
+        .filter(|p| p.holder.is_some())
+        .count();
+    assert_eq!(filled, 2);
+}

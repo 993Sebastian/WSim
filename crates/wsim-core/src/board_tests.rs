@@ -404,6 +404,7 @@ fn buyer_game(floor: f64) -> (Game, CompanyId, SiteId) {
         aggressiveness: 0.5,
         real: None,
         next_operations: Date::new(2100, 1, 1).unwrap(),
+        staff: 0.0,
     });
     state.companies.push(rival);
     let rival = CompanyId(1);

@@ -537,10 +537,12 @@ pub fn power() -> Catalog {
 /// everybody.
 pub fn management() -> Catalog {
     use super::{
-        ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-        MandateModel, NameGroup, SiteType, SkillModel, StrategyModel,
+        AiHiringModel, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel,
+        ManagerMarketModel, ManagerPoolModel, MandateModel, NameGroup, PoachingModel,
+        SatisfactionModel, SiteType, SkillModel, StrategyModel,
     };
     use crate::decision::Topic;
+    use crate::money::Money;
 
     let mut c = research();
     let function = |key: &str, topics: Vec<Topic>| ManagementFunction {
@@ -607,7 +609,7 @@ pub fn management() -> Catalog {
             ),
             function("einkauf_lager", vec![Topic::Purchase, Topic::OwnSupply]),
             function("vertrieb_marketing", vec![Topic::Sale, Topic::Advertising]),
-            function("personal", vec![Topic::Wage]),
+            function("personal", vec![Topic::Wage, Topic::Poaching]),
             function("forschung", vec![Topic::Research, Topic::Development]),
             function(
                 "finanzen",
@@ -648,6 +650,37 @@ pub fn management() -> Catalog {
             min_margin_max: 2.0,
             stock_days_max: 180.0,
             reserve_months_max: 24.0,
+        },
+        market: ManagerMarketModel {
+            experience_chance: 0.3,
+            experience_room: 20,
+            satisfaction: SatisfactionModel {
+                start: 70,
+                base: 70.0,
+                salary_weight: 1.0,
+                loss_penalty: 15.0,
+                overruled_penalty: 5.0,
+                adjust: 0.3,
+                bands: [30, 60],
+            },
+            resignation_threshold: 30,
+            resignation_chance: 0.25,
+            poaching: PoachingModel {
+                min_strength: 70.0,
+                lead: 10.0,
+                markup: 0.2,
+                ignored_penalty: 20,
+                ai_counter_max: 1.3,
+                pause_months: 12,
+            },
+            ai: AiHiringModel {
+                per_month: 1,
+                ceo_revenue: Money::from_usd(50_000_000.0).expect("valid"),
+                site_revenue: Money::from_usd(5_000_000.0).expect("valid"),
+                salary_share: 0.02,
+                competence_ceo: 0.15,
+                competence_heads: 0.1,
+            },
         },
         mandate: MandateModel {
             guidelines: [0.8, 0.5, 0.2, 0.8],

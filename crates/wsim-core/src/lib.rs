@@ -37,6 +37,7 @@ pub mod research;
 pub mod review;
 pub mod rng;
 pub mod save;
+pub mod staffing;
 pub mod state;
 pub mod strategy;
 pub mod time_series;
@@ -70,6 +71,8 @@ mod production_tests;
 mod research_tests;
 #[cfg(test)]
 mod size_tests;
+#[cfg(test)]
+mod staffing_tests;
 #[cfg(test)]
 mod strategy_tests;
 #[cfg(test)]

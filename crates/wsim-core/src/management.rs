@@ -87,7 +87,7 @@ pub fn impression_share(catalog: &Catalog, state: &GameState, company: CompanyId
     if !positions(catalog, state, company, Unit::Board).contains(&position) {
         return 1.0;
     }
-    holder(state, &position).map_or(1.0, |id| {
+    holder(state, company, &position).map_or(1.0, |id| {
         let x = &state.managers[&id];
         let sharpness = catalog.management.mandate.personnel_sharpness;
         (1.0 - sharpness * f64::from(expertise(x, key)) / 100.0).clamp(0.0, 1.0)
@@ -313,15 +313,20 @@ pub fn covered(catalog: &Catalog, state: &GameState, site: SiteId, topic: Topic)
     };
     chain(catalog, state, s.owner, Unit::Site(site), topic)
         .iter()
-        .any(|p| arises(catalog, state, p.unit, topic) && holder(state, p).is_some())
+        .any(|p| arises(catalog, state, p.unit, topic) && holder(state, s.owner, p).is_some())
 }
 
-/// Who holds a position.
-pub fn holder(state: &GameState, position: &Position) -> Option<ManagerId> {
+/// Who holds a position of a company (positions of countries, continents and the board
+/// exist in every company, MA6).
+pub fn holder(state: &GameState, company: CompanyId, position: &Position) -> Option<ManagerId> {
     state
         .managers
         .iter()
-        .find(|(_, m)| m.job.as_ref().is_some_and(|j| j.position == *position))
+        .find(|(_, m)| {
+            m.job
+                .as_ref()
+                .is_some_and(|j| j.company == company && j.position == *position)
+        })
         .map(|(&id, _)| id)
 }
 
@@ -429,7 +434,7 @@ fn book_personnel(state: &mut GameState, company: CompanyId, unit: Unit, amount:
 
 /// Ends a job on a day: the salary of the month so far is booked, the manager returns to
 /// the market.
-fn end_job(state: &mut GameState, manager: ManagerId, today: Date) {
+pub(crate) fn end_job(state: &mut GameState, manager: ManagerId, today: Date) {
     let Some(job) = state.managers.get_mut(&manager).and_then(|m| m.job.take()) else {
         return;
     };
@@ -441,7 +446,7 @@ fn end_job(state: &mut GameState, manager: ManagerId, today: Date) {
 }
 
 /// Checks that a position belongs to the acting company.
-fn check_own_position(
+pub(crate) fn check_own_position(
     catalog: &Catalog,
     state: &GameState,
     actor: CompanyId,
@@ -463,21 +468,21 @@ fn check_own_position(
 }
 
 /// Checks that a position belongs to the acting company and is free.
-fn check_position(
+pub(crate) fn check_position(
     catalog: &Catalog,
     state: &GameState,
     actor: CompanyId,
     position: &Position,
 ) -> Result<(), CommandError> {
     check_own_position(catalog, state, actor, position)?;
-    if holder(state, position).is_some() {
+    if holder(state, actor, position).is_some() {
         return Err(CommandError::PositionTaken);
     }
     Ok(())
 }
 
 /// A manager of the acting company.
-fn own_manager(
+pub(crate) fn own_manager(
     state: &GameState,
     actor: CompanyId,
     manager: ManagerId,
@@ -515,6 +520,7 @@ pub(crate) fn hire(
         position: position.clone(),
         salary,
         since,
+        satisfaction: Some(catalog.management.market.satisfaction.start),
     });
     Ok(())
 }
@@ -668,7 +674,7 @@ pub fn pool_size(catalog: &Catalog, academics: f64) -> usize {
 }
 
 /// Month number of a date for the market's random stream.
-fn month_number(date: Date) -> u32 {
+pub(crate) fn month_number(date: Date) -> u32 {
     u32::try_from(date.year()).unwrap_or(0) * 12 + date.month()
 }
 
@@ -753,6 +759,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
             state.next_manager += 1;
         }
     }
+    crate::staffing::set_potentials(state, catalog);
 }
 
 /// A country of a continent, weighted by its academics.
@@ -826,6 +833,8 @@ fn draw(
         talkativeness,
         impression,
         job: None,
+        potential: None,
+        courted: None,
     }
 }
 
@@ -916,7 +925,7 @@ pub fn position_state<'a>(
         .find(|p| p.position == *position)
 }
 
-fn position_state_mut<'a>(
+pub(crate) fn position_state_mut<'a>(
     state: &'a mut GameState,
     company: CompanyId,
     position: &Position,
@@ -934,6 +943,7 @@ fn position_state_mut<'a>(
                 muted: BTreeSet::new(),
                 blocked: BTreeMap::new(),
                 log: Vec::new(),
+                hires: false,
             });
             positions.len() - 1
         }
@@ -947,8 +957,35 @@ fn position_state_mut<'a>(
     p
 }
 
+/// Counts an amount against a position's budget of the year.
+pub(crate) fn count_spent(
+    state: &mut GameState,
+    company: CompanyId,
+    position: &Position,
+    amount: Money,
+) {
+    position_state_mut(state, company, position).spent += amount;
+}
+
+/// A unit and the units above it, up to the board (MA3, MA5).
+pub(crate) fn units_up(catalog: &Catalog, state: &GameState, unit: Unit) -> Vec<Unit> {
+    let mut out = vec![unit];
+    if let Unit::Site(_) = unit
+        && let Some(c) = country_of(state, unit)
+    {
+        out.push(Unit::Country(c));
+    }
+    if let Some(c) = country_of(state, unit) {
+        out.push(Unit::Continent(catalog.countries.get(c).continent));
+    }
+    if unit != Unit::Board {
+        out.push(Unit::Board);
+    }
+    out
+}
+
 /// Whether a site belongs to a unit.
-fn in_unit(catalog: &Catalog, state: &GameState, site: SiteId, unit: Unit) -> bool {
+pub(crate) fn in_unit(catalog: &Catalog, state: &GameState, site: SiteId, unit: Unit) -> bool {
     let Some(s) = state.sites.get(site.index()) else {
         return false;
     };
@@ -1086,7 +1123,7 @@ pub fn superior(
         if !has_unit(catalog, state, company, unit) {
             return None;
         }
-        holder(state, &head).map(|id| (head, id))
+        holder(state, company, &head).map(|id| (head, id))
     })
 }
 
@@ -1471,7 +1508,7 @@ impl Decider for Staff<'_> {
         let filled: Vec<(Position, ManagerId)> =
             chain(catalog, state, self.company, place, d.topic)
                 .into_iter()
-                .filter_map(|p| holder(state, &p).map(|id| (p, id)))
+                .filter_map(|p| holder(state, self.company, &p).map(|id| (p, id)))
                 .collect();
         let Some(start) = filled
             .iter()
@@ -1811,7 +1848,7 @@ pub fn first_taker(
 ) -> Option<Position> {
     chain(catalog, state, company, place, topic)
         .into_iter()
-        .find(|p| arises(catalog, state, p.unit, topic) && holder(state, p).is_some())
+        .find(|p| arises(catalog, state, p.unit, topic) && holder(state, company, p).is_some())
 }
 
 /// The company's sites whose structure the positions of a country or continent take
@@ -1888,7 +1925,9 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
     let quarter_end = date.next_day().day() == 1 && date.month().is_multiple_of(3);
     let first_of_year = date.ordinal() == 1;
     for (company, units) in held {
-        if state.companies[company.index()].bankrupt {
+        // AI companies' managers act through its competence (MA6).
+        let c = &state.companies[company.index()];
+        if c.bankrupt || c.ai.is_some() {
             continue;
         }
         let mut staff = Staff {

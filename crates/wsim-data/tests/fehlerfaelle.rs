@@ -2669,6 +2669,22 @@ fn management_wird_geprueft() {
         &d.laden(),
         "Thema „produktio“ ist nicht definiert. Meinten Sie „produktion“?",
     );
+    // MA6: the living market of managers.
+    let d = basis().ersetze(datei, "stufen: [30, 60]", "stufen: [60, 30]");
+    befund(
+        &d.laden(),
+        "Die Stufen der Zufriedenheit steigen: „unzufrieden“ bis 60 darf nicht über „gemischt“ bis 30 liegen.",
+    );
+    let d = basis().ersetze(datei, "chance_monat: 0.3", "chance_monat: 1.5");
+    befund(
+        &d.laden(),
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    let d = basis().ersetze(datei, "ki_gegen_max: 1.3", "ki_gegen_max: 0.5");
+    befund(
+        &d.laden(),
+        "Wert 0.5 liegt außerhalb des erlaubten Bereichs 1 bis 10.",
+    );
     // MA5: a topic follows the rules either as routine or as a topic of costs only.
     let d = basis().ersetze(
         datei,

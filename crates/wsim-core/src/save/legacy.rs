@@ -147,6 +147,7 @@ pub(super) fn decode_v2(
         concerns: Vec::new(),
         next_concern: 0,
         followups: Vec::new(),
+        poach_offers: Vec::new(),
         player: s.player,
         game_over: s.game_over,
     };

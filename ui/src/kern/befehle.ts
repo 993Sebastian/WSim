@@ -43,6 +43,8 @@ export type Befehl =
   | { HireManager: { manager: number; position: Stellenangabe } }
   | { MoveManager: { manager: number; position: Stellenangabe } }
   | { DismissManager: { manager: number } }
+  | { SetHiringByHead: { position: Stellenangabe; enabled: boolean } }
+  | { RaiseSalary: { manager: number; salary: number } }
   | { AnswerConcern: { concern: number; answer: Anliegenantwort } }
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
   | { AskAgain: { position: Stellenangabe; topic: string } }

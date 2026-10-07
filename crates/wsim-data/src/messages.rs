@@ -473,6 +473,12 @@ pub fn management_topic_without_function(topic: &str) -> String {
     )
 }
 
+pub fn management_satisfaction_bands(low: u8, mid: u8) -> String {
+    format!(
+        "Die Stufen der Zufriedenheit steigen: „unzufrieden“ bis {low} darf nicht über „gemischt“ bis {mid} liegen."
+    )
+}
+
 pub fn management_budget_order(decision: f64, year: f64) -> String {
     format!(
         "Das Budget je Entscheidung ({decision}) darf nicht größer sein als das je Jahr ({year})."

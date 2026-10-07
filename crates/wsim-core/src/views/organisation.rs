@@ -11,6 +11,7 @@ use crate::decision::Topic;
 use crate::game::Game;
 use crate::management::{self, shown_level};
 use crate::money::Money;
+use crate::staffing;
 use crate::state::{
     CompanyId, ConcernStatus, GameState, Manager, ManagerId, Position, Role, RuleScope, SiteId,
     Unit, UnitLevel,
@@ -37,6 +38,15 @@ pub struct ManagerView {
     pub skills: Vec<SkillView>,
 }
 
+/// Another company's offer to a manager of the player (MA6).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PoachOfferView {
+    pub company: String,
+    pub salary_usd: f64,
+    /// Last day it stands.
+    pub until: String,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HolderView {
     pub manager: ManagerView,
@@ -44,6 +54,11 @@ pub struct HolderView {
     pub since: String,
     /// What a dismissal costs now.
     pub severance_usd: f64,
+    /// What he would ask for the position today (MA6).
+    pub market_usd: f64,
+    /// 0 unhappy, 1 mixed, 2 happy (MA6).
+    pub satisfaction: u8,
+    pub offer: Option<PoachOfferView>,
 }
 
 /// What a position may spend without asking (MA2).
@@ -105,6 +120,8 @@ pub struct PositionView {
     /// Text key of what the position does besides topics (MA5: the personnel member of
     /// the board sees candidates more sharply).
     pub effect: Option<String>,
+    /// For heads: whether it fills the free positions of its unit itself (MA6).
+    pub hires: Option<bool>,
 }
 
 /// The positions of a unit of the player: a site, a country or a continent (MA1, MA3).
@@ -321,6 +338,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
     let held = |role: &Role| {
         management::holder(
             state,
+            player,
             &Position {
                 unit,
                 role: role.clone(),
@@ -386,10 +404,24 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
             salary_usd: usd(job.salary),
             since: iso(job.since),
             severance_usd: usd(job.salary.scale(m.severance_months / 12.0)),
+            market_usd: usd(staffing::market_value(c, state, manager)),
+            satisfaction: staffing::satisfaction_level(c, staffing::satisfaction(c, job)),
+            offer: state
+                .poach_offers
+                .iter()
+                .find(|o| o.manager == id)
+                .map(|o| PoachOfferView {
+                    company: state
+                        .companies
+                        .get(o.bidder.index())
+                        .map_or_else(String::new, |x| x.name.clone()),
+                    salary_usd: usd(o.salary),
+                    until: iso(o.until),
+                }),
         }
     };
     let position_view = |position: &Position, topics: &[Topic]| {
-        let holder = management::holder(state, position);
+        let holder = management::holder(state, player, position);
         let ps = management::position_state(state, player, position);
         let budget = holder
             .and_then(|id| state.managers[&id].job.as_ref())
@@ -469,6 +501,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
             quiet,
             open_concerns: u32::try_from(open_concerns).unwrap_or(u32::MAX),
             effect,
+            hires: (position.role == Role::Head).then(|| ps.is_some_and(|p| p.hires)),
         }
     };
     let positions = all

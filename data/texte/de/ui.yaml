@@ -1008,6 +1008,23 @@ organisation.stelle: Stelle
 organisation.inhaber: Besetzt mit
 organisation.erledigt: Erledigt
 organisation.gehalt: Gehalt im Jahr
+organisation.zufriedenheit.0: unzufrieden
+organisation.zufriedenheit.1: gemischt
+organisation.zufriedenheit.2: zufrieden
+organisation.angebot: "Angebot von {firma}: {gehalt} – Antwort bis {datum}"
+organisation.gehalt_titel: Gehalt und Zufriedenheit
+organisation.marktwert: Marktwert (seine Forderung heute)
+organisation.zufriedenheit_titel: Zufriedenheit
+organisation.zufriedenheit_hilfe: "Die Zufriedenheit sinkt, wenn das Gehalt unter dem Marktwert liegt (die Löhne steigen mit der Zeit), die Einheit Verlust macht oder du seine Empfehlungen übergehst. Wer sehr unzufrieden ist, kündigt; gute Manager werben andere Firmen ab."
+organisation.gehalt_anpassen_titel: "Gehalt von {name} anpassen"
+organisation.neues_gehalt: Neues Gehalt im Jahr
+organisation.gehalt_anpassen: Gehalt anpassen
+organisation.gehalt_hoeher: "Das neue Gehalt muss über dem bisherigen ({gehalt}) liegen – Gehälter lassen sich nur erhöhen."
+organisation.gehalt_angepasst: "{name} bekommt jetzt {gehalt} im Jahr."
+organisation.stellt_ein: Besetzt freie Fachstellen selbst
+organisation.stellt_ein_hilfe: "(je Monat höchstens eine Stelle mit Aufgaben, aus dem Managermarkt, im Rahmen ihres Jahresbudgets)"
+organisation.stellt_ein_an: "{stelle} besetzt ihre freien Fachstellen ab jetzt selbst."
+organisation.stellt_ein_aus: "{stelle} besetzt keine Stellen mehr selbst."
 organisation.frei: frei
 organisation.besetzen: Besetzen
 organisation.keine_aufgaben: noch keine Aufgaben
@@ -1096,6 +1113,7 @@ anliegen.grund.reserve: "Danach läge die Kasse unter der Liquiditätsreserve ({
 anliegen.grund.investition: "Das Investitionsbudget ({wo}) reicht nicht mehr (übrig: {rest})."
 anliegen.grund.verschuldung: "Danach wären die Kredite höher, als der Strategieauftrag erlaubt (Spielraum: {rest})."
 anliegen.grund.antrag: Ein Antrag des CEO aus der Strategierücksprache – er legt ihn dir unabhängig vom Budget vor.
+anliegen.grund.abwerbung: Eine andere Firma will den Manager abwerben – ob du ihn hältst, entscheidest du.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1292,6 +1310,7 @@ thema.lagerstaette: Lagerstätten
 thema.engpass: Engpässe
 thema.forschung: Forschungsziel
 thema.weiterentwicklung: Weiterentwicklung
+thema.abwerbung: Abwerbung
 option.beibehalten: So lassen
 option.anpassen: Anpassen
 option.liefern: Liefern
@@ -1308,6 +1327,7 @@ option.ablehnen: Ablehnen
 option.forschen: Forschen
 option.weiterentwickeln: Weiterentwickeln
 option.gegenangebot: Gegenangebot
+option.gehen_lassen: Gehen lassen
 
 # Strategieauftrag und Strategierücksprache (MA5)
 auftrag.titel: Strategieauftrag an den Vorstand

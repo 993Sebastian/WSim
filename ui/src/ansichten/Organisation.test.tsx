@@ -153,6 +153,66 @@ describe("Anliegen", () => {
     });
   });
 
+  it("zeigt Gehalt, Marktwert und Zufriedenheit, passt das Gehalt an und lässt die Leitung einstellen", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    // An offer of another company to the head of the works (MA6).
+    const mitAngebot: Kern = {
+      ...kern,
+      organisation: async () => {
+        const o = await kern.organisation();
+        const leitung = o.continents[0]!.countries[0]!.sites[0]!.positions[0]!;
+        leitung.holder = {
+          ...leitung.holder!,
+          satisfaction: 0,
+          offer: { company: "Rivale AG", salary_usd: 99_000, until: "1915-03-31" },
+        };
+        return o;
+      },
+    };
+    render(
+      <OrganisationAnsicht
+        kern={mitAngebot}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    // In the table and in the position's details.
+    expect(await screen.findAllByText("unzufrieden")).toHaveLength(2);
+    expect(
+      screen.getByText(/Angebot von Rivale AG: 99\.000 .* – Antwort bis 31\.03\.1915/),
+    ).toBeTruthy();
+    const zeile = await screen.findByText(/Werksleitung/, { selector: "summary strong" });
+    fireEvent.click(zeile);
+    const details = within(zeile.closest("details")!);
+    expect(details.getByText("Gehalt und Zufriedenheit")).toBeTruthy();
+    expect(details.getByText("Marktwert (seine Forderung heute)")).toBeTruthy();
+    const o = await kern.organisation();
+    const h = o.continents[0]!.countries[0]!.sites[0]!.positions[0]!.holder!;
+    const formular = details.getByRole("form", {
+      name: `Gehalt von ${h.manager.name} anpassen`,
+    });
+    // Lower than now is refused before sending.
+    fireEvent.change(within(formular).getByLabelText("Neues Gehalt im Jahr"), {
+      target: { value: "1" },
+    });
+    fireEvent.click(within(formular).getByRole("button", { name: "Gehalt anpassen" }));
+    expect(await within(formular).findByText(/muss über dem bisherigen/)).toBeTruthy();
+    expect(gesendet).toEqual([]);
+    const neu = Math.round(h.salary_usd * 1.5);
+    fireEvent.change(within(formular).getByLabelText("Neues Gehalt im Jahr"), {
+      target: { value: String(neu) },
+    });
+    fireEvent.click(within(formular).getByRole("button", { name: "Gehalt anpassen" }));
+    await screen.findByText(new RegExp(`${h.manager.name} bekommt jetzt`));
+    fireEvent.click(details.getByLabelText(/Besetzt freie Fachstellen selbst/));
+    await screen.findByText("Werksleitung besetzt ihre freien Fachstellen ab jetzt selbst.");
+    const site = o.continents[0]!.countries[0]!.sites[0]!.site!;
+    expect(gesendet).toEqual([
+      { RaiseSalary: { manager: h.manager.id, salary: neu * 10_000 } },
+      { SetHiringByHead: { position: { unit: { Site: site }, role: "Head" }, enabled: true } },
+    ]);
+  });
+
   it("hat Texte für alle Optionen, Gründe und Ausgänge", () => {
     const optionen = [
       "beibehalten",
@@ -170,6 +230,8 @@ describe("Anliegen", () => {
       "ablehnen",
       "forschen",
       "weiterentwickeln",
+      "gegenangebot",
+      "gehen_lassen",
     ];
     const gruende: Anliegen["reason"][] = [
       "entscheidung",
@@ -178,6 +240,9 @@ describe("Anliegen", () => {
       "kredit",
       "reserve",
       "investition",
+      "verschuldung",
+      "antrag",
+      "abwerbung",
     ];
     const ausgaenge: Anliegen["status"][] = [
       "offen",
@@ -193,6 +258,8 @@ describe("Anliegen", () => {
       ...gruende.map((k) => `anliegen.grund.${k}`),
       ...ausgaenge.map((k) => `anliegen.status.${k}`),
       ...["alle", "wichtige", "nie"].map((k) => `spiel.anhalten_${k}`),
+      ...[0, 1, 2].map((k) => `organisation.zufriedenheit.${k}`),
+      "thema.abwerbung",
     ].filter((k) => !hatText(k));
     expect(fehlend).toEqual([]);
   });

@@ -179,6 +179,19 @@ fehler.befehl.stelle_besetzt: Die Stelle ist schon besetzt.
 fehler.befehl.anliegen_unbekannt: Dieses Anliegen gibt es nicht.
 fehler.befehl.anliegen_erledigt: Dieses Anliegen ist schon beantwortet oder verfallen.
 fehler.befehl.option_unbekannt: Diese Option gibt es bei dem Anliegen nicht.
+fehler.befehl.keine_leitung: Nur eine Leitung besetzt die Stellen ihrer Einheit selbst.
+fehler.befehl.gehalt_nicht_hoeher: Das neue Gehalt muss über dem bisherigen liegen – Gehälter lassen sich nur erhöhen.
+fehler.befehl.manager_frei: Dieser Manager ist frei – stelle ihn ein, statt ihn abzuwerben.
+fehler.befehl.eigener_manager: Dieser Manager arbeitet schon für deine Firma.
+fehler.befehl.manager_hat_angebot: Dieser Manager hat schon ein offenes Angebot.
+fehler.befehl.manager_umworben: "Dieser Manager hat gerade erst ein Angebot bekommen; das nächste ab {datum}."
+fehler.befehl.kein_abwerbeangebot: Für diesen Manager liegt kein Angebot einer anderen Firma vor.
+meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
+meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
+meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."
+meldung.manager.abwerbung_entschieden: "{firma} wollte {name} ({stelle}, {ort}) für {angebot} im Jahr abwerben. Die Personalstelle hat selbst entschieden: {option}."
+meldung.manager.gewechselt: "{name} ({stelle}, {ort}) wechselt zu {firma}."
+meldung.manager.geblieben: "Das Angebot von {firma} an {name} ({stelle}, {ort}) ist verfallen. {name} bleibt, ist aber enttäuscht."
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.neu_land: "{stelle} ({land}) fragt: {thema}. Antwort bis {frist}."
@@ -205,6 +218,8 @@ schritt.einkauf_ende: "Einkauf von {produkt} beenden"
 schritt.einkauf: "{produkt} einkaufen: Vorrat {menge} {einheit}, höchstens {preis} je {einheit}"
 schritt.lieferung: "{menge} {einheit} {produkt} aus {standort} ({land}) liefern"
 schritt.lohn: "Lohnaufschlag {aufschlag} %"
+schritt.gegenangebot.manager: "Gehalt von {name} auf {angebot} im Jahr anheben (bisher {gehalt}); {name} bleibt zufrieden."
+schritt.gehen_lassen: "{name} wechselt zu {firma}; die Stelle wird frei, ohne Abfindung."
 schritt.forschung: "Forschung an {technologie}"
 schritt.forschung_ende: Labor ohne Ziel lassen
 schritt.weiterentwicklung: "{produkt} weiterentwickeln"
@@ -225,6 +240,8 @@ anliegen.begruendung.ergebnis: "Bringt nach meiner Schätzung {von} bis {bis} im
 anliegen.begruendung.erloes: "Bringt einmalig {betrag}."
 anliegen.begruendung.abwarten: Abwarten – die anderen Wege kosten nach meiner Schätzung mehr, als sie bringen.
 anliegen.begruendung.regel: So handhaben wir es üblicherweise.
+anliegen.begruendung.halten: "Das Angebot liegt {anteil} % über dem Gehalt – das ist es wert, um nicht neu suchen zu müssen."
+anliegen.begruendung.ziehen_lassen: "Das Angebot liegt {anteil} % über dem Gehalt – mehr ist die Stelle uns nicht wert, oder die Kasse trägt es nicht."
 meldung.angebot.erhalten.standort: "{firma} bietet {preis} für deinen Standort ({art} in {land}). Antwort bis {frist}."
 meldung.angebot.erhalten.lizenz: "{firma} bietet {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.angebot.gegenangebot.standort: "{firma} verlangt {preis} für den Standort ({art} in {land}). Antwort bis {frist}."

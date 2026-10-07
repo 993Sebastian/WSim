@@ -414,7 +414,7 @@ pub fn month_end(state: &mut GameState, catalog: &Catalog, next: Date) -> Vec<Me
         .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
         .filter(|&id| {
             let c = &state.companies[id.index()];
-            !c.bankrupt && period_ends(c.mandate.review, next)
+            !c.bankrupt && c.ai.is_none() && period_ends(c.mandate.review, next)
         })
         .filter_map(|id| management::ceo_of(state, id).map(|m| (id, m)))
         .collect();

@@ -221,7 +221,7 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   Bekanntheit der Marke je Land, Grundwert (Standorte und Marke, ⓘ), Neubaupreis und
   Preisfeld. Angebote für Bereiche erscheinen wie die für Standorte unter „Angebote“.
 
-### Organisation (MA1–MA5)
+### Organisation (MA1–MA6)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
 und was bleibt bei mir?“ Vier Unterreiter: „Stellen“, „Anliegen“ (mit Zähler der
@@ -242,6 +242,22 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   „Hierher versetzen“ (Gehalt danach). Fähigkeiten erscheinen nur als Stufen von
   „schwach“ bis „herausragend“ – als Einschätzung, die um eine Stufe danebenliegen kann.
 - **Entlassen:** fragt nach und nennt die Abfindung.
+- **Zufriedenheit (MA6):** In der Spalte „Gehalt im Jahr“ unter dem Gehalt die
+  Zufriedenheit als Stufe („zufrieden“ grün, „gemischt“ gelb, „unzufrieden“ rot) und, wenn
+  eine andere Firma ihn abwerben will, „Angebot von Firma: Betrag – Antwort bis Datum“. In
+  der aufklappbaren Zeile der Stelle der Abschnitt „Gehalt und Zufriedenheit“: Gehalt,
+  Marktwert (seine Forderung heute), Zufriedenheit, Erklärung (Gehalt unter Marktwert,
+  Verlust der Einheit, übergangene Empfehlungen; wer sehr unzufrieden ist, kündigt), Feld
+  „Neues Gehalt im Jahr“ (vorbelegt mit dem Marktwert) und „Gehalt anpassen“ – Gehälter
+  lassen sich nur erhöhen. Bei Leitungen der Schalter „Besetzt freie Fachstellen selbst“:
+  Die Leitung stellt je Monat höchstens eine Fachstelle mit Aufgaben aus dem Managermarkt
+  ein, im Rahmen ihres Jahresbudgets; die Meldung im Rundenbericht nennt Name und Gehalt.
+- **Abwerbung (MA6):** Will eine KI-Firma einen Manager abwerben, kommt ein Anliegen
+  „Abwerbung“ (wichtig) der Personalstelle seiner Einheit, sonst der nächsten darüber, sonst
+  des Managers selbst: „Gegenangebot“ (Gehalt auf das Angebot, er bleibt zufrieden) oder
+  „Gehen lassen“ (er wechselt, die Stelle wird frei, ohne Abfindung). Unbeantwortet
+  verfällt das Angebot, er bleibt, ist aber enttäuscht (Zufriedenheit sinkt). Kündigungen
+  und Wechsel stehen im Rundenbericht.
 - Stellen ohne Aufgaben (Logistik) stehen da, lassen sich aber erst besetzen, wenn sie
   Aufgaben bekommen. Laborleitungen wählen das nächste Forschungsziel (MA2).
 - **Budget und Entscheidungen (MA2):** Unter den Stellen eines Standorts je besetzter

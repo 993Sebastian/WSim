@@ -2837,3 +2837,127 @@ Ressort ganz.
 Neue Felder mit Vorgabewerten (Auftrag, Rücksprachen, Bezug der Anliegen); alte Stände
 laden ohne neue Version. KI-Firmen haben keinen Vorstand (bis MA6); ihr Verhalten bleibt
 bitgleich.
+
+## MA6 – Lebendiger Managermarkt
+
+`docs/MANAGER.md` Abschnitte 0 (Punkt 3), 3 („Leitung stellt ein“), 4.1–4.3 und 11. Daten:
+`parameter/management.yaml`, Block `markt`. Kern: Modul `staffing`. Alles am
+**Monatsanfang** nach dem Auffüllen des Bewerberpools, in fester Reihenfolge: Erfahrung,
+Zufriedenheit, Kündigungen, Einstellungen der Leitungen, dann je KI-Firma Gehälter,
+Einstellungen und Abwerbungen, zuletzt die Kompetenz der KI-Firmen. Zufall der Manager aus
+ihrem Monatsstrom (`Stream::ManagerMonth`, je Manager und Monat), Entscheidungen der KI aus
+dem Monatsstrom der Firma (`Stream::Staffing`).
+
+### Erfahrung
+
+- Jeder Manager hat eine persönliche **Obergrenze** *P* der Fachkompetenz: seine höchste
+  Fachkompetenz bei der Ziehung + gleichverteilt 0 … `erfahrung.spielraum`, höchstens 100.
+  Sie stammt aus einem eigenen Strom je Manager-Nummer (`Stream::ManagerPotential`,
+  verschiebt keine Ziehung des Markts) und wird am Monatsanfang nach dem Auffüllen
+  gesetzt; Manager älterer Spielstände bekommen sie dort ebenso.
+- Wer eine Stelle hat, gewinnt jeden Monat mit der Wahrscheinlichkeit
+  `erfahrung.chance_monat` einen Punkt Fachkompetenz im **Bereich der Stelle** (Leitung:
+  ihr Schwerpunkt), solange er unter *P* liegt. Mit 0,3 sind das im Mittel 3,6 Punkte im
+  Jahr; Gehaltsforderung und Marktwert steigen mit.
+
+### Zufriedenheit
+
+- 0–100, beim Einstellen und nach einem Gegenangebot `zufriedenheit.start`; Manager
+  älterer Spielstände beginnen dort. Am Monatsanfang für jeden Manager mit Stelle:
+
+      Ziel Z = basis + gehalt_gewicht · 100 · (Gehalt / Marktwert − 1)
+               − verlust_abzug   (wenn die Einheit in zwölf Monaten Verlust machte)
+               − uebergangen_abzug · Ü
+      Zufriedenheit ← round(Z_alt + anpassung · (Z − Z_alt)), auf 0–100 begrenzt
+
+  Marktwert = Gehaltsforderung für seine Stelle heute (MA1, mit den heutigen Fähigkeiten
+  und Löhnen; ohne Marktwert entfällt der Gehaltsteil); Ergebnis der Einheit = Summe der
+  Monatsergebnisse ihrer Standorte in den letzten zwölf abgeschlossenen Monaten (MA2,
+  Vorstand: alle Standorte); Ü = Anliegen dieses Managers, die in den letzten zwölf
+  Monaten geschlossen wurden und bei denen der Spieler eine andere als die empfohlene
+  Option gewählt oder das Thema abgelehnt hat.
+- Weil die Löhne mit der Zeit steigen, fällt ein festes Gehalt hinter den Marktwert
+  zurück. **Gehalt anpassen** (`RaiseSalary`): Die Firma setzt das Gehalt eines ihrer
+  Manager herauf (nur erhöhen); die Oberfläche schlägt den Marktwert vor.
+- Anzeige als Stufe („unzufrieden“ unter `zufriedenheit.stufen[0]`, „gemischt“ unter
+  `stufen[1]`, sonst „zufrieden“), ohne Unschärfe, mit dem Marktwert.
+
+### Kündigung
+
+- Liegt die Zufriedenheit unter `kuendigung.schwelle` *S*, kündigt der Manager mit der
+  Wahrscheinlichkeit `kuendigung.chance_max` · (*S* − Zufriedenheit) / *S*. Gehalt bis
+  zum Tag, keine Abfindung; er kehrt in den Bewerberpool seines Kontinents zurück.
+  Meldung an den Spieler, wenn es einer seiner Manager ist.
+
+### Leitung stellt ein
+
+- Schalter je Leitung (Befehl `SetHiringByHead`). Eine besetzte Leitung mit Schalter
+  besetzt am Monatsanfang höchstens eine freie Fachstelle ihrer Einheit, die Themen oder
+  eine Wirkung hat (MA5), in der Reihenfolge der Fachstellen.
+- Wahl: freie Bewerber aus dem Kontinent des Sitzlands der Einheit mit dem Schwerpunkt
+  des Bereichs, sonst alle des Kontinents; mit der Wahrscheinlichkeit `empfehlung_grund`
+  + (1 − `empfehlung_grund`) · Urteilsvermögen / 100 der mit der höchsten Fachkompetenz
+  im Bereich, sonst der mit der höchsten angezeigten Stufe darin (Eindruck der Firma).
+  Nur wenn das Jahresgehalt in den Rest ihres Jahresbudgets passt; es zählt darauf.
+  Meldung an den Spieler.
+
+### KI-Firmen
+
+KI-Firmen nutzen denselben Pool und dieselben Befehle (`HireManager`, `RaiseSalary`,
+`PoachManager`, `MatchOffer`, `LetGo`). Ihre Entscheidungen bleiben die Regeln der KI;
+Manager wirken über ihre **Kompetenz** (MANAGER.md §0.3, keine Sonderregeln). Sie haben
+keine Budgets, Anliegen und Strategien: Ihre Manager entscheiden nicht über die
+Stellen-Kette des Spielers.
+
+- **Gehälter:** Liegt die Zufriedenheit eines ihrer Manager unter `zufriedenheit.stufen[1]`
+  und sein Gehalt unter dem Marktwert, hebt sie es auf den Marktwert, wenn ihre Kasse das
+  Jahresgehalt deckt.
+- **Wen:** je Monat höchstens `ki.einstellungen_monat` Stellen: zuerst den CEO, wenn der
+  Umsatz der Firma in zwölf Monaten ≥ `ki.umsatz_ceo_usd`, dann die Leitungen ihrer
+  Standorte mit dem größten Umsatz in zwölf Monaten ≥ `ki.umsatz_standort_usd`. Nur wenn
+  die Gehaltsforderung ≤ `ki.gehalt_anteil` · Umsatz der Einheit in zwölf Monaten und die
+  Kasse das Jahresgehalt deckt.
+- **Wahl:** Stärke wie MA1. Der stärkste freie Bewerber aus dem Kontinent des Sitzlands
+  mit der Wahrscheinlichkeit der Kompetenz, sonst einer der drei stärksten
+  (gleichverteilt).
+- **Wirkung:** Kompetenz = Grundkompetenz + `ki.kompetenz_ceo` · (Stärke CEO − 50) / 50
+  + `ki.kompetenz_leitung` · Anteil der Standorte mit Leitung · (mittlere Stärke der
+  Leitungen − 50) / 50, auf 0–1 begrenzt; neu berechnet am Monatsanfang. Sie bestimmt wie
+  bisher, wie oft die KI ihren Betrieb prüft und wie weit sie in der Forschung vorausplant.
+  Ein starker CEO hebt sie, ein schwacher senkt sie. Die Gehälter sind Personalkosten wie
+  beim Spieler.
+
+### Abwerbung
+
+- Sucht eine KI-Firma eine Stelle zu besetzen, prüft sie neben dem Pool die Manager
+  anderer Firmen aus demselben Kontinent mit Stärke ≥ `abwerbung.staerke_min`, die in
+  diesem Monat noch kein Angebot haben. Ist der stärkste davon um mindestens
+  `abwerbung.vorsprung` stärker als der Bewerber, den sie nehmen würde, bietet sie ihm
+  (`PoachManager`) das Höhere aus seiner Forderung für ihre Stelle und seinem Gehalt ·
+  (1 + `abwerbung.aufschlag`) – nur wenn dieser Betrag die Grenzen fürs Einstellen
+  einhält. Die Stelle bleibt frei, solange das Angebot gilt.
+- **Manager des Spielers:** ein Anliegen (Thema `abwerbung`, wichtig) mit Frist
+  `anliegen.frist_tage`. Es stellt die Personal-Stelle seiner Einheit (der Bereich mit dem
+  Thema `abwerbung`), sonst die nächste besetzte Personal-Stelle darüber (Land, Kontinent,
+  Vorstand), sonst der Manager selbst. Optionen: **Gegenangebot** (`MatchOffer`: Gehalt
+  auf das Angebot, Zufriedenheit auf `zufriedenheit.start`; zählt die Erhöhung im Jahr)
+  oder **Gehen lassen** (`LetGo`: Er wechselt zur KI-Firma, Gehalt bis zum Tag, keine
+  Abfindung). Empfohlen wird, was eine KI-Firma täte (unten). Unbeantwortet bis zur Frist,
+  abgelehnt oder bei einem Thema, das der Spieler ruhen lässt, bleibt alles, wie es ist
+  (MANAGER.md §0.4): Das Angebot verfällt, die Zufriedenheit sinkt um
+  `abwerbung.ignoriert_abzug`. Bei „Entscheide selbst“ setzt die Stelle ihre Empfehlung
+  um, wenn die Erhöhung in ihr Budget passt.
+- **Manager einer KI-Firma:** Sie hält ihn sofort, wenn das Angebot ≤
+  `abwerbung.ki_gegen_max` · sein Gehalt ist und ihre Kasse das Jahresgehalt deckt
+  (Gegenangebot), sonst lässt sie ihn gehen.
+- Eine Firma macht je Monat höchstens ein Angebot; ein Manager hat höchstens ein offenes
+  Angebot und bekommt nach einem Angebot `abwerbung.sperre_monate` Monate lang keines
+  (sonst stiege sein Gehalt mit jedem gehaltenen Angebot Monat für Monat).
+
+### Spielstände und Leistung
+
+- Neue Felder mit Vorgaben (Obergrenze, Zufriedenheit, Schalter, offene Angebote,
+  Kompetenz durch Manager); alte Stände laden ohne neue Version.
+- Die KI ändert sich gewollt (Gehälter, Kompetenz). Mit `ki.einstellungen_monat: 0`
+  bleibt sie bitgleich zu MA5. Benchmark: Weltlauf mit 1 000 KI-Firmen ohne deutlichen
+  Leistungsverlust gegenüber MA5.

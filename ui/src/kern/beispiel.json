@@ -25160,6 +25160,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": false,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25182,6 +25183,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25200,6 +25202,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25210,6 +25213,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25222,6 +25226,7 @@
         {
           "budget": null,
           "effect": "organisation.wirkung_personal",
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25232,6 +25237,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25242,6 +25248,7 @@
         {
           "budget": null,
           "effect": null,
+          "hires": null,
           "holder": null,
           "log": [],
           "open_concerns": 0,
@@ -25295,6 +25302,7 @@
                       "spent_usd": 0.0
                     },
                     "effect": null,
+                    "hires": false,
                     "holder": {
                       "manager": {
                         "continent": "europa",
@@ -25353,7 +25361,10 @@
                           }
                         ]
                       },
+                      "market_usd": 82567.6625,
+                      "offer": null,
                       "salary_usd": 82567.6625,
+                      "satisfaction": 2,
                       "severance_usd": 20641.9156,
                       "since": "1914-08-01"
                     },
@@ -25385,6 +25396,7 @@
                   {
                     "budget": null,
                     "effect": null,
+                    "hires": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25401,6 +25413,7 @@
                   {
                     "budget": null,
                     "effect": null,
+                    "hires": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25414,6 +25427,7 @@
                   {
                     "budget": null,
                     "effect": null,
+                    "hires": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25426,6 +25440,7 @@
                   {
                     "budget": null,
                     "effect": null,
+                    "hires": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25438,6 +25453,7 @@
                   {
                     "budget": null,
                     "effect": null,
+                    "hires": null,
                     "holder": null,
                     "log": [],
                     "open_concerns": 0,
@@ -25475,6 +25491,7 @@
                     "spent_usd": 0.0
                   },
                   "effect": null,
+                  "hires": false,
                   "holder": {
                     "manager": {
                       "continent": "europa",
@@ -25533,7 +25550,10 @@
                         }
                       ]
                     },
+                    "market_usd": 150223.4395,
+                    "offer": null,
                     "salary_usd": 150223.4395,
+                    "satisfaction": 2,
                     "severance_usd": 37555.8599,
                     "since": "1914-08-01"
                   },
@@ -25554,6 +25574,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25571,6 +25592,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25581,6 +25603,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25593,6 +25616,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25603,6 +25627,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25613,6 +25638,7 @@
                 {
                   "budget": null,
                   "effect": null,
+                  "hires": null,
                   "holder": null,
                   "log": [],
                   "open_concerns": 0,
@@ -25637,6 +25663,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": false,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25655,6 +25682,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25672,6 +25700,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25682,6 +25711,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25694,6 +25724,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25704,6 +25735,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,
@@ -25714,6 +25746,7 @@
             {
               "budget": null,
               "effect": null,
+              "hires": null,
               "holder": null,
               "log": [],
               "open_concerns": 0,

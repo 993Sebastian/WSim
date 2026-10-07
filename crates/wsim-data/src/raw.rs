@@ -1304,6 +1304,8 @@ pub struct RawManagement {
     pub strategy: RawStrategy,
     #[serde(rename = "strategieauftrag")]
     pub mandate: RawMandateModel,
+    #[serde(rename = "markt")]
+    pub market: RawManagerMarket,
     #[serde(rename = "leitung_ohne_fach_abschlag")]
     pub head_discount: f64,
     #[serde(rename = "bemerken_grund")]
@@ -1409,6 +1411,91 @@ pub struct RawMandateModel {
     pub reviews_kept: u32,
     #[serde(rename = "personal_schaerfe")]
     pub personnel_sharpness: f64,
+}
+
+/// The living market of managers (MA6).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawManagerMarket {
+    #[serde(rename = "erfahrung")]
+    pub experience: RawExperience,
+    #[serde(rename = "zufriedenheit")]
+    pub satisfaction: RawSatisfaction,
+    #[serde(rename = "kuendigung")]
+    pub resignation: RawResignation,
+    #[serde(rename = "abwerbung")]
+    pub poaching: RawPoaching,
+    #[serde(rename = "ki")]
+    pub ai: RawAiHiring,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawExperience {
+    #[serde(rename = "chance_monat")]
+    pub chance_per_month: f64,
+    #[serde(rename = "spielraum")]
+    pub room: u8,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSatisfaction {
+    pub start: u8,
+    #[serde(rename = "basis")]
+    pub base: f64,
+    #[serde(rename = "gehalt_gewicht")]
+    pub salary_weight: f64,
+    #[serde(rename = "verlust_abzug")]
+    pub loss_penalty: f64,
+    #[serde(rename = "uebergangen_abzug")]
+    pub overruled_penalty: f64,
+    #[serde(rename = "anpassung")]
+    pub adjust: f64,
+    /// Upper bounds of "unzufrieden" and "gemischt".
+    #[serde(rename = "stufen")]
+    pub bands: [u8; 2],
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawResignation {
+    #[serde(rename = "schwelle")]
+    pub threshold: u8,
+    pub chance_max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPoaching {
+    #[serde(rename = "staerke_min")]
+    pub min_strength: f64,
+    #[serde(rename = "vorsprung")]
+    pub lead: f64,
+    #[serde(rename = "aufschlag")]
+    pub markup: f64,
+    #[serde(rename = "ignoriert_abzug")]
+    pub ignored_penalty: u8,
+    pub ki_gegen_max: f64,
+    #[serde(rename = "sperre_monate")]
+    pub pause_months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAiHiring {
+    #[serde(rename = "einstellungen_monat")]
+    pub per_month: u32,
+    #[serde(rename = "umsatz_ceo_usd")]
+    pub ceo_revenue_usd: f64,
+    #[serde(rename = "umsatz_standort_usd")]
+    pub site_revenue_usd: f64,
+    #[serde(rename = "gehalt_anteil")]
+    pub salary_share: f64,
+    #[serde(rename = "kompetenz_ceo")]
+    pub competence_ceo: f64,
+    #[serde(rename = "kompetenz_leitung")]
+    pub competence_heads: f64,
 }
 
 /// Aggressiveness of the rules per guideline (0–1).

@@ -2731,3 +2731,25 @@ body {
   border-radius: 1rem;
   background: var(--hervorhebung);
 }
+
+/* Satisfaction of managers (MA6). */
+.zufriedenheit.stufe-0 {
+  color: var(--fehler);
+}
+
+.zufriedenheit.stufe-1 {
+  color: var(--warnung);
+}
+
+.zufriedenheit.stufe-2 {
+  color: var(--erfolg);
+}
+
+.warnung-text {
+  color: var(--warnung);
+}
+
+.stelle-details label.schalter {
+  display: block;
+  margin: 0.5rem 0 0.75rem;
+}

@@ -315,3 +315,12 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Strategierücksprache, Bericht, Ziel, Chance, Risiko, Antrag | `review::{Review, Figures, GoalCheck, Goal, Chance, Risk, month_end, report, goals}`, `Company::reviews`; `ConcernReason::Proposal` (`antrag`); `ai::opportunities`; Sicht `views::{reviews, ReviewsView}`; UI: `RuecksprachenAnsicht` (`Ruecksprache.tsx`) |
 | Umsatz je Produkt (Hauptbuch) | `ledger::PeriodResult::product_revenue` |
 | Eindruck schärfen (Ressort Personal) | `management::{impression_share, shown_impression}`, `strategieauftrag.personal_schaerfe` |
+| Lebendiger Managermarkt (Monatslauf) | Modul `staffing` (`month_start`, `simulate_day`); Daten `management.markt` (`ManagerMarketModel`) |
+| Erfahrung, persönliche Obergrenze | `Manager::potential`, `staffing::set_potentials`, `rng::Stream::{ManagerMonth, ManagerPotential}`; `markt.erfahrung` |
+| Zufriedenheit, Stufe (unzufrieden, gemischt, zufrieden), Marktwert | `Job::satisfaction`, `staffing::{satisfaction, satisfaction_target, satisfaction_level, market_value, unit_result}`; `SatisfactionModel` (`markt.zufriedenheit`) |
+| Kündigung | `staffing::resignations`, `markt.kuendigung`; Meldung `meldung.manager.kuendigung` |
+| Gehalt anpassen | Befehl `RaiseSalary`, `staffing::raise_salary` |
+| Leitung stellt ein | Befehl `SetHiringByHead`, `PositionState::hires`, `staffing::{heads_hire, has_work}`; Sicht `PositionView::hires` |
+| Abwerbung, Angebot an einen Manager, Sperrfrist | `state::PoachOffer`, `GameState::poach_offers`, `Manager::courted`; Befehl `PoachManager`; `staffing::{poach, poach_salary, courted_until}`; `PoachingModel` (`markt.abwerbung`) |
+| Gegenangebot, Gehen lassen | Befehle `MatchOffer`, `LetGo`; `ChoiceKind::{Counter, LetGo}` (`gegenangebot`, `gehen_lassen`); Thema `Topic::Poaching` (`abwerbung`); `ConcernReason::Poaching` |
+| KI stellt ein, Kompetenz durch Manager | `staffing::{ai_staffing, next_position, fill, poach_target, ai_competence}`, `AiState::{staff, skill}`, `rng::Stream::Staffing`; `AiHiringModel` (`markt.ki`) |

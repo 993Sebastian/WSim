@@ -1,15 +1,17 @@
 //! Positions, managers and their market (MA1, docs/FORMELN.md, docs/MANAGER.md).
 
 use wsim_core::catalog::{
-    Catalog, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel, ManagerPoolModel,
-    MandateModel, SiteType, SkillModel, StrategyModel,
+    AiHiringModel, Catalog, ConcernModel, ManagementFunction, ManagementLevel, ManagementModel,
+    ManagerMarketModel, ManagerPoolModel, MandateModel, PoachingModel, SatisfactionModel, SiteType,
+    SkillModel, StrategyModel,
 };
 use wsim_core::decision::Topic;
+use wsim_core::money::Money;
 
 use super::production::SITE_TYPES;
 use super::{in_range, non_negative, positive, provenance};
 use crate::messages;
-use crate::raw::{RawPriceStrategy, RawSpread};
+use crate::raw::{RawManagerMarket, RawPriceStrategy, RawSpread};
 use crate::read::{Ctx, Loc, RawData};
 use crate::texts::TextIndex;
 
@@ -285,6 +287,8 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         }
     }
 
+    let market = market(ctx, &v.market, &l.field("markt"));
+
     let salary_group = catalog.labor_groups.id(&v.salary_group);
     if salary_group.is_none() {
         ctx.error(
@@ -347,6 +351,7 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         concerns,
         strategy,
         mandate,
+        market,
         head_discount: in_range(
             ctx,
             v.head_discount,
@@ -360,6 +365,91 @@ pub(super) fn management(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Man
         pool,
         skills,
         provenance: provenance(v.approximation, v.source.as_ref()),
+    }
+}
+
+/// The living market of managers (MA6): experience, satisfaction, resignation,
+/// poaching and the hiring of the AI companies.
+fn market(ctx: &mut Ctx, v: &RawManagerMarket, l: &Loc) -> ManagerMarketModel {
+    let el = l.field("erfahrung");
+    let sl = l.field("zufriedenheit");
+    let s = &v.satisfaction;
+    let percent = |ctx: &mut Ctx, value: u8, loc: &Loc| {
+        if value > 100 {
+            ctx.error(loc, messages::out_of_range(f64::from(value), 0.0, 100.0));
+        }
+        value.min(100)
+    };
+    let bands = [
+        percent(ctx, s.bands[0], &sl.field("stufen").index(0)),
+        percent(ctx, s.bands[1], &sl.field("stufen").index(1)),
+    ];
+    if bands[0] > bands[1] {
+        ctx.error(
+            &sl.field("stufen"),
+            messages::management_satisfaction_bands(bands[0], bands[1]),
+        );
+    }
+    let satisfaction = SatisfactionModel {
+        start: percent(ctx, s.start, &sl.field("start")),
+        base: in_range(ctx, s.base, 0.0, 100.0, &sl.field("basis")),
+        salary_weight: non_negative(ctx, s.salary_weight, &sl.field("gehalt_gewicht")),
+        loss_penalty: non_negative(ctx, s.loss_penalty, &sl.field("verlust_abzug")),
+        overruled_penalty: non_negative(ctx, s.overruled_penalty, &sl.field("uebergangen_abzug")),
+        adjust: in_range(ctx, s.adjust, 0.0, 1.0, &sl.field("anpassung")),
+        bands,
+    };
+    let kl = l.field("kuendigung");
+    let pl = l.field("abwerbung");
+    let p = &v.poaching;
+    let poaching = PoachingModel {
+        min_strength: in_range(ctx, p.min_strength, 0.0, 100.0, &pl.field("staerke_min")),
+        lead: in_range(ctx, p.lead, 0.0, 100.0, &pl.field("vorsprung")),
+        markup: non_negative(ctx, p.markup, &pl.field("aufschlag")),
+        ignored_penalty: percent(ctx, p.ignored_penalty, &pl.field("ignoriert_abzug")),
+        ai_counter_max: in_range(ctx, p.ki_gegen_max, 1.0, 10.0, &pl.field("ki_gegen_max")),
+        pause_months: p.pause_months,
+    };
+    let al = l.field("ki");
+    let a = &v.ai;
+    let usd = |ctx: &mut Ctx, value: f64, loc: &Loc| {
+        let value = non_negative(ctx, value, loc);
+        Money::from_usd(value).unwrap_or(Money::ZERO)
+    };
+    let ai = AiHiringModel {
+        per_month: a.per_month,
+        ceo_revenue: usd(ctx, a.ceo_revenue_usd, &al.field("umsatz_ceo_usd")),
+        site_revenue: usd(ctx, a.site_revenue_usd, &al.field("umsatz_standort_usd")),
+        salary_share: in_range(ctx, a.salary_share, 0.0, 1.0, &al.field("gehalt_anteil")),
+        competence_ceo: in_range(ctx, a.competence_ceo, 0.0, 1.0, &al.field("kompetenz_ceo")),
+        competence_heads: in_range(
+            ctx,
+            a.competence_heads,
+            0.0,
+            1.0,
+            &al.field("kompetenz_leitung"),
+        ),
+    };
+    ManagerMarketModel {
+        experience_chance: in_range(
+            ctx,
+            v.experience.chance_per_month,
+            0.0,
+            1.0,
+            &el.field("chance_monat"),
+        ),
+        experience_room: percent(ctx, v.experience.room, &el.field("spielraum")),
+        satisfaction,
+        resignation_threshold: percent(ctx, v.resignation.threshold, &kl.field("schwelle")),
+        resignation_chance: in_range(
+            ctx,
+            v.resignation.chance_max,
+            0.0,
+            1.0,
+            &kl.field("chance_max"),
+        ),
+        poaching,
+        ai,
     }
 }
 

@@ -14,7 +14,7 @@ management:
     - id: vertrieb_marketing
       themen: [verkauf, werbung]
     - id: personal
-      themen: [lohn]
+      themen: [lohn, abwerbung]
     - id: logistik
       themen: []
     - id: forschung
@@ -99,6 +99,30 @@ management:
     chancen_risiken: 3
     ruecksprachen_behalten: 8
     personal_schaerfe: 0.8
+
+  # Lebendiger Managermarkt (MA6). Erfahrung: je Monat auf einer Stelle mit dieser
+  # Wahrscheinlichkeit ein Punkt Fachkompetenz im Bereich der Stelle, bis zur persönlichen
+  # Obergrenze (Schwerpunkt bei der Ziehung + bis zu spielraum). Zufriedenheit 0–100: Ziel
+  # = basis + gehalt_gewicht · 100 · (Gehalt / Marktwert − 1) − verlust_abzug (Einheit mit
+  # Verlust in zwölf Monaten) − uebergangen_abzug je übergangener Empfehlung; je Monat um
+  # den Anteil anpassung dorthin; Stufen „unzufrieden“ und „gemischt“ bis zu den Grenzen.
+  # Unter der Schwelle kündigt ein Manager je Monat mit bis zu chance_max. Abwerbung durch
+  # KI-Firmen: Manager ab staerke_min, um vorsprung stärker als der beste freie Bewerber,
+  # Angebot Gehalt · (1 + aufschlag); unbeantwortet sinkt die Zufriedenheit um
+  # ignoriert_abzug; KI-Firmen halten ihre Manager bis ki_gegen_max · Gehalt. KI-Firmen
+  # stellen je Monat höchstens einstellungen_monat ein: den CEO ab umsatz_ceo_usd Umsatz
+  # der Firma, Standortleitungen ab umsatz_standort_usd Umsatz des Standorts (in zwölf
+  # Monaten), das Gehalt höchstens gehalt_anteil des Umsatzes der Einheit. Wirkung auf
+  # ihre Kompetenz: kompetenz_ceo bzw. kompetenz_leitung · (Stärke − 50) / 50.
+  markt:
+    erfahrung: {chance_monat: 0.3, spielraum: 20}
+    zufriedenheit: {start: 70, basis: 70, gehalt_gewicht: 1, verlust_abzug: 15,
+                    uebergangen_abzug: 5, anpassung: 0.3, stufen: [30, 60]}
+    kuendigung: {schwelle: 30, chance_max: 0.25}
+    abwerbung: {staerke_min: 70, vorsprung: 10, aufschlag: 0.2, ignoriert_abzug: 20,
+                ki_gegen_max: 1.3, sperre_monate: 12}
+    ki: {einstellungen_monat: 1, umsatz_ceo_usd: 50000000, umsatz_standort_usd: 5000000,
+         gehalt_anteil: 0.02, kompetenz_ceo: 0.15, kompetenz_leitung: 0.1}
 
   # Fachstellen je Standorttyp; jeder Standort hat außerdem eine Leitung.
   standorttypen:

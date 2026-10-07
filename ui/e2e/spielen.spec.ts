@@ -817,6 +817,15 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   });
   await bild(page, "budget");
 
+  // Pay and satisfaction (MA6): the market value, and a head that fills its positions.
+  await expect(werk).toContainText("Gehalt und Zufriedenheit");
+  await expect(werk).toContainText("Marktwert (seine Forderung heute)");
+  // The preview keeps its data: the box stays as it was, the command is sent.
+  await werk.getByLabel(/Besetzt freie Fachstellen selbst/).click();
+  expect((await befehle(page)).at(-1)).toEqual({
+    SetHiringByHead: { position: { unit: { Site: 0 }, role: "Head" }, enabled: true },
+  });
+
   // Which concerns halt a run of rounds: a choice in the menu, kept in the browser.
   await page.getByRole("button", { name: "Menü" }).click();
   const halt = page.getByRole("group", { name: "Bei Anliegen anhalten" });

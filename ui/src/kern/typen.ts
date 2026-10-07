@@ -1026,12 +1026,25 @@ export interface Manager {
   skills: Faehigkeit[];
 }
 
+/** Another company's offer to a manager of the player (MA6). */
+export interface Abwerbeangebot {
+  company: string;
+  salary_usd: number;
+  /** Last day it stands. */
+  until: string;
+}
+
 export interface Stelleninhaber {
   manager: Manager;
   salary_usd: number;
   since: string;
   /** What a dismissal costs now. */
   severance_usd: number;
+  /** What he would ask for the position today (MA6). */
+  market_usd: number;
+  /** 0 unhappy, 1 mixed, 2 happy (MA6). */
+  satisfaction: number;
+  offer: Abwerbeangebot | null;
 }
 
 /** What a position may spend without asking (MA2). */
@@ -1087,6 +1100,8 @@ export interface Stelle {
   open_concerns?: number;
   /** Text key of what it does besides topics (MA5: the personnel member of the board). */
   effect?: string | null;
+  /** For heads: whether it fills the free positions of its unit itself (MA6). */
+  hires?: boolean | null;
 }
 
 /** The positions of a unit: a site, a country, a continent (MA1, MA3) or the board (MA5). */
@@ -1249,7 +1264,8 @@ export interface Anliegen {
     | "reserve"
     | "investition"
     | "verschuldung"
-    | "antrag";
+    | "antrag"
+    | "abwerbung";
   options: AnliegenOption[];
   recommended: number;
   /** Why the position recommends its option. */

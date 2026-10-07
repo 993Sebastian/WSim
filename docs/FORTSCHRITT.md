@@ -56,6 +56,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MA2 | Manager-System: Budget und Anliegen | ✅ |
 | MA3 | Manager-System: Land und Kontinent | ✅ |
 | MA4 | Manager-System: Strategievorgaben | ✅ |
+| MA5 | Manager-System: Vorstand, Strategieauftrag, Rücksprache | ✅ |
+| MA6 | Manager-System: Lebendiger Managermarkt | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -249,6 +251,47 @@ Regeln: `docs/FORMELN.md`, Abschnitt MA5; Bedienung: `docs/BEDIENUNG.md`, „Org
   Versteigerung, Auftrag und Aggressivität, Personalressort, Rücksprache je Abschnitt und
   Bericht, Antrag des CEO, nachträglich gegründeter Standort, Speichern und Wiederholen),
   Sitzungstest (Auftrag mit Schlüsseln, Quartals-Rücksprache hält an, Bericht = Runde),
+  vitest und Playwright.
+
+### MA6: Lebendiger Managermarkt (07.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt MA6; Bedienung: `docs/BEDIENUNG.md`, „Organisation“
+(Zufriedenheit, Abwerbung); vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, N 42–47.
+
+- **Daten:** Block `markt` in `parameter/management.yaml` (Erfahrung, Zufriedenheit,
+  Kündigung, Abwerbung mit Sperrfrist, Einstellungen der KI); Bereich Personal mit dem
+  Thema `abwerbung`. Prüfregeln mit Fehlerfall-Tests.
+- **Kern:** Stellen sind firmenbezogen (Land, Kontinent und Vorstand gibt es in jeder
+  Firma). Neues Modul `staffing`, am Monatsanfang: Erfahrung bis zur persönlichen
+  Obergrenze, Zufriedenheit (Gehalt gegen Marktwert, Verlust der Einheit, übergangene
+  Empfehlungen), Kündigungen, Leitungen besetzen Fachstellen selbst (`SetHiringByHead`),
+  KI-Firmen heben Gehälter, stellen CEO und Standortleitungen ein oder werben ab
+  (`PoachManager`); ihre Manager heben die Kompetenz der Firma. Täglich: Angebote an
+  KI-Manager beantwortet ihre Firma sofort (`MatchOffer`/`LetGo`), Angebote an Manager des
+  Spielers werden ein Anliegen „Abwerbung“ der Personalstelle; verfallene Angebote
+  enttäuschen. Neu für den Spieler: `RaiseSalary` (Gehalt anpassen).
+- **Oberfläche:** Gehaltsspalte mit Zufriedenheit und offenem Angebot; in den Details der
+  Stelle „Gehalt und Zufriedenheit“ mit Marktwert, „Gehalt anpassen“ und bei Leitungen
+  „Besetzt freie Fachstellen selbst“; Anliegen „Abwerbung“ mit Gegenangebot und Gehen
+  lassen. Beispieldaten: die neuen Felder ergänzt (eine Neuerzeugung ändert die
+  Beispielpartie, weil KI-Firmen nun Bewerber einstellen; der kleine Beispielbetrieb trägt
+  zwei Leitungen nur wenige Monate).
+- **Weltlauf:** Mit `ki.einstellungen_monat: 0` sind alle Protokolldateien des Laufs mit
+  100 KI-Firmen 1900–1906 (Seed 5) gleich wie vor MA6. Mit Einstellungen (1900–1930): 84
+  von 100 KI-Firmen haben im ersten Jahr einen CEO (der Umsatz der Weltfirmen liegt weit
+  über der Schwelle), bis 1930 rund 1 100 Standortleitungen; Kompetenz im Mittel +0,02 bis
+  +0,04, höchstens +0,16; Gehälter der KI-Manager 62 bis 160 Mio. USD im Jahr; je Jahr bis
+  zu 18 Wechsel durch Abwerbung, mittlere Zufriedenheit 67–78, niemand unter der
+  Kündigungsschwelle (KI-Firmen heben Gehälter). Das Balance-Protokoll hat dafür den
+  Abschnitt „Manager (MA6)“.
+- **Benchmark mit 1 000 KI-Firmen** (1900–1901, Seed 3): ohne Einstellungen 46,7 s, mit
+  46,3 s – kein Leistungsverlust. 249 Firmen haben 1900 einen CEO, 396 im Jahr 1901; weil
+  sich 1 000 Firmen denselben Bewerberpool teilen, sind ihre CEOs schwächer (Stärke 52–53)
+  und die Kompetenz steigt im Mittel kaum (+0,005).
+- **Tests:** 15 Szenariotests (Erfahrung und Obergrenze, alte Stände, Zufriedenheit,
+  Gehalt nur erhöhen, Kündigung, Leitung stellt ein, KI stellt CEO und Leitungen ein,
+  Abwerbung mit Gegenangebot, Gehen lassen und Fristablauf, Personalstelle entscheidet
+  selbst, KI hält oder lässt gehen, Prüfungen der Befehle, Speichern und Wiederholen),
   vitest und Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)

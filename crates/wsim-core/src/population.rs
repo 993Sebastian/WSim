@@ -1081,6 +1081,7 @@ fn found_company(
             real: real.map(|r| r.key.clone()),
             // Below a year of days; the cast cannot overflow.
             next_operations: date.add_days(first as i32 + 1),
+            staff: 0.0,
         }),
     });
     state.sites.extend(new_sites);

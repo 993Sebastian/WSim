@@ -556,7 +556,9 @@ pub fn message_view(message: &Message) -> MessageView {
         Some("markt")
     } else if message.key.starts_with("meldung.forschung") {
         Some("forschung")
-    } else if message.key.starts_with("meldung.anliegen.") {
+    } else if message.key.starts_with("meldung.anliegen.")
+        || message.key.starts_with("meldung.manager.")
+    {
         Some("organisation")
     } else if matches!(
         message.kind,

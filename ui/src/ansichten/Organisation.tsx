@@ -3,14 +3,19 @@
 // market of managers. "Who runs what, and what is still left to me?"
 import { Fragment, useId, useState } from "react";
 import {
+  ausAnzeige,
   formatDatum,
   formatGeld,
   formatProzent,
   formatZahl,
+  geldEinheit,
+  geldFeld,
+  geldSchluessel,
   landName,
   zahlFeld,
   zahlLesen,
 } from "../format";
+import { geld } from "../kern/befehle";
 import type {
   Budgetvorgabe,
   EinheitOrganisation,
@@ -112,6 +117,22 @@ function Inhaber({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
       </td>
       <td className="zahl" data-spalte={t("organisation.gehalt")}>
         {formatGeld(h.salary_usd)}
+        <br />
+        <small className={`zufriedenheit stufe-${h.satisfaction}`}>
+          {t(`organisation.zufriedenheit.${h.satisfaction}`)}
+        </small>
+        {h.offer && (
+          <>
+            <br />
+            <small className="warnung-text">
+              {t("organisation.angebot", {
+                firma: h.offer.company,
+                gehalt: formatGeld(h.offer.salary_usd),
+                datum: formatDatum(h.offer.until),
+              })}
+            </small>
+          </>
+        )}
       </td>
       <td>
         {frage ? (
@@ -152,6 +173,79 @@ function Inhaber({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
           </button>
         )}
       </td>
+    </>
+  );
+}
+
+/**
+ * Pay and satisfaction of a manager (MA6): his market value, a raise, and for heads
+ * whether they fill the free positions of their unit themselves.
+ */
+function GehaltUndZufriedenheit({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
+  const h = stelle.holder!;
+  const name = h.manager.name;
+  const { los } = useAktion(ORT);
+  const [betrag, setBetrag] = useState(geldFeld(Math.max(h.market_usd, h.salary_usd)));
+  const [fehler, setFehler] = useState<string | null>(null);
+  const position = stellenangabe(s.key, stelle.role);
+  return (
+    <>
+      <h5>{t("organisation.gehalt_titel")}</h5>
+      <dl className="werte">
+        <dt>{t("organisation.gehalt")}</dt>
+        <dd>{formatGeld(h.salary_usd)}</dd>
+        <dt>{t("organisation.marktwert")}</dt>
+        <dd>{formatGeld(h.market_usd)}</dd>
+        <dt>{t("organisation.zufriedenheit_titel")}</dt>
+        <dd>{t(`organisation.zufriedenheit.${h.satisfaction}`)}</dd>
+      </dl>
+      <p className="feld-hilfe">{t("organisation.zufriedenheit_hilfe")}</p>
+      <form
+        key={geldSchluessel()}
+        aria-label={t("organisation.gehalt_anpassen_titel", { name })}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const b = zahlLesen(betrag);
+          if (b === null || ausAnzeige(b) <= h.salary_usd) {
+            setFehler(t("organisation.gehalt_hoeher", { gehalt: formatGeld(h.salary_usd) }));
+            return;
+          }
+          setFehler(null);
+          void los(
+            [{ RaiseSalary: { manager: h.manager.id, salary: geld(ausAnzeige(b)) } }],
+            t("organisation.gehalt_angepasst", { name, gehalt: formatGeld(ausAnzeige(b)) }),
+          );
+        }}
+      >
+        <div className="formular-zeile">
+          <ZahlFeld
+            name={t("organisation.neues_gehalt")}
+            einheit={geldEinheit()}
+            wert={betrag}
+            onWert={setBetrag}
+          />
+          <button type="submit">{t("organisation.gehalt_anpassen")}</button>
+        </div>
+        {fehler && <p className="fehlertext">{fehler}</p>}
+      </form>
+      {stelle.hires !== undefined && stelle.hires !== null && (
+        <label className="schalter">
+          <input
+            type="checkbox"
+            checked={stelle.hires}
+            onChange={(e) =>
+              void los(
+                [{ SetHiringByHead: { position, enabled: e.target.checked } }],
+                t(e.target.checked ? "organisation.stellt_ein_an" : "organisation.stellt_ein_aus", {
+                  stelle: stellenName(stelle.role, s.kind_text),
+                }),
+              )
+            }
+          />{" "}
+          {t("organisation.stellt_ein")}
+          <span className="feld-hilfe"> {t("organisation.stellt_ein_hilfe")}</span>
+        </label>
+      )}
     </>
   );
 }
@@ -275,6 +369,7 @@ function StellenDetails({
         </div>
         {fehler && <p className="fehlertext">{fehler}</p>}
       </form>
+      <GehaltUndZufriedenheit s={s} stelle={stelle} />
       <h5>{t("organisation.entscheidungen")}</h5>
       {log.length === 0 ? (
         <p className="gedaempft">{t("organisation.keine_entscheidungen")}</p>

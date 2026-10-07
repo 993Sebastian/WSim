@@ -41,6 +41,20 @@ pub enum Stream {
         company: u32,
         month: u32,
     },
+    /// A manager's experience, satisfaction and hiring at a month start (MA6).
+    ManagerMonth {
+        id: u32,
+        month: u32,
+    },
+    /// The expertise a manager can reach (MA6).
+    ManagerPotential {
+        id: u32,
+    },
+    /// A company's hiring and poaching at a month start (MA6).
+    Staffing {
+        company: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -58,6 +72,13 @@ impl Stream {
             Stream::Manager { id, day } => (5 << 56) | (u64::from(id) << 24) | u64::from(day),
             Stream::Review { company, month } => {
                 (6 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
+            Stream::ManagerMonth { id, month } => {
+                (7 << 56) | (u64::from(id) << 24) | u64::from(month)
+            }
+            Stream::ManagerPotential { id } => (8 << 56) | u64::from(id),
+            Stream::Staffing { company, month } => {
+                (9 << 56) | (u64::from(company) << 24) | u64::from(month)
             }
         }
     }

@@ -176,6 +176,24 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_CONCERN: &str = "fehler.befehl.anliegen_unbekannt";
     pub const COMMAND_CONCERN_CLOSED: &str = "fehler.befehl.anliegen_erledigt";
     pub const COMMAND_UNKNOWN_OPTION: &str = "fehler.befehl.option_unbekannt";
+    pub const COMMAND_NOT_A_HEAD: &str = "fehler.befehl.keine_leitung";
+    pub const COMMAND_SALARY_NOT_HIGHER: &str = "fehler.befehl.gehalt_nicht_hoeher";
+    pub const COMMAND_MANAGER_FREE: &str = "fehler.befehl.manager_frei";
+    pub const COMMAND_OWN_MANAGER: &str = "fehler.befehl.eigener_manager";
+    pub const COMMAND_MANAGER_HAS_OFFER: &str = "fehler.befehl.manager_hat_angebot";
+    pub const COMMAND_MANAGER_COURTED: &str = "fehler.befehl.manager_umworben";
+    pub const COMMAND_NO_POACH_OFFER: &str = "fehler.befehl.kein_abwerbeangebot";
+    // The market of managers (MA6).
+    pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
+    pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
+    pub const MANAGER_POACH: &str = "meldung.manager.abwerbung";
+    pub const MANAGER_POACH_DECIDED: &str = "meldung.manager.abwerbung_entschieden";
+    pub const MANAGER_LEFT: &str = "meldung.manager.gewechselt";
+    pub const MANAGER_STAYED: &str = "meldung.manager.geblieben";
+    pub const STEP_MATCH: &str = "schritt.gegenangebot.manager";
+    pub const STEP_LET_GO: &str = "schritt.gehen_lassen";
+    pub const BECAUSE_KEEP: &str = "anliegen.begruendung.halten";
+    pub const BECAUSE_LET_GO: &str = "anliegen.begruendung.ziehen_lassen";
     pub const CONCERN_NEW: &str = "meldung.anliegen.neu";
     pub const CONCERN_EXPIRED: &str = "meldung.anliegen.verfallen";
     pub const CONCERN_NEW_COUNTRY: &str = "meldung.anliegen.neu_land";
@@ -395,6 +413,23 @@ pub mod keys {
         COMMAND_UNKNOWN_CONCERN,
         COMMAND_CONCERN_CLOSED,
         COMMAND_UNKNOWN_OPTION,
+        COMMAND_NOT_A_HEAD,
+        COMMAND_SALARY_NOT_HIGHER,
+        COMMAND_MANAGER_FREE,
+        COMMAND_OWN_MANAGER,
+        COMMAND_MANAGER_HAS_OFFER,
+        COMMAND_MANAGER_COURTED,
+        COMMAND_NO_POACH_OFFER,
+        MANAGER_RESIGNED,
+        MANAGER_HIRED_BY_HEAD,
+        MANAGER_POACH,
+        MANAGER_POACH_DECIDED,
+        MANAGER_LEFT,
+        MANAGER_STAYED,
+        STEP_MATCH,
+        STEP_LET_GO,
+        BECAUSE_KEEP,
+        BECAUSE_LET_GO,
         CONCERN_NEW,
         CONCERN_EXPIRED,
         CONCERN_NEW_COUNTRY,

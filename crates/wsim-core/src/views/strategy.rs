@@ -264,7 +264,7 @@ fn entry(game: &Game, unit: Option<Unit>, field: StrategyField, monthly: f64) ->
         Some(Unit::Site(s)) => {
             management::first_taker(c, state, player, Unit::Site(s), topic_of(field)).and_then(
                 |p| {
-                    let manager = management::holder(state, &p)?;
+                    let manager = management::holder(state, player, &p)?;
                     Some(StrategyCarrierView {
                         position: position_view(c, state, &p),
                         manager: state.managers[&manager].name.clone(),

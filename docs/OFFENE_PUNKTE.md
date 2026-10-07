@@ -867,11 +867,35 @@ Strategieauftrag, Strategierücksprache; Einzelheiten: `docs/FORMELN.md`, MA5).
     ohne Auftrag ändert sich nichts.
 39. **Rücksprache mit dem CEO allein:** Ressorts sind dafür nicht nötig; ohne CEO gibt es
     keine Rücksprache (die Ansicht sagt, wie es dazu kommt).
-40. **Stellen je Firma:** Land, Kontinent und Vorstand sind als Einheit nicht
-    firmenbezogen; das reicht, solange nur der Spieler Manager hat. Vor den
-    KI-Einstellungen (MA6) wird die Suche nach dem Inhaber firmenbezogen.
+40. ✅ **Stellen je Firma:** Die Suche nach dem Inhaber ist seit MA6 firmenbezogen (Land,
+    Kontinent und Vorstand gibt es in jeder Firma).
 41. **Umsatz je Produkt** wird je Monat aufgezeichnet (für den Bericht). Dadurch ändert
     sich der Zustands-Hash der Weltläufe, nicht ihr Verlauf: Die Protokolle bleiben gleich.
+
+✅ **MA6 umgesetzt** (Erfahrung, Zufriedenheit, Kündigung, Leitung stellt ein, KI-Firmen
+stellen ein und werben ab; Einzelheiten: `docs/FORMELN.md`, MA6). 🟡 Vorläufig
+entschieden:
+
+42. **Gehalt anpassen** ist neu: Weil die Löhne über die Jahrzehnte steigen, fiele ein
+    festes Gehalt hinter den Marktwert zurück, und jeder Manager würde irgendwann
+    unzufrieden. Gehälter lassen sich nur erhöhen; KI-Firmen heben unzufriedene Manager auf
+    den Marktwert.
+43. **Sperrfrist für Angebote** (`sperre_monate`, 12): Ohne sie würde eine KI-Firma, deren
+    Angebot gehalten wurde, denselben Manager jeden Monat wieder umwerben – sein Gehalt
+    stiege jedes Mal um den Aufschlag.
+44. **KI-Firmen antworten sofort,** der Spieler bis zur Frist der Anliegen. Unbeantwortet,
+    abgelehnt oder bei ruhendem Thema verfällt das Angebot; der Manager bleibt, die
+    Zufriedenheit sinkt um `ignoriert_abzug`.
+45. **Manager der KI wirken nur über die Kompetenz** (Häufigkeit der Betriebsprüfung,
+    Vorausplanung der Forschung); sie entscheiden nicht über Stellen-Ketten und stellen
+    keine Anliegen. Vorschlag für später: die Kompetenz auch in Preis- und
+    Ausbauentscheidungen wirken lassen.
+46. **Abwerben durch den Spieler:** Der Befehl `PoachManager` steht allen Firmen offen,
+    die Oberfläche bietet ihn noch nicht an (es gibt keine Liste fremder Manager).
+    Vorschlag: im Reiter „Wettbewerb“ die Leitungen der Firmen zeigen und dort „Abwerben“
+    anbieten.
+47. **Obergrenze der Erfahrung** aus der höchsten Fachkompetenz bei der Ziehung (statt
+    der des Schwerpunkts): einheitlich für neue Bewerber und ältere Spielstände.
 
 ## Reihenfolge der neuen Punkte
 
