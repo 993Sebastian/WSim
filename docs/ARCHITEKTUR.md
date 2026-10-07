@@ -1,7 +1,8 @@
 # Architektur WSim
 
-Bezug: `docs/LASTENHEFT.md`. Umgesetzt wird nur Ausbaustufe 1 (§17), die Architektur
-ist aber auf alle sechs Stufen ausgelegt. Technologie freigegeben am 03.10.2026.
+Bezug: `docs/LASTENHEFT.md`. Umgesetzt wurde zuerst Ausbaustufe 1 (§17); seit dem
+07.10.2026 folgen die Stufen 2–5 (Meilensteine in §4.1). Die Architektur ist auf alle
+sechs Stufen ausgelegt. Technologie freigegeben am 03.10.2026.
 Dieses Dokument wird mit jedem Meilenstein fortgeschrieben.
 
 ---
@@ -202,7 +203,7 @@ Dieselbe Oberfläche läuft auch im Browser, etwa zum Prüfen neuer Stände vom 
 - `pnpm -C ui build:web` baut Modul und Seite nach `ui/dist-web`; CI prüft, dass Browser
   und Desktop nach zwei Monaten denselben Zustands-Hash haben, testet die Seite gegen den
   echten Kern (Desktop- und iPhone-Format) und veröffentlicht sie über den Zweig
-  `gh-pages` (GitHub Pages).
+  `gh-pages` (GitHub Pages) – seit dem 07.10.2026 nur auf Wunsch („Run workflow“).
 - Leistung: ein Monat mit 100 KI-Firmen rechnet in Node etwa 1,5 s, Speicher rund 90 MB.
 
 ### 2.5 Was Stufe 1 schon für spätere Stufen vorsieht
@@ -321,6 +322,39 @@ mit dem Meilenstein freigegeben.
 
 M12–M14 können nach M11 auch verzahnt mit M9/M10 laufen, wenn du früh etwas sehen
 möchtest.
+
+### 4.1 Meilensteine für die Stufen 2–5 (Wunsch vom 07.10.2026)
+
+Vorgezogen und schon fertig: Manager-System (MA0–MA6), Hauptsitz und Zentralabteilungen
+(ZA1–ZA4), Start-ups und Beteiligungen (SU1–SU3), Marketing (M16), Übernahmen (M30/M31),
+Pleiten (M38), Lizenzen (M30), Landeswährungen in der Anzeige (M21). Reihenfolge:
+
+| Nr. | Meilenstein | Inhalt | Prüfbar durch |
+| --- | --- | --- | --- |
+| D1 | CI entlasten | Browser-Version nur auf Wunsch | CI-Datei |
+| B1 | Manager, Restpunkte | Warnung bei Gehalt über Kasse, Abwerben aus dem Reiter „Wettbewerb“, Nachfolgemodelle | Kern- und Oberflächentests |
+| B2 | Können der KI-Manager | Kompetenz wirkt auf Preise und Ausbau der KI | Szenariotests, Weltlauf |
+| C1 | Händler | Arbitrage: Händler kaufen billige Ware im Ausland | Szenariotests, Weltlauf bis 2026 |
+| C2 | Rohstoffe nach 2015 | Förderkurve der Felder, Ausbau an allen Standorten | Weltlauf bis 2026 |
+| C3 | Neue Märkte | Mehr Hersteller in neuen Märkten | Weltlauf bis 2026 |
+| C4 | Plausibilität 1900–1930 | Stahlwaren, Startwerkstatt, Kautschuk, Autos | Balance-Protokoll |
+| W1 | Schulung | Mitarbeiter und Manager weiterbilden | Szenariotests, Oberfläche |
+| W2 | Zentrale in der Stadt | Hauptsitz in einer Stadt, Akademiker begrenzen die Zentrale | Szenariotests |
+| W3 | Zölle | Zölle je Land und Warengruppe im Verlauf der Geschichte | Prüfregeln, Szenariotests, Weltlauf |
+| W4 | Lieferverträge | Feste Mengen und Preise zwischen Firmen über Monate | Szenariotests, Oberfläche |
+| W5 | Logistik | Eigene Flotte, staatlicher und KI-Transport | Szenariotests, Weltlauf |
+| W6 | Tochterfirmen | Töchter als eigene Firmen mit eigener Bilanz, Konzernsicht | Bilanz-Eigenschaftstests, Oberfläche |
+| W7 | Controlling | Kostenstellen- und Deckungsbeitragsrechnung, Abweichungen | Kern-Tests, Oberfläche |
+| K1 | Börse | Aktien, Kurse, Börsengang, Aktienhandel von Spieler und KI | Szenariotests, Weltlauf |
+| K2 | Anleihen | Ausgabe, Zins nach Bonität, Rückzahlung | Szenariotests |
+| K3 | Investoren | Anteile anderer Firmen kaufen, Dividenden, Übernahme ganzer Firmen über Anteile | Szenariotests |
+| K4 | Investor und Bank | Spiel ohne Produktion: Investmentfirma, Bank mit Krediten und Einlagen | Szenariotests, Oberfläche |
+| H1 | Ereignisfolgen | Krieg, Krisen, Embargos wirken auf Märkte, Handel und Firmen | Prüfregeln, Weltlauf |
+| H2 | Regulierung und Umwelt | Auflagen, Emissionen, Kartellaufsicht | Prüfregeln, Szenariotests |
+| H3 | Rüstung | Rüstungsgüter und Staatsbedarf im Krieg | Prüfregeln, Weltlauf |
+| P1–P5 | Breite | Rund 500 Endprodukte in Epochenpaketen, Luft- und Raumfahrt | Prüfregeln, Weltläufe |
+| P6 | Reale Firmen | Reale Firmen treten mit ihrem Gründungsjahr auf | Prüfregeln, Weltlauf |
+| P7 | Patente | Patente auf Erfindungen, Lizenzen, Ablauf | Szenariotests |
 
 ---
 

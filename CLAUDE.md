@@ -7,10 +7,12 @@ Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEIL
 
 ## Umfang und Arbeitsweise
 
-- Umgesetzt wird **nur Ausbaustufe 1** (Lastenheft §17). Keine Abkürzung, die eine
-  spätere Stufe verbaut (siehe Tabelle „Was Stufe 1 schon vorsieht“ in der Architektur).
-- Gearbeitet wird in **Meilensteinen** (Architektur §4). Vor jedem neuen Meilenstein
-  auf Freigabe des Auftraggebers warten.
+- Umgesetzt werden die **Ausbaustufen 1–5** (Lastenheft §17; Wunsch vom 07.10.2026:
+  „alles außer Stufe 6“). Stufe 6 (zufällige Ereignisse ab 2027, Töne, Balancing,
+  Leistungsoptimierung) erst auf Wunsch. Keine Abkürzung, die eine spätere Stufe verbaut.
+- Gearbeitet wird in **Meilensteinen** (Architektur §4, Plan in `docs/FORTSCHRITT.md`).
+  Für die Stufen 2–5 ist die Freigabe erteilt; jeder Meilenstein wird einzeln
+  committet, Entscheidungen stehen zur Abnahme in `docs/OFFENE_PUNKTE.md`.
 - Formeln vor der Umsetzung in `docs/FORMELN.md` beschreiben; sie werden mit dem
   Meilenstein abgenommen.
 - Unklarheiten nicht stillschweigend entscheiden: in `docs/OFFENE_PUNKTE.md`
@@ -93,7 +95,8 @@ Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEIL
   (`pnpm -C ui format` behebt Formatierungsfehler)
 - Browser-Version: `cargo clippy -p wsim-web --target wasm32-unknown-unknown -- -D warnings`,
   `pnpm -C ui e2e:web` (baut Modul und Seite, testet gegen den echten Kern). Auf Wunsch
-  vom 06.10.2026 vorerst zurückgestellt: lokal nicht nötig, in der CI ohne Abbruch.
+  vom 06.10.2026 vorerst zurückgestellt: lokal nicht nötig; in der CI nur auf Wunsch
+  („Run workflow“ mit „Browser-Version prüfen und veröffentlichen“) und ohne Abbruch.
 - Die Reproduzierbarkeits-Tests (`crates/wsim-core/src/determinism_tests.rs`,
   `crates/wsim-cli/tests/lauf.rs`) müssen grün sein.
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
