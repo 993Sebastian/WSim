@@ -588,6 +588,16 @@ Paket C, offener Punkt G (M40) 4. Regeln: `docs/FORMELN.md`, Abschnitt C1.
 - **Daten und Prüfung:** `haendler.arbitrage` (`abstand`, `anteil`) in
   `parameter/marktmodell.yaml` mit Fehlerfall-Test; Szenariotest (ohne Arbitrage kommt
   nichts herein, mit ihr ein Teil des Absatzes, der teure Anbieter verkauft weniger).
+- **Weltläufe** (100 KI-Firmen, Protokoll, gegen B2): Preisinseln verschwinden. 2015
+  (Start 1990) liegt kein Absatz mehr über dem 1,5-Fachen des mittleren Preises eines
+  Produkts (vorher 1,8 %); Smartphones in den USA kosten das 0,73- statt 2,19-Fache des
+  Richtpreises, Laptops in China 0,70 statt 1,50. 1940 fällt die größte Preisspanne
+  zwischen Ländern (Petroleum) vom 12,3- auf das 2,0-Fache. Die Versorgung je Land wird
+  besser (1 553 statt 1 639 Verstöße bis 1940, 5 186 statt 5 482 von 1990 bis 2015); dafür
+  liegen mehr Preise unter dem halben Richtpreis (395 statt 378 bzw. 327 statt 303
+  Verstöße „Preis gegen Richtpreis“): Die Märkte folgen dem billigsten Hersteller samt
+  Fracht. Laufzeit 1900–1940: 793 statt 628 s (die Läufe teilten sich die Rechenzeit mit
+  zwei weiteren).
 
 ## Eigenständige Entscheidungen (für das Review)
 
