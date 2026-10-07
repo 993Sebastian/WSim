@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      installer:
+        description: "Windows-Installer bauen"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  kern:
+    name: Simulationskern (Rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # rustup installs the toolchain pinned in rust-toolchain.toml on first use.
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - name: Spieldaten prüfen
+        run: cargo run -p wsim-cli -- validate data
+
+  oberflaeche:
+    name: Oberfläche (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C ui typecheck
+      - run: pnpm -C ui lint
+      - run: pnpm -C ui test
+      - run: pnpm -C ui exec playwright install --with-deps chromium
+      - run: pnpm -C ui e2e
+
+  browser:
+    name: Browser-Version (WebAssembly)
+    runs-on: ubuntu-latest
+    # Vorerst zurückgestellt (Wunsch vom 06.10.2026): ein Fehler hier hält die CI nicht auf.
+    continue-on-error: true
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: Swatinem/rust-cache@v2
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo clippy -p wsim-web --target wasm32-unknown-unknown -- -D warnings
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C ui build:web
+      - name: Browser und Desktop rechnen dasselbe Spiel
+        run: |
+          nativ=$(cargo run -q -p wsim-web --example zustand --release)
+          web=$(node ui/scripts/wasm-pruefen.mjs)
+          echo "nativ $nativ, Browser $web"
+          test "$nativ" = "$web"
+      - run: pnpm -C ui exec playwright install --with-deps chromium
+      - run: pnpm -C ui e2e:web
+      # Published from the work branch to the branch gh-pages, which GitHub Pages serves.
+      - name: Veröffentlichen (GitHub Pages)
+        if: github.ref == 'refs/heads/claude/architektur-vorschlag'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ui/dist-web
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "Browser-Version"
+
+  windows:
+    name: Windows-Installer
+    # Nur auf Wunsch (Wunsch vom 07.10.2026, entlastet GitHub): „Run workflow“ mit
+    # „Windows-Installer bauen“.
+    if: github.event_name == 'workflow_dispatch' && inputs.installer
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: Swatinem/rust-cache@v2
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C ui build
+      - run: cargo clippy -p wsim-app --all-targets -- -D warnings
+      - run: pnpm -C app tauri build
+      # Published as the release "installer" instead of an artifact: release assets do not
+      # count against the Actions storage quota, and the fixed file name gives a stable link.
+      # The release is recreated so its tag points at the commit that was built.
+      - name: Veröffentlichen (Release „installer“)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -- target/release/bundle/nsis/*.exe
+          test -f "$1"
+          cp "$1" WSim-Setup.exe
+          gh release delete installer --cleanup-tag --yes || true
+          gh release create installer WSim-Setup.exe \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Windows-Installer (Stand ${GITHUB_SHA::7})" \
+            --notes "Auf Wunsch gebaut am $(date -u '+%d.%m.%Y %H:%M') UTC aus ${GITHUB_REF_NAME}, Datei: $(basename "$1")."
