@@ -229,6 +229,9 @@ pub struct CandidateView {
     pub manager: ManagerView,
     /// Salary per year for the position.
     pub demand_usd: f64,
+    /// The salary for a year is more than the company's cash (N37).
+    #[serde(default)]
+    pub over_cash: bool,
     /// An own manager's position now.
     pub current: Option<CurrentPositionView>,
 }
@@ -246,6 +249,155 @@ pub struct ManagerMarketView {
     pub candidates: Vec<CandidateView>,
     /// The company's managers on other positions.
     pub own: Vec<CandidateView>,
+    /// The company's cash, for the warning on salaries above it.
+    #[serde(default)]
+    pub cash_usd: f64,
+}
+
+/// Where a unit is, for lists outside the chart: the same fields as `UnitOrgView`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PlaceView {
+    /// The unit as in `UnitOrgView::key`.
+    pub unit: String,
+    pub site: Option<u32>,
+    pub kind_text: String,
+    pub country: Option<String>,
+    pub continent: Option<String>,
+}
+
+/// A free position of the player that an offer to another company's manager can name.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FreePositionView {
+    pub place: PlaceView,
+    pub role: String,
+}
+
+/// What the player would offer a manager of another company for a free position (N46).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PoachOptionView {
+    pub salary_usd: f64,
+    /// The salary for a year is more than the player's cash (N37).
+    pub over_cash: bool,
+}
+
+/// A manager of another company as the player sees him (N46).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RivalManagerView {
+    pub manager: ManagerView,
+    pub place: PlaceView,
+    pub role: String,
+    /// Offers for the player's free positions, in the order of `free_positions`.
+    pub options: Vec<PoachOptionView>,
+    /// Not to be courted again before this day.
+    pub courted_until: Option<String>,
+    /// An offer of some company is open; `own` if it is the player's.
+    pub offer: Option<String>,
+}
+
+/// Where a unit is (`PlaceView`).
+pub(super) fn place_view(catalog: &Catalog, state: &GameState, unit: Unit) -> PlaceView {
+    let (country, continent) = match unit {
+        Unit::Site(s) => (
+            state
+                .sites
+                .get(s.index())
+                .map(|x| catalog.countries.key(x.country).to_owned()),
+            None,
+        ),
+        Unit::Country(c) => (Some(catalog.countries.key(c).to_owned()), None),
+        Unit::Continent(k) => (None, Some(catalog.continents.key(k).to_owned())),
+        Unit::Board => (None, None),
+    };
+    PlaceView {
+        unit: unit_key(catalog, unit),
+        site: unit_site(unit),
+        kind_text: kind_text(state, unit),
+        country,
+        continent,
+    }
+}
+
+/// The player's positions without a holder and without an open offer of his.
+pub(super) fn free_positions(game: &Game) -> Vec<Position> {
+    let c = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    management::units(c, state, player)
+        .into_iter()
+        .flat_map(|unit| management::positions(c, state, player, unit))
+        .filter(|p| {
+            management::holder(state, player, p).is_none() && !staffing::offered(state, player, p)
+        })
+        .collect()
+}
+
+/// The managers of another company with the player's offers for his free positions,
+/// the board first (N46).
+pub(super) fn rival_managers(
+    game: &Game,
+    company: CompanyId,
+    free: &[Position],
+) -> Vec<RivalManagerView> {
+    let c = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    let cash = state.companies[player.index()].ledger.cash();
+    let mut rows: Vec<(std::cmp::Reverse<usize>, bool, &str, ManagerId)> = state
+        .managers
+        .iter()
+        .filter_map(|(&id, m)| {
+            let job = m.job.as_ref().filter(|j| j.company == company)?;
+            Some((
+                std::cmp::Reverse(management::level_of(job.position.unit)),
+                job.position.role != Role::Head,
+                m.name.as_str(),
+                id,
+            ))
+        })
+        .collect();
+    rows.sort();
+    rows.iter()
+        .map(|&(_, _, _, id)| {
+            let m = &state.managers[&id];
+            let position = &m.job.as_ref().map(|j| j.position.clone());
+            let options = free
+                .iter()
+                .map(|p| {
+                    let salary = staffing::poach_salary(c, state, player, m, p);
+                    PoachOptionView {
+                        salary_usd: usd(salary),
+                        over_cash: salary > cash,
+                    }
+                })
+                .collect();
+            let offer = state
+                .poach_offers
+                .iter()
+                .find(|o| o.manager == id)
+                .map(|o| {
+                    if o.bidder == player {
+                        "own".to_owned()
+                    } else {
+                        state.companies[o.bidder.index()].name.clone()
+                    }
+                });
+            RivalManagerView {
+                manager: manager_view(game, id, m),
+                place: position
+                    .as_ref()
+                    .map(|p| place_view(c, state, p.unit))
+                    .unwrap_or_else(|| place_view(c, state, Unit::Board)),
+                role: position
+                    .as_ref()
+                    .map_or_else(String::new, |p| role_key(&p.role)),
+                options,
+                courted_until: staffing::courted_until(c, m)
+                    .filter(|&d| d > state.date)
+                    .map(iso),
+                offer,
+            }
+        })
+        .collect()
 }
 
 /// Key of a role in views: `leitung` or the function.
@@ -700,6 +852,7 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
     let player: CompanyId = game.player();
     let seat = management::seat_country(c, state, player, unit)?;
     let continent = c.countries.get(seat).continent;
+    let cash = state.companies[player.index()].ledger.cash();
     let candidate = |id: ManagerId, m: &Manager| {
         let demand = management::salary_demand(c, state, player, m, &position);
         let (demand, current) = match &m.job {
@@ -716,6 +869,7 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         CandidateView {
             manager: manager_view(game, id, m),
             demand_usd: usd(demand),
+            over_cash: demand > cash,
             current,
         }
     };
@@ -758,6 +912,7 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         },
         continent: c.continents.key(continent).to_owned(),
         candidates,
+        cash_usd: usd(cash),
         own,
     })
 }

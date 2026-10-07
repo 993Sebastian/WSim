@@ -149,6 +149,71 @@ pub fn suggestions(
     names
 }
 
+/// The successor model of a product's name (B1, docs/FORMELN.md): the last number in the
+/// name steps up to the next larger number of the style, else the generation mark steps
+/// on or one is added ("Kelvor M80" → "Kelvor M90", "Kelvor Super" → "Kelvor Super II");
+/// a name another company uses for the product is skipped. `None` without a name, for
+/// styles without successor models and once the generations run out.
+pub fn successor(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    product: ProductId,
+) -> Option<String> {
+    let naming = &catalog.product_naming;
+    let style = naming.style(catalog, product)?;
+    if style.successors.is_empty() {
+        return None;
+    }
+    let mut name = state.company(company)?.product_names.get(&product)?.clone();
+    for _ in 0..ATTEMPTS {
+        name = next_model(style, &name)?;
+        if name.chars().count() <= MAX_LENGTH
+            && !naming.is_excluded(&name)
+            && !taken(state, product, &name, company)
+        {
+            return Some(name);
+        }
+    }
+    None
+}
+
+/// One step of `successor`, without checking the name.
+fn next_model(style: &NamingStyle, name: &str) -> Option<String> {
+    let mut words: Vec<String> = name.split_whitespace().map(str::to_owned).collect();
+    let last = words.last()?.clone();
+    if let Some(i) = style.successors.iter().position(|g| same_name(g, &last)) {
+        let next = style.successors.get(i + 1)?;
+        *words.last_mut()? = next.clone();
+        return Some(words.join(" "));
+    }
+    // Only the last word with a number steps up.
+    let stepped = words
+        .iter_mut()
+        .rev()
+        .find(|w| w.chars().any(|c| c.is_ascii_digit()))
+        .and_then(|w| {
+            let start = w.find(|c: char| c.is_ascii_digit())?;
+            let digits: String = w[start..]
+                .chars()
+                .take_while(char::is_ascii_digit)
+                .collect();
+            let number: u32 = digits.parse().ok()?;
+            let next = style
+                .numbers
+                .iter()
+                .copied()
+                .filter(|&n| n > number)
+                .min()?;
+            *w = format!("{}{next}{}", &w[..start], &w[start + digits.len()..]);
+            Some(())
+        });
+    if stepped.is_none() {
+        words.push(style.successors.first()?.clone());
+    }
+    Some(words.join(" "))
+}
+
 fn pick<T: Copy>(rng: &mut SimRng, list: &[T]) -> T {
     let n = u64::try_from(list.len()).unwrap_or(1);
     list[usize::try_from(rng.below(n)).unwrap_or(0)]

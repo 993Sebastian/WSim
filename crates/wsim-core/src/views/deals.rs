@@ -429,6 +429,12 @@ pub struct CompanyDetailView {
     /// The player's cash (for the offer form).
     pub cash_usd: f64,
     pub min_age_months: u32,
+    /// The company's managers with the player's offers to poach them (N46).
+    #[serde(default)]
+    pub managers: Vec<super::organisation::RivalManagerView>,
+    /// The player's free positions the offers name.
+    #[serde(default)]
+    pub free_positions: Vec<super::organisation::FreePositionView>,
 }
 
 /// A product with the name a company gave it (M42).
@@ -610,6 +616,20 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
             name: name.clone(),
         })
         .collect();
+    let (managers, free_positions) = if id == player {
+        (Vec::new(), Vec::new())
+    } else {
+        let free = super::organisation::free_positions(game);
+        let managers = super::organisation::rival_managers(game, id, &free);
+        let free = free
+            .iter()
+            .map(|p| super::organisation::FreePositionView {
+                place: super::organisation::place_view(catalog, state, p.unit),
+                role: super::organisation::role_key(&p.role),
+            })
+            .collect();
+        (managers, free)
+    };
     Some(CompanyDetailView {
         company: row(state, catalog, id),
         products,
@@ -618,6 +638,8 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         licenses,
         cash_usd: usd(state.companies[player.index()].ledger.cash()),
         min_age_months: min_age,
+        managers,
+        free_positions,
     })
 }
 

@@ -1484,6 +1484,8 @@ pub struct NamingStyle {
     pub numbers: Vec<u32>,
     pub letters: Vec<String>,
     pub additions: Vec<String>,
+    /// Generation marks of successor models (B1) in order; empty: no successor models.
+    pub successors: Vec<String>,
 }
 
 /// A name pattern with `{stamm}`, `{zahl}`, `{buchstabe}` and `{zusatz}`, used in the

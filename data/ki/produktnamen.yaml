@@ -40,6 +40,9 @@ produktnamen:
                200, 250, 300, 400, 500, 600, 700, 800, 900]
       buchstaben: [A, C, D, E, K, L, M, R, S, T, X, Z]
       zusaetze: [Super, Spezial, Standard, Plus]
+      # Nachfolgemodelle (B1): mit jeder Entwicklungsstufe die nächste Zahl der Liste
+      # oben, sonst die nächste Generation („Kelvor Super“ → „Kelvor Super II“).
+      nachfolger: [II, III, IV, V, VI, VII, VIII, IX, X]
 
     - id: marke               # Waren des täglichen Bedarfs: Markennamen
       warengruppen: [metallwaren, moebel_hausrat, bekleidung, lebensmittel, chemie]

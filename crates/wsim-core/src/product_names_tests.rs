@@ -38,6 +38,7 @@ fn catalog() -> Catalog {
             numbers: vec![2, 3],
             letters: Vec::new(),
             additions: Vec::new(),
+            successors: vec!["II".into(), "III".into()],
         }],
         style_of_group,
     };
@@ -206,6 +207,57 @@ fn stems_belong_to_their_company() {
         "{own:?}"
     );
     assert!(own.iter().all(|n| !same_name(n, &rivals[0])));
+}
+
+#[test]
+fn successor_models_step_up_number_and_generation() {
+    let (mut game, rival) = with_rival();
+    let bread = product(&game, "brot");
+    let successor = |game: &Game, p| {
+        let (c, s) = (game.catalog(), game.state());
+        product_names::successor(c, s, s.player, p)
+    };
+    // Without a name there is no successor.
+    assert_eq!(successor(&game, bread), None);
+    let rename = |game: &mut Game, text: &str| {
+        game.apply(Command::NameProduct {
+            product: bread,
+            name: name(text),
+        })
+        .unwrap();
+    };
+    rename(&mut game, "Arvon Typ 2");
+    assert_eq!(successor(&game, bread).as_deref(), Some("Arvon Typ 3"));
+    // No larger number: the first generation mark, then the next ones, then none.
+    rename(&mut game, "Arvon 3");
+    assert_eq!(successor(&game, bread).as_deref(), Some("Arvon 3 II"));
+    rename(&mut game, "Arvon 3 II");
+    assert_eq!(successor(&game, bread).as_deref(), Some("Arvon 3 III"));
+    rename(&mut game, "Arvon 3 III");
+    assert_eq!(successor(&game, bread), None);
+    // A name without a number gets a generation mark; a name of a rival is skipped.
+    rename(&mut game, "Arvon Spezial");
+    game.apply_as(
+        rival,
+        Command::NameProduct {
+            product: bread,
+            name: name("Arvon Spezial II"),
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        successor(&game, bread).as_deref(),
+        Some("Arvon Spezial III")
+    );
+    // The market view offers the successor first.
+    let view = crate::views::product_market(&game, "AAA", "brot").unwrap();
+    assert_eq!(view.name_suggestions[0], "Arvon Spezial III");
+    assert_eq!(view.name_suggestions.len(), 3);
+    // A style without successor models keeps the name.
+    let mut c: Catalog = (**game.catalog()).clone();
+    c.product_naming.styles[0].successors.clear();
+    let s = game.state();
+    assert_eq!(product_names::successor(&c, s, s.player, bread), None);
 }
 
 #[test]

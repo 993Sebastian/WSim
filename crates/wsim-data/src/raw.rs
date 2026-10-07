@@ -1584,6 +1584,9 @@ pub struct RawNamingStyle {
     pub letters: Vec<String>,
     #[serde(rename = "zusaetze", default)]
     pub additions: Vec<String>,
+    /// Generation marks of successor models (B1), e.g. `[II, III]`; empty: none.
+    #[serde(rename = "nachfolger", default)]
+    pub successors: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]

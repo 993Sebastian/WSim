@@ -265,6 +265,8 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
             }
         }
         let product_key = || Param::TextKey(format!("produkt.{}", catalog.products.key(product)));
+        // A successor model (B1): AI companies rename, the player gets a suggestion.
+        let successor = crate::product_names::successor(catalog, state, company, product);
         if company == state.player {
             let key = if top {
                 keys::DEVELOPMENT_TOP
@@ -276,7 +278,28 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
                     .with("produkt", product_key())
                     .with("stufe", Param::Integer(i64::from(next))),
             );
-        } else if first_in_world && player_offers(state, product) {
+            if let Some(name) = successor {
+                let old = state.companies[company.index()]
+                    .product_names
+                    .get(&product)
+                    .cloned()
+                    .unwrap_or_default();
+                messages.push(
+                    Message::new(MessageKind::Info, keys::DEVELOPMENT_SUCCESSOR)
+                        .with("produkt", product_key())
+                        .with("alt", Param::Text(old))
+                        .with("name", Param::Text(name)),
+                );
+            }
+        } else if let Some(name) = successor {
+            let rename = crate::command::Command::NameProduct {
+                product,
+                name: Some(name),
+            };
+            // A name taken meanwhile keeps the old one.
+            let _ = crate::command::execute(state, catalog, company, &rename);
+        }
+        if company != state.player && first_in_world && player_offers(state, product) {
             messages.push(
                 Message::new(MessageKind::Info, keys::DEVELOPMENT_RIVAL)
                     .with(

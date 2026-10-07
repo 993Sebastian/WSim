@@ -586,6 +586,108 @@ fn an_ai_company_keeps_its_manager_or_lets_him_go() {
 }
 
 #[test]
+fn the_player_poaches_from_an_ai_company() {
+    let (mut game, rival, _) = with_rival(test_support::management());
+    mine_and_works(&mut game);
+    to_next_month(&mut game);
+    let boss = management::holder(game.state(), rival, &ceo()).unwrap();
+    // His salary weighs more than any demand: the offer is the markup on it.
+    let salary = usd(2_000_000.0);
+    game.state_mut()
+        .managers
+        .get_mut(&boss)
+        .unwrap()
+        .job
+        .as_mut()
+        .unwrap()
+        .salary = salary;
+    // The rival's page lists him with an offer for the player's free CEO position.
+    let detail = crate::views::company_detail(&game, rival.0).unwrap();
+    let ceo_index = detail
+        .free_positions
+        .iter()
+        .position(|p| p.place.unit == "vorstand" && p.role == "leitung")
+        .expect("the player's CEO position is free");
+    let row = detail
+        .managers
+        .iter()
+        .find(|m| m.manager.id == boss.0)
+        .expect("the rival's CEO is listed");
+    assert_eq!(
+        (row.place.unit.as_str(), row.role.as_str()),
+        ("vorstand", "leitung")
+    );
+    let markup = game.catalog().management.market.poaching.markup;
+    let offer = salary.scale(1.0 + markup);
+    assert_eq!(row.options[ceo_index].salary_usd, offer.to_usd());
+    assert!(row.offer.is_none() && row.courted_until.is_none());
+    // The market of the CEO position warns where a year's salary exceeds the cash (N37).
+    let market = crate::views::manager_market(&game, "vorstand", "leitung").unwrap();
+    let cash = game.state().companies[game.player().index()].ledger.cash();
+    assert_eq!(market.cash_usd, cash.to_usd());
+    assert!(!market.candidates.is_empty());
+    for k in &market.candidates {
+        assert_eq!(
+            k.over_cash,
+            k.demand_usd > cash.to_usd(),
+            "{}",
+            k.manager.name
+        );
+    }
+    let poach = Command::PoachManager {
+        manager: boss,
+        position: ceo(),
+    };
+    game.apply(poach.clone()).unwrap();
+    let detail = crate::views::company_detail(&game, rival.0).unwrap();
+    let row = detail
+        .managers
+        .iter()
+        .find(|m| m.manager.id == boss.0)
+        .unwrap();
+    assert_eq!(row.offer.as_deref(), Some("own"));
+    assert!(row.courted_until.is_some());
+    // The CEO position is no longer free while the offer stands.
+    assert!(
+        !detail
+            .free_positions
+            .iter()
+            .any(|p| p.place.unit == "vorstand" && p.role == "leitung")
+    );
+    // The rival pays up: the manager stays at the offered salary.
+    let report = game.advance(RoundLength::Day, |_| {});
+    assert!(
+        report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::MANAGER_POACH_KEPT)
+    );
+    let j = job(&game, boss);
+    assert_eq!((j.company, j.salary), (rival, offer));
+    assert_eq!(
+        game.apply(poach.clone())
+            .map_err(|e| matches!(e, CommandError::ManagerCourted { .. })),
+        Err(true)
+    );
+    // Without cash the rival lets him go.
+    let state = game.state_mut();
+    state.managers.get_mut(&boss).unwrap().courted = None;
+    let date = state.date;
+    state.companies[rival.index()].ledger = Ledger::new(date, Money::ZERO);
+    game.apply(poach).unwrap();
+    let report = game.advance(RoundLength::Day, |_| {});
+    assert!(
+        report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::MANAGER_POACH_WON)
+    );
+    let j = job(&game, boss);
+    assert_eq!(j.company, game.player());
+    assert_eq!(j.position, ceo());
+}
+
+#[test]
 fn poaching_is_checked() {
     let (mut game, rival, _) = with_rival(test_support::management());
     let (_, works) = mine_and_works(&mut game);

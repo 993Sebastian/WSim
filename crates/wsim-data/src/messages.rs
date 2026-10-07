@@ -567,6 +567,13 @@ pub fn naming_number_zero() -> String {
     "Zahlen müssen größer als 0 sein.".into()
 }
 
+pub fn naming_generation_word(word: &str) -> String {
+    format!(
+        "„{word}“ muss ein einzelnes Wort ohne Ziffern sein (Kennzeichen eines \
+         Nachfolgemodells wie „II“)."
+    )
+}
+
 pub fn real_deposit_other_country(deposit: &str, country: &str) -> String {
     format!("Lagerstätte „{deposit}“ liegt nicht in „{country}“.")
 }

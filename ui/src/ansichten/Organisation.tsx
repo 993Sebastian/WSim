@@ -74,7 +74,7 @@ function fachDerStelle(m: Manager, rolle: string): string {
 }
 
 /** All skills of a manager behind an ⓘ. */
-function AlleFaehigkeiten({ m }: { m: Manager }) {
+export function AlleFaehigkeiten({ m }: { m: Manager }) {
   return (
     <Erklaerung wert={t("organisation.faehigkeiten")}>
       <p>{t("organisation.einschaetzung")}</p>
@@ -1030,6 +1030,12 @@ function KandidatZeile({
       )}
       <td className="zahl" data-spalte={t("organisation.forderung")}>
         {formatGeld(k.demand_usd)}
+        {k.over_cash && (
+          <span className="warnung" title={t("organisation.ueber_kasse_hilfe")}>
+            {" "}
+            {t("organisation.ueber_kasse")}
+          </span>
+        )}
       </td>
       <td>
         <button type="button" aria-label={`${aktion}: ${m.name}`} onClick={onWahl}>
@@ -1101,6 +1107,12 @@ function Managermarkt({
       </div>
       <p className="feld-hilfe">{t("organisation.markt_hilfe")}</p>
       <p className="feld-hilfe">{t("organisation.einschaetzung")}</p>
+      {daten.candidates.some((k) => k.over_cash) && (
+        <p className="warnung">
+          {t("organisation.ueber_kasse_warnung", { kasse: formatGeld(daten.cash_usd ?? 0) })}
+        </p>
+      )}
+      <p className="feld-hilfe">{t("organisation.abwerben_hinweis")}</p>
       <label htmlFor={auswahlId}>{t("organisation.kontinent_wahl")} </label>
       <select id={auswahlId} value={gewaehlt} onChange={(e) => setKontinent(e.target.value)}>
         {[daten.continent, ...kontinente.filter((k) => k !== daten.continent)].map((k) => (

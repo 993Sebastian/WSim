@@ -65,6 +65,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | SU2 | Beteiligungen: Zusagen, Anteile, Fördergeld, Rechte, Tochterfirma, neue KI-Firma | ✅ |
 | SU3 | Ausgründungen, KI-Firmen beteiligen sich, übernehmen und gründen aus | ✅ |
 | ZA4 | Paket A: Zentralen und Sitz der KI, Anteile an Firmen verkaufen, Trefferquote nach Erfolg, Ausfallquote | ✅ |
+| D1 | CI: Browser-Version nur auf Wunsch; Plan für die Stufen 2–5 (Architektur §4.1) | ✅ |
+| B1 | Manager-Restpunkte: Gehalt über der Kasse, Abwerben aus „Wettbewerb“, Nachfolgemodelle | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -530,6 +532,27 @@ Abschnitt O (37–41).
   (Gebot, Mindestpreis, bestes Gebot, Sperrminorität, Buchungen), Trefferquote nach
   Erfolg (Übernahme, Start-up, alte Spielstände); Fehlerfälle der Daten; vitest „An Firmen
   verkaufen“ und Zentrale der Konkurrenz.
+
+### B1: Manager-Restpunkte (07.10.2026)
+
+Auftrag vom 07.10.2026 („Setze dann alles um außer Stufe 6“), Paket B: offene Punkte N 37,
+N 46 und M 5. Regeln: `docs/FORMELN.md`, Abschnitt B1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Gehalt über der Kasse:** Der Managermarkt kennzeichnet Forderungen über der Kasse und
+  warnt darüber mit dem Kassenstand.
+- **Abwerben:** Die Seite einer Firma im Reiter „Wettbewerb“ zeigt unter „Führung“ ihre
+  Manager mit Stelle und Fähigkeiten; je Manager eine freie eigene Stelle wählen, das
+  Angebot sehen (auch „über der Kasse“) und „Abwerben“ (`PoachManager`). Gesperrte oder
+  schon umworbene Manager zeigen, bis wann. Neue Meldungen, wenn eine KI-Firma den
+  Manager ziehen lässt oder mit einem Gegenangebot hält.
+- **Nachfolgemodelle:** Mit jeder Entwicklungsstufe benennen KI-Firmen ihr Modell um
+  („Marvik Typ 12“ → „Marvik Typ 16“, „Kelvor Super“ → „Kelvor Super II“); der Spieler
+  bekommt den Vorschlag im Rundenbericht und als ersten Namensvorschlag im Markt. Daten:
+  `nachfolger` je Namensstil mit Prüfregel und Fehlerfall-Test.
+- **Tests:** Kern (Nachfolgeregeln, Umbenennen beim Erreichen einer Stufe, Abwerben von
+  einer KI-Firma mit Gegenangebot und Wechsel, Warnung im Managermarkt), Oberfläche
+  (Abwerben aus „Wettbewerb“, Warnung im Managermarkt).
 
 ## Eigenständige Entscheidungen (für das Review)
 

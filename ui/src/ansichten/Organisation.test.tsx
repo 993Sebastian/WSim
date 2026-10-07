@@ -213,6 +213,24 @@ describe("Anliegen", () => {
     ]);
   });
 
+  it("warnt im Managermarkt vor Gehältern über der Kasse (N37)", async () => {
+    const { kern, uebersicht } = await kernMitAnliegen();
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Besetzen Produktion (Werk · Deutschland)" }),
+    );
+    expect(await screen.findByText(/Mehrere Forderungen sind höher als deine Kasse/)).toBeTruthy();
+    // The candidates of the unit's continent are listed first.
+    expect(screen.getAllByText("über der Kasse").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Manager anderer Firmen wirbst du unter „Wettbewerb“ ab/)).toBeTruthy();
+  });
+
   it("zeigt den Hauptsitz mit Steuer und Lohn und verlegt ihn", async () => {
     const { kern, uebersicht, gesendet } = await kernMitAnliegen();
     render(

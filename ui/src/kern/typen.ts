@@ -1016,6 +1016,38 @@ export interface Firmendetail {
   licenses: Lizenzmoeglichkeit[];
   cash_usd: number;
   min_age_months: number;
+  /** The company's managers with the player's offers to poach them (N46). */
+  managers?: FremderManager[];
+  /** The player's free positions the offers name. */
+  free_positions?: FreieStelle[];
+}
+
+/** Where a unit is, for lists outside the chart (same fields as the chart's units). */
+export interface Ort {
+  unit: string;
+  site: number | null;
+  kind_text: string;
+  country: string | null;
+  continent: string | null;
+}
+
+/** A free position of the player that an offer can name. */
+export interface FreieStelle {
+  place: Ort;
+  role: string;
+}
+
+/** A manager of another company as the player sees him (N46). */
+export interface FremderManager {
+  manager: Manager;
+  place: Ort;
+  role: string;
+  /** Offers for the player's free positions, in the order of `free_positions`. */
+  options: { salary_usd: number; over_cash: boolean }[];
+  /** Not to be courted again before this day. */
+  courted_until: string | null;
+  /** An offer of some company is open: `own` for the player's, else the company. */
+  offer: string | null;
 }
 
 /** A skill as the player sees it (MA1): a level, never the number. */
@@ -1270,6 +1302,8 @@ export interface Kandidat {
   manager: Manager;
   /** Salary per year for the position. */
   demand_usd: number;
+  /** The salary for a year is more than the company's cash (N37). */
+  over_cash?: boolean;
   /** An own manager's position now. */
   current: { unit: string; site: number | null; role: string } | null;
 }
@@ -1411,6 +1445,8 @@ export interface Managermarkt {
   candidates: Kandidat[];
   /** The company's managers on other positions. */
   own: Kandidat[];
+  /** The company's cash, for the warning on salaries above it. */
+  cash_usd?: number;
 }
 
 /** How the positions price their offers (MA4). */

@@ -1460,7 +1460,21 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
             .product_names
             .get(&p)
             .cloned(),
-        name_suggestions: crate::product_names::suggestions(catalog, state, state.player, p, 3),
+        name_suggestions: {
+            // A named product gets its successor model first (B1).
+            let successor = crate::product_names::successor(catalog, state, state.player, p);
+            let count = if successor.is_some() { 2 } else { 3 };
+            successor
+                .into_iter()
+                .chain(crate::product_names::suggestions(
+                    catalog,
+                    state,
+                    state.player,
+                    p,
+                    count,
+                ))
+                .collect()
+        },
     })
 }
 

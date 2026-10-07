@@ -95,3 +95,66 @@ describe("Versteigerung", () => {
     expect(gebot.MakeOffer.price).toBe(vorschlag * 10_000);
   });
 });
+
+describe("Abwerben", () => {
+  afterEach(cleanup);
+
+  it("bietet einem Manager der Firma eine freie Stelle an (N46)", async () => {
+    const vorschau = vorschauKern(0);
+    const uebersicht = await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      befehl: async (b) => {
+        gesendet.push(b);
+        return uebersicht;
+      },
+    };
+    render(
+      <WettbewerbAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={() => {}} offene={0} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Firmen" }));
+    const liste = await screen.findByRole("table", { name: "Firmen" });
+    const fremde = within(liste)
+      .getAllByRole("row")
+      .find(
+        (z) => within(z).queryAllByRole("button").length > 0 && !z.textContent?.includes("Test AG"),
+      );
+    fireEvent.click(within(fremde as HTMLElement).getAllByRole("button")[0] as HTMLElement);
+    expect(await screen.findByRole("heading", { name: "Führung" })).toBeTruthy();
+    const karte = screen.getByRole("article", { name: "Anna Putilov" });
+    expect(within(karte).getByText(/^CEO · Vorstand/)).toBeTruthy();
+    // The offer for the chosen position, above the cash in the example.
+    fireEvent.change(within(karte).getByLabelText("Für die Stelle"), { target: { value: "1" } });
+    expect(within(karte).getByText(/Angebot: .* im Jahr/)).toBeTruthy();
+    expect(within(karte).getByText("über der Kasse")).toBeTruthy();
+    fireEvent.click(within(karte).getByRole("button", { name: "Abwerben" }));
+    expect(
+      await within(karte).findByText(
+        "Angebot an Anna Putilov gemacht. Die Antwort kommt am nächsten Tag.",
+      ),
+    ).toBeTruthy();
+    expect(gesendet).toEqual([
+      {
+        PoachManager: {
+          manager: expect.any(Number) as number,
+          position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
+        },
+      },
+    ]);
+    // A manager just courted cannot be courted again yet.
+    const zweite = screen.getByRole("article", { name: "Nikolai Ryabushinsky" });
+    expect(within(zweite).getByText("Gerade erst umworben; erneut ab 14.03.1915.")).toBeTruthy();
+    expect(within(zweite).queryByRole("button", { name: "Abwerben" })).toBeNull();
+  });
+});

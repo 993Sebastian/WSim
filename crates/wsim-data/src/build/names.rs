@@ -79,6 +79,15 @@ fn style(ctx: &mut Ctx, s: &RawNamingStyle, l: &Loc, excluded: &[String]) -> Nam
     words(ctx, &s.stems, &l.field("staemme"), excluded);
     words(ctx, &s.letters, &l.field("buchstaben"), excluded);
     words(ctx, &s.additions, &l.field("zusaetze"), excluded);
+    words(ctx, &s.successors, &l.field("nachfolger"), excluded);
+    for (i, w) in s.successors.iter().enumerate() {
+        if w.split_whitespace().count() > 1 || w.chars().any(|c| c.is_ascii_digit()) {
+            ctx.error(
+                &l.field("nachfolger").index(i),
+                messages::naming_generation_word(w.trim()),
+            );
+        }
+    }
     for (i, n) in s.numbers.iter().enumerate() {
         let nl = l.field("zahlen").index(i);
         if *n == 0 {
@@ -143,6 +152,7 @@ fn style(ctx: &mut Ctx, s: &RawNamingStyle, l: &Loc, excluded: &[String]) -> Nam
         numbers: s.numbers.clone(),
         letters: s.letters.clone(),
         additions: s.additions.clone(),
+        successors: s.successors.iter().map(|w| w.trim().to_owned()).collect(),
     }
 }
 

@@ -117,6 +117,7 @@ pub mod keys {
     pub const DEVELOPMENT_DONE: &str = "meldung.weiterentwicklung.erreicht";
     pub const DEVELOPMENT_TOP: &str = "meldung.weiterentwicklung.ausgereizt";
     pub const DEVELOPMENT_RIVAL: &str = "meldung.weiterentwicklung.wettbewerber";
+    pub const DEVELOPMENT_SUCCESSOR: &str = "meldung.weiterentwicklung.nachfolger";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
     pub const NAME_EMPTY: &str = "fehler.name.leer";
     pub const NAME_TOO_LONG: &str = "fehler.name.zu_lang";
@@ -228,6 +229,8 @@ pub mod keys {
     pub const MANAGER_POACH_DECIDED: &str = "meldung.manager.abwerbung_entschieden";
     pub const MANAGER_LEFT: &str = "meldung.manager.gewechselt";
     pub const MANAGER_STAYED: &str = "meldung.manager.geblieben";
+    pub const MANAGER_POACH_WON: &str = "meldung.manager.abgeworben";
+    pub const MANAGER_POACH_KEPT: &str = "meldung.manager.gehalten";
     pub const STEP_MATCH: &str = "schritt.gegenangebot.manager";
     pub const STEP_LET_GO: &str = "schritt.gehen_lassen";
     pub const STEP_REFINANCE: &str = "schritt.umschulden";
@@ -404,6 +407,7 @@ pub mod keys {
         DEVELOPMENT_DONE,
         DEVELOPMENT_TOP,
         DEVELOPMENT_RIVAL,
+        DEVELOPMENT_SUCCESSOR,
         OVERDRAFT,
         NAME_EMPTY,
         NAME_TOO_LONG,
@@ -507,6 +511,8 @@ pub mod keys {
         MANAGER_POACH_DECIDED,
         MANAGER_LEFT,
         MANAGER_STAYED,
+        MANAGER_POACH_WON,
+        MANAGER_POACH_KEPT,
         STEP_MATCH,
         STEP_LET_GO,
         STEP_REFINANCE,

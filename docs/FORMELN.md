@@ -3537,3 +3537,57 @@ Anteil an einem laufenden Start-up allen Firmen an:
   letzten zehn Jahren beendeten gescheitert – im Richtwert 60–70 %. Die 77–83 % der Läufe
   bis 1915 kamen vom Anlauf: Fehlschläge enden früher als Erfolge (ein Erfolg braucht alle
   drei Phasen, mindestens 54 Monate). Die Chancen der Phasen bleiben.
+
+## B1 – Manager-Restpunkte: Gehalt über der Kasse, Abwerben, Nachfolgemodelle
+
+Auftrag vom 07.10.2026 („alles außer Stufe 6“), Paket B: offene Punkte N 37 und N 46,
+M 5 (`docs/OFFENE_PUNKTE.md`). Daten: `ki/produktnamen.yaml` (`nachfolger` je Stil).
+
+### Warnung bei Gehältern über der Kasse (N 37)
+
+Im Managermarkt trägt jeder Bewerber und jeder eigene Manager das Kennzeichen „über der
+Kasse“, wenn seine Jahresforderung F größer ist als die Kasse K der Firma (F > K). Gibt
+es solche Bewerber, steht über der Liste eine Warnung mit K. Dieselbe Prüfung gilt für
+das Angebot beim Abwerben (unten). Die Regel verbietet nichts; sie zeigt nur, dass ein
+Jahr Gehalt die Kasse übersteigt (ein Manager kostet F/12 im Monat).
+
+### Abwerben aus dem Reiter „Wettbewerb“ (N 46)
+
+Die Seite einer anderen Firma zeigt unter „Führung“ alle ihre Manager (Vorstand zuerst,
+dann Kontinent, Land, Standort; Leitungen vor Fachstellen) mit Stelle und Fähigkeiten,
+so wie der Spieler sie einschätzt (MA1, MA5). Für jede freie Stelle s des Spielers –
+ohne Inhaber und ohne eigenes offenes Angebot – steht das Angebot
+
+  A(m, s) = max(Forderung von m für s, Gehalt von m · (1 + `abwerbung.aufschlag`))
+
+(MA6, `poach_salary`). „Abwerben“ sendet `PoachManager { manager, position }`; die Regeln
+aus MA6 gelten unverändert (Sperre nach einem Angebot, nur ein Angebot je Manager, die
+Stelle bleibt für das Angebot reserviert). Eine KI-Firma antwortet am nächsten Tag: Sie
+hält den Manager zu A, wenn A ≤ Gehalt · `ki_gegenangebot_max` und ihre Kasse A trägt,
+sonst wechselt er. Der Spieler bekommt in beiden Fällen eine Meldung; beim Halten mit dem
+Tag, ab dem er erneut umwerben darf.
+
+### Nachfolgemodelle (M 5)
+
+Erreicht eine Firma für ein Produkt p mit Namen n eine neue Entwicklungsstufe (M37) und
+hat der Stil von p eine Liste `nachfolger` G = (g₁, g₂, …), heißt das Nachfolgemodell:
+
+1. Endet n auf ein gᵢ, wird es durch gᵢ₊₁ ersetzt; gibt es kein gᵢ₊₁, gibt es kein
+   Nachfolgemodell („Kelvor 900 III“ → „Kelvor 900 IV“).
+2. Sonst bekommt das letzte Wort mit einer Zahl z die kleinste Zahl der Liste `zahlen`
+   des Stils, die größer als z ist; Buchstaben davor und danach bleiben („Kelvor M80“ →
+   „Kelvor M90“ ist nur möglich, wenn 90 in der Liste steht; mit den Daten „Kelvor M80“ →
+   „Kelvor M100“, „Marvik Typ 12“ → „Marvik Typ 16“).
+3. Gibt es kein solches Wort oder keine größere Zahl, wird g₁ angehängt („Kelvor Super“
+   → „Kelvor Super II“, „Irvok 900“ → „Irvok 900 II“).
+
+Ist der Name schon bei einer anderen Firma für p vergeben, zu lang (über 40 Zeichen)
+oder ausgeschlossen, folgt der nächste Schritt (bis zu 30). Dann gilt:
+
+- **KI-Firmen** benennen ihr Produkt sofort um (`NameProduct`, wie jede Handlung).
+- **Der Spieler** bekommt eine Meldung mit dem Vorschlag; in der Marktansicht steht das
+  Nachfolgemodell als erster der drei Namensvorschläge. Umbenennen bleibt seine
+  Entscheidung.
+- Stile ohne `nachfolger` (Markennamen für Waren des täglichen Bedarfs) behalten den
+  Namen. Marke und Bekanntheit hängen an Firma und Warengruppe, nicht am Namen: Ein
+  Nachfolgemodell verliert keine Bekanntheit.

@@ -45,6 +45,7 @@ rang.umsatz: nach Umsatz
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
 meldung.weiterentwicklung.erreicht: "{produkt} weiterentwickelt: Stufe {stufe} erreicht. Das Labor arbeitet an der nächsten Stufe weiter."
 meldung.weiterentwicklung.ausgereizt: "{produkt} ist ausgereizt: Stufe {stufe}, die höchste, ist erreicht. Das Labor ist frei für ein neues Projekt."
+meldung.weiterentwicklung.nachfolger: "Zeit für ein Nachfolgemodell: Aus {alt} könnte {name} werden. Umbenennen kannst du {produkt} im Markt unter „Dein Produktname“."
 meldung.weiterentwicklung.wettbewerber: "{firma} hat als erste Firma {produkt} auf Stufe {stufe} weiterentwickelt – mit besserer Qualität und niedrigeren Kosten."
 
 # Arten von Inhalten, für Meldungen
@@ -228,6 +229,8 @@ meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingeste
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."
 meldung.manager.abwerbung_entschieden: "{firma} wollte {name} ({stelle}, {ort}) für {angebot} im Jahr abwerben. Die Personalstelle hat selbst entschieden: {option}."
 meldung.manager.gewechselt: "{name} ({stelle}, {ort}) wechselt zu {firma}."
+meldung.manager.abgeworben: "{name} wechselt von {firma} zu dir: {stelle}, {ort}, für {gehalt} im Jahr."
+meldung.manager.gehalten: "{firma} hält {name} ({stelle}, {ort}) und zahlt jetzt {gehalt} im Jahr. Neu umwerben kannst du ihn ab {datum}."
 meldung.manager.geblieben: "Das Angebot von {firma} an {name} ({stelle}, {ort}) ist verfallen. {name} bleibt, ist aber enttäuscht."
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."

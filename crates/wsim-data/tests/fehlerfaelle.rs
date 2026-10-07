@@ -2429,6 +2429,7 @@ produktnamen:
         - {text: \"{stamm} Typ {zahl}\", bis: 1939}
         - {text: \"{stamm} {zahl}\"}
       zahlen: [2, 300]
+      nachfolger: [II, III]
 ";
 
 #[test]
@@ -2440,6 +2441,7 @@ fn produktnamen_werden_geprueft() {
     let naming = outcome.data.unwrap().catalog.product_naming;
     assert_eq!(naming.styles.len(), 1);
     assert_eq!(naming.styles[0].patterns[0].until, Some(1939));
+    assert_eq!(naming.styles[0].successors, ["II", "III"]);
     assert!(naming.is_excluded("Neuer tesla 3"));
     // Without the section no product has a name.
     let ohne = Daten::neu().laden().data.unwrap().catalog.product_naming;
@@ -2520,6 +2522,16 @@ fn produktnamen_werden_geprueft() {
 
     let d = basis().ersetze(datei, "zahlen: [2, 300]", "zahlen: [0, 300]");
     befund(&d.laden(), "Zahlen müssen größer als 0 sein.");
+
+    let d = basis().ersetze(datei, "nachfolger: [II, III]", "nachfolger: [II, Mark 3]");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "„Mark 3“ muss ein einzelnes Wort ohne Ziffern sein (Kennzeichen eines Nachfolgemodells wie „II“).",
+    );
+    assert_eq!(f.path.to_string(), "produktnamen.stile[0].nachfolger[1]");
+    let d = basis().ersetze(datei, "nachfolger: [II, III]", "nachfolger: [II, ii]");
+    befund(&d.laden(), "„ii“ steht doppelt in der Liste.");
 
     let d = basis().datei("ki/zweite.yaml", PRODUKTNAMEN);
     befund(

@@ -21,6 +21,8 @@ import {
   type Befehl,
   type Geschaeftsbereich,
   type Firmendetail,
+  type FreieStelle,
+  type FremderManager,
   type Gegenstandssicht,
   type Kern,
   type Standortwert,
@@ -28,6 +30,8 @@ import {
 } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
+import { AlleFaehigkeiten } from "./Organisation";
+import { einheitName, stellenangabe, stellenName } from "./stellen";
 import {
   Befehle,
   Erklaerung,
@@ -582,7 +586,97 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
           ))}
         </div>
       )}
+      {!c.player && <Fuehrung d={d} />}
     </section>
+  );
+}
+
+/** A manager of the company with the player's offer for one of his free positions (N46). */
+function ManagerKarte({ m, stellen }: { m: FremderManager; stellen: FreieStelle[] }) {
+  const { los, antwort } = useAktion(`abwerben/${m.manager.id}`);
+  const [wahl, setWahl] = useState(0);
+  const angebot = m.options[wahl];
+  const sperre =
+    m.offer === "own"
+      ? t("wettbewerb.abwerben_offen")
+      : m.offer
+        ? t("wettbewerb.abwerben_fremd", { firma: m.offer })
+        : m.courted_until
+          ? t("wettbewerb.abwerben_gesperrt", { datum: formatDatum(m.courted_until) })
+          : null;
+  const abwerben = (ev: FormEvent) => {
+    ev.preventDefault();
+    const s = stellen[wahl];
+    if (!s) return;
+    const position = stellenangabe(s.place.unit, s.role);
+    void los(
+      [{ PoachManager: { manager: m.manager.id, position } }],
+      t("wettbewerb.abwerben_gesendet", { name: m.manager.name }),
+    );
+  };
+  return (
+    <article className="karte" aria-label={m.manager.name}>
+      <h4>{m.manager.name}</h4>
+      <p>
+        {stellenName(m.role, m.place.kind_text)} · {einheitName(m.place)}{" "}
+        <AlleFaehigkeiten m={m.manager} />
+      </p>
+      {sperre ? (
+        <p className="gedaempft">{sperre}</p>
+      ) : (
+        stellen.length > 0 && (
+          <form className="formular-zeile" onSubmit={abwerben}>
+            <label>
+              {t("wettbewerb.abwerben_stelle")}{" "}
+              <select value={wahl} onChange={(e) => setWahl(Number(e.target.value))}>
+                {stellen.map((s, i) => (
+                  <option key={`${s.place.unit}/${s.role}`} value={i}>
+                    {stellenName(s.role, s.place.kind_text)} · {einheitName(s.place)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {angebot && (
+              <span>
+                {t("wettbewerb.abwerben_angebot", { gehalt: formatGeld(angebot.salary_usd) })}
+                {angebot.over_cash && (
+                  <span className="warnung"> {t("organisation.ueber_kasse")}</span>
+                )}
+              </span>
+            )}
+            <button type="submit">{t("wettbewerb.abwerben")}</button>
+          </form>
+        )
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </article>
+  );
+}
+
+/** The company's managers; the player can make them offers (N46). */
+function Fuehrung({ d }: { d: Firmendetail }) {
+  const manager = d.managers ?? [];
+  const stellen = d.free_positions ?? [];
+  return (
+    <>
+      <h3>{t("wettbewerb.fuehrung")}</h3>
+      {manager.length === 0 ? (
+        <p className="gedaempft">{t("wettbewerb.keine_manager")}</p>
+      ) : (
+        <>
+          <p className="gedaempft">
+            {t(
+              stellen.length > 0 ? "wettbewerb.abwerben_hilfe" : "wettbewerb.abwerben_keine_stelle",
+            )}
+          </p>
+          <div className="karten">
+            {manager.map((m) => (
+              <ManagerKarte key={m.manager.id} m={m} stellen={stellen} />
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 }
 

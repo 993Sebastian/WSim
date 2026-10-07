@@ -538,7 +538,7 @@ keine Namen. Eine einmalige Zuordnung:
 | --- | --- |
 | **hausmarke** | 0–1: Anteil, mit dem eine Firma für ein weiteres Produkt desselben Stils einen eigenen Stamm wiederverwendet |
 | ausgeschlossen | Echte Produkt- und Markennamen. Kein Stamm, Buchstabe oder Zusatz darf eines dieser Wörter enthalten; Namen mit einem solchen Wort erzeugt das Spiel nicht und nimmt es vom Spieler nicht an (ohne Unterschied von Groß- und Kleinschreibung) |
-| **stile** | Liste der Namensstile: `id` (eindeutig), `warengruppen` (nicht leer, jede Warengruppe in höchstens einem Stil; benannt werden die Endprodukte dieser Gruppen), `staemme` (erfundene Wörter, nicht leer, ohne Doppelte), `muster` (nicht leer, siehe unten), `zahlen` (über 0, ohne Doppelte), `buchstaben`, `zusaetze` |
+| **stile** | Liste der Namensstile: `id` (eindeutig), `warengruppen` (nicht leer, jede Warengruppe in höchstens einem Stil; benannt werden die Endprodukte dieser Gruppen), `staemme` (erfundene Wörter, nicht leer, ohne Doppelte), `muster` (nicht leer, siehe unten), `zahlen` (über 0, ohne Doppelte), `buchstaben`, `zusaetze`, `nachfolger` (Kennzeichen der Nachfolgemodelle in Reihenfolge, z. B. `[II, III]`; einzelne Wörter ohne Ziffern, ohne Doppelte; leer: keine Nachfolgemodelle, B1) |
 
 Ein Muster ist `{text, ab, bis}`: `text` mit `{stamm}` (Pflicht) und wahlweise `{zahl}`,
 `{buchstabe}`, `{zusatz}` – jeder benutzte Platzhalter braucht eine nicht leere Liste;

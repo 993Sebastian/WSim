@@ -10,7 +10,7 @@ use crate::development::{self, Effect};
 use crate::game::Game;
 use crate::ids::{Id, ProductId};
 use crate::ledger::CostType;
-use crate::message::keys;
+use crate::message::{Param, keys};
 use crate::money::Money;
 use crate::production;
 use crate::save;
@@ -271,6 +271,88 @@ fn a_research_center_develops_a_product_level_by_level() {
     })
     .unwrap();
     assert_eq!(game.state().sites[lab.index()].development, None);
+}
+
+/// Iron as an end product with model names (B1).
+fn named_catalog() -> Catalog {
+    let mut c = catalog();
+    let iron = c.products.id("eisen").unwrap();
+    c.products.get_mut(iron).kind = crate::catalog::ProductKind::EndProduct;
+    let group = c.products.get(iron).goods_group;
+    let mut style_of_group = vec![None; c.goods_groups.len()];
+    style_of_group[group.index()] = Some(0);
+    c.product_naming = crate::catalog::ProductNaming {
+        house_brand: 0.5,
+        excluded: Vec::new(),
+        styles: vec![crate::catalog::NamingStyle {
+            key: "technik".into(),
+            stems: vec!["Arvon".into()],
+            patterns: vec![crate::catalog::NamePattern {
+                text: "{stamm} {zahl}".into(),
+                from: None,
+                until: None,
+            }],
+            numbers: vec![2, 3, 4],
+            letters: Vec::new(),
+            additions: Vec::new(),
+            successors: vec!["II".into()],
+        }],
+        style_of_group,
+    };
+    c
+}
+
+#[test]
+fn a_new_level_brings_a_successor_model() {
+    let mut game = new_game(named_catalog());
+    let lab = research_center(&mut game);
+    let iron = product(&game, "eisen");
+    let player = game.player();
+    game.apply(Command::NameProduct {
+        product: iron,
+        name: Some("Arvon 2".into()),
+    })
+    .unwrap();
+    game.apply(Command::SetDevelopment {
+        site: lab,
+        product: Some(iron),
+    })
+    .unwrap();
+    // The player gets the successor as a suggestion and keeps his name.
+    let mut suggested = None;
+    for _ in 0..400 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        if let Some(m) = report
+            .messages
+            .iter()
+            .find(|m| m.key == keys::DEVELOPMENT_SUCCESSOR)
+        {
+            suggested = Some(m.params.clone());
+            break;
+        }
+    }
+    let params = suggested.expect("a suggestion with the first level");
+    assert!(
+        params
+            .iter()
+            .any(|(k, v)| k == "name" && *v == Param::Text("Arvon 3".into()))
+    );
+    let names = |game: &Game| game.state().companies[player.index()].product_names[&iron].clone();
+    assert_eq!(names(&game), "Arvon 2");
+    // Another company in the player's place: the laboratory's owner renames itself.
+    let state = game.state_mut();
+    let mut other = state.companies[player.index()].clone();
+    other.name = "Andere AG".into();
+    other.product_names.clear();
+    state.companies.push(other);
+    state.player = crate::state::CompanyId(1);
+    for _ in 0..800 {
+        game.advance(RoundLength::Day, |_| {});
+        if names(&game) != "Arvon 2" {
+            break;
+        }
+    }
+    assert_eq!(names(&game), "Arvon 3");
 }
 
 #[test]

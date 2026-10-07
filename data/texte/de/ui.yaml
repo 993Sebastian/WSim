@@ -1004,6 +1004,17 @@ wettbewerb.gesperrt.angebot_offen: Dein Angebot dafür ist noch offen.
 wettbewerb.gesperrt.gesperrt: "Nach der Ablehnung kannst du ab {datum} wieder bieten."
 wettbewerb.lizenzen: Lizenzen
 wettbewerb.keine_lizenzen: Diese Firma kennt keine Technologie, die dir fehlt.
+wettbewerb.fuehrung: Führung
+wettbewerb.keine_manager: Die Firma hat keine Manager.
+wettbewerb.abwerben_hilfe: Du kannst ihre Manager für eine deiner freien Stellen umwerben. Du bietest ihnen ihre Forderung, mindestens aber das bisherige Gehalt mit Aufschlag. Die Firma antwortet am nächsten Tag; sie hält den Manager, wenn ihr das Gehalt nicht zu hoch ist und ihre Kasse es trägt.
+wettbewerb.abwerben_keine_stelle: Zum Abwerben brauchst du eine freie Stelle. Im Moment sind alle deine Stellen besetzt oder schon jemandem angeboten.
+wettbewerb.abwerben_stelle: Für die Stelle
+wettbewerb.abwerben_angebot: "Angebot: {gehalt} im Jahr"
+wettbewerb.abwerben: Abwerben
+wettbewerb.abwerben_gesendet: Angebot an {name} gemacht. Die Antwort kommt am nächsten Tag.
+wettbewerb.abwerben_offen: Dein Angebot läuft; die Antwort kommt am nächsten Tag.
+wettbewerb.abwerben_fremd: "{firma} wirbt gerade um diesen Manager."
+wettbewerb.abwerben_gesperrt: Gerade erst umworben; erneut ab {datum}.
 wettbewerb.lizenz_anfragen: Lizenz anfragen
 
 # Organisation und Manager (MA1)
@@ -1113,6 +1124,10 @@ organisation.einschaetzung: Die Fähigkeiten sind eine Einschätzung aus Lebensl
 organisation.zurueck: ← Organisation
 organisation.markt_titel: "{stelle} · {standort}"
 organisation.markt_hilfe: Die Gehaltsforderung richtet sich nach den Fähigkeiten und dem Lohnniveau im Land des Standorts. Ein Manager kostet sein Gehalt jeden Monat; wer entlassen wird, bekommt eine Abfindung.
+organisation.ueber_kasse: über der Kasse
+organisation.ueber_kasse_hilfe: Das Jahresgehalt ist höher als deine Kasse. Ein Manager kostet jeden Monat ein Zwölftel davon.
+organisation.ueber_kasse_warnung: "Vorsicht: Mehrere Forderungen sind höher als deine Kasse ({kasse}). Ein Manager kostet sein Gehalt jeden Monat; ein CEO kann eine kleine Firma in wenigen Monaten in die Pleite treiben."
+organisation.abwerben_hinweis: Manager anderer Firmen wirbst du unter „Wettbewerb“ ab – auf der Seite der Firma unter „Führung“.
 organisation.kontinent_wahl: Bewerber aus
 organisation.alle_kontinente: allen Kontinenten
 organisation.bewerber: Bewerber

@@ -308,7 +308,7 @@ pub fn has_work(catalog: &Catalog, state: &GameState, position: &Position) -> bo
 }
 
 /// Whether a company offered someone one of its positions.
-fn offered(state: &GameState, company: CompanyId, position: &Position) -> bool {
+pub fn offered(state: &GameState, company: CompanyId, position: &Position) -> bool {
     state
         .poach_offers
         .iter()
@@ -732,7 +732,8 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
         }
         let employer = offer.employer;
         if state.companies[employer.index()].ai.is_some() {
-            let answer = if keeps(catalog, state, &offer) {
+            let kept = keeps(catalog, state, &offer);
+            let answer = if kept {
                 Command::MatchOffer {
                     manager: offer.manager,
                 }
@@ -744,12 +745,35 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             if command::execute(state, catalog, employer, &answer).is_err() {
                 // Nothing came of it: the offer ends.
                 state.poach_offers.retain(|o| o.manager != offer.manager);
+            } else if offer.bidder == state.player {
+                news.push(poach_answer(catalog, state, &offer, kept));
             }
         } else {
             news.extend(ask(state, catalog, &offer, date));
         }
     }
     news
+}
+
+/// The answer of an AI company to the player's offer to its manager (N46).
+fn poach_answer(catalog: &Catalog, state: &GameState, offer: &PoachOffer, kept: bool) -> Message {
+    let salary = state
+        .managers
+        .get(&offer.manager)
+        .and_then(|m| m.job.as_ref())
+        .map_or(Money::ZERO, |j| j.salary);
+    let (kind, key) = if kept {
+        (MessageKind::Info, keys::MANAGER_POACH_KEPT)
+    } else {
+        (MessageKind::Success, keys::MANAGER_POACH_WON)
+    };
+    let mut message = about(catalog, state, kind, key, offer.manager)
+        .with("firma", company_param(state, offer.employer))
+        .with("gehalt", Param::Money(salary));
+    if let Some(until) = courted_until(catalog, &state.managers[&offer.manager]) {
+        message = message.with("datum", Param::Date(until));
+    }
+    message
 }
 
 /// The name of a company for messages.

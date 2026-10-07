@@ -718,7 +718,8 @@ entschieden:
 4. **Der Spieler** benennt selbst (Markt → Produkt → „Dein Produktname“, drei
    Vorschläge); ohne Namen verkauft er unter dem Gattungsnamen, ein Hinweis erinnert
    daran.
-5. **Nachfolgemodelle** (neuer Name mit jeder Entwicklungsstufe, M37) gibt es noch
+5. ✅ **Nachfolgemodelle** (B1, `docs/FORMELN.md`): umgesetzt wie vorgeschlagen; der Text
+   darunter beschreibt den alten Stand. (Neuer Name mit jeder Entwicklungsstufe, M37) gibt es noch
    nicht. Vorschlag für später: Die KI bringt mit einer neuen Stufe ein Nachfolgemodell
    unter demselben Stamm heraus („Kelvor M80“ → „Kelvor M90“).
 
@@ -859,7 +860,7 @@ Strategieauftrag, Strategierücksprache; Einzelheiten: `docs/FORMELN.md`, MA5).
     reicht das Budget nicht, ist nur eines als Anliegen offen; die übrigen beantwortet der
     Vorstand am nächsten Prüftermin (Angebote gelten zwei Monate).
 36. **Sperren gelten für die Stellen,** nicht für den Spieler; Lizenzen sind nie gesperrt.
-37. **CEO und kleine Firmen:** Ein CEO kostet das 15-Fache eines Akademikerlohns; eine
+37. ✅ (B1: Warnung im Managermarkt und beim Abwerben) **CEO und kleine Firmen:** Ein CEO kostet das 15-Fache eines Akademikerlohns; eine
     Werkstatt mit 100.000 USD Startkapital geht daran in wenigen Monaten pleite. Die
     Gehaltsforderung steht im Managermarkt. Vorschlag: dort warnen, wenn das Jahresgehalt
     die Kasse übersteigt.
@@ -890,7 +891,7 @@ entschieden:
     Vorausplanung der Forschung); sie entscheiden nicht über Stellen-Ketten und stellen
     keine Anliegen. Vorschlag für später: die Kompetenz auch in Preis- und
     Ausbauentscheidungen wirken lassen.
-46. **Abwerben durch den Spieler:** Der Befehl `PoachManager` steht allen Firmen offen,
+46. ✅ (B1: Reiter „Wettbewerb“ → Firma → „Führung“) **Abwerben durch den Spieler:** Der Befehl `PoachManager` steht allen Firmen offen,
     die Oberfläche bietet ihn noch nicht an (es gibt keine Liste fremder Manager).
     Vorschlag: im Reiter „Wettbewerb“ die Leitungen der Firmen zeigen und dort „Abwerben“
     anbieten.
@@ -1050,6 +1051,23 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
     Scheitern keiner, sonst zählt der Wert des Anteils mit der wahren Chance gegen den
     Einsatz. Je Start-up und Leitung eine ausstehende Bewertung (sonst zählte jede
     monatliche Empfehlung derselben Runde).
+
+## P Paket B und die Stufen 2–5 (Auftrag vom 07.10.2026: „alles außer Stufe 6“)
+
+✅ **B1 umgesetzt** (Gehalt über der Kasse, Abwerben, Nachfolgemodelle; Regeln:
+`docs/FORMELN.md`, Abschnitt B1). 🟡 Eigenständig entschieden:
+
+1. **Nur eine Warnung:** Ein Gehalt über der Kasse wird angezeigt, nicht verboten – eine
+   Firma mit Kredit oder sicheren Einnahmen darf teuer einstellen.
+2. **Alle Manager einer Firma** stehen unter „Führung“, nicht nur die Leitungen: Auch eine
+   gute Fachkraft lässt sich abwerben. Die Fähigkeiten zeigt die Einschätzung des Spielers
+   wie im Managermarkt.
+3. **Abwerben nur auf freie Stellen:** Das Angebot nennt eine freie Stelle des Spielers
+   (wie der Befehl seit MA6); eine besetzte Stelle müsste man erst räumen.
+4. **Nachfolgemodelle nur für Modellnamen** (Stil `technik`); Markennamen für Waren des
+   täglichen Bedarfs bleiben. Die KI benennt mit jeder Stufe um, der Spieler bekommt
+   einen Vorschlag. Mit den Zahlen der Daten springt „M80“ auf „M100“ (90 steht nicht in
+   der Liste); nach der größten Zahl folgen „II“, „III“ … bis „X“.
 
 ## Reihenfolge der neuen Punkte
 

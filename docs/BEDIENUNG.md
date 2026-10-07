@@ -191,6 +191,9 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   die anderen zwei als Knöpfe, „Namen speichern“ und „Namen entfernen“. Echte Produkt- und
   Markennamen und Namen, die eine andere Firma für dasselbe Produkt trägt, lehnt das Spiel
   mit einer Meldung ab. Ein verkauftes Endprodukt ohne Namen steht unter „Zu erledigen“.
+  Nachfolgemodelle (B1): Erreicht ein benanntes Modell eine neue Entwicklungsstufe, schlägt
+  der Rundenbericht das Nachfolgemodell vor („Aus Kelvor M80 könnte Kelvor M100 werden“);
+  es steht dann als erster Vorschlag unter „Dein Produktname“. KI-Firmen benennen um.
 
 ### Wettbewerb (M30, M31)
 
@@ -224,6 +227,12 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   („Zentrale: Finanzen, Marketing (3 Angestellte).“ oder „Keine Zentralabteilungen.“) und
   ein laufender Umzug des Hauptsitzes („Verlegt den Hauptsitz nach … (ab …)“). Der
   Rundenbericht meldet, wenn eine Firma ihren Sitz verlegt.
+- **Führung und Abwerben (B1):** Unten auf der Seite einer Firma stehen ihre Manager
+  (Vorstand zuerst) mit Stelle und Fähigkeiten (ⓘ). Je Manager wählst du „Für die
+  Stelle“ eine deiner freien Stellen; daneben steht das Angebot im Jahr (rot „über der
+  Kasse“, wenn es deine Kasse übersteigt). „Abwerben“ schickt das Angebot; die Firma
+  antwortet am nächsten Tag, der Rundenbericht meldet Wechsel oder Gegenangebot. Läuft
+  schon ein Angebot oder wurde der Manager eben umworben, steht dort, bis wann.
 
 ### Organisation (MA1–MA6)
 
@@ -245,6 +254,8 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   der Gehaltsforderung für genau diese Stelle; „Einstellen“. Darunter eigene Manager mit
   „Hierher versetzen“ (Gehalt danach). Fähigkeiten erscheinen nur als Stufen von
   „schwach“ bis „herausragend“ – als Einschätzung, die um eine Stufe danebenliegen kann.
+  Forderungen über der Kasse tragen „über der Kasse“, darüber steht dann eine Warnung
+  mit dem Kassenstand (B1); ein Hinweis nennt das Abwerben unter „Wettbewerb“.
 - **Entlassen:** fragt nach und nennt die Abfindung.
 - **Zufriedenheit (MA6):** In der Spalte „Gehalt im Jahr“ unter dem Gehalt die
   Zufriedenheit als Stufe („zufrieden“ grün, „gemischt“ gelb, „unzufrieden“ rot) und, wenn
