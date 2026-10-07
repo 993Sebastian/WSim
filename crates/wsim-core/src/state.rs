@@ -654,6 +654,62 @@ pub struct Venture {
     pub status: VentureStatus,
     /// Draw for the shown chance, −1 … 1.
     pub blur: f64,
+    /// Pledges of companies to the open round, in the order given (SU2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pledges: Vec<(CompanyId, Money)>,
+    /// What each company paid for its shares and pledges, not yet sold or written off.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub book: Vec<(CompanyId, Money)>,
+    /// Grants given, by company.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub grants: Vec<(CompanyId, Money)>,
+    /// The company it belongs to as a subsidiary.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent: Option<CompanyId>,
+    #[serde(default, skip_serializing_if = "VenturePace::is_normal")]
+    pub pace: VenturePace,
+    /// How a success ended: in a parent company or on the stock market.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exit: Option<VentureExit>,
+}
+
+/// How fast the majority owner drives a start-up (SU2).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VenturePace {
+    #[default]
+    Normal,
+    Fast,
+    Thorough,
+}
+
+impl VenturePace {
+    pub const ALL: [VenturePace; 3] = [
+        VenturePace::Normal,
+        VenturePace::Fast,
+        VenturePace::Thorough,
+    ];
+
+    fn is_normal(&self) -> bool {
+        *self == VenturePace::Normal
+    }
+
+    /// Text `startup.lenkung.<key>`.
+    pub fn key(self) -> &'static str {
+        match self {
+            VenturePace::Normal => "normal",
+            VenturePace::Fast => "zuegig",
+            VenturePace::Thorough => "gruendlich",
+        }
+    }
+}
+
+/// Where a successful start-up went (SU2).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum VentureExit {
+    /// Into its parent company, which uses the technology.
+    Parent(CompanyId),
+    /// On the stock market; the AI company it became, if any.
+    Listed(Option<CompanyId>),
 }
 
 /// What a start-up works on (SU1).

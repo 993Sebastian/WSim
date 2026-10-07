@@ -192,6 +192,18 @@ fn rate_param(rate: f64) -> Param {
     Param::Number((rate * 10_000.0).round() / 100.0)
 }
 
+/// The text of a start-up's target: its technology or product.
+fn venture_target(catalog: &Catalog, target: crate::state::VentureTarget) -> Param {
+    match target {
+        crate::state::VentureTarget::Technology(t) => {
+            Param::TextKey(format!("technologie.{}", catalog.technologies.key(t)))
+        }
+        crate::state::VentureTarget::Development { product, .. } => {
+            Param::TextKey(format!("produkt.{}", catalog.products.key(product)))
+        }
+    }
+}
+
 fn percent(share: f64) -> Param {
     // Shares of a few hundred percent at most; the cast is exact.
     Param::Integer((share * 100.0).round() as i64)
@@ -400,6 +412,18 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("alt", rate_param(l.rate))
                 .with("neu", rate_param(rate))
         }
+        Command::InvestInVenture { venture, amount } => {
+            let v = state.ventures.iter().find(|v| v.id == *venture)?;
+            let phase = catalog.ventures.phases.get(v.phase)?;
+            m(keys::STEP_INVEST)
+                .with("betrag", Param::Money(*amount))
+                .with("name", Param::Text(v.name.clone()))
+                .with("ziel", venture_target(catalog, v.target))
+                .with(
+                    "phase",
+                    Param::TextKey(format!("startup.phase.{}", phase.key)),
+                )
+        }
         Command::RaiseSalary { manager, salary } => {
             let x = state.managers.get(manager)?;
             m(keys::STEP_RAISE)
@@ -476,6 +500,16 @@ fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Opti
                 })),
             )
             .with("gebuehr", Param::Money(Money::ZERO - option.once)),
+        Command::InvestInVenture { venture, .. } => {
+            let v = state.ventures.iter().find(|v| v.id == venture)?;
+            let (chance, _) = crate::ventures::shown_chance(catalog, state, c.company, v);
+            let worth = crate::ventures::expected_success_value(state, &catalog.ventures, v);
+            let factor = crate::ventures::expected_return(catalog, state, c.company, v);
+            m(keys::BECAUSE_VENTURE)
+                .with("chance", percent(chance))
+                .with("wert", Param::Money(worth))
+                .with("faktor", Param::Number((factor * 10.0).round() / 10.0))
+        }
         Command::RaiseSalary { manager, salary } => {
             let x = state.managers.get(&manager)?;
             let now = x.job.as_ref()?.salary;

@@ -1664,6 +1664,32 @@ export interface StartUp {
   owners: StartUpEigner[];
   status: "aktiv" | "erfolg" | "gescheitert" | "ohne_geld" | "ueberholt";
   ended: string | null;
+  /** Value of the whole start-up now, and of a success as it looks today (SU2). */
+  value_usd: number;
+  success_value_usd: number;
+  /** The player's company: share, book value, pledge to the open round, grants. */
+  own_share: number;
+  own_book_usd: number;
+  own_pledge_usd: number;
+  own_grants_usd: number;
+  /** Pledge to the open round or shares of founders and investors, up to the maximum. */
+  invest_mode: "runde" | "anteile" | null;
+  invest_max_usd: number | null;
+  /** What all of it fetches when selling now. */
+  sale_value_usd: number;
+  majority: boolean;
+  /** Key of the pace (`startup.lenkung.<key>`). */
+  pace: string;
+  /** Cost of buying out the others; none where not possible. */
+  integration_usd: number | null;
+  blocked: boolean;
+  subsidiary: boolean;
+  /** The company it belongs to, if another one's. */
+  parent: string | null;
+  /** Expected return per dollar pledged (strategy department). */
+  expected_return: number | null;
+  exit: "tochter" | "boerse" | null;
+  exit_company: string | null;
 }
 
 /** The start-ups of the world (SU1). */
@@ -1681,4 +1707,16 @@ export interface StartUps {
   succeeded: number;
   failed: number;
   keep_years: number;
+  /** The player's stakes (SU2). */
+  portfolio_book_usd: number;
+  portfolio_value_usd: number;
+  holdings: number;
+  cash_usd: number;
+  blocking: number;
+  majority: number;
+  buy_premium: number;
+  sale_discount: number;
+  grant_effect: number;
+  /** Keys of the paces (`startup.lenkung.<key>`). */
+  paces: string[];
 }

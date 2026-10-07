@@ -3216,3 +3216,125 @@ Bei der Entstehung wird *u* gleichverteilt in −1 … 1 gezogen;
 mit Güte G und Abdeckung A der Strategieabteilung des Spielers (ZA2). Ohne arbeitende
 Abteilung (b = unschaerfe) zeigt das Spiel nur die Stufe: gering unter `stufe_mittel_ab`
 (20 %), mittel unter `stufe_hoch_ab` (40 %), sonst hoch.
+
+## SU2 – Beteiligungen an Start-ups
+
+`docs/BETEILIGUNGEN.md` Abschnitte 5.4–5.6. Daten: `parameter/startups.yaml`, Block
+`beteiligung`. Kern: Modul `ventures` mit den Befehlen `InvestInVenture`, `GrantVenture`,
+`SellVentureStake`, `SteerVenture` und `IntegrateVenture`. Eigner sind Firmen
+(`Holder::Company`, auch die des Spielers: Die Beteiligung steht in ihrer Bilanz), die
+Gründer (`Holder::Private`) und Investoren außerhalb des Spiels (`Holder::Investors`).
+KI-Firmen nutzen dieselben Befehle ab SU3.
+
+### Wert
+
+- **Laufend:** bei offener Runde W = Kapital · `bewertung` der Phase (Wert vor der Runde),
+  nach der Runde W = Kapital · (`bewertung` + 1).
+- **Bei Erfolg:** W_E = Kapital der letzten Phase · (`bewertung` + 1) · `erfolg_faktor`.
+- Mit den Daten (Bewertungen 10, 5, 2,5; Faktor 1,3) bringt ein Dollar der ersten Runde im
+  Mittel rund das 2,8-Fache, der zweiten das 1,9-Fache, der dritten das 1,2-Fache – bei
+  einer Verbesserung ohne Vorlauf; die meisten Einsätze gehen ganz verloren.
+
+### Anteile kaufen (`InvestInVenture { venture, amount }`)
+
+- Laufendes Start-up, Betrag > 0 und durch die Kasse gedeckt, nicht die Tochterfirma einer
+  anderen Firma.
+- **Offene Runde:** höchstens der offene Rest (Kapital − gesammelt). Der Betrag ist eine
+  **Zusage**: Er geht sofort aus der Kasse in die Finanzanlagen. Decken die Zusagen die
+  Runde, schließt sie sofort und die Phase beginnt heute; sonst decken Investoren den
+  Rest wie in SU1 (`investoren_chance_monat`). Beim Schließen erhält jeder Geber
+  Betrag / (B + Kapital) mit B = Kapital · `bewertung`; alle bisherigen Eigner behalten
+  B / (B + Kapital) ihres Anteils. Geht die Runde ohne Geld ein, fließen die Zusagen zurück.
+- **Zwischen den Runden (aufstocken):** Anteile von Gründern und Investoren, anteilig nach
+  ihrem Bestand, zum Preis W · (1 + `kauf_aufschlag`) je ganzem Start-up; höchstens so
+  viel, wie beide halten.
+- Käufe zählen zum Budget „Beteiligungen“ des Jahres (ZA2) wie Übernahmen und Lizenzen.
+
+### Fördergeld (`GrantVenture { venture, amount }`)
+
+- Aufwand (Kostenart Forschung), keine Anteile und keine Rechte. Die Chance der laufenden
+  Phase steigt:
+
+      Chance ← Chance + (1 − Chance) · foerderung_wirkung · min(1, Betrag / Kapital)
+
+- Nutzen: Gelingt das Start-up, ist die Technologie früher in der Welt (SU1).
+
+### Rechte nach Anteil
+
+| Anteil | Rechte |
+| --- | --- |
+| jeder | Erlös bei Verkauf und Börsengang |
+| ab `sperrminoritaet` (25 %) einer Firma | keine andere Firma kann eingliedern |
+| über `mehrheit` (50 %) | lenken, eingliedern; bei Erfolg wird es Tochterfirma |
+
+Eine Minderheitsbeteiligung bringt nur Geld, keinen Zugang zur Technologie.
+
+### Anteile verkaufen (`SellVentureStake { venture, share }`)
+
+- Laufendes Start-up; an Investoren außerhalb des Spiels zum Preis Anteil · W ·
+  (1 − `verkauf_abschlag`); höchstens der eigene Anteil (Zusagen zählen nicht).
+
+### Lenken (`SteerVenture { venture, pace }`, über 50 %)
+
+- Tempo `zuegig`, `normal` oder `gruendlich` (`lenkung`): Faktoren auf die Dauer und die
+  Chance der Phasen, die danach beginnen, und der laufenden, solange ihre Runde offen ist.
+  Die Chance bleibt höchstens `chance_max`.
+
+### Eingliedern (`IntegrateVenture { venture }`, über 50 %)
+
+- Keine andere Firma hält eine Sperrminorität. Die übrigen Eigner erhalten
+  W · (1 + `kauf_aufschlag`) für ihren Anteil, Zusagen anderer Firmen fließen zurück; die
+  Firma hält 100 %, das Start-up ist ihre **Tochterfirma**.
+- Die Runden einer Tochterfirma deckt die Mutter am nächsten Monatsanfang ganz (Zusage,
+  zählt zum Budget „Beteiligungen“), solange ihre Kasse reicht. Sonst decken Investoren die
+  Runde wie in SU1 und verwässern die Mutter; fällt ihr Anteil auf `mehrheit` oder
+  darunter, ist das Start-up keine Tochterfirma mehr.
+
+### Erfolg
+
+1. **Tochterfirma:** Die Mutter kennt die Technologie sofort (bzw. hat die Stufe der
+   Weiterentwicklung). Ihr Buchwert der Beteiligung wird Forschungsaufwand.
+2. **Eine Firma hält über 50 %, ohne Tochter:** Sie zahlt die übrigen Eigner zu W_E aus und
+   wird Mutter wie unter 1. Reicht ihre Kasse nicht, folgt 3.
+3. **Sonst – Börsengang:** Jede beteiligte Firma erhält Anteil · W_E. Spielen KI-Firmen mit,
+   entsteht daraus eine **neue KI-Firma** im Land des Start-ups, benannt nach dem Gründer,
+   mit der Technologie (bzw. der Stufe) und einem ersten Standort für ein Produkt, das
+   sie nutzt (wie eine Neugründung der KI, M10).
+
+Die Technologie bzw. Stufe ist in jedem Fall weltweit wie in SU1 in der Welt.
+
+### Scheitern
+
+- Die Anteile sind wertlos: Die Buchwerte werden abgeschrieben, Zusagen einer Runde, die
+  nicht zustande kam, fließen zurück.
+- **Forschungsbonus:** Die Firma mit über 50 % (oder die Mutter) erhält `forschungsbonus`
+  des heutigen Forschungsaufwands der Technologie (bzw. der nächsten Stufe des Produkts)
+  als Forschungspunkte.
+
+### Buchungen
+
+- Neues Aktivkonto **Finanzanlagen** (`Account::Participations`, Cashflow aus
+  Investitionen) und neue Kostenart **Beteiligungen** (`CostType::Investments`).
+- Kauf und Zusage: Kasse → Finanzanlagen; Rückzahlung umgekehrt. Verkauf, Auszahlung und
+  Börsengang: Erlös in die Kasse, Buchwert (anteilig) aus den Finanzanlagen, der
+  Unterschied als Ertrag oder Aufwand „Beteiligungen“. Scheitern: Abschreibung
+  „Beteiligungen“. Fördergeld: Aufwand „Forschung“. Mutter bei Erfolg: Buchwert als
+  Aufwand „Forschung“. Jede Buchung hält die Bilanz ausgeglichen.
+
+### Empfehlung der Strategieabteilung
+
+- Nur mit arbeitender Strategieabteilung (ZA2): Am Prüftermin des Vorstands bewertet die
+  Stelle des Ressorts Strategie bis zu ⌊K⌋ offene Runden (Thema `startup`). Für eine
+  Zusage ist der erwartete Ertrag je Dollar
+
+      E = gezeigte Chance · W_E' / (B + Kapital) · Π (b_j / (b_j + 1))
+
+  mit W_E' wie W_E aus dem heutigen Kapitalbedarf der letzten Phase und dem Produkt über
+  die späteren Runden (b_j: ihre Bewertungen).
+- Sie empfiehlt, wenn E ≥ 1 + (1 − Risikobereitschaft) · `rendite_mindest`
+  (Risikobereitschaft aus der Vorgabe „Beteiligungen“, ZA2). Betrag: der offene Rest,
+  höchstens der Rest des Budgets „Beteiligungen“ und `einsatz_kasse` der Kasse. Die
+  besten E zuerst.
+- Wie bei Umschuldung und Gehaltsrunde (ZA3): Im Budget und in der Freigabegrenze der
+  Abteilung sagt die Stelle selbst zu, sonst wird es ein Anliegen mit Begründung
+  (Chance, Wert bei Erfolg, Anteil danach, E).

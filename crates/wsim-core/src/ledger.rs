@@ -32,10 +32,12 @@ pub enum Account {
     Goodwill,
     /// Bought plots of land (M35); not written off.
     Land,
+    /// Stakes in start-ups and pledges to their rounds (SU2), at cost.
+    Participations,
 }
 
 impl Account {
-    pub const ALL: [Account; 10] = [
+    pub const ALL: [Account; 11] = [
         Account::Cash,
         Account::Inventory,
         Account::FixedAssets,
@@ -46,6 +48,7 @@ impl Account {
         Account::Result,
         Account::Goodwill,
         Account::Land,
+        Account::Participations,
     ];
 
     pub fn is_asset(self) -> bool {
@@ -57,6 +60,7 @@ impl Account {
                 | Account::AssetsUnderConstruction
                 | Account::Goodwill
                 | Account::Land
+                | Account::Participations
         )
     }
 
@@ -88,6 +92,8 @@ pub enum CostType {
     /// Licence fees paid and received (M30).
     Licenses,
     Other,
+    /// Gains and losses of stakes in start-ups (SU2).
+    Investments,
 }
 
 /// Where a cost arises; both parts optional.
@@ -154,7 +160,8 @@ impl CashFlow {
             Account::FixedAssets
             | Account::AssetsUnderConstruction
             | Account::Goodwill
-            | Account::Land => self.investing += amount,
+            | Account::Land
+            | Account::Participations => self.investing += amount,
             Account::Loans | Account::Equity | Account::RetainedEarnings => {
                 self.financing += amount
             }

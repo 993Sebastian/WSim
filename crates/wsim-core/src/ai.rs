@@ -3173,6 +3173,8 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
             catalog,
             date,
             (product, country, deposit, recipe, count),
+            None,
+            None,
         ) {
             let company = state.companies.last().expect("just founded");
             news.push(
@@ -3189,6 +3191,75 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
             );
         }
     }
+}
+
+/// A start-up gone public becomes a new AI company (SU2): where it sits, with a first site
+/// for the product with the most unserved demand among those its technology or level
+/// opens, and the technology or level as its head start. `None` without AI companies or
+/// demand for such a product.
+pub(crate) fn found_from_venture(
+    state: &mut GameState,
+    catalog: &Catalog,
+    date: Date,
+    target: crate::state::VentureTarget,
+    country: CountryId,
+    founder: &str,
+) -> Option<CompanyId> {
+    use crate::state::VentureTarget;
+    if state.settings.ai.companies == 0 {
+        return None;
+    }
+    let opens = |r: &Recipe| match target {
+        VentureTarget::Technology(t) => {
+            r.technology == Some(t) || catalog.facilities.get(r.facility).technology == Some(t)
+        }
+        VentureTarget::Development { product, .. } => r.product == product,
+    };
+    let known = match target {
+        VentureTarget::Technology(t) => Some(t),
+        VentureTarget::Development { .. } => None,
+    };
+    // Recipes whose other technologies some company knows: the newcomer can build them.
+    let buildable = |r: &Recipe| {
+        let ok = |t: Option<TechnologyId>| {
+            t.is_none_or(|t| Some(t) == known || usable_tech(state, catalog, t))
+        };
+        ok(r.technology) && ok(catalog.facilities.get(r.facility).technology)
+    };
+    let scan = Scan::new(state, catalog);
+    let newcomer = CompanyId(u32::MAX);
+    let (_, product, recipe) = catalog
+        .recipes
+        .iter()
+        .filter(|(_, r)| !r.extraction && opens(r) && buildable(r))
+        .map(|(id, r)| (scan.open(r.product, newcomer).0, r.product, id))
+        .filter(|(v, _, _)| *v > 0.0)
+        .max_by(|a, b| a.0.total_cmp(&b.0).then(b.2.cmp(&a.2)))?;
+    let id = CompanyId(u32::try_from(state.companies.len()).ok()?);
+    let opportunity = (product, country, None, recipe, (1.0, f64::INFINITY));
+    let family = population::family_name(catalog, country, founder);
+    if !found_one(state, catalog, date, opportunity, known, Some(&family)) {
+        // A company that got no site gives up at once.
+        if let Some(c) = state.companies.get_mut(id.index()) {
+            c.bankrupt = true;
+        }
+        return None;
+    }
+    if let VentureTarget::Development { product, level } = target {
+        let own = state.companies[id.index()]
+            .development
+            .levels
+            .entry(product)
+            .or_default();
+        *own = (*own).max(level);
+    }
+    Some(id)
+}
+
+/// Whether some active company knows a technology.
+fn usable_tech(state: &GameState, catalog: &Catalog, t: TechnologyId) -> bool {
+    (0..state.companies.len())
+        .any(|i| !state.companies[i].bankrupt && state.knows(catalog, company_id(i), t))
 }
 
 /// Wanted capacity in units of the data size and the most a concession allows (M36;
@@ -3808,7 +3879,16 @@ impl Chain<'_> {
 }
 
 /// Founds a company for an opportunity; true when it could start production.
-fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunity) -> bool {
+/// A new company with a first site for an opportunity; `known` is a technology it brings
+/// along (a start-up gone public, SU2).
+fn found_one(
+    state: &mut GameState,
+    catalog: &Catalog,
+    date: Date,
+    o: Opportunity,
+    known: Option<TechnologyId>,
+    founder: Option<&str>,
+) -> bool {
     let (product, country, deposit, recipe, (wanted, cap)) = o;
     let model = &catalog.ai_model;
     let r = catalog.recipes.get(recipe);
@@ -3854,7 +3934,7 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
     let aggressiveness =
         (settings.aggressiveness + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
     let branch = catalog.products.get(product).branch;
-    let name = population::company_name(state, catalog, &mut rng, country, branch);
+    let name = population::company_name_for(state, catalog, &mut rng, country, branch, founder);
     state.companies.push(Company {
         brands: Vec::new(),
         advertising: Vec::new(),
@@ -3890,6 +3970,9 @@ fn found_one(state: &mut GameState, catalog: &Catalog, date: Date, o: Opportunit
             staff: 0.0,
         }),
     });
+    if let Some(t) = known {
+        state.companies[id.index()].technologies.insert(t);
+    }
     let place = (country, f.site_type);
     let revenue = crate::plots::project_revenue(state, catalog, country, recipe, capacity);
     let Some((site, fit)) = found_site_for(

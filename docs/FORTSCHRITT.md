@@ -62,6 +62,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | ZA2 | Zentralabteilungen, Ressorts Strategie und Recht, Vorgabe „Beteiligungen“ | ✅ |
 | ZA3 | Empfehlungen mit Begründung, Trefferquote, Gehaltsforderung exponentiell | ✅ |
 | SU1 | Start-ups: Entstehung, Arten, Phasen, Finanzierungsrunden, Erfolg und Scheitern | ✅ |
+| SU2 | Beteiligungen: Zusagen, Anteile, Fördergeld, Rechte, Tochterfirma, neue KI-Firma | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -405,6 +406,42 @@ Abschnitt SU1; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O 
   günstigeres Nachforschen), Runde ohne Geld, Überholen, Ausfallquote, Häufigkeit und
   Einstellung, Determinismus, Verbesserung, historischer Erfinder, Schätzung mit
   Strategieabteilung; Sitzung (Wahl beim neuen Spiel); vitest der Ansicht; E2E-Rundgang.
+
+### SU2: Beteiligungen an Start-ups (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitte 5.4–5.6; Regeln: `docs/FORMELN.md`,
+Abschnitt SU2; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O (23–31).
+
+- **Daten:** Block `beteiligung` in `parameter/startups.yaml` (Wert bei Erfolg, Auf- und
+  Abschlag, Wirkung des Fördergelds, Sperrminorität 25 %, Mehrheit 50 %, Forschungsbonus,
+  Lenkung zügig/gründlich, Mindestertrag und Einsatz für Empfehlungen); Prüfregeln mit
+  Fehlerfall-Tests (Bereiche, Sperrminorität ≤ Mehrheit, Lenkung, fehlende Texte).
+- **Kern:** fünf Befehle für jede Firma – `InvestInVenture` (Zusage in einer offenen
+  Runde, sonst Kauf von Gründern und Investoren), `GrantVenture`, `SellVentureStake`,
+  `SteerVenture`, `IntegrateVenture`. Neues Konto Finanzanlagen und Kostenart
+  Beteiligungen; jede Buchung hält die Bilanz. Erfolg: Tochterfirma oder Mehrheit mit
+  Kasse übernimmt die Technologie bzw. Stufe (Buchwert wird Forschung), sonst Börsengang mit
+  Auszahlung an alle Eigner und – mit KI-Firmen – eine neue KI-Firma mit dem Namen des
+  Gründers, der Technologie und einem ersten Werk. Scheitern: Abschreibung,
+  Rückzahlung offener Zusagen, Forschungsbonus für die Mehrheit. Tochterfirmen finanziert
+  die Mutter. Die Strategieabteilung empfiehlt Zusagen mit gutem erwartetem Ertrag (über
+  die Freigabegrenze als Anliegen).
+- **Oberfläche:** Ansicht „Beteiligungen“ mit Portfolio-Zeile, Unterreiter „Deine“,
+  Spalte „Dein Anteil“ und „Handeln“: Detail mit Wert heute und bei Erfolg, Eignern, Rechten
+  und den Karten Zusagen/Anteile kaufen, Fördergeld, Verkaufen, Lenken, Eingliedern (nur,
+  wenn sie gehen); Ausgang beendeter Start-ups; Rundgang-Schritt erweitert.
+- **Weltlauf** 1900–1915 (100 KI-Firmen, Häufigkeit „viele“): 310 gegründet, 76 % der
+  beendeten gescheitert, 47 Erfolge; 28 davon werden zu einer neuen KI-Firma mit dem
+  Namen des Gründers (z. B. „Shibusawa Shōkai“ aus einer Verbesserung von Muttern in
+  Japan, „Ebert & Wendt & Söhne“ aus dem Fließband in Deutschland), 19 finden für ihr
+  Produkt noch keinen Absatz. Rechenzeit 3:15 Minuten. Nebenbei behoben: Die russische
+  Namensgruppe bildete Namen wie „Demidov-& Söhne“ (Muster mit Bindestrich und
+  Rechtsform „& Söhne“); jetzt eigenes Muster „{familienname} & Söhne“.
+- **Tests:** 11 Szenariotests (Zusage schließt die Runde, Fördergeld, Verkauf mit Gewinn
+  oder Verlust, Rechte und Sperrminorität, Tochter, Auszahlung der Mehrheit, Börsengang
+  ohne Kasse, Scheitern mit Forschungsbonus, Rückzahlung, Verwässerung der Tochter,
+  Empfehlung), Familienname des Gründers, Fehlerfälle der Daten, vitest der Aktionen,
+  E2E „An einem Start-up beteiligen und es fördern“.
 
 ## Eigenständige Entscheidungen (für das Review)
 

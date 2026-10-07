@@ -423,7 +423,39 @@ wem gehören sie?“
 - Meldungen: wenn ein Start-up eine Technologie früher als erwartet zur Marktreife
   bringt, und wenn es ein Produkt weiterentwickelt, das du verkaufst.
 - Rundgang der Einführung: Schritt „Beteiligungen“ nach „Organisation“ (23 Schritte).
-- Beteiligen (Anteile, Fördergeld, Rechte) folgt mit SU2.
+
+### Beteiligungen (SU2)
+
+Frage des Spielers: „Wo stecke ich mein Geld hinein, was ist meine Beteiligung wert, und
+was darf ich mit ihr?“
+
+- Kopf: Zeile „Deine Beteiligungen (n): Buchwert …, heutiger Wert …“, ohne Beteiligung ein
+  Hinweis, wie man einsteigt.
+- Unterreiter „Laufend“, „Deine“ (Start-ups mit Anteil, Zusage oder als Tochterfirma, mit
+  Zähler) und „Beendet“. Die Tabelle zeigt statt aller Eigner die Spalte „Dein Anteil“
+  (Prozent, „… zugesagt“), eigene Zeilen hervorgehoben, Kennzeichen „Tochter“; je Zeile
+  die Schaltfläche „Handeln“.
+- „Handeln“ öffnet das Detail („Zurück zur Liste“): Land, Phase und Finanzierung,
+  Erfolgschance (mit Strategieabteilung und offener Runde: „im Mittel das x-Fache des
+  Einsatzes“), Wert heute und bei Erfolg, alle Eigner, dein Anteil mit Buchwert und
+  Fördergeld; darunter die Rechte (Sperrminorität, Mehrheit) in einem Satz.
+- Karten im Detail, nur wenn sie gehen:
+  - **In der Runde zusagen** (offene Runde, „Höchstens“ der offene Rest) oder **Anteile
+    kaufen** (zwischen den Runden, mit Aufschlag) – Betrag mit Tausenderpunkten;
+  - **Fördergeld geben** (immer bei laufenden Start-ups, mit Wirkung in einem Satz);
+  - **Anteile verkaufen** (mit eigenem Anteil): Teil deines Anteils in Prozent, Erlös für
+    alles in der Erklärung;
+  - **Lenken** (Mehrheit): Tempo normal, zügig, gründlich als Auswahl – wirkt sofort;
+  - **Eingliedern** (Mehrheit, keine fremde Sperrminorität): Preis auf der Schaltfläche;
+    hält eine andere Firma eine Sperrminorität, steht dort der Grund.
+- Jede Aktion meldet ihr Ergebnis in der Karte; Fehler des Kerns (z. B. Kasse reicht
+  nicht, Runde schon gedeckt) erscheinen dort als Text.
+- Beendet: beim Erfolg der Ausgang („– übernommen von …“, „– Börsengang, daraus wurde …“).
+- Meldungen im Rundenbericht: Rückzahlung einer Zusage, verlorene Beteiligung,
+  Forschungsbonus, Erfolg der Tochterfirma, Auszahlung, Übernahme durch eine andere Firma,
+  Börsengang, neue Firma aus einem Start-up.
+- Empfehlungen der Strategieabteilung (Thema „Start-up“, Option „Beteiligen“) kommen als
+  Anliegen in den Posteingang, wenn sie über der Freigabegrenze liegen.
 
 ### Forschung → Technologiebaum (M19)
 

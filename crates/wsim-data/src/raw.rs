@@ -1898,6 +1898,8 @@ pub struct RawVentures {
     pub investor_chance: f64,
     #[serde(rename = "frist_monate")]
     pub deadline_months: u32,
+    #[serde(rename = "beteiligung")]
+    pub stakes: RawVentureStakes,
     #[serde(rename = "unschaerfe")]
     pub blur: f64,
     #[serde(rename = "stufe_mittel_ab")]
@@ -1910,6 +1912,50 @@ pub struct RawVentures {
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// Stakes in start-ups (SU2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVentureStakes {
+    #[serde(rename = "erfolg_faktor")]
+    pub success_factor: f64,
+    #[serde(rename = "kauf_aufschlag")]
+    pub buy_premium: f64,
+    #[serde(rename = "verkauf_abschlag")]
+    pub sale_discount: f64,
+    #[serde(rename = "foerderung_wirkung")]
+    pub grant_effect: f64,
+    #[serde(rename = "sperrminoritaet")]
+    pub blocking: f64,
+    #[serde(rename = "mehrheit")]
+    pub majority: f64,
+    #[serde(rename = "forschungsbonus")]
+    pub research_bonus: f64,
+    pub chance_max: f64,
+    #[serde(rename = "lenkung")]
+    pub pace: RawVenturePace,
+    #[serde(rename = "rendite_mindest")]
+    pub min_return: f64,
+    #[serde(rename = "einsatz_kasse")]
+    pub cash_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVenturePace {
+    #[serde(rename = "zuegig")]
+    pub fast: RawPaceFactors,
+    #[serde(rename = "gruendlich")]
+    pub thorough: RawPaceFactors,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPaceFactors {
+    #[serde(rename = "monate")]
+    pub months: f64,
+    pub chance: f64,
 }
 
 #[derive(Debug, Deserialize)]

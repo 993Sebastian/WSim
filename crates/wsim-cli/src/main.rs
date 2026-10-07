@@ -974,7 +974,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
 /// Start-ups (SU1): how many were founded, how those still in the list ended, and what
 /// the successful ones brought into the world.
 fn print_ventures(texts: &wsim_data::Texts, game: &Game) {
-    use wsim_core::state::{VentureStatus, VentureTarget};
+    use wsim_core::state::{VentureExit, VentureStatus, VentureTarget};
     let state = game.state();
     let catalog = game.catalog();
     let count =
@@ -1012,14 +1012,24 @@ fn print_ventures(texts: &wsim_data::Texts, game: &Game) {
                 level
             ),
         };
+        let name = |c: wsim_core::state::CompanyId| {
+            state.company(c).map(|x| x.name.clone()).unwrap_or_default()
+        };
+        let exit = match v.exit {
+            Some(VentureExit::Parent(c)) => format!(" → Tochter von {}", name(c)),
+            Some(VentureExit::Listed(Some(c))) => format!(" → Börse, neue Firma {}", name(c)),
+            Some(VentureExit::Listed(None)) => " → Börse".into(),
+            None => String::new(),
+        };
         println!(
-            "  {} {:<28} {:<20} {}",
+            "  {} {:<28} {:<20} {}{}",
             format_date(date),
             v.name,
             texts
                 .get(&format!("land.{}", catalog.countries.key(v.country)))
                 .unwrap_or_default(),
-            target
+            target,
+            exit
         );
     }
 }

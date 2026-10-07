@@ -1100,6 +1100,45 @@ pub(crate) fn company_name(
     country: CountryId,
     branch: BranchId,
 ) -> String {
+    company_name_for(state, catalog, rng, country, branch, None)
+}
+
+/// The family name in a person's name: the first word where the name group of the country
+/// puts it first, else the last word with the lowercase particles before it ("von Platen").
+pub(crate) fn family_name(catalog: &Catalog, country: CountryId, name: &str) -> String {
+    let words: Vec<&str> = name.split_whitespace().collect();
+    let surname_first = catalog
+        .name_groups
+        .iter()
+        .filter(|g| !g.first_names.is_empty() && !g.surnames.is_empty())
+        .find(|g| g.countries.contains(&country))
+        .is_some_and(|g| g.surname_first);
+    if surname_first {
+        return words.first().map(|w| (*w).to_owned()).unwrap_or_default();
+    }
+    let Some((&last, rest)) = words.split_last() else {
+        return String::new();
+    };
+    let particles = rest
+        .iter()
+        .rev()
+        .take_while(|w| w.chars().next().is_some_and(char::is_lowercase))
+        .count();
+    let mut out: Vec<&str> = rest[rest.len() - particles..].to_vec();
+    out.push(last);
+    out.join(" ")
+}
+
+/// Like `company_name`; with `founder`, the founder's family name fills the first
+/// `{familienname}` of a pattern that has one (a start-up gone public, SU2).
+pub(crate) fn company_name_for(
+    state: &GameState,
+    catalog: &Catalog,
+    rng: &mut SimRng,
+    country: CountryId,
+    branch: BranchId,
+    founder: Option<&str>,
+) -> String {
     let groups = &catalog.name_groups;
     let Some(group) = groups
         .iter()
@@ -1133,6 +1172,7 @@ pub(crate) fn company_name(
             .patterns
             .iter()
             .filter(|p| word.is_some() || !p.contains("{branche}"))
+            .filter(|p| founder.is_none() || p.contains("{familienname}"))
             .cloned()
             .collect();
         let mut text = pick(if patterns.is_empty() {
@@ -1140,6 +1180,9 @@ pub(crate) fn company_name(
         } else {
             &patterns
         });
+        if let Some(founder) = founder {
+            text = text.replacen("{familienname}", founder, 1);
+        }
         while text.contains("{familienname}") {
             let surname = pick(&group.surnames);
             text = text.replacen("{familienname}", &surname, 1);
@@ -1164,7 +1207,23 @@ pub(crate) fn company_name(
 
 #[cfg(test)]
 mod tests {
-    use super::distribute;
+    use super::{distribute, family_name};
+
+    #[test]
+    fn the_family_name_follows_the_name_group() {
+        let mut c = crate::catalog::test_support::management();
+        let home = c.countries.ids().next().expect("a country");
+        assert_eq!(family_name(&c, home, "Ada Muster"), "Muster");
+        assert_eq!(family_name(&c, home, "Baltzar von Platen"), "von Platen");
+        assert_eq!(family_name(&c, home, "Robert A. Grant"), "Grant");
+        assert_eq!(family_name(&c, home, ""), "");
+        // Groups that put the family name first.
+        let mut group = c.name_groups[0].clone();
+        group.countries = vec![home];
+        group.surname_first = true;
+        c.name_groups.push(group);
+        assert_eq!(family_name(&c, home, "Shibusawa Yoshio"), "Shibusawa");
+    }
 
     #[test]
     fn distribute_keeps_the_total_and_follows_the_weights() {

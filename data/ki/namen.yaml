@@ -101,8 +101,9 @@ namensgruppen:
                     Orlov, Wiśniewski, Kowalski, Shevchenko, Lebedev]
     vornamen: [Ivan, Nikolai, Alexei, Sergei, Dmitri, Mikhail, Andrei, Jan, Piotr, Olga, Tatjana, Irina, Natalia, Anna, Elena, Maria, Katarzyna, Svetlana]
     orte: [Petersburg, Moskau, Jekaterinburg, Charkow, Odessa, Warschau, Łódź, Baku]
-    rechtsformen: [Gesellschaft, "& Söhne", Werke]
-    muster: ["{familienname}-{rechtsform}", "{ort}er {branche}", "{branche} {familienname}"]
+    rechtsformen: [Gesellschaft, Werke, Handelshaus]
+    muster: ["{familienname}-{rechtsform}", "{familienname} & Söhne", "{ort}er {branche}",
+             "{branche} {familienname}"]
     branchen:
       bergbau: Bergbau-Gesellschaft
       metallurgie: Hüttenwerke

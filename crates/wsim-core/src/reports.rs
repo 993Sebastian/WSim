@@ -17,12 +17,13 @@ impl Account {
             Account::Result => "konto.jahresergebnis",
             Account::Goodwill => "konto.firmenwert",
             Account::Land => "konto.grundstuecke",
+            Account::Participations => "konto.finanzanlagen",
         }
     }
 }
 
 impl CostType {
-    pub const ALL: [CostType; 17] = [
+    pub const ALL: [CostType; 18] = [
         CostType::Revenue,
         CostType::InventoryChange,
         CostType::Material,
@@ -39,6 +40,7 @@ impl CostType {
         CostType::Overhead,
         CostType::Rent,
         CostType::Licenses,
+        CostType::Investments,
         CostType::Other,
     ];
 
@@ -60,6 +62,7 @@ impl CostType {
             CostType::Overhead => "kostenart.gemeinkosten",
             CostType::Rent => "kostenart.pacht",
             CostType::Licenses => "kostenart.lizenzen",
+            CostType::Investments => "kostenart.beteiligungen",
             CostType::Other => "kostenart.sonstiges",
         }
     }

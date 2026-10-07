@@ -1,7 +1,7 @@
 //! Start-ups: the parameters of `startups` and the historical inventors of `erfinder`
 //! (docs/FORMELN.md, SU1–SU3).
 
-use wsim_core::catalog::{Catalog, Inventor, VentureModel, VenturePhase};
+use wsim_core::catalog::{Catalog, Inventor, VentureModel, VenturePhase, VentureStakeModel};
 use wsim_core::money::Money;
 
 use super::{in_range, non_negative, positive, provenance};
@@ -13,6 +13,9 @@ use crate::texts::TextIndex;
 const LABEL_TEXT: &str = "startup.bezeichnung";
 const PHASE_TEXT: &str = "startup.phase";
 const FREQUENCY_TEXT: &str = "startup.haeufigkeit";
+const PACE_TEXT: &str = "startup.lenkung";
+/// The paces of SteerVenture; the core knows them, the data gives their factors.
+const PACES: [&str; 3] = ["normal", "zuegig", "gruendlich"];
 
 pub(super) fn venture_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> VentureModel {
     // Optional: without the section there are no start-ups.
@@ -163,11 +166,46 @@ pub(super) fn venture_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> 
             &l.field("investoren_chance_monat"),
         ),
         deadline_months: v.deadline_months,
+        stakes: stakes(ctx, &v.stakes, &l.field("beteiligung")),
         blur: in_range(ctx, v.blur, 0.0, 1.0, &l.field("unschaerfe")),
         chance_levels: (medium, high.max(medium)),
         keep_years: v.keep_years,
         inventors: inventors(ctx, catalog, raw),
         provenance: provenance(v.approximation, v.source.as_ref()),
+    }
+}
+
+/// The stakes of companies (SU2).
+fn stakes(ctx: &mut Ctx, s: &crate::raw::RawVentureStakes, l: &Loc) -> VentureStakeModel {
+    let share = |ctx: &mut Ctx, v: f64, field: &str| in_range(ctx, v, 0.0, 1.0, &l.field(field));
+    let blocking = share(ctx, s.blocking, "sperrminoritaet");
+    let majority = share(ctx, s.majority, "mehrheit");
+    if majority < blocking {
+        ctx.error(
+            &l.field("mehrheit"),
+            messages::range_inverted("sperrminoritaet", "mehrheit"),
+        );
+    }
+    let pace = |ctx: &mut Ctx, p: &crate::raw::RawPaceFactors, field: &str| {
+        let at = l.field("lenkung").field(field);
+        (
+            in_range(ctx, p.months, 0.1, 10.0, &at.field("monate")),
+            in_range(ctx, p.chance, 0.1, 10.0, &at.field("chance")),
+        )
+    };
+    VentureStakeModel {
+        success_factor: in_range(ctx, s.success_factor, 0.0, 100.0, &l.field("erfolg_faktor")),
+        buy_premium: in_range(ctx, s.buy_premium, 0.0, 10.0, &l.field("kauf_aufschlag")),
+        sale_discount: share(ctx, s.sale_discount, "verkauf_abschlag"),
+        grant_effect: share(ctx, s.grant_effect, "foerderung_wirkung"),
+        blocking,
+        majority,
+        research_bonus: share(ctx, s.research_bonus, "forschungsbonus"),
+        chance_max: share(ctx, s.chance_max, "chance_max"),
+        fast: pace(ctx, &s.pace.fast, "zuegig"),
+        thorough: pace(ctx, &s.pace.thorough, "gruendlich"),
+        min_return: in_range(ctx, s.min_return, 0.0, 100.0, &l.field("rendite_mindest")),
+        cash_share: share(ctx, s.cash_share, "einsatz_kasse"),
     }
 }
 
@@ -231,7 +269,8 @@ pub(super) fn check_texts(
     let Some(entry) = raw.ventures.first() else {
         return;
     };
-    let wanted: [(&str, &str, Vec<&str>); 3] = [
+    let wanted: [(&str, &str, Vec<&str>); 4] = [
+        (PACE_TEXT, "beteiligung", PACES.to_vec()),
         (
             LABEL_TEXT,
             "bezeichnungen",
@@ -253,10 +292,13 @@ pub(super) fn check_texts(
         for (i, key) in keys.iter().enumerate() {
             let text = format!("{prefix}.{key}");
             if texts.texts.get(&text).is_none() {
-                ctx.error(
-                    &at.index(i).field("id"),
-                    messages::text_missing(&text, crate::LANGUAGE),
-                );
+                // The paces are no list in the data.
+                let place = if *prefix == PACE_TEXT {
+                    at.field("lenkung")
+                } else {
+                    at.index(i).field("id")
+                };
+                ctx.error(&place, messages::text_missing(&text, crate::LANGUAGE));
             }
         }
     }

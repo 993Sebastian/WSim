@@ -7,6 +7,9 @@ export const geld = (usd: number): number => Math.round(usd * 10_000);
 
 export type Preisart = { Market: { markup: number; floor: number } } | { Fixed: number };
 
+/** The pace of a start-up as the core names it (SU2). */
+export type Tempo = "Normal" | "Fast" | "Thorough";
+
 export type Befehl =
   | { RenameCompany: { name: string } }
   | { FoundSite: { country: string; kind: string } }
@@ -55,6 +58,11 @@ export type Befehl =
       };
     }
   | { AnswerConcern: { concern: number; answer: Anliegenantwort } }
+  | { InvestInVenture: { venture: number; amount: number } }
+  | { GrantVenture: { venture: number; amount: number } }
+  | { SellVentureStake: { venture: number; share: number } }
+  | { SteerVenture: { venture: number; pace: Tempo } }
+  | { IntegrateVenture: { venture: number } }
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
   | { AskAgain: { position: Stellenangabe; topic: string } }
   | { SetStrategy: { scope: Geltung; field: Vorgabefeld; value: Vorgabe | null } }

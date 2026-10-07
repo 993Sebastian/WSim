@@ -1,21 +1,24 @@
-//! Start-ups (SU1; formulas in docs/FORMELN.md).
+//! Start-ups (SU1, SU2; formulas in docs/FORMELN.md).
 //!
 //! Inventors and young companies outside the game work on a technology not yet invented
 //! or on the next development level of a product. Every phase needs a funding round of
 //! new shares; most of them fail. A success brings the technology or the level into the
-//! world earlier.
+//! world earlier. Companies take stakes, give grants, steer and integrate them (SU2).
 
 use std::collections::BTreeSet;
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, DepartmentKind, VentureModel};
+use crate::command::CommandError;
 use crate::ids::{CountryId, ProductId, TechnologyId};
+use crate::ledger::{Account, CostCenter, CostType};
 use crate::management;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
-    CompanyId, GameState, Holder, Stake, Venture, VentureFailure, VentureStatus, VentureTarget,
+    CompanyId, GameState, Holder, Stake, Venture, VentureExit, VentureFailure, VenturePace,
+    VentureStatus, VentureTarget,
 };
 
 /// Start-ups at the start of a month: rounds and phases of the active ones, then the new
@@ -101,46 +104,47 @@ fn overtaken(state: &GameState, catalog: &Catalog, target: VentureTarget, date: 
     }
 }
 
-/// One month of an active start-up: it is overtaken, its open round finds investors or
-/// runs out, or its funded phase is decided.
+/// One month of an active start-up: it is overtaken, a parent or investors fund its open
+/// round or it runs out of time, or its funded phase is decided.
 fn advance(
     state: &mut GameState,
     catalog: &Catalog,
     i: usize,
     date: Date,
     rng: &mut SimRng,
-) -> Option<Message> {
+) -> Vec<Message> {
     let m = &catalog.ventures;
     if overtaken(state, catalog, state.ventures[i].target, date) {
-        let v = &mut state.ventures[i];
-        v.status = VentureStatus::Failed(date, VentureFailure::Overtaken);
-        v.round_until = None;
-        v.phase_until = None;
-        return None;
+        return fail(state, catalog, i, date, VentureFailure::Overtaken);
     }
-    let v = &mut state.ventures[i];
-    if let Some(until) = v.round_until {
-        if rng.chance(m.investor_chance) {
-            let need = v.capital - v.raised;
-            let valuation = m.phases.get(v.phase).map_or(1.0, |p| p.valuation);
-            issue(v, &[(Holder::Investors, need)], valuation);
-            v.raised = v.capital;
-            v.round_until = None;
-            let months = m.phases.get(v.phase).map_or(0, |p| p.months);
-            v.phase_until = Some(date.add_months(months));
-        } else if date >= until {
-            v.status = VentureStatus::Failed(date, VentureFailure::Funding);
-            v.round_until = None;
+    if let Some(until) = state.ventures[i].round_until {
+        // A subsidiary's round is its parent's to fund, as far as its cash goes (SU2).
+        if let Some(parent) = state.ventures[i].parent {
+            let rest = state.ventures[i].capital - state.ventures[i].raised;
+            if state.companies[parent.index()].ledger.cash() >= rest {
+                pledge(state, i, parent, rest);
+                crate::central::count_purchase(state, parent, rest);
+                close_round(m, &mut state.ventures[i], date);
+                return Vec::new();
+            }
         }
-        return None;
+        if rng.chance(m.investor_chance) {
+            let v = &mut state.ventures[i];
+            let rest = v.capital - v.raised;
+            v.pledges.retain(|&(_, a)| a > Money::ZERO);
+            close_round_with(m, v, date, rest);
+            keep_parent(m, v);
+        } else if date >= until {
+            return fail(state, catalog, i, date, VentureFailure::Funding);
+        }
+        return Vec::new();
     }
+    let v = &state.ventures[i];
     if v.phase_until.is_none_or(|until| date < until) {
-        return None;
+        return Vec::new();
     }
     if !rng.chance(v.chance) {
-        v.status = VentureStatus::Failed(date, VentureFailure::Phase);
-        v.phase_until = None;
-        return None;
+        return fail(state, catalog, i, date, VentureFailure::Phase);
     }
     let next = v.phase + 1;
     if next < m.phases.len() {
@@ -149,9 +153,189 @@ fn advance(
             .get(state.ventures[i].country)
             .gdp_per_capita_usd;
         start_phase(m, &mut state.ventures[i], next, gdp, date);
-        return None;
+        return Vec::new();
     }
     succeed(state, catalog, i, date)
+}
+
+/// Months and chance factors of a pace (SU2).
+fn pace_factors(m: &VentureModel, pace: VenturePace) -> (f64, f64) {
+    match pace {
+        VenturePace::Normal => (1.0, 1.0),
+        VenturePace::Fast => m.stakes.fast,
+        VenturePace::Thorough => m.stakes.thorough,
+    }
+}
+
+/// A round covered by the pledges, and investors for the rest: shares are issued and the
+/// phase begins today (SU1, SU2).
+fn close_round(m: &VentureModel, v: &mut Venture, date: Date) {
+    let rest = (v.capital - v.raised).max(Money::ZERO);
+    close_round_with(m, v, date, rest);
+}
+
+fn close_round_with(m: &VentureModel, v: &mut Venture, date: Date, investors: Money) {
+    let valuation = m.phases.get(v.phase).map_or(1.0, |p| p.valuation);
+    let mut givers: Vec<(Holder, Money)> = v
+        .pledges
+        .iter()
+        .map(|&(c, a)| (Holder::Company(c), a))
+        .collect();
+    if investors > Money::ZERO {
+        givers.push((Holder::Investors, investors));
+    }
+    issue(v, &givers, valuation);
+    v.pledges.clear();
+    v.raised = v.capital;
+    v.round_until = None;
+    let (months_factor, _) = pace_factors(m, v.pace);
+    let months = m.phases.get(v.phase).map_or(0, |p| p.months);
+    // Phases last a few months; the cast is exact.
+    let months = (f64::from(months) * months_factor).round().max(1.0) as u32;
+    v.phase_until = Some(date.add_months(months));
+}
+
+/// A parent diluted to the majority or below no longer holds a subsidiary.
+fn keep_parent(m: &VentureModel, v: &mut Venture) {
+    if let Some(p) = v.parent
+        && share_of(v, p) <= m.stakes.majority
+    {
+        v.parent = None;
+    }
+}
+
+/// A company pledges to the open round: its cash goes into its financial assets.
+fn pledge(state: &mut GameState, i: usize, company: CompanyId, amount: Money) {
+    state.companies[company.index()].ledger.transfer(
+        Account::Participations,
+        Account::Cash,
+        amount,
+    );
+    let v = &mut state.ventures[i];
+    add_to(&mut v.pledges, company, amount);
+    add_to(&mut v.book, company, amount);
+    v.raised += amount;
+}
+
+/// The start-up fails: pledges flow back, stakes are written off, and the majority owner
+/// keeps part of the research (SU2).
+fn fail(
+    state: &mut GameState,
+    catalog: &Catalog,
+    i: usize,
+    date: Date,
+    why: VentureFailure,
+) -> Vec<Message> {
+    let m = &catalog.ventures;
+    let player = state.player;
+    let majority = state.ventures[i]
+        .parent
+        .or_else(|| majority_company(m, &state.ventures[i]));
+    let v = &mut state.ventures[i];
+    v.status = VentureStatus::Failed(date, why);
+    v.round_until = None;
+    v.phase_until = None;
+    let (name, target) = (v.name.clone(), v.target);
+    let pledges = std::mem::take(&mut v.pledges);
+    let mut messages = Vec::new();
+    for (c, amount) in pledges {
+        state.companies[c.index()]
+            .ledger
+            .transfer(Account::Cash, Account::Participations, amount);
+        take_from(&mut state.ventures[i].book, c, amount);
+        if c == player {
+            messages.push(
+                Message::new(MessageKind::Info, keys::VENTURE_REFUND)
+                    .with("name", Param::Text(name.clone()))
+                    .with("betrag", Param::Money(amount)),
+            );
+        }
+    }
+    let book = std::mem::take(&mut state.ventures[i].book);
+    for (c, value) in book {
+        if value <= Money::ZERO {
+            continue;
+        }
+        state.companies[c.index()].ledger.expense(
+            CostType::Investments,
+            CostCenter::default(),
+            Account::Participations,
+            value,
+        );
+        if c == player {
+            messages.push(
+                Message::new(MessageKind::Warning, keys::VENTURE_LOST)
+                    .with("name", Param::Text(name.clone()))
+                    .with("betrag", Param::Money(value)),
+            );
+        }
+    }
+    if let Some(c) = majority
+        && research_bonus(state, catalog, c, target, date)
+        && c == player
+    {
+        messages.push(
+            Message::new(MessageKind::Info, keys::VENTURE_BONUS)
+                .with("name", Param::Text(name))
+                .with("ziel", target_param(catalog, target)),
+        );
+    }
+    messages
+}
+
+/// Part of the research effort of the target for the majority owner of a failed
+/// start-up; false where it has nothing to gain.
+fn research_bonus(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    target: VentureTarget,
+    date: Date,
+) -> bool {
+    let bonus = catalog.ventures.stakes.research_bonus;
+    if bonus <= 0.0 {
+        return false;
+    }
+    match target {
+        VentureTarget::Technology(t) => {
+            if state.knows(catalog, company, t) {
+                return false;
+            }
+            let Some(e) = crate::research::effort(catalog, state, t, date) else {
+                return false;
+            };
+            *state.companies[company.index()]
+                .research
+                .entry(t)
+                .or_default() += e.points * bonus;
+            true
+        }
+        VentureTarget::Development { product, level } => {
+            match crate::development::next_effort(catalog, state, company, product, date) {
+                Some((next, points)) if next == level => {
+                    *state.companies[company.index()]
+                        .development
+                        .points
+                        .entry(product)
+                        .or_default() += points * bonus;
+                    true
+                }
+                _ => false,
+            }
+        }
+    }
+}
+
+/// The text of a start-up's target: its technology or product.
+fn target_param(catalog: &Catalog, target: VentureTarget) -> Param {
+    match target {
+        VentureTarget::Technology(t) => {
+            Param::TextKey(format!("technologie.{}", catalog.technologies.key(t)))
+        }
+        VentureTarget::Development { product, .. } => {
+            Param::TextKey(format!("produkt.{}", catalog.products.key(product)))
+        }
+    }
 }
 
 /// A phase begins: its capital and chance are fixed and its round opens.
@@ -163,7 +347,8 @@ fn start_phase(m: &VentureModel, v: &mut Venture, phase: usize, gdp_per_capita: 
     let income = (gdp_per_capita / m.reference_gdp_usd).clamp(low, high);
     v.phase = phase;
     v.capital = p.capital.scale(income * (1.0 + m.lead_capital * v.lead));
-    v.chance = phase_chance(m, phase, v.lead);
+    let (_, chance_factor) = pace_factors(m, v.pace);
+    v.chance = (phase_chance(m, phase, v.lead) * chance_factor).min(m.stakes.chance_max);
     v.raised = Money::ZERO;
     v.round_until = Some(date.add_months(m.deadline_months));
     v.phase_until = None;
@@ -192,8 +377,8 @@ fn issue(v: &mut Venture, givers: &[(Holder, Money)], valuation: f64) {
 }
 
 /// All phases passed: the technology counts as invented from today if that is earlier
-/// than so far, or the level as reached.
-fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Option<Message> {
+/// than so far, or the level as reached; then the owners settle (SU2).
+fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Vec<Message> {
     let v = &mut state.ventures[i];
     v.status = VentureStatus::Succeeded(date);
     v.phase = catalog.ventures.phases.len();
@@ -208,38 +393,247 @@ fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Op
                 Param::Country(catalog.countries.key(country).to_owned()),
             )
     };
+    let mut messages = Vec::new();
     match target {
         VentureTarget::Technology(t) => {
             let historical = f64::from(catalog.technologies.get(t).invention_year);
             let first = state.inventions.get_mut(t);
-            if first.is_some() || date.year_fraction() >= historical {
-                return None;
+            if first.is_none() && date.year_fraction() < historical {
+                *first = Some(date);
+                messages.push(named(keys::VENTURE_INVENTION).with(
+                    "technologie",
+                    Param::TextKey(format!("technologie.{}", catalog.technologies.key(t))),
+                ));
             }
-            *first = Some(date);
-            Some(named(keys::VENTURE_INVENTION).with(
-                "technologie",
-                Param::TextKey(format!("technologie.{}", catalog.technologies.key(t))),
-            ))
         }
         VentureTarget::Development { product, level } => {
             let firsts = state.developments.get_mut(product);
-            if firsts.len() + 1 != usize::from(level) {
-                return None;
+            if firsts.len() + 1 == usize::from(level) {
+                firsts.push(date);
+                if crate::research::player_offers(state, product) {
+                    messages.push(
+                        named(keys::VENTURE_DEVELOPMENT)
+                            .with(
+                                "produkt",
+                                Param::TextKey(format!(
+                                    "produkt.{}",
+                                    catalog.products.key(product)
+                                )),
+                            )
+                            .with("stufe", Param::Integer(i64::from(level)))
+                            .with(
+                                "jahre",
+                                Param::Number(
+                                    catalog.research_model.development.public_domain_years,
+                                ),
+                            ),
+                    );
+                }
             }
-            firsts.push(date);
-            crate::research::player_offers(state, product).then(|| {
-                named(keys::VENTURE_DEVELOPMENT)
-                    .with(
-                        "produkt",
-                        Param::TextKey(format!("produkt.{}", catalog.products.key(product))),
-                    )
-                    .with("stufe", Param::Integer(i64::from(level)))
-                    .with(
-                        "jahre",
-                        Param::Number(catalog.research_model.development.public_domain_years),
-                    )
-            })
         }
+    }
+    messages.extend(settle_success(state, catalog, i, date));
+    messages
+}
+
+/// The owners of a successful start-up (SU2): a parent takes it in; a company with the
+/// majority buys out the others and becomes its parent if its cash allows; else it goes
+/// public, every owner gets the value of its share and AI companies get a new rival.
+fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Vec<Message> {
+    let m = &catalog.ventures;
+    let player = state.player;
+    let v = &state.ventures[i];
+    let worth = success_value(m, v);
+    // The parent or the majority, if it can pay the others.
+    let parent = v.parent.or_else(|| majority_company(m, v)).filter(|&c| {
+        let others = worth.scale((1.0 - share_of(v, c)).max(0.0));
+        state.companies[c.index()].ledger.cash() >= others
+    });
+    let mut messages = Vec::new();
+    if let Some(p) = parent {
+        // The others are paid out at the value of the success.
+        let paid = buy_out(state, i, p, worth, &mut messages);
+        if paid > Money::ZERO && p == player {
+            messages.push(
+                Message::new(MessageKind::Info, keys::VENTURE_PAID_OUT)
+                    .with("name", Param::Text(state.ventures[i].name.clone()))
+                    .with("betrag", Param::Money(paid)),
+            );
+        }
+        messages.extend(to_parent(state, catalog, i, p));
+        return messages;
+    }
+    // On the stock market: every company gets the value of its share.
+    let owners: Vec<(CompanyId, f64)> = companies_of(&state.ventures[i]);
+    for (c, share) in owners {
+        let proceeds = worth.scale(share);
+        exit_stake(state, i, c, share, proceeds);
+        if c == player {
+            messages.push(
+                Message::new(MessageKind::Success, keys::VENTURE_LISTED)
+                    .with("name", Param::Text(state.ventures[i].name.clone()))
+                    .with("betrag", Param::Money(proceeds)),
+            );
+        }
+    }
+    let v = &state.ventures[i];
+    let (target, country, name) = (v.target, v.country, v.name.clone());
+    let company = crate::ai::found_from_venture(state, catalog, date, target, country, &name);
+    state.ventures[i].exit = Some(VentureExit::Listed(company));
+    if let Some(c) = company {
+        messages.push(
+            Message::new(MessageKind::Info, keys::VENTURE_NEW_COMPANY)
+                .with("name", Param::Text(name))
+                .with(
+                    "land",
+                    Param::Country(catalog.countries.key(country).to_owned()),
+                )
+                .with(
+                    "firma",
+                    Param::Text(state.companies[c.index()].name.clone()),
+                )
+                .with("ziel", target_param(catalog, target)),
+        );
+    }
+    messages
+}
+
+/// A company buys all other owners out at `worth` for the whole start-up: companies get
+/// their part as proceeds, founders and investors leave. Returns what it paid.
+fn buy_out(
+    state: &mut GameState,
+    i: usize,
+    buyer: CompanyId,
+    worth: Money,
+    messages: &mut Vec<Message>,
+) -> Money {
+    let player = state.player;
+    let others: Vec<Stake> = state.ventures[i]
+        .owners
+        .iter()
+        .copied()
+        .filter(|s| s.holder != Holder::Company(buyer))
+        .collect();
+    let mut paid = Money::ZERO;
+    for s in others {
+        let price = worth.scale(s.share);
+        paid += price;
+        if let Holder::Company(c) = s.holder {
+            exit_stake(state, i, c, s.share, price);
+            if c == player {
+                messages.push(
+                    Message::new(MessageKind::Info, keys::VENTURE_BOUGHT_OUT)
+                        .with("name", Param::Text(state.ventures[i].name.clone()))
+                        .with(
+                            "firma",
+                            Param::Text(state.companies[buyer.index()].name.clone()),
+                        )
+                        .with("betrag", Param::Money(price)),
+                );
+            }
+        }
+    }
+    if paid > Money::ZERO {
+        state.companies[buyer.index()].ledger.transfer(
+            Account::Participations,
+            Account::Cash,
+            paid,
+        );
+    }
+    let v = &mut state.ventures[i];
+    add_to(&mut v.book, buyer, paid);
+    v.owners = Stake::sole(Holder::Company(buyer));
+    // Pledges of others to an open round flow back.
+    let pledges: Vec<(CompanyId, Money)> = v
+        .pledges
+        .iter()
+        .copied()
+        .filter(|&(c, _)| c != buyer)
+        .collect();
+    for (c, amount) in pledges {
+        let v = &mut state.ventures[i];
+        v.pledges.retain(|&(x, _)| x != c);
+        v.raised -= amount;
+        take_from(&mut v.book, c, amount);
+        state.companies[c.index()]
+            .ledger
+            .transfer(Account::Cash, Account::Participations, amount);
+    }
+    paid
+}
+
+/// The parent of a successful start-up uses its technology or level from today; what it
+/// paid for it was research.
+fn to_parent(
+    state: &mut GameState,
+    catalog: &Catalog,
+    i: usize,
+    parent: CompanyId,
+) -> Vec<Message> {
+    let v = &mut state.ventures[i];
+    v.parent = Some(parent);
+    v.exit = Some(VentureExit::Parent(parent));
+    let (target, name) = (v.target, v.name.clone());
+    let book = take_all(&mut v.book, parent);
+    let company = &mut state.companies[parent.index()];
+    if book > Money::ZERO {
+        company.ledger.expense(
+            CostType::Research,
+            CostCenter::default(),
+            Account::Participations,
+            book,
+        );
+    }
+    match target {
+        VentureTarget::Technology(t) => {
+            company.research.remove(&t);
+            company.technologies.insert(t);
+        }
+        VentureTarget::Development { product, level } => {
+            let own = company.development.levels.entry(product).or_default();
+            *own = (*own).max(level);
+            company.development.points.remove(&product);
+        }
+    }
+    if parent != state.player {
+        return Vec::new();
+    }
+    vec![
+        Message::new(MessageKind::Success, keys::VENTURE_PARENT)
+            .with("name", Param::Text(name))
+            .with("ziel", target_param(catalog, target)),
+    ]
+}
+
+/// A company leaves a start-up with `share` of it for `proceeds`: its book value of that
+/// part leaves the financial assets, the difference is its gain or loss.
+fn exit_stake(state: &mut GameState, i: usize, company: CompanyId, share: f64, proceeds: Money) {
+    let v = &mut state.ventures[i];
+    let held = share_of(v, company);
+    if held <= 0.0 {
+        return;
+    }
+    let part = (share / held).min(1.0);
+    let book = amount_of(&v.book, company).scale(part);
+    take_from(&mut v.book, company, book);
+    remove_share(v, Holder::Company(company), share);
+    let ledger = &mut state.companies[company.index()].ledger;
+    ledger.transfer(Account::Cash, Account::Participations, book);
+    let center = CostCenter::default();
+    if proceeds > book {
+        ledger.income(
+            CostType::Investments,
+            center,
+            Account::Cash,
+            proceeds - book,
+        );
+    } else if proceeds < book {
+        ledger.expense(
+            CostType::Investments,
+            center,
+            Account::Cash,
+            book - proceeds,
+        );
     }
 }
 
@@ -391,6 +785,12 @@ fn found(state: &mut GameState, catalog: &Catalog, date: Date, month: u32) {
             owners: Stake::sole(Holder::Private),
             status: VentureStatus::Active,
             blur,
+            pledges: Vec::new(),
+            book: Vec::new(),
+            grants: Vec::new(),
+            parent: None,
+            pace: VenturePace::Normal,
+            exit: None,
         };
         let gdp = state.countries.get(country).gdp_per_capita_usd;
         start_phase(m, &mut v, 0, gdp, date);
@@ -409,4 +809,418 @@ fn prune(state: &mut GameState, m: &VentureModel, date: Date) {
             v.inventor || d.add_months(months) > date
         }
     });
+}
+
+/// Value of a whole start-up (SU2): before its open round, else after the last one; at
+/// success the value after the last round times the success factor; nothing once failed.
+pub fn value(m: &VentureModel, v: &Venture) -> Money {
+    let valuation = m.phases.get(v.phase).map_or(1.0, |p| p.valuation);
+    match v.status {
+        VentureStatus::Active if v.round_until.is_some() => v.capital.scale(valuation),
+        VentureStatus::Active => v.capital.scale(valuation + 1.0),
+        VentureStatus::Succeeded(_) => success_value(m, v),
+        VentureStatus::Failed(..) => Money::ZERO,
+    }
+}
+
+/// Value at success: the capital of the last phase after its round times the success
+/// factor (the capital of the current phase until then).
+pub fn success_value(m: &VentureModel, v: &Venture) -> Money {
+    let last = m.phases.len().saturating_sub(1);
+    let valuation = m.phases.get(last).map_or(1.0, |p| p.valuation);
+    v.capital.scale((valuation + 1.0) * m.stakes.success_factor)
+}
+
+/// The value a success would have, judged today: the last phase's capital as the country's
+/// income and the lead set it now.
+pub fn expected_success_value(state: &GameState, m: &VentureModel, v: &Venture) -> Money {
+    let last = m.phases.len().saturating_sub(1);
+    if v.phase >= last {
+        return success_value(m, v);
+    }
+    let Some(p) = m.phases.get(last) else {
+        return Money::ZERO;
+    };
+    let (low, high) = m.capital_factor;
+    let gdp = state.countries.get(v.country).gdp_per_capita_usd;
+    let income = (gdp / m.reference_gdp_usd).clamp(low, high);
+    p.capital
+        .scale(income * (1.0 + m.lead_capital * v.lead) * (p.valuation + 1.0))
+        .scale(m.stakes.success_factor)
+}
+
+/// Share a dollar pledged to the open round buys at the end, after the rounds still to
+/// come with the valuations of the data.
+pub fn share_per_dollar(m: &VentureModel, v: &Venture) -> f64 {
+    let valuation = m.phases.get(v.phase).map_or(1.0, |p| p.valuation);
+    let after = v.capital.to_usd() * (valuation + 1.0);
+    if after <= 0.0 {
+        return 0.0;
+    }
+    (v.phase + 1..m.phases.len())
+        .map(|j| m.phases[j].valuation / (m.phases[j].valuation + 1.0))
+        .fold(1.0 / after, |a, keep| a * keep)
+}
+
+/// Share of a start-up a company holds.
+pub fn share_of(v: &Venture, company: CompanyId) -> f64 {
+    v.owners
+        .iter()
+        .filter(|s| s.holder == Holder::Company(company))
+        // fold from +0.0: an empty f64 sum is -0.0, which views would show.
+        .fold(0.0, |sum, s| sum + s.share)
+}
+
+/// The company holding more than the majority share.
+pub fn majority_company(m: &VentureModel, v: &Venture) -> Option<CompanyId> {
+    companies_of(v)
+        .into_iter()
+        .find(|&(_, share)| share > m.stakes.majority)
+        .map(|(c, _)| c)
+}
+
+/// The companies among the owners with their shares, in the order they came in.
+fn companies_of(v: &Venture) -> Vec<(CompanyId, f64)> {
+    let mut out: Vec<(CompanyId, f64)> = Vec::new();
+    for s in &v.owners {
+        if let Holder::Company(c) = s.holder {
+            match out.iter_mut().find(|(x, _)| *x == c) {
+                Some((_, share)) => *share += s.share,
+                None => out.push((c, s.share)),
+            }
+        }
+    }
+    out
+}
+
+/// Whether another company holds a blocking minority against `company`.
+pub fn blocked(m: &VentureModel, v: &Venture, company: CompanyId) -> bool {
+    companies_of(v)
+        .into_iter()
+        .any(|(c, share)| c != company && share >= m.stakes.blocking)
+}
+
+fn remove_share(v: &mut Venture, holder: Holder, share: f64) {
+    if let Some(s) = v.owners.iter_mut().find(|s| s.holder == holder) {
+        s.share -= share;
+    }
+    v.owners.retain(|s| s.share > 1e-12);
+}
+
+fn add_share(v: &mut Venture, holder: Holder, share: f64) {
+    match v.owners.iter_mut().find(|s| s.holder == holder) {
+        Some(s) => s.share += share,
+        None => v.owners.push(Stake { holder, share }),
+    }
+}
+
+fn add_to(list: &mut Vec<(CompanyId, Money)>, company: CompanyId, amount: Money) {
+    match list.iter_mut().find(|(c, _)| *c == company) {
+        Some((_, a)) => *a += amount,
+        None => list.push((company, amount)),
+    }
+}
+
+/// Takes up to `amount` of a company's entry; returns what it took.
+fn take_from(list: &mut Vec<(CompanyId, Money)>, company: CompanyId, amount: Money) -> Money {
+    let Some(entry) = list.iter_mut().find(|(c, _)| *c == company) else {
+        return Money::ZERO;
+    };
+    let taken = amount.min(entry.1);
+    entry.1 -= taken;
+    list.retain(|(_, a)| *a > Money::ZERO);
+    taken
+}
+
+fn take_all(list: &mut Vec<(CompanyId, Money)>, company: CompanyId) -> Money {
+    let all = amount_of(list, company);
+    take_from(list, company, all)
+}
+
+/// A company's entry in a list of amounts.
+pub fn amount_of(list: &[(CompanyId, Money)], company: CompanyId) -> Money {
+    list.iter()
+        .filter(|(c, _)| *c == company)
+        .map(|&(_, a)| a)
+        .sum()
+}
+
+/// The position of a start-up in the list.
+fn position(state: &GameState, venture: u32) -> Result<usize, CommandError> {
+    state
+        .ventures
+        .iter()
+        .position(|v| v.id == venture)
+        .ok_or(CommandError::UnknownVenture)
+}
+
+/// A start-up a company may act on: known and active.
+fn active(state: &GameState, venture: u32) -> Result<usize, CommandError> {
+    let i = position(state, venture)?;
+    if state.ventures[i].status != VentureStatus::Active {
+        return Err(CommandError::VentureClosed);
+    }
+    Ok(i)
+}
+
+fn check_amount(state: &GameState, actor: CompanyId, amount: Money) -> Result<(), CommandError> {
+    if amount <= Money::ZERO {
+        return Err(CommandError::InvalidAmount);
+    }
+    if state.companies[actor.index()].ledger.cash() < amount {
+        return Err(CommandError::NotEnoughCash { needed: amount });
+    }
+    Ok(())
+}
+
+/// `InvestInVenture` (SU2): a pledge to the open round, or shares of founders and
+/// investors between rounds.
+pub(crate) fn invest(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+    amount: Money,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    check_amount(state, actor, amount)?;
+    let v = &state.ventures[i];
+    if v.parent.is_some_and(|p| p != actor) {
+        return Err(CommandError::VentureOfOther);
+    }
+    let date = state.date;
+    if v.round_until.is_some() {
+        let open = v.capital - v.raised;
+        if amount > open {
+            return Err(CommandError::AmountTooHigh { max: open });
+        }
+        pledge(state, i, actor, amount);
+        let v = &mut state.ventures[i];
+        if v.raised >= v.capital {
+            close_round(m, v, date);
+            keep_parent(m, v);
+        }
+    } else {
+        let price = value(m, v).scale(1.0 + m.stakes.buy_premium);
+        let outside: f64 = v
+            .owners
+            .iter()
+            .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+            .map(|s| s.share)
+            .sum();
+        if price <= Money::ZERO || outside <= 0.0 {
+            return Err(CommandError::AmountTooHigh { max: Money::ZERO });
+        }
+        let share = amount.to_usd() / price.to_usd();
+        if share > outside + 1e-12 {
+            return Err(CommandError::AmountTooHigh {
+                max: price.scale(outside),
+            });
+        }
+        state.companies[actor.index()].ledger.transfer(
+            Account::Participations,
+            Account::Cash,
+            amount,
+        );
+        let v = &mut state.ventures[i];
+        // Founders and investors sell in proportion to what they hold.
+        let sellers: Vec<Stake> = v
+            .owners
+            .iter()
+            .copied()
+            .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+            .collect();
+        for s in sellers {
+            remove_share(v, s.holder, share * s.share / outside);
+        }
+        add_share(v, Holder::Company(actor), share);
+        add_to(&mut v.book, actor, amount);
+    }
+    crate::central::count_purchase(state, actor, amount);
+    Ok(())
+}
+
+/// `GrantVenture` (SU2): money without shares raises the chance of the phase.
+pub(crate) fn grant(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+    amount: Money,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    check_amount(state, actor, amount)?;
+    state.companies[actor.index()].ledger.expense(
+        CostType::Research,
+        CostCenter::default(),
+        Account::Cash,
+        amount,
+    );
+    let v = &mut state.ventures[i];
+    let reach = if v.capital > Money::ZERO {
+        (amount.to_usd() / v.capital.to_usd()).min(1.0)
+    } else {
+        1.0
+    };
+    v.chance = (v.chance + (1.0 - v.chance) * m.stakes.grant_effect * reach)
+        .min(m.stakes.chance_max.max(v.chance));
+    add_to(&mut v.grants, actor, amount);
+    Ok(())
+}
+
+/// `SellVentureStake` (SU2): a share to investors below the value.
+pub(crate) fn sell(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+    share: f64,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    let v = &state.ventures[i];
+    let held = share_of(v, actor);
+    if !share.is_finite() || share <= 0.0 {
+        return Err(CommandError::InvalidShare);
+    }
+    if share > held + 1e-9 {
+        return Err(CommandError::NotEnoughShares);
+    }
+    let share = share.min(held);
+    let proceeds = value(m, v).scale(share * (1.0 - m.stakes.sale_discount));
+    exit_stake(state, i, actor, share, proceeds);
+    let v = &mut state.ventures[i];
+    add_share(v, Holder::Investors, share);
+    keep_parent(m, v);
+    Ok(())
+}
+
+/// `SteerVenture` (SU2): the majority sets the pace of the phases to come and of the
+/// current one while its round is open.
+pub(crate) fn steer(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+    pace: VenturePace,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    let v = &mut state.ventures[i];
+    if v.parent != Some(actor) && share_of(v, actor) <= m.stakes.majority {
+        return Err(CommandError::NoMajority);
+    }
+    if v.round_until.is_some() {
+        let (_, old) = pace_factors(m, v.pace);
+        let (_, new) = pace_factors(m, pace);
+        if old > 0.0 {
+            v.chance = (v.chance / old * new).min(m.stakes.chance_max.max(v.chance.min(1.0)));
+        }
+    }
+    v.pace = pace;
+    Ok(())
+}
+
+/// What a company pays to buy out the other owners of a start-up: their share of the
+/// value with the premium.
+pub fn integration_price(m: &VentureModel, v: &Venture, company: CompanyId) -> Money {
+    value(m, v).scale((1.0 + m.stakes.buy_premium) * (1.0 - share_of(v, company)))
+}
+
+/// `IntegrateVenture` (SU2): the majority buys out the others; the start-up becomes its
+/// subsidiary.
+pub(crate) fn integrate(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    venture: u32,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    let v = &state.ventures[i];
+    if v.parent == Some(actor) {
+        return Err(CommandError::VentureClosed);
+    }
+    if share_of(v, actor) <= m.stakes.majority {
+        return Err(CommandError::NoMajority);
+    }
+    if blocked(m, v, actor) {
+        return Err(CommandError::VentureBlocked);
+    }
+    let price = integration_price(m, v, actor);
+    if state.companies[actor.index()].ledger.cash() < price {
+        return Err(CommandError::NotEnoughCash { needed: price });
+    }
+    let worth = value(m, v).scale(1.0 + m.stakes.buy_premium);
+    let mut news = Vec::new();
+    buy_out(state, i, actor, worth, &mut news);
+    state.ventures[i].parent = Some(actor);
+    crate::central::count_purchase(state, actor, price);
+    Ok(())
+}
+
+/// What a dollar pledged to the open round of a start-up brings on average as a company
+/// sees it (SU2): its shown chance times the value of a success times the share a dollar
+/// buys at the end.
+pub fn expected_return(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    v: &Venture,
+) -> f64 {
+    let m = &catalog.ventures;
+    let (chance, _) = shown_chance(catalog, state, company, v);
+    chance * expected_success_value(state, m, v).to_usd() * share_per_dollar(m, v)
+}
+
+/// The pledges the strategy department of a company recommends (SU2): open rounds it may
+/// join whose expected return per dollar reaches the minimum for the readiness for risks,
+/// best first, each for the open rest within the budget and the share of the cash. None
+/// without a working department.
+pub(crate) fn recommendations(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+) -> Vec<(u32, Money)> {
+    let m = &catalog.ventures;
+    if insight(catalog, state, company).is_none() {
+        return Vec::new();
+    }
+    let c = &state.companies[company.index()];
+    let wanted = 1.0 + (1.0 - c.participations.risk) * m.stakes.min_return;
+    let mut left = c.ledger.cash().scale(m.stakes.cash_share).max(Money::ZERO);
+    if let Some(budget) = crate::central::participations_left(state, company) {
+        left = left.min(budget);
+    }
+    let mut found: Vec<(f64, u32, Money)> = state
+        .ventures
+        .iter()
+        .filter(|v| {
+            v.status == VentureStatus::Active
+                && v.round_until.is_some()
+                && v.parent.is_none_or(|p| p == company)
+                && amount_of(&v.pledges, company) == Money::ZERO
+        })
+        .map(|v| {
+            (
+                expected_return(catalog, state, company, v),
+                v.id,
+                v.capital - v.raised,
+            )
+        })
+        .filter(|&(e, _, open)| e >= wanted && open > Money::ZERO)
+        .collect();
+    found.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+    let mut out = Vec::new();
+    for (_, id, open) in found {
+        let amount = open.min(left);
+        if amount <= Money::ZERO {
+            break;
+        }
+        left -= amount;
+        out.push((id, amount));
+    }
+    out
 }

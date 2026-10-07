@@ -2600,7 +2600,7 @@ fn management_wird_geprueft() {
 
     let d = basis().ersetze(
         datei,
-        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen, strategie, recht],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,\n                umschuldung, gehaltsrunde]}\n",
+        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen, strategie, recht],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,\n                umschuldung, gehaltsrunde, startup]}\n",
         "",
     );
     befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
@@ -2823,7 +2823,11 @@ fn management_wird_geprueft() {
         d.zeile(datei, "antraege_max: 0"),
         "management.strategieauftrag.antraege_max",
     );
-    let d = basis().ersetze(datei, "kaufangebot, antwort]", "kaufangebot, antwrt]");
+    let d = basis().ersetze(
+        datei,
+        "kaufangebot, antwort, startup]",
+        "kaufangebot, antwrt, startup]",
+    );
     befund(
         &d.laden(),
         "Thema „antwrt“ ist nicht definiert. Meinten Sie „antwort“?",
@@ -3124,6 +3128,48 @@ fn startups_werden_geprueft() {
     let d = basis().datei("parameter/startups2.yaml", STARTUPS);
     befund(&d.laden(), "Abschnitt „startups“ darf es nur einmal geben");
 
+    // The stakes (SU2): shares between 0 and 1, the majority not below the blocking
+    // minority, pace factors in their range.
+    let stakes = basis().laden().data.unwrap().catalog.ventures.stakes;
+    assert!((stakes.majority - 0.5).abs() < 1e-9);
+    assert!((stakes.blocking - 0.25).abs() < 1e-9);
+    assert!(stakes.fast.0 < 1.0 && stakes.thorough.0 > 1.0);
+    let d = basis().ersetze(datei, "verkauf_abschlag: 0.2", "verkauf_abschlag: 1.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "verkauf_abschlag: 1.5"),
+        "startups.beteiligung.verkauf_abschlag",
+    );
+    let d = basis().ersetze(datei, "mehrheit: 0.5", "mehrheit: 0.2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "„sperrminoritaet“ muss kleiner als „mehrheit“ sein.",
+    );
+    assert_eq!(f.path.to_string(), "startups.beteiligung.mehrheit");
+    let d = basis().ersetze(
+        datei,
+        "zuegig: {monate: 0.75, chance: 0.9}",
+        "zuegig: {monate: 0, chance: 0.9}",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 0.1 bis 10.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "startups.beteiligung.lenkung.zuegig.monate"
+    );
+    let d = basis().ersetze(datei, "    einsatz_kasse: 0.1\n", "");
+    befund(&d.laden(), "einsatz_kasse");
+
     // Every phase, label and choice needs its text.
     let d = basis().ersetze(
         "texte/de/startups.yaml",
@@ -3143,4 +3189,15 @@ fn startups_werden_geprueft() {
         &d.laden(),
         "Text „startup.haeufigkeit.viele“ fehlt in texte/de/.",
     );
+    let d = basis().ersetze(
+        "texte/de/startups.yaml",
+        "startup.lenkung.zuegig: Zügig\n",
+        "",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Text „startup.lenkung.zuegig“ fehlt in texte/de/.",
+    );
+    assert_eq!(f.path.to_string(), "startups.beteiligung.lenkung");
 }

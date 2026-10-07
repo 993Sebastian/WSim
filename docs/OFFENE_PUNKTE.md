@@ -901,7 +901,8 @@ entschieden:
 
 ✅ **ZA1 umgesetzt** (Hauptsitz verlegen), ✅ **ZA2 umgesetzt** (Zentralabteilungen,
 Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote), ✅ **SU1
-umgesetzt** (Start-ups ohne Beteiligung des Spielers). 🟡 Vorläufig entschieden:
+umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
+(Beteiligungen der Firmen). 🟡 Vorläufig entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -959,9 +960,34 @@ umgesetzt** (Start-ups ohne Beteiligung des Spielers). 🟡 Vorläufig entschied
 20. **Häufigkeit** wählbar beim neuen Spiel (keine, wenige 6, normal 12, viele 24 im
     Jahr); alte Spielstände bekommen „normal“.
 21. **Investoren außerhalb des Spiels** (`Holder::Investors`) finanzieren die Runden
-    ganz; Spieler, Firmen und Fördergeld folgen mit SU2, KI-Investoren mit SU3.
+    ganz; Spieler, Firmen und Fördergeld seit SU2, KI-Investoren mit SU3.
 22. **Beendete bleiben zehn Jahre** in der Liste, historische Erfinder immer (so gründet
     jeder nur einmal). Ein Spielstand wächst dadurch kaum (rund 150 Einträge).
+23. **Firmen sind die Eigner:** Der Spieler beteiligt sich mit seiner Firma; die
+    Beteiligung steht in ihrer Bilanz (neues Konto Finanzanlagen) wie bei KI-Firmen.
+24. **Zusage statt Sofortkauf:** In einer offenen Runde geht das Geld sofort in die
+    Finanzanlagen, Anteile gibt es erst, wenn die Runde schließt (sofort, wenn die Zusagen
+    sie decken). Kommt sie nicht zustande, fließt die Zusage zurück.
+25. **Wert bei Erfolg** = Bewertung nach der letzten Runde · 1,3 (Schätzung): Ein Dollar
+    der ersten Runde bringt im Mittel rund das 2,8-Fache, der zweiten das 1,9-Fache, der
+    dritten das 1,2-Fache; die meisten Einsätze sind verloren.
+26. **Börsengang statt Börse:** Ohne Mehrheit endet ein Erfolg mit einer Auszahlung zum
+    Wert bei Erfolg an alle Eigner; eine Börse mit Kursen gibt es nicht (Vorschlag: mit
+    Stufe 3). Spielen KI-Firmen mit, wird daraus eine neue KI-Firma im Land des Start-ups
+    mit der Technologie – aber nur, wenn ein Produkt der Technologie dort Absatz findet;
+    sonst bleibt nur die Erfindung in der Welt.
+27. **Tochterfirmen finanziert die Mutter** am nächsten Monatsanfang ganz, solange ihre
+    Kasse reicht (zählt zum Budget „Beteiligungen“); sonst kommen Investoren dazu und die
+    Mutter wird verwässert – unter der Mehrheit ist es keine Tochter mehr.
+28. **Fördergeld wirkt nur auf die laufende Phase** und höchstens bis `chance_max`
+    (0,98); es zählt nicht zum Budget „Beteiligungen“, weil es Forschungsaufwand ist.
+29. **Verkauf nur an Investoren außerhalb des Spiels** mit 20 % Abschlag; Verkäufe an
+    andere Firmen erst, wenn KI-Firmen mitbieten (SU3).
+30. **Meldungen** bekommt der Spieler zu seinen Beteiligungen (Rückzahlung, Verlust,
+    Forschungsbonus, Tochter, Auszahlung, Übernahme, Börsengang) und wenn aus einem
+    Start-up eine neue Firma wird; was KI-Firmen untereinander tun, meldet das Spiel nicht.
+31. **Forschungsbonus** beim Scheitern: 20 % des heutigen Forschungsaufwands für die
+    Mehrheit – ein Trost, der das Risiko einer großen Beteiligung etwas senkt.
 
 ## Reihenfolge der neuen Punkte
 

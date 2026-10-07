@@ -854,7 +854,7 @@ einfuehrung.finanzen.text: "Bilanz, Erfolgsrechnung, Kapitalfluss und Kredite, d
 einfuehrung.organisation.titel: Organisation
 einfuehrung.organisation.text: "Jeder Standort hat eine Leitung und Fachstellen für Produktion, Einkauf, Vertrieb und mehr. Besetzt du sie mit Managern vom Managermarkt, prüfen sie ihren Standort jede Woche und erledigen die Routine selbst – Auslastung, Einkauf, Lieferungen, Verkauf. Was ihr Budget übersteigt, legen sie dir unter „Anliegen“ mit Empfehlung und Frist vor. Sie kosten ein Gehalt und beim Entlassen eine Abfindung; ihre Fähigkeiten siehst du nur als Einschätzung. Was niemand erledigt, entscheidest du. Über allen steht der Vorstand: Ein CEO bespricht mit dir unter „Rücksprache“ regelmäßig Bericht und Anträge nach deinem Strategieauftrag – er ist aber teuer, erst für eine größere Firma. Unter „Hauptsitz und Zentrale“ verlegst du den Firmensitz und richtest Zentralabteilungen ein; sie arbeiten für die ganze Firma, kosten aber jeden Monat – zu früh ruinieren sie dich."
 einfuehrung.beteiligungen.titel: Beteiligungen
-einfuehrung.beteiligungen.text: "Erfinder und junge Firmen arbeiten an neuen Technologien und verbessern Produkte – in jeder Phase brauchen sie Geld von Investoren, und die meisten scheitern. Wer es schafft, bringt eine Technologie Jahre früher in die Welt: Dann wird Nachforschen für alle günstiger, auch für dich. Hier siehst du, wer woran arbeitet, wie weit sie sind und wie die Chancen stehen – genau nur mit einer Strategieabteilung."
+einfuehrung.beteiligungen.text: "Erfinder und junge Firmen arbeiten an neuen Technologien und verbessern Produkte – in jeder Phase brauchen sie Geld von Investoren, und die meisten scheitern. Wer es schafft, bringt eine Technologie Jahre früher in die Welt: Dann wird Nachforschen für alle günstiger, auch für dich. Mit „Handeln“ steigst du ein: Geld in einer offenen Runde zusagen, Anteile kaufen oder Fördergeld geben. Mit mehr als der Hälfte lenkst du ein Start-up und machst es zur Tochterfirma – gelingt sie, gehört die Technologie dir. Genaue Chancen schätzt eine Strategieabteilung."
 einfuehrung.weltkarte.titel: Weltkarte
 einfuehrung.weltkarte.text: "Einwohner, Einkommen, Rohstoffe und Absatzchancen der Länder; ein Klick zeigt ein Land mit seinen Firmen, dort gründest du auch Standorte. Mit „?“ siehst du alle Tastaturkürzel und startest diese Einführung erneut. Viel Erfolg!"
 
@@ -1381,6 +1381,7 @@ thema.weiterentwicklung: Weiterentwicklung
 thema.abwerbung: Abwerbung
 thema.lizenz: Lizenzen
 thema.umschuldung: Umschuldung
+thema.startup: Start-ups
 thema.gehaltsrunde: Gehaltsrunde
 option.beibehalten: So lassen
 option.anpassen: Anpassen
@@ -1400,6 +1401,7 @@ option.weiterentwickeln: Weiterentwickeln
 option.gegenangebot: Gegenangebot
 option.gehen_lassen: Gehen lassen
 option.umschulden: Umschulden
+option.beteiligen: Beteiligen
 
 # Strategieauftrag und Strategierücksprache (MA5)
 auftrag.titel: Strategieauftrag an den Vorstand
@@ -1521,3 +1523,52 @@ beteiligungen.status_hilfe.gescheitert: Am Ende einer Phase gescheitert.
 beteiligungen.status_hilfe.ohne_geld: Die Finanzierungsrunde fand nicht rechtzeitig Geldgeber.
 beteiligungen.status_hilfe.ueberholt: Andere waren schneller – die Technologie wurde erfunden oder die Stufe erreicht.
 beteiligungen.status_hilfe.aktiv: Arbeitet noch.
+beteiligungen.ausgang.tochter: "– übernommen von {firma}"
+beteiligungen.ausgang.boerse: "– Börsengang, daraus wurde {firma}"
+beteiligungen.ausgang.boerse_ohne: "– Börsengang"
+beteiligungen.ausgang.tochter_ohne: "– übernommen"
+beteiligungen.eigene: Deine
+beteiligungen.dein_anteil: Dein Anteil
+beteiligungen.zugesagt: "{betrag} zugesagt"
+beteiligungen.tochter: Tochter
+beteiligungen.handeln: Handeln
+beteiligungen.handeln_fuer: "{name}: beteiligen, fördern, verkaufen"
+beteiligungen.keine_eigenen: An keinem laufenden Start-up bist du beteiligt.
+beteiligungen.portfolio: "Deine Beteiligungen ({anzahl}): Buchwert {buch}, heutiger Wert {wert}."
+beteiligungen.kein_portfolio: Du hältst noch keine Beteiligungen. Öffne ein Start-up mit „Handeln“, um dich zu beteiligen oder es zu fördern.
+beteiligungen.zurueck: Zurück zur Liste
+beteiligungen.wert: Wert
+beteiligungen.wert_text: "heute {heute} · bei Erfolg etwa {erfolg}"
+beteiligungen.ertrag: "im Mittel das {faktor}-Fache des Einsatzes"
+beteiligungen.buchwert: "Buchwert {betrag}"
+beteiligungen.gefoerdert: "gefördert mit {betrag}"
+beteiligungen.rechte: "Rechte: Jeder Anteil bringt seinen Teil am Erlös. Ab {sperr} kann kein anderer das Start-up eingliedern (Sperrminorität). Mit mehr als {mehr} lenkst du es, kannst es eingliedern und kaufst bei Erfolg die übrigen Eigner aus."
+beteiligungen.fremde_tochter: "Tochterfirma von {firma} – Anteile kann niemand sonst mehr kaufen."
+beteiligungen.tochter_hilfe: "Deine Tochterfirma: Gelingt sie, kennt deine Firma die Technologie sofort (bzw. hat die Stufe); der Buchwert wird Forschungsaufwand."
+beteiligungen.betrag: Betrag
+beteiligungen.hoechstens: "Höchstens {betrag}"
+beteiligungen.zusagen: In der Runde zusagen
+beteiligungen.zusagen_hilfe: "Das Geld geht sofort aus der Kasse. Ist die Runde gedeckt, beginnt die Phase und du erhältst Anteile im Verhältnis deines Betrags. Kommt die Runde nicht zustande, bekommst du es zurück."
+beteiligungen.zusagen_knopf: Zusagen
+beteiligungen.aufstocken: Anteile kaufen
+beteiligungen.aufstocken_hilfe: "Zwischen den Runden kaufst du Gründern und Investoren Anteile ab – zum heutigen Wert mit {aufschlag} Aufschlag."
+beteiligungen.kaufen_knopf: Anteile kaufen
+beteiligungen.beteiligt: "Du beteiligst dich mit {betrag} an {name}."
+beteiligungen.foerdern: Fördergeld geben
+beteiligungen.foerdern_hilfe: "Fördergeld ist Forschungsaufwand ohne Anteile und Rechte. Es hebt die Chance der laufenden Phase: Ein Betrag in Höhe des Phasenkapitals schließt {wirkung} der Lücke zu 100 %. Gelingt das Start-up, ist die Technologie früher in der Welt – Nachforschen wird günstiger."
+beteiligungen.foerdern_knopf: Fördern
+beteiligungen.gefoerdert_meldung: "Du hast {betrag} Fördergeld gegeben."
+beteiligungen.verkaufen: Anteile verkaufen
+beteiligungen.verkaufen_hilfe: "Investoren kaufen deine Anteile zum heutigen Wert mit {abschlag} Abschlag – für alle bekämst du {wert}."
+beteiligungen.anteil_deines: Teil deines Anteils
+beteiligungen.verkaufen_knopf: Verkaufen
+beteiligungen.verkauft: "Du hast {anteil} verkauft, Erlös rund {betrag}."
+beteiligungen.lenken: Lenken
+beteiligungen.lenken_hilfe: "Als Mehrheitseigner bestimmst du das Tempo: zügig verkürzt die Phasen, senkt aber die Chance; gründlich dauert länger und gelingt öfter. Es gilt für die nächsten Phasen und für die laufende, solange ihre Runde offen ist."
+beteiligungen.tempo: Tempo
+beteiligungen.gelenkt: "Tempo „{tempo}“ gilt ab sofort."
+beteiligungen.eingliedern: Eingliedern
+beteiligungen.eingliedern_hilfe: "Du zahlst die übrigen Eigner aus (zusammen {preis}) und hältst dann alles: Das Start-up wird deine Tochterfirma."
+beteiligungen.eingliedern_knopf: "Für {preis} eingliedern"
+beteiligungen.eingegliedert: "{name} ist jetzt deine Tochterfirma."
+beteiligungen.gesperrt: Eine andere Firma hält eine Sperrminorität – eingliedern kannst du nicht.

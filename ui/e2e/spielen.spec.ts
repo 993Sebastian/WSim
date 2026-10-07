@@ -407,6 +407,39 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await bild(page, "firma");
 });
 
+test("An einem Start-up beteiligen und es fördern", async ({ page }) => {
+  await starten(page);
+  await page.keyboard.press("8");
+  await expect(page.getByRole("heading", { name: "Erfinder und Gründungen" })).toBeVisible();
+  await expect(page.getByText(/Du hältst noch keine Beteiligungen/)).toBeVisible();
+  await page
+    .getByRole("button", { name: "Baltzar von Platen: beteiligen, fördern, verkaufen" })
+    .click();
+  const detail = page.getByRole("region", { name: "Baltzar von Platen" });
+  await expect(detail).toContainText("Kompressionskühlschrank (neu, 4 Jahre vor der Zeit)");
+  await expect(detail).toContainText("Gründer 100 %");
+  // An open round: a pledge of at most the rest.
+  const zusage = detail.getByRole("form", { name: "In der Runde zusagen" });
+  await expect(zusage).toContainText("Höchstens 32.996 USD");
+  await zusage.getByLabel("Betrag").fill("10000");
+  await expect(zusage.getByLabel("Betrag")).toHaveValue("10.000");
+  await zusage.getByRole("button", { name: "Zusagen" }).click();
+  await expect(zusage.getByRole("alert")).toHaveText(/Vorschau im Browser führt keine Befehle aus/);
+  const foerdern = detail.getByRole("form", { name: "Fördergeld geben" });
+  await foerdern.getByLabel("Betrag").fill("5.000");
+  await foerdern.getByRole("button", { name: "Fördern" }).click();
+  // Without a stake neither sale nor steering.
+  await expect(detail.getByRole("form", { name: "Anteile verkaufen" })).toHaveCount(0);
+  await expect(detail.getByRole("group", { name: "Lenken" })).toHaveCount(0);
+  await bild(page, "beteiligung");
+  expect((await befehle(page)).slice(-2)).toEqual([
+    { InvestInVenture: { venture: 6, amount: 100_000_000 } },
+    { GrantVenture: { venture: 6, amount: 50_000_000 } },
+  ]);
+  await detail.getByRole("button", { name: "Zurück zur Liste" }).click();
+  await expect(page.getByRole("table", { name: "Laufend" })).toBeVisible();
+});
+
 test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Markt", exact: true }).click();

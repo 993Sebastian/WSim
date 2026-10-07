@@ -47,10 +47,12 @@ pub enum Topic {
     Refinance,
     /// Raises for unhappy managers (ZA3).
     SalaryRound,
+    /// Pledges to the rounds of start-ups (SU2).
+    Venture,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 23] = [
+    pub const ALL: [Topic; 24] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -74,6 +76,7 @@ impl Topic {
         Topic::License,
         Topic::Refinance,
         Topic::SalaryRound,
+        Topic::Venture,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -105,6 +108,7 @@ impl Topic {
             Topic::License => "lizenz",
             Topic::Refinance => "umschuldung",
             Topic::SalaryRound => "gehaltsrunde",
+            Topic::Venture => "startup",
         }
     }
 }
@@ -133,6 +137,8 @@ pub enum ChoiceKind {
     LetGo,
     /// A loan at a lower rate (ZA3).
     Refinance,
+    /// A pledge to a start-up (SU2).
+    Invest,
 }
 
 impl ChoiceKind {
@@ -156,6 +162,7 @@ impl ChoiceKind {
             ChoiceKind::Develop => "weiterentwickeln",
             ChoiceKind::LetGo => "gehen_lassen",
             ChoiceKind::Refinance => "umschulden",
+            ChoiceKind::Invest => "beteiligen",
         }
     }
 }
@@ -588,6 +595,14 @@ pub fn amount(
             .and_then(|s| s.slots.get(*slot))
             .map_or(Money::ZERO, |sl| sl.cost.scale(model.restart_cost_share)),
         Command::TakeLoan { amount, .. } | Command::RepayLoan { amount, .. } => *amount,
+        Command::InvestInVenture { amount, .. } | Command::GrantVenture { amount, .. } => *amount,
+        Command::IntegrateVenture { venture } => state
+            .ventures
+            .iter()
+            .find(|v| v.id == *venture)
+            .map_or(Money::ZERO, |v| {
+                crate::ventures::integration_price(&catalog.ventures, v, company)
+            }),
         _ => Money::ZERO,
     }
 }
@@ -825,6 +840,30 @@ fn effect(
         }
         Topic::Expansion | Topic::Power | Topic::Deposit | Topic::Bottleneck => {
             new_capacity(catalog, state, decision.company, choice)
+        }
+        // The expected gain of the pledges (SU2).
+        Topic::Venture => {
+            let usd: f64 = choice
+                .steps
+                .iter()
+                .map(|s| match &s.command {
+                    Command::InvestInVenture { venture, amount } => state
+                        .ventures
+                        .iter()
+                        .find(|v| v.id == *venture)
+                        .map_or(0.0, |v| {
+                            let e = crate::ventures::expected_return(
+                                catalog,
+                                state,
+                                decision.company,
+                                v,
+                            );
+                            (e - 1.0) * amount.to_usd()
+                        }),
+                    _ => 0.0,
+                })
+                .sum();
+            Money::from_usd(usd)
         }
         // Interest saved in a year (ZA3); the fee is once.
         Topic::Refinance => {

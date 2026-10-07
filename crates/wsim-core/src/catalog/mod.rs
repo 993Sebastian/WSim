@@ -310,6 +310,8 @@ pub struct VentureModel {
     /// Chance per month that investors outside the game fund an open round.
     pub investor_chance: f64,
     pub deadline_months: u32,
+    /// Stakes of companies (SU2).
+    pub stakes: VentureStakeModel,
     /// Blur of the shown chance without a strategy department.
     pub blur: f64,
     /// From which shown chance the level is medium, and high.
@@ -340,6 +342,50 @@ impl VentureModel {
             .find(|(_, from)| *from <= year)
             .or_else(|| self.labels.first())
             .map(|(key, _)| key.as_str())
+    }
+}
+
+/// Stakes of companies in start-ups (SU2, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct VentureStakeModel {
+    /// Value at success as a multiple of the value after the last round.
+    pub success_factor: f64,
+    /// Above the value when buying between rounds or buying out; below it when selling.
+    pub buy_premium: f64,
+    pub sale_discount: f64,
+    /// Share of the gap to a sure phase a grant of the phase's capital closes.
+    pub grant_effect: f64,
+    /// Shares for the blocking minority and the majority.
+    pub blocking: f64,
+    pub majority: f64,
+    /// Share of the research effort the majority gets when it fails.
+    pub research_bonus: f64,
+    pub chance_max: f64,
+    /// Factors on months and chance of the phases: fast and thorough.
+    pub fast: (f64, f64),
+    pub thorough: (f64, f64),
+    /// Return per dollar above 1 the strategy department wants at a readiness for risks
+    /// of 0, and the most of the cash it puts in.
+    pub min_return: f64,
+    pub cash_share: f64,
+}
+
+impl Default for VentureStakeModel {
+    fn default() -> Self {
+        Self {
+            success_factor: 1.0,
+            buy_premium: 0.0,
+            sale_discount: 0.0,
+            grant_effect: 0.0,
+            blocking: 0.25,
+            majority: 0.5,
+            research_bonus: 0.0,
+            chance_max: 1.0,
+            fast: (1.0, 1.0),
+            thorough: (1.0, 1.0),
+            min_return: 0.0,
+            cash_share: 0.0,
+        }
     }
 }
 

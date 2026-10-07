@@ -583,6 +583,7 @@ pub fn management() -> Catalog {
             Topic::License,
             Topic::Refinance,
             Topic::SalaryRound,
+            Topic::Venture,
         ])
         .collect();
     let level = |key: &str, check_days, (salary_specialist, salary_head), topics: &[Topic]| {
@@ -623,7 +624,10 @@ pub fn management() -> Catalog {
             ),
             function("forschung", vec![Topic::Research, Topic::Development]),
             function("finanzen", vec![Topic::Cash, Topic::Refinance]),
-            function("strategie", vec![Topic::Offer, Topic::OfferAnswer]),
+            function(
+                "strategie",
+                vec![Topic::Offer, Topic::OfferAnswer, Topic::Venture],
+            ),
             function("recht", vec![Topic::License]),
         ],
         levels: vec![

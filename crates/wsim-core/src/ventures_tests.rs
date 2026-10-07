@@ -7,7 +7,7 @@ use crate::board_tests::member;
 use crate::calendar::{Date, RoundLength};
 use crate::catalog::{
     Catalog, DepartmentKind, Inventor, Provenance, Technology, VentureModel, VenturePhase,
-    test_support,
+    VentureStakeModel, test_support,
 };
 use crate::command::Command;
 use crate::game::Game;
@@ -46,6 +46,20 @@ fn model() -> VentureModel {
         chance_min: 0.05,
         investor_chance: 1.0,
         deadline_months: 3,
+        stakes: VentureStakeModel {
+            success_factor: 1.5,
+            buy_premium: 0.2,
+            sale_discount: 0.2,
+            grant_effect: 0.5,
+            blocking: 0.25,
+            majority: 0.5,
+            research_bonus: 0.2,
+            chance_max: 1.0,
+            fast: (0.5, 0.9),
+            thorough: (1.5, 1.1),
+            min_return: 1.0,
+            cash_share: 0.5,
+        },
         blur: 0.5,
         chance_levels: (0.2, 0.4),
         keep_years: 1,
@@ -404,4 +418,429 @@ fn the_strategy_department_sharpens_the_shown_chance() {
     let (shown, works) = ventures::shown_chance(&catalog, game.state(), player, &v);
     assert!(works);
     assert!((shown - 0.4).abs() < 1e-12, "{shown}");
+}
+
+// --- SU2: stakes of companies ---
+
+use crate::command::CommandError;
+use crate::ledger::{Account, CostType};
+use crate::money::Money;
+use crate::state::{CompanyId, Stake, VentureExit, VenturePace};
+
+/// The turbine start-up of February 1900 with its round still open (no investors).
+fn waiting_round() -> Game {
+    let mut m = model();
+    m.investor_chance = 0.0;
+    m.deadline_months = 12;
+    let mut game = game_with(catalog_with(m), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    game
+}
+
+fn books(game: &Game) -> &crate::ledger::Ledger {
+    &game.state().companies[0].ledger
+}
+
+fn invest(game: &mut Game, amount: f64) -> Result<(), CommandError> {
+    game.apply(Command::InvestInVenture {
+        venture: 0,
+        amount: usd(amount),
+    })
+}
+
+fn by_type(game: &Game, cost: CostType) -> Money {
+    books(game)
+        .year
+        .by_type
+        .get(&cost)
+        .copied()
+        .unwrap_or(Money::ZERO)
+}
+
+#[test]
+fn pledges_close_the_round_and_buy_shares() {
+    let mut game = waiting_round();
+    let me = CompanyId(0);
+    let cash = books(&game).cash();
+    // 120 000 USD wanted: a pledge waits for the rest.
+    invest(&mut game, 50_000.0).unwrap();
+    let v = venture(&game, 0).clone();
+    assert!(v.round_until.is_some());
+    assert_eq!(v.raised, usd(50_000.0));
+    assert_eq!(books(&game).cash(), cash - usd(50_000.0));
+    assert_eq!(books(&game).balance(Account::Participations), usd(50_000.0));
+    assert!(books(&game).is_balanced());
+    assert_eq!(
+        invest(&mut game, 100_000.0),
+        Err(CommandError::AmountTooHigh { max: usd(70_000.0) })
+    );
+    // The rest closes the round today: half the shares at a valuation of 1.
+    invest(&mut game, 70_000.0).unwrap();
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.round_until, None);
+    assert_eq!(v.phase_until, Some(date(1900, 4, 2)));
+    assert!((ventures::share_of(&v, me) - 0.5).abs() < 1e-12);
+    assert!(v.pledges.is_empty());
+    assert_eq!(ventures::amount_of(&v.book, me), usd(120_000.0));
+    // Counted against the participations budget of the year.
+    assert_eq!(
+        game.state().companies[0].participations.spent_in(1900),
+        usd(120_000.0)
+    );
+    // Between rounds the founders sell at the value after the round plus 20 %.
+    invest(&mut game, 28_800.0).unwrap();
+    let v = venture(&game, 0).clone();
+    assert!((ventures::share_of(&v, me) - 0.6).abs() < 1e-9);
+    let founders: f64 = v
+        .owners
+        .iter()
+        .filter(|s| s.holder == Holder::Private)
+        .map(|s| s.share)
+        .sum();
+    assert!((founders - 0.4).abs() < 1e-9);
+    assert_eq!(
+        invest(&mut game, 200_000.0),
+        Err(CommandError::AmountTooHigh {
+            max: usd(115_200.0)
+        })
+    );
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_grant_raises_the_chance_without_shares() {
+    let mut m = model();
+    m.investor_chance = 0.0;
+    m.phases[0].chance = 0.5;
+    let mut game = game_with(catalog_with(m), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    game.apply(Command::GrantVenture {
+        venture: 0,
+        amount: usd(60_000.0),
+    })
+    .unwrap();
+    // Half the capital closes half the gap times the effect of 0.5.
+    let v = venture(&game, 0);
+    assert!((v.chance - (0.5 + 0.5 * 0.5 * 0.5)).abs() < 1e-12);
+    assert_eq!(ventures::share_of(v, CompanyId(0)), 0.0);
+    assert_eq!(by_type(&game, CostType::Research), usd(-60_000.0));
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_sale_books_the_gain_or_loss() {
+    let mut game = waiting_round();
+    invest(&mut game, 120_000.0).unwrap();
+    // Worth 240 000 after the round; a quarter sells for 80 % of 60 000.
+    game.apply(Command::SellVentureStake {
+        venture: 0,
+        share: 0.25,
+    })
+    .unwrap();
+    let v = venture(&game, 0).clone();
+    assert!((ventures::share_of(&v, CompanyId(0)) - 0.25).abs() < 1e-12);
+    assert_eq!(ventures::amount_of(&v.book, CompanyId(0)), usd(60_000.0));
+    assert_eq!(by_type(&game, CostType::Investments), usd(-12_000.0));
+    assert_eq!(books(&game).balance(Account::Participations), usd(60_000.0));
+    assert_eq!(
+        game.apply(Command::SellVentureStake {
+            venture: 0,
+            share: 0.5
+        }),
+        Err(CommandError::NotEnoughShares)
+    );
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn steering_and_integrating_need_the_majority_and_no_blocking_minority() {
+    let mut game = waiting_round();
+    invest(&mut game, 120_000.0).unwrap();
+    let steer = Command::SteerVenture {
+        venture: 0,
+        pace: VenturePace::Fast,
+    };
+    let integrate = Command::IntegrateVenture { venture: 0 };
+    // Exactly half is no majority.
+    assert_eq!(game.apply(steer.clone()), Err(CommandError::NoMajority));
+    assert_eq!(game.apply(integrate.clone()), Err(CommandError::NoMajority));
+    invest(&mut game, 28_800.0).unwrap();
+    game.apply(steer).unwrap();
+    assert_eq!(venture(&game, 0).pace, VenturePace::Fast);
+    // Another company with a quarter blocks the integration.
+    let rival = CompanyId(7);
+    let founders = |game: &mut Game| {
+        let v = game
+            .state_mut()
+            .ventures
+            .iter_mut()
+            .find(|v| v.id == 0)
+            .unwrap();
+        v.owners.retain(|s| s.holder != Holder::Private);
+        v.owners.push(Stake {
+            holder: Holder::Company(rival),
+            share: 0.4,
+        });
+    };
+    founders(&mut game);
+    assert_eq!(
+        game.apply(integrate.clone()),
+        Err(CommandError::VentureBlocked)
+    );
+    {
+        let v = game
+            .state_mut()
+            .ventures
+            .iter_mut()
+            .find(|v| v.id == 0)
+            .unwrap();
+        v.owners.retain(|s| s.holder != Holder::Company(rival));
+        v.owners.push(Stake {
+            holder: Holder::Private,
+            share: 0.4,
+        });
+    }
+    // The others' 40 % at the value after the round plus 20 %.
+    let cash = books(&game).cash();
+    game.apply(integrate).unwrap();
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.parent, Some(CompanyId(0)));
+    assert_eq!(v.owners, Stake::sole(Holder::Company(CompanyId(0))));
+    assert_eq!(books(&game).cash(), cash - usd(240_000.0 * 1.2 * 0.4));
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_subsidiary_hands_its_technology_to_the_parent() {
+    let mut game = waiting_round();
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    invest(&mut game, 120_000.0).unwrap();
+    invest(&mut game, 28_800.0).unwrap();
+    game.apply(Command::IntegrateVenture { venture: 0 })
+        .unwrap();
+    // The parent funds the next round at once and gets the technology at the end.
+    let keys = until(&mut game, date(1900, 12, 2));
+    let v = venture(&game, 0).clone();
+    let VentureStatus::Succeeded(when) = v.status else {
+        panic!("{:?}", v.status);
+    };
+    assert_eq!(v.exit, Some(VentureExit::Parent(CompanyId(0))));
+    assert!(game.state().companies[0].technologies.contains(&turbine));
+    assert_eq!(*game.state().inventions.get(turbine), Some(when));
+    assert!(keys.iter().any(|k| k == keys::VENTURE_PARENT));
+    // What it paid became research.
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert!(by_type(&game, CostType::Research) < Money::ZERO);
+    assert!(books(&game).is_balanced());
+}
+
+/// A start-up whose rounds investors fund at once; the company pledges the first round,
+/// buys to 60 % and pledges the whole second round (73 %).
+fn majority_game() -> Game {
+    let mut game = game_with(catalog_with(model()), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    invest(&mut game, 120_000.0).unwrap();
+    invest(&mut game, 28_800.0).unwrap();
+    until(&mut game, date(1900, 5, 2));
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.phase, 1);
+    invest(&mut game, (v.capital - v.raised).to_usd()).unwrap();
+    let v = venture(&game, 0).clone();
+    assert!((ventures::share_of(&v, CompanyId(0)) - (0.4 + 1.0 / 3.0)).abs() < 1e-9);
+    game
+}
+
+#[test]
+fn a_majority_buys_out_the_others_when_it_can_pay() {
+    let mut game = majority_game();
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let cash = books(&game).cash();
+    let keys = until(&mut game, date(1900, 9, 2));
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.status, VentureStatus::Succeeded(date(1900, 9, 1)));
+    assert_eq!(v.exit, Some(VentureExit::Parent(CompanyId(0))));
+    assert!(game.state().companies[0].technologies.contains(&turbine));
+    // The founders' 27 % at the value of the success: 240 000 · 3 · 1.5.
+    let paid = usd(1_080_000.0).scale(1.0 - (0.4 + 1.0 / 3.0));
+    let spent = cash - books(&game).cash();
+    assert!(
+        (spent - paid).abs() <= usd(1.0),
+        "{spent:?} against {paid:?}"
+    );
+    assert!(keys.iter().any(|k| k == keys::VENTURE_PAID_OUT));
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn without_the_cash_the_start_up_goes_public() {
+    let mut game = majority_game();
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    // The cash is tied up elsewhere.
+    {
+        let ledger = &mut game.state_mut().companies[0].ledger;
+        let cash = ledger.cash();
+        ledger.transfer(Account::FixedAssets, Account::Cash, cash);
+    }
+    let book = ventures::amount_of(&venture(&game, 0).book, CompanyId(0));
+    let keys = until(&mut game, date(1900, 9, 2));
+    let v = venture(&game, 0).clone();
+    // No AI companies in this game: no new rival.
+    assert_eq!(v.exit, Some(VentureExit::Listed(None)));
+    assert!(!game.state().companies[0].technologies.contains(&turbine));
+    // The company gets the value of its 73 %; the gain is the investments' result.
+    let proceeds = usd(1_080_000.0).scale(0.4 + 1.0 / 3.0);
+    assert!((books(&game).cash() - proceeds).abs() <= usd(1.0));
+    let gain = by_type(&game, CostType::Investments);
+    assert!((gain - (proceeds - book)).abs() <= usd(1.0), "{gain:?}");
+    assert!(keys.iter().any(|k| k == keys::VENTURE_LISTED));
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_failure_writes_off_and_leaves_the_majority_some_research() {
+    let mut m = model();
+    m.phases[0].chance = 0.0;
+    let mut game = game_with(catalog_with(m), 3, 1.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    until(&mut game, date(1900, 2, 2));
+    invest(&mut game, 120_000.0).unwrap();
+    invest(&mut game, 28_800.0).unwrap();
+    let keys = until(&mut game, date(1900, 5, 2));
+    assert!(matches!(
+        venture(&game, 0).status,
+        VentureStatus::Failed(_, VentureFailure::Phase)
+    ));
+    assert_eq!(by_type(&game, CostType::Investments), usd(-148_800.0));
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert!(keys.iter().any(|k| k == keys::VENTURE_LOST));
+    // A fifth of the research it would take today.
+    let points = game.state().companies[0]
+        .research
+        .get(&turbine)
+        .copied()
+        .unwrap_or(0.0);
+    let effort = research::effort(game.catalog(), game.state(), turbine, game.state().date)
+        .unwrap()
+        .points;
+    assert!(
+        points > 0.0 && points <= 0.2 * effort * 1.01,
+        "{points} of {effort}"
+    );
+    assert!(keys.iter().any(|k| k == keys::VENTURE_BONUS));
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn an_unfunded_round_returns_the_pledges() {
+    let mut m = model();
+    m.investor_chance = 0.0;
+    m.deadline_months = 2;
+    let mut game = game_with(catalog_with(m), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    let cash = books(&game).cash();
+    invest(&mut game, 50_000.0).unwrap();
+    let keys = until(&mut game, date(1900, 4, 2));
+    assert!(matches!(
+        venture(&game, 0).status,
+        VentureStatus::Failed(_, VentureFailure::Funding)
+    ));
+    assert!(keys.iter().any(|k| k == keys::VENTURE_REFUND));
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert_eq!(by_type(&game, CostType::Investments), Money::ZERO);
+    // The workshop ran meanwhile; the pledge came back in full.
+    assert!(books(&game).cash() > cash - usd(50_000.0));
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_subsidiary_without_a_parent_paying_is_diluted() {
+    // The parent cannot fund the next round: investors come in and the subsidiary ends.
+    let mut game = waiting_round();
+    invest(&mut game, 120_000.0).unwrap();
+    invest(&mut game, 28_800.0).unwrap();
+    game.apply(Command::IntegrateVenture { venture: 0 })
+        .unwrap();
+    {
+        let ledger = &mut game.state_mut().companies[0].ledger;
+        let cash = ledger.cash();
+        ledger.transfer(Account::FixedAssets, Account::Cash, cash);
+    }
+    until(&mut game, date(1900, 6, 2));
+    let v = venture(&game, 0).clone();
+    // Still waiting: no investors in this catalog and no cash at the parent.
+    assert_eq!(v.parent, Some(CompanyId(0)));
+    assert!(v.round_until.is_some());
+}
+
+#[test]
+fn the_strategy_department_recommends_promising_rounds() {
+    let mut c = test_support::management();
+    let mut m = model();
+    m.investor_chance = 0.0;
+    m.deadline_months = 12;
+    m.phases[0].chance = 0.9;
+    m.phases[1].chance = 0.9;
+    c.ventures = m;
+    let mut game = crate::management_tests::new_game(c);
+    mine_and_works(&mut game);
+    // Without a strategy department nothing is recommended.
+    until(&mut game, date(1900, 4, 2));
+    assert!(
+        !game
+            .state()
+            .concerns
+            .iter()
+            .any(|c| c.decision.topic == crate::decision::Topic::Venture)
+    );
+    game.apply(Command::StaffDepartment {
+        department: DepartmentKind::Strategy,
+        staff: 1,
+    })
+    .unwrap();
+    hire_sharp(&mut game, member("strategie"));
+    // Beyond its release limit of 1 000 USD the department asks.
+    game.apply(Command::SetParticipations {
+        budget: None,
+        risk: 1.0,
+        limits: [(DepartmentKind::Strategy, usd(1_000.0))]
+            .into_iter()
+            .collect(),
+    })
+    .unwrap();
+    // Seen exactly: 0.81 chance, worth 1 080 000 at the end, a dollar buys 1/360 000 of
+    // it – about 2.4 times the money back.
+    let v = venture(&game, 0).clone();
+    let e = ventures::expected_return(game.catalog(), game.state(), game.player(), &v);
+    assert!((e - 0.81 * 1_080_000.0 / 360_000.0).abs() < 1e-6, "{e}");
+    until(&mut game, date(1900, 7, 2));
+    let concern = game
+        .state()
+        .concerns
+        .iter()
+        .find(|c| {
+            c.decision.topic == crate::decision::Topic::Venture
+                && c.status == crate::state::ConcernStatus::Open
+        })
+        .cloned()
+        .expect("a recommendation");
+    let shown = crate::views::concerns(&game)
+        .open
+        .iter()
+        .flat_map(|g| &g.concerns)
+        .find(|c| c.id == concern.id)
+        .unwrap()
+        .clone();
+    assert_eq!(shown.options[0].kind, "beteiligen");
+    assert_eq!(shown.options[0].steps[0].key, keys::STEP_INVEST);
+    assert_eq!(shown.because.key, keys::BECAUSE_VENTURE);
+    game.apply(Command::AnswerConcern {
+        concern: concern.id,
+        answer: crate::management::ConcernAnswer::Delegate,
+    })
+    .unwrap();
+    // The whole open round: the round closes and the company holds half.
+    let v = venture(&game, 0).clone();
+    assert!((ventures::share_of(&v, game.player()) - 0.5).abs() < 1e-9);
 }

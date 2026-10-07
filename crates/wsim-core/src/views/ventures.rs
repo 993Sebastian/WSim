@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
 use crate::game::Game;
-use crate::state::{Holder, Venture, VentureFailure, VentureStatus, VentureTarget};
+use crate::ledger::Account;
+use crate::state::{
+    Holder, Venture, VentureExit, VentureFailure, VenturePace, VentureStatus, VentureTarget,
+};
 use crate::ventures;
 
 /// An owner of a start-up.
@@ -58,9 +61,44 @@ pub struct VentureView {
     pub status: String,
     /// When it ended.
     pub ended: Option<String>,
+    /// Value of the whole start-up now, and of a success as it looks today (SU2).
+    pub value_usd: f64,
+    pub success_value_usd: f64,
+    /// The player's company: its share, what it paid (book value), its pledge to the open
+    /// round and its grants.
+    pub own_share: f64,
+    pub own_book_usd: f64,
+    pub own_pledge_usd: f64,
+    pub own_grants_usd: f64,
+    /// How the player may invest – `runde` (pledge to the open round) or `anteile` (shares
+    /// of founders and investors) – and up to how much; none where not.
+    pub invest_mode: Option<String>,
+    pub invest_max_usd: Option<f64>,
+    /// What all of it would fetch when selling now (with the discount).
+    pub sale_value_usd: f64,
+    /// More than half: the player may steer and integrate.
+    pub majority: bool,
+    /// Key of the pace (`startup.lenkung.<key>`).
+    pub pace: String,
+    /// What buying out the others costs; none without the majority, when blocked or
+    /// already a subsidiary.
+    pub integration_usd: Option<f64>,
+    /// Another company holds a blocking minority.
+    pub blocked: bool,
+    /// A subsidiary of the player.
+    pub subsidiary: bool,
+    /// The company it belongs to, if another one's.
+    pub parent: Option<String>,
+    /// What a dollar pledged brings on average as the strategy department sees it; none
+    /// without a working department or open round.
+    pub expected_return: Option<f64>,
+    /// After a success: `tochter` (went to its parent) or `boerse` (stock market), and the
+    /// company it went to or became.
+    pub exit: Option<String>,
+    pub exit_company: Option<String>,
 }
 
-/// The start-ups of the world (SU1).
+/// The start-ups of the world (SU1, SU2).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct VenturesView {
     /// What the game calls them in this year (`startup.bezeichnung.<key>`); none without
@@ -81,6 +119,22 @@ pub struct VenturesView {
     pub failed: u32,
     /// Years closed ones stay in the list (historical inventors always).
     pub keep_years: u32,
+    /// The player's stakes (SU2): their book value in the balance sheet, their value now,
+    /// how many start-ups, and the cash.
+    pub portfolio_book_usd: f64,
+    pub portfolio_value_usd: f64,
+    pub holdings: u32,
+    pub cash_usd: f64,
+    /// Shares of the rights: blocking minority and majority.
+    pub blocking: f64,
+    pub majority: f64,
+    /// Premium when buying between rounds or out, discount when selling, effect of a grant
+    /// of the phase's capital on the gap to a sure phase.
+    pub buy_premium: f64,
+    pub sale_discount: f64,
+    pub grant_effect: f64,
+    /// The paces a majority can choose (`startup.lenkung.<key>`).
+    pub paces: Vec<String>,
 }
 
 pub fn ventures(game: &Game) -> VenturesView {
@@ -96,6 +150,23 @@ pub fn ventures(game: &Game) -> VenturesView {
             }
         };
         let active = v.status == VentureStatus::Active;
+        let majority =
+            v.parent == Some(player) || ventures::share_of(v, player) > m.stakes.majority;
+        let blocked = ventures::blocked(m, v, player);
+        let invest = if !active || v.parent.is_some_and(|p| p != player) {
+            None
+        } else if v.round_until.is_some() {
+            Some(("runde", v.capital - v.raised))
+        } else {
+            let outside: f64 = v
+                .owners
+                .iter()
+                .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+                .map(|s| s.share)
+                .sum();
+            let price = ventures::value(m, v).scale((1.0 + m.stakes.buy_premium) * outside);
+            (price > crate::money::Money::ZERO).then_some(("anteile", price))
+        };
         let (chance, chance_level) = if active {
             let (shown, works) = ventures::shown_chance(c, state, player, v);
             let (medium, high) = m.chance_levels;
@@ -162,6 +233,45 @@ pub fn ventures(game: &Game) -> VenturesView {
                 .collect(),
             status: status.to_owned(),
             ended,
+            value_usd: usd(ventures::value(m, v)),
+            success_value_usd: usd(if active {
+                ventures::expected_success_value(state, m, v)
+            } else {
+                ventures::success_value(m, v)
+            }),
+            own_share: ventures::share_of(v, player),
+            own_book_usd: usd(ventures::amount_of(&v.book, player)),
+            own_pledge_usd: usd(ventures::amount_of(&v.pledges, player)),
+            own_grants_usd: usd(ventures::amount_of(&v.grants, player)),
+            invest_mode: invest.map(|(mode, _)| mode.to_owned()),
+            invest_max_usd: invest.map(|(_, max)| usd(max)),
+            sale_value_usd: usd(ventures::value(m, v).scale(1.0 - m.stakes.sale_discount)),
+            majority,
+            pace: v.pace.key().to_owned(),
+            integration_usd: (active && majority && !blocked && v.parent != Some(player))
+                .then(|| usd(ventures::integration_price(m, v, player))),
+            blocked,
+            subsidiary: v.parent == Some(player),
+            parent: v
+                .parent
+                .filter(|&p| p != player)
+                .and_then(|p| state.company(p))
+                .map(|x| x.name.clone()),
+            expected_return: (active && v.round_until.is_some() && chance.is_some())
+                .then(|| ventures::expected_return(c, state, player, v)),
+            exit: v.exit.map(|e| {
+                match e {
+                    VentureExit::Parent(_) => "tochter",
+                    VentureExit::Listed(_) => "boerse",
+                }
+                .to_owned()
+            }),
+            exit_company: match v.exit {
+                Some(VentureExit::Parent(p) | VentureExit::Listed(Some(p))) => {
+                    state.company(p).map(|x| x.name.clone())
+                }
+                _ => None,
+            },
         }
     };
     let mut active: Vec<VentureView> = state
@@ -183,7 +293,36 @@ pub fn ventures(game: &Game) -> VenturesView {
         // Few start-ups; the cast is exact.
         state.ventures.iter().filter(|v| f(&v.status)).count() as u32
     };
+    let company = &state.companies[player.index()];
+    let holdings = state
+        .ventures
+        .iter()
+        .filter(|v| v.status == VentureStatus::Active)
+        .filter(|v| {
+            ventures::share_of(v, player) > 0.0
+                || ventures::amount_of(&v.pledges, player) > crate::money::Money::ZERO
+        });
+    let (held, worth) = holdings.fold((0u32, 0.0), |(n, sum), v| {
+        (
+            n + 1,
+            sum + ventures::value(m, v).to_usd() * ventures::share_of(v, player)
+                + ventures::amount_of(&v.pledges, player).to_usd(),
+        )
+    });
     VenturesView {
+        portfolio_book_usd: usd(company.ledger.balance(Account::Participations)),
+        portfolio_value_usd: worth,
+        holdings: held,
+        cash_usd: usd(company.ledger.cash()),
+        blocking: m.stakes.blocking,
+        majority: m.stakes.majority,
+        buy_premium: m.stakes.buy_premium,
+        sale_discount: m.stakes.sale_discount,
+        grant_effect: m.stakes.grant_effect,
+        paces: VenturePace::ALL
+            .iter()
+            .map(|p| p.key().to_owned())
+            .collect(),
         label: m.label(state.date.year()).map(str::to_owned),
         per_year: m.per_year * state.settings.ventures,
         estimated: ventures::insight(c, state, player).is_some(),

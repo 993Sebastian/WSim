@@ -189,12 +189,27 @@ pub mod keys {
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
     pub const COMMAND_NO_ADVANTAGE: &str = "fehler.befehl.kein_vorteil";
+    pub const COMMAND_UNKNOWN_VENTURE: &str = "fehler.befehl.startup_unbekannt";
+    pub const COMMAND_VENTURE_CLOSED: &str = "fehler.befehl.startup_beendet";
+    pub const COMMAND_VENTURE_OF_OTHER: &str = "fehler.befehl.startup_tochter";
+    pub const COMMAND_AMOUNT_TOO_HIGH: &str = "fehler.befehl.betrag_zu_hoch";
+    pub const COMMAND_NOT_ENOUGH_SHARES: &str = "fehler.befehl.anteil_zu_klein";
+    pub const COMMAND_NO_MAJORITY: &str = "fehler.befehl.keine_mehrheit";
+    pub const COMMAND_VENTURE_BLOCKED: &str = "fehler.befehl.sperrminoritaet";
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
     pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
     // Start-ups (SU1).
     pub const VENTURE_INVENTION: &str = "meldung.startup.erfindung";
     pub const VENTURE_DEVELOPMENT: &str = "meldung.startup.weiterentwicklung";
+    pub const VENTURE_REFUND: &str = "meldung.startup.rueckzahlung";
+    pub const VENTURE_LOST: &str = "meldung.startup.verloren";
+    pub const VENTURE_BONUS: &str = "meldung.startup.forschungsbonus";
+    pub const VENTURE_PARENT: &str = "meldung.startup.tochter";
+    pub const VENTURE_PAID_OUT: &str = "meldung.startup.ausgezahlt";
+    pub const VENTURE_BOUGHT_OUT: &str = "meldung.startup.uebernommen";
+    pub const VENTURE_LISTED: &str = "meldung.startup.boersengang";
+    pub const VENTURE_NEW_COMPANY: &str = "meldung.startup.neue_firma";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -205,8 +220,10 @@ pub mod keys {
     pub const STEP_MATCH: &str = "schritt.gegenangebot.manager";
     pub const STEP_LET_GO: &str = "schritt.gehen_lassen";
     pub const STEP_REFINANCE: &str = "schritt.umschulden";
+    pub const STEP_INVEST: &str = "schritt.beteiligen";
     pub const STEP_RAISE: &str = "schritt.gehalt_erhoehen";
     pub const BECAUSE_REFINANCE: &str = "anliegen.begruendung.umschuldung";
+    pub const BECAUSE_VENTURE: &str = "anliegen.begruendung.startup";
     pub const BECAUSE_SALARY_ROUND: &str = "anliegen.begruendung.gehaltsrunde";
     pub const BECAUSE_FIT: &str = "anliegen.begruendung.passung";
     pub const BECAUSE_SPREAD: &str = "anliegen.begruendung.streuung";
@@ -445,10 +462,25 @@ pub mod keys {
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,
         COMMAND_NO_ADVANTAGE,
+        COMMAND_UNKNOWN_VENTURE,
+        COMMAND_VENTURE_CLOSED,
+        COMMAND_VENTURE_OF_OTHER,
+        COMMAND_AMOUNT_TOO_HIGH,
+        COMMAND_NOT_ENOUGH_SHARES,
+        COMMAND_NO_MAJORITY,
+        COMMAND_VENTURE_BLOCKED,
         HEADQUARTERS_MOVED,
         HEADQUARTERS_STAFF_LEFT,
         VENTURE_INVENTION,
         VENTURE_DEVELOPMENT,
+        VENTURE_REFUND,
+        VENTURE_LOST,
+        VENTURE_BONUS,
+        VENTURE_PARENT,
+        VENTURE_PAID_OUT,
+        VENTURE_BOUGHT_OUT,
+        VENTURE_LISTED,
+        VENTURE_NEW_COMPANY,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,
@@ -458,8 +490,10 @@ pub mod keys {
         STEP_MATCH,
         STEP_LET_GO,
         STEP_REFINANCE,
+        STEP_INVEST,
         STEP_RAISE,
         BECAUSE_REFINANCE,
+        BECAUSE_VENTURE,
         BECAUSE_SALARY_ROUND,
         BECAUSE_FIT,
         BECAUSE_SPREAD,

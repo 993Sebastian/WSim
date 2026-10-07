@@ -227,6 +227,20 @@ pub enum Command {
     /// Replaces a loan by a new one at today's rate for its balance and the months left
     /// (ZA3).
     RefinanceLoan { loan: usize },
+    /// Pledges to the open round of a start-up, or buys shares of its founders and
+    /// investors between rounds (SU2).
+    InvestInVenture { venture: u32, amount: Money },
+    /// Money for a start-up without shares: a higher chance for its phase (SU2).
+    GrantVenture { venture: u32, amount: Money },
+    /// Sells a share of a start-up to investors (SU2).
+    SellVentureStake { venture: u32, share: f64 },
+    /// The pace of a start-up the company holds the majority of (SU2).
+    SteerVenture {
+        venture: u32,
+        pace: crate::state::VenturePace,
+    },
+    /// Buys out the other owners of a start-up: it becomes a subsidiary (SU2).
+    IntegrateVenture { venture: u32 },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -422,6 +436,22 @@ pub enum CommandError {
     InvalidParticipations,
     /// A new loan would not be cheaper (ZA3).
     NoAdvantage,
+    /// No such start-up (SU2).
+    UnknownVenture,
+    /// The start-up has ended.
+    VentureClosed,
+    /// The start-up is another company's subsidiary.
+    VentureOfOther,
+    /// More than the round or the founders and investors offer.
+    AmountTooHigh {
+        max: Money,
+    },
+    /// The company holds less than it wants to sell.
+    NotEnoughShares,
+    /// Only for the majority owner.
+    NoMajority,
+    /// Another company holds a blocking minority.
+    VentureBlocked,
 }
 
 impl CommandError {
@@ -543,6 +573,15 @@ impl CommandError {
             CommandError::UnknownDepartment => e(keys::COMMAND_UNKNOWN_DEPARTMENT),
             CommandError::InvalidParticipations => e(keys::COMMAND_INVALID_PARTICIPATIONS),
             CommandError::NoAdvantage => e(keys::COMMAND_NO_ADVANTAGE),
+            CommandError::UnknownVenture => e(keys::COMMAND_UNKNOWN_VENTURE),
+            CommandError::VentureClosed => e(keys::COMMAND_VENTURE_CLOSED),
+            CommandError::VentureOfOther => e(keys::COMMAND_VENTURE_OF_OTHER),
+            CommandError::AmountTooHigh { max } => {
+                e(keys::COMMAND_AMOUNT_TOO_HIGH).with("max", Param::Money(*max))
+            }
+            CommandError::NotEnoughShares => e(keys::COMMAND_NOT_ENOUGH_SHARES),
+            CommandError::NoMajority => e(keys::COMMAND_NO_MAJORITY),
+            CommandError::VentureBlocked => e(keys::COMMAND_VENTURE_BLOCKED),
         }
     }
 }
@@ -829,6 +868,21 @@ fn run(
         }
         Command::RefinanceLoan { loan } => {
             crate::central::refinance(state, catalog, actor, *loan)?;
+        }
+        Command::InvestInVenture { venture, amount } => {
+            crate::ventures::invest(state, catalog, actor, *venture, *amount)?;
+        }
+        Command::GrantVenture { venture, amount } => {
+            crate::ventures::grant(state, catalog, actor, *venture, *amount)?;
+        }
+        Command::SellVentureStake { venture, share } => {
+            crate::ventures::sell(state, catalog, actor, *venture, *share)?;
+        }
+        Command::SteerVenture { venture, pace } => {
+            crate::ventures::steer(state, catalog, actor, *venture, *pace)?;
+        }
+        Command::IntegrateVenture { venture } => {
+            crate::ventures::integrate(state, catalog, actor, *venture)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

@@ -578,7 +578,7 @@ export function Spiel({
           <OrganisationAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "beteiligungen" && (
-          <BeteiligungenAnsicht kern={kern} uebersicht={uebersicht} />
+          <BeteiligungenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={setUebersicht} />
         )}
         {ansicht === "weltkarte" && (
           <WeltkarteAnsicht

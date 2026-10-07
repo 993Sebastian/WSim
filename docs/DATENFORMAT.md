@@ -457,7 +457,7 @@ Oberfläche, die der Abteilungen unter `abteilung.<id>`.
 
 ## startups
 
-`data/parameter/startups.yaml` (SU1; Regeln: `docs/FORMELN.md`, Vorgabe:
+`data/parameter/startups.yaml` (SU1, SU2; Regeln: `docs/FORMELN.md`, Vorgabe:
 `docs/BETEILIGUNGEN.md` §5). Optional: ohne den Abschnitt gibt es keine Start-ups. Eine
 einmalige Zuordnung:
 
@@ -479,7 +479,23 @@ einmalige Zuordnung:
 | **unschaerfe** | 0–1: Unschärfe der gezeigten Chance ohne Strategieabteilung |
 | **stufe_mittel_ab**, **stufe_hoch_ab** | 0–1, mittel ≤ hoch: ab diesen gezeigten Chancen heißt die Stufe „mittel“ und „hoch“ |
 | **aufbewahren_jahre** | 0–100: so lange bleiben beendete Start-ups in der Liste |
+| **beteiligung** | Zuordnung (SU2, Pflicht im Abschnitt), Felder siehe unten |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
+
+Felder von `beteiligung` (Beteiligungen der Firmen, SU2):
+
+| Feld | Bedeutung |
+|---|---|
+| **erfolg_faktor** | 0–100: Wert bei Erfolg als Vielfaches der Bewertung nach der letzten Runde |
+| **kauf_aufschlag** | 0–10: Aufschlag auf den Wert beim Kauf zwischen den Runden und beim Eingliedern |
+| **verkauf_abschlag** | 0–1: Abschlag auf den Wert beim Verkauf an Investoren |
+| **foerderung_wirkung** | 0–1: Fördergeld in Höhe des Phasenkapitals schließt diesen Teil der Lücke der Chance zu 1 |
+| **sperrminoritaet**, **mehrheit** | 0–1, Sperrminorität ≤ Mehrheit: ab der Sperrminorität kann keine andere Firma eingliedern; über der Mehrheit lenken, eingliedern, bei Erfolg Mutter werden |
+| **forschungsbonus** | 0–1: Anteil des Forschungsaufwands, den die Mehrheit beim Scheitern gutgeschrieben bekommt |
+| **chance_max** | 0–1: höchste Chance einer Phase nach Lenkung und Fördergeld |
+| **lenkung** | Zuordnung `zuegig` und `gruendlich`, je `{monate, chance}` (0,1–10): Faktoren auf Dauer und Chance der Phasen; Texte `startup.lenkung.<normal\|zuegig\|gruendlich>` |
+| **rendite_mindest** | 0–100: Mindestertrag je Dollar über 1, den die Strategieabteilung bei Risikobereitschaft 0 verlangt |
+| **einsatz_kasse** | 0–1: höchster Einsatz einer Empfehlung als Anteil der Kasse |
 
 ## erfinder
 

@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { Kern, StartUp, StartUps } from "../kern";
+import type { Befehl, Kern, StartUp, StartUps } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { BeteiligungenAnsicht } from "./Beteiligungen";
 
@@ -29,6 +29,24 @@ const LAUFEND: StartUp = {
   ],
   status: "aktiv",
   ended: null,
+  value_usd: 240_000,
+  success_value_usd: 21_000_000,
+  own_share: 0,
+  own_book_usd: 0,
+  own_pledge_usd: 0,
+  own_grants_usd: 0,
+  invest_mode: "anteile",
+  invest_max_usd: 288_000,
+  sale_value_usd: 192_000,
+  majority: false,
+  pace: "normal",
+  integration_usd: null,
+  blocked: false,
+  subsidiary: false,
+  parent: null,
+  expected_return: null,
+  exit: null,
+  exit_company: null,
 };
 
 const BEENDET: StartUp = {
@@ -58,10 +76,20 @@ function daten(geschaetzt: boolean): StartUps {
     succeeded: 0,
     failed: 1,
     keep_years: 10,
+    portfolio_book_usd: 0,
+    portfolio_value_usd: 0,
+    holdings: 0,
+    cash_usd: 1_000_000,
+    blocking: 0.25,
+    majority: 0.5,
+    buy_premium: 0.2,
+    sale_discount: 0.2,
+    grant_effect: 0.3,
+    paces: ["normal", "zuegig", "gruendlich"],
   };
 }
 
-async function zeige(geschaetzt: boolean) {
+async function zeige(geschaetzt: boolean, aendern: (d: StartUps) => void = () => {}) {
   const vorschau = vorschauKern(0);
   const uebersicht = await vorschau.neuesSpiel({
     seed: 1,
@@ -74,9 +102,30 @@ async function zeige(geschaetzt: boolean) {
     difficulty: "mittel",
     research_factor: 1,
   });
-  const kern: Kern = { ...vorschau, startups: async () => daten(geschaetzt) };
-  render(<BeteiligungenAnsicht kern={kern} uebersicht={uebersicht} />);
-  return screen.findByRole("heading", { name: "Erfinder und Gründungen" });
+  const gesendet: Befehl[] = [];
+  const kern: Kern = {
+    ...vorschau,
+    startups: async () => {
+      const d = daten(geschaetzt);
+      aendern(d);
+      return d;
+    },
+    befehl: async (b) => {
+      gesendet.push(b);
+      return uebersicht;
+    },
+  };
+  render(<BeteiligungenAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={() => {}} />);
+  await screen.findByRole("heading", { name: "Erfinder und Gründungen" });
+  return gesendet;
+}
+
+/** Opens the detail of the first running start-up. */
+function oeffne(): HTMLElement {
+  fireEvent.click(
+    screen.getByRole("button", { name: "Ada Muster: beteiligen, fördern, verkaufen" }),
+  );
+  return screen.getByRole("region", { name: "Ada Muster" });
 }
 
 describe("Beteiligungen", () => {
@@ -96,7 +145,9 @@ describe("Beteiligungen", () => {
     expect(zeile.textContent).toContain("finanziert, Entscheidung am 01.02.1916");
     // Without a strategy department only the level.
     expect(within(zeile).getByText("mittel")).toBeTruthy();
-    expect(zeile.textContent).toContain("Gründer 50 %, Investoren 50 %");
+    // The table shows the player's part, the detail all owners.
+    expect(zeile.textContent).toContain("–Handeln");
+    expect(oeffne().textContent).toContain("Gründer 50 %, Investoren 50 %");
   });
 
   it("zeigt mit Strategieabteilung die geschätzte Chance", async () => {
@@ -114,5 +165,115 @@ describe("Beteiligungen", () => {
     expect(zeile.textContent).toContain("Nägel: Stufe 2");
     expect(within(zeile).getByText("Überholt")).toBeTruthy();
     expect(zeile.textContent).toContain("01.06.1914");
+  });
+
+  it("zeigt den Ausgang eines erfolgreichen Start-ups", async () => {
+    await zeige(false, (d) => {
+      d.closed = [{ ...BEENDET, status: "erfolg", exit: "boerse", exit_company: "Beispiel Werke" }];
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Beendet" }));
+    const zeile = within(screen.getByRole("table", { name: "Beendet" })).getAllByRole("row")[1]!;
+    expect(zeile.textContent).toContain("Erfolg");
+    expect(zeile.textContent).toContain("– Börsengang, daraus wurde Beispiel Werke");
+  });
+
+  it("kauft zwischen den Runden Anteile und gibt Fördergeld", async () => {
+    const gesendet = await zeige(true);
+    expect(screen.getByText(/Du hältst noch keine Beteiligungen/)).toBeTruthy();
+    const detail = oeffne();
+    expect(detail.textContent).toContain("Ada Muster – Kompressionskühlschrank");
+    expect(detail.textContent).toContain("Ab 25 % kann kein anderer");
+    // Neither stake nor majority: no sale, no steering, no integration.
+    expect(within(detail).queryByRole("form", { name: "Anteile verkaufen" })).toBeNull();
+    expect(within(detail).queryByRole("group", { name: "Lenken" })).toBeNull();
+    expect(within(detail).queryByRole("group", { name: "Eingliedern" })).toBeNull();
+
+    const kauf = within(detail).getByRole("form", { name: "Anteile kaufen" });
+    expect(kauf.textContent).toContain("mit 20 % Aufschlag");
+    fireEvent.change(within(kauf).getByLabelText(/Betrag/), { target: { value: "100000" } });
+    fireEvent.click(within(kauf).getByRole("button", { name: "Anteile kaufen" }));
+    expect(await within(kauf).findByRole("status")).toBeTruthy();
+    expect(within(kauf).getByRole("status").textContent).toMatch(
+      /Du beteiligst dich mit .* an Ada Muster\./,
+    );
+
+    const foerdern = within(detail).getByRole("form", { name: "Fördergeld geben" });
+    fireEvent.change(within(foerdern).getByLabelText(/Betrag/), { target: { value: "5000" } });
+    fireEvent.click(within(foerdern).getByRole("button", { name: "Fördern" }));
+    await within(foerdern).findByRole("status");
+    expect(gesendet).toEqual([
+      { InvestInVenture: { venture: 3, amount: 100_000 * 10_000 } },
+      { GrantVenture: { venture: 3, amount: 5_000 * 10_000 } },
+    ]);
+  });
+
+  it("sagt in einer offenen Runde höchstens den offenen Rest zu", async () => {
+    await zeige(true, (d) => {
+      d.active = [
+        {
+          ...LAUFEND,
+          raised_usd: 40_000,
+          round_until: "1915-03-01",
+          phase_until: null,
+          invest_mode: "runde",
+          invest_max_usd: 80_000,
+          expected_return: 2.4,
+        },
+      ];
+    });
+    const detail = oeffne();
+    expect(detail.textContent).toContain("im Mittel das 2,4-Fache des Einsatzes");
+    const zusage = within(detail).getByRole("form", { name: "In der Runde zusagen" });
+    expect(zusage.textContent).toContain("Höchstens");
+    expect(within(zusage).getByRole("button", { name: "Zusagen" })).toBeTruthy();
+  });
+
+  it("verkauft, lenkt und gliedert als Mehrheitseigner ein", async () => {
+    const gesendet = await zeige(true, (d) => {
+      d.active = [
+        {
+          ...LAUFEND,
+          owners: [
+            { holder: "firma", company: "Test AG", share: 0.6 },
+            { holder: "gruender", company: null, share: 0.4 },
+          ],
+          own_share: 0.6,
+          own_book_usd: 100_000,
+          majority: true,
+          integration_usd: 115_200,
+        },
+      ];
+      d.holdings = 1;
+      d.portfolio_book_usd = 100_000;
+      d.portfolio_value_usd = 144_000;
+    });
+    expect(screen.getByText(/Deine Beteiligungen \(1\): Buchwert/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Deine/ }));
+    expect(within(screen.getByRole("table", { name: "Laufend" })).getByText("60 %")).toBeTruthy();
+    const detail = oeffne();
+    expect(detail.textContent).toContain("Test AG 60 %, Gründer 40 %");
+
+    const verkauf = within(detail).getByRole("form", { name: "Anteile verkaufen" });
+    fireEvent.change(within(verkauf).getByLabelText(/Teil deines Anteils/), {
+      target: { value: "50" },
+    });
+    fireEvent.click(within(verkauf).getByRole("button", { name: "Verkaufen" }));
+    await within(verkauf).findByRole("status");
+
+    const lenken = within(detail).getByRole("group", { name: "Lenken" });
+    fireEvent.change(within(lenken).getByLabelText("Tempo"), { target: { value: "zuegig" } });
+    expect(await within(lenken).findByText("Tempo „Zügig“ gilt ab sofort.")).toBeTruthy();
+
+    const eingliedern = within(detail).getByRole("group", { name: "Eingliedern" });
+    fireEvent.click(within(eingliedern).getByRole("button", { name: /eingliedern/ }));
+    expect(
+      await within(eingliedern).findByText("Ada Muster ist jetzt deine Tochterfirma."),
+    ).toBeTruthy();
+
+    expect(gesendet).toEqual([
+      { SellVentureStake: { venture: 3, share: 0.3 } },
+      { SteerVenture: { venture: 3, pace: "Fast" } },
+      { IntegrateVenture: { venture: 3 } },
+    ]);
   });
 });

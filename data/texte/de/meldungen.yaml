@@ -119,6 +119,7 @@ konto.gewinnruecklagen: Gewinnrücklagen
 konto.jahresergebnis: Jahresergebnis
 konto.firmenwert: Firmenwert
 konto.grundstuecke: Grundstücke
+konto.finanzanlagen: Finanzanlagen
 kostenart.umsatz: Umsatzerlöse
 kostenart.bestandsveraenderung: Bestandsveränderung
 kostenart.material: Materialaufwand
@@ -135,6 +136,7 @@ kostenart.instandhaltung: Instandhaltung
 kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.pacht: Pacht und Förderabgaben
 kostenart.lizenzen: Lizenzen
+kostenart.beteiligungen: Beteiligungen
 kostenart.sonstiges: Sonstiges
 fehler.befehl.lohnaufschlag_ungueltig: Der Lohnaufschlag muss zwischen 0 und {max} % liegen.
 fehler.befehl.kein_angebot: Dieser Standort bietet {produkt} nicht zum Verkauf an.
@@ -193,10 +195,25 @@ fehler.befehl.umzug_laeuft: "Der Hauptsitz zieht gerade um – fertig zum Monats
 fehler.befehl.abteilung_unbekannt: Diese Zentralabteilung gibt es in den Spieldaten nicht.
 fehler.befehl.beteiligungen_ungueltig: "Budget und Freigabegrenzen dürfen nicht negativ sein, die Risikobereitschaft liegt zwischen 0 und 100 %."
 fehler.befehl.kein_vorteil: Ein neuer Kredit wäre nicht günstiger – die Umschuldung lohnt sich nicht.
+fehler.befehl.startup_unbekannt: Dieses Start-up gibt es nicht (mehr).
+fehler.befehl.startup_beendet: Dieses Start-up ist beendet.
+fehler.befehl.startup_tochter: Dieses Start-up ist die Tochterfirma einer anderen Firma.
+fehler.befehl.betrag_zu_hoch: "Das ist mehr, als zu haben ist: höchstens {max}."
+fehler.befehl.anteil_zu_klein: So viele Anteile hält deine Firma nicht.
+fehler.befehl.keine_mehrheit: Das darf nur, wer mehr als die Hälfte hält.
+fehler.befehl.sperrminoritaet: Eine andere Firma hält eine Sperrminorität (ein Viertel oder mehr).
 meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
 meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."
 meldung.startup.weiterentwicklung: "{name} ({land}) hat {produkt} auf Stufe {stufe} weiterentwickelt. Nach {jahre} Jahren kennt jeder Hersteller die Stufe."
+meldung.startup.rueckzahlung: "Die Runde von {name} kam nicht zustande: Deine Zusage über {betrag} fließt zurück."
+meldung.startup.verloren: "{name} ist gescheitert: Deine Beteiligung über {betrag} ist verloren."
+meldung.startup.forschungsbonus: "Aus der Arbeit von {name} bleibt dir ein Teil der Forschung für {ziel} – das Nachforschen geht schneller."
+meldung.startup.tochter: "Deine Tochterfirma {name} hat es geschafft: {ziel} nutzt du ab sofort selbst."
+meldung.startup.ausgezahlt: "Du übernimmst {name} ganz und zahlst den übrigen Eignern {betrag}."
+meldung.startup.uebernommen: "{firma} übernimmt {name} ganz: Du erhältst {betrag} für deinen Anteil."
+meldung.startup.boersengang: "{name} geht an die Börse: Du erhältst {betrag} für deinen Anteil."
+meldung.startup.neue_firma: "Aus {name} ({land}) wird die Firma {firma} – mit {ziel} als Vorsprung."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."
@@ -232,6 +249,7 @@ schritt.lohn: "Lohnaufschlag {aufschlag} %"
 schritt.gegenangebot.manager: "Gehalt von {name} auf {angebot} im Jahr anheben (bisher {gehalt}); {name} bleibt zufrieden."
 schritt.gehen_lassen: "{name} wechselt zu {firma}; die Stelle wird frei, ohne Abfindung."
 schritt.umschulden: "Kredit über {betrag} umschulden: {neu} % statt {alt} % Zins, gleiche Restlaufzeit."
+schritt.beteiligen: "{betrag} an {name} zusagen ({ziel}, Runde der Phase {phase})."
 schritt.gehalt_erhoehen: "Gehalt von {name} auf {gehalt} im Jahr erhöhen (bisher {bisher})."
 schritt.forschung: "Forschung an {technologie}"
 schritt.forschung_ende: Labor ohne Ziel lassen
@@ -255,6 +273,7 @@ anliegen.begruendung.abwarten: Abwarten – die anderen Wege kosten nach meiner 
 anliegen.begruendung.regel: So handhaben wir es üblicherweise.
 anliegen.begruendung.halten: "Das Angebot liegt {anteil} % über dem Gehalt – das ist es wert, um nicht neu suchen zu müssen."
 anliegen.begruendung.umschuldung: "Spart rund {betrag} Zinsen im Jahr; die Gebühr kostet einmal {gebuehr}."
+anliegen.begruendung.startup: "Erfolgschance etwa {chance} %, Wert bei Erfolg rund {wert}; für jeden Dollar im Mittel das {faktor}-Fache zurück – oder alles verloren."
 anliegen.begruendung.gehaltsrunde: "{name} ist unzufrieden und verdient {anteil} % unter dem Marktwert – ohne Erhöhung droht die Kündigung."
 anliegen.begruendung.passung: "Passt zum eigenen Geschäft ({gruppe}) – mehr Absatz, Anlagen und Leute, ohne neu zu bauen."
 anliegen.begruendung.streuung: "Streut das Risiko: eine Warengruppe, in der die Firma noch nicht tätig ist."

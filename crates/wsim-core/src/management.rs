@@ -1228,10 +1228,12 @@ fn lends(catalog: &Catalog, position: &Position) -> bool {
 
 /// Whether an option bids for a takeover or a licence (ZA2).
 fn bids(choice: &decision::Choice) -> bool {
-    choice
-        .steps
-        .iter()
-        .any(|s| matches!(s.command, Command::MakeOffer { .. }))
+    choice.steps.iter().any(|s| {
+        matches!(
+            s.command,
+            Command::MakeOffer { .. } | Command::InvestInVenture { .. }
+        )
+    })
 }
 
 /// Loans are for the finance department and the CEO (MA5).
@@ -1315,7 +1317,8 @@ pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
         Command::MakeOffer { .. }
         | Command::AnswerOffer { .. }
         | Command::RefinanceLoan { .. }
-        | Command::RaiseSalary { .. } => Some(Unit::Board),
+        | Command::RaiseSalary { .. }
+        | Command::InvestInVenture { .. } => Some(Unit::Board),
         Command::FoundSite { country, .. } | Command::SetAdvertising { country, .. } => {
             Some(Unit::Country(country))
         }
@@ -2251,6 +2254,23 @@ fn board_work(
                 catalog,
                 (company, Topic::SalaryRound),
                 (ChoiceKind::Adjust, command),
+                staff,
+            );
+        }
+    }
+    // The strategy department's start-ups (SU2).
+    if noticed(staff, Topic::Venture) {
+        let cases = crate::central::cases(catalog, state, company, DepartmentKind::Strategy);
+        for (venture, amount) in crate::ventures::recommendations(catalog, state, company)
+            .into_iter()
+            .take(cases)
+        {
+            let command = Command::InvestInVenture { venture, amount };
+            recommend(
+                state,
+                catalog,
+                (company, Topic::Venture),
+                (ChoiceKind::Invest, command),
                 staff,
             );
         }

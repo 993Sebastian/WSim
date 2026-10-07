@@ -48,6 +48,7 @@ export type {
   Preisart,
   Rolle,
   Stellenangabe,
+  Tempo,
 } from "./befehle";
 export { geld } from "./befehle";
 export { KernFehler } from "./fehler";
