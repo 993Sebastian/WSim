@@ -97,6 +97,9 @@ pub fn decide_with(
             manage_cash(state, catalog, id, own, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
+            news.extend(crate::ventures::ai_month(
+                state, catalog, id, own, date, decider,
+            ));
         }
         if end_of_quarter {
             retire(state, catalog, id, (own, own), date, (&mut news, decider));

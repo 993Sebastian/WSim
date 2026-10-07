@@ -63,6 +63,7 @@ export type Befehl =
   | { SellVentureStake: { venture: number; share: number } }
   | { SteerVenture: { venture: number; pace: Tempo } }
   | { IntegrateVenture: { venture: number } }
+  | { SpinOff: { site: number; sell: number } }
   | { SetBudget: { position: Stellenangabe; shares: [number, number] | null } }
   | { AskAgain: { position: Stellenangabe; topic: string } }
   | { SetStrategy: { scope: Geltung; field: Vorgabefeld; value: Vorgabe | null } }

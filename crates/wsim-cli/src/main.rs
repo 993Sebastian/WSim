@@ -992,6 +992,42 @@ fn print_ventures(texts: &wsim_data::Texts, game: &Game) {
         "Start-ups (SU1): {} gegründet; in der Liste {} aktiv, {} erfolgreich, {} gescheitert ({} der beendeten)",
         state.next_venture, active, won, lost, share
     );
+    let failed = |why: wsim_core::state::VentureFailure| {
+        state
+            .ventures
+            .iter()
+            .filter(|v| matches!(v.status, VentureStatus::Failed(_, w) if w == why))
+            .count()
+    };
+    println!(
+        "  gescheitert: {} an einer Phase, {} ohne Geld, {} überholt",
+        failed(wsim_core::state::VentureFailure::Phase),
+        failed(wsim_core::state::VentureFailure::Funding),
+        failed(wsim_core::state::VentureFailure::Overtaken)
+    );
+    // Stakes of companies (SU2, SU3): start-ups with company owners, subsidiaries,
+    // spin-offs, and how many companies hold stakes.
+    let owned = |v: &wsim_core::state::Venture| {
+        v.owners
+            .iter()
+            .any(|s| matches!(s.holder, wsim_core::state::Holder::Company(_)))
+    };
+    let holders: std::collections::BTreeSet<u32> = state
+        .ventures
+        .iter()
+        .flat_map(|v| v.owners.iter())
+        .filter_map(|s| match s.holder {
+            wsim_core::state::Holder::Company(c) => Some(c.0),
+            _ => None,
+        })
+        .collect();
+    println!(
+        "Beteiligungen (SU2/SU3): {} Start-ups mit Firmen als Eigner, {} Tochterfirmen, {} Ausgründungen; {} Firmen beteiligt",
+        state.ventures.iter().filter(|v| owned(v)).count(),
+        state.ventures.iter().filter(|v| v.parent.is_some()).count(),
+        state.ventures.iter().filter(|v| v.origin.is_some()).count(),
+        holders.len()
+    );
     for v in &state.ventures {
         let VentureStatus::Succeeded(date) = v.status else {
             continue;

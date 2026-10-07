@@ -3170,6 +3170,46 @@ fn startups_werden_geprueft() {
     let d = basis().ersetze(datei, "    einsatz_kasse: 0.1\n", "");
     befund(&d.laden(), "einsatz_kasse");
 
+    // Spin-offs and AI companies (SU3).
+    let ai = basis().laden().data.unwrap().catalog.ventures.stakes.ai;
+    assert!(ai.check_chance > 0.0 && ai.spin_off_sale < 1.0);
+    let d = basis().ersetze(datei, "pruefen_chance: 0.25", "pruefen_chance: 1.5");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "pruefen_chance: 1.5"),
+        "startups.beteiligung.ki.pruefen_chance",
+    );
+    let d = basis().ersetze(datei, "ausgruenden_verkauf: 0.4", "ausgruenden_verkauf: 1");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1 liegt außerhalb des erlaubten Bereichs 0 bis 0.99.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "startups.beteiligung.ki.ausgruenden_verkauf"
+    );
+    let d = basis().ersetze(
+        datei,
+        "ausgruendung_fortschritt_min: 0.1",
+        "ausgruendung_fortschritt_min: -0.1",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert -0.1 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "startups.beteiligung.ausgruendung_fortschritt_min"
+    );
+
     // Every phase, label and choice needs its text.
     let d = basis().ersetze(
         "texte/de/startups.yaml",

@@ -902,7 +902,8 @@ entschieden:
 ✅ **ZA1 umgesetzt** (Hauptsitz verlegen), ✅ **ZA2 umgesetzt** (Zentralabteilungen,
 Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote), ✅ **SU1
 umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
-(Beteiligungen der Firmen). 🟡 Vorläufig entschieden:
+(Beteiligungen der Firmen), ✅ **SU3 umgesetzt** (Ausgründungen, KI-Firmen beteiligen
+sich). 🟡 Vorläufig entschieden:
 
 1. **Land statt Stadt:** Der Hauptsitz ist ein Land. Städte gibt es im Spiel nicht (nur
    Grundstücke mit Lage Stadt, Hafen, Land); Vorschlag: eine Stadt erst, wenn sie etwas
@@ -988,6 +989,33 @@ umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
     Start-up eine neue Firma wird; was KI-Firmen untereinander tun, meldet das Spiel nicht.
 31. **Forschungsbonus** beim Scheitern: 20 % des heutigen Forschungsaufwands für die
     Mehrheit – ein Trost, der das Risiko einer großen Beteiligung etwas senkt.
+32. **KI-Investoren** sind die Investoren außerhalb des Spiels (seit SU1): Sie decken
+    Runden und kaufen verkaufte Anteile. „KI-Firmen bieten mit“ heißt: KI-Firmen sagen in
+    Runden zu, kaufen Anteile und gliedern ein – mit denselben Befehlen und Prüfungen wie der
+    Spieler (SU3).
+33. **Ausgründen** geht nur für Ziele, die ein Start-up haben kann (noch nicht erfundene
+    Technologie, noch von niemandem erreichte Stufe), und erst ab 10 % Fortschritt: Sonst
+    ließe sich mit einem leeren Labor und einem Sofortverkauf Geld drucken. Die Phase folgt
+    dem Fortschritt (ab einem Drittel Prototyp, ab zwei Dritteln Marktreife). KI-Firmen
+    gründen nur aus, was vor der Geschichte fertig werden kann und woran kein anderes
+    Forschungszentrum arbeitet: Ihre Labore forschen höchstens zwei Jahre voraus und
+    entwickeln meist Produkte, an denen auch andere arbeiten – im ersten Weltlauf wurden
+    solche Ausgründungen fast alle überholt. Dem Spieler zeigt die Ansicht Vorlauf,
+    Restdauer und Konkurrenz und warnt, verbietet aber nichts.
+34. **Tochterfirmen zahlen pro rata:** Seit SU3 sagt die Mutter in jeder Runde nur ihren
+    Anteil zu, Investoren den Rest; so bleibt eine Ausgründung mit 60 % eine Tochter mit
+    60 % und das Risiko ist geteilt. Eingegliederte Töchter (100 %) zahlt die Mutter weiter
+    ganz.
+35. **Wegkaufen** prüft eine KI-Firma nur für Start-ups, deren Ziel ihr nützt (Technologie
+    für ihre Branchen, Stufe eines ihrer Produkte), an denen sie schon mindestens 10 % hält,
+    mit Chance ≥ 30 % und für höchstens 20 % ihrer Kasse; eine Sperrminorität anderer (auch
+    des Spielers) verhindert es. Ohne die Bedingung „schon beteiligt“ übernahmen im
+    Weltlauf die KI-Firmen fast jedes nützliche Start-up, bevor es eine Runde weiter war.
+36. **Ausfallquote über dem Richtwert** (🟡 Vorschlag, offen): Im Weltlauf 1900–1915 mit
+    100 KI-Firmen scheitern 77–83 % der beendeten Start-ups (Richtwert 60–70 %). Allein die
+    Chancen der Phasen (0,65 · 0,8 · 0,9) lassen 53 % scheitern; Vorlauf und Überholen durch
+    forschende KI-Firmen kommen dazu. Vorschlag: erst einen langen Weltlauf (bis 1940)
+    abwarten; liegt er weiter über 70 %, die erste Phase auf 0,7 anheben.
 
 ## Reihenfolge der neuen Punkte
 

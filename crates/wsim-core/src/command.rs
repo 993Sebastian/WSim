@@ -241,6 +241,9 @@ pub enum Command {
     },
     /// Buys out the other owners of a start-up: it becomes a subsidiary (SU2).
     IntegrateVenture { venture: u32 },
+    /// Turns the project of a research center into a start-up and sells a share of it
+    /// to investors (SU3).
+    SpinOff { site: SiteId, sell: f64 },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -452,6 +455,13 @@ pub enum CommandError {
     NoMajority,
     /// Another company holds a blocking minority.
     VentureBlocked,
+    /// The research center works on nothing a start-up could aim at (SU3).
+    NoSpinOff,
+    /// The project has not got far enough yet.
+    SpinOffTooEarly {
+        progress: f64,
+        min: f64,
+    },
 }
 
 impl CommandError {
@@ -582,6 +592,10 @@ impl CommandError {
             CommandError::NotEnoughShares => e(keys::COMMAND_NOT_ENOUGH_SHARES),
             CommandError::NoMajority => e(keys::COMMAND_NO_MAJORITY),
             CommandError::VentureBlocked => e(keys::COMMAND_VENTURE_BLOCKED),
+            CommandError::NoSpinOff => e(keys::COMMAND_NO_SPIN_OFF),
+            CommandError::SpinOffTooEarly { progress, min } => e(keys::COMMAND_SPIN_OFF_TOO_EARLY)
+                .with("fortschritt", Param::Number((*progress * 100.0).floor()))
+                .with("mindestens", Param::Number((*min * 100.0).round())),
         }
     }
 }
@@ -883,6 +897,9 @@ fn run(
         }
         Command::IntegrateVenture { venture } => {
             crate::ventures::integrate(state, catalog, actor, *venture)?;
+        }
+        Command::SpinOff { site, sell } => {
+            crate::ventures::spin_off(state, catalog, actor, *site, *sell)?;
         }
         Command::FoundSite { country, kind } => {
             if country.index() >= catalog.countries.len() {

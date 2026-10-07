@@ -1572,3 +1572,21 @@ beteiligungen.eingliedern_hilfe: "Du zahlst die übrigen Eigner aus (zusammen {p
 beteiligungen.eingliedern_knopf: "Für {preis} eingliedern"
 beteiligungen.eingegliedert: "{name} ist jetzt deine Tochterfirma."
 beteiligungen.gesperrt: Eine andere Firma hält eine Sperrminorität – eingliedern kannst du nicht.
+beteiligungen.ausgruenden: Ausgründen
+beteiligungen.ausgruenden_einleitung: "Ein eigenes Forschungsprojekt, das an einer noch nicht erfundenen Technologie oder an einer Stufe arbeitet, die noch keine Firma hat, kannst du als Start-up ausgründen. Es beginnt in der Phase, die zu seinem Fortschritt passt, Investoren zahlen ihren Teil der weiteren Runden, und das Forschungszentrum ist frei für Neues. Behältst du mehr als {mehr}, bleibt es deine Tochterfirma: Du zahlst deinen Anteil jeder Runde, und gelingt sie, gehört dir die Technologie. Möglich ab {min} Fortschritt."
+beteiligungen.keine_projekte: Keines deiner Forschungszentren arbeitet an einem Projekt. Ein Forschungszentrum baust du unter Standorte, das Projekt wählst du in der Forschung.
+beteiligungen.projekt: "Projekt {ziel}"
+beteiligungen.projekt_stand: "Forschungszentrum in {land}, {fortschritt} fertig"
+beteiligungen.start_als: "Beginnt als {phase} mit einem Wert von {wert}; verkauftest du alles, erhieltest du {alles}."
+beteiligungen.dauer: "Die Phasen dauern noch rund {monate} Monate, dazu die Suche nach Geld."
+beteiligungen.dauer_vorlauf: "Die Phasen dauern noch rund {monate} Monate, dazu die Suche nach Geld; erfunden wird die Technologie sonst in {jahre} Jahren."
+beteiligungen.zu_spaet: "Achtung: Die Technologie dürfte erfunden sein, bevor das Start-up fertig ist – dann ist es überholt und geht ein."
+beteiligungen.rivalen: "Achtung: {anzahl} andere Firmen forschen am selben Ziel – wer zuerst fertig ist, überholt das Start-up."
+beteiligungen.verkauf_anteil: An Investoren verkaufen
+beteiligungen.verkauf_ungueltig: Gib einen Anteil von 0 bis unter 100 % an.
+beteiligungen.ausgruenden_knopf: Ausgründen
+beteiligungen.ausgegruendet: "{ziel} ist jetzt ein eigenes Start-up."
+beteiligungen.grund.fortschritt: "Noch zu früh: Ausgründen geht ab {min} Fortschritt."
+beteiligungen.grund.nicht_moeglich: Nicht möglich – die Technologie ist schon erfunden oder die Stufe hat schon eine Firma.
+beteiligungen.herkunft: "Ausgründung von {firma}"
+beteiligungen.ausgruendung_marke: Ausgründung

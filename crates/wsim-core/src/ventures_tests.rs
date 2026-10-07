@@ -6,8 +6,8 @@ use std::sync::Arc;
 use crate::board_tests::member;
 use crate::calendar::{Date, RoundLength};
 use crate::catalog::{
-    Catalog, DepartmentKind, Inventor, Provenance, Technology, VentureModel, VenturePhase,
-    VentureStakeModel, test_support,
+    Catalog, DepartmentKind, Inventor, Provenance, Technology, VentureAiModel, VentureModel,
+    VenturePhase, VentureStakeModel, test_support,
 };
 use crate::command::Command;
 use crate::game::Game;
@@ -59,6 +59,18 @@ fn model() -> VentureModel {
             thorough: (1.5, 1.1),
             min_return: 1.0,
             cash_share: 0.5,
+            spin_off_progress_min: 0.1,
+            ai: VentureAiModel {
+                check_chance: 1.0,
+                cash_min: usd(100_000.0),
+                cash_share: 0.5,
+                min_return: 0.0,
+                takeover_chance_min: 0.3,
+                takeover_share_min: 0.1,
+                takeover_cash: 0.5,
+                spin_off_chance: 1.0,
+                spin_off_sale: 0.4,
+            },
         },
         blur: 0.5,
         chance_levels: (0.2, 0.4),
@@ -843,4 +855,471 @@ fn the_strategy_department_recommends_promising_rounds() {
     // The whole open round: the round closes and the company holds half.
     let v = venture(&game, 0).clone();
     assert!((ventures::share_of(&v, game.player()) - 0.5).abs() < 1e-9);
+}
+
+// --- SU3: spin-offs and AI companies ---
+
+use crate::catalog::{FacilitySize, SiteType};
+use crate::decision::Rules;
+use crate::state::{AiState, CompanyKind, SiteId};
+
+/// A research center of the player working on the turbine (1902) with `progress` of its
+/// effort done.
+fn turbine_lab(game: &mut Game, progress: f64) -> SiteId {
+    let c = game.catalog().clone();
+    let turbine = c.technologies.id("turbine").unwrap();
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::ResearchCenter,
+    })
+    .unwrap();
+    let site = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildFacility {
+        site,
+        facility: c.facilities.id("labor").unwrap(),
+        count: 1,
+        size: FacilitySize::Medium,
+    })
+    .unwrap();
+    game.apply(Command::SetResearch {
+        site,
+        technology: Some(turbine),
+    })
+    .unwrap();
+    let date = game.state().date;
+    let effort = research::effort(&c, game.state(), turbine, date)
+        .unwrap()
+        .points;
+    game.state_mut().companies[0]
+        .research
+        .insert(turbine, effort * progress);
+    site
+}
+
+/// An AI company with `cash` that never hesitates.
+fn ai_rival(game: &mut Game, cash: f64) -> CompanyId {
+    let mut rival = game.state().companies[0].clone();
+    let date = game.state().date;
+    let id = CompanyId(u32::try_from(game.state().companies.len()).unwrap());
+    rival.name = "Rivale AG".into();
+    rival.kind = CompanyKind::Ai;
+    rival.ledger = crate::ledger::Ledger::new(date, usd(cash));
+    rival.research = Default::default();
+    rival.departments = Default::default();
+    rival.ai = Some(AiState {
+        competence: 1.0,
+        aggressiveness: 1.0,
+        real: None,
+        next_operations: date,
+        staff: 0.0,
+    });
+    game.state_mut().companies.push(rival);
+    id
+}
+
+fn ai_month(game: &mut Game, company: CompanyId, own: &[SiteId]) -> Vec<String> {
+    let catalog = game.catalog().clone();
+    let date = game.state().date;
+    ventures::ai_month(game.state_mut(), &catalog, company, own, date, &mut Rules)
+        .into_iter()
+        .map(|m| m.key)
+        .collect()
+}
+
+#[test]
+fn a_spin_off_turns_research_into_a_subsidiary() {
+    let mut game = game_with(catalog_with(model()), 3, 0.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let lab = turbine_lab(&mut game, 0.6);
+    let cash = books(&game).cash();
+    game.apply(Command::SpinOff {
+        site: lab,
+        sell: 0.3,
+    })
+    .unwrap();
+    let v = game.state().ventures.last().unwrap().clone();
+    assert_eq!(v.target, VentureTarget::Technology(turbine));
+    assert_eq!(v.origin, Some(CompanyId(0)));
+    // 60 % of the research: the second of two phases, its round open.
+    assert_eq!(v.phase, 1);
+    assert!(v.round_until.is_some());
+    assert!((ventures::share_of(&v, CompanyId(0)) - 0.7).abs() < 1e-9);
+    assert_eq!(v.parent, Some(CompanyId(0)));
+    // The project left the company and the laboratory.
+    assert!(!game.state().companies[0].research.contains_key(&turbine));
+    assert_eq!(game.state().sites[lab.index()].research, None);
+    // 30 % sold at the value before the round with the discount, all of it a gain.
+    let proceeds = ventures::value(&game.catalog().ventures, &v).scale(0.3 * 0.8);
+    assert!(proceeds > Money::ZERO);
+    assert!((books(&game).cash() - cash - proceeds).abs() <= usd(1.0));
+    assert!((by_type(&game, CostType::Investments) - proceeds).abs() <= usd(1.0));
+    assert_eq!(books(&game).balance(Account::Participations), Money::ZERO);
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn a_spin_off_needs_an_open_target_and_progress() {
+    let mut game = game_with(catalog_with(model()), 3, 0.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let lab = turbine_lab(&mut game, 0.05);
+    assert!(matches!(
+        game.apply(Command::SpinOff {
+            site: lab,
+            sell: 0.0
+        }),
+        Err(CommandError::SpinOffTooEarly { .. })
+    ));
+    let points = game.state().companies[0].research[&turbine] * 4.0;
+    game.state_mut().companies[0]
+        .research
+        .insert(turbine, points);
+    assert_eq!(
+        game.apply(Command::SpinOff {
+            site: lab,
+            sell: 1.0
+        }),
+        Err(CommandError::InvalidShare)
+    );
+    // Not a research center, and an invented technology.
+    let c = game.catalog().clone();
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let works = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    assert_eq!(
+        game.apply(Command::SpinOff {
+            site: works,
+            sell: 0.0
+        }),
+        Err(CommandError::NoSpinOff)
+    );
+    *game.state_mut().inventions.get_mut(turbine) = Some(date(1900, 1, 1));
+    assert_eq!(
+        game.apply(Command::SpinOff {
+            site: lab,
+            sell: 0.0
+        }),
+        Err(CommandError::NoSpinOff)
+    );
+    assert!(game.state().ventures.is_empty());
+}
+
+#[test]
+fn a_subsidiary_pays_its_share_of_each_round() {
+    let mut game = game_with(catalog_with(model()), 3, 0.0);
+    let lab = turbine_lab(&mut game, 0.2);
+    game.apply(Command::SpinOff {
+        site: lab,
+        sell: 0.4,
+    })
+    .unwrap();
+    let v = game.state().ventures.last().unwrap().clone();
+    assert_eq!(v.phase, 0);
+    let cash = books(&game).cash();
+    // At the month start the parent pledges 60 % of the round, investors the rest.
+    until(&mut game, date(1900, 2, 2));
+    let v = venture(&game, v.id).clone();
+    assert!(v.round_until.is_none());
+    assert!((ventures::share_of(&v, CompanyId(0)) - 0.6).abs() < 1e-9);
+    assert_eq!(v.parent, Some(CompanyId(0)));
+    // The laboratory ran meanwhile: its pledge is what went into the financial assets.
+    let pledged = books(&game).balance(Account::Participations);
+    let expected = v.capital.scale(0.6);
+    assert!(
+        (pledged - expected).abs() <= usd(1.0),
+        "{pledged:?} against {expected:?}"
+    );
+    assert!(cash - books(&game).cash() >= pledged);
+    assert!(books(&game).is_balanced());
+}
+
+#[test]
+fn ai_companies_pledge_to_promising_rounds() {
+    let mut game = waiting_round();
+    let rival = ai_rival(&mut game, 1_000_000.0);
+    let open = venture(&game, 0).capital - venture(&game, 0).raised;
+    ai_month(&mut game, rival, &[]);
+    let v = venture(&game, 0).clone();
+    // Its pledge covered the round: the phase began, the rival holds its part.
+    assert!(v.round_until.is_none());
+    assert!(ventures::share_of(&v, rival) > 0.0);
+    let ledger = &game.state().companies[rival.index()].ledger;
+    assert_eq!(ledger.cash(), usd(1_000_000.0) - open);
+    assert_eq!(ledger.balance(Account::Participations), open);
+    assert!(ledger.is_balanced());
+    // Within its share of the cash: a poorer rival pledges nothing.
+    let mut game = waiting_round();
+    let poor = ai_rival(&mut game, 50_000.0);
+    ai_month(&mut game, poor, &[]);
+    assert_eq!(ventures::share_of(venture(&game, 0), poor), 0.0);
+}
+
+/// A works of an AI rival that smelts iron, and a recipe for iron that needs the turbine:
+/// the turbine start-up serves the rival. Investors fund the first round in February.
+fn takeover_game() -> (Game, CompanyId, SiteId) {
+    let mut c = catalog_with(model());
+    let turbine = c.technologies.id("turbine").unwrap();
+    let mut recipe = c
+        .recipes
+        .get(c.recipes.id("eisen_schmelzen").unwrap())
+        .clone();
+    recipe.technology = Some(turbine);
+    c.recipes.insert("eisen_turbine", recipe).unwrap();
+    let mut game = game_with(c, 3, 1.0);
+    let c = game.catalog().clone();
+    // Enough money for a furnace.
+    let start = game.state().date;
+    game.state_mut().companies[0].ledger = crate::ledger::Ledger::new(start, usd(10_000_000.0));
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let works = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildFacility {
+        site: works,
+        facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
+        size: FacilitySize::Medium,
+    })
+    .unwrap();
+    game.apply(Command::SetProduction {
+        site: works,
+        slot: 0,
+        recipe: c.recipes.id("eisen_schmelzen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    until(&mut game, date(1900, 3, 2));
+    let v = venture(&game, 0);
+    assert!(v.round_until.is_none(), "{v:?}");
+    // The rival arrives now, so that it has not acted yet.
+    let rival = ai_rival(&mut game, 2_000_000.0);
+    game.state_mut().sites[works.index()].owner = rival;
+    (game, rival, works)
+}
+
+#[test]
+fn ai_companies_take_over_in_the_course_of_the_game() {
+    let mut c = catalog_with(model());
+    let turbine = c.technologies.id("turbine").unwrap();
+    let mut recipe = c
+        .recipes
+        .get(c.recipes.id("eisen_schmelzen").unwrap())
+        .clone();
+    recipe.technology = Some(turbine);
+    c.recipes.insert("eisen_turbine", recipe).unwrap();
+    let mut game = game_with(c, 3, 1.0);
+    let c = game.catalog().clone();
+    let start = game.state().date;
+    game.state_mut().companies[0].ledger = crate::ledger::Ledger::new(start, usd(10_000_000.0));
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let works = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildFacility {
+        site: works,
+        facility: c.facilities.id("ofen").unwrap(),
+        count: 1,
+        size: FacilitySize::Medium,
+    })
+    .unwrap();
+    game.apply(Command::SetProduction {
+        site: works,
+        slot: 0,
+        recipe: c.recipes.id("eisen_schmelzen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    let rival = ai_rival(&mut game, 2_000_000.0);
+    game.state_mut().sites[works.index()].owner = rival;
+    // The rival's own rules at the month starts: a pledge, then the takeover.
+    until(&mut game, date(1900, 4, 2));
+    let v = venture(&game, 0);
+    assert_eq!(v.parent, Some(rival), "{v:?}");
+    assert!(game.state().companies[rival.index()].ledger.is_balanced());
+}
+
+#[test]
+fn ai_companies_take_over_start_ups_they_can_use() {
+    let (mut game, rival, works) = takeover_game();
+    // The rival holds 15 % from a pledge, the player 10 %: no blocking minority.
+    share_out(&mut game, &[(rival, 0.15), (CompanyId(0), 0.1)]);
+    let cash = books(&game).cash();
+    let worth = ventures::value(&game.catalog().ventures, venture(&game, 0)).scale(1.2);
+    let keys = ai_month(&mut game, rival, &[works]);
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.parent, Some(rival));
+    assert_eq!(v.owners, Stake::sole(Holder::Company(rival)));
+    // The player got its 10 % at the value with the premium.
+    let got = books(&game).cash() - cash;
+    assert!((got - worth.scale(0.1)).abs() <= usd(1.0), "{got:?}");
+    assert!(keys.iter().any(|k| k == keys::VENTURE_BOUGHT_OUT));
+    assert!(books(&game).is_balanced());
+    assert!(game.state().companies[rival.index()].ledger.is_balanced());
+}
+
+#[test]
+fn a_blocking_minority_keeps_the_ai_away() {
+    let (mut game, rival, works) = takeover_game();
+    share_out(&mut game, &[(rival, 0.15), (CompanyId(0), 0.25)]);
+    let keys = ai_month(&mut game, rival, &[works]);
+    let v = venture(&game, 0);
+    assert_eq!(v.parent, None);
+    assert!((ventures::share_of(v, rival) - 0.15).abs() < 1e-9);
+    assert!(keys.is_empty());
+}
+
+#[test]
+fn ai_companies_buy_away_only_what_they_hold_a_share_of() {
+    let (mut game, rival, works) = takeover_game();
+    let keys = ai_month(&mut game, rival, &[works]);
+    let v = venture(&game, 0);
+    assert_eq!(v.parent, None);
+    assert_eq!(ventures::share_of(v, rival), 0.0);
+    assert!(keys.is_empty());
+}
+
+/// Gives companies shares of the turbine start-up; the other owners keep the rest in
+/// proportion.
+fn share_out(game: &mut Game, stakes: &[(CompanyId, f64)]) {
+    let v = game
+        .state_mut()
+        .ventures
+        .iter_mut()
+        .find(|v| v.id == 0)
+        .unwrap();
+    let given: f64 = stakes.iter().map(|s| s.1).sum();
+    for s in &mut v.owners {
+        s.share *= 1.0 - given;
+    }
+    for &(c, share) in stakes {
+        v.owners.push(Stake {
+            holder: Holder::Company(c),
+            share,
+        });
+    }
+}
+
+#[test]
+fn ai_companies_spin_off_research_at_the_start_of_a_year() {
+    let mut game = game_with(catalog_with(model()), 3, 1.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let lab = turbine_lab(&mut game, 0.5);
+    let rival = ai_rival(&mut game, 1_000_000.0);
+    // The laboratory and its research go to the rival.
+    game.state_mut().sites[lab.index()].owner = rival;
+    let points = game.state_mut().companies[0]
+        .research
+        .remove(&turbine)
+        .unwrap();
+    game.state_mut().companies[rival.index()]
+        .research
+        .insert(turbine, points);
+    assert_eq!(game.state().date.ordinal(), 1);
+    let keys = ai_month(&mut game, rival, &[lab]);
+    assert!(keys.iter().any(|k| k == keys::VENTURE_SPIN_OFF), "{keys:?}");
+    let v = game.state().ventures.last().unwrap();
+    assert_eq!(v.origin, Some(rival));
+    assert_eq!(v.parent, Some(rival));
+    assert!((ventures::share_of(v, rival) - 0.6).abs() < 1e-9);
+    assert!(game.state().companies[rival.index()].ledger.is_balanced());
+}
+
+#[test]
+fn the_view_lists_the_projects_to_spin_off() {
+    let mut game = game_with(catalog_with(model()), 3, 0.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let lab = turbine_lab(&mut game, 0.05);
+    let project = |game: &Game| {
+        crate::views::ventures(game)
+            .spin_offs
+            .into_iter()
+            .find(|p| p.site == lab.0)
+    };
+    let p = project(&game).unwrap();
+    assert_eq!(p.kind, "technologie");
+    assert_eq!(p.target, "turbine");
+    assert_eq!(p.reason.as_deref(), Some("fortschritt"));
+    assert!((p.progress - 0.05).abs() < 1e-9);
+    let points = game.state().companies[0].research[&turbine] * 10.0;
+    game.state_mut().companies[0]
+        .research
+        .insert(turbine, points);
+    let p = project(&game).unwrap();
+    assert_eq!(p.reason, None);
+    assert_eq!(p.phase.as_deref(), Some("prototyp"));
+    let (value, sale) = (p.value_usd.unwrap(), p.sale_value_usd.unwrap());
+    assert!(value > 0.0 && (sale - value * 0.8).abs() < 1e-6);
+    // Spun off: the project is gone, the start-up shows where it came from.
+    game.apply(Command::SpinOff {
+        site: lab,
+        sell: 0.0,
+    })
+    .unwrap();
+    assert!(project(&game).is_none());
+    let view = crate::views::ventures(&game);
+    let v = &view.active[0];
+    assert_eq!(v.origin.as_deref(), Some("Labor AG"));
+    assert!(v.subsidiary);
+    assert!((v.value_usd - value).abs() < 1e-6);
+}
+
+#[test]
+fn only_projects_ahead_of_history_are_worth_spinning_off() {
+    let m = model();
+    let c = catalog_with(model());
+    let turbine = c.technologies.id("turbine").unwrap();
+    let country = c.countries.id("AAA").unwrap();
+    let plan = |lead: f64, phase: usize| ventures::SpinOffPlan {
+        target: VentureTarget::Technology(turbine),
+        progress: 0.5,
+        phase,
+        lead,
+        country,
+    };
+    // Phases of two and three months: five from the first, three from the second.
+    assert_eq!(ventures::months_from(&m, 0), 5);
+    assert_eq!(ventures::months_from(&m, 1), 3);
+    assert!(ventures::ahead_of_history(&m, &plan(0.5, 0)));
+    assert!(!ventures::ahead_of_history(&m, &plan(0.25, 0)));
+    assert!(ventures::ahead_of_history(&m, &plan(0.25, 1)));
+}
+
+#[test]
+fn ai_companies_keep_contested_projects_in_house() {
+    let mut game = game_with(catalog_with(model()), 3, 1.0);
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    let lab = turbine_lab(&mut game, 0.5);
+    // The player researches the turbine in a second laboratory.
+    let own_lab = turbine_lab(&mut game, 0.5);
+    let rival = ai_rival(&mut game, 1_000_000.0);
+    game.state_mut().sites[lab.index()].owner = rival;
+    let points = game.state().companies[0].research[&turbine];
+    game.state_mut().companies[rival.index()]
+        .research
+        .insert(turbine, points);
+    assert_eq!(
+        ventures::rivals(game.state(), rival, VentureTarget::Technology(turbine)),
+        1
+    );
+    let keys = ai_month(&mut game, rival, &[lab]);
+    assert!(
+        !keys.iter().any(|k| k == keys::VENTURE_SPIN_OFF),
+        "{keys:?}"
+    );
+    assert!(
+        game.state()
+            .ventures
+            .iter()
+            .all(|v| v.origin != Some(rival))
+    );
+    // The player sees the rival at the same target.
+    let view = crate::views::ventures(&game);
+    let p = view.spin_offs.iter().find(|p| p.site == own_lab.0).unwrap();
+    assert_eq!(p.rivals, 1);
 }

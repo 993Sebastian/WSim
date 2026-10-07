@@ -457,7 +457,7 @@ Oberfläche, die der Abteilungen unter `abteilung.<id>`.
 
 ## startups
 
-`data/parameter/startups.yaml` (SU1, SU2; Regeln: `docs/FORMELN.md`, Vorgabe:
+`data/parameter/startups.yaml` (SU1–SU3; Regeln: `docs/FORMELN.md`, Vorgabe:
 `docs/BETEILIGUNGEN.md` §5). Optional: ohne den Abschnitt gibt es keine Start-ups. Eine
 einmalige Zuordnung:
 
@@ -496,6 +496,22 @@ Felder von `beteiligung` (Beteiligungen der Firmen, SU2):
 | **lenkung** | Zuordnung `zuegig` und `gruendlich`, je `{monate, chance}` (0,1–10): Faktoren auf Dauer und Chance der Phasen; Texte `startup.lenkung.<normal\|zuegig\|gruendlich>` |
 | **rendite_mindest** | 0–100: Mindestertrag je Dollar über 1, den die Strategieabteilung bei Risikobereitschaft 0 verlangt |
 | **einsatz_kasse** | 0–1: höchster Einsatz einer Empfehlung als Anteil der Kasse |
+| **ausgruendung_fortschritt_min** | 0–1: ab diesem Fortschritt (Punkte / Aufwand) lässt sich ein Forschungsprojekt ausgründen (SU3) |
+| **ki** | Zuordnung (SU3): wie KI-Firmen sich beteiligen, Felder siehe unten |
+
+Felder von `ki` (SU3):
+
+| Feld | Bedeutung |
+|---|---|
+| **pruefen_chance** | 0–1: Wahrscheinlichkeit je Monat, dass eine KI-Firma die Start-ups prüft |
+| **kasse_min_usd** | ≥ 0: erst ab dieser Kasse |
+| **einsatz_kasse** | 0–1: höchstens dieser Anteil der Kasse für Zusagen im Monat |
+| **rendite_mindest** | 0–100: Mindestertrag je Dollar über 1 bei Aggressivität 0 |
+| **uebernahme_chance_min** | 0–1: nützliche Start-ups übernimmt sie erst ab dieser gezeigten Chance |
+| **uebernahme_anteil_min** | 0–1: und nur, wenn sie schon mindestens diesen Anteil hält |
+| **uebernahme_kasse** | 0–1: Kauf und Eingliedern zusammen höchstens dieser Anteil der Kasse |
+| **ausgruenden_chance** | 0–1: Wahrscheinlichkeit zum Jahresbeginn, ein Forschungsprojekt auszugründen |
+| **ausgruenden_verkauf** | 0–0,99: diesen Anteil verkauft sie dabei an Investoren |
 
 ## erfinder
 

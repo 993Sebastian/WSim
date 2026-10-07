@@ -671,6 +671,9 @@ pub struct Venture {
     /// How a success ended: in a parent company or on the stock market.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exit: Option<VentureExit>,
+    /// The company whose research project it was (SU3).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin: Option<CompanyId>,
 }
 
 /// How fast the majority owner drives a start-up (SU2).

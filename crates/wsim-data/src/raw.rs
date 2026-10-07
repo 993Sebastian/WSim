@@ -1939,6 +1939,34 @@ pub struct RawVentureStakes {
     pub min_return: f64,
     #[serde(rename = "einsatz_kasse")]
     pub cash_share: f64,
+    #[serde(rename = "ausgruendung_fortschritt_min")]
+    pub spin_off_progress_min: f64,
+    #[serde(rename = "ki")]
+    pub ai: RawVentureAi,
+}
+
+/// How AI companies take part in start-ups (SU3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawVentureAi {
+    #[serde(rename = "pruefen_chance")]
+    pub check_chance: f64,
+    #[serde(rename = "kasse_min_usd")]
+    pub cash_min_usd: f64,
+    #[serde(rename = "einsatz_kasse")]
+    pub cash_share: f64,
+    #[serde(rename = "rendite_mindest")]
+    pub min_return: f64,
+    #[serde(rename = "uebernahme_chance_min")]
+    pub takeover_chance_min: f64,
+    #[serde(rename = "uebernahme_anteil_min")]
+    pub takeover_share_min: f64,
+    #[serde(rename = "uebernahme_kasse")]
+    pub takeover_cash: f64,
+    #[serde(rename = "ausgruenden_chance")]
+    pub spin_off_chance: f64,
+    #[serde(rename = "ausgruenden_verkauf")]
+    pub spin_off_sale: f64,
 }
 
 #[derive(Debug, Deserialize)]

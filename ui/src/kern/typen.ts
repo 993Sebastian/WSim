@@ -1690,6 +1690,31 @@ export interface StartUp {
   expected_return: number | null;
   exit: "tochter" | "boerse" | null;
   exit_company: string | null;
+  /** The company whose research project it was (SU3). */
+  origin: string | null;
+}
+
+/** A research project of the player that could become a start-up (SU3). */
+export interface Ausgruendung {
+  site: number;
+  country: string;
+  kind: "technologie" | "verbesserung";
+  target: string;
+  level: number | null;
+  /** Share of the effort done (0–1). */
+  progress: number;
+  /** Years until history invents the technology (none for a level), and the months its
+   * phases would still take. */
+  lead: number | null;
+  months: number | null;
+  /** Other companies whose research centers work on the same target. */
+  rivals: number;
+  /** Phase it would begin in, its value then and what all of it fetches from investors. */
+  phase: string | null;
+  value_usd: number | null;
+  sale_value_usd: number | null;
+  /** Why not: too early or invented/reached. */
+  reason: "fortschritt" | "nicht_moeglich" | null;
 }
 
 /** The start-ups of the world (SU1). */
@@ -1719,4 +1744,8 @@ export interface StartUps {
   grant_effect: number;
   /** Keys of the paces (`startup.lenkung.<key>`). */
   paces: string[];
+  /** Projects of the player's research centers and the progress from which they may be
+   * spun off (SU3). */
+  spin_offs: Ausgruendung[];
+  spin_off_min: number;
 }

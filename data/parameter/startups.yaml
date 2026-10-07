@@ -64,6 +64,24 @@ startups:
       gruendlich: {monate: 1.25, chance: 1.08}
     rendite_mindest: 1.0
     einsatz_kasse: 0.1
+    # Ausgründungen (SU3): Ein eigenes Forschungsprojekt (Technologie vor ihrer Zeit oder
+    # nächste Stufe, die noch keiner hat) wird ab diesem Fortschritt zum Start-up.
+    ausgruendung_fortschritt_min: 0.1
+    # KI-Firmen (SU3): Prüfung je Monat mit dieser Wahrscheinlichkeit ab der Kasse; Einsatz
+    # je Monat als Anteil der Kasse; Mindestertrag je Dollar über 1 bei Aggressivität 0;
+    # Übernahme nützlicher Start-ups ab der Chance, nur mit eigenem Anteil ab
+    # uebernahme_anteil_min und bis zum Anteil der Kasse;
+    # Ausgründen zum Jahresbeginn mit der Wahrscheinlichkeit, verkauft wird der Anteil.
+    ki:
+      pruefen_chance: 0.25
+      kasse_min_usd: 500000
+      einsatz_kasse: 0.05
+      rendite_mindest: 1.0
+      uebernahme_chance_min: 0.3
+      uebernahme_anteil_min: 0.1
+      uebernahme_kasse: 0.2
+      ausgruenden_chance: 0.1
+      ausgruenden_verkauf: 0.4
 
   # Unschärfe der gezeigten Erfolgschance ohne Strategieabteilung; ohne sie zeigt das
   # Spiel nur die Stufe (gering, mittel ab, hoch ab). Beendete Start-ups bleiben so viele

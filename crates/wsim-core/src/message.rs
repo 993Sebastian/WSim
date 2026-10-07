@@ -196,6 +196,8 @@ pub mod keys {
     pub const COMMAND_NOT_ENOUGH_SHARES: &str = "fehler.befehl.anteil_zu_klein";
     pub const COMMAND_NO_MAJORITY: &str = "fehler.befehl.keine_mehrheit";
     pub const COMMAND_VENTURE_BLOCKED: &str = "fehler.befehl.sperrminoritaet";
+    pub const COMMAND_NO_SPIN_OFF: &str = "fehler.befehl.keine_ausgruendung";
+    pub const COMMAND_SPIN_OFF_TOO_EARLY: &str = "fehler.befehl.ausgruendung_zu_frueh";
     // Headquarters and central departments (ZA1–ZA3).
     pub const HEADQUARTERS_MOVED: &str = "meldung.hauptsitz.umgezogen";
     pub const HEADQUARTERS_STAFF_LEFT: &str = "meldung.hauptsitz.angestellte_geblieben";
@@ -210,6 +212,9 @@ pub mod keys {
     pub const VENTURE_BOUGHT_OUT: &str = "meldung.startup.uebernommen";
     pub const VENTURE_LISTED: &str = "meldung.startup.boersengang";
     pub const VENTURE_NEW_COMPANY: &str = "meldung.startup.neue_firma";
+    // Spin-offs and AI companies in start-ups (SU3).
+    pub const VENTURE_SPIN_OFF: &str = "meldung.startup.ausgruendung";
+    pub const VENTURE_TAKEN_OVER: &str = "meldung.startup.uebernahme";
     // The market of managers (MA6).
     pub const MANAGER_RESIGNED: &str = "meldung.manager.kuendigung";
     pub const MANAGER_HIRED_BY_HEAD: &str = "meldung.manager.eingestellt";
@@ -469,6 +474,8 @@ pub mod keys {
         COMMAND_NOT_ENOUGH_SHARES,
         COMMAND_NO_MAJORITY,
         COMMAND_VENTURE_BLOCKED,
+        COMMAND_NO_SPIN_OFF,
+        COMMAND_SPIN_OFF_TOO_EARLY,
         HEADQUARTERS_MOVED,
         HEADQUARTERS_STAFF_LEFT,
         VENTURE_INVENTION,
@@ -481,6 +488,8 @@ pub mod keys {
         VENTURE_BOUGHT_OUT,
         VENTURE_LISTED,
         VENTURE_NEW_COMPANY,
+        VENTURE_SPIN_OFF,
+        VENTURE_TAKEN_OVER,
         MANAGER_RESIGNED,
         MANAGER_HIRED_BY_HEAD,
         MANAGER_POACH,

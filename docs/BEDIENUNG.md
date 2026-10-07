@@ -457,6 +457,26 @@ was darf ich mit ihr?“
 - Empfehlungen der Strategieabteilung (Thema „Start-up“, Option „Beteiligen“) kommen als
   Anliegen in den Posteingang, wenn sie über der Freigabegrenze liegen.
 
+### Ausgründen (SU3)
+
+Frage des Spielers: „Welches meiner Forschungsprojekte kann ich auslagern, und was bringt
+es mir?“
+
+- Unterreiter „Ausgründen“ (Zähler: Projekte, die gehen) in der Ansicht „Beteiligungen“:
+  ein Satz, was Ausgründen heißt (Investoren zahlen mit, das Forschungszentrum ist frei,
+  über der Mehrheit bleibt es Tochterfirma), dann je Forschungszentrum mit Projekt eine
+  Karte „Projekt …“ mit Land und Fortschritt.
+- Geht es, zeigt die Karte die Startphase, den Wert und den Erlös für alles, die Restdauer
+  der Phasen und bei Technologien den Vorlauf zur Geschichte; Eingabe „An Investoren
+  verkaufen“ (%, Vorgabe 40) und „Ausgründen“. Warnungen, wenn die Geschichte (Vorlauf
+  kürzer als die Phasen) oder andere Firmen am selben Ziel schneller sein dürften. Geht es
+  nicht, steht der Grund dort (zu früh mit der Schwelle, oder schon erfunden bzw.
+  erreicht).
+- Ausgründungen tragen in den Listen das Kennzeichen „Ausgründung“, im Detail „Ausgründung
+  von …“.
+- Meldungen: wenn eine KI-Firma ein Projekt ausgründet (das Start-up sucht Geld), wenn sie
+  ein Start-up übernimmt, und wenn sie dabei deinen Anteil kauft (mit Betrag).
+
 ### Forschung → Technologiebaum (M19)
 
 - Ist: Liste der Technologien mit Erfindungsjahr, Stand, Voraussetzungen, „ermöglicht“.

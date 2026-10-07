@@ -1,7 +1,9 @@
 //! Start-ups: the parameters of `startups` and the historical inventors of `erfinder`
 //! (docs/FORMELN.md, SU1–SU3).
 
-use wsim_core::catalog::{Catalog, Inventor, VentureModel, VenturePhase, VentureStakeModel};
+use wsim_core::catalog::{
+    Catalog, Inventor, VentureAiModel, VentureModel, VenturePhase, VentureStakeModel,
+};
 use wsim_core::money::Money;
 
 use super::{in_range, non_negative, positive, provenance};
@@ -206,6 +208,32 @@ fn stakes(ctx: &mut Ctx, s: &crate::raw::RawVentureStakes, l: &Loc) -> VentureSt
         thorough: pace(ctx, &s.pace.thorough, "gruendlich"),
         min_return: in_range(ctx, s.min_return, 0.0, 100.0, &l.field("rendite_mindest")),
         cash_share: share(ctx, s.cash_share, "einsatz_kasse"),
+        spin_off_progress_min: share(ctx, s.spin_off_progress_min, "ausgruendung_fortschritt_min"),
+        ai: ai(ctx, &s.ai, &l.field("ki")),
+    }
+}
+
+/// How AI companies take part (SU3): chances and shares between 0 and 1.
+fn ai(ctx: &mut Ctx, a: &crate::raw::RawVentureAi, l: &Loc) -> VentureAiModel {
+    let share = |ctx: &mut Ctx, v: f64, field: &str| in_range(ctx, v, 0.0, 1.0, &l.field(field));
+    let cash_min = in_range(ctx, a.cash_min_usd, 0.0, 1e15, &l.field("kasse_min_usd"));
+    VentureAiModel {
+        check_chance: share(ctx, a.check_chance, "pruefen_chance"),
+        cash_min: Money::from_usd(cash_min).unwrap_or(Money::ZERO),
+        cash_share: share(ctx, a.cash_share, "einsatz_kasse"),
+        min_return: in_range(ctx, a.min_return, 0.0, 100.0, &l.field("rendite_mindest")),
+        takeover_chance_min: share(ctx, a.takeover_chance_min, "uebernahme_chance_min"),
+        takeover_share_min: share(ctx, a.takeover_share_min, "uebernahme_anteil_min"),
+        takeover_cash: share(ctx, a.takeover_cash, "uebernahme_kasse"),
+        spin_off_chance: share(ctx, a.spin_off_chance, "ausgruenden_chance"),
+        // Below 1: the company keeps part of what it spins off.
+        spin_off_sale: in_range(
+            ctx,
+            a.spin_off_sale,
+            0.0,
+            0.99,
+            &l.field("ausgruenden_verkauf"),
+        ),
     }
 }
 

@@ -63,6 +63,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | ZA3 | Empfehlungen mit Begründung, Trefferquote, Gehaltsforderung exponentiell | ✅ |
 | SU1 | Start-ups: Entstehung, Arten, Phasen, Finanzierungsrunden, Erfolg und Scheitern | ✅ |
 | SU2 | Beteiligungen: Zusagen, Anteile, Fördergeld, Rechte, Tochterfirma, neue KI-Firma | ✅ |
+| SU3 | Ausgründungen, KI-Firmen beteiligen sich, übernehmen und gründen aus | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -442,6 +443,50 @@ Abschnitt SU2; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O 
   ohne Kasse, Scheitern mit Forschungsbonus, Rückzahlung, Verwässerung der Tochter,
   Empfehlung), Familienname des Gründers, Fehlerfälle der Daten, vitest der Aktionen,
   E2E „An einem Start-up beteiligen und es fördern“.
+
+### SU3: Ausgründungen, KI-Firmen beteiligen sich (07.10.2026)
+
+Vorgabe `docs/BETEILIGUNGEN.md`, Abschnitte 5.3 und 5.7; Regeln: `docs/FORMELN.md`,
+Abschnitt SU3; vorläufige Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt O (32–36).
+
+- **Daten:** im Block `beteiligung` der Fortschritt für Ausgründungen und der Block `ki`
+  (Prüfung je Monat, Kasse, Einsatz, Mindestertrag, Übernahme, Ausgründung); Prüfregeln
+  mit Fehlerfällen.
+- **Kern:** Befehl `SpinOff` – ein Forschungsprojekt (Technologie vor ihrer Zeit oder eine
+  Stufe, die noch keiner hat) wird ab 10 % Fortschritt ein Start-up in der passenden
+  Phase; die Punkte gehen mit, das Forschungszentrum ist frei, ein Teil kann sofort an
+  Investoren gehen, über der Mehrheit bleibt es Tochterfirma. Tochterfirmen zahlt die
+  Mutter jetzt pro rata (ihr Anteil bleibt gleich). KI-Firmen prüfen am Monatsanfang mit
+  eigenem Zufallsstrom: Zusagen nach erwartetem Ertrag, Übernahme nützlicher Start-ups,
+  an denen sie schon beteiligt sind (gesperrt durch eine Sperrminorität), Ausgründungen
+  zum Jahresbeginn – alles über dieselben Befehle. Ohne Start-ups zieht die KI dafür keine
+  Zufallszahlen.
+- **Oberfläche:** Unterreiter „Ausgründen“ mit den Projekten der eigenen Forschungszentren
+  (Fortschritt, Startphase, Wert, Verkaufsanteil oder Grund, warum nicht), Kennzeichen und
+  Herkunft „Ausgründung von …“, Meldungen zu Ausgründungen und Übernahmen der KI.
+- **Weltläufe** 1900–1915 (100 KI-Firmen): Mit „normal“ 186 Start-ups (davon 6
+  Ausgründungen der KI), 21 Erfolge, 83 % der beendeten gescheitert (77 an einer Phase,
+  3 ohne Geld, 25 überholt); 139 Start-ups mit Firmen als Eigner, 29 Firmen beteiligt,
+  6 Übernahmen durch KI-Firmen. Mit „viele“ 318 Start-ups, 48 Erfolge – daraus 25 neue
+  KI-Firmen, 18 Börsengänge, 5 Töchter –, 77 % gescheitert (103 Phase, 7 ohne Geld,
+  47 überholt), 8 Übernahmen. Kaum noch Runden ohne Geld: KI-Firmen sagen in den meisten
+  ersten Runden zu.
+- **Kalibrierung:** Im ersten Lauf übernahmen KI-Firmen 277 Start-ups (fast jedes
+  nützliche) und gründeten 139 Projekte aus, die meist überholt wurden. Jetzt kaufen sie nur
+  weg, woran sie schon mit 10 % beteiligt sind, und gründen nur aus, was vor der Geschichte
+  fertig werden kann und woran kein anderes Labor arbeitet (Chance 10 % je Jahr).
+- **Ausfallquote:** 77–83 % liegen über dem Richtwert 60–70 % (SU1: 70 % bis 1940 mit 30
+  KI-Firmen). Gründe: Die Phasen allein lassen 53 % scheitern (0,65 · 0,8 · 0,9), Vorlauf
+  senkt die Chance, und 100 forschende KI-Firmen überholen mehr Start-ups. Im kurzen
+  Zeitraum zählen zudem frühe Fehlschläge junger Start-ups, deren Erfolge noch ausstehen.
+  Einstellbar über die Chancen der Phasen; Vorschlag in `docs/OFFENE_PUNKTE.md`, O 36.
+- **Benchmark:** 1900–1915 mit 100 KI-Firmen 3:23 Minuten mit vielen Start-ups gegen 3:22
+  ohne; 1 000 KI-Firmen 1900–1901 (Seed 3) 48,9 s gegen 48,8 s – kein Leistungsverlust.
+- **Tests:** 14 Szenariotests (Ausgründung als Tochter mit Sofortverkauf, Bedingungen,
+  Pro-rata-Runde, KI-Zusage, Übernahme mit und ohne Sperrminorität, nur mit eigenem
+  Anteil, Übernahme im Spielablauf, KI-Ausgründung, umkämpfte Projekte bleiben im Haus,
+  Vorlauf-Regel, Sicht der Projekte), Fehlerfälle der Daten, vitest (Ausgründen,
+  Herkunft, Warnungen), E2E-Schritt im Reiter „Ausgründen“.
 
 ## Eigenständige Entscheidungen (für das Review)
 

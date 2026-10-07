@@ -35561,6 +35561,7 @@
         "level": null,
         "majority": false,
         "name": "Baltzar von Platen",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35601,13 +35602,14 @@
         "id": 5,
         "integration_usd": null,
         "inventor": false,
-        "invest_max_usd": 53726.4414,
-        "invest_mode": "runde",
+        "invest_max_usd": 644717.2968,
+        "invest_mode": "anteile",
         "kind": "technologie",
         "lead": 3.0,
         "level": null,
         "majority": false,
         "name": "Richard Morgan",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35616,23 +35618,28 @@
           {
             "company": null,
             "holder": "gruender",
-            "share": 1.0
+            "share": 0.9090909090909091
+          },
+          {
+            "company": "Standard Oil",
+            "holder": "firma",
+            "share": 0.09090909090909091
           }
         ],
         "pace": "normal",
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": null,
+        "phase_until": "1915-07-01",
         "phases": 3,
-        "raised_usd": 0.0,
-        "round_until": "1915-01-01",
-        "sale_value_usd": 429811.5312,
+        "raised_usd": 53726.4414,
+        "round_until": null,
+        "sale_value_usd": 472792.6843,
         "status": "aktiv",
         "subsidiary": false,
         "success_value_usd": 6551445.8823,
         "target": "ackerschlepper",
-        "value_usd": 537264.414
+        "value_usd": 590990.8554
       },
       {
         "blocked": false,
@@ -35648,13 +35655,14 @@
         "id": 4,
         "integration_usd": null,
         "inventor": false,
-        "invest_max_usd": 439410.0625,
+        "invest_max_usd": 399463.6932,
         "invest_mode": "anteile",
         "kind": "verbesserung",
         "lead": 0.0,
         "level": 1,
         "majority": false,
         "name": "Paul Lefèvre",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35666,8 +35674,8 @@
             "share": 0.9090909090909091
           },
           {
-            "company": null,
-            "holder": "investoren",
+            "company": "Gebrüder Nobel (Branobel)",
+            "holder": "firma",
             "share": 0.0909090909090909
           }
         ],
@@ -35675,7 +35683,7 @@
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": "1915-07-01",
+        "phase_until": "1915-06-01",
         "phases": 3,
         "raised_usd": 33288.6411,
         "round_until": null,
@@ -35700,13 +35708,14 @@
         "id": 3,
         "integration_usd": null,
         "inventor": false,
-        "invest_max_usd": 459371.121,
+        "invest_max_usd": 417610.11,
         "invest_mode": "anteile",
         "kind": "verbesserung",
         "lead": 0.0,
         "level": 1,
         "majority": false,
         "name": "Dorothy Lawrence",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35718,8 +35727,8 @@
             "share": 0.9090909090909092
           },
           {
-            "company": null,
-            "holder": "investoren",
+            "company": "Carnegie Steel Company",
+            "holder": "firma",
             "share": 0.09090909090909091
           }
         ],
@@ -35727,7 +35736,7 @@
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": "1915-07-01",
+        "phase_until": "1915-05-01",
         "phases": 3,
         "raised_usd": 34800.8425,
         "round_until": null,
@@ -35752,13 +35761,14 @@
         "id": 2,
         "integration_usd": null,
         "inventor": false,
-        "invest_max_usd": 573348.3294,
+        "invest_max_usd": 521225.754,
         "invest_mode": "anteile",
         "kind": "verbesserung",
         "lead": 0.0,
         "level": 1,
         "majority": false,
         "name": "Margaret Hale",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35770,8 +35780,8 @@
             "share": 0.9090909090909091
           },
           {
-            "company": null,
-            "holder": "investoren",
+            "company": "Fried. Krupp",
+            "holder": "firma",
             "share": 0.0909090909090909
           }
         ],
@@ -35779,7 +35789,7 @@
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": "1915-07-01",
+        "phase_until": "1915-04-01",
         "phases": 3,
         "raised_usd": 43435.4795,
         "round_until": null,
@@ -35804,13 +35814,14 @@
         "id": 1,
         "integration_usd": null,
         "inventor": true,
-        "invest_max_usd": 982506.0379,
+        "invest_max_usd": 893187.3072,
         "invest_mode": "anteile",
         "kind": "technologie",
         "lead": 6.0,
         "level": null,
         "majority": false,
         "name": "Frank Conrad",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35822,8 +35833,8 @@
             "share": 0.9090909090909092
           },
           {
-            "company": null,
-            "holder": "investoren",
+            "company": "Carnegie Steel Company",
+            "holder": "firma",
             "share": 0.09090909090909091
           }
         ],
@@ -35831,7 +35842,7 @@
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": "1915-05-01",
+        "phase_until": "1915-03-01",
         "phases": 3,
         "raised_usd": 74432.2756,
         "round_until": null,
@@ -35856,13 +35867,14 @@
         "id": 0,
         "integration_usd": null,
         "inventor": false,
-        "invest_max_usd": 937040.1203,
+        "invest_max_usd": 851854.6548,
         "invest_mode": "anteile",
         "kind": "technologie",
         "lead": 5.0,
         "level": null,
         "majority": false,
         "name": "Arthur Pemberton",
+        "origin": null,
         "own_book_usd": 0.0,
         "own_grants_usd": 0.0,
         "own_pledge_usd": 0.0,
@@ -35874,8 +35886,8 @@
             "share": 0.9090909090909092
           },
           {
-            "company": null,
-            "holder": "investoren",
+            "company": "Bolckow, Vaughan & Co.",
+            "holder": "firma",
             "share": 0.09090909090909093
           }
         ],
@@ -35883,7 +35895,7 @@
         "parent": null,
         "phase": "idee",
         "phase_number": 1,
-        "phase_until": "1915-03-01",
+        "phase_until": "1915-02-01",
         "phases": 3,
         "raised_usd": 70987.8879,
         "round_until": null,
@@ -35897,7 +35909,7 @@
     ],
     "blocking": 0.25,
     "buy_premium": 0.2,
-    "cash_usd": 58216.8844,
+    "cash_usd": 58216.884,
     "closed": [],
     "estimated": false,
     "failed": 0,
@@ -35916,6 +35928,8 @@
     "portfolio_book_usd": 0.0,
     "portfolio_value_usd": 0.0,
     "sale_discount": 0.2,
+    "spin_off_min": 0.1,
+    "spin_offs": [],
     "succeeded": 0
   },
   "strategie": {

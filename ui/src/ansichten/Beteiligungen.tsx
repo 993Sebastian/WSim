@@ -12,7 +12,7 @@ import {
   landName,
   zahlLesen,
 } from "../format";
-import type { Befehl, Kern, StartUp, StartUps, Tempo, Uebersicht } from "../kern";
+import type { Ausgruendung, Befehl, Kern, StartUp, StartUps, Tempo, Uebersicht } from "../kern";
 import { geld } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -26,7 +26,7 @@ import {
   useSicht,
 } from "./gemeinsam";
 
-type Reiter = "laufend" | "eigene" | "beendet";
+type Reiter = "laufend" | "eigene" | "ausgruenden" | "beendet";
 
 /** The pace keys of the data and the core's names. */
 const TEMPI: Record<string, Tempo> = { normal: "Normal", zuegig: "Fast", gruendlich: "Thorough" };
@@ -99,6 +99,11 @@ function Name({ s }: { s: StartUp }) {
         </span>
       )}
       {s.subsidiary && <span className="marke">{t("beteiligungen.tochter")}</span>}
+      {s.origin && (
+        <span className="marke" title={t("beteiligungen.herkunft", { firma: s.origin })}>
+          {t("beteiligungen.ausgruendung_marke")}
+        </span>
+      )}
     </td>
   );
 }
@@ -425,6 +430,7 @@ function Detail({ s, d, onZurueck }: { s: StartUp; d: StartUps; onZurueck: () =>
           mehr: formatProzent(d.majority),
         })}
       </p>
+      {s.origin && <p>{t("beteiligungen.herkunft", { firma: s.origin })}</p>}
       {s.parent && (
         <p className="gedaempft">{t("beteiligungen.fremde_tochter", { firma: s.parent })}</p>
       )}
@@ -464,6 +470,118 @@ function Detail({ s, d, onZurueck }: { s: StartUp; d: StartUps; onZurueck: () =>
         {s.blocked && <p className="gedaempft">{t("beteiligungen.gesperrt")}</p>}
       </div>
     </section>
+  );
+}
+
+/** A target as words: the technology, or the product with its level. */
+function projektZiel(p: Ausgruendung): string {
+  return p.kind === "technologie"
+    ? t(`technologie.${p.target}`)
+    : t("beteiligungen.ziel_verbesserung", {
+        produkt: t(`produkt.${p.target}`),
+        stufe: formatZahl(p.level ?? 0),
+      });
+}
+
+/** One research project and, where possible, the form to spin it off. */
+function Projekt({ p, d }: { p: Ausgruendung; d: StartUps }) {
+  const [prozent, setProzent] = useState("40");
+  const [fehler, setFehler] = useState<string | null>(null);
+  const { los, antwort } = useAktion(`ausgruenden-${p.site}`);
+  const ziel = projektZiel(p);
+  const titel = t("beteiligungen.projekt", { ziel });
+  return (
+    <form
+      className="karte"
+      aria-label={titel}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const wert = zahlLesen(prozent);
+        if (wert === null || wert < 0 || wert >= 100) {
+          setFehler(t("beteiligungen.verkauf_ungueltig"));
+          return;
+        }
+        setFehler(null);
+        void los(
+          [{ SpinOff: { site: p.site, sell: wert / 100 } }],
+          t("beteiligungen.ausgegruendet", { ziel }),
+        );
+      }}
+    >
+      <h4>{titel}</h4>
+      <p>
+        {t("beteiligungen.projekt_stand", {
+          land: landName(p.country),
+          fortschritt: formatProzent(p.progress),
+        })}
+      </p>
+      {p.reason ? (
+        <p className="gedaempft">
+          {t(`beteiligungen.grund.${p.reason}`, { min: formatProzent(d.spin_off_min) })}
+        </p>
+      ) : (
+        <>
+          <p className="feld-hilfe">
+            {t("beteiligungen.start_als", {
+              phase: t(`startup.phase.${p.phase ?? ""}`),
+              wert: formatGeld(p.value_usd ?? 0),
+              alles: formatGeld(p.sale_value_usd ?? 0),
+            })}
+          </p>
+          {p.months !== null && (
+            <p className="feld-hilfe">
+              {p.lead !== null
+                ? t("beteiligungen.dauer_vorlauf", {
+                    monate: formatZahl(p.months),
+                    jahre: formatZahl(p.lead),
+                  })
+                : t("beteiligungen.dauer", { monate: formatZahl(p.months) })}
+            </p>
+          )}
+          {p.lead !== null && p.months !== null && p.lead * 12 < p.months && (
+            <p className="warntext">{t("beteiligungen.zu_spaet")}</p>
+          )}
+          {p.rivals > 0 && (
+            <p className="warntext">
+              {t("beteiligungen.rivalen", { anzahl: formatZahl(p.rivals) })}
+            </p>
+          )}
+          <div className="formular-zeile">
+            <ZahlFeld
+              name={t("beteiligungen.verkauf_anteil")}
+              einheit="%"
+              wert={prozent}
+              onWert={setProzent}
+            />
+            <button type="submit">{t("beteiligungen.ausgruenden_knopf")}</button>
+          </div>
+        </>
+      )}
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/** The player's research projects that could become start-ups (SU3). */
+function Ausgruenden({ d }: { d: StartUps }) {
+  if (d.spin_offs.length === 0) {
+    return <p className="gedaempft">{t("beteiligungen.keine_projekte")}</p>;
+  }
+  return (
+    <>
+      <p>
+        {t("beteiligungen.ausgruenden_einleitung", {
+          mehr: formatProzent(d.majority),
+          min: formatProzent(d.spin_off_min),
+        })}
+      </p>
+      <div className="karten-raster">
+        {d.spin_offs.map((p) => (
+          <Projekt key={p.site} p={p} d={d} />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -520,6 +638,11 @@ function Inhalt({
             bereiche={[
               { key: "laufend", text: t("beteiligungen.laufend"), zaehler: d.active.length },
               { key: "eigene", text: t("beteiligungen.eigene"), zaehler: eigene.length },
+              {
+                key: "ausgruenden",
+                text: t("beteiligungen.ausgruenden"),
+                zaehler: d.spin_offs.filter((p) => p.reason === null).length,
+              },
               { key: "beendet", text: t("beteiligungen.beendet") },
             ]}
             aktiv={reiter}
@@ -534,6 +657,7 @@ function Inhalt({
             ) : (
               <p className="gedaempft">{t("beteiligungen.keine_eigenen")}</p>
             ))}
+          {reiter === "ausgruenden" && <Ausgruenden d={d} />}
           {reiter === "beendet" && <Beendete liste={d.closed} />}
         </>
       )}

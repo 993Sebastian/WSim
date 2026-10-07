@@ -47,6 +47,7 @@ const LAUFEND: StartUp = {
   expected_return: null,
   exit: null,
   exit_company: null,
+  origin: null,
 };
 
 const BEENDET: StartUp = {
@@ -86,6 +87,39 @@ function daten(geschaetzt: boolean): StartUps {
     sale_discount: 0.2,
     grant_effect: 0.3,
     paces: ["normal", "zuegig", "gruendlich"],
+    spin_offs: [
+      {
+        site: 4,
+        country: "DEU",
+        kind: "technologie",
+        target: "kompressionskuehlschrank",
+        level: null,
+        progress: 0.45,
+        lead: 2,
+        months: 42,
+        rivals: 3,
+        phase: "prototyp",
+        value_usd: 600_000,
+        sale_value_usd: 480_000,
+        reason: null,
+      },
+      {
+        site: 5,
+        country: "DEU",
+        kind: "verbesserung",
+        target: "naegel",
+        level: 2,
+        progress: 0.04,
+        lead: null,
+        months: null,
+        rivals: 0,
+        phase: null,
+        value_usd: null,
+        sale_value_usd: null,
+        reason: "fortschritt",
+      },
+    ],
+    spin_off_min: 0.1,
   };
 }
 
@@ -130,6 +164,47 @@ function oeffne(): HTMLElement {
 
 describe("Beteiligungen", () => {
   afterEach(cleanup);
+
+  it("gründet ein Forschungsprojekt aus und zeigt, was noch fehlt", async () => {
+    const gesendet = await zeige(false);
+    fireEvent.click(screen.getByRole("button", { name: /^Ausgründen/ }));
+    expect(screen.getByText(/Möglich ab 10 % Fortschritt/)).toBeTruthy();
+    const projekt = screen.getByRole("form", { name: "Projekt Kompressionskühlschrank" });
+    expect(projekt.textContent).toContain("Forschungszentrum in Deutschland, 45 % fertig");
+    expect(projekt.textContent).toContain("Beginnt als Prototyp");
+    // Two years ahead, 42 months to go: history is faster.
+    expect(projekt.textContent).toContain("erfunden wird die Technologie sonst in 2 Jahren");
+    expect(within(projekt).getByText(/Achtung: Die Technologie dürfte erfunden sein/)).toBeTruthy();
+    expect(
+      within(projekt).getByText(/Achtung: 3 andere Firmen forschen am selben Ziel/),
+    ).toBeTruthy();
+    const zu_frueh = screen.getByRole("form", { name: "Projekt Nägel: Stufe 2" });
+    expect(zu_frueh.textContent).toContain("Noch zu früh: Ausgründen geht ab 10 % Fortschritt.");
+    expect(within(zu_frueh).queryByRole("button", { name: "Ausgründen" })).toBeNull();
+
+    fireEvent.change(within(projekt).getByLabelText(/An Investoren verkaufen/), {
+      target: { value: "100" },
+    });
+    fireEvent.click(within(projekt).getByRole("button", { name: "Ausgründen" }));
+    expect(within(projekt).getByText("Gib einen Anteil von 0 bis unter 100 % an.")).toBeTruthy();
+    fireEvent.change(within(projekt).getByLabelText(/An Investoren verkaufen/), {
+      target: { value: "30" },
+    });
+    fireEvent.click(within(projekt).getByRole("button", { name: "Ausgründen" }));
+    expect(
+      await within(projekt).findByText("Kompressionskühlschrank ist jetzt ein eigenes Start-up."),
+    ).toBeTruthy();
+    expect(gesendet).toEqual([{ SpinOff: { site: 4, sell: 0.3 } }]);
+  });
+
+  it("zeigt die Herkunft einer Ausgründung", async () => {
+    await zeige(false, (d) => {
+      d.active = [{ ...LAUFEND, origin: "Test AG", subsidiary: true }];
+    });
+    const zeile = within(screen.getByRole("table", { name: "Laufend" })).getAllByRole("row")[1]!;
+    expect(within(zeile).getByText("Ausgründung")).toBeTruthy();
+    expect(oeffne().textContent).toContain("Ausgründung von Test AG");
+  });
 
   it("zeigt laufende Start-ups mit Phase, Finanzierung, Stufe und Eignern", async () => {
     await zeige(false);

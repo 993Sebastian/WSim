@@ -1,15 +1,17 @@
-//! Start-ups (SU1, SU2; formulas in docs/FORMELN.md).
+//! Start-ups (SU1–SU3; formulas in docs/FORMELN.md).
 //!
 //! Inventors and young companies outside the game work on a technology not yet invented
 //! or on the next development level of a product. Every phase needs a funding round of
 //! new shares; most of them fail. A success brings the technology or the level into the
-//! world earlier. Companies take stakes, give grants, steer and integrate them (SU2).
+//! world earlier. Companies take stakes, give grants, steer and integrate them (SU2); they
+//! spin off research projects, and AI companies take part by the same commands (SU3).
 
 use std::collections::BTreeSet;
 
 use crate::calendar::Date;
-use crate::catalog::{Catalog, DepartmentKind, VentureModel};
-use crate::command::CommandError;
+use crate::catalog::{Catalog, DepartmentKind, SiteType, VentureModel};
+use crate::command::{Command, CommandError};
+use crate::decision::{self, Choice, ChoiceKind, Decider, Decision, Topic};
 use crate::ids::{CountryId, ProductId, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::management;
@@ -17,7 +19,7 @@ use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
-    CompanyId, GameState, Holder, Stake, Venture, VentureExit, VentureFailure, VenturePace,
+    CompanyId, GameState, Holder, SiteId, Stake, Venture, VentureExit, VentureFailure, VenturePace,
     VentureStatus, VentureTarget,
 };
 
@@ -118,12 +120,22 @@ fn advance(
         return fail(state, catalog, i, date, VentureFailure::Overtaken);
     }
     if let Some(until) = state.ventures[i].round_until {
-        // A subsidiary's round is its parent's to fund, as far as its cash goes (SU2).
+        // A subsidiary's parent pledges its share of the round, as far as its cash goes;
+        // investors cover the rest (SU3).
         if let Some(parent) = state.ventures[i].parent {
-            let rest = state.ventures[i].capital - state.ventures[i].raised;
-            if state.companies[parent.index()].ledger.cash() >= rest {
-                pledge(state, i, parent, rest);
-                crate::central::count_purchase(state, parent, rest);
+            let v = &state.ventures[i];
+            let rest = v.capital - v.raised;
+            let share = share_of(v, parent);
+            let part = if share >= 1.0 - 1e-9 {
+                rest
+            } else {
+                (v.capital.scale(share) - amount_of(&v.pledges, parent)).min(rest)
+            };
+            if part > Money::ZERO && state.companies[parent.index()].ledger.cash() >= part {
+                pledge(state, i, parent, part);
+                crate::central::count_purchase(state, parent, part);
+            }
+            if state.ventures[i].raised >= state.ventures[i].capital {
                 close_round(m, &mut state.ventures[i], date);
                 return Vec::new();
             }
@@ -791,6 +803,7 @@ fn found(state: &mut GameState, catalog: &Catalog, date: Date, month: u32) {
             parent: None,
             pace: VenturePace::Normal,
             exit: None,
+            origin: None,
         };
         let gdp = state.countries.get(country).gdp_per_capita_usd;
         start_phase(m, &mut v, 0, gdp, date);
@@ -1170,8 +1183,12 @@ pub fn expected_return(
     company: CompanyId,
     v: &Venture,
 ) -> f64 {
-    let m = &catalog.ventures;
     let (chance, _) = shown_chance(catalog, state, company, v);
+    return_at(state, &catalog.ventures, v, chance)
+}
+
+/// What a dollar pledged now brings on average at a chance of success.
+fn return_at(state: &GameState, m: &VentureModel, v: &Venture, chance: f64) -> f64 {
     chance * expected_success_value(state, m, v).to_usd() * share_per_dollar(m, v)
 }
 
@@ -1223,4 +1240,513 @@ pub(crate) fn recommendations(
         out.push((id, amount));
     }
     out
+}
+
+/// The project of a research center as a start-up (SU3): its target, how far it is and
+/// the phase it would begin in.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SpinOffPlan {
+    pub target: VentureTarget,
+    pub progress: f64,
+    pub phase: usize,
+    pub lead: f64,
+    pub country: CountryId,
+}
+
+/// What a company's research center could spin off today: a technology not yet invented
+/// or the next level of a product no company has reached, from enough progress on.
+pub fn spin_off_plan(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    site: SiteId,
+    date: Date,
+) -> Result<SpinOffPlan, CommandError> {
+    let m = &catalog.ventures;
+    let s = state
+        .site(site)
+        .filter(|s| s.owner == company && s.kind == SiteType::ResearchCenter)
+        .ok_or(CommandError::NoSpinOff)?;
+    if m.phases.is_empty() {
+        return Err(CommandError::NoSpinOff);
+    }
+    let c = &state.companies[company.index()];
+    let (target, points, effort, lead) = match (s.research, s.development) {
+        (Some(t), _) => {
+            let tech = catalog.technologies.get(t);
+            if state.inventions.get(t).is_some() || tech.invention_year <= date.year() {
+                return Err(CommandError::NoSpinOff);
+            }
+            let effort = crate::research::effort(catalog, state, t, date)
+                .ok_or(CommandError::NoSpinOff)?
+                .points;
+            let points = c.research.get(&t).copied().unwrap_or(0.0);
+            let lead = f64::from(tech.invention_year - date.year());
+            (VentureTarget::Technology(t), points, effort, lead)
+        }
+        (None, Some(product)) => {
+            let (level, effort) =
+                crate::development::next_effort(catalog, state, company, product, date)
+                    .ok_or(CommandError::NoSpinOff)?;
+            // Only a level no company has reached yet.
+            if state.developments.get(product).len() + 1 != usize::from(level) {
+                return Err(CommandError::NoSpinOff);
+            }
+            let points = c.development.points.get(&product).copied().unwrap_or(0.0);
+            (
+                VentureTarget::Development { product, level },
+                points,
+                effort,
+                0.0,
+            )
+        }
+        (None, None) => return Err(CommandError::NoSpinOff),
+    };
+    if effort <= 0.0 {
+        return Err(CommandError::NoSpinOff);
+    }
+    let progress = (points / effort).clamp(0.0, 1.0);
+    let min = m.stakes.spin_off_progress_min;
+    if progress < min {
+        return Err(CommandError::SpinOffTooEarly { progress, min });
+    }
+    let phases = m.phases.len();
+    // A handful of phases; the cast is exact.
+    let phase = ((progress * phases as f64).floor() as usize).min(phases - 1);
+    Ok(SpinOffPlan {
+        target,
+        progress,
+        phase,
+        lead,
+        country: s.country,
+    })
+}
+
+/// The start-up a plan of a company becomes: the next number, a founder of its country,
+/// its phase begun today with an open round, all of it the company's.
+fn spin_off_venture(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    plan: &SpinOffPlan,
+    date: Date,
+) -> Venture {
+    let id = state.next_venture;
+    let mut rng = SimRng::for_stream(state.settings.seed, Stream::SpinOff { id });
+    let mut names: BTreeSet<String> = state.ventures.iter().map(|v| v.name.clone()).collect();
+    let name = management::manager_name(catalog, &mut rng, plan.country, &mut names);
+    let mut v = Venture {
+        id,
+        name,
+        inventor: false,
+        country: plan.country,
+        target: plan.target,
+        lead: plan.lead,
+        founded: date,
+        phase: 0,
+        capital: Money::ZERO,
+        chance: 0.0,
+        raised: Money::ZERO,
+        round_until: None,
+        phase_until: None,
+        owners: Stake::sole(Holder::Company(company)),
+        status: VentureStatus::Active,
+        blur: 2.0 * rng.next_f64() - 1.0,
+        pledges: Vec::new(),
+        book: Vec::new(),
+        grants: Vec::new(),
+        parent: None,
+        pace: VenturePace::Normal,
+        exit: None,
+        origin: Some(company),
+    };
+    let gdp = state.countries.get(plan.country).gdp_per_capita_usd;
+    start_phase(&catalog.ventures, &mut v, plan.phase, gdp, date);
+    v
+}
+
+/// Months the phases from `phase` on take at the normal pace (without waiting for rounds).
+pub fn months_from(m: &VentureModel, phase: usize) -> u32 {
+    m.phases.iter().skip(phase).map(|p| p.months).sum()
+}
+
+/// Whether a plan can end before history: a new technology needs at least as many years
+/// ahead as its phases take; a level has no date in history.
+pub fn ahead_of_history(m: &VentureModel, plan: &SpinOffPlan) -> bool {
+    match plan.target {
+        VentureTarget::Technology(_) => plan.lead * 12.0 >= f64::from(months_from(m, plan.phase)),
+        VentureTarget::Development { .. } => true,
+    }
+}
+
+/// Other companies whose research centers work on the same target: they may reach it
+/// first and overtake the start-up.
+pub fn rivals(state: &GameState, company: CompanyId, target: VentureTarget) -> u32 {
+    let mut seen: BTreeSet<CompanyId> = BTreeSet::new();
+    for s in &state.sites {
+        if s.owner == company
+            || s.kind != SiteType::ResearchCenter
+            || state.companies[s.owner.index()].bankrupt
+        {
+            continue;
+        }
+        let same = match target {
+            VentureTarget::Technology(t) => s.research == Some(t),
+            VentureTarget::Development { product, .. } => {
+                s.research.is_none() && s.development == Some(product)
+            }
+        };
+        if same {
+            seen.insert(s.owner);
+        }
+    }
+    // Few companies; the cast is exact.
+    seen.len() as u32
+}
+
+/// What the start-up of a plan would be worth today, before its first round.
+pub fn spin_off_value(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    plan: &SpinOffPlan,
+) -> Money {
+    value(
+        &catalog.ventures,
+        &spin_off_venture(catalog, state, company, plan, state.date),
+    )
+}
+
+/// `SpinOff` (SU3): the project of a research center becomes a start-up the company
+/// holds; it sells `sell` of it to investors at once and keeps a subsidiary above the
+/// majority.
+pub(crate) fn spin_off(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    site: SiteId,
+    sell_share: f64,
+) -> Result<(), CommandError> {
+    if !sell_share.is_finite() || !(0.0..1.0).contains(&sell_share) {
+        return Err(CommandError::InvalidShare);
+    }
+    let m = &catalog.ventures;
+    let date = state.date;
+    let plan = spin_off_plan(catalog, state, actor, site, date)?;
+    let v = spin_off_venture(catalog, state, actor, &plan, date);
+    let id = v.id;
+    state.next_venture += 1;
+    state.ventures.push(v);
+    // The project moves into the start-up; the research center is free.
+    let c = &mut state.companies[actor.index()];
+    match plan.target {
+        VentureTarget::Technology(t) => {
+            c.research.remove(&t);
+        }
+        VentureTarget::Development { product, .. } => {
+            c.development.points.remove(&product);
+        }
+    }
+    let s = &mut state.sites[site.index()];
+    s.research = None;
+    s.development = None;
+    if sell_share > 0.0 {
+        sell(state, catalog, actor, id, sell_share)?;
+    }
+    let i = state.ventures.len() - 1;
+    if share_of(&state.ventures[i], actor) > m.stakes.majority {
+        state.ventures[i].parent = Some(actor);
+    }
+    Ok(())
+}
+
+/// The chance of success an AI company sees (SU3): blurred by the start-up's draw, the
+/// less the more competent the company is.
+fn ai_chance(catalog: &Catalog, state: &GameState, company: CompanyId, v: &Venture) -> f64 {
+    let m = &catalog.ventures;
+    let (competence, _) = crate::ai::traits(catalog, state, company);
+    let blur = m.blur * (1.0 - competence);
+    (success_chance(m, v) * (1.0 + v.blur * blur)).clamp(0.0, 1.0)
+}
+
+/// What an AI company does with start-ups at a month start (SU3): at the start of a year
+/// it may spin off research projects; it pledges to promising rounds and takes over
+/// start-ups it can use. Every step is a command through the decider. Returns news for
+/// the player.
+pub(crate) fn ai_month(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    own: &[SiteId],
+    date: Date,
+    decider: &mut dyn Decider,
+) -> Vec<Message> {
+    let m = &catalog.ventures;
+    let a = &m.stakes.ai;
+    let mut news = Vec::new();
+    // NaN counts as no start-ups.
+    let wanted = state.settings.ventures > 0.0;
+    if m.phases.is_empty() || !wanted {
+        return news;
+    }
+    let month = management::month_number(date);
+    let mut rng = SimRng::for_stream(
+        state.settings.seed,
+        Stream::VentureBids {
+            company: company.0,
+            month,
+        },
+    );
+    if date.ordinal() == 1 {
+        news.extend(ai_spin_offs(
+            state, catalog, company, own, &mut rng, decider,
+        ));
+    }
+    if !state
+        .ventures
+        .iter()
+        .any(|v| v.status == VentureStatus::Active)
+        || state.companies[company.index()].ledger.cash() < a.cash_min
+        || !rng.chance(a.check_chance)
+    {
+        return news;
+    }
+    ai_pledges(state, catalog, company, decider);
+    news.extend(ai_takeover(state, catalog, company, own, decider));
+    news
+}
+
+/// Research projects an AI company spins off at the start of a year, each with the
+/// chance of the data.
+fn ai_spin_offs(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    own: &[SiteId],
+    rng: &mut SimRng,
+    decider: &mut dyn Decider,
+) -> Vec<Message> {
+    let a = &catalog.ventures.stakes.ai;
+    let mut news = Vec::new();
+    if a.spin_off_chance <= 0.0 {
+        return news;
+    }
+    for &site in own {
+        let date = state.date;
+        // Only projects that can end before history and no rival works on.
+        let promising = spin_off_plan(catalog, state, company, site, date).is_ok_and(|plan| {
+            ahead_of_history(&catalog.ventures, &plan) && rivals(state, company, plan.target) == 0
+        });
+        if !promising || !rng.chance(a.spin_off_chance) {
+            continue;
+        }
+        let command = Command::SpinOff {
+            site,
+            sell: a.spin_off_sale,
+        };
+        let decided = decision::decided(decider, state, catalog, |_| {
+            Decision::new(
+                Topic::Venture,
+                company,
+                Choice::one(ChoiceKind::Sell, command.clone()),
+            )
+        });
+        if !decided || crate::command::execute(state, catalog, company, &command).is_err() {
+            continue;
+        }
+        let Some(v) = state.ventures.last() else {
+            continue;
+        };
+        news.push(
+            Message::new(MessageKind::Info, keys::VENTURE_SPIN_OFF)
+                .with(
+                    "firma",
+                    Param::Text(state.companies[company.index()].name.clone()),
+                )
+                .with("name", Param::Text(v.name.clone()))
+                .with(
+                    "land",
+                    Param::Country(catalog.countries.key(v.country).to_owned()),
+                )
+                .with("ziel", target_param(catalog, v.target)),
+        );
+    }
+    news
+}
+
+/// Pledges of an AI company to the open rounds it expects most of, within its share of
+/// the cash for a month.
+fn ai_pledges(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    decider: &mut dyn Decider,
+) {
+    let m = &catalog.ventures;
+    let a = &m.stakes.ai;
+    let (_, aggressiveness) = crate::ai::traits(catalog, state, company);
+    let wanted = 1.0 + (1.0 - aggressiveness) * a.min_return;
+    let mut left = state.companies[company.index()]
+        .ledger
+        .cash()
+        .scale(a.cash_share);
+    let mut found: Vec<(f64, u32, Money)> = state
+        .ventures
+        .iter()
+        .filter(|v| {
+            v.status == VentureStatus::Active
+                && v.round_until.is_some()
+                && v.parent.is_none()
+                && amount_of(&v.pledges, company) == Money::ZERO
+        })
+        .map(|v| {
+            let chance = ai_chance(catalog, state, company, v);
+            (return_at(state, m, v, chance), v.id, v.capital - v.raised)
+        })
+        .filter(|&(e, _, open)| e >= wanted && open > Money::ZERO)
+        .collect();
+    found.sort_by(|x, y| y.0.total_cmp(&x.0).then(x.1.cmp(&y.1)));
+    for (_, venture, open) in found {
+        let amount = open.min(left);
+        if amount <= Money::ZERO {
+            break;
+        }
+        let command = Command::InvestInVenture { venture, amount };
+        let decided = decision::decided(decider, state, catalog, |_| {
+            Decision::new(
+                Topic::Venture,
+                company,
+                Choice::one(ChoiceKind::Invest, command.clone()),
+            )
+        });
+        if decided && crate::command::execute(state, catalog, company, &command).is_ok() {
+            left -= amount;
+        }
+    }
+}
+
+/// Whether a start-up's target serves an AI company: a technology for a product of its
+/// branches, or the next level of a product it makes.
+fn serves(
+    catalog: &Catalog,
+    target: VentureTarget,
+    branches: &BTreeSet<crate::ids::BranchId>,
+    products: &BTreeSet<ProductId>,
+) -> bool {
+    match target {
+        VentureTarget::Technology(t) => catalog.recipes.values().any(|r| {
+            (r.technology == Some(t) || catalog.facilities.get(r.facility).technology == Some(t))
+                && branches.contains(&catalog.products.get(r.product).branch)
+        }),
+        VentureTarget::Development { product, .. } => products.contains(&product),
+    }
+}
+
+/// An AI company buys the majority of the most promising start-up it can use and already
+/// holds a share of, between its rounds, and integrates it, if no other company holds a
+/// blocking minority and both cost at most its share of the cash for takeovers.
+fn ai_takeover(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    own: &[SiteId],
+    decider: &mut dyn Decider,
+) -> Vec<Message> {
+    let m = &catalog.ventures;
+    let a = &m.stakes.ai;
+    let mut products = BTreeSet::new();
+    for &site in own {
+        for sl in &state.sites[site.index()].slots {
+            if let Some(r) = sl.recipe {
+                products.insert(catalog.recipes.get(r).product);
+            }
+        }
+    }
+    let branches: BTreeSet<crate::ids::BranchId> = products
+        .iter()
+        .map(|&p| catalog.products.get(p).branch)
+        .collect();
+    if products.is_empty() {
+        return Vec::new();
+    }
+    let limit = state.companies[company.index()]
+        .ledger
+        .cash()
+        .scale(a.takeover_cash);
+    let wanted = m.stakes.majority + 0.01;
+    let best = state
+        .ventures
+        .iter()
+        .filter(|v| {
+            let own = share_of(v, company);
+            v.status == VentureStatus::Active
+                && v.round_until.is_none()
+                && v.parent.is_none()
+                && !blocked(m, v, company)
+                && own >= a.takeover_share_min
+                && own <= m.stakes.majority
+        })
+        .filter_map(|v| {
+            let chance = ai_chance(catalog, state, company, v);
+            let own_share = share_of(v, company);
+            let outside: f64 = v
+                .owners
+                .iter()
+                .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+                .fold(0.0, |sum, s| sum + s.share);
+            let price = value(m, v).scale(1.0 + m.stakes.buy_premium);
+            let cost = price.scale(1.0 - own_share);
+            (chance >= a.takeover_chance_min
+                && outside + own_share >= wanted
+                && price > Money::ZERO
+                && cost <= limit
+                && serves(catalog, v.target, &branches, &products))
+            .then(|| (chance, v.id, price.scale(wanted - own_share)))
+        })
+        .max_by(|x, y| x.0.total_cmp(&y.0).then(y.1.cmp(&x.1)));
+    let Some((_, venture, buy)) = best else {
+        return Vec::new();
+    };
+    let commands = [
+        Command::InvestInVenture {
+            venture,
+            amount: buy,
+        },
+        Command::IntegrateVenture { venture },
+    ];
+    let decided = decision::decided(decider, state, catalog, |_| {
+        Decision::new(
+            Topic::Venture,
+            company,
+            Choice::one(ChoiceKind::Invest, commands[0].clone()).then(commands[1].clone(), true),
+        )
+    });
+    if !decided {
+        return Vec::new();
+    }
+    let player = state.player;
+    let Ok(i) = position(state, venture) else {
+        return Vec::new();
+    };
+    let player_share = share_of(&state.ventures[i], player);
+    let payment = value(m, &state.ventures[i]).scale((1.0 + m.stakes.buy_premium) * player_share);
+    if crate::command::execute(state, catalog, company, &commands[0]).is_err()
+        || crate::command::execute(state, catalog, company, &commands[1]).is_err()
+    {
+        return Vec::new();
+    }
+    let v = &state.ventures[i];
+    let firm = state.companies[company.index()].name.clone();
+    let message = if player_share > 0.0 {
+        Message::new(MessageKind::Info, keys::VENTURE_BOUGHT_OUT)
+            .with("firma", Param::Text(firm))
+            .with("name", Param::Text(v.name.clone()))
+            .with("betrag", Param::Money(payment))
+    } else {
+        Message::new(MessageKind::Info, keys::VENTURE_TAKEN_OVER)
+            .with("firma", Param::Text(firm))
+            .with("name", Param::Text(v.name.clone()))
+            .with("ziel", target_param(catalog, v.target))
+    };
+    vec![message]
 }

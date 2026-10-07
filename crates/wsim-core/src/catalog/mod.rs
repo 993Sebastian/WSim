@@ -368,6 +368,9 @@ pub struct VentureStakeModel {
     /// of 0, and the most of the cash it puts in.
     pub min_return: f64,
     pub cash_share: f64,
+    /// Progress of a research project from which it may be spun off (SU3).
+    pub spin_off_progress_min: f64,
+    pub ai: VentureAiModel,
 }
 
 impl Default for VentureStakeModel {
@@ -385,6 +388,45 @@ impl Default for VentureStakeModel {
             thorough: (1.0, 1.0),
             min_return: 0.0,
             cash_share: 0.0,
+            spin_off_progress_min: 1.0,
+            ai: VentureAiModel::default(),
+        }
+    }
+}
+
+/// How AI companies take part in start-ups (SU3, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct VentureAiModel {
+    /// Chance a month that a company with at least `cash_min` looks at the start-ups.
+    pub check_chance: f64,
+    pub cash_min: Money,
+    /// The most of its cash it pledges in a month.
+    pub cash_share: f64,
+    /// Return per dollar above 1 it wants at an aggressiveness of 0.
+    pub min_return: f64,
+    /// It takes over useful start-ups from this shown chance, if it already holds this
+    /// share, for up to this share of its cash.
+    pub takeover_chance_min: f64,
+    pub takeover_share_min: f64,
+    pub takeover_cash: f64,
+    /// Chance at the start of a year that it spins off a research project, and the share
+    /// it sells to investors then.
+    pub spin_off_chance: f64,
+    pub spin_off_sale: f64,
+}
+
+impl Default for VentureAiModel {
+    fn default() -> Self {
+        Self {
+            check_chance: 0.0,
+            cash_min: Money::ZERO,
+            cash_share: 0.0,
+            min_return: 0.0,
+            takeover_chance_min: 1.0,
+            takeover_share_min: 1.0,
+            takeover_cash: 0.0,
+            spin_off_chance: 0.0,
+            spin_off_sale: 0.0,
         }
     }
 }

@@ -3,10 +3,11 @@
 use serde::{Deserialize, Serialize};
 
 use super::{iso, usd};
+use crate::catalog::SiteType;
 use crate::game::Game;
 use crate::ledger::Account;
 use crate::state::{
-    Holder, Venture, VentureExit, VentureFailure, VenturePace, VentureStatus, VentureTarget,
+    Holder, SiteId, Venture, VentureExit, VentureFailure, VenturePace, VentureStatus, VentureTarget,
 };
 use crate::ventures;
 
@@ -96,6 +97,35 @@ pub struct VentureView {
     /// company it went to or became.
     pub exit: Option<String>,
     pub exit_company: Option<String>,
+    /// The company whose research project it was (SU3).
+    pub origin: Option<String>,
+}
+
+/// A research project of the player that could become a start-up (SU3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SpinOffView {
+    pub site: u32,
+    pub country: String,
+    /// `technologie` or `verbesserung`, the key of the technology or product, and the
+    /// level an improvement aims at.
+    pub kind: String,
+    pub target: String,
+    pub level: Option<u8>,
+    /// Share of the effort done (0–1).
+    pub progress: f64,
+    /// Years until history invents the technology (none for a level), and the months its
+    /// phases would still take.
+    pub lead: Option<f64>,
+    pub months: Option<u32>,
+    /// Other companies whose research centers work on the same target.
+    pub rivals: u32,
+    /// Key of the phase it would begin in, its value then and what all of it fetches
+    /// from investors (with the discount); none where it cannot be spun off.
+    pub phase: Option<String>,
+    pub value_usd: Option<f64>,
+    pub sale_value_usd: Option<f64>,
+    /// Why not: `fortschritt` (too early) or `nicht_moeglich` (invented or reached).
+    pub reason: Option<String>,
 }
 
 /// The start-ups of the world (SU1, SU2).
@@ -135,6 +165,10 @@ pub struct VenturesView {
     pub grant_effect: f64,
     /// The paces a majority can choose (`startup.lenkung.<key>`).
     pub paces: Vec<String>,
+    /// The projects of the player's research centers (SU3) and the progress from which
+    /// one may be spun off.
+    pub spin_offs: Vec<SpinOffView>,
+    pub spin_off_min: f64,
 }
 
 pub fn ventures(game: &Game) -> VenturesView {
@@ -272,6 +306,10 @@ pub fn ventures(game: &Game) -> VenturesView {
                 }
                 _ => None,
             },
+            origin: v
+                .origin
+                .and_then(|o| state.company(o))
+                .map(|x| x.name.clone()),
         }
     };
     let mut active: Vec<VentureView> = state
@@ -323,6 +361,8 @@ pub fn ventures(game: &Game) -> VenturesView {
             .iter()
             .map(|p| p.key().to_owned())
             .collect(),
+        spin_offs: spin_offs(game),
+        spin_off_min: m.stakes.spin_off_progress_min,
         label: m.label(state.date.year()).map(str::to_owned),
         per_year: m.per_year * state.settings.ventures,
         estimated: ventures::insight(c, state, player).is_some(),
@@ -333,4 +373,90 @@ pub fn ventures(game: &Game) -> VenturesView {
         failed: count(|s| matches!(s, VentureStatus::Failed(..))),
         keep_years: m.keep_years,
     }
+}
+
+/// The projects of the player's research centers and whether each may be spun off.
+fn spin_offs(game: &Game) -> Vec<SpinOffView> {
+    let c = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    let company = &state.companies[player.index()];
+    let mut out = Vec::new();
+    for (i, s) in state.sites.iter().enumerate() {
+        if s.owner != player || s.kind != SiteType::ResearchCenter {
+            continue;
+        }
+        // A handful of sites; the cast cannot overflow.
+        let site = SiteId(i as u32);
+        let (kind, target, level, progress) = match (s.research, s.development) {
+            (Some(t), _) => {
+                let effort =
+                    crate::research::effort(c, state, t, state.date).map_or(0.0, |e| e.points);
+                let points = company.research.get(&t).copied().unwrap_or(0.0);
+                let progress = if effort > 0.0 { points / effort } else { 0.0 };
+                ("technologie", c.technologies.key(t), None, progress)
+            }
+            (None, Some(p)) => {
+                let next = crate::development::next_effort(c, state, player, p, state.date);
+                let points = company.development.points.get(&p).copied().unwrap_or(0.0);
+                let progress = next.map_or(0.0, |(_, e)| if e > 0.0 { points / e } else { 0.0 });
+                (
+                    "verbesserung",
+                    c.products.key(p),
+                    next.map(|(level, _)| level),
+                    progress,
+                )
+            }
+            (None, None) => continue,
+        };
+        let plan = ventures::spin_off_plan(c, state, player, site, state.date);
+        let (phase, value, sale, reason) = match &plan {
+            Ok(plan) => {
+                let value = ventures::spin_off_value(c, state, player, plan);
+                (
+                    c.ventures.phases.get(plan.phase).map(|p| p.key.clone()),
+                    Some(usd(value)),
+                    Some(usd(value.scale(1.0 - c.ventures.stakes.sale_discount))),
+                    None,
+                )
+            }
+            Err(crate::command::CommandError::SpinOffTooEarly { .. }) => {
+                (None, None, None, Some("fortschritt".to_owned()))
+            }
+            Err(_) => (None, None, None, Some("nicht_moeglich".to_owned())),
+        };
+        let (lead, months) = match &plan {
+            Ok(plan) => (
+                matches!(plan.target, crate::state::VentureTarget::Technology(_))
+                    .then_some(plan.lead),
+                Some(ventures::months_from(&c.ventures, plan.phase)),
+            ),
+            Err(_) => (None, None),
+        };
+        let target_of = match (s.research, s.development) {
+            (Some(t), _) => crate::state::VentureTarget::Technology(t),
+            (None, Some(product)) => crate::state::VentureTarget::Development {
+                product,
+                level: level.unwrap_or(1),
+            },
+            (None, None) => continue,
+        };
+        let rivals = ventures::rivals(state, player, target_of);
+        out.push(SpinOffView {
+            site: site.0,
+            country: c.countries.key(s.country).to_owned(),
+            kind: kind.to_owned(),
+            target: target.to_owned(),
+            level,
+            progress: progress.clamp(0.0, 1.0),
+            lead,
+            months,
+            rivals,
+            phase,
+            value_usd: value,
+            sale_value_usd: sale,
+            reason,
+        });
+    }
+    out
 }

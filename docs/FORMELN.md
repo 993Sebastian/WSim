@@ -3338,3 +3338,69 @@ Die Technologie bzw. Stufe ist in jedem Fall weltweit wie in SU1 in der Welt.
 - Wie bei Umschuldung und Gehaltsrunde (ZA3): Im Budget und in der Freigabegrenze der
   Abteilung sagt die Stelle selbst zu, sonst wird es ein Anliegen mit Begründung
   (Chance, Wert bei Erfolg, Anteil danach, E).
+
+## SU3 – Ausgründungen, KI-Firmen und KI-Investoren beteiligen sich
+
+`docs/BETEILIGUNGEN.md` Abschnitte 5.3 und 5.7. Daten: `parameter/startups.yaml`, Blöcke
+`ausgruendung` und `ki` im Abschnitt `beteiligung`. Kern: Modul `ventures` (Befehl
+`SpinOff`, Regeln der KI-Firmen). KI-Firmen nutzen dieselben Befehle wie der Spieler
+(`InvestInVenture`, `IntegrateVenture`, `SpinOff`); „KI-Investoren“ sind die Investoren
+außerhalb des Spiels (`Holder::Investors`, SU1), die Runden decken und Anteile kaufen.
+
+### Ausgründung (`SpinOff { site, sell }`)
+
+- Ein Forschungszentrum der Firma arbeitet an einem Ziel, das ein Start-up haben kann:
+  einer Technologie, die noch nicht erfunden ist (weder in der Geschichte noch im Spiel),
+  oder der nächsten Stufe eines Produkts, die noch keine Firma hat (M37).
+- Fortschritt F = gesammelte Punkte / heutiger Aufwand (Technologie: M9; Stufe: M37).
+  Ausgründen geht ab F ≥ `ausgruendung.fortschritt_min`.
+- Das neue Start-up sitzt im Land des Forschungszentrums, der Gründer ist ein Name aus
+  diesem Land (eigener Zufallsstrom je Start-up), Vorlauf wie in SU1 (Jahre bis zum
+  historischen Jahr, bei einer Stufe 0). Es beginnt in Phase ⌊F · Anzahl Phasen⌋
+  (höchstens die letzte) mit offener Runde (SU1).
+- Die Punkte der Firma für das Ziel gehen an das Start-up über (die Firma verliert sie),
+  das Forschungszentrum ist frei.
+- Die Firma hält 100 % (Buchwert 0: die Forschung war Aufwand). Mit `sell` (0 ≤ sell < 1)
+  verkauft sie sofort diesen Anteil an Investoren wie beim Verkauf (SU2):
+  Erlös = sell · W · (1 − `verkauf_abschlag`), ganz als Beteiligungsergebnis.
+- Behält sie über `mehrheit`, ist das Start-up ihre **Tochterfirma**; sonst ist sie
+  Minderheitseigner wie jeder andere.
+
+### Runden einer Tochterfirma (ersetzt die Regel aus SU2)
+
+- Am ersten Monatsanfang einer offenen Runde sagt die Mutter ihren Teil zu:
+  Anteil der Mutter · Kapital (pro rata), sofern ihre Kasse reicht. Den Rest decken
+  Investoren wie in SU1; so bleibt der Anteil der Mutter gleich. Bei 100 % (eingegliedert)
+  schließt die Runde sofort wie bisher.
+- Reicht die Kasse nicht, verwässern die Investoren die Mutter; unter `mehrheit` ist es
+  keine Tochter mehr.
+
+### KI-Firmen beteiligen sich (`ki`)
+
+- **Prüfung:** Am Monatsanfang prüft jede KI-Firma mit Kasse ≥ `ki.kasse_min_usd` mit der
+  Wahrscheinlichkeit `ki.pruefen_chance` die Start-ups (eigener Zufallsstrom je Firma und
+  Monat, damit eine Welt ohne Start-ups bitgleich bleibt).
+- **Einschätzung:** Die gezeigte Chance wie in SU1 mit der Unschärfe
+  `unschaerfe` · (1 − Kompetenz) – die Kompetenz ersetzt die Strategieabteilung.
+- **Zusage in einer offenen Runde:** erwarteter Ertrag je Dollar E wie in SU2. Sie sagt zu,
+  wenn E ≥ 1 + (1 − Aggressivität) · `ki.rendite_mindest`, die beste Runde zuerst,
+  höchstens der offene Rest und `ki.einsatz_kasse` der Kasse im Monat.
+- **Wegkaufen:** Arbeitet ein Start-up an einer Technologie, die einem Produkt der Firma
+  dient (Rezept eines Produkts ihrer Branchen braucht sie), oder an der nächsten Stufe eines
+  Produkts, das sie herstellt, hält sie schon mindestens `ki.uebernahme_anteil_min` (aus
+  Zusagen) und ist die gezeigte Chance ≥ `ki.uebernahme_chance_min`, kauft sie zwischen
+  den Runden Anteile von Gründern und Investoren bis über die Mehrheit
+  und gliedert es ein – wenn Kauf und Eingliederung zusammen höchstens
+  `ki.uebernahme_kasse` der Kasse kosten und keine andere Firma eine Sperrminorität hält.
+  Ein Spieler mit mindestens 25 % verhindert so die Übernahme.
+- **Ausgründen:** Zum Jahresbeginn gründet eine KI-Firma mit der Wahrscheinlichkeit
+  `ki.ausgruenden_chance` ein Forschungsprojekt aus, das die Bedingungen erfüllt und vor
+  der Geschichte fertig werden kann (bei einer Technologie: Vorlauf in Monaten ≥ Summe der
+  Monate der restlichen Phasen) und an dem kein anderes Forschungszentrum arbeitet, und
+  verkauft `ki.ausgruenden_verkauf` an Investoren. Dem Spieler zeigt die Ansicht Vorlauf,
+  Restdauer und die Zahl der Firmen am selben Ziel und warnt, wenn die Geschichte oder die
+  Konkurrenz schneller sein dürfte.
+- Jede Handlung läuft als Befehl durch dieselbe Prüfung wie beim Spieler (MA0: Entscheidung
+  mit Thema `startup`); der Spieler erfährt, wenn eine Firma ein Start-up übernimmt, an dem
+  er beteiligt ist (er erhält W · (1 + `kauf_aufschlag`) für seinen Anteil), und wenn eine
+  Firma ausgründet.

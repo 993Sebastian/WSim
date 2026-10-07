@@ -438,6 +438,11 @@ test("An einem Start-up beteiligen und es fördern", async ({ page }) => {
   ]);
   await detail.getByRole("button", { name: "Zurück zur Liste" }).click();
   await expect(page.getByRole("table", { name: "Laufend" })).toBeVisible();
+  // Without a research center there is nothing to spin off yet.
+  await page.getByRole("button", { name: /^Ausgründen/ }).click();
+  await expect(
+    page.getByText(/Keines deiner Forschungszentren arbeitet an einem Projekt/),
+  ).toBeVisible();
 });
 
 test("Produktionsketten zeigen Kosten, eigene Abdeckung und führen zum Markt", async ({ page }) => {

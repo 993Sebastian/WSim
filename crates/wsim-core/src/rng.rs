@@ -64,6 +64,15 @@ pub enum Stream {
         id: u32,
         month: u32,
     },
+    /// Founder and draw of a spun-off start-up (SU3).
+    SpinOff {
+        id: u32,
+    },
+    /// An AI company's look at the start-ups in a month (SU3).
+    VentureBids {
+        company: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -91,6 +100,10 @@ impl Stream {
             }
             Stream::Ventures { month } => (10 << 56) | u64::from(month),
             Stream::Venture { id, month } => (11 << 56) | (u64::from(id) << 24) | u64::from(month),
+            Stream::SpinOff { id } => (12 << 56) | u64::from(id),
+            Stream::VentureBids { company, month } => {
+                (13 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
         }
     }
 }

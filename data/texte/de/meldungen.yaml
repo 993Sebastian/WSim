@@ -202,6 +202,8 @@ fehler.befehl.betrag_zu_hoch: "Das ist mehr, als zu haben ist: höchstens {max}.
 fehler.befehl.anteil_zu_klein: So viele Anteile hält deine Firma nicht.
 fehler.befehl.keine_mehrheit: Das darf nur, wer mehr als die Hälfte hält.
 fehler.befehl.sperrminoritaet: Eine andere Firma hält eine Sperrminorität (ein Viertel oder mehr).
+fehler.befehl.keine_ausgruendung: "Ausgründen lässt sich nur das Projekt eines eigenen Forschungszentrums, das an einer noch nicht erfundenen Technologie oder an einer Stufe arbeitet, die noch keine Firma erreicht hat."
+fehler.befehl.ausgruendung_zu_frueh: "Das Projekt ist erst zu {fortschritt} % fertig – ausgründen kannst du ab {mindestens} %."
 meldung.hauptsitz.umgezogen: "Der Hauptsitz ist nach {land} umgezogen. Gewinnsteuer und Gehälter des Vorstands richten sich jetzt nach diesem Land."
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
 meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."
@@ -214,6 +216,8 @@ meldung.startup.ausgezahlt: "Du übernimmst {name} ganz und zahlst den übrigen 
 meldung.startup.uebernommen: "{firma} übernimmt {name} ganz: Du erhältst {betrag} für deinen Anteil."
 meldung.startup.boersengang: "{name} geht an die Börse: Du erhältst {betrag} für deinen Anteil."
 meldung.startup.neue_firma: "Aus {name} ({land}) wird die Firma {firma} – mit {ziel} als Vorsprung."
+meldung.startup.ausgruendung: "{firma} gründet ihre Forschung an {ziel} als Start-up aus: {name} ({land}) sucht Geld für die nächste Runde."
+meldung.startup.uebernahme: "{firma} übernimmt das Start-up {name} ({ziel}) – gelingt es, hat die Firma den Vorsprung."
 meldung.manager.kuendigung: "{name} ({stelle}, {ort}) hat gekündigt – zu unzufrieden mit Gehalt, Ergebnis oder übergangenen Empfehlungen. Die Stelle ist frei."
 meldung.manager.eingestellt: "{leitung} ({ort}) hat {name} als {stelle} eingestellt – Gehalt {gehalt} im Jahr."
 meldung.manager.abwerbung: "{firma} will {name} ({stelle}, {ort}) abwerben und bietet {angebot} im Jahr statt bisher {gehalt}. Antwort bis {frist}."
