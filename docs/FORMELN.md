@@ -3621,3 +3621,36 @@ sieht die Firma
 Die Zahlen gelten ein Kalenderjahr; im nächsten Jahr irrt die Firma anders. Der eigene
 Strom je Firma, Produkt und Jahr verschiebt keine anderen Zufallszahlen. Der Spieler ist
 nicht betroffen: Seine Stellen schätzen mit dem Prognosefehler der Manager (MA2).
+
+## C1 – Händler gleichen Preisinseln aus (Arbitrage)
+
+Auftrag vom 07.10.2026, Paket C: offener Punkt G (M40) 4 und Teil von G 9. Daten:
+`parameter/marktmodell.yaml`, `haendler.arbitrage`. Ergänzt die Händlerregeln aus M8.
+
+Bisher brachten Händler Ware nur für die **offene** Nachfrage ō eines Landes, also für
+Käufer, die die Firmen im Land nicht bedienten. War ein Land zu hohen Preisen versorgt,
+kam keine billigere Ware herein (2009: LCD-Panel in den USA beim Dreifachen des
+chinesischen Preises).
+
+### Regel
+
+Für ein Zielland B mit Marktpreis P (wie in M8: Index oder höchstes Gebot) und dem
+günstigsten Einstandspreis E aus dem Ausland (Angebotspreis + Transport):
+
+- **Preisinsel:** P > E · (1 + `marge`) · (1 + `arbitrage.abstand`).
+- Dann planen die Händler zusätzlich zur offenen Nachfrage einen Teil des Absatzes in B:
+
+      a = `arbitrage.anteil` · v,   v = Absatz in B im Vormonat / 30
+
+  und der Bedarf wird (vorrat_tage + Transporttage) · (ō + a) − Importlager − unterwegs.
+- Den Anteil a decken nur Angebote, die selbst die Bedingung der Preisinsel erfüllen
+  (E_i · (1 + marge) · (1 + abstand) < P), die günstigsten zuerst; teurere Angebote
+  decken wie bisher nur die offene Nachfrage.
+- Die Ware landet im Importlager und wird dort wie jedes Angebot verkauft: Käufer nehmen
+  die billigsten Angebote zuerst. Die Firmen im Land verlieren Absatz, ihr Lager wächst,
+  ihre Preise sinken (M16, „langsam“), bis P den Abstand zum Ausland nicht mehr
+  übersteigt. Im Gleichgewicht gilt also P ≤ (Preis(A) + Transport) · (1 + marge) ·
+  (1 + abstand).
+
+Mit den Daten: Abstand 15 %, Anteil 25 % des Absatzes. Der Abstand verhindert, dass
+Händler wegen kleiner Unterschiede Ware hin- und herschieben.

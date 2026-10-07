@@ -166,7 +166,12 @@ pub(crate) fn plan(
     // Markets with open demand and the sources whose landed cost the price covers.
     struct Destination {
         country: CountryId,
+        /// For the open demand; any source may cover it.
         need: f64,
+        /// For a price island (C1); only sources far enough below the price cover it.
+        arbitrage: f64,
+        /// Landed cost below which a source covers the arbitrage need.
+        arbitrage_below: Money,
         margin: f64,
         /// (landed cost, source index, transport per unit, days), cheapest on top
         candidates: BinaryHeap<Reverse<(Money, usize, Money, u32)>>,
@@ -175,7 +180,9 @@ pub(crate) fn plan(
     for country in catalog.countries.ids() {
         let m = state.markets.get(product).get(country);
         let open = market::open_demand(m, model, state.date);
-        if open <= 1e-9 {
+        // Sales at home last month per day, the base of the arbitrage (C1).
+        let sales = (m.last_month.sold - m.last_month.exported).max(0.0) / 30.0;
+        if open <= 1e-9 && (model.arbitrage_share <= 0.0 || sales <= 1e-9) {
             continue;
         }
         // Companies that keep a stock state what they would pay; a market without
@@ -228,18 +235,32 @@ pub(crate) fn plan(
         let Some(&Reverse(cheapest)) = candidates.peek() else {
             continue;
         };
+        // A price island (C1): the cheapest goods from abroad with margin and gap stay
+        // below the price; traders then bring a share of the sales as well.
+        let island = (1.0 + model.trader_margin) * (1.0 + model.arbitrage_gap);
+        let arbitrage_below = price.scale(1.0 / island);
+        let extra = if cheapest.0 < arbitrage_below {
+            model.arbitrage_share * sales
+        } else {
+            0.0
+        };
         // Stock and goods on the way cover the days at sea as well: with the cover
         // alone, a route longer than it would only ever bring part of the demand.
         let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
         let days = f64::from(cheapest.3);
-        let need = (model.trader_cover_days + days) * open - m.imports.quantity - transit;
-        if need <= 1e-9 {
+        let cover = model.trader_cover_days + days;
+        let held = m.imports.quantity + transit;
+        let need = cover * open - held;
+        let total = cover * (open + extra) - held;
+        if total <= 1e-9 {
             continue;
         }
         let margin = (price - cheapest.0).to_usd() / price.to_usd().max(1e-9);
         destinations.push(Destination {
             country,
-            need,
+            need: need.max(0.0),
+            arbitrage: total - need.max(0.0),
+            arbitrage_below,
             margin,
             candidates,
         });
@@ -255,17 +276,24 @@ pub(crate) fn plan(
     let mut unserved = 0.0;
     for d in destinations {
         let mut need = d.need;
+        let mut arbitrage = d.arbitrage;
         let mut candidates = d.candidates;
-        while let Some(Reverse((_, i, transport, days))) = candidates.pop() {
-            if need <= 1e-9 {
+        while let Some(Reverse((landed, i, transport, days))) = candidates.pop() {
+            // Cheapest first: once a source is too dear for the arbitrage, all are.
+            if landed >= d.arbitrage_below {
+                arbitrage = 0.0;
+            }
+            if need + arbitrage <= 1e-9 {
                 break;
             }
-            let quantity = need.min(remaining[i]);
+            let quantity = (need + arbitrage).min(remaining[i]);
             if quantity <= 1e-9 {
                 continue;
             }
             remaining[i] -= quantity;
-            need -= quantity;
+            let from_open = quantity.min(need);
+            need -= from_open;
+            arbitrage -= quantity - from_open;
             plan.push(PlannedBuy {
                 site: sources[i].site,
                 destination: d.country,

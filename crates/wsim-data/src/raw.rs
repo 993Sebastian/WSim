@@ -826,6 +826,18 @@ pub struct RawTraders {
     pub cover_days: f64,
     #[serde(rename = "glaettung_tage")]
     pub smoothing_days: f64,
+    /// Price islands (C1).
+    #[serde(rename = "arbitrage")]
+    pub arbitrage: RawArbitrage,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawArbitrage {
+    #[serde(rename = "abstand")]
+    pub gap: f64,
+    #[serde(rename = "anteil")]
+    pub share: f64,
 }
 
 #[derive(Debug, Deserialize)]

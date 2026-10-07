@@ -40,6 +40,9 @@ marktmodell:
     marge: 0.05                   # Aufschlag auf Einkauf und Transport
     vorrat_tage: 30               # Lager für so viele Tage offener Nachfrage
     glaettung_tage: 30            # Mittelungszeitraum der offenen Nachfrage
+    # Preisinseln (C1): Liegt der Marktpreis um mehr als den Abstand über Einstand und
+    # Marge aus dem Ausland, bringen Händler zusätzlich diesen Anteil des Absatzes.
+    arbitrage: {abstand: 0.15, anteil: 0.25}
   # Marke und Werbung (Formeln: docs/FORMELN.md, Abschnitt M16). Bekanntheit 0–1 je Firma,
   # Land und Warengruppe.
   marke:

@@ -132,7 +132,7 @@ marktmodell:
   meldung_preissenkung: 0.1
   preisniveau_anteil: {rohstoff: 0.2, halbzeug: 0.1, komponente: 0.1, endprodukt: 0.4, energie: 1}
   index_glaettung: 0.1
-  haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30}
+  haendler: {marge: 0.05, vorrat_tage: 30, glaettung_tage: 30, arbitrage: {abstand: 0.15, anteil: 0.25}}
   marke:
     markengewicht: [0.4, 0.6, 0.9, 1.2, 1.5]
     vergessen_je_monat: 0.03
@@ -1674,6 +1674,14 @@ fn marktmodell_wird_geprueft() {
         &d.laden(),
         "Falsche Anzahl an Einträgen (2), erwartet wird 5 Werte",
     );
+    // Price islands (C1).
+    let d = Daten::neu().ersetze("parameter/marktmodell.yaml", "anteil: 0.25}", "anteil: 2}");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "marktmodell.haendler.arbitrage.anteil");
 }
 
 #[test]

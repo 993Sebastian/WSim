@@ -452,3 +452,48 @@ fn shipments_survive_saving() {
     days(&mut loaded, 30);
     assert_eq!(game.state_hash(), loaded.state_hash());
 }
+
+/// BBB is served at home at a high fixed price; AAA sells cheaply (C1).
+fn price_island(share: f64) -> (Game, SiteId) {
+    let mut catalog = test_support::trading();
+    catalog.market_model.arbitrage_share = share;
+    let mut game = new_game(catalog);
+    let player = game.player();
+    let cheap = warehouse(&mut game, player, "AAA", 200_000.0);
+    sell_fixed(&mut game, cheap, 50.0);
+    let rival = competitor(&mut game);
+    let dear = warehouse(&mut game, rival, "BBB", 200_000.0);
+    let product = iron(&game);
+    game.apply_as(
+        rival,
+        Command::SetSale {
+            site: dear,
+            product,
+            mode: Some(PriceMode::Fixed(usd(150.0))),
+            keep: 0.0,
+        },
+    )
+    .unwrap();
+    (game, dear)
+}
+
+#[test]
+fn traders_bring_cheap_goods_to_a_price_island() {
+    let imported = |share| {
+        let (mut game, dear) = price_island(share);
+        days(&mut game, 150);
+        let product = iron(&game);
+        let b = country(&game, "BBB");
+        let state = game.state();
+        let m = state.markets.get(product).get(b);
+        (m.last_month.imported, m.last_month.sold, stock(&game, dear))
+    };
+    // Without arbitrage the local seller covers BBB and nothing comes in.
+    let (none, sold, kept) = imported(0.0);
+    assert!(sold > 0.0);
+    assert!(none < 0.01 * sold, "{none} of {sold}");
+    // With it, traders bring a share of the sales and the local seller sells less.
+    let (some, sold_with, kept_with) = imported(0.25);
+    assert!(some > 0.1 * sold_with, "{some} of {sold_with}");
+    assert!(kept_with > kept, "the dear seller keeps more stock");
+}

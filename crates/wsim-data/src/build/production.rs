@@ -569,6 +569,20 @@ pub(super) fn market_model(
             365.0,
             &traders.field("glaettung_tage"),
         ),
+        arbitrage_gap: in_range(
+            ctx,
+            m.traders.arbitrage.gap,
+            0.0,
+            10.0,
+            &traders.field("arbitrage").field("abstand"),
+        ),
+        arbitrage_share: in_range(
+            ctx,
+            m.traders.arbitrage.share,
+            0.0,
+            1.0,
+            &traders.field("arbitrage").field("anteil"),
+        ),
         brand,
     };
     (model, media_keys)

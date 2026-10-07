@@ -423,7 +423,7 @@ DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschie
 3. **Holz und Baumwolle:** Der Förderindex folgt bei Baumwolle der Welternte (2010 das
    6,9-Fache von 1900); bei Holz kommt ab 1980 ein Zuschlag für Altpapier,
    Sägenebenprodukte und Plantagenholz hinzu, die das Spiel nicht eigens abbildet.
-4. **Bekannte Grenze, mit Vorschlag:** Neue Elektronik bleibt in einzelnen Ländern lange
+4. ✅ (C1: Arbitrage der Händler, `docs/FORMELN.md`) **Bekannte Grenze, mit Vorschlag:** Neue Elektronik bleibt in einzelnen Ländern lange
    beim 2,5- bis 3-Fachen des Richtpreises, obwohl sie anderswo billig zu haben ist
    (2009: LCD-Panel in den USA 11 000 USD je m², in China 3 000–5 800 USD; 25 Firmen
    kennen das Verfahren, drei bauen). Grund: Händler beliefern nur Märkte mit offener

@@ -1672,6 +1672,10 @@ pub struct MarketModel {
     pub trader_cover_days: f64,
     /// Days over which the open demand of a market is averaged.
     pub demand_smoothing_days: f64,
+    /// Price islands (C1): traders also bring this share of a market's sales when its
+    /// price exceeds landed cost and margin from abroad by `arbitrage_gap`.
+    pub arbitrage_gap: f64,
+    pub arbitrage_share: f64,
     /// Brands and advertising (M16).
     pub brand: BrandModel,
 }
@@ -1753,6 +1757,8 @@ impl Default for MarketModel {
             trader_margin: 0.05,
             trader_cover_days: 30.0,
             demand_smoothing_days: 30.0,
+            arbitrage_gap: 0.15,
+            arbitrage_share: 0.0,
             brand: BrandModel::default(),
         }
     }

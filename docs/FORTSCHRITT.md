@@ -68,6 +68,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | D1 | CI: Browser-Version nur auf Wunsch; Plan für die Stufen 2–5 (Architektur §4.1) | ✅ |
 | B1 | Manager-Restpunkte: Gehalt über der Kasse, Abwerben aus „Wettbewerb“, Nachfolgemodelle | ✅ |
 | B2 | Können der KI-Manager wirkt auf Preise und Ausbau (Schätzfehler) | ✅ |
+| C1 | Händler gleichen Preisinseln aus (Arbitrage) | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -574,6 +575,19 @@ Paket B, offener Punkt N 45. Regeln: `docs/FORMELN.md`, Abschnitt B2.
   weniger Wartezeiten auf Vorprodukte (39 statt 52) und Margen außerhalb −20 bis 50 %
   (177 statt 212): Die Märkte schwanken stärker, weil schwache Firmen falsch kalkulieren.
   Laufzeit gleich (628 gegen 624 s).
+
+### C1: Händler gleichen Preisinseln aus (07.10.2026)
+
+Paket C, offener Punkt G (M40) 4. Regeln: `docs/FORMELN.md`, Abschnitt C1.
+
+- **Arbitrage:** Liegt der Marktpreis eines Landes um mehr als 15 % über Einstand und
+  Händlermarge aus dem Ausland, bringen Händler zusätzlich zur offenen Nachfrage ein
+  Viertel des Absatzes; diesen Teil decken nur Angebote, die selbst so weit darunter
+  liegen. Die eingeführte Ware verkauft wie jedes Angebot, die Preise im Land sinken bis
+  auf den Abstand.
+- **Daten und Prüfung:** `haendler.arbitrage` (`abstand`, `anteil`) in
+  `parameter/marktmodell.yaml` mit Fehlerfall-Test; Szenariotest (ohne Arbitrage kommt
+  nichts herein, mit ihr ein Teil des Absatzes, der teure Anbieter verkauft weniger).
 
 ## Eigenständige Entscheidungen (für das Review)
 

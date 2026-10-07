@@ -161,6 +161,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Eigenstrom der KI | `ai::own_power` |
 | Zahlungsbereitschaft (Einkauf der KI) | `willing` in `ai::operate` |
 | Wiederbeschaffungspreis der Händler | `trade::Plan::replacement`, `import_floor` |
+| Preisinsel, Arbitrage der Händler | `trade::plan` (`Destination::{arbitrage, arbitrage_below}`), `MarketModel::{arbitrage_gap, arbitrage_share}` (`haendler.arbitrage`; C1) |
 | Ausbausperre bei knappem Vorprodukt | `AiBehavior::expand_input_price_max` (`ausbau_vorprodukt_preis_max`) |
 | Marktdeckung je Produktart | `AiStart::market_cover` (`[f64; 5]`) |
 | nur als Nebenprodukt hergestellt | `health::made_as_main` |
