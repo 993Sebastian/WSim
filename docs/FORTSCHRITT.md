@@ -567,6 +567,13 @@ Paket B, offener Punkt N 45. Regeln: `docs/FORMELN.md`, Abschnitt B2.
 - **Daten und Prüfung:** `verhalten.schaetzfehler` in `parameter/kimodell.yaml` (0–1),
   Fehlerfall-Test; Kern-Test (genau bei voller Kompetenz und für den Spieler, sonst im
   Band, gleich im Jahr, anders im nächsten).
+- **Weltlauf 1900–1940** (100 KI-Firmen, Protokoll, gegen B1): Pleiten bis 1939 38
+  statt 45; mit Gewinn 1939 91 statt 98 Firmen; Median-Eigenkapital 396 statt 438 Mio.
+  USD. Das Protokoll zählt mehr Jahre mit Preisen außerhalb 0,5–2 × Richtpreis (378 statt
+  362) und knapper Versorgung (74 statt 68 weltweit, 1 639 statt 1 587 je Land), dafür
+  weniger Wartezeiten auf Vorprodukte (39 statt 52) und Margen außerhalb −20 bis 50 %
+  (177 statt 212): Die Märkte schwanken stärker, weil schwache Firmen falsch kalkulieren.
+  Laufzeit gleich (628 gegen 624 s).
 
 ## Eigenständige Entscheidungen (für das Review)
 
