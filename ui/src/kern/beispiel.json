@@ -34160,6 +34160,35 @@
         "markup": -0.1
       }
     ],
+    "sale_countries": [
+      "DEU"
+    ],
+    "sale_products": [
+      {
+        "product": "naegel",
+        "unit": "einheit.t"
+      }
+    ],
+    "sales": [
+      {
+        "allowed": false,
+        "buyer": "firmen",
+        "country": null,
+        "max_per_month": null,
+        "min_price_usd": null,
+        "product": null,
+        "unit": null
+      },
+      {
+        "allowed": true,
+        "buyer": "haendler",
+        "country": null,
+        "max_per_month": 500.0,
+        "min_price_usd": 1700.0,
+        "product": "naegel",
+        "unit": "einheit.t"
+      }
+    ],
     "settings": 5,
     "units": [
       {

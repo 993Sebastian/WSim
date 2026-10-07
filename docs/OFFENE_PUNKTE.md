@@ -838,9 +838,9 @@ Herkunft; Einzelheiten: `docs/FORMELN.md`, MA4).
     Umsatzanteil wie die Stellenbudgets).
 30. **Liquiditätsreserve** in Monaten laufender Kosten (wächst mit der Firma) und nur für
     Investitionen; Kredite bleiben bis MA5 beim Spieler.
-31. **Verkaufswege** (Lastenheft §9.2, im Kern seit M8 vorhanden) haben noch keine
-    Oberfläche. Vorschlag: als siebtes Feld der Strategieansicht mit den Geltungsbereichen
-    Firma, Land, Produkt (nächster Bedienungsschritt).
+31. ✅ **Verkaufswege** (Lastenheft §9.2, im Kern seit M8) stehen jetzt in der
+    Strategieansicht – mit ihren eigenen Geltungsbereichen Firma, Land, Produkt und
+    Produkt im Land (nicht nach Standort und Kontinent, wie in M8 festgelegt).
 32. **Vorschläge der Manager zu Vorgaben** (MANAGER.md §7) kommen mit der
     Strategierücksprache des CEO (MA5).
 33. **Qualität, Partner, Logistik, Marketing, Forschung als Strategiefelder** folgen mit den

@@ -141,6 +141,38 @@ describe("Strategie", () => {
     ]);
   });
 
+  it("zeigt die Verkaufswege und legt Regeln fest", async () => {
+    const { gesendet } = await strategieOeffnen();
+    const wege = screen.getByRole("region", { name: "Verkaufswege" });
+    const regeln = within(wege).getByRole("table", { name: "Regeln" });
+    const zeilen = within(regeln).getAllByRole("row");
+    expect(zeilen[1]!.textContent).toBe("Andere Firmenganze FirmagesperrtEntfernen");
+    expect(zeilen[2]!.textContent).toMatch(
+      /^KI-HändlerNägelerlaubt, ab 1\.700 USD\/t, höchstens 500 t im MonatEntfernen$/,
+    );
+    fireEvent.click(
+      within(regeln).getByRole("button", { name: "Entfernen: Andere Firmen, ganze Firma" }),
+    );
+    const neu = within(wege).getByRole("form", { name: "Regel festlegen" });
+    fireEvent.change(within(neu).getByLabelText("Land"), { target: { value: "DEU" } });
+    fireEvent.change(within(neu).getByLabelText("Produkt"), { target: { value: "naegel" } });
+    fireEvent.change(within(neu).getByLabelText("Mindestpreis"), {
+      target: { value: "1.800" },
+    });
+    fireEvent.click(within(neu).getByRole("button", { name: "Festlegen" }));
+    await within(wege).findAllByText(/Regel für|Vorschau/);
+    expect(gesendet).toEqual([
+      { SetSalesPolicy: { buyer: "Companies", scope: "Company", rule: null } },
+      {
+        SetSalesPolicy: {
+          buyer: "Traders",
+          scope: { ProductInCountry: ["naegel", "DEU"] },
+          rule: { allowed: true, min_price: 1_800 * 10_000, max_per_month: null },
+        },
+      },
+    ]);
+  });
+
   it("hat Texte für alle Felder und Einstellungen", () => {
     const felder = ["preis", "lager", "personal", "eigenfertigung", "investition", "reserve"];
     const fehlend = [

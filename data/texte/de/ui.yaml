@@ -1214,6 +1214,35 @@ strategie.grenzen.lager: "Reichweiten liegen zwischen 0 und {max} Tagen; die Min
 strategie.grenzen.personal: "Der Lohnaufschlag liegt zwischen 0 und {max}, der Mindestwert nicht über dem Höchstwert."
 strategie.grenzen.investition: Das Budget darf nicht negativ sein.
 strategie.grenzen.reserve: "Die Reserve liegt zwischen 0 und {max} Monaten."
+verkaufswege.titel: Verkaufswege
+verkaufswege.hilfe: "Endkunden und Staaten kaufen immer. Ob auch KI-Händler (für die Ausfuhr) und andere Firmen bei dir kaufen dürfen, legst du hier fest."
+verkaufswege.erklaerung: "Eine Regel gilt für die ganze Firma, ein Land, ein Produkt oder ein Produkt in einem Land; die genaueste gilt. Ohne Regel dürfen alle kaufen. Mit Mindestpreis kaufen sie nur, solange dein Preis mindestens so hoch ist; die Höchstmenge gilt je Angebot und Monat."
+verkaufswege.keine: Keine Regeln – KI-Händler und andere Firmen dürfen alles kaufen.
+verkaufswege.regeln: Regeln
+verkaufswege.kaeufer_titel: Käufer
+verkaufswege.kaeufer.haendler: KI-Händler
+verkaufswege.kaeufer.firmen: Andere Firmen
+verkaufswege.gilt_fuer: Gilt für
+verkaufswege.regel: Regel
+verkaufswege.produkt_im_land: "{produkt} in {land}"
+verkaufswege.erlaubt: erlaubt
+verkaufswege.gesperrt: gesperrt
+verkaufswege.ab: "ab {preis}"
+verkaufswege.hoechstens: "höchstens {menge} im Monat"
+verkaufswege.entfernen: Entfernen
+verkaufswege.neu: Regel festlegen
+verkaufswege.land: Land
+verkaufswege.alle_laender: alle Länder
+verkaufswege.produkt: Produkt
+verkaufswege.alle_produkte: alle Produkte
+verkaufswege.kaufen: Kaufen
+verkaufswege.mindestpreis: Mindestpreis
+verkaufswege.hoechstmenge: Höchstmenge im Monat
+verkaufswege.leer_heisst: Leer lassen für keine Grenze.
+verkaufswege.festlegen: Festlegen
+verkaufswege.grenzen: Mindestpreis und Höchstmenge dürfen nicht negativ sein.
+verkaufswege.gesetzt: "Regel für {kaeufer} ({wo}) festgelegt."
+verkaufswege.entfernt: "Regel für {kaeufer} ({wo}) entfernt."
 faehigkeit.fach: "Fachkompetenz {bereich}"
 faehigkeit.erkennen: Erkennen
 faehigkeit.urteil: Urteilsvermögen

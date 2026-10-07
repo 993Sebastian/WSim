@@ -48,6 +48,17 @@ export type Befehl =
   | { AskAgain: { position: Stellenangabe; topic: string } }
   | { SetStrategy: { scope: Geltung; field: Vorgabefeld; value: Vorgabe | null } }
   | {
+      SetSalesPolicy: {
+        buyer: "Traders" | "Companies";
+        scope:
+          | "Company"
+          | { Country: string }
+          | { Product: string }
+          | { ProductInCountry: [string, string] };
+        rule: { allowed: boolean; min_price: number | null; max_per_month: number | null } | null;
+      };
+    }
+  | {
       SetBudgetRule: {
         kind: { level: { Site: string } | "Country" | "Continent"; role: Rolle };
         scope: "Company" | { Continent: string } | { Country: string };

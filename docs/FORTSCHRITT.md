@@ -200,6 +200,8 @@ Regeln: `docs/FORMELN.md`, Abschnitt MA4; Bedienung: `docs/BEDIENUNG.md`, „Org
 - **Oberfläche:** Unterreiter „Strategie“ in der Organisation: Tabelle „Wo gilt was“ mit
   Herkunft je Wert, Karten je Feld mit umsetzender Stelle, Festlegen und Entfernen;
   Anliegen nennen Reserve und bindendes Budget. Vorschau mit Vorgaben auf allen Ebenen.
+  Nachtrag: Die Verkaufswege (M8, bisher ohne Oberfläche) stehen mit Regeln, Entfernen und
+  Formular in der Strategieansicht.
 - **KI unverändert:** Weltlauf mit 100 KI-Firmen 1900–1906, Seed 5: derselbe
   Zustands-Hash wie MA3 (5e9fb77ece748974) und dieselben Protokolldateien wie vor MA2.
 - **Tests:** neun Szenariotests (Vererbung und Überschreiben samt Sicht, Grenzen, Preis,

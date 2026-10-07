@@ -2680,6 +2680,10 @@ Thema des Felds (Preis – `verkauf`, Lager – `einkauf`, Personal – `lohn`, 
 `eigenversorgung`, Investition und Reserve – `ausbau`); ohne sie entscheidet der Spieler
 selbst.
 
+Darunter stehen die **Verkaufswege** (M8) mit ihren eigenen Geltungsbereichen (Firma,
+Land, Produkt, Produkt im Land): je Käufergruppe erlaubt oder gesperrt, Mindestpreis und
+Höchstmenge; die allgemeinen Regeln zuerst.
+
 ### Spielstände
 
 Neue Felder mit Vorgabewerten: Alte Stände laden ohne Vorgaben, das Format bleibt

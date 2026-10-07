@@ -1375,4 +1375,23 @@ export interface Strategie {
   /** Running costs of a month of all sites. */
   monthly_cost_usd: number;
   settings: number;
+  /** Who may buy the company's goods besides consumers and governments (M8). */
+  sales: Verkaufsweg[];
+  /** Products the company offers or has rules for. */
+  sale_products: { product: string; unit: string }[];
+  /** Countries of its sites and rules. */
+  sale_countries: string[];
+}
+
+/** A rule for traders or other companies buying the company's goods (M8). */
+export interface Verkaufsweg {
+  buyer: "haendler" | "firmen";
+  /** The product and country it holds for; null: all. */
+  product: string | null;
+  country: string | null;
+  allowed: boolean;
+  min_price_usd: number | null;
+  max_per_month: number | null;
+  /** Text key of the product's unit. */
+  unit: string | null;
 }

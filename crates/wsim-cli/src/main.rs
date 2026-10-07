@@ -681,6 +681,28 @@ fn example_organisation(session: &mut wsim_session::Session) -> Result<Organisat
             }}))
             .map_err(message)?;
     }
+    // Sales channels (M8): traders take nails only from a price on and in limits, other
+    // companies may not buy.
+    for (buyer, scope, rule) in [
+        (
+            "Traders",
+            serde_json::json!({"Product": "naegel"}),
+            serde_json::json!({
+                "allowed": true, "min_price": 17_000_000_i64, "max_per_month": 500.0
+            }),
+        ),
+        (
+            "Companies",
+            serde_json::json!("Company"),
+            serde_json::json!({"allowed": false, "min_price": null, "max_per_month": null}),
+        ),
+    ] {
+        session
+            .command(serde_json::json!({"SetSalesPolicy": {
+                "buyer": buyer, "scope": scope, "rule": rule
+            }}))
+            .map_err(message)?;
+    }
     let to_value = |v: serde_json::Result<serde_json::Value>| v.map_err(|e| e.to_string());
     Ok((
         to_value(serde_json::to_value(

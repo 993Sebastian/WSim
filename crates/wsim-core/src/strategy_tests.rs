@@ -733,3 +733,74 @@ fn a_site_sold_takes_no_strategy_along() {
         .collect();
     assert_eq!(left, vec![StrategyScope::Company]);
 }
+
+#[test]
+fn sales_channels_show_in_the_strategy_view() {
+    use crate::policy::{BuyerGroup, SalesRule, Scope};
+    let (mut game, _, _) = weak_works(test_support::management());
+    let c = game.catalog().clone();
+    let (iron, aaa) = (
+        c.products.id("eisen").unwrap(),
+        c.countries.id("AAA").unwrap(),
+    );
+    for (buyer, scope, rule) in [
+        (
+            BuyerGroup::Traders,
+            Scope::ProductInCountry(iron, aaa),
+            SalesRule {
+                allowed: true,
+                min_price: Some(usd(40.0)),
+                max_per_month: Some(500.0),
+            },
+        ),
+        (
+            BuyerGroup::Companies,
+            Scope::Company,
+            SalesRule {
+                allowed: false,
+                min_price: None,
+                max_per_month: None,
+            },
+        ),
+    ] {
+        game.apply(Command::SetSalesPolicy {
+            buyer,
+            scope,
+            rule: Some(rule),
+        })
+        .unwrap();
+    }
+    let v = crate::views::strategy(&game);
+    let rules: Vec<(&str, Option<&str>, Option<&str>, bool)> = v
+        .sales
+        .iter()
+        .map(|r| {
+            (
+                r.buyer.as_str(),
+                r.product.as_deref(),
+                r.country.as_deref(),
+                r.allowed,
+            )
+        })
+        .collect();
+    // The company's rule first, then the narrower one.
+    assert_eq!(
+        rules,
+        vec![
+            ("firmen", None, None, false),
+            ("haendler", Some("eisen"), Some("AAA"), true)
+        ]
+    );
+    let narrow = &v.sales[1];
+    assert_eq!(narrow.min_price_usd, Some(40.0));
+    assert_eq!(narrow.max_per_month, Some(500.0));
+    assert!(
+        narrow
+            .unit
+            .as_deref()
+            .is_some_and(|u| u.starts_with("einheit."))
+    );
+    // What new rules can name: the iron the works offers, the country of the sites.
+    assert!(v.sale_products.iter().any(|p| p.product == "eisen"));
+    assert_eq!(v.sale_countries, vec!["AAA".to_owned()]);
+}

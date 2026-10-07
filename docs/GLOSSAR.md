@@ -304,4 +304,5 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Liquiditätsreserve (Monate laufender Kosten) | `StrategyValue::Reserve`, `strategy::{reserve_months, monthly_cost}` |
 | Anliegen wegen Reserve bzw. Investitionsbudget | `ConcernReason::{Reserve, Investment}` (`reserve`, `investition`); Sicht `ConcernView::{strategy_limit_usd, strategy_scope}` |
 | Strategieansicht | `views::{strategy, StrategyView, StrategyUnitView, StrategyEntryView}`; UI: `StrategieAnsicht` (`Strategie.tsx`) |
+| Verkaufsweg (Regel für KI-Händler oder andere Firmen) | `policy::{SalesPolicy, SalesRule, BuyerGroup, Scope}`; Befehl `SetSalesPolicy`; Sicht `SalesChannelView`; UI: `Verkaufswege` (`Strategie.tsx`) |
 | Organisation je Einheit, Managermarkt je Einheit | Sichten `UnitOrgView`, `CountryOrgView::unit`, `ContinentOrgView::unit`, `views::{unit_key, unit_from_key}`; `Session::manager_market(einheit, stelle)`; UI: `EinheitKarte`, `einheitName`, `stellenangabe` |

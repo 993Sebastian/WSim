@@ -4,6 +4,7 @@ import { useId, useState, type FormEvent, type ReactNode } from "react";
 import {
   ausAnzeige,
   formatGeld,
+  formatMenge,
   formatProzent,
   formatZahl,
   geldEinheit,
@@ -23,6 +24,7 @@ import {
   type VorgabeEinheit,
   type VorgabeEintrag,
   type Vorgabefeld,
+  type Verkaufsweg,
 } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -495,9 +497,232 @@ function FeldKarte({ e, einheit, daten, eingabe }: KarteDaten & { eingabe: Einga
   );
 }
 
+/** "ganze Firma", "Deutschland", "Nägel", "Nägel in Deutschland". */
+function wegGeltung(w: { product: string | null; country: string | null }): string {
+  if (w.product && w.country) {
+    return t("verkaufswege.produkt_im_land", {
+      produkt: t(`produkt.${w.product}`),
+      land: landName(w.country),
+    });
+  }
+  if (w.product) return t(`produkt.${w.product}`);
+  if (w.country) return landName(w.country);
+  return t("strategie.ganze_firma");
+}
+
+function wegScope(product: string, country: string) {
+  if (product && country) return { ProductInCountry: [product, country] as [string, string] };
+  if (product) return { Product: product };
+  if (country) return { Country: country };
+  return "Company" as const;
+}
+
+const KAEUFER = { haendler: "Traders", firmen: "Companies" } as const;
+
+/** What a rule allows: "erlaubt, ab 12 $/t, höchstens 500 t im Monat" or "gesperrt". */
+function wegRegel(w: Verkaufsweg): string {
+  if (!w.allowed) return t("verkaufswege.gesperrt");
+  const einheit = w.unit ? t(w.unit) : "";
+  const teile = [t("verkaufswege.erlaubt")];
+  if (w.min_price_usd !== null) {
+    teile.push(t("verkaufswege.ab", { preis: `${formatGeld(w.min_price_usd)}/${einheit}` }));
+  }
+  if (w.max_per_month !== null) {
+    teile.push(
+      t("verkaufswege.hoechstens", { menge: `${formatMenge(w.max_per_month)} ${einheit}` }),
+    );
+  }
+  return teile.join(", ");
+}
+
+/**
+ * Sales channels (Lastenheft §9.2, M8): whether traders and other companies may buy the
+ * company's goods, for the company, a country, a product or a product in a country.
+ */
+function Verkaufswege({ daten }: { daten: Strategie }) {
+  const { los, antwort } = useAktion("verkaufswege");
+  const id = useId();
+  const [kaeufer, setKaeufer] = useState<"haendler" | "firmen">("haendler");
+  const [land, setLand] = useState("");
+  const [produkt, setProdukt] = useState("");
+  const [erlaubt, setErlaubt] = useState("ja");
+  const [mindestpreis, setMindestpreis] = useState("");
+  const [menge, setMenge] = useState("");
+  const [fehler, setFehler] = useState<string | null>(null);
+  const einheit = daten.sale_products.find((p) => p.product === produkt)?.unit;
+  const festlegen = (ev: FormEvent) => {
+    ev.preventDefault();
+    const preis = mindestpreis.trim() === "" ? null : zahlLesen(mindestpreis);
+    const hoechst = menge.trim() === "" ? null : zahlLesen(menge);
+    if (
+      (mindestpreis.trim() !== "" && (preis === null || preis < 0)) ||
+      (menge.trim() !== "" && (hoechst === null || hoechst < 0))
+    ) {
+      setFehler(t("verkaufswege.grenzen"));
+      return;
+    }
+    setFehler(null);
+    const wo = wegGeltung({ product: produkt || null, country: land || null });
+    void los(
+      [
+        {
+          SetSalesPolicy: {
+            buyer: KAEUFER[kaeufer],
+            scope: wegScope(produkt, land),
+            rule: {
+              allowed: erlaubt === "ja",
+              min_price: preis === null ? null : geld(ausAnzeige(preis)),
+              max_per_month: hoechst,
+            },
+          },
+        },
+      ],
+      t("verkaufswege.gesetzt", { kaeufer: t(`verkaufswege.kaeufer.${kaeufer}`), wo }),
+    );
+  };
+  return (
+    <section aria-label={t("verkaufswege.titel")}>
+      <h2>
+        {t("verkaufswege.titel")}{" "}
+        <Erklaerung wert={t("verkaufswege.titel")}>
+          <p>{t("verkaufswege.erklaerung")}</p>
+        </Erklaerung>
+      </h2>
+      <p className="feld-hilfe">{t("verkaufswege.hilfe")}</p>
+      {daten.sales.length === 0 ? (
+        <p>{t("verkaufswege.keine")}</p>
+      ) : (
+        <div className="tabelle">
+          <table className="mobil-karten" aria-label={t("verkaufswege.regeln")}>
+            <thead>
+              <tr>
+                <th>{t("verkaufswege.kaeufer_titel")}</th>
+                <th>{t("verkaufswege.gilt_fuer")}</th>
+                <th>{t("verkaufswege.regel")}</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {daten.sales.map((w) => {
+                const wer = t(`verkaufswege.kaeufer.${w.buyer}`);
+                const wo = wegGeltung(w);
+                return (
+                  <tr key={`${w.buyer}/${w.product ?? ""}/${w.country ?? ""}`}>
+                    <td>{wer}</td>
+                    <td data-spalte={t("verkaufswege.gilt_fuer")}>{wo}</td>
+                    <td data-spalte={t("verkaufswege.regel")}>{wegRegel(w)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="schlicht"
+                        aria-label={`${t("verkaufswege.entfernen")}: ${wer}, ${wo}`}
+                        onClick={() =>
+                          void los(
+                            [
+                              {
+                                SetSalesPolicy: {
+                                  buyer: KAEUFER[w.buyer],
+                                  scope: wegScope(w.product ?? "", w.country ?? ""),
+                                  rule: null,
+                                },
+                              },
+                            ],
+                            t("verkaufswege.entfernt", { kaeufer: wer, wo }),
+                          )
+                        }
+                      >
+                        {t("verkaufswege.entfernen")}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <form className="karte" aria-label={t("verkaufswege.neu")} onSubmit={festlegen}>
+        <h3>{t("verkaufswege.neu")}</h3>
+        <div className="formular-zeile">
+          <div className="feld">
+            <label htmlFor={`${id}-wer`}>{t("verkaufswege.kaeufer_titel")}</label>
+            <select
+              id={`${id}-wer`}
+              value={kaeufer}
+              onChange={(e) => setKaeufer(e.target.value as "haendler" | "firmen")}
+            >
+              <option value="haendler">{t("verkaufswege.kaeufer.haendler")}</option>
+              <option value="firmen">{t("verkaufswege.kaeufer.firmen")}</option>
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-land`}>{t("verkaufswege.land")}</label>
+            <select id={`${id}-land`} value={land} onChange={(e) => setLand(e.target.value)}>
+              <option value="">{t("verkaufswege.alle_laender")}</option>
+              {daten.sale_countries.map((k) => (
+                <option key={k} value={k}>
+                  {landName(k)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-produkt`}>{t("verkaufswege.produkt")}</label>
+            <select
+              id={`${id}-produkt`}
+              value={produkt}
+              onChange={(e) => setProdukt(e.target.value)}
+            >
+              <option value="">{t("verkaufswege.alle_produkte")}</option>
+              {daten.sale_products.map((p) => (
+                <option key={p.product} value={p.product}>
+                  {t(`produkt.${p.product}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="feld">
+            <label htmlFor={`${id}-erlaubt`}>{t("verkaufswege.kaufen")}</label>
+            <select
+              id={`${id}-erlaubt`}
+              value={erlaubt}
+              onChange={(e) => setErlaubt(e.target.value)}
+            >
+              <option value="ja">{t("verkaufswege.erlaubt")}</option>
+              <option value="nein">{t("verkaufswege.gesperrt")}</option>
+            </select>
+          </div>
+        </div>
+        {erlaubt === "ja" && (
+          <div className="formular-zeile">
+            <ZahlFeld
+              name={t("verkaufswege.mindestpreis")}
+              einheit={einheit ? `${geldEinheit()}/${t(einheit)}` : geldEinheit()}
+              wert={mindestpreis}
+              onWert={setMindestpreis}
+              hilfe={t("verkaufswege.leer_heisst")}
+            />
+            <ZahlFeld
+              name={t("verkaufswege.hoechstmenge")}
+              einheit={einheit ? t(einheit) : undefined}
+              wert={menge}
+              onWert={setMenge}
+            />
+          </div>
+        )}
+        {fehler && <p className="fehlertext">{fehler}</p>}
+        <div className="knopfreihe links">
+          <button type="submit">{t("verkaufswege.festlegen")}</button>
+        </div>
+      </form>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /**
  * The strategies of the company (MA4): an overview of every unit, then the fields of the
- * chosen unit to set or remove.
+ * chosen unit to set or remove, and the sales channels.
  */
 export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string }) {
   const { daten, fehler } = useSicht(() => kern.strategie(), stand);
@@ -544,6 +769,7 @@ export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string })
           })}
         </div>
       </section>
+      <Verkaufswege daten={daten} />
     </section>
   );
 }

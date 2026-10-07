@@ -6,10 +6,14 @@ use serde::{Deserialize, Serialize};
 use super::concerns::position_view;
 use super::organisation::{kind_text, level_key, unit_key};
 use super::{ConcernPositionView, usd};
+use std::collections::BTreeSet;
+
 use crate::catalog::Catalog;
 use crate::decision::Topic;
 use crate::game::Game;
+use crate::ids::{CountryId, ProductId};
 use crate::management;
+use crate::policy::{BuyerGroup, Scope};
 use crate::state::{GameState, SiteId, Unit};
 use crate::strategy::{self, StrategyField, StrategyScope, StrategyValue};
 
@@ -80,6 +84,30 @@ pub struct StrategyPriceView {
     pub markup: f64,
 }
 
+/// A rule for who besides consumers and governments buys the company's goods (Lastenheft
+/// §9.2, docs/FORMELN.md M8).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SalesChannelView {
+    /// `haendler` (traders who export the goods) or `firmen` (other companies).
+    pub buyer: String,
+    /// The product and country the rule holds for; none: all.
+    pub product: Option<String>,
+    pub country: Option<String>,
+    pub allowed: bool,
+    pub min_price_usd: Option<f64>,
+    pub max_per_month: Option<f64>,
+    /// Text key of the product's unit (`einheit.<key>`).
+    pub unit: Option<String>,
+}
+
+/// A product the company sells, for new rules.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SaleProductView {
+    pub product: String,
+    /// Text key of its unit (`einheit.<key>`).
+    pub unit: String,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StrategyView {
     /// Without managers there is nobody to follow strategies.
@@ -92,6 +120,84 @@ pub struct StrategyView {
     pub monthly_cost_usd: f64,
     /// Settings of the player.
     pub settings: u32,
+    /// Who may buy the company's goods, the most general rules first.
+    pub sales: Vec<SalesChannelView>,
+    /// Products the company offers or has rules for, in the order of the data.
+    pub sale_products: Vec<SaleProductView>,
+    /// Countries of its sites and rules, in the order of the data.
+    pub sale_countries: Vec<String>,
+}
+
+fn unit_text(catalog: &Catalog, product: ProductId) -> String {
+    format!(
+        "einheit.{}",
+        catalog.units.key(catalog.products.get(product).unit)
+    )
+}
+
+/// The sales channels of the player's company and what new rules can name.
+fn sales_channels(
+    game: &Game,
+    own: &[SiteId],
+) -> (Vec<SalesChannelView>, Vec<SaleProductView>, Vec<String>) {
+    let c = game.catalog();
+    let state = game.state();
+    let company = &state.companies[game.player().index()];
+    let parts = |scope: Scope| -> (Option<ProductId>, Option<CountryId>) {
+        match scope {
+            Scope::Company => (None, None),
+            Scope::Country(k) => (None, Some(k)),
+            Scope::Product(p) => (Some(p), None),
+            Scope::ProductInCountry(p, k) => (Some(p), Some(k)),
+        }
+    };
+    let mut products: BTreeSet<ProductId> = own
+        .iter()
+        .flat_map(|&s| state.sites[s.index()].offers.keys().copied())
+        .collect();
+    let mut countries: BTreeSet<CountryId> = own
+        .iter()
+        .map(|&s| state.sites[s.index()].country)
+        .collect();
+    let mut rules: Vec<_> = company.sales_policies.iter().collect();
+    // General rules first: the company, then countries, products, products in countries.
+    rules.sort_by_key(|r| {
+        let (p, k) = parts(r.scope);
+        (p.is_some(), k.is_some(), r.buyer, p, k)
+    });
+    let sales = rules
+        .into_iter()
+        .map(|r| {
+            let (product, country) = parts(r.scope);
+            products.extend(product);
+            countries.extend(country);
+            SalesChannelView {
+                buyer: match r.buyer {
+                    BuyerGroup::Traders => "haendler",
+                    BuyerGroup::Companies => "firmen",
+                }
+                .into(),
+                product: product.map(|p| c.products.key(p).to_owned()),
+                country: country.map(|k| c.countries.key(k).to_owned()),
+                allowed: r.rule.allowed,
+                min_price_usd: r.rule.min_price.map(usd),
+                max_per_month: r.rule.max_per_month,
+                unit: product.map(|p| unit_text(c, p)),
+            }
+        })
+        .collect();
+    let products = products
+        .into_iter()
+        .map(|p| SaleProductView {
+            product: c.products.key(p).to_owned(),
+            unit: unit_text(c, p),
+        })
+        .collect();
+    let countries = countries
+        .into_iter()
+        .map(|k| c.countries.key(k).to_owned())
+        .collect();
+    (sales, products, countries)
 }
 
 /// Key of a scope as the views name units; the company is `firma`.
@@ -294,6 +400,7 @@ pub fn strategy(game: &Game) -> StrategyView {
             }
         }
     }
+    let (sales, sale_products, sale_countries) = sales_channels(game, &own);
     let m = &c.management.strategy;
     let (_, aggressiveness) = crate::ai::traits(state, player);
     let rules_floor = c.ai_model.behavior.floor_factor.at(aggressiveness);
@@ -320,5 +427,8 @@ pub fn strategy(game: &Game) -> StrategyView {
         .collect(),
         monthly_cost_usd: monthly,
         settings: count(company.strategies.len()),
+        sales,
+        sale_products,
+        sale_countries,
     }
 }

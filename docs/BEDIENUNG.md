@@ -302,6 +302,14 @@ Der Reiter „Organisation“ trägt denselben Zähler.
   Monaten), „Hier festlegen“ und – bei eigener Vorgabe – „Vorgabe hier entfernen“ (bei der
   Firma „Auf Standard zurücksetzen“). Werte außerhalb der Grenzen meldet die Karte vor dem
   Senden.
+- **Verkaufswege (M8, in der Strategie):** Abschnitt „Verkaufswege“ unter den Karten
+  (ⓘ: genaueste Regel gilt, ohne Regel dürfen alle kaufen, Mindestpreis und Höchstmenge je
+  Angebot und Monat): Tabelle „Regeln“ (Käufer, Gilt für – ganze Firma, Land, Produkt
+  oder „Produkt in Land“ –, Regel „erlaubt, ab 1.700 USD/t, höchstens 500 t im Monat“ oder
+  „gesperrt“) mit „Entfernen“; Formular „Regel festlegen“ mit Käufer (KI-Händler, andere
+  Firmen), Land und Produkt (je „alle“ oder eines der eigenen), Kaufen erlaubt/gesperrt,
+  Mindestpreis in der angezeigten Währung je Einheit und Höchstmenge im Monat (leer: keine
+  Grenze).
 - **Anliegen wegen Vorgaben (MA4):** „Danach läge die Kasse unter der Liquiditätsreserve
   (…)“ oder „Das Investitionsbudget (Deutschland) reicht nicht mehr (übrig: …)“.
 - **Anhalten:** Im Menü (☰) „Bei Anliegen anhalten: bei allen / bei wichtigen / nie“
