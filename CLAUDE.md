@@ -99,7 +99,8 @@ Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEIL
 - Neue Kernlogik kommt mit Tests (Szenario- oder Eigenschaftstest).
 - CI (`.github/workflows/ci.yml`) führt dasselbe aus. Den Windows-Installer baut sie nur auf
   Wunsch des Auftraggebers („Run workflow“ mit „Windows-Installer bauen“; Wunsch vom
-  07.10.2026, entlastet GitHub) – nicht nach jedem Schritt.
+  07.10.2026, entlastet GitHub) – nicht nach jedem Schritt. Er erscheint als Release
+  „installer“ mit fester Datei `WSim-Setup.exe`, nicht als Actions-Artefakt.
 
 ## Umgebung
 
