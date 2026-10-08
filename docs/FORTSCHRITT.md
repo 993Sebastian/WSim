@@ -1096,6 +1096,14 @@ Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (PE6).
   verlässt seine Stelle, ältestes Kind erbt, Zwangsverkauf ohne Veräußerungsteuer,
   Hinweis ab 70, Spielstand, Familie über 200 Jahre mit mindestens drei Generationen),
   Datenprüfung, vitest, Playwright.
+- **Weltlauf 1900–2100** (`wsim run --als-person --ki 20 --startform investor --kapital
+  100000000 --lebensstil bescheiden`, ohne eigene Befehle, 84 Minuten): ohne Abbruch bis
+  zum 01.01.2101, **sieben Generationen** der Familie Albrecht, jeder Erbe ein Kind. Erbfälle
+  1955 (84 Jahre), 1990 (82), 1999 (68), 2040 (66), 2089 (84) und 2098 (67); Erbschaftsteuer
+  8,4 / 6,8 / 5,8 / 4,5 / 3,8 / 3,4 Mio. USD. Die ersten vier zahlte das Konto; 2089 und 2098
+  verkaufte das Spiel dafür Anteile an Anleger (0,5 und 3,4 Mio. USD), weil das Konto ohne
+  Einkommen inzwischen leer war. Ab 70 kam jedes Jahr der Hinweis „Nachfolge bedenken“
+  (42-mal). Am Ende hält die Person Anteile für 29,7 Mio. USD.
 
 ## Eigenständige Entscheidungen (für das Review)
 
