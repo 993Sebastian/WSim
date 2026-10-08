@@ -335,7 +335,7 @@ pub(crate) fn settle_failures(state: &mut GameState) -> Vec<Message> {
         let c = &mut state.companies[i];
         c.subsidiary_of = None;
         c.owners = Stake::sole(Holder::Private);
-        if top(state, of.parent) == state.player {
+        if state.is_main(top(state, of.parent)) {
             news.push(
                 Message::new(MessageKind::Warning, keys::SUBSIDIARY_FAILED)
                     .with("firma", Param::Text(name))

@@ -41,7 +41,9 @@ pub fn reached(
     condition: MilestoneCondition,
     date: Date,
 ) -> bool {
-    let player = state.player;
+    let Some(player) = state.main_company else {
+        return false;
+    };
     let ledger = &state.companies[player.index()].ledger;
     match condition {
         MilestoneCondition::FirstSale => {
@@ -65,7 +67,7 @@ pub fn reached(
 
 /// Progress towards a condition that has a measure; `None` for yes-or-no conditions.
 pub fn progress(state: &GameState, condition: MilestoneCondition, date: Date) -> Option<Progress> {
-    let player = state.player;
+    let player = state.main_company?;
     let own = || state.sites.iter().filter(move |s| s.owner == player);
     let (current, target) = match condition {
         MilestoneCondition::Facilities(n) => {
@@ -90,10 +92,15 @@ pub fn progress(state: &GameState, condition: MilestoneCondition, date: Date) ->
                 - ledger.balance(Account::Loans)
                 - ledger.balance(Account::Bonds)
                 - ledger.balance(Account::Deposits);
-            (
-                equity.to_usd(),
-                state.settings.start_capital.to_usd() * factor,
-            )
+            // What the person paid in (PE3): the start capital of a company founded
+            // at the start.
+            let paid = state
+                .person
+                .cost_basis
+                .get(&player)
+                .copied()
+                .unwrap_or(state.settings.start_capital);
+            (equity.to_usd(), paid.to_usd() * factor)
         }
         MilestoneCondition::FirstSale
         | MilestoneCondition::ProfitMonth
@@ -194,6 +201,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()

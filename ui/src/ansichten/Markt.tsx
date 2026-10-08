@@ -97,7 +97,7 @@ export function MarktAnsicht({
   uebersicht: Uebersicht;
   onGeaendert: (u: Uebersicht) => void;
 }) {
-  const [land, setLand] = useState(uebersicht.company.headquarters);
+  const [land, setLand] = useState(uebersicht.company?.headquarters ?? "");
   const [bereich, setBereich] = useState<
     "produkte" | "marke" | "ketten" | "vertraege" | "logistik"
   >("produkte");
@@ -163,7 +163,7 @@ export function MarktAnsicht({
                   stand={uebersicht.date}
                   onProdukt={(p) => {
                     // Prices and costs of the chains are those of the home country.
-                    setLand(uebersicht.company.headquarters);
+                    setLand(uebersicht.company?.headquarters ?? "");
                     setProdukt(p);
                   }}
                 />

@@ -432,7 +432,7 @@ pub fn month_end(state: &mut GameState, catalog: &Catalog, next: Date) -> Vec<Me
             });
             state.concerns.push(concern);
         }
-        if company == state.player {
+        if state.is_main(company) {
             let ceo = Position::new(Unit::Board, Role::Head);
             news.push(
                 Message::new(MessageKind::Info, keys::REVIEW)

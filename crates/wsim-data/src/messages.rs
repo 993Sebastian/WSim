@@ -626,6 +626,12 @@ pub fn start_age_outside() -> String {
     "Das Standardalter muss zwischen „von“ und „bis“ liegen.".into()
 }
 
+pub fn lifestyle_costs_not_ascending() -> String {
+    "Die Kosten der Lebensstile müssen von „bescheiden“ über „buergerlich“ und „gehoben“ bis \
+     „luxurioes“ steigen."
+        .into()
+}
+
 pub fn levels_not_ascending() -> String {
     "Die Grenzen müssen von Land über Kontinent bis Vorstand steigen.".into()
 }

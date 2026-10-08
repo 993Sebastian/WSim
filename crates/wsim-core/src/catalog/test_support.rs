@@ -836,5 +836,44 @@ pub fn person() -> super::PersonModel {
         child_chance: 0.15,
         card_age: 25,
         provenance: Provenance::default(),
+        ..super::PersonModel::default()
+    }
+}
+
+/// The person with the money of the data (PE3): founding costs, lifestyles, a fifth as
+/// income tax, two percent on savings.
+pub fn private() -> super::PersonModel {
+    use crate::time_series::TimeSeries;
+    let level = |cost, interest, salary_demand, education, mortality| super::LifestyleLevel {
+        cost,
+        interest,
+        salary_demand,
+        education,
+        mortality,
+    };
+    let flat = |v: f64| super::CountrySeries {
+        default: Some(TimeSeries::new(vec![(1900, v), (2100, v)]).expect("valid")),
+        countries: Vec::new(),
+    };
+    super::PersonModel {
+        founding: super::FoundingModel {
+            cost_share: 0.005,
+            cost_min_months: 1.0,
+            capital_suggestion: 0.9,
+        },
+        salary_co_owner_max: 2.0,
+        loan_max_rate: 0.15,
+        loan_max_years: 30,
+        lifestyles: [
+            level(0.8, 0.005, 0.05, 0.0, 1.1),
+            level(1.5, 0.0, 0.0, 5.0, 1.0),
+            level(4.0, -0.0025, -0.05, 10.0, 0.95),
+            level(10.0, -0.005, -0.1, 15.0, 0.95),
+        ],
+        default_lifestyle: crate::state::Lifestyle::Middle,
+        lifestyle_months: 12,
+        income_tax: flat(0.2),
+        savings_rate: flat(0.02),
+        ..person()
     }
 }

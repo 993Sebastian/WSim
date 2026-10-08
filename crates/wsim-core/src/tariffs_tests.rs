@@ -135,6 +135,7 @@ fn the_dynamics_move_tariffs_after_the_data_only() {
             ventures: 1.0,
             tariff_dynamics: dynamics,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()

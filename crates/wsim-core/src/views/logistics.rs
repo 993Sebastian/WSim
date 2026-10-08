@@ -124,7 +124,7 @@ fn month_view(m: &LogisticsMonth) -> LogisticsMonthView {
 pub fn logistics(game: &Game) -> LogisticsView {
     let (state, catalog) = (game.state(), game.catalog());
     let m = &catalog.logistics;
-    let l = &state.companies[state.player.index()].logistics;
+    let l = &state.companies[game.player().index()].logistics;
     let date = state.date;
     let year = date.year();
     let fleet = l

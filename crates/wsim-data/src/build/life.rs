@@ -1,11 +1,14 @@
 //! Age, retirement and death of the managers of `lebenslauf` (docs/FORMELN.md, PE1).
 
-use wsim_core::catalog::{AgeSpan, Catalog, CountrySeries, LifeModel, PersonModel};
+use wsim_core::catalog::{
+    AgeSpan, Catalog, CountrySeries, FoundingModel, LifeModel, LifestyleLevel, PersonModel,
+};
 use wsim_core::ids::Id;
+use wsim_core::state::Lifestyle;
 
 use super::{in_range, positive, provenance, time_series};
 use crate::messages;
-use crate::raw::{RawAgeSpan, RawCountrySeries};
+use crate::raw::{RawAgeSpan, RawCountrySeries, RawLifestyle, RawPerson};
 use crate::read::{Ctx, Loc, RawData};
 
 /// Ages a manager may have, in years.
@@ -198,7 +201,7 @@ pub(super) fn life_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Lif
 }
 
 /// The player as a person (`person`, PE2); optional.
-pub(super) fn person_model(ctx: &mut Ctx, raw: &RawData) -> PersonModel {
+pub(super) fn person_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> PersonModel {
     let Some((entry, rest)) = raw.person.split_first() else {
         return PersonModel::default();
     };
@@ -251,6 +254,131 @@ pub(super) fn person_model(ctx: &mut Ctx, raw: &RawData) -> PersonModel {
             &fl.field("kinder_chance_jahr"),
         ),
         card_age: years(ctx, f.card_age, &fl.field("managerkarte_ab")),
+        ..money_model(ctx, catalog, v, l)
+    }
+}
+
+/// The private account, founding and lifestyle of `person` (docs/FORMELN.md, PE3).
+fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> PersonModel {
+    let gl = l.field("gruendung");
+    let founding = FoundingModel {
+        cost_share: in_range(
+            ctx,
+            v.founding.cost_share,
+            0.0,
+            1.0,
+            &gl.field("kosten_anteil"),
+        ),
+        cost_min_months: in_range(
+            ctx,
+            v.founding.cost_min_months,
+            0.0,
+            120.0,
+            &gl.field("kosten_mindestens_monatsloehne"),
+        ),
+        capital_suggestion: in_range(
+            ctx,
+            v.founding.capital_suggestion,
+            0.0,
+            1.0,
+            &gl.field("einlage_vorschlag"),
+        ),
+    };
+    let dl = l.field("darlehen");
+    // Whole years within the checked range; the cast is exact.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let loan_max_years = in_range(
+        ctx,
+        v.loans.max_years,
+        1.0,
+        100.0,
+        &dl.field("jahre_hoechstens"),
+    )
+    .round() as u32;
+    let ll = l.field("lebensstil");
+    let sl = ll.field("stufen");
+    let s = &v.lifestyle.levels;
+    let lifestyles = [
+        lifestyle(ctx, &s.modest, &sl.field(Lifestyle::Modest.key())),
+        lifestyle(ctx, &s.middle, &sl.field(Lifestyle::Middle.key())),
+        lifestyle(ctx, &s.upscale, &sl.field(Lifestyle::Upscale.key())),
+        lifestyle(ctx, &s.luxury, &sl.field(Lifestyle::Luxury.key())),
+    ];
+    if lifestyles.windows(2).any(|w| w[0].cost >= w[1].cost) {
+        ctx.error(&sl, messages::lifestyle_costs_not_ascending());
+    }
+    let default_lifestyle = Lifestyle::from_key(&v.lifestyle.standard).unwrap_or_else(|| {
+        let suggested = crate::suggest::closest(
+            &v.lifestyle.standard,
+            Lifestyle::ALL.iter().map(|l| l.key()),
+        );
+        ctx.error(
+            &ll.field("standard"),
+            messages::unknown_reference("Lebensstil", &v.lifestyle.standard, suggested),
+        );
+        Lifestyle::Middle
+    });
+    // Whole months within the checked range; the cast is exact.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let lifestyle_months = in_range(
+        ctx,
+        v.lifestyle.change_months,
+        0.0,
+        120.0,
+        &ll.field("wechsel_monate"),
+    )
+    .round() as u32;
+    PersonModel {
+        founding,
+        salary_co_owner_max: in_range(
+            ctx,
+            v.salary.co_owner_max,
+            1.0,
+            100.0,
+            &l.field("gehalt").field("hoechstens_mitgesellschafter"),
+        ),
+        loan_max_rate: in_range(
+            ctx,
+            v.loans.max_rate,
+            0.0,
+            1.0,
+            &dl.field("zins_hoechstens"),
+        ),
+        loan_max_years,
+        lifestyles,
+        default_lifestyle,
+        lifestyle_months,
+        income_tax: country_series(
+            ctx,
+            catalog,
+            &v.income_tax,
+            &l.field("einkommensteuer"),
+            (0.0, 1.0),
+        ),
+        savings_rate: country_series(
+            ctx,
+            catalog,
+            &v.savings_rate,
+            &l.field("sparzins"),
+            (-0.5, 0.5),
+        ),
         provenance: provenance(v.approximation, v.source.as_ref()),
+        ..PersonModel::default()
+    }
+}
+
+fn lifestyle(ctx: &mut Ctx, r: &RawLifestyle, l: &Loc) -> LifestyleLevel {
+    LifestyleLevel {
+        cost: in_range(ctx, r.cost, 0.0, 1000.0, &l.field("kosten")),
+        interest: in_range(ctx, r.interest, -0.1, 0.1, &l.field("zins")),
+        salary_demand: in_range(
+            ctx,
+            r.salary_demand,
+            -0.9,
+            1.0,
+            &l.field("gehaltsforderung"),
+        ),
+        education: in_range(ctx, r.education, 0.0, 50.0, &l.field("ausbildung")),
+        mortality: in_range(ctx, r.mortality, 0.0, 10.0, &l.field("sterblichkeit")),
     }
 }

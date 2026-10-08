@@ -4551,3 +4551,122 @@ verlangt die übliche Gehaltsforderung. Stirbt es als Manager, gilt das Kind als
 
 Chronik mit Datum: Beginn (Firma), Geburt eines Kindes, Berufseintritt eines Kindes
 (Managerkarte), Tod eines Kindes, Vorsitz abgegeben (an wen), Vorsitz übernommen.
+
+## PE3 – Privatkonto und Spielstart
+
+Vorgabe `docs/PERSON.md` §6–8. Daten: `parameter/person.yaml` (Abschnitte `gruendung`,
+`gehalt`, `darlehen`, `lebensstil`, Zeitreihen `einkommensteuer`, `sparzins`). Kern: Modul
+`private`. Der **Akademiker-Monatslohn** eines Landes ist ein Zwölftel des Jahreslohns der
+Gehaltsgruppe der Manager (MA1, `gehalt_lohngruppe`) dort.
+
+### Spielstart
+
+Das Startgeld liegt auf dem Privatkonto der Person; es gibt noch keine Firma. Die
+**Hauptfirma** ist die zuerst gegründete Firma der Person; auf sie beziehen sich die
+Ansichten, Etappenziele (M23), Rang (M29), beobachtete Märkte (M24) und der Rundenbericht.
+Ohne Hauptfirma laufen die Runden normal; die Person hat nur ihr Konto.
+
+Untergrenze des Startgelds = Kosten der günstigsten Startform mit Standort (Werkstatt,
+Handel; FORMELN „Startformen“) plus ihre Gründungskosten im Startland und Startjahr.
+Investor- und Bankfirma (K4) haben keine Startform-Kosten und zählen dafür nicht.
+
+Spielläufe ohne Oberfläche (Kommandozeile, Tests) gründen wie bisher beim Start
+(`found_at_start`): Das Startkapital wird ganz Einlage der Firma, ohne Gründungskosten; das
+Privatkonto beginnt leer, und die Firma zahlt der Person kein Gehalt, bis der Spieler eines
+setzt (die Firma rechnet wie vor PE3). Alte Spielstände ebenso; ihre Hauptfirma ist die
+bisherige Firma, der Einstandswert ihr gezeichnetes Kapital.
+
+### Gründung
+
+`FoundCompany { Name, Startform, Hauptsitz, Einlage E }`, nur ohne Hauptfirma (weitere
+Gründungen folgen mit PE5):
+
+    Gründungskosten G = max(kosten_anteil · E, kosten_monatsloehne · Akademiker-Monatslohn(Hauptsitz))
+    Bedingungen: E ≥ Kosten der Startform (Investor, Bank: E > 0); Privatkonto ≥ E + G
+
+E geht als gezeichnetes Kapital in die Kasse der neuen Firma, die Startform wird gebaut wie
+bisher beim Spielstart; G verlässt das Spiel. Die Person hält 100 %, führt die Firma als CEO
+und bezieht das Startgehalt (unten). Der Einstandswert ihres Anteils ist E. Die Oberfläche
+schlägt `einlage_vorschlag` (90 %) des Kontos vor.
+
+### Privatkonto
+
+Hauptbuch der Person in USD (Kaufkraft 2026), getrennt von den Firmen; das Guthaben ist nie
+negativ, Kredite gibt es nicht. Jede Bewegung ist eine Buchung mit Art (Startgeld,
+Gründung, Gründungskosten, Einlage, Gehalt, Einkommensteuer, Guthabenzins, Lebensstil,
+Darlehen, Tilgung, Darlehenszins, Kapitalrückzahlung). Am Monatsende, nach Löhnen, Krediten
+und Steuern der Firmen:
+
+    Gehalt brutto = Jahresgehalt / 12                    (nur als CEO der Firma, nicht in der Pleite)
+    Zins          = Guthaben · sparzins(Wohnsitz, Jahr) / 12
+    Einkommensteuer = einkommensteuer(Wohnsitz, Jahr) · (Gehalt + Zins + Darlehenszins)
+    Lebensstil    = kosten(Stufe) · Akademiker-Monatslohn(Wohnsitz)
+
+Die Firma bucht das Gehalt als Personalaufwand des Vorstands; die Steuer verlässt das Spiel.
+Reicht das Guthaben nicht für den Lebensstil, wird bis null gebucht und die Meldung
+„Privatkonto leer“ erscheint (mit den Wegen: Gehalt erhöhen, Lebensstil senken; später
+Dividende und Anteilsverkauf). Ist das Konto auch am nächsten Monatsende zu knapp, fällt
+die Stufe ab dem Folgemonat auf die erste (Bescheiden).
+
+### Gehalt als CEO
+
+    Vorschlag = Gehaltsforderung eines CEO mit Stärke 50 („solide“) am Hauptsitz (MA1)
+    Startgehalt = min(Vorschlag, 12 · Lebensstil(Standardstufe) / (1 − einkommensteuer))
+
+Das Startgehalt (bei der Gründung) deckt also den Lebensstil der Standardstufe nach
+Steuern. Die Höhe ist frei
+(`SetPersonSalary`); hält die Person nicht 100 % der Firma, höchstens
+`hoechstens_mitgesellschafter` (2) · Vorschlag.
+
+### Einlage, Gesellschafterdarlehen, Kapitalrückzahlung
+
+- **Einlage** `ContributeCapital { Firma, Betrag E }`: Privatkonto → Kasse, gezeichnetes
+  Kapital + E, Einstandswert + E. Bei 100 % bleibt der Anteil; sonst mit dem Firmenwert V
+  (unten): Anteil der Person a' = (a · V + E) / (V + E), alle anderen Anteile · V / (V + E).
+- **Gesellschafterdarlehen** `LendToCompany { Firma, Betrag, Zins, Jahre }`: Zins 0 bis
+  `zins_hoechstens`, 1 bis `jahre_hoechstens` Jahre; ein Annuitätenkredit wie bei der Bank
+  (M6), der Firma als Kredit gebucht. Zins und Tilgung gehen monatlich aufs Privatkonto,
+  vorzeitige Tilgung (`RepayLoan`) ebenso. Für Kreditrahmen und Zinssatz neuer Bankkredite
+  zählt er nicht als Schuld (nachrangig); in der Pleite ist er verloren.
+- **Kapitalrückzahlung** `WithdrawCapital { Firma, Betrag R }`: nur bei 100 % Anteil;
+  R ≤ Einstandswert und R ≤ gezeichnetes Kapital; die Kasse bleibt mindestens bei der
+  Liquiditätsreserve der Strategie (Monate laufender Kosten, MA4). Kasse und gezeichnetes
+  Kapital − R, Einstandswert − R, Privatkonto + R.
+
+### Kontrollierte Firmen und Vermögen
+
+Kontrolliert sind die Firmen, an denen die Person über 50 % hält, direkt oder über eine
+Kette kontrollierter Firmen (Pleiten ausgenommen).
+
+    Firmenwert V = Börsenwert (K1), sonst der faire Wert der Investoren (K3, Buch und Ertrag);
+                   ohne Börse in den Daten das Eigenkapital (Buchwert)
+    Vermögen = Guthaben + Σ Anteil · V (direkte Anteile) + offene Gesellschafterdarlehen
+
+Am Monatsersten wird das Vermögen mit seinen Teilen als Verlauf gespeichert. Ohne Firma zeigt
+die Übersicht den Rang der Person: eins plus die Zahl der aktiven Firmen mit höherem
+Eigenkapital als ihr Vermögen.
+
+### Lebensstil
+
+| Stufe | `kosten` | `zins` (neue Bankkredite) | `gehaltsforderung` (Vorstand) | `ausbildung` | `sterblichkeit` |
+| --- | --- | --- | --- | --- | --- |
+| Bescheiden (Standard) | 0,5 | +0,005 | +0,05 | 0 | 1,10 |
+| Bürgerlich | 1 | 0 | 0 | 5 | 1,00 |
+| Gehoben | 3 | −0,0025 | −0,05 | 10 | 0,95 |
+| Luxuriös | 8 | −0,005 | −0,10 | 15 | 0,95 |
+
+Nach dem Weltlauf (PE3) gegenüber docs/PERSON.md abgesenkt: Ein Akademiker-Monatslohn in
+Deutschland 1900 sind rund 2.800 USD, „Bürgerlich“ mit 1,5 kostete 51.000 USD im Jahr – mehr,
+als die Startwerkstatt (90.000 USD Einlage) ohne Ausbau verdient (rund 8.000 USD im Jahr).
+Gründer beginnen deshalb „Bescheiden“ (rund 17.000 USD im Jahr); „Bürgerlich“ entspricht
+einem Akademikerhaushalt.
+
+- `SetLifestyle`: höchstens einmal in `wechsel_monate` (12); gilt ab dem Folgemonat.
+- **Zins:** Auf- oder Abschlag auf den Satz neuer Bankkredite kontrollierter Firmen
+  (Kreditaufnahme, Umschuldung).
+- **Gehaltsforderung:** Faktor (1 + Wert) auf die Forderung (MA1) für Stellen im Vorstand
+  kontrollierter Firmen; damit auch auf deren Marktwert (MA6).
+- **Ausbildung:** Bekommt ein Kind mit 25 seine Managerkarte, steigt jede seiner Fähigkeiten
+  um den nach Tagen gemittelten `ausbildung`-Wert der Stufen in seiner Kindheit (Geburt bis
+  25; vor Spielbeginn gilt die Stufe des Spielbeginns), höchstens bis 100.
+- **Sterblichkeit:** Faktor auf die Sterbechance der Person (PE6).

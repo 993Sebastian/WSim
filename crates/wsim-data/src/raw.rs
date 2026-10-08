@@ -1811,10 +1811,91 @@ pub struct RawPerson {
     pub start_age: RawStartAge,
     #[serde(rename = "familie")]
     pub family: RawFamily,
+    #[serde(rename = "gruendung")]
+    pub founding: RawFounding,
+    #[serde(rename = "gehalt")]
+    pub salary: RawPersonSalary,
+    #[serde(rename = "darlehen")]
+    pub loans: RawShareholderLoans,
+    #[serde(rename = "lebensstil")]
+    pub lifestyle: RawLifestyles,
+    #[serde(rename = "einkommensteuer")]
+    pub income_tax: RawCountrySeries,
+    #[serde(rename = "sparzins")]
+    pub savings_rate: RawCountrySeries,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// Founding a company (PE3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFounding {
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "kosten_mindestens_monatsloehne")]
+    pub cost_min_months: f64,
+    #[serde(rename = "einlage_vorschlag")]
+    pub capital_suggestion: f64,
+}
+
+/// The person's salary as CEO (PE3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPersonSalary {
+    #[serde(rename = "hoechstens_mitgesellschafter")]
+    pub co_owner_max: f64,
+}
+
+/// Loans of the person to its companies (PE3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawShareholderLoans {
+    #[serde(rename = "zins_hoechstens")]
+    pub max_rate: f64,
+    #[serde(rename = "jahre_hoechstens")]
+    pub max_years: f64,
+}
+
+/// The four levels of lifestyle (PE3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLifestyles {
+    pub standard: String,
+    #[serde(rename = "wechsel_monate")]
+    pub change_months: f64,
+    #[serde(rename = "stufen")]
+    pub levels: RawLifestyleLevels,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLifestyleLevels {
+    #[serde(rename = "bescheiden")]
+    pub modest: RawLifestyle,
+    #[serde(rename = "buergerlich")]
+    pub middle: RawLifestyle,
+    #[serde(rename = "gehoben")]
+    pub upscale: RawLifestyle,
+    #[serde(rename = "luxurioes")]
+    pub luxury: RawLifestyle,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLifestyle {
+    #[serde(rename = "kosten")]
+    pub cost: f64,
+    #[serde(rename = "zins")]
+    pub interest: f64,
+    #[serde(rename = "gehaltsforderung")]
+    pub salary_demand: f64,
+    #[serde(rename = "ausbildung")]
+    pub education: f64,
+    #[serde(rename = "sterblichkeit")]
+    pub mortality: f64,
 }
 
 #[derive(Debug, Deserialize)]

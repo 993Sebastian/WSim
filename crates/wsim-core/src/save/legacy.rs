@@ -141,6 +141,7 @@ pub(super) fn decode_v2(
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         },
         date: s.date,
@@ -177,7 +178,7 @@ pub(super) fn decode_v2(
         next_contract: 0,
         freight_market: Default::default(),
         stock: Default::default(),
-        player: s.player,
+        main_company: Some(s.player),
         game_over: s.game_over,
         person: Default::default(),
     };

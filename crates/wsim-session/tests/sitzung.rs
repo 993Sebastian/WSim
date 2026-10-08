@@ -22,6 +22,7 @@ fn request() -> NewGameRequest {
         startups: None,
         tariffs: None,
         event_effects: true,
+        found_at_start: true,
         person_name: String::new(),
         birth_year: None,
         married: true,
@@ -39,7 +40,7 @@ fn new_game_round_save_and_load() {
 
     assert_eq!(session.overview().unwrap_err().key, keys::NO_GAME);
     let overview = session.new_game(&request()).unwrap();
-    assert_eq!(overview.company.name, "Sitzung AG");
+    assert_eq!(overview.company.as_ref().unwrap().name, "Sitzung AG");
     assert_eq!(overview.competitors_active, 10);
 
     let map = session.world_map().unwrap();
@@ -839,4 +840,58 @@ fn playing_as_a_bank() {
     assert!((listed - row.loans_given_usd).abs() < 1.0);
     let finance = session.finance().unwrap();
     assert!(finance.claims.iter().any(|(k, _)| k == "konto.einlagen"));
+}
+
+#[test]
+fn a_game_starts_with_the_person_and_its_money() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let start = NewGameRequest {
+        found_at_start: false,
+        start_form: String::new(),
+        company_name: String::new(),
+        ..request()
+    };
+    let overview = session.new_game(&start).unwrap();
+    assert!(overview.company.is_none());
+    let person = overview.person.expect("a person");
+    assert_eq!(person.cash_usd, 100_000.0);
+    assert!(person.place >= 1);
+    // Views of a company wait for the founding; rounds run.
+    let no_company = "fehler.befehl.keine_firma";
+    assert_eq!(session.production().unwrap_err().key, no_company);
+    assert_eq!(session.finance().unwrap_err().key, no_company);
+    session.end_round("monat", |_| {}).unwrap();
+    assert!(session.world_map().is_ok());
+    // Too little money for the start: refused.
+    let poor = NewGameRequest {
+        capital_usd: 1_000.0,
+        ..start.clone()
+    };
+    assert_eq!(
+        session.new_game(&poor).unwrap_err().key,
+        "fehler.spielstart.startgeld"
+    );
+    // The founding below the workshop's cost is refused, above it the workshop stands.
+    let found = |capital: f64| {
+        serde_json::json!({"FoundCompany": {
+            "name": "Gründer AG", "form": "Workshop", "country": "DEU",
+            "capital": (capital * 10_000.0).round() as i64
+        }})
+    };
+    session.new_game(&start).unwrap();
+    assert_eq!(
+        session.command(found(1_000.0)).unwrap_err().key,
+        "fehler.befehl.kapital_zu_gering"
+    );
+    let overview = session.command(found(90_000.0)).unwrap();
+    let company = overview.company.expect("founded");
+    assert_eq!(company.name, "Gründer AG");
+    assert_eq!(company.sites.len(), 1);
+    assert!(overview.person.unwrap().cash_usd < 10_000.0);
+    assert!(session.production().is_ok());
+    // It saves under the company's name and loads again.
+    session.save("Gegruendet").unwrap();
+    let loaded = session.load("Gegruendet").unwrap();
+    assert_eq!(loaded.company.unwrap().name, "Gründer AG");
 }

@@ -2,13 +2,15 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{MessageView, iso, message_view};
+use super::{MessageView, iso, message_view, usd};
 use crate::aging;
 use crate::game::Game;
 use crate::management;
 use crate::message::{Message, MessageKind, Param};
+use crate::money::Money;
 use crate::person;
-use crate::state::{LifeEventKind, Position, Role, Unit};
+use crate::private;
+use crate::state::{LifeEventKind, Lifestyle, Position, PrivateFlow, Role, Unit};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChildView {
@@ -27,12 +29,95 @@ pub struct ChildView {
 /// A company the person holds shares of.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HoldingView {
+    /// Index of the company (commands name it).
+    #[serde(default)]
+    pub index: u32,
     pub company: String,
     pub share: f64,
     pub controlled: bool,
     /// The person leads it as CEO; otherwise the manager who does, if any.
     pub person_ceo: bool,
     pub ceo: Option<String>,
+    /// The share at the company's value (PE3).
+    #[serde(default)]
+    pub value_usd: f64,
+    /// What the person paid in and has not taken back.
+    #[serde(default)]
+    pub cost_basis_usd: f64,
+    /// The most capital the company can pay back now (only as sole owner).
+    #[serde(default)]
+    pub withdraw_max_usd: f64,
+    #[serde(default)]
+    pub cash_usd: f64,
+    /// The person's loans to the company.
+    #[serde(default)]
+    pub loans: Vec<PersonLoanView>,
+}
+
+/// A loan of the person to a company (PE3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonLoanView {
+    /// Position among the company's loans (`RepayLoan`).
+    pub index: u32,
+    pub balance_usd: f64,
+    pub rate: f64,
+    pub instalment_usd: f64,
+}
+
+/// A level of lifestyle with its cost today and its effects (PE3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LifestyleOption {
+    /// `bescheiden`, `buergerlich`, `gehoben`, `luxurioes` (text `lebensstil.<key>`).
+    pub key: String,
+    pub cost_usd: f64,
+    pub interest: f64,
+    pub salary_demand: f64,
+    pub education: f64,
+    pub mortality: f64,
+}
+
+/// The person's money (PE3): account, wealth, income and spending, lifestyle, salary.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonMoneyView {
+    pub cash_usd: f64,
+    pub shares_usd: f64,
+    pub loans_usd: f64,
+    pub wealth_usd: f64,
+    /// Wealth on the first day of each month, the earliest first.
+    pub history: Vec<(String, f64)>,
+    /// Income and spending of the last twelve closed months by kind (text
+    /// `privat.<key>`), income positive.
+    pub flows: Vec<(String, f64)>,
+    pub lifestyle: String,
+    /// A change chosen for the next month.
+    pub lifestyle_next: Option<String>,
+    /// First day the lifestyle may change again.
+    pub lifestyle_change_from: String,
+    pub lifestyles: Vec<LifestyleOption>,
+    /// The account fell short of the lifestyle.
+    pub short: bool,
+    /// Yearly salary before tax, and what is paid now: only as CEO of the main company.
+    pub salary_usd: f64,
+    pub salary_paid: bool,
+    pub salary_suggestion_usd: f64,
+    pub salary_max_usd: Option<f64>,
+    pub income_tax: f64,
+    pub savings_rate: f64,
+    pub loan_max_rate: f64,
+    pub loan_max_years: u32,
+}
+
+/// What the founding dialog needs (PE3).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FoundingView {
+    /// Start forms with the capital they need at least.
+    pub forms: Vec<super::StartFormOption>,
+    /// The person's home: the suggested seat.
+    pub country: String,
+    pub capital_suggestion_usd: f64,
+    /// Founding costs: this share of the capital, at least this amount in the home.
+    pub cost_share: f64,
+    pub cost_min_usd: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -55,6 +140,11 @@ pub struct PersonView {
     pub holdings: Vec<HoldingView>,
     /// The chronicle, the latest first.
     pub history: Vec<LifeEventView>,
+    #[serde(default)]
+    pub money: Option<PersonMoneyView>,
+    /// While the person has no company yet: the founding.
+    #[serde(default)]
+    pub founding: Option<FoundingView>,
 }
 
 pub fn person(game: &Game) -> PersonView {
@@ -108,12 +198,33 @@ pub fn person(game: &Game) -> PersonView {
             let id = crate::state::CompanyId(i as u32);
             let share = person::share(state, id);
             (share > 0.0).then(|| HoldingView {
+                index: u32::try_from(i).unwrap_or(u32::MAX),
                 company: c.name.clone(),
                 share,
                 controlled: share > 0.5,
                 person_ceo: p.ceo == Some(id),
                 ceo: management::holder(state, id, &Position::new(Unit::Board, Role::Head))
                     .map(|m| state.managers[&m].name.clone()),
+                value_usd: usd(private::company_value(catalog, state, id).scale(share)),
+                cost_basis_usd: usd(p.cost_basis.get(&id).copied().unwrap_or(Money::ZERO)),
+                withdraw_max_usd: if share >= 1.0 - 1e-9 {
+                    usd(private::withdrawal_max(catalog, state, id))
+                } else {
+                    0.0
+                },
+                cash_usd: usd(c.ledger.cash()),
+                loans: c
+                    .loans
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, l)| l.from_person)
+                    .map(|(j, l)| PersonLoanView {
+                        index: u32::try_from(j).unwrap_or(u32::MAX),
+                        balance_usd: usd(l.balance),
+                        rate: l.rate,
+                        instalment_usd: usd(l.instalment),
+                    })
+                    .collect(),
             })
         })
         .collect();
@@ -153,6 +264,19 @@ pub fn person(game: &Game) -> PersonView {
                 LifeEventKind::CeoTakenBack { company: c } => {
                     m("person.ereignis.vorsitz_an").with("firma", company(*c))
                 }
+                LifeEventKind::Began { money } => {
+                    m("person.ereignis.beginn").with("betrag", Param::Money(*money))
+                }
+                LifeEventKind::Founded {
+                    company: c,
+                    capital,
+                } => m("person.ereignis.gruendung")
+                    .with("firma", company(*c))
+                    .with("betrag", Param::Money(*capital)),
+                LifeEventKind::LifestyleChanged { level } => m("person.ereignis.lebensstil").with(
+                    "stufe",
+                    Param::TextKey(format!("lebensstil.{}", level.key())),
+                ),
             };
             LifeEventView {
                 date: iso(e.date),
@@ -160,7 +284,11 @@ pub fn person(game: &Game) -> PersonView {
             }
         })
         .collect();
+    let money = money(game);
+    let founding = state.main_company.is_none().then(|| founding(game));
     PersonView {
+        money: Some(money),
+        founding,
         name: p.name.clone(),
         born: iso(p.born),
         age,
@@ -173,5 +301,111 @@ pub fn person(game: &Game) -> PersonView {
             && p.children.len() < usize::try_from(model.children_max).unwrap_or(0),
         holdings,
         history,
+    }
+}
+
+/// Text key of a kind of movement on the private account.
+fn flow_key(f: PrivateFlow) -> &'static str {
+    match f {
+        PrivateFlow::StartMoney => "privat.startgeld",
+        PrivateFlow::Capital => "privat.einlage",
+        PrivateFlow::FoundingCost => "privat.gruendungskosten",
+        PrivateFlow::Salary => "privat.gehalt",
+        PrivateFlow::IncomeTax => "privat.einkommensteuer",
+        PrivateFlow::Interest => "privat.zins",
+        PrivateFlow::Lifestyle => "privat.lebensstil",
+        PrivateFlow::LoanGiven => "privat.darlehen",
+        PrivateFlow::LoanRepaid => "privat.tilgung",
+        PrivateFlow::LoanInterest => "privat.darlehenszins",
+        PrivateFlow::CapitalRepaid => "privat.rueckzahlung",
+    }
+}
+
+fn money(game: &Game) -> PersonMoneyView {
+    let state = game.state();
+    let catalog = game.catalog();
+    let m = &catalog.person;
+    let p = &state.person;
+    let today = state.date;
+    let w = private::wealth(catalog, state);
+    let current = private::lifestyle_at(catalog, p, today);
+    let next = p
+        .lifestyles
+        .last()
+        .filter(|s| s.from > today)
+        .map(|s| s.level.key().to_owned());
+    let main = state.main_company;
+    let year = today.year_fraction();
+    PersonMoneyView {
+        cash_usd: usd(w.cash),
+        shares_usd: usd(w.shares),
+        loans_usd: usd(w.loans),
+        wealth_usd: usd(w.total()),
+        history: p
+            .account
+            .wealth
+            .iter()
+            .map(|x| (iso(x.date), usd(x.total())))
+            .collect(),
+        flows: private::last_months(state)
+            .into_iter()
+            .filter(|(_, v)| *v != Money::ZERO)
+            .map(|(f, v)| (flow_key(f).to_owned(), usd(v)))
+            .collect(),
+        lifestyle: current.key().to_owned(),
+        lifestyle_next: next,
+        lifestyle_change_from: iso(private::next_lifestyle_change(catalog, p, today)),
+        lifestyles: Lifestyle::ALL
+            .iter()
+            .map(|&l| {
+                let x = m.lifestyle(l);
+                LifestyleOption {
+                    key: l.key().to_owned(),
+                    cost_usd: usd(private::lifestyle_cost(catalog, state, l)),
+                    interest: x.interest,
+                    salary_demand: x.salary_demand,
+                    education: x.education,
+                    mortality: x.mortality,
+                }
+            })
+            .collect(),
+        short: p.short_since.is_some(),
+        salary_usd: usd(p.salary),
+        salary_paid: main.is_some_and(|c| p.ceo == Some(c)),
+        salary_suggestion_usd: main
+            .map_or(0.0, |c| usd(private::salary_suggestion(catalog, state, c))),
+        salary_max_usd: main
+            .and_then(|c| private::salary_max(catalog, state, c))
+            .map(usd),
+        income_tax: m.income_tax.value(p.home, year),
+        savings_rate: m.savings_rate.value(p.home, year),
+        loan_max_rate: m.loan_max_rate,
+        loan_max_years: m.loan_max_years,
+    }
+}
+
+fn founding(game: &Game) -> FoundingView {
+    let state = game.state();
+    let catalog = game.catalog();
+    let f = &catalog.person.founding;
+    let home = state.person.home;
+    let forms = super::new_game_options(catalog)
+        .start_forms
+        .into_iter()
+        .map(|mut o| {
+            if let Some(form) = super::start_form_from_key(&o.key) {
+                o.cost_usd = usd(private::form_cost(catalog, form));
+            }
+            o
+        })
+        .collect();
+    FoundingView {
+        forms,
+        country: catalog.countries.key(home).to_owned(),
+        capital_suggestion_usd: usd(state.person.account.balance.scale(f.capital_suggestion)),
+        cost_share: f.cost_share,
+        cost_min_usd: usd(
+            private::academic_monthly_wage(catalog, state, home).scale(f.cost_min_months)
+        ),
     }
 }

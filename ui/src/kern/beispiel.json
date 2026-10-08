@@ -30038,7 +30038,9 @@
       "max": 60,
       "min": 18
     },
-    "children_max": 4
+    "children_max": 4,
+    "start_money_min_usd": 17822.0438,
+    "capital_suggestion": 0.9
   },
   "organisation": {
     "board": {
@@ -42358,8 +42360,13 @@
     },
     "start_year": 1914,
     "person": {
+      "age": 30,
+      "cash_usd": 0.0,
+      "companies": 101,
       "name": "Jürgen Albrecht",
-      "age": 30
+      "place": 101,
+      "short": true,
+      "wealth_usd": 154188.3935
     }
   },
   "uebersicht_start": {
@@ -42579,8 +42586,13 @@
     },
     "start_year": 1914,
     "person": {
+      "age": 29,
+      "cash_usd": 0.0,
+      "companies": 101,
       "name": "Jürgen Albrecht",
-      "age": 30
+      "place": 101,
+      "short": false,
+      "wealth_usd": 126400.0
     }
   },
   "vertraege": {
@@ -47366,11 +47378,215 @@
         "company": "Neue Firma",
         "controlled": true,
         "person_ceo": true,
-        "share": 1.0
+        "share": 1.0,
+        "index": 0,
+        "value_usd": 154188.3935,
+        "cost_basis_usd": 100000.0,
+        "withdraw_max_usd": 45252.1767,
+        "cash_usd": 45252.1767,
+        "loans": []
       }
     ],
     "home": "DEU",
     "married": true,
+    "name": "Jürgen Albrecht",
+    "money": {
+      "cash_usd": 0.0,
+      "flows": [],
+      "history": [
+        [
+          "1914-01-01",
+          126400.0
+        ],
+        [
+          "1914-02-01",
+          131933.042
+        ],
+        [
+          "1914-03-01",
+          133640.5207
+        ],
+        [
+          "1914-04-01",
+          136050.0021
+        ],
+        [
+          "1914-05-01",
+          137944.4107
+        ],
+        [
+          "1914-06-01",
+          141778.9516
+        ],
+        [
+          "1914-07-01",
+          147424.8094
+        ],
+        [
+          "1914-08-01",
+          155691.618
+        ]
+      ],
+      "income_tax": 0.120194520547945,
+      "lifestyle": "bescheiden",
+      "lifestyle_change_from": "1914-09-01",
+      "lifestyle_next": null,
+      "lifestyles": [
+        {
+          "cost_usd": 1380.7302,
+          "education": 0.0,
+          "interest": 0.005,
+          "key": "bescheiden",
+          "mortality": 1.1,
+          "salary_demand": 0.05
+        },
+        {
+          "cost_usd": 2761.4603,
+          "education": 5.0,
+          "interest": 0.0,
+          "key": "buergerlich",
+          "mortality": 1.0,
+          "salary_demand": 0.0
+        },
+        {
+          "cost_usd": 8284.3809,
+          "education": 10.0,
+          "interest": -0.0025,
+          "key": "gehoben",
+          "mortality": 0.95,
+          "salary_demand": -0.05
+        },
+        {
+          "cost_usd": 22091.6824,
+          "education": 15.0,
+          "interest": -0.005,
+          "key": "luxurioes",
+          "mortality": 0.95,
+          "salary_demand": -0.1
+        }
+      ],
+      "loan_max_rate": 0.15,
+      "loan_max_years": 30,
+      "loans_usd": 0.0,
+      "salary_max_usd": null,
+      "salary_paid": true,
+      "salary_suggestion_usd": 497062.8511,
+      "salary_usd": 0.0,
+      "savings_rate": 0.02,
+      "shares_usd": 154188.3935,
+      "short": true,
+      "wealth_usd": 154188.3935
+    },
+    "founding": null
+  },
+  "person_ohne_firma": {
+    "age": 29,
+    "born": "1884-07-10",
+    "children": [],
+    "children_possible": true,
+    "founding": {
+      "capital_suggestion_usd": 90000.0,
+      "cost_min_usd": 3006.3242,
+      "cost_share": 0.005,
+      "country": "DEU",
+      "forms": [
+        {
+          "cost_usd": 60000.0,
+          "key": "werkstatt"
+        },
+        {
+          "cost_usd": 15000.0,
+          "key": "handel"
+        },
+        {
+          "cost_usd": 0.0,
+          "key": "investor"
+        },
+        {
+          "cost_usd": 0.0,
+          "key": "bank"
+        }
+      ]
+    },
+    "history": [
+      {
+        "date": "1914-01-01",
+        "text": {
+          "group": "allgemein",
+          "key": "person.ereignis.beginn",
+          "kind": "info",
+          "params": {
+            "betrag": {
+              "type": "money",
+              "value": 100000.0
+            }
+          },
+          "target": null
+        }
+      }
+    ],
+    "holdings": [],
+    "home": "DEU",
+    "married": true,
+    "money": {
+      "cash_usd": 100000.0,
+      "flows": [],
+      "history": [
+        [
+          "1914-01-01",
+          100000.0
+        ]
+      ],
+      "income_tax": 0.11699999999999999,
+      "lifestyle": "bescheiden",
+      "lifestyle_change_from": "1914-02-01",
+      "lifestyle_next": null,
+      "lifestyles": [
+        {
+          "cost_usd": 1503.1621,
+          "education": 0.0,
+          "interest": 0.005,
+          "key": "bescheiden",
+          "mortality": 1.1,
+          "salary_demand": 0.05
+        },
+        {
+          "cost_usd": 3006.3242,
+          "education": 5.0,
+          "interest": 0.0,
+          "key": "buergerlich",
+          "mortality": 1.0,
+          "salary_demand": 0.0
+        },
+        {
+          "cost_usd": 9018.9726,
+          "education": 10.0,
+          "interest": -0.0025,
+          "key": "gehoben",
+          "mortality": 0.95,
+          "salary_demand": -0.05
+        },
+        {
+          "cost_usd": 24050.5936,
+          "education": 15.0,
+          "interest": -0.005,
+          "key": "luxurioes",
+          "mortality": 0.95,
+          "salary_demand": -0.1
+        }
+      ],
+      "loan_max_rate": 0.15,
+      "loan_max_years": 30,
+      "loans_usd": 0.0,
+      "salary_max_usd": null,
+      "salary_paid": false,
+      "salary_suggestion_usd": 0.0,
+      "salary_usd": 0.0,
+      "savings_rate": 0.02,
+      "shares_usd": 0.0,
+      "short": false,
+      "wealth_usd": 100000.0
+    },
     "name": "Jürgen Albrecht"
   }
 }

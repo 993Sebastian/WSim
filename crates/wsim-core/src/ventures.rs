@@ -241,7 +241,7 @@ fn fail(
     why: VentureFailure,
 ) -> Vec<Message> {
     let m = &catalog.ventures;
-    let player = state.player;
+    let player = state.main_company;
     let majority = state.ventures[i]
         .parent
         .or_else(|| majority_company(m, &state.ventures[i]));
@@ -257,7 +257,7 @@ fn fail(
             .ledger
             .transfer(Account::Cash, Account::Participations, amount);
         take_from(&mut state.ventures[i].book, c, amount);
-        if c == player {
+        if Some(c) == player {
             messages.push(
                 Message::new(MessageKind::Info, keys::VENTURE_REFUND)
                     .with("name", Param::Text(name.clone()))
@@ -276,7 +276,7 @@ fn fail(
             Account::Participations,
             value,
         );
-        if c == player {
+        if Some(c) == player {
             messages.push(
                 Message::new(MessageKind::Warning, keys::VENTURE_LOST)
                     .with("name", Param::Text(name.clone()))
@@ -286,7 +286,7 @@ fn fail(
     }
     if let Some(c) = majority
         && research_bonus(state, catalog, c, target, date)
-        && c == player
+        && Some(c) == player
     {
         messages.push(
             Message::new(MessageKind::Info, keys::VENTURE_BONUS)
@@ -455,7 +455,7 @@ fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Ve
 /// public, every owner gets the value of its share and AI companies get a new rival.
 fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Vec<Message> {
     let m = &catalog.ventures;
-    let player = state.player;
+    let player = state.main_company;
     let v = &state.ventures[i];
     let worth = success_value(m, v);
     // The parent or the majority, if it can pay the others.
@@ -467,7 +467,7 @@ fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date
     if let Some(p) = parent {
         // The others are paid out at the value of the success.
         let paid = buy_out(state, i, p, worth, &mut messages);
-        if paid > Money::ZERO && p == player {
+        if paid > Money::ZERO && Some(p) == player {
             messages.push(
                 Message::new(MessageKind::Info, keys::VENTURE_PAID_OUT)
                     .with("name", Param::Text(state.ventures[i].name.clone()))
@@ -482,7 +482,7 @@ fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date
     for (c, share) in owners {
         let proceeds = worth.scale(share);
         exit_stake(state, i, c, share, proceeds);
-        if c == player {
+        if Some(c) == player {
             messages.push(
                 Message::new(MessageKind::Success, keys::VENTURE_LISTED)
                     .with("name", Param::Text(state.ventures[i].name.clone()))
@@ -521,7 +521,7 @@ fn buy_out(
     worth: Money,
     messages: &mut Vec<Message>,
 ) -> Money {
-    let player = state.player;
+    let player = state.main_company;
     let others: Vec<Stake> = state.ventures[i]
         .owners
         .iter()
@@ -534,7 +534,7 @@ fn buy_out(
         paid += price;
         if let Holder::Company(c) = s.holder {
             exit_stake(state, i, c, s.share, price);
-            if c == player {
+            if Some(c) == player {
                 messages.push(
                     Message::new(MessageKind::Info, keys::VENTURE_BOUGHT_OUT)
                         .with("name", Param::Text(state.ventures[i].name.clone()))
@@ -609,7 +609,7 @@ fn to_parent(
             company.development.points.remove(&product);
         }
     }
-    if parent != state.player {
+    if !state.is_main(parent) {
         return Vec::new();
     }
     vec![
@@ -1285,7 +1285,7 @@ pub fn best_stake_bid(
 /// bid from the minimum buys through the command; else the offer ends. Returns the news
 /// for the player.
 fn settle_sales(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
-    let player = state.player;
+    let player = state.main_company;
     let mut news = Vec::new();
     for i in 0..state.ventures.len() {
         if state.ventures[i].sales.is_empty() {
@@ -1327,7 +1327,7 @@ fn settle_sales(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                 ),
             };
             state.ventures[i].sales.retain(|&(c, _)| c != seller);
-            if seller == player {
+            if Some(seller) == player {
                 news.extend(message);
             }
         }
@@ -1962,11 +1962,11 @@ fn ai_takeover(
     if !decided {
         return Vec::new();
     }
-    let player = state.player;
+    let player = state.main_company;
     let Ok(i) = position(state, venture) else {
         return Vec::new();
     };
-    let player_share = share_of(&state.ventures[i], player);
+    let player_share = player.map_or(0.0, |p| share_of(&state.ventures[i], p));
     let payment = value(m, &state.ventures[i]).scale((1.0 + m.stakes.buy_premium) * player_share);
     if crate::command::execute(state, catalog, company, &commands[0]).is_err()
         || crate::command::execute(state, catalog, company, &commands[1]).is_err()

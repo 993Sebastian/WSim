@@ -278,6 +278,27 @@ Frage: „Wer bist du, wer gehört zur Familie, und welche Rolle hast du in dein
   abgeworben); dieselbe Marke trägt es im Organigramm. Meldungen im Rundenbericht:
   Geburt, Berufseintritt, Tod eines Kindes, Vorsitz abgegeben oder wieder übernommen.
 
+### Person: Privatkonto und Gründung (PE3)
+
+Frage: „Wovon lebe ich, was bin ich wert, und wie viel Geld gebe ich meiner Firma?“
+
+- **Neues Spiel:** statt Firmenname und Startform das Feld „Startgeld in USD (Kaufkraft
+  2026)“ mit dem Hinweis auf die Untergrenze (günstigste Firma samt Gründungskosten) und
+  die vorgeschlagene Einlage. Das Spiel beginnt mit der Person.
+- **Dialog „Firma gründen“:** öffnet sich nach dem Start (und über „Firma gründen“ in
+  Übersicht und Person): Name, Startform mit Kosten, Hauptsitz (alle Länder), Einlage mit
+  Vorschlag (90 % des Privatkontos) und Gründungskosten; „Später“ schließt ihn.
+- **Ohne Firma:** Übersicht, Weltkarte, Berichte und Person sind offen, die übrigen Reiter
+  gesperrt („Dafür brauchst du zuerst eine Firma“). Die Übersicht erklärt, dass Runden
+  auch ohne Firma laufen.
+- **Kopfzeile:** Privatkonto und Vermögen der Person.
+- **Ansicht Person:** Vermögen (Privatkonto, Firmenanteile mit Wert und Eingezahltem,
+  Darlehen, gesamt, Verlauf), Einnahmen und Ausgaben der letzten zwölf Monate,
+  Lebensstil als Tabelle der Stufen mit Kosten und Wirkungen („Wählen“, nächster Wechsel
+  ab …), Gehalt als CEO mit Vorschlag und Steuer, „Geld für die Firma“ (Einlage,
+  Darlehen mit Zins und Laufzeit, Kapital zurückholen). Reicht das Konto nicht, steht
+  oben die Warnung mit den Auswegen.
+
 ### Organisation (MA1–MA6)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,

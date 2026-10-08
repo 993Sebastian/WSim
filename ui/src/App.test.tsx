@@ -35,13 +35,17 @@ describe("Spielablauf", () => {
   it("startet ein Spiel, beendet eine Runde und speichert", async () => {
     render(<App kern={vorschauKern(0)} />);
     fireEvent.click(await screen.findByRole("button", { name: "Neues Spiel" }));
-    fireEvent.change(await screen.findByLabelText("Name der Firma"), {
+    expect(
+      ((await screen.findByLabelText("Startland (Firmensitz)")) as HTMLSelectElement).value,
+    ).toBe("DEU");
+    // The person starts with its money; the founding dialog opens right away (PE3).
+    expect(screen.getByLabelText(/Startgeld/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Spiel starten" }));
+    const gruendung = await screen.findByRole("dialog", { name: "Firma gründen" });
+    fireEvent.change(await within(gruendung).findByLabelText("Name der Firma"), {
       target: { value: "Test AG" },
     });
-    expect((screen.getByLabelText("Startland (Firmensitz)") as HTMLSelectElement).value).toBe(
-      "DEU",
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Spiel starten" }));
+    fireEvent.click(within(gruendung).getByRole("button", { name: "Firma gründen" }));
 
     expect(await screen.findByText("Test AG")).toBeTruthy();
     expect(screen.getByText("01.01.1914")).toBeTruthy();

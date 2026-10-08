@@ -17,8 +17,14 @@ pub fn base_rate(catalog: &Catalog, date: Date) -> f64 {
         .value_at(date.year_fraction())
 }
 
+/// The bank debt: loans of the person rank after it (PE3).
 fn outstanding(company: &Company) -> Money {
-    company.loans.iter().map(|l| l.balance).sum()
+    company
+        .loans
+        .iter()
+        .filter(|l| !l.from_person)
+        .map(|l| l.balance)
+        .sum()
 }
 
 /// Largest new loan the bank grants: a share of fixed assets and inventory as
@@ -99,6 +105,7 @@ pub(crate) fn grant_loan(
         months,
         instalment: instalment(amount, rate, months),
         lender,
+        from_person: false,
     });
     company
         .ledger
@@ -131,6 +138,8 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
     let year_end = last_day.month() == 12;
     // What borrowers pay the player's banks: (bank, repayment, interest).
     let mut to_banks: Vec<(CompanyId, Money, Money)> = Vec::new();
+    // What the companies pay the person on its loans (PE3).
+    let mut to_person = (Money::ZERO, Money::ZERO);
     for index in 0..state.companies.len() {
         let hq = state.companies[index].headquarters;
         let tax_rate = state.countries.get(hq).corporate_tax;
@@ -153,6 +162,10 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
             loan.balance -= repayment;
             if let Some(bank) = loan.lender {
                 to_banks.push((bank, repayment, interest));
+            }
+            if loan.from_person {
+                to_person.0 += repayment;
+                to_person.1 += interest;
             }
         }
         let before = company.loans.len();
@@ -177,6 +190,7 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
     for (bank, repayment, interest) in to_banks {
         crate::bank::receive(state, bank, repayment, interest);
     }
+    crate::private::receive_loan(state, to_person.0, to_person.1);
 }
 
 fn pay_profit_tax(company: &mut Company, rate: f64) {
@@ -220,7 +234,7 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
         }
         state.companies[index].bankrupt = true;
         let id = CompanyId(u32::try_from(index).expect("company count fits u32"));
-        if id == state.player {
+        if state.is_main(id) {
             state.game_over = true;
             messages.push(Message::new(MessageKind::Crisis, keys::GAME_OVER_INSOLVENT));
         } else if catalog.deal_model.insolvency_days > 0 {
@@ -253,7 +267,7 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
 
 /// Warning for the player when the cash account is overdrawn.
 pub(crate) fn overdraft_warning(state: &GameState, catalog: &Catalog) -> Option<Message> {
-    let company = state.company(state.player)?;
+    let company = state.company(state.main_company?)?;
     let cash = company.ledger.cash();
     cash.is_negative().then(|| {
         Message::new(MessageKind::Warning, keys::OVERDRAFT)

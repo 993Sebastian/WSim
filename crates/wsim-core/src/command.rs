@@ -341,6 +341,43 @@ pub enum Command {
     /// Turns the project of a research center into a start-up and sells a share of it
     /// to investors (SU3).
     SpinOff { site: SiteId, sell: f64 },
+    /// The person founds its company (PE3): name, start form, seat and capital paid in.
+    FoundCompany {
+        name: String,
+        form: crate::state::StartForm,
+        country: CountryId,
+        capital: Money,
+    },
+    /// The person's yearly salary as CEO of the main company (PE3).
+    SetPersonSalary { amount: Money },
+    /// The person's lifestyle from the next month on (PE3).
+    SetLifestyle { level: crate::state::Lifestyle },
+    /// The person pays capital into a company (PE3).
+    ContributeCapital { company: CompanyId, amount: Money },
+    /// The person lends a company money (PE3).
+    LendToCompany {
+        company: CompanyId,
+        amount: Money,
+        rate: f64,
+        years: u32,
+    },
+    /// A company pays capital back to the person (PE3).
+    WithdrawCapital { company: CompanyId, amount: Money },
+}
+
+impl Command {
+    /// Commands of the person rather than of a company (PE3).
+    pub fn is_personal(&self) -> bool {
+        matches!(
+            self,
+            Command::FoundCompany { .. }
+                | Command::SetPersonSalary { .. }
+                | Command::SetLifestyle { .. }
+                | Command::ContributeCapital { .. }
+                | Command::LendToCompany { .. }
+                | Command::WithdrawCapital { .. }
+        )
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -652,6 +689,37 @@ pub enum CommandError {
     },
     /// The person's children work only for the person's companies (PE2).
     FamilyOnly,
+    /// Only the person gives this command (PE3).
+    PersonOnly,
+    /// The person has no company yet (PE3).
+    NoCompany,
+    /// The person already founded its company.
+    AlreadyFounded,
+    /// The private account holds less.
+    NotEnoughPrivateMoney {
+        needed: Money,
+    },
+    /// The person does not control the company.
+    NotControlled,
+    /// The lifestyle changed recently; the next change from this day on.
+    LifestyleChangedRecently {
+        from: crate::calendar::Date,
+    },
+    /// With co-owners the salary is limited.
+    SalaryTooHigh {
+        max: Money,
+    },
+    /// Interest or term of a loan of the person outside the bounds of the data.
+    LoanTerms {
+        max_rate: f64,
+        max_years: u32,
+    },
+    /// More than the person paid in, the subscribed capital or the cash above the reserve.
+    WithdrawalTooHigh {
+        max: Money,
+    },
+    /// Only while the person holds all shares.
+    NotSoleOwner,
 }
 
 impl CommandError {
@@ -844,6 +912,29 @@ impl CommandError {
             CommandError::NoStakeOffer => e(keys::COMMAND_NO_STAKE_OFFER),
             CommandError::NotRetiring => e(keys::COMMAND_NOT_RETIRING),
             CommandError::FamilyOnly => e(keys::COMMAND_FAMILY_ONLY),
+            CommandError::PersonOnly => e(keys::COMMAND_PERSON_ONLY),
+            CommandError::NoCompany => e(keys::COMMAND_NO_COMPANY),
+            CommandError::AlreadyFounded => e(keys::COMMAND_ALREADY_FOUNDED),
+            CommandError::NotEnoughPrivateMoney { needed } => {
+                e(keys::COMMAND_PRIVATE_MONEY).with("betrag", Param::Money(*needed))
+            }
+            CommandError::NotControlled => e(keys::COMMAND_NOT_CONTROLLED),
+            CommandError::LifestyleChangedRecently { from } => {
+                e(keys::COMMAND_LIFESTYLE_RECENT).with("datum", Param::Date(*from))
+            }
+            CommandError::SalaryTooHigh { max } => {
+                e(keys::COMMAND_SALARY_TOO_HIGH).with("max", Param::Money(*max))
+            }
+            CommandError::LoanTerms {
+                max_rate,
+                max_years,
+            } => e(keys::COMMAND_LOAN_TERMS)
+                .with("zins", Param::Number((max_rate * 1000.0).round() / 10.0))
+                .with("jahre", Param::Integer(i64::from(*max_years))),
+            CommandError::WithdrawalTooHigh { max } => {
+                e(keys::COMMAND_WITHDRAWAL_TOO_HIGH).with("max", Param::Money(*max))
+            }
+            CommandError::NotSoleOwner => e(keys::COMMAND_NOT_SOLE_OWNER),
             CommandError::ExtensionTooLong { max } => {
                 e(keys::COMMAND_EXTENSION_TOO_LONG).with("jahre", integer(usize::from(*max)))
             }
@@ -1173,6 +1264,12 @@ fn run(
         Command::IntegrateVenture { venture } => {
             crate::ventures::integrate(state, catalog, actor, *venture)?;
         }
+        Command::FoundCompany { .. }
+        | Command::SetPersonSalary { .. }
+        | Command::SetLifestyle { .. }
+        | Command::ContributeCapital { .. }
+        | Command::LendToCompany { .. }
+        | Command::WithdrawCapital { .. } => return Err(CommandError::PersonOnly),
         Command::SpinOff { site, sell } => {
             crate::ventures::spin_off(state, catalog, actor, *site, *sell)?;
         }
@@ -1612,8 +1709,10 @@ fn run(
             if *amount > limit {
                 return Err(CommandError::LoanTooLarge { limit });
             }
-            // The market's banks, or a bank of the player that lends for less (K4).
-            let market = crate::finance::loan_rate(catalog, company, *amount, today, cut);
+            // The market's banks, or a bank of the player that lends for less (K4); the
+            // person's lifestyle moves the market's rate (PE3).
+            let market = crate::finance::loan_rate(catalog, company, *amount, today, cut)
+                + crate::private::loan_rate_offset(catalog, state, actor);
             let (rate, lender) =
                 match crate::bank::lender_for(state, catalog, actor, *amount, market) {
                     Some((bank, rate)) => {
@@ -1638,10 +1737,14 @@ fn run(
                 return Err(CommandError::NotEnoughCash { needed: amount });
             }
             let before = company.loans.len();
+            let from_person = company.loans[*loan].from_person;
             let lender = crate::finance::repay(company, *loan, amount);
             let paid_off = company.loans.len() < before;
             if let Some((bank, amount)) = lender {
                 crate::bank::receive(state, bank, amount, Money::ZERO);
+            }
+            if from_person {
+                crate::private::receive_loan(state, amount, Money::ZERO);
             }
             if paid_off {
                 crate::management::settle_topic(state, actor, crate::decision::Topic::Refinance);

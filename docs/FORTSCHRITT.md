@@ -86,7 +86,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | H1 | Ereignisfolgen: Nachfrage, Handelssperren, Zölle, Arbeitskräfte, Produktion, Abschottung, Zerstörung, Enteignung, Börsenkrach | ✅ (vor PE fertig geworden) |
 | PE1 | Alter der Manager, Ruhestand, Nachfolge | ✅ |
 | PE2 | Spielerfigur: Person, Familie, Rollen | ✅ |
-| PE3 | Privatkonto und Spielstart ohne Firma | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE3 | Privatkonto und Spielstart ohne Firma | ✅ |
 | PE4 | Dividenden | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ⏳ als Nächstes (`docs/PERSON.md`) |
@@ -1014,6 +1014,32 @@ Vorgabe `docs/PERSON.md` §5. Regeln: `docs/FORMELN.md`, Abschnitt PE2; Entschei
   vier, Managerkarte nur für eigene Firmen, Vorsitz abgeben und übernehmen, Tod eines
   Kindes, alter Spielstand), Datenprüfung, vitest; Weltlauf 1900–1960 mit 100 KI-Firmen
   (ein Kind, keine Pleite, kein Manager über 75; `docs/OFFENE_PUNKTE.md`, PE2 Punkt 8).
+
+### PE3: Privatkonto und Spielstart ohne Firma (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §6–8. Regeln: `docs/FORMELN.md`, Abschnitt PE3; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P (PE3).
+
+- **Daten:** `parameter/person.yaml` um Gründung, Gehalt, Gesellschafterdarlehen,
+  Lebensstil (vier Stufen), Einkommensteuer und Sparzins je Land erweitert; Prüfregeln und
+  Fehlerfall-Test.
+- **Kern:** `GameState::player` wird zur optionalen Hauptfirma (`main_company`); neues
+  Modul `private`: Startgeld aufs Privatkonto, `FoundCompany` (Einlage, Gründungskosten,
+  Startgehalt), Gehalt als Personalaufwand des Vorstands, Einkommensteuer, Guthabenzins,
+  Lebensstil mit Wirkung auf Kreditzins, Gehaltsforderung im Vorstand und Ausbildung der
+  Kinder, „Privatkonto leer“, Einlage, Gesellschafterdarlehen, Kapitalrückzahlung, Vermögen
+  je Monat. Persönliche Befehle stehen als eigener Eintrag im Journal.
+- **Oberfläche:** Neues Spiel mit Startgeld statt Firmenfeldern, Dialog „Firma gründen“
+  nach dem Start, gesperrte Reiter ohne Firma, Privatkonto und Vermögen in Kopfzeile und
+  Übersicht, Ansicht „Person“ mit Vermögen, Einnahmen und Ausgaben, Lebensstil, Gehalt und
+  Geld für die Firma.
+- **Kommandozeile:** `wsim run --als-person [--lebensstil …]` beginnt als Person, gründet
+  per Befehl und zeigt am Ende Privatkonto und Vermögen je Jahr.
+- **Tests:** Kern (Lauf ohne Firma, Gründung, geschlossener Geldkreislauf, Darlehen,
+  Rückzahlung nur bei Alleineigentum, Lebensstil-Wechsel und -Absenkung, Wirkungen, alte
+  Spielstände, Wiederholung aus dem Journal, Abweisungen), Sitzung, Datenprüfung, vitest,
+  Playwright (Start ohne Firma, Gründung, gesperrte Reiter); Testpartie als Gründer
+  1900–1915 (`docs/OFFENE_PUNKTE.md`, PE3 Punkt 10).
 
 ## Eigenständige Entscheidungen (für das Review)
 

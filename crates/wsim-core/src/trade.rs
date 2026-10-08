@@ -54,7 +54,7 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
                     s.value,
                 );
                 crate::logistics::note_loss(state, owner, s.value);
-                if owner == state.player {
+                if state.is_main(owner) {
                     news.push(crate::logistics::loss_message(
                         catalog,
                         (s.product, s.quantity),

@@ -1468,6 +1468,51 @@ angepasst). 🟡 Eigenständig entschieden:
    im Dienst, keine Pleite. Das Kind bekam im Lauf den Vornamen des Vaters; seitdem zieht
    die Familie bis zu fünfmal neu, bis ein Vorname noch nicht vergeben ist.
 
+✅ **PE3 umgesetzt** (Privatkonto und Spielstart ohne Firma; Vorgabe `docs/PERSON.md` §6–8;
+Regeln: `docs/FORMELN.md`, Abschnitt PE3; Format: `docs/DATENFORMAT.md`, `person`).
+🟡 Eigenständig entschieden:
+
+1. **Lebensstil nachjustiert** (die Vorgabe sieht das nach dem Weltlauf vor): Kosten
+   0,5 / 1 / 3 / 8 statt 0,8 / 1,5 / 4 / 10 Akademiker-Monatslöhne, **Standard am Start
+   „Bescheiden“** statt „Bürgerlich“. Grund: Ein Akademiker-Monatslohn in Deutschland 1900
+   sind rund 2.800 USD; „Bürgerlich“ kostete damit 51.000 USD im Jahr, die Startwerkstatt
+   (90.000 USD Einlage) verdient ohne Ausbau rund 8.000 USD im Jahr und ging mit einem
+   Gehalt in dieser Höhe 1905 pleite. Die übrigen Wirkungen der Stufen sind unverändert;
+   wer „Bürgerlich“ als Standard will, ändert einen Wert in `person.yaml`.
+2. **Startgehalt:** Bei der Gründung setzt der Kern das Gehalt so, dass es den Lebensstil
+   der Standardstufe nach Steuern deckt, höchstens den Vorschlag (CEO mit Stärke 50). Das
+   Gehalt bleibt danach fest, bis der Spieler es ändert; die Kosten des Lebensstils steigen
+   mit den Löhnen.
+3. **Kopflose Läufe und alte Spielstände** beginnen weiter mit fertiger Firma
+   (`found_at_start`) und **ohne Gehalt**, damit Weltläufe und Reproduzierbarkeits-Tests
+   vergleichbar bleiben. Alte Spielstände: Privatkonto leer, Einstandswert = Eigenkapital
+   beim Laden, Lebensstil Standard. Die Oberfläche beginnt immer ohne Firma.
+4. **Firmenwert** für Vermögen und Einlagen: Börsenwert (K1), ohne Notierung der faire
+   Wert; ohne Börse in den Daten das Eigenkapital.
+5. **„Privatkonto leer“** als Warnung im Rundenbericht statt als Anliegen (die Person hat
+   kein Postfach): Im ersten Monat, in dem das Guthaben den Lebensstil nicht deckt, kommt
+   die Warnung; im zweiten fällt die Stufe ab dem Folgemonat auf „Bescheiden“. Dieser
+   erzwungene Wechsel sperrt den nächsten eigenen Wechsel nicht.
+6. **Kapitalrückzahlung** nur bei 100 % Anteil, höchstens die eigenen Einlagen, das
+   gezeichnete Kapital und die Kasse über der Liquiditätsreserve (Strategie).
+7. **Gesellschafterdarlehen** als Annuität wie Bankkredite (Zins bis 15 %, bis 30 Jahre);
+   sie zählen nicht zur Kreditgrenze der Bank und werden bei Umschuldung nicht abgelöst.
+   Geht die Firma pleite, ist das Darlehen verloren.
+8. **Startgeld-Untergrenze:** günstigste Startform mit Standort plus Gründungskosten im
+   Startland und -jahr (Deutschland 1900: rund 17.800 USD für die Handelsniederlassung).
+   Investmentfirma und Bank brauchen keine Mindesteinlage.
+9. **Ohne Firma** sind die Reiter außer Übersicht, Weltkarte, Berichten und Person gesperrt (Hinweis
+   „Dafür brauchst du zuerst eine Firma“); der Gründungsdialog öffnet sich nach dem Start
+   und lässt sich mit „Später“ schließen. Runden laufen ohne Firma (Zins, Steuer,
+   Lebensstil).
+10. **Weltlauf als Gründer** (`wsim run --als-person`, 20 KI-Firmen, Deutschland 1900,
+    100.000 USD Startgeld): Ohne eigene Befehle sinkt die Firma mit dem Startgehalt von
+    17.600 USD bis 1911 auf eine Kasse von −12.600 USD (ohne Gehalt +186.000 USD); das
+    Privatkonto bleibt über 3.000 USD. Mit der einfachen Strategie der Testpartie
+    (Nagelmaschinen, Testpartie `a_founder_lives_from_the_workshop_1900_to_1915`) wächst
+    das Eigenkapital bis 1915 auf 5,7 Mio. USD, das Privatkonto hält sich bei rund
+    13.000 USD. Wer nichts tut, verliert also langsam; das ist gewollt.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

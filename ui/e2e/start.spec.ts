@@ -11,8 +11,9 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
 
-  await page.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
   await expect(page.getByLabel("Startland (Firmensitz)")).toHaveValue("DEU");
+  // The start money with the least amount as a hint (PE3).
+  await expect(page.getByText(/Mindestens rund/)).toBeVisible();
   await page.getByText(/Weitere Einstellungen/).click();
   await page.getByLabel("Anzahl KI-Firmen").fill("100");
   await page.getByLabel("Schwierigkeit der KI").selectOption("schwer");
@@ -20,6 +21,11 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await expect(page.getByLabel("Zölle nach 2026")).toHaveValue("normal");
   await page.getByLabel("Zölle nach 2026").selectOption("stark");
   await page.getByRole("button", { name: "Spiel starten" }).click();
+  // The founding dialog: name, start form, seat and capital (PE3).
+  const gruendung = page.getByRole("dialog", { name: "Firma gründen" });
+  await expect(gruendung.getByLabel("Hauptsitz")).toHaveValue("DEU");
+  await gruendung.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
+  await gruendung.getByRole("button", { name: "Firma gründen" }).click();
 
   const kopf = page.locator(".kopfleiste");
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
@@ -74,20 +80,43 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
 });
 
-test("Ein leerer Firmenname wird nicht abgeschickt", async ({ page }) => {
+test("Ohne Firma: Person mit Startgeld, gesperrte Reiter, Gründung später", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel(/Einführung zeigen/).uncheck();
   await page.getByRole("button", { name: "Spiel starten" }).click();
+  const gruendung = page.getByRole("dialog", { name: "Firma gründen" });
   // The empty company name is refused by the browser before anything is sent.
-  await expect(page.getByRole("heading", { name: "Neues Spiel" })).toBeVisible();
+  await gruendung.getByRole("button", { name: "Firma gründen" }).click();
+  await expect(gruendung).toBeVisible();
+  await gruendung.getByRole("button", { name: "Später" }).click();
+  // Without a company: the overview shows the private money, the company tabs wait.
+  await expect(page.getByRole("heading", { name: "Privatvermögen" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Standorte" })).toBeDisabled();
+  await expect(page.locator(".kopfleiste").getByText("Privatkonto")).toBeVisible();
+  // From the person view the dialog opens again.
+  await page.getByRole("button", { name: /^Person: / }).click();
+  await page.getByRole("region", { name: "Firma gründen" }).getByRole("button").click();
+  await page
+    .getByRole("dialog", { name: "Firma gründen" })
+    .getByLabel("Name der Firma")
+    .fill("Spätstart AG");
+  await page
+    .getByRole("dialog", { name: "Firma gründen" })
+    .getByRole("button", { name: "Firma gründen" })
+    .click();
+  await expect(page.locator(".kopfleiste").getByText("Spätstart AG")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Standorte" })).toBeEnabled();
 });
 
 test("Weltkarte mit Ebenen und Länderdetail", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Kartenprobe");
   await page.getByLabel(/Einführung zeigen/).uncheck();
   await page.getByRole("button", { name: "Spiel starten" }).click();
+  const gruendung = page.getByRole("dialog", { name: "Firma gründen" });
+  await gruendung.getByLabel("Name der Firma").fill("Kartenprobe");
+  await gruendung.getByRole("button", { name: "Firma gründen" }).click();
 
   await page.getByRole("button", { name: "Weltkarte" }).click();
   const karte = page.getByRole("group", { name: "Weltkarte" });

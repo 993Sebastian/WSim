@@ -20,7 +20,7 @@ use wsim_core::management;
 use wsim_core::message::{Message, MessageKind, Param, keys as core_keys};
 use wsim_core::money::Money;
 use wsim_core::save;
-use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
+use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, StartForm, Unit};
 use wsim_core::views::{
     self, BankView, ChainsView, CompaniesView, CompanyDetailView, ConcernsView,
     ContractPartnersView, ContractsView, ControllingView, CountryDetail, FinanceView, GroupView,
@@ -41,9 +41,17 @@ pub struct NewGameRequest {
     pub seed: u64,
     pub start_year: i32,
     pub country: String,
+    /// Money of the person (PE3); with `found_at_start` the company's capital.
     pub capital_usd: f64,
+    /// Only with `found_at_start`: the company founded at the start.
+    #[serde(default)]
     pub start_form: String,
+    #[serde(default)]
     pub company_name: String,
+    /// Found the company at the start with the whole capital (games without the
+    /// founding dialog); else the person founds it in the game (PE3).
+    #[serde(default)]
+    pub found_at_start: bool,
     pub companies: u32,
     pub difficulty: String,
     pub research_factor: f64,
@@ -237,8 +245,12 @@ impl<S: SaveStore> Session<S> {
             .countries
             .id(&request.country)
             .ok_or_else(|| error(keys::UNKNOWN_COUNTRY))?;
-        let start_form = views::start_form_from_key(&request.start_form)
-            .ok_or_else(|| error(keys::UNKNOWN_START_FORM))?;
+        let start_form = if request.found_at_start {
+            views::start_form_from_key(&request.start_form)
+                .ok_or_else(|| error(keys::UNKNOWN_START_FORM))?
+        } else {
+            StartForm::Workshop
+        };
         let difficulty = c
             .ai_model
             .difficulties
@@ -282,6 +294,7 @@ impl<S: SaveStore> Session<S> {
             ventures,
             tariff_dynamics,
             event_effects: request.event_effects,
+            found_at_start: request.found_at_start,
             person: wsim_core::state::PersonSettings {
                 name: request.person_name.clone(),
                 birth_year: request.birth_year,
@@ -322,20 +335,29 @@ impl<S: SaveStore> Session<S> {
             .ok_or_else(|| error(keys::NO_GAME))
     }
 
+    /// A view of the main company; before the founding an error (PE3).
+    fn company_view<T>(&self, f: impl FnOnce(&Game) -> T) -> Result<T, MessageView> {
+        let game = self.game.as_ref().ok_or_else(|| error(keys::NO_GAME))?;
+        if game.main_company().is_none() {
+            return Err(error(core_keys::COMMAND_NO_COMPANY));
+        }
+        Ok(f(game))
+    }
+
     pub fn production(&self) -> Result<ProductionView, MessageView> {
-        self.view(views::production)
+        self.company_view(views::production)
     }
 
     pub fn research(&self) -> Result<ResearchOverview, MessageView> {
-        self.view(views::research_overview)
+        self.company_view(views::research_overview)
     }
 
     pub fn finance(&self) -> Result<FinanceView, MessageView> {
-        self.view(views::finance_overview)
+        self.company_view(views::finance_overview)
     }
 
     pub fn market(&self, country: &str) -> Result<MarketView, MessageView> {
-        self.view(|g| views::market(g, country))?
+        self.company_view(|g| views::market(g, country))?
             .ok_or_else(|| error(keys::UNKNOWN_COUNTRY))
     }
 
@@ -349,17 +371,20 @@ impl<S: SaveStore> Session<S> {
         if game.catalog().countries.id(country).is_none() {
             return Err(error(keys::UNKNOWN_COUNTRY));
         }
+        if game.main_company().is_none() {
+            return Err(error(core_keys::COMMAND_NO_COMPANY));
+        }
         views::product_market(game, country, product).ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
     }
 
     /// Production chains of the end products (M25).
     pub fn chains(&self) -> Result<ChainsView, MessageView> {
-        self.view(views::chains)
+        self.company_view(views::chains)
     }
 
     /// The player's offers to buy and sell (M30).
     pub fn offers(&self) -> Result<OffersView, MessageView> {
-        self.view(views::offers)
+        self.company_view(views::offers)
     }
 
     /// The active companies, largest equity first (M30).
@@ -369,43 +394,43 @@ impl<S: SaveStore> Session<S> {
 
     /// A company with its sites and the licences the player could buy (M30).
     pub fn company(&self, index: u32) -> Result<CompanyDetailView, MessageView> {
-        self.view(|g| views::company_detail(g, index))?
+        self.company_view(|g| views::company_detail(g, index))?
             .ok_or_else(|| error(keys::UNKNOWN_COMPANY))
     }
 
     /// The player's positions and their managers (MA1).
     pub fn organisation(&self) -> Result<OrganisationView, MessageView> {
-        self.view(views::organisation)
+        self.company_view(views::organisation)
     }
 
     /// The concerns of the player's positions (MA2).
     pub fn concerns(&self) -> Result<ConcernsView, MessageView> {
-        self.view(views::concerns)
+        self.company_view(views::concerns)
     }
 
     /// The strategies of the player's units, with their origins (MA4).
     pub fn strategy(&self) -> Result<StrategyView, MessageView> {
-        self.view(views::strategy)
+        self.company_view(views::strategy)
     }
 
     /// The mandate to the board and the CEO's strategy reviews (MA5).
     pub fn reviews(&self) -> Result<ReviewsView, MessageView> {
-        self.view(views::reviews)
+        self.company_view(views::reviews)
     }
 
     /// The start-ups of the world (SU1).
     pub fn ventures(&self) -> Result<VenturesView, MessageView> {
-        self.view(views::ventures)
+        self.company_view(views::ventures)
     }
 
     /// Contribution margins by level for a period: `monat`, `jahr` or `vorjahr` (W7).
     pub fn controlling(&self, period: &str) -> Result<ControllingView, MessageView> {
-        self.view(|game| views::controlling(game, period))
+        self.company_view(|game| views::controlling(game, period))
     }
 
     /// The player's banks (K4).
     pub fn bank(&self) -> Result<BankView, MessageView> {
-        self.view(views::bank_view)
+        self.company_view(views::bank_view)
     }
 
     /// The player as a person (PE2).
@@ -415,22 +440,22 @@ impl<S: SaveStore> Session<S> {
 
     /// The stock market (K1).
     pub fn stock(&self) -> Result<StockMarketView, MessageView> {
-        self.view(views::stock)
+        self.company_view(views::stock)
     }
 
     /// The player's subsidiaries and the group (W6).
     pub fn group(&self) -> Result<GroupView, MessageView> {
-        self.view(views::group)
+        self.company_view(views::group)
     }
 
     /// The player's fleet and way of freight (W5).
     pub fn logistics(&self) -> Result<LogisticsView, MessageView> {
-        self.view(views::logistics)
+        self.company_view(views::logistics)
     }
 
     /// The player's supply contracts and the sites that could have some (W4).
     pub fn contracts(&self) -> Result<ContractsView, MessageView> {
-        self.view(views::contracts)
+        self.company_view(views::contracts)
     }
 
     /// Possible partners for a contract of an own site for a product (W4).
@@ -439,7 +464,7 @@ impl<S: SaveStore> Session<S> {
         site: u32,
         product: &str,
     ) -> Result<ContractPartnersView, MessageView> {
-        self.view(|g| views::contract_partners(g, site, product))?
+        self.company_view(|g| views::contract_partners(g, site, product))?
             .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
     }
 
@@ -447,7 +472,7 @@ impl<S: SaveStore> Session<S> {
     /// `land:<ISO>` or `kontinent:<Schlüssel>` (MA3), `role` is `leitung` or a function
     /// (MA1).
     pub fn manager_market(&self, unit: &str, role: &str) -> Result<ManagerMarketView, MessageView> {
-        self.view(|g| views::manager_market(g, unit, role))?
+        self.company_view(|g| views::manager_market(g, unit, role))?
             .ok_or_else(|| error(keys::UNKNOWN_POSITION))
     }
 
@@ -536,24 +561,21 @@ impl<S: SaveStore> Session<S> {
             let first_new = game.state().next_concern;
             let report = game.advance(length, &mut progress);
             rounds += 1;
+            let main = game.main_company();
             let concern = halt != "nie"
                 && game.state().concerns.iter().any(|c| {
                     c.id >= first_new
-                        && c.company == game.player()
+                        && Some(c.company) == main
                         && c.status == ConcernStatus::Open
                         && (halt == "alle" || management::important(game.catalog(), c))
                 });
             // The board answers offers itself (MA5), those for licences its legal member
             // (ZA2); what it may not decide comes as a concern.
             let board_takes = |topic: Topic| {
-                management::first_taker(
-                    game.catalog(),
-                    game.state(),
-                    game.player(),
-                    Unit::Board,
-                    topic,
-                )
-                .is_some()
+                main.is_some_and(|m| {
+                    management::first_taker(game.catalog(), game.state(), m, Unit::Board, topic)
+                        .is_some()
+                })
             };
             let (board_answers, board_licenses) =
                 (board_takes(Topic::OfferAnswer), board_takes(Topic::License));
@@ -633,7 +655,9 @@ impl<S: SaveStore> Session<S> {
         Ok(SaveEntry {
             name: name.to_owned(),
             date: o.date,
-            company: o.company.name,
+            company: o
+                .company
+                .map_or_else(|| game.state().person.name.clone(), |c| c.name),
         })
     }
 

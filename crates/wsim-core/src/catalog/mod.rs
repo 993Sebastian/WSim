@@ -1852,10 +1852,32 @@ pub struct PersonModel {
     pub child_chance: f64,
     /// Age from which a child has a manager card.
     pub card_age: u32,
+    /// Founding a company (PE3).
+    pub founding: FoundingModel,
+    /// With co-owners the person's salary is at most this multiple of the suggestion.
+    pub salary_co_owner_max: f64,
+    /// Loans of the person to its companies: highest yearly rate, longest term in years.
+    pub loan_max_rate: f64,
+    pub loan_max_years: u32,
+    /// The levels of lifestyle, indexed by `Lifestyle`.
+    pub lifestyles: [LifestyleLevel; 4],
+    pub default_lifestyle: crate::state::Lifestyle,
+    /// The lifestyle changes at most once in so many months.
+    pub lifestyle_months: u32,
+    /// Income tax rate and savings rate by country and year.
+    pub income_tax: CountrySeries,
+    pub savings_rate: CountrySeries,
     pub provenance: Provenance,
 }
 
+impl PersonModel {
+    pub fn lifestyle(&self, level: crate::state::Lifestyle) -> &LifestyleLevel {
+        &self.lifestyles[level as usize]
+    }
+}
+
 impl Default for PersonModel {
+    /// Without the section: no costs of founding or living, no taxes, no interest.
     fn default() -> Self {
         PersonModel {
             enabled: false,
@@ -1864,9 +1886,54 @@ impl Default for PersonModel {
             children_max: 0,
             child_chance: 0.0,
             card_age: 25,
+            founding: FoundingModel::default(),
+            salary_co_owner_max: 2.0,
+            loan_max_rate: 0.0,
+            loan_max_years: 1,
+            lifestyles: [LifestyleLevel::default(); 4],
+            default_lifestyle: crate::state::Lifestyle::Middle,
+            lifestyle_months: 12,
+            income_tax: CountrySeries::default(),
+            savings_rate: CountrySeries::default(),
             provenance: Provenance::default(),
         }
     }
+}
+
+/// Costs of founding a company (PE3).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FoundingModel {
+    /// Share of the capital paid in.
+    pub cost_share: f64,
+    /// At least so many monthly wages of an academic in the seat's country.
+    pub cost_min_months: f64,
+    /// Share of the private account the dialog suggests as capital.
+    pub capital_suggestion: f64,
+}
+
+impl Default for FoundingModel {
+    fn default() -> Self {
+        Self {
+            cost_share: 0.0,
+            cost_min_months: 0.0,
+            capital_suggestion: 1.0,
+        }
+    }
+}
+
+/// What a level of lifestyle costs and does (PE3).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct LifestyleLevel {
+    /// Monthly wages of an academic in the home country per month.
+    pub cost: f64,
+    /// Added to the rate of new bank loans of the controlled companies.
+    pub interest: f64,
+    /// Share more (or less) that candidates for the board ask.
+    pub salary_demand: f64,
+    /// Points on every skill of a child's manager card.
+    pub education: f64,
+    /// Factor on the person's chance of death.
+    pub mortality: f64,
 }
 
 /// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).

@@ -236,7 +236,7 @@ pub(crate) fn redeem(
 pub(crate) fn month_end(state: &mut GameState, last_day: Date) -> Vec<Message> {
     let mut news = Vec::new();
     let next = last_day.next_day();
-    let player = state.player;
+    let player = state.main_company;
     for (i, c) in state.companies.iter_mut().enumerate() {
         if c.bankrupt || c.bonds.is_empty() {
             continue;
@@ -255,7 +255,7 @@ pub(crate) fn month_end(state: &mut GameState, last_day: Date) -> Vec<Message> {
         for b in due {
             c.ledger
                 .transfer(Account::Bonds, Account::Cash, b.principal);
-            if i == player.index() {
+            if player.is_some_and(|p| p.index() == i) {
                 news.push(
                     Message::new(MessageKind::Info, keys::BOND_REPAID)
                         .with("betrag", Param::Money(b.principal)),

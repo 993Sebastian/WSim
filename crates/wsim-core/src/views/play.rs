@@ -367,7 +367,7 @@ pub struct ProductionView {
 pub fn production(game: &Game) -> ProductionView {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let knows =
         |t: Option<crate::ids::TechnologyId>| t.is_none_or(|t| state.knows(catalog, player, t));
     let recipes: Vec<RecipeOption> = catalog
@@ -1072,7 +1072,7 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
                     }
                     sellers += 1;
                     *by_company.entry(s.owner).or_default() += o.sold_last_month;
-                    if s.owner == state.player {
+                    if state.is_main(s.owner) {
                         own_price = Some(usd(o.price));
                         own_sold += o.sold_last_month;
                     }
@@ -1440,7 +1440,7 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
             }
             None => sellers.push(SellerLine {
                 company: company.name.clone(),
-                own: s.owner == state.player,
+                own: state.is_main(s.owner),
                 real: company.ai.as_ref().is_some_and(|a| a.real.is_some()),
                 price_usd: usd(o.price),
                 sold_last_month: o.sold_last_month,
@@ -1485,26 +1485,26 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         exported_last_month: t.exported,
         supply: (t.outside_demand > 1e-9).then(|| t.outside_sold / t.outside_demand),
         sellers,
-        own_awareness: state.companies[state.player.index()].awareness(c, group),
+        own_awareness: state.companies[game.player().index()].awareness(c, group),
         chances: line.map(|l| l.chances).unwrap_or_default(),
         history: market_history(state, m),
         price_parts: Some(price_parts(game, c, p)),
         demand_parts: demand_parts(game, c, p),
         nameable: catalog.product_naming.style(catalog, p).is_some(),
-        own_name: state.companies[state.player.index()]
+        own_name: state.companies[game.player().index()]
             .product_names
             .get(&p)
             .cloned(),
         name_suggestions: {
             // A named product gets its successor model first (B1).
-            let successor = crate::product_names::successor(catalog, state, state.player, p);
+            let successor = crate::product_names::successor(catalog, state, game.player(), p);
             let count = if successor.is_some() { 2 } else { 3 };
             successor
                 .into_iter()
                 .chain(crate::product_names::suggestions(
                     catalog,
                     state,
-                    state.player,
+                    game.player(),
                     p,
                     count,
                 ))
@@ -1544,7 +1544,7 @@ pub fn world_market(game: &Game, product: &str) -> Option<WorldMarketView> {
         if s.offers.contains_key(&p) && !state.companies[s.owner.index()].bankrupt {
             let e = sellers.entry(s.country).or_default();
             e.0 += 1;
-            if s.owner == state.player {
+            if state.is_main(s.owner) {
                 e.1 += 1;
             }
         }
@@ -1580,7 +1580,7 @@ pub fn world_market(game: &Game, product: &str) -> Option<WorldMarketView> {
 fn brands(game: &Game, country: CountryId) -> Vec<BrandLine> {
     let state = game.state();
     let catalog = game.catalog();
-    let player = &state.companies[state.player.index()];
+    let player = &state.companies[game.player().index()];
     let mut groups: BTreeSet<GoodsGroupId> = catalog
         .products
         .iter()
@@ -1616,7 +1616,7 @@ fn brands(game: &Game, country: CountryId) -> Vec<BrandLine> {
             let top = state
                 .sites
                 .iter()
-                .filter(|s| s.country == country && s.owner != state.player)
+                .filter(|s| s.country == country && !state.is_main(s.owner))
                 .filter(|s| !state.companies[s.owner.index()].bankrupt)
                 .filter(|s| {
                     s.offers
@@ -1856,7 +1856,7 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
     use crate::development;
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let company = &state.companies[player.index()];
     let top = catalog.research_model.development.levels;
     let lab_country = state
@@ -1952,7 +1952,7 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
 pub fn research_overview(game: &Game) -> ResearchOverview {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let company = &state.companies[player.index()];
     let technologies = catalog
         .technologies
@@ -2235,7 +2235,7 @@ const BOND_STEPS: [f64; 4] = [0.25, 0.5, 0.75, 1.0];
 fn bonds_view(game: &Game) -> BondsView {
     let (state, catalog) = (game.state(), game.catalog());
     let m = &catalog.bonds;
-    let me = state.player;
+    let me = game.player();
     let company = &state.companies[me.index()];
     let cut = crate::central::premium_cut(catalog, state, me);
     let s = crate::bonds::standing(catalog, company);
@@ -2396,7 +2396,7 @@ fn center_results(game: &Game, period: &crate::ledger::PeriodResult) -> Option<C
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == state.player)
+        .filter(|(_, s)| state.is_main(s.owner))
         .map(|(i, s)| {
             let id = crate::state::SiteId(u32::try_from(i).unwrap_or(u32::MAX));
             SiteLine {
@@ -2427,7 +2427,7 @@ fn center_results(game: &Game, period: &crate::ledger::PeriodResult) -> Option<C
 pub fn finance_overview(game: &Game) -> FinanceView {
     let state = game.state();
     let catalog = game.catalog();
-    let company = &state.companies[state.player.index()];
+    let company = &state.companies[game.player().index()];
     let ledger = &company.ledger;
     let sheet = reports::balance_sheet(ledger);
     let limit = finance::credit_limit(catalog, company);
@@ -2469,7 +2469,7 @@ pub fn finance_overview(game: &Game) -> FinanceView {
             company,
             limit.scale(0.1),
             state.date,
-            crate::central::premium_cut(catalog, state, state.player),
+            crate::central::premium_cut(catalog, state, game.player()),
         ),
         max_term_years: catalog.finance_model.max_term_years,
         history: super::history(ledger),
@@ -2502,6 +2502,7 @@ mod explain_tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()

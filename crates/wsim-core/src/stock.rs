@@ -607,7 +607,7 @@ pub(crate) fn take_over(
         parent: actor,
         focus: crate::group::SubsidiaryFocus::Production,
     });
-    if target_company == state.player {
+    if state.is_main(target_company) {
         state.game_over = true;
     }
     Ok(())
@@ -864,7 +864,7 @@ fn delist_failures(state: &mut GameState) -> Vec<Message> {
                     cost,
                 );
             }
-            if company_id(h) == state.player {
+            if state.is_main(company_id(h)) {
                 news.push(
                     Message::new(MessageKind::Warning, keys::STOCK_WRITTEN_OFF)
                         .with("firma", Param::Text(name.clone()))
@@ -879,7 +879,7 @@ fn delist_failures(state: &mut GameState) -> Vec<Message> {
 /// The yearly dividends of the listed companies.
 fn dividends(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
     let mut news = Vec::new();
-    let player = state.player;
+    let player = state.main_company;
     let mut received = Money::ZERO;
     for i in 0..state.companies.len() {
         let c = &state.companies[i];
@@ -897,7 +897,7 @@ fn dividends(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
         if let Some(l) = c.listing.as_mut() {
             l.last_dividend = amount;
         }
-        if company_id(i) == player {
+        if Some(company_id(i)) == player {
             news.push(
                 Message::new(MessageKind::Info, keys::STOCK_DIVIDEND_PAID)
                     .with("betrag", Param::Money(amount)),
@@ -913,7 +913,7 @@ fn dividends(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
                         Account::Cash,
                         part,
                     );
-                    if h == player {
+                    if Some(h) == player {
                         received += part;
                     }
                 }

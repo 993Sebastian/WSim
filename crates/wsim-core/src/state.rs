@@ -248,6 +248,38 @@ impl SiteId {
     }
 }
 
+/// Levels of the person's lifestyle (PE3), from the cheapest.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Lifestyle {
+    Modest,
+    Middle,
+    Upscale,
+    Luxury,
+}
+
+impl Lifestyle {
+    pub const ALL: [Lifestyle; 4] = [
+        Lifestyle::Modest,
+        Lifestyle::Middle,
+        Lifestyle::Upscale,
+        Lifestyle::Luxury,
+    ];
+
+    /// Key in the data and the texts.
+    pub fn key(self) -> &'static str {
+        match self {
+            Lifestyle::Modest => "bescheiden",
+            Lifestyle::Middle => "buergerlich",
+            Lifestyle::Upscale => "gehoben",
+            Lifestyle::Luxury => "luxurioes",
+        }
+    }
+
+    pub fn from_key(key: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|l| l.key() == key)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StartForm {
     /// Small workshop that makes simple parts.
@@ -1109,6 +1141,10 @@ pub struct Loan {
     /// The player's bank that lent it (K4); `None`: a bank of the market.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lender: Option<CompanyId>,
+    /// A loan of the person (PE3): interest and repayment go to the private account; it
+    /// ranks after the banks and does not count against new bank loans.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub from_person: bool,
 }
 
 /// Goods of one kind in a site's warehouse, valued at production or purchase cost.
@@ -1603,9 +1639,16 @@ pub struct GameSettings {
     pub start_year: i32,
     /// Country of the head office.
     pub start_country: CountryId,
+    /// Money of the person at the start (PE3); with `found_at_start` the capital of
+    /// the company instead.
     pub start_capital: Money,
+    /// Start form, name and (the start country) seat of the company founded at the start.
     pub start_form: StartForm,
     pub company_name: String,
+    /// Whether the company is founded at the start with the whole start capital (games
+    /// without an interface, tests and games from before PE3); else the person founds it.
+    #[serde(default = "yes")]
+    pub found_at_start: bool,
     /// Multiplies the cost escalation of research ahead of history (Lastenheft §15).
     #[serde(default = "one")]
     pub research_ahead_factor: f64,
@@ -1765,7 +1808,10 @@ pub struct GameState {
     /// The stock market as a whole (K1).
     #[serde(default, skip_serializing_if = "crate::stock::StockMarket::is_empty")]
     pub stock: crate::stock::StockMarket,
-    pub player: CompanyId,
+    /// The person's main company (PE3): the first it founded; `None` before. Views,
+    /// milestones, the ranking and the round report refer to it.
+    #[serde(alias = "player")]
+    pub main_company: Option<CompanyId>,
     pub game_over: bool,
     /// The player as a person (PE2); older saves get a standard person when loaded.
     #[serde(default)]
@@ -1789,6 +1835,23 @@ pub struct Person {
     /// The chronicle of the person's life, the earliest first.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub history: Vec<LifeEvent>,
+    /// The private account (PE3).
+    #[serde(default)]
+    pub account: PrivateAccount,
+    /// Yearly salary as CEO of the main company, before income tax (PE3).
+    #[serde(default)]
+    pub salary: Money,
+    /// The levels of lifestyle with the day each began, the earliest first; empty only
+    /// in saves from before PE3.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lifestyles: Vec<LifestyleSpell>,
+    /// The month end the account first fell short of the lifestyle; cleared when it
+    /// pays again.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_since: Option<Date>,
+    /// What the person paid in per company and has not taken back (Einstandswert).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub cost_basis: BTreeMap<CompanyId, Money>,
 }
 
 impl Default for Person {
@@ -1801,7 +1864,82 @@ impl Default for Person {
             children: Vec::new(),
             ceo: None,
             history: Vec::new(),
+            account: PrivateAccount::default(),
+            salary: Money::ZERO,
+            lifestyles: Vec::new(),
+            short_since: None,
+            cost_basis: BTreeMap::new(),
         }
+    }
+}
+
+/// A level of lifestyle from a day on (PE3).
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LifestyleSpell {
+    pub from: Date,
+    pub level: Lifestyle,
+    /// Lowered by an empty account rather than chosen; does not count as a change.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub forced: bool,
+}
+
+/// Kinds of movements on the private account (PE3).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum PrivateFlow {
+    /// The money the game began with.
+    StartMoney,
+    /// Capital paid into a company, at its founding or later.
+    Capital,
+    FoundingCost,
+    Salary,
+    IncomeTax,
+    /// Interest on the balance.
+    Interest,
+    Lifestyle,
+    /// A loan given to a company.
+    LoanGiven,
+    LoanRepaid,
+    LoanInterest,
+    /// Capital a company paid back.
+    CapitalRepaid,
+}
+
+/// The person's money (PE3): a balance that never goes below zero and its movements by
+/// month.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PrivateAccount {
+    pub balance: Money,
+    /// Movements of the running month, income positive.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub month: BTreeMap<PrivateFlow, Money>,
+    /// Closed months, the latest last (at most twelve).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub months: Vec<PrivateMonth>,
+    /// The person's wealth on the first day of each month, the earliest first.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub wealth: Vec<WealthPoint>,
+}
+
+/// The movements of a closed month.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PrivateMonth {
+    /// First day of the month.
+    pub start: Date,
+    pub flows: BTreeMap<PrivateFlow, Money>,
+}
+
+/// The person's wealth on a day (PE3): balance, shares at value, open loans.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WealthPoint {
+    pub date: Date,
+    pub cash: Money,
+    pub shares: Money,
+    pub loans: Money,
+}
+
+impl WealthPoint {
+    pub fn total(&self) -> Money {
+        self.cash + self.shares + self.loans
     }
 }
 
@@ -1853,6 +1991,19 @@ pub enum LifeEventKind {
     CeoTakenBack {
         company: CompanyId,
     },
+    /// The game began with the person's start money and no company (PE3).
+    Began {
+        money: Money,
+    },
+    /// The person founded a company with this capital (PE3).
+    Founded {
+        company: CompanyId,
+        capital: Money,
+    },
+    /// The person changed the lifestyle (PE3).
+    LifestyleChanged {
+        level: Lifestyle,
+    },
 }
 
 /// The person of a new game (PE2): as given, or the defaults of the data.
@@ -1882,6 +2033,16 @@ impl Default for PersonSettings {
 }
 
 impl GameState {
+    /// Whether a company is the person's main company (PE3).
+    pub fn is_main(&self, company: CompanyId) -> bool {
+        self.main_company == Some(company)
+    }
+
+    /// The main company in tests that found it at the start.
+    #[cfg(test)]
+    pub(crate) fn player(&self) -> CompanyId {
+        self.main_company.expect("a main company")
+    }
     pub fn company(&self, id: CompanyId) -> Option<&Company> {
         self.companies.get(id.index())
     }
@@ -1950,7 +2111,7 @@ impl GameState {
         for (i, company) in self.companies.iter_mut().enumerate() {
             company.ledger.fit_accounts();
             if company.owners.is_empty() {
-                let holder = if i == self.player.index() {
+                let holder = if self.main_company.is_some_and(|m| m.index() == i) {
                     Holder::Player
                 } else {
                     Holder::Private
@@ -2001,6 +2162,7 @@ impl GameState {
         crate::central::refresh_staffing(self, catalog);
         crate::aging::set_births(self, catalog, self.date);
         crate::person::fit_loaded(self, catalog);
+        crate::private::fit_loaded(self, catalog);
     }
 }
 

@@ -4337,6 +4337,26 @@ person:
   alter_start: {standard: 30, von: 18, bis: 60}
   familie: {kinder_ab: 22, kinder_bis: 45, kinder_hoechstens: 4, kinder_chance_jahr: 0.15,
             managerkarte_ab: 25}
+  gruendung: {kosten_anteil: 0.005, kosten_mindestens_monatsloehne: 1, einlage_vorschlag: 0.9}
+  gehalt: {hoechstens_mitgesellschafter: 2}
+  darlehen: {zins_hoechstens: 0.15, jahre_hoechstens: 30}
+  lebensstil:
+    standard: buergerlich
+    wechsel_monate: 12
+    stufen:
+      bescheiden: {kosten: 0.8, zins: 0.005, gehaltsforderung: 0.05, ausbildung: 0,
+                   sterblichkeit: 1.1}
+      buergerlich: {kosten: 1.5, zins: 0, gehaltsforderung: 0, ausbildung: 5, sterblichkeit: 1}
+      gehoben: {kosten: 4, zins: -0.0025, gehaltsforderung: -0.05, ausbildung: 10,
+                sterblichkeit: 0.95}
+      luxurioes: {kosten: 10, zins: -0.005, gehaltsforderung: -0.1, ausbildung: 15,
+                  sterblichkeit: 0.95}
+  einkommensteuer:
+    standard: {1900: 0.04, 2026: 0.3}
+    laender:
+      SWE: {1900: 0.03, 2026: 0.4}
+  sparzins:
+    standard: {1900: 0.02}
   annaeherung: true
 ";
 
@@ -4386,4 +4406,63 @@ fn person_wird_geprueft() {
     // Without the section the person has no children.
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.person.enabled);
+}
+
+#[test]
+fn privatkonto_und_lebensstil_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &PERSON.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.person;
+    assert_eq!(m.default_lifestyle, wsim_core::state::Lifestyle::Middle);
+    assert!((m.lifestyles[3].cost - 10.0).abs() < 1e-12);
+    assert!((m.founding.cost_share - 0.005).abs() < 1e-12);
+    assert_eq!(m.loan_max_years, 30);
+    let swe = gut
+        .data
+        .as_ref()
+        .unwrap()
+        .catalog
+        .countries
+        .id("SWE")
+        .unwrap();
+    assert!((m.income_tax.value(swe, 2026.0) - 0.4).abs() < 1e-12);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "gehoben: {kosten: 4",
+            "gehoben: {kosten: 1",
+            "Die Kosten der Lebensstile müssen von „bescheiden“ über „buergerlich“ und \
+             „gehoben“ bis „luxurioes“ steigen.",
+            "person.lebensstil.stufen",
+        ),
+        (
+            "standard: buergerlich",
+            "standard: buergerlch",
+            "Lebensstil „buergerlch“ ist nicht definiert. Meinten Sie „buergerlich“?",
+            "person.lebensstil.standard",
+        ),
+        (
+            "SWE: {1900: 0.03",
+            "SWE: {1900: 1.03",
+            "Wert 1.03 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.einkommensteuer.laender.SWE.1900",
+        ),
+        (
+            "kosten_anteil: 0.005",
+            "kosten_anteil: -0.005",
+            "Wert -0.005 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.gruendung.kosten_anteil",
+        ),
+    ] {
+        let outcome = lauf(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&lauf("  sparzins:", "  sparzinz:"), "sparzinz");
 }

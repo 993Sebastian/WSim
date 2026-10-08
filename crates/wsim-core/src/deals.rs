@@ -1334,7 +1334,7 @@ fn ai_answer(state: &GameState, catalog: &Catalog, offer: &Offer) -> OfferAnswer
 /// messages for the player.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let mut messages = close_auctions(state, catalog, date);
-    let player = state.player;
+    let player = state.main_company;
     if state.offers.is_empty() {
         return messages;
     }
@@ -1358,8 +1358,12 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             continue;
         }
         let o = o.clone();
-        if o.buyer == player || o.seller == player {
-            let other = if o.buyer == player { o.seller } else { o.buyer };
+        if Some(o.buyer) == player || Some(o.seller) == player {
+            let other = if Some(o.buyer) == player {
+                o.seller
+            } else {
+                o.buyer
+            };
             messages.push(news(
                 state,
                 catalog,
@@ -1396,14 +1400,14 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         // sells.
         let accepted_news = if answer != OfferAnswer::Accept {
             None
-        } else if offer.buyer == player {
+        } else if Some(offer.buyer) == player {
             let keys = [
                 keys::OFFER_BOUGHT_SITE,
                 keys::OFFER_BOUGHT_LICENSE,
                 keys::OFFER_BOUGHT_AREA,
             ];
             Some(news(state, catalog, keys, &offer, offer.seller))
-        } else if offer.seller == player {
+        } else if Some(offer.seller) == player {
             let keys = [
                 keys::OFFER_SOLD_SITE,
                 keys::OFFER_SOLD_LICENSE,
@@ -1428,9 +1432,9 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         let Some(after) = state.offers.iter().find(|o| o.id == offer.id).cloned() else {
             continue;
         };
-        let player_side = if after.buyer == player {
+        let player_side = if Some(after.buyer) == player {
             Some(after.seller)
-        } else if after.seller == player {
+        } else if Some(after.seller) == player {
             Some(after.buyer)
         } else {
             None
@@ -1587,14 +1591,14 @@ fn auction_site(
     site: SiteId,
     date: Date,
 ) -> Vec<Message> {
-    let player = state.player;
+    let player = state.main_company;
     let minimum = auction_minimum(state, catalog, site);
     let bids = auction_bids(state, catalog, seller, site, minimum);
     let object = DealObject::Site(site);
-    let player_bid = bids.iter().any(|&(_, b)| b == player)
+    let player_bid = bids.iter().any(|&(_, b)| Some(b) == player)
         || state.offers.iter().any(|o| {
             o.status == OfferStatus::Open
-                && o.buyer == player
+                && Some(o.buyer) == player
                 && o.seller == seller
                 && o.object == object
         });
@@ -1609,7 +1613,7 @@ fn auction_site(
         Some((buyer, price)) => {
             // Described before the hand-over, while the insolvent company owns the site.
             let firm = |c: CompanyId| Param::Text(state.companies[c.index()].name.clone());
-            let message = if buyer == player {
+            let message = if Some(buyer) == player {
                 Some(Message::new(MessageKind::Info, keys::AUCTION_WON).with("firma", firm(seller)))
             } else if player_bid {
                 Some(
@@ -1621,7 +1625,7 @@ fn auction_site(
                 let mine = state
                     .sites
                     .iter()
-                    .filter(|s| s.owner == player)
+                    .filter(|s| Some(s.owner) == player)
                     .flat_map(|s| s.offers.keys().copied())
                     .collect::<BTreeSet<ProductId>>();
                 site_products(state, catalog, site)
@@ -1665,7 +1669,7 @@ fn ai_deal_news(state: &GameState, catalog: &Catalog, offer: &Offer) -> Option<M
         ),
         DealObject::License(_) => return None,
     };
-    let player = state.player;
+    let player = state.main_company?;
     let (_, offered) = business(state, catalog, player);
     let relevant = sites.iter().any(|&site| {
         let s = &state.sites[site.index()];
@@ -1831,12 +1835,14 @@ pub(crate) fn deals_for(
     let budget = company.ledger.cash().scale(ai.cash_share_max);
     let min_price = Money::from_usd(ai.min_price_usd).unwrap_or(Money::ZERO);
     let date = state.date;
-    let player = state.player;
+    let player = state.main_company;
     let to_player_this_month = state
         .offers
         .iter()
         .filter(|o| {
-            o.seller == player && !o.counter && o.date.first_of_month() == date.first_of_month()
+            Some(o.seller) == player
+                && !o.counter
+                && o.date.first_of_month() == date.first_of_month()
         })
         .count();
     let player_full =
@@ -1892,7 +1898,7 @@ pub(crate) fn deals_for(
     let available = |seller: CompanyId| {
         !crate::group::same_group(state, seller, buyer)
             && !state.companies[seller.index()].bankrupt
-            && !(seller == player && player_full)
+            && !(Some(seller) == player && player_full)
     };
     if search.objects {
         for (i, s) in state.sites.iter().enumerate() {
@@ -2076,7 +2082,7 @@ pub(crate) fn ai_offers(
         return None;
     }
     command::execute(state, catalog, buyer, &command).ok()?;
-    if seller != state.player {
+    if !state.is_main(seller) {
         return None;
     }
     let offer = state.offers.last()?.clone();

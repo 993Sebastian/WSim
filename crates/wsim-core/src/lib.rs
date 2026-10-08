@@ -38,6 +38,7 @@ pub mod person;
 pub mod plots;
 pub mod policy;
 pub mod population;
+pub mod private;
 pub mod product_names;
 pub mod production;
 pub mod ranking;
@@ -98,6 +99,8 @@ mod market_tests;
 mod person_tests;
 #[cfg(test)]
 mod plots_tests;
+#[cfg(test)]
+mod private_tests;
 #[cfg(test)]
 mod product_names_tests;
 #[cfg(test)]

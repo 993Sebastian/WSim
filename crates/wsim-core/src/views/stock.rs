@@ -149,7 +149,7 @@ fn listed_company(
     relation: &str,
 ) -> ListedCompanyView {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let m = &catalog.stock;
     let earnings = stock::earnings(catalog, c);
     let held = stock::stake(c, Holder::Company(me));
@@ -239,7 +239,7 @@ fn listed_company(
 fn own_listing(game: &Game) -> OwnListingView {
     let (state, catalog) = (game.state(), game.catalog());
     let m = &catalog.stock;
-    let c = &state.companies[state.player.index()];
+    let c = &state.companies[game.player().index()];
     let before = stock::issue_value(catalog, &state.stock, c);
     let player_stake = stock::stake(c, Holder::Player);
     let mut issue = Vec::new();
@@ -324,7 +324,7 @@ fn own_listing(game: &Game) -> OwnListingView {
 
 pub fn stock(game: &Game) -> StockMarketView {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let mut companies: Vec<ListedCompanyView> = state
         .companies
         .iter()

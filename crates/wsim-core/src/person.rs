@@ -23,7 +23,7 @@ pub fn age(state: &GameState, today: Date) -> u32 {
 
 /// Whether a company belongs to the person: only those may employ the children.
 pub fn is_own(state: &GameState, company: CompanyId) -> bool {
-    company == state.player
+    crate::private::is_controlled(state, company)
 }
 
 /// The person's share of a company (0–1).
@@ -158,18 +158,22 @@ pub(crate) fn start(state: &mut GameState, catalog: &Catalog, today: Date) {
         settings.name.trim().to_owned()
     };
     let born = day_in(&mut rng, year).min(today);
-    let player = state.player;
+    let player = state.main_company;
     let mut person = Person {
         name,
         born,
         home,
         married: settings.married,
         children: Vec::new(),
-        ceo: Some(player),
-        history: vec![LifeEvent {
-            date: today,
-            kind: LifeEventKind::Start { company: player },
-        }],
+        ceo: player,
+        history: player
+            .map(|company| LifeEvent {
+                date: today,
+                kind: LifeEventKind::Start { company },
+            })
+            .into_iter()
+            .collect(),
+        ..Person::default()
     };
     let [from, until] = model.children_ages;
     let first = born.add_months(from * 12).min(today);
@@ -205,24 +209,29 @@ pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
     }
     let today = state.date;
     let mut rng = SimRng::for_stream(state.settings.seed, Stream::PersonStart);
-    let home = state
-        .companies
-        .get(state.player.index())
+    let player = state.main_company;
+    let home = player
+        .and_then(|p| state.companies.get(p.index()))
         .map_or(state.settings.start_country, |c| c.headquarters);
     let mut taken: BTreeSet<String> = state.managers.values().map(|m| m.name.clone()).collect();
-    let player = state.player;
-    let ceo = management::holder(state, player, &Position::new(Unit::Board, Role::Head));
+    let led = player.filter(|&p| {
+        management::holder(state, p, &Position::new(Unit::Board, Role::Head)).is_none()
+    });
     state.person = Person {
         name: management::manager_name(catalog, &mut rng, home, &mut taken),
         born: Date::first_of_year(today.year() - 30),
         home,
         married: true,
         children: Vec::new(),
-        ceo: ceo.is_none().then_some(player),
-        history: vec![LifeEvent {
-            date: today,
-            kind: LifeEventKind::Takeover { company: player },
-        }],
+        ceo: led,
+        history: player
+            .map(|company| LifeEvent {
+                date: today,
+                kind: LifeEventKind::Takeover { company },
+            })
+            .into_iter()
+            .collect(),
+        ..Person::default()
     };
 }
 
@@ -309,6 +318,18 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
         state.next_manager += 1;
         let mut rng = SimRng::for_stream(state.settings.seed, Stream::ManagerBirth { id: id.0 });
         let mut m = management::draw(catalog, &mut rng, state.person.home, &mut names);
+        // Education by the lifestyle of the childhood (PE3).
+        let bonus = crate::private::education(catalog, &state.person, child.born, date);
+        let up = |v: u8| {
+            // Within 0–100; the cast is exact.
+            (f64::from(v) + bonus).round().clamp(0.0, 100.0) as u8
+        };
+        for v in m.expertise.values_mut() {
+            *v = up(*v);
+        }
+        m.detection = up(m.detection);
+        m.judgment = up(m.judgment);
+        m.leadership = up(m.leadership);
         m.name.clone_from(&child.name);
         m.born = Some(child.born);
         m.family = true;
@@ -335,7 +356,9 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
 /// The person hands the lead of the company to a manager who became CEO, and takes it
 /// back when the position is free.
 fn leadership(state: &mut GameState, date: Date, news: &mut Vec<Message>) {
-    let company = state.player;
+    let Some(company) = state.main_company else {
+        return;
+    };
     if state.companies[company.index()].bankrupt {
         return;
     }

@@ -26,15 +26,22 @@ export interface Optionen {
   /** Age of the person at the start and the most children (PE2). */
   person_age?: Bereich<number>;
   children_max?: number;
+  /** The least start money in the default country and year (PE3). */
+  start_money_min_usd?: number;
+  /** Share of the account the founding dialog suggests as capital (PE3). */
+  capital_suggestion?: number;
 }
 
 export interface NeuesSpiel {
   seed: number;
   start_year: number;
   country: string;
+  /** Start money of the person (PE3); with `found_at_start` the company's capital. */
   capital_usd: number;
-  start_form: string;
-  company_name: string;
+  /** Only with `found_at_start`: the company founded at the start. */
+  start_form?: string;
+  company_name?: string;
+  found_at_start?: boolean;
   companies: number;
   difficulty: string;
   research_factor: number;
@@ -99,7 +106,8 @@ export interface Uebersicht {
   game_over: boolean;
   start_year: number;
   market_scale: number;
-  company: Firma;
+  /** The main company; null before the person founded one (PE3). */
+  company: Firma | null;
   competitors_active: number;
   competitors_bankrupt: number;
   competitors: Wettbewerber[];
@@ -115,8 +123,21 @@ export interface Uebersicht {
   rank?: Rang | null;
   /** Concerns of the player's positions waiting for an answer (MA2). */
   concerns_open?: number;
-  /** The player as a person: name and age (PE2). */
-  person?: { name: string; age: number } | null;
+  /** The player as a person: name and age (PE2), money and place by wealth (PE3). */
+  person?: PersonKurz | null;
+}
+
+/** The person in the header (PE2, PE3). */
+export interface PersonKurz {
+  name: string;
+  age: number;
+  cash_usd?: number;
+  wealth_usd?: number;
+  /** Place of the wealth among the equity of the active companies, and their number. */
+  place?: number;
+  companies?: number;
+  /** The account fell short of the lifestyle. */
+  short?: boolean;
 }
 
 /** Places by equity and by revenue of the last twelve closed months (M29). */
@@ -2288,13 +2309,73 @@ export interface PersonKind {
   card_in: number | null;
 }
 
-/** A company the person holds shares of (PE2). */
+/** A company the person holds shares of (PE2) with its money (PE3). */
 export interface PersonAnteil {
+  index?: number;
   company: string;
   share: number;
   controlled: boolean;
   person_ceo: boolean;
   ceo: string | null;
+  value_usd?: number;
+  cost_basis_usd?: number;
+  /** The most capital the company can pay back now (only as sole owner). */
+  withdraw_max_usd?: number;
+  cash_usd?: number;
+  loans?: PersonDarlehen[];
+}
+
+/** A loan of the person to a company (PE3). */
+export interface PersonDarlehen {
+  /** Position among the company's loans (`RepayLoan`). */
+  index: number;
+  balance_usd: number;
+  rate: number;
+  instalment_usd: number;
+}
+
+/** A level of lifestyle with its cost today and its effects (PE3). */
+export interface Lebensstil {
+  key: string;
+  cost_usd: number;
+  interest: number;
+  salary_demand: number;
+  education: number;
+  mortality: number;
+}
+
+/** The person's money (PE3). */
+export interface PersonGeld {
+  cash_usd: number;
+  shares_usd: number;
+  loans_usd: number;
+  wealth_usd: number;
+  /** Wealth on the first day of each month, the earliest first. */
+  history: [string, number][];
+  /** Income and spending of the last twelve months (texts `privat.<key>`). */
+  flows: [string, number][];
+  lifestyle: string;
+  lifestyle_next: string | null;
+  lifestyle_change_from: string;
+  lifestyles: Lebensstil[];
+  short: boolean;
+  salary_usd: number;
+  salary_paid: boolean;
+  salary_suggestion_usd: number;
+  salary_max_usd: number | null;
+  income_tax: number;
+  savings_rate: number;
+  loan_max_rate: number;
+  loan_max_years: number;
+}
+
+/** What the founding dialog needs (PE3). */
+export interface Gruendung {
+  forms: { key: string; cost_usd: number }[];
+  country: string;
+  capital_suggestion_usd: number;
+  cost_share: number;
+  cost_min_usd: number;
 }
 
 /** The player as a person (PE2). */
@@ -2310,4 +2391,7 @@ export interface Person {
   holdings: PersonAnteil[];
   /** The chronicle, the latest first. */
   history: { date: string; text: Meldung }[];
+  money?: PersonGeld | null;
+  /** While the person has no company yet: the founding. */
+  founding?: Gruendung | null;
 }

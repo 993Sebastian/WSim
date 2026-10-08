@@ -50,6 +50,26 @@ fn hint(message: Message, site: Option<u32>, area: Option<&str>) -> HintView {
 /// The hints for the player's company, most urgent first.
 pub fn hints(game: &Game) -> Vec<HintView> {
     let state = game.state();
+    // The person's account falls short of the lifestyle (PE3).
+    let short = state.person.short_since.is_some().then(|| {
+        let mut h = hint(
+            Message::new(MessageKind::Warning, keys::HINT_ACCOUNT_SHORT),
+            None,
+            None,
+        );
+        h.message.target = Some("person".to_owned());
+        h
+    });
+    // Before the founding: the way to it (PE3).
+    let Some(main) = state.main_company else {
+        let mut h = hint(
+            Message::new(MessageKind::Info, keys::HINT_FOUND_COMPANY),
+            None,
+            None,
+        );
+        h.message.target = Some("person".to_owned());
+        return short.into_iter().chain(std::iter::once(h)).collect();
+    };
     let view = production(game);
     let mut found: Vec<(u8, HintView)> = Vec::new();
     for s in &view.sites {
@@ -119,10 +139,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
                 .with("produkt", Param::TextKey(format!("produkt.{product}")));
             found.push((1, hint(m, Some(s.index), Some("verkauf"))));
         }
-        let month_closed = !state.companies[state.player.index()]
-            .ledger
-            .months
-            .is_empty();
+        let month_closed = !state.companies[main.index()].ledger.months.is_empty();
         for o in &s.offers {
             let produkt = Param::TextKey(format!("produkt.{}", o.product));
             if let Some(margin) = o.margin.filter(|&m| m < 0.0) {
@@ -160,11 +177,11 @@ pub fn hints(game: &Game) -> Vec<HintView> {
     }
     // End products the player sells without an own name (M42): named in the market.
     let catalog = game.catalog();
-    let player = &state.companies[state.player.index()];
+    let player = &state.companies[main.index()];
     let mut offered: Vec<crate::ids::ProductId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == state.player)
+        .filter(|s| s.owner == main)
         .flat_map(|s| s.offers.keys().copied())
         .filter(|&p| {
             catalog.product_naming.style(catalog, p).is_some()
@@ -183,15 +200,11 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         found.push((3, h));
     }
     // Many sites and nobody to run them (MA1).
-    let sites = state
-        .sites
-        .iter()
-        .filter(|s| s.owner == state.player)
-        .count();
+    let sites = state.sites.iter().filter(|s| s.owner == main).count();
     let managed = state
         .managers
         .values()
-        .any(|m| m.job.as_ref().is_some_and(|j| j.company == state.player));
+        .any(|m| m.job.as_ref().is_some_and(|j| j.company == main));
     if catalog.management.enabled() && sites >= MANAGER_HINT_SITES && !managed {
         let m = Message::new(MessageKind::Info, keys::HINT_NO_MANAGERS).with(
             "anzahl",
@@ -205,7 +218,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
     let open: Vec<&crate::state::Concern> = state
         .concerns
         .iter()
-        .filter(|c| c.company == state.player && c.status == crate::state::ConcernStatus::Open)
+        .filter(|c| c.company == main && c.status == crate::state::ConcernStatus::Open)
         .collect();
     if let Some(deadline) = open.iter().map(|c| c.deadline).min() {
         let m = Message::new(MessageKind::Info, keys::HINT_CONCERNS)
@@ -224,7 +237,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         h.message.target = Some("wettbewerb".to_owned());
         found.push((1, h));
     }
-    let ledger = &state.companies[state.player.index()].ledger;
+    let ledger = &state.companies[main.index()].ledger;
     let cash = ledger.cash();
     if cash < Money::ZERO {
         let m = Message::new(MessageKind::Crisis, keys::HINT_OVERDRAWN)
@@ -263,6 +276,9 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         _ => true,
     });
     // Stable order: urgency, then the order found (sites, facilities).
+    if let Some(h) = short {
+        found.push((1, h));
+    }
     found.sort_by_key(|(rank, _)| *rank);
     found.into_iter().map(|(_, h)| h).collect()
 }

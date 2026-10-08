@@ -532,7 +532,7 @@ fn found_site_for(
 /// Products the player makes or offers: competitors' moves in them are news.
 fn player_products(state: &GameState, catalog: &Catalog) -> Vec<ProductId> {
     let mut products = Vec::new();
-    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+    for s in state.sites.iter().filter(|s| state.is_main(s.owner)) {
         let made = s
             .slots
             .iter()
@@ -1743,13 +1743,13 @@ fn invest(
     let Some(target) = crate::stock::ai_takeover(state, catalog, id, aggressiveness) else {
         return news;
     };
-    let player = state.player;
+    let player = state.main_company;
     let t = &state.companies[target.index()];
     let (price, _) = crate::stock::takeover_price(catalog, t, id);
     let per_share = t.listing.as_ref().map_or(Money::ZERO, |l| {
         l.value.scale(1.0 + catalog.stock.takeover_premium)
     });
-    let sold = per_share.scale(crate::stock::stake(t, Holder::Company(player)));
+    let sold = per_share.scale(player.map_or(0.0, |p| crate::stock::stake(t, Holder::Company(p))));
     let buyer = Param::Text(state.companies[id.index()].name.clone());
     let firm = Param::Text(t.name.clone());
     if !act(
@@ -1761,7 +1761,7 @@ fn invest(
     ) {
         return news;
     }
-    news.push(if target == player {
+    news.push(if Some(target) == player {
         Message::new(MessageKind::Crisis, keys::GAME_OVER_TAKEN_OVER).with("kaeufer", buyer)
     } else if sold > Money::ZERO {
         Message::new(MessageKind::Info, keys::STOCK_TAKEOVER_SOLD)
@@ -4521,6 +4521,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         let mut game = crate::game::Game::new(catalog.clone(), settings).expect("valid");
@@ -4989,7 +4990,7 @@ mod tests {
         let first = |state: &GameState| opportunity(state, &catalog, &[], id, None).map(|o| o.0);
         assert_eq!(first(state), Some(bread));
         // Another company knows how: the chain of iron leads the builder to the mine.
-        let player = state.player;
+        let player = state.player();
         state.companies[player.index()].technologies.insert(turbine);
         let (product, country, deposit, recipe, _) =
             opportunity(state, &catalog, &[], id, None).expect("a bottleneck");
@@ -5205,7 +5206,7 @@ mod tests {
         research_plan(state, &catalog, id, &[works], (date, &gaps), &mut Rules);
         assert_eq!(researching(state), Some(turbine));
         // Once a company knows it, the gap is closed.
-        let player = state.player;
+        let player = state.player();
         state.companies[player.index()].technologies.insert(turbine);
         assert!(gap_technologies(state, &catalog).is_empty());
         // M33: the only maker sells far above the reference price: worth learning.

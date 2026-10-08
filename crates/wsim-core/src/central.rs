@@ -601,12 +601,16 @@ pub fn refinance_rate(catalog: &Catalog, state: &GameState, company: CompanyId) 
     crate::finance::rate_for_debt(
         catalog,
         (
-            c.loans.iter().map(|l| l.balance).sum(),
+            c.loans
+                .iter()
+                .filter(|l| !l.from_person)
+                .map(|l| l.balance)
+                .sum(),
             c.ledger.total_assets(),
         ),
         state.date,
         premium_cut(catalog, state, company),
-    )
+    ) + crate::private::loan_rate_offset(catalog, state, company)
 }
 
 /// Loans a finance department proposes to refinance (docs/FORMELN.md, ZA3): those whose
@@ -622,7 +626,7 @@ pub fn refinance_candidates(
         .loans
         .iter()
         .enumerate()
-        .filter(|(_, l)| l.rate - rate >= min && l.rate > rate)
+        .filter(|(_, l)| !l.from_person && l.rate - rate >= min && l.rate > rate)
         .map(|(i, l)| (i, l.rate))
         .collect();
     loans.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
@@ -669,7 +673,12 @@ pub(crate) fn refinance(
     actor: CompanyId,
     loan: usize,
 ) -> Result<(), CommandError> {
-    let Some(old) = state.companies[actor.index()].loans.get(loan).cloned() else {
+    let Some(old) = state.companies[actor.index()]
+        .loans
+        .get(loan)
+        .filter(|l| !l.from_person)
+        .cloned()
+    else {
         return Err(CommandError::UnknownLoan);
     };
     let rate = refinance_rate(catalog, state, actor);
@@ -700,6 +709,7 @@ pub(crate) fn refinance(
         months,
         instalment: crate::finance::instalment(old.balance, rate, months),
         lender: None,
+        from_person: false,
     };
     // The market's bank pays off the player's bank that lent the old loan (K4).
     if let Some(bank) = old.lender {
@@ -1264,7 +1274,7 @@ pub(crate) fn set_headquarters(
 pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     judge(state, catalog, date);
     let mut news = Vec::new();
-    let player = state.player;
+    let player = state.main_company;
     for (i, c) in state.companies.iter_mut().enumerate() {
         let Some(r) = c.relocation.clone().filter(|r| r.until <= date) else {
             continue;
@@ -1285,7 +1295,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
         c.departments.retain(|_, n| *n > 0);
         let left = before - c.departments.values().sum::<u32>();
         // Few companies; the cast is exact.
-        if CompanyId(i as u32) == player {
+        if Some(CompanyId(i as u32)) == player {
             let land = Param::Country(catalog.countries.key(r.country).to_owned());
             news.push(match &r.city {
                 Some(city) => Message::new(MessageKind::Info, keys::HEADQUARTERS_MOVED_CITY)

@@ -112,6 +112,7 @@ fn all_chains_run_from_raw_material_to_end_product() {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         },
     )

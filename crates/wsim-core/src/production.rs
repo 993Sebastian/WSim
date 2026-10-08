@@ -929,7 +929,7 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
     let mut messages = Vec::new();
     let date = state.date.add_days(-1);
     for (index, s) in state.sites.iter().enumerate() {
-        if s.owner != state.player {
+        if !state.is_main(s.owner) {
             continue;
         }
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));

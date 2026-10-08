@@ -808,6 +808,7 @@ fn an_ai_finance_department_refinances_dear_loans() {
         months: 60,
         instalment: finance::instalment(usd(1e6), rate + 0.05, 60),
         lender: None,
+        from_person: false,
     };
     game.state_mut().companies[rival.index()].loans.push(loan);
     // In January it sets up a finance department (a loan to work on) and hires its head.

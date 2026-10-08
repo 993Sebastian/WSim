@@ -59,6 +59,7 @@ fn settings(c: &Catalog, start_year: i32) -> GameSettings {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        found_at_start: true,
         person: Default::default(),
     }
 }
@@ -92,13 +93,13 @@ fn names_come_from_the_parts_of_their_year() {
     let game = new_game(1900);
     let (c, s) = (game.catalog(), game.state());
     let bread = product(&game, "brot");
-    let first = product_names::generate(c, s, s.player, bread).unwrap();
+    let first = product_names::generate(c, s, s.player(), bread).unwrap();
     // Same state, same name: the stream belongs to company and product.
     assert_eq!(
-        product_names::generate(c, s, s.player, bread).as_deref(),
+        product_names::generate(c, s, s.player(), bread).as_deref(),
         Some(first.as_str())
     );
-    let three = product_names::suggestions(c, s, s.player, bread, 3);
+    let three = product_names::suggestions(c, s, s.player(), bread, 3);
     assert_eq!(three[0], first);
     assert!(!same_name(&three[0], &three[1]) && !same_name(&three[1], &three[2]));
     assert!(!same_name(&three[0], &three[2]));
@@ -109,11 +110,11 @@ fn names_come_from_the_parts_of_their_year() {
     }
     // Raw materials and semi-finished goods have no names.
     let ore = product(&game, "erz");
-    assert!(product_names::generate(c, s, s.player, ore).is_none());
+    assert!(product_names::generate(c, s, s.player(), ore).is_none());
     // The pattern with "Typ" ends in 1939.
     let later = new_game(1950);
     let s = later.state();
-    for n in product_names::suggestions(later.catalog(), s, s.player, bread, 5) {
+    for n in product_names::suggestions(later.catalog(), s, s.player(), bread, 5) {
         assert!(!n.contains("Typ"), "{n}");
     }
 }
@@ -121,7 +122,7 @@ fn names_come_from_the_parts_of_their_year() {
 #[test]
 fn the_command_checks_the_name() {
     let (mut game, rival) = with_rival();
-    let player = game.state().player;
+    let player = game.state().player();
     let bread = product(&game, "brot");
     let ore = product(&game, "erz");
     let name_it = |product, text: &str| Command::NameProduct {
@@ -173,7 +174,7 @@ fn the_command_checks_the_name() {
 #[test]
 fn stems_belong_to_their_company() {
     let (mut game, rival) = with_rival();
-    let player = game.state().player;
+    let player = game.state().player();
     let (bread, carriage, wheel) = (
         product(&game, "brot"),
         product(&game, "kutsche"),
@@ -218,7 +219,7 @@ fn successor_models_step_up_number_and_generation() {
     let bread = product(&game, "brot");
     let successor = |game: &Game, p| {
         let (c, s) = (game.catalog(), game.state());
-        product_names::successor(c, s, s.player, p)
+        product_names::successor(c, s, s.player(), p)
     };
     // Without a name there is no successor.
     assert_eq!(successor(&game, bread), None);
@@ -260,7 +261,7 @@ fn successor_models_step_up_number_and_generation() {
     let mut c: Catalog = (**game.catalog()).clone();
     c.product_naming.styles[0].successors.clear();
     let s = game.state();
-    assert_eq!(product_names::successor(&c, s, s.player, bread), None);
+    assert_eq!(product_names::successor(&c, s, s.player(), bread), None);
 }
 
 #[test]
@@ -273,7 +274,7 @@ fn names_survive_saves_and_the_replay() {
     })
     .unwrap();
     game.advance(RoundLength::Day, |_| {});
-    let player = game.state().player;
+    let player = game.state().player();
     let loaded = save::decode(&save::encode(&game), game.catalog().clone())
         .unwrap()
         .game;

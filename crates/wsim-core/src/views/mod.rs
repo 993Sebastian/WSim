@@ -147,6 +147,13 @@ pub struct NewGameOptions {
     pub default_tariffs: Option<String>,
     /// Age of the person at the start, and how many children it may have (PE2).
     pub person_age: Range<u32>,
+    /// The least start money in the default country and year (PE3): the cheapest start
+    /// form with a site and its founding costs.
+    #[serde(default)]
+    pub start_money_min_usd: f64,
+    /// Share of the start money the founding dialog suggests as capital.
+    #[serde(default)]
+    pub capital_suggestion: f64,
     pub children_max: u32,
 }
 
@@ -180,6 +187,13 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
         .or_else(|| catalog.countries.ids().next())
         .map(|c| catalog.countries.key(c).to_owned())
         .unwrap_or_default();
+    let start_money_min_usd = catalog.countries.id(&default_country).map_or(0.0, |c| {
+        usd(crate::private::start_minimum_at(
+            catalog,
+            c,
+            EARLIEST_START_YEAR,
+        ))
+    });
     NewGameOptions {
         start_year: Range {
             min: EARLIEST_START_YEAR,
@@ -265,6 +279,8 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             })
             .flatten()
             .map(|l| l.0.clone()),
+        start_money_min_usd,
+        capital_suggestion: catalog.person.founding.capital_suggestion,
         person_age: Range {
             min: catalog.person.start_age[1],
             max: catalog.person.start_age[2],
@@ -340,7 +356,8 @@ pub struct Overview {
     pub game_over: bool,
     pub start_year: i32,
     pub market_scale: f64,
-    pub company: CompanyView,
+    /// The main company; `None` before the person founded one (PE3).
+    pub company: Option<CompanyView>,
     pub competitors_active: u32,
     pub competitors_bankrupt: u32,
     /// The largest active AI companies by equity.
@@ -365,11 +382,23 @@ pub struct Overview {
     pub person: Option<PersonBrief>,
 }
 
-/// The person in the header (PE2).
+/// The person in the header (PE2) with its money (PE3).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PersonBrief {
     pub name: String,
     pub age: u32,
+    #[serde(default)]
+    pub cash_usd: f64,
+    #[serde(default)]
+    pub wealth_usd: f64,
+    /// Place of the wealth among the equity of the active companies, and their number.
+    #[serde(default)]
+    pub place: u32,
+    #[serde(default)]
+    pub companies: u32,
+    /// The account fell short of the lifestyle.
+    #[serde(default)]
+    pub short: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -403,7 +432,7 @@ impl From<crate::ranking::Standing> for StandingView {
 
 fn rank(game: &Game) -> Option<RankView> {
     let state = game.state();
-    let now = crate::ranking::standing(state, state.player);
+    let now = crate::ranking::standing(state, state.main_company?);
     (now.companies >= 2).then(|| RankView {
         now: now.into(),
         year_before: crate::ranking::year_before(state, state.date).map(Into::into),
@@ -471,7 +500,9 @@ pub struct MoneyOptions {
 fn money_options(game: &Game) -> Option<MoneyOptions> {
     let state = game.state();
     let m = &game.catalog().currencies;
-    let home = state.companies[state.player.index()].headquarters;
+    let home = state.main_company.map_or(state.person.home, |c| {
+        state.companies[c.index()].headquarters
+    });
     let t = state.date.year_fraction();
     Some(MoneyOptions {
         home_base: m.at_base(home)?,
@@ -482,10 +513,10 @@ fn money_options(game: &Game) -> Option<MoneyOptions> {
     })
 }
 
-fn company_view(game: &Game) -> CompanyView {
+fn company_view(game: &Game) -> Option<CompanyView> {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = state.main_company?;
     let company = &state.companies[player.index()];
     let ledger = &company.ledger;
     let last_month = ledger.months.last();
@@ -529,7 +560,7 @@ fn company_view(game: &Game) -> CompanyView {
                 .collect(),
         })
         .collect();
-    CompanyView {
+    Some(CompanyView {
         name: company.name.clone(),
         headquarters: catalog.countries.key(company.headquarters).to_owned(),
         cash_usd: usd(ledger.cash()),
@@ -546,6 +577,30 @@ fn company_view(game: &Game) -> CompanyView {
                 .unwrap_or(Money::ZERO))
         }),
         sites,
+    })
+}
+
+/// The main company's books; none before the founding (PE3).
+fn main_ledger(state: &crate::state::GameState) -> Option<&crate::ledger::Ledger> {
+    state
+        .main_company
+        .map(|c| &state.companies[c.index()].ledger)
+}
+
+/// The person in the header: age, money and place by wealth (PE3).
+fn person_brief(game: &Game) -> PersonBrief {
+    let state = game.state();
+    let wealth = crate::private::wealth(game.catalog(), state).total();
+    let active: Vec<&Company> = state.companies.iter().filter(|c| !c.bankrupt).collect();
+    let ahead = active.iter().filter(|c| equity(c) > wealth).count();
+    PersonBrief {
+        name: state.person.name.clone(),
+        age: crate::person::age(state, state.date),
+        cash_usd: usd(state.person.account.balance),
+        wealth_usd: usd(wealth),
+        place: u32::try_from(ahead + 1).unwrap_or(u32::MAX),
+        companies: u32::try_from(active.len()).unwrap_or(u32::MAX),
+        short: state.person.short_since.is_some(),
     }
 }
 
@@ -579,7 +634,7 @@ pub fn overview(game: &Game) -> Overview {
             })
             .collect(),
         hints: hints(game),
-        history: history(&state.companies[state.player.index()].ledger),
+        history: main_ledger(state).map_or_else(Vec::new, history),
         money: money_options(game),
         milestones: milestones(game),
         rank: rank(game),
@@ -588,15 +643,12 @@ pub fn overview(game: &Game) -> Overview {
                 .concerns
                 .iter()
                 .filter(|c| {
-                    c.company == state.player && c.status == crate::state::ConcernStatus::Open
+                    state.is_main(c.company) && c.status == crate::state::ConcernStatus::Open
                 })
                 .count(),
         )
         .unwrap_or(u32::MAX),
-        person: (!state.person.name.is_empty()).then(|| PersonBrief {
-            name: state.person.name.clone(),
-            age: crate::person::age(state, state.date),
-        }),
+        person: (!state.person.name.is_empty()).then(|| person_brief(game)),
     }
 }
 
@@ -766,13 +818,15 @@ fn product_totals(
 
 pub fn snapshot(game: &Game) -> Snapshot {
     let state = game.state();
-    let company = &state.companies[state.player.index()];
+    let empty = crate::ledger::Ledger::new(state.date, Money::ZERO);
+    let ledger = main_ledger(state).unwrap_or(&empty);
+    let company = state.main_company.map(|c| &state.companies[c.index()]);
     Snapshot {
-        cash: company.ledger.cash(),
-        equity: equity(company),
-        year: company.ledger.year.by_type.clone(),
-        products: product_totals(&company.ledger.year),
-        years_closed: company.ledger.years.len(),
+        cash: ledger.cash(),
+        equity: company.map_or(Money::ZERO, equity),
+        year: ledger.year.by_type.clone(),
+        products: product_totals(&ledger.year),
+        years_closed: ledger.years.len(),
     }
 }
 
@@ -792,7 +846,8 @@ pub struct PeriodView {
 
 fn period(game: &Game, before: &Snapshot) -> PeriodView {
     let state = game.state();
-    let ledger = &state.companies[state.player.index()].ledger;
+    let empty = crate::ledger::Ledger::new(state.date, Money::ZERO);
+    let ledger = main_ledger(state).unwrap_or(&empty);
     let mut sums: BTreeMap<CostType, Money> = BTreeMap::new();
     let closed = ledger.years.get(before.years_closed..).unwrap_or_default();
     for year in closed
@@ -836,9 +891,12 @@ pub struct ResearchView {
 fn research_projects(game: &Game) -> Vec<ResearchView> {
     let state = game.state();
     let catalog = game.catalog();
-    let company = &state.companies[state.player.index()];
+    let Some(main) = state.main_company else {
+        return Vec::new();
+    };
+    let company = &state.companies[main.index()];
     let mut projects: Vec<ResearchView> = Vec::new();
-    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+    for s in state.sites.iter().filter(|s| s.owner == main) {
         let Some(t) = s.research else { continue };
         if projects
             .iter()
@@ -897,7 +955,8 @@ fn one() -> u32 {
 fn round_products(game: &Game, before: &Snapshot) -> Vec<ProductResult> {
     let state = game.state();
     let catalog = game.catalog();
-    let ledger = &state.companies[state.player.index()].ledger;
+    let empty = crate::ledger::Ledger::new(state.date, Money::ZERO);
+    let ledger = main_ledger(state).unwrap_or(&empty);
     let mut sums: BTreeMap<crate::ids::ProductId, (Money, Money)> = BTreeMap::new();
     let mut add = |totals: BTreeMap<crate::ids::ProductId, (Money, Money)>, sign: i64| {
         for (p, (revenue, result)) in totals {
@@ -1000,7 +1059,7 @@ pub fn world_map(game: &Game) -> WorldMap {
         if state.companies[s.owner.index()].bankrupt {
             continue;
         }
-        let n = if s.owner == state.player {
+        let n = if state.is_main(s.owner) {
             &mut own
         } else {
             &mut other
@@ -1303,7 +1362,7 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         .map(|(c, n)| CountryCompany {
             name: state.companies[c].name.clone(),
             sites: n,
-            own: c == state.player.index(),
+            own: state.main_company.is_some_and(|m| m.index() == c),
         })
         .collect();
     companies.sort_by(|a, b| {
@@ -1433,6 +1492,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).expect("valid settings")
@@ -1472,8 +1532,9 @@ mod tests {
         let g = game();
         let o = overview(&g);
         assert_eq!(o.date, "1900-01-01");
-        assert_eq!(o.company.name, "Test AG");
-        assert!((o.company.cash_usd + 0.0).is_finite());
+        let company = o.company.as_ref().expect("founded at the start");
+        assert_eq!(company.name, "Test AG");
+        assert!((company.cash_usd + 0.0).is_finite());
         assert_eq!(o.competitors_active, 0);
         let json = serde_json::to_string(&o).expect("serializable");
         assert!(json.contains("\"cash_usd\""));
@@ -1706,7 +1767,7 @@ mod tests {
             g.advance(RoundLength::Month, |_| {});
         }
         g.advance(RoundLength::Week, |_| {});
-        let ledger = &g.state().companies[g.state().player.index()].ledger;
+        let ledger = &g.state().companies[g.state().player().index()].ledger;
         let months = history(ledger);
         assert_eq!(months.len(), 3);
         assert_eq!(months[0].month, "1900-01-01");

@@ -257,7 +257,7 @@ fn depart(
     } else {
         successor_of(state, job.company, &job.position)
     };
-    let player = job.company == state.player && !state.companies[job.company.index()].bankrupt;
+    let player = state.is_main(job.company) && !state.companies[job.company.index()].bankrupt;
     let message = player.then(|| {
         let key = match (job.successor, reason, successor.is_some()) {
             (true, ..) => keys::MANAGER_SUCCESSOR_GONE,
@@ -425,7 +425,9 @@ fn tidy(state: &mut GameState, catalog: &Catalog, date: Date) {
         c.closed = Some(date);
     }
     // Holders whose successor was chosen, but left before taking over.
-    let player = state.player;
+    let Some(player) = state.main_company else {
+        return;
+    };
     let again: Vec<ManagerId> = state
         .managers
         .iter()
@@ -467,7 +469,9 @@ fn tidy(state: &mut GameState, catalog: &Catalog, date: Date) {
 
 /// The player's managers who retire within the warning period are asked about.
 fn warn(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<Message>) {
-    let player = state.player;
+    let Some(player) = state.main_company else {
+        return;
+    };
     if state.companies[player.index()].bankrupt {
         return;
     }

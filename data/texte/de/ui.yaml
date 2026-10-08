@@ -17,6 +17,9 @@ neu.firmenname: Name der Firma
 neu.startland: Startland (Firmensitz)
 neu.startjahr: Startjahr
 neu.startkapital: Startkapital in USD (Kaufkraft 2026)
+neu.startgeld: Startgeld in USD (Kaufkraft 2026)
+neu.startgeld_hilfe: "Mindestens rund {mindestens}: die günstigste Firma samt Gründungskosten. Als Einlage schlägt die Gründung {einlage} davon vor; der Rest bleibt auf deinem Privatkonto."
+neu.person_zuerst: Du beginnst als Person mit deinem Startgeld. Deine Firma gründest du gleich danach – oder später, wann du willst.
 neu.startform: Startform
 neu.startform_kosten: "{form} – kostet {betrag}"
 neu.ki_firmen: Anzahl KI-Firmen
@@ -51,6 +54,9 @@ startform.handel: Handelsniederlassung
 
 spiel.datum: Datum
 spiel.kasse: Kasse
+spiel.privatkonto: Privatkonto
+spiel.vermoegen: "Vermögen {betrag}"
+spiel.erst_gruenden: Dafür brauchst du zuerst eine Firma.
 spiel.rundenlaenge: Rundenlänge
 spiel.runde_beenden: Runde beenden
 spiel.speichern: Speichern
@@ -87,6 +93,10 @@ fortschritt.runde: Runde {runde}
 
 uebersicht.titel: Übersicht
 uebersicht.finanzen: Finanzen
+uebersicht.privat: Privatvermögen
+uebersicht.rang_vermoegen: Rang nach Vermögen
+uebersicht.rang_vermoegen_wert: "Platz {platz} von {firmen}"
+uebersicht.ohne_firma: Du hast noch keine Firma. Gründe sie, wenn du so weit bist – die Runden laufen auch ohne sie, dein Guthaben trägt Zinsen, und dein Lebensstil kostet jeden Monat.
 uebersicht.eigenkapital: Eigenkapital
 uebersicht.kredite: Kredite und Anleihen
 uebersicht.ergebnis_jahr: Ergebnis laufendes Jahr
@@ -1193,6 +1203,73 @@ organisation.familie_hilfe: Dein Kind – arbeitet nur für deine Firmen, kündi
 person.titel: Person
 person.oeffnen: "Person: {name}"
 person.frage: Wer bist du, wer gehört zur Familie, und welche Rolle hast du in deinen Firmen?
+person.keine_firma: Noch keine Firma.
+person.wert: Wert
+person.einstand: Eingezahlt
+person.vermoegen: Vermögen
+person.privatkonto: Privatkonto
+person.anteile: Firmenanteile
+person.darlehen: Darlehen an Firmen
+person.vermoegen_gesamt: Vermögen gesamt
+person.konto_leer: Dein Privatkonto reicht nicht für deinen Lebensstil. Erhöhe dein Gehalt oder senke den Lebensstil, sonst lebst du ab dem nächsten Monat bescheiden.
+person.einnahmen_ausgaben: Einnahmen und Ausgaben der letzten zwölf Monate
+person.noch_keine_bewegungen: Noch ist kein Monat abgeschlossen.
+person.lebensstil: Lebensstil
+person.lebensstil_hilfe: "Die Kosten folgen dem Monatslohn eines Akademikers in deinem Land. Ein Wechsel gilt ab dem Folgemonat; der nächste ist ab dem {ab} möglich."
+person.stufe: Stufe
+person.kosten_monat: Kosten im Monat
+person.wirkung_zins: Zins neuer Kredite
+person.wirkung_gehalt: Gehaltsforderung Vorstand
+person.wirkung_ausbildung: Ausbildung der Kinder
+person.wirkung_sterblichkeit: Sterbechance
+person.lebensstil_aktuell: jetzt
+person.lebensstil_geplant: ab nächstem Monat
+person.lebensstil_waehlen: Wählen
+person.lebensstil_gewaehlt: "Ab dem nächsten Monat lebst du so: {stufe}."
+person.gehalt: Dein Gehalt als CEO
+person.gehalt_hilfe: "Deine Firma zahlt es monatlich als Personalaufwand; davon gehen {steuer} Einkommensteuer ab. Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
+person.gehalt_ruht: "Solange ein Manager deine Firma führt, bekommst du kein Gehalt. Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
+person.gehalt_hoechstens: "Mit Mitgesellschaftern höchstens {max}."
+person.gehalt_jahr: Gehalt im Jahr
+person.gehalt_setzen: Festlegen
+person.gehalt_gesetzt: "Dein Gehalt: {betrag} im Jahr."
+person.kapital_fuer: "Geld für {firma}"
+person.kapital_hilfe: "Kasse der Firma: {kasse}. Dein Privatkonto: {konto}."
+person.einlage: Einlage
+person.einzahlen: Einzahlen
+person.eingezahlt: Eingezahlt.
+person.darlehen_betrag: Darlehen
+person.darlehen_zins: Zins
+person.darlehen_jahre: Laufzeit
+person.leihen: Leihen
+person.geliehen: Darlehen gegeben.
+person.darlehen_hilfe: "Zins bis {zins} %, Laufzeit bis {jahre} Jahre. Zins und Tilgung kommen monatlich auf dein Privatkonto; geht die Firma pleite, ist das Darlehen verloren."
+person.darlehen_offen: "Offen {betrag} zu {zins}, Rate {rate} im Monat"
+person.rueckzahlung: Kapital zurückholen
+person.rueckzahlung_hilfe: "Höchstens {max}: nicht mehr als deine Einlagen, und die Liquiditätsreserve bleibt in der Kasse."
+person.zurueckholen: Zurückholen
+person.zurueckgezahlt: Zurückgezahlt.
+person.gruenden_hilfe: Noch hast du keine Firma. Gründe sie mit einem Teil deines Privatkontos.
+gruendung.titel: Firma gründen
+gruendung.frage: "Auf deinem Privatkonto liegen {konto}. Mit einem Teil davon gründest du deine Firma; der Rest bleibt privat für deinen Lebensunterhalt."
+gruendung.name: Name der Firma
+gruendung.sitz: Hauptsitz
+gruendung.einlage: Einlage
+gruendung.einlage_hilfe: "Mindestens {mindestens} für die Startform. Gründungskosten (Register, Notar): {anteil} der Einlage, mindestens {kosten_min}."
+gruendung.spaeter: Später
+gruendung.gruenden: Firma gründen
+gruendung.oeffnen: Firma gründen
+privat.startgeld: Startgeld
+privat.einlage: Einlagen in Firmen
+privat.gruendungskosten: Gründungskosten
+privat.gehalt: Gehalt
+privat.einkommensteuer: Einkommensteuer
+privat.zins: Guthabenzins
+privat.lebensstil: Lebensstil
+privat.darlehen: Darlehen an Firmen
+privat.tilgung: Tilgung von Darlehen
+privat.darlehenszins: Darlehenszins
+privat.rueckzahlung: Kapitalrückzahlung
 person.steckbrief: Steckbrief
 person.name: Name
 person.geboren: Geboren
@@ -1224,6 +1301,13 @@ person.datum: Datum
 person.ereignis: Ereignis
 person.ereignis.start: "Beginn mit der Firma {firma}"
 person.ereignis.uebernahme: "Übernahme der Firma {firma}"
+person.ereignis.beginn: "Beginn mit {betrag} Startgeld"
+person.ereignis.gruendung: "{firma} gegründet, Einlage {betrag}"
+person.ereignis.lebensstil: "Lebensstil: {stufe}"
+lebensstil.bescheiden: Bescheiden
+lebensstil.buergerlich: Bürgerlich
+lebensstil.gehoben: Gehoben
+lebensstil.luxurioes: Luxuriös
 person.ereignis.geburt: "Geburt von {name}"
 person.ereignis.beruf: "{name} tritt ins Berufsleben ein"
 person.ereignis.kind_tot: "Tod von {name}"

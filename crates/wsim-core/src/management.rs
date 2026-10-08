@@ -410,9 +410,12 @@ pub fn salary_demand(
         return Money::ZERO;
     };
     let wage = yearly_wage(catalog, state, country);
-    // The hit rate of a head of strategy or legal (ZA3).
+    // The hit rate of a head of strategy or legal (ZA3); the person's lifestyle for the
+    // board of its companies (PE3).
     let hits = crate::central::hit_factor(catalog, manager);
-    Money::from_usd(factor * (0.5 + strength(manager) / 100.0) * wage * hits).unwrap_or(Money::ZERO)
+    let style = crate::private::salary_demand_factor(catalog, state, company, position.unit);
+    Money::from_usd(factor * (0.5 + strength(manager) / 100.0) * wage * hits * style)
+        .unwrap_or(Money::ZERO)
 }
 
 /// Salary of a job for the days from `from` up to (not including) `to`, within a month:
@@ -2196,7 +2199,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
         }
         if board_check {
             let done = board_work(state, catalog, company, &own, &mut staff);
-            if company == state.player {
+            if state.is_main(company) {
                 news.extend(done);
             }
         }
@@ -2465,7 +2468,7 @@ fn record(
     for mut concern in concerns {
         concern.id = state.next_concern;
         state.next_concern += 1;
-        if company == state.player {
+        if state.is_main(company) {
             news.push(concern_message(
                 catalog,
                 state,
@@ -2546,7 +2549,7 @@ const EXPIRED_KEYS: (&str, &str, &str, &str) = (
 
 /// Open concerns whose deadline passed expire: nothing changes.
 fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: &mut Vec<Message>) {
-    let player = state.player;
+    let player = state.main_company;
     let expired: Vec<usize> = state
         .concerns
         .iter()
@@ -2558,7 +2561,7 @@ fn expire_concerns(state: &mut GameState, catalog: &Catalog, today: Date, news: 
         let c = &mut state.concerns[i];
         c.status = ConcernStatus::Expired;
         c.closed = Some(today);
-        if c.company == player {
+        if Some(c.company) == player {
             let c = state.concerns[i].clone();
             news.push(concern_message(
                 catalog,
@@ -2587,7 +2590,7 @@ fn report_followups(
     state.followups.retain(|f| f.due > today);
     for f in due {
         let site = &state.sites[f.site.index()];
-        if f.company != state.player || site.owner != f.company {
+        if !state.is_main(f.company) || site.owner != f.company {
             continue;
         }
         let actual =

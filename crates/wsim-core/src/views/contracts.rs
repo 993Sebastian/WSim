@@ -123,7 +123,7 @@ fn unit_key(game: &Game, product: ProductId) -> String {
 
 fn contract_view(game: &Game, c: &Contract) -> ContractView {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let selling = c.seller_company == me;
     let (own, other) = if selling {
         (c.seller, c.buyer)
@@ -221,7 +221,7 @@ fn site_products(game: &Game, site: SiteId) -> (Vec<ProductId>, Vec<ProductId>) 
 pub fn contracts(game: &Game) -> ContractsView {
     let (state, catalog) = (game.state(), game.catalog());
     let m = &catalog.contracts;
-    let me = state.player;
+    let me = game.player();
     let mut list: Vec<&Contract> = state
         .contracts
         .iter()
@@ -278,7 +278,7 @@ pub fn contracts(game: &Game) -> ContractsView {
 /// when it uses it; `None` for a site of another company or an unknown product.
 pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<ContractPartnersView> {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let own = SiteId(site);
     state.site(own).filter(|s| s.owner == me)?;
     let p = catalog.products.id(product)?;

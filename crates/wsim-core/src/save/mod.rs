@@ -120,10 +120,11 @@ pub fn encode(game: &Game) -> Vec<u8> {
         game_version: crate::VERSION.to_owned(),
         data_version: catalog.data_version,
         date: state.date,
+        // Before the founding the person's name (PE3).
         company_name: state
-            .company(state.player)
-            .map(|c| c.name.clone())
-            .unwrap_or_default(),
+            .main_company
+            .and_then(|c| state.company(c))
+            .map_or_else(|| state.person.name.clone(), |c| c.name.clone()),
     };
     let header = serde_json::to_vec(&header).expect("header is serializable");
     let body = SaveBody {
@@ -211,7 +212,10 @@ pub fn decode(bytes: &[u8], catalog: Arc<Catalog>) -> Result<LoadedGame, LoadErr
 /// Guards against saves whose content does not fit together (damaged files).
 fn check_consistency(state: &GameState, catalog: &Catalog) -> Result<(), LoadError> {
     let corrupt = |what: &str| Err(LoadError::Corrupt(what.to_owned()));
-    if state.company(state.player).is_none() {
+    if state
+        .main_company
+        .is_some_and(|c| state.company(c).is_none())
+    {
         return corrupt("player company");
     }
     let countries = catalog.countries.len();

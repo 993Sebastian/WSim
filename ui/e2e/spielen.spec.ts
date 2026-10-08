@@ -17,16 +17,29 @@ async function starten(page: Page, einfuehrung = false, dollar = true) {
     );
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Rheinische Nagelwerke");
   const haken = page.getByLabel(/Einführung zeigen/);
   await expect(haken).toBeChecked();
   if (!einfuehrung) await haken.uncheck();
   await page.getByRole("button", { name: "Spiel starten" }).click();
+  // The person founds its company right after the start (PE3).
+  await gruenden(page, "Rheinische Nagelwerke");
   await expect(page.locator(".kopfleiste")).toBeVisible();
 }
 
+async function gruenden(page: Page, name: string) {
+  const dialog = page.getByRole("dialog", { name: "Firma gründen" });
+  await dialog.getByLabel("Name der Firma").fill(name);
+  await dialog.getByRole("button", { name: "Firma gründen" }).click();
+  await expect(dialog).toBeHidden();
+}
+
+/** The commands the preview received after the founding at the start. */
 const befehle = (page: Page) =>
-  page.evaluate(() => (globalThis as { __wsimBefehle?: unknown[] }).__wsimBefehle ?? []);
+  page.evaluate(() =>
+    ((globalThis as { __wsimBefehle?: unknown[] }).__wsimBefehle ?? []).filter(
+      (b) => !(typeof b === "object" && b !== null && "FoundCompany" in b),
+    ),
+  );
 
 async function bild(page: Page, name: string) {
   if (bilder) await page.screenshot({ path: `${bilder}/${name}.png`, fullPage: true });

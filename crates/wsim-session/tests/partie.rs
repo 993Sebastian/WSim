@@ -28,6 +28,7 @@ fn commands_from_the_interface() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            found_at_start: true,
             person_name: String::new(),
             birth_year: None,
             married: true,
@@ -49,7 +50,7 @@ fn commands_from_the_interface() {
     // A valid command changes the game and is answered with the overview.
     let rename = json!({"RenameCompany": {"name": "Befehlsprobe AG"}});
     let overview = session.command(rename).unwrap();
-    assert_eq!(overview.company.name, "Befehlsprobe AG");
+    assert_eq!(overview.company.as_ref().unwrap().name, "Befehlsprobe AG");
 }
 
 #[test]
@@ -70,6 +71,7 @@ fn played_game_1900_to_1905() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            found_at_start: true,
             person_name: String::new(),
             birth_year: None,
             married: true,
@@ -118,7 +120,11 @@ fn played_game_1900_to_1905() {
     }
     assert_eq!(months, 60);
     let overview = session.overview().unwrap();
-    assert!(overview.company.equity_usd > 0.0, "{:?}", overview.company);
+    assert!(
+        overview.company.as_ref().unwrap().equity_usd > 0.0,
+        "{:?}",
+        overview.company
+    );
     let production = session.production().unwrap();
     let slot = &production.sites[0].slots[1];
     assert_eq!(slot.count, 2);
@@ -187,6 +193,7 @@ fn research_center_and_deposit_through_the_interface() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            found_at_start: true,
             person_name: String::new(),
             birth_year: None,
             married: true,

@@ -749,13 +749,20 @@ fragen nach der Nachfolge.
 
 ## person
 
-`data/parameter/person.yaml` (PE2), optional; ohne den Abschnitt bekommt die Person keine
-Kinder. Ein Abschnitt `person` mit:
+`data/parameter/person.yaml` (PE2, PE3), optional; ohne den Abschnitt bekommt die Person
+keine Kinder, und Gründung, Lebensstil, Steuern und Zinsen kosten und bringen nichts. Ein
+Abschnitt `person` mit:
 
 | Feld | Bedeutung |
 |---|---|
 | **alter_start** | `standard`, `von`, `bis` (16–100 Jahre, `von` ≤ `standard` ≤ `bis`): Alter der Person beim Spielbeginn |
 | **familie** | `kinder_ab`, `kinder_bis` (Jahre, steigend: Alter der Person, in dem Kinder kommen), `kinder_hoechstens` (0–20), `kinder_chance_jahr` (0–1), `managerkarte_ab` (Jahre: ab dann arbeitet ein Kind als Manager) |
+| **gruendung** | `kosten_anteil` (0–1: Gründungskosten als Anteil der Einlage), `kosten_mindestens_monatsloehne` (0–120: mindestens so viele Akademiker-Monatslöhne im Sitzland), `einlage_vorschlag` (0–1: vorgeschlagene Einlage als Anteil des Privatkontos) |
+| **gehalt** | `hoechstens_mitgesellschafter` (1–100: Gehalt der Person als CEO mit Mitgesellschaftern höchstens dieses Vielfache des Vorschlags) |
+| **darlehen** | `zins_hoechstens` (0–1 je Jahr), `jahre_hoechstens` (1–100): Grenzen eines Gesellschafterdarlehens |
+| **lebensstil** | `standard` (eine der Stufen), `wechsel_monate` (0–120: höchstens ein Wechsel in so vielen Monaten), `stufen` mit genau `bescheiden`, `buergerlich`, `gehoben`, `luxurioes`, je `kosten` (0–1000 Akademiker-Monatslöhne je Monat, von Stufe zu Stufe steigend), `zins` (−0,1–0,1: Auf- oder Abschlag auf neue Bankkredite), `gehaltsforderung` (−0,9–1: Anteil mehr oder weniger Forderung im Vorstand), `ausbildung` (0–50 Punkte auf die Fähigkeiten der Kinder), `sterblichkeit` (0–10: Faktor auf die Sterbechance der Person) |
+| **einkommensteuer** | Satz je Land und Jahr (0–1) wie `lebenslauf.ruhestandsalter`: `standard` und `laender` mit eigenen Reihen |
+| **sparzins** | Guthabenzins des Privatkontos je Land und Jahr (−0,5–0,5), Aufbau wie `einkommensteuer` |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## preisindex

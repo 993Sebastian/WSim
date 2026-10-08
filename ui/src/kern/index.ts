@@ -55,10 +55,12 @@ export type {
   Gegenstand,
   Preisart,
   Rolle,
+  Startform,
   Stellenangabe,
+  Stufe,
   Tempo,
 } from "./befehle";
-export { geld } from "./befehle";
+export { geld, STARTFORMEN, STUFEN } from "./befehle";
 export { KernFehler } from "./fehler";
 
 export interface KernInfo {

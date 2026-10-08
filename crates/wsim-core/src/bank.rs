@@ -198,7 +198,7 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
 /// Returns the messages for the player.
 pub(crate) fn write_off_failures(state: &mut GameState) -> Vec<Message> {
     let mut news = Vec::new();
-    let player = state.player;
+    let player = state.main_company;
     for i in 0..state.companies.len() {
         if !state.companies[i].bankrupt {
             continue;
@@ -219,7 +219,7 @@ pub(crate) fn write_off_failures(state: &mut GameState) -> Vec<Message> {
                     amount,
                 );
             }
-            if crate::group::same_group(state, player, bank) {
+            if player.is_some_and(|p| crate::group::same_group(state, p, bank)) {
                 news.push(
                     Message::new(MessageKind::Warning, keys::BANK_LOAN_LOST)
                         .with("firma", Param::Text(name.clone()))

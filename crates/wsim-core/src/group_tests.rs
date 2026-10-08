@@ -52,9 +52,9 @@ fn equity(game: &Game, c: CompanyId) -> Money {
 /// equity less the subsidiaries' subscribed capital.
 fn group_holds(game: &Game) {
     let state = game.state();
-    let g = group::consolidated(state, state.player);
+    let g = group::consolidated(state, state.player());
     assert_eq!(g.total_assets(), g.balance(Account::Loans) + g.equity());
-    let members = group::members(state, state.player);
+    let members = group::members(state, state.player());
     let sum: Money = members.iter().map(|&c| equity(game, c)).sum();
     let paid_in: Money = members
         .iter()

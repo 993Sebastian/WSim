@@ -445,7 +445,7 @@ fn destroy(
     let date = state.date;
     // Per company of the player's group: units and value lost, by country.
     let mut lost: BTreeMap<CountryId, (u32, Money)> = BTreeMap::new();
-    let player = state.player;
+    let player = state.main_company;
     for index in 0..state.sites.len() {
         if !countries.contains(&state.sites[index].country) {
             continue;
@@ -503,7 +503,9 @@ fn destroy(
             );
         }
         state.sites[index].staffing_due = true;
-        if crate::group::same_group(state, player, owner) && (units > 0 || goods > Money::ZERO) {
+        if player.is_some_and(|p| crate::group::same_group(state, p, owner))
+            && (units > 0 || goods > Money::ZERO)
+        {
             let e = lost.entry(state.sites[index].country).or_default();
             e.0 += units;
             e.1 += loss + goods;
@@ -594,7 +596,7 @@ fn expropriate(
         .filter(|&s| seized(state, s, countries, foreign_only))
         .collect();
     let date = state.date;
-    let player = state.player;
+    let player = state.main_company;
     // The player's losses by country: sites, loss, compensation.
     let mut mine: BTreeMap<CountryId, (u32, Money, Money)> = BTreeMap::new();
     for site in sites {
@@ -658,7 +660,7 @@ fn expropriate(
         {
             state.plots[plot.index()].tenure = crate::state::Tenure::Owned(v.land);
         }
-        if crate::group::same_group(state, player, from) {
+        if player.is_some_and(|p| crate::group::same_group(state, p, from)) {
             let e = mine.entry(country).or_default();
             e.0 += 1;
             e.1 += book - paid;

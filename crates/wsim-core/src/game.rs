@@ -51,6 +51,10 @@ pub enum NewGameError {
     TooManyCompanies {
         max: u32,
     },
+    /// The person's start money does not found the cheapest company (PE3).
+    StartMoneyTooLow {
+        needed: Money,
+    },
 }
 
 impl NewGameError {
@@ -68,6 +72,9 @@ impl NewGameError {
             NewGameError::Name(e) => e.message(),
             NewGameError::StartFormTooExpensive { needed } => {
                 Message::error(keys::NEW_GAME_START_FORM).with("betrag", Param::Money(*needed))
+            }
+            NewGameError::StartMoneyTooLow { needed } => {
+                Message::error(keys::NEW_GAME_START_MONEY).with("betrag", Param::Money(*needed))
             }
             NewGameError::TooManyCompanies { max } => {
                 Message::error(keys::NEW_GAME_TOO_MANY_COMPANIES)
@@ -92,6 +99,11 @@ pub enum JournalEntry {
     Round {
         from: Date,
         length: RoundLength,
+    },
+    /// A command of the person (PE3).
+    Person {
+        date: Date,
+        command: Command,
     },
 }
 
@@ -160,8 +172,12 @@ impl Game {
         if !(MIN_RESEARCH_FACTOR..=MAX_RESEARCH_FACTOR).contains(&settings.research_ahead_factor) {
             return Err(NewGameError::ResearchFactor);
         }
-        let name = command::check_company_name(None, &settings.company_name, None)
-            .map_err(NewGameError::Name)?;
+        let name = if settings.found_at_start {
+            command::check_company_name(None, &settings.company_name, None)
+                .map_err(NewGameError::Name)?
+        } else {
+            String::new()
+        };
         if settings.ai.companies > catalog.ai_model.max_companies {
             return Err(NewGameError::TooManyCompanies {
                 max: catalog.ai_model.max_companies,
@@ -173,53 +189,12 @@ impl Game {
         }
 
         let date = Date::first_of_year(settings.start_year);
-        let player = Company {
-            brands: Vec::new(),
-            advertising: Vec::new(),
-            auction_until: None,
-            development: Default::default(),
-            product_names: Default::default(),
-            positions: Vec::new(),
-            budget_rules: Vec::new(),
-            strategies: Vec::new(),
-            mandate: crate::mandate::Mandate::default(),
-            reviews: Vec::new(),
-            relocation: None,
-            relocated: None,
-            departments: Default::default(),
-            departments_staffed: Default::default(),
-            hq_city: None,
-            participations: Default::default(),
-            logistics: Default::default(),
-            subsidiary_of: None,
-            listing: None,
-            dividend_payout: None,
-            stock_cost: Default::default(),
-            bonds: Vec::new(),
-            bank: None,
-            state_owned: None,
-            former_managers: Vec::new(),
-            owners: crate::state::Stake::sole(crate::state::Holder::Player),
-            name,
-            kind: CompanyKind::Player,
-            headquarters: settings.start_country,
-            founded: date,
-            rng: SimRng::for_stream(settings.seed, Stream::Company(0)),
-            ledger: Ledger::new(date, settings.start_capital),
-            technologies: BTreeSet::new(),
-            bankrupt: false,
-            loans: Vec::new(),
-            loss_carryforward: Money::ZERO,
-            sales_policies: Vec::new(),
-            research: Default::default(),
-            ai: None,
-        };
         let mut state = GameState {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
             settings,
             date,
             countries: PerId::default(),
-            companies: vec![player],
+            companies: Vec::new(),
             sites: Vec::new(),
             markets: PerId::default(),
             shipments: Vec::new(),
@@ -250,21 +225,32 @@ impl Game {
             next_contract: 0,
             freight_market: Default::default(),
             stock: Default::default(),
-            player: CompanyId(0),
+            main_company: None,
             game_over: false,
             person: Default::default(),
         };
         state.refresh_countries(&catalog);
+        let found_at_start = state.settings.found_at_start;
+        if found_at_start {
+            let (country, capital) = (state.settings.start_country, state.settings.start_capital);
+            let id = push_player_company(&mut state, name, country, capital);
+            state.main_company = Some(id);
+        } else {
+            let needed =
+                crate::private::start_minimum(&catalog, &state, state.settings.start_country);
+            if state.settings.start_capital < needed {
+                return Err(NewGameError::StartMoneyTooLow { needed });
+            }
+        }
         state.fit_to_catalog(&catalog);
         market::initial_demand(&mut state, &catalog, date);
         crate::plots::supply(&mut state, &catalog, date.year());
         // The start set is there before the closures of the events (H1).
         let events = std::mem::take(&mut state.events);
-        apply_start_setup(&mut state, &catalog)?;
-        // A bank from the start (K4).
-        if state.settings.start_form == crate::state::StartForm::Bank && catalog.bank.enabled {
-            let player = state.player.index();
-            state.companies[player].bank = Some(crate::bank::BankSettings::start(&catalog));
+        if let Some(id) = state.main_company {
+            let s = &state.settings;
+            let (form, country, capital) = (s.start_form, s.start_country, s.start_capital);
+            start_setup(&mut state, &catalog, id, (form, country, capital))?;
         }
         crate::population::populate(&mut state, &catalog);
         state.events = events;
@@ -272,6 +258,7 @@ impl Game {
         crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
         crate::person::start(&mut state, &catalog, date);
+        crate::private::start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
         Ok(Self {
             catalog,
@@ -305,6 +292,13 @@ impl Game {
                         return Err(ReplayError::OutOfOrder { index });
                     }
                     game.advance(*length, |_| {});
+                }
+                JournalEntry::Person { date, command } => {
+                    if *date != game.date() {
+                        return Err(ReplayError::OutOfOrder { index });
+                    }
+                    game.apply(command.clone())
+                        .map_err(|error| ReplayError::Command { index, error })?;
                 }
             }
         }
@@ -345,8 +339,15 @@ impl Game {
         self.state.date
     }
 
+    /// The main company. Panics before the person founded one: callers that may run
+    /// without a company ask `main_company` first.
     pub fn player(&self) -> CompanyId {
-        self.state.player
+        self.state.main_company.expect("the person has a company")
+    }
+
+    /// The person's main company (PE3); `None` before the first founding.
+    pub fn main_company(&self) -> Option<CompanyId> {
+        self.state.main_company
     }
 
     pub fn is_over(&self) -> bool {
@@ -355,7 +356,16 @@ impl Game {
 
     /// Executes a decision of the player.
     pub fn apply(&mut self, command: Command) -> Result<(), CommandError> {
-        self.apply_as(self.state.player, command)
+        if command.is_personal() {
+            crate::private::execute(&mut self.state, &self.catalog, &command)?;
+            self.journal.push(JournalEntry::Person {
+                date: self.state.date,
+                command,
+            });
+            return Ok(());
+        }
+        let actor = self.state.main_company.ok_or(CommandError::NoCompany)?;
+        self.apply_as(actor, command)
     }
 
     /// Executes a decision of any company. Successful commands go into the journal.
@@ -477,6 +487,7 @@ impl Game {
                 next,
             ));
             crate::management::month_end(&mut self.state, today);
+            crate::private::pay_salary(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);
             report
@@ -484,6 +495,11 @@ impl Game {
                 .extend(crate::bonds::month_end(&mut self.state, today));
             crate::bank::month_end(&mut self.state, &self.catalog, today);
             finance::month_end(&mut self.state, &self.catalog, today);
+            report.messages.extend(crate::private::month_end(
+                &mut self.state,
+                &self.catalog,
+                today,
+            ));
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);
             }
@@ -530,6 +546,7 @@ impl Game {
                 &self.catalog,
                 next,
             ));
+            crate::private::month_start(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::ventures::month_start(
                 &mut self.state,
                 &self.catalog,
@@ -624,8 +641,12 @@ fn currency_reforms(state: &GameState, catalog: &Catalog, date: Date) -> Vec<Mes
     let model = &catalog.currencies;
     // Periods start on the first day of a month: year + (month − 1)/12.
     let t = f64::from(date.year()) + f64::from(date.month() - 1) / 12.0;
-    let mut countries = vec![state.companies[state.player.index()].headquarters];
-    for s in state.sites.iter().filter(|s| s.owner == state.player) {
+    // Without a company the person's home.
+    let home = state.main_company.map_or(state.person.home, |c| {
+        state.companies[c.index()].headquarters
+    });
+    let mut countries = vec![home];
+    for s in state.sites.iter().filter(|s| state.is_main(s.owner)) {
         if !countries.contains(&s.country) {
             countries.push(s.country);
         }
@@ -660,26 +681,85 @@ fn currency_reforms(state: &GameState, catalog: &Catalog, date: Date) -> Vec<Mes
 
 /// Gives the new company the site of its start form (Lastenheft §2, §15), paid from
 /// the start capital: a small workshop that makes simple parts, or a trading office.
-fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), NewGameError> {
-    let Some(setup) = catalog
-        .production_model
-        .start_setup(state.settings.start_form)
-    else {
+/// A company of the person with nothing but `capital` in cash (PE3).
+pub(crate) fn push_player_company(
+    state: &mut GameState,
+    name: String,
+    country: crate::ids::CountryId,
+    capital: Money,
+) -> CompanyId {
+    let index = u32::try_from(state.companies.len()).expect("company count fits u32");
+    let date = state.date;
+    state.companies.push(Company {
+        brands: Vec::new(),
+        advertising: Vec::new(),
+        auction_until: None,
+        development: Default::default(),
+        product_names: Default::default(),
+        positions: Vec::new(),
+        budget_rules: Vec::new(),
+        strategies: Vec::new(),
+        mandate: crate::mandate::Mandate::default(),
+        reviews: Vec::new(),
+        relocation: None,
+        relocated: None,
+        departments: Default::default(),
+        departments_staffed: Default::default(),
+        hq_city: None,
+        participations: Default::default(),
+        logistics: Default::default(),
+        subsidiary_of: None,
+        listing: None,
+        dividend_payout: None,
+        stock_cost: Default::default(),
+        bonds: Vec::new(),
+        bank: None,
+        state_owned: None,
+        former_managers: Vec::new(),
+        owners: crate::state::Stake::sole(crate::state::Holder::Player),
+        name,
+        kind: CompanyKind::Player,
+        headquarters: country,
+        founded: date,
+        rng: SimRng::for_stream(state.settings.seed, Stream::Company(index)),
+        ledger: Ledger::new(date, capital),
+        technologies: BTreeSet::new(),
+        bankrupt: false,
+        loans: Vec::new(),
+        loss_carryforward: Money::ZERO,
+        sales_policies: Vec::new(),
+        research: Default::default(),
+        ai: None,
+    });
+    CompanyId(index)
+}
+
+/// Builds the start form of the person's new company in a country from its capital
+/// (FORMELN „Startformen“); a bank gets its settings (K4).
+pub(crate) fn start_setup(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    (form, country, capital): (crate::state::StartForm, crate::ids::CountryId, Money),
+) -> Result<(), NewGameError> {
+    if form == crate::state::StartForm::Bank && catalog.bank.enabled {
+        state.companies[company.index()].bank = Some(crate::bank::BankSettings::start(catalog));
+    }
+    let Some(setup) = catalog.production_model.start_setup(form) else {
         return Ok(());
     };
     let cost = setup.cost(catalog);
-    if cost > state.settings.start_capital {
+    if cost > capital {
         return Err(NewGameError::StartFormTooExpensive { needed: cost });
     }
     let date = state.date;
-    let country = state.settings.start_country;
     // The facilities are completed on the first day (`complete_constructions`).
     let facilities: Money = setup
         .facilities
         .iter()
         .map(|&(f, _, _)| catalog.facilities.get(f).investment)
         .sum();
-    let ledger = &mut state.companies[state.player.index()].ledger;
+    let ledger = &mut state.companies[company.index()].ledger;
     ledger.transfer(Account::FixedAssets, Account::Cash, cost - facilities);
     ledger.transfer(Account::AssetsUnderConstruction, Account::Cash, facilities);
     let slots = setup
@@ -738,7 +818,7 @@ fn apply_start_setup(state: &mut GameState, catalog: &Catalog) -> Result<(), New
         .collect();
     let site = crate::state::SiteId(u32::try_from(state.sites.len()).expect("site count fits u32"));
     state.sites.push(Site {
-        owner: state.player,
+        owner: company,
         country,
         kind: setup.site_type,
         founded: date,
@@ -831,6 +911,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         let mut game = Game::new(catalog.clone(), settings).unwrap();

@@ -69,6 +69,8 @@ const beispiel = beispielJson as unknown as {
   boerse: Boerse;
   bank: Bank;
   person: Person;
+  /** The person before the founding (PE3). */
+  person_ohne_firma: Person;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -98,17 +100,26 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     });
   const mitName = (u: Uebersicht): Uebersicht => {
     const c = kopie(u);
-    c.company.name = firma;
+    if (c.company) c.company.name = firma;
     return c;
   };
+  // Before the founding (PE3): the example without its company.
+  const ohneFirma = (u: Uebersicht): Uebersicht => ({
+    ...kopie(u),
+    company: null,
+    history: [],
+    rank: null,
+  });
 
   return {
     echt: false,
     info: async () => ({ version: "vorschau" }),
     optionen: async () => kopie(beispiel.optionen),
     neuesSpiel: async (einstellungen) => {
-      firma = einstellungen.company_name.trim() || "Neue Firma";
-      spiel = mitName(beispiel.uebersicht_start);
+      firma = einstellungen.company_name?.trim() || "Neue Firma";
+      spiel = einstellungen.found_at_start
+        ? mitName(beispiel.uebersicht_start)
+        : ohneFirma(beispiel.uebersicht_start);
       return kopie(spiel);
     },
     uebersicht: async () => {
@@ -257,7 +268,8 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     },
     person: async () => {
       if (!spiel) throw keinSpiel();
-      return kopie(beispiel.person);
+      // Before the founding the person of a game without a company (PE3).
+      return kopie(spiel.company ? beispiel.person : beispiel.person_ohne_firma);
     },
     boerse: async () => {
       if (!spiel) throw keinSpiel();
@@ -294,6 +306,12 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     befehl: async (befehl) => {
       if (!spiel) throw keinSpiel();
       vorschauBefehle.push(kopie(befehl));
+      // The founding works in the preview: the example's company under the new name.
+      if ("FoundCompany" in befehl && !spiel.company) {
+        firma = befehl.FoundCompany.name.trim() || "Neue Firma";
+        spiel = mitName(beispiel.uebersicht_start);
+        return kopie(spiel);
+      }
       throw new KernFehler({
         kind: "error",
         group: "allgemein",
@@ -304,7 +322,11 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     },
     speichern: async (name) => {
       if (!spiel) throw keinSpiel();
-      const stand = { name: name.trim(), date: spiel.date, company: spiel.company.name };
+      const stand = {
+        name: name.trim(),
+        date: spiel.date,
+        company: spiel.company?.name ?? spiel.person?.name ?? "",
+      };
       if (!stand.name) {
         throw new KernFehler({
           kind: "error",
@@ -330,7 +352,7 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
         });
       }
       spiel = kopie(s.uebersicht);
-      firma = spiel.company.name;
+      firma = spiel.company?.name ?? "";
       return kopie(spiel);
     },
   };

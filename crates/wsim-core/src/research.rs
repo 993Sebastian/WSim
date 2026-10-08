@@ -153,7 +153,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             if new_to_the_world {
                 *first = Some(date);
             }
-            if new_to_the_world && c != state.player.index() {
+            if new_to_the_world && !state.main_company.is_some_and(|p| p.index() == c) {
                 messages.push(
                     Message::new(MessageKind::Info, keys::AI_INVENTION)
                         .with("firma", Param::Text(state.companies[c].name.clone()))
@@ -171,7 +171,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
                     site.research = None;
                 }
             }
-            if c == state.player.index() {
+            if state.main_company.is_some_and(|p| p.index() == c) {
                 messages.push(
                     Message::new(MessageKind::Success, keys::RESEARCH_DONE).with(
                         "technologie",
@@ -267,7 +267,7 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
         let product_key = || Param::TextKey(format!("produkt.{}", catalog.products.key(product)));
         // A successor model (B1): AI companies rename, the player gets a suggestion.
         let successor = crate::product_names::successor(catalog, state, company, product);
-        if company == state.player {
+        if state.is_main(company) {
             let key = if top {
                 keys::DEVELOPMENT_TOP
             } else {
@@ -299,7 +299,7 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
             // A name taken meanwhile keeps the old one.
             let _ = crate::command::execute(state, catalog, company, &rename);
         }
-        if company != state.player && first_in_world && player_offers(state, product) {
+        if !state.is_main(company) && first_in_world && player_offers(state, product) {
             messages.push(
                 Message::new(MessageKind::Info, keys::DEVELOPMENT_RIVAL)
                     .with(
@@ -319,5 +319,5 @@ pub(crate) fn player_offers(state: &GameState, product: ProductId) -> bool {
     state
         .sites
         .iter()
-        .any(|s| s.owner == state.player && s.offers.contains_key(&product))
+        .any(|s| state.is_main(s.owner) && s.offers.contains_key(&product))
 }

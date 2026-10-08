@@ -53,6 +53,7 @@ fn new_game(catalog: Catalog) -> Game {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        found_at_start: true,
         person: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
@@ -348,7 +349,7 @@ fn a_new_level_brings_a_successor_model() {
     other.name = "Andere AG".into();
     other.product_names.clear();
     state.companies.push(other);
-    state.player = crate::state::CompanyId(1);
+    state.main_company = Some(crate::state::CompanyId(1));
     for _ in 0..800 {
         game.advance(RoundLength::Day, |_| {});
         if names(&game) != "Arvon 2" {

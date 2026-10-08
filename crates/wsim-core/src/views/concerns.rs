@@ -407,12 +407,9 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
         }
         // The views show the player's concerns: the loan is the player's.
         Command::RefinanceLoan { loan } => {
-            let l = state
-                .companies
-                .get(state.player.index())?
-                .loans
-                .get(*loan)?;
-            let rate = crate::central::refinance_rate(catalog, state, state.player);
+            let main = state.main_company?;
+            let l = state.companies.get(main.index())?.loans.get(*loan)?;
+            let rate = crate::central::refinance_rate(catalog, state, main);
             m(keys::STEP_REFINANCE)
                 .with("betrag", Param::Money(l.balance))
                 .with("alt", rate_param(l.rate))
@@ -450,7 +447,8 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
         // The views show the player's concerns: the position is the player's.
         Command::AppointSuccessor { manager, position } => {
             let x = state.managers.get(manager)?;
-            let demand = management::salary_demand(catalog, state, state.player, x, position);
+            let demand =
+                management::salary_demand(catalog, state, state.main_company?, x, position);
             let message = |key| {
                 m(key)
                     .with("name", Param::Text(x.name.clone()))

@@ -278,7 +278,7 @@ fn resignations(
     }
     for id in leaving {
         let company = state.managers[&id].job.as_ref().map(|j| j.company);
-        if company == Some(state.player) {
+        if company.is_some() && company == state.main_company {
             news.push(about(
                 catalog,
                 state,
@@ -451,7 +451,7 @@ fn heads_hire(
                 continue;
             }
             management::count_spent(state, company, &head, salary);
-            if company == state.player {
+            if state.is_main(company) {
                 news.push(
                     about(
                         catalog,
@@ -711,7 +711,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             let value = satisfaction(catalog, job).saturating_sub(penalty);
             job.satisfaction = Some(value);
         }
-        if offer.employer == state.player {
+        if state.is_main(offer.employer) {
             news.push(
                 about(
                     catalog,
@@ -751,7 +751,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             if command::execute(state, catalog, employer, &answer).is_err() {
                 // Nothing came of it: the offer ends.
                 state.poach_offers.retain(|o| o.manager != offer.manager);
-            } else if offer.bidder == state.player {
+            } else if state.is_main(offer.bidder) {
                 news.push(poach_answer(catalog, state, &offer, kept));
             }
         } else {

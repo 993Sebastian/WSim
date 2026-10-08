@@ -94,7 +94,7 @@ export function ForschungAnsicht({
           <Entwicklung daten={daten} onZentren={() => setBereich("zentren")} />
         )}
         {bereich === "zentren" && (
-          <Zentren kern={kern} daten={daten} heimat={uebersicht.company.headquarters} />
+          <Zentren kern={kern} daten={daten} heimat={uebersicht.company?.headquarters ?? ""} />
         )}
       </Befehle>
     </main>

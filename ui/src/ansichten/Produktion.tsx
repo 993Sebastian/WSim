@@ -58,7 +58,7 @@ export function ProduktionAnsicht({
               key={gruendenIn ?? "heimat"}
               kern={kern}
               produktion={daten}
-              heimat={gruendenIn ?? uebersicht.company.headquarters}
+              heimat={gruendenIn ?? uebersicht.company?.headquarters ?? ""}
               hervorheben={gruendenIn !== null}
             />
           </>

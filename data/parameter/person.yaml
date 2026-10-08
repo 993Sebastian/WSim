@@ -9,4 +9,49 @@ person:
   # ein Kind eine Managerkarte.
   familie: {kinder_ab: 22, kinder_bis: 45, kinder_hoechstens: 4, kinder_chance_jahr: 0.15,
             managerkarte_ab: 25}
+  # Privatkonto und Firmengründung (PE3, docs/PERSON.md §6–8; Formeln: docs/FORMELN.md,
+  # Abschnitt PE3). Maß ist der Akademiker-Monatslohn: ein Zwölftel des Jahreslohns der
+  # Gehaltsgruppe der Manager (management.yaml, gehalt_lohngruppe) im Land.
+  # Gründungskosten (Register, Notar): Anteil der Einlage, mindestens so viele
+  # Akademiker-Monatslöhne im Sitzland; die Oberfläche schlägt diesen Anteil des Kontos als
+  # Einlage vor.
+  gruendung: {kosten_anteil: 0.005, kosten_mindestens_monatsloehne: 1, einlage_vorschlag: 0.9}
+  # Gehalt als CEO: mit Mitgesellschaftern höchstens dieses Vielfache des Vorschlags.
+  gehalt: {hoechstens_mitgesellschafter: 2}
+  # Gesellschafterdarlehen: höchster Zins je Jahr und längste Laufzeit in Jahren.
+  darlehen: {zins_hoechstens: 0.15, jahre_hoechstens: 30}
+  # Lebensstil je Stufe: Kosten je Monat in Akademiker-Monatslöhnen des Wohnsitzlandes,
+  # Auf- oder Abschlag auf den Zins neuer Bankkredite der kontrollierten Firmen, Anteil mehr
+  # oder weniger Gehaltsforderung für den Vorstand, Ausbildung der Kinder (Punkte auf jede
+  # Fähigkeit), Faktor auf die Sterbechance der Person. Wechsel höchstens einmal in so
+  # vielen Monaten.
+  lebensstil:
+    # Gründer beginnen bescheiden; ein Gehalt für „bürgerlich“ trägt eine Werkstatt von 1900
+    # noch nicht (Weltlauf PE3).
+    standard: bescheiden
+    wechsel_monate: 12
+    stufen:
+      bescheiden: {kosten: 0.5, zins: 0.005, gehaltsforderung: 0.05, ausbildung: 0,
+                   sterblichkeit: 1.1}
+      buergerlich: {kosten: 1, zins: 0, gehaltsforderung: 0, ausbildung: 5, sterblichkeit: 1}
+      gehoben: {kosten: 3, zins: -0.0025, gehaltsforderung: -0.05, ausbildung: 10,
+                sterblichkeit: 0.95}
+      luxurioes: {kosten: 8, zins: -0.005, gehaltsforderung: -0.1, ausbildung: 15,
+                  sterblichkeit: 0.95}
+  # Einkommensteuer je Land und Jahr: ein Satz für das Einkommen eines Unternehmers (Gehalt,
+  # Zinsen), grob der mittlere Satz hoher Einkommen.
+  einkommensteuer:
+    standard: {1900: 0.04, 1914: 0.06, 1920: 0.15, 1945: 0.35, 1980: 0.35, 2000: 0.32,
+               2026: 0.3}
+    laender:
+      USA: {1900: 0, 1913: 0.02, 1918: 0.15, 1930: 0.1, 1944: 0.4, 1970: 0.35, 1990: 0.28,
+            2026: 0.3}
+      GBR: {1900: 0.05, 1918: 0.2, 1945: 0.45, 1980: 0.4, 2000: 0.33, 2026: 0.35}
+      DEU: {1900: 0.04, 1920: 0.15, 1946: 0.4, 1960: 0.35, 2000: 0.38, 2026: 0.38}
+      FRA: {1900: 0, 1916: 0.05, 1946: 0.3, 1980: 0.35, 2026: 0.35}
+      SWE: {1900: 0.03, 1920: 0.15, 1950: 0.45, 1980: 0.55, 2000: 0.45, 2026: 0.4}
+      JPN: {1900: 0.03, 1940: 0.2, 1950: 0.4, 1990: 0.35, 2026: 0.33}
+  # Guthabenzins des Privatkontos je Land und Jahr (real, Kaufkraft 2026).
+  sparzins:
+    standard: {1900: 0.02}
   annaeherung: true

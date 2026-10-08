@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { formatGeld, formatZahl, landName, zahlFeld, zahlLesen } from "../format";
+import { formatGeld, formatProzent, formatZahl, landName, zahlFeld, zahlLesen } from "../format";
 import type { Kern, NeuesSpiel, Optionen, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -45,8 +45,6 @@ export function NeuesSpielAnsicht({
         setOptionen(o);
         setWerte({
           country: o.default_country,
-          start_form: o.start_forms[0]?.key ?? "",
-          company_name: "",
           difficulty: o.default_difficulty,
           startups: o.default_startups,
           tariffs: o.default_tariffs ?? null,
@@ -106,7 +104,8 @@ export function NeuesSpielAnsicht({
       ...werte,
       person_name: (werte.person_name ?? "").trim(),
       birth_year: jahr,
-      company_name: werte.company_name.trim(),
+      // The company is founded in the game (PE3).
+      found_at_start: false,
       start_year: zahl("start_year"),
       companies: zahl("companies"),
       capital_usd: zahl("capital_usd"),
@@ -132,16 +131,7 @@ export function NeuesSpielAnsicht({
     <main className="seite">
       <h1>{t("neu.titel")}</h1>
       <form className="formular" onSubmit={starten}>
-        <label>
-          {t("neu.firmenname")}
-          <input
-            id="firmenname"
-            required
-            maxLength={60}
-            value={werte.company_name}
-            onChange={(e) => setze("company_name", e.target.value)}
-          />
-        </label>
+        <p className="feld-hilfe">{t("neu.person_zuerst")}</p>
         <div className="feldreihe">
           <label>
             {t("neu.startland")}
@@ -167,27 +157,16 @@ export function NeuesSpielAnsicht({
             />
           </label>
         </div>
-        <fieldset>
-          <legend>{t("neu.startform")}</legend>
-          {optionen.start_forms.map((f) => (
-            <label key={f.key} className="auswahl">
-              <input
-                type="radio"
-                name="startform"
-                value={f.key}
-                checked={werte.start_form === f.key}
-                onChange={() => setze("start_form", f.key)}
-              />
-              <span>
-                {t("neu.startform_kosten", {
-                  form: t(`startform.${f.key}`),
-                  betrag: formatGeld(f.cost_usd),
-                })}
-                <small className="feld-hilfe">{t(`neu.startform_hilfe.${f.key}`)}</small>
-              </span>
-            </label>
-          ))}
-        </fieldset>
+        <label>
+          {t("neu.startgeld")}
+          <ZahlEingabe id="startgeld" {...zahlFeldProps("capital_usd")} />
+          <small className="feld-hilfe">
+            {t("neu.startgeld_hilfe", {
+              mindestens: formatGeld(optionen.start_money_min_usd ?? 0),
+              einlage: formatProzent(optionen.capital_suggestion ?? 0.9),
+            })}
+          </small>
+        </label>
         <Personfelder
           optionen={optionen}
           startjahr={zahlLesen(zahlen.start_year)}
@@ -231,10 +210,6 @@ export function NeuesSpielAnsicht({
                 {t("neu.ki_firmen")}
                 <ZahlEingabe id="ki_firmen" ganzzahlig {...zahlFeldProps("companies")} />
                 <small className="feld-hilfe">{t("neu.ki_firmen_hilfe")}</small>
-              </label>
-              <label>
-                {t("neu.startkapital")}
-                <ZahlEingabe id="startkapital" {...zahlFeldProps("capital_usd")} />
               </label>
             </div>
             <div className="feldreihe">

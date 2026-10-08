@@ -94,7 +94,7 @@ fn line(account: Account, amount: Money) -> GroupLineView {
 
 pub fn group(game: &Game) -> GroupView {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let m = &catalog.subsidiaries;
     let members = group::members(state, me);
     let subsidiaries = members

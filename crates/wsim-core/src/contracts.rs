@@ -369,7 +369,7 @@ pub(crate) fn propose(
     }
     let today = state.date;
     // Every company but the player answers by its rules.
-    let ai_partner = partner != state.player;
+    let ai_partner = !state.is_main(partner);
     if ai_partner {
         ai_answer(state, catalog, t, partner).map_err(|d| CommandError::ContractDeclined {
             reason: d.key().to_owned(),
@@ -503,7 +503,7 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
     if state.contracts.is_empty() {
         return news;
     }
-    let player = state.player;
+    let player = state.main_company;
     let days = f64::from(days_in_month(today.year(), today.month()));
     let expire = i32::try_from(catalog.contracts.proposal_days).unwrap_or(i32::MAX);
     for i in 0..state.contracts.len() {
@@ -528,7 +528,8 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
         }
         if c.status == ContractStatus::Proposed {
             if c.proposed.add_days(expire) <= today {
-                let involves_player = c.seller_company == player || c.buyer_company == player;
+                let involves_player =
+                    Some(c.seller_company) == player || Some(c.buyer_company) == player;
                 let product = c.product;
                 let c = &mut state.contracts[i];
                 c.status = ContractStatus::Expired;
@@ -572,7 +573,7 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
         }
         if quantity > EPS && ship(state, catalog, i, quantity, today) {
             let c = &state.contracts[i];
-            if c.seller_company == player {
+            if Some(c.seller_company) == player {
                 news.push(crate::logistics::loss_message(
                     catalog,
                     (product, quantity),
@@ -677,7 +678,7 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
 /// cleared of old ones.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date) -> Vec<Message> {
     let mut news = Vec::new();
-    let player = state.player;
+    let player = state.main_company;
     for i in 0..state.contracts.len() {
         let c = state.contracts[i].clone();
         if c.status != ContractStatus::Active || c.start.is_none_or(|s| s >= today) {
@@ -714,8 +715,8 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
             } else {
                 cs.paid_by_buyer += fee;
             }
-            if payer == player || payee == player {
-                let key = if payer == player {
+            if Some(payer) == player || Some(payee) == player {
+                let key = if Some(payer) == player {
                     keys::CONTRACT_SHORT_OWN
                 } else {
                     keys::CONTRACT_SHORT_PARTNER
@@ -734,7 +735,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
         if cs.end().is_some_and(|end| end <= today) {
             cs.status = ContractStatus::Ended;
             cs.closed = Some(today);
-            if cs.seller_company == player || cs.buyer_company == player {
+            if Some(cs.seller_company) == player || Some(cs.buyer_company) == player {
                 news.push(
                     Message::new(MessageKind::Info, keys::CONTRACT_ENDED).with("produkt", product),
                 );
@@ -757,7 +758,9 @@ fn ai_proposals(state: &mut GameState, catalog: &Catalog, today: Date) -> Vec<Me
     if !m.enabled() || m.ai.proposal_chance <= 0.0 {
         return news;
     }
-    let player = state.player;
+    let Some(player) = state.main_company else {
+        return news;
+    };
     if state.companies[player.index()].bankrupt {
         return news;
     }
@@ -816,7 +819,7 @@ fn best_partner(
     player_sells: bool,
 ) -> Option<Terms> {
     let m = &catalog.contracts;
-    let player = state.player;
+    let player = state.main_company?;
     let mut best: Option<(f64, SiteId)> = None;
     for (i, s) in state.sites.iter().enumerate() {
         let site = site_id(i);

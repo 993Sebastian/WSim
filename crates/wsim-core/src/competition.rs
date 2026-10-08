@@ -18,11 +18,11 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog) -> Vec<Message
 
 /// The player's markets: products and countries where one of its sites has an offer.
 fn player_markets(state: &GameState) -> Vec<(ProductId, CountryId)> {
-    let player = state.player;
+    let player = state.main_company;
     let mut markets: Vec<(ProductId, CountryId)> = state
         .sites
         .iter()
-        .filter(|s| s.owner == player)
+        .filter(|s| Some(s.owner) == player)
         .flat_map(|s| s.offers.keys().map(move |&p| (p, s.country)))
         .collect();
     markets.sort_unstable();
@@ -34,9 +34,9 @@ fn player_markets(state: &GameState) -> Vec<(ProductId, CountryId)> {
 /// the kept months.
 fn record_history(state: &mut GameState, catalog: &Catalog) {
     let keep = usize::try_from(catalog.market_model.history_months).unwrap_or(usize::MAX);
-    let player = state.player;
+    let player = state.main_company;
     let mut own: BTreeMap<(ProductId, CountryId), f64> = BTreeMap::new();
-    for s in state.sites.iter().filter(|s| s.owner == player) {
+    for s in state.sites.iter().filter(|s| Some(s.owner) == player) {
         for (&p, o) in &s.offers {
             *own.entry((p, s.country)).or_default() += o.sold_last_month;
         }
@@ -87,7 +87,7 @@ fn narrow(q: f64) -> f32 {
 /// Newcomers, leavers and price cuts of the competitors in the player's markets since
 /// the last month's end.
 fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
-    let player = state.player;
+    let player = state.main_company;
     let cut = catalog.market_model.price_cut_report;
     let mut news = Vec::new();
     let mut watched = Vec::new();
@@ -97,7 +97,7 @@ fn competitor_news(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
         for s in state
             .sites
             .iter()
-            .filter(|s| s.country == country && s.owner != player)
+            .filter(|s| s.country == country && Some(s.owner) != player)
         {
             if state.companies[s.owner.index()].bankrupt {
                 continue;
@@ -208,6 +208,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()
@@ -254,7 +255,7 @@ mod tests {
         let state = game.state_mut();
         let iron = catalog.products.id("eisen").unwrap();
         let aaa = catalog.countries.id("AAA").unwrap();
-        let own = works(state, &catalog, state.player);
+        let own = works(state, &catalog, state.player());
         let month = |state: &mut GameState, sold: f64, revenue: f64, mine: f64| {
             let m = state.markets.get_mut(iron).get_mut(aaa);
             m.last_month.sold = sold;
@@ -296,7 +297,7 @@ mod tests {
         let catalog = game.catalog().clone();
         let state = game.state_mut();
         let iron = catalog.products.id("eisen").unwrap();
-        let own = works(state, &catalog, state.player);
+        let own = works(state, &catalog, state.player());
         state.sites[own.index()]
             .offers
             .insert(iron, offer(100.0, 0.0));

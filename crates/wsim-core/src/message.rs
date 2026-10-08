@@ -240,6 +240,21 @@ pub mod keys {
     pub const PERSON_CEO_HANDED_OVER: &str = "meldung.person.vorsitz_abgegeben";
     pub const PERSON_CEO_TAKEN_BACK: &str = "meldung.person.vorsitz_uebernommen";
     pub const COMMAND_EXTENSION_TOO_LONG: &str = "fehler.befehl.verlaengerung_zu_lang";
+    pub const HINT_FOUND_COMPANY: &str = "hinweis.firma_gruenden";
+    pub const HINT_ACCOUNT_SHORT: &str = "hinweis.privatkonto_leer";
+    pub const COMMAND_PERSON_ONLY: &str = "fehler.befehl.nur_person";
+    pub const COMMAND_NO_COMPANY: &str = "fehler.befehl.keine_firma";
+    pub const COMMAND_ALREADY_FOUNDED: &str = "fehler.befehl.schon_gegruendet";
+    pub const COMMAND_PRIVATE_MONEY: &str = "fehler.befehl.privatkonto_zu_knapp";
+    pub const COMMAND_NOT_CONTROLLED: &str = "fehler.befehl.nicht_kontrolliert";
+    pub const COMMAND_LIFESTYLE_RECENT: &str = "fehler.befehl.lebensstil_gewechselt";
+    pub const COMMAND_SALARY_TOO_HIGH: &str = "fehler.befehl.gehalt_zu_hoch";
+    pub const COMMAND_LOAN_TERMS: &str = "fehler.befehl.darlehen_bedingungen";
+    pub const COMMAND_WITHDRAWAL_TOO_HIGH: &str = "fehler.befehl.rueckzahlung_zu_hoch";
+    pub const COMMAND_NOT_SOLE_OWNER: &str = "fehler.befehl.nicht_alleineigentuemer";
+    pub const NEW_GAME_START_MONEY: &str = "fehler.spielstart.startgeld";
+    pub const PERSON_ACCOUNT_SHORT: &str = "meldung.person.konto_leer";
+    pub const PERSON_LIFESTYLE_LOWERED: &str = "meldung.person.lebensstil_gesenkt";
     pub const MANAGER_RETIRING: &str = "meldung.manager.ruhestand_naht";
     pub const MANAGER_RETIRING_REFUSED: &str = "meldung.manager.verlaengerung_abgelehnt";
     pub const MANAGER_SUCCESSION_DECIDED: &str = "meldung.manager.nachfolge_entschieden";
@@ -603,6 +618,21 @@ pub mod keys {
         PERSON_CEO_HANDED_OVER,
         PERSON_CEO_TAKEN_BACK,
         COMMAND_EXTENSION_TOO_LONG,
+        HINT_FOUND_COMPANY,
+        HINT_ACCOUNT_SHORT,
+        COMMAND_PERSON_ONLY,
+        COMMAND_NO_COMPANY,
+        COMMAND_ALREADY_FOUNDED,
+        COMMAND_PRIVATE_MONEY,
+        COMMAND_NOT_CONTROLLED,
+        COMMAND_LIFESTYLE_RECENT,
+        COMMAND_SALARY_TOO_HIGH,
+        COMMAND_LOAN_TERMS,
+        COMMAND_WITHDRAWAL_TOO_HIGH,
+        COMMAND_NOT_SOLE_OWNER,
+        NEW_GAME_START_MONEY,
+        PERSON_ACCOUNT_SHORT,
+        PERSON_LIFESTYLE_LOWERED,
         MANAGER_RETIRING,
         MANAGER_RETIRING_REFUSED,
         MANAGER_SUCCESSION_DECIDED,

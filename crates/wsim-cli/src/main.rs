@@ -10,11 +10,12 @@ use clap::{Parser, Subcommand, ValueEnum};
 mod protokoll;
 use wsim_core::calendar::{Date, RoundLength};
 use wsim_core::catalog::Catalog;
+use wsim_core::command::Command as GameCommand;
 use wsim_core::game::Game;
 use wsim_core::ledger::Account;
 use wsim_core::money::Money;
 use wsim_core::save;
-use wsim_core::state::{AiSettings, GameSettings, StartForm};
+use wsim_core::state::{AiSettings, GameSettings, Lifestyle, StartForm};
 use wsim_data::{GameData, format_date, format_money, format_number};
 
 #[derive(Parser)]
@@ -39,7 +40,7 @@ enum Command {
         verzeichnis: PathBuf,
     },
     /// Lässt eine Partie ohne Oberfläche laufen.
-    Run(RunArgs),
+    Run(Box<RunArgs>),
     /// Zeigt die berechneten Werte eines Landes (Ländermodell).
     Land {
         /// ISO-Code, z. B. DEU
@@ -109,9 +110,16 @@ struct RunArgs {
     /// Startland bzw. Firmensitz (ISO-Code)
     #[arg(long, default_value = "DEU")]
     land: String,
-    /// Startkapital in USD
+    /// Startkapital in USD (mit --als-person das Startgeld der Person)
     #[arg(long, default_value_t = 100_000.0)]
     kapital: f64,
+    /// Als Person ohne Firma beginnen und sofort per Befehl gründen (PE3); am Ende
+    /// Privatkonto und Vermögen ausgeben
+    #[arg(long)]
+    als_person: bool,
+    /// Lebensstil der Person (bescheiden, buergerlich, gehoben, luxurioes)
+    #[arg(long)]
+    lebensstil: Option<String>,
     #[arg(long, value_enum, default_value_t = Startform::Werkstatt)]
     startform: Startform,
     #[arg(long, default_value = "Neue Firma")]
@@ -478,12 +486,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 start_year: args.startjahr,
                 start_country,
                 start_capital: Money::from_usd(args.kapital).unwrap_or(Money::ZERO),
-                start_form: match args.startform {
-                    Startform::Werkstatt => StartForm::Workshop,
-                    Startform::Handel => StartForm::Trading,
-                    Startform::Investor => StartForm::Investor,
-                    Startform::Bank => StartForm::Bank,
-                },
+                start_form: start_form(args.startform),
                 company_name: args.name.clone(),
                 research_ahead_factor: 1.0,
                 market_scale: 1.0,
@@ -491,9 +494,15 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 ventures: venture_factor(&catalog, args)?,
                 tariff_dynamics: tariff_factor(&catalog, args)?,
                 event_effects: !args.ohne_folgen,
+                found_at_start: !args.als_person,
                 person: Default::default(),
             };
-            Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
+            let mut game =
+                Game::new(catalog.clone(), settings).map_err(|e| texts.render(&e.message()))?;
+            if args.als_person {
+                found_as_person(&mut game, args, start_country, texts)?;
+            }
+            game
         }
     };
 
@@ -552,6 +561,9 @@ fn run(args: &RunArgs) -> Result<(), String> {
     if args.welt {
         print_world(texts, &game);
     }
+    if args.als_person {
+        print_person(&game);
+    }
     if let Some(company) = game.state().company(game.player()) {
         println!(
             "{}: Kasse {}, Ergebnis laufendes Jahr {}",
@@ -566,6 +578,71 @@ fn run(args: &RunArgs) -> Result<(), String> {
         game.state_hash()
     );
     Ok(())
+}
+
+fn start_form(form: Startform) -> StartForm {
+    match form {
+        Startform::Werkstatt => StartForm::Workshop,
+        Startform::Handel => StartForm::Trading,
+        Startform::Investor => StartForm::Investor,
+        Startform::Bank => StartForm::Bank,
+    }
+}
+
+/// Founds the company of a game started as a person with the suggested capital.
+fn found_as_person(
+    game: &mut Game,
+    args: &RunArgs,
+    country: wsim_core::ids::CountryId,
+    texts: &wsim_data::Texts,
+) -> Result<(), String> {
+    let texts_err = |e: wsim_core::command::CommandError| texts.render(&e.message());
+    let model = &game.catalog().person;
+    let capital = game
+        .state()
+        .person
+        .account
+        .balance
+        .scale(model.founding.capital_suggestion);
+    game.apply(GameCommand::FoundCompany {
+        name: args.name.clone(),
+        form: start_form(args.startform),
+        country,
+        capital,
+    })
+    .map_err(texts_err)?;
+    if let Some(key) = &args.lebensstil {
+        let level =
+            Lifestyle::from_key(key).ok_or_else(|| format!("Lebensstil „{key}“ gibt es nicht."))?;
+        game.apply(GameCommand::SetLifestyle { level })
+            .map_err(texts_err)?;
+    }
+    Ok(())
+}
+
+/// The person's account, salary and wealth by year (PE3).
+fn print_person(game: &Game) {
+    let state = game.state();
+    let account = &state.person.account;
+    println!("Person: Privatkonto {}", format_money(account.balance));
+    for (flow, amount) in wsim_core::private::last_months(state) {
+        println!("  letzte Monate {flow:?}: {}", format_money(amount));
+    }
+    let mut year = None;
+    for p in &account.wealth {
+        if year == Some(p.date.year()) {
+            continue;
+        }
+        year = Some(p.date.year());
+        println!(
+            "  {}: Konto {}, Anteile {}, Darlehen {}, gesamt {}",
+            format_date(p.date),
+            format_money(p.cash),
+            format_money(p.shares),
+            format_money(p.loans),
+            format_money(p.total())
+        );
+    }
 }
 
 /// Views of a real game for the UI preview: options, a new game in 1914, the report of
@@ -588,6 +665,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        found_at_start: true,
         person_name: String::new(),
         birth_year: None,
         married: true,
@@ -654,6 +732,16 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     json["boerse"] = example_stock(&mut session)?;
     json["bank"] =
         serde_json::to_value(session.bank().map_err(message)?).map_err(|e| e.to_string())?;
+    // PE3: the person before the founding, for the founding dialog.
+    let without = NewGameRequest {
+        found_at_start: false,
+        start_form: String::new(),
+        company_name: String::new(),
+        ..request
+    };
+    session.new_game(&without).map_err(message)?;
+    json["person_ohne_firma"] =
+        serde_json::to_value(session.person().map_err(message)?).map_err(|e| e.to_string())?;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
@@ -906,6 +994,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        found_at_start: true,
         person_name: String::new(),
         birth_year: None,
         married: true,

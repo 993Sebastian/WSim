@@ -23,6 +23,7 @@ import { BerichteAnsicht } from "./Berichte";
 import { BeteiligungenAnsicht } from "./Beteiligungen";
 import { Einfuehrung, PFADE, type Pfad } from "./Einfuehrung";
 import { FinanzenAnsicht } from "./Finanzen";
+import { GruendungDialog } from "./Gruendung";
 import { ForschungAnsicht } from "./Forschung";
 import { MarktAnsicht } from "./Markt";
 import { OrganisationAnsicht } from "./Organisation";
@@ -57,12 +58,19 @@ export const ANSICHTEN: Ansicht[] = [
   "weltkarte",
   "berichte",
 ];
+/** Views open before the person founded a company (PE3). */
+const OHNE_FIRMA: Ansicht[] = ["uebersicht", "weltkarte", "berichte", "person"];
 /** Round reports kept for the archive view. */
 const ARCHIV = 120;
 
 /** The introduction's way to the first sale: a start with facilities produces. */
 function pfadVon(u: Uebersicht): Pfad {
-  return u.company.sites.some((s) => s.facilities.length > 0) ? "werkstatt" : "handel";
+  return (u.company?.sites ?? []).some((s) => s.facilities.length > 0) ? "werkstatt" : "handel";
+}
+
+/** The introduction for a company with sites (investment firms and banks have none, K4). */
+function fuehrungFuer(u: Uebersicht, ab: number): Fuehrung | null {
+  return u.company && u.company.sites.length > 0 ? { pfad: pfadVon(u), schritt: 0, ab } : null;
 }
 
 /** The running introduction and the number of rounds played when it started. */
@@ -165,7 +173,8 @@ type Fenster =
   | { art: "ereignis"; bericht: Rundenbericht; liste: Meldung[]; index: number }
   | { art: "speichern" }
   | { art: "laden" }
-  | { art: "hilfe" };
+  | { art: "hilfe" }
+  | { art: "gruenden" };
 
 export function Spiel({
   kern,
@@ -181,15 +190,17 @@ export function Spiel({
 }) {
   const [uebersicht, setUebersicht] = useState(start);
   const [fuehrung, setFuehrung] = useState<Fuehrung | null>(
-    // Investment firms and banks start without sites: no way to a first sale (K4).
-    einfuehrung && start.company.sites.length > 0
-      ? { pfad: pfadVon(start), schritt: 0, ab: 0 }
-      : null,
+    einfuehrung ? fuehrungFuer(start, 0) : null,
   );
+  // The introduction starts with the founding (PE3): wanted, but no company yet.
+  const [fuehrungNachGruendung, setFuehrungNachGruendung] = useState(einfuehrung && !start.company);
   // Rounds played in this session (the introduction looks at reports after its start).
   const [runden, setRunden] = useState(0);
   const [laenge, setLaenge] = useState<Wahl>("monat");
-  const [fenster, setFenster] = useState<Fenster>({ art: "keins" });
+  // Without a company the founding dialog opens right after the start (PE3).
+  const [fenster, setFenster] = useState<Fenster>(
+    start.company ? { art: "keins" } : { art: "gruenden" },
+  );
   const [fehler, setFehler] = useState<string | null>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>("uebersicht");
   // Site open in the plant view of the sites tab (null: the list of sites), and the
@@ -217,6 +228,7 @@ export function Spiel({
     etappenMerken(zeigen);
   };
   const firma = uebersicht.company;
+  const firmaDa = firma !== null;
   const geldoptionen = uebersicht.money ?? null;
   // Set while drawing (not in an effect): every amount of this screen, dialogs
   // included, is formatted with it.
@@ -295,10 +307,12 @@ export function Spiel({
         e.preventDefault();
         if (!offen) setFenster({ art: "laden" });
       } else if (!offen && !eingabe && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        // 1–9 and 0 for the tenth view.
+        // 1–9 and 0 for the tenth view; before the founding only those without a company.
         const nummer = e.key === "0" ? 10 : Number(e.key);
-        if (nummer >= 1 && nummer <= ANSICHTEN.length) setAnsicht(ANSICHTEN[nummer - 1]!);
-        else if (e.key === "?" || e.key === "F1") {
+        const ziel = ANSICHTEN[nummer - 1];
+        if (nummer >= 1 && nummer <= ANSICHTEN.length && ziel) {
+          if (firmaDa || OHNE_FIRMA.includes(ziel)) setAnsicht(ziel);
+        } else if (e.key === "?" || e.key === "F1") {
           e.preventDefault();
           setFenster({ art: "hilfe" });
         }
@@ -306,7 +320,7 @@ export function Spiel({
     };
     window.addEventListener("keydown", taste);
     return () => window.removeEventListener("keydown", taste);
-  }, [offen, uebersicht.game_over]);
+  }, [offen, uebersicht.game_over, firmaDa]);
 
   const zeigeSchritt = (n: number) => {
     if (!fuehrung) return;
@@ -319,7 +333,18 @@ export function Spiel({
 
   const springe = (ziel: string) => {
     setFenster({ art: "keins" });
-    if ((ANSICHTEN as string[]).includes(ziel)) setAnsicht(ziel as Ansicht);
+    if ([...ANSICHTEN, "person"].includes(ziel)) setAnsicht(ziel as Ansicht);
+  };
+
+  /** The person founded its company: the views open, the introduction starts. */
+  const gegruendet = (u: Uebersicht) => {
+    setUebersicht(u);
+    setFenster({ art: "keins" });
+    setAnsicht("uebersicht");
+    if (fuehrungNachGruendung) {
+      setFuehrungNachGruendung(false);
+      setFuehrung(fuehrungFuer(u, runden));
+    }
   };
 
   /** Opens the place a hint points to: a plant (with its area) or a view. */
@@ -346,7 +371,8 @@ export function Spiel({
   // Concerns of the player's positions (MA2).
   const offeneAnliegen = uebersicht.concerns_open ?? 0;
   const vormonat = uebersicht.history.at(-1);
-  const trend = vormonat ? firma.cash_usd - vormonat.cash_usd : null;
+  const trend = firma && vormonat ? firma.cash_usd - vormonat.cash_usd : null;
+  const person = uebersicht.person ?? null;
   const menuePunkt = (aktion: () => void) => () => {
     setMenue(false);
     aktion();
@@ -358,38 +384,50 @@ export function Spiel({
       <div className="kopfbereich">
         <header className="kopfleiste">
           <div className="kopf-firma">
-            {uebersicht.person && (
+            {person && (
               <button
                 type="button"
                 className="schlicht kopf-person"
                 aria-current={ansicht === "person" ? "page" : undefined}
-                aria-label={t("person.oeffnen", { name: uebersicht.person.name })}
+                aria-label={t("person.oeffnen", { name: person.name })}
                 onClick={() => setAnsicht("person")}
               >
-                {uebersicht.person.name}
+                {person.name}
+                {person.wealth_usd !== undefined && (
+                  <span className={`nur-breit${person.short ? " negativ" : ""}`}>
+                    {" · "}
+                    {t("spiel.vermoegen", { betrag: formatGeld(person.wealth_usd) })}
+                  </span>
+                )}
               </button>
             )}
-            <strong>{firma.name}</strong>
+            {firma && <strong>{firma.name}</strong>}
             <span>
               <span className="nur-breit">{t("spiel.datum")}: </span>
               <time dateTime={uebersicht.date}>{formatDatum(uebersicht.date)}</time>
             </span>
-            <span>
-              {t("spiel.kasse")}:{" "}
-              <span className={firma.cash_usd < 0 ? "negativ" : ""}>
-                {formatGeld(firma.cash_usd)}
-              </span>
-              {trend !== null && Math.abs(trend) >= 0.5 && (
-                <span
-                  className={`trend ${trend < 0 ? "negativ" : "positiv"}`}
-                  title={t("spiel.kasse_trend")}
-                >
-                  {" "}
-                  {trend < 0 ? "▼" : "▲"}
-                  <span className="nur-breit"> {formatGeld(Math.abs(trend))}</span>
+            {firma ? (
+              <span>
+                {t("spiel.kasse")}:{" "}
+                <span className={firma.cash_usd < 0 ? "negativ" : ""}>
+                  {formatGeld(firma.cash_usd)}
                 </span>
-              )}
-            </span>
+                {trend !== null && Math.abs(trend) >= 0.5 && (
+                  <span
+                    className={`trend ${trend < 0 ? "negativ" : "positiv"}`}
+                    title={t("spiel.kasse_trend")}
+                  >
+                    {" "}
+                    {trend < 0 ? "▼" : "▲"}
+                    <span className="nur-breit"> {formatGeld(Math.abs(trend))}</span>
+                  </span>
+                )}
+              </span>
+            ) : (
+              <span>
+                {t("spiel.privatkonto")}: {formatGeld(person?.cash_usd ?? 0)}
+              </span>
+            )}
           </div>
           <div className="kopf-runde" data-tour="runde">
             <label>
@@ -508,6 +546,8 @@ export function Spiel({
               aria-current={ansicht === a ? "page" : undefined}
               aria-keyshortcuts={String(i + 1)}
               data-tour={`reiter-${a}`}
+              disabled={!firma && !OHNE_FIRMA.includes(a)}
+              title={!firma && !OHNE_FIRMA.includes(a) ? t("spiel.erst_gruenden") : undefined}
               onClick={() => {
                 if (a === "produktion" && ansicht === "produktion") setWerk(null);
                 setGruendenIn(null);
@@ -542,7 +582,12 @@ export function Spiel({
         className="ansichtsbereich"
       >
         {ansicht === "person" && (
-          <PersonAnsicht kern={kern} stand={`${uebersicht.date}/${ladung}`} />
+          <PersonAnsicht
+            kern={kern}
+            stand={`${uebersicht.date}/${ladung}/${firma?.name ?? ""}`}
+            onGeaendert={setUebersicht}
+            onGruenden={() => setFenster({ art: "gruenden" })}
+          />
         )}
         {ansicht === "uebersicht" && (
           <UebersichtAnsicht
@@ -552,6 +597,7 @@ export function Spiel({
             onEtappen={zeigeEtappen}
             onHinweis={zuHinweis}
             onWerk={oeffneWerk}
+            onGruenden={() => setFenster({ art: "gruenden" })}
           />
         )}
         {ansicht === "produktion" && (
@@ -622,7 +668,10 @@ export function Spiel({
           pfad={fuehrung.pfad}
           schritt={fuehrung.schritt}
           bericht={runden > fuehrung.ab ? (berichte[0] ?? null) : null}
-          parameter={{ firma: firma.name, land: landName(firma.headquarters) }}
+          parameter={{
+            firma: firma?.name ?? "",
+            land: firma ? landName(firma.headquarters) : "",
+          }}
           onSchritt={zeigeSchritt}
           onEnde={() => setFuehrung(null)}
         />
@@ -632,7 +681,12 @@ export function Spiel({
           onSchliessen={schliessen}
           onEinfuehrung={() => {
             schliessen();
-            setFuehrung({ pfad: pfadVon(uebersicht), schritt: 0, ab: runden });
+            if (firma) {
+              setFuehrung({ pfad: pfadVon(uebersicht), schritt: 0, ab: runden });
+            } else {
+              setFuehrungNachGruendung(true);
+              setFenster({ art: "gruenden" });
+            }
             setAnsicht("uebersicht");
           }}
         />
@@ -683,7 +737,15 @@ export function Spiel({
       {fenster.art === "speichern" && (
         <SpeichernDialog
           kern={kern}
-          vorschlag={`${firma.name} ${formatDatum(uebersicht.date)}`}
+          vorschlag={`${firma?.name ?? person?.name ?? ""} ${formatDatum(uebersicht.date)}`}
+          onSchliessen={schliessen}
+        />
+      )}
+      {fenster.art === "gruenden" && (
+        <GruendungDialog
+          kern={kern}
+          stand={`${uebersicht.date}/${ladung}`}
+          onGegruendet={gegruendet}
           onSchliessen={schliessen}
         />
       )}

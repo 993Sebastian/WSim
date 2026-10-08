@@ -350,7 +350,7 @@ pub fn controlling(game: &Game, period: &str) -> ControllingView {
         "monat" | "vorjahr" => period,
         _ => "jahr",
     };
-    let ledger = &state.companies[state.player.index()].ledger;
+    let ledger = &state.companies[game.player().index()].ledger;
     let mut periods = Vec::new();
     if !ledger.months.is_empty() {
         periods.push("monat".to_owned());
@@ -360,7 +360,7 @@ pub fn controlling(game: &Game, period: &str) -> ControllingView {
         periods.push("vorjahr".to_owned());
     }
     let start = periods_start(ledger, period);
-    let members = crate::group::members(state, state.player);
+    let members = crate::group::members(state, game.player());
     let companies: Vec<ControllingNode> = members
         .iter()
         .filter_map(|&c| company_node(game, c, period))

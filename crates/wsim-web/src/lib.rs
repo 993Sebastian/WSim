@@ -230,7 +230,7 @@ mod tests {
             "args": { "einstellungen": {
                 "seed": 3, "start_year": 1900, "country": "DEU", "capital_usd": 100000.0,
                 "start_form": "werkstatt", "company_name": "Browser AG", "companies": 5,
-                "difficulty": "mittel", "research_factor": 1.0
+                "difficulty": "mittel", "research_factor": 1.0, "found_at_start": true
             }}
         });
         ok(&spiel.to_string());

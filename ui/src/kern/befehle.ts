@@ -10,6 +10,24 @@ export type Preisart = { Market: { markup: number; floor: number } } | { Fixed: 
 /** The pace of a start-up as the core names it (SU2). */
 export type Tempo = "Normal" | "Fast" | "Thorough";
 
+/** Start forms in commands (PE3), by their keys in views and texts. */
+export type Startform = "Workshop" | "Trading" | "Investor" | "Bank";
+export const STARTFORMEN: Record<string, Startform> = {
+  werkstatt: "Workshop",
+  handel: "Trading",
+  investor: "Investor",
+  bank: "Bank",
+};
+
+/** Levels of lifestyle in commands (PE3), by their keys in views and texts. */
+export type Stufe = "Modest" | "Middle" | "Upscale" | "Luxury";
+export const STUFEN: Record<string, Stufe> = {
+  bescheiden: "Modest",
+  buergerlich: "Middle",
+  gehoben: "Upscale",
+  luxurioes: "Luxury",
+};
+
 export type Befehl =
   | { RenameCompany: { name: string } }
   | { FoundSite: { country: string; kind: string } }
@@ -69,6 +87,19 @@ export type Befehl =
   | { BuyBackShares: { share: number } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
+  | {
+      FoundCompany: {
+        name: string;
+        form: Startform;
+        country: string;
+        capital: number;
+      };
+    }
+  | { SetPersonSalary: { amount: number } }
+  | { SetLifestyle: { level: Stufe } }
+  | { ContributeCapital: { company: number; amount: number } }
+  | { LendToCompany: { company: number; amount: number; rate: number; years: number } }
+  | { WithdrawCapital: { company: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
   | {
       SetPurchase: {

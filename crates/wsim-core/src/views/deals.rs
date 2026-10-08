@@ -190,7 +190,7 @@ fn status_key(status: OfferStatus) -> &'static str {
 fn offer_view(game: &Game, offer: &Offer) -> OfferView {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let other = if offer.buyer == player {
         offer.seller
     } else {
@@ -250,7 +250,7 @@ pub struct OffersView {
 
 pub fn offers(game: &Game) -> OffersView {
     let state = game.state();
-    let player = state.player;
+    let player = game.player();
     let mut list: Vec<OfferView> = state
         .offers
         .iter()
@@ -318,7 +318,7 @@ fn row(state: &GameState, catalog: &crate::catalog::Catalog, id: CompanyId) -> C
         sites: u32::try_from(state.sites.iter().filter(|s| s.owner == id).count())
             .unwrap_or(u32::MAX),
         real: c.ai.as_ref().is_some_and(|a| a.real.is_some()),
-        player: id == state.player,
+        player: state.is_main(id),
         auction_until: deals::in_auction(state, id)
             .then_some(c.auction_until)
             .flatten()
@@ -348,7 +348,10 @@ pub fn companies(game: &Game) -> CompaniesView {
         .filter(|(i, c)| {
             let id = CompanyId(u32::try_from(*i).unwrap_or(0));
             // The player's subsidiaries show under the organisation (W6).
-            (id == state.player || !crate::group::same_group(state, id, state.player))
+            (state.is_main(id)
+                || !state
+                    .main_company
+                    .is_some_and(|p| crate::group::same_group(state, id, p)))
                 && (!c.bankrupt || deals::in_auction(state, id))
         })
         .map(|(i, _)| {
@@ -456,7 +459,7 @@ fn player_offer_state(
 ) -> (Option<u32>, Option<crate::calendar::Date>) {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let open = state
         .offers
         .iter()
@@ -493,7 +496,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
     if company.bankrupt && !auction {
         return None;
     }
-    let player = state.player;
+    let player = game.player();
     let min_age = catalog.deal_model.min_age_months;
     let sites = state
         .sites
@@ -651,7 +654,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
 pub(super) fn offer_hints(game: &Game) -> Vec<Message> {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     state
         .offers
         .iter()

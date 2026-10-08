@@ -60,7 +60,7 @@ pub struct BankView {
 
 pub fn bank_view(game: &Game) -> BankView {
     let (state, catalog) = (game.state(), game.catalog());
-    let me = state.player;
+    let me = game.player();
     let m = &catalog.bank;
     let banks = crate::group::members(state, me)
         .into_iter()

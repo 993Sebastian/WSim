@@ -27,6 +27,7 @@ fn settings(seed: u64) -> GameSettings {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        found_at_start: true,
         person: Default::default(),
     }
 }
@@ -318,7 +319,7 @@ fn saves_survive_changed_data() {
     let state = loaded.game.state();
     let bbb = changed.countries.id("BBB").unwrap();
     assert_eq!(state.settings.start_country, bbb);
-    assert_eq!(state.company(state.player).unwrap().headquarters, bbb);
+    assert_eq!(state.company(state.player()).unwrap().headquarters, bbb);
     // Country values are derived and follow the new data.
     let expected = crate::country_model::compute(&changed, bbb, state.date);
     assert_eq!(state.countries.get(bbb), &expected);
@@ -346,7 +347,7 @@ fn saves_find_countries_merged_into_regions() {
         let state = loaded.game.state();
         assert_eq!(state.countries.len(), catalog.countries.len());
         assert_eq!(
-            state.company(state.player).unwrap().headquarters,
+            state.company(state.player()).unwrap().headquarters,
             state.settings.start_country
         );
         catalog
@@ -392,14 +393,14 @@ fn saves_of_all_versions_stay_loadable() {
         let state = loaded.game.state();
         assert_eq!(loaded.header.format_version, version);
         assert_eq!(state.date, date(1900, 4, 1));
-        assert_eq!(state.company(state.player).unwrap().name, "Fixture GmbH");
+        assert_eq!(state.company(state.player()).unwrap().name, "Fixture GmbH");
         assert_eq!(
-            state.company(state.player).unwrap().ledger.cash(),
+            state.company(state.player()).unwrap().ledger.cash(),
             Money::from_usd(250_000.0).unwrap()
         );
         assert_eq!(state.countries.len(), 2, "country values are recomputed");
         // Owners came with the preparation for investors (Lastenheft §17.3).
-        let player = state.company(state.player).unwrap();
+        let player = state.company(state.player()).unwrap();
         assert_eq!(player.majority_holder(), Some(Holder::Player), "v{version}");
         for c in &state.companies {
             let total: f64 = c.owners.iter().map(|s| s.share).sum();
@@ -415,7 +416,7 @@ fn the_player_owns_the_own_company_and_ai_companies_are_private() {
     let game = Game::new(catalog(), s).unwrap();
     let state = game.state();
     for (i, c) in state.companies.iter().enumerate() {
-        let expected = if i == state.player.index() {
+        let expected = if i == state.player().index() {
             Holder::Player
         } else {
             Holder::Private

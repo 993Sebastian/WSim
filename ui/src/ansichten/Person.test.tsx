@@ -19,10 +19,7 @@ describe("Person (PE2)", () => {
     };
     render(<App kern={kern} />);
     fireEvent.click(await screen.findByRole("button", { name: "Neues Spiel" }));
-    fireEvent.change(await screen.findByLabelText("Name der Firma"), {
-      target: { value: "Test AG" },
-    });
-    const person = screen.getByRole("group", { name: "Person" });
+    const person = await screen.findByRole("group", { name: "Person" });
     // The year of birth defaults to the start year minus 30; the hint names the range.
     expect((within(person).getByLabelText(/Geburtsjahr/) as HTMLInputElement).placeholder).toBe(
       "1870",
@@ -37,13 +34,26 @@ describe("Person (PE2)", () => {
     fireEvent.click(within(person).getByLabelText("Verheiratet"));
     fireEvent.change(within(person).getByLabelText("Kinder"), { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Spiel starten" }));
+    // Without a company only some views are open, and the founding dialog asks first.
+    const gruendung = await screen.findByRole("dialog", { name: "Firma gründen" });
+    expect(screen.getByRole("button", { name: "Standorte" })).toHaveProperty("disabled", true);
+    fireEvent.change(await within(gruendung).findByLabelText("Name der Firma"), {
+      target: { value: "Test AG" },
+    });
+    // The dialog suggests 90 % of the account as capital (in the shown currency).
+    expect((within(gruendung).getByLabelText(/^Einlage/) as HTMLInputElement).value).toMatch(
+      /^\d{1,3}(\.\d{3})*(,\d+)?$/,
+    );
+    fireEvent.click(within(gruendung).getByRole("button", { name: "Firma gründen" }));
     await screen.findByText("Test AG");
     expect(gesendet[0]).toMatchObject({
       person_name: "Clara Weber",
       birth_year: 1865,
       married: false,
       children: 2,
+      found_at_start: false,
     });
+    expect(screen.getByRole("button", { name: "Standorte" })).toHaveProperty("disabled", false);
 
     // The header opens the view of the person (the preview shows its example person).
     fireEvent.click(screen.getByRole("button", { name: /^Person: / }));
@@ -56,6 +66,13 @@ describe("Person (PE2)", () => {
     expect(within(familie).getByText(/Weitere Kinder sind möglich/)).toBeTruthy();
     const rollen = screen.getByRole("region", { name: "Rollen" });
     expect(within(rollen).getByText("CEO – du führst die Firma selbst")).toBeTruthy();
+    // Wealth, lifestyle with its effects, the salary (PE3).
+    const vermoegen = screen.getByRole("region", { name: "Vermögen" });
+    expect(within(vermoegen).getByText("Vermögen gesamt")).toBeTruthy();
+    const stil = screen.getByRole("region", { name: "Lebensstil" });
+    expect(within(stil).getAllByRole("row")).toHaveLength(5);
+    expect(within(stil).getByText("Luxuriös")).toBeTruthy();
+    expect(screen.getByRole("form", { name: "Dein Gehalt als CEO" })).toBeTruthy();
     const lebenslauf = screen.getByRole("region", { name: "Lebenslauf" });
     expect(within(lebenslauf).getByText("Beginn mit der Firma Neue Firma")).toBeTruthy();
     expect(within(lebenslauf).getByText("Geburt von Paul Albrecht")).toBeTruthy();

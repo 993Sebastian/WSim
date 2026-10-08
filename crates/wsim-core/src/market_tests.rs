@@ -37,6 +37,7 @@ fn game_with(catalog: crate::catalog::Catalog) -> Game {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        found_at_start: true,
         person: Default::default(),
     };
     Game::new(catalog, settings).unwrap()

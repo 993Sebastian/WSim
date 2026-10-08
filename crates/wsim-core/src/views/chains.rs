@@ -78,12 +78,17 @@ fn kind_key(kind: ProductKind) -> &'static str {
 }
 
 /// Technologies of a recipe and its facility the player does not know.
-fn missing(state: &GameState, catalog: &Catalog, recipe: RecipeId) -> Vec<String> {
+fn missing(
+    state: &GameState,
+    catalog: &Catalog,
+    player: crate::state::CompanyId,
+    recipe: RecipeId,
+) -> Vec<String> {
     let r = catalog.recipes.get(recipe);
     let mut keys: Vec<String> = [r.technology, catalog.facilities.get(r.facility).technology]
         .into_iter()
         .flatten()
-        .filter(|&t| !state.knows(catalog, state.player, t))
+        .filter(|&t| !state.knows(catalog, player, t))
         .map(|t| catalog.technologies.key(t).to_owned())
         .collect();
     keys.dedup();
@@ -93,7 +98,7 @@ fn missing(state: &GameState, catalog: &Catalog, recipe: RecipeId) -> Vec<String
 pub fn chains(game: &Game) -> ChainsView {
     let state = game.state();
     let catalog = game.catalog();
-    let player = state.player;
+    let player = game.player();
     let home = state.companies[player.index()].headquarters;
     let country = state.countries.get(home);
     let price = |p: ProductId| market::market_price(catalog, state, home, p).to_usd();
@@ -137,7 +142,7 @@ pub fn chains(game: &Game) -> ChainsView {
             .filter(|&(id, r)| r.product == p && health::first_year(catalog, id) <= year)
             .map(|(id, _)| {
                 let cost = health::unit_cost(catalog, country, id, utilization, price).total();
-                (id, missing(state, catalog, id).is_empty(), cost)
+                (id, missing(state, catalog, player, id).is_empty(), cost)
             })
             .min_by(|a, b| b.1.cmp(&a.1).then(a.2.total_cmp(&b.2)))
             .map(|(id, _, cost)| (id, cost))
@@ -187,7 +192,7 @@ pub fn chains(game: &Game) -> ChainsView {
                     key: catalog.recipes.key(rid).to_owned(),
                     facility: catalog.facilities.key(r.facility).to_owned(),
                     extraction: r.extraction,
-                    missing: missing(state, catalog, rid),
+                    missing: missing(state, catalog, player, rid),
                     inputs: r
                         .inputs
                         .iter()
@@ -251,6 +256,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            found_at_start: true,
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()
