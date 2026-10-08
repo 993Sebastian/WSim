@@ -141,6 +141,8 @@ pub(crate) fn found(
     let id = CompanyId(index);
     state.companies.push(Company {
         brands: Vec::new(),
+        emissions: Default::default(),
+        emissions_last: Default::default(),
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),

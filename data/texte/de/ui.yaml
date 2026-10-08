@@ -551,6 +551,8 @@ ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gru
 ursache.strom: Zu wenig Strom
 ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
 ursache.ereignis: Gedrosselt durch ein Weltereignis
+ursache.regulierung: Gestoppt durch eine Regulierung
+ursache.regulierung.hilfe: Ein Verbot im Land oder eine Umweltauflage, für die die Einheit noch nicht nachgerüstet ist. Was gilt, zeigt die Länderansicht.
 ursache.ereignis.hilfe: Krieg, Bürgerkrieg oder eine Förderkürzung begrenzen die Produktion in diesem Land. Was wie lange gilt, zeigt die Länderansicht.
 ursache.lagerstaette: Höchstförderung erreicht
 ursache.lagerstaette.hilfe: "Die Konzession erlaubt im Jahr nur eine bestimmte Menge, verteilt über das Jahr: Bis heute ist der bisherige Anteil gefördert. Oder der Vorrat der Lagerstätte ist erschöpft."
@@ -661,6 +663,7 @@ ketten.hakt.arbeitskraefte: "hakt: Arbeitskräfte fehlen"
 ketten.hakt.strom: "hakt: zu wenig Strom"
 ketten.hakt.lagerstaette: "hakt: Lagerstätte gibt nicht mehr her"
 ketten.hakt.ereignis: "hakt: gedrosselt durch ein Weltereignis"
+ketten.hakt.regulierung: "hakt: gestoppt durch eine Regulierung"
 ketten.verfahren: "{anlage}"
 ketten.abbau: "Abbau: {anlage}"
 ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"
@@ -1550,6 +1553,23 @@ strategie.feld.eigenfertigung: Eigenfertigung oder Zukauf
 strategie.feld.investition: Investitionsbudget
 strategie.feld.reserve: Liquiditätsreserve
 strategie.feld.schulung: Schulung
+strategie.feld.umwelt: Umwelt
+werk.umwelt_fuer: "Umwelt: {anlage}"
+landdetail.regulierung: Regulierung und Umwelt
+landdetail.co2_preis: "CO₂-Preis: {preis} je t"
+landdetail.regel.auflage: "{regel} (seit {seit}): Abgasreinigung mindestens Stufe {stufe}, Frist bis {bis}"
+landdetail.regel.arbeitsschutz: "{regel} (seit {seit}): Löhne {aufschlag} % höher"
+landdetail.regel.verbot_beides: "{regel} (seit {seit}): Herstellung und Verkauf verboten – {produkte}"
+landdetail.regel.verbot_herstellung: "{regel} (seit {seit}): Herstellung verboten – {produkte}"
+landdetail.regel.verbot_verkauf: "{regel} (seit {seit}): Verkauf verboten – {produkte}"
+landdetail.regel.kartell: "{regel} (seit {seit}): Übernahmen mit über {anteil} % Marktanteil untersagt"
+werk.emissionen: Emissionen
+werk.emissionen_wert: "{co2} t CO₂ und {schadstoff} kg Schadstoffe am Tag"
+werk.nachruestung: Abgasreinigung
+werk.nachruestung_stufe: "Stufe {stufe}"
+werk.nachruestung_pflicht: "Stufe {stufe}, verlangt: Stufe {pflicht}"
+werk.nachruesten: "Nachrüsten für {kosten}"
+werk.nachgeruestet: "{anlage} nachgerüstet."
 strategie.feldhilfe.preis: "Untergrenze der Preise im Marktpreis-Modus und Startpreis neuer Angebote. Über der Untergrenze bestimmt der Markt den Preis; feste Preise bleiben, wie du sie setzt."
 strategie.feldhilfe.lager: "Vorprodukte: Unter der Mindestreichweite bietet der Einkauf mehr, bis zur Höchstreichweite kauft er ein. Fertigwaren: Die Produktion hält so viele Tage Absatz auf Lager."
 strategie.feldhilfe.personal: "Spanne des Lohnaufschlags auf den Marktlohn. Fehlen Arbeitskräfte, steigt er Schritt für Schritt bis zum Höchstwert, sonst sinkt er bis zum Mindestwert."
@@ -1595,6 +1615,10 @@ strategie.grenzen.personal: "Der Lohnaufschlag liegt zwischen 0 und {max}, der M
 strategie.grenzen.investition: Das Budget darf nicht negativ sein.
 strategie.grenzen.reserve: "Die Reserve liegt zwischen 0 und {max} Monaten."
 strategie.grenzen.schulung: Das Schulungsziel liegt zwischen 0 und 100 %.
+strategie.umwelt.art: Umweltauflagen
+strategie.umwelt.erfuellen: Auflagen erfüllen
+strategie.umwelt.uebererfuellen: Auflagen übererfüllen
+strategie.umwelt.hilfe: "Erfüllen: Die Standorte rüsten nach, sobald eine Auflage im Land angekündigt ist. Übererfüllen: Sie rüsten jede schmutzige Anlage auf die beste verfügbare Stufe – das kostet Investitionen, verbessert aber das Markenbild."
 verkaufswege.titel: Verkaufswege
 verkaufswege.hilfe: "Endkunden und Staaten kaufen immer. Ob auch KI-Händler (für die Ausfuhr) und andere Firmen bei dir kaufen dürfen, legst du hier fest."
 verkaufswege.erklaerung: "Eine Regel gilt für die ganze Firma, ein Land, ein Produkt oder ein Produkt in einem Land; die genaueste gilt. Ohne Regel dürfen alle kaufen. Mit Mindestpreis kaufen sie nur, solange dein Preis mindestens so hoch ist; die Höchstmenge gilt je Angebot und Monat."

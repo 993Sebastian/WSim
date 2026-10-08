@@ -126,6 +126,8 @@ rezepte:
       fachkraft.chemie: 0.8
       akademiker.chemie: 0.03
     qualitaet_basis: 55
+    co2_t: 2.4                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 20
     annaeherung: true
 
   - id: aluminium_elektrolyse
@@ -144,6 +146,8 @@ rezepte:
       fachkraft.elektro: 3
       akademiker.chemie: 0.3
     qualitaet_basis: 60
+    co2_t: 2.0                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 15
     annaeherung: true
 
   - id: kochtopf_druecken

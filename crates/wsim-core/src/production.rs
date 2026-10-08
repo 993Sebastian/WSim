@@ -405,7 +405,8 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 recipe,
                 labor + energy + capital_per_run_usd(catalog, recipe, sl.size),
             );
-            let rent = rent_per_run_usd(catalog, state, s.country, recipe);
+            let rent = rent_per_run_usd(catalog, state, s.country, recipe)
+                + recipe.co2_t * crate::regulation::co2_price(catalog, s.country, state.date);
             let facility = sl.cost.to_usd()
                 * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
                 / 365.0;
@@ -602,6 +603,13 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         if event_factor < 1.0 {
             bound(&mut runs, planned * event_factor, Limit::Event);
         }
+        // Bans and retrofits not done in time (H2).
+        if state.regulation.production_banned(country, recipe.product)
+            || (recipe.pollutant_kg > 0.0
+                && state.sites[index].slots[slot].retrofit < state.regulation.required(country))
+        {
+            bound(&mut runs, 0.0, Limit::Regulation);
+        }
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
                 .inventory
@@ -707,6 +715,13 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             let ledger = &mut state.companies[owner.index()].ledger;
             ledger.expense(CostType::Rent, center, Account::Cash, rent);
             value += rent;
+        }
+        // Emissions and the CO2 price (H2).
+        let co2 = crate::regulation::emit(state, catalog, (site, slot), recipe, runs);
+        if co2 > Money::ZERO {
+            let ledger = &mut state.companies[owner.index()].ledger;
+            ledger.expense(CostType::Environment, center, Account::Cash, co2);
+            value += co2;
         }
         let ledger = &mut state.companies[owner.index()].ledger;
         ledger.income(CostType::InventoryChange, center, Account::Inventory, value);

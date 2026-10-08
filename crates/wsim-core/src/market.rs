@@ -608,6 +608,10 @@ fn clear_market(
     (state_market_price, replacement): (Option<Money>, Option<Money>),
     (exports, export_shortage): (&[PlannedBuy], bool),
 ) {
+    // A ban on sales closes the market (H2).
+    if state.regulation.sales_banned(country, product) {
+        return;
+    }
     let model = &catalog.market_model;
     let reference = local_reference(catalog, state, country, product).to_usd();
     let mut offers: Vec<Offer> = Vec::new();

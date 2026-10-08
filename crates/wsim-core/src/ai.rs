@@ -4246,6 +4246,8 @@ pub(crate) fn push_company(
     let name = population::company_name_for(state, catalog, &mut rng, country, branch, founder);
     state.companies.push(Company {
         brands: Vec::new(),
+        emissions: Default::default(),
+        emissions_last: Default::default(),
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),
@@ -4539,6 +4541,8 @@ mod tests {
         );
         state.companies.push(Company {
             brands: Vec::new(),
+            emissions: Default::default(),
+            emissions_last: Default::default(),
             advertising: Vec::new(),
             auction_until: None,
             development: Default::default(),
@@ -4609,6 +4613,7 @@ mod tests {
             limit: None,
             operation: Operation::Running,
             size: crate::catalog::FacilitySize::Medium,
+            retrofit: 0,
         });
         // Ten furnaces make 500 t a day; last month sold the planned share.
         let price = reference.scale(0.5);
@@ -5367,6 +5372,7 @@ mod tests {
             limit: None,
             operation: Operation::Running,
             size: crate::catalog::FacilitySize::Medium,
+            retrofit: 0,
         });
         state.sites[mine.index()].offers.insert(
             ore,

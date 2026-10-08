@@ -208,6 +208,8 @@ pub enum Command {
     },
     /// Starts a shut down facility up again (M22); it produces after the restart time.
     RestartFacility { site: SiteId, slot: usize },
+    /// Retrofits a facility against pollutants by one level (H2).
+    Retrofit { site: SiteId, slot: usize },
     /// Sells `count` units of a finished facility for part of their book value (M22).
     /// Selling all units removes the facility; later facilities move up one place.
     SellFacility {
@@ -770,6 +772,14 @@ pub enum CommandError {
     },
     /// No living child of the person with this index (PE6).
     NoSuchChild,
+    /// The unit has no pollutants or already the best level available (H2).
+    NoRetrofit,
+    /// Antitrust forbids the takeover: the combined share of a market (H2).
+    Antitrust {
+        product: String,
+        country: String,
+        share: f64,
+    },
 }
 
 impl CommandError {
@@ -987,6 +997,15 @@ impl CommandError {
             CommandError::NotSoleOwner => e(keys::COMMAND_NOT_SOLE_OWNER),
             CommandError::NotSeller => e(keys::COMMAND_NOT_SELLER),
             CommandError::NoSuchChild => e(keys::COMMAND_NO_SUCH_CHILD),
+            CommandError::NoRetrofit => e(keys::COMMAND_NO_RETROFIT),
+            CommandError::Antitrust {
+                product,
+                country,
+                share,
+            } => e(keys::COMMAND_ANTITRUST)
+                .with("produkt", Param::TextKey(format!("produkt.{product}")))
+                .with("land", Param::Country(country.clone()))
+                .with("anteil", Param::Number((share * 1000.0).round() / 10.0)),
             CommandError::PriceTooLow { min } => {
                 e(keys::COMMAND_PRICE_TOO_LOW).with("min", Param::Money(*min))
             }
@@ -1469,6 +1488,7 @@ fn run(
                     limit: None,
                     operation: crate::state::Operation::Running,
                     size: *size,
+                    retrofit: 0,
                 });
         }
         Command::DevelopDeposit { site, deposit } => {
@@ -2067,6 +2087,9 @@ fn run(
                 }
                 PriceMode::Market { floor, .. } => offer.price = (*price).max(*floor),
             }
+        }
+        Command::Retrofit { site, slot } => {
+            crate::regulation::retrofit(state, catalog, actor, (*site, *slot))?;
         }
         Command::MothballFacility { site, slot, count } => {
             let sl = own_slot(state, actor, *site, *slot)?;

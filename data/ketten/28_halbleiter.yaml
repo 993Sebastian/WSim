@@ -101,6 +101,8 @@ rezepte:
       akademiker.chemie: 0.08
     energie_mwh: 0.02             # Rest aus dem eigenen Kraftwerk
     qualitaet_basis: 60
+    co2_t: 0.01               # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 0.05
     annaeherung: true
 
   - id: mikrochip_herstellen

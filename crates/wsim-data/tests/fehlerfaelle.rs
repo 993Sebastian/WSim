@@ -4581,3 +4581,165 @@ fn privatkonto_und_lebensstil_werden_geprueft() {
     }
     befund(&lauf("  sparzins:", "  sparzinz:"), "sparzinz");
 }
+
+const UMWELT: &str = "\
+umwelt:
+  nachruestung:
+    - {ab: 1910, minderung: 0.5, kosten_anteil: 0.03}
+    - {ab: 1950, minderung: 0.6, kosten_anteil: 0.05}
+  co2_preis:
+    standard: {1900: 0}
+    laender:
+      SWE: {2005: 20, 2026: 80}
+  kartell: {marktanteil_max: 0.4}
+  markenbild: {gewicht: 0.3}
+  annaeherung: true
+";
+
+const REGELN: &str = "\
+regulierungen:
+  - id: auflage_swe
+    datum: \"1969-05-29\"
+    laender: [SWE]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+  - id: schutz_swe
+    datum: \"1970-01-01\"
+    laender: [SWE]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+  - id: verbot_swe
+    datum: \"2012-09-01\"
+    laender: [SWE]
+    art: verbot
+    produkte: [eisen]
+    verkauf: true
+  - id: kartell_swe
+    datum: \"1990-01-01\"
+    laender: [SWE]
+    art: kartellaufsicht
+";
+
+const REGEL_TEXTE: &str = "\
+regulierung.auflage_swe: Auflage
+regulierung.schutz_swe: Schutz
+regulierung.verbot_swe: Verbot
+regulierung.kartell_swe: Kartell
+";
+
+#[test]
+fn umwelt_und_regulierungen_werden_geprueft() {
+    let lauf = |datei: &str, alt: &str, neu: &str| {
+        let mut d = Daten::neu()
+            .datei("parameter/umwelt.yaml", UMWELT)
+            .datei("regulierungen.yaml", REGELN)
+            .datei("texte/de/regulierungen.yaml", REGEL_TEXTE);
+        if !alt.is_empty() {
+            d = d.ersetze(datei, alt, neu);
+        }
+        d.laden()
+    };
+    let gut = lauf("", "", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let data = gut.data.as_ref().unwrap();
+    assert_eq!(data.catalog.environment.retrofit.len(), 2);
+    assert_eq!(data.catalog.regulations.len(), 4);
+    let swe = data.catalog.countries.id("SWE").unwrap();
+    assert!((data.catalog.environment.co2_price.value(swe, 2026.0) - 80.0).abs() < 1e-9);
+
+    let u = "parameter/umwelt.yaml";
+    let r = "regulierungen.yaml";
+    for (datei, alt, neu, meldung, pfad) in [
+        (
+            u,
+            "minderung: 0.5",
+            "minderung: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "umwelt.nachruestung[0].minderung",
+        ),
+        (
+            u,
+            "ab: 1950",
+            "ab: 1905",
+            "Die Nachrüststufen müssen in der Reihenfolge ihrer Jahre („ab“) stehen.",
+            "umwelt.nachruestung",
+        ),
+        (
+            r,
+            "art: kartellaufsicht",
+            "art: kartel",
+            "Unbekannte Art der Regulierung „kartel“; erlaubt sind: auflage, arbeitsschutz, verbot, kartellaufsicht.",
+            "regulierungen[3].art",
+        ),
+        (
+            r,
+            "stufe: 2",
+            "stufe: 3",
+            "Nachrüststufe 3 gibt es nicht; „umwelt.nachruestung“ hat 2 Stufen (1 bis 2).",
+            "regulierungen[0].stufe",
+        ),
+        (
+            r,
+            "    verkauf: true\n",
+            "",
+            "Ein Verbot muss „herstellung: true“, „verkauf: true“ oder beides setzen.",
+            "regulierungen[2].art",
+        ),
+        (
+            r,
+            "    lohnaufschlag: 0.02\n",
+            "    lohnaufschlag: 0.02\n    stufe: 1\n",
+            "Das Feld „stufe“ passt nicht zu einer Regulierung der Art „arbeitsschutz“.",
+            "regulierungen[1].stufe",
+        ),
+        (
+            r,
+            "    frist_monate: 60\n",
+            "",
+            "Eine Regulierung der Art „auflage“ braucht das Feld „frist_monate“.",
+            "regulierungen[0].art",
+        ),
+    ] {
+        let outcome = lauf(datei, alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&lauf(r, "produkte: [eisen]", "produkte: [eisn]"), "eisn");
+    befund(
+        &lauf(
+            "texte/de/regulierungen.yaml",
+            "regulierung.kartell_swe: Kartell\n",
+            "",
+        ),
+        "regulierung.kartell_swe",
+    );
+    // Without the sections nothing is regulated.
+    let ohne = Daten::neu().laden();
+    let c = &ohne.data.unwrap().catalog;
+    assert!(c.regulations.is_empty() && c.environment.retrofit.is_empty());
+}
+
+#[test]
+fn rezepte_mit_emissionen_werden_geprueft() {
+    let datei = "ketten/a.yaml";
+    let gut = Daten::neu()
+        .ersetze(
+            datei,
+            "    qualitaet_basis: 60",
+            "    qualitaet_basis: 60\n    co2_t: 2.0\n    schadstoff_kg: 20",
+        )
+        .laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let falsch = Daten::neu()
+        .ersetze(
+            datei,
+            "    qualitaet_basis: 60",
+            "    qualitaet_basis: 60\n    co2_t: -1",
+        )
+        .laden();
+    befund(
+        &falsch,
+        "Wert -1 liegt außerhalb des erlaubten Bereichs 0 bis 1000.",
+    );
+}

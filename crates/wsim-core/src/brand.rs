@@ -66,8 +66,11 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             )
         })
         .collect();
+    // The environmental image bends the gain (H2).
+    let image = crate::regulation::image_factors(catalog, state);
     for (index, company) in state.companies.iter_mut().enumerate() {
         let effect = effect * (1.0 + boost[index]);
+        let image = image.get(index).copied().unwrap_or(1.0);
         if company.bankrupt {
             company.advertising.clear();
             continue;
@@ -116,7 +119,8 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                 _ => 0.0,
             };
             let word_of_mouth = (1.0 - b) * model.word_of_mouth * share;
-            let next = (b * (1.0 - model.forgetting_per_month) + advertising + word_of_mouth)
+            let next = (b * (1.0 - model.forgetting_per_month)
+                + (advertising + word_of_mouth) * image)
                 .clamp(0.0, 1.0);
             if next >= NEGLIGIBLE || budget > 0.0 {
                 brands.push(Brand {

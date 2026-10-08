@@ -358,6 +358,7 @@ pub(crate) fn buy(
     if crate::group::same_group(state, actor, target_company) {
         return Err(CommandError::WithinGroup);
     }
+    crate::regulation::check_antitrust(catalog, state, actor, target_company)?;
     let Some(listing) = &t.listing else {
         return Err(CommandError::NotListed);
     };
@@ -668,6 +669,7 @@ pub(crate) fn ai_trades(
             !c.bankrupt
                 && c.listing.is_some()
                 && !crate::group::same_group(state, id, company_id(*i))
+                && crate::regulation::antitrust(catalog, state, id, company_id(*i)).is_none()
         })
         .filter_map(|(i, c)| ratio(c).map(|r| (r, i)))
         .filter(|(r, _)| *r < 1.0 - m.ai_undervaluation)

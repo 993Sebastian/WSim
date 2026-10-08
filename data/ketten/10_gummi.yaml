@@ -134,6 +134,8 @@ rezepte:
       fachkraft.chemie: 10
       akademiker.chemie: 0.5
     qualitaet_basis: 55
+    co2_t: 0                  # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 5
     annaeherung: true
 
   - id: fahrradreifen_bauen

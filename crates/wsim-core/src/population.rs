@@ -885,6 +885,7 @@ fn found_company(
                 limit: None,
                 operation: crate::state::Operation::Running,
                 size: p.size,
+                retrofit: 0,
             });
             let flows = slot_flows(
                 catalog,
@@ -1066,6 +1067,8 @@ fn found_company(
     brands.sort_by_key(|b| (b.country, b.group));
     state.companies.push(Company {
         brands,
+        emissions: Default::default(),
+        emissions_last: Default::default(),
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),

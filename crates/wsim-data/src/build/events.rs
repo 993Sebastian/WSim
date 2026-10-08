@@ -24,7 +24,7 @@ pub const EVENT_KINDS: &[&str] = &[
     "reform",
 ];
 
-fn parse_date(text: &str) -> Option<Date> {
+pub(super) fn parse_date(text: &str) -> Option<Date> {
     let mut parts = text.split('-');
     let year = parts.next()?.parse().ok()?;
     let month = parts.next()?.parse().ok()?;

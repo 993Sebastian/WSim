@@ -17004,7 +17004,9 @@
           ]
         ],
         "zones": []
-      }
+      },
+      "co2_price_usd": 0.0,
+      "regulations": []
     },
     "GBR": {
       "companies": [
@@ -19178,7 +19180,30 @@
           ]
         ],
         "zones": []
-      }
+      },
+      "co2_price_usd": 0.0,
+      "regulations": [
+        {
+          "group": "allgemein",
+          "key": "landdetail.regel.arbeitsschutz",
+          "kind": "info",
+          "params": {
+            "aufschlag": {
+              "type": "number",
+              "value": 1.0
+            },
+            "regel": {
+              "type": "text_key",
+              "value": "regulierung.factory_act_1901"
+            },
+            "seit": {
+              "type": "date",
+              "value": "1901-08-17"
+            }
+          },
+          "target": null
+        }
+      ]
     },
     "USA": {
       "companies": [
@@ -22622,7 +22647,30 @@
           ]
         ],
         "zones": []
-      }
+      },
+      "co2_price_usd": 0.0,
+      "regulations": [
+        {
+          "group": "allgemein",
+          "key": "landdetail.regel.arbeitsschutz",
+          "kind": "info",
+          "params": {
+            "aufschlag": {
+              "type": "number",
+              "value": 1.0
+            },
+            "regel": {
+              "type": "text_key",
+              "value": "regulierung.arbeiterschutz_usa_1911"
+            },
+            "seit": {
+              "type": "date",
+              "value": "1911-01-01"
+            }
+          },
+          "target": null
+        }
+      ]
     }
   },
   "logistik": {
@@ -40233,7 +40281,12 @@
             "restart_days": 30,
             "sale_value_usd": 19225.5708,
             "size": "mittel",
-            "utilization": 1.0
+            "utilization": 1.0,
+            "co2_t_per_day": 0.0,
+            "pollutant_kg_per_day": 0.0,
+            "retrofit": 0,
+            "retrofit_cost_usd": null,
+            "retrofit_required": 0
           }
         ],
         "staff": [

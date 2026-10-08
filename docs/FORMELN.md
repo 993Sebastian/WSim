@@ -4869,3 +4869,79 @@ zahlt die Person, was das Konto hat; der Rest verfällt (das Konto wird nie nega
 `HandOver`: jederzeit an den Erben nach derselben Regel; dieselbe Steuer als
 Schenkungsteuer, derselbe Zwangsverkauf. Die bisherige Person tritt ab und erscheint in der
 Ahnenreihe ohne Todestag.
+
+## H2 – Regulierung und Umwelt
+
+Lastenheft §12 und §5.6 (Strategiefeld Umwelt). Daten: Rezepte (`co2_t`, `schadstoff_kg`),
+`parameter/umwelt.yaml` (Nachrüststufen, CO₂-Preis, Kartellgrenze, Markenbild),
+`regulierungen.yaml` (Regeln je Land mit Datum). Kern: Modul `regulation`.
+
+### Emissionen
+
+Jedes Rezept hat je Durchlauf `co2_t` (t CO₂) und `schadstoff_kg` (Staub, Schwefel- und
+Stickoxide zusammen, kg). Eine Einheit mit Nachrüststufe n stößt weniger Schadstoffe aus:
+
+    Schadstoff je Durchlauf = schadstoff_kg · Π_{i ≤ n} (1 − minderung_i)
+
+CO₂ sinkt durch Nachrüstung nicht. Die Firma sammelt CO₂, Schadstoff und Umsatz des
+laufenden Monats; zum Monatsanfang werden sie zum Vormonat.
+
+### CO₂-Preis
+
+`co2_preis` ist eine Zeitreihe je Land (USD 2026 je t; 0, wo keiner gilt). Kosten je Tag:
+
+    Umweltkosten = Durchläufe · co2_t · co2_preis(Land des Standorts, Jahr)
+
+gebucht als Kostenart „Umwelt“ auf den Produktwert; die Stückkosten der Preisregeln
+enthalten sie.
+
+### Regeln (`regulierungen.yaml`)
+
+Jede Regel hat `id`, `datum`, `laender` und eine Art:
+
+- **auflage** `{stufe, frist_monate}`: Ab dem Datum müssen Einheiten mit Schadstoffen in
+  diesen Ländern bis Datum + Frist mindestens auf Stufe `stufe` nachgerüstet sein. Danach
+  stehen Einheiten darunter still (Grenze „Regulierung“).
+- **arbeitsschutz** `{lohnaufschlag}`: Die Stundenlöhne des Landes steigen ab dem Datum um
+  diesen Anteil (mehrere Regeln multiplizieren sich).
+- **verbot** `{produkte, herstellung, verkauf}`: Ab dem Datum stellt im Land niemand diese
+  Produkte her (Grenze „Regulierung“) bzw. verkauft sie dort.
+- **kartellaufsicht** `{}`: Ab dem Datum prüft das Land Übernahmen.
+
+Eine Regel gilt ab dem Monat ihres Datums; die Tabelle der geltenden Regeln wird wie die
+Ereignistabelle (H1) monatlich neu berechnet und nicht gespeichert.
+
+### Nachrüstung
+
+Stufe i (aus `nachruestung`, verfügbar ab Jahr `ab_i`) kostet
+
+    Kosten = kosten_anteil_i · Investition der Einheit (Slot)
+
+als Investition (Kasse an Anlagen; Abschreibung und Wartung wachsen mit). Befehl
+`Retrofit { Standort, Einheit }` hebt um eine Stufe. Am Monatsanfang rüsten die
+Standortleitungen aller Firmen (Spieler und KI) selbst nach, soweit die Kasse reicht:
+
+- Strategie Umwelt **erfüllen** (Standard): auf die Stufe, die eine angekündigte Auflage im
+  Land verlangt;
+- **übererfüllen**: auf die höchste im Jahr verfügbare Stufe.
+
+### Markenbild
+
+Schadstoffintensität einer Firma: x = Schadstoff des Vormonats / Umsatz des Vormonats;
+Mittel x̄ = Σ Schadstoff / Σ Umsatz aller tätigen Firmen. Der Zuwachs an Bekanntheit
+(Werbung und Mundpropaganda, M16) wird mit
+
+    Bildfaktor = 1 − gewicht · clamp(x / x̄ − 1, −1, 1)
+
+multipliziert (sauberer als der Schnitt: mehr Zuwachs; schmutziger: weniger). Ohne
+Schadstoffe im Markt (x̄ = 0) ist der Faktor 1.
+
+### Kartellaufsicht
+
+Eine Übernahme (Börse K1 und KI, Mehrheit über `BidForStake` PE5) ist untersagt, wenn in
+einem Land mit Kartellaufsicht für ein Produkt, das Käufer (mit Konzern) und Ziel dort
+beide im Vormonat verkauft haben, gilt:
+
+    (Absatz Käufer + Absatz Ziel) / Absatz aller > marktanteil_max
+
+Fehler `Antitrust` nennt Produkt, Land und Anteil; die KI lässt die Übernahme dann aus.

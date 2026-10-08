@@ -338,6 +338,8 @@ rezepte:
       fachkraft.chemie: 0.8
       akademiker.chemie: 0.05
     qualitaet_basis: 55
+    co2_t: 0.3                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 4
     annaeherung: true
 
 technologien:

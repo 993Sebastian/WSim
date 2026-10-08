@@ -221,6 +221,7 @@ impl Game {
             tariff_offsets: PerId::default(),
             tariffs: Default::default(),
             events: Default::default(),
+            regulation: Default::default(),
             contracts: Vec::new(),
             next_contract: 0,
             freight_market: Default::default(),
@@ -567,6 +568,11 @@ impl Game {
                 next,
             ));
             crate::private::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::regulation::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             report.messages.extend(crate::ventures::month_start(
                 &mut self.state,
                 &self.catalog,
@@ -712,6 +718,8 @@ pub(crate) fn push_player_company(
     let date = state.date;
     state.companies.push(Company {
         brands: Vec::new(),
+        emissions: Default::default(),
+        emissions_last: Default::default(),
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),
@@ -800,6 +808,7 @@ pub(crate) fn start_setup(
             limit: None,
             operation: crate::state::Operation::Running,
             size: crate::catalog::FacilitySize::Medium,
+            retrofit: 0,
         })
         .collect();
     let offers = setup

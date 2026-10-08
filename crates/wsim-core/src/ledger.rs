@@ -104,6 +104,8 @@ pub enum CostType {
     Other,
     /// Gains and losses of stakes in start-ups (SU2).
     Investments,
+    /// CO2 price of the emissions (H2).
+    Environment,
 }
 
 /// Where a cost arises; both parts optional.

@@ -89,6 +89,60 @@ pub struct Catalog {
     pub life: LifeModel,
     /// The player as a person (PE2).
     pub person: PersonModel,
+    /// Emissions, retrofitting, CO2 price, antitrust, image (H2); without the section
+    /// none of it applies.
+    pub environment: EnvironmentModel,
+    /// Regulations by country and date, sorted by date (H2).
+    pub regulations: Vec<Regulation>,
+}
+
+/// Environment and regulation (H2).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct EnvironmentModel {
+    /// Levels of retrofitting, the first first.
+    pub retrofit: Vec<RetrofitLevel>,
+    /// CO2 price in USD per t by country and year.
+    pub co2_price: CountrySeries,
+    /// Highest combined share of a market a takeover may reach where antitrust applies.
+    pub antitrust_share_max: f64,
+    /// How strongly the pollution intensity bends the gain of brand awareness.
+    pub image_weight: f64,
+    pub provenance: Provenance,
+}
+
+/// A level of retrofitting: available from a year, cuts pollutants by a share, costs a
+/// share of the unit's investment.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct RetrofitLevel {
+    pub from_year: i32,
+    pub reduction: f64,
+    pub cost_share: f64,
+}
+
+/// A regulation of countries from a day on (H2).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Regulation {
+    pub key: String,
+    pub date: crate::calendar::Date,
+    pub countries: Vec<CountryId>,
+    pub kind: RegulationKind,
+    pub provenance: Provenance,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum RegulationKind {
+    /// Units with pollutants need at least this retrofit level after so many months.
+    Retrofit { level: u32, months: u32 },
+    /// Hourly wages rise by this share.
+    Safety { wage_surcharge: f64 },
+    /// The products may not be made and/or sold.
+    Ban {
+        products: Vec<ProductId>,
+        production: bool,
+        sales: bool,
+    },
+    /// Takeovers are checked for market shares.
+    Antitrust,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -2791,6 +2845,9 @@ pub struct Recipe {
     pub energy_mwh: f64,
     /// Quality (0–100) before inputs, training, automation and equipment condition.
     pub base_quality: f64,
+    /// Emissions per run (H2): t CO2 and kg of pollutants.
+    pub co2_t: f64,
+    pub pollutant_kg: f64,
     pub provenance: Provenance,
 }
 

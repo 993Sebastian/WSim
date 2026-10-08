@@ -241,6 +241,20 @@ export function Laenderdetail({
             </>
           )}
 
+          {((land.regulations ?? []).length > 0 || (land.co2_price_usd ?? 0) > 0) && (
+            <>
+              <h3>{t("landdetail.regulierung")}</h3>
+              {(land.co2_price_usd ?? 0) > 0 && (
+                <p>{t("landdetail.co2_preis", { preis: formatGeld(land.co2_price_usd ?? 0) })}</p>
+              )}
+              <ul className="folgen">
+                {(land.regulations ?? []).map((m, i) => (
+                  <li key={i}>{meldungText(m)}</li>
+                ))}
+              </ul>
+            </>
+          )}
+
           <h3>{t("landdetail.arbeitskraefte")}</h3>
           <div className="tabelle">
             <table>

@@ -781,3 +781,37 @@ pub fn fleet_fields_together(present: &str, missing: &str) -> String {
         "Zu „{present}“ gehört auch „{missing}“ – nur mit beiden kann eine Firma das Verkehrsmittel für ihre Flotte kaufen."
     )
 }
+
+pub fn regulation_kind_unknown(kind: &str, allowed: &str) -> String {
+    format!("Unbekannte Art der Regulierung „{kind}“; erlaubt sind: {allowed}.")
+}
+
+pub fn regulation_field_missing(field: &str, kind: &str) -> String {
+    format!("Eine Regulierung der Art „{kind}“ braucht das Feld „{field}“.")
+}
+
+pub fn regulation_field_not_allowed(field: &str, kind: &str) -> String {
+    format!("Das Feld „{field}“ passt nicht zu einer Regulierung der Art „{kind}“.")
+}
+
+pub fn regulation_without_countries() -> String {
+    "Eine Regulierung braucht mindestens ein Land unter „laender“.".into()
+}
+
+pub fn retrofit_level_unknown(level: u32, levels: usize) -> String {
+    format!(
+        "Nachrüststufe {level} gibt es nicht; „umwelt.nachruestung“ hat {levels} Stufen (1 bis {levels})."
+    )
+}
+
+pub fn retrofit_years_descending() -> String {
+    "Die Nachrüststufen müssen in der Reihenfolge ihrer Jahre („ab“) stehen.".into()
+}
+
+pub fn ban_without_effect() -> String {
+    "Ein Verbot muss „herstellung: true“, „verkauf: true“ oder beides setzen.".into()
+}
+
+pub fn ban_without_products() -> String {
+    "Ein Verbot braucht mindestens ein Produkt unter „produkte“.".into()
+}

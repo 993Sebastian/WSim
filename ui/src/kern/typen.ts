@@ -365,6 +365,9 @@ export interface Landdetail {
   tariffs?: Zoelle | null;
   /** Effects of historical events acting on the country this month (H1). */
   events?: Meldung[];
+  /** Regulations in force (H2) and the CO₂ price in USD per t. */
+  regulations?: Meldung[];
+  co2_price_usd?: number;
 }
 
 /** Import tariffs of a country (W3). */
@@ -432,6 +435,13 @@ export interface AnlageDetail {
   /** Maintenance per month while running and while shut down. */
   maintenance_month_usd: number;
   maintenance_mothballed_month_usd: number;
+  /** Emissions per day at the planned utilization (H2). */
+  co2_t_per_day?: number;
+  pollutant_kg_per_day?: number;
+  /** Retrofit level, the level the country requires, the cost of the next level. */
+  retrofit?: number;
+  retrofit_required?: number;
+  retrofit_cost_usd?: number | null;
 }
 
 export interface Angebot {
@@ -1661,17 +1671,26 @@ export type Vorgabe =
   | { Supply: Bezugsweg }
   | { Investment: number }
   | { Reserve: number }
-  | { Training: number };
+  | { Training: number }
+  | { Environment: boolean };
 
 export type Vorgabefeld =
-  "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve" | "Training";
+  "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve" | "Training" | "Environment";
 
 /** Where a strategy holds (MA4). */
 export type Geltung = "Company" | { Continent: string } | { Country: string } | { Site: number };
 
 /** One field at one unit (MA4). */
 export interface VorgabeEintrag {
-  field: "preis" | "lager" | "personal" | "eigenfertigung" | "investition" | "reserve" | "schulung";
+  field:
+    | "preis"
+    | "lager"
+    | "personal"
+    | "eigenfertigung"
+    | "investition"
+    | "reserve"
+    | "schulung"
+    | "umwelt";
   /** What holds; null: no investment budget. */
   value: Vorgabe | null;
   /** The unit it comes from (`firma`, `kontinent:europa`, `land:DEU`, `standort:3`); null: the default. */

@@ -315,8 +315,54 @@ function AnlageKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      {!imBau && <AnlageUmwelt a={a} s={s} name={name} />}
       {!imBau && <AnlageAbbau a={a} s={s} name={name} />}
     </article>
+  );
+}
+
+/** Emissions and retrofitting against pollutants (H2); only for facilities that emit. */
+function AnlageUmwelt({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name: string }) {
+  const { los, antwort } = useAktion(`umwelt/${s.index}/${a.index}`);
+  const co2 = a.co2_t_per_day ?? 0;
+  const schadstoff = a.pollutant_kg_per_day ?? 0;
+  const kosten = a.retrofit_cost_usd ?? null;
+  if (co2 <= 0 && schadstoff <= 0 && kosten === null) return null;
+  const stufe = a.retrofit ?? 0;
+  const pflicht = a.retrofit_required ?? 0;
+  return (
+    <section className="anlage-umwelt" aria-label={t("werk.umwelt_fuer", { anlage: name })}>
+      <dl className="werte">
+        <dt>{t("werk.emissionen")}</dt>
+        <dd>
+          {t("werk.emissionen_wert", {
+            co2: formatZahl(co2, 1),
+            schadstoff: formatZahl(schadstoff, 1),
+          })}
+        </dd>
+        <dt>{t("werk.nachruestung")}</dt>
+        <dd className={stufe < pflicht ? "negativ" : undefined}>
+          {t(pflicht > 0 ? "werk.nachruestung_pflicht" : "werk.nachruestung_stufe", {
+            stufe,
+            pflicht,
+          })}
+        </dd>
+      </dl>
+      {kosten !== null && (
+        <button
+          type="button"
+          onClick={() =>
+            void los(
+              [{ Retrofit: { site: s.index, slot: a.index } }],
+              t("werk.nachgeruestet", { anlage: name }),
+            )
+          }
+        >
+          {t("werk.nachruesten", { kosten: formatGeld(kosten) })}
+        </button>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
   );
 }
 

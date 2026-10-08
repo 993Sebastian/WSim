@@ -33,6 +33,8 @@ rezepte:
       akademiker.chemie: 15
     energie_mwh: 6
     qualitaet_basis: 55
+    co2_t: 2.5                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 8
     annaeherung: true
 
 technologien:

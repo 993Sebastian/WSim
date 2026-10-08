@@ -299,6 +299,24 @@ Frage: „Wovon lebe ich, was bin ich wert, und wie viel Geld gebe ich meiner Fi
   Darlehen mit Zins und Laufzeit, Kapital zurückholen). Reicht das Konto nicht, steht
   oben die Warnung mit den Auswegen.
 
+### Regulierung und Umwelt (H2)
+
+Frage: „Was verlangt das Land von meinen Werken, und was kostet mich Verschmutzung?“
+
+- **Werk → Anlage:** bei Anlagen mit Emissionen „Emissionen“ (t CO₂ und kg Schadstoffe am
+  Tag), „Abgasreinigung“ mit Stufe und der verlangten Stufe (rot, wenn darunter) und
+  „Nachrüsten für …“, solange eine bessere Stufe verfügbar ist. Steht eine Anlage wegen
+  einer Regel still, nennt die Ursache „Gestoppt durch eine Regulierung“.
+- **Organisation → Strategie → Umwelt:** „Auflagen erfüllen“ (Standard: die Standorte
+  rüsten nach, sobald eine Auflage angekündigt ist) oder „übererfüllen“ (immer die beste
+  verfügbare Stufe; besseres Markenbild).
+- **Weltkarte → Land:** Abschnitt „Regulierung und Umwelt“ mit CO₂-Preis und allen
+  geltenden Regeln (Auflagen mit Frist, Arbeitsschutz, Verbote, Kartellaufsicht).
+- **Meldungen:** neue Regel in einem Land mit eigenem Standort, Nachrüstung erledigt,
+  Frist naht ohne genug Kasse. Untersagt die Kartellaufsicht eine Übernahme, nennt die
+  Antwort Produkt, Land und Marktanteil.
+- **Finanzen/Controlling:** Kostenart „CO₂-Abgabe“.
+
 ### Person: Nachfolge, Erbe und Übergabe (PE6)
 
 Frage: „Wer führt weiter, wenn ich sterbe – und was kostet es?“

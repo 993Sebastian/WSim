@@ -180,6 +180,8 @@ rezepte:
       fachkraft.bergbau: 4.5
       akademiker.bergbau: 0.03
     qualitaet_basis: 50
+    co2_t: 0.05               # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 1
     annaeherung: true
 
   - id: stahl_bessemer
@@ -197,6 +199,8 @@ rezepte:
       fachkraft.metall: 5.2
       akademiker.metall: 0.16
     qualitaet_basis: 45           # spröder, schwer zu steuern
+    co2_t: 4.0                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 34
     annaeherung: true
 
   - id: stahl_siemens_martin
@@ -214,6 +218,8 @@ rezepte:
       fachkraft.metall: 6.8
       akademiker.metall: 0.2
     qualitaet_basis: 65
+    co2_t: 4.6                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 38
     annaeherung: true
 
   - id: stahl_elektro
@@ -232,6 +238,8 @@ rezepte:
       akademiker.metall: 0.2
     energie_mwh: 3.0
     qualitaet_basis: 80           # Edelstahl, Werkzeugstahl
+    co2_t: 1.4                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 12
     annaeherung: true
 
   - id: blech_walzen

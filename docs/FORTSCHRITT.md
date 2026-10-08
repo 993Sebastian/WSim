@@ -90,6 +90,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE4 | Dividenden | ✅ |
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ✅ |
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ✅ |
+| H2 | Regulierung und Umwelt: Emissionen, CO₂-Preis, Auflagen und Nachrüstung, Arbeitsschutz, Verbote, Kartellaufsicht, Markenbild | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1104,6 +1105,28 @@ Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (PE6).
   verkaufte das Spiel dafür Anteile an Anleger (0,5 und 3,4 Mio. USD), weil das Konto ohne
   Einkommen inzwischen leer war. Ab 70 kam jedes Jahr der Hinweis „Nachfolge bedenken“
   (42-mal). Am Ende hält die Person Anteile für 29,7 Mio. USD.
+
+### H2: Regulierung und Umwelt (08.10.2026)
+
+Stufe 4, Lastenheft §12 und §5.6 (Strategiefeld Umwelt). Regeln: `docs/FORMELN.md`,
+Abschnitt H2; Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (H2).
+
+- **Daten:** Emissionen je Rezept (`co2_t`, `schadstoff_kg`; 22 Rezepte geschätzt),
+  `parameter/umwelt.yaml` (vier Nachrüststufen, CO₂-Preis je Land, Kartellgrenze,
+  Markenbild), `regulierungen.yaml` mit 47 Regeln (21 Auflagen, 7 Arbeitsschutz,
+  6 Verbote, 13 Kartellaufsichten) und ihren Namen; Prüfregeln und Fehlerfall-Tests.
+- **Kern:** Modul `regulation`: Regeltabelle je Monat (abgeleitet), CO₂-Abgabe in der
+  Produktion und in den Stückkosten, Emissionen je Firma und Monat, Nachrüstung
+  (Befehl `Retrofit`, selbsttätig durch die Standortleitungen nach Auflage oder Strategie
+  „übererfüllen“), Stillstand nach Fristablauf und bei Herstellverbot, Verkaufsverbote im
+  Markt, höhere Löhne durch Arbeitsschutz, Markenbild nach Schadstoffintensität,
+  Kartellprüfung bei Übernahmen (Spieler und KI) und Mehrheitskäufen.
+- **Oberfläche:** Emissionen und Nachrüstung je Anlage im Werk, Strategiefeld „Umwelt“,
+  Länderdetail „Regulierung und Umwelt“, Ursache „Gestoppt durch eine Regulierung“,
+  Kostenart „CO₂-Abgabe“.
+- **Tests:** Kern (CO₂-Kosten und Emissionen, Auflage selbsttätig erfüllt, Stillstand bei
+  fehlender Stufe, Verbot und Arbeitsschutz, Nachrüstbefehl und Strategie, Markenbild,
+  Kartellaufsicht, Spielstand), Datenprüfung, vitest (Länderdetail), Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 

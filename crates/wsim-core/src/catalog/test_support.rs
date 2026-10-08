@@ -257,6 +257,8 @@ pub fn production() -> Catalog {
                 labor_hours: vec![(g_unskilled, 2.0)],
                 energy_mwh: 0.0,
                 base_quality: 50.0,
+                co2_t: 0.0,
+                pollutant_kg: 0.0,
                 provenance: Provenance::default(),
             },
         )
@@ -276,6 +278,8 @@ pub fn production() -> Catalog {
                 labor_hours: vec![(g_unskilled, 1.0), (g_metal, 1.0)],
                 energy_mwh: 0.0,
                 base_quality: 60.0,
+                co2_t: 0.0,
+                pollutant_kg: 0.0,
                 provenance: Provenance::default(),
             },
         )
@@ -525,6 +529,8 @@ pub fn power() -> Catalog {
             labor_hours: vec![(unskilled, 0.1)],
             energy_mwh: 0.0,
             base_quality: 50.0,
+            co2_t: 0.0,
+            pollutant_kg: 0.0,
             provenance: Provenance::default(),
         },
     );

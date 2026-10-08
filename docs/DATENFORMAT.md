@@ -300,6 +300,8 @@ Gebrauchsgut sein.
 | **arbeit_stunden** | `{arbeitskräftegruppe: stunden}` je Durchlauf, z. B. `fachkraft.metall: 1.8` |
 | energie_mwh | Strom je Durchlauf (Standard 0) |
 | **qualitaet_basis** | Grundqualität 0–100 vor Einfluss von Vorprodukten, Schulung, Automatisierung und Anlagenzustand |
+| `co2_t` | t CO₂ je Durchlauf (0–1000, Standard 0; H2) |
+| `schadstoff_kg` | kg Schadstoffe (Staub, Schwefel- und Stickoxide) je Durchlauf (0–100 000, Standard 0; H2); Nachrüstung senkt sie |
 
 Mehrere Rezepte für dasselbe Produkt bilden technischen Fortschritt ab
 (Bessemer-, Siemens-Martin-, Elektrostahl).
@@ -767,6 +769,32 @@ Abschnitt `person` mit:
 | **erbe** | Erbe der Person (PE6): `neffe_alter: {von, bis}` (18–80 Jahre, von ≤ bis: so alt ist ein erzeugter Neffe oder eine Nichte, wenn kein Kind lebt), `hinweis_ab` (18–120: ab diesem Alter jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe bestimmt ist) |
 | **erbschaftsteuer** | Erbschaft- und Schenkungsteuer je Land und Jahr (0–1), Aufbau wie `einkommensteuer`: ein Satz auf den ganzen Nachlass |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
+
+## umwelt
+
+Ein einziger Abschnitt (in `parameter/umwelt.yaml`): Umwelt und Regulierung (H2). Formeln in
+`docs/FORMELN.md` (H2). Ohne den Abschnitt gibt es keine Nachrüstung, keinen CO₂-Preis,
+keine Kartellgrenze und keinen Einfluss auf das Markenbild.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **nachruestung** | Stufen der Abgasreinigung, die erste zuerst: `{ab, minderung, kosten_anteil}` – ab dem Jahr verfügbar (Jahre aufsteigend), Minderung der Schadstoffe 0–1, Kosten als Anteil der Investition der Einheit 0–10 |
+| **co2_preis** | USD (Kaufkraft 2026) je t CO₂ je Land und Jahr (0–10 000), Aufbau wie `person.einkommensteuer` |
+| **kartell** | `marktanteil_max` (0–1): gemeinsamer Marktanteil, ab dem die Kartellaufsicht eine Übernahme untersagt |
+| **markenbild** | `gewicht` (0–1): so stark biegt die Schadstoffintensität den Zuwachs an Bekanntheit |
+
+## regulierungen
+
+Liste (in `regulierungen.yaml`): Regeln je Land ab einem Datum (H2). Jede braucht den Text
+`regulierung.<id>`.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | Schlüssel (snake_case) |
+| **datum** | JJJJ-MM-TT, gilt ab dem Monat |
+| **laender** | Länder (ISO), mindestens eines |
+| **art** | `auflage` (mit **stufe** 1 bis Zahl der Nachrüststufen und **frist_monate** 0–240), `arbeitsschutz` (mit **lohnaufschlag** 0–1), `verbot` (mit **produkte**, mindestens eines, und `herstellung` und/oder `verkauf`: true), `kartellaufsicht` (ohne weitere Felder). Felder einer anderen Art sind Fehler. |
+| `annaeherung`, `quelle` | wie überall |
 
 ## preisindex
 

@@ -189,6 +189,8 @@ pub(crate) struct RawData {
     pub event_model: Vec<Entry<RawEventModel>>,
     pub life: Vec<Entry<RawLife>>,
     pub person: Vec<Entry<RawPerson>>,
+    pub environment: Vec<Entry<crate::raw::RawEnvironment>>,
+    pub regulations: Vec<Entry<crate::raw::RawRegulation>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -246,6 +248,8 @@ pub(crate) const SECTIONS: &[&str] = &[
     "waehrungen",
     "landeswaehrungen",
     "etappen",
+    "umwelt",
+    "regulierungen",
 ];
 
 /// Reads all sections of one content file into `raw`.
@@ -379,6 +383,11 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             "namensgruppen" => read_list(ctx, &loc, value, &mut raw.name_groups, &mut raw.broken),
             "ereignisse" => read_list(ctx, &loc, value, &mut raw.events, &mut raw.broken),
             "etappen" => read_list(ctx, &loc, value, &mut raw.milestones, &mut raw.broken),
+            "umwelt" => match de::from_node::<crate::raw::RawEnvironment>(value, &loc.path) {
+                Ok(model) => raw.environment.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "regulierungen" => read_list(ctx, &loc, value, &mut raw.regulations, &mut raw.broken),
             "reale_firmen" => read_list(ctx, &loc, value, &mut raw.real_companies, &mut raw.broken),
             "einheiten" => read_list(ctx, &loc, value, &mut raw.units, &mut raw.broken),
             "kontinente" => read_list(ctx, &loc, value, &mut raw.continents, &mut raw.broken),

@@ -142,6 +142,7 @@ kostenart.abschreibungen: Abschreibungen
 kostenart.instandhaltung: Instandhaltung
 kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.pacht: Pacht und Förderabgaben
+kostenart.umwelt: CO₂-Abgabe
 kostenart.lizenzen: Lizenzen
 kostenart.beteiligungen: Beteiligungen
 kostenart.sonstiges: Sonstiges
@@ -183,6 +184,8 @@ fehler.befehl.gehalt_zu_hoch: "Mit Mitgesellschaftern darf dein Gehalt höchsten
 fehler.befehl.darlehen_bedingungen: "Ein Darlehen braucht einen Zins von 0 bis {zins} % und eine Laufzeit von 1 bis {jahre} Jahren."
 fehler.befehl.rueckzahlung_zu_hoch: "Die Firma kann dir höchstens {max} zurückzahlen: nicht mehr als deine Einlagen, und die Liquiditätsreserve bleibt in der Kasse."
 fehler.befehl.nicht_alleineigentuemer: Kapital zurückzahlen geht nur, solange dir die Firma ganz gehört.
+fehler.befehl.keine_nachruestung: Diese Einheit stößt keine Schadstoffe aus oder ist schon auf der besten verfügbaren Stufe.
+fehler.befehl.kartell: "Die Kartellaufsicht untersagt die Übernahme: Zusammen hättet ihr {anteil} % des Markts für {produkt} in {land}."
 fehler.befehl.kein_kind: Dieses Kind gibt es nicht oder es lebt nicht mehr.
 fehler.befehl.kein_verkaeufer: "Dieser Eigner verkauft dir keine Anteile: Anteile von dir selbst, der kaufenden Firma oder einer Firma, die du kontrollierst, gehören schon zu dir."
 fehler.befehl.preis_zu_niedrig: "Zu diesem Preis verkauft der Eigner nicht – er verlangt mindestens {min}."
@@ -299,6 +302,9 @@ meldung.manager.nachfolger_weg: "{name}, vorgesehener Nachfolger ({stelle}, {ort
 meldung.person.geburt: "Familienzuwachs: {name} ist geboren – dein {anzahl}. Kind."
 meldung.person.berufseintritt: "{name} ist {alter} und steht dir als Manager zur Verfügung – im Managermarkt deiner Stellen ganz oben, gekennzeichnet als Familie."
 meldung.person.kind_tot: "{name} ist mit {alter} Jahren gestorben."
+meldung.regulierung.neu: "{art} in {laender}: {regel}."
+meldung.regulierung.nachgeruestet: "{standort} in {land}: {anzahl} Einheiten gegen Schadstoffe nachgerüstet."
+meldung.regulierung.frist: "{standort} in {land} muss bis {bis} nachrüsten, sonst stehen Einheiten still – die Kasse reicht noch nicht."
 meldung.person.gestorben: "{name} ist mit {alter} Jahren gestorben. Du spielst als {erbe} weiter ({verwandt}). Erbschaftsteuer: {steuer}; dafür verkaufte Anteile: {verkauf}."
 meldung.person.uebergeben: "{name} hat mit {alter} Jahren alles an {erbe} übergeben ({verwandt}). Du spielst als {erbe} weiter. Schenkungsteuer: {steuer}; dafür verkaufte Anteile: {verkauf}."
 meldung.person.nachfolge_bedenken: "Du bist {alter}. Bedenke deine Nachfolge: Bestimme in der Ansicht Person einen Erben oder übergib schon zu Lebzeiten."

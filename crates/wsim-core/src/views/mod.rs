@@ -1212,6 +1212,11 @@ pub struct CountryDetail {
     /// Effects of historical events acting on the country this month (H1).
     #[serde(default)]
     pub events: Vec<MessageView>,
+    /// Regulations in force (H2) and the CO2 price in USD per t.
+    #[serde(default)]
+    pub regulations: Vec<MessageView>,
+    #[serde(default)]
+    pub co2_price_usd: f64,
 }
 
 /// Import tariffs of a country (W3).
@@ -1481,6 +1486,11 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
             .iter()
             .map(message_view)
             .collect(),
+        regulations: crate::regulation::country_messages(catalog, state, id)
+            .iter()
+            .map(message_view)
+            .collect(),
+        co2_price_usd: crate::regulation::co2_price(catalog, id, state.date),
     })
 }
 

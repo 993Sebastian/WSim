@@ -459,6 +459,11 @@ pub struct RawRecipe {
     pub energy_mwh: f64,
     #[serde(rename = "qualitaet_basis")]
     pub base_quality: f64,
+    /// Emissions per run (H2): t CO2 and kg of pollutants.
+    #[serde(rename = "co2_t", default)]
+    pub co2_t: f64,
+    #[serde(rename = "schadstoff_kg", default)]
+    pub pollutant_kg: f64,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2975,4 +2980,81 @@ pub struct RawBankStart {
     pub loan_discount: f64,
     #[serde(rename = "verschuldung_max")]
     pub max_debt_ratio: f64,
+}
+
+/// Environment and regulation (`parameter/umwelt.yaml`, H2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEnvironment {
+    /// Levels of retrofitting, the first first.
+    #[serde(rename = "nachruestung")]
+    pub retrofit: Vec<RawRetrofitLevel>,
+    /// CO2 price in USD per t by country and year.
+    #[serde(rename = "co2_preis")]
+    pub co2_price: RawCountrySeries,
+    #[serde(rename = "kartell")]
+    pub antitrust: RawAntitrust,
+    #[serde(rename = "markenbild")]
+    pub image: RawImage,
+    #[serde(default, rename = "annaeherung")]
+    pub approximation: bool,
+    #[serde(default, rename = "quelle")]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRetrofitLevel {
+    #[serde(rename = "ab")]
+    pub from_year: i32,
+    #[serde(rename = "minderung")]
+    pub reduction: f64,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAntitrust {
+    #[serde(rename = "marktanteil_max")]
+    pub share_max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawImage {
+    #[serde(rename = "gewicht")]
+    pub weight: f64,
+}
+
+/// A regulation of `regulierungen` (H2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRegulation {
+    pub id: String,
+    #[serde(rename = "datum")]
+    pub date: String,
+    #[serde(rename = "laender")]
+    pub countries: Vec<String>,
+    #[serde(rename = "art")]
+    pub kind: String,
+    /// `auflage`: the level required and the months to reach it.
+    #[serde(default, rename = "stufe")]
+    pub level: Option<u32>,
+    #[serde(default, rename = "frist_monate")]
+    pub months: Option<u32>,
+    /// `arbeitsschutz`: share more on the hourly wages.
+    #[serde(default, rename = "lohnaufschlag")]
+    pub wage_surcharge: Option<f64>,
+    /// `verbot`: the products and what is banned.
+    #[serde(default, rename = "produkte")]
+    pub products: Vec<String>,
+    #[serde(default, rename = "herstellung")]
+    pub production: bool,
+    #[serde(default, rename = "verkauf")]
+    pub sales: bool,
+    #[serde(default, rename = "annaeherung")]
+    pub approximation: bool,
+    #[serde(default, rename = "quelle")]
+    pub source: Option<String>,
 }

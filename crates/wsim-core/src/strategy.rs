@@ -78,10 +78,12 @@ pub enum StrategyField {
     Reserve,
     /// Training target of the sites (W1).
     Training,
+    /// Environmental rules: meet them or overfulfil them (H2).
+    Environment,
 }
 
 impl StrategyField {
-    pub const ALL: [StrategyField; 7] = [
+    pub const ALL: [StrategyField; 8] = [
         StrategyField::Price,
         StrategyField::Stock,
         StrategyField::Wages,
@@ -89,6 +91,7 @@ impl StrategyField {
         StrategyField::Investment,
         StrategyField::Reserve,
         StrategyField::Training,
+        StrategyField::Environment,
     ];
 
     /// Key of the texts (`strategie.feld.<key>`).
@@ -101,6 +104,7 @@ impl StrategyField {
             StrategyField::Investment => "investition",
             StrategyField::Reserve => "reserve",
             StrategyField::Training => "schulung",
+            StrategyField::Environment => "umwelt",
         }
     }
 }
@@ -157,6 +161,8 @@ pub enum StrategyValue {
     Reserve(f64),
     /// Training target of the sites, 0–1 (W1).
     Training(f64),
+    /// Overfulfil the environmental rules: retrofit to the best level available (H2).
+    Environment(bool),
 }
 
 impl StrategyValue {
@@ -169,6 +175,7 @@ impl StrategyValue {
             StrategyValue::Investment(_) => StrategyField::Investment,
             StrategyValue::Reserve(_) => StrategyField::Reserve,
             StrategyValue::Training(_) => StrategyField::Training,
+            StrategyValue::Environment(_) => StrategyField::Environment,
         }
     }
 }
@@ -236,6 +243,7 @@ pub fn default_value(catalog: &Catalog, field: StrategyField) -> Option<Strategy
         StrategyField::Investment => None,
         StrategyField::Reserve => Some(StrategyValue::Reserve(0.0)),
         StrategyField::Training => Some(StrategyValue::Training(0.0)),
+        StrategyField::Environment => Some(StrategyValue::Environment(false)),
     }
 }
 
@@ -510,5 +518,6 @@ fn valid(catalog: &Catalog, value: &StrategyValue) -> bool {
         StrategyValue::Investment(amount) => amount >= Money::ZERO,
         StrategyValue::Reserve(months) => between(months, 0.0, m.reserve_months_max),
         StrategyValue::Training(t) => between(t, 0.0, 1.0),
+        StrategyValue::Environment(_) => true,
     }
 }

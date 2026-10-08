@@ -88,6 +88,8 @@ rezepte:
       angelernt: 2
       fachkraft.chemie: 1
     qualitaet_basis: 55
+    co2_t: 0.3                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 25
     annaeherung: true
 
   - id: kunstseide_viskose

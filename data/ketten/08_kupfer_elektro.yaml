@@ -127,6 +127,8 @@ rezepte:
       akademiker.chemie: 0.3
     energie_mwh: 0.3
     qualitaet_basis: 60
+    co2_t: 9.6                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 1500
     annaeherung: true
 
   - id: kupferdraht_ziehen

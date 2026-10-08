@@ -102,6 +102,8 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
     let date = state.date;
     state.companies.push(Company {
         brands: Vec::new(),
+        emissions: Default::default(),
+        emissions_last: Default::default(),
         advertising: Vec::new(),
         auction_until: None,
         development: Default::default(),

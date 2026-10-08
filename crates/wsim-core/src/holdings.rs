@@ -103,6 +103,12 @@ pub(crate) fn buy(
     if price < min {
         return Err(CommandError::PriceTooLow { min });
     }
+    // A majority bought by a company is a takeover (H2).
+    if let Buyer::Company(b) = buyer
+        && crate::stock::stake(c, Holder::Company(b)) + share > 0.5
+    {
+        crate::regulation::check_antitrust(catalog, state, b, company)?;
+    }
     match buyer {
         Buyer::Person => {
             if state.person.account.balance < price {

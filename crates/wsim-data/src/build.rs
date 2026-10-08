@@ -27,6 +27,7 @@ mod contracts;
 mod countries;
 mod currencies;
 mod deals;
+mod environment;
 mod events;
 mod life;
 mod logistics;
@@ -659,6 +660,21 @@ pub(crate) fn build(
     b.catalog.event_model = events::event_model(b.ctx, raw);
     b.catalog.life = life::life_model(b.ctx, &b.catalog, raw);
     b.catalog.person = life::person_model(b.ctx, &b.catalog, raw);
+    b.catalog.environment = environment::environment_model(b.ctx, &b.catalog, raw);
+    let (regulation_keys, regulations) = register(
+        b.ctx,
+        raw,
+        ("regulierungen", "Regulierung", Some("regulierung")),
+        KeyFormat::Snake,
+        &raw.regulations,
+        |e| &e.id,
+    );
+    b.catalog.regulations = environment::regulations(
+        b.ctx,
+        &b.catalog,
+        &regulations,
+        (&country_keys, &product_keys),
+    );
 
     let (milestone_keys, milestone_entries) = register(
         b.ctx,
@@ -698,6 +714,7 @@ pub(crate) fn build(
         &vehicle_keys,
         &difficulty_keys,
         &event_keys,
+        &regulation_keys,
         &milestone_keys,
         &media_keys,
         &currency_keys,
@@ -1167,6 +1184,14 @@ impl Builder<'_, '_> {
                 0.0,
                 100.0,
                 &l.field("qualitaet_basis"),
+            ),
+            co2_t: in_range(self.ctx, v.co2_t, 0.0, 1000.0, &l.field("co2_t")),
+            pollutant_kg: in_range(
+                self.ctx,
+                v.pollutant_kg,
+                0.0,
+                100_000.0,
+                &l.field("schadstoff_kg"),
             ),
             provenance: provenance(v.approximation, v.source.as_ref()),
         }

@@ -92,6 +92,8 @@ rezepte:
       akademiker.chemie: 0.1
     energie_mwh: 1.5
     qualitaet_basis: 60
+    co2_t: 1.2                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 5
     annaeherung: true
 
   - id: polyethylen_hochdruck
@@ -108,6 +110,8 @@ rezepte:
       akademiker.chemie: 0.2
     energie_mwh: 1.2              # Verdichter
     qualitaet_basis: 60
+    co2_t: 0.3                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 1
     annaeherung: true
 
   - id: kunststoffwaren_spritzgiessen

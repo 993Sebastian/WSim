@@ -42,6 +42,7 @@ const FELDER: Record<Feld, Vorgabefeld> = {
   investition: "Investment",
   reserve: "Reserve",
   schulung: "Training",
+  umwelt: "Environment",
 };
 
 const PREISE: Record<Exclude<Preisstrategie, { MinMargin: number }>, string> = {
@@ -113,6 +114,9 @@ export function wertText(e: VorgabeEintrag): string {
     return t("strategie.investition.wert", { betrag: formatGeld(e.budget_usd ?? 0) });
   }
   if ("Training" in v) return t("strategie.schulung.wert", { ziel: formatProzent(v.Training) });
+  if ("Environment" in v) {
+    return t(v.Environment ? "strategie.umwelt.uebererfuellen" : "strategie.umwelt.erfuellen");
+  }
   if (v.Reserve <= 0) return t("strategie.reserve.keine");
   return t(v.Reserve === 1 ? "strategie.reserve.wert_eins" : "strategie.reserve.wert", {
     monate: formatZahl(v.Reserve, 1),
@@ -422,6 +426,29 @@ function useSchulung(e: VorgabeEintrag): Eingabe {
   };
 }
 
+function useUmwelt(e: VorgabeEintrag, id: string): Eingabe {
+  const start = e.value && "Environment" in e.value ? e.value.Environment : false;
+  const [mehr, setMehr] = useState(start);
+  return {
+    felder: (
+      <div className="feld">
+        <label htmlFor={`${id}-umwelt`}>{t("strategie.umwelt.art")}</label>
+        <select
+          id={`${id}-umwelt`}
+          value={mehr ? "mehr" : "pflicht"}
+          onChange={(ev) => setMehr(ev.target.value === "mehr")}
+        >
+          <option value="pflicht">{t("strategie.umwelt.erfuellen")}</option>
+          <option value="mehr">{t("strategie.umwelt.uebererfuellen")}</option>
+        </select>
+        <p className="feld-hilfe">{t("strategie.umwelt.hilfe")}</p>
+      </div>
+    ),
+    wert: () => ({ Environment: mehr }),
+    grenzen: "",
+  };
+}
+
 interface KarteDaten {
   e: VorgabeEintrag;
   einheit: VorgabeEinheit;
@@ -452,6 +479,10 @@ function ReserveKarte(p: KarteDaten) {
 function SchulungKarte(p: KarteDaten) {
   return <FeldKarte {...p} eingabe={useSchulung(p.e)} />;
 }
+function UmweltKarte(p: KarteDaten) {
+  const id = useId();
+  return <FeldKarte {...p} eingabe={useUmwelt(p.e, id)} />;
+}
 
 const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
   preis: PreisKarte,
@@ -461,6 +492,7 @@ const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
   investition: InvestitionKarte,
   reserve: ReserveKarte,
   schulung: SchulungKarte,
+  umwelt: UmweltKarte,
 };
 
 /** Name of the unit a budget is set for: "ganze Firma", "Europa" … */

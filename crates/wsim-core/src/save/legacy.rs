@@ -86,6 +86,8 @@ pub(super) fn decode_v2(
         .map(|c| {
             Ok(Company {
                 brands: Vec::new(),
+                emissions: Default::default(),
+                emissions_last: Default::default(),
                 advertising: Vec::new(),
                 auction_until: None,
                 development: Default::default(),
@@ -175,6 +177,7 @@ pub(super) fn decode_v2(
         tariff_offsets: Default::default(),
         tariffs: Default::default(),
         events: Default::default(),
+        regulation: Default::default(),
         contracts: Vec::new(),
         next_contract: 0,
         freight_market: Default::default(),

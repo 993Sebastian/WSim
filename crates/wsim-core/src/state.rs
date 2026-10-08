@@ -333,6 +333,11 @@ pub struct Company {
     /// Brand awareness per country and goods group (M16).
     #[serde(default)]
     pub brands: Vec<Brand>,
+    /// Emissions of the running and of the last month (H2).
+    #[serde(default, skip_serializing_if = "Emissions::is_empty")]
+    pub emissions: Emissions,
+    #[serde(default, skip_serializing_if = "Emissions::is_empty")]
+    pub emissions_last: Emissions,
     /// Advertising budgets per month (M16).
     #[serde(default)]
     pub advertising: Vec<Advertising>,
@@ -1207,6 +1212,19 @@ pub struct Batch {
     pub value: Money,
 }
 
+/// Emissions of a company in a month (H2).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Emissions {
+    pub co2_t: f64,
+    pub pollutant_kg: f64,
+}
+
+impl Emissions {
+    pub fn is_empty(&self) -> bool {
+        self.co2_t == 0.0 && self.pollutant_kg == 0.0
+    }
+}
+
 /// A facility built at a site.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Slot {
@@ -1237,6 +1255,13 @@ pub struct Slot {
     /// Size of the units (M36); saves before M36 hold medium units.
     #[serde(default, skip_serializing_if = "is_medium")]
     pub size: FacilitySize,
+    /// Retrofit level against pollutants (H2), 0 = none.
+    #[serde(default, skip_serializing_if = "is_zero_level")]
+    pub retrofit: u32,
+}
+
+fn is_zero_level(level: &u32) -> bool {
+    *level == 0
 }
 
 fn is_medium(size: &FacilitySize) -> bool {
@@ -1317,6 +1342,8 @@ pub enum Limit {
     Deposit,
     /// An effect of a historical event cuts the output (H1).
     Event,
+    /// A ban or a retrofit not done in time stops the output (H2).
+    Regulation,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1807,6 +1834,9 @@ pub struct GameState {
     /// Effects of the historical events in the current month (H1); derived, not saved.
     #[serde(skip)]
     pub events: crate::events::EventTable,
+    /// Regulations in force in the current month (H2); derived, not saved.
+    #[serde(skip)]
+    pub regulation: crate::regulation::RegulationTable,
     /// Supply contracts, open ones and those closed in the last months (W4).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub contracts: Vec<crate::contracts::Contract>,
@@ -2145,7 +2175,11 @@ impl GameState {
         if self.events.month() != Some(month) {
             self.events = crate::events::EventTable::new(catalog, month, effects);
         }
+        if self.regulation.month() != Some(month) {
+            self.regulation = crate::regulation::RegulationTable::new(catalog, month);
+        }
         let events = &self.events;
+        let regulation = &self.regulation;
         let mut index = 0;
         self.countries = PerId::from_fn(catalog.countries.len(), |_| {
             let mut c = values.next().expect("one per country");
@@ -2154,6 +2188,13 @@ impl GameState {
             if factor != 1.0 {
                 for pool in &mut c.labor_available {
                     *pool *= factor;
+                }
+            }
+            // Safety rules raise the wages (H2).
+            let wages = regulation.wage_factor(CountryId::from_index(index));
+            if wages != 1.0 {
+                for w in &mut c.hourly_wage_usd {
+                    *w *= wages;
                 }
             }
             index += 1;

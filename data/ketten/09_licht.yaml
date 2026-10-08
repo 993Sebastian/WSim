@@ -153,6 +153,8 @@ rezepte:
       fachkraft.chemie: 0.5
       akademiker.chemie: 0.02
     qualitaet_basis: 50
+    co2_t: 0.1                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 2
     annaeherung: true
 
   - id: petroleumlampe_bauen

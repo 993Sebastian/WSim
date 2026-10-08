@@ -1,0 +1,347 @@
+# Regulierungen (H2; Lastenheft §12; Formeln: docs/FORMELN.md, Abschnitt H2; Format:
+# docs/DATENFORMAT.md). Daten nach den Gesetzen; Stufen, Fristen und Aufschläge geschätzt.
+# Länder in heutigen Grenzen; die EU-Regeln gelten für die Mitglieder zum Datum.
+
+regulierungen:
+  - id: factory_act_1901
+    datum: "1901-08-17"
+    laender: [GBR]
+    art: arbeitsschutz
+    lohnaufschlag: 0.01
+    annaeherung: true
+
+  - id: arbeiterschutz_usa_1911
+    datum: "1911-01-01"
+    laender: [USA]
+    art: arbeitsschutz
+    lohnaufschlag: 0.01
+    annaeherung: true
+
+  - id: clayton_act
+    datum: "1914-10-15"
+    laender: [USA]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: kartellaufsicht_jpn
+    datum: "1947-04-14"
+    laender: [JPN]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: clean_air_act_1956
+    datum: "1956-07-05"
+    laender: [GBR]
+    art: auflage
+    stufe: 1
+    frist_monate: 60
+    annaeherung: true
+
+  - id: gwb
+    datum: "1958-01-01"
+    laender: [DEU]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: loi_pollution_1961
+    datum: "1961-08-02"
+    laender: [FRA]
+    art: auflage
+    stufe: 1
+    frist_monate: 60
+    annaeherung: true
+
+  - id: clean_air_act_1963
+    datum: "1963-12-17"
+    laender: [USA]
+    art: auflage
+    stufe: 1
+    frist_monate: 60
+    annaeherung: true
+
+  - id: ta_luft_1964
+    datum: "1964-09-08"
+    laender: [DEU]
+    art: auflage
+    stufe: 1
+    frist_monate: 60
+    annaeherung: true
+
+  - id: monopolies_mergers_act
+    datum: "1965-08-05"
+    laender: [GBR]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: umweltschutzgesetz_jpn_1967
+    datum: "1967-08-03"
+    laender: [JPN]
+    art: auflage
+    stufe: 1
+    frist_monate: 48
+    annaeherung: true
+
+  - id: clean_air_act_1968
+    datum: "1968-10-25"
+    laender: [GBR]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: umweltschutzgesetz_swe_1969
+    datum: "1969-05-29"
+    laender: [SWE]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: umweltparlament_jpn_1970
+    datum: "1970-12-25"
+    laender: [JPN]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: osha_1970
+    datum: "1970-12-29"
+    laender: [USA]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+    annaeherung: true
+
+  - id: clean_air_act_1970
+    datum: "1970-12-31"
+    laender: [USA]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: luftreinhaltung_can_1971
+    datum: "1971-06-11"
+    laender: [CAN]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: arbeitsschutz_jpn_1972
+    datum: "1972-06-08"
+    laender: [JPN]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+    annaeherung: true
+
+  - id: arbeitssicherheitsgesetz_1973
+    datum: "1973-12-12"
+    laender: [DEU]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+    annaeherung: true
+
+  - id: bimschg_1974
+    datum: "1974-03-15"
+    laender: [DEU]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: health_and_safety_1974
+    datum: "1974-07-31"
+    laender: [GBR]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+    annaeherung: true
+
+  - id: fusionskontrolle_aus
+    datum: "1974-10-01"
+    laender: [AUS]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: installations_classees_1976
+    datum: "1976-07-19"
+    laender: [FRA]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: fusionskontrolle_fra
+    datum: "1977-07-19"
+    laender: [FRA]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: luftreinhaltung_ind_1981
+    datum: "1981-03-29"
+    laender: [IND]
+    art: auflage
+    stufe: 1
+    frist_monate: 60
+    annaeherung: true
+
+  - id: fusionskontrolle_kor
+    datum: "1981-04-01"
+    laender: [KOR]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: gfavo_1983
+    datum: "1983-06-22"
+    laender: [DEU]
+    art: auflage
+    stufe: 3
+    frist_monate: 60
+    annaeherung: true
+
+  - id: fusionskontrolle_can
+    datum: "1986-06-19"
+    laender: [CAN]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: grossfeuerungsanlagen_eg_1988
+    datum: "1988-11-24"
+    laender: [BEL, DNK, DEU, GRC, ESP, FRA, IRL, ITA, NLD, PRT, GBR]
+    art: auflage
+    stufe: 3
+    frist_monate: 96
+    annaeherung: true
+
+  - id: arbeitsschutz_eg_1989
+    datum: "1989-06-12"
+    laender: [BEL, DNK, GRC, ESP, FRA, IRL, ITA, NLD, PRT]
+    art: arbeitsschutz
+    lohnaufschlag: 0.02
+    annaeherung: true
+
+  - id: luftreinhaltung_kor_1990
+    datum: "1990-08-01"
+    laender: [KOR]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: fusionskontrolle_eg
+    datum: "1990-09-21"
+    laender: [BEL, DNK, GRC, ESP, IRL, ITA, NLD, PRT]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: clean_air_act_1990
+    datum: "1990-11-15"
+    laender: [USA]
+    art: auflage
+    stufe: 3
+    frist_monate: 72
+    annaeherung: true
+
+  - id: fusionskontrolle_bra
+    datum: "1994-06-11"
+    laender: [BRA]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: luftreinhaltung_chn_2000
+    datum: "2000-04-29"
+    laender: [CHN]
+    art: auflage
+    stufe: 2
+    frist_monate: 60
+    annaeherung: true
+
+  - id: ta_luft_2002
+    datum: "2002-07-24"
+    laender: [DEU]
+    art: auflage
+    stufe: 4
+    frist_monate: 72
+    annaeherung: true
+
+  - id: fusionskontrolle_eu_beitritte
+    datum: "2004-05-01"
+    laender: [AUT, FIN, SWE, CZE, HUN, POL, XBA]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: fusionskontrolle_chn
+    datum: "2008-08-01"
+    laender: [CHN]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: gluehlampen_aus_2009
+    datum: "2009-11-01"
+    laender: [AUS]
+    art: verbot
+    produkte: [gluehlampe]
+    verkauf: true
+    annaeherung: true
+
+  - id: industrieemissionen_eu_2010
+    datum: "2010-11-24"
+    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GBR, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA]
+    art: auflage
+    stufe: 4
+    frist_monate: 72
+    annaeherung: true
+
+  - id: fusionskontrolle_ind
+    datum: "2011-06-01"
+    laender: [IND]
+    art: kartellaufsicht
+    annaeherung: true
+
+  - id: gluehlampen_eu_2012
+    datum: "2012-09-01"
+    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GBR, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA]
+    art: verbot
+    produkte: [gluehlampe]
+    verkauf: true
+    annaeherung: true
+
+  - id: luftreinhaltung_chn_2015
+    datum: "2015-08-29"
+    laender: [CHN]
+    art: auflage
+    stufe: 3
+    frist_monate: 60
+    annaeherung: true
+
+  - id: gluehlampen_chn_2016
+    datum: "2016-10-01"
+    laender: [CHN]
+    art: verbot
+    produkte: [gluehlampe]
+    verkauf: true
+    annaeherung: true
+
+  - id: gluehlampen_usa_2023
+    datum: "2023-08-01"
+    laender: [USA]
+    art: verbot
+    produkte: [gluehlampe]
+    verkauf: true
+    annaeherung: true
+
+  - id: verbrenner_eu_2035
+    datum: "2035-01-01"
+    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA, NOR]
+    art: verbot
+    produkte: [automobil]
+    verkauf: true
+    annaeherung: true
+
+  - id: verbrenner_gbr_2035
+    datum: "2035-01-01"
+    laender: [GBR]
+    art: verbot
+    produkte: [automobil]
+    verkauf: true
+    annaeherung: true

@@ -45,6 +45,8 @@ rezepte:
       akademiker.chemie: 8
     energie_mwh: 4
     qualitaet_basis: 65
+    co2_t: 5.0                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 10
     annaeherung: true
 
   - id: nylon_aus_kohle
@@ -63,6 +65,8 @@ rezepte:
       akademiker.chemie: 8
     energie_mwh: 5
     qualitaet_basis: 60
+    co2_t: 12                 # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 60
     annaeherung: true
 
   - id: strumpf_nylon             # dünner und haltbarer als Kunstseide

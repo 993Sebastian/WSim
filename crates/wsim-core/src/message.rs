@@ -254,6 +254,11 @@ pub mod keys {
     pub const PERSON_HANDED_OVER: &str = "meldung.person.uebergeben";
     pub const PERSON_SUCCESSION_HINT: &str = "meldung.person.nachfolge_bedenken";
     pub const COMMAND_NO_SUCH_CHILD: &str = "fehler.befehl.kein_kind";
+    pub const COMMAND_NO_RETROFIT: &str = "fehler.befehl.keine_nachruestung";
+    pub const COMMAND_ANTITRUST: &str = "fehler.befehl.kartell";
+    pub const REGULATION_NEW: &str = "meldung.regulierung.neu";
+    pub const REGULATION_RETROFITTED: &str = "meldung.regulierung.nachgeruestet";
+    pub const REGULATION_DEADLINE: &str = "meldung.regulierung.frist";
     pub const COMMAND_EXTENSION_TOO_LONG: &str = "fehler.befehl.verlaengerung_zu_lang";
     pub const HINT_FOUND_COMPANY: &str = "hinweis.firma_gruenden";
     pub const HINT_ACCOUNT_SHORT: &str = "hinweis.privatkonto_leer";
@@ -649,6 +654,11 @@ pub mod keys {
         PERSON_HANDED_OVER,
         PERSON_SUCCESSION_HINT,
         COMMAND_NO_SUCH_CHILD,
+        COMMAND_NO_RETROFIT,
+        COMMAND_ANTITRUST,
+        REGULATION_NEW,
+        REGULATION_RETROFITTED,
+        REGULATION_DEADLINE,
         COMMAND_EXTENSION_TOO_LONG,
         HINT_FOUND_COMPANY,
         HINT_ACCOUNT_SHORT,

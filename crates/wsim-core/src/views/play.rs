@@ -71,6 +71,18 @@ pub struct SlotDetail {
     /// Maintenance per month while running and while shut down.
     pub maintenance_month_usd: f64,
     pub maintenance_mothballed_month_usd: f64,
+    /// Emissions per day at the planned utilization (H2): t CO2, kg of pollutants.
+    #[serde(default)]
+    pub co2_t_per_day: f64,
+    #[serde(default)]
+    pub pollutant_kg_per_day: f64,
+    /// Retrofit level, the level the country requires, and what the next level costs.
+    #[serde(default)]
+    pub retrofit: u32,
+    #[serde(default)]
+    pub retrofit_required: u32,
+    #[serde(default)]
+    pub retrofit_cost_usd: Option<f64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -535,6 +547,7 @@ pub fn production(game: &Game) -> ProductionView {
                             Limit::Electricity => ("ursache.strom", None),
                             Limit::Deposit => ("ursache.lagerstaette", None),
                             Limit::Event => ("ursache.ereignis", None),
+                            Limit::Regulation => ("ursache.regulierung", None),
                         })
                     };
                     SlotDetail {
@@ -590,6 +603,21 @@ pub fn production(game: &Game) -> ProductionView {
                         maintenance_mothballed_month_usd: usd(sl
                             .cost
                             .scale(f.maintenance_share * model.mothball_maintenance_share / 12.0)),
+                        co2_t_per_day: sl.recipe.map_or(0.0, |r| {
+                            let r = catalog.recipes.get(r);
+                            r.co2_t * planned_runs_per_day(catalog, sl)
+                        }),
+                        pollutant_kg_per_day: sl.recipe.map_or(0.0, |r| {
+                            let r = catalog.recipes.get(r);
+                            crate::regulation::pollutant(catalog, r, sl.retrofit)
+                                * planned_runs_per_day(catalog, sl)
+                        }),
+                        retrofit: sl.retrofit,
+                        retrofit_required: state.regulation.required(s.country),
+                        retrofit_cost_usd: crate::regulation::retrofit_cost(
+                            catalog, state, site_id, index,
+                        )
+                        .map(usd),
                     }
                 })
                 .collect();
@@ -2477,6 +2505,14 @@ pub fn finance_overview(game: &Game) -> FinanceView {
         centers_year: center_results(game, &ledger.year),
         loss_carryforward_usd: usd(company.loss_carryforward),
     }
+}
+
+/// Runs per day at the planned utilization (shut down facilities none).
+fn planned_runs_per_day(catalog: &Catalog, sl: &crate::state::Slot) -> f64 {
+    if sl.mothballed() {
+        return 0.0;
+    }
+    sl.full_runs(catalog) * sl.utilization
 }
 
 #[cfg(test)]

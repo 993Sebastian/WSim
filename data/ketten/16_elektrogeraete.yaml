@@ -168,6 +168,8 @@ rezepte:
       akademiker.chemie: 1
     energie_mwh: 0.2
     qualitaet_basis: 55
+    co2_t: 1.5                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 10
     annaeherung: true
 
   - id: radioroehre_bauen

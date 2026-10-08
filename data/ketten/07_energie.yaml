@@ -50,6 +50,8 @@ rezepte:
       fachkraft.elektro: 0.4
       akademiker.elektro: 0.01
     qualitaet_basis: 50
+    co2_t: 3.8                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 32
     annaeherung: true
 
   - id: strom_turbine
@@ -65,6 +67,8 @@ rezepte:
       fachkraft.elektro: 0.2
       akademiker.elektro: 0.01
     qualitaet_basis: 50
+    co2_t: 2.2                # t CO₂ je Durchlauf (H2, geschätzt)
+    schadstoff_kg: 18
     annaeherung: true
 
 technologien:

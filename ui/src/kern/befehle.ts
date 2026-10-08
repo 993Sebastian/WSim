@@ -108,6 +108,7 @@ export type Befehl =
   | { SelectCompany: { company: number } }
   | { InvestPrivately: { venture: number; amount: number } }
   | { SetHeir: { child: number | null } }
+  | { Retrofit: { site: number; slot: number } }
   | { HandOver: Record<string, never> }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
   | {

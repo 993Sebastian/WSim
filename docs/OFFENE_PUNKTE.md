@@ -1603,6 +1603,33 @@ und §8; Regeln: `docs/FORMELN.md`, Abschnitt PE6; Format: `docs/DATENFORMAT.md`
 7. **Weiter wie bisher:** Konto, Anteile, Darlehen, Lebensstil, CEO-Rolle und Gehalt gehen
    unverändert auf den Erben über; seine Managerkarte endet ohne Abfindung.
 
+✅ **H2 umgesetzt** (Regulierung und Umwelt; Lastenheft §12, §5.6; Regeln: `docs/FORMELN.md`,
+Abschnitt H2; Format: `docs/DATENFORMAT.md`, `umwelt`, `regulierungen`). 🟡 Eigenständig
+entschieden:
+
+1. **Zwei Emissionsgrößen je Rezept:** CO₂ (kostet den CO₂-Preis) und „Schadstoffe“ als
+   Summe aus Staub, Schwefel- und Stickoxiden (senkt das Markenbild, verlangt Nachrüstung).
+   Werte für 22 Rezepte geschätzt, vor allem aus dem Kohle- und Ölverbrauch; Strom zählt
+   beim Kraftwerk, nicht beim Verbraucher.
+2. **Nachrüstung in vier Stufen** (Zyklone 1910, Elektrofilter 1950, Entschwefelung 1972,
+   Entstickung 1985) mit 50–70 % Minderung je Stufe und 3–8 % der Investition. CO₂ sinkt
+   dadurch nicht.
+3. **Auflagen als Stufe mit Frist:** Wer bis zur Frist nicht nachgerüstet hat, steht still.
+   Die Standortleitungen aller Firmen (auch ohne Manager und bei der KI) rüsten selbst
+   nach, sobald eine Auflage angekündigt ist und die Kasse reicht – eine Sonderregel für
+   die KI gibt es nicht. Strategie „übererfüllen“ rüstet auf die beste verfügbare Stufe.
+4. **Arbeitsschutz** hebt die Stundenlöhne des Landes (1–2 % je Gesetz); **Verbote** nur
+   für vorhandene Produkte: Glühlampen (EU 2012, Australien 2009, China 2016, USA 2023) und
+   neue Verbrennerautos (EU, Norwegen und Großbritannien ab 2035).
+5. **CO₂-Preis** als Jahresmittel des EU-Emissionshandels ab 2005 (dazu Großbritannien,
+   China, Kanada, Südkorea, Neuseeland), konstant nach 2026; keine kostenlosen Zertifikate.
+6. **Kartellaufsicht** ab dem Jahr des Gesetzes je Land (USA 1914 … Indien 2011), Grenze
+   40 % gemeinsamer Absatz eines Produkts im Land; geprüft bei Börsenübernahmen (Spieler und
+   KI) und bei Mehrheitskäufen von Anteilen durch Firmen. Käufe einzelner Standorte und
+   Start-up-Übernahmen bleiben frei.
+7. **Markenbild:** Schadstoffe je Umsatz gegen den Schnitt aller Firmen, Gewicht 0,3 auf den
+   Zuwachs an Bekanntheit (sauberer bis +30 %, schmutziger bis −30 %).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie
