@@ -1656,6 +1656,30 @@ zehn Branchenpakete P1a–P5). 🟡 Eigenständig entschieden:
    die vorhandenen Prüfungen (`validate` mit Richtpreis-Margen, `rezepte`) statt eigener
    Regeln.
 
+✅ **P7 umgesetzt** (Patente und Lizenzen; Lastenheft §7.2; Regeln: `docs/FORMELN.md`,
+Abschnitt P7; vorgezogen vor H3 und die Branchenpakete). 🟡 Eigenständig entschieden:
+
+1. **Wer patentieren darf:** nur die Firma, die eine Technologie als erste im Spiel
+   erforscht; Frist 365 Tage, Laufzeit 20 Jahre ab der ersten Anmeldung. Technologien, die
+   beim Start bekannt sind, und Erfindungen von Start-ups begründen kein Patent.
+2. **Kosten:** einmalig 30 000 USD je Land für die ganze Laufzeit, mal Preisniveau des
+   Landes (Annäherung: Anmeldung, Anwalt, Jahresgebühren); keine laufenden Gebühren.
+3. **Wirkung nur auf die Herstellung:** gesperrt sind Bau und Betrieb von Anlagen und
+   Verfahren der Technologie im angemeldeten Land. Forschen, Verkaufen und Einführen
+   bleiben frei – sonst müsste jeder Handel nach der Herkunft der Ware fragen.
+4. **Vorbenutzung:** wer die Technologie bei der Anmeldung schon kennt, darf weiter.
+   Sonst hätte der erste von mehreren fast gleichzeitigen Erfindern alle anderen sofort
+   gestoppt.
+5. **Lizenzen:** auf patentierte Technologien vergibt nur der Inhaber; eine Lizenz gilt
+   weltweit. Für eine Firma, die die Technologie kennt, aber gesperrt ist, ist sie den
+   vollen Forschungsaufwand wert. Gemeingut nach 25 Jahren (M9) hebt ein laufendes Patent
+   nicht auf; Patente enden aber meist vorher.
+6. **KI:** meldet im Monat nach der Erfindung in ihren Standortländern und den fünf
+   größten Märkten an (nur Standortländer, wenn die Kasse nicht reicht), meidet gesperrte
+   Verfahren beim Bauen und fragt Lizenzen für gesperrte Anlagen an.
+7. **Ende:** nach der Laufzeit oder wenn der Inhaber pleite ist; ein Verkauf des
+   Patents selbst ist nicht vorgesehen (Lizenzen genügen).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

@@ -256,6 +256,12 @@ pub mod keys {
     pub const COMMAND_NO_SUCH_CHILD: &str = "fehler.befehl.kein_kind";
     pub const COMMAND_NO_RETROFIT: &str = "fehler.befehl.keine_nachruestung";
     pub const COMMAND_ANTITRUST: &str = "fehler.befehl.kartell";
+    pub const COMMAND_NO_PATENT_CLAIM: &str = "fehler.befehl.kein_patentanspruch";
+    pub const COMMAND_PATENTED: &str = "fehler.befehl.patentiert";
+    pub const PATENT_CLAIM: &str = "meldung.patent.anspruch";
+    pub const PATENT_CLAIM_LAPSED: &str = "meldung.patent.anspruch_verfallen";
+    pub const PATENT_ENDED: &str = "meldung.patent.abgelaufen";
+    pub const PATENT_BLOCKED: &str = "meldung.patent.gesperrt";
     pub const REGULATION_NEW: &str = "meldung.regulierung.neu";
     pub const REGULATION_RETROFITTED: &str = "meldung.regulierung.nachgeruestet";
     pub const REGULATION_DEADLINE: &str = "meldung.regulierung.frist";
@@ -656,6 +662,12 @@ pub mod keys {
         COMMAND_NO_SUCH_CHILD,
         COMMAND_NO_RETROFIT,
         COMMAND_ANTITRUST,
+        COMMAND_NO_PATENT_CLAIM,
+        COMMAND_PATENTED,
+        PATENT_CLAIM,
+        PATENT_CLAIM_LAPSED,
+        PATENT_ENDED,
+        PATENT_BLOCKED,
         REGULATION_NEW,
         REGULATION_RETROFITTED,
         REGULATION_DEADLINE,

@@ -1233,6 +1233,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_logistics(texts, game);
     print_stock(game);
     print_bonds(game);
+    print_patents(game);
     print_banks(game);
     print_state_companies(texts, game);
 }
@@ -1435,6 +1436,40 @@ fn print_stock(game: &Game) {
         stakes,
         format_number(stake_value / 1e9, 2),
         taken
+    );
+}
+
+/// Patents (P7): in force, open claims, the holders and their licensees.
+fn print_patents(game: &Game) {
+    let (state, catalog) = (game.state(), game.catalog());
+    if catalog.research_model.patents.is_none() {
+        return;
+    }
+    let ids: Vec<_> = catalog.technologies.ids().collect();
+    let in_force: Vec<_> = ids
+        .iter()
+        .filter_map(|&t| wsim_core::patents::in_force(state, catalog, t))
+        .collect();
+    let claims = ids
+        .iter()
+        .filter(|&&t| {
+            state
+                .patents
+                .get(t)
+                .as_ref()
+                .is_some_and(|p| p.filed.is_none())
+        })
+        .count();
+    let holders: std::collections::BTreeSet<_> = in_force.iter().map(|p| p.holder).collect();
+    let countries: usize = in_force.iter().map(|p| p.countries.len()).sum();
+    let licensees: usize = in_force.iter().map(|p| p.licensees.len()).sum();
+    println!(
+        "Patente (P7): {} in Kraft bei {} Firmen, im Mittel {} Länder; {} Lizenznehmer und Vorbenutzer; {} Ansprüche offen",
+        in_force.len(),
+        holders.len(),
+        format_number(countries as f64 / in_force.len().max(1) as f64, 1),
+        licensees,
+        claims
     );
 }
 

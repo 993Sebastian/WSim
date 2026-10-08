@@ -4743,3 +4743,47 @@ fn rezepte_mit_emissionen_werden_geprueft() {
         "Wert -1 liegt außerhalb des erlaubten Bereichs 0 bis 1000.",
     );
 }
+
+#[test]
+fn patente_werden_geprueft() {
+    let datei = "parameter/forschungsmodell.yaml";
+    // Without the block there are no patents.
+    let data = Daten::neu().laden().data.unwrap();
+    assert!(data.catalog.research_model.patents.is_none());
+    let mit = |neu: &str| {
+        Daten::neu().ersetze(
+            datei,
+            "  sachkosten_usd_je_forschertag: 40\n",
+            &format!("  sachkosten_usd_je_forschertag: 40\n{neu}"),
+        )
+    };
+    let block = "  patente:\n    laufzeit_jahre: 20\n    anmeldefrist_tage: 365\n    \
+                 kosten_je_land_usd: 30_000\n    ki_groesste_maerkte: 5\n";
+    let gut = mit(block).laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let p = gut
+        .data
+        .unwrap()
+        .catalog
+        .research_model
+        .patents
+        .clone()
+        .unwrap();
+    assert_eq!(
+        (p.term_years, p.filing_days, p.ai_largest_markets),
+        (20, 365, 5)
+    );
+    assert!((p.cost_per_country_usd - 30_000.0).abs() < 1e-9);
+
+    let falsch = mit(&block.replace("laufzeit_jahre: 20", "laufzeit_jahre: 80")).laden();
+    let f = befund(
+        &falsch,
+        "Wert 80 liegt außerhalb des erlaubten Bereichs 1 bis 50.",
+    );
+    assert_ort(f, datei, 8, "forschungsmodell.patente.laufzeit_jahre");
+    let falsch =
+        mit(&block.replace("kosten_je_land_usd: 30_000", "kosten_je_land_usd: -1")).laden();
+    befund(&falsch, "-1");
+    let falsch = mit(&format!("{block}    gebuehr: 3\n")).laden();
+    befund(&falsch, "gebuehr");
+}

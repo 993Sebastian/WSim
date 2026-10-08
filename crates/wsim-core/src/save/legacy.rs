@@ -159,6 +159,7 @@ pub(super) fn decode_v2(
         import_markets: Default::default(),
         deposits: PerId::default(),
         inventions: PerId::default(),
+        patents: PerId::default(),
         developments: PerId::default(),
         milestones: PerId::default(),
         watched_markets: Vec::new(),

@@ -1076,6 +1076,22 @@ pub struct ResearchModel {
     pub researchers: Vec<Option<LaborGroupId>>,
     /// Development of researched products (M37).
     pub development: DevelopmentModel,
+    /// Patents (P7); `None`: no patents.
+    pub patents: Option<PatentModel>,
+}
+
+/// Patents (P7, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct PatentModel {
+    /// Years from the first filing.
+    pub term_years: i32,
+    /// Days after the invention to file.
+    pub filing_days: i32,
+    /// One-time cost per country for the whole term, USD at price level 1.
+    pub cost_per_country_usd: f64,
+    /// AI companies file in their site countries and in this many largest markets.
+    pub ai_largest_markets: usize,
+    pub provenance: Provenance,
 }
 
 impl Default for ResearchModel {
@@ -1088,6 +1104,7 @@ impl Default for ResearchModel {
             material_usd_per_day: 40.0,
             researchers: Vec::new(),
             development: DevelopmentModel::default(),
+            patents: None,
         }
     }
 }

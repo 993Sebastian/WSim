@@ -203,6 +203,7 @@ impl Game {
             import_markets: Default::default(),
             deposits: PerId::default(),
             inventions: PerId::default(),
+            patents: PerId::default(),
             developments: PerId::default(),
             milestones: PerId::default(),
             watched_markets: Vec::new(),
@@ -573,6 +574,9 @@ impl Game {
                 &self.catalog,
                 next,
             ));
+            report
+                .messages
+                .extend(crate::patents::month_start(&mut self.state, &self.catalog));
             report.messages.extend(crate::ventures::month_start(
                 &mut self.state,
                 &self.catalog,

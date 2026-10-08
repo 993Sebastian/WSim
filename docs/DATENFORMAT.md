@@ -181,6 +181,7 @@ Ein einziger Abschnitt (in `parameter/forschungsmodell.yaml`); Formeln in
 | **forscher** | Qualifikation der Forscher (mit Fachrichtungen); die Fachrichtung ist das Fachgebiet der Technologie |
 | **sachkosten_usd_je_forschertag** | Geräte und Material je Forscher und Tag bei Preisniveau 1 |
 | **weiterentwicklung** | Weiterentwicklung erforschter Produkte (M37): `stufen` (1–10); `je_stufe` mit `qualitaet` (Punkte, 0–20), `arbeit` und `vorprodukte` (eingesparter Anteil je Durchlauf, 0–0,09); `aufwand` mit `anteil` (0,01–2), `wachstum` (1–3) und `grundaufwand` (Punkte, > 0): Stufe n kostet max(grundaufwand, größter Forschungsaufwand der Technologien des Produkts) · anteil · wachstum^(n − 1); `gemeingut_nach_jahren` (1–100); `fachgebiete`: Branche → Fachrichtung der Forscher für Produkte ohne Technologie (jede Branche eines solchen Produkts braucht einen Eintrag, die Fachrichtung eine Forschergruppe) |
+| patente | Patente (P7, optional; ohne den Block keine): `laufzeit_jahre` (1–50) ab der ersten Anmeldung, `anmeldefrist_tage` (1–3650) ab der Erfindung, `kosten_je_land_usd` (≥ 0; einmalig je Land für die ganze Laufzeit, mal Preisniveau des Landes), `ki_groesste_maerkte` (0–200; KI-Firmen melden in ihren Standortländern und so vielen größten Märkten an), `annaeherung`/`quelle` |
 
 ## finanzmodell
 

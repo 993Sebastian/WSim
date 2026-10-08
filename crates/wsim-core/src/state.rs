@@ -1344,6 +1344,8 @@ pub enum Limit {
     Event,
     /// A ban or a retrofit not done in time stops the output (H2).
     Regulation,
+    /// A patent of another company in the country (P7).
+    Patent,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1765,6 +1767,9 @@ pub struct GameState {
     /// Day each technology was first acquired by research in this game.
     #[serde(default)]
     pub inventions: PerId<TechnologyId, Option<Date>>,
+    /// Patent claims and patents by technology (P7).
+    #[serde(default)]
+    pub patents: PerId<TechnologyId, Option<crate::patents::Patent>>,
     /// Day each development level of a product was first reached, level 1 first (M37).
     #[serde(default)]
     pub developments: PerId<ProductId, Vec<Date>>,
@@ -2237,6 +2242,8 @@ impl GameState {
             }
         }
         self.inventions
+            .resize_with(catalog.technologies.len(), || None);
+        self.patents
             .resize_with(catalog.technologies.len(), || None);
         self.developments
             .resize_with(catalog.products.len(), Vec::new);

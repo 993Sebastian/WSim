@@ -905,6 +905,27 @@ pub struct RawResearchModel {
     pub material_usd_per_day: f64,
     #[serde(rename = "weiterentwicklung")]
     pub development: RawProductDevelopment,
+    /// Patents (P7); without the block there are none.
+    #[serde(rename = "patente", default)]
+    pub patents: Option<RawPatents>,
+}
+
+/// Patents (P7).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPatents {
+    #[serde(rename = "laufzeit_jahre")]
+    pub term_years: u32,
+    #[serde(rename = "anmeldefrist_tage")]
+    pub filing_days: u32,
+    #[serde(rename = "kosten_je_land_usd")]
+    pub cost_per_country_usd: f64,
+    #[serde(rename = "ki_groesste_maerkte")]
+    pub ai_largest_markets: u32,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
 }
 
 /// Development of researched products (M37).

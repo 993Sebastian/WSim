@@ -152,6 +152,9 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             let new_to_the_world = first.is_none();
             if new_to_the_world {
                 *first = Some(date);
+                // The first inventor may patent it (P7).
+                let id = CompanyId(u32::try_from(c).expect("company count fits u32"));
+                messages.extend(crate::patents::claim(state, catalog, id, technology, date));
             }
             if new_to_the_world && !state.main_company.is_some_and(|p| p.index() == c) {
                 messages.push(

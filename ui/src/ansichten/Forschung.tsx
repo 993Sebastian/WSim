@@ -17,6 +17,7 @@ import type {
   Entwicklungswirkung,
   Forschung,
   Kern,
+  Patent,
   Technologie,
   Uebersicht,
   Weiterentwicklung,
@@ -66,7 +67,8 @@ export function ForschungAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.forschung(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const [bereich, setBereich] = useState<"baum" | "entwicklung" | "zentren">("baum");
+  const [bereich, setBereich] = useState<"baum" | "entwicklung" | "zentren" | "patente">("baum");
+  const patente = daten?.technologies.filter((x) => x.patent) ?? [];
   if (!daten) return <FehlerText fehler={fehler} />;
   return (
     <main className="ansicht" id="forschung">
@@ -83,6 +85,15 @@ export function ForschungAnsicht({
               zaehler: daten.centers.filter((z) => z.project === null && z.development === null)
                 .length,
             },
+            ...(daten.patent_countries?.length
+              ? [
+                  {
+                    key: "patente" as const,
+                    text: t("forschung.patente"),
+                    zaehler: patente.filter((x) => x.patent?.deadline).length,
+                  },
+                ]
+              : []),
           ]}
           aktiv={bereich}
           onWahl={setBereich}
@@ -93,6 +104,7 @@ export function ForschungAnsicht({
         {bereich === "entwicklung" && (
           <Entwicklung daten={daten} onZentren={() => setBereich("zentren")} />
         )}
+        {bereich === "patente" && <Patente daten={daten} technologien={patente} />}
         {bereich === "zentren" && (
           <Zentren kern={kern} daten={daten} heimat={uebersicht.company?.headquarters ?? ""} />
         )}
@@ -407,6 +419,7 @@ function TechnologieDetail({
         </span>
       </p>
 
+      {x.patent && <PatentZeile patent={x.patent} />}
       {x.status !== "bekannt" && x.needed !== null && (
         <dl className="werte technikwerte">
           <dt>{t("forschung.fortschritt")}</dt>
@@ -1163,6 +1176,138 @@ function ZentrumGruenden({ kern, heimat, datum }: { kern: Kern; heimat: string; 
           {t("produktion.gruenden_knopf")}
         </button>
       </div>
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/** One line on a technology's patent or the player's open claim (P7). */
+function PatentZeile({ patent: p }: { patent: Patent }) {
+  if (p.own && p.deadline && p.countries.length === 0) {
+    return <p className="hinweis">{t("patent.anspruch", { bis: formatDatum(p.deadline) })}</p>;
+  }
+  const text = t(p.own ? "patent.eigenes" : "patent.fremdes", {
+    firma: p.holder,
+    bis: p.until ? formatDatum(p.until) : "–",
+    laender: p.countries.length,
+  });
+  return (
+    <p className={p.blocks_player_in.length > 0 ? "warnung" : "gedaempft"}>
+      {text}
+      {p.blocks_player_in.length > 0 &&
+        ` ${t("patent.sperrt_dich", { laender: p.blocks_player_in.map(landName).join(", ") })}`}
+      {!p.own && p.free_for_player && ` ${t("patent.lizenz_vorhanden")}`}
+    </p>
+  );
+}
+
+/** Patents (P7): file own claims country by country, own patents, those of others. */
+function Patente({ daten, technologien }: { daten: Forschung; technologien: Technologie[] }) {
+  const offen = technologien.filter((x) => x.patent?.own && x.patent.deadline);
+  const eigene = technologien.filter((x) => x.patent?.own && x.patent.countries.length > 0);
+  const fremde = technologien.filter((x) => x.patent && !x.patent.own);
+  return (
+    <section className="patente" aria-label={t("forschung.patente")}>
+      <p className="erklaerung">{t("patent.erklaerung")}</p>
+      <h2>{t("patent.anmelden")}</h2>
+      {offen.length === 0 && <p className="gedaempft">{t("patent.keine_ansprueche")}</p>}
+      {offen.map((x) => (
+        <Anmeldung key={x.key} tech={x} laender={daten.patent_countries ?? []} />
+      ))}
+      <h2>{t("patent.deine")}</h2>
+      {eigene.length === 0 ? (
+        <p className="gedaempft">{t("patent.keine_eigenen")}</p>
+      ) : (
+        <ul className="liste">
+          {eigene.map((x) => (
+            <li key={x.key}>
+              <strong>{technologieName(x.key)}</strong> <PatentZeile patent={x.patent!} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <h2>{t("patent.fremde")}</h2>
+      {fremde.length === 0 ? (
+        <p className="gedaempft">{t("patent.keine_fremden")}</p>
+      ) : (
+        <ul className="liste">
+          {fremde.map((x) => (
+            <li key={x.key}>
+              <strong>{technologieName(x.key)}</strong> <PatentZeile patent={x.patent!} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/** Filing an own claim: countries to choose (largest markets first), cost, deadline. */
+function Anmeldung({
+  tech: x,
+  laender,
+}: {
+  tech: Technologie;
+  laender: NonNullable<Forschung["patent_countries"]>;
+}) {
+  const p = x.patent!;
+  const frei = laender.filter((l) => !p.countries.includes(l.country));
+  const [wahl, setWahl] = useState<string[]>(() =>
+    frei.filter((l) => l.suggested).map((l) => l.country),
+  );
+  const [alle, setAlle] = useState(false);
+  const { los, antwort } = useAktion(`patent/${x.key}`);
+  const kosten = frei
+    .filter((l) => wahl.includes(l.country))
+    .reduce((summe, l) => summe + l.cost_usd, 0);
+  const gezeigt = alle ? frei : frei.slice(0, 15);
+  const name = technologieName(x.key);
+  return (
+    <form
+      className="karte"
+      aria-label={t("patent.anmeldung", { technologie: name })}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (wahl.length === 0) return;
+        void los(
+          [{ FilePatent: { technology: x.key, countries: wahl } }],
+          t("patent.angemeldet", { technologie: name, laender: wahl.length }),
+        );
+      }}
+    >
+      <h3>{name}</h3>
+      <p className="gedaempft">
+        {t("patent.frist", { bis: formatDatum(p.deadline!) })}
+        {p.countries.length > 0 &&
+          ` ${t("patent.schon", { laender: p.countries.map(landName).join(", ") })}`}
+      </p>
+      <fieldset className="auswahlgruppe">
+        <legend>{t("patent.laender")}</legend>
+        {gezeigt.map((l) => (
+          <label key={l.country}>
+            <input
+              type="checkbox"
+              checked={wahl.includes(l.country)}
+              onChange={(e) =>
+                setWahl((w) =>
+                  e.target.checked ? [...w, l.country] : w.filter((c) => c !== l.country),
+                )
+              }
+            />
+            {landName(l.country)} – {formatGeld(l.cost_usd)}
+          </label>
+        ))}
+      </fieldset>
+      {frei.length > gezeigt.length && (
+        <button type="button" className="verweis" onClick={() => setAlle(true)}>
+          {t("patent.alle_laender", { anzahl: frei.length })}
+        </button>
+      )}
+      <p>
+        <button type="submit" disabled={wahl.length === 0}>
+          {t("patent.anmelden_knopf", { anzahl: wahl.length, kosten: formatGeld(kosten) })}
+        </button>
+      </p>
       <Rueckmeldung meldung={antwort} />
     </form>
   );

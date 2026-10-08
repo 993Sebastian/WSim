@@ -109,6 +109,7 @@ export type Befehl =
   | { InvestPrivately: { venture: number; amount: number } }
   | { SetHeir: { child: number | null } }
   | { Retrofit: { site: number; slot: number } }
+  | { FilePatent: { technology: string; countries: string[] } }
   | { HandOver: Record<string, never> }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
   | {

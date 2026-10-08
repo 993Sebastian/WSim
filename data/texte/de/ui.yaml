@@ -552,6 +552,8 @@ ursache.strom: Zu wenig Strom
 ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
 ursache.ereignis: Gedrosselt durch ein Weltereignis
 ursache.regulierung: Gestoppt durch eine Regulierung
+ursache.patent: Gestoppt durch ein Patent
+ursache.patent.hilfe: Eine andere Firma hat die Technologie der Anlage oder des Verfahrens in diesem Land patentiert. Mit einer Lizenz des Inhabers (Wettbewerb → Lizenzen) läuft sie weiter; die Forschungsansicht zeigt, bis wann das Patent gilt.
 ursache.regulierung.hilfe: Ein Verbot im Land oder eine Umweltauflage, für die die Einheit noch nicht nachgerüstet ist. Was gilt, zeigt die Länderansicht.
 ursache.ereignis.hilfe: Krieg, Bürgerkrieg oder eine Förderkürzung begrenzen die Produktion in diesem Land. Was wie lange gilt, zeigt die Länderansicht.
 ursache.lagerstaette: Höchstförderung erreicht
@@ -667,6 +669,7 @@ ketten.hakt.strom: "hakt: zu wenig Strom"
 ketten.hakt.lagerstaette: "hakt: Lagerstätte gibt nicht mehr her"
 ketten.hakt.ereignis: "hakt: gedrosselt durch ein Weltereignis"
 ketten.hakt.regulierung: "hakt: gestoppt durch eine Regulierung"
+ketten.hakt.patent: "hakt: gestoppt durch ein Patent"
 ketten.verfahren: "{anlage}"
 ketten.abbau: "Abbau: {anlage}"
 ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"
@@ -690,6 +693,26 @@ markt.marke_hinweis: "Kunden wählen nach Preis, Qualität, Bekanntheit und dana
 
 # Forschung
 forschung.zentren: Forschungszentren
+forschung.patente: Patente
+patent.erklaerung: "Wer eine Technologie als erste Firma erforscht, kann sie bis zum Ende der Frist Land für Land patentieren lassen. Dort darf eine andere Firma die Anlagen und Verfahren der Technologie nur mit deiner Lizenz nutzen; Forschung, Handel und Einfuhr bleiben frei. Firmen, die sie bei der Anmeldung schon kennen, dürfen weitermachen. Die Kosten gelten für die ganze Laufzeit."
+patent.anmelden: Anmelden
+patent.keine_ansprueche: "Keine offene Anmeldung: Patentieren kannst du nur, was du als erste Firma erforscht hast."
+patent.deine: Deine Patente
+patent.keine_eigenen: Du hast keine Patente.
+patent.fremde: Patente anderer Firmen
+patent.keine_fremden: Keine andere Firma hat ein Patent.
+patent.anspruch: "Du hast sie als erste Firma erforscht und kannst sie bis {bis} patentieren lassen (Forschung → Patente)."
+patent.eigenes: "Dein Patent bis {bis} in {laender} Ländern."
+patent.fremdes: "Patentiert von {firma} bis {bis} in {laender} Ländern."
+patent.sperrt_dich: "Deine Anlagen in {laender} brauchen eine Lizenz (Wettbewerb → Lizenzen)."
+patent.lizenz_vorhanden: Du darfst sie nutzen.
+patent.anmeldung: "Patent auf {technologie} anmelden"
+patent.frist: "Anmeldung bis {bis}."
+patent.schon: "Schon angemeldet: {laender}."
+patent.laender: Länder (größte Märkte zuerst)
+patent.alle_laender: "Alle {anzahl} Länder zeigen"
+patent.anmelden_knopf: "In {anzahl} Ländern anmelden ({kosten})"
+patent.angemeldet: "{technologie} in {laender} Ländern patentiert."
 forschung.bereiche: Bereiche der Forschung
 forschung.baum: Technologiebaum
 forschung.entwicklung: Weiterentwicklung

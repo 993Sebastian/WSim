@@ -143,7 +143,7 @@ kostenart.instandhaltung: Instandhaltung
 kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.pacht: Pacht und Förderabgaben
 kostenart.umwelt: CO₂-Abgabe
-kostenart.lizenzen: Lizenzen
+kostenart.lizenzen: Lizenzen und Patente
 kostenart.beteiligungen: Beteiligungen
 kostenart.sonstiges: Sonstiges
 fehler.befehl.lohnaufschlag_ungueltig: Der Lohnaufschlag muss zwischen 0 und {max} % liegen.
@@ -186,6 +186,8 @@ fehler.befehl.rueckzahlung_zu_hoch: "Die Firma kann dir höchstens {max} zurück
 fehler.befehl.nicht_alleineigentuemer: Kapital zurückzahlen geht nur, solange dir die Firma ganz gehört.
 fehler.befehl.keine_nachruestung: Diese Einheit stößt keine Schadstoffe aus oder ist schon auf der besten verfügbaren Stufe.
 fehler.befehl.kartell: "Die Kartellaufsicht untersagt die Übernahme: Zusammen hättet ihr {anteil} % des Markts für {produkt} in {land}."
+fehler.befehl.kein_patentanspruch: "Kein Patent möglich: Nur wer eine Technologie als erste Firma erforscht hat, kann sie bis zum Ende der Anmeldefrist in weiteren Ländern anmelden."
+fehler.befehl.patentiert: "{technologie} ist in diesem Land patentiert ({firma}). Ohne Lizenz des Inhabers darfst du sie hier nicht nutzen."
 fehler.befehl.kein_kind: Dieses Kind gibt es nicht oder es lebt nicht mehr.
 fehler.befehl.kein_verkaeufer: "Dieser Eigner verkauft dir keine Anteile: Anteile von dir selbst, der kaufenden Firma oder einer Firma, die du kontrollierst, gehören schon zu dir."
 fehler.befehl.preis_zu_niedrig: "Zu diesem Preis verkauft der Eigner nicht – er verlangt mindestens {min}."
@@ -206,6 +208,10 @@ fehler.befehl.fahrzeug_ungeeignet: Dieses Verkehrsmittel kannst du (noch) nicht 
 meldung.ki.gruendung: "Neuer Wettbewerber: {firma} beginnt in {land} mit {produkt}."
 meldung.ki.ausbau: "{firma} baut in {land} {anzahl} × {anlage} ({groesse}) für {produkt}."
 meldung.ki.erfindung: "{firma} hat als erste Firma {technologie} entwickelt."
+meldung.patent.anspruch: "Du hast {technologie} als erste Firma entwickelt und kannst sie bis {bis} patentieren lassen (Forschung → Patente)."
+meldung.patent.anspruch_verfallen: "Die Anmeldefrist für ein Patent auf {technologie} ist verstrichen."
+meldung.patent.abgelaufen: "Dein Patent auf {technologie} ist erloschen; jede Firma darf die Technologie jetzt nutzen."
+meldung.patent.gesperrt: "{technologie} ist in {land} von {firma} patentiert: Deine Anlage dort steht, bis du eine Lizenz hast."
 meldung.ki.stilllegung: "{firma} legt in {land} {anzahl} × {anlage} für {produkt} still."
 meldung.ki.verkauf: "{firma} verkauft in {land} {anzahl} × {anlage} für {produkt}."
 fehler.befehl.anlage_im_bau: Die Anlage ist noch im Bau.

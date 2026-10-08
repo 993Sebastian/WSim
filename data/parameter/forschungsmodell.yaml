@@ -9,9 +9,20 @@ forschungsmodell:
   nachzuegler:
     rabatt_je_jahr: 0.1
     minimum: 0.2
-  # So viele Jahre nach dem historischen Erfindungsjahr darf jede Firma die Technologie
-  # nutzen (Wissen hat sich verbreitet; Patente folgen in Stufe 5).
+  # So viele Jahre nach dem historischen Erfindungsjahr kennt jede Firma die Technologie
+  # (Wissen hat sich verbreitet); ein Patent kann die Nutzung länger sperren.
   gemeingut_nach_jahren: 25
+  # Patente (P7, docs/FORMELN.md): Wer eine Technologie als erste Firma erforscht, darf sie
+  # binnen der Frist je Land anmelden; dort braucht jede andere Firma eine Lizenz.
+  patente:
+    laufzeit_jahre: 20              # übliche Laufzeit seit den 1990er Jahren (TRIPS)
+    anmeldefrist_tage: 365          # Prioritätsjahr (Pariser Verbandsübereinkunft)
+    # Anmeldung, Anwalt und Jahresgebühren über die ganze Laufzeit je Land, USD bei
+    # Preisniveau 1 (Europa und USA heute grob 20 000–60 000 USD)
+    kosten_je_land_usd: 30_000
+    # KI-Firmen melden in ihren Standortländern und in so vielen größten Märkten an.
+    ki_groesste_maerkte: 5
+    annaeherung: true
   # Qualifikation der Forscher; die Fachrichtung ist das Fachgebiet der Technologie.
   forscher: akademiker
   # Geräte und Material je Forscher und Tag (USD bei Preisniveau 1)

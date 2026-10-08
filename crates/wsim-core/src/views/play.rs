@@ -548,6 +548,7 @@ pub fn production(game: &Game) -> ProductionView {
                             Limit::Deposit => ("ursache.lagerstaette", None),
                             Limit::Event => ("ursache.ereignis", None),
                             Limit::Regulation => ("ursache.regulierung", None),
+                            Limit::Patent => ("ursache.patent", None),
                         })
                     };
                     SlotDetail {
@@ -1706,6 +1707,35 @@ pub struct TechnologyView {
     pub recipes: Vec<RecipeUnlock>,
     /// Products the opened recipes make.
     pub products: Vec<String>,
+    /// Patent or patent claim on it (P7).
+    #[serde(default)]
+    pub patent: Option<PatentView>,
+}
+
+/// A patent or an open claim on a technology (P7).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PatentView {
+    pub holder: String,
+    /// Held by the player's company.
+    pub own: bool,
+    /// Last day to file further countries (own claims only).
+    pub deadline: Option<String>,
+    pub until: Option<String>,
+    /// ISO codes of the countries filed.
+    pub countries: Vec<String>,
+    /// The player may use it everywhere (holder, licensee or prior user).
+    pub free_for_player: bool,
+    /// Player's countries with sites where it is blocked.
+    pub blocks_player_in: Vec<String>,
+}
+
+/// A country to file a patent in, with its cost (P7).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PatentCountryView {
+    pub country: String,
+    pub cost_usd: f64,
+    /// Among the player's site countries or the largest markets.
+    pub suggested: bool,
 }
 
 /// Time and cost of a technology with one fully used laboratory (M19, estimate).
@@ -1833,6 +1863,73 @@ pub struct ResearchOverview {
     pub laboratory_posts: f64,
     /// Unit of each product (key of `einheit.<key>`).
     pub units: BTreeMap<String, String>,
+    /// Countries to file patents in, largest markets first (P7; empty without patents).
+    #[serde(default)]
+    pub patent_countries: Vec<PatentCountryView>,
+}
+
+/// The patent on a technology as the player sees it (P7).
+fn patent_view(game: &Game, id: crate::ids::TechnologyId) -> Option<PatentView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    let model = catalog.research_model.patents.as_ref()?;
+    let p = state.patents.get(id).as_ref()?;
+    let player = game.player();
+    let own = p.holder == player;
+    let filed = crate::patents::in_force(state, catalog, id).is_some();
+    if !own && !filed {
+        return None;
+    }
+    let blocks: Vec<String> = state
+        .sites
+        .iter()
+        .filter(|s| s.owner == player)
+        .map(|s| s.country)
+        .filter(|&c| crate::patents::blocks(state, catalog, player, id, c))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .map(|c| catalog.countries.key(c).to_owned())
+        .collect();
+    Some(PatentView {
+        holder: state
+            .company(p.holder)
+            .map_or_else(String::new, |c| c.name.clone()),
+        own,
+        deadline: (own && state.date <= p.deadline(model)).then(|| iso(p.deadline(model))),
+        until: p.until(model).map(iso),
+        countries: p
+            .countries
+            .iter()
+            .map(|&c| catalog.countries.key(c).to_owned())
+            .collect(),
+        free_for_player: own || p.licensees.contains(&player),
+        blocks_player_in: blocks,
+    })
+}
+
+fn patent_countries(game: &Game) -> Vec<PatentCountryView> {
+    let state = game.state();
+    let catalog = game.catalog();
+    if catalog.research_model.patents.is_none() {
+        return Vec::new();
+    }
+    let (_, suggested) = crate::patents::ai_countries(state, catalog, game.player());
+    let mut list: Vec<(f64, CountryId)> = catalog
+        .countries
+        .ids()
+        .map(|c| {
+            let v = state.countries.get(c);
+            (v.population * v.gdp_per_capita_usd, c)
+        })
+        .collect();
+    list.sort_by(|a, b| b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));
+    list.into_iter()
+        .map(|(_, c)| PatentCountryView {
+            country: catalog.countries.key(c).to_owned(),
+            cost_usd: usd(crate::patents::filing_cost(state, catalog, c)),
+            suggested: suggested.contains(&c),
+        })
+        .collect()
 }
 
 /// One fully used laboratory in a country working on a technology: points, days and
@@ -2120,6 +2217,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                 facilities,
                 recipes,
                 products,
+                patent: patent_view(game, id),
                 key: catalog.technologies.key(id).to_owned(),
                 field: catalog.specializations.key(t.field).to_owned(),
                 invention_year: t.invention_year,
@@ -2196,6 +2294,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             .find(|f| f.site_type == SiteType::ResearchCenter)
             .map_or(0.0, |f| f.runs_per_day),
         units: units(catalog),
+        patent_countries: patent_countries(game),
     }
 }
 

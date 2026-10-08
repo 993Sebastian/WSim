@@ -3,8 +3,8 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, ProductionModel, ResearchModel,
-    SiteType, SizeModel, StartSetup, TrainingModel, TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, PatentModel, ProductionModel,
+    ResearchModel, SiteType, SizeModel, StartSetup, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -15,8 +15,8 @@ use super::{
 };
 use crate::messages;
 use crate::raw::{
-    RawFacilitySizes, RawLimits, RawProductDevelopment, RawProductionModel, RawSeries, RawVehicle,
-    RawWay,
+    RawFacilitySizes, RawLimits, RawPatents, RawProductDevelopment, RawProductionModel, RawSeries,
+    RawVehicle, RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -830,7 +830,48 @@ pub(super) fn research_model(
             (&researchers, &m.researchers),
             (branches, specializations),
         ),
+        patents: m
+            .patents
+            .as_ref()
+            .map(|p| patent_model(ctx, p, &l.field("patente"))),
         researchers,
+    }
+}
+
+/// Patents (P7): term, filing period, cost per country, AI filing.
+fn patent_model(ctx: &mut Ctx, p: &RawPatents, l: &Loc) -> PatentModel {
+    let term = in_range(
+        ctx,
+        f64::from(p.term_years),
+        1.0,
+        50.0,
+        &l.field("laufzeit_jahre"),
+    );
+    let days = in_range(
+        ctx,
+        f64::from(p.filing_days),
+        1.0,
+        3650.0,
+        &l.field("anmeldefrist_tage"),
+    );
+    let markets = in_range(
+        ctx,
+        f64::from(p.ai_largest_markets),
+        0.0,
+        200.0,
+        &l.field("ki_groesste_maerkte"),
+    );
+    PatentModel {
+        // Checked ranges: the casts cannot truncate.
+        term_years: term as i32,
+        filing_days: days as i32,
+        cost_per_country_usd: non_negative(
+            ctx,
+            p.cost_per_country_usd,
+            &l.field("kosten_je_land_usd"),
+        ),
+        ai_largest_markets: markets as usize,
+        provenance: super::provenance(p.approximation, p.source.as_ref()),
     }
 }
 

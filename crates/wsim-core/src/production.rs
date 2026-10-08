@@ -610,6 +610,10 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         {
             bound(&mut runs, 0.0, Limit::Regulation);
         }
+        // Another company's patent in the country (P7).
+        if crate::patents::blocked_recipe(state, catalog, owner, recipe_id, country).is_some() {
+            bound(&mut runs, 0.0, Limit::Patent);
+        }
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
                 .inventory

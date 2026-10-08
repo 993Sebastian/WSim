@@ -4945,3 +4945,58 @@ beide im Vormonat verkauft haben, gilt:
     (Absatz Käufer + Absatz Ziel) / Absatz aller > marktanteil_max
 
 Fehler `Antitrust` nennt Produkt, Land und Anteil; die KI lässt die Übernahme dann aus.
+
+## P7 – Patente und Lizenzen
+
+Lastenheft §7.2. Parameter: `data/parameter/forschungsmodell.yaml`, Block `patente`
+(ohne den Block gibt es keine Patente).
+
+### Anspruch und Anmeldung
+
+- Wer eine Technologie im Spiel **als erste Firma** erforscht (`GameState::inventions`
+  war leer), erhält einen Patentanspruch. Technologien, die beim Spielstart bekannt sind,
+  und Erfindungen von Start-ups (SU1) begründen keinen Anspruch.
+- Angemeldet wird mit dem Befehl `FilePatent { technology, countries }` bis
+  `anmeldefrist_tage` nach der Erfindung, auch in mehreren Schritten. Jedes neue Land kostet
+  einmalig (Anmeldung und Gebühren für die ganze Laufzeit)
+
+      kosten_je_land_usd · Preisniveau des Landes
+
+  (Kostenart „Lizenzen und Patente“). Ist die Frist ohne Land verstrichen, verfällt der
+  Anspruch.
+- Die Laufzeit beginnt mit der ersten Anmeldung: `laufzeit_jahre` Jahre. Danach, oder wenn
+  der Inhaber pleite ist, erlischt das Patent.
+- **Vorbenutzung:** Firmen, die die Technologie bei einer Anmeldung schon kennen (eigene
+  Forschung kurz nach dem Erfinder, Lizenz), dürfen sie weiter nutzen.
+
+### Wirkung
+
+Eine Firma darf eine Technologie in einem Land nutzen, wenn sie sie kennt (M9) und kein
+Patent sie dort sperrt:
+
+    gesperrt = Patent gilt (angemeldet, nicht abgelaufen, Inhaber nicht pleite)
+               ∧ Land angemeldet ∧ Firma ≠ Inhaber ∧ Firma ohne Lizenz des Inhabers
+
+„Nutzen“ heißt: Anlagen bauen, deren Technologie gesperrt ist, und Rezepte fahren, deren
+Technologie gesperrt ist. Läuft eine solche Anlage schon, steht sie still (Ursache
+„Patent“). Forschen, Kaufen, Verkaufen und Einführen bleiben frei – das Patent schützt die
+Herstellung im Land.
+
+### Lizenzen
+
+- Eine Lizenz auf eine patentierte Technologie vergibt nur der Inhaber (Kaufangebot M30,
+  Gegenstand „Lizenz“). Die Lizenz gilt in allen Ländern und über die Laufzeit hinaus;
+  wer die Technologie noch nicht kennt, erhält sie mit der Lizenz.
+- Auch wer die Technologie kennt, aber gesperrt ist, kann eine Lizenz kaufen. Ihr Wert ist
+  dann der volle Forschungsaufwand zum heutigen Stand (M30: `license_value` mit
+  `fehlend = Aufwand`), sonst wie bisher der Aufwand der noch fehlenden Punkte.
+- **KI-Käufer** fragen Lizenzen an für Technologien, die sie erforschen, und für gesperrte
+  Technologien, deren Anlagen sie in einem gesperrten Land betreiben; der Verkäufer ist
+  der Inhaber.
+
+### KI-Anmeldung
+
+Eine KI-Firma meldet einen Anspruch im Monat nach der Erfindung an – über denselben Befehl:
+in den Ländern ihrer Standorte und in den `ki_groesste_maerkte` Ländern mit dem größten
+BIP (Bevölkerung · BIP je Kopf), soweit die Kasse für alle reicht; sonst nur in ihren
+Standortländern, sonst gar nicht.

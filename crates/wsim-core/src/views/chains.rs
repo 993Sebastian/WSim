@@ -125,6 +125,7 @@ pub fn chains(game: &Game) -> ChainsView {
                 Some(Limit::Deposit) => ("lagerstaette", None),
                 Some(Limit::Event) => ("ereignis", None),
                 Some(Limit::Regulation) => ("regulierung", None),
+                Some(Limit::Patent) => ("patent", None),
                 None => continue,
             };
             let list = stuck.entry(r.product).or_default();

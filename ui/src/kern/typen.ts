@@ -888,6 +888,8 @@ export interface Forschung {
       inputs_per_day: [string, number][];
     }[];
     products: string[];
+    /** Patent or own patent claim (P7). */
+    patent?: Patent | null;
   }[];
   /** Products to develop (M37) and the highest level. */
   developments: Weiterentwicklung[];
@@ -908,6 +910,20 @@ export interface Forschung {
   laboratory_usd: number;
   laboratory_posts: number;
   units: Record<string, string>;
+  /** Countries to file patents in, largest markets first (P7). */
+  patent_countries?: { country: string; cost_usd: number; suggested: boolean }[];
+}
+
+/** A patent or an open claim on a technology (P7). */
+export interface Patent {
+  holder: string;
+  own: boolean;
+  /** Last day to file further countries (own claims only). */
+  deadline: string | null;
+  until: string | null;
+  countries: string[];
+  free_for_player: boolean;
+  blocks_player_in: string[];
 }
 
 export type Technologie = Forschung["technologies"][number];

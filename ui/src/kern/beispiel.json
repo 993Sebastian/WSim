@@ -7708,6 +7708,563 @@
     "laboratory": "forschungslabor",
     "laboratory_posts": 20.0,
     "laboratory_usd": 500000.0,
+    "patent_countries": [
+      {
+        "cost_usd": 30000.0,
+        "country": "USA",
+        "suggested": true
+      },
+      {
+        "cost_usd": 13789.35,
+        "country": "CHN",
+        "suggested": true
+      },
+      {
+        "cost_usd": 28889.9878,
+        "country": "GBR",
+        "suggested": true
+      },
+      {
+        "cost_usd": 14444.134,
+        "country": "IND",
+        "suggested": true
+      },
+      {
+        "cost_usd": 24076.9306,
+        "country": "DEU",
+        "suggested": true
+      },
+      {
+        "cost_usd": 24595.4408,
+        "country": "FRA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 19055.622,
+        "country": "RUS",
+        "suggested": false
+      },
+      {
+        "cost_usd": 22113.1411,
+        "country": "ITA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 18733.3913,
+        "country": "JPN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 19872.5111,
+        "country": "POL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 20245.6027,
+        "country": "ESP",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15342.1642,
+        "country": "IDN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 26583.2663,
+        "country": "CAN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 26229.3456,
+        "country": "BEL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 21343.2349,
+        "country": "CZE",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16534.5253,
+        "country": "UKR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 24754.1656,
+        "country": "ARG",
+        "suggested": false
+      },
+      {
+        "cost_usd": 26188.9364,
+        "country": "NLD",
+        "suggested": false
+      },
+      {
+        "cost_usd": 28670.7053,
+        "country": "AUS",
+        "suggested": false
+      },
+      {
+        "cost_usd": 23545.7877,
+        "country": "AUT",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17666.6402,
+        "country": "MEX",
+        "suggested": false
+      },
+      {
+        "cost_usd": 28144.6637,
+        "country": "CHE",
+        "suggested": false
+      },
+      {
+        "cost_usd": 23789.2742,
+        "country": "SWE",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13374.6642,
+        "country": "BGD",
+        "suggested": false
+      },
+      {
+        "cost_usd": 20898.502,
+        "country": "HUN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13877.5048,
+        "country": "BRA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17830.4575,
+        "country": "XWB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14642.8994,
+        "country": "PAK",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14568.4266,
+        "country": "VNM",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15987.5347,
+        "country": "ROU",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13579.4453,
+        "country": "NGA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16562.1768,
+        "country": "EGY",
+        "suggested": false
+      },
+      {
+        "cost_usd": 26677.6782,
+        "country": "DNK",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15192.0186,
+        "country": "TUR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 22596.9604,
+        "country": "CHL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 19367.7322,
+        "country": "XBA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 18641.1222,
+        "country": "GRC",
+        "suggested": false
+      },
+      {
+        "cost_usd": 23105.315,
+        "country": "IRL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14617.9347,
+        "country": "MMR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15197.1801,
+        "country": "IRN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14992.9192,
+        "country": "KOR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15986.8675,
+        "country": "PHL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 19126.7313,
+        "country": "KAZ",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15325.6899,
+        "country": "THA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17159.2298,
+        "country": "ZAF",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17655.0557,
+        "country": "PRT",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11902.6078,
+        "country": "ETH",
+        "suggested": false
+      },
+      {
+        "cost_usd": 23073.0323,
+        "country": "NOR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17217.5007,
+        "country": "DZA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17362.3438,
+        "country": "LKA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 20750.3102,
+        "country": "FIN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17416.8993,
+        "country": "XME",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17072.7289,
+        "country": "BLR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 29009.7803,
+        "country": "NZL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16792.9533,
+        "country": "BGR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15711.2872,
+        "country": "XKA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14866.0797,
+        "country": "PRK",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15481.894,
+        "country": "COL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16412.0193,
+        "country": "PER",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14562.7551,
+        "country": "MAR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17713.7609,
+        "country": "VEN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 21074.356,
+        "country": "XPU",
+        "suggested": false
+      },
+      {
+        "cost_usd": 18166.2438,
+        "country": "CUB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12387.4136,
+        "country": "AFG",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14390.8733,
+        "country": "UZB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15985.0173,
+        "country": "XZA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13153.1005,
+        "country": "NPL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11757.399,
+        "country": "SDN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 17984.793,
+        "country": "SYR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15803.6285,
+        "country": "MYS",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14948.7659,
+        "country": "TWN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15160.0457,
+        "country": "IRQ",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14839.204,
+        "country": "YEM",
+        "suggested": false
+      },
+      {
+        "cost_usd": 10527.1186,
+        "country": "COD",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16917.5619,
+        "country": "BOL",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14762.1681,
+        "country": "GHA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12731.1114,
+        "country": "XWA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12698.3497,
+        "country": "KHM",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15645.1186,
+        "country": "TUN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14492.9858,
+        "country": "XHI",
+        "suggested": false
+      },
+      {
+        "cost_usd": 18000.5435,
+        "country": "XLE",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16106.7408,
+        "country": "ECU",
+        "suggested": false
+      },
+      {
+        "cost_usd": 16249.2222,
+        "country": "XKB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13238.2035,
+        "country": "MDG",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12452.413,
+        "country": "KEN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11239.737,
+        "country": "TZA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12417.09,
+        "country": "UGA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11944.1825,
+        "country": "XMA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14073.855,
+        "country": "XTB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12291.361,
+        "country": "CMR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12175.1852,
+        "country": "MLI",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12168.5284,
+        "country": "BFA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11767.7025,
+        "country": "XRB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12587.0402,
+        "country": "XHA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11252.5214,
+        "country": "AGO",
+        "suggested": false
+      },
+      {
+        "cost_usd": 10189.5406,
+        "country": "MOZ",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13157.8633,
+        "country": "SEN",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13816.6197,
+        "country": "SAU",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13439.6331,
+        "country": "ZWE",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12388.0574,
+        "country": "NER",
+        "suggested": false
+      },
+      {
+        "cost_usd": 12823.7006,
+        "country": "XOZ",
+        "suggested": false
+      },
+      {
+        "cost_usd": 19145.5262,
+        "country": "XGU",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11502.7884,
+        "country": "CIV",
+        "suggested": false
+      },
+      {
+        "cost_usd": 11801.0398,
+        "country": "ZMB",
+        "suggested": false
+      },
+      {
+        "cost_usd": 10785.4934,
+        "country": "MWI",
+        "suggested": false
+      },
+      {
+        "cost_usd": 13746.4582,
+        "country": "XSA",
+        "suggested": false
+      },
+      {
+        "cost_usd": 15428.1963,
+        "country": "LBY",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14564.8117,
+        "country": "XGO",
+        "suggested": false
+      },
+      {
+        "cost_usd": 18161.4655,
+        "country": "SGP",
+        "suggested": false
+      },
+      {
+        "cost_usd": 14540.1677,
+        "country": "ISR",
+        "suggested": false
+      },
+      {
+        "cost_usd": 10308.4912,
+        "country": "MNG",
+        "suggested": false
+      }
+    ],
     "technologies": [
       {
         "days": null,
@@ -7724,6 +8281,7 @@
         "needed": null,
         "one_lab": null,
         "opens": [],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -7754,6 +8312,7 @@
           "rezept.draht_ziehen",
           "rezept.kupferdraht_ziehen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -7836,6 +8395,7 @@
         "opens": [
           "rezept.stahl_bessemer"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -7884,6 +8444,7 @@
         "opens": [
           "rezept.stahl_siemens_martin"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -7942,6 +8503,7 @@
           "anlage.elektrostahlwerk",
           "rezept.stahl_elektro"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -7988,6 +8550,7 @@
         "opens": [
           "rezept.naegel_maschine"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -8031,6 +8594,7 @@
           "rezept.schrauben_drehen",
           "rezept.muttern_pressen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8085,6 +8649,7 @@
         "opens": [
           "rezept.werkzeug_schmieden"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8129,6 +8694,7 @@
         "opens": [
           "rezept.schnittholz_saegen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8169,6 +8735,7 @@
         "opens": [
           "rezept.moebel_tischlern"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8217,6 +8784,7 @@
         "opens": [
           "rezept.garn_spinnen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8259,6 +8827,7 @@
         "opens": [
           "rezept.stoff_weben"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8299,6 +8868,7 @@
         "opens": [
           "rezept.stoff_elektrisch"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -8342,6 +8912,7 @@
         "opens": [
           "rezept.mehl_mahlen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8382,6 +8953,7 @@
         "opens": [
           "rezept.weissblech_verzinnen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8426,6 +8998,7 @@
         "opens": [
           "rezept.konserve_abfuellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8472,6 +9045,7 @@
         "opens": [
           "rezept.strom_dampfmaschine"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8526,6 +9100,7 @@
           "anlage.turbinenkraftwerk",
           "rezept.strom_turbine"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -8568,6 +9143,7 @@
         "opens": [
           "rezept.kupfer_verhuetten"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8619,6 +9195,7 @@
           "rezept.elektromotor_bauen",
           "rezept.kleinmotor_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8691,6 +9268,7 @@
         "opens": [
           "rezept.rohoel_destillieren"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8731,6 +9309,7 @@
         "opens": [
           "rezept.petroleumlampe_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8782,6 +9361,7 @@
         "opens": [
           "rezept.gluehlampe_kohlefaden"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8828,6 +9408,7 @@
         "opens": [
           "rezept.gluehlampe_wolfram"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -8877,6 +9458,7 @@
         "opens": [
           "rezept.gummi_vulkanisieren"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -8922,6 +9504,7 @@
           "rezept.fahrradreifen_bauen",
           "rezept.autoreifen_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -8987,6 +9570,7 @@
           "rezept.kleidung_naehen",
           "rezept.naehmaschine_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9053,6 +9637,7 @@
         "opens": [
           "rezept.fahrrad_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9121,6 +9706,7 @@
           "anlage.motorenwerk",
           "rezept.motor_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9179,6 +9765,7 @@
           "rezept.karosserie_holz",
           "rezept.automobil_montage"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9311,6 +9898,7 @@
           "rezept.fahrgestell_fliessband",
           "rezept.automobil_fliessband"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9393,6 +9981,7 @@
         "opens": [
           "rezept.karosserie_stahl"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9454,6 +10043,7 @@
           "anlage.crackanlage",
           "rezept.rohoel_cracken"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9499,6 +10089,7 @@
         "opens": [
           "rezept.aluminium_elektrolyse"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9543,6 +10134,7 @@
         "opens": [
           "rezept.tonerde_bayer"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9598,6 +10190,7 @@
         "opens": [
           "anlage.aluminiumwarenfabrik"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9642,6 +10235,7 @@
         "opens": [
           "rezept.zellstoff_sulfit"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9701,6 +10295,7 @@
           "rezept.kunstseide_viskose",
           "rezept.strumpf_wirken"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9761,6 +10356,7 @@
         "opens": [
           "rezept.bakelit_pressmasse"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -9810,6 +10406,7 @@
         "opens": [
           "rezept.radioroehre_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9865,6 +10462,7 @@
         "opens": [
           "rezept.roehrenradio_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9919,6 +10517,7 @@
         "opens": [
           "rezept.staubsauger_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -9981,6 +10580,7 @@
         "opens": [
           "rezept.kuehlschrank_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10043,6 +10643,7 @@
           "anlage.lastwagenwerk",
           "rezept.lastwagen_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10115,6 +10716,7 @@
           "anlage.traktorenwerk",
           "rezept.traktor_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10180,6 +10782,7 @@
           "anlage.flugmotorenwerk",
           "rezept.flugmotor_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10250,6 +10853,7 @@
           "anlage.flugzeugwerk",
           "rezept.verkehrsflugzeug_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10318,6 +10922,7 @@
           "rezept.ammoniak_haber_bosch",
           "rezept.duenger_ammoniak"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -10393,6 +10998,7 @@
           "anlage.polyethylenanlage",
           "rezept.polyethylen_hochdruck"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -10451,6 +11057,7 @@
           "anlage.dampfspalter",
           "rezept.ethylen_dampfspaltung"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10511,6 +11118,7 @@
           "anlage.spritzgiesserei",
           "rezept.kunststoffwaren_spritzgiessen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10574,6 +11182,7 @@
           "rezept.nylon_aus_kohle",
           "rezept.strumpf_nylon"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10673,6 +11282,7 @@
           "anlage.bildroehrenwerk",
           "rezept.bildroehre_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10744,6 +11354,7 @@
           "anlage.fernsehgeraetewerk",
           "rezept.fernseher_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10817,6 +11428,7 @@
           "anlage.waschmaschinenwerk",
           "rezept.waschmaschine_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10895,6 +11507,7 @@
           "anlage.halbleiterwerk",
           "rezept.transistor_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -10984,6 +11597,7 @@
           "anlage.taschenradiowerk",
           "rezept.transistorradio_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11055,6 +11669,7 @@
           "anlage.triebwerkswerk",
           "rezept.strahltriebwerk_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11123,6 +11738,7 @@
           "anlage.grossflugzeugwerk",
           "rezept.duesenflugzeug_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11196,6 +11812,7 @@
           "anlage.pharmawerk",
           "rezept.penicillin_fermentation"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [],
@@ -11254,6 +11871,7 @@
           "anlage.kautschuksynthese",
           "rezept.kautschuk_synthese"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11321,6 +11939,7 @@
           "anlage.siliziumwerk",
           "rezept.reinstsilizium_herstellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11376,6 +11995,7 @@
         "opens": [
           "rezept.transistor_silizium"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11452,6 +12072,7 @@
           "anlage.chipwerk",
           "rezept.mikrochip_herstellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11512,6 +12133,7 @@
           "researchers": 20.0
         },
         "opens": [],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11558,6 +12180,7 @@
           "anlage.rechnerwerk",
           "rezept.taschenrechner_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11632,6 +12255,7 @@
           "anlage.farbbildroehrenwerk",
           "rezept.farbbildroehre_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11702,6 +12326,7 @@
           "anlage.farbfernsehwerk",
           "rezept.farbfernseher_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11778,6 +12403,7 @@
           "anlage.magnetronwerk",
           "rezept.magnetron_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11846,6 +12472,7 @@
           "anlage.mikrowellenwerk",
           "rezept.mikrowelle_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11921,6 +12548,7 @@
           "anlage.computerwerk",
           "rezept.personal_computer_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -11994,6 +12622,7 @@
           "anlage.videorekorderwerk",
           "rezept.videorekorder_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12069,6 +12698,7 @@
           "anlage.cd_spielerwerk",
           "rezept.cd_spieler_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12143,6 +12773,7 @@
           "anlage.akkuwerk",
           "rezept.lithium_ionen_akku_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12220,6 +12851,7 @@
           "anlage.panelwerk",
           "rezept.lcd_panel_herstellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12295,6 +12927,7 @@
           "anlage.mobiltelefonwerk",
           "rezept.mobiltelefon_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12369,6 +13002,7 @@
           "anlage.laptopwerk",
           "rezept.laptop_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12442,6 +13076,7 @@
           "anlage.kamerawerk",
           "rezept.digitalkamera_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12514,6 +13149,7 @@
           "anlage.flachbildfernsehwerk",
           "rezept.flachbildfernseher_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12587,6 +13223,7 @@
           "anlage.dvd_spielerwerk",
           "rezept.dvd_spieler_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12661,6 +13298,7 @@
           "anlage.smartphonewerk",
           "rezept.smartphone_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12734,6 +13372,7 @@
           "anlage.tabletwerk",
           "rezept.tablet_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12810,6 +13449,7 @@
           "anlage.batteriewerk",
           "rezept.traktionsbatterie_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12894,6 +13534,7 @@
           "rezept.elektroantrieb_bauen",
           "rezept.elektroauto_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -12985,6 +13626,7 @@
           "anlage.batteriegrosswerk",
           "rezept.traktionsbatterie_grossserie"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13057,6 +13699,7 @@
           "anlage.polysiliziumwerk",
           "rezept.solarsilizium_herstellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13119,6 +13762,7 @@
           "anlage.solarmodulwerk",
           "rezept.solarmodul_herstellen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13191,6 +13835,7 @@
           "anlage.solargrossfabrik",
           "rezept.solarmodul_grossserie"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13263,6 +13908,7 @@
           "anlage.windkraftanlagenwerk",
           "rezept.windkraftanlage_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13335,6 +13981,7 @@
           "anlage.waermepumpenwerk",
           "rezept.waermepumpe_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [
@@ -13408,6 +14055,7 @@
           "anlage.led_lampenwerk",
           "rezept.led_lampe_bauen"
         ],
+        "patent": null,
         "points": 0.0,
         "points_per_day": -0.0,
         "prerequisites": [

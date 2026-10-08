@@ -680,6 +680,23 @@ es mir?“
   (1920–1939, 1940–1964, 1965–1989, ab 1990); vorher stand alles ab 1920 in einer
   Spalte, mit den Epochen bis 1989 gut zwanzig Technologien untereinander.
 
+### Forschung → Patente (P7)
+
+- **Was der Spieler erkennen soll:** welche eigenen Erfindungen er noch patentieren kann
+  (und bis wann), wo seine Patente gelten, und welche Patente anderer seine Anlagen
+  stoppen.
+- **Bereich „Patente“** (nur wenn die Daten Patente vorsehen; Zähler = offene Anmeldungen):
+  „Anmelden“ – je Anspruch die Frist, schon angemeldete Länder und eine Länderliste (größte
+  Märkte zuerst, die ersten 15, „Alle … Länder zeigen“) mit den Kosten je Land; vorgewählt
+  sind die Länder der eigenen Standorte und die größten Märkte; der Knopf nennt Zahl und
+  Summe. Darunter „Deine Patente“ und „Patente anderer Firmen“ mit Inhaber, Ende und Zahl
+  der Länder; wo ein fremdes Patent eigene Anlagen sperrt, ein Hinweis auf die Lizenz
+  (Wettbewerb → Lizenzen).
+- **Technologiedetail:** eine Zeile zum Patent (Anspruch mit Frist, eigenes oder fremdes
+  Patent). Gestoppte Anlagen zeigen die Ursache „Gestoppt durch ein Patent“, die
+  Produktionsketten „hakt: gestoppt durch ein Patent“; einmal im Monat eine Warnung je
+  Technologie und Land.
+
 ### Forschung → Weiterentwicklung (M37)
 
 - Ziel: Der Spieler sieht für jedes Produkt, das er herstellt (umschaltbar: alle, die er

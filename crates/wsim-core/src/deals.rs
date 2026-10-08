@@ -650,7 +650,12 @@ pub fn license_value(
     let effort = crate::research::effort(catalog, state, technology, date)?;
     let company = &state.companies[buyer.index()];
     let collected = company.research.get(&technology).copied().unwrap_or(0.0);
-    let missing = (effort.points - collected).max(0.0);
+    // Known but blocked by a patent (P7): the licence is worth the whole effort.
+    let missing = if crate::patents::needs_license(state, catalog, buyer, technology) {
+        effort.points
+    } else {
+        (effort.points - collected).max(0.0)
+    };
     let field = catalog.technologies.get(technology).field;
     let group = catalog
         .research_model
@@ -701,8 +706,7 @@ fn check_object(
         }
         DealObject::License(t) => {
             if t.index() >= catalog.technologies.len()
-                || !state.knows(catalog, seller, t)
-                || state.knows(catalog, buyer, t)
+                || !crate::patents::may_license(state, catalog, seller, buyer, t)
             {
                 return Err(CommandError::LicenseNotPossible);
             }
@@ -1066,6 +1070,7 @@ fn license(
     );
     b.research.remove(&technology);
     b.technologies.insert(technology);
+    crate::patents::licensed(state, technology, buyer, seller);
     state.companies[seller.index()].ledger.income(
         CostType::Licenses,
         CostCenter::default(),
@@ -1996,15 +2001,33 @@ pub(crate) fn deals_for(
                     .filter_map(|s| s.research),
             )
             .chain(search.technologies.iter().copied())
+            // Patented technologies that stop its own facilities (P7).
+            .chain(
+                state
+                    .sites
+                    .iter()
+                    .filter(|s| s.owner == buyer)
+                    .flat_map(|s| {
+                        s.slots.iter().filter_map(|sl| {
+                            crate::patents::blocked_recipe(
+                                state, catalog, buyer, sl.recipe?, s.country,
+                            )
+                        })
+                    }),
+            )
             .collect();
         for t in researching {
             let object = DealObject::License(t);
-            if state.knows(catalog, buyer, t) {
-                continue;
-            }
+            // Under a patent only the holder licenses (P7).
+            let holder = crate::patents::in_force(state, catalog, t).map(|p| p.holder);
             let Some(seller) = (0..state.companies.len())
                 .map(|i| CompanyId(u32::try_from(i).unwrap_or(u32::MAX)))
-                .find(|&id| available(id) && state.knows(catalog, id, t) && !taken(id, object))
+                .filter(|&id| holder.is_none_or(|h| h == id))
+                .find(|&id| {
+                    available(id)
+                        && crate::patents::may_license(state, catalog, id, buyer, t)
+                        && !taken(id, object)
+                })
             else {
                 continue;
             };

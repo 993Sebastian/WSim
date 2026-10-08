@@ -113,3 +113,64 @@ describe("Weiterentwicklung", () => {
     ]);
   });
 });
+
+describe("Patente", () => {
+  afterEach(cleanup);
+
+  it("meldet einen eigenen Anspruch in den gewählten Ländern an und zeigt fremde Patente", async () => {
+    const { kern: basis, uebersicht, gesendet } = await kernMitLabor();
+    const kern: Kern = {
+      ...basis,
+      forschung: async () => {
+        const d = await basis.forschung();
+        d.patent_countries = [
+          { country: "USA", cost_usd: 30_000, suggested: true },
+          { country: "DEU", cost_usd: 25_000, suggested: true },
+          { country: "FRA", cost_usd: 24_000, suggested: false },
+        ];
+        d.technologies[0]!.patent = {
+          holder: "Test AG",
+          own: true,
+          deadline: "1915-01-01",
+          until: null,
+          countries: [],
+          free_for_player: true,
+          blocks_player_in: [],
+        };
+        d.technologies[1]!.patent = {
+          holder: "Konkurrenz AG",
+          own: false,
+          deadline: null,
+          until: "1930-01-01",
+          countries: ["DEU", "USA"],
+          free_for_player: false,
+          blocks_player_in: ["DEU"],
+        };
+        return d;
+      },
+    };
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Patente/ }));
+    const daten = await kern.forschung();
+    const eigene = daten.technologies[0]!.key;
+    const form = screen.getByRole("form", { name: /anmelden$/ });
+    // The suggestion is chosen: the player's site countries and the largest markets.
+    const knopf = within(form).getByRole("button", { name: /In 2 Ländern anmelden/ });
+    fireEvent.click(within(form).getByRole("checkbox", { name: /Frankreich/ }));
+    expect(knopf.textContent).toMatch(/In 3 Ländern anmelden/);
+    fireEvent.click(knopf);
+    expect(await within(form).findByText(/in 3 Ländern patentiert/)).toBeTruthy();
+    expect(gesendet).toEqual([
+      { FilePatent: { technology: eigene, countries: ["USA", "DEU", "FRA"] } },
+    ]);
+    expect(screen.getByText(/Patentiert von Konkurrenz AG/)).toBeTruthy();
+    expect(screen.getByText(/Deine Anlagen in Deutschland brauchen eine Lizenz/)).toBeTruthy();
+  });
+});

@@ -210,6 +210,11 @@ pub enum Command {
     RestartFacility { site: SiteId, slot: usize },
     /// Retrofits a facility against pollutants by one level (H2).
     Retrofit { site: SiteId, slot: usize },
+    /// Files the patent claim on a technology in further countries (P7).
+    FilePatent {
+        technology: TechnologyId,
+        countries: Vec<CountryId>,
+    },
     /// Sells `count` units of a finished facility for part of their book value (M22).
     /// Selling all units removes the facility; later facilities move up one place.
     SellFacility {
@@ -774,6 +779,14 @@ pub enum CommandError {
     NoSuchChild,
     /// The unit has no pollutants or already the best level available (H2).
     NoRetrofit,
+    /// No patent claim of the company on the technology, the filing period is over, or
+    /// no new country (P7).
+    NoPatentClaim,
+    /// Another company's patent covers the technology in the country (P7).
+    Patented {
+        technology: String,
+        holder: String,
+    },
     /// Antitrust forbids the takeover: the combined share of a market (H2).
     Antitrust {
         product: String,
@@ -998,6 +1011,13 @@ impl CommandError {
             CommandError::NotSeller => e(keys::COMMAND_NOT_SELLER),
             CommandError::NoSuchChild => e(keys::COMMAND_NO_SUCH_CHILD),
             CommandError::NoRetrofit => e(keys::COMMAND_NO_RETROFIT),
+            CommandError::NoPatentClaim => e(keys::COMMAND_NO_PATENT_CLAIM),
+            CommandError::Patented { technology, holder } => e(keys::COMMAND_PATENTED)
+                .with(
+                    "technologie",
+                    Param::TextKey(format!("technologie.{technology}")),
+                )
+                .with("firma", Param::Text(holder.clone())),
             CommandError::Antitrust {
                 product,
                 country,
@@ -1090,6 +1110,17 @@ pub fn check_product_name(
 
 fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
     CommandError::TechnologyUnknown(catalog.technologies.key(t).to_owned())
+}
+
+/// The error for a technology another company's patent covers (P7).
+fn patented(state: &GameState, catalog: &Catalog, t: TechnologyId) -> CommandError {
+    let holder = crate::patents::in_force(state, catalog, t)
+        .and_then(|p| state.company(p.holder))
+        .map_or_else(String::new, |c| c.name.clone());
+    CommandError::Patented {
+        technology: catalog.technologies.key(t).to_owned(),
+        holder,
+    }
 }
 
 fn pay(ledger: &mut Ledger, asset: Account, amount: Money) -> Result<(), CommandError> {
@@ -1453,6 +1484,12 @@ fn run(
             if let Some(t) = f.technology.filter(|&t| !state.knows(catalog, actor, t)) {
                 return Err(unknown_technology(catalog, t));
             }
+            if let Some(t) = f
+                .technology
+                .filter(|&t| crate::patents::blocks(state, catalog, actor, t, s.country))
+            {
+                return Err(patented(state, catalog, t));
+            }
             let company = state.company_mut(actor).expect("checked above");
             let sizes = &catalog.production_model.sizes;
             let investment = f
@@ -1546,6 +1583,11 @@ fn run(
                 }
                 if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
                     return Err(unknown_technology(catalog, t));
+                }
+                if let Some(t) =
+                    crate::patents::blocked_recipe(state, catalog, actor, *recipe, s.country)
+                {
+                    return Err(patented(state, catalog, t));
                 }
                 if r.extraction {
                     let fits = s
@@ -2090,6 +2132,12 @@ fn run(
         }
         Command::Retrofit { site, slot } => {
             crate::regulation::retrofit(state, catalog, actor, (*site, *slot))?;
+        }
+        Command::FilePatent {
+            technology,
+            countries,
+        } => {
+            crate::patents::file(state, catalog, actor, *technology, countries)?;
         }
         Command::MothballFacility { site, slot, count } => {
             let sl = own_slot(state, actor, *site, *slot)?;

@@ -626,7 +626,8 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         catalog
             .technologies
             .ids()
-            .filter(|&t| state.knows(catalog, id, t) && !state.knows(catalog, player, t))
+            // Under a patent only the holder licenses (P7).
+            .filter(|&t| crate::patents::may_license(state, catalog, id, player, t))
             .filter_map(|t| {
                 let value = deals::license_value(state, catalog, player, t)?;
                 let (open, blocked) = player_offer_state(game, id, DealObject::License(t));

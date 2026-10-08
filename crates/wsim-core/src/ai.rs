@@ -109,6 +109,7 @@ pub fn decide_with(
                 news.extend(invest(state, catalog, id, own, decider));
             }
             fleet(state, catalog, id, decider);
+            file_patents(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
             news.extend(crate::ventures::ai_month(
@@ -130,6 +131,50 @@ pub fn decide_with(
         diversify(state, catalog, &mut news, decider);
     }
     news
+}
+
+/// Files the company's open patent claims (P7, docs/FORMELN.md): in its site countries
+/// and the largest markets if the cash covers all, else in its site countries only.
+fn file_patents(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    decider: &mut dyn Decider,
+) {
+    let open: Vec<TechnologyId> = catalog
+        .technologies
+        .ids()
+        .filter(|&t| {
+            crate::patents::can_file(state, catalog, id, t)
+                && state
+                    .patents
+                    .get(t)
+                    .as_ref()
+                    .is_some_and(|p| p.filed.is_none())
+        })
+        .collect();
+    for technology in open {
+        let (own, all) = crate::patents::ai_countries(state, catalog, id);
+        let cash = state.companies[id.index()].ledger.cash();
+        let cost = |countries: &[CountryId]| {
+            countries
+                .iter()
+                .map(|&c| crate::patents::filing_cost(state, catalog, c))
+                .fold(Money::ZERO, |a, b| a + b)
+        };
+        let countries = if cost(&all) <= cash {
+            all
+        } else if !own.is_empty() && cost(&own) <= cash {
+            own
+        } else {
+            continue;
+        };
+        let command = Command::FilePatent {
+            technology,
+            countries,
+        };
+        act(state, catalog, id, &command, decider);
+    }
 }
 
 /// The decision of the routine behind a command of the AI's operations (MA0): its
@@ -170,6 +215,7 @@ fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Comman
             (Topic::Cash, ChoiceKind::Borrow, None, None)
         }
         Command::RepayLoan { .. } => (Topic::Cash, ChoiceKind::Repay, None, None),
+        Command::FilePatent { .. } => (Topic::License, ChoiceKind::Adjust, None, None),
         _ => (Topic::Production, ChoiceKind::Adjust, None, None),
     };
     let mut d = Decision::new(topic, id, Choice::one(kind, command.clone()));
@@ -1074,6 +1120,12 @@ fn best_recipe(
                     .get(r.facility)
                     .technology
                     .is_none_or(|t| state.knows(catalog, id, t))
+        })
+        // Not where another company's patent stops it (P7).
+        .filter(|&(rid, _)| {
+            country.is_none_or(|c| {
+                crate::patents::blocked_recipe(state, catalog, id, rid, c).is_none()
+            })
         })
         .map(|(rid, r)| {
             let mut cost = population::reference_unit_cost(catalog, rid, energy);

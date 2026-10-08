@@ -94,7 +94,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P0 | Vorbereitung der Produktbreite: Weltläufe ohne Spielerabhängigkeit, Leistung, Suche/Filter, Datenwerkzeug | ✅ (Wunsch vom 08.10.2026: P1–P5 als P0 und zehn Branchenpakete P1a–P5) |
 | H3 | Rüstung | ⏳ |
 | P1a–P5 | Produktbreite in zehn Branchenpaketen (Architektur §4.1) | ⏳ |
-| P6, P7 | Reale Firmen nach Gründungsjahr, Patente | ⏳ |
+| P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
+| P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1159,6 +1160,33 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P7: Patente und Lizenzen (08.10.2026)
+
+Lastenheft §7.2; vorgezogen auf Wunsch („P7 kannst du auch einfach umsetzen“). Regeln:
+`docs/FORMELN.md`, Abschnitt P7; Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (P7).
+
+- **Daten:** `forschungsmodell.patente` (Laufzeit 20 Jahre, Anmeldefrist 365 Tage,
+  30 000 USD je Land für die ganze Laufzeit, KI: Standortländer und fünf größte Märkte);
+  Prüfregeln und Fehlerfall-Test.
+- **Kern:** Modul `patents`: Anspruch des ersten Erfinders, Befehl `FilePatent` (Kosten je
+  Land und Preisniveau, Kostenart „Lizenzen und Patente“), Vorbenutzer dürfen weiter,
+  Sperre beim Bauen, Einstellen und in der Produktion (`Limit::Patent`), Ende nach
+  Laufzeit, bei Pleite des Inhabers oder ohne Anmeldung in der Frist. Lizenzen auf
+  patentierte Technologien nur vom Inhaber, auch für gesperrte Firmen, die sie kennen
+  (Wert: voller Forschungsaufwand). KI meldet über denselben Befehl an, meidet gesperrte
+  Verfahren und fragt Lizenzen für gesperrte eigene Anlagen an.
+- **Oberfläche:** Forschung → „Patente“ (anmelden mit Länderwahl und Kosten, eigene und
+  fremde Patente), Zeile im Technologiedetail, Ursache „Gestoppt durch ein Patent“;
+  Lizenzliste im Wettbewerb nach der Patentregel.
+- **Weltlauf 1900–2026** (`run --nur-welt --ki 20 --welt --bericht`): läuft durch
+  (34 min); 01.01.2026: 222 KI-Firmen, davon 129 pleite (ohne Patente 139), 2 987 Standorte
+  (2 850); 3 Patente in Kraft bei 3 Firmen in im Mittel 12 Ländern, 26 Lizenznehmer und
+  Vorbenutzer. Viele Firmen erforschen dieselben Technologien fast gleichzeitig; als
+  Vorbenutzer bleiben sie frei, das Patent sperrt vor allem Spätere.
+- **Tests:** Kern (Anspruch und Anmeldung, Frist, Ende, Sperre nur in angemeldeten
+  Ländern, Stillstand laufender Anlagen, Lizenz nur vom Inhaber, Vorbenutzung,
+  Spielstand), Datenprüfung, vitest (Patentansicht), Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 
