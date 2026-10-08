@@ -83,6 +83,12 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | K2 | Anleihen: Bonität, fester Kupon, Rückzahlung, Rückkauf, KI | ✅ |
 | K3 | Investoren: KI-Anleger, Übernahmeangebote, feindliche Übernahme, Aktienrückkauf | ✅ |
 | K4 | Investor und Bank: Startformen, Einlagen, Kredite an Firmen, Ausfälle | ✅ |
+| PE1 | Alter der Manager, Ruhestand, Nachfolge | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE2 | Spielerfigur: Person, Familie, Rollen | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE3 | Privatkonto und Spielstart ohne Firma | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE4 | Dividenden | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE6 | Tod, Erbe und Übergabe der Spielerfigur | ⏳ als Nächstes (`docs/PERSON.md`) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026

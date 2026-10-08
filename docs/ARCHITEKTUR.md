@@ -327,7 +327,13 @@ möchtest.
 
 Vorgezogen und schon fertig: Manager-System (MA0–MA6), Hauptsitz und Zentralabteilungen
 (ZA1–ZA4), Start-ups und Beteiligungen (SU1–SU3), Marketing (M16), Übernahmen (M30/M31),
-Pleiten (M38), Lizenzen (M30), Landeswährungen in der Anzeige (M21). Reihenfolge:
+Pleiten (M38), Lizenzen (M30), Landeswährungen in der Anzeige (M21)..
+
+PE1–PE6 (`docs/PERSON.md`, Lastenheft §18.7) kommen direkt nach K4, vor H1. Die Vorgabe
+beschreibt den Code nach W2; W6 und K1–K4 sind inzwischen umgesetzt. PE3–PE5 bauen darauf
+auf und passen deren Regeln an, wo die Vorgabe abweicht (z. B. Dividende an den Spieler
+privat seit K1, Spielende nach feindlicher Übernahme aus K3, Startformen aus K4 gegenüber
+dem Start ohne Firma); Abweichungen zur Abnahme in `docs/OFFENE_PUNKTE.md`. Reihenfolge:
 
 | Nr. | Meilenstein | Inhalt | Prüfbar durch |
 | --- | --- | --- | --- |
@@ -349,6 +355,12 @@ Pleiten (M38), Lizenzen (M30), Landeswährungen in der Anzeige (M21). Reihenfolg
 | K2 | Anleihen | Ausgabe, Zins nach Bonität, Rückzahlung | Szenariotests |
 | K3 | Investoren | Anteile anderer Firmen kaufen, Dividenden, Übernahme ganzer Firmen über Anteile | Szenariotests |
 | K4 | Investor und Bank | Spiel ohne Produktion: Investmentfirma, Bank mit Krediten und Einlagen | Szenariotests, Oberfläche |
+| PE1 | Alter der Manager | Geburtsdatum, Alterswirkungen, Ruhestand, Anliegen „Nachfolge regeln“ (`docs/PERSON.md` §11) | Weltlauf 1900–1960, Determinismus, alte Spielstände |
+| PE2 | Spielerfigur | Person, Familie, Rollen, Lebenslauf, Ansicht Person | Alter Spielstand mit Standardperson, Weltlauf |
+| PE3 | Privatkonto und Spielstart | Startgeld, Start ohne Firma, Gründung, kontrollierte Firmen, Lebensstil, Gehalt, Einkommensteuer | Szenariotests, geschlossener Geldkreislauf, Einführung |
+| PE4 | Dividenden | Politik, Verteilung nach Anteil, Quellensteuer, Konzernprivileg, KI-Regel | Weltlauf 1900–1930, Benchmark 1 000 KI-Firmen |
+| PE5 | Käufe und Verkäufe der Person | Anteile, private Start-up-Anteile, mehrere Firmen, Steuerung mit/ohne CEO, neues Spielende | Szenariotests |
+| PE6 | Tod, Erbe, Übergabe | Sterbetafel, Erbe (Kind, sonst Neffe/Nichte), Erbschaftsteuer, Übergabe zu Lebzeiten | Weltlauf 1900–2100 über drei Generationen |
 | H1 | Ereignisfolgen | Krieg, Krisen, Embargos wirken auf Märkte, Handel und Firmen | Prüfregeln, Weltlauf |
 | H2 | Regulierung und Umwelt | Auflagen, Emissionen, Kartellaufsicht | Prüfregeln, Szenariotests |
 | H3 | Rüstung | Rüstungsgüter und Staatsbedarf im Krieg | Prüfregeln, Weltlauf |
