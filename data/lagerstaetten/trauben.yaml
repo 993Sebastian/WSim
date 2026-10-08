@@ -1,0 +1,105 @@
+# Trauben (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: wein_fra
+  land: FRA
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 57600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wein_ita
+  land: ITA
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 50400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wein_esp
+  land: ESP
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 28800000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: wein_deu
+  land: DEU
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 4320000
+  foerderkosten_faktor: 1.2
+  annaeherung: true
+- id: wein_usa
+  land: USA
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5760000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wein_arg
+  land: ARG
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: wein_aus
+  land: AUS
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2160000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wein_zaf
+  land: ZAF
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2160000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: wein_chl
+  land: CHL
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: wein_prt
+  land: PRT
+  rohstoff: trauben
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5760000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

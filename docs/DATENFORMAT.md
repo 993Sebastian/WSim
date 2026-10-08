@@ -82,7 +82,7 @@ Pflichtfelder sind unten **fett** gesetzt, alle anderen sind optional.
 
 | Abschnitt | Felder |
 | --- | --- |
-| `einheiten` | **id**, gewicht_kg (Gewicht einer Einheit; fehlt es, braucht jedes Produkt mit dieser Einheit ein eigenes `gewicht_kg`) |
+| `einheiten` | **id**, gewicht_kg (Gewicht einer Einheit; fehlt es, braucht jedes Produkt mit dieser Einheit ein eigenes `gewicht_kg`). Vorhanden: `t`, `kg`, `l` (Liter, 1 kg; P1), `stueck`, `mwh`, `m3`, `m2`, `kwh`, `kwp` |
 | `kontinente`, `branchen`, `warengruppen`, `fachrichtungen` | **id** |
 | `transportklassen` | **id**, kostenfaktor (Transportkosten gegenüber Schüttgut, Standard 1) |
 | `qualifikationen` | **id**, **stufe** (1–255, höher = qualifizierter), **mit_fachrichtung** (true/false) |
@@ -247,6 +247,11 @@ data/ketten/NN_name.yaml --titel "Kette NN – …" [--anlagen anlagen.csv]
 `wsim validate` (darunter die Richtpreis-Margen) und die Zeilen der neuen Rezepte aus
 `wsim rezepte`. Zellen ohne `quelle` erhalten `annaeherung: true`. Weitere Rezepte,
 Nebenprodukte und Sonderfelder werden danach in der YAML-Datei ergänzt.
+**Branchenpakete (P1 ff.):** Die Ketten 50–52 und die Lagerstätten ihrer Rohstoffe erzeugt
+`python3 tools/daten/pakete/p1/gen.py` aus `spec.py` (eine Zeile je Ware mit Preis,
+Nachfrage, Rezept, Anlage und Lagerstätten); `kalib.py` stimmt Arbeitsstunden und
+Richtpreise auf die Plausibilitätsprüfung ab und schreibt `kalib.json`. Änderungen an
+diesen Waren gehören in `spec.py`, die YAML-Dateien sind erzeugt.
 `python3 tools/daten/vervielfachen.py data <ziel> <faktor>` legt in einer Kopie jedes
 Endprodukt mit seinen Rezepten `faktor − 1`-mal zusätzlich an (`<id>_v2` …) – ein
 Prüfstand für Rechenzeit und Spielstandsgröße, keine Spieldaten.

@@ -1,0 +1,125 @@
+# Obst und Gemüse (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: gemuese_usa
+  land: USA
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: gemuese_chn
+  land: CHN
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 72000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: gemuese_ind
+  land: IND
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 54000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: gemuese_ita
+  land: ITA
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: gemuese_esp
+  land: ESP
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: gemuese_fra
+  land: FRA
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: gemuese_deu
+  land: DEU
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: gemuese_rus
+  land: RUS
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: gemuese_bra
+  land: BRA
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: gemuese_tur
+  land: TUR
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 10800000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: gemuese_mex
+  land: MEX
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: gemuese_gbr
+  land: GBR
+  rohstoff: obst_gemuese
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.1
+  annaeherung: true

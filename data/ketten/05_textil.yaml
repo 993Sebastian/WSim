@@ -52,7 +52,8 @@ produkte:
     richtpreis_usd: 40            # Hemd, Hose, Kleid im Mittel
     nachfrage:
       bedarfsklasse: grundbedarf
-      verbrauch: {je_kopf_und_jahr: 5}  # 1900 etwa 3 kg Fasern je Kopf und Jahr (alle Textilien)
+      verbrauch: {je_kopf_und_jahr: 3.5}  # 1900 etwa 3 kg Fasern je Kopf und Jahr (alle Textilien);
+                                          # P1: Wäsche, Strick, Mäntel u. a. als eigene Waren
       kaufschwelle: 10            # die Hälfte kauft ab etwa 400 USD Einkommen
       preisempfindlichkeit: 0.8
       einkommensempfindlichkeit: 0.8

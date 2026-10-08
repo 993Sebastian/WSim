@@ -1,0 +1,1775 @@
+# Kette 51 – Textil, Bekleidung, Schuhe und Leder (P1b)
+# Erzeugt mit tools/daten/pakete/p1/gen.py – Änderungen dort in spec.py.
+# Breite der Produkte (Stufe 5). Alle Zahlen sind Annäherungen; Richtpreise um 1900
+# oder zum Erfindungsjahr, Arbeitsstunden auf die Plausibilitätsprüfung abgestimmt
+# (5–45 % Marge, Ziel 30 %). Kaufschwelle = Einkommen, bei dem die Hälfte kauft / Preis.
+
+produkte:
+- id: wolle
+  art: rohstoff
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: agrarrohstoffe
+  transportklasse: schuettgut
+  richtpreis_usd: 13000
+  foerderindex:
+    1900: 1.0
+    1930: 1.3
+    1950: 1.5
+    1970: 2.0
+    1990: 2.3
+    2010: 1.6
+    2026: 1.4
+  pacht_anteil: 0.3
+  annaeherung: true
+- id: rohseide
+  art: rohstoff
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: agrarrohstoffe
+  transportklasse: stueckgut
+  richtpreis_usd: 250000
+  foerderindex:
+    1900: 1.0
+    1930: 2.0
+    1950: 1.0
+    1970: 2.0
+    1990: 3.5
+    2010: 5.0
+    2026: 5.0
+  pacht_anteil: 0.2
+  annaeherung: true
+- id: haeute
+  art: halbzeug
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: agrarrohstoffe
+  transportklasse: stueckgut
+  richtpreis_usd: 1000
+  staatsmarkt:
+    preis_usd: 1100
+  annaeherung: true
+- id: gerbstoff
+  art: halbzeug
+  branche: chemie
+  einheit: t
+  verwendung: industrie
+  warengruppe: chemie
+  transportklasse: stueckgut
+  richtpreis_usd: 3000
+  staatsmarkt:
+    preis_usd: 3000
+  annaeherung: true
+- id: leder
+  art: halbzeug
+  branche: textil
+  einheit: m2
+  gewicht_kg: 1.2
+  verwendung: industrie
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 40
+  annaeherung: true
+- id: wollgarn
+  art: halbzeug
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 36000
+  annaeherung: true
+- id: wollstoff
+  art: halbzeug
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 60000
+  annaeherung: true
+- id: seidenstoff
+  art: halbzeug
+  branche: textil
+  einheit: t
+  verwendung: industrie
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 636000
+  annaeherung: true
+- id: polyesterfaser
+  art: halbzeug
+  branche: chemie
+  einheit: t
+  verwendung: industrie
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 6000
+  annaeherung: true
+- id: anzug
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.5
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 400
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 0.6
+    kaufschwelle: 20
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: mantel
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.8
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 300
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 6
+      max_besitzquote: 0.9
+    kaufschwelle: 10
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 0.5
+    kriegsfaktor: 6.0
+  annaeherung: true
+- id: damenkleid
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.5
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 150
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 3
+      max_besitzquote: 1.5
+    kaufschwelle: 40
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: arbeitskleidung
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.9
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 60
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 2
+      max_besitzquote: 0.6
+    kaufschwelle: 13.3
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.4
+  staatsnachfrage:
+    je_mio_usd_bip: 6
+    kriegsfaktor: 6.0
+  annaeherung: true
+- id: unterwaesche
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.12
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 8
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 4
+    kaufschwelle: 100
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 3
+    kriegsfaktor: 5.0
+  annaeherung: true
+- id: socken
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.06
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 4
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 4
+    kaufschwelle: 150
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 4
+    kriegsfaktor: 6.0
+  annaeherung: true
+- id: pullover
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.5
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 80
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 1.2
+    kaufschwelle: 50
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 0.6
+    kriegsfaktor: 5.0
+  annaeherung: true
+- id: jeans
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.7
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 60
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 2
+      max_besitzquote: 1.5
+    kaufschwelle: 133
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: t_shirt
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.18
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 12
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 2
+    kaufschwelle: 333
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: sportbekleidung
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.3
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 45
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 2
+      max_besitzquote: 1.5
+    kaufschwelle: 444
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.2
+  annaeherung: true
+- id: funktionsjacke
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.7
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 180
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 0.8
+    kaufschwelle: 139
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.2
+  annaeherung: true
+- id: seidenwaren
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.2
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 279
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 1.0
+    kaufschwelle: 89.7
+    preisempfindlichkeit: 0.9
+    einkommensempfindlichkeit: 1.3
+  annaeherung: true
+- id: krawatte
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.05
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 65.2
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 1.0
+    kaufschwelle: 184
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: strumpfhose
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.04
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 8
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 4
+    kaufschwelle: 750
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: hut
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.2
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 60
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 3
+      max_besitzquote: 0.8
+    kaufschwelle: 33.3
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.7
+  annaeherung: true
+- id: babykleidung
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.1
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 10
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 3
+    kaufschwelle: 300
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: windeln
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.04
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 0.35
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 150
+    kaufschwelle: 42900
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.1
+  annaeherung: true
+- id: bettwaesche
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.0
+  verwendung: konsum
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 40
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 1.5
+    kaufschwelle: 37.5
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: handtuch
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.4
+  verwendung: konsum
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 12
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 3.0
+    kaufschwelle: 100
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 3
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: gardinen
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.8
+  verwendung: konsum
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 1.0
+    kaufschwelle: 133
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: wolldecke
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 2.0
+  verwendung: konsum
+  warengruppe: textilien
+  transportklasse: stueckgut
+  richtpreis_usd: 114
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 1.0
+    kaufschwelle: 13.1
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 8.0
+  annaeherung: true
+- id: teppich
+  art: endprodukt
+  branche: lebensmittel
+  einheit: m2
+  gewicht_kg: 2.5
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 43.7
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 12
+      max_besitzquote: 4.0
+    kaufschwelle: 114
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: lederschuhe
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.9
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 80
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 3
+      max_besitzquote: 1.5
+    kaufschwelle: 18.8
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.7
+  annaeherung: true
+- id: stiefel
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.6
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 100
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 3
+      max_besitzquote: 0.5
+    kaufschwelle: 8
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.4
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 10.0
+  annaeherung: true
+- id: turnschuhe
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.6
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 50
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 2
+      max_besitzquote: 1.5
+    kaufschwelle: 120
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: gummistiefel
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.2
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 84.9
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 0.3
+    kaufschwelle: 58.9
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 1
+    kriegsfaktor: 4.0
+  annaeherung: true
+- id: lederjacke
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 1.5
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 300
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 6
+      max_besitzquote: 0.4
+    kaufschwelle: 40
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.1
+  staatsnachfrage:
+    je_mio_usd_bip: 0.05
+    kriegsfaktor: 10.0
+  annaeherung: true
+- id: handschuhe
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.15
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 3
+      max_besitzquote: 1.0
+    kaufschwelle: 133
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 1
+    kriegsfaktor: 6.0
+  annaeherung: true
+- id: handtasche
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.8
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 120
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 0.8
+    kaufschwelle: 83.3
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.1
+  annaeherung: true
+- id: guertel
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.2
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 25
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 1.5
+    kaufschwelle: 120
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: koffer
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 3.5
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 120
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 0.5
+    kaufschwelle: 83.3
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.1
+  annaeherung: true
+- id: rucksack
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.8
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 50
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 6
+      max_besitzquote: 0.8
+    kaufschwelle: 160
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 1.0
+  staatsnachfrage:
+    je_mio_usd_bip: 0.5
+    kriegsfaktor: 8.0
+  annaeherung: true
+- id: regenmantel
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 0.9
+  verwendung: konsum
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 90
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 0.7
+    kaufschwelle: 44.4
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: uniform
+  art: endprodukt
+  branche: lebensmittel
+  einheit: stueck
+  gewicht_kg: 2.0
+  verwendung: industrie
+  warengruppe: lebensmittel
+  transportklasse: stueckgut
+  richtpreis_usd: 221
+  staatsnachfrage:
+    je_mio_usd_bip: 1
+    kriegsfaktor: 25.0
+  annaeherung: true
+anlagen:
+- id: schaffarm
+  standorttyp: foerderstaette
+  investition_usd: 1800000
+  bauzeit_tage: 120
+  kapazitaet_je_tag: 0.63
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.3
+  annaeherung: true
+- id: seidenraupenzucht
+  standorttyp: foerderstaette
+  investition_usd: 1200000
+  bauzeit_tage: 120
+  kapazitaet_je_tag: 0.022
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.3
+  annaeherung: true
+- id: gerberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 340
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: kammgarnspinnerei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 0.38
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: tuchfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 0.23
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: seidenweberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 0.022
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: polyesteranlage
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2.3
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: polyesterfaser
+  annaeherung: true
+- id: herrenschneiderei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 34
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: mantelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 46
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: damenkonfektion
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 91
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: arbeitskleidungfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 230
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: trikotagenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: strickerei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 3400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: strickwarenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 170
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: jeansfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 230
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: t_shirt_fabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1100
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: sportbekleidungfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 300
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: funktionsfaser
+  annaeherung: true
+- id: outdoorfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 76
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: atmungsaktive_membran
+  annaeherung: true
+- id: seidenkonfektion
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 49
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: krawattenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 210
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: feinstrumpfwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: strumpfhose
+  annaeherung: true
+- id: hutfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 230
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: babykleidungfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: windelwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 39000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: wegwerfwindel
+  annaeherung: true
+- id: weisswarenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 340
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: frottierweberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1100
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: gardinenweberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: deckenweberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 120
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: teppichweberei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 310
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: schuhfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 170
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: stiefelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 140
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: sportschuhfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 270
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: sportschuh
+  annaeherung: true
+- id: gummistiefelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 160
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: gummistiefel
+  annaeherung: true
+- id: lederbekleidungfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 46
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: handschuhfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: taschenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: guertelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 550
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: kofferfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: rucksackfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 270
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: regenmantelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 150
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: uniformschneiderei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 62
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+rezepte:
+- id: wolle_gewinnen
+  produkt: wolle
+  menge: 1
+  dauer_tage: 1
+  anlage: schaffarm
+  abbau: true
+  arbeit_stunden:
+    ungelernt: 1200
+    angelernt: 300
+  qualitaet_basis: 50
+  annaeherung: true
+- id: rohseide_gewinnen
+  produkt: rohseide
+  menge: 1
+  dauer_tage: 1
+  anlage: seidenraupenzucht
+  abbau: true
+  arbeit_stunden:
+    ungelernt: 24000
+    angelernt: 6000
+  qualitaet_basis: 50
+  annaeherung: true
+- id: leder_herstellen
+  produkt: leder
+  menge: 1
+  dauer_tage: 1
+  anlage: gerberei
+  eingang:
+    haeute: 0.0045
+    gerbstoff: 0.0012
+  arbeit_stunden:
+    ungelernt: 0.237
+    angelernt: 1.42
+    fachkraft.textil: 0.7
+    akademiker.textil: 0.0119
+  qualitaet_basis: 50
+  annaeherung: true
+- id: wollgarn_herstellen
+  produkt: wollgarn
+  menge: 1
+  dauer_tage: 1
+  anlage: kammgarnspinnerei
+  eingang:
+    wolle: 1.25
+  arbeit_stunden:
+    ungelernt: 80
+    angelernt: 480
+    fachkraft.textil: 236
+    akademiker.textil: 4
+  qualitaet_basis: 50
+  annaeherung: true
+- id: wollstoff_herstellen
+  produkt: wollstoff
+  menge: 1
+  dauer_tage: 1
+  anlage: tuchfabrik
+  eingang:
+    wollgarn: 1.08
+  arbeit_stunden:
+    ungelernt: 90
+    angelernt: 540
+    fachkraft.textil: 266
+    akademiker.textil: 4.5
+  qualitaet_basis: 50
+  annaeherung: true
+- id: seidenstoff_herstellen
+  produkt: seidenstoff
+  menge: 1
+  dauer_tage: 1
+  anlage: seidenweberei
+  eingang:
+    rohseide: 1.1
+  arbeit_stunden:
+    ungelernt: 1500
+    angelernt: 9000
+    fachkraft.textil: 4420
+    akademiker.textil: 75
+  qualitaet_basis: 50
+  annaeherung: true
+- id: polyesterfaser_herstellen
+  produkt: polyesterfaser
+  menge: 1
+  dauer_tage: 1
+  anlage: polyesteranlage
+  technologie: polyesterfaser
+  eingang:
+    ethylen: 0.5
+    rohoel: 0.6
+  arbeit_stunden:
+    ungelernt: 57.1
+    angelernt: 179
+    fachkraft.chemie: 133
+    akademiker.chemie: 11.4
+  qualitaet_basis: 50
+  annaeherung: true
+- id: anzug_herstellen
+  produkt: anzug
+  menge: 1
+  dauer_tage: 1
+  anlage: herrenschneiderei
+  eingang:
+    wollstoff: 0.0018
+    garn: 0.0001
+  arbeit_stunden:
+    ungelernt: 1.2
+    angelernt: 7.2
+    fachkraft.textil: 3.54
+    akademiker.textil: 0.06
+  qualitaet_basis: 50
+  annaeherung: true
+- id: mantel_herstellen
+  produkt: mantel
+  menge: 1
+  dauer_tage: 1
+  anlage: mantelfabrik
+  eingang:
+    wollstoff: 0.0025
+  arbeit_stunden:
+    ungelernt: 0.8
+    angelernt: 4.8
+    fachkraft.textil: 2.36
+    akademiker.textil: 0.04
+  qualitaet_basis: 50
+  annaeherung: true
+- id: damenkleid_herstellen
+  produkt: damenkleid
+  menge: 1
+  dauer_tage: 1
+  anlage: damenkonfektion
+  eingang:
+    stoff: 0.0007
+    seidenstoff: 4.0e-05
+  arbeit_stunden:
+    ungelernt: 0.5
+    angelernt: 3
+    fachkraft.textil: 1.47
+    akademiker.textil: 0.025
+  qualitaet_basis: 50
+  annaeherung: true
+- id: arbeitskleidung_herstellen
+  produkt: arbeitskleidung
+  menge: 1
+  dauer_tage: 1
+  anlage: arbeitskleidungfabrik
+  eingang:
+    stoff: 0.0008
+  arbeit_stunden:
+    ungelernt: 0.2
+    angelernt: 1.2
+    fachkraft.textil: 0.59
+    akademiker.textil: 0.01
+  qualitaet_basis: 50
+  annaeherung: true
+- id: unterwaesche_herstellen
+  produkt: unterwaesche
+  menge: 1
+  dauer_tage: 1
+  anlage: trikotagenfabrik
+  eingang:
+    garn: 0.00015
+  arbeit_stunden:
+    ungelernt: 0.035
+    angelernt: 0.21
+    fachkraft.textil: 0.103
+    akademiker.textil: 0.00175
+  qualitaet_basis: 50
+  annaeherung: true
+- id: socken_herstellen
+  produkt: socken
+  menge: 1
+  dauer_tage: 1
+  anlage: strickerei
+  eingang:
+    garn: 7.0e-05
+  arbeit_stunden:
+    ungelernt: 0.015
+    angelernt: 0.09
+    fachkraft.textil: 0.0442
+    akademiker.textil: 0.00075
+  qualitaet_basis: 50
+  annaeherung: true
+- id: pullover_herstellen
+  produkt: pullover
+  menge: 1
+  dauer_tage: 1
+  anlage: strickwarenfabrik
+  eingang:
+    wollgarn: 0.0006
+  arbeit_stunden:
+    ungelernt: 0.25
+    angelernt: 1.5
+    fachkraft.textil: 0.737
+    akademiker.textil: 0.0125
+  qualitaet_basis: 50
+  annaeherung: true
+- id: jeans_herstellen
+  produkt: jeans
+  menge: 1
+  dauer_tage: 1
+  anlage: jeansfabrik
+  eingang:
+    stoff: 0.0008
+    kupfer: 2.0e-06
+  arbeit_stunden:
+    ungelernt: 0.18
+    angelernt: 1.08
+    fachkraft.textil: 0.531
+    akademiker.textil: 0.009
+  qualitaet_basis: 50
+  annaeherung: true
+- id: t_shirt_herstellen
+  produkt: t_shirt
+  menge: 1
+  dauer_tage: 1
+  anlage: t_shirt_fabrik
+  eingang:
+    garn: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.04
+    angelernt: 0.24
+    fachkraft.textil: 0.118
+    akademiker.textil: 0.002
+  qualitaet_basis: 50
+  annaeherung: true
+- id: sportbekleidung_herstellen
+  produkt: sportbekleidung
+  menge: 1
+  dauer_tage: 1
+  anlage: sportbekleidungfabrik
+  technologie: funktionsfaser
+  eingang:
+    polyesterfaser: 0.00028
+    nylon: 4.0e-05
+  arbeit_stunden:
+    ungelernt: 0.13
+    angelernt: 0.78
+    fachkraft.textil: 0.384
+    akademiker.textil: 0.0065
+  qualitaet_basis: 50
+  annaeherung: true
+- id: funktionsjacke_herstellen
+  produkt: funktionsjacke
+  menge: 1
+  dauer_tage: 1
+  anlage: outdoorfabrik
+  technologie: atmungsaktive_membran
+  eingang:
+    polyesterfaser: 0.0005
+    nylon: 0.0002
+    polyethylen: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 0.5
+    angelernt: 3
+    fachkraft.textil: 1.47
+    akademiker.textil: 0.025
+  qualitaet_basis: 50
+  annaeherung: true
+- id: seidenwaren_herstellen
+  produkt: seidenwaren
+  menge: 1
+  dauer_tage: 1
+  anlage: seidenkonfektion
+  eingang:
+    seidenstoff: 0.00022
+  arbeit_stunden:
+    ungelernt: 0.2
+    angelernt: 1.2
+    fachkraft.textil: 0.59
+    akademiker.textil: 0.01
+  qualitaet_basis: 50
+  annaeherung: true
+- id: krawatte_herstellen
+  produkt: krawatte
+  menge: 1
+  dauer_tage: 1
+  anlage: krawattenfabrik
+  eingang:
+    seidenstoff: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.36
+    fachkraft.textil: 0.177
+    akademiker.textil: 0.003
+  qualitaet_basis: 50
+  annaeherung: true
+- id: strumpfhose_herstellen
+  produkt: strumpfhose
+  menge: 1
+  dauer_tage: 1
+  anlage: feinstrumpfwerk
+  technologie: strumpfhose
+  eingang:
+    nylon: 3.5e-05
+  arbeit_stunden:
+    ungelernt: 0.04
+    angelernt: 0.24
+    fachkraft.textil: 0.118
+    akademiker.textil: 0.002
+  qualitaet_basis: 50
+  annaeherung: true
+- id: hut_herstellen
+  produkt: hut
+  menge: 1
+  dauer_tage: 1
+  anlage: hutfabrik
+  eingang:
+    wolle: 0.00018
+    stoff: 3.0e-05
+  arbeit_stunden:
+    ungelernt: 0.25
+    angelernt: 1.5
+    fachkraft.textil: 0.737
+    akademiker.textil: 0.0125
+  qualitaet_basis: 50
+  annaeherung: true
+- id: babykleidung_herstellen
+  produkt: babykleidung
+  menge: 1
+  dauer_tage: 1
+  anlage: babykleidungfabrik
+  eingang:
+    garn: 0.00012
+  arbeit_stunden:
+    ungelernt: 0.04
+    angelernt: 0.24
+    fachkraft.textil: 0.118
+    akademiker.textil: 0.002
+  qualitaet_basis: 50
+  annaeherung: true
+- id: windeln_herstellen
+  produkt: windeln
+  menge: 1
+  dauer_tage: 1
+  anlage: windelwerk
+  technologie: wegwerfwindel
+  eingang:
+    zellstoff: 2.5e-05
+    polyethylen: 8.0e-06
+  arbeit_stunden:
+    ungelernt: 0.00165
+    angelernt: 0.0099
+    fachkraft.textil: 0.00487
+    akademiker.textil: 8.25e-05
+  qualitaet_basis: 50
+  annaeherung: true
+- id: bettwaesche_herstellen
+  produkt: bettwaesche
+  menge: 1
+  dauer_tage: 1
+  anlage: weisswarenfabrik
+  eingang:
+    stoff: 0.0009
+  arbeit_stunden:
+    ungelernt: 0.12
+    angelernt: 0.72
+    fachkraft.textil: 0.354
+    akademiker.textil: 0.006
+  qualitaet_basis: 50
+  annaeherung: true
+- id: handtuch_herstellen
+  produkt: handtuch
+  menge: 1
+  dauer_tage: 1
+  anlage: frottierweberei
+  eingang:
+    garn: 0.00045
+  arbeit_stunden:
+    ungelernt: 0.035
+    angelernt: 0.21
+    fachkraft.textil: 0.103
+    akademiker.textil: 0.00175
+  qualitaet_basis: 50
+  annaeherung: true
+- id: gardinen_herstellen
+  produkt: gardinen
+  menge: 1
+  dauer_tage: 1
+  anlage: gardinenweberei
+  eingang:
+    garn: 0.0007
+  arbeit_stunden:
+    ungelernt: 0.09
+    angelernt: 0.54
+    fachkraft.textil: 0.266
+    akademiker.textil: 0.0045
+  qualitaet_basis: 50
+  annaeherung: true
+- id: wolldecke_herstellen
+  produkt: wolldecke
+  menge: 1
+  dauer_tage: 1
+  anlage: deckenweberei
+  eingang:
+    wollgarn: 0.0015
+  arbeit_stunden:
+    ungelernt: 0.15
+    angelernt: 0.9
+    fachkraft.textil: 0.443
+    akademiker.textil: 0.0075
+  qualitaet_basis: 50
+  annaeherung: true
+- id: teppich_herstellen
+  produkt: teppich
+  menge: 1
+  dauer_tage: 1
+  anlage: teppichweberei
+  eingang:
+    wollgarn: 0.0004
+    garn: 0.0004
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.36
+    fachkraft.textil: 0.177
+    akademiker.textil: 0.003
+  qualitaet_basis: 50
+  annaeherung: true
+- id: lederschuhe_herstellen
+  produkt: lederschuhe
+  menge: 1
+  dauer_tage: 1
+  anlage: schuhfabrik
+  eingang:
+    leder: 0.35
+  arbeit_stunden:
+    ungelernt: 0.39
+    angelernt: 2.34
+    fachkraft.textil: 1.15
+    akademiker.textil: 0.0195
+  qualitaet_basis: 50
+  annaeherung: true
+- id: stiefel_herstellen
+  produkt: stiefel
+  menge: 1
+  dauer_tage: 1
+  anlage: stiefelfabrik
+  eingang:
+    leder: 0.6
+  arbeit_stunden:
+    ungelernt: 0.2
+    angelernt: 1.2
+    fachkraft.textil: 0.59
+    akademiker.textil: 0.01
+  qualitaet_basis: 50
+  annaeherung: true
+- id: turnschuhe_herstellen
+  produkt: turnschuhe
+  menge: 1
+  dauer_tage: 1
+  anlage: sportschuhfabrik
+  technologie: sportschuh
+  eingang:
+    stoff: 0.00025
+    gummi: 0.0003
+  arbeit_stunden:
+    ungelernt: 0.1
+    angelernt: 0.6
+    fachkraft.textil: 0.295
+    akademiker.textil: 0.005
+  qualitaet_basis: 50
+  annaeherung: true
+- id: gummistiefel_herstellen
+  produkt: gummistiefel
+  menge: 1
+  dauer_tage: 1
+  anlage: gummistiefelfabrik
+  technologie: gummistiefel
+  eingang:
+    gummi: 0.0008
+    stoff: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 0.075
+    angelernt: 0.235
+    fachkraft.chemie: 0.175
+    akademiker.chemie: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: lederjacke_herstellen
+  produkt: lederjacke
+  menge: 1
+  dauer_tage: 1
+  anlage: lederbekleidungfabrik
+  eingang:
+    leder: 2.5
+  arbeit_stunden:
+    ungelernt: 0.6
+    angelernt: 3.6
+    fachkraft.textil: 1.77
+    akademiker.textil: 0.03
+  qualitaet_basis: 50
+  annaeherung: true
+- id: handschuhe_herstellen
+  produkt: handschuhe
+  menge: 1
+  dauer_tage: 1
+  anlage: handschuhfabrik
+  eingang:
+    leder: 0.18
+  arbeit_stunden:
+    ungelernt: 0.1
+    angelernt: 0.6
+    fachkraft.textil: 0.295
+    akademiker.textil: 0.005
+  qualitaet_basis: 50
+  annaeherung: true
+- id: handtasche_herstellen
+  produkt: handtasche
+  menge: 1
+  dauer_tage: 1
+  anlage: taschenfabrik
+  eingang:
+    leder: 0.6
+    kupfer: 3.0e-06
+  arbeit_stunden:
+    ungelernt: 0.4
+    angelernt: 2.4
+    fachkraft.textil: 1.18
+    akademiker.textil: 0.02
+  qualitaet_basis: 50
+  annaeherung: true
+- id: guertel_herstellen
+  produkt: guertel
+  menge: 1
+  dauer_tage: 1
+  anlage: guertelfabrik
+  eingang:
+    leder: 0.12
+    stahl: 3.0e-06
+  arbeit_stunden:
+    ungelernt: 0.07
+    angelernt: 0.42
+    fachkraft.textil: 0.206
+    akademiker.textil: 0.0035
+  qualitaet_basis: 50
+  annaeherung: true
+- id: koffer_herstellen
+  produkt: koffer
+  menge: 1
+  dauer_tage: 1
+  anlage: kofferfabrik
+  eingang:
+    leder: 0.6
+    schnittholz: 0.003
+    stahl: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.3
+    angelernt: 1.8
+    fachkraft.textil: 0.885
+    akademiker.textil: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: rucksack_herstellen
+  produkt: rucksack
+  menge: 1
+  dauer_tage: 1
+  anlage: rucksackfabrik
+  eingang:
+    stoff: 0.0004
+    leder: 0.05
+  arbeit_stunden:
+    ungelernt: 0.13
+    angelernt: 0.78
+    fachkraft.textil: 0.384
+    akademiker.textil: 0.0065
+  qualitaet_basis: 50
+  annaeherung: true
+- id: regenmantel_herstellen
+  produkt: regenmantel
+  menge: 1
+  dauer_tage: 1
+  anlage: regenmantelfabrik
+  eingang:
+    stoff: 0.0012
+    petroleum: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.25
+    angelernt: 1.5
+    fachkraft.textil: 0.737
+    akademiker.textil: 0.0125
+  qualitaet_basis: 50
+  annaeherung: true
+- id: uniform_herstellen
+  produkt: uniform
+  menge: 1
+  dauer_tage: 1
+  anlage: uniformschneiderei
+  eingang:
+    wollstoff: 0.0015
+    garn: 0.0001
+  arbeit_stunden:
+    ungelernt: 0.4
+    angelernt: 2.4
+    fachkraft.textil: 1.18
+    akademiker.textil: 0.02
+  qualitaet_basis: 50
+  annaeherung: true
+technologien:
+- id: sportschuh
+  fachgebiet: textil
+  erfindungsjahr: 1917
+  voraussetzungen:
+  - vulkanisation
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: gummistiefel
+  fachgebiet: chemie
+  erfindungsjahr: 1920
+  voraussetzungen:
+  - vulkanisation
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: polyesterfaser
+  fachgebiet: chemie
+  erfindungsjahr: 1953
+  voraussetzungen:
+  - dampfspaltung
+  - polyamid
+  forschungsaufwand: 30000
+  annaeherung: true
+- id: strumpfhose
+  fachgebiet: textil
+  erfindungsjahr: 1959
+  voraussetzungen:
+  - polyamid
+  forschungsaufwand: 8000
+  annaeherung: true
+- id: wegwerfwindel
+  fachgebiet: textil
+  erfindungsjahr: 1961
+  voraussetzungen:
+  - hochdruck_polyethylen
+  forschungsaufwand: 12000
+  annaeherung: true
+- id: funktionsfaser
+  fachgebiet: textil
+  erfindungsjahr: 1975
+  voraussetzungen:
+  - polyesterfaser
+  forschungsaufwand: 15000
+  annaeherung: true
+- id: atmungsaktive_membran
+  fachgebiet: chemie
+  erfindungsjahr: 1976
+  voraussetzungen:
+  - polyesterfaser
+  forschungsaufwand: 25000
+  annaeherung: true

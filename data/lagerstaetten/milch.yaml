@@ -1,0 +1,125 @@
+# Rohmilch (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: milch_usa
+  land: USA
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 216000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: milch_deu
+  land: DEU
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 194400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: milch_fra
+  land: FRA
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 151200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: milch_gbr
+  land: GBR
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 86400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: milch_rus
+  land: RUS
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 162000000
+  foerderkosten_faktor: 1.2
+  annaeherung: true
+- id: milch_ind
+  land: IND
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 216000000
+  foerderkosten_faktor: 1.3
+  annaeherung: true
+- id: milch_nld
+  land: NLD
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 43200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: milch_dnk
+  land: DNK
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 32400000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: milch_nzl
+  land: NZL
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 21600000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: milch_arg
+  land: ARG
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 32400000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: milch_bra
+  land: BRA
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 43200000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: milch_chn
+  land: CHN
+  rohstoff: milch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 32400000
+  foerderkosten_faktor: 1.3
+  annaeherung: true

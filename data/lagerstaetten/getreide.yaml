@@ -148,3 +148,50 @@ lagerstaetten:
     foerderung_max_je_jahr: 2_000_000
     foerderkosten_faktor: 1.1
     annaeherung: true
+
+  # P1: Gerste, Roggen und Hafer für Malz, Brennereien und Futter (Bier, Spirituosen,
+  # Eier) – die übrigen Lagerstätten stehen für Weizen.
+  - id: gerste_deutschland
+    land: DEU
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 5_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: gerste_russland
+    land: RUS
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 6_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: gerste_usa
+    land: USA
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 4_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 4_000_000
+    foerderkosten_faktor: 0.9
+    annaeherung: true
+
+  - id: gerste_grossbritannien
+    land: GBR
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true
+
+  - id: gerste_frankreich
+    land: FRA
+    rohstoff: getreide
+    erneuerbar: true
+    erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
+    foerderung_max_je_jahr: 2_000_000
+    foerderkosten_faktor: 1.0
+    annaeherung: true

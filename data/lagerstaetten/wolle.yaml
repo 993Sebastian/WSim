@@ -1,0 +1,95 @@
+# Rohwolle (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: wolle_aus
+  land: AUS
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 630000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: wolle_nzl
+  land: NZL
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 176400
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: wolle_arg
+  land: ARG
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 378000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: wolle_zaf
+  land: ZAF
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 126000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: wolle_rus
+  land: RUS
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 378000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wolle_usa
+  land: USA
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 302400
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wolle_gbr
+  land: GBR
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 151200
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: wolle_ury
+  land: XPU
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 126000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: wolle_chn
+  land: CHN
+  rohstoff: wolle
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 75600
+  foerderkosten_faktor: 1.1
+  annaeherung: true

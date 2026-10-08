@@ -1,0 +1,135 @@
+# Ton und Lehm (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: ton_deu
+  land: DEU
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_gbr
+  land: GBR
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_usa
+  land: USA
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 54000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: ton_fra
+  land: FRA
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_rus
+  land: RUS
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_chn
+  land: CHN
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_ind
+  land: IND
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_ita
+  land: ITA
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 10800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_esp
+  land: ESP
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_bra
+  land: BRA
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_jpn
+  land: JPN
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_nld
+  land: NLD
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: ton_tur
+  land: TUR
+  rohstoff: ton
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

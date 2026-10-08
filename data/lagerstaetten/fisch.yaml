@@ -1,0 +1,115 @@
+# Fisch (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: fisch_nordsee
+  land: GBR
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1440000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: fisch_nor
+  land: NOR
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 720000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: fisch_jpn
+  land: JPN
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1440000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: fisch_usa
+  land: USA
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1260000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: fisch_can
+  land: CAN
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 540000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: fisch_rus
+  land: RUS
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 720000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: fisch_per
+  land: PER
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 90000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: fisch_chn
+  land: CHN
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1080000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: fisch_isl
+  land: NOR
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 360000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: fisch_deu
+  land: DEU
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 270000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: fisch_idn
+  land: IDN
+  rohstoff: fisch
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 360000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

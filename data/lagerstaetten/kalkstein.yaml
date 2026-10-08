@@ -1,0 +1,145 @@
+# Kalkstein (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: kalk_deu
+  land: DEU
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_gbr
+  land: GBR
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_usa
+  land: USA
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kalk_fra
+  land: FRA
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 10800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_rus
+  land: RUS
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_chn
+  land: CHN
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_ind
+  land: IND
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_jpn
+  land: JPN
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_ita
+  land: ITA
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_bra
+  land: BRA
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_tur
+  land: TUR
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_mex
+  land: MEX
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_esp
+  land: ESP
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kalk_bel
+  land: BEL
+  rohstoff: kalkstein
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

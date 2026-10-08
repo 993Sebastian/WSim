@@ -1,0 +1,125 @@
+# Ölsaaten (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: oel_usa
+  land: USA
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: oel_bra
+  land: BRA
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: oel_arg
+  land: ARG
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: oel_chn
+  land: CHN
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 28800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: oel_ind
+  land: IND
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 28800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: oel_rus
+  land: UKR
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: oel_ita
+  land: ITA
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: oel_esp
+  land: ESP
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: oel_idn
+  land: IDN
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: oel_mys
+  land: MYS
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2160000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: oel_nga
+  land: NGA
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: oel_can
+  land: CAN
+  rohstoff: oelsaaten
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2160000
+  foerderkosten_faktor: 0.9
+  annaeherung: true

@@ -1656,6 +1656,39 @@ zehn Branchenpakete P1a–P5). 🟡 Eigenständig entschieden:
    die vorhandenen Prüfungen (`validate` mit Richtpreis-Margen, `rezepte`) statt eigener
    Regeln.
 
+✅ **P1 umgesetzt** (Branchenpakete P1a–P1c: Lebensmittel und Getränke, Textil und Leder,
+Möbel, Haushaltswaren und Baustoffe; Regeln: `docs/FORMELN.md`, Abschnitt P1). 🟡 Eigenständig
+entschieden:
+
+1. **Umfang:** 124 neue Endprodukte (P1a 45 einschließlich Tabak, P1b 34, P1c 45), dazu
+   Halbzeuge (Fleisch, Zucker, Malz, Speiseöl, Milchpulver, Leder, Woll- und Seidenstoffe,
+   Polyesterfaser, Zement, Kalk, Span- und Sperrholz, Glasflaschen) und 16 neue Rohstoffe
+   mit 170 Lagerstätten. Seife, Farben und Kosmetik folgen in P2a, elektrische
+   Haushaltsgeräte in P4a.
+2. **Erzeugt statt von Hand:** `tools/daten/pakete/p1/` (Spezifikation, Generator,
+   Kalibrierung). Eine Kettendatei je Paket (50–52) statt einer je Ware.
+3. **Preise und Arbeit:** Richtpreise um 1900 (nominal × rund 30) bzw. zum Erfindungsjahr;
+   die Arbeitsstunden sind auf 30 % Marge abgestimmt. Bei 36 Waren reichte das nicht: Dort
+   wurde der Richtpreis angehoben (z. B. Wollstoff, Mäntel, Fensterglas, Glasflaschen).
+4. **Keine Akademiker in Lebensmitteln:** Die Rezepte der Lebensmittelindustrie brauchen
+   ungelernte, angelernte Kräfte und Fachkräfte; mit 3 % Akademikern standen die Werke in
+   großen Ländern still (Deutschland hatte 1900 nur rund 7 300 Akademiker der Fachrichtung).
+   Textil, Holz, Chemie, Metall mit 0,5–3 %.
+5. **Bestehende Sammelwaren:** „Kleidung“ 5 → 3,5 Stück je Kopf und „Mehl“ 60 → 35 kg je
+   Kopf, weil Wäsche, Strick, Mäntel, Brot und Teigwaren jetzt eigene Waren sind; dazu fünf
+   Gersten-Lagerstätten für Malz, Brennereien und Futter.
+6. **Verbrauch und Kaufschwelle** nach Weltdurchschnitt um 1900 (z. B. Zucker 10 kg, Bier
+   70 l, Wein 15 l je Kopf als Sättigung), Kaufschwellen so, dass um 1900 vor allem die
+   reicheren Schichten Butter, Wein oder Schokolade kaufen.
+7. **Kein Gummi, wo es um 1900 keines gab:** Lederschuhe ohne Gummisohle, Regenmäntel
+   imprägniert statt gummiert, Gummistiefel erst ab 1920 (Formpressen); Rohkautschuk war
+   um 1900 knapp und hätte Fahrrad- und Autoreifen verdrängt.
+8. **Offen (bestehend, nicht P1):** Die KI erforscht neue Verfahren nur zögerlich – auch
+   Strumpf, Kochtopf und Staubsauger hatten in früheren Läufen jahrzehntelang keinen
+   Hersteller. Mit P1 betrifft das mehr Waren (Margarine, Brühwürfel, Joghurt,
+   Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
+   statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
+
 ✅ **H3 umgesetzt** (Rüstung; Lastenheft §6.5; Regeln: `docs/FORMELN.md`, Abschnitt H3;
 Format: `docs/DATENFORMAT.md`, `ruestung`). 🟡 Eigenständig entschieden:
 

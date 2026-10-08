@@ -93,7 +93,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | H2 | Regulierung und Umwelt: Emissionen, CO₂-Preis, Auflagen und Nachrüstung, Arbeitsschutz, Verbote, Kartellaufsicht, Markenbild | ✅ |
 | P0 | Vorbereitung der Produktbreite: Weltläufe ohne Spielerabhängigkeit, Leistung, Suche/Filter, Datenwerkzeug | ✅ (Wunsch vom 08.10.2026: P1–P5 als P0 und zehn Branchenpakete P1a–P5) |
 | H3 | Rüstung: Militärausgaben und Kriegsstärke je Land, Kriegsfaktor der Staatsnachfrage, sieben Rüstungsgüter | ✅ |
-| P1a–P5 | Produktbreite in zehn Branchenpaketen (Architektur §4.1) | ⏳ |
+| P1a–P1c | Lebensmittel und Getränke, Textil und Leder, Möbel, Haushaltswaren und Baustoffe: 124 Endprodukte, 16 Rohstoffe | ✅ |
+| P2a–P5 | Produktbreite in den übrigen sieben Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1160,6 +1161,29 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P1: Lebensmittel, Textil, Wohnen und Bauen (08.10.2026)
+
+Branchenpakete P1a–P1c (Architektur §4.1). Regeln: `docs/FORMELN.md`, Abschnitt P1;
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (P1).
+
+- **Daten:** Ketten 50 (Lebensmittel, Getränke, Tabak: 45 Endprodukte), 51 (Bekleidung,
+  Schuhe, Leder, Heimtextilien: 34) und 52 (Möbel, Haushaltswaren, Baustoffe: 45), 16 neue
+  Rohstoffe mit 170 Lagerstätten, 41 Technologien von der Sprühtrocknung (1901) bis zum
+  pflanzlichen Fleisch (2016), Einheit Liter. 279 statt 118 Produkte; Prüfung ohne Fehler
+  und Warnungen, alle Margen 5–45 %.
+- **Werkzeug:** `tools/daten/pakete/p1/` – Spezifikation (eine Zeile je Ware), Generator,
+  Kalibrierung der Arbeitsstunden und Richtpreise gegen die Plausibilitätsprüfung,
+  Auswertung eines Protokolls. Die Pakete P2–P5 nutzen dasselbe Verfahren.
+- **Abstimmung mit dem Startjahr:** Startbesetzung 1900 mit 100 KI-Firmen bedient jede Ware
+  zu mindestens 50 % (Test `world_stays_plausible_in_the_first_year`), 80 % der Endprodukte
+  zu mindestens 85 %. Dafür: keine Akademiker in den Lebensmittelrezepten (die großen
+  Länder hatten zu wenige), Verbrauch je Kopf nach Weltdurchschnitt, Kaufschwellen der
+  Genussmittel höher, Gummi nur wo es 1900 Gummi gab, Gerste als weitere
+  Getreide-Lagerstätten, „Kleidung“ und „Mehl“ um die neuen Einzelwaren verringert.
+- **Rechenzeit:** 1900–1910 mit 20 KI-Firmen 5,6 min (vorher rund 3 min).
+- **Tests:** Datenprüfung, Starttests mit echten Daten; der Test der KI-Entscheidungen
+  rechnet ein Jahr vor, damit Kassenentscheidungen vorkommen.
 
 ### H3: Rüstung (08.10.2026)
 

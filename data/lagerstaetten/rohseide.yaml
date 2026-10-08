@@ -1,0 +1,65 @@
+# Rohseide (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: seide_chn
+  land: CHN
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 16200
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: seide_jpn
+  land: JPN
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 12600
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: seide_ita
+  land: ITA
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: seide_ind
+  land: IND
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1800
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: seide_fra
+  land: FRA
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1080
+  foerderkosten_faktor: 1.2
+  annaeherung: true
+- id: seide_tur
+  land: TUR
+  rohstoff: rohseide
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 900
+  foerderkosten_faktor: 1.0
+  annaeherung: true

@@ -69,6 +69,7 @@ Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
   die Zusammenfassung kleiner Länder zu Regionen in `tools/daten/regionen.py`.
   Die Umrisse der Weltkarte (`ui/src/karte/welt.json`) erzeugt `tools/daten/karte.py`.
   Neue Produkte in Mengen: `tools/daten/tabelle.py` (CSV → Kettendatei mit Plausibilitätsbericht);
+  die Branchenpakete (Ketten 50 ff.) erzeugt `tools/daten/pakete/<paket>/gen.py` aus `spec.py`;
   Leistung bei vielen Produkten messen: `tools/daten/vervielfachen.py`.
 - Fortschritt und eigenständige Entscheidungen: `docs/FORTSCHRITT.md`.
 

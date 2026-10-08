@@ -1,0 +1,75 @@
+# Teeblätter (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: tee_ind
+  land: IND
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 360000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: tee_lka
+  land: LKA
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 252000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: tee_chn
+  land: CHN
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 360000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tee_jpn
+  land: JPN
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 108000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: tee_idn
+  land: IDN
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: tee_ken
+  land: KEN
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: tee_tur
+  land: TUR
+  rohstoff: teeblaetter
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200
+  foerderkosten_faktor: 1.0
+  annaeherung: true

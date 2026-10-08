@@ -1,0 +1,2369 @@
+# Kette 52 – Möbel, Haushaltswaren und Baustoffe (P1c)
+# Erzeugt mit tools/daten/pakete/p1/gen.py – Änderungen dort in spec.py.
+# Breite der Produkte (Stufe 5). Alle Zahlen sind Annäherungen; Richtpreise um 1900
+# oder zum Erfindungsjahr, Arbeitsstunden auf die Plausibilitätsprüfung abgestimmt
+# (5–45 % Marge, Ziel 30 %). Kaufschwelle = Einkommen, bei dem die Hälfte kauft / Preis.
+
+produkte:
+- id: kalkstein
+  art: rohstoff
+  branche: bau
+  einheit: t
+  verwendung: industrie
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 40
+  foerderindex:
+    1900: 1.0
+    1930: 3.0
+    1950: 6.0
+    1970: 20.0
+    1990: 35.0
+    2010: 80.0
+    2026: 90.0
+  pacht_anteil: 0.1
+  annaeherung: true
+- id: ton
+  art: rohstoff
+  branche: bau
+  einheit: t
+  verwendung: industrie
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 35
+  foerderindex:
+    1900: 1.0
+    1930: 1.6
+    1950: 2.5
+    1970: 5.0
+    1990: 7.0
+    2010: 12.0
+    2026: 13.0
+  pacht_anteil: 0.1
+  annaeherung: true
+- id: sand
+  art: rohstoff
+  branche: bau
+  einheit: t
+  verwendung: industrie
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 25
+  foerderindex:
+    1900: 1.0
+    1930: 3.0
+    1950: 6.0
+    1970: 18.0
+    1990: 30.0
+    2010: 60.0
+    2026: 70.0
+  pacht_anteil: 0.1
+  annaeherung: true
+- id: soda
+  art: halbzeug
+  branche: chemie
+  einheit: t
+  verwendung: industrie
+  warengruppe: chemie
+  transportklasse: schuettgut
+  richtpreis_usd: 500
+  staatsmarkt:
+    preis_usd: 500
+  annaeherung: true
+- id: zement
+  art: halbzeug
+  branche: bau
+  einheit: t
+  verwendung: beides
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 130
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.02
+    kaufschwelle: 23.1
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: branntkalk
+  art: halbzeug
+  branche: bau
+  einheit: t
+  verwendung: beides
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 139
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.01
+    kaufschwelle: 14.4
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.5
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: mauerziegel
+  art: endprodukt
+  branche: bau
+  einheit: stueck
+  gewicht_kg: 3.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 0.3
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 15
+    kaufschwelle: 2670
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 50
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: dachziegel
+  art: endprodukt
+  branche: bau
+  einheit: stueck
+  gewicht_kg: 2.8
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 0.5
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 4
+    kaufschwelle: 3000
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 60
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: fensterglas
+  art: endprodukt
+  branche: bau
+  einheit: m2
+  gewicht_kg: 5.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 20
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 125
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 15
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: floatglas
+  art: endprodukt
+  branche: bau
+  einheit: m2
+  gewicht_kg: 10.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 8
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.4
+    kaufschwelle: 500
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 20
+    kriegsfaktor: 1.5
+  ersetzt:
+  - fensterglas
+  annaeherung: true
+- id: fenster
+  art: endprodukt
+  branche: bau
+  einheit: stueck
+  gewicht_kg: 30.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 120
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 30
+      max_besitzquote: 1.2
+    kaufschwelle: 20.8
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 4
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: tueren
+  art: endprodukt
+  branche: bau
+  einheit: stueck
+  gewicht_kg: 25.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 150
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 40
+      max_besitzquote: 2.0
+    kaufschwelle: 16.7
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 4
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: fliesen
+  art: endprodukt
+  branche: bau
+  einheit: m2
+  gewicht_kg: 18.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 15
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 200
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 10
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: sanitaerkeramik
+  art: endprodukt
+  branche: bau
+  einheit: stueck
+  gewicht_kg: 20.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 150
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 30
+      max_besitzquote: 0.6
+    kaufschwelle: 26.7
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: gipskarton
+  art: endprodukt
+  branche: bau
+  einheit: m2
+  gewicht_kg: 10.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 4
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 1
+    kaufschwelle: 1500
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 30
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: daemmstoff
+  art: endprodukt
+  branche: bau
+  einheit: m3
+  gewicht_kg: 40.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 12
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 833
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.9
+  staatsnachfrage:
+    je_mio_usd_bip: 10
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: betonfertigteile
+  art: endprodukt
+  branche: bau
+  einheit: t
+  verwendung: industrie
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 120
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: transportbeton
+  art: endprodukt
+  branche: bau
+  einheit: m3
+  gewicht_kg: 2400
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: schuettgut
+  richtpreis_usd: 151
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 53.1
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 3
+    kriegsfaktor: 1.5
+  annaeherung: true
+- id: parkett
+  art: endprodukt
+  branche: holz_papier
+  einheit: m2
+  gewicht_kg: 12.0
+  verwendung: konsum
+  warengruppe: holz
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: luxus
+    verbrauch:
+      je_kopf_und_jahr: 0.15
+    kaufschwelle: 200
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: spanplatte
+  art: halbzeug
+  branche: holz_papier
+  einheit: m3
+  gewicht_kg: 650
+  verwendung: industrie
+  warengruppe: holz
+  transportklasse: stueckgut
+  richtpreis_usd: 250
+  annaeherung: true
+- id: sperrholz
+  art: halbzeug
+  branche: holz_papier
+  einheit: m3
+  gewicht_kg: 600
+  verwendung: industrie
+  warengruppe: holz
+  transportklasse: stueckgut
+  richtpreis_usd: 500
+  annaeherung: true
+- id: laminat
+  art: endprodukt
+  branche: holz_papier
+  einheit: m2
+  gewicht_kg: 8.0
+  verwendung: konsum
+  warengruppe: holz
+  transportklasse: stueckgut
+  richtpreis_usd: 9
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 1110
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.9
+  ersetzt:
+  - parkett
+  annaeherung: true
+- id: tapete
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 1.0
+  verwendung: konsum
+  warengruppe: papier
+  transportklasse: stueckgut
+  richtpreis_usd: 8
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 0.3
+    kaufschwelle: 375
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: sofa
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 45.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 500
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 15
+      max_besitzquote: 0.4
+    kaufschwelle: 10
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: bett
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 40.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 250
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 25
+      max_besitzquote: 0.6
+    kaufschwelle: 6
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 4.0
+  annaeherung: true
+- id: matratze
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 20.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 225
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 0.6
+    kaufschwelle: 8.88
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 4.0
+  annaeherung: true
+- id: einbaukueche
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 400.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 4000
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 20
+      max_besitzquote: 0.35
+    kaufschwelle: 3.75
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: bueromoebel
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 50.0
+  verwendung: industrie
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 400
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: mitnahmemoebel
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 25.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 120
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 1.5
+    kaufschwelle: 66.7
+    preisempfindlichkeit: 0.9
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: gartenmoebel
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 4.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 40
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 8
+      max_besitzquote: 0.8
+    kaufschwelle: 300
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: kinderwagen
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 15.0
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 200
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 0.03
+    kaufschwelle: 20
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: steingutgeschirr
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.5
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 5
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 8
+      max_besitzquote: 10.0
+    kaufschwelle: 160
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 30
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: porzellan
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.4
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: luxus
+    gebrauch:
+      nutzungsdauer_jahre: 20
+      max_besitzquote: 8.0
+    kaufschwelle: 267
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.1
+  annaeherung: true
+- id: trinkglas
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.25
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 4
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 10.0
+    kaufschwelle: 375
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.7
+  annaeherung: true
+- id: einmachglas
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.4
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 2.24
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 3
+    kaufschwelle: 669
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  annaeherung: true
+- id: spiegel
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 4.0
+  verwendung: konsum
+  warengruppe: glas_keramik
+  transportklasse: stueckgut
+  richtpreis_usd: 40
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 20
+      max_besitzquote: 1.0
+    kaufschwelle: 75
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: besteck
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.06
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 3
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 20
+      max_besitzquote: 10.0
+    kaufschwelle: 400
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.7
+  staatsnachfrage:
+    je_mio_usd_bip: 10
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: edelstahlbesteck
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.06
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 5
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 30
+      max_besitzquote: 10.0
+    kaufschwelle: 1200
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  ersetzt:
+  - besteck
+  annaeherung: true
+- id: emaillegeschirr
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 1.2
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 20
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 2.0
+    kaufschwelle: 50
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 4.0
+  annaeherung: true
+- id: bratpfanne
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 1.5
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 10
+      max_besitzquote: 0.6
+    kaufschwelle: 50
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.6
+  annaeherung: true
+- id: antihaftpfanne
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 1.0
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 40
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 0.8
+    kaufschwelle: 250
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  ersetzt:
+  - bratpfanne
+  annaeherung: true
+- id: thermoskanne
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.8
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 30
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 8
+      max_besitzquote: 0.5
+    kaufschwelle: 200
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: eimer
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 1.2
+  verwendung: konsum
+  warengruppe: metallwaren
+  transportklasse: stueckgut
+  richtpreis_usd: 10
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 8
+      max_besitzquote: 1.5
+    kaufschwelle: 60
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.5
+  staatsnachfrage:
+    je_mio_usd_bip: 2
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: frischhaltedose
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.2
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 6
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 5
+      max_besitzquote: 6.0
+    kaufschwelle: 1500
+    preisempfindlichkeit: 0.8
+    einkommensempfindlichkeit: 1.0
+  annaeherung: true
+- id: alufolie
+  art: endprodukt
+  branche: metallurgie
+  einheit: stueck
+  gewicht_kg: 0.3
+  verwendung: konsum
+  warengruppe: nichteisenmetalle
+  transportklasse: stueckgut
+  richtpreis_usd: 6
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 3
+    kaufschwelle: 1000
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: frischhaltefolie
+  art: endprodukt
+  branche: chemie
+  einheit: stueck
+  gewicht_kg: 0.2
+  verwendung: konsum
+  warengruppe: chemie
+  transportklasse: stueckgut
+  richtpreis_usd: 3
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 4
+    kaufschwelle: 2670
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: kerzen
+  art: endprodukt
+  branche: chemie
+  einheit: stueck
+  gewicht_kg: 0.1
+  verwendung: konsum
+  warengruppe: chemie
+  transportklasse: stueckgut
+  richtpreis_usd: 1.5
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 10
+    kaufschwelle: 333
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.4
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: streichhoelzer
+  art: endprodukt
+  branche: chemie
+  einheit: stueck
+  gewicht_kg: 0.02
+  verwendung: konsum
+  warengruppe: chemie
+  transportklasse: stueckgut
+  richtpreis_usd: 0.171
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 30
+    kaufschwelle: 1170
+    preisempfindlichkeit: 0.4
+    einkommensempfindlichkeit: 0.3
+  staatsnachfrage:
+    je_mio_usd_bip: 30
+    kriegsfaktor: 3.0
+  annaeherung: true
+- id: besen_buersten
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.4
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 6
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    gebrauch:
+      nutzungsdauer_jahre: 2
+      max_besitzquote: 1.5
+    kaufschwelle: 133
+    preisempfindlichkeit: 0.5
+    einkommensempfindlichkeit: 0.5
+  staatsnachfrage:
+    je_mio_usd_bip: 5
+    kriegsfaktor: 2.0
+  annaeherung: true
+- id: regenschirm
+  art: endprodukt
+  branche: konsumgueter
+  einheit: stueck
+  gewicht_kg: 0.5
+  verwendung: konsum
+  warengruppe: moebel_hausrat
+  transportklasse: stueckgut
+  richtpreis_usd: 25
+  nachfrage:
+    bedarfsklasse: gebrauchsgut
+    gebrauch:
+      nutzungsdauer_jahre: 4
+      max_besitzquote: 0.8
+    kaufschwelle: 100
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  annaeherung: true
+- id: toilettenpapier
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 0.12
+  verwendung: konsum
+  warengruppe: papier
+  transportklasse: stueckgut
+  richtpreis_usd: 0.5
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 40
+    kaufschwelle: 6000
+    preisempfindlichkeit: 0.6
+    einkommensempfindlichkeit: 0.8
+  staatsnachfrage:
+    je_mio_usd_bip: 40
+    kriegsfaktor: 1.0
+  annaeherung: true
+- id: papiertaschentuch
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 0.02
+  verwendung: konsum
+  warengruppe: papier
+  transportklasse: stueckgut
+  richtpreis_usd: 0.15
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 80
+    kaufschwelle: 40000
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+- id: kuechenrolle
+  art: endprodukt
+  branche: holz_papier
+  einheit: stueck
+  gewicht_kg: 0.25
+  verwendung: konsum
+  warengruppe: papier
+  transportklasse: stueckgut
+  richtpreis_usd: 1.63
+  nachfrage:
+    bedarfsklasse: grundbedarf
+    verbrauch:
+      je_kopf_und_jahr: 15
+    kaufschwelle: 4910
+    preisempfindlichkeit: 0.7
+    einkommensempfindlichkeit: 0.9
+  annaeherung: true
+anlagen:
+- id: kalksteinbruch
+  standorttyp: foerderstaette
+  investition_usd: 1200000
+  bauzeit_tage: 120
+  kapazitaet_je_tag: 140
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.3
+  annaeherung: true
+- id: tongrube
+  standorttyp: foerderstaette
+  investition_usd: 1200000
+  bauzeit_tage: 120
+  kapazitaet_je_tag: 160
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.3
+  annaeherung: true
+- id: kiesgrube
+  standorttyp: foerderstaette
+  investition_usd: 1200000
+  bauzeit_tage: 120
+  kapazitaet_je_tag: 220
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.3
+  annaeherung: true
+- id: zementwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: kalkwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 98
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: ziegelei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 46000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: dachziegelei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 27000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: glashuette
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 680
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: floatglaswerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: floatglas
+  annaeherung: true
+- id: fensterbau
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: tuerenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 91
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: fliesenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 910
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: sanitaerwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 91
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: gipskartonwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 3400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: gipskarton
+  annaeherung: true
+- id: daemmstoffwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1100
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: mineralwolle
+  annaeherung: true
+- id: betonwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: betonfertigteil
+  annaeherung: true
+- id: mischwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 91
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: transportbeton
+  annaeherung: true
+- id: parkettwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: spanplattenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 55
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: spanplatte
+  annaeherung: true
+- id: sperrholzwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 27
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: laminatwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1500
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: laminat
+  annaeherung: true
+- id: tapetenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: polstermoebelfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 27
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: bettenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 55
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: matratzenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 61
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: kuechenmoebelwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 3.4
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: einbaukueche
+  annaeherung: true
+- id: bueromoebelwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 34
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: flachpaketwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 110
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: flachpaketmoebel
+  annaeherung: true
+- id: gartenmoebelwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 340
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: kunststoff_gartenmoebel
+  annaeherung: true
+- id: kinderwagenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 68
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: steingutfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: porzellanmanufaktur
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: glasblaeserei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 3400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: einmachglaswerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 6100
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: spiegelwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 340
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: besteckfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 4600
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: edelstahlbesteckfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2700
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: rostfreier_stahl
+  annaeherung: true
+- id: emaillierwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 680
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: pfannenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: beschichtungswerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 340
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: antihaftbeschichtung
+  annaeherung: true
+- id: isolierflaschenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 460
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: thermosflasche
+  annaeherung: true
+- id: blechwarenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 1400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: dosenspritzerei
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2300
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: frischhaltedose
+  annaeherung: true
+- id: folienwalzwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2300
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: alufolie
+  annaeherung: true
+- id: blasfolienwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 4600
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: frischhaltefolie
+  annaeherung: true
+- id: kerzenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 9100
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: zuendholzfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 80000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: buerstenfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 2300
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: schirmfabrik
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 550
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: hygienepapierwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 27000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  annaeherung: true
+- id: taschentuchwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 91000
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: papiertaschentuch
+  annaeherung: true
+- id: kuechenrollenwerk
+  standorttyp: werk
+  investition_usd: 4500000
+  bauzeit_tage: 180
+  kapazitaet_je_tag: 8400
+  lebensdauer_jahre: 25
+  wartung_je_jahr: 0.04
+  automatisierung_max: 0.5
+  technologie: kuechenrolle
+  annaeherung: true
+rezepte:
+- id: kalkstein_gewinnen
+  produkt: kalkstein
+  menge: 1
+  dauer_tage: 1
+  anlage: kalksteinbruch
+  abbau: true
+  arbeit_stunden:
+    ungelernt: 3.2
+    angelernt: 0.8
+  qualitaet_basis: 50
+  annaeherung: true
+- id: ton_gewinnen
+  produkt: ton
+  menge: 1
+  dauer_tage: 1
+  anlage: tongrube
+  abbau: true
+  arbeit_stunden:
+    ungelernt: 3.2
+    angelernt: 0.8
+  qualitaet_basis: 50
+  annaeherung: true
+- id: sand_gewinnen
+  produkt: sand
+  menge: 1
+  dauer_tage: 1
+  anlage: kiesgrube
+  abbau: true
+  arbeit_stunden:
+    ungelernt: 2
+    angelernt: 0.5
+  qualitaet_basis: 50
+  annaeherung: true
+- id: zement_herstellen
+  produkt: zement
+  menge: 1
+  dauer_tage: 1
+  anlage: zementwerk
+  eingang:
+    kalkstein: 1.3
+    ton: 0.3
+    kohle: 0.25
+  arbeit_stunden:
+    ungelernt: 0.075
+    angelernt: 0.235
+    fachkraft.chemie: 0.175
+    akademiker.chemie: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: branntkalk_herstellen
+  produkt: branntkalk
+  menge: 1
+  dauer_tage: 1
+  anlage: kalkwerk
+  eingang:
+    kalkstein: 1.8
+    kohle: 0.15
+  arbeit_stunden:
+    ungelernt: 0.075
+    angelernt: 0.235
+    fachkraft.chemie: 0.175
+    akademiker.chemie: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: mauerziegel_herstellen
+  produkt: mauerziegel
+  menge: 1
+  dauer_tage: 1
+  anlage: ziegelei
+  eingang:
+    ton: 0.0035
+    kohle: 0.0003
+  arbeit_stunden:
+    ungelernt: 0.0008
+    angelernt: 0.00168
+    fachkraft.holz_bau: 0.00148
+    akademiker.holz_bau: 4.0e-05
+  qualitaet_basis: 50
+  annaeherung: true
+- id: dachziegel_herstellen
+  produkt: dachziegel
+  menge: 1
+  dauer_tage: 1
+  anlage: dachziegelei
+  eingang:
+    ton: 0.0032
+    kohle: 0.0003
+  arbeit_stunden:
+    ungelernt: 0.003
+    angelernt: 0.0063
+    fachkraft.holz_bau: 0.00555
+    akademiker.holz_bau: 0.00015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: fensterglas_herstellen
+  produkt: fensterglas
+  menge: 1
+  dauer_tage: 1
+  anlage: glashuette
+  eingang:
+    glas: 0.005
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.188
+    fachkraft.chemie: 0.14
+    akademiker.chemie: 0.012
+  qualitaet_basis: 50
+  annaeherung: true
+- id: floatglas_herstellen
+  produkt: floatglas
+  menge: 1
+  dauer_tage: 1
+  anlage: floatglaswerk
+  technologie: floatglas
+  eingang:
+    sand: 0.007
+    soda: 0.0022
+    kalkstein: 0.0015
+  arbeit_stunden:
+    ungelernt: 0.0539
+    angelernt: 0.169
+    fachkraft.chemie: 0.126
+    akademiker.chemie: 0.0108
+  qualitaet_basis: 50
+  annaeherung: true
+- id: fenster_herstellen
+  produkt: fenster
+  menge: 1
+  dauer_tage: 1
+  anlage: fensterbau
+  eingang:
+    schnittholz: 0.012
+    fensterglas: 1.5
+    schrauben: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 0.6
+    angelernt: 1.26
+    fachkraft.holz_bau: 1.11
+    akademiker.holz_bau: 0.03
+  qualitaet_basis: 50
+  annaeherung: true
+- id: tueren_herstellen
+  produkt: tueren
+  menge: 1
+  dauer_tage: 1
+  anlage: tuerenwerk
+  eingang:
+    schnittholz: 0.03
+    schrauben: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 1.89
+    angelernt: 3.96
+    fachkraft.holz_bau: 3.49
+    akademiker.holz_bau: 0.0943
+  qualitaet_basis: 50
+  annaeherung: true
+- id: fliesen_herstellen
+  produkt: fliesen
+  menge: 1
+  dauer_tage: 1
+  anlage: fliesenwerk
+  eingang:
+    ton: 0.02
+    kohle: 0.002
+  arbeit_stunden:
+    ungelernt: 0.1
+    angelernt: 0.21
+    fachkraft.holz_bau: 0.185
+    akademiker.holz_bau: 0.005
+  qualitaet_basis: 50
+  annaeherung: true
+- id: sanitaerkeramik_herstellen
+  produkt: sanitaerkeramik
+  menge: 1
+  dauer_tage: 1
+  anlage: sanitaerwerk
+  eingang:
+    ton: 0.03
+    kohle: 0.004
+  arbeit_stunden:
+    ungelernt: 1.2
+    angelernt: 2.52
+    fachkraft.holz_bau: 2.22
+    akademiker.holz_bau: 0.06
+  qualitaet_basis: 50
+  annaeherung: true
+- id: gipskarton_herstellen
+  produkt: gipskarton
+  menge: 1
+  dauer_tage: 1
+  anlage: gipskartonwerk
+  technologie: gipskarton
+  eingang:
+    kalkstein: 0.012
+    zellstoff: 0.0004
+  arbeit_stunden:
+    ungelernt: 0.0406
+    angelernt: 0.0853
+    fachkraft.holz_bau: 0.0751
+    akademiker.holz_bau: 0.00203
+  qualitaet_basis: 50
+  annaeherung: true
+- id: daemmstoff_herstellen
+  produkt: daemmstoff
+  menge: 1
+  dauer_tage: 1
+  anlage: daemmstoffwerk
+  technologie: mineralwolle
+  eingang:
+    sand: 0.035
+    kohle: 0.004
+  arbeit_stunden:
+    ungelernt: 0.0935
+    angelernt: 0.293
+    fachkraft.chemie: 0.218
+    akademiker.chemie: 0.0187
+  qualitaet_basis: 50
+  annaeherung: true
+- id: betonfertigteile_herstellen
+  produkt: betonfertigteile
+  menge: 1
+  dauer_tage: 1
+  anlage: betonwerk
+  technologie: betonfertigteil
+  eingang:
+    zement: 0.18
+    sand: 0.8
+    stabstahl: 0.02
+  arbeit_stunden:
+    ungelernt: 0.3
+    angelernt: 0.63
+    fachkraft.holz_bau: 0.555
+    akademiker.holz_bau: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: transportbeton_herstellen
+  produkt: transportbeton
+  menge: 1
+  dauer_tage: 1
+  anlage: mischwerk
+  technologie: transportbeton
+  eingang:
+    zement: 0.3
+    sand: 1.9
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.126
+    fachkraft.holz_bau: 0.111
+    akademiker.holz_bau: 0.003
+  qualitaet_basis: 50
+  annaeherung: true
+- id: parkett_herstellen
+  produkt: parkett
+  menge: 1
+  dauer_tage: 1
+  anlage: parkettwerk
+  eingang:
+    schnittholz: 0.012
+    leim: 0.0003
+  arbeit_stunden:
+    ungelernt: 0.16
+    angelernt: 0.336
+    fachkraft.holz_bau: 0.296
+    akademiker.holz_bau: 0.008
+  qualitaet_basis: 50
+  annaeherung: true
+- id: spanplatte_herstellen
+  produkt: spanplatte
+  menge: 1
+  dauer_tage: 1
+  anlage: spanplattenwerk
+  technologie: spanplatte
+  eingang:
+    holz: 1.0
+    leim: 0.04
+  arbeit_stunden:
+    ungelernt: 0.8
+    angelernt: 1.68
+    fachkraft.holz_bau: 1.48
+    akademiker.holz_bau: 0.04
+  qualitaet_basis: 50
+  annaeherung: true
+- id: sperrholz_herstellen
+  produkt: sperrholz
+  menge: 1
+  dauer_tage: 1
+  anlage: sperrholzwerk
+  eingang:
+    holz: 2.2
+    leim: 0.03
+  arbeit_stunden:
+    ungelernt: 2
+    angelernt: 4.2
+    fachkraft.holz_bau: 3.7
+    akademiker.holz_bau: 0.1
+  qualitaet_basis: 50
+  annaeherung: true
+- id: laminat_herstellen
+  produkt: laminat
+  menge: 1
+  dauer_tage: 1
+  anlage: laminatwerk
+  technologie: laminat
+  eingang:
+    spanplatte: 0.008
+    bakelit: 0.0003
+    zellstoff: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.016
+    angelernt: 0.0336
+    fachkraft.holz_bau: 0.0296
+    akademiker.holz_bau: 0.0008
+  qualitaet_basis: 50
+  annaeherung: true
+- id: tapete_herstellen
+  produkt: tapete
+  menge: 1
+  dauer_tage: 1
+  anlage: tapetenfabrik
+  eingang:
+    zellstoff: 0.0011
+  arbeit_stunden:
+    ungelernt: 0.105
+    angelernt: 0.221
+    fachkraft.holz_bau: 0.195
+    akademiker.holz_bau: 0.00526
+  qualitaet_basis: 50
+  annaeherung: true
+- id: sofa_herstellen
+  produkt: sofa
+  menge: 1
+  dauer_tage: 1
+  anlage: polstermoebelfabrik
+  eingang:
+    schnittholz: 0.05
+    stoff: 0.004
+    draht: 0.004
+  arbeit_stunden:
+    ungelernt: 3.6
+    angelernt: 7.56
+    fachkraft.holz_bau: 6.66
+    akademiker.holz_bau: 0.18
+  qualitaet_basis: 50
+  annaeherung: true
+- id: bett_herstellen
+  produkt: bett
+  menge: 1
+  dauer_tage: 1
+  anlage: bettenfabrik
+  eingang:
+    schnittholz: 0.06
+    schrauben: 8.0e-05
+  arbeit_stunden:
+    ungelernt: 2.92
+    angelernt: 6.13
+    fachkraft.holz_bau: 5.4
+    akademiker.holz_bau: 0.146
+  qualitaet_basis: 50
+  annaeherung: true
+- id: matratze_herstellen
+  produkt: matratze
+  menge: 1
+  dauer_tage: 1
+  anlage: matratzenfabrik
+  eingang:
+    draht: 0.008
+    stoff: 0.003
+    baumwolle: 0.004
+  arbeit_stunden:
+    ungelernt: 0.8
+    angelernt: 1.68
+    fachkraft.holz_bau: 1.48
+    akademiker.holz_bau: 0.04
+  qualitaet_basis: 50
+  annaeherung: true
+- id: einbaukueche_herstellen
+  produkt: einbaukueche
+  menge: 1
+  dauer_tage: 1
+  anlage: kuechenmoebelwerk
+  technologie: einbaukueche
+  eingang:
+    schnittholz: 0.35
+    schrauben: 0.002
+    blech: 0.03
+  arbeit_stunden:
+    ungelernt: 49.4
+    angelernt: 104
+    fachkraft.holz_bau: 91.4
+    akademiker.holz_bau: 2.47
+  qualitaet_basis: 50
+  annaeherung: true
+- id: bueromoebel_herstellen
+  produkt: bueromoebel
+  menge: 1
+  dauer_tage: 1
+  anlage: bueromoebelwerk
+  eingang:
+    schnittholz: 0.04
+    blech: 0.01
+    schrauben: 0.0002
+  arbeit_stunden:
+    ungelernt: 4.85
+    angelernt: 10.2
+    fachkraft.holz_bau: 8.98
+    akademiker.holz_bau: 0.243
+  qualitaet_basis: 50
+  annaeherung: true
+- id: mitnahmemoebel_herstellen
+  produkt: mitnahmemoebel
+  menge: 1
+  dauer_tage: 1
+  anlage: flachpaketwerk
+  technologie: flachpaketmoebel
+  eingang:
+    spanplatte: 0.04
+    schrauben: 0.0003
+  arbeit_stunden:
+    ungelernt: 1.14
+    angelernt: 2.39
+    fachkraft.holz_bau: 2.11
+    akademiker.holz_bau: 0.0569
+  qualitaet_basis: 50
+  annaeherung: true
+- id: gartenmoebel_herstellen
+  produkt: gartenmoebel
+  menge: 1
+  dauer_tage: 1
+  anlage: gartenmoebelwerk
+  technologie: kunststoff_gartenmoebel
+  eingang:
+    polyethylen: 0.004
+  arbeit_stunden:
+    ungelernt: 0.09
+    angelernt: 0.282
+    fachkraft.chemie: 0.21
+    akademiker.chemie: 0.018
+  qualitaet_basis: 50
+  annaeherung: true
+- id: kinderwagen_herstellen
+  produkt: kinderwagen
+  menge: 1
+  dauer_tage: 1
+  anlage: kinderwagenfabrik
+  eingang:
+    stahl: 0.008
+    stoff: 0.002
+    schnittholz: 0.01
+  arbeit_stunden:
+    ungelernt: 0.6
+    angelernt: 3.06
+    fachkraft.metall: 2.22
+    akademiker.metall: 0.12
+  qualitaet_basis: 50
+  annaeherung: true
+- id: steingutgeschirr_herstellen
+  produkt: steingutgeschirr
+  menge: 1
+  dauer_tage: 1
+  anlage: steingutfabrik
+  eingang:
+    ton: 0.0007
+    kohle: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.05
+    angelernt: 0.105
+    fachkraft.holz_bau: 0.0925
+    akademiker.holz_bau: 0.0025
+  qualitaet_basis: 50
+  annaeherung: true
+- id: porzellan_herstellen
+  produkt: porzellan
+  menge: 1
+  dauer_tage: 1
+  anlage: porzellanmanufaktur
+  eingang:
+    ton: 0.0006
+    kohle: 0.0004
+  arbeit_stunden:
+    ungelernt: 0.3
+    angelernt: 0.63
+    fachkraft.holz_bau: 0.555
+    akademiker.holz_bau: 0.015
+  qualitaet_basis: 50
+  annaeherung: true
+- id: trinkglas_herstellen
+  produkt: trinkglas
+  menge: 1
+  dauer_tage: 1
+  anlage: glasblaeserei
+  eingang:
+    glas: 0.00028
+  arbeit_stunden:
+    ungelernt: 0.018
+    angelernt: 0.0564
+    fachkraft.chemie: 0.042
+    akademiker.chemie: 0.0036
+  qualitaet_basis: 50
+  annaeherung: true
+- id: einmachglas_herstellen
+  produkt: einmachglas
+  menge: 1
+  dauer_tage: 1
+  anlage: einmachglaswerk
+  eingang:
+    glas: 0.00042
+  arbeit_stunden:
+    ungelernt: 0.00525
+    angelernt: 0.0164
+    fachkraft.chemie: 0.0123
+    akademiker.chemie: 0.00105
+  qualitaet_basis: 50
+  annaeherung: true
+- id: spiegel_herstellen
+  produkt: spiegel
+  menge: 1
+  dauer_tage: 1
+  anlage: spiegelwerk
+  eingang:
+    fensterglas: 0.4
+    schnittholz: 0.001
+  arbeit_stunden:
+    ungelernt: 0.302
+    angelernt: 0.947
+    fachkraft.chemie: 0.705
+    akademiker.chemie: 0.0605
+  qualitaet_basis: 50
+  annaeherung: true
+- id: besteck_herstellen
+  produkt: besteck
+  menge: 1
+  dauer_tage: 1
+  anlage: besteckfabrik
+  eingang:
+    blech: 7.0e-05
+  arbeit_stunden:
+    ungelernt: 0.012
+    angelernt: 0.0612
+    fachkraft.metall: 0.0444
+    akademiker.metall: 0.0024
+  qualitaet_basis: 50
+  annaeherung: true
+- id: edelstahlbesteck_herstellen
+  produkt: edelstahlbesteck
+  menge: 1
+  dauer_tage: 1
+  anlage: edelstahlbesteckfabrik
+  technologie: rostfreier_stahl
+  eingang:
+    blech: 8.0e-05
+    kupfer: 5.0e-06
+  arbeit_stunden:
+    ungelernt: 0.018
+    angelernt: 0.0918
+    fachkraft.metall: 0.0666
+    akademiker.metall: 0.0036
+  qualitaet_basis: 50
+  annaeherung: true
+- id: emaillegeschirr_herstellen
+  produkt: emaillegeschirr
+  menge: 1
+  dauer_tage: 1
+  anlage: emaillierwerk
+  eingang:
+    blech: 0.0013
+    glas: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.306
+    fachkraft.metall: 0.222
+    akademiker.metall: 0.012
+  qualitaet_basis: 50
+  annaeherung: true
+- id: bratpfanne_herstellen
+  produkt: bratpfanne
+  menge: 1
+  dauer_tage: 1
+  anlage: pfannenwerk
+  eingang:
+    stahl: 0.0018
+  arbeit_stunden:
+    ungelernt: 0.194
+    angelernt: 0.992
+    fachkraft.metall: 0.719
+    akademiker.metall: 0.0389
+  qualitaet_basis: 50
+  annaeherung: true
+- id: antihaftpfanne_herstellen
+  produkt: antihaftpfanne
+  menge: 1
+  dauer_tage: 1
+  anlage: beschichtungswerk
+  technologie: antihaftbeschichtung
+  eingang:
+    aluminium: 0.0011
+    polyethylen: 5.0e-05
+  arbeit_stunden:
+    ungelernt: 0.05
+    angelernt: 0.255
+    fachkraft.metall: 0.185
+    akademiker.metall: 0.01
+  qualitaet_basis: 50
+  annaeherung: true
+- id: thermoskanne_herstellen
+  produkt: thermoskanne
+  menge: 1
+  dauer_tage: 1
+  anlage: isolierflaschenwerk
+  technologie: thermosflasche
+  eingang:
+    glas: 0.0004
+    blech: 0.0004
+  arbeit_stunden:
+    ungelernt: 0.282
+    angelernt: 0.884
+    fachkraft.chemie: 0.658
+    akademiker.chemie: 0.0564
+  qualitaet_basis: 50
+  annaeherung: true
+- id: eimer_herstellen
+  produkt: eimer
+  menge: 1
+  dauer_tage: 1
+  anlage: blechwarenfabrik
+  eingang:
+    blech: 0.0011
+    zinn: 1.0e-05
+  arbeit_stunden:
+    ungelernt: 0.025
+    angelernt: 0.128
+    fachkraft.metall: 0.0925
+    akademiker.metall: 0.005
+  qualitaet_basis: 50
+  annaeherung: true
+- id: frischhaltedose_herstellen
+  produkt: frischhaltedose
+  menge: 1
+  dauer_tage: 1
+  anlage: dosenspritzerei
+  technologie: frischhaltedose
+  eingang:
+    polyethylen: 0.00022
+  arbeit_stunden:
+    ungelernt: 0.0443
+    angelernt: 0.139
+    fachkraft.chemie: 0.103
+    akademiker.chemie: 0.00885
+  qualitaet_basis: 50
+  annaeherung: true
+- id: alufolie_herstellen
+  produkt: alufolie
+  menge: 1
+  dauer_tage: 1
+  anlage: folienwalzwerk
+  technologie: alufolie
+  eingang:
+    aluminium: 0.0003
+  arbeit_stunden:
+    ungelernt: 0.006
+    angelernt: 0.0306
+    fachkraft.metall: 0.0222
+    akademiker.metall: 0.0012
+  qualitaet_basis: 50
+  annaeherung: true
+- id: frischhaltefolie_herstellen
+  produkt: frischhaltefolie
+  menge: 1
+  dauer_tage: 1
+  anlage: blasfolienwerk
+  technologie: frischhaltefolie
+  eingang:
+    polyethylen: 0.00021
+  arbeit_stunden:
+    ungelernt: 0.015
+    angelernt: 0.0471
+    fachkraft.chemie: 0.035
+    akademiker.chemie: 0.003
+  qualitaet_basis: 50
+  annaeherung: true
+- id: kerzen_herstellen
+  produkt: kerzen
+  menge: 1
+  dauer_tage: 1
+  anlage: kerzenfabrik
+  eingang:
+    petroleum: 0.00012
+  arbeit_stunden:
+    ungelernt: 0.0135
+    angelernt: 0.0422
+    fachkraft.chemie: 0.0314
+    akademiker.chemie: 0.00269
+  qualitaet_basis: 50
+  annaeherung: true
+- id: streichhoelzer_herstellen
+  produkt: streichhoelzer
+  menge: 1
+  dauer_tage: 1
+  anlage: zuendholzfabrik
+  eingang:
+    holz: 2.0e-05
+    schwefel: 2.0e-06
+  arbeit_stunden:
+    ungelernt: 0.00183
+    angelernt: 0.00385
+    fachkraft.holz_bau: 0.00339
+    akademiker.holz_bau: 9.16e-05
+  qualitaet_basis: 50
+  annaeherung: true
+- id: besen_buersten_herstellen
+  produkt: besen_buersten
+  menge: 1
+  dauer_tage: 1
+  anlage: buerstenfabrik
+  eingang:
+    schnittholz: 0.0004
+    baumwolle: 3.0e-05
+  arbeit_stunden:
+    ungelernt: 0.06
+    angelernt: 0.126
+    fachkraft.holz_bau: 0.111
+    akademiker.holz_bau: 0.003
+  qualitaet_basis: 50
+  annaeherung: true
+- id: regenschirm_herstellen
+  produkt: regenschirm
+  menge: 1
+  dauer_tage: 1
+  anlage: schirmfabrik
+  eingang:
+    stoff: 0.00015
+    stahl: 0.0002
+    schnittholz: 0.0002
+  arbeit_stunden:
+    ungelernt: 0.08
+    angelernt: 0.48
+    fachkraft.textil: 0.236
+    akademiker.textil: 0.004
+  qualitaet_basis: 50
+  annaeherung: true
+- id: toilettenpapier_herstellen
+  produkt: toilettenpapier
+  menge: 1
+  dauer_tage: 1
+  anlage: hygienepapierwerk
+  eingang:
+    zellstoff: 0.00013
+  arbeit_stunden:
+    ungelernt: 0.00567
+    angelernt: 0.0119
+    fachkraft.holz_bau: 0.0105
+    akademiker.holz_bau: 0.000284
+  qualitaet_basis: 50
+  annaeherung: true
+- id: papiertaschentuch_herstellen
+  produkt: papiertaschentuch
+  menge: 1
+  dauer_tage: 1
+  anlage: taschentuchwerk
+  technologie: papiertaschentuch
+  eingang:
+    zellstoff: 2.2e-05
+  arbeit_stunden:
+    ungelernt: 0.0018
+    angelernt: 0.00378
+    fachkraft.holz_bau: 0.00333
+    akademiker.holz_bau: 9.0e-05
+  qualitaet_basis: 50
+  annaeherung: true
+- id: kuechenrolle_herstellen
+  produkt: kuechenrolle
+  menge: 1
+  dauer_tage: 1
+  anlage: kuechenrollenwerk
+  technologie: kuechenrolle
+  eingang:
+    zellstoff: 0.00028
+  arbeit_stunden:
+    ungelernt: 0.0124
+    angelernt: 0.0261
+    fachkraft.holz_bau: 0.023
+    akademiker.holz_bau: 0.000621
+  qualitaet_basis: 50
+  annaeherung: true
+technologien:
+- id: thermosflasche
+  fachgebiet: chemie
+  erfindungsjahr: 1904
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: alufolie
+  fachgebiet: metall
+  erfindungsjahr: 1910
+  voraussetzungen:
+  - schmelzflusselektrolyse
+  forschungsaufwand: 8000
+  annaeherung: true
+- id: rostfreier_stahl
+  fachgebiet: metall
+  erfindungsjahr: 1912
+  voraussetzungen:
+  - elektrostahl
+  forschungsaufwand: 15000
+  annaeherung: true
+- id: gipskarton
+  fachgebiet: holz_bau
+  erfindungsjahr: 1916
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: papiertaschentuch
+  fachgebiet: holz_bau
+  erfindungsjahr: 1924
+  voraussetzungen:
+  - sulfitverfahren
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: einbaukueche
+  fachgebiet: holz_bau
+  erfindungsjahr: 1926
+  voraussetzungen:
+  - holzbearbeitungsmaschinen
+  forschungsaufwand: 6000
+  annaeherung: true
+- id: transportbeton
+  fachgebiet: holz_bau
+  erfindungsjahr: 1926
+  voraussetzungen:
+  - lastkraftwagen
+  forschungsaufwand: 6000
+  annaeherung: true
+- id: mineralwolle
+  fachgebiet: chemie
+  erfindungsjahr: 1930
+  forschungsaufwand: 8000
+  annaeherung: true
+- id: kuechenrolle
+  fachgebiet: holz_bau
+  erfindungsjahr: 1931
+  voraussetzungen:
+  - sulfitverfahren
+  forschungsaufwand: 5000
+  annaeherung: true
+- id: spanplatte
+  fachgebiet: holz_bau
+  erfindungsjahr: 1941
+  voraussetzungen:
+  - phenolharz
+  forschungsaufwand: 10000
+  annaeherung: true
+- id: frischhaltedose
+  fachgebiet: chemie
+  erfindungsjahr: 1946
+  voraussetzungen:
+  - spritzguss
+  forschungsaufwand: 6000
+  annaeherung: true
+- id: frischhaltefolie
+  fachgebiet: chemie
+  erfindungsjahr: 1949
+  voraussetzungen:
+  - hochdruck_polyethylen
+  forschungsaufwand: 8000
+  annaeherung: true
+- id: betonfertigteil
+  fachgebiet: holz_bau
+  erfindungsjahr: 1950
+  forschungsaufwand: 10000
+  annaeherung: true
+- id: antihaftbeschichtung
+  fachgebiet: chemie
+  erfindungsjahr: 1954
+  voraussetzungen:
+  - hochdruck_polyethylen
+  forschungsaufwand: 10000
+  annaeherung: true
+- id: flachpaketmoebel
+  fachgebiet: holz_bau
+  erfindungsjahr: 1956
+  voraussetzungen:
+  - spanplatte
+  forschungsaufwand: 6000
+  annaeherung: true
+- id: floatglas
+  fachgebiet: chemie
+  erfindungsjahr: 1959
+  forschungsaufwand: 30000
+  annaeherung: true
+- id: kunststoff_gartenmoebel
+  fachgebiet: chemie
+  erfindungsjahr: 1965
+  voraussetzungen:
+  - spritzguss
+  forschungsaufwand: 6000
+  annaeherung: true
+- id: laminat
+  fachgebiet: holz_bau
+  erfindungsjahr: 1977
+  voraussetzungen:
+  - spanplatte
+  forschungsaufwand: 10000
+  annaeherung: true

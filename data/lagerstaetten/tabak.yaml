@@ -1,0 +1,105 @@
+# Rohtabak (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: tabak_usa
+  land: USA
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 720000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: tabak_ind
+  land: IND
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 270000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_chn
+  land: CHN
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 270000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_tur
+  land: TUR
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 108000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_cub
+  land: CUB
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 54000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_idn
+  land: IDN
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 90000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_bra
+  land: BRA
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 72000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: tabak_rus
+  land: RUS
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 144000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: tabak_grc
+  land: GRC
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: tabak_zwe
+  land: ZWE
+  rohstoff: tabak
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000
+  foerderkosten_faktor: 0.9
+  annaeherung: true

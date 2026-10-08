@@ -1229,12 +1229,13 @@ fn decisions_of_the_ai_change_nothing() {
         person: Default::default(),
     };
     let mut game = Game::new(c.clone(), settings).unwrap();
-    for _ in 0..2 {
+    // A year in: some companies are short of cash, others repay (cash decisions).
+    for _ in 0..12 {
         game.advance(RoundLength::Month, |_| {});
     }
     let mut topics = BTreeSet::new();
-    // The end of a quarter, the start of a month and the start of a year.
-    for (y, m, d) in [(1960, 3, 31), (1960, 4, 1), (1961, 1, 1)] {
+    // The end of a quarter, starts of months and the start of a year.
+    for (y, m, d) in [(1961, 3, 31), (1961, 4, 1), (1961, 7, 1), (1962, 1, 1)] {
         let date = Date::new(y, m, d).unwrap();
         let mut plain = game.state().clone();
         plain.date = date;

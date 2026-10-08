@@ -1,0 +1,145 @@
+# Sand und Kies (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: sand_deu
+  land: DEU
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 36000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_gbr
+  land: GBR
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_usa
+  land: USA
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 72000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: sand_fra
+  land: FRA
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_rus
+  land: RUS
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_chn
+  land: CHN
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 27000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_ind
+  land: IND
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 18000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_jpn
+  land: JPN
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_ita
+  land: ITA
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 10800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_bra
+  land: BRA
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_nld
+  land: NLD
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_esp
+  land: ESP
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_mex
+  land: MEX
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: sand_tur
+  land: TUR
+  rohstoff: sand
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

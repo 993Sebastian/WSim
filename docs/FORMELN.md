@@ -5043,3 +5043,22 @@ Munition, Gewehr, Geschütz (bekannt seit dem 19. Jahrhundert), Panzer (1916),
 Jagdflugzeug (1915), Kampfjet (1949, löst das Jagdflugzeug ab), Lenkwaffe (1956). Die
 Bedarfe je BIP teilen rund 0,5 % des BIP bei 3 % Militärausgaben auf die Güter auf
 (Beschaffung rund ein Sechstel der Militärausgaben).
+
+## P1 – Breite: Lebensmittel, Textil, Wohnen und Bauen
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln (M7 Nachfrage, M9 Technik,
+M33 Verfügbarkeit, H3 Kriegsfaktor). Für die Daten gilt:
+
+- **Kaufschwelle** = Jahreseinkommen je Kopf, bei dem die Hälfte einer Schicht kauft,
+  geteilt durch den Richtpreis. Grundbedarf ab einigen hundert USD, Markenwaren und
+  Neuheiten ab 10 000–35 000 USD.
+- **Richtpreis und Arbeitsstunden** werden gegen die Plausibilitätsprüfung abgestimmt
+  (Marge 5–45 %, Ziel 30 % zum Erfindungsjahr in Deutschland, Großbritannien und den USA):
+  Erst werden die Arbeitsstunden angepasst; reichen die Vorprodukte allein schon über
+  85 % der Zielkosten, steigt der Richtpreis.
+- **Anlagen:** Jahresumsatz einer Anlage bei Vollauslastung 2–5 Mio. USD; Investition rund
+  ein Jahresumsatz (Förderstätten 0,6); Lebensdauer 25 Jahre, Wartung 4 % je Jahr.
+- **Neue Agrar- und Baurohstoffe** (Milch, Schlachtvieh, Zuckerpflanzen, Kaffee, Kakao,
+  Tee, Obst und Gemüse, Fisch, Trauben, Tabak, Ölsaaten, Wolle, Rohseide, Kalkstein, Ton,
+  Sand) sind erneuerbare Lagerstätten in 6–14 Ländern; der Förderindex folgt der
+  Weltproduktion (z. B. Kakao × 33, Fisch × 42, Kalkstein × 90 bis 2026).

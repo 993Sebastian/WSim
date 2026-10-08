@@ -1,0 +1,115 @@
+# Schlachtvieh (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: vieh_usa
+  land: USA
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 21600000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: vieh_arg
+  land: ARG
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 9000000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: vieh_bra
+  land: BRA
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: vieh_aus
+  land: AUS
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: vieh_rus
+  land: RUS
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 10800000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: vieh_deu
+  land: DEU
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: vieh_fra
+  land: FRA
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 5400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: vieh_chn
+  land: CHN
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 14400000
+  foerderkosten_faktor: 1.2
+  annaeherung: true
+- id: vieh_ind
+  land: IND
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 7200000
+  foerderkosten_faktor: 1.3
+  annaeherung: true
+- id: vieh_gbr
+  land: GBR
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: vieh_nzl
+  land: NZL
+  rohstoff: schlachtvieh
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2700000
+  foerderkosten_faktor: 0.7
+  annaeherung: true

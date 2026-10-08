@@ -1,0 +1,85 @@
+# Kakaobohnen (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: kakao_gha
+  land: GHA
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 432000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: kakao_civ
+  land: CIV
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 108000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: kakao_bra
+  land: BRA
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 270000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kakao_ecu
+  land: ECU
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 270000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kakao_nga
+  land: NGA
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 108000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kakao_idn
+  land: IDN
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 54000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kakao_cmr
+  land: CMR
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 54000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kakao_xme
+  land: XKB
+  rohstoff: kakaobohnen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 162000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

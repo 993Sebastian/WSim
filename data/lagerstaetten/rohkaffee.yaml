@@ -1,0 +1,105 @@
+# Rohkaffee (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: kaffee_bra
+  land: BRA
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2268000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: kaffee_col
+  land: COL
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 194400
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kaffee_idn
+  land: IDN
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 162000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kaffee_vnm
+  land: VNM
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 32400
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: kaffee_eth
+  land: ETH
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 64800
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kaffee_civ
+  land: CIV
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 32400
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kaffee_ind
+  land: IND
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 48600
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kaffee_mex
+  land: MEX
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 97200
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kaffee_ken
+  land: KEN
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 16200
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kaffee_xme
+  land: XME
+  rohstoff: rohkaffee
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 259200
+  foerderkosten_faktor: 0.9
+  annaeherung: true

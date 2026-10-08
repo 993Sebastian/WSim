@@ -1,0 +1,115 @@
+# Zuckerrohr und -rüben (P1, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: zucker_cub
+  land: CUB
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 194400000
+  foerderkosten_faktor: 0.7
+  annaeherung: true
+- id: zucker_deu
+  land: DEU
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 194400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zucker_fra
+  land: FRA
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 103680000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zucker_rus
+  land: UKR
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 129600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zucker_ind
+  land: IND
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 259200000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: zucker_bra
+  land: BRA
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 103680000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: zucker_idn
+  land: IDN
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 103680000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: zucker_usa
+  land: USA
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 103680000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zucker_aus
+  land: AUS
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 38880000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zucker_phl
+  land: PHL
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 38880000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zucker_chn
+  land: CHN
+  rohstoff: zuckerpflanzen
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 51840000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
