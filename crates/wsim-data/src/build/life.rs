@@ -1,6 +1,6 @@
 //! Age, retirement and death of the managers of `lebenslauf` (docs/FORMELN.md, PE1).
 
-use wsim_core::catalog::{AgeSpan, Catalog, CountrySeries, LifeModel};
+use wsim_core::catalog::{AgeSpan, Catalog, CountrySeries, LifeModel, PersonModel};
 use wsim_core::ids::Id;
 
 use super::{in_range, positive, provenance, time_series};
@@ -193,6 +193,64 @@ pub(super) fn life_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Lif
             &l.field("lebenserwartung"),
             (30.0, 110.0),
         ),
+        provenance: provenance(v.approximation, v.source.as_ref()),
+    }
+}
+
+/// The player as a person (`person`, PE2); optional.
+pub(super) fn person_model(ctx: &mut Ctx, raw: &RawData) -> PersonModel {
+    let Some((entry, rest)) = raw.person.split_first() else {
+        return PersonModel::default();
+    };
+    let first = ctx.describe(&entry.loc);
+    for other in rest {
+        ctx.error(&other.loc, messages::section_duplicate("person", &first));
+    }
+    let v = &entry.value;
+    let l = &entry.loc;
+    let (al, fl) = (l.field("alter_start"), l.field("familie"));
+    // Whole years and counts within the checked ranges; the casts are exact.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let years =
+        |ctx: &mut Ctx, x: f64, at: &Loc| in_range(ctx, x, AGES.0, AGES.1, at).round() as u32;
+    let start_age = [
+        years(ctx, v.start_age.standard, &al.field("standard")),
+        years(ctx, v.start_age.min, &al.field("von")),
+        years(ctx, v.start_age.max, &al.field("bis")),
+    ];
+    if start_age[1] > start_age[0] || start_age[0] > start_age[2] {
+        ctx.error(&al, messages::start_age_outside());
+    }
+    let f = &v.family;
+    let children_ages = [
+        years(ctx, f.children_from, &fl.field("kinder_ab")),
+        years(ctx, f.children_until, &fl.field("kinder_bis")),
+    ];
+    if children_ages[0] >= children_ages[1] {
+        ctx.error(&fl, messages::range_inverted("kinder_ab", "kinder_bis"));
+    }
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let children_max = in_range(
+        ctx,
+        f.children_max,
+        0.0,
+        20.0,
+        &fl.field("kinder_hoechstens"),
+    )
+    .round() as u32;
+    PersonModel {
+        enabled: true,
+        start_age,
+        children_ages,
+        children_max,
+        child_chance: in_range(
+            ctx,
+            f.child_chance,
+            0.0,
+            1.0,
+            &fl.field("kinder_chance_jahr"),
+        ),
+        card_age: years(ctx, f.card_age, &fl.field("managerkarte_ab")),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

@@ -4331,3 +4331,59 @@ fn lebenslauf_wird_geprueft() {
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.life.enabled);
 }
+
+const PERSON: &str = "\
+person:
+  alter_start: {standard: 30, von: 18, bis: 60}
+  familie: {kinder_ab: 22, kinder_bis: 45, kinder_hoechstens: 4, kinder_chance_jahr: 0.15,
+            managerkarte_ab: 25}
+  annaeherung: true
+";
+
+#[test]
+fn person_wird_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &PERSON.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.person;
+    assert!(m.enabled);
+    assert_eq!(m.start_age, [30, 18, 60]);
+    assert_eq!(m.children_max, 4);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "standard: 30",
+            "standard: 70",
+            "Das Standardalter muss zwischen „von“ und „bis“ liegen.",
+            "person.alter_start",
+        ),
+        (
+            "kinder_bis: 45",
+            "kinder_bis: 20",
+            "„kinder_ab“ muss kleiner als „kinder_bis“ sein.",
+            "person.familie",
+        ),
+        (
+            "kinder_chance_jahr: 0.15",
+            "kinder_chance_jahr: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.familie.kinder_chance_jahr",
+        ),
+    ] {
+        let outcome = lauf(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(
+        &lauf("  familie:", "  unbekannt: 1\n  familie:"),
+        "unbekannt",
+    );
+    // Without the section the person has no children.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.person.enabled);
+}

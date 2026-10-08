@@ -16,6 +16,7 @@ mod group;
 mod hints;
 mod logistics;
 mod organisation;
+mod person;
 mod play;
 mod review;
 mod stock;
@@ -35,6 +36,7 @@ pub use group::*;
 pub use hints::*;
 pub use logistics::*;
 pub use organisation::*;
+pub use person::*;
 pub use play::*;
 pub use review::*;
 pub use stock::*;
@@ -143,6 +145,9 @@ pub struct NewGameOptions {
     pub tariffs: Vec<String>,
     #[serde(default)]
     pub default_tariffs: Option<String>,
+    /// Age of the person at the start, and how many children it may have (PE2).
+    pub person_age: Range<u32>,
+    pub children_max: u32,
 }
 
 pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
@@ -260,6 +265,12 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             })
             .flatten()
             .map(|l| l.0.clone()),
+        person_age: Range {
+            min: catalog.person.start_age[1],
+            max: catalog.person.start_age[2],
+            default: catalog.person.start_age[0],
+        },
+        children_max: catalog.person.children_max,
     }
 }
 
@@ -349,6 +360,16 @@ pub struct Overview {
     /// Concerns of the player's positions waiting for an answer (MA2).
     #[serde(default)]
     pub concerns_open: u32,
+    /// The player as a person: name and age (PE2).
+    #[serde(default)]
+    pub person: Option<PersonBrief>,
+}
+
+/// The person in the header (PE2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonBrief {
+    pub name: String,
+    pub age: u32,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -572,6 +593,10 @@ pub fn overview(game: &Game) -> Overview {
                 .count(),
         )
         .unwrap_or(u32::MAX),
+        person: (!state.person.name.is_empty()).then(|| PersonBrief {
+            name: state.person.name.clone(),
+            age: crate::person::age(state, state.date),
+        }),
     }
 }
 
@@ -1408,6 +1433,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            person: Default::default(),
         };
         Game::new(catalog, settings).expect("valid settings")
     }

@@ -39,6 +39,7 @@ import type {
   Controlling,
   Boerse,
   Bank,
+  Person,
   Weiterlaufen,
   Weltkarte,
 } from "./typen";
@@ -118,6 +119,8 @@ export interface Kern {
   boerse(): Promise<Boerse>;
   /** The player's banks: deposits, loans, settings (K4). */
   bank(): Promise<Bank>;
+  /** The player as a person: profile, family, roles, chronicle (PE2). */
+  person(): Promise<Person>;
   /**
    * Candidates for a position: `einheit` is `standort:3`, `land:DEU` or `kontinent:europa`
    * (MA3), `stelle` is `leitung` or the key of a function (MA1).
@@ -180,6 +183,7 @@ const tauriKern: Kern = {
   controlling: (zeitraum) => aufruf("controlling", { zeitraum }),
   boerse: () => aufruf("boerse"),
   bank: () => aufruf("bank"),
+  person: () => aufruf("person"),
   managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),

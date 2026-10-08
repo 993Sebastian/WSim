@@ -10,10 +10,10 @@ use crate::raw::{
     RawAiModel, RawBank, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
     RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawEventModel, RawFacility,
     RawFinanceModel, RawInventor, RawLife, RawLogistics, RawManagement, RawMarketModel, RawMeta,
-    RawMilestone, RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming,
-    RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple,
-    RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass,
-    RawTransportModel, RawUnit, RawVehicle, RawVentures,
+    RawMilestone, RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex, RawProduct,
+    RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
+    RawResearchModel, RawSimple, RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology,
+    RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -188,6 +188,7 @@ pub(crate) struct RawData {
     pub bank: Vec<Entry<RawBank>>,
     pub event_model: Vec<Entry<RawEventModel>>,
     pub life: Vec<Entry<RawLife>>,
+    pub person: Vec<Entry<RawPerson>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -236,6 +237,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "bank",
     "ereignisfolgen",
     "lebenslauf",
+    "person",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -351,6 +353,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "lebenslauf" => match de::from_node::<RawLife>(value, &loc.path) {
                 Ok(model) => raw.life.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "person" => match de::from_node::<RawPerson>(value, &loc.path) {
+                Ok(model) => raw.person.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

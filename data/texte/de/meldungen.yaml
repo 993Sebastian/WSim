@@ -171,6 +171,7 @@ fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
 fehler.befehl.keine_banken: In diesem Spiel gibt es keine Banken des Spielers.
 fehler.befehl.keine_bank: Diese Firma ist keine Bank.
+fehler.befehl.nur_familie: Deine Kinder arbeiten nur für deine eigenen Firmen.
 fehler.befehl.kein_ruhestand: Der Manager geht nicht in den nächsten Monaten in den Ruhestand.
 fehler.befehl.verlaengerung_zu_lang: "Verlängern geht höchstens um {jahre} Jahre."
 fehler.befehl.land_abgeschottet: "Das Land ist für deine Firma abgeschottet: keine neuen Standorte, keine Käufe von Standorten und keine Verlegung des Sitzes dorthin."
@@ -280,6 +281,11 @@ meldung.manager.ruhestand_nachfolger: "{name} ({stelle}, {ort}) ist mit {alter} 
 meldung.manager.tod: "{name} ({stelle}, {ort}) ist mit {alter} Jahren gestorben. Die Stelle ist frei."
 meldung.manager.tod_nachfolger: "{name} ({stelle}, {ort}) ist mit {alter} Jahren gestorben. {nachfolger} übernimmt die Stelle sofort."
 meldung.manager.nachfolger_weg: "{name}, vorgesehener Nachfolger ({stelle}, {ort}), fällt mit {alter} Jahren aus. Die Nachfolge ist wieder offen."
+meldung.person.geburt: "Familienzuwachs: {name} ist geboren – dein {anzahl}. Kind."
+meldung.person.berufseintritt: "{name} ist {alter} und steht dir als Manager zur Verfügung – im Managermarkt deiner Stellen ganz oben, gekennzeichnet als Familie."
+meldung.person.kind_tot: "{name} ist mit {alter} Jahren gestorben."
+meldung.person.vorsitz_abgegeben: "{name} führt {firma} jetzt als CEO. Du lenkst über Strategieauftrag, Rücksprachen und Anliegen."
+meldung.person.vorsitz_uebernommen: "{firma} hat keinen CEO mehr – du führst die Firma wieder selbst."
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.neu_land: "{stelle} ({land}) fragt: {thema}. Antwort bis {frist}."

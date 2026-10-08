@@ -4507,3 +4507,46 @@ Reihenfolge am Monatsersten: Stellen ohne Firma enden, Anliegen werden aufgeräu
 Kandidaten verlassen den Markt (MA6), dann Geburtstage, Tod und Ruhestand aller Manager,
 erledigte Nachfolge-Anliegen schließen, neue Vorwarnungen; danach füllt sich der Pool, und
 neue Kandidaten bekommen Potenzial und Geburtsdatum.
+
+## PE2 – Spielerfigur als Person
+
+Vorgabe `docs/PERSON.md` §5. Daten: `parameter/person.yaml`. Kern: Modul `person`.
+
+### Person beim neuen Spiel
+
+Name (leer: aus der Namensgruppe des Startlandes gezogen), Geburtsjahr (Vorgabe Startjahr −
+`alter_start.standard` (30), erlaubt `von` 18 bis `bis` 60 Jahre alt; Tag im Jahr
+gleichverteilt), Wohnsitz = Startland, verheiratet ja/nein (Vorgabe ja) und 0 bis 4 Kinder
+(Vorgabe keine). Die Geburtstage vorhandener Kinder sind gleichverteilt zwischen dem Tag,
+an dem die Person `kinder_ab` (22) wurde, und dem früheren von Spielbeginn und ihrem Tag
+`kinder_bis` (45); ohne diese Spanne (zu junge Person) ist das Kind beim Start null Jahre
+alt. Die Person ist zunächst CEO ihrer Firma.
+
+Alte Spielstände: eine Standardperson mit gezogenem Namen, 30 Jahre am Ladetag (1. Januar
+des Jahres), verheiratet, ohne Kinder, CEO der Firma.
+
+### Kinder
+
+Solange die Person verheiratet und `kinder_ab` bis unter `kinder_bis` Jahre alt ist und
+weniger als `kinder_hoechstens` (4) Kinder hat, kommt am Monatsersten ein Kind mit der Chance
+
+    p_Monat = 1 − (1 − kinder_chance_jahr)^(1/12)        (kinder_chance_jahr = 0,15)
+
+Vorname aus der Namensgruppe des Wohnsitzlandes, Familienname der Person. Mit
+`managerkarte_ab` (25) Jahren bekommt das Kind eine Managerkarte wie ein Bewerber (Ziehung
+MA1, Geburtsdatum = das des Kindes, Heimat = Wohnsitz). Es steht nur der Person zur
+Verfügung: Andere Firmen stellen es nicht ein und werben es nicht ab, Leitungen besetzen
+mit ihm keine Stellen, es kündigt nicht und verlässt den Markt nur mit dem Ruhestand. Es
+verlangt die übliche Gehaltsforderung. Stirbt es als Manager, gilt das Kind als verstorben.
+
+### Rollen
+
+- **Eigentümer:** jede Firma mit einem Anteil `Holder::Player`; kontrolliert ab über 50 %.
+- **CEO:** Die Person führt ihre Firma, solange dort kein Manager CEO ist. Am Monatsersten
+  wird abgeglichen: Ist ein Manager CEO geworden, gibt die Person den Vorsitz ab; ist die
+  Stelle frei geworden, übernimmt sie ihn wieder. Beides steht im Lebenslauf.
+
+### Lebenslauf
+
+Chronik mit Datum: Beginn (Firma), Geburt eines Kindes, Berufseintritt eines Kindes
+(Managerkarte), Tod eines Kindes, Vorsitz abgegeben (an wen), Vorsitz übernommen.

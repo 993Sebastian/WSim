@@ -32,6 +32,7 @@ import type {
   Controlling,
   Boerse,
   Bank,
+  Person,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -67,6 +68,7 @@ const beispiel = beispielJson as unknown as {
   controlling: Controlling;
   boerse: Boerse;
   bank: Bank;
+  person: Person;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -252,6 +254,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     bank: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.bank);
+    },
+    person: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.person);
     },
     boerse: async () => {
       if (!spiel) throw keinSpiel();

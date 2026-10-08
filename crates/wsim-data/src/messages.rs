@@ -622,6 +622,10 @@ pub fn age_mean_outside(mean: f64, min: f64, max: f64) -> String {
     format!("Das Mittel {mean} liegt nicht zwischen „von“ ({min}) und „bis“ ({max}).")
 }
 
+pub fn start_age_outside() -> String {
+    "Das Standardalter muss zwischen „von“ und „bis“ liegen.".into()
+}
+
 pub fn levels_not_ascending() -> String {
     "Die Grenzen müssen von Land über Kontinent bis Vorstand steigen.".into()
 }

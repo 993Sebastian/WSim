@@ -523,6 +523,7 @@ pub(crate) fn hire(
     if m.job.is_some() {
         return Err(CommandError::ManagerEmployed);
     }
+    crate::person::check_family(state, actor, m)?;
     check_position(catalog, state, actor, position)?;
     let salary = salary_demand(catalog, state, actor, m, position);
     let since = state.date;
@@ -738,7 +739,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
     let leaving: Vec<ManagerId> = state
         .managers
         .iter()
-        .filter(|(_, x)| x.job.is_none())
+        .filter(|(_, x)| x.job.is_none() && !x.family)
         .map(|(&id, _)| id)
         .filter(|_| rng.chance(m.pool.leave_per_month))
         .collect();
@@ -761,7 +762,9 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
         let free = state
             .managers
             .values()
-            .filter(|x| x.job.is_none() && catalog.countries.get(x.home).continent == continent)
+            .filter(|x| {
+                x.job.is_none() && !x.family && catalog.countries.get(x.home).continent == continent
+            })
             .count();
         for _ in free..pool_size(catalog, total) {
             let home = pick_country(&mut rng, &countries, total);
@@ -798,7 +801,7 @@ pub(crate) fn pick_country(
 }
 
 /// A new candidate (docs/FORMELN.md, MA1).
-fn draw(
+pub(crate) fn draw(
     catalog: &Catalog,
     rng: &mut SimRng,
     home: CountryId,
@@ -861,6 +864,7 @@ fn draw(
         extended: 0,
         succession_asked: false,
         extension_refused: false,
+        family: false,
     }
 }
 

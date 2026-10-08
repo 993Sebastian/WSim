@@ -491,6 +491,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 ventures: venture_factor(&catalog, args)?,
                 tariff_dynamics: tariff_factor(&catalog, args)?,
                 event_effects: !args.ohne_folgen,
+                person: Default::default(),
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }
@@ -587,6 +588,10 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        person_name: String::new(),
+        birth_year: None,
+        married: true,
+        children: 0,
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
@@ -628,6 +633,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "forschung": session.research().map_err(message)?,
         "finanzen": session.finance().map_err(message)?,
         "startups": session.ventures().map_err(message)?,
+        "person": session.person().map_err(message)?,
     });
     json["logistik"] = example_logistics(&mut session)?;
     json["konzern"] = example_group(&mut session)?;
@@ -900,6 +906,10 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         startups: None,
         tariffs: None,
         event_effects: true,
+        person_name: String::new(),
+        birth_year: None,
+        married: true,
+        children: 0,
     };
     session.new_game(&request).map_err(message)?;
     for role in ["leitung", "finanzen"] {

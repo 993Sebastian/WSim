@@ -1438,6 +1438,30 @@ entschieden:
    stärksten Kandidaten und damit eher ältere – deshalb liegen Standortleitungen über dem
    Mittel ihrer Ebene. Pleiten bis 1951: 48 (H1-Lauf: 40), keine Pleitenwelle.
 
+✅ **PE2 umgesetzt** (Spielerfigur als Person; Vorgabe `docs/PERSON.md` §5; Regeln:
+`docs/FORMELN.md`, Abschnitt PE2; Format: `docs/DATENFORMAT.md`, `person`; Lastenheft §2
+angepasst). 🟡 Eigenständig entschieden:
+
+1. **Ohne Geld:** Die Person hat in PE2 noch kein Konto; Startkapital, Gehalt und
+   Lebensstil folgen mit PE3. Der Spielstart mit fertiger Firma bleibt bis PE3.
+2. **Vorsitz:** Die Person führt ihre Firma, solange kein Manager CEO ist; der Abgleich
+   läuft am Monatsersten (Lebenslauf und Meldung).
+3. **Standardperson** alter Spielstände: Name aus dem Land des Hauptsitzes, 30 Jahre am
+   Ladetag, verheiratet, ohne Kinder.
+4. **Kinder beim Start** kommen zwischen dem 22. und 45. Lebensjahr der Person zur Welt
+   (gleichverteilt bis zum Spielbeginn); später 15 % je Jahr (im Mittel 3,5 Kinder in 23
+   Jahren, höchstens vier). Vornamen ohne Geschlecht (die Namensgruppen kennen keines),
+   Familienname der Person.
+5. **Managerkarte ab 25** mit den Fähigkeiten eines Bewerbers; der Zuschlag aus der
+   Ausbildung (Lebensstil) folgt mit PE3. Kinder stehen nur der Person zur Verfügung:
+   keine KI-Einstellung, keine Abwerbung, keine Einstellung durch Leitungen, keine
+   Kündigung, kein Abgang aus dem Markt außer zum Ruhestand. Stirbt ein Kind als Manager,
+   ist es verstorben; jüngere Kinder sterben nicht (die Sterbetafel beginnt mit 50).
+6. **Ansicht Person** über den Namen in der Kopfzeile statt eines elften Reiters (die
+   Tasten 1–0 bleiben, wie sie sind).
+7. **Ruhestand in den nächsten zwei Jahren** (PE1-Vorgabe „Filter“): als aufklappbare
+   Liste über dem Organigramm mit Nachfolger oder „noch offen“.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

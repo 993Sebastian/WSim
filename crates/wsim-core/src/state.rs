@@ -684,6 +684,10 @@ pub struct Manager {
     /// Whether he turned down staying longer (PE1).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub extension_refused: bool,
+    /// A child of the person (PE2): works only for the person's companies, does not
+    /// resign and is not hired away.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub family: bool,
 }
 
 fn no_count(n: &u32) -> bool {
@@ -1620,6 +1624,9 @@ pub struct GameSettings {
     /// Whether the historical events act on markets, trade and companies (H1).
     #[serde(default = "yes")]
     pub event_effects: bool,
+    /// The player as a person (PE2).
+    #[serde(default)]
+    pub person: PersonSettings,
 }
 
 /// Number and character of the AI companies; difficulty presets fill these values.
@@ -1760,6 +1767,118 @@ pub struct GameState {
     pub stock: crate::stock::StockMarket,
     pub player: CompanyId,
     pub game_over: bool,
+    /// The player as a person (PE2); older saves get a standard person when loaded.
+    #[serde(default)]
+    pub person: Person,
+}
+
+/// The player as a person (PE2, docs/PERSON.md §5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Person {
+    /// Empty only before the person was set up (older saves).
+    pub name: String,
+    pub born: Date,
+    /// Country of residence.
+    pub home: CountryId,
+    pub married: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub children: Vec<Child>,
+    /// The company the person leads as CEO; none while a manager does.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ceo: Option<CompanyId>,
+    /// The chronicle of the person's life, the earliest first.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub history: Vec<LifeEvent>,
+}
+
+impl Default for Person {
+    fn default() -> Self {
+        Person {
+            name: String::new(),
+            born: Date::first_of_year(1870),
+            home: <CountryId as crate::ids::Id>::from_index(0),
+            married: true,
+            children: Vec::new(),
+            ceo: None,
+            history: Vec::new(),
+        }
+    }
+}
+
+/// A child of the person (PE2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Child {
+    pub name: String,
+    pub born: Date,
+    /// The manager card from the card age on.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub manager: Option<ManagerId>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub died: Option<Date>,
+}
+
+/// An entry of the person's chronicle (PE2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct LifeEvent {
+    pub date: Date,
+    pub kind: LifeEventKind,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum LifeEventKind {
+    /// The game began with the company.
+    Start {
+        company: CompanyId,
+    },
+    /// The person took over the company of an older save.
+    Takeover {
+        company: CompanyId,
+    },
+    ChildBorn {
+        name: String,
+    },
+    /// A child got the manager card.
+    Career {
+        name: String,
+    },
+    ChildDied {
+        name: String,
+    },
+    /// A manager became CEO in the person's stead.
+    CeoHandedOver {
+        company: CompanyId,
+        to: String,
+    },
+    /// The person leads the company again.
+    CeoTakenBack {
+        company: CompanyId,
+    },
+}
+
+/// The person of a new game (PE2): as given, or the defaults of the data.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PersonSettings {
+    /// Empty: drawn from the names of the start country.
+    #[serde(default)]
+    pub name: String,
+    /// None: start year minus the default age.
+    #[serde(default)]
+    pub birth_year: Option<i32>,
+    #[serde(default = "yes")]
+    pub married: bool,
+    #[serde(default)]
+    pub children: u8,
+}
+
+impl Default for PersonSettings {
+    fn default() -> Self {
+        PersonSettings {
+            name: String::new(),
+            birth_year: None,
+            married: true,
+            children: 0,
+        }
+    }
 }
 
 impl GameState {
@@ -1881,6 +2000,7 @@ impl GameState {
         crate::plots::fit_loaded(self, catalog);
         crate::central::refresh_staffing(self, catalog);
         crate::aging::set_births(self, catalog, self.date);
+        crate::person::fit_loaded(self, catalog);
     }
 }
 

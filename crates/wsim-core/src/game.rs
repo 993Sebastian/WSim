@@ -252,6 +252,7 @@ impl Game {
             stock: Default::default(),
             player: CompanyId(0),
             game_over: false,
+            person: Default::default(),
         };
         state.refresh_countries(&catalog);
         state.fit_to_catalog(&catalog);
@@ -270,6 +271,7 @@ impl Game {
         crate::events::start(&mut state);
         crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
+        crate::person::start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
         Ok(Self {
             catalog,
@@ -519,6 +521,11 @@ impl Game {
                 next,
             ));
             report.messages.extend(crate::staffing::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
+            report.messages.extend(crate::person::month_start(
                 &mut self.state,
                 &self.catalog,
                 next,
@@ -824,6 +831,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            person: Default::default(),
         };
         let mut game = Game::new(catalog.clone(), settings).unwrap();
         if site_in_bbb {

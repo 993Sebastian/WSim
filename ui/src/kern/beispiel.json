@@ -30032,7 +30032,13 @@
       "keine",
       "normal",
       "stark"
-    ]
+    ],
+    "person_age": {
+      "default": 30,
+      "max": 60,
+      "min": 18
+    },
+    "children_max": 4
   },
   "organisation": {
     "board": {
@@ -31964,9 +31970,9 @@
                           "level": 3
                         }
                       ],
-                      "age": 44,
-                      "retires_at": 69,
-                      "retirement": "1939-08-01"
+                      "age": 64,
+                      "retires_at": 65,
+                      "retirement": "1915-05-01"
                     },
                     "market_usd": 150223.4395,
                     "offer": null,
@@ -32378,6 +32384,22 @@
         "until": "1914-07-01",
         "judged": 0,
         "reason": "ruhestand"
+      }
+    ],
+    "retiring": [
+      {
+        "name": "Alexei Demidov",
+        "age": 64,
+        "position": {
+          "role": "leitung",
+          "level": "land",
+          "kind_text": "ebene.land",
+          "country": "DEU",
+          "continent": null,
+          "unit": "land:DEU"
+        },
+        "retirement": "1915-05-01",
+        "successor": null
       }
     ]
   },
@@ -42334,7 +42356,11 @@
       },
       "year_before": null
     },
-    "start_year": 1914
+    "start_year": 1914,
+    "person": {
+      "name": "Jürgen Albrecht",
+      "age": 30
+    }
   },
   "uebersicht_start": {
     "company": {
@@ -42551,7 +42577,11 @@
       },
       "year_before": null
     },
-    "start_year": 1914
+    "start_year": 1914,
+    "person": {
+      "name": "Jürgen Albrecht",
+      "age": 30
+    }
   },
   "vertraege": {
     "cancel_months": 3,
@@ -47258,5 +47288,89 @@
     "date": "1914-08-01",
     "product": "naegel",
     "unit": "t"
+  },
+  "person": {
+    "age": 30,
+    "born": "1884-07-10",
+    "children": [
+      {
+        "name": "Clara Albrecht",
+        "born": "1910-03-02",
+        "age": 4,
+        "died": null,
+        "manager": null,
+        "position": null,
+        "card_in": 21
+      },
+      {
+        "name": "Paul Albrecht",
+        "born": "1913-11-20",
+        "age": 0,
+        "died": null,
+        "manager": null,
+        "position": null,
+        "card_in": 25
+      }
+    ],
+    "children_possible": true,
+    "history": [
+      {
+        "date": "1914-01-01",
+        "text": {
+          "group": "allgemein",
+          "key": "person.ereignis.start",
+          "kind": "info",
+          "params": {
+            "firma": {
+              "type": "text",
+              "value": "Neue Firma"
+            }
+          },
+          "target": null
+        }
+      },
+      {
+        "date": "1913-11-20",
+        "text": {
+          "group": "allgemein",
+          "key": "person.ereignis.geburt",
+          "kind": "info",
+          "params": {
+            "name": {
+              "type": "text",
+              "value": "Paul Albrecht"
+            }
+          },
+          "target": null
+        }
+      },
+      {
+        "date": "1910-03-02",
+        "text": {
+          "group": "allgemein",
+          "key": "person.ereignis.geburt",
+          "kind": "info",
+          "params": {
+            "name": {
+              "type": "text",
+              "value": "Clara Albrecht"
+            }
+          },
+          "target": null
+        }
+      }
+    ],
+    "holdings": [
+      {
+        "ceo": null,
+        "company": "Neue Firma",
+        "controlled": true,
+        "person_ceo": true,
+        "share": 1.0
+      }
+    ],
+    "home": "DEU",
+    "married": true,
+    "name": "Jürgen Albrecht"
   }
 }

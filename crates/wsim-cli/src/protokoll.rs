@@ -719,6 +719,43 @@ impl Protocol {
                 );
             }
         }
+        let person = &game.state().person;
+        if !person.name.is_empty() {
+            let today = game.state().date;
+            let _ = write!(
+                md,
+                "\n## Person (PE2)\n\n{}, geboren {}, {} Jahre, {}, {} Kinder.\n\n",
+                person.name,
+                person.born,
+                wsim_core::aging::age(person.born, today),
+                if person.married {
+                    "verheiratet"
+                } else {
+                    "ledig"
+                },
+                person.children.len()
+            );
+            if !person.children.is_empty() {
+                md.push_str("| Kind | geboren | Alter der Person bei Geburt | Managerkarte | verstorben |\n| --- | --- | --- | --- | --- |\n");
+                for c in &person.children {
+                    let card = person.history.iter().find_map(|e| match &e.kind {
+                        wsim_core::state::LifeEventKind::Career { name } if *name == c.name => {
+                            Some(e.date.to_string())
+                        }
+                        _ => None,
+                    });
+                    let _ = writeln!(
+                        md,
+                        "| {} | {} | {} | {} | {} |",
+                        c.name,
+                        c.born,
+                        wsim_core::aging::age(person.born, c.born),
+                        card.unwrap_or_else(|| "–".into()),
+                        c.died.map_or_else(|| "–".into(), |d| d.to_string())
+                    );
+                }
+            }
+        }
         md.push_str("\n## Auffälligkeiten je Produkt\n\nJahre mit Auffälligkeit (teuer > 1,5 × Richtpreis, billig < 0,6 ×, Mangel < 85 % der Nachfrage von Verbrauchern und Staaten bzw. des Vorproduktbedarfs gedeckt, Überkapazität > 2 × Bedarf, sehr profitabel > 40 % Marge über Vollkosten, Verlust < −10 %).\n\n| Produkt | Jahre | teuer | billig | Mangel | Überkapazität | sehr profitabel | Verlust |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n");
         let mut by_product: BTreeMap<ProductId, (usize, BTreeMap<&str, usize>)> = BTreeMap::new();
         for p in &self.products {

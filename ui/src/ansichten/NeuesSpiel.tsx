@@ -33,6 +33,8 @@ export function NeuesSpielAnsicht({
   const [einfuehrung, setEinfuehrung] = useState(true);
   const [fehler, setFehler] = useState<string | null>(null);
   const [startet, setStartet] = useState(false);
+  // Empty: the start year minus the default age (PE2).
+  const [geburtsjahr, setGeburtsjahr] = useState("");
 
   useEffect(() => {
     let aktiv = true;
@@ -49,6 +51,9 @@ export function NeuesSpielAnsicht({
           startups: o.default_startups,
           tariffs: o.default_tariffs ?? null,
           event_effects: true,
+          person_name: "",
+          married: true,
+          children: 0,
         });
         // Year and seed name something: no thousands separators.
         setZahlen({
@@ -92,8 +97,15 @@ export function NeuesSpielAnsicht({
   const starten = async (e: FormEvent) => {
     e.preventDefault();
     const zahl = (feld: Zahlfeld) => zahlLesen(zahlen[feld]) ?? NaN;
+    const jahr = geburtsjahr.trim() === "" ? null : zahlLesen(geburtsjahr);
+    if (jahr !== null && !Number.isInteger(jahr)) {
+      setFehler(t("feld.keine_zahl"));
+      return;
+    }
     const einstellungen: NeuesSpiel = {
       ...werte,
+      person_name: (werte.person_name ?? "").trim(),
+      birth_year: jahr,
       company_name: werte.company_name.trim(),
       start_year: zahl("start_year"),
       companies: zahl("companies"),
@@ -176,6 +188,18 @@ export function NeuesSpielAnsicht({
             </label>
           ))}
         </fieldset>
+        <Personfelder
+          optionen={optionen}
+          startjahr={zahlLesen(zahlen.start_year)}
+          name={werte.person_name ?? ""}
+          onName={(n) => setze("person_name", n)}
+          geburtsjahr={geburtsjahr}
+          onGeburtsjahr={setGeburtsjahr}
+          verheiratet={werte.married ?? true}
+          onVerheiratet={(v) => setze("married", v)}
+          kinder={werte.children ?? 0}
+          onKinder={(k) => setze("children", k)}
+        />
         <label>
           {t("neu.schwierigkeit")}
           <select
@@ -287,5 +311,80 @@ export function NeuesSpielAnsicht({
         </div>
       </form>
     </main>
+  );
+}
+
+/** The player as a person (PE2): name, year of birth, family. */
+function Personfelder(p: {
+  optionen: Optionen;
+  startjahr: number | null;
+  name: string;
+  onName: (n: string) => void;
+  geburtsjahr: string;
+  onGeburtsjahr: (j: string) => void;
+  verheiratet: boolean;
+  onVerheiratet: (v: boolean) => void;
+  kinder: number;
+  onKinder: (k: number) => void;
+}) {
+  const alter = p.optionen.person_age ?? { min: 18, max: 60, default: 30 };
+  const start = p.startjahr ?? p.optionen.start_year.default;
+  const hoechstens = p.optionen.children_max ?? 4;
+  return (
+    <fieldset>
+      <legend>{t("neu.person")}</legend>
+      <div className="feldreihe">
+        <label>
+          {t("neu.person_name")}
+          <input
+            id="person_name"
+            maxLength={60}
+            value={p.name}
+            placeholder={t("neu.person_name_hilfe")}
+            onChange={(e) => p.onName(e.target.value)}
+          />
+        </label>
+        <label>
+          {t("neu.geburtsjahr")}
+          <ZahlEingabe
+            id="geburtsjahr"
+            ganzzahlig
+            gruppieren={false}
+            wert={p.geburtsjahr}
+            onWert={p.onGeburtsjahr}
+            placeholder={String(start - alter.default)}
+          />
+          <small className="feld-hilfe">
+            {t("neu.geburtsjahr_hilfe", {
+              von: String(start - alter.max),
+              bis: String(start - alter.min),
+              alter_von: formatZahl(alter.min),
+              alter_bis: formatZahl(alter.max),
+            })}
+          </small>
+        </label>
+      </div>
+      <div className="feldreihe">
+        <label className="auswahl">
+          <input
+            id="verheiratet"
+            type="checkbox"
+            checked={p.verheiratet}
+            onChange={(e) => p.onVerheiratet(e.target.checked)}
+          />
+          {t("neu.verheiratet")}
+        </label>
+        <label>
+          {t("neu.kinder")}
+          <select id="kinder" value={p.kinder} onChange={(e) => p.onKinder(Number(e.target.value))}>
+            {Array.from({ length: hoechstens + 1 }, (_, k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </fieldset>
   );
 }

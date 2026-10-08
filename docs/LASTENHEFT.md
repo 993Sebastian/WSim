@@ -16,7 +16,7 @@ Ziel ist eine rundenbasierte Wirtschaftssimulation für Windows, in der der Spie
 
 Der Spieler ist Firmenchef und steuert sein Unternehmen gegen eine Vielzahl von KI-Firmen, die gemeinsam den gesamten Weltmarkt bilden. Es gibt kein festes Spielziel; die Partie endet am 31.12.2100.
 
-- Die Spielerfigur ist in Version 1 personenunabhängig: kein Alter, kein Lebenslauf, keine Nachfolge.
+- Die Spielerfigur ist eine Person mit Name, Geburtsjahr, Familie, Rollen in ihren Firmen und Lebenslauf; sie altert, und ein Erbe übernimmt (§18.7, `docs/PERSON.md`). Bis Version 1 war sie personenunabhängig.
 - Start als kleine Werkstatt, die einfachste Teile herstellt oder mit ihnen handelt.
 - Ausbau bis zum weltweiten Konzern mit hochkomplexen Produktionsketten und Vertriebswegen, z. B. Flugzeug- oder Raketenbau.
 - Produktionsketten beginnen beim eigenen Rohstoffabbau, z. B. Erz, und reichen bis zum Endprodukt.

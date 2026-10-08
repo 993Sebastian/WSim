@@ -4521,6 +4521,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            person: Default::default(),
         };
         let mut game = crate::game::Game::new(catalog.clone(), settings).expect("valid");
         let state = game.state_mut();

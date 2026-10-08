@@ -34,6 +34,7 @@ pub mod math;
 pub mod message;
 pub mod milestones;
 pub mod money;
+pub mod person;
 pub mod plots;
 pub mod policy;
 pub mod population;
@@ -93,6 +94,8 @@ mod logistics_tests;
 mod management_tests;
 #[cfg(test)]
 mod market_tests;
+#[cfg(test)]
+mod person_tests;
 #[cfg(test)]
 mod plots_tests;
 #[cfg(test)]

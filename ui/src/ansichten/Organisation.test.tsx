@@ -346,6 +346,10 @@ describe("Anliegen", () => {
     );
     expect(await screen.findByText(/64 Jahre · Ruhestand am 01\.03\.1915 mit 65/)).toBeTruthy();
     expect(screen.getByText(/Nachfolger: Clara Weiß \(41 Jahre\), seit 01\.07\.1914/)).toBeTruthy();
+    const liste = screen.getByRole("table", { name: "Ruhestand in den nächsten zwei Jahren" });
+    expect(within(liste).getAllByRole("row")[1]!.textContent).toMatch(
+      /^Alexei Demidov.*Land · Deutschland6401\.05\.1915noch offen$/,
+    );
     const ehemalige = screen.getByRole("region", { name: "Ehemalige Manager" });
     const zeile = within(ehemalige).getAllByRole("row")[1]!;
     expect(zeile.textContent).toMatch(/^Heinrich Albers.*Werk · Deutschland.*64Ruhestand$/);

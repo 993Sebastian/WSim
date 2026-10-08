@@ -44,6 +44,9 @@ pub struct ManagerView {
     pub age: Option<u32>,
     pub retires_at: Option<u32>,
     pub retirement: Option<String>,
+    /// A child of the person (PE2).
+    #[serde(default)]
+    pub family: bool,
 }
 
 /// The successor waiting for a position until its holder retires (PE1).
@@ -52,6 +55,17 @@ pub struct SuccessorView {
     pub manager: ManagerView,
     pub salary_usd: f64,
     pub since: String,
+}
+
+/// A manager of the company who retires within two years (PE1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RetiringView {
+    pub name: String,
+    pub age: Option<u32>,
+    pub position: super::concerns::ConcernPositionView,
+    pub retirement: String,
+    /// His successor, if one was appointed.
+    pub successor: Option<String>,
 }
 
 /// A manager who retired or died in the company's service (PE1).
@@ -244,6 +258,8 @@ pub struct OrganisationView {
     pub central: super::CentralView,
     /// Managers who retired or died in its service, the latest first (PE1).
     pub former: Vec<FormerManagerView>,
+    /// Holders who retire within two years, the earliest first (PE1).
+    pub retiring: Vec<RetiringView>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -514,6 +530,7 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         age: crate::aging::age_of(m, game.state().date),
         retires_at: crate::aging::retirement_age(c, m),
         retirement: crate::aging::retirement(c, m).map(iso),
+        family: m.family,
     }
 }
 
@@ -866,6 +883,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
         rules,
         kinds,
         central: super::central(game),
+        retiring: retiring(game),
         former: state.companies[game.player().index()]
             .former_managers
             .iter()
@@ -937,19 +955,20 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         Role::Specialist(f) => m.focus == *f,
         Role::Head => false,
     };
-    let mut free: Vec<(bool, bool, &str, ManagerId)> = state
+    // The person's children first (PE2).
+    let mut free: Vec<(bool, bool, bool, &str, ManagerId)> = state
         .managers
         .iter()
         .filter(|(_, m)| m.job.is_none())
         .map(|(&id, m)| {
             let elsewhere = c.countries.get(m.home).continent != continent;
-            (elsewhere, !fits(m), m.name.as_str(), id)
+            (!m.family, elsewhere, !fits(m), m.name.as_str(), id)
         })
         .collect();
     free.sort();
     let candidates = free
         .iter()
-        .map(|&(_, _, _, id)| candidate(id, &state.managers[&id]))
+        .map(|&(_, _, _, _, id)| candidate(id, &state.managers[&id]))
         .collect();
     let own = state
         .managers
@@ -975,4 +994,40 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         cash_usd: usd(cash),
         own,
     })
+}
+
+/// Months ahead the list of coming retirements looks.
+const RETIRING_MONTHS: u32 = 24;
+
+/// The player's holders who retire within two years (PE1).
+fn retiring(game: &Game) -> Vec<RetiringView> {
+    let c = game.catalog();
+    let state = game.state();
+    let player = game.player();
+    let until = state.date.add_months(RETIRING_MONTHS);
+    let mut list: Vec<(crate::calendar::Date, RetiringView)> = state
+        .managers
+        .values()
+        .filter_map(|m| {
+            let job = m
+                .job
+                .as_ref()
+                .filter(|j| j.company == player && !j.successor)?;
+            let day = crate::aging::retirement(c, m).filter(|&d| d <= until)?;
+            let successor = crate::aging::successor_of(state, player, &job.position)
+                .map(|s| state.managers[&s].name.clone());
+            Some((
+                day,
+                RetiringView {
+                    name: m.name.clone(),
+                    age: crate::aging::age_of(m, state.date),
+                    position: super::concerns::position_view(c, state, &job.position),
+                    retirement: iso(day),
+                    successor,
+                },
+            ))
+        })
+        .collect();
+    list.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.name.cmp(&b.1.name)));
+    list.into_iter().map(|(_, v)| v).collect()
 }

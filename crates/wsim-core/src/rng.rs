@@ -115,6 +115,12 @@ pub enum Stream {
         id: u32,
         day: u32,
     },
+    /// The person at the start of a game (PE2).
+    PersonStart,
+    /// The person's family in a month (PE2).
+    Person {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -170,6 +176,8 @@ impl Stream {
                 (21 << 56) | (u64::from(id) << 24) | u64::from(month)
             }
             Stream::Extension { id, day } => (22 << 56) | (u64::from(id) << 24) | u64::from(day),
+            Stream::PersonStart => 23 << 56,
+            Stream::Person { month } => (24 << 56) | u64::from(month),
         }
     }
 }

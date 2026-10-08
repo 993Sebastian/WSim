@@ -27,12 +27,14 @@ import { ForschungAnsicht } from "./Forschung";
 import { MarktAnsicht } from "./Markt";
 import { OrganisationAnsicht } from "./Organisation";
 import { ProduktionAnsicht } from "./Produktion";
+import { PersonAnsicht } from "./Person";
 import { Tastenhilfe } from "./Tastenhilfe";
 import { UebersichtAnsicht } from "./Uebersicht";
 import { WeltkarteAnsicht } from "./Weltkarte";
 import { WettbewerbAnsicht } from "./Wettbewerb";
 
 type Ansicht =
+  | "person"
   | "uebersicht"
   | "produktion"
   | "markt"
@@ -356,6 +358,17 @@ export function Spiel({
       <div className="kopfbereich">
         <header className="kopfleiste">
           <div className="kopf-firma">
+            {uebersicht.person && (
+              <button
+                type="button"
+                className="schlicht kopf-person"
+                aria-current={ansicht === "person" ? "page" : undefined}
+                aria-label={t("person.oeffnen", { name: uebersicht.person.name })}
+                onClick={() => setAnsicht("person")}
+              >
+                {uebersicht.person.name}
+              </button>
+            )}
             <strong>{firma.name}</strong>
             <span>
               <span className="nur-breit">{t("spiel.datum")}: </span>
@@ -528,6 +541,9 @@ export function Spiel({
         key={`ladung-${ladung}/${geldWahl.waehrung}/${geldWahl.preise}`}
         className="ansichtsbereich"
       >
+        {ansicht === "person" && (
+          <PersonAnsicht kern={kern} stand={`${uebersicht.date}/${ladung}`} />
+        )}
         {ansicht === "uebersicht" && (
           <UebersichtAnsicht
             uebersicht={uebersicht}

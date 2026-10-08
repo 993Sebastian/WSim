@@ -66,6 +66,7 @@ fn new_game(seed: u64) -> Game {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        person: Default::default(),
     };
     Game::new(catalog, settings).unwrap()
 }

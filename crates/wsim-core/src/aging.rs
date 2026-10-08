@@ -238,6 +238,15 @@ fn depart(
     let Some(m) = state.managers.get(&id) else {
         return;
     };
+    if m.family {
+        match reason {
+            Departure::Died => crate::person::manager_died(state, id, date, news),
+            Departure::Retired => crate::person::manager_retired(state, id),
+        }
+    }
+    let Some(m) = state.managers.get(&id) else {
+        return;
+    };
     let Some(job) = m.job.clone() else {
         state.managers.remove(&id);
         return;
@@ -761,6 +770,7 @@ pub(crate) fn appoint(
         .managers
         .get(&manager)
         .ok_or(CommandError::UnknownManager)?;
+    crate::person::check_family(state, actor, m)?;
     let own = match &m.job {
         None => false,
         Some(j) if j.company == actor && !j.successor && j.position != *position => true,

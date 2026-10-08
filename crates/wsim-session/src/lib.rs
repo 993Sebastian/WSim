@@ -25,8 +25,9 @@ use wsim_core::views::{
     self, BankView, ChainsView, CompaniesView, CompanyDetailView, ConcernsView,
     ContractPartnersView, ContractsView, ControllingView, CountryDetail, FinanceView, GroupView,
     LogisticsView, ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView,
-    OrganisationView, Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView,
-    RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
+    OrganisationView, Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview,
+    ReviewsView, RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap,
+    WorldMarketView,
 };
 
 /// File extension of saves.
@@ -55,6 +56,16 @@ pub struct NewGameRequest {
     /// Whether the historical events act on markets, trade and companies (H1).
     #[serde(default = "yes")]
     pub event_effects: bool,
+    /// The player as a person (PE2): name (empty: drawn), year of birth (none: the
+    /// default age), married, children at the start.
+    #[serde(default)]
+    pub person_name: String,
+    #[serde(default)]
+    pub birth_year: Option<i32>,
+    #[serde(default = "yes")]
+    pub married: bool,
+    #[serde(default)]
+    pub children: u8,
 }
 
 fn yes() -> bool {
@@ -271,6 +282,12 @@ impl<S: SaveStore> Session<S> {
             ventures,
             tariff_dynamics,
             event_effects: request.event_effects,
+            person: wsim_core::state::PersonSettings {
+                name: request.person_name.clone(),
+                birth_year: request.birth_year,
+                married: request.married,
+                children: request.children,
+            },
         };
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&game);
@@ -389,6 +406,11 @@ impl<S: SaveStore> Session<S> {
     /// The player's banks (K4).
     pub fn bank(&self) -> Result<BankView, MessageView> {
         self.view(views::bank_view)
+    }
+
+    /// The player as a person (PE2).
+    pub fn person(&self) -> Result<PersonView, MessageView> {
+        self.view(views::person)
     }
 
     /// The stock market (K1).

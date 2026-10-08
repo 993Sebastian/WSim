@@ -142,6 +142,7 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     "konzern" => wert(s.group()?),
                     "boerse" => wert(s.stock()?),
                     "bank" => wert(s.bank()?),
+                    "person" => wert(s.person()?),
                     "controlling" => {
                         let zeitraum: String = argument(args, "zeitraum")?;
                         wert(s.controlling(&zeitraum)?)

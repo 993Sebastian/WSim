@@ -658,6 +658,7 @@ pub(crate) fn build(
     b.catalog.events = events::events(b.ctx, &events, (&country_keys, &group_keys), texts);
     b.catalog.event_model = events::event_model(b.ctx, raw);
     b.catalog.life = life::life_model(b.ctx, &b.catalog, raw);
+    b.catalog.person = life::person_model(b.ctx, raw);
 
     let (milestone_keys, milestone_entries) = register(
         b.ctx,

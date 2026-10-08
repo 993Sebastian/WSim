@@ -427,6 +427,20 @@ select {
   color: var(--akzent);
 }
 
+/* The person in the header (PE2): a quiet link to the view "Person". */
+.kopf-person {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.kopf-person[aria-current="page"] {
+  font-weight: bold;
+}
+
 .kopf-runde,
 .kopf-menue {
   display: flex;

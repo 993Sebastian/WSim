@@ -30,6 +30,13 @@ neu.zoelle: Zölle nach 2026
 neu.zoelle_hilfe: Bis 2026 folgen die Zölle der Geschichte. Danach ändern sie sich jedes Jahr zufällig – oder bleiben fest.
 neu.folgen: Folgen historischer Ereignisse
 neu.folgen_hilfe: "Kriege, Krisen und Embargos wirken auf Nachfrage, Handel, Arbeitskräfte und Standorte – bis hin zu Zerstörung und Enteignung. Ohne Haken erscheinen die Ereignisse nur als Nachricht."
+neu.person: Person
+neu.person_name: Dein Name
+neu.person_name_hilfe: Leer lassen für einen Namen aus dem Startland.
+neu.geburtsjahr: Geburtsjahr
+neu.geburtsjahr_hilfe: "{von} bis {bis} (du bist dann {alter_bis} bis {alter_von} Jahre alt)"
+neu.verheiratet: Verheiratet
+neu.kinder: Kinder
 neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
@@ -1176,6 +1183,52 @@ organisation.zeit: Zeit
 organisation.abgang_titel: Abgang
 organisation.abgang.ruhestand: Ruhestand
 organisation.abgang.tod: verstorben
+organisation.ruhestaende: "Ruhestand in den nächsten zwei Jahren ({anzahl})"
+organisation.ruhestaende_titel: Ruhestand in den nächsten zwei Jahren
+organisation.ruhestand_am: Ruhestand am
+organisation.nachfolger_kurz: Nachfolger
+organisation.nachfolger_offen: noch offen
+organisation.familie: Familie
+organisation.familie_hilfe: Dein Kind – arbeitet nur für deine Firmen, kündigt nicht und wird nicht abgeworben.
+person.titel: Person
+person.oeffnen: "Person: {name}"
+person.frage: Wer bist du, wer gehört zur Familie, und welche Rolle hast du in deinen Firmen?
+person.steckbrief: Steckbrief
+person.name: Name
+person.geboren: Geboren
+person.alter_wert: "{datum} ({jahre} Jahre)"
+person.wohnsitz: Wohnsitz
+person.familienstand: Familienstand
+person.verheiratet: verheiratet
+person.ledig: ledig
+person.familie: Familie
+person.keine_kinder: Noch keine Kinder.
+person.kinder_moeglich: Weitere Kinder sind möglich, solange du verheiratet und jünger als 45 bist.
+person.kind: Kind
+person.kind_alter: Alter
+person.kind_status: Als Manager
+person.kind_karte_in: "in {jahre} Jahren"
+person.kind_frei: im Managermarkt
+person.kind_verstorben: "verstorben am {datum}"
+person.kind_im_ruhestand: im Ruhestand
+person.stelle: "{stelle}, {ort} ({firma})"
+person.rollen: Rollen
+person.firma: Firma
+person.anteil: Anteil
+person.rolle: Rolle
+person.rolle_ceo: CEO – du führst die Firma selbst
+person.rolle_eigentuemer: "Eigentümer – CEO ist {name}"
+person.rolle_eigentuemer_ohne: Eigentümer
+person.lebenslauf: Lebenslauf
+person.datum: Datum
+person.ereignis: Ereignis
+person.ereignis.start: "Beginn mit der Firma {firma}"
+person.ereignis.uebernahme: "Übernahme der Firma {firma}"
+person.ereignis.geburt: "Geburt von {name}"
+person.ereignis.beruf: "{name} tritt ins Berufsleben ein"
+person.ereignis.kind_tot: "Tod von {name}"
+person.ereignis.vorsitz_ab: "Vorsitz von {firma} an {name} abgegeben"
+person.ereignis.vorsitz_an: "Vorsitz von {firma} wieder übernommen"
 organisation.schwerpunkt: "Schwerpunkt {bereich}"
 organisation.schwerpunkt_kurz: Schwerpunkt
 organisation.faehigkeiten: Fähigkeiten

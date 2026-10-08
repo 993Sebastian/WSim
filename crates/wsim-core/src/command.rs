@@ -650,6 +650,8 @@ pub enum CommandError {
     ExtensionTooLong {
         max: u8,
     },
+    /// The person's children work only for the person's companies (PE2).
+    FamilyOnly,
 }
 
 impl CommandError {
@@ -841,6 +843,7 @@ impl CommandError {
                 .with("mindestens", Param::Number((*min * 100.0).round())),
             CommandError::NoStakeOffer => e(keys::COMMAND_NO_STAKE_OFFER),
             CommandError::NotRetiring => e(keys::COMMAND_NOT_RETIRING),
+            CommandError::FamilyOnly => e(keys::COMMAND_FAMILY_ONLY),
             CommandError::ExtensionTooLong { max } => {
                 e(keys::COMMAND_EXTENSION_TOO_LONG).with("jahre", integer(usize::from(*max)))
             }

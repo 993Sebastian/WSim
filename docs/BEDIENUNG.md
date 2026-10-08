@@ -256,6 +256,28 @@ Reiter „Wettbewerb“ (Taste 4) mit zwei Bereichen:
   antwortet am nächsten Tag, der Rundenbericht meldet Wechsel oder Gegenangebot. Läuft
   schon ein Angebot oder wurde der Manager eben umworben, steht dort, bis wann.
 
+### Person (PE2)
+
+Links in der Kopfzeile steht der Name der Person; ein Klick öffnet die Ansicht „Person“.
+Frage: „Wer bist du, wer gehört zur Familie, und welche Rolle hast du in deinen Firmen?“
+
+- **Steckbrief:** Name als Überschrift, „Geboren: 10.07.1884 (30 Jahre)“, Wohnsitz,
+  Familienstand.
+- **Familie:** Tabelle der Kinder (Name, geboren, Alter, „Als Manager“: „in 21 Jahren“,
+  „im Managermarkt“, die Stelle mit Ort und Firma oder „verstorben am …“). Darunter, solange
+  die Person verheiratet und jünger als 45 ist: „Weitere Kinder sind möglich …“.
+- **Rollen:** je Firma mit Anteil die Rolle – „CEO – du führst die Firma selbst“ oder
+  „Eigentümer – CEO ist …“.
+- **Lebenslauf:** Datum und Ereignis, das neueste oben (Beginn mit der Firma, Geburten,
+  Berufseintritt, Vorsitz abgegeben oder übernommen).
+- **Neues Spiel:** Abschnitt „Person“ mit „Dein Name“ (leer: ein Name aus dem Startland),
+  „Geburtsjahr“ (leer: Startjahr − 30; der Hinweis nennt die erlaubten Jahre für 18 bis
+  60 Jahre), „Verheiratet“ und „Kinder“ (0–4).
+- **Kinder als Manager:** Ab 25 steht ein Kind im Managermarkt der eigenen Stellen ganz
+  oben mit der Marke „Familie“ (ⓘ: arbeitet nur für deine Firmen, kündigt nicht, wird nicht
+  abgeworben); dieselbe Marke trägt es im Organigramm. Meldungen im Rundenbericht:
+  Geburt, Berufseintritt, Tod eines Kindes, Vorsitz abgegeben oder wieder übernommen.
+
 ### Organisation (MA1–MA6)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,
@@ -346,7 +368,9 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   gegangen. Name übernimmt die Stelle.“); nach einem Todesfall fragt die Stelle darüber mit
   „Stelle neu besetzen“ (Grund „Die Stelle ist durch einen Todesfall frei geworden“), die
   Besetzung gilt sofort. Unter dem Organigramm die Tabelle „Ehemalige Manager“ (Name,
-  Stelle, Zeit, Alter beim Abgang, Abgang: Ruhestand oder verstorben).
+  Stelle, Zeit, Alter beim Abgang, Abgang: Ruhestand oder verstorben); darüber
+  aufklappbar „Ruhestand in den nächsten zwei Jahren (n)“ mit Name, Stelle, Alter, Termin
+  und Nachfolger oder „noch offen“.
 - Stellen ohne Aufgaben (Logistik) stehen da, lassen sich aber erst besetzen, wenn sie
   Aufgaben bekommen. Laborleitungen wählen das nächste Forschungsziel (MA2).
 - **Budget und Entscheidungen (MA2):** Unter den Stellen eines Standorts je besetzter

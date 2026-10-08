@@ -233,6 +233,12 @@ pub mod keys {
     pub const EVENT_STATE_COMPANY: &str = "meldung.ereignis.staatsbetrieb";
     pub const COMMAND_COUNTRY_CLOSED: &str = "fehler.befehl.land_abgeschottet";
     pub const COMMAND_NOT_RETIRING: &str = "fehler.befehl.kein_ruhestand";
+    pub const COMMAND_FAMILY_ONLY: &str = "fehler.befehl.nur_familie";
+    pub const PERSON_CHILD: &str = "meldung.person.geburt";
+    pub const PERSON_CAREER: &str = "meldung.person.berufseintritt";
+    pub const PERSON_CHILD_DIED: &str = "meldung.person.kind_tot";
+    pub const PERSON_CEO_HANDED_OVER: &str = "meldung.person.vorsitz_abgegeben";
+    pub const PERSON_CEO_TAKEN_BACK: &str = "meldung.person.vorsitz_uebernommen";
     pub const COMMAND_EXTENSION_TOO_LONG: &str = "fehler.befehl.verlaengerung_zu_lang";
     pub const MANAGER_RETIRING: &str = "meldung.manager.ruhestand_naht";
     pub const MANAGER_RETIRING_REFUSED: &str = "meldung.manager.verlaengerung_abgelehnt";
@@ -590,6 +596,12 @@ pub mod keys {
         EVENT_STATE_COMPANY,
         COMMAND_COUNTRY_CLOSED,
         COMMAND_NOT_RETIRING,
+        COMMAND_FAMILY_ONLY,
+        PERSON_CHILD,
+        PERSON_CAREER,
+        PERSON_CHILD_DIED,
+        PERSON_CEO_HANDED_OVER,
+        PERSON_CEO_TAKEN_BACK,
         COMMAND_EXTENSION_TOO_LONG,
         MANAGER_RETIRING,
         MANAGER_RETIRING_REFUSED,

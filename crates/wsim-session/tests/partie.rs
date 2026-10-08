@@ -28,6 +28,10 @@ fn commands_from_the_interface() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            person_name: String::new(),
+            birth_year: None,
+            married: true,
+            children: 0,
         })
         .unwrap();
     // Unknown keys and refused commands answer with messages.
@@ -66,6 +70,10 @@ fn played_game_1900_to_1905() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            person_name: String::new(),
+            birth_year: None,
+            married: true,
+            children: 0,
         })
         .unwrap();
     let production = session.production().unwrap();
@@ -179,6 +187,10 @@ fn research_center_and_deposit_through_the_interface() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            person_name: String::new(),
+            birth_year: None,
+            married: true,
+            children: 0,
         })
         .unwrap();
     session

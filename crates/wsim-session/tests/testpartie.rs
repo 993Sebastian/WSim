@@ -31,6 +31,10 @@ fn test_game_1900_to_1930() {
             startups: None,
             tariffs: None,
             event_effects: true,
+            person_name: String::new(),
+            birth_year: None,
+            married: true,
+            children: 0,
         })
         .unwrap();
     let site = session.production().unwrap().sites[0].index;

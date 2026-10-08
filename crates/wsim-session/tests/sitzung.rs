@@ -22,6 +22,10 @@ fn request() -> NewGameRequest {
         startups: None,
         tariffs: None,
         event_effects: true,
+        person_name: String::new(),
+        birth_year: None,
+        married: true,
+        children: 0,
     }
 }
 

@@ -96,6 +96,16 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
   );
 }
 
+/** A child of the person (PE2). */
+function Familienmarke({ m }: { m: Manager }) {
+  if (!m.family) return null;
+  return (
+    <span className="marke" title={t("organisation.familie_hilfe")}>
+      {t("organisation.familie")}
+    </span>
+  );
+}
+
 /** Age and planned retirement of a manager (PE1); nothing while managers do not age. */
 function Lebenslauf({ m }: { m: Manager }) {
   if (m.age == null) return null;
@@ -112,6 +122,44 @@ function Lebenslauf({ m }: { m: Manager }) {
           })}`}
       </small>
     </>
+  );
+}
+
+/** Holders who retire within two years (PE1). */
+function Ruhestaende({ liste }: { liste: NonNullable<Organisation["retiring"]> }) {
+  if (liste.length === 0) return null;
+  return (
+    <details className="aufklapper">
+      <summary>{t("organisation.ruhestaende", { anzahl: formatZahl(liste.length) })}</summary>
+      <table className="tabelle" aria-label={t("organisation.ruhestaende_titel")}>
+        <thead>
+          <tr>
+            <th>{t("organisation.name")}</th>
+            <th>{t("organisation.stelle")}</th>
+            <th className="zahl">{t("organisation.alter_kurz")}</th>
+            <th>{t("organisation.ruhestand_am")}</th>
+            <th>{t("organisation.nachfolger_kurz")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {liste.map((r) => (
+            <tr key={`${r.name}-${r.position.unit}-${r.position.role}`}>
+              <td>{r.name}</td>
+              <td data-spalte={t("organisation.stelle")}>
+                {stellenName(r.position.role, r.position.kind_text)} · {einheitName(r.position)}
+              </td>
+              <td className="zahl" data-spalte={t("organisation.alter_kurz")}>
+                {r.age == null ? "–" : formatZahl(r.age)}
+              </td>
+              <td data-spalte={t("organisation.ruhestand_am")}>{formatDatum(r.retirement)}</td>
+              <td data-spalte={t("organisation.nachfolger_kurz")}>
+                {r.successor ?? t("organisation.nachfolger_offen")}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </details>
   );
 }
 
@@ -181,7 +229,8 @@ function Inhaber({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
   return (
     <>
       <td data-spalte={t("organisation.inhaber")}>
-        <strong>{name}</strong> <AlleFaehigkeiten m={h.manager} />
+        <strong>{name}</strong> <Familienmarke m={h.manager} />
+        <AlleFaehigkeiten m={h.manager} />
         <br />
         <small>
           {t("organisation.schwerpunkt", { bereich: t(`bereich.${h.manager.focus}`) })} ·{" "}
@@ -1152,6 +1201,7 @@ function Organigramm({
         </Erklaerung>
       </p>
       {daten.continents.length === 0 && <p>{t("organisation.keine_standorte")}</p>}
+      <Ruhestaende liste={daten.retiring ?? []} />
       <Budgetvorgaben daten={daten} />
       {daten.board && (
         <section aria-label={t("ebene.vorstand")}>
@@ -1222,7 +1272,8 @@ function KandidatZeile({
   return (
     <tr>
       <td>
-        <strong>{m.name}</strong> <AlleFaehigkeiten m={m} />
+        <strong>{m.name}</strong> <Familienmarke m={m} />
+        <AlleFaehigkeiten m={m} />
       </td>
       <td className="zahl" data-spalte={t("organisation.alter_kurz")}>
         {m.age == null ? "–" : formatZahl(m.age)}

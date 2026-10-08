@@ -1047,6 +1047,24 @@ test("Vorstand, Strategieauftrag und Rücksprache", async ({ page }) => {
   await bild(page, "ruecksprache");
 });
 
+test("Person: Steckbrief, Familie, Rollen und Lebenslauf", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: /^Person: / }).click();
+  const steckbrief = page.getByRole("region", { name: "Steckbrief" });
+  await expect(steckbrief.getByRole("heading", { name: "Jürgen Albrecht" })).toBeVisible();
+  await expect(steckbrief).toContainText("30 Jahre");
+  const familie = page.getByRole("region", { name: "Familie" });
+  await expect(familie).toContainText("Clara Albrecht");
+  await expect(familie).toContainText("in 21 Jahren");
+  await expect(page.getByRole("region", { name: "Rollen" })).toContainText(
+    "CEO – du führst die Firma selbst",
+  );
+  await expect(page.getByRole("region", { name: "Lebenslauf" })).toContainText(
+    "Geburt von Paul Albrecht",
+  );
+  await bild(page, "person");
+});
+
 test("Mehrere Monate am Stück bis Jahresende", async ({ page }) => {
   await starten(page);
   await page.getByLabel("Rundenlänge").selectOption("jahresende");

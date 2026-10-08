@@ -141,6 +141,7 @@ pub(super) fn decode_v2(
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            person: Default::default(),
         },
         date: s.date,
         world_rng: s.world_rng,
@@ -178,6 +179,7 @@ pub(super) fn decode_v2(
         stock: Default::default(),
         player: s.player,
         game_over: s.game_over,
+        person: Default::default(),
     };
     // Old saves listed only countries; report them as changed data unless identical.
     let mut keys = catalog_keys(catalog);

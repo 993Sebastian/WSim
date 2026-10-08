@@ -1803,6 +1803,45 @@ impl RawEffectKind {
     }
 }
 
+/// The player as a person (`parameter/person.yaml`, PE2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPerson {
+    #[serde(rename = "alter_start")]
+    pub start_age: RawStartAge,
+    #[serde(rename = "familie")]
+    pub family: RawFamily,
+    #[serde(default, rename = "annaeherung")]
+    pub approximation: bool,
+    #[serde(default, rename = "quelle")]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStartAge {
+    pub standard: f64,
+    #[serde(rename = "von")]
+    pub min: f64,
+    #[serde(rename = "bis")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFamily {
+    #[serde(rename = "kinder_ab")]
+    pub children_from: f64,
+    #[serde(rename = "kinder_bis")]
+    pub children_until: f64,
+    #[serde(rename = "kinder_hoechstens")]
+    pub children_max: f64,
+    #[serde(rename = "kinder_chance_jahr")]
+    pub child_chance: f64,
+    #[serde(rename = "managerkarte_ab")]
+    pub card_age: f64,
+}
+
 /// Age, retirement and death of the managers (`parameter/lebenslauf.yaml`, PE1).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

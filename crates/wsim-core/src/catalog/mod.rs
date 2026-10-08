@@ -87,6 +87,8 @@ pub struct Catalog {
     pub event_model: EventModel,
     /// Age, retirement and death of the managers (PE1).
     pub life: LifeModel,
+    /// The player as a person (PE2).
+    pub person: PersonModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -1834,6 +1836,37 @@ pub struct LifeModel {
     pub retirement_age: CountrySeries,
     pub life_expectancy: CountrySeries,
     pub provenance: Provenance,
+}
+
+/// The player as a person (`parameter/person.yaml`, PE2). Without the section the
+/// person has no children.
+#[derive(Clone, Debug, PartialEq)]
+pub struct PersonModel {
+    pub enabled: bool,
+    /// Age at the start: default, least and most.
+    pub start_age: [u32; 3],
+    /// Children come from the first to below the second age, at most so many.
+    pub children_ages: [u32; 2],
+    pub children_max: u32,
+    /// Chance of a child per year.
+    pub child_chance: f64,
+    /// Age from which a child has a manager card.
+    pub card_age: u32,
+    pub provenance: Provenance,
+}
+
+impl Default for PersonModel {
+    fn default() -> Self {
+        PersonModel {
+            enabled: false,
+            start_age: [30, 18, 60],
+            children_ages: [22, 45],
+            children_max: 0,
+            child_chance: 0.0,
+            card_age: 25,
+            provenance: Provenance::default(),
+        }
+    }
 }
 
 /// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).

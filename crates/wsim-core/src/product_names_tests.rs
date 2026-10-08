@@ -59,6 +59,7 @@ fn settings(c: &Catalog, start_year: i32) -> GameSettings {
         ventures: 1.0,
         tariff_dynamics: 1.0,
         event_effects: true,
+        person: Default::default(),
     }
 }
 

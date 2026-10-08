@@ -208,6 +208,7 @@ mod tests {
             ventures: 1.0,
             tariff_dynamics: 1.0,
             event_effects: true,
+            person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()
     }

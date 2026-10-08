@@ -23,6 +23,9 @@ export interface Optionen {
   /** How the tariffs change after the data (W3; texts `zoll.dynamik.<key>`). */
   tariffs?: string[];
   default_tariffs?: string | null;
+  /** Age of the person at the start and the most children (PE2). */
+  person_age?: Bereich<number>;
+  children_max?: number;
 }
 
 export interface NeuesSpiel {
@@ -41,6 +44,11 @@ export interface NeuesSpiel {
   tariffs?: string | null;
   /** Whether the historical events act on markets, trade and companies (H1). */
   event_effects?: boolean;
+  /** The player as a person (PE2): name (empty: drawn), year of birth, family. */
+  person_name?: string;
+  birth_year?: number | null;
+  married?: boolean;
+  children?: number;
 }
 
 export interface Anlage {
@@ -107,6 +115,8 @@ export interface Uebersicht {
   rank?: Rang | null;
   /** Concerns of the player's positions waiting for an answer (MA2). */
   concerns_open?: number;
+  /** The player as a person: name and age (PE2). */
+  person?: { name: string; age: number } | null;
 }
 
 /** Places by equity and by revenue of the last twelve closed months (M29). */
@@ -1138,6 +1148,8 @@ export interface Manager {
   age?: number | null;
   retires_at?: number | null;
   retirement?: string | null;
+  /** A child of the person (PE2). */
+  family?: boolean;
 }
 
 /** The successor waiting for a position until its holder retires (PE1). */
@@ -1416,6 +1428,14 @@ export interface Organisation {
   central?: Zentrale;
   /** Managers who retired or died in its service, the latest first (PE1). */
   former?: EhemaligerManager[];
+  /** Holders who retire within two years, the earliest first (PE1). */
+  retiring?: {
+    name: string;
+    age: number | null;
+    position: AnliegenStelle;
+    retirement: string;
+    successor: string | null;
+  }[];
 }
 
 export interface Kandidat {
@@ -2252,4 +2272,42 @@ export interface Bank {
   base_rate: number;
   banks: BankZeile[];
   subsidiaries: boolean;
+}
+
+/** A child of the person (PE2). */
+export interface PersonKind {
+  name: string;
+  born: string;
+  /** Age today, or at death. */
+  age: number;
+  died: string | null;
+  /** The manager card and, while employed, the position in words. */
+  manager: number | null;
+  position: Meldung | null;
+  /** Years until the manager card. */
+  card_in: number | null;
+}
+
+/** A company the person holds shares of (PE2). */
+export interface PersonAnteil {
+  company: string;
+  share: number;
+  controlled: boolean;
+  person_ceo: boolean;
+  ceo: string | null;
+}
+
+/** The player as a person (PE2). */
+export interface Person {
+  name: string;
+  born: string;
+  age: number;
+  /** Country of residence (ISO). */
+  home: string;
+  married: boolean;
+  children: PersonKind[];
+  children_possible: boolean;
+  holdings: PersonAnteil[];
+  /** The chronicle, the latest first. */
+  history: { date: string; text: Meldung }[];
 }

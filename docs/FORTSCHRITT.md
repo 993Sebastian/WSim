@@ -85,7 +85,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | K4 | Investor und Bank: Startformen, Einlagen, Kredite an Firmen, Ausfälle | ✅ |
 | H1 | Ereignisfolgen: Nachfrage, Handelssperren, Zölle, Arbeitskräfte, Produktion, Abschottung, Zerstörung, Enteignung, Börsenkrach | ✅ (vor PE fertig geworden) |
 | PE1 | Alter der Manager, Ruhestand, Nachfolge | ✅ |
-| PE2 | Spielerfigur: Person, Familie, Rollen | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE2 | Spielerfigur: Person, Familie, Rollen | ✅ |
 | PE3 | Privatkonto und Spielstart ohne Firma | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE4 | Dividenden | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ⏳ als Nächstes (`docs/PERSON.md`) |
@@ -995,6 +995,24 @@ Vorgabe `docs/PERSON.md` §3–4. Regeln: `docs/FORMELN.md`, Abschnitt PE1; Ents
   Tod mit Neubesetzung, Bewerber im Ruhestand, alte Spielstände), Datenprüfung, vitest,
   Playwright. Weltlauf 1900–1960: kein Manager über 75 im Dienst (Protokoll in
   `docs/OFFENE_PUNKTE.md`, Abschnitt P).
+
+### PE2: Spielerfigur als Person (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §5. Regeln: `docs/FORMELN.md`, Abschnitt PE2; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P. Lastenheft §2 angepasst.
+
+- **Daten:** `parameter/person.yaml` (Alter beim Start, Kinder) mit Prüfregeln und
+  Fehlerfall-Test.
+- **Kern:** Modul `person`: Person beim neuen Spiel (Name, Geburtsjahr, Familie aus
+  `GameSettings::person`), Standardperson für alte Spielstände, Kinder am Monatsersten,
+  Managerkarte ab 25 (nur für die eigenen Firmen, ohne Kündigung und Abwerbung, nicht im
+  Abgang des Markts), Abgleich des Vorsitzes mit dem CEO, Lebenslauf.
+- **Oberfläche:** Abschnitt „Person“ im neuen Spiel, Name in der Kopfzeile, Ansicht
+  „Person“ (Steckbrief, Familie, Rollen, Lebenslauf), Marke „Familie“ in Organisation und
+  Managermarkt.
+- **Tests:** Kern (Person wie gesetzt, Standardwerte, Kinder nach Ehe und Alter, höchstens
+  vier, Managerkarte nur für eigene Firmen, Vorsitz abgeben und übernehmen, Tod eines
+  Kindes, alter Spielstand), Datenprüfung, vitest.
 
 ## Eigenständige Entscheidungen (für das Review)
 

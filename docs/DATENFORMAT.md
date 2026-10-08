@@ -747,6 +747,17 @@ Ein Abschnitt `lebenslauf` mit:
 Das Thema `nachfolge` gehört in `management.bereiche` zum Personalbereich: Dessen Stellen
 fragen nach der Nachfolge.
 
+## person
+
+`data/parameter/person.yaml` (PE2), optional; ohne den Abschnitt bekommt die Person keine
+Kinder. Ein Abschnitt `person` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **alter_start** | `standard`, `von`, `bis` (16–100 Jahre, `von` ≤ `standard` ≤ `bis`): Alter der Person beim Spielbeginn |
+| **familie** | `kinder_ab`, `kinder_bis` (Jahre, steigend: Alter der Person, in dem Kinder kommen), `kinder_hoechstens` (0–20), `kinder_chance_jahr` (0–1), `managerkarte_ab` (Jahre: ab dann arbeitet ein Kind als Manager) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## preisindex
 
 Verbraucherpreise der Leitwährung (in `waehrungen/preisindex.yaml`), einmalig. Sie

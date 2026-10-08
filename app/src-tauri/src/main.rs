@@ -15,8 +15,8 @@ use wsim_core::views::{
     BankView, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
     ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
-    StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
+    Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview, ReviewsView,
+    RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -211,6 +211,11 @@ fn bank(state: State<'_, Shared>) -> Result<BankView, Fehler> {
 }
 
 #[tauri::command]
+fn person(state: State<'_, Shared>) -> Result<PersonView, Fehler> {
+    mit_sitzung(&state, |s| s.person())
+}
+
+#[tauri::command]
 fn boerse(state: State<'_, Shared>) -> Result<StockMarketView, Fehler> {
     mit_sitzung(&state, |s| s.stock())
 }
@@ -325,6 +330,7 @@ fn main() {
             controlling,
             boerse,
             bank,
+            person,
             managermarkt,
             befehl,
             speichern,

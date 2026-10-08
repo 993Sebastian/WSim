@@ -1,0 +1,12 @@
+# Spielerfigur als Person (PE2, docs/PERSON.md §5; Formeln: docs/FORMELN.md, Abschnitt PE2).
+# Alle Werte geschätzt.
+
+person:
+  # Alter der Person beim Spielbeginn: Vorgabe und erlaubte Spanne (Jahre).
+  alter_start: {standard: 30, von: 18, bis: 60}
+  # Kinder kommen, solange die Person verheiratet und kinder_ab bis unter kinder_bis Jahre
+  # alt ist, mit dieser Chance je Jahr, höchstens so viele; ab managerkarte_ab Jahren hat
+  # ein Kind eine Managerkarte.
+  familie: {kinder_ab: 22, kinder_bis: 45, kinder_hoechstens: 4, kinder_chance_jahr: 0.15,
+            managerkarte_ab: 25}
+  annaeherung: true

@@ -266,8 +266,9 @@ fn resignations(
         let Some(job) = &m.job else {
             continue;
         };
+        // The person's children do not resign (PE2).
         let value = f64::from(satisfaction(catalog, job));
-        if value >= threshold {
+        if m.family || value >= threshold {
             continue;
         }
         let chance = market.resignation_chance * (threshold - value) / threshold;
@@ -330,7 +331,9 @@ fn candidates(
     state
         .managers
         .iter()
-        .filter(|(_, m)| m.job.is_none() && catalog.countries.get(m.home).continent == continent)
+        .filter(|(_, m)| {
+            m.job.is_none() && !m.family && catalog.countries.get(m.home).continent == continent
+        })
         .map(|(&id, _)| id)
         .collect()
 }
@@ -545,6 +548,7 @@ pub(crate) fn poach(
         Some(j) if j.company == actor => return Err(CommandError::OwnManager),
         Some(j) => j.company,
     };
+    crate::person::check_family(state, actor, m)?;
     management::check_position(catalog, state, actor, position)?;
     if state.poach_offers.iter().any(|o| o.manager == manager) {
         return Err(CommandError::ManagerHasOffer);
@@ -1221,6 +1225,7 @@ fn poach_target(
             continue;
         };
         if job.company == company
+            || m.family
             || state.companies[job.company.index()].bankrupt
             || catalog.countries.get(m.home).continent != continent
             || state.poach_offers.iter().any(|o| o.manager == id)

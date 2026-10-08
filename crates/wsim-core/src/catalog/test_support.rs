@@ -825,3 +825,16 @@ pub fn aging() -> Catalog {
     c.life = life();
     c
 }
+
+/// The person as in the data (PE2): children from 22 to 45, at most four.
+pub fn person() -> super::PersonModel {
+    super::PersonModel {
+        enabled: true,
+        start_age: [30, 18, 60],
+        children_ages: [22, 45],
+        children_max: 4,
+        child_chance: 0.15,
+        card_age: 25,
+        provenance: Provenance::default(),
+    }
+}
