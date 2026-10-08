@@ -79,7 +79,7 @@ fortschritt.runde: Runde {runde}
 uebersicht.titel: Übersicht
 uebersicht.finanzen: Finanzen
 uebersicht.eigenkapital: Eigenkapital
-uebersicht.kredite: Kredite
+uebersicht.kredite: Kredite und Anleihen
 uebersicht.ergebnis_jahr: Ergebnis laufendes Jahr
 uebersicht.ergebnis_monat: Ergebnis Vormonat
 uebersicht.umsatz_monat: Umsatz Vormonat
@@ -1876,3 +1876,28 @@ boerse.firma_werte: "An der Börse seit {seit} · Eigenkapital {eigenkapital} ·
 boerse.dein_bestand: "Deine Firma hält {anteil} – Börsenwert {wert}, gezahlt {kosten}."
 boerse.verlauf_firma: "Börsenwert je Monat: {firma}"
 boerse.alle_zeigen: "Alle {anzahl} Firmen zeigen"
+anleihen.titel: Anleihen
+anleihen.hilfe: "Eine Anleihe leiht Geld bei Anlegern statt bei der Bank – ohne Sicherheiten, mit festem Zins (Kupon) nach der Bonität deiner Firma, monatlich gezahlt; zurück zahlst du alles am Ende der Laufzeit. Die Ausgabe kostet {kosten} des Betrags, ein vorzeitiger Rückkauf {aufschlag} Aufschlag."
+anleihen.bonitaet: Bonität
+anleihen.keine_stufe: keine Anleger
+anleihen.kennzahlen: "Verschuldung {verschuldung} der Bilanzsumme · Zinsdeckung {deckung}"
+anleihen.ohne_zinsen: keine Zinsen
+anleihen.firma_zu_klein: "Anleger kaufen Anleihen erst von Firmen mit mindestens {min} Eigenkapital – deine hat {eigen}."
+anleihen.keine_zahlen: Anleger wollen erst einen abgeschlossenen Monat sehen.
+anleihen.keine_anleger: Bei dieser Verschuldung und diesem Gewinn kauft kein Anleger eine Anleihe deiner Firma.
+anleihen.betrag: Betrag
+anleihen.angebot: "{betrag} · Bonität {stufe} · Kupon {kupon} %"
+anleihen.laufzeit_hilfe: "{min} bis {max} Jahre"
+anleihen.ausgeben: Anleihe ausgeben
+anleihen.zurueckkaufen: "Zurückkaufen ({betrag})"
+anleihen.liste: Ausgegebene Anleihen
+anleihen.ausgegeben: Ausgegeben
+anleihen.kupon: Kupon
+anleihen.faellig: Fällig
+bonitaet.aaa: AAA
+bonitaet.aa: AA
+bonitaet.a: A
+bonitaet.bbb: BBB
+bonitaet.bb: BB
+bonitaet.b: B
+bonitaet.ccc: CCC

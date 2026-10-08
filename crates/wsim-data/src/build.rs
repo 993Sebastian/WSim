@@ -20,6 +20,7 @@ use wsim_core::time_series::TimeSeries;
 use crate::messages;
 
 mod ai;
+mod bonds;
 mod central;
 mod contracts;
 mod countries;
@@ -626,6 +627,7 @@ pub(crate) fn build(
     b.catalog.logistics = logistics::logistics_model(b.ctx, raw);
     b.catalog.subsidiaries = subsidiaries::subsidiary_model(b.ctx, raw);
     b.catalog.stock = stock::stock_model(b.ctx, raw);
+    b.catalog.bonds = bonds::bond_model(b.ctx, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

@@ -219,6 +219,13 @@ pub mod keys {
     pub const STOCK_WRITTEN_OFF: &str = "meldung.boerse.abgeschrieben";
     pub const STOCK_DIVIDEND_PAID: &str = "meldung.boerse.dividende_gezahlt";
     pub const STOCK_DIVIDEND_RECEIVED: &str = "meldung.boerse.dividende_erhalten";
+    pub const COMMAND_NO_BONDS: &str = "fehler.befehl.keine_anleihen";
+    pub const COMMAND_BOND_TERM: &str = "fehler.befehl.anleihe_laufzeit";
+    pub const COMMAND_BOND_TOO_SMALL: &str = "fehler.befehl.anleihe_zu_klein";
+    pub const COMMAND_BOND_COMPANY_TOO_SMALL: &str = "fehler.befehl.anleihe_firma_zu_klein";
+    pub const COMMAND_NO_BOND_INVESTORS: &str = "fehler.befehl.anleihe_keine_anleger";
+    pub const COMMAND_UNKNOWN_BOND: &str = "fehler.befehl.anleihe_unbekannt";
+    pub const BOND_REPAID: &str = "meldung.anleihe.getilgt";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -296,6 +303,7 @@ pub mod keys {
     pub const STEP_BUILD: &str = "schritt.bauen";
     pub const STEP_LOAN: &str = "schritt.kredit";
     pub const STEP_REPAY: &str = "schritt.tilgen";
+    pub const STEP_BOND: &str = "schritt.anleihe";
     pub const STEP_PRODUCTION: &str = "schritt.produktion";
     pub const STEP_PRODUCTION_OFF: &str = "schritt.produktion_aus";
     pub const STEP_AUTOMATION: &str = "schritt.automatisierung";
@@ -540,6 +548,13 @@ pub mod keys {
         STOCK_WRITTEN_OFF,
         STOCK_DIVIDEND_PAID,
         STOCK_DIVIDEND_RECEIVED,
+        COMMAND_NO_BONDS,
+        COMMAND_BOND_TERM,
+        COMMAND_BOND_TOO_SMALL,
+        COMMAND_BOND_COMPANY_TOO_SMALL,
+        COMMAND_NO_BOND_INVESTORS,
+        COMMAND_UNKNOWN_BOND,
+        BOND_REPAID,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,
@@ -610,6 +625,7 @@ pub mod keys {
         STEP_BUILD,
         STEP_LOAN,
         STEP_REPAY,
+        STEP_BOND,
         STEP_PRODUCTION,
         STEP_PRODUCTION_OFF,
         STEP_AUTOMATION,

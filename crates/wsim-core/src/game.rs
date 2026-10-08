@@ -195,6 +195,7 @@ impl Game {
             listing: None,
             dividend_payout: None,
             stock_cost: Default::default(),
+            bonds: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -456,6 +457,9 @@ impl Game {
             crate::management::month_end(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);
+            report
+                .messages
+                .extend(crate::bonds::month_end(&mut self.state, today));
             finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);

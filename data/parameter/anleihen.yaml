@@ -1,0 +1,23 @@
+# Anleihen (K2, Lastenheft §11.1; Formeln: docs/FORMELN.md, Abschnitt K2).
+# Aufschläge über dem realen Leitzins nach den langjährigen Mitteln der Ratingklassen
+# (Investment Grade 0,4–1,8 %, darunter 3–5 %); Grenzen der Verschuldung und Zinsdeckung
+# nach den üblichen Kennzahlen der Ratingagenturen, vereinfacht.
+
+anleihen:
+  eigenkapital_min_usd: 10000000   # kleinere Firmen finden keine Anleger
+  volumen_min_usd: 1000000
+  laufzeit_jahre: {min: 3, max: 30}
+  kosten_anteil: 0.015             # Banken und Prospekt
+  rueckkauf_aufschlag: 0.02        # vorzeitiger Rückkauf über dem Nennwert
+  gewinn_monate: 12                # Zinsdeckung aus so vielen abgeschlossenen Monaten
+  bonitaet:                        # von der besten zur schlechtesten
+    - {stufe: aaa, verschuldung_max: 0.15, zinsdeckung_min: 10, aufschlag: 0.004}
+    - {stufe: aa, verschuldung_max: 0.25, zinsdeckung_min: 7, aufschlag: 0.007}
+    - {stufe: a, verschuldung_max: 0.35, zinsdeckung_min: 4.5, aufschlag: 0.011}
+    - {stufe: bbb, verschuldung_max: 0.45, zinsdeckung_min: 3, aufschlag: 0.018}
+    - {stufe: bb, verschuldung_max: 0.55, zinsdeckung_min: 2, aufschlag: 0.032}
+    - {stufe: b, verschuldung_max: 0.65, zinsdeckung_min: 1.2, aufschlag: 0.05}
+  ki:
+    laufzeit_jahre: 10
+    vorteil_min: 0.005             # Kupon so weit unter dem Kreditzins
+  annaeherung: true

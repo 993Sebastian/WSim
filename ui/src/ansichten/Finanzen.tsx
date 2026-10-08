@@ -31,6 +31,7 @@ import {
   ZahlFeld,
 } from "./gemeinsam";
 import { BoerseAnsicht } from "./Boerse";
+import { AnleihenTeil } from "./Anleihen";
 import { ControllingAnsicht } from "./Controlling";
 import { formatMonatKurz, Verlauf } from "./Grafik";
 
@@ -205,6 +206,7 @@ export function FinanzenAnsicht({
             )}
             <Kreditaufnahme jahreMax={daten.max_term_years} />
           </section>
+          {daten.bonds.enabled && <AnleihenTeil a={daten.bonds} />}
         </Befehle>
       )}
     </main>

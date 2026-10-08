@@ -2472,3 +2472,57 @@ pub struct RawStockAi {
     #[serde(rename = "boersengang_anteil")]
     pub ipo_share: f64,
 }
+
+/// Corporate bonds (`parameter/anleihen.yaml`, K2).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBonds {
+    #[serde(rename = "eigenkapital_min_usd")]
+    pub equity_min_usd: f64,
+    #[serde(rename = "volumen_min_usd")]
+    pub volume_min_usd: f64,
+    #[serde(rename = "laufzeit_jahre")]
+    pub term_years: RawBondTerm,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "rueckkauf_aufschlag")]
+    pub redeem_premium: f64,
+    #[serde(rename = "gewinn_monate")]
+    pub earnings_months: u32,
+    #[serde(rename = "bonitaet")]
+    pub grades: Vec<RawBondGrade>,
+    pub ki: RawBondAi,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBondTerm {
+    pub min: u32,
+    pub max: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBondGrade {
+    #[serde(rename = "stufe")]
+    pub id: String,
+    #[serde(rename = "verschuldung_max")]
+    pub debt_ratio_max: f64,
+    #[serde(rename = "zinsdeckung_min")]
+    pub coverage_min: f64,
+    #[serde(rename = "aufschlag")]
+    pub spread: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBondAi {
+    #[serde(rename = "laufzeit_jahre")]
+    pub term_years: u32,
+    #[serde(rename = "vorteil_min")]
+    pub advantage_min: f64,
+}

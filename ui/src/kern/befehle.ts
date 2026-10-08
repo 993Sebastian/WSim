@@ -48,6 +48,8 @@ export type Befehl =
   | { TransferSite: { site: number; to: number } }
   | { SetSubsidiaryFocus: { company: number; focus: "Production" | "Logistics" } }
   | { GoPublic: { share: number } }
+  | { IssueBond: { amount: number; years: number } }
+  | { RedeemBond: { bond: number } }
   | { IssueShares: { share: number } }
   | { SetDividend: { payout: number } }
   | { BuyShares: { company: number; share: number } }

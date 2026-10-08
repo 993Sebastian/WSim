@@ -18,6 +18,7 @@ impl Account {
             Account::Goodwill => "konto.firmenwert",
             Account::Land => "konto.grundstuecke",
             Account::Participations => "konto.finanzanlagen",
+            Account::Bonds => "konto.anleihen",
         }
     }
 }

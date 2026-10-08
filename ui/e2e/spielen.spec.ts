@@ -550,6 +550,14 @@ test("Controlling: Ebenen aufklappen und Kostenarten sehen", async ({ page }) =>
   await bild(page, "controlling");
 });
 
+test("Anleihen: Bonität und Hinweis für kleine Firmen", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Anleihen" })).toBeVisible();
+  await expect(page.getByText(/^Bonität:/)).toBeVisible();
+  await expect(page.getByText(/erst von Firmen mit mindestens/)).toBeVisible();
+});
+
 test("Börse: Index, notierte Firmen und Aktienkauf", async ({ page }) => {
   await starten(page);
   await page.getByRole("button", { name: "Finanzen", exact: true }).click();

@@ -106,6 +106,7 @@ pub(super) fn decode_v2(
                 listing: None,
                 dividend_payout: None,
                 stock_cost: Default::default(),
+                bonds: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

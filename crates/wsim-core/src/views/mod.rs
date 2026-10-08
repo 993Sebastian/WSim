@@ -492,7 +492,7 @@ fn company_view(game: &Game) -> CompanyView {
         headquarters: catalog.countries.key(company.headquarters).to_owned(),
         cash_usd: usd(ledger.cash()),
         equity_usd: usd(equity(company)),
-        loans_usd: usd(ledger.balance(Account::Loans)),
+        loans_usd: usd(ledger.balance(Account::Loans) + ledger.balance(Account::Bonds)),
         total_assets_usd: usd(ledger.total_assets()),
         result_year_usd: usd(ledger.year.total()),
         result_last_month_usd: last_month.map(|m| usd(m.total())),

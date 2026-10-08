@@ -363,6 +363,18 @@ pub fn rows_not_ascending() -> String {
     "Die Zeilen müssen nach „bip_je_kopf_usd“ aufsteigend sortiert sein.".into()
 }
 
+pub fn bond_grades_not_ordered(better: &str, worse: &str) -> String {
+    format!(
+        "Die Bonitätsstufen stehen von der besten zur schlechtesten: „{worse}“ braucht nach \
+         „{better}“ einen größeren Aufschlag, eine höhere erlaubte Verschuldung und eine \
+         kleinere Zinsdeckung."
+    )
+}
+
+pub fn term_range_inverted(min: u32, max: u32) -> String {
+    format!("Die kürzeste Laufzeit ({min}) ist länger als die längste ({max}).")
+}
+
 pub fn table_empty() -> String {
     "Mindestens eine Zeile ist nötig.".into()
 }

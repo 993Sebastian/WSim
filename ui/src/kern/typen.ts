@@ -870,6 +870,35 @@ export interface Abrechnung {
   cash_flow_usd: [number, number, number];
 }
 
+/** A bond of the player's company (K2). */
+export interface Anleihe {
+  index: number;
+  principal_usd: number;
+  coupon: number;
+  issued: string;
+  maturity: string;
+  grade: string;
+  redeem_usd: number;
+}
+
+export interface Anleihen {
+  enabled: boolean;
+  grade: string | null;
+  debt_ratio: number;
+  coverage: number | null;
+  has_figures: boolean;
+  equity_usd: number;
+  equity_min_usd: number;
+  volume_min_usd: number;
+  term_min_years: number;
+  term_max_years: number;
+  cost_share: number;
+  redeem_premium: number;
+  max_usd: number;
+  quotes: { amount_usd: number; grade: string; coupon: number }[];
+  bonds: Anleihe[];
+}
+
 export interface Finanzen {
   date: string;
   assets: [string, number][];
@@ -887,6 +916,7 @@ export interface Finanzen {
     months: number;
     instalment_usd: number;
   }[];
+  bonds: Anleihen;
   credit_limit_usd: number;
   overdraft_limit_usd: number;
   loan_rate: number;

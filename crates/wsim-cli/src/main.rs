@@ -1094,6 +1094,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_centrals(texts, game);
     print_logistics(texts, game);
     print_stock(game);
+    print_bonds(game);
 }
 
 /// Fleets of the companies (W5): how many hold vehicles of which kind, how much of their
@@ -1199,6 +1200,40 @@ fn print_stock(game: &Game) {
             1
         ),
         format_number(dividends / 1e6, 1)
+    );
+}
+
+/// Bonds (K2): how many companies have bonds outstanding, their volume and coupon.
+fn print_bonds(game: &Game) {
+    let (state, catalog) = (game.state(), game.catalog());
+    if !catalog.bonds.enabled {
+        return;
+    }
+    let active: Vec<_> = state.companies.iter().filter(|c| !c.bankrupt).collect();
+    let with = active.iter().filter(|c| !c.bonds.is_empty()).count();
+    let bonds: Vec<_> = active.iter().flat_map(|c| &c.bonds).collect();
+    let volume: f64 = bonds.iter().map(|b| b.principal.to_usd()).sum();
+    let coupon = if volume > 0.0 {
+        bonds
+            .iter()
+            .map(|b| b.principal.to_usd() * b.coupon)
+            .sum::<f64>()
+            / volume
+    } else {
+        0.0
+    };
+    let loans: f64 = active
+        .iter()
+        .flat_map(|c| &c.loans)
+        .map(|l| l.balance.to_usd())
+        .sum();
+    println!(
+        "Anleihen (K2): {} Firmen mit {} Anleihen über {} Mrd. USD, Kupon im Mittel {} %; Bankkredite {} Mrd. USD",
+        with,
+        bonds.len(),
+        format_number(volume / 1e9, 2),
+        format_number(100.0 * coupon, 2),
+        format_number(loans / 1e9, 2)
     );
 }
 

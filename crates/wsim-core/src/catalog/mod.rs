@@ -79,6 +79,8 @@ pub struct Catalog {
     pub subsidiaries: SubsidiaryModel,
     /// Stock market (K1); without the section no company is listed.
     pub stock: StockModel,
+    /// Corporate bonds (K2); without the section no company issues any.
+    pub bonds: BondModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -370,6 +372,42 @@ pub struct VentureModel {
     /// Years closed start-ups stay in the list.
     pub keep_years: u32,
     pub inventors: Vec<Inventor>,
+    pub provenance: Provenance,
+}
+
+/// A credit grade of bonds (K2): the worst debt ratio and the least interest coverage it
+/// allows, and its spread over the base rate.
+#[derive(Clone, Debug, PartialEq)]
+pub struct BondGrade {
+    /// Key of the text `bonitaet.<key>`.
+    pub key: String,
+    pub debt_ratio_max: f64,
+    pub coverage_min: f64,
+    pub spread: f64,
+}
+
+impl BondGrade {
+    /// Keys a grade may have, best first (texts `bonitaet.<key>` in the interface).
+    pub const KEYS: [&'static str; 7] = ["aaa", "aa", "a", "bbb", "bb", "b", "ccc"];
+}
+
+/// Corporate bonds (K2, docs/FORMELN.md). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct BondModel {
+    pub enabled: bool,
+    pub equity_min: Money,
+    pub volume_min: Money,
+    pub term_min_years: u32,
+    pub term_max_years: u32,
+    pub cost_share: f64,
+    pub redeem_premium: f64,
+    /// Closed months the interest coverage is measured over.
+    pub earnings_months: u32,
+    /// Best grade first.
+    pub grades: Vec<BondGrade>,
+    pub ai_term_years: u32,
+    /// The AI issues a bond when its coupon is at least this far below the loan rate.
+    pub ai_advantage_min: f64,
     pub provenance: Provenance,
 }
 

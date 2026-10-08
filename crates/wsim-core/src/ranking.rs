@@ -28,7 +28,9 @@ pub struct Standing {
 }
 
 pub fn equity(company: &Company) -> Money {
-    company.ledger.total_assets() - company.ledger.balance(Account::Loans)
+    company.ledger.total_assets()
+        - company.ledger.balance(Account::Loans)
+        - company.ledger.balance(Account::Bonds)
 }
 
 /// Revenue of the last twelve closed months.

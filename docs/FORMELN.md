@@ -4195,3 +4195,45 @@ Beim Spielstart sind die KI-Firmen mit Eigenkapital ≥ `start.eigenkapital_min_
 notiert, mit `start.streubesitz` bei den Investoren. Eine KI-Firma ohne Notiz mit genug
 Eigenkapital geht je Monat mit `ki.boersengang_chance` an die Börse (Anteil
 `ki.boersengang_anteil`).
+
+## K2 – Anleihen
+
+Lastenheft §11.1. Daten: `parameter/anleihen.yaml`. Kern: Modul `bonds`.
+
+### Bonität
+
+Aus dem Hauptbuch der Firma, mit einer geplanten neuen Anleihe A:
+
+    B = Bilanzsumme, D = Kredite + Anleihen
+    Verschuldung v = (D + A) / (B + A)
+    EBIT = 12/k · Σ (Ergebnis − Zinsen − Steuern) der letzten k ≤ gewinn_monate
+           abgeschlossenen Monate
+    Zinslast Z = 12/k · Σ Zinsaufwand der Monate + A · Kupon
+    Zinsdeckung z = EBIT / Z   (ohne Zinslast unbegrenzt)
+
+Die Bonität ist die beste Stufe aus `bonitaet` (geordnet von der besten), deren
+`verschuldung_max` ≥ v und `zinsdeckung_min` ≤ z ist; der Kupon in der Zinslast ist der der
+geprüften Stufe. Erfüllt keine Stufe die Bedingungen oder hat die Firma noch keinen
+abgeschlossenen Monat, findet sie keine Anleger.
+
+### Ausgabe, Kupon, Tilgung
+
+Eine Firma mit Eigenkapital ≥ `eigenkapital_min_usd` gibt eine Anleihe über A ≥
+`volumen_min_usd` mit einer Laufzeit von `laufzeit_jahre.min` bis `.max` Jahren aus:
+
+    Kupon = Realzins(Jahr) + Aufschlag(Stufe) · (1 − Ersparnis der Finanzabteilung)
+    Kasse += A,  Anleihen += A;  Kosten = A · kosten_anteil (Sonstiges)
+
+Der Kupon bleibt für die ganze Laufzeit fest. Am Monatsende zahlt die Firma A · Kupon / 12
+Zinsen; am Ende der Laufzeit zahlt sie A zurück (aus der Kasse, notfalls ins Minus mit den
+Folgen der Kontoüberziehung). Vorzeitig kauft sie eine Anleihe ganz zurück zu A · (1 +
+`rueckkauf_aufschlag`); der Aufschlag ist Zinsaufwand.
+
+Anleihen sind unbesichert: Sie mindern den Kreditrahmen der Bank nicht, zählen aber zur
+Verschuldung, nach der die Bank den Zins eines neuen Kredits bemisst.
+
+### KI
+
+Braucht eine KI-Firma einen Kredit über mindestens `volumen_min_usd`, gibt sie stattdessen
+eine Anleihe mit `ki.laufzeit_jahre` aus, wenn deren Kupon mindestens `ki.vorteil_min`
+unter dem Zins des Kredits liegt. Sie hält ihre Anleihen bis zum Ende.

@@ -2181,6 +2181,120 @@ pub struct LoanView {
     pub instalment_usd: f64,
 }
 
+/// A bond of the player's company (K2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BondView {
+    pub index: usize,
+    pub principal_usd: f64,
+    pub coupon: f64,
+    pub issued: String,
+    pub maturity: String,
+    /// Grade at issue (`bonitaet.<key>`).
+    pub grade: String,
+    /// What buying it back now costs.
+    pub redeem_usd: f64,
+}
+
+/// What a bond of an amount would get.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BondQuoteView {
+    pub amount_usd: f64,
+    pub grade: String,
+    pub coupon: f64,
+}
+
+/// Bonds of the player's company: its standing, what new bonds would cost, its bonds.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct BondsView {
+    /// Without bonds in the data the rest is empty.
+    pub enabled: bool,
+    /// Grade without a new bond; `None`: no investor would buy.
+    pub grade: Option<String>,
+    pub debt_ratio: f64,
+    /// EBIT over interest per year; `None` without a closed month or interest.
+    pub coverage: Option<f64>,
+    pub has_figures: bool,
+    pub equity_usd: f64,
+    pub equity_min_usd: f64,
+    pub volume_min_usd: f64,
+    pub term_min_years: u32,
+    pub term_max_years: u32,
+    pub cost_share: f64,
+    pub redeem_premium: f64,
+    /// The largest bond that sells today (0: none).
+    pub max_usd: f64,
+    /// Amounts up to the largest with grade and coupon.
+    pub quotes: Vec<BondQuoteView>,
+    pub bonds: Vec<BondView>,
+}
+
+/// Shares of the largest bond offered as amounts.
+const BOND_STEPS: [f64; 4] = [0.25, 0.5, 0.75, 1.0];
+
+fn bonds_view(game: &Game) -> BondsView {
+    let (state, catalog) = (game.state(), game.catalog());
+    let m = &catalog.bonds;
+    let me = state.player;
+    let company = &state.companies[me.index()];
+    let cut = crate::central::premium_cut(catalog, state, me);
+    let s = crate::bonds::standing(catalog, company);
+    let now = crate::bonds::grade_for(catalog, company, Money::ZERO, state.date, cut);
+    let equity = crate::ranking::equity(company);
+    let max = if m.enabled && equity >= m.equity_min {
+        crate::bonds::max_amount(catalog, company, state.date, cut)
+    } else {
+        Money::ZERO
+    };
+    let mut quotes: Vec<BondQuoteView> = Vec::new();
+    if max > Money::ZERO {
+        for share in BOND_STEPS {
+            let amount = max.scale(share).max(m.volume_min);
+            if quotes.last().is_some_and(|q| q.amount_usd >= usd(amount)) {
+                continue;
+            }
+            if let Some((g, coupon)) =
+                crate::bonds::grade_for(catalog, company, amount, state.date, cut)
+            {
+                quotes.push(BondQuoteView {
+                    amount_usd: usd(amount),
+                    grade: m.grades[g].key.clone(),
+                    coupon,
+                });
+            }
+        }
+    }
+    BondsView {
+        enabled: m.enabled,
+        grade: now.map(|(g, _)| m.grades[g].key.clone()),
+        debt_ratio: s.debt_ratio(Money::ZERO).unwrap_or(0.0),
+        coverage: s.coverage(Money::ZERO, 0.0).filter(|c| c.is_finite()),
+        has_figures: s.ebit.is_some(),
+        equity_usd: usd(equity),
+        equity_min_usd: usd(m.equity_min),
+        volume_min_usd: usd(m.volume_min),
+        term_min_years: m.term_min_years,
+        term_max_years: m.term_max_years,
+        cost_share: m.cost_share,
+        redeem_premium: m.redeem_premium,
+        max_usd: usd(max),
+        quotes,
+        bonds: company
+            .bonds
+            .iter()
+            .enumerate()
+            .map(|(index, b)| BondView {
+                index,
+                principal_usd: usd(b.principal),
+                coupon: b.coupon,
+                issued: iso(b.issued),
+                maturity: iso(b.maturity),
+                grade: b.grade.clone(),
+                redeem_usd: usd(crate::bonds::redeem_price(catalog, b)),
+            })
+            .collect(),
+    }
+}
+
 /// Income statement lines by cost type (text key, amount; costs negative).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Statement {
@@ -2225,6 +2339,8 @@ pub struct FinanceView {
     pub last_year: Option<Statement>,
     pub last_month: Option<Statement>,
     pub loans: Vec<LoanView>,
+    /// Bonds (K2).
+    pub bonds: BondsView,
     pub credit_limit_usd: f64,
     pub overdraft_limit_usd: f64,
     /// Interest rate a loan of 10 % of the credit limit would get today.
@@ -2344,6 +2460,7 @@ pub fn finance_overview(game: &Game) -> FinanceView {
                 instalment_usd: usd(l.instalment),
             })
             .collect(),
+        bonds: bonds_view(game),
         credit_limit_usd: usd(limit),
         overdraft_limit_usd: usd(finance::overdraft_limit(catalog, ledger)),
         loan_rate: finance::loan_rate(

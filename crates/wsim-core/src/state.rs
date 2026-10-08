@@ -360,6 +360,9 @@ pub struct Company {
     /// What the company paid for the shares it holds of other companies.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub stock_cost: BTreeMap<CompanyId, Money>,
+    /// Bonds issued and not yet repaid (K2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub bonds: Vec<crate::bonds::Bond>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and

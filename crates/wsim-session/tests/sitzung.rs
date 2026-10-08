@@ -742,3 +742,53 @@ fn the_stock_market() {
         .unwrap();
     assert_eq!(session.stock().unwrap().portfolio_cost_usd, 0.0);
 }
+
+#[test]
+fn bonds_of_a_large_company() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let rich = NewGameRequest {
+        start_year: 1950,
+        capital_usd: 50_000_000.0,
+        ..request()
+    };
+    session.new_game(&rich).unwrap();
+    // Investors want to see a closed month first.
+    let bonds = session.finance().unwrap().bonds;
+    assert!(bonds.enabled);
+    assert!(!bonds.has_figures || bonds.quotes.is_empty() || bonds.grade.is_some());
+    let err = session
+        .command(json!({"IssueBond": {"amount": 20_000_000_000_i64, "years": 10}}))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.anleihe_keine_anleger");
+    for _ in 0..3 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let bonds = session.finance().unwrap().bonds;
+    assert!(bonds.has_figures);
+    let Some(quote) = bonds.quotes.first() else {
+        // A workshop that loses money: no investors, whatever the capital.
+        let err = session
+            .command(json!({"IssueBond": {"amount": 10_000_000_000_i64, "years": 10}}))
+            .unwrap_err();
+        assert_eq!(err.key, "fehler.befehl.anleihe_keine_anleger");
+        return;
+    };
+    // Money units of the core: hundredths of a cent.
+    #[allow(clippy::cast_possible_truncation)]
+    let amount = (quote.amount_usd * 10_000.0).round() as i64;
+    session
+        .command(json!({"IssueBond": {"amount": amount, "years": 10}}))
+        .unwrap();
+    let finance = session.finance().unwrap();
+    assert_eq!(finance.bonds.bonds.len(), 1);
+    assert!(
+        finance
+            .claims
+            .iter()
+            .any(|(k, v)| k == "konto.anleihen" && *v > 0.0)
+    );
+    session.command(json!({"RedeemBond": {"bond": 0}})).unwrap();
+    assert!(session.finance().unwrap().bonds.bonds.is_empty());
+}

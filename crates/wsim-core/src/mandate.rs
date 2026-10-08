@@ -149,7 +149,9 @@ pub fn aggressiveness(catalog: &Catalog, mandate: &Mandate) -> f64 {
 /// Debt per total assets after borrowing `more` (docs/FORMELN.md, MA5).
 pub fn debt_share(state: &GameState, company: CompanyId, more: Money) -> f64 {
     let c = &state.companies[company.index()];
-    let loans: Money = c.loans.iter().map(|l| l.balance).sum::<Money>() + more;
+    let loans: Money = c.loans.iter().map(|l| l.balance).sum::<Money>()
+        + c.ledger.balance(crate::ledger::Account::Bonds)
+        + more;
     let assets = c.ledger.total_assets() + more;
     if assets <= Money::ZERO {
         return if loans > Money::ZERO {
@@ -165,7 +167,8 @@ pub fn debt_share(state: &GameState, company: CompanyId, more: Money) -> f64 {
 /// assets: L + m ≤ max · (A + m).
 pub fn loan_room(state: &GameState, company: CompanyId, max: f64) -> Money {
     let c = &state.companies[company.index()];
-    let loans: Money = c.loans.iter().map(|l| l.balance).sum();
+    let loans: Money = c.loans.iter().map(|l| l.balance).sum::<Money>()
+        + c.ledger.balance(crate::ledger::Account::Bonds);
     let assets = c.ledger.total_assets();
     if max >= 1.0 {
         // Any loan keeps the share below 1 while the assets cover the loans.
@@ -185,7 +188,7 @@ pub fn borrowed(choice: &Choice) -> Money {
         .steps
         .iter()
         .map(|s| match s.command {
-            Command::TakeLoan { amount, .. } => amount,
+            Command::TakeLoan { amount, .. } | Command::IssueBond { amount, .. } => amount,
             _ => Money::ZERO,
         })
         .sum()

@@ -86,7 +86,9 @@ pub fn progress(state: &GameState, condition: MilestoneCondition, date: Date) ->
         MilestoneCondition::MarketLeader(share) => (best_lead(state, player), share),
         MilestoneCondition::Equity(factor) => {
             let ledger = &state.companies[player.index()].ledger;
-            let equity = ledger.total_assets() - ledger.balance(Account::Loans);
+            let equity = ledger.total_assets()
+                - ledger.balance(Account::Loans)
+                - ledger.balance(Account::Bonds);
             (
                 equity.to_usd(),
                 state.settings.start_capital.to_usd() * factor,

@@ -80,6 +80,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W6 | Tochterfirmen mit eigener Bilanz und Geschäftsführung, Konzernsicht | ✅ |
 | W7 | Controlling: Deckungsbeiträge je Ebene, Kostenarten, Vorperiode | ✅ |
 | K1 | Börse: Börsenwert, Index, Krisen, Börsengang, Dividende, Aktienhandel | ✅ |
+| K2 | Anleihen: Bonität, fester Kupon, Rückzahlung, Rückkauf, KI | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -878,6 +879,25 @@ Stufe 3, Lastenheft §11.1–11.2. Regeln: `docs/FORMELN.md`, Abschnitt K1; Ents
 - **Weltlauf 1900–1915** (100 KI-Firmen): beim Start 34 Firmen notiert, 1915 65; Index
   100 → 240 (Sept. 1907) → 208 (Jan. 1908, Krach) → 327 (1915); 1915 Börsenwert 0,93 ×
   Buchwert, KGV 15,7. Laufzeit 2:24 min wie vorher.
+
+### K2: Anleihen (08.10.2026)
+
+Stufe 3, Lastenheft §11.1. Regeln: `docs/FORMELN.md`, Abschnitt K2; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/anleihen.yaml` (Mindestgrößen, Laufzeiten, Kosten, sechs
+  Bonitätsstufen, KI) mit Prüfregeln (Reihenfolge der Stufen) und Fehlerfall-Test.
+- **Kern:** Modul `bonds`: Bonität aus Verschuldung und Zinsdeckung, Kupon, größte
+  mögliche Anleihe, Ausgabe, Rückkauf, Kupons und Rückzahlung am Monatsende; neues Konto
+  „Anleihen“ (Eigenkapital, Übersicht, Konzernbilanz und Kreditzins rechnen es als
+  Schuld); Befehle `IssueBond`, `RedeemBond`; die KI-Kasse wählt Anleihe oder Kredit.
+- **Oberfläche:** Finanzen → Abschluss → „Anleihen“ mit Bonität, Angeboten,
+  Ausgabe und Rückkauf; CLI-Weltlauf mit Anleihenzeile.
+- **Tests:** Kern (Stufen, Buchungen, Kupon, Fälligkeit, Grenzen, Rückkauf, KI,
+  Spielstand), Sitzung mit echten Daten, vitest, Playwright.
+- **Weltlauf 1900–1915** (100 KI-Firmen): 1902 17 Firmen mit 1,2 Mrd. USD Anleihen,
+  1915 6 Firmen mit 8,7 Mrd. USD (Kupon im Mittel 4,3 %) neben 1,8 Mrd. USD Bankkrediten.
+  Laufzeit 2:33 min.
 
 ## Eigenständige Entscheidungen (für das Review)
 

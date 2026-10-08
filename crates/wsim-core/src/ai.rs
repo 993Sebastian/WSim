@@ -157,7 +157,9 @@ fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Comman
             (Topic::ProductName, ChoiceKind::Name, None, Some(*product))
         }
         Command::SetAdvertising { .. } => (Topic::Advertising, ChoiceKind::Adjust, None, None),
-        Command::TakeLoan { .. } => (Topic::Cash, ChoiceKind::Borrow, None, None),
+        Command::TakeLoan { .. } | Command::IssueBond { .. } => {
+            (Topic::Cash, ChoiceKind::Borrow, None, None)
+        }
         Command::RepayLoan { .. } => (Topic::Cash, ChoiceKind::Repay, None, None),
         _ => (Topic::Production, ChoiceKind::Adjust, None, None),
     };
@@ -398,6 +400,12 @@ fn sale(site: SiteId, product: ProductId) -> Command {
 /// A loan for what the cash lacks, if anything.
 fn take_loan(state: &mut GameState, catalog: &Catalog, id: CompanyId, amount: Money) {
     if amount > Money::ZERO {
+        // A bond where investors take it for less than the bank (K2).
+        if let Some(years) = crate::bonds::ai_prefers(state, catalog, id, amount)
+            && run(state, catalog, id, &Command::IssueBond { amount, years })
+        {
+            return;
+        }
         let b = &catalog.ai_model.behavior;
         let years = b.loan_years.min(catalog.finance_model.max_term_years);
         run(state, catalog, id, &Command::TakeLoan { amount, years });
@@ -1713,16 +1721,25 @@ pub(crate) fn manage_cash(
     let cash = company.ledger.cash();
     let target = monthly.scale((b.cash_min_months + b.cash_max_months) / 2.0);
     if cash < monthly.scale(b.cash_min_months) {
-        let amount = (target - cash).min(finance::credit_limit(catalog, company));
+        let need = target - cash;
+        // A bond where investors take it for less than the bank (K2); else a loan.
+        let borrow = match crate::bonds::ai_prefers(state, catalog, id, need) {
+            Some(years) => Command::IssueBond {
+                amount: need,
+                years,
+            },
+            None => {
+                let amount = need.min(finance::credit_limit(catalog, company));
+                let years = b.loan_years.min(catalog.finance_model.max_term_years);
+                Command::TakeLoan { amount, years }
+            }
+        };
+        let amount = match &borrow {
+            Command::IssueBond { amount, .. } | Command::TakeLoan { amount, .. } => *amount,
+            _ => Money::ZERO,
+        };
         if amount > Money::ZERO {
-            let years = b.loan_years.min(catalog.finance_model.max_term_years);
-            act(
-                state,
-                catalog,
-                id,
-                &Command::TakeLoan { amount, years },
-                decider,
-            );
+            act(state, catalog, id, &borrow, decider);
         }
     } else if cash > monthly.scale(b.cash_max_months) && !company.loans.is_empty() {
         let amount = cash - target;
@@ -4216,6 +4233,7 @@ fn found_one(
         listing: None,
         dividend_payout: None,
         stock_cost: Default::default(),
+        bonds: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4445,6 +4463,7 @@ mod tests {
             listing: None,
             dividend_payout: None,
             stock_cost: Default::default(),
+            bonds: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

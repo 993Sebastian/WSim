@@ -34,10 +34,12 @@ pub enum Account {
     Land,
     /// Stakes in start-ups and pledges to their rounds (SU2), at cost.
     Participations,
+    /// Bonds issued (K2); a liability.
+    Bonds,
 }
 
 impl Account {
-    pub const ALL: [Account; 11] = [
+    pub const ALL: [Account; 12] = [
         Account::Cash,
         Account::Inventory,
         Account::FixedAssets,
@@ -49,6 +51,7 @@ impl Account {
         Account::Goodwill,
         Account::Land,
         Account::Participations,
+        Account::Bonds,
     ];
 
     pub fn is_asset(self) -> bool {
@@ -162,7 +165,7 @@ impl CashFlow {
             | Account::Goodwill
             | Account::Land
             | Account::Participations => self.investing += amount,
-            Account::Loans | Account::Equity | Account::RetainedEarnings => {
+            Account::Loans | Account::Bonds | Account::Equity | Account::RetainedEarnings => {
                 self.financing += amount
             }
             Account::Cash | Account::Inventory | Account::Result => self.operating += amount,

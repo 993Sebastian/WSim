@@ -251,6 +251,9 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
         Command::RepayLoan { amount, .. } => {
             m(keys::STEP_REPAY).with("betrag", Param::Money(*amount))
         }
+        Command::IssueBond { amount, years } => m(keys::STEP_BOND)
+            .with("betrag", Param::Money(*amount))
+            .with("jahre", Param::Integer(i64::from(*years))),
         Command::SetProduction {
             site,
             slot: i,

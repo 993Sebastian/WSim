@@ -473,6 +473,23 @@ abgelehnt. Ein Abschnitt `boerse` mit:
 | **ki** | `boersengang_chance` (0–1: je Monat, für KI-Firmen mit dem Eigenkapital von `start`), `boersengang_anteil` (0–0,9) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## anleihen
+
+`data/parameter/anleihen.yaml` (K2; Regeln: `docs/FORMELN.md`, Abschnitt K2). Ohne Abschnitt
+gibt es keine Anleihen. Ein Abschnitt `anleihen` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **eigenkapital_min_usd** | ≥ 0: kleinere Firmen finden keine Anleger |
+| **volumen_min_usd** | ≥ 0: kleinste Anleihe |
+| **laufzeit_jahre** | `min`, `max` (je 1–100, min ≤ max) |
+| **kosten_anteil** | 0–1: Kosten der Ausgabe (Sonstiges), Anteil am Betrag |
+| **rueckkauf_aufschlag** | 0–1: vorzeitiger Rückkauf über dem Nennwert (Zinsaufwand) |
+| **gewinn_monate** | 1–24: Zinsdeckung aus so vielen abgeschlossenen Monaten |
+| **bonitaet** | Liste der Stufen von der besten zur schlechtesten: `stufe` (`aaa`, `aa`, `a`, `bbb`, `bb`, `b` oder `ccc`, je höchstens einmal; Text `bonitaet.<stufe>`), `verschuldung_max` (0–1: Kredite und Anleihen je Bilanzsumme), `zinsdeckung_min` (0–100: EBIT je Zinsaufwand), `aufschlag` (0–0,5: über dem realen Leitzins). Jede Stufe hat einen größeren Aufschlag, eine höhere erlaubte Verschuldung und eine kleinere Zinsdeckung als die vorige. |
+| **ki** | `laufzeit_jahre` (zwischen `laufzeit_jahre.min` und `.max`), `vorteil_min` (0–1: so weit muss der Kupon unter dem Kreditzins liegen) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## zentrale
 
 `data/parameter/zentrale.yaml` (ZA1–ZA4; Regeln: `docs/FORMELN.md`, Vorgabe:

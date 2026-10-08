@@ -1281,6 +1281,25 @@ entschieden:
    Start-ups entstandene Firmen sind erst notiert, wenn sie groß genug für einen Börsengang
    sind.
 
+✅ **K2 umgesetzt** (Anleihen; Regeln: `docs/FORMELN.md`, Abschnitt K2). 🟡 Eigenständig
+entschieden:
+
+1. **Bonität aus zwei Kennzahlen:** Verschuldung (Kredite und Anleihen je Bilanzsumme) und
+   Zinsdeckung (EBIT der letzten zwölf Monate je Zinsaufwand, mit der neuen Anleihe);
+   sechs Stufen AAA bis B mit Aufschlägen von 0,4 bis 5 % über dem realen Leitzins. Ohne
+   abgeschlossenen Monat, mit Verlust oder über 65 % Verschuldung kauft kein Anleger.
+2. **Fester Kupon, endfällig:** Zinsen monatlich, Rückzahlung am Ende der Laufzeit (3–30
+   Jahre) in einem Betrag; Ausgabe kostet 1,5 %, vorzeitiger Rückkauf 2 % über dem
+   Nennwert. Der Kupon ist nie negativ (der reale Leitzins ist es zeitweise).
+3. **Ab 10 Mio. USD Eigenkapital** und 1 Mio. USD Volumen – kleine Firmen leihen bei der
+   Bank. Anleihen sind unbesichert: Sie mindern den Kreditrahmen nicht, erhöhen aber den
+   Zins neuer Kredite über die Verschuldung.
+4. **Die KI** gibt eine Anleihe statt eines Kredits aus, wenn der Kupon mindestens 0,5 %
+   unter dem Kreditzins liegt (zehn Jahre), und hält sie bis zum Ende. Im Weltlauf
+   1900–1915 nutzen das vor allem große Firmen für den Ausbau.
+5. **Handel mit Anleihen** (Kurse, Kauf fremder Anleihen) gibt es nicht; Anleihen von
+   Töchtern zählen in der Konzernbilanz wie die der Mutter.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

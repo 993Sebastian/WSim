@@ -7,13 +7,13 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawCentral, RawContracts, RawCountry, RawCountryCurrencies, RawCountryModel,
-    RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor,
-    RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel,
-    RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel, RawQualification,
-    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawStockMarket, RawSubsidiaries,
-    RawTariffs, RawTechnology, RawTransportClass, RawTransportModel, RawUnit, RawVehicle,
-    RawVentures,
+    RawAiModel, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
+    RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel,
+    RawInventor, RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup,
+    RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel,
+    RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawStockMarket,
+    RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass, RawTransportModel, RawUnit,
+    RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -184,6 +184,7 @@ pub(crate) struct RawData {
     pub logistics: Vec<Entry<RawLogistics>>,
     pub subsidiaries: Vec<Entry<RawSubsidiaries>>,
     pub stock: Vec<Entry<RawStockMarket>>,
+    pub bonds: Vec<Entry<RawBonds>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -228,6 +229,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "logistik",
     "tochterfirmen",
     "boerse",
+    "anleihen",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -327,6 +329,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "boerse" => match de::from_node::<RawStockMarket>(value, &loc.path) {
                 Ok(model) => raw.stock.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "anleihen" => match de::from_node::<RawBonds>(value, &loc.path) {
+                Ok(model) => raw.bonds.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

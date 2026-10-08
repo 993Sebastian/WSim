@@ -3471,11 +3471,11 @@
     "assets": [
       [
         "konto.kasse",
-        58473.257
+        45250.5079
       ],
       [
         "konto.vorraete",
-        6945.6544
+        6858.7872
       ],
       [
         "konto.sachanlagen",
@@ -3492,23 +3492,44 @@
       [
         "konto.grundstuecke",
         0.0
+      ],
+      [
+        "konto.finanzanlagen",
+        0.0
       ]
     ],
+    "bonds": {
+      "bonds": [],
+      "cost_share": 0.015,
+      "coverage": null,
+      "debt_ratio": 0.0,
+      "enabled": true,
+      "equity_min_usd": 10000000.0,
+      "equity_usd": 110328.1135,
+      "grade": "aaa",
+      "has_figures": true,
+      "max_usd": 0.0,
+      "quotes": [],
+      "redeem_premium": 0.02,
+      "term_max_years": 30,
+      "term_min_years": 3,
+      "volume_min_usd": 1000000.0
+    },
     "centers_last_month": {
       "company_usd": 0.0,
       "products": [
         {
-          "margin_usd": 6048.3086,
+          "margin_usd": 4495.074,
           "product": "naegel",
-          "revenue_usd": 29251.8155
+          "revenue_usd": 28306.2209
         }
       ],
       "sites": [
         {
           "country": "DEU",
           "kind_text": "standorttyp.werk",
-          "result_usd": 3843.7286,
-          "revenue_usd": 29251.8155,
+          "result_usd": 2643.7765,
+          "revenue_usd": 28306.2209,
           "site": 0
         }
       ]
@@ -3517,17 +3538,17 @@
       "company_usd": 0.0,
       "products": [
         {
-          "margin_usd": 39093.1934,
+          "margin_usd": 23302.6003,
           "product": "naegel",
-          "revenue_usd": 198779.4798
+          "revenue_usd": 191863.7808
         }
       ],
       "sites": [
         {
           "country": "DEU",
           "kind_text": "standorttyp.werk",
-          "result_usd": 23637.7298,
-          "revenue_usd": 198779.4798,
+          "result_usd": 10328.1135,
+          "revenue_usd": 191863.7808,
           "site": 0
         }
       ]
@@ -3547,65 +3568,69 @@
       ],
       [
         "konto.jahresergebnis",
-        23637.7298
+        10328.1135
+      ],
+      [
+        "konto.anleihen",
+        0.0
       ]
     ],
-    "credit_limit_usd": 39098.6837,
+    "credit_limit_usd": 39046.5634,
     "date": "1914-08-01",
     "history": [
       {
-        "cash_usd": 37205.2315,
+        "cash_usd": 34878.4632,
         "month": "1914-01-01",
-        "result_usd": 4114.5825,
-        "revenue_usd": 27986.6228
+        "result_usd": 1891.6823,
+        "revenue_usd": 26598.8036
       },
       {
-        "cash_usd": 40360.3464,
+        "cash_usd": 36178.3503,
         "month": "1914-02-01",
-        "result_usd": 2821.841,
-        "revenue_usd": 26420.9943
+        "result_usd": 1121.7819,
+        "revenue_usd": 25560.0836
       },
       {
-        "cash_usd": 44307.0925,
+        "cash_usd": 37717.0651,
         "month": "1914-03-01",
-        "result_usd": 3580.536,
-        "revenue_usd": 29251.8154
+        "result_usd": 1286.368,
+        "revenue_usd": 28306.2209
       },
       {
-        "cash_usd": 48205.5502,
+        "cash_usd": 39187.1234,
         "month": "1914-04-01",
-        "result_usd": 3626.8366,
-        "revenue_usd": 28308.2081
+        "result_usd": 1196.865,
+        "revenue_usd": 27393.117
       },
       {
-        "cash_usd": 52300.2784,
+        "cash_usd": 41283.3046,
         "month": "1914-05-01",
-        "result_usd": 3833.4933,
-        "revenue_usd": 29251.8162
+        "result_usd": 1629.4667,
+        "revenue_usd": 28306.2178
       },
       {
-        "cash_usd": 56207.9491,
+        "cash_usd": 43687.4451,
         "month": "1914-06-01",
-        "result_usd": 3655.589,
-        "revenue_usd": 28308.2075
+        "result_usd": 2044.406,
+        "revenue_usd": 27393.117
       },
       {
-        "cash_usd": 60312.1342,
+        "cash_usd": 46736.7408,
         "month": "1914-07-01",
-        "result_usd": 3843.7286,
-        "revenue_usd": 29251.8155
+        "result_usd": 2643.7765,
+        "revenue_usd": 28306.2209
       }
     ],
     "last_month": {
       "cash_flow_usd": [
-        4104.1851,
+        3049.2957,
         0.0,
         0.0
       ],
       "lines": [
         [
           "kostenart.umsatz",
-          29251.8155
+          28306.2209
         ],
         [
           "kostenart.bestandsveraenderung",
@@ -3613,11 +3638,11 @@
         ],
         [
           "kostenart.material",
-          -21962.1584
+          -21854.9074
         ],
         [
           "kostenart.personal",
-          -698.7803
+          -1175.3743
         ],
         [
           "kostenart.energie",
@@ -3657,14 +3682,18 @@
         ],
         [
           "kostenart.gemeinkosten",
-          -542.5682
+          -780.8652
         ],
         [
           "kostenart.pacht",
-          -1842.2055
+          -1488.923
         ],
         [
           "kostenart.lizenzen",
+          0.0
+        ],
+        [
+          "kostenart.beteiligungen",
           0.0
         ],
         [
@@ -3672,25 +3701,25 @@
           0.0
         ]
       ],
-      "result_usd": 3843.7286
+      "result_usd": 2643.7765
     },
     "last_year": null,
-    "loan_rate": 0.027805759914444166,
+    "loan_rate": 0.028087950875772157,
     "loans": [],
     "loss_carryforward_usd": 0.0,
     "max_term_years": 30,
-    "overdraft_limit_usd": 12363.773,
-    "total_usd": 123637.7298,
+    "overdraft_limit_usd": 11032.8114,
+    "total_usd": 110328.1135,
     "year": {
       "cash_flow_usd": [
-        18473.257,
+        5250.5079,
         -60000.0,
         100000.0
       ],
       "lines": [
         [
           "kostenart.umsatz",
-          198779.4798
+          191863.7808
         ],
         [
           "kostenart.bestandsveraenderung",
@@ -3698,11 +3727,11 @@
         ],
         [
           "kostenart.material",
-          -151228.4557
+          -155230.3146
         ],
         [
           "kostenart.personal",
-          -4784.5774
+          -8048.6939
         ],
         [
           "kostenart.energie",
@@ -3742,14 +3771,18 @@
         ],
         [
           "kostenart.gemeinkosten",
-          -3695.8452
+          -5320.1913
         ],
         [
           "kostenart.pacht",
-          -12954.6977
+          -10458.2935
         ],
         [
           "kostenart.lizenzen",
+          0.0
+        ],
+        [
+          "kostenart.beteiligungen",
           0.0
         ],
         [
@@ -3757,7 +3790,7 @@
           0.0
         ]
       ],
-      "result_usd": 23637.7298
+      "result_usd": 10328.1135
     }
   },
   "firma": {

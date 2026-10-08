@@ -122,6 +122,10 @@ pub enum Command {
     BuyShares { company: CompanyId, share: f64 },
     /// Sells a share of a listed company to investors.
     SellShares { company: CompanyId, share: f64 },
+    /// Issues a bond of `amount`, repaid at once after `years` (K2).
+    IssueBond { amount: Money, years: u32 },
+    /// Buys a bond back before maturity.
+    RedeemBond { bond: usize },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -559,6 +563,24 @@ pub enum CommandError {
     NotEnoughStock {
         held: f64,
     },
+    /// The data have no bonds (K2).
+    NoBonds,
+    BondTerm {
+        min: u32,
+        max: u32,
+    },
+    BondTooSmall {
+        min: Money,
+    },
+    /// Too little equity for investors to buy bonds.
+    BondCompanyTooSmall {
+        min: Money,
+    },
+    /// No investor buys a bond this large; `max` is the largest that sells.
+    NoBondInvestors {
+        max: Money,
+    },
+    UnknownBond,
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -742,6 +764,20 @@ impl CommandError {
                 .with("anteil", Param::Number((available * 1000.0).round() / 10.0)),
             CommandError::NotEnoughStock { held } => e(keys::COMMAND_NOT_ENOUGH_STOCK)
                 .with("anteil", Param::Number((held * 1000.0).round() / 10.0)),
+            CommandError::NoBonds => e(keys::COMMAND_NO_BONDS),
+            CommandError::BondTerm { min, max } => e(keys::COMMAND_BOND_TERM)
+                .with("min", Param::Integer(i64::from(*min)))
+                .with("max", Param::Integer(i64::from(*max))),
+            CommandError::BondTooSmall { min } => {
+                e(keys::COMMAND_BOND_TOO_SMALL).with("min", Param::Money(*min))
+            }
+            CommandError::BondCompanyTooSmall { min } => {
+                e(keys::COMMAND_BOND_COMPANY_TOO_SMALL).with("min", Param::Money(*min))
+            }
+            CommandError::NoBondInvestors { max } => {
+                e(keys::COMMAND_NO_BOND_INVESTORS).with("max", Param::Money(*max))
+            }
+            CommandError::UnknownBond => e(keys::COMMAND_UNKNOWN_BOND),
             CommandError::TooManyVehicles { count } => {
                 e(keys::COMMAND_TOO_MANY_VEHICLES).with("anzahl", Param::Integer(i64::from(*count)))
             }
@@ -1462,6 +1498,10 @@ fn run(
             crate::group::set_focus(state, actor, *company, *focus)?;
         }
         Command::GoPublic { share } => crate::stock::go_public(state, catalog, actor, *share)?,
+        Command::IssueBond { amount, years } => {
+            crate::bonds::issue(state, catalog, actor, *amount, *years)?;
+        }
+        Command::RedeemBond { bond } => crate::bonds::redeem(state, catalog, actor, *bond)?,
         Command::IssueShares { share } => {
             crate::stock::issue_shares(state, catalog, actor, *share)?;
         }

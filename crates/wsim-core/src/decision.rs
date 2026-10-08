@@ -594,7 +594,9 @@ pub fn amount(
             .get(site.index())
             .and_then(|s| s.slots.get(*slot))
             .map_or(Money::ZERO, |sl| sl.cost.scale(model.restart_cost_share)),
-        Command::TakeLoan { amount, .. } | Command::RepayLoan { amount, .. } => *amount,
+        Command::TakeLoan { amount, .. }
+        | Command::RepayLoan { amount, .. }
+        | Command::IssueBond { amount, .. } => *amount,
         Command::InvestInVenture { amount, .. } | Command::GrantVenture { amount, .. } => *amount,
         Command::IntegrateVenture { venture } => state
             .ventures
@@ -811,6 +813,12 @@ fn effect(
                         .loans
                         .get(*loan)
                         .map_or(0.0, |l| amount.to_usd() * l.rate),
+                    Command::IssueBond { amount, .. } => {
+                        let cut = crate::central::premium_cut(catalog, state, decision.company);
+                        -amount.to_usd()
+                            * crate::bonds::grade_for(catalog, company, *amount, state.date, cut)
+                                .map_or(0.0, |(_, coupon)| coupon)
+                    }
                     _ => 0.0,
                 })
                 .sum();

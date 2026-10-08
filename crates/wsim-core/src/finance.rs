@@ -43,7 +43,14 @@ pub fn overdraft_limit(catalog: &Catalog, ledger: &Ledger) -> Money {
 /// risk premium (ZA2).
 pub fn loan_rate(catalog: &Catalog, company: &Company, amount: Money, date: Date, cut: f64) -> f64 {
     let assets = company.ledger.total_assets() + amount;
-    rate_for_debt(catalog, (outstanding(company) + amount, assets), date, cut)
+    // Bonds are unsecured but count as debt (K2).
+    let bonds = company.ledger.balance(Account::Bonds);
+    rate_for_debt(
+        catalog,
+        (outstanding(company) + bonds + amount, assets),
+        date,
+        cut,
+    )
 }
 
 /// Interest rate at a debt and total assets.

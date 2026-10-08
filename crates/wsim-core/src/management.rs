@@ -1241,7 +1241,10 @@ fn needs_finance(choice: &decision::Choice) -> bool {
     choice.steps.iter().any(|s| {
         matches!(
             s.command,
-            Command::TakeLoan { .. } | Command::RepayLoan { .. }
+            Command::TakeLoan { .. }
+                | Command::RepayLoan { .. }
+                | Command::IssueBond { .. }
+                | Command::RedeemBond { .. }
         )
     })
 }
@@ -1306,11 +1309,15 @@ pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
         return Some(Unit::Site(site));
     }
     let steps = &d.choices.get(d.rule)?.steps;
-    let Some(first) = steps
-        .iter()
-        .map(|s| &s.command)
-        .find(|c| !matches!(c, Command::TakeLoan { .. } | Command::RepayLoan { .. }))
-    else {
+    let Some(first) = steps.iter().map(|s| &s.command).find(|c| {
+        !matches!(
+            c,
+            Command::TakeLoan { .. }
+                | Command::RepayLoan { .. }
+                | Command::IssueBond { .. }
+                | Command::RedeemBond { .. }
+        )
+    }) else {
         return (!steps.is_empty()).then_some(Unit::Board);
     };
     match *first {

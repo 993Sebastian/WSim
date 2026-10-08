@@ -3959,3 +3959,83 @@ fn boerse_wird_geprueft() {
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.stock.enabled);
 }
+
+const ANLEIHEN: &str = "\
+anleihen:
+  eigenkapital_min_usd: 10000000
+  volumen_min_usd: 1000000
+  laufzeit_jahre: {min: 3, max: 30}
+  kosten_anteil: 0.015
+  rueckkauf_aufschlag: 0.02
+  gewinn_monate: 12
+  bonitaet:
+    - {stufe: aaa, verschuldung_max: 0.15, zinsdeckung_min: 10, aufschlag: 0.004}
+    - {stufe: bbb, verschuldung_max: 0.45, zinsdeckung_min: 3, aufschlag: 0.018}
+  ki:
+    laufzeit_jahre: 10
+    vorteil_min: 0.005
+";
+
+#[test]
+fn anleihen_werden_geprueft() {
+    let datei = "parameter/anleihen.yaml";
+    let anleihen = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &ANLEIHEN.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = anleihen("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.bonds;
+    assert!(m.enabled);
+    assert_eq!(m.grades.len(), 2);
+    assert_eq!(m.grades[1].key, "bbb");
+    assert_eq!((m.term_min_years, m.term_max_years), (3, 30));
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "stufe: bbb",
+            "stufe: xyz",
+            "Unbekannter Wert „xyz“.",
+            "anleihen.bonitaet[1].stufe",
+        ),
+        (
+            "stufe: bbb",
+            "stufe: aaa",
+            "Bonitätsstufe „aaa“ ist doppelt definiert",
+            "anleihen.bonitaet[1].stufe",
+        ),
+        (
+            "aufschlag: 0.018",
+            "aufschlag: 0.003",
+            "Die Bonitätsstufen stehen von der besten zur schlechtesten: „bbb“ braucht nach „aaa“",
+            "anleihen.bonitaet[1].stufe",
+        ),
+        (
+            "{min: 3, max: 30}",
+            "{min: 12, max: 5}",
+            "Die kürzeste Laufzeit (12) ist länger als die längste (5).",
+            "anleihen.laufzeit_jahre",
+        ),
+        (
+            "gewinn_monate: 12",
+            "gewinn_monate: 30",
+            "Wert 30 liegt außerhalb des erlaubten Bereichs 1 bis 24.",
+            "anleihen.gewinn_monate",
+        ),
+        (
+            "laufzeit_jahre: 10",
+            "laufzeit_jahre: 40",
+            "Wert 40 liegt außerhalb des erlaubten Bereichs 3 bis 30.",
+            "anleihen.ki.laufzeit_jahre",
+        ),
+    ] {
+        let outcome = anleihen(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&anleihen("  ki:", "  unbekannt: 1\n  ki:"), "unbekannt");
+    // Without the section no company issues bonds.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.bonds.enabled);
+}

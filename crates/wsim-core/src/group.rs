@@ -157,6 +157,7 @@ pub(crate) fn found(
         listing: None,
         dividend_payout: None,
         stock_cost: Default::default(),
+        bonds: Vec::new(),
         owners: Stake::sole(Holder::Company(actor)),
         name,
         kind: CompanyKind::Ai,

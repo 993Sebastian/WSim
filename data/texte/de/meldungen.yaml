@@ -122,6 +122,7 @@ konto.jahresergebnis: Jahresergebnis
 konto.firmenwert: Firmenwert
 konto.grundstuecke: Grundstücke
 konto.finanzanlagen: Finanzanlagen
+konto.anleihen: Anleihen
 kostenart.umsatz: Umsatzerlöse
 kostenart.bestandsveraenderung: Bestandsveränderung
 kostenart.material: Materialaufwand
@@ -165,6 +166,12 @@ fehler.befehl.anteil_ausserhalb: "Der Anteil muss größer als 0 und höchstens 
 fehler.befehl.mehrheit_verloren: Damit hättest du nicht mehr die Mehrheit an deiner Firma – gib weniger neue Aktien aus.
 fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der Aktien."
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
+fehler.befehl.keine_anleihen: In diesem Spiel gibt es keine Anleihen.
+fehler.befehl.anleihe_laufzeit: "Eine Anleihe läuft {min} bis {max} Jahre."
+fehler.befehl.anleihe_zu_klein: "Eine Anleihe braucht mindestens {min}."
+fehler.befehl.anleihe_firma_zu_klein: "Anleger kaufen Anleihen erst von Firmen mit mindestens {min} Eigenkapital."
+fehler.befehl.anleihe_keine_anleger: "So viel nimmt kein Anleger: Deine Firma wäre zu hoch verschuldet oder verdient zu wenig für die Zinsen. Möglich sind höchstens {max}."
+fehler.befehl.anleihe_unbekannt: Diese Anleihe gibt es nicht (mehr).
 fehler.befehl.keine_logistik: In diesem Spiel gibt es keine eigene Logistik – alle Ladungen fahren über den Frachtmarkt.
 fehler.befehl.zu_viele_fahrzeuge: "Deine Flotte hat nur {anzahl} Fahrzeuge dieser Art."
 fehler.befehl.fahrzeug_ungeeignet: Dieses Verkehrsmittel kannst du (noch) nicht für eine eigene Flotte kaufen.
@@ -272,6 +279,7 @@ schritt.anfahren: "{anlage} wieder anfahren"
 schritt.bauen: "{anzahl} × {anlage} bauen ({groesse})"
 schritt.kredit: "Kredit über {betrag} auf {jahre} Jahre aufnehmen"
 schritt.tilgen: "{betrag} Kredit tilgen"
+schritt.anleihe: "Anleihe über {betrag} auf {jahre} Jahre ausgeben"
 schritt.produktion: "{anlage}: {rezept}, Auslastung {auslastung} %"
 schritt.produktion_aus: "{anlage} anhalten"
 schritt.automatisierung: "{anlage}: Automatisierung {stufe} %"
@@ -393,4 +401,5 @@ meldung.boerse.krise: "Börsenkrach: Die Kurse brechen um rund {einbruch} % ein.
 meldung.boerse.abgeschrieben: "{firma} ist pleite und verlässt die Börse – deine Aktien ({betrag}) sind abgeschrieben."
 meldung.boerse.dividende_gezahlt: "Deine Firma zahlt {betrag} Dividende an ihre Aktionäre."
 meldung.boerse.dividende_erhalten: "Deine Firma erhält {betrag} Dividende aus ihren Aktien."
+meldung.anleihe.getilgt: "Eine Anleihe ist fällig: Deine Firma zahlt {betrag} zurück."
 meldung.logistik.verlust: "Ladung verloren: {menge} {produkt} auf dem Weg von {von} nach {nach}."

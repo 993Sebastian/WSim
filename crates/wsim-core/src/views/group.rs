@@ -168,6 +168,7 @@ pub fn group(game: &Game) -> GroupView {
         .collect();
     let liabilities = [
         Account::Loans,
+        Account::Bonds,
         Account::Equity,
         Account::RetainedEarnings,
         Account::Result,

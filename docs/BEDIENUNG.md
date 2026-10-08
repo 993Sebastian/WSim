@@ -595,6 +595,16 @@ Deckungsbeitrag I, Deckungsbeitrag II, Ergebnis und die Vorperiode mit Abweichun
 wenn schlechter). Ein Klick auf den Namen zeigt darunter die Deckungsbeiträge mit Anteil am
 Umsatz, die Kostenarten der Ebene und ihr Ergebnis je Monat als Balken.
 
+### Finanzen → Abschluss: Anleihen (K2)
+
+Unter den Krediten der Abschnitt „Anleihen“: eine kurze Erklärung, die Bonität deiner Firma
+(AAA bis B oder „keine Anleger“) mit Verschuldung und Zinsdeckung, und – wenn Anleger
+kaufen – die Auswahl „Betrag“ (vier Beträge bis zum größten möglichen, je mit Bonität und
+Kupon), die Laufzeit in Jahren und „Anleihe ausgeben“. Wenn nicht, steht dort warum: zu
+wenig Eigenkapital, noch kein abgeschlossener Monat oder zu viele Schulden bzw. zu wenig
+Gewinn. Darunter die ausgegebenen Anleihen mit Datum, Betrag, Kupon, Bonität bei der
+Ausgabe, Fälligkeit und „Zurückkaufen (Preis)“.
+
 ### Finanzen → Börse (K1)
 
 Dritter Bereich unter „Finanzen“. Oben der Börsenindex mit der Stimmung der Anleger und
