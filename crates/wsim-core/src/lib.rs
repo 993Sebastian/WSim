@@ -43,6 +43,7 @@ pub mod rng;
 pub mod save;
 pub mod staffing;
 pub mod state;
+pub mod stock;
 pub mod strategy;
 pub mod tariffs;
 pub mod time_series;
@@ -92,6 +93,8 @@ mod research_tests;
 mod size_tests;
 #[cfg(test)]
 mod staffing_tests;
+#[cfg(test)]
+mod stock_tests;
 #[cfg(test)]
 mod strategy_tests;
 #[cfg(test)]

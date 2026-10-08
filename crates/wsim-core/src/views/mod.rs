@@ -17,6 +17,7 @@ mod logistics;
 mod organisation;
 mod play;
 mod review;
+mod stock;
 mod strategy;
 mod ventures;
 pub use central::*;
@@ -34,6 +35,7 @@ pub use logistics::*;
 pub use organisation::*;
 pub use play::*;
 pub use review::*;
+pub use stock::*;
 pub use strategy::*;
 pub use ventures::*;
 
@@ -639,6 +641,8 @@ pub fn message_view(message: &Message) -> MessageView {
         Some("markt")
     } else if message.key.starts_with("meldung.forschung") {
         Some("forschung")
+    } else if message.key.starts_with("meldung.boerse.") {
+        Some("finanzen")
     } else if message.key.starts_with("meldung.anliegen.")
         || message.key.starts_with("meldung.manager.")
         || message.key.starts_with("meldung.tochter.")

@@ -2068,3 +2068,73 @@ export interface Controlling {
   months: string[];
   root: ControllingKnoten | null;
 }
+
+/** A share with what it costs or brings (K1). */
+export interface AktienKurs {
+  share: number;
+  usd: number;
+}
+
+export interface AktienAusgabe {
+  share: number;
+  proceeds_usd: number;
+  cost_usd: number;
+  stake_after: number;
+}
+
+export interface BoersenFirma {
+  company: number;
+  name: string;
+  country: string;
+  relation: "eigen" | "konzern" | "fremd";
+  since: string;
+  value_usd: number;
+  price_usd: number;
+  change_month: number | null;
+  change_year: number | null;
+  equity_usd: number;
+  earnings_usd: number;
+  pe: number | null;
+  dividend_usd: number;
+  dividend_yield: number | null;
+  free_float: number;
+  held: number;
+  held_cost_usd: number;
+  held_value_usd: number;
+  buy: AktienKurs[];
+  sell: AktienKurs[];
+  series_usd: number[];
+}
+
+export interface EigeneNotierung {
+  listed: boolean;
+  subsidiary: boolean;
+  equity_usd: number;
+  equity_min_usd: number;
+  player_stake: number;
+  free_float: number;
+  issue_value_usd: number;
+  discount: number;
+  share_max: number;
+  issue: AktienAusgabe[];
+  payout: number;
+  dividend_month: number;
+  profit_last_year_usd: number;
+  dividend_estimate_usd: number;
+  last_dividend_usd: number;
+  player_dividends_usd: number;
+}
+
+/** Finances → stock market (K1). */
+export interface Boerse {
+  enabled: boolean;
+  index: number;
+  mood: number;
+  months: string[];
+  index_series: number[];
+  own: EigeneNotierung;
+  companies: BoersenFirma[];
+  portfolio_cost_usd: number;
+  portfolio_value_usd: number;
+  trade_share_max: number;
+}

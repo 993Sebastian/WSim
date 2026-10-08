@@ -192,6 +192,9 @@ impl Game {
             participations: Default::default(),
             logistics: Default::default(),
             subsidiary_of: None,
+            listing: None,
+            dividend_payout: None,
+            stock_cost: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -241,6 +244,7 @@ impl Game {
             contracts: Vec::new(),
             next_contract: 0,
             freight_market: Default::default(),
+            stock: Default::default(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -250,6 +254,7 @@ impl Game {
         crate::plots::supply(&mut state, &catalog, date.year());
         apply_start_setup(&mut state, &catalog)?;
         crate::population::populate(&mut state, &catalog);
+        crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
         Ok(Self {
@@ -461,6 +466,11 @@ impl Game {
             report
                 .messages
                 .extend(crate::group::settle_failures(&mut self.state));
+            report.messages.extend(crate::stock::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             if next.ordinal() == 1 {
                 crate::tariffs::new_year(&mut self.state, &self.catalog, next.year());
             }

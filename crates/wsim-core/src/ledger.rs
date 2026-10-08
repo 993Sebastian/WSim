@@ -226,7 +226,7 @@ impl PeriodResult {
 }
 
 /// How many closed months are kept.
-const MONTHS_KEPT: usize = 24;
+pub const MONTHS_KEPT: usize = 24;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Ledger {

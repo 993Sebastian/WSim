@@ -92,6 +92,10 @@ pub enum Stream {
         company: u32,
         load: u32,
     },
+    /// Sentiment and market values of the stock market in a month (K1).
+    Stock {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -138,6 +142,7 @@ impl Stream {
             Stream::Freight { company, load } => {
                 (17 << 56) | (u64::from(company) << 32) | u64::from(load)
             }
+            Stream::Stock { month } => (18 << 56) | u64::from(month),
         }
     }
 }

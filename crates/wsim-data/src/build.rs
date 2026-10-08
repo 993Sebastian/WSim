@@ -31,6 +31,7 @@ mod milestones;
 mod names;
 mod plots;
 mod production;
+mod stock;
 mod subsidiaries;
 mod tariffs;
 mod ventures;
@@ -624,6 +625,7 @@ pub(crate) fn build(
     b.catalog.contracts = contracts::contract_model(b.ctx, raw);
     b.catalog.logistics = logistics::logistics_model(b.ctx, raw);
     b.catalog.subsidiaries = subsidiaries::subsidiary_model(b.ctx, raw);
+    b.catalog.stock = stock::stock_model(b.ctx, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

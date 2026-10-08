@@ -988,7 +988,8 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
     dritten das 1,2-Fache; die meisten Einsätze sind verloren.
 26. **Börsengang statt Börse:** Ohne Mehrheit endet ein Erfolg mit einer Auszahlung zum
     Wert bei Erfolg an alle Eigner; eine Börse mit Kursen gibt es nicht (Vorschlag: mit
-    Stufe 3). Spielen KI-Firmen mit, wird daraus eine neue KI-Firma im Land des Start-ups
+    Stufe 3; seit K1 gibt es die Börse, der Ausgang eines Start-ups bleibt die
+    Auszahlung). Spielen KI-Firmen mit, wird daraus eine neue KI-Firma im Land des Start-ups
     mit der Technologie – aber nur, wenn ein Produkt der Technologie dort Absatz findet;
     sonst bleibt nur die Erfindung in der Welt.
 27. **Tochterfirmen finanziert die Mutter** am nächsten Monatsanfang ganz, solange ihre
@@ -1243,6 +1244,42 @@ entschieden:
    Eigenkapital der Wettbewerber stehen im Reiter „Wettbewerb“). Lieferungen zwischen
    Konzernfirmen gibt es nur als Standortübertragung und Kapital (W6), beide ohne Erfolg;
    sie erscheinen daher nicht im Controlling.
+
+✅ **K1 umgesetzt** (Börse; Regeln: `docs/FORMELN.md`, Abschnitt K1). 🟡 Eigenständig
+entschieden:
+
+1. **Wert aus Buchwert und Gewinn:** Ziel = 40 % Eigenkapital + 60 % Jahresgewinn · KGV 12,
+   mal Stimmung der Anleger, nie unter 30 % des Eigenkapitals; der Börsenwert schließt je
+   Monat 30 % der (logarithmischen) Lücke, dazu 3 % eigenes Rauschen. Der Jahresgewinn ist
+   der Durchschnitt der letzten 24 Monate (fehlende mit 12 % Rendite aufs Eigenkapital):
+   Die KI-Firmen verdienen im ersten Jahr nach dem Start rund 30 % aufs Eigenkapital, später
+   10–15 %; mit einem Jahresfenster hätte sich der Index im ersten Jahr fast verdreifacht.
+2. **Index verkettet** über die Firmen, die in beiden Monaten notiert sind (Börsengänge und
+   Pleiten verschieben ihn nicht). Im Weltlauf 1900–1915 steigt er trotzdem auf gut das
+   Dreifache, weil Eigenkapital und Gewinne der KI-Firmen in den ersten Jahren schnell
+   wachsen (Wirtschaftsbalance, Stufe 6). Der Krach von 1907 drückt ihn um rund 13 %.
+3. **Acht historische Krisen** (1907, 1929, 1931, 1973, 1987, 2000, 2008, 2020) als Daten:
+   Einbruch der Stimmung um 25–50 %, danach Erholung mit 6 % je Monat. Zufällige Krisen
+   gibt es nicht (Stufe 6).
+4. **Notiert beim Start** sind KI-Firmen mit mindestens 200 Mio. USD Eigenkapital (1900:
+   34 von 100), 60 % ihrer Aktien bei den Anlegern; danach geht eine KI-Firma dieser Größe
+   mit 1 % je Monat an die Börse (30 % neue Aktien). Bis 1915: 65 notierte Firmen.
+5. **Börsengang des Spielers** ab 2 Mio. USD Eigenkapital, je Schritt höchstens 40 % neue
+   Aktien zum Wert mit 15 % Abschlag, 5 % Kosten; der Spieler behält immer die Mehrheit
+   seiner Firma (Übernahmen und Kontrollwechsel folgen mit K3). Töchter gehen nicht selbst
+   an die Börse.
+6. **Dividende einmal im Jahr** (Mai) aus dem Vorjahresgewinn, höchstens die halbe Kasse;
+   KI-Firmen schütten 40 % aus, der Spieler wählt die Quote (Vorgabe 0). Was auf den Spieler
+   als Eigner entfällt, fließt an ihn privat (Summe in der Ansicht), nicht in die Firma.
+7. **Aktienhandel nur aus dem Streubesitz** (Aktien bei Anlegern; Gründerfamilien verkaufen
+   nicht über die Börse), mit 2 % Auf- bzw. Abschlag und Kurswirkung 0,5 · Anteil; höchstens
+   50 % einer anderen Firma bis K3. Der Einstand steht in den Beteiligungen, Gewinne und
+   Verluste beim Verkauf sind Ertrag bzw. Aufwand. Kurswerte werden nicht laufend
+   zugeschrieben (Niederstwert nur bei Pleite: Abschreibung des Einstands).
+8. **Eine Million Aktien je Firma** (Kurs = Börsenwert / 1 Mio.); Aktiensplits gibt es nicht.
+9. **Noch nicht:** KI-Firmen kaufen keine Aktien anderer (kommt mit K3, Investoren), aus
+   Start-ups entstandene Firmen sind erst notiert, wenn sie groß genug für einen Börsengang
+   sind.
 
 ## Reihenfolge der neuen Punkte
 

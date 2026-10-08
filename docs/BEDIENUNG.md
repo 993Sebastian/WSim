@@ -595,6 +595,28 @@ Deckungsbeitrag I, Deckungsbeitrag II, Ergebnis und die Vorperiode mit Abweichun
 wenn schlechter). Ein Klick auf den Namen zeigt darunter die Deckungsbeiträge mit Anteil am
 Umsatz, die Kostenarten der Ebene und ihr Ergebnis je Monat als Balken.
 
+### Finanzen → Börse (K1)
+
+Dritter Bereich unter „Finanzen“. Oben der Börsenindex mit der Stimmung der Anleger und
+seinem Verlauf je Monat, darunter – wenn deine Firma Aktien anderer hält – der Börsenwert
+dieser Aktien und was sie gekostet haben.
+
+„Deine Firma an der Börse“: Vor dem Börsengang zeigt sie, wie viel Eigenkapital sie
+braucht, oder – wenn genug da ist – die Auswahl „Neue Aktien“ (5 % bis 40 %) mit Erlös,
+Kosten der Banken und deinem Anteil danach und die Schaltfläche „An die Börse gehen“.
+Danach: Börsenwert, Kurs, dein Anteil und der Streubesitz, die Kapitalerhöhung (gleiche
+Auswahl, nur so weit, dass du die Mehrheit behältst) und die Dividende mit
+Ausschüttungsquote in Prozent, Zahlmonat, Vorjahresgewinn und dem Betrag, den die jetzige
+Quote ergäbe.
+
+„Börsennotierte Firmen“: die 20 größten Firmen nach Börsenwert (deine Firma, deine
+Töchter und Firmen, an denen du Aktien hältst, immer dazu; „Alle … Firmen zeigen“ zeigt
+den Rest) mit Börsenwert und Kurs je Aktie, Veränderung zum Vormonat und Vorjahr (rot,
+wenn gefallen), KGV, Dividendenrendite, Streubesitz und deinem Anteil. Je Zeile wählst du
+einen Anteil mit seinem Preis und klickst „Kaufen“ bzw. „Verkaufen“. Ein Klick auf den
+Namen zeigt darunter Eigenkapital, Gewinn je Jahr (Durchschnitt zweier Jahre), letzte Dividende,
+deinen Bestand und den Börsenwert der letzten 24 Monate.
+
 ### Weltkarte und Länderdetail
 
 - Ist: Ebenen Lohnniveau, BIP je Kopf, Bevölkerung, Rohstoffe, Standorte; Klick öffnet

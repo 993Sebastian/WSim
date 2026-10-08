@@ -103,6 +103,9 @@ pub(super) fn decode_v2(
                 participations: Default::default(),
                 logistics: Default::default(),
                 subsidiary_of: None,
+                listing: None,
+                dividend_payout: None,
+                stock_cost: Default::default(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,
@@ -166,6 +169,7 @@ pub(super) fn decode_v2(
         contracts: Vec::new(),
         next_contract: 0,
         freight_market: Default::default(),
+        stock: Default::default(),
         player: s.player,
         game_over: s.game_over,
     };

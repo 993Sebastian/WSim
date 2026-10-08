@@ -2354,3 +2354,121 @@ pub struct RawSubsidiaryLogistics {
     #[serde(rename = "rendite_min")]
     pub min_return: f64,
 }
+
+/// Stock market (`parameter/boerse.yaml`, K1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStockMarket {
+    #[serde(rename = "bewertung")]
+    pub valuation: RawValuation,
+    #[serde(rename = "stimmung")]
+    pub sentiment: RawSentiment,
+    #[serde(rename = "traegheit")]
+    pub inertia: f64,
+    #[serde(rename = "rauschen")]
+    pub noise: f64,
+    #[serde(rename = "krisen", default)]
+    pub crises: Vec<RawCrisis>,
+    #[serde(rename = "boersengang")]
+    pub ipo: RawIpo,
+    #[serde(rename = "dividende")]
+    pub dividend: RawDividend,
+    #[serde(rename = "handel")]
+    pub trading: RawTrading,
+    pub start: RawStockStart,
+    pub ki: RawStockAi,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawValuation {
+    #[serde(rename = "gewicht_buchwert")]
+    pub book_weight: f64,
+    #[serde(rename = "kgv")]
+    pub pe: f64,
+    #[serde(rename = "boden_buchwert")]
+    pub book_floor: f64,
+    #[serde(rename = "rendite_annahme")]
+    pub assumed_return: f64,
+    #[serde(rename = "gewinn_monate")]
+    pub earnings_months: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSentiment {
+    #[serde(rename = "schwankung")]
+    pub volatility: f64,
+    #[serde(rename = "rueckkehr")]
+    pub reversion: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCrisis {
+    #[serde(rename = "jahr")]
+    pub year: i32,
+    #[serde(rename = "monat")]
+    pub month: u32,
+    #[serde(rename = "einbruch")]
+    pub drop: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawIpo {
+    #[serde(rename = "eigenkapital_min_usd")]
+    pub equity_min_usd: f64,
+    #[serde(rename = "anteil_max")]
+    pub share_max: f64,
+    #[serde(rename = "abschlag")]
+    pub discount: f64,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawDividend {
+    #[serde(rename = "monat")]
+    pub month: u32,
+    #[serde(rename = "ki_quote")]
+    pub ai_payout: f64,
+    #[serde(rename = "kasse_max")]
+    pub cash_max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrading {
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+    #[serde(rename = "abschlag")]
+    pub discount: f64,
+    #[serde(rename = "preiswirkung")]
+    pub impact: f64,
+    #[serde(rename = "anteil_max")]
+    pub share_max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStockStart {
+    #[serde(rename = "eigenkapital_min_usd")]
+    pub equity_min_usd: f64,
+    #[serde(rename = "streubesitz")]
+    pub free_float: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStockAi {
+    #[serde(rename = "boersengang_chance")]
+    pub ipo_chance: f64,
+    #[serde(rename = "boersengang_anteil")]
+    pub ipo_share: f64,
+}

@@ -30,6 +30,7 @@ import type {
   Logistik,
   Konzern,
   Controlling,
+  Boerse,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -63,6 +64,7 @@ const beispiel = beispielJson as unknown as {
   logistik: Logistik;
   konzern: Konzern;
   controlling: Controlling;
+  boerse: Boerse;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -244,6 +246,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       // The preview knows the running year; it shows it for every period.
       return { ...kopie(beispiel.controlling), period: zeitraum as Controlling["period"] };
+    },
+    boerse: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.boerse);
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

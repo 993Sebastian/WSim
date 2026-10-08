@@ -1,0 +1,45 @@
+# Börse (K1, Lastenheft §11; Formeln: docs/FORMELN.md, Abschnitt K1).
+
+boerse:
+  bewertung:
+    gewicht_buchwert: 0.4       # Rest: Gewinn mal KGV
+    kgv: 12
+    boden_buchwert: 0.3         # nie unter 30 % des Eigenkapitals
+    rendite_annahme: 0.12       # Jahresgewinn je Eigenkapital für Monate ohne Zahlen
+    gewinn_monate: 24           # Gewinn als Durchschnitt so vieler abgeschlossener Monate
+  stimmung:
+    schwankung: 0.04            # Standardabweichung von ln S je Monat
+    rueckkehr: 0.06             # so viel von ln S baut sich je Monat ab
+  traegheit: 0.3                # Anteil der Lücke zum Ziel, der sich je Monat schließt
+  rauschen: 0.03                # eigene Schwankung je Firma und Monat
+  # Historische Krisen: Einbruch der Stimmung im Monat der Krise.
+  krisen:
+    - {jahr: 1907, monat: 10, einbruch: 0.3}
+    - {jahr: 1929, monat: 10, einbruch: 0.5}
+    - {jahr: 1931, monat: 9, einbruch: 0.3}
+    - {jahr: 1973, monat: 11, einbruch: 0.35}
+    - {jahr: 1987, monat: 10, einbruch: 0.25}
+    - {jahr: 2000, monat: 9, einbruch: 0.35}
+    - {jahr: 2008, monat: 10, einbruch: 0.4}
+    - {jahr: 2020, monat: 3, einbruch: 0.3}
+  boersengang:
+    eigenkapital_min_usd: 2000000
+    anteil_max: 0.4
+    abschlag: 0.15              # Zeichnungsabschlag
+    kosten_anteil: 0.05         # Banken, Prospekt
+  dividende:
+    monat: 5
+    ki_quote: 0.4
+    kasse_max: 0.5
+  handel:
+    aufschlag: 0.02
+    abschlag: 0.02
+    preiswirkung: 0.5
+    anteil_max: 0.5             # Mehrheiten folgen mit K3
+  start:
+    eigenkapital_min_usd: 200000000
+    streubesitz: 0.6
+  ki:
+    boersengang_chance: 0.01
+    boersengang_anteil: 0.3
+  annaeherung: true

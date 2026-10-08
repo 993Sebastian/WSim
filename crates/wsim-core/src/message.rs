@@ -207,6 +207,18 @@ pub mod keys {
     pub const COMMAND_NOT_OWN_SUBSIDIARY: &str = "fehler.befehl.keine_eigene_tochter";
     pub const COMMAND_WITHIN_GROUP: &str = "fehler.befehl.im_konzern";
     pub const SUBSIDIARY_FAILED: &str = "meldung.tochter.pleite";
+    pub const COMMAND_NO_STOCK_MARKET: &str = "fehler.befehl.keine_boerse";
+    pub const COMMAND_NOT_LISTED: &str = "fehler.befehl.nicht_notiert";
+    pub const COMMAND_ALREADY_LISTED: &str = "fehler.befehl.schon_notiert";
+    pub const COMMAND_EQUITY_TOO_LOW: &str = "fehler.befehl.eigenkapital_zu_gering";
+    pub const COMMAND_SHARE_OUT_OF_RANGE: &str = "fehler.befehl.anteil_ausserhalb";
+    pub const COMMAND_WOULD_LOSE_MAJORITY: &str = "fehler.befehl.mehrheit_verloren";
+    pub const COMMAND_FREE_FLOAT: &str = "fehler.befehl.streubesitz_zu_klein";
+    pub const COMMAND_NOT_ENOUGH_STOCK: &str = "fehler.befehl.zu_wenig_aktien";
+    pub const STOCK_CRISIS: &str = "meldung.boerse.krise";
+    pub const STOCK_WRITTEN_OFF: &str = "meldung.boerse.abgeschrieben";
+    pub const STOCK_DIVIDEND_PAID: &str = "meldung.boerse.dividende_gezahlt";
+    pub const STOCK_DIVIDEND_RECEIVED: &str = "meldung.boerse.dividende_erhalten";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -516,6 +528,18 @@ pub mod keys {
         COMMAND_NOT_OWN_SUBSIDIARY,
         COMMAND_WITHIN_GROUP,
         SUBSIDIARY_FAILED,
+        COMMAND_NO_STOCK_MARKET,
+        COMMAND_NOT_LISTED,
+        COMMAND_ALREADY_LISTED,
+        COMMAND_EQUITY_TOO_LOW,
+        COMMAND_SHARE_OUT_OF_RANGE,
+        COMMAND_WOULD_LOSE_MAJORITY,
+        COMMAND_FREE_FLOAT,
+        COMMAND_NOT_ENOUGH_STOCK,
+        STOCK_CRISIS,
+        STOCK_WRITTEN_OFF,
+        STOCK_DIVIDEND_PAID,
+        STOCK_DIVIDEND_RECEIVED,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,

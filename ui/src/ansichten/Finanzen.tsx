@@ -30,6 +30,7 @@ import {
   useSicht,
   ZahlFeld,
 } from "./gemeinsam";
+import { BoerseAnsicht } from "./Boerse";
 import { ControllingAnsicht } from "./Controlling";
 import { formatMonatKurz, Verlauf } from "./Grafik";
 
@@ -44,7 +45,7 @@ export function FinanzenAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.finanzen(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const [bereich, setBereich] = useState<"abschluss" | "controlling">("abschluss");
+  const [bereich, setBereich] = useState<"abschluss" | "controlling" | "boerse">("abschluss");
   if (!daten) return <FehlerText fehler={fehler} />;
   const abrechnungen: [string, Abrechnung | null][] = [
     ["finanzen.vormonat", daten.last_month],
@@ -63,12 +64,17 @@ export function FinanzenAnsicht({
         bereiche={[
           { key: "abschluss", text: t("finanzen.reiter_abschluss") },
           { key: "controlling", text: t("finanzen.reiter_controlling") },
+          { key: "boerse", text: t("finanzen.reiter_boerse") },
         ]}
         aktiv={bereich}
         onWahl={setBereich}
       />
       {bereich === "controlling" ? (
         <ControllingAnsicht kern={kern} stand={uebersicht.date} />
+      ) : bereich === "boerse" ? (
+        <Befehle senden={senden} meldung={meldung}>
+          <BoerseAnsicht kern={kern} stand={uebersicht.date} />
+        </Befehle>
       ) : (
         <Befehle senden={senden} meldung={meldung}>
           <FinanzVerlauf daten={daten} />

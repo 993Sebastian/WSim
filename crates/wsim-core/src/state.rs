@@ -351,6 +351,15 @@ pub struct Company {
     /// The parent of a subsidiary (W6).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub subsidiary_of: Option<crate::group::SubsidiaryOf>,
+    /// The company's shares on the stock market (K1).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub listing: Option<crate::stock::Listing>,
+    /// Share of last year's profit paid out; `None`: the default of its kind.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dividend_payout: Option<f64>,
+    /// What the company paid for the shares it holds of other companies.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub stock_cost: BTreeMap<CompanyId, Money>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -1664,6 +1673,9 @@ pub struct GameState {
         skip_serializing_if = "crate::logistics::FreightMarket::is_empty"
     )]
     pub freight_market: crate::logistics::FreightMarket,
+    /// The stock market as a whole (K1).
+    #[serde(default, skip_serializing_if = "crate::stock::StockMarket::is_empty")]
+    pub stock: crate::stock::StockMarket,
     pub player: CompanyId,
     pub game_over: bool,
 }

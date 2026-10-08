@@ -550,6 +550,21 @@ test("Controlling: Ebenen aufklappen und Kostenarten sehen", async ({ page }) =>
   await bild(page, "controlling");
 });
 
+test("Börse: Index, notierte Firmen und Aktienkauf", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  await page.getByRole("button", { name: "Börse", exact: true }).click();
+  await expect(page.getByText(/^Börsenindex:/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Deine Firma an der Börse" })).toBeVisible();
+  const tabelle = page.getByRole("table", { name: "Börsennotierte Firmen" });
+  const zeile = tabelle.getByRole("row").nth(1);
+  await zeile.getByRole("button", { name: /^Kaufen:/ }).click();
+  await expect
+    .poll(async () => JSON.stringify((await befehle(page)).at(-1)))
+    .toContain('"BuyShares"');
+  await bild(page, "boerse");
+});
+
 test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
   page,
 }) => {

@@ -112,6 +112,16 @@ pub enum Command {
         company: CompanyId,
         focus: crate::group::SubsidiaryFocus,
     },
+    /// Goes public with new shares (K1).
+    GoPublic { share: f64 },
+    /// New shares of a listed company.
+    IssueShares { share: f64 },
+    /// The share of last year's profit paid out as a dividend.
+    SetDividend { payout: f64 },
+    /// Buys a share of a listed company from its free float.
+    BuyShares { company: CompanyId, share: f64 },
+    /// Sells a share of a listed company to investors.
+    SellShares { company: CompanyId, share: f64 },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -529,6 +539,26 @@ pub enum CommandError {
     NotOwnSubsidiary,
     /// Within the group sites move by `TransferSite`, not by offers or contracts.
     WithinGroup,
+    /// The data have no stock market (K1).
+    NoStockMarket,
+    NotListed,
+    AlreadyListed,
+    /// Too little equity to go public.
+    EquityTooLow {
+        min: Money,
+    },
+    /// A share outside (0, max].
+    ShareOutOfRange {
+        max: f64,
+    },
+    /// The player would no longer own the majority of its company.
+    WouldLoseMajority,
+    NotEnoughFreeFloat {
+        available: f64,
+    },
+    NotEnoughStock {
+        held: f64,
+    },
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -699,6 +729,19 @@ impl CommandError {
             }
             CommandError::NotOwnSubsidiary => e(keys::COMMAND_NOT_OWN_SUBSIDIARY),
             CommandError::WithinGroup => e(keys::COMMAND_WITHIN_GROUP),
+            CommandError::NoStockMarket => e(keys::COMMAND_NO_STOCK_MARKET),
+            CommandError::NotListed => e(keys::COMMAND_NOT_LISTED),
+            CommandError::AlreadyListed => e(keys::COMMAND_ALREADY_LISTED),
+            CommandError::EquityTooLow { min } => {
+                e(keys::COMMAND_EQUITY_TOO_LOW).with("min", Param::Money(*min))
+            }
+            CommandError::ShareOutOfRange { max } => e(keys::COMMAND_SHARE_OUT_OF_RANGE)
+                .with("max", Param::Number((max * 1000.0).round() / 10.0)),
+            CommandError::WouldLoseMajority => e(keys::COMMAND_WOULD_LOSE_MAJORITY),
+            CommandError::NotEnoughFreeFloat { available } => e(keys::COMMAND_FREE_FLOAT)
+                .with("anteil", Param::Number((available * 1000.0).round() / 10.0)),
+            CommandError::NotEnoughStock { held } => e(keys::COMMAND_NOT_ENOUGH_STOCK)
+                .with("anteil", Param::Number((held * 1000.0).round() / 10.0)),
             CommandError::TooManyVehicles { count } => {
                 e(keys::COMMAND_TOO_MANY_VEHICLES).with("anzahl", Param::Integer(i64::from(*count)))
             }
@@ -1417,6 +1460,19 @@ fn run(
         }
         Command::SetSubsidiaryFocus { company, focus } => {
             crate::group::set_focus(state, actor, *company, *focus)?;
+        }
+        Command::GoPublic { share } => crate::stock::go_public(state, catalog, actor, *share)?,
+        Command::IssueShares { share } => {
+            crate::stock::issue_shares(state, catalog, actor, *share)?;
+        }
+        Command::SetDividend { payout } => {
+            crate::stock::set_dividend(state, catalog, actor, *payout)?;
+        }
+        Command::BuyShares { company, share } => {
+            crate::stock::buy(state, catalog, actor, *company, *share)?;
+        }
+        Command::SellShares { company, share } => {
+            crate::stock::sell(state, catalog, actor, *company, *share)?;
         }
         Command::SetLogistics {
             mode,

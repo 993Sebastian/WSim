@@ -47,6 +47,11 @@ export type Befehl =
   | { MoveCapital: { company: number; amount: number } }
   | { TransferSite: { site: number; to: number } }
   | { SetSubsidiaryFocus: { company: number; focus: "Production" | "Logistics" } }
+  | { GoPublic: { share: number } }
+  | { IssueShares: { share: number } }
+  | { SetDividend: { payout: number } }
+  | { BuyShares: { company: number; share: number } }
+  | { SellShares: { company: number; share: number } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }

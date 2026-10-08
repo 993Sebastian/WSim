@@ -77,6 +77,8 @@ pub struct Catalog {
     pub logistics: LogisticsModel,
     /// Subsidiaries (W6); without the section the player cannot found any.
     pub subsidiaries: SubsidiaryModel,
+    /// Stock market (K1); without the section no company is listed.
+    pub stock: StockModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -368,6 +370,41 @@ pub struct VentureModel {
     /// Years closed start-ups stay in the list.
     pub keep_years: u32,
     pub inventors: Vec<Inventor>,
+    pub provenance: Provenance,
+}
+
+/// Stock market (K1, docs/FORMELN.md). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct StockModel {
+    pub enabled: bool,
+    pub book_weight: f64,
+    pub pe: f64,
+    pub book_floor: f64,
+    /// Yearly profit per equity assumed for months without figures.
+    pub assumed_return: f64,
+    /// Closed months the earnings are averaged over (at most `ledger::MONTHS_KEPT`).
+    pub earnings_months: u32,
+    pub sentiment_volatility: f64,
+    pub sentiment_reversion: f64,
+    pub inertia: f64,
+    pub noise: f64,
+    /// Crises by (year, month): drop of the sentiment (0–1).
+    pub crises: Vec<(i32, u32, f64)>,
+    pub ipo_equity_min: Money,
+    pub ipo_share_max: f64,
+    pub ipo_discount: f64,
+    pub ipo_cost_share: f64,
+    pub dividend_month: u32,
+    pub ai_payout: f64,
+    pub dividend_cash_max: f64,
+    pub trade_premium: f64,
+    pub trade_discount: f64,
+    pub trade_impact: f64,
+    pub trade_share_max: f64,
+    pub start_equity_min: Money,
+    pub start_free_float: f64,
+    pub ai_ipo_chance: f64,
+    pub ai_ipo_share: f64,
     pub provenance: Provenance,
 }
 

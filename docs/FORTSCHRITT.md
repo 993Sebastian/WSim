@@ -79,6 +79,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W5 | Logistik: Frachtmarkt, staatlicher Transport, eigene Flotte, Frachtrisiko | ✅ |
 | W6 | Tochterfirmen mit eigener Bilanz und Geschäftsführung, Konzernsicht | ✅ |
 | W7 | Controlling: Deckungsbeiträge je Ebene, Kostenarten, Vorperiode | ✅ |
+| K1 | Börse: Börsenwert, Index, Krisen, Börsengang, Dividende, Aktienhandel | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -856,6 +857,27 @@ Stufe 2, Lastenheft §14.2. Regeln: `docs/FORMELN.md`, Abschnitt W7; Entscheidun
 - **Tests:** Kern (jede Ebene ist die Summe ihrer Kinder, Deckungsbeiträge, Vormonat und
   Reihe, Konzern), Sitzung mit echten Daten (Ergebnis wie im Abschluss), vitest,
   Playwright.
+
+### K1: Börse (08.10.2026)
+
+Stufe 3, Lastenheft §11.1–11.2. Regeln: `docs/FORMELN.md`, Abschnitt K1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/boerse.yaml` (Bewertung, Stimmung, acht historische Krisen,
+  Börsengang, Dividende, Handel, Start, KI) mit Prüfregeln und Fehlerfall-Test.
+- **Kern:** Modul `stock`: Börsenwert je notierter Firma aus Eigenkapital, Gewinn und
+  Stimmung, verketteter Index, Krisen, Pleiten (Abschreibung bei den Aktionären), Dividende
+  im Mai; Befehle `GoPublic`, `IssueShares`, `SetDividend`, `BuyShares`, `SellShares`; KI-
+  Firmen sind beim Start notiert oder gehen später an die Börse. Zufallsstrom „Börse“ je
+  Monat; Spielstände tragen die Notierungen.
+- **Oberfläche:** Finanzen → „Börse“ mit Index, eigener Notierung (Börsengang,
+  Kapitalerhöhung, Dividende) und den notierten Firmen zum Kaufen und Verkaufen; Meldungen
+  führen zu den Finanzen; CLI-Weltlauf mit Börsenzeile.
+- **Tests:** Kern (Börsengang, Grenzen, Ziel und Krisen, Handel mit Einstand, Dividende an
+  die Eigner, Pleite, Spielstand), Sitzung mit echten Daten (1950), vitest, Playwright.
+- **Weltlauf 1900–1915** (100 KI-Firmen): beim Start 34 Firmen notiert, 1915 65; Index
+  100 → 240 (Sept. 1907) → 208 (Jan. 1908, Krach) → 327 (1915); 1915 Börsenwert 0,93 ×
+  Buchwert, KGV 15,7. Laufzeit 2:24 min wie vorher.
 
 ## Eigenständige Entscheidungen (für das Review)
 

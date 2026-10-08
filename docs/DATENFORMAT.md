@@ -453,6 +453,26 @@ Abschnitt kann der Spieler keine Tochterfirmen gründen. Ein Abschnitt `tochterf
 | **logistik** | `kasse_anteil` (0–1: so viel ihrer Kasse steckt eine Logistik-Tochter je Monat in Fahrzeuge), `rendite_min` (0–10: Jahresrendite, ab der sie ein Fahrzeug kauft) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## boerse
+
+`data/parameter/boerse.yaml` (K1; Regeln: `docs/FORMELN.md`, Abschnitt K1). Ohne
+Abschnitt gibt es keine Börse: keine Firma ist notiert, die Befehle der Börse werden
+abgelehnt. Ein Abschnitt `boerse` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **bewertung** | `gewicht_buchwert` (0–1: Anteil des Eigenkapitals am fairen Wert, der Rest ist Gewinn · KGV), `kgv` (> 0), `boden_buchwert` (0–1: nie unter diesem Anteil des Eigenkapitals), `rendite_annahme` (0–1: Jahresgewinn je Eigenkapital für Monate ohne Zahlen), `gewinn_monate` (1–24: Durchschnitt über so viele abgeschlossene Monate) |
+| **stimmung** | `schwankung` (0–1: Standardabweichung von ln S je Monat), `rueckkehr` (0–1: so viel von ln S baut sich je Monat ab) |
+| **traegheit** | 0–1: Anteil der Lücke zwischen Börsenwert und Ziel (logarithmisch), der sich je Monat schließt |
+| **rauschen** | 0–1: eigene Schwankung je Firma und Monat |
+| krisen | Liste historischer Krisen: `jahr`, `monat` (1–12), `einbruch` (0–0,95: so viel bricht die Stimmung im Monat der Krise ein) |
+| **boersengang** | `eigenkapital_min_usd` (≥ 0), `anteil_max` (0,01–0,9: höchstens so viele neue Aktien auf einmal), `abschlag` (0–1: Zeichnungsabschlag auf den Wert), `kosten_anteil` (0–1: Banken und Prospekt, Anteil am Erlös) |
+| **dividende** | `monat` (1–12: Zahltag), `ki_quote` (0–1: Ausschüttungsquote der KI-Firmen), `kasse_max` (0–1: höchstens dieser Anteil der Kasse) |
+| **handel** | `aufschlag`, `abschlag` (je 0–1: auf den Börsenwert beim Kauf bzw. Verkauf), `preiswirkung` (0–5: Kurswirkung je gehandeltem Anteil), `anteil_max` (0–1: so viel einer anderen Firma darf eine Firma halten) |
+| **start** | `eigenkapital_min_usd` (≥ 0: KI-Firmen mit so viel Eigenkapital sind beim Start notiert), `streubesitz` (0–1: davon bei den Anlegern) |
+| **ki** | `boersengang_chance` (0–1: je Monat, für KI-Firmen mit dem Eigenkapital von `start`), `boersengang_anteil` (0–0,9) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## zentrale
 
 `data/parameter/zentrale.yaml` (ZA1–ZA4; Regeln: `docs/FORMELN.md`, Vorgabe:

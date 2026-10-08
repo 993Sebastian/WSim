@@ -96,6 +96,9 @@ pub fn decide_with(
         }
         if first_of_month {
             manage_cash(state, catalog, id, own, decider);
+            if let Some(share) = crate::stock::ai_ipo(state, catalog, id) {
+                act(state, catalog, id, &Command::GoPublic { share }, decider);
+            }
             fleet(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
@@ -4210,6 +4213,9 @@ fn found_one(
         participations: Default::default(),
         logistics: Default::default(),
         subsidiary_of: None,
+        listing: None,
+        dividend_payout: None,
+        stock_cost: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4436,6 +4442,9 @@ mod tests {
             participations: Default::default(),
             logistics: Default::default(),
             subsidiary_of: None,
+            listing: None,
+            dividend_payout: None,
+            stock_cost: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

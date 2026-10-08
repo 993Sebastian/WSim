@@ -26,7 +26,7 @@ use wsim_core::views::{
     ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
-    StrategyView, VenturesView, WorldMap, WorldMarketView,
+    StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -376,6 +376,11 @@ impl<S: SaveStore> Session<S> {
     /// Contribution margins by level for a period: `monat`, `jahr` or `vorjahr` (W7).
     pub fn controlling(&self, period: &str) -> Result<ControllingView, MessageView> {
         self.view(|game| views::controlling(game, period))
+    }
+
+    /// The stock market (K1).
+    pub fn stock(&self) -> Result<StockMarketView, MessageView> {
+        self.view(views::stock)
     }
 
     /// The player's subsidiaries and the group (W6).

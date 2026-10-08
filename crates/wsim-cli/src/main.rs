@@ -636,6 +636,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     // W7: the year with the group from above.
     json["controlling"] = serde_json::to_value(session.controlling("jahr").map_err(message)?)
         .map_err(|e| e.to_string())?;
+    json["boerse"] = example_stock(&mut session)?;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
@@ -708,6 +709,26 @@ fn example_group(session: &mut wsim_session::Session) -> Result<serde_json::Valu
         }}))
         .map_err(message)?;
     serde_json::to_value(session.group().map_err(message)?).map_err(|e| e.to_string())
+}
+
+/// The stock market, with a small stake in the smallest listed company if the cash
+/// allows (K1).
+fn example_stock(session: &mut wsim_session::Session) -> Result<serde_json::Value, String> {
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let view = session.stock().map_err(message)?;
+    if let Some((company, share)) = view
+        .companies
+        .iter()
+        .filter(|c| c.relation == "fremd")
+        .filter_map(|c| c.buy.first().map(|q| (c.company, q.share, q.usd)))
+        .min_by(|a, b| a.2.total_cmp(&b.2))
+        .map(|(c, q, _)| (c, q))
+    {
+        // With the small start capital even a percent may be too dear.
+        let _ =
+            session.command(serde_json::json!({"BuyShares": {"company": company, "share": share}}));
+    }
+    serde_json::to_value(session.stock().map_err(message)?).map_err(|e| e.to_string())
 }
 
 /// The views of the example's organisation (MA1–MA4).
@@ -1072,6 +1093,7 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_ventures(texts, game);
     print_centrals(texts, game);
     print_logistics(texts, game);
+    print_stock(game);
 }
 
 /// Fleets of the companies (W5): how many hold vehicles of which kind, how much of their
@@ -1123,6 +1145,60 @@ fn print_logistics(texts: &wsim_data::Texts, game: &Game) {
         format_number(all / 1e6, 1),
         format_number(if all > 0.0 { 100.0 * own / all } else { 0.0 }, 0),
         losses
+    );
+}
+
+/// The stock market (K1): index, listed companies, their value against book and
+/// earnings, the largest.
+fn print_stock(game: &Game) {
+    let (state, catalog) = (game.state(), game.catalog());
+    if !catalog.stock.enabled {
+        return;
+    }
+    let listed: Vec<_> = state
+        .companies
+        .iter()
+        .filter(|c| c.listing.is_some() && !c.bankrupt)
+        .collect();
+    let value: f64 = listed
+        .iter()
+        .map(|c| c.listing.as_ref().map_or(0.0, |l| l.value.to_usd()))
+        .sum();
+    let book: f64 = listed
+        .iter()
+        .map(|c| wsim_core::ranking::equity(c).to_usd())
+        .sum();
+    let earnings: f64 = listed
+        .iter()
+        .map(|c| wsim_core::stock::earnings(catalog, c).to_usd())
+        .sum();
+    let dividends: f64 = listed
+        .iter()
+        .map(|c| c.listing.as_ref().map_or(0.0, |l| l.last_dividend.to_usd()))
+        .sum();
+    println!(
+        "Börse (K1): Index {}, Stimmung {} %; {} Firmen notiert ({} nach dem Startjahr), Börsenwert {} Mrd. USD = {}× Buchwert, KGV {}, Dividenden zuletzt {} Mio. USD",
+        format_number(state.stock.index, 1),
+        format_number(100.0 * (state.stock.sentiment.exp() - 1.0), 0),
+        listed.len(),
+        listed
+            .iter()
+            .filter(|c| c
+                .listing
+                .as_ref()
+                .is_some_and(|l| l.since.year() > state.settings.start_year))
+            .count(),
+        format_number(value / 1e9, 1),
+        format_number(if book > 0.0 { value / book } else { 0.0 }, 2),
+        format_number(
+            if earnings > 0.0 {
+                value / earnings
+            } else {
+                0.0
+            },
+            1
+        ),
+        format_number(dividends / 1e6, 1)
     );
 }
 

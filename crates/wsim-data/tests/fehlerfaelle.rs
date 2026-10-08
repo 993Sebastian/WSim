@@ -3864,3 +3864,98 @@ fn tochterfirmen_werden_geprueft() {
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.subsidiaries.enabled);
 }
+
+const BOERSE: &str = "\
+boerse:
+  bewertung:
+    gewicht_buchwert: 0.4
+    kgv: 12
+    boden_buchwert: 0.3
+    rendite_annahme: 0.08
+    gewinn_monate: 24
+  stimmung:
+    schwankung: 0.04
+    rueckkehr: 0.06
+  traegheit: 0.3
+  rauschen: 0.03
+  krisen:
+    - {jahr: 1929, monat: 10, einbruch: 0.5}
+  boersengang:
+    eigenkapital_min_usd: 2000000
+    anteil_max: 0.4
+    abschlag: 0.15
+    kosten_anteil: 0.05
+  dividende:
+    monat: 5
+    ki_quote: 0.4
+    kasse_max: 0.5
+  handel:
+    aufschlag: 0.02
+    abschlag: 0.02
+    preiswirkung: 0.5
+    anteil_max: 0.5
+  start:
+    eigenkapital_min_usd: 20000000
+    streubesitz: 0.6
+  ki:
+    boersengang_chance: 0.02
+    boersengang_anteil: 0.3
+";
+
+#[test]
+fn boerse_wird_geprueft() {
+    let datei = "parameter/boerse.yaml";
+    let boerse = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &BOERSE.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = boerse("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.stock;
+    assert!(m.enabled);
+    assert_eq!(m.crises, vec![(1929, 10, 0.5)]);
+    assert_eq!(m.dividend_month, 5);
+    assert_eq!(m.earnings_months, 24);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "monat: 10, einbruch",
+            "monat: 13, einbruch",
+            "Wert 13 liegt außerhalb des erlaubten Bereichs 1 bis 12.",
+            "boerse.krisen[0].monat",
+        ),
+        (
+            "einbruch: 0.5",
+            "einbruch: 1.2",
+            "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0 bis 0.95.",
+            "boerse.krisen[0].einbruch",
+        ),
+        (
+            "gewinn_monate: 24",
+            "gewinn_monate: 36",
+            "Wert 36 liegt außerhalb des erlaubten Bereichs 1 bis 24.",
+            "boerse.bewertung.gewinn_monate",
+        ),
+        (
+            "kgv: 12",
+            "kgv: 0",
+            "Wert 0 muss größer als 0 sein.",
+            "boerse.bewertung.kgv",
+        ),
+        (
+            "anteil_max: 0.4",
+            "anteil_max: 0.95",
+            "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0.01 bis 0.9.",
+            "boerse.boersengang.anteil_max",
+        ),
+    ] {
+        let outcome = boerse(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&boerse("  ki:", "  unbekannt: 1\n  ki:"), "unbekannt");
+    // Without the section no company is listed.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.stock.enabled);
+}

@@ -157,6 +157,14 @@ fehler.befehl.keine_toechter: In diesem Spiel kannst du keine Tochterfirmen grü
 fehler.befehl.kapital_zu_gering: "Eine Tochter braucht mindestens {min} Kapital."
 fehler.befehl.keine_eigene_tochter: Das ist keine Tochter deiner Firma (mehr).
 fehler.befehl.im_konzern: Innerhalb deines Konzerns gibt es keine Kaufangebote oder Lieferverträge – Standorte überträgst du unter Organisation → Tochterfirmen.
+fehler.befehl.keine_boerse: In diesem Spiel gibt es keine Börse.
+fehler.befehl.nicht_notiert: Diese Firma ist nicht an der Börse.
+fehler.befehl.schon_notiert: Deine Firma ist schon an der Börse – neue Aktien gibst du über eine Kapitalerhöhung aus.
+fehler.befehl.eigenkapital_zu_gering: "Für den Börsengang braucht deine Firma mindestens {min} Eigenkapital."
+fehler.befehl.anteil_ausserhalb: "Der Anteil muss größer als 0 und höchstens {max} % sein."
+fehler.befehl.mehrheit_verloren: Damit hättest du nicht mehr die Mehrheit an deiner Firma – gib weniger neue Aktien aus.
+fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der Aktien."
+fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
 fehler.befehl.keine_logistik: In diesem Spiel gibt es keine eigene Logistik – alle Ladungen fahren über den Frachtmarkt.
 fehler.befehl.zu_viele_fahrzeuge: "Deine Flotte hat nur {anzahl} Fahrzeuge dieser Art."
 fehler.befehl.fahrzeug_ungeeignet: Dieses Verkehrsmittel kannst du (noch) nicht für eine eigene Flotte kaufen.
@@ -381,4 +389,8 @@ meldung.vertrag.beendet: Der Liefervertrag über {produkt} ist ausgelaufen.
 meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe."
 meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe."
 meldung.tochter.pleite: "Deine Tochter {firma} ist pleite – {verlust} Beteiligung abgeschrieben."
+meldung.boerse.krise: "Börsenkrach: Die Kurse brechen um rund {einbruch} % ein."
+meldung.boerse.abgeschrieben: "{firma} ist pleite und verlässt die Börse – deine Aktien ({betrag}) sind abgeschrieben."
+meldung.boerse.dividende_gezahlt: "Deine Firma zahlt {betrag} Dividende an ihre Aktionäre."
+meldung.boerse.dividende_erhalten: "Deine Firma erhält {betrag} Dividende aus ihren Aktien."
 meldung.logistik.verlust: "Ladung verloren: {menge} {produkt} auf dem Weg von {von} nach {nach}."

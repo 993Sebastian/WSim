@@ -676,3 +676,69 @@ fn controlling_by_level() {
     assert!((sum - root.result_usd).abs() < 0.01);
     assert_eq!(view.months.len(), 1);
 }
+
+#[test]
+fn the_stock_market() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let rich = NewGameRequest {
+        start_year: 1950,
+        capital_usd: 50_000_000.0,
+        ..request()
+    };
+    session.new_game(&rich).unwrap();
+    let view = session.stock().unwrap();
+    assert!(view.enabled);
+    assert!(!view.own.listed);
+    assert!(!view.companies.is_empty());
+    assert!(
+        view.companies
+            .windows(2)
+            .all(|w| w[0].value_usd >= w[1].value_usd)
+    );
+    // Going public with a fifth: the player keeps four fifths.
+    session
+        .command(json!({"GoPublic": {"share": 0.2}}))
+        .unwrap();
+    let view = session.stock().unwrap();
+    assert!(view.own.listed);
+    assert!((view.own.player_stake - 0.8).abs() < 1e-9);
+    assert_eq!(view.companies[0].relation, "eigen");
+    let err = session
+        .command(json!({"IssueShares": {"share": 0.4}}))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.mehrheit_verloren");
+    session
+        .command(json!({"SetDividend": {"payout": 0.3}}))
+        .unwrap();
+    assert!((session.stock().unwrap().own.payout - 0.3).abs() < 1e-9);
+    // A percent of the smallest other company.
+    let (company, share) = view
+        .companies
+        .iter()
+        .filter(|c| c.relation == "fremd")
+        .filter_map(|c| c.buy.first().map(|q| (c.company, q.share, q.usd)))
+        .min_by(|a, b| a.2.total_cmp(&b.2))
+        .map(|(c, q, _)| (c, q))
+        .expect("eine notierte Firma");
+    session
+        .command(json!({"BuyShares": {"company": company, "share": share}}))
+        .unwrap();
+    let view = session.stock().unwrap();
+    assert!(view.portfolio_cost_usd > 0.0);
+    session.end_round("monat", |_| {}).unwrap();
+    let view = session.stock().unwrap();
+    assert!(!view.index_series.is_empty());
+    assert_eq!(view.months.len(), view.index_series.len());
+    let held = view
+        .companies
+        .iter()
+        .find(|c| c.company == company)
+        .unwrap();
+    assert!(!held.sell.is_empty());
+    session
+        .command(json!({"SellShares": {"company": company, "share": held.held}}))
+        .unwrap();
+    assert_eq!(session.stock().unwrap().portfolio_cost_usd, 0.0);
+}

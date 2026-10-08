@@ -4125,3 +4125,73 @@ unter „Zentrale und Firma“. Jede Ebene ist die Summe ihrer Kinder.
 Der Vergleich nennt das Ergebnis der Vorperiode und die Abweichung; Firmen, Kontinente,
 Länder und Standorte haben dazu die Ergebnisse der letzten zwölf abgeschlossenen Monate
 (Zeitreihe), Produkte die Ergebnisse je Produkt über alle Standorte.
+
+## K1 – Börse
+
+Lastenheft §11.1, §11.2. Daten: `parameter/boerse.yaml`. Kern: Modul `stock`.
+
+### Wert und Kurs
+
+Je börsennotierter Firma (monatlich zum Monatsbeginn):
+
+    n = bewertung.gewinn_monate, k = Zahl der abgeschlossenen Monate (höchstens n)
+    E = 12/n · (Ergebnis der letzten k Monate + (n − k)/12 · rendite_annahme · max(B, 0))
+    B = Eigenkapital
+    F = gewicht_buchwert · B + (1 − gewicht_buchwert) · max(E, 0) · kgv
+    Ziel T = max(F · S, boden_buchwert · B)
+
+S ist die **Marktstimmung** (für alle Firmen gleich): ln S folgt einem Zufallspfad mit
+Rückkehr zu 0 (`stimmung.schwankung`, `stimmung.rueckkehr`, Zufallsstrom „Börse“ je
+Monat). Historische **Krisen** (`krisen`: Jahr, Monat, Einbruch) senken S im Monat der
+Krise um den Einbruch; danach erholt sich S mit der Rückkehr. Der Börsenwert M nähert sich
+dem Ziel:
+
+    M' = M · (T / M)^traegheit · exp(rauschen · ε)      (ε je Firma und Monat)
+
+Der Gewinn ist ein Durchschnitt über zwei Jahre, damit ein einzelner starker Monat (etwa
+der erste nach dem Spielstart) den Wert nicht vervielfacht; fehlende Monate zählen mit der
+angenommenen Rendite. Kurs = M / Aktienzahl (eine Million Aktien je Firma). Der **Index** beginnt bei 100 und
+wird jeden Monat verkettet: I' = I · Σ M' / Σ M über die Firmen, die in beiden Monaten
+notiert sind (Börsengänge und Pleiten verschieben ihn nicht).
+
+### Börsengang und Kapitalerhöhung
+
+Eine nicht notierte Firma mit Eigenkapital ≥ `boersengang.eigenkapital_min_usd` geht an die
+Börse (`GoPublic`, Anteil s ≤ `boersengang.anteil_max` neuer Aktien):
+
+    V = T · (1 − boersengang.abschlag)              (Wert vor dem Gang)
+    Erlös = V · s / (1 − s)                       (neue Aktien an Investoren)
+    Kosten = Erlös · boersengang.kosten_anteil     (Sonstiges)
+    M = V + Erlös
+
+Der Erlös ist Eigenkapital; alle bisherigen Anteile schrumpfen um (1 − s), die Investoren
+halten s. Eine notierte Firma erhöht ihr Kapital (`IssueShares`) ebenso mit V = M ·
+(1 − abschlag). Der Spieler muss die Mehrheit seiner Firma behalten.
+
+### Dividende
+
+Jedes Jahr im Monat `dividende.monat` zahlt eine notierte Firma `Ausschüttungsquote` ·
+Vorjahresergebnis (nur Gewinn, höchstens `dividende.kasse_max` ihrer Kasse) an alle Eigner.
+Der Spieler setzt die Quote seiner Firma (`SetDividend`), KI-Firmen nehmen
+`dividende.ki_quote`. Firmen als Eigner verbuchen sie als Ertrag (Beteiligungen), der
+Anteil des Spielers und der Privatanleger verlässt die Firma (Gewinnrücklagen an Kasse).
+
+### Aktienhandel
+
+Der **Streubesitz** sind die Aktien bei den Anlegern außerhalb des Spiels; Gründer und
+Familien (Privatanleger) verkaufen nicht über die Börse. Eine Firma kauft Anteil q einer
+anderen notierten Firma aus dem Streubesitz zum Preis
+
+    q · M · (1 + handel.aufschlag + handel.preiswirkung · q)
+
+und hebt M um `preiswirkung · q`; Verkauf an Investoren zu q · M · (1 − handel.abschlag −
+handel.preiswirkung · q), M sinkt ebenso. Der Kaufpreis steht in den Beteiligungen; beim
+Verkauf geht der anteilige Einstand ab, Gewinn oder Verlust ist Ertrag bzw. Aufwand
+(Beteiligungen). Bis K3 höchstens `handel.anteil_max` einer Firma.
+
+### Start und KI
+
+Beim Spielstart sind die KI-Firmen mit Eigenkapital ≥ `start.eigenkapital_min_usd`
+notiert, mit `start.streubesitz` bei den Investoren. Eine KI-Firma ohne Notiz mit genug
+Eigenkapital geht je Monat mit `ki.boersengang_chance` an die Börse (Anteil
+`ki.boersengang_anteil`).
