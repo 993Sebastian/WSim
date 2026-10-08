@@ -1082,6 +1082,7 @@ fn found_company(
         hq_city: None,
         participations: Default::default(),
         logistics: Default::default(),
+        subsidiary_of: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

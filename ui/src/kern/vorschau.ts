@@ -28,6 +28,7 @@ import type {
   Vertraege,
   Vertragspartnerliste,
   Logistik,
+  Konzern,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -59,6 +60,7 @@ const beispiel = beispielJson as unknown as {
   vertraege: Vertraege;
   vertragspartner: Vertragspartnerliste;
   logistik: Logistik;
+  konzern: Konzern;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -231,6 +233,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     logistik: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.logistik);
+    },
+    konzern: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.konzern);
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

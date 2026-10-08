@@ -327,6 +327,9 @@ pub(crate) fn propose(
     if sc == bc {
         return Err(CommandError::ContractWithItself);
     }
+    if crate::group::same_group(state, sc, bc) {
+        return Err(CommandError::WithinGroup);
+    }
     if !(t.per_month.is_finite() && t.per_month > 0.0) {
         return Err(CommandError::InvalidQuantity);
     }
@@ -818,7 +821,7 @@ fn best_partner(
     for (i, s) in state.sites.iter().enumerate() {
         let site = site_id(i);
         let owner = &state.companies[s.owner.index()];
-        if s.owner == player || owner.bankrupt {
+        if crate::group::same_group(state, s.owner, player) || owner.bankrupt {
             continue;
         }
         let pair = if player_sells {

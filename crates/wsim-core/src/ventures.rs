@@ -1226,7 +1226,12 @@ pub fn stake_bid(
     let m = &catalog.ventures;
     let a = &m.stakes.ai;
     let c = &state.companies[bidder.index()];
-    if c.ai.is_none() || c.bankrupt || c.ledger.cash() < a.cash_min || share <= 0.0 {
+    if c.ai.is_none()
+        || c.subsidiary_of.is_some()
+        || c.bankrupt
+        || c.ledger.cash() < a.cash_min
+        || share <= 0.0
+    {
         return None;
     }
     let (_, aggressiveness) = crate::ai::traits(catalog, state, bidder);

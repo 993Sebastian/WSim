@@ -4031,3 +4031,62 @@ Fahrzeug mit dem niedrigsten Betriebsanteil, das sie ganz füllt und bei voller 
 spart (Kapazität · M · (1 − b)), als Unterhalt und Abschreibung im Monat kosten, so viele,
 wie in die Lücke passen (höchstens `ki.kasse_anteil` ihrer Kasse), und fährt fortan mit
 eigener Flotte und Fracht für andere.
+
+## W6 – Tochterfirmen und Konzern
+
+Lastenheft §5.1, §17.3. Daten: `parameter/tochterfirmen.yaml`. Kern: Modul `group`.
+
+### Gründung und Führung
+
+Der Spieler gründet eine Tochter (Befehl `FoundSubsidiary`: Name, Land des Sitzes,
+Startkapital ≥ `mindestkapital_usd`, Schwerpunkt). Die Mutter zahlt Kapital und
+`gruendungskosten_usd` (Sonstiges); das Kapital steht bei ihr als Beteiligung (zu
+Anschaffungskosten), bei der Tochter als gezeichnetes Kapital. Die Tochter gehört zu 100 %
+der Mutter und ist eine eigene Firma mit eigener Bilanz, eigenen Steuern im Land ihres
+Sitzes und **eigener Geschäftsführung**: Sie handelt nach den Regeln der KI mit
+`geschaeftsfuehrung.kompetenz` und `.aggressivitaet` – sie betreibt, baut aus, forscht,
+wirbt und besetzt Stellen wie eine KI-Firma, aber nie gegen ihren Konzern (keine
+Kaufangebote, Lieferverträge oder Gebote innerhalb des Konzerns).
+
+Schwerpunkte:
+
+- **Produktion und Handel:** die Regeln der KI für ihre Standorte.
+- **Logistik:** zusätzlich kauft sie jeden Monat mit `logistik.kasse_anteil` ihrer Kasse das
+  Fahrzeug mit der höchsten Jahresrendite aus Fracht für andere (W5), wenn diese
+  `logistik.rendite_min` erreicht:
+
+      Rendite = 12 · (Kapazität · flotte.vermietung_anteil · M · (1 − b) − Unterhalt und
+                Abschreibung im Monat) / Kaufpreis
+
+### Kapital und Standorte im Konzern
+
+- **Einlage** (`MoveCapital` mit Betrag > 0): Mutter Beteiligung an Kasse, Tochter Kasse an
+  gezeichnetes Kapital.
+- **Ausschüttung** (Betrag < 0, höchstens die Kasse der Tochter): zuerst aus dem Gewinn der
+  Tochter (Gewinnrücklagen und Jahresergebnis, soweit positiv) – bei der Mutter steuerfrei
+  direkt in die Gewinnrücklagen –, der Rest als Rückzahlung von Kapital (Tochter
+  gezeichnetes Kapital, Mutter Beteiligung, höchstens deren Buchwert).
+- **Standort übertragen** (`TransferSite`): zwischen Mutter und Tochter zu Buchwerten
+  (Anlagen, Anlagen im Bau, Firmenwert, Lager, Grundstück); der Empfänger zahlt den
+  Buchwert aus seiner Kasse, Gewinn oder Verlust entstehen nicht. Stellen am Standort werden
+  frei, laufende Lieferverträge enden (W4).
+
+### Konzernsicht
+
+Konzern = die Spielerfirma und alle Töchter (auch Enkel). Konzernbilanz: Summe der Konten
+aller Konzernfirmen; die Beteiligungen an Konzernfirmen werden gegen deren gezeichnetes
+Kapital aufgerechnet:
+
+    Beteiligungen(Konzern) = Σ Beteiligungen − Σ gezeichnetes Kapital der Töchter
+    Eigenkapital(Konzern)  = Σ Eigenkapital − Σ gezeichnetes Kapital der Töchter
+
+Konzern-GuV des laufenden Jahres: Summe je Kostenart (Ausschüttungen im Konzern sind kein
+Ertrag, siehe oben). Geht eine Tochter pleite, schreibt die Mutter ihre Beteiligung ab
+(Beteiligungen, Kostenart Beteiligungen) und die Tochter verlässt den Konzern.
+
+### Frachtmarkt für fremde Flotten (Nachtrag zu W5)
+
+Fracht für andere ist begrenzt: Je Monat und Weg (Land, See) zählt das Spiel die
+Tonnenkilometer der Händler und der Firmenladungen über den Markt (F). Firmenflotten
+übernehmen davon höchstens `flotte.vermietung_markt_anteil` · F; bieten sie mehr freien
+Platz an (`vermietung_anteil` · frei), wird jede Firma im selben Verhältnis gekürzt.

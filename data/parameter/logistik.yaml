@@ -15,6 +15,7 @@ logistik:
     nutzungsdauer_jahre: 20
     verkauf_anteil: 0.6         # Verkauf zum Buchwert mal diesem Anteil
     vermietung_anteil: 0.5      # so viel freier Platz findet fremde Ladung
+    vermietung_markt_anteil: 0.25  # höchstens so viel des Frachtmarkts fahren Firmenflotten (W6)
   # Verlust einer Ladung je Fahrt
   risiko:
     land: {1900: 0.002, 1950: 0.001, 2000: 0.0003}

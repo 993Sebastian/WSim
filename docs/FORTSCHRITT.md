@@ -77,6 +77,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W3 | Zölle je Land und Warengruppe, Handelszonen, Sperren, Dynamik nach 2026 | ✅ |
 | W4 | Lieferverträge zwischen Spieler und KI-Firmen | ✅ |
 | W5 | Logistik: Frachtmarkt, staatlicher Transport, eigene Flotte, Frachtrisiko | ✅ |
+| W6 | Tochterfirmen mit eigener Bilanz und Geschäftsführung, Konzernsicht | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -815,6 +816,31 @@ Stufe 2, Lastenheft §8.1. Regeln: `docs/FORMELN.md`, Abschnitt W5; Entscheidung
 - **Zuerst verworfen:** Kaufpreis als Vielfaches der Jahresfracht und Fahrtkosten gegen den
   eigenen Satz des Fahrzeugs – die KI kaufte dann Hunderte Fuhrwerke, die billiger als die
   Bahn zu fahren schienen.
+
+### W6: Tochterfirmen und Konzern (08.10.2026)
+
+Stufe 2, Lastenheft §5.1, §17.3. Regeln: `docs/FORMELN.md`, Abschnitt W6; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/tochterfirmen.yaml` (Mindestkapital, Gründungskosten, Charakter der
+  Geschäftsführung, Logistik-Töchter) und `flotte.vermietung_markt_anteil`; Prüfregeln mit
+  Fehlerfall-Tests.
+- **Kern:** Modul `group`: Befehle `FoundSubsidiary`, `MoveCapital`, `TransferSite`,
+  `SetSubsidiaryFocus`; Töchter als eigene Firmen mit eigener Bilanz und eigener
+  Geschäftsführung nach den Regeln der KI; keine Geschäfte innerhalb des Konzerns;
+  Abschreibung der Beteiligung bei Pleite; Konzernbilanz und -GuV. Logistik-Töchter kaufen
+  Fahrzeuge nach Rendite; Fracht für andere ist auf einen Anteil des Frachtmarkts begrenzt
+  (Händler und Marktladungen, Zustand `freight_market`).
+- **Oberfläche:** Organisation → „Tochterfirmen“ mit Liste, Kapital, Schwerpunkt, Gründung,
+  Standortübertragung und Konzernbilanz; Beispieldaten der Vorschau mit einer Spedition.
+- **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
+- **Tests:** Kern (Gründung und Prüfung, Einlage und Ausschüttung, Standorte hin und
+  zurück, keine Geschäfte im Konzern, Pleite, Logistik-Tochter, Spielstand; die
+  Konzernbilanz geht in jedem Test auf), Logistik (Vermietung nach Frachtmarkt), Sitzung
+  mit echten Daten (1950), vitest, Playwright.
+- **Weltlauf 1900–1915** (100 KI-Firmen): Flotten wie nach W5 (10 Firmen, 55 % der
+  Tonnenkilometer mit eigener Flotte); nur die Einnahmen aus Fracht für andere sind jetzt
+  durch den Frachtmarkt begrenzt. Laufzeit 2:24 min.
 
 ## Eigenständige Entscheidungen (für das Review)
 

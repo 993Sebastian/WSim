@@ -202,6 +202,11 @@ pub mod keys {
     pub const COMMAND_VEHICLE_NOT_FOR_FLEET: &str = "fehler.befehl.fahrzeug_ungeeignet";
     pub const COMMAND_TOO_MANY_VEHICLES: &str = "fehler.befehl.zu_viele_fahrzeuge";
     pub const FREIGHT_LOST: &str = "meldung.logistik.verlust";
+    pub const COMMAND_NO_SUBSIDIARIES: &str = "fehler.befehl.keine_toechter";
+    pub const COMMAND_CAPITAL_TOO_LOW: &str = "fehler.befehl.kapital_zu_gering";
+    pub const COMMAND_NOT_OWN_SUBSIDIARY: &str = "fehler.befehl.keine_eigene_tochter";
+    pub const COMMAND_WITHIN_GROUP: &str = "fehler.befehl.im_konzern";
+    pub const SUBSIDIARY_FAILED: &str = "meldung.tochter.pleite";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -506,6 +511,11 @@ pub mod keys {
         COMMAND_VEHICLE_NOT_FOR_FLEET,
         COMMAND_TOO_MANY_VEHICLES,
         FREIGHT_LOST,
+        COMMAND_NO_SUBSIDIARIES,
+        COMMAND_CAPITAL_TOO_LOW,
+        COMMAND_NOT_OWN_SUBSIDIARY,
+        COMMAND_WITHIN_GROUP,
+        SUBSIDIARY_FAILED,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,

@@ -31,6 +31,7 @@ mod milestones;
 mod names;
 mod plots;
 mod production;
+mod subsidiaries;
 mod tariffs;
 mod ventures;
 use crate::raw::{
@@ -622,6 +623,7 @@ pub(crate) fn build(
     b.catalog.tariffs = tariffs::tariff_model(b.ctx, &b.catalog, raw);
     b.catalog.contracts = contracts::contract_model(b.ctx, raw);
     b.catalog.logistics = logistics::logistics_model(b.ctx, raw);
+    b.catalog.subsidiaries = subsidiaries::subsidiary_model(b.ctx, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

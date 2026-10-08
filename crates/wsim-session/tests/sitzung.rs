@@ -587,3 +587,71 @@ fn own_fleet_and_way_of_freight() {
     assert!(view.last_month.depreciation_usd > 0.0);
     assert!(view.last_month.rental_usd > 0.0);
 }
+
+#[test]
+fn subsidiaries_and_the_group() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let later = NewGameRequest {
+        start_year: 1950,
+        capital_usd: 5_000_000.0,
+        ..request()
+    };
+    session.new_game(&later).unwrap();
+    let view = session.group().unwrap();
+    assert!(view.enabled);
+    assert!(view.subsidiaries.is_empty());
+    let before = view.group_equity_usd;
+    session
+        .command(json!({"FoundSubsidiary": {
+            "name": "Testwerke Logistik", "country": "DEU",
+            "capital": 1_000_000_0000_i64, "focus": "Logistics"
+        }}))
+        .unwrap();
+    let view = session.group().unwrap();
+    let sub = &view.subsidiaries[0];
+    assert_eq!(sub.focus, "logistik");
+    assert!(sub.direct);
+    assert_eq!(sub.paid_in_usd, 1_000_000.0);
+    // The group lost only the founding cost.
+    assert!((before - view.group_equity_usd - view.founding_cost_usd).abs() < 0.01);
+    let company = sub.company;
+    // A site of the player moves to the subsidiary at its book value.
+    let site = view
+        .sites
+        .iter()
+        .find(|s| s.company == view.company)
+        .expect("ein eigener Standort")
+        .clone();
+    session
+        .command(json!({"TransferSite": {"site": site.site, "to": company}}))
+        .unwrap();
+    let view = session.group().unwrap();
+    assert!(
+        view.sites
+            .iter()
+            .any(|s| s.site == site.site && s.company == company)
+    );
+    assert_eq!(view.subsidiaries[0].sites, 1);
+    let err = session
+        .command(json!({"FoundSubsidiary": {
+            "name": "Zu klein", "country": "DEU", "capital": 10_0000_i64, "focus": "Production"
+        }}))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.kapital_zu_gering");
+    for _ in 0..2 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let view = session.group().unwrap();
+    assert!(view.total_assets_usd > 0.0);
+    assert!(!view.income.is_empty());
+    // The subsidiary is no competitor.
+    let overview = session.overview().unwrap();
+    assert!(
+        overview
+            .competitors
+            .iter()
+            .all(|c| c.name != "Testwerke Logistik")
+    );
+}

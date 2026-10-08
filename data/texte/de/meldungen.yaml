@@ -153,6 +153,10 @@ fehler.befehl.keine_vertraege: Lieferverträge gibt es in diesem Spiel nicht.
 fehler.befehl.vertrag_mit_sich: Ein Liefervertrag braucht eine andere Firma – beide Standorte gehören dir.
 fehler.befehl.vertrag_unbekannt: Diesen Vertrag gibt es nicht, oder du kannst ihn nicht beantworten oder kündigen.
 fehler.befehl.vertrag_abgelehnt: "Die Firma lehnt ab: {grund}"
+fehler.befehl.keine_toechter: In diesem Spiel kannst du keine Tochterfirmen gründen.
+fehler.befehl.kapital_zu_gering: "Eine Tochter braucht mindestens {min} Kapital."
+fehler.befehl.keine_eigene_tochter: Das ist keine Tochter deiner Firma (mehr).
+fehler.befehl.im_konzern: Innerhalb deines Konzerns gibt es keine Kaufangebote oder Lieferverträge – Standorte überträgst du unter Organisation → Tochterfirmen.
 fehler.befehl.keine_logistik: In diesem Spiel gibt es keine eigene Logistik – alle Ladungen fahren über den Frachtmarkt.
 fehler.befehl.zu_viele_fahrzeuge: "Deine Flotte hat nur {anzahl} Fahrzeuge dieser Art."
 fehler.befehl.fahrzeug_ungeeignet: Dieses Verkehrsmittel kannst du (noch) nicht für eine eigene Flotte kaufen.
@@ -376,4 +380,5 @@ meldung.vertrag.verfallen: Ein Vertragsangebot über {produkt} ist verfallen.
 meldung.vertrag.beendet: Der Liefervertrag über {produkt} ist ausgelaufen.
 meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe."
 meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe."
+meldung.tochter.pleite: "Deine Tochter {firma} ist pleite – {verlust} Beteiligung abgeschrieben."
 meldung.logistik.verlust: "Ladung verloren: {menge} {produkt} auf dem Weg von {von} nach {nach}."

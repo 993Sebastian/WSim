@@ -1,0 +1,14 @@
+# Tochterfirmen (W6, Lastenheft §5.1; Formeln: docs/FORMELN.md, Abschnitt W6).
+# Eine Tochter ist eine eigene Firma mit eigener Bilanz und eigener Geschäftsführung, die
+# nach den Regeln der KI handelt – nie gegen ihren Konzern.
+
+tochterfirmen:
+  mindestkapital_usd: 25000     # Stammkapital, Kaufkraft 2026
+  gruendungskosten_usd: 3000    # Notar, Handelsregister, Beratung
+  geschaeftsfuehrung:
+    kompetenz: 0.6
+    aggressivitaet: 0.4
+  logistik:
+    kasse_anteil: 0.3           # so viel der Kasse geht je Monat in Fahrzeuge
+    rendite_min: 0.06           # Jahresrendite, ab der ein Fahrzeug gekauft wird
+  annaeherung: true

@@ -32,6 +32,7 @@ import type {
   Zentrale,
 } from "../kern";
 import { t } from "../texte";
+import { TochterfirmenAnsicht } from "./Tochterfirmen";
 import { AnliegenListe } from "./Anliegen";
 import { FehlerText } from "./Dialog";
 import {
@@ -1311,9 +1312,9 @@ export function OrganisationAnsicht({
   const [wahl, setWahl] = useState<{ einheit: string; rolle: string } | null>(null);
   const offen = uebersicht.concerns_open ?? 0;
   // Open concerns have a deadline: the inbox comes first while there are some.
-  const [bereich, setBereich] = useState<"stellen" | "anliegen" | "strategie" | "ruecksprache">(
-    offen > 0 ? "anliegen" : "stellen",
-  );
+  const [bereich, setBereich] = useState<
+    "stellen" | "anliegen" | "strategie" | "ruecksprache" | "tochterfirmen"
+  >(offen > 0 ? "anliegen" : "stellen");
   const stand = `${uebersicht.date}/${zaehler}`;
   return (
     <main className="ansicht" id="organisation">
@@ -1328,6 +1329,7 @@ export function OrganisationAnsicht({
                 { key: "anliegen", text: t("organisation.reiter_anliegen"), zaehler: offen },
                 { key: "strategie", text: t("organisation.reiter_strategie") },
                 { key: "ruecksprache", text: t("organisation.reiter_ruecksprache") },
+                { key: "tochterfirmen", text: t("organisation.reiter_tochterfirmen") },
               ]}
               aktiv={bereich}
               onWahl={setBereich}
@@ -1342,6 +1344,7 @@ export function OrganisationAnsicht({
             )}
             {bereich === "anliegen" && <AnliegenListe kern={kern} stand={stand} />}
             {bereich === "strategie" && <StrategieAnsicht kern={kern} stand={stand} />}
+            {bereich === "tochterfirmen" && <TochterfirmenAnsicht kern={kern} stand={stand} />}
             {bereich === "ruecksprache" && (
               <RuecksprachenAnsicht
                 kern={kern}

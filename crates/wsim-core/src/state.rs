@@ -348,6 +348,9 @@ pub struct Company {
         skip_serializing_if = "crate::logistics::Logistics::is_default"
     )]
     pub logistics: crate::logistics::Logistics,
+    /// The parent of a subsidiary (W6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subsidiary_of: Option<crate::group::SubsidiaryOf>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -1655,6 +1658,12 @@ pub struct GameState {
     pub contracts: Vec<crate::contracts::Contract>,
     #[serde(default)]
     pub next_contract: u32,
+    /// Tonne-kilometres of the freight market this month and the month before (W6).
+    #[serde(
+        default,
+        skip_serializing_if = "crate::logistics::FreightMarket::is_empty"
+    )]
+    pub freight_market: crate::logistics::FreightMarket,
     pub player: CompanyId,
     pub game_over: bool,
 }

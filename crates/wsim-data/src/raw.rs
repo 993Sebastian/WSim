@@ -2298,6 +2298,8 @@ pub struct RawFleet {
     pub sale_share: f64,
     #[serde(rename = "vermietung_anteil")]
     pub rental_share: f64,
+    #[serde(rename = "vermietung_markt_anteil")]
+    pub rental_market_share: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -2315,4 +2317,40 @@ pub struct RawLogisticsAi {
     pub share: f64,
     #[serde(rename = "kasse_anteil")]
     pub cash_share: f64,
+}
+
+/// Subsidiaries (`parameter/tochterfirmen.yaml`, W6).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSubsidiaries {
+    #[serde(rename = "mindestkapital_usd")]
+    pub min_capital_usd: f64,
+    #[serde(rename = "gruendungskosten_usd")]
+    pub founding_cost_usd: f64,
+    #[serde(rename = "geschaeftsfuehrung")]
+    pub management: RawSubsidiaryManagement,
+    #[serde(rename = "logistik")]
+    pub logistics: RawSubsidiaryLogistics,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSubsidiaryManagement {
+    #[serde(rename = "kompetenz")]
+    pub competence: f64,
+    #[serde(rename = "aggressivitaet")]
+    pub aggressiveness: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSubsidiaryLogistics {
+    #[serde(rename = "kasse_anteil")]
+    pub cash_share: f64,
+    #[serde(rename = "rendite_min")]
+    pub min_return: f64,
 }

@@ -295,7 +295,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
     for (i, other) in state.sites.iter().enumerate() {
         let site = SiteId(u32::try_from(i).expect("site count fits u32"));
         let company = &state.companies[other.owner.index()];
-        if other.owner == me || company.bankrupt {
+        if crate::group::same_group(state, other.owner, me) || company.bankrupt {
             continue;
         }
         let (free, pair) = if selling {

@@ -49,6 +49,7 @@ fn with_logistics(risk: f64) -> Catalog {
         life_years: 20.0,
         sale_share: 0.6,
         rental_share: 0.5,
+        rental_market_share: 1.0,
         risk_land: series(risk),
         risk_sea: series(risk),
         ai_share: 0.5,
@@ -271,16 +272,29 @@ fn vehicles_without_payload_or_data_are_refused() {
 
 #[test]
 fn free_capacity_earns_freight_of_others() {
-    let mut game = new_game(with_logistics(0.0));
-    let player = game.player();
-    let vehicle = carrier(&game);
-    game.apply(Command::BuyVehicles { vehicle, count: 1 })
-        .unwrap();
-    set_mode(&mut game, FreightMode::Fleet, true);
-    days(&mut game, 31);
-    let c = &game.state().companies[player.index()];
-    assert!(c.logistics.last_month.rental > Money::ZERO);
-    assert!(c.ledger.is_balanced());
+    // Rental for a month of freight on the market: `market` tkm by land and by sea.
+    let rental = |market: f64| {
+        let mut game = new_game(with_logistics(0.0));
+        let player = game.player();
+        let vehicle = carrier(&game);
+        game.apply(Command::BuyVehicles { vehicle, count: 1 })
+            .unwrap();
+        set_mode(&mut game, FreightMode::Fleet, true);
+        days(&mut game, 30);
+        let fm = &mut game.state_mut().freight_market;
+        (fm.land, fm.sea) = (market, market);
+        days(&mut game, 1);
+        let c = &game.state().companies[player.index()];
+        assert!(c.ledger.is_balanced());
+        assert_eq!(game.state().freight_market.land_last, market);
+        c.logistics.last_month.rental
+    };
+    let ample = rental(1e12);
+    assert!(ample > Money::ZERO);
+    // A small market takes less; none, nothing.
+    let small = rental(1e5);
+    assert!(small > Money::ZERO && small < ample, "{small:?} {ample:?}");
+    assert_eq!(rental(0.0), Money::ZERO);
 }
 
 #[test]

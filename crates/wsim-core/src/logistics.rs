@@ -75,6 +75,54 @@ impl LogisticsMonth {
     }
 }
 
+/// Tonne-kilometres of the freight market by land and by sea (W6): what traders and
+/// companies send by the market. Company fleets carry at most a share of it for others.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct FreightMarket {
+    pub land: f64,
+    pub sea: f64,
+    #[serde(default)]
+    pub land_last: f64,
+    #[serde(default)]
+    pub sea_last: f64,
+}
+
+impl FreightMarket {
+    pub fn is_empty(&self) -> bool {
+        *self == Self::default()
+    }
+
+    fn add(&mut self, sea: bool, tkm: f64) {
+        if sea {
+            self.sea += tkm;
+        } else {
+            self.land += tkm;
+        }
+    }
+}
+
+/// Notes a load the traders send by the freight market.
+pub(crate) fn note_market_freight(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (product, quantity): (ProductId, f64),
+    (from, to): (CountryId, CountryId),
+) {
+    if !catalog.logistics.enabled || from == to {
+        return;
+    }
+    let p = catalog.products.get(product);
+    let sea = state
+        .routes
+        .get(p.transport_class, from, to)
+        .is_some_and(|r| r.by_sea);
+    let tm = &catalog.transport_model;
+    let detour = if sea { tm.detour_sea } else { tm.detour_land };
+    let km = state.routes.distance_km(from, to).unwrap_or(0.0) * detour;
+    let tkm = (quantity * p.weight_kg / 1000.0 * km).max(0.0);
+    state.freight_market.add(sea, tkm);
+}
+
 /// Logistics of a company.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Logistics {
@@ -355,6 +403,7 @@ pub(crate) fn book(
         }),
     }
     l.sent = l.sent.wrapping_add(1);
+    state.freight_market.add(plan.sea, plan.market);
     if plan.risk <= 0.0 {
         return false;
     }
@@ -508,6 +557,43 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, today: Date) {
     if !m.enabled {
         return;
     }
+    let year = today.year();
+    // What others pay a vehicle a month (the market rate) and its running share; nobody
+    // hires a vehicle dearer than the market.
+    let hire = |h: &FleetHolding| {
+        let v = catalog.vehicles.get(h.vehicle);
+        let own = running_share_first(catalog, h.vehicle, year);
+        let rate = match (v.classes.first(), at_sea(v.way)) {
+            (Some(&class), Some(sea)) => market_rate(catalog, sea, class, year),
+            _ => None,
+        };
+        rate.filter(|_| own < 1.0)
+            .map(|r| (at_sea(v.way) == Some(true), r, own))
+    };
+    // Fleets carry at most a share of the freight market for others; offering more,
+    // every company gets the same share of its offer.
+    let mut offered = [0.0_f64; 2];
+    for c in state
+        .companies
+        .iter()
+        .filter(|c| !c.bankrupt && c.logistics.carry_for_others)
+    {
+        for h in &c.logistics.fleet {
+            if let Some((sea, _, _)) = hire(h) {
+                offered[usize::from(sea)] +=
+                    (capacity(catalog, h, today) - h.used).max(0.0) * m.rental_share;
+            }
+        }
+    }
+    let fm = &state.freight_market;
+    let demand = [fm.land, fm.sea].map(|f| f * m.rental_market_share);
+    let scale: [f64; 2] = std::array::from_fn(|i| {
+        if offered[i] > 0.0 {
+            (demand[i] / offered[i]).min(1.0)
+        } else {
+            0.0
+        }
+    });
     for c in &mut state.companies {
         let l = &mut c.logistics;
         if l.is_default() {
@@ -521,15 +607,10 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, today: Date) {
                 let d = h.cost.scale(1.0 / (m.life_years * 12.0)).min(h.value);
                 h.value -= d;
                 depreciation += d;
-                // Others pay the market rate; nobody hires a vehicle dearer than that.
-                let v = catalog.vehicles.get(h.vehicle);
-                let own = running_share_first(catalog, h.vehicle, today.year());
-                let rate = match (v.classes.first(), at_sea(v.way)) {
-                    (Some(&class), Some(sea)) => market_rate(catalog, sea, class, today.year()),
-                    _ => None,
-                };
-                if let (true, Some(rate), true) = (l.carry_for_others, rate, own < 1.0) {
-                    let free = (capacity(catalog, h, today) - h.used).max(0.0) * m.rental_share;
+                if let (true, Some((sea, rate, own))) = (l.carry_for_others, hire(h)) {
+                    let free = (capacity(catalog, h, today) - h.used).max(0.0)
+                        * m.rental_share
+                        * scale[usize::from(sea)];
                     let revenue = Money::from_usd(free * rate).unwrap_or(Money::ZERO);
                     rental += revenue;
                     running += revenue.scale(own);
@@ -565,6 +646,13 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, today: Date) {
         l.last_month = std::mem::take(&mut l.month);
         l.loads_last = std::mem::take(&mut l.loads);
     }
+    let fm = &mut state.freight_market;
+    *fm = FreightMarket {
+        land: 0.0,
+        sea: 0.0,
+        land_last: fm.land,
+        sea_last: fm.sea,
+    };
 }
 
 /// Vehicles an AI company buys at the start of a month: where its fleet could carry less
@@ -641,4 +729,81 @@ pub(crate) fn ai_purchases(
         out.push((vehicle, n));
     }
     out
+}
+
+/// What a logistics subsidiary buys this month to carry the freight of others (W6,
+/// docs/FORMELN.md): the vehicle with the best yearly return, if it reaches
+/// `logistik.rendite_min`, for `logistik.kasse_anteil` of its cash and no more than the
+/// freight market of the month before leaves to company fleets.
+pub(crate) fn rental_purchase(
+    state: &GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+) -> Option<(VehicleId, u32)> {
+    let m = &catalog.logistics;
+    let s = &catalog.subsidiaries;
+    if !m.enabled || !s.enabled || m.rental_share <= 0.0 {
+        return None;
+    }
+    let budget = state.companies[company.index()]
+        .ledger
+        .cash()
+        .scale(s.logistics_cash_share);
+    if budget <= Money::ZERO {
+        return None;
+    }
+    let date = state.date;
+    let year = date.year();
+    // Capacity the fleets carrying for others offer, by way.
+    let mut offered = [0.0_f64; 2];
+    for c in state
+        .companies
+        .iter()
+        .filter(|c| !c.bankrupt && c.logistics.carry_for_others)
+    {
+        for h in &c.logistics.fleet {
+            if let Some(sea) = at_sea(catalog.vehicles.get(h.vehicle).way) {
+                offered[usize::from(sea)] += capacity(catalog, h, date) * m.rental_share;
+            }
+        }
+    }
+    let fm = &state.freight_market;
+    let demand = [fm.land_last, fm.sea_last].map(|f| f * m.rental_market_share);
+    let mut best: Option<(f64, VehicleId, u32)> = None;
+    for v in catalog
+        .vehicles
+        .ids()
+        .filter(|&v| for_sale(catalog, v, year))
+    {
+        let x = catalog.vehicles.get(v);
+        let (Some(sea), Some(&class)) = (at_sea(x.way), x.classes.first()) else {
+            continue;
+        };
+        let (Some(rate), Some(cost)) = (
+            market_rate(catalog, sea, class, year),
+            price(catalog, v, year),
+        ) else {
+            continue;
+        };
+        let own = running_share(catalog, v, class, year);
+        let hired = capacity_per_vehicle(catalog, v, date) * m.rental_share;
+        let room = demand[usize::from(sea)] - offered[usize::from(sea)];
+        if own >= 1.0 || hired <= 0.0 || room < hired || cost <= Money::ZERO {
+            continue;
+        }
+        let fixed = cost.to_usd() * (m.upkeep_share / 12.0 + 1.0 / (m.life_years * 12.0));
+        let yearly = 12.0 * (hired * rate * (1.0 - own) - fixed) / cost.to_usd();
+        if yearly < s.logistics_min_return || best.is_some_and(|b| b.0 >= yearly) {
+            continue;
+        }
+        // Counts of vehicles are small; the casts cannot overflow.
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let n = ((budget.to_usd() / cost.to_usd())
+            .floor()
+            .min((room / hired).floor())) as u32;
+        if n > 0 {
+            best = Some((yearly, v, n));
+        }
+    }
+    best.map(|(_, v, n)| (v, n))
 }

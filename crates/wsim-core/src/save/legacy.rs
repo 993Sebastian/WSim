@@ -102,6 +102,7 @@ pub(super) fn decode_v2(
                 hq_city: None,
                 participations: Default::default(),
                 logistics: Default::default(),
+                subsidiary_of: None,
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,
@@ -164,6 +165,7 @@ pub(super) fn decode_v2(
         tariffs: Default::default(),
         contracts: Vec::new(),
         next_contract: 0,
+        freight_market: Default::default(),
         player: s.player,
         game_over: s.game_over,
     };

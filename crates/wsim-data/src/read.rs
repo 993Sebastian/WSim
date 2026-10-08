@@ -11,8 +11,8 @@ use crate::raw::{
     RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor,
     RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel,
     RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel, RawQualification,
-    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTariffs, RawTechnology,
-    RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
+    RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawSubsidiaries, RawTariffs,
+    RawTechnology, RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -181,6 +181,7 @@ pub(crate) struct RawData {
     pub tariffs: Vec<Entry<RawTariffs>>,
     pub contracts: Vec<Entry<RawContracts>>,
     pub logistics: Vec<Entry<RawLogistics>>,
+    pub subsidiaries: Vec<Entry<RawSubsidiaries>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -223,6 +224,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "zoelle",
     "vertraege",
     "logistik",
+    "tochterfirmen",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -314,6 +316,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "logistik" => match de::from_node::<RawLogistics>(value, &loc.path) {
                 Ok(model) => raw.logistics.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "tochterfirmen" => match de::from_node::<RawSubsidiaries>(value, &loc.path) {
+                Ok(model) => raw.subsidiaries.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

@@ -23,10 +23,10 @@ use wsim_core::save;
 use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
 use wsim_core::views::{
     self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
-    ContractsView, CountryDetail, FinanceView, LogisticsView, ManagerMarketView, MarketView,
-    MessageView, NewGameOptions, OffersView, OrganisationView, Overview, ProductMarketView,
-    ProductionView, ResearchOverview, ReviewsView, RoundReportView, StrategyView, VenturesView,
-    WorldMap, WorldMarketView,
+    ContractsView, CountryDetail, FinanceView, GroupView, LogisticsView, ManagerMarketView,
+    MarketView, MessageView, NewGameOptions, OffersView, OrganisationView, Overview,
+    ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
+    StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -371,6 +371,11 @@ impl<S: SaveStore> Session<S> {
     /// The start-ups of the world (SU1).
     pub fn ventures(&self) -> Result<VenturesView, MessageView> {
         self.view(views::ventures)
+    }
+
+    /// The player's subsidiaries and the group (W6).
+    pub fn group(&self) -> Result<GroupView, MessageView> {
+        self.view(views::group)
     }
 
     /// The player's fleet and way of freight (W5).

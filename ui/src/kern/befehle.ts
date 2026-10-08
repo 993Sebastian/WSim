@@ -36,6 +36,17 @@ export type Befehl =
   | { BuyVehicles: { vehicle: string; count: number } }
   | { SellVehicles: { vehicle: string; count: number } }
   | { SetLogistics: { mode: "Market" | "State" | "Fleet"; carry_for_others: boolean } }
+  | {
+      FoundSubsidiary: {
+        name: string;
+        country: string;
+        capital: number;
+        focus: "Production" | "Logistics";
+      };
+    }
+  | { MoveCapital: { company: number; amount: number } }
+  | { TransferSite: { site: number; to: number } }
+  | { SetSubsidiaryFocus: { company: number; focus: "Production" | "Logistics" } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }

@@ -346,7 +346,10 @@ pub fn companies(game: &Game) -> CompaniesView {
         .iter()
         .enumerate()
         .filter(|(i, c)| {
-            !c.bankrupt || deals::in_auction(state, CompanyId(u32::try_from(*i).unwrap_or(0)))
+            let id = CompanyId(u32::try_from(*i).unwrap_or(0));
+            // The player's subsidiaries show under the organisation (W6).
+            (id == state.player || !crate::group::same_group(state, id, state.player))
+                && (!c.bankrupt || deals::in_auction(state, id))
         })
         .map(|(i, _)| {
             row(

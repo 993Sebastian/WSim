@@ -191,6 +191,7 @@ impl Game {
             hq_city: None,
             participations: Default::default(),
             logistics: Default::default(),
+            subsidiary_of: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -239,6 +240,7 @@ impl Game {
             tariffs: Default::default(),
             contracts: Vec::new(),
             next_contract: 0,
+            freight_market: Default::default(),
             player: CompanyId(0),
             game_over: false,
         };
@@ -456,6 +458,9 @@ impl Game {
             report
                 .messages
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
+            report
+                .messages
+                .extend(crate::group::settle_failures(&mut self.state));
             if next.ordinal() == 1 {
                 crate::tariffs::new_year(&mut self.state, &self.catalog, next.year());
             }

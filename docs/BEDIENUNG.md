@@ -447,6 +447,20 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   Organisation hin. Rundgang der Einführung: Schritt „Organisation“ (nennt Budget und
   Anliegen, den Vorstand und die Rücksprache).
 
+### Organisation → Tochterfirmen (W6)
+
+Unterreiter „Tochterfirmen“: oben die Liste der Töchter (Name und Sitz, Schwerpunkt zum
+Umstellen, Kasse, Eigenkapital mit eingezahltem Kapital, Ergebnis und Umsatz im Jahr,
+Standorte und Fahrzeuge) mit Betrag, „Kapital einlegen“ und „Ausschütten“ (bis zum
+angezeigten Höchstbetrag). Darunter „Neue Tochter gründen“: Name, Sitz, Kapital (mindestens
+das angezeigte), Schwerpunkt „Produktion und Handel“ oder „Logistik“, „Gründen“. Hat der
+Konzern Töchter, folgt „Standorte im Konzern übertragen“: jeder Standort der eigenen Firma
+und der Töchter mit Buchwert, Empfänger und „Übertragen“. Zuletzt „Konzern“: Aktiva,
+Passiva und die Gewinn- und Verlustrechnung des Jahres aller Konzernfirmen zusammen,
+dazu das Eigenkapital der eigenen Firma und des Konzerns. Töchter erscheinen nicht unter
+den Wettbewerbern; Kaufangebote und Lieferverträge an sie lehnt das Spiel mit einem
+Hinweis auf diesen Reiter ab. Geht eine Tochter pleite, meldet es der Rundenbericht.
+
 ### Beteiligungen (SU1)
 
 Frage des Spielers: „Wer arbeitet woran, wie weit sind sie, wie stehen die Chancen, und

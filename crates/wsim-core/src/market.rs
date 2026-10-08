@@ -717,6 +717,7 @@ fn clear_market(
             }
             trade(
                 state,
+                catalog,
                 &mut offers[i],
                 quantity,
                 Buyer::Site(site),
@@ -752,6 +753,7 @@ fn clear_market(
             }
             trade(
                 state,
+                catalog,
                 &mut offers[i],
                 quantity,
                 Buyer::Outside,
@@ -839,6 +841,7 @@ fn clear_market(
                     }
                     trade(
                         state,
+                        catalog,
                         &mut offers[i],
                         quantity,
                         Buyer::Outside,
@@ -870,6 +873,7 @@ fn clear_market(
         }
         trade(
             state,
+            catalog,
             &mut offers[i],
             quantity,
             Buyer::Trader {
@@ -1052,6 +1056,7 @@ fn import_floor(model: &MarketModel, imports: &Stock, replacement: Option<Money>
 
 fn trade(
     state: &mut GameState,
+    catalog: &Catalog,
     offer: &mut Offer,
     quantity: f64,
     buyer: Buyer,
@@ -1115,6 +1120,12 @@ fn trade(
         } => {
             offer.to_traders += quantity;
             day.exported += quantity;
+            crate::logistics::note_market_freight(
+                state,
+                catalog,
+                (product, quantity),
+                (country, destination),
+            );
             state.shipments.push(Shipment {
                 product,
                 quantity,

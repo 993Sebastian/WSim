@@ -75,6 +75,8 @@ pub struct Catalog {
     pub contracts: ContractModel,
     /// Fleets, state transport and freight risk (W5); without the section there are none.
     pub logistics: LogisticsModel,
+    /// Subsidiaries (W6); without the section the player cannot found any.
+    pub subsidiaries: SubsidiaryModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -369,6 +371,21 @@ pub struct VentureModel {
     pub provenance: Provenance,
 }
 
+/// Subsidiaries (W6, docs/FORMELN.md). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct SubsidiaryModel {
+    pub enabled: bool,
+    pub min_capital: Money,
+    pub founding_cost: Money,
+    /// Character of the subsidiaries' own management (the AI rules).
+    pub competence: f64,
+    pub aggressiveness: f64,
+    /// Logistics subsidiaries: share of cash for vehicles a month, least yearly return.
+    pub logistics_cash_share: f64,
+    pub logistics_min_return: f64,
+    pub provenance: Provenance,
+}
+
 /// What a fleet needs to know of a vehicle (W5).
 #[derive(Clone, Debug, PartialEq)]
 pub struct FleetVehicle {
@@ -395,6 +412,8 @@ pub struct LogisticsModel {
     pub sale_share: f64,
     /// Share of free capacity that finds cargo of others.
     pub rental_share: f64,
+    /// Share of the freight market company fleets may take over (W6).
+    pub rental_market_share: f64,
     /// Chance of losing a load by land and by sea, by year.
     pub risk_land: Option<TimeSeries>,
     pub risk_sea: Option<TimeSeries>,

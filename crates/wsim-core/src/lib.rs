@@ -18,6 +18,7 @@ pub mod decision;
 pub mod development;
 pub mod finance;
 pub mod game;
+pub mod group;
 pub mod health;
 pub mod ids;
 pub mod ledger;
@@ -67,6 +68,8 @@ mod development_tests;
 mod facility_tests;
 #[cfg(test)]
 mod finance_tests;
+#[cfg(test)]
+mod group_tests;
 #[cfg(test)]
 mod hq_city_tests;
 #[cfg(test)]

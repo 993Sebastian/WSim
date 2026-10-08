@@ -61,6 +61,13 @@ pub(super) fn logistics_model(ctx: &mut Ctx, raw: &RawData) -> LogisticsModel {
             1.0,
             &fl.field("vermietung_anteil"),
         ),
+        rental_market_share: in_range(
+            ctx,
+            f.rental_market_share,
+            0.0,
+            1.0,
+            &fl.field("vermietung_markt_anteil"),
+        ),
         risk_land: Some(chances(ctx, &v.risk.land, &rl.field("land"))),
         risk_sea: Some(chances(ctx, &v.risk.sea, &rl.field("see"))),
         ai_share: in_range(ctx, v.ki.share, 0.0, 1.0, &al.field("anteil")),

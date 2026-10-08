@@ -35,6 +35,7 @@ import type {
   Vertraege,
   Vertragspartnerliste,
   Logistik,
+  Konzern,
   Weiterlaufen,
   Weltkarte,
 } from "./typen";
@@ -106,6 +107,8 @@ export interface Kern {
   vertragspartner(standort: number, produkt: string): Promise<Vertragspartnerliste>;
   /** The player's fleet and way of freight (W5). */
   logistik(): Promise<Logistik>;
+  /** The player's subsidiaries and the group (W6). */
+  konzern(): Promise<Konzern>;
   /**
    * Candidates for a position: `einheit` is `standort:3`, `land:DEU` or `kontinent:europa`
    * (MA3), `stelle` is `leitung` or the key of a function (MA1).
@@ -164,6 +167,7 @@ const tauriKern: Kern = {
   vertraege: () => aufruf("vertraege"),
   vertragspartner: (standort, produkt) => aufruf("vertragspartner", { standort, produkt }),
   logistik: () => aufruf("logistik"),
+  konzern: () => aufruf("konzern"),
   managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
   befehl: (befehl) => aufruf("befehl", { befehl }),
   speichern: (name) => aufruf("speichern", { name }),

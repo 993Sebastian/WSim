@@ -758,6 +758,9 @@ pub(crate) fn make_offer(
     if seller == buyer {
         return Err(CommandError::OwnObject);
     }
+    if crate::group::same_group(state, seller, buyer) {
+        return Err(CommandError::WithinGroup);
+    }
     let other = state
         .company(seller)
         .ok_or(CommandError::UnknownCompany(seller))?;
@@ -1875,7 +1878,7 @@ pub(crate) fn deals_for(
     let business = business(state, catalog, buyer);
     let inbound = inbound_by_site(state);
     let available = |seller: CompanyId| {
-        seller != buyer
+        !crate::group::same_group(state, seller, buyer)
             && !state.companies[seller.index()].bankrupt
             && !(seller == player && player_full)
     };

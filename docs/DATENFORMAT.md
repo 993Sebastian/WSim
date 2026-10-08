@@ -440,6 +440,19 @@ Optional: ohne den Abschnitt gibt es keine Manager.
 | **faehigkeiten** | `schwerpunkt`, `sonst`, `allgemein`: je `mittel` (0–100) und `streuung` (0–50); `eindruck_unschaerfe` (0–50) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## tochterfirmen
+
+`data/parameter/tochterfirmen.yaml` (W6; Regeln: `docs/FORMELN.md`, Abschnitt W6). Ohne
+Abschnitt kann der Spieler keine Tochterfirmen gründen. Ein Abschnitt `tochterfirmen` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **mindestkapital_usd** | ≥ 0: kleinstes Startkapital einer Tochter |
+| **gruendungskosten_usd** | ≥ 0: Notar, Register (Sonstiges der Mutter) |
+| **geschaeftsfuehrung** | `kompetenz`, `aggressivitaet` (je 0–1): Charakter der eigenen Geschäftsführung, die nach den Regeln der KI handelt |
+| **logistik** | `kasse_anteil` (0–1: so viel ihrer Kasse steckt eine Logistik-Tochter je Monat in Fahrzeuge), `rendite_min` (0–10: Jahresrendite, ab der sie ein Fahrzeug kauft) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## zentrale
 
 `data/parameter/zentrale.yaml` (ZA1–ZA4; Regeln: `docs/FORMELN.md`, Vorgabe:
@@ -578,7 +591,7 @@ fahren alle Ladungen über den Frachtmarkt. Ein Abschnitt `logistik` mit:
 | Feld | Bedeutung |
 |---|---|
 | **staat** | `aufschlag` (0–10: so viel teurer als der Frachtmarkt), `risiko_faktor` (0–10: Faktor auf das Verlustrisiko) |
-| **flotte** | `marge_frachtmarkt` (0–0,9: Marge der Logistikfirmen in der Marktfracht, die eine voll genutzte Flotte spart), `auslastung` (0,01–1: genutzter Anteil der Fahrleistung), `unterhalt_anteil` (0–1 je Jahr vom Kaufwert), `nutzungsdauer_jahre` (> 0: lineare Abschreibung), `verkauf_anteil` (0–1 des Buchwerts beim Verkauf), `vermietung_anteil` (0–1: Anteil des freien Platzes, der Ladung anderer findet) |
+| **flotte** | `marge_frachtmarkt` (0–0,9: Marge der Logistikfirmen in der Marktfracht, die eine voll genutzte Flotte spart), `auslastung` (0,01–1: genutzter Anteil der Fahrleistung), `unterhalt_anteil` (0–1 je Jahr vom Kaufwert), `nutzungsdauer_jahre` (> 0: lineare Abschreibung), `verkauf_anteil` (0–1 des Buchwerts beim Verkauf), `vermietung_anteil` (0–1: Anteil des freien Platzes, der Ladung anderer findet), `vermietung_markt_anteil` (0–1: höchstens dieser Anteil der Tonnenkilometer des Frachtmarkts geht an Firmenflotten; W6) |
 | **risiko** | `land`, `see`: Jahreswerte (0–1), Wahrscheinlichkeit, eine Ladung zu verlieren |
 | **ki** | `anteil` (0–1: so viel ihrer Fracht soll die Flotte einer KI-Firma tragen), `kasse_anteil` (0–1: höchstens so viel der Kasse geht je Monat in Fahrzeuge) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |

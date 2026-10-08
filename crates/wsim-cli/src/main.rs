@@ -621,6 +621,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "startups": session.ventures().map_err(message)?,
     });
     json["logistik"] = example_logistics(&mut session)?;
+    json["konzern"] = example_group(&mut session)?;
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
     let (organisation, market, concerns, strategy) = example_organisation(&mut session)?;
@@ -688,6 +689,22 @@ fn example_logistics(session: &mut wsim_session::Session) -> Result<serde_json::
         .command(serde_json::json!({"SetLogistics": {"mode": "Fleet", "carry_for_others": true}}))
         .map_err(message)?;
     serde_json::to_value(session.logistics().map_err(message)?).map_err(|e| e.to_string())
+}
+
+/// The example's group (W6): a logistics subsidiary with the least capital.
+fn example_group(session: &mut wsim_session::Session) -> Result<serde_json::Value, String> {
+    let message = |m: wsim_core::views::MessageView| m.key;
+    let view = session.group().map_err(message)?;
+    // Money units of the core: hundredths of a cent; the capital is far below the range.
+    #[allow(clippy::cast_possible_truncation)]
+    let capital = (view.min_capital_usd * 10_000.0).round() as i64;
+    let name = format!("{} Spedition", view.company_name);
+    session
+        .command(serde_json::json!({"FoundSubsidiary": {
+            "name": name, "country": "DEU", "capital": capital, "focus": "Logistics"
+        }}))
+        .map_err(message)?;
+    serde_json::to_value(session.group().map_err(message)?).map_err(|e| e.to_string())
 }
 
 /// The views of the example's organisation (MA1–MA4).

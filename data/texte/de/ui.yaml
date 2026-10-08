@@ -1760,3 +1760,45 @@ logistik.zahl.unterhalt: Unterhalt
 logistik.zahl.abschreibung: Abschreibung
 logistik.zahl.verluste: Verlorene Ladungen
 logistik.verluste_wert: "{anzahl} ({wert})"
+organisation.reiter_tochterfirmen: Tochterfirmen
+tochter.hilfe: Eine Tochter ist eine eigene Firma mit eigener Bilanz, eigenen Steuern im Land ihres Sitzes und eigener Geschäftsführung, die nach den Regeln der KI-Firmen handelt – nie gegen deinen Konzern. Du gibst ihr Kapital und Standorte und holst Gewinne zurück.
+tochter.keine: In diesem Spiel gibt es keine Tochterfirmen.
+tochter.leer: Du hast noch keine Tochterfirmen.
+tochter.liste: Tochterfirmen
+tochter.firma: Firma
+tochter.schwerpunkt: Schwerpunkt
+tochter.schwerpunkt.produktion: Produktion und Handel
+tochter.schwerpunkt.logistik: Logistik
+tochter.schwerpunkt.produktion_hilfe: führt ihre Standorte, baut aus und forscht
+tochter.schwerpunkt.logistik_hilfe: kauft zusätzlich Fahrzeuge und fährt Fracht für andere
+tochter.kasse: Kasse
+tochter.eigenkapital: Eigenkapital
+tochter.eingezahlt: "davon eingezahlt {betrag}"
+tochter.ergebnis: Ergebnis im Jahr
+tochter.umsatz: "Umsatz {betrag}"
+tochter.besitz: Besitz
+tochter.bestand: "{standorte} Standorte, {fahrzeuge} Fahrzeuge"
+tochter.enkel: "Tochter von {mutter}"
+tochter.betrag: Betrag
+tochter.ausschuettung_max: "Ausschüttung bis {betrag}"
+tochter.einlegen: Kapital einlegen
+tochter.ausschuetten: Ausschütten
+tochter.neu_titel: Neue Tochter gründen
+tochter.neu_hilfe: "Mindestens {min} Kapital; Notar und Register kosten {kosten}."
+tochter.name: Name
+tochter.sitz: Sitz
+tochter.kapital: Kapital
+tochter.gruenden: Gründen
+tochter.standorte_titel: Standorte im Konzern übertragen
+tochter.standorte_hilfe: Ein Standort wechselt zu Buchwerten (Anlagen, Grundstück, Lager); der Empfänger zahlt sie aus seiner Kasse. Stellen am Standort werden frei, Lieferverträge enden.
+tochter.standort: Standort
+tochter.gehoert: Gehört
+tochter.buchwert: Buchwert
+tochter.an: An
+tochter.uebertragen: Übertragen
+tochter.konzern_titel: Konzern
+tochter.konzern_hilfe: "Alle Konzernfirmen zusammen; deine Beteiligungen an den Töchtern sind gegen deren eingezahltes Kapital aufgerechnet. Eigenkapital deiner Firma {eigen}, des Konzerns {konzern}."
+tochter.aktiva: Aktiva
+tochter.passiva: Passiva
+tochter.guv: Gewinn und Verlust im Jahr
+tochter.summe: Summe

@@ -167,7 +167,15 @@ fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Comman
 /// Buys vehicles where the loads of the month before would fill them, and sends the
 /// company's loads with its fleet (W5, docs/FORMELN.md).
 fn fleet(state: &mut GameState, catalog: &Catalog, id: CompanyId, decider: &mut dyn Decider) {
-    for (vehicle, count) in crate::logistics::ai_purchases(state, catalog, id) {
+    let mut buys = crate::logistics::ai_purchases(state, catalog, id);
+    // A logistics subsidiary also carries the freight of others (W6).
+    let focus = state.companies[id.index()].subsidiary_of.map(|s| s.focus);
+    if focus == Some(crate::group::SubsidiaryFocus::Logistics)
+        && let Some(buy) = crate::logistics::rental_purchase(state, catalog, id)
+    {
+        buys.push(buy);
+    }
+    for (vehicle, count) in buys {
         act(
             state,
             catalog,
@@ -3392,7 +3400,11 @@ fn found_companies(state: &mut GameState, catalog: &Catalog, date: Date, news: &
     let active = state
         .companies
         .iter()
-        .filter(|c| c.ai.is_some() && (!c.bankrupt || c.auction_until.is_some()))
+        .filter(|c| {
+            c.ai.is_some()
+                && c.subsidiary_of.is_none()
+                && (!c.bankrupt || c.auction_until.is_some())
+        })
         .count();
     let n = wanted.saturating_sub(active).min(per_companies(
         state,
@@ -4197,6 +4209,7 @@ fn found_one(
         hq_city: None,
         participations: Default::default(),
         logistics: Default::default(),
+        subsidiary_of: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4422,6 +4435,7 @@ mod tests {
             hq_city: None,
             participations: Default::default(),
             logistics: Default::default(),
+            subsidiary_of: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

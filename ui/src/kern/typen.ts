@@ -1990,3 +1990,52 @@ export interface Logistik {
   month: Logistikmonat;
   last_month: Logistikmonat;
 }
+
+/** A subsidiary of the player's group (W6). */
+export interface Tochter {
+  company: number;
+  name: string;
+  country: string;
+  parent: string;
+  direct: boolean;
+  focus: "produktion" | "logistik";
+  cash_usd: number;
+  equity_usd: number;
+  paid_in_usd: number;
+  revenue_year_usd: number;
+  result_year_usd: number;
+  sites: number;
+  vehicles: number;
+  payout_max_usd: number;
+}
+
+export interface KonzernStandort {
+  site: number;
+  company: number;
+  company_name: string;
+  country: string;
+  kind_text: string;
+  book_usd: number;
+}
+
+export interface KonzernZeile {
+  key: string;
+  usd: number;
+}
+
+export interface Konzern {
+  enabled: boolean;
+  min_capital_usd: number;
+  founding_cost_usd: number;
+  company: number;
+  company_name: string;
+  own_equity_usd: number;
+  subsidiaries: Tochter[];
+  sites: KonzernStandort[];
+  assets: KonzernZeile[];
+  liabilities: KonzernZeile[];
+  total_assets_usd: number;
+  group_equity_usd: number;
+  income: KonzernZeile[];
+  result_year_usd: number;
+}

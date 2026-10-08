@@ -1195,6 +1195,36 @@ entschieden:
 7. **Die KI** kauft Fahrzeuge, die ihre Ladungen des Vormonats ganz füllen, bis die Flotte
    die Hälfte trägt (höchstens 20 % der Kasse je Monat), und fährt dann auch für andere.
 
+✅ **W6 umgesetzt** (Tochterfirmen und Konzern; Regeln: `docs/FORMELN.md`, Abschnitt W6). 🟡
+Eigenständig entschieden:
+
+1. **Eigene Geschäftsführung nach den Regeln der KI:** Eine Tochter handelt selbst
+   (Kompetenz 0,6, Aggressivität 0,4) – sie betreibt und baut ihre Standorte aus, forscht,
+   wirbt und besetzt Stellen. Der Spieler steuert sie über Kapital, Standorte und
+   Schwerpunkt, nicht Werk für Werk. Ein „Firmenwechsel“ in der Oberfläche, um eine Tochter
+   selbst zu führen, ist möglich, aber nicht umgesetzt (jede Ansicht müsste die Firma
+   wechseln können).
+2. **Zwei Schwerpunkte:** „Produktion und Handel“ und „Logistik“ (kauft zusätzlich
+   Fahrzeuge, die Fracht für andere fahren). Beteiligungs-, Investment- und Bankfirmen
+   (Lastenheft §17.3) folgen mit Stufe 3 (K4).
+3. **Nie gegen den Konzern:** keine Kaufangebote, Lieferverträge, Gebote oder Beteiligungen
+   an Start-ups zwischen Konzernfirmen; Töchter zählen nicht als Wettbewerber und nicht zu
+   den KI-Firmen, deren Zahl das Spiel hält.
+4. **Ausschüttungen** im Konzern sind steuerfrei und gehen direkt in die Gewinnrücklagen
+   der Mutter (kein doppelter Gewinn in der Konzern-GuV); was über den Gewinn hinausgeht, ist
+   Rückzahlung von Kapital.
+5. **Standorte wechseln zu Buchwerten** gegen Zahlung aus der Kasse des Empfängers;
+   Grundstücke bleiben zum Buchwert (keine stillen Reserven). Lieferverträge des Standorts
+   enden, Stellen werden frei.
+6. **Konzernbilanz** durch Addition mit Aufrechnung der Beteiligungen gegen das gezeichnete
+   Kapital der Töchter; Töchter gehören zu 100 % der Mutter (Minderheiten kommen mit dem
+   Börsengang von Töchtern in Stufe 3).
+7. **Verkaufen oder Eingliedern** einer Tochter ist (noch) nicht vorgesehen; Standorte und
+   Kapital lassen sich zurückholen.
+8. **Frachtmarkt begrenzt die Vermietung** (Nachtrag zu W5): Firmenflotten fahren höchstens
+   25 % der Tonnenkilometer der Händler und der Marktladungen des Monats; sonst hätte eine
+   Logistik-Tochter mit genug Zügen grenzenlos verdient.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

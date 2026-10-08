@@ -3739,6 +3739,7 @@ logistik:
     nutzungsdauer_jahre: 20
     verkauf_anteil: 0.6
     vermietung_anteil: 0.5
+    vermietung_markt_anteil: 0.25
   risiko:
     land: {1900: 0.002, 2000: 0.0003}
     see: {1900: 0.006, 2000: 0.001}
@@ -3802,4 +3803,64 @@ fn logistik_wird_geprueft() {
     // Without the section only the freight market.
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.logistics.enabled);
+}
+
+const TOCHTERFIRMEN: &str = "\
+tochterfirmen:
+  mindestkapital_usd: 25000
+  gruendungskosten_usd: 3000
+  geschaeftsfuehrung:
+    kompetenz: 0.6
+    aggressivitaet: 0.4
+  logistik:
+    kasse_anteil: 0.3
+    rendite_min: 0.06
+";
+
+#[test]
+fn tochterfirmen_werden_geprueft() {
+    let datei = "parameter/tochterfirmen.yaml";
+    let toechter = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &TOCHTERFIRMEN.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = toechter("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.subsidiaries;
+    assert!(m.enabled);
+    assert!((m.competence - 0.6).abs() < 1e-12);
+    assert_eq!(m.min_capital.to_usd(), 25_000.0);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "kompetenz: 0.6",
+            "kompetenz: 1.6",
+            "Wert 1.6 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "tochterfirmen.geschaeftsfuehrung.kompetenz",
+        ),
+        (
+            "mindestkapital_usd: 25000",
+            "mindestkapital_usd: -5",
+            "-5",
+            "tochterfirmen.mindestkapital_usd",
+        ),
+        (
+            "kasse_anteil: 0.3",
+            "kasse_anteil: 2",
+            "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "tochterfirmen.logistik.kasse_anteil",
+        ),
+    ] {
+        let outcome = toechter(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(
+        &toechter("  logistik:", "  unbekannt: 1\n  logistik:"),
+        "unbekannt",
+    );
+    // Without the section there are no subsidiaries.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.subsidiaries.enabled);
 }

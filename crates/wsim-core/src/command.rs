@@ -96,6 +96,22 @@ pub enum Command {
         mode: crate::logistics::FreightMode,
         carry_for_others: bool,
     },
+    /// Founds a subsidiary with its capital (W6).
+    FoundSubsidiary {
+        name: String,
+        country: CountryId,
+        capital: Money,
+        focus: crate::group::SubsidiaryFocus,
+    },
+    /// Capital into a direct subsidiary (> 0) or back to the parent (< 0).
+    MoveCapital { company: CompanyId, amount: Money },
+    /// Moves a site between the company and a direct subsidiary at book values.
+    TransferSite { site: SiteId, to: CompanyId },
+    /// Changes the focus of a direct subsidiary.
+    SetSubsidiaryFocus {
+        company: CompanyId,
+        focus: crate::group::SubsidiaryFocus,
+    },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -503,6 +519,16 @@ pub enum CommandError {
     TooManyVehicles {
         count: u32,
     },
+    /// The data have no subsidiaries (W6).
+    NoSubsidiaries,
+    /// Less capital than a subsidiary needs.
+    CapitalTooLow {
+        min: Money,
+    },
+    /// Not a direct subsidiary of the company (or one that failed).
+    NotOwnSubsidiary,
+    /// Within the group sites move by `TransferSite`, not by offers or contracts.
+    WithinGroup,
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -667,6 +693,12 @@ impl CommandError {
             ),
             CommandError::NoLogistics => e(keys::COMMAND_NO_LOGISTICS),
             CommandError::VehicleNotForFleet => e(keys::COMMAND_VEHICLE_NOT_FOR_FLEET),
+            CommandError::NoSubsidiaries => e(keys::COMMAND_NO_SUBSIDIARIES),
+            CommandError::CapitalTooLow { min } => {
+                e(keys::COMMAND_CAPITAL_TOO_LOW).with("min", Param::Money(*min))
+            }
+            CommandError::NotOwnSubsidiary => e(keys::COMMAND_NOT_OWN_SUBSIDIARY),
+            CommandError::WithinGroup => e(keys::COMMAND_WITHIN_GROUP),
             CommandError::TooManyVehicles { count } => {
                 e(keys::COMMAND_TOO_MANY_VEHICLES).with("anzahl", Param::Integer(i64::from(*count)))
             }
@@ -1368,6 +1400,23 @@ fn run(
         }
         Command::SellVehicles { vehicle, count } => {
             crate::logistics::sell(state, catalog, actor, *vehicle, *count)?;
+        }
+        Command::FoundSubsidiary {
+            name,
+            country,
+            capital,
+            focus,
+        } => {
+            crate::group::found(state, catalog, actor, (name, *country), *capital, *focus)?;
+        }
+        Command::MoveCapital { company, amount } => {
+            crate::group::move_capital(state, actor, *company, *amount)?;
+        }
+        Command::TransferSite { site, to } => {
+            crate::group::transfer_site(state, catalog, actor, *site, *to)?;
+        }
+        Command::SetSubsidiaryFocus { company, focus } => {
+            crate::group::set_focus(state, actor, *company, *focus)?;
         }
         Command::SetLogistics {
             mode,

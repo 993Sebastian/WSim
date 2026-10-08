@@ -10,6 +10,7 @@ mod chains;
 mod concerns;
 mod contracts;
 mod deals;
+mod group;
 mod hints;
 mod logistics;
 mod organisation;
@@ -25,6 +26,7 @@ pub use deals::{
     AreaView, CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView,
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
 };
+pub use group::*;
 pub use hints::*;
 pub use logistics::*;
 pub use organisation::*;
@@ -504,7 +506,12 @@ fn company_view(game: &Game) -> CompanyView {
 pub fn overview(game: &Game) -> Overview {
     let state = game.state();
     let catalog = game.catalog();
-    let ai: Vec<&Company> = state.companies.iter().filter(|c| c.ai.is_some()).collect();
+    // The player's subsidiaries are no competitors (W6).
+    let ai: Vec<&Company> = state
+        .companies
+        .iter()
+        .filter(|c| c.ai.is_some() && c.subsidiary_of.is_none())
+        .collect();
     let mut active: Vec<&&Company> = ai.iter().filter(|c| !c.bankrupt).collect();
     active.sort_by(|a, b| equity(b).cmp(&equity(a)).then(a.name.cmp(&b.name)));
     Overview {
@@ -632,6 +639,7 @@ pub fn message_view(message: &Message) -> MessageView {
         Some("forschung")
     } else if message.key.starts_with("meldung.anliegen.")
         || message.key.starts_with("meldung.manager.")
+        || message.key.starts_with("meldung.tochter.")
     {
         Some("organisation")
     } else if matches!(

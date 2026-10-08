@@ -522,6 +522,21 @@ test("Logistik: Weg der Ladungen, Flotte und Fahrzeugkauf", async ({ page }) => 
   await bild(page, "logistik");
 });
 
+test("Tochterfirmen: Tochter, Gründung und Konzernbilanz", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Organisation", exact: true }).click();
+  await page.getByRole("button", { name: "Tochterfirmen", exact: true }).click();
+  const liste = page.getByRole("table", { name: "Tochterfirmen" });
+  await expect(liste.getByRole("row").nth(1)).toContainText("Spedition");
+  await expect(page.getByRole("table", { name: "Aktiva" })).toBeVisible();
+  await page.getByLabel("Name", { exact: true }).fill("Werke Süd");
+  await page.getByRole("button", { name: "Gründen" }).click();
+  await expect
+    .poll(async () => JSON.stringify((await befehle(page)).at(-1)))
+    .toContain('"FoundSubsidiary"');
+  await bild(page, "tochterfirmen");
+});
+
 test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
   page,
 }) => {

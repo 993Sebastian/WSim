@@ -12218,6 +12218,111 @@
       "led_lampe"
     ]
   },
+  "konzern": {
+    "assets": [
+      {
+        "key": "konto.kasse",
+        "usd": 27250.5079
+      },
+      {
+        "key": "konto.vorraete",
+        "usd": 6858.7872
+      },
+      {
+        "key": "konto.sachanlagen",
+        "usd": 73218.8184
+      }
+    ],
+    "company": 0,
+    "company_name": "Neue Firma",
+    "enabled": true,
+    "founding_cost_usd": 3000.0,
+    "group_equity_usd": 107328.1135,
+    "income": [
+      {
+        "key": "kostenart.umsatz",
+        "usd": 191863.7808
+      },
+      {
+        "key": "kostenart.material",
+        "usd": -155230.3146
+      },
+      {
+        "key": "kostenart.personal",
+        "usd": -8048.6939
+      },
+      {
+        "key": "kostenart.abschreibungen",
+        "usd": -1781.1816
+      },
+      {
+        "key": "kostenart.instandhaltung",
+        "usd": -696.9924
+      },
+      {
+        "key": "kostenart.gemeinkosten",
+        "usd": -5320.1913
+      },
+      {
+        "key": "kostenart.pacht",
+        "usd": -10458.2935
+      },
+      {
+        "key": "kostenart.sonstiges",
+        "usd": -3000.0
+      }
+    ],
+    "liabilities": [
+      {
+        "key": "konto.kredite",
+        "usd": 0.0
+      },
+      {
+        "key": "konto.eigenkapital",
+        "usd": 100000.0
+      },
+      {
+        "key": "konto.gewinnruecklagen",
+        "usd": 0.0
+      },
+      {
+        "key": "konto.jahresergebnis",
+        "usd": 7328.1135
+      }
+    ],
+    "min_capital_usd": 25000.0,
+    "own_equity_usd": 107328.1135,
+    "result_year_usd": 7328.1135,
+    "sites": [
+      {
+        "book_usd": 65077.6,
+        "company": 0,
+        "company_name": "Neue Firma",
+        "country": "DEU",
+        "kind_text": "standorttyp.werk",
+        "site": 0
+      }
+    ],
+    "subsidiaries": [
+      {
+        "cash_usd": 25000.0,
+        "company": 101,
+        "country": "DEU",
+        "direct": true,
+        "equity_usd": 25000.0,
+        "focus": "logistik",
+        "name": "Neue Firma Spedition",
+        "paid_in_usd": 25000.0,
+        "parent": "Neue Firma",
+        "payout_max_usd": 25000.0,
+        "result_year_usd": 0.0,
+        "revenue_year_usd": 0.0,
+        "sites": 0,
+        "vehicles": 0
+      }
+    ],
+    "total_assets_usd": 107328.1135
+  },
   "laender": {
     "DEU": {
       "companies": [
