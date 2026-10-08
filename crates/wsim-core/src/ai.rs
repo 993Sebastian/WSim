@@ -99,6 +99,9 @@ pub fn decide_with(
             if let Some(share) = crate::stock::ai_ipo(state, catalog, id) {
                 act(state, catalog, id, &Command::GoPublic { share }, decider);
             }
+            if state.companies[id.index()].subsidiary_of.is_none() {
+                news.extend(invest(state, catalog, id, own, decider));
+            }
             fleet(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
@@ -1705,6 +1708,64 @@ pub(crate) fn daily_cost(catalog: &Catalog, state: &GameState, sites: &[SiteId])
         }
     }
     total
+}
+
+/// AI investors (K3): trades on the stock market with the cash above the reserve, and
+/// now and then a takeover bid. Returns the news for the player.
+fn invest(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    decider: &mut dyn Decider,
+) -> Vec<Message> {
+    use crate::state::Holder;
+    let mut news = Vec::new();
+    if !catalog.stock.enabled {
+        return news;
+    }
+    let b = &catalog.ai_model.behavior;
+    let monthly = daily_cost(catalog, state, sites).scale(30.0);
+    let surplus = state.companies[id.index()].ledger.cash() - monthly.scale(b.cash_max_months);
+    for command in crate::stock::ai_trades(state, catalog, id, surplus) {
+        act(state, catalog, id, &command, decider);
+    }
+    let (_, aggressiveness) = traits(catalog, state, id);
+    let Some(target) = crate::stock::ai_takeover(state, catalog, id, aggressiveness) else {
+        return news;
+    };
+    let player = state.player;
+    let t = &state.companies[target.index()];
+    let (price, _) = crate::stock::takeover_price(catalog, t, id);
+    let per_share = t.listing.as_ref().map_or(Money::ZERO, |l| {
+        l.value.scale(1.0 + catalog.stock.takeover_premium)
+    });
+    let sold = per_share.scale(crate::stock::stake(t, Holder::Company(player)));
+    let buyer = Param::Text(state.companies[id.index()].name.clone());
+    let firm = Param::Text(t.name.clone());
+    if !act(
+        state,
+        catalog,
+        id,
+        &Command::TakeOver { company: target },
+        decider,
+    ) {
+        return news;
+    }
+    news.push(if target == player {
+        Message::new(MessageKind::Crisis, keys::GAME_OVER_TAKEN_OVER).with("kaeufer", buyer)
+    } else if sold > Money::ZERO {
+        Message::new(MessageKind::Info, keys::STOCK_TAKEOVER_SOLD)
+            .with("kaeufer", buyer)
+            .with("firma", firm)
+            .with("betrag", Param::Money(sold))
+    } else {
+        Message::new(MessageKind::Info, keys::STOCK_TAKEOVER)
+            .with("kaeufer", buyer)
+            .with("firma", firm)
+            .with("preis", Param::Money(price))
+    });
+    news
 }
 
 /// Loans keep the cash between the minimum and maximum months of running cost.

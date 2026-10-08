@@ -468,9 +468,11 @@ abgelehnt. Ein Abschnitt `boerse` mit:
 | krisen | Liste historischer Krisen: `jahr`, `monat` (1–12), `einbruch` (0–0,95: so viel bricht die Stimmung im Monat der Krise ein) |
 | **boersengang** | `eigenkapital_min_usd` (≥ 0), `anteil_max` (0,01–0,9: höchstens so viele neue Aktien auf einmal), `abschlag` (0–1: Zeichnungsabschlag auf den Wert), `kosten_anteil` (0–1: Banken und Prospekt, Anteil am Erlös) |
 | **dividende** | `monat` (1–12: Zahltag), `ki_quote` (0–1: Ausschüttungsquote der KI-Firmen), `kasse_max` (0–1: höchstens dieser Anteil der Kasse) |
-| **handel** | `aufschlag`, `abschlag` (je 0–1: auf den Börsenwert beim Kauf bzw. Verkauf), `preiswirkung` (0–5: Kurswirkung je gehandeltem Anteil), `anteil_max` (0–1: so viel einer anderen Firma darf eine Firma halten) |
+| **handel** | `aufschlag`, `abschlag` (je 0–1: auf den Börsenwert beim Kauf bzw. Verkauf), `preiswirkung` (0–5: Kurswirkung je gehandeltem Anteil), `anteil_max` (0–1: so viel einer anderen Firma darf eine Firma über die Börse halten; darüber nur mit einem Übernahmeangebot) |
+| **uebernahme** | `aufschlag` (0–5: Übernahmeprämie über dem Börsenwert), `kosten_anteil` (0–1: Banken und Berater, Anteil am Kaufpreis) (K3) |
+| **rueckkauf** | `anteil_max` (0–0,9: je Aktienrückkauf höchstens so viel der Aktien) (K3) |
 | **start** | `eigenkapital_min_usd` (≥ 0: KI-Firmen mit so viel Eigenkapital sind beim Start notiert), `streubesitz` (0–1: davon bei den Anlegern) |
-| **ki** | `boersengang_chance` (0–1: je Monat, für KI-Firmen mit dem Eigenkapital von `start`), `boersengang_anteil` (0–0,9) |
+| **ki** | `boersengang_chance` (0–1: je Monat, für KI-Firmen mit dem Eigenkapital von `start`), `boersengang_anteil` (0–0,9); KI-Anleger (K3): `depot_anteil_kasse` (0–1: so viel des Kassenüberschusses in Aktien), `depot_anteil_max` (0–1: höchstens so viel einer Firma), `unterbewertung` (0–0,9: kauft unter, verkauft über diesem Abstand zum fairen Wert), `uebernahme_chance` (0–1: je Monat, mal Aggressivität), `uebernahme_kasse_anteil` (0–1: Übernahmepreis höchstens so viel der Kasse) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## anleihen

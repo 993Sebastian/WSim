@@ -102,6 +102,7 @@ fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.
 fehler.befehl.kredit_zu_hoch: Die Bank leiht höchstens {limit}.
 fehler.befehl.laufzeit_ungueltig: Die Laufzeit muss zwischen 1 und {max} Jahren liegen.
 fehler.befehl.kredit_unbekannt: Diesen Kredit gibt es nicht.
+meldung.spielende_uebernahme: "{kaeufer} hat die Mehrheit an deiner Firma gekauft. Du hast die Kontrolle verloren – die Partie ist zu Ende."
 meldung.spielende_insolvenz: Die Firma ist zahlungsunfähig, und keine Bank gibt mehr Kredit. Die Partie ist zu Ende.
 meldung.firma_insolvent: „{firma}“ ist zahlungsunfähig.
 meldung.firma_insolvent_versteigerung: "„{firma}“ ist zahlungsunfähig. Ihre {anzahl} Standorte werden bis {datum} versteigert – Gebote ab dem halben Grundwert unter „Wettbewerb“."
@@ -163,7 +164,7 @@ fehler.befehl.nicht_notiert: Diese Firma ist nicht an der Börse.
 fehler.befehl.schon_notiert: Deine Firma ist schon an der Börse – neue Aktien gibst du über eine Kapitalerhöhung aus.
 fehler.befehl.eigenkapital_zu_gering: "Für den Börsengang braucht deine Firma mindestens {min} Eigenkapital."
 fehler.befehl.anteil_ausserhalb: "Der Anteil muss größer als 0 und höchstens {max} % sein."
-fehler.befehl.mehrheit_verloren: Damit hättest du nicht mehr die Mehrheit an deiner Firma – gib weniger neue Aktien aus.
+fehler.befehl.uebernahme_ohne_mehrheit: "Der Spieler hält {anteil} % dieser Firma und verkauft nicht – eine Übernahme ist unmöglich."
 fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der Aktien."
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
 fehler.befehl.keine_anleihen: In diesem Spiel gibt es keine Anleihen.
@@ -397,6 +398,8 @@ meldung.vertrag.beendet: Der Liefervertrag über {produkt} ist ausgelaufen.
 meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe."
 meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe."
 meldung.tochter.pleite: "Deine Tochter {firma} ist pleite – {verlust} Beteiligung abgeschrieben."
+meldung.boerse.uebernahme: "{kaeufer} übernimmt {firma} für {preis}."
+meldung.boerse.uebernahme_verkauft: "{kaeufer} übernimmt {firma} – deine Firma verkauft ihre Aktien für {betrag}."
 meldung.boerse.krise: "Börsenkrach: Die Kurse brechen um rund {einbruch} % ein."
 meldung.boerse.abgeschrieben: "{firma} ist pleite und verlässt die Börse – deine Aktien ({betrag}) sind abgeschrieben."
 meldung.boerse.dividende_gezahlt: "Deine Firma zahlt {betrag} Dividende an ihre Aktionäre."

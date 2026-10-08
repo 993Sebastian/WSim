@@ -1201,6 +1201,34 @@ fn print_stock(game: &Game) {
         ),
         format_number(dividends / 1e6, 1)
     );
+    // K3: stakes of companies in listed companies, and companies taken over.
+    let (mut stakes, mut stake_value) = (0usize, 0.0);
+    for c in &listed {
+        for s in &c.owners {
+            if let wsim_core::state::Holder::Company(_) = s.holder {
+                stakes += 1;
+                stake_value += c.listing.as_ref().map_or(0.0, |l| l.value.to_usd()) * s.share;
+            }
+        }
+    }
+    let taken = state
+        .companies
+        .iter()
+        .filter(|c| {
+            !c.bankrupt
+                && c.subsidiary_of
+                    .is_some_and(|s| state.companies[s.parent.index()].ai.is_some())
+                && c.ai.is_some()
+                && c.listing.is_none()
+                && c.owners.len() == 1
+        })
+        .count();
+    println!(
+        "Anleger (K3): {} Beteiligungen von Firmen an notierten Firmen über {} Mrd. USD; {} Töchter von KI-Firmen",
+        stakes,
+        format_number(stake_value / 1e9, 2),
+        taken
+    );
 }
 
 /// Bonds (K2): how many companies have bonds outstanding, their volume and coupon.

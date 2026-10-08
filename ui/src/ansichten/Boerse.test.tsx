@@ -122,4 +122,37 @@ describe("Börse", () => {
     await screen.findByText("Erledigt.");
     expect(danach).toEqual([{ SetDividend: { payout: 0.3 } }]);
   });
+
+  it("bietet für eine Firma und kauft eigene Aktien zurück", async () => {
+    const gesendet = await zeige((d) => {
+      d.own.listed = true;
+      d.own.player_stake = 0.45;
+      d.own.owners = [
+        { kind: "anleger", name: null, share: 0.55 },
+        { kind: "du", name: null, share: 0.45 },
+      ];
+      d.own.buyback = [{ share: 0.05, usd: 50_000 }];
+    });
+    expect(screen.getByText(/Du hältst nur 45 % deiner Firma/)).toBeTruthy();
+    const eigner = screen.getByRole("table", { name: "Eigner deiner Firma" });
+    expect(within(eigner).getByText("Anleger (Streubesitz)")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Aktien zurückkaufen" }));
+    await screen.findByText("Erledigt.");
+    const tabelle = screen.getByRole("table", { name: "Börsennotierte Firmen" });
+    const zeile = within(tabelle).getAllByRole("row")[2]!;
+    fireEvent.click(within(zeile).getAllByRole("button")[0]!);
+    fireEvent.click(await screen.findByRole("button", { name: /^Übernehmen für/ }));
+    await screen.findAllByText("Erledigt.");
+    expect(gesendet[0]).toEqual({ BuyBackShares: { share: 0.05 } });
+    expect(gesendet[1]).toEqual({ TakeOver: { company: expect.any(Number) as number } });
+  });
+
+  it("warnt, bevor neue Aktien die Mehrheit kosten", async () => {
+    await zeige((d) => {
+      d.own.equity_usd = d.own.equity_min_usd * 2;
+      d.own.issue = d.own.issue.map((x) => ({ ...x, loses_majority: x.share > 0.3 }));
+    });
+    fireEvent.change(screen.getByLabelText("Neue Aktien"), { target: { value: "7" } });
+    expect(screen.getByRole("alert").textContent).toContain("nicht mehr die Mehrheit");
+  });
 });

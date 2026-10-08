@@ -103,6 +103,44 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
             0.9,
             &al.field("boersengang_anteil"),
         ),
+        takeover_premium: in_range(
+            ctx,
+            v.takeover.premium,
+            0.0,
+            5.0,
+            &l.field("uebernahme").field("aufschlag"),
+        ),
+        takeover_cost_share: unit(
+            ctx,
+            v.takeover.cost_share,
+            &l.field("uebernahme").field("kosten_anteil"),
+        ),
+        buyback_share_max: in_range(
+            ctx,
+            v.buyback.share_max,
+            0.0,
+            0.9,
+            &l.field("rueckkauf").field("anteil_max"),
+        ),
+        ai_portfolio_cash_share: unit(
+            ctx,
+            v.ki.portfolio_cash_share,
+            &al.field("depot_anteil_kasse"),
+        ),
+        ai_portfolio_stake_max: unit(ctx, v.ki.portfolio_stake_max, &al.field("depot_anteil_max")),
+        ai_undervaluation: in_range(
+            ctx,
+            v.ki.undervaluation,
+            0.0,
+            0.9,
+            &al.field("unterbewertung"),
+        ),
+        ai_takeover_chance: unit(ctx, v.ki.takeover_chance, &al.field("uebernahme_chance")),
+        ai_takeover_cash_share: unit(
+            ctx,
+            v.ki.takeover_cash_share,
+            &al.field("uebernahme_kasse_anteil"),
+        ),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

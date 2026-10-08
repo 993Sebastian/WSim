@@ -2110,6 +2110,14 @@ export interface AktienAusgabe {
   proceeds_usd: number;
   cost_usd: number;
   stake_after: number;
+  loses_majority: boolean;
+}
+
+/** An owner of the player's company (K3). */
+export interface Eigner {
+  kind: "du" | "anleger" | "gruender" | "firma";
+  name: string | null;
+  share: number;
 }
 
 export interface BoersenFirma {
@@ -2128,6 +2136,8 @@ export interface BoersenFirma {
   dividend_usd: number;
   dividend_yield: number | null;
   free_float: number;
+  fair_usd: number;
+  takeover_usd: number | null;
   held: number;
   held_cost_usd: number;
   held_value_usd: number;
@@ -2147,6 +2157,8 @@ export interface EigeneNotierung {
   discount: number;
   share_max: number;
   issue: AktienAusgabe[];
+  buyback: AktienKurs[];
+  owners: Eigner[];
   payout: number;
   dividend_month: number;
   profit_last_year_usd: number;

@@ -705,10 +705,16 @@ fn the_stock_market() {
     assert!(view.own.listed);
     assert!((view.own.player_stake - 0.8).abs() < 1e-9);
     assert_eq!(view.companies[0].relation, "eigen");
-    let err = session
-        .command(json!({"IssueShares": {"share": 0.4}}))
-        .unwrap_err();
-    assert_eq!(err.key, "fehler.befehl.mehrheit_verloren");
+    // A buyback of a tenth, then new shares the size of the buyback.
+    session
+        .command(json!({"BuyBackShares": {"share": 0.1}}))
+        .unwrap();
+    let view = session.stock().unwrap();
+    assert!((view.own.player_stake - 0.8 / 0.9).abs() < 1e-9);
+    assert_eq!(view.own.owners[0].kind, "du");
+    session
+        .command(json!({"IssueShares": {"share": 0.1}}))
+        .unwrap();
     session
         .command(json!({"SetDividend": {"payout": 0.3}}))
         .unwrap();

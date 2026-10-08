@@ -33,6 +33,17 @@ pub struct IssueQuoteView {
     pub cost_usd: f64,
     /// The player's share of its company afterwards.
     pub stake_after: f64,
+    /// The player loses the majority (K3: a takeover can end the game).
+    pub loses_majority: bool,
+}
+
+/// An owner of the player's company.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OwnerView {
+    /// `du`, `anleger`, `gruender` or `firma` (then with name).
+    pub kind: String,
+    pub name: Option<String>,
+    pub share: f64,
 }
 
 /// A listed company.
@@ -57,6 +68,11 @@ pub struct ListedCompanyView {
     pub dividend_usd: f64,
     pub dividend_yield: Option<f64>,
     pub free_float: f64,
+    /// The value without the investors' mood (K3).
+    pub fair_usd: f64,
+    /// What a takeover bid of the player's company would cost, banks included; `None`
+    /// where it cannot bid.
+    pub takeover_usd: Option<f64>,
     /// The share the player's company holds.
     pub held: f64,
     pub held_cost_usd: f64,
@@ -83,8 +99,12 @@ pub struct OwnListingView {
     pub issue_value_usd: f64,
     pub discount: f64,
     pub share_max: f64,
-    /// Possible steps of new shares (keeping the majority).
+    /// Steps of new shares.
     pub issue: Vec<IssueQuoteView>,
+    /// Steps of a buyback with their price (K3).
+    pub buyback: Vec<StockQuoteView>,
+    /// The owners, largest first.
+    pub owners: Vec<OwnerView>,
     /// Share of last year's profit paid out.
     pub payout: f64,
     pub dividend_month: u32,
@@ -189,6 +209,13 @@ fn listed_company(
         dividend_usd: usd(dividend),
         dividend_yield: (l.value > Money::ZERO).then(|| dividend.to_usd() / l.value.to_usd()),
         free_float: float,
+        fair_usd: usd(stock::fair(catalog, c)),
+        takeover_usd: (foreign && !c.bankrupt && stock::stake(c, Holder::Player) < 0.5).then(
+            || {
+                let (price, cost) = stock::takeover_price(catalog, c, me);
+                usd(price + cost)
+            },
+        ),
         held,
         held_cost_usd: usd(state.companies[me.index()]
             .stock_cost
@@ -221,16 +248,52 @@ fn own_listing(game: &Game) -> OwnListingView {
         if s > m.ipo_share_max + 1e-9 {
             break;
         }
-        if stock::keeps_majority(c, s).is_ok() {
-            let proceeds = stock::issue_proceeds(before, s);
-            issue.push(IssueQuoteView {
-                share: s,
-                proceeds_usd: usd(proceeds),
-                cost_usd: usd(proceeds.scale(m.ipo_cost_share)),
-                stake_after: player_stake * (1.0 - s),
-            });
-        }
+        let proceeds = stock::issue_proceeds(before, s);
+        issue.push(IssueQuoteView {
+            share: s,
+            proceeds_usd: usd(proceeds),
+            cost_usd: usd(proceeds.scale(m.ipo_cost_share)),
+            stake_after: player_stake * (1.0 - s),
+            loses_majority: stock::loses_majority(c, s),
+        });
     }
+    let float = stock::free_float(c);
+    let buyback_max = m.buyback_share_max.min(float);
+    let buyback = c.listing.as_ref().map_or_else(Vec::new, |l| {
+        let mut steps: Vec<f64> = BUY_STEPS
+            .iter()
+            .copied()
+            .filter(|&q| q < buyback_max - 1e-9)
+            .collect();
+        if buyback_max > 1e-9 {
+            steps.push(buyback_max);
+        }
+        steps
+            .into_iter()
+            .map(|q| StockQuoteView {
+                share: q,
+                usd: usd(stock::buy_price(catalog, l, q)),
+            })
+            .collect()
+    });
+    let mut owners: Vec<OwnerView> = c
+        .owners
+        .iter()
+        .map(|s| {
+            let (kind, name) = match s.holder {
+                Holder::Player => ("du", None),
+                Holder::Investors => ("anleger", None),
+                Holder::Private => ("gruender", None),
+                Holder::Company(h) => ("firma", Some(state.companies[h.index()].name.clone())),
+            };
+            OwnerView {
+                kind: kind.to_owned(),
+                name,
+                share: s.share,
+            }
+        })
+        .collect();
+    owners.sort_by(|a, b| b.share.total_cmp(&a.share));
     let profit = c
         .ledger
         .years
@@ -248,6 +311,8 @@ fn own_listing(game: &Game) -> OwnListingView {
         discount: m.ipo_discount,
         share_max: m.ipo_share_max,
         issue,
+        buyback,
+        owners,
         payout: c.dividend_payout.unwrap_or(0.0),
         dividend_month: m.dividend_month,
         profit_last_year_usd: usd(profit),

@@ -122,6 +122,10 @@ pub enum Command {
     BuyShares { company: CompanyId, share: f64 },
     /// Sells a share of a listed company to investors.
     SellShares { company: CompanyId, share: f64 },
+    /// Bids for all shares of a listed company it does not hold (K3).
+    TakeOver { company: CompanyId },
+    /// Buys back a share of its own stock from the free float.
+    BuyBackShares { share: f64 },
     /// Issues a bond of `amount`, repaid at once after `years` (K2).
     IssueBond { amount: Money, years: u32 },
     /// Buys a bond back before maturity.
@@ -555,8 +559,10 @@ pub enum CommandError {
     ShareOutOfRange {
         max: f64,
     },
-    /// The player would no longer own the majority of its company.
-    WouldLoseMajority,
+    /// The player keeps the majority of the company bid for (K3).
+    TakeoverNoMajority {
+        held: f64,
+    },
     NotEnoughFreeFloat {
         available: f64,
     },
@@ -759,7 +765,8 @@ impl CommandError {
             }
             CommandError::ShareOutOfRange { max } => e(keys::COMMAND_SHARE_OUT_OF_RANGE)
                 .with("max", Param::Number((max * 1000.0).round() / 10.0)),
-            CommandError::WouldLoseMajority => e(keys::COMMAND_WOULD_LOSE_MAJORITY),
+            CommandError::TakeoverNoMajority { held } => e(keys::COMMAND_TAKEOVER_NO_MAJORITY)
+                .with("anteil", Param::Number((held * 1000.0).round() / 10.0)),
             CommandError::NotEnoughFreeFloat { available } => e(keys::COMMAND_FREE_FLOAT)
                 .with("anteil", Param::Number((available * 1000.0).round() / 10.0)),
             CommandError::NotEnoughStock { held } => e(keys::COMMAND_NOT_ENOUGH_STOCK)
@@ -1513,6 +1520,12 @@ fn run(
         }
         Command::SellShares { company, share } => {
             crate::stock::sell(state, catalog, actor, *company, *share)?;
+        }
+        Command::TakeOver { company } => {
+            crate::stock::take_over(state, catalog, actor, *company)?;
+        }
+        Command::BuyBackShares { share } => {
+            crate::stock::buy_back(state, catalog, actor, *share)?;
         }
         Command::SetLogistics {
             mode,

@@ -4166,7 +4166,8 @@ Börse (`GoPublic`, Anteil s ≤ `boersengang.anteil_max` neuer Aktien):
 
 Der Erlös ist Eigenkapital; alle bisherigen Anteile schrumpfen um (1 − s), die Investoren
 halten s. Eine notierte Firma erhöht ihr Kapital (`IssueShares`) ebenso mit V = M ·
-(1 − abschlag). Der Spieler muss die Mehrheit seiner Firma behalten.
+(1 − abschlag). Der Spieler muss die Mehrheit seiner Firma behalten (bis K2; seit K3 darf
+er sie verlieren, siehe dort).
 
 ### Dividende
 
@@ -4237,3 +4238,54 @@ Verschuldung, nach der die Bank den Zins eines neuen Kredits bemisst.
 Braucht eine KI-Firma einen Kredit über mindestens `volumen_min_usd`, gibt sie stattdessen
 eine Anleihe mit `ki.laufzeit_jahre` aus, wenn deren Kupon mindestens `ki.vorteil_min`
 unter dem Zins des Kredits liegt. Sie hält ihre Anleihen bis zum Ende.
+
+## K3 – Investoren und Übernahmen
+
+Lastenheft §11.1 (Aktienrückkauf), §11.2. Daten: `parameter/boerse.yaml` (Abschnitte
+`uebernahme`, `rueckkauf`, `ki`). Kern: Modul `stock`.
+
+### Fairer Wert
+
+Ohne die Stimmung der Anleger (KI-Anleger urteilen danach):
+
+    fair = max(F, boden_buchwert · B)      (F aus K1)
+
+### Übernahmeangebot
+
+Eine Firma bietet für alle Aktien einer notierten Firma, die sie noch nicht hält
+(`TakeOver`), zu
+
+    Preis je Anteil = M · (1 + uebernahme.aufschlag)
+    Kosten = Σ Kaufpreise · uebernahme.kosten_anteil   (Banken, Berater; Sonstiges)
+
+Alle Eigner verkaufen zu diesem Preis – Anleger, Gründer und Firmen (deren Gewinn oder
+Verlust gegenüber dem Einstand ist Ertrag bzw. Aufwand der Beteiligungen) –, nur der
+Spieler als Eigner seiner Firma nicht. Die Firma verlässt die Börse und wird Tochter des
+Käufers (W6), mit eigener Geschäftsführung nach den Regeln der KI. Der Kaufpreis steht
+in den Beteiligungen des Käufers; in der Konzernbilanz wird gegen das gezeichnete Kapital
+der Tochter aufgerechnet, der Unterschied bleibt in den Finanzanlagen.
+
+Bietet eine KI-Firma für die Firma des Spielers, gelingt die Übernahme nur, wenn die
+übrigen Eigner zusammen mehr als die Hälfte halten; dann verliert der Spieler die
+Kontrolle und das Spiel endet. Der Spieler kann seine Mehrheit seit K3 durch neue Aktien
+verlieren (die Oberfläche warnt) und sie durch Aktienrückkäufe zurückgewinnen.
+
+### Aktienrückkauf
+
+Eine notierte Firma kauft Anteil q ihrer Aktien aus dem Streubesitz zurück (q ≤
+`rueckkauf.anteil_max`), zum Kaufpreis des Aktienhandels (K1):
+
+    Preis = q · M · (1 + handel.aufschlag + handel.preiswirkung · q)
+    Eigenkapital −= Preis (zuerst Gewinnrücklagen, dann gezeichnetes Kapital), Kasse −= Preis
+    Anteile: Anleger − q, danach alle Anteile · 1 / (1 − q)
+    M' = (M − Preis) · (1 + preiswirkung · q)
+
+### KI-Anleger
+
+Am Monatsanfang legt eine KI-Firma, deren Kasse über `kasse_max_monate` laufender Kosten
+liegt, `ki.depot_anteil_kasse` des Überschusses in Aktien an: in der notierten Firma mit
+dem kleinsten M / fair, wenn das unter 1 − `ki.unterbewertung` liegt, bis
+`ki.depot_anteil_max` dieser Firma. Sie verkauft eine Beteiligung ganz, sobald M / fair
+über 1 + `ki.unterbewertung` steigt. Mit `ki.uebernahme_chance` · Aggressivität je Monat
+bietet sie für die günstigste notierte Firma (kleinstes M / fair unter 1), deren Preis
+höchstens `ki.uebernahme_kasse_anteil` ihrer Kasse ist.

@@ -665,6 +665,7 @@ pub fn message_view(message: &Message) -> MessageView {
         || message.key.starts_with("meldung.rang")
         || message.key.starts_with("meldung.angebot.")
         || message.key == crate::message::keys::COMPANY_INSOLVENT
+        || message.key == crate::message::keys::STOCK_TAKEOVER
     {
         "wettbewerb"
     } else if matches!(message.kind, MessageKind::Warning | MessageKind::Crisis) {

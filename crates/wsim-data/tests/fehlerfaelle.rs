@@ -3894,12 +3894,22 @@ boerse:
     abschlag: 0.02
     preiswirkung: 0.5
     anteil_max: 0.5
+  uebernahme:
+    aufschlag: 0.3
+    kosten_anteil: 0.02
+  rueckkauf:
+    anteil_max: 0.1
   start:
     eigenkapital_min_usd: 20000000
     streubesitz: 0.6
   ki:
     boersengang_chance: 0.02
     boersengang_anteil: 0.3
+    depot_anteil_kasse: 0.2
+    depot_anteil_max: 0.1
+    unterbewertung: 0.25
+    uebernahme_chance: 0.005
+    uebernahme_kasse_anteil: 0.5
 ";
 
 #[test]
@@ -3948,6 +3958,18 @@ fn boerse_wird_geprueft() {
             "anteil_max: 0.95",
             "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0.01 bis 0.9.",
             "boerse.boersengang.anteil_max",
+        ),
+        (
+            "unterbewertung: 0.25",
+            "unterbewertung: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+            "boerse.ki.unterbewertung",
+        ),
+        (
+            "aufschlag: 0.3\n    kosten_anteil: 0.02",
+            "aufschlag: -0.1\n    kosten_anteil: 0.02",
+            "Wert -0.1 liegt außerhalb des erlaubten Bereichs 0 bis 5.",
+            "boerse.uebernahme.aufschlag",
         ),
     ] {
         let outcome = boerse(alt, neu);

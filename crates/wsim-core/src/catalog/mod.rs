@@ -443,6 +443,17 @@ pub struct StockModel {
     pub start_free_float: f64,
     pub ai_ipo_chance: f64,
     pub ai_ipo_share: f64,
+    /// Takeover premium over the market value and its costs (K3).
+    pub takeover_premium: f64,
+    pub takeover_cost_share: f64,
+    pub buyback_share_max: f64,
+    /// AI investors: share of the surplus cash put into shares, the largest stake, the
+    /// band around the fair value, the monthly takeover chance and the cash it may use.
+    pub ai_portfolio_cash_share: f64,
+    pub ai_portfolio_stake_max: f64,
+    pub ai_undervaluation: f64,
+    pub ai_takeover_chance: f64,
+    pub ai_takeover_cash_share: f64,
     pub provenance: Provenance,
 }
 

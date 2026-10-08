@@ -35,11 +35,21 @@ boerse:
     aufschlag: 0.02
     abschlag: 0.02
     preiswirkung: 0.5
-    anteil_max: 0.5             # Mehrheiten folgen mit K3
+    anteil_max: 0.5             # über die Börse; darüber nur mit einem Übernahmeangebot
+  uebernahme:
+    aufschlag: 0.3              # Übernahmeprämie über dem Börsenwert
+    kosten_anteil: 0.02         # Banken und Berater
+  rueckkauf:
+    anteil_max: 0.1             # je Rückkauf höchstens so viel der Aktien
   start:
     eigenkapital_min_usd: 200000000
     streubesitz: 0.6
   ki:
     boersengang_chance: 0.01
     boersengang_anteil: 0.3
+    depot_anteil_kasse: 0.2       # so viel des Überschusses über kasse_max_monate in Aktien
+    depot_anteil_max: 0.1         # höchstens so viel einer anderen Firma
+    unterbewertung: 0.25          # kauft unter (1 − Wert) · fair, verkauft über (1 + Wert) · fair
+    uebernahme_chance: 0.005      # je Monat, mal Aggressivität
+    uebernahme_kasse_anteil: 0.5  # Übernahmepreis höchstens so viel der Kasse
   annaeherung: true

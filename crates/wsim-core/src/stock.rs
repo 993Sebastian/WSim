@@ -35,13 +35,44 @@ pub struct Listing {
     /// The dividend paid last.
     #[serde(default)]
     pub last_dividend: Money,
+    /// Shares outstanding: `SHARES` at the listing, more after new shares, fewer after
+    /// buybacks (K3).
+    #[serde(default = "shares_at_listing")]
+    pub shares: u64,
+}
+
+fn shares_at_listing() -> u64 {
+    SHARES
 }
 
 impl Listing {
+    pub fn new(value: Money, since: Date) -> Self {
+        Listing {
+            value,
+            since,
+            history: vec![(since, value)],
+            last_dividend: Money::ZERO,
+            shares: SHARES,
+        }
+    }
+
     pub fn price(&self) -> Money {
         // Shares are far below the f64 range of exact integers.
         #[allow(clippy::cast_precision_loss)]
-        self.value.scale(1.0 / SHARES as f64)
+        self.value.scale(1.0 / self.shares.max(1) as f64)
+    }
+
+    /// Shares outstanding scaled by `factor`.
+    fn scale_shares(&mut self, factor: f64) {
+        // Shares stay far below the range where the casts lose anything that matters.
+        #[allow(
+            clippy::cast_precision_loss,
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss
+        )]
+        {
+            self.shares = ((self.shares as f64) * factor).round().max(1.0) as u64;
+        }
     }
 }
 
@@ -98,14 +129,27 @@ pub fn earnings(catalog: &Catalog, company: &Company) -> Money {
     (months.iter().copied().sum::<Money>() + missing).scale(12.0 / w)
 }
 
-/// The value the market aims at for a company (T).
-pub fn target(catalog: &Catalog, market: &StockMarket, company: &Company) -> Money {
+/// F, the value of book and earnings, and the floor of the book value.
+fn value_parts(catalog: &Catalog, company: &Company) -> (Money, Money) {
     let m = &catalog.stock;
     let book = equity(&company.ledger).max(Money::ZERO);
     let e = earnings(catalog, company).max(Money::ZERO);
-    let fair = book.scale(m.book_weight) + e.scale((1.0 - m.book_weight) * m.pe);
-    fair.scale(libm::exp(market.sentiment))
-        .max(book.scale(m.book_floor))
+    (
+        book.scale(m.book_weight) + e.scale((1.0 - m.book_weight) * m.pe),
+        book.scale(m.book_floor),
+    )
+}
+
+/// The value the market aims at for a company (T).
+pub fn target(catalog: &Catalog, market: &StockMarket, company: &Company) -> Money {
+    let (f, floor) = value_parts(catalog, company);
+    f.scale(libm::exp(market.sentiment)).max(floor)
+}
+
+/// The value without the investors' mood (K3): what AI investors judge by.
+pub fn fair(catalog: &Catalog, company: &Company) -> Money {
+    let (f, floor) = value_parts(catalog, company);
+    f.max(floor)
 }
 
 /// The free float: the shares with investors outside the game, traded on the market.
@@ -225,12 +269,7 @@ pub(crate) fn list_at_start(state: &mut GameState, catalog: &Catalog) {
             },
         ];
         c.owners.retain(|s| s.share > 1e-12);
-        c.listing = Some(Listing {
-            value,
-            since: date,
-            history: vec![(date, value)],
-            last_dividend: Money::ZERO,
-        });
+        c.listing = Some(Listing::new(value, date));
     }
 }
 
@@ -258,20 +297,13 @@ pub(crate) fn go_public(
         });
     }
     check_share(share, m.ipo_share_max)?;
-    keeps_majority(c, share)?;
     let before = issue_value(catalog, &state.stock, c);
     let proceeds = issue_proceeds(before, share);
     let date = state.date;
     let c = &mut state.companies[actor.index()];
     sell_new_shares(c, proceeds, m.ipo_cost_share);
     dilute(&mut c.owners, share);
-    let value = before + proceeds;
-    c.listing = Some(Listing {
-        value,
-        since: date,
-        history: vec![(date, value)],
-        last_dividend: Money::ZERO,
-    });
+    c.listing = Some(Listing::new(before + proceeds, date));
     Ok(())
 }
 
@@ -291,13 +323,13 @@ pub(crate) fn issue_shares(
         return Err(CommandError::NotListed);
     }
     check_share(share, m.ipo_share_max)?;
-    keeps_majority(c, share)?;
     let proceeds = issue_proceeds(issue_value(catalog, &state.stock, c), share);
     let c = &mut state.companies[actor.index()];
     sell_new_shares(c, proceeds, m.ipo_cost_share);
     dilute(&mut c.owners, share);
     if let Some(l) = c.listing.as_mut() {
         l.value += proceeds;
+        l.scale_shares(1.0 / (1.0 - share));
     }
     Ok(())
 }
@@ -309,13 +341,11 @@ fn check_share(share: f64, max: f64) -> Result<(), CommandError> {
     Ok(())
 }
 
-/// The player keeps the majority of the company it owns.
-pub fn keeps_majority(c: &Company, share: f64) -> Result<(), CommandError> {
+/// Whether new shares `share` cost the player the majority of its company (K3: allowed,
+/// but then a takeover can end the game).
+pub fn loses_majority(c: &Company, share: f64) -> bool {
     let player = stake(c, Holder::Player);
-    if player > 0.5 && player * (1.0 - share) <= 0.5 {
-        return Err(CommandError::WouldLoseMajority);
-    }
-    Ok(())
+    player > 0.5 && player * (1.0 - share) <= 0.5
 }
 
 fn sell_new_shares(c: &mut Company, proceeds: Money, cost_share: f64) {
@@ -427,13 +457,26 @@ pub(crate) fn sell(
         return Err(CommandError::NotEnoughStock { held });
     }
     let proceeds = sell_proceeds(catalog, listing, share);
-    let seller = &mut state.companies[actor.index()];
-    let cost_all = seller
-        .stock_cost
-        .get(&target_company)
-        .copied()
-        .unwrap_or_default();
-    let cost = if share >= held - 1e-12 {
+    realize(
+        &mut state.companies[actor.index()],
+        target_company,
+        (held, share),
+        proceeds,
+    );
+    let t = &mut state.companies[target_company.index()];
+    remove_share(&mut t.owners, Holder::Company(actor), share);
+    add_share(&mut t.owners, Holder::Investors, share);
+    if let Some(l) = t.listing.as_mut() {
+        l.value = l.value.scale((1.0 - m.trade_impact * share).max(0.01));
+    }
+    Ok(())
+}
+
+/// Books the sale of `share` of a holding `held` in `target` for `proceeds`: the cost of
+/// the shares sold leaves the participations, the difference is a gain or a loss.
+fn realize(seller: &mut Company, target: CompanyId, (held, share): (f64, f64), proceeds: Money) {
+    let cost_all = seller.stock_cost.get(&target).copied().unwrap_or_default();
+    let cost = if share >= held - 1e-12 || held <= 0.0 {
         cost_all
     } else {
         cost_all.scale(share / held)
@@ -457,17 +500,267 @@ pub(crate) fn sell(
     }
     ledger.transfer(Account::Cash, Account::Participations, proceeds);
     if cost >= cost_all {
-        seller.stock_cost.remove(&target_company);
-    } else if let Some(c) = seller.stock_cost.get_mut(&target_company) {
+        seller.stock_cost.remove(&target);
+    } else if let Some(c) = seller.stock_cost.get_mut(&target) {
         *c -= cost;
     }
+}
+
+/// What a takeover bid for all shares a buyer does not hold costs: the price paid to the
+/// owners and the costs of banks and advisers. The player never sells its own stake.
+pub fn takeover_price(catalog: &Catalog, target: &Company, buyer: CompanyId) -> (Money, Money) {
+    let m = &catalog.stock;
+    let Some(listing) = &target.listing else {
+        return (Money::ZERO, Money::ZERO);
+    };
+    let bought: f64 = target
+        .owners
+        .iter()
+        .filter(|s| s.holder != Holder::Company(buyer) && s.holder != Holder::Player)
+        .fold(0.0, |sum, s| sum + s.share);
+    let price = listing.value.scale(bought * (1.0 + m.takeover_premium));
+    (price, price.scale(m.takeover_cost_share))
+}
+
+/// A takeover bid (K3, docs/FORMELN.md): the buyer pays every owner but the player the
+/// market value with the premium; the target leaves the market and becomes the buyer's
+/// subsidiary. Taking over the player's company ends the game.
+pub(crate) fn take_over(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    target_company: CompanyId,
+) -> Result<(), CommandError> {
+    let m = &catalog.stock;
+    if !m.enabled {
+        return Err(CommandError::NoStockMarket);
+    }
+    let t = state
+        .companies
+        .get(target_company.index())
+        .ok_or(CommandError::UnknownCompany(target_company))?;
+    if crate::group::same_group(state, actor, target_company) {
+        return Err(CommandError::WithinGroup);
+    }
+    let Some(listing) = &t.listing else {
+        return Err(CommandError::NotListed);
+    };
+    if t.bankrupt {
+        return Err(CommandError::SellerBankrupt);
+    }
+    // The player keeps its stake; without the majority of the rest no control.
+    let kept = stake(t, Holder::Player);
+    if kept >= 0.5 {
+        return Err(CommandError::TakeoverNoMajority { held: kept });
+    }
+    let (price, cost) = takeover_price(catalog, t, actor);
+    if state.companies[actor.index()].ledger.cash() < price + cost {
+        return Err(CommandError::NotEnoughCash {
+            needed: price + cost,
+        });
+    }
+    let per_share = listing.value.scale(1.0 + m.takeover_premium);
+    let owners = t.owners.clone();
+    // The sellers: companies book the sale, everyone else leaves the game with the money.
+    for s in &owners {
+        if let Holder::Company(h) = s.holder
+            && h != actor
+        {
+            let held = s.share;
+            realize(
+                &mut state.companies[h.index()],
+                target_company,
+                (held, held),
+                per_share.scale(held),
+            );
+        }
+    }
+    let buyer = &mut state.companies[actor.index()];
+    buyer
+        .ledger
+        .transfer(Account::Participations, Account::Cash, price);
+    if cost > Money::ZERO {
+        buyer
+            .ledger
+            .expense(CostType::Other, CostCenter::default(), Account::Cash, cost);
+    }
+    // The cost of shares bought before stays in the participations of the subsidiary.
+    buyer.stock_cost.remove(&target_company);
     let t = &mut state.companies[target_company.index()];
-    remove_share(&mut t.owners, Holder::Company(actor), share);
-    add_share(&mut t.owners, Holder::Investors, share);
-    if let Some(l) = t.listing.as_mut() {
-        l.value = l.value.scale((1.0 - m.trade_impact * share).max(0.01));
+    t.owners = vec![Stake {
+        holder: Holder::Company(actor),
+        share: 1.0 - kept,
+    }];
+    if kept > 1e-12 {
+        t.owners.push(Stake {
+            holder: Holder::Player,
+            share: kept,
+        });
+    }
+    t.listing = None;
+    t.subsidiary_of = Some(crate::group::SubsidiaryOf {
+        parent: actor,
+        focus: crate::group::SubsidiaryFocus::Production,
+    });
+    if target_company == state.player {
+        state.game_over = true;
     }
     Ok(())
+}
+
+/// The company buys back share q of its own stock from the free float (K3).
+pub(crate) fn buy_back(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    share: f64,
+) -> Result<(), CommandError> {
+    let m = &catalog.stock;
+    if !m.enabled {
+        return Err(CommandError::NoStockMarket);
+    }
+    let c = &state.companies[actor.index()];
+    let Some(listing) = &c.listing else {
+        return Err(CommandError::NotListed);
+    };
+    check_share(share, m.buyback_share_max)?;
+    let float = free_float(c);
+    if share > float + 1e-12 {
+        return Err(CommandError::NotEnoughFreeFloat { available: float });
+    }
+    let price = buy_price(catalog, listing, share);
+    if c.ledger.cash() < price {
+        return Err(CommandError::NotEnoughCash { needed: price });
+    }
+    let c = &mut state.companies[actor.index()];
+    // Out of the retained earnings first, then out of the subscribed capital.
+    let reserves = c
+        .ledger
+        .balance(Account::RetainedEarnings)
+        .max(Money::ZERO)
+        .min(price);
+    c.ledger
+        .transfer(Account::RetainedEarnings, Account::Cash, reserves);
+    c.ledger
+        .transfer(Account::Equity, Account::Cash, price - reserves);
+    remove_share(&mut c.owners, Holder::Investors, share);
+    for s in &mut c.owners {
+        s.share /= 1.0 - share;
+    }
+    if let Some(l) = c.listing.as_mut() {
+        l.value = (l.value - price)
+            .max(Money::ZERO)
+            .scale(1.0 + m.trade_impact * share);
+        l.scale_shares(1.0 - share);
+    }
+    Ok(())
+}
+
+/// What an AI investor trades this month (K3): its holdings far above their fair value
+/// sold, and a part of its `surplus` cash in the most undervalued listed company.
+pub(crate) fn ai_trades(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    surplus: Money,
+) -> Vec<crate::command::Command> {
+    use crate::command::Command;
+    let m = &catalog.stock;
+    let mut out = Vec::new();
+    if !m.enabled {
+        return out;
+    }
+    let me = &state.companies[id.index()];
+    let ratio = |c: &Company| {
+        let f = fair(catalog, c);
+        c.listing
+            .as_ref()
+            .filter(|_| f > Money::ZERO)
+            .map(|l| l.value.to_usd() / f.to_usd())
+    };
+    for &held_id in me.stock_cost.keys() {
+        let t = &state.companies[held_id.index()];
+        let held = stake(t, Holder::Company(id));
+        if held > 0.0 && ratio(t).is_some_and(|r| r > 1.0 + m.ai_undervaluation) {
+            out.push(Command::SellShares {
+                company: held_id,
+                share: held,
+            });
+        }
+    }
+    if surplus <= Money::ZERO || m.ai_portfolio_cash_share <= 0.0 {
+        return out;
+    }
+    let best = state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(i, c)| {
+            !c.bankrupt
+                && c.listing.is_some()
+                && !crate::group::same_group(state, id, company_id(*i))
+        })
+        .filter_map(|(i, c)| ratio(c).map(|r| (r, i)))
+        .filter(|(r, _)| *r < 1.0 - m.ai_undervaluation)
+        .min_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+    if let Some((_, i)) = best {
+        let t = &state.companies[i];
+        let l = t.listing.as_ref().expect("listed");
+        let budget = surplus.scale(m.ai_portfolio_cash_share);
+        let room = (m.ai_portfolio_stake_max - stake(t, Holder::Company(id)))
+            .min(free_float(t))
+            .min(m.trade_share_max - stake(t, Holder::Company(id)));
+        let affordable = budget.to_usd() / (l.value.to_usd() * (1.0 + m.trade_premium)).max(1.0);
+        let share = affordable.min(room);
+        if share >= 0.001 {
+            out.push(Command::BuyShares {
+                company: company_id(i),
+                share,
+            });
+        }
+    }
+    out
+}
+
+/// The company an AI company bids for this month, if any (K3): with a chance by its
+/// aggressiveness, the listed company most below its fair value that its cash affords.
+pub(crate) fn ai_takeover(
+    state: &mut GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    aggressiveness: f64,
+) -> Option<CompanyId> {
+    let m = &catalog.stock;
+    if !m.enabled || m.ai_takeover_chance <= 0.0 {
+        return None;
+    }
+    let draw = state.companies[id.index()].rng.next_f64();
+    if draw >= m.ai_takeover_chance * aggressiveness {
+        return None;
+    }
+    let budget = state.companies[id.index()]
+        .ledger
+        .cash()
+        .scale(m.ai_takeover_cash_share);
+    state
+        .companies
+        .iter()
+        .enumerate()
+        .filter(|(i, c)| {
+            !c.bankrupt
+                && c.listing.is_some()
+                && stake(c, Holder::Player) < 0.5
+                && !crate::group::same_group(state, id, company_id(*i))
+        })
+        .filter_map(|(i, c)| {
+            let f = fair(catalog, c);
+            let l = c.listing.as_ref()?;
+            let (price, cost) = takeover_price(catalog, c, id);
+            (f > Money::ZERO && l.value < f && price + cost <= budget)
+                .then(|| (l.value.to_usd() / f.to_usd(), i))
+        })
+        .min_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)))
+        .map(|(_, i)| company_id(i))
 }
 
 /// At the start of a month: sentiment and crises, market values and the index,

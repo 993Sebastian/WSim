@@ -1300,6 +1300,34 @@ entschieden:
 5. **Handel mit Anleihen** (Kurse, Kauf fremder Anleihen) gibt es nicht; Anleihen von
    Töchtern zählen in der Konzernbilanz wie die der Mutter.
 
+✅ **K3 umgesetzt** (Investoren und Übernahmen; Regeln: `docs/FORMELN.md`, Abschnitt K3). 🟡
+Eigenständig entschieden:
+
+1. **Mehrheiten nur per Übernahmeangebot:** Über die Börse hält eine Firma höchstens 50 %
+   einer anderen; die ganze Firma kauft sie mit einem Angebot an alle übrigen Eigner zum
+   Börsenwert plus 30 % Prämie (2 % Kosten). Alle verkaufen, die übernommene Firma verlässt
+   die Börse und wird Tochter (W6) mit eigener Geschäftsführung. Teilübernahmen mit
+   Minderheitsaktionären und Fusionen zweier Firmen zu einer gibt es nicht.
+2. **Konzernbilanz:** Der Kaufpreis wird gegen das gezeichnete Kapital der Tochter
+   aufgerechnet; der Rest (Rücklagen der Tochter und Mehrwert) bleibt in den Finanzanlagen,
+   die Rücklagen der Tochter vor der Übernahme zählen zum Konzerneigenkapital.
+3. **Feindliche Übernahme des Spielers:** Der Spieler darf seit K3 durch neue Aktien unter
+   50 % fallen (rote Warnung). Dann kann eine KI-Firma seine Firma übernehmen – sein
+   eigener Anteil bleibt, aber er verliert die Kontrolle, und die Partie endet. Gegenmittel:
+   Aktienrückkauf (bis 10 % je Rückkauf, zum Kaufpreis der Börse, aus den
+   Gewinnrücklagen). Ein Verkauf eigener Aktien an die Anleger (Geld an den Spieler
+   privat) ist nicht vorgesehen.
+4. **KI-Anleger** legen 20 % ihres Kassenüberschusses (über `kasse_max_monate`) in der
+   notierten Firma an, die am weitesten unter ihrem fairen Wert (ohne Stimmung) liegt,
+   wenn der Abstand über 25 % ist (höchstens 10 % einer Firma), und verkaufen über 25 %
+   darüber. Übernahmen versuchen sie mit 0,5 % je Monat (mal Aggressivität) für die
+   günstigste Firma unter ihrem fairen Wert, die höchstens die halbe Kasse kostet. Töchter
+   handeln nicht an der Börse.
+5. **Aktienzahl je Firma:** eine Million beim Börsengang, mehr nach Kapitalerhöhungen,
+   weniger nach Rückkäufen; der Kurs ist Börsenwert je Aktie.
+6. **Weltlauf 1900–1915:** 528 Beteiligungen von Firmen an notierten Firmen (24 Mrd. USD,
+   ein Fünftel des Börsenwerts), 10 Übernahmen durch KI-Firmen.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

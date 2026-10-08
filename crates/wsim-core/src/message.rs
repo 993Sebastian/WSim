@@ -212,7 +212,10 @@ pub mod keys {
     pub const COMMAND_ALREADY_LISTED: &str = "fehler.befehl.schon_notiert";
     pub const COMMAND_EQUITY_TOO_LOW: &str = "fehler.befehl.eigenkapital_zu_gering";
     pub const COMMAND_SHARE_OUT_OF_RANGE: &str = "fehler.befehl.anteil_ausserhalb";
-    pub const COMMAND_WOULD_LOSE_MAJORITY: &str = "fehler.befehl.mehrheit_verloren";
+    pub const COMMAND_TAKEOVER_NO_MAJORITY: &str = "fehler.befehl.uebernahme_ohne_mehrheit";
+    pub const STOCK_TAKEOVER: &str = "meldung.boerse.uebernahme";
+    pub const STOCK_TAKEOVER_SOLD: &str = "meldung.boerse.uebernahme_verkauft";
+    pub const GAME_OVER_TAKEN_OVER: &str = "meldung.spielende_uebernahme";
     pub const COMMAND_FREE_FLOAT: &str = "fehler.befehl.streubesitz_zu_klein";
     pub const COMMAND_NOT_ENOUGH_STOCK: &str = "fehler.befehl.zu_wenig_aktien";
     pub const STOCK_CRISIS: &str = "meldung.boerse.krise";
@@ -541,7 +544,10 @@ pub mod keys {
         COMMAND_ALREADY_LISTED,
         COMMAND_EQUITY_TOO_LOW,
         COMMAND_SHARE_OUT_OF_RANGE,
-        COMMAND_WOULD_LOSE_MAJORITY,
+        COMMAND_TAKEOVER_NO_MAJORITY,
+        STOCK_TAKEOVER,
+        STOCK_TAKEOVER_SOLD,
+        GAME_OVER_TAKEN_OVER,
         COMMAND_FREE_FLOAT,
         COMMAND_NOT_ENOUGH_STOCK,
         STOCK_CRISIS,

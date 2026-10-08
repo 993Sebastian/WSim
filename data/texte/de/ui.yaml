@@ -55,7 +55,7 @@ spiel.anhalten: Bei Anliegen anhalten
 spiel.anhalten_alle: bei allen
 spiel.anhalten_wichtige: bei wichtigen
 spiel.anhalten_nie: nie
-spiel.ende: Die Partie ist beendet – deine Firma ist zahlungsunfähig.
+spiel.ende: Die Partie ist beendet – den Grund nennt der Rundenbericht.
 geld.waehrung: Währung der Beträge
 geld.heimat: "{waehrung} (Firmensitz)"
 geld.preise: Preise
@@ -1901,3 +1901,18 @@ bonitaet.bbb: BBB
 bonitaet.bb: BB
 bonitaet.b: B
 bonitaet.ccc: CCC
+boerse.ohne_mehrheit: ohne Mehrheit
+boerse.warnung_mehrheit: "Achtung: Danach hältst du nicht mehr die Mehrheit. Kauft eine andere Firma die übrigen Aktien, verlierst du deine Firma – und die Partie ist zu Ende."
+boerse.warnung_minderheit: "Du hältst nur {anteil} deiner Firma. Eine andere Firma kann sie übernehmen – kaufe Aktien zurück, um die Mehrheit wiederzugewinnen."
+boerse.eigner: Eigner deiner Firma
+boerse.eigner.du: Du
+boerse.eigner.anleger: Anleger (Streubesitz)
+boerse.eigner.gruender: Gründer
+boerse.eigner.firma: Firma
+boerse.rueckkauf: Aktienrückkauf
+boerse.rueckkauf_hilfe: Deine Firma kauft eigene Aktien von den Anlegern zurück und zieht sie ein – mit Aufschlag, aus den Gewinnrücklagen. Dein Anteil an der Firma steigt.
+boerse.rueckkauf_anteil: Zurückkaufen
+boerse.zurueckkaufen: Aktien zurückkaufen
+boerse.fairer_wert: "Wert nach Eigenkapital und Gewinn (ohne die Stimmung der Anleger): {fair} – an der Börse: {wert}"
+boerse.uebernahme_hilfe: Ein Übernahmeangebot kauft alle Aktien, die deine Firma noch nicht hält, zum Börsenwert mit Aufschlag. Die Firma verlässt die Börse und wird deine Tochter mit eigener Geschäftsführung.
+boerse.uebernehmen: "Übernehmen für {preis}"

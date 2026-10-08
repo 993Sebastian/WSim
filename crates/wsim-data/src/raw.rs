@@ -2375,6 +2375,10 @@ pub struct RawStockMarket {
     pub dividend: RawDividend,
     #[serde(rename = "handel")]
     pub trading: RawTrading,
+    #[serde(rename = "uebernahme")]
+    pub takeover: RawTakeover,
+    #[serde(rename = "rueckkauf")]
+    pub buyback: RawBuyback,
     pub start: RawStockStart,
     pub ki: RawStockAi,
     #[serde(rename = "annaeherung", default)]
@@ -2471,6 +2475,32 @@ pub struct RawStockAi {
     pub ipo_chance: f64,
     #[serde(rename = "boersengang_anteil")]
     pub ipo_share: f64,
+    #[serde(rename = "depot_anteil_kasse")]
+    pub portfolio_cash_share: f64,
+    #[serde(rename = "depot_anteil_max")]
+    pub portfolio_stake_max: f64,
+    #[serde(rename = "unterbewertung")]
+    pub undervaluation: f64,
+    #[serde(rename = "uebernahme_chance")]
+    pub takeover_chance: f64,
+    #[serde(rename = "uebernahme_kasse_anteil")]
+    pub takeover_cash_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTakeover {
+    #[serde(rename = "aufschlag")]
+    pub premium: f64,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBuyback {
+    #[serde(rename = "anteil_max")]
+    pub share_max: f64,
 }
 
 /// Corporate bonds (`parameter/anleihen.yaml`, K2).

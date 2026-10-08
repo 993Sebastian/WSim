@@ -60,6 +60,7 @@ function Ausgabe({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) {
                 {own.issue.map((s, i) => (
                   <option key={s.share} value={i}>
                     {anteil(s.share)}
+                    {s.loses_majority ? ` · ${t("boerse.ohne_mehrheit")}` : ""}
                   </option>
                 ))}
               </select>
@@ -84,6 +85,11 @@ function Ausgabe({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) {
               danach: anteil(stufe.stake_after),
             })}
           </p>
+          {stufe.loses_majority && (
+            <p className="fehlertext" role="alert">
+              {t("boerse.warnung_mehrheit")}
+            </p>
+          )}
         </>
       )}
       <Rueckmeldung meldung={antwort} />
@@ -135,6 +141,64 @@ function Dividende({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) 
   );
 }
 
+/** A buyback of own shares at the offered steps (K3). */
+function Rueckkauf({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) {
+  const { los, antwort } = useAktion("boerse-rueckkauf");
+  const id = useId();
+  const [wahl, setWahl] = useState(0);
+  const kurs = own.buyback[Math.min(wahl, own.buyback.length - 1)];
+  if (!kurs) return null;
+  return (
+    <section aria-labelledby={`${id}-titel`}>
+      <h3 id={`${id}-titel`}>{t("boerse.rueckkauf")}</h3>
+      <p className="feld-hilfe">{t("boerse.rueckkauf_hilfe")}</p>
+      <div className="formular-zeile">
+        <div className="feld">
+          <label htmlFor={`${id}-anteil`}>{t("boerse.rueckkauf_anteil")}</label>
+          <select
+            id={`${id}-anteil`}
+            value={wahl}
+            onChange={(e) => setWahl(Number(e.target.value))}
+          >
+            {own.buyback.map((k, i) => (
+              <option key={k.share} value={i}>
+                {anteil(k.share)} · {formatGeld(k.usd)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          onClick={() =>
+            void los([{ BuyBackShares: { share: kurs.share } }]).then((ok) => ok && onNeu())
+          }
+        >
+          {t("boerse.zurueckkaufen")}
+        </button>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+/** Who owns the player's company. */
+function Eigner({ own }: { own: EigeneNotierung }) {
+  return (
+    <div className="tabelle">
+      <table aria-label={t("boerse.eigner")}>
+        <tbody>
+          {own.owners.map((e, i) => (
+            <tr key={`${e.kind}/${e.name ?? i}`}>
+              <th scope="row">{e.name ?? t(`boerse.eigner.${e.kind}`)}</th>
+              <td className="zahl">{anteil(e.share)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function EigeneFirma({ daten, onNeu }: { daten: Boerse; onNeu: () => void }) {
   const own = daten.own;
   const firma = daten.companies.find((c) => c.relation === "eigen");
@@ -155,9 +219,16 @@ function EigeneFirma({ daten, onNeu }: { daten: Boerse; onNeu: () => void }) {
               })}
             </p>
           )}
+          {own.listed && own.player_stake <= 0.5 && (
+            <p className="fehlertext" role="alert">
+              {t("boerse.warnung_minderheit", { anteil: anteil(own.player_stake) })}
+            </p>
+          )}
+          {own.listed && <Eigner own={own} />}
           <div className="raster">
             <Ausgabe key={`${own.listed}`} own={own} onNeu={onNeu} />
             {own.listed && <Dividende own={own} onNeu={onNeu} />}
+            {own.listed && <Rueckkauf own={own} onNeu={onNeu} />}
           </div>
         </>
       )}
@@ -209,7 +280,42 @@ function Handel({
   );
 }
 
-function Einzelheiten({ firma, monate }: { firma: BoersenFirma; monate: string[] }) {
+/** A takeover bid for all shares the player's company does not hold (K3). */
+function Uebernahme({
+  firma,
+  preis,
+  onNeu,
+}: {
+  firma: BoersenFirma;
+  preis: number;
+  onNeu: () => void;
+}) {
+  const { los, antwort } = useAktion(`boerse-uebernahme-${firma.company}`);
+  return (
+    <>
+      <p className="feld-hilfe">{t("boerse.uebernahme_hilfe")}</p>
+      <button
+        type="button"
+        onClick={() =>
+          void los([{ TakeOver: { company: firma.company } }]).then((ok) => ok && onNeu())
+        }
+      >
+        {t("boerse.uebernehmen", { preis: formatGeld(preis) })}
+      </button>
+      <Rueckmeldung meldung={antwort} />
+    </>
+  );
+}
+
+function Einzelheiten({
+  firma,
+  monate,
+  onNeu,
+}: {
+  firma: BoersenFirma;
+  monate: string[];
+  onNeu: () => void;
+}) {
   const reihe = monate.slice(Math.max(0, monate.length - firma.series_usd.length));
   return (
     <section aria-label={t("boerse.einzelheiten", { firma: firma.name })}>
@@ -220,6 +326,12 @@ function Einzelheiten({ firma, monate }: { firma: BoersenFirma; monate: string[]
           eigenkapital: formatGeld(firma.equity_usd),
           gewinn: formatGeld(firma.earnings_usd),
           dividende: formatGeld(firma.dividend_usd),
+        })}
+      </p>
+      <p>
+        {t("boerse.fairer_wert", {
+          fair: formatGeld(firma.fair_usd),
+          wert: formatGeld(firma.value_usd),
         })}
       </p>
       {firma.held > 0 && (
@@ -236,6 +348,9 @@ function Einzelheiten({ firma, monate }: { firma: BoersenFirma; monate: string[]
         monate={reihe}
         werte={firma.series_usd}
       />
+      {firma.takeover_usd !== null && (
+        <Uebernahme firma={firma} preis={firma.takeover_usd} onNeu={onNeu} />
+      )}
     </section>
   );
 }
@@ -337,7 +452,7 @@ function Firmen({ daten, onNeu }: { daten: Boerse; onNeu: () => void }) {
           {t("boerse.alle_zeigen", { anzahl: daten.companies.length })}
         </button>
       )}
-      {auswahl && <Einzelheiten firma={auswahl} monate={daten.months} />}
+      {auswahl && <Einzelheiten firma={auswahl} monate={daten.months} onNeu={onNeu} />}
     </section>
   );
 }

@@ -81,6 +81,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W7 | Controlling: Deckungsbeiträge je Ebene, Kostenarten, Vorperiode | ✅ |
 | K1 | Börse: Börsenwert, Index, Krisen, Börsengang, Dividende, Aktienhandel | ✅ |
 | K2 | Anleihen: Bonität, fester Kupon, Rückzahlung, Rückkauf, KI | ✅ |
+| K3 | Investoren: KI-Anleger, Übernahmeangebote, feindliche Übernahme, Aktienrückkauf | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -898,6 +899,25 @@ Stufe 3, Lastenheft §11.1. Regeln: `docs/FORMELN.md`, Abschnitt K2; Entscheidun
 - **Weltlauf 1900–1915** (100 KI-Firmen): 1902 17 Firmen mit 1,2 Mrd. USD Anleihen,
   1915 6 Firmen mit 8,7 Mrd. USD (Kupon im Mittel 4,3 %) neben 1,8 Mrd. USD Bankkrediten.
   Laufzeit 2:33 min.
+
+### K3: Investoren und Übernahmen (08.10.2026)
+
+Stufe 3, Lastenheft §11.1–11.2. Regeln: `docs/FORMELN.md`, Abschnitt K3; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `boerse.yaml` um Übernahme, Rückkauf und KI-Anleger ergänzt (mit
+  Prüfregeln und Fehlerfällen).
+- **Kern:** fairer Wert ohne Stimmung; `TakeOver` (alle übrigen Aktien mit Prämie, die
+  Firma wird Tochter; Firmen als Verkäufer buchen Gewinn oder Verlust), feindliche
+  Übernahme der Spielerfirma beendet die Partie; `BuyBackShares` mit Einzug der Aktien;
+  Aktienzahl je Firma; KI-Anleger kaufen unterbewertete Aktien, verkaufen überbewertete und
+  bieten gelegentlich für ganze Firmen; der Spieler darf seine Mehrheit verlieren.
+- **Oberfläche:** Börse mit Eignern, Warnung vor dem Verlust der Mehrheit, Rückkauf,
+  fairem Wert und „Übernehmen für …“; CLI-Weltlauf mit Anlegerzeile.
+- **Tests:** Kern (Übernahme mit Konzernbilanz, Auszahlung der Eigner, Spielende,
+  Rückkauf, KI-Anleger), Sitzung mit echten Daten, vitest.
+- **Weltlauf 1900–1915** (100 KI-Firmen): 528 Beteiligungen über 24 Mrd. USD, 10
+  Übernahmen, 53 notierte Firmen; Laufzeit 2:33 min.
 
 ## Eigenständige Entscheidungen (für das Review)
 

@@ -614,10 +614,13 @@ dieser Aktien und was sie gekostet haben.
 „Deine Firma an der Börse“: Vor dem Börsengang zeigt sie, wie viel Eigenkapital sie
 braucht, oder – wenn genug da ist – die Auswahl „Neue Aktien“ (5 % bis 40 %) mit Erlös,
 Kosten der Banken und deinem Anteil danach und die Schaltfläche „An die Börse gehen“.
-Danach: Börsenwert, Kurs, dein Anteil und der Streubesitz, die Kapitalerhöhung (gleiche
-Auswahl, nur so weit, dass du die Mehrheit behältst) und die Dividende mit
-Ausschüttungsquote in Prozent, Zahlmonat, Vorjahresgewinn und dem Betrag, den die jetzige
-Quote ergäbe.
+Danach: Börsenwert, Kurs, dein Anteil und der Streubesitz, die Eigner deiner Firma (du,
+Anleger, Gründer, andere Firmen), die Kapitalerhöhung (gleiche Auswahl; Schritte, die dich
+die Mehrheit kosten, heißen „ohne Mehrheit“ und zeigen eine rote Warnung), die Dividende
+mit Ausschüttungsquote in Prozent, Zahlmonat, Vorjahresgewinn und dem Betrag, den die
+jetzige Quote ergäbe, und der Aktienrückkauf (bis 10 % der Aktien mit Preis). Hältst du
+nicht mehr die Mehrheit, warnt die Ansicht rot: Eine andere Firma kann deine Firma dann
+übernehmen, und die Partie endet.
 
 „Börsennotierte Firmen“: die 20 größten Firmen nach Börsenwert (deine Firma, deine
 Töchter und Firmen, an denen du Aktien hältst, immer dazu; „Alle … Firmen zeigen“ zeigt
@@ -625,7 +628,9 @@ den Rest) mit Börsenwert und Kurs je Aktie, Veränderung zum Vormonat und Vorja
 wenn gefallen), KGV, Dividendenrendite, Streubesitz und deinem Anteil. Je Zeile wählst du
 einen Anteil mit seinem Preis und klickst „Kaufen“ bzw. „Verkaufen“. Ein Klick auf den
 Namen zeigt darunter Eigenkapital, Gewinn je Jahr (Durchschnitt zweier Jahre), letzte Dividende,
-deinen Bestand und den Börsenwert der letzten 24 Monate.
+den Wert nach Eigenkapital und Gewinn ohne die Stimmung der Anleger, deinen Bestand, den
+Börsenwert der letzten 24 Monate und „Übernehmen für …“: ein Übernahmeangebot für alle
+übrigen Aktien; die Firma wird deine Tochter (Organisation → Tochterfirmen).
 
 ### Weltkarte und Länderdetail
 

@@ -54,6 +54,8 @@ export type Befehl =
   | { SetDividend: { payout: number } }
   | { BuyShares: { company: number; share: number } }
   | { SellShares: { company: number; share: number } }
+  | { TakeOver: { company: number } }
+  | { BuyBackShares: { share: number } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
