@@ -590,6 +590,8 @@ pub enum ParamView {
     TextKey(String),
     /// Country keys, shown as a list of names.
     Countries(Vec<String>),
+    /// Text keys, shown as a list.
+    TextKeys(Vec<String>),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -628,6 +630,7 @@ pub fn message_view(message: &Message) -> MessageView {
                 Param::Country(c) => ParamView::Country(c.clone()),
                 Param::TextKey(k) => ParamView::TextKey(k.clone()),
                 Param::Countries(c) => ParamView::Countries(c.clone()),
+                Param::TextKeys(k) => ParamView::TextKeys(k.clone()),
             };
             (name.clone(), v)
         })
@@ -678,7 +681,10 @@ pub fn message_view(message: &Message) -> MessageView {
         None
     }
     .map(str::to_owned);
-    let group = if message.kind == MessageKind::WorldEvent {
+    let group = if message.kind == MessageKind::WorldEvent
+        || message.key.starts_with("meldung.folge.")
+        || message.key == crate::message::keys::EVENT_STATE_COMPANY
+    {
         "welt"
     } else if message.key == crate::message::keys::MILESTONE {
         "erfolg"
@@ -1100,6 +1106,9 @@ pub struct CountryDetail {
     /// Import tariffs, trade zones and embargoes (W3); `None` without tariffs.
     #[serde(default)]
     pub tariffs: Option<TariffView>,
+    /// Effects of historical events acting on the country this month (H1).
+    #[serde(default)]
+    pub events: Vec<MessageView>,
 }
 
 /// Import tariffs of a country (W3).
@@ -1322,8 +1331,11 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
                 .into_iter()
                 .map(str::to_owned)
                 .collect(),
-            embargoes: crate::tariffs::embargoes_of(catalog, id, year)
-                .into_iter()
+            // From the data and from the events (H1).
+            embargoes: catalog
+                .countries
+                .ids()
+                .filter(|&c| c != id && state.tariffs.blocked(id, c))
                 .map(|c| catalog.countries.key(c).to_owned())
                 .collect(),
         }
@@ -1362,6 +1374,10 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         currency_per_usd,
         land,
         tariffs,
+        events: crate::events::active_messages(state, catalog, id)
+            .iter()
+            .map(message_view)
+            .collect(),
     })
 }
 
@@ -1391,6 +1407,7 @@ mod tests {
             ai: AiSettings::default(),
             ventures: 1.0,
             tariff_dynamics: 1.0,
+            event_effects: true,
         };
         Game::new(catalog, settings).expect("valid settings")
     }

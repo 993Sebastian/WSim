@@ -58,6 +58,7 @@ fn settings(c: &Catalog, start_year: i32) -> GameSettings {
         ai: Default::default(),
         ventures: 1.0,
         tariff_dynamics: 1.0,
+        event_effects: true,
     }
 }
 

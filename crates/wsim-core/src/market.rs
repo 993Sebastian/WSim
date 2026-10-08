@@ -302,6 +302,8 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
             };
             // A market without sales starts at the price the sellers ask there.
             let start_price = local_reference(catalog, state, country, product);
+            // Wars and crises shift demand (H1).
+            let (consumer_factor, state_factor) = state.events.demand(country, p.goods_group);
             let market = state.markets.get_mut(product).get_mut(country);
             market.close_month();
             // Markets rest until something happens (see `clear`).
@@ -355,12 +357,13 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                                 / 365.0
                                 * season
                         }
-                    };
+                    } * consumer_factor;
                     market.bought[q] = 0.0;
                 }
             }
             if let Some(s) = &p.state_demand {
-                market.state_rate = s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0 * state_left;
+                market.state_rate =
+                    s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0 * state_left * state_factor;
             }
         }
     }

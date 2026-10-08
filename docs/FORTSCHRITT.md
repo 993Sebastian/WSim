@@ -83,6 +83,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | K2 | Anleihen: Bonität, fester Kupon, Rückzahlung, Rückkauf, KI | ✅ |
 | K3 | Investoren: KI-Anleger, Übernahmeangebote, feindliche Übernahme, Aktienrückkauf | ✅ |
 | K4 | Investor und Bank: Startformen, Einlagen, Kredite an Firmen, Ausfälle | ✅ |
+| H1 | Ereignisfolgen: Nachfrage, Handelssperren, Zölle, Arbeitskräfte, Produktion, Abschottung, Zerstörung, Enteignung, Börsenkrach | ✅ (vor PE fertig geworden) |
 | PE1 | Alter der Manager, Ruhestand, Nachfolge | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE2 | Spielerfigur: Person, Familie, Rollen | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE3 | Privatkonto und Spielstart ohne Firma | ⏳ als Nächstes (`docs/PERSON.md`) |
@@ -942,6 +943,31 @@ Stufe 3, Lastenheft §17.3. Regeln: `docs/FORMELN.md`, Abschnitt K4; Entscheidun
   mit Bankzeile im Weltlauf.
 - **Tests:** Kern (Startformen, Einlagen, Kreditvergabe und Rückflüsse, Kreditstandard
   und Reserve, Ausfall, Töchter, Spielstand), Sitzung als Bank mit echten Daten, vitest.
+
+### H1: Ereignisfolgen (08.10.2026)
+
+Stufe 4, Lastenheft §4.1, §17.4. Regeln: `docs/FORMELN.md`, Abschnitt H1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** Feld `wirkungen` der Ereignisse (neun Arten) mit Prüfregeln je Art (erlaubte
+  und nötige Felder, Bereiche, Ende nach dem Ereignistag, keine Seite doppelt) und
+  Fehlerfall-Tests; `parameter/ereignisse.yaml` (Betriebskapital des Staatsbetriebs).
+  Wirkungen für 38 Ereignisse von 1904 bis 2022, zwei neue Ereignisse (Ölenteignung Mexiko
+  1938, Ölverstaatlichung Iran 1951); die Börsenkrisen sind von `boerse.yaml` zu den
+  Ereignissen gewandert.
+- **Kern:** Modul `events` mit einer Monatstabelle der Wirkungen (abgeleitet, nicht
+  gespeichert): Nachfragefaktoren im Markt, verfügbare Arbeitskräfte, Produktionsgrenze
+  (Engpass „Ereignis“), Handelssperren und Zollaufschläge in der Zolltabelle (jetzt
+  monatlich), Abschottung bei Standortgründung, Kauf, Versteigerung und Sitzverlegung, auch
+  für neue KI-Firmen. Einmalig: Zerstörung (Zufallsstrom je Wirkung), Enteignung an einen
+  Staatsbetrieb (neue KI-Firma, `Company::state_owned`), Börsenkrach. Einstellung
+  `event_effects` (abschaltbar), Meldungen je Folge und für eigene Verluste.
+- **Oberfläche:** Neues Spiel mit „Folgen historischer Ereignisse“, Ereignisfenster mit
+  „Folgen“, Rundenbericht (Folgen als Zeilen unter „Welt“), Länderansicht „Folgen von
+  Weltereignissen“, Ursache „Gedrosselt durch ein Weltereignis“; CLI `run --ohne-folgen`.
+- **Tests:** Kern (Monatsfenster, Nachfrage und Arbeitskräfte, Handelssperre, Produktion,
+  Zerstörung, Enteignung, Abschottung, abgeschaltete Folgen, Spielstand), Börse mit
+  Krisen aus Ereignissen, Datenprüfung, vitest.
 
 ## Eigenständige Entscheidungen (für das Review)
 

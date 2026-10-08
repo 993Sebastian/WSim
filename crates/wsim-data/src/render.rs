@@ -44,6 +44,11 @@ impl Texts {
                 .map(|key| self.get(&format!("land.{key}")).unwrap_or(key).to_owned())
                 .collect::<Vec<_>>()
                 .join(", "),
+            Param::TextKeys(keys) => keys
+                .iter()
+                .map(|key| self.get(key).unwrap_or(key).to_owned())
+                .collect::<Vec<_>>()
+                .join(", "),
         }
     }
 }

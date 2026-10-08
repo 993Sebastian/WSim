@@ -96,6 +96,11 @@ pub enum Stream {
     Stock {
         month: u32,
     },
+    /// Draws of an effect of a historical event (H1).
+    Event {
+        event: u32,
+        effect: u32,
+    },
 }
 
 impl Stream {
@@ -143,6 +148,9 @@ impl Stream {
                 (17 << 56) | (u64::from(company) << 32) | u64::from(load)
             }
             Stream::Stock { month } => (18 << 56) | u64::from(month),
+            Stream::Event { event, effect } => {
+                (19 << 56) | (u64::from(event) << 16) | u64::from(effect & 0xFFFF)
+            }
         }
     }
 }

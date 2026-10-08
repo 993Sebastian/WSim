@@ -27,6 +27,7 @@ mod contracts;
 mod countries;
 mod currencies;
 mod deals;
+mod events;
 mod logistics;
 mod management;
 mod milestones;
@@ -653,7 +654,8 @@ pub(crate) fn build(
         &raw.events,
         |e| &e.id,
     );
-    b.catalog.events = ai::events(b.ctx, &events, &country_keys, texts);
+    b.catalog.events = events::events(b.ctx, &events, (&country_keys, &group_keys), texts);
+    b.catalog.event_model = events::event_model(b.ctx, raw);
 
     let (milestone_keys, milestone_entries) = register(
         b.ctx,

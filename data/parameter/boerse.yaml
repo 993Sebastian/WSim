@@ -12,16 +12,7 @@ boerse:
     rueckkehr: 0.06             # so viel von ln S baut sich je Monat ab
   traegheit: 0.3                # Anteil der Lücke zum Ziel, der sich je Monat schließt
   rauschen: 0.03                # eigene Schwankung je Firma und Monat
-  # Historische Krisen: Einbruch der Stimmung im Monat der Krise.
-  krisen:
-    - {jahr: 1907, monat: 10, einbruch: 0.3}
-    - {jahr: 1929, monat: 10, einbruch: 0.5}
-    - {jahr: 1931, monat: 9, einbruch: 0.3}
-    - {jahr: 1973, monat: 11, einbruch: 0.35}
-    - {jahr: 1987, monat: 10, einbruch: 0.25}
-    - {jahr: 2000, monat: 9, einbruch: 0.35}
-    - {jahr: 2008, monat: 10, einbruch: 0.4}
-    - {jahr: 2020, monat: 3, einbruch: 0.3}
+  # Börsenkrisen stehen als Wirkung „boersenkrach“ bei den Ereignissen (H1).
   boersengang:
     eigenkapital_min_usd: 2000000
     anteil_max: 0.4

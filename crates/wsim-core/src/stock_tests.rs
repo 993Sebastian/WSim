@@ -1,6 +1,7 @@
 //! Tests of the stock market (K1).
 
-use crate::catalog::{Catalog, StockModel, test_support};
+use crate::calendar::Date;
+use crate::catalog::{Catalog, EffectKind, EventEffect, HistoricalEvent, StockModel, test_support};
 use crate::command::{Command, CommandError};
 use crate::game::Game;
 use crate::ledger::{Account, CostCenter, CostType};
@@ -23,7 +24,6 @@ fn with_stock(mut catalog: Catalog, crises: Vec<(i32, u32, f64)>) -> Catalog {
         sentiment_reversion: 0.1,
         inertia: 0.5,
         noise: 0.0,
-        crises,
         ipo_equity_min: usd(100_000.0),
         ipo_share_max: 0.4,
         ipo_discount: 0.1,
@@ -49,6 +49,21 @@ fn with_stock(mut catalog: Catalog, crises: Vec<(i32, u32, f64)>) -> Catalog {
         ai_takeover_cash_share: 0.5,
         provenance: Default::default(),
     };
+    // Crises by (year, month) as crashes of events on the first of the month (H1).
+    for (year, month, drop) in crises {
+        catalog.events.push(HistoricalEvent {
+            key: format!("krise_{year}_{month}"),
+            date: Date::new(year, month, 1).unwrap(),
+            kind: "krise".into(),
+            countries: Vec::new(),
+            effects: vec![EventEffect {
+                countries: Vec::new(),
+                kind: EffectKind::StockCrash { drop },
+                until: None,
+            }],
+            provenance: Default::default(),
+        });
+    }
     catalog
 }
 

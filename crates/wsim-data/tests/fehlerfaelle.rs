@@ -2222,6 +2222,147 @@ ereignisse:
     befund(&outcome, "Text „ereignis.grosser_streik.text“ fehlt");
 }
 
+/// An event in Sweden with the given effects (H1).
+fn mit_wirkungen(wirkungen: &str) -> Daten {
+    let ereignis = format!(
+        "\
+ereignisse:
+  - id: grosser_streik
+    datum: \"1905-03-15\"
+    art: krise
+    laender: [SWE]
+    wirkungen:
+{wirkungen}"
+    );
+    Daten::neu().datei("ereignisse/a.yaml", &ereignis).ersetze(
+        "texte/de/a.yaml",
+        "land.SWE: Schweden\n",
+        "land.SWE: Schweden\nereignis.grosser_streik: Großer Streik\n\
+             ereignis.grosser_streik.text: Lange Arbeitskämpfe.\n",
+    )
+}
+
+#[test]
+fn ereigniswirkungen_werden_geprueft() {
+    use wsim_core::catalog::EffectKind;
+    let gut = mit_wirkungen(
+        "      - {art: arbeitskraefte, faktor: 0.8, bis: \"1906-01-01\"}
+      - {art: nachfrage, warengruppen: [erze], konsum: 0.5}
+      - {art: zerstoerung, anteil: 0.1}
+      - {art: enteignung, nur_auslaendische: false, entschaedigung: 0.3}
+      - {art: abschottung, alle: true}
+      - {art: boersenkrach, einbruch: 0.3}
+",
+    )
+    .laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let e = &gut.data.as_ref().unwrap().catalog.events[0];
+    assert_eq!(e.effects.len(), 6);
+    assert_eq!(e.effects[0].kind, EffectKind::Labor { factor: 0.8 });
+    assert_eq!(e.effects[0].countries.len(), 1);
+    assert!(e.effects[0].until.is_some());
+    assert!(e.effects[5].countries.is_empty());
+    assert_eq!(
+        e.effects[3].kind,
+        EffectKind::Expropriation {
+            foreign_only: false,
+            compensation: 0.3
+        }
+    );
+
+    for (wirkung, meldung, pfad) in [
+        (
+            "{art: arbeitskraefte, faktor: 0.8, anteil: 0.1}",
+            "Das Feld „anteil“ passt nicht zur Wirkung „arbeitskraefte“.",
+            "ereignisse[0].wirkungen[0].anteil",
+        ),
+        (
+            "{art: produktion}",
+            "Die Wirkung „produktion“ braucht das Feld „faktor“.",
+            "ereignisse[0].wirkungen[0]",
+        ),
+        (
+            "{art: handelssperre}",
+            "Die Wirkung „handelssperre“ braucht das Feld „gegen“.",
+            "ereignisse[0].wirkungen[0]",
+        ),
+        (
+            "{art: handelssperre, gegen: [SWE]}",
+            "„SWE“ steht auf beiden Seiten der Wirkung (laender und gegen).",
+            "ereignisse[0].wirkungen[0].gegen[0]",
+        ),
+        (
+            "{art: nachfrage, konsum: 1}",
+            "Die Wirkung „nachfrage“ ändert nichts; mindestens ein Faktor muss von 1 abweichen.",
+            "ereignisse[0].wirkungen[0]",
+        ),
+        (
+            "{art: zerstoerung, anteil: 1.5}",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "ereignisse[0].wirkungen[0].anteil",
+        ),
+        (
+            "{art: zerstoerung, anteil: 0.1, bis: \"1906-01-01\"}",
+            "Das Feld „bis“ passt nicht zur Wirkung „zerstoerung“.",
+            "ereignisse[0].wirkungen[0].bis",
+        ),
+        (
+            "{art: arbeitskraefte, faktor: 0.8, bis: \"1905-01-01\"}",
+            "Das Ende „1905-01-01“ liegt nicht nach dem Ereignistag 1905-03-15.",
+            "ereignisse[0].wirkungen[0].bis",
+        ),
+        (
+            "{art: boersenkrach, einbruch: 0.3, laender: [SWE]}",
+            "Das Feld „laender“ passt nicht zur Wirkung „boersenkrach“.",
+            "ereignisse[0].wirkungen[0].laender",
+        ),
+        (
+            "{art: nachfrage, warengruppen: [moebel], staat: 2}",
+            "Warengruppe „moebel“ ist nicht definiert.",
+            "ereignisse[0].wirkungen[0].warengruppen[0]",
+        ),
+        (
+            "{art: zoll, aufschlag: 0.2, gegen: [XXX]}",
+            "Land „XXX“ ist nicht definiert.",
+            "ereignisse[0].wirkungen[0].gegen[0]",
+        ),
+    ] {
+        let outcome = mit_wirkungen(&format!("      - {wirkung}\n")).laden();
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad, "{wirkung}");
+    }
+    // An unknown kind is a reading error of the file.
+    let falsch = mit_wirkungen("      - {art: pest}\n").laden();
+    befund(&falsch, "pest");
+}
+
+#[test]
+fn ereignisfolgen_werden_geprueft() {
+    let gut = Daten::neu()
+        .datei(
+            "parameter/ereignisse.yaml",
+            "ereignisfolgen:\n  staatsbetrieb:\n    betriebskapital_anteil: 0.1\n",
+        )
+        .laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.event_model;
+    assert_eq!(m.working_capital_share, 0.1);
+    let falsch = Daten::neu()
+        .datei(
+            "parameter/ereignisse.yaml",
+            "ereignisfolgen:\n  staatsbetrieb:\n    betriebskapital_anteil: 2\n",
+        )
+        .laden();
+    let f = befund(
+        &falsch,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "ereignisfolgen.staatsbetrieb.betriebskapital_anteil"
+    );
+}
+
 #[test]
 fn verlauf_und_preismeldung_im_marktmodell() {
     let d = Daten::neu()
@@ -3878,8 +4019,6 @@ boerse:
     rueckkehr: 0.06
   traegheit: 0.3
   rauschen: 0.03
-  krisen:
-    - {jahr: 1929, monat: 10, einbruch: 0.5}
   boersengang:
     eigenkapital_min_usd: 2000000
     anteil_max: 0.4
@@ -3924,23 +4063,10 @@ fn boerse_wird_geprueft() {
     assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
     let m = &gut.data.as_ref().unwrap().catalog.stock;
     assert!(m.enabled);
-    assert_eq!(m.crises, vec![(1929, 10, 0.5)]);
     assert_eq!(m.dividend_month, 5);
     assert_eq!(m.earnings_months, 24);
 
     for (alt, neu, meldung, pfad) in [
-        (
-            "monat: 10, einbruch",
-            "monat: 13, einbruch",
-            "Wert 13 liegt außerhalb des erlaubten Bereichs 1 bis 12.",
-            "boerse.krisen[0].monat",
-        ),
-        (
-            "einbruch: 0.5",
-            "einbruch: 1.2",
-            "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0 bis 0.95.",
-            "boerse.krisen[0].einbruch",
-        ),
         (
             "gewinn_monate: 24",
             "gewinn_monate: 36",

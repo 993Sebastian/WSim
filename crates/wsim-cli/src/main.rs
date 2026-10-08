@@ -143,6 +143,9 @@ struct RunArgs {
     /// Entwicklung der Zölle nach 2026 (Schlüssel aus zoelle.yaml: keine, normal, stark)
     #[arg(long)]
     zoelle: Option<String>,
+    /// Historische Ereignisse ohne Folgen für Märkte, Handel und Firmen (H1)
+    #[arg(long)]
+    ohne_folgen: bool,
     /// Am Ende einen Weltbericht ausgeben (Firmen, Produktion, Preise)
     #[arg(long)]
     welt: bool,
@@ -487,6 +490,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 ai: ai_settings(&catalog, args)?,
                 ventures: venture_factor(&catalog, args)?,
                 tariff_dynamics: tariff_factor(&catalog, args)?,
+                event_effects: !args.ohne_folgen,
             };
             Game::new(catalog, settings).map_err(|e| texts.render(&e.message()))?
         }
@@ -582,6 +586,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         research_factor: 1.0,
         startups: None,
         tariffs: None,
+        event_effects: true,
     };
     let message = |m: wsim_core::views::MessageView| m.key;
     let start = session.new_game(&request).map_err(message)?;
@@ -894,6 +899,7 @@ fn example_review(data: &Path) -> Result<serde_json::Value, String> {
         research_factor: 1.0,
         startups: None,
         tariffs: None,
+        event_effects: true,
     };
     session.new_game(&request).map_err(message)?;
     for role in ["leitung", "finanzen"] {
@@ -1102,6 +1108,42 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_stock(game);
     print_bonds(game);
     print_banks(game);
+    print_state_companies(texts, game);
+}
+
+/// State companies of the events (H1): sites, equity, and private sites left in their
+/// countries.
+fn print_state_companies(texts: &wsim_data::Texts, game: &Game) {
+    let state = game.state();
+    let catalog = game.catalog();
+    for (i, c) in state.companies.iter().enumerate() {
+        let Some(country) = c.state_owned else {
+            continue;
+        };
+        let id = wsim_core::state::CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
+        let own = state.sites.iter().filter(|s| s.owner == id).count();
+        let private = state
+            .sites
+            .iter()
+            .filter(|s| {
+                let top = wsim_core::group::top(state, s.owner);
+                s.country == country
+                    && state.companies[top.index()].state_owned.is_none()
+                    && !state.companies[s.owner.index()].bankrupt
+            })
+            .count();
+        println!(
+            "Staatsbetrieb (H1) {} in {}: {} Standorte, Eigenkapital {} Mio. USD{}; private Standorte im Land: {}",
+            c.name,
+            texts
+                .get(&format!("land.{}", catalog.countries.key(country)))
+                .unwrap_or(catalog.countries.key(country)),
+            own,
+            format_number(wsim_core::ranking::equity(c).to_usd() / 1e6, 1),
+            if c.bankrupt { " (pleite)" } else { "" },
+            private
+        );
+    }
 }
 
 /// The player's banks (K4): deposits, loans given, borrowers, result.

@@ -32,6 +32,8 @@ pub enum Param {
     TextKey(String),
     /// Keys of several countries, shown as a list of names.
     Countries(Vec<String>),
+    /// Several texts by their keys, shown as a list.
+    TextKeys(Vec<String>),
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -226,6 +228,10 @@ pub mod keys {
     pub const COMMAND_NOT_A_BANK: &str = "fehler.befehl.keine_bank";
     pub const COMMAND_INVALID_BANK_SETTINGS: &str = "fehler.befehl.bank_werte";
     pub const BANK_LOAN_LOST: &str = "meldung.bank.ausfall";
+    pub const EVENT_DESTRUCTION: &str = "meldung.ereignis.zerstoerung";
+    pub const EVENT_EXPROPRIATION: &str = "meldung.ereignis.enteignung";
+    pub const EVENT_STATE_COMPANY: &str = "meldung.ereignis.staatsbetrieb";
+    pub const COMMAND_COUNTRY_CLOSED: &str = "fehler.befehl.land_abgeschottet";
     pub const COMMAND_NO_BONDS: &str = "fehler.befehl.keine_anleihen";
     pub const COMMAND_BOND_TERM: &str = "fehler.befehl.anleihe_laufzeit";
     pub const COMMAND_BOND_TOO_SMALL: &str = "fehler.befehl.anleihe_zu_klein";
@@ -562,6 +568,10 @@ pub mod keys {
         COMMAND_NOT_A_BANK,
         COMMAND_INVALID_BANK_SETTINGS,
         BANK_LOAN_LOST,
+        EVENT_DESTRUCTION,
+        EVENT_EXPROPRIATION,
+        EVENT_STATE_COMPANY,
+        COMMAND_COUNTRY_CLOSED,
         COMMAND_NO_BONDS,
         COMMAND_BOND_TERM,
         COMMAND_BOND_TOO_SMALL,

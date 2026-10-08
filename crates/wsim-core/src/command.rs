@@ -574,6 +574,8 @@ pub enum CommandError {
     NotEnoughStock {
         held: f64,
     },
+    /// The country is closed to the company (H1).
+    CountryClosed,
     /// The data have no banks (K4).
     NoBanks,
     NotABank,
@@ -782,6 +784,7 @@ impl CommandError {
                 .with("anteil", Param::Number((held * 1000.0).round() / 10.0)),
             CommandError::NoBanks => e(keys::COMMAND_NO_BANKS),
             CommandError::NotABank => e(keys::COMMAND_NOT_A_BANK),
+            CommandError::CountryClosed => e(keys::COMMAND_COUNTRY_CLOSED),
             CommandError::InvalidBankSettings => e(keys::COMMAND_INVALID_BANK_SETTINGS),
             CommandError::NoBonds => e(keys::COMMAND_NO_BONDS),
             CommandError::BondTerm { min, max } => e(keys::COMMAND_BOND_TERM)
@@ -915,6 +918,9 @@ fn found_site(
     (country, kind): (CountryId, SiteType),
     (plot, lease): (Option<PlotId>, bool),
 ) -> Result<(), CommandError> {
+    if crate::events::closed_to(state, actor, country) {
+        return Err(CommandError::CountryClosed);
+    }
     let cost = catalog.production_model.site_cost(kind);
     let land = plot
         .filter(|_| !lease)

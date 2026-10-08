@@ -253,7 +253,12 @@ pub(crate) fn list_at_start(state: &mut GameState, catalog: &Catalog) {
     let date = state.date;
     for i in 0..state.companies.len() {
         let c = &state.companies[i];
-        if c.ai.is_none() || c.listing.is_some() || equity(&c.ledger) < m.start_equity_min {
+        // State companies are not listed (H1).
+        if c.ai.is_none()
+            || c.listing.is_some()
+            || c.state_owned.is_some()
+            || equity(&c.ledger) < m.start_equity_min
+        {
             continue;
         }
         let value = target(catalog, &state.stock, c);
@@ -774,17 +779,15 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
     }
     let month = u32::try_from(date.year() * 12).unwrap_or(0) + date.month();
     let mut rng = SimRng::for_stream(state.settings.seed, Stream::Stock { month });
-    // Sentiment: back towards 0, a random step, the crises of the data.
+    // Sentiment: back towards 0, a random step, the crashes of the events (H1).
     let mut s = state.stock.sentiment * (1.0 - m.sentiment_reversion)
         + m.sentiment_volatility * normal(&mut rng);
-    for &(year, mon, drop) in &m.crises {
-        if year == date.year() && mon == date.month() {
-            s += libm::log(1.0 - drop);
-            news.push(
-                Message::new(MessageKind::Warning, keys::STOCK_CRISIS)
-                    .with("einbruch", Param::Number((drop * 100.0).round())),
-            );
-        }
+    for drop in crate::events::crashes(state, catalog, date) {
+        s += libm::log(1.0 - drop);
+        news.push(
+            Message::new(MessageKind::Warning, keys::STOCK_CRISIS)
+                .with("einbruch", Param::Number((drop * 100.0).round())),
+        );
     }
     state.stock.sentiment = s;
 
@@ -935,6 +938,7 @@ pub(crate) fn ai_ipo(state: &mut GameState, catalog: &Catalog, id: CompanyId) ->
     if !m.enabled
         || c.listing.is_some()
         || c.subsidiary_of.is_some()
+        || c.state_owned.is_some()
         || c.bankrupt
         || equity(&c.ledger) < m.start_equity_min.max(m.ipo_equity_min)
     {

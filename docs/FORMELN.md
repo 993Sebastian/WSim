@@ -4328,3 +4328,82 @@ Marktes für diesen Kredit ist (M6). Unter mehreren Banken nimmt die Firma die g
 Die Bank bucht den Kredit als Ausleihung (Anlagevermögen); Zinsen und Tilgungen des
 Kreditnehmers fließen ihr zu (Zinsertrag bzw. Rückzahlung). Geht der Kreditnehmer pleite,
 schreibt die Bank die Restschuld ab (Aufwand der Finanzanlagen).
+
+## H1 – Ereignisfolgen
+
+Lastenheft §4.1, §4.3, §17.4. Daten: Feld `wirkungen` der Ereignisse in `ereignisse/*.yaml`,
+Parameter in `parameter/ereignisse.yaml`. Kern: Modul `events`.
+
+Jedes historische Ereignis kann Wirkungen haben; sie gelten für Spieler und KI-Firmen
+gleich. Länder einer Wirkung sind ihre `laender`, ohne Angabe die des Ereignisses.
+Firmen „aus“ einem Land sind die, deren Konzernspitze dort ihren Sitz hat. Die Folgen
+lassen sich beim neuen Spiel abschalten („Folgen historischer Ereignisse“); die Ereignisse
+erscheinen dann nur als Meldung.
+
+### Wirkungen mit Dauer
+
+Sie gelten vom ersten Monatsersten am oder nach dem Ereignistag bis vor den ersten
+Monatsersten am oder nach `bis` (ohne `bis` bis zum Spielende). Wie die Länderwerte gilt
+der Wert des Monatsersten für den ganzen Monat. Gleichzeitige Faktoren derselben Art
+werden multipliziert, Zollaufschläge addiert.
+
+| Art | Felder | Wirkung |
+|---|---|---|
+| `nachfrage` | `warengruppen` (leer: alle), `konsum`, `staat` (je Standard 1) | Verbrauchernachfrage aller Einkommensschichten · konsum, Staatsnachfrage · staat |
+| `handelssperre` | `gegen` | kein Handel zwischen jedem Land der Wirkung und jedem aus `gegen` (wie die Sperren in `zoelle.yaml`) |
+| `zoll` | `gegen` (leer: alle anderen), `aufschlag` | Einfuhren in die Länder aus `gegen`: Zoll = Basis · Warengruppe · Zone + aufschlag |
+| `arbeitskraefte` | `faktor` | verfügbare Arbeitskräfte jeder Gruppe · faktor (Einberufung); der Lohnaufschlag knapper Gruppen folgt M18b |
+| `produktion` | `warengruppen` (leer: alle), `faktor` | Läufe je Anlage ≤ faktor · geplante Läufe an Standorten in den Ländern (Förderkürzung, Bürgerkrieg, Kriegsschäden); Engpass „Ereignis“ |
+| `abschottung` | `alle` (Standard nein) | Firmen aus anderen Ländern gründen und kaufen dort keine Standorte und verlegen ihren Sitz nicht dorthin; mit `alle` gilt das auch für die eigenen Firmen des Landes außer dem Staatsbetrieb |
+
+In einem Land, das nur Staatsbetriebe zulässt, sind neue KI-Firmen und – bei einem
+Spielstart in dieser Zeit – die KI-Firmen der Startbesetzung Staatsbetriebe; die Firma des
+Spielers bleibt privat (sie behält ihren Startstandort, wächst dort aber nicht).
+
+Durchlaufende Verbrauchsgüter mit Faktor < 1 werden weniger gekauft; bei Gebrauchsgütern
+sinkt der Bestand der Haushalte, und nach dem Ende holen sie den Rückstand mit der
+üblichen Anschaffungsrate (M7) nach.
+
+### Einmalige Wirkungen
+
+Sie treten am Ereignistag ein (`boersenkrach` am folgenden Monatsersten, wenn die Börse
+ihre Kurse bildet).
+
+**Zerstörung** (`zerstoerung`, Feld `anteil`): An jedem Standort in den Ländern verliert
+jede fertige Anlage mit n Einheiten
+
+    zerstört = ⌊n · anteil⌋ + (1, wenn u < n · anteil − ⌊n · anteil⌋)
+
+Einheiten (u gleichverteilt aus dem Zufallsstrom des Ereignisses); die Lagerbestände
+sinken um den Anteil. Der Buchwert der zerstörten Einheiten (M22) und der Wert der
+verlorenen Ware sind sonstiger Aufwand. Anlagen im Bau bleiben.
+
+**Enteignung** (`enteignung`, Felder `nur_auslaendische` (Standard ja) und
+`entschaedigung` (Anteil am Buchwert, Standard 0)): Betroffen sind alle Standorte in den
+Ländern, deren Firma aus einem anderen Land ist – ohne `nur_auslaendische` alle außer
+denen des Staatsbetriebs. Der bisherige Eigentümer bucht Anlagen, Anlagen im Bau,
+Firmenwert, Lager und eigenen Grund aus und erhält
+
+    Entschädigung = entschaedigung · Buchwert            (Kasse)
+    sonstiger Aufwand = Buchwert − Entschädigung
+
+Die Standorte gehen an den **Staatsbetrieb** des Landes: eine KI-Firma mit Sitz dort, die
+beim ersten Mal gegründet wird (Name wie andere KI-Firmen des Landes, Fähigkeiten nach den
+KI-Einstellungen). Er übernimmt die Buchwerte als Einlage (Eigenkapital), dazu vom Staat
+
+    Betriebskapital = staatsbetrieb.betriebskapital_anteil · Buchwert   (Kasse, Einlage)
+
+und die Technologien der übernommenen Rezepte und Anlagen. Staatsbetriebe gehen nicht an
+die Börse (K1) und lassen sich daher nicht übernehmen (K3). Pachtgrundstücke bleiben
+gepachtet, Konzessionen gehen mit dem Standort über, Lieferverträge der Standorte enden
+(W4), Manager kehren in ihre Firma zurück (wie beim Verkauf, M30).
+
+**Börsenkrach** (`boersenkrach`, Feld `einbruch`): Die Stimmung der Börse sinkt um
+ln(1 − einbruch) (K1). Die bisherigen `krisen` in `parameter/boerse.yaml` sind in die
+Ereignisse gewandert.
+
+### Meldungen
+
+Die Meldung eines Weltereignisses nennt seine Wirkungen je eine Zeile (Folge). Verliert
+der Spieler durch Zerstörung oder Enteignung Anlagen oder Standorte, erhält er eine
+Warnung mit dem Verlust.

@@ -8,12 +8,12 @@ use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
     RawAiModel, RawBank, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
-    RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel,
-    RawInventor, RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup,
-    RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel,
-    RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawStockMarket,
-    RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass, RawTransportModel, RawUnit,
-    RawVehicle, RawVentures,
+    RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawEventModel, RawFacility,
+    RawFinanceModel, RawInventor, RawLogistics, RawManagement, RawMarketModel, RawMeta,
+    RawMilestone, RawNameGroup, RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming,
+    RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple,
+    RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass,
+    RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -186,6 +186,7 @@ pub(crate) struct RawData {
     pub stock: Vec<Entry<RawStockMarket>>,
     pub bonds: Vec<Entry<RawBonds>>,
     pub bank: Vec<Entry<RawBank>>,
+    pub event_model: Vec<Entry<RawEventModel>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -232,6 +233,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "boerse",
     "anleihen",
     "bank",
+    "ereignisfolgen",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -339,6 +341,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "bank" => match de::from_node::<RawBank>(value, &loc.path) {
                 Ok(model) => raw.bank.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "ereignisfolgen" => match de::from_node::<RawEventModel>(value, &loc.path) {
+                Ok(model) => raw.event_model.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

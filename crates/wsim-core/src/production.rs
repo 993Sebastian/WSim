@@ -596,6 +596,12 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
                 }
             }
         };
+        // Output cuts, civil war, war damage (H1).
+        let goods_group = catalog.products.get(recipe.product).goods_group;
+        let event_factor = state.events.production(country, goods_group);
+        if event_factor < 1.0 {
+            bound(&mut runs, planned * event_factor, Limit::Event);
+        }
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
                 .inventory

@@ -27,17 +27,6 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
         l.field("start"),
         l.field("ki"),
     );
-    let crises = v
-        .crises
-        .iter()
-        .enumerate()
-        .map(|(i, c)| {
-            let at = l.field("krisen").index(i);
-            in_range(ctx, f64::from(c.month), 1.0, 12.0, &at.field("monat"));
-            let drop = in_range(ctx, c.drop, 0.0, 0.95, &at.field("einbruch"));
-            (c.year, c.month, drop)
-        })
-        .collect();
     // The ledger keeps only so many closed months.
     let kept = u32::try_from(wsim_core::ledger::MONTHS_KEPT).unwrap_or(u32::MAX);
     in_range(
@@ -75,7 +64,6 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
         sentiment_reversion: unit(ctx, v.sentiment.reversion, &sl.field("rueckkehr")),
         inertia: unit(ctx, v.inertia, &l.field("traegheit")),
         noise: in_range(ctx, v.noise, 0.0, 1.0, &l.field("rauschen")),
-        crises,
         ipo_equity_min: money(ctx, v.ipo.equity_min_usd, &il.field("eigenkapital_min_usd")),
         ipo_share_max: in_range(ctx, v.ipo.share_max, 0.01, 0.9, &il.field("anteil_max")),
         ipo_discount: unit(ctx, v.ipo.discount, &il.field("abschlag")),

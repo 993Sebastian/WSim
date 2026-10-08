@@ -370,6 +370,9 @@ pub struct Company {
     /// What the company offers as a bank (K4); `None` for other companies.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bank: Option<crate::bank::BankSettings>,
+    /// The country whose state company this is (H1): it took over seized sites there.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state_owned: Option<CountryId>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -1205,6 +1208,8 @@ pub enum Limit {
     Labor(LaborGroupId),
     Electricity,
     Deposit,
+    /// An effect of a historical event cuts the output (H1).
+    Event,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1558,6 +1563,9 @@ pub struct GameSettings {
     /// Multiplies the yearly change of the tariffs after the data (W3).
     #[serde(default = "one")]
     pub tariff_dynamics: f64,
+    /// Whether the historical events act on markets, trade and companies (H1).
+    #[serde(default = "yes")]
+    pub event_effects: bool,
 }
 
 /// Number and character of the AI companies; difficulty presets fill these values.
@@ -1583,6 +1591,10 @@ impl Default for AiSettings {
 
 fn one() -> f64 {
     1.0
+}
+
+fn yes() -> bool {
+    true
 }
 
 fn one_unit() -> u32 {
@@ -1672,9 +1684,12 @@ pub struct GameState {
     /// before.
     #[serde(default, skip_serializing_if = "PerId::is_empty")]
     pub tariff_offsets: PerId<CountryId, f64>,
-    /// Tariffs of the current year; derived, not saved.
+    /// Tariffs of the current month; derived, not saved.
     #[serde(skip)]
     pub tariffs: crate::tariffs::TariffTable,
+    /// Effects of the historical events in the current month (H1); derived, not saved.
+    #[serde(skip)]
+    pub events: crate::events::EventTable,
     /// Supply contracts, open ones and those closed in the last months (W4).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub contracts: Vec<crate::contracts::Contract>,
@@ -1728,17 +1743,31 @@ impl GameState {
         let mut values = crate::country_model::compute_all(catalog, month).into_iter();
         let scale = self.settings.market_scale;
         let min_pool = catalog.ai_model.min_labor_pool;
+        let effects = self.settings.event_effects;
+        if self.events.month() != Some(month) {
+            self.events = crate::events::EventTable::new(catalog, month, effects);
+        }
+        let events = &self.events;
+        let mut index = 0;
         self.countries = PerId::from_fn(catalog.countries.len(), |_| {
             let mut c = values.next().expect("one per country");
             crate::country_model::apply_market_scale(&mut c, scale, min_pool);
+            let factor = events.labor(CountryId::from_index(index));
+            if factor != 1.0 {
+                for pool in &mut c.labor_available {
+                    *pool *= factor;
+                }
+            }
+            index += 1;
             c
         });
         if self.routes.year() != self.date.year() {
             self.routes = Routes::new(catalog, self.date.year(), Some(&self.routes));
         }
-        if self.tariffs.year() != self.date.year() {
+        if self.tariffs.month() != Some(month) {
             self.tariffs =
-                crate::tariffs::TariffTable::new(catalog, self.date.year(), &self.tariff_offsets);
+                crate::tariffs::TariffTable::new(catalog, self.date.year(), &self.tariff_offsets)
+                    .with_events(catalog, month, effects);
         }
     }
 

@@ -217,6 +217,8 @@ function parameterText(p: Parameter): string | number {
       return t(p.value);
     case "countries":
       return p.value.map(landName).join(", ");
+    case "text_keys":
+      return p.value.map((k) => t(k)).join(", ");
   }
 }
 

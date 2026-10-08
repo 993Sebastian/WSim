@@ -3,15 +3,28 @@ import type { Meldung } from "../kern";
 import { t } from "../texte";
 import { Dialog } from "./Dialog";
 
+/** The lines naming the effects of a world event (H1), from the same report. */
+export function folgenVon(meldungen: Meldung[], ereignis: Meldung): Meldung[] {
+  const name = ereignis.params.ereignis;
+  if (name?.type !== "text_key") return [];
+  return meldungen.filter((m) => {
+    const p = m.params.ereignis;
+    return m.key.startsWith("meldung.folge.") && p?.type === "text_key" && p.value === name.value;
+  });
+}
+
 /** World news shown as a window of its own before the round report. */
 export function WeltereignisDialog({
   meldung,
+  folgen = [],
   nummer,
   anzahl,
   onWeiter,
   onAlle,
 }: {
   meldung: Meldung;
+  /** Its effects, one line each (H1). */
+  folgen?: Meldung[];
   nummer: number;
   anzahl: number;
   onWeiter: () => void;
@@ -24,7 +37,9 @@ export function WeltereignisDialog({
   const hinweis =
     meldung.key === "meldung.waehrungsreform"
       ? "weltereignis.hinweis_waehrung"
-      : "weltereignis.hinweis_stufe1";
+      : folgen.length > 0
+        ? "weltereignis.hinweis_folgen"
+        : "weltereignis.hinweis_laenderwerte";
   return (
     <Dialog titel={parameterAnzeige(meldung, "ereignis")} onSchliessen={onWeiter} tour="ereignis">
       <p className="ereignis-kopf">
@@ -39,6 +54,16 @@ export function WeltereignisDialog({
         <p className="gedaempft">
           <strong>{t("weltereignis.laender")}:</strong> {laender}
         </p>
+      )}
+      {folgen.length > 0 && (
+        <>
+          <h3>{t("weltereignis.folgen")}</h3>
+          <ul className="folgen">
+            {folgen.map((f, i) => (
+              <li key={i}>{meldungText(f)}</li>
+            ))}
+          </ul>
+        </>
       )}
       <p className="hinweis-links">{t(hinweis)}</p>
       <div className="knopfreihe">

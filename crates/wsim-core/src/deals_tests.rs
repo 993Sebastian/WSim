@@ -45,6 +45,7 @@ fn new_game(catalog: Catalog, ai: bool) -> (Game, CompanyId) {
         ai: Default::default(),
         ventures: 1.0,
         tariff_dynamics: 1.0,
+        event_effects: true,
     };
     let mut game = Game::new(catalog, settings).unwrap();
     let state = game.state_mut();

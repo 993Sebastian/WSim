@@ -618,6 +618,33 @@ pub fn event_kind_unknown(kind: &str, known: &str) -> String {
     format!("Unbekannte Ereignisart „{kind}“; erlaubt sind {known}.")
 }
 
+pub fn effect_field_not_allowed(field: &str, kind: &str) -> String {
+    format!("Das Feld „{field}“ passt nicht zur Wirkung „{kind}“.")
+}
+
+pub fn effect_field_missing(field: &str, kind: &str) -> String {
+    format!("Die Wirkung „{kind}“ braucht das Feld „{field}“.")
+}
+
+pub fn effect_without_countries(kind: &str) -> String {
+    format!(
+        "Die Wirkung „{kind}“ braucht Länder: im Feld „laender“ der Wirkung oder des \
+         Ereignisses."
+    )
+}
+
+pub fn effect_until_not_after(until: &str, date: &str) -> String {
+    format!("Das Ende „{until}“ liegt nicht nach dem Ereignistag {date}.")
+}
+
+pub fn effect_country_on_both_sides(country: &str) -> String {
+    format!("„{country}“ steht auf beiden Seiten der Wirkung (laender und gegen).")
+}
+
+pub fn effect_without_change(kind: &str) -> String {
+    format!("Die Wirkung „{kind}“ ändert nichts; mindestens ein Faktor muss von 1 abweichen.")
+}
+
 // --- Milestones (M23) ---
 
 pub fn milestone_value_missing(kind: &str) -> String {

@@ -1349,6 +1349,60 @@ Stufe 3 (K1–K4) umgesetzt. 🟡 Eigenständig entschieden:
 5. **Weltlauf 1900–1903 als Bank** (20 Mio. USD, 100 KI-Firmen, Vorgaben): 109 Mio. USD
    Einlagen, 55 Mio. USD Kredite an 4 Firmen.
 
+✅ **H1 umgesetzt** (Ereignisfolgen; Regeln: `docs/FORMELN.md`, Abschnitt H1; Format:
+`docs/DATENFORMAT.md`, `ereignisse`). Reihenfolge: H1 war schon fertig, als die Vorgabe
+PE1–PE6 (vor H1) auf dem Zweig ankam; PE1–PE6 folgen jetzt vor H2. 🟡 Eigenständig
+entschieden:
+
+1. **Neun Arten von Wirkungen als Daten** je Ereignis: Nachfrage (Verbraucher und Staat je
+   Warengruppe), Handelssperre, Zollaufschlag, Arbeitskräfte, Produktion, Abschottung (mit
+   Dauer, monatsgenau) sowie Zerstörung, Enteignung und Börsenkrach (einmalig). Die
+   bisherigen Börsenkrisen aus `boerse.yaml` sind Wirkungen der Ereignisse geworden.
+2. **Keine doppelte Rezession:** Die Länderwerte (BIP, Bevölkerung) enthalten den
+   allgemeinen Einbruch schon. Die Wirkungen bilden nur, was darin fehlt: Verschiebung von
+   Verbraucher- zu Staatsnachfrage, Handelswege, Einberufungen, Förderkürzungen, verlorene
+   Anlagen und Eigentum. Die Staatsnachfrage im Krieg trifft bis H3 (Rüstungsgüter) die
+   kriegswichtigen Warengruppen (Stahl, Fahrzeuge, Gummi, Mineralöl, Bekleidung, Chemie,
+   Metallwaren, Nichteisenmetalle).
+3. **Enteignete Standorte gehen an einen Staatsbetrieb:** je Land eine KI-Firma (Name wie
+   andere KI-Firmen des Landes), beim ersten Mal gegründet. Er übernimmt die Buchwerte als
+   Einlage, bekommt 15 % davon als Betriebskapital und die Technologien der übernommenen
+   Anlagen und arbeitet danach wie jede KI-Firma – nur geht er nicht an die Börse und lässt
+   sich daher nicht übernehmen. Der Eigentümer verliert den Buchwert bis
+   auf die Entschädigung. „Nur ausländische“ trifft Firmen, deren Konzernspitze ihren Sitz
+   außerhalb der Länder der Wirkung hat; „alle“ jede private Firma. Standorte in der
+   Versteigerung (M38) bleiben unberührt.
+4. **Abschottung:** Firmen von außerhalb gründen und kaufen in einem abgeschotteten Land
+   keine Standorte und verlegen ihren Sitz nicht dorthin; mit „alle“ gilt das auch für die
+   privaten Firmen des Landes (nur Staatsbetriebe wachsen); neue KI-Firmen dort sind
+   Staatsbetriebe, ebenso die KI-Firmen der Startbesetzung bei einem späten Spielstart
+   (die Firma des Spielers bleibt privat). Übernahmen über die Börse und bestehende
+   Standorte bleiben erlaubt.
+5. **Zerstörung zum Ereignistag:** Je Anlage geht der Anteil der Einheiten verloren (ganzer
+   Teil sicher, der Rest mit seiner Wahrscheinlichkeit), ebenso der Anteil der Lager;
+   Anlagen im Bau bleiben. Kriegszerstörungen sind auf wenige Ereignisse gelegt (Kriegsbeginn,
+   Westfeldzug, Angriff auf die Sowjetunion, Normandie, Kriegsende, Hiroshima) statt über
+   die Kriegsjahre verteilt.
+6. **Stärken geschätzt** (`annaeherung`): Weltkriege mit Gebrauchsgütern 40–50 %,
+   Staatsnachfrage ×2–2,5, Arbeitskräfte 75–80 %; USA 1942–1945 fast keine Autos für
+   Verbraucher; Ölkrise 1973 −25 % Förderung der arabischen OPEC-Länder und Sperre gegen
+   USA und Niederlande für fünf Monate; Iran 1979, Iran–Irak-Krieg, Golfkrieg mit
+   Förderkürzungen; Sowjetunion 1917–1991, Ostblock 1945–1989, China 1949–1978 und Kuba
+   seit 1959 mit Enteignung aller Privaten und Abschottung; Mexiko 1938 und Iran 1951
+   (neue Ereignisse) verstaatlichen ausländisches Öl; Sanktionen gegen Russland 2014 und
+   2022 als Zollaufschläge (5 % bzw. 50 %/30 %), Handelskonflikt USA–China 2018 15 %.
+7. **Abschaltbar:** „Folgen historischer Ereignisse“ beim neuen Spiel (Vorgabe an; alte
+   Spielstände: an). Ab 2027 gibt es keine Wirkungen – zufällige Ereignisse sind Stufe 6.
+8. **Nicht abgebildet:** Preiskontrollen und Bezugsscheine, Reparationen, eingefrorene
+   Konten, Sanktionen gegen einzelne Produkte, Umstellung auf Kriegsproduktion (H3).
+9. **Weltlauf 1900–1951** (100 KI-Firmen, Vorgaben, 16 Minuten): 17 Staatsbetriebe mit 515
+   von 2426 Standorten – Sowjetunion seit 1917 (der russische mit 128 Standorten und
+   15,8 Mrd. USD Eigenkapital die größte Firma des Landes), Mexiko 1938, Ostblock 1945,
+   China 1949 (144 Standorte); in den abgeschotteten Ländern bleibt kein privater
+   Standort. 40 von 244 KI-Firmen sind bis 1951 pleite. Aufgefallen: In Osteuropa tragen
+   KI-Firmen englische Namen, weil die Namensgruppen diese Länder nicht abdecken
+   (Vorschlag: Namensgruppen für Mittel- und Osteuropa ergänzen).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

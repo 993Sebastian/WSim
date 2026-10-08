@@ -672,6 +672,16 @@ Börsenwert der letzten 24 Monate und „Übernehmen für …“: ein Übernahme
   eigenen Fenstern. Wechselt im Land des Firmensitzes oder eines eigenen Standorts die
   Währung, kommt ein Fenster „Währungsumstellung“ mit dem Umstellungskurs („1 € =
   1,95583 DM“) und dem Hinweis, dass sich das Vermögen nicht ändert.
+- **Folgen** (H1): Hat ein Weltereignis Wirkungen, nennt sein Fenster sie unter „Folgen“
+  je eine Zeile („Handelssperre zwischen Frankreich, … und Deutschland bis 11.11.1918“,
+  „Nachfrage nach Fahrzeuge, … in Deutschland: Verbraucher 50 % …“) mit dem Hinweis, dass
+  sie für dich und alle KI-Firmen gelten. Im Bericht stehen die Zeilen unter „Welt“. Trifft
+  eine Zerstörung oder Enteignung eigene Standorte, kommt eine Warnung mit Verlust und
+  Entschädigung; entsteht ein Staatsbetrieb, erscheint er unter „Welt“. Die Länderansicht
+  zeigt unter „Folgen von Weltereignissen“, was im laufenden Monat dort wirkt. Ein
+  gedrosseltes Werk nennt als Ursache „Gedrosselt durch ein Weltereignis“, die
+  Produktionsketten „hakt: gedrosselt durch ein Weltereignis“. In einem abgeschotteten
+  Land lehnt das Spiel neue Standorte, Käufe und den Umzug des Sitzes mit einer Erklärung ab.
 
 ### Neues Spiel
 
@@ -685,6 +695,8 @@ Börsenwert der letzten 24 Monate und „Übernehmen für …“: ein Übernahme
   „normal“; bis 2026 folgen die Zölle der Geschichte.
 - K4: Startformen „Investmentfirma“ und „Bank“ neben Werkstatt und Handelsniederlassung –
   beide ohne Standort und ohne Kosten; die Einführung bis zum ersten Verkauf entfällt.
+- H1: Unter „Weitere Einstellungen“ das Kästchen „Folgen historischer Ereignisse“
+  (Vorgabe: an). Ohne Haken erscheinen die Ereignisse nur als Nachricht.
 
 ### Einführung (M20)
 

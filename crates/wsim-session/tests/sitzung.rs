@@ -21,6 +21,7 @@ fn request() -> NewGameRequest {
         research_factor: 1.0,
         startups: None,
         tariffs: None,
+        event_effects: true,
     }
 }
 

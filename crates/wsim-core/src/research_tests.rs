@@ -27,6 +27,7 @@ fn new_game(catalog: Catalog) -> Game {
         ai: Default::default(),
         ventures: 1.0,
         tariff_dynamics: 1.0,
+        event_effects: true,
     };
     Game::new(catalog, settings).unwrap()
 }

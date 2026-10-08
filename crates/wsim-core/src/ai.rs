@@ -14,7 +14,9 @@ use crate::catalog::{Catalog, FacilitySize, ProductKind, Recipe, SiteType};
 use crate::command::{self, Command};
 use crate::decision::{self, Choice, ChoiceKind, Decider, Decision, Rules, Topic};
 use crate::finance;
-use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
+use crate::ids::{
+    BranchId, CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId,
+};
 use crate::ledger::{CostType, Ledger};
 use crate::logistics::FreightMode;
 use crate::market;
@@ -431,6 +433,9 @@ fn site_plan(
     (country, kind): (CountryId, SiteType),
     (units, revenue): (Option<Units>, f64),
 ) -> Option<(Command, u32)> {
+    if crate::events::closed_to(state, id, country) {
+        return None;
+    }
     let wanted = units.map_or(u32::MAX, |(_, _, n)| n);
     if !crate::plots::needs_plot(catalog, kind) {
         return Some((Command::FoundSite { country, kind }, wanted));
@@ -4219,6 +4224,75 @@ impl Chain<'_> {
     }
 }
 
+/// A new AI company with its traits drawn from the AI settings and a name of its country
+/// and branch; it owns nothing but `capital` in cash.
+pub(crate) fn push_company(
+    state: &mut GameState,
+    catalog: &Catalog,
+    (country, branch): (CountryId, BranchId),
+    date: Date,
+    capital: Money,
+    founder: Option<&str>,
+) -> CompanyId {
+    let model = &catalog.ai_model;
+    let index = u32::try_from(state.companies.len()).unwrap_or(u32::MAX);
+    let id = CompanyId(index);
+    let mut rng = SimRng::for_stream(state.settings.seed, Stream::Company(index));
+    let settings = state.settings.ai;
+    let spread = model.trait_spread;
+    let competence = (settings.competence + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
+    let aggressiveness =
+        (settings.aggressiveness + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
+    let name = population::company_name_for(state, catalog, &mut rng, country, branch, founder);
+    state.companies.push(Company {
+        brands: Vec::new(),
+        advertising: Vec::new(),
+        auction_until: None,
+        development: Default::default(),
+        product_names: Default::default(),
+        positions: Vec::new(),
+        budget_rules: Vec::new(),
+        strategies: Vec::new(),
+        mandate: crate::mandate::Mandate::default(),
+        reviews: Vec::new(),
+        relocation: None,
+        relocated: None,
+        departments: Default::default(),
+        departments_staffed: Default::default(),
+        hq_city: None,
+        participations: Default::default(),
+        logistics: Default::default(),
+        subsidiary_of: None,
+        listing: None,
+        dividend_payout: None,
+        stock_cost: Default::default(),
+        bonds: Vec::new(),
+        bank: None,
+        state_owned: None,
+        owners: crate::state::Stake::sole(crate::state::Holder::Private),
+        name,
+        kind: CompanyKind::Ai,
+        headquarters: country,
+        founded: date,
+        rng,
+        ledger: Ledger::new(date, capital),
+        technologies: Default::default(),
+        bankrupt: false,
+        loans: Vec::new(),
+        loss_carryforward: Money::ZERO,
+        sales_policies: Vec::new(),
+        research: Default::default(),
+        ai: Some(AiState {
+            competence,
+            aggressiveness,
+            real: None,
+            next_operations: date.add_days(1),
+            staff: 0.0,
+        }),
+    });
+    id
+}
+
 /// Founds a company for an opportunity; true when it could start production.
 /// A new company with a first site for an opportunity; `known` is a technology it brings
 /// along (a start-up gone public, SU2).
@@ -4266,61 +4340,12 @@ fn found_one(
         investment += crate::plots::value(catalog, state, plot);
     }
     let capital = investment.scale(model.behavior.founding_capital_factor);
-    let index = u32::try_from(state.companies.len()).unwrap_or(u32::MAX);
-    let id = CompanyId(index);
-    let mut rng = SimRng::for_stream(state.settings.seed, Stream::Company(index));
-    let settings = state.settings.ai;
-    let spread = model.trait_spread;
-    let competence = (settings.competence + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
-    let aggressiveness =
-        (settings.aggressiveness + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
     let branch = catalog.products.get(product).branch;
-    let name = population::company_name_for(state, catalog, &mut rng, country, branch, founder);
-    state.companies.push(Company {
-        brands: Vec::new(),
-        advertising: Vec::new(),
-        auction_until: None,
-        development: Default::default(),
-        product_names: Default::default(),
-        positions: Vec::new(),
-        budget_rules: Vec::new(),
-        strategies: Vec::new(),
-        mandate: crate::mandate::Mandate::default(),
-        reviews: Vec::new(),
-        relocation: None,
-        relocated: None,
-        departments: Default::default(),
-        departments_staffed: Default::default(),
-        hq_city: None,
-        participations: Default::default(),
-        logistics: Default::default(),
-        subsidiary_of: None,
-        listing: None,
-        dividend_payout: None,
-        stock_cost: Default::default(),
-        bonds: Vec::new(),
-        bank: None,
-        owners: crate::state::Stake::sole(crate::state::Holder::Private),
-        name,
-        kind: CompanyKind::Ai,
-        headquarters: country,
-        founded: date,
-        rng,
-        ledger: Ledger::new(date, capital),
-        technologies: Default::default(),
-        bankrupt: false,
-        loans: Vec::new(),
-        loss_carryforward: Money::ZERO,
-        sales_policies: Vec::new(),
-        research: Default::default(),
-        ai: Some(AiState {
-            competence,
-            aggressiveness,
-            real: None,
-            next_operations: date.add_days(1),
-            staff: 0.0,
-        }),
-    });
+    let id = push_company(state, catalog, (country, branch), date, capital, founder);
+    // Where only the state may run works, a new company is a state company (H1).
+    if crate::events::closed_to_newcomers(state, country) {
+        state.companies[id.index()].state_owned = Some(country);
+    }
     if let Some(t) = known {
         state.companies[id.index()].technologies.insert(t);
     }
@@ -4494,6 +4519,7 @@ mod tests {
             ai: Default::default(),
             ventures: 1.0,
             tariff_dynamics: 1.0,
+            event_effects: true,
         };
         let mut game = crate::game::Game::new(catalog.clone(), settings).expect("valid");
         let state = game.state_mut();
@@ -4531,6 +4557,7 @@ mod tests {
             stock_cost: Default::default(),
             bonds: Vec::new(),
             bank: None,
+            state_owned: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

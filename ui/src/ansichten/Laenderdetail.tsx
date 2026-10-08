@@ -6,6 +6,8 @@ import {
   formatZahl,
   formatZahlKurz,
   landName,
+  meldungText,
+  parameterAnzeige,
 } from "../format";
 import type { Gewerbeflaeche, Kern, Landdetail, Zoelle } from "../kern";
 import { t } from "../texte";
@@ -226,6 +228,18 @@ export function Laenderdetail({
 
           {land.land && <Gewerbeflaechen flaeche={land.land} />}
           {land.tariffs && <Zollsaetze zoelle={land.tariffs} />}
+          {(land.events ?? []).length > 0 && (
+            <>
+              <h3>{t("landdetail.folgen")}</h3>
+              <ul className="folgen">
+                {(land.events ?? []).map((m, i) => (
+                  <li key={i}>
+                    <strong>{parameterAnzeige(m, "ereignis")}:</strong> {meldungText(m)}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
           <h3>{t("landdetail.arbeitskraefte")}</h3>
           <div className="tabelle">

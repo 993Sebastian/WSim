@@ -39,6 +39,8 @@ export interface NeuesSpiel {
   startups?: string | null;
   /** Key of the dynamics of the tariffs; none for the default. */
   tariffs?: string | null;
+  /** Whether the historical events act on markets, trade and companies (H1). */
+  event_effects?: boolean;
 }
 
 export interface Anlage {
@@ -183,7 +185,8 @@ export type Parameter =
   | { type: "date"; value: string }
   | { type: "country"; value: string }
   | { type: "text_key"; value: string }
-  | { type: "countries"; value: string[] };
+  | { type: "countries"; value: string[] }
+  | { type: "text_keys"; value: string[] };
 
 export type MeldungsArt =
   "info" | "success" | "warning" | "crisis" | "world_event" | "stock" | "error";
@@ -327,6 +330,8 @@ export interface Landdetail {
   land: Gewerbeflaeche | null;
   /** Import tariffs, trade zones and embargoes (W3; null without tariffs). */
   tariffs?: Zoelle | null;
+  /** Effects of historical events acting on the country this month (H1). */
+  events?: Meldung[];
 }
 
 /** Import tariffs of a country (W3). */

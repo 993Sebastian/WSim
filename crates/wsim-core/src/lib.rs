@@ -18,6 +18,7 @@ pub mod currency;
 pub mod deals;
 pub mod decision;
 pub mod development;
+pub mod events;
 pub mod finance;
 pub mod game;
 pub mod group;
@@ -73,6 +74,8 @@ mod deals_tests;
 mod determinism_tests;
 #[cfg(test)]
 mod development_tests;
+#[cfg(test)]
+mod events_tests;
 #[cfg(test)]
 mod facility_tests;
 #[cfg(test)]

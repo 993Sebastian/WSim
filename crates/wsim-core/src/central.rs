@@ -1230,6 +1230,9 @@ pub(crate) fn set_headquarters(
         ),
         None => city_in(catalog, country, None).map(|c| c.key.clone()),
     };
+    if crate::events::closed_to(state, actor, country) {
+        return Err(CommandError::CountryClosed);
+    }
     let c = &state.companies[actor.index()];
     if let Some(r) = &c.relocation {
         return Err(CommandError::RelocationUnderWay { until: r.until });

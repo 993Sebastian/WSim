@@ -36,6 +36,7 @@ fn game_with(catalog: crate::catalog::Catalog) -> Game {
         ai: Default::default(),
         ventures: 1.0,
         tariff_dynamics: 1.0,
+        event_effects: true,
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -120,6 +121,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         stock_cost: Default::default(),
         bonds: Vec::new(),
         bank: None,
+        state_owned: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Konkurrenz".into(),
         kind: CompanyKind::Ai,

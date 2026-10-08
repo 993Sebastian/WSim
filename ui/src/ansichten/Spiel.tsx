@@ -18,7 +18,7 @@ import { Dialog, FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
 import { RundenberichtDialog } from "./Rundenbericht";
 import { LadenDialog, SpeichernDialog } from "./SpeichernLaden";
-import { WeltereignisDialog } from "./Weltereignis";
+import { folgenVon, WeltereignisDialog } from "./Weltereignis";
 import { BerichteAnsicht } from "./Berichte";
 import { BeteiligungenAnsicht } from "./Beteiligungen";
 import { Einfuehrung, PFADE, type Pfad } from "./Einfuehrung";
@@ -259,7 +259,7 @@ export function Spiel({
       setBerichte((alt) => [bericht, ...alt].slice(0, ARCHIV));
       setRunden((n) => n + 1);
       // World news first, each in a window of its own (then the report).
-      const welt = bericht.messages.filter((m) => m.group === "welt");
+      const welt = bericht.messages.filter((m) => m.kind === "world_event");
       setFenster(
         welt.length > 0
           ? { art: "ereignis", bericht, liste: welt, index: 0 }
@@ -640,6 +640,7 @@ export function Spiel({
         <WeltereignisDialog
           key={fenster.index}
           meldung={fenster.liste[fenster.index]!}
+          folgen={folgenVon(fenster.bericht.messages, fenster.liste[fenster.index]!)}
           nummer={fenster.index + 1}
           anzahl={fenster.liste.length}
           onWeiter={() =>

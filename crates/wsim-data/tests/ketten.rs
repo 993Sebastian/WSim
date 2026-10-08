@@ -111,6 +111,7 @@ fn all_chains_run_from_raw_material_to_end_product() {
             ai: Default::default(),
             ventures: 1.0,
             tariff_dynamics: 1.0,
+            event_effects: true,
         },
     )
     .unwrap();

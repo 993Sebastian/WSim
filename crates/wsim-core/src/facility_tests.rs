@@ -16,7 +16,7 @@ fn usd(v: f64) -> Money {
     Money::from_usd(v).unwrap()
 }
 
-fn new_game(catalog: Catalog) -> Game {
+pub(super) fn new_game(catalog: Catalog) -> Game {
     let catalog = Arc::new(catalog);
     let settings = GameSettings {
         seed: 3,
@@ -30,6 +30,7 @@ fn new_game(catalog: Catalog) -> Game {
         ai: Default::default(),
         ventures: 1.0,
         tariff_dynamics: 1.0,
+        event_effects: true,
     };
     Game::new(catalog, settings).unwrap()
 }
@@ -41,7 +42,7 @@ fn days(game: &mut Game, n: u32) {
 }
 
 /// A mine with its deposit, producing from day 30 on.
-fn mine(game: &mut Game) -> SiteId {
+pub(super) fn mine(game: &mut Game) -> SiteId {
     let c = game.catalog().clone();
     game.apply(Command::FoundSite {
         country: c.countries.id("AAA").unwrap(),
@@ -72,7 +73,7 @@ fn mine(game: &mut Game) -> SiteId {
 }
 
 /// A works with `count` furnaces (ready after 20 days).
-fn works(game: &mut Game, count: u32) -> SiteId {
+pub(super) fn works(game: &mut Game, count: u32) -> SiteId {
     let c = game.catalog().clone();
     game.apply(Command::FoundSite {
         country: c.countries.id("AAA").unwrap(),

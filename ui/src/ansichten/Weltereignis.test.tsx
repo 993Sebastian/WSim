@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { Meldung } from "../kern";
-import { WeltereignisDialog } from "./Weltereignis";
+import { folgenVon, WeltereignisDialog } from "./Weltereignis";
 
 const euro: Meldung = {
   kind: "world_event",
@@ -70,5 +70,66 @@ describe("Weltereignis", () => {
       />,
     );
     expect(screen.getByText(/: 1 RM = 1 Bio\. M\.$/)).toBeTruthy();
+  });
+
+  it("nennt die Folgen eines Krieges", () => {
+    const krieg: Meldung = {
+      kind: "world_event",
+      group: "welt",
+      key: "meldung.weltereignis",
+      params: {
+        ereignis: { type: "text_key", value: "ereignis.erster_weltkrieg" },
+        beschreibung: { type: "text_key", value: "ereignis.erster_weltkrieg.text" },
+        art: { type: "text_key", value: "ereignisart.krieg" },
+        datum: { type: "date", value: "1914-07-28" },
+        laender: { type: "countries", value: ["DEU", "FRA"] },
+      },
+      target: null,
+    };
+    const sperre: Meldung = {
+      kind: "info",
+      group: "welt",
+      key: "meldung.folge.handelssperre",
+      params: {
+        ereignis: { type: "text_key", value: "ereignis.erster_weltkrieg" },
+        laender: { type: "countries", value: ["FRA"] },
+        gegen: { type: "countries", value: ["DEU"] },
+        bis: { type: "date", value: "1919-07-12" },
+      },
+      target: null,
+    };
+    const nachfrage: Meldung = {
+      ...sperre,
+      key: "meldung.folge.nachfrage_offen",
+      params: {
+        ereignis: sperre.params.ereignis!,
+        laender: { type: "countries", value: ["DEU"] },
+        gruppen: { type: "text_keys", value: ["warengruppe.fahrzeuge", "warengruppe.elektro"] },
+        konsum: { type: "number", value: 50 },
+        staat: { type: "number", value: 100 },
+      },
+    };
+    const anderes: Meldung = {
+      ...sperre,
+      params: { ...sperre.params, ereignis: { type: "text_key", value: "ereignis.pandemie" } },
+    };
+    const folgen = folgenVon([krieg, sperre, nachfrage, anderes], krieg);
+    expect(folgen).toEqual([sperre, nachfrage]);
+    render(
+      <WeltereignisDialog
+        meldung={krieg}
+        folgen={folgen}
+        nummer={1}
+        anzahl={1}
+        onWeiter={() => {}}
+        onAlle={() => {}}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Folgen" })).toBeTruthy();
+    expect(screen.getByText(/Handelssperre zwischen Frankreich und Deutschland bis/)).toBeTruthy();
+    expect(
+      screen.getByText(/Nachfrage nach Fahrzeuge, Elektrotechnik in Deutschland/),
+    ).toBeTruthy();
+    expect(screen.getByText(/gelten für dich und alle KI-Firmen/)).toBeTruthy();
   });
 });

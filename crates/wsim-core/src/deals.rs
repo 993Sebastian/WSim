@@ -783,6 +783,18 @@ pub(crate) fn make_offer(
     } else {
         check_object(state, catalog, buyer, seller, object)?;
     }
+    // Sites in countries closed to the buyer cannot be bought (H1).
+    let sites = match object {
+        DealObject::Site(site) => vec![site],
+        DealObject::Area(group) => area_sites(state, catalog, seller, group),
+        DealObject::License(_) => Vec::new(),
+    };
+    if sites
+        .iter()
+        .any(|s| crate::events::closed_to(state, buyer, state.sites[s.index()].country))
+    {
+        return Err(CommandError::CountryClosed);
+    }
     if price <= Money::ZERO {
         return Err(CommandError::InvalidPrice);
     }
@@ -1541,7 +1553,7 @@ fn auction_bids(
                 .sites
                 .iter()
                 .any(|s| s.owner == buyer && s.country == country);
-        if !present {
+        if !present || crate::events::closed_to(state, buyer, country) {
             continue;
         }
         let business = business(state, catalog, buyer);

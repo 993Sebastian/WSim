@@ -1,7 +1,8 @@
-# Historische Ereignisse (Lastenheft §4.1). In Stufe 1 erscheinen sie als Weltereignis im
-# Rundenbericht; ihre wirtschaftlichen Folgen stecken bereits in den Länderwerten.
-# Wirkungen (Nachfrage, Handelssperren, Zerstörung) folgen mit Stufe 4.
-# Länder in heutigen Grenzen.
+# Historische Ereignisse (Lastenheft §4.1). Sie erscheinen als Weltereignis im Rundenbericht;
+# ihre allgemeinen wirtschaftlichen Folgen stecken in den Länderwerten. Eigene Wirkungen
+# (Nachfrage, Handelssperren, Arbeitskräfte, Produktion, Zerstörung, Enteignung, Börsenkrach)
+# stehen unter „wirkungen“ (H1; Formeln: docs/FORMELN.md, Abschnitt H1; Format:
+# docs/DATENFORMAT.md). Länder in heutigen Grenzen; Stärken sind geschätzt.
 
 ereignisse:
   - id: boxeraufstand
@@ -27,12 +28,16 @@ ereignisse:
     art: krieg
     laender: [RUS, JPN, CHN, KOR]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [RUS], gegen: [JPN], bis: "1905-09-05"}
 
   - id: revolution_1905
     datum: "1905-01-22"
     art: revolution
     laender: [RUS]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, faktor: 0.85, bis: "1906-01-01"}
 
   - id: frieden_portsmouth
     datum: "1905-09-05"
@@ -51,12 +56,16 @@ ereignisse:
     art: katastrophe
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, anteil: 0.01}
 
   - id: bankenpanik_1907
     datum: "1907-10-22"
     art: krise
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.3}
 
   - id: ford_model_t
     datum: "1908-10-01"
@@ -81,6 +90,9 @@ ereignisse:
     art: revolution
     laender: [MEX]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, faktor: 0.7, bis: "1920-05-21"}
+      - {art: zerstoerung, anteil: 0.1}
 
   - id: xinhai_revolution
     datum: "1911-10-10"
@@ -111,6 +123,13 @@ ereignisse:
     art: krieg
     laender: [AUT, HUN, XWB, DEU, RUS, FRA, GBR, BEL, POL, CZE, UKR, BLR, XBA, TUR, BGR, ROU, ITA, GRC, JPN, CAN, AUS, NZL, ZAF, IND]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [GBR, FRA, RUS, ITA, BEL, JPN, CAN, AUS, NZL, ZAF, IND, XWB, ROU, GRC], gegen: [DEU, AUT, HUN, TUR, BGR], bis: "1919-07-12"}
+      - {art: arbeitskraefte, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], faktor: 0.8, bis: "1918-11-11"}
+      - {art: nachfrage, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.5, bis: "1918-11-11"}
+      - {art: nachfrage, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2, bis: "1918-11-11"}
+      - {art: zerstoerung, laender: [BEL, POL, XWB], anteil: 0.15}
+      - {art: zerstoerung, laender: [FRA], anteil: 0.05}
 
   - id: panamakanal
     datum: "1914-08-15"
@@ -123,12 +142,20 @@ ereignisse:
     art: krieg
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, gegen: [DEU, AUT, HUN], bis: "1919-07-14"}
+      - {art: arbeitskraefte, faktor: 0.92, bis: "1918-11-11"}
+      - {art: nachfrage, warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 1.8, bis: "1918-11-11"}
 
   - id: oktoberrevolution
     datum: "1917-11-07"
     art: revolution
     laender: [RUS, UKR, BLR, KAZ, XKA, UZB]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, nur_auslaendische: false}
+      - {art: abschottung, alle: true, bis: "1991-12-26"}
+      - {art: produktion, faktor: 0.4, bis: "1921-03-21"}
 
   - id: finnland_unabhaengig
     datum: "1917-12-06"
@@ -194,6 +221,8 @@ ereignisse:
     art: krise
     laender: [DEU, FRA, BEL]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, laender: [DEU], warengruppen: [brennstoffe, eisen_stahl], faktor: 0.6, bis: "1923-09-26"}
 
   - id: hyperinflation
     datum: "1923-11-15"
@@ -218,6 +247,8 @@ ereignisse:
     art: krise
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.5}
 
   - id: smoot_hawley
     datum: "1930-06-17"
@@ -230,6 +261,8 @@ ereignisse:
     art: krise
     laender: [GBR]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.3}
 
   - id: new_deal
     datum: "1933-03-09"
@@ -237,8 +270,22 @@ ereignisse:
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
 
+  - id: oelenteignung_mexiko
+    datum: "1938-03-18"
+    art: krise
+    laender: [MEX, USA, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, laender: [MEX], nur_auslaendische: true, entschaedigung: 0.3}
+
   - id: zweiter_weltkrieg
     datum: "1939-09-01"
     art: krieg
     laender: [DEU, POL, FRA, GBR, CAN, AUS, NZL, ZAF, IND]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [GBR, FRA, POL, CAN, AUS, NZL, ZAF, IND], gegen: [DEU], bis: "1945-05-08"}
+      - {art: arbeitskraefte, laender: [DEU, GBR, FRA, POL], faktor: 0.75, bis: "1945-05-08"}
+      - {art: nachfrage, laender: [DEU, GBR, FRA, POL, CAN, AUS, NZL, ZAF], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.4, bis: "1945-08-15"}
+      - {art: nachfrage, laender: [DEU, GBR, FRA, POL, CAN, AUS, NZL, ZAF], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-08-15"}
+      - {art: zerstoerung, laender: [POL], anteil: 0.3}

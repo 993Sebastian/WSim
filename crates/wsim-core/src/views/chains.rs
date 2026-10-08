@@ -118,6 +118,7 @@ pub fn chains(game: &Game) -> ChainsView {
                 Some(Limit::Labor(_)) => ("arbeitskraefte", None),
                 Some(Limit::Electricity) => ("strom", None),
                 Some(Limit::Deposit) => ("lagerstaette", None),
+                Some(Limit::Event) => ("ereignis", None),
                 None => continue,
             };
             let list = stuck.entry(r.product).or_default();
@@ -249,6 +250,7 @@ mod tests {
             ai: Default::default(),
             ventures: 1.0,
             tariff_dynamics: 1.0,
+            event_effects: true,
         };
         Game::new(catalog, settings).unwrap()
     }

@@ -221,7 +221,7 @@ export function RundenberichtDialog({
                 <h3>{t(`bericht.gruppe.${gruppe}`)}</h3>
                 <ul className="meldungen">
                   {liste.map((m, i) =>
-                    gruppe === "welt" ? (
+                    m.kind === "world_event" ? (
                       <li key={i} className="meldung meldung-world_event">
                         <span className="meldungsart">{t("meldungsart.world_event")}</span>
                         <span className="meldungstext">{meldungText(m)}</span>

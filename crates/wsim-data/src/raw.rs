@@ -1720,10 +1720,106 @@ pub struct RawEvent {
     pub kind: String,
     #[serde(rename = "laender", default)]
     pub countries: Vec<String>,
+    #[serde(rename = "wirkungen", default)]
+    pub effects: Vec<RawEventEffect>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
     pub source: Option<String>,
+}
+
+/// An effect of a historical event (H1). Which fields a kind takes is checked when the
+/// catalog is built.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEventEffect {
+    #[serde(rename = "art")]
+    pub kind: RawEffectKind,
+    #[serde(rename = "laender", default)]
+    pub countries: Option<Vec<String>>,
+    #[serde(rename = "gegen", default)]
+    pub against: Option<Vec<String>>,
+    #[serde(rename = "warengruppen", default)]
+    pub goods_groups: Option<Vec<String>>,
+    #[serde(rename = "konsum", default)]
+    pub consumer: Option<f64>,
+    #[serde(rename = "staat", default)]
+    pub state: Option<f64>,
+    #[serde(rename = "faktor", default)]
+    pub factor: Option<f64>,
+    #[serde(rename = "aufschlag", default)]
+    pub surcharge: Option<f64>,
+    #[serde(rename = "alle", default)]
+    pub all: Option<bool>,
+    #[serde(rename = "anteil", default)]
+    pub share: Option<f64>,
+    #[serde(rename = "nur_auslaendische", default)]
+    pub foreign_only: Option<bool>,
+    #[serde(rename = "entschaedigung", default)]
+    pub compensation: Option<f64>,
+    #[serde(rename = "einbruch", default)]
+    pub drop: Option<f64>,
+    /// `JJJJ-MM-TT`
+    #[serde(rename = "bis", default)]
+    pub until: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq)]
+pub enum RawEffectKind {
+    #[serde(rename = "nachfrage")]
+    Demand,
+    #[serde(rename = "handelssperre")]
+    Embargo,
+    #[serde(rename = "zoll")]
+    Tariff,
+    #[serde(rename = "arbeitskraefte")]
+    Labor,
+    #[serde(rename = "produktion")]
+    Production,
+    #[serde(rename = "abschottung")]
+    Closure,
+    #[serde(rename = "zerstoerung")]
+    Destruction,
+    #[serde(rename = "enteignung")]
+    Expropriation,
+    #[serde(rename = "boersenkrach")]
+    StockCrash,
+}
+
+impl RawEffectKind {
+    /// The key in the data.
+    pub fn key(self) -> &'static str {
+        match self {
+            Self::Demand => "nachfrage",
+            Self::Embargo => "handelssperre",
+            Self::Tariff => "zoll",
+            Self::Labor => "arbeitskraefte",
+            Self::Production => "produktion",
+            Self::Closure => "abschottung",
+            Self::Destruction => "zerstoerung",
+            Self::Expropriation => "enteignung",
+            Self::StockCrash => "boersenkrach",
+        }
+    }
+}
+
+/// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEventModel {
+    #[serde(rename = "staatsbetrieb")]
+    pub state_company: RawStateCompany,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStateCompany {
+    #[serde(rename = "betriebskapital_anteil")]
+    pub working_capital_share: f64,
 }
 
 /// A goal for the player after the introduction (M23).
@@ -2367,8 +2463,6 @@ pub struct RawStockMarket {
     pub inertia: f64,
     #[serde(rename = "rauschen")]
     pub noise: f64,
-    #[serde(rename = "krisen", default)]
-    pub crises: Vec<RawCrisis>,
     #[serde(rename = "boersengang")]
     pub ipo: RawIpo,
     #[serde(rename = "dividende")]
@@ -2409,17 +2503,6 @@ pub struct RawSentiment {
     pub volatility: f64,
     #[serde(rename = "rueckkehr")]
     pub reversion: f64,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct RawCrisis {
-    #[serde(rename = "jahr")]
-    pub year: i32,
-    #[serde(rename = "monat")]
-    pub month: u32,
-    #[serde(rename = "einbruch")]
-    pub drop: f64,
 }
 
 #[derive(Debug, Deserialize)]

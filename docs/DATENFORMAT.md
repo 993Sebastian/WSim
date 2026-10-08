@@ -41,7 +41,7 @@ Erlaubte Abschnitte: `meta`, `laendermodell`, `produktionsmodell`, `finanzmodell
 `marktmodell`, `transportmodell`, `forschungsmodell`, `einheiten`, `kontinente`, `branchen`, `warengruppen`,
 `transportklassen`, `qualifikationen`, `fachrichtungen`, `laender`, `produkte`,
 `anlagen`, `rezepte`, `technologien`, `lagerstaetten`, `verkehrsmittel`, `kimodell`,
-`namensgruppen`, `produktnamen`, `reale_firmen`, `ereignisse`, `preisindex`, `waehrungen`,
+`namensgruppen`, `produktnamen`, `reale_firmen`, `ereignisse`, `ereignisfolgen`, `preisindex`, `waehrungen`,
 `landeswaehrungen`, `etappen`, `startups`, `erfinder`. Jeder Abschnitt außer `meta` ist eine Liste von Einträgen (`meta`,
 `preisindex`, `produktnamen` und die Modelle in `parameter/` sind einmalige Zuordnungen).
 
@@ -465,11 +465,12 @@ abgelehnt. Ein Abschnitt `boerse` mit:
 | **stimmung** | `schwankung` (0–1: Standardabweichung von ln S je Monat), `rueckkehr` (0–1: so viel von ln S baut sich je Monat ab) |
 | **traegheit** | 0–1: Anteil der Lücke zwischen Börsenwert und Ziel (logarithmisch), der sich je Monat schließt |
 | **rauschen** | 0–1: eigene Schwankung je Firma und Monat |
-| krisen | Liste historischer Krisen: `jahr`, `monat` (1–12), `einbruch` (0–0,95: so viel bricht die Stimmung im Monat der Krise ein) |
 | **boersengang** | `eigenkapital_min_usd` (≥ 0), `anteil_max` (0,01–0,9: höchstens so viele neue Aktien auf einmal), `abschlag` (0–1: Zeichnungsabschlag auf den Wert), `kosten_anteil` (0–1: Banken und Prospekt, Anteil am Erlös) |
 | **dividende** | `monat` (1–12: Zahltag), `ki_quote` (0–1: Ausschüttungsquote der KI-Firmen), `kasse_max` (0–1: höchstens dieser Anteil der Kasse) |
 | **handel** | `aufschlag`, `abschlag` (je 0–1: auf den Börsenwert beim Kauf bzw. Verkauf), `preiswirkung` (0–5: Kurswirkung je gehandeltem Anteil), `anteil_max` (0–1: so viel einer anderen Firma darf eine Firma über die Börse halten; darüber nur mit einem Übernahmeangebot) |
 | **uebernahme** | `aufschlag` (0–5: Übernahmeprämie über dem Börsenwert), `kosten_anteil` (0–1: Banken und Berater, Anteil am Kaufpreis) (K3) |
+
+Historische Börsenkrisen stehen seit H1 als Wirkung `boersenkrach` bei den Ereignissen.
 | **rueckkauf** | `anteil_max` (0–0,9: je Aktienrückkauf höchstens so viel der Aktien) (K3) |
 | **start** | `eigenkapital_min_usd` (≥ 0: KI-Firmen mit so viel Eigenkapital sind beim Start notiert), `streubesitz` (0–1: davon bei den Anlegern) |
 | **ki** | `boersengang_chance` (0–1: je Monat, für KI-Firmen mit dem Eigenkapital von `start`), `boersengang_anteil` (0–0,9); KI-Anleger (K3): `depot_anteil_kasse` (0–1: so viel des Kassenüberschusses in Aktien), `depot_anteil_max` (0–1: höchstens so viel einer Firma), `unterbewertung` (0–0,9: kauft unter, verkauft über diesem Abstand zum fairen Wert), `uebernahme_chance` (0–1: je Monat, mal Aggressivität), `uebernahme_kasse_anteil` (0–1: Übernahmepreis höchstens so viel der Kasse) |
@@ -682,8 +683,8 @@ den KI-Firmen; ihre Anlagenzahl wird mit dem Marktmaßstab verkleinert (mindeste
 
 ## ereignisse
 
-Historische Ereignisse (in `ereignisse/`, 1900–2026), Lastenheft §4.1. In Stufe 1 erscheinen sie
-als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
+Historische Ereignisse (in `ereignisse/`, 1900–2026), Lastenheft §4.1. Sie erscheinen als
+Weltereignis im Rundenbericht; ihre Wirkungen (H1) gelten für Spieler und KI-Firmen. Texte:
 `ereignis.<id>` (Titel) und `ereignis.<id>.text` (Beschreibung), beide Pflicht.
 
 | Feld | Bedeutung |
@@ -692,7 +693,37 @@ als Weltereignis im Rundenbericht; Wirkungen folgen mit Stufe 4. Texte:
 | **datum** | Tag des Ereignisses, `"JJJJ-MM-TT"` (in Anführungszeichen) |
 | **art** | `krieg`, `kriegsende`, `krise`, `revolution`, `staatsgruendung`, `abkommen`, `katastrophe`, `technik` oder `reform` (Wirtschaftspolitik, M28); Text `ereignisart.<art>` |
 | laender | Betroffene Länder (heutige Grenzen) |
+| wirkungen | Liste der Wirkungen (H1, unten) |
 | annaeherung, quelle | Herkunft |
+
+Eine **Wirkung** hat ein Feld `art` und je nach Art weitere Felder (Regeln: `docs/FORMELN.md`,
+Abschnitt H1). `laender` (Länder, in denen sie wirkt) gilt für alle Arten außer
+`boersenkrach`; ohne Angabe die Länder des Ereignisses. Wirkungen mit Dauer nehmen `bis`
+(`"JJJJ-MM-TT"`, nach dem Ereignistag; ohne: bis zum Spielende). Andere Felder als die
+genannten werden abgelehnt.
+
+| art | Felder | Bedeutung |
+| --- | --- | --- |
+| `nachfrage` | `warengruppen` (ohne: alle), `konsum`, `staat` (je 0–10, Standard 1; mindestens einer ≠ 1), `bis` | Faktor auf Verbraucher- bzw. Staatsnachfrage |
+| `handelssperre` | **gegen** (Länder, nicht zugleich in `laender`), `bis` | kein Handel zwischen den beiden Seiten |
+| `zoll` | `gegen` (ohne: alle anderen), **aufschlag** (0–5), `bis` | zusätzlicher Zoll auf Einfuhren in die Länder |
+| `arbeitskraefte` | **faktor** (0,05–2), `bis` | verfügbare Arbeitskräfte |
+| `produktion` | `warengruppen` (ohne: alle), **faktor** (0–2), `bis` | höchstens so viel der geplanten Läufe |
+| `abschottung` | `alle` (ja/nein, Standard nein), `bis` | keine neuen oder gekauften Standorte von Firmen anderer Länder; mit `alle` nur noch der Staatsbetrieb |
+| `zerstoerung` | **anteil** (0–1) | einmalig: dieser Anteil der Anlagen und Lager |
+| `enteignung` | `nur_auslaendische` (Standard ja), `entschaedigung` (0–1, Standard 0) | einmalig: Standorte gehen an den Staatsbetrieb |
+| `boersenkrach` | **einbruch** (0–0,95) | Stimmung der Börse am folgenden Monatsersten |
+
+Beispiel: `- {art: handelssperre, laender: [GBR, FRA], gegen: [DEU], bis: "1919-07-12"}`
+
+## ereignisfolgen
+
+`data/parameter/ereignisse.yaml` (H1), optional. Ein Abschnitt `ereignisfolgen` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **staatsbetrieb** | `betriebskapital_anteil` (0–1: Kasse, die der Staat seinem Betrieb zu enteigneten Standorten gibt, als Anteil an deren Buchwert; ohne Abschnitt 0) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
 
 
 ## preisindex

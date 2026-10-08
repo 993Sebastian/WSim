@@ -52,6 +52,13 @@ pub struct NewGameRequest {
     /// How the tariffs change after the data (W3): key of a choice; none for the default.
     #[serde(default)]
     pub tariffs: Option<String>,
+    /// Whether the historical events act on markets, trade and companies (H1).
+    #[serde(default = "yes")]
+    pub event_effects: bool,
+}
+
+fn yes() -> bool {
+    true
 }
 
 /// One save in the list of the load dialog.
@@ -263,6 +270,7 @@ impl<S: SaveStore> Session<S> {
             },
             ventures,
             tariff_dynamics,
+            event_effects: request.event_effects,
         };
         let game = Game::new(c.clone(), settings).map_err(|e| views::message_view(&e.message()))?;
         let overview = views::overview(&game);

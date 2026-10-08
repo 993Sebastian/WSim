@@ -55,7 +55,7 @@ pub struct Catalog {
     pub plot_model: PlotModel,
     /// Historical companies of the start population and later foundings.
     pub real_companies: Vec<RealCompany>,
-    /// Historical events, sorted by date (Lastenheft §4.1; effects follow in stage 4).
+    /// Historical events, sorted by date (Lastenheft §4.1), with their effects (H1).
     pub events: Vec<HistoricalEvent>,
     /// Parts for the names of generated companies.
     pub name_groups: Vec<NameGroup>,
@@ -83,6 +83,8 @@ pub struct Catalog {
     pub bonds: BondModel,
     /// The player's banks (K4); without the section there are none.
     pub bank: BankModel,
+    /// Parameters of the events' effects (H1).
+    pub event_model: EventModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -448,8 +450,6 @@ pub struct StockModel {
     pub sentiment_reversion: f64,
     pub inertia: f64,
     pub noise: f64,
-    /// Crises by (year, month): drop of the sentiment (0–1).
-    pub crises: Vec<(i32, u32, f64)>,
     pub ipo_equity_min: Money,
     pub ipo_share_max: f64,
     pub ipo_discount: f64,
@@ -1699,8 +1699,9 @@ impl AiModel {
     }
 }
 
-/// A historical event shown as world news (Lastenheft §4.1, §13.2). In stage 1 it has
-/// no effects of its own: the country values already contain its economic slump.
+/// A historical event shown as world news (Lastenheft §4.1, §13.2). The country values
+/// contain its economic slump; its effects on markets, trade and companies follow
+/// (H1, docs/FORMELN.md).
 #[derive(Clone, Debug, PartialEq)]
 pub struct HistoricalEvent {
     pub key: String,
@@ -1708,6 +1709,71 @@ pub struct HistoricalEvent {
     /// Kind of event, text `ereignisart.<kind>`.
     pub kind: String,
     pub countries: Vec<CountryId>,
+    pub effects: Vec<EventEffect>,
+    pub provenance: Provenance,
+}
+
+/// An effect of a historical event (H1).
+#[derive(Clone, Debug, PartialEq)]
+pub struct EventEffect {
+    /// The countries it acts in: its own, else those of the event.
+    pub countries: Vec<CountryId>,
+    pub kind: EffectKind,
+    /// End of an effect with a duration; `None` until the end of the game.
+    pub until: Option<crate::calendar::Date>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum EffectKind {
+    /// Consumer and state demand for goods of the groups (all without groups).
+    Demand {
+        groups: Vec<GoodsGroupId>,
+        consumer: f64,
+        state: f64,
+    },
+    /// No trade between the countries and `against`.
+    Embargo { against: Vec<CountryId> },
+    /// Extra tariff on imports into the countries from `against` (all others if empty).
+    Tariff {
+        against: Vec<CountryId>,
+        surcharge: f64,
+    },
+    /// Available workers of all groups.
+    Labor { factor: f64 },
+    /// Runs of the facilities making goods of the groups (all without groups).
+    Production {
+        groups: Vec<GoodsGroupId>,
+        factor: f64,
+    },
+    /// Companies from other countries open no sites there; with `all` none but the
+    /// state company.
+    Closure { all: bool },
+    /// Once: a share of the facility units and stocks destroyed.
+    Destruction { share: f64 },
+    /// Once: sites handed to the country's state company.
+    Expropriation {
+        foreign_only: bool,
+        compensation: f64,
+    },
+    /// Once: drop of the stock market's sentiment (0–1).
+    StockCrash { drop: f64 },
+}
+
+impl EffectKind {
+    /// Effects that act once, on the event's day, rather than for a time.
+    pub fn once(&self) -> bool {
+        matches!(
+            self,
+            Self::Destruction { .. } | Self::Expropriation { .. } | Self::StockCrash { .. }
+        )
+    }
+}
+
+/// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct EventModel {
+    /// Working capital the state gives its company, as a share of the seized book value.
+    pub working_capital_share: f64,
     pub provenance: Provenance,
 }
 

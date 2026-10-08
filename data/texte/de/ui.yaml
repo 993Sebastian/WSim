@@ -28,6 +28,8 @@ neu.startups_wahl: "{wahl} (rund {je_jahr} im Jahr)"
 neu.startups_hilfe: Sie forschen an neuen Technologien und verbessern Produkte. Wer Erfolg hat, bringt eine Technologie früher in die Welt.
 neu.zoelle: Zölle nach 2026
 neu.zoelle_hilfe: Bis 2026 folgen die Zölle der Geschichte. Danach ändern sie sich jedes Jahr zufällig – oder bleiben fest.
+neu.folgen: Folgen historischer Ereignisse
+neu.folgen_hilfe: "Kriege, Krisen und Embargos wirken auf Nachfrage, Handel, Arbeitskräfte und Standorte – bis hin zu Zerstörung und Enteignung. Ohne Haken erscheinen die Ereignisse nur als Nachricht."
 neu.starten: Spiel starten
 neu.startet: Welt wird aufgebaut …
 neu.zurueck: Zurück
@@ -165,7 +167,9 @@ dialog.schliessen: Schließen
 
 weltereignis.zaehler: "{nummer} von {anzahl}"
 weltereignis.laender: Betroffene Länder
-weltereignis.hinweis_stufe1: Die wirtschaftlichen Folgen zeigen sich in den Länderwerten (Einkommen, Bevölkerung). Eigene Wirkungen wie Handelssperren oder Zerstörungen folgen in einer späteren Ausbaustufe.
+weltereignis.hinweis_laenderwerte: Die wirtschaftlichen Folgen zeigen sich in den Länderwerten (Einkommen, Bevölkerung).
+weltereignis.hinweis_folgen: Die Folgen gelten für dich und alle KI-Firmen; die Länderansicht zeigt, was gerade wirkt. Dazu kommen die allgemeinen Folgen in den Länderwerten (Einkommen, Bevölkerung).
+weltereignis.folgen: Folgen
 weltereignis.hinweis_waehrung: "Das Spiel rechnet intern in US-Dollar mit der Kaufkraft von 2026; die Umstellung ändert dein Vermögen nicht. Bei „Preise der Zeit“ erscheinen Beträge ab jetzt in der neuen Währung."
 weltereignis.alle_ueberspringen: Alle überspringen
 
@@ -250,6 +254,7 @@ landdetail.infrastruktur: Infrastruktur
 landdetail.infrastruktur_wert: "Schiene {schiene}, Straße {strasse}, Hafen {hafen}"
 landdetail.stabilitaet: Stabilität
 landdetail.zoelle: Einfuhrzölle
+landdetail.folgen: Folgen von Weltereignissen
 landdetail.zoll_schnitt: Im Schnitt
 landdetail.zoll_hoechste: Am höchsten
 landdetail.zoll_zonen: Handelszonen
@@ -527,6 +532,8 @@ ursache.arbeitskraefte: "Zu wenig {detail}"
 ursache.arbeitskraefte.hilfe: Im Land sind nicht genug Arbeitskräfte dieser Gruppe frei. Ein höherer Lohnaufschlag (Bereich Personal) wirbt sie bei anderen ab; sonst Auslastung senken oder in einem anderen Land produzieren.
 ursache.strom: Zu wenig Strom
 ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am Standort hilft.
+ursache.ereignis: Gedrosselt durch ein Weltereignis
+ursache.ereignis.hilfe: Krieg, Bürgerkrieg oder eine Förderkürzung begrenzen die Produktion in diesem Land. Was wie lange gilt, zeigt die Länderansicht.
 ursache.lagerstaette: Höchstförderung erreicht
 ursache.lagerstaette.hilfe: "Die Konzession erlaubt im Jahr nur eine bestimmte Menge, verteilt über das Jahr: Bis heute ist der bisherige Anteil gefördert. Oder der Vorrat der Lagerstätte ist erschöpft."
 ursache.im_bau: im Bau
@@ -635,6 +642,7 @@ ketten.hakt.vorprodukt: "hakt: {produkt} fehlt"
 ketten.hakt.arbeitskraefte: "hakt: Arbeitskräfte fehlen"
 ketten.hakt.strom: "hakt: zu wenig Strom"
 ketten.hakt.lagerstaette: "hakt: Lagerstätte gibt nicht mehr her"
+ketten.hakt.ereignis: "hakt: gedrosselt durch ein Weltereignis"
 ketten.verfahren: "{anlage}"
 ketten.abbau: "Abbau: {anlage}"
 ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"

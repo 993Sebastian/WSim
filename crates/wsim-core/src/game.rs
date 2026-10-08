@@ -197,6 +197,7 @@ impl Game {
             stock_cost: Default::default(),
             bonds: Vec::new(),
             bank: None,
+            state_owned: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -243,6 +244,7 @@ impl Game {
             next_venture: 0,
             tariff_offsets: PerId::default(),
             tariffs: Default::default(),
+            events: Default::default(),
             contracts: Vec::new(),
             next_contract: 0,
             freight_market: Default::default(),
@@ -254,6 +256,8 @@ impl Game {
         state.fit_to_catalog(&catalog);
         market::initial_demand(&mut state, &catalog, date);
         crate::plots::supply(&mut state, &catalog, date.year());
+        // The start set is there before the closures of the events (H1).
+        let events = std::mem::take(&mut state.events);
         apply_start_setup(&mut state, &catalog)?;
         // A bank from the start (K4).
         if state.settings.start_form == crate::state::StartForm::Bank && catalog.bank.enabled {
@@ -261,6 +265,8 @@ impl Game {
             state.companies[player].bank = Some(crate::bank::BankSettings::start(&catalog));
         }
         crate::population::populate(&mut state, &catalog);
+        state.events = events;
+        crate::events::start(&mut state);
         crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
         crate::ranking::record(&mut state);
@@ -437,7 +443,14 @@ impl Game {
             &self.catalog,
             today,
         ));
-        report.messages.extend(world_events(&self.catalog, today));
+        report
+            .messages
+            .extend(world_events(&self.state, &self.catalog, today));
+        report.messages.extend(crate::events::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         report.messages.extend(crate::deals::simulate_day(
             &mut self.state,
             &self.catalog,
@@ -558,13 +571,13 @@ pub fn hash_of(state: &GameState) -> StateHash {
 }
 
 /// Historical events of the day as world news (Lastenheft §4.1, §13.2).
-fn world_events(catalog: &Catalog, date: Date) -> Vec<Message> {
+fn world_events(state: &GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let first = catalog.events.partition_point(|e| e.date < date);
     catalog.events[first..]
         .iter()
         .take_while(|e| e.date == date)
-        .map(|e| {
-            Message::new(MessageKind::WorldEvent, keys::WORLD_EVENT)
+        .flat_map(|e| {
+            let news = Message::new(MessageKind::WorldEvent, keys::WORLD_EVENT)
                 .with("ereignis", Param::TextKey(format!("ereignis.{}", e.key)))
                 .with(
                     "beschreibung",
@@ -580,7 +593,14 @@ fn world_events(catalog: &Catalog, date: Date) -> Vec<Message> {
                             .map(|&c| catalog.countries.key(c).to_owned())
                             .collect(),
                     ),
-                )
+                );
+            // Its effects follow as lines of their own (H1).
+            let effects = if state.settings.event_effects {
+                crate::events::effect_messages(catalog, e)
+            } else {
+                Vec::new()
+            };
+            std::iter::once(news).chain(effects)
         })
         .collect()
 }
@@ -798,6 +818,7 @@ mod tests {
             ai: Default::default(),
             ventures: 1.0,
             tariff_dynamics: 1.0,
+            event_effects: true,
         };
         let mut game = Game::new(catalog.clone(), settings).unwrap();
         if site_in_bbb {

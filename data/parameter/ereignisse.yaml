@@ -1,0 +1,9 @@
+# Folgen historischer Ereignisse (H1, Lastenheft §4.1; Formeln: docs/FORMELN.md, Abschnitt H1).
+# Die Wirkungen selbst stehen bei den Ereignissen in data/ereignisse/.
+
+ereignisfolgen:
+  # Der Staatsbetrieb eines Landes übernimmt enteignete Standorte; der Staat gibt ihm
+  # dazu Betriebskapital als Anteil am übernommenen Buchwert.
+  staatsbetrieb:
+    betriebskapital_anteil: 0.15
+  annaeherung: true

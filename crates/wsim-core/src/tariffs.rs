@@ -1,6 +1,7 @@
 //! Import tariffs, trade zones and embargoes (W3; formulas in docs/FORMELN.md).
 
-use crate::catalog::Catalog;
+use crate::calendar::Date;
+use crate::catalog::{Catalog, EffectKind};
 use crate::ids::{CountryId, GoodsGroupId, Id, ProductId};
 use crate::rng::{SimRng, Stream};
 use crate::state::{GameState, PerId};
@@ -17,6 +18,10 @@ pub struct TariffTable {
     base: Vec<f64>,
     /// Zone factor per pair at `from * countries + to`; `EMBARGO` blocks the trade.
     pair: Vec<f64>,
+    /// Extra tariff per pair from the events (H1); empty without.
+    extra: Vec<f64>,
+    /// The month the events were applied for.
+    month: Option<Date>,
 }
 
 impl TariffTable {
@@ -29,6 +34,8 @@ impl TariffTable {
                 countries: n,
                 base: Vec::new(),
                 pair: Vec::new(),
+                extra: Vec::new(),
+                month: None,
             };
         };
         let dynamic = year > model.last_year() && offsets.len() == n;
@@ -72,11 +79,65 @@ impl TariffTable {
             countries: n,
             base,
             pair,
+            extra: Vec::new(),
+            month: None,
         }
+    }
+
+    /// The embargoes and extra tariffs of the events acting in the month starting on
+    /// `month` (H1), unless the game has the effects off.
+    pub fn with_events(mut self, catalog: &Catalog, month: Date, enabled: bool) -> Self {
+        self.month = Some(month);
+        if !enabled {
+            return self;
+        }
+        let n = self.countries;
+        for effect in crate::events::active(catalog, month) {
+            match &effect.kind {
+                EffectKind::Embargo { against } => {
+                    if self.pair.is_empty() {
+                        self.pair = vec![1.0; n * n];
+                    }
+                    for a in &effect.countries {
+                        for b in against {
+                            self.pair[a.index() * n + b.index()] = EMBARGO;
+                            self.pair[b.index() * n + a.index()] = EMBARGO;
+                        }
+                    }
+                }
+                EffectKind::Tariff { against, surcharge } => {
+                    if self.extra.is_empty() {
+                        self.extra = vec![0.0; n * n];
+                    }
+                    for to in &effect.countries {
+                        for from in 0..n {
+                            let listed =
+                                against.is_empty() || against.iter().any(|c| c.index() == from);
+                            if listed && from != to.index() {
+                                self.extra[from * n + to.index()] += surcharge;
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        self
     }
 
     pub fn year(&self) -> i32 {
         self.year
+    }
+
+    pub fn month(&self) -> Option<Date> {
+        self.month
+    }
+
+    /// Whether an embargo blocks the trade between two countries.
+    pub fn blocked(&self, a: CountryId, b: CountryId) -> bool {
+        self.pair
+            .get(a.index() * self.countries + b.index())
+            .is_some_and(|&p| p < 0.0)
     }
 
     /// Tariff on goods of a group from one country into another, as a share of their
@@ -120,11 +181,14 @@ impl TariffTable {
 
     /// The tariff with the factor of the goods: 0 within a country.
     fn rate_with(&self, from: CountryId, to: CountryId, factor: f64) -> Option<f64> {
-        if from == to || self.base.is_empty() {
+        if from == to {
             return Some(0.0);
         }
-        let pair = self.pair[from.index() * self.countries + to.index()];
-        (pair >= 0.0).then(|| self.base[to.index()] * factor * pair)
+        let at = from.index() * self.countries + to.index();
+        let pair = self.pair.get(at).copied().unwrap_or(1.0);
+        let base = self.base.get(to.index()).copied().unwrap_or(0.0);
+        let extra = self.extra.get(at).copied().unwrap_or(0.0);
+        (pair >= 0.0).then_some(base * factor * pair + extra)
     }
 
     /// Average tariff of a country before the goods group and the zones.

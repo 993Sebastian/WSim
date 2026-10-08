@@ -48,6 +48,7 @@ export function NeuesSpielAnsicht({
           difficulty: o.default_difficulty,
           startups: o.default_startups,
           tariffs: o.default_tariffs ?? null,
+          event_effects: true,
         });
         // Year and seed name something: no thousands separators.
         setZahlen({
@@ -263,6 +264,16 @@ export function NeuesSpielAnsicht({
                 <small className="feld-hilfe">{t("neu.zoelle_hilfe")}</small>
               </label>
             )}
+            <label className="auswahl">
+              <input
+                id="folgen"
+                type="checkbox"
+                checked={werte.event_effects ?? true}
+                onChange={(e) => setze("event_effects", e.target.checked)}
+              />
+              {t("neu.folgen")}
+            </label>
+            <small className="feld-hilfe">{t("neu.folgen_hilfe")}</small>
           </div>
         </details>
         <FehlerText fehler={fehler} />

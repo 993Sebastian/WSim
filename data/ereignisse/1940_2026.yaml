@@ -1,7 +1,7 @@
-# Historische Ereignisse 1940–2026 (M28, Lastenheft §4.1). In Stufe 1 erscheinen sie als
-# Weltereignis im Rundenbericht; ihre wirtschaftlichen Folgen stecken bereits in den
-# Länderwerten. Wirkungen (Nachfrage, Handelssperren, Zerstörung) folgen mit Stufe 4.
-# Länder in heutigen Grenzen. Auswahl: was Märkte, Handel und Industrie bewegte.
+# Historische Ereignisse 1940–2026 (M28, Lastenheft §4.1). Sie erscheinen als Weltereignis im
+# Rundenbericht; ihre allgemeinen wirtschaftlichen Folgen stecken in den Länderwerten. Eigene
+# Wirkungen stehen unter „wirkungen“ (H1; Formeln: docs/FORMELN.md, Abschnitt H1). Länder in
+# heutigen Grenzen; Stärken sind geschätzt. Auswahl: was Märkte, Handel und Industrie bewegte.
 
 ereignisse:
   - id: westfeldzug
@@ -9,6 +9,10 @@ ereignisse:
     art: krieg
     laender: [DEU, FRA, BEL, NLD, GBR]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [FRA, BEL, NLD], anteil: 0.08}
+      - {art: produktion, laender: [FRA, BEL, NLD], faktor: 0.7, bis: "1944-09-01"}
+      - {art: handelssperre, laender: [GBR, CAN, AUS, NZL, ZAF, IND], gegen: [ITA], bis: "1945-05-08"}
 
   - id: leih_und_pachtgesetz
     datum: "1941-03-11"
@@ -21,12 +25,28 @@ ereignisse:
     art: krieg
     laender: [DEU, RUS, UKR, BLR, XBA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [RUS, UKR, BLR, KAZ, XKA, UZB], gegen: [DEU], bis: "1945-05-08"}
+      - {art: zerstoerung, laender: [UKR, BLR], anteil: 0.4}
+      - {art: zerstoerung, laender: [RUS, XBA], anteil: 0.15}
+      - {art: arbeitskraefte, laender: [RUS, UKR, BLR], faktor: 0.7, bis: "1945-05-08"}
+      - {art: nachfrage, laender: [RUS, UKR, BLR, KAZ, XKA, UZB], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-05-08"}
+      - {art: nachfrage, laender: [RUS, UKR, BLR, KAZ, XKA, UZB], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.3, bis: "1945-05-08"}
 
   - id: pearl_harbor
     datum: "1941-12-07"
     art: krieg
     laender: [USA, JPN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [USA, GBR, CAN, AUS, NZL, IND, CHN], gegen: [JPN], bis: "1945-09-02"}
+      - {art: handelssperre, laender: [USA], gegen: [DEU, ITA], bis: "1945-05-08"}
+      - {art: nachfrage, laender: [USA], warengruppen: [fahrzeuge], konsum: 0.1, bis: "1945-08-15"}
+      - {art: nachfrage, laender: [USA], warengruppen: [elektro, moebel_hausrat], konsum: 0.4, bis: "1945-08-15"}
+      - {art: nachfrage, laender: [USA, JPN], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-08-15"}
+      - {art: nachfrage, laender: [JPN], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.3, bis: "1945-09-02"}
+      - {art: arbeitskraefte, laender: [USA], faktor: 0.85, bis: "1945-08-15"}
+      - {art: arbeitskraefte, laender: [JPN], faktor: 0.75, bis: "1945-09-02"}
 
   - id: stalingrad
     datum: "1943-02-02"
@@ -39,6 +59,9 @@ ereignisse:
     art: krieg
     laender: [FRA, USA, GBR, CAN, DEU]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [FRA], anteil: 0.08}
+      - {art: zerstoerung, laender: [DEU], anteil: 0.15}
 
   - id: bretton_woods
     datum: "1944-07-22"
@@ -51,12 +74,18 @@ ereignisse:
     art: kriegsende
     laender: [DEU, FRA, GBR, RUS, USA, POL, ITA, NLD, BEL]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [DEU], anteil: 0.15}
+      - {art: enteignung, laender: [POL, CZE, HUN, ROU, BGR, XWB, XBA], nur_auslaendische: false}
+      - {art: abschottung, laender: [POL, CZE, HUN, ROU, BGR, XWB, XBA], alle: true, bis: "1989-11-09"}
 
   - id: hiroshima
     datum: "1945-08-06"
     art: krieg
     laender: [JPN, USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [JPN], anteil: 0.25}
 
   - id: kapitulation_japan
     datum: "1945-09-02"
@@ -117,18 +146,34 @@ ereignisse:
     art: revolution
     laender: [CHN, TWN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, laender: [CHN], nur_auslaendische: false}
+      - {art: abschottung, laender: [CHN], alle: true, bis: "1978-12-18"}
 
   - id: koreakrieg
     datum: "1950-06-25"
     art: krieg
     laender: [KOR, PRK, USA, CHN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [KOR, PRK], anteil: 0.4}
+      - {art: handelssperre, laender: [USA], gegen: [CHN], bis: "1971-06-10"}
+      - {art: nachfrage, laender: [USA], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 1.4, bis: "1953-07-27"}
 
   - id: montanunion
     datum: "1951-04-18"
     art: abkommen
     laender: [FRA, DEU, ITA, BEL, NLD]
     quelle: "Wikipedia (de), Stand 2026"
+
+  - id: oelverstaatlichung_iran
+    datum: "1951-05-01"
+    art: krise
+    laender: [IRN, GBR]
+    quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, laender: [IRN], nur_auslaendische: true}
+      - {art: handelssperre, laender: [GBR], gegen: [IRN], bis: "1954-08-05"}
 
   - id: waffenstillstand_korea
     datum: "1953-07-27"
@@ -153,6 +198,8 @@ ereignisse:
     art: krise
     laender: [EGY, ISR, GBR, FRA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, laender: [EGY], nur_auslaendische: true, entschaedigung: 0.3}
 
   - id: roemische_vertraege
     datum: "1957-03-25"
@@ -171,6 +218,9 @@ ereignisse:
     art: revolution
     laender: [CUB]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, nur_auslaendische: false}
+      - {art: abschottung, alle: true}
 
   - id: opec
     datum: "1960-09-14"
@@ -255,6 +305,10 @@ ereignisse:
     art: krise
     laender: [SAU, XGO, IRQ, USA, NLD, JPN, DEU, FRA, GBR]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, laender: [SAU, XGO, IRQ, LBY, DZA], warengruppen: [mineraloel], faktor: 0.75, bis: "1974-03-18"}
+      - {art: handelssperre, laender: [SAU, XGO, IRQ, LBY, DZA], gegen: [USA, NLD], bis: "1974-03-18"}
+      - {art: boersenkrach, einbruch: 0.35}
 
   - id: fall_saigons
     datum: "1975-04-30"
@@ -273,12 +327,20 @@ ereignisse:
     art: revolution
     laender: [IRN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: enteignung, nur_auslaendische: false}
+      - {art: produktion, warengruppen: [mineraloel], faktor: 0.5, bis: "1980-01-01"}
+      - {art: handelssperre, laender: [USA], gegen: [IRN], bis: "1981-01-20"}
 
   - id: iran_irak_krieg
     datum: "1980-09-22"
     art: krieg
     laender: [IRN, IRQ]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, warengruppen: [mineraloel], faktor: 0.5, bis: "1988-08-20"}
+      - {art: zerstoerung, anteil: 0.1}
+      - {art: arbeitskraefte, faktor: 0.85, bis: "1988-08-20"}
 
   - id: personal_computer
     datum: "1981-08-12"
@@ -309,6 +371,8 @@ ereignisse:
     art: krise
     laender: [USA, GBR, JPN, DEU, AUS]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.25}
 
   - id: mauerfall
     datum: "1989-11-09"
@@ -327,6 +391,12 @@ ereignisse:
     art: krieg
     laender: [IRQ, XGO, USA, SAU, GBR]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: handelssperre, laender: [USA, CAN, GBR, FRA, DEU, ITA, ESP, NLD, BEL, JPN, KOR, AUS, SAU, XGO, TUR, EGY], gegen: [IRQ], bis: "2003-05-22"}
+      - {art: produktion, laender: [IRQ], warengruppen: [mineraloel], faktor: 0.2, bis: "1996-12-10"}
+      - {art: produktion, laender: [XGO], warengruppen: [mineraloel], faktor: 0.75, bis: "1992-01-01"}
+      - {art: zerstoerung, laender: [IRQ], anteil: 0.2}
+      - {art: zerstoerung, laender: [XGO], anteil: 0.05}
 
   - id: ende_sowjetunion
     datum: "1991-12-26"
@@ -375,6 +445,8 @@ ereignisse:
     art: krise
     laender: [USA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.35}
 
   - id: anschlaege_11_september
     datum: "2001-09-11"
@@ -393,6 +465,9 @@ ereignisse:
     art: krieg
     laender: [IRQ, USA, GBR, AUS, POL]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [IRQ], anteil: 0.1}
+      - {art: produktion, laender: [IRQ], warengruppen: [mineraloel], faktor: 0.6, bis: "2004-01-01"}
 
   - id: eu_osterweiterung
     datum: "2004-05-01"
@@ -417,6 +492,8 @@ ereignisse:
     art: krise
     laender: [USA, GBR, DEU, NOR, IRL]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.4}
 
   - id: eurokrise
     datum: "2010-05-02"
@@ -429,18 +506,27 @@ ereignisse:
     art: revolution
     laender: [TUN, EGY, LBY, SYR, YEM]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: produktion, laender: [LBY], warengruppen: [mineraloel], faktor: 0.1, bis: "2011-11-01"}
+      - {art: zerstoerung, laender: [SYR], anteil: 0.3}
+      - {art: zerstoerung, laender: [LBY, YEM], anteil: 0.05}
 
   - id: fukushima
     datum: "2011-03-11"
     art: katastrophe
     laender: [JPN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, anteil: 0.01}
+      - {art: produktion, warengruppen: [elektro, fahrzeuge], faktor: 0.85, bis: "2011-07-01"}
 
   - id: krim
     datum: "2014-03-18"
     art: krise
     laender: [UKR, RUS]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zoll, laender: [USA, CAN, GBR, IRL, DEU, FRA, ITA, ESP, PRT, NLD, BEL, AUT, CHE, DNK, SWE, NOR, FIN, POL, CZE, HUN, ROU, BGR, GRC, XBA, JPN, KOR, AUS, NZL], gegen: [RUS], aufschlag: 0.05, bis: "2022-03-01"}
 
   - id: pariser_abkommen
     datum: "2015-12-12"
@@ -459,12 +545,19 @@ ereignisse:
     art: krise
     laender: [USA, CHN]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zoll, laender: [USA], gegen: [CHN], aufschlag: 0.15}
+      - {art: zoll, laender: [CHN], gegen: [USA], aufschlag: 0.15}
 
   - id: pandemie
     datum: "2020-03-11"
     art: katastrophe
     laender: [CHN, ITA, ESP, USA, GBR, DEU, FRA, IND, BRA]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: boersenkrach, einbruch: 0.3}
+      - {art: produktion, laender: [ITA, ESP, USA, GBR, DEU, FRA, IND, BRA], faktor: 0.8, bis: "2020-06-01"}
+      - {art: nachfrage, laender: [ITA, ESP, USA, GBR, DEU, FRA, IND, BRA], warengruppen: [fahrzeuge, bekleidung, moebel_hausrat], konsum: 0.7, bis: "2020-07-01"}
 
   - id: suezkanal_blockiert
     datum: "2021-03-23"
@@ -477,6 +570,12 @@ ereignisse:
     art: krieg
     laender: [UKR, RUS]
     quelle: "Wikipedia (de), Stand 2026"
+    wirkungen:
+      - {art: zerstoerung, laender: [UKR], anteil: 0.2}
+      - {art: produktion, laender: [UKR], faktor: 0.6}
+      - {art: arbeitskraefte, laender: [UKR], faktor: 0.8}
+      - {art: zoll, laender: [USA, CAN, GBR, IRL, DEU, FRA, ITA, ESP, PRT, NLD, BEL, AUT, CHE, DNK, SWE, NOR, FIN, POL, CZE, HUN, ROU, BGR, GRC, XBA, JPN, KOR, AUS, NZL], gegen: [RUS], aufschlag: 0.5}
+      - {art: zoll, laender: [RUS], gegen: [USA, CAN, GBR, IRL, DEU, FRA, ITA, ESP, PRT, NLD, BEL, AUT, CHE, DNK, SWE, NOR, FIN, POL, CZE, HUN, ROU, BGR, GRC, XBA, JPN, KOR, AUS, NZL], aufschlag: 0.3}
 
   - id: sprachmodelle
     datum: "2022-11-30"
