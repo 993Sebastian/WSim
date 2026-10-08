@@ -1916,3 +1916,33 @@ boerse.zurueckkaufen: Aktien zurückkaufen
 boerse.fairer_wert: "Wert nach Eigenkapital und Gewinn (ohne die Stimmung der Anleger): {fair} – an der Börse: {wert}"
 boerse.uebernahme_hilfe: Ein Übernahmeangebot kauft alle Aktien, die deine Firma noch nicht hält, zum Börsenwert mit Aufschlag. Die Firma verlässt die Börse und wird deine Tochter mit eigener Geschäftsführung.
 boerse.uebernehmen: "Übernehmen für {preis}"
+startform.investor: Investmentfirma
+startform.bank: Bank
+neu.startform_hilfe.investor: Keine eigene Produktion – das ganze Startkapital bleibt in der Kasse. Du kaufst Aktien, gibst Start-ups Geld, übernimmst Firmen.
+neu.startform_hilfe.bank: Eine Bank ohne Standorte – du nimmst Einlagen an und leihst Firmen Geld, günstiger als die Banken des Marktes, mit dem Risiko ihrer Pleite.
+tochter.schwerpunkt.investment: Investment
+tochter.schwerpunkt.investment_hilfe: legt ihre Kasse in Aktien an, kauft unterbewertete Firmen und verkauft überbewertete
+tochter.schwerpunkt.bank: Bank
+tochter.schwerpunkt.bank_hilfe: nimmt Einlagen an und leiht Firmen Geld (Finanzen → Bank)
+finanzen.reiter_bank: Bank
+bank.titel: Bank
+bank.hilfe: "Deine Bank zahlt auf Einlagen den Leitzins ({leitzins}) plus deinen Aufschlag; je mehr sie bietet, desto mehr Einlagen bringen die Anleger – höchstens das Zehnfache ihres Eigenkapitals. Firmen leihen bei ihr, wenn sie günstiger ist als die Banken des Marktes und ihre Verschuldung unter deiner Grenze bleibt. Geht ein Kreditnehmer pleite, ist der Rest des Kredits verloren."
+bank.keine: In diesem Spiel gibt es keine Banken des Spielers.
+bank.leer: Du hast keine Bank. Beginne ein Spiel als Bank oder gründe eine Tochter mit dem Schwerpunkt Bank (Organisation → Tochterfirmen).
+bank.leer_ohne_toechter: Du hast keine Bank. Beginne ein Spiel als Bank.
+bank.eigene: deine Firma
+bank.tochter: Tochter
+bank.einlagen: "Einlagen {einlagen} – Ziel bei diesem Zins {ziel}, höchstens {kapazitaet}"
+bank.kasse: "Kasse {kasse}, davon Mindestreserve {reserve} – verleihbar {spielraum}"
+bank.jahr: "Laufendes Jahr: Zinsen {zinsen} (erhalten minus gezahlt), Ausfälle {ausfaelle}, Ergebnis {ergebnis}"
+bank.einlagenaufschlag: Einlagenzins über dem Leitzins
+bank.einlagenzins: "Einlagenzins jetzt: {zins}"
+bank.kreditnachlass: Nachlass auf den Zins der Marktbanken
+bank.verschuldung_max: Höchste Verschuldung der Kreditnehmer
+bank.festlegen: Festlegen
+bank.kredite: Kredite an Firmen
+bank.keine_kredite: Noch hat keine Firma bei dieser Bank geliehen.
+bank.kreditnehmer: Firma
+bank.rest: Restschuld
+bank.zins: Zins
+bank.beginn: Beginn

@@ -80,6 +80,8 @@ fn focus_key(focus: SubsidiaryFocus) -> &'static str {
     match focus {
         SubsidiaryFocus::Production => "produktion",
         SubsidiaryFocus::Logistics => "logistik",
+        SubsidiaryFocus::Investment => "investment",
+        SubsidiaryFocus::Bank => "bank",
     }
 }
 
@@ -169,6 +171,7 @@ pub fn group(game: &Game) -> GroupView {
     let liabilities = [
         Account::Loans,
         Account::Bonds,
+        Account::Deposits,
         Account::Equity,
         Account::RetainedEarnings,
         Account::Result,

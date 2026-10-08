@@ -82,6 +82,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | K1 | Börse: Börsenwert, Index, Krisen, Börsengang, Dividende, Aktienhandel | ✅ |
 | K2 | Anleihen: Bonität, fester Kupon, Rückzahlung, Rückkauf, KI | ✅ |
 | K3 | Investoren: KI-Anleger, Übernahmeangebote, feindliche Übernahme, Aktienrückkauf | ✅ |
+| K4 | Investor und Bank: Startformen, Einlagen, Kredite an Firmen, Ausfälle | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -918,6 +919,23 @@ Stufe 3, Lastenheft §11.1–11.2. Regeln: `docs/FORMELN.md`, Abschnitt K3; Ents
   Rückkauf, KI-Anleger), Sitzung mit echten Daten, vitest.
 - **Weltlauf 1900–1915** (100 KI-Firmen): 528 Beteiligungen über 24 Mrd. USD, 10
   Übernahmen, 53 notierte Firmen; Laufzeit 2:33 min.
+
+### K4: Investor und Bank (08.10.2026)
+
+Stufe 3, Lastenheft §17.3. Regeln: `docs/FORMELN.md`, Abschnitt K4; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P. Damit ist Stufe 3 (K1–K4) umgesetzt.
+
+- **Daten:** `parameter/bank.yaml` (Einlagen, Mindestreserve, Startwerte) mit Prüfregeln
+  und Fehlerfall-Test.
+- **Kern:** Startformen Investmentfirma und Bank (ohne Standort); Tochter-Schwerpunkte
+  Investment und Bank; Modul `bank`: Einlagen nach Zins und Eigenkapital, Kredite an
+  Firmen zum Zins der Marktbanken minus Nachlass, Tilgung und Zinsen an die Bank,
+  Abschreibung bei Pleite; Konten „Einlagen“ und „Ausleihungen“; Befehl `SetBank`.
+- **Oberfläche:** Neues Spiel mit den neuen Startformen (ohne Einführung), Tochterfirmen
+  mit den neuen Schwerpunkten, Finanzen → „Bank“; CLI `run --startform bank|investor`
+  mit Bankzeile im Weltlauf.
+- **Tests:** Kern (Startformen, Einlagen, Kreditvergabe und Rückflüsse, Kreditstandard
+  und Reserve, Ausfall, Töchter, Spielstand), Sitzung als Bank mit echten Daten, vitest.
 
 ## Eigenständige Entscheidungen (für das Review)
 

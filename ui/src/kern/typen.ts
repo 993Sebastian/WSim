@@ -2028,7 +2028,7 @@ export interface Tochter {
   country: string;
   parent: string;
   direct: boolean;
-  focus: "produktion" | "logistik";
+  focus: "produktion" | "logistik" | "investment" | "bank";
   cash_usd: number;
   equity_usd: number;
   paid_in_usd: number;
@@ -2179,4 +2179,43 @@ export interface Boerse {
   portfolio_cost_usd: number;
   portfolio_value_usd: number;
   trade_share_max: number;
+}
+
+/** A loan a bank of the player gave (K4). */
+export interface BankKredit {
+  borrower: string;
+  balance_usd: number;
+  rate: number;
+  start: string;
+  months: number;
+}
+
+export interface BankZeile {
+  company: number;
+  name: string;
+  own: boolean;
+  deposit_spread: number;
+  deposit_rate: number;
+  loan_discount: number;
+  max_debt_ratio: number;
+  deposits_usd: number;
+  deposit_target_usd: number;
+  capacity_usd: number;
+  equity_usd: number;
+  cash_usd: number;
+  reserve_usd: number;
+  room_usd: number;
+  loans_given_usd: number;
+  loans: BankKredit[];
+  interest_year_usd: number;
+  write_offs_year_usd: number;
+  result_year_usd: number;
+}
+
+/** Finances → bank (K4). */
+export interface Bank {
+  enabled: boolean;
+  base_rate: number;
+  banks: BankZeile[];
+  subsidiaries: boolean;
 }

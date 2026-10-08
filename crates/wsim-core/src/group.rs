@@ -27,6 +27,10 @@ pub enum SubsidiaryFocus {
     Production,
     /// Also a fleet that carries the freight of others (W5).
     Logistics,
+    /// Puts its cash into shares like an AI investor (K4).
+    Investment,
+    /// A bank: deposits and loans to other companies (K4).
+    Bank,
 }
 
 /// The parent of a subsidiary and its focus.
@@ -78,7 +82,7 @@ fn company_id(index: usize) -> CompanyId {
 }
 
 /// A direct subsidiary of `parent`, or an error.
-fn own_subsidiary(
+pub(crate) fn own_subsidiary(
     state: &GameState,
     parent: CompanyId,
     company: CompanyId,
@@ -110,6 +114,9 @@ pub(crate) fn found(
         return Err(CommandError::UnknownCountry);
     }
     let name = check_company_name(Some(state), name, None).map_err(CommandError::Name)?;
+    if focus == SubsidiaryFocus::Bank && !catalog.bank.enabled {
+        return Err(CommandError::NoBanks);
+    }
     if capital < m.min_capital {
         return Err(CommandError::CapitalTooLow { min: m.min_capital });
     }
@@ -158,6 +165,7 @@ pub(crate) fn found(
         dividend_payout: None,
         stock_cost: Default::default(),
         bonds: Vec::new(),
+        bank: None,
         owners: Stake::sole(Holder::Company(actor)),
         name,
         kind: CompanyKind::Ai,
@@ -182,6 +190,9 @@ pub(crate) fn found(
     // The subsidiary knows what its parent knows.
     let known = state.companies[actor.index()].technologies.clone();
     state.companies[id.index()].technologies = known;
+    if focus == SubsidiaryFocus::Bank {
+        state.companies[id.index()].bank = Some(crate::bank::BankSettings::start(catalog));
+    }
     Ok(id)
 }
 
@@ -276,14 +287,25 @@ pub(crate) fn transfer_site(
 /// Changes the focus of a direct subsidiary.
 pub(crate) fn set_focus(
     state: &mut GameState,
+    catalog: &Catalog,
     actor: CompanyId,
     company: CompanyId,
     focus: SubsidiaryFocus,
 ) -> Result<(), CommandError> {
     own_subsidiary(state, actor, company)?;
-    if let Some(s) = state.companies[company.index()].subsidiary_of.as_mut() {
+    if focus == SubsidiaryFocus::Bank && !catalog.bank.enabled {
+        return Err(CommandError::NoBanks);
+    }
+    let c = &mut state.companies[company.index()];
+    if let Some(s) = c.subsidiary_of.as_mut() {
         s.focus = focus;
     }
+    // Leaving banking: the deposits flow out over the next months.
+    c.bank = match (focus, c.bank) {
+        (SubsidiaryFocus::Bank, Some(b)) => Some(b),
+        (SubsidiaryFocus::Bank, None) => Some(crate::bank::BankSettings::start(catalog)),
+        _ => None,
+    };
     Ok(())
 }
 

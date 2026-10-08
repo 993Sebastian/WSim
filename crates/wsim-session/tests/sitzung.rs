@@ -798,3 +798,40 @@ fn bonds_of_a_large_company() {
     session.command(json!({"RedeemBond": {"bond": 0}})).unwrap();
     assert!(session.finance().unwrap().bonds.bonds.is_empty());
 }
+
+#[test]
+fn playing_as_a_bank() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let options = session.options();
+    assert!(options.start_forms.iter().any(|f| f.key == "bank"));
+    assert!(options.start_forms.iter().any(|f| f.key == "investor"));
+    let bank = NewGameRequest {
+        start_form: "bank".into(),
+        capital_usd: 20_000_000.0,
+        ..request()
+    };
+    session.new_game(&bank).unwrap();
+    let view = session.bank().unwrap();
+    assert_eq!(view.banks.len(), 1);
+    assert!(view.banks[0].own);
+    // A generous discount draws the borrowers; deposits come in at the end of the month.
+    let company = view.banks[0].company;
+    session
+        .command(json!({"SetBank": {"company": company, "settings": {
+            "deposit_spread": 0.0, "loan_discount": 0.3, "max_debt_ratio": 0.8
+        }}}))
+        .unwrap();
+    for _ in 0..3 {
+        session.end_round("monat", |_| {}).unwrap();
+    }
+    let row = &session.bank().unwrap().banks[0];
+    assert!(row.deposits_usd > 0.0);
+    assert!((row.loan_discount - 0.3).abs() < 1e-12);
+    // What it lent is on its books and in its list.
+    let listed: f64 = row.loans.iter().map(|l| l.balance_usd).sum();
+    assert!((listed - row.loans_given_usd).abs() < 1.0);
+    let finance = session.finance().unwrap();
+    assert!(finance.claims.iter().any(|(k, _)| k == "konto.einlagen"));
+}

@@ -222,6 +222,10 @@ pub mod keys {
     pub const STOCK_WRITTEN_OFF: &str = "meldung.boerse.abgeschrieben";
     pub const STOCK_DIVIDEND_PAID: &str = "meldung.boerse.dividende_gezahlt";
     pub const STOCK_DIVIDEND_RECEIVED: &str = "meldung.boerse.dividende_erhalten";
+    pub const COMMAND_NO_BANKS: &str = "fehler.befehl.keine_banken";
+    pub const COMMAND_NOT_A_BANK: &str = "fehler.befehl.keine_bank";
+    pub const COMMAND_INVALID_BANK_SETTINGS: &str = "fehler.befehl.bank_werte";
+    pub const BANK_LOAN_LOST: &str = "meldung.bank.ausfall";
     pub const COMMAND_NO_BONDS: &str = "fehler.befehl.keine_anleihen";
     pub const COMMAND_BOND_TERM: &str = "fehler.befehl.anleihe_laufzeit";
     pub const COMMAND_BOND_TOO_SMALL: &str = "fehler.befehl.anleihe_zu_klein";
@@ -554,6 +558,10 @@ pub mod keys {
         STOCK_WRITTEN_OFF,
         STOCK_DIVIDEND_PAID,
         STOCK_DIVIDEND_RECEIVED,
+        COMMAND_NO_BANKS,
+        COMMAND_NOT_A_BANK,
+        COMMAND_INVALID_BANK_SETTINGS,
+        BANK_LOAN_LOST,
         COMMAND_NO_BONDS,
         COMMAND_BOND_TERM,
         COMMAND_BOND_TOO_SMALL,

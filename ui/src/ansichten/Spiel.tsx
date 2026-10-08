@@ -179,7 +179,10 @@ export function Spiel({
 }) {
   const [uebersicht, setUebersicht] = useState(start);
   const [fuehrung, setFuehrung] = useState<Fuehrung | null>(
-    einfuehrung ? { pfad: pfadVon(start), schritt: 0, ab: 0 } : null,
+    // Investment firms and banks start without sites: no way to a first sale (K4).
+    einfuehrung && start.company.sites.length > 0
+      ? { pfad: pfadVon(start), schritt: 0, ab: 0 }
+      : null,
   );
   // Rounds played in this session (the introduction looks at reports after its start).
   const [runden, setRunden] = useState(0);

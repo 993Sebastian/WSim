@@ -36,10 +36,14 @@ pub enum Account {
     Participations,
     /// Bonds issued (K2); a liability.
     Bonds,
+    /// Deposits at a bank (K4); a liability.
+    Deposits,
+    /// Loans a bank gave (K4); an asset.
+    LoansGiven,
 }
 
 impl Account {
-    pub const ALL: [Account; 12] = [
+    pub const ALL: [Account; 14] = [
         Account::Cash,
         Account::Inventory,
         Account::FixedAssets,
@@ -52,6 +56,8 @@ impl Account {
         Account::Land,
         Account::Participations,
         Account::Bonds,
+        Account::Deposits,
+        Account::LoansGiven,
     ];
 
     pub fn is_asset(self) -> bool {
@@ -64,6 +70,7 @@ impl Account {
                 | Account::Goodwill
                 | Account::Land
                 | Account::Participations
+                | Account::LoansGiven
         )
     }
 
@@ -164,10 +171,13 @@ impl CashFlow {
             | Account::AssetsUnderConstruction
             | Account::Goodwill
             | Account::Land
-            | Account::Participations => self.investing += amount,
-            Account::Loans | Account::Bonds | Account::Equity | Account::RetainedEarnings => {
-                self.financing += amount
-            }
+            | Account::Participations
+            | Account::LoansGiven => self.investing += amount,
+            Account::Loans
+            | Account::Bonds
+            | Account::Deposits
+            | Account::Equity
+            | Account::RetainedEarnings => self.financing += amount,
             Account::Cash | Account::Inventory | Account::Result => self.operating += amount,
         }
     }

@@ -78,6 +78,7 @@ export function webKern(): Kern {
     konzern: () => aufruf("konzern"),
     controlling: (zeitraum) => aufruf("controlling", { zeitraum }),
     boerse: () => aufruf("boerse"),
+    bank: () => aufruf("bank"),
     managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),

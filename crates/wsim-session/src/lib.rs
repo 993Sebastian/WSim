@@ -22,11 +22,11 @@ use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
 use wsim_core::views::{
-    self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
-    ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
-    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
-    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
-    StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
+    self, BankView, ChainsView, CompaniesView, CompanyDetailView, ConcernsView,
+    ContractPartnersView, ContractsView, ControllingView, CountryDetail, FinanceView, GroupView,
+    LogisticsView, ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView,
+    OrganisationView, Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView,
+    RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -376,6 +376,11 @@ impl<S: SaveStore> Session<S> {
     /// Contribution margins by level for a period: `monat`, `jahr` or `vorjahr` (W7).
     pub fn controlling(&self, period: &str) -> Result<ControllingView, MessageView> {
         self.view(|game| views::controlling(game, period))
+    }
+
+    /// The player's banks (K4).
+    pub fn bank(&self) -> Result<BankView, MessageView> {
+        self.view(views::bank_view)
     }
 
     /// The stock market (K1).

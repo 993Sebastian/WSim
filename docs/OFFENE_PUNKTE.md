@@ -1328,6 +1328,27 @@ Eigenständig entschieden:
 6. **Weltlauf 1900–1915:** 528 Beteiligungen von Firmen an notierten Firmen (24 Mrd. USD,
    ein Fünftel des Börsenwerts), 10 Übernahmen durch KI-Firmen.
 
+✅ **K4 umgesetzt** (Investor und Bank; Regeln: `docs/FORMELN.md`, Abschnitt K4). Damit ist
+Stufe 3 (K1–K4) umgesetzt. 🟡 Eigenständig entschieden:
+
+1. **Zwei neue Startformen ohne Standort:** „Investmentfirma“ (nur Kapital – Börse,
+   Anleihen, Start-ups, Übernahmen) und „Bank“. Töchter haben zusätzlich die Schwerpunkte
+   „Investment“ (handelt wie ein KI-Anleger) und „Bank“.
+2. **Einlagen nach Zins und Eigenkapital:** höchstens das Zehnfache des Eigenkapitals; beim
+   Leitzins − 1 % kommt die Hälfte, je Zinspunkt mehr ein Viertel mehr; 15 % der Lücke je
+   Monat. Abflüsse werden auch bei leerer Kasse gezahlt (Bankrun, dann gilt die übliche
+   Zahlungsunfähigkeit). 10 % Mindestreserve.
+3. **Kredite an KI-Firmen:** Jede Firma, die einen Kredit aufnimmt, nimmt ihn bei der
+   günstigsten Bank des Spielers, die ihre Verschuldungsgrenze und ihre Reserve einhält –
+   zum Zins der Marktbanken abzüglich des Nachlasses; sonst wie bisher bei den Marktbanken.
+   Die Prüfung des Kreditrahmens (Sicherheiten) bleibt dieselbe. Anleihen kauft die Bank
+   nicht; KI-Banken gibt es nicht (die Banken des Marktes bleiben abstrakt).
+4. **Ausfälle:** Geht ein Kreditnehmer pleite, schreibt die Bank die Restschuld voll ab
+   (Aufwand der Finanzanlagen); Erlöse aus der Versteigerung seiner Standorte gehen nicht an
+   die Bank.
+5. **Weltlauf 1900–1903 als Bank** (20 Mio. USD, 100 KI-Firmen, Vorgaben): 109 Mio. USD
+   Einlagen, 55 Mio. USD Kredite an 4 Firmen.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

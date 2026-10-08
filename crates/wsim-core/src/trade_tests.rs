@@ -120,6 +120,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
         dividend_payout: None,
         stock_cost: Default::default(),
         bonds: Vec::new(),
+        bank: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Käufer".into(),
         kind: CompanyKind::Ai,

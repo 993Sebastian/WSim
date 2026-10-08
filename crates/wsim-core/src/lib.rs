@@ -4,6 +4,7 @@
 //! catalog from `wsim-data`, accepts commands and advances the world in daily ticks.
 
 pub mod ai;
+pub mod bank;
 pub mod bonds;
 pub mod brand;
 pub mod calendar;
@@ -54,6 +55,8 @@ pub mod transport;
 pub mod ventures;
 pub mod views;
 
+#[cfg(test)]
+mod bank_tests;
 #[cfg(test)]
 mod board_tests;
 #[cfg(test)]

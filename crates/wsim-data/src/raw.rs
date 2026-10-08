@@ -2556,3 +2556,42 @@ pub struct RawBondAi {
     #[serde(rename = "vorteil_min")]
     pub advantage_min: f64,
 }
+
+/// The player's banks (`parameter/bank.yaml`, K4).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBank {
+    #[serde(rename = "einlagen")]
+    pub deposits: RawBankDeposits,
+    #[serde(rename = "mindestreserve")]
+    pub reserve: f64,
+    pub start: RawBankStart,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBankDeposits {
+    #[serde(rename = "hebel_max")]
+    pub leverage_max: f64,
+    #[serde(rename = "aufschlag_neutral")]
+    pub neutral_spread: f64,
+    #[serde(rename = "elastizitaet")]
+    pub elasticity: f64,
+    #[serde(rename = "anpassung")]
+    pub adjustment: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawBankStart {
+    #[serde(rename = "einlagen_aufschlag")]
+    pub deposit_spread: f64,
+    #[serde(rename = "kreditnachlass")]
+    pub loan_discount: f64,
+    #[serde(rename = "verschuldung_max")]
+    pub max_debt_ratio: f64,
+}

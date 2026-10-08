@@ -31,6 +31,7 @@ pub fn equity(company: &Company) -> Money {
     company.ledger.total_assets()
         - company.ledger.balance(Account::Loans)
         - company.ledger.balance(Account::Bonds)
+        - company.ledger.balance(Account::Deposits)
 }
 
 /// Revenue of the last twelve closed months.

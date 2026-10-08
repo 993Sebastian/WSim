@@ -81,6 +81,8 @@ pub struct Catalog {
     pub stock: StockModel,
     /// Corporate bonds (K2); without the section no company issues any.
     pub bonds: BondModel,
+    /// The player's banks (K4); without the section there are none.
+    pub bank: BankModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -384,6 +386,26 @@ pub struct BondGrade {
     pub debt_ratio_max: f64,
     pub coverage_min: f64,
     pub spread: f64,
+}
+
+/// The player's banks (K4, docs/FORMELN.md). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct BankModel {
+    pub enabled: bool,
+    /// Deposits at most this multiple of the equity.
+    pub leverage_max: f64,
+    /// The deposit spread over the base rate that draws half the capacity.
+    pub neutral_spread: f64,
+    /// How fast the deposits' target grows with the spread.
+    pub elasticity: f64,
+    /// Share of the gap to the target closed each month.
+    pub adjustment: f64,
+    /// Share of the deposits kept as cash.
+    pub reserve: f64,
+    pub start_deposit_spread: f64,
+    pub start_loan_discount: f64,
+    pub start_max_debt_ratio: f64,
+    pub provenance: Provenance,
 }
 
 impl BondGrade {

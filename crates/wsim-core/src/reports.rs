@@ -19,6 +19,8 @@ impl Account {
             Account::Land => "konto.grundstuecke",
             Account::Participations => "konto.finanzanlagen",
             Account::Bonds => "konto.anleihen",
+            Account::Deposits => "konto.einlagen",
+            Account::LoansGiven => "konto.ausleihungen",
         }
     }
 }

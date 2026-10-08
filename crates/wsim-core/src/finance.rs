@@ -82,15 +82,14 @@ pub fn instalment(principal: Money, rate: f64, months: u32) -> Money {
     principal.scale(r / (1.0 - math::pow(1.0 + r, -n)))
 }
 
-/// Takes up a loan; the caller has checked the limit.
+/// Takes up a loan at `rate` (from `lender`, else from the market); the caller has
+/// checked the limit and paid the lender's side.
 pub(crate) fn grant_loan(
-    catalog: &Catalog,
     company: &mut Company,
     (amount, years): (Money, u32),
     date: Date,
-    cut: f64,
+    (rate, lender): (f64, Option<CompanyId>),
 ) {
-    let rate = loan_rate(catalog, company, amount, date, cut);
     let months = years * 12;
     company.loans.push(Loan {
         principal: amount,
@@ -99,15 +98,21 @@ pub(crate) fn grant_loan(
         start: date,
         months,
         instalment: instalment(amount, rate, months),
+        lender,
     });
     company
         .ledger
         .transfer(Account::Cash, Account::Loans, amount);
 }
 
-/// Repays part of a loan early.
-pub(crate) fn repay(company: &mut Company, loan: usize, amount: Money) {
+/// Repays part of a loan early; returns the player's bank to pay, if it lent it.
+pub(crate) fn repay(
+    company: &mut Company,
+    loan: usize,
+    amount: Money,
+) -> Option<(CompanyId, Money)> {
     let amount = amount.min(company.loans[loan].balance);
+    let lender = company.loans[loan].lender.map(|b| (b, amount));
     company
         .ledger
         .transfer(Account::Loans, Account::Cash, amount);
@@ -115,6 +120,7 @@ pub(crate) fn repay(company: &mut Company, loan: usize, amount: Money) {
     if company.loans[loan].balance == Money::ZERO {
         company.loans.remove(loan);
     }
+    lender
 }
 
 /// End of a month (`last_day`): interest and instalments, overdraft interest, and on
@@ -123,6 +129,8 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
     let base = base_rate(catalog, last_day);
     let overdraft_rate = base + catalog.finance_model.overdraft_premium;
     let year_end = last_day.month() == 12;
+    // What borrowers pay the player's banks: (bank, repayment, interest).
+    let mut to_banks: Vec<(CompanyId, Money, Money)> = Vec::new();
     for index in 0..state.companies.len() {
         let hq = state.companies[index].headquarters;
         let tax_rate = state.countries.get(hq).corporate_tax;
@@ -143,6 +151,9 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
                 .ledger
                 .transfer(Account::Loans, Account::Cash, repayment);
             loan.balance -= repayment;
+            if let Some(bank) = loan.lender {
+                to_banks.push((bank, repayment, interest));
+            }
         }
         let before = company.loans.len();
         company.loans.retain(|l| l.balance > Money::ZERO);
@@ -162,6 +173,9 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last_day: Date
             let id = CompanyId(index as u32);
             crate::management::settle_topic(state, id, crate::decision::Topic::Refinance);
         }
+    }
+    for (bank, repayment, interest) in to_banks {
+        crate::bank::receive(state, bank, repayment, interest);
     }
 }
 

@@ -196,6 +196,7 @@ impl Game {
             dividend_payout: None,
             stock_cost: Default::default(),
             bonds: Vec::new(),
+            bank: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -254,6 +255,11 @@ impl Game {
         market::initial_demand(&mut state, &catalog, date);
         crate::plots::supply(&mut state, &catalog, date.year());
         apply_start_setup(&mut state, &catalog)?;
+        // A bank from the start (K4).
+        if state.settings.start_form == crate::state::StartForm::Bank && catalog.bank.enabled {
+            let player = state.player.index();
+            state.companies[player].bank = Some(crate::bank::BankSettings::start(&catalog));
+        }
         crate::population::populate(&mut state, &catalog);
         crate::stock::list_at_start(&mut state, &catalog);
         crate::management::month_start(&mut state, &catalog, date);
@@ -460,6 +466,7 @@ impl Game {
             report
                 .messages
                 .extend(crate::bonds::month_end(&mut self.state, today));
+            crate::bank::month_end(&mut self.state, &self.catalog, today);
             finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);
@@ -467,6 +474,9 @@ impl Game {
             report
                 .messages
                 .extend(finance::check_insolvency(&mut self.state, &self.catalog));
+            report
+                .messages
+                .extend(crate::bank::write_off_failures(&mut self.state));
             report
                 .messages
                 .extend(crate::group::settle_failures(&mut self.state));

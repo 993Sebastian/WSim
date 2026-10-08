@@ -492,6 +492,19 @@ gibt es keine Anleihen. Ein Abschnitt `anleihen` mit:
 | **ki** | `laufzeit_jahre` (zwischen `laufzeit_jahre.min` und `.max`), `vorteil_min` (0–1: so weit muss der Kupon unter dem Kreditzins liegen) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
+## bank
+
+`data/parameter/bank.yaml` (K4; Regeln: `docs/FORMELN.md`, Abschnitt K4). Ohne Abschnitt
+gibt es keine Banken des Spielers (die Startform „Bank“ und der Schwerpunkt „Bank“ fehlen).
+Ein Abschnitt `bank` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **einlagen** | `hebel_max` (> 0: Einlagen höchstens so viel mal das Eigenkapital), `aufschlag_neutral` (−0,2–0,2: Einlagenzins über dem Leitzins, bei dem die Hälfte der Kapazität kommt), `elastizitaet` (0–1000: so viel mehr Anteil je Zinspunkt), `anpassung` (0–1: Anteil der Lücke zum Ziel, der sich je Monat schließt) |
+| **mindestreserve** | 0–1: dieser Anteil der Einlagen bleibt in der Kasse |
+| **start** | Einstellungen einer neuen Bank: `einlagen_aufschlag` (−0,2–0,2), `kreditnachlass` (0–0,9), `verschuldung_max` (0–1) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
 ## zentrale
 
 `data/parameter/zentrale.yaml` (ZA1–ZA4; Regeln: `docs/FORMELN.md`, Vorgabe:

@@ -99,7 +99,11 @@ pub fn decide_with(
             if let Some(share) = crate::stock::ai_ipo(state, catalog, id) {
                 act(state, catalog, id, &Command::GoPublic { share }, decider);
             }
-            if state.companies[id.index()].subsidiary_of.is_none() {
+            // Independent companies and investment subsidiaries trade shares (K3, K4).
+            let investor = state.companies[id.index()]
+                .subsidiary_of
+                .is_none_or(|s| s.focus == crate::group::SubsidiaryFocus::Investment);
+            if investor {
                 news.extend(invest(state, catalog, id, own, decider));
             }
             fleet(state, catalog, id, decider);
@@ -4295,6 +4299,7 @@ fn found_one(
         dividend_payout: None,
         stock_cost: Default::default(),
         bonds: Vec::new(),
+        bank: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4525,6 +4530,7 @@ mod tests {
             dividend_payout: None,
             stock_cost: Default::default(),
             bonds: Vec::new(),
+            bank: None,
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

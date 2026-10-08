@@ -31,6 +31,7 @@ import type {
   Konzern,
   Controlling,
   Boerse,
+  Bank,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -65,6 +66,7 @@ const beispiel = beispielJson as unknown as {
   konzern: Konzern;
   controlling: Controlling;
   boerse: Boerse;
+  bank: Bank;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -246,6 +248,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       // The preview knows the running year; it shows it for every period.
       return { ...kopie(beispiel.controlling), period: zeitraum as Controlling["period"] };
+    },
+    bank: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.bank);
     },
     boerse: async () => {
       if (!spiel) throw keinSpiel();

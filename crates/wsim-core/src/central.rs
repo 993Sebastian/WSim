@@ -699,7 +699,12 @@ pub(crate) fn refinance(
         start: today,
         months,
         instalment: crate::finance::instalment(old.balance, rate, months),
+        lender: None,
     };
+    // The market's bank pays off the player's bank that lent the old loan (K4).
+    if let Some(bank) = old.lender {
+        crate::bank::receive(state, bank, old.balance, Money::ZERO);
+    }
     Ok(())
 }
 

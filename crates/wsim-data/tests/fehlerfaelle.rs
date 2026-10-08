@@ -4061,3 +4061,62 @@ fn anleihen_werden_geprueft() {
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.bonds.enabled);
 }
+
+const BANK: &str = "\
+bank:
+  einlagen:
+    hebel_max: 10
+    aufschlag_neutral: -0.01
+    elastizitaet: 25
+    anpassung: 0.15
+  mindestreserve: 0.1
+  start:
+    einlagen_aufschlag: -0.01
+    kreditnachlass: 0.1
+    verschuldung_max: 0.5
+";
+
+#[test]
+fn bank_wird_geprueft() {
+    let datei = "parameter/bank.yaml";
+    let bank = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &BANK.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = bank("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.bank;
+    assert!(m.enabled);
+    assert_eq!(m.leverage_max, 10.0);
+    assert_eq!(m.start_loan_discount, 0.1);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "hebel_max: 10",
+            "hebel_max: 0",
+            "Wert 0 muss größer als 0 sein.",
+            "bank.einlagen.hebel_max",
+        ),
+        (
+            "mindestreserve: 0.1",
+            "mindestreserve: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "bank.mindestreserve",
+        ),
+        (
+            "einlagen_aufschlag: -0.01",
+            "einlagen_aufschlag: 0.5",
+            "Wert 0.5 liegt außerhalb des erlaubten Bereichs -0.2 bis 0.2.",
+            "bank.start.einlagen_aufschlag",
+        ),
+    ] {
+        let outcome = bank(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&bank("  start:", "  unbekannt: 1\n  start:"), "unbekannt");
+    // Without the section there are no banks.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.bank.enabled);
+}

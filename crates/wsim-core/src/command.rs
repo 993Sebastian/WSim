@@ -130,6 +130,11 @@ pub enum Command {
     IssueBond { amount: Money, years: u32 },
     /// Buys a bond back before maturity.
     RedeemBond { bond: usize },
+    /// What a bank of the player's group offers (K4).
+    SetBank {
+        company: CompanyId,
+        settings: crate::bank::BankSettings,
+    },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -569,6 +574,10 @@ pub enum CommandError {
     NotEnoughStock {
         held: f64,
     },
+    /// The data have no banks (K4).
+    NoBanks,
+    NotABank,
+    InvalidBankSettings,
     /// The data have no bonds (K2).
     NoBonds,
     BondTerm {
@@ -771,6 +780,9 @@ impl CommandError {
                 .with("anteil", Param::Number((available * 1000.0).round() / 10.0)),
             CommandError::NotEnoughStock { held } => e(keys::COMMAND_NOT_ENOUGH_STOCK)
                 .with("anteil", Param::Number((held * 1000.0).round() / 10.0)),
+            CommandError::NoBanks => e(keys::COMMAND_NO_BANKS),
+            CommandError::NotABank => e(keys::COMMAND_NOT_A_BANK),
+            CommandError::InvalidBankSettings => e(keys::COMMAND_INVALID_BANK_SETTINGS),
             CommandError::NoBonds => e(keys::COMMAND_NO_BONDS),
             CommandError::BondTerm { min, max } => e(keys::COMMAND_BOND_TERM)
                 .with("min", Param::Integer(i64::from(*min)))
@@ -1502,9 +1514,12 @@ fn run(
             crate::group::transfer_site(state, catalog, actor, *site, *to)?;
         }
         Command::SetSubsidiaryFocus { company, focus } => {
-            crate::group::set_focus(state, actor, *company, *focus)?;
+            crate::group::set_focus(state, catalog, actor, *company, *focus)?;
         }
         Command::GoPublic { share } => crate::stock::go_public(state, catalog, actor, *share)?,
+        Command::SetBank { company, settings } => {
+            crate::bank::set(state, catalog, actor, *company, *settings)?;
+        }
         Command::IssueBond { amount, years } => {
             crate::bonds::issue(state, catalog, actor, *amount, *years)?;
         }
@@ -1553,12 +1568,23 @@ fn run(
                 return Err(CommandError::InvalidTerm { max });
             }
             let cut = crate::central::premium_cut(catalog, state, actor);
-            let company = state.company_mut(actor).expect("checked above");
+            let company = state.company(actor).expect("checked above");
             let limit = crate::finance::credit_limit(catalog, company);
             if *amount > limit {
                 return Err(CommandError::LoanTooLarge { limit });
             }
-            crate::finance::grant_loan(catalog, company, (*amount, *years), today, cut);
+            // The market's banks, or a bank of the player that lends for less (K4).
+            let market = crate::finance::loan_rate(catalog, company, *amount, today, cut);
+            let (rate, lender) =
+                match crate::bank::lender_for(state, catalog, actor, *amount, market) {
+                    Some((bank, rate)) => {
+                        crate::bank::lend(state, bank, *amount);
+                        (rate, Some(bank))
+                    }
+                    None => (market, None),
+                };
+            let company = state.company_mut(actor).expect("checked above");
+            crate::finance::grant_loan(company, (*amount, *years), today, (rate, lender));
         }
         Command::RepayLoan { loan, amount } => {
             if *amount <= Money::ZERO {
@@ -1573,8 +1599,12 @@ fn run(
                 return Err(CommandError::NotEnoughCash { needed: amount });
             }
             let before = company.loans.len();
-            crate::finance::repay(company, *loan, amount);
-            if company.loans.len() < before {
+            let lender = crate::finance::repay(company, *loan, amount);
+            let paid_off = company.loans.len() < before;
+            if let Some((bank, amount)) = lender {
+                crate::bank::receive(state, bank, amount, Money::ZERO);
+            }
+            if paid_off {
                 crate::management::settle_topic(state, actor, crate::decision::Topic::Refinance);
             }
         }

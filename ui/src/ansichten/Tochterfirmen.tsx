@@ -8,10 +8,13 @@ import { Rueckmeldung, useAktion, useSicht, ZahlFeld } from "./gemeinsam";
 
 type Schwerpunkt = Tochter["focus"];
 
-const BEFEHL: Record<Schwerpunkt, "Production" | "Logistics"> = {
+const BEFEHL: Record<Schwerpunkt, "Production" | "Logistics" | "Investment" | "Bank"> = {
   produktion: "Production",
   logistik: "Logistics",
+  investment: "Investment",
+  bank: "Bank",
 };
+const SCHWERPUNKTE = ["produktion", "logistik", "investment", "bank"] as const;
 
 /** Founding a subsidiary: name, seat, capital, focus. */
 function Gruendung({ daten, onNeu }: { daten: Konzern; onNeu: () => void }) {
@@ -55,7 +58,7 @@ function Gruendung({ daten, onNeu }: { daten: Konzern; onNeu: () => void }) {
       </div>
       <fieldset className="auswahlgruppe">
         <legend>{t("tochter.schwerpunkt")}</legend>
-        {(["produktion", "logistik"] as const).map((s) => (
+        {SCHWERPUNKTE.map((s) => (
           <label key={s}>
             <input
               type="radio"
@@ -136,7 +139,7 @@ function TochterZeile({ x, onNeu }: { x: Tochter; onNeu: () => void }) {
               ]).then((ok) => ok && onNeu())
             }
           >
-            {(["produktion", "logistik"] as const).map((s) => (
+            {SCHWERPUNKTE.map((s) => (
               <option key={s} value={s}>
                 {t(`tochter.schwerpunkt.${s}`)}
               </option>

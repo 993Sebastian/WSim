@@ -164,6 +164,8 @@ enum Runde {
 enum Startform {
     Werkstatt,
     Handel,
+    Investor,
+    Bank,
 }
 
 fn parse_date(text: &str) -> Result<Date, String> {
@@ -476,6 +478,8 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 start_form: match args.startform {
                     Startform::Werkstatt => StartForm::Workshop,
                     Startform::Handel => StartForm::Trading,
+                    Startform::Investor => StartForm::Investor,
+                    Startform::Bank => StartForm::Bank,
                 },
                 company_name: args.name.clone(),
                 research_ahead_factor: 1.0,
@@ -637,6 +641,8 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     json["controlling"] = serde_json::to_value(session.controlling("jahr").map_err(message)?)
         .map_err(|e| e.to_string())?;
     json["boerse"] = example_stock(&mut session)?;
+    json["bank"] =
+        serde_json::to_value(session.bank().map_err(message)?).map_err(|e| e.to_string())?;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
@@ -1095,6 +1101,39 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_logistics(texts, game);
     print_stock(game);
     print_bonds(game);
+    print_banks(game);
+}
+
+/// The player's banks (K4): deposits, loans given, borrowers, result.
+fn print_banks(game: &Game) {
+    let state = game.state();
+    for (i, c) in state.companies.iter().enumerate() {
+        if c.bank.is_none() {
+            continue;
+        }
+        let id = wsim_core::state::CompanyId(u32::try_from(i).unwrap_or(u32::MAX));
+        let borrowers = state
+            .companies
+            .iter()
+            .filter(|b| b.loans.iter().any(|l| l.lender == Some(id)))
+            .count();
+        let l = &c.ledger;
+        println!(
+            "Bank (K4) {}: Einlagen {} Mio. USD, Kredite {} Mio. USD an {} Firmen, Kasse {} Mio. USD, Ergebnis des Jahres {} Mio. USD",
+            c.name,
+            format_number(
+                l.balance(wsim_core::ledger::Account::Deposits).to_usd() / 1e6,
+                2
+            ),
+            format_number(
+                l.balance(wsim_core::ledger::Account::LoansGiven).to_usd() / 1e6,
+                2
+            ),
+            borrowers,
+            format_number(l.cash().to_usd() / 1e6, 2),
+            format_number(l.year.total().to_usd() / 1e6, 2)
+        );
+    }
 }
 
 /// Fleets of the companies (W5): how many hold vehicles of which kind, how much of their

@@ -1087,6 +1087,7 @@ fn found_company(
         dividend_payout: None,
         stock_cost: Default::default(),
         bonds: Vec::new(),
+        bank: None,
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,

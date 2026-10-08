@@ -41,12 +41,17 @@ export type Befehl =
         name: string;
         country: string;
         capital: number;
-        focus: "Production" | "Logistics";
+        focus: "Production" | "Logistics" | "Investment" | "Bank" | "Investment" | "Bank";
       };
     }
   | { MoveCapital: { company: number; amount: number } }
   | { TransferSite: { site: number; to: number } }
-  | { SetSubsidiaryFocus: { company: number; focus: "Production" | "Logistics" } }
+  | {
+      SetSubsidiaryFocus: {
+        company: number;
+        focus: "Production" | "Logistics" | "Investment" | "Bank";
+      };
+    }
   | { GoPublic: { share: number } }
   | { IssueBond: { amount: number; years: number } }
   | { RedeemBond: { bond: number } }
@@ -55,6 +60,12 @@ export type Befehl =
   | { BuyShares: { company: number; share: number } }
   | { SellShares: { company: number; share: number } }
   | { TakeOver: { company: number } }
+  | {
+      SetBank: {
+        company: number;
+        settings: { deposit_spread: number; loan_discount: number; max_debt_ratio: number };
+      };
+    }
   | { BuyBackShares: { share: number } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }

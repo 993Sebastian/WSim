@@ -4289,3 +4289,42 @@ dem kleinsten M / fair, wenn das unter 1 − `ki.unterbewertung` liegt, bis
 über 1 + `ki.unterbewertung` steigt. Mit `ki.uebernahme_chance` · Aggressivität je Monat
 bietet sie für die günstigste notierte Firma (kleinstes M / fair unter 1), deren Preis
 höchstens `ki.uebernahme_kasse_anteil` ihrer Kasse ist.
+
+## K4 – Investor und Bank
+
+Lastenheft §17.3. Daten: `parameter/bank.yaml`. Kern: Modul `bank`.
+
+### Spielweisen
+
+Neben Werkstatt und Handelsniederlassung beginnt der Spieler als **Investmentfirma**
+(ohne Standort; das Startkapital bleibt in der Kasse für Börse, Anleihen und Start-ups)
+oder als **Bank** (ebenso ohne Standort, dazu die Bankgeschäfte unten). Töchter haben
+neben „Produktion und Handel“ und „Logistik“ die Schwerpunkte **Investment** (sie legt
+ihre Kasse wie ein KI-Anleger an, K3) und **Bank**.
+
+### Einlagen
+
+Eine Bank zahlt auf Einlagen den Zins r = Realzins(Jahr) + Einlagenaufschlag (vom
+Spieler gesetzt). Die Anleger bringen ihr
+
+    Kapazität = einlagen.hebel_max · max(Eigenkapital, 0)
+    Ziel = Kapazität · clamp(0,5 + einlagen.elastizitaet · (Aufschlag − aufschlag_neutral), 0, 1)
+    Einlagen' = Einlagen + einlagen.anpassung · (Ziel − Einlagen)     (Monatsende)
+
+Zuflüsse erhöhen Kasse und Einlagen (Verbindlichkeit), Abflüsse senken beide – auch wenn
+die Kasse dafür ins Minus geht (Bankrun). Zinsen: Einlagen · r / 12 je Monat
+(Zinsaufwand). Ohne Bankgeschäft (Schwerpunkt gewechselt) fließen die Einlagen ab.
+
+### Kredite an Firmen
+
+Nimmt eine Firma einen Kredit auf, prüft sie die Banken des Spielers (nicht im eigenen
+Konzern): Eine Bank gibt ihn, wenn
+
+    Verschuldung des Kreditnehmers nach dem Kredit ≤ Verschuldung_max der Bank
+    Kasse der Bank − mindestreserve · Einlagen ≥ Kreditbetrag
+
+zum Zins i_Bank = i_Markt · (1 − Kreditnachlass), wobei i_Markt der Zins der Banken des
+Marktes für diesen Kredit ist (M6). Unter mehreren Banken nimmt die Firma die günstigste.
+Die Bank bucht den Kredit als Ausleihung (Anlagevermögen); Zinsen und Tilgungen des
+Kreditnehmers fließen ihr zu (Zinsertrag bzw. Rückzahlung). Geht der Kreditnehmer pleite,
+schreibt die Bank die Restschuld ab (Aufwand der Finanzanlagen).

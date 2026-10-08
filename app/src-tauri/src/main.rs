@@ -12,7 +12,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
-    ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
+    BankView, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
     ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
@@ -206,6 +206,11 @@ fn controlling(state: State<'_, Shared>, zeitraum: String) -> Result<Controlling
 }
 
 #[tauri::command]
+fn bank(state: State<'_, Shared>) -> Result<BankView, Fehler> {
+    mit_sitzung(&state, |s| s.bank())
+}
+
+#[tauri::command]
 fn boerse(state: State<'_, Shared>) -> Result<StockMarketView, Fehler> {
     mit_sitzung(&state, |s| s.stock())
 }
@@ -319,6 +324,7 @@ fn main() {
             konzern,
             controlling,
             boerse,
+            bank,
             managermarkt,
             befehl,
             speichern,

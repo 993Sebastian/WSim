@@ -1,0 +1,14 @@
+# Bank des Spielers (K4, Lastenheft §17.3; Formeln: docs/FORMELN.md, Abschnitt K4).
+
+bank:
+  einlagen:
+    hebel_max: 10                # Einlagen höchstens das Zehnfache des Eigenkapitals
+    aufschlag_neutral: -0.01     # bei Leitzins − 1 % kommt die Hälfte der Kapazität
+    elastizitaet: 25             # je Prozentpunkt mehr Zins ein Viertel mehr Einlagen
+    anpassung: 0.15              # so viel der Lücke zum Ziel schließt sich je Monat
+  mindestreserve: 0.1            # so viel der Einlagen bleibt in der Kasse
+  start:                         # Einstellungen einer neuen Bank
+    einlagen_aufschlag: -0.01
+    kreditnachlass: 0.1
+    verschuldung_max: 0.5
+  annaeherung: true

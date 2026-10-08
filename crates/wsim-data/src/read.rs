@@ -7,7 +7,7 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
+    RawAiModel, RawBank, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
     RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel,
     RawInventor, RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup,
     RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel,
@@ -185,6 +185,7 @@ pub(crate) struct RawData {
     pub subsidiaries: Vec<Entry<RawSubsidiaries>>,
     pub stock: Vec<Entry<RawStockMarket>>,
     pub bonds: Vec<Entry<RawBonds>>,
+    pub bank: Vec<Entry<RawBank>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -230,6 +231,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "tochterfirmen",
     "boerse",
     "anleihen",
+    "bank",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -333,6 +335,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "anleihen" => match de::from_node::<RawBonds>(value, &loc.path) {
                 Ok(model) => raw.bonds.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "bank" => match de::from_node::<RawBank>(value, &loc.path) {
+                Ok(model) => raw.bank.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

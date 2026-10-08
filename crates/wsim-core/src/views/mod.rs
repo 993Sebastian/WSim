@@ -5,6 +5,7 @@
 
 use std::collections::BTreeMap;
 
+mod bank;
 mod central;
 mod chains;
 mod concerns;
@@ -20,6 +21,7 @@ mod review;
 mod stock;
 mod strategy;
 mod ventures;
+pub use bank::*;
 pub use central::*;
 pub use chains::*;
 pub use concerns::*;
@@ -74,13 +76,20 @@ pub fn start_form_key(form: StartForm) -> &'static str {
     match form {
         StartForm::Workshop => "werkstatt",
         StartForm::Trading => "handel",
+        StartForm::Investor => "investor",
+        StartForm::Bank => "bank",
     }
 }
 
 pub fn start_form_from_key(key: &str) -> Option<StartForm> {
-    [StartForm::Workshop, StartForm::Trading]
-        .into_iter()
-        .find(|&f| start_form_key(f) == key)
+    [
+        StartForm::Workshop,
+        StartForm::Trading,
+        StartForm::Investor,
+        StartForm::Bank,
+    ]
+    .into_iter()
+    .find(|&f| start_form_key(f) == key)
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -138,7 +147,7 @@ pub struct NewGameOptions {
 
 pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
     let ai = &catalog.ai_model;
-    let start_forms = [StartForm::Workshop, StartForm::Trading]
+    let mut start_forms: Vec<StartFormOption> = [StartForm::Workshop, StartForm::Trading]
         .into_iter()
         .filter_map(|f| {
             let setup = catalog.production_model.start_setup(f)?;
@@ -148,6 +157,18 @@ pub fn new_game_options(catalog: &Catalog) -> NewGameOptions {
             })
         })
         .collect();
+    // Without sites (K4): an investment firm with a stock market, a bank with banks.
+    for (form, offered) in [
+        (StartForm::Investor, catalog.stock.enabled),
+        (StartForm::Bank, catalog.bank.enabled),
+    ] {
+        if offered {
+            start_forms.push(StartFormOption {
+                key: start_form_key(form).to_owned(),
+                cost_usd: 0.0,
+            });
+        }
+    }
     let default_country = catalog
         .countries
         .id("DEU")

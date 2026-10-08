@@ -124,6 +124,8 @@ konto.firmenwert: Firmenwert
 konto.grundstuecke: Grundstücke
 konto.finanzanlagen: Finanzanlagen
 konto.anleihen: Anleihen
+konto.einlagen: Einlagen
+konto.ausleihungen: Ausleihungen (Kredite an Firmen)
 kostenart.umsatz: Umsatzerlöse
 kostenart.bestandsveraenderung: Bestandsveränderung
 kostenart.material: Materialaufwand
@@ -167,6 +169,9 @@ fehler.befehl.anteil_ausserhalb: "Der Anteil muss größer als 0 und höchstens 
 fehler.befehl.uebernahme_ohne_mehrheit: "Der Spieler hält {anteil} % dieser Firma und verkauft nicht – eine Übernahme ist unmöglich."
 fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der Aktien."
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
+fehler.befehl.keine_banken: In diesem Spiel gibt es keine Banken des Spielers.
+fehler.befehl.keine_bank: Diese Firma ist keine Bank.
+fehler.befehl.bank_werte: "Einlagenaufschlag −20 % bis +20 %, Kreditnachlass 0 bis 90 %, höchste Verschuldung 0 bis 100 %."
 fehler.befehl.keine_anleihen: In diesem Spiel gibt es keine Anleihen.
 fehler.befehl.anleihe_laufzeit: "Eine Anleihe läuft {min} bis {max} Jahre."
 fehler.befehl.anleihe_zu_klein: "Eine Anleihe braucht mindestens {min}."
@@ -404,5 +409,6 @@ meldung.boerse.krise: "Börsenkrach: Die Kurse brechen um rund {einbruch} % ein.
 meldung.boerse.abgeschrieben: "{firma} ist pleite und verlässt die Börse – deine Aktien ({betrag}) sind abgeschrieben."
 meldung.boerse.dividende_gezahlt: "Deine Firma zahlt {betrag} Dividende an ihre Aktionäre."
 meldung.boerse.dividende_erhalten: "Deine Firma erhält {betrag} Dividende aus ihren Aktien."
+meldung.bank.ausfall: "{firma} ist pleite – deine Bank schreibt {betrag} Kredit ab."
 meldung.anleihe.getilgt: "Eine Anleihe ist fällig: Deine Firma zahlt {betrag} zurück."
 meldung.logistik.verlust: "Ladung verloren: {menge} {produkt} auf dem Weg von {von} nach {nach}."

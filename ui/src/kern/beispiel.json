@@ -185,6 +185,12 @@
       }
     ]
   },
+  "bank": {
+    "banks": [],
+    "base_rate": 0.014016438356164146,
+    "enabled": true,
+    "subsidiaries": true
+  },
   "bericht": {
     "cash_after_usd": 58473.257,
     "cash_before_usd": 54365.7436,
@@ -29740,6 +29746,14 @@
       {
         "cost_usd": 15000.0,
         "key": "handel"
+      },
+      {
+        "cost_usd": 0.0,
+        "key": "investor"
+      },
+      {
+        "cost_usd": 0.0,
+        "key": "bank"
       }
     ],
     "start_year": {

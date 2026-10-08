@@ -453,7 +453,8 @@ Unterreiter „Tochterfirmen“: oben die Liste der Töchter (Name und Sitz, Sch
 Umstellen, Kasse, Eigenkapital mit eingezahltem Kapital, Ergebnis und Umsatz im Jahr,
 Standorte und Fahrzeuge) mit Betrag, „Kapital einlegen“ und „Ausschütten“ (bis zum
 angezeigten Höchstbetrag). Darunter „Neue Tochter gründen“: Name, Sitz, Kapital (mindestens
-das angezeigte), Schwerpunkt „Produktion und Handel“ oder „Logistik“, „Gründen“. Hat der
+das angezeigte), Schwerpunkt „Produktion und Handel“, „Logistik“, „Investment“ (legt ihre
+Kasse in Aktien an) oder „Bank“ (Finanzen → Bank), „Gründen“. Hat der
 Konzern Töchter, folgt „Standorte im Konzern übertragen“: jeder Standort der eigenen Firma
 und der Töchter mit Buchwert, Empfänger und „Übertragen“. Zuletzt „Konzern“: Aktiva,
 Passiva und die Gewinn- und Verlustrechnung des Jahres aller Konzernfirmen zusammen,
@@ -605,6 +606,17 @@ wenig Eigenkapital, noch kein abgeschlossener Monat oder zu viele Schulden bzw. 
 Gewinn. Darunter die ausgegebenen Anleihen mit Datum, Betrag, Kupon, Bonität bei der
 Ausgabe, Fälligkeit und „Zurückkaufen (Preis)“.
 
+### Finanzen → Bank (K4)
+
+Vierter Bereich unter „Finanzen“. Ohne Bank steht dort, wie man eine bekommt (Startform
+„Bank“ oder eine Tochter mit dem Schwerpunkt Bank). Je Bank des Konzerns: Einlagen mit dem
+Ziel beim jetzigen Zins und der Höchstmenge (zehnfaches Eigenkapital), Kasse mit
+Mindestreserve und dem verleihbaren Betrag, Zinsen, Ausfälle und Ergebnis des laufenden
+Jahres; darunter die drei Stellgrößen in Prozent – „Einlagenzins über dem Leitzins“ (mit dem
+Zins, der sich daraus ergibt), „Nachlass auf den Zins der Marktbanken“ und „Höchste
+Verschuldung der Kreditnehmer“ – mit „Festlegen“, und die Tabelle „Kredite an Firmen“
+(Firma, Restschuld, Zins, Beginn).
+
 ### Finanzen → Börse (K1)
 
 Dritter Bereich unter „Finanzen“. Oben der Börsenindex mit der Stimmung der Anleger und
@@ -671,6 +683,8 @@ Börsenwert der letzten 24 Monate und „Übernehmen für …“: ein Übernahme
   viele – mit der Zahl je Jahr), Vorgabe „normal“.
 - W3: Darunter „Zölle nach 2026“ (feste Zölle, normal, stark schwankend), Vorgabe
   „normal“; bis 2026 folgen die Zölle der Geschichte.
+- K4: Startformen „Investmentfirma“ und „Bank“ neben Werkstatt und Handelsniederlassung –
+  beide ohne Standort und ohne Kosten; die Einführung bis zum ersten Verkauf entfällt.
 
 ### Einführung (M20)
 

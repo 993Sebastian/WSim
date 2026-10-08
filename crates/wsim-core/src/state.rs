@@ -254,6 +254,10 @@ pub enum StartForm {
     Workshop,
     /// Small trading business.
     Trading,
+    /// An investment firm without sites (K4).
+    Investor,
+    /// A bank without sites (K4).
+    Bank,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -363,6 +367,9 @@ pub struct Company {
     /// Bonds issued and not yet repaid (K2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub bonds: Vec<crate::bonds::Bond>,
+    /// What the company offers as a bank (K4); `None` for other companies.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bank: Option<crate::bank::BankSettings>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -1038,6 +1045,9 @@ pub struct Loan {
     pub start: Date,
     pub months: u32,
     pub instalment: Money,
+    /// The player's bank that lent it (K4); `None`: a bank of the market.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lender: Option<CompanyId>,
 }
 
 /// Goods of one kind in a site's warehouse, valued at production or purchase cost.
