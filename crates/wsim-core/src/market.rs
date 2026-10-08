@@ -362,10 +362,30 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                 }
             }
             if let Some(s) = &p.state_demand {
-                market.state_rate =
-                    s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0 * state_left * state_factor;
+                market.state_rate = s.per_million_gdp_at(date) * gdp / 1.0e6 / 365.0
+                    * state_left
+                    * state_factor
+                    * armament_factor(catalog, s, cs);
             }
         }
+    }
+}
+
+/// Factor on the state demand from the military expenditure (H3, docs/FORMELN.md):
+/// armament goods follow it, war-relevant goods rise with the war intensity.
+fn armament_factor(
+    catalog: &Catalog,
+    demand: &crate::catalog::StateDemand,
+    country: &crate::country_model::CountryState,
+) -> f64 {
+    let model = &catalog.armament;
+    if !model.enabled {
+        return 1.0;
+    }
+    if demand.armament {
+        country.military_share / model.reference
+    } else {
+        1.0 + (demand.war_factor - 1.0) * country.war_intensity
     }
 }
 

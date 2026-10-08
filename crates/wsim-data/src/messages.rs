@@ -804,6 +804,25 @@ pub fn retrofit_level_unknown(level: u32, levels: usize) -> String {
     )
 }
 
+pub fn armament_war_not_above_peace(peace: f64, war: f64) -> String {
+    format!(
+        "„krieg“ ({war}) muss über „frieden“ ({peace}) liegen: dazwischen wächst die \
+         Kriegsstärke von 0 auf 1."
+    )
+}
+
+pub fn armament_without_section() -> String {
+    "Rüstungsgüter brauchen den Abschnitt „ruestung“ (parameter/ruestung.yaml) mit den \
+     Militärausgaben, denen ihr Bedarf folgt."
+        .into()
+}
+
+pub fn armament_with_war_factor() -> String {
+    "Bei Rüstungsgütern wirkt kein Kriegsfaktor: Ihr Bedarf folgt den Militärausgaben \
+     (Abschnitt „ruestung“)."
+        .into()
+}
+
 pub fn retrofit_years_descending() -> String {
     "Die Nachrüststufen müssen in der Reihenfolge ihrer Jahre („ab“) stehen.".into()
 }

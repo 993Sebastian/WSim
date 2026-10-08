@@ -494,3 +494,31 @@ produkt.led_lampe: LED-Lampe
 anlage.led_lampenwerk: LED-Lampenwerk
 rezept.led_lampe_bauen: LED-Lampen bauen
 technologie.led_lampe: LED-Lampe (weiße Leuchtdiode)
+
+# Kette 49 – Rüstung
+produkt.munition: Munition
+produkt.gewehr: Gewehre
+produkt.geschuetz: Geschütze
+produkt.panzer: Panzer
+produkt.jagdflugzeug: Jagdflugzeuge
+produkt.kampfjet: Kampfjets
+produkt.lenkwaffe: Lenkwaffen
+anlage.munitionsfabrik: Munitionsfabrik
+anlage.gewehrfabrik: Gewehrfabrik
+anlage.geschuetzwerk: Geschützwerk
+anlage.panzerwerk: Panzerwerk
+anlage.militaerflugzeugwerk: Militärflugzeugwerk
+anlage.kampfjetwerk: Kampfjetwerk
+anlage.lenkwaffenwerk: Lenkwaffenwerk
+rezept.munition_salpeter: Munition mit Salpeter
+rezept.munition_ammoniak: Munition aus Ammoniak
+rezept.gewehr_bauen: Gewehre bauen
+rezept.geschuetz_bauen: Geschütze bauen
+rezept.panzer_bauen: Panzer bauen
+rezept.jagdflugzeug_bauen: Jagdflugzeuge bauen
+rezept.kampfjet_bauen: Kampfjets bauen
+rezept.lenkwaffe_bauen: Lenkwaffen bauen
+technologie.panzer: Panzer
+technologie.jagdflugzeug: Jagdflugzeug
+technologie.duesenjaeger: Düsenjäger
+technologie.lenkflugkoerper: Lenkflugkörper

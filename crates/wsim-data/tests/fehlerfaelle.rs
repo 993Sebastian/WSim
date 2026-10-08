@@ -4787,3 +4787,61 @@ fn patente_werden_geprueft() {
     let falsch = mit(&format!("{block}    gebuehr: 3\n")).laden();
     befund(&falsch, "gebuehr");
 }
+
+#[test]
+fn ruestung_wird_geprueft() {
+    const RUESTUNG: &str = "\
+ruestung:
+  frieden: 0.06
+  krieg: 0.30
+  bezug: 0.03
+  militaerausgaben:
+    standard: {1900: 0.02, 2026: 0.02}
+    laender:
+      SWE: {1900: 0.02, 1915: 0.4, 1919: 0.03}
+";
+    let ruestungsgut = "    richtpreis_usd: 400\n    staatsnachfrage:\n      je_mio_usd_bip: 0.5\n      ruestung: true\n";
+    let d = Daten::neu()
+        .datei("parameter/ruestung.yaml", RUESTUNG)
+        .ersetze("ketten/a.yaml", "    richtpreis_usd: 400\n", ruestungsgut);
+    let gut = d.laden();
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let data = gut.data.unwrap();
+    let m = &data.catalog.armament;
+    assert!(m.enabled);
+    let aaa = data.catalog.countries.id("SWE").unwrap();
+    let (share, war) = m.at(aaa, 1915.0);
+    assert!((share - 0.4).abs() < 1e-9 && war == 1.0, "{share} {war}");
+
+    // An armament good needs the section and takes no war factor.
+    let ohne = Daten::neu()
+        .ersetze("ketten/a.yaml", "    richtpreis_usd: 400\n", ruestungsgut)
+        .laden();
+    let f = befund(&ohne, "Rüstungsgüter brauchen den Abschnitt „ruestung“");
+    assert_eq!(f.path.to_string(), "produkte[1].staatsnachfrage.ruestung");
+    let mit_faktor = Daten::neu()
+        .datei("parameter/ruestung.yaml", RUESTUNG)
+        .ersetze(
+            "ketten/a.yaml",
+            "    richtpreis_usd: 400\n",
+            &format!("{ruestungsgut}      kriegsfaktor: 3\n"),
+        )
+        .laden();
+    befund(&mit_faktor, "Bei Rüstungsgütern wirkt kein Kriegsfaktor");
+    // War above peace.
+    let falsch = Daten::neu()
+        .datei(
+            "parameter/ruestung.yaml",
+            &RUESTUNG.replace("krieg: 0.30", "krieg: 0.05"),
+        )
+        .laden();
+    let f = befund(&falsch, "„krieg“ (0.05) muss über „frieden“ (0.06) liegen");
+    assert_ort(f, "parameter/ruestung.yaml", 3, "ruestung.krieg");
+    let falsch = Daten::neu()
+        .datei(
+            "parameter/ruestung.yaml",
+            &RUESTUNG.replace("bezug: 0.03", "bezug: 0"),
+        )
+        .laden();
+    befund(&falsch, "außerhalb des erlaubten Bereichs");
+}

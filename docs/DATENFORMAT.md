@@ -225,6 +225,17 @@ Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
 | **umschlag** | `kosten_usd_je_t` und `tage` für Be- oder Entladen in einem Hafen oder Flughafen bei voll ausgebauter Infrastruktur |
 | **mindestinfrastruktur** | Ausbaugrad (0–1), unter dem Straße, Schiene, Hafen oder Flughafen nicht nutzbar sind |
 
+## ruestung
+
+`data/parameter/ruestung.yaml` (H3; ohne den Abschnitt keine Kriegsstärke und keine Rüstungsgüter).
+
+| Feld | Bedeutung |
+| --- | --- |
+| **militaerausgaben** | Militärausgaben als Anteil am BIP (0–1) je Land und Jahr: `standard` und `laender` (ISO-Code → Jahreswerte), wie `co2_preis` |
+| **frieden**, **krieg** | Anteile (0–1, krieg > frieden): bis `frieden` Kriegsstärke 0, ab `krieg` 1, dazwischen linear |
+| **bezug** | Anteil (0,001–1), bei dem der Bedarf je BIP der Rüstungsgüter gilt |
+| annaeherung, quelle | Herkunft |
+
 ## produkte
 
 **Werkzeuge für die Produktbreite (P0).** `python3 tools/daten/tabelle.py produkte.csv
@@ -254,7 +265,8 @@ Prüfstand für Rechenzeit und Spielstandsgröße, keine Spieldaten.
 | heizwert_mwh | Energiegehalt je Einheit, wenn das Produkt als Brennstoff dient |
 | nachfrage | Endkunden-Nachfrage, siehe unten |
 | staatsnachfrage.**je_mio_usd_bip** | Staatlicher Bedarf in Einheiten je Jahr und Mio. USD BIP |
-| staatsnachfrage.kriegsfaktor | Faktor in Kriegszeiten (Standard 1, wirkt ab Stufe 4) |
+| staatsnachfrage.kriegsfaktor | Faktor bei voller Kriegsstärke (Standard 1); dazwischen 1 + (Faktor − 1) · Kriegsstärke des Landes (H3, Abschnitt `ruestung`) |
+| staatsnachfrage.ruestung | `true`: Rüstungsgut (H3) – der Bedarf je BIP gilt bei Militärausgaben von `ruestung.bezug` und folgt ihnen; braucht den Abschnitt `ruestung`, kein `kriegsfaktor` |
 | staatsnachfrage.verlauf | Jahreswerte eines Faktors auf den Bedarf je BIP, z. B. `{1913: 1.0, 1970: 8.0}`; dazwischen linear, davor und danach der erste bzw. letzte Wert; ohne Angabe 1 (M39) |
 | staatsmarkt.**preis_usd** | Ware ist in jedem Land vom staatlichen Markt zu diesem Preis erhältlich |
 | staatsmarkt.verfuegbar_ab / verfuegbar_bis | Jahre, in denen der Staatsmarkt die Ware anbietet |

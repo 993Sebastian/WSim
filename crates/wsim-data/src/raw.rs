@@ -372,6 +372,27 @@ pub struct RawStateDemand {
     pub war_factor: f64,
     #[serde(rename = "verlauf", default)]
     pub index: Option<RawSeries>,
+    /// Armament good (H3).
+    #[serde(rename = "ruestung", default)]
+    pub armament: bool,
+}
+
+/// `parameter/ruestung.yaml` (H3).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawArmament {
+    #[serde(rename = "militaerausgaben")]
+    pub military_share: RawCountrySeries,
+    #[serde(rename = "frieden")]
+    pub peace: f64,
+    #[serde(rename = "krieg")]
+    pub war: f64,
+    #[serde(rename = "bezug")]
+    pub reference: f64,
+    #[serde(default, rename = "annaeherung")]
+    pub approximation: bool,
+    #[serde(default, rename = "quelle")]
+    pub source: Option<String>,
 }
 
 fn one() -> f64 {

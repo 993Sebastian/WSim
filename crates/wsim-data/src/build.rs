@@ -661,6 +661,7 @@ pub(crate) fn build(
     b.catalog.life = life::life_model(b.ctx, &b.catalog, raw);
     b.catalog.person = life::person_model(b.ctx, &b.catalog, raw);
     b.catalog.environment = environment::environment_model(b.ctx, &b.catalog, raw);
+    b.catalog.armament = environment::armament_model(b.ctx, &b.catalog, raw);
     let (regulation_keys, regulations) = register(
         b.ctx,
         raw,
@@ -967,6 +968,7 @@ impl Builder<'_, '_> {
                         .index
                         .as_ref()
                         .map(|values| time_series(self.ctx, values, &loc.field("verlauf"))),
+                    armament: d.armament,
                 }
             }),
             state_market: v

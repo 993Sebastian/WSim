@@ -1583,6 +1583,10 @@ strategie.feld.umwelt: Umwelt
 werk.umwelt_fuer: "Umwelt: {anlage}"
 landdetail.regulierung: Regulierung und Umwelt
 landdetail.co2_preis: "CO₂-Preis: {preis} je t"
+landdetail.ruestung: Rüstung
+landdetail.militaerausgaben: "Militärausgaben: {anteil} des BIP."
+landdetail.kriegswirtschaft: "Kriegswirtschaft zu {staerke}: Der Staat kauft kriegswichtige Güter in größerer Menge (Kriegsfaktor der Güter); Rüstungsgüter folgen den Militärausgaben."
+landdetail.frieden: "Frieden: Der Staat kauft Rüstungsgüter im Verhältnis zu den Militärausgaben, kriegswichtige Güter in normaler Menge."
 landdetail.regel.auflage: "{regel} (seit {seit}): Abgasreinigung mindestens Stufe {stufe}, Frist bis {bis}"
 landdetail.regel.arbeitsschutz: "{regel} (seit {seit}): Löhne {aufschlag} % höher"
 landdetail.regel.verbot_beides: "{regel} (seit {seit}): Herstellung und Verkauf verboten – {produkte}"

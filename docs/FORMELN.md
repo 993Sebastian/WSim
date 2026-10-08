@@ -5000,3 +5000,46 @@ Eine KI-Firma meldet einen Anspruch im Monat nach der Erfindung an – über den
 in den Ländern ihrer Standorte und in den `ki_groesste_maerkte` Ländern mit dem größten
 BIP (Bevölkerung · BIP je Kopf), soweit die Kasse für alle reicht; sonst nur in ihren
 Standortländern, sonst gar nicht.
+
+## H3 – Rüstung
+
+Lastenheft §6.5. Parameter: `data/parameter/ruestung.yaml`; Güter: `data/ketten/49_ruestung.yaml`.
+
+### Militärausgaben und Kriegsstärke
+
+Je Land eine Zeitreihe der Militärausgaben als Anteil am BIP, `m(Land, Jahr)` (vor 1949
+nach Correlates of War und Wirtschaftsgeschichte, danach SIPRI; Länder ohne eigene Reihe
+mit der Standardreihe). Daraus je Monat die **Kriegsstärke**
+
+    w = clamp((m − frieden) / (krieg − frieden), 0, 1)
+
+(`frieden` 6 %, `krieg` 30 % des BIP): 0 im Frieden und im Kalten Krieg der meisten
+Länder, 1 in den Weltkriegen der kriegführenden Länder, dazwischen z. B. Sowjetunion um
+1980 (15 %) ≈ 0,4, USA im Koreakrieg (14 %) ≈ 0,3.
+
+### Staatsnachfrage
+
+- **Kriegswichtige Güter** (`staatsnachfrage.kriegsfaktor` k, seit M7 in den Daten):
+
+      Staatsbedarf = Bedarf je BIP · BIP · (1 + (k − 1) · w)
+
+  Damit ersetzt H3 die pauschalen Kriegsaufschläge der Staatsnachfrage aus H1 (Weltkriege:
+  Staat ×1,8–2,5 für acht Warengruppen); die Kürzungen der Verbrauchernachfrage aus H1
+  bleiben.
+- **Rüstungsgüter** (`staatsnachfrage.ruestung: true`, Warengruppe „ruestung“): nur der
+  Staat kauft. Der Bedarf je BIP gilt bei Militärausgaben von `bezug` (3 % des BIP) und
+  folgt ihnen:
+
+      Staatsbedarf = Bedarf je BIP · BIP · m / bezug
+
+  Ein Weltkriegsland (m ≈ 40–60 %) kauft so das 13- bis 20-Fache, ein Land mit 1 %
+  ein Drittel.
+- Wie jede Staatsnachfrage kaufen die Staaten bis zur Preisobergrenze und von der KI wie
+  vom Spieler; Händler bringen Rüstungsgüter in andere Länder (keine Ausfuhrkontrolle).
+
+### Güter
+
+Munition, Gewehr, Geschütz (bekannt seit dem 19. Jahrhundert), Panzer (1916),
+Jagdflugzeug (1915), Kampfjet (1949, löst das Jagdflugzeug ab), Lenkwaffe (1956). Die
+Bedarfe je BIP teilen rund 0,5 % des BIP bei 3 % Militärausgaben auf die Güter auf
+(Beschaffung rund ein Sechstel der Militärausgaben).

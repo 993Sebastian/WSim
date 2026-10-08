@@ -1656,6 +1656,26 @@ zehn Branchenpakete P1a–P5). 🟡 Eigenständig entschieden:
    die vorhandenen Prüfungen (`validate` mit Richtpreis-Margen, `rezepte`) statt eigener
    Regeln.
 
+✅ **H3 umgesetzt** (Rüstung; Lastenheft §6.5; Regeln: `docs/FORMELN.md`, Abschnitt H3;
+Format: `docs/DATENFORMAT.md`, `ruestung`). 🟡 Eigenständig entschieden:
+
+1. **Krieg aus den Militärausgaben:** Kriegsstärke 0 bis 6 % des BIP, 1 ab 30 %, dazwischen
+   linear – keine eigene Kriegsliste. Die Sowjetunion (13–15 % im Kalten Krieg), Nordkorea
+   (15 %), Israel und Irak in ihren Kriegen liegen dazwischen.
+2. **Ersatz der H1-Kriegsnachfrage:** Die sechs pauschalen Staatsnachfragen der Weltkriege
+   in den Ereignissen entfallen; stattdessen wirkt der `kriegsfaktor` jedes Guts (seit M7 in
+   den Daten) mit der Kriegsstärke. Kürzungen der Verbrauchernachfrage bleiben Ereignisse.
+3. **Sieben Rüstungsgüter**, nur Staatsbedarf, der den Militärausgaben folgt (Bezug 3 % des
+   BIP, zusammen rund 0,5 % des BIP); Richtpreise aus Herstellkosten mit rund 30 % Marge statt
+   historischer Preise, damit die Plausibilitätsprüfung hält.
+4. **Keine Ausfuhrkontrolle:** Händler bringen Rüstungsgüter in jedes Land, Embargos aus H1
+   gelten wie für alle Güter.
+5. **Militärausgaben** für 34 Länder und Regionen geschätzt (Correlates of War,
+   Wirtschaftsgeschichte, SIPRI; gerundet); die früheren Sowjetrepubliken folgen bis 1991 der
+   Sowjetunion, die Ukraine ab 2022 mit 30–34 %.
+6. **Kriegsmangel bleibt:** Die KI baut im Krieg nicht schneller aus; Munition ist in den
+   Weltkriegen knapp und teuer. Keine Sonderregel, eine Gelegenheit für den Spieler.
+
 ✅ **P7 umgesetzt** (Patente und Lizenzen; Lastenheft §7.2; Regeln: `docs/FORMELN.md`,
 Abschnitt P7; vorgezogen vor H3 und die Branchenpakete). 🟡 Eigenständig entschieden:
 

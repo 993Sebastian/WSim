@@ -92,8 +92,36 @@ pub struct Catalog {
     /// Emissions, retrofitting, CO2 price, antitrust, image (H2); without the section
     /// none of it applies.
     pub environment: EnvironmentModel,
+    /// Military expenditure and war intensity (H3); disabled without the section.
+    pub armament: ArmamentModel,
     /// Regulations by country and date, sorted by date (H2).
     pub regulations: Vec<Regulation>,
+}
+
+/// Military expenditure and war intensity (H3, docs/FORMELN.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ArmamentModel {
+    pub enabled: bool,
+    /// Military expenditure as a share of GDP by country and year.
+    pub military_share: CountrySeries,
+    /// Shares up to which there is no war and from which the war factor applies fully.
+    pub peace: f64,
+    pub war: f64,
+    /// Share at which the state demand of armament goods is as in the data.
+    pub reference: f64,
+    pub provenance: Provenance,
+}
+
+impl ArmamentModel {
+    /// Military share of GDP and war intensity (0–1) of a country in a year.
+    pub fn at(&self, country: CountryId, year: f64) -> (f64, f64) {
+        if !self.enabled {
+            return (0.0, 0.0);
+        }
+        let share = self.military_share.value(country, year);
+        let span = (self.war - self.peace).max(1e-9);
+        (share, ((share - self.peace) / span).clamp(0.0, 1.0))
+    }
 }
 
 /// Environment and regulation (H2).
@@ -2791,6 +2819,8 @@ pub struct StateDemand {
     pub war_factor: f64,
     /// Factor over time on the demand per GDP (M39); none means 1.
     pub index: Option<TimeSeries>,
+    /// Armament good (H3): only the state buys, following the military expenditure.
+    pub armament: bool,
 }
 
 impl StateDemand {

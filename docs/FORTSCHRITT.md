@@ -92,7 +92,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ✅ |
 | H2 | Regulierung und Umwelt: Emissionen, CO₂-Preis, Auflagen und Nachrüstung, Arbeitsschutz, Verbote, Kartellaufsicht, Markenbild | ✅ |
 | P0 | Vorbereitung der Produktbreite: Weltläufe ohne Spielerabhängigkeit, Leistung, Suche/Filter, Datenwerkzeug | ✅ (Wunsch vom 08.10.2026: P1–P5 als P0 und zehn Branchenpakete P1a–P5) |
-| H3 | Rüstung | ⏳ |
+| H3 | Rüstung: Militärausgaben und Kriegsstärke je Land, Kriegsfaktor der Staatsnachfrage, sieben Rüstungsgüter | ✅ |
 | P1a–P5 | Produktbreite in zehn Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
@@ -1160,6 +1160,31 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### H3: Rüstung (08.10.2026)
+
+Stufe 4, Lastenheft §6.5. Regeln: `docs/FORMELN.md`, Abschnitt H3; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P (H3). Geschätzt 7–8 Stunden.
+
+- **Daten:** `parameter/ruestung.yaml` mit Militärausgaben in % des BIP für 34 Länder und
+  Regionen 1900–2026 (Standardreihe für die übrigen), Kriegsstärke zwischen 6 % und 30 %;
+  Kette 49 „Rüstung“: Munition (Salpeter, ab 1913 Ammoniak), Gewehre, Geschütze, Panzer
+  (1916), Jagdflugzeuge (1915), Kampfjets (1944, lösen Jagdflugzeuge ab), Lenkwaffen (1956)
+  mit Anlagen, Technologien und Texten; Prüfregeln und Fehlerfall-Test.
+- **Kern:** Länderwerte `military_share`, `war_intensity`; Staatsbedarf der Rüstungsgüter
+  folgt den Militärausgaben, der `kriegsfaktor` aller anderen Güter wirkt mit der
+  Kriegsstärke. Die pauschalen Krieg-Staatsnachfragen der Ereignisse (sechs Wirkungen der
+  Weltkriege) sind dadurch ersetzt.
+- **Oberfläche:** Länderdetail „Rüstung“ (Militärausgaben, Kriegswirtschaft oder Frieden).
+- **Weltlauf 1900–2026** (`run --nur-welt --ki 20 --welt --bericht --protokoll`): läuft
+  durch (37 min); 2026: 219 KI-Firmen, davon 121 pleite, 3 035 Standorte. Rüstungsgüter
+  werden von 4–8 Firmen je Gut hergestellt; 2000 und 2026 sind ihre Märkte gedeckt
+  (Preise nahe Richtpreis). In den Weltkriegen fehlt Kapazität: Munition 1916–1944 nur zu
+  9–27 % gedeckt, Panzer und Jagdflugzeuge 1943/44 zu 20–40 %, Preise bis 1,6 × Richtpreis
+  – eine Gelegenheit für den Spieler. Kampfjets und Lenkwaffen haben bis in die 1960er Jahre
+  keinen Hersteller.
+- **Tests:** Kern (Kriegsstärke, Kriegsfaktor, Rüstungsbedarf), Datenprüfung, vitest
+  (Länderdetail), Playwright.
 
 ### P7: Patente und Lizenzen (08.10.2026)
 

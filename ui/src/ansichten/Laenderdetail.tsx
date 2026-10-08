@@ -255,6 +255,22 @@ export function Laenderdetail({
             </>
           )}
 
+          {(land.military_share ?? 0) > 0 && (
+            <>
+              <h3>{t("landdetail.ruestung")}</h3>
+              <p>
+                {t("landdetail.militaerausgaben", {
+                  anteil: formatProzent(land.military_share ?? 0),
+                })}{" "}
+                {(land.war_intensity ?? 0) > 0
+                  ? t("landdetail.kriegswirtschaft", {
+                      staerke: formatProzent(land.war_intensity ?? 0),
+                    })
+                  : t("landdetail.frieden")}
+              </p>
+            </>
+          )}
+
           <h3>{t("landdetail.arbeitskraefte")}</h3>
           <div className="tabelle">
             <table>

@@ -1,0 +1,347 @@
+# Kette 49 – Rüstung (H3, Lastenheft §6.5)
+# Stahl, Salpeter oder Ammoniak → Munition; Stahl, Schnittholz → Gewehr; Stahl → Geschütz;
+# Stahl, Motor → Panzer; Flugmotor, Aluminium → Jagdflugzeug; Strahltriebwerk → Kampfjet;
+# Transistoren, Aluminium → Lenkwaffe. Nur der Staat kauft: der Bedarf je BIP gilt bei
+# Militärausgaben von 3 % des BIP und folgt ihnen (docs/FORMELN.md, H3). Zusammen rund
+# 0,5 % des BIP bei 3 % Militärausgaben.
+# Alle Zahlen sind Annäherungen; Preise in Kaufkraft 2026.
+
+produkte:
+  - id: munition
+    art: endprodukt
+    branche: ruestung
+    einheit: t                    # Artilleriegranaten und Patronen
+    gewicht_kg: 1000
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 3_300   # Herstellkosten um 1900 mit 30 % Marge
+    staatsnachfrage:
+      je_mio_usd_bip: 0.45 # 0,15 % des BIP
+      ruestung: true
+    annaeherung: true
+
+  - id: gewehr
+    art: endprodukt
+    branche: ruestung
+    einheit: stueck
+    gewicht_kg: 4.5
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 350   # Herstellkosten um 1900 mit 30 % Marge
+    staatsnachfrage:
+      je_mio_usd_bip: 0.57 # 0,02 % des BIP
+      ruestung: true
+    annaeherung: true
+
+  - id: geschuetz
+    art: endprodukt
+    branche: ruestung
+    einheit: stueck               # Feldkanone mit Rohrrücklauf
+    gewicht_kg: 1500
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 65_000
+    staatsnachfrage:
+      je_mio_usd_bip: 0.0077 # 0,05 % des BIP
+      ruestung: true
+    annaeherung: true
+
+  - id: panzer
+    art: endprodukt
+    branche: ruestung
+    einheit: stueck
+    gewicht_kg: 30_000
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 390_000   # Herstellkosten 1916 mit 30 % Marge
+    staatsnachfrage:
+      je_mio_usd_bip: 0.0026 # 0,1 % des BIP
+      ruestung: true
+    sehr_komplex: true
+    annaeherung: true
+
+  - id: jagdflugzeug
+    art: endprodukt
+    branche: luftfahrt
+    einheit: stueck
+    gewicht_kg: 3000
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 315_000
+    staatsnachfrage:
+      je_mio_usd_bip: 0.0038 # 0,12 % des BIP
+      ruestung: true
+    sehr_komplex: true
+    annaeherung: true
+
+  - id: kampfjet
+    art: endprodukt
+    branche: luftfahrt
+    einheit: stueck
+    gewicht_kg: 12_000
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 5_700_000   # Löhne von 1944; heutige Kampfjets 80 Mio. USD
+    ersetzt: [jagdflugzeug]
+    staatsnachfrage:
+      je_mio_usd_bip: 0.00021 # 0,12 % des BIP
+      ruestung: true
+    sehr_komplex: true
+    annaeherung: true
+
+  - id: lenkwaffe
+    art: endprodukt
+    branche: ruestung
+    einheit: stueck               # Luft-Luft- oder Flugabwehrrakete
+    gewicht_kg: 90
+    verwendung: industrie
+    warengruppe: ruestung
+    transportklasse: stueckgut
+    richtpreis_usd: 25_000
+    staatsnachfrage:
+      je_mio_usd_bip: 0.02 # 0,05 % des BIP
+      ruestung: true
+    sehr_komplex: true
+    annaeherung: true
+
+anlagen:
+  - id: munitionsfabrik           # Granaten pressen, drehen, füllen
+    standorttyp: werk
+    investition_usd: 8_000_000
+    bauzeit_tage: 270
+    kapazitaet_je_tag: 20
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    annaeherung: true
+
+  - id: gewehrfabrik
+    standorttyp: werk
+    investition_usd: 5_000_000
+    bauzeit_tage: 240
+    kapazitaet_je_tag: 100
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.5
+    annaeherung: true
+
+  - id: geschuetzwerk             # Rohre schmieden und bohren, Lafetten
+    standorttyp: werk
+    investition_usd: 20_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 1
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    annaeherung: true
+
+  - id: panzerwerk
+    standorttyp: werk
+    investition_usd: 60_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 0.5
+    lebensdauer_jahre: 25
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.3
+    technologie: panzer
+    annaeherung: true
+
+  - id: militaerflugzeugwerk
+    standorttyp: werk
+    investition_usd: 40_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 0.5
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    technologie: jagdflugzeug
+    annaeherung: true
+
+  - id: kampfjetwerk
+    standorttyp: werk
+    investition_usd: 300_000_000
+    bauzeit_tage: 540
+    kapazitaet_je_tag: 0.1
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.2
+    technologie: duesenjaeger
+    annaeherung: true
+
+  - id: lenkwaffenwerk
+    standorttyp: werk
+    investition_usd: 50_000_000
+    bauzeit_tage: 360
+    kapazitaet_je_tag: 5
+    lebensdauer_jahre: 20
+    wartung_je_jahr: 0.04
+    automatisierung_max: 0.4
+    technologie: lenkflugkoerper
+    annaeherung: true
+
+rezepte:
+  - id: munition_salpeter
+    produkt: munition
+    menge: 1
+    dauer_tage: 1
+    anlage: munitionsfabrik
+    eingang:
+      stahl: 0.8
+      kupfer: 0.03                # Führungsbänder
+      chilesalpeter: 0.6          # Schwarzpulver und Nitrosprengstoffe
+    arbeit_stunden:
+      angelernt: 60
+      fachkraft.metall: 15
+      fachkraft.chemie: 5
+    qualitaet_basis: 50
+    annaeherung: true
+
+  - id: munition_ammoniak
+    produkt: munition
+    menge: 1
+    dauer_tage: 1
+    anlage: munitionsfabrik
+    technologie: haber_bosch
+    eingang:
+      stahl: 0.8
+      kupfer: 0.03
+      ammoniak: 0.25              # Salpetersäure aus Ammoniak (Ostwald)
+    arbeit_stunden:
+      angelernt: 60
+      fachkraft.metall: 15
+      fachkraft.chemie: 5
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: gewehr_bauen
+    produkt: gewehr
+    menge: 1
+    dauer_tage: 1
+    anlage: gewehrfabrik
+    eingang:
+      stabstahl: 0.005
+      schnittholz: 0.003
+    arbeit_stunden:
+      angelernt: 12
+      fachkraft.metall: 8
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: geschuetz_bauen
+    produkt: geschuetz
+    menge: 1
+    dauer_tage: 5
+    anlage: geschuetzwerk
+    eingang:
+      stahl: 1.8
+      stabstahl: 0.4
+    arbeit_stunden:
+      angelernt: 1500
+      fachkraft.maschinenbau: 1500
+      akademiker.maschinenbau: 30
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: panzer_bauen
+    produkt: panzer
+    menge: 1
+    dauer_tage: 20
+    anlage: panzerwerk
+    technologie: panzer
+    eingang:
+      stahl: 22
+      motor: 1
+      kupferdraht: 0.05
+    arbeit_stunden:
+      angelernt: 8000
+      fachkraft.maschinenbau: 8000
+      akademiker.maschinenbau: 200
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: jagdflugzeug_bauen
+    produkt: jagdflugzeug
+    menge: 1
+    dauer_tage: 20
+    anlage: militaerflugzeugwerk
+    technologie: jagdflugzeug
+    eingang:
+      flugmotor: 1
+      aluminium: 1.2
+      stahl: 0.4
+    arbeit_stunden:
+      angelernt: 4000
+      fachkraft.maschinenbau: 6000
+      akademiker.maschinenbau: 200
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: kampfjet_bauen
+    produkt: kampfjet
+    menge: 1
+    dauer_tage: 60
+    anlage: kampfjetwerk
+    technologie: duesenjaeger
+    eingang:
+      strahltriebwerk: 1
+      aluminium: 5
+      stahl: 1
+    arbeit_stunden:
+      angelernt: 40_000
+      fachkraft.maschinenbau: 60_000
+      akademiker.maschinenbau: 5000
+    qualitaet_basis: 55
+    annaeherung: true
+
+  - id: lenkwaffe_bauen
+    produkt: lenkwaffe
+    menge: 1
+    dauer_tage: 5
+    anlage: lenkwaffenwerk
+    technologie: lenkflugkoerper
+    eingang:
+      aluminium: 0.04
+      transistor: 200
+      ammoniak: 0.01
+      stahl: 0.02
+    arbeit_stunden:
+      angelernt: 300
+      fachkraft.elektro: 400
+      akademiker.elektro: 40
+    qualitaet_basis: 55
+    annaeherung: true
+
+technologien:
+  - id: panzer                    # Mark I an der Somme
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1916
+    voraussetzungen: [ottomotor]
+    forschungsaufwand: 15000
+    annaeherung: true
+
+  - id: jagdflugzeug              # Fokker E.I mit synchronisiertem MG
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1915
+    voraussetzungen: [flugmotor]
+    forschungsaufwand: 10000
+    annaeherung: true
+
+  - id: duesenjaeger              # Me 262, Gloster Meteor; Großserie ab 1949
+    fachgebiet: maschinenbau
+    erfindungsjahr: 1944
+    voraussetzungen: [strahltriebwerk, jagdflugzeug]
+    forschungsaufwand: 50000
+    annaeherung: true
+
+  - id: lenkflugkoerper           # AIM-9 Sidewinder, Nike Ajax
+    fachgebiet: elektro
+    erfindungsjahr: 1956
+    voraussetzungen: [transistor, strahltriebwerk]
+    forschungsaufwand: 40000
+    annaeherung: true

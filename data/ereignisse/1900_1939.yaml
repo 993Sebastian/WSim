@@ -127,7 +127,6 @@ ereignisse:
       - {art: handelssperre, laender: [GBR, FRA, RUS, ITA, BEL, JPN, CAN, AUS, NZL, ZAF, IND, XWB, ROU, GRC], gegen: [DEU, AUT, HUN, TUR, BGR], bis: "1919-07-12"}
       - {art: arbeitskraefte, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], faktor: 0.8, bis: "1918-11-11"}
       - {art: nachfrage, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.5, bis: "1918-11-11"}
-      - {art: nachfrage, laender: [DEU, AUT, HUN, FRA, GBR, RUS, ITA, BEL, TUR, BGR], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2, bis: "1918-11-11"}
       - {art: zerstoerung, laender: [BEL, POL, XWB], anteil: 0.15}
       - {art: zerstoerung, laender: [FRA], anteil: 0.05}
 
@@ -145,7 +144,6 @@ ereignisse:
     wirkungen:
       - {art: handelssperre, gegen: [DEU, AUT, HUN], bis: "1919-07-14"}
       - {art: arbeitskraefte, faktor: 0.92, bis: "1918-11-11"}
-      - {art: nachfrage, warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 1.8, bis: "1918-11-11"}
 
   - id: oktoberrevolution
     datum: "1917-11-07"
@@ -287,5 +285,4 @@ ereignisse:
       - {art: handelssperre, laender: [GBR, FRA, POL, CAN, AUS, NZL, ZAF, IND], gegen: [DEU], bis: "1945-05-08"}
       - {art: arbeitskraefte, laender: [DEU, GBR, FRA, POL], faktor: 0.75, bis: "1945-05-08"}
       - {art: nachfrage, laender: [DEU, GBR, FRA, POL, CAN, AUS, NZL, ZAF], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.4, bis: "1945-08-15"}
-      - {art: nachfrage, laender: [DEU, GBR, FRA, POL, CAN, AUS, NZL, ZAF], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-08-15"}
       - {art: zerstoerung, laender: [POL], anteil: 0.3}

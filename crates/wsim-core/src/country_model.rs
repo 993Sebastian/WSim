@@ -62,6 +62,11 @@ pub struct CountryState {
     /// the values (prices ask for it thousands of times a day).
     #[serde(default)]
     pub price_factors: [f64; 5],
+    /// Military expenditure as a share of GDP and war intensity 0–1 (H3).
+    #[serde(default)]
+    pub military_share: f64,
+    #[serde(default)]
+    pub war_intensity: f64,
 }
 
 /// Point in time for the yearly data: values apply to the middle of the year.
@@ -85,6 +90,7 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
     let year = f64::from(date.year());
     let v = &country.values;
 
+    let (military_share, war_intensity) = catalog.armament.at(id, t);
     let population = v.population.value_at(t);
     let gdp = v.gdp_per_capita_usd.value_at(t).max(1.0);
     let gini = v.gini.value_at(t).clamp(0.01, 0.95);
@@ -230,6 +236,8 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
         price_factors: std::array::from_fn(|kind| {
             math::pow(price_level, catalog.market_model.price_level_share[kind])
         }),
+        military_share,
+        war_intensity,
     }
 }
 

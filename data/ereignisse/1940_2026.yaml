@@ -30,7 +30,6 @@ ereignisse:
       - {art: zerstoerung, laender: [UKR, BLR], anteil: 0.4}
       - {art: zerstoerung, laender: [RUS, XBA], anteil: 0.15}
       - {art: arbeitskraefte, laender: [RUS, UKR, BLR], faktor: 0.7, bis: "1945-05-08"}
-      - {art: nachfrage, laender: [RUS, UKR, BLR, KAZ, XKA, UZB], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-05-08"}
       - {art: nachfrage, laender: [RUS, UKR, BLR, KAZ, XKA, UZB], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.3, bis: "1945-05-08"}
 
   - id: pearl_harbor
@@ -43,7 +42,6 @@ ereignisse:
       - {art: handelssperre, laender: [USA], gegen: [DEU, ITA], bis: "1945-05-08"}
       - {art: nachfrage, laender: [USA], warengruppen: [fahrzeuge], konsum: 0.1, bis: "1945-08-15"}
       - {art: nachfrage, laender: [USA], warengruppen: [elektro, moebel_hausrat], konsum: 0.4, bis: "1945-08-15"}
-      - {art: nachfrage, laender: [USA, JPN], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 2.5, bis: "1945-08-15"}
       - {art: nachfrage, laender: [JPN], warengruppen: [fahrzeuge, elektro, moebel_hausrat], konsum: 0.3, bis: "1945-09-02"}
       - {art: arbeitskraefte, laender: [USA], faktor: 0.85, bis: "1945-08-15"}
       - {art: arbeitskraefte, laender: [JPN], faktor: 0.75, bis: "1945-09-02"}
@@ -158,7 +156,6 @@ ereignisse:
     wirkungen:
       - {art: zerstoerung, laender: [KOR, PRK], anteil: 0.4}
       - {art: handelssperre, laender: [USA], gegen: [CHN], bis: "1971-06-10"}
-      - {art: nachfrage, laender: [USA], warengruppen: [eisen_stahl, fahrzeuge, gummi, mineraloel, bekleidung, chemie, metallwaren, nichteisenmetalle], staat: 1.4, bis: "1953-07-27"}
 
   - id: montanunion
     datum: "1951-04-18"

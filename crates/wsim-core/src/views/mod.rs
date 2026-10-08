@@ -1217,6 +1217,11 @@ pub struct CountryDetail {
     pub regulations: Vec<MessageView>,
     #[serde(default)]
     pub co2_price_usd: f64,
+    /// Military expenditure as a share of GDP and war intensity 0–1 (H3).
+    #[serde(default)]
+    pub military_share: f64,
+    #[serde(default)]
+    pub war_intensity: f64,
 }
 
 /// Import tariffs of a country (W3).
@@ -1491,6 +1496,8 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
             .map(message_view)
             .collect(),
         co2_price_usd: crate::regulation::co2_price(catalog, id, state.date),
+        military_share: state.countries.get(id).military_share,
+        war_intensity: state.countries.get(id).war_intensity,
     })
 }
 

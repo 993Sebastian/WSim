@@ -680,6 +680,13 @@ es mir?“
   (1920–1939, 1940–1964, 1965–1989, ab 1990); vorher stand alles ab 1920 in einer
   Spalte, mit den Epochen bis 1989 gut zwanzig Technologien untereinander.
 
+### Länderdetail: Rüstung (H3)
+
+- Abschnitt „Rüstung“: Militärausgaben in % des BIP und, ob das Land in Kriegswirtschaft
+  ist (Stärke in %) – dann kauft der Staat kriegswichtige Güter in größerer Menge; sonst
+  „Frieden“. Rüstungsgüter (Munition, Gewehre, Geschütze, Panzer, Jagdflugzeuge, Kampfjets,
+  Lenkwaffen) kauft nur der Staat; sie erscheinen im Markt wie andere Güter.
+
 ### Forschung → Patente (P7)
 
 - **Was der Spieler erkennen soll:** welche eigenen Erfindungen er noch patentieren kann

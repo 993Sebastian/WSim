@@ -539,6 +539,7 @@ fn state_demand_follows_its_profile_over_time() {
     let demand = StateDemand {
         per_million_gdp: 0.5,
         war_factor: 1.0,
+        armament: false,
         index: Some(TimeSeries::new(vec![(1900, 1.0), (1910, 3.0)]).unwrap()),
     };
     let mid = Date::new(1905, 1, 1).unwrap();
@@ -751,4 +752,61 @@ fn a_successor_displaces_the_state_demand() {
         Some(1901.0)
     );
     assert!((left(&game, 1901.0 + years / 2.0) - 0.5).abs() < 0.01);
+}
+
+/// H3: armament goods follow the military expenditure, war-relevant goods rise with the
+/// war intensity.
+#[test]
+fn state_demand_follows_military_expenditure_and_war() {
+    use crate::catalog::{ArmamentModel, CountrySeries};
+    use crate::time_series::TimeSeries;
+    let rate = |share: Option<f64>, war_factor: f64, armament: bool| {
+        let mut catalog = test_support::production();
+        if let Some(share) = share {
+            catalog.armament = ArmamentModel {
+                enabled: true,
+                military_share: CountrySeries {
+                    default: Some(TimeSeries::new(vec![(1890, share), (2100, share)]).unwrap()),
+                    countries: Vec::new(),
+                },
+                peace: 0.06,
+                war: 0.30,
+                reference: 0.03,
+                provenance: Default::default(),
+            };
+        }
+        let iron = catalog.products.id("eisen").unwrap();
+        let demand = catalog
+            .products
+            .get_mut(iron)
+            .state_demand
+            .as_mut()
+            .unwrap();
+        demand.war_factor = war_factor;
+        demand.armament = armament;
+        let mut game = game_with(catalog);
+        day(&mut game);
+        let country = game.state().countries.get(aaa(&game)).clone();
+        (
+            game.state().markets.get(iron).get(aaa(&game)).state_rate,
+            country.war_intensity,
+        )
+    };
+    let (plain, _) = rate(None, 3.0, false);
+    assert!(plain > 0.0);
+    // Peace: no war factor.
+    let (peace, w) = rate(Some(0.03), 3.0, false);
+    assert_eq!(w, 0.0);
+    assert!((peace / plain - 1.0).abs() < 1e-9);
+    // Half way to full war: 1 + (3 − 1) · 0.5 = 2.
+    let (half, w) = rate(Some(0.18), 3.0, false);
+    assert!((w - 0.5).abs() < 1e-9, "{w}");
+    assert!((half / plain - 2.0).abs() < 1e-9, "{half} {plain}");
+    // Full war beyond the war level.
+    let (full, w) = rate(Some(0.6), 3.0, false);
+    assert_eq!(w, 1.0);
+    assert!((full / plain - 3.0).abs() < 1e-9);
+    // Armament goods: share / reference, no war factor.
+    let (arms, _) = rate(Some(0.06), 1.0, true);
+    assert!((arms / plain - 2.0).abs() < 1e-9, "{arms} {plain}");
 }

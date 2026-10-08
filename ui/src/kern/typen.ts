@@ -368,6 +368,9 @@ export interface Landdetail {
   /** Regulations in force (H2) and the CO₂ price in USD per t. */
   regulations?: Meldung[];
   co2_price_usd?: number;
+  /** Military expenditure as a share of GDP and war intensity 0–1 (H3). */
+  military_share?: number;
+  war_intensity?: number;
 }
 
 /** Import tariffs of a country (W3). */

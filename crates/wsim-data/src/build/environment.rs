@@ -2,7 +2,9 @@
 //! H2).
 
 use wsim_core::calendar::Date;
-use wsim_core::catalog::{Catalog, EnvironmentModel, Regulation, RegulationKind, RetrofitLevel};
+use wsim_core::catalog::{
+    ArmamentModel, Catalog, EnvironmentModel, Regulation, RegulationKind, RetrofitLevel,
+};
 use wsim_core::ids::{CountryId, ProductId};
 
 use super::events::parse_date;
@@ -19,6 +21,63 @@ const KINDS: &[(&str, &[&str])] = &[
     ("verbot", &["produkte", "herstellung", "verkauf"]),
     ("kartellaufsicht", &[]),
 ];
+
+/// Military expenditure and war intensity (`ruestung`, H3); armament goods need it and
+/// take no war factor.
+pub(super) fn armament_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> ArmamentModel {
+    let model = match raw.armament.split_first() {
+        None => ArmamentModel::default(),
+        Some((entry, rest)) => {
+            let first = ctx.describe(&entry.loc);
+            for other in rest {
+                ctx.error(&other.loc, messages::section_duplicate("ruestung", &first));
+            }
+            let v = &entry.value;
+            let l = &entry.loc;
+            let peace = in_range(ctx, v.peace, 0.0, 1.0, &l.field("frieden"));
+            let war = in_range(ctx, v.war, 0.0, 1.0, &l.field("krieg"));
+            if war <= peace {
+                ctx.error(
+                    &l.field("krieg"),
+                    messages::armament_war_not_above_peace(peace, war),
+                );
+            }
+            ArmamentModel {
+                enabled: true,
+                military_share: country_series(
+                    ctx,
+                    catalog,
+                    &v.military_share,
+                    &l.field("militaerausgaben"),
+                    (0.0, 1.0),
+                ),
+                peace,
+                war,
+                reference: in_range(ctx, v.reference, 0.001, 1.0, &l.field("bezug")),
+                provenance: provenance(v.approximation, v.source.as_ref()),
+            }
+        }
+    };
+    for entry in &raw.products {
+        let Some(d) = &entry.value.state_demand else {
+            continue;
+        };
+        if !d.armament {
+            continue;
+        }
+        let loc = entry.loc.field("staatsnachfrage");
+        if !model.enabled {
+            ctx.error(&loc.field("ruestung"), messages::armament_without_section());
+        }
+        if (d.war_factor - 1.0).abs() > 1e-12 {
+            ctx.error(
+                &loc.field("kriegsfaktor"),
+                messages::armament_with_war_factor(),
+            );
+        }
+    }
+    model
+}
 
 pub(super) fn environment_model(
     ctx: &mut Ctx,
