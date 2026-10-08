@@ -22,7 +22,7 @@ management:
     - id: forschung
       themen: [forschung, weiterentwicklung]
     - id: finanzen
-      themen: [kasse, umschuldung]
+      themen: [kasse, umschuldung, dividende]
     - id: strategie
       themen: [kaufangebot, antwort, startup]
     - id: recht
@@ -63,7 +63,7 @@ management:
                      finanzen, strategie, recht],
        themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,
                 lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,
-                umschuldung, gehaltsrunde, startup]}
+                umschuldung, gehaltsrunde, startup, dividende]}
 
   # Mindestbudget in Jahresgehältern des Managers: je Entscheidung und je Jahr.
   budget_sockel_gehaelter: {entscheidung: 1, jahr: 3}

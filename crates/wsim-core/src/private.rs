@@ -640,6 +640,14 @@ pub(crate) fn receive_loan(state: &mut GameState, repayment: Money, interest: Mo
     }
 }
 
+/// A dividend to the person, the withholding tax already kept back (PE4).
+pub(crate) fn receive_dividend(state: &mut GameState, gross: Money, tax: Money) {
+    book(&mut state.person, PrivateFlow::Dividend, gross);
+    if tax > Money::ZERO {
+        book(&mut state.person, PrivateFlow::DividendTax, -tax);
+    }
+}
+
 /// The salary of the month as CEO of the main company, booked as personnel costs of the
 /// board on the month's last day; from the founding by days.
 pub(crate) fn pay_salary(state: &mut GameState, last: Date) {

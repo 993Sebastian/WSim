@@ -120,6 +120,7 @@ finanzmodell:
   beleihung: 0.6
   dispo: {anteil: 0.1, aufschlag: 0.06}
   laufzeit_max_jahre: 30
+  dividende: {reserve_monate_min: 3, konzern_anteil: 0.5, quote_min: 0.2, quote_max: 0.6, kasse_monate: 4}
 ";
 
 const MARKT: &str = "\
@@ -1729,6 +1730,43 @@ fn finanzmodell_wird_geprueft() {
 }
 
 #[test]
+fn dividenden_werden_geprueft() {
+    let datei = "parameter/finanzmodell.yaml";
+    let gut = Daten::neu().laden();
+    let m = &gut.data.as_ref().unwrap().catalog.finance_model.dividends;
+    assert_eq!(m.group_share, 0.5);
+    assert_eq!(m.payout_max, 0.6);
+    for (alt, neu, meldung, pfad) in [
+        (
+            "konzern_anteil: 0.5",
+            "konzern_anteil: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "finanzmodell.dividende.konzern_anteil",
+        ),
+        (
+            "quote_min: 0.2",
+            "quote_min: 0.8",
+            "„quote_min“ muss kleiner als „quote_max“ sein.",
+            "finanzmodell.dividende",
+        ),
+        (
+            "kasse_monate: 4",
+            "kasse_monate: -1",
+            "Wert -1 liegt außerhalb des erlaubten Bereichs 0 bis 60.",
+            "finanzmodell.dividende.kasse_monate",
+        ),
+    ] {
+        let outcome = Daten::neu().ersetze(datei, alt, neu).laden();
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    let ohne = Daten::neu()
+        .ersetze(datei, "  dividende: {reserve_monate_min: 3, konzern_anteil: 0.5, quote_min: 0.2, quote_max: 0.6, kasse_monate: 4}\n", "")
+        .laden();
+    befund(&ohne, "Pflichtfeld „dividende“ fehlt.");
+}
+
+#[test]
 fn marktmodell_wird_geprueft() {
     let outcome = Daten::neu().ohne("parameter/marktmodell.yaml").laden();
     befund(&outcome, "Abschnitt „marktmodell“ fehlt");
@@ -2858,7 +2896,7 @@ fn management_wird_geprueft() {
 
     let d = basis().ersetze(
         datei,
-        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen, strategie, recht],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,\n                umschuldung, gehaltsrunde, startup]}\n",
+        "    - {id: vorstand, pruefung_tage: 30, gehalt_fach: 10, gehalt_leitung: 15,\n       budget_fach: [0.03, 0.08], budget_leitung: [0.08, 0.20],\n       fachstellen: [produktion, einkauf_lager, vertrieb_marketing, personal, forschung,\n                     finanzen, strategie, recht],\n       themen: [ueberkapazitaet, stillgelegt, wiederanfahren, ausbau, kraftwerk,\n                lagerstaette, werbung, kasse, kaufangebot, antwort, engpass, lizenz,\n                umschuldung, gehaltsrunde, startup, dividende]}\n",
         "",
     );
     befund(&d.laden(), "Eintrag für Ebene „vorstand“ fehlt.");
@@ -4024,10 +4062,6 @@ boerse:
     anteil_max: 0.4
     abschlag: 0.15
     kosten_anteil: 0.05
-  dividende:
-    monat: 5
-    ki_quote: 0.4
-    kasse_max: 0.5
   handel:
     aufschlag: 0.02
     abschlag: 0.02
@@ -4063,7 +4097,6 @@ fn boerse_wird_geprueft() {
     assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
     let m = &gut.data.as_ref().unwrap().catalog.stock;
     assert!(m.enabled);
-    assert_eq!(m.dividend_month, 5);
     assert_eq!(m.earnings_months, 24);
 
     for (alt, neu, meldung, pfad) in [

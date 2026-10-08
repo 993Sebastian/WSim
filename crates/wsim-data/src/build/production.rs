@@ -398,6 +398,33 @@ pub(super) fn finance_model(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog:
             &overdraft.field("aufschlag"),
         ),
         max_term_years: m.max_term_years,
+        dividends: dividend_model(ctx, &m.dividends, &l.field("dividende")),
+    }
+}
+
+/// Dividends (PE4): reserve, group privilege, payout range of AI and CEO.
+fn dividend_model(
+    ctx: &mut Ctx,
+    d: &crate::raw::RawDividends,
+    l: &crate::read::Loc,
+) -> wsim_core::catalog::DividendModel {
+    let payout_min = in_range(ctx, d.payout_min, 0.0, 1.0, &l.field("quote_min"));
+    let payout_max = in_range(ctx, d.payout_max, 0.0, 1.0, &l.field("quote_max"));
+    if payout_min > payout_max {
+        ctx.error(l, messages::range_inverted("quote_min", "quote_max"));
+    }
+    wsim_core::catalog::DividendModel {
+        reserve_months_min: in_range(
+            ctx,
+            d.reserve_months_min,
+            0.0,
+            60.0,
+            &l.field("reserve_monate_min"),
+        ),
+        group_share: in_range(ctx, d.group_share, 0.0, 1.0, &l.field("konzern_anteil")),
+        payout_min,
+        payout_max,
+        cash_months: in_range(ctx, d.cash_months, 0.0, 60.0, &l.field("kasse_monate")),
     }
 }
 

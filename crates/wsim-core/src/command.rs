@@ -116,8 +116,15 @@ pub enum Command {
     GoPublic { share: f64 },
     /// New shares of a listed company.
     IssueShares { share: f64 },
-    /// The share of last year's profit paid out as a dividend.
+    /// The share of last year's profit paid out as a dividend (K1; since PE4 a short
+    /// form of `SetDividendPolicy`).
     SetDividend { payout: f64 },
+    /// The dividend policy of the company (PE4).
+    SetDividendPolicy {
+        policy: crate::dividends::DividendPolicy,
+    },
+    /// A dividend paid at once (PE4).
+    SpecialDividend { amount: Money },
     /// Buys a share of a listed company from its free float.
     BuyShares { company: CompanyId, share: f64 },
     /// Sells a share of a listed company to investors.
@@ -720,6 +727,10 @@ pub enum CommandError {
     },
     /// Only while the person holds all shares.
     NotSoleOwner,
+    /// More than the retained earnings or the cash above the reserve (PE4).
+    DividendTooHigh {
+        max: Money,
+    },
 }
 
 impl CommandError {
@@ -935,6 +946,9 @@ impl CommandError {
                 e(keys::COMMAND_WITHDRAWAL_TOO_HIGH).with("max", Param::Money(*max))
             }
             CommandError::NotSoleOwner => e(keys::COMMAND_NOT_SOLE_OWNER),
+            CommandError::DividendTooHigh { max } => {
+                e(keys::COMMAND_DIVIDEND_TOO_HIGH).with("max", Param::Money(*max))
+            }
             CommandError::ExtensionTooLong { max } => {
                 e(keys::COMMAND_EXTENSION_TOO_LONG).with("jahre", integer(usize::from(*max)))
             }
@@ -1663,8 +1677,16 @@ fn run(
         Command::IssueShares { share } => {
             crate::stock::issue_shares(state, catalog, actor, *share)?;
         }
-        Command::SetDividend { payout } => {
-            crate::stock::set_dividend(state, catalog, actor, *payout)?;
+        Command::SetDividend { payout } => crate::dividends::set_policy(
+            state,
+            actor,
+            crate::dividends::DividendPolicy::Share(*payout),
+        )?,
+        Command::SetDividendPolicy { policy } => {
+            crate::dividends::set_policy(state, actor, *policy)?;
+        }
+        Command::SpecialDividend { amount } => {
+            crate::dividends::special(state, catalog, actor, *amount)?;
         }
         Command::BuyShares { company, share } => {
             crate::stock::buy(state, catalog, actor, *company, *share)?;

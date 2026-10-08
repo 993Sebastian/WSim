@@ -14,3 +14,15 @@ finanzmodell:
     anteil: 0.1                 # Kontoüberziehung bis 10 % der Bilanzsumme
     aufschlag: 0.06             # Zins: Leitzins + Aufschlag
   laufzeit_max_jahre: 30
+  # Dividenden aller Firmen (PE4, docs/FORMELN.md): ausgezahlt am Ende des Januars aus dem
+  # Vorjahr. Die Kasse behält mindestens reserve_monate_min Monate laufender Kosten (die
+  # Strategie „Reserve“ gilt, wenn sie höher ist). Hält eine Firma über konzern_anteil, fließt
+  # ihr Anteil ohne Quellensteuer in ihre Rücklagen. KI-Firmen ohne eigene Politik und der
+  # Vorschlag eines CEO: quote_max (vorsichtig) bis quote_min (angriffslustig, risikofreudig)
+  # des Jahresüberschusses, nichts unter kasse_monate Monaten laufender Kosten in der Kasse.
+  dividende:
+    reserve_monate_min: 3
+    konzern_anteil: 0.5
+    quote_min: 0.2
+    quote_max: 0.6
+    kasse_monate: 4

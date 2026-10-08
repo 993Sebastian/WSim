@@ -105,6 +105,7 @@ pub(super) fn decode_v2(
                 subsidiary_of: None,
                 listing: None,
                 dividend_payout: None,
+                dividend: Default::default(),
                 stock_cost: Default::default(),
                 bonds: Vec::new(),
                 bank: None,

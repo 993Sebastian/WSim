@@ -1,9 +1,9 @@
 import { useId, useState } from "react";
-import { formatGeld, formatProzent, formatZahl, landName, zahlFeld, zahlLesen } from "../format";
+import { formatGeld, formatProzent, formatZahl, landName } from "../format";
 import type { AktienKurs, Boerse, BoersenFirma, EigeneNotierung, Kern } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
-import { Rueckmeldung, useAktion, useSicht, ZahlFeld } from "./gemeinsam";
+import { Rueckmeldung, useAktion, useSicht } from "./gemeinsam";
 import { Verlauf } from "./Grafik";
 
 /** A share with one decimal ("12,5 %"). */
@@ -97,46 +97,24 @@ function Ausgabe({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) {
   );
 }
 
-/** The share of last year's profit the company pays out. */
-function Dividende({ own, onNeu }: { own: EigeneNotierung; onNeu: () => void }) {
-  const { los, antwort } = useAktion("boerse-dividende");
+/** What the company pays out (PE4): set in the strategy, shown here for the shareholders. */
+function Dividende({ own }: { own: EigeneNotierung }) {
   const id = useId();
-  const [quote, setQuote] = useState(zahlFeld(own.payout * 100, 0));
-  const n = zahlLesen(quote);
   return (
     <section aria-labelledby={`${id}-titel`}>
       <h3 id={`${id}-titel`}>{t("boerse.dividende")}</h3>
       <p className="feld-hilfe">
         {t("boerse.dividende_hilfe", {
-          monat: t(`monat.${own.dividend_month}`),
           gewinn: formatGeld(own.profit_last_year_usd),
           betrag: formatGeld(own.dividend_estimate_usd),
         })}
       </p>
-      <div className="formular-zeile">
-        <ZahlFeld
-          name={t("boerse.ausschuettungsquote")}
-          einheit="%"
-          wert={quote}
-          onWert={(text) => setQuote(text)}
-        />
-        <button
-          type="button"
-          disabled={n === null || n < 0 || n > 100}
-          onClick={() =>
-            void los([{ SetDividend: { payout: (n ?? 0) / 100 } }]).then((ok) => ok && onNeu())
-          }
-        >
-          {t("boerse.festlegen")}
-        </button>
-      </div>
       <p className="gedaempft">
         {t("boerse.dividende_bisher", {
           letzte: formatGeld(own.last_dividend_usd),
           privat: formatGeld(own.player_dividends_usd),
         })}
       </p>
-      <Rueckmeldung meldung={antwort} />
     </section>
   );
 }
@@ -227,7 +205,7 @@ function EigeneFirma({ daten, onNeu }: { daten: Boerse; onNeu: () => void }) {
           {own.listed && <Eigner own={own} />}
           <div className="raster">
             <Ausgabe key={`${own.listed}`} own={own} onNeu={onNeu} />
-            {own.listed && <Dividende own={own} onNeu={onNeu} />}
+            {own.listed && <Dividende own={own} />}
             {own.listed && <Rueckkauf own={own} onNeu={onNeu} />}
           </div>
         </>

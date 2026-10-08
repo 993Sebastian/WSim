@@ -128,6 +128,66 @@ pub struct StrategyView {
     pub sale_countries: Vec<String>,
     /// The policy „Beteiligungen“ (ZA2).
     pub participations: super::ParticipationsView,
+    /// The dividend policy (PE4).
+    pub dividend: DividendView,
+}
+
+/// The dividend policy of the player's company and what it means now (PE4).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct DividendView {
+    /// `anteil` or `betrag`.
+    pub kind: String,
+    /// The share of the net profit (0 with a fixed amount).
+    pub share: f64,
+    /// The amount per year (0 with a share).
+    pub amount_usd: f64,
+    /// Set by the player or the CEO; otherwise the default of 0 %.
+    pub own: bool,
+    /// The last closed year and its net profit after tax; none in the first year.
+    pub year: Option<i32>,
+    pub profit_usd: f64,
+    /// What the policy wants for the closed year and what could be paid today.
+    pub wanted_usd: f64,
+    pub payable_usd: f64,
+    pub distributable_usd: f64,
+    pub reserve_usd: f64,
+    /// Withholding tax of the headquarters' country.
+    pub tax: f64,
+    /// The person's share of the company.
+    pub person_share: f64,
+    /// The last payout: year and amount.
+    pub last: Option<(i32, f64)>,
+    /// A CEO proposes the dividend at the year's start.
+    pub ceo: bool,
+}
+
+fn dividend(game: &Game) -> DividendView {
+    use crate::dividends::{self, DividendPolicy};
+    let (state, catalog) = (game.state(), game.catalog());
+    let id = game.player();
+    let c = &state.companies[id.index()];
+    let policy = dividends::policy(c);
+    let (kind, share, amount) = match policy.unwrap_or(DividendPolicy::Share(0.0)) {
+        DividendPolicy::Share(q) => ("anteil", q, 0.0),
+        DividendPolicy::Amount(a) => ("betrag", 0.0, usd(a)),
+    };
+    let payable = dividends::payable(catalog, state, id);
+    DividendView {
+        kind: kind.into(),
+        share,
+        amount_usd: amount,
+        own: policy.is_some(),
+        year: (!c.ledger.years.is_empty()).then(|| state.date.year() - 1),
+        profit_usd: usd(dividends::year_profit(c)),
+        wanted_usd: usd(dividends::wanted(catalog, state, id)),
+        payable_usd: usd(payable),
+        distributable_usd: usd(dividends::distributable(c)),
+        reserve_usd: usd(dividends::reserve(catalog, state, id)),
+        tax: state.countries.get(c.headquarters).dividend_tax,
+        person_share: crate::person::share(state, id),
+        last: c.dividend.last.map(|(y, m)| (y, usd(m))),
+        ceo: management::ceo_of(state, id).is_some(),
+    }
 }
 
 fn unit_text(catalog: &Catalog, product: ProductId) -> String {
@@ -436,5 +496,6 @@ pub fn strategy(game: &Game) -> StrategyView {
         sale_products,
         sale_countries,
         participations: super::participations(game),
+        dividend: dividend(game),
     }
 }

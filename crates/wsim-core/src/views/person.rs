@@ -318,6 +318,8 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::LoanRepaid => "privat.tilgung",
         PrivateFlow::LoanInterest => "privat.darlehenszins",
         PrivateFlow::CapitalRepaid => "privat.rueckzahlung",
+        PrivateFlow::Dividend => "privat.dividende",
+        PrivateFlow::DividendTax => "privat.quellensteuer",
     }
 }
 

@@ -222,8 +222,12 @@ pub mod keys {
     pub const COMMAND_NOT_ENOUGH_STOCK: &str = "fehler.befehl.zu_wenig_aktien";
     pub const STOCK_CRISIS: &str = "meldung.boerse.krise";
     pub const STOCK_WRITTEN_OFF: &str = "meldung.boerse.abgeschrieben";
-    pub const STOCK_DIVIDEND_PAID: &str = "meldung.boerse.dividende_gezahlt";
-    pub const STOCK_DIVIDEND_RECEIVED: &str = "meldung.boerse.dividende_erhalten";
+    pub const DIVIDEND_PAID: &str = "meldung.dividende.gezahlt";
+    pub const DIVIDEND_RECEIVED: &str = "meldung.dividende.erhalten";
+    pub const DIVIDEND_PERSON: &str = "meldung.dividende.privat";
+    pub const DIVIDEND_CUT: &str = "meldung.dividende.gekuerzt";
+    pub const DIVIDEND_CEO_SET: &str = "meldung.dividende.ceo";
+    pub const COMMAND_DIVIDEND_TOO_HIGH: &str = "fehler.befehl.dividende_zu_hoch";
     pub const COMMAND_NO_BANKS: &str = "fehler.befehl.keine_banken";
     pub const COMMAND_NOT_A_BANK: &str = "fehler.befehl.keine_bank";
     pub const COMMAND_INVALID_BANK_SETTINGS: &str = "fehler.befehl.bank_werte";
@@ -328,6 +332,8 @@ pub mod keys {
     pub const STEP_REFINANCE: &str = "schritt.umschulden";
     pub const STEP_INVEST: &str = "schritt.beteiligen";
     pub const STEP_RAISE: &str = "schritt.gehalt_erhoehen";
+    pub const STEP_DIVIDEND_SHARE: &str = "schritt.dividende_anteil";
+    pub const STEP_DIVIDEND_AMOUNT: &str = "schritt.dividende_betrag";
     pub const BECAUSE_REFINANCE: &str = "anliegen.begruendung.umschuldung";
     pub const BECAUSE_VENTURE: &str = "anliegen.begruendung.startup";
     pub const BECAUSE_SALARY_ROUND: &str = "anliegen.begruendung.gehaltsrunde";
@@ -600,8 +606,12 @@ pub mod keys {
         COMMAND_NOT_ENOUGH_STOCK,
         STOCK_CRISIS,
         STOCK_WRITTEN_OFF,
-        STOCK_DIVIDEND_PAID,
-        STOCK_DIVIDEND_RECEIVED,
+        DIVIDEND_PAID,
+        DIVIDEND_RECEIVED,
+        DIVIDEND_PERSON,
+        DIVIDEND_CUT,
+        DIVIDEND_CEO_SET,
+        COMMAND_DIVIDEND_TOO_HIGH,
         COMMAND_NO_BANKS,
         COMMAND_NOT_A_BANK,
         COMMAND_INVALID_BANK_SETTINGS,
@@ -701,6 +711,8 @@ pub mod keys {
         STEP_REFINANCE,
         STEP_INVEST,
         STEP_RAISE,
+        STEP_DIVIDEND_SHARE,
+        STEP_DIVIDEND_AMOUNT,
         BECAUSE_REFINANCE,
         BECAUSE_VENTURE,
         BECAUSE_SALARY_ROUND,

@@ -1706,6 +1706,34 @@ export interface Strategie {
   sale_countries: string[];
   /** The policy „Beteiligungen“ (ZA2). */
   participations: Beteiligungen;
+  /** The dividend policy (PE4). */
+  dividend: Dividendenpolitik;
+}
+
+/** The dividend policy of the company and what it means now (PE4). */
+export interface Dividendenpolitik {
+  kind: "anteil" | "betrag";
+  /** Share of the net profit (0 with a fixed amount). */
+  share: number;
+  /** Amount per year (0 with a share). */
+  amount_usd: number;
+  /** Set by the player or the CEO; otherwise the default of 0 %. */
+  own: boolean;
+  /** The last closed year; null in the first year. */
+  year: number | null;
+  profit_usd: number;
+  /** What the policy wants for the closed year and what could be paid today. */
+  wanted_usd: number;
+  payable_usd: number;
+  distributable_usd: number;
+  reserve_usd: number;
+  /** Withholding tax of the headquarters' country. */
+  tax: number;
+  person_share: number;
+  /** The last payout: year and amount. */
+  last: [number, number] | null;
+  /** A CEO proposes the dividend at the year's start. */
+  ceo: boolean;
 }
 
 /** A rule for traders or other companies buying the company's goods (M8). */
@@ -2235,7 +2263,6 @@ export interface EigeneNotierung {
   buyback: AktienKurs[];
   owners: Eigner[];
   payout: number;
-  dividend_month: number;
   profit_last_year_usd: number;
   dividend_estimate_usd: number;
   last_dividend_usd: number;

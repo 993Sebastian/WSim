@@ -193,6 +193,7 @@ Ein einziger Abschnitt (in `parameter/finanzmodell.yaml`); Formeln in `docs/FORM
 | **beleihung** | Anteil der Sachwerte, bis zu dem Banken Kredit geben (0–1) |
 | **dispo** | `anteil` der Bilanzsumme als Kreditlinie, `aufschlag` auf den Leitzins |
 | **laufzeit_max_jahre** | Längste Kreditlaufzeit |
+| **dividende** | Dividenden aller Firmen (PE4): `reserve_monate_min` (0–60: die Kasse behält so viele Monate laufender Kosten), `konzern_anteil` (0–1: darüber bekommt eine Firma ihren Anteil steuerfrei in die Rücklagen), `quote_min`, `quote_max` (0–1, min ≤ max: Anteil am Jahresüberschuss, den angriffslustige bzw. vorsichtige KI-Firmen und CEOs vorschlagen), `kasse_monate` (0–60: darunter schlagen KI und CEO nichts vor) |
 
 ## marktmodell
 
@@ -466,7 +467,6 @@ abgelehnt. Ein Abschnitt `boerse` mit:
 | **traegheit** | 0–1: Anteil der Lücke zwischen Börsenwert und Ziel (logarithmisch), der sich je Monat schließt |
 | **rauschen** | 0–1: eigene Schwankung je Firma und Monat |
 | **boersengang** | `eigenkapital_min_usd` (≥ 0), `anteil_max` (0,01–0,9: höchstens so viele neue Aktien auf einmal), `abschlag` (0–1: Zeichnungsabschlag auf den Wert), `kosten_anteil` (0–1: Banken und Prospekt, Anteil am Erlös) |
-| **dividende** | `monat` (1–12: Zahltag), `ki_quote` (0–1: Ausschüttungsquote der KI-Firmen), `kasse_max` (0–1: höchstens dieser Anteil der Kasse) |
 | **handel** | `aufschlag`, `abschlag` (je 0–1: auf den Börsenwert beim Kauf bzw. Verkauf), `preiswirkung` (0–5: Kurswirkung je gehandeltem Anteil), `anteil_max` (0–1: so viel einer anderen Firma darf eine Firma über die Börse halten; darüber nur mit einem Übernahmeangebot) |
 | **uebernahme** | `aufschlag` (0–5: Übernahmeprämie über dem Börsenwert), `kosten_anteil` (0–1: Banken und Berater, Anteil am Kaufpreis) (K3) |
 

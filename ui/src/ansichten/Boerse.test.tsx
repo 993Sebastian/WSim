@@ -102,7 +102,7 @@ describe("Börse", () => {
     expect(screen.queryByRole("button", { name: "An die Börse gehen" })).toBeNull();
   });
 
-  it("geht an die Börse und legt die Dividende fest", async () => {
+  it("geht an die Börse und zeigt die Dividende", async () => {
     const gesendet = await zeige((d) => {
       d.own.equity_usd = d.own.equity_min_usd * 2;
     });
@@ -117,10 +117,9 @@ describe("Börse", () => {
       d.own.listed = true;
     });
     expect(screen.getByRole("heading", { name: "Kapitalerhöhung" })).toBeTruthy();
-    fireEvent.change(screen.getByLabelText(/Ausschüttungsquote/), { target: { value: "30" } });
-    fireEvent.click(screen.getByRole("button", { name: "Festlegen" }));
-    await screen.findByText("Erledigt.");
-    expect(danach).toEqual([{ SetDividend: { payout: 0.3 } }]);
+    // The policy is set in the strategy (PE4); here it is only shown.
+    expect(screen.getByText(/Organisation → Strategie/)).toBeTruthy();
+    expect(danach).toEqual([]);
   });
 
   it("bietet für eine Firma und kauft eigene Aktien zurück", async () => {

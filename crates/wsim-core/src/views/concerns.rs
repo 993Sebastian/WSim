@@ -170,6 +170,7 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Participations => "beteiligung",
         ConcernReason::Retirement => "ruhestand",
         ConcernReason::Vacancy => "unbesetzt",
+        ConcernReason::Dividend => "dividende",
     }
 }
 
@@ -427,6 +428,14 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                     Param::TextKey(format!("startup.phase.{}", phase.key)),
                 )
         }
+        Command::SetDividendPolicy { policy } => match *policy {
+            crate::dividends::DividendPolicy::Share(q) => {
+                m(keys::STEP_DIVIDEND_SHARE).with("anteil", Param::Number((q * 100.0).round()))
+            }
+            crate::dividends::DividendPolicy::Amount(a) => {
+                m(keys::STEP_DIVIDEND_AMOUNT).with("betrag", Param::Money(a))
+            }
+        },
         Command::RaiseSalary { manager, salary } => {
             let x = state.managers.get(manager)?;
             m(keys::STEP_RAISE)

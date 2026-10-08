@@ -390,9 +390,13 @@ pub struct Company {
     /// The company's shares on the stock market (K1).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub listing: Option<crate::stock::Listing>,
-    /// Share of last year's profit paid out; `None`: the default of its kind.
+    /// Share of last year's profit paid out, as set before PE4; `dividend` holds the
+    /// policy since.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dividend_payout: Option<f64>,
+    /// Dividend policy and last payout (PE4).
+    #[serde(default, skip_serializing_if = "crate::dividends::Dividends::is_empty")]
+    pub dividend: crate::dividends::Dividends,
     /// What the company paid for the shares it holds of other companies.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub stock_cost: BTreeMap<CompanyId, Money>,
@@ -571,6 +575,8 @@ pub enum ConcernReason {
     Retirement,
     /// A manager died; his position is free (PE1).
     Vacancy,
+    /// The CEO proposes the year's dividend (PE4).
+    Dividend,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -1902,6 +1908,10 @@ pub enum PrivateFlow {
     LoanInterest,
     /// Capital a company paid back.
     CapitalRepaid,
+    /// Dividends before the withholding tax (PE4).
+    Dividend,
+    /// The withholding tax on them.
+    DividendTax,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by

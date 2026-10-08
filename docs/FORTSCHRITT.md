@@ -87,7 +87,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE1 | Alter der Manager, Ruhestand, Nachfolge | ✅ |
 | PE2 | Spielerfigur: Person, Familie, Rollen | ✅ |
 | PE3 | Privatkonto und Spielstart ohne Firma | ✅ |
-| PE4 | Dividenden | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE4 | Dividenden | ✅ |
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ⏳ als Nächstes (`docs/PERSON.md`) |
 
@@ -1040,6 +1040,22 @@ Vorgabe `docs/PERSON.md` §6–8. Regeln: `docs/FORMELN.md`, Abschnitt PE3; Ents
   Spielstände, Wiederholung aus dem Journal, Abweisungen), Sitzung, Datenprüfung, vitest,
   Playwright (Start ohne Firma, Gründung, gesperrte Reiter); Testpartie als Gründer
   1900–1915 (`docs/OFFENE_PUNKTE.md`, PE3 Punkt 10).
+
+### PE4: Dividenden (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §7. Regeln: `docs/FORMELN.md`, Abschnitt PE4; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P (PE4).
+
+- **Daten:** `finanzmodell.dividende` (Reserve, Konzernanteil, Quoten, Kassenmonate) mit
+  Prüfregeln und Fehlerfall-Test; `boerse.dividende` entfällt.
+- **Kern:** Modul `dividends`: Politik je Firma (Anteil oder Betrag), Auszahlung Ende Januar
+  innerhalb von Rücklagen und Liquiditätsreserve, Verteilung nach Anteil mit Quellensteuer
+  und Konzernprivileg, Privatkonto der Person, Sonderausschüttung, Vorschlag des CEO als
+  Anliegen (Thema „dividende“), KI nach Charakter.
+- **Oberfläche:** Abschnitt „Dividendenpolitik“ in der Strategie; die Börse zeigt nur noch an.
+- **Tests:** Kern (Verteilung und Steuer, Kürzung, Verlust, Sonderausschüttung, Prüfung,
+  KI nach Charakter, knappe Kasse, CEO-Anliegen mit Fristablauf und Wahl, Spielstand),
+  Datenprüfung, vitest, Playwright; Weltlauf 1900–1930 und Benchmark 1 000 KI-Firmen.
 
 ## Eigenständige Entscheidungen (für das Review)
 

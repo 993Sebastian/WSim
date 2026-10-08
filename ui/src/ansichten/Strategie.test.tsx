@@ -237,4 +237,34 @@ describe("Strategie", () => {
     expect(within(formular).getByText(/zwischen 0 und 100 %/)).toBeTruthy();
     expect(gesendet).toHaveLength(1);
   });
+
+  it("legt die Dividendenpolitik fest (PE4)", async () => {
+    const { gesendet } = await strategieOeffnen();
+    const bereich = screen.getByRole("region", { name: "Dividendenpolitik" });
+    expect(within(bereich).getByText(/Noch ist kein Geschäftsjahr abgeschlossen/)).toBeTruthy();
+    // Nothing to distribute yet: no special dividend.
+    expect(
+      (within(bereich).getByRole("button", { name: "Ausschütten" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    const formular = within(bereich).getByRole("form", { name: "Politik" });
+    fireEvent.change(within(formular).getByLabelText("Anteil"), { target: { value: "40" } });
+    fireEvent.click(within(formular).getByRole("button", { name: "Politik festlegen" }));
+    await screen.findByText("Die Dividendenpolitik gilt ab der nächsten Ausschüttung.");
+    fireEvent.click(within(formular).getByLabelText("Fester Betrag im Jahr"));
+    fireEvent.change(within(formular).getByLabelText("Betrag im Jahr"), {
+      target: { value: "50000" },
+    });
+    fireEvent.click(within(formular).getByRole("button", { name: "Politik festlegen" }));
+    await screen.findAllByText("Die Dividendenpolitik gilt ab der nächsten Ausschüttung.");
+    expect(gesendet).toEqual([
+      { SetDividendPolicy: { policy: { Share: 0.4 } } },
+      { SetDividendPolicy: { policy: { Amount: 50_000 * 10_000 } } },
+    ]);
+    // A share beyond 100 % is refused before it is sent.
+    fireEvent.click(within(formular).getByLabelText("Anteil am Jahresüberschuss"));
+    fireEvent.change(within(formular).getByLabelText("Anteil"), { target: { value: "150" } });
+    fireEvent.click(within(formular).getByRole("button", { name: "Politik festlegen" }));
+    expect(within(bereich).getByText(/zwischen 0 und 100 %/)).toBeTruthy();
+    expect(gesendet).toHaveLength(2);
+  });
 });

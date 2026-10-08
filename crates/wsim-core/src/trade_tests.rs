@@ -121,6 +121,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
         subsidiary_of: None,
         listing: None,
         dividend_payout: None,
+        dividend: Default::default(),
         stock_cost: Default::default(),
         bonds: Vec::new(),
         bank: None,

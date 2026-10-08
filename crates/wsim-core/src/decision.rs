@@ -51,10 +51,12 @@ pub enum Topic {
     Venture,
     /// The successor of a manager who retires or died (PE1).
     Succession,
+    /// The CEO's proposal of the year's dividend (PE4).
+    Dividend,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 25] = [
+    pub const ALL: [Topic; 26] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -80,6 +82,7 @@ impl Topic {
         Topic::SalaryRound,
         Topic::Venture,
         Topic::Succession,
+        Topic::Dividend,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -113,6 +116,7 @@ impl Topic {
             Topic::SalaryRound => "gehaltsrunde",
             Topic::Venture => "startup",
             Topic::Succession => "nachfolge",
+            Topic::Dividend => "dividende",
         }
     }
 }

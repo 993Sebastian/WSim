@@ -458,9 +458,6 @@ pub struct StockModel {
     pub ipo_share_max: f64,
     pub ipo_discount: f64,
     pub ipo_cost_share: f64,
-    pub dividend_month: u32,
-    pub ai_payout: f64,
-    pub dividend_cash_max: f64,
     pub trade_premium: f64,
     pub trade_discount: f64,
     pub trade_impact: f64,
@@ -2172,6 +2169,34 @@ pub struct FinanceModel {
     pub overdraft_share: f64,
     pub overdraft_premium: f64,
     pub max_term_years: u32,
+    pub dividends: DividendModel,
+}
+
+/// Dividends of all companies (PE4, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DividendModel {
+    /// The cash keeps at least so many months of running costs.
+    pub reserve_months_min: f64,
+    /// Above this share a holding company gets dividends free of tax into its reserves.
+    pub group_share: f64,
+    /// Share of the profit an aggressive AI company or a risk-loving CEO pays out.
+    pub payout_min: f64,
+    /// Share of the profit a cautious one pays out.
+    pub payout_max: f64,
+    /// Below so many months of running costs in cash AI and CEO propose nothing.
+    pub cash_months: f64,
+}
+
+impl Default for DividendModel {
+    fn default() -> Self {
+        Self {
+            reserve_months_min: 3.0,
+            group_share: 0.5,
+            payout_min: 0.2,
+            payout_max: 0.6,
+            cash_months: 4.0,
+        }
+    }
 }
 
 impl Default for FinanceModel {
@@ -2184,6 +2209,7 @@ impl Default for FinanceModel {
             overdraft_share: 0.1,
             overdraft_premium: 0.06,
             max_term_years: 30,
+            dividends: DividendModel::default(),
         }
     }
 }

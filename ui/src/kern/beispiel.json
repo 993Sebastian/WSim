@@ -2992,7 +2992,6 @@
       "buyback": [],
       "discount": 0.15,
       "dividend_estimate_usd": 0.0,
-      "dividend_month": 5,
       "equity_min_usd": 2000000.0,
       "equity_usd": 76750.8059,
       "free_float": 0.0,
@@ -42113,7 +42112,23 @@
         "site": 0,
         "sites": 1
       }
-    ]
+    ],
+    "dividend": {
+      "amount_usd": 0.0,
+      "ceo": false,
+      "distributable_usd": 0.0,
+      "kind": "anteil",
+      "last": null,
+      "own": false,
+      "payable_usd": 0.0,
+      "person_share": 1.0,
+      "profit_usd": 0.0,
+      "reserve_usd": 70205.274,
+      "share": 0.0,
+      "tax": 0.06888888888888889,
+      "wanted_usd": 0.0,
+      "year": null
+    }
   },
   "uebersicht": {
     "company": {

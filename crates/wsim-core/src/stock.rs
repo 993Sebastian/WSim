@@ -197,29 +197,6 @@ pub fn issue_proceeds(before: Money, share: f64) -> Money {
     before.scale(share / (1.0 - share))
 }
 
-/// The dividend a company would pay now on last year's profit.
-pub fn dividend(catalog: &Catalog, company: &Company) -> Money {
-    let m = &catalog.stock;
-    let quote = company.dividend_payout.unwrap_or(if company.ai.is_some() {
-        m.ai_payout
-    } else {
-        0.0
-    });
-    let profit = company
-        .ledger
-        .years
-        .last()
-        .map(|y| y.by_type.values().copied().sum::<Money>())
-        .unwrap_or_default();
-    profit.max(Money::ZERO).scale(quote).min(
-        company
-            .ledger
-            .cash()
-            .max(Money::ZERO)
-            .scale(m.dividend_cash_max),
-    )
-}
-
 fn add_share(owners: &mut Vec<Stake>, holder: Holder, share: f64) {
     match owners.iter_mut().find(|s| s.holder == holder) {
         Some(s) => s.share += share,
@@ -360,23 +337,6 @@ fn sell_new_shares(c: &mut Company, proceeds: Money, cost_share: f64) {
         c.ledger
             .expense(CostType::Other, CostCenter::default(), Account::Cash, cost);
     }
-}
-
-/// The share of last year's profit the company pays out.
-pub(crate) fn set_dividend(
-    state: &mut GameState,
-    catalog: &Catalog,
-    actor: CompanyId,
-    payout: f64,
-) -> Result<(), CommandError> {
-    if !catalog.stock.enabled {
-        return Err(CommandError::NoStockMarket);
-    }
-    if !(payout.is_finite() && (0.0..=1.0).contains(&payout)) {
-        return Err(CommandError::ShareOutOfRange { max: 1.0 });
-    }
-    state.companies[actor.index()].dividend_payout = Some(payout);
-    Ok(())
 }
 
 /// Buys share q of a listed company from its free float.
@@ -768,8 +728,8 @@ pub(crate) fn ai_takeover(
         .map(|(_, i)| company_id(i))
 }
 
-/// At the start of a month: sentiment and crises, market values and the index,
-/// dividends in the dividend month, failed listed companies written off. Returns the
+/// At the start of a month: sentiment and crises, market values and the index, failed
+/// listed companies written off (dividends: `dividends`, PE4). Returns the
 /// messages for the player.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let m = &catalog.stock;
@@ -828,9 +788,6 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         state.stock.index_history.remove(0);
     }
     news.extend(delist_failures(state));
-    if date.month() == m.dividend_month {
-        news.extend(dividends(state, catalog));
-    }
     news
 }
 
@@ -872,61 +829,6 @@ fn delist_failures(state: &mut GameState) -> Vec<Message> {
                 );
             }
         }
-    }
-    news
-}
-
-/// The yearly dividends of the listed companies.
-fn dividends(state: &mut GameState, catalog: &Catalog) -> Vec<Message> {
-    let mut news = Vec::new();
-    let player = state.main_company;
-    let mut received = Money::ZERO;
-    for i in 0..state.companies.len() {
-        let c = &state.companies[i];
-        if c.bankrupt || c.listing.is_none() {
-            continue;
-        }
-        let amount = dividend(catalog, c);
-        if amount <= Money::ZERO {
-            continue;
-        }
-        let owners = c.owners.clone();
-        let c = &mut state.companies[i];
-        c.ledger
-            .transfer(Account::RetainedEarnings, Account::Cash, amount);
-        if let Some(l) = c.listing.as_mut() {
-            l.last_dividend = amount;
-        }
-        if Some(company_id(i)) == player {
-            news.push(
-                Message::new(MessageKind::Info, keys::STOCK_DIVIDEND_PAID)
-                    .with("betrag", Param::Money(amount)),
-            );
-        }
-        for s in owners {
-            let part = amount.scale(s.share);
-            match s.holder {
-                Holder::Company(h) => {
-                    state.companies[h.index()].ledger.income(
-                        CostType::Investments,
-                        CostCenter::default(),
-                        Account::Cash,
-                        part,
-                    );
-                    if Some(h) == player {
-                        received += part;
-                    }
-                }
-                Holder::Player => state.stock.player_dividends += part,
-                Holder::Private | Holder::Investors => {}
-            }
-        }
-    }
-    if received > Money::ZERO {
-        news.push(
-            Message::new(MessageKind::Info, keys::STOCK_DIVIDEND_RECEIVED)
-                .with("betrag", Param::Money(received)),
-        );
     }
     news
 }

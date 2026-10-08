@@ -667,6 +667,8 @@ pub struct RawFinanceModel {
     pub overdraft: RawOverdraft,
     #[serde(rename = "laufzeit_max_jahre")]
     pub max_term_years: u32,
+    #[serde(rename = "dividende")]
+    pub dividends: RawDividends,
 }
 
 #[derive(Debug, Deserialize)]
@@ -2717,8 +2719,6 @@ pub struct RawStockMarket {
     pub noise: f64,
     #[serde(rename = "boersengang")]
     pub ipo: RawIpo,
-    #[serde(rename = "dividende")]
-    pub dividend: RawDividend,
     #[serde(rename = "handel")]
     pub trading: RawTrading,
     #[serde(rename = "uebernahme")]
@@ -2772,13 +2772,17 @@ pub struct RawIpo {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct RawDividend {
-    #[serde(rename = "monat")]
-    pub month: u32,
-    #[serde(rename = "ki_quote")]
-    pub ai_payout: f64,
-    #[serde(rename = "kasse_max")]
-    pub cash_max: f64,
+pub struct RawDividends {
+    #[serde(rename = "reserve_monate_min")]
+    pub reserve_months_min: f64,
+    #[serde(rename = "konzern_anteil")]
+    pub group_share: f64,
+    #[serde(rename = "quote_min")]
+    pub payout_min: f64,
+    #[serde(rename = "quote_max")]
+    pub payout_max: f64,
+    #[serde(rename = "kasse_monate")]
+    pub cash_months: f64,
 }
 
 #[derive(Debug, Deserialize)]

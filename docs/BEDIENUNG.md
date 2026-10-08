@@ -690,8 +690,8 @@ Kosten der Banken und deinem Anteil danach und die Schaltfläche „An die Börs
 Danach: Börsenwert, Kurs, dein Anteil und der Streubesitz, die Eigner deiner Firma (du,
 Anleger, Gründer, andere Firmen), die Kapitalerhöhung (gleiche Auswahl; Schritte, die dich
 die Mehrheit kosten, heißen „ohne Mehrheit“ und zeigen eine rote Warnung), die Dividende
-mit Ausschüttungsquote in Prozent, Zahlmonat, Vorjahresgewinn und dem Betrag, den die
-jetzige Quote ergäbe, und der Aktienrückkauf (bis 10 % der Aktien mit Preis). Hältst du
+mit Vorjahresgewinn und dem Betrag, den die Dividendenpolitik heute ergäbe (festgelegt wird
+sie seit PE4 unter Organisation → Strategie), und der Aktienrückkauf (bis 10 % der Aktien mit Preis). Hältst du
 nicht mehr die Mehrheit, warnt die Ansicht rot: Eine andere Firma kann deine Firma dann
 übernehmen, und die Partie endet.
 
@@ -704,6 +704,25 @@ Namen zeigt darunter Eigenkapital, Gewinn je Jahr (Durchschnitt zweier Jahre), l
 den Wert nach Eigenkapital und Gewinn ohne die Stimmung der Anleger, deinen Bestand, den
 Börsenwert der letzten 24 Monate und „Übernehmen für …“: ein Übernahmeangebot für alle
 übrigen Aktien; die Firma wird deine Tochter (Organisation → Tochterfirmen).
+
+### Organisation → Strategie: Dividendenpolitik (PE4)
+
+Frage: „Wie viel vom Gewinn behält die Firma, wie viel bekommen ihre Eigner – und ich?“
+
+- Unter den Beteiligungen der Abschnitt „Dividendenpolitik“ (ⓘ erklärt Zahltag, Grenzen,
+  Quellensteuer und Konzernprivileg). Oben der Stand: Jahresüberschuss des Vorjahres und was
+  die Politik daraus macht, Gewinnrücklagen, Liquiditätsreserve und was die Firma heute
+  höchstens ausschütten kann, die letzte Ausschüttung. Mit CEO der Hinweis, dass er zum
+  Jahresbeginn einen Vorschlag als Anliegen schickt.
+- Formular „Politik“: „Anteil am Jahresüberschuss“ (0–100 %) oder „Fester Betrag im Jahr“,
+  „Politik festlegen“. Standard sind 0 %.
+- „Sonderausschüttung“: Betrag mit Höchstwert im Hinweis, „Ausschütten“ zahlt sofort;
+  gesperrt, solange nichts ausschüttbar ist.
+- Anliegen „Dividende“ (Postfach): „beibehalten“ (Betrag nach der Politik) oder „anpassen“
+  (Vorschlag des CEO, empfohlen); ohne Antwort bis 30. Januar bleibt die Politik.
+- Meldungen im Rundenbericht: Dividende gezahlt (mit deinem Anteil nach Quellensteuer),
+  gekürzt, aus Beteiligungen erhalten, vom CEO festgelegt. In der Ansicht Person stehen
+  „Dividenden“ und „Quellensteuer auf Dividenden“ unter Einnahmen und Ausgaben.
 
 ### Weltkarte und Länderdetail
 

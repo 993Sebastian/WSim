@@ -28,9 +28,6 @@ fn with_stock(mut catalog: Catalog, crises: Vec<(i32, u32, f64)>) -> Catalog {
         ipo_share_max: 0.4,
         ipo_discount: 0.1,
         ipo_cost_share: 0.05,
-        dividend_month: 1,
-        ai_payout: 0.4,
-        dividend_cash_max: 0.5,
         trade_premium: 0.02,
         trade_discount: 0.02,
         trade_impact: 0.5,
@@ -240,8 +237,8 @@ fn dividends_go_to_the_owners() {
         share: 0.2,
     })
     .unwrap();
-    // The other company earns 100 000 in 1900 and pays 40 % (AI default without AI
-    // state: the player's default 0 – so it sets its quote).
+    // The other company earns 100 000 in 1900 and pays 40 % at the end of January 1901
+    // (PE4; without AI state it has the player's default 0 – so it sets its quote).
     game.state_mut().companies[other.index()].dividend_payout = Some(0.4);
     game.state_mut().companies[other.index()].ledger.income(
         CostType::Revenue,
@@ -251,21 +248,23 @@ fn dividends_go_to_the_owners() {
     );
     let before = cash(&game, player);
     let mut paid = false;
-    for _ in 0..365 {
+    for _ in 0..396 {
         let report = game.advance(crate::calendar::RoundLength::Day, |_| {});
         paid |= report
             .messages
             .iter()
-            .any(|m| m.key == keys::STOCK_DIVIDEND_RECEIVED);
+            .any(|m| m.key == keys::DIVIDEND_RECEIVED);
     }
     assert!(paid);
     let o = &game.state().companies[other.index()];
     let dividend = o.listing.as_ref().unwrap().last_dividend;
     assert!(dividend > Money::ZERO);
-    // The player's company books its fifth as income from participations.
+    // The player's company books its fifth, less the withholding tax, as income from
+    // participations.
+    let tax = game.state().countries.get(o.headquarters).dividend_tax;
     let income = game.state().companies[player.index()].ledger.year.by_type[&CostType::Investments];
     assert!(
-        (income - dividend.scale(0.2)).abs() <= usd(0.01),
+        (income - dividend.scale(0.2).scale(1.0 - tax)).abs() <= usd(0.01),
         "{income:?} {dividend:?}"
     );
     assert!(cash(&game, player) > before);

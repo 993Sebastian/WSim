@@ -1153,6 +1153,26 @@ beteiligungen.freigabe_hilfe: "Bis zu diesem Betrag entscheidet die Leitung selb
 beteiligungen.festlegen: Beteiligungen festlegen
 beteiligungen.gesetzt: Die Vorgaben für Beteiligungen gelten ab sofort.
 beteiligungen.werte: "Budget und Grenzen dürfen nicht negativ sein, die Risikobereitschaft liegt zwischen 0 und 100 %."
+dividende.titel: Dividendenpolitik
+dividende.erklaerung: "Am Ende des Januars schüttet die Firma für das abgeschlossene Jahr aus: einen Anteil am Jahresüberschuss nach Steuern oder einen festen Betrag. Gezahlt wird nur aus den Gewinnrücklagen, und die Liquiditätsreserve bleibt in der Kasse; sonst wird gekürzt. Jeder Eigner bekommt seinen Anteil. Auf deinen Anteil behält der Staat des Hauptsitzes {steuer} Quellensteuer ein; Firmen, die mehr als die Hälfte halten, bekommen ihren Anteil steuerfrei in die Rücklagen. Eine Sonderausschüttung zahlt sofort."
+dividende.erstes_jahr: Noch ist kein Geschäftsjahr abgeschlossen.
+dividende.stand: "Jahresüberschuss {jahr}: {gewinn}. Nach der Politik wären das {gewollt}."
+dividende.grenzen: "Gewinnrücklagen {ruecklagen}, Liquiditätsreserve {reserve}: Ausschütten kann die Firma heute höchstens {moeglich}."
+dividende.zuletzt: "Zuletzt ausgeschüttet ({jahr}): {betrag}."
+dividende.ceo: Dein CEO schlägt die Dividende zum Jahresbeginn als Anliegen vor; ohne Antwort gilt diese Politik.
+dividende.politik: Politik
+dividende.anteil: Anteil am Jahresüberschuss
+dividende.betrag: Fester Betrag im Jahr
+dividende.anteil_feld: Anteil
+dividende.anteil_hilfe: "0 % behält alles in der Firma."
+dividende.betrag_feld: Betrag im Jahr
+dividende.festlegen: Politik festlegen
+dividende.gesetzt: Die Dividendenpolitik gilt ab der nächsten Ausschüttung.
+dividende.werte: "Der Anteil liegt zwischen 0 und 100 %, Beträge sind nicht negativ."
+dividende.sonder: Sonderausschüttung
+dividende.sonder_hilfe: "Sofort, höchstens {max}."
+dividende.ausschuetten: Ausschütten
+dividende.ausgeschuettet: Die Sonderausschüttung ist gezahlt.
 organisation.zufriedenheit.0: unzufrieden
 organisation.zufriedenheit.1: gemischt
 organisation.zufriedenheit.2: zufrieden
@@ -1270,6 +1290,8 @@ privat.darlehen: Darlehen an Firmen
 privat.tilgung: Tilgung von Darlehen
 privat.darlehenszins: Darlehenszins
 privat.rueckzahlung: Kapitalrückzahlung
+privat.dividende: Dividenden
+privat.quellensteuer: Quellensteuer auf Dividenden
 person.steckbrief: Steckbrief
 person.name: Name
 person.geboren: Geboren
@@ -1396,6 +1418,7 @@ anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({gre
 anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."
 anliegen.grund.ruhestand: Ein Manager geht bald in den Ruhestand – wer ihm folgt, entscheidest du.
 anliegen.grund.unbesetzt: Die Stelle ist durch einen Todesfall frei geworden.
+anliegen.grund.dividende: Das Jahr ist abgeschlossen. Dein CEO schlägt die Dividende vor; Ende Januar wird ausgezahlt, ohne Antwort nach der bisherigen Politik.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1605,6 +1628,7 @@ thema.umschuldung: Umschuldung
 thema.startup: Start-ups
 thema.gehaltsrunde: Gehaltsrunde
 thema.nachfolge: Nachfolge
+thema.dividende: Dividende
 option.beibehalten: So lassen
 option.anpassen: Anpassen
 option.liefern: Liefern
@@ -2010,9 +2034,7 @@ boerse.an_die_boerse: An die Börse gehen
 boerse.ausgeben: Aktien ausgeben
 boerse.ausgabe_ergebnis: "Erlös {erloes}, davon {kosten} Kosten für die Banken · dein Anteil danach {danach}"
 boerse.dividende: Dividende
-boerse.dividende_hilfe: "Im {monat} zahlt deine Firma den gewählten Teil des Vorjahresgewinns ({gewinn}) an ihre Aktionäre – höchstens die Hälfte der Kasse. Bei der jetzigen Quote wären das {betrag}. Dein Anteil fließt an dich privat, nicht in die Firma."
-boerse.ausschuettungsquote: Ausschüttungsquote
-boerse.festlegen: Festlegen
+boerse.dividende_hilfe: "Ende Januar zahlt deine Firma nach ihrer Dividendenpolitik aus dem Vorjahresgewinn ({gewinn}) an ihre Aktionäre – heute wären das {betrag}. Dein Anteil fließt an dich privat, nicht in die Firma. Die Politik legst du unter Organisation → Strategie fest."
 boerse.dividende_bisher: "Zuletzt gezahlt: {letzte} · an dich privat bisher: {privat}"
 boerse.firmen: Börsennotierte Firmen
 boerse.firmen_hilfe: "Kaufpreise enthalten einen Aufschlag, und größere Käufe treiben den Kurs. Deine Firma hält höchstens {max} einer anderen Firma."

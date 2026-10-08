@@ -18,11 +18,10 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
     let v = &entry.value;
     let l = &entry.loc;
     let unit = |ctx: &mut Ctx, x: f64, at: &crate::read::Loc| in_range(ctx, x, 0.0, 1.0, at);
-    let (bl, sl, il, dl, hl, stl, al) = (
+    let (bl, sl, il, hl, stl, al) = (
         l.field("bewertung"),
         l.field("stimmung"),
         l.field("boersengang"),
-        l.field("dividende"),
         l.field("handel"),
         l.field("start"),
         l.field("ki"),
@@ -35,13 +34,6 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
         1.0,
         f64::from(kept),
         &bl.field("gewinn_monate"),
-    );
-    let dividend_month = in_range(
-        ctx,
-        f64::from(v.dividend.month),
-        1.0,
-        12.0,
-        &dl.field("monat"),
     );
     StockModel {
         enabled: true,
@@ -68,11 +60,6 @@ pub(super) fn stock_model(ctx: &mut Ctx, raw: &RawData) -> StockModel {
         ipo_share_max: in_range(ctx, v.ipo.share_max, 0.01, 0.9, &il.field("anteil_max")),
         ipo_discount: unit(ctx, v.ipo.discount, &il.field("abschlag")),
         ipo_cost_share: unit(ctx, v.ipo.cost_share, &il.field("kosten_anteil")),
-        // In range 1–12 after the check; the cast cannot overflow.
-        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        dividend_month: dividend_month.round() as u32,
-        ai_payout: unit(ctx, v.dividend.ai_payout, &dl.field("ki_quote")),
-        dividend_cash_max: unit(ctx, v.dividend.cash_max, &dl.field("kasse_max")),
         trade_premium: unit(ctx, v.trading.premium, &hl.field("aufschlag")),
         trade_discount: unit(ctx, v.trading.discount, &hl.field("abschlag")),
         trade_impact: in_range(ctx, v.trading.impact, 0.0, 5.0, &hl.field("preiswirkung")),

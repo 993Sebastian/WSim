@@ -75,6 +75,8 @@ export type Befehl =
   | { RedeemBond: { bond: number } }
   | { IssueShares: { share: number } }
   | { SetDividend: { payout: number } }
+  | { SetDividendPolicy: { policy: { Share: number } | { Amount: number } } }
+  | { SpecialDividend: { amount: number } }
   | { BuyShares: { company: number; share: number } }
   | { SellShares: { company: number; share: number } }
   | { TakeOver: { company: number } }

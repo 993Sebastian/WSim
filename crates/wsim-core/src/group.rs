@@ -163,6 +163,7 @@ pub(crate) fn found(
         }),
         listing: None,
         dividend_payout: None,
+        dividend: Default::default(),
         stock_cost: Default::default(),
         bonds: Vec::new(),
         bank: None,

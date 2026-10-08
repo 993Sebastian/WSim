@@ -18,10 +18,6 @@ boerse:
     anteil_max: 0.4
     abschlag: 0.15              # Zeichnungsabschlag
     kosten_anteil: 0.05         # Banken, Prospekt
-  dividende:
-    monat: 5
-    ki_quote: 0.4
-    kasse_max: 0.5
   handel:
     aufschlag: 0.02
     abschlag: 0.02

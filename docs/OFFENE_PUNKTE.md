@@ -1513,6 +1513,32 @@ Regeln: `docs/FORMELN.md`, Abschnitt PE3; Format: `docs/DATENFORMAT.md`, `person
     das Eigenkapital bis 1915 auf 5,7 Mio. USD, das Privatkonto hält sich bei rund
     13.000 USD. Wer nichts tut, verliert also langsam; das ist gewollt.
 
+✅ **PE4 umgesetzt** (Dividenden; Vorgabe `docs/PERSON.md` §7; Regeln: `docs/FORMELN.md`,
+Abschnitt PE4; Format: `docs/DATENFORMAT.md`, `finanzmodell.dividende`). 🟡 Eigenständig
+entschieden:
+
+1. **Ersetzt die Börsen-Dividende (K1):** Alle Firmen zahlen nach denselben Regeln; Zahltag
+   im Mai, KI-Quote 40 % und „höchstens die Hälfte der Kasse“ entfallen. `SetDividend`
+   bleibt als Kurzform für einen Anteil.
+2. **Zahltag:** Beschluss mit dem Jahresabschluss am 1. Januar, Auszahlung am letzten Tag
+   des Januars („im Folgemonat“); das Anliegen des CEO läuft bis zum 30. Januar.
+3. **Liquiditätsreserve:** die Strategie „Reserve“, mindestens `reserve_monate_min` (3)
+   Monate laufender Kosten. Ausschüttbar sind Gewinnrücklagen plus laufendes Ergebnis.
+4. **Konzernprivileg** ab über 50 % direkt gehaltener Anteile: ohne Quellensteuer und ohne
+   Ertrag in die Gewinnrücklagen (wie die Ausschüttung einer Tochter, W6); bis 50 % Ertrag
+   „Beteiligungen“ nach Quellensteuer (unterliegt danach der Gewinnsteuer).
+5. **Quellensteuer für die Person endgültig:** Dividenden zählen nicht zur Einkommensteuer
+   (PE3); das Privatkonto zeigt Dividende brutto und Quellensteuer getrennt.
+6. **Charakter:** KI-Firmen nach Aggressivität (vorsichtig 60 %, angriffslustig 20 %), der
+   CEO nach seiner Risikofreude; beide nichts nach Verlust oder unter `kasse_monate` (4)
+   Monaten laufender Kosten in der Kasse. Der CEO fragt nur, wenn sein Vorschlag einen
+   anderen Betrag ergibt als die Politik; stummgeschaltet setzt er ihn selbst (Meldung).
+7. **Weltlauf 1900–1930** (100 KI-Firmen, Vergleich mit PE3): Pleiten bis 1930 20 statt 18,
+   keine Welle; 1929 aktive KI-Firmen 139 statt 161 (weniger Gründungen, weil das Geld an
+   die Eigner geht), Median-Eigenkapital 561 statt 460 Mio. USD; Laufzeit 7¼ statt
+   7½ Minuten. **Benchmark** 1 000 KI-Firmen bis März 1901 (mit einer Ausschüttung):
+   26 s vorher wie nachher.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

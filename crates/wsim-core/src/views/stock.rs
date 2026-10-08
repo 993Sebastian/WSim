@@ -105,11 +105,10 @@ pub struct OwnListingView {
     pub buyback: Vec<StockQuoteView>,
     /// The owners, largest first.
     pub owners: Vec<OwnerView>,
-    /// Share of last year's profit paid out.
+    /// Share of last year's profit paid out (PE4: the policy; a fixed amount shows 0).
     pub payout: f64,
-    pub dividend_month: u32,
     pub profit_last_year_usd: f64,
-    /// The dividend at the current payout in the next dividend month.
+    /// The dividend of the policy for the closed year within today's limits (PE4).
     pub dividend_estimate_usd: f64,
     pub last_dividend_usd: f64,
     /// Dividends the player received privately as owner.
@@ -313,10 +312,13 @@ fn own_listing(game: &Game) -> OwnListingView {
         issue,
         buyback,
         owners,
-        payout: c.dividend_payout.unwrap_or(0.0),
-        dividend_month: m.dividend_month,
+        payout: match crate::dividends::policy(c) {
+            Some(crate::dividends::DividendPolicy::Share(q)) => q,
+            _ => 0.0,
+        },
         profit_last_year_usd: usd(profit),
-        dividend_estimate_usd: usd(stock::dividend(catalog, c)),
+        dividend_estimate_usd: usd(crate::dividends::wanted(catalog, state, game.player())
+            .min(crate::dividends::payable(catalog, state, game.player()))),
         last_dividend_usd: usd(c.listing.as_ref().map_or(Money::ZERO, |l| l.last_dividend)),
         player_dividends_usd: usd(state.stock.player_dividends),
     }

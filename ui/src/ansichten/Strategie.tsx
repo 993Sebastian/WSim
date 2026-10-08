@@ -858,6 +858,125 @@ function Beteiligungen({ daten }: { daten: Strategie }) {
 }
 
 /**
+ * The dividend policy (PE4): a share of the net profit or an amount per year, paid at the
+ * end of January for the closed year; and a special dividend at once.
+ */
+function Dividende({ daten }: { daten: Strategie }) {
+  const d = daten.dividend;
+  const { los, antwort } = useAktion("dividende");
+  const [art, setArt] = useState<"anteil" | "betrag">(d.kind);
+  const [anteil, setAnteil] = useState(zahlFeld(d.share * 100, 0));
+  const [betrag, setBetrag] = useState(geldText(d.amount_usd));
+  const [sonder, setSonder] = useState("");
+  const [fehler, setFehler] = useState<string | null>(null);
+  const festlegen = (ev: FormEvent) => {
+    ev.preventDefault();
+    const n = zahlLesen(art === "anteil" ? anteil : betrag);
+    if (n === null || n < 0 || (art === "anteil" && n > 100)) {
+      setFehler(t("dividende.werte"));
+      return;
+    }
+    setFehler(null);
+    const policy = art === "anteil" ? { Share: n / 100 } : { Amount: geld(ausAnzeige(n)) };
+    void los([{ SetDividendPolicy: { policy } }], t("dividende.gesetzt"));
+  };
+  const ausschuetten = () => {
+    const n = zahlLesen(sonder);
+    if (n === null || n <= 0) {
+      setFehler(t("dividende.werte"));
+      return;
+    }
+    setFehler(null);
+    void los([{ SpecialDividend: { amount: geld(ausAnzeige(n)) } }], t("dividende.ausgeschuettet"));
+  };
+  return (
+    <section aria-label={t("dividende.titel")}>
+      <h2>
+        {t("dividende.titel")}{" "}
+        <Erklaerung wert={t("dividende.titel")}>
+          <p>{t("dividende.erklaerung", { steuer: formatProzent(d.tax) })}</p>
+        </Erklaerung>
+      </h2>
+      <p className="feld-hilfe">
+        {d.year === null
+          ? t("dividende.erstes_jahr")
+          : t("dividende.stand", {
+              jahr: String(d.year),
+              gewinn: formatGeld(d.profit_usd),
+              gewollt: formatGeld(d.wanted_usd),
+            })}{" "}
+        {t("dividende.grenzen", {
+          ruecklagen: formatGeld(d.distributable_usd),
+          reserve: formatGeld(d.reserve_usd),
+          moeglich: formatGeld(d.payable_usd),
+        })}{" "}
+        {d.last &&
+          t("dividende.zuletzt", { jahr: String(d.last[0]), betrag: formatGeld(d.last[1]) })}
+      </p>
+      {d.ceo && <p className="feld-hilfe">{t("dividende.ceo")}</p>}
+      <form className="karte" aria-label={t("dividende.politik")} onSubmit={festlegen}>
+        <fieldset>
+          <legend>{t("dividende.politik")}</legend>
+          <label className="auswahl">
+            <input
+              type="radio"
+              name="dividende-art"
+              checked={art === "anteil"}
+              onChange={() => setArt("anteil")}
+            />
+            <span>{t("dividende.anteil")}</span>
+          </label>
+          <label className="auswahl">
+            <input
+              type="radio"
+              name="dividende-art"
+              checked={art === "betrag"}
+              onChange={() => setArt("betrag")}
+            />
+            <span>{t("dividende.betrag")}</span>
+          </label>
+        </fieldset>
+        <div className="formular-zeile">
+          {art === "anteil" ? (
+            <ZahlFeld
+              name={t("dividende.anteil_feld")}
+              einheit="%"
+              wert={anteil}
+              onWert={setAnteil}
+              hilfe={t("dividende.anteil_hilfe")}
+            />
+          ) : (
+            <ZahlFeld
+              name={t("dividende.betrag_feld")}
+              einheit={geldEinheit()}
+              wert={betrag}
+              onWert={setBetrag}
+            />
+          )}
+        </div>
+        <div className="knopfreihe links">
+          <button type="submit">{t("dividende.festlegen")}</button>
+        </div>
+      </form>
+      <div className="karte formular-zeile">
+        <ZahlFeld
+          name={t("dividende.sonder")}
+          einheit={geldEinheit()}
+          wert={sonder}
+          onWert={setSonder}
+          hilfe={t("dividende.sonder_hilfe", { max: formatGeld(d.payable_usd) })}
+        />
+        <button type="button" onClick={ausschuetten} disabled={d.payable_usd <= 0}>
+          {t("dividende.ausschuetten")}
+        </button>
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
+/**
  * The strategies of the company (MA4): an overview of every unit, then the fields of the
  * chosen unit to set or remove, the sales channels and the participations (ZA2).
  */
@@ -908,6 +1027,7 @@ export function StrategieAnsicht({ kern, stand }: { kern: Kern; stand: string })
       </section>
       <Verkaufswege daten={daten} />
       <Beteiligungen daten={daten} />
+      <Dividende daten={daten} />
     </section>
   );
 }

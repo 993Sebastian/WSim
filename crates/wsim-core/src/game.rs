@@ -495,6 +495,11 @@ impl Game {
                 .extend(crate::bonds::month_end(&mut self.state, today));
             crate::bank::month_end(&mut self.state, &self.catalog, today);
             finance::month_end(&mut self.state, &self.catalog, today);
+            report.messages.extend(crate::dividends::pay_year(
+                &mut self.state,
+                &self.catalog,
+                today,
+            ));
             report.messages.extend(crate::private::month_end(
                 &mut self.state,
                 &self.catalog,
@@ -513,6 +518,11 @@ impl Game {
                 .messages
                 .extend(crate::group::settle_failures(&mut self.state));
             report.messages.extend(crate::stock::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
+            report.messages.extend(crate::dividends::year_start(
                 &mut self.state,
                 &self.catalog,
                 next,
@@ -711,6 +721,7 @@ pub(crate) fn push_player_company(
         subsidiary_of: None,
         listing: None,
         dividend_payout: None,
+        dividend: Default::default(),
         stock_cost: Default::default(),
         bonds: Vec::new(),
         bank: None,

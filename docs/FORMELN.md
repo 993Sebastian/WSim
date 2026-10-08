@@ -4171,11 +4171,9 @@ er sie verlieren, siehe dort).
 
 ### Dividende
 
-Jedes Jahr im Monat `dividende.monat` zahlt eine notierte Firma `Ausschüttungsquote` ·
-Vorjahresergebnis (nur Gewinn, höchstens `dividende.kasse_max` ihrer Kasse) an alle Eigner.
-Der Spieler setzt die Quote seiner Firma (`SetDividend`), KI-Firmen nehmen
-`dividende.ki_quote`. Firmen als Eigner verbuchen sie als Ertrag (Beteiligungen), der
-Anteil des Spielers und der Privatanleger verlässt die Firma (Gewinnrücklagen an Kasse).
+Seit PE4 zahlen alle Firmen, notiert oder nicht, nach den Regeln im Abschnitt „PE4 –
+Dividenden“; die frühere Regel für notierte Firmen (Zahltag im Mai, Quote der KI 40 %,
+höchstens die Hälfte der Kasse) ist entfallen.
 
 ### Aktienhandel
 
@@ -4670,3 +4668,79 @@ einem Akademikerhaushalt.
   um den nach Tagen gemittelten `ausbildung`-Wert der Stufen in seiner Kindheit (Geburt bis
   25; vor Spielbeginn gilt die Stufe des Spielbeginns), höchstens bis 100.
 - **Sterblichkeit:** Faktor auf die Sterbechance der Person (PE6).
+
+## PE4 – Dividenden
+
+Vorgabe `docs/PERSON.md` §7. Daten: `parameter/finanzmodell.yaml`, Abschnitt `dividende`;
+Quellensteuer: Länderwert `steuer_dividenden` (`laendermodell.yaml`). Kern: Modul
+`dividends`. Ersetzt die Dividende der Börse (K1): Die Regeln gelten für alle Firmen,
+notiert oder nicht.
+
+### Politik
+
+Jede Firma hat eine **Dividendenpolitik**:
+
+- **Anteil** q (0–100 %) am Jahresüberschuss nach Steuern des abgeschlossenen Jahres, oder
+- **fester Betrag** B je Jahr.
+
+Standard für Firmen des Spielers: Anteil 0 %. KI-Firmen ohne eigene Politik folgen ihrem
+Charakter (unten). `SetDividendPolicy` setzt die Politik der Firma, `SetDividend` (K1)
+bleibt als Kurzform für einen Anteil.
+
+### Beschluss und Auszahlung
+
+Am 1. Januar ist das Vorjahr abgeschlossen (Ergebnis in den Gewinnrücklagen). Ausgezahlt
+wird am letzten Tag des Januars:
+
+    Jahresüberschuss J = Summe aller Kostenarten des abgeschlossenen Jahres (nach Steuern)
+    gewollt W         = q · max(J, 0)            (Anteil)
+                      = B                        (fester Betrag)
+    ausschüttbar A    = max(0, Gewinnrücklagen + laufendes Ergebnis)
+    Reserve R         = max(Strategie „Reserve“, reserve_monate_min) · laufende Kosten eines Monats
+    gezahlt D         = min(W, A, max(0, Kasse − R))
+
+Liegt D unter W, meldet die Firma des Spielers die Kürzung („Dividende gekürzt“). Gebucht
+wird Gewinnrücklagen an Kasse (kein Aufwand).
+
+### Verteilung nach Anteil
+
+Jeder Eigner bekommt Anteil · D. Die **Quellensteuer** `steuer_dividenden` des
+Hauptsitzlandes der zahlenden Firma wird einbehalten und verlässt das Spiel:
+
+| Eigner | Wohin | Quellensteuer |
+| --- | --- | --- |
+| Person (`Holder::Player`) | Privatkonto (Dividende brutto, Quellensteuer abgezogen) | ja |
+| Firma mit über `konzern_anteil` (50 %) | Kasse an Gewinnrücklagen (kein Ertrag, keine Gewinnsteuer) | nein (**Konzernprivileg**) |
+| Firma bis 50 % | Kasse, Ertrag „Beteiligungen“ | ja |
+| Privatanleger, Investoren | verlassen das Spiel | – |
+
+Für die Person ist die Quellensteuer endgültig; die Einkommensteuer (PE3) erfasst
+Dividenden nicht.
+
+### Sonderausschüttung
+
+`SpecialDividend { Betrag S }` jederzeit: S ≤ min(A, max(0, Kasse − R)); Verteilung wie oben.
+
+### Vorschlag des CEO
+
+Hat eine kontrollierte Firma der Person einen CEO, legt er am 1. Januar einen Vorschlag
+vor:
+
+    Vorschlag q_CEO = quote_min + (quote_max − quote_min) · (1 − Risikofreude / 100)
+                      0 bei J ≤ 0 oder Kasse < kasse_monate · laufende Kosten eines Monats
+
+Weicht der Betrag nach dem Vorschlag von dem nach der Politik ab, entsteht ein Anliegen
+„Dividende“ an den Spieler mit den Wahlen „beibehalten“ (Politik, Betrag) und „anpassen“
+(Anteil q_CEO, Betrag; empfohlen). Frist: 30. Januar. Bei Fristablauf gilt die zuletzt
+beschlossene Politik; „anpassen“ setzt die Politik dauerhaft auf q_CEO. Hat der Spieler
+das Thema stummgeschaltet, setzt der CEO seinen Vorschlag selbst (Meldung).
+
+### KI-Firmen
+
+Ohne eigene Politik schüttet eine KI-Firma nach ihrem Charakter aus:
+
+    q_KI = quote_min + (quote_max − quote_min) · (1 − Aggressivität)
+
+(vorsichtige Firmen zahlen mehr, angriffslustige behalten mehr), nichts bei J ≤ 0 oder
+wenn die Kasse unter `kasse_monate` laufenden Monatskosten liegt. Die Grenzen A und R
+gelten wie für alle.

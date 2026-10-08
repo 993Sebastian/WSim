@@ -1341,7 +1341,8 @@ pub fn place_of(state: &GameState, d: &Decision) -> Option<Unit> {
         | Command::AnswerOffer { .. }
         | Command::RefinanceLoan { .. }
         | Command::RaiseSalary { .. }
-        | Command::InvestInVenture { .. } => Some(Unit::Board),
+        | Command::InvestInVenture { .. }
+        | Command::SetDividendPolicy { .. } => Some(Unit::Board),
         Command::FoundSite { country, .. } | Command::SetAdvertising { country, .. } => {
             Some(Unit::Country(country))
         }
