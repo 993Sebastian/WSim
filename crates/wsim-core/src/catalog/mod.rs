@@ -85,6 +85,8 @@ pub struct Catalog {
     pub bank: BankModel,
     /// Parameters of the events' effects (H1).
     pub event_model: EventModel,
+    /// Age, retirement and death of the managers (PE1).
+    pub life: LifeModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -1767,6 +1769,71 @@ impl EffectKind {
             Self::Destruction { .. } | Self::Expropriation { .. } | Self::StockCrash { .. }
         )
     }
+}
+
+/// A value per country and year (PE1): a series for all and own series for some countries.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CountrySeries {
+    /// For countries without their own; `None`: 0.
+    pub default: Option<crate::time_series::TimeSeries>,
+    /// Indexed by country; `None` uses the default.
+    pub countries: Vec<Option<crate::time_series::TimeSeries>>,
+}
+
+impl CountrySeries {
+    pub fn value(&self, country: CountryId, year: f64) -> f64 {
+        self.countries
+            .get(country.index())
+            .and_then(Option::as_ref)
+            .or(self.default.as_ref())
+            .map_or(0.0, |s| s.value_at(year))
+    }
+}
+
+/// Age at entering the pool of managers: a truncated normal distribution (PE1).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct AgeSpan {
+    pub min: f64,
+    pub max: f64,
+    pub mean: f64,
+    pub spread: f64,
+}
+
+/// Age, retirement and death of the managers (`parameter/lebenslauf.yaml`, PE1).
+/// Disabled without the section: managers then neither age nor retire.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LifeModel {
+    pub enabled: bool,
+    /// Per level: site, country, continent, board.
+    pub entry_age: [AgeSpan; 4],
+    /// Strength from which a candidate counts for country, continent, board.
+    pub level_strength: [f64; 3],
+    /// Experience chance factors: below `young_until` and from `old_from` on.
+    pub young_until: f64,
+    pub young_factor: f64,
+    pub old_from: f64,
+    pub old_factor: f64,
+    pub risk_from: f64,
+    pub risk_per_year: f64,
+    pub risk_max: f64,
+    pub decline_from: f64,
+    pub decline_chance: f64,
+    /// Personal deviation of the retirement age (± years).
+    pub retirement_spread: f64,
+    pub warning_months: u32,
+    pub extension_years_max: u32,
+    pub extension_raise: f64,
+    /// The retirement age of the year in which he reaches this age applies to a manager.
+    pub reference_age: f64,
+    /// The chance to agree to stay longer falls from the first age to nothing at the second.
+    pub acceptance_ages: [f64; 2],
+    pub mortality_from: f64,
+    /// Monthly chance of death at the life expectancy.
+    pub mortality_chance: f64,
+    pub doubling_years: f64,
+    pub retirement_age: CountrySeries,
+    pub life_expectancy: CountrySeries,
+    pub provenance: Provenance,
 }
 
 /// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).

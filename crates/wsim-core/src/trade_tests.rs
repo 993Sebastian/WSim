@@ -123,6 +123,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
         bonds: Vec::new(),
         bank: None,
         state_owned: None,
+        former_managers: Vec::new(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Käufer".into(),
         kind: CompanyKind::Ai,

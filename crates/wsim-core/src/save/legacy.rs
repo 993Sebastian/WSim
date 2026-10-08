@@ -109,6 +109,7 @@ pub(super) fn decode_v2(
                 bonds: Vec::new(),
                 bank: None,
                 state_owned: None,
+                former_managers: Vec::new(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

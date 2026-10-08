@@ -4246,3 +4246,88 @@ fn bank_wird_geprueft() {
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.bank.enabled);
 }
+
+const LEBENSLAUF: &str = "\
+lebenslauf:
+  eintrittsalter:
+    standort: {von: 26, bis: 50, mittel: 35, streuung: 6}
+    land: {von: 32, bis: 55, mittel: 42, streuung: 6}
+    kontinent: {von: 38, bis: 58, mittel: 47, streuung: 5}
+    vorstand: {von: 42, bis: 62, mittel: 52, streuung: 5}
+  ebene_nach_staerke: {land: 50, kontinent: 57, vorstand: 63}
+  erfahrung: {jung_bis: 35, jung: 1.5, alt_ab: 55, alt: 0.5}
+  risiko: {ab: 40, je_jahr: 0.3, hoechstens: 10}
+  abbau: {ab: 65, chance: 0.1}
+  ruhestand: {abweichung: 5, vorwarnung_monate: 12, verlaengerung_jahre_max: 3,
+              verlaengerung_aufschlag: 0.2, bezugsalter: 65, zusage_alter: [60, 80]}
+  sterbetafel: {ab: 50, chance: 0.005, verdopplung_jahre: 8}
+  ruhestandsalter:
+    standard: {1900: 70, 1960: 65}
+    laender:
+      SWE: {1900: 67, 2000: 65}
+  lebenserwartung:
+    standard: {1900: 60, 2100: 79}
+  annaeherung: true
+";
+
+#[test]
+fn lebenslauf_wird_geprueft() {
+    let datei = "parameter/lebenslauf.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &LEBENSLAUF.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let data = gut.data.as_ref().unwrap();
+    let m = &data.catalog.life;
+    assert!(m.enabled);
+    assert_eq!(m.warning_months, 12);
+    assert_eq!(m.entry_age[3].mean, 52.0);
+    let swe = data.catalog.countries.id("SWE").unwrap();
+    assert_eq!(m.retirement_age.value(swe, 1900.0), 67.0);
+    assert_eq!(m.life_expectancy.value(swe, 1900.0), 60.0);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "mittel: 35",
+            "mittel: 55",
+            "Das Mittel 55 liegt nicht zwischen „von“ (26) und „bis“ (50).",
+            "lebenslauf.eintrittsalter.standort.mittel",
+        ),
+        (
+            "kontinent: 57",
+            "kontinent: 70",
+            "Die Grenzen müssen von Land über Kontinent bis Vorstand steigen.",
+            "lebenslauf.ebene_nach_staerke",
+        ),
+        (
+            "chance: 0.005",
+            "chance: 2",
+            "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "lebenslauf.sterbetafel.chance",
+        ),
+        (
+            "1960: 65",
+            "1960: 95",
+            "Wert 95 liegt außerhalb des erlaubten Bereichs 40 bis 90.",
+            "lebenslauf.ruhestandsalter.standard.1960",
+        ),
+        (
+            "zusage_alter: [60, 80]",
+            "zusage_alter: [80, 60]",
+            "„zusage_alter[0]“ muss kleiner als „zusage_alter[1]“ sein.",
+            "lebenslauf.ruhestand.zusage_alter",
+        ),
+    ] {
+        let outcome = lauf(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&lauf("      SWE:", "      XYZ:"), "XYZ");
+    befund(&lauf("  abbau:", "  unbekannt: 1\n  abbau:"), "unbekannt");
+    // Without the section managers do not age.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.life.enabled);
+}

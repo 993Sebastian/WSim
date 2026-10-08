@@ -622,7 +622,12 @@ pub fn management() -> Catalog {
             function("vertrieb_marketing", vec![Topic::Sale, Topic::Advertising]),
             function(
                 "personal",
-                vec![Topic::Wage, Topic::Poaching, Topic::SalaryRound],
+                vec![
+                    Topic::Wage,
+                    Topic::Poaching,
+                    Topic::SalaryRound,
+                    Topic::Succession,
+                ],
             ),
             function("forschung", vec![Topic::Research, Topic::Development]),
             function("finanzen", vec![Topic::Cash, Topic::Refinance]),
@@ -764,5 +769,59 @@ pub fn management() -> Catalog {
         patterns: names(&["{familienname} {rechtsform}"]),
         branch_words: Vec::new(),
     }];
+    c
+}
+
+/// Age, retirement and death of the managers as in the data (PE1), a retirement age of
+/// 65 and an adult life expectancy of 75 everywhere.
+pub fn life() -> super::LifeModel {
+    use super::{AgeSpan, CountrySeries, LifeModel};
+    let span = |min, max, mean, spread| AgeSpan {
+        min,
+        max,
+        mean,
+        spread,
+    };
+    let flat = |v| CountrySeries {
+        default: Some(TimeSeries::new(vec![(1900, v), (2100, v)]).expect("valid")),
+        countries: Vec::new(),
+    };
+    LifeModel {
+        enabled: true,
+        entry_age: [
+            span(26.0, 50.0, 35.0, 6.0),
+            span(32.0, 55.0, 42.0, 6.0),
+            span(38.0, 58.0, 47.0, 5.0),
+            span(42.0, 62.0, 52.0, 5.0),
+        ],
+        level_strength: [50.0, 57.0, 63.0],
+        young_until: 35.0,
+        young_factor: 1.5,
+        old_from: 55.0,
+        old_factor: 0.5,
+        risk_from: 40.0,
+        risk_per_year: 0.3,
+        risk_max: 10.0,
+        decline_from: 65.0,
+        decline_chance: 0.1,
+        retirement_spread: 5.0,
+        warning_months: 12,
+        extension_years_max: 3,
+        extension_raise: 0.2,
+        reference_age: 65.0,
+        acceptance_ages: [60.0, 80.0],
+        mortality_from: 50.0,
+        mortality_chance: 0.005,
+        doubling_years: 8.0,
+        retirement_age: flat(65.0),
+        life_expectancy: flat(75.0),
+        provenance: Provenance::default(),
+    }
+}
+
+/// The managers of `management` with an age (PE1).
+pub fn aging() -> Catalog {
+    let mut c = management();
+    c.life = life();
     c
 }

@@ -331,6 +331,22 @@ offenen Anliegen; solange welche offen sind, öffnet die Ansicht dort), „Strat
   „Gehen lassen“ (er wechselt, die Stelle wird frei, ohne Abfindung). Unbeantwortet
   verfällt das Angebot, er bleibt, ist aber enttäuscht (Zufriedenheit sinkt). Kündigungen
   und Wechsel stehen im Rundenbericht.
+- **Alter und Ruhestand (PE1):** Unter dem Inhaber einer Stelle „52 Jahre · Ruhestand am
+  01.03.1926 mit 66“; im Managermarkt die Spalte „Alter“. Zwölf Monate vor dem Ruhestand
+  kommt das Anliegen „Nachfolge“ (Grund „Ein Manager geht bald in den Ruhestand – wer ihm
+  folgt, entscheidest du“) der Personalstelle oder der nächsten Leitung darüber, mit
+  Meldung „… geht am … mit … Jahren in den Ruhestand. Nachfolge regeln bis …“. Optionen:
+  „Nachfolger suchen“ (stärkster passender Bewerber des Kontinents mit Alter, Stärke und
+  Gehalt), „Befördern“ (stärkster eigener Manager einer Stelle darunter; seine Stelle wird
+  frei), „Verlängerung anbieten“ (um bis zu drei Jahre, Gehalt +20 %, mit der Chance der
+  Zusage) und „Unbesetzt lassen“. Ein gewählter Nachfolger steht unter dem Inhaber:
+  „Nachfolger: Name (41 Jahre), seit … bereit, … im Jahr – übernimmt zum Ruhestand.“ Lehnt
+  der Manager die Verlängerung ab, kommt im Folgemonat ein neues Anliegen ohne diese
+  Option. Ruhestand und Tod meldet der Rundenbericht („… ist mit 66 Jahren in den Ruhestand
+  gegangen. Name übernimmt die Stelle.“); nach einem Todesfall fragt die Stelle darüber mit
+  „Stelle neu besetzen“ (Grund „Die Stelle ist durch einen Todesfall frei geworden“), die
+  Besetzung gilt sofort. Unter dem Organigramm die Tabelle „Ehemalige Manager“ (Name,
+  Stelle, Zeit, Alter beim Abgang, Abgang: Ruhestand oder verstorben).
 - Stellen ohne Aufgaben (Logistik) stehen da, lassen sich aber erst besetzen, wenn sie
   Aufgaben bekommen. Laborleitungen wählen das nächste Forschungsziel (MA2).
 - **Budget und Entscheidungen (MA2):** Unter den Stellen eines Standorts je besetzter

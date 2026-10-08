@@ -848,6 +848,8 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(werk).toContainText("Alain Moreau");
   await expect(werk).toContainText("82.568 USD");
   await expect(werk).toContainText("Nächste Prüfung: 04.01.1915");
+  // Age and planned retirement (PE1).
+  await expect(werk).toContainText("44 Jahre · Ruhestand am 01.08.1937 mit 67");
   // The head takes care of the functions without a specialist.
   await expect(werk).toContainText("Auslastung und Rezept, Überkapazität");
   // All skills as levels behind the ⓘ.
@@ -863,6 +865,7 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
     page.getByRole("heading", { name: "Produktion · Werk · Deutschland" }),
   ).toBeVisible();
   const bewerber = page.getByRole("table", { name: "Bewerber" });
+  await expect(bewerber.getByRole("row").nth(0)).toContainText("Alter");
   await expect(bewerber.getByRole("row").nth(1)).toContainText("Anna Putilov");
   await expect(bewerber.getByRole("row").nth(1)).toContainText("Ukraine");
   await expect(bewerber.getByRole("row").nth(1)).toContainText("herausragend");
@@ -894,6 +897,11 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(werk).toContainText("Alain Moreau entlassen? Abfindung 20.642 USD.");
   await werk.getByRole("button", { name: "Ja, entlassen" }).click();
   expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 34 } });
+
+  // Managers who left: retired or died (PE1).
+  const ehemalige = page.getByRole("region", { name: "Ehemalige Manager" });
+  await expect(ehemalige).toContainText("Heinrich Albers");
+  await expect(ehemalige).toContainText("Ruhestand");
 
   // The country's positions (MA3): its head, and a specialist from the market.
   const land = page.getByRole("article", { name: "Land · Deutschland" });

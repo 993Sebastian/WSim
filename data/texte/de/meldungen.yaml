@@ -171,6 +171,8 @@ fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
 fehler.befehl.keine_banken: In diesem Spiel gibt es keine Banken des Spielers.
 fehler.befehl.keine_bank: Diese Firma ist keine Bank.
+fehler.befehl.kein_ruhestand: Der Manager geht nicht in den nächsten Monaten in den Ruhestand.
+fehler.befehl.verlaengerung_zu_lang: "Verlängern geht höchstens um {jahre} Jahre."
 fehler.befehl.land_abgeschottet: "Das Land ist für deine Firma abgeschottet: keine neuen Standorte, keine Käufe von Standorten und keine Verlegung des Sitzes dorthin."
 fehler.befehl.bank_werte: "Einlagenaufschlag −20 % bis +20 %, Kreditnachlass 0 bis 90 %, höchste Verschuldung 0 bis 100 %."
 fehler.befehl.keine_anleihen: In diesem Spiel gibt es keine Anleihen.
@@ -270,6 +272,14 @@ meldung.manager.gewechselt: "{name} ({stelle}, {ort}) wechselt zu {firma}."
 meldung.manager.abgeworben: "{name} wechselt von {firma} zu dir: {stelle}, {ort}, für {gehalt} im Jahr."
 meldung.manager.gehalten: "{firma} hält {name} ({stelle}, {ort}) und zahlt jetzt {gehalt} im Jahr. Neu umwerben kannst du ihn ab {datum}."
 meldung.manager.geblieben: "Das Angebot von {firma} an {name} ({stelle}, {ort}) ist verfallen. {name} bleibt, ist aber enttäuscht."
+meldung.manager.ruhestand_naht: "{name} ({stelle}, {ort}) geht am {termin} mit {alter} Jahren in den Ruhestand. Nachfolge regeln bis {frist}."
+meldung.manager.verlaengerung_abgelehnt: "{name} ({stelle}, {ort}) bleibt nicht länger und geht am {termin} mit {alter} Jahren in den Ruhestand. Nachfolge regeln bis {frist}."
+meldung.manager.nachfolge_entschieden: "Nachfolge {stelle} ({ort}): Die Personalstelle hat selbst entschieden – {option}."
+meldung.manager.ruhestand: "{name} ({stelle}, {ort}) ist mit {alter} Jahren in den Ruhestand gegangen. Die Stelle ist frei."
+meldung.manager.ruhestand_nachfolger: "{name} ({stelle}, {ort}) ist mit {alter} Jahren in den Ruhestand gegangen. {nachfolger} übernimmt die Stelle."
+meldung.manager.tod: "{name} ({stelle}, {ort}) ist mit {alter} Jahren gestorben. Die Stelle ist frei."
+meldung.manager.tod_nachfolger: "{name} ({stelle}, {ort}) ist mit {alter} Jahren gestorben. {nachfolger} übernimmt die Stelle sofort."
+meldung.manager.nachfolger_weg: "{name}, vorgesehener Nachfolger ({stelle}, {ort}), fällt mit {alter} Jahren aus. Die Nachfolge ist wieder offen."
 meldung.anliegen.neu: "{stelle} ({standort} in {land}) fragt: {thema}. Antwort bis {frist}."
 meldung.anliegen.verfallen: "Anliegen von {stelle} ({standort} in {land}) zu „{thema}“ verfallen; es bleibt, wie es ist."
 meldung.anliegen.neu_land: "{stelle} ({land}) fragt: {thema}. Antwort bis {frist}."
@@ -302,6 +312,10 @@ schritt.gehen_lassen: "{name} wechselt zu {firma}; die Stelle wird frei, ohne Ab
 schritt.umschulden: "Kredit über {betrag} umschulden: {neu} % statt {alt} % Zins, gleiche Restlaufzeit."
 schritt.beteiligen: "{betrag} an {name} zusagen ({ziel}, Runde der Phase {phase})."
 schritt.gehalt_erhoehen: "Gehalt von {name} auf {gehalt} im Jahr erhöhen (bisher {bisher})."
+schritt.nachfolger: "{name} ({alter} Jahre, Stärke {staerke}) aus dem Managermarkt übernimmt die Stelle – Gehalt {gehalt} im Jahr."
+schritt.befoerdern: "{name} ({alter} Jahre, Stärke {staerke}, bisher {bisher}) übernimmt die Stelle – Gehalt {gehalt} im Jahr; die bisherige Stelle wird frei."
+schritt.verlaengern: "{name} bitten, {jahre} Jahre länger zu bleiben – Gehalt {gehalt} im Jahr (+{aufschlag} %); Zusage etwa {chance} %."
+schritt.unbesetzt: Die Stelle unbesetzt lassen.
 schritt.forschung: "Forschung an {technologie}"
 schritt.forschung_ende: Labor ohne Ziel lassen
 schritt.weiterentwicklung: "{produkt} weiterentwickeln"
@@ -326,6 +340,9 @@ anliegen.begruendung.halten: "Das Angebot liegt {anteil} % über dem Gehalt – 
 anliegen.begruendung.umschuldung: "Spart rund {betrag} Zinsen im Jahr; die Gebühr kostet einmal {gebuehr}."
 anliegen.begruendung.startup: "Erfolgschance etwa {chance} %, Wert bei Erfolg rund {wert}; für jeden Dollar im Mittel das {faktor}-Fache zurück – oder alles verloren."
 anliegen.begruendung.gehaltsrunde: "{name} ist unzufrieden und verdient {anteil} % unter dem Marktwert – ohne Erhöhung droht die Kündigung."
+anliegen.begruendung.nachfolger: "{name} ist mit Stärke {staerke} die stärkste Wahl für die Stelle."
+anliegen.begruendung.verlaengern: Es gibt keinen geeigneten Nachfolger – besser, die Stelle bleibt noch besetzt.
+anliegen.begruendung.unbesetzt: Es gibt keinen geeigneten Nachfolger.
 anliegen.begruendung.passung: "Passt zum eigenen Geschäft ({gruppe}) – mehr Absatz, Anlagen und Leute, ohne neu zu bauen."
 anliegen.begruendung.streuung: "Streut das Risiko: eine Warengruppe, in der die Firma noch nicht tätig ist."
 anliegen.begruendung.abkuerzung: "Erspart die eigene Forschung an {technologie} – nach unserer Schätzung rund {betrag}."

@@ -101,6 +101,20 @@ pub enum Stream {
         event: u32,
         effect: u32,
     },
+    /// A manager's day of birth and retirement deviation (PE1).
+    ManagerBirth {
+        id: u32,
+    },
+    /// A manager's birthday, death and retirement at a month start (PE1).
+    ManagerAge {
+        id: u32,
+        month: u32,
+    },
+    /// Whether a manager agrees to stay longer, on a day (PE1).
+    Extension {
+        id: u32,
+        day: u32,
+    },
 }
 
 impl Stream {
@@ -151,6 +165,11 @@ impl Stream {
             Stream::Event { event, effect } => {
                 (19 << 56) | (u64::from(event) << 16) | u64::from(effect & 0xFFFF)
             }
+            Stream::ManagerBirth { id } => (20 << 56) | u64::from(id),
+            Stream::ManagerAge { id, month } => {
+                (21 << 56) | (u64::from(id) << 24) | u64::from(month)
+            }
+            Stream::Extension { id, day } => (22 << 56) | (u64::from(id) << 24) | u64::from(day),
         }
     }
 }

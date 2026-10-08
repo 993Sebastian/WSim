@@ -1803,6 +1803,138 @@ impl RawEffectKind {
     }
 }
 
+/// Age, retirement and death of the managers (`parameter/lebenslauf.yaml`, PE1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLife {
+    #[serde(rename = "eintrittsalter")]
+    pub entry_age: RawEntryAges,
+    #[serde(rename = "ebene_nach_staerke")]
+    pub level_strength: RawLevelStrength,
+    #[serde(rename = "erfahrung")]
+    pub experience: RawAgeExperience,
+    #[serde(rename = "risiko")]
+    pub risk: RawAgeRisk,
+    #[serde(rename = "abbau")]
+    pub decline: RawAgeDecline,
+    #[serde(rename = "ruhestand")]
+    pub retirement: RawRetirement,
+    #[serde(rename = "sterbetafel")]
+    pub mortality: RawMortality,
+    #[serde(rename = "ruhestandsalter")]
+    pub retirement_age: RawCountrySeries,
+    #[serde(rename = "lebenserwartung")]
+    pub life_expectancy: RawCountrySeries,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawEntryAges {
+    #[serde(rename = "standort")]
+    pub site: RawAgeSpan,
+    #[serde(rename = "land")]
+    pub country: RawAgeSpan,
+    #[serde(rename = "kontinent")]
+    pub continent: RawAgeSpan,
+    #[serde(rename = "vorstand")]
+    pub board: RawAgeSpan,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAgeSpan {
+    #[serde(rename = "von")]
+    pub min: f64,
+    #[serde(rename = "bis")]
+    pub max: f64,
+    #[serde(rename = "mittel")]
+    pub mean: f64,
+    #[serde(rename = "streuung")]
+    pub spread: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLevelStrength {
+    #[serde(rename = "land")]
+    pub country: f64,
+    #[serde(rename = "kontinent")]
+    pub continent: f64,
+    #[serde(rename = "vorstand")]
+    pub board: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAgeExperience {
+    pub jung_bis: f64,
+    pub jung: f64,
+    pub alt_ab: f64,
+    pub alt: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAgeRisk {
+    #[serde(rename = "ab")]
+    pub from: f64,
+    #[serde(rename = "je_jahr")]
+    pub per_year: f64,
+    #[serde(rename = "hoechstens")]
+    pub max: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAgeDecline {
+    #[serde(rename = "ab")]
+    pub from: f64,
+    pub chance: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRetirement {
+    #[serde(rename = "abweichung")]
+    pub spread: f64,
+    #[serde(rename = "vorwarnung_monate")]
+    pub warning_months: f64,
+    #[serde(rename = "verlaengerung_jahre_max")]
+    pub extension_years_max: f64,
+    #[serde(rename = "verlaengerung_aufschlag")]
+    pub extension_raise: f64,
+    /// The retirement age of the year in which a manager reaches this age applies to him.
+    #[serde(rename = "bezugsalter")]
+    pub reference_age: f64,
+    /// Ages from which the chance to agree falls, and at which it reaches nothing.
+    #[serde(rename = "zusage_alter")]
+    pub acceptance_ages: [f64; 2],
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMortality {
+    #[serde(rename = "ab")]
+    pub from: f64,
+    pub chance: f64,
+    #[serde(rename = "verdopplung_jahre")]
+    pub doubling_years: f64,
+}
+
+/// A value per country and year: a series for all countries and own series for some.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCountrySeries {
+    #[serde(rename = "standard")]
+    pub default: RawSeries,
+    #[serde(rename = "laender", default)]
+    pub countries: BTreeMap<String, RawSeries>,
+}
+
 /// Parameters of the events' effects (`parameter/ereignisse.yaml`, H1).
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]

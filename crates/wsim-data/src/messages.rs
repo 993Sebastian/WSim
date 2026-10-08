@@ -618,6 +618,14 @@ pub fn event_kind_unknown(kind: &str, known: &str) -> String {
     format!("Unbekannte Ereignisart „{kind}“; erlaubt sind {known}.")
 }
 
+pub fn age_mean_outside(mean: f64, min: f64, max: f64) -> String {
+    format!("Das Mittel {mean} liegt nicht zwischen „von“ ({min}) und „bis“ ({max}).")
+}
+
+pub fn levels_not_ascending() -> String {
+    "Die Grenzen müssen von Land über Kontinent bis Vorstand steigen.".into()
+}
+
 pub fn effect_field_not_allowed(field: &str, kind: &str) -> String {
     format!("Das Feld „{field}“ passt nicht zur Wirkung „{kind}“.")
 }

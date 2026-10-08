@@ -232,6 +232,23 @@ pub mod keys {
     pub const EVENT_EXPROPRIATION: &str = "meldung.ereignis.enteignung";
     pub const EVENT_STATE_COMPANY: &str = "meldung.ereignis.staatsbetrieb";
     pub const COMMAND_COUNTRY_CLOSED: &str = "fehler.befehl.land_abgeschottet";
+    pub const COMMAND_NOT_RETIRING: &str = "fehler.befehl.kein_ruhestand";
+    pub const COMMAND_EXTENSION_TOO_LONG: &str = "fehler.befehl.verlaengerung_zu_lang";
+    pub const MANAGER_RETIRING: &str = "meldung.manager.ruhestand_naht";
+    pub const MANAGER_RETIRING_REFUSED: &str = "meldung.manager.verlaengerung_abgelehnt";
+    pub const MANAGER_SUCCESSION_DECIDED: &str = "meldung.manager.nachfolge_entschieden";
+    pub const MANAGER_RETIRED: &str = "meldung.manager.ruhestand";
+    pub const MANAGER_RETIRED_SUCCESSOR: &str = "meldung.manager.ruhestand_nachfolger";
+    pub const MANAGER_DIED: &str = "meldung.manager.tod";
+    pub const MANAGER_DIED_SUCCESSOR: &str = "meldung.manager.tod_nachfolger";
+    pub const MANAGER_SUCCESSOR_GONE: &str = "meldung.manager.nachfolger_weg";
+    pub const STEP_SUCCESSOR: &str = "schritt.nachfolger";
+    pub const STEP_PROMOTE: &str = "schritt.befoerdern";
+    pub const STEP_EXTEND: &str = "schritt.verlaengern";
+    pub const STEP_VACANT: &str = "schritt.unbesetzt";
+    pub const BECAUSE_SUCCESSOR: &str = "anliegen.begruendung.nachfolger";
+    pub const BECAUSE_EXTEND: &str = "anliegen.begruendung.verlaengern";
+    pub const BECAUSE_VACANT: &str = "anliegen.begruendung.unbesetzt";
     pub const COMMAND_NO_BONDS: &str = "fehler.befehl.keine_anleihen";
     pub const COMMAND_BOND_TERM: &str = "fehler.befehl.anleihe_laufzeit";
     pub const COMMAND_BOND_TOO_SMALL: &str = "fehler.befehl.anleihe_zu_klein";
@@ -572,6 +589,23 @@ pub mod keys {
         EVENT_EXPROPRIATION,
         EVENT_STATE_COMPANY,
         COMMAND_COUNTRY_CLOSED,
+        COMMAND_NOT_RETIRING,
+        COMMAND_EXTENSION_TOO_LONG,
+        MANAGER_RETIRING,
+        MANAGER_RETIRING_REFUSED,
+        MANAGER_SUCCESSION_DECIDED,
+        MANAGER_RETIRED,
+        MANAGER_RETIRED_SUCCESSOR,
+        MANAGER_DIED,
+        MANAGER_DIED_SUCCESSOR,
+        MANAGER_SUCCESSOR_GONE,
+        STEP_SUCCESSOR,
+        STEP_PROMOTE,
+        STEP_EXTEND,
+        STEP_VACANT,
+        BECAUSE_SUCCESSOR,
+        BECAUSE_EXTEND,
+        BECAUSE_VACANT,
         COMMAND_NO_BONDS,
         COMMAND_BOND_TERM,
         COMMAND_BOND_TOO_SMALL,

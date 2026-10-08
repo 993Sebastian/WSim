@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use super::organisation::{role_key, unit_key};
 use super::{MessageView, iso, message_view, usd};
+use crate::aging;
 use crate::catalog::Catalog;
 use crate::command::Command;
 use crate::command::site_type_key;
@@ -167,6 +168,8 @@ fn reason_key(reason: ConcernReason) -> &'static str {
         ConcernReason::Poaching => "abwerbung",
         ConcernReason::Limit => "freigabe",
         ConcernReason::Participations => "beteiligung",
+        ConcernReason::Retirement => "ruhestand",
+        ConcernReason::Vacancy => "unbesetzt",
     }
 }
 
@@ -444,8 +447,46 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                     Param::Text(state.companies.get(o.bidder.index())?.name.clone()),
                 )
         }
+        // The views show the player's concerns: the position is the player's.
+        Command::AppointSuccessor { manager, position } => {
+            let x = state.managers.get(manager)?;
+            let demand = management::salary_demand(catalog, state, state.player, x, position);
+            let message = |key| {
+                m(key)
+                    .with("name", Param::Text(x.name.clone()))
+                    .with(
+                        "alter",
+                        integer(aging::age_of(x, state.date).unwrap_or(0).into()),
+                    )
+                    .with("staerke", integer(management::strength(x).round() as i64))
+            };
+            match &x.job {
+                Some(j) => message(keys::STEP_PROMOTE)
+                    .with("bisher", management::position_param(state, &j.position))
+                    .with("gehalt", Param::Money(demand.max(j.salary))),
+                None => message(keys::STEP_SUCCESSOR).with("gehalt", Param::Money(demand)),
+            }
+        }
+        Command::ExtendContract { manager, years } => {
+            let x = state.managers.get(manager)?;
+            let raise = catalog.life.extension_raise;
+            m(keys::STEP_EXTEND)
+                .with("name", Param::Text(x.name.clone()))
+                .with("jahre", integer(i64::from(*years)))
+                .with(
+                    "gehalt",
+                    Param::Money(x.job.as_ref()?.salary.scale(1.0 + raise)),
+                )
+                .with("aufschlag", percent(raise))
+                .with("chance", percent(aging::acceptance(catalog, x, state.date)))
+        }
+        Command::LeaveVacant { .. } => m(keys::STEP_VACANT),
         _ => return None,
     })
+}
+
+fn integer(n: i64) -> Param {
+    Param::Integer(n)
 }
 
 /// Why a department recommends a takeover, a licence, a refinancing or a raise
@@ -513,6 +554,14 @@ fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Opti
                 .with("wert", Param::Money(worth))
                 .with("faktor", Param::Number((factor * 10.0).round() / 10.0))
         }
+        Command::AppointSuccessor { manager, .. } => {
+            let x = state.managers.get(&manager)?;
+            m(keys::BECAUSE_SUCCESSOR)
+                .with("name", Param::Text(x.name.clone()))
+                .with("staerke", integer(management::strength(x).round() as i64))
+        }
+        Command::ExtendContract { .. } => m(keys::BECAUSE_EXTEND),
+        Command::LeaveVacant { .. } => m(keys::BECAUSE_VACANT),
         Command::RaiseSalary { manager, salary } => {
             let x = state.managers.get(&manager)?;
             let now = x.job.as_ref()?.salary;

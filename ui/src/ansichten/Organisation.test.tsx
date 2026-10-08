@@ -310,6 +310,47 @@ describe("Anliegen", () => {
     expect(gesendet).toEqual([{ StaffDepartment: { department: "Finance", staff: 3 } }]);
   });
 
+  it("zeigt Alter, Ruhestand, Nachfolger und ehemalige Manager (PE1)", async () => {
+    const vorschau = vorschauKern(0);
+    const uebersicht = await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+    });
+    const kern: Kern = {
+      ...vorschau,
+      organisation: async () => {
+        const o = await vorschau.organisation();
+        const holder = o.continents[0]!.countries[0]!.sites[0]!.positions[0]!.holder!;
+        holder.manager = { ...holder.manager, age: 64, retires_at: 65, retirement: "1915-03-01" };
+        holder.successor = {
+          manager: { ...holder.manager, id: 999, name: "Clara Weiß", age: 41 },
+          salary_usd: 30_000,
+          since: "1914-07-01",
+        };
+        return o;
+      },
+    };
+    render(
+      <OrganisationAnsicht
+        kern={kern}
+        uebersicht={{ ...uebersicht, concerns_open: 0 }}
+        onGeaendert={() => {}}
+      />,
+    );
+    expect(await screen.findByText(/64 Jahre · Ruhestand am 01\.03\.1915 mit 65/)).toBeTruthy();
+    expect(screen.getByText(/Nachfolger: Clara Weiß \(41 Jahre\), seit 01\.07\.1914/)).toBeTruthy();
+    const ehemalige = screen.getByRole("region", { name: "Ehemalige Manager" });
+    const zeile = within(ehemalige).getAllByRole("row")[1]!;
+    expect(zeile.textContent).toMatch(/^Heinrich Albers.*Werk · Deutschland.*64Ruhestand$/);
+  });
+
   it("zeigt die Trefferquote einer Leitung", () => {
     expect(trefferquote(null, 0)).toBe("noch nichts bewertet");
     expect(trefferquote(0.625, 8)).toMatch(/^63\s?% \(8 bewertet\)$/);
@@ -335,6 +376,10 @@ describe("Anliegen", () => {
       "gegenangebot",
       "gehen_lassen",
       "umschulden",
+      "nachfolger",
+      "befoerdern",
+      "verlaengern",
+      "unbesetzt",
     ];
     const gruende: Anliegen["reason"][] = [
       "entscheidung",
@@ -348,6 +393,8 @@ describe("Anliegen", () => {
       "abwerbung",
       "freigabe",
       "beteiligung",
+      "ruhestand",
+      "unbesetzt",
     ];
     const ausgaenge: Anliegen["status"][] = [
       "offen",
@@ -365,7 +412,8 @@ describe("Anliegen", () => {
       ...["alle", "wichtige", "nie"].map((k) => `spiel.anhalten_${k}`),
       ...[0, 1, 2].map((k) => `organisation.zufriedenheit.${k}`),
       "thema.abwerbung",
-      ...["lizenz", "umschuldung", "gehaltsrunde"].map((k) => `thema.${k}`),
+      ...["lizenz", "umschuldung", "gehaltsrunde", "nachfolge"].map((k) => `thema.${k}`),
+      ...["ruhestand", "tod"].map((k) => `organisation.abgang.${k}`),
       ...["strategie", "finanzen", "personal", "recht", "marketing"].flatMap((k) => [
         `abteilung.${k}`,
         `abteilung.wirkung.${k}`,

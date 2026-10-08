@@ -1167,6 +1167,15 @@ organisation.vorstand_hilfe: "Der CEO und die Ressorts führen die Firma: Das Re
 organisation.wirkung_personal: Schätzt Bewerber und Manager genauer ein.
 organisation.nichts: "–"
 organisation.seit: "seit {datum}"
+organisation.alter: "{jahre} Jahre"
+organisation.alter_kurz: Alter
+organisation.ruhestand: "Ruhestand am {datum} mit {alter}"
+organisation.nachfolger: "Nachfolger: {name} ({alter} Jahre), seit {datum} bereit, {gehalt} im Jahr – übernimmt zum Ruhestand."
+organisation.ehemalige: Ehemalige Manager
+organisation.zeit: Zeit
+organisation.abgang_titel: Abgang
+organisation.abgang.ruhestand: Ruhestand
+organisation.abgang.tod: verstorben
 organisation.schwerpunkt: "Schwerpunkt {bereich}"
 organisation.schwerpunkt_kurz: Schwerpunkt
 organisation.faehigkeiten: Fähigkeiten
@@ -1248,6 +1257,8 @@ anliegen.grund.antrag: Ein Antrag des CEO aus der Strategierücksprache – er l
 anliegen.grund.abwerbung: Eine andere Firma will den Manager abwerben – ob du ihn hältst, entscheidest du.
 anliegen.grund.freigabe: "Kostet mehr als die Freigabegrenze der Abteilung ({grenze}) – darüber entscheidet sie nicht allein."
 anliegen.grund.beteiligung: "Das Budget für Beteiligungen reicht in diesem Jahr nicht mehr (übrig: {rest})."
+anliegen.grund.ruhestand: Ein Manager geht bald in den Ruhestand – wer ihm folgt, entscheidest du.
+anliegen.grund.unbesetzt: Die Stelle ist durch einen Todesfall frei geworden.
 anliegen.lage: "Ergebnis des Standorts zuletzt: {betrag} im Monat."
 anliegen.optionen: Optionen
 anliegen.option: Option
@@ -1456,6 +1467,7 @@ thema.lizenz: Lizenzen
 thema.umschuldung: Umschuldung
 thema.startup: Start-ups
 thema.gehaltsrunde: Gehaltsrunde
+thema.nachfolge: Nachfolge
 option.beibehalten: So lassen
 option.anpassen: Anpassen
 option.liefern: Liefern
@@ -1475,6 +1487,10 @@ option.gegenangebot: Gegenangebot
 option.gehen_lassen: Gehen lassen
 option.umschulden: Umschulden
 option.beteiligen: Beteiligen
+option.nachfolger: Nachfolger suchen
+option.befoerdern: Befördern
+option.verlaengern: Verlängerung anbieten
+option.unbesetzt: Unbesetzt lassen
 
 # Strategieauftrag und Strategierücksprache (MA5)
 auftrag.titel: Strategieauftrag an den Vorstand

@@ -132,6 +132,15 @@ struct ManagerYear {
     unhappy: usize,
     /// Yearly salaries of the AI companies' managers at the year end.
     ai_salaries_usd: f64,
+    /// Employed managers by the level of their position (site, country, continent,
+    /// board): count, mean and highest age (PE1).
+    ages: [(usize, f64, u32); 4],
+    /// Employed managers over 75, and the mean age of the free candidates.
+    over_75: usize,
+    pool_age: f64,
+    /// Managers who retired or died in the service of a company in the year.
+    retired: usize,
+    died: usize,
 }
 
 #[derive(Default)]
@@ -464,15 +473,40 @@ impl Protocol {
     fn close_manager_year(&mut self, game: &Game, year: i32) {
         let state = game.state();
         let catalog = game.catalog();
+        let departed = |reason: wsim_core::state::Departure| {
+            state
+                .companies
+                .iter()
+                .flat_map(|c| &c.former_managers)
+                .filter(|f| f.reason == reason && f.until.year() == year)
+                .count()
+        };
         let ai = |c: CompanyId| state.companies[c.index()].ai.is_some();
         let mut ceos = Vec::new();
         let (mut heads, mut employed, mut unhappy) = (0, 0, 0);
         let (mut satisfaction, mut salaries) = (0.0, 0.0);
         let threshold = catalog.management.market.resignation_threshold;
+        let today = state.date;
+        let mut ages = [(0_usize, 0.0, 0_u32); 4];
+        let (mut over_75, mut pool, mut pool_sum) = (0, 0, 0.0);
         for m in state.managers.values() {
+            let age = wsim_core::aging::age_of(m, today);
             let Some(job) = &m.job else {
+                if let Some(a) = age {
+                    pool += 1;
+                    pool_sum += f64::from(a);
+                }
                 continue;
             };
+            if let Some(a) = age {
+                let level = &mut ages[wsim_core::management::level_of(job.position.unit).min(3)];
+                level.0 += 1;
+                level.1 += f64::from(a);
+                level.2 = level.2.max(a);
+                if a > 75 {
+                    over_75 += 1;
+                }
+            }
             employed += 1;
             let value = wsim_core::staffing::satisfaction(catalog, job);
             satisfaction += f64::from(value);
@@ -520,6 +554,15 @@ impl Protocol {
             },
             unhappy,
             ai_salaries_usd: salaries,
+            ages: ages.map(|(n, sum, max)| (n, if n == 0 { 0.0 } else { sum / n as f64 }, max)),
+            over_75,
+            pool_age: if pool == 0 {
+                0.0
+            } else {
+                pool_sum / f64::from(pool)
+            },
+            retired: departed(wsim_core::state::Departure::Retired),
+            died: departed(wsim_core::state::Departure::Died),
         });
     }
 
@@ -647,6 +690,32 @@ impl Protocol {
                     y.unhappy,
                     y.moved,
                     y.left
+                );
+            }
+        }
+        if self.managers.iter().any(|y| y.ages.iter().any(|a| a.0 > 0)) {
+            md.push_str("\n## Alter der Manager (PE1)\n\nAngestellte Manager je Ebene ihrer Stelle am Jahresende: Anzahl, mittleres und höchstes Alter; über 75 im Dienst; mittleres Alter der freien Kandidaten; Ruhestand und Tod im Dienst einer Firma im Jahr.\n\n| Jahr | Standort | Land | Kontinent | Vorstand | über 75 | Pool Ø | Ruhestand | Tod |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n");
+            for y in &self.managers {
+                let level = |i: usize| {
+                    let (n, mean, max) = y.ages[i];
+                    if n == 0 {
+                        "–".to_owned()
+                    } else {
+                        format!("{n}: Ø {mean:.0}, max {max}")
+                    }
+                };
+                let _ = writeln!(
+                    md,
+                    "| {} | {} | {} | {} | {} | {} | {:.0} | {} | {} |",
+                    y.year,
+                    level(0),
+                    level(1),
+                    level(2),
+                    level(3),
+                    y.over_75,
+                    y.pool_age,
+                    y.retired,
+                    y.died
                 );
             }
         }

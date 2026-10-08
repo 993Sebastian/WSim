@@ -3,6 +3,7 @@
 //! The core has no dependency on the UI, Tauri or file IO. It receives a compiled
 //! catalog from `wsim-data`, accepts commands and advances the world in daily ticks.
 
+pub mod aging;
 pub mod ai;
 pub mod bank;
 pub mod bonds;
@@ -56,6 +57,8 @@ pub mod transport;
 pub mod ventures;
 pub mod views;
 
+#[cfg(test)]
+mod aging_tests;
 #[cfg(test)]
 mod bank_tests;
 #[cfg(test)]

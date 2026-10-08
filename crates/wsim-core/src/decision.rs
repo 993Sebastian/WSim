@@ -49,10 +49,12 @@ pub enum Topic {
     SalaryRound,
     /// Pledges to the rounds of start-ups (SU2).
     Venture,
+    /// The successor of a manager who retires or died (PE1).
+    Succession,
 }
 
 impl Topic {
-    pub const ALL: [Topic; 24] = [
+    pub const ALL: [Topic; 25] = [
         Topic::Production,
         Topic::Sale,
         Topic::Purchase,
@@ -77,6 +79,7 @@ impl Topic {
         Topic::Refinance,
         Topic::SalaryRound,
         Topic::Venture,
+        Topic::Succession,
     ];
 
     pub fn from_key(key: &str) -> Option<Topic> {
@@ -109,6 +112,7 @@ impl Topic {
             Topic::Refinance => "umschuldung",
             Topic::SalaryRound => "gehaltsrunde",
             Topic::Venture => "startup",
+            Topic::Succession => "nachfolge",
         }
     }
 }
@@ -139,6 +143,14 @@ pub enum ChoiceKind {
     Refinance,
     /// A pledge to a start-up (SU2).
     Invest,
+    /// A successor from the market (PE1).
+    Successor,
+    /// A manager of the company from a position below as successor (PE1).
+    Promote,
+    /// Staying longer (PE1).
+    Extend,
+    /// Leaving the position free (PE1).
+    Vacant,
 }
 
 impl ChoiceKind {
@@ -163,6 +175,10 @@ impl ChoiceKind {
             ChoiceKind::LetGo => "gehen_lassen",
             ChoiceKind::Refinance => "umschulden",
             ChoiceKind::Invest => "beteiligen",
+            ChoiceKind::Successor => "nachfolger",
+            ChoiceKind::Promote => "befoerdern",
+            ChoiceKind::Extend => "verlaengern",
+            ChoiceKind::Vacant => "unbesetzt",
         }
     }
 }

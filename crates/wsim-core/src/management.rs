@@ -325,7 +325,7 @@ pub fn holder(state: &GameState, company: CompanyId, position: &Position) -> Opt
         .find(|(_, m)| {
             m.job
                 .as_ref()
-                .is_some_and(|j| j.company == company && j.position == *position)
+                .is_some_and(|j| j.company == company && j.position == *position && !j.successor)
         })
         .map(|(&id, _)| id)
 }
@@ -417,14 +417,14 @@ pub fn salary_demand(
 
 /// Salary of a job for the days from `from` up to (not including) `to`, within a month:
 /// a twelfth of the yearly salary per month, by days.
-fn salary_for(job: &Job, from: Date, to: Date) -> Money {
+pub(crate) fn salary_for(job: &Job, from: Date, to: Date) -> Money {
     let days = i64::from(from.days_until(to).max(0));
     let month = i64::from(days_in_month(from.year(), from.month()));
     Money::from_units(job.salary.units() / 12 * days / month.max(1))
 }
 
 /// Salaries are personnel costs of the site, those of higher positions overhead (MA3).
-fn book_personnel(state: &mut GameState, company: CompanyId, unit: Unit, amount: Money) {
+pub(crate) fn book_personnel(state: &mut GameState, company: CompanyId, unit: Unit, amount: Money) {
     if amount <= Money::ZERO {
         return;
     }
@@ -532,6 +532,7 @@ pub(crate) fn hire(
         salary,
         since,
         satisfaction: Some(catalog.management.market.satisfaction.start),
+        successor: false,
     });
     Ok(())
 }
@@ -690,7 +691,7 @@ pub(crate) fn month_number(date: Date) -> u32 {
 }
 
 /// Day number of a date for the checks and the managers' random streams.
-fn day_number(date: Date) -> u32 {
+pub(crate) fn day_number(date: Date) -> u32 {
     let epoch = Date::first_of_year(crate::EARLIEST_START_YEAR);
     u32::try_from(epoch.days_until(date)).unwrap_or(0)
 }
@@ -720,13 +721,14 @@ pub fn next_check(catalog: &Catalog, unit: Unit, date: Date) -> Option<Date> {
 /// At the start of a month (and when a game starts): jobs that no longer exist end, free
 /// candidates leave the market and new ones come until each continent has its number
 /// (docs/FORMELN.md, MA1). Old saves get their market at their first month start.
-pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
+pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let m = &catalog.management;
     if !m.enabled() {
-        return;
+        return Vec::new();
     }
     end_void_jobs(state, catalog, date);
     tidy_concerns(state, catalog, date);
+    let news = crate::aging::month_start(state, catalog, date);
     let mut rng = SimRng::for_stream(
         state.settings.seed,
         Stream::ManagerMarket {
@@ -771,6 +773,8 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) {
         }
     }
     crate::staffing::set_potentials(state, catalog);
+    crate::aging::set_births(state, catalog, date);
+    news
 }
 
 /// A country of a continent, weighted by its academics.
@@ -852,6 +856,11 @@ fn draw(
         courted: None,
         judged: 0,
         hits: 0,
+        born: None,
+        retire_offset: 0,
+        extended: 0,
+        succession_asked: false,
+        extension_refused: false,
     }
 }
 

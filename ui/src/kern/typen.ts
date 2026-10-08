@@ -1134,6 +1134,29 @@ export interface Manager {
   /** Estimates of targets judged so far, and the hit rate (null before the first; ZA3). */
   judged: number;
   hit_rate: number | null;
+  /** Age today, the age at which he plans to retire and the day (PE1). */
+  age?: number | null;
+  retires_at?: number | null;
+  retirement?: string | null;
+}
+
+/** The successor waiting for a position until its holder retires (PE1). */
+export interface Nachfolger {
+  manager: Manager;
+  salary_usd: number;
+  since: string;
+}
+
+/** A manager who retired or died in the company's service (PE1). */
+export interface EhemaligerManager {
+  name: string;
+  /** Age when he left. */
+  age: number | null;
+  position: AnliegenStelle;
+  since: string;
+  until: string;
+  judged: number;
+  reason: "ruhestand" | "tod";
 }
 
 /** Another company's offer to a manager of the player (MA6). */
@@ -1155,6 +1178,8 @@ export interface Stelleninhaber {
   /** 0 unhappy, 1 mixed, 2 happy (MA6). */
   satisfaction: number;
   offer: Abwerbeangebot | null;
+  /** His successor, appointed before he retires (PE1). */
+  successor?: Nachfolger | null;
 }
 
 /** What a position may spend without asking (MA2). */
@@ -1389,6 +1414,8 @@ export interface Organisation {
   kinds?: Stellentyp[];
   /** The headquarters and the central departments (ZA1–ZA3). */
   central?: Zentrale;
+  /** Managers who retired or died in its service, the latest first (PE1). */
+  former?: EhemaligerManager[];
 }
 
 export interface Kandidat {
@@ -1483,7 +1510,9 @@ export interface Anliegen {
     | "antrag"
     | "abwerbung"
     | "freigabe"
-    | "beteiligung";
+    | "beteiligung"
+    | "ruhestand"
+    | "unbesetzt";
   options: AnliegenOption[];
   recommended: number;
   /** Why the position recommends its option. */

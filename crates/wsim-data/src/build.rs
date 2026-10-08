@@ -28,6 +28,7 @@ mod countries;
 mod currencies;
 mod deals;
 mod events;
+mod life;
 mod logistics;
 mod management;
 mod milestones;
@@ -656,6 +657,7 @@ pub(crate) fn build(
     );
     b.catalog.events = events::events(b.ctx, &events, (&country_keys, &group_keys), texts);
     b.catalog.event_model = events::event_model(b.ctx, raw);
+    b.catalog.life = life::life_model(b.ctx, &b.catalog, raw);
 
     let (milestone_keys, milestone_entries) = register(
         b.ctx,

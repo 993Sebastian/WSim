@@ -373,6 +373,9 @@ pub struct Company {
     /// The country whose state company this is (H1): it took over seized sites there.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub state_owned: Option<CountryId>,
+    /// Managers who retired or died in its service (PE1).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub former_managers: Vec<FormerManager>,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -532,6 +535,10 @@ pub enum ConcernReason {
     Limit,
     /// The bid exceeds what is left of the budget for participations (ZA2).
     Participations,
+    /// A manager retires soon (PE1).
+    Retirement,
+    /// A manager died; his position is free (PE1).
+    Vacancy,
 }
 
 /// A question of a position to the player (MA2): a decision over its budget or authority.
@@ -662,10 +669,53 @@ pub struct Manager {
     pub judged: u32,
     #[serde(default, skip_serializing_if = "no_count")]
     pub hits: u32,
+    /// Day of birth (PE1); drawn with him, for older saves when loading.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub born: Option<Date>,
+    /// Years his retirement differs from his country's retirement age (PE1).
+    #[serde(default, skip_serializing_if = "no_offset")]
+    pub retire_offset: i8,
+    /// Years he agreed to stay longer (PE1).
+    #[serde(default, skip_serializing_if = "no_years")]
+    pub extended: u8,
+    /// Whether his company was asked about his succession (PE1).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub succession_asked: bool,
+    /// Whether he turned down staying longer (PE1).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub extension_refused: bool,
 }
 
 fn no_count(n: &u32) -> bool {
     *n == 0
+}
+
+fn no_offset(n: &i8) -> bool {
+    *n == 0
+}
+
+fn no_years(n: &u8) -> bool {
+    *n == 0
+}
+
+/// Why a manager left for good (PE1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Departure {
+    Retired,
+    Died,
+}
+
+/// A manager who left the company for good, kept in its history (PE1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FormerManager {
+    pub name: String,
+    pub born: Option<Date>,
+    pub position: Position,
+    pub since: Date,
+    pub until: Date,
+    pub judged: u32,
+    pub hits: u32,
+    pub reason: Departure,
 }
 
 /// A start-up (docs/FORMELN.md, SU1).
@@ -835,6 +885,10 @@ pub struct Job {
     /// 0–100 (MA6); `None`: the start value of the data (older saves).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub satisfaction: Option<u8>,
+    /// Successor of the holder of the position until he retires (PE1): paid, but not
+    /// the holder yet.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub successor: bool,
 }
 
 /// Where a position sits (MA3, MA5): a site, a country or continent of its company, or
@@ -1826,6 +1880,7 @@ impl GameState {
         self.refresh_countries(catalog);
         crate::plots::fit_loaded(self, catalog);
         crate::central::refresh_staffing(self, catalog);
+        crate::aging::set_births(self, catalog, self.date);
     }
 }
 

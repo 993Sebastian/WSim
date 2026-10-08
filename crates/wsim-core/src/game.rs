@@ -198,6 +198,7 @@ impl Game {
             bonds: Vec::new(),
             bank: None,
             state_owned: None,
+            former_managers: Vec::new(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -502,7 +503,11 @@ impl Game {
                 crate::tariffs::new_year(&mut self.state, &self.catalog, next.year());
             }
             self.state.refresh_countries(&self.catalog);
-            crate::management::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::management::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             report.messages.extend(crate::central::month_start(
                 &mut self.state,
                 &self.catalog,

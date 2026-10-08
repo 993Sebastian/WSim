@@ -98,7 +98,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
         month: management::month_number(date),
         rngs: BTreeMap::new(),
     };
-    experience(state, catalog, &mut streams);
+    experience(state, catalog, date, &mut streams);
     update_satisfaction(state, catalog, date);
     resignations(state, catalog, date, &mut streams, &mut news);
     heads_hire(state, catalog, &mut streams, &mut news);
@@ -108,7 +108,7 @@ pub fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<
 }
 
 /// A point of expertise in the function of the job, with a chance, up to the potential.
-fn experience(state: &mut GameState, catalog: &Catalog, streams: &mut Streams) {
+fn experience(state: &mut GameState, catalog: &Catalog, date: Date, streams: &mut Streams) {
     let chance = catalog.management.market.experience_chance;
     // Training by a personnel department (ZA2).
     let trained: BTreeMap<CompanyId, f64> = (0..state.companies.len())
@@ -126,7 +126,8 @@ fn experience(state: &mut GameState, catalog: &Catalog, streams: &mut Streams) {
         let Some(job) = &m.job else {
             continue;
         };
-        let p = trained.get(&job.company).copied().unwrap_or(chance);
+        let p = trained.get(&job.company).copied().unwrap_or(chance)
+            * crate::aging::experience_factor(catalog, m, date);
         let gains = streams.of(id).chance(p);
         let function = job_function(m, job).to_owned();
         let cap = m.potential.unwrap_or(100);
@@ -232,7 +233,7 @@ pub fn place_param(catalog: &Catalog, state: &GameState, unit: Unit) -> Param {
 }
 
 /// A message about a manager of the player: his name, position and its place.
-fn about(
+pub(crate) fn about(
     catalog: &Catalog,
     state: &GameState,
     kind: MessageKind,
@@ -624,7 +625,7 @@ pub(crate) fn match_offer(
 
 /// Open concerns about an offer to a manager close: answered otherwise, or void. An
 /// answer to the concern itself sets its own status afterwards.
-fn close_concerns(state: &mut GameState, manager: ManagerId, status: ConcernStatus) {
+pub(crate) fn close_concerns(state: &mut GameState, manager: ManagerId, status: ConcernStatus) {
     let today = state.date;
     for c in &mut state.concerns {
         if c.status == ConcernStatus::Open
@@ -663,6 +664,7 @@ pub(crate) fn let_go(
             salary: offer.salary,
             since: today,
             satisfaction: Some(start),
+            successor: false,
         });
     }
     Ok(())

@@ -20,6 +20,7 @@ import { geld } from "../kern/befehle";
 import type {
   Abteilung,
   Budgetvorgabe,
+  EhemaligerManager,
   EinheitOrganisation,
   Kandidat,
   Kern,
@@ -95,6 +96,65 @@ export function AlleFaehigkeiten({ m }: { m: Manager }) {
   );
 }
 
+/** Age and planned retirement of a manager (PE1); nothing while managers do not age. */
+function Lebenslauf({ m }: { m: Manager }) {
+  if (m.age == null) return null;
+  return (
+    <>
+      <br />
+      <small>
+        {t("organisation.alter", { jahre: formatZahl(m.age) })}
+        {m.retirement != null &&
+          m.retires_at != null &&
+          ` · ${t("organisation.ruhestand", {
+            datum: formatDatum(m.retirement),
+            alter: formatZahl(m.retires_at),
+          })}`}
+      </small>
+    </>
+  );
+}
+
+/** Managers who retired or died in the company's service (PE1). */
+function Ehemalige({ liste }: { liste: EhemaligerManager[] }) {
+  if (liste.length === 0) return null;
+  return (
+    <section aria-label={t("organisation.ehemalige")}>
+      <h2>{t("organisation.ehemalige")}</h2>
+      <table className="tabelle">
+        <thead>
+          <tr>
+            <th>{t("organisation.name")}</th>
+            <th>{t("organisation.stelle")}</th>
+            <th>{t("organisation.zeit")}</th>
+            <th className="zahl">{t("organisation.alter_kurz")}</th>
+            <th>{t("organisation.abgang_titel")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {liste.map((e, i) => (
+            <tr key={`${e.name}-${e.until}-${i}`}>
+              <td>{e.name}</td>
+              <td data-spalte={t("organisation.stelle")}>
+                {stellenName(e.position.role, e.position.kind_text)} · {einheitName(e.position)}
+              </td>
+              <td data-spalte={t("organisation.zeit")}>
+                {formatDatum(e.since)} – {formatDatum(e.until)}
+              </td>
+              <td className="zahl" data-spalte={t("organisation.alter_kurz")}>
+                {e.age == null ? "–" : formatZahl(e.age)}
+              </td>
+              <td data-spalte={t("organisation.abgang_titel")}>
+                {t(`organisation.abgang.${e.reason}`)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 /** "62 % (8 bewertet)", or that nothing was judged yet (ZA3). */
 export function trefferquote(rate: number | null, judged: number): string {
   return rate === null
@@ -129,6 +189,20 @@ function Inhaber({ s, stelle }: { s: EinheitOrganisation; stelle: Stelle }) {
           {fachDerStelle(h.manager, stelle.role)} · {t("faehigkeit.erkennen")}:{" "}
           {stufe(h.manager, "erkennen")} · {t("organisation.seit", { datum: formatDatum(h.since) })}
         </small>
+        <Lebenslauf m={h.manager} />
+        {h.successor && (
+          <>
+            <br />
+            <small>
+              {t("organisation.nachfolger", {
+                name: h.successor.manager.name,
+                alter: formatZahl(h.successor.manager.age ?? 0),
+                datum: formatDatum(h.successor.since),
+                gehalt: formatGeld(h.successor.salary_usd),
+              })}
+            </small>
+          </>
+        )}
       </td>
       <td data-spalte={t("organisation.erledigt")}>
         <Themen themen={stelle.topics} />
@@ -1127,6 +1201,7 @@ function Organigramm({
           ))}
         </section>
       ))}
+      <Ehemalige liste={daten.former ?? []} />
     </>
   );
 }
@@ -1148,6 +1223,9 @@ function KandidatZeile({
     <tr>
       <td>
         <strong>{m.name}</strong> <AlleFaehigkeiten m={m} />
+      </td>
+      <td className="zahl" data-spalte={t("organisation.alter_kurz")}>
+        {m.age == null ? "–" : formatZahl(m.age)}
       </td>
       <td data-spalte={t("organisation.heimat")}>{landName(m.home)}</td>
       <td data-spalte={t("organisation.schwerpunkt_kurz")}>{t(`bereich.${m.focus}`)}</td>
@@ -1216,6 +1294,7 @@ function Managermarkt({
   const kopf = (
     <tr>
       <th>{t("organisation.name")}</th>
+      <th className="zahl">{t("organisation.alter_kurz")}</th>
       <th>{t("organisation.heimat")}</th>
       <th>{t("organisation.schwerpunkt_kurz")}</th>
       <th>{t("organisation.fach_der_stelle")}</th>

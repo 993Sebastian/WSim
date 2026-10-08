@@ -726,6 +726,27 @@ Beispiel: `- {art: handelssperre, laender: [GBR, FRA], gegen: [DEU], bis: "1919-
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 
+## lebenslauf
+
+`data/parameter/lebenslauf.yaml` (PE1), optional; ohne den Abschnitt altern Manager nicht.
+Ein Abschnitt `lebenslauf` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **eintrittsalter** | Je Ebene `standort`, `land`, `kontinent`, `vorstand`: `von`, `bis` (16–100 Jahre, `von` ≤ `bis`), `mittel` (zwischen beiden), `streuung` (> 0) der abgeschnittenen Normalverteilung des Alters beim Eintritt in den Pool |
+| **ebene_nach_staerke** | `land`, `kontinent`, `vorstand` (0–100, steigend): ab dieser Stärke wird ein neuer Kandidat für diese Ebene gezogen |
+| **erfahrung** | `jung_bis`, `alt_ab` (Jahre), `jung`, `alt` (Faktoren 0–10 auf die Erfahrungschance, MA6) |
+| **risiko** | `ab` (Jahre), `je_jahr` (0–10 Punkte), `hoechstens` (0–100 Punkte): Abnahme der Risikofreude |
+| **abbau** | `ab` (Jahre), `chance` (0–1 je Geburtstag) für Erkennen und Führung |
+| **ruhestand** | `abweichung` (0–20 Jahre, persönlich ±), `vorwarnung_monate` (1–60), `verlaengerung_jahre_max` (0–10), `verlaengerung_aufschlag` (0–5, Gehaltsaufschlag), `bezugsalter` (Jahre: das Ruhestandsalter dieses Lebensjahres gilt), `zusage_alter` (`[von, bis]`, steigend: die Zusage zur Verlängerung sinkt dazwischen von voll auf null) |
+| **sterbetafel** | `ab` (Jahre), `chance` (0–1, Sterbechance je Monat bei der Lebenserwartung), `verdopplung_jahre` (> 0) |
+| **ruhestandsalter** | Länder-Zeitreihe: `standard` (Jahr → Alter 40–90) und optional `laender` (ISO-Code → eigene Reihe) |
+| **lebenserwartung** | Länder-Zeitreihe wie oben (30–110 Jahre): Alter, in dem die Sterbechance `chance` erreicht |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
+
+Das Thema `nachfolge` gehört in `management.bereiche` zum Personalbereich: Dessen Stellen
+fragen nach der Nachfolge.
+
 ## preisindex
 
 Verbraucherpreise der Leitwährung (in `waehrungen/preisindex.yaml`), einmalig. Sie

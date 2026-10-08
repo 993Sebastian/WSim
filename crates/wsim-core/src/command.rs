@@ -279,6 +279,17 @@ pub enum Command {
     MatchOffer { manager: ManagerId },
     /// Lets a manager of the company go to the company that made him an offer (MA6).
     LetGo { manager: ManagerId },
+    /// A free candidate or a manager of the company from a position below becomes the
+    /// successor of a holder who retires soon, or takes the free position at once (PE1).
+    AppointSuccessor {
+        manager: ManagerId,
+        position: Position,
+    },
+    /// Offers a manager of the company who retires soon to stay longer at a higher salary
+    /// (PE1); he agrees with a chance.
+    ExtendContract { manager: ManagerId, years: u8 },
+    /// The position stays free when its holder retires (PE1).
+    LeaveVacant { position: Position },
     /// Moves the headquarters to another country (ZA1) or city (W2; none: the capital).
     SetHeadquarters {
         country: CountryId,
@@ -633,6 +644,12 @@ pub enum CommandError {
     },
     /// The company offers no shares of the start-up (ZA4).
     NoStakeOffer,
+    /// The manager does not retire within the warning period (PE1).
+    NotRetiring,
+    /// He may stay at most so many years longer.
+    ExtensionTooLong {
+        max: u8,
+    },
 }
 
 impl CommandError {
@@ -823,6 +840,10 @@ impl CommandError {
                 .with("fortschritt", Param::Number((*progress * 100.0).floor()))
                 .with("mindestens", Param::Number((*min * 100.0).round())),
             CommandError::NoStakeOffer => e(keys::COMMAND_NO_STAKE_OFFER),
+            CommandError::NotRetiring => e(keys::COMMAND_NOT_RETIRING),
+            CommandError::ExtensionTooLong { max } => {
+                e(keys::COMMAND_EXTENSION_TOO_LONG).with("jahre", integer(usize::from(*max)))
+            }
         }
     }
 }
@@ -1098,6 +1119,15 @@ fn run(
         }
         Command::LetGo { manager } => {
             crate::staffing::let_go(state, catalog, actor, *manager)?;
+        }
+        Command::AppointSuccessor { manager, position } => {
+            crate::aging::appoint(state, catalog, actor, *manager, position)?;
+        }
+        Command::ExtendContract { manager, years } => {
+            crate::aging::extend(state, catalog, actor, *manager, *years)?;
+        }
+        Command::LeaveVacant { position } => {
+            crate::aging::leave_vacant(state, catalog, actor, position)?;
         }
         Command::SetHeadquarters { country, city } => {
             crate::central::set_headquarters(state, catalog, actor, (*country, city.as_deref()))?;

@@ -1403,6 +1403,41 @@ entschieden:
    KI-Firmen englische Namen, weil die Namensgruppen diese Länder nicht abdecken
    (Vorschlag: Namensgruppen für Mittel- und Osteuropa ergänzen).
 
+✅ **PE1 umgesetzt** (Alter der Manager; Vorgabe `docs/PERSON.md` §3–4; Regeln:
+`docs/FORMELN.md`, Abschnitt PE1; Format: `docs/DATENFORMAT.md`, `lebenslauf`).
+🟡 Eigenständig entschieden:
+
+1. **Ebene eines neuen Kandidaten nach Stärke:** Kandidaten haben keine Fokusstelle; die
+   Altersverteilung der Vorgabe (Standort … Vorstand) wählt ihre Stärke (ab 50 Land, ab 57
+   Kontinent, ab 63 Vorstand). Manager alter Spielstände bekommen das Alter der Ebene ihrer
+   Stelle, gezogen beim Laden.
+2. **Ruhestandsalter vor 1960 höher:** Standard 70 (1900), 67 (1930), 65 (1960), 63
+   (1980–2000), 66 (2026), 67 (2060); eigene Reihen für Deutschland, Frankreich, Japan,
+   China, Russland. Die Vorgabe nennt „Standard 65“ – vor den Rentensystemen arbeiteten
+   Führungskräfte meist länger. Es gilt das Alter des Jahres, in dem der Manager 65 wird
+   (`bezugsalter`), damit sich sein Termin nicht jährlich verschiebt.
+3. **Lebenserwartung Erwachsener** statt bei Geburt (sonst stürben Manager um 1900 mit
+   Ende 40): Standard 60 (1900) bis 79 (2100), eigene Reihen für zwölf Länder.
+4. **Verlängerung in einem Schritt** um die noch offenen Jahre (höchstens drei); die
+   Zusage sinkt von 60 bis 80 Jahren auf null (`zusage_alter`). Lehnt er ab, kommt im
+   Folgemonat ein neues Anliegen ohne Verlängerung.
+5. **Befördern** zieht nur Stellen darunter heran (Fachstellen gleicher Fachrichtung,
+   bei Leitungen auch die Fachstellen der eigenen Einheit); die bisherige Stelle wird
+   sofort frei. Kandidaten, die selbst bald in den Ruhestand gehen, zählen nicht.
+6. **„Stelle neu besetzen“** nur nach einem Todesfall; nach einem Ruhestand ohne Nachfolger
+   wurde vorher gefragt. Ein vorgesehener Nachfolger, der vorher ausfällt (Kündigung,
+   Abwerbung, Tod), löst eine neue Frage aus.
+7. **KI-Firmen** ohne Anliegen und ohne Verlängerung: Freie Stellen besetzt ihre
+   Einstellungsregel (MA6) im selben Monat.
+8. **Bewerber verlassen den Markt** mit ihrem Ruhestand; ausgeschiedene Bewerber stehen in
+   keinem Lebenslauf.
+9. **Weltlauf 1900–1960** (100 KI-Firmen, Vorgaben, 20 Minuten): kein Manager über 75 im
+   Dienst (höchstens 74). Standortleitungen im Mittel 44 (1900) bis 52 Jahre (ab 1913),
+   Vorstände 43 bis 54, freie Kandidaten um 40; je Jahr gehen 40–90 Manager der Firmen in
+   den Ruhestand und sterben 30–45 im Dienst (rund 2 % der Angestellten). Die KI wählt die
+   stärksten Kandidaten und damit eher ältere – deshalb liegen Standortleitungen über dem
+   Mittel ihrer Ebene. Pleiten bis 1951: 48 (H1-Lauf: 40), keine Pleitenwelle.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

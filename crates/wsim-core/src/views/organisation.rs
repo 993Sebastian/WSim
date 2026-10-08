@@ -40,6 +40,32 @@ pub struct ManagerView {
     /// is none before the first judgment.
     pub judged: u32,
     pub hit_rate: Option<f64>,
+    /// Age today and the age at which he plans to retire, with the day (PE1).
+    pub age: Option<u32>,
+    pub retires_at: Option<u32>,
+    pub retirement: Option<String>,
+}
+
+/// The successor waiting for a position until its holder retires (PE1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SuccessorView {
+    pub manager: ManagerView,
+    pub salary_usd: f64,
+    pub since: String,
+}
+
+/// A manager who retired or died in the company's service (PE1).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FormerManagerView {
+    pub name: String,
+    /// Age when he left.
+    pub age: Option<u32>,
+    pub position: super::concerns::ConcernPositionView,
+    pub since: String,
+    pub until: String,
+    pub judged: u32,
+    /// `ruhestand` or `tod`.
+    pub reason: String,
 }
 
 /// Another company's offer to a manager of the player (MA6).
@@ -63,6 +89,8 @@ pub struct HolderView {
     /// 0 unhappy, 1 mixed, 2 happy (MA6).
     pub satisfaction: u8,
     pub offer: Option<PoachOfferView>,
+    /// His successor, appointed before he retires (PE1).
+    pub successor: Option<SuccessorView>,
 }
 
 /// What a position may spend without asking (MA2).
@@ -214,6 +242,8 @@ pub struct OrganisationView {
     pub kinds: Vec<PositionKindView>,
     /// The headquarters and the central departments (ZA1–ZA3).
     pub central: super::CentralView,
+    /// Managers who retired or died in its service, the latest first (PE1).
+    pub former: Vec<FormerManagerView>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -481,6 +511,9 @@ fn manager_view(game: &Game, id: ManagerId, m: &Manager) -> ManagerView {
         skills,
         judged: m.judged,
         hit_rate: (m.judged > 0).then(|| crate::central::hit_rate(c, m)),
+        age: crate::aging::age_of(m, game.state().date),
+        retires_at: crate::aging::retirement_age(c, m),
+        retirement: crate::aging::retirement(c, m).map(iso),
     }
 }
 
@@ -578,6 +611,15 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
                     salary_usd: usd(o.salary),
                     until: iso(o.until),
                 }),
+            successor: crate::aging::successor_of(state, player, &job.position).and_then(|s| {
+                let x = &state.managers[&s];
+                let j = x.job.as_ref()?;
+                Some(SuccessorView {
+                    manager: manager_view(game, s, x),
+                    salary_usd: usd(j.salary),
+                    since: iso(j.since),
+                })
+            }),
         }
     };
     let position_view = |position: &Position, topics: &[Topic]| {
@@ -824,6 +866,24 @@ pub fn organisation(game: &Game) -> OrganisationView {
         rules,
         kinds,
         central: super::central(game),
+        former: state.companies[game.player().index()]
+            .former_managers
+            .iter()
+            .rev()
+            .map(|f| FormerManagerView {
+                name: f.name.clone(),
+                age: f.born.map(|b| crate::aging::age(b, f.until)),
+                position: super::concerns::position_view(c, state, &f.position),
+                since: iso(f.since),
+                until: iso(f.until),
+                judged: f.judged,
+                reason: match f.reason {
+                    crate::state::Departure::Retired => "ruhestand",
+                    crate::state::Departure::Died => "tod",
+                }
+                .to_owned(),
+            })
+            .collect(),
     }
 }
 

@@ -4407,3 +4407,103 @@ Ereignisse gewandert.
 Die Meldung eines Weltereignisses nennt seine Wirkungen je eine Zeile (Folge). Verliert
 der Spieler durch Zerstörung oder Enteignung Anlagen oder Standorte, erhält er eine
 Warnung mit dem Verlust.
+
+## PE1 – Alter der Manager
+
+Vorgabe `docs/PERSON.md` §3, §4. Daten: `parameter/lebenslauf.yaml`. Kern: Modul `aging`.
+
+### Geburtsdatum
+
+Jeder Manager hat ein Geburtsdatum; das Alter (volle Jahre) wird am Spieltag berechnet.
+Ein neuer Kandidat bekommt eine **Ebene** nach seiner Stärke S (Mittel aus Fachwissen im
+Schwerpunkt, Erkennen und Urteilsvermögen, MA1):
+
+    Ebene = Standort, wenn S < grenze_land; Land, wenn S < grenze_kontinent;
+            Kontinent, wenn S < grenze_vorstand; sonst Vorstand
+
+und ein Eintrittsalter aus der Normalverteilung der Ebene (Mittel, Streuung), abgeschnitten
+auf deren Spanne (Standort 26–50, Mittel 35; Land 32–55, 42; Kontinent 38–58, 47; Vorstand
+42–62, 52). Der Tag im Jahr ist gleichverteilt. Alte Spielstände: beim Laden aus einem
+eigenen Zufallsstrom des Managers, mit der Ebene seiner Stelle (ohne Stelle nach Stärke).
+Dazu eine persönliche Abweichung vom Ruhestandsalter, gleichverteilt −5 bis +5 Jahre.
+
+### Wirkung des Alters
+
+- **Erfahrung** (MA6): Chance je Monat × 1,5 unter 35 Jahren, × 1,0 von 35 bis 54, × 0,5 ab 55.
+- **Risikofreude** sinkt ab 40 Jahren um 0,3 Punkte je Jahr, höchstens um 10: am Geburtstag
+  um ⌊0,3 · (Alter − 40)⌋ − ⌊0,3 · (Alter − 41)⌋ Punkte, bis 10 erreicht sind.
+- **Abbau ab 65:** Am Geburtstag sinken Erkennen und Führung mit je 10 % Chance um einen
+  Punkt. Urteilsvermögen und Fachwissen bleiben.
+- Die Gehaltsforderung folgt weiter nur den Fähigkeiten.
+
+### Ruhestand
+
+    Ruhestandsalter = ruhestandsalter(Heimatland, Geburtsjahr + bezugsalter)
+                      + persönliche Abweichung + vereinbarte Verlängerung
+    Ruhestand = erster Monatserster an oder nach dem Tag, an dem er es erreicht
+
+`ruhestandsalter` und `lebenserwartung` sind Länder-Zeitreihen (Standard für alle Länder,
+eigene Reihen für einzelne Länder, linear zwischen den Jahren). Das Ruhestandsalter gilt
+aus dem Jahr, in dem der Manager das Bezugsalter (65) erreicht; so verschiebt sich sein
+Termin nicht mit jedem Jahr. Zwölf Monate vorher (`vorwarnung_monate`) stellt bei der
+Spielerfirma die Personalstelle seiner Einheit oder einer Einheit darüber, sonst die
+nächste besetzte Leitung darüber – ohne beide er selbst – das Anliegen **„Nachfolge
+regeln“** (Thema `nachfolge`, Grund `ruhestand`, Frist bis zum Vortag des Ruhestands)
+mit bis zu vier Optionen:
+
+1. **Nachfolger suchen:** der stärkste freie Kandidat des Kontinents der Stelle (bei
+   Fachstellen mit dem Schwerpunkt der Stelle, sonst beliebig) wird Nachfolger zu seiner
+   Gehaltsforderung.
+2. **Befördern:** der stärkste Manager der Firma auf einer Stelle darunter wird Nachfolger
+   zum höheren aus bisherigem Gehalt und Forderung; seine bisherige Stelle wird sofort
+   frei. Darunter liegen bei Fachstellen die Fachstellen derselben Fachrichtung in
+   Einheiten darunter, bei Leitungen die Fachstellen der eigenen Einheit und die
+   Leitungen der Einheiten darunter.
+   Für 1 und 2 zählen nur Kandidaten, deren eigener Ruhestand später liegt als der
+   Amtsantritt plus Vorwarnzeit.
+3. **Verlängerung anbieten:** um die noch offenen Jahre bis `verlaengerung_jahre_max` (3)
+   gegen 20 % mehr Gehalt (`verlaengerung_aufschlag`). Er sagt zu mit der Chance
+
+       Zusage = Zufriedenheit / 100 · clamp(1 − (Alter − zusage_von) / (zusage_bis − zusage_von), 0, 1)
+
+   mit `zusage_alter` = [60, 80]. Sagt er zu, verschiebt sich der Ruhestand; zwölf Monate
+   vor dem neuen Termin wird wieder gefragt. Lehnt er ab, kommt zum nächsten Monatsersten
+   ein neues Anliegen ohne diese Option.
+4. **Unbesetzt lassen:** Er geht zum Termin, die Stelle bleibt leer.
+
+Empfohlen wird die stärkere der Optionen 1 und 2, ohne Kandidaten die Verlängerung, sonst
+„Unbesetzt lassen“. Hat der Spieler das Thema der fragenden Stelle abgegeben („Nicht mehr
+fragen“), entscheidet sie selbst nach der Empfehlung und meldet es. Ein **Nachfolger**
+sitzt bis zum Termin neben dem Amtsinhaber (beide Gehälter laufen), zählt aber nicht als
+Inhaber der Stelle. Zum Ruhestand übernimmt er die Stelle mit den offenen Anliegen; ohne
+Nachfolger bleibt sie leer, und die offenen Anliegen des Gegangenen gehen an die nächste
+besetzte Stelle darüber (sonst verfallen sie). Fällt ein vorgesehener Nachfolger vorher
+aus, wird erneut gefragt. Einen Nachfolger kann nur eine Stelle bekommen, deren Inhaber
+innerhalb der Vorwarnzeit in den Ruhestand geht; eine freie Stelle besetzt der Befehl
+sofort. KI-Firmen bekommen keine Anliegen: Ihre freien Stellen besetzt die KI wie bisher
+(MA6).
+
+### Tod
+
+Die Sterbechance je Monat steigt ab 50 Jahren exponentiell:
+
+    p(Alter) = 0,005 · 2^((Alter − Lebenserwartung) / verdopplung_jahre)    (Alter ≥ 50)
+
+mit `lebenserwartung` des Heimatlandes (das Alter, in dem die Chance 0,5 % je Monat
+erreicht) und `verdopplung_jahre` = 8. Ein Todesfall leert die Stelle sofort; ein
+Nachfolger übernimmt, sonst kommt bei Spielerfirmen das Anliegen **„Stelle neu besetzen“**
+(Thema `nachfolge`, Grund `unbesetzt`, Frist `frist_tage`; Optionen 1, 2 und 4, die
+Besetzung gilt sofort), sofern eine besetzte Stelle darüber fragen kann.
+
+### Pool und Ausgeschiedene
+
+Freie Kandidaten altern mit; sie verlassen den Pool mit dem Ruhestand und sterben nach
+derselben Tafel. Ausgeschiedene Manager verlassen den Bestand; die Firma behält sie im
+Lebenslauf (Name, Geburtsdatum, letzte Stelle, von–bis, Trefferquote, Grund). Die
+Zufallszahlen kommen aus eigenen Strömen je Manager: Geburt (einmal), Monat (Geburtstag,
+Tod) und Tag der Verlängerungsfrage.
+
+Reihenfolge am Monatsersten: Stellen ohne Firma enden, Anliegen werden aufgeräumt, freie
+Kandidaten verlassen den Markt (MA6), dann Geburtstage, Tod und Ruhestand aller Manager,
+erledigte Nachfolge-Anliegen schließen, neue Vorwarnungen; danach füllt sich der Pool, und
+neue Kandidaten bekommen Potenzial und Geburtsdatum.

@@ -84,7 +84,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | K3 | Investoren: KI-Anleger, Übernahmeangebote, feindliche Übernahme, Aktienrückkauf | ✅ |
 | K4 | Investor und Bank: Startformen, Einlagen, Kredite an Firmen, Ausfälle | ✅ |
 | H1 | Ereignisfolgen: Nachfrage, Handelssperren, Zölle, Arbeitskräfte, Produktion, Abschottung, Zerstörung, Enteignung, Börsenkrach | ✅ (vor PE fertig geworden) |
-| PE1 | Alter der Manager, Ruhestand, Nachfolge | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE1 | Alter der Manager, Ruhestand, Nachfolge | ✅ |
 | PE2 | Spielerfigur: Person, Familie, Rollen | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE3 | Privatkonto und Spielstart ohne Firma | ⏳ als Nächstes (`docs/PERSON.md`) |
 | PE4 | Dividenden | ⏳ als Nächstes (`docs/PERSON.md`) |
@@ -968,6 +968,33 @@ Stufe 4, Lastenheft §4.1, §17.4. Regeln: `docs/FORMELN.md`, Abschnitt H1; Ents
 - **Tests:** Kern (Monatsfenster, Nachfrage und Arbeitskräfte, Handelssperre, Produktion,
   Zerstörung, Enteignung, Abschottung, abgeschaltete Folgen, Spielstand), Börse mit
   Krisen aus Ereignissen, Datenprüfung, vitest.
+
+### PE1: Alter der Manager (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §3–4. Regeln: `docs/FORMELN.md`, Abschnitt PE1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/lebenslauf.yaml` (Eintrittsalter je Ebene, Altersfaktoren der
+  Erfahrung, Risikofreude, Abbau ab 65, Ruhestand mit Vorwarnung und Verlängerung,
+  Sterbetafel, Länder-Zeitreihen `ruhestandsalter` und `lebenserwartung`) mit Prüfregeln
+  und Fehlerfall-Test; Thema `nachfolge` beim Personalbereich.
+- **Kern:** Modul `aging`: Geburtsdatum beim Ziehen (alte Spielstände beim Laden),
+  Geburtstage (Risikofreude, Abbau), Erfahrung nach Alter, Tod nach der Sterbetafel,
+  Ruhestand zum Monatsersten; Anliegen „Nachfolge regeln“ zwölf Monate vorher und „Stelle
+  neu besetzen“ nach einem Todesfall; Nachfolger neben dem Inhaber (`Job::successor`), der
+  zum Ruhestand übernimmt; offene Anliegen gehen an den Nachfolger oder nach oben;
+  Lebenslauf der Firma (`Company::former_managers`). Befehle `AppointSuccessor`,
+  `ExtendContract`, `LeaveVacant`.
+- **Oberfläche:** Organisation mit Alter und Ruhestand des Inhabers, Nachfolger, Spalte
+  „Alter“ im Managermarkt und Tabelle „Ehemalige Manager“; Anliegen mit den neuen
+  Optionen und Gründen.
+- **Protokoll:** Abschnitt „Alter der Manager (PE1)“ im Balance-Protokoll (je Ebene Zahl,
+  mittleres und höchstes Alter, über 75 im Dienst, Pool, Ruhestand und Tod im Jahr).
+- **Tests:** Kern (Alter in vollen Jahren, Ziehung nach Ebene, Ruhestandstermin, Risiko und
+  Erfahrung, Nachfolge mit Übernahme, Fristablauf, Verlängerung mit Zusage und Absage,
+  Tod mit Neubesetzung, Bewerber im Ruhestand, alte Spielstände), Datenprüfung, vitest,
+  Playwright. Weltlauf 1900–1960: kein Manager über 75 im Dienst (Protokoll in
+  `docs/OFFENE_PUNKTE.md`, Abschnitt P).
 
 ## Eigenständige Entscheidungen (für das Review)
 

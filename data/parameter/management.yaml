@@ -16,7 +16,7 @@ management:
     - id: vertrieb_marketing
       themen: [verkauf, werbung]
     - id: personal
-      themen: [lohn, abwerbung, gehaltsrunde]
+      themen: [lohn, abwerbung, gehaltsrunde, nachfolge]
     - id: logistik
       themen: []
     - id: forschung
