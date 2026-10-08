@@ -4423,8 +4423,57 @@ person:
       SWE: {1900: 0.03, 2026: 0.4}
   sparzins:
     standard: {1900: 0.02}
+  erbe: {neffe_alter: {von: 25, bis: 40}, hinweis_ab: 70}
+  erbschaftsteuer:
+    standard: {1900: 0.03, 2026: 0.15}
+    laender:
+      SWE: {1900: 0.03, 2003: 0.3, 2004: 0}
   annaeherung: true
 ";
+
+#[test]
+fn erbe_und_erbschaftsteuer_werden_geprueft() {
+    let datei = "parameter/person.yaml";
+    let lauf = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &PERSON.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = lauf("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let data = gut.data.as_ref().unwrap();
+    let m = &data.catalog.person;
+    assert_eq!(m.nephew_age, [25, 40]);
+    assert_eq!(m.succession_hint_from, 70);
+    let swe = data.catalog.countries.id("SWE").unwrap();
+    assert!(m.inheritance_tax.value(swe, 2010.0).abs() < 1e-12);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "neffe_alter: {von: 25, bis: 40}",
+            "neffe_alter: {von: 45, bis: 40}",
+            "„von“ muss kleiner als „bis“ sein.",
+            "person.erbe.neffe_alter",
+        ),
+        (
+            "hinweis_ab: 70",
+            "hinweis_ab: 10",
+            "Wert 10 liegt außerhalb des erlaubten Bereichs 18 bis 120.",
+            "person.erbe.hinweis_ab",
+        ),
+        (
+            "SWE: {1900: 0.03, 2003",
+            "SWE: {1900: 1.5, 2003",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "person.erbschaftsteuer.laender.SWE.1900",
+        ),
+    ] {
+        let outcome = lauf(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&lauf("  erbe: {", "  erbe: {unbekannt: 1, "), "unbekannt");
+}
 
 #[test]
 fn person_wird_geprueft() {

@@ -51,14 +51,14 @@ pub(crate) fn check_family(
 }
 
 /// A day of a year, drawn evenly.
-fn day_in(rng: &mut SimRng, year: i32) -> Date {
+pub(crate) fn day_in(rng: &mut SimRng, year: i32) -> Date {
     let days = u64::from(days_in_year(year));
     // Below 366; the cast is exact.
     Date::first_of_year(year).add_days(rng.below(days) as i32)
 }
 
 /// A day between two days, drawn evenly; the first where they are the wrong way round.
-fn day_between(rng: &mut SimRng, from: Date, to: Date) -> Date {
+pub(crate) fn day_between(rng: &mut SimRng, from: Date, to: Date) -> Date {
     let span = from.days_until(to);
     if span <= 0 {
         return from;
@@ -71,7 +71,11 @@ fn day_between(rng: &mut SimRng, from: Date, to: Date) -> Date {
 /// Further draws for a child's first name that is already in the family.
 const FIRST_NAME_DRAWS: usize = 5;
 
-fn first_name(catalog: &Catalog, rng: &mut SimRng, home: crate::ids::CountryId) -> String {
+pub(crate) fn first_name(
+    catalog: &Catalog,
+    rng: &mut SimRng,
+    home: crate::ids::CountryId,
+) -> String {
     let groups = &catalog.name_groups;
     let group = groups
         .iter()
@@ -92,7 +96,7 @@ fn first_name(catalog: &Catalog, rng: &mut SimRng, home: crate::ids::CountryId) 
 
 /// The person's family name: the last word of the name (or the first where the name
 /// group puts the family name first).
-fn family_name(catalog: &Catalog, person: &Person) -> String {
+pub(crate) fn family_name(catalog: &Catalog, person: &Person) -> String {
     let first_word = catalog
         .name_groups
         .iter()
@@ -108,7 +112,7 @@ fn family_name(catalog: &Catalog, person: &Person) -> String {
 }
 
 /// A child's full name in the order of the name group.
-fn child_name(catalog: &Catalog, rng: &mut SimRng, person: &Person) -> String {
+pub(crate) fn child_name(catalog: &Catalog, rng: &mut SimRng, person: &Person) -> String {
     // A first name nobody in the family has yet, if a few draws find one.
     let taken = |name: &str| {
         std::iter::once(&person.name)

@@ -874,6 +874,7 @@ pub fn private() -> super::PersonModel {
         lifestyle_months: 12,
         income_tax: flat(0.2),
         savings_rate: flat(0.02),
+        inheritance_tax: flat(0.2),
         ..person()
     }
 }

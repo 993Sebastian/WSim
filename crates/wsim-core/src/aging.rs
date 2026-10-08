@@ -9,6 +9,7 @@ use crate::calendar::Date;
 use crate::catalog::{AgeSpan, Catalog, LifeModel};
 use crate::command::{Command, CommandError};
 use crate::decision::{self, Choice, ChoiceKind, Decision, Topic};
+use crate::ids::CountryId;
 use crate::management;
 use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
@@ -88,14 +89,18 @@ pub fn death_chance(catalog: &Catalog, manager: &Manager, today: Date) -> f64 {
     else {
         return 0.0;
     };
-    if a < life.mortality_from {
+    death_chance_at(catalog, a, manager.home, today)
+}
+
+/// Chance to die within a month at an age in a country (PE1; the person too, PE6).
+pub fn death_chance_at(catalog: &Catalog, age: f64, home: CountryId, today: Date) -> f64 {
+    let life = &catalog.life;
+    if !life.enabled || age < life.mortality_from {
         return 0.0;
     }
-    let expectancy = life
-        .life_expectancy
-        .value(manager.home, today.year_fraction());
+    let expectancy = life.life_expectancy.value(home, today.year_fraction());
     let doubling = life.doubling_years.max(1.0);
-    (life.mortality_chance * math::pow(2.0, (a - expectancy) / doubling)).clamp(0.0, 1.0)
+    (life.mortality_chance * math::pow(2.0, (age - expectancy) / doubling)).clamp(0.0, 1.0)
 }
 
 /// Chance that he agrees to stay longer: his satisfaction, less with age.
@@ -227,7 +232,7 @@ pub fn successor_of(
 
 /// A manager leaves for good: a free candidate leaves the market; an employed one leaves
 /// his position to his successor, or free, and stays in his company's history.
-fn depart(
+pub(crate) fn depart(
     state: &mut GameState,
     catalog: &Catalog,
     id: ManagerId,

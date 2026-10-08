@@ -385,6 +385,8 @@ pub(crate) fn execute(
         Command::InvestPrivately { venture, amount } => {
             crate::ventures::invest_person(state, catalog, *venture, *amount)
         }
+        Command::SetHeir { child } => crate::heirs::set_heir(state, *child),
+        Command::HandOver {} => crate::heirs::hand_over(state, catalog).map(|_| ()),
         _ => Err(CommandError::PersonOnly),
     }
 }
@@ -663,6 +665,11 @@ pub(crate) fn receive_loan(state: &mut GameState, repayment: Money, interest: Mo
     if interest > Money::ZERO {
         book(&mut state.person, PrivateFlow::LoanInterest, interest);
     }
+}
+
+/// The person pays the inheritance or gift tax (PE6).
+pub(crate) fn pay_inheritance_tax(state: &mut GameState, amount: Money) {
+    book(&mut state.person, PrivateFlow::InheritanceTax, -amount);
 }
 
 /// The person pays for shares of a company (PE5).

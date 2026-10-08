@@ -119,4 +119,38 @@ describe("Person (PE2)", () => {
     fireEvent.click(within(gruendung).getByRole("button"));
     expect(gruenden).toBe(1);
   });
+
+  it("zeigt Nachlass und Erben und übergibt erst nach Rückfrage (PE6)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    render(<PersonAnsicht kern={kern} stand="a" />);
+    const nachfolge = await screen.findByRole("region", { name: "Nachfolge" });
+    expect(within(nachfolge).getByText(/^Generation 1 · Sterberisiko/)).toBeTruthy();
+    expect(within(nachfolge).getByText(/^Erbe nach heutigem Stand: ein Neffe/)).toBeTruthy();
+    expect(within(nachfolge).getByText(/^Nachlass .*Steuer etwa/)).toBeTruthy();
+    fireEvent.click(within(nachfolge).getByRole("button", { name: "Jetzt übergeben" }));
+    expect(gesendet).toEqual([]);
+    fireEvent.click(within(nachfolge).getByRole("button", { name: "Ja, übergeben" }));
+    expect(await within(nachfolge).findByText(/^Übergeben/)).toBeTruthy();
+    expect(gesendet).toEqual([{ HandOver: {} }]);
+  });
 });

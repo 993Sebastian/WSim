@@ -89,7 +89,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE3 | Privatkonto und Spielstart ohne Firma | ✅ |
 | PE4 | Dividenden | ✅ |
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ✅ |
-| PE6 | Tod, Erbe und Übergabe der Spielerfigur | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE6 | Tod, Erbe und Übergabe der Spielerfigur | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1076,6 +1076,26 @@ Vorgabe `docs/PERSON.md` §8–9. Regeln: `docs/FORMELN.md`, Abschnitt PE5; Ents
 - **Tests:** Kern (KI-Firma kaufen, beide führen, eine verkaufen; Firma kauft von KI-Firma;
   Pleite der Hauptfirma, Weiterspielen als Anleger; Spielende ohne Mittel; Spielstand;
   Start-up privat mit Erfolg und Scheitern), Datenprüfung, vitest, Playwright.
+
+### PE6: Tod, Erbe und Übergabe der Spielerfigur (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §5 und §8. Regeln: `docs/FORMELN.md`, Abschnitt PE6;
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (PE6).
+
+- **Daten:** `person.erbe` (Alter von Neffe oder Nichte, Hinweis ab 70) und Zeitreihe
+  `erbschaftsteuer` je Land mit Prüfregeln und Fehlerfall-Test.
+- **Kern:** Modul `heirs`: Sterbechance nach der Sterbetafel der Manager und dem
+  Lebensstil, Erbe (bestimmtes Kind, ältestes Kind, sonst erzeugter Neffe oder Nichte mit
+  rückwirkenden eigenen Kindern), Nachlass und Erbschaftsteuer mit Neubewertung und
+  Zwangsverkauf an Anleger, Übergabe zu Lebzeiten (`HandOver`), Erbe bestimmen
+  (`SetHeir`), Hinweis „Nachfolge bedenken“, Vorfahren und Generation.
+- **Oberfläche:** Abschnitt „Nachfolge“ in der Ansicht Person; Meldungen und Lebenslauf.
+- **CLI:** `run --als-person` zeigt Generation und Vorfahren; Läufe ohne Hauptfirma brechen
+  nicht mehr ab.
+- **Tests:** Kern (Neffe oder Nichte erbt und zahlt Steuer, bestimmtes Kind erbt und
+  verlässt seine Stelle, ältestes Kind erbt, Zwangsverkauf ohne Veräußerungsteuer,
+  Hinweis ab 70, Spielstand, Familie über 200 Jahre mit mindestens drei Generationen),
+  Datenprüfung, vitest, Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 

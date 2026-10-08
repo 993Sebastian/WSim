@@ -1578,6 +1578,31 @@ entschieden:
    der Untergrenze des Startgelds liegt oder nicht positiv ist. Pleite oder Übernahme der
    Hauptfirma beenden das Spiel nicht mehr.
 
+✅ **PE6 umgesetzt** (Tod, Erbe und Übergabe der Spielerfigur; Vorgabe `docs/PERSON.md` §5
+und §8; Regeln: `docs/FORMELN.md`, Abschnitt PE6; Format: `docs/DATENFORMAT.md`,
+`person.erbe`, `erbschaftsteuer`). 🟡 Eigenständig entschieden:
+
+1. **Sterbetafel:** dieselbe wie bei den Managern (PE1, Lebenserwartung des
+   Wohnsitzlandes), mal dem Faktor `sterblichkeit` des Lebensstils; geprüft am
+   Monatsanfang mit eigenem Zufallsstrom.
+2. **Erbschaftsteuer-Sätze** als wirksame Sätze großer Unternehmervermögen geschätzt
+   (Betriebsvermögen ist in vielen Ländern begünstigt), z. B. Deutschland 2 % (1900) bis
+   10 % (2026), USA bis 30 % (1935–1980), Schweden 0 % ab 2004; Standard 3–20 %.
+3. **Bemessung:** der ganze Nachlass (Konto, Anteile zum Firmenwert, Start-ups, offene
+   Darlehen) ohne Freibetrag. Der Einstandswert wird beim Erbfall neu bewertet; der
+   Zwangsverkauf löst deshalb keine Veräußerungsteuer aus.
+4. **Zwangsverkauf** nur an Anleger (Erlös wie `SellStake`), zuerst Minderheitsanteile,
+   dann Anteile kontrollierter Firmen, jeweils nur so viel wie fehlt. Start-up-Anteile und
+   Darlehen werden nicht verkauft. Reicht alles nicht, verfällt der Rest der Steuer.
+5. **Erbe:** bestimmt, sonst ältestes lebendes Kind – auch ein minderjähriges. Der Erbe ist
+   verheiratet (damit die Familie weitergehen kann); seine eigenen Kinder entstehen
+   rückwirkend mit der üblichen Chance je Jahr. Geschwister bleiben als Familie in ihren
+   Stellen, gehören aber nicht mehr zu den Kindern der neuen Person.
+6. **Übergabe zu Lebzeiten** geht auch ohne Kind (dann an einen Neffen oder eine Nichte);
+   die Oberfläche fragt vorher nach.
+7. **Weiter wie bisher:** Konto, Anteile, Darlehen, Lebensstil, CEO-Rolle und Gehalt gehen
+   unverändert auf den Erben über; seine Managerkarte endet ohne Abfindung.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

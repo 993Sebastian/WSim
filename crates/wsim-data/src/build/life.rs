@@ -362,9 +362,43 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             &l.field("sparzins"),
             (-0.5, 0.5),
         ),
+        nephew_age: heirs_age(
+            ctx,
+            &v.heirs.nephew_age,
+            &l.field("erbe").field("neffe_alter"),
+        ),
+        // Whole years within the checked range; the cast is exact.
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        succession_hint_from: in_range(
+            ctx,
+            v.heirs.hint_from,
+            18.0,
+            120.0,
+            &l.field("erbe").field("hinweis_ab"),
+        )
+        .round() as u32,
+        inheritance_tax: country_series(
+            ctx,
+            catalog,
+            &v.inheritance_tax,
+            &l.field("erbschaftsteuer"),
+            (0.0, 1.0),
+        ),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
     }
+}
+
+/// The age of a nephew or niece who inherits (PE6): from below to, both 18–80.
+fn heirs_age(ctx: &mut Ctx, r: &crate::raw::RawAgeRange, l: &Loc) -> [u32; 2] {
+    let from = in_range(ctx, r.from, 18.0, 80.0, &l.field("von"));
+    let to = in_range(ctx, r.to, 18.0, 80.0, &l.field("bis"));
+    if from > to {
+        ctx.error(l, messages::range_inverted("von", "bis"));
+    }
+    // Whole years within the checked range; the casts are exact.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    [from.round() as u32, to.round() as u32]
 }
 
 fn lifestyle(ctx: &mut Ctx, r: &RawLifestyle, l: &Loc) -> LifestyleLevel {

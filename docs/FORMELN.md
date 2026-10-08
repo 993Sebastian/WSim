@@ -4816,3 +4816,56 @@ Anteile an Firmen oder Start-ups hält und ihr Guthaben unter der Untergrenze de
 
 Eine feindliche Übernahme der Hauptfirma (K1) macht sie zur KI-Tochter des Käufers; die
 Person behält ihren Minderheitsanteil, und die nächste kontrollierte Firma wird Hauptfirma.
+
+## PE6 – Tod, Erbe und Übergabe der Spielerfigur
+
+Vorgabe `docs/PERSON.md` §5 und §8. Daten: `parameter/person.yaml`, Abschnitte `erbe` und
+`erbschaftsteuer` (Satz je Land und Jahr wie `einkommensteuer`). Kern: Modul `heirs`.
+
+### Tod
+
+Am Monatsanfang stirbt die Person mit der Chance der Sterbetafel der Manager (PE1) für ihr
+Alter und ihr Wohnsitzland, mal dem Faktor `sterblichkeit` ihres Lebensstils:
+
+    Chance je Monat = sterbechance_monat(Alter, Lebenserwartung Wohnsitz) · sterblichkeit(Stufe)
+
+Zufallsstrom „Schicksal der Person“ je Monat. Ab `hinweis_ab` Jahren kommt jeden Januar die
+Meldung „Nachfolge bedenken“, solange kein Erbe bestimmt ist.
+
+### Erbe
+
+1. das bestimmte Kind (`SetHeir`), wenn es lebt;
+2. sonst das älteste lebende Kind;
+3. sonst ein erzeugter Neffe oder eine Nichte: Familienname der Person, Vorname aus der
+   Namensgruppe des Wohnsitzes, Alter gleichverteilt in `neffe_alter` (von–bis Jahre).
+
+Der Erbe wird die neue Spielerfigur: Name, Geburtstag, Wohnsitz der Person, verheiratet.
+Seine Managerkarte endet (die Stelle wird frei, ohne Abfindung). Seine eigenen Kinder
+entstehen rückwirkend wie im laufenden Spiel: für jedes Lebensjahr von `kinder_ab` bis
+unter `kinder_bis`, das schon vergangen ist, mit `kinder_chance_jahr`, höchstens
+`kinder_hoechstens`. Geschwister bleiben in ihren Stellen (Familie: keine Kündigung,
+keine Abwerbung). Konto, Anteile, Darlehen, Lebensstil, CEO-Rolle und Gehalt gehen
+unverändert über (der Halter `Player` ist die Person, wer immer sie ist). Die Generation
+zählt um eins hoch.
+
+### Erbschaftsteuer und Zwangsverkauf
+
+    Nachlass N = Konto + Σ Anteil · Firmenwert (nicht insolvente Firmen)
+               + Σ Wert der Start-up-Anteile + offene Gesellschafterdarlehen
+    Steuer   S = erbschaftsteuer(Wohnsitz, Jahr) · max(0, N)
+
+Der Einstandswert jeder Firma wird auf Anteil · Firmenwert gesetzt (Neubewertung beim
+Erbfall). Reicht das Konto nicht für S, verkauft das Spiel an Anleger (Erlös wie
+`SellStake`, PE5): zuerst Minderheitsanteile, dann Anteile kontrollierter Firmen, je in
+der Reihenfolge der Firmen, jeweils nur so viel wie fehlt:
+
+    verkaufter Anteil = min(gehalten, fehlender Betrag / (Erlös für den ganzen Anteil / gehalten))
+
+Wegen der Neubewertung fällt dabei keine Veräußerungsteuer an. Reicht auch das nicht,
+zahlt die Person, was das Konto hat; der Rest verfällt (das Konto wird nie negativ).
+
+### Übergabe zu Lebzeiten
+
+`HandOver`: jederzeit an den Erben nach derselben Regel; dieselbe Steuer als
+Schenkungsteuer, derselbe Zwangsverkauf. Die bisherige Person tritt ab und erscheint in der
+Ahnenreihe ohne Todestag.

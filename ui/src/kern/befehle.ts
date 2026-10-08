@@ -107,6 +107,8 @@ export type Befehl =
   | { SellStake: { company: number; share: number } }
   | { SelectCompany: { company: number } }
   | { InvestPrivately: { venture: number; amount: number } }
+  | { SetHeir: { child: number | null } }
+  | { HandOver: Record<string, never> }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
   | {
       SetPurchase: {

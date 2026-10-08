@@ -1868,6 +1868,22 @@ pub struct Person {
     /// What the person paid for its shares and pledges of start-ups, by start-up (PE5).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub venture_basis: BTreeMap<u32, Money>,
+    /// The child chosen to inherit, by index among the children (PE6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub heir: Option<u32>,
+    /// The persons before, the earliest first (PE6).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ancestors: Vec<Ancestor>,
+}
+
+/// A person who played before the current one (PE6).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Ancestor {
+    pub name: String,
+    pub born: Date,
+    /// The day the person died or handed over.
+    pub until: Date,
+    pub died: bool,
 }
 
 impl Default for Person {
@@ -1886,6 +1902,8 @@ impl Default for Person {
             short_since: None,
             cost_basis: BTreeMap::new(),
             venture_basis: BTreeMap::new(),
+            heir: None,
+            ancestors: Vec::new(),
         }
     }
 }
@@ -1929,6 +1947,8 @@ pub enum PrivateFlow {
     StakeSold,
     /// Tax on the gain of a sale.
     GainTax,
+    /// Inheritance or gift tax (PE6).
+    InheritanceTax,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -1991,6 +2011,13 @@ pub struct LifeEvent {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum LifeEventKind {
+    /// The person before died or handed over; the heir took over (PE6).
+    Succession {
+        from: String,
+        to: String,
+        died: bool,
+        tax: Money,
+    },
     /// The game began with the company.
     Start {
         company: CompanyId,

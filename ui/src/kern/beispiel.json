@@ -47550,7 +47550,18 @@
       "short": true,
       "wealth_usd": 154188.3935
     },
-    "founding": null
+    "founding": null,
+    "succession": {
+      "ancestors": [],
+      "choices": [],
+      "chosen": null,
+      "death_chance_year": 0.0,
+      "estate_usd": 154188.3935,
+      "generation": 1,
+      "heir": null,
+      "tax_rate": 0.07832328767123273,
+      "tax_usd": 12076.5419
+    }
   },
   "person_ohne_firma": {
     "age": 29,
@@ -47660,6 +47671,17 @@
       "short": false,
       "wealth_usd": 100000.0
     },
-    "name": "Jürgen Albrecht"
+    "name": "Jürgen Albrecht",
+    "succession": {
+      "ancestors": [],
+      "choices": [],
+      "chosen": null,
+      "death_chance_year": 0.0,
+      "estate_usd": 100000.0,
+      "generation": 1,
+      "heir": null,
+      "tax_rate": 0.076,
+      "tax_usd": 7600.0
+    }
   }
 }

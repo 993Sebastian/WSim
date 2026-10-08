@@ -54,4 +54,20 @@ person:
   # Guthabenzins des Privatkontos je Land und Jahr (real, Kaufkraft 2026).
   sparzins:
     standard: {1900: 0.02}
+  # Erbe (PE6): Ohne Kind erbt ein Neffe oder eine Nichte im Alter von–bis Jahren; ab
+  # hinweis_ab Jahren jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe
+  # bestimmt ist.
+  erbe: {neffe_alter: {von: 25, bis: 40}, hinweis_ab: 70}
+  # Erbschaft- und Schenkungsteuer je Land und Jahr: ein Satz auf den ganzen Nachlass,
+  # grob der wirksame Satz großer Unternehmervermögen (Betriebsvermögen ist in vielen
+  # Ländern begünstigt, daher deutlich unter den Spitzensätzen).
+  erbschaftsteuer:
+    standard: {1900: 0.03, 1920: 0.1, 1950: 0.2, 2026: 0.15}
+    laender:
+      USA: {1900: 0, 1916: 0.05, 1935: 0.3, 1980: 0.3, 2001: 0.25, 2026: 0.2}
+      GBR: {1900: 0.05, 1919: 0.2, 1949: 0.4, 1975: 0.3, 1988: 0.2, 2026: 0.2}
+      DEU: {1900: 0.02, 1920: 0.1, 1950: 0.15, 2026: 0.1}
+      FRA: {1900: 0.03, 1950: 0.2, 2026: 0.25}
+      SWE: {1900: 0.03, 1950: 0.3, 2003: 0.3, 2004: 0}
+      JPN: {1900: 0.03, 1950: 0.4, 2026: 0.3}
   annaeherung: true

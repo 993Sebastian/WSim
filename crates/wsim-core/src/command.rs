@@ -390,6 +390,10 @@ pub enum Command {
     SelectCompany { company: CompanyId },
     /// The person invests in a start-up from its private account (PE5).
     InvestPrivately { venture: u32, amount: Money },
+    /// The child who inherits (index among the children); `None`: the rule decides (PE6).
+    SetHeir { child: Option<u32> },
+    /// The person hands everything to the heir while alive (PE6).
+    HandOver {},
 }
 
 impl Command {
@@ -407,6 +411,8 @@ impl Command {
                 | Command::SellStake { .. }
                 | Command::SelectCompany { .. }
                 | Command::InvestPrivately { .. }
+                | Command::SetHeir { .. }
+                | Command::HandOver {}
         )
     }
 }
@@ -762,6 +768,8 @@ pub enum CommandError {
     PriceTooLow {
         min: Money,
     },
+    /// No living child of the person with this index (PE6).
+    NoSuchChild,
 }
 
 impl CommandError {
@@ -978,6 +986,7 @@ impl CommandError {
             }
             CommandError::NotSoleOwner => e(keys::COMMAND_NOT_SOLE_OWNER),
             CommandError::NotSeller => e(keys::COMMAND_NOT_SELLER),
+            CommandError::NoSuchChild => e(keys::COMMAND_NO_SUCH_CHILD),
             CommandError::PriceTooLow { min } => {
                 e(keys::COMMAND_PRICE_TOO_LOW).with("min", Param::Money(*min))
             }
@@ -1322,7 +1331,9 @@ fn run(
         | Command::BuyStake { .. }
         | Command::SellStake { .. }
         | Command::SelectCompany { .. }
-        | Command::InvestPrivately { .. } => return Err(CommandError::PersonOnly),
+        | Command::InvestPrivately { .. }
+        | Command::SetHeir { .. }
+        | Command::HandOver {} => return Err(CommandError::PersonOnly),
         Command::BidForStake {
             company,
             holder,

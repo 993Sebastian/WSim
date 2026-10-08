@@ -299,6 +299,20 @@ Frage: „Wovon lebe ich, was bin ich wert, und wie viel Geld gebe ich meiner Fi
   Darlehen mit Zins und Laufzeit, Kapital zurückholen). Reicht das Konto nicht, steht
   oben die Warnung mit den Auswegen.
 
+### Person: Nachfolge, Erbe und Übergabe (PE6)
+
+Frage: „Wer führt weiter, wenn ich sterbe – und was kostet es?“
+
+- **Ansicht Person → „Nachfolge“:** Generation und Sterberisiko im nächsten Jahr; der
+  Erbe nach heutigem Stand (bestimmtes Kind, sonst das älteste, sonst „ein Neffe oder eine
+  Nichte“); Nachlass, Steuersatz und Steuer. „Erbe bestimmen“ wählt ein lebendes Kind oder
+  „Nach der Regel“. „Jetzt übergeben“ fragt nach und übergibt dann sofort mit
+  Schenkungsteuer. Darunter die Vorfahren.
+- **Meldungen:** „… ist gestorben. Du spielst als … weiter“ mit Steuer und den dafür
+  verkauften Anteilen; ab 70 jeden Januar „Bedenke deine Nachfolge“, solange kein Erbe
+  bestimmt ist. Im Lebenslauf stehen Erbfall und Übergabe; unter Einnahmen und Ausgaben
+  „Erbschaft- und Schenkungsteuer“.
+
 ### Person: Anteile kaufen und verkaufen, mehrere Firmen (PE5)
 
 Frage: „Welche Firmen gehören mir, welche will ich dazukaufen, und welche gebe ich ab?“

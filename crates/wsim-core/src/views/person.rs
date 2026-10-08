@@ -153,6 +153,44 @@ pub struct PersonView {
     /// While the person has no company yet: the founding.
     #[serde(default)]
     pub founding: Option<FoundingView>,
+    /// Heir, estate and tax (PE6).
+    #[serde(default)]
+    pub succession: Option<SuccessionView>,
+}
+
+/// Who inherits and what it costs (PE6).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SuccessionView {
+    /// The chosen child (index), if any; otherwise the rule decides.
+    pub chosen: Option<u32>,
+    /// The heir by rule today; `None`: a nephew or niece.
+    pub heir: Option<String>,
+    /// Living children to choose from.
+    pub choices: Vec<HeirChoiceView>,
+    pub estate_usd: f64,
+    pub tax_rate: f64,
+    pub tax_usd: f64,
+    /// Chance to die within the next year.
+    pub death_chance_year: f64,
+    /// Generation of the person, the first is 1.
+    pub generation: u32,
+    /// The persons before, the earliest first.
+    pub ancestors: Vec<AncestorView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct HeirChoiceView {
+    pub index: u32,
+    pub name: String,
+    pub age: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AncestorView {
+    pub name: String,
+    pub born: String,
+    pub until: String,
+    pub died: bool,
 }
 
 pub fn person(game: &Game) -> PersonView {
@@ -301,6 +339,19 @@ pub fn person(game: &Game) -> PersonView {
                     .with("firma", company(*c))
                     .with("anteil", Param::Number((share * 1000.0).round() / 10.0))
                     .with("betrag", Param::Money(*proceeds)),
+                LifeEventKind::Succession {
+                    from,
+                    to,
+                    died,
+                    tax,
+                } => m(if *died {
+                    "person.ereignis.erbfall"
+                } else {
+                    "person.ereignis.uebergabe"
+                })
+                .with("name", Param::Text(from.clone()))
+                .with("erbe", Param::Text(to.clone()))
+                .with("betrag", Param::Money(*tax)),
             };
             LifeEventView {
                 date: iso(e.date),
@@ -311,9 +362,11 @@ pub fn person(game: &Game) -> PersonView {
     let money = money(game);
     // Founding is open at any time (PE5).
     let founding = Some(founding(game));
+    let succession = Some(succession(game));
     PersonView {
         money: Some(money),
         founding,
+        succession,
         name: p.name.clone(),
         born: iso(p.born),
         age,
@@ -326,6 +379,46 @@ pub fn person(game: &Game) -> PersonView {
             && p.children.len() < usize::try_from(model.children_max).unwrap_or(0),
         holdings,
         history,
+    }
+}
+
+fn succession(game: &Game) -> SuccessionView {
+    let state = game.state();
+    let catalog = game.catalog();
+    let p = &state.person;
+    let today = state.date;
+    let estate = crate::heirs::estate(catalog, state).max(Money::ZERO);
+    let rate = crate::heirs::tax_rate(catalog, state);
+    let month = crate::heirs::death_chance(catalog, state, today);
+    SuccessionView {
+        chosen: p.heir,
+        heir: crate::heirs::heir(state).map(|i| p.children[i].name.clone()),
+        choices: p
+            .children
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| c.died.is_none())
+            .map(|(i, c)| HeirChoiceView {
+                index: u32::try_from(i).unwrap_or(u32::MAX),
+                name: c.name.clone(),
+                age: aging::age(c.born, today),
+            })
+            .collect(),
+        estate_usd: usd(estate),
+        tax_rate: rate,
+        tax_usd: usd(estate.scale(rate)),
+        death_chance_year: 1.0 - crate::math::pow(1.0 - month, 12.0),
+        generation: u32::try_from(p.ancestors.len()).unwrap_or(0) + 1,
+        ancestors: p
+            .ancestors
+            .iter()
+            .map(|a| AncestorView {
+                name: a.name.clone(),
+                born: iso(a.born),
+                until: iso(a.until),
+                died: a.died,
+            })
+            .collect(),
     }
 }
 
@@ -343,6 +436,7 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::LoanRepaid => "privat.tilgung",
         PrivateFlow::LoanInterest => "privat.darlehenszins",
         PrivateFlow::CapitalRepaid => "privat.rueckzahlung",
+        PrivateFlow::InheritanceTax => "privat.erbschaftsteuer",
         PrivateFlow::Dividend => "privat.dividende",
         PrivateFlow::DividendTax => "privat.quellensteuer",
         PrivateFlow::StakeBought => "privat.anteilskauf",

@@ -250,6 +250,10 @@ pub mod keys {
     pub const PERSON_CHILD_DIED: &str = "meldung.person.kind_tot";
     pub const PERSON_CEO_HANDED_OVER: &str = "meldung.person.vorsitz_abgegeben";
     pub const PERSON_CEO_TAKEN_BACK: &str = "meldung.person.vorsitz_uebernommen";
+    pub const PERSON_DIED: &str = "meldung.person.gestorben";
+    pub const PERSON_HANDED_OVER: &str = "meldung.person.uebergeben";
+    pub const PERSON_SUCCESSION_HINT: &str = "meldung.person.nachfolge_bedenken";
+    pub const COMMAND_NO_SUCH_CHILD: &str = "fehler.befehl.kein_kind";
     pub const COMMAND_EXTENSION_TOO_LONG: &str = "fehler.befehl.verlaengerung_zu_lang";
     pub const HINT_FOUND_COMPANY: &str = "hinweis.firma_gruenden";
     pub const HINT_ACCOUNT_SHORT: &str = "hinweis.privatkonto_leer";
@@ -641,6 +645,10 @@ pub mod keys {
         PERSON_CHILD_DIED,
         PERSON_CEO_HANDED_OVER,
         PERSON_CEO_TAKEN_BACK,
+        PERSON_DIED,
+        PERSON_HANDED_OVER,
+        PERSON_SUCCESSION_HINT,
+        COMMAND_NO_SUCH_CHILD,
         COMMAND_EXTENSION_TOO_LONG,
         HINT_FOUND_COMPANY,
         HINT_ACCOUNT_SHORT,

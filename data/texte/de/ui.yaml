@@ -1309,6 +1309,7 @@ privat.quellensteuer: Quellensteuer auf Dividenden
 privat.anteilskauf: Kauf von Anteilen
 privat.anteilsverkauf: Verkauf von Anteilen
 privat.veraeusserungsteuer: Steuer auf Veräußerungsgewinne
+privat.erbschaftsteuer: Erbschaft- und Schenkungsteuer
 person.steckbrief: Steckbrief
 person.name: Name
 person.geboren: Geboren
@@ -1345,6 +1346,28 @@ person.ereignis.gruendung: "{firma} gegründet, Einlage {betrag}"
 person.ereignis.lebensstil: "Lebensstil: {stufe}"
 person.ereignis.kontrolle: "Mehrheit an {firma} gekauft"
 person.ereignis.verkauf: "{anteil} % von {firma} verkauft für {betrag}"
+person.ereignis.erbfall: "Tod von {name}; {erbe} erbt (Erbschaftsteuer {betrag})"
+person.ereignis.uebergabe: "{name} übergibt an {erbe} (Schenkungsteuer {betrag})"
+person.verwandt.kind: Kind
+person.verwandt.neffe: Neffe oder Nichte
+person.nachfolge: Nachfolge
+person.nachfolge_hilfe: "Stirbst du, erbt das bestimmte Kind, sonst das älteste, ohne Kind ein Neffe oder eine Nichte. Der Erbe spielt weiter mit allem, was du besitzt. Auf den Nachlass fällt Erbschaftsteuer an; reicht das Konto nicht, verkauft das Spiel Anteile an Anleger, zuerst Minderheitsanteile."
+person.generation: "Generation {n}"
+person.sterbechance: "Sterberisiko im nächsten Jahr: {anteil}"
+person.erbe_jetzt: "Erbe nach heutigem Stand: {name}"
+person.erbe_neffe: "Erbe nach heutigem Stand: ein Neffe oder eine Nichte (25 bis 40 Jahre)"
+person.nachlass: "Nachlass {nachlass}, Steuersatz {satz}: Steuer etwa {steuer}"
+person.erbe_waehlen: Erbe bestimmen
+person.erbe_regel: Nach der Regel (ältestes Kind)
+person.erbe_gesetzt: Erbe bestimmt.
+person.uebergeben: Jetzt übergeben
+person.uebergeben_frage: "Wirklich jetzt alles an den Erben übergeben? Du spielst danach als Erbe weiter; die Schenkungsteuer wird sofort fällig."
+person.uebergeben_bestaetigen: Ja, übergeben
+person.uebergeben_abbrechen: Abbrechen
+person.uebergeben_erfolgt: Übergeben – du spielst als Erbe weiter.
+person.vorfahren: Vorfahren
+person.vorfahr_tot: "{name} ({geboren} bis {bis}, verstorben)"
+person.vorfahr_uebergabe: "{name} ({geboren}, übergab {bis})"
 lebensstil.bescheiden: Bescheiden
 lebensstil.buergerlich: Bürgerlich
 lebensstil.gehoben: Gehoben

@@ -764,6 +764,8 @@ Abschnitt `person` mit:
 | **lebensstil** | `standard` (eine der Stufen), `wechsel_monate` (0–120: höchstens ein Wechsel in so vielen Monaten), `stufen` mit genau `bescheiden`, `buergerlich`, `gehoben`, `luxurioes`, je `kosten` (0–1000 Akademiker-Monatslöhne je Monat, von Stufe zu Stufe steigend), `zins` (−0,1–0,1: Auf- oder Abschlag auf neue Bankkredite), `gehaltsforderung` (−0,9–1: Anteil mehr oder weniger Forderung im Vorstand), `ausbildung` (0–50 Punkte auf die Fähigkeiten der Kinder), `sterblichkeit` (0–10: Faktor auf die Sterbechance der Person) |
 | **einkommensteuer** | Satz je Land und Jahr (0–1) wie `lebenslauf.ruhestandsalter`: `standard` und `laender` mit eigenen Reihen |
 | **sparzins** | Guthabenzins des Privatkontos je Land und Jahr (−0,5–0,5), Aufbau wie `einkommensteuer` |
+| **erbe** | Erbe der Person (PE6): `neffe_alter: {von, bis}` (18–80 Jahre, von ≤ bis: so alt ist ein erzeugter Neffe oder eine Nichte, wenn kein Kind lebt), `hinweis_ab` (18–120: ab diesem Alter jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe bestimmt ist) |
+| **erbschaftsteuer** | Erbschaft- und Schenkungsteuer je Land und Jahr (0–1), Aufbau wie `einkommensteuer`: ein Satz auf den ganzen Nachlass |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## preisindex

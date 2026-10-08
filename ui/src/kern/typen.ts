@@ -2452,4 +2452,21 @@ export interface Person {
   money?: PersonGeld | null;
   /** While the person has no company yet: the founding. */
   founding?: Gruendung | null;
+  /** Heir, estate and tax (PE6). */
+  succession?: Nachfolge | null;
+}
+
+/** Who inherits and what it costs (PE6). */
+export interface Nachfolge {
+  /** The chosen child (index), if any; otherwise the rule decides. */
+  chosen: number | null;
+  /** The heir by rule today; null: a nephew or niece. */
+  heir: string | null;
+  choices: { index: number; name: string; age: number }[];
+  estate_usd: number;
+  tax_rate: number;
+  tax_usd: number;
+  death_chance_year: number;
+  generation: number;
+  ancestors: { name: string; born: string; until: string; died: boolean }[];
 }

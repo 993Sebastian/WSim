@@ -15,6 +15,7 @@ import {
   geld,
   STUFEN,
   type Kern,
+  type Nachfolge,
   type Person,
   type PersonAnteil,
   type PersonGeld,
@@ -280,6 +281,93 @@ function Gehalt({ g }: { g: PersonGeld }) {
       </div>
       <Rueckmeldung meldung={antwort} />
     </form>
+  );
+}
+
+/** Heir, estate and the hand-over while alive (PE6). */
+function NachfolgeAbschnitt({ n }: { n: Nachfolge }) {
+  const { los, antwort } = useAktion("nachfolge");
+  const [fragen, setFragen] = useState(false);
+  return (
+    <section className="karte" aria-label={t("person.nachfolge")}>
+      <h2>{t("person.nachfolge")}</h2>
+      <p className="feld-hilfe">{t("person.nachfolge_hilfe")}</p>
+      <p>
+        {t("person.generation", { n: formatZahl(n.generation) })} ·{" "}
+        {t("person.sterbechance", { anteil: formatProzent(n.death_chance_year) })}
+      </p>
+      <p>{n.heir !== null ? t("person.erbe_jetzt", { name: n.heir }) : t("person.erbe_neffe")}</p>
+      <p>
+        {t("person.nachlass", {
+          nachlass: formatGeld(n.estate_usd),
+          satz: formatProzent(n.tax_rate),
+          steuer: formatGeld(n.tax_usd),
+        })}
+      </p>
+      {n.choices.length > 0 && (
+        <label className="feld">
+          <span>{t("person.erbe_waehlen")}</span>
+          <select
+            value={n.chosen ?? ""}
+            onChange={(e) =>
+              void los(
+                [{ SetHeir: { child: e.target.value === "" ? null : Number(e.target.value) } }],
+                t("person.erbe_gesetzt"),
+              )
+            }
+          >
+            <option value="">{t("person.erbe_regel")}</option>
+            {n.choices.map((c) => (
+              <option key={c.index} value={c.index}>
+                {c.name} ({formatZahl(c.age)})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <div className="knopfreihe links">
+        {fragen ? (
+          <>
+            <p>{t("person.uebergeben_frage")}</p>
+            <button
+              type="button"
+              className="haupt"
+              onClick={() =>
+                void los([{ HandOver: {} }], t("person.uebergeben_erfolgt")).then(() =>
+                  setFragen(false),
+                )
+              }
+            >
+              {t("person.uebergeben_bestaetigen")}
+            </button>
+            <button type="button" onClick={() => setFragen(false)}>
+              {t("person.uebergeben_abbrechen")}
+            </button>
+          </>
+        ) : (
+          <button type="button" onClick={() => setFragen(true)}>
+            {t("person.uebergeben")}
+          </button>
+        )}
+      </div>
+      {n.ancestors.length > 0 && (
+        <>
+          <h3>{t("person.vorfahren")}</h3>
+          <ul>
+            {n.ancestors.map((a) => (
+              <li key={`${a.name}-${a.until}`}>
+                {t(a.died ? "person.vorfahr_tot" : "person.vorfahr_uebergabe", {
+                  name: a.name,
+                  geboren: formatDatum(a.born),
+                  bis: formatDatum(a.until),
+                })}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
   );
 }
 
@@ -557,6 +645,7 @@ export function PersonAnsicht({
           <Handel key={`handel-${h.company}`} h={h} />
         ))}
       <Familie p={daten} />
+      {daten.succession && <NachfolgeAbschnitt n={daten.succession} />}
       <Lebenslauf p={daten} />
     </Befehle>
   );

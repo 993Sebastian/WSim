@@ -556,6 +556,11 @@ impl Game {
                 &self.catalog,
                 next,
             ));
+            report.messages.extend(crate::heirs::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             report.messages.extend(crate::person::month_start(
                 &mut self.state,
                 &self.catalog,

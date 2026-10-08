@@ -1892,6 +1892,12 @@ pub struct PersonModel {
     /// Income tax rate and savings rate by country and year.
     pub income_tax: CountrySeries,
     pub savings_rate: CountrySeries,
+    /// Without a child a nephew or niece of this age inherits, from–to years (PE6).
+    pub nephew_age: [u32; 2],
+    /// From this age a yearly hint to settle the succession while no heir is set.
+    pub succession_hint_from: u32,
+    /// Inheritance and gift tax rate by country and year.
+    pub inheritance_tax: CountrySeries,
     pub provenance: Provenance,
 }
 
@@ -1920,6 +1926,9 @@ impl Default for PersonModel {
             lifestyle_months: 12,
             income_tax: CountrySeries::default(),
             savings_rate: CountrySeries::default(),
+            nephew_age: [25, 40],
+            succession_hint_from: 70,
+            inheritance_tax: CountrySeries::default(),
             provenance: Provenance::default(),
         }
     }

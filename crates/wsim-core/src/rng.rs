@@ -121,6 +121,10 @@ pub enum Stream {
     Person {
         month: u32,
     },
+    /// The person's death and the heir in a month (PE6).
+    Succession {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -178,6 +182,7 @@ impl Stream {
             Stream::Extension { id, day } => (22 << 56) | (u64::from(id) << 24) | u64::from(day),
             Stream::PersonStart => 23 << 56,
             Stream::Person { month } => (24 << 56) | u64::from(month),
+            Stream::Succession { month } => (25 << 56) | u64::from(month),
         }
     }
 }

@@ -554,7 +554,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
         println!("Gespeichert: {}", path.display());
     }
     if args.bericht
-        && let Some(company) = game.state().company(game.player())
+        && let Some(company) = game.main_company().and_then(|c| game.state().company(c))
     {
         print_report(texts, &company.ledger);
     }
@@ -564,7 +564,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
     if args.als_person {
         print_person(&game);
     }
-    if let Some(company) = game.state().company(game.player()) {
+    if let Some(company) = game.main_company().and_then(|c| game.state().company(c)) {
         println!(
             "{}: Kasse {}, Ergebnis laufendes Jahr {}",
             company.name,
@@ -624,7 +624,21 @@ fn found_as_person(
 fn print_person(game: &Game) {
     let state = game.state();
     let account = &state.person.account;
-    println!("Person: Privatkonto {}", format_money(account.balance));
+    println!(
+        "Person: {} (Generation {}), Privatkonto {}",
+        state.person.name,
+        state.person.ancestors.len() + 1,
+        format_money(account.balance)
+    );
+    for a in &state.person.ancestors {
+        println!(
+            "  Vorfahr {} ({}–{}, {})",
+            a.name,
+            format_date(a.born),
+            format_date(a.until),
+            if a.died { "verstorben" } else { "übergeben" }
+        );
+    }
     for (flow, amount) in wsim_core::private::last_months(state) {
         println!("  letzte Monate {flow:?}: {}", format_money(amount));
     }

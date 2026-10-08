@@ -1843,10 +1843,34 @@ pub struct RawPerson {
     pub income_tax: RawCountrySeries,
     #[serde(rename = "sparzins")]
     pub savings_rate: RawCountrySeries,
+    #[serde(rename = "erbe")]
+    pub heirs: RawHeirs,
+    #[serde(rename = "erbschaftsteuer")]
+    pub inheritance_tax: RawCountrySeries,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// Heirs of the person (PE6).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHeirs {
+    #[serde(rename = "neffe_alter")]
+    pub nephew_age: RawAgeRange,
+    #[serde(rename = "hinweis_ab")]
+    pub hint_from: f64,
+}
+
+/// An age from–to in years.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawAgeRange {
+    #[serde(rename = "von")]
+    pub from: f64,
+    #[serde(rename = "bis")]
+    pub to: f64,
 }
 
 /// Founding a company (PE3).
