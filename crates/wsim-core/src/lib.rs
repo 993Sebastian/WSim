@@ -59,6 +59,8 @@ mod central_tests;
 #[cfg(test)]
 mod contracts_tests;
 #[cfg(test)]
+mod controlling_tests;
+#[cfg(test)]
 mod deals_tests;
 #[cfg(test)]
 mod determinism_tests;

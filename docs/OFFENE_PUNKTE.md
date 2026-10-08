@@ -1225,6 +1225,25 @@ Eigenständig entschieden:
    25 % der Tonnenkilometer der Händler und der Marktladungen des Monats; sonst hätte eine
    Logistik-Tochter mit genug Zügen grenzenlos verdient.
 
+✅ **W7 umgesetzt** (Controlling; Regeln: `docs/FORMELN.md`, Abschnitt W7). 🟡 Eigenständig
+entschieden:
+
+1. **Zuordnung der Kostenarten:** variabel sind Material, Bestandsveränderung, Energie,
+   Transport, Zölle und Lizenzen; Fixkosten der Standorte sind Personal, Instandhaltung,
+   Abschreibung, Pacht und Verwaltung; Marketing, Forschung, Zinsen, Steuern,
+   Beteiligungen und Sonstiges stehen unter dem Deckungsbeitrag II.
+2. **Ebenen statt freier Filter:** Konzern → Firma → Kontinent → Land → Standort → Produkt
+   als aufklappbarer Baum; eine Handelsniederlassung ist ein Standort.
+3. **Vergleich nur mit der Vorperiode,** soweit das Hauptbuch sie aufbewahrt (die
+   Aufteilung nach Kostenstellen gibt es für den laufenden und den letzten abgeschlossenen
+   Zeitraum, Ergebnisse je Standort und Produkt für 24 Monate). Pläne und Plan-Ist-
+   Abweichungen gibt es nicht.
+4. **Noch offen:** Ergebnis je Transportroute (Fracht wird je Standort und Produkt gebucht,
+   nicht je Länderpaar) und der Vergleich mit Wettbewerbern im Controlling (Umsatz und
+   Eigenkapital der Wettbewerber stehen im Reiter „Wettbewerb“). Lieferungen zwischen
+   Konzernfirmen gibt es nur als Standortübertragung und Kapital (W6), beide ohne Erfolg;
+   sie erscheinen daher nicht im Controlling.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

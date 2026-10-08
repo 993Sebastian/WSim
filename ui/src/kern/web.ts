@@ -76,6 +76,7 @@ export function webKern(): Kern {
     vertragspartner: (standort, produkt) => aufruf("vertragspartner", { standort, produkt }),
     logistik: () => aufruf("logistik"),
     konzern: () => aufruf("konzern"),
+    controlling: (zeitraum) => aufruf("controlling", { zeitraum }),
     managermarkt: (einheit, stelle) => aufruf("managermarkt", { einheit, stelle }),
     befehl: (befehl) => aufruf("befehl", { befehl }),
     speichern: (name) => aufruf("speichern", { name }),

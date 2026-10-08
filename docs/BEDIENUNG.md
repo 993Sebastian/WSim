@@ -584,6 +584,17 @@ es mir?“
   Standort und Produkt** (Deckungsbeitrag), damit sichtbar ist, womit Geld verdient
   wird (Lastenheft §14.2).
 
+### Finanzen → Controlling (W7)
+
+Reiter „Finanzen“ mit zwei Bereichen: „Abschluss“ (Bilanz, Erfolgsrechnung, Kredite wie
+bisher) und „Controlling“. Das Controlling hat die Zeiträume „Vormonat“, „Laufendes Jahr“
+und „Vorjahr“ (soweit es sie schon gibt) und eine aufklappbare Tabelle „Ergebnis je Ebene“:
+Konzern (mit Töchtern) → Firma → Kontinent → Land → Standort → Produkt, dazu je Firma
+„Zentrale und Firma“ und je Standort „Standort allgemein“. Spalten: Umsatz,
+Deckungsbeitrag I, Deckungsbeitrag II, Ergebnis und die Vorperiode mit Abweichung (rot,
+wenn schlechter). Ein Klick auf den Namen zeigt darunter die Deckungsbeiträge mit Anteil am
+Umsatz, die Kostenarten der Ebene und ihr Ergebnis je Monat als Balken.
+
 ### Weltkarte und Länderdetail
 
 - Ist: Ebenen Lohnniveau, BIP je Kopf, Bevölkerung, Rohstoffe, Standorte; Klick öffnet

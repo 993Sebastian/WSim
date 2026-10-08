@@ -23,9 +23,9 @@ use wsim_core::save;
 use wsim_core::state::{AiSettings, ConcernStatus, GameSettings, Unit};
 use wsim_core::views::{
     self, ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
-    ContractsView, CountryDetail, FinanceView, GroupView, LogisticsView, ManagerMarketView,
-    MarketView, MessageView, NewGameOptions, OffersView, OrganisationView, Overview,
-    ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
+    ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
+    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
     StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 
@@ -371,6 +371,11 @@ impl<S: SaveStore> Session<S> {
     /// The start-ups of the world (SU1).
     pub fn ventures(&self) -> Result<VenturesView, MessageView> {
         self.view(views::ventures)
+    }
+
+    /// Contribution margins by level for a period: `monat`, `jahr` or `vorjahr` (W7).
+    pub fn controlling(&self, period: &str) -> Result<ControllingView, MessageView> {
+        self.view(|game| views::controlling(game, period))
     }
 
     /// The player's subsidiaries and the group (W6).

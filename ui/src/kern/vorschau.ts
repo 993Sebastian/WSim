@@ -29,6 +29,7 @@ import type {
   Vertragspartnerliste,
   Logistik,
   Konzern,
+  Controlling,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -61,6 +62,7 @@ const beispiel = beispielJson as unknown as {
   vertragspartner: Vertragspartnerliste;
   logistik: Logistik;
   konzern: Konzern;
+  controlling: Controlling;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -237,6 +239,11 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     konzern: async () => {
       if (!spiel) throw keinSpiel();
       return kopie(beispiel.konzern);
+    },
+    controlling: async (zeitraum) => {
+      if (!spiel) throw keinSpiel();
+      // The preview knows the running year; it shows it for every period.
+      return { ...kopie(beispiel.controlling), period: zeitraum as Controlling["period"] };
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

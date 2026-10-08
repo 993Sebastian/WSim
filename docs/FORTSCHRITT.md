@@ -78,6 +78,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W4 | Lieferverträge zwischen Spieler und KI-Firmen | ✅ |
 | W5 | Logistik: Frachtmarkt, staatlicher Transport, eigene Flotte, Frachtrisiko | ✅ |
 | W6 | Tochterfirmen mit eigener Bilanz und Geschäftsführung, Konzernsicht | ✅ |
+| W7 | Controlling: Deckungsbeiträge je Ebene, Kostenarten, Vorperiode | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -841,6 +842,20 @@ Stufe 2, Lastenheft §5.1, §17.3. Regeln: `docs/FORMELN.md`, Abschnitt W6; Ents
 - **Weltlauf 1900–1915** (100 KI-Firmen): Flotten wie nach W5 (10 Firmen, 55 % der
   Tonnenkilometer mit eigener Flotte); nur die Einnahmen aus Fracht für andere sind jetzt
   durch den Frachtmarkt begrenzt. Laufzeit 2:24 min.
+
+### W7: Controlling (08.10.2026)
+
+Stufe 2, Lastenheft §14.2. Regeln: `docs/FORMELN.md`, Abschnitt W7; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P. Damit ist Stufe 2 (W1–W7) umgesetzt.
+
+- **Kern:** Sicht `views::controlling` aus dem Hauptbuch: Deckungsbeitrag I und II und
+  Ergebnis je Konzern, Firma, Kontinent, Land, Standort und Produkt mit den Kostenarten
+  jeder Ebene, dem Ergebnis der Vorperiode und den Ergebnissen der letzten zwölf Monate.
+- **Oberfläche:** Finanzen → „Controlling“ mit Zeitraum, aufklappbarem Baum und
+  Einzelheiten der gewählten Ebene; Beispieldaten der Vorschau mit dem Konzern.
+- **Tests:** Kern (jede Ebene ist die Summe ihrer Kinder, Deckungsbeiträge, Vormonat und
+  Reihe, Konzern), Sitzung mit echten Daten (Ergebnis wie im Abschluss), vitest,
+  Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 

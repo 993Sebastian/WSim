@@ -9,6 +9,7 @@ mod central;
 mod chains;
 mod concerns;
 mod contracts;
+mod controlling;
 mod deals;
 mod group;
 mod hints;
@@ -22,6 +23,7 @@ pub use central::*;
 pub use chains::*;
 pub use concerns::*;
 pub use contracts::*;
+pub use controlling::*;
 pub use deals::{
     AreaView, CompaniesView, CompanyDetailView, CompanyRowView, DealObjectView, ForeignSiteView,
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,

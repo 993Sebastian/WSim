@@ -13,9 +13,9 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use wsim_core::CoreInfo;
 use wsim_core::views::{
     ChainsView, CompaniesView, CompanyDetailView, ConcernsView, ContractPartnersView,
-    ContractsView, CountryDetail, FinanceView, GroupView, LogisticsView, ManagerMarketView,
-    MarketView, MessageView, NewGameOptions, OffersView, OrganisationView, Overview,
-    ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
+    ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
+    ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
+    Overview, ProductMarketView, ProductionView, ResearchOverview, ReviewsView, RoundReportView,
     StrategyView, VenturesView, WorldMap, WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
@@ -201,6 +201,11 @@ fn startups(state: State<'_, Shared>) -> Result<VenturesView, Fehler> {
 }
 
 #[tauri::command]
+fn controlling(state: State<'_, Shared>, zeitraum: String) -> Result<ControllingView, Fehler> {
+    mit_sitzung(&state, |s| s.controlling(&zeitraum))
+}
+
+#[tauri::command]
 fn konzern(state: State<'_, Shared>) -> Result<GroupView, Fehler> {
     mit_sitzung(&state, |s| s.group())
 }
@@ -307,6 +312,7 @@ fn main() {
             vertragspartner,
             logistik,
             konzern,
+            controlling,
             managermarkt,
             befehl,
             speichern,

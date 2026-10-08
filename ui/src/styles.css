@@ -2753,3 +2753,21 @@ body {
   display: block;
   margin: 0.5rem 0 0.75rem;
 }
+
+/* Controlling (W7) */
+.controlling-baum tr.gewaehlt {
+  background: var(--hervorhebung);
+}
+
+.controlling-baum button.aufklapper {
+  min-width: 1.6rem;
+  padding: 0 0.2rem;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+.controlling-baum .einrueckung {
+  display: inline-block;
+  width: 1.6rem;
+}

@@ -1802,3 +1802,29 @@ tochter.aktiva: Aktiva
 tochter.passiva: Passiva
 tochter.guv: Gewinn und Verlust im Jahr
 tochter.summe: Summe
+finanzen.reiter_abschluss: Abschluss
+finanzen.reiter_controlling: Controlling
+controlling.titel: Controlling
+controlling.hilfe: Womit, wo und wodurch du Geld verdienst oder verlierst. Deckungsbeitrag I ist der Umsatz abzüglich der variablen Kosten (Material, Bestand, Energie, Transport, Zölle, Lizenzen), Deckungsbeitrag II zieht die Fixkosten der Standorte ab (Personal, Instandhaltung, Abschreibung, Pacht, Verwaltung). Klappe die Ebenen auf und wähle eine, um ihre Kostenarten und die letzten Monate zu sehen.
+controlling.zeitraum.monat: Vormonat
+controlling.zeitraum.jahr: Laufendes Jahr
+controlling.zeitraum.vorjahr: Vorjahr
+controlling.ebenen: Ergebnis je Ebene
+controlling.ebene: Ebene
+controlling.umsatz: Umsatz
+controlling.variabel: Variable Kosten
+controlling.db1: Deckungsbeitrag I
+controlling.fix: Fixkosten
+controlling.db2: Deckungsbeitrag II
+controlling.uebrige: Übrige Kosten und Erträge
+controlling.ergebnis: Ergebnis
+controlling.vorperiode: Vorperiode
+controlling.aufklappen: "{name} aufklappen"
+controlling.zuklappen: "{name} zuklappen"
+controlling.einzelheiten: "Einzelheiten: {name}"
+controlling.stufen: Deckungsbeiträge
+controlling.kostenarten: Kostenarten
+controlling.verlauf: "Ergebnis je Monat: {name}"
+controlling.konzern: Konzern
+controlling.zentrale: Zentrale und Firma
+controlling.allgemein: Standort allgemein

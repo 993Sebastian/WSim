@@ -30,6 +30,7 @@ import {
   useSicht,
   ZahlFeld,
 } from "./gemeinsam";
+import { ControllingAnsicht } from "./Controlling";
 import { formatMonatKurz, Verlauf } from "./Grafik";
 
 export function FinanzenAnsicht({
@@ -43,6 +44,7 @@ export function FinanzenAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.finanzen(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
+  const [bereich, setBereich] = useState<"abschluss" | "controlling">("abschluss");
   if (!daten) return <FehlerText fehler={fehler} />;
   const abrechnungen: [string, Abrechnung | null][] = [
     ["finanzen.vormonat", daten.last_month],
@@ -56,126 +58,149 @@ export function FinanzenAnsicht({
   return (
     <main className="ansicht" id="finanzen">
       <h1 className="unsichtbar">{t("ansicht.finanzen")}</h1>
-      <Befehle senden={senden} meldung={meldung}>
-        <FinanzVerlauf daten={daten} />
-        <Woher daten={daten} />
-        <div className="raster">
-          <section aria-labelledby="bilanz">
-            <h2 id="bilanz">{t("finanzen.bilanz")}</h2>
-            <div className="bilanz">
-              <Spalte titel={t("finanzen.aktiva")} zeilen={daten.assets} summe={daten.total_usd} />
-              <Spalte titel={t("finanzen.passiva")} zeilen={daten.claims} summe={daten.total_usd} />
-            </div>
-            {daten.loss_carryforward_usd > 0 && (
-              <p className="gedaempft">
-                {t("finanzen.verlustvortrag", { betrag: formatGeld(daten.loss_carryforward_usd) })}
-              </p>
+      <Unterreiter
+        name={t("ansicht.finanzen")}
+        bereiche={[
+          { key: "abschluss", text: t("finanzen.reiter_abschluss") },
+          { key: "controlling", text: t("finanzen.reiter_controlling") },
+        ]}
+        aktiv={bereich}
+        onWahl={setBereich}
+      />
+      {bereich === "controlling" ? (
+        <ControllingAnsicht kern={kern} stand={uebersicht.date} />
+      ) : (
+        <Befehle senden={senden} meldung={meldung}>
+          <FinanzVerlauf daten={daten} />
+          <Woher daten={daten} />
+          <div className="raster">
+            <section aria-labelledby="bilanz">
+              <h2 id="bilanz">{t("finanzen.bilanz")}</h2>
+              <div className="bilanz">
+                <Spalte
+                  titel={t("finanzen.aktiva")}
+                  zeilen={daten.assets}
+                  summe={daten.total_usd}
+                />
+                <Spalte
+                  titel={t("finanzen.passiva")}
+                  zeilen={daten.claims}
+                  summe={daten.total_usd}
+                />
+              </div>
+              {daten.loss_carryforward_usd > 0 && (
+                <p className="gedaempft">
+                  {t("finanzen.verlustvortrag", {
+                    betrag: formatGeld(daten.loss_carryforward_usd),
+                  })}
+                </p>
+              )}
+            </section>
+
+            <section aria-labelledby="erfolg">
+              <h2 id="erfolg">{t("finanzen.erfolgsrechnung")}</h2>
+              <div className="tabelle">
+                <table>
+                  <thead>
+                    <tr>
+                      <th />
+                      {abrechnungen.map(([k]) => (
+                        <th key={k} className="zahl">
+                          {t(k)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {arten.map((art) => (
+                      <tr key={art}>
+                        <td>{t(art)}</td>
+                        {abrechnungen.map(([k, a]) => (
+                          <td key={k} className="zahl">
+                            {a ? <Betrag usd={new Map(a.lines).get(art) ?? 0} /> : "–"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                    <tr className="summe">
+                      <td>{t("finanzen.ergebnis")}</td>
+                      {abrechnungen.map(([k, a]) => (
+                        <td key={k} className="zahl">
+                          {a ? <Betrag usd={a.result_usd} /> : "–"}
+                        </td>
+                      ))}
+                    </tr>
+                    {(
+                      [
+                        "finanzen.cf_betrieb",
+                        "finanzen.cf_investition",
+                        "finanzen.cf_finanzierung",
+                      ] as const
+                    ).map((z, i) => (
+                      <tr key={z} className={i === 0 ? "trenner" : undefined}>
+                        <td>{t(z)}</td>
+                        {abrechnungen.map(([k, a]) => (
+                          <td key={k} className="zahl">
+                            {a ? <Betrag usd={a.cash_flow_usd[i] ?? 0} /> : "–"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section aria-labelledby="kredite">
+            <h2 id="kredite">{t("finanzen.kredite")}</h2>
+            <p>
+              {t("finanzen.rahmen", {
+                rahmen: formatGeld(daten.credit_limit_usd),
+                dispo: formatGeld(daten.overdraft_limit_usd),
+                zins: formatProzent(daten.loan_rate),
+              })}
+            </p>
+            {daten.loans.length > 0 && (
+              <div className="tabelle">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{t("finanzen.beginn")}</th>
+                      <th className="zahl">{t("finanzen.betrag")}</th>
+                      <th className="zahl">{t("finanzen.rest")}</th>
+                      <th className="zahl">{t("finanzen.zins")}</th>
+                      <th className="zahl">{t("finanzen.rate")}</th>
+                      <th>{t("finanzen.sondertilgung")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {daten.loans.map((k) => (
+                      <tr key={k.index}>
+                        <td>
+                          {formatDatum(k.start)} · {t("finanzen.monate", { anzahl: k.months })}
+                        </td>
+                        <td className="zahl">{formatGeld(k.principal_usd)}</td>
+                        <td className="zahl">{formatGeld(k.balance_usd)}</td>
+                        <td className="zahl">{formatProzent(k.rate)}</td>
+                        <td className="zahl">{formatGeld(k.instalment_usd)}</td>
+                        <td>
+                          <Tilgung
+                            key={`${k.index}/${k.balance_usd}/${geldSchluessel()}`}
+                            kredit={k.index}
+                            rest={k.balance_usd}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
+            <Kreditaufnahme jahreMax={daten.max_term_years} />
           </section>
-
-          <section aria-labelledby="erfolg">
-            <h2 id="erfolg">{t("finanzen.erfolgsrechnung")}</h2>
-            <div className="tabelle">
-              <table>
-                <thead>
-                  <tr>
-                    <th />
-                    {abrechnungen.map(([k]) => (
-                      <th key={k} className="zahl">
-                        {t(k)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {arten.map((art) => (
-                    <tr key={art}>
-                      <td>{t(art)}</td>
-                      {abrechnungen.map(([k, a]) => (
-                        <td key={k} className="zahl">
-                          {a ? <Betrag usd={new Map(a.lines).get(art) ?? 0} /> : "–"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                  <tr className="summe">
-                    <td>{t("finanzen.ergebnis")}</td>
-                    {abrechnungen.map(([k, a]) => (
-                      <td key={k} className="zahl">
-                        {a ? <Betrag usd={a.result_usd} /> : "–"}
-                      </td>
-                    ))}
-                  </tr>
-                  {(
-                    [
-                      "finanzen.cf_betrieb",
-                      "finanzen.cf_investition",
-                      "finanzen.cf_finanzierung",
-                    ] as const
-                  ).map((z, i) => (
-                    <tr key={z} className={i === 0 ? "trenner" : undefined}>
-                      <td>{t(z)}</td>
-                      {abrechnungen.map(([k, a]) => (
-                        <td key={k} className="zahl">
-                          {a ? <Betrag usd={a.cash_flow_usd[i] ?? 0} /> : "–"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        <section aria-labelledby="kredite">
-          <h2 id="kredite">{t("finanzen.kredite")}</h2>
-          <p>
-            {t("finanzen.rahmen", {
-              rahmen: formatGeld(daten.credit_limit_usd),
-              dispo: formatGeld(daten.overdraft_limit_usd),
-              zins: formatProzent(daten.loan_rate),
-            })}
-          </p>
-          {daten.loans.length > 0 && (
-            <div className="tabelle">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t("finanzen.beginn")}</th>
-                    <th className="zahl">{t("finanzen.betrag")}</th>
-                    <th className="zahl">{t("finanzen.rest")}</th>
-                    <th className="zahl">{t("finanzen.zins")}</th>
-                    <th className="zahl">{t("finanzen.rate")}</th>
-                    <th>{t("finanzen.sondertilgung")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {daten.loans.map((k) => (
-                    <tr key={k.index}>
-                      <td>
-                        {formatDatum(k.start)} · {t("finanzen.monate", { anzahl: k.months })}
-                      </td>
-                      <td className="zahl">{formatGeld(k.principal_usd)}</td>
-                      <td className="zahl">{formatGeld(k.balance_usd)}</td>
-                      <td className="zahl">{formatProzent(k.rate)}</td>
-                      <td className="zahl">{formatGeld(k.instalment_usd)}</td>
-                      <td>
-                        <Tilgung
-                          key={`${k.index}/${k.balance_usd}/${geldSchluessel()}`}
-                          kredit={k.index}
-                          rest={k.balance_usd}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <Kreditaufnahme jahreMax={daten.max_term_years} />
-        </section>
-      </Befehle>
+        </Befehle>
+      )}
     </main>
   );
 }

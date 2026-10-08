@@ -655,3 +655,24 @@ fn subsidiaries_and_the_group() {
             .all(|c| c.name != "Testwerke Logistik")
     );
 }
+
+#[test]
+fn controlling_by_level() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    let view = session.controlling("monat").unwrap();
+    // Before the first month there is no month.
+    assert_eq!(view.periods, vec!["jahr".to_owned()]);
+    session.end_round("monat", |_| {}).unwrap();
+    let view = session.controlling("monat").unwrap();
+    assert_eq!(view.period, "monat");
+    let root = view.root.expect("a closed month");
+    assert_eq!(root.level, "firma");
+    let finance = session.finance().unwrap();
+    let month = finance.last_month.expect("a closed month");
+    assert!((root.result_usd - month.result_usd).abs() < 0.01);
+    let sum: f64 = root.children.iter().map(|c| c.result_usd).sum();
+    assert!((sum - root.result_usd).abs() < 0.01);
+    assert_eq!(view.months.len(), 1);
+}

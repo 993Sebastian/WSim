@@ -2039,3 +2039,32 @@ export interface Konzern {
   income: KonzernZeile[];
   result_year_usd: number;
 }
+
+/** One level of the controlling drill-down (W7). */
+export interface ControllingKnoten {
+  key: string;
+  level:
+    "konzern" | "firma" | "kontinent" | "land" | "standort" | "produkt" | "allgemein" | "zentrale";
+  /** Name of a company, else a text key. */
+  name: string;
+  country: string | null;
+  revenue_usd: number;
+  variable_usd: number;
+  margin1_usd: number;
+  fixed_usd: number;
+  margin2_usd: number;
+  other_usd: number;
+  result_usd: number;
+  previous_result_usd: number | null;
+  series_usd: number[];
+  costs: { key: string; usd: number }[];
+  children: ControllingKnoten[];
+}
+
+export interface Controlling {
+  period: "monat" | "jahr" | "vorjahr";
+  periods: ("monat" | "jahr" | "vorjahr")[];
+  start: string | null;
+  months: string[];
+  root: ControllingKnoten | null;
+}

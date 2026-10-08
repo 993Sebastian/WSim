@@ -537,6 +537,19 @@ test("Tochterfirmen: Tochter, Gründung und Konzernbilanz", async ({ page }) => 
   await bild(page, "tochterfirmen");
 });
 
+test("Controlling: Ebenen aufklappen und Kostenarten sehen", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Finanzen", exact: true }).click();
+  await page.getByRole("button", { name: "Controlling", exact: true }).click();
+  const tabelle = page.getByRole("table", { name: "Ergebnis je Ebene" });
+  await expect(tabelle).toContainText("Konzern");
+  await tabelle.getByRole("button", { name: "Europa aufklappen" }).click();
+  await expect(tabelle).toContainText("Deutschland");
+  await tabelle.getByRole("button", { name: "Deutschland", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Einzelheiten: Deutschland" })).toBeVisible();
+  await bild(page, "controlling");
+});
+
 test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
   page,
 }) => {

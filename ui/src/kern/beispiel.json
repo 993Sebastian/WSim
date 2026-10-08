@@ -332,6 +332,462 @@
     "stop": null,
     "to": "1914-07-31"
   },
+  "controlling": {
+    "months": [
+      "1914-01-01",
+      "1914-02-01",
+      "1914-03-01",
+      "1914-04-01",
+      "1914-05-01",
+      "1914-06-01",
+      "1914-07-01",
+      "1914-08-01",
+      "1914-09-01"
+    ],
+    "period": "jahr",
+    "periods": [
+      "monat",
+      "jahr"
+    ],
+    "root": {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "costs": [
+                            {
+                              "key": "kostenart.umsatz",
+                              "usd": 247563.1187
+                            },
+                            {
+                              "key": "kostenart.material",
+                              "usd": -198065.3251
+                            },
+                            {
+                              "key": "kostenart.personal",
+                              "usd": -10319.2739
+                            },
+                            {
+                              "key": "kostenart.gemeinkosten",
+                              "usd": -6854.6155
+                            }
+                          ],
+                          "country": null,
+                          "fixed_usd": -17173.8894,
+                          "key": "produkt:0:naegel",
+                          "level": "produkt",
+                          "margin1_usd": 49497.7936,
+                          "margin2_usd": 32323.9042,
+                          "name": "produkt.naegel",
+                          "other_usd": 0.0,
+                          "previous_result_usd": null,
+                          "result_usd": 32323.9042,
+                          "revenue_usd": 247563.1187,
+                          "series_usd": [],
+                          "variable_usd": -198065.3251
+                        },
+                        {
+                          "children": [],
+                          "costs": [
+                            {
+                              "key": "kostenart.personal",
+                              "usd": -13845.3176
+                            },
+                            {
+                              "key": "kostenart.abschreibungen",
+                              "usd": -2293.6914
+                            },
+                            {
+                              "key": "kostenart.instandhaltung",
+                              "usd": -897.5421
+                            },
+                            {
+                              "key": "kostenart.pacht",
+                              "usd": -13441.2225
+                            }
+                          ],
+                          "country": null,
+                          "fixed_usd": -30477.7736,
+                          "key": "allgemein:0",
+                          "level": "allgemein",
+                          "margin1_usd": 0.0,
+                          "margin2_usd": -30477.7736,
+                          "name": "controlling.allgemein",
+                          "other_usd": 0.0,
+                          "previous_result_usd": null,
+                          "result_usd": -30477.7736,
+                          "revenue_usd": 0.0,
+                          "series_usd": [],
+                          "variable_usd": 0.0
+                        }
+                      ],
+                      "costs": [
+                        {
+                          "key": "kostenart.umsatz",
+                          "usd": 247563.1187
+                        },
+                        {
+                          "key": "kostenart.material",
+                          "usd": -198065.3251
+                        },
+                        {
+                          "key": "kostenart.personal",
+                          "usd": -24164.5915
+                        },
+                        {
+                          "key": "kostenart.abschreibungen",
+                          "usd": -2293.6914
+                        },
+                        {
+                          "key": "kostenart.instandhaltung",
+                          "usd": -897.5421
+                        },
+                        {
+                          "key": "kostenart.gemeinkosten",
+                          "usd": -6854.6155
+                        },
+                        {
+                          "key": "kostenart.pacht",
+                          "usd": -13441.2225
+                        }
+                      ],
+                      "country": "DEU",
+                      "fixed_usd": -47651.663,
+                      "key": "standort:0",
+                      "level": "standort",
+                      "margin1_usd": 49497.7936,
+                      "margin2_usd": 1846.1306,
+                      "name": "standorttyp.werk",
+                      "other_usd": 0.0,
+                      "previous_result_usd": null,
+                      "result_usd": 1846.1306,
+                      "revenue_usd": 247563.1187,
+                      "series_usd": [
+                        1891.6823,
+                        1121.7819,
+                        1286.368,
+                        1196.865,
+                        1629.4667,
+                        2044.406,
+                        2643.7765,
+                        -4149.2287,
+                        -4319.642
+                      ],
+                      "variable_usd": -198065.3251
+                    }
+                  ],
+                  "costs": [
+                    {
+                      "key": "kostenart.umsatz",
+                      "usd": 247563.1187
+                    },
+                    {
+                      "key": "kostenart.material",
+                      "usd": -198065.3251
+                    },
+                    {
+                      "key": "kostenart.personal",
+                      "usd": -24164.5915
+                    },
+                    {
+                      "key": "kostenart.abschreibungen",
+                      "usd": -2293.6914
+                    },
+                    {
+                      "key": "kostenart.instandhaltung",
+                      "usd": -897.5421
+                    },
+                    {
+                      "key": "kostenart.gemeinkosten",
+                      "usd": -6854.6155
+                    },
+                    {
+                      "key": "kostenart.pacht",
+                      "usd": -13441.2225
+                    }
+                  ],
+                  "country": null,
+                  "fixed_usd": -47651.663,
+                  "key": "land:0:DEU",
+                  "level": "land",
+                  "margin1_usd": 49497.7936,
+                  "margin2_usd": 1846.1306,
+                  "name": "land.DEU",
+                  "other_usd": 0.0,
+                  "previous_result_usd": null,
+                  "result_usd": 1846.1306,
+                  "revenue_usd": 247563.1187,
+                  "series_usd": [
+                    1891.6823,
+                    1121.7819,
+                    1286.368,
+                    1196.865,
+                    1629.4667,
+                    2044.406,
+                    2643.7765,
+                    -4149.2287,
+                    -4319.642
+                  ],
+                  "variable_usd": -198065.3251
+                }
+              ],
+              "costs": [
+                {
+                  "key": "kostenart.umsatz",
+                  "usd": 247563.1187
+                },
+                {
+                  "key": "kostenart.material",
+                  "usd": -198065.3251
+                },
+                {
+                  "key": "kostenart.personal",
+                  "usd": -24164.5915
+                },
+                {
+                  "key": "kostenart.abschreibungen",
+                  "usd": -2293.6914
+                },
+                {
+                  "key": "kostenart.instandhaltung",
+                  "usd": -897.5421
+                },
+                {
+                  "key": "kostenart.gemeinkosten",
+                  "usd": -6854.6155
+                },
+                {
+                  "key": "kostenart.pacht",
+                  "usd": -13441.2225
+                }
+              ],
+              "country": null,
+              "fixed_usd": -47651.663,
+              "key": "kontinent:0:europa",
+              "level": "kontinent",
+              "margin1_usd": 49497.7936,
+              "margin2_usd": 1846.1306,
+              "name": "kontinent.europa",
+              "other_usd": 0.0,
+              "previous_result_usd": null,
+              "result_usd": 1846.1306,
+              "revenue_usd": 247563.1187,
+              "series_usd": [
+                1891.6823,
+                1121.7819,
+                1286.368,
+                1196.865,
+                1629.4667,
+                2044.406,
+                2643.7765,
+                -4149.2287,
+                -4319.642
+              ],
+              "variable_usd": -198065.3251
+            },
+            {
+              "children": [],
+              "costs": [
+                {
+                  "key": "kostenart.personal",
+                  "usd": -21502.5706
+                },
+                {
+                  "key": "kostenart.zinsen",
+                  "usd": -317.7541
+                },
+                {
+                  "key": "kostenart.abschreibungen",
+                  "usd": -125.0
+                },
+                {
+                  "key": "kostenart.instandhaltung",
+                  "usd": -150.0
+                },
+                {
+                  "key": "kostenart.sonstiges",
+                  "usd": -3000.0
+                }
+              ],
+              "country": null,
+              "fixed_usd": -21777.5706,
+              "key": "zentrale:0",
+              "level": "zentrale",
+              "margin1_usd": 0.0,
+              "margin2_usd": -21777.5706,
+              "name": "controlling.zentrale",
+              "other_usd": -3317.7541,
+              "previous_result_usd": null,
+              "result_usd": -25095.3247,
+              "revenue_usd": 0.0,
+              "series_usd": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                -14001.9979,
+                -11093.3268
+              ],
+              "variable_usd": 0.0
+            }
+          ],
+          "costs": [
+            {
+              "key": "kostenart.umsatz",
+              "usd": 247563.1187
+            },
+            {
+              "key": "kostenart.material",
+              "usd": -198065.3251
+            },
+            {
+              "key": "kostenart.personal",
+              "usd": -45667.1621
+            },
+            {
+              "key": "kostenart.zinsen",
+              "usd": -317.7541
+            },
+            {
+              "key": "kostenart.abschreibungen",
+              "usd": -2418.6914
+            },
+            {
+              "key": "kostenart.instandhaltung",
+              "usd": -1047.5421
+            },
+            {
+              "key": "kostenart.gemeinkosten",
+              "usd": -6854.6155
+            },
+            {
+              "key": "kostenart.pacht",
+              "usd": -13441.2225
+            },
+            {
+              "key": "kostenart.sonstiges",
+              "usd": -3000.0
+            }
+          ],
+          "country": null,
+          "fixed_usd": -69429.2336,
+          "key": "firma:0",
+          "level": "firma",
+          "margin1_usd": 49497.7936,
+          "margin2_usd": -19931.44,
+          "name": "Neue Firma",
+          "other_usd": -3317.7541,
+          "previous_result_usd": null,
+          "result_usd": -23249.1941,
+          "revenue_usd": 247563.1187,
+          "series_usd": [
+            1891.6823,
+            1121.7819,
+            1286.368,
+            1196.865,
+            1629.4667,
+            2044.406,
+            2643.7765,
+            -18151.2266,
+            -15412.9688
+          ],
+          "variable_usd": -198065.3251
+        },
+        {
+          "children": [],
+          "costs": [],
+          "country": null,
+          "fixed_usd": 0.0,
+          "key": "firma:101",
+          "level": "firma",
+          "margin1_usd": 0.0,
+          "margin2_usd": 0.0,
+          "name": "Neue Firma Spedition",
+          "other_usd": 0.0,
+          "previous_result_usd": null,
+          "result_usd": 0.0,
+          "revenue_usd": 0.0,
+          "series_usd": [
+            0.0,
+            0.0
+          ],
+          "variable_usd": 0.0
+        }
+      ],
+      "costs": [
+        {
+          "key": "kostenart.umsatz",
+          "usd": 247563.1187
+        },
+        {
+          "key": "kostenart.material",
+          "usd": -198065.3251
+        },
+        {
+          "key": "kostenart.personal",
+          "usd": -45667.1621
+        },
+        {
+          "key": "kostenart.zinsen",
+          "usd": -317.7541
+        },
+        {
+          "key": "kostenart.abschreibungen",
+          "usd": -2418.6914
+        },
+        {
+          "key": "kostenart.instandhaltung",
+          "usd": -1047.5421
+        },
+        {
+          "key": "kostenart.gemeinkosten",
+          "usd": -6854.6155
+        },
+        {
+          "key": "kostenart.pacht",
+          "usd": -13441.2225
+        },
+        {
+          "key": "kostenart.sonstiges",
+          "usd": -3000.0
+        }
+      ],
+      "country": null,
+      "fixed_usd": -69429.2336,
+      "key": "konzern",
+      "level": "konzern",
+      "margin1_usd": 49497.7936,
+      "margin2_usd": -19931.44,
+      "name": "controlling.konzern",
+      "other_usd": -3317.7541,
+      "previous_result_usd": null,
+      "result_usd": -23249.1941,
+      "revenue_usd": 247563.1187,
+      "series_usd": [
+        1891.6823,
+        1121.7819,
+        1286.368,
+        1196.865,
+        1629.4667,
+        2044.406,
+        2643.7765,
+        -18151.2266,
+        -15412.9688
+      ],
+      "variable_usd": -198065.3251
+    },
+    "start": "1914-01-01"
+  },
   "finanzen": {
     "assets": [
       [

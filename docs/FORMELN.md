@@ -4090,3 +4090,38 @@ Fracht für andere ist begrenzt: Je Monat und Weg (Land, See) zählt das Spiel d
 Tonnenkilometer der Händler und der Firmenladungen über den Markt (F). Firmenflotten
 übernehmen davon höchstens `flotte.vermietung_markt_anteil` · F; bieten sie mehr freien
 Platz an (`vermietung_anteil` · frei), wird jede Firma im selben Verhältnis gekürzt.
+
+## W7 – Controlling
+
+Lastenheft §14.2. Kern: Sicht `views::controlling` (rechnet nur aus dem Hauptbuch, ändert
+nichts).
+
+### Deckungsbeiträge
+
+Jede Buchung trägt Kostenart und Kostenstelle (Standort, Produkt). Je Knoten:
+
+    Umsatz              = Umsatzerlöse
+    variable Kosten     = Material, Bestandsveränderung, Energie, Transport, Zölle, Lizenzen
+    Deckungsbeitrag I   = Umsatz + variable Kosten          (Kosten negativ)
+    Fixkosten           = Personal, Instandhaltung, Abschreibungen, Miete und Pacht,
+                          Verwaltung und Vertrieb
+    Deckungsbeitrag II  = Deckungsbeitrag I + Fixkosten
+    Ergebnis            = Deckungsbeitrag II + übrige Kostenarten (Marketing, Forschung,
+                          Zinsen, Steuern, Beteiligungen, Sonstiges)
+
+### Ebenen
+
+Konzern (mit Töchtern) → Firma → Kontinent → Land → Standort → Produkt. Ein Standort
+umfasst seine Produkte und, was keinem Produkt zugeordnet ist (z. B. Personal des Werks).
+Was keinem Standort zugeordnet ist (Zinsen, Steuern, Werbung, Zentrale), steht je Firma
+unter „Zentrale und Firma“. Jede Ebene ist die Summe ihrer Kinder.
+
+### Zeiträume und Vergleich
+
+- **Vormonat** (letzter abgeschlossener Monat), verglichen mit dem Monat davor,
+- **laufendes Jahr** (bis heute, ohne Vergleich),
+- **Vorjahr**, verglichen mit dem Jahr davor.
+
+Der Vergleich nennt das Ergebnis der Vorperiode und die Abweichung; Firmen, Kontinente,
+Länder und Standorte haben dazu die Ergebnisse der letzten zwölf abgeschlossenen Monate
+(Zeitreihe), Produkte die Ergebnisse je Produkt über alle Standorte.

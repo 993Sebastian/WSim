@@ -633,6 +633,9 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     let (contracts, partners) = example_contracts(&mut session)?;
     json["vertraege"] = contracts;
     json["vertragspartner"] = partners;
+    // W7: the year with the group from above.
+    json["controlling"] = serde_json::to_value(session.controlling("jahr").map_err(message)?)
+        .map_err(|e| e.to_string())?;
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());

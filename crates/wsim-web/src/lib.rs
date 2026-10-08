@@ -140,6 +140,10 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                     "vertraege" => wert(s.contracts()?),
                     "logistik" => wert(s.logistics()?),
                     "konzern" => wert(s.group()?),
+                    "controlling" => {
+                        let zeitraum: String = argument(args, "zeitraum")?;
+                        wert(s.controlling(&zeitraum)?)
+                    }
                     "vertragspartner" => {
                         let standort: u32 = argument(args, "standort")?;
                         let produkt: String = argument(args, "produkt")?;
