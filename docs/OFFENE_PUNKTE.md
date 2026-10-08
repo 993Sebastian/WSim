@@ -1,18 +1,26 @@
-# Offene Punkte zum Lastenheft
-
-Stand 06.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
+Stand 08.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
 
 **Status:** ✅ entschieden · 🟡 Vorschlag gilt vorläufig (nicht ausdrücklich bestätigt,
 bei Bedarf widersprechen) · ❓ offen
 
+**Abnahme vom 08.10.2026 (Lastenheft §18.8):** Alle bis dahin vorläufigen Entscheidungen
+und Vorschläge dieser Datei (Stand nach PE5) sind angenommen und als ✅ markiert, auch die
+Abweichungen von den Vorgaben (z. B. Lebensstil in PE3, Ruhestandsalter in PE1) und der
+offene Punkt 38. Angenommene Vorschläge, die noch Arbeit bedeuten, gelten als Auftrag
+(z. B. Namensgruppen, Zwischenwährungen); Stufe-6-Themen (Balancing) bleiben bei Stufe 6.
+Wo ein Vorschlag zwei Wege nennt, wählt die Umsetzung einen und vermerkt ihn. Rückmeldungen
+folgen nach den ersten eigenen Testpartien. Neue Einträge ab PE6 wieder mit 🟡.
+# Offene Punkte zum Lastenheft
+
+
 ## A Abgrenzung Stufe 1 gegenüber späteren Stufen
 
-1. 🟡 **Transport in Stufe 1.** Ein abstrakter „Frachtdienst“ mit Kosten und Dauer nach
+1. ✅ **Transport in Stufe 1.** Ein abstrakter „Frachtdienst“ mit Kosten und Dauer nach
    Entfernung, Transportklasse und Epoche; keine Kapazitätsgrenzen, kein Risiko.
    Eigene Flotte, staatlicher und KI-Transport folgen in Stufe 2. Umgesetzt mit M8:
    Wege zwischen Hauptstädten, Seewege nach Luftlinie × Umwegfaktor (echte Seewege mit
    Kanälen ab Stufe 2), Waren bewegen sich innerhalb eines Landes ohne Kosten.
-2. 🟡 **Zölle.** Stufe 1 ohne Zölle; die Warengruppen sind im Datenformat schon da.
+2. ✅ **Zölle.** Stufe 1 ohne Zölle; die Warengruppen sind im Datenformat schon da.
    Umgesetzt mit W3 (`parameter/zoelle.yaml`, FORMELN W3): Durchschnittszoll je
    Einfuhrland als Zeitreihe (15 große Länder eigen, sonst ein Standardverlauf nach
    Bairoch/Clemens–Williamson), Faktor je Warengruppe, Handelszonen (EWG/EU, EFTA, NAFTA,
@@ -22,23 +30,23 @@ bei Bedarf widersprechen) · ❓ offen
    (b) Die Zolleinnahmen verlassen das Spiel (keine Staatshaushalte in Stufe 2). (c) Nach
    2026 ändern sich die Zölle zufällig (keine, normal, stark schwankend; Wahl beim neuen
    Spiel); Handelskriege und Sanktionen als Ereignisse folgen mit Stufe 4.
-3. 🟡 **Währung.** Stufe 1 rechnet in USD (Kaufkraft 2026). Die Anzeige in
+3. ✅ **Währung.** Stufe 1 rechnet in USD (Kaufkraft 2026). Die Anzeige in
    Landeswährungen ist mit M21 vorgezogen (§18.2): umschaltbar zwischen Kaufkraft 2026
    und Preisen der Zeit. Vorschlag: „Kaufkraft 2026“ zeigt die Landeswährung des Jahres
    2026 (Deutschland: Euro), weil es eine Mark „mit der Kaufkraft von 2026“ nicht gibt;
    die historischen Währungen mit ihren Umstellungen (Mark, Reichsmark, D-Mark) zeigt
    „Preise der Zeit“. Wechselkurswirkungen auf Handel, Löhne und Gewinne folgen mit
    Stufe 4.
-4. 🟡 **Strategie-Ansicht (§5.6)** kommt mit dem Manager-System in Stufe 2. In Stufe 1
+4. ✅ **Strategie-Ansicht (§5.6)** kommt mit dem Manager-System in Stufe 2. In Stufe 1
    stellt der Spieler die Verkaufswege (§9.2) direkt je Produkt bzw. pauschal ein.
-5. 🟡 **Insolvenz.** Einfache Insolvenz in Stufe 1 (Firma scheidet aus, Standorte
+5. ✅ **Insolvenz.** Einfache Insolvenz in Stufe 1 (Firma scheidet aus, Standorte
    werden stillgelegt oder günstig verkauft). Spielende für den Spieler nach §11.3
    vereinfacht: zahlungsunfähig und kein Kredit mehr möglich.
-6. 🟡 **Forschung in Stufe 1** mit Technologiebaum, Forschungszentren,
+6. ✅ **Forschung in Stufe 1** mit Technologiebaum, Forschungszentren,
    Länder-Forschungsstärke, Vorgriffskosten und Nachzügler-Rabatt; Patente und
    Lizenzen in Stufe 5. Umgesetzt mit M9; zusätzlich wird jede Technologie 25 Jahre
    nach ihrer historischen Erfindung Gemeingut (Wert in den Daten).
-7. 🟡 **Spieleinstellungen (§15) in Stufe 1:** Startjahr (1900–1930), Startland,
+7. ✅ **Spieleinstellungen (§15) in Stufe 1:** Startjahr (1900–1930), Startland,
    Startkapital, Startform, Schwierigkeitsgrad, Anzahl/Kompetenz/Aggressivität der
    KI-Firmen, Preis-/Qualitätsempfindlichkeit, Konjunkturstärke,
    Forschungs-Kostenfaktor, Seed.
@@ -51,29 +59,29 @@ bei Bedarf widersprechen) · ❓ offen
    jedem Land an, für Firmen und bei Konsumgütern auch für Endkunden.
 9. ✅ **Pferdekutsche** ebenfalls über den Staatsmarkt; ihre Nachfrage sinkt mit der
    Verbreitung des Automobils. Die Petroleumlampe hat mit Kette 9 eine eigene Kette.
-10. 🟡 **Koks.** Antwort „Staatsmarkt“ auf 8–10 so ausgelegt: Die Verkokung steckt
+10. ✅ **Koks.** Antwort „Staatsmarkt“ auf 8–10 so ausgelegt: Die Verkokung steckt
     weiter im Hochofen-Rezept (Kette 1 bleibt „Eisenerz + Kohle → Roheisen“); Koks
     ist kein eigenes Produkt. Bitte widersprechen, falls Koks als Staatsmarkt-Ware
     gemeint war.
 
 ## C Daten und Realismus
 
-11. 🟡 **Heutige Grenzen.** Historische Werte werden über Flächen- und
+11. ✅ **Heutige Grenzen.** Historische Werte werden über Flächen- und
     Bevölkerungsanteile umgerechnet und als Annäherung gekennzeichnet.
-12. 🟡 **Länderliste.** 193 UN-Mitglieder plus Taiwan, Kosovo, Palästina, Westsahara;
+12. ✅ **Länderliste.** 193 UN-Mitglieder plus Taiwan, Kosovo, Palästina, Westsahara;
     Kleinststaaten mit kleinen Werten.
 13. ✅ **Länderwerte zeigen den realen Verlauf** einschließlich Kriegs- und
     Krisendellen. Folge für Stufe 4: Ereignisse dürfen diese Einbrüche nicht noch
     einmal erzeugen; sie wirken über das hinaus, was die Zeitreihen schon enthalten
     (Zerstörung von Standorten, Embargos, Rüstungsnachfrage, Arbeitskräftemangel).
-14. 🟡 **Kaufkraft und Löhne.** Jedes Land bekommt einen Preisniveau-Faktor
+14. ✅ **Kaufkraft und Löhne.** Jedes Land bekommt einen Preisniveau-Faktor
     (Marktkurs/Kaufkraftparität) als Jahreswert.
-15. 🟡 **Arbeitskräfte:** Vorschlag siehe unten, im Datenformat umgesetzt; Freigabe ausstehend.
-16. 🟡 **Lagerstätten.** Je Land und Rohstoff die bedeutenden Lagerstätten einzeln,
+15. ✅ **Arbeitskräfte:** Vorschlag siehe unten, im Datenformat umgesetzt; Freigabe ausstehend.
+16. ✅ **Lagerstätten.** Je Land und Rohstoff die bedeutenden Lagerstätten einzeln,
     dazu ein zusammengefasstes „Restvorkommen“; mit Jahr der Entdeckung.
-17. 🟡 **Besitz zum Startjahr.** Bereits betriebene Minen und Werke gehören den
+17. ✅ **Besitz zum Startjahr.** Bereits betriebene Minen und Werke gehören den
     KI-Firmen der Startbesetzung; nicht erschlossene Lagerstätten sind frei.
-18. 🟡 **Stromnetz 1900.** Jahreswert „Netzverfügbarkeit“ je Land; ohne Netz nur
+18. ✅ **Stromnetz 1900.** Jahreswert „Netzverfügbarkeit“ je Land; ohne Netz nur
     Eigenerzeugung (Kette 7) oder Kohle/Dampf.
 
 ## D Umfang und Technik
@@ -85,35 +93,35 @@ bei Bedarf widersprechen) · ❓ offen
     Förderung der Lagerstätten); Preise, Stundenlöhne, Einkommen je Kopf und
     Anlagengrößen bleiben real. Mehr Firmen → größere Märkte. Länderwerte werden weiter
     real angezeigt.
-20. 🟡 **Reale Firmen.** Stufe 1 etwa 30 reale Firmen der Kernbranchen plus
+20. ✅ **Reale Firmen.** Stufe 1 etwa 30 reale Firmen der Kernbranchen plus
     generierte; vollständige Liste in Stufe 5.
 21. ✅ **Sprache.** Code-Bezeichner englisch; Datendateien und alle Texte deutsch.
-22. 🟡 **Formelabnahme.** Formeln je Meilenstein in `docs/FORMELN.md`, Freigabe mit
+22. ✅ **Formelabnahme.** Formeln je Meilenstein in `docs/FORMELN.md`, Freigabe mit
     dem Meilenstein.
-23. 🟡 **Handelsfirmen als KI.** In Stufe 1 bleiben die Händler ein abstrakter,
+23. ✅ **Handelsfirmen als KI.** In Stufe 1 bleiben die Händler ein abstrakter,
     wettbewerblicher Händlermarkt (M8); KI-Firmen produzieren. Vorschlag: KI-Handels-
     firmen mit eigener Bilanz zusammen mit Flotten in Stufe 2.
-24. 🟡 **Einkäufe ohne Kassenprüfung.** Einkaufsaufträge (Spieler und KI) kaufen auch
+24. ✅ **Einkäufe ohne Kassenprüfung.** Einkaufsaufträge (Spieler und KI) kaufen auch
     bei leerer Kasse; das Konto geht dann ins Minus bis zur Überziehungsgrenze, danach
     droht die Insolvenz. Vorschlag: so lassen (einfach, die Insolvenzprüfung fängt es).
-25. 🟡 **Ersatz durch höhere Qualifikation.** Die Regel „höhere Qualifikation vertritt
+25. ✅ **Ersatz durch höhere Qualifikation.** Die Regel „höhere Qualifikation vertritt
     niedrigere“ (Vorschlag zu Punkt 15) ist noch nicht umgesetzt; fehlende Arbeitskräfte
     bremsen die Produktion. Vorschlag: mit dem Balancing in M15 nachziehen.
-26. 🟡 **Werbemittel.** Vorschlag Stufe 1: Es wirkt automatisch das beste Werbemittel der
+26. ✅ **Werbemittel.** Vorschlag Stufe 1: Es wirkt automatisch das beste Werbemittel der
     Epoche (Zeitung, ab 1923 Radio); die Wahl einzelner Werbemittel folgt in Stufe 2.
-27. 🟡 **Marke je Warengruppe.** Vorschlag: Bekanntheit je Firma, Land und Warengruppe
+27. ✅ **Marke je Warengruppe.** Vorschlag: Bekanntheit je Firma, Land und Warengruppe
     (nicht je Produkt), wie im Lastenheft §9.4; Händlerware und Staatsmarkt mit festen
     Werten.
-28. 🟡 **Tutorial-Stand beim Speichern.** Vorschlag: Das Tutorial gehört zur laufenden
+28. ✅ **Tutorial-Stand beim Speichern.** Vorschlag: Das Tutorial gehört zur laufenden
     Sitzung; nach dem Laden eines Spielstands ist es aus und lässt sich über die
     Tastenhilfe neu starten.
-29. 🟡 **Präsenz und Preisempfindlichkeit der Endkunden.** Umgesetzt (M16): Jedes Angebot
+29. ✅ **Präsenz und Preisempfindlichkeit der Endkunden.** Umgesetzt (M16): Jedes Angebot
     zählt in der Anbieterwahl mit seiner Präsenz (Erzeugung je Tag plus Lager / 30), und
     das Preisgewicht liegt bei 7 (ärmstes Fünftel) bis 3 (reichstes) statt 2,0–0,6.
     Ohne beides verkaufte ein Neuling mit einer Maschine alles zu fast jedem Preis.
     Zu prüfen beim Spielen: ob Neulinge mit Werbung und Preis schnell genug Anteile
     gewinnen (Stellschrauben: `preisgewicht`, `markengewicht`, `kosten_je_einwohner_usd`).
-30. 🟡 **Preise der Waren je Land (Nacharbeit zu M16).** Bisher galt der Richtpreis
+30. ✅ **Preise der Waren je Land (Nacharbeit zu M16).** Bisher galt der Richtpreis
     überall mal dem vollen Preisniveau des Landes. Umgesetzt: Waren folgen ihm nur mit
     einem Anteil je Produktart (`preisniveau_anteil`: Rohstoffe 0,2, Halbzeuge und
     Komponenten 0,1, Endprodukte 0,4, Strom 1). Grund: Eingeführte Vorprodukte kosten
@@ -122,44 +130,44 @@ bei Bedarf widersprechen) · ❓ offen
     Richtpreis verkaufen. Folge: Verbraucher ärmerer Länder kaufen weniger Industriewaren
     als bisher (realistisch, aber eine Änderung der Marktgrößen). Alternative: alle
     Anteile auf 1 setzen (bisheriges Verhalten).
-31. 🟡 **Gemeinkosten (Nacharbeit zu M16).** Die Rezepte enthalten nur direkte Kosten.
+31. ✅ **Gemeinkosten (Nacharbeit zu M16).** Die Rezepte enthalten nur direkte Kosten.
     Umgesetzt: Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten
     (Arbeit, Strom, Anlage) je Produktart (Rohstoffe 25 %, Halbzeuge und Komponenten 50 %,
     Endprodukte 100 %), gebucht als Kostenart „Verwaltung und Vertrieb“. Ohne sie drückte
     der Wettbewerb die Preise auf 20–50 % des Richtpreises. Später (Stufe 2, Manager)
     könnten Gemeinkosten aus eigener Verwaltung und eigenem Vertrieb entstehen.
-32. 🟡 **Arbeitsproduktivität nach Wohlstand (Nacharbeit zu M16).** Die Arbeitsstunden
+32. ✅ **Arbeitsproduktivität nach Wohlstand (Nacharbeit zu M16).** Die Arbeitsstunden
     der Rezepte gelten bei 10.000 USD BIP je Kopf; Länder brauchen dazu im Verhältnis
     mehr oder weniger Stunden (Elastizität 1, `laendermodell.produktivitaet`). So kostet
     Arbeit je Stück in Kaufkraft überall gleich viel, und Niedriglohnländer haben keinen
     übertriebenen Kostenvorteil.
-33. 🟡 **Plausibilitätsprüfung der Richtpreise.** `validate` warnt, wenn das beste Rezept
+33. ✅ **Plausibilitätsprüfung der Richtpreise.** `validate` warnt, wenn das beste Rezept
     eines Produkts zu Richtpreisen weniger als 5 % oder mehr als 45 % Marge bringt
     (Förderung mit ihrer Pacht, siehe 39). Die Prüfung fand sieben Unstimmigkeiten (Nägel,
     Handwerkzeug, Möbel, Glühlampe, Nähmaschine, Schnittholz, Benzin), korrigiert über
     Richtpreise, Ausbeuten und Arbeitsstunden (`docs/FORMELN.md`, Plausibilität). Bitte
     widersprechen, falls Richtpreise unverändert bleiben sollen.
-34. 🟡 **Preisuntergrenze der KI.** Angehoben auf das 1,2-Fache (vorsichtige Firmen) bis
+34. ✅ **Preisuntergrenze der KI.** Angehoben auf das 1,2-Fache (vorsichtige Firmen) bis
     1,1-Fache (aggressive) der Vollkosten, statt 1,15 bis 1,05. Im Wettbewerb liegen die
     Preise an dieser Grenze; mit den alten Werten fielen Grundstoffe bis 1929 auf etwa die
     Hälfte des Richtpreises. Gegenläufig: Je höher die Grenze, desto mehr verdient eine
     Werkstatt ohne Entscheidungen (1900 etwa zwei Drittel ihres Startkapitals).
-35. 🟡 **Fließband für Motor und Fahrgestell.** Neue Rezepte mit der Technologie
+35. ✅ **Fließband für Motor und Fahrgestell.** Neue Rezepte mit der Technologie
     Fließband (1913) und eigenen Anlagen: etwa ein Sechstel der Arbeitsstunden der
     Werkstattfertigung, wie bei Ford. Ohne sie blieb das Auto bis 1930 ein Luxusgut
     (rund 4.000 Autos im Jahr im Marktmaßstab 0,1); mit ihnen fallen die Preise auf etwa
     die Hälfte des Richtpreises, und die Nachfrage wächst um ein Vielfaches.
-36. 🟡 **Förderung im Lauf der Zeit.** Getreide, Baumwolle und Holz haben einen
+36. ✅ **Förderung im Lauf der Zeit.** Getreide, Baumwolle und Holz haben einen
     Förderindex nach der historischen Weltproduktion (Getreide 1930 das 1,45-Fache von
     1900, Baumwolle 1,65 nach der Baumwollernte 3,6 → 6,0 Mio. t, Holz 1,3). Weitere
     Rohstoffe wachsen über neue Lagerstätten (Entdeckungsjahr). Kleidung: 5 statt 6 Stück
     je Kopf und Jahr bei voller Kaufneigung – der Faserbedarf lag 1900 sonst bei 6,6 statt
     etwa 5 Mio. t, und Baumwolle kostete bis 1929 das Drei- bis Vierfache.
-37. 🟡 **Sonstige Gummiwaren.** Gummi hat eine Staatsnachfrage als Stellvertreter für
+37. ✅ **Sonstige Gummiwaren.** Gummi hat eine Staatsnachfrage als Stellvertreter für
     Treibriemen, Schläuche, Dichtungen und Isolierungen (etwa ein Drittel des
     Kautschuks um 1900). Ohne sie brauchten nur Reifen Kautschuk, und sein Preis fiel auf
     ein Drittel des Richtpreises.
-38. ❓ **Bekannte Restpunkte der Plausibilität** (Protokoll 1900–1930 mit 100 KI-Firmen,
+38. ✅ **Bekannte Restpunkte der Plausibilität** (Protokoll 1900–1930 mit 100 KI-Firmen,
     siehe `docs/FORTSCHRITT.md`):
     - Die Stahlkette (Blech, Draht, Weißblech, Schrauben, Muttern, Nägel) liegt im
       Wettbewerb bei 0,45–0,65 × Richtpreis: Ihre Rezepte haben zu Richtpreisen 26–45 %
@@ -179,19 +187,19 @@ bei Bedarf widersprechen) · ❓ offen
       das Zwei- bis Dreifache des Richtpreises kostet (schon vor M22). Gummi ist dadurch
       knapper als nötig. Ursache noch nicht gefunden; Vorschlag: bei der nächsten
       Balance-Runde prüfen.
-39. 🟡 **Pacht und Förderabgaben (Nacharbeit zu M16).** Rohstoffe zahlen je geförderter
+39. ✅ **Pacht und Förderabgaben (Nacharbeit zu M16).** Rohstoffe zahlen je geförderter
     Einheit einen Anteil ihres Richtpreises im Land (`pacht_anteil`): Baumwolle 0,5,
     Getreide und Rohöl 0,45, Kautschuk 0,4, Kupfererz 0,35, Holz 0,2, Eisenerz 0,15,
     Kohle 0. Bodenrente, Förderzins und Konzessionsabgaben fehlten in den Kosten; wo keine
     Lagerstätte knapp war, fielen die Rohstoffe auf ein Drittel ihres Richtpreises und
     zogen ganze Ketten mit. Gebucht als neue Kostenart „Pacht und Förderabgaben“.
-40. 🟡 **Langsamere Preisschritte.** Automatische Preise steigen je Tag um 0,25 % (vorher
+40. ✅ **Langsamere Preisschritte.** Automatische Preise steigen je Tag um 0,25 % (vorher
     2 %) und sinken um 0,125 % (vorher 1 %), also etwa +8 % und −4 % im Monat. Die
     schnellen Schritte schaukelten Getreide und Mehl im ersten Jahr zwischen 0,55 und
     3,9 × Richtpreis auf; im Weltlauf ergaben die langsamen in allen Prüfungen die
     wenigsten Verstöße. Gegenläufig: Nach einem echten Engpass (Krieg) dauert es Monate,
     bis die Preise ihn zeigen.
-41. 🟡 **Ruhigere Märkte (Nacharbeit zu M16).** (a) Ein ausverkaufter Anbieter erhöht
+41. ✅ **Ruhigere Märkte (Nacharbeit zu M16).** (a) Ein ausverkaufter Anbieter erhöht
     seinen Preis nur, wenn ein Käufer ohne Ware mehr gezahlt hätte – kauft der Staat
     über seiner Preisgrenze nicht, ist das kein Mangel. (b) Die Startbesetzung beginnt im
     Gleichgewicht (Absatz im Vormonat = geplante Erzeugung). (c) Die KI ändert die
@@ -200,7 +208,7 @@ bei Bedarf widersprechen) · ❓ offen
     Preisuntergrenze, Ausbau erst über der Normalauslastung (beides ohne Verbesserung im
     Weltlauf).
 
-42. 🟡 **Nebenprodukte und neue Verfahren (M22).** (a) Die KI verkauft Nebenprodukte
+42. ✅ **Nebenprodukte und neue Verfahren (M22).** (a) Die KI verkauft Nebenprodukte
     nicht unter ihrem Brennwert (Wärme zum Preis des billigsten anderen Brennstoffs im
     Land; Benzin rund 0,1 × Richtpreis). (b) Benzin hat eine übrige Verwendung als
     Staatsnachfrage (0,15 t je Mio. USD BIP; Lösungsmittel, Kocher, Motoren, Heer).
@@ -208,7 +216,7 @@ bei Bedarf widersprechen) · ❓ offen
     nicht nur mit gemeinfreien. (d) Nebenprodukte zählen als Erzeugung, Vorprodukte auf
     Halde nicht als Engpass. Ergebnis: Benzin 1929 bei 1,18 × Richtpreis statt 0,00,
     Crackanlagen ab 1925 (Formeln: `docs/FORMELN.md`, M22).
-43. 🟡 **Umstellungskurse bei Währungswechseln (M28).** Die Meldung zur Umstellung nennt
+43. ✅ **Umstellungskurse bei Währungswechseln (M28).** Die Meldung zur Umstellung nennt
     den gesetzlichen Kurs, wo er in den Daten steht (137 Wechsel, darunter alle
     Euro-Einführungen), sonst das Verhältnis der Wechselkurse. Wo die Daten eine
     Zwischenwährung auslassen, weicht dieses Verhältnis vom damaligen Umstellungskurs ab
@@ -294,7 +302,7 @@ wirtschaftlich sind. Oder als Vermeidung von Wettbewerb.“
 Bereiche; alle Firmen untereinander nach denselben Regeln; Annehmen, Ablehnen oder
 Gegenangebot. Umsetzung als M30 (Standorte, Labore, Lizenzen) und M31 (Bereiche).
 
-🟡 Ausgestaltung (Vorschlag gilt vorläufig, Formeln in `docs/FORMELN.md`, M30):
+✅ Ausgestaltung (Vorschlag gilt vorläufig, Formeln in `docs/FORMELN.md`, M30):
 
 1. **Grundwert eines Standorts:** höherer Wert aus Ertragswert (Jahresergebnis × 5) und
    Restwert der Anlagen, dazu Anlagen im Bau und Lager. Ein Standort lässt sich erst ein
@@ -322,7 +330,7 @@ Gegenangebot. Umsetzung als M30 (Standorte, Labore, Lizenzen) und M31 (Bereiche)
 ## G Produkte bis 2026 (Entscheidung vom 05.10.2026)
 
 ✅ Entschieden (Lastenheft §18.4): Die Produktbreite aus Stufe 5 wird Epoche für Epoche
-vorgezogen. 🟡 Vorschlag für die Meilensteine (Auswahl je Epoche mit Recherche zu Rezept,
+vorgezogen. ✅ Vorschlag für die Meilensteine (Auswahl je Epoche mit Recherche zu Rezept,
 Anlage, Erfindungsjahr, Richtpreis und Nachfrage; Regeln aus Lastenheft §17.2):
 
 | Meilenstein | Epoche | Beispiele für neue Ketten und Produkte |
@@ -339,7 +347,7 @@ Prüfung im Weltlauf. Rüstungsgüter bleiben bei Stufe 4.
 
 ✅ **M32 (1915–1939) umgesetzt** wie in der Tabelle, dazu Zellstoff, Kleinmotor, Flugmotor,
 Ammoniak und Chilesalpeter als Vorprodukte (Einzelheiten: `docs/FORTSCHRITT.md`, M32).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 1. **Nachfrage erst ab Verfügbarkeit:** Nach einem Produkt fragt erst jemand, wenn es
    sich herstellen lässt (Erfindungsjahr erreicht oder von einer Firma vorzeitig
@@ -366,7 +374,7 @@ Ammoniak und Chilesalpeter als Vorprodukte (Einzelheiten: `docs/FORTSCHRITT.md`,
 
 ✅ **M33 (1940–1964) umgesetzt** wie in der Tabelle, dazu Ethylen, Polyethylen,
 Bildröhre, Germanium, Transistor, Strahltriebwerk und Synthesekautschuk (Einzelheiten:
-`docs/FORTSCHRITT.md`, M33). 🟡 Vorläufig entschieden:
+`docs/FORTSCHRITT.md`, M33). ✅ Vorläufig entschieden:
 
 1. **Einführungsjahre** sind die der Serienfertigung für Verbraucher: Fernseher 1946
    (Regelbetrieb gab es ab 1935/36, in Serie gebaute Geräte erst nach dem Krieg),
@@ -395,7 +403,7 @@ Bildröhre, Germanium, Transistor, Strahltriebwerk und Synthesekautschuk (Einzel
 
 ✅ **M39 (1965–1989) umgesetzt** wie in der Tabelle, dazu Quarz, Reinstsilizium,
 Farbbildröhre und Magnetron als Vorprodukte; Transistoren auch aus Silizium (Einzelheiten:
-`docs/FORTSCHRITT.md`, M39). 🟡 Vorläufig entschieden:
+`docs/FORTSCHRITT.md`, M39). ✅ Vorläufig entschieden:
 
 1. **Mikrochip als Sammelgut:** ein Durchschnittschip (Prozessor, Speicher, Logik) um
    1980; Taschenrechner brauchen 2, CD-Spieler 10, Videorekorder 15, Personal Computer
@@ -423,7 +431,7 @@ Farbbildröhre und Magnetron als Vorprodukte; Transistoren auch aus Silizium (Ei
 
 ✅ **M40 (1990–2009) umgesetzt:** Mobiltelefon, Laptop, Digitalkamera,
 Lithium-Ionen-Akku (mit Lithium und Kobalt), LCD-Panel, Flachbildfernseher und
-DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschieden:
+DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). ✅ Vorläufig entschieden:
 
 1. **LCD-Panel in m² Bildfläche** (neue Einheit `m2`), so passen Laptop, Mobiltelefon,
    Digitalkamera und Fernseher mit ihren Bildgrößen an dasselbe Vorprodukt.
@@ -437,7 +445,7 @@ DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschie
    (2009: LCD-Panel in den USA 11 000 USD je m², in China 3 000–5 800 USD; 25 Firmen
    kennen das Verfahren, drei bauen). Grund: Händler beliefern nur Märkte mit offener
    Nachfrage. Ist ein Land zu hohen Preisen versorgt, kommt keine billigere Ware herein.
-   🟡 Vorschlag: Händler kaufen auch dann im Ausland, wenn die Ware dort samt Fracht und
+   ✅ Vorschlag: Händler kaufen auch dann im Ausland, wenn die Ware dort samt Fracht und
    Händlerspanne deutlich billiger ist als im Land (Arbitrage), bis sich die Preise auf
    den Frachtabstand angleichen. Das ändert alle Märkte und braucht Weltläufe über alle
    Epochen; deshalb erst nach Freigabe.
@@ -445,7 +453,7 @@ DVD-Spieler (Einzelheiten: `docs/FORTSCHRITT.md`, M40). 🟡 Vorläufig entschie
 ✅ **M41 (2010–2026) umgesetzt:** Smartphone, Tablet, Elektroauto (mit Traktionsbatterie
 und Elektroantrieb), Solarmodul (mit Roh- und Solarsilizium), Windkraftanlage, Wärmepumpe
 und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 1. **Neue Einheiten** `kwh` (Traktionsbatterie) und `kwp` (Solarmodul): Fahrzeuge und
    Module brauchen sehr verschiedene Mengen desselben Vorprodukts.
@@ -475,7 +483,7 @@ und LED-Lampe (Einzelheiten: `docs/FORMELN.md`, M41; `docs/FORTSCHRITT.md`, M41)
    Getreide steigt der Förderindex nach 2010 weiter (Ersatz für Polyester und
    Ertragssteigerung, die das Spiel nicht eigens abbildet).
 
-9. ✅ (C2: Förderkurve und Ausbau an allen Standorten, C1: Arbitrage; `docs/FORMELN.md`) **Rohöl und Baumwolle nach 2015** (vorher 🟡 Vorschlag, offen): Die Vorräte reichen jetzt,
+9. ✅ (C2: Förderkurve und Ausbau an allen Standorten, C1: Arbitrage; `docs/FORMELN.md`) **Rohöl und Baumwolle nach 2015** (vorher ✅ Vorschlag, offen): Die Vorräte reichen jetzt,
    trotzdem kosten Rohöl (in einem von zwei Läufen ab 2023) und Baumwolle (2005–2025) das
    Zwei- bis Vierfache. Ursachen aus dem Spielstand 2026: (a) Ölfelder fördern bis zuletzt
    mit voller Leistung und sind dann schlagartig leer; neue Felder erschließt die KI nur
@@ -497,7 +505,7 @@ einen kleinen Wettbewerb um gute Grundstücke geben. Man soll Grundstücke kaufe
 pachten können.“
 
 ✅ Entschieden am 06.10.2026: Grundstücke mit Größe, Preis **und Lage** gleich im ersten
-Schritt; Anlagen in **fünf Größenklassen**. 🟡 Ausgestaltung (erster eigener Maßstab;
+Schritt; Anlagen in **fünf Größenklassen**. ✅ Ausgestaltung (erster eigener Maßstab;
 Zahlen werden im Weltlauf nachgestellt):
 
 1. **Grundstücke je Land.** Jedes Land (bzw. jede Region, Abschnitt I) bietet eine Liste
@@ -564,7 +572,7 @@ Zahlen werden im Weltlauf nachgestellt):
     Grundstück.
 
 Umgesetzt mit M35 (Punkte 1–8 und 10; Formeln: `docs/FORMELN.md`, Abschnitt M35) und
-M36 (Punkt 9; Abschnitt M36). 🟡 Eigenständig entschieden:
+M36 (Punkt 9; Abschnitt M36). ✅ Eigenständig entschieden:
 
 1. **Pacht ohne Laufzeit:** Die Pacht läuft, bis der Standort aufgegeben oder das
    Grundstück gekauft wird; sie folgt jeden Monat dem heutigen Bodenwert. Eine Laufzeit
@@ -599,7 +607,7 @@ Ozeanien […]. In Afrika kannst du gerne ein paar niedrig bevölkerte Länder z
 zusammenfassen. Bspw. ‚Mittelafrika‘. Wenn ich am Ende 100 Länder/zusammengefasste
 Regionen habe, ist das ein guter Zielwert.“
 
-✅ Entschieden am 06.10.2026 (Umsetzung vor den restlichen Epochen). 🟡 Ausgestaltung:
+✅ Entschieden am 06.10.2026 (Umsetzung vor den restlichen Epochen). ✅ Ausgestaltung:
 197 → **111 Einträge**. Kleinstaaten gehen im Nachbarland auf, kleine
 Länder bilden Regionen. Bevölkerung, BIP, Fläche, Grenzen und Karte werden addiert; BIP je
 Kopf und Gini gewichtet; Hauptstadt und Währung sind die des größten Mitglieds. Eine
@@ -620,7 +628,7 @@ Folgen: Lagerstätten, Weltereignisse, Namensgruppen, reale Firmen und Währunge
 dann auf die Region; Spielstände mit den alten Ländern werden beim Laden umgerechnet
 (Standorte und Märkte gehen in die Region über).
 
-Umgesetzt mit M34 (Formeln: `docs/FORMELN.md`, Abschnitt M34). 🟡 Eigenständig entschieden:
+Umgesetzt mit M34 (Formeln: `docs/FORMELN.md`, Abschnitt M34). ✅ Eigenständig entschieden:
 
 1. **Gini einer Region** als bevölkerungsgewichtetes Mittel (die Ungleichheit zwischen
    den Ländern fehlt; für Regionen aus ähnlich reichen Ländern genügt das).
@@ -640,7 +648,7 @@ Auftrag: „Bei der Forschungskette: Wenn ein erforschtes Produkt weiter erforsc
 dann soll das betreffende Produkt weiterentwickelt und verbessert werden können. Das gilt
 auch für Vormaterialien oder Halbzeuge.“
 
-🟡 Vorschlag:
+✅ Vorschlag:
 
 1. **Entwicklungsstufen je Produkt und Firma.** Kennt eine Firma die Technologien eines
    Produkts, kann ihr Forschungszentrum es weiterentwickeln, Stufe für Stufe (1–5). Das
@@ -658,7 +666,7 @@ auch für Vormaterialien oder Halbzeuge.“
 5. **Anzeige:** Forschungsansicht mit „Weiterentwickeln“ je Produkt; Produkt- und
    Marktansicht zeigen die Stufe der eigenen Firma und der Wettbewerber.
 
-Umgesetzt mit M37 (Formeln: `docs/FORMELN.md`, Abschnitt M37). 🟡 Eigenständig
+Umgesetzt mit M37 (Formeln: `docs/FORMELN.md`, Abschnitt M37). ✅ Eigenständig
 entschieden: Grundlage des Aufwands ist der größte Forschungsaufwand der Technologien des
 Produkts, mindestens 10 000 Punkte (Produkte ohne erforschte Technologie); Produkte ohne
 Technologie (Ernte, Abbau) forschen im Fachgebiet ihrer Branche. Ein Zentrum arbeitet nach
@@ -670,12 +678,12 @@ Kaufangebote übertragen vorerst keine Stufen.
 
 Beobachtung: Geht eine KI-Firma pleite, werden ihre Konzessionen frei und müssen neu
 erschlossen werden (bis zu zwei Jahre). 1955 fiel so ein großer Eisenerzförderer aus; Erz
-kostete 1956 das 3,7-Fache des Richtpreises. 🟡 Vorschlag: Der Insolvenzverwalter bietet
+kostete 1956 das 3,7-Fache des Richtpreises. ✅ Vorschlag: Der Insolvenzverwalter bietet
 die Standorte zuerst anderen Firmen an (Auktion zum halben Grundwert, M30, auch dem
 Spieler); was keiner nimmt, wird stillgelegt. Die Erschließung einer Konzession bleibt
 erhalten, ein neuer Betreiber muss nur die Anlagen bauen.
 
-Umgesetzt mit M38 (Formeln: `docs/FORMELN.md`, Abschnitt M38). 🟡 Eigenständig
+Umgesetzt mit M38 (Formeln: `docs/FORMELN.md`, Abschnitt M38). ✅ Eigenständig
 entschieden: Die Versteigerung dauert 30 Tage, das Mindestgebot ist der halbe Grundwert.
 Den Zuschlag bekommt das höchste Gebot zum Preis des zweithöchsten; eine KI-Firma bietet
 nur für Standorte, die sie auch sonst kaufen würde, und zwar ihr übliches Kaufangebot
@@ -711,7 +719,7 @@ oder Smartphone. Jede Firma vergibt individuelle Produktnamen. Keine echten Prod
 (`docs/FORTSCHRITT.md`, „Keine echten Produktnamen“). Eigene Produktnamen je Firma kommen
 als M42 gleich nach M41 (Antwort vom 06.10.2026: „Ja, gleich nach M41“).
 
-✅ **M42 umgesetzt** (Regeln: `docs/FORMELN.md`, Abschnitt M42). 🟡 Eigenständig
+✅ **M42 umgesetzt** (Regeln: `docs/FORMELN.md`, Abschnitt M42). ✅ Eigenständig
 entschieden:
 
 1. **Nur Endprodukte** tragen Namen; Rohstoffe, Halbzeuge, Bauteile und Strom bleiben
@@ -735,7 +743,7 @@ entschieden:
 ## N Manager-System (Vorgabe `docs/MANAGER.md`, Auftrag vom 06.10.2026)
 
 ✅ **MA0 umgesetzt** (Einzelheiten: `docs/FORMELN.md` und `docs/FORTSCHRITT.md`, MA0).
-🟡 Vorläufig entschieden, abweichend von der Vorgabe oder dort offen:
+✅ Vorläufig entschieden, abweichend von der Vorgabe oder dort offen:
 
 1. **Vorlegen statt Vorschlagsliste:** Die Regeln liefern ihre Optionen nicht vorab als
    fertige Befehlslisten zum Ausführen, sondern legen ihr Vorhaben einem Entscheider vor
@@ -755,7 +763,7 @@ entschieden:
    Befugnis von Finanzressort und CEO).
 
 ✅ **MA1 umgesetzt** (Stellen der Standorte, Managermarkt, Gehälter, Routine).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 6. **Markt über Kontinente hinweg:** Jede Stelle lässt sich aus jedem Kontinent besetzen;
    der Markt zeigt den eigenen Kontinent zuerst. Die Gehaltsforderung richtet sich nach
@@ -774,7 +782,7 @@ entschieden:
 
 ✅ **MA2 umgesetzt** (Budget je Stelle, Anliegen, Postfach, Runden-Halt, Bündelung,
 Rückmeldung; Einzelheiten: `docs/FORMELN.md`, MA2).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 10. **Einkauf im Budget:** Ein neuer Einkaufsauftrag zählt nur mit dem Teil, um den sein
     Höchstpreis über dem üblichen Höchstpreis der Regeln liegt (Marktpreis plus Aufschlag)
@@ -804,7 +812,7 @@ Rückmeldung; Einzelheiten: `docs/FORMELN.md`, MA2).
 
 ✅ **MA3 umgesetzt** (Land und Kontinent, Weiterleitung, Budget-Vorgaben, Deckel,
 strategische Anliegen; Einzelheiten: `docs/FORMELN.md`, MA3).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 18. **Keine Routine von oben:** Land und Kontinent übernehmen nicht die wöchentliche
     Routine von Standorten ohne Stelle (Auslastung, Preise, Einkauf), nur deren Struktur
@@ -830,7 +838,7 @@ strategische Anliegen; Einzelheiten: `docs/FORMELN.md`, MA3).
 
 ✅ **MA4 umgesetzt** (Strategievorgaben je Firma, Kontinent, Land und Standort mit
 Herkunft; Einzelheiten: `docs/FORMELN.md`, MA4).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 26. **Geltungsbereiche ohne Produkt:** Vorgaben gelten je Einheit, nicht je Produkt. Ein
     abweichender Preis für ein einzelnes Produkt geht über den Standort (oder einen festen
@@ -859,7 +867,7 @@ Herkunft; Einzelheiten: `docs/FORMELN.md`, MA4).
 
 ✅ **MA5 umgesetzt** (Vorstand mit CEO und Ressorts, Kasse und Kaufangebote,
 Strategieauftrag, Strategierücksprache; Einzelheiten: `docs/FORMELN.md`, MA5).
-🟡 Vorläufig entschieden:
+✅ Vorläufig entschieden:
 
 34. **Regelthemen:** Kredite und Werbung folgen der Regel, weil ihre Bewertung nur Kosten
     zählt (Zins, Mehrbudget). Vorher hätte eine urteilsstarke Stelle nie einen Kredit
@@ -883,7 +891,7 @@ Strategieauftrag, Strategierücksprache; Einzelheiten: `docs/FORMELN.md`, MA5).
     sich der Zustands-Hash der Weltläufe, nicht ihr Verlauf: Die Protokolle bleiben gleich.
 
 ✅ **MA6 umgesetzt** (Erfahrung, Zufriedenheit, Kündigung, Leitung stellt ein, KI-Firmen
-stellen ein und werben ab; Einzelheiten: `docs/FORMELN.md`, MA6). 🟡 Vorläufig
+stellen ein und werben ab; Einzelheiten: `docs/FORMELN.md`, MA6). ✅ Vorläufig
 entschieden:
 
 42. **Gehalt anpassen** ist neu: Weil die Löhne über die Jahrzehnte steigen, fiele ein
@@ -914,7 +922,7 @@ Vorgabe „Beteiligungen“), ✅ **ZA3 umgesetzt** (Empfehlungen, Trefferquote)
 umgesetzt** (Start-ups ohne Beteiligung des Spielers), ✅ **SU2 umgesetzt**
 (Beteiligungen der Firmen), ✅ **SU3 umgesetzt** (Ausgründungen, KI-Firmen beteiligen
 sich), ✅ **ZA4 umgesetzt** („Paket A“ vom 07.10.2026: Punkte 5, 11, 14, 29 und 36;
-Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
+Regeln: `docs/FORMELN.md`, ZA4). ✅ Vorläufig entschieden:
 
 1. ✅ (W2: Städte mit Akademikern und Büromiete) **Land statt Stadt:** Der Hauptsitz ist
    ein Land. Städte gibt es im Spiel nicht (nur Grundstücke mit Lage Stadt, Hafen, Land);
@@ -1065,7 +1073,7 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 ## P Paket B und die Stufen 2–5 (Auftrag vom 07.10.2026: „alles außer Stufe 6“)
 
 ✅ **B1 umgesetzt** (Gehalt über der Kasse, Abwerben, Nachfolgemodelle; Regeln:
-`docs/FORMELN.md`, Abschnitt B1). 🟡 Eigenständig entschieden:
+`docs/FORMELN.md`, Abschnitt B1). ✅ Eigenständig entschieden:
 
 1. **Nur eine Warnung:** Ein Gehalt über der Kasse wird angezeigt, nicht verboten – eine
    Firma mit Kredit oder sicheren Einnahmen darf teuer einstellen.
@@ -1080,7 +1088,7 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
    der Liste); nach der größten Zahl folgen „II“, „III“ … bis „X“.
 
 ✅ **W1 umgesetzt** (Schulung je Standort; Regeln: `docs/FORMELN.md`, Abschnitt W1).
-🟡 Eigenständig entschieden:
+✅ Eigenständig entschieden:
 
 1. **Ein Niveau je Standort**, nicht je Arbeitskräftegruppe: Die Wirkung (weniger Arbeit,
    bessere Qualität) gilt für alle Gruppen des Standorts. Getrennte Niveaus je
@@ -1099,7 +1107,7 @@ Regeln: `docs/FORMELN.md`, ZA4). 🟡 Vorläufig entschieden:
 6. **Weiterbildung der Manager** gab es schon: Die Personalabteilung (ZA2) hebt die Chance
    der Manager auf Erfahrung um bis zu 50 %. W1 fügt dafür nichts Neues hinzu.
 
-✅ **C3 umgesetzt** (neue Märkte; Regeln: `docs/FORMELN.md`, Abschnitt C3). 🟡 Eigenständig
+✅ **C3 umgesetzt** (neue Märkte; Regeln: `docs/FORMELN.md`, Abschnitt C3). ✅ Eigenständig
 entschieden:
 
 1. **Eigener Weg für Neulinge:** Teure oder knappe Märkte mit 1 bis unter
@@ -1112,7 +1120,7 @@ entschieden:
    (Balancing, Stufe 6).
 
 ✅ **C4 umgesetzt** (Plausibilität 1900–1930; Regeln: `docs/FORMELN.md`, Abschnitt C4).
-🟡 Eigenständig entschieden:
+✅ Eigenständig entschieden:
 
 1. **Historische Firmen im Marktmaßstab:** Ihre Anlagen bekommen die passende Größe statt
    mindestens einer mittelgroßen – das war der Hauptgrund für die Überkapazität bei Erz,
@@ -1129,7 +1137,7 @@ entschieden:
    verdient die Werkstatt rund 40 % ihres Startkapitals.
 
 ✅ **W2 umgesetzt** (Zentrale in der Stadt; Regeln: `docs/FORMELN.md`, Abschnitt W2; löst
-die Punkte O 1 und O 6). 🟡 Eigenständig entschieden:
+die Punkte O 1 und O 6). ✅ Eigenständig entschieden:
 
 1. **Städte aus Natural Earth:** bis fünf je Land (Hauptstadt und die größten Orte ab
    100.000 Einwohnern), deutsche Namen über eine Liste im Skript. Die Einwohner gelten als
@@ -1148,12 +1156,12 @@ die Punkte O 1 und O 6). 🟡 Eigenständig entschieden:
    besetzt ist; ins Ausland gehen sie in die Hauptstadt.
 
 ✅ **W3 umgesetzt** (Zölle; Regeln: `docs/FORMELN.md`, Abschnitt W3; Entscheidungen bei
-Punkt A 2). Zusätzlich 🟡: Ein teurer Markt (Käufer zahlen mindestens
+Punkt A 2). Zusätzlich ✅: Ein teurer Markt (Käufer zahlen mindestens
 `einstieg_preisfaktor` · Richtpreis) darf trotz der Ausbau-Bremse aus C4 wachsen – sonst
 blieb Kautschuk 1990–2026 knapp, weil Synthesewerke ohne Benzin die weltweite Auslastung
 drückten.
 
-✅ **W4 umgesetzt** (Lieferverträge; Regeln: `docs/FORMELN.md`, Abschnitt W4). 🟡
+✅ **W4 umgesetzt** (Lieferverträge; Regeln: `docs/FORMELN.md`, Abschnitt W4). ✅
 Eigenständig entschieden:
 
 1. **Preis frei Standort des Käufers:** Fracht und Zoll trägt der Verkäufer; der Käufer
@@ -1171,7 +1179,7 @@ Eigenständig entschieden:
 6. **Angebote der KI** an den Spieler: höchstens eines je Monat und Produkt des Spielers
    (Chance 25 %), dasselbe Standortpaar erst wieder nach zwölf Monaten.
 
-✅ **W5 umgesetzt** (Logistik; Regeln: `docs/FORMELN.md`, Abschnitt W5). 🟡 Eigenständig
+✅ **W5 umgesetzt** (Logistik; Regeln: `docs/FORMELN.md`, Abschnitt W5). ✅ Eigenständig
 entschieden:
 
 1. **Drei Wege je Firma, nicht je Ladung:** Die Firma wählt Frachtmarkt, staatlichen
@@ -1196,7 +1204,7 @@ entschieden:
 7. **Die KI** kauft Fahrzeuge, die ihre Ladungen des Vormonats ganz füllen, bis die Flotte
    die Hälfte trägt (höchstens 20 % der Kasse je Monat), und fährt dann auch für andere.
 
-✅ **W6 umgesetzt** (Tochterfirmen und Konzern; Regeln: `docs/FORMELN.md`, Abschnitt W6). 🟡
+✅ **W6 umgesetzt** (Tochterfirmen und Konzern; Regeln: `docs/FORMELN.md`, Abschnitt W6). ✅
 Eigenständig entschieden:
 
 1. **Eigene Geschäftsführung nach den Regeln der KI:** Eine Tochter handelt selbst
@@ -1226,7 +1234,7 @@ Eigenständig entschieden:
    25 % der Tonnenkilometer der Händler und der Marktladungen des Monats; sonst hätte eine
    Logistik-Tochter mit genug Zügen grenzenlos verdient.
 
-✅ **W7 umgesetzt** (Controlling; Regeln: `docs/FORMELN.md`, Abschnitt W7). 🟡 Eigenständig
+✅ **W7 umgesetzt** (Controlling; Regeln: `docs/FORMELN.md`, Abschnitt W7). ✅ Eigenständig
 entschieden:
 
 1. **Zuordnung der Kostenarten:** variabel sind Material, Bestandsveränderung, Energie,
@@ -1245,7 +1253,7 @@ entschieden:
    Konzernfirmen gibt es nur als Standortübertragung und Kapital (W6), beide ohne Erfolg;
    sie erscheinen daher nicht im Controlling.
 
-✅ **K1 umgesetzt** (Börse; Regeln: `docs/FORMELN.md`, Abschnitt K1). 🟡 Eigenständig
+✅ **K1 umgesetzt** (Börse; Regeln: `docs/FORMELN.md`, Abschnitt K1). ✅ Eigenständig
 entschieden:
 
 1. **Wert aus Buchwert und Gewinn:** Ziel = 40 % Eigenkapital + 60 % Jahresgewinn · KGV 12,
@@ -1281,7 +1289,7 @@ entschieden:
    Start-ups entstandene Firmen sind erst notiert, wenn sie groß genug für einen Börsengang
    sind.
 
-✅ **K2 umgesetzt** (Anleihen; Regeln: `docs/FORMELN.md`, Abschnitt K2). 🟡 Eigenständig
+✅ **K2 umgesetzt** (Anleihen; Regeln: `docs/FORMELN.md`, Abschnitt K2). ✅ Eigenständig
 entschieden:
 
 1. **Bonität aus zwei Kennzahlen:** Verschuldung (Kredite und Anleihen je Bilanzsumme) und
@@ -1300,7 +1308,7 @@ entschieden:
 5. **Handel mit Anleihen** (Kurse, Kauf fremder Anleihen) gibt es nicht; Anleihen von
    Töchtern zählen in der Konzernbilanz wie die der Mutter.
 
-✅ **K3 umgesetzt** (Investoren und Übernahmen; Regeln: `docs/FORMELN.md`, Abschnitt K3). 🟡
+✅ **K3 umgesetzt** (Investoren und Übernahmen; Regeln: `docs/FORMELN.md`, Abschnitt K3). ✅
 Eigenständig entschieden:
 
 1. **Mehrheiten nur per Übernahmeangebot:** Über die Börse hält eine Firma höchstens 50 %
@@ -1329,7 +1337,7 @@ Eigenständig entschieden:
    ein Fünftel des Börsenwerts), 10 Übernahmen durch KI-Firmen.
 
 ✅ **K4 umgesetzt** (Investor und Bank; Regeln: `docs/FORMELN.md`, Abschnitt K4). Damit ist
-Stufe 3 (K1–K4) umgesetzt. 🟡 Eigenständig entschieden:
+Stufe 3 (K1–K4) umgesetzt. ✅ Eigenständig entschieden:
 
 1. **Zwei neue Startformen ohne Standort:** „Investmentfirma“ (nur Kapital – Börse,
    Anleihen, Start-ups, Übernahmen) und „Bank“. Töchter haben zusätzlich die Schwerpunkte
@@ -1351,7 +1359,7 @@ Stufe 3 (K1–K4) umgesetzt. 🟡 Eigenständig entschieden:
 
 ✅ **H1 umgesetzt** (Ereignisfolgen; Regeln: `docs/FORMELN.md`, Abschnitt H1; Format:
 `docs/DATENFORMAT.md`, `ereignisse`). Reihenfolge: H1 war schon fertig, als die Vorgabe
-PE1–PE6 (vor H1) auf dem Zweig ankam; PE1–PE6 folgen jetzt vor H2. 🟡 Eigenständig
+PE1–PE6 (vor H1) auf dem Zweig ankam; PE1–PE6 folgen jetzt vor H2. ✅ Eigenständig
 entschieden:
 
 1. **Neun Arten von Wirkungen als Daten** je Ereignis: Nachfrage (Verbraucher und Staat je
@@ -1405,7 +1413,7 @@ entschieden:
 
 ✅ **PE1 umgesetzt** (Alter der Manager; Vorgabe `docs/PERSON.md` §3–4; Regeln:
 `docs/FORMELN.md`, Abschnitt PE1; Format: `docs/DATENFORMAT.md`, `lebenslauf`).
-🟡 Eigenständig entschieden:
+✅ Eigenständig entschieden:
 
 1. **Ebene eines neuen Kandidaten nach Stärke:** Kandidaten haben keine Fokusstelle; die
    Altersverteilung der Vorgabe (Standort … Vorstand) wählt ihre Stärke (ab 50 Land, ab 57
@@ -1440,7 +1448,7 @@ entschieden:
 
 ✅ **PE2 umgesetzt** (Spielerfigur als Person; Vorgabe `docs/PERSON.md` §5; Regeln:
 `docs/FORMELN.md`, Abschnitt PE2; Format: `docs/DATENFORMAT.md`, `person`; Lastenheft §2
-angepasst). 🟡 Eigenständig entschieden:
+angepasst). ✅ Eigenständig entschieden:
 
 1. **Ohne Geld:** Die Person hat in PE2 noch kein Konto; Startkapital, Gehalt und
    Lebensstil folgen mit PE3. Der Spielstart mit fertiger Firma bleibt bis PE3.
@@ -1470,7 +1478,7 @@ angepasst). 🟡 Eigenständig entschieden:
 
 ✅ **PE3 umgesetzt** (Privatkonto und Spielstart ohne Firma; Vorgabe `docs/PERSON.md` §6–8;
 Regeln: `docs/FORMELN.md`, Abschnitt PE3; Format: `docs/DATENFORMAT.md`, `person`).
-🟡 Eigenständig entschieden:
+✅ Eigenständig entschieden:
 
 1. **Lebensstil nachjustiert** (die Vorgabe sieht das nach dem Weltlauf vor): Kosten
    0,5 / 1 / 3 / 8 statt 0,8 / 1,5 / 4 / 10 Akademiker-Monatslöhne, **Standard am Start
@@ -1514,7 +1522,7 @@ Regeln: `docs/FORMELN.md`, Abschnitt PE3; Format: `docs/DATENFORMAT.md`, `person
     13.000 USD. Wer nichts tut, verliert also langsam; das ist gewollt.
 
 ✅ **PE4 umgesetzt** (Dividenden; Vorgabe `docs/PERSON.md` §7; Regeln: `docs/FORMELN.md`,
-Abschnitt PE4; Format: `docs/DATENFORMAT.md`, `finanzmodell.dividende`). 🟡 Eigenständig
+Abschnitt PE4; Format: `docs/DATENFORMAT.md`, `finanzmodell.dividende`). ✅ Eigenständig
 entschieden:
 
 1. **Ersetzt die Börsen-Dividende (K1):** Alle Firmen zahlen nach denselben Regeln; Zahltag
@@ -1541,7 +1549,7 @@ entschieden:
 
 ✅ **PE5 umgesetzt** (Käufe und Verkäufe der Person, mehrere Firmen, Spielende; Vorgabe
 `docs/PERSON.md` §8–9; Regeln: `docs/FORMELN.md`, Abschnitt PE5; Format:
-`docs/DATENFORMAT.md`, `kaufmodell.anteile`). 🟡 Eigenständig entschieden:
+`docs/DATENFORMAT.md`, `kaufmodell.anteile`). ✅ Eigenständig entschieden:
 
 1. **Offene Preise statt Verhandlung:** Jeder Halter nennt seinen Preis (Firmenwert plus
    20–50 % nach Ertragslage); ein Gebot darunter wird mit dem Mindestpreis abgelehnt. Kein

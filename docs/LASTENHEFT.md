@@ -533,6 +533,13 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
 
+### 18.8 Abnahme vom 08.10.2026
+
+Alle vorläufigen Entscheidungen (🟡) und offenen Vorschläge in `docs/OFFENE_PUNKTE.md` bis
+einschließlich PE5 sind angenommen („alle einfach annehmen“). Der Auftraggeber gibt
+Rückmeldungen nach den ersten eigenen Testpartien; Änderungen daraus folgen als eigene
+Punkte.
+
 ### 18.7 Entscheidungen vom 07.10.2026 (Lebenszyklus, Spielerfigur, Privatvermögen)
 
 Die vollständige Vorgabe steht in `docs/PERSON.md` (Meilensteine PE1–PE6). Freigabe am
