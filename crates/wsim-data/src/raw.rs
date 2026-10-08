@@ -1129,6 +1129,24 @@ pub struct RawDealModel {
     pub ki: RawDealAi,
     #[serde(rename = "insolvenz")]
     pub insolvency: RawInsolvency,
+    #[serde(rename = "anteile")]
+    pub stakes: RawStakes,
+}
+
+/// Shares of companies bought and sold by the person and its companies (PE5).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStakes {
+    #[serde(rename = "praemie_min")]
+    pub premium_min: f64,
+    #[serde(rename = "praemie_max")]
+    pub premium_max: f64,
+    #[serde(rename = "rendite_gut")]
+    pub good_return: f64,
+    #[serde(rename = "abschlag_min")]
+    pub discount_min: f64,
+    #[serde(rename = "abschlag_max")]
+    pub discount_max: f64,
 }
 
 /// Auction of the sites of an insolvent company (M38).

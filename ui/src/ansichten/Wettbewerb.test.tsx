@@ -158,3 +158,72 @@ describe("Abwerben", () => {
     expect(within(zweite).queryByRole("button", { name: "Abwerben" })).toBeNull();
   });
 });
+
+describe("Anteile kaufen (PE5)", () => {
+  afterEach(cleanup);
+
+  it("kauft Anteile einer fremden Firma privat oder mit der Hauptfirma", async () => {
+    const vorschau = vorschauKern(0);
+    const uebersicht = await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      befehl: async (b) => {
+        gesendet.push(b);
+        return uebersicht;
+      },
+    };
+    render(
+      <WettbewerbAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={() => {}} offene={0} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Firmen" }));
+    const liste = await screen.findByRole("table", { name: "Firmen" });
+    const fremde = within(liste)
+      .getAllByRole("row")
+      .find(
+        (z) => within(z).queryAllByRole("button").length > 0 && !z.textContent?.includes("Test AG"),
+      );
+    fireEvent.click(within(fremde as HTMLElement).getAllByRole("button")[0] as HTMLElement);
+    const eigner = await screen.findByRole("region", { name: "Eigner und Anteile" });
+    expect(within(eigner).getByText(/^Firmenwert: /)).toBeTruthy();
+    const form = within(eigner).getByRole("form", { name: "Anteile kaufen von Anleger" });
+    fireEvent.change(within(form).getByLabelText(/^Anteil kaufen/), { target: { value: "30" } });
+    // Half of the investors' 60 % costs half of their price.
+    expect(within(form).getByText(/^Kostet /)).toBeTruthy();
+    fireEvent.click(within(form).getByRole("button", { name: "Kaufen" }));
+    expect(
+      await within(eigner).findByText("30 % von Sheffield Mills & Sons gekauft."),
+    ).toBeTruthy();
+    fireEvent.click(within(form).getByLabelText(/^Mit deiner Hauptfirma/));
+    fireEvent.click(within(form).getByRole("button", { name: "Kaufen" }));
+    await screen.findAllByText(/gekauft\./);
+    expect(gesendet).toEqual([
+      {
+        BuyStake: {
+          company: expect.any(Number) as number,
+          holder: "Investors",
+          share: 0.3,
+          price: expect.any(Number) as number,
+        },
+      },
+      {
+        BidForStake: {
+          company: expect.any(Number) as number,
+          holder: "Investors",
+          share: 0.3,
+          price: expect.any(Number) as number,
+        },
+      },
+    ]);
+  });
+});

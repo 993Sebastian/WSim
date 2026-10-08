@@ -401,7 +401,26 @@ export function Spiel({
                 )}
               </button>
             )}
-            {firma && <strong>{firma.name}</strong>}
+            {firma && (uebersicht.companies?.length ?? 0) > 1 ? (
+              <select
+                className="kopf-firmenwahl"
+                aria-label={t("spiel.firmenwahl")}
+                value={uebersicht.companies?.find((c) => c.main)?.index ?? ""}
+                onChange={(e) =>
+                  void kern
+                    .befehl({ SelectCompany: { company: Number(e.target.value) } })
+                    .then(setUebersicht, () => {})
+                }
+              >
+                {uebersicht.companies?.map((c) => (
+                  <option key={c.index} value={c.index}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              firma && <strong>{firma.name}</strong>
+            )}
             <span>
               <span className="nur-breit">{t("spiel.datum")}: </span>
               <time dateTime={uebersicht.date}>{formatDatum(uebersicht.date)}</time>

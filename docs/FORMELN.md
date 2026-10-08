@@ -4744,3 +4744,75 @@ Ohne eigene Politik schüttet eine KI-Firma nach ihrem Charakter aus:
 (vorsichtige Firmen zahlen mehr, angriffslustige behalten mehr), nichts bei J ≤ 0 oder
 wenn die Kasse unter `kasse_monate` laufenden Monatskosten liegt. Die Grenzen A und R
 gelten wie für alle.
+
+## PE5 – Käufe und Verkäufe der Person, mehrere Firmen, Spielende
+
+Vorgabe `docs/PERSON.md` §8–9. Daten: `parameter/kaufmodell.yaml`, Abschnitt `anteile`;
+Steuer: Länderwert `steuer_dividenden` des Wohnsitzlandes. Kern: Modul `holdings`.
+
+### Firmenwert und Preis der Halter
+
+Firmenwert V wie in PE3 (Börsenwert, sonst fairer Wert K1, ohne Börse in den Daten das
+Eigenkapital). Ertragslage r = Jahresüberschuss des Vorjahres / Eigenkapital (0, wenn
+negativ), g = min(1, r / `rendite_gut`).
+
+    Prämie p        = praemie_min + (praemie_max − praemie_min) · g
+    Preis des Halters (Anteil s) = s · V · (1 + p)
+
+### Anteile kaufen
+
+`BuyStake { Firma, Halter, Anteil s, Preis G }` – die Person zahlt vom Privatkonto;
+`BidForStake { … }` – die gewählte Firma der Person zahlt aus der Kasse. Verkäufer ist ein
+Halter: Gründer (Privatanleger), Anleger oder eine KI-Firma, die die Person nicht
+kontrolliert und die nicht insolvent ist; Anteile der Person selbst und ihrer Firmen nicht.
+Die Halter nennen ihren Preis offen (Ansicht Wettbewerb → Firma → Eigner und Anteile).
+
+- G ≥ Preis des Halters: Kauf. Das Geld geht an den Halter (Gründer und Anleger verlassen
+  das Spiel; eine verkaufende Firma bucht Kasse an Beteiligungen und den Teil über ihrem
+  Einstand als Ertrag „Beteiligungen“, wie K1). Käufer Person: Einstandswert + G;
+  Käufer Firma: Beteiligungen + G (Einstand wie Aktien, K1).
+- G < Preis: abgelehnt mit dem Mindestpreis (`PriceTooLow`). Es gibt kein Feilschen und
+  keine Sperrfrist – der Preis ist bekannt.
+
+Kontrolliert die Person danach eine KI-Firma (über 50 %, direkt oder über eigene Firmen),
+wird sie ihre Firma: ohne KI-Zustand, Steuerung wie jede Firma des Spielers.
+
+### Anteile verkaufen
+
+`SellStake { Firma, Anteil s }` – die Person verkauft an Investoren, sofort:
+
+    Abschlag a = abschlag_max − (abschlag_max − abschlag_min) · g
+    Erlös     = s · V · (1 − a)
+    Gewinn    = Erlös − Einstandswert · s / gehaltener Anteil
+    Steuer    = max(0, Gewinn) · steuer_dividenden(Wohnsitz)
+
+Verliert die Person dadurch die Kontrolle, wird die Firma eine KI-Firma (Charakter aus dem
+Zufallsstrom der Firma, wie SU2); ist sie die Hauptfirma, wird die nächste kontrollierte
+Firma Hauptfirma, sonst spielt die Person als Investor weiter. Die Person verliert damit
+auch den Vorsitz dort.
+
+### Start-ups privat
+
+`InvestPrivately { Start-up, Betrag }`: wie eine Zusage einer Firma in einer offenen Runde
+(SU2), bezahlt vom Privatkonto; die Person hält ihren Anteil als `Holder::Player`. Wird das
+Start-up eine Firma und hält die Person über 50 %, ist es ihre eigene Firma (keine Tochter;
+Einstandswert = ihre Einzahlungen). Sonst wird sie wie andere Halter mit dem Wert ihres
+Anteils ausgezahlt. Scheitert das Start-up, bekommt sie offene Zusagen zurück.
+
+### Mehrere Firmen
+
+- `FoundCompany` geht beliebig oft. CEO wird die Person nur, wenn sie es noch nirgends ist.
+- `SelectCompany { Firma }` macht eine kontrollierte Firma zur Hauptfirma: auf sie beziehen
+  sich Ansichten und Befehle. Die übrigen kontrollierten Firmen führen ihre Manager nach
+  den Regeln; ohne CEO entscheidet der Spieler, sobald er sie wählt.
+- Das Gehalt zahlt die Firma, in der die Person CEO ist, ob Hauptfirma oder nicht.
+
+### Spielende
+
+Pleite oder Übernahme der Hauptfirma beenden das Spiel nicht: Hauptfirma wird die nächste
+kontrollierte Firma, sonst keine. Das Spiel endet am Monatsende, wenn die Person keine
+Anteile an Firmen oder Start-ups hält und ihr Guthaben unter der Untergrenze des Startgelds
+(PE3) liegt oder nicht positiv ist; sonst am 31.12.2100.
+
+Eine feindliche Übernahme der Hauptfirma (K1) macht sie zur KI-Tochter des Käufers; die
+Person behält ihren Minderheitsanteil, und die nächste kontrollierte Firma wird Hauptfirma.

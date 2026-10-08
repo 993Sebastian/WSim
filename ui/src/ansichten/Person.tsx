@@ -283,6 +283,66 @@ function Gehalt({ g }: { g: PersonGeld }) {
   );
 }
 
+/** Selling shares to investors and choosing the main company (PE5). */
+function Handel({ h }: { h: PersonAnteil }) {
+  const [anteil, setAnteil] = useState("");
+  const { los, antwort } = useAktion(`handel-${h.index ?? 0}`);
+  const firma = h.index ?? 0;
+  const prozent = zahlLesen(anteil);
+  const erloes =
+    prozent !== null && prozent > 0 && h.share > 0
+      ? ((h.investors_bid_usd ?? 0) * prozent) / 100 / h.share
+      : null;
+  return (
+    <section className="karte" aria-label={t("person.handel_fuer", { firma: h.company })}>
+      <h3>{t("person.handel_fuer", { firma: h.company })}</h3>
+      {h.selectable && !h.main && (
+        <p>
+          <button
+            type="button"
+            onClick={() =>
+              void los([{ SelectCompany: { company: firma } }], t("person.hauptfirma_gewaehlt"))
+            }
+          >
+            {t("person.hauptfirma_waehlen")}
+          </button>
+        </p>
+      )}
+      {h.main && <p className="feld-hilfe">{t("person.ist_hauptfirma")}</p>}
+      <p className="feld-hilfe">
+        {t("person.verkaufen_hilfe", {
+          anteil: formatProzent(h.share),
+          erloes: formatGeld(h.investors_bid_usd ?? 0),
+        })}
+      </p>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("person.verkaufen_anteil")}
+          einheit="%"
+          wert={anteil}
+          onWert={setAnteil}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            if (prozent !== null && prozent > 0)
+              void los(
+                [{ SellStake: { company: firma, share: Math.min(prozent / 100, h.share) } }],
+                t("person.verkauft"),
+              ).then((ok) => ok && setAnteil(""));
+          }}
+        >
+          {t("person.verkaufen")}
+        </button>
+      </div>
+      {erloes !== null && (
+        <p className="feld-hilfe">{t("person.verkaufen_erloes", { betrag: formatGeld(erloes) })}</p>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 /** Capital in, loans to and capital back from a company of the person. */
 function Kapital({ h, g }: { h: PersonAnteil; g: PersonGeld }) {
   const [einlage, setEinlage] = useState("");
@@ -474,7 +534,7 @@ export function PersonAnsicht({
           <dd>{t(daten.married ? "person.verheiratet" : "person.ledig")}</dd>
         </dl>
       </section>
-      {daten.founding && onGruenden && (
+      {onGruenden && (
         <section className="karte" aria-label={t("gruendung.titel")}>
           <h2>{t("gruendung.titel")}</h2>
           <p>{t("person.gruenden_hilfe")}</p>
@@ -491,6 +551,11 @@ export function PersonAnsicht({
         daten.holdings
           .filter((h) => h.controlled)
           .map((h) => <Kapital key={h.company} h={h} g={g} />)}
+      {daten.holdings
+        .filter((h) => h.share > 0)
+        .map((h) => (
+          <Handel key={`handel-${h.company}`} h={h} />
+        ))}
       <Familie p={daten} />
       <Lebenslauf p={daten} />
     </Befehle>

@@ -234,10 +234,15 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
         }
         state.companies[index].bankrupt = true;
         let id = CompanyId(u32::try_from(index).expect("company count fits u32"));
-        if state.is_main(id) {
-            state.game_over = true;
+        // The main company's failure does not end the game (PE5): the person goes on.
+        let main = state.is_main(id);
+        if main {
             messages.push(Message::new(MessageKind::Crisis, keys::GAME_OVER_INSOLVENT));
-        } else if catalog.deal_model.insolvency_days > 0 {
+        }
+        if state.person.ceo == Some(id) {
+            state.person.ceo = None;
+        }
+        if catalog.deal_model.insolvency_days > 0 {
             // The sites are auctioned before they are given up (M38).
             crate::ai::stop_operations(state, id);
             let until = state
@@ -260,6 +265,9 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
                 Message::new(MessageKind::Info, keys::COMPANY_INSOLVENT)
                     .with("firma", Param::Text(state.companies[index].name.clone())),
             );
+        }
+        if main {
+            messages.extend(crate::holdings::next_main(state));
         }
     }
     messages

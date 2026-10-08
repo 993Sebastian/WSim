@@ -1,6 +1,6 @@
 // Decisions of the player as the core reads them (crates/wsim-core/src/command.rs):
 // content by key, amounts as Money units (hundredths of a cent).
-import type { Auftrag, Geltung, Vorgabe, Vorgabefeld } from "./typen";
+import type { Auftrag, Geltung, Halter, Vorgabe, Vorgabefeld } from "./typen";
 
 /** USD → Money units of the core. */
 export const geld = (usd: number): number => Math.round(usd * 10_000);
@@ -102,6 +102,11 @@ export type Befehl =
   | { ContributeCapital: { company: number; amount: number } }
   | { LendToCompany: { company: number; amount: number; rate: number; years: number } }
   | { WithdrawCapital: { company: number; amount: number } }
+  | { BuyStake: { company: number; holder: Halter; share: number; price: number } }
+  | { BidForStake: { company: number; holder: Halter; share: number; price: number } }
+  | { SellStake: { company: number; share: number } }
+  | { SelectCompany: { company: number } }
+  | { InvestPrivately: { venture: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }
   | {
       SetPurchase: {

@@ -200,7 +200,7 @@ fn profit_tax_with_loss_carryforward() {
 }
 
 #[test]
-fn overdraft_is_warned_and_insolvency_ends_the_game() {
+fn overdraft_is_warned_and_insolvency_leaves_the_person_without_means() {
     let mut game = new_game(100_000.0);
     let player = game.player();
     let spend = |game: &mut Game, amount: f64| {
@@ -227,8 +227,19 @@ fn overdraft_is_warned_and_insolvency_ends_the_game() {
         "{:?}",
         report.messages
     );
-    assert!(game.is_over());
     assert!(game.state().company(player).unwrap().bankrupt);
+    // The failure itself does not end the game (PE5); without shares and money it ends
+    // at the next month's end.
+    assert!(!game.is_over());
+    assert_eq!(game.state().main_company, None);
+    let report = game.advance(RoundLength::Month, |_| {});
+    assert!(
+        report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::GAME_OVER_BROKE)
+    );
+    assert!(game.is_over());
 }
 
 #[test]

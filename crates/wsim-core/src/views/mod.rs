@@ -380,6 +380,17 @@ pub struct Overview {
     /// The player as a person: name and age (PE2).
     #[serde(default)]
     pub person: Option<PersonBrief>,
+    /// The companies the person can choose as main company (PE5), the main one marked.
+    #[serde(default)]
+    pub companies: Vec<CompanyChoiceView>,
+}
+
+/// A company of the person in the company choice of the header (PE5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CompanyChoiceView {
+    pub index: u32,
+    pub name: String,
+    pub main: bool,
 }
 
 /// The person in the header (PE2) with its money (PE3).
@@ -649,6 +660,14 @@ pub fn overview(game: &Game) -> Overview {
         )
         .unwrap_or(u32::MAX),
         person: (!state.person.name.is_empty()).then(|| person_brief(game)),
+        companies: crate::holdings::selectable(state)
+            .into_iter()
+            .map(|c| CompanyChoiceView {
+                index: c.0,
+                name: state.companies[c.index()].name.clone(),
+                main: state.is_main(c),
+            })
+            .collect(),
     }
 }
 

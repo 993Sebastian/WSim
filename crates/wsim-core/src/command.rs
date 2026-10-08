@@ -370,6 +370,26 @@ pub enum Command {
     },
     /// A company pays capital back to the person (PE3).
     WithdrawCapital { company: CompanyId, amount: Money },
+    /// The person buys `share` of a company from one of its holders (PE5).
+    BuyStake {
+        company: CompanyId,
+        holder: crate::state::Holder,
+        share: f64,
+        price: Money,
+    },
+    /// The company buys `share` of another company from one of its holders (PE5).
+    BidForStake {
+        company: CompanyId,
+        holder: crate::state::Holder,
+        share: f64,
+        price: Money,
+    },
+    /// The person sells `share` of a company to investors (PE5).
+    SellStake { company: CompanyId, share: f64 },
+    /// Another company of the person becomes the main company (PE5).
+    SelectCompany { company: CompanyId },
+    /// The person invests in a start-up from its private account (PE5).
+    InvestPrivately { venture: u32, amount: Money },
 }
 
 impl Command {
@@ -383,6 +403,10 @@ impl Command {
                 | Command::ContributeCapital { .. }
                 | Command::LendToCompany { .. }
                 | Command::WithdrawCapital { .. }
+                | Command::BuyStake { .. }
+                | Command::SellStake { .. }
+                | Command::SelectCompany { .. }
+                | Command::InvestPrivately { .. }
         )
     }
 }
@@ -731,6 +755,13 @@ pub enum CommandError {
     DividendTooHigh {
         max: Money,
     },
+    /// The holder does not sell: the person, the buyer itself or a company of the person
+    /// (PE5).
+    NotSeller,
+    /// Below the price the holder asks (PE5).
+    PriceTooLow {
+        min: Money,
+    },
 }
 
 impl CommandError {
@@ -946,6 +977,10 @@ impl CommandError {
                 e(keys::COMMAND_WITHDRAWAL_TOO_HIGH).with("max", Param::Money(*max))
             }
             CommandError::NotSoleOwner => e(keys::COMMAND_NOT_SOLE_OWNER),
+            CommandError::NotSeller => e(keys::COMMAND_NOT_SELLER),
+            CommandError::PriceTooLow { min } => {
+                e(keys::COMMAND_PRICE_TOO_LOW).with("min", Param::Money(*min))
+            }
             CommandError::DividendTooHigh { max } => {
                 e(keys::COMMAND_DIVIDEND_TOO_HIGH).with("max", Param::Money(*max))
             }
@@ -1283,7 +1318,23 @@ fn run(
         | Command::SetLifestyle { .. }
         | Command::ContributeCapital { .. }
         | Command::LendToCompany { .. }
-        | Command::WithdrawCapital { .. } => return Err(CommandError::PersonOnly),
+        | Command::WithdrawCapital { .. }
+        | Command::BuyStake { .. }
+        | Command::SellStake { .. }
+        | Command::SelectCompany { .. }
+        | Command::InvestPrivately { .. } => return Err(CommandError::PersonOnly),
+        Command::BidForStake {
+            company,
+            holder,
+            share,
+            price,
+        } => crate::holdings::buy(
+            state,
+            catalog,
+            crate::holdings::Buyer::Company(actor),
+            (*company, *holder),
+            (*share, *price),
+        )?,
         Command::SpinOff { site, sell } => {
             crate::ventures::spin_off(state, catalog, actor, *site, *sell)?;
         }

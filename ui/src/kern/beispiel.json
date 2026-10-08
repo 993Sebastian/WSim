@@ -4201,7 +4201,27 @@
         },
         "workers": 20825.029868431964
       }
-    ]
+    ],
+    "owners": [
+      {
+        "ask_usd": 539701490.8004,
+        "holder": "Private",
+        "kind": "gruender",
+        "name": null,
+        "sells": true,
+        "share": 0.4
+      },
+      {
+        "ask_usd": 809552236.2006,
+        "holder": "Investors",
+        "kind": "anleger",
+        "name": null,
+        "sells": true,
+        "share": 0.6
+      }
+    ],
+    "private_cash_usd": 0.0,
+    "value_usd": 1124378105.8341
   },
   "firmen": {
     "companies": [
@@ -41165,7 +41185,10 @@
         "subsidiary": false,
         "success_value_usd": 4003531.1481,
         "target": "kompressionskuehlschrank",
-        "value_usd": 329961.358
+        "value_usd": 329961.358,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41220,7 +41243,10 @@
         "subsidiary": false,
         "success_value_usd": 6551445.8823,
         "target": "ackerschlepper",
-        "value_usd": 590990.8554
+        "value_usd": 590990.8554,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41275,7 +41301,10 @@
         "subsidiary": false,
         "success_value_usd": 4008944.4165,
         "target": "lastwagen",
-        "value_usd": 366175.0521
+        "value_usd": 366175.0521,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41330,7 +41359,10 @@
         "subsidiary": false,
         "success_value_usd": 4165442.4767,
         "target": "ammoniak",
-        "value_usd": 382809.2675
+        "value_usd": 382809.2675,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41385,7 +41417,10 @@
         "subsidiary": false,
         "success_value_usd": 5283424.0987,
         "target": "blech",
-        "value_usd": 477790.2745
+        "value_usd": 477790.2745,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41440,7 +41475,10 @@
         "subsidiary": false,
         "success_value_usd": 8708828.7064,
         "target": "rundfunk",
-        "value_usd": 818755.0316
+        "value_usd": 818755.0316,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       },
       {
         "blocked": false,
@@ -41495,7 +41533,10 @@
         "subsidiary": false,
         "success_value_usd": 8238081.2088,
         "target": "ganzmetallflugzeug",
-        "value_usd": 780866.7669
+        "value_usd": 780866.7669,
+        "person_pledge_usd": 0.0,
+        "person_share": 0.0,
+        "private_cash_usd": 0.0
       }
     ],
     "blocking": 0.25,
@@ -42382,7 +42423,14 @@
       "place": 101,
       "short": true,
       "wealth_usd": 154188.3935
-    }
+    },
+    "companies": [
+      {
+        "index": 0,
+        "main": true,
+        "name": "Neue Firma"
+      }
+    ]
   },
   "uebersicht_start": {
     "company": {
@@ -42608,7 +42656,14 @@
       "place": 101,
       "short": false,
       "wealth_usd": 126400.0
-    }
+    },
+    "companies": [
+      {
+        "index": 0,
+        "main": true,
+        "name": "Neue Firma"
+      }
+    ]
   },
   "vertraege": {
     "cancel_months": 3,
@@ -47399,7 +47454,10 @@
         "cost_basis_usd": 100000.0,
         "withdraw_max_usd": 45252.1767,
         "cash_usd": 45252.1767,
-        "loans": []
+        "loans": [],
+        "investors_bid_usd": 123350.7148,
+        "main": true,
+        "selectable": true
       }
     ],
     "home": "DEU",

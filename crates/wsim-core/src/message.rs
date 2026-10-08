@@ -228,6 +228,13 @@ pub mod keys {
     pub const DIVIDEND_CUT: &str = "meldung.dividende.gekuerzt";
     pub const DIVIDEND_CEO_SET: &str = "meldung.dividende.ceo";
     pub const COMMAND_DIVIDEND_TOO_HIGH: &str = "fehler.befehl.dividende_zu_hoch";
+    pub const COMMAND_NOT_SELLER: &str = "fehler.befehl.kein_verkaeufer";
+    pub const COMMAND_PRICE_TOO_LOW: &str = "fehler.befehl.preis_zu_niedrig";
+    pub const HOLDING_CONTROL: &str = "meldung.anteile.kontrolle";
+    pub const HOLDING_LOST: &str = "meldung.anteile.ki_firma";
+    pub const MAIN_COMPANY_CHANGED: &str = "meldung.anteile.hauptfirma";
+    pub const MAIN_COMPANY_NONE: &str = "meldung.anteile.keine_hauptfirma";
+    pub const GAME_OVER_BROKE: &str = "meldung.spielende_mittellos";
     pub const COMMAND_NO_BANKS: &str = "fehler.befehl.keine_banken";
     pub const COMMAND_NOT_A_BANK: &str = "fehler.befehl.keine_bank";
     pub const COMMAND_INVALID_BANK_SETTINGS: &str = "fehler.befehl.bank_werte";
@@ -612,6 +619,13 @@ pub mod keys {
         DIVIDEND_CUT,
         DIVIDEND_CEO_SET,
         COMMAND_DIVIDEND_TOO_HIGH,
+        COMMAND_NOT_SELLER,
+        COMMAND_PRICE_TOO_LOW,
+        HOLDING_CONTROL,
+        HOLDING_LOST,
+        MAIN_COMPANY_CHANGED,
+        MAIN_COMPANY_NONE,
+        GAME_OVER_BROKE,
         COMMAND_NO_BANKS,
         COMMAND_NOT_A_BANK,
         COMMAND_INVALID_BANK_SETTINGS,

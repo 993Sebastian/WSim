@@ -299,6 +299,27 @@ Frage: „Wovon lebe ich, was bin ich wert, und wie viel Geld gebe ich meiner Fi
   Darlehen mit Zins und Laufzeit, Kapital zurückholen). Reicht das Konto nicht, steht
   oben die Warnung mit den Auswegen.
 
+### Person: Anteile kaufen und verkaufen, mehrere Firmen (PE5)
+
+Frage: „Welche Firmen gehören mir, welche will ich dazukaufen, und welche gebe ich ab?“
+
+- **Wettbewerb → Firma → „Eigner und Anteile“** (ⓘ erklärt die Preise): Firmenwert, darunter
+  je Eigner (Gründer und Familien, Anleger, andere Firmen, du) eine Karte mit Anteil und
+  verlangtem Preis. Bei Eignern, die verkaufen: „Anteil kaufen“ in %, der Preis dafür als
+  Hinweis, Auswahl „Privat (Privatkonto …)“ oder „Mit deiner Hauptfirma (Kasse …)“,
+  „Kaufen“. Andernfalls „Verkauft nicht an dich“. Mit über 50 % wird die Firma deine.
+- **Kopfzeile:** Führst du mehrere Firmen, steht statt des Firmennamens eine Auswahl;
+  die gewählte Firma ist die Hauptfirma, auf die sich alle Ansichten beziehen.
+- **Ansicht Person:** je gehaltener Firma eine Karte „Anteile an …“ mit „Als Hauptfirma
+  führen“ (wenn wählbar) und dem Verkauf an Anleger: was sie sofort für den ganzen Anteil
+  zahlen, Eingabe in % mit dem Erlös als Hinweis, „An Anleger verkaufen“. „Firma gründen“
+  steht immer oben.
+- **Beteiligungen → Start-up:** „Privat beteiligen“ vom Privatkonto (Zusage in einer
+  offenen Runde oder Kauf), der private Anteil steht unter „Privat“.
+- **Spielende:** Eine Pleite der Hauptfirma beendet das Spiel nicht mehr; die nächste
+  Firma wird Hauptfirma, sonst spielst du als Anleger weiter. Erst wer nichts mehr hält
+  und zu wenig Geld für eine Gründung hat, verliert (Meldung „Spielende“).
+
 ### Organisation (MA1–MA6)
 
 Reiter „Organisation“ (Taste 7; Weltkarte jetzt 8, Berichte 9). Frage: „Wer erledigt was,

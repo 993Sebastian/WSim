@@ -9,7 +9,7 @@ use crate::deals::{self, DealObject, Offer, OfferStatus, SiteValue};
 use crate::game::Game;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::ranking::{equity, revenue_of_year};
-use crate::state::{CompanyId, GameState, SiteId};
+use crate::state::{CompanyId, GameState, Holder, SiteId};
 
 /// What a site is worth (docs/FORMELN.md, M30).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -442,6 +442,30 @@ pub struct CompanyDetailView {
     /// The player's free positions the offers name.
     #[serde(default)]
     pub free_positions: Vec<super::organisation::FreePositionView>,
+    /// The company's value and owners with the prices they ask (PE5).
+    #[serde(default)]
+    pub value_usd: f64,
+    #[serde(default)]
+    pub owners: Vec<StakeHolderView>,
+    /// The person's private account (for buying shares privately).
+    #[serde(default)]
+    pub private_cash_usd: f64,
+}
+
+/// An owner of a company and what its shares cost (PE5).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StakeHolderView {
+    /// As commands name it.
+    pub holder: crate::state::Holder,
+    /// `du`, `gruender`, `anleger`, `firma`.
+    pub kind: String,
+    /// The holding company's name.
+    pub name: Option<String>,
+    pub share: f64,
+    /// It sells to the person and the person's companies.
+    pub sells: bool,
+    /// What it asks for all of its share.
+    pub ask_usd: f64,
 }
 
 /// A product with the name a company gave it (M42).
@@ -647,6 +671,29 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         min_age_months: min_age,
         managers,
         free_positions,
+        value_usd: usd(crate::private::company_value(catalog, state, id)),
+        owners: company
+            .owners
+            .iter()
+            .map(|s| StakeHolderView {
+                holder: s.holder,
+                kind: match s.holder {
+                    Holder::Player => "du",
+                    Holder::Private => "gruender",
+                    Holder::Investors => "anleger",
+                    Holder::Company(_) => "firma",
+                }
+                .to_owned(),
+                name: match s.holder {
+                    Holder::Company(h) => state.company(h).map(|c| c.name.clone()),
+                    _ => None,
+                },
+                share: s.share,
+                sells: crate::holdings::sells(state, s.holder),
+                ask_usd: usd(crate::holdings::ask(catalog, state, id, s.share)),
+            })
+            .collect(),
+        private_cash_usd: usd(state.person.account.balance),
     })
 }
 

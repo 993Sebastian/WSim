@@ -1524,3 +1524,68 @@ fn a_recommended_pledge_counts_by_how_the_start_up_turns_out() {
     );
     assert!(!hit(&game));
 }
+
+/// The person's money for private investments (PE5).
+fn rich_person(game: &mut Game) {
+    game.state_mut().person.account.balance = usd(1_000_000.0);
+}
+
+fn invest_privately(game: &mut Game, amount: f64) -> Result<(), CommandError> {
+    game.apply(Command::InvestPrivately {
+        venture: 0,
+        amount: usd(amount),
+    })
+}
+
+#[test]
+fn the_person_pledges_and_buys_privately_and_is_paid_on_the_listing() {
+    let mut game = game_with(catalog_with(model()), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    rich_person(&mut game);
+    // The whole first round from the private account: half the shares.
+    invest_privately(&mut game, 120_000.0).unwrap();
+    let v = venture(&game, 0).clone();
+    assert_eq!(v.round_until, None);
+    assert!((ventures::person_share(&v) - 0.5).abs() < 1e-12);
+    // Between rounds from the founders at the value plus 20 %.
+    invest_privately(&mut game, 28_800.0).unwrap();
+    assert!((ventures::person_share(venture(&game, 0)) - 0.6).abs() < 1e-9);
+    assert_eq!(game.state().person.venture_basis[&0], usd(148_800.0));
+    assert_eq!(
+        game.state().person.account.balance,
+        usd(1_000_000.0 - 148_800.0)
+    );
+    // No company holds the majority and there are no AI companies: on the stock market
+    // the person gets the value of its share, the gain taxed at home.
+    let before = game.state().person.account.balance;
+    until(&mut game, date(1900, 9, 2));
+    let v = venture(&game, 0).clone();
+    assert!(matches!(v.status, VentureStatus::Succeeded(_)));
+    assert_eq!(ventures::person_share(&v), 0.0);
+    assert!(game.state().person.account.balance > before);
+    assert!(!game.state().person.venture_basis.contains_key(&0));
+}
+
+#[test]
+fn a_failed_start_up_returns_the_person_its_pledge_and_takes_its_shares() {
+    let mut m = model();
+    m.investor_chance = 0.0;
+    m.deadline_months = 2;
+    let mut game = game_with(catalog_with(m), 3, 1.0);
+    until(&mut game, date(1900, 2, 2));
+    rich_person(&mut game);
+    invest_privately(&mut game, 50_000.0).unwrap();
+    assert_eq!(venture(&game, 0).person_pledge, usd(50_000.0));
+    until(&mut game, date(1900, 4, 2));
+    assert!(matches!(
+        venture(&game, 0).status,
+        VentureStatus::Failed(..)
+    ));
+    // The unfunded round flows back to the account.
+    assert!(game.state().person.account.balance >= usd(1_000_000.0) - usd(1_000.0));
+    assert!(game.state().person.venture_basis.is_empty());
+    assert_eq!(
+        invest_privately(&mut game, 1.0),
+        Err(CommandError::VentureClosed)
+    );
+}

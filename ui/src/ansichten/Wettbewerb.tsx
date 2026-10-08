@@ -18,6 +18,7 @@ import {
 import {
   geld,
   type Angebot,
+  type Anteilseigner,
   type Befehl,
   type Geschaeftsbereich,
   type Firmendetail,
@@ -416,6 +417,99 @@ function BereichKarte({ b, d }: { b: Geschaeftsbereich; d: Firmendetail }) {
   );
 }
 
+/**
+ * The owners of a company and their shares (PE5): each one that sells names its price;
+ * the person buys privately or through the main company.
+ */
+function Eigner({ d }: { d: Firmendetail }) {
+  const owners = d.owners ?? [];
+  if (owners.length === 0) return null;
+  return (
+    <section aria-label={t("anteile.titel")}>
+      <h3>
+        {t("anteile.titel")}{" "}
+        <Erklaerung wert={t("anteile.titel")}>
+          <p>{t("anteile.erklaerung")}</p>
+        </Erklaerung>
+      </h3>
+      <p className="gedaempft">{t("anteile.wert", { wert: formatGeld(d.value_usd ?? 0) })}</p>
+      <div className="karten-raster">
+        {owners.map((o, i) => (
+          <EignerKarte key={i} o={o} d={d} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function eignerName(o: Anteilseigner): string {
+  return o.kind === "firma" ? (o.name ?? "") : t(`anteile.eigner.${o.kind}`);
+}
+
+function EignerKarte({ o, d }: { o: Anteilseigner; d: Firmendetail }) {
+  const { los, antwort } = useAktion(`anteile-${eignerName(o)}`);
+  const [anteil, setAnteil] = useState("");
+  const [privat, setPrivat] = useState(true);
+  const [fehler, setFehler] = useState<string | null>(null);
+  const n = zahlLesen(anteil);
+  // The holder's price is proportional to the share; whole USD upwards.
+  const preis = n === null ? null : Math.ceil((o.ask_usd * n) / 100 / (o.share || 1));
+  const kaufen = (ev: FormEvent) => {
+    ev.preventDefault();
+    if (n === null || n <= 0 || n > o.share * 100 + 1e-9 || preis === null) {
+      setFehler(t("anteile.werte"));
+      return;
+    }
+    setFehler(null);
+    const args = {
+      company: d.company.index,
+      holder: o.holder,
+      share: n / 100,
+      price: geld(preis),
+    };
+    void los(
+      [privat ? { BuyStake: args } : { BidForStake: args }],
+      t("anteile.gekauft", { anteil: formatZahl(n, 1), firma: d.company.name }),
+    );
+  };
+  return (
+    <div className="karte">
+      <h4>
+        {eignerName(o)} · {formatProzent(o.share)}
+      </h4>
+      {o.sells ? (
+        <form aria-label={t("anteile.kaufen_von", { eigner: eignerName(o) })} onSubmit={kaufen}>
+          <p className="feld-hilfe">
+            {t("anteile.preis", { preis: formatGeld(o.ask_usd), anteil: formatProzent(o.share) })}
+          </p>
+          <ZahlFeld
+            name={t("anteile.anteil")}
+            einheit="%"
+            wert={anteil}
+            onWert={setAnteil}
+            hilfe={preis === null ? undefined : t("anteile.kostet", { preis: formatGeld(preis) })}
+          />
+          <label className="auswahl">
+            <input type="radio" checked={privat} onChange={() => setPrivat(true)} />
+            <span>{t("anteile.privat", { konto: formatGeld(d.private_cash_usd ?? 0) })}</span>
+          </label>
+          <label className="auswahl">
+            <input type="radio" checked={!privat} onChange={() => setPrivat(false)} />
+            <span>{t("anteile.firma", { kasse: formatGeld(d.cash_usd) })}</span>
+          </label>
+          {fehler && <p className="fehlertext">{fehler}</p>}
+          <div className="knopfreihe links">
+            <button type="submit">{t("anteile.kaufen")}</button>
+          </div>
+        </form>
+      ) : (
+        <p className="gedaempft">{t("anteile.verkauft_nicht")}</p>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </div>
+  );
+}
+
 function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void }) {
   const c = d.company;
   return (
@@ -457,6 +551,7 @@ function FirmaDetail({ d, onZurueck }: { d: Firmendetail; onZurueck: () => void 
           </ul>
         </>
       )}
+      <Eigner d={d} />
       <h3>{t("wettbewerb.standorte")}</h3>
       {c.auction_until ? (
         <p className="erklaerung">

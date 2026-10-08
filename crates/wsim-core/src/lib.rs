@@ -25,6 +25,7 @@ pub mod finance;
 pub mod game;
 pub mod group;
 pub mod health;
+pub mod holdings;
 pub mod ids;
 pub mod ledger;
 pub mod logistics;
@@ -90,6 +91,8 @@ mod facility_tests;
 mod finance_tests;
 #[cfg(test)]
 mod group_tests;
+#[cfg(test)]
+mod holdings_tests;
 #[cfg(test)]
 mod hq_city_tests;
 #[cfg(test)]

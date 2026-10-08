@@ -505,6 +505,11 @@ impl Game {
                 &self.catalog,
                 today,
             ));
+            report.messages.extend(crate::holdings::month_end(
+                &mut self.state,
+                &self.catalog,
+                today,
+            ));
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);
             }

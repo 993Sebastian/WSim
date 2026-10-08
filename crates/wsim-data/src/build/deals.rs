@@ -149,5 +149,27 @@ pub(super) fn deal_model(ctx: &mut Ctx, catalog: &Catalog, raw: &RawData) -> Dea
             1.0,
             &l.field("insolvenz").field("mindestpreis"),
         ),
+        stakes: stakes(ctx, &m.stakes, &l.field("anteile")),
+    }
+}
+
+/// Prices of shares (PE5): premium and discount ranges.
+fn stakes(ctx: &mut Ctx, s: &crate::raw::RawStakes, l: &Loc) -> wsim_core::catalog::StakeModel {
+    let premium_min = in_range(ctx, s.premium_min, 0.0, 5.0, &l.field("praemie_min"));
+    let premium_max = in_range(ctx, s.premium_max, 0.0, 5.0, &l.field("praemie_max"));
+    if premium_min > premium_max {
+        ctx.error(l, messages::range_inverted("praemie_min", "praemie_max"));
+    }
+    let discount_min = in_range(ctx, s.discount_min, 0.0, 0.9, &l.field("abschlag_min"));
+    let discount_max = in_range(ctx, s.discount_max, 0.0, 0.9, &l.field("abschlag_max"));
+    if discount_min > discount_max {
+        ctx.error(l, messages::range_inverted("abschlag_min", "abschlag_max"));
+    }
+    wsim_core::catalog::StakeModel {
+        premium_min,
+        premium_max,
+        good_return: in_range(ctx, s.good_return, 0.01, 1.0, &l.field("rendite_gut")),
+        discount_min,
+        discount_max,
     }
 }

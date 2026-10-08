@@ -1,8 +1,9 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
-import type { Kern, NeuesSpiel } from "../kern";
+import type { Befehl, Kern, NeuesSpiel } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
+import { PersonAnsicht } from "./Person";
 
 describe("Person (PE2)", () => {
   afterEach(cleanup);
@@ -76,5 +77,46 @@ describe("Person (PE2)", () => {
     const lebenslauf = screen.getByRole("region", { name: "Lebenslauf" });
     expect(within(lebenslauf).getByText("Beginn mit der Firma Neue Firma")).toBeTruthy();
     expect(within(lebenslauf).getByText("Geburt von Paul Albrecht")).toBeTruthy();
+  });
+
+  it("verkauft Anteile an Anleger und bietet die Gründung weiterer Firmen an (PE5)", async () => {
+    const vorschau = vorschauKern(0);
+    await vorschau.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+      found_at_start: true,
+    });
+    const gesendet: Befehl[] = [];
+    const kern: Kern = {
+      ...vorschau,
+      befehl: async (b) => {
+        gesendet.push(b);
+        return vorschau.uebersicht();
+      },
+    };
+    let gruenden = 0;
+    render(<PersonAnsicht kern={kern} stand="a" onGruenden={() => (gruenden += 1)} />);
+    const handel = await screen.findByRole("region", { name: "Anteile an Neue Firma" });
+    expect(within(handel).getByText(/^Das ist deine Hauptfirma/)).toBeTruthy();
+    expect(within(handel).queryByRole("button", { name: "Als Hauptfirma führen" })).toBeNull();
+    expect(within(handel).getByText(/Anleger zahlen dafür sofort/)).toBeTruthy();
+    fireEvent.change(within(handel).getByLabelText(/^Anteil verkaufen/), {
+      target: { value: "25" },
+    });
+    expect(within(handel).getByText(/^Erlös etwa /)).toBeTruthy();
+    fireEvent.click(within(handel).getByRole("button", { name: "An Anleger verkaufen" }));
+    expect(await within(handel).findByText("Anteile verkauft.")).toBeTruthy();
+    expect(gesendet).toEqual([{ SellStake: { company: 0, share: 0.25 } }]);
+    // A further company can be founded at any time.
+    const gruendung = screen.getByRole("region", { name: "Firma gründen" });
+    fireEvent.click(within(gruendung).getByRole("button"));
+    expect(gruenden).toBe(1);
   });
 });

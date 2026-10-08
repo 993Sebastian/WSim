@@ -433,7 +433,7 @@ fn owners_are_paid_out_in_a_takeover() {
 }
 
 #[test]
-fn a_takeover_of_the_player_ends_the_game() {
+fn a_takeover_of_the_main_company_leaves_the_person_a_minority() {
     let mut game = game();
     let player = game.player();
     game.apply(Command::GoPublic { share: 0.4 }).unwrap();
@@ -463,8 +463,11 @@ fn a_takeover_of_the_player_ends_the_game() {
         &Command::TakeOver { company: player },
     )
     .unwrap();
-    assert!(game.state().game_over);
+    // The game goes on (PE5): the company is the raider's AI subsidiary now.
+    assert!(!game.state().game_over);
+    assert_eq!(game.state().main_company, None);
     let c = &game.state().companies[player.index()];
+    assert!(c.ai.is_some());
     assert!((stock::stake(c, Holder::Player) - 0.45).abs() < 1e-9);
     assert!((stock::stake(c, Holder::Company(raider)) - 0.55).abs() < 1e-9);
 }

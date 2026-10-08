@@ -38,3 +38,10 @@ kaufmodell:
     lizenz_mindest: 0.3                          # × Lizenzwert für den Käufer
     wettbewerb_lizenz: 1.0                       # Aufschlag, wenn der Käufer ein Wettbewerber ist
     gegen_schwelle: 0.7                          # ab diesem Anteil des Mindestpreises ein Gegenangebot
+
+  # Anteile an Firmen (PE5, docs/FORMELN.md): Ein Halter verkauft ab Firmenwert × (1 + Prämie);
+  # die Prämie steigt mit der Ertragslage (Jahresüberschuss je Eigenkapital) von praemie_min
+  # bis praemie_max ab rendite_gut. Investoren kaufen der Person Anteile sofort ab, mit einem
+  # Abschlag von abschlag_max (schlechte Ertragslage) bis abschlag_min (gute).
+  anteile: {praemie_min: 0.2, praemie_max: 0.5, rendite_gut: 0.15, abschlag_min: 0.05,
+            abschlag_max: 0.2}

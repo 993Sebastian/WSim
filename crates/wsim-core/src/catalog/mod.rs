@@ -1390,6 +1390,33 @@ pub struct DealModel {
     pub insolvency_days: u32,
     /// Lowest bid in such an auction, as share of a site's base value.
     pub insolvency_min_share: f64,
+    /// Shares of companies (PE5).
+    pub stakes: StakeModel,
+}
+
+/// Prices of shares of companies (PE5, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct StakeModel {
+    /// Premium over the company's value a holder asks: with poor and with good earnings.
+    pub premium_min: f64,
+    pub premium_max: f64,
+    /// Net profit per equity from which the earnings count as good.
+    pub good_return: f64,
+    /// Discount of investors buying at once: with good and with poor earnings.
+    pub discount_min: f64,
+    pub discount_max: f64,
+}
+
+impl Default for StakeModel {
+    fn default() -> Self {
+        Self {
+            premium_min: 0.2,
+            premium_max: 0.5,
+            good_return: 0.15,
+            discount_min: 0.05,
+            discount_max: 0.2,
+        }
+    }
 }
 
 /// How AI companies buy and sell (spans over aggressiveness).
@@ -1471,6 +1498,7 @@ impl Default for DealModel {
             // Catalogs without auctions give the sites up at once.
             insolvency_days: 0,
             insolvency_min_share: 0.5,
+            stakes: StakeModel::default(),
         }
     }
 }

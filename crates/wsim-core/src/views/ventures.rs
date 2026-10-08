@@ -68,6 +68,14 @@ pub struct VentureView {
     /// The player's company: its share, what it paid (book value), its pledge to the open
     /// round and its grants.
     pub own_share: f64,
+    /// The person's private share and pledge (PE5); it may invest privately where its
+    /// company may (`invest_mode`), from the private account.
+    #[serde(default)]
+    pub person_share: f64,
+    #[serde(default)]
+    pub person_pledge_usd: f64,
+    #[serde(default)]
+    pub private_cash_usd: f64,
     pub own_book_usd: f64,
     pub own_pledge_usd: f64,
     pub own_grants_usd: f64,
@@ -282,6 +290,9 @@ pub fn ventures(game: &Game) -> VenturesView {
                 ventures::success_value(m, v)
             }),
             own_share: ventures::share_of(v, player),
+            person_share: ventures::person_share(v),
+            person_pledge_usd: usd(v.person_pledge),
+            private_cash_usd: usd(state.person.account.balance),
             own_book_usd: usd(ventures::amount_of(&v.book, player)),
             own_pledge_usd: usd(ventures::amount_of(&v.pledges, player)),
             own_grants_usd: usd(ventures::amount_of(&v.grants, player)),

@@ -52,6 +52,14 @@ pub struct HoldingView {
     /// The person's loans to the company.
     #[serde(default)]
     pub loans: Vec<PersonLoanView>,
+    /// What investors pay for the whole share at once (PE5).
+    #[serde(default)]
+    pub investors_bid_usd: f64,
+    /// The person can choose it as main company, and it is the main company now.
+    #[serde(default)]
+    pub selectable: bool,
+    #[serde(default)]
+    pub main: bool,
 }
 
 /// A loan of the person to a company (PE3).
@@ -213,6 +221,11 @@ pub fn person(game: &Game) -> PersonView {
                     0.0
                 },
                 cash_usd: usd(c.ledger.cash()),
+                investors_bid_usd: usd(crate::holdings::bid_of_investors(
+                    catalog, state, id, share,
+                )),
+                selectable: crate::holdings::selectable(state).contains(&id),
+                main: state.is_main(id),
                 loans: c
                     .loans
                     .iter()
@@ -277,6 +290,17 @@ pub fn person(game: &Game) -> PersonView {
                     "stufe",
                     Param::TextKey(format!("lebensstil.{}", level.key())),
                 ),
+                LifeEventKind::TookControl { company: c } => {
+                    m("person.ereignis.kontrolle").with("firma", company(*c))
+                }
+                LifeEventKind::Sold {
+                    company: c,
+                    share,
+                    proceeds,
+                } => m("person.ereignis.verkauf")
+                    .with("firma", company(*c))
+                    .with("anteil", Param::Number((share * 1000.0).round() / 10.0))
+                    .with("betrag", Param::Money(*proceeds)),
             };
             LifeEventView {
                 date: iso(e.date),
@@ -285,7 +309,8 @@ pub fn person(game: &Game) -> PersonView {
         })
         .collect();
     let money = money(game);
-    let founding = state.main_company.is_none().then(|| founding(game));
+    // Founding is open at any time (PE5).
+    let founding = Some(founding(game));
     PersonView {
         money: Some(money),
         founding,
@@ -320,6 +345,9 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::CapitalRepaid => "privat.rueckzahlung",
         PrivateFlow::Dividend => "privat.dividende",
         PrivateFlow::DividendTax => "privat.quellensteuer",
+        PrivateFlow::StakeBought => "privat.anteilskauf",
+        PrivateFlow::StakeSold => "privat.anteilsverkauf",
+        PrivateFlow::GainTax => "privat.veraeusserungsteuer",
     }
 }
 

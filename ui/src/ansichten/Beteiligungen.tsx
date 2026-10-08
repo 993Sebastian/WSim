@@ -461,6 +461,21 @@ function Detail({ s, d, onZurueck }: { s: StartUp; d: StartUps; onZurueck: () =>
         </dd>
         <dt>{t("beteiligungen.eigner")}</dt>
         <dd>{eigner(s)}</dd>
+        {((s.person_share ?? 0) > 0 || (s.person_pledge_usd ?? 0) > 0) && (
+          <>
+            <dt>{t("beteiligungen.privat_anteil")}</dt>
+            <dd>
+              {[
+                (s.person_share ?? 0) > 0 ? formatProzent(s.person_share ?? 0) : null,
+                (s.person_pledge_usd ?? 0) > 0
+                  ? t("beteiligungen.zugesagt", { betrag: formatGeld(s.person_pledge_usd ?? 0) })
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </dd>
+          </>
+        )}
         <dt>{t("beteiligungen.dein_anteil")}</dt>
         <dd>
           {eigenerTeil(s)}
@@ -496,6 +511,21 @@ function Detail({ s, d, onZurueck }: { s: StartUp; d: StartUps; onZurueck: () =>
             befehl={(usd) => ({ InvestInVenture: { venture: s.id, amount: geld(usd) } })}
             erfolg={(usd) =>
               t("beteiligungen.beteiligt", { betrag: formatGeld(usd), name: s.name })
+            }
+          />
+        )}
+        {s.invest_mode && !s.parent && (
+          <BetragsForm
+            ort="privat-beteiligen"
+            titel={t("beteiligungen.privat_titel")}
+            knopf={runde ? t("beteiligungen.zusagen_knopf") : t("beteiligungen.kaufen_knopf")}
+            hilfe={t("beteiligungen.privat_hilfe", {
+              konto: formatGeld(s.private_cash_usd ?? 0),
+            })}
+            max={s.invest_max_usd}
+            befehl={(usd) => ({ InvestPrivately: { venture: s.id, amount: geld(usd) } })}
+            erfolg={(usd) =>
+              t("beteiligungen.privat_beteiligt", { betrag: formatGeld(usd), name: s.name })
             }
           />
         )}

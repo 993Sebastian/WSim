@@ -366,6 +366,25 @@ pub(crate) fn execute(
             years,
         } => lend(state, catalog, *company, *amount, (*rate, *years)),
         Command::WithdrawCapital { company, amount } => withdraw(state, catalog, *company, *amount),
+        Command::BuyStake {
+            company,
+            holder,
+            share,
+            price,
+        } => crate::holdings::buy(
+            state,
+            catalog,
+            crate::holdings::Buyer::Person,
+            (*company, *holder),
+            (*share, *price),
+        ),
+        Command::SellStake { company, share } => {
+            crate::holdings::sell(state, catalog, *company, *share)
+        }
+        Command::SelectCompany { company } => crate::holdings::select(state, *company),
+        Command::InvestPrivately { venture, amount } => {
+            crate::ventures::invest_person(state, catalog, *venture, *amount)
+        }
         _ => Err(CommandError::PersonOnly),
     }
 }
@@ -390,9 +409,6 @@ pub(crate) fn found(
     country: CountryId,
     capital: Money,
 ) -> Result<CompanyId, CommandError> {
-    if state.main_company.is_some() {
-        return Err(CommandError::AlreadyFounded);
-    }
     if crate::ids::Id::index(country) >= catalog.countries.len() {
         return Err(CommandError::UnknownCountry);
     }
@@ -412,10 +428,17 @@ pub(crate) fn found(
     let id = crate::game::push_player_company(state, name, country, capital);
     crate::game::start_setup(state, catalog, id, (form, country, capital))
         .map_err(|_| CommandError::CapitalTooLow { min })?;
-    state.main_company = Some(id);
+    // Further foundings (PE5): the first stays the main company, and the person leads
+    // only one company.
+    if state.main_company.is_none() {
+        state.main_company = Some(id);
+    }
     let today = state.date;
+    let leads = state.person.ceo.is_none();
     let p = &mut state.person;
-    p.ceo = Some(id);
+    if leads {
+        p.ceo = Some(id);
+    }
     p.cost_basis.insert(id, capital);
     p.history.push(LifeEvent {
         date: today,
@@ -424,13 +447,15 @@ pub(crate) fn found(
             capital,
         },
     });
-    state.person.salary = start_salary(catalog, state, id);
+    if leads {
+        state.person.salary = start_salary(catalog, state, id);
+    }
     crate::ranking::record(state);
     Ok(id)
 }
 
 fn set_salary(state: &mut GameState, catalog: &Catalog, amount: Money) -> Result<(), CommandError> {
-    let company = state.main_company.ok_or(CommandError::NoCompany)?;
+    let company = state.person.ceo.ok_or(CommandError::NoCompany)?;
     if amount.is_negative() {
         return Err(CommandError::InvalidAmount);
     }
@@ -640,6 +665,56 @@ pub(crate) fn receive_loan(state: &mut GameState, repayment: Money, interest: Mo
     }
 }
 
+/// The person pays for shares of a company (PE5).
+pub(crate) fn pay_stake(state: &mut GameState, company: CompanyId, price: Money) {
+    book(&mut state.person, PrivateFlow::StakeBought, -price);
+    *state.person.cost_basis.entry(company).or_default() += price;
+}
+
+/// The person sold shares of a company: proceeds, the cost basis of the part sold, the tax
+/// on the gain (PE5).
+pub(crate) fn receive_sale(
+    state: &mut GameState,
+    company: CompanyId,
+    (proceeds, basis, tax): (Money, Money, Money),
+) {
+    book(&mut state.person, PrivateFlow::StakeSold, proceeds);
+    if tax > Money::ZERO {
+        book(&mut state.person, PrivateFlow::GainTax, -tax);
+    }
+    if let Some(b) = state.person.cost_basis.get_mut(&company) {
+        *b = (*b - basis).max(Money::ZERO);
+    }
+}
+
+/// The person pays for a start-up (PE5).
+pub(crate) fn pay_venture(state: &mut GameState, venture: u32, amount: Money) {
+    book(&mut state.person, PrivateFlow::StakeBought, -amount);
+    *state.person.venture_basis.entry(venture).or_default() += amount;
+}
+
+/// The person gets money back from a start-up: a refund of a pledge (`basis` = amount,
+/// no gain) or proceeds for its shares with the tax on the gain (PE5).
+pub(crate) fn receive_venture(
+    state: &mut GameState,
+    venture: u32,
+    (proceeds, basis, rate): (Money, Money, f64),
+) {
+    let tax = (proceeds - basis).max(Money::ZERO).scale(rate);
+    if proceeds > Money::ZERO {
+        book(&mut state.person, PrivateFlow::StakeSold, proceeds);
+    }
+    if tax > Money::ZERO {
+        book(&mut state.person, PrivateFlow::GainTax, -tax);
+    }
+    if let Some(b) = state.person.venture_basis.get_mut(&venture) {
+        *b = (*b - basis).max(Money::ZERO);
+        if *b == Money::ZERO {
+            state.person.venture_basis.remove(&venture);
+        }
+    }
+}
+
 /// A dividend to the person, the withholding tax already kept back (PE4).
 pub(crate) fn receive_dividend(state: &mut GameState, gross: Money, tax: Money) {
     book(&mut state.person, PrivateFlow::Dividend, gross);
@@ -651,7 +726,7 @@ pub(crate) fn receive_dividend(state: &mut GameState, gross: Money, tax: Money) 
 /// The salary of the month as CEO of the main company, booked as personnel costs of the
 /// board on the month's last day; from the founding by days.
 pub(crate) fn pay_salary(state: &mut GameState, last: Date) {
-    let Some(company) = state.person.ceo.filter(|&c| state.is_main(c)) else {
+    let Some(company) = state.person.ceo else {
         return;
     };
     let c = &state.companies[company.index()];

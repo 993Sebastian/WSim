@@ -52,6 +52,7 @@ neu.startform_hilfe.handel: Eine Niederlassung ohne Anlagen und mehr Geld in der
 startform.werkstatt: Werkstatt
 startform.handel: Handelsniederlassung
 
+spiel.firmenwahl: Geführte Firma wählen
 spiel.datum: Datum
 spiel.kasse: Kasse
 spiel.privatkonto: Privatkonto
@@ -1140,6 +1141,10 @@ abteilung.wirkung.finanzen: "Senkt den Risikoaufschlag neuer Kredite um bis zu {
 abteilung.wirkung.personal: "Schult die Manager: bis zu {anteil} schneller Erfahrung."
 abteilung.wirkung.recht: "Prüft Lizenzen für {anzahl} Technologien deiner Warengruppen."
 abteilung.wirkung.marketing: "Die Werbung wirkt bis zu {anteil} stärker."
+beteiligungen.privat_anteil: Privat
+beteiligungen.privat_titel: Privat beteiligen
+beteiligungen.privat_hilfe: "Aus deinem Privatkonto ({konto}). Gelingt das Start-up und hältst du privat die Mehrheit, wird die neue Firma deine; sonst wirst du ausgezahlt."
+beteiligungen.privat_beteiligt: "{betrag} privat in {name} gesteckt."
 beteiligungen.titel: Beteiligungen
 beteiligungen.erklaerung: "Hier legst du fest, wie viel die Firma im Jahr für Übernahmen und Lizenzen ausgeben darf, die der Vorstand anbietet, und bis zu welchem Betrag die Leitung jeder Zentralabteilung allein entscheidet. Was darüber liegt, legt sie dir als Anliegen vor. Die Risikobereitschaft gilt später für Start-ups."
 beteiligungen.stand: "In diesem Jahr gekauft: {gekauft}; offene Gebote: {offen}."
@@ -1269,7 +1274,16 @@ person.rueckzahlung: Kapital zurückholen
 person.rueckzahlung_hilfe: "Höchstens {max}: nicht mehr als deine Einlagen, und die Liquiditätsreserve bleibt in der Kasse."
 person.zurueckholen: Zurückholen
 person.zurueckgezahlt: Zurückgezahlt.
-person.gruenden_hilfe: Noch hast du keine Firma. Gründe sie mit einem Teil deines Privatkontos.
+person.gruenden_hilfe: Gründe eine Firma mit einem Teil deines Privatkontos. Gehört dir noch keine, wird sie deine Hauptfirma.
+person.handel_fuer: "Anteile an {firma}"
+person.hauptfirma_waehlen: Als Hauptfirma führen
+person.hauptfirma_gewaehlt: Hauptfirma gewechselt.
+person.ist_hauptfirma: Das ist deine Hauptfirma – alle Ansichten zeigen sie.
+person.verkaufen_hilfe: "Du hältst {anteil}. Anleger zahlen dafür sofort {erloes}; auf den Gewinn über den Einstand zahlst du Steuer. Wer die Mehrheit verkauft, gibt die Firma an eine KI-Leitung ab."
+person.verkaufen_anteil: Anteil verkaufen
+person.verkaufen: An Anleger verkaufen
+person.verkaufen_erloes: "Erlös etwa {betrag}"
+person.verkauft: Anteile verkauft.
 gruendung.titel: Firma gründen
 gruendung.frage: "Auf deinem Privatkonto liegen {konto}. Mit einem Teil davon gründest du deine Firma; der Rest bleibt privat für deinen Lebensunterhalt."
 gruendung.name: Name der Firma
@@ -1292,6 +1306,9 @@ privat.darlehenszins: Darlehenszins
 privat.rueckzahlung: Kapitalrückzahlung
 privat.dividende: Dividenden
 privat.quellensteuer: Quellensteuer auf Dividenden
+privat.anteilskauf: Kauf von Anteilen
+privat.anteilsverkauf: Verkauf von Anteilen
+privat.veraeusserungsteuer: Steuer auf Veräußerungsgewinne
 person.steckbrief: Steckbrief
 person.name: Name
 person.geboren: Geboren
@@ -1326,6 +1343,8 @@ person.ereignis.uebernahme: "Übernahme der Firma {firma}"
 person.ereignis.beginn: "Beginn mit {betrag} Startgeld"
 person.ereignis.gruendung: "{firma} gegründet, Einlage {betrag}"
 person.ereignis.lebensstil: "Lebensstil: {stufe}"
+person.ereignis.kontrolle: "Mehrheit an {firma} gekauft"
+person.ereignis.verkauf: "{anteil} % von {firma} verkauft für {betrag}"
 lebensstil.bescheiden: Bescheiden
 lebensstil.buergerlich: Bürgerlich
 lebensstil.gehoben: Gehoben
@@ -2129,3 +2148,20 @@ bank.kreditnehmer: Firma
 bank.rest: Restschuld
 bank.zins: Zins
 bank.beginn: Beginn
+anteile.titel: Eigner und Anteile
+anteile.erklaerung: "Gründer, Anleger und andere Firmen verkaufen ihre Anteile zum Firmenwert mit einem Aufschlag – je besser die Firma verdient, desto höher. Du kaufst privat vom Privatkonto oder mit deiner Hauptfirma. Mit mehr als der Hälfte wird die Firma deine: Du wählst sie dann oben in der Kopfzeile."
+anteile.wert: "Firmenwert: {wert}."
+anteile.eigner.du: Du
+anteile.eigner.gruender: Gründer und Familien
+anteile.eigner.anleger: Anleger
+anteile.preis: "Verlangt {preis} für {anteil}."
+anteile.anteil: Anteil kaufen
+anteile.kostet: "Kostet {preis}."
+anteile.privat: "Privat (Privatkonto {konto})"
+anteile.firma: "Mit deiner Hauptfirma (Kasse {kasse})"
+anteile.kaufen: Kaufen
+anteile.kaufen_von: "Anteile kaufen von {eigner}"
+anteile.gekauft: "{anteil} % von {firma} gekauft."
+anteile.werte: Der Anteil muss größer als 0 sein und darf nicht über dem liegen, was der Eigner hält.
+anteile.verkauft_nicht: Verkauft nicht an dich.
+

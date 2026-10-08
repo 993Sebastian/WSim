@@ -125,6 +125,8 @@ export interface Uebersicht {
   concerns_open?: number;
   /** The player as a person: name and age (PE2), money and place by wealth (PE3). */
   person?: PersonKurz | null;
+  /** The companies the person can choose as main company (PE5), the main one marked. */
+  companies?: { index: number; name: string; main: boolean }[];
 }
 
 /** The person in the header (PE2, PE3). */
@@ -1115,6 +1117,26 @@ export interface Firmendetail {
   managers?: FremderManager[];
   /** The player's free positions the offers name. */
   free_positions?: FreieStelle[];
+  /** The company's value and owners with the prices they ask (PE5). */
+  value_usd?: number;
+  owners?: Anteilseigner[];
+  /** The person's private account. */
+  private_cash_usd?: number;
+}
+
+/** Who holds shares, as commands name it. */
+export type Halter = "Player" | "Private" | "Investors" | { Company: number };
+
+/** An owner of a company and what its shares cost (PE5). */
+export interface Anteilseigner {
+  holder: Halter;
+  kind: "du" | "gruender" | "anleger" | "firma";
+  name: string | null;
+  share: number;
+  /** It sells to the person and the person's companies. */
+  sells: boolean;
+  /** What it asks for all of its share. */
+  ask_usd: number;
 }
 
 /** Where a unit is, for lists outside the chart (same fields as the chart's units). */
@@ -1904,6 +1926,10 @@ export interface StartUp {
   success_value_usd: number;
   /** The player's company: share, book value, pledge to the open round, grants. */
   own_share: number;
+  /** The person's private share and pledge (PE5). */
+  person_share?: number;
+  person_pledge_usd?: number;
+  private_cash_usd?: number;
   own_book_usd: number;
   own_pledge_usd: number;
   own_grants_usd: number;
@@ -2350,6 +2376,11 @@ export interface PersonAnteil {
   withdraw_max_usd?: number;
   cash_usd?: number;
   loans?: PersonDarlehen[];
+  /** What investors pay for the whole share at once (PE5). */
+  investors_bid_usd?: number;
+  /** The person can choose it as main company; it is the main company now. */
+  selectable?: boolean;
+  main?: boolean;
 }
 
 /** A loan of the person to a company (PE3). */

@@ -195,11 +195,15 @@ fn close_round_with(m: &VentureModel, v: &mut Venture, date: Date, investors: Mo
         .iter()
         .map(|&(c, a)| (Holder::Company(c), a))
         .collect();
+    if v.person_pledge > Money::ZERO {
+        givers.push((Holder::Player, v.person_pledge));
+    }
     if investors > Money::ZERO {
         givers.push((Holder::Investors, investors));
     }
     issue(v, &givers, valuation);
     v.pledges.clear();
+    v.person_pledge = Money::ZERO;
     v.raised = v.capital;
     v.round_until = None;
     let (months_factor, _) = pace_factors(m, v.pace);
@@ -251,7 +255,12 @@ fn fail(
     v.phase_until = None;
     let (name, target) = (v.name.clone(), v.target);
     let pledges = std::mem::take(&mut v.pledges);
+    let person_pledge = std::mem::take(&mut v.person_pledge);
+    let id = v.id;
     let mut messages = Vec::new();
+    // The person gets its pledge back; what it paid for shares is lost (PE5).
+    crate::private::receive_venture(state, id, (person_pledge, person_pledge, 0.0));
+    state.person.venture_basis.remove(&id);
     for (c, amount) in pledges {
         state.companies[c.index()]
             .ledger
@@ -477,7 +486,9 @@ fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date
         messages.extend(to_parent(state, catalog, i, p));
         return messages;
     }
-    // On the stock market: every company gets the value of its share.
+    // On the stock market: every company gets the value of its share; the person too, or
+    // with the majority it keeps the new company as its own (PE5).
+    let person = person_share(&state.ventures[i]);
     let owners: Vec<(CompanyId, f64)> = companies_of(&state.ventures[i]);
     for (c, share) in owners {
         let proceeds = worth.scale(share);
@@ -494,6 +505,27 @@ fn settle_success(state: &mut GameState, catalog: &Catalog, i: usize, date: Date
     let (target, country, name) = (v.target, v.country, v.name.clone());
     let company = crate::ai::found_from_venture(state, catalog, date, target, country, &name);
     state.ventures[i].exit = Some(VentureExit::Listed(company));
+    let keeps = person > m.stakes.majority && company.is_some();
+    if person > 0.0 && !keeps {
+        person_exit(state, i, worth.scale(person));
+    }
+    if keeps && let Some(c) = company {
+        let id = state.ventures[i].id;
+        let basis = state.person.venture_basis.remove(&id).unwrap_or_default();
+        let firm = &mut state.companies[c.index()];
+        firm.owners = vec![
+            Stake {
+                holder: Holder::Player,
+                share: person,
+            },
+            Stake {
+                holder: Holder::Investors,
+                share: 1.0 - person,
+            },
+        ];
+        state.person.cost_basis.insert(c, basis);
+        crate::holdings::take_over_new(state, c);
+    }
     if let Some(c) = company {
         messages.push(
             Message::new(MessageKind::Info, keys::VENTURE_NEW_COMPANY)
@@ -532,6 +564,9 @@ fn buy_out(
     for s in others {
         let price = worth.scale(s.share);
         paid += price;
+        if s.holder == Holder::Player {
+            person_exit(state, i, price);
+        }
         if let Holder::Company(c) = s.holder {
             exit_stake(state, i, c, s.share, price);
             if Some(c) == player {
@@ -557,6 +592,8 @@ fn buy_out(
     let v = &mut state.ventures[i];
     add_to(&mut v.book, buyer, paid);
     v.owners = Stake::sole(Holder::Company(buyer));
+    let (id, refund) = (v.id, std::mem::take(&mut v.person_pledge));
+    v.raised -= refund;
     // Pledges of others to an open round flow back.
     let pledges: Vec<(CompanyId, Money)> = v
         .pledges
@@ -564,6 +601,9 @@ fn buy_out(
         .copied()
         .filter(|&(c, _)| c != buyer)
         .collect();
+    if refund > Money::ZERO {
+        crate::private::receive_venture(state, id, (refund, refund, 0.0));
+    }
     for (c, amount) in pledges {
         let v = &mut state.ventures[i];
         v.pledges.retain(|&(x, _)| x != c);
@@ -800,6 +840,7 @@ fn found(state: &mut GameState, catalog: &Catalog, date: Date, month: u32) {
             status: VentureStatus::Active,
             blur,
             pledges: Vec::new(),
+            person_pledge: Money::ZERO,
             book: Vec::new(),
             grants: Vec::new(),
             parent: None,
@@ -914,6 +955,97 @@ pub fn blocked(m: &VentureModel, v: &Venture, company: CompanyId) -> bool {
     companies_of(v)
         .into_iter()
         .any(|(c, share)| c != company && share >= m.stakes.blocking)
+}
+
+/// The person's share of a start-up (PE5).
+pub fn person_share(v: &Venture) -> f64 {
+    v.owners
+        .iter()
+        .filter(|s| s.holder == Holder::Player)
+        .fold(0.0, |sum, s| sum + s.share)
+}
+
+/// The person leaves a start-up for `proceeds`; the gain over what it paid is taxed at
+/// home.
+fn person_exit(state: &mut GameState, i: usize, proceeds: Money) {
+    let id = state.ventures[i].id;
+    let share = person_share(&state.ventures[i]);
+    remove_share(&mut state.ventures[i], Holder::Player, share);
+    let basis = state
+        .person
+        .venture_basis
+        .get(&id)
+        .copied()
+        .unwrap_or_default();
+    let rate = state.countries.get(state.person.home).dividend_tax;
+    crate::private::receive_venture(state, id, (proceeds, basis, rate));
+}
+
+/// `InvestPrivately` (PE5): the person pledges to the open round or buys shares of
+/// founders and investors between rounds, as a company would (SU2).
+pub(crate) fn invest_person(
+    state: &mut GameState,
+    catalog: &Catalog,
+    venture: u32,
+    amount: Money,
+) -> Result<(), CommandError> {
+    let m = &catalog.ventures;
+    let i = active(state, venture)?;
+    if amount <= Money::ZERO {
+        return Err(CommandError::InvalidAmount);
+    }
+    if state.person.account.balance < amount {
+        return Err(CommandError::NotEnoughPrivateMoney { needed: amount });
+    }
+    let v = &state.ventures[i];
+    if v.parent.is_some() {
+        return Err(CommandError::VentureOfOther);
+    }
+    let date = state.date;
+    if v.round_until.is_some() {
+        let open = v.capital - v.raised;
+        if amount > open {
+            return Err(CommandError::AmountTooHigh { max: open });
+        }
+        crate::private::pay_venture(state, venture, amount);
+        let v = &mut state.ventures[i];
+        v.person_pledge += amount;
+        v.raised += amount;
+        if v.raised >= v.capital {
+            close_round(m, v, date);
+            keep_parent(m, v);
+        }
+        return Ok(());
+    }
+    let price = value(m, v).scale(1.0 + m.stakes.buy_premium);
+    let outside: f64 = v
+        .owners
+        .iter()
+        .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+        .map(|s| s.share)
+        .sum();
+    if price <= Money::ZERO || outside <= 0.0 {
+        return Err(CommandError::AmountTooHigh { max: Money::ZERO });
+    }
+    let share = amount.to_usd() / price.to_usd();
+    if share > outside + 1e-12 {
+        return Err(CommandError::AmountTooHigh {
+            max: price.scale(outside),
+        });
+    }
+    crate::private::pay_venture(state, venture, amount);
+    let v = &mut state.ventures[i];
+    let sellers: Vec<Stake> = v
+        .owners
+        .iter()
+        .copied()
+        .filter(|s| matches!(s.holder, Holder::Private | Holder::Investors))
+        .collect();
+    for s in sellers {
+        remove_share(v, s.holder, share * s.share / outside);
+    }
+    add_share(v, Holder::Player, share);
+    Ok(())
 }
 
 fn remove_share(v: &mut Venture, holder: Holder, share: f64) {
@@ -1578,6 +1710,7 @@ fn spin_off_venture(
         status: VentureStatus::Active,
         blur: 2.0 * rng.next_f64() - 1.0,
         pledges: Vec::new(),
+        person_pledge: Money::ZERO,
         book: Vec::new(),
         grants: Vec::new(),
         parent: None,

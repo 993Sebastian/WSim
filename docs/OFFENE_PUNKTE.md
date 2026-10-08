@@ -1539,6 +1539,37 @@ entschieden:
    7½ Minuten. **Benchmark** 1 000 KI-Firmen bis März 1901 (mit einer Ausschüttung):
    26 s vorher wie nachher.
 
+✅ **PE5 umgesetzt** (Käufe und Verkäufe der Person, mehrere Firmen, Spielende; Vorgabe
+`docs/PERSON.md` §8–9; Regeln: `docs/FORMELN.md`, Abschnitt PE5; Format:
+`docs/DATENFORMAT.md`, `kaufmodell.anteile`). 🟡 Eigenständig entschieden:
+
+1. **Offene Preise statt Verhandlung:** Jeder Halter nennt seinen Preis (Firmenwert plus
+   20–50 % nach Ertragslage); ein Gebot darunter wird mit dem Mindestpreis abgelehnt. Kein
+   Gegenangebot, keine Sperrfrist – der Preis steht in der Ansicht.
+2. **Verkäufer:** Gründer, Anleger und KI-Firmen, die die Person nicht kontrolliert. Die
+   Person verkauft nur an Anleger, sofort, mit 5–20 % Abschlag; die Steuer auf den Gewinn
+   ist der Satz `steuer_dividenden` des Wohnsitzes (eine eigene Veräußerungsteuer gibt es
+   in den Länderdaten nicht).
+3. **Kontrolle:** Über 50 % direkt oder über eigene Firmen macht eine KI-Firma zur Firma
+   der Person (ohne KI, eine fremde Mutter fällt weg). Verliert sie die Kontrolle, wird die
+   Firma eine KI-Firma mit Charakter aus ihrem eigenen Zufallsstrom.
+4. **Wählbar als Hauptfirma** sind nur kontrollierte Firmen ohne KI-Leitung; eigenständig
+   geführte Töchter (W6) bleiben in der Hand ihrer Mutter. Nicht gewählte Firmen laufen
+   nach ihren Managern; deren Anliegen können verfallen, wenn die Person die Firma nicht
+   wählt.
+5. **Ohne Firma** bleiben Wettbewerb und Beteiligungen gesperrt (wie in PE3); Anteile
+   fremder Firmen kauft die Person erst wieder, wenn sie eine Firma führt. Verkaufen kann
+   sie ihre Anteile in der Personenansicht jederzeit, und dort steht auch immer die
+   Gründung einer weiteren Firma.
+6. **Übernahme der Hauptfirma** (K1): Sie wird KI-Tochter des Käufers, die Person behält
+   ihre Minderheit, und die nächste kontrollierte Firma wird Hauptfirma.
+7. **Start-ups privat:** Hält die Person beim Erfolg privat über 50 % und entsteht eine neue
+   Firma, ist es ihre (Einstand = Einzahlungen); sonst wird sie mit dem Wert ihres Anteils
+   ausgezahlt.
+8. **Spielende:** am Monatsende, wenn die Person nichts mehr hält und ihr Guthaben unter
+   der Untergrenze des Startgelds liegt oder nicht positiv ist. Pleite oder Übernahme der
+   Hauptfirma beenden das Spiel nicht mehr.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

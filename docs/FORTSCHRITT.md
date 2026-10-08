@@ -88,7 +88,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE2 | Spielerfigur: Person, Familie, Rollen | ✅ |
 | PE3 | Privatkonto und Spielstart ohne Firma | ✅ |
 | PE4 | Dividenden | ✅ |
-| PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ⏳ als Nächstes (`docs/PERSON.md`) |
+| PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ✅ |
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ⏳ als Nächstes (`docs/PERSON.md`) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
@@ -1056,6 +1056,26 @@ Vorgabe `docs/PERSON.md` §7. Regeln: `docs/FORMELN.md`, Abschnitt PE4; Entschei
 - **Tests:** Kern (Verteilung und Steuer, Kürzung, Verlust, Sonderausschüttung, Prüfung,
   KI nach Charakter, knappe Kasse, CEO-Anliegen mit Fristablauf und Wahl, Spielstand),
   Datenprüfung, vitest, Playwright; Weltlauf 1900–1930 und Benchmark 1 000 KI-Firmen.
+
+### PE5: Käufe und Verkäufe der Person, mehrere Firmen, Spielende (08.10.2026)
+
+Vorgabe `docs/PERSON.md` §8–9. Regeln: `docs/FORMELN.md`, Abschnitt PE5; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P (PE5).
+
+- **Daten:** `kaufmodell.anteile` (Prämie, gute Rendite, Abschlag) mit Prüfregeln und
+  Fehlerfall-Test.
+- **Kern:** Modul `holdings`: Preis der Halter nach Ertragslage, Kauf privat (`BuyStake`)
+  oder durch die Firma (`BidForStake`), Kontrolle übernehmen und verlieren (KI-Zustand),
+  Verkauf an Anleger mit Steuer auf den Gewinn (`SellStake`), Hauptfirma wählen
+  (`SelectCompany`), private Start-up-Beteiligung (`InvestPrivately`), beliebig viele
+  Gründungen, Spielende ohne Anteile und Geld; Pleite und Übernahme der Hauptfirma
+  beenden das Spiel nicht mehr.
+- **Oberfläche:** Eigner und Anteile in der Firmenansicht (Wettbewerb), Firmenwahl in der
+  Kopfzeile, Verkauf und Hauptfirma in der Ansicht Person, „Privat beteiligen“ bei
+  Start-ups.
+- **Tests:** Kern (KI-Firma kaufen, beide führen, eine verkaufen; Firma kauft von KI-Firma;
+  Pleite der Hauptfirma, Weiterspielen als Anleger; Spielende ohne Mittel; Spielstand;
+  Start-up privat mit Erfolg und Scheitern), Datenprüfung, vitest, Playwright.
 
 ## Eigenständige Entscheidungen (für das Review)
 

@@ -164,10 +164,19 @@ fn founding_takes_the_capital_and_its_costs() {
             .iter()
             .any(|e| matches!(e.kind, LifeEventKind::Founded { .. }))
     );
-    assert_eq!(
-        game.apply(attempt(1000.0)),
-        Err(CommandError::AlreadyFounded)
-    );
+    // A second founding (PE5): the first stays main company, the person its CEO.
+    let country = game.catalog().countries.id("AAA").unwrap();
+    game.apply(Command::FoundCompany {
+        name: "Zweite AG".into(),
+        form: StartForm::Investor,
+        country,
+        capital: usd(20_000.0),
+    })
+    .unwrap();
+    let state = game.state();
+    assert_eq!(state.main_company, Some(id));
+    assert_eq!(state.person.ceo, Some(id));
+    assert_eq!(crate::private::controlled(state).len(), 2);
     // The company acts from now on.
     assert!(views::overview(&game).company.is_some());
 }
@@ -340,7 +349,8 @@ fn the_lifestyle_changes_from_the_next_month_and_once_a_year() {
 
 #[test]
 fn an_empty_account_lowers_the_lifestyle() {
-    let mut game = new_game(false, 100.0);
+    // Founded at the start: the account begins empty, the company keeps the game going.
+    let mut game = new_game(true, 100_000.0);
     let keys = to_next_month(&mut game);
     assert!(
         keys.iter().any(|k| k == keys::PERSON_ACCOUNT_SHORT),

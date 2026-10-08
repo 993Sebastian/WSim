@@ -792,6 +792,9 @@ pub struct Venture {
     /// Pledges of companies to the open round, in the order given (SU2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub pledges: Vec<(CompanyId, Money)>,
+    /// The person's pledge to the open round (PE5).
+    #[serde(default, skip_serializing_if = "no_money")]
+    pub person_pledge: Money,
     /// What each company paid for its shares and pledges, not yet sold or written off.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub book: Vec<(CompanyId, Money)>,
@@ -1101,6 +1104,10 @@ pub struct AiState {
     /// What its managers add to its competence (MA6), set at every month start.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub staff: f64,
+}
+
+fn no_money(m: &Money) -> bool {
+    *m == Money::ZERO
 }
 
 fn is_zero(x: &f64) -> bool {
@@ -1858,6 +1865,9 @@ pub struct Person {
     /// What the person paid in per company and has not taken back (Einstandswert).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub cost_basis: BTreeMap<CompanyId, Money>,
+    /// What the person paid for its shares and pledges of start-ups, by start-up (PE5).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub venture_basis: BTreeMap<u32, Money>,
 }
 
 impl Default for Person {
@@ -1875,6 +1885,7 @@ impl Default for Person {
             lifestyles: Vec::new(),
             short_since: None,
             cost_basis: BTreeMap::new(),
+            venture_basis: BTreeMap::new(),
         }
     }
 }
@@ -1912,6 +1923,12 @@ pub enum PrivateFlow {
     Dividend,
     /// The withholding tax on them.
     DividendTax,
+    /// Shares of companies and start-ups bought (PE5).
+    StakeBought,
+    /// Shares sold or paid out.
+    StakeSold,
+    /// Tax on the gain of a sale.
+    GainTax,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -2013,6 +2030,16 @@ pub enum LifeEventKind {
     /// The person changed the lifestyle (PE3).
     LifestyleChanged {
         level: Lifestyle,
+    },
+    /// The person bought the majority of a company (PE5).
+    TookControl {
+        company: CompanyId,
+    },
+    /// The person sold shares of a company to investors (PE5).
+    Sold {
+        company: CompanyId,
+        share: f64,
+        proceeds: Money,
     },
 }
 

@@ -639,6 +639,39 @@ fn kaufmodell_wird_geprueft() {
 }
 
 #[test]
+fn anteile_werden_geprueft() {
+    let datei = "parameter/kaufmodell.yaml";
+    let gut = Daten::neu().laden();
+    let m = &gut.data.as_ref().unwrap().catalog.deal_model.stakes;
+    assert_eq!(m.premium_max, 0.5);
+    assert_eq!(m.discount_min, 0.05);
+    for (alt, neu, meldung, pfad) in [
+        (
+            "praemie_min: 0.2",
+            "praemie_min: 0.8",
+            "„praemie_min“ muss kleiner als „praemie_max“ sein.",
+            "kaufmodell.anteile",
+        ),
+        (
+            "abschlag_max: 0.2",
+            "abschlag_max: 0.95",
+            "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+            "kaufmodell.anteile.abschlag_max",
+        ),
+        (
+            "rendite_gut: 0.15",
+            "rendite_gut: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+            "kaufmodell.anteile.rendite_gut",
+        ),
+    ] {
+        let outcome = Daten::neu().ersetze(datei, alt, neu).laden();
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+}
+
+#[test]
 fn grundstuecksmodell_wird_geprueft() {
     let datei = "parameter/grundstuecksmodell.yaml";
     let d = Daten::neu()

@@ -103,8 +103,8 @@ fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.
 fehler.befehl.kredit_zu_hoch: Die Bank leiht höchstens {limit}.
 fehler.befehl.laufzeit_ungueltig: Die Laufzeit muss zwischen 1 und {max} Jahren liegen.
 fehler.befehl.kredit_unbekannt: Diesen Kredit gibt es nicht.
-meldung.spielende_uebernahme: "{kaeufer} hat die Mehrheit an deiner Firma gekauft. Du hast die Kontrolle verloren – die Partie ist zu Ende."
-meldung.spielende_insolvenz: Die Firma ist zahlungsunfähig, und keine Bank gibt mehr Kredit. Die Partie ist zu Ende.
+meldung.spielende_uebernahme: "{kaeufer} hat die Mehrheit an deiner Firma gekauft. Du hast die Kontrolle verloren; deine Anteile behältst du."
+meldung.spielende_insolvenz: "Deine Hauptfirma ist zahlungsunfähig. Ihre Standorte werden versteigert; du spielst mit deinem Privatvermögen und deinen übrigen Anteilen weiter."
 meldung.firma_insolvent: „{firma}“ ist zahlungsunfähig.
 meldung.firma_insolvent_versteigerung: "„{firma}“ ist zahlungsunfähig. Ihre {anzahl} Standorte werden bis {datum} versteigert – Gebote ab dem halben Grundwert unter „Wettbewerb“."
 meldung.versteigerung.ersteigert: "Ersteigert: {art} in {land} aus der Insolvenz von „{firma}“ für {preis}."
@@ -183,6 +183,8 @@ fehler.befehl.gehalt_zu_hoch: "Mit Mitgesellschaftern darf dein Gehalt höchsten
 fehler.befehl.darlehen_bedingungen: "Ein Darlehen braucht einen Zins von 0 bis {zins} % und eine Laufzeit von 1 bis {jahre} Jahren."
 fehler.befehl.rueckzahlung_zu_hoch: "Die Firma kann dir höchstens {max} zurückzahlen: nicht mehr als deine Einlagen, und die Liquiditätsreserve bleibt in der Kasse."
 fehler.befehl.nicht_alleineigentuemer: Kapital zurückzahlen geht nur, solange dir die Firma ganz gehört.
+fehler.befehl.kein_verkaeufer: "Dieser Eigner verkauft dir keine Anteile: Anteile von dir selbst, der kaufenden Firma oder einer Firma, die du kontrollierst, gehören schon zu dir."
+fehler.befehl.preis_zu_niedrig: "Zu diesem Preis verkauft der Eigner nicht – er verlangt mindestens {min}."
 fehler.befehl.dividende_zu_hoch: "So viel kann die Firma nicht ausschütten: höchstens {max} (Gewinnrücklagen, und die Liquiditätsreserve bleibt in der Kasse)."
 fehler.befehl.kein_ruhestand: Der Manager geht nicht in den nächsten Monaten in den Ruhestand.
 fehler.befehl.verlaengerung_zu_lang: "Verlängern geht höchstens um {jahre} Jahre."
@@ -481,3 +483,8 @@ meldung.folge.enteignung: "Enteignung in {laender}: Standorte von Firmen aus and
 meldung.folge.enteignung_alle: "Enteignung in {laender}: Alle privaten Standorte gehen an den Staat (Entschädigung {entschaedigung} % des Buchwerts)."
 meldung.folge.boersenkrach: "Börsenkrach: Die Stimmung an der Börse bricht um {einbruch} % ein."
 folge.alle_waren: alle Waren
+meldung.anteile.kontrolle: "Du hältst jetzt die Mehrheit an {firma}: Sie ist deine Firma. Über die Firmenwahl in der Kopfzeile steuerst du sie."
+meldung.anteile.ki_firma: "Du hast die Mehrheit an {firma} abgegeben; die Firma führt sich nun selbst."
+meldung.anteile.hauptfirma: "{firma} ist jetzt deine Hauptfirma."
+meldung.anteile.keine_hauptfirma: "Du hast keine eigene Firma mehr. Als Investor kannst du gründen, Anteile kaufen und in Start-ups investieren."
+meldung.spielende_mittellos: "Du hältst keine Anteile mehr, und dein Guthaben reicht nicht mehr für eine Gründung (mindestens {betrag}). Die Partie ist zu Ende."

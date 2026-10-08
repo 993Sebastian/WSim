@@ -197,14 +197,14 @@ pub fn issue_proceeds(before: Money, share: f64) -> Money {
     before.scale(share / (1.0 - share))
 }
 
-fn add_share(owners: &mut Vec<Stake>, holder: Holder, share: f64) {
+pub(crate) fn add_share(owners: &mut Vec<Stake>, holder: Holder, share: f64) {
     match owners.iter_mut().find(|s| s.holder == holder) {
         Some(s) => s.share += share,
         None => owners.push(Stake { holder, share }),
     }
 }
 
-fn remove_share(owners: &mut Vec<Stake>, holder: Holder, share: f64) {
+pub(crate) fn remove_share(owners: &mut Vec<Stake>, holder: Holder, share: f64) {
     if let Some(s) = owners.iter_mut().find(|s| s.holder == holder) {
         s.share -= share;
     }
@@ -439,7 +439,12 @@ pub(crate) fn sell(
 
 /// Books the sale of `share` of a holding `held` in `target` for `proceeds`: the cost of
 /// the shares sold leaves the participations, the difference is a gain or a loss.
-fn realize(seller: &mut Company, target: CompanyId, (held, share): (f64, f64), proceeds: Money) {
+pub(crate) fn realize(
+    seller: &mut Company,
+    target: CompanyId,
+    (held, share): (f64, f64),
+    proceeds: Money,
+) {
     let cost_all = seller.stock_cost.get(&target).copied().unwrap_or_default();
     let cost = if share >= held - 1e-12 || held <= 0.0 {
         cost_all
@@ -567,9 +572,8 @@ pub(crate) fn take_over(
         parent: actor,
         focus: crate::group::SubsidiaryFocus::Production,
     });
-    if state.is_main(target_company) {
-        state.game_over = true;
-    }
+    // The person keeps its minority; the company is the buyer's now (PE5).
+    crate::holdings::lose_control(state, catalog, target_company);
     Ok(())
 }
 
