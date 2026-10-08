@@ -381,6 +381,22 @@ enum Seller {
     Importer,
 }
 
+/// Working lists of `clear_market`, kept across markets: allocating them anew for each
+/// market and day was a good part of the work with many products (P0).
+#[derive(Default)]
+struct Scratch {
+    offers: Vec<Offer>,
+    available_before: Vec<f64>,
+    by_price: Vec<usize>,
+    buyers: Vec<(SiteId, f64, Money, f64)>,
+    presence: Vec<f64>,
+    brand: Vec<f64>,
+    weights: Vec<f64>,
+    log_relative: Vec<f64>,
+    attraction: Vec<f64>,
+    outputs: Vec<Option<Vec<SiteOutput>>>,
+}
+
 /// A seller on one market for one day.
 struct Offer {
     seller: Seller,
@@ -415,7 +431,7 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
     // day's work.
     let mut traders: Vec<Traders> = vec![BTreeMap::new(); catalog.products.len()];
     // Markets to clear today, by product.
-    let mut active: BTreeMap<ProductId, BTreeSet<CountryId>> = BTreeMap::new();
+    let mut active: Vec<BTreeSet<CountryId>> = vec![BTreeSet::new(); catalog.products.len()];
     for (i, site) in state.sites.iter().enumerate() {
         let trades = !site.offers.is_empty() || !site.orders.is_empty();
         if trades && !state.companies[site.owner.index()].bankrupt {
@@ -425,21 +441,22 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
                 if list.last() != Some(&id) {
                     list.push(id);
                 }
-                active.entry(product).or_default().insert(site.country);
+                active[product.index()].insert(site.country);
             }
         }
     }
     for &(product, country) in &state.import_markets {
-        active.entry(product).or_default().insert(country);
+        active[product.index()].insert(country);
     }
     let in_transit = trade::to_importers(state);
     let model = &catalog.market_model;
+    let mut scratch = Scratch::default();
     for (product, _) in catalog.products.iter() {
         let traders = &traders[product.index()];
         let plan = trade::plan(state, catalog, product, traders, &in_transit);
         // Demand abroad the traders could not buy for counts as scarcity too.
         let export_shortage = plan.unserved > 1e-9;
-        let mut markets = active.remove(&product).unwrap_or_default();
+        let mut markets = std::mem::take(&mut active[product.index()]);
         markets.extend(
             plan.buys
                 .iter()
@@ -468,6 +485,7 @@ pub(crate) fn clear(state: &mut GameState, catalog: &Catalog, date: Date) {
                 traders.get(&country).map_or(&[], Vec::as_slice),
                 (state_price, plan.replacement.get(&country).copied()),
                 (&exports, export_shortage),
+                &mut scratch,
             );
             // From tomorrow on the market rests again unless something happens.
             let m = state.markets.get_mut(product).get_mut(country);
@@ -607,6 +625,7 @@ fn clear_market(
     sites: &[SiteId],
     (state_market_price, replacement): (Option<Money>, Option<Money>),
     (exports, export_shortage): (&[PlannedBuy], bool),
+    scratch: &mut Scratch,
 ) {
     // A ban on sales closes the market (H2).
     if state.regulation.sales_banned(country, product) {
@@ -614,7 +633,19 @@ fn clear_market(
     }
     let model = &catalog.market_model;
     let reference = local_reference(catalog, state, country, product).to_usd();
-    let mut offers: Vec<Offer> = Vec::new();
+    let Scratch {
+        offers,
+        available_before,
+        by_price,
+        buyers,
+        presence,
+        brand,
+        weights,
+        log_relative,
+        attraction,
+        outputs,
+    } = scratch;
+    offers.clear();
     let offer = |seller, price, available, quality| Offer {
         seller,
         price,
@@ -662,8 +693,10 @@ fn clear_market(
     if let Some(price) = state_market_price {
         offers.push(offer(Seller::StateMarket, price, f64::INFINITY, 50.0));
     }
-    let available_before: Vec<f64> = offers.iter().map(|o| o.available).collect();
-    let mut by_price: Vec<usize> = (0..offers.len()).collect();
+    available_before.clear();
+    available_before.extend(offers.iter().map(|o| o.available));
+    by_price.clear();
+    by_price.extend(0..offers.len());
     by_price.sort_by(|&a, &b| offers[a].price.cmp(&offers[b].price).then(a.cmp(&b)));
     let mut day = Trade::default();
     let mut flows = Flows::default();
@@ -672,25 +705,23 @@ fn clear_market(
     let mut consumers_unmet = false;
 
     // 1. Industry: purchase orders, highest willingness to pay first.
-    let mut buyers: Vec<(SiteId, f64, Money, f64)> = sites
-        .iter()
-        .filter_map(|&site| {
-            let s = &state.sites[site.index()];
-            let order = s.orders.get(&product)?;
-            let stock = s.inventory.get(&product).map_or(0.0, |st| st.quantity);
-            Some((
-                site,
-                (order.target - stock).max(0.0),
-                order.max_price,
-                order.min_quality,
-            ))
-        })
-        .collect();
+    buyers.clear();
+    buyers.extend(sites.iter().filter_map(|&site| {
+        let s = &state.sites[site.index()];
+        let order = s.orders.get(&product)?;
+        let stock = s.inventory.get(&product).map_or(0.0, |st| st.quantity);
+        Some((
+            site,
+            (order.target - stock).max(0.0),
+            order.max_price,
+            order.min_quality,
+        ))
+    }));
     buyers.sort_by(|a, b| b.2.cmp(&a.2).then(a.0.cmp(&b.0)));
-    for (site, mut need, max_price, min_quality) in buyers {
+    for &(site, mut need, max_price, min_quality) in buyers.iter() {
         day.demand += need;
         let owner = state.sites[site.index()].owner;
-        for &i in &by_price {
+        for &i in by_price.iter() {
             if need <= 1e-9 {
                 break;
             }
@@ -747,7 +778,7 @@ fn clear_market(
         day.outside_demand += state_need;
         let cap = state_price_limit(catalog, state, country, product);
         let mut need = state_need;
-        for &i in &by_price {
+        for &i in by_price.iter() {
             if need <= 1e-9 {
                 break;
             }
@@ -777,35 +808,38 @@ fn clear_market(
     // 3. Consumers: richest layer first; sellers chosen by attractiveness (logit) of
     // price, quality and brand, weighted by their presence in the shops (M16).
     let rates = state.markets.get(product).get(country).consumer_rate;
-    let presence: Vec<f64> = offers
-        .iter()
-        .map(|o| match o.seller {
+    presence.clear();
+    presence.extend(offers.iter().map(|o| {
+        match o.seller {
             Seller::Site { site, .. } => {
-                production_rate(state, catalog, site, product, date)
+                site_output(outputs, (state, catalog, date), site, product)
+                    .map_or(empty_sum(), |x| x.rate)
                     + o.available / model.stock_days
             }
             Seller::Importer => o.available / model.stock_days,
             Seller::StateMarket => rates.iter().sum(),
-        })
-        .collect();
+        }
+    }));
     let group = catalog.products.get(product).goods_group;
-    let brand: Vec<f64> = offers
-        .iter()
-        .map(|o| match o.seller {
-            Seller::Site { owner, .. } => state.companies[owner.index()].awareness(country, group),
-            Seller::Importer => model.brand.trade_awareness,
-            Seller::StateMarket => model.brand.state_market_awareness,
-        })
-        .collect();
+    brand.clear();
+    brand.extend(offers.iter().map(|o| match o.seller {
+        Seller::Site { owner, .. } => state.companies[owner.index()].awareness(country, group),
+        Seller::Importer => model.brand.trade_awareness,
+        Seller::StateMarket => model.brand.state_market_awareness,
+    }));
     let mut bought = [0.0; 5];
-    let mut weights = vec![0.0; offers.len()];
+    weights.clear();
+    weights.resize(offers.len(), 0.0);
     // Price, quality and brand do not change while the layers buy: the attraction of
     // an offer is computed once per layer, only what is left changes.
-    let log_relative: Vec<f64> = offers
-        .iter()
-        .map(|o| math::ln((o.price.to_usd() / reference).max(1e-6)))
-        .collect();
-    let mut attraction = vec![0.0; offers.len()];
+    log_relative.clear();
+    log_relative.extend(
+        offers
+            .iter()
+            .map(|o| math::ln((o.price.to_usd() / reference).max(1e-6))),
+    );
+    attraction.clear();
+    attraction.resize(offers.len(), 0.0);
     for q in (0..5).rev() {
         let mut need = rates[q];
         day.demand += need;
@@ -913,8 +947,11 @@ fn clear_market(
         // Slow: stock for more than `stock_days`, or own facilities idling below the
         // normal utilization (they compete for customers instead of standing still).
         let idle = match o.seller {
-            Seller::Site { site, .. } => utilization(state, catalog, site, product, date)
-                .is_some_and(|u| u < model.normal_utilization),
+            Seller::Site { site, .. } => {
+                site_output(outputs, (state, catalog, date), site, product)
+                    .filter(|x| x.full > 1e-9)
+                    .is_some_and(|x| x.planned / x.full < model.normal_utilization)
+            }
             Seller::Importer | Seller::StateMarket => false,
         };
         let slow = before > 0.0 && (o.sold < before / model.stock_days || idle) && !scarce;
@@ -973,54 +1010,87 @@ fn clear_market(
     market.record_day(day);
 }
 
-/// Planned share of the capacity of the facilities making a product (main product) at
-/// a site, if it has any.
-fn utilization(
-    state: &GameState,
-    catalog: &Catalog,
-    site: SiteId,
-    product: ProductId,
-    date: Date,
-) -> Option<f64> {
-    let (planned, full) = state.sites[site.index()]
-        .slots
-        .iter()
-        .filter(|sl| sl.operating(date))
-        .filter_map(|sl| {
-            let r = catalog.recipes.get(sl.recipe?);
-            (r.product == product).then(|| {
-                let full = sl.full_runs(catalog) * r.output;
-                (full * sl.utilization, full)
-            })
-        })
-        .fold((0.0, 0.0), |(p, f), (a, b)| (p + a, f + b));
-    (full > 1e-9).then(|| planned / full)
+/// What the finished facilities of a site make today, per product (P0: computed once a
+/// day per site; scanning all facilities for every offer grew with the square of the
+/// products).
+#[derive(Clone, Copy)]
+pub(crate) struct SiteOutput {
+    pub product: ProductId,
+    /// Planned daily output: main and by-products at their planned utilization.
+    pub rate: f64,
+    /// Planned and full output of the facilities making it as main product.
+    pub planned: f64,
+    pub full: f64,
 }
 
-/// Planned daily output of a product at a site: main and by-products of its finished
-/// facilities at their planned utilization.
-fn production_rate(
+pub(crate) fn site_outputs(
     state: &GameState,
     catalog: &Catalog,
     site: SiteId,
-    product: ProductId,
     date: Date,
-) -> f64 {
-    state.sites[site.index()]
-        .slots
+) -> Vec<SiteOutput> {
+    // Sums run in the order of the facilities, as the sums per product did before.
+    let empty: f64 = std::iter::empty::<f64>().sum();
+    let mut out: Vec<SiteOutput> = Vec::new();
+    let entry = |out: &mut Vec<SiteOutput>, product: ProductId| -> usize {
+        out.iter()
+            .position(|o| o.product == product)
+            .unwrap_or_else(|| {
+                out.push(SiteOutput {
+                    product,
+                    rate: empty,
+                    planned: 0.0,
+                    full: 0.0,
+                });
+                out.len() - 1
+            })
+    };
+    for sl in &state.sites[site.index()].slots {
+        if !sl.operating(date) {
+            continue;
+        }
+        let Some(recipe) = sl.recipe else {
+            continue;
+        };
+        let r = catalog.recipes.get(recipe);
+        let full_runs = sl.full_runs(catalog);
+        let runs = full_runs * sl.utilization;
+        let main = entry(&mut out, r.product);
+        out[main].rate += runs * r.output;
+        let full = full_runs * r.output;
+        out[main].planned += full * sl.utilization;
+        out[main].full += full;
+        // The first entry of a by-product counts, as `find` did.
+        for (k, &(p, amount)) in r.by_products.iter().enumerate() {
+            if p != r.product && r.by_products[..k].iter().all(|&(q, _)| q != p) {
+                let i = entry(&mut out, p);
+                out[i].rate += runs * amount;
+            }
+        }
+    }
+    out
+}
+
+/// The output of a site for a product, computed once a day.
+fn site_output(
+    cache: &mut Vec<Option<Vec<SiteOutput>>>,
+    (state, catalog, date): (&GameState, &Catalog, Date),
+    site: SiteId,
+    product: ProductId,
+) -> Option<SiteOutput> {
+    if cache.len() < state.sites.len() {
+        cache.resize(state.sites.len(), None);
+    }
+    cache[site.index()]
+        .get_or_insert_with(|| site_outputs(state, catalog, site, date))
         .iter()
-        .filter(|sl| sl.operating(date))
-        .filter_map(|sl| {
-            let r = catalog.recipes.get(sl.recipe?);
-            let per_run = if r.product == product {
-                r.output
-            } else {
-                r.by_products.iter().find(|(p, _)| *p == product)?.1
-            };
-            let runs = sl.full_runs(catalog) * sl.utilization;
-            Some(runs * per_run)
-        })
-        .sum()
+        .find(|o| o.product == product)
+        .copied()
+}
+
+/// The sum of no values, as `Iterator::sum` gives it.
+fn empty_sum() -> f64 {
+    std::iter::empty::<f64>().sum()
 }
 
 /// Daily step of an automatic price: up when sold out with demand left, down when

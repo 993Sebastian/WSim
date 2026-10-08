@@ -364,7 +364,17 @@ dem Start ohne Firma); Abweichungen zur Abnahme in `docs/OFFENE_PUNKTE.md`. Reih
 | H1 | Ereignisfolgen | Krieg, Krisen, Embargos wirken auf Märkte, Handel und Firmen | Prüfregeln, Weltlauf |
 | H2 | Regulierung und Umwelt | Auflagen, Emissionen, Kartellaufsicht | Prüfregeln, Szenariotests |
 | H3 | Rüstung | Rüstungsgüter und Staatsbedarf im Krieg | Prüfregeln, Weltlauf |
-| P1–P5 | Breite | Rund 500 Endprodukte in Epochenpaketen, Luft- und Raumfahrt | Prüfregeln, Weltläufe |
+| P0 | Vorbereitung der Breite | Weltläufe unabhängig vom Spieler, Leistung bei vielen Produkten (Messung mit vervielfachten Ketten), Suche und Filter in Produktlisten, Datenwerkzeug Tabelle → YAML mit Plausibilitätsbericht | Benchmark, Determinismus, Oberflächentests |
+| P1a | Lebensmittel und Getränke | rund 50 Endprodukte über alle Epochen | Prüfregeln, Weltlauf |
+| P1b | Textil, Bekleidung, Schuhe, Leder | rund 40 | Prüfregeln, Weltlauf |
+| P1c | Möbel, Haushaltswaren, Baustoffe | rund 45 | Prüfregeln, Weltlauf |
+| P2a | Chemie, Pharma, Kosmetik, Kunststoffwaren | rund 50 | Prüfregeln, Weltlauf |
+| P2b | Metallwaren, Werkzeuge, Maschinen und Anlagen | rund 50 | Prüfregeln, Weltlauf |
+| P3a | Fahrzeuge: Zweiräder, Pkw-Klassen, Nutzfahrzeuge, Schiene, Schiffe | rund 40 | Prüfregeln, Weltlauf |
+| P3b | Luft- und Raumfahrt (5–6 Ebenen) | rund 40 | Prüfregeln, Weltlauf |
+| P4a | Elektrotechnik und Haushaltsgeräte | rund 45 | Prüfregeln, Weltlauf |
+| P4b | Elektronik, IT, Kommunikation | rund 50 | Prüfregeln, Weltlauf |
+| P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit; Abschluss-Weltlauf 1900–2026 mit Balance | rund 50 | Prüfregeln, Weltlauf |
 | P6 | Reale Firmen | Reale Firmen treten mit ihrem Gründungsjahr auf | Prüfregeln, Weltlauf |
 | P7 | Patente | Patente auf Erfindungen, Lizenzen, Ablauf | Szenariotests |
 

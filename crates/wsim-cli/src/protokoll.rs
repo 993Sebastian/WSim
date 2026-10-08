@@ -178,14 +178,17 @@ fn usd(m: wsim_core::money::Money) -> f64 {
 impl Protocol {
     pub fn new(game: &Game) -> Self {
         let state = game.state();
-        let player = &state.companies[game.player().index()];
+        let player_equity = game
+            .main_company()
+            .map(|p| &state.companies[p.index()])
+            .map_or(0.0, |p| {
+                usd(p.ledger.total_assets() - p.ledger.balance(Account::Loans))
+            });
         Self {
             month: Some((game.date().year(), game.date().month())),
             companies_before: state.companies.len(),
             ai_at_start: state.companies.iter().filter(|c| c.ai.is_some()).count(),
-            player_start_equity_usd: usd(
-                player.ledger.total_assets() - player.ledger.balance(Account::Loans)
-            ),
+            player_start_equity_usd: player_equity,
             ..Self::default()
         }
     }
@@ -441,7 +444,8 @@ impl Protocol {
             .map(|c| usd(c.ledger.total_assets() - c.ledger.balance(Account::Loans)))
             .collect();
         equity.sort_by(f64::total_cmp);
-        let player = &state.companies[game.player().index()];
+        // Without a company of the player (`--nur-welt`) its columns stay 0.
+        let player = game.main_company().map(|p| &state.companies[p.index()]);
         self.companies.push(CompanyYear {
             year,
             active: ai.iter().filter(|c| !c.bankrupt).count(),
@@ -460,11 +464,13 @@ impl Protocol {
                 })
                 .count(),
             median_equity_usd: equity.get(equity.len() / 2).copied().unwrap_or(0.0),
-            player_equity_usd: usd(
-                player.ledger.total_assets() - player.ledger.balance(Account::Loans)
-            ),
-            player_cash_usd: usd(player.ledger.cash()),
-            player_result_usd: player.ledger.years.last().map_or(0.0, |y| usd(y.total())),
+            player_equity_usd: player.map_or(0.0, |p| {
+                usd(p.ledger.total_assets() - p.ledger.balance(Account::Loans))
+            }),
+            player_cash_usd: player.map_or(0.0, |p| usd(p.ledger.cash())),
+            player_result_usd: player
+                .and_then(|p| p.ledger.years.last())
+                .map_or(0.0, |y| usd(y.total())),
         });
         self.companies_before = state.companies.len();
         self.close_manager_year(game, year);

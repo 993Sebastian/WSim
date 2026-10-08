@@ -117,6 +117,10 @@ struct RunArgs {
     /// Privatkonto und Vermögen ausgeben
     #[arg(long)]
     als_person: bool,
+    /// Nur die Welt laufen lassen (P0): die Person beginnt ohne Firma mit so viel Geld,
+    /// dass die Partie nicht endet; für Weltläufe und Benchmarks unabhängig vom Spieler
+    #[arg(long, conflicts_with = "als_person")]
+    nur_welt: bool,
     /// Lebensstil der Person (bescheiden, buergerlich, gehoben, luxurioes)
     #[arg(long)]
     lebensstil: Option<String>,
@@ -485,7 +489,12 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 seed: args.seed,
                 start_year: args.startjahr,
                 start_country,
-                start_capital: Money::from_usd(args.kapital).unwrap_or(Money::ZERO),
+                start_capital: Money::from_usd(if args.nur_welt {
+                    WORLD_ONLY_MONEY_USD
+                } else {
+                    args.kapital
+                })
+                .unwrap_or(Money::ZERO),
                 start_form: start_form(args.startform),
                 company_name: args.name.clone(),
                 research_ahead_factor: 1.0,
@@ -494,7 +503,7 @@ fn run(args: &RunArgs) -> Result<(), String> {
                 ventures: venture_factor(&catalog, args)?,
                 tariff_dynamics: tariff_factor(&catalog, args)?,
                 event_effects: !args.ohne_folgen,
-                found_at_start: !args.als_person,
+                found_at_start: !args.als_person && !args.nur_welt,
                 person: Default::default(),
             };
             let mut game =
@@ -590,6 +599,10 @@ fn start_form(form: Startform) -> StartForm {
 }
 
 /// Founds the company of a game started as a person with the suggested capital.
+/// Start money of the person in `run --nur-welt`: enough to live on for two centuries,
+/// small against the world's companies (it buys nothing).
+const WORLD_ONLY_MONEY_USD: f64 = 1.0e9;
+
 fn found_as_person(
     game: &mut Game,
     args: &RunArgs,

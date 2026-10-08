@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { Zahlart } from "../zahleingabe";
-import { ZahlFeld } from "./gemeinsam";
+import { SUCHE_AB, SuchAuswahl, ZahlFeld } from "./gemeinsam";
 
 /** A number field whose parent keeps the text and shows the number it was given. */
 function Formular({ anfang = "", ...art }: Zahlart & { anfang?: string }) {
@@ -129,5 +129,51 @@ describe("ZahlFeld", () => {
     tippen(feld, "5");
     expect(feld.value).toBe("-5");
     expect(feld.getAttribute("aria-invalid")).toBeNull();
+  });
+});
+
+describe("SuchAuswahl", () => {
+  afterEach(cleanup);
+
+  function Liste({ zahl }: { zahl: number }) {
+    const [wert, setWert] = useState("");
+    const optionen = Array.from({ length: zahl }, (_, i) => ({
+      wert: `p${i}`,
+      text: i === 7 ? "Stahlrohr" : `Ware ${i}`,
+    }));
+    return (
+      <>
+        <label htmlFor="liste">Produkt</label>
+        <SuchAuswahl
+          id="liste"
+          name="Produkt"
+          wert={wert}
+          leer="–"
+          optionen={optionen}
+          onWahl={setWert}
+        />
+        <output>{wert}</output>
+      </>
+    );
+  }
+
+  it("zeigt kurze Listen ohne Suchfeld", () => {
+    render(<Liste zahl={SUCHE_AB - 1} />);
+    expect(screen.queryByRole("searchbox")).toBeNull();
+    expect(screen.getAllByRole("option")).toHaveLength(SUCHE_AB);
+  });
+
+  it("filtert lange Listen und wählt den ersten Treffer", () => {
+    render(<Liste zahl={40} />);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Liste durchsuchen" }), {
+      target: { value: "stahl" },
+    });
+    expect(screen.getByRole("status", { hidden: true }).textContent).toBe("p7");
+    const texte = screen.getAllByRole("option").map((o) => o.textContent);
+    expect(texte).toEqual(["–", "Stahlrohr"]);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "xyz" } });
+    expect(screen.getByText("Kein Treffer")).toBeTruthy();
+    // The chosen product stays selectable.
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["–", "Stahlrohr"]);
   });
 });

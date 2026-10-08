@@ -11,7 +11,7 @@ use std::collections::{BTreeMap, BinaryHeap};
 
 use crate::calendar::Date;
 use crate::catalog::Catalog;
-use crate::ids::{CountryId, ProductId};
+use crate::ids::{CountryId, Id, ProductId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::market;
 use crate::message::Message;
@@ -88,6 +88,18 @@ pub(crate) fn to_importers(state: &GameState) -> BTreeMap<(ProductId, CountryId)
         }
     }
     sums
+}
+
+/// The markets holding imports of one product, by country (a range instead of a scan:
+/// the set holds all products).
+pub(crate) fn import_markets_of(
+    state: &GameState,
+    product: ProductId,
+) -> std::collections::btree_set::Range<'_, (ProductId, CountryId)> {
+    state.import_markets.range(
+        (product, CountryId::from_index(0))
+            ..=(product, CountryId::from_index(usize::from(u16::MAX))),
+    )
 }
 
 /// Transport per unit, days and tariff from one country to another.
@@ -172,10 +184,7 @@ pub(crate) fn plan(
             .or_insert(s.price);
     }
     let mut replacement = BTreeMap::new();
-    for &(p, country) in &state.import_markets {
-        if p != product {
-            continue;
-        }
+    for &(_, country) in import_markets_of(state, product) {
         let cheapest = cheapest_from
             .iter()
             .filter(|&(&(from, _), _)| from != country)
@@ -209,6 +218,19 @@ pub(crate) fn plan(
         /// on top
         candidates: BinaryHeap<Reverse<(Money, usize, Money, u32)>>,
     }
+    // The route depends on the countries and the sea freight factor only: sources are
+    // grouped by both, and each group's route is looked up once per destination.
+    let mut groups: BTreeMap<(CountryId, u64), usize> = BTreeMap::new();
+    let group_of: Vec<usize> = sources
+        .iter()
+        .map(|s| {
+            let next = groups.len();
+            *groups
+                .entry((s.country, s.sea_freight.to_bits()))
+                .or_insert(next)
+        })
+        .collect();
+    let mut routes: Vec<Option<Option<Leg>>> = vec![None; groups.len()];
     let mut destinations: Vec<Destination> = Vec::new();
     for country in catalog.countries.ids() {
         let m = state.markets.get(product).get(country);
@@ -236,29 +258,26 @@ pub(crate) fn plan(
         let ceiling = market::local_reference(catalog, state, country, product)
             .scale(model.price_max_factor)
             .max(price);
-        // The route depends on the countries and the sea freight factor only: looked up
-        // once for each.
         // With the tariff on top (W3); `None` under an embargo.
-        let mut routes: BTreeMap<(CountryId, u64), Option<Leg>> = BTreeMap::new();
-        let mut candidates: Vec<Reverse<(Money, usize, Money, u32)>> = Vec::new();
+        routes.fill(None);
+        let mut candidates: Vec<Reverse<(Money, usize, Money, u32)>> =
+            Vec::with_capacity(sources.len());
         for (i, s) in sources.iter().enumerate() {
             if s.country == country {
                 continue;
             }
-            let route = *routes
-                .entry((s.country, s.sea_freight.to_bits()))
-                .or_insert_with(|| {
-                    let tariff = state
-                        .tariffs
-                        .for_product(catalog, s.country, country, product)?;
-                    let (transport, days) = state.routes.for_product_via(
-                        catalog,
-                        product,
-                        (s.country, country),
-                        s.sea_freight,
-                    )?;
-                    Some((transport, days, tariff))
-                });
+            let route = *routes[group_of[i]].get_or_insert_with(|| {
+                let tariff = state
+                    .tariffs
+                    .for_product(catalog, s.country, country, product)?;
+                let (transport, days) = state.routes.for_product_via(
+                    catalog,
+                    product,
+                    (s.country, country),
+                    s.sea_freight,
+                )?;
+                Some((transport, days, tariff))
+            });
             let Some((transport, days, tariff)) = route else {
                 continue;
             };

@@ -823,3 +823,49 @@ fn unit_costs_add_up_and_follow_the_wage_premium() {
     assert_eq!(ledger.month.by_product[&iron], Money::ZERO);
     assert!(ledger.month.site_type(works, CostType::Personnel) < Money::ZERO);
 }
+
+#[test]
+fn site_outputs_match_the_sums_over_the_facilities() {
+    // The market computes what a site makes once a day (P0); the sums per product must
+    // equal those over its facilities, by-products included, bit for bit.
+    let mut game = new_game(test_support::production());
+    let (mine_site, works) = chain(&mut game);
+    days(&mut game, 3);
+    let (state, c) = (game.state(), game.catalog());
+    for site in [mine_site, works] {
+        let outputs = crate::market::site_outputs(state, c, site, state.date);
+        assert!(!outputs.is_empty());
+        for (product, _) in c.products.iter() {
+            let slots = &state.sites[site.index()].slots;
+            let operating = || slots.iter().filter(|sl| sl.operating(state.date));
+            let rate: f64 = operating()
+                .filter_map(|sl| {
+                    let r = c.recipes.get(sl.recipe?);
+                    let per_run = if r.product == product {
+                        r.output
+                    } else {
+                        r.by_products.iter().find(|(p, _)| *p == product)?.1
+                    };
+                    Some(sl.full_runs(c) * sl.utilization * per_run)
+                })
+                .sum();
+            let (planned, full) = operating()
+                .filter_map(|sl| {
+                    let r = c.recipes.get(sl.recipe?);
+                    (r.product == product).then(|| {
+                        let full = sl.full_runs(c) * r.output;
+                        (full * sl.utilization, full)
+                    })
+                })
+                .fold((0.0, 0.0), |(p, f), (a, b)| (p + a, f + b));
+            match outputs.iter().find(|o| o.product == product) {
+                Some(o) => {
+                    assert_eq!(o.rate.to_bits(), rate.to_bits());
+                    assert_eq!(o.planned.to_bits(), f64::to_bits(planned));
+                    assert_eq!(o.full.to_bits(), f64::to_bits(full));
+                }
+                None => assert_eq!(rate, 0.0),
+            }
+        }
+    }
+}

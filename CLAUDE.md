@@ -28,7 +28,7 @@ Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
 - `crates/wsim-cli` – Läufe ohne Oberfläche, `validate`, Balance-Protokolle;
   `land <ISO>` und `route <von> <nach>` zeigen Länderwerte und Transportwege,
   `angebote <spielstand> <produkt>` die Angebote eines Produkts in einem Spielstand;
-  `run --ki <n> --welt` zeigt einen Weltlauf; `beispielsichten ui/src/kern/beispiel.json`
+  `run --ki <n> --welt` zeigt einen Weltlauf (`--nur-welt`: ohne Spielerfirma, für die Abstimmung); `beispielsichten ui/src/kern/beispiel.json`
   erneuert die Beispieldaten der Browser-Vorschau (nach Änderungen an den Sichten).
 - `app/src-tauri` – dünner Adapter zwischen Kern und Oberfläche.
 - `crates/wsim-web` – Browser-Version: Spielsitzung als WebAssembly mit eingebauten
@@ -68,6 +68,8 @@ Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
   `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript,
   die Zusammenfassung kleiner Länder zu Regionen in `tools/daten/regionen.py`.
   Die Umrisse der Weltkarte (`ui/src/karte/welt.json`) erzeugt `tools/daten/karte.py`.
+  Neue Produkte in Mengen: `tools/daten/tabelle.py` (CSV → Kettendatei mit Plausibilitätsbericht);
+  Leistung bei vielen Produkten messen: `tools/daten/vervielfachen.py`.
 - Fortschritt und eigenständige Entscheidungen: `docs/FORTSCHRITT.md`.
 
 ## Spielstände

@@ -32,7 +32,14 @@ import type {
 } from "../kern";
 import { geld } from "../kern";
 import { t } from "../texte";
-import { Erklaerung, Rueckmeldung, Unterreiter, useAktion, ZahlFeld } from "./gemeinsam";
+import {
+  Erklaerung,
+  Rueckmeldung,
+  SuchAuswahl,
+  Unterreiter,
+  useAktion,
+  ZahlFeld,
+} from "./gemeinsam";
 
 type Bereich = "anlagen" | "einkauf" | "verkauf" | "personal" | "kosten";
 
@@ -613,14 +620,18 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
       <div className="formular-zeile">
         <div className="feld">
           <label htmlFor={`${id}-anlage`}>{t("werk.anlage")}</label>
-          <select id={`${id}-anlage`} value={f.key} onChange={(e) => setAnlage(e.target.value)}>
-            {baubar.map((x) => (
-              <option key={x.key} value={x.key}>
-                {t(`anlage.${x.key}`)} – {formatGeld(x.investment_usd)}
-                {s.plot && keinePasst(x.key) && ` (${t("grundstueck.passt_nicht")})`}
-              </option>
-            ))}
-          </select>
+          <SuchAuswahl
+            id={`${id}-anlage`}
+            name={t("werk.anlage")}
+            wert={f.key}
+            optionen={baubar.map((x) => ({
+              wert: x.key,
+              text:
+                `${t(`anlage.${x.key}`)} – ${formatGeld(x.investment_usd)}` +
+                (s.plot && keinePasst(x.key) ? ` (${t("grundstueck.passt_nicht")})` : ""),
+            }))}
+            onWahl={setAnlage}
+          />
         </div>
         {f.sizes.length > 0 && (
           <div className="feld">
@@ -1688,14 +1699,14 @@ function WeiteresProdukt({
     <div className="weiteres" data-tour={tour}>
       <div className="feld">
         <label htmlFor={id}>{titel}</label>
-        <select id={id} value={produkt} onChange={(e) => setProdukt(e.target.value)}>
-          <option value="">–</option>
-          {sortiert.map((p) => (
-            <option key={p} value={p}>
-              {produktName(p)}
-            </option>
-          ))}
-        </select>
+        <SuchAuswahl
+          id={id}
+          name={titel}
+          wert={produkt}
+          leer="–"
+          optionen={sortiert.map((p) => ({ wert: p, text: produktName(p) }))}
+          onWahl={setProdukt}
+        />
       </div>
       {produkt && children(produkt)}
     </div>

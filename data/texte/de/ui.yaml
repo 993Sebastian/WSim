@@ -588,6 +588,9 @@ markt.keine_produkte: Keine Produkte für diese Auswahl.
 markt.warengruppe: Warengruppe
 markt.alle_gruppen: alle Warengruppen
 markt.suchen: Produkt suchen
+auswahl.suchen: Liste durchsuchen
+auswahl.platzhalter: Suchen …
+auswahl.kein_treffer: Kein Treffer
 markt.suchen_platzhalter: Name, z. B. Stahl
 markt.ohne_markt: "{anzahl} Produkte ohne Nachfrage und Anbieter in diesem Land sind ausgeblendet."
 markt.preis: Marktpreis

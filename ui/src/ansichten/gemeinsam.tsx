@@ -300,3 +300,66 @@ export function Erklaerung({ wert, children }: { wert: string; children: ReactNo
     </details>
   );
 }
+
+/** Lists from this length on get a search field (P0: several hundred products). */
+export const SUCHE_AB = 12;
+
+/**
+ * A select whose options can be narrowed by a search field above it once the list is
+ * long. The chosen option always stays in the list, so the select keeps its value.
+ */
+export function SuchAuswahl({
+  id,
+  name,
+  wert,
+  optionen,
+  leer,
+  onWahl,
+}: {
+  /** Id of the select (the label of the caller points to it). */
+  id: string;
+  /** Name of the list (hint on the search field). */
+  name: string;
+  wert: string;
+  optionen: { wert: string; text: string }[];
+  /** Text of an empty first option, if any. */
+  leer?: string;
+  onWahl: (wert: string) => void;
+}) {
+  const [suche, setSuche] = useState("");
+  const gesucht = suche.trim().toLocaleLowerCase("de");
+  const passt = (o: { text: string }, q: string) => o.text.toLocaleLowerCase("de").includes(q);
+  const treffer = gesucht === "" ? optionen : optionen.filter((o) => passt(o, gesucht));
+  const sichtbar =
+    gesucht === "" ? optionen : optionen.filter((o) => o.wert === wert || passt(o, gesucht));
+  return (
+    <span className="suchauswahl">
+      {optionen.length >= SUCHE_AB && (
+        <input
+          type="search"
+          value={suche}
+          aria-label={t("auswahl.suchen")}
+          aria-controls={id}
+          title={name}
+          placeholder={t("auswahl.platzhalter")}
+          onChange={(e) => {
+            setSuche(e.target.value);
+            // The first hit is chosen, so Enter in the field picks it.
+            const q = e.target.value.trim().toLocaleLowerCase("de");
+            const erster = optionen.find((o) => passt(o, q));
+            if (q !== "" && erster && erster.wert !== wert) onWahl(erster.wert);
+          }}
+        />
+      )}
+      <select id={id} value={wert} onChange={(e) => onWahl(e.target.value)}>
+        {leer !== undefined && <option value="">{leer}</option>}
+        {sichtbar.map((o) => (
+          <option key={o.wert} value={o.wert}>
+            {o.text}
+          </option>
+        ))}
+      </select>
+      {treffer.length === 0 && <span className="gedaempft"> {t("auswahl.kein_treffer")}</span>}
+    </span>
+  );
+}

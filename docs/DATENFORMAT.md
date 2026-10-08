@@ -226,6 +226,19 @@ Ein einziger Abschnitt (in `parameter/transportmodell.yaml`); Formeln in
 
 ## produkte
 
+**Werkzeuge für die Produktbreite (P0).** `python3 tools/daten/tabelle.py produkte.csv
+data/ketten/NN_name.yaml --titel "Kette NN – …" [--anlagen anlagen.csv]
+[--technologien technologien.csv] [--jahr 1950]` schreibt eine Kettendatei aus Tabellen
+(CSV mit Semikolon; eine Zeile je Produkt mit einem Rezept, Listen als
+`stahl:0.008 schrauben:0.0005`; Spalten im Kopf des Skripts), ergänzt die Namen in
+`texte/de/ketten.yaml` und gibt einen Plausibilitätsbericht aus: Ergebnis von
+`wsim validate` (darunter die Richtpreis-Margen) und die Zeilen der neuen Rezepte aus
+`wsim rezepte`. Zellen ohne `quelle` erhalten `annaeherung: true`. Weitere Rezepte,
+Nebenprodukte und Sonderfelder werden danach in der YAML-Datei ergänzt.
+`python3 tools/daten/vervielfachen.py data <ziel> <faktor>` legt in einer Kopie jedes
+Endprodukt mit seinen Rezepten `faktor − 1`-mal zusätzlich an (`<id>_v2` …) – ein
+Prüfstand für Rechenzeit und Spielstandsgröße, keine Spieldaten.
+
 | Feld | Bedeutung |
 | --- | --- |
 | **id** | |

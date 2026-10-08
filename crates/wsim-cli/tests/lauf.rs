@@ -81,3 +81,20 @@ fn runs_until_a_date() {
     assert_eq!(text.lines().filter(|l| l.ends_with("Tage)")).count(), 4);
     assert!(text.contains("Das Jahr 1901 beginnt."));
 }
+
+#[test]
+fn world_runs_without_a_player_company() {
+    // P0: world runs for balancing do not depend on a player who may go bankrupt.
+    let args = [
+        "run",
+        "--nur-welt",
+        "--ki",
+        "3",
+        "--bis",
+        "1900-03-01",
+        "--leise",
+    ];
+    let first = wsim(&args);
+    assert_eq!(hash(&first), hash(&wsim(&args)));
+    assert!(stdout(&first).contains("01.03.1900"));
+}

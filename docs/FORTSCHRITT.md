@@ -91,6 +91,10 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | PE5 | Käufe und Verkäufe der Person, mehrere Firmen, Spielende | ✅ |
 | PE6 | Tod, Erbe und Übergabe der Spielerfigur | ✅ |
 | H2 | Regulierung und Umwelt: Emissionen, CO₂-Preis, Auflagen und Nachrüstung, Arbeitsschutz, Verbote, Kartellaufsicht, Markenbild | ✅ |
+| P0 | Vorbereitung der Produktbreite: Weltläufe ohne Spielerabhängigkeit, Leistung, Suche/Filter, Datenwerkzeug | ✅ (Wunsch vom 08.10.2026: P1–P5 als P0 und zehn Branchenpakete P1a–P5) |
+| H3 | Rüstung | ⏳ |
+| P1a–P5 | Produktbreite in zehn Branchenpaketen (Architektur §4.1) | ⏳ |
+| P6, P7 | Reale Firmen nach Gründungsjahr, Patente | ⏳ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -1127,6 +1131,30 @@ Abschnitt H2; Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (H2).
 - **Tests:** Kern (CO₂-Kosten und Emissionen, Auflage selbsttätig erfüllt, Stillstand bei
   fehlender Stufe, Verbot und Arbeitsschutz, Nachrüstbefehl und Strategie, Markenbild,
   Kartellaufsicht, Spielstand), Datenprüfung, vitest (Länderdetail), Playwright.
+
+### P0: Vorbereitung der Produktbreite (08.10.2026)
+
+Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P (P0).
+
+- **Weltläufe ohne Spieler:** `wsim run --nur-welt` (ohne Firma, eine Milliarde USD privat);
+  das Balance-Protokoll kommt ohne Hauptfirma aus. Der H2-Weltlauf endete 1986, weil der
+  passive Spieler pleite war und danach nichts mehr besaß (PE5); der Vergleichslauf vor H2
+  endete aus demselben Grund schon 1967 – H2 war nicht die Ursache.
+- **Leistung (bitgleich):** Händlerplanung liest nur die Importmärkte des Produkts und
+  merkt sich die Wege je Herkunftsgruppe in einer Liste statt einer Tabelle je Zielland;
+  Märkte des Tages je Produkt als Liste; die Markträumung nutzt ihre Arbeitslisten für
+  alle Märkte des Tages; Ausstoß und Auslastung je Standort einmal am Tag statt für jedes
+  Angebot (wuchs mit dem Quadrat der Produkte je Standort). Zustands-Hashes unverändert.
+- **Messung:** `tools/daten/vervielfachen.py data <ziel> 5` (284 statt 112 Produkte);
+  1950–1951 mit 50 KI-Firmen und `--nur-welt`: 23,6 → 20,6 s (heutige Daten),
+  70,1 → 58,7 s (vervielfacht). Messung mit callgrind: Markträumung ≈ 80 %, davon Buchungen
+  ≈ 13 % (siehe offene Punkte).
+- **Oberfläche:** Suchauswahl für lange Listen (Ketten, Bauen, weiteres Produkt).
+- **Datenwerkzeug:** `tools/daten/tabelle.py` (CSV → Kettendatei mit Texten und
+  Plausibilitätsbericht aus `validate` und `rezepte`).
+- **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
+  (Suchauswahl), Playwright, Reproduzierbarkeit.
 
 ## Eigenständige Entscheidungen (für das Review)
 

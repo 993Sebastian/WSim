@@ -6,7 +6,7 @@ import { formatPreis, formatProzent, formatZahl, landName } from "../format";
 import type { Kern, Ketten, KettenProdukt } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
-import { useSicht } from "./gemeinsam";
+import { SuchAuswahl, useSicht } from "./gemeinsam";
 
 /** Whether the player has anything to do with a product. */
 const beteiligt = (p: KettenProdukt | undefined) => !!p && (p.makes || p.buys || p.sells);
@@ -46,14 +46,16 @@ export function KettenAnsicht({
       <div className="formular-zeile">
         <div className="feld">
           <label htmlFor={`${id}-spitze`}>{t("ketten.endprodukt")}</label>
-          <select id={`${id}-spitze`} value={spitze} onChange={(e) => setWahl(e.target.value)}>
-            {daten.roots.map((e) => (
-              <option key={e} value={e}>
-                {t(`produkt.${e}`)}
-                {eigene.includes(e) ? ` – ${t("ketten.deine_kette")}` : ""}
-              </option>
-            ))}
-          </select>
+          <SuchAuswahl
+            id={`${id}-spitze`}
+            name={t("ketten.endprodukt")}
+            wert={spitze ?? ""}
+            optionen={daten.roots.map((e) => ({
+              wert: e,
+              text: t(`produkt.${e}`) + (eigene.includes(e) ? ` – ${t("ketten.deine_kette")}` : ""),
+            }))}
+            onWahl={setWahl}
+          />
         </div>
       </div>
       {spitze && (

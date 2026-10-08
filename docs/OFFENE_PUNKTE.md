@@ -1630,6 +1630,32 @@ entschieden:
 7. **Markenbild:** Schadstoffe je Umsatz gegen den Schnitt aller Firmen, Gewicht 0,3 auf den
    Zuwachs an Bekanntheit (sauberer bis +30 %, schmutziger bis −30 %).
 
+✅ **P0 umgesetzt** (Vorbereitung der Produktbreite; Wunsch vom 08.10.2026: P1–P5 als P0 und
+zehn Branchenpakete P1a–P5). 🟡 Eigenständig entschieden:
+
+1. **Weltläufe ohne Spieler:** `wsim run --nur-welt` beginnt ohne Firma und mit einer
+   Milliarde USD auf dem Privatkonto (Wert nur in der Kommandozeile), damit die Pleite
+   eines passiven Spielers einen Weltlauf nicht mehr beendet (PE5: ohne Besitz endet das
+   Spiel). Weltläufe für die Abstimmung laufen ab jetzt so.
+2. **Leistung nur bitgleich:** Die Beschleunigungen ändern kein Ergebnis (gleiche
+   Zustands-Hashes vor und nach, Test für die vorab gerechneten Standortleistungen).
+   Schneller ginge es mit zusammengefassten Buchungen der Haushaltskäufe (ein Verkauf je
+   Angebot und Tag statt bis zu 40) und schlankeren Periodenergebnissen im Hauptbuch –
+   das verschiebt Rundungen um Hundertstel-Cent und ändert das Spielstandsformat. Vorschlag:
+   erst angehen, wenn die Branchenpakete die Rechenzeit spürbar verlängern.
+3. **Messung mit vervielfachten Ketten:** `tools/daten/vervielfachen.py` kopiert jedes
+   Endprodukt (43 → 215, insgesamt 112 → 284 Produkte); 1950–1951 mit 50 KI-Firmen:
+   vorher 23,6 s / 70,1 s, nachher 20,6 s / 58,7 s (×2,85 bei ×2,5 Produkten). Hauptlast
+   bleibt die Markträumung je Produkt und Land; sie wächst mit der Zahl der Märkte, nicht
+   mehr mit ihrem Quadrat je Standort.
+4. **Suche in langen Auswahllisten** ab 12 Einträgen (Endprodukt der Ketten, Anlage beim
+   Bauen, „Weiteres Produkt“ im Werk); der erste Treffer wird gleich gewählt. Die
+   Marktliste hatte Suche und Warengruppen schon.
+5. **Datenwerkzeug Tabelle → YAML:** eine Zeile je Produkt mit genau einem Rezept;
+   weitere Rezepte und Sonderfelder werden in der YAML-Datei ergänzt. Der Bericht nutzt
+   die vorhandenen Prüfungen (`validate` mit Richtpreis-Margen, `rezepte`) statt eigener
+   Regeln.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

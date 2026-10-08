@@ -190,6 +190,12 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   über 90 Produkte. Eine Auswahl „Warengruppe“ (mit der Zahl der Produkte je Gruppe) und
   ein Suchfeld „Produkt suchen“ grenzen sie ein; beides wirkt zusammen mit „Zeigen“ und
   der Sortierung.
+- **Lange Auswahllisten** (P0): Ab zwölf Einträgen steht über einer Auswahl ein Suchfeld
+  („Liste durchsuchen“): Die Liste zeigt nur noch die Treffer,
+  der erste Treffer wird gleich gewählt (Eingabe genügt), „Kein Treffer“ sagt, wenn nichts
+  passt; die gewählte Zeile bleibt stehen. Gilt für das Endprodukt der Produktionsketten,
+  die Anlage beim Bauen und die Produktauswahl „Weiteres Produkt“ der Werksansicht – die
+  Listen, die mit der Produktbreite (Stufe 5) auf Hunderte Einträge wachsen.
 - **Produktnamen** (M42): Bei Endprodukten (Geräte, Fahrzeuge, Kleidung, Lebensmittel …)
   zeigt die Anbieterliste den Namen, unter dem jede Firma verkauft („Kelvor M80“). Darunter
   „Dein Produktname“: das Feld mit dem ersten von drei Vorschlägen aus den Namensbausteinen,
