@@ -1012,7 +1012,8 @@ Vorgabe `docs/PERSON.md` §5. Regeln: `docs/FORMELN.md`, Abschnitt PE2; Entschei
   Managermarkt.
 - **Tests:** Kern (Person wie gesetzt, Standardwerte, Kinder nach Ehe und Alter, höchstens
   vier, Managerkarte nur für eigene Firmen, Vorsitz abgeben und übernehmen, Tod eines
-  Kindes, alter Spielstand), Datenprüfung, vitest.
+  Kindes, alter Spielstand), Datenprüfung, vitest; Weltlauf 1900–1960 mit 100 KI-Firmen
+  (ein Kind, keine Pleite, kein Manager über 75; `docs/OFFENE_PUNKTE.md`, PE2 Punkt 8).
 
 ## Eigenständige Entscheidungen (für das Review)
 

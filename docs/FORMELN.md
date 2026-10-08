@@ -4532,7 +4532,8 @@ weniger als `kinder_hoechstens` (4) Kinder hat, kommt am Monatsersten ein Kind m
 
     p_Monat = 1 − (1 − kinder_chance_jahr)^(1/12)        (kinder_chance_jahr = 0,15)
 
-Vorname aus der Namensgruppe des Wohnsitzlandes, Familienname der Person. Mit
+Vorname aus der Namensgruppe des Wohnsitzlandes (bis zu fünf weitere Ziehungen, solange
+der Vorname in der Familie schon vorkommt), Familienname der Person. Mit
 `managerkarte_ab` (25) Jahren bekommt das Kind eine Managerkarte wie ein Bewerber (Ziehung
 MA1, Geburtsdatum = das des Kindes, Heimat = Wohnsitz). Es steht nur der Person zur
 Verfügung: Andere Firmen stellen es nicht ein und werben es nicht ab, Leitungen besetzen

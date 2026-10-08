@@ -1461,6 +1461,12 @@ angepasst). 🟡 Eigenständig entschieden:
    Tasten 1–0 bleiben, wie sie sind).
 7. **Ruhestand in den nächsten zwei Jahren** (PE1-Vorgabe „Filter“): als aufklappbare
    Liste über dem Organigramm mit Nachfolger oder „noch offen“.
+8. **Weltlauf 1900–1960** (100 KI-Firmen, Person 1870 geboren, verheiratet, ohne Kinder
+   beim Start): ein Kind, 1908 geboren (Person 37), Managerkarte 1933. Bei 15 % je Jahr
+   sind im Mittel 2,3 Kinder in den 15 Jahren bis 45 zu erwarten; eines ist im üblichen
+   Rahmen (Wahrscheinlichkeit für höchstens eines rund ein Drittel). Kein Manager über 75
+   im Dienst, keine Pleite. Das Kind bekam im Lauf den Vornamen des Vaters; seitdem zieht
+   die Familie bis zu fünfmal neu, bis ein Vorname noch nicht vergeben ist.
 
 ## Reihenfolge der neuen Punkte
 

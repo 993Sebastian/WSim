@@ -68,6 +68,9 @@ fn day_between(rng: &mut SimRng, from: Date, to: Date) -> Date {
 }
 
 /// A first name of the name group of a country.
+/// Further draws for a child's first name that is already in the family.
+const FIRST_NAME_DRAWS: usize = 5;
+
 fn first_name(catalog: &Catalog, rng: &mut SimRng, home: crate::ids::CountryId) -> String {
     let groups = &catalog.name_groups;
     let group = groups
@@ -106,7 +109,19 @@ fn family_name(catalog: &Catalog, person: &Person) -> String {
 
 /// A child's full name in the order of the name group.
 fn child_name(catalog: &Catalog, rng: &mut SimRng, person: &Person) -> String {
-    let first = first_name(catalog, rng, person.home);
+    // A first name nobody in the family has yet, if a few draws find one.
+    let taken = |name: &str| {
+        std::iter::once(&person.name)
+            .chain(person.children.iter().map(|c| &c.name))
+            .any(|n| n.split_whitespace().any(|w| w == name))
+    };
+    let mut first = first_name(catalog, rng, person.home);
+    for _ in 0..FIRST_NAME_DRAWS {
+        if !taken(&first) {
+            break;
+        }
+        first = first_name(catalog, rng, person.home);
+    }
     let family = family_name(catalog, person);
     let surname_first = catalog
         .name_groups
