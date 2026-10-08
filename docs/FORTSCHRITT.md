@@ -1150,6 +1150,10 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   1950–1951 mit 50 KI-Firmen und `--nur-welt`: 23,6 → 20,6 s (heutige Daten),
   70,1 → 58,7 s (vervielfacht). Messung mit callgrind: Markträumung ≈ 80 %, davon Buchungen
   ≈ 13 % (siehe offene Punkte).
+- **Weltlauf 1900–2026** (`run --nur-welt --ki 20 --welt --bericht`, mit H1, H2, PE1–PE6):
+  läuft ohne Abbruch durch (37 min); 01.01.2026: 225 KI-Firmen, davon 139 pleite,
+  2 850 Standorte; 1 273 Start-ups (68 % der beendeten gescheitert), 8 Firmen an der Börse,
+  103 Produkte weiterentwickelt. Zustands-Hash 4b51dd0d52942dd7.
 - **Oberfläche:** Suchauswahl für lange Listen (Ketten, Bauen, weiteres Produkt).
 - **Datenwerkzeug:** `tools/daten/tabelle.py` (CSV → Kettendatei mit Texten und
   Plausibilitätsbericht aus `validate` und `rezepte`).
