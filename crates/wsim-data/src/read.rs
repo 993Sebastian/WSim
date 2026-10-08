@@ -9,7 +9,7 @@ use crate::messages;
 use crate::raw::{
     RawAiModel, RawCentral, RawContracts, RawCountry, RawCountryCurrencies, RawCountryModel,
     RawCurrency, RawDealModel, RawDeposit, RawEvent, RawFacility, RawFinanceModel, RawInventor,
-    RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel,
+    RawLogistics, RawManagement, RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPlotModel,
     RawPriceIndex, RawProduct, RawProductNaming, RawProductionModel, RawQualification,
     RawRealCompany, RawRecipe, RawResearchModel, RawSimple, RawTariffs, RawTechnology,
     RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
@@ -180,6 +180,7 @@ pub(crate) struct RawData {
     pub central: Vec<Entry<RawCentral>>,
     pub tariffs: Vec<Entry<RawTariffs>>,
     pub contracts: Vec<Entry<RawContracts>>,
+    pub logistics: Vec<Entry<RawLogistics>>,
     pub ventures: Vec<Entry<RawVentures>>,
     pub inventors: Vec<Entry<RawInventor>>,
     pub real_companies: Vec<Entry<RawRealCompany>>,
@@ -221,6 +222,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "zentrale",
     "zoelle",
     "vertraege",
+    "logistik",
     "startups",
     "erfinder",
     "reale_firmen",
@@ -308,6 +310,10 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             },
             "vertraege" => match de::from_node::<RawContracts>(value, &loc.path) {
                 Ok(model) => raw.contracts.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
+            "logistik" => match de::from_node::<RawLogistics>(value, &loc.path) {
+                Ok(model) => raw.logistics.push(Entry { loc, value: model }),
                 Err(e) => ctx.de_error(file, e),
             },
             "startups" => match de::from_node::<RawVentures>(value, &loc.path) {

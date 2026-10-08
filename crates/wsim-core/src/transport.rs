@@ -135,6 +135,15 @@ impl Routes {
         self.year
     }
 
+    /// Great-circle distance between the capitals of two countries in km.
+    pub fn distance_km(&self, from: CountryId, to: CountryId) -> Option<f64> {
+        let network = self.network.as_ref()?;
+        network
+            .distance
+            .get(from.index() * network.countries + to.index())
+            .copied()
+    }
+
     pub fn get(&self, class: TransportClassId, from: CountryId, to: CountryId) -> Option<Route> {
         if from == to {
             return Some(Route::LOCAL);

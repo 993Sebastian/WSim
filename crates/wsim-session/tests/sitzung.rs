@@ -536,3 +536,54 @@ fn supply_contracts_with_ai_companies() {
     let c = &session.contracts().unwrap().contracts[0];
     assert!(c.delivered_total > 0.0, "{c:?}");
 }
+
+#[test]
+fn own_fleet_and_way_of_freight() {
+    use serde_json::json;
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    let later = NewGameRequest {
+        start_year: 1950,
+        capital_usd: 10_000_000.0,
+        ..request()
+    };
+    session.new_game(&later).unwrap();
+    let view = session.logistics().unwrap();
+    assert!(view.enabled);
+    assert_eq!(view.mode, "markt");
+    assert!(view.fleet.is_empty());
+    let offer = |key: &str| {
+        view.vehicles
+            .iter()
+            .find(|v| v.vehicle == key)
+            .unwrap_or_else(|| panic!("{key} zu kaufen"))
+            .clone()
+    };
+    // 1950 the railway carries cheaper than a lorry: only the train pays.
+    let train = offer("eisenbahn");
+    assert_eq!(train.way, "schiene");
+    let share = train.running_share.unwrap();
+    assert!(share > 0.5 && share < 1.0, "{share}");
+    assert!(offer("lastkraftwagen").running_share.unwrap() > 1.0);
+    // Air freight is no fleet.
+    assert!(view.vehicles.iter().all(|v| v.way != "luft"));
+    session
+        .command(json!({"BuyVehicles": {"vehicle": "eisenbahn", "count": 2}}))
+        .unwrap();
+    session
+        .command(json!({"SetLogistics": {"mode": "Fleet", "carry_for_others": true}}))
+        .unwrap();
+    let view = session.logistics().unwrap();
+    assert_eq!(view.mode, "flotte");
+    assert_eq!(view.fleet[0].count, 2);
+    assert!((view.fleet[0].book_value_usd - 2.0 * train.price_usd).abs() < 0.01);
+    let err = session
+        .command(json!({"SellVehicles": {"vehicle": "eisenbahn", "count": 3}}))
+        .unwrap_err();
+    assert_eq!(err.key, "fehler.befehl.zu_viele_fahrzeuge");
+    session.end_round("monat", |_| {}).unwrap();
+    let view = session.logistics().unwrap();
+    assert!(view.last_month.upkeep_usd > 0.0);
+    assert!(view.last_month.depreciation_usd > 0.0);
+    assert!(view.last_month.rental_usd > 0.0);
+}

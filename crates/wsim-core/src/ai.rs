@@ -16,6 +16,7 @@ use crate::decision::{self, Choice, ChoiceKind, Decider, Decision, Rules, Topic}
 use crate::finance;
 use crate::ids::{CountryId, DepositId, FacilityId, Id, ProductId, RecipeId, TechnologyId};
 use crate::ledger::{CostType, Ledger};
+use crate::logistics::FreightMode;
 use crate::market;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
@@ -95,6 +96,7 @@ pub fn decide_with(
         }
         if first_of_month {
             manage_cash(state, catalog, id, own, decider);
+            fleet(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
             news.extend(crate::ventures::ai_month(
@@ -160,6 +162,33 @@ fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Comman
     d.site = site;
     d.product = product;
     d
+}
+
+/// Buys vehicles where the loads of the month before would fill them, and sends the
+/// company's loads with its fleet (W5, docs/FORMELN.md).
+fn fleet(state: &mut GameState, catalog: &Catalog, id: CompanyId, decider: &mut dyn Decider) {
+    for (vehicle, count) in crate::logistics::ai_purchases(state, catalog, id) {
+        act(
+            state,
+            catalog,
+            id,
+            &Command::BuyVehicles { vehicle, count },
+            decider,
+        );
+    }
+    let l = &state.companies[id.index()].logistics;
+    if !l.fleet.is_empty() && (l.mode != FreightMode::Fleet || !l.carry_for_others) {
+        act(
+            state,
+            catalog,
+            id,
+            &Command::SetLogistics {
+                mode: FreightMode::Fleet,
+                carry_for_others: true,
+            },
+            decider,
+        );
+    }
 }
 
 /// Runs a command of the routine for an AI company if its decider lets the rules act.
@@ -4167,6 +4196,7 @@ fn found_one(
         departments_staffed: Default::default(),
         hq_city: None,
         participations: Default::default(),
+        logistics: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name,
         kind: CompanyKind::Ai,
@@ -4391,6 +4421,7 @@ mod tests {
             departments_staffed: Default::default(),
             hq_city: None,
             participations: Default::default(),
+            logistics: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Private),
             name: "Hütte KI".into(),
             kind: CompanyKind::Ai,

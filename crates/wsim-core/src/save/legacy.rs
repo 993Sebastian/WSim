@@ -101,6 +101,7 @@ pub(super) fn decode_v2(
                 departments_staffed: Default::default(),
                 hq_city: None,
                 participations: Default::default(),
+                logistics: Default::default(),
                 owners: Vec::new(),
                 name: c.name,
                 kind: c.kind,

@@ -190,6 +190,7 @@ impl Game {
             departments_staffed: Default::default(),
             hq_city: None,
             participations: Default::default(),
+            logistics: Default::default(),
             owners: crate::state::Stake::sole(crate::state::Holder::Player),
             name,
             kind: CompanyKind::Player,
@@ -407,7 +408,9 @@ impl Game {
         report
             .messages
             .extend(crate::ai::decide(&mut self.state, &self.catalog, today));
-        trade::deliver(&mut self.state, today);
+        report
+            .messages
+            .extend(trade::deliver(&mut self.state, &self.catalog, today));
         production::simulate_day(&mut self.state, &self.catalog, today);
         report.messages.extend(crate::contracts::deliver(
             &mut self.state,
@@ -445,6 +448,7 @@ impl Game {
             ));
             crate::management::month_end(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
+            crate::logistics::month_end(&mut self.state, &self.catalog, today);
             finance::month_end(&mut self.state, &self.catalog, today);
             for company in &mut self.state.companies {
                 company.ledger.close_month(next);

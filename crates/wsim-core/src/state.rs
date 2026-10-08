@@ -342,6 +342,12 @@ pub struct Company {
     /// The policy on takeovers, licences and start-ups (ZA2).
     #[serde(default, skip_serializing_if = "Participations::is_default")]
     pub participations: Participations,
+    /// Fleet and way of the own loads (W5).
+    #[serde(
+        default,
+        skip_serializing_if = "crate::logistics::Logistics::is_default"
+    )]
+    pub logistics: crate::logistics::Logistics,
 }
 
 /// The policy „Beteiligungen“ of a company (ZA2): a yearly budget for takeovers and
@@ -1407,6 +1413,9 @@ pub struct Shipment {
     pub from: CountryId,
     pub to: Consignee,
     pub arrival: Date,
+    /// The load is lost on the way and never arrives (W5).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub lost: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

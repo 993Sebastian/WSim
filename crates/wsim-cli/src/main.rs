@@ -15,7 +15,7 @@ use wsim_core::ledger::Account;
 use wsim_core::money::Money;
 use wsim_core::save;
 use wsim_core::state::{AiSettings, GameSettings, StartForm};
-use wsim_data::{GameData, format_date, format_money};
+use wsim_data::{GameData, format_date, format_money, format_number};
 
 #[derive(Parser)]
 #[command(
@@ -620,6 +620,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "finanzen": session.finance().map_err(message)?,
         "startups": session.ventures().map_err(message)?,
     });
+    json["logistik"] = example_logistics(&mut session)?;
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
     let (organisation, market, concerns, strategy) = example_organisation(&mut session)?;
@@ -675,6 +676,18 @@ fn example_contracts(
         serde_json::to_value(session.contracts().map_err(message)?).map_err(|e| e.to_string())?;
     let partners = serde_json::to_value(partners).map_err(|e| e.to_string())?;
     Ok((contracts, partners))
+}
+
+/// The example's logistics (W5): a cart of its own that carries for others too.
+fn example_logistics(session: &mut wsim_session::Session) -> Result<serde_json::Value, String> {
+    let message = |m: wsim_core::views::MessageView| m.key;
+    session
+        .command(serde_json::json!({"BuyVehicles": {"vehicle": "fuhrwerk", "count": 1}}))
+        .map_err(message)?;
+    session
+        .command(serde_json::json!({"SetLogistics": {"mode": "Fleet", "carry_for_others": true}}))
+        .map_err(message)?;
+    serde_json::to_value(session.logistics().map_err(message)?).map_err(|e| e.to_string())
 }
 
 /// The views of the example's organisation (MA1–MA4).
@@ -944,7 +957,6 @@ fn ai_settings(catalog: &Catalog, args: &RunArgs) -> Result<AiSettings, String> 
 
 /// Companies, output and prices of the simulated world.
 fn print_world(texts: &wsim_data::Texts, game: &Game) {
-    use wsim_data::format_number;
     let state = game.state();
     let catalog = game.catalog();
     let ai: Vec<_> = state.companies.iter().filter(|c| c.ai.is_some()).collect();
@@ -1039,6 +1051,59 @@ fn print_world(texts: &wsim_data::Texts, game: &Game) {
     print_developments(texts, game);
     print_ventures(texts, game);
     print_centrals(texts, game);
+    print_logistics(texts, game);
+}
+
+/// Fleets of the companies (W5): how many hold vehicles of which kind, how much of their
+/// freight they carried themselves last month, and the loads lost.
+fn print_logistics(texts: &wsim_data::Texts, game: &Game) {
+    let (state, catalog) = (game.state(), game.catalog());
+    if !catalog.logistics.enabled {
+        return;
+    }
+    let active: Vec<_> = state.companies.iter().filter(|c| !c.bankrupt).collect();
+    let with = active
+        .iter()
+        .filter(|c| !c.logistics.fleet.is_empty())
+        .count();
+    let kinds: Vec<String> = catalog
+        .vehicles
+        .ids()
+        .filter_map(|v| {
+            let n: u32 = active
+                .iter()
+                .flat_map(|c| &c.logistics.fleet)
+                .filter(|h| h.vehicle == v)
+                .map(|h| h.count)
+                .sum();
+            (n > 0).then(|| {
+                format!(
+                    "{} {}",
+                    texts
+                        .get(&format!("verkehrsmittel.{}", catalog.vehicles.key(v)))
+                        .unwrap_or_default(),
+                    n
+                )
+            })
+        })
+        .collect();
+    let months: Vec<_> = active.iter().map(|c| &c.logistics.last_month).collect();
+    let own: f64 = months.iter().map(|m| m.fleet_tkm).sum();
+    let all: f64 = own
+        + months
+            .iter()
+            .map(|m| m.market_tkm + m.state_tkm)
+            .sum::<f64>();
+    let losses: u32 = months.iter().map(|m| m.losses).sum();
+    println!(
+        "Logistik (W5): {} von {} Firmen mit Flotte ({}); Vormonat {} Mio. tkm, davon {} % mit eigener Flotte, {} Ladungen verloren",
+        with,
+        active.len(),
+        kinds.join(", "),
+        format_number(all / 1e6, 1),
+        format_number(if all > 0.0 { 100.0 * own / all } else { 0.0 }, 0),
+        losses
+    );
 }
 
 /// Central departments and headquarters of the AI companies (ZA4): how many have

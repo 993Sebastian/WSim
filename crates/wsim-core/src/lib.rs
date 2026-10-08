@@ -21,6 +21,7 @@ pub mod game;
 pub mod health;
 pub mod ids;
 pub mod ledger;
+pub mod logistics;
 pub mod management;
 pub mod mandate;
 pub mod market;
@@ -68,6 +69,8 @@ mod facility_tests;
 mod finance_tests;
 #[cfg(test)]
 mod hq_city_tests;
+#[cfg(test)]
+mod logistics_tests;
 #[cfg(test)]
 mod management_tests;
 #[cfg(test)]

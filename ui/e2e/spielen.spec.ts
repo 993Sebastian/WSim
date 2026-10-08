@@ -505,6 +505,23 @@ test("Lieferverträge: laufender Vertrag und neues Angebot an einen Lieferanten"
   await bild(page, "vertraege");
 });
 
+test("Logistik: Weg der Ladungen, Flotte und Fahrzeugkauf", async ({ page }) => {
+  await starten(page);
+  await page.getByRole("button", { name: "Markt", exact: true }).click();
+  await page.getByRole("button", { name: "Logistik", exact: true }).click();
+  await expect(page.getByRole("radio", { name: /Eigene Flotte/ })).toBeChecked();
+  const flotte = page.getByRole("table", { name: "Eigene Flotte" });
+  await expect(flotte.getByRole("row").nth(1)).toContainText("Fuhrwerk");
+  const kauf = page.getByRole("table", { name: "Fahrzeuge kaufen" });
+  const bahn = kauf.getByRole("row").filter({ hasText: "Eisenbahn" });
+  await bahn.getByLabel("Anzahl").fill("2");
+  await bahn.getByRole("button", { name: "Kaufen" }).click();
+  await expect
+    .poll(async () => JSON.stringify((await befehle(page)).at(-1)))
+    .toContain('"BuyVehicles":{"vehicle":"eisenbahn","count":2}');
+  await bild(page, "logistik");
+});
+
 test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
   page,
 }) => {

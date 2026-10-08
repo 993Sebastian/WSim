@@ -76,6 +76,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | W2 | Zentrale in der Stadt: Akademiker und Büromiete je Stadt | ✅ |
 | W3 | Zölle je Land und Warengruppe, Handelszonen, Sperren, Dynamik nach 2026 | ✅ |
 | W4 | Lieferverträge zwischen Spieler und KI-Firmen | ✅ |
+| W5 | Logistik: Frachtmarkt, staatlicher Transport, eigene Flotte, Frachtrisiko | ✅ |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
@@ -783,6 +784,37 @@ Stufe 2, Lastenheft §9.3. Regeln: `docs/FORMELN.md`, Abschnitt W4; Entscheidung
   neues Angebot), Playwright.
 - **Nachgezogen:** Ein Standort mit Vorprodukten im Lager zählt nicht mehr als Verkäufer
   (die Partnersuche zeigte sonst Abnehmer statt Lieferanten).
+
+### W5: Logistik (08.10.2026)
+
+Stufe 2, Lastenheft §8.1. Regeln: `docs/FORMELN.md`, Abschnitt W5; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P.
+
+- **Daten:** `parameter/logistik.yaml` (staatlicher Transport, Flotte, Risiko, KI) und je
+  Verkehrsmittel `nutzlast_t` und `kaufpreis_usd` (nur gemeinsam); Prüfregeln mit
+  Fehlerfall-Tests.
+- **Kern:** Modul `logistics`: Befehle `BuyVehicles`, `SellVehicles`, `SetLogistics`; jede
+  eigene Ladung zwischen Ländern (Umlagerung, Vertragslieferung) läuft über den gewählten
+  Weg – Frachtmarkt, Staat (Aufschlag, halbes Risiko) oder Flotte (Betriebsanteil der
+  Marktfracht, Rest über den Markt). Monatsende: Unterhalt, Abschreibung, Fracht für andere.
+  Verlorene Ladungen (eigener Zufallsstrom je Firma und Ladung) werden abgeschrieben und
+  gemeldet. Die KI kauft Fahrzeuge nach ihren Ladungen des Vormonats.
+- **Oberfläche:** Markt → „Logistik“: Wahl des Wegs, Flotte mit Verkauf, Fahrzeuge zum
+  Kauf, Zahlen des Monats; Beispieldaten der Vorschau mit einem Fuhrwerk.
+- **Spielstände:** neue Felder mit Vorgabe, Format bleibt 3.
+- **Tests:** Kern (Flotte billiger und Monatskosten, volle Flotte, staatlicher Transport,
+  Verlust bei Umlagerung und Vertrag, Verkauf, ungeeignete Fahrzeuge, teurere Fahrzeuge
+  bleiben stehen, Fracht für andere, Kauf der KI, Spielstand), Sitzung mit echten Daten
+  (Lastwagen 1950), vitest (Verkaufen, Kaufen, Weg wählen, ohne Logistik), Playwright.
+- **Weltlauf:** `run --welt` zeigt eine Zeile „Logistik (W5)“. 1900–1915 mit 100 KI-Firmen:
+  10 Firmen mit Flotte (34 Dampfschiffe, 6 Tanker, 2 Motorschiffe, 1 Güterzug), 55 % der
+  Tonnenkilometer im letzten Monat mit eigener Flotte. Gegen den Lauf ohne Logistik bleiben
+  die Plausibilitätsprüfungen ähnlich (Versorgung weltweit 30 → 31 Verstöße, Marge 48 → 41,
+  Förderung 25 → 36 Jahr-Produkt-Paare); das mittlere Eigenkapital der KI liegt 1914 um 7 %
+  höher. Laufzeit unverändert (2:21 min).
+- **Zuerst verworfen:** Kaufpreis als Vielfaches der Jahresfracht und Fahrtkosten gegen den
+  eigenen Satz des Fahrzeugs – die KI kaufte dann Hunderte Fuhrwerke, die billiger als die
+  Bahn zu fahren schienen.
 
 ## Eigenständige Entscheidungen (für das Review)
 

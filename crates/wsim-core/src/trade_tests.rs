@@ -114,6 +114,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
         departments_staffed: Default::default(),
         hq_city: None,
         participations: Default::default(),
+        logistics: Default::default(),
         owners: crate::state::Stake::sole(crate::state::Holder::Private),
         name: "Käufer".into(),
         kind: CompanyKind::Ai,

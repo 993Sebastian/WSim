@@ -206,6 +206,16 @@ sind Anzeigehilfen und wirken nicht auf die Simulation.
   Liefervertrag“: eigener Standort, Produkt (Verkauf oder Einkauf), Abnehmer bzw.
   Lieferant mit freier Menge und Preisvorschlag, Menge, Preis, Laufzeit, Mindestqualität,
   Strafe; die Firma antwortet sofort, eine Ablehnung nennt den Grund.
+- W5: Unterreiter **Logistik**: „Wer fährt deine Ladungen?“ – Frachtmarkt, staatlicher
+  Transport (teurer, sicherer) oder eigene Flotte, dazu „Freien Platz der Flotte für andere
+  fahren“ und das Verlustrisiko je Ladung im laufenden Jahr; „Übernehmen“. Darunter die
+  eigene Flotte (Fahrzeug, Anzahl, Kapazität je Monat, genutzt in diesem Monat und im
+  Vormonat, was eine Fahrt im Verhältnis zur Marktfracht kostet, Buchwert und Verkaufserlös
+  je Fahrzeug) mit Anzahl und „Verkaufen“, die Fahrzeuge zum Kauf (Nutzlast, km am Tag,
+  Kapazität, Preis mit Unterhalt und Abschreibung je Monat, Fahrtkosten) mit Anzahl und
+  „Kaufen“, und die Zahlen dieses und des letzten Monats (tkm mit eigener Flotte, über den
+  Markt, staatlich; Fracht für andere, Unterhalt, Abschreibung, verlorene Ladungen). Eine
+  verlorene Ladung meldet der Rundenbericht.
 
 ### Wettbewerb (M30, M31)
 

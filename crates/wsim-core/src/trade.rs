@@ -12,7 +12,9 @@ use std::collections::{BTreeMap, BinaryHeap};
 use crate::calendar::Date;
 use crate::catalog::Catalog;
 use crate::ids::{CountryId, ProductId};
+use crate::ledger::{Account, CostCenter, CostType};
 use crate::market;
+use crate::message::Message;
 use crate::money::Money;
 use crate::policy::{self, BuyerGroup};
 use crate::state::{Consignee, GameState, SiteId};
@@ -27,16 +29,41 @@ pub(crate) struct PlannedBuy {
     pub days: u32,
 }
 
-/// Delivers all shipments that arrive today, in the order they were sent.
-pub(crate) fn deliver(state: &mut GameState, today: Date) {
+/// Delivers all shipments that arrive today, in the order they were sent. A lost load
+/// (W5) is written off at its owner instead; the player hears of it.
+pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> Vec<Message> {
+    let mut news = Vec::new();
     if state.shipments.iter().all(|s| s.arrival > today) {
-        return;
+        return news;
     }
     let (arrived, underway) = std::mem::take(&mut state.shipments)
         .into_iter()
         .partition(|s| s.arrival <= today);
     state.shipments = underway;
     for s in arrived {
+        if s.lost {
+            if let Consignee::Site(site) = s.to {
+                let (owner, to) = {
+                    let x = &state.sites[site.index()];
+                    (x.owner, x.country)
+                };
+                state.companies[owner.index()].ledger.expense(
+                    CostType::Other,
+                    CostCenter::product(site, s.product),
+                    Account::Inventory,
+                    s.value,
+                );
+                crate::logistics::note_loss(state, owner, s.value);
+                if owner == state.player {
+                    news.push(crate::logistics::loss_message(
+                        catalog,
+                        (s.product, s.quantity),
+                        (s.from, to),
+                    ));
+                }
+            }
+            continue;
+        }
         let stock = match s.to {
             Consignee::Site(site) => state.sites[site.index()]
                 .inventory
@@ -49,6 +76,7 @@ pub(crate) fn deliver(state: &mut GameState, today: Date) {
         };
         stock.add(s.quantity, s.value, s.quality);
     }
+    news
 }
 
 /// Quantities on the way to the traders, by product and destination.

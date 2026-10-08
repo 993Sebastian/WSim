@@ -33,6 +33,9 @@ export type Befehl =
     }
   | { AnswerContract: { contract: number; accept: boolean } }
   | { CancelContract: { contract: number } }
+  | { BuyVehicles: { vehicle: string; count: number } }
+  | { SellVehicles: { vehicle: string; count: number } }
+  | { SetLogistics: { mode: "Market" | "State" | "Fleet"; carry_for_others: boolean } }
   | { TakeLoan: { amount: number; years: number } }
   | { RepayLoan: { loan: number; amount: number } }
   | { SetSale: { site: number; product: string; mode: Preisart | null; keep: number } }

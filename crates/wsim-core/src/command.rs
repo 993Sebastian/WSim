@@ -10,6 +10,7 @@ use crate::catalog::{Catalog, FacilitySize, SiteType};
 use crate::deals::{DealObject, OfferAnswer};
 use crate::ids::{
     CountryId, DepositId, FacilityId, GoodsGroupId, Id, ProductId, RecipeId, TechnologyId,
+    VehicleId,
 };
 use crate::ledger::{Account, CostCenter, CostType, Ledger};
 use crate::message::{Message, Param, keys};
@@ -86,6 +87,15 @@ pub enum Command {
     AnswerContract { contract: u32, accept: bool },
     /// Ends a contract early (with the penalty) or withdraws a proposal.
     CancelContract { contract: u32 },
+    /// Buys vehicles for the own fleet (W5).
+    BuyVehicles { vehicle: VehicleId, count: u32 },
+    /// Sells vehicles of the own fleet at a share of their book value.
+    SellVehicles { vehicle: VehicleId, count: u32 },
+    /// How the company sends its own loads, and whether its fleet carries for others.
+    SetLogistics {
+        mode: crate::logistics::FreightMode,
+        carry_for_others: bool,
+    },
     /// Takes up a bank loan, repaid monthly over `years`.
     TakeLoan { amount: Money, years: u32 },
     /// Repays (part of) a loan early.
@@ -485,6 +495,14 @@ pub enum CommandError {
     ContractDeclined {
         reason: String,
     },
+    /// The data have no logistics (W5).
+    NoLogistics,
+    /// The vehicle cannot be bought for a fleet (now).
+    VehicleNotForFleet,
+    /// The fleet has fewer vehicles of the kind.
+    TooManyVehicles {
+        count: u32,
+    },
     /// A move is under way until the date.
     RelocationUnderWay {
         until: Date,
@@ -647,6 +665,11 @@ impl CommandError {
                 "grund",
                 Param::TextKey(format!("vertrag.abgelehnt.{reason}")),
             ),
+            CommandError::NoLogistics => e(keys::COMMAND_NO_LOGISTICS),
+            CommandError::VehicleNotForFleet => e(keys::COMMAND_VEHICLE_NOT_FOR_FLEET),
+            CommandError::TooManyVehicles { count } => {
+                e(keys::COMMAND_TOO_MANY_VEHICLES).with("anzahl", Param::Integer(i64::from(*count)))
+            }
             CommandError::RelocationUnderWay { until } => {
                 e(keys::COMMAND_RELOCATION_UNDER_WAY).with("datum", Param::Date(*until))
             }
@@ -1252,8 +1275,19 @@ fn run(
                 s.value
                     .scale(rate * (*quantity / s.quantity.max(1e-12)).min(1.0))
             });
-            let freight = if let Some((per_unit, days)) = route {
-                let cost = Money::times(per_unit, *quantity);
+            // The way of the load (W5): market, state or own fleet.
+            let plan = route.map(|(per_unit, _)| {
+                crate::logistics::plan(
+                    state,
+                    catalog,
+                    actor,
+                    (*product, *quantity),
+                    (from_country, to_country),
+                    Money::times(per_unit, *quantity),
+                )
+            });
+            let freight = if let (Some((_, days)), Some(plan)) = (route, &plan) {
+                let cost = plan.cost;
                 let company = state.company_mut(actor).expect("checked above");
                 if company.ledger.cash() < cost + customs {
                     return Err(CommandError::NotEnoughCash {
@@ -1286,6 +1320,7 @@ fn run(
                 .or_default();
             let quality = stock.quality;
             let value = stock.take(*quantity);
+            let lost = plan.is_some_and(|p| crate::logistics::book(state, catalog, actor, &p));
             match freight {
                 None => state
                     .site_mut(*to)
@@ -1302,6 +1337,7 @@ fn run(
                     from: from_country,
                     to: Consignee::Site(*to),
                     arrival: today.add_days(i32::try_from(days).expect("short route")),
+                    lost,
                 }),
             }
         }
@@ -1326,6 +1362,23 @@ fn run(
                 penalty: *penalty,
             };
             crate::contracts::propose(state, catalog, actor, &terms)?;
+        }
+        Command::BuyVehicles { vehicle, count } => {
+            crate::logistics::buy(state, catalog, actor, *vehicle, *count)?;
+        }
+        Command::SellVehicles { vehicle, count } => {
+            crate::logistics::sell(state, catalog, actor, *vehicle, *count)?;
+        }
+        Command::SetLogistics {
+            mode,
+            carry_for_others,
+        } => {
+            if !catalog.logistics.enabled {
+                return Err(CommandError::NoLogistics);
+            }
+            let l = &mut state.company_mut(actor).expect("checked above").logistics;
+            l.mode = *mode;
+            l.carry_for_others = *carry_for_others;
         }
         Command::AnswerContract { contract, accept } => {
             crate::contracts::answer(state, actor, *contract, *accept)?;

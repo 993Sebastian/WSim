@@ -424,6 +424,7 @@ pub fn trading() -> Catalog {
                 classes: vec![bulk],
                 cost_per_tkm: series(cost),
                 km_per_day: series(speed),
+                fleet: None,
                 provenance: Provenance::default(),
             },
         );

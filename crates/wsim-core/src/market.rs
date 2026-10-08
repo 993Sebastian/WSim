@@ -1123,6 +1123,7 @@ fn trade(
                 from: country,
                 to: Consignee::Importer(destination),
                 arrival: date.add_days(i32::try_from(days).expect("routes take far fewer days")),
+                lost: false,
             });
         }
         Buyer::Outside => day.outside_sold += quantity,

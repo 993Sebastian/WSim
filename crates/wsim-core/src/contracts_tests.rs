@@ -14,7 +14,7 @@ use crate::trade_tests::{
     competitor, days, inventory_matches, iron, new_game, stock, usd, warehouse, with_tariff,
 };
 
-fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Catalog {
+pub(super) fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Catalog {
     catalog.contracts = ContractModel {
         months_max: 60,
         months_default: 12,
@@ -35,12 +35,12 @@ fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Catalog {
     catalog
 }
 
-fn cash(game: &Game, company: CompanyId) -> Money {
+pub(super) fn cash(game: &Game, company: CompanyId) -> Money {
     game.state().companies[company.index()].ledger.cash()
 }
 
 /// The other company proposes to buy iron from the player's warehouse; the player agrees.
-fn agreed(
+pub(super) fn agreed(
     game: &mut Game,
     buyer_country: &str,
     per_month: f64,

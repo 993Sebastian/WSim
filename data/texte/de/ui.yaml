@@ -623,6 +623,7 @@ markt.verbraucher_summe: "Verbraucher zusammen: {menge} je Monat."
 markt.marke_titel: Marke und Werbung
 markt.ketten: Produktionsketten
 markt.vertraege: Lieferverträge
+markt.logistik: Logistik
 ketten.hilfe: "Wie jedes Produkt entsteht, vom Rohstoff an – mit dem günstigsten Verfahren, das du nutzen kannst. Stückkosten und Preise gelten für {land}: Vorprodukte zu Marktpreisen, Anlagen bei normaler Auslastung. Ein Klick auf ein Produkt öffnet seinen Markt."
 ketten.endprodukt: Kette von
 ketten.deine_kette: deine Kette
@@ -1711,3 +1712,51 @@ vertrag.abgeschlossen: Die Firma nimmt an – der Vertrag beginnt am nächsten M
 vertrag.keine_standorte: Keiner deiner Standorte verkauft oder braucht ein Produkt, über das sich ein Vertrag schließen ließe.
 vertrag.keine_partner.verkauf: Keine andere Firma braucht dieses Produkt gerade in ihren Werken.
 vertrag.keine_partner.einkauf: Keine andere Firma bietet dieses Produkt gerade an.
+logistik.hilfe: Hier legst du fest, wie deine eigenen Ladungen reisen – Umlagerungen zwischen deinen Standorten und Lieferungen aus Verträgen. Innerhalb eines Landes ist das kostenlos; zwischen Ländern zahlst du Fracht, und jede Ladung kann unterwegs verloren gehen.
+logistik.keine: In diesem Spiel fahren alle Ladungen über den Frachtmarkt.
+logistik.weg_titel: Weg der eigenen Ladungen
+logistik.weg_frage: Wer fährt deine Ladungen?
+logistik.weg.markt: Frachtmarkt
+logistik.weg.staat: Staatlicher Transport
+logistik.weg.flotte: Eigene Flotte
+logistik.weg.markt_hilfe: Logistikfirmen fahren zum Marktpreis der Route. Kein Kapital nötig.
+logistik.weg.staat_hilfe: "Überall verfügbar, {aufschlag} teurer als der Markt – dafür nur {faktor} des Verlustrisikos."
+logistik.weg.flotte_hilfe: "Deine Fahrzeuge fahren zu ihren Betriebskosten; was nicht mehr passt, fährt über den Markt. Voll ausgelastet sparst du die Marge der Logistikfirmen ({marge}), halb leer zahlst du drauf."
+logistik.fremdfracht: "Freien Platz der Flotte für andere fahren (etwa {anteil} davon findet Ladung)"
+logistik.risiko: "Verlustrisiko je Ladung in diesem Jahr: zu Land {land}, zur See {see}."
+logistik.uebernehmen: Übernehmen
+logistik.flotte_titel: Eigene Flotte
+logistik.flotte_leer: Du hast noch keine Fahrzeuge.
+logistik.kauf_titel: Fahrzeuge kaufen
+logistik.kauf_hilfe: Ein Fahrzeug lohnt sich, wenn deine Ladungen es füllen. Die Kapazität gilt für einen Monat bei üblicher Auslastung (Laden, Leerfahrten). Unterhalt und Abschreibung fallen jeden Monat an, ob es fährt oder nicht.
+logistik.fahrzeug: Fahrzeug
+logistik.anzahl: Anzahl
+logistik.kapazitaet: Kapazität je Monat
+logistik.genutzt: Genutzt
+logistik.fahrtkosten: Fahrt kostet (zum Markt)
+logistik.buchwert: Buchwert
+logistik.teurer: teurer als der Markt – bleibt stehen
+logistik.nutzlast: Nutzlast
+logistik.preis: Preis
+logistik.kaufen: Kaufen
+logistik.verkaufen: Verkaufen
+logistik.vormonat_wert: "Vormonat {wert}"
+logistik.erloes_je: "Verkauf: {betrag} je Fahrzeug"
+logistik.km_tag: "{km} km am Tag"
+logistik.je_monat: "{betrag} im Monat"
+logistik.wegart.gelaende: Gelände
+logistik.wegart.strasse: Straße
+logistik.wegart.schiene: Schiene
+logistik.wegart.see: See
+logistik.wegart.luft: Luft
+logistik.zahlen_titel: Zahlen
+logistik.dieser_monat: Dieser Monat
+logistik.vormonat: Vormonat
+logistik.zahl.flotte: Mit eigener Flotte
+logistik.zahl.markt: Über den Frachtmarkt
+logistik.zahl.staat: Staatlicher Transport
+logistik.zahl.fremd: Fracht für andere
+logistik.zahl.unterhalt: Unterhalt
+logistik.zahl.abschreibung: Abschreibung
+logistik.zahl.verluste: Verlorene Ladungen
+logistik.verluste_wert: "{anzahl} ({wert})"

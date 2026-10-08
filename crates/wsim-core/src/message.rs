@@ -198,6 +198,10 @@ pub mod keys {
     pub const CONTRACT_ENDED: &str = "meldung.vertrag.beendet";
     pub const CONTRACT_SHORT_OWN: &str = "meldung.vertrag.fehlmenge_eigen";
     pub const CONTRACT_SHORT_PARTNER: &str = "meldung.vertrag.fehlmenge_partner";
+    pub const COMMAND_NO_LOGISTICS: &str = "fehler.befehl.keine_logistik";
+    pub const COMMAND_VEHICLE_NOT_FOR_FLEET: &str = "fehler.befehl.fahrzeug_ungeeignet";
+    pub const COMMAND_TOO_MANY_VEHICLES: &str = "fehler.befehl.zu_viele_fahrzeuge";
+    pub const FREIGHT_LOST: &str = "meldung.logistik.verlust";
     pub const COMMAND_RELOCATION_UNDER_WAY: &str = "fehler.befehl.umzug_laeuft";
     pub const COMMAND_UNKNOWN_DEPARTMENT: &str = "fehler.befehl.abteilung_unbekannt";
     pub const COMMAND_INVALID_PARTICIPATIONS: &str = "fehler.befehl.beteiligungen_ungueltig";
@@ -498,6 +502,10 @@ pub mod keys {
         CONTRACT_ENDED,
         CONTRACT_SHORT_OWN,
         CONTRACT_SHORT_PARTNER,
+        COMMAND_NO_LOGISTICS,
+        COMMAND_VEHICLE_NOT_FOR_FLEET,
+        COMMAND_TOO_MANY_VEHICLES,
+        FREIGHT_LOST,
         COMMAND_RELOCATION_UNDER_WAY,
         COMMAND_UNKNOWN_DEPARTMENT,
         COMMAND_INVALID_PARTICIPATIONS,

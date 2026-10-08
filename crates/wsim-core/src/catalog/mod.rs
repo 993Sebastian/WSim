@@ -73,6 +73,8 @@ pub struct Catalog {
     pub tariffs: TariffModel,
     /// Supply contracts between companies (W4); without the section there are none.
     pub contracts: ContractModel,
+    /// Fleets, state transport and freight risk (W5); without the section there are none.
+    pub logistics: LogisticsModel,
 }
 
 /// The management of companies (MA1, docs/MANAGER.md).
@@ -364,6 +366,40 @@ pub struct VentureModel {
     /// Years closed start-ups stay in the list.
     pub keep_years: u32,
     pub inventors: Vec<Inventor>,
+    pub provenance: Provenance,
+}
+
+/// What a fleet needs to know of a vehicle (W5).
+#[derive(Clone, Debug, PartialEq)]
+pub struct FleetVehicle {
+    pub payload_t: TimeSeries,
+    pub price_usd: TimeSeries,
+}
+
+/// Logistics (W5, docs/FORMELN.md). Disabled without the section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LogisticsModel {
+    pub enabled: bool,
+    /// State transport: surcharge on the route cost and factor on the risk.
+    pub state_surcharge: f64,
+    pub state_risk_factor: f64,
+    /// Margin of the logistics companies in the market freight: what a fully used fleet
+    /// saves.
+    pub market_margin: f64,
+    /// Share of the capacity a fleet really uses (loading, empty runs back).
+    pub load: f64,
+    /// Upkeep per year as a share of the purchase value.
+    pub upkeep_share: f64,
+    pub life_years: f64,
+    /// Sale at this share of the book value.
+    pub sale_share: f64,
+    /// Share of free capacity that finds cargo of others.
+    pub rental_share: f64,
+    /// Chance of losing a load by land and by sea, by year.
+    pub risk_land: Option<TimeSeries>,
+    pub risk_sea: Option<TimeSeries>,
+    pub ai_share: f64,
+    pub ai_cash_share: f64,
     pub provenance: Provenance,
 }
 
@@ -829,6 +865,9 @@ pub struct Vehicle {
     /// Cost per tonne-kilometre of bulk goods in USD, by year.
     pub cost_per_tkm: TimeSeries,
     pub km_per_day: TimeSeries,
+    /// Payload of one vehicle in tonnes and its price in USD (W5); `None`: not for
+    /// fleets.
+    pub fleet: Option<FleetVehicle>,
     pub provenance: Provenance,
 }
 

@@ -1,0 +1,25 @@
+# Logistik (W5, Lastenheft §8.1; Formeln: docs/FORMELN.md, Abschnitt W5).
+# Drei Wege für eigene Ladungen: Frachtmarkt (KI-Logistikfirmen, Kosten der Route wie in
+# Stufe 1), staatlicher Transport (überall, aber teurer) und eigene Flotte.
+
+logistik:
+  staat:
+    aufschlag: 0.5              # 50 % über dem Frachtmarkt
+    risiko_faktor: 0.5          # dafür sicherer
+  flotte:
+    # Die Marktfracht deckt Betrieb, Kapital (Unterhalt, Abschreibung) und die Marge der
+    # Logistikfirmen; eine voll genutzte eigene Flotte spart diese Marge.
+    marge_frachtmarkt: 0.15
+    auslastung: 0.6             # Laden, Leerfahrten zurück
+    unterhalt_anteil: 0.06      # je Jahr vom Kaufwert
+    nutzungsdauer_jahre: 20
+    verkauf_anteil: 0.6         # Verkauf zum Buchwert mal diesem Anteil
+    vermietung_anteil: 0.5      # so viel freier Platz findet fremde Ladung
+  # Verlust einer Ladung je Fahrt
+  risiko:
+    land: {1900: 0.002, 1950: 0.001, 2000: 0.0003}
+    see: {1900: 0.006, 1950: 0.003, 2000: 0.001}
+  ki:
+    anteil: 0.5                 # eine Flotte für die Hälfte der eigenen Fracht
+    kasse_anteil: 0.2
+  annaeherung: true

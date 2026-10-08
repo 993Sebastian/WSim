@@ -11,6 +11,7 @@ mod concerns;
 mod contracts;
 mod deals;
 mod hints;
+mod logistics;
 mod organisation;
 mod play;
 mod review;
@@ -25,6 +26,7 @@ pub use deals::{
     LicenseView, OfferView, OffersView, SiteValueView, companies, company_detail, offers,
 };
 pub use hints::*;
+pub use logistics::*;
 pub use organisation::*;
 pub use play::*;
 pub use review::*;
@@ -623,6 +625,7 @@ pub fn message_view(message: &Message) -> MessageView {
     ]
     .contains(&message.key.as_str())
         || message.key.starts_with("meldung.vertrag.")
+        || message.key.starts_with("meldung.logistik.")
     {
         Some("markt")
     } else if message.key.starts_with("meldung.forschung") {

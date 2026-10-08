@@ -567,15 +567,26 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
         if short.is_some() {
             state.contracts[i].short_of = short;
         }
-        if quantity > EPS {
-            ship(state, catalog, i, quantity, today);
+        if quantity > EPS && ship(state, catalog, i, quantity, today) {
+            let c = &state.contracts[i];
+            if c.seller_company == player {
+                news.push(crate::logistics::loss_message(
+                    catalog,
+                    (product, quantity),
+                    (
+                        state.sites[c.seller.index()].country,
+                        state.sites[c.buyer.index()].country,
+                    ),
+                ));
+            }
         }
     }
     news
 }
 
-/// Moves `quantity` of contract `i` to the buyer with payment, freight and customs.
-fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today: Date) {
+/// Moves `quantity` of contract `i` to the buyer with payment, freight and customs;
+/// `true` when the load is lost on the way (W5).
+fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today: Date) -> bool {
     let c = state.contracts[i].clone();
     let amount = Money::times(c.price, quantity);
     let (cost, days) = delivery_cost(state, catalog, (c.seller, c.buyer), c.product, c.price)
@@ -596,7 +607,28 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
         .for_product(catalog, from, to, c.product)
         .unwrap_or(0.0);
     let customs = amount.scale(tariff);
-    let freight = Money::times(cost, quantity) - customs;
+    let market = Money::times(cost, quantity) - customs;
+    // The seller's way (W5); a lost load costs it the goods and the freight.
+    let plan = (from != to).then(|| {
+        crate::logistics::plan(
+            state,
+            catalog,
+            c.seller_company,
+            (c.product, quantity),
+            (from, to),
+            market,
+        )
+    });
+    let freight = plan.as_ref().map_or(market, |p| p.cost);
+    if plan.is_some_and(|p| crate::logistics::book(state, catalog, c.seller_company, &p)) {
+        let ledger = &mut state.companies[c.seller_company.index()].ledger;
+        ledger.expense(CostType::Other, center, Account::Inventory, value);
+        if freight > Money::ZERO {
+            ledger.expense(CostType::Transport, center, Account::Cash, freight);
+        }
+        crate::logistics::note_loss(state, c.seller_company, value);
+        return true;
+    }
     let ledger = &mut state.companies[c.seller_company.index()].ledger;
     ledger.income(CostType::Revenue, center, Account::Cash, amount);
     ledger.expense(CostType::InventoryChange, center, Account::Inventory, value);
@@ -629,11 +661,13 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
             from,
             to: Consignee::Site(c.buyer),
             arrival: today.add_days(i32::try_from(days.max(1)).unwrap_or(i32::MAX)),
+            lost: false,
         });
     }
     let c = &mut state.contracts[i];
     c.delivered_month += quantity;
     c.delivered_total += quantity;
+    false
 }
 
 /// At the start of a month: penalties for the month before, ends of contracts, the list

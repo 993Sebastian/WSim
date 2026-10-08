@@ -19263,6 +19263,150 @@
       }
     }
   },
+  "logistik": {
+    "carry_for_others": true,
+    "enabled": true,
+    "fleet": [
+      {
+        "book_value_usd": 15000.0,
+        "capacity_tkm": 930.0,
+        "count": 1,
+        "purchase_usd": 15000.0,
+        "running_share": 14.281817633214649,
+        "sale_usd": 9000.0,
+        "used_last_tkm": 0.0,
+        "used_tkm": 0.0,
+        "vehicle": "fuhrwerk",
+        "way": "gelaende"
+      }
+    ],
+    "last_month": {
+      "depreciation_usd": 0.0,
+      "fleet_tkm": 0.0,
+      "losses": 0,
+      "lost_value_usd": 0.0,
+      "market_tkm": 0.0,
+      "rental_usd": 0.0,
+      "state_tkm": 0.0,
+      "upkeep_usd": 0.0
+    },
+    "market_margin": 0.15,
+    "mode": "flotte",
+    "month": {
+      "depreciation_usd": 0.0,
+      "fleet_tkm": 0.0,
+      "losses": 0,
+      "lost_value_usd": 0.0,
+      "market_tkm": 0.0,
+      "rental_usd": 0.0,
+      "state_tkm": 0.0,
+      "upkeep_usd": 0.0
+    },
+    "rental_share": 0.5,
+    "risk_land": 0.00172,
+    "risk_sea": 0.00516,
+    "sale_share": 0.6,
+    "state_risk_factor": 0.5,
+    "state_surcharge": 0.5,
+    "vehicles": [
+      {
+        "capacity_tkm": 930.0,
+        "classes": [
+          "schuettgut",
+          "stueckgut",
+          "fluessig"
+        ],
+        "cost_per_tkm_usd": 2.7199999999999998,
+        "km_per_day": 25.0,
+        "monthly_cost_usd": 137.5,
+        "payload_t": 2.0,
+        "price_usd": 15000.0,
+        "running_share": 14.281817633214649,
+        "vehicle": "fuhrwerk",
+        "way": "gelaende"
+      },
+      {
+        "capacity_tkm": 8946.6,
+        "classes": [
+          "schuettgut",
+          "stueckgut",
+          "fluessig",
+          "gas"
+        ],
+        "cost_per_tkm_usd": 1.84,
+        "km_per_day": 130.0,
+        "monthly_cost_usd": 1081.6667,
+        "payload_t": 3.7,
+        "price_usd": 118000.0,
+        "running_share": 9.520564631420946,
+        "vehicle": "lastkraftwagen",
+        "way": "strasse"
+      },
+      {
+        "capacity_tkm": 2103436.8,
+        "classes": [
+          "schuettgut",
+          "stueckgut",
+          "fluessig",
+          "gas"
+        ],
+        "cost_per_tkm_usd": 0.15133333333333335,
+        "km_per_day": 228.0,
+        "monthly_cost_usd": 12980.0,
+        "payload_t": 496.0,
+        "price_usd": 1416000.0,
+        "running_share": 0.8084414197937587,
+        "vehicle": "eisenbahn",
+        "way": "schiene"
+      },
+      {
+        "capacity_tkm": 38092800.0,
+        "classes": [
+          "schuettgut",
+          "stueckgut",
+          "fluessig"
+        ],
+        "cost_per_tkm_usd": 0.011533333333333333,
+        "km_per_day": 400.0,
+        "monthly_cost_usd": 82866.6667,
+        "payload_t": 5120.0,
+        "price_usd": 9040000.0,
+        "running_share": 0.7038764828414066,
+        "vehicle": "dampfschiff",
+        "way": "see"
+      },
+      {
+        "capacity_tkm": 53852812.5,
+        "classes": [
+          "schuettgut",
+          "stueckgut",
+          "fluessig"
+        ],
+        "cost_per_tkm_usd": 0.010777777777777777,
+        "km_per_day": 454.1666666666667,
+        "monthly_cost_usd": 99305.55559999999,
+        "payload_t": 6375.0,
+        "price_usd": 10833333.3333,
+        "running_share": 0.6756242829770355,
+        "vehicle": "motorschiff",
+        "way": "see"
+      },
+      {
+        "capacity_tkm": 113004300.0,
+        "classes": [
+          "fluessig"
+        ],
+        "cost_per_tkm_usd": 0.007833333333333333,
+        "km_per_day": 435.0,
+        "monthly_cost_usd": 202583.3333,
+        "payload_t": 13966.666666666666,
+        "price_usd": 22100000.0,
+        "running_share": 0.6705808235297025,
+        "vehicle": "tankschiff",
+        "way": "see"
+      }
+    ]
+  },
   "managermarkt": {
     "candidates": [
       {

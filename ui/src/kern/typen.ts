@@ -1934,3 +1934,59 @@ export interface Vertragspartnerliste {
   own_per_month: number;
   partners: Vertragspartner[];
 }
+
+/** Vehicles of one kind the player holds (W5). */
+export interface Flottenbestand {
+  vehicle: string;
+  way: string;
+  count: number;
+  capacity_tkm: number;
+  used_tkm: number;
+  used_last_tkm: number;
+  purchase_usd: number;
+  book_value_usd: number;
+  sale_usd: number;
+  running_share: number | null;
+}
+
+/** A vehicle the player can buy now (W5). */
+export interface Fahrzeugangebot {
+  vehicle: string;
+  way: string;
+  classes: string[];
+  payload_t: number;
+  km_per_day: number;
+  cost_per_tkm_usd: number;
+  capacity_tkm: number;
+  price_usd: number;
+  monthly_cost_usd: number;
+  running_share: number | null;
+}
+
+export interface Logistikmonat {
+  fleet_tkm: number;
+  market_tkm: number;
+  state_tkm: number;
+  losses: number;
+  lost_value_usd: number;
+  rental_usd: number;
+  upkeep_usd: number;
+  depreciation_usd: number;
+}
+
+export interface Logistik {
+  enabled: boolean;
+  mode: "markt" | "staat" | "flotte";
+  carry_for_others: boolean;
+  state_surcharge: number;
+  state_risk_factor: number;
+  market_margin: number;
+  rental_share: number;
+  sale_share: number;
+  risk_land: number;
+  risk_sea: number;
+  fleet: Flottenbestand[];
+  vehicles: Fahrzeugangebot[];
+  month: Logistikmonat;
+  last_month: Logistikmonat;
+}

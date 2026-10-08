@@ -717,3 +717,10 @@ pub fn membership_years(count: usize) -> String {
 pub fn embargo_countries() -> String {
     "Eine Handelssperre braucht genau zwei verschiedene Länder.".into()
 }
+
+/// Payload and purchase price of a vehicle only together (W5).
+pub fn fleet_fields_together(present: &str, missing: &str) -> String {
+    format!(
+        "Zu „{present}“ gehört auch „{missing}“ – nur mit beiden kann eine Firma das Verkehrsmittel für ihre Flotte kaufen."
+    )
+}

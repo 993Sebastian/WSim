@@ -1170,6 +1170,31 @@ Eigenständig entschieden:
 6. **Angebote der KI** an den Spieler: höchstens eines je Monat und Produkt des Spielers
    (Chance 25 %), dasselbe Standortpaar erst wieder nach zwölf Monaten.
 
+✅ **W5 umgesetzt** (Logistik; Regeln: `docs/FORMELN.md`, Abschnitt W5). 🟡 Eigenständig
+entschieden:
+
+1. **Drei Wege je Firma, nicht je Ladung:** Die Firma wählt Frachtmarkt, staatlichen
+   Transport oder eigene Flotte für alle eigenen Ladungen (Umlagerungen und Lieferungen aus
+   Verträgen). Einkäufe am Markt liefern weiter die Händler.
+2. **Flotte als Kapazität in Tonnenkilometern** je Monat statt einzelner Fahrten mit
+   Fahrplänen; Fahrzeuge fahren nicht wirklich zwischen Ländern hin und her. Nutzlast und
+   Geschwindigkeit gelten im laufenden Jahr (Modernisierung steckt im Unterhalt).
+3. **Kaufpreise je Verkehrsmittel als Daten** (geschätzt aus zeitgenössischen Preisen,
+   Kaufkraft 2026): Fuhrwerk 15.000 USD, Lastwagen 100.000–150.000, Güterzug 0,8–4 Mio.,
+   Dampfschiff 7,5–13 Mio., Motorschiff 10–45 Mio., Tanker 6–90 Mio., Containerschiff
+   25–80 Mio.
+4. **Betriebskosten aus der Marktfracht:** Die Marktfracht deckt Betrieb, Kapital und eine
+   Marge der Logistikfirmen (15 %). Eine voll genutzte Flotte des günstigsten Verkehrsmittels
+   spart diese Marge; eine halb leere kostet mehr. Fahrzeuge, die teurer fahren als der Markt
+   (Fuhrwerk und frühe Lastwagen, wo Bahnen fahren), bleiben stehen. Die Infrastruktur der
+   Länder wird beim Vergleich nicht gesondert betrachtet.
+5. **Risiko je Ladung** (zu Land 2 ‰ um 1900 bis 0,3 ‰ ab 2000, zur See 6 ‰ bis 1 ‰;
+   staatlicher Transport halb so viel). Eine verlorene Vertragslieferung trägt der
+   Verkäufer. Versicherungen gibt es (noch) nicht.
+6. **Luftfracht** bleibt beim Frachtmarkt; Flugzeuge kauft man in Stufe 5 (P2).
+7. **Die KI** kauft Fahrzeuge, die ihre Ladungen des Vormonats ganz füllen, bis die Flotte
+   die Hälfte trägt (höchstens 20 % der Kasse je Monat), und fährt dann auch für andere.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

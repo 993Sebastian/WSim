@@ -1,8 +1,11 @@
-# Verkehrsmittel (Lastenheft §8.1). In Stufe 1 bestimmen sie Kosten und Dauer des
-# abstrakten Frachtdienstes zwischen Ländern; eigene Flotten folgen in Stufe 2.
+# Verkehrsmittel (Lastenheft §8.1). Sie bestimmen Kosten und Dauer des Frachtmarkts
+# zwischen Ländern; mit Nutzlast (Tonnen je Fahrzeug) kann eine Firma sie für ihre eigene
+# Flotte kaufen (W5).
 #
 # Kosten in USD (Kaufkraft 2026) je Tonnenkilometer Schüttgut, bei voll ausgebauter
-# Infrastruktur; Geschwindigkeit in km je Tag einschließlich Wartezeiten.
+# Infrastruktur; Geschwindigkeit in km je Tag einschließlich Wartezeiten. Nutzlast in
+# Tonnen je Fahrzeug (ein Zug: Lok mit Wagen) und Kaufpreis in USD (Kaufkraft 2026),
+# geschätzt aus zeitgenössischen Preisen.
 # Grundlage: Frachtraten um 1900 (US-Eisenbahn rund 0,45 Cent je tkm, Kohlefracht
 # Cardiff–Genua rund 7 Schilling je Tonne), mit dem Verbraucherpreisindex auf 2026
 # umgerechnet. Alle Werte sind Annäherungen und werden beim Balancing (M15) geprüft.
@@ -14,6 +17,8 @@ verkehrsmittel:
     transportklassen: [schuettgut, stueckgut, fluessig]
     kosten_usd_je_tkm: {1900: 3.0, 1950: 2.0}
     km_je_tag: {1900: 25}
+    nutzlast_t: {1800: 2}
+    kaufpreis_usd: {1800: 15000}
     annaeherung: true
 
   - id: lastkraftwagen
@@ -22,6 +27,8 @@ verkehrsmittel:
     transportklassen: [schuettgut, stueckgut, fluessig, gas]
     kosten_usd_je_tkm: {1910: 2.0, 1920: 1.6, 1930: 0.8, 1950: 0.3, 1970: 0.15, 2000: 0.08, 2026: 0.1}
     km_je_tag: {1910: 100, 1930: 250, 1960: 500, 2000: 700}
+    nutzlast_t: {1910: 3, 1950: 10, 1980: 25}
+    kaufpreis_usd: {1910: 120000, 1950: 100000, 1980: 150000}
     annaeherung: true
 
   - id: eisenbahn
@@ -30,6 +37,8 @@ verkehrsmittel:
     transportklassen: [schuettgut, stueckgut, fluessig, gas]
     kosten_usd_je_tkm: {1900: 0.17, 1930: 0.13, 1960: 0.09, 2000: 0.03, 2026: 0.04}
     km_je_tag: {1900: 200, 1950: 300, 2000: 500}
+    nutzlast_t: {1900: 300, 1950: 1000, 2000: 2000}
+    kaufpreis_usd: {1900: 800000, 1950: 3000000, 2000: 4000000}
     annaeherung: true
 
   - id: dampfschiff
@@ -39,6 +48,8 @@ verkehrsmittel:
     transportklassen: [schuettgut, stueckgut, fluessig]
     kosten_usd_je_tkm: {1900: 0.012, 1930: 0.011, 1960: 0.010}
     km_je_tag: {1900: 400}
+    nutzlast_t: {1900: 4000, 1950: 8000}
+    kaufpreis_usd: {1900: 7500000, 1950: 13000000}
     annaeherung: true
 
   - id: motorschiff
@@ -47,6 +58,8 @@ verkehrsmittel:
     transportklassen: [schuettgut, stueckgut, fluessig]
     kosten_usd_je_tkm: {1912: 0.011, 1930: 0.009, 1960: 0.006, 2000: 0.003}
     km_je_tag: {1912: 450, 1960: 550, 2000: 600}
+    nutzlast_t: {1912: 6000, 1960: 15000, 2000: 40000}
+    kaufpreis_usd: {1912: 10000000, 1960: 30000000, 2000: 45000000}
     annaeherung: true
 
   - id: tankschiff
@@ -55,6 +68,8 @@ verkehrsmittel:
     transportklassen: [fluessig]
     kosten_usd_je_tkm: {1900: 0.009, 1960: 0.004, 2000: 0.002}
     km_je_tag: {1900: 400, 1960: 550}
+    nutzlast_t: {1900: 3000, 1960: 50000, 2000: 150000}
+    kaufpreis_usd: {1900: 6000000, 1960: 75000000, 2000: 90000000}
     annaeherung: true
 
   - id: containerschiff
@@ -63,6 +78,8 @@ verkehrsmittel:
     transportklassen: [stueckgut]
     kosten_usd_je_tkm: {1956: 0.006, 2000: 0.0025}
     km_je_tag: {1956: 600, 2000: 750}
+    nutzlast_t: {1956: 10000, 2000: 60000}
+    kaufpreis_usd: {1956: 25000000, 2000: 80000000}
     annaeherung: true
 
   - id: frachtflugzeug

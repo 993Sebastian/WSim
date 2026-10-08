@@ -1818,6 +1818,24 @@ fn verkehrsmittel_werden_geprueft() {
     let f = befund(&outcome, "Wert 0 muss größer als 0 sein.");
     assert_eq!(f.path.to_string(), "verkehrsmittel[0].km_je_tag.1900");
 
+    let d = Daten::neu().ersetze(
+        "verkehrsmittel.yaml",
+        "km_je_tag: {1900: 25}",
+        "km_je_tag: {1900: 25}\n    nutzlast_t: {1900: -2}\n    kaufpreis_usd: {1900: 9000}",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Wert -2 muss größer als 0 sein.");
+    assert_eq!(f.path.to_string(), "verkehrsmittel[0].nutzlast_t.1900");
+    let d = Daten::neu().ersetze(
+        "verkehrsmittel.yaml",
+        "km_je_tag: {1900: 25}",
+        "km_je_tag: {1900: 25}\n    nutzlast_t: {1900: 2}",
+    );
+    let outcome = d.laden();
+    let f = befund(&outcome, "Zu „nutzlast_t“ gehört auch „kaufpreis_usd“");
+    assert_eq!(f.path.to_string(), "verkehrsmittel[0].nutzlast_t");
+    nur_fehler(&outcome, 1);
+
     let d = Daten::neu().ersetze("verkehrsmittel.yaml", "weg: gelaende", "weg: gelende");
     befund(
         &d.laden(),
@@ -3707,4 +3725,81 @@ fn vertraege_werden_geprueft() {
     // Without the section there are no contracts.
     let ohne = Daten::neu().laden();
     assert!(!ohne.data.unwrap().catalog.contracts.enabled());
+}
+
+const LOGISTIK: &str = "\
+logistik:
+  staat:
+    aufschlag: 0.5
+    risiko_faktor: 0.5
+  flotte:
+    marge_frachtmarkt: 0.15
+    auslastung: 0.6
+    unterhalt_anteil: 0.06
+    nutzungsdauer_jahre: 20
+    verkauf_anteil: 0.6
+    vermietung_anteil: 0.5
+  risiko:
+    land: {1900: 0.002, 2000: 0.0003}
+    see: {1900: 0.006, 2000: 0.001}
+  ki:
+    anteil: 0.5
+    kasse_anteil: 0.2
+";
+
+#[test]
+fn logistik_wird_geprueft() {
+    let datei = "parameter/logistik.yaml";
+    let logistik = |alt: &str, neu: &str| {
+        Daten::neu()
+            .datei(datei, &LOGISTIK.replacen(alt, neu, 1))
+            .laden()
+    };
+    let gut = logistik("", "");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.logistics;
+    assert!(m.enabled);
+    assert!((m.state_surcharge - 0.5).abs() < 1e-12);
+    assert!((m.load - 0.6).abs() < 1e-12);
+
+    for (alt, neu, meldung, pfad) in [
+        (
+            "auslastung: 0.6",
+            "auslastung: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+            "logistik.flotte.auslastung",
+        ),
+        (
+            "marge_frachtmarkt: 0.15",
+            "marge_frachtmarkt: 0.95",
+            "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+            "logistik.flotte.marge_frachtmarkt",
+        ),
+        (
+            "nutzungsdauer_jahre: 20",
+            "nutzungsdauer_jahre: 0",
+            "Wert 0 muss größer als 0 sein.",
+            "logistik.flotte.nutzungsdauer_jahre",
+        ),
+        (
+            "see: {1900: 0.006",
+            "see: {1900: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "logistik.risiko.see.1900",
+        ),
+        (
+            "kasse_anteil: 0.2",
+            "kasse_anteil: -0.2",
+            "Wert -0.2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "logistik.ki.kasse_anteil",
+        ),
+    ] {
+        let outcome = logistik(alt, neu);
+        let f = befund(&outcome, meldung);
+        assert_eq!(f.path.to_string(), pfad);
+    }
+    befund(&logistik("  ki:", "  unbekannt: 1\n  ki:"), "unbekannt");
+    // Without the section only the freight market.
+    let ohne = Daten::neu().laden();
+    assert!(!ohne.data.unwrap().catalog.logistics.enabled);
 }

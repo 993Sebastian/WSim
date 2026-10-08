@@ -19,6 +19,7 @@ import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { formatMonatKurz, Verlauf } from "./Grafik";
 import { KettenAnsicht } from "./Ketten";
+import { LogistikAnsicht } from "./Logistik";
 import { VertraegeAnsicht } from "./Vertraege";
 import {
   Befehle,
@@ -97,7 +98,9 @@ export function MarktAnsicht({
   onGeaendert: (u: Uebersicht) => void;
 }) {
   const [land, setLand] = useState(uebersicht.company.headquarters);
-  const [bereich, setBereich] = useState<"produkte" | "marke" | "ketten" | "vertraege">("produkte");
+  const [bereich, setBereich] = useState<
+    "produkte" | "marke" | "ketten" | "vertraege" | "logistik"
+  >("produkte");
   const [produkt, setProdukt] = useState<string | null>(null);
   const { daten, fehler, neu } = useSicht(() => kern.markt(land), `${uebersicht.date}/${land}`);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
@@ -145,6 +148,7 @@ export function MarktAnsicht({
                   { key: "marke", text: t("markt.marke_titel") },
                   { key: "ketten", text: t("markt.ketten") },
                   { key: "vertraege", text: t("markt.vertraege") },
+                  { key: "logistik", text: t("markt.logistik") },
                 ]}
                 aktiv={bereich}
                 onWahl={setBereich}
@@ -152,6 +156,7 @@ export function MarktAnsicht({
               {bereich === "produkte" && <Produkte daten={daten} onProdukt={setProdukt} />}
               {bereich === "marke" && <MarkeUndWerbung daten={daten} />}
               {bereich === "vertraege" && <VertraegeAnsicht kern={kern} stand={uebersicht.date} />}
+              {bereich === "logistik" && <LogistikAnsicht kern={kern} stand={uebersicht.date} />}
               {bereich === "ketten" && (
                 <KettenAnsicht
                   kern={kern}

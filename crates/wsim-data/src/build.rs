@@ -25,6 +25,7 @@ mod contracts;
 mod countries;
 mod currencies;
 mod deals;
+mod logistics;
 mod management;
 mod milestones;
 mod names;
@@ -620,6 +621,7 @@ pub(crate) fn build(
     b.catalog.ventures = ventures::venture_model(b.ctx, &b.catalog, raw);
     b.catalog.tariffs = tariffs::tariff_model(b.ctx, &b.catalog, raw);
     b.catalog.contracts = contracts::contract_model(b.ctx, raw);
+    b.catalog.logistics = logistics::logistics_model(b.ctx, raw);
     let (_, real_companies) = register(
         b.ctx,
         raw,

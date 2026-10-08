@@ -3954,3 +3954,80 @@ die Monatsmenge des Spielers, P = Marktpreis im Land des Käufers, Laufzeit
 Tagen (Befehl `AnswerContract`), sonst verfällt das Angebot. Dasselbe Paar aus Standorten
 bekommt für ein Produkt erst wieder ein Angebot, wenn der letzte Vertrag aus der Liste
 gefallen ist (`aufbewahren_monate` nach seinem Ende).
+
+## W5 – Logistik
+
+Lastenheft §8.1. Daten: `parameter/logistik.yaml`, `verkehrsmittel.yaml` (Nutzlast,
+Kaufpreis). Kern: Modul `logistics`.
+
+### Drei Wege
+
+Für eigene Lieferungen (`TransferGoods`) und Lieferungen aus Verträgen (W4, beim Verkäufer)
+wählt eine Firma einen Weg (Befehl `SetLogistics`, Vorgabe Frachtmarkt):
+
+- **Frachtmarkt** (KI-Logistikfirmen): die Kosten der Route wie bisher (M8).
+- **Staatlicher Transport:** Kosten · (1 + `staat.aufschlag`), Risiko · `staat.risiko_faktor`.
+- **Eigene Flotte:** je Fahrzeug Kosten · Betriebsanteil (unten), solange die Flotte im
+  Monat noch Platz hat; der Rest fährt über den Frachtmarkt.
+
+Lieferungen innerhalb eines Landes kosten nichts und haben kein Risiko. Einkäufe am Markt
+liefern die Händler (versichert, ohne Risiko für die Firma).
+
+### Flotte
+
+Fahrzeuge mit `nutzlast_t` und `kaufpreis_usd` (Land: Gelände, Straße, Schiene; See) kauft
+die Firma zum Kaufpreis des Jahres (Befehl `BuyVehicles`). Kapazität im Monat
+(Tonnenkilometer):
+
+    C = Anzahl · Nutzlast(Jahr) · km je Tag(Jahr) · Tage des Monats · flotte.auslastung
+
+Nutzlast und Geschwindigkeit gelten im laufenden Jahr (Erneuerung ist im Unterhalt
+enthalten). Eine Ladung belegt t · d · Umweg (Tonnen, Luftlinie der Hauptstädte, Umweg zur
+See, wenn die Route ein Seestück hat, sonst zu Land) und braucht ein Fahrzeug, das ihre
+Transportklasse befördert.
+
+Die Marktfracht deckt Betrieb, Kapital und die Marge der Logistikfirmen. Je tkm verlangt
+der Markt auf einem Weg (Land oder See) für eine Transportklasse den Satz des günstigsten
+verfügbaren Verkehrsmittels:
+
+    M = min Kosten je tkm(Jahr) · Klassenfaktor
+
+Die Kapitalkosten je tkm eines eigenen Fahrzeugs bei üblicher Auslastung sind
+
+    K = Kaufpreis · (flotte.unterhalt_anteil + 1 / flotte.nutzungsdauer_jahre)
+        / (Nutzlast · km je Tag · Tage des Jahres · flotte.auslastung)
+
+und eine Fahrt kostet den **Betriebsanteil** der Marktfracht
+
+    b = max(0, Kosten je tkm · Klassenfaktor · (1 − flotte.marge_frachtmarkt) − K) / M
+
+Für das günstigste Verkehrsmittel spart eine voll genutzte Flotte also die Marge, eine
+halb leere kostet mehr als der Markt. Fahrzeuge mit b ≥ 1 (etwa Fuhrwerke, wo es Bahnen
+gibt) bleiben stehen; die Ladung fährt über den Markt. Die Infrastruktur der Länder und der
+Umschlag in Häfen sind im Anteil enthalten, weil er sich auf die Marktfracht der Route
+bezieht.
+Monatlich: Unterhalt `flotte.unterhalt_anteil` · Kaufwert / 12 (Instandhaltung) und
+Abschreibung Kaufwert / `flotte.nutzungsdauer_jahre` / 12 bis zum Buchwert 0. Verkauf
+(`SellVehicles`): Buchwert · `flotte.verkauf_anteil`, der Rest ist ein Verlust (Sonstiges).
+
+**Fracht für andere:** Ist sie erlaubt, findet am Monatsende `flotte.vermietung_anteil` des
+freien Platzes Ladung zum Marktsatz M (für die erste Transportklasse des Fahrzeugs); die
+Fahrten kosten den Betriebsanteil davon. Fahrzeuge mit b ≥ 1 mietet niemand.
+
+### Risiko
+
+Jede Ladung zwischen Ländern geht mit der Wahrscheinlichkeit `risiko.<land|see>(Jahr)` ·
+Faktor des Wegs (Staat: `staat.risiko_faktor`, sonst 1) verloren; gezogen aus dem
+Zufallsstrom „Fracht“ je Firma und laufender Nummer der Ladung. Eine verlorene Umlagerung
+kommt nicht an; ihr Lagerwert wird bei Ankunft als Sonstiges abgeschrieben. Eine verlorene
+Vertragslieferung trägt der Verkäufer: Ware und Fracht sind weg, der Käufer zahlt nichts,
+die Menge fehlt im Vertrag.
+
+### KI
+
+Zu jedem Monatsbeginn vergleicht eine KI-Firma ihre Ladungen des Vormonats (tkm je Weg und
+Transportklasse) mit ihrer Flotte: Trägt diese weniger als `ki.anteil` davon, kauft sie vom
+Fahrzeug mit dem niedrigsten Betriebsanteil, das sie ganz füllt und bei voller Nutzung mehr
+spart (Kapazität · M · (1 − b)), als Unterhalt und Abschreibung im Monat kosten, so viele,
+wie in die Lücke passen (höchstens `ki.kasse_anteil` ihrer Kasse), und fährt fortan mit
+eigener Flotte und Fracht für andere.

@@ -28,7 +28,7 @@ data/
   parameter/           Parameter der Modelle, z. B. laendermodell.yaml
   ketten/              eine Produktionskette je Datei
   lagerstaetten/       Rohstoffvorkommen, eine Datei je Rohstoff
-  verkehrsmittel.yaml  Verkehrsmittel mit Kosten und Geschwindigkeit
+  verkehrsmittel.yaml  Verkehrsmittel mit Kosten, Geschwindigkeit, Nutzlast und Kaufpreis
   waehrungen/          Preisindex, Währungen und ihre Zeiträume je Land (Anzeige)
   etappen.yaml         Etappenziele des Spielers nach der Einführung
   startups/            historische Erfinder zu ihren Technologien (SU1)
@@ -339,6 +339,7 @@ Technologien bis zum frühesten Startjahr 1900 sind bei Spielbeginn allen bekann
 | **transportklassen** | Liste der Transportklassen, die es befördert (mindestens eine) |
 | **kosten_usd_je_tkm** | Jahreswerte: Kosten je Tonnenkilometer Schüttgut bei voll ausgebauter Infrastruktur |
 | **km_je_tag** | Jahreswerte: Strecke je Tag einschließlich Wartezeiten (> 0) |
+| nutzlast_t, kaufpreis_usd | Jahreswerte (> 0): Tonnen je Fahrzeug und Kaufpreis in USD für eigene Flotten (W5). Nur gemeinsam; ohne sie kauft niemand das Verkehrsmittel. Luftfahrzeuge zählen nicht zu Flotten. |
 
 Eine Transportklasse ohne verfügbares Verkehrsmittel (in Stufe 1 `leitung`) lässt sich
 nicht zwischen Ländern befördern.
@@ -568,6 +569,19 @@ gibt es keine Lieferverträge. Ein Abschnitt `vertraege` mit:
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 Texte: `vertrag.abgelehnt.<grund>` (`preis`, `menge`, `qualitaet`, `strafe`).
+
+## logistik
+
+`data/parameter/logistik.yaml` (W5; Regeln: `docs/FORMELN.md`, Abschnitt W5). Ohne Abschnitt
+fahren alle Ladungen über den Frachtmarkt. Ein Abschnitt `logistik` mit:
+
+| Feld | Bedeutung |
+|---|---|
+| **staat** | `aufschlag` (0–10: so viel teurer als der Frachtmarkt), `risiko_faktor` (0–10: Faktor auf das Verlustrisiko) |
+| **flotte** | `marge_frachtmarkt` (0–0,9: Marge der Logistikfirmen in der Marktfracht, die eine voll genutzte Flotte spart), `auslastung` (0,01–1: genutzter Anteil der Fahrleistung), `unterhalt_anteil` (0–1 je Jahr vom Kaufwert), `nutzungsdauer_jahre` (> 0: lineare Abschreibung), `verkauf_anteil` (0–1 des Buchwerts beim Verkauf), `vermietung_anteil` (0–1: Anteil des freien Platzes, der Ladung anderer findet) |
+| **risiko** | `land`, `see`: Jahreswerte (0–1), Wahrscheinlichkeit, eine Ladung zu verlieren |
+| **ki** | `anteil` (0–1: so viel ihrer Fracht soll die Flotte einer KI-Firma tragen), `kasse_anteil` (0–1: höchstens so viel der Kasse geht je Monat in Fahrzeuge) |
+| **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## produktnamen
 

@@ -27,6 +27,7 @@ import type {
   StartUps,
   Vertraege,
   Vertragspartnerliste,
+  Logistik,
   Strategie,
   Uebersicht,
   Weltkarte,
@@ -57,6 +58,7 @@ const beispiel = beispielJson as unknown as {
   managermarkt: Managermarkt;
   vertraege: Vertraege;
   vertragspartner: Vertragspartnerliste;
+  logistik: Logistik;
 };
 
 /** Commands the preview received (for the UI tests). */
@@ -225,6 +227,10 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       // The preview knows the partners of one site and product; it shows them for all.
       return { ...kopie(beispiel.vertragspartner), site: standort, product: produkt };
+    },
+    logistik: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.logistik);
     },
     managermarkt: async (einheit, stelle) => {
       if (!spiel) throw keinSpiel();

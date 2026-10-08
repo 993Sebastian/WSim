@@ -3,8 +3,8 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, ProductionModel, ResearchModel, SiteType, SizeModel,
-    StartSetup, TrainingModel, TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, ProductionModel, ResearchModel,
+    SiteType, SizeModel, StartSetup, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -15,7 +15,8 @@ use super::{
 };
 use crate::messages;
 use crate::raw::{
-    RawFacilitySizes, RawLimits, RawProductDevelopment, RawProductionModel, RawVehicle, RawWay,
+    RawFacilitySizes, RawLimits, RawProductDevelopment, RawProductionModel, RawSeries, RawVehicle,
+    RawWay,
 };
 use crate::read::{Ctx, Entry, Loc, RawData};
 use crate::suggest;
@@ -657,6 +658,38 @@ pub(super) fn transport_model(ctx: &mut Ctx, raw: &RawData) -> TransportModel {
     }
 }
 
+/// Payload and price of a vehicle for fleets (W5): both or none.
+fn fleet_vehicle(ctx: &mut Ctx, v: &RawVehicle, l: &Loc) -> Option<FleetVehicle> {
+    let series = |ctx: &mut Ctx, values: &RawSeries, key: &str| {
+        let at = l.field(key);
+        for (&y, &x) in values {
+            positive(ctx, x, &at.field(&y.to_string()));
+        }
+        time_series(ctx, values, &at)
+    };
+    match (&v.payload_t, &v.price_usd) {
+        (Some(payload), Some(price)) => Some(FleetVehicle {
+            payload_t: series(ctx, payload, "nutzlast_t"),
+            price_usd: series(ctx, price, "kaufpreis_usd"),
+        }),
+        (Some(_), None) => {
+            ctx.error(
+                &l.field("nutzlast_t"),
+                messages::fleet_fields_together("nutzlast_t", "kaufpreis_usd"),
+            );
+            None
+        }
+        (None, Some(_)) => {
+            ctx.error(
+                &l.field("kaufpreis_usd"),
+                messages::fleet_fields_together("kaufpreis_usd", "nutzlast_t"),
+            );
+            None
+        }
+        (None, None) => None,
+    }
+}
+
 pub(super) fn vehicle(ctx: &mut Ctx, e: &Entry<RawVehicle>, classes: &Keys) -> Vehicle {
     let v = &e.value;
     let l = &e.loc;
@@ -704,6 +737,7 @@ pub(super) fn vehicle(ctx: &mut Ctx, e: &Entry<RawVehicle>, classes: &Keys) -> V
         classes,
         cost_per_tkm: time_series(ctx, &v.cost_per_tkm, &l.field("kosten_usd_je_tkm")),
         km_per_day: time_series(ctx, &v.km_per_day, &speed_loc),
+        fleet: fleet_vehicle(ctx, v, l),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

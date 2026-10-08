@@ -804,6 +804,12 @@ pub struct RawVehicle {
     pub cost_per_tkm: RawSeries,
     #[serde(rename = "km_je_tag")]
     pub km_per_day: RawSeries,
+    /// Payload of one vehicle in tonnes and its price in USD, by year (W5); without
+    /// them no fleet buys one.
+    #[serde(rename = "nutzlast_t", default)]
+    pub payload_t: Option<RawSeries>,
+    #[serde(rename = "kaufpreis_usd", default)]
+    pub price_usd: Option<RawSeries>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2249,4 +2255,64 @@ pub struct RawContractAi {
     pub penalty_max: f64,
     #[serde(rename = "angebot_chance")]
     pub proposal_chance: f64,
+}
+
+/// Logistics (`parameter/logistik.yaml`, W5).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLogistics {
+    #[serde(rename = "staat")]
+    pub state: RawStateFreight,
+    #[serde(rename = "flotte")]
+    pub fleet: RawFleet,
+    #[serde(rename = "risiko")]
+    pub risk: RawFreightRisk,
+    pub ki: RawLogisticsAi,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStateFreight {
+    #[serde(rename = "aufschlag")]
+    pub surcharge: f64,
+    #[serde(rename = "risiko_faktor")]
+    pub risk_factor: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFleet {
+    #[serde(rename = "marge_frachtmarkt")]
+    pub market_margin: f64,
+    #[serde(rename = "auslastung")]
+    pub load: f64,
+    #[serde(rename = "unterhalt_anteil")]
+    pub upkeep_share: f64,
+    #[serde(rename = "nutzungsdauer_jahre")]
+    pub life_years: f64,
+    #[serde(rename = "verkauf_anteil")]
+    pub sale_share: f64,
+    #[serde(rename = "vermietung_anteil")]
+    pub rental_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFreightRisk {
+    pub land: RawSeries,
+    #[serde(rename = "see")]
+    pub sea: RawSeries,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLogisticsAi {
+    #[serde(rename = "anteil")]
+    pub share: f64,
+    #[serde(rename = "kasse_anteil")]
+    pub cash_share: f64,
 }

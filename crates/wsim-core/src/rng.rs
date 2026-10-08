@@ -87,6 +87,11 @@ pub enum Stream {
     Contracts {
         month: u32,
     },
+    /// Whether a load of a company is lost on the way (W5), by its number.
+    Freight {
+        company: u32,
+        load: u32,
+    },
 }
 
 impl Stream {
@@ -130,6 +135,9 @@ impl Stream {
             }
             Stream::Tariffs { year } => (15 << 56) | u64::from(year),
             Stream::Contracts { month } => (16 << 56) | u64::from(month),
+            Stream::Freight { company, load } => {
+                (17 << 56) | (u64::from(company) << 32) | u64::from(load)
+            }
         }
     }
 }
