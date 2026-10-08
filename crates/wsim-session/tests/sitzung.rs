@@ -606,7 +606,7 @@ fn subsidiaries_and_the_group() {
     session
         .command(json!({"FoundSubsidiary": {
             "name": "Testwerke Logistik", "country": "DEU",
-            "capital": 1_000_000_0000_i64, "focus": "Logistics"
+            "capital": 10_000_000_000_i64, "focus": "Logistics"
         }}))
         .unwrap();
     let view = session.group().unwrap();
@@ -636,7 +636,7 @@ fn subsidiaries_and_the_group() {
     assert_eq!(view.subsidiaries[0].sites, 1);
     let err = session
         .command(json!({"FoundSubsidiary": {
-            "name": "Zu klein", "country": "DEU", "capital": 10_0000_i64, "focus": "Production"
+            "name": "Zu klein", "country": "DEU", "capital": 100_000_i64, "focus": "Production"
         }}))
         .unwrap_err();
     assert_eq!(err.key, "fehler.befehl.kapital_zu_gering");
