@@ -1213,6 +1213,15 @@ Auf Wunsch vor P2. Regeln: `docs/FORMELN.md`, Abschnitt L1; Entscheidungen:
   Branchenpakete (P1 erzeugt damit unverändert dieselben Dateien).
 - **Tests:** Szenariotests für die Lückenwahl und das Gewerbeland, Fehlerfälle der neuen
   Parameter.
+- **Weltlauf 1900–2026** (`run --nur-welt --ki 20 --welt --bericht --protokoll`, Stand
+  L1 mit P1-Daten): 388 KI-Firmen (P1-Lauf: 211), davon 192 pleite (73), 8 399 Standorte
+  (4 950), 1 637 Gründungen; Rechenzeit 4 h 09 min (2 h 15 min), vor allem wegen der fast
+  doppelt so vielen Standorte. Von 78 neuen P1-Endprodukten mit Bedarf sind 2025 36 zu
+  mindestens 85 % versorgt (P1-Lauf: 29) und 19 unter 50 % (31); Mangelhinweise 43 (54).
+  Preise nähern sich dem Richtpreis: Aluminium 6 163 statt 31 006 (Richtpreis 7 867),
+  Bauxit 74 statt 347, Fahrrad 717 statt 2 272, Alufolie 3,4 statt 21,1; Joghurt,
+  Thermoskanne, Fahrrad und Alufolie sind voll versorgt, Fertiggericht (48 %) und
+  Tiefkühlpizza (56 %) noch nicht.
 
 ### P1: Lebensmittel, Textil, Wohnen und Bauen (08.10.2026)
 
