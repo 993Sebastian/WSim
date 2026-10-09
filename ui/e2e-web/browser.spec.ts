@@ -1,18 +1,27 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const bilder = process.env.WSIM_BILDER;
+
+/** A new game with 8 AI companies; the person founds the company right after the start (PE3). */
+async function starten(page: Page, name: string, einfuehrung = false, startgeld?: string) {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  if (!einfuehrung) await page.getByLabel(/Einführung zeigen/).uncheck();
+  await page.getByText(/Weitere Einstellungen/).click();
+  await page.getByLabel("Anzahl KI-Firmen").fill("8");
+  if (startgeld) await page.getByLabel(/^Startgeld in USD/).fill(startgeld);
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  const dialog = page.getByRole("dialog", { name: "Firma gründen" });
+  await dialog.getByLabel("Name der Firma").fill(name);
+  await dialog.getByRole("button", { name: "Firma gründen" }).click();
+  await expect(dialog).toBeHidden();
+  if (!einfuehrung) await expect(page.locator(".kopfleiste")).toContainText(name);
+}
 
 // A whole short game against the real core in the browser: start, play a week, save,
 // reload the page and continue from the save kept in the browser's storage.
 test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, info) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Browser AG");
-  await page.getByText(/Weitere Einstellungen/).click();
-  await page.getByLabel("Anzahl KI-Firmen").fill("8");
-  await page.getByLabel(/Einführung zeigen/).uncheck();
-  await page.getByRole("button", { name: "Spiel starten" }).click();
-  await expect(page.locator(".kopfleiste")).toContainText("Browser AG");
+  await starten(page, "Browser AG");
   if (bilder) await page.screenshot({ path: `${bilder}/web-${info.project.name}-start.png` });
   // Amounts in the currency of the headquarters; at the prices of 1900 that is the Mark.
   await expect(page.locator(".geld-hinweis")).toHaveText(/^Beträge in Euro mit der Kaufkraft/);
@@ -83,15 +92,7 @@ test("Spielen, speichern und nach dem Neuladen weiterspielen", async ({ page }, 
 
 // Research with the real core: found a center, build a laboratory, pick a technology.
 test("Forschungszentrum gründen und eine Technologie erforschen", async ({ page }, info) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Forschung AG");
-  await page.getByLabel(/Einführung zeigen/).uncheck();
-  await page.getByText(/Weitere Einstellungen/).click();
-  await page.getByLabel("Anzahl KI-Firmen").fill("8");
-  await page.getByLabel("Startkapital in USD").fill("5000000");
-  await page.getByRole("button", { name: "Spiel starten" }).click();
-  await expect(page.locator(".kopfleiste")).toContainText("Forschung AG");
+  await starten(page, "Forschung AG", false, "5000000");
 
   await page.getByRole("button", { name: "Forschung", exact: true }).click();
   await page.getByRole("button", { name: "Forschungszentren", exact: true }).click();
@@ -116,32 +117,36 @@ test("Forschungszentrum gründen und eine Technologie erforschen", async ({ page
 
 // The introduction with the real core: from the start to the first sale.
 test("Die Einführung führt bis zum ersten Verkauf", async ({ page }, info) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Lehrling AG");
-  await page.getByText(/Weitere Einstellungen/).click();
-  await page.getByLabel("Anzahl KI-Firmen").fill("8");
-  await page.getByRole("button", { name: "Spiel starten" }).click();
+  await starten(page, "Lehrling AG", true);
   const einfuehrung = page.getByRole("complementary", { name: "Einführung" });
   const titel = (name: string) => einfuehrung.getByRole("heading", { name });
-  const markiert = (id: string) => page.locator(`[data-tour="${id}"]`).first();
 
   await expect(titel("Willkommen bei Lehrling AG")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
-  await markiert("reiter-produktion").click();
+  await expect(titel("Deine Standorte")).toBeVisible();
+  await page.getByRole("button", { name: "Standorte", exact: true }).click();
   await expect(titel("Die Werkstatt öffnen")).toBeVisible();
-  await markiert("werk-oeffnen").click();
+  await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
   await expect(titel("Die Anlage")).toBeVisible();
-  await expect(page.locator(".einfuehrung-rahmen")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
-  await markiert("bereich-einkauf").click();
+  await expect(titel("Einkauf")).toBeVisible();
+  await page
+    .getByRole("button", { name: /^Einkauf/ })
+    .first()
+    .click();
   await expect(titel("Draht einkaufen")).toBeVisible();
   await einfuehrung.getByRole("button", { name: "Weiter" }).click();
-  await markiert("bereich-verkauf").click();
+  await page
+    .getByRole("button", { name: /^Verkauf/ })
+    .first()
+    .click();
   await expect(titel("Dein Preis")).toBeVisible();
   await page.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();
   await expect(titel("Personal")).toBeVisible();
-  await markiert("bereich-personal").click();
+  await page
+    .getByRole("button", { name: /^Personal/ })
+    .first()
+    .click();
   await expect(titel("Runde beenden")).toBeVisible();
   await page.getByLabel("Rundenlänge").selectOption("woche");
   await page.getByRole("button", { name: "Runde beenden" }).click();
@@ -162,14 +167,7 @@ test("Die Einführung führt bis zum ersten Verkauf", async ({ page }, info) => 
 
 // Shutting a machine down and starting it up again with the real core (M22).
 test("Anlage stilllegen und wieder anfahren", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Stillstand AG");
-  await page.getByLabel(/Einführung zeigen/).uncheck();
-  await page.getByText(/Weitere Einstellungen/).click();
-  await page.getByLabel("Anzahl KI-Firmen").fill("8");
-  await page.getByRole("button", { name: "Spiel starten" }).click();
-  await expect(page.locator(".kopfleiste")).toContainText("Stillstand AG");
+  await starten(page, "Stillstand AG");
 
   await page.getByRole("button", { name: "Standorte" }).click();
   await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
@@ -182,14 +180,7 @@ test("Anlage stilllegen und wieder anfahren", async ({ page }) => {
 });
 
 test("Wettbewerber und ihre Standorte mit dem echten Kern", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Neues Spiel" }).click();
-  await page.getByLabel("Name der Firma").fill("Bieter AG");
-  await page.getByLabel(/Einführung zeigen/).uncheck();
-  await page.getByText(/Weitere Einstellungen/).click();
-  await page.getByLabel("Anzahl KI-Firmen").fill("8");
-  await page.getByRole("button", { name: "Spiel starten" }).click();
-  await expect(page.locator(".kopfleiste")).toContainText("Bieter AG");
+  await starten(page, "Bieter AG");
 
   await page.getByRole("button", { name: "Wettbewerb" }).click();
   await expect(page.getByText("Im Moment liegen keine offenen Angebote vor.")).toBeVisible();
