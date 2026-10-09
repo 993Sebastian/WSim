@@ -1181,7 +1181,17 @@ Entscheidungen: `docs/OFFENE_PUNKTE.md`, Abschnitt P (P1).
   Länder hatten zu wenige), Verbrauch je Kopf nach Weltdurchschnitt, Kaufschwellen der
   Genussmittel höher, Gummi nur wo es 1900 Gummi gab, Gerste als weitere
   Getreide-Lagerstätten, „Kleidung“ und „Mehl“ um die neuen Einzelwaren verringert.
-- **Rechenzeit:** 1900–1910 mit 20 KI-Firmen 5,6 min (vorher rund 3 min).
+- **Rechenzeit:** 1900–1910 mit 20 KI-Firmen 5,6 min (vorher rund 3 min); der ganze
+  Weltlauf 1900–2026 dauert 2 h 15 min (vorher 37 min).
+- **Weltlauf 1900–2026** (`run --nur-welt --ki 20 --welt --bericht --protokoll`): läuft
+  durch; 2026: 211 KI-Firmen, davon 73 pleite (vorher 121), 4 950 Standorte (vorher
+  3 035), 1 584 Start-ups, 6 Patente in Kraft. Von den 78 neuen Endprodukten mit Bedarf
+  2025 sind 29 zu mindestens 85 % gedeckt, 31 zu weniger als 50 %. Ohne Hersteller blieben
+  Kaffeekapseln, Energiegetränke, Uniformen, Betonfertigteile und Glasflaschen; knapp sind
+  vor allem späte Erfindungen (Fertiggerichte, Tiefkühlpizza, Joghurt, Funktionsjacken)
+  und Baustoffe (Zement, Branntkalk, Floatglas). Die meisten Mangelwaren sind sehr
+  profitabel – die KI erforscht neue Technologien zu langsam (offener Punkt P1,
+  Vorschlag: Lückenforschung nach dem Wert des offenen Bedarfs vor P2).
 - **Tests:** Datenprüfung, Starttests mit echten Daten; der Test der KI-Entscheidungen
   rechnet ein Jahr vor, damit Kassenentscheidungen vorkommen.
 
