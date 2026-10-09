@@ -2791,3 +2791,16 @@ body {
   display: inline-block;
   width: 1.6rem;
 }
+
+/* Shown instead of a view that failed to draw. */
+.absturz {
+  max-width: 48rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.absturz-details {
+  max-height: 16rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+}

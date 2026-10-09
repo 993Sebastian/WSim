@@ -5,8 +5,10 @@
 // Hide the console window in release builds on Windows.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::io::Write;
+use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
@@ -43,15 +45,61 @@ struct Fortschritt {
     total: u32,
 }
 
+/// Where panics are written; the release build has no console (Windows).
+static FEHLERPROTOKOLL: OnceLock<PathBuf> = OnceLock::new();
+
+fn protokolliere(text: &str) {
+    let Some(pfad) = FEHLERPROTOKOLL.get() else {
+        return;
+    };
+    if let Some(ordner) = pfad.parent() {
+        let _ = std::fs::create_dir_all(ordner);
+    }
+    if let Ok(mut datei) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(pfad)
+    {
+        let _ = writeln!(datei, "{text}\n");
+    }
+}
+
 fn mit_sitzung<T>(
     state: &Shared,
     f: impl FnOnce(&mut Session) -> Result<T, MessageView>,
 ) -> Result<T, Fehler> {
-    let mut guard = state.lock().map_err(|e| Fehler::Text(e.to_string()))?;
+    // A panic in an earlier request must not lock the game for good.
+    let mut guard = state
+        .lock()
+        .unwrap_or_else(|vergiftet| vergiftet.into_inner());
     match guard.as_mut() {
-        Ok(session) => f(session).map_err(Fehler::from),
+        Ok(session) => match catch_unwind(AssertUnwindSafe(|| f(session))) {
+            Ok(antwort) => antwort.map_err(Fehler::from),
+            Err(_) => {
+                let ort = FEHLERPROTOKOLL
+                    .get()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_default();
+                Err(Fehler::Text(format!(
+                    "Interner Fehler im Simulationskern. Bitte speichern und das Spiel neu \
+                     starten; Einzelheiten stehen in {ort}."
+                )))
+            }
+        },
         Err(text) => Err(Fehler::Text(text.clone())),
     }
+}
+
+/// Runs a request off the window's main thread: a long round must not freeze the window
+/// while another view waits for the session.
+async fn im_hintergrund<T: Send + 'static>(
+    state: &Shared,
+    f: impl FnOnce(&mut Session) -> Result<T, MessageView> + Send + 'static,
+) -> Result<T, Fehler> {
+    let shared = state.clone();
+    tauri::async_runtime::spawn_blocking(move || mit_sitzung(&shared, f))
+        .await
+        .map_err(|e| Fehler::Text(e.to_string()))?
 }
 
 #[tauri::command]
@@ -60,8 +108,8 @@ fn kern_info() -> CoreInfo {
 }
 
 #[tauri::command]
-fn optionen(state: State<'_, Shared>) -> Result<NewGameOptions, Fehler> {
-    mit_sitzung(&state, |s| Ok(s.options()))
+async fn optionen(state: State<'_, Shared>) -> Result<NewGameOptions, Fehler> {
+    im_hintergrund(state.inner(), move |s| Ok(s.options())).await
 }
 
 #[tauri::command]
@@ -78,8 +126,8 @@ async fn neues_spiel(
 }
 
 #[tauri::command]
-fn uebersicht(state: State<'_, Shared>) -> Result<Overview, Fehler> {
-    mit_sitzung(&state, |s| s.overview())
+async fn uebersicht(state: State<'_, Shared>) -> Result<Overview, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.overview()).await
 }
 
 #[tauri::command]
@@ -112,161 +160,167 @@ async fn runde_beenden(
 }
 
 #[tauri::command]
-fn weltkarte(state: State<'_, Shared>) -> Result<WorldMap, Fehler> {
-    mit_sitzung(&state, |s| s.world_map())
+async fn weltkarte(state: State<'_, Shared>) -> Result<WorldMap, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.world_map()).await
 }
 
 #[tauri::command]
-fn land(state: State<'_, Shared>, schluessel: String) -> Result<CountryDetail, Fehler> {
-    mit_sitzung(&state, |s| s.country(&schluessel))
+async fn land(state: State<'_, Shared>, schluessel: String) -> Result<CountryDetail, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.country(&schluessel)).await
 }
 
 #[tauri::command]
-fn produktion(state: State<'_, Shared>) -> Result<ProductionView, Fehler> {
-    mit_sitzung(&state, |s| s.production())
+async fn produktion(state: State<'_, Shared>) -> Result<ProductionView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.production()).await
 }
 
 #[tauri::command]
-fn markt(state: State<'_, Shared>, land: String) -> Result<MarketView, Fehler> {
-    mit_sitzung(&state, |s| s.market(&land))
+async fn markt(state: State<'_, Shared>, land: String) -> Result<MarketView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.market(&land)).await
 }
 
 #[tauri::command]
-fn produktmarkt(
+async fn produktmarkt(
     state: State<'_, Shared>,
     land: String,
     produkt: String,
 ) -> Result<ProductMarketView, Fehler> {
-    mit_sitzung(&state, |s| s.product_market(&land, &produkt))
+    im_hintergrund(state.inner(), move |s| s.product_market(&land, &produkt)).await
 }
 
 #[tauri::command]
-fn ketten(state: State<'_, Shared>) -> Result<ChainsView, Fehler> {
-    mit_sitzung(&state, |s| s.chains())
+async fn ketten(state: State<'_, Shared>) -> Result<ChainsView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.chains()).await
 }
 
 #[tauri::command]
-fn angebote(state: State<'_, Shared>) -> Result<OffersView, Fehler> {
-    mit_sitzung(&state, |s| s.offers())
+async fn angebote(state: State<'_, Shared>) -> Result<OffersView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.offers()).await
 }
 
 #[tauri::command]
-fn firmen(state: State<'_, Shared>) -> Result<CompaniesView, Fehler> {
-    mit_sitzung(&state, |s| s.companies())
+async fn firmen(state: State<'_, Shared>) -> Result<CompaniesView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.companies()).await
 }
 
 #[tauri::command]
-fn firma(state: State<'_, Shared>, index: u32) -> Result<CompanyDetailView, Fehler> {
-    mit_sitzung(&state, |s| s.company(index))
+async fn firma(state: State<'_, Shared>, index: u32) -> Result<CompanyDetailView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.company(index)).await
 }
 
 #[tauri::command]
-fn weltmarkt(state: State<'_, Shared>, produkt: String) -> Result<WorldMarketView, Fehler> {
-    mit_sitzung(&state, |s| s.world_market(&produkt))
+async fn weltmarkt(state: State<'_, Shared>, produkt: String) -> Result<WorldMarketView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.world_market(&produkt)).await
 }
 
 #[tauri::command]
-fn forschung(state: State<'_, Shared>) -> Result<ResearchOverview, Fehler> {
-    mit_sitzung(&state, |s| s.research())
+async fn forschung(state: State<'_, Shared>) -> Result<ResearchOverview, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.research()).await
 }
 
 #[tauri::command]
-fn finanzen(state: State<'_, Shared>) -> Result<FinanceView, Fehler> {
-    mit_sitzung(&state, |s| s.finance())
+async fn finanzen(state: State<'_, Shared>) -> Result<FinanceView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.finance()).await
 }
 
 #[tauri::command]
-fn organisation(state: State<'_, Shared>) -> Result<OrganisationView, Fehler> {
-    mit_sitzung(&state, |s| s.organisation())
+async fn organisation(state: State<'_, Shared>) -> Result<OrganisationView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.organisation()).await
 }
 
 #[tauri::command]
-fn anliegen(state: State<'_, Shared>) -> Result<ConcernsView, Fehler> {
-    mit_sitzung(&state, |s| s.concerns())
+async fn anliegen(state: State<'_, Shared>) -> Result<ConcernsView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.concerns()).await
 }
 
 #[tauri::command]
-fn strategie(state: State<'_, Shared>) -> Result<StrategyView, Fehler> {
-    mit_sitzung(&state, |s| s.strategy())
+async fn strategie(state: State<'_, Shared>) -> Result<StrategyView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.strategy()).await
 }
 
 #[tauri::command]
-fn ruecksprache(state: State<'_, Shared>) -> Result<ReviewsView, Fehler> {
-    mit_sitzung(&state, |s| s.reviews())
+async fn ruecksprache(state: State<'_, Shared>) -> Result<ReviewsView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.reviews()).await
 }
 
 #[tauri::command]
-fn startups(state: State<'_, Shared>) -> Result<VenturesView, Fehler> {
-    mit_sitzung(&state, |s| s.ventures())
+async fn startups(state: State<'_, Shared>) -> Result<VenturesView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.ventures()).await
 }
 
 #[tauri::command]
-fn controlling(state: State<'_, Shared>, zeitraum: String) -> Result<ControllingView, Fehler> {
-    mit_sitzung(&state, |s| s.controlling(&zeitraum))
+async fn controlling(
+    state: State<'_, Shared>,
+    zeitraum: String,
+) -> Result<ControllingView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.controlling(&zeitraum)).await
 }
 
 #[tauri::command]
-fn bank(state: State<'_, Shared>) -> Result<BankView, Fehler> {
-    mit_sitzung(&state, |s| s.bank())
+async fn bank(state: State<'_, Shared>) -> Result<BankView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.bank()).await
 }
 
 #[tauri::command]
-fn person(state: State<'_, Shared>) -> Result<PersonView, Fehler> {
-    mit_sitzung(&state, |s| s.person())
+async fn person(state: State<'_, Shared>) -> Result<PersonView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.person()).await
 }
 
 #[tauri::command]
-fn boerse(state: State<'_, Shared>) -> Result<StockMarketView, Fehler> {
-    mit_sitzung(&state, |s| s.stock())
+async fn boerse(state: State<'_, Shared>) -> Result<StockMarketView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.stock()).await
 }
 
 #[tauri::command]
-fn konzern(state: State<'_, Shared>) -> Result<GroupView, Fehler> {
-    mit_sitzung(&state, |s| s.group())
+async fn konzern(state: State<'_, Shared>) -> Result<GroupView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.group()).await
 }
 
 #[tauri::command]
-fn logistik(state: State<'_, Shared>) -> Result<LogisticsView, Fehler> {
-    mit_sitzung(&state, |s| s.logistics())
+async fn logistik(state: State<'_, Shared>) -> Result<LogisticsView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.logistics()).await
 }
 
 #[tauri::command]
-fn vertraege(state: State<'_, Shared>) -> Result<ContractsView, Fehler> {
-    mit_sitzung(&state, |s| s.contracts())
+async fn vertraege(state: State<'_, Shared>) -> Result<ContractsView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.contracts()).await
 }
 
 #[tauri::command]
-fn vertragspartner(
+async fn vertragspartner(
     state: State<'_, Shared>,
     standort: u32,
     produkt: String,
 ) -> Result<ContractPartnersView, Fehler> {
-    mit_sitzung(&state, |s| s.contract_partners(standort, &produkt))
+    im_hintergrund(state.inner(), move |s| {
+        s.contract_partners(standort, &produkt)
+    })
+    .await
 }
 
 #[tauri::command]
-fn managermarkt(
+async fn managermarkt(
     state: State<'_, Shared>,
     einheit: String,
     stelle: String,
 ) -> Result<ManagerMarketView, Fehler> {
-    mit_sitzung(&state, |s| s.manager_market(&einheit, &stelle))
+    im_hintergrund(state.inner(), move |s| s.manager_market(&einheit, &stelle)).await
 }
 
 /// A decision of the player, as JSON command with keys (see `Session::command`).
 #[tauri::command]
-fn befehl(state: State<'_, Shared>, befehl: serde_json::Value) -> Result<Overview, Fehler> {
-    mit_sitzung(&state, |s| s.command(befehl))
+async fn befehl(state: State<'_, Shared>, befehl: serde_json::Value) -> Result<Overview, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.command(befehl)).await
 }
 
 #[tauri::command]
-fn speichern(state: State<'_, Shared>, name: String) -> Result<SaveEntry, Fehler> {
-    mit_sitzung(&state, |s| s.save(&name))
+async fn speichern(state: State<'_, Shared>, name: String) -> Result<SaveEntry, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.save(&name)).await
 }
 
 #[tauri::command]
-fn spielstaende(state: State<'_, Shared>) -> Result<Vec<SaveEntry>, Fehler> {
-    mit_sitzung(&state, |s| Ok(s.saves()))
+async fn spielstaende(state: State<'_, Shared>) -> Result<Vec<SaveEntry>, Fehler> {
+    im_hintergrund(state.inner(), move |s| Ok(s.saves())).await
 }
 
 #[tauri::command]
@@ -290,6 +344,15 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let handle = app.handle();
+            if let Ok(ordner) = handle.path().app_local_data_dir() {
+                let _ = FEHLERPROTOKOLL.set(ordner.join("wsim-fehler.log"));
+            }
+            let standard = std::panic::take_hook();
+            std::panic::set_hook(Box::new(move |info| {
+                let rueckverfolgung = std::backtrace::Backtrace::force_capture();
+                protokolliere(&format!("{info}\n{rueckverfolgung}"));
+                standard(info);
+            }));
             let saves = handle
                 .path()
                 .app_local_data_dir()

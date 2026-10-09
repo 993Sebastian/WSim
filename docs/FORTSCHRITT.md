@@ -1166,6 +1166,20 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
 
+### Absturzschutz der Oberfläche und der Windows-App (09.10.2026)
+
+Rückmeldung zur portablen Windows-Version: Nach einigen Klicks blieb nur der Hintergrund.
+
+- **Oberfläche:** Eine Fehlergrenze fängt Fehler beim Zeichnen einer Ansicht ab und zeigt
+  Meldung und Einzelheiten mit „Weiter“ und „Neu laden“, statt die ganze Oberfläche zu
+  verlieren (vitest).
+- **Windows-App:** Alle Anfragen laufen außerhalb des Fensterthreads (eine lange Runde
+  friert das Fenster nicht mehr ein, während eine Ansicht wartet); eine Panik im Kern
+  wird als Fehlermeldung beantwortet, sperrt die Sitzung nicht mehr und steht mit
+  Rückverfolgung in `wsim-fehler.log` im Datenordner der App.
+- **Suche:** 4 × 500 Zufallsklicks samt Runden in der Browser-Version gegen den echten
+  Kern ohne Fehler; die genaue Ursache in der Windows-App zeigt das Fehlerprotokoll.
+
 ### P3b: Luft- und Raumfahrt (09.10.2026)
 
 Regeln: `docs/FORMELN.md`, Abschnitt P3b; Entscheidungen: `docs/OFFENE_PUNKTE.md`,

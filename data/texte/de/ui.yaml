@@ -1,6 +1,10 @@
 # Anzeigetexte der Oberfläche. Schlüssel: bereich.name, Platzhalter in {geschweiften Klammern}.
 app.titel: WSim
 app.untertitel: Wirtschaftssimulation 1900–2100
+absturz.titel: Da ist etwas schiefgelaufen
+absturz.text: "Diese Ansicht konnte nicht angezeigt werden. Das Spiel läuft weiter: „Weiter“ zeigt die Oberfläche wieder an, „Neu laden“ startet sie neu (ungespeicherter Stand geht dabei verloren). Bitte schicke uns die Angaben unten."
+absturz.weiter: Weiter
+absturz.neu_laden: Neu laden
 kern.laedt: Simulationskern wird gestartet …
 kern.bereit: Simulationskern {version} bereit
 kern.vorschau: Vorschau im Browser – ohne Simulationskern
