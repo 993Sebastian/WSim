@@ -81,6 +81,11 @@ export interface Kern {
     /** Which new concerns halt a run of rounds (MA2). */
     anhalten?: Anhalten,
   ): Promise<Rundenbericht>;
+  /**
+   * Stops the running round after the current day; the report then covers the days so
+   * far. Missing where a round cannot be interrupted (browser version).
+   */
+  rundeAnhalten?(): Promise<void>;
   weltkarte(): Promise<Weltkarte>;
   land(schluessel: string): Promise<Landdetail>;
   produktion(): Promise<Produktion>;
@@ -161,6 +166,7 @@ const tauriKern: Kern = {
       abmelden();
     }
   },
+  rundeAnhalten: () => aufruf("runde_anhalten"),
   weltkarte: () => aufruf("weltkarte"),
   land: (schluessel) => aufruf("land", { schluessel }),
   produktion: () => aufruf("produktion"),

@@ -388,6 +388,20 @@ impl Game {
         length: RoundLength,
         mut progress: impl FnMut(Progress),
     ) -> RoundReport {
+        self.advance_until(length, |p| {
+            progress(p);
+            true
+        })
+    }
+
+    /// Like `advance`, but the round ends early after any day for which `progress`
+    /// answers `false` (the player stopped it). The journal then holds one day round per
+    /// simulated day, so a replay reaches the same state.
+    pub fn advance_until(
+        &mut self,
+        length: RoundLength,
+        mut progress: impl FnMut(Progress) -> bool,
+    ) -> RoundReport {
         let from = self.state.date;
         let mut report = RoundReport {
             from,
@@ -399,18 +413,36 @@ impl Game {
             return report;
         }
         self.journal.push(JournalEntry::Round { from, length });
-        let to = length.end(from);
-        let total = u32::try_from(from.days_until(to)).expect("rounds move forward");
+        let end = length.end(from);
+        let total = u32::try_from(from.days_until(end)).expect("rounds move forward");
+        let mut days = total;
         for done in 1..=total {
             self.simulate_day(&mut report);
-            progress(Progress {
+            let go_on = progress(Progress {
                 done,
                 total,
                 date: self.state.date,
             });
+            if !go_on && done < total {
+                days = done;
+                break;
+            }
+        }
+        let to = self.state.date;
+        if days < total {
+            // Stopped early: the journal keeps the days that were simulated.
+            self.journal.pop();
+            let mut day = from;
+            while day < to {
+                self.journal.push(JournalEntry::Round {
+                    from: day,
+                    length: RoundLength::Day,
+                });
+                day = day.next_day();
+            }
         }
         report.to = to;
-        report.days = total;
+        report.days = days;
         if let Some(warning) = finance::overdraft_warning(&self.state, &self.catalog) {
             report.messages.push(warning);
         }

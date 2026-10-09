@@ -5226,3 +5226,10 @@ Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P4b.
 - **Freizeit:** Musikinstrumente, Sportgeräte, Spielzeug, Zelt, Elektrofahrrad und
   VR-Brille als Gebrauchsgüter.
 
+## Runde anhalten
+
+Der Spieler kann eine laufende Runde nach jedem Tag anhalten. Die gerechneten Tage zählen
+wie Tagesrunden: Im Journal ersetzt je Tag eine Runde der Länge „Tag“ die angefangene
+Runde, die Wiederholung (`Game::replay`) ergibt denselben Zustand. Die Meldungen am
+Rundenende (Kontostand, fehlende Vorprodukte) kommen wie sonst.
+

@@ -575,7 +575,13 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
   const menge = (q: number) => `${formatZahl(q, q < 10 ? 1 : 0)} ${e}`;
   const verbraucher = m.consumers_per_month.reduce((s, q) => s + q, 0);
   const industrie = Math.max(m.demand_last_month - m.outside_demand_last_month, 0);
-  const groesste = Math.max(...m.consumers_per_month, m.state_per_month, industrie, 1e-9);
+  const groesste = Math.max(
+    ...m.consumers_per_month,
+    m.state_per_month,
+    industrie,
+    m.exported_last_month,
+    1e-9,
+  );
   const zustand = versorgungsZustand(m.supply);
   return (
     <>
@@ -743,6 +749,17 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
             <dd>
               <span className="balken" style={{ width: `${(industrie / groesste) * 100}%` }} />
               <span className="balkenwert">{menge(industrie)}</span>
+            </dd>
+          </div>
+          {/* Traders buy for export too: the sellers' sales include it (Nägel 1900). */}
+          <div className="balkenzeile">
+            <dt>{t("markt.ausfuhr")}</dt>
+            <dd>
+              <span
+                className="balken"
+                style={{ width: `${(m.exported_last_month / groesste) * 100}%` }}
+              />
+              <span className="balkenwert">{menge(m.exported_last_month)}</span>
             </dd>
           </div>
         </dl>

@@ -531,7 +531,20 @@ impl<S: SaveStore> Session<S> {
         length: &str,
         until: &str,
         halt: &str,
+        progress: impl FnMut(Progress),
+    ) -> Result<RoundReportView, MessageView> {
+        self.end_rounds_until(length, until, halt, progress, || false)
+    }
+
+    /// Like `end_rounds`; `stopped` is asked after every day and ends the run after
+    /// that day when it answers `true` (the player's stop button).
+    pub fn end_rounds_until(
+        &mut self,
+        length: &str,
+        until: &str,
+        halt: &str,
         mut progress: impl FnMut(Progress),
+        stopped: impl Fn() -> bool,
     ) -> Result<RoundReportView, MessageView> {
         let length = match length {
             "tag" => RoundLength::Day,
@@ -559,7 +572,10 @@ impl<S: SaveStore> Session<S> {
         let mut rounds = 0;
         let stop = loop {
             let first_new = game.state().next_concern;
-            let report = game.advance(length, &mut progress);
+            let report = game.advance_until(length, |p| {
+                progress(p);
+                !stopped()
+            });
             rounds += 1;
             let main = game.main_company();
             let concern = halt != "nie"
@@ -605,6 +621,8 @@ impl<S: SaveStore> Session<S> {
             let next_year = game.date().year() > start.year();
             let stop = if game.is_over() || report.days == 0 {
                 Some("spielende")
+            } else if stopped() {
+                Some("angehalten")
             } else {
                 match until {
                     "runde" => Some("runde"),

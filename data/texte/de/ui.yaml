@@ -95,6 +95,8 @@ rundenlaenge.meldung: bis zur nächsten Warnung
 fortschritt.titel: Runde läuft
 fortschritt.tage: Tag {done} von {total}
 fortschritt.runde: Runde {runde}
+fortschritt.anhalten: Anhalten
+fortschritt.haelt_an: Hält nach diesem Tag an …
 
 uebersicht.titel: Übersicht
 uebersicht.finanzen: Finanzen
@@ -214,6 +216,7 @@ bericht.halt.angebot: Angehalten wegen eines Angebots, das auf deine Antwort war
 bericht.halt.ein_jahr: Ein Jahr lang ohne Warnung – angehalten, damit du nachsehen kannst.
 bericht.halt.spielende: Das Spiel ist zu Ende.
 bericht.halt.runde: Eine Runde.
+bericht.halt.angehalten: Du hast die Runde angehalten.
 bericht.halt.anliegen: Angehalten wegen eines Anliegens deiner Manager – du findest es unter „Organisation“.
 bericht.halt.ruecksprache: Angehalten zur Strategierücksprache – Bericht und Anträge des CEO findest du unter „Organisation“ → „Rücksprache“.
 bericht.gruppe.welt: Weltgeschehen
@@ -647,7 +650,7 @@ markt.ausfuhr: Ausfuhr durch Händler
 markt.staatsmarkt: Staatlicher Markt
 markt.deine_bekanntheit: Deine Bekanntheit
 markt.nachfrage_titel: Wer kauft?
-markt.nachfrage_hilfe: Nachfrage je Monat zu heutigen Preisen und Einkommen; die Verbraucher nach Einkommensfünfteln, vom ärmsten zum reichsten.
+markt.nachfrage_hilfe: Nachfrage je Monat zu heutigen Preisen und Einkommen; die Verbraucher nach Einkommensfünfteln, vom ärmsten zum reichsten. Firmen und Ausfuhr wie im Vormonat – die Verkäufe der Anbieter oben enthalten auch, was Händler für die Ausfuhr gekauft haben.
 markt.fuenftel.1: Ärmstes Fünftel
 markt.fuenftel.2: Zweites Fünftel
 markt.fuenftel.3: Mittleres Fünftel

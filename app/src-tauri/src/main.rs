@@ -8,6 +8,7 @@
 use std::io::Write;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 
 use serde::Serialize;
@@ -24,6 +25,10 @@ use wsim_session::{NewGameRequest, SaveEntry, Session};
 
 /// The session, or why the data could not be loaded.
 type Shared = Arc<Mutex<Result<Session, String>>>;
+
+/// The player's stop button: outside the session, which a running round holds.
+#[derive(Default)]
+struct Anhalten(Arc<AtomicBool>);
 
 /// Error answer for the UI: a message with text key, or a plain text (data errors).
 #[derive(Serialize)]
@@ -134,29 +139,44 @@ async fn uebersicht(state: State<'_, Shared>) -> Result<Overview, Fehler> {
 async fn runde_beenden(
     app: AppHandle,
     state: State<'_, Shared>,
+    anhalten_signal: State<'_, Anhalten>,
     laenge: String,
     bis: Option<String>,
     anhalten: Option<String>,
 ) -> Result<RoundReportView, Fehler> {
     let shared = state.inner().clone();
+    let signal = anhalten_signal.0.clone();
+    signal.store(false, Ordering::SeqCst);
     tauri::async_runtime::spawn_blocking(move || {
         mit_sitzung(&shared, |s| {
             let bis = bis.as_deref().unwrap_or("runde");
             let anhalten = anhalten.as_deref().unwrap_or("wichtige");
-            s.end_rounds(&laenge, bis, anhalten, |p| {
-                // A lost progress event only delays the bar.
-                let _ = app.emit(
-                    "fortschritt",
-                    Fortschritt {
-                        done: p.done,
-                        total: p.total,
-                    },
-                );
-            })
+            s.end_rounds_until(
+                &laenge,
+                bis,
+                anhalten,
+                |p| {
+                    // A lost progress event only delays the bar.
+                    let _ = app.emit(
+                        "fortschritt",
+                        Fortschritt {
+                            done: p.done,
+                            total: p.total,
+                        },
+                    );
+                },
+                || signal.load(Ordering::SeqCst),
+            )
         })
     })
     .await
     .map_err(|e| Fehler::Text(e.to_string()))?
+}
+
+/// Stops the running round after the current day.
+#[tauri::command]
+fn runde_anhalten(anhalten_signal: State<'_, Anhalten>) {
+    anhalten_signal.0.store(true, Ordering::SeqCst);
 }
 
 #[tauri::command]
@@ -361,6 +381,7 @@ fn main() {
             let session = Session::open(&datenverzeichnis(handle), saves);
             let shared: Shared = Arc::new(Mutex::new(session));
             app.manage(shared);
+            app.manage(Anhalten::default());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -369,6 +390,7 @@ fn main() {
             neues_spiel,
             uebersicht,
             runde_beenden,
+            runde_anhalten,
             weltkarte,
             land,
             produktion,

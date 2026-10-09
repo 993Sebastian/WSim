@@ -88,6 +88,8 @@ const kopie = <T>(x: T): T => JSON.parse(JSON.stringify(x)) as T;
 
 export function vorschauKern(verzoegerungMs = 15): Kern {
   let spiel: Uebersicht | null = null;
+  // The stop button of a running round.
+  let anhalten = false;
   let firma = "";
   const staende = new Map<string, { stand: Spielstand; uebersicht: Uebersicht }>();
   const keinSpiel = () =>
@@ -129,11 +131,16 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
     rundeBeenden: async (laenge, fortschritt, bis = "runde") => {
       if (!spiel) throw keinSpiel();
       const total = TAGE[laenge];
+      anhalten = false;
       // Several rounds: two in the preview, each with its progress.
       for (let runde = 0; runde < (bis === "runde" ? 1 : 2); runde++) {
         for (let done = 1; done <= total; done++) {
           await new Promise((r) => setTimeout(r, verzoegerungMs));
           fortschritt({ done, total });
+          if (anhalten) {
+            spiel = mitName(beispiel.uebersicht);
+            return { ...kopie(beispiel.bericht), rounds: runde + 1, stop: "angehalten" };
+          }
         }
       }
       spiel = mitName(beispiel.uebersicht);
@@ -141,6 +148,9 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       return bis === "runde"
         ? bericht
         : { ...bericht, rounds: 2, stop: bis === "jahresende" ? "jahresende" : "weltereignis" };
+    },
+    rundeAnhalten: async () => {
+      anhalten = true;
     },
     weltkarte: async () => {
       if (!spiel) throw keinSpiel();

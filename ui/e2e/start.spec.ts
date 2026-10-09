@@ -80,6 +80,29 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await expect(kopf.getByText("Rheinische Nagelwerke")).toBeVisible();
 });
 
+test("Eine laufende Runde lässt sich anhalten", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Neues Spiel" }).click();
+  await page.getByLabel(/Einführung zeigen/).uncheck();
+  await page.getByRole("button", { name: "Spiel starten" }).click();
+  const gruendung = page.getByRole("dialog", { name: "Firma gründen" });
+  await gruendung.getByLabel("Name der Firma").fill("Halt AG");
+  await gruendung.getByRole("button", { name: "Firma gründen" }).click();
+
+  await page.getByLabel("Rundenlänge").selectOption("quartal");
+  await page.getByRole("button", { name: "Runde beenden" }).click();
+  const laeuft = page.getByRole("dialog", { name: "Runde läuft" });
+  await expect(laeuft.getByText(/Tag \d+ von 9\d/)).toBeVisible();
+  await laeuft.getByRole("button", { name: "Anhalten" }).click();
+  // The stop takes effect after the current day; the report says why it ended.
+  await page
+    .getByRole("dialog", { name: "Erster Weltkrieg" })
+    .getByRole("button", { name: "Weiter" })
+    .click();
+  const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
+  await expect(bericht.getByText("Du hast die Runde angehalten.")).toBeVisible();
+});
+
 test("Ohne Firma: Person mit Startgeld, gesperrte Reiter, Gründung später", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Neues Spiel" }).click();

@@ -1168,6 +1168,21 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
 
+### Rückmeldungen aus der Windows-Version (10.10.2026)
+
+- **Runde anhalten:** Im Fenster „Runde läuft“ hält „Anhalten“ die Runde nach dem
+  laufenden Tag an (Windows-App; die Browser-Version rechnet eine Runde am Stück). Der Kern
+  (`Game::advance_until`) schreibt die gerechneten Tage als Tagesrunden ins Journal, damit
+  Spielstände und Wiederholung gleich bleiben (Test
+  `a_stopped_round_ends_after_the_day_and_replays`); der Bericht nennt den Grund
+  „Du hast die Runde angehalten.“ (E2E-Test).
+- **Markt: Absatz größer als die Nachfrage (Nägel):** Die Verkäufe der Anbieter enthielten
+  die Käufe der Händler für die Ausfuhr, die Nachfrage darunter nur Haushalte, Staat und
+  Firmen. Die Ausfuhr steht jetzt als eigene Kundengruppe dabei.
+- **Platz im Werk:** geprüft – neue Anlagen brauchen Fläche, ein volles Grundstück lehnt sie
+  ab (`plots_tests`). Kleine Anlagen brauchen nach dem Modell aber sehr wenig (Nagelmaschine
+  0,004 ha), daher passen rund 100–400 auf ein Startgrundstück.
+
 ### P5: Energie- und Umwelttechnik, Medizintechnik, Freizeit (09.10.2026)
 
 Regeln: `docs/FORMELN.md`, Abschnitt P5; Entscheidungen: `docs/OFFENE_PUNKTE.md`,

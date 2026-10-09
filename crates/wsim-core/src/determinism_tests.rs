@@ -153,6 +153,36 @@ fn a_month_round_simulates_every_day_with_progress() {
 }
 
 #[test]
+fn a_stopped_round_ends_after_the_day_and_replays() {
+    // The player stops a month round on day 10: the state equals ten day rounds, and
+    // the journal replays to it.
+    let mut stopped = Game::new(catalog(), settings(4)).unwrap();
+    stopped.advance(RoundLength::Month, |_| {});
+    let report = stopped.advance_until(RoundLength::Month, |p| p.done < 10);
+    assert_eq!(
+        (report.from, report.to, report.days),
+        (date(1900, 2, 1), date(1900, 2, 11), 10)
+    );
+    assert_eq!(stopped.date(), date(1900, 2, 11));
+
+    let mut by_days = Game::new(catalog(), settings(4)).unwrap();
+    by_days.advance(RoundLength::Month, |_| {});
+    for _ in 0..10 {
+        by_days.advance(RoundLength::Day, |_| {});
+    }
+    assert_eq!(stopped.state_hash(), by_days.state_hash());
+    assert_eq!(stopped.journal(), by_days.journal());
+
+    let replayed = Game::replay(catalog(), settings(4), stopped.journal()).unwrap();
+    assert_eq!(replayed.state_hash(), stopped.state_hash());
+    // Stopping on the last day changes nothing.
+    let mut full = Game::new(catalog(), settings(4)).unwrap();
+    let report = full.advance_until(RoundLength::Month, |p| p.done < 31);
+    assert_eq!(report.days, 31);
+    assert_eq!(full.journal().len(), 1);
+}
+
+#[test]
 fn a_new_year_is_reported() {
     let mut game = Game::new(catalog(), settings(1)).unwrap();
     let mut reports = Vec::new();

@@ -168,7 +168,7 @@ export function geldanzeigeFuer(o: Geldoptionen | null, wahl: GeldWahl): Geldanz
 
 type Fenster =
   | { art: "keins" }
-  | { art: "runde"; fortschritt: Fortschritt | null; runde: number }
+  | { art: "runde"; fortschritt: Fortschritt | null; runde: number; haeltAn?: boolean }
   | { art: "bericht"; bericht: Rundenbericht }
   | { art: "ereignis"; bericht: Rundenbericht; liste: Meldung[]; index: number }
   | { art: "speichern" }
@@ -266,6 +266,7 @@ export function Spiel({
                   fortschritt: f,
                   runde:
                     alt.fortschritt && f.done < alt.fortschritt.done ? alt.runde + 1 : alt.runde,
+                  haeltAn: alt.haeltAn,
                 }
               : alt,
           ),
@@ -726,6 +727,20 @@ export function Spiel({
             {fenster.runde > 1 && `${t("fortschritt.runde", { runde: fenster.runde })} · `}
             {fenster.fortschritt ? t("fortschritt.tage", { ...fenster.fortschritt }) : "…"}
           </p>
+          {kern.rundeAnhalten && (
+            <div className="knopfreihe">
+              <button
+                type="button"
+                disabled={fenster.haeltAn}
+                onClick={() => {
+                  setFenster({ ...fenster, haeltAn: true });
+                  void kern.rundeAnhalten?.();
+                }}
+              >
+                {fenster.haeltAn ? t("fortschritt.haelt_an") : t("fortschritt.anhalten")}
+              </button>
+            </div>
+          )}
         </Dialog>
       )}
       {fenster.art === "ereignis" && fenster.liste[fenster.index] && (
