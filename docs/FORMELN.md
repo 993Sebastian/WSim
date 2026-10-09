@@ -5169,3 +5169,20 @@ Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P3a.
   Heißluftballon, Drachen, Modellflugzeug, Kameradrohne, Satellitenempfänger,
   Satellitentelefon und Navigationsgerät als Gebrauchsgüter.
 
+## P4a – Breite: Elektrotechnik und Haushaltsgeräte
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P3b.
+
+- **Neue Werkstoffe und Bauteile:** Nickelerz (Gruben mit Vorrat in 10 Ländern) →
+  Nickel → Heizleiter (Chromnickeldraht, ab 1906); Elektrokabel aus Kupferdraht, Gummi
+  und Blei; Kälteaggregat aus Kleinmotor, Kupfer und Stahl. Nickel und Kabel kaufen auch
+  Staat und Wirtschaft (Edelstahl, Münzen, Panzerstahl; Leitungen und Netze).
+- **Haushaltsgeräte und Licht** sind Gebrauchsgüter (Bügeleisen bis Saugroboter);
+  Trockenbatterien, Leuchtstoff-, Halogen- und Energiesparlampen sind Verbrauchsgüter je
+  Kopf.
+- **Versorger, Bau und Gewerbe** kaufen Schalter und Steckdosen, Stromzähler,
+  Transformatoren, Kraftwerksgeneratoren, Schaltanlagen, Schweißgeräte,
+  Notstromaggregate, Gewerbekühlung und Rolltreppen über die Staatsnachfrage mit Verlauf.
+- **Arbeit:** Neues Profil „el“ (Elektro: 5 % ungelernt, 55 % angelernt, 36 % Fachkräfte
+  und 4 % Akademiker der Elektrotechnik) für Elektrogeräte.
+

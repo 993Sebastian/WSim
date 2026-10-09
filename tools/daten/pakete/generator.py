@@ -17,6 +17,7 @@ PROFILE = {
     "ch": {"ungelernt": 0.15, "angelernt": 0.47, "fachkraft.chemie": 0.35, "akademiker.chemie": 0.03},
     "me": {"ungelernt": 0.1, "angelernt": 0.51, "fachkraft.metall": 0.37, "akademiker.metall": 0.02},
     "mb": {"ungelernt": 0.1, "angelernt": 0.48, "fachkraft.maschinenbau": 0.39, "akademiker.maschinenbau": 0.03},
+    "el": {"ungelernt": 0.05, "angelernt": 0.55, "fachkraft.elektro": 0.36, "akademiker.elektro": 0.04},
 }
 
 

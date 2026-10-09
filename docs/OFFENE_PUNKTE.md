@@ -1689,6 +1689,23 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P4a umgesetzt** (Branchenpaket Elektrotechnik und Haushaltsgeräte; Regeln:
+`docs/FORMELN.md`, Abschnitt P4a). 🟡 Eigenständig entschieden:
+
+1. **Umfang:** 43 neue Endprodukte – 25 Haushaltsgeräte vom Bügeleisen (1907) bis zum
+   Saugroboter (2002), Licht (Wohnraumleuchte, Taschenlampe, Lichterkette, Leuchtstoff-,
+   Halogen- und Energiesparlampe), Trockenbatterie und Akkuschrauber, 9 Güter für
+   Versorger, Bau und Gewerbe (Installationsmaterial, Zähler, Transformator, Generator,
+   Schaltanlage, Schweißgerät, Notstromaggregat, Gewerbekühlung, Rolltreppe) –, dazu
+   Nickel, Heizleiter, Elektrokabel, Kälteaggregat und Nickelerz mit 10 Gruben;
+   40 Technologien. 485 statt 437 Produkte.
+2. **Großtransformator ab 1904, Kraftwerksgenerator mit dem Turbogenerator (1903),
+   Rolltreppe ab 1911:** Ab 1900 waren sie im ersten Spieljahr nur zu 31–44 % versorgt
+   (Weltlauf-Test 1900).
+3. **Neues Arbeitsprofil „el“** für Elektrogeräte statt des Maschinenbau-Profils.
+4. **Abstimmung:** 26 Rezepte mit angepassten Arbeitsstunden, 34 Richtpreise geändert;
+   Prüfung ohne Fehler und Warnungen, Starttests mit echten Daten grün.
+
 ✅ **P3b umgesetzt** (Branchenpaket Luft- und Raumfahrt; Regeln: `docs/FORMELN.md`,
 Abschnitt P3b). 🟡 Eigenständig entschieden:
 

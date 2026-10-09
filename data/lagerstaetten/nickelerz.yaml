@@ -1,0 +1,104 @@
+# Nickelerz (Konzentrat) (P4a). Vorrat und Höchstförderung um 1900 in t; der Förderindex des
+# Rohstoffs hebt die Förderung über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: nickel_can
+  land: CAN
+  rohstoff: nickelerz
+  vorrat: 2000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 8000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: nickel_ncl
+  land: XOZ
+  rohstoff: nickelerz
+  vorrat: 2000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 6000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: nickel_rus
+  land: RUS
+  rohstoff: nickelerz
+  vorrat: 3000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: nickel_aus
+  land: AUS
+  rohstoff: nickelerz
+  vorrat: 1500000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: nickel_idn
+  land: IDN
+  rohstoff: nickelerz
+  vorrat: 3000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: nickel_phl
+  land: PHL
+  rohstoff: nickelerz
+  vorrat: 1000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: nickel_cub
+  land: CUB
+  rohstoff: nickelerz
+  vorrat: 800000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: nickel_zaf
+  land: ZAF
+  rohstoff: nickelerz
+  vorrat: 800000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: nickel_bra
+  land: BRA
+  rohstoff: nickelerz
+  vorrat: 800000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: nickel_fin
+  land: FIN
+  rohstoff: nickelerz
+  vorrat: 500000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

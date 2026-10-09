@@ -248,7 +248,7 @@ data/ketten/NN_name.yaml --titel "Kette NN – …" [--anlagen anlagen.csv]
 `wsim rezepte`. Zellen ohne `quelle` erhalten `annaeherung: true`. Weitere Rezepte,
 Nebenprodukte und Sonderfelder werden danach in der YAML-Datei ergänzt.
 **Branchenpakete (P1 ff.):** Die Ketten 50 ff. und die Lagerstätten ihrer Rohstoffe erzeugt
-`python3 tools/daten/pakete/<paket>/gen.py` (P1: Ketten 50–52, P2: 53–54, P3a: 55, P3b: 56) aus `spec.py`
+`python3 tools/daten/pakete/<paket>/gen.py` (P1: Ketten 50–52, P2: 53–54, P3a: 55, P3b: 56, P4a: 57) aus `spec.py`
 (eine Zeile je Ware mit Preis, Nachfrage, Rezept, Anlage und Lagerstätten) über den
 gemeinsamen Generator `tools/daten/pakete/generator.py`; `kalib.py` stimmt Arbeitsstunden
 und Richtpreise auf die Plausibilitätsprüfung ab und schreibt `kalib.json`. Änderungen an
