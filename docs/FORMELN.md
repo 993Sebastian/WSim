@@ -5144,3 +5144,28 @@ Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 und P2.
   und Wirtschaft (Rohre, Kabelmäntel, Farben, Munition; 0,1 ‰ des BIP), sonst wäre der
   Bedarf um 1900 zu klein für eine Grube.
 - **Dieselkraftstoff** aus Rohöl (Mitteldestillat) als Staatsnachfrage mit Verlauf.
+
+## P3b – Breite: Luft- und Raumfahrt
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P3a.
+
+- **Tiefe Ketten:** Flugzeuge und Raumfahrzeuge entstehen aus Triebwerken, Bordelektronik
+  und Zellen; der Satellit hat sechs Ebenen (Bauxit →
+  Tonerde → Aluminium → Bordelektronik → Satellitenplattform → Satellit). Solche Waren
+  sind `sehr_komplex` (Lastenheft §17.2).
+- **Neue Werkstoffe und Bauteile:** Titanerz (Gruben mit Vorrat in 9 Ländern) → Titan
+  (Kroll-Verfahren, ab 1948); technische Gase aus der Luftzerlegung (Dampfkompressor mit Kohle); Kohlenstofffaser
+  aus Polypropylen und Ammoniak; Bordelektronik aus Transistoren; Propeller- und
+  Wellenturbine, Mantelstromtriebwerk, Raketentriebwerk, Satellitenplattform. Titan, Gase
+  und Kohlenstofffaser kaufen außerdem Staat und Wirtschaft (Implantate, Chemieanlagen,
+  Schweißen, Stahlwerke, Sportgeräte), sonst wäre ihr Bedarf vor den Flugzeugen zu klein.
+- **Fluggesellschaften, Flughäfen, Wetterdienste und Raumfahrtbehörden** kaufen über die
+  Staatsnachfrage mit Verlauf (Einheiten je Mio. USD BIP = Anteil in ‰ · 1 000 /
+  Richtpreis, wie P3a); Kerosin als Staatsnachfrage ab dem Strahltriebwerk.
+- **Militärische Luftfahrt** (Bomber, Transporter, Kampfhubschrauber, Drohne,
+  Marschflugkörper, Fallschirm) sind Rüstungsgüter: Ihr Bedarf folgt den Militärausgaben
+  (H3, `staatsnachfrage.ruestung`).
+- **Haushalte** kaufen Leicht-, Segel- und Ultraleichtflugzeuge, Gleitschirm,
+  Heißluftballon, Drachen, Modellflugzeug, Kameradrohne, Satellitenempfänger,
+  Satellitentelefon und Navigationsgerät als Gebrauchsgüter.
+

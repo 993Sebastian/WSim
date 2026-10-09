@@ -97,7 +97,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | L1 | Marktlücken und Markteintritt: Forschung nach Wert des offenen Bedarfs, Gewerbeland nach Bedarf, Engpasssuche ohne Patent- und Länder-Sperren | ✅ |
 | P2a–P2b | Chemie, Pharma, Kosmetik, Kunststoffwaren; Metallwaren, Werkzeuge, Maschinen: 64 Endprodukte, 3 Rohstoffe | ✅ |
 | P3a | Fahrzeuge, Bahn und Schiffe: 24 Endprodukte, Blei | ✅ |
-| P3b–P5 | Produktbreite in den übrigen vier Branchenpaketen (Architektur §4.1) | ⏳ |
+| P3b | Luft- und Raumfahrt: 40 Endprodukte, Titan, Bordelektronik, Triebwerke, Satelliten | ✅ |
+| P4a–P5 | Produktbreite in den übrigen drei Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1164,6 +1165,23 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P3b: Luft- und Raumfahrt (09.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt P3b; Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt P3b.
+
+- **Daten:** Kette 56 mit 40 Endprodukten (Luftfahrt, Rüstung, Raumfahrt, Konsumgüter),
+  Titan, technischen Gasen, Kohlenstofffaser, Bordelektronik, Propeller- und
+  Mantelstromtriebwerk, Raketentriebwerk, Satellitenplattform und Titanerz (9 Gruben);
+  45 Technologien von der Luftverflüssigung (1895) bis zur wiederverwendbaren Rakete
+  (2015). 437 Produkte, sechs Endprodukte mit sechs Ebenen; Prüfung ohne Fehler und
+  Warnungen.
+- **Werkzeug:** `tools/daten/pakete/p3b/`; der Generator schreibt Rüstungsgüter
+  (`ruestung: true`) und lässt den Forschungsaufwand von Technologien bis 1900 weg.
+- **Startjahr:** Im Weltlauf-Test 1900 warteten Gaswerke (Strom) und Luftschiffwerften auf
+  Vorprodukte; behoben über Kohle als Antrieb der Luftzerlegung und das Luftschiff ab
+  1908. Danach alle Tests grün.
 
 ### P3a: Fahrzeuge, Bahn und Schiffe (09.10.2026)
 

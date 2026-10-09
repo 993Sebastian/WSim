@@ -1689,6 +1689,33 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P3b umgesetzt** (Branchenpaket Luft- und Raumfahrt; Regeln: `docs/FORMELN.md`,
+Abschnitt P3b). 🟡 Eigenständig entschieden:
+
+1. **Umfang:** 40 neue Endprodukte – 14 für Luftfahrt und Wetterdienste vom Starrluftschiff
+   (1908) bis zur Industriedrohne (2014) samt Flughafen- und Flugsicherungstechnik, Kerosin
+   und Wetterballon; 6 Rüstungsgüter (Bomber, Militärtransporter, Kampfhubschrauber,
+   Militärdrohne, Marschflugkörper, Fallschirm); 9 Raumfahrtgüter (Höhenforschungs- und
+   Trägerrakete, wiederverwendbare Rakete, vier Satellitenarten, Raumsonde, Kleinsatellit);
+   11 Konsumgüter (Leicht-, Segel-, Ultraleichtflugzeug, Gleitschirm, Heißluftballon,
+   Drachen, Modellflugzeug, Kameradrohne, Satellitenempfänger, -telefon, Navigationsgerät)
+   –, dazu Titan, technische Gase, Kohlenstofffaser, Bordelektronik, vier Triebwerks- und
+   Plattformbauteile und Titanerz mit 9 Gruben; 45 Technologien. 437 statt 388 Produkte.
+2. **Keine bemannte Raumfahrt und kein Überschall-Verkehrsflugzeug:** Raumkapseln,
+   Raumstationen und die Concorde wären so selten (weniger als ein Stück je Jahr
+   weltweit), dass ihre Versorgung zufällig bliebe (wie der Passagierdampfer in P3a).
+3. **Bordelektronik aus Transistoren** (ab 1955) statt aus Mikrochips: so sind Satelliten
+   ab 1957 baubar; Drohnen, Simulator und Kleinsatellit nutzen Mikrochips.
+4. **Technische Gase, Titan und Kohlenstofffaser mit Staatsnachfrage** (Schweißen,
+   Stahlwerke, Implantate, Sportgeräte), damit Werke vor dem ersten Flugzeugbedarf lohnen.
+5. **Rüstungsgüter über die Militärausgaben** (H3): Der Generator schreibt dafür
+   `ruestung: true` statt eines Kriegsfaktors.
+6. **Starrluftschiff ab 1908 und Luftzerlegung mit Kohle:** Mit Luftschiffen ab 1900 und
+   Gasen aus Strom warteten im ersten Spieljahr alle Werke auf Vorprodukte (Weltlauf-Test
+   1900); der Dampfkompressor braucht Kohle, die Serie der Luftschiffe begann 1908/09.
+7. **Abstimmung:** 40 Rezepte mit angepassten Arbeitsstunden, 37 Richtpreise geändert;
+   Prüfung ohne Fehler und Warnungen, Starttests mit echten Daten grün.
+
 ✅ **P3a umgesetzt** (Branchenpaket Fahrzeuge, Bahn und Schiffe; Regeln: `docs/FORMELN.md`,
 Abschnitt P3a). 🟡 Eigenständig entschieden:
 

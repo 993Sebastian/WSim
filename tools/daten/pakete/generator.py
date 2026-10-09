@@ -75,7 +75,8 @@ def generate(paket, files, tech, tech_file, kal, text_marker, dep_marker, dep_no
                 e["nachfrage"] = d
             if p.get("staat"):
                 je, kf = p["staat"][:2]
-                e["staatsnachfrage"] = {"je_mio_usd_bip": je, "kriegsfaktor": kf}
+                # "ruestung": armaments follow military spending (H3) instead of a war factor.
+                e["staatsnachfrage"] = {"je_mio_usd_bip": je, **({"ruestung": True} if kf == "ruestung" else {"kriegsfaktor": kf})}
                 if len(p["staat"]) > 2: e["staatsnachfrage"]["verlauf"] = p["staat"][2]
             if p.get("sm"): e["staatsmarkt"] = {"preis_usd": p["sm"]}
             if p.get("ersetzt"): e["ersetzt"] = p["ersetzt"]
@@ -119,7 +120,8 @@ def generate(paket, files, tech, tech_file, kal, text_marker, dep_marker, dep_no
             if f == i:
                 t = {"id": tid, "fachgebiet": fg, "erfindungsjahr": year}
                 if pre: t["voraussetzungen"] = pre
-                t["forschungsaufwand"] = eff
+                if year > 1900:  # known from the first start year on: nothing to research
+                    t["forschungsaufwand"] = eff
                 t["annaeherung"] = True
                 chain["technologien"].append(t)
                 texts[f"technologie.{tid}"] = tname
