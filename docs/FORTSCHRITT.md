@@ -1182,6 +1182,13 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
 - **Platz im Werk:** geprüft – neue Anlagen brauchen Fläche, ein volles Grundstück lehnt sie
   ab (`plots_tests`). Kleine Anlagen brauchen nach dem Modell aber sehr wenig (Nagelmaschine
   0,004 ha), daher passen rund 100–400 auf ein Startgrundstück.
+- **Lieferverträge im Werk:** Der Reiter Einkauf zeigt die laufenden und angebotenen
+  Bezugsverträge des Standorts, der Reiter Verkauf seine Lieferverträge (Partner, Menge,
+  Preis neben Marktpreis, im Monat geliefert, Laufzeit). Abschließen und kündigen weiter
+  unter Markt → Lieferverträge. Sichtfeld `SiteDetail.contracts`, Test im Sitzungstest.
+- **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
+  sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
+  bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.
 
 ### P5: Energie- und Umwelttechnik, Medizintechnik, Freizeit (09.10.2026)
 

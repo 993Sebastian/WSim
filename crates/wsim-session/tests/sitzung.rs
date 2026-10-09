@@ -528,6 +528,12 @@ fn supply_contracts_with_ai_companies() {
     assert_eq!((c.status.as_str(), c.role.as_str()), ("laufend", "einkauf"));
     assert_eq!(c.partner, seller.company);
     assert!(c.can_cancel && c.cancel_fee_usd > 0.0);
+    // The plant view lists it with the purchases of the buying site.
+    let production = session.production().unwrap();
+    let plant = production.sites.iter().find(|s| s.index == site).unwrap();
+    assert_eq!(plant.contracts.len(), 1);
+    assert_eq!(plant.contracts[0].role, "einkauf");
+    assert_eq!(plant.contracts[0].product, "draht");
     // Too much is declined with the reason.
     let err = session
         .command(json!({"ProposeContract": {

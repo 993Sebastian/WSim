@@ -562,6 +562,8 @@ export interface StandortDetail {
   prices: Record<string, { market_usd: number; reference_usd: number }>;
   /** The plot the site stands on (none for extraction sites). */
   plot: StandortGrundstueck | null;
+  /** Running and proposed supply contracts of the site. */
+  contracts?: Vertrag[];
 }
 
 /** The plot of a site: location (text `lage.<key>`), area and land in use (ha). */

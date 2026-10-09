@@ -182,6 +182,23 @@ fn contract_view(game: &Game, c: &Contract) -> ContractView {
     }
 }
 
+/// Running and proposed contracts of one site of the player, purchases first.
+pub fn site_contracts(game: &Game, site: SiteId) -> Vec<ContractView> {
+    let me = game.player();
+    let mut list: Vec<&Contract> = game
+        .state()
+        .contracts
+        .iter()
+        .filter(|c| matches!(c.status, ContractStatus::Active | ContractStatus::Proposed))
+        .filter(|c| {
+            (c.buyer == site && c.buyer_company == me)
+                || (c.seller == site && c.seller_company == me)
+        })
+        .collect();
+    list.sort_by_key(|c| (c.seller == site, c.status != ContractStatus::Active, c.id));
+    list.into_iter().map(|c| contract_view(game, c)).collect()
+}
+
 /// What a site of the player makes or offers, and what it uses or orders.
 fn site_products(game: &Game, site: SiteId) -> (Vec<ProductId>, Vec<ProductId>) {
     let (state, catalog) = (game.state(), game.catalog());

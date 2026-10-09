@@ -466,6 +466,10 @@ werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
+werk.vertraege.einkauf: Bezugsverträge dieses Standorts
+werk.vertraege.verkauf: Lieferverträge dieses Standorts
+werk.vertraege.bis: "bis {datum}"
+werk.vertraege.hinweis: Vertragsware kommt jeden Tag vor dem Markteinkauf an bzw. geht vor dem Marktverkauf hinaus. Abschließen, annehmen und kündigen unter Markt → Lieferverträge.
 werk.einkauf_hinweis: Der Standort kauft jeden Tag auf dem Markt seines Landes nach, bis das Ziellager erreicht ist – aber nie teurer als der Höchstpreis. Die Reichweite zeigt, wie lange das Lager bei geplanter Erzeugung hält.
 werk.kein_bedarf: Die Anlagen hier brauchen keine Vorprodukte.
 werk.kein_einkauf: Noch kein Einkauf – wähle unten eine Ware, die du einkaufen und weiterverkaufen willst.

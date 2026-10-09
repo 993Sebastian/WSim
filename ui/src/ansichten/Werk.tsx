@@ -29,6 +29,7 @@ import type {
   StandortGrundstueck,
   Stueckkosten,
   Versorgung,
+  Vertrag,
 } from "../kern";
 import { geld } from "../kern";
 import { t } from "../texte";
@@ -766,6 +767,69 @@ function Erschliessung({ s, datum }: { s: StandortDetail; datum: string }) {
   );
 }
 
+// --- Supply contracts of the site (changed under Markt → Lieferverträge) ---
+
+function WerkVertraege({ s, rolle }: { s: StandortDetail; rolle: Vertrag["role"] }) {
+  const liste = (s.contracts ?? []).filter((v) => v.role === rolle);
+  if (liste.length === 0) return null;
+  return (
+    <section className="karte" aria-label={t(`werk.vertraege.${rolle}`)}>
+      <h3>{t(`werk.vertraege.${rolle}`)}</h3>
+      <div className="tabelle">
+        <table className="mobil-karten">
+          <thead>
+            <tr>
+              <th>{t("vertrag.produkt")}</th>
+              <th>{t("vertrag.partner")}</th>
+              <th className="zahl">{t("vertrag.menge")}</th>
+              <th className="zahl">{t("vertrag.preis")}</th>
+              <th className="zahl">{t("vertrag.geliefert")}</th>
+              <th>{t("vertrag.stand")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {liste.map((v) => (
+              <tr key={v.id}>
+                <td data-titel={t("vertrag.produkt")}>{produktName(v.product)}</td>
+                <td data-titel={t("vertrag.partner")}>
+                  {v.partner} ({landName(v.partner_country)})
+                </td>
+                <td className="zahl" data-titel={t("vertrag.menge")}>
+                  {formatMenge(v.per_month)} {t(`einheit.${v.unit}`)}
+                </td>
+                <td className="zahl" data-titel={t("vertrag.preis")}>
+                  {formatPreis(v.price_usd, t(`einheit.${v.unit}`))}
+                  <br />
+                  <span className="gedaempft">
+                    {t("vertrag.marktpreis", {
+                      preis: formatPreis(v.market_price_usd, t(`einheit.${v.unit}`)),
+                    })}
+                  </span>
+                </td>
+                <td className="zahl" data-titel={t("vertrag.geliefert")}>
+                  {formatMenge(v.delivered_month)} {t(`einheit.${v.unit}`)}
+                </td>
+                <td data-titel={t("vertrag.stand")}>
+                  {t(`vertrag.status.${v.status}`)}
+                  {v.end && (
+                    <>
+                      <br />
+                      <span className="gedaempft">
+                        {t("werk.vertraege.bis", { datum: formatDatum(v.end) })}
+                      </span>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="erklaerung">{t("werk.vertraege.hinweis")}</p>
+    </section>
+  );
+}
+
 // --- Purchasing ---
 
 function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
@@ -786,6 +850,7 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
   return (
     <div className="karten" data-tour="werk-einkauf">
       <p className="erklaerung">{t("werk.einkauf_hinweis")}</p>
+      <WerkVertraege s={s} rolle="einkauf" />
       {zeilen.length === 0 && (
         <p className="gedaempft">
           {t(s.slots.length === 0 ? "werk.kein_einkauf" : "werk.kein_bedarf")}
@@ -983,6 +1048,7 @@ function Verkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
   return (
     <div className="karten" data-tour="werk-verkauf">
       <p className="erklaerung">{t("werk.verkauf_hinweis")}</p>
+      <WerkVertraege s={s} rolle="verkauf" />
       {s.offers.map((o) => (
         <AngebotKarte
           key={`${o.product}/${o.mode}/${o.price_usd}/${o.floor_usd}/${o.keep}/${geldSchluessel()}`}

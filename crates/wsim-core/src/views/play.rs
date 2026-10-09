@@ -267,6 +267,9 @@ pub struct SiteDetail {
     /// The plot the site stands on (M35); `None` for extraction sites.
     #[serde(default)]
     pub plot: Option<SitePlotView>,
+    /// Running and proposed supply contracts of the site.
+    #[serde(default)]
+    pub contracts: Vec<super::ContractView>,
 }
 
 /// The plot of a site (M35).
@@ -819,6 +822,7 @@ pub fn production(game: &Game) -> ProductionView {
                             .collect(),
                     }
                 }),
+                contracts: super::site_contracts(game, site_id),
             }
         })
         .collect();
