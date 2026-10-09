@@ -5205,3 +5205,24 @@ Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P4a.
   die Staatsnachfrage mit Verlauf (auslaufend bei Fernschreiber, Lochkarte und
   Rechenmaschine).
 
+## P5 – Breite: Energie- und Umwelttechnik, Medizintechnik, Freizeit
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P4b.
+
+- **Uranerz** (Gruben mit Vorrat in 9 Ländern) → Brennelement (ab 1956) für
+  Kernkraftwerke, gekauft über die Staatsnachfrage.
+- **Versorger und Kommunen** kaufen Wasser-, Dampf- und Gasturbinen, Brennelemente,
+  Elektrolyseure, Biogas- und Blockheizkraftwerke, Klärwerkstechnik, Rauchgasreinigung
+  und Müllverbrennung über die Staatsnachfrage mit Verlauf.
+- **Haushalte** kaufen Heizungen (Kohleofen ab 1900, Öl, Gas, Pellets), Solarkollektor,
+  Wechselrichter und Heimspeicher als Gebrauchsgüter; Wallbox und Abgaskatalysator sind
+  Ergänzungsgüter (0,1 Wallboxen je Elektroauto, 0,08 Katalysatoren je Automobil und
+  Jahr).
+- **Gesundheitswesen:** Röntgen-, EKG-, Beatmungs-, Dialyse-, Ultraschallgeräte,
+  Computer- und Magnetresonanztomographen, Herzschrittmacher, Hüftprothesen,
+  Einwegspritzen, Krankenbetten, Rollstühle und Rettungswagen über die Staatsnachfrage;
+  Fieberthermometer, Brille, Blutdruckmessgerät, Hörgerät und Zahnimplantat kaufen
+  Haushalte.
+- **Freizeit:** Musikinstrumente, Sportgeräte, Spielzeug, Zelt, Elektrofahrrad und
+  VR-Brille als Gebrauchsgüter.
+

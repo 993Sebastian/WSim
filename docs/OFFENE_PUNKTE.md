@@ -1689,6 +1689,24 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P5 umgesetzt** (Branchenpaket Energie- und Umwelttechnik, Medizintechnik, Freizeit;
+Regeln: `docs/FORMELN.md`, Abschnitt P5). 🟡 Eigenständig entschieden:
+
+1. **Umfang:** 52 neue Endprodukte – 18 der Energie- und Umwelttechnik, 18 der
+   Medizintechnik (mit Rettungswagen), 16 der Freizeit –, dazu Uranerz mit 9 Gruben;
+   41 Technologien. 588 statt 535 Produkte; rund 570 Endprodukte und Waren (Ziel der
+   Stufe 5: rund 500 Endprodukte).
+2. **Kein Kernkraftwerk als Ware:** Kraftwerke selbst sind zu selten und zu teuer; das
+   Brennelement trägt die Kernenergie als laufender Bedarf.
+3. **Große Anlagen und Geräte mit kurzer Forschung** (Wasserkraftturbine, Röntgengerät
+   1905, Krankenbett 1909, EKG 1910), damit das erste Spieljahr nicht an teuren
+   Einzelstücken hängt; Kohleofen, Brille, Fieberthermometer, Klavier, Gitarre, Ski,
+   Ball, Zelt und Modellbahn gibt es ab 1900.
+4. **Abstimmung:** 44 Rezepte mit angepassten Arbeitsstunden, 41 Richtpreise geändert
+   (sechs davon fest auf rund 30 % Marge, weil die Abstimmung pendelte); Prüfung ohne
+   Fehler und Warnungen, Starttests mit echten Daten grün.
+5. **Abschluss-Weltlauf 1900–2026 mit Balance:** Ergebnis in `docs/FORTSCHRITT.md`, P5.
+
 ✅ **P4b umgesetzt** (Branchenpaket Elektronik, IT und Kommunikation; Regeln:
 `docs/FORMELN.md`, Abschnitt P4b). 🟡 Eigenständig entschieden:
 

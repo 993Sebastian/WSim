@@ -202,10 +202,11 @@ fn runs_halt_for_concerns() {
     let start = |halt: &str| {
         let dir = tempfile::tempdir().unwrap();
         let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
-        // In 1960 the workshop's market wants more works; in 1900 the nail works of the
-        // world plan below the load at which anyone builds (C4), in 1950 too since P3a.
+        // In 1955 the workshop's market wants more works; in 1900 the nail works of the
+        // world plan below the load at which anyone builds (C4), in 1950 too since P3a;
+        // since P5 the workshop started in 1960 or 1970 fails within the year.
         let later = NewGameRequest {
-            start_year: 1960,
+            start_year: 1955,
             capital_usd: 200_000.0,
             ..request()
         };

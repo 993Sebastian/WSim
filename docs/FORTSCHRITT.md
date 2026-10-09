@@ -100,7 +100,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P3b | Luft- und Raumfahrt: 40 Endprodukte, Titan, Bordelektronik, Triebwerke, Satelliten | ✅ |
 | P4a | Elektrotechnik und Haushaltsgeräte: 43 Endprodukte, Nickel, Heizleiter, Kabel | ✅ |
 | P4b | Elektronik, IT und Kommunikation: 45 Endprodukte, Leiterplatte, Glasfaser, Festplatte, Flash | ✅ |
-| P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit; Abschluss-Weltlauf (Architektur §4.1) | ⏳ |
+| P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit: 52 Endprodukte, Uran; Abschluss-Weltlauf | ✅ (Weltlauf ⏳) |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1167,6 +1167,19 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P5: Energie- und Umwelttechnik, Medizintechnik, Freizeit (09.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt P5; Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt P5.
+
+- **Daten:** Kette 59 mit 52 Endprodukten und Uranerz (9 Gruben); 41 Technologien. 588
+  Produkte; Prüfung ohne Fehler und Warnungen, Weltlauf-Test 1900 und alle Tests grün.
+- **Werkzeug:** `tools/daten/pakete/p5/`.
+- **Beobachtung:** Eine Werkstatt mit 200 000 USD, gestartet 1960 oder 1970, geht seit P5
+  im ersten Jahr pleite (1955 und 1965 nicht); der Sitzungstest für Anliegen startet
+  deshalb 1955. Für die Abstimmung nach dem Abschluss-Weltlauf vorgemerkt.
+- **Abschluss-Weltlauf 1900–2026:** läuft.
 
 ### P4b: Elektronik, IT und Kommunikation (09.10.2026)
 

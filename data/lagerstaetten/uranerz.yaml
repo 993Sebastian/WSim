@@ -1,0 +1,94 @@
+# Uranerz (Konzentrat) (P5). Vorrat und Höchstförderung um 1900 in t; der Förderindex des
+# Rohstoffs hebt die Förderung über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: uran_can
+  land: CAN
+  rohstoff: uranerz
+  vorrat: 400000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 4000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: uran_aus
+  land: AUS
+  rohstoff: uranerz
+  vorrat: 500000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: uran_kaz
+  land: KAZ
+  rohstoff: uranerz
+  vorrat: 400000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: uran_ner
+  land: NER
+  rohstoff: uranerz
+  vorrat: 200000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: uran_usa
+  land: USA
+  rohstoff: uranerz
+  vorrat: 200000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: uran_zaf
+  land: ZAF
+  rohstoff: uranerz
+  vorrat: 200000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: uran_cze
+  land: CZE
+  rohstoff: uranerz
+  vorrat: 50000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: uran_uzb
+  land: UZB
+  rohstoff: uranerz
+  vorrat: 100000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: uran_cod
+  land: COD
+  rohstoff: uranerz
+  vorrat: 50000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
