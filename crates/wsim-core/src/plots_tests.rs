@@ -139,6 +139,46 @@ fn countries_offer_land_in_proportion_to_their_economy() {
     );
 }
 
+/// L1: when industry has taken the land, the next 1 January brings so much more that
+/// `frei_min_anteil` of it is free again, beyond what the GDP alone carries.
+#[test]
+fn taken_land_is_followed_by_new_plots() {
+    let mut c = catalog();
+    c.plot_model.free_share_min = 0.25;
+    let catalog = Arc::new(c);
+    let mut game = new_game(3);
+    let country = aaa(&game);
+    // Every plot of AAA taken (as by sites of others).
+    let state = game.state_mut();
+    for p in state.plots.iter_mut().filter(|p| p.country == country) {
+        p.site = Some(SiteId(0));
+    }
+    let (all, used) = plots::land(state, country);
+    assert_eq!(all, used);
+    plots::supply(state, &catalog, 1901);
+    let (all_after, used_after) = plots::land(state, country);
+    assert_eq!(used_after, used);
+    let free = all_after - used_after;
+    assert!(free >= 0.25 * all_after - 1e-9, "{free} of {all_after}");
+    // At most one plot more than needed.
+    assert!(free < 0.25 * all_after + 16.0, "{free} of {all_after}");
+    // Without the rule the land stays as the GDP carries it.
+    let mut game = new_game(3);
+    let state = game.state_mut();
+    for p in state.plots.iter_mut().filter(|p| p.country == country) {
+        p.site = Some(SiteId(0));
+    }
+    plots::supply(state, &catalog_without_reserve(), 1901);
+    let (all_plain, _) = plots::land(state, country);
+    assert!(all_plain < all_after);
+}
+
+fn catalog_without_reserve() -> Catalog {
+    let mut c = catalog();
+    c.plot_model.free_share_min = 0.0;
+    c
+}
+
 #[test]
 fn a_site_buys_or_leases_its_plot() {
     let mut game = new_game(3);

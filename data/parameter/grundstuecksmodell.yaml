@@ -5,6 +5,9 @@ grundstuecksmodell:
   # Gewerbefläche eines Landes je Mrd. USD BIP (Kaufkraft 2026), mal Marktmaßstab. Jedes
   # Jahr am 1. Januar kommen Grundstücke hinzu, bis die Fläche aller Grundstücke so groß ist.
   flaeche_ha_je_mrd_bip: 25
+  # L1: Jedes Jahr kommt mindestens so viel Gewerbeland hinzu, dass dieser Anteil frei
+  # bleibt; der Bodenpreis steigt mit der Belegung (knappheit).
+  frei_min_anteil: 0.25
   # Neue Grundstücke werden mit der Zeit größer: Faktor 1 + (Jahr − ab_jahr) / jahre
   wachstum: {ab_jahr: 1900, jahre: 30}
   # Wohlstand eines Landes nach BIP je Kopf (USD Kaufkraft 2026)

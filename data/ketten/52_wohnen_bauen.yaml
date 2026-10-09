@@ -743,13 +743,13 @@ produkte:
   verwendung: konsum
   warengruppe: metallwaren
   transportklasse: stueckgut
-  richtpreis_usd: 40
+  richtpreis_usd: 55.8
   nachfrage:
     bedarfsklasse: gebrauchsgut
     gebrauch:
       nutzungsdauer_jahre: 5
       max_besitzquote: 0.8
-    kaufschwelle: 250
+    kaufschwelle: 179
     preisempfindlichkeit: 0.7
     einkommensempfindlichkeit: 0.9
   ersetzt:
@@ -824,7 +824,7 @@ produkte:
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
-      je_kopf_und_jahr: 3
+      je_kopf_und_jahr: 0.4
     kaufschwelle: 1000
     preisempfindlichkeit: 0.7
     einkommensempfindlichkeit: 0.9
@@ -1346,7 +1346,7 @@ anlagen:
   standorttyp: werk
   investition_usd: 4500000
   bauzeit_tage: 180
-  kapazitaet_je_tag: 340
+  kapazitaet_je_tag: 250
   lebensdauer_jahre: 25
   wartung_je_jahr: 0.04
   automatisierung_max: 0.5
@@ -2061,13 +2061,13 @@ rezepte:
   anlage: beschichtungswerk
   technologie: antihaftbeschichtung
   eingang:
-    aluminium: 0.0011
+    aluminium: 0.0005
     polyethylen: 5.0e-05
   arbeit_stunden:
-    ungelernt: 0.05
-    angelernt: 0.255
-    fachkraft.metall: 0.185
-    akademiker.metall: 0.01
+    ungelernt: 0.219
+    angelernt: 1.12
+    fachkraft.metall: 0.811
+    akademiker.metall: 0.0438
   qualitaet_basis: 50
   annaeherung: true
 - id: thermoskanne_herstellen

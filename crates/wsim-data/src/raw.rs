@@ -1051,6 +1051,8 @@ pub struct RawDifficulty {
 pub struct RawPlotModel {
     #[serde(rename = "flaeche_ha_je_mrd_bip")]
     pub area_per_gdp_bn_ha: f64,
+    #[serde(rename = "frei_min_anteil", default)]
+    pub free_share_min: f64,
     #[serde(rename = "wachstum")]
     pub growth: RawPlotGrowth,
     #[serde(rename = "wohlstand")]
@@ -1352,6 +1354,8 @@ pub struct RawAiBehavior {
     pub development_payback_years: f64,
     #[serde(rename = "forschung_luecke_firmen")]
     pub research_gap_companies: u32,
+    #[serde(rename = "forschung_luecke_vorrang_umsatz", default)]
+    pub research_gap_priority_revenue: f64,
     #[serde(rename = "forschung_vorlauf_jahre", default)]
     pub research_lead_years: u32,
     #[serde(rename = "kasse_min_monate")]

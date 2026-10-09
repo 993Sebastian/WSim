@@ -91,6 +91,10 @@ kimodell:
     # Marktlücken (M32): Produkte, nach denen gefragt wird, die aber keine Firma herstellen
     # kann, erforschen Firmen ohne Aufgabe in den eigenen Branchen – so viele zugleich.
     forschung_luecke_firmen: 2
+    # L1: Lücken nach dem Wert des offenen Bedarfs je Forschungspunkt; eine Lücke, deren
+    # offener Bedarf im Jahr mehr als so viele Jahresumsätze der Firma wert ist, geht der
+    # eigenen Branche vor (0 = nie).
+    forschung_luecke_vorrang_umsatz: 1.0
     # Vorlauf (M39): Produkte, die sich historisch in so vielen Jahren herstellen lassen,
     # zählen für die Marktlücken schon mit – ihre Voraussetzungen werden vorher erforscht.
     forschung_vorlauf_jahre: 5

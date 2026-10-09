@@ -196,8 +196,9 @@ fn pick(rng: &mut SimRng, weights: &[f64]) -> usize {
     weights.iter().rposition(|&w| w > 0.0).unwrap_or(0)
 }
 
-/// New plots up to the commercial land each country's economy carries: at the start of
-/// a game and every 1 January.
+/// New plots up to the commercial land each country's economy carries, and at least so
+/// much that `frei_min_anteil` of it stays free (L1): at the start of a game and every
+/// 1 January.
 pub(crate) fn supply(state: &mut GameState, catalog: &Catalog, year: i32) {
     let m = &catalog.plot_model;
     if !m.enabled() {
@@ -207,8 +208,11 @@ pub(crate) fn supply(state: &mut GameState, catalog: &Catalog, year: i32) {
     for (country, c) in catalog.countries.iter() {
         let v = state.countries.get(country);
         let gdp_bn = v.population * v.gdp_per_capita_usd / 1e9;
-        let target = m.area_per_gdp_bn_ha * gdp_bn * state.settings.market_scale;
-        let (mut offered, _) = land(state, country);
+        let (mut offered, used) = land(state, country);
+        // Land is zoned where industry needs it: with a fixed area per GDP, the land of
+        // every large country was taken by 1950 and nobody could build anew (L1).
+        let target = (m.area_per_gdp_bn_ha * gdp_bn * state.settings.market_scale)
+            .max(used / (1.0 - m.free_share_min));
         if offered >= target {
             continue;
         }

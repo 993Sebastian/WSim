@@ -688,9 +688,10 @@ fn the_stock_market() {
     use serde_json::json;
     let dir = tempfile::tempdir().unwrap();
     let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    // Rich enough for a percent of the smallest listed company.
     let rich = NewGameRequest {
         start_year: 1950,
-        capital_usd: 50_000_000.0,
+        capital_usd: 300_000_000.0,
         ..request()
     };
     session.new_game(&rich).unwrap();

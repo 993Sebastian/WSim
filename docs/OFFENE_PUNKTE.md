@@ -1683,11 +1683,39 @@ entschieden:
 7. **Kein Gummi, wo es um 1900 keines gab:** Lederschuhe ohne Gummisohle, Regenmäntel
    imprägniert statt gummiert, Gummistiefel erst ab 1920 (Formpressen); Rohkautschuk war
    um 1900 knapp und hätte Fahrrad- und Autoreifen verdrängt.
-8. **Offen (bestehend, nicht P1):** Die KI erforscht neue Verfahren nur zögerlich – auch
+8. **Erledigt mit L1** (siehe dort). War offen: Die KI erforscht neue Verfahren nur zögerlich – auch
    Strumpf, Kochtopf und Staubsauger hatten in früheren Läufen jahrzehntelang keinen
    Hersteller. Mit P1 betrifft das mehr Waren (Margarine, Brühwürfel, Joghurt,
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
+
+✅ **L1 umgesetzt** (Marktlücken und Markteintritt nach dem Wert des offenen Bedarfs; Wunsch
+vom 09.10.2026; Regeln: `docs/FORMELN.md`, Abschnitt L1). 🟡 Eigenständig entschieden:
+
+1. **Ursache war vor allem das Land, nicht die Forschung:** Technologien werden nach
+   `gemeingut_nach_jahren` (25) ohnehin Allgemeingut; Joghurt war ab 1944 für alle frei
+   und blieb trotzdem bis 1977 ohne Hersteller. Am Spielstand 1950 scheiterte jede
+   Pioniergründung (27 von 27) am fehlenden freien Grundstück. Neu: Gewerbeland wächst
+   auch mit der belegten Fläche, `frei_min_anteil` 0,25 bleibt frei. Damit gelangen am
+   selben Spielstand 25 von 25 Pionierbauten.
+2. **Forschung nach Wert je Forschungspunkt:** Marktlücken werden nach offenem Bedarf
+   eines Jahres je Forschungspunkt gewählt statt nach dem geringsten Aufwand; Vorprodukte
+   und Voraussetzungen erben den Wert der Waren darüber. Eine Lücke, die mindestens einen
+   Vorjahresumsatz der Firma wert ist (`forschung_luecke_vorrang_umsatz` 1,0), geht der
+   eigenen Branche vor. Eine laufende Forschung wird dafür nicht abgebrochen.
+3. **Patente und gesperrte Länder in der Engpasssuche:** Ein Bau, den ein Patent im
+   Zielland oder eine Länder-Sperre verhindert, ist keine Gelegenheit mehr. Vorher
+   entstanden leere Standorte (Tiefkühlkost 1950 unter Patent).
+4. **Datenfehler aus P1 behoben:** Aluminium in Fertiggerichten, Kapseln und
+   Energiegetränken gestrichen, Alufolie 0,4 statt 3 Rollen je Kopf, Antihaftpfanne 0,5
+   statt 1,1 kg Aluminium (der Bauxitbedarf 2025 war achtmal so hoch wie vor P1); Bauxit
+   bekommt einen Förderindex (× 5 bis 2026; neue Gruben in Jamaika, Guinea und Australien
+   fehlen als Lagerstätten); Wolle und Rohseide wachsen nach 2010 weiter (× 2,3 bzw. × 7)
+   statt zu schrumpfen, weil die Nachfrage nach Wollwaren im Spiel nicht zu Kunstfasern
+   abwandert.
+5. **Offen:** Teure Vorprodukte (über 1,5 × Richtpreis) sperren weiterhin den Ausbau der
+   Waren dahinter (`ausbau_vorprodukt_preis_max`, M16). Das ist gewollt, verzögert aber
+   ganze Ketten, solange ein Rohstoff knapp ist. Vorschlag: beobachten, nach P2 prüfen.
 
 ✅ **H3 umgesetzt** (Rüstung; Lastenheft §6.5; Regeln: `docs/FORMELN.md`, Abschnitt H3;
 Format: `docs/DATENFORMAT.md`, `ruestung`). 🟡 Eigenständig entschieden:

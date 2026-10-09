@@ -73,7 +73,7 @@ pub fn decide_with(
     }
     let none = Vec::new();
     let gaps = if first_of_year {
-        gap_technologies(state, catalog)
+        gap_values(state, catalog)
     } else {
         Vec::new()
     };
@@ -3157,14 +3157,19 @@ pub(crate) fn developed(
 pub(crate) fn wants_research(state: &GameState, catalog: &Catalog, id: CompanyId) -> bool {
     let b = &catalog.ai_model.behavior;
     let (competence, _) = traits(catalog, state, id);
-    let revenue = state.companies[id.index()]
+    let revenue = last_revenue(state, id);
+    competence >= b.research_competence_min && revenue.to_usd() >= b.research_min_revenue_usd
+}
+
+/// A company's revenue in its last closed year.
+fn last_revenue(state: &GameState, id: CompanyId) -> Money {
+    state.companies[id.index()]
         .ledger
         .years
         .last()
         .and_then(|y| y.by_type.get(&CostType::Revenue))
         .copied()
-        .unwrap_or(Money::ZERO);
-    competence >= b.research_competence_min && revenue.to_usd() >= b.research_min_revenue_usd
+        .unwrap_or(Money::ZERO)
 }
 
 /// Competent companies with enough revenue research the technology their branch needs
@@ -3174,7 +3179,7 @@ fn research_plan(
     catalog: &Catalog,
     id: CompanyId,
     sites: &[SiteId],
-    (date, gaps): (Date, &[TechnologyId]),
+    (date, gaps): (Date, &[(TechnologyId, f64)]),
     decider: &mut dyn Decider,
 ) {
     if wants_research(state, catalog, id) {
@@ -3189,7 +3194,7 @@ fn plan_research(
     catalog: &Catalog,
     id: CompanyId,
     sites: &[SiteId],
-    (date, gaps): (Date, &[TechnologyId]),
+    (date, gaps): (Date, &[(TechnologyId, f64)]),
     decider: &mut dyn Decider,
 ) {
     let b = &catalog.ai_model.behavior;
@@ -3227,9 +3232,10 @@ fn plan_research(
                 && branches.contains(&catalog.products.get(r.product).branch)
         })
     };
-    // Market gaps (M32) only without work in the own branches, and by a few companies
-    // at a time; a company keeps the gap it works on.
-    let gap = |t: TechnologyId| {
+    // Market gaps (M32) by a few companies at a time; a company keeps the gap it works
+    // on. The most open demand per research point first (L1): the cheapest one left
+    // valuable products such as yoghurt unresearched for decades.
+    let open_gap = |t: TechnologyId| {
         let mine = sites
             .iter()
             .any(|&s| view.sites[s.index()].research == Some(t));
@@ -3238,10 +3244,35 @@ fn plan_research(
             .iter()
             .filter(|s| s.research == Some(t) && !view.companies[s.owner.index()].bankrupt)
             .count();
-        gaps.contains(&t)
-            && (mine || others < per_companies(view, catalog, b.research_gap_companies))
+        mine || others < per_companies(view, catalog, b.research_gap_companies)
     };
-    let target = cheapest(&own_branch).or_else(|| cheapest(&gap));
+    let best_gap = gaps
+        .iter()
+        .filter(|&&(t, _)| {
+            let tech = catalog.technologies.get(t);
+            f64::from(tech.invention_year) <= horizon
+                && research::can_research(catalog, view, id, t)
+                && open_gap(t)
+        })
+        .filter_map(|&(t, value)| {
+            research::effort(catalog, view, t, date)
+                .map(|e| (t, value / e.points.max(1e-9), e.points, value))
+        })
+        .max_by(|a, b| {
+            a.1.total_cmp(&b.1)
+                .then(b.2.total_cmp(&a.2))
+                .then(b.0.cmp(&a.0))
+        });
+    // A gap worth more a year than `forschung_luecke_vorrang_umsatz` times the
+    // company's revenue goes before the own branches (L1).
+    let revenue = last_revenue(view, id).to_usd();
+    let urgent = best_gap.filter(|&(_, _, _, value)| {
+        b.research_gap_priority_revenue > 0.0 && value >= b.research_gap_priority_revenue * revenue
+    });
+    let target = urgent
+        .map(|g| g.0)
+        .or_else(|| cheapest(&own_branch))
+        .or_else(|| best_gap.map(|g| g.0));
     let center = sites
         .iter()
         .copied()
@@ -3855,12 +3886,25 @@ fn recipe_known_somewhere(
 /// Technologies for market gaps (M32): products that consumers or the state ask for, and
 /// the inputs of their usable recipes, that no active company can make – the
 /// technologies of their recipes and facilities with all prerequisites.
+#[cfg(test)]
 fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
+    gap_values(state, catalog)
+        .into_iter()
+        .map(|(t, _)| t)
+        .collect()
+}
+
+/// `gap_technologies` with the value of the open demand behind each (USD a year, L1):
+/// the unserved demand of the products it would open up and, for a dear market, what a
+/// newcomer would sell. An input or prerequisite counts with the products above it.
+fn gap_values(state: &GameState, catalog: &Catalog) -> Vec<(TechnologyId, f64)> {
     // Dear markets with few makers (M33): their processes are worth learning although
     // a company knows them; they become common property only decades after their
     // invention, so newcomers would otherwise never enter (penicillin, airliners).
     let b = &catalog.ai_model.behavior;
-    let makers = makers(state, catalog);
+    let scan = Scan::new(state, catalog);
+    let worth = |p: ProductId| (scan.unserved[p.index()].0 + scan.dear[p.index()].0) * 365.0;
+    let makers = &scan.makers;
     let dear: Vec<ProductId> = catalog
         .products
         .ids()
@@ -3911,8 +3955,9 @@ fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
     }
     todo.extend(coming.iter().copied());
     let mut seen = todo.clone();
-    let mut techs: Vec<TechnologyId> = Vec::new();
-    while let Some(product) = todo.pop() {
+    let mut todo: Vec<(ProductId, f64)> = todo.into_iter().map(|p| (p, worth(p))).collect();
+    let mut techs: Vec<(TechnologyId, f64)> = Vec::new();
+    while let Some((product, value)) = todo.pop() {
         let recipes: Vec<&Recipe> = catalog
             .recipes
             .values()
@@ -3929,18 +3974,24 @@ fn gap_technologies(state: &GameState, catalog: &Catalog) -> Vec<TechnologyId> {
                 .flat_map(|r| [r.technology, catalog.facilities.get(r.facility).technology])
                 .flatten()
                 .collect();
+            let mut counted: Vec<TechnologyId> = Vec::new();
             while let Some(t) = needed.pop() {
-                if !techs.contains(&t) {
-                    techs.push(t);
-                    needed.extend(catalog.technologies.get(t).prerequisites.iter().copied());
+                if counted.contains(&t) {
+                    continue;
                 }
+                counted.push(t);
+                match techs.iter_mut().find(|(x, _)| *x == t) {
+                    Some((_, v)) => *v += value,
+                    None => techs.push((t, value)),
+                }
+                needed.extend(catalog.technologies.get(t).prerequisites.iter().copied());
             }
         }
         for r in usable {
             for &(input, _) in &r.inputs {
                 if !seen.contains(&input) {
                     seen.push(input);
-                    todo.push(input);
+                    todo.push((input, worth(input).max(value)));
                 }
             }
         }
@@ -4261,6 +4312,14 @@ impl Chain<'_> {
             } else {
                 country
             };
+        }
+        // A patent of another company in that country stops it (P7), a country closed to
+        // the builder (H1) lets no site be founded: either attempt kept the product from
+        // every other builder that quarter.
+        if crate::patents::blocked_recipe(state, catalog, self.builder, recipe, place).is_some()
+            || crate::events::closed_to(state, self.builder, place)
+        {
+            return None;
         }
         let per_day = population::output_per_day(catalog, recipe) * u;
         // Capacity in units of the data size (M36), from the smallest size to twenty.
@@ -5246,8 +5305,8 @@ mod tests {
         };
         // Nobody asks for bicycles: the iron works have nothing to research.
         assert!(gap_technologies(state, &catalog).is_empty());
-        let gaps = gap_technologies(state, &catalog);
-        research_plan(state, &catalog, id, &[works], (date, &gaps), &mut Rules);
+        let values = gap_values(state, &catalog);
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
         assert_eq!(researching(state), None);
         // Consumers ask for them; nobody knows how to make them.
         let aaa = catalog.countries.id("AAA").expect("exists");
@@ -5262,7 +5321,8 @@ mod tests {
                 turbine
             ]
         );
-        research_plan(state, &catalog, id, &[works], (date, &gaps), &mut Rules);
+        let values = gap_values(state, &catalog);
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
         assert_eq!(researching(state), Some(turbine));
         // Once a company knows it, the gap is closed.
         let player = state.player();
@@ -5285,6 +5345,101 @@ mod tests {
         let mut gaps = gap_technologies(state, &catalog);
         gaps.sort();
         assert!(gaps.contains(&turbine), "{gaps:?}");
+    }
+
+    /// L1: among market gaps the company researches the one with the most open demand per
+    /// research point, not the cheapest; a gap worth more than its revenue goes before its
+    /// own branch.
+    #[test]
+    fn research_prefers_the_most_valuable_gap() {
+        let mut catalog = test_support::research();
+        let turbine = catalog.technologies.id("turbine").expect("exists");
+        let mut press = catalog.technologies.get(turbine).clone();
+        press.research_effort = Some(600.0);
+        let press = catalog.technologies.insert("presse", press).expect("new");
+        let mut cooling = catalog.technologies.get(turbine).clone();
+        cooling.research_effort = Some(100.0);
+        let cooling = catalog
+            .technologies
+            .insert("kuehlung", cooling)
+            .expect("new");
+        let furnace = catalog.facilities.id("ofen").expect("exists");
+        let iron = catalog.products.id("eisen").expect("exists");
+        let bicycle = catalog.products.id("rad").expect("exists");
+        let vehicles = catalog
+            .branches
+            .insert("fahrzeuge", crate::catalog::Branch)
+            .expect("new");
+        catalog.products.get_mut(bicycle).branch = vehicles;
+        let mut cart = catalog.products.get(bicycle).clone();
+        cart.reference_price = cart.reference_price.scale(2.0);
+        let cart = catalog.products.insert("wagen", cart).expect("new");
+        let smelting = catalog.recipes.id("eisen_schmelzen").expect("exists");
+        let template = catalog.recipes.get(smelting).clone();
+        for (key, product, tech) in [
+            ("rad_bauen", bicycle, turbine),
+            ("wagen_bauen", cart, press),
+        ] {
+            let mut r = template.clone();
+            r.product = product;
+            r.facility = furnace;
+            r.technology = Some(tech);
+            r.inputs = vec![(iron, 0.1)];
+            catalog.recipes.insert(key, r).expect("new");
+        }
+        // A faster smelting process: research in the company's own branch.
+        let mut fast = template.clone();
+        fast.technology = Some(cooling);
+        catalog.recipes.insert("eisen_schnell", fast).expect("new");
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let mut catalog = game.catalog().as_ref().clone();
+        let state = game.state_mut();
+        state.date = Date::new(1903, 1, 1).expect("valid");
+        let date = state.date;
+        let mut last_year = crate::ledger::PeriodResult::default();
+        last_year.by_type.insert(
+            CostType::Revenue,
+            Money::from_usd(10_000_000.0).expect("valid"),
+        );
+        state.companies[id.index()].ledger.years.push(last_year);
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        state.markets.get_mut(bicycle).get_mut(aaa).consumer_rate[2] = 5.0;
+        state.markets.get_mut(cart).get_mut(aaa).consumer_rate[2] = 50.0;
+        let values = gap_values(state, &catalog);
+        let value = |t: TechnologyId| {
+            values
+                .iter()
+                .find(|(x, _)| *x == t)
+                .map_or(0.0, |(_, v)| *v)
+        };
+        // Twice the effort, but twenty times the demand.
+        assert!(value(press) > 10.0 * value(turbine), "{values:?}");
+        let researching = |state: &GameState| {
+            state
+                .sites
+                .iter()
+                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .and_then(|s| s.research)
+        };
+        // Without priority the own branch comes first.
+        let fresh = state.clone();
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
+        assert_eq!(researching(state), Some(cooling));
+        // The gap is worth more than the revenue: it goes first.
+        *state = fresh.clone();
+        catalog.ai_model.behavior.research_gap_priority_revenue = 0.1;
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
+        assert_eq!(researching(state), Some(press));
+        // Worth less than the revenue: the own branch again.
+        *state = fresh.clone();
+        catalog.ai_model.behavior.research_gap_priority_revenue = 1.0;
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
+        assert_eq!(researching(state), Some(cooling));
+        // Without an own branch target the best gap (the cooling is known).
+        *state = fresh;
+        state.companies[id.index()].technologies.insert(cooling);
+        research_plan(state, &catalog, id, &[works], (date, &values), &mut Rules);
+        assert_eq!(researching(state), Some(press));
     }
 
     /// M32: a product in demand that nobody makes is taken up by a company that can make

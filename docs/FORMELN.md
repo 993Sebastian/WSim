@@ -1654,7 +1654,8 @@ Die Gewerbefläche, die ein Land anbietet, folgt seiner Wirtschaft:
     Ziel(t) = flaeche_ha_je_mrd_bip · BIP(t) in Mrd. USD (Kaufkraft 2026) · Marktmaßstab
 
 Zu Spielbeginn und an jedem 1. Januar kommen Grundstücke hinzu, bis die Fläche aller
-Grundstücke des Landes (belegt und frei) das Ziel erreicht. Jedes neue Grundstück wird
+Grundstücke des Landes (belegt und frei) das Ziel erreicht – seit L1 mindestens so viel,
+dass `frei_min_anteil` der Fläche frei bleibt (Abschnitt L1). Jedes neue Grundstück wird
 mit einem eigenen Zufallsstrom je Land und Jahr gezogen:
 
 1. **Lage** nach den Anteilen von `lagen` (Hafen nur in Ländern mit Küste; sein Anteil
@@ -5062,3 +5063,46 @@ M33 Verfügbarkeit, H3 Kriegsfaktor). Für die Daten gilt:
   Tee, Obst und Gemüse, Fisch, Trauben, Tabak, Ölsaaten, Wolle, Rohseide, Kalkstein, Ton,
   Sand) sind erneuerbare Lagerstätten in 6–14 Ländern; der Förderindex folgt der
   Weltproduktion (z. B. Kakao × 33, Fisch × 42, Kalkstein × 90 bis 2026).
+
+## L1 – Marktlücken nach dem Wert des offenen Bedarfs
+
+Anlass: Im Weltlauf mit P1 kamen viele neue Waren erst 50–70 Jahre nach ihrer Erfindung
+auf den Markt (Joghurt 1919 → 1977, Alufolie 1910 → 1984), und die Hersteller sehr
+teurer Märkte blieben jahrzehntelang allein.
+
+### Forschung (ändert M10/M32)
+
+- **Wert einer Lücke:** Für jedes Produkt der Lückensuche (M32, M33, M39) gilt als Wert
+  der offene Bedarf eines Jahres,
+  *W(p)* = 365 × (offener Bedarf × Marktpreis + Absatz eines Neulings im teuren Markt, M33).
+  Ein Vorprodukt zählt mindestens mit dem Wert des Produkts, für das es gebraucht wird.
+  Eine Technologie trägt die Summe der Werte aller Produkte, die sie (samt ihrer
+  Voraussetzungen) öffnet.
+- **Auswahl:** Unter den Lücken, die eine Firma erforschen kann (Vorgriff wie bisher,
+  höchstens `forschung_luecke_firmen` Firmen je Technologie), wählt sie die mit dem
+  größten Wert je Forschungspunkt *W / Aufwand*; bei Gleichstand die billigste. Bisher
+  galt die billigste Lücke.
+- **Vorrang:** Ist der Wert der besten Lücke mindestens
+  `forschung_luecke_vorrang_umsatz` × Vorjahresumsatz der Firma, geht sie der Forschung
+  der eigenen Branchen vor. Sonst forscht die Firma wie bisher erst in den eigenen
+  Branchen und nur ohne Aufgabe dort an einer Lücke.
+
+### Markteintritt (ändert M35 und M32)
+
+Die Diagnose am Spielstand 1950 des P1-Weltlaufs zeigte: Firmen, die eine Ware ohne
+Hersteller hätten bauen können und wollen, scheiterten alle an der Gründung, weil kein
+freies Grundstück mehr übrig war – das Gewerbeland folgte allein dem BIP, und mit P1
+gab es 60 % mehr Standorte. Ausbauten auf neuen Grundstücken scheiterten ebenso.
+
+- **Gewerbeland nach Bedarf:** Zum 1. Januar kommen Grundstücke hinzu, bis die Fläche
+  aller Grundstücke des Landes
+
+      Ziel(t) = max(flaeche_ha_je_mrd_bip · BIP(t) · Marktmaßstab,
+                    belegte Fläche / (1 − frei_min_anteil))
+
+  erreicht. Damit bleibt mindestens `frei_min_anteil` der Fläche frei; der Bodenpreis
+  steigt weiter mit dem belegten Anteil (`knappheit`, M35).
+- **Engpasssuche:** Ein Bau, den ein Patent einer anderen Firma im Zielland (P7) oder
+  eine Sperre des Landes für die Firma (H1) verhindert, ist keine Gelegenheit. Bisher
+  gründete die Firma dann einen leeren Standort oder scheiterte, und die Ware blieb für
+  alle anderen Firmen in diesem Quartal vergeben.

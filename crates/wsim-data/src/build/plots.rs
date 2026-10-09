@@ -113,6 +113,7 @@ pub(super) fn plot_model(ctx: &mut Ctx, raw: &RawData) -> PlotModel {
     let area = l.field("anlagenflaeche");
     PlotModel {
         area_per_gdp_bn_ha: positive(ctx, m.area_per_gdp_bn_ha, &l.field("flaeche_ha_je_mrd_bip")),
+        free_share_min: in_range(ctx, m.free_share_min, 0.0, 0.9, &l.field("frei_min_anteil")),
         growth_from_year: {
             in_range(
                 ctx,

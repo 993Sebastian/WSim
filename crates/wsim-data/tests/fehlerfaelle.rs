@@ -682,8 +682,14 @@ fn grundstuecksmodell_wird_geprueft() {
             "flaeche_ha: {von: 7, bis: 6}",
         )
         .ersetze(datei, "stadt: {anteil: 0.4,", "stadt: {anteil: 0.5,")
-        .ersetze(datei, "pacht_anteil: 0.05", "pacht_anteil: 1.5");
+        .ersetze(datei, "pacht_anteil: 0.05", "pacht_anteil: 1.5")
+        .ersetze(datei, "frei_min_anteil: 0.25", "frei_min_anteil: 0.95");
     let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+    );
+    assert_eq!(f.path.to_string(), "grundstuecksmodell.frei_min_anteil");
     befund(
         &outcome,
         "Die Anteile „klassen.anteile.reich“ ergeben zusammen 1.1 statt 1.",
@@ -705,7 +711,7 @@ fn grundstuecksmodell_wird_geprueft() {
         d.zeile(datei, "pacht_anteil"),
         "grundstuecksmodell.pacht_anteil",
     );
-    nur_fehler(&outcome, 4);
+    nur_fehler(&outcome, 5);
 
     // Every size class and location needs a name.
     let outcome = Daten::neu()
@@ -1384,6 +1390,13 @@ fn foerderkurve_wird_geprueft() {
             "ausbau_markt_auslastung: 1.5",
             "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "kimodell.verhalten.ausbau_markt_auslastung",
+        ),
+        // L1: priority of large market gaps over the own branches.
+        (
+            "forschung_luecke_vorrang_umsatz: 1.0",
+            "forschung_luecke_vorrang_umsatz: -1.0",
+            "Wert -1 darf nicht negativ sein.",
+            "kimodell.verhalten.forschung_luecke_vorrang_umsatz",
         ),
     ] {
         let outcome = Daten::neu()

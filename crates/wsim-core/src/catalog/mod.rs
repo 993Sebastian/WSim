@@ -1413,6 +1413,9 @@ pub struct PlotClass {
 pub struct PlotModel {
     /// Commercial land per bn USD of GDP (times the market scale).
     pub area_per_gdp_bn_ha: f64,
+    /// Share of a country's commercial land kept free: new plots also follow the land in
+    /// use (L1); 0 = only the GDP.
+    pub free_share_min: f64,
     /// New plots grow by 1 + (year − `growth_from_year`) / `growth_years`.
     pub growth_from_year: i32,
     pub growth_years: f64,
@@ -1450,6 +1453,7 @@ impl Default for PlotModel {
     fn default() -> Self {
         Self {
             area_per_gdp_bn_ha: 25.0,
+            free_share_min: 0.0,
             growth_from_year: 1900,
             growth_years: 30.0,
             rich_from_usd: 15_000.0,
@@ -1690,6 +1694,9 @@ pub struct AiBehavior {
     pub research_competence_min: f64,
     /// Companies researching the same technology for a market gap at once (M32).
     pub research_gap_companies: u32,
+    /// A market gap worth more open demand a year than this many times the company's
+    /// revenue goes before the own branches (L1); 0 = never.
+    pub research_gap_priority_revenue: f64,
     /// Products that can be made historically within this many years count as market
     /// gaps for research already (M39); 0 = off.
     pub research_lead_years: u32,
@@ -1796,6 +1803,7 @@ impl Default for AiModel {
                 research_min_revenue_usd: 5_000_000.0,
                 research_competence_min: 0.5,
                 research_gap_companies: 2,
+                research_gap_priority_revenue: 0.0,
                 research_lead_years: 0,
                 development_benefit_per_level: 0.03,
                 development_payback_years: 5.0,

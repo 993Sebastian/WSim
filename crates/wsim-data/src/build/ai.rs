@@ -246,6 +246,11 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             &bl.field("forschung_mindestkompetenz"),
         ),
         research_gap_companies: b.research_gap_companies,
+        research_gap_priority_revenue: non_negative(
+            ctx,
+            b.research_gap_priority_revenue,
+            &bl.field("forschung_luecke_vorrang_umsatz"),
+        ),
         research_lead_years: {
             in_range(
                 ctx,

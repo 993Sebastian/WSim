@@ -19,8 +19,8 @@ produkte:
     1950: 1.5
     1970: 2.0
     1990: 2.3
-    2010: 1.6
-    2026: 1.4
+    2010: 2.3
+    2026: 2.3
   pacht_anteil: 0.3
   annaeherung: true
 - id: rohseide
@@ -37,8 +37,8 @@ produkte:
     1950: 1.0
     1970: 2.0
     1990: 3.5
-    2010: 5.0
-    2026: 5.0
+    2010: 6.0
+    2026: 7.0
   pacht_anteil: 0.2
   annaeherung: true
 - id: haeute

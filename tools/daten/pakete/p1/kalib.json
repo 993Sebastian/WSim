@@ -46,7 +46,8 @@
   "kaugummi_herstellen": 6.3118,
   "bueromoebel_herstellen": 2.0218,
   "frischhaltefolie_herstellen": 3.3374,
-  "streichhoelzer_herstellen": 2.2903
+  "streichhoelzer_herstellen": 2.2903,
+  "antihaftpfanne_herstellen": 4.3844
  },
  "preis": {
   "wurst": 12.071428571428571,
@@ -84,6 +85,7 @@
   "kuechenrolle": 1.6285714285714286,
   "fleisch": 8.342857142857143,
   "schinken": 22.52857142857143,
-  "streichhoelzer": 0.17142857142857143
+  "streichhoelzer": 0.17142857142857143,
+  "antihaftpfanne": 55.800000000000004
  }
 }

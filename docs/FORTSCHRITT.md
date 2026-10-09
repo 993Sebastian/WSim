@@ -94,6 +94,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P0 | Vorbereitung der Produktbreite: Weltläufe ohne Spielerabhängigkeit, Leistung, Suche/Filter, Datenwerkzeug | ✅ (Wunsch vom 08.10.2026: P1–P5 als P0 und zehn Branchenpakete P1a–P5) |
 | H3 | Rüstung: Militärausgaben und Kriegsstärke je Land, Kriegsfaktor der Staatsnachfrage, sieben Rüstungsgüter | ✅ |
 | P1a–P1c | Lebensmittel und Getränke, Textil und Leder, Möbel, Haushaltswaren und Baustoffe: 124 Endprodukte, 16 Rohstoffe | ✅ |
+| L1 | Marktlücken und Markteintritt: Forschung nach Wert des offenen Bedarfs, Gewerbeland nach Bedarf, Engpasssuche ohne Patent- und Länder-Sperren | ✅ |
 | P2a–P5 | Produktbreite in den übrigen sieben Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
@@ -1161,6 +1162,28 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### L1: Marktlücken und Markteintritt (09.10.2026)
+
+Auf Wunsch vor P2. Regeln: `docs/FORMELN.md`, Abschnitt L1; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt L1.
+
+- **Diagnose:** Im P1-Weltlauf hatten viele Waren noch 2025 keinen oder kaum Hersteller,
+  obwohl ihre Technologien seit Jahrzehnten Gemeingut waren. Ein Spielstand von 1950
+  zeigte die Ursache: Jede Pioniergründung (27 von 27) scheiterte, weil in den großen
+  Ländern kein freies Gewerbeland mehr übrig war. Dazu kamen leere Standorte, wenn ein
+  Patent im Zielland die Anlage verbot.
+- **Kern:** Gewerbeland wächst mit der belegten Fläche (`frei_min_anteil`); die
+  Engpasssuche überspringt Patent- und Länder-Sperren; Marktlücken werden nach dem Wert
+  des offenen Bedarfs je Forschungspunkt erforscht, große Lücken vor der eigenen Branche
+  (`forschung_luecke_vorrang_umsatz`). Am Spielstand 1950 gelingen damit alle 25
+  Pionierbauten eines Quartals (Joghurt, Alufolie, Thermoskanne, Fertigwaren …).
+- **Daten (P1-Korrekturen):** weniger Aluminium in P1-Waren, Förderindex für Bauxit,
+  Wolle und Rohseide wachsen weiter.
+- **Werkzeug:** gemeinsamer Generator `tools/daten/pakete/generator.py` für alle
+  Branchenpakete (P1 erzeugt damit unverändert dieselben Dateien).
+- **Tests:** Szenariotests für die Lückenwahl und das Gewerbeland, Fehlerfälle der neuen
+  Parameter.
 
 ### P1: Lebensmittel, Textil, Wohnen und Bauen (08.10.2026)
 
