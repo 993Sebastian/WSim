@@ -95,7 +95,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | H3 | Rüstung: Militärausgaben und Kriegsstärke je Land, Kriegsfaktor der Staatsnachfrage, sieben Rüstungsgüter | ✅ |
 | P1a–P1c | Lebensmittel und Getränke, Textil und Leder, Möbel, Haushaltswaren und Baustoffe: 124 Endprodukte, 16 Rohstoffe | ✅ |
 | L1 | Marktlücken und Markteintritt: Forschung nach Wert des offenen Bedarfs, Gewerbeland nach Bedarf, Engpasssuche ohne Patent- und Länder-Sperren | ✅ |
-| P2a–P5 | Produktbreite in den übrigen sieben Branchenpaketen (Architektur §4.1) | ⏳ |
+| P2a–P2b | Chemie, Pharma, Kosmetik, Kunststoffwaren; Metallwaren, Werkzeuge, Maschinen: 64 Endprodukte, 3 Rohstoffe | ✅ |
+| P3a–P5 | Produktbreite in den übrigen fünf Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1162,6 +1163,20 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P2: Chemie, Pharma, Kosmetik, Kunststoffwaren, Metallwaren und Maschinen (09.10.2026)
+
+Branchenpakete P2a–P2b. Regeln: `docs/FORMELN.md`, Abschnitt P2; Entscheidungen:
+`docs/OFFENE_PUNKTE.md`, Abschnitt P2.
+
+- **Daten:** Ketten 53 (Chemie, Pharma, Kosmetik, Kunststoffwaren: 31 Endprodukte) und 54
+  (Metallwaren, Werkzeuge, Maschinen: 33), 15 Halbzeuge, Rohphosphat, Kalisalz und Zinkerz
+  mit 23 Lagerstätten, 38 Technologien. 361 statt 279 Produkte; Prüfung ohne Fehler und
+  Warnungen.
+- **Werkzeug:** `tools/daten/pakete/p2/` mit dem gemeinsamen Generator; neu sind Gruben
+  mit Vorrat, Staatsnachfrage mit Verlauf und `sehr_komplex`.
+- **Startjahr:** Die Starttests mit echten Daten (100 KI-Firmen) laufen ohne Änderung
+  durch.
 
 ### L1: Marktlücken und Markteintritt (09.10.2026)
 

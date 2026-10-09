@@ -1689,6 +1689,34 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P2 umgesetzt** (Branchenpakete P2a Chemie, Pharma, Kosmetik und Kunststoffwaren; P2b
+Metallwaren, Werkzeuge und Maschinen; Regeln: `docs/FORMELN.md`, Abschnitt P2). 🟡
+Eigenständig entschieden:
+
+1. **Umfang:** 64 neue Endprodukte (P2a 31, P2b 33), 15 Halbzeuge (Schwefelsäure, Chlor
+   mit Natronlauge, Benzol, Farbstoffe, Wirkstoffe, Tenside, PVC, Polystyrol,
+   Polypropylen; Zink, Messing, Kugellager, Getriebe, Dieselmotoren) und drei Rohstoffe
+   (Rohphosphat, Kalisalz, Zinkerz) mit 23 Lagerstätten; 38 Technologien von der
+   Wegwerf-Rasierklinge (1904) bis zu gentechnischen Wirkstoffen (1982). 361 statt 279
+   Produkte.
+2. **Maschinen über die Staatsnachfrage:** Betriebe kaufen keine Maschinen für ihre
+   Anlagen; Werkzeugmaschinen, Bagger, Krane, Aufzüge, Pumpen, Roboter usw. fragen Staat
+   und Wirtschaft je BIP nach (mit Verlauf, z. B. Industrieroboter × 30 von 1961 bis 2026).
+   Eine echte Investitionsgüternachfrage der Betriebe wäre ein eigener Schritt.
+3. **Bauteile:** Kugellager, Getriebe und Dieselmotoren als Halbzeuge; Maschinen mit fünf
+   Ebenen sind `sehr_komplex`. Pumpen, Roboter und Elektrowerkzeuge nutzen den Kleinmotor,
+   große Maschinen den Elektromotor.
+4. **Natronlauge** entsteht als Nebenprodukt der Chloralkali-Elektrolyse und hat einen
+   Staatsmarkt wie Salz und Soda, damit Seife um 1900 nicht von der Chlornachfrage abhängt.
+5. **Rohstoffe:** Phosphat und Kalisalz erneuerbar (Vorräte reichen Jahrhunderte), Zinkerz
+   mit Vorrat je Grube; Förderindex nach der Weltförderung (Phosphat × 30, Kali × 13,
+   Zink × 11 bis 2026).
+6. **Kunststoffwaren:** Die Sammelware sinkt von 3 auf 2 kg je Kopf, weil Rohre,
+   Spielzeug, Beutel, Taschen und Schläuche eigene Waren sind.
+7. **Abstimmung:** 51 Rezepte mit angepassten Arbeitsstunden, 39 Richtpreise geändert
+   (z. B. Messing 13 000 USD/t wegen des Kupferpreises, Pflanzenschutzmittel 12 USD/kg);
+   Prüfung ohne Fehler und Warnungen.
+
 ✅ **L1 umgesetzt** (Marktlücken und Markteintritt nach dem Wert des offenen Bedarfs; Wunsch
 vom 09.10.2026; Regeln: `docs/FORMELN.md`, Abschnitt L1). 🟡 Eigenständig entschieden:
 

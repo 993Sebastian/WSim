@@ -1,0 +1,94 @@
+# Zinkerz (P2). Vorrat und Höchstförderung um 1900 in t; der Förderindex des
+# Rohstoffs hebt die Förderung über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: zink_aus
+  land: AUS
+  rohstoff: zinkerz
+  vorrat: 60000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 400000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: zink_usa
+  land: USA
+  rohstoff: zinkerz
+  vorrat: 60000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 500000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zink_pol
+  land: POL
+  rohstoff: zinkerz
+  vorrat: 50000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zink_mex
+  land: MEX
+  rohstoff: zinkerz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 200000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zink_can
+  land: CAN
+  rohstoff: zinkerz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 200000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zink_per
+  land: PER
+  rohstoff: zinkerz
+  vorrat: 50000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 150000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: zink_chn
+  land: CHN
+  rohstoff: zinkerz
+  vorrat: 80000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 200000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: zink_rus
+  land: RUS
+  rohstoff: zinkerz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 150000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: zink_kaz
+  land: KAZ
+  rohstoff: zinkerz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 100000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

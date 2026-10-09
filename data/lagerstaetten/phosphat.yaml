@@ -1,0 +1,85 @@
+# Rohphosphat (P2, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: phosphat_usa
+  land: USA
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 2500000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: phosphat_tun
+  land: TUN
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: phosphat_dza
+  land: DZA
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 500000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: phosphat_mar
+  land: MAR
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: phosphat_rus
+  land: RUS
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 600000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: phosphat_chn
+  land: CHN
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: phosphat_jor
+  land: XLE
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 300000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: phosphat_pac
+  land: XOZ
+  rohstoff: phosphat
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 400000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

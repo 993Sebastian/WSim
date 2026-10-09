@@ -35,7 +35,7 @@ produkte:
     richtpreis_usd: 12            # ein Eimer um 1960 etwa 50 Cent
     nachfrage:
       bedarfsklasse: gebrauchsgut
-      verbrauch: {je_kopf_und_jahr: 3}
+      verbrauch: {je_kopf_und_jahr: 2}   # P2: Rohre, Spielzeug, Beutel und Schläuche eigene Waren
       kaufschwelle: 500
       preisempfindlichkeit: 1.3
       einkommensempfindlichkeit: 1.5

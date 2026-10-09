@@ -1,0 +1,65 @@
+# Kalisalz (P2, erneuerbar: Weiden, Felder, Plantagen, Fanggründe, Gruben mit praktisch
+# unerschöpflichem Vorrat). Höchstförderung um 1900 in t je Jahr; der Förderindex des
+# Rohstoffs hebt sie über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: kali_deu
+  land: DEU
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 3000000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: kali_fra
+  land: FRA
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 800000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kali_rus
+  land: RUS
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1000000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kali_blr
+  land: BLR
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 600000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: kali_can
+  land: CAN
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 4000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 1200000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: kali_usa
+  land: USA
+  rohstoff: kalisalz
+  erneuerbar: true
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 500000
+  foerderkosten_faktor: 1.0
+  annaeherung: true

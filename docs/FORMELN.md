@@ -5106,3 +5106,22 @@ gab es 60 % mehr Standorte. Ausbauten auf neuen Grundstücken scheiterten ebenso
   eine Sperre des Landes für die Firma (H1) verhindert, ist keine Gelegenheit. Bisher
   gründete die Firma dann einen leeren Standort oder scheiterte, und die Ware blieb für
   alle anderen Firmen in diesem Quartal vergeben.
+
+## P2 – Breite: Chemie, Pharma, Kosmetik, Kunststoffwaren, Metallwaren und Maschinen
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1. Für die Daten gilt
+zusätzlich:
+
+- **Maschinen und Bauteile:** Werkzeug-, Textil-, Druck-, Verpackungs-, Bergbau- und
+  Landmaschinen, Bagger, Krane, Aufzüge, Pumpen, Kompressoren, Gabelstapler, Mähdrescher,
+  Industriekessel, CNC-Zentren und Industrieroboter kaufen Staat und Wirtschaft über die
+  Staatsnachfrage (Einheiten je Mio. USD BIP, mit Verlauf). Betriebe kaufen in WSim keine
+  Maschinen für ihre Anlagen; die Nachfrage steht für die Investitionen der
+  Volkswirtschaft. Kugellager, Getriebe und Dieselmotoren gehen als Bauteile in die
+  Maschinen ein; Maschinen sind `sehr_komplex` (fünf Ebenen vom Erz).
+- **Dünger:** Phosphat- und Kalidünger wie der Stickstoffdünger als Staatsnachfrage mit
+  Verlauf (Grüne Revolution: × 6 bis 1970).
+- **Neue Rohstoffe:** Rohphosphat und Kalisalz (erneuerbar wie die Agrarrohstoffe, sehr
+  große Vorräte), Zinkerz als Gruben mit Vorrat (6–8 Länder).
+- **Abstimmung:** Richtpreise und Arbeitsstunden wie in P1 gegen die Plausibilitätsprüfung
+  (Marge 5–45 %, Ziel 30 %).
