@@ -1,0 +1,94 @@
+# Bleierz (P3a). Vorrat und Höchstförderung um 1900 in t; der Förderindex des
+# Rohstoffs hebt die Förderung über die Zeit. Grobe Annäherungen.
+
+lagerstaetten:
+- id: blei_aus
+  land: AUS
+  rohstoff: bleierz
+  vorrat: 60000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 400000
+  foerderkosten_faktor: 0.8
+  annaeherung: true
+- id: blei_usa
+  land: USA
+  rohstoff: bleierz
+  vorrat: 80000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 600000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: blei_mex
+  land: MEX
+  rohstoff: bleierz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 250000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: blei_esp
+  land: ESP
+  rohstoff: bleierz
+  vorrat: 20000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 300000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: blei_deu
+  land: DEU
+  rohstoff: bleierz
+  vorrat: 10000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 200000
+  foerderkosten_faktor: 1.1
+  annaeherung: true
+- id: blei_per
+  land: PER
+  rohstoff: bleierz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 150000
+  foerderkosten_faktor: 0.9
+  annaeherung: true
+- id: blei_chn
+  land: CHN
+  rohstoff: bleierz
+  vorrat: 80000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 150000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: blei_rus
+  land: KAZ
+  rohstoff: bleierz
+  vorrat: 40000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 100000
+  foerderkosten_faktor: 1.0
+  annaeherung: true
+- id: blei_can
+  land: CAN
+  rohstoff: bleierz
+  vorrat: 30000000
+  erschliessung:
+    investition_usd: 2000000
+    dauer_tage: 180
+  foerderung_max_je_jahr: 100000
+  foerderkosten_faktor: 0.9
+  annaeherung: true

@@ -248,13 +248,14 @@ data/ketten/NN_name.yaml --titel "Kette NN – …" [--anlagen anlagen.csv]
 `wsim rezepte`. Zellen ohne `quelle` erhalten `annaeherung: true`. Weitere Rezepte,
 Nebenprodukte und Sonderfelder werden danach in der YAML-Datei ergänzt.
 **Branchenpakete (P1 ff.):** Die Ketten 50 ff. und die Lagerstätten ihrer Rohstoffe erzeugt
-`python3 tools/daten/pakete/<paket>/gen.py` (P1: Ketten 50–52, P2: 53–54) aus `spec.py`
+`python3 tools/daten/pakete/<paket>/gen.py` (P1: Ketten 50–52, P2: 53–54, P3a: 55) aus `spec.py`
 (eine Zeile je Ware mit Preis, Nachfrage, Rezept, Anlage und Lagerstätten) über den
 gemeinsamen Generator `tools/daten/pakete/generator.py`; `kalib.py` stimmt Arbeitsstunden
 und Richtpreise auf die Plausibilitätsprüfung ab und schreibt `kalib.json`. Änderungen an
 diesen Waren gehören in `spec.py`, die YAML-Dateien sind erzeugt. Eine Lagerstätte mit
 sechstem Wert hat diesen Vorrat (Gruben), sonst ist sie erneuerbar; `staat` darf einen
-Verlauf tragen, `komplex` setzt `sehr_komplex`. Mit `WSIM_DATEN=<ordner>` schreiben
+Verlauf tragen, `komplex` setzt `sehr_komplex`, `('e', zu, je_besitz, …)` beschreibt ein
+Ergänzungsgut. Mit `WSIM_DATEN=<ordner>` schreiben
 Generator und Kalibrierung in eine Kopie der Daten (Versuche).
 `python3 tools/daten/vervielfachen.py data <ziel> <faktor>` legt in einer Kopie jedes
 Endprodukt mit seinen Rezepten `faktor − 1`-mal zusätzlich an (`<id>_v2` …) – ein

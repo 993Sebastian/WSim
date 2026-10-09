@@ -64,6 +64,9 @@ def generate(paket, files, tech, tech_file, kal, text_marker, dep_marker, dep_no
                 if n[0] == "v":
                     _, kopf, X, pe, ie, kl = n
                     d = {"bedarfsklasse": kl, "verbrauch": {"je_kopf_und_jahr": kopf}}
+                elif n[0] == "e":
+                    _, zu, je, X, pe, ie, kl = n
+                    d = {"bedarfsklasse": kl, "ergaenzung": {"zu": zu, "je_besitz_und_jahr": je}}
                 else:
                     _, dauer, quote, X, pe, ie, kl = n
                     d = {"bedarfsklasse": kl, "gebrauch": {"nutzungsdauer_jahre": dauer, "max_besitzquote": quote}}

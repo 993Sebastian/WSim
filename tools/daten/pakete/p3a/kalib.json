@@ -1,0 +1,39 @@
+{
+ "arbeit": {
+  "blei_herstellen": 10.0,
+  "starterbatterie_herstellen": 5.0571,
+  "motorrad_herstellen": 7.9609,
+  "motorroller_herstellen": 5.9348,
+  "sportwagen_herstellen": 5.6981,
+  "suv_herstellen": 10.0,
+  "omnibus_herstellen": 7.8257,
+  "wohnmobil_herstellen": 10.0,
+  "diesellokomotive_herstellen": 6.8147,
+  "elektrolokomotive_herstellen": 8.5975,
+  "reisezugwagen_herstellen": 7.533,
+  "strassenbahn_herstellen": 7.7545,
+  "hochgeschwindigkeitszug_herstellen": 8.3629,
+  "sportboot_herstellen": 8.5895,
+  "kreuzfahrtschiff_herstellen": 6.7094
+ },
+ "preis": {
+  "blei": 1313.1821428571432,
+  "dieselkraftstoff": 1608.6857142857143,
+  "kleinwagen": 20960.257142857146,
+  "suv": 55083.55714285714,
+  "hybridantrieb": 9341.114285714286,
+  "lieferwagen": 22510.3,
+  "wohnmobil": 60604.07142857143,
+  "frachtschiff": 5624026.928571429,
+  "tankschiff": 13861889.857142858,
+  "motorrad": 6197.0,
+  "motorroller": 3599.2000000000003,
+  "diesellokomotive": 2231988.9571428574,
+  "elektrolokomotive": 3060692.042857143,
+  "reisezugwagen": 215460.28571428574,
+  "strassenbahn": 215676.40000000002,
+  "hochgeschwindigkeitszug": 47348964.01428571,
+  "sportboot": 87580.07142857143,
+  "kreuzfahrtschiff": 435843025.6571429
+ }
+}

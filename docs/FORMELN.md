@@ -5125,3 +5125,22 @@ zusätzlich:
   große Vorräte), Zinkerz als Gruben mit Vorrat (6–8 Länder).
 - **Abstimmung:** Richtpreise und Arbeitsstunden wie in P1 gegen die Plausibilitätsprüfung
   (Marge 5–45 %, Ziel 30 %).
+
+## P3a – Breite: Fahrzeuge, Bahn und Schiffe
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 und P2.
+
+- **Straßenfahrzeuge für Haushalte** (Motorrad, Motorroller, Kleinwagen, Sportwagen,
+  SUV, Hybridauto, Wohnmobil) sind Gebrauchsgüter mit Nutzungsdauer und Besitzquote
+  neben dem bestehenden Automobil. Kleinwagen, SUV und Hybridauto sind eigene
+  Marktsegmente, sie ersetzen das Automobil nicht.
+- **Bahn, Busse, Lieferwagen und Schiffe** kaufen Staat und Wirtschaft über die
+  Staatsnachfrage. Der Generator rechnet sie aus einem Anteil am BIP:
+  Einheiten je Mio. USD BIP = Anteil in ‰ · 1 000 / Richtpreis. Diesellok und
+  Motorfrachter ersetzen Dampflok und Dampffrachter (`ersetzt`).
+- **Ergänzungsgut Starterbatterie:** 0,25 Batterien je Automobil und Jahr (wie Benzin
+  und Reifen), ab dem elektrischen Anlasser (1912).
+- **Blei:** Bleierz (Gruben mit Vorrat in 9 Ländern) → Blei. Blei kaufen außerdem Staat
+  und Wirtschaft (Rohre, Kabelmäntel, Farben, Munition; 0,1 ‰ des BIP), sonst wäre der
+  Bedarf um 1900 zu klein für eine Grube.
+- **Dieselkraftstoff** aus Rohöl (Mitteldestillat) als Staatsnachfrage mit Verlauf.

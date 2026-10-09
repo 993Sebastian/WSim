@@ -96,7 +96,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P1a–P1c | Lebensmittel und Getränke, Textil und Leder, Möbel, Haushaltswaren und Baustoffe: 124 Endprodukte, 16 Rohstoffe | ✅ |
 | L1 | Marktlücken und Markteintritt: Forschung nach Wert des offenen Bedarfs, Gewerbeland nach Bedarf, Engpasssuche ohne Patent- und Länder-Sperren | ✅ |
 | P2a–P2b | Chemie, Pharma, Kosmetik, Kunststoffwaren; Metallwaren, Werkzeuge, Maschinen: 64 Endprodukte, 3 Rohstoffe | ✅ |
-| P3a–P5 | Produktbreite in den übrigen fünf Branchenpaketen (Architektur §4.1) | ⏳ |
+| P3a | Fahrzeuge, Bahn und Schiffe: 24 Endprodukte, Blei | ✅ |
+| P3b–P5 | Produktbreite in den übrigen vier Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1163,6 +1164,19 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P3a: Fahrzeuge, Bahn und Schiffe (09.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt P3a; Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt P3a.
+
+- **Daten:** Kette 55 mit 24 Endprodukten, Blei, Hybridantrieb und Bleierz (9 Gruben),
+  16 Technologien vom Elektroantrieb der Lok (1905) bis zum Hybridantrieb (1997).
+  388 Produkte; Prüfung ohne Fehler und Warnungen.
+- **Werkzeug:** `tools/daten/pakete/p3a/`; der Generator kennt jetzt Ergänzungsgüter.
+- **Startjahr:** Erst stand die Bleikette still (zu wenig Bedarf), dann fehlten
+  Batterien und Passagierschiffe im ersten Jahr; behoben über Staatsnachfrage für Blei,
+  Batterie ab 1912 und Kreuzfahrtschiff ab 1966. Danach alle Starttests grün.
 
 ### P2: Chemie, Pharma, Kosmetik, Kunststoffwaren, Metallwaren und Maschinen (09.10.2026)
 

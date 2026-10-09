@@ -1689,6 +1689,25 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P3a umgesetzt** (Branchenpaket Fahrzeuge, Bahn und Schiffe; Regeln: `docs/FORMELN.md`,
+Abschnitt P3a). 🟡 Eigenständig entschieden:
+
+1. **Umfang:** 24 neue Endprodukte – sieben Straßenfahrzeuge für Haushalte, Lieferwagen
+   und Omnibus, sieben Bahnfahrzeuge (Dampf-, Diesel- und Elektrolok, Güter- und
+   Reisezugwagen, Straßenbahn, Hochgeschwindigkeitszug), sechs Schiffe (Dampf- und
+   Motorfrachter, Tanker, Containerschiff, Kreuzfahrtschiff, Sportboot), Starterbatterie
+   und Dieselkraftstoff –, dazu Blei, der Hybridantrieb als Bauteil und Bleierz mit
+   9 Lagerstätten; 16 Technologien. 388 statt 361 Produkte.
+2. **Kein Ersatz des Automobils:** Kleinwagen, SUV und Hybridauto sind eigene Segmente
+   mit eigener Kaufschwelle; das Elektroauto ersetzt weiterhin das Automobil.
+3. **Starterbatterie ab 1912** (elektrischer Anlasser) statt ab 1900; Reifen und Benzin
+   bleiben nur an das Automobil gebunden (eine Ergänzung hat genau ein Bezugsgut).
+4. **Blei mit Staatsnachfrage** (0,1 ‰ des BIP), sonst stand die Bleikette 1900 still.
+5. **Kreuzfahrtschiff ab 1966 statt Passagierdampfer ab 1900:** Einzelne Schiffe für
+   30 Mio. USD waren um 1900 so selten, dass die Versorgung im ersten Jahr zufällig war.
+6. **Abstimmung:** 15 Rezepte mit angepassten Arbeitsstunden, 18 Richtpreise geändert;
+   Prüfung ohne Fehler und Warnungen, Starttests mit echten Daten grün.
+
 ✅ **P2 umgesetzt** (Branchenpakete P2a Chemie, Pharma, Kosmetik und Kunststoffwaren; P2b
 Metallwaren, Werkzeuge und Maschinen; Regeln: `docs/FORMELN.md`, Abschnitt P2). 🟡
 Eigenständig entschieden:
