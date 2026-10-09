@@ -169,7 +169,13 @@ pub fn closed_to(state: &GameState, company: CompanyId, country: CountryId) -> b
     let Some((bloc, all)) = state.events.closure(country) else {
         return false;
     };
-    let top = &state.companies[crate::group::top(state, company).index()];
+    // A company still to be founded may only start where newcomers are allowed.
+    let Some(top) = state
+        .companies
+        .get(crate::group::top(state, company).index())
+    else {
+        return all;
+    };
     if top.state_owned.is_some_and(|c| bloc.contains(&c)) {
         return false;
     }

@@ -294,6 +294,33 @@ fn closed_countries_admit_no_new_sites() {
 }
 
 #[test]
+fn a_company_still_to_be_founded_may_ask_about_closed_countries() {
+    // The AI plans a founding for a newcomer that is not in the list yet; a closed
+    // country must answer without a panic (seen with a closure in the 1960 world).
+    let catalog = with_event(
+        test_support::production(),
+        date(1900, 1, 1),
+        &["BBB"],
+        vec![(EffectKind::Closure { all: false }, None)],
+    );
+    let game = new_game(catalog);
+    let b = game.catalog().countries.id("BBB").unwrap();
+    let a = game.catalog().countries.id("AAA").unwrap();
+    let newcomer = crate::state::CompanyId(u32::MAX);
+    assert_eq!(crate::group::top(game.state(), newcomer), newcomer);
+    assert!(!events::closed_to(game.state(), newcomer, b));
+    assert!(!events::closed_to(game.state(), newcomer, a));
+    let catalog = with_event(
+        test_support::production(),
+        date(1900, 1, 1),
+        &["BBB"],
+        vec![(EffectKind::Closure { all: true }, None)],
+    );
+    let game = new_game(catalog);
+    assert!(events::closed_to(game.state(), newcomer, b));
+}
+
+#[test]
 fn games_without_effects_only_tell_the_news() {
     let catalog = with_event(
         test_support::production(),

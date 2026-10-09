@@ -98,7 +98,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P2a–P2b | Chemie, Pharma, Kosmetik, Kunststoffwaren; Metallwaren, Werkzeuge, Maschinen: 64 Endprodukte, 3 Rohstoffe | ✅ |
 | P3a | Fahrzeuge, Bahn und Schiffe: 24 Endprodukte, Blei | ✅ |
 | P3b | Luft- und Raumfahrt: 40 Endprodukte, Titan, Bordelektronik, Triebwerke, Satelliten | ✅ |
-| P4a–P5 | Produktbreite in den übrigen drei Branchenpaketen (Architektur §4.1) | ⏳ |
+| P4a | Elektrotechnik und Haushaltsgeräte: 43 Endprodukte, Nickel, Heizleiter, Kabel | ✅ |
+| P4b–P5 | Produktbreite in den übrigen zwei Branchenpaketen (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1166,6 +1167,18 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
 
+### P4a: Elektrotechnik und Haushaltsgeräte (09.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt P4a; Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt P4a.
+
+- **Daten:** Kette 57 mit 43 Endprodukten (Haushaltsgeräte, Licht, Elektrotechnik für
+  Versorger und Gewerbe), Nickel, Heizleiter, Elektrokabel, Kälteaggregat und Nickelerz
+  (10 Gruben); 40 Technologien. 485 Produkte; Prüfung ohne Fehler und Warnungen.
+- **Werkzeug:** `tools/daten/pakete/p4a/`; der Generator kennt das Arbeitsprofil „el“.
+- **Startjahr:** Transformator, Generator und Rolltreppe waren 1900 zu schwach versorgt;
+  sie kommen jetzt mit kurzer Forschung (1903–1911). Danach alle Tests grün.
+
 ### Absturzschutz der Oberfläche und der Windows-App (09.10.2026)
 
 Rückmeldung zur portablen Windows-Version: Nach einigen Klicks blieb nur der Hintergrund.
@@ -1177,8 +1190,12 @@ Rückmeldung zur portablen Windows-Version: Nach einigen Klicks blieb nur der Hi
   friert das Fenster nicht mehr ein, während eine Ansicht wartet); eine Panik im Kern
   wird als Fehlermeldung beantwortet, sperrt die Sitzung nicht mehr und steht mit
   Rückverfolgung in `wsim-fehler.log` im Datenordner der App.
-- **Suche:** 4 × 500 Zufallsklicks samt Runden in der Browser-Version gegen den echten
-  Kern ohne Fehler; die genaue Ursache in der Windows-App zeigt das Fehlerprotokoll.
+- **Ursache gefunden:** Plant die KI eine Neugründung, prüfte die Engpasssuche (L1)
+  Länder-Sperren für die noch nicht gegründete Firma; bei einer Sperre durch ein
+  Weltereignis griff der Kern dabei hinter das Ende der Firmenliste und stürzte ab (in
+  der Windows-App mitten in der Runde, danach blieb die Sitzung gesperrt). Behoben in
+  `group::top` und `events::closed_to`; Regressionstest
+  `a_company_still_to_be_founded_may_ask_about_closed_countries`.
 
 ### P3b: Luft- und Raumfahrt (09.10.2026)
 

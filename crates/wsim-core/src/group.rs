@@ -45,8 +45,9 @@ pub struct SubsidiaryOf {
 pub fn top(state: &GameState, company: CompanyId) -> CompanyId {
     let mut c = company;
     // A chain is never longer than the list of companies; the bound guards against loops.
+    // A company still to be founded (the AI's newcomer) is not in the list: its own top.
     for _ in 0..state.companies.len() {
-        match state.companies[c.index()].subsidiary_of {
+        match state.companies.get(c.index()).and_then(|x| x.subsidiary_of) {
             Some(s) => c = s.parent,
             None => break,
         }
