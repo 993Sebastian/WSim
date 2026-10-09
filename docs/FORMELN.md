@@ -5186,3 +5186,22 @@ Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P3b.
 - **Arbeit:** Neues Profil „el“ (Elektro: 5 % ungelernt, 55 % angelernt, 36 % Fachkräfte
   und 4 % Akademiker der Elektrotechnik) für Elektrogeräte.
 
+## P4b – Breite: Elektronik, IT und Kommunikation
+
+Keine neuen Regeln; die Waren nutzen die vorhandenen Formeln wie P1 bis P4a.
+
+- **Neue Bauteile:** Leiterplatte (ab 1950), Lautsprecher (ab 1925), Lichtwellenleiter
+  (km, ab 1977), Festplattenlaufwerk (ab 1980) und Flash-Speicher (ab 1988). Neue Einheit
+  `km` für Glasfaser und Glasfaserkabel.
+- **Haushalte** kaufen Telefon, Grammophon und Plattenspieler, Tonband- und
+  Kassettengeräte, Stereoanlage, Spielkonsolen, Drucker, Router, Smartwatch und andere
+  Geräte als Gebrauchsgüter; das Autoradio ist ein Ergänzungsgut zum Automobil
+  (0,1 Geräte je Auto und Jahr). Nachfolger ersetzen Vorgänger (`ersetzt`):
+  Plattenspieler → Grammophon, Kassettenrekorder → Tonbandgerät, MP3-Spieler →
+  tragbarer Kassettenspieler.
+- **Post, Netzbetreiber, Banken, Behörden und Gewerbe** kaufen Fernschreiber,
+  Vermittlungstechnik, Basisstationen, Glasfaserkabel, Sprechfunk, Jukebox, Großrechner,
+  Server, Lochkarten- und Rechenmaschinen, Kopierer, Geldautomaten und Steuerungen über
+  die Staatsnachfrage mit Verlauf (auslaufend bei Fernschreiber, Lochkarte und
+  Rechenmaschine).
+

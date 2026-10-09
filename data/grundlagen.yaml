@@ -14,6 +14,7 @@ einheiten:
   - id: kwp               # Spitzenleistung (Solarmodule, M41); Gewicht steht beim Produkt
   - id: l                 # Liter (Getränke, Speiseöl, P1); rund 1 kg
     gewicht_kg: 1
+  - id: km                # Länge (Glasfaser und Glasfaserkabel, P4b); Gewicht steht beim Produkt
 
 kontinente:
   - id: afrika

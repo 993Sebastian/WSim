@@ -99,7 +99,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P3a | Fahrzeuge, Bahn und Schiffe: 24 Endprodukte, Blei | ✅ |
 | P3b | Luft- und Raumfahrt: 40 Endprodukte, Titan, Bordelektronik, Triebwerke, Satelliten | ✅ |
 | P4a | Elektrotechnik und Haushaltsgeräte: 43 Endprodukte, Nickel, Heizleiter, Kabel | ✅ |
-| P4b–P5 | Produktbreite in den übrigen zwei Branchenpaketen (Architektur §4.1) | ⏳ |
+| P4b | Elektronik, IT und Kommunikation: 45 Endprodukte, Leiterplatte, Glasfaser, Festplatte, Flash | ✅ |
+| P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit; Abschluss-Weltlauf (Architektur §4.1) | ⏳ |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
 
@@ -1166,6 +1167,17 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Plausibilitätsbericht aus `validate` und `rezepte`).
 - **Tests:** Standortleistung gegen die Summen über die Anlagen (bitgleich), vitest
   (Suchauswahl), Playwright, Reproduzierbarkeit.
+
+### P4b: Elektronik, IT und Kommunikation (09.10.2026)
+
+Regeln: `docs/FORMELN.md`, Abschnitt P4b; Entscheidungen: `docs/OFFENE_PUNKTE.md`,
+Abschnitt P4b.
+
+- **Daten:** Kette 58 mit 45 Endprodukten (Kommunikation, Unterhaltung, Rechner und
+  Bürotechnik), Leiterplatte, Lautsprecher, Lichtwellenleiter, Festplatte und
+  Flash-Speicher; 45 Technologien; Einheit `km`. 535 Produkte; Prüfung ohne Fehler und
+  Warnungen, Weltlauf-Test 1900 und alle Tests grün.
+- **Werkzeug:** `tools/daten/pakete/p4b/`.
 
 ### P4a: Elektrotechnik und Haushaltsgeräte (09.10.2026)
 

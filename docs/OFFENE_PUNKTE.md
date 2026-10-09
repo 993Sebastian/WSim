@@ -1689,6 +1689,23 @@ entschieden:
    Thermoskanne …). Vorschlag: Lückenforschung je Jahr nach dem Wert der offenen Nachfrage
    statt nach dem billigsten Verfahren auswählen – als eigener Schritt vor P2.
 
+✅ **P4b umgesetzt** (Branchenpaket Elektronik, IT und Kommunikation; Regeln:
+`docs/FORMELN.md`, Abschnitt P4b). 🟡 Eigenständig entschieden:
+
+1. **Umfang:** 45 neue Endprodukte – 17 der Kommunikation vom Telefonapparat (1900) bis
+   zum Funkkopfhörer (2016), 14 der Unterhaltung vom Grammophon (1900) bis zum
+   Blu-ray-Spieler, 14 Rechner, Büro- und Sicherheitstechnik von der Rechenmaschine
+   (1905) bis zum Server –, dazu Leiterplatte, Lautsprecher, Lichtwellenleiter, Festplatte
+   und Flash-Speicher; 45 Technologien. 535 statt 485 Produkte.
+2. **Ablösung über `ersetzt`** nur dort, wo ein Gerät das ältere wirklich verdrängte
+   (Plattenspieler, Kassettenrekorder, MP3-Spieler); Fernschreiber, Lochkarten- und
+   Rechenmaschine laufen über den Verlauf der Staatsnachfrage aus.
+3. **Rechen- und Tabelliermaschine mit kurzer Forschung (1905/1906):** große Bürogeräte
+   schon ab 1900 wären im ersten Spieljahr kaum versorgt (wie Transformator in P4a).
+4. **Neue Einheit `km`** für Glasfaser und Glasfaserkabel.
+5. **Abstimmung:** 25 Rezepte mit angepassten Arbeitsstunden, 32 Richtpreise geändert;
+   Prüfung ohne Fehler und Warnungen, Starttests mit echten Daten grün.
+
 ✅ **P4a umgesetzt** (Branchenpaket Elektrotechnik und Haushaltsgeräte; Regeln:
 `docs/FORMELN.md`, Abschnitt P4a). 🟡 Eigenständig entschieden:
 
