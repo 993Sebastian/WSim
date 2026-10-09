@@ -1221,6 +1221,10 @@ Rückmeldung zur portablen Windows-Version: Nach einigen Klicks blieb nur der Hi
   der Windows-App mitten in der Runde, danach blieb die Sitzung gesperrt). Behoben in
   `group::top` und `events::closed_to`; Regressionstest
   `a_company_still_to_be_founded_may_ask_about_closed_countries`.
+- **Zweite Ursache (Meldung der Fehlergrenze „l is not a function“):** Ein Effekt gab das
+  Ergebnis von `window.scrollTo` zurück; die neuere WebView2 unter Windows liefert dort ein
+  Promise, das React beim Wechsel der Ansicht als Aufräumfunktion aufrief. Jetzt mit
+  Blockrumpf; ein vitest verbietet Effekte mit Ausdrucksrumpf.
 
 ### P3b: Luft- und Raumfahrt (09.10.2026)
 

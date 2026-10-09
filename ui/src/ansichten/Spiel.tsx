@@ -211,8 +211,11 @@ export function Spiel({
   // Country chosen on the map for a new site.
   const [gruendenIn, setGruendenIn] = useState<string | null>(null);
   // Every view starts at its top (and the game screen at its first view): the page
-  // kept the scroll position of the previous screen and hid the tabs.
-  useEffect(() => window.scrollTo(0, 0), [ansicht]);
+  // kept the scroll position of the previous screen and hid the tabs. A block body: newer
+  // WebView2 returns a promise from scrollTo, which React would call as the cleanup.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [ansicht]);
   const [berichte, setBerichte] = useState<Rundenbericht[]>([]);
   // Counts loaded games: the views start afresh, even if the date is the same.
   const [ladung, setLadung] = useState(0);
