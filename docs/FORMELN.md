@@ -5272,3 +5272,61 @@ Die dauerhafte Streuung ist schwankung / √(1 − beharrung²) ≈ 11 % der Fö
 Nachfrage nach Rohstoffen kurzfristig kaum nachgibt, schwanken die Preise deutlich stärker.
 `schwankung: 0` schaltet den Zyklus ab. Die Marktansicht zeigt die Förderlage des
 Rohstoffs (Zyklusfaktor − 1).
+
+## Q1 – Forschung je Produkt mit Prozentniveau (ersetzt die Stufen aus M37)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, Q1. Parameter: `data/parameter/forschungsmodell.yaml`,
+Abschnitt `produktforschung` (ersetzt `weiterentwicklung`).
+
+### Punkte und Niveau
+
+Jede Firma *f* sammelt für jedes Produkt *p*, das sie herstellen darf, Forschungspunkte
+P(f, p) ≥ 0. Punkte verfallen nicht und sickern nicht zu anderen durch.
+
+    Niveau R(f, p) = P(f, p) / max_g P(g, p)        (0–100 %; der Führende hat 100 %)
+    Reife  S(p)    = 1 − exp(−max_g P(g, p) / B(p))  (0–1; wie weit das Produkt überhaupt entwickelt ist)
+
+B(p) ist der Bezugsaufwand des Produkts (bisher B(p) aus M37: größter Forschungsaufwand der
+Technologien seiner Rezepte, mindestens `grundaufwand`). Hat noch niemand geforscht, ist
+R = 0 für alle.
+
+### Wirkung
+
+- **Produktwertung (Nachfrage):** Die Qualität eines Durchlaufs bekommt
+  `qualitaet_max · R(f, p)` Punkte dazu (vor der Begrenzung auf 0–100). Mit der bestehenden
+  Regel für Vorprodukte (`produktionsmodell.qualitaet.vorprodukte` je Punkt über 50) ergibt
+  sich die Gesamtwertung aus **Qualität der Vorprodukte + eigenem Forschungsniveau**; sie
+  wirkt wie bisher über die Kaufentscheidung (M16) auf den Absatz.
+- **Kosten:** in allen Rezepten der Firma für *p*
+      Arbeitsstunden · (1 − arbeit_max · R · S)
+      Vorprodukte    · (1 − vorprodukte_max · R · S)
+  Die Reife S verhindert, dass ein einziger Forschungspunkt die volle Ersparnis bringt;
+  das Niveau R bestimmt, wer davon wie viel hat.
+
+Kein Endniveau: Der Führende bleibt bei 100 %, solange er mehr Punkte hat; wer aufholen
+will, muss mehr forschen als er.
+
+### Forschen mit Budget je Produkt
+
+- Ein Forschungszentrum hat Kapazität: Punkte je Tag aus Forschern und Fachgebiet (M9).
+- Der Spieler verteilt sie in Anteilen (Summe ≤ 100 %) auf eine Technologie (M9) und
+  beliebig viele Produkte (Befehl `SetResearchShares`). Jeder Anteil bekommt täglich
+  Anteil · Punkte je Tag; die Kosten des Zentrums bleiben wie in M9.
+- Lizenzen und Kaufangebote übertragen keine Punkte.
+
+### KI
+
+Wie bisher die umsatzstärksten Produkte, nun als Anteile nach Umsatz, solange sich der
+Abstand zum Führenden nach der Amortisationsregel (M37, KI) lohnt.
+
+### Spielstände
+
+Alte Stufen L werden in Punkte umgerechnet: P = Summe der bisherigen Stufenaufwände 1…L
+(M37); laufende Weiterentwicklungen werden zu 100 % Anteil des Produkts.
+
+### Zur Abnahme
+
+1. `qualitaet_max` 30 Punkte, `arbeit_max` 20 %, `vorprodukte_max` 15 % (bisher Stufe 5:
+   +20 Punkte, −15 %, −10 %).
+2. Ohne Durchsickern können späte Einsteiger einen Vorsprung kaum einholen. Vorschlag:
+   kein Rabatt für Nachzügler (wie gewünscht); alternativ ein Nachahmungsrabatt auf die Kosten.
