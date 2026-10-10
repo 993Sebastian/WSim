@@ -3964,7 +3964,7 @@ sofort:
   Auslastung) abzüglich laufender Verträge ist;
 - die Strafe höchstens `ki.strafe_max` ist.
 
-**Rabatt für Bindung (10.10.2026, zur Abnahme):** Je länger die Laufzeit *n*, desto mehr
+**Rabatt für Bindung (abgenommen am 10.10.2026):** Je länger die Laufzeit *n*, desto mehr
 gibt die KI für die sichere Abnahme oder Lieferung nach:
 
     r(n) = min(`ki.abschlag_max`, `ki.abschlag_verkauf` + `ki.abschlag_je_monat` · (n − 1))
