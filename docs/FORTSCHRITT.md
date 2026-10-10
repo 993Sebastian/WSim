@@ -1243,6 +1243,11 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   `aufschlag_max`, Prüfregeln mit Fehlerfalltest); Vorschläge in Ansichten und KI-Angeboten
   liegen beim Einkauf jetzt unter dem Marktpreis. Tests
   `longer_terms_earn_a_bigger_discount`, angepasste W4-Tests, Sitzungstest.
+- **Prüfung Vertragspreise (Rückfrage 10.10.2026):** Vertragsware kommt mit dem Vertragspreis
+  ins Lager, die Produktion verbraucht zum Durchschnittswert – Herstellkosten und Ergebnis
+  waren richtig. Die angezeigten Stückkosten (Kosten, Preisvergleich, Marge) rechneten
+  zugekaufte Vorprodukte aber stets zum Marktpreis; jetzt zum Einstandspreis (Lager, sonst
+  laufende Verträge). Test `contract_goods_cost_the_contract_price_not_the_market_price`.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

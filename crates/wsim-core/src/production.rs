@@ -393,7 +393,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
     for _ in 0..=made.len() {
         let price = |p: ProductId| {
             costs.iter().find(|u| u.product == p).map_or_else(
-                || crate::market::market_price(catalog, state, s.country, p).to_usd(),
+                || bought_input_price(catalog, state, site, p),
                 UnitCost::total,
             )
         };
@@ -463,6 +463,31 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
         costs = sums.into_iter().map(UnitCost::per_unit).collect();
     }
     costs
+}
+
+/// What a bought input costs a site per unit: the average cost of its stock (contract
+/// deliveries at their price, market purchases at theirs), without stock the price of its
+/// running purchase contracts, else the market price in the country.
+fn bought_input_price(catalog: &Catalog, state: &GameState, site: SiteId, p: ProductId) -> f64 {
+    let s = &state.sites[site.index()];
+    if let Some(st) = s.inventory.get(&p).filter(|st| st.quantity > 1e-9) {
+        return st.value.to_usd() / st.quantity;
+    }
+    let (quantity, amount) = state
+        .contracts
+        .iter()
+        .filter(|c| {
+            c.buyer == site
+                && c.product == p
+                && c.status == crate::contracts::ContractStatus::Active
+        })
+        .fold((0.0, 0.0), |(q, a), c| {
+            (q + c.per_month, a + c.per_month * c.price.to_usd())
+        });
+    if quantity > 1e-9 {
+        return amount / quantity;
+    }
+    crate::market::market_price(catalog, state, s.country, p).to_usd()
 }
 
 /// Workers per labor group that a site's planned production (and research) needs.

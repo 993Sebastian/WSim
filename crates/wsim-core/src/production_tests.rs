@@ -799,9 +799,17 @@ fn unit_costs_add_up_and_follow_the_wage_premium() {
     let u = &costs[0];
     assert_eq!(u.product, iron);
     assert!((u.output_per_day - 50.0).abs() < 1e-9);
-    let ore_price =
-        crate::market::market_price(&c, game.state(), aaa, c.products.id("erz").unwrap());
-    assert!((u.material - 2.0 * ore_price.to_usd()).abs() < 1e-9);
+    // Ore counts at what the stock cost, without stock at the market price.
+    let ore = c.products.id("erz").unwrap();
+    let ore_price = game.state().sites[works.index()]
+        .inventory
+        .get(&ore)
+        .filter(|st| st.quantity > 1e-9)
+        .map_or_else(
+            || crate::market::market_price(&c, game.state(), aaa, ore).to_usd(),
+            |st| st.value.to_usd() / st.quantity,
+        );
+    assert!((u.material - 2.0 * ore_price).abs() < 1e-9);
     let labor = wage(&game, "ungelernt") + wage(&game, "fachkraft.metall");
     assert!((u.labor - labor).abs() < 1e-9, "{} vs {labor}", u.labor);
     // Furnace: 2 000 000 USD over 20 years plus 3.65 % maintenance, 50 t a day.

@@ -9,6 +9,7 @@ use crate::ledger::{Account, CostType};
 use crate::market;
 use crate::message::keys;
 use crate::money::Money;
+use crate::production;
 use crate::state::{CompanyId, PriceMode, SiteId};
 use crate::trade_tests::{
     competitor, days, inventory_matches, iron, new_game, stock, usd, warehouse, with_tariff,
@@ -304,6 +305,68 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
     assert_eq!(answer(short), Err(Decline::Price));
     assert_eq!(answer(sell(0.6 * output, 1.0, 0.0)), Err(Decline::Quantity));
     assert_eq!(answer(sell(0.4 * output, 1.0, 90.0)), Err(Decline::Quality));
+}
+
+#[test]
+fn contract_goods_cost_the_contract_price_not_the_market_price() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let works = furnace(&mut game);
+    let other = competitor(&mut game);
+    let ore = product(&game, "erz");
+    // The other company holds ore and sells it to the furnace at half the market price.
+    let store = warehouse(&mut game, other, "AAA", 0.0);
+    let catalog = game.catalog().clone();
+    let country = game.state().sites[works.index()].country;
+    let market = market::market_price(&catalog, game.state(), country, ore);
+    let price = market.scale(0.5);
+    {
+        let state = game.state_mut();
+        state.sites[store.index()]
+            .inventory
+            .entry(ore)
+            .or_default()
+            .add(1e6, Money::times(price, 1e6), 50.0);
+        state.companies[other.index()].ledger.transfer(
+            Account::Inventory,
+            Account::Equity,
+            Money::times(price, 1e6),
+        );
+        // Whatever ore the furnace still has goes, so only contract goods are left.
+        state.sites[works.index()].inventory.remove(&ore);
+    }
+    let need = 30.0 * contracts::daily_need(game.state(), &catalog, works, ore);
+    let terms = Terms {
+        seller: store,
+        buyer: works,
+        product: ore,
+        per_month: 2.0 * need,
+        price,
+        months: 6,
+        min_quality: 0.0,
+        penalty: 0.2,
+    };
+    contracts::propose(game.state_mut(), &catalog, other, &terms).unwrap();
+    let id = game.state().contracts.last().unwrap().id;
+    game.apply(Command::AnswerContract {
+        contract: id,
+        accept: true,
+    })
+    .unwrap();
+    days(&mut game, 45);
+    let state = game.state();
+    // The stock is worth what was paid for it.
+    let st = &state.sites[works.index()].inventory[&ore];
+    assert!(st.quantity > 0.0);
+    let unit = st.value.to_usd() / st.quantity;
+    assert!((unit - price.to_usd()).abs() < 1e-3, "{unit} vs {price:?}");
+    // The expected cost of iron counts the ore at that price (2 ore per iron).
+    let iron_cost = production::unit_costs(&catalog, state, works)[0].clone();
+    assert!(
+        (iron_cost.material - 2.0 * price.to_usd()).abs() < 1e-3,
+        "{iron_cost:?} vs {price:?}"
+    );
+    let me = game.player();
+    assert!(state.companies[me.index()].ledger.is_balanced());
 }
 
 #[test]

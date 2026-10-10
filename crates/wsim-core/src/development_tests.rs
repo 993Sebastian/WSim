@@ -440,7 +440,16 @@ fn developed_products_need_less_labor_and_inputs_and_are_better() {
             .iter()
             .sum();
         let costs = production::unit_costs(game.catalog(), state, works)[0].clone();
-        (used, quality, workers, costs.material, costs.labor)
+        // Material per unit of ore the stock is worth (its value differs between runs).
+        let ore_stock = &s.inventory[&ore];
+        let ore_unit = ore_stock.value.to_usd() / ore_stock.quantity;
+        (
+            used,
+            quality,
+            workers,
+            costs.material / ore_unit,
+            costs.labor,
+        )
     };
     let (used0, quality0, workers0, material0, labor0) = run(0.0);
     // The leader of a fully developed product (maturity 1 − e^−100 ≈ 1).

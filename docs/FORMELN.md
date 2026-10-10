@@ -939,9 +939,14 @@ Parameter: `produktionsmodell.lohnaufschlag_max`; KI:
 - **Stückkosten** eines Erzeugnisses am Standort (Anzeige der Werksansicht, keine
   Wirkung auf die Simulation), je Anlage mit dem Rezept bei geplanter Auslastung *u*
   (ruhende Anlagen: *u* = 1), Durchläufe je Tag *n* = Durchläufe je Anlage · Anzahl · *u*:
-  - Material = Σ Menge · Marktpreis im Land; Vorprodukte, die der Standort selbst
+  - Material = Σ Menge · Einstandspreis; Vorprodukte, die der Standort selbst
     herstellt, mit ihren eigenen Stückkosten (wiederholt gerechnet, bis die Kette
-    durchlaufen ist).
+    durchlaufen ist). Einstandspreis zugekaufter Vorprodukte (seit 10.10.2026): der
+    Durchschnittswert des Lagers (Vertragsware zum Vertragspreis, Marktkäufe zu ihrem
+    Preis), ohne Lager der mengengewichtete Preis laufender Lieferverträge, sonst der
+    Marktpreis im Land. Vorher galt immer der Marktpreis, und ein günstiger Vertrag
+    zeigte sich nicht in den Stückkosten (wohl aber in Lagerwert, Herstellkosten und
+    Ergebnis).
   - Personal = Σ Stunden je Durchlauf (mit Automatisierung, Lagerstätte und
     Produktivität wie in der Erzeugung) · Lohn · (1 + *a*).
   - Energie = MWh je Durchlauf · Industriestrompreis; Gemeinkosten und Pacht wie in der
