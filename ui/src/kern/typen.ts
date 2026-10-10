@@ -78,7 +78,7 @@ export interface Standort {
   deposit: string | null;
   workers: number;
   facilities: Anlage[];
-  stock: { product: string; quantity: number; value_usd: number }[];
+  stock: Lagerbestand[];
 }
 
 export interface Firma {
@@ -533,6 +533,21 @@ export interface Preisverlauf {
   high_usd: number | null;
 }
 
+/** A product in stock at a site. */
+export interface Lagerbestand {
+  product: string;
+  quantity: number;
+  /** Book value. */
+  value_usd: number;
+  quality?: number;
+  /** Quantity at today's market price in the site's country. */
+  market_value_usd?: number;
+  need_per_day?: number;
+  output_per_day?: number;
+  /** Days the stock lasts at the planned use. */
+  days?: number | null;
+}
+
 export interface StandortDetail {
   index: number;
   /** The player's own name for the site, if any. */
@@ -551,7 +566,7 @@ export interface StandortDetail {
   }[];
   workers: number;
   slots: AnlageDetail[];
-  stock: { product: string; quantity: number; value_usd: number }[];
+  stock: Lagerbestand[];
   offers: Angebot[];
   orders: Einkauf[];
   inputs: Versorgung[];

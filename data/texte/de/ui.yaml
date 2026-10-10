@@ -466,6 +466,18 @@ werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
+werk.lager: Lager
+werk.lager_hinweis: Alles, was am Standort liegt – Vorprodukte, eigene Erzeugnisse und Handelsware. Die Reichweite gilt für die geplante Erzeugung; der Marktwert rechnet mit dem heutigen Marktpreis im Land.
+werk.lager_leer: Das Lager ist leer.
+werk.lager_von: "Lager: {standort}"
+werk.lager_menge: Menge
+werk.lager_qualitaet: Qualität
+werk.lager_verbrauch: Verbrauch je Tag
+werk.lager_erzeugung: Erzeugung je Tag
+werk.lager_buchwert: Buchwert
+werk.lager_marktwert: Marktwert
+werk.lager_summe: Summe
+produktion.lager_alle: Lager aller Standorte
 werk.umbenennen: Umbenennen
 werk.name: Name des Standorts
 werk.name_hilfe: Leer lassen, um wieder Art und Land zu zeigen. Der Name erscheint überall, wo der Standort genannt wird.

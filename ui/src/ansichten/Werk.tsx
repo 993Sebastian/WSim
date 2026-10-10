@@ -46,7 +46,7 @@ import { Verlauf } from "./Grafik";
 import { fortgeschrieben } from "./Markt";
 import { standortName } from "./stellen";
 
-type Bereich = "anlagen" | "einkauf" | "verkauf" | "personal" | "kosten";
+type Bereich = "anlagen" | "einkauf" | "verkauf" | "lager" | "personal" | "kosten";
 
 /** Unit of a product as text, e.g. "t" or "Stück". */
 export function einheit(produktion: Produktion, produkt: string): string {
@@ -79,7 +79,7 @@ export function standortTitel(s: StandortDetail): string {
   return standortName(s.kind_text, s.country, s.name);
 }
 
-const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "personal", "kosten"];
+const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "lager", "personal", "kosten"];
 
 export function Werk({
   standort: s,
@@ -109,6 +109,7 @@ export function Werk({
         { key: "anlagen", text: t("werk.anlagen"), zaehler: engpaesse },
         { key: "einkauf", text: t("werk.einkauf"), zaehler: knapp },
         { key: "verkauf", text: t("werk.verkauf") },
+        { key: "lager", text: t("werk.lager") },
         { key: "personal", text: t("werk.personal"), zaehler: fehlend },
         { key: "kosten", text: t("werk.kosten") },
       ];
@@ -136,6 +137,12 @@ export function Werk({
       {bereich === "anlagen" && <Anlagen s={s} produktion={produktion} />}
       {bereich === "einkauf" && <Einkauf s={s} produktion={produktion} />}
       {bereich === "verkauf" && <Verkauf s={s} produktion={produktion} />}
+      {bereich === "lager" && (
+        <div className="karten">
+          <p className="erklaerung">{t("werk.lager_hinweis")}</p>
+          <LagerTabelle s={s} produktion={produktion} />
+        </div>
+      )}
       {bereich === "personal" && <Personal key={s.wage_premium} s={s} />}
       {bereich === "kosten" && <Kosten s={s} produktion={produktion} />}
     </section>
@@ -806,6 +813,80 @@ function Erschliessung({ s, datum }: { s: StandortDetail; datum: string }) {
       </div>
       <Rueckmeldung meldung={antwort} />
     </form>
+  );
+}
+
+// --- Stock of the site ---
+
+/** Everything in stock at a site: quantity, quality, use, output, reach and value. */
+export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
+  if (s.stock.length === 0) return <p className="gedaempft">{t("werk.lager_leer")}</p>;
+  const buchwert = s.stock.reduce((summe, l) => summe + l.value_usd, 0);
+  const marktwert = s.stock.reduce((summe, l) => summe + (l.market_value_usd ?? 0), 0);
+  const titel = t("werk.lager_von", { standort: standortTitel(s) });
+  return (
+    <div className="tabelle">
+      <table className="mobil-karten" aria-label={titel}>
+        <thead>
+          <tr>
+            <th>{t("vertrag.produkt")}</th>
+            <th className="zahl">{t("werk.lager_menge")}</th>
+            <th className="zahl">{t("werk.lager_qualitaet")}</th>
+            <th className="zahl">{t("werk.lager_verbrauch")}</th>
+            <th className="zahl">{t("werk.lager_erzeugung")}</th>
+            <th className="zahl">{t("produktion.reichweite")}</th>
+            <th className="zahl">{t("werk.lager_buchwert")}</th>
+            <th className="zahl">{t("werk.lager_marktwert")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {s.stock.map((l) => {
+            const e = einheit(produktion, l.product);
+            const tage = l.days ?? null;
+            return (
+              <tr key={l.product}>
+                <td data-titel={t("vertrag.produkt")}>{produktName(l.product)}</td>
+                <td className="zahl" data-titel={t("werk.lager_menge")}>
+                  {formatMenge(l.quantity)} {e}
+                </td>
+                <td className="zahl" data-titel={t("werk.lager_qualitaet")}>
+                  {l.quality === undefined ? "–" : formatZahl(l.quality, 0)}
+                </td>
+                <td className="zahl" data-titel={t("werk.lager_verbrauch")}>
+                  {l.need_per_day ? `${formatMenge(l.need_per_day)} ${e}` : "–"}
+                </td>
+                <td className="zahl" data-titel={t("werk.lager_erzeugung")}>
+                  {l.output_per_day ? `${formatMenge(l.output_per_day)} ${e}` : "–"}
+                </td>
+                <td
+                  className={`zahl ${tage === null ? "" : `zustand-${reichweiteZustand(tage)}`}`}
+                  data-titel={t("produktion.reichweite")}
+                >
+                  {tage === null ? "–" : t("produktion.tage", { tage: formatZahl(tage, 0) })}
+                </td>
+                <td className="zahl" data-titel={t("werk.lager_buchwert")}>
+                  {formatGeld(l.value_usd)}
+                </td>
+                <td className="zahl" data-titel={t("werk.lager_marktwert")}>
+                  {l.market_value_usd === undefined ? "–" : formatGeld(l.market_value_usd)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colSpan={6}>{t("werk.lager_summe")}</th>
+            <td className="zahl" data-titel={t("werk.lager_buchwert")}>
+              {formatGeld(buchwert)}
+            </td>
+            <td className="zahl" data-titel={t("werk.lager_marktwert")}>
+              {formatGeld(marktwert)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   );
 }
 

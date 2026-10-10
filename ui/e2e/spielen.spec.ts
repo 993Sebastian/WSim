@@ -198,6 +198,11 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     /Vorschau im Browser führt keine Befehle aus/,
   );
 
+  // The stock of the site with use, reach and values.
+  await page.getByRole("button", { name: "Lager" }).click();
+  const lager = page.getByRole("table", { name: "Lager: Werk · Deutschland" });
+  await expect(lager.getByRole("row", { name: /Draht/ })).toContainText("3 Tage");
+
   await page.getByRole("button", { name: "Verkauf" }).click();
   const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
   await verkauf.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();

@@ -1200,6 +1200,9 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   leer: wieder Art und Land). Der Name steht in Werk, Standortliste, Verträgen, Finanzen,
   Organisation, Anliegen, Strategie und Konzern (`site_name` in den Sichten). Test
   `sites_take_own_names` (Spielstand, Wiederholung), E2E.
+- **Lagerübersicht:** Neuer Reiter „Lager“ im Werk und „Lager aller Standorte“ in der
+  Standortliste: Menge, Qualität, Verbrauch und Erzeugung je Tag, Reichweite, Buch- und
+  Marktwert mit Summen (`StockView` erweitert, Sitzungstest, E2E).
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

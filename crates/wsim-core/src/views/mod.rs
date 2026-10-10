@@ -310,7 +310,49 @@ pub struct FacilityView {
 pub struct StockView {
     pub product: String,
     pub quantity: f64,
+    /// Book value of the stock.
     pub value_usd: f64,
+    /// Average quality 0–100.
+    #[serde(default)]
+    pub quality: f64,
+    /// Today's market price in the site's country times the quantity.
+    #[serde(default)]
+    pub market_value_usd: f64,
+    /// Planned use and output of the site's production per day.
+    #[serde(default)]
+    pub need_per_day: f64,
+    #[serde(default)]
+    pub output_per_day: f64,
+    /// Days the stock lasts at the planned use (`None` without use).
+    #[serde(default)]
+    pub days: Option<f64>,
+}
+
+/// Everything a site has in stock, with what its production uses and makes.
+pub(crate) fn stock_views(
+    state: &crate::state::GameState,
+    catalog: &Catalog,
+    site: crate::state::SiteId,
+) -> Vec<StockView> {
+    let s = &state.sites[site.index()];
+    s.inventory
+        .iter()
+        .filter(|(_, st)| st.quantity > 1e-9)
+        .map(|(&p, st)| {
+            let need = crate::contracts::daily_need(state, catalog, site, p);
+            StockView {
+                product: catalog.products.key(p).to_owned(),
+                quantity: st.quantity,
+                value_usd: usd(st.value),
+                quality: st.quality,
+                market_value_usd: usd(crate::market::market_price(catalog, state, s.country, p))
+                    * st.quantity,
+                need_per_day: need,
+                output_per_day: crate::contracts::daily_output(state, catalog, site, p),
+                days: (need > 1e-9).then(|| st.quantity / need),
+            }
+        })
+        .collect()
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -559,16 +601,11 @@ fn company_view(game: &Game) -> Option<CompanyView> {
                     }
                 })
                 .collect(),
-            stock: s
-                .inventory
-                .iter()
-                .filter(|(_, st)| st.quantity > 1e-9)
-                .map(|(p, st)| StockView {
-                    product: catalog.products.key(*p).to_owned(),
-                    quantity: st.quantity,
-                    value_usd: usd(st.value),
-                })
-                .collect(),
+            stock: stock_views(
+                state,
+                catalog,
+                crate::state::SiteId(u32::try_from(i).unwrap_or(u32::MAX)),
+            ),
         })
         .collect();
     Some(CompanyView {

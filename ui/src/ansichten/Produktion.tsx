@@ -7,7 +7,7 @@ import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Befehle, Rueckmeldung, useAktion, useBefehl, useSicht } from "./gemeinsam";
 import { GrundstueckWahl, useGewerbeflaeche, type GrundstueckWahlWert } from "./Grundstuecke";
-import { formatKoepfe, standortTitel, ursacheText, Werk } from "./Werk";
+import { formatKoepfe, LagerTabelle, standortTitel, ursacheText, Werk } from "./Werk";
 
 export function ProduktionAnsicht({
   kern,
@@ -54,6 +54,22 @@ export function ProduktionAnsicht({
                 <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
               ))}
             </div>
+            {daten.sites.some((s) => s.stock.length > 0) && (
+              <details className="karte lageruebersicht">
+                <summary>
+                  <h2>{t("produktion.lager_alle")}</h2>
+                </summary>
+                <p className="erklaerung">{t("werk.lager_hinweis")}</p>
+                {daten.sites
+                  .filter((s) => s.stock.length > 0)
+                  .map((s) => (
+                    <section key={s.index} aria-label={standortTitel(s)}>
+                      <h3>{standortTitel(s)}</h3>
+                      <LagerTabelle s={s} produktion={daten} />
+                    </section>
+                  ))}
+              </details>
+            )}
             <StandortGruenden
               key={gruendenIn ?? "heimat"}
               kern={kern}

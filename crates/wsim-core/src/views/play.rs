@@ -714,16 +714,7 @@ pub fn production(game: &Game) -> ProductionView {
                 },
                 workers: s.workforce.values().sum(),
                 slots,
-                stock: s
-                    .inventory
-                    .iter()
-                    .filter(|(_, st)| st.quantity > 1e-9)
-                    .map(|(p, st)| super::StockView {
-                        product: catalog.products.key(*p).to_owned(),
-                        quantity: st.quantity,
-                        value_usd: usd(st.value),
-                    })
-                    .collect(),
+                stock: super::stock_views(state, catalog, site_id),
                 offers: s
                     .offers
                     .iter()

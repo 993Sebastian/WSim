@@ -40959,7 +40959,12 @@
           {
             "product": "draht",
             "quantity": 5.0,
-            "value_usd": 6945.6544
+            "value_usd": 6945.6544,
+            "quality": 50.0,
+            "market_value_usd": 6950.0,
+            "need_per_day": 2.0,
+            "output_per_day": 0.0,
+            "days": 2.5
           }
         ],
         "training": 0.25,

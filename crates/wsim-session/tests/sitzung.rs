@@ -534,6 +534,14 @@ fn supply_contracts_with_ai_companies() {
     assert_eq!(plant.contracts.len(), 1);
     assert_eq!(plant.contracts[0].role, "einkauf");
     assert_eq!(plant.contracts[0].product, "draht");
+    // The stock lists use, reach and the market value (Lager).
+    for l in plant.stock.iter().filter(|l| l.need_per_day > 0.0) {
+        assert!(
+            (l.days.unwrap() - l.quantity / l.need_per_day).abs() < 1e-9,
+            "{l:?}"
+        );
+        assert!(l.market_value_usd > 0.0 && l.quality > 0.0, "{l:?}");
+    }
     // Too much is declined with the reason.
     let err = session
         .command(json!({"ProposeContract": {
