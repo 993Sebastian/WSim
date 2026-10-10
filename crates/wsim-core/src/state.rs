@@ -647,19 +647,28 @@ pub struct Followup {
     pub due: Date,
 }
 
-/// Development of a company's products (M37): levels reached by own research and the
-/// research points collected towards the next level.
+/// Development of a company's products (Q1, before M37): all research points collected
+/// per product, which set the level against the leader; and the generations reached
+/// (point thresholds for successor models and start-ups) with the points towards the next.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Development {
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub levels: BTreeMap<ProductId, u8>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub points: BTreeMap<ProductId, f64>,
+    /// All points collected per product (Q1); saves before Q1 get them on loading.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub total: BTreeMap<ProductId, f64>,
 }
 
 impl Development {
     pub fn is_empty(&self) -> bool {
-        self.levels.is_empty() && self.points.is_empty()
+        self.levels.is_empty() && self.points.is_empty() && self.total.is_empty()
+    }
+
+    /// All points collected for a product.
+    pub fn total(&self, product: ProductId) -> f64 {
+        self.total.get(&product).copied().unwrap_or(0.0)
     }
 
     /// Level reached by own research.
@@ -1386,9 +1395,13 @@ pub struct Site {
     /// Technology the research center works on.
     #[serde(default)]
     pub research: Option<TechnologyId>,
-    /// Product the research center develops instead (M37).
+    /// Product the research center develops with all its researchers (M37); the AI's way.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub development: Option<ProductId>,
+    /// Shares of the researchers per developed product (Q1); when set, they replace
+    /// `development` and the rest works on `research`.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub development_shares: BTreeMap<ProductId, f64>,
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
@@ -1794,6 +1807,9 @@ pub struct GameState {
     /// Day each development level of a product was first reached, level 1 first (M37).
     #[serde(default)]
     pub developments: PerId<ProductId, Vec<Date>>,
+    /// Most points any company has collected per product (Q1); derived, not saved.
+    #[serde(skip)]
+    pub development_leader: BTreeMap<ProductId, f64>,
     /// Day the player reached each milestone (M23).
     #[serde(default)]
     pub milestones: PerId<MilestoneId, Option<Date>>,
@@ -2268,6 +2284,7 @@ impl GameState {
             .resize_with(catalog.technologies.len(), || None);
         self.developments
             .resize_with(catalog.products.len(), Vec::new);
+        crate::development::fit_loaded(self, catalog);
         self.milestones
             .resize_with(catalog.milestones.len(), || None);
         let countries = catalog.countries.len();

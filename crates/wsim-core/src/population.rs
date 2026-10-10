@@ -1004,6 +1004,7 @@ fn found_company(
             orders,
             research: None,
             development: None,
+            development_shares: std::collections::BTreeMap::new(),
             wage_premium: 0.0,
             training: 0.0,
             training_target: None,

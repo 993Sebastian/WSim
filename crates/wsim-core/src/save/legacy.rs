@@ -132,6 +132,7 @@ pub(super) fn decode_v2(
         .collect::<Result<Vec<_>, LoadError>>()?;
     let state = GameState {
         commodity_cycle: std::collections::BTreeMap::new(),
+        development_leader: std::collections::BTreeMap::new(),
         settings: GameSettings {
             seed: s.settings.seed,
             start_year: s.settings.start_year,

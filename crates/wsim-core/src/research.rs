@@ -80,7 +80,7 @@ pub(crate) fn wanted_researchers(
     date: Date,
 ) -> f64 {
     let s = &state.sites[site.index()];
-    if s.kind != SiteType::ResearchCenter || (s.research.is_none() && s.development.is_none()) {
+    if s.kind != SiteType::ResearchCenter || development::idle(s) {
         return 0.0;
     }
     s.slots
@@ -111,7 +111,8 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
         let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
             continue;
         };
-        let researchers = *s.workforce.get(group);
+        // The researchers not given to products work on the technology (Q1).
+        let researchers = *s.workforce.get(group) * development::technology_share(s);
         if researchers <= 0.0 {
             continue;
         }
@@ -190,59 +191,89 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     messages
 }
 
-/// Researchers of a center work on the development of a product (M37): points per day
-/// and material as for technologies; a level is reached once the points match its effort,
-/// and the center goes on with the next level until the top.
+/// Researchers of a center work on the development of its products (Q1): each product
+/// gets its share of the researchers' points per day, material as for technologies. The
+/// points add to the company's total and to the progress towards the next generation.
 fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let model = &catalog.research_model;
     let mut working: Vec<(CompanyId, ProductId)> = Vec::new();
+    let mut leading_before: Vec<(ProductId, bool)> = Vec::new();
     for index in 0..state.sites.len() {
         let s = &state.sites[index];
-        let Some(product) = s.development else {
+        let shares = development::site_shares(s);
+        if shares.is_empty() {
             continue;
-        };
+        }
         let owner = s.owner;
         if state.companies[owner.index()].bankrupt {
             continue;
         }
-        if !development::can_develop(catalog, state, owner, product) {
-            state.sites[index].development = None;
-            continue;
-        }
-        let Some((field, _)) = development::basis(catalog, product) else {
-            continue;
-        };
-        let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
-            continue;
-        };
-        let researchers = *s.workforce.get(group);
-        if researchers <= 0.0 {
-            continue;
-        }
-        let country = state.countries.get(s.country);
-        let efficiency = country
-            .research_efficiency
-            .get(field.index())
-            .copied()
-            .unwrap_or(1.0);
-        let material =
-            Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
-                .unwrap_or(Money::ZERO);
-        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
-        let company = &mut state.companies[owner.index()];
-        company.ledger.expense(
-            CostType::Research,
-            CostCenter::site(site),
-            Account::Cash,
-            material,
-        );
-        *company.development.points.entry(product).or_default() += researchers * efficiency;
-        if !working.contains(&(owner, product)) {
-            working.push((owner, product));
+        for (product, share) in shares {
+            if !development::can_develop(catalog, state, owner, product) {
+                let s = &mut state.sites[index];
+                s.development_shares.remove(&product);
+                if s.development == Some(product) {
+                    s.development = None;
+                }
+                continue;
+            }
+            let Some((field, _)) = development::basis(catalog, product) else {
+                continue;
+            };
+            let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
+                continue;
+            };
+            let s = &state.sites[index];
+            let researchers = *s.workforce.get(group) * share;
+            if researchers <= 0.0 {
+                continue;
+            }
+            let country = state.countries.get(s.country);
+            let efficiency = country
+                .research_efficiency
+                .get(field.index())
+                .copied()
+                .unwrap_or(1.0);
+            let material =
+                Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
+                    .unwrap_or(Money::ZERO);
+            let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+            state.companies[owner.index()].ledger.expense(
+                CostType::Research,
+                CostCenter::site(site),
+                Account::Cash,
+                material,
+            );
+            if state.is_main(owner) && !leading_before.iter().any(|&(p, _)| p == product) {
+                let lead = development::leader_points(state, product);
+                let own = development::points(state, owner, product);
+                leading_before.push((product, lead > 0.0 && own >= lead));
+            }
+            development::add_points(state, owner, product, researchers * efficiency);
+            if !working.contains(&(owner, product)) {
+                working.push((owner, product));
+            }
         }
     }
 
     let mut messages = Vec::new();
+    // The player took the lead of a product (Q1).
+    for (product, was_leading) in leading_before {
+        let Some(player) = state.main_company else {
+            continue;
+        };
+        if !was_leading
+            && development::points(state, player, product)
+                >= development::leader_points(state, product)
+        {
+            messages.push(
+                Message::new(MessageKind::Success, keys::DEVELOPMENT_LEAD).with(
+                    "produkt",
+                    Param::TextKey(format!("produkt.{}", catalog.products.key(product))),
+                ),
+            );
+        }
+    }
     for (company, product) in working {
         let Some((next, needed)) = development::next_effort(catalog, state, company, product, date)
         else {
@@ -259,14 +290,8 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
         if first_in_world {
             firsts.push(date);
         }
+        // The last generation: research goes on, the level against the leader counts.
         let top = next >= model.development.levels;
-        if top {
-            for s in &mut state.sites {
-                if s.owner == company && s.development == Some(product) {
-                    s.development = None;
-                }
-            }
-        }
         let product_key = || Param::TextKey(format!("produkt.{}", catalog.products.key(product)));
         // A successor model (B1): AI companies rename, the player gets a suggestion.
         let successor = crate::product_names::successor(catalog, state, company, product);

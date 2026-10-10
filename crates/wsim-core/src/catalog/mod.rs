@@ -1142,18 +1142,16 @@ impl Default for ResearchModel {
 pub struct DevelopmentModel {
     /// Highest level; 0 turns development off.
     pub levels: u8,
-    /// Per level in all recipes of the product: quality points, and the shares of the
-    /// labor hours and of the inputs saved per run.
-    pub quality_per_level: f64,
-    pub labor_per_level: f64,
-    pub inputs_per_level: f64,
+    /// At the leader's level in all recipes of the product (Q1): quality points, and the
+    /// shares of the labor hours and of the inputs saved per run.
+    pub quality_max: f64,
+    pub labor_max: f64,
+    pub inputs_max: f64,
     /// Effort of level n: base · share · growth^(n − 1); the base is the largest research
     /// effort of the product's technologies, at least `base_effort`.
     pub effort_share: f64,
     pub effort_growth: f64,
     pub base_effort: f64,
-    /// Years after the first company reached a level when every company has it.
-    pub public_domain_years: f64,
     /// Research field of products without a technology, indexed by `BranchId`.
     pub fields: Vec<Option<SpecializationId>>,
 }
@@ -1162,13 +1160,12 @@ impl Default for DevelopmentModel {
     fn default() -> Self {
         Self {
             levels: 0,
-            quality_per_level: 4.0,
-            labor_per_level: 0.03,
-            inputs_per_level: 0.02,
+            quality_max: 30.0,
+            labor_max: 0.2,
+            inputs_max: 0.15,
             effort_share: 0.2,
             effort_growth: 1.6,
             base_effort: 10_000.0,
-            public_domain_years: 15.0,
             fields: Vec::new(),
         }
     }

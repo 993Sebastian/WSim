@@ -965,12 +965,11 @@ pub struct RawPatents {
 pub struct RawProductDevelopment {
     #[serde(rename = "stufen")]
     pub levels: u32,
-    #[serde(rename = "je_stufe")]
+    /// Effect at the leader's level (Q1).
+    #[serde(rename = "wirkung_max")]
     pub per_level: RawDevelopmentPerLevel,
     #[serde(rename = "aufwand")]
     pub effort: RawDevelopmentEffort,
-    #[serde(rename = "gemeingut_nach_jahren")]
-    pub public_domain_years: u32,
     /// Research field by branch, for products without a technology.
     #[serde(rename = "fachgebiete")]
     pub fields: BTreeMap<String, String>,

@@ -336,11 +336,7 @@ fn research_bonus(
         VentureTarget::Development { product, level } => {
             match crate::development::next_effort(catalog, state, company, product, date) {
                 Some((next, points)) if next == level => {
-                    *state.companies[company.index()]
-                        .development
-                        .points
-                        .entry(product)
-                        .or_default() += points * bonus;
+                    crate::development::add_points(state, company, product, points * bonus);
                     true
                 }
                 _ => false,
@@ -443,13 +439,7 @@ fn succeed(state: &mut GameState, catalog: &Catalog, i: usize, date: Date) -> Ve
                                     catalog.products.key(product)
                                 )),
                             )
-                            .with("stufe", Param::Integer(i64::from(level)))
-                            .with(
-                                "jahre",
-                                Param::Number(
-                                    catalog.research_model.development.public_domain_years,
-                                ),
-                            ),
+                            .with("stufe", Param::Integer(i64::from(level))),
                     );
                 }
             }
@@ -644,9 +634,7 @@ fn to_parent(
             company.technologies.insert(t);
         }
         VentureTarget::Development { product, level } => {
-            let own = company.development.levels.entry(product).or_default();
-            *own = (*own).max(level);
-            company.development.points.remove(&product);
+            crate::development::grant_level(catalog, state, parent, product, level);
         }
     }
     if !state.is_main(parent) {
@@ -1803,12 +1791,13 @@ pub(crate) fn spin_off(
             c.research.remove(&t);
         }
         VentureTarget::Development { product, .. } => {
-            c.development.points.remove(&product);
+            crate::development::remove_progress(state, actor, product);
         }
     }
     let s = &mut state.sites[site.index()];
     s.research = None;
     s.development = None;
+    s.development_shares.clear();
     if sell_share > 0.0 {
         sell(state, catalog, actor, id, sell_share)?;
     }

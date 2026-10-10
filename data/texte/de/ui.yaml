@@ -436,6 +436,7 @@ werk.verfahren: Verfahren
 werk.auslastung: Geplante Auslastung
 werk.uebernehmen: Übernehmen
 werk.entwicklung: Entwicklung
+werk.entwicklung_niveau: "Forschungsniveau {niveau} des Führenden"
 werk.entwicklung_stufe: "Stufe {stufe} – mehr Qualität, weniger Arbeit und Vorprodukte (Forschung → Weiterentwicklung)"
 werk.auslastung_bereich: Die Auslastung muss zwischen 0 und 100 % liegen.
 werk.anlage_geaendert: Gespeichert – gilt ab der nächsten Runde.
@@ -677,8 +678,8 @@ markt.keine_anbieter: Im Land bietet keine Firma dieses Produkt an.
 markt.preis_anbieter: Preis heute
 markt.verkauft_vormonat: Verkauft im Vormonat
 markt.anteil_markt: Marktanteil
-markt.stufe: Stufe
-markt.stufe_hilfe: Entwicklungsstufe des Produkts beim Anbieter – höhere Stufen bringen mehr Qualität und niedrigere Kosten (Forschung → Weiterentwicklung).
+markt.stufe: Forschung
+markt.stufe_hilfe: Forschungsniveau des Anbieters bei diesem Produkt gegenüber dem Führenden (100 %) – mehr bringt bessere Qualität und niedrigere Kosten (Forschung → Weiterentwicklung).
 markt.du: du
 markt.produktname: Produktname
 markt.ohne_namen: ohne Namen
@@ -772,7 +773,19 @@ forschung.bereiche: Bereiche der Forschung
 forschung.baum: Technologiebaum
 forschung.entwicklung: Weiterentwicklung
 forschung.technologien: Technologien
-forschung.entwicklung_erklaerung: "Jedes Produkt, das du herstellen darfst, kannst du in einem Forschungszentrum Stufe für Stufe verbessern, bis Stufe {stufen} – Rohstoffe und Vorprodukte ebenso wie Endprodukte. Jede Stufe bringt in allen deinen Rezepten für das Produkt {wirkung}. Bessere Vorprodukte heben auch die Qualität der Waren, die daraus entstehen, und bessere Qualität bringt Käufer. Was eine Firma als erste erreicht, wird nach einigen Jahren Gemeingut; Nachzügler forschen billiger."
+forschung.entwicklung_erklaerung: "Für jedes Produkt, das du herstellen darfst, sammelst du in Forschungszentren Forschungspunkte – Rohstoffe und Vorprodukte ebenso wie Endprodukte. Wer die meisten Punkte hat, steht bei 100 %, alle anderen im Verhältnis ihrer Punkte darunter. Das Niveau bringt in allen deinen Rezepten für das Produkt bis zu {wirkung} (beim Führenden und voll ausgereiftem Produkt). Die Qualität deiner Vorprodukte zählt dazu. Es gibt kein Ende: Ein Vorsprung hält, solange du weiter forschst; Wissen geht nicht von selbst auf andere über."
+forschung.niveau: Dein Niveau
+forschung.punkte_fuehrend: "{punkte} Punkte, Führender {fuehrend}"
+forschung.noch_niemand: Noch forscht niemand daran.
+forschung.wettbewerber_niveau: "Der beste Wettbewerber steht bei {niveau}."
+forschung.reife: Reife des Produkts
+forschung.reife_hilfe: Wie weit das Produkt überhaupt entwickelt ist (aus den Punkten des Führenden). Die Ersparnis an Arbeit und Vorprodukten wächst mit der Reife; die Qualität folgt allein dem Niveau.
+forschung.beim_fuehrenden: "Beim Führenden heute: {wirkung}"
+forschung.naechste_generation: "Generation {stufe}"
+forschung.anteil_forscher: Anteil der Forscher
+forschung.anteil_hilfe: So viel der Forscher des Zentrums arbeiten an diesem Produkt; zusammen höchstens 100 %. Der Rest forscht an der Technologie des Zentrums. 0 beendet die Forschung an diesem Produkt.
+forschung.anteil_gesetzt: "{anteil} % der Forscher entwickeln jetzt {produkt} weiter."
+forschung.anteil_beendet: "Das Zentrum forscht nicht mehr an {produkt}."
 forschung.wirkung_text: "+{qualitaet} Qualität, −{arbeit} Arbeit, −{vorprodukte} Vorprodukte je Stück"
 forschung.nur_eigene: "Nur eigene Produkte ({anzahl})"
 forschung.entwicklung_leer: Noch keine eigenen Produkte – sobald du etwas herstellst, kannst du es hier weiterentwickeln. Ohne Haken siehst du alle Produkte, die du herstellen darfst.

@@ -3487,7 +3487,7 @@ fn development_target(
     let country = center.map_or(company.headquarters, |c| state.sites[c.index()].country);
     let revenue = |p: ProductId| year.product_type(p, CostType::Revenue).to_usd();
     let pays = |p: ProductId| {
-        let Some((_, needed)) = development::next_effort(catalog, state, id, p, state.date) else {
+        let Some(needed) = development::step_effort(catalog, state, id, p, state.date) else {
             return false;
         };
         let Some((field, _)) = development::basis(catalog, p) else {
@@ -3547,6 +3547,7 @@ pub(crate) fn stop_operations(state: &mut GameState, id: CompanyId) {
         s.orders.clear();
         s.research = None;
         s.development = None;
+        s.development_shares.clear();
         s.staffing_due = false;
     }
 }

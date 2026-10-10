@@ -1906,9 +1906,10 @@ weiter, aber nach dem Prozentwert statt nach Stufen. Entscheidungen auf Rückfra
 - **Steuerung:** Budget je Produkt; Forschungszentren haben Kapazität, der Spieler
   verteilt sie auf Produkte.
 
-Offen zur Abnahme mit den Formeln (Vorschlag folgt in `docs/FORMELN.md`): Gewichtung
-Vorprodukte zu Forschung in der Wertung, Umrechnung bestehender Stufen in Punkte für alte
-Spielstände, Verhalten der KI.
+Formeln: `docs/FORMELN.md`, Abschnitt Q1 – abgenommen am 10.10.2026 mit den
+vorgeschlagenen Werten (30 Qualitätspunkte, −20 % Arbeit, −15 % Vorprodukte beim
+Führenden) und ohne Nachzüglerrabatt. Alte Spielstände: Punkte = Schwellen der erreichten
+Stufen + Fortschritt. KI: ein Produkt je Zentrum, bewertet nach Umsatz und Aufwand.
 
 ## Reihenfolge der neuen Punkte
 

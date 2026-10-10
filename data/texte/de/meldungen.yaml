@@ -45,10 +45,11 @@ meldung.rang_vorjahr: "Rang zum Ende des Jahres {jahr} {kriterium}: Platz {platz
 rang.eigenkapital: nach Eigenkapital
 rang.umsatz: nach Umsatz
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
-meldung.weiterentwicklung.erreicht: "{produkt} weiterentwickelt: Stufe {stufe} erreicht. Das Labor arbeitet an der nächsten Stufe weiter."
-meldung.weiterentwicklung.ausgereizt: "{produkt} ist ausgereizt: Stufe {stufe}, die höchste, ist erreicht. Das Labor ist frei für ein neues Projekt."
+meldung.weiterentwicklung.erreicht: "{produkt}: Generation {stufe} erreicht. Die Forschung läuft weiter – dein Niveau gegenüber dem Führenden bestimmt Qualität und Kosten."
+meldung.weiterentwicklung.ausgereizt: "{produkt}: Generation {stufe}, die letzte benannte, ist erreicht. Weitere Punkte halten oder bauen deinen Vorsprung aus."
+meldung.weiterentwicklung.fuehrung: "Du führst jetzt bei {produkt}: Dein Forschungsniveau liegt bei 100 %."
 meldung.weiterentwicklung.nachfolger: "Zeit für ein Nachfolgemodell: Aus {alt} könnte {name} werden. Umbenennen kannst du {produkt} im Markt unter „Dein Produktname“."
-meldung.weiterentwicklung.wettbewerber: "{firma} hat als erste Firma {produkt} auf Stufe {stufe} weiterentwickelt – mit besserer Qualität und niedrigeren Kosten."
+meldung.weiterentwicklung.wettbewerber: "{firma} hat als erste Firma {produkt} bis zur Generation {stufe} weiterentwickelt – mit besserer Qualität und niedrigeren Kosten."
 
 # Arten von Inhalten, für Meldungen
 art.land: Land
@@ -275,7 +276,7 @@ meldung.hauptsitz.umgezogen_stadt: "Der Hauptsitz ist nach {stadt} ({land}) umge
 meldung.hauptsitz.angestellte_geblieben: "{anzahl} Angestellte der Zentralabteilungen sind nicht mitgezogen. Neue stellst du in der Organisation ein."
 meldung.hauptsitz.konkurrenz: "{firma} verlegt ihren Hauptsitz nach {land} und spart dort Steuern und Löhne; der Umzug ist am {datum} abgeschlossen."
 meldung.startup.erfindung: "{name} ({land}) hat {technologie} früher als erwartet zur Marktreife gebracht. Nachforschen wird für alle günstiger."
-meldung.startup.weiterentwicklung: "{name} ({land}) hat {produkt} auf Stufe {stufe} weiterentwickelt. Nach {jahre} Jahren kennt jeder Hersteller die Stufe."
+meldung.startup.weiterentwicklung: "{name} ({land}) hat {produkt} bis zur Generation {stufe} weiterentwickelt. Wer die Forschung erwirbt, hebt sein Niveau bei diesem Produkt."
 meldung.startup.rueckzahlung: "Die Runde von {name} kam nicht zustande: Deine Zusage über {betrag} fließt zurück."
 meldung.startup.verloren: "{name} ist gescheitert: Deine Beteiligung über {betrag} ist verloren."
 meldung.startup.forschungsbonus: "Aus der Arbeit von {name} bleibt dir ein Teil der Forschung für {ziel} – das Nachforschen geht schneller."

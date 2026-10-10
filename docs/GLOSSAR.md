@@ -90,6 +90,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Einkaufsauftrag | `PurchaseOrder` |
 | Pauschalkauf (einmaliger Einkauf) | `BuyOnce`, `PurchaseOrder::once` |
 | Eigener Standortname | `Site::name`, `RenameSite`, `site_name` |
+| Forschungsniveau, Reife, Forschungsanteile (Q1) | `development::share`, `development::maturity`, `Site::development_shares`, `SetResearchShares` |
 | Handel (Menge, Umsatz) | `Trade` |
 | Verkehrsmittel, Weg | `Vehicle`, `Way` |
 | Transportmodell, Frachtdienst | `TransportModel`, `transport` |

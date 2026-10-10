@@ -125,6 +125,7 @@ export type Befehl =
   | { BuyOnce: { site: number; product: string; quantity: number; max_price: number } }
   | { SetResearch: { site: number; technology: string | null } }
   | { SetDevelopment: { site: number; product: string | null } }
+  | { SetResearchShares: { site: number; shares: [string, number][] } }
   | { SetAdvertising: { country: string; group: string; budget: number } }
   | { SetWagePremium: { site: number; premium: number } }
   | { SetPrice: { site: number; product: string; price: number } }

@@ -166,9 +166,8 @@ forschungsmodell:
   sachkosten_usd_je_forschertag: 40
   weiterentwicklung:
     stufen: 5
-    je_stufe: {qualitaet: 4, arbeit: 0.03, vorprodukte: 0.02}
+    wirkung_max: {qualitaet: 30, arbeit: 0.2, vorprodukte: 0.15}
     aufwand: {anteil: 0.2, wachstum: 1.6, grundaufwand: 10_000}
-    gemeingut_nach_jahren: 15
     fachgebiete:
       bergbau: bergbau
       metallurgie: metall
@@ -2005,7 +2004,11 @@ fn weiterentwicklung_wird_geprueft() {
 
     let d = Daten::neu()
         .ersetze(datei, "stufen: 5", "stufen: 0")
-        .ersetze(datei, "arbeit: 0.03", "arbeit: 0.2");
+        .ersetze(
+            datei,
+            "arbeit: 0.2, vorprodukte",
+            "arbeit: 0.95, vorprodukte",
+        );
     let outcome = d.laden();
     let f = befund(
         &outcome,
@@ -2019,11 +2022,11 @@ fn weiterentwicklung_wird_geprueft() {
     );
     let f = befund(
         &outcome,
-        "Wert 0.2 liegt außerhalb des erlaubten Bereichs 0 bis 0.09.",
+        "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
     );
     assert_eq!(
         f.path.to_string(),
-        "forschungsmodell.weiterentwicklung.je_stufe.arbeit"
+        "forschungsmodell.weiterentwicklung.wirkung_max.arbeit"
     );
     nur_fehler(&outcome, 2);
 

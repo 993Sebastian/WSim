@@ -447,6 +447,8 @@ export interface AnlageDetail {
   inputs_per_day: [string, number][];
   /** Development level of the product made here (M37). */
   development_level: number;
+  /** The owner's research level of the product against the leader (0–1). */
+  development_share?: number;
   /** Running, shut down or starting up again (M22). */
   operation: "laeuft" | "stillgelegt" | "wiederanlauf";
   /** Shut down since, or producing again from. */
@@ -758,8 +760,10 @@ export interface ProduktMarkt {
     price_usd: number;
     sold_last_month: number;
     share: number;
-    /** Development level of the seller for the product (M37). */
+    /** Development generation of the seller for the product (M37). */
     level: number;
+    /** Research level of the seller for the product against the leader (0–1, Q1). */
+    research_share?: number;
     /** The seller's own name for the product (M42). */
     product_name?: string | null;
   }[];
@@ -884,10 +888,17 @@ export interface Weiterentwicklung {
   product: string;
   /** The player makes it in a facility of its own. */
   own: boolean;
+  /** Generation reached (point thresholds for successor models and start-ups). */
   level: number;
   own_level: number;
-  public_level: number;
   best_rival: number;
+  /** All points of the player and of the leader. */
+  total_points: number;
+  leader_points: number;
+  /** The player's level (0–1 of the leader's points), the best rival's, the maturity. */
+  share: number;
+  best_rival_share: number;
+  maturity: number;
   next: number | null;
   needed: number | null;
   points: number;
@@ -902,7 +913,8 @@ export interface Weiterentwicklung {
   } | null;
   field: string;
   effect: Entwicklungswirkung;
-  next_effect: Entwicklungswirkung | null;
+  /** What the lead (100 %) brings at today's maturity. */
+  lead_effect: Entwicklungswirkung;
   sites: number[];
 }
 
@@ -956,7 +968,8 @@ export interface Forschung {
   /** Products to develop (M37) and the highest level. */
   developments: Weiterentwicklung[];
   development_levels: number;
-  development_per_level: Entwicklungswirkung;
+  /** What the lead brings at full maturity. */
+  development_max: Entwicklungswirkung;
   centers: {
     site: number;
     country: string;
@@ -964,6 +977,8 @@ export interface Forschung {
     project: string | null;
     /** Product developed instead of a technology (M37). */
     development: string | null;
+    /** Shares of the researchers per developed product; the rest works on `project`. */
+    shares?: [string, number][];
     ready: boolean;
     building_until: string | null;
     labs: { slot: number; count: number; utilization: number; ready: string }[];

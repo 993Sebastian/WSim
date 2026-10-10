@@ -5324,9 +5324,15 @@ Abstand zum Führenden nach der Amortisationsregel (M37, KI) lohnt.
 Alte Stufen L werden in Punkte umgerechnet: P = Summe der bisherigen Stufenaufwände 1…L
 (M37); laufende Weiterentwicklungen werden zu 100 % Anteil des Produkts.
 
-### Zur Abnahme
+### Abgenommen (10.10.2026) und umgesetzt
 
-1. `qualitaet_max` 30 Punkte, `arbeit_max` 20 %, `vorprodukte_max` 15 % (bisher Stufe 5:
-   +20 Punkte, −15 %, −10 %).
-2. Ohne Durchsickern können späte Einsteiger einen Vorsprung kaum einholen. Vorschlag:
-   kein Rabatt für Nachzügler (wie gewünscht); alternativ ein Nachahmungsrabatt auf die Kosten.
+1. `wirkung_max`: 30 Qualitätspunkte, 20 % Arbeit, 15 % Vorprodukte.
+2. Kein Rabatt für Nachzügler und kein Gemeingut.
+
+Umsetzung: Die Generationen (`stufen`, Aufwand wie bisher, mit Nachzüglerrabatt nur für
+die Schwellen) bleiben als Marken für Nachfolgemodelle (B1) und Start-ups (SU1–SU3); ein
+Start-up-Erfolg hebt die Punkte des Erwerbers auf die Schwelle seiner Generation, eine
+Ausgründung nimmt den Fortschritt zur nächsten Generation mit. Die KI arbeitet weiter mit
+einem Produkt je Zentrum (`SetDevelopment`, 100 %); nach der letzten Generation bewertet
+sie einen Schritt so groß wie den letzten. Der Spieler verteilt Anteile mit
+`SetResearchShares`.

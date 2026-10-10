@@ -1,14 +1,16 @@
-//! Development of researched products (M37; formulas in docs/FORMELN.md).
+//! Development of researched products (Q1, before M37; formulas in docs/FORMELN.md).
 //!
-//! Every company can improve each product it may make, level by level, in its research
-//! centers: more quality, fewer labor hours and fewer inputs per run in all its recipes
-//! for the product. A level the first company reached long enough ago is common
-//! knowledge.
+//! Every company collects research points for each product it may make. Its level is
+//! its points against the leader's (the leader has 100 %); the effect in all its recipes
+//! for the product follows that level: more quality, and – scaled by how far the product
+//! is developed at all – fewer labor hours and fewer inputs per run. Points do not decay
+//! and do not spread to others. Generations (point thresholds) still mark successor
+//! models and the targets of start-ups.
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, Recipe};
 use crate::ids::{Id, ProductId, SpecializationId};
-use crate::state::{CompanyId, GameState};
+use crate::state::{CompanyId, GameState, Site};
 
 /// What a company's development level changes in its recipes for a product.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -28,37 +30,55 @@ impl Effect {
         inputs: 1.0,
     };
 
-    /// The effect of a level.
-    pub fn of_level(catalog: &Catalog, level: u8) -> Effect {
+    /// The effect of a level (0–1 of the leader's points) at a maturity (0–1).
+    pub fn of(catalog: &Catalog, level: f64, maturity: f64) -> Effect {
         let m = &catalog.research_model.development;
-        let l = f64::from(level);
         Effect {
-            quality: l * m.quality_per_level,
-            labor: 1.0 - l * m.labor_per_level,
-            inputs: 1.0 - l * m.inputs_per_level,
+            quality: m.quality_max * level,
+            labor: 1.0 - m.labor_max * level * maturity,
+            inputs: 1.0 - m.inputs_max * level * maturity,
         }
     }
 }
 
-/// Levels of a product that became common knowledge by `date`: those the first company
-/// reached at least `public_domain_years` ago.
-pub fn public_level(catalog: &Catalog, state: &GameState, product: ProductId, date: Date) -> u8 {
-    let years = catalog.research_model.development.public_domain_years;
-    let now = date.year_fraction();
-    let firsts = state.developments.get(product);
-    let count = firsts
-        .iter()
-        .take_while(|d| d.year_fraction() + years <= now)
-        .count();
-    u8::try_from(count).unwrap_or(u8::MAX)
+/// Generation of a company for a product: the point thresholds it passed by own research.
+pub fn level(_catalog: &Catalog, state: &GameState, company: CompanyId, product: ProductId) -> u8 {
+    state
+        .company(company)
+        .map_or(0, |c| c.development.level(product))
 }
 
-/// Development level of a company for a product: its own or the common one.
-pub fn level(catalog: &Catalog, state: &GameState, company: CompanyId, product: ProductId) -> u8 {
-    let own = state
+/// All points a company collected for a product.
+pub fn points(state: &GameState, company: CompanyId, product: ProductId) -> f64 {
+    state
         .company(company)
-        .map_or(0, |c| c.development.level(product));
-    own.max(public_level(catalog, state, product, state.date))
+        .map_or(0.0, |c| c.development.total(product))
+}
+
+/// Most points any company collected for a product.
+pub fn leader_points(state: &GameState, product: ProductId) -> f64 {
+    state
+        .development_leader
+        .get(&product)
+        .copied()
+        .unwrap_or(0.0)
+}
+
+/// Level of a company for a product: its points against the leader's (0–1).
+pub fn share(state: &GameState, company: CompanyId, product: ProductId) -> f64 {
+    let lead = leader_points(state, product);
+    if lead <= 0.0 {
+        return 0.0;
+    }
+    (points(state, company, product) / lead).clamp(0.0, 1.0)
+}
+
+/// How far a product is developed at all (0–1): `1 − exp(−leader's points / B)`.
+pub fn maturity(catalog: &Catalog, state: &GameState, product: ProductId) -> f64 {
+    let Some((_, base)) = basis(catalog, product) else {
+        return 0.0;
+    };
+    1.0 - libm::exp(-leader_points(state, product) / base.max(1e-9))
 }
 
 /// What the company's level of a product changes in its recipes for it.
@@ -71,10 +91,132 @@ pub fn effect(
     if catalog.research_model.development.levels == 0 {
         return Effect::NONE;
     }
-    match level(catalog, state, company, product) {
-        0 => Effect::NONE,
-        l => Effect::of_level(catalog, l),
+    let level = share(state, company, product);
+    if level <= 0.0 {
+        return Effect::NONE;
     }
+    Effect::of(catalog, level, maturity(catalog, state, product))
+}
+
+/// Points of the generations 1 to `n` of a product, without a latecomer's discount.
+pub fn threshold(catalog: &Catalog, product: ProductId, n: u8) -> f64 {
+    let m = &catalog.research_model.development;
+    let Some((_, base)) = basis(catalog, product) else {
+        return 0.0;
+    };
+    (1..=n)
+        .map(|k| base * m.effort_share * crate::math::pow(m.effort_growth, f64::from(k - 1)))
+        .sum()
+}
+
+/// Adds research points of a company for a product: to all its points, the leader's,
+/// and the progress towards its next generation.
+pub fn add_points(state: &mut GameState, company: CompanyId, product: ProductId, amount: f64) {
+    let d = &mut state.companies[company.index()].development;
+    let total = d.total.entry(product).or_default();
+    *total += amount;
+    let total = *total;
+    *d.points.entry(product).or_default() += amount;
+    let lead = state.development_leader.entry(product).or_default();
+    *lead = lead.max(total);
+}
+
+/// A company gets a generation of a product (a start-up's result): its points rise to the
+/// generation's threshold.
+pub fn grant_level(
+    catalog: &Catalog,
+    state: &mut GameState,
+    company: CompanyId,
+    product: ProductId,
+    level: u8,
+) {
+    let need = threshold(catalog, product, level);
+    let d = &mut state.companies[company.index()].development;
+    let own = d.levels.entry(product).or_default();
+    *own = (*own).max(level);
+    d.points.remove(&product);
+    let total = d.total.entry(product).or_default();
+    *total = total.max(need);
+    let total = *total;
+    let lead = state.development_leader.entry(product).or_default();
+    *lead = lead.max(total);
+}
+
+/// A company gives up its progress towards the next generation of a product (it went
+/// into a spin-off): the points leave its total too.
+pub fn remove_progress(state: &mut GameState, company: CompanyId, product: ProductId) {
+    let d = &mut state.companies[company.index()].development;
+    let progress = d.points.remove(&product).unwrap_or(0.0);
+    if let Some(total) = d.total.get_mut(&product) {
+        *total = (*total - progress).max(0.0);
+    }
+    refresh_leader(state, product);
+}
+
+/// Recomputes the leader's points of a product.
+fn refresh_leader(state: &mut GameState, product: ProductId) {
+    let lead = state
+        .companies
+        .iter()
+        .map(|c| c.development.total(product))
+        .fold(0.0, f64::max);
+    if lead > 0.0 {
+        state.development_leader.insert(product, lead);
+    } else {
+        state.development_leader.remove(&product);
+    }
+}
+
+/// After loading: saves before Q1 get all points from their generations and progress;
+/// the leaders are derived.
+pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
+    for c in &mut state.companies {
+        let d = &mut c.development;
+        let products: Vec<ProductId> = d.levels.keys().chain(d.points.keys()).copied().collect();
+        for p in products {
+            if d.total.contains_key(&p) {
+                continue;
+            }
+            let total =
+                threshold(catalog, p, d.level(p)) + d.points.get(&p).copied().unwrap_or(0.0);
+            if total > 0.0 {
+                d.total.insert(p, total);
+            }
+        }
+    }
+    state.development_leader.clear();
+    for c in &state.companies {
+        for (&p, &t) in &c.development.total {
+            let lead = state.development_leader.entry(p).or_default();
+            *lead = lead.max(t);
+        }
+    }
+}
+
+/// The products a research center develops with their shares of its researchers: the
+/// shares set (Q1), else its single product with all of them.
+pub fn site_shares(site: &Site) -> Vec<(ProductId, f64)> {
+    if site.development_shares.is_empty() {
+        site.development.map(|p| vec![(p, 1.0)]).unwrap_or_default()
+    } else {
+        site.development_shares
+            .iter()
+            .map(|(&p, &s)| (p, s))
+            .collect()
+    }
+}
+
+/// Share of a research center's researchers working on its technology.
+pub fn technology_share(site: &Site) -> f64 {
+    if site.research.is_none() {
+        return 0.0;
+    }
+    (1.0 - site_shares(site).iter().map(|(_, s)| s).sum::<f64>()).max(0.0)
+}
+
+/// Whether a research center has nothing to work on.
+pub fn idle(site: &Site) -> bool {
+    site.research.is_none() && site_shares(site).is_empty()
 }
 
 /// Research field and base effort of a product, `None` when it cannot be developed (no
@@ -110,8 +252,8 @@ pub fn basis(catalog: &Catalog, product: ProductId) -> Option<(SpecializationId,
     Some((field, base))
 }
 
-/// Whether a company may develop a product: it may use a recipe for it and has not
-/// reached the top level.
+/// Whether a company may develop a product: it may use a recipe for it. There is no end
+/// level (Q1).
 pub fn can_develop(
     catalog: &Catalog,
     state: &GameState,
@@ -119,7 +261,6 @@ pub fn can_develop(
     product: ProductId,
 ) -> bool {
     basis(catalog, product).is_some()
-        && level(catalog, state, company, product) < catalog.research_model.development.levels
         && catalog.recipes.values().any(|r| {
             r.product == product
                 && r.technology
@@ -127,8 +268,8 @@ pub fn can_develop(
         })
 }
 
-/// The next level of a product for a company and the research points it takes on
-/// `date`; `None` at the top level or for products that cannot be developed.
+/// The next generation of a product for a company and the research points it takes on
+/// `date`; `None` after the last generation or for products that cannot be developed.
 pub fn next_effort(
     catalog: &Catalog,
     state: &GameState,
@@ -156,6 +297,23 @@ pub fn next_effort(
     Some((next, points * factor))
 }
 
+/// Points a company's next step on a product takes: the next generation's effort, after
+/// the last generation as much as the last one took (research goes on, Q1).
+pub fn step_effort(
+    catalog: &Catalog,
+    state: &GameState,
+    company: CompanyId,
+    product: ProductId,
+    date: Date,
+) -> Option<f64> {
+    if let Some((_, needed)) = next_effort(catalog, state, company, product, date) {
+        return Some(needed);
+    }
+    let last = catalog.research_model.development.levels;
+    (last > 0 && basis(catalog, product).is_some())
+        .then(|| threshold(catalog, product, last) - threshold(catalog, product, last - 1))
+}
+
 /// Research field of the project of a research center: its technology's or that of the
 /// product it develops.
 pub fn project_field(
@@ -164,9 +322,9 @@ pub fn project_field(
     site: crate::state::SiteId,
 ) -> Option<SpecializationId> {
     let s = state.site(site)?;
-    match (s.research, s.development) {
+    match (s.research, site_shares(s).first()) {
         (Some(t), _) => Some(catalog.technologies.get(t).field),
-        (None, Some(p)) => basis(catalog, p).map(|(field, _)| field),
+        (None, Some(&(p, _))) => basis(catalog, p).map(|(field, _)| field),
         (None, None) => None,
     }
 }

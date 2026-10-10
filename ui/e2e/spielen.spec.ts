@@ -621,17 +621,17 @@ test("Börse: Index, notierte Firmen und Aktienkauf", async ({ page }) => {
   await bild(page, "boerse");
 });
 
-test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbieter", async ({
+test("Weiterentwicklung zeigt Niveau, Wirkung, Aufwand und das Niveau der Anbieter", async ({
   page,
 }) => {
   await starten(page);
   await page.getByRole("button", { name: "Forschung", exact: true }).click();
   await page.getByRole("button", { name: "Weiterentwicklung", exact: true }).click();
-  const wirkung = page.getByText(/\+4 Qualität, −3 % Arbeit, −2 % Vorprodukte je Stück/);
+  const wirkung = page.getByText(/\+30 Qualität, −20 % Arbeit, −15 % Vorprodukte je Stück/);
   await expect(wirkung.first()).toBeVisible();
   const naegel = page.getByRole("article", { name: "Nägel" });
-  await expect(naegel).toContainText("Stufe 0 von 5");
-  await expect(naegel).toContainText("Der beste Wettbewerber ist auf Stufe");
+  await expect(naegel).toContainText("Dein Niveau");
+  await expect(naegel).toContainText("Reife des Produkts");
   await expect(naegel).toContainText("mit einem voll besetzten Labor in Deutschland");
   await expect(naegel).toContainText(
     /Kostenetwa [\d.,]+ (Mio\. )?USD mit einem Labor: 20 Forscher/,
@@ -639,7 +639,7 @@ test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbiete
   // Without a research center the card leads there.
   await expect(naegel).toContainText("Zum Forschen brauchst du ein Forschungszentrum");
   await bild(page, "weiterentwicklung");
-  // The sellers of a market show their level.
+  // The sellers of a market show their research level.
   await page.getByRole("button", { name: "Markt", exact: true }).click();
   await page.getByRole("button", { name: "Produktionsketten", exact: true }).click();
   await page
@@ -649,7 +649,7 @@ test("Weiterentwicklung zeigt Stufe, Wirkung, Aufwand und die Stufen der Anbiete
     .click();
   const draht = page.getByRole("region", { name: "Draht in Deutschland" });
   const anbieter = draht.getByRole("table", { name: "Anbieter im Vormonat" });
-  await expect(anbieter.getByRole("row").first()).toContainText("Stufe");
+  await expect(anbieter.getByRole("row").first()).toContainText("Forschung");
 });
 
 test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page }) => {

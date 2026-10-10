@@ -1,4 +1,4 @@
-//! Scenario tests for the development of products (M37) with the small chain of
+//! Scenario tests for the development of products (Q1, before M37) with the small chain of
 //! `test_support::research` (ore → iron) and a laboratory.
 
 use std::sync::Arc;
@@ -26,13 +26,12 @@ fn catalog() -> Catalog {
     fields[mining.index()] = Some(metal);
     c.research_model.development = DevelopmentModel {
         levels: 5,
-        quality_per_level: 4.0,
-        labor_per_level: 0.03,
-        inputs_per_level: 0.02,
+        quality_max: 30.0,
+        labor_max: 0.2,
+        inputs_max: 0.15,
         effort_share: 0.2,
         effort_growth: 1.6,
         base_effort: 1000.0,
-        public_domain_years: 15.0,
         fields,
     };
     c
@@ -191,42 +190,100 @@ fn the_effort_grows_per_level_and_falls_for_latecomers() {
         (cheaper - points * 0.9f64.powi(5)).abs() < 1e-6,
         "{cheaper}"
     );
-    // At the top level there is nothing left.
+    // After the last generation research goes on (Q1), a step as long as the last one.
     game.state_mut().companies[player.index()]
         .development
         .levels
         .insert(iron, 5);
     assert!(development::next_effort(game.catalog(), game.state(), player, iron, today).is_none());
-    assert!(!development::can_develop(
+    assert!(development::can_develop(
         game.catalog(),
         game.state(),
         player,
         iron
     ));
+    let step = development::step_effort(game.catalog(), game.state(), player, iron, today);
+    assert!((step.unwrap() - 1000.0 * 0.2 * 1.6f64.powi(4)).abs() < 1e-6);
 }
 
+/// The level is the points against the leader's (Q1): nothing spreads, the leader has
+/// 100 %, and the savings grow with how far the product is developed at all.
 #[test]
-fn levels_become_common_knowledge_after_fifteen_years() {
+fn the_level_follows_the_points_against_the_leader() {
     let mut game = new_game(catalog());
     let iron = product(&game, "eisen");
     let player = game.player();
-    *game.state_mut().developments.get_mut(iron) = vec![
-        Date::first_of_year(1880),
-        Date::first_of_year(1890),
-        Date::first_of_year(1899),
-    ];
+    // A second company to compete with.
+    let rival = crate::state::CompanyId(u32::try_from(game.state().companies.len()).unwrap());
+    let mut other = game.state().companies[player.index()].clone();
+    other.name = "Andere AG".into();
+    game.state_mut().companies.push(other);
     let (c, s) = (game.catalog(), game.state());
-    assert_eq!(development::public_level(c, s, iron, s.date), 1);
-    assert_eq!(
-        development::public_level(c, s, iron, Date::first_of_year(1905)),
-        2
-    );
-    // Without own research the company has the common level and its effect.
-    assert_eq!(development::level(c, s, player, iron), 1);
+    assert_eq!(development::effect(c, s, player, iron), Effect::NONE);
+    let state = game.state_mut();
+    development::add_points(state, rival, iron, 2000.0);
+    development::add_points(state, player, iron, 500.0);
+    let (c, s) = (game.catalog(), game.state());
+    assert_eq!(development::leader_points(s, iron), 2000.0);
+    assert_eq!(development::share(s, rival, iron), 1.0);
+    assert_eq!(development::share(s, player, iron), 0.25);
+    let maturity = 1.0 - (-2.0f64).exp();
+    assert!((development::maturity(c, s, iron) - maturity).abs() < 1e-12);
     let e = development::effect(c, s, player, iron);
-    assert_eq!(e.quality, 4.0);
-    assert!((e.labor - 0.97).abs() < 1e-12 && (e.inputs - 0.98).abs() < 1e-12);
-    assert_eq!(Effect::of_level(c, 0), Effect::NONE);
+    assert!((e.quality - 7.5).abs() < 1e-9);
+    assert!((e.labor - (1.0 - 0.2 * 0.25 * maturity)).abs() < 1e-12);
+    assert!((e.inputs - (1.0 - 0.15 * 0.25 * maturity)).abs() < 1e-12);
+    // Generations only mark thresholds; the effect does not depend on them.
+    assert_eq!(development::level(c, s, player, iron), 0);
+    // Overtaking the rival makes the player the leader; the rival falls back.
+    development::add_points(game.state_mut(), player, iron, 3500.0);
+    let s = game.state();
+    assert_eq!(development::share(s, player, iron), 1.0);
+    assert_eq!(development::share(s, rival, iron), 0.5);
+    // After loading the leader is derived again.
+    let loaded = save::decode(&save::encode(&game), game.catalog().clone())
+        .unwrap()
+        .game;
+    assert_eq!(development::leader_points(loaded.state(), iron), 4000.0);
+}
+
+/// A research center splits its researchers among products and a technology (Q1).
+#[test]
+fn a_research_center_splits_its_researchers() {
+    let mut game = new_game(catalog());
+    let lab = research_center(&mut game);
+    let (iron, ore) = (product(&game, "eisen"), product(&game, "erz"));
+    let player = game.player();
+    let turbine = game.catalog().technologies.id("turbine").unwrap();
+    game.apply(Command::SetResearch {
+        site: lab,
+        technology: Some(turbine),
+    })
+    .unwrap();
+    assert_eq!(
+        game.apply(Command::SetResearchShares {
+            site: lab,
+            shares: vec![(iron, 0.7), (ore, 0.5)],
+        }),
+        Err(CommandError::InvalidShare)
+    );
+    game.apply(Command::SetResearchShares {
+        site: lab,
+        shares: vec![(iron, 0.5), (ore, 0.25)],
+    })
+    .unwrap();
+    days(&mut game, 60);
+    let s = game.state();
+    let company = &s.companies[player.index()];
+    let (i, o) = (
+        company.development.total(iron),
+        company.development.total(ore),
+    );
+    let t = company.research.get(&turbine).copied().unwrap_or(0.0);
+    assert!(i > 0.0 && o > 0.0 && t > 0.0, "{i} {o} {t}");
+    assert!((i / o - 2.0).abs() < 1e-9, "{i} {o}");
+    assert!((t / o - 1.0).abs() < 0.2, "{t} {o}");
+    assert_eq!(s.sites[lab.index()].research, Some(turbine));
 }
 
 #[test]
@@ -261,6 +318,9 @@ fn a_research_center_develops_a_product_level_by_level() {
     let state = game.state();
     let company = &state.companies[player.index()];
     assert_eq!(company.development.level(iron), 2);
+    // All points count for the level; the player alone researches iron: 100 %.
+    assert!(company.development.total(iron) >= 200.0 + 320.0);
+    assert_eq!(development::share(state, player, iron), 1.0);
     // The world remembers who was first, and the laboratory goes on with level 3.
     assert_eq!(state.developments.get(iron).len(), 2);
     assert_eq!(state.sites[lab.index()].development, Some(iron));
@@ -361,15 +421,14 @@ fn a_new_level_brings_a_successor_model() {
 
 #[test]
 fn developed_products_need_less_labor_and_inputs_and_are_better() {
-    let run = |level: u8| {
+    let run = |points: f64| {
         let mut game = new_game(catalog());
         let works = chain(&mut game);
         let iron = product(&game, "eisen");
         let player = game.player();
-        game.state_mut().companies[player.index()]
-            .development
-            .levels
-            .insert(iron, level);
+        if points > 0.0 {
+            development::add_points(game.state_mut(), player, iron, points);
+        }
         let ore = product(&game, "erz");
         let before = game.state().sites[works.index()].inventory[&ore].quantity;
         days(&mut game, 3);
@@ -383,20 +442,21 @@ fn developed_products_need_less_labor_and_inputs_and_are_better() {
         let costs = production::unit_costs(game.catalog(), state, works)[0].clone();
         (used, quality, workers, costs.material, costs.labor)
     };
-    let (used0, quality0, workers0, material0, labor0) = run(0);
-    let (used5, quality5, workers5, material5, labor5) = run(5);
-    // Level 5: 10 % less ore, 15 % fewer workers, 20 quality points more.
-    assert!((used5 / used0 - 0.9).abs() < 1e-9, "{used0} {used5}");
+    let (used0, quality0, workers0, material0, labor0) = run(0.0);
+    // The leader of a fully developed product (maturity 1 − e^−100 ≈ 1).
+    let (used5, quality5, workers5, material5, labor5) = run(100_000.0);
+    // 15 % less ore, 20 % fewer workers, 30 quality points more.
+    assert!((used5 / used0 - 0.85).abs() < 1e-9, "{used0} {used5}");
     assert!(
-        (workers5 / workers0 - 0.85).abs() < 1e-9,
+        (workers5 / workers0 - 0.8).abs() < 1e-9,
         "{workers0} {workers5}"
     );
     assert!(
-        (quality5 - quality0 - 20.0).abs() < 0.2,
+        (quality5 - quality0 - 30.0).abs() < 0.2,
         "{quality0} {quality5}"
     );
-    assert!((material5 / material0 - 0.9).abs() < 1e-9);
-    assert!((labor5 / labor0 - 0.85).abs() < 1e-9);
+    assert!((material5 / material0 - 0.85).abs() < 1e-9);
+    assert!((labor5 / labor0 - 0.8).abs() < 1e-9);
 }
 
 #[test]
@@ -445,6 +505,13 @@ fn the_command_checks_the_site_and_the_product() {
     assert_eq!(loaded.state().sites[lab.index()].development, Some(iron));
     assert_eq!(
         loaded.state().companies[player.index()].development.points[&iron],
+        12.5
+    );
+    // A save from before Q1 gets all its points from the progress.
+    assert_eq!(
+        loaded.state().companies[player.index()]
+            .development
+            .total(iron),
         12.5
     );
     game.apply(Command::SetDevelopment {

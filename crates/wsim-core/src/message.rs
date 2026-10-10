@@ -119,6 +119,7 @@ pub mod keys {
     pub const AUCTION_SOLD: &str = "meldung.versteigerung.verkauft";
     pub const DEVELOPMENT_DONE: &str = "meldung.weiterentwicklung.erreicht";
     pub const DEVELOPMENT_TOP: &str = "meldung.weiterentwicklung.ausgereizt";
+    pub const DEVELOPMENT_LEAD: &str = "meldung.weiterentwicklung.fuehrung";
     pub const DEVELOPMENT_RIVAL: &str = "meldung.weiterentwicklung.wettbewerber";
     pub const DEVELOPMENT_SUCCESSOR: &str = "meldung.weiterentwicklung.nachfolger";
     pub const OVERDRAFT: &str = "warnung.konto_ueberzogen";
@@ -528,6 +529,7 @@ pub mod keys {
         AUCTION_SOLD,
         DEVELOPMENT_DONE,
         DEVELOPMENT_TOP,
+        DEVELOPMENT_LEAD,
         DEVELOPMENT_RIVAL,
         DEVELOPMENT_SUCCESSOR,
         OVERDRAFT,

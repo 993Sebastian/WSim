@@ -2103,7 +2103,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
                 Unit::Site(site) => {
                     let s = &state.sites[site.index()];
                     let lab = s.kind == SiteType::ResearchCenter;
-                    let idle = s.research.is_none() && s.development.is_none();
+                    let idle = crate::development::idle(s);
                     let lab_due = lab && ((check && idle) || first_of_year);
                     if !(lab_due || (!lab && (check || quarter_end))) {
                         continue;
@@ -2866,9 +2866,9 @@ fn object(command: &Command) -> Option<Object> {
         Command::TransferGoods { to, product, .. } => Object::Supply(to, product),
         Command::SetWagePremium { site, .. } => Object::Wage(site),
         Command::BuildFacility { site, .. } => Object::Build(site),
-        Command::SetResearch { site, .. } | Command::SetDevelopment { site, .. } => {
-            Object::Laboratory(site)
-        }
+        Command::SetResearch { site, .. }
+        | Command::SetDevelopment { site, .. }
+        | Command::SetResearchShares { site, .. } => Object::Laboratory(site),
         Command::DevelopDeposit { site, .. } => Object::Deposit(site),
         Command::SetAdvertising { country, group, .. } => Object::Advertising(country, group),
         Command::AnswerOffer { offer, .. } => Object::Answer(offer),

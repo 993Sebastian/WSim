@@ -183,6 +183,12 @@ pub enum Command {
         site: SiteId,
         product: Option<ProductId>,
     },
+    /// Splits the researchers of a research center among products (Q1), each with its
+    /// share (sum at most 1); the rest works on the center's technology. Empty clears.
+    SetResearchShares {
+        site: SiteId,
+        shares: Vec<(ProductId, f64)>,
+    },
     /// Sets who besides consumers and governments may buy the company's goods
     /// (`None` removes the policy of this scope, the more general one applies).
     SetSalesPolicy {
@@ -1198,6 +1204,7 @@ fn found_site(
         orders: Default::default(),
         research: None,
         development: None,
+        development_shares: std::collections::BTreeMap::new(),
         wage_premium: 0.0,
         training: 0.0,
         training_target: None,
@@ -2086,6 +2093,7 @@ fn run(
             }
             let s = state.site_mut(*site).expect("checked above");
             s.research = *technology;
+            // A single product took all researchers; shares leave the rest (Q1).
             if technology.is_some() {
                 s.development = None;
             }
@@ -2107,9 +2115,37 @@ fn run(
             }
             let s = state.site_mut(*site).expect("checked above");
             s.development = *product;
+            s.development_shares.clear();
             if product.is_some() {
                 s.research = None;
             }
+            s.staffing_due = true;
+        }
+        Command::SetResearchShares { site, shares } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::ResearchCenter {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::ResearchCenter,
+                });
+            }
+            let mut sum = 0.0;
+            for &(p, share) in shares {
+                if !(share.is_finite() && share > 0.0) {
+                    return Err(CommandError::InvalidShare);
+                }
+                if !crate::development::can_develop(catalog, state, actor, p) {
+                    return Err(CommandError::NotDevelopable(
+                        catalog.products.key(p).to_owned(),
+                    ));
+                }
+                sum += share;
+            }
+            if sum > 1.0 + 1e-9 {
+                return Err(CommandError::InvalidShare);
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            s.development = None;
+            s.development_shares = shares.iter().copied().collect();
             s.staffing_due = true;
         }
         Command::SetSalesPolicy { buyer, scope, rule } => {

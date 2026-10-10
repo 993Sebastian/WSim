@@ -1682,39 +1682,38 @@ fn print_ventures(texts: &wsim_data::Texts, game: &Game) {
     }
 }
 
-/// Development levels (M37): per product the highest level, who holds it, how many
-/// companies have a level, and the levels that are common knowledge.
+/// Product research (Q1): per product the leader with its points, the reach of the
+/// development, the highest generation and how many companies research it.
 fn print_developments(texts: &wsim_data::Texts, game: &Game) {
     let state = game.state();
     let catalog = game.catalog();
     let mut lines = Vec::new();
     for (product, _) in catalog.products.iter() {
-        let firsts = state.developments.get(product);
-        if firsts.is_empty() {
+        let lead = wsim_core::development::leader_points(state, product);
+        if lead <= 0.0 {
             continue;
         }
-        let holders: Vec<(&str, u8)> = state
+        let holders: Vec<(&str, f64)> = state
             .companies
             .iter()
             .filter(|c| !c.bankrupt)
-            .map(|c| (c.name.as_str(), c.development.level(product)))
-            .filter(|&(_, l)| l > 0)
+            .map(|c| (c.name.as_str(), c.development.total(product)))
+            .filter(|&(_, t)| t > 0.0)
             .collect();
-        let best = holders.iter().max_by_key(|&&(_, l)| l);
-        let public = wsim_core::development::public_level(catalog, state, product, state.date);
+        let best = holders.iter().max_by(|a, b| a.1.total_cmp(&b.1));
         lines.push(format!(
-            "  {:<16} höchste Stufe {} seit {} ({}), {} Firmen mit Stufe, Gemeingut {}",
+            "  {:<16} führend {} mit {:.0} Punkten, Reife {:.0} %, Generation {}, {} Firmen forschen",
             texts
                 .get(&format!("produkt.{}", catalog.products.key(product)))
                 .unwrap_or_default(),
-            firsts.len(),
-            format_date(*firsts.last().expect("not empty")),
             best.map_or("–", |b| b.0),
+            lead,
+            wsim_core::development::maturity(catalog, state, product) * 100.0,
+            state.developments.get(product).len(),
             holders.len(),
-            public
         ));
     }
-    println!("Weiterentwicklung (M37): {} Produkte", lines.len());
+    println!("Produktforschung (Q1): {} Produkte", lines.len());
     for l in lines {
         println!("{l}");
     }

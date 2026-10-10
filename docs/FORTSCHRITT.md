@@ -1218,6 +1218,15 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Erzeugnisse (`docs/FORMELN.md`, Rohstoffzyklus; Parameter `rohstoffzyklus`, Prüfregel mit
   Fehlerfalltest, Kerntest). Der Produktmarkt zeigt die „Förderlage weltweit“. Weltlauf-Test
   1900 und alle Tests grün; ein Weltlauf zur Abstimmung der Stärke steht aus.
+- **Forschung je Produkt (Q1):** Statt fester Stufen sammeln Firmen Forschungspunkte je
+  Produkt; der Führende hat 100 %, die anderen ihr Verhältnis. Qualität (+30 Punkte beim
+  Führenden) folgt dem Niveau, die Ersparnis an Arbeit (−20 %) und Vorprodukten (−15 %)
+  zusätzlich der Reife des Produkts. Kein Endniveau, kein Gemeingut. Forschungszentren
+  teilen ihre Forscher in Anteilen auf Produkte und eine Technologie
+  (`SetResearchShares`). Ansicht Weiterentwicklung mit Niveau, Wettbewerber, Reife und
+  Wirkung; Markt und Werk zeigen das Forschungsniveau. Alte Spielstände werden umgerechnet.
+  Tests: `the_level_follows_the_points_against_the_leader`,
+  `a_research_center_splits_its_researchers`, angepasste M37-Tests, Vitest.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

@@ -895,7 +895,7 @@ fn development_model(
     (researchers, qualification): (&[Option<wsim_core::ids::LaborGroupId>], &str),
     (branches, specializations): (&Keys, &Keys),
 ) -> DevelopmentModel {
-    let per_level = l.field("je_stufe");
+    let per_level = l.field("wirkung_max");
     let effort = l.field("aufwand");
     let levels = in_range(ctx, f64::from(d.levels), 1.0, 10.0, &l.field("stufen"));
     let mut fields: Vec<Option<SpecializationId>> = vec![None; branches.index.len()];
@@ -918,37 +918,24 @@ fn development_model(
     DevelopmentModel {
         // At most 10 levels: the cast cannot truncate.
         levels: levels as u8,
-        quality_per_level: in_range(
+        quality_max: in_range(
             ctx,
             d.per_level.quality,
             0.0,
-            20.0,
+            60.0,
             &per_level.field("qualitaet"),
         ),
-        labor_per_level: in_range(
-            ctx,
-            d.per_level.labor,
-            0.0,
-            0.09,
-            &per_level.field("arbeit"),
-        ),
-        inputs_per_level: in_range(
+        labor_max: in_range(ctx, d.per_level.labor, 0.0, 0.9, &per_level.field("arbeit")),
+        inputs_max: in_range(
             ctx,
             d.per_level.inputs,
             0.0,
-            0.09,
+            0.9,
             &per_level.field("vorprodukte"),
         ),
         effort_share: in_range(ctx, d.effort.share, 0.01, 2.0, &effort.field("anteil")),
         effort_growth: in_range(ctx, d.effort.growth, 1.0, 3.0, &effort.field("wachstum")),
         base_effort: positive(ctx, d.effort.base, &effort.field("grundaufwand")),
-        public_domain_years: in_range(
-            ctx,
-            f64::from(d.public_domain_years),
-            1.0,
-            100.0,
-            &l.field("gemeingut_nach_jahren"),
-        ),
         fields,
     }
 }

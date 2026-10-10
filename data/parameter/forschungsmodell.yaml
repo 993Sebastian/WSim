@@ -31,18 +31,17 @@ forschungsmodell:
   # Weiterentwicklung erforschter Produkte (M37, docs/FORMELN.md): Jede Firma kann jedes
   # Produkt, das sie herstellen darf, Stufe für Stufe verbessern.
   weiterentwicklung:
+    # Generationen (Q1): Punkteschwellen für Nachfolgemodelle und Start-ups; die Forschung
+    # geht darüber hinaus weiter, die Wirkung folgt allein dem Niveau.
     stufen: 5
-    # Wirkung je Stufe in allen Rezepten der Firma für das Produkt: Qualitätspunkte,
-    # eingesparter Anteil der Arbeitsstunden und der Vorprodukte je Durchlauf.
-    je_stufe: {qualitaet: 4, arbeit: 0.03, vorprodukte: 0.02}
-    # Stufe n kostet B · anteil · wachstum^(n − 1) Forschungspunkte; B ist der größte
-    # Forschungsaufwand der Technologien des Produkts, mindestens grundaufwand. Mit einem
-    # Labor (20 Forscher) dauert der Weg bis Stufe 5 so rund 25 Jahre: Wer vorn sein will,
-    # forscht früh und mit mehreren Laboren (im ersten Weltlauf mit anteil 0,2 und
-    # wachstum 1,6 hatten die großen Firmen alle Stufen schon nach 5 Jahren).
+    # Wirkung beim Führenden (Niveau 100 %) in allen Rezepten der Firma für das Produkt
+    # (Q1): Qualitätspunkte · Niveau, eingesparter Anteil der Arbeitsstunden und der
+    # Vorprodukte je Durchlauf · Niveau · Reife.
+    wirkung_max: {qualitaet: 30, arbeit: 0.2, vorprodukte: 0.15}
+    # Generation n kostet B · anteil · wachstum^(n − 1) Forschungspunkte; B ist der größte
+    # Forschungsaufwand der Technologien des Produkts, mindestens grundaufwand. B ist auch
+    # das Maß der Reife: S = 1 − e^(−Punkte des Führenden / B).
     aufwand: {anteil: 1.0, wachstum: 1.7, grundaufwand: 10_000}
-    # So viele Jahre, nachdem eine Firma eine Stufe als erste erreicht hat, hat sie jeder.
-    gemeingut_nach_jahren: 15
     # Fachgebiet der Forscher für Produkte ohne Technologie (Ernte, einfacher Abbau),
     # nach Branche; sonst gilt das Fachgebiet der Technologie.
     fachgebiete:

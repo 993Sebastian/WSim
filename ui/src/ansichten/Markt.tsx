@@ -685,7 +685,7 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                       {formatProzent(s.share)}
                     </td>
                     <td className="zahl" data-spalte={t("markt.stufe")}>
-                      {s.level > 0 ? s.level : "–"}
+                      {(s.research_share ?? 0) > 0 ? formatProzent(s.research_share ?? 0) : "–"}
                     </td>
                   </tr>
                 ))}

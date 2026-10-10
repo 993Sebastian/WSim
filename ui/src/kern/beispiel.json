@@ -5813,11 +5813,6 @@
     "centers": [],
     "date": "1914-08-01",
     "development_levels": 5,
-    "development_per_level": {
-      "inputs_saved": 0.020000000000000018,
-      "labor_saved": 0.030000000000000027,
-      "quality": 4.0
-    },
     "developments": [
       {
         "best_rival": 0,
@@ -5831,11 +5826,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -5848,8 +5838,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "eisenerz",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -5863,11 +5862,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -5880,8 +5874,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kohle",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -5895,11 +5898,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -5912,8 +5910,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "stahl",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -5927,11 +5934,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -5944,8 +5946,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "blech",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -5959,11 +5970,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -5976,8 +5982,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "draht",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -5991,11 +6006,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -6008,8 +6018,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "stabstahl",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6023,11 +6042,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6040,8 +6054,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "naegel",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6055,11 +6078,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6072,8 +6090,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "schrauben",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6087,11 +6114,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6104,8 +6126,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "muttern",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6119,11 +6150,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -6136,8 +6162,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "handwerkzeug",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6151,11 +6186,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6168,8 +6198,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "holz",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6183,11 +6222,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6200,8 +6234,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "schnittholz",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6215,11 +6258,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6232,8 +6270,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "moebel",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6247,11 +6294,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6264,8 +6306,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "baumwolle",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6279,11 +6330,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6296,8 +6342,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "garn",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6311,11 +6366,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6328,8 +6378,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "stoff",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6343,11 +6402,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6360,8 +6414,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kleidung",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6375,11 +6438,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6392,8 +6450,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "getreide",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6407,11 +6474,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6424,8 +6486,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "mehl",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6439,11 +6510,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -6456,8 +6522,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "weissblech",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6471,11 +6546,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6488,8 +6558,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "konserve",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6503,11 +6582,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1222297.750148421,
           "country": "DEU",
@@ -6520,8 +6594,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "strom",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6535,11 +6618,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -6552,8 +6630,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kupfererz",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6567,11 +6654,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6584,8 +6666,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kupfer",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6599,11 +6690,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -6616,8 +6702,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kupferdraht",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6631,11 +6726,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1222297.750148421,
           "country": "DEU",
@@ -6648,8 +6738,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "elektromotor",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6663,11 +6762,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6680,8 +6774,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "rohoel",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6695,11 +6798,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6712,8 +6810,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "petroleum",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6727,11 +6834,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -6744,8 +6846,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "petroleumlampe",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6759,11 +6870,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1222297.750148421,
           "country": "DEU",
@@ -6776,8 +6882,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "gluehlampe",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6791,11 +6906,6 @@
         "level": 0,
         "needed": 30000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 3019794.441543157,
           "country": "DEU",
@@ -6808,8 +6918,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kautschuk",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6823,11 +6942,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6840,8 +6954,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "gummi",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6855,11 +6978,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6872,8 +6990,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "fahrradreifen",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6887,11 +7014,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -6904,8 +7026,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "autoreifen",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6919,11 +7050,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6936,8 +7062,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "naehmaschine",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6951,11 +7086,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -6968,8 +7098,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "fahrrad",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -6983,11 +7122,6 @@
         "level": 0,
         "needed": 15000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1509897.2207715786,
           "country": "DEU",
@@ -7000,8 +7134,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "benzin",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7015,11 +7158,6 @@
         "level": 0,
         "needed": 30000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 4278042.125519472,
           "country": "DEU",
@@ -7032,8 +7170,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "motor",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7047,11 +7194,6 @@
         "level": 0,
         "needed": 30000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 4278042.125519472,
           "country": "DEU",
@@ -7064,8 +7206,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "fahrgestell",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7079,11 +7230,6 @@
         "level": 0,
         "needed": 12000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7096,8 +7242,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "karosserie",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7111,11 +7266,6 @@
         "level": 0,
         "needed": 30000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 4278042.125519472,
           "country": "DEU",
@@ -7128,8 +7278,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "automobil",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7143,11 +7302,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7160,8 +7314,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "bauxit",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7175,11 +7338,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -7192,8 +7350,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "tonerde",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7207,11 +7374,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -7224,8 +7386,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "aluminium",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7239,11 +7410,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1316320.6540059915,
           "country": "DEU",
@@ -7256,8 +7422,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kochtopf",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7271,11 +7446,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -7288,8 +7458,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "zellstoff",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7303,11 +7482,6 @@
         "level": 0,
         "needed": 12000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1207917.7766172627,
           "country": "DEU",
@@ -7320,8 +7494,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kunstseide",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7335,11 +7518,6 @@
         "level": 0,
         "needed": 20000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 2013196.294362105,
           "country": "DEU",
@@ -7352,8 +7530,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "strumpf",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7367,11 +7554,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1006598.1471810525,
           "country": "DEU",
@@ -7384,8 +7566,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "bakelit",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7399,11 +7590,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1222297.750148421,
           "country": "DEU",
@@ -7416,8 +7602,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "radioroehre",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7431,11 +7626,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1222297.750148421,
           "country": "DEU",
@@ -7448,8 +7638,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kleinmotor",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7463,11 +7662,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -7480,8 +7674,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "staubsauger",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7495,11 +7698,6 @@
         "level": 0,
         "needed": 12000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7512,8 +7710,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "lastwagen",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7527,11 +7734,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1426014.041839824,
           "country": "DEU",
@@ -7544,8 +7746,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "flugmotor",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7559,11 +7770,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7576,8 +7782,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "chilesalpeter",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7591,11 +7806,6 @@
         "level": 0,
         "needed": 25000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 2516495.3679526313,
           "country": "DEU",
@@ -7608,8 +7818,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "ammoniak",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7623,11 +7842,6 @@
         "level": 0,
         "needed": 25000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 2516495.3679526313,
           "country": "DEU",
@@ -7640,8 +7854,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "stickstoffduenger",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7655,11 +7878,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7672,8 +7890,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "germanium",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7687,11 +7914,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7704,8 +7926,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "quarz",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7719,11 +7950,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7736,8 +7962,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "lithium",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       },
       {
         "best_rival": 0,
@@ -7751,11 +7986,6 @@
         "level": 0,
         "needed": 10000.0,
         "next": 1,
-        "next_effect": {
-          "inputs_saved": 0.020000000000000018,
-          "labor_saved": 0.030000000000000027,
-          "quality": 4.0
-        },
         "one_lab": {
           "cost_usd": 1711216.850207789,
           "country": "DEU",
@@ -7768,8 +7998,17 @@
         "points": 0.0,
         "points_per_day": -0.0,
         "product": "kobalt",
-        "public_level": 0,
-        "sites": []
+        "sites": [],
+        "total_points": 0.0,
+        "leader_points": 0.0,
+        "share": 0.0,
+        "best_rival_share": 0.0,
+        "maturity": 0.0,
+        "lead_effect": {
+          "quality": 30.0,
+          "labor_saved": 0.0,
+          "inputs_saved": 0.0
+        }
       }
     ],
     "laboratory": "forschungslabor",
@@ -14277,6 +14516,11 @@
       "windkraftanlage": "stueck",
       "zellstoff": "t",
       "zinn": "t"
+    },
+    "development_max": {
+      "quality": 30.0,
+      "labor_saved": 0.2,
+      "inputs_saved": 0.15
     }
   },
   "ketten": {

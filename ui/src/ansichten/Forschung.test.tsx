@@ -48,7 +48,7 @@ async function kernMitLabor() {
 describe("Weiterentwicklung", () => {
   afterEach(cleanup);
 
-  it("zeigt Stufe, Wirkung und Aufwand und startet die Weiterentwicklung", async () => {
+  it("zeigt Niveau, Wirkung und Aufwand und setzt den Forscheranteil", async () => {
     const { kern, uebersicht, gesendet } = await kernMitLabor();
     render(
       <ForschungAnsicht
@@ -60,22 +60,24 @@ describe("Weiterentwicklung", () => {
     );
     fireEvent.click(await screen.findByRole("button", { name: "Weiterentwicklung" }));
     expect(
-      screen.getByText(/für das Produkt \+4 Qualität, −3 % Arbeit, −2 % Vorprodukte je Stück/),
+      screen.getByText(
+        /für das Produkt bis zu \+30 Qualität, −20 % Arbeit, −15 % Vorprodukte je Stück/,
+      ),
     ).toBeTruthy();
     // Only the own products at first: the workshop makes nails.
     expect(
       (screen.getByRole("checkbox", { name: /Nur eigene Produkte/ }) as HTMLInputElement).checked,
     ).toBe(true);
     const karte = screen.getByRole("article", { name: "Nägel" });
-    expect(within(karte).getByText("Stufe 0 von 5")).toBeTruthy();
+    expect(within(karte).getByText("Dein Niveau")).toBeTruthy();
     expect(within(karte).getByText("noch keine")).toBeTruthy();
-    expect(within(karte).getByText("Der beste Wettbewerber ist auf Stufe 0.")).toBeTruthy();
+    expect(within(karte).getByText("Noch forscht niemand daran.")).toBeTruthy();
     expect(within(karte).getByText(/mit einem voll besetzten Labor in Deutschland/)).toBeTruthy();
     fireEvent.click(within(karte).getByRole("button", { name: "Weiterentwickeln" }));
     expect(
-      await within(karte).findByText("Das Zentrum entwickelt jetzt Nägel weiter, Stufe für Stufe."),
+      await within(karte).findByText("100 % der Forscher entwickeln jetzt Nägel weiter."),
     ).toBeTruthy();
-    expect(gesendet).toEqual([{ SetDevelopment: { site: 99, product: "naegel" } }]);
+    expect(gesendet).toEqual([{ SetResearchShares: { site: 99, shares: [["naegel", 1]] } }]);
 
     // All products the company may make, not only its own, with a search by name.
     fireEvent.click(screen.getByRole("checkbox", { name: /Nur eigene Produkte/ }));
