@@ -650,6 +650,9 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                   <th>{t("uebersicht.firma")}</th>
                   {m.nameable && <th>{t("markt.produktname")}</th>}
                   <th className="zahl">{t("markt.preis_anbieter")}</th>
+                  <th className="zahl" title={t("markt.qualitaet_anbieter_hilfe")}>
+                    {t("markt.qualitaet_anbieter")}
+                  </th>
                   <th className="zahl">{t("markt.verkauft_vormonat")}</th>
                   <th>{t("markt.anteil_markt")}</th>
                   <th className="zahl" title={t("markt.stufe_hilfe")}>
@@ -674,6 +677,9 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
                     )}
                     <td className="zahl" data-spalte={t("markt.preis_anbieter")}>
                       {formatPreis(s.price_usd, e)}
+                    </td>
+                    <td className="zahl" data-spalte={t("markt.qualitaet_anbieter")}>
+                      {s.quality == null ? "–" : formatZahl(s.quality, 0)}
                     </td>
                     <td className="zahl" data-spalte={t("markt.verkauft_vormonat")}>
                       {menge(s.sold_last_month)}

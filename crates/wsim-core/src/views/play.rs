@@ -1288,6 +1288,10 @@ pub struct SellerLine {
     /// The company's own name for the product (M42).
     #[serde(default)]
     pub product_name: Option<String>,
+    /// Quality of what it offers here: its stock at its selling sites, weighted by
+    /// quantity (`None` without stock).
+    #[serde(default)]
+    pub quality: Option<f64>,
 }
 
 /// One product on the market of a country (M18): prices, demand by buyer, sellers.
@@ -1575,16 +1579,26 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
     let m = state.markets.get(p).get(c);
     let t = &m.last_month;
     let mut sellers: Vec<SellerLine> = Vec::new();
+    // Quality × quantity and quantity of the stock, by seller.
+    let mut stocks: Vec<(f64, f64)> = Vec::new();
     for s in state.sites.iter().filter(|s| s.country == c) {
         let Some(o) = s.offers.get(&p) else { continue };
         let company = &state.companies[s.owner.index()];
         if company.bankrupt {
             continue;
         }
-        match sellers.iter_mut().find(|x| x.company == company.name) {
-            Some(x) => {
+        let stock = s
+            .inventory
+            .get(&p)
+            .filter(|st| st.quantity > 1e-9)
+            .map_or((0.0, 0.0), |st| (st.quality * st.quantity, st.quantity));
+        match sellers.iter().position(|x| x.company == company.name) {
+            Some(i) => {
+                let x = &mut sellers[i];
                 x.sold_last_month += o.sold_last_month;
                 x.price_usd = x.price_usd.min(usd(o.price));
+                stocks[i].0 += stock.0;
+                stocks[i].1 += stock.1;
             }
             None => sellers.push(SellerLine {
                 company: company.name.clone(),
@@ -1596,8 +1610,15 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
                 level: crate::development::level(catalog, state, s.owner, p),
                 research_share: crate::development::share(state, s.owner, p),
                 product_name: company.product_names.get(&p).cloned(),
+                quality: None,
             }),
         }
+        if stocks.len() < sellers.len() {
+            stocks.push(stock);
+        }
+    }
+    for (x, &(sum, quantity)) in sellers.iter_mut().zip(&stocks) {
+        x.quality = (quantity > 1e-9).then(|| sum / quantity);
     }
     for x in &mut sellers {
         x.share = if t.sold > 1e-9 {

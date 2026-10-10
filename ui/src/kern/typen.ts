@@ -784,6 +784,8 @@ export interface ProduktMarkt {
     research_share?: number;
     /** The seller's own name for the product (M42). */
     product_name?: string | null;
+    /** Quality of its stock at its selling sites (null without stock). */
+    quality?: number | null;
   }[];
   own_awareness: number;
   chances: string[];

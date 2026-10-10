@@ -719,6 +719,8 @@ markt.verlauf_richtpreis: "Gestrichelt: Richtpreis im Land."
 markt.verlauf_absatz: Absatz je Monat
 markt.verlauf_anteil: Dein Anteil am Absatz
 markt.keine_anbieter: Im Land bietet keine Firma dieses Produkt an.
+markt.qualitaet_anbieter: Qualität
+markt.qualitaet_anbieter_hilfe: Qualität der Ware, die die Firma hier auf Lager hat und anbietet (0–100). Bessere Qualität gewinnt Kunden bei gleichem Preis.
 markt.preis_anbieter: Preis heute
 markt.verkauft_vormonat: Verkauft im Vormonat
 markt.anteil_markt: Marktanteil

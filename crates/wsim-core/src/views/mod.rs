@@ -2037,6 +2037,12 @@ mod tests {
         assert_eq!(view.unit, "t");
         let own = view.sellers.iter().find(|s| s.own).expect("own offer");
         assert!((own.price_usd - 9.0).abs() < 1e-9);
+        // The quality offered is that of the stock at the selling site.
+        let stock = &g.state().sites[mine as usize].inventory;
+        match stock.get(&ore).filter(|st| st.quantity > 1e-9) {
+            Some(st) => assert_eq!(own.quality, Some(st.quality)),
+            None => assert_eq!(own.quality, None),
+        }
         let shares: f64 = view.sellers.iter().map(|s| s.share).sum();
         assert!(shares <= 1.0 + 1e-9);
         assert!(product_market(&g, "AAA", "gibts_nicht").is_none());

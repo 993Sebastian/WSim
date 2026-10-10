@@ -41575,7 +41575,8 @@
           "product_name": null,
           "real": false,
           "share": 0.5835051835669778,
-          "sold_last_month": 3100.0
+          "sold_last_month": 3100.0,
+          "quality": 64.0
         },
         {
           "company": "Thyssen & Co.",
@@ -41585,7 +41586,8 @@
           "product_name": null,
           "real": true,
           "share": 0.416494816433022,
-          "sold_last_month": 2212.7205846735465
+          "sold_last_month": 2212.7205846735465,
+          "quality": 52.0
         }
       ],
       "sold_last_month": 5312.720584673548,
@@ -41738,7 +41740,8 @@
           "product_name": "Zylvia Extra",
           "real": false,
           "share": 1.0,
-          "sold_last_month": 55555.62847769068
+          "sold_last_month": 55555.62847769068,
+          "quality": 64.0
         }
       ],
       "sold_last_month": 55555.62847769068,
@@ -41887,7 +41890,8 @@
           "product_name": null,
           "real": false,
           "share": 0.9921382597689992,
-          "sold_last_month": 2139.0
+          "sold_last_month": 2139.0,
+          "quality": 64.0
         },
         {
           "company": "Neue Firma",
@@ -41897,7 +41901,8 @@
           "product_name": null,
           "real": false,
           "share": 0.007189407679485501,
-          "sold_last_month": 15.5
+          "sold_last_month": 15.5,
+          "quality": 52.0
         }
       ],
       "sold_last_month": 2155.949515038384,

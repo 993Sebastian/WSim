@@ -692,6 +692,9 @@ test("Weiterentwicklung zeigt Niveau, Wirkung, Aufwand und das Niveau der Anbiet
   const draht = page.getByRole("region", { name: "Draht in Deutschland" });
   const anbieter = draht.getByRole("table", { name: "Anbieter im Vormonat" });
   await expect(anbieter.getByRole("row").first()).toContainText("Forschung");
+  // The quality each seller offers.
+  await expect(anbieter.getByRole("row").first()).toContainText("Qualität");
+  await expect(anbieter.getByRole("row").nth(1)).toContainText("64");
 });
 
 test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page }) => {
