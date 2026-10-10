@@ -1184,6 +1184,7 @@ fn found_site(
     state.sites.push(Site {
         owner: actor,
         name: None,
+        totals: std::collections::BTreeMap::new(),
         country,
         kind,
         founded: today,

@@ -2830,3 +2830,13 @@ body {
 .preisverlauf > summary {
   cursor: pointer;
 }
+
+/* Quantities of the round report, folded from the company down to the sites. */
+details.mengen > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+details.mengen details.mengen {
+  margin-left: 1rem;
+}

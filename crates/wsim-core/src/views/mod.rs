@@ -858,6 +858,155 @@ pub struct Snapshot {
     /// Revenue and result by product of the running year.
     products: BTreeMap<crate::ids::ProductId, (Money, Money)>,
     years_closed: usize,
+    /// Units made and sold so far by the main company's sites, by site and product.
+    site_totals: BTreeMap<(usize, crate::ids::ProductId), crate::state::SiteTotals>,
+}
+
+fn site_totals(
+    state: &crate::state::GameState,
+) -> BTreeMap<(usize, crate::ids::ProductId), crate::state::SiteTotals> {
+    state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| state.is_main(s.owner))
+        .flat_map(|(i, s)| s.totals.iter().map(move |(&p, &t)| ((i, p), t)))
+        .collect()
+}
+
+/// Units of a product made and sold in the round.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct QuantityLine {
+    pub product: String,
+    pub unit: String,
+    pub made: f64,
+    pub sold: f64,
+}
+
+/// Made and sold units in the round, from the company down to the sites: `firma`,
+/// `kontinent`, `land`, `standort`.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct QuantityNode {
+    pub level: String,
+    /// Continent or country key, the site index for sites.
+    pub key: String,
+    /// Kind of the site (text key) and its own name.
+    pub kind_text: Option<String>,
+    pub site_name: Option<String>,
+    pub country: Option<String>,
+    /// Sums by product over everything below, largest output first.
+    pub products: Vec<QuantityLine>,
+    pub children: Vec<QuantityNode>,
+}
+
+/// The round's quantities as a tree; `None` when the company made and sold nothing.
+fn round_quantities(game: &Game, before: &Snapshot) -> Option<QuantityNode> {
+    use crate::ids::ProductId;
+    let (state, catalog) = (game.state(), game.catalog());
+    let mut rows: Vec<(usize, ProductId, f64, f64)> = site_totals(state)
+        .into_iter()
+        .map(|(k, t)| {
+            let b = before.site_totals.get(&k).copied().unwrap_or_default();
+            (k.0, k.1, t.made - b.made, t.sold - b.sold)
+        })
+        .filter(|r| r.2 > 1e-9 || r.3 > 1e-9)
+        .collect();
+    if rows.is_empty() {
+        return None;
+    }
+    rows.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+    let lines = |rows: &[&(usize, ProductId, f64, f64)]| -> Vec<QuantityLine> {
+        let mut sums: BTreeMap<ProductId, (f64, f64)> = BTreeMap::new();
+        for r in rows {
+            let e = sums.entry(r.1).or_insert((0.0, 0.0));
+            e.0 += r.2;
+            e.1 += r.3;
+        }
+        let mut v: Vec<QuantityLine> = sums
+            .into_iter()
+            .map(|(p, (made, sold))| QuantityLine {
+                product: catalog.products.key(p).to_owned(),
+                unit: catalog.units.key(catalog.products.get(p).unit).to_owned(),
+                made,
+                sold,
+            })
+            .collect();
+        v.sort_by(|a, b| b.made.total_cmp(&a.made).then(a.product.cmp(&b.product)));
+        v
+    };
+    let country_of = |site: usize| state.sites[site].country;
+    let continent_of = |site: usize| catalog.countries.get(country_of(site)).continent;
+    let all: Vec<&(usize, ProductId, f64, f64)> = rows.iter().collect();
+    let mut continents: Vec<_> = all.iter().map(|r| continent_of(r.0)).collect();
+    continents.sort();
+    continents.dedup();
+    let children = continents
+        .into_iter()
+        .map(|k| {
+            let in_k: Vec<_> = all
+                .iter()
+                .copied()
+                .filter(|r| continent_of(r.0) == k)
+                .collect();
+            let mut countries: Vec<_> = in_k.iter().map(|r| country_of(r.0)).collect();
+            countries.sort();
+            countries.dedup();
+            QuantityNode {
+                level: "kontinent".into(),
+                key: catalog.continents.key(k).to_owned(),
+                kind_text: None,
+                site_name: None,
+                country: None,
+                products: lines(&in_k),
+                children: countries
+                    .into_iter()
+                    .map(|c| {
+                        let in_c: Vec<_> = in_k
+                            .iter()
+                            .copied()
+                            .filter(|r| country_of(r.0) == c)
+                            .collect();
+                        let mut sites: Vec<usize> = in_c.iter().map(|r| r.0).collect();
+                        sites.dedup();
+                        QuantityNode {
+                            level: "land".into(),
+                            key: catalog.countries.key(c).to_owned(),
+                            kind_text: None,
+                            site_name: None,
+                            country: Some(catalog.countries.key(c).to_owned()),
+                            products: lines(&in_c),
+                            children: sites
+                                .into_iter()
+                                .map(|i| {
+                                    let s = &state.sites[i];
+                                    let in_s: Vec<_> =
+                                        in_c.iter().copied().filter(|r| r.0 == i).collect();
+                                    QuantityNode {
+                                        level: "standort".into(),
+                                        key: i.to_string(),
+                                        kind_text: Some(site_type_key(s.kind)),
+                                        site_name: s.name.clone(),
+                                        country: Some(catalog.countries.key(c).to_owned()),
+                                        products: lines(&in_s),
+                                        children: Vec::new(),
+                                    }
+                                })
+                                .collect(),
+                        }
+                    })
+                    .collect(),
+            }
+        })
+        .collect();
+    Some(QuantityNode {
+        level: "firma".into(),
+        key: String::new(),
+        kind_text: None,
+        site_name: None,
+        country: None,
+        products: lines(&all),
+        children,
+    })
 }
 
 /// Revenue and result (gross margin) by product of a period, from its cost centers.
@@ -888,6 +1037,7 @@ pub fn snapshot(game: &Game) -> Snapshot {
         year: ledger.year.by_type.clone(),
         products: product_totals(&ledger.year),
         years_closed: ledger.years.len(),
+        site_totals: site_totals(state),
     }
 }
 
@@ -1004,6 +1154,9 @@ pub struct RoundReportView {
     /// `ein_jahr`, `spielende`; `None` for a single round.
     #[serde(default)]
     pub stop: Option<String>,
+    /// Units made and sold, by continent, country, site and product.
+    #[serde(default)]
+    pub quantities: Option<QuantityNode>,
 }
 
 fn one() -> u32 {
@@ -1064,6 +1217,7 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         hints: hints(game),
         rounds: 1,
         stop: None,
+        quantities: round_quantities(game, before),
     }
 }
 
@@ -1957,6 +2111,27 @@ mod tests {
         assert!(
             (p.revenue_usd - p.costs_usd + p.inventory_change_usd - p.result_usd).abs() < 0.01,
             "{p:?}"
+        );
+        // The quantities: the company sums its continents, the site sold the bread.
+        let q = view.quantities.expect("made and sold");
+        assert_eq!(q.level, "firma");
+        let bread_sold = |n: &QuantityNode| {
+            n.products
+                .iter()
+                .find(|l| l.product == "brot")
+                .map_or(0.0, |l| l.sold)
+        };
+        assert!(bread_sold(&q) > 0.0);
+        let below: f64 = q.children.iter().map(bread_sold).sum();
+        assert!((below - bread_sold(&q)).abs() < 1e-6);
+        let site = &q.children[0].children[0].children[0];
+        assert_eq!(site.level, "standort");
+        assert_eq!(site.key, mine.to_string());
+        let sold_units = sold.revenue_usd / 2.0;
+        assert!((bread_sold(site) - sold_units).abs() < 1e-3, "{site:?}");
+        assert!(
+            q.products.iter().any(|l| l.made > 0.0),
+            "the chain makes goods"
         );
     }
 

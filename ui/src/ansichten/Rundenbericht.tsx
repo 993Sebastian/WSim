@@ -1,7 +1,69 @@
-import { formatDatum, formatGeld, formatProzent, meldungText } from "../format";
-import type { Hinweis, Meldung, MeldungsGruppe, Periode, Rundenbericht } from "../kern";
+import {
+  formatDatum,
+  formatGeld,
+  formatMenge,
+  formatProzent,
+  landName,
+  meldungText,
+} from "../format";
+import type {
+  Hinweis,
+  Meldung,
+  MeldungsGruppe,
+  Mengenknoten,
+  Periode,
+  Rundenbericht,
+} from "../kern";
 import { t } from "../texte";
 import { Dialog } from "./Dialog";
+import { standortName } from "./stellen";
+
+function knotenName(k: Mengenknoten): string {
+  if (k.level === "kontinent") return t(`kontinent.${k.key}`);
+  if (k.level === "land") return landName(k.key);
+  if (k.level === "standort") return standortName(k.kind_text ?? "", k.country ?? "", k.site_name);
+  return t("bericht.mengen_firma");
+}
+
+/** Made and sold units of one level, its children folded below (top down). */
+function Mengen({ k, offen = false }: { k: Mengenknoten; offen?: boolean }) {
+  const name = knotenName(k);
+  return (
+    <details className={`mengen mengen-${k.level}`} open={offen}>
+      <summary>{name}</summary>
+      <div className="tabelle">
+        <table className="mobil-karten" aria-label={t("bericht.mengen_von", { ort: name })}>
+          <thead>
+            <tr>
+              <th>{t("uebersicht.produkt")}</th>
+              <th className="zahl">{t("bericht.hergestellt")}</th>
+              <th className="zahl">{t("bericht.verkauft")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {k.products.map((p) => {
+              const e = t(`einheit.${p.unit}`);
+              return (
+                <tr key={p.product}>
+                  <td>{t(`produkt.${p.product}`)}</td>
+                  <td className="zahl" data-spalte={t("bericht.hergestellt")}>
+                    {p.made > 0 ? `${formatMenge(p.made)} ${e}` : "–"}
+                  </td>
+                  <td className="zahl" data-spalte={t("bericht.verkauft")}>
+                    {p.sold > 0 ? `${formatMenge(p.sold)} ${e}` : "–"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {k.children.map((c) => (
+        <Mengen key={`${c.level}/${c.key}`} k={c} />
+      ))}
+    </details>
+  );
+}
 
 const GRUPPEN: MeldungsGruppe[] = [
   "erfolg",
@@ -177,6 +239,14 @@ export function RundenberichtDialog({
           </div>
         )}
       </div>
+
+      {bericht.quantities && (
+        <section data-tour="mengen">
+          <h3>{t("bericht.mengen")}</h3>
+          <p className="feld-hilfe">{t("bericht.mengen_hilfe")}</p>
+          <Mengen k={bericht.quantities} offen />
+        </section>
+      )}
 
       {bericht.hints.length > 0 && (
         <section>

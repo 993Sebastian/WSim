@@ -272,6 +272,27 @@ export interface Rundenbericht {
   /** Why several rounds stopped: `jahresende`, `warnung`, `weltereignis`, `ein_jahr`,
    * `spielende`; null for a single round. */
   stop?: string | null;
+  /** Units made and sold, by continent, country, site and product. */
+  quantities?: Mengenknoten | null;
+}
+
+/** Units of a product made and sold in the round. */
+export interface Mengenzeile {
+  product: string;
+  unit: string;
+  made: number;
+  sold: number;
+}
+
+/** A level of the round's quantities: `firma`, `kontinent`, `land`, `standort`. */
+export interface Mengenknoten {
+  level: "firma" | "kontinent" | "land" | "standort";
+  key: string;
+  kind_text: string | null;
+  site_name: string | null;
+  country: string | null;
+  products: Mengenzeile[];
+  children: Mengenknoten[];
 }
 
 export interface Spielstand {
@@ -786,6 +807,8 @@ export interface ProduktMarkt {
   own_name?: string | null;
   /** Three free names from the name parts of the data. */
   name_suggestions?: string[];
+  /** Raw materials: swing of the world's output from the commodity cycle (0.1 = +10 %). */
+  supply_cycle?: number | null;
 }
 
 /** One closed month of a market (M24). */

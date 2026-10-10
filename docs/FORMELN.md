@@ -5247,3 +5247,28 @@ zum Ziellager auf dem Markt des Landes.
 - Ein neuer Pauschalkauf ersetzt den offenen; Menge 0 bricht ab. Ein Ziellager von 0 lässt
   einen offenen Pauschalkauf bestehen.
 - Freigabe durch Manager (MA2): zählt `menge × max(hoechstpreis − übliche Obergrenze, 0)`.
+
+## Rohstoffzyklus – schwankende Rohstoffmärkte (Wunsch vom 10.10.2026)
+
+Rohstoffpreise sollen spürbar schwanken und über die Kosten auf die Endprodukte
+durchschlagen; Lieferverträge und der 12-Monats-Preisverlauf bekommen damit Gewicht.
+Statt Preise unmittelbar zu würfeln, schwankt das **Angebot**: die zulässige Förderung
+jedes Rohstoffs weltweit (Ernten, Streiks, Grubenunglücke, Entdeckungen). Der Markt bildet
+daraus die Preise; Werke mit teureren Vorprodukten heben über die Kosten (KI-Preisregel,
+M16/G4) ihre Preise, sodass der Ausschlag nach unten in die Ketten wandert.
+
+Je Rohstoff *r* (Produkt mit Lagerstätten) ein Zykluswert *x_r* (anfangs 0), zu Beginn
+jedes Monats aus dem Zufallsstrom „Rohstoffe“ des Monats, Rohstoffe in Katalogreihenfolge:
+
+    x_r ← beharrung · x_r + schwankung · z,   z ~ N(0, 1)   (Box-Muller über libm)
+    x_r auf [−grenze, +grenze] begrenzt
+    Zyklusfaktor_r = exp(x_r)
+    zulässige Förderung = Höchstförderung · Förderkurve (C2) · Zyklusfaktor_r
+
+Parameter in `data/parameter/produktionsmodell.yaml` unter `rohstoffzyklus`:
+`schwankung` (Standardabweichung des Monatsstoßes, 0,05), `beharrung` (0–1, 0,9:
+Ausschläge halten etwa ein Jahr nach) und `grenze` (0,4: höchstens rund ±40–50 % Förderung).
+Die dauerhafte Streuung ist schwankung / √(1 − beharrung²) ≈ 11 % der Förderung; weil die
+Nachfrage nach Rohstoffen kurzfristig kaum nachgibt, schwanken die Preise deutlich stärker.
+`schwankung: 0` schaltet den Zyklus ab. Die Marktansicht zeigt die Förderlage des
+Rohstoffs (Zyklusfaktor − 1).

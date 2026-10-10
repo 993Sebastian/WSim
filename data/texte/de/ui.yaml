@@ -155,6 +155,12 @@ grafik.zu_wenig: Der Verlauf erscheint nach dem zweiten abgeschlossenen Monat.
 grafik.beschreibung: "{name}: {anfang} ({von}) bis {ende} ({bis})"
 
 bericht.titel: Rundenbericht
+bericht.mengen: Mengen nach Region
+bericht.mengen_hilfe: Was in dieser Runde hergestellt und verkauft wurde – aufklappbar vom ganzen Unternehmen über Kontinent und Land bis zum Standort. Verkauft zählt Markt, Händler und Lieferverträge.
+bericht.mengen_firma: Ganzes Unternehmen
+bericht.mengen_von: "Mengen: {ort}"
+bericht.hergestellt: Hergestellt
+bericht.verkauft: Verkauft
 bericht.was_lief: Was lief – Umsatz und Rohertrag je Produkt in dieser Runde
 bericht.nichts_verkauft: In dieser Runde wurde nichts verkauft.
 bericht.jetzt_tun: Jetzt zu tun
@@ -690,6 +696,8 @@ markt.ausfuhr: Ausfuhr durch Händler
 markt.staatsmarkt: Staatlicher Markt
 markt.deine_bekanntheit: Deine Bekanntheit
 markt.nachfrage_titel: Wer kauft?
+markt.foerderlage: Förderlage weltweit
+markt.foerderlage_hilfe: Ernten, Streiks und Funde verschieben die mögliche Förderung dieses Rohstoffs von Monat zu Monat. Weniger Förderung treibt den Preis und über die Kosten auch die Preise der Erzeugnisse daraus; Lieferverträge sichern dagegen ab.
 markt.nachfrage_hilfe: Nachfrage je Monat zu heutigen Preisen und Einkommen; die Verbraucher nach Einkommensfünfteln, vom ärmsten zum reichsten. Firmen und Ausfuhr wie im Vormonat – die Verkäufe der Anbieter oben enthalten auch, was Händler für die Ausfuhr gekauft haben.
 markt.fuenftel.1: Ärmstes Fünftel
 markt.fuenftel.2: Zweites Fünftel

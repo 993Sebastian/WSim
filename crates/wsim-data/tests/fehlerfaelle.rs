@@ -82,6 +82,7 @@ produktionsmodell:
   gebaeude_lebensdauer_jahre: 50
   erschliessung_lebensdauer_jahre: 30
   foerderkurve_ab: 0.5
+  rohstoffzyklus: {schwankung: 0.05, beharrung: 0.9, grenze: 0.4}
   schulung: {kosten_anteil_lohn: 0.05, aufbau_je_monat: 0.08, verlust_je_monat: 0.03, arbeitsersparnis: 0.1, qualitaet_punkte: 8}
   automatisierung: {arbeitsersparnis: 0.8, kostenanteil: 0.5}
   qualitaet: {vorprodukte: 0.3, automatisierung: 10, zustand: 20}
@@ -4857,4 +4858,22 @@ ruestung:
         )
         .laden();
     befund(&falsch, "außerhalb des erlaubten Bereichs");
+}
+
+#[test]
+fn rohstoffzyklus_wird_geprueft() {
+    // Swings of the raw materials' output (Rohstoffzyklus).
+    let datei = "parameter/produktionsmodell.yaml";
+    let d = Daten::neu().ersetze(datei, "beharrung: 0.9", "beharrung: 1.2");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0 bis 0.99.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "beharrung"),
+        "produktionsmodell.rohstoffzyklus.beharrung",
+    );
 }

@@ -1209,6 +1209,15 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   springt zur Technologie und rollt sie ins Bild. Zoom 40–160 % (Knöpfe oder Strg +
   Mausrad), ein zweiter Scrollbalken über dem Baum läuft mit dem unteren mit (Vitest
   `Teilbaum`, E2E).
+- **Rundenbericht mit Mengen:** „Mengen nach Region“ klappt vom ganzen Unternehmen über
+  Kontinent und Land bis zum Standort auf, je Ebene hergestellte und verkaufte Menge je
+  Produkt (Markt, Händler, Lieferverträge). Zähler je Standort und Produkt im Zustand
+  (`Site::totals`), Bericht vergleicht vor und nach der Runde (Test im Rundenbericht, E2E).
+- **Rohstoffzyklus:** Die zulässige Förderung jedes Rohstoffs schwankt monatlich (Ernten,
+  Streiks, Funde), daraus schwanken die Rohstoffpreise und über die Kosten die Preise der
+  Erzeugnisse (`docs/FORMELN.md`, Rohstoffzyklus; Parameter `rohstoffzyklus`, Prüfregel mit
+  Fehlerfalltest, Kerntest). Der Produktmarkt zeigt die „Förderlage weltweit“. Weltlauf-Test
+  1900 und alle Tests grün; ein Weltlauf zur Abstimmung der Stärke steht aus.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

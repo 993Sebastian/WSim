@@ -1348,12 +1348,22 @@ pub enum Limit {
     Patent,
 }
 
+/// Units a site made and sold of a product since it was founded (for the reports).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SiteTotals {
+    pub made: f64,
+    pub sold: f64,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Site {
     pub owner: CompanyId,
     /// The owner's own name for the site; none shows the kind and the country.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Units made and sold by product since the founding (for the round report).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub totals: BTreeMap<ProductId, SiteTotals>,
     pub country: CountryId,
     pub kind: SiteType,
     pub founded: Date,
@@ -1760,6 +1770,9 @@ pub struct GameState {
     pub settings: GameSettings,
     /// The current day, not yet simulated.
     pub date: Date,
+    /// Swing of each raw material's output, log scale (Rohstoffzyklus); none: 0.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub commodity_cycle: BTreeMap<ProductId, f64>,
     /// Random stream for world-level processes.
     pub world_rng: SimRng,
     /// Derived from catalog and date; not saved, recomputed after loading.

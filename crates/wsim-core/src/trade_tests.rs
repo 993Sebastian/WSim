@@ -61,6 +61,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
     state.sites.push(Site {
         owner,
         name: None,
+        totals: std::collections::BTreeMap::new(),
         country,
         kind: SiteType::Warehouse,
         founded: state.date,

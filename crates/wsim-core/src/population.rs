@@ -990,6 +990,7 @@ fn found_company(
         new_sites.push(Site {
             owner: id,
             name: None,
+            totals: BTreeMap::new(),
             country,
             kind,
             founded: date,

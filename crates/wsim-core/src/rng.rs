@@ -125,6 +125,10 @@ pub enum Stream {
     Succession {
         month: u32,
     },
+    /// The swings of the raw materials' output in a month (Rohstoffzyklus).
+    Commodities {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -183,6 +187,7 @@ impl Stream {
             Stream::PersonStart => 23 << 56,
             Stream::Person { month } => (24 << 56) | u64::from(month),
             Stream::Succession { month } => (25 << 56) | u64::from(month),
+            Stream::Commodities { month } => (26 << 56) | u64::from(month),
         }
     }
 }

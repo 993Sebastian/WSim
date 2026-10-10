@@ -49,6 +49,13 @@ test("Neues Spiel, Runde, Bericht, Speichern und Laden", async ({ page }) => {
   await expect(
     bericht.getByRole("table", { name: /Was lief/ }).getByRole("cell", { name: "Nägel" }),
   ).toBeVisible();
+  // Quantities top down: company, continent, country, site.
+  await bericht.locator("summary", { hasText: "Europa" }).click();
+  await bericht.locator("summary", { hasText: "Deutschland" }).first().click();
+  await bericht.locator("summary", { hasText: "Werk · Deutschland" }).click();
+  const werk = bericht.getByRole("table", { name: "Mengen: Werk · Deutschland" });
+  await expect(werk.getByRole("row", { name: /Nägel/ })).toContainText("12,5 t");
+  await expect(werk.getByRole("row", { name: /Nägel/ })).toContainText("10 t");
   // The world news can be opened again from the report.
   await bericht.getByRole("button", { name: "Ansehen" }).first().click();
   await page

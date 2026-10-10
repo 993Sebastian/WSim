@@ -103,6 +103,17 @@ pub(super) fn production_model(
             &l.field("erschliessung_lebensdauer_jahre"),
         ),
         decline_from: in_range(ctx, m.decline_from, 0.0, 1.0, &l.field("foerderkurve_ab")),
+        commodity_cycle: m.commodity_cycle.as_ref().map_or_else(
+            wsim_core::catalog::CommodityCycle::default,
+            |c| {
+                let cl = l.field("rohstoffzyklus");
+                wsim_core::catalog::CommodityCycle {
+                    shock: in_range(ctx, c.schwankung, 0.0, 0.5, &cl.field("schwankung")),
+                    persistence: in_range(ctx, c.beharrung, 0.0, 0.99, &cl.field("beharrung")),
+                    limit: in_range(ctx, c.grenze, 0.0, 1.5, &cl.field("grenze")),
+                }
+            },
+        ),
         training: {
             let t = &m.training;
             let tl = l.field("schulung");

@@ -153,6 +153,7 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **standortkosten_usd** | Kosten je Standorttyp: `foerderstaette`, `werk`, `kraftwerk`, `lager`, `niederlassung`, `forschungszentrum` (alle nötig) |
 | **gebaeude_lebensdauer_jahre**, **erschliessung_lebensdauer_jahre** | Abschreibungsdauern |
 | **foerderkurve_ab** | 0–1: Ist von einer Lagerstätte mit Vorrat weniger als dieser Anteil übrig, sinkt die zulässige Förderung im selben Verhältnis; 0 = volle Förderung bis zuletzt (C2) |
+| rohstoffzyklus | optional: monatliche Schwankung der zulässigen Förderung je Rohstoff; `schwankung` (0–0,5, Standardabweichung des Monatsstoßes, 0 = aus), `beharrung` (0–0,99), `grenze` (0–1,5, größter Ausschlag auf der Log-Skala); Formel: FORMELN, Rohstoffzyklus |
 | **automatisierung** | `arbeitsersparnis` (0–1), `kostenanteil` |
 | **qualitaet** | Gewichte `vorprodukte`, `automatisierung`, `zustand` |
 | **zustand_minimum** | Untergrenze des Anlagenzustands (0–1) |

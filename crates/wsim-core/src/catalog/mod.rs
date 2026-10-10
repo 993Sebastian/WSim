@@ -2507,6 +2507,16 @@ pub struct TrainingModel {
     pub quality_points: f64,
 }
 
+/// Monthly swings of each raw material's allowed output (docs/FORMELN.md, Rohstoffzyklus):
+/// `x ← persistence · x + shock · z`, limited to ±`limit`; the output is scaled by `exp(x)`.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct CommodityCycle {
+    /// Standard deviation of the monthly shock; 0 switches the cycle off.
+    pub shock: f64,
+    pub persistence: f64,
+    pub limit: f64,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ProductionModel {
     /// Cost of founding a site (land, buildings) per site type.
@@ -2516,6 +2526,8 @@ pub struct ProductionModel {
     /// Remaining share of a deposit's reserve below which its allowed output falls in
     /// proportion (C2); 0: full output to the end.
     pub decline_from: f64,
+    /// Swings of the raw materials' output (Rohstoffzyklus).
+    pub commodity_cycle: CommodityCycle,
     /// Training of the sites (W1).
     pub training: TrainingModel,
     /// Share of labor that full automation saves at full automation affinity.
@@ -2602,6 +2614,7 @@ impl Default for ProductionModel {
             building_lifetime_years: 50.0,
             development_lifetime_years: 30.0,
             decline_from: 0.0,
+            commodity_cycle: CommodityCycle::default(),
             training: TrainingModel::default(),
             automation_labor_saving: 0.8,
             automation_cost_share: 0.5,

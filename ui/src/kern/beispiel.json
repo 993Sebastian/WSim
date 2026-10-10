@@ -336,7 +336,74 @@
     "research": [],
     "rounds": 1,
     "stop": null,
-    "to": "1914-07-31"
+    "to": "1914-07-31",
+    "quantities": {
+      "level": "firma",
+      "key": "",
+      "kind_text": null,
+      "site_name": null,
+      "country": null,
+      "products": [
+        {
+          "product": "naegel",
+          "unit": "t",
+          "made": 12.5,
+          "sold": 10.0
+        }
+      ],
+      "children": [
+        {
+          "level": "kontinent",
+          "key": "europa",
+          "kind_text": null,
+          "site_name": null,
+          "country": null,
+          "products": [
+            {
+              "product": "naegel",
+              "unit": "t",
+              "made": 12.5,
+              "sold": 10.0
+            }
+          ],
+          "children": [
+            {
+              "level": "land",
+              "key": "DEU",
+              "kind_text": null,
+              "site_name": null,
+              "country": "DEU",
+              "products": [
+                {
+                  "product": "naegel",
+                  "unit": "t",
+                  "made": 12.5,
+                  "sold": 10.0
+                }
+              ],
+              "children": [
+                {
+                  "level": "standort",
+                  "key": "0",
+                  "kind_text": "standorttyp.werk",
+                  "site_name": null,
+                  "country": "DEU",
+                  "products": [
+                    {
+                      "product": "naegel",
+                      "unit": "t",
+                      "made": 12.5,
+                      "sold": 10.0
+                    }
+                  ],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   },
   "boerse": {
     "companies": [

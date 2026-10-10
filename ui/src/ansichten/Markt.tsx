@@ -600,6 +600,14 @@ function Produktmarkt({ m }: { m: ProduktMarkt }) {
             <Trend jetzt={m.price_usd} vorher={m.price_last_month_usd} />
           </dd>
         </div>
+        {m.supply_cycle !== undefined && m.supply_cycle !== null && (
+          <div>
+            <dt title={t("markt.foerderlage_hilfe")}>{t("markt.foerderlage")}</dt>
+            <dd className={m.supply_cycle < 0 ? "negativ" : ""}>
+              {`${m.supply_cycle > 0 ? "+" : ""}${formatZahl(m.supply_cycle * 100, 0)} %`}
+            </dd>
+          </div>
+        )}
         <div>
           <dt>{t("werk.richtpreis")}</dt>
           <dd>{formatPreis(m.reference_usd, e)}</dd>

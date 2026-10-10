@@ -1297,6 +1297,9 @@ pub struct ProductMarketView {
     pub own_name: Option<String>,
     #[serde(default)]
     pub name_suggestions: Vec<String>,
+    /// Raw materials: the commodity cycle's swing of the world's output (0.1 = 10 % more).
+    #[serde(default)]
+    pub supply_cycle: Option<f64>,
 }
 
 /// The market price as reference price × price level factor × market situation (M27).
@@ -1592,6 +1595,10 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         sellers,
         own_awareness: state.companies[game.player().index()].awareness(c, group),
         chances: line.map(|l| l.chances).unwrap_or_default(),
+        supply_cycle: state
+            .commodity_cycle
+            .get(&p)
+            .map(|_| crate::production::cycle_factor(state, p) - 1.0),
         history: market_history(state, m),
         price_parts: Some(price_parts(game, c, p)),
         demand_parts: demand_parts(game, c, p),

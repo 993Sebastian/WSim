@@ -60,6 +60,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
     state.sites.push(crate::state::Site {
         owner,
         name: None,
+        totals: std::collections::BTreeMap::new(),
         country,
         kind: SiteType::Warehouse,
         founded: state.date,
@@ -862,4 +863,39 @@ fn a_one_off_purchase_buys_its_quantity_once() {
     // Invalid quantities are refused.
     assert!(game.apply(once(-1.0, usd(15.0))).is_err());
     assert!(game.apply(once(10.0, Money::ZERO)).is_err());
+}
+
+/// The commodity cycle swings each raw material's output monthly, within its limit, the
+/// same for the same seed.
+#[test]
+fn the_commodity_cycle_swings_output_within_its_limit() {
+    let run = || {
+        let mut catalog = test_support::production();
+        catalog.production_model.commodity_cycle = crate::catalog::CommodityCycle {
+            shock: 0.2,
+            persistence: 0.9,
+            limit: 0.3,
+        };
+        let settings = new_game().state().settings.clone();
+        let mut game = Game::new(Arc::new(catalog), settings).unwrap();
+        let mut seen = Vec::new();
+        for _ in 0..24 {
+            game.advance(RoundLength::Month, |_| {});
+            seen.push(game.state().commodity_cycle.clone());
+        }
+        (game, seen)
+    };
+    let (game, seen) = run();
+    let values: Vec<f64> = seen.iter().flat_map(|m| m.values().copied()).collect();
+    assert!(!values.is_empty());
+    assert!(values.iter().all(|x| x.abs() <= 0.3 + 1e-12));
+    assert!(values.iter().any(|x| x.abs() > 0.05), "{values:?}");
+    // The allowed output follows the factor.
+    let (d, dep) = game.catalog().deposits.iter().next().unwrap();
+    let factor = crate::production::cycle_factor(game.state(), dep.resource);
+    let year = game.state().date.year();
+    let full = game.catalog().max_output(d, year);
+    let allowed = crate::production::deposit_output(game.catalog(), game.state(), d, year);
+    assert!(allowed <= full * factor + 1e-9);
+    assert_eq!(run().1, seen);
 }

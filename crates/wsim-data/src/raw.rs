@@ -546,6 +546,14 @@ pub struct RawDevelopment {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct RawCommodityCycle {
+    pub schwankung: f64,
+    pub beharrung: f64,
+    pub grenze: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RawProductionModel {
     #[serde(rename = "standortkosten_usd")]
     pub site_cost: BTreeMap<String, f64>,
@@ -555,6 +563,8 @@ pub struct RawProductionModel {
     pub development_lifetime_years: f64,
     #[serde(rename = "foerderkurve_ab")]
     pub decline_from: f64,
+    #[serde(rename = "rohstoffzyklus", default)]
+    pub commodity_cycle: Option<RawCommodityCycle>,
     #[serde(rename = "schulung")]
     pub training: RawTraining,
     #[serde(rename = "automatisierung")]

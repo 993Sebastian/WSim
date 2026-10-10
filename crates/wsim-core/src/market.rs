@@ -999,7 +999,9 @@ fn clear_market(
         let slow = before > 0.0 && (o.sold < before / model.stock_days || idle) && !scarce;
         match o.seller {
             Seller::Site { site, .. } => {
-                let Some(offer) = state.sites[site.index()].offers.get_mut(&product) else {
+                let s = &mut state.sites[site.index()];
+                s.totals.entry(product).or_default().sold += o.sold;
+                let Some(offer) = s.offers.get_mut(&product) else {
                     continue;
                 };
                 offer.sold_today = o.sold;

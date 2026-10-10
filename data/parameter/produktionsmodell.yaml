@@ -15,6 +15,13 @@ produktionsmodell:
   # sinkt die zulässige Förderung im selben Verhältnis (bei der Hälfte des Anteils auf die
   # Hälfte). 0: volle Förderung bis zum letzten Fass.
   foerderkurve_ab: 0.5
+  # Rohstoffzyklus: Die zulässige Förderung jedes Rohstoffs schwankt monatlich (Ernten,
+  # Streiks, Funde): x ← beharrung · x + schwankung · z, |x| ≤ grenze, Förderung · e^x.
+  # Dauerhafte Streuung etwa schwankung / √(1 − beharrung²). 0: kein Zyklus.
+  rohstoffzyklus:
+    schwankung: 0.05
+    beharrung: 0.9
+    grenze: 0.4
   # Schulung je Standort (W1, Lastenheft §5.4): Kosten als Anteil der Lohnsumme beim Ziel 1,
   # Aufbau und Verlust des Niveaus je Monat, Wirkung bei vollem Niveau.
   schulung:

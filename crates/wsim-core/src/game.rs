@@ -193,6 +193,7 @@ impl Game {
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
             settings,
             date,
+            commodity_cycle: std::collections::BTreeMap::new(),
             countries: PerId::default(),
             companies: Vec::new(),
             sites: Vec::new(),
@@ -515,6 +516,7 @@ impl Game {
         }
         self.state.date = next;
         if next.day() == 1 {
+            crate::production::commodity_month(&mut self.state, &self.catalog, next);
             report.messages.extend(crate::contracts::month_start(
                 &mut self.state,
                 &self.catalog,
@@ -887,6 +889,7 @@ pub(crate) fn start_setup(
     state.sites.push(Site {
         owner: company,
         name: None,
+        totals: std::collections::BTreeMap::new(),
         country,
         kind: setup.site_type,
         founded: date,

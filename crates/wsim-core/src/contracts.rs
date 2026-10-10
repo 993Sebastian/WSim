@@ -668,6 +668,12 @@ fn ship(state: &mut GameState, catalog: &Catalog, i: usize, quantity: f64, today
             lost: false,
         });
     }
+    let seller = state.contracts[i].seller;
+    state.sites[seller.index()]
+        .totals
+        .entry(state.contracts[i].product)
+        .or_default()
+        .sold += quantity;
     let c = &mut state.contracts[i];
     c.delivered_month += quantity;
     c.delivered_total += quantity;

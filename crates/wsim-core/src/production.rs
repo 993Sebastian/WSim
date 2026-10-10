@@ -96,7 +96,8 @@ pub fn deposit_output(
     deposit: crate::ids::DepositId,
     year: i32,
 ) -> f64 {
-    let full = catalog.max_output(deposit, year);
+    let full = catalog.max_output(deposit, year)
+        * cycle_factor(state, catalog.deposits.get(deposit).resource);
     let from = catalog.production_model.decline_from;
     let Some(reserve) = catalog
         .reserve(deposit, year)
@@ -107,6 +108,40 @@ pub fn deposit_output(
     let scale = state.settings.market_scale.max(1e-12);
     let left = (reserve - state.deposits.get(deposit).extracted / scale).max(0.0) / reserve;
     full * (left / from).min(1.0)
+}
+
+/// Factor on a raw material's output from the commodity cycle: `exp(x)`, 1 without cycle.
+pub fn cycle_factor(state: &GameState, resource: ProductId) -> f64 {
+    state
+        .commodity_cycle
+        .get(&resource)
+        .map_or(1.0, |&x| libm::exp(x))
+}
+
+/// The monthly swing of every raw material's output (docs/FORMELN.md, Rohstoffzyklus):
+/// `x ← persistence · x + shock · z` with a standard normal `z`, limited to ±`limit`.
+pub(crate) fn commodity_month(state: &mut GameState, catalog: &Catalog, date: Date) {
+    let model = catalog.production_model.commodity_cycle;
+    if model.shock <= 0.0 {
+        return;
+    }
+    let mut resources: Vec<ProductId> = catalog.deposits.iter().map(|(_, d)| d.resource).collect();
+    resources.sort();
+    resources.dedup();
+    let month = u32::try_from(date.year() * 12).unwrap_or(0) + date.month();
+    let mut rng = crate::rng::SimRng::for_stream(
+        state.settings.seed,
+        crate::rng::Stream::Commodities { month },
+    );
+    for r in resources {
+        // Box-Muller; 1 − u keeps the logarithm finite.
+        let u = 1.0 - rng.next_f64();
+        let v = rng.next_f64();
+        let z = libm::sqrt(-2.0 * libm::log(u)) * libm::cos(2.0 * core::f64::consts::PI * v);
+        let x = state.commodity_cycle.get(&r).copied().unwrap_or(0.0);
+        let next = (model.persistence * x + model.shock * z).clamp(-model.limit, model.limit);
+        state.commodity_cycle.insert(r, next);
+    }
 }
 
 /// One simulated day for all sites. `date` is the day being simulated. Power plants
@@ -784,6 +819,9 @@ fn finish_batches(state: &mut GameState, catalog: &Catalog, site: SiteId, date: 
 pub(crate) fn deliver(catalog: &Catalog, s: &mut Site, batches: Vec<Batch>) {
     let days = catalog.production_model.by_product_stock_days;
     for batch in batches {
+        for &(product, quantity) in &batch.outputs {
+            s.totals.entry(product).or_default().made += quantity;
+        }
         // By-products beyond `days` of this output are disposed of (flared, dumped): a
         // refinery does not store petrol nobody buys for decades (M16). The batch's value
         // goes to what is kept.
