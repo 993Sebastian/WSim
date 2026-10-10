@@ -1,7 +1,7 @@
 // The plant view (docs/BEDIENUNG.md): one site with its areas – facilities, purchasing,
 // sales, staff and costs. Every decision shows the numbers it rests on next to it, and
 // the answer of the core next to its button.
-import { Fragment, useId, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 import {
   ausAnzeige,
   formatDatum,
@@ -24,7 +24,11 @@ import type {
   AnlageDetail,
   Angebot,
   Befehl,
+  Bezugsquelle,
+  Bezugsquellen,
+  Kern,
   Preisverlauf,
+  Qualitaetsteile,
   Produktion,
   StandortDetail,
   StandortGrundstueck,
@@ -42,6 +46,7 @@ import {
   useAktion,
   ZahlFeld,
 } from "./gemeinsam";
+import { fehlerText } from "./fehler";
 import { Verlauf } from "./Grafik";
 import { fortgeschrieben } from "./Markt";
 import { standortName } from "./stellen";
@@ -82,11 +87,13 @@ export function standortTitel(s: StandortDetail): string {
 const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "lager", "personal", "kosten"];
 
 export function Werk({
+  kern,
   standort: s,
   produktion,
   bereich: start = null,
   onZurueck,
 }: {
+  kern: Kern;
   standort: StandortDetail;
   produktion: Produktion;
   /** Area to show first. */
@@ -135,7 +142,7 @@ export function Werk({
         onWahl={setBereich}
       />
       {bereich === "anlagen" && <Anlagen s={s} produktion={produktion} />}
-      {bereich === "einkauf" && <Einkauf s={s} produktion={produktion} />}
+      {bereich === "einkauf" && <Einkauf kern={kern} s={s} produktion={produktion} />}
       {bereich === "verkauf" && <Verkauf s={s} produktion={produktion} />}
       {bereich === "lager" && (
         <div className="karten">
@@ -345,6 +352,7 @@ function AnlageKarte({
           </>
         )}
       </dl>
+      {a.quality && !labor && <QualitaetTeile q={a.quality} />}
       <form
         className="formular-zeile"
         aria-label={t("werk.anlage_steuern", { anlage: name })}
@@ -1011,7 +1019,15 @@ function PreisVerlauf({ v, einheit: e }: { v: Preisverlauf | undefined; einheit:
 
 // --- Purchasing ---
 
-function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
+function Einkauf({
+  kern,
+  s,
+  produktion,
+}: {
+  kern: Kern;
+  s: StandortDetail;
+  produktion: Produktion;
+}) {
   const zeilen: Versorgung[] = [
     ...s.inputs,
     ...s.orders
@@ -1039,7 +1055,8 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         const auftrag = s.orders.find((o) => o.product === v.product);
         return (
           <EinkaufKarte
-            key={`${v.product}/${auftrag?.target}/${auftrag?.max_price_usd}/${geldSchluessel()}`}
+            key={`${v.product}/${auftrag?.target}/${auftrag?.max_price_usd}/${auftrag?.min_quality}/${geldSchluessel()}`}
+            kern={kern}
             v={v}
             s={s}
             produktion={produktion}
@@ -1054,6 +1071,7 @@ function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion 
         {(p) => (
           <EinkaufKarte
             key={p}
+            kern={kern}
             v={{
               product: p,
               need_per_day: 0,
@@ -1078,10 +1096,12 @@ function reichweiteZustand(tage: number | null): "fehlt" | "knapp" | "gut" {
 }
 
 function EinkaufKarte({
+  kern,
   v,
   s,
   produktion,
 }: {
+  kern: Kern;
   v: Versorgung;
   s: StandortDetail;
   produktion: Produktion;
@@ -1100,6 +1120,7 @@ function EinkaufKarte({
         : "",
   );
   const [preis, setPreis] = useState(geldFeld(auftrag ? auftrag.max_price_usd : vorschlagPreis));
+  const [qualitaet, setQualitaet] = useState(zahlFeld(auftrag?.min_quality ?? 0, 0));
   const [fehler, setFehler] = useState<string | null>(null);
   const zustand = reichweiteZustand(v.days);
 
@@ -1107,8 +1128,13 @@ function EinkaufKarte({
     ev.preventDefault();
     const z = zahlLesen(ziel);
     const p = zahlLesen(preis);
+    const q = zahlLesen(qualitaet);
     if (z === null || z <= 0 || p === null || p <= 0) {
       setFehler(t("werk.einkauf_werte"));
+      return;
+    }
+    if (q === null || q < 0 || q > 100) {
+      setFehler(t("werk.mindestqualitaet_bereich"));
       return;
     }
     setFehler(null);
@@ -1120,7 +1146,7 @@ function EinkaufKarte({
             product: v.product,
             target: z,
             max_price: geld(ausAnzeige(p)),
-            min_quality: 0,
+            min_quality: q,
           },
         },
       ],
@@ -1151,6 +1177,8 @@ function EinkaufKarte({
         </dd>
         <dt>{t("werk.marktpreis")}</dt>
         <dd>{v.market_price_usd > 0 ? formatPreis(v.market_price_usd, e) : "–"}</dd>
+        <dt>{t("werk.qualitaet_lager")}</dt>
+        <dd>{v.quality == null ? "–" : formatZahl(v.quality, 0)}</dd>
         {auftrag && (
           <>
             <dt>{t("produktion.gekauft_vormonat")}</dt>
@@ -1180,6 +1208,13 @@ function EinkaufKarte({
           wert={preis}
           onWert={setPreis}
           hilfe={t("werk.hoechstpreis_hilfe")}
+        />
+        <ZahlFeld
+          name={t("werk.mindestqualitaet")}
+          wert={qualitaet}
+          onWert={setQualitaet}
+          hilfe={t("werk.mindestqualitaet_hilfe")}
+          gruppieren={false}
         />
         <div className="knopfreihe links">
           <button type="submit">
@@ -1213,6 +1248,16 @@ function EinkaufKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      <BezugsquellenVergleich
+        kern={kern}
+        s={s}
+        produkt={v.product}
+        einheit={e}
+        onWahl={(quelle) => {
+          setQualitaet(zahlFeld(Math.floor(quelle.quality), 0));
+          setPreis(geldFeld(Math.max(quelle.price_usd, ausAnzeige(zahlLesen(preis) ?? 0))));
+        }}
+      />
       <Pauschalkauf
         key={`${auftrag?.once ?? 0}/${auftrag?.once_max_price_usd ?? 0}/${geldSchluessel()}`}
         v={v}
@@ -1221,6 +1266,279 @@ function EinkaufKarte({
         vorschlagPreis={vorschlagPreis}
       />
     </article>
+  );
+}
+
+/**
+ * Sources of a product (#191): offers on the site's market, traders' imports, the state
+ * market and other companies' sites worldwide by contract, with quality and the price
+ * delivered. A market source sets the purchase's quality and price limit; a contract
+ * source can be proposed here.
+ */
+function BezugsquellenVergleich({
+  kern,
+  s,
+  produkt,
+  einheit: e,
+  onWahl,
+}: {
+  kern: Kern;
+  s: StandortDetail;
+  produkt: string;
+  einheit: string;
+  onWahl: (quelle: Bezugsquelle) => void;
+}) {
+  const [offen, setOffen] = useState(false);
+  const [liste, setListe] = useState<Bezugsquellen | null>(null);
+  const [fehler, setFehler] = useState<string | null>(null);
+  const [vertrag, setVertrag] = useState<Bezugsquelle | null>(null);
+  const [sortierung, setSortierung] = useState<"preis" | "qualitaet">("preis");
+  useEffect(() => {
+    if (!offen) return;
+    let aktiv = true;
+    kern
+      .bezugsquellen(s.index, produkt)
+      .then((l) => {
+        if (!aktiv) return;
+        setListe(l);
+        setFehler(null);
+      })
+      .catch((err: unknown) => aktiv && setFehler(fehlerText(err)));
+    return () => {
+      aktiv = false;
+    };
+  }, [kern, s.index, produkt, offen, s.stock]);
+  const quellen = [...(liste?.sources ?? [])];
+  if (sortierung === "qualitaet") quellen.sort((a, b) => b.quality - a.quality);
+  return (
+    <details className="bezugsquellen" onToggle={(ev) => setOffen(ev.currentTarget.open)}>
+      <summary>{t("werk.bezug.titel")}</summary>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      {liste && quellen.length === 0 && <p className="gedaempft">{t("werk.bezug.keine")}</p>}
+      {liste && quellen.length > 0 && (
+        <>
+          <p className="feld-hilfe">{t("werk.bezug.hilfe", { monate: liste.contract_months })}</p>
+          <fieldset className="umschalter">
+            <legend className="unsichtbar">{t("werk.bezug.sortierung")}</legend>
+            {(["preis", "qualitaet"] as const).map((k) => (
+              <label key={k}>
+                <input
+                  type="radio"
+                  name={`bezug-${s.index}-${produkt}`}
+                  checked={sortierung === k}
+                  onChange={() => setSortierung(k)}
+                />
+                {t(`werk.bezug.nach_${k}`)}
+              </label>
+            ))}
+          </fieldset>
+          <div className="tabelle">
+            <table className="mobil-karten">
+              <thead>
+                <tr>
+                  <th>{t("werk.bezug.quelle")}</th>
+                  <th className="zahl">{t("werk.bezug.qualitaet")}</th>
+                  <th className="zahl">{t("werk.bezug.preis")}</th>
+                  <th className="zahl">{t("werk.bezug.transport")}</th>
+                  <th className="zahl">{t("werk.bezug.verfuegbar")}</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {quellen.map((q) => (
+                  <tr key={`${q.kind}/${q.site ?? ""}`}>
+                    <td data-titel={t("werk.bezug.quelle")}>
+                      {q.company ?? t(`werk.bezug.art.${q.kind}`)}
+                      <br />
+                      <span className="gedaempft">
+                        {q.company ? `${t(`werk.bezug.art.${q.kind}`)} · ` : ""}
+                        {landName(q.country)}
+                      </span>
+                    </td>
+                    <td className="zahl" data-titel={t("werk.bezug.qualitaet")}>
+                      {formatZahl(q.quality, 0)}
+                    </td>
+                    <td className="zahl" data-titel={t("werk.bezug.preis")}>
+                      {formatPreis(q.price_usd, e)}
+                    </td>
+                    <td className="zahl" data-titel={t("werk.bezug.transport")}>
+                      {q.delivery_cost_usd > 0 ? formatPreis(q.delivery_cost_usd, e) : "–"}
+                    </td>
+                    <td className="zahl" data-titel={t("werk.bezug.verfuegbar")}>
+                      {q.available === null
+                        ? t("werk.bezug.unbegrenzt")
+                        : `${formatMenge(q.available)} ${e}${q.kind === "vertrag" ? ` ${t("werk.bezug.je_monat")}` : ""}`}
+                    </td>
+                    <td>
+                      {q.kind === "vertrag" ? (
+                        <button type="button" className="schlicht" onClick={() => setVertrag(q)}>
+                          {t("werk.bezug.vertrag")}
+                        </button>
+                      ) : (
+                        <button type="button" className="schlicht" onClick={() => onWahl(q)}>
+                          {t("werk.bezug.uebernehmen")}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {vertrag && (
+            <BezugsVertrag
+              key={vertrag.site ?? 0}
+              s={s}
+              produkt={produkt}
+              einheit={e}
+              liste={liste}
+              quelle={vertrag}
+              onFertig={() => setVertrag(null)}
+            />
+          )}
+        </>
+      )}
+    </details>
+  );
+}
+
+/** A supply contract with a source of the comparison (ProposeContract). */
+function BezugsVertrag({
+  s,
+  produkt,
+  einheit: e,
+  liste,
+  quelle,
+  onFertig,
+}: {
+  s: StandortDetail;
+  produkt: string;
+  einheit: string;
+  liste: Bezugsquellen;
+  quelle: Bezugsquelle;
+  onFertig: () => void;
+}) {
+  const { los, antwort } = useAktion(`bezugsvertrag/${s.index}/${produkt}`);
+  const frei = quelle.available ?? 0;
+  const [menge, setMenge] = useState(
+    zahlFeld(Math.min(frei, liste.need_per_month > 0 ? liste.need_per_month : frei), 1),
+  );
+  const [preis, setPreis] = useState(geldFeld(quelle.price_usd));
+  const [monate, setMonate] = useState(String(liste.contract_months));
+  const [qualitaet, setQualitaet] = useState(
+    zahlFeld(Math.max(0, Math.floor(quelle.quality) - 5), 0),
+  );
+  const [fehler, setFehler] = useState<string | null>(null);
+  const absenden = (ev: FormEvent) => {
+    ev.preventDefault();
+    const m = zahlLesen(menge);
+    const p = zahlLesen(preis);
+    const n = zahlLesen(monate);
+    const q = zahlLesen(qualitaet);
+    if (m === null || m <= 0 || p === null || p <= 0 || n === null || n < 1) {
+      setFehler(t("werk.einkauf_werte"));
+      return;
+    }
+    if (q === null || q < 0 || q > 100) {
+      setFehler(t("werk.mindestqualitaet_bereich"));
+      return;
+    }
+    setFehler(null);
+    void los(
+      [
+        {
+          ProposeContract: {
+            seller: quelle.site ?? 0,
+            buyer: s.index,
+            product: produkt,
+            per_month: m,
+            price: geld(ausAnzeige(p)),
+            months: Math.round(n),
+            min_quality: q,
+            penalty: liste.contract_penalty,
+          },
+        },
+      ],
+      t("vertrag.abgeschlossen"),
+    ).then((ok) => ok && onFertig());
+  };
+  return (
+    <form
+      className="formular-zeile"
+      aria-label={t("werk.bezug.vertrag_mit", { firma: quelle.company ?? "" })}
+      onSubmit={absenden}
+    >
+      <ZahlFeld
+        name={t("vertrag.menge")}
+        einheit={`${e}/${t("werk.bezug.monat")}`}
+        wert={menge}
+        onWert={setMenge}
+      />
+      <ZahlFeld
+        name={t("vertrag.preis")}
+        einheit={`${geldEinheit()}/${e}`}
+        wert={preis}
+        onWert={setPreis}
+      />
+      <ZahlFeld name={t("werk.bezug.monate")} wert={monate} onWert={setMonate} gruppieren={false} />
+      <ZahlFeld
+        name={t("werk.mindestqualitaet")}
+        wert={qualitaet}
+        onWert={setQualitaet}
+        gruppieren={false}
+      />
+      <div className="knopfreihe links">
+        <button type="submit">{t("werk.bezug.anbieten")}</button>
+        <button type="button" className="schlicht" onClick={onFertig}>
+          {t("werk.bezug.abbrechen")}
+        </button>
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/** How the quality of the product made here comes about (docs/FORMELN.md). */
+function QualitaetTeile({ q }: { q: Qualitaetsteile }) {
+  const teile: [string, number][] = [
+    ["grund", q.base],
+    ["vorprodukte", q.inputs],
+    ["automatisierung", q.automation],
+    ["zustand", q.condition],
+    ["forschung", q.research],
+    ["schulung", q.training],
+  ];
+  const punkte = (x: number) => `${x > 0 ? "+" : ""}${formatZahl(x, 1)}`;
+  return (
+    <details className="qualitaet-teile">
+      <summary>{t("werk.qualitaet.titel", { punkte: formatZahl(q.total, 0) })}</summary>
+      <table>
+        <tbody>
+          {teile.map(([k, x]) => (
+            <tr key={k}>
+              <th scope="row">
+                {t(`werk.qualitaet.${k}`)}
+                {k === "vorprodukte" && q.input_quality !== null && (
+                  <span className="gedaempft">
+                    {" "}
+                    ({t("werk.qualitaet.durchschnitt", { wert: formatZahl(q.input_quality, 0) })})
+                  </span>
+                )}
+              </th>
+              <td className="zahl">{k === "grund" ? formatZahl(x, 1) : punkte(x)}</td>
+            </tr>
+          ))}
+          <tr>
+            <th scope="row">{t("werk.qualitaet.gesamt")}</th>
+            <td className="zahl">
+              <strong>{formatZahl(q.total, 1)}</strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p className="feld-hilfe">{t("werk.qualitaet.hilfe")}</p>
+    </details>
   );
 }
 
@@ -1381,7 +1699,8 @@ function AngebotKarte({
   const markt = o?.market_price_usd ?? preise?.market_usd ?? 0;
   const richt = o?.reference_usd ?? preise?.reference_usd ?? 0;
   const stueck = o?.unit_cost_usd ?? s.unit_costs.find((u) => u.product === produkt)?.total_usd;
-  const [art, setArt] = useState<"markt" | "fest">(o?.mode ?? "markt");
+  const [art, setArt] = useState<"markt" | "fest" | "aufschlag">(o?.mode ?? "markt");
+  const [marge, setMarge] = useState(zahlFeld((o?.mode === "aufschlag" ? o.markup : 0.2) * 100, 1));
   const preisFeld = geldFeld(o ? o.price_usd : markt);
   const [preis, setPreis] = useState(preisFeld);
   const [mindest, setMindest] = useState(geldFeld(o ? o.floor_usd : 0));
@@ -1393,11 +1712,16 @@ function AngebotKarte({
 
   const absenden = (ev: FormEvent) => {
     ev.preventDefault();
-    const p = zahlLesen(preis);
+    const p = art === "aufschlag" ? 1 : zahlLesen(preis);
     const m = art === "markt" ? zahlLesen(mindest || "0") : 0;
     const k = zahlLesen(behalten || "0");
+    const a = art === "aufschlag" ? zahlLesen(marge) : 0;
     if (p === null || p <= 0 || m === null || m < 0 || k === null || k < 0) {
       setFehler(t("werk.verkauf_werte"));
+      return;
+    }
+    if (a === null || a < -50 || a > 1000) {
+      setFehler(t("werk.kostenaufschlag_marge_bereich"));
       return;
     }
     setFehler(null);
@@ -1407,14 +1731,16 @@ function AngebotKarte({
           site: s.index,
           product: produkt,
           mode:
-            art === "fest"
-              ? { Fixed: geld(ausAnzeige(p)) }
-              : {
-                  Market: {
-                    markup: o?.mode === "markt" ? o.markup : 0,
-                    floor: geld(ausAnzeige(m)),
+            art === "aufschlag"
+              ? { CostPlus: { margin: a / 100 } }
+              : art === "fest"
+                ? { Fixed: geld(ausAnzeige(p)) }
+                : {
+                    Market: {
+                      markup: o?.mode === "markt" ? o.markup : 0,
+                      floor: geld(ausAnzeige(m)),
+                    },
                   },
-                },
           keep: k,
         },
       },
@@ -1499,18 +1825,52 @@ function AngebotKarte({
             />
             {t("werk.fest")}
           </label>
+          <label>
+            <input
+              type="radio"
+              name={`${id}-art`}
+              checked={art === "aufschlag"}
+              onChange={() => setArt("aufschlag")}
+            />
+            {t("werk.kostenaufschlag")}
+          </label>
           <small className="feld-hilfe">
-            {art === "markt" ? t("werk.automatisch_hilfe") : t("werk.fest_hilfe")}
+            {t(
+              art === "markt"
+                ? "werk.automatisch_hilfe"
+                : art === "fest"
+                  ? "werk.fest_hilfe"
+                  : "werk.kostenaufschlag_hilfe",
+            )}
           </small>
         </fieldset>
+        {o?.mode === "aufschlag" && o.price_usd > markt && markt > 0 && (
+          <p className="warntext" role="status">
+            {t("werk.kostenaufschlag_warnung", {
+              preis: formatPreis(o.price_usd, e),
+              markt: formatPreis(markt, e),
+            })}
+          </p>
+        )}
         <div className="formular-zeile" data-tour={o ? "preis" : undefined}>
-          <ZahlFeld
-            name={art === "markt" ? t("werk.preis_jetzt") : t("werk.preis")}
-            einheit={`${geldEinheit()}/${e}`}
-            wert={preis}
-            onWert={setPreis}
-          />
-          {o && (
+          {art === "aufschlag" ? (
+            <ZahlFeld
+              name={t("werk.kostenaufschlag_marge")}
+              einheit="%"
+              wert={marge}
+              onWert={setMarge}
+              hilfe={t("werk.kostenaufschlag_marge_hilfe")}
+              gruppieren={false}
+            />
+          ) : (
+            <ZahlFeld
+              name={art === "markt" ? t("werk.preis_jetzt") : t("werk.preis")}
+              einheit={`${geldEinheit()}/${e}`}
+              wert={preis}
+              onWert={setPreis}
+            />
+          )}
+          {o && art !== "aufschlag" && o.mode !== "aufschlag" && (
             <div className="schnellknoepfe" role="group" aria-label={t("werk.preis_schnell")}>
               <button
                 type="button"

@@ -230,29 +230,46 @@ pub fn delivery_cost(
     Some((freight + price.scale(tariff), days))
 }
 
-/// The delivered price at which a seller gets its own price after freight and customs.
-pub fn ask_price(
+/// The lowest delivered price an AI seller takes for a contract of `months`: its price
+/// less the discount for the term, plus freight and customs (docs/FORMELN.md, W4).
+pub fn contract_price(
     state: &GameState,
     catalog: &Catalog,
     (seller, buyer): (SiteId, SiteId),
     product: ProductId,
+    months: u32,
 ) -> Option<Money> {
     let (freight, _) = delivery_cost(state, catalog, (seller, buyer), product, Money::ZERO)?;
     let (a, b) = (&state.sites[seller.index()], &state.sites[buyer.index()]);
     let tariff = state
         .tariffs
         .for_product(catalog, a.country, b.country, product)?;
-    let net = seller_price(state, catalog, seller, product) + freight;
-    Some(net.scale(1.0 / (1.0 - tariff).max(0.01)))
+    let discount = catalog.contracts.ai.discount(months);
+    let net = seller_price(state, catalog, seller, product).scale(1.0 - discount) + freight;
+    // One unit more so that rounding never makes the seller decline its own price.
+    Some(net.scale(1.0 / (1.0 - tariff).max(0.01)) + Money::from_units(1))
 }
 
-/// The price an AI seller asks at its site: its offer, else the market price there.
+/// The highest price an AI buyer pays for a contract of `months`.
+pub fn bid_price(
+    state: &GameState,
+    catalog: &Catalog,
+    buyer: SiteId,
+    product: ProductId,
+    months: u32,
+) -> Money {
+    let country = state.sites[buyer.index()].country;
+    market::market_price(catalog, state, country, product)
+        .scale(1.0 + catalog.contracts.ai.premium(months))
+}
+
+/// What an AI seller's price at its site is: its offer, at most the market price there.
 fn seller_price(state: &GameState, catalog: &Catalog, site: SiteId, product: ProductId) -> Money {
     let s = &state.sites[site.index()];
-    s.offers.get(&product).map_or_else(
-        || market::market_price(catalog, state, s.country, product),
-        |o| o.price,
-    )
+    let market = market::market_price(catalog, state, s.country, product);
+    s.offers
+        .get(&product)
+        .map_or(market, |o| o.price.min(market))
 }
 
 /// Quality of the goods a site has or makes: its stock, else the middle.
@@ -280,7 +297,7 @@ pub fn ai_answer(
         let (cost, _) = delivery_cost(state, catalog, (t.seller, t.buyer), t.product, t.price)
             .ok_or(Decline::Price)?;
         let own = seller_price(state, catalog, t.seller, t.product);
-        if (t.price - cost) < own.scale(1.0 - m.sale_discount) {
+        if (t.price - cost) < own.scale(1.0 - m.discount(t.months)) {
             return Err(Decline::Price);
         }
         let free = m.share * 30.0 * daily_output(state, catalog, t.seller, t.product)
@@ -292,9 +309,7 @@ pub fn ai_answer(
             return Err(Decline::Quality);
         }
     } else {
-        let country = state.sites[t.buyer.index()].country;
-        let market = market::market_price(catalog, state, country, t.product);
-        if t.price > market.scale(1.0 + m.purchase_premium) {
+        if t.price > bid_price(state, catalog, t.buyer, t.product, t.months) {
             return Err(Decline::Price);
         }
         let free = m.share * 30.0 * daily_need(state, catalog, t.buyer, t.product)
@@ -883,12 +898,10 @@ fn best_partner(
     } else {
         free
     };
-    let buyer_country = state.sites[buyer.index()].country;
-    let market = market::market_price(catalog, state, buyer_country, product);
     let price = if player_sells {
-        market
+        bid_price(state, catalog, buyer, product, m.months_default)
     } else {
-        market.max(ask_price(state, catalog, (seller, buyer), product)?)
+        contract_price(state, catalog, (seller, buyer), product, m.months_default)?
     };
     (per_month > EPS && price > Money::ZERO).then_some(Terms {
         seller,

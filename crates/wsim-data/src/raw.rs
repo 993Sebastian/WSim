@@ -2699,8 +2699,16 @@ pub struct RawContracts {
 pub struct RawContractAi {
     #[serde(rename = "abschlag_verkauf")]
     pub sale_discount: f64,
+    #[serde(rename = "abschlag_je_monat")]
+    pub sale_discount_per_month: f64,
+    #[serde(rename = "abschlag_max")]
+    pub sale_discount_max: f64,
     #[serde(rename = "aufschlag_kauf")]
     pub purchase_premium: f64,
+    #[serde(rename = "aufschlag_je_monat")]
+    pub purchase_premium_per_month: f64,
+    #[serde(rename = "aufschlag_max")]
+    pub purchase_premium_max: f64,
     #[serde(rename = "anteil")]
     pub share: f64,
     #[serde(rename = "strafe_max")]

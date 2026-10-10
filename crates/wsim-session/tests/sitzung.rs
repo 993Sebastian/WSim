@@ -513,13 +513,36 @@ fn supply_contracts_with_ai_companies() {
     let partners = session.contract_partners(site, "draht").unwrap();
     assert_eq!(partners.role, "einkauf");
     let seller = partners.partners.first().expect("ein Lieferant").clone();
+    assert!(seller.quality.is_some_and(|q| (0.0..=100.0).contains(&q)));
+    // The sources (#191) list the same seller by contract, cheapest first.
+    let sources = session.supply_sources(site, "draht").unwrap();
+    assert!(
+        sources.sources.iter().any(|x| x.kind == "vertrag"
+            && x.site == Some(seller.site)
+            && x.quality == seller.quality.unwrap()),
+        "{sources:?}"
+    );
+    assert!(
+        sources
+            .sources
+            .windows(2)
+            .all(|w| w[0].price_usd <= w[1].price_usd)
+    );
+    assert!(session.supply_sources(site, "gibt_es_nicht").is_err());
     let quantity = seller.free_per_month.min(0.5 * partners.own_per_month);
     assert!(quantity > 0.0);
     let price = (seller.suggested_price_usd * 10_000.0).round() as i64;
+    // The suggestion holds for the standard term; a shorter one earns less discount.
+    let short = session.command(json!({"ProposeContract": {
+        "seller": seller.site, "buyer": site, "product": "draht",
+        "per_month": quantity, "price": price, "months": 1,
+        "min_quality": 0.0, "penalty": 0.2
+    }}));
+    assert_eq!(short.unwrap_err().key, "fehler.befehl.vertrag_abgelehnt");
     session
         .command(json!({"ProposeContract": {
             "seller": seller.site, "buyer": site, "product": "draht",
-            "per_month": quantity, "price": price, "months": 6,
+            "per_month": quantity, "price": price, "months": 12,
             "min_quality": 0.0, "penalty": 0.2
         }}))
         .unwrap();
@@ -534,6 +557,12 @@ fn supply_contracts_with_ai_companies() {
     assert_eq!(plant.contracts.len(), 1);
     assert_eq!(plant.contracts[0].role, "einkauf");
     assert_eq!(plant.contracts[0].product, "draht");
+    // The quality of the next batch is the sum of its parts (#191).
+    for slot in &plant.slots {
+        let Some(q) = &slot.quality else { continue };
+        let sum = q.base + q.inputs + q.automation + q.condition + q.research + q.training;
+        assert!((sum.clamp(0.0, 100.0) - q.total).abs() < 1e-9, "{q:?}");
+    }
     // The stock lists use, reach and the market value (Lager).
     for l in plant.stock.iter().filter(|l| l.need_per_day > 0.0) {
         assert!(

@@ -1235,7 +1235,7 @@ fn operate(
                         PriceMode::Market { floor, .. } => {
                             o.price > floor.scale(1.0 + b.utilization_step)
                         }
-                        PriceMode::Fixed(_) => false,
+                        PriceMode::Fixed(_) | PriceMode::CostPlus { .. } => false,
                     });
                 let next = if wanted > 1e-9 {
                     // Make what is taken and steer the stock to its target (M16). The old
@@ -1395,7 +1395,7 @@ fn operate(
             let keep = need.get(&product).copied().unwrap_or(0.0) * st.stock.input_max_days;
             let (old, old_markup) = match offer.mode {
                 PriceMode::Market { floor, markup } => (floor, markup),
-                PriceMode::Fixed(_) => continue,
+                PriceMode::Fixed(_) | PriceMode::CostPlus { .. } => continue,
             };
             let changed = (floor.to_usd() - old.to_usd()).abs() > 0.05 * old.to_usd().max(1e-9)
                 || (keep - offer.keep).abs() > 0.1 * offer.keep.max(1.0)

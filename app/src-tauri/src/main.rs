@@ -19,7 +19,8 @@ use wsim_core::views::{
     ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview, ReviewsView,
-    RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap, WorldMarketView,
+    RoundReportView, StockMarketView, StrategyView, SupplySourcesView, VenturesView, WorldMap,
+    WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -307,6 +308,15 @@ async fn vertraege(state: State<'_, Shared>) -> Result<ContractsView, Fehler> {
 }
 
 #[tauri::command]
+async fn bezugsquellen(
+    state: State<'_, Shared>,
+    standort: u32,
+    produkt: String,
+) -> Result<SupplySourcesView, Fehler> {
+    im_hintergrund(state.inner(), move |s| s.supply_sources(standort, &produkt)).await
+}
+
+#[tauri::command]
 async fn vertragspartner(
     state: State<'_, Shared>,
     standort: u32,
@@ -410,6 +420,7 @@ fn main() {
             startups,
             vertraege,
             vertragspartner,
+            bezugsquellen,
             logistik,
             konzern,
             controlling,

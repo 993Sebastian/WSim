@@ -3898,8 +3898,12 @@ vertraege:
   angebot_tage: 30
   aufbewahren_monate: 12
   ki:
-    abschlag_verkauf: 0.05
+    abschlag_verkauf: 0.08
+    abschlag_je_monat: 0.005
+    abschlag_max: 0.2
     aufschlag_kauf: 0.05
+    aufschlag_je_monat: 0.0025
+    aufschlag_max: 0.12
     anteil: 0.5
     strafe_max: 0.5
     angebot_chance: 0.25
@@ -3932,6 +3936,18 @@ fn vertraege_werden_geprueft() {
             "strafe_standard: 2",
             "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "vertraege.strafe_standard",
+        ),
+        (
+            "abschlag_max: 0.2",
+            "abschlag_max: 0.01",
+            "„abschlag_verkauf“ muss kleiner als „abschlag_max“ sein.",
+            "vertraege.ki.abschlag_max",
+        ),
+        (
+            "aufschlag_je_monat: 0.0025",
+            "aufschlag_je_monat: 2",
+            "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "vertraege.ki.aufschlag_je_monat",
         ),
         (
             "anteil: 0.5",

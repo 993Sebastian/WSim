@@ -1911,6 +1911,25 @@ vorgeschlagenen Werten (30 Qualitätspunkte, −20 % Arbeit, −15 % Vorprodukte
 Führenden) und ohne Nachzüglerrabatt. Alte Spielstände: Punkte = Schwellen der erreichten
 Stufen + Fortschritt. KI: ein Produkt je Zentrum, bewertet nach Umsatz und Aufwand.
 
+### Q2 Verkaufspreis als Aufschlag auf die Herstellkosten
+
+Wunsch: Neben automatischem und festem Preis ein Modus „Herstellkosten + feste Marge“, der
+den Kosten folgt; zu hohe Kosten dürfen den Absatz kosten. Umgesetzt (`PriceMode::CostPlus`,
+`docs/FORMELN.md`). **Zur Abnahme:** Kostenbasis sind die Herstellkosten des Lagers
+(gleitender Durchschnitt, wie in der Lagerübersicht), ohne Lager die erwarteten Vollkosten;
+Marge −50 % bis 1000 %; Warnung im Werk, wenn der Preis über dem Marktpreis liegt.
+Alternative wäre der Tagespreis der Vorprodukte (reagiert schneller, schwankt stärker).
+
+### Q3 Lieferverträge attraktiver (Rabatt für Bindung)
+
+Rückmeldung: Vertragspreise für Vorprodukte waren unattraktiv – sie lagen nie unter dem
+Marktpreis (Vorschlag = höherer Wert aus Marktpreis und Angebotspreis + Fracht), banden aber
+trotzdem. Umgesetzt (`docs/FORMELN.md`, W4 „Rabatt für Bindung“). **Zur Abnahme, Vorschlag:**
+Lieferanten geben 8 % + 0,5 % je weiteren Monat, höchstens 20 % unter min(eigenem Preis,
+Marktpreis) nach (12 Monate: 13,5 %); Abnehmer zahlen 5 % + 0,25 % je Monat, höchstens 12 %
+über dem Marktpreis. Ansichten und KI-Angebote schlagen diese Preise vor. Wirkung auf die
+KI-Firmen (weniger Marge bei Verträgen mit dem Spieler) im Weltlauf beobachten.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

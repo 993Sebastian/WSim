@@ -1227,6 +1227,22 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Wirkung; Markt und Werk zeigen das Forschungsniveau. Alte Spielstände werden umgerechnet.
   Tests: `the_level_follows_the_points_against_the_leader`,
   `a_research_center_splits_its_researchers`, angepasste M37-Tests, Vitest.
+- **Einkauf nach Qualität (#191):** Einkaufskarte mit Mindestqualität und „Qualität im
+  Lager“; „Bezugsquellen vergleichen“ listet Markt, Importhandel, Staatsmarkt und
+  Lieferanten weltweit mit Qualität, Preis frei Werk, Fracht/Zoll und Menge, sortierbar
+  nach Preis oder Qualität; „Übernehmen“ setzt Mindestqualität und Höchstpreis, „Liefervertrag
+  anbieten“ schickt den Vertrag direkt aus dem Werk. Jede Anlage zeigt die Produktqualität
+  als Summe aus Verfahren, Vorprodukten, Automatisierung, Zustand, Forschungsniveau und
+  Schulung (`production::quality_parts`, von Produktion und Sicht gemeinsam genutzt).
+  Kernsicht `supply_sources` (Sitzung, Tauri, Web), Test in `sitzung.rs`, E2E.
+- **Verkauf mit Aufschlag auf die Herstellkosten (Q2):** dritter Preismodus `CostPlus`;
+  der Preis folgt täglich den Herstellkosten des Lagers, Warnung über dem Marktpreis.
+  Test `a_cost_plus_price_follows_the_production_cost`, E2E.
+- **Lieferverträge mit Rabatt für Bindung (Q3):** Rabatt und Aufschlag der KI wachsen mit
+  der Laufzeit (`vertraege.ki.abschlag_je_monat`, `abschlag_max`, `aufschlag_je_monat`,
+  `aufschlag_max`, Prüfregeln mit Fehlerfalltest); Vorschläge in Ansichten und KI-Angeboten
+  liegen beim Einkauf jetzt unter dem Marktpreis. Tests
+  `longer_terms_earn_a_bigger_discount`, angepasste W4-Tests, Sitzungstest.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

@@ -526,6 +526,44 @@ werk.ziellager: Ziellager
 werk.ziellager_hilfe: Bis zu diesem Bestand wird nachgekauft.
 werk.hoechstpreis: Höchstpreis
 werk.hoechstpreis_hilfe: Teurer wird nicht gekauft. Liegt er unter dem Marktpreis, kommt oft nichts.
+werk.mindestqualitaet: Mindestqualität
+werk.mindestqualitaet_hilfe: Schlechtere Ware wird nicht gekauft (0 = jede). Unter den passenden Angeboten kauft der Einkauf das günstigste.
+werk.mindestqualitaet_bereich: Die Mindestqualität liegt zwischen 0 und 100.
+werk.qualitaet_lager: Qualität im Lager
+werk.bezug.titel: Bezugsquellen vergleichen
+werk.bezug.keine: Niemand bietet die Ware hier oder für einen Liefervertrag an.
+werk.bezug.hilfe: "Preis frei Werk: auf dem Markt zahlt der Anbieter die Lieferung, beim Liefervertrag Fracht und Zoll. „Übernehmen“ setzt Mindestqualität und Höchstpreis des Einkaufs; Lieferanten aus anderen Ländern bindest du mit einem Liefervertrag. Der Vertragspreis gilt für {monate} Monate und liegt um den Rabatt für die Bindung unter dem Preis des Lieferanten; er bleibt fest, auch wenn die Marktpreise steigen."
+werk.bezug.sortierung: Sortierung der Bezugsquellen
+werk.bezug.nach_preis: Nach Preis
+werk.bezug.nach_qualitaet: Nach Qualität
+werk.bezug.quelle: Quelle
+werk.bezug.qualitaet: Qualität
+werk.bezug.preis: Preis frei Werk
+werk.bezug.transport: davon Fracht und Zoll
+werk.bezug.verfuegbar: Verfügbar
+werk.bezug.unbegrenzt: unbegrenzt
+werk.bezug.je_monat: je Monat
+werk.bezug.vertrag: Liefervertrag anbieten
+werk.bezug.uebernehmen: Übernehmen
+werk.bezug.art.markt: Markt
+werk.bezug.art.import: Importhandel
+werk.bezug.art.staat: Staatlicher Markt
+werk.bezug.art.vertrag: Liefervertrag
+werk.bezug.vertrag_mit: "Liefervertrag mit {firma}"
+werk.bezug.monat: Monat
+werk.bezug.monate: Laufzeit in Monaten
+werk.bezug.anbieten: Vertrag anbieten
+werk.bezug.abbrechen: Abbrechen
+werk.qualitaet.titel: "Produktqualität: {punkte} Punkte"
+werk.qualitaet.grund: Verfahren
+werk.qualitaet.vorprodukte: Qualität der Vorprodukte
+werk.qualitaet.durchschnitt: "Lager im Schnitt {wert}"
+werk.qualitaet.automatisierung: Automatisierung
+werk.qualitaet.zustand: Zustand der Anlagen
+werk.qualitaet.forschung: Forschungsniveau
+werk.qualitaet.schulung: Schulung
+werk.qualitaet.gesamt: Qualität der nächsten Charge
+werk.qualitaet.hilfe: Bessere Vorprodukte, mehr Forschung gegenüber dem Führenden, Automatisierung, Wartung und Schulung heben die Qualität; auf Verbrauchermärkten entscheidet sie mit Preis und Marke über den Absatz, Firmenkunden verlangen oft eine Mindestqualität.
 werk.einkauf_aendern: Einkauf ändern
 werk.einkauf_starten: Einkauf starten
 werk.verkauf_hinweis: "Automatischer Preis: Er steigt, solange deine Ware ausverkauft ist, und sinkt, solange sie liegen bleibt – nie unter den Mindestpreis. Fester Preis: bleibt, bis du ihn änderst. Vergleiche ihn mit Marktpreis und Stückkosten."
@@ -540,6 +578,12 @@ werk.automatisch: Automatisch – folgt Angebot und Nachfrage
 werk.fest: Fester Preis
 werk.automatisch_hilfe: Der eingegebene Preis gilt sofort; danach passt er sich täglich an.
 werk.fest_hilfe: Der Preis bleibt, bis du ihn änderst.
+werk.kostenaufschlag: Aufschlag auf die Herstellkosten
+werk.kostenaufschlag_hilfe: Der Preis ist jeden Tag Herstellkosten je Einheit plus Marge und folgt damit deinen Kosten. Steigen sie über den Marktpreis, verkaufst du wenig oder nichts.
+werk.kostenaufschlag_marge: Marge
+werk.kostenaufschlag_marge_hilfe: Aufschlag auf die Herstellkosten des Lagers (ohne Lager auf die erwarteten Stückkosten).
+werk.kostenaufschlag_marge_bereich: Die Marge liegt zwischen −50 % und 1000 %.
+werk.kostenaufschlag_warnung: "Achtung: Dein Preis ({preis}) liegt über dem Marktpreis ({markt}) – so verkaufst du wenig oder nichts. Senke die Marge oder die Kosten."
 werk.preis_jetzt: Preis ab sofort
 werk.preis: Preis
 werk.preis_schnell: Preis schnell ändern
@@ -2053,7 +2097,7 @@ vertrag.ablehnen: Ablehnen
 vertrag.zurueckziehen: Zurückziehen
 vertrag.kuendigen: "Kündigen ({strafe} Strafe)"
 vertrag.neu: Neuer Liefervertrag
-vertrag.neu_hilfe: Wähle einen deiner Standorte und ein Produkt, das er verkauft oder braucht. Die Liste zeigt Firmen, die es abnehmen oder liefern könnten, mit ihrem Preisvorschlag. Die Firma antwortet sofort.
+vertrag.neu_hilfe: Wähle einen deiner Standorte und ein Produkt, das er verkauft oder braucht. Die Liste zeigt Firmen, die es abnehmen oder liefern könnten, mit ihrem Preisvorschlag für die Standardlaufzeit. Je länger du dich bindest, desto mehr Rabatt geben Lieferanten (bis 20 % unter ihrem Preis) und desto mehr zahlen Abnehmer; bei kürzerer Laufzeit lehnen sie den Vorschlagspreis ab. Die Firma antwortet sofort.
 vertrag.standort: Dein Standort
 vertrag.abnehmer: Abnehmer
 vertrag.lieferant: Lieferant

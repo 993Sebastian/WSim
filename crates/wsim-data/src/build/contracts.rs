@@ -39,6 +39,24 @@ pub(super) fn contract_model(ctx: &mut Ctx, raw: &RawData) -> ContractModel {
     );
     let a = &c.ki;
     let al = l.field("ki");
+    let share =
+        |ctx: &mut Ctx, value: f64, field: &str| in_range(ctx, value, 0.0, 1.0, &al.field(field));
+    let sale_discount = share(ctx, a.sale_discount, "abschlag_verkauf");
+    let sale_discount_max = share(ctx, a.sale_discount_max, "abschlag_max");
+    if sale_discount_max < sale_discount {
+        ctx.error(
+            &al.field("abschlag_max"),
+            messages::range_inverted("abschlag_verkauf", "abschlag_max"),
+        );
+    }
+    let purchase_premium = share(ctx, a.purchase_premium, "aufschlag_kauf");
+    let purchase_premium_max = share(ctx, a.purchase_premium_max, "aufschlag_max");
+    if purchase_premium_max < purchase_premium {
+        ctx.error(
+            &al.field("aufschlag_max"),
+            messages::range_inverted("aufschlag_kauf", "aufschlag_max"),
+        );
+    }
     ContractModel {
         months_max,
         months_default,
@@ -48,20 +66,16 @@ pub(super) fn contract_model(ctx: &mut Ctx, raw: &RawData) -> ContractModel {
         proposal_days: months(ctx, c.proposal_days, 1.0, 365.0, "angebot_tage"),
         keep_months: months(ctx, c.keep_months, 0.0, 600.0, "aufbewahren_monate"),
         ai: ContractAiModel {
-            sale_discount: in_range(
+            sale_discount,
+            sale_discount_per_month: share(ctx, a.sale_discount_per_month, "abschlag_je_monat"),
+            sale_discount_max,
+            purchase_premium,
+            purchase_premium_per_month: share(
                 ctx,
-                a.sale_discount,
-                0.0,
-                1.0,
-                &al.field("abschlag_verkauf"),
+                a.purchase_premium_per_month,
+                "aufschlag_je_monat",
             ),
-            purchase_premium: in_range(
-                ctx,
-                a.purchase_premium,
-                0.0,
-                1.0,
-                &al.field("aufschlag_kauf"),
-            ),
+            purchase_premium_max,
             share: in_range(ctx, a.share, 0.0, 1.0, &al.field("anteil")),
             penalty_max: in_range(ctx, a.penalty_max, 0.0, 10.0, &al.field("strafe_max")),
             proposal_chance: in_range(

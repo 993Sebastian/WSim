@@ -1448,6 +1448,11 @@ pub enum PriceMode {
         markup: f64,
         floor: Money,
     },
+    /// The site's production cost per unit plus `margin` (0.2 = 20 %), set anew every
+    /// day (docs/FORMELN.md, Aufschlag auf die Herstellkosten).
+    CostPlus {
+        margin: f64,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

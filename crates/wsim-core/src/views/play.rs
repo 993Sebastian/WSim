@@ -86,12 +86,31 @@ pub struct SlotDetail {
     pub retrofit_required: u32,
     #[serde(default)]
     pub retrofit_cost_usd: Option<f64>,
+    /// How the quality of the next batch comes about with today's stock of inputs.
+    #[serde(default)]
+    pub quality: Option<QualityView>,
+}
+
+/// Quality of a product in points (docs/FORMELN.md): recipe, inputs, automation,
+/// condition, research level and training; `total` is the sum, 0–100.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct QualityView {
+    /// Average quality of the inputs in stock, weighted by the recipe (`None` without
+    /// inputs or stock).
+    pub input_quality: Option<f64>,
+    pub base: f64,
+    pub inputs: f64,
+    pub automation: f64,
+    pub condition: f64,
+    pub research: f64,
+    pub training: f64,
+    pub total: f64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct OfferView {
     pub product: String,
-    /// `markt` or `fest`
+    /// `markt`, `fest` or `aufschlag` (cost plus `markup` as the margin)
     pub mode: String,
     pub price_usd: f64,
     pub floor_usd: f64,
@@ -147,6 +166,9 @@ pub struct InputSupply {
     pub ordered: bool,
     /// Price index in the site's country.
     pub market_price_usd: f64,
+    /// Quality of the stock, if there is any.
+    #[serde(default)]
+    pub quality: Option<f64>,
 }
 
 /// A labor group at a site (M18): what production needs, who works there, who is free
@@ -677,6 +699,7 @@ pub fn production(game: &Game) -> ProductionView {
                             catalog, state, site_id, index,
                         )
                         .map(usd),
+                        quality: recipe.map(|r| slot_quality(game, site_id, index, r)),
                     }
                 })
                 .collect();
@@ -697,6 +720,11 @@ pub fn production(game: &Game) -> ProductionView {
                         own: made.contains(&p),
                         ordered: s.orders.contains_key(&p),
                         market_price_usd: usd(market::market_price(catalog, state, s.country, p)),
+                        quality: s
+                            .inventory
+                            .get(&p)
+                            .filter(|x| x.quantity > 1e-9)
+                            .map(|x| x.quality),
                     }
                 })
                 .collect();
@@ -727,6 +755,7 @@ pub fn production(game: &Game) -> ProductionView {
                     .map(|(p, o)| {
                         let (mode, markup, floor) = match o.mode {
                             PriceMode::Fixed(_) => ("fest", 0.0, Money::ZERO),
+                            PriceMode::CostPlus { margin } => ("aufschlag", margin, Money::ZERO),
                             PriceMode::Market { markup, floor } => ("markt", markup, floor),
                         };
                         let stock = s.inventory.get(p);
@@ -2746,6 +2775,42 @@ fn planned_runs_per_day(catalog: &Catalog, sl: &crate::state::Slot) -> f64 {
         return 0.0;
     }
     sl.full_runs(catalog) * sl.utilization
+}
+
+/// Quality of the next batch of a slot with the inputs the site holds now.
+fn slot_quality(
+    game: &Game,
+    site: crate::state::SiteId,
+    slot: usize,
+    recipe: &crate::catalog::Recipe,
+) -> QualityView {
+    let (state, catalog) = (game.state(), game.catalog());
+    let s = &state.sites[site.index()];
+    let (mut sum, mut weight) = (0.0, 0.0);
+    for &(p, q) in &recipe.inputs {
+        if let Some(st) = s.inventory.get(&p).filter(|st| st.quantity > 1e-9) {
+            sum += st.quality * q;
+            weight += q;
+        }
+    }
+    let input_quality = (weight > 1e-12).then(|| sum / weight);
+    let q = crate::production::quality_parts(
+        catalog,
+        state,
+        (site, slot),
+        recipe,
+        input_quality.unwrap_or(50.0),
+    );
+    QualityView {
+        input_quality,
+        base: q.base,
+        inputs: q.inputs,
+        automation: q.automation,
+        condition: q.condition,
+        research: q.research,
+        training: q.training,
+        total: q.total,
+    }
 }
 
 #[cfg(test)]

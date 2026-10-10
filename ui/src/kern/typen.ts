@@ -468,11 +468,27 @@ export interface AnlageDetail {
   retrofit?: number;
   retrofit_required?: number;
   retrofit_cost_usd?: number | null;
+  /** How the quality of the next batch comes about with today's inputs (#191). */
+  quality?: Qualitaetsteile | null;
+}
+
+/** Quality in points: recipe, inputs, automation, condition, research, training. */
+export interface Qualitaetsteile {
+  /** Average quality of the inputs in stock (null without inputs or stock). */
+  input_quality: number | null;
+  base: number;
+  inputs: number;
+  automation: number;
+  condition: number;
+  research: number;
+  training: number;
+  total: number;
 }
 
 export interface Angebot {
   product: string;
-  mode: "markt" | "fest";
+  /** `aufschlag`: production cost plus `markup` as the margin. */
+  mode: "markt" | "fest" | "aufschlag";
   price_usd: number;
   floor_usd: number;
   markup: number;
@@ -512,6 +528,8 @@ export interface Versorgung {
   own: boolean;
   ordered: boolean;
   market_price_usd: number;
+  /** Quality of the stock, if there is any. */
+  quality?: number | null;
 }
 
 export interface Personal {
@@ -2207,6 +2225,36 @@ export interface Vertragspartner {
   free_per_month: number;
   suggested_price_usd: number;
   delivery_cost_usd: number;
+  /** Quality of the seller's stock (buying only). */
+  quality?: number | null;
+}
+
+/** A source of a product for a site (#191). */
+export interface Bezugsquelle {
+  kind: "markt" | "import" | "staat" | "vertrag";
+  site: number | null;
+  company: string | null;
+  country: string;
+  quality: number;
+  /** Price delivered to the site; of it freight and customs (paid by the seller). */
+  price_usd: number;
+  delivery_cost_usd: number;
+  /** In stock now, or free a month for contracts; null: unlimited. */
+  available: number | null;
+}
+
+export interface Bezugsquellen {
+  site: number;
+  product: string;
+  unit: string;
+  country: string;
+  own_quality: number | null;
+  /** What the site uses a month, and the defaults of a new contract. */
+  need_per_month: number;
+  contract_months: number;
+  contract_penalty: number;
+  /** Cheapest first. */
+  sources: Bezugsquelle[];
 }
 
 export interface Vertragspartnerliste {

@@ -673,7 +673,7 @@ gibt es keine Lieferverträge. Ein Abschnitt `vertraege` mit:
 | **kuendigung_monate** | 0–600: wer kündigt, zahlt die Strafe auf so viele Monatsmengen |
 | **angebot_tage** | 1–365: so lange wartet ein Angebot der KI auf die Antwort |
 | **aufbewahren_monate** | 0–600: so lange bleiben beendete Verträge in der Liste |
-| **ki** | `abschlag_verkauf` und `aufschlag_kauf` (0–1: so viel unter dem eigenen bzw. über dem Marktpreis nimmt die KI an), `anteil` (0–1: Anteil von Leistung oder Bedarf, der in Verträge geht), `strafe_max` (0–10), `angebot_chance` (0–1 je Monat und Produkt des Spielers) |
+| **ki** | `abschlag_verkauf` und `aufschlag_kauf` (0–1: so viel unter dem eigenen bzw. über dem Marktpreis nimmt die KI für einen Monat an), `abschlag_je_monat` und `aufschlag_je_monat` (0–1: so viel mehr je weiteren Monat Laufzeit), `abschlag_max` und `aufschlag_max` (0–1, mindestens der Grundwert: Obergrenze), `anteil` (0–1: Anteil von Leistung oder Bedarf, der in Verträge geht), `strafe_max` (0–10), `angebot_chance` (0–1 je Monat und Produkt des Spielers) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 Texte: `vertrag.abgelehnt.<grund>` (`preis`, `menge`, `qualitaet`, `strafe`).

@@ -95,6 +95,9 @@ pub struct ContractPartnerView {
     pub suggested_price_usd: f64,
     /// Freight and customs per unit the seller pays.
     pub delivery_cost_usd: f64,
+    /// Quality of the seller's stock (buying only).
+    #[serde(default)]
+    pub quality: Option<f64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -347,13 +350,14 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
         else {
             continue;
         };
+        let months = catalog.contracts.months_default;
         let suggested = if selling {
-            market_price
+            contracts::bid_price(state, catalog, pair.1, p, months)
         } else {
-            let Some(ask) = contracts::ask_price(state, catalog, pair, p) else {
+            let Some(price) = contracts::contract_price(state, catalog, pair, p, months) else {
                 continue;
             };
-            market_price.max(ask)
+            price
         };
         partners.push(ContractPartnerView {
             site: site.0,
@@ -363,6 +367,12 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
             free_per_month: free,
             suggested_price_usd: usd(suggested),
             delivery_cost_usd: usd(cost),
+            quality: (!selling).then(|| {
+                other
+                    .inventory
+                    .get(&p)
+                    .map_or(DEFAULT_QUALITY, |st| st.quality)
+            }),
         });
     }
     partners.sort_by(|a, b| {
@@ -378,5 +388,159 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
         role: if selling { "verkauf" } else { "einkauf" }.to_owned(),
         own_per_month,
         partners,
+    })
+}
+
+/// Quality of goods without a stock to tell it.
+const DEFAULT_QUALITY: f64 = 50.0;
+
+/// Where a site can get a product from (#191).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SupplySourceView {
+    /// `markt` (another company's offer on the site's market, bought by the purchase
+    /// order), `import` (traders), `staat` (state market) or `vertrag` (a site of
+    /// another company anywhere, by supply contract).
+    pub kind: String,
+    pub site: Option<u32>,
+    pub company: Option<String>,
+    pub country: String,
+    pub quality: f64,
+    /// Price delivered to the site.
+    pub price_usd: f64,
+    /// Of it: freight and customs per unit (the seller pays them).
+    pub delivery_cost_usd: f64,
+    /// In stock now (`markt`, `import`), free a month (`vertrag`); `None`: unlimited.
+    pub available: Option<f64>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SupplySourcesView {
+    pub site: u32,
+    pub product: String,
+    pub unit: String,
+    pub country: String,
+    /// Average quality of the site's stock of the product, if it holds any.
+    pub own_quality: Option<f64>,
+    /// What the site uses a month, and the defaults of a new contract.
+    pub need_per_month: f64,
+    pub contract_months: u32,
+    pub contract_penalty: f64,
+    /// Sorted by price, cheapest first.
+    pub sources: Vec<SupplySourceView>,
+}
+
+/// Offers on the site's market and contract partners worldwide for a product the
+/// player's site buys; `None` for a site of another company or an unknown product.
+pub fn supply_sources(game: &Game, site: u32, product: &str) -> Option<SupplySourcesView> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let me = game.player();
+    let own = SiteId(site);
+    let s = state.site(own).filter(|s| s.owner == me)?;
+    let p = catalog.products.id(product)?;
+    let country = s.country;
+    let share = catalog.contracts.ai.share;
+    let mut sources: Vec<SupplySourceView> = Vec::new();
+    let quality_of =
+        |o: &crate::state::Site| o.inventory.get(&p).map_or(DEFAULT_QUALITY, |st| st.quality);
+    for (i, other) in state.sites.iter().enumerate() {
+        let id = SiteId(u32::try_from(i).expect("site count fits u32"));
+        let company = &state.companies[other.owner.index()];
+        if crate::group::same_group(state, other.owner, me) || company.bankrupt {
+            continue;
+        }
+        let Some(offer) = other.offers.get(&p) else {
+            continue;
+        };
+        if other.country == country {
+            let available = other
+                .inventory
+                .get(&p)
+                .map_or(0.0, |st| (st.quantity - offer.keep).max(0.0));
+            sources.push(SupplySourceView {
+                kind: "markt".to_owned(),
+                site: Some(id.0),
+                company: Some(company.name.clone()),
+                country: catalog.countries.key(country).to_owned(),
+                quality: quality_of(other),
+                price_usd: usd(offer.price),
+                delivery_cost_usd: 0.0,
+                available: Some(available),
+            });
+        }
+        if !catalog.contracts.enabled() {
+            continue;
+        }
+        let free = share * 30.0 * contracts::daily_output(state, catalog, id, p)
+            - contracts::contracted(state, id, p, true);
+        if free <= 1e-9 {
+            continue;
+        }
+        let market_price = market::market_price(catalog, state, country, p);
+        let Some((cost, _)) = contracts::delivery_cost(state, catalog, (id, own), p, market_price)
+        else {
+            continue;
+        };
+        let months = catalog.contracts.months_default;
+        let Some(price) = contracts::contract_price(state, catalog, (id, own), p, months) else {
+            continue;
+        };
+        sources.push(SupplySourceView {
+            kind: "vertrag".to_owned(),
+            site: Some(id.0),
+            company: Some(company.name.clone()),
+            country: catalog.countries.key(other.country).to_owned(),
+            quality: quality_of(other),
+            price_usd: usd(price),
+            delivery_cost_usd: usd(cost),
+            available: Some(free),
+        });
+    }
+    let m = state.markets.get(p).get(country);
+    if m.imports.quantity > 1e-9 {
+        sources.push(SupplySourceView {
+            kind: "import".to_owned(),
+            site: None,
+            company: None,
+            country: catalog.countries.key(country).to_owned(),
+            quality: m.imports.quality,
+            price_usd: usd(m.import_price),
+            delivery_cost_usd: 0.0,
+            available: Some(m.imports.quantity),
+        });
+    }
+    if let Some(price) = market::state_price(catalog, state, country, p) {
+        sources.push(SupplySourceView {
+            kind: "staat".to_owned(),
+            site: None,
+            company: None,
+            country: catalog.countries.key(country).to_owned(),
+            quality: DEFAULT_QUALITY,
+            price_usd: usd(price),
+            delivery_cost_usd: 0.0,
+            available: None,
+        });
+    }
+    sources.sort_by(|a, b| {
+        a.price_usd
+            .total_cmp(&b.price_usd)
+            .then(b.quality.total_cmp(&a.quality))
+            .then(a.kind.cmp(&b.kind))
+            .then(a.site.cmp(&b.site))
+    });
+    sources.truncate(40);
+    Some(SupplySourcesView {
+        site,
+        product: product.to_owned(),
+        unit: unit_key(game, p),
+        country: catalog.countries.key(country).to_owned(),
+        need_per_month: 30.0 * contracts::daily_need(state, catalog, own, p),
+        contract_months: catalog.contracts.months_default,
+        contract_penalty: catalog.contracts.penalty_default,
+        own_quality: s
+            .inventory
+            .get(&p)
+            .filter(|st| st.quantity > 1e-9)
+            .map(|st| st.quality),
+        sources,
     })
 }

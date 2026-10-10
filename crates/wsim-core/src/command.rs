@@ -1956,6 +1956,27 @@ fn run(
                         to_companies_month: 0.0,
                     })
                 }
+                Some(PriceMode::CostPlus { margin }) => {
+                    if !(-0.5..=10.0).contains(margin) {
+                        return Err(CommandError::InvalidPrice);
+                    }
+                    // Without stock or costs to go by it starts at the market price.
+                    let price =
+                        crate::market::cost_plus_price(catalog, state, *site, *product, *margin)
+                            .unwrap_or_else(|| {
+                                crate::market::market_price(catalog, state, country, *product)
+                            });
+                    Some(SaleOffer {
+                        mode: *mode.as_ref().expect("some"),
+                        price,
+                        keep: *keep,
+                        sold_today: 0.0,
+                        sold_month: 0.0,
+                        sold_last_month: 0.0,
+                        to_traders_month: 0.0,
+                        to_companies_month: 0.0,
+                    })
+                }
                 Some(PriceMode::Market { markup, floor }) => {
                     if !(-0.9..=2.0).contains(markup) || floor.is_negative() {
                         return Err(CommandError::InvalidPrice);
@@ -2225,6 +2246,8 @@ fn run(
                     offer.price = *price;
                 }
                 PriceMode::Market { floor, .. } => offer.price = (*price).max(*floor),
+                // Until the next day's costs set it again.
+                PriceMode::CostPlus { .. } => offer.price = *price,
             }
         }
         Command::Retrofit { site, slot } => {

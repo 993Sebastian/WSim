@@ -517,6 +517,46 @@ fn governments_buy_up_to_a_price_cap() {
 }
 
 #[test]
+fn a_cost_plus_price_follows_the_production_cost() {
+    let mut game = new_game();
+    let player = game.player();
+    // 1 USD a unit in stock, 50 % margin.
+    let site = warehouse(&mut game, player, "eisen", 1e6, 50.0);
+    sell(
+        &mut game,
+        site,
+        "eisen",
+        PriceMode::CostPlus { margin: 0.5 },
+    );
+    let eisen = product(&game, "eisen");
+    let price = |game: &Game| game.state().sites[site.index()].offers[&eisen].price;
+    assert_eq!(price(&game), usd(1.5));
+    // Dearer goods come in: the average cost and with it the price rise.
+    let s = &mut game.state_mut().sites[site.index()];
+    s.inventory
+        .get_mut(&eisen)
+        .unwrap()
+        .add(1e6, usd(3e6), 50.0);
+    day(&mut game);
+    let st = &game.state().sites[site.index()].inventory[&eisen];
+    let expected = st.value.to_usd() / st.quantity * 1.5;
+    assert!(
+        (price(&game).to_usd() - expected).abs() < 1e-3,
+        "{:?}",
+        price(&game)
+    );
+    assert!(price(&game).to_usd() > 2.9);
+    // An unreasonable margin is refused.
+    let err = game.apply(Command::SetSale {
+        site,
+        product: eisen,
+        mode: Some(PriceMode::CostPlus { margin: -0.9 }),
+        keep: 0.0,
+    });
+    assert!(err.is_err());
+}
+
+#[test]
 fn state_demand_follows_its_profile_over_time() {
     use crate::catalog::StateDemand;
     use crate::time_series::TimeSeries;

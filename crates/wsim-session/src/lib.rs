@@ -26,8 +26,8 @@ use wsim_core::views::{
     ContractPartnersView, ContractsView, ControllingView, CountryDetail, FinanceView, GroupView,
     LogisticsView, ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView,
     OrganisationView, Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview,
-    ReviewsView, RoundReportView, StockMarketView, StrategyView, VenturesView, WorldMap,
-    WorldMarketView,
+    ReviewsView, RoundReportView, StockMarketView, StrategyView, SupplySourcesView, VenturesView,
+    WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -456,6 +456,16 @@ impl<S: SaveStore> Session<S> {
     /// The player's supply contracts and the sites that could have some (W4).
     pub fn contracts(&self) -> Result<ContractsView, MessageView> {
         self.company_view(views::contracts)
+    }
+
+    /// Where an own site can get a product from: market offers and contract partners (#191).
+    pub fn supply_sources(
+        &self,
+        site: u32,
+        product: &str,
+    ) -> Result<SupplySourcesView, MessageView> {
+        self.company_view(|g| views::supply_sources(g, site, product))?
+            .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
     }
 
     /// Possible partners for a contract of an own site for a product (W4).

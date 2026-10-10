@@ -89,6 +89,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
 | Pauschalkauf (einmaliger Einkauf) | `BuyOnce`, `PurchaseOrder::once` |
+| Aufschlag auf die Herstellkosten (Preismodus) | `PriceMode::CostPlus`, `cost_plus_price` |
+| Rabatt für Bindung, Vertragspreis | `ContractAiModel::discount`/`premium`, `contract_price`, `bid_price` |
+| Bezugsquellen (Vergleich im Werk) | `SupplySourcesView`, `supply_sources` |
+| Produktqualität, Qualitätsteile | `QualityParts`, `quality_parts`, `QualityView` |
 | Eigener Standortname | `Site::name`, `RenameSite`, `site_name` |
 | Forschungsniveau, Reife, Forschungsanteile (Q1) | `development::share`, `development::maturity`, `Site::development_shares`, `SetResearchShares` |
 | Handel (Menge, Umsatz) | `Trade` |

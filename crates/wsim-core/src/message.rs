@@ -390,6 +390,7 @@ pub mod keys {
     pub const STEP_SALE_END: &str = "schritt.verkauf_ende";
     pub const STEP_PRICE: &str = "schritt.preis";
     pub const STEP_SALE_MARKET: &str = "schritt.verkauf_markt";
+    pub const STEP_SALE_COST_PLUS: &str = "schritt.verkauf_aufschlag";
     pub const STEP_PURCHASE_END: &str = "schritt.einkauf_ende";
     pub const STEP_PURCHASE: &str = "schritt.einkauf";
     pub const STEP_SUPPLY: &str = "schritt.lieferung";
@@ -790,6 +791,7 @@ pub mod keys {
         STEP_SALE_END,
         STEP_PRICE,
         STEP_SALE_MARKET,
+        STEP_SALE_COST_PLUS,
         STEP_PURCHASE_END,
         STEP_PURCHASE,
         STEP_SUPPLY,

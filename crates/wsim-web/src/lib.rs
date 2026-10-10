@@ -147,6 +147,11 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                         let zeitraum: String = argument(args, "zeitraum")?;
                         wert(s.controlling(&zeitraum)?)
                     }
+                    "bezugsquellen" => {
+                        let standort: u32 = argument(args, "standort")?;
+                        let produkt: String = argument(args, "produkt")?;
+                        wert(s.supply_sources(standort, &produkt)?)
+                    }
                     "vertragspartner" => {
                         let standort: u32 = argument(args, "standort")?;
                         let produkt: String = argument(args, "produkt")?;

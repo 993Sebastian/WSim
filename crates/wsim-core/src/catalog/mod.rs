@@ -634,15 +634,36 @@ pub struct ContractModel {
 /// How AI companies answer and propose contracts.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct ContractAiModel {
-    /// An AI seller takes up to this much less than its own price for a sure buyer.
+    /// An AI seller takes up to this much less than its own price for a sure buyer, plus
+    /// `sale_discount_per_month` for each month beyond the first, at most
+    /// `sale_discount_max`.
     pub sale_discount: f64,
-    /// An AI buyer pays up to this much more than the market price for sure supplies.
+    pub sale_discount_per_month: f64,
+    pub sale_discount_max: f64,
+    /// An AI buyer pays up to this much more than the market price for sure supplies;
+    /// longer terms as with the discount.
     pub purchase_premium: f64,
+    pub purchase_premium_per_month: f64,
+    pub purchase_premium_max: f64,
     /// At most this share of its output or need goes into contracts.
     pub share: f64,
     pub penalty_max: f64,
     /// Chance per month and product of the player that an AI company proposes one.
     pub proposal_chance: f64,
+}
+
+impl ContractAiModel {
+    /// Discount of an AI seller for a contract of `months` (docs/FORMELN.md, W4).
+    pub fn discount(&self, months: u32) -> f64 {
+        let extra = f64::from(months.saturating_sub(1)) * self.sale_discount_per_month;
+        (self.sale_discount + extra).min(self.sale_discount_max.max(self.sale_discount))
+    }
+
+    /// Premium of an AI buyer for a contract of `months`.
+    pub fn premium(&self, months: u32) -> f64 {
+        let extra = f64::from(months.saturating_sub(1)) * self.purchase_premium_per_month;
+        (self.purchase_premium + extra).min(self.purchase_premium_max.max(self.purchase_premium))
+    }
 }
 
 impl ContractModel {

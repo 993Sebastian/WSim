@@ -374,6 +374,7 @@ fn show_offers(daten: &Path, path: &Path, key: &str) -> Result<(), String> {
         let floor = match o.mode {
             PriceMode::Market { floor, .. } => format!("{:.0}", floor.to_usd()),
             PriceMode::Fixed(p) => format!("fest {:.0}", p.to_usd()),
+            PriceMode::CostPlus { margin } => format!("kosten +{:.0} %", margin * 100.0),
         };
         let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
         let reference = wsim_core::market::local_reference(c, state, s.country, product);

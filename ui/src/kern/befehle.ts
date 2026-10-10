@@ -5,7 +5,10 @@ import type { Auftrag, Geltung, Halter, Vorgabe, Vorgabefeld } from "./typen";
 /** USD → Money units of the core. */
 export const geld = (usd: number): number => Math.round(usd * 10_000);
 
-export type Preisart = { Market: { markup: number; floor: number } } | { Fixed: number };
+export type Preisart =
+  | { Market: { markup: number; floor: number } }
+  | { Fixed: number }
+  | { CostPlus: { margin: number } };
 
 /** The pace of a start-up as the core names it (SU2). */
 export type Tempo = "Normal" | "Fast" | "Thorough";

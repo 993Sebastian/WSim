@@ -39,6 +39,7 @@ export function ProduktionAnsicht({
       <Befehle senden={senden} meldung={meldung}>
         {offen ? (
           <Werk
+            kern={kern}
             standort={offen}
             produktion={daten}
             bereich={werkBereich}

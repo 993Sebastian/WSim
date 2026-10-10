@@ -600,7 +600,6 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         .map(|w| w * worker_hours)
         .collect();
     let owner = state.sites[index].owner;
-    let model = &catalog.production_model;
 
     for slot in 0..state.sites[index].slots.len() {
         state.sites[index].slots[slot].last_runs = 0.0;
@@ -766,19 +765,12 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         ledger.income(CostType::InventoryChange, center, Account::Inventory, value);
 
         // Quality (docs/FORMELN.md).
-        let sl = &state.sites[index].slots[slot];
         let average_input = if input_quantity > 0.0 {
             input_quality / input_quantity
         } else {
             50.0
         };
-        let quality = (recipe.base_quality
-            + model.quality_inputs * (average_input - 50.0)
-            + model.quality_automation * sl.automation
-            - model.quality_condition * (1.0 - sl.condition)
-            + developed.quality
-            + crate::training::quality(catalog, state.sites[index].training))
-        .clamp(0.0, 100.0);
+        let quality = quality_parts(catalog, state, (site, slot), recipe, average_input).total;
 
         let mut outputs = vec![(recipe.product, recipe.output * runs)];
         outputs.extend(recipe.by_products.iter().map(|&(p, q)| (p, q * runs)));
@@ -1027,4 +1019,44 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
         }
     }
     messages
+}
+
+/// How the quality of a batch comes about (docs/FORMELN.md), in points.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct QualityParts {
+    pub base: f64,
+    pub inputs: f64,
+    pub automation: f64,
+    /// Negative: wear of the facilities.
+    pub condition: f64,
+    /// The owner's research level of the product (Q1).
+    pub research: f64,
+    pub training: f64,
+    /// Sum of the parts, 0–100.
+    pub total: f64,
+}
+
+/// Quality of the next batch of a slot for an average input quality.
+pub fn quality_parts(
+    catalog: &Catalog,
+    state: &GameState,
+    (site, slot): (SiteId, usize),
+    recipe: &Recipe,
+    average_input: f64,
+) -> QualityParts {
+    let model = &catalog.production_model;
+    let s = &state.sites[site.index()];
+    let sl = &s.slots[slot];
+    let mut q = QualityParts {
+        base: recipe.base_quality,
+        inputs: model.quality_inputs * (average_input - 50.0),
+        automation: model.quality_automation * sl.automation,
+        condition: -model.quality_condition * (1.0 - sl.condition),
+        research: development::effect(catalog, state, s.owner, recipe.product).quality,
+        training: crate::training::quality(catalog, s.training),
+        total: 0.0,
+    };
+    q.total = (q.base + q.inputs + q.automation + q.condition + q.research + q.training)
+        .clamp(0.0, 100.0);
+    q
 }

@@ -41245,7 +41245,17 @@
             "pollutant_kg_per_day": 0.0,
             "retrofit": 0,
             "retrofit_cost_usd": null,
-            "retrofit_required": 0
+            "retrofit_required": 0,
+            "quality": {
+              "input_quality": 62.0,
+              "base": 50.0,
+              "inputs": 3.6,
+              "automation": 2.0,
+              "condition": -1.5,
+              "research": 4.2,
+              "training": 0.5,
+              "total": 58.8
+            }
           }
         ],
         "staff": [
@@ -43884,7 +43894,8 @@
         "free_per_month": 7500.0,
         "kind_text": "standorttyp.werk",
         "site": 71,
-        "suggested_price_usd": 1520.3223
+        "suggested_price_usd": 1520.3223,
+        "quality": 60.0
       },
       {
         "company": "Whitfield & Hughes Ltd.",
@@ -43893,7 +43904,8 @@
         "free_per_month": 3000.0,
         "kind_text": "standorttyp.werk",
         "site": 68,
-        "suggested_price_usd": 1529.4162
+        "suggested_price_usd": 1529.4162,
+        "quality": 60.0
       },
       {
         "company": "Holloway Electric Ltd.",
@@ -43902,7 +43914,8 @@
         "free_per_month": 3000.0,
         "kind_text": "standorttyp.werk",
         "site": 845,
-        "suggested_price_usd": 3082.9757
+        "suggested_price_usd": 3082.9757,
+        "quality": 60.0
       },
       {
         "company": "Bremer Hüttenwerke & Söhne",
@@ -43911,7 +43924,8 @@
         "free_per_month": 1500.0,
         "kind_text": "standorttyp.werk",
         "site": 66,
-        "suggested_price_usd": 1322.106
+        "suggested_price_usd": 1322.106,
+        "quality": 60.0
       },
       {
         "company": "Bonnet & Durand",
@@ -43920,7 +43934,8 @@
         "free_per_month": 1500.0,
         "kind_text": "standorttyp.werk",
         "site": 67,
-        "suggested_price_usd": 1567.9743
+        "suggested_price_usd": 1567.9743,
+        "quality": 60.0
       },
       {
         "company": "Thyssen & Co.",
@@ -43929,7 +43944,8 @@
         "free_per_month": 375.0,
         "kind_text": "standorttyp.werk",
         "site": 4,
-        "suggested_price_usd": 1337.9413
+        "suggested_price_usd": 1337.9413,
+        "quality": 60.0
       },
       {
         "company": "Holloway Electric Ltd.",
@@ -43938,7 +43954,8 @@
         "free_per_month": 375.0,
         "kind_text": "standorttyp.werk",
         "site": 865,
-        "suggested_price_usd": 1911.8033
+        "suggested_price_usd": 1911.8033,
+        "quality": 60.0
       }
     ],
     "product": "draht",
@@ -48753,5 +48770,57 @@
       "tax_rate": 0.076,
       "tax_usd": 7600.0
     }
+  },
+  "bezugsquellen": {
+    "site": 0,
+    "product": "roheisen",
+    "unit": "t",
+    "country": "DEU",
+    "own_quality": 48.0,
+    "sources": [
+      {
+        "kind": "markt",
+        "site": 3,
+        "company": "Rheinische Hütten AG",
+        "country": "DEU",
+        "quality": 45.0,
+        "price_usd": 118.0,
+        "delivery_cost_usd": 0.0,
+        "available": 420.0
+      },
+      {
+        "kind": "vertrag",
+        "site": 7,
+        "company": "Svenska Järn",
+        "country": "SWE",
+        "quality": 72.0,
+        "price_usd": 126.0,
+        "delivery_cost_usd": 9.5,
+        "available": 300.0
+      },
+      {
+        "kind": "import",
+        "site": null,
+        "company": null,
+        "country": "DEU",
+        "quality": 55.0,
+        "price_usd": 131.0,
+        "delivery_cost_usd": 0.0,
+        "available": 150.0
+      },
+      {
+        "kind": "staat",
+        "site": null,
+        "company": null,
+        "country": "DEU",
+        "quality": 50.0,
+        "price_usd": 160.0,
+        "delivery_cost_usd": 0.0,
+        "available": null
+      }
+    ],
+    "need_per_month": 600.0,
+    "contract_months": 12,
+    "contract_penalty": 0.2
   }
 }

@@ -156,9 +156,19 @@ selben Tag).
 ### Qualität
 
     Q = Grundqualität + 0,3 · (Ø Qualität der Eingänge − 50) + 10 · Automatisierung
-        − 20 · (1 − Zustand),   begrenzt auf 0–100
+        − 20 · (1 − Zustand) + Forschungsniveau (Q1) + Schulung (W1),   begrenzt auf 0–100
 
 (Gewichte aus den Parametern.) Abbau-Rezepte haben keine Eingänge (Term = 0).
+
+**Einkauf nach Qualität (#191, 10.10.2026):** Der Einkaufsauftrag und der Pauschalkauf
+kaufen nur Angebote mit mindestens der Mindestqualität; unter ihnen das günstigste.
+Das Werk zeigt die Bezugsquellen: Angebote anderer Firmen auf dem eigenen Markt (Preis
+frei Werk = Angebotspreis, die Lieferung zahlt der Anbieter), Importhandel, staatlicher
+Markt (Qualität 50) und Standorte anderer Firmen weltweit für einen Liefervertrag (Preis
+frei Werk wie beim Vertragsvorschlag, darin Fracht und Zoll). Ein Vertrag aus dem
+Vergleich schlägt als Mindestqualität die Qualität des Lieferanten − 5 vor. Die Karte
+jeder Anlage zerlegt die Qualität der nächsten Charge in die Summanden oben, mit der
+Ø Qualität der Vorprodukte im Lager.
 
 ### Personal
 
@@ -953,6 +963,15 @@ Parameter: `produktionsmodell.lohnaufschlag_max`; KI:
 - **Preis setzen** (Befehl `SetPrice`): Ein fester Preis wird zum neuen festen Preis. Ein
   automatischer Preis springt auf den eingegebenen Wert (nicht unter die Untergrenze) und
   folgt von dort wieder Angebot und Nachfrage.
+- **Aufschlag auf die Herstellkosten** (Verkaufsmodus `CostPlus`, Wunsch vom 10.10.2026):
+  Preis = Herstellkosten je Einheit · (1 + Marge *m*). Herstellkosten sind die
+  durchschnittlichen Herstellkosten des Lagers (Lagerwert / Menge, wie in der
+  Lagerübersicht); ohne Lager die erwarteten Vollkosten je Stück des Standorts
+  (`production::unit_costs`); ohne beides bleibt der letzte Preis. Der Preis wird jeden
+  Tag nach dem Markt neu gesetzt und folgt damit den Kosten: Steigen die Rohstoffpreise,
+  steigt er mit, auch über den Marktpreis, und dann verkauft der Standort wenig oder
+  nichts. Die Werkansicht warnt, wenn der Preis über dem Marktpreis liegt. *m* liegt
+  zwischen −0,5 und 10. Die KI nutzt den Modus nicht.
 
 ## M19 – Technologiebaum (Anzeige)
 
@@ -3936,21 +3955,37 @@ andere Seite.
 Der Spieler bietet einen Vertrag an (Befehl `ProposeContract`); die KI-Firma antwortet
 sofort:
 
-- **als Verkäuferin** nimmt sie an, wenn P − Fracht − Zoll ≥ (1 − `ki.abschlag_verkauf`)
-  · ihr Angebotspreis am Standort (ohne Angebot: Marktpreis im Land), ihr Lager die
+- **als Verkäuferin** nimmt sie an, wenn P − Fracht − Zoll ≥ (1 − r(n)) · G, ihr Lager die
   Mindestqualität hält und q höchstens `ki.anteil` ihrer Monatsleistung des Produkts am
-  Standort abzüglich laufender Verträge ist;
-- **als Käuferin** nimmt sie an, wenn P ≤ (1 + `ki.aufschlag_kauf`) · Marktpreis im Land des
-  Käufers und q höchstens `ki.anteil` ihres Monatsbedarfs am Standort (Rezepte bei
-  geplanter Auslastung) abzüglich laufender Verträge ist;
+  Standort abzüglich laufender Verträge ist. G = min(ihr Angebotspreis am Standort,
+  Marktpreis in ihrem Land) (ohne Angebot: der Marktpreis);
+- **als Käuferin** nimmt sie an, wenn P ≤ (1 + a(n)) · Marktpreis im Land des Käufers und q
+  höchstens `ki.anteil` ihres Monatsbedarfs am Standort (Rezepte bei geplanter
+  Auslastung) abzüglich laufender Verträge ist;
 - die Strafe höchstens `ki.strafe_max` ist.
+
+**Rabatt für Bindung (10.10.2026, zur Abnahme):** Je länger die Laufzeit *n*, desto mehr
+gibt die KI für die sichere Abnahme oder Lieferung nach:
+
+    r(n) = min(`ki.abschlag_max`, `ki.abschlag_verkauf` + `ki.abschlag_je_monat` · (n − 1))
+    a(n) = min(`ki.aufschlag_max`, `ki.aufschlag_kauf` + `ki.aufschlag_je_monat` · (n − 1))
+
+Vorschlag: r = 8 % + 0,5 % je Monat, höchstens 20 % (12 Monate: 13,5 %, ab 25 Monaten:
+20 %); a = 5 % + 0,25 % je Monat, höchstens 12 % (12 Monate: 7,75 %). Vorher galten fest
+5 % und 5 %, und die Vorschläge der Ansichten lagen beim Einkauf nie unter dem
+Marktpreis (Marktpreis oder Angebotspreis + Fracht, der höhere): Ein Vertrag kostete mehr
+als der Markt und band trotzdem. Jetzt schlagen Ansichten und KI den Vertragspreis
+P_K = ((1 − r(n)) · G + Fracht) / (1 − Zoll) vor; im eigenen Land liegt er damit
+mindestens r(n) unter dem Marktpreis, und der Preis bleibt über die Laufzeit fest, auch
+wenn die Rohstoffpreise schwanken.
 
 **Angebote der KI:** Zu jedem Monatsbeginn prüft je Produkt, das der Spieler anbietet
 (Verkaufsangebot eines Standorts), die KI-Firma mit dem größten Bedarf daran, und je
 Produkt, das der Spieler einkauft (Einkaufsauftrag), die KI-Firma mit dem größten freien
 Angebot. Mit Wahrscheinlichkeit `ki.angebot_chance` (Zufallsstrom „Verträge“) schlägt sie
 einen Vertrag vor: q = `ki.anteil` · ihr freier Bedarf bzw. ihre freie Leistung, höchstens
-die Monatsmenge des Spielers, P = Marktpreis im Land des Käufers, Laufzeit
+die Monatsmenge des Spielers, P = P_K (sie verkauft) bzw. (1 + a(n)) · Marktpreis im
+Land des Käufers (sie kauft), Laufzeit
 `laufzeit_standard`, Strafe `strafe_standard`. Der Spieler antwortet binnen `angebot_tage`
 Tagen (Befehl `AnswerContract`), sonst verfällt das Angebot. Dasselbe Paar aus Standorten
 bekommt für ein Produkt erst wieder ein Angebot, wenn der letzte Vertrag aus der Liste

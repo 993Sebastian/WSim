@@ -999,6 +999,15 @@ fn clear_market(
         let slow = before > 0.0 && (o.sold < before / model.stock_days || idle) && !scarce;
         match o.seller {
             Seller::Site { site, .. } => {
+                let cost_plus = state.sites[site.index()]
+                    .offers
+                    .get(&product)
+                    .and_then(|offer| match offer.mode {
+                        PriceMode::CostPlus { margin } => {
+                            cost_plus_price(catalog, state, site, product, margin)
+                        }
+                        _ => None,
+                    });
                 let s = &mut state.sites[site.index()];
                 s.totals.entry(product).or_default().sold += o.sold;
                 let Some(offer) = s.offers.get_mut(&product) else {
@@ -1010,6 +1019,11 @@ fn clear_market(
                 offer.to_companies_month += o.to_companies;
                 match offer.mode {
                     PriceMode::Fixed(price) => offer.price = price,
+                    PriceMode::CostPlus { .. } => {
+                        if let Some(price) = cost_plus {
+                            offer.price = price;
+                        }
+                    }
                     PriceMode::Market { floor, .. } => {
                         offer.price = adjust_price(model, offer.price, (scarce, slow), reference)
                             .min(max_price)
@@ -1165,6 +1179,31 @@ fn adjust_price(
 /// Traders sell at their average landed cost plus margin at least, but not above what
 /// fresh goods from abroad would cost (`replacement`): other traders would undercut
 /// stock bought dearly.
+/// Production cost per unit plus a margin: the average cost of the stock, without stock
+/// the site's expected full cost; `None` without either (docs/FORMELN.md).
+pub fn cost_plus_price(
+    catalog: &Catalog,
+    state: &GameState,
+    site: SiteId,
+    product: ProductId,
+    margin: f64,
+) -> Option<Money> {
+    let s = &state.sites[site.index()];
+    let unit = s
+        .inventory
+        .get(&product)
+        .filter(|st| st.quantity > 1e-9)
+        .map(|st| st.value.to_usd() / st.quantity)
+        .or_else(|| {
+            crate::production::unit_costs(catalog, state, site)
+                .iter()
+                .find(|u| u.product == product)
+                .map(crate::production::UnitCost::total)
+        })
+        .filter(|u| u.is_finite() && *u > 0.0)?;
+    Money::from_usd(unit * (1.0 + margin)).map(|m| m.max(Money::from_units(1)))
+}
+
 fn import_floor(model: &MarketModel, imports: &Stock, replacement: Option<Money>) -> Money {
     if imports.quantity <= 1e-9 {
         return Money::ZERO;

@@ -24,8 +24,12 @@ pub(super) fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Cata
         proposal_days: 30,
         keep_months: 12,
         ai: ContractAiModel {
-            sale_discount: 0.05,
+            sale_discount: 0.08,
+            sale_discount_per_month: 0.005,
+            sale_discount_max: 0.2,
             purchase_premium: 0.05,
+            purchase_premium_per_month: 0.0025,
+            purchase_premium_max: 0.12,
             share: 0.5,
             penalty_max: 0.5,
             proposal_chance,
@@ -276,8 +280,8 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
     assert_eq!(answer(buy(0.6 * need, 1.0, 0.2)), Err(Decline::Quantity));
     assert_eq!(answer(buy(0.4 * need, 1.0, 0.8)), Err(Decline::Penalty));
 
-    // The works sells iron: at least 95 % of its price, up to half its output, only the
-    // quality it makes.
+    // The works sells iron: at least its price less the discount for 12 months (13.5 %),
+    // up to half its output, only the quality it makes.
     let iron_price = market::market_price(&catalog, state, aaa, iron);
     let sell = |per_month: f64, factor: f64, min_quality: f64| Terms {
         seller: works,
@@ -290,9 +294,67 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
         penalty: 0.2,
     };
     assert_eq!(answer(sell(0.4 * output, 1.0, 0.0)), Ok(()));
-    assert_eq!(answer(sell(0.4 * output, 0.9, 0.0)), Err(Decline::Price));
+    assert_eq!(answer(sell(0.4 * output, 0.9, 0.0)), Ok(()));
+    assert_eq!(answer(sell(0.4 * output, 0.8, 0.0)), Err(Decline::Price));
+    // For one month only 8 %.
+    let short = Terms {
+        months: 1,
+        ..sell(0.4 * output, 0.9, 0.0)
+    };
+    assert_eq!(answer(short), Err(Decline::Price));
     assert_eq!(answer(sell(0.6 * output, 1.0, 0.0)), Err(Decline::Quantity));
     assert_eq!(answer(sell(0.4 * output, 1.0, 90.0)), Err(Decline::Quality));
+}
+
+#[test]
+fn longer_terms_earn_a_bigger_discount() {
+    let catalog = with_contracts(test_support::trading(), 0.0);
+    let m = &catalog.contracts.ai;
+    assert!((m.discount(1) - 0.08).abs() < 1e-12);
+    assert!((m.discount(12) - 0.135).abs() < 1e-12);
+    assert!((m.discount(60) - 0.2).abs() < 1e-12);
+    assert!((m.premium(12) - 0.0775).abs() < 1e-12);
+    assert!((m.premium(60) - 0.12).abs() < 1e-12);
+
+    // The suggested contract price in the same country is below the market price by the
+    // discount, and the seller takes it; a cent less it declines.
+    let mut game = new_game(catalog);
+    let works = furnace(&mut game);
+    let other = competitor(&mut game);
+    game.state_mut().sites[works.index()].owner = other;
+    let me = game.player();
+    let mine = warehouse(&mut game, me, "AAA", 0.0);
+    let catalog = game.catalog().clone();
+    let state = game.state();
+    let iron = product(&game, "eisen");
+    let market = market::market_price(&catalog, state, state.sites[works.index()].country, iron);
+    for months in [1, 12, 36] {
+        let price = contracts::contract_price(state, &catalog, (works, mine), iron, months)
+            .expect("route in the same country");
+        let expected = market.to_usd() * (1.0 - catalog.contracts.ai.discount(months));
+        assert!(
+            (price.to_usd() - expected).abs() < 0.01,
+            "{months}: {price:?}"
+        );
+        let t = |price| Terms {
+            seller: works,
+            buyer: mine,
+            product: iron,
+            per_month: 1.0,
+            price,
+            months,
+            min_quality: 0.0,
+            penalty: 0.2,
+        };
+        assert_eq!(
+            contracts::ai_answer(state, &catalog, &t(price), other),
+            Ok(())
+        );
+        assert_eq!(
+            contracts::ai_answer(state, &catalog, &t(price.scale(0.99)), other),
+            Err(Decline::Price)
+        );
+    }
 }
 
 #[test]

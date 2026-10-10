@@ -298,6 +298,9 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
             Some(PriceMode::Market { markup, .. }) => m(keys::STEP_SALE_MARKET)
                 .with("produkt", product_param(catalog, *product))
                 .with("aufschlag", percent(*markup)),
+            Some(PriceMode::CostPlus { margin }) => m(keys::STEP_SALE_COST_PLUS)
+                .with("produkt", product_param(catalog, *product))
+                .with("aufschlag", percent(*margin)),
         },
         Command::SetPrice { product, price, .. } => m(keys::STEP_PRICE)
             .with("produkt", product_param(catalog, *product))

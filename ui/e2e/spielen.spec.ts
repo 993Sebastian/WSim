@@ -182,6 +182,9 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     /Vorschau im Browser führt keine Befehle aus/,
   );
 
+  // How the quality of the product comes about (#191).
+  await page.locator("summary", { hasText: "Produktqualität: 59 Punkte" }).click();
+  await expect(page.getByRole("row", { name: /Forschungsniveau/ })).toContainText("+4,2");
   const anlage = page.getByRole("form", { name: "Nagelmaschine steuern" });
   await anlage.getByLabel("Geplante Auslastung").fill("60");
   await anlage.getByRole("button", { name: "Übernehmen" }).click();
@@ -198,6 +201,27 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   // The market price of the last months beside the purchase.
   await page.locator("summary", { hasText: "Marktpreis der letzten 12 Monate" }).click();
   await expect(page.getByText("Spanne")).toBeVisible();
+  // Sources by quality (#191): taking a market offer sets quality and price limit.
+  await page.locator("summary", { hasText: "Bezugsquellen vergleichen" }).click();
+  const quellen = page.getByRole("table").filter({ hasText: "Preis frei Werk" });
+  await expect(quellen.getByRole("row", { name: /Svenska Järn/ })).toContainText("72");
+  await page.getByLabel("Nach Qualität").check();
+  await expect(quellen.getByRole("row").nth(1)).toContainText("Svenska Järn");
+  await quellen
+    .getByRole("row", { name: /Rheinische Hütten/ })
+    .getByRole("button", { name: "Übernehmen" })
+    .click();
+  await expect(einkauf.getByLabel("Mindestqualität")).toHaveValue("45");
+  await quellen
+    .getByRole("row", { name: /Svenska Järn/ })
+    .getByRole("button", { name: "Liefervertrag anbieten" })
+    .click();
+  const bezugsvertrag = page.getByRole("form", { name: "Liefervertrag mit Svenska Järn" });
+  await expect(bezugsvertrag.getByLabel("Mindestqualität")).toHaveValue("67");
+  await bezugsvertrag.getByRole("button", { name: "Vertrag anbieten" }).click();
+  await expect(bezugsvertrag.getByRole("alert")).toHaveText(
+    /Vorschau im Browser führt keine Befehle aus/,
+  );
   // A one-off purchase on top of the stock target.
   const pauschal = page.getByRole("form", { name: "Pauschalkauf von Draht" });
   await pauschal.getByLabel("Menge").fill("5.000");
@@ -217,6 +241,10 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await verkauf.getByLabel("Fester Preis").check();
   await verkauf.getByLabel("Preis", { exact: true }).fill("2.400,50");
   await expect(verkauf.getByLabel("Preis", { exact: true })).toHaveValue("2.400,50");
+  await verkauf.getByRole("button", { name: "Übernehmen" }).click();
+  // The price follows the production cost plus a margin.
+  await verkauf.getByLabel("Aufschlag auf die Herstellkosten").check();
+  await verkauf.getByLabel("Marge").fill("25");
   await verkauf.getByRole("button", { name: "Übernehmen" }).click();
 
   await page.getByRole("button", { name: "Personal" }).click();
@@ -253,11 +281,25 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
+    // A contract with a source of the comparison: its free quantity, price and quality − 5.
+    {
+      ProposeContract: {
+        seller: 7,
+        buyer: 0,
+        product: "draht",
+        per_month: 300,
+        price: 1_260_000,
+        months: 12,
+        min_quality: 67,
+        penalty: 0.2,
+      },
+    },
     // The limit suggested: the market price + 10 %.
     { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 15_287_100 } },
     // 1 887,21 USD − 5 %, rounded to cents
     { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
+    { SetSale: { site: 0, product: "naegel", mode: { CostPlus: { margin: 0.25 } }, keep: 0 } },
     { SetWagePremium: { site: 0, premium: 0.125 } },
     { SetTraining: { site: 0, target: 0.8 } },
     { TakeLoan: { amount: 200_000_000, years: 8 } },

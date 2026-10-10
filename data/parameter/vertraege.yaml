@@ -9,8 +9,13 @@ vertraege:
   angebot_tage: 30           # so lange wartet ein Angebot der KI auf die Antwort
   aufbewahren_monate: 12     # beendete Verträge bleiben so lange in der Liste
   ki:
-    abschlag_verkauf: 0.05   # für sichere Abnahme verkauft die KI bis zu 5 % billiger
-    aufschlag_kauf: 0.05     # für sichere Lieferung zahlt sie bis zu 5 % mehr
+    # Rabatt für Bindung (10.10.2026): je Monat Laufzeit über den ersten mehr, bis zum Höchstwert.
+    abschlag_verkauf: 0.08   # für sichere Abnahme verkauft die KI 8 % billiger …
+    abschlag_je_monat: 0.005 # … plus 0,5 % je weiteren Monat (12 Monate: 13,5 %) …
+    abschlag_max: 0.20       # … höchstens 20 %
+    aufschlag_kauf: 0.05     # für sichere Lieferung zahlt sie 5 % mehr …
+    aufschlag_je_monat: 0.0025
+    aufschlag_max: 0.12
     anteil: 0.5              # höchstens die Hälfte ihrer Leistung oder ihres Bedarfs
     strafe_max: 0.5
     angebot_chance: 0.25     # je Monat und Produkt des Spielers

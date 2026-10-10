@@ -34,6 +34,7 @@ import type {
   Uebersicht,
   Vertraege,
   Vertragspartnerliste,
+  Bezugsquellen,
   Logistik,
   Konzern,
   Controlling,
@@ -116,6 +117,8 @@ export interface Kern {
   vertraege(): Promise<Vertraege>;
   /** Partners for a contract of an own site for a product (W4). */
   vertragspartner(standort: number, produkt: string): Promise<Vertragspartnerliste>;
+  /** Market offers and contract partners for a product an own site buys (#191). */
+  bezugsquellen(standort: number, produkt: string): Promise<Bezugsquellen>;
   /** The player's fleet and way of freight (W5). */
   logistik(): Promise<Logistik>;
   /** The player's subsidiaries and the group (W6). */
@@ -186,6 +189,7 @@ const tauriKern: Kern = {
   startups: () => aufruf("startups"),
   vertraege: () => aufruf("vertraege"),
   vertragspartner: (standort, produkt) => aufruf("vertragspartner", { standort, produkt }),
+  bezugsquellen: (standort, produkt) => aufruf("bezugsquellen", { standort, produkt }),
   logistik: () => aufruf("logistik"),
   konzern: () => aufruf("konzern"),
   controlling: (zeitraum) => aufruf("controlling", { zeitraum }),
