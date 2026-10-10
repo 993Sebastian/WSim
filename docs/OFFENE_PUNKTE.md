@@ -1887,6 +1887,29 @@ Abschnitt P7; vorgezogen vor H3 und die Branchenpakete). 🟡 Eigenständig ents
 7. **Ende:** nach der Laufzeit oder wenn der Inhaber pleite ist; ein Verkauf des
    Patents selbst ist nicht vorgesehen (Lizenzen genügen).
 
+## Q Rückmeldungen aus der Windows-Version (10.10.2026)
+
+### Q1 Forschung neu nach Art von Capitalism Lab (ersetzt die Stufen aus M37)
+
+Wunsch des Auftraggebers: Für bekannte Produkte werden Jahr für Jahr Forschungspunkte
+gesammelt; der Führende steht bei 100 %, die anderen darunter. Kein Endniveau, ein
+Vorsprung lässt sich dauerhaft halten. Rohstoffverbrauch und Produktionskosten wirken
+weiter, aber nach dem Prozentwert statt nach Stufen. Entscheidungen auf Rückfrage
+(10.10.2026):
+
+- **Prozent:** eigene Punkte / Punkte des Führenden (Verhältnis).
+- **Bezug:** je Produkt. Die Produktwertung des Endprodukts setzt sich aus der Qualität der
+  eingesetzten Vorprodukte und dem eigenen Forschungsprozent zusammen. Beim Einkauf soll
+  wählbar sein, welche Angebote im eigenen Land und weltweit (mit Transportkosten)
+  gekauft werden, um hohe Qualität einzukaufen.
+- **Aufholen:** kein automatisches Durchsickern; nur eigene Forschung zählt.
+- **Steuerung:** Budget je Produkt; Forschungszentren haben Kapazität, der Spieler
+  verteilt sie auf Produkte.
+
+Offen zur Abnahme mit den Formeln (Vorschlag folgt in `docs/FORMELN.md`): Gewichtung
+Vorprodukte zu Forschung in der Wertung, Umrechnung bestehender Stufen in Punkte für alte
+Spielstände, Verhalten der KI.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

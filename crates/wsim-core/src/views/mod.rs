@@ -310,8 +310,12 @@ pub struct FacilityView {
 pub struct StockView {
     pub product: String,
     pub quantity: f64,
-    /// Book value of the stock.
+    /// Book value of the stock: production costs of own output, purchase price of
+    /// bought goods (FORMELN, Herstellkosten).
     pub value_usd: f64,
+    /// Book value per unit.
+    #[serde(default)]
+    pub unit_cost_usd: f64,
     /// Average quality 0–100.
     #[serde(default)]
     pub quality: f64,
@@ -344,6 +348,7 @@ pub(crate) fn stock_views(
                 product: catalog.products.key(p).to_owned(),
                 quantity: st.quantity,
                 value_usd: usd(st.value),
+                unit_cost_usd: usd(st.value) / st.quantity,
                 quality: st.quality,
                 market_value_usd: usd(crate::market::market_price(catalog, state, s.country, p))
                     * st.quantity,

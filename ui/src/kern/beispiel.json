@@ -40964,7 +40964,8 @@
             "market_value_usd": 6950.0,
             "need_per_day": 2.0,
             "output_per_day": 0.0,
-            "days": 2.5
+            "days": 2.5,
+            "unit_cost_usd": 1389.1309
           }
         ],
         "training": 0.25,

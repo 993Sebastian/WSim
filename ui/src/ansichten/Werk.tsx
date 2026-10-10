@@ -835,6 +835,7 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
             <th className="zahl">{t("werk.lager_verbrauch")}</th>
             <th className="zahl">{t("werk.lager_erzeugung")}</th>
             <th className="zahl">{t("produktion.reichweite")}</th>
+            <th className="zahl">{t("werk.lager_stueckkosten")}</th>
             <th className="zahl">{t("werk.lager_buchwert")}</th>
             <th className="zahl">{t("werk.lager_marktwert")}</th>
           </tr>
@@ -864,6 +865,9 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
                 >
                   {tage === null ? "–" : t("produktion.tage", { tage: formatZahl(tage, 0) })}
                 </td>
+                <td className="zahl" data-titel={t("werk.lager_stueckkosten")}>
+                  {l.unit_cost_usd === undefined ? "–" : formatPreis(l.unit_cost_usd, e)}
+                </td>
                 <td className="zahl" data-titel={t("werk.lager_buchwert")}>
                   {formatGeld(l.value_usd)}
                 </td>
@@ -876,7 +880,7 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
         </tbody>
         <tfoot>
           <tr>
-            <th colSpan={6}>{t("werk.lager_summe")}</th>
+            <th colSpan={7}>{t("werk.lager_summe")}</th>
             <td className="zahl" data-titel={t("werk.lager_buchwert")}>
               {formatGeld(buchwert)}
             </td>

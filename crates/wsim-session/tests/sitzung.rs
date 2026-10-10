@@ -541,6 +541,10 @@ fn supply_contracts_with_ai_companies() {
             "{l:?}"
         );
         assert!(l.market_value_usd > 0.0 && l.quality > 0.0, "{l:?}");
+        assert!(
+            (l.unit_cost_usd * l.quantity - l.value_usd).abs() < 1e-6,
+            "{l:?}"
+        );
     }
     // Too much is declined with the reason.
     let err = session

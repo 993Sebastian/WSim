@@ -467,7 +467,7 @@ werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
 werk.lager: Lager
-werk.lager_hinweis: Alles, was am Standort liegt – Vorprodukte, eigene Erzeugnisse und Handelsware. Die Reichweite gilt für die geplante Erzeugung; der Marktwert rechnet mit dem heutigen Marktpreis im Land.
+werk.lager_hinweis: "Alles, was am Standort liegt – Vorprodukte, eigene Erzeugnisse und Handelsware. Die Reichweite gilt für die geplante Erzeugung. Herstellkosten und Buchwert: bei eigener Erzeugung Vorprodukte, Löhne, Strom und Gemeinkosten, bei gekaufter Ware der Einkaufspreis. Der Marktwert rechnet mit dem heutigen Marktpreis im Land."
 werk.lager_leer: Das Lager ist leer.
 werk.lager_von: "Lager: {standort}"
 werk.lager_menge: Menge
@@ -475,6 +475,7 @@ werk.lager_qualitaet: Qualität
 werk.lager_verbrauch: Verbrauch je Tag
 werk.lager_erzeugung: Erzeugung je Tag
 werk.lager_buchwert: Buchwert
+werk.lager_stueckkosten: Herstellkosten je Einheit
 werk.lager_marktwert: Marktwert
 werk.lager_summe: Summe
 produktion.lager_alle: Lager aller Standorte

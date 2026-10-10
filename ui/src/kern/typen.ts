@@ -537,8 +537,10 @@ export interface Preisverlauf {
 export interface Lagerbestand {
   product: string;
   quantity: number;
-  /** Book value. */
+  /** Book value: production costs of own output, purchase price of bought goods. */
   value_usd: number;
+  /** Book value per unit. */
+  unit_cost_usd?: number;
   quality?: number;
   /** Quantity at today's market price in the site's country. */
   market_value_usd?: number;
