@@ -12,6 +12,12 @@ pub struct Money(i64);
 
 impl Money {
     pub const ZERO: Money = Money(0);
+
+    /// For `skip_serializing_if`.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
     /// Internal units per US dollar.
     pub const UNITS_PER_USD: i64 = 10_000;
 

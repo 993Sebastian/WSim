@@ -408,7 +408,7 @@ struct Scratch {
     offers: Vec<Offer>,
     available_before: Vec<f64>,
     by_price: Vec<usize>,
-    buyers: Vec<(SiteId, f64, Money, f64)>,
+    buyers: Vec<(SiteId, f64, Money, f64, bool)>,
     presence: Vec<f64>,
     brand: Vec<f64>,
     weights: Vec<f64>,
@@ -726,19 +726,28 @@ fn clear_market(
 
     // 1. Industry: purchase orders, highest willingness to pay first.
     buyers.clear();
-    buyers.extend(sites.iter().filter_map(|&site| {
+    // A one-off purchase (`BuyOnce`) is a buyer of its own with its own price limit.
+    buyers.extend(sites.iter().flat_map(|&site| {
         let s = &state.sites[site.index()];
-        let order = s.orders.get(&product)?;
+        let order = s.orders.get(&product);
         let stock = s.inventory.get(&product).map_or(0.0, |st| st.quantity);
-        Some((
-            site,
-            (order.target - stock).max(0.0),
-            order.max_price,
-            order.min_quality,
-        ))
+        let standing = order.map(|o| {
+            (
+                site,
+                (o.target - stock).max(0.0),
+                o.max_price,
+                o.min_quality,
+                false,
+            )
+        });
+        let once = order
+            .filter(|o| o.once > 0.0)
+            .map(|o| (site, o.once, o.once_max_price, o.min_quality, true));
+        standing.into_iter().chain(once)
     }));
-    buyers.sort_by(|a, b| b.2.cmp(&a.2).then(a.0.cmp(&b.0)));
-    for &(site, mut need, max_price, min_quality) in buyers.iter() {
+    buyers.sort_by(|a, b| b.2.cmp(&a.2).then(a.0.cmp(&b.0)).then(a.4.cmp(&b.4)));
+    for &(site, mut need, max_price, min_quality, once) in buyers.iter() {
+        let wanted = need;
         day.demand += need;
         let owner = state.sites[site.index()].owner;
         for &i in by_price.iter() {
@@ -783,6 +792,19 @@ fn clear_market(
                 &mut day,
             );
             need -= quantity;
+        }
+        if once {
+            let s = &mut state.sites[site.index()];
+            if let Some(order) = s.orders.get_mut(&product) {
+                order.once = (order.once - (wanted - need)).max(0.0);
+                if order.once <= 1e-9 {
+                    order.once = 0.0;
+                    order.once_max_price = Money::ZERO;
+                    if order.target <= 0.0 {
+                        s.orders.remove(&product);
+                    }
+                }
+            }
         }
         flows.industry_unmet += need.max(0.0);
         if need > 1e-9 {

@@ -810,3 +810,55 @@ fn state_demand_follows_military_expenditure_and_war() {
     let (arms, _) = rate(Some(0.06), 1.0, true);
     assert!((arms / plain - 2.0).abs() < 1e-9, "{arms} {plain}");
 }
+
+/// A one-off purchase buys its quantity on top of the stock target and then ends; while
+/// the market lacks goods it waits, and setting the stock target leaves it open.
+#[test]
+fn a_one_off_purchase_buys_its_quantity_once() {
+    let mut game = new_game();
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let seller = warehouse(&mut game, rival, "erz", 600.0, 60.0);
+    sell(&mut game, seller, "erz", PriceMode::Fixed(usd(12.0)));
+    let buyer = warehouse(&mut game, player, "eisen", 0.0, 50.0);
+    let ore = product(&game, "erz");
+    let once = |quantity: f64, max_price| Command::BuyOnce {
+        site: buyer,
+        product: ore,
+        quantity,
+        max_price,
+    };
+    // Too low a limit: nothing happens, the order waits.
+    game.apply(once(1_000.0, usd(10.0))).unwrap();
+    day(&mut game);
+    assert_eq!(stock(&game, buyer, "erz"), 0.0);
+    game.apply(once(1_000.0, usd(15.0))).unwrap();
+    // A stock target set meanwhile keeps the open quantity.
+    game.apply(Command::SetPurchase {
+        site: buyer,
+        product: ore,
+        target: 0.0,
+        max_price: Money::ZERO,
+        min_quality: 0.0,
+    })
+    .unwrap();
+    day(&mut game);
+    // Only 600 t on offer: 400 t stay open.
+    assert_eq!(stock(&game, buyer, "erz"), 600.0);
+    let order = &game.state().sites[buyer.index()].orders[&ore];
+    assert!((order.once - 400.0).abs() < 1e-6, "{order:?}");
+    assert_eq!(order.bought_month, 600.0);
+    // Fresh goods: the rest is bought, then the order is gone.
+    game.state_mut().sites[seller.index()]
+        .inventory
+        .get_mut(&ore)
+        .unwrap()
+        .quantity += 1_000.0;
+    day(&mut game);
+    assert_eq!(stock(&game, buyer, "erz"), 1_000.0);
+    assert!(!game.state().sites[buyer.index()].orders.contains_key(&ore));
+    assert!(game.state().company(player).unwrap().ledger.is_balanced());
+    // Invalid quantities are refused.
+    assert!(game.apply(once(-1.0, usd(15.0))).is_err());
+    assert!(game.apply(once(10.0, Money::ZERO)).is_err());
+}

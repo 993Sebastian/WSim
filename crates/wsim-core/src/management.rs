@@ -2860,7 +2860,9 @@ fn object(command: &Command) -> Option<Object> {
         Command::SetSale { site, product, .. } | Command::SetPrice { site, product, .. } => {
             Object::Sale(site, product)
         }
-        Command::SetPurchase { site, product, .. } => Object::Purchase(site, product),
+        Command::SetPurchase { site, product, .. } | Command::BuyOnce { site, product, .. } => {
+            Object::Purchase(site, product)
+        }
         Command::TransferGoods { to, product, .. } => Object::Supply(to, product),
         Command::SetWagePremium { site, .. } => Object::Wage(site),
         Command::BuildFacility { site, .. } => Object::Build(site),

@@ -161,6 +161,14 @@ pub enum Command {
         max_price: Money,
         min_quality: f64,
     },
+    /// Buys `quantity` once on the country's market, at most at `max_price`, on top of
+    /// the stock target; replaces an open one-off purchase (`quantity` 0 cancels it).
+    BuyOnce {
+        site: SiteId,
+        product: ProductId,
+        quantity: f64,
+        max_price: Money,
+    },
     /// Lets a research center work on a technology (`None` stops it; the points
     /// collected so far stay with the company).
     SetResearch {
@@ -1990,23 +1998,51 @@ fn run(
                 return Err(CommandError::InvalidShare);
             }
             let s = state.site_mut(*site).expect("checked above");
-            if *target > 0.0 {
-                let (bought_month, bought_last_month) = s
-                    .orders
-                    .get(product)
-                    .map_or((0.0, 0.0), |o| (o.bought_month, o.bought_last_month));
+            let open_once = s.orders.get(product).is_some_and(|o| o.once > 0.0);
+            if *target > 0.0 || open_once {
+                let old = s.orders.remove(product).unwrap_or_default();
                 s.orders.insert(
                     *product,
                     PurchaseOrder {
                         target: *target,
-                        max_price: *max_price,
+                        // A one-off purchase alone keeps its own limit.
+                        max_price: if *target > 0.0 {
+                            *max_price
+                        } else {
+                            old.max_price
+                        },
                         min_quality: *min_quality,
-                        bought_month,
-                        bought_last_month,
+                        ..old
                     },
                 );
             } else {
                 s.orders.remove(product);
+            }
+        }
+        Command::BuyOnce {
+            site,
+            product,
+            quantity,
+            max_price,
+        } => {
+            own_site(state, actor, *site)?;
+            if !(quantity.is_finite() && *quantity >= 0.0) {
+                return Err(CommandError::InvalidQuantity);
+            }
+            if *quantity > 0.0 && *max_price <= Money::ZERO {
+                return Err(CommandError::InvalidPrice);
+            }
+            let s = state.site_mut(*site).expect("checked above");
+            if *quantity > 0.0 {
+                let order = s.orders.entry(*product).or_default();
+                order.once = *quantity;
+                order.once_max_price = *max_price;
+            } else if let Some(order) = s.orders.get_mut(product) {
+                order.once = 0.0;
+                order.once_max_price = Money::ZERO;
+                if order.target <= 0.0 {
+                    s.orders.remove(product);
+                }
             }
         }
         Command::SetResearch { site, technology } => {

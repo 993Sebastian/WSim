@@ -88,6 +88,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Lagerstätte für eine neue Konzession, Anlagen je Konzession (M33) | `ai::deposit_for`, `ai::units_for_concession`, `AiBehavior::reserve_years_min` (`vorrat_jahre_min`) |
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
+| Pauschalkauf (einmaliger Einkauf) | `BuyOnce`, `PurchaseOrder::once` |
 | Handel (Menge, Umsatz) | `Trade` |
 | Verkehrsmittel, Weg | `Vehicle`, `Way` |
 | Transportmodell, Frachtdienst | `TransportModel`, `transport` |

@@ -983,6 +983,7 @@ fn found_company(
                     min_quality: 0.0,
                     bought_month: 0.0,
                     bought_last_month: 0.0,
+                    ..PurchaseOrder::default()
                 },
             );
         }

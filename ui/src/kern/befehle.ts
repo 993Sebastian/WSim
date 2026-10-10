@@ -121,6 +121,7 @@ export type Befehl =
         min_quality: number;
       };
     }
+  | { BuyOnce: { site: number; product: string; quantity: number; max_price: number } }
   | { SetResearch: { site: number; technology: string | null } }
   | { SetDevelopment: { site: number; product: string | null } }
   | { SetAdvertising: { country: string; group: string; budget: number } }

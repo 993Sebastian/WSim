@@ -319,6 +319,7 @@ pub(crate) fn site_of(command: &Command) -> Option<SiteId> {
         | Command::SetProduction { site, .. }
         | Command::SetSale { site, .. }
         | Command::SetPurchase { site, .. }
+        | Command::BuyOnce { site, .. }
         | Command::BuyPlot { site } => Some(site),
         _ => None,
     }
@@ -332,6 +333,7 @@ pub(crate) fn move_site(command: &mut Command, from: SiteId, to: SiteId) {
         | Command::SetProduction { site, .. }
         | Command::SetSale { site, .. }
         | Command::SetPurchase { site, .. }
+        | Command::BuyOnce { site, .. }
         | Command::BuyPlot { site }
             if *site == from =>
         {
@@ -588,6 +590,20 @@ pub fn amount(
             }
             let per_day = target / catalog.ai_model.start.input_stock_days.max(1.0);
             Money::times(*max_price - old, per_day * 365.0)
+        }
+        // A one-off purchase counts what it may pay above the usual ceiling.
+        Command::BuyOnce {
+            site,
+            product,
+            quantity,
+            max_price,
+        } => {
+            let Some(s) = state.sites.get(site.index()) else {
+                return Money::ZERO;
+            };
+            let usual = crate::market::market_price(catalog, state, s.country, *product)
+                .scale(1.0 + catalog.ai_model.behavior.purchase_markup);
+            Money::times((*max_price - usual).max(Money::ZERO), *quantity)
         }
         Command::SetAdvertising {
             country,

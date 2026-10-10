@@ -476,6 +476,9 @@ export interface Einkauf {
   min_quality: number;
   bought_month: number;
   bought_last_month: number;
+  /** One-off purchase still to buy and its price limit. */
+  once?: number;
+  once_max_price_usd?: number;
 }
 
 export interface Versorgung {

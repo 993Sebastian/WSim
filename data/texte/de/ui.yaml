@@ -466,6 +466,17 @@ werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
+werk.pauschal_titel: Einmalig kaufen
+werk.pauschal_von: "Pauschalkauf von {produkt}"
+werk.pauschal_menge: Menge
+werk.pauschal_preis: Höchstpreis
+werk.pauschal_hilfe: Wird einmal zusätzlich zum Ziellager gekauft – auch über mehrere Tage, solange der Markt zum Höchstpreis liefert. Ein neuer Pauschalkauf ersetzt den offenen.
+werk.pauschal_kaufen: Kaufen
+werk.pauschal_abbrechen: Rest abbrechen
+werk.pauschal_offen: "Noch offen: {menge} zu höchstens {preis}."
+werk.pauschal_werte: Menge und Höchstpreis müssen größer als 0 sein.
+werk.pauschal_gesetzt: "Pauschalkauf von {produkt} aufgegeben."
+werk.pauschal_gestoppt: "Pauschalkauf von {produkt} abgebrochen."
 werk.preisverlauf: Marktpreis der letzten 12 Monate
 werk.preisverlauf_aenderung: "({wert} zum Vorjahr)"
 werk.preisverlauf_jetzt: Letzter Monat

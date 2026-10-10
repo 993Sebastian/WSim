@@ -181,6 +181,13 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   // The market price of the last months beside the purchase.
   await page.locator("summary", { hasText: "Marktpreis der letzten 12 Monate" }).click();
   await expect(page.getByText("Spanne")).toBeVisible();
+  // A one-off purchase on top of the stock target.
+  const pauschal = page.getByRole("form", { name: "Pauschalkauf von Draht" });
+  await pauschal.getByLabel("Menge").fill("5.000");
+  await pauschal.getByRole("button", { name: "Kaufen" }).click();
+  await expect(pauschal.getByRole("alert")).toHaveText(
+    /Vorschau im Browser führt keine Befehle aus/,
+  );
 
   await page.getByRole("button", { name: "Verkauf" }).click();
   const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
@@ -223,6 +230,8 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
+    // The limit suggested: the market price + 10 %.
+    { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 15_287_100 } },
     // 1 887,21 USD − 5 %, rounded to cents
     { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },

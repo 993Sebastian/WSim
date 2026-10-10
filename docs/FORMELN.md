@@ -5233,3 +5233,17 @@ wie Tagesrunden: Im Journal ersetzt je Tag eine Runde der Länge „Tag“ die a
 Runde, die Wiederholung (`Game::replay`) ergibt denselben Zustand. Die Meldungen am
 Rundenende (Kontostand, fehlende Vorprodukte) kommen wie sonst.
 
+
+## Pauschalkauf (Einkauf im Werk)
+
+Befehl `BuyOnce { standort, produkt, menge, hoechstpreis }`: kauft `menge` einmal zusätzlich
+zum Ziellager auf dem Markt des Landes.
+
+- Am Markt tritt der Pauschalkauf als eigener Käufer der Industrie auf (Reihenfolge wie alle
+  Aufträge: höchster Höchstpreis zuerst), mit Bedarf = offene Menge und eigenem Höchstpreis.
+  Die Ware geht wie jeder Einkauf ins Lager des Standorts.
+- Gekauftes mindert die offene Menge; fehlt Ware, bleibt der Rest offen und wird an den
+  folgenden Tagen gekauft. Bei 0 endet er; ein Auftrag ohne Ziellager wird dann gelöscht.
+- Ein neuer Pauschalkauf ersetzt den offenen; Menge 0 bricht ab. Ein Ziellager von 0 lässt
+  einen offenen Pauschalkauf bestehen.
+- Freigabe durch Manager (MA2): zählt `menge × max(hoechstpreis − übliche Obergrenze, 0)`.

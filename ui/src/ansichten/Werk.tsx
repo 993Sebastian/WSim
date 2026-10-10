@@ -1087,7 +1087,102 @@ function EinkaufKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      <Pauschalkauf
+        key={`${auftrag?.once ?? 0}/${auftrag?.once_max_price_usd ?? 0}/${geldSchluessel()}`}
+        v={v}
+        s={s}
+        einheit={e}
+        vorschlagPreis={vorschlagPreis}
+      />
     </article>
+  );
+}
+
+/** Buys a quantity once on top of the stock target (BuyOnce). */
+function Pauschalkauf({
+  v,
+  s,
+  einheit: e,
+  vorschlagPreis,
+}: {
+  v: Versorgung;
+  s: StandortDetail;
+  einheit: string;
+  vorschlagPreis: number;
+}) {
+  const auftrag = s.orders.find((o) => o.product === v.product);
+  const offen = auftrag?.once ?? 0;
+  const name = produktName(v.product);
+  const { los, antwort } = useAktion(`pauschal/${s.index}/${v.product}`);
+  const [menge, setMenge] = useState("");
+  const [preis, setPreis] = useState(
+    geldFeld(offen > 0 ? (auftrag?.once_max_price_usd ?? vorschlagPreis) : vorschlagPreis),
+  );
+  const [fehler, setFehler] = useState<string | null>(null);
+  const senden = (quantity: number, p: number, meldung: string) =>
+    void los(
+      [
+        {
+          BuyOnce: { site: s.index, product: v.product, quantity, max_price: geld(ausAnzeige(p)) },
+        },
+      ],
+      meldung,
+    );
+  const absenden = (ev: FormEvent) => {
+    ev.preventDefault();
+    const m = zahlLesen(menge);
+    const p = zahlLesen(preis);
+    if (m === null || m <= 0 || p === null || p <= 0) {
+      setFehler(t("werk.pauschal_werte"));
+      return;
+    }
+    setFehler(null);
+    senden(m, p, t("werk.pauschal_gesetzt", { produkt: name }));
+  };
+  return (
+    <form
+      className="formular-zeile pauschalkauf"
+      aria-label={t("werk.pauschal_von", { produkt: name })}
+      onSubmit={absenden}
+    >
+      <h4>{t("werk.pauschal_titel")}</h4>
+      {offen > 0 && auftrag && (
+        <p className="erklaerung">
+          {t("werk.pauschal_offen", {
+            menge: `${formatMenge(offen)} ${e}`,
+            preis: formatPreis(auftrag.once_max_price_usd ?? 0, e),
+          })}
+        </p>
+      )}
+      <ZahlFeld
+        name={t("werk.pauschal_menge")}
+        einheit={e}
+        wert={menge}
+        onWert={setMenge}
+        hilfe={t("werk.pauschal_hilfe")}
+      />
+      <ZahlFeld
+        name={t("werk.pauschal_preis")}
+        einheit={`${geldEinheit()}/${e}`}
+        wert={preis}
+        onWert={setPreis}
+        hilfe={t("werk.hoechstpreis_hilfe")}
+      />
+      <div className="knopfreihe links">
+        <button type="submit">{t("werk.pauschal_kaufen")}</button>
+        {offen > 0 && (
+          <button
+            type="button"
+            className="schlicht"
+            onClick={() => senden(0, 0, t("werk.pauschal_gestoppt", { produkt: name }))}
+          >
+            {t("werk.pauschal_abbrechen")}
+          </button>
+        )}
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
   );
 }
 

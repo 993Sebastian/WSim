@@ -123,6 +123,11 @@ pub struct OrderView {
     /// Bought in the running month.
     pub bought_month: f64,
     pub bought_last_month: f64,
+    /// One-off purchase still to buy and its price limit (`BuyOnce`).
+    #[serde(default)]
+    pub once: f64,
+    #[serde(default)]
+    pub once_max_price_usd: f64,
 }
 
 /// An input of the site's production: daily need, stock and how long it lasts.
@@ -771,6 +776,8 @@ pub fn production(game: &Game) -> ProductionView {
                         min_quality: o.min_quality,
                         bought_month: o.bought_month,
                         bought_last_month: o.bought_last_month,
+                        once: o.once,
+                        once_max_price_usd: usd(o.once_max_price),
                     })
                     .collect(),
                 inputs,

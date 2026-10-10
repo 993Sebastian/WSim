@@ -192,7 +192,7 @@ fn routine(catalog: &Catalog, state: &GameState, id: CompanyId, command: &Comman
         Command::SetSale { site, product, .. } => {
             (Topic::Sale, ChoiceKind::Adjust, Some(*site), Some(*product))
         }
-        Command::SetPurchase { site, product, .. } => (
+        Command::SetPurchase { site, product, .. } | Command::BuyOnce { site, product, .. } => (
             Topic::Purchase,
             ChoiceKind::Adjust,
             Some(*site),

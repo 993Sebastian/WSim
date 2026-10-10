@@ -1191,6 +1191,10 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   (gestrichelt), die Änderung dazu und die Spanne (`SiteDetail.price_trends`, Test
   `the_price_trend_compares_with_a_year_before`, E2E). Weitere Stellen mit Verlauf: der
   Produktmarkt (seit M24, 24 Monate).
+- **Pauschalkauf:** In jeder Einkaufskarte „Einmalig kaufen“ mit Menge und Höchstpreis;
+  der Rest bleibt offen, bis er gekauft ist, und lässt sich abbrechen (Befehl `BuyOnce`,
+  `docs/FORMELN.md` Abschnitt Pauschalkauf; Test `a_one_off_purchase_buys_its_quantity_once`,
+  E2E). Spielstände bleiben lesbar (neue Felder mit Vorgabe).
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

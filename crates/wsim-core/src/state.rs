@@ -1444,7 +1444,7 @@ pub struct SaleOffer {
     pub to_companies_month: f64,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct PurchaseOrder {
     /// Stock the site wants to have.
     pub target: f64,
@@ -1454,6 +1454,11 @@ pub struct PurchaseOrder {
     /// Bought in the last closed month (for the views).
     #[serde(default)]
     pub bought_last_month: f64,
+    /// One-off purchase still to buy on top of the stock target, and its price limit.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub once: f64,
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
+    pub once_max_price: Money,
 }
 
 /// Trade on a market in a period.
