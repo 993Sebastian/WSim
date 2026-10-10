@@ -2188,7 +2188,7 @@ export interface Vertrag {
   own_site_name?: string | null;
   partner: string;
   partner_country: string;
-  per_month: number;
+  per_day: number;
   price_usd: number;
   months: number;
   min_quality: number;
@@ -2224,7 +2224,7 @@ export interface Vertragspartner {
   company: string;
   country: string;
   kind_text: string;
-  free_per_month: number;
+  free_per_day: number;
   suggested_price_usd: number;
   delivery_cost_usd: number;
   /** Quality of the seller's stock (buying only). */
@@ -2252,7 +2252,7 @@ export interface Bezugsquellen {
   country: string;
   own_quality: number | null;
   /** What the site uses a month, and the defaults of a new contract. */
-  need_per_month: number;
+  need_per_day: number;
   contract_months: number;
   contract_penalty: number;
   /** Cheapest first. */
@@ -2264,7 +2264,7 @@ export interface Vertragspartnerliste {
   product: string;
   unit: string;
   role: "verkauf" | "einkauf";
-  own_per_month: number;
+  own_per_day: number;
   partners: Vertragspartner[];
 }
 

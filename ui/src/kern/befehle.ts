@@ -45,7 +45,7 @@ export type Befehl =
         seller: number;
         buyer: number;
         product: string;
-        per_month: number;
+        per_day: number;
         price: number;
         months: number;
         min_quality: number;

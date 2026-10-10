@@ -792,12 +792,12 @@ fn example_contracts(
     let partners = session.contract_partners(site, "draht").map_err(message)?;
     if let Some(seller) = partners.partners.first() {
         // Half of what the workshop uses, or what the works can spare while it rests.
-        let wanted = if partners.own_per_month > 0.0 {
-            0.5 * partners.own_per_month
+        let wanted = if partners.own_per_day > 0.0 {
+            0.5 * partners.own_per_day
         } else {
-            seller.free_per_month
+            seller.free_per_day
         };
-        let quantity = seller.free_per_month.min(wanted);
+        let quantity = seller.free_per_day.min(wanted);
         // Money units of the core: hundredths of a cent.
         // The price is far below the i64 range.
         #[allow(clippy::cast_possible_truncation)]
@@ -805,7 +805,7 @@ fn example_contracts(
         session
             .command(serde_json::json!({"ProposeContract": {
                 "seller": seller.site, "buyer": site, "product": "draht",
-                "per_month": quantity, "price": price, "months": 12,
+                "per_day": quantity, "price": price, "months": 12,
                 "min_quality": 0.0, "penalty": 0.2
             }}))
             .map_err(message)?;

@@ -76,7 +76,12 @@ pub enum Command {
         seller: SiteId,
         buyer: SiteId,
         product: ProductId,
-        per_month: f64,
+        /// Quantity per day.
+        #[serde(default)]
+        per_day: f64,
+        /// Monthly quantity of journals before per-day contracts; replaces `per_day`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        per_month: Option<f64>,
         price: Money,
         months: u32,
         #[serde(default)]
@@ -1781,6 +1786,7 @@ fn run(
             seller,
             buyer,
             product,
+            per_day,
             per_month,
             price,
             months,
@@ -1791,7 +1797,7 @@ fn run(
                 seller: *seller,
                 buyer: *buyer,
                 product: *product,
-                per_month: *per_month,
+                per_day: per_month.map_or(*per_day, |m| m / crate::contracts::DAYS_PER_MONTH),
                 price: *price,
                 months: *months,
                 min_quality: *min_quality,

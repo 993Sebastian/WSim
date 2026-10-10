@@ -53,7 +53,7 @@ function VertragZeile({ v, onNeu }: { v: Vertrag; onNeu: () => void }) {
             : `${landName(v.partner_country)} → ${v.own_site_name ?? landName(v.own_country)}`}
         </small>
       </td>
-      <td className="zahl">{menge(v.per_month)}</td>
+      <td className="zahl">{menge(v.per_day)}</td>
       <td className="zahl">
         {formatGeld(v.price_usd)}
         <br />
@@ -172,8 +172,8 @@ function NeuerVertrag({
         const erster = l.partners[0];
         setPartner(erster?.site ?? null);
         if (erster) {
-          const wunsch = l.own_per_month > 0 ? 0.5 * l.own_per_month : erster.free_per_month;
-          setMenge(zahlFeld(Math.min(erster.free_per_month, wunsch), 1));
+          const wunsch = l.own_per_day > 0 ? 0.5 * l.own_per_day : erster.free_per_day;
+          setMenge(zahlFeld(Math.min(erster.free_per_day, wunsch), 1));
           setPreis(geldFeld(erster.suggested_price_usd));
         }
       })
@@ -207,7 +207,7 @@ function NeuerVertrag({
             seller: verkauf ? standort : partner,
             buyer: verkauf ? partner : standort,
             product: produkt,
-            per_month: werte.menge ?? 0,
+            per_day: werte.menge ?? 0,
             price: geld(ausAnzeige(werte.preis ?? 0)),
             months: Math.round(werte.monate ?? 0),
             min_quality: werte.qualitaet ?? 0,
@@ -282,7 +282,7 @@ function NeuerVertrag({
                   {t("vertrag.partner_wahl", {
                     firma: x.company,
                     land: landName(x.country),
-                    menge: `${formatMenge(x.free_per_month)} ${e}`,
+                    menge: `${formatMenge(x.free_per_day)} ${e}`,
                     preis: formatGeld(x.suggested_price_usd),
                   })}
                 </option>
@@ -297,13 +297,13 @@ function NeuerVertrag({
           <div className="formular-zeile">
             <ZahlFeld
               name={t("vertrag.menge")}
-              einheit={`${e}/${t("vertrag.monat")}`}
+              einheit={`${e}/${t("vertrag.tag")}`}
               wert={menge}
               onWert={setMenge}
               hilfe={
-                liste.own_per_month > 0
+                liste.own_per_day > 0
                   ? t(`vertrag.eigen.${liste.role}`, {
-                      menge: `${formatMenge(liste.own_per_month)} ${e}`,
+                      menge: `${formatMenge(liste.own_per_day)} ${e}`,
                     })
                   : undefined
               }

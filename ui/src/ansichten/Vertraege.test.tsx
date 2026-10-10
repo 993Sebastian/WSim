@@ -116,7 +116,7 @@ describe("Lieferverträge", () => {
       min_quality: 0,
       penalty: 0.2,
     });
-    expect(b.ProposeContract.per_month).toBeGreaterThan(0);
+    expect(b.ProposeContract.per_day).toBeGreaterThan(0);
     expect(b.ProposeContract.price).toBeGreaterThan(0);
   });
 });

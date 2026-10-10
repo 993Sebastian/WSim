@@ -2290,6 +2290,7 @@ impl GameState {
         self.developments
             .resize_with(catalog.products.len(), Vec::new);
         crate::development::fit_loaded(self, catalog);
+        crate::contracts::fit_loaded(self);
         self.milestones
             .resize_with(catalog.milestones.len(), || None);
         let countries = catalog.countries.len();

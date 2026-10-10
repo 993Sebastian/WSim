@@ -281,13 +281,14 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         min_quality: 0,
       },
     },
-    // A contract with a source of the comparison: its free quantity, price and quality − 5.
+    // A contract with a source of the comparison: its free quantity a day, price and
+    // quality − 5.
     {
       ProposeContract: {
         seller: 7,
         buyer: 0,
         product: "draht",
-        per_month: 300,
+        per_day: 10,
         price: 1_260_000,
         months: 12,
         min_quality: 67,

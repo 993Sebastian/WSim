@@ -529,20 +529,20 @@ fn supply_contracts_with_ai_companies() {
             .all(|w| w[0].price_usd <= w[1].price_usd)
     );
     assert!(session.supply_sources(site, "gibt_es_nicht").is_err());
-    let quantity = seller.free_per_month.min(0.5 * partners.own_per_month);
+    let quantity = seller.free_per_day.min(0.5 * partners.own_per_day);
     assert!(quantity > 0.0);
     let price = (seller.suggested_price_usd * 10_000.0).round() as i64;
     // The suggestion holds for the standard term; a shorter one earns less discount.
     let short = session.command(json!({"ProposeContract": {
         "seller": seller.site, "buyer": site, "product": "draht",
-        "per_month": quantity, "price": price, "months": 1,
+        "per_day": quantity, "price": price, "months": 1,
         "min_quality": 0.0, "penalty": 0.2
     }}));
     assert_eq!(short.unwrap_err().key, "fehler.befehl.vertrag_abgelehnt");
     session
         .command(json!({"ProposeContract": {
             "seller": seller.site, "buyer": site, "product": "draht",
-            "per_month": quantity, "price": price, "months": 12,
+            "per_day": quantity, "price": price, "months": 12,
             "min_quality": 0.0, "penalty": 0.2
         }}))
         .unwrap();
@@ -579,7 +579,7 @@ fn supply_contracts_with_ai_companies() {
     let err = session
         .command(json!({"ProposeContract": {
             "seller": seller.site, "buyer": site, "product": "draht",
-            "per_month": seller.free_per_month * 10.0, "price": price, "months": 6,
+            "per_day": seller.free_per_day * 10.0, "price": price, "months": 6,
             "min_quality": 0.0, "penalty": 0.2
         }}))
         .unwrap_err();

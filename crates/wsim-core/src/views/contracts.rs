@@ -45,7 +45,8 @@ pub struct ContractView {
     pub own_site_name: Option<String>,
     pub partner: String,
     pub partner_country: String,
-    pub per_month: f64,
+    /// Quantity per day.
+    pub per_day: f64,
     pub price_usd: f64,
     pub months: u32,
     pub min_quality: f64,
@@ -89,8 +90,8 @@ pub struct ContractPartnerView {
     pub company: String,
     pub country: String,
     pub kind_text: String,
-    /// How much it could take or deliver a month at most (its share for contracts).
-    pub free_per_month: f64,
+    /// How much it could take or deliver a day at most (its share for contracts).
+    pub free_per_day: f64,
     /// The price it would propose, delivered to the buyer.
     pub suggested_price_usd: f64,
     /// Freight and customs per unit the seller pays.
@@ -107,8 +108,8 @@ pub struct ContractPartnersView {
     pub unit: String,
     /// The own site sells (`verkauf`) or buys (`einkauf`).
     pub role: String,
-    /// What the own site makes (selling) or uses (buying) a month.
-    pub own_per_month: f64,
+    /// What the own site makes (selling) or uses (buying) a day.
+    pub own_per_day: f64,
     pub partners: Vec<ContractPartnerView>,
 }
 
@@ -144,7 +145,11 @@ fn contract_view(game: &Game, c: &Contract) -> ContractView {
         let months = c
             .months_left(state.date)
             .min(catalog.contracts.cancel_months);
-        Money::times(c.price, c.per_month * f64::from(months)).scale(c.penalty)
+        Money::times(
+            c.price,
+            c.per_day * contracts::DAYS_PER_MONTH * f64::from(months),
+        )
+        .scale(c.penalty)
     } else {
         Money::ZERO
     };
@@ -165,7 +170,7 @@ fn contract_view(game: &Game, c: &Contract) -> ContractView {
         own_site_name: own_site.name.clone(),
         partner: state.companies[c.partner(me).index()].name.clone(),
         partner_country: catalog.countries.key(other_site.country).to_owned(),
-        per_month: c.per_month,
+        per_day: c.per_day,
         price_usd: usd(c.price),
         months: c.months,
         min_quality: c.min_quality,
@@ -312,12 +317,11 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
     let (sells, _) = site_products(game, own);
     let selling = sells.contains(&p);
     let share = catalog.contracts.ai.share;
-    let own_per_month = 30.0
-        * if selling {
-            contracts::daily_output(state, catalog, own, p)
-        } else {
-            contracts::daily_need(state, catalog, own, p)
-        };
+    let own_per_day = if selling {
+        contracts::daily_output(state, catalog, own, p)
+    } else {
+        contracts::daily_need(state, catalog, own, p)
+    };
     let mut partners: Vec<ContractPartnerView> = Vec::new();
     for (i, other) in state.sites.iter().enumerate() {
         let site = SiteId(u32::try_from(i).expect("site count fits u32"));
@@ -327,7 +331,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
         }
         let (free, pair) = if selling {
             (
-                share * 30.0 * contracts::daily_need(state, catalog, site, p)
+                share * contracts::daily_need(state, catalog, site, p)
                     - contracts::contracted(state, site, p, false),
                 (own, site),
             )
@@ -336,7 +340,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
                 continue;
             }
             (
-                share * 30.0 * contracts::daily_output(state, catalog, site, p)
+                share * contracts::daily_output(state, catalog, site, p)
                     - contracts::contracted(state, site, p, true),
                 (site, own),
             )
@@ -364,7 +368,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
             company: company.name.clone(),
             country: catalog.countries.key(other.country).to_owned(),
             kind_text: site_type_key(other.kind),
-            free_per_month: free,
+            free_per_day: free,
             suggested_price_usd: usd(suggested),
             delivery_cost_usd: usd(cost),
             quality: (!selling).then(|| {
@@ -376,8 +380,8 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
         });
     }
     partners.sort_by(|a, b| {
-        b.free_per_month
-            .total_cmp(&a.free_per_month)
+        b.free_per_day
+            .total_cmp(&a.free_per_day)
             .then(a.site.cmp(&b.site))
     });
     partners.truncate(20);
@@ -386,7 +390,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
         product: product.to_owned(),
         unit: unit_key(game, p),
         role: if selling { "verkauf" } else { "einkauf" }.to_owned(),
-        own_per_month,
+        own_per_day,
         partners,
     })
 }
@@ -409,7 +413,7 @@ pub struct SupplySourceView {
     pub price_usd: f64,
     /// Of it: freight and customs per unit (the seller pays them).
     pub delivery_cost_usd: f64,
-    /// In stock now (`markt`, `import`), free a month (`vertrag`); `None`: unlimited.
+    /// In stock now (`markt`, `import`), free a day (`vertrag`); `None`: unlimited.
     pub available: Option<f64>,
 }
 
@@ -421,8 +425,8 @@ pub struct SupplySourcesView {
     pub country: String,
     /// Average quality of the site's stock of the product, if it holds any.
     pub own_quality: Option<f64>,
-    /// What the site uses a month, and the defaults of a new contract.
-    pub need_per_month: f64,
+    /// What the site uses a day, and the defaults of a new contract.
+    pub need_per_day: f64,
     pub contract_months: u32,
     pub contract_penalty: f64,
     /// Sorted by price, cheapest first.
@@ -470,7 +474,7 @@ pub fn supply_sources(game: &Game, site: u32, product: &str) -> Option<SupplySou
         if !catalog.contracts.enabled() {
             continue;
         }
-        let free = share * 30.0 * contracts::daily_output(state, catalog, id, p)
+        let free = share * contracts::daily_output(state, catalog, id, p)
             - contracts::contracted(state, id, p, true);
         if free <= 1e-9 {
             continue;
@@ -533,7 +537,7 @@ pub fn supply_sources(game: &Game, site: u32, product: &str) -> Option<SupplySou
         product: product.to_owned(),
         unit: unit_key(game, p),
         country: catalog.countries.key(country).to_owned(),
-        need_per_month: 30.0 * contracts::daily_need(state, catalog, own, p),
+        need_per_day: contracts::daily_need(state, catalog, own, p),
         contract_months: catalog.contracts.months_default,
         contract_penalty: catalog.contracts.penalty_default,
         own_quality: s

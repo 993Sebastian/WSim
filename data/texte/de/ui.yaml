@@ -542,7 +542,7 @@ werk.bezug.preis: Preis frei Werk
 werk.bezug.transport: davon Fracht und Zoll
 werk.bezug.verfuegbar: Verfügbar
 werk.bezug.unbegrenzt: unbegrenzt
-werk.bezug.je_monat: je Monat
+werk.bezug.je_tag: je Tag
 werk.bezug.vertrag: Liefervertrag anbieten
 werk.bezug.uebernehmen: Übernehmen
 werk.bezug.art.markt: Markt
@@ -550,7 +550,7 @@ werk.bezug.art.import: Importhandel
 werk.bezug.art.staat: Staatlicher Markt
 werk.bezug.art.vertrag: Liefervertrag
 werk.bezug.vertrag_mit: "Liefervertrag mit {firma}"
-werk.bezug.monat: Monat
+werk.bezug.tag: Tag
 werk.bezug.monate: Laufzeit in Monaten
 werk.bezug.anbieten: Vertrag anbieten
 werk.bezug.abbrechen: Abbrechen
@@ -2073,7 +2073,7 @@ vertrag.leer: Noch keine Lieferverträge. Biete unten einen an – oder warte au
 vertrag.liste: Lieferverträge
 vertrag.produkt: Produkt
 vertrag.partner: Partner
-vertrag.menge: Menge je Monat
+vertrag.menge: Menge je Tag
 vertrag.preis: Preis
 vertrag.laufzeit: Laufzeit
 vertrag.geliefert: Geliefert (Monat)
@@ -2081,6 +2081,7 @@ vertrag.stand: Stand
 vertrag.zeitraum: "{von} bis {bis}"
 vertrag.monate: "{anzahl} Monate"
 vertrag.monat: Monat
+vertrag.tag: Tag
 vertrag.monate_einheit: Monate
 vertrag.gesamt: "gesamt {menge}"
 vertrag.marktpreis: "Markt {preis}"
@@ -2103,10 +2104,10 @@ vertrag.neu_hilfe: Wähle einen deiner Standorte und ein Produkt, das er verkauf
 vertrag.standort: Dein Standort
 vertrag.abnehmer: Abnehmer
 vertrag.lieferant: Lieferant
-vertrag.partner_wahl: "{firma} ({land}) – bis {menge} im Monat, Vorschlag {preis}"
+vertrag.partner_wahl: "{firma} ({land}) – bis {menge} am Tag, Vorschlag {preis}"
 vertrag.fracht: "Fracht und Zoll bis zu dir: {kosten} – im Preis enthalten, der Verkäufer zahlt sie."
-vertrag.eigen.verkauf: "Dein Standort erzeugt {menge} im Monat."
-vertrag.eigen.einkauf: "Dein Standort braucht {menge} im Monat."
+vertrag.eigen.verkauf: "Dein Standort erzeugt {menge} am Tag."
+vertrag.eigen.einkauf: "Dein Standort braucht {menge} am Tag."
 vertrag.preis_hilfe: Je Einheit, frei Standort des Käufers.
 vertrag.qualitaet: Mindestqualität
 vertrag.strafe: Vertragsstrafe

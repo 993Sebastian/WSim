@@ -1251,6 +1251,11 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
 - **Qualität der Anbieter im Produktmarkt:** Die Anbietertabelle zeigt je Firma die Qualität
   ihrer angebotenen Ware (Lager an den Verkaufsstandorten im Land, mengengewichtet);
   `SellerLine::quality`, Kerntest, E2E.
+- **Lieferverträge in Tagesmengen (Wunsch 10.10.2026):** Menge, freie Menge der Partner,
+  eigener Bedarf und Bezugsquellen jetzt je Tag wie Einkauf und Anlagen. Fällig ist
+  q · Tag des Monats, die Strafe am Monatsende auf q · Tage des Monats. Alte Spielstände
+  (`per_month`) und alte Journale (`ProposeContract.per_month`) werden mit 30 Tagen je
+  Monat umgerechnet. Tests angepasst, Test `monthly_quantities_of_old_saves_and_journals_become_daily`.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

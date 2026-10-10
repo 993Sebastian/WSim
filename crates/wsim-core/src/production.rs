@@ -482,7 +482,7 @@ fn bought_input_price(catalog: &Catalog, state: &GameState, site: SiteId, p: Pro
                 && c.status == crate::contracts::ContractStatus::Active
         })
         .fold((0.0, 0.0), |(q, a), c| {
-            (q + c.per_month, a + c.per_month * c.price.to_usd())
+            (q + c.per_day, a + c.per_day * c.price.to_usd())
         });
     if quantity > 1e-9 {
         return amount / quantity;

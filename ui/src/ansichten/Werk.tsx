@@ -932,7 +932,7 @@ function WerkVertraege({ s, rolle }: { s: StandortDetail; rolle: Vertrag["role"]
                   {v.partner} ({landName(v.partner_country)})
                 </td>
                 <td className="zahl" data-titel={t("vertrag.menge")}>
-                  {formatMenge(v.per_month)} {t(`einheit.${v.unit}`)}
+                  {formatMenge(v.per_day)} {t(`einheit.${v.unit}`)}
                 </td>
                 <td className="zahl" data-titel={t("vertrag.preis")}>
                   {formatPreis(v.price_usd, t(`einheit.${v.unit}`))}
@@ -1367,7 +1367,7 @@ function BezugsquellenVergleich({
                     <td className="zahl" data-titel={t("werk.bezug.verfuegbar")}>
                       {q.available === null
                         ? t("werk.bezug.unbegrenzt")
-                        : `${formatMenge(q.available)} ${e}${q.kind === "vertrag" ? ` ${t("werk.bezug.je_monat")}` : ""}`}
+                        : `${formatMenge(q.available)} ${e}${q.kind === "vertrag" ? ` ${t("werk.bezug.je_tag")}` : ""}`}
                     </td>
                     <td>
                       {q.kind === "vertrag" ? (
@@ -1421,7 +1421,7 @@ function BezugsVertrag({
   const { los, antwort } = useAktion(`bezugsvertrag/${s.index}/${produkt}`);
   const frei = quelle.available ?? 0;
   const [menge, setMenge] = useState(
-    zahlFeld(Math.min(frei, liste.need_per_month > 0 ? liste.need_per_month : frei), 1),
+    zahlFeld(Math.min(frei, liste.need_per_day > 0 ? liste.need_per_day : frei), 1),
   );
   const [preis, setPreis] = useState(geldFeld(quelle.price_usd));
   const [monate, setMonate] = useState(String(liste.contract_months));
@@ -1451,7 +1451,7 @@ function BezugsVertrag({
             seller: quelle.site ?? 0,
             buyer: s.index,
             product: produkt,
-            per_month: m,
+            per_day: m,
             price: geld(ausAnzeige(p)),
             months: Math.round(n),
             min_quality: q,
@@ -1470,7 +1470,7 @@ function BezugsVertrag({
     >
       <ZahlFeld
         name={t("vertrag.menge")}
-        einheit={`${e}/${t("werk.bezug.monat")}`}
+        einheit={`${e}/${t("werk.bezug.tag")}`}
         wert={menge}
         onWert={setMenge}
       />

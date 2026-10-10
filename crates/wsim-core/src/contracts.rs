@@ -7,7 +7,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::calendar::{Date, days_in_month};
+use crate::calendar::Date;
 use crate::catalog::Catalog;
 use crate::command::CommandError;
 use crate::ids::ProductId;
@@ -57,7 +57,12 @@ pub struct Contract {
     pub seller_company: CompanyId,
     pub buyer_company: CompanyId,
     pub product: ProductId,
-    pub per_month: f64,
+    /// Quantity per day (since 10.10.2026; before, per month).
+    #[serde(default)]
+    pub per_day: f64,
+    /// Monthly quantity of older saves, turned into `per_day` on loading.
+    #[serde(default, rename = "per_month", skip_serializing)]
+    pub(crate) legacy_per_month: Option<f64>,
     /// Per unit, delivered to the buyer's site.
     pub price: Money,
     pub months: u32,
@@ -135,7 +140,7 @@ pub struct Terms {
     pub seller: SiteId,
     pub buyer: SiteId,
     pub product: ProductId,
-    pub per_month: f64,
+    pub per_day: f64,
     pub price: Money,
     pub months: u32,
     pub min_quality: f64,
@@ -194,14 +199,26 @@ pub fn daily_need(state: &GameState, catalog: &Catalog, site: SiteId, product: P
         .sum()
 }
 
-/// Monthly quantity of the open contracts of a site for a product, as seller or buyer.
+/// Months of a contract term counted as this many days (cancellation fee, old saves).
+pub const DAYS_PER_MONTH: f64 = 30.0;
+
+/// Turns the monthly quantities of older saves into daily ones.
+pub(crate) fn fit_loaded(state: &mut GameState) {
+    for c in &mut state.contracts {
+        if let Some(m) = c.legacy_per_month.take() {
+            c.per_day = m / DAYS_PER_MONTH;
+        }
+    }
+}
+
+/// Daily quantity of the open contracts of a site for a product, as seller or buyer.
 pub fn contracted(state: &GameState, site: SiteId, product: ProductId, selling: bool) -> f64 {
     state
         .contracts
         .iter()
         .filter(|c| c.open() && c.product == product)
         .filter(|c| if selling { c.seller } else { c.buyer } == site)
-        .map(|c| c.per_month)
+        .map(|c| c.per_day)
         .sum()
 }
 
@@ -300,9 +317,9 @@ pub fn ai_answer(
         if (t.price - cost) < own.scale(1.0 - m.discount(t.months)) {
             return Err(Decline::Price);
         }
-        let free = m.share * 30.0 * daily_output(state, catalog, t.seller, t.product)
+        let free = m.share * daily_output(state, catalog, t.seller, t.product)
             - contracted(state, t.seller, t.product, true);
-        if t.per_month > free + EPS {
+        if t.per_day > free + EPS {
             return Err(Decline::Quantity);
         }
         if quality_at(state, t.seller, t.product) + EPS < t.min_quality {
@@ -312,9 +329,9 @@ pub fn ai_answer(
         if t.price > bid_price(state, catalog, t.buyer, t.product, t.months) {
             return Err(Decline::Price);
         }
-        let free = m.share * 30.0 * daily_need(state, catalog, t.buyer, t.product)
+        let free = m.share * daily_need(state, catalog, t.buyer, t.product)
             - contracted(state, t.buyer, t.product, false);
-        if t.per_month > free + EPS {
+        if t.per_day > free + EPS {
             return Err(Decline::Quantity);
         }
     }
@@ -345,7 +362,7 @@ pub(crate) fn propose(
     if crate::group::same_group(state, sc, bc) {
         return Err(CommandError::WithinGroup);
     }
-    if !(t.per_month.is_finite() && t.per_month > 0.0) {
+    if !(t.per_day.is_finite() && t.per_day > 0.0) {
         return Err(CommandError::InvalidQuantity);
     }
     if t.price <= Money::ZERO {
@@ -399,7 +416,8 @@ pub(crate) fn propose(
         seller_company: sc,
         buyer_company: bc,
         product: t.product,
-        per_month: t.per_month,
+        per_day: t.per_day,
+        legacy_per_month: None,
         price: t.price,
         months: t.months,
         min_quality: t.min_quality,
@@ -473,7 +491,7 @@ pub(crate) fn cancel(
     }
     let fee = if c.status == ContractStatus::Active {
         let months = c.months_left(today).min(catalog.contracts.cancel_months);
-        Money::times(c.price, c.per_month * f64::from(months)).scale(c.penalty)
+        Money::times(c.price, c.per_day * DAYS_PER_MONTH * f64::from(months)).scale(c.penalty)
     } else {
         Money::ZERO
     };
@@ -519,7 +537,6 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
         return news;
     }
     let player = state.main_company;
-    let days = f64::from(days_in_month(today.year(), today.month()));
     let expire = i32::try_from(catalog.contracts.proposal_days).unwrap_or(i32::MAX);
     for i in 0..state.contracts.len() {
         let c = &state.contracts[i];
@@ -563,7 +580,7 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
         if c.start.is_none_or(|s| s > today) {
             continue;
         }
-        let due = c.per_month * f64::from(today.day()) / days - c.delivered_month;
+        let due = c.per_day * f64::from(today.day()) - c.delivered_month;
         if due <= EPS {
             continue;
         }
@@ -705,9 +722,11 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
         if c.status != ContractStatus::Active || c.start.is_none_or(|s| s >= today) {
             continue;
         }
-        let missing = (c.per_month - c.delivered_month).max(0.0);
+        // Due in the month just ended: the daily quantity on each of its days.
+        let due = c.per_day * f64::from(today.add_days(-1).day());
+        let missing = (due - c.delivered_month).max(0.0);
         let product = Param::TextKey(format!("produkt.{}", catalog.products.key(c.product)));
-        if missing > c.per_month * 1e-6 {
+        if missing > due * 1e-6 {
             let fee = Money::times(c.price, missing).scale(c.penalty);
             let seller_fault = c.short_of != Some(Shortfall::Cash);
             let (payer, payee) = if seller_fault {
@@ -863,13 +882,13 @@ fn best_partner(
             continue;
         }
         let free = if player_sells {
-            m.ai.share * 30.0 * daily_need(state, catalog, site, product)
+            m.ai.share * daily_need(state, catalog, site, product)
                 - contracted(state, site, product, false)
         } else {
             if !s.offers.contains_key(&product) {
                 continue;
             }
-            m.ai.share * 30.0 * daily_output(state, catalog, site, product)
+            m.ai.share * daily_output(state, catalog, site, product)
                 - contracted(state, site, product, true)
         };
         if free <= EPS || best.is_some_and(|(b, _)| b >= free) {
@@ -887,13 +906,12 @@ fn best_partner(
         (partner, own)
     };
     // As much as the player's site makes or uses, at most the partner's free part.
-    let player_side = 30.0
-        * if player_sells {
-            daily_output(state, catalog, own, product)
-        } else {
-            daily_need(state, catalog, own, product)
-        };
-    let per_month = if player_side > EPS {
+    let player_side = if player_sells {
+        daily_output(state, catalog, own, product)
+    } else {
+        daily_need(state, catalog, own, product)
+    };
+    let per_day = if player_side > EPS {
         free.min(m.ai.share * player_side)
     } else {
         free
@@ -903,11 +921,11 @@ fn best_partner(
     } else {
         contract_price(state, catalog, (seller, buyer), product, m.months_default)?
     };
-    (per_month > EPS && price > Money::ZERO).then_some(Terms {
+    (per_day > EPS && price > Money::ZERO).then_some(Terms {
         seller,
         buyer,
         product,
-        per_month,
+        per_day,
         price,
         months: m.months_default,
         min_quality: 0.0,

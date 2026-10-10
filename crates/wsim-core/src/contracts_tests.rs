@@ -48,7 +48,7 @@ pub(super) fn cash(game: &Game, company: CompanyId) -> Money {
 pub(super) fn agreed(
     game: &mut Game,
     buyer_country: &str,
-    per_month: f64,
+    per_day: f64,
     months: u32,
 ) -> (SiteId, SiteId, CompanyId) {
     let player = game.player();
@@ -60,7 +60,7 @@ pub(super) fn agreed(
         seller,
         buyer,
         product: iron(game),
-        per_month,
+        per_day,
         price: usd(2.0),
         months,
         min_quality: 0.0,
@@ -80,24 +80,25 @@ pub(super) fn agreed(
 fn deliveries_run_monthly_and_shortfalls_cost_the_penalty() {
     let mut game = new_game(with_contracts(test_support::trading(), 0.0));
     let player = game.player();
-    let (seller, buyer, other) = agreed(&mut game, "AAA", 400.0, 3);
+    let (seller, buyer, other) = agreed(&mut game, "AAA", 12.0, 3);
     let start = cash(&game, other);
     // Deliveries start with the next month.
     days(&mut game, 31);
     assert_eq!(stock(&game, buyer), 0.0);
     days(&mut game, 14);
     let half = stock(&game, buyer);
-    assert!((half - 400.0 * 14.0 / 28.0).abs() < 1e-6, "{half}");
+    assert!((half - 12.0 * 14.0).abs() < 1e-6, "{half}");
     days(&mut game, 14);
-    assert!((stock(&game, buyer) - 400.0).abs() < 1e-6);
-    assert!((stock(&game, seller) - 600.0).abs() < 1e-6);
-    // March in full, April only the 200 left: the seller pays half the value of 200.
+    assert!((stock(&game, buyer) - 12.0 * 28.0).abs() < 1e-6);
+    assert!((stock(&game, seller) - (1000.0 - 12.0 * 28.0)).abs() < 1e-6);
+    // March in full (372), April only the 292 left of 360: the seller pays half the
+    // value of the 68 missing.
     days(&mut game, 31 + 30);
     let c = &game.state().contracts[0];
     assert_eq!(c.status, ContractStatus::Ended);
     assert!((c.delivered_total - 1000.0).abs() < 1e-6);
-    assert_eq!(c.paid_by_seller, usd(200.0));
-    let expected = start - usd(2.0 * 1000.0) + usd(200.0);
+    assert_eq!(c.paid_by_seller, usd(68.0));
+    let expected = start - usd(2.0 * 1000.0) + usd(68.0);
     // Daily amounts are rounded to the hundredth of a cent.
     assert!((cash(&game, other) - expected).to_usd().abs() < 0.01);
     for company in [player, other] {
@@ -107,10 +108,38 @@ fn deliveries_run_monthly_and_shortfalls_cost_the_penalty() {
 }
 
 #[test]
+fn monthly_quantities_of_old_saves_and_journals_become_daily() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    agreed(&mut game, "AAA", 10.0, 3);
+    // A contract saved before 10.10.2026 had 300 a month.
+    let mut json = serde_json::to_value(&game.state().contracts[0]).unwrap();
+    let fields = json.as_object_mut().unwrap();
+    fields.remove("per_day");
+    fields.insert("per_month".into(), serde_json::json!(300.0));
+    let old: contracts::Contract = serde_json::from_value(json).unwrap();
+    game.state_mut().contracts[0] = old;
+    contracts::fit_loaded(game.state_mut());
+    let c = &game.state().contracts[0];
+    assert!((c.per_day - 10.0).abs() < 1e-12);
+    assert_eq!(serde_json::to_value(c).unwrap().get("per_month"), None);
+    // An old journal's proposal of 300 a month is 10 a day.
+    let product = serde_json::to_value(iron(&game)).unwrap();
+    let command: Command = serde_json::from_value(serde_json::json!({"ProposeContract": {
+        "seller": 0, "buyer": 1, "product": product, "per_month": 300.0,
+        "price": 20000, "months": 3, "penalty": 0.2
+    }}))
+    .unwrap();
+    assert!(matches!(
+        command,
+        Command::ProposeContract { per_month: Some(m), .. } if (m - 300.0).abs() < 1e-12
+    ));
+}
+
+#[test]
 fn deliveries_abroad_pay_freight_and_customs() {
     let mut game = new_game(with_contracts(with_tariff(0.2, false), 0.0));
     let player = game.player();
-    let (_, buyer, other) = agreed(&mut game, "BBB", 300.0, 2);
+    let (_, buyer, other) = agreed(&mut game, "BBB", 10.0, 2);
     days(&mut game, 31 + 10);
     let delivered = game.state().contracts[0].delivered_total;
     assert!(delivered > 0.0);
@@ -133,15 +162,15 @@ fn deliveries_abroad_pay_freight_and_customs() {
 fn cancelling_costs_the_penalty_of_three_months() {
     let mut game = new_game(with_contracts(test_support::trading(), 0.0));
     let player = game.player();
-    let (_, _, other) = agreed(&mut game, "AAA", 300.0, 12);
+    let (_, _, other) = agreed(&mut game, "AAA", 10.0, 12);
     days(&mut game, 31 + 14);
     let before = cash(&game, other);
     game.apply(Command::CancelContract { contract: 0 }).unwrap();
     let c = &game.state().contracts[0];
     assert_eq!(c.status, ContractStatus::Cancelled);
     assert_eq!(c.cancelled_by, Some(player));
-    // Half the value of three monthly quantities.
-    assert_eq!(c.paid_by_seller, usd(0.5 * 2.0 * 300.0 * 3.0));
+    // Half the value of three months of 30 days of 10.
+    assert_eq!(c.paid_by_seller, usd(0.5 * 2.0 * 10.0 * 30.0 * 3.0));
     assert_eq!(cash(&game, other), before + usd(900.0));
     // Closed contracts cannot be answered or cancelled again.
     assert_eq!(
@@ -157,12 +186,13 @@ fn proposals_are_checked() {
     let own = warehouse(&mut game, player, "AAA", 10.0);
     let other_own = warehouse(&mut game, player, "BBB", 0.0);
     let product = iron(&game);
-    let propose = |game: &mut Game, buyer: SiteId, months: u32, per_month: f64| {
+    let propose = |game: &mut Game, buyer: SiteId, months: u32, per_day: f64| {
         game.apply(Command::ProposeContract {
             seller: own,
             buyer,
             product,
-            per_month,
+            per_day,
+            per_month: None,
             price: usd(0.01),
             months,
             min_quality: 0.0,
@@ -201,7 +231,8 @@ fn proposals_are_checked() {
             seller: a,
             buyer: b,
             product,
-            per_month: 1.0,
+            per_day: 1.0,
+            per_month: None,
             price: usd(2.0),
             months: 1,
             min_quality: 0.0,
@@ -259,17 +290,17 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
     let aaa = state.sites[works.index()].country;
     let (ore, iron) = (product(&game, "erz"), product(&game, "eisen"));
     let me = game.player();
-    let need = 30.0 * contracts::daily_need(state, &catalog, works, ore);
-    let output = 30.0 * contracts::daily_output(state, &catalog, works, iron);
+    let need = contracts::daily_need(state, &catalog, works, ore);
+    let output = contracts::daily_output(state, &catalog, works, iron);
     assert!(need > 0.0 && output > 0.0);
 
     // The works buys ore: up to 5 % above the market price, up to half its need.
     let ore_price = market::market_price(&catalog, state, aaa, ore);
-    let buy = |per_month: f64, factor: f64, penalty: f64| Terms {
+    let buy = |per_day: f64, factor: f64, penalty: f64| Terms {
         seller: store,
         buyer: works,
         product: ore,
-        per_month,
+        per_day,
         price: ore_price.scale(factor),
         months: 12,
         min_quality: 0.0,
@@ -284,11 +315,11 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
     // The works sells iron: at least its price less the discount for 12 months (13.5 %),
     // up to half its output, only the quality it makes.
     let iron_price = market::market_price(&catalog, state, aaa, iron);
-    let sell = |per_month: f64, factor: f64, min_quality: f64| Terms {
+    let sell = |per_day: f64, factor: f64, min_quality: f64| Terms {
         seller: works,
         buyer: store,
         product: iron,
-        per_month,
+        per_day,
         price: iron_price.scale(factor),
         months: 12,
         min_quality,
@@ -334,12 +365,12 @@ fn contract_goods_cost_the_contract_price_not_the_market_price() {
         // Whatever ore the furnace still has goes, so only contract goods are left.
         state.sites[works.index()].inventory.remove(&ore);
     }
-    let need = 30.0 * contracts::daily_need(game.state(), &catalog, works, ore);
+    let need = contracts::daily_need(game.state(), &catalog, works, ore);
     let terms = Terms {
         seller: store,
         buyer: works,
         product: ore,
-        per_month: 2.0 * need,
+        per_day: 2.0 * need,
         price,
         months: 6,
         min_quality: 0.0,
@@ -403,7 +434,7 @@ fn longer_terms_earn_a_bigger_discount() {
             seller: works,
             buyer: mine,
             product: iron,
-            per_month: 1.0,
+            per_day: 1.0,
             price,
             months,
             min_quality: 0.0,
@@ -446,8 +477,8 @@ fn ai_companies_propose_to_buy_what_the_player_offers() {
     assert_eq!((c.seller, c.buyer, c.proposer), (shop, works, other));
     assert_eq!(c.answering(), me);
     // Half of the furnace's need, at the market price, for the standard term.
-    let need = 30.0 * contracts::daily_need(game.state(), &catalog, works, ore);
-    assert!((c.per_month - 0.5 * need).abs() < 1e-6);
+    let need = contracts::daily_need(game.state(), &catalog, works, ore);
+    assert!((c.per_day - 0.5 * need).abs() < 1e-6);
     assert_eq!(c.months, 12);
     // Unanswered, the proposal lapses.
     days(&mut game, 31);

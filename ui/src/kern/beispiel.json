@@ -43773,14 +43773,14 @@
         "penalties_paid_usd": 0.0,
         "penalties_received_usd": 0.0,
         "penalty": 0.2,
-        "per_month": 9.5625,
         "price_usd": 1520.3223,
         "product": "draht",
         "proposed": "1915-01-01",
         "role": "einkauf",
         "start": "1915-02-01",
         "status": "laufend",
-        "unit": "t"
+        "unit": "t",
+        "per_day": 0.319
       },
       {
         "answer": false,
@@ -43802,14 +43802,14 @@
         "penalties_paid_usd": 0.0,
         "penalties_received_usd": 0.0,
         "penalty": 0.2,
-        "per_month": 9.5625,
         "price_usd": 1341.5438,
         "product": "draht",
         "proposed": "1914-11-01",
         "role": "einkauf",
         "start": null,
         "status": "verfallen",
-        "unit": "t"
+        "unit": "t",
+        "per_day": 0.319
       },
       {
         "answer": false,
@@ -43831,14 +43831,14 @@
         "penalties_paid_usd": 0.0,
         "penalties_received_usd": 0.0,
         "penalty": 0.2,
-        "per_month": 7.65,
         "price_usd": 1676.9159,
         "product": "draht",
         "proposed": "1914-08-01",
         "role": "einkauf",
         "start": null,
         "status": "verfallen",
-        "unit": "t"
+        "unit": "t",
+        "per_day": 0.255
       },
       {
         "answer": false,
@@ -43860,14 +43860,14 @@
         "penalties_paid_usd": 0.0,
         "penalties_received_usd": 0.0,
         "penalty": 0.2,
-        "per_month": 7.65,
         "price_usd": 1699.7091,
         "product": "draht",
         "proposed": "1914-06-01",
         "role": "einkauf",
         "start": null,
         "status": "verfallen",
-        "unit": "t"
+        "unit": "t",
+        "per_day": 0.255
       }
     ],
     "enabled": true,
@@ -43890,83 +43890,83 @@
     ]
   },
   "vertragspartner": {
-    "own_per_month": 19.125,
     "partners": [
       {
         "company": "Morgan Iron and Steel Corporation",
         "country": "USA",
         "delivery_cost_usd": 312.6521,
-        "free_per_month": 7500.0,
         "kind_text": "standorttyp.werk",
         "site": 71,
         "suggested_price_usd": 1520.3223,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 250.0
       },
       {
         "company": "Whitfield & Hughes Ltd.",
         "country": "GBR",
         "delivery_cost_usd": 209.2401,
-        "free_per_month": 3000.0,
         "kind_text": "standorttyp.werk",
         "site": 68,
         "suggested_price_usd": 1529.4162,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 100.0
       },
       {
         "company": "Holloway Electric Ltd.",
         "country": "RUS",
         "delivery_cost_usd": 224.4659,
-        "free_per_month": 3000.0,
         "kind_text": "standorttyp.werk",
         "site": 845,
         "suggested_price_usd": 3082.9757,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 100.0
       },
       {
         "company": "Bremer Hüttenwerke & Söhne",
         "country": "DEU",
         "delivery_cost_usd": 0.0,
-        "free_per_month": 1500.0,
         "kind_text": "standorttyp.werk",
         "site": 66,
         "suggested_price_usd": 1322.106,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 50.0
       },
       {
         "company": "Bonnet & Durand",
         "country": "FRA",
         "delivery_cost_usd": 209.1769,
-        "free_per_month": 1500.0,
         "kind_text": "standorttyp.werk",
         "site": 67,
         "suggested_price_usd": 1567.9743,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 50.0
       },
       {
         "company": "Thyssen & Co.",
         "country": "DEU",
         "delivery_cost_usd": 0.0,
-        "free_per_month": 375.0,
         "kind_text": "standorttyp.werk",
         "site": 4,
         "suggested_price_usd": 1337.9413,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 12.5
       },
       {
         "company": "Holloway Electric Ltd.",
         "country": "ITA",
         "delivery_cost_usd": 215.4586,
-        "free_per_month": 375.0,
         "kind_text": "standorttyp.werk",
         "site": 865,
         "suggested_price_usd": 1911.8033,
-        "quality": 60.0
+        "quality": 60.0,
+        "free_per_day": 12.5
       }
     ],
     "product": "draht",
     "role": "einkauf",
     "site": 0,
-    "unit": "t"
+    "unit": "t",
+    "own_per_day": 0.637
   },
   "weltkarte": {
     "countries": [
@@ -48801,7 +48801,7 @@
         "quality": 72.0,
         "price_usd": 126.0,
         "delivery_cost_usd": 9.5,
-        "available": 300.0
+        "available": 10.0
       },
       {
         "kind": "import",
@@ -48824,8 +48824,8 @@
         "available": null
       }
     ],
-    "need_per_month": 600.0,
     "contract_months": 12,
-    "contract_penalty": 0.2
+    "contract_penalty": 0.2,
+    "need_per_day": 20.0
   }
 }
