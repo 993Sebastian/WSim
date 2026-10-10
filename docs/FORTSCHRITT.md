@@ -1186,6 +1186,11 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Bezugsverträge des Standorts, der Reiter Verkauf seine Lieferverträge (Partner, Menge,
   Preis neben Marktpreis, im Monat geliefert, Laufzeit). Abschließen und kündigen weiter
   unter Markt → Lieferverträge. Sichtfeld `SiteDetail.contracts`, Test im Sitzungstest.
+- **Preisverlauf im Werk:** Jede Einkaufs- und Verkaufskarte zeigt aufklappbar den
+  Marktpreis des Landes über die letzten 12 abgeschlossenen Monate, den Preis vor 12 Monaten
+  (gestrichelt), die Änderung dazu und die Spanne (`SiteDetail.price_trends`, Test
+  `the_price_trend_compares_with_a_year_before`, E2E). Weitere Stellen mit Verlauf: der
+  Produktmarkt (seit M24, 24 Monate).
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

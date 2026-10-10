@@ -40985,7 +40985,59 @@
         "wage_cost_per_day_usd": 22.401469352559925,
         "wage_premium": 0.0,
         "wage_premium_max": 1.0,
-        "workers": 0.7896463206383599
+        "workers": 0.7896463206383599,
+        "price_trends": {
+          "draht": {
+            "months": [
+              {
+                "month": "1914-01-01",
+                "own_share": null,
+                "price_usd": 1445.1743,
+                "sold": 6359.015625
+              },
+              {
+                "month": "1914-02-01",
+                "own_share": null,
+                "price_usd": 1417.7949,
+                "sold": 5520.7109375
+              },
+              {
+                "month": "1914-03-01",
+                "own_share": null,
+                "price_usd": 1397.626,
+                "sold": 7527.6328125
+              },
+              {
+                "month": "1914-04-01",
+                "own_share": null,
+                "price_usd": 1390.0,
+                "sold": 6000.0
+              },
+              {
+                "month": "1914-05-01",
+                "own_share": null,
+                "price_usd": 1390.0,
+                "sold": 6200.0
+              },
+              {
+                "month": "1914-06-01",
+                "own_share": null,
+                "price_usd": 1390.0,
+                "sold": 6000.0
+              },
+              {
+                "month": "1914-07-01",
+                "own_share": null,
+                "price_usd": 1389.8548,
+                "sold": 5312.720703125
+              }
+            ],
+            "year_ago_usd": null,
+            "change": null,
+            "low_usd": 1389.8548,
+            "high_usd": 1445.1743
+          }
+        }
       }
     ],
     "units": {

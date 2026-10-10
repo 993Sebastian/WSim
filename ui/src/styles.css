@@ -2804,3 +2804,11 @@ body {
   white-space: pre-wrap;
   font-size: 0.8rem;
 }
+
+/* Market price over twelve months in the plant's purchase and sales cards. */
+.preisverlauf {
+  margin: 0.5rem 0;
+}
+.preisverlauf > summary {
+  cursor: pointer;
+}

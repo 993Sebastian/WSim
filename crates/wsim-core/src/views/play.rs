@@ -270,6 +270,47 @@ pub struct SiteDetail {
     /// Running and proposed supply contracts of the site.
     #[serde(default)]
     pub contracts: Vec<super::ContractView>,
+    /// Market prices of the last twelve months in the site's country for every product
+    /// the site buys, sells, stores or has under contract.
+    #[serde(default)]
+    pub price_trends: BTreeMap<String, PriceTrendView>,
+}
+
+/// Market price of a product over the last twelve closed months.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PriceTrendView {
+    /// Oldest first; months without sales have no price.
+    pub months: Vec<MarketMonthView>,
+    /// Average price of the month twelve months before the last closed one.
+    pub year_ago_usd: Option<f64>,
+    /// Last closed month against `year_ago_usd` (0.1 = 10 % dearer).
+    pub change: Option<f64>,
+    pub low_usd: Option<f64>,
+    pub high_usd: Option<f64>,
+}
+
+/// Twelve months shown, plus the month a year before the last for the comparison.
+const TREND_MONTHS: usize = 12;
+
+fn price_trend(state: &crate::state::GameState, m: &Market) -> PriceTrendView {
+    let all = market_history(state, m);
+    let year_ago = all
+        .len()
+        .checked_sub(TREND_MONTHS + 1)
+        .and_then(|i| all[i].price_usd);
+    let months: Vec<MarketMonthView> = all[all.len().saturating_sub(TREND_MONTHS)..].to_vec();
+    let prices = || months.iter().filter_map(|v| v.price_usd);
+    let last = months.last().and_then(|v| v.price_usd);
+    PriceTrendView {
+        change: last
+            .zip(year_ago)
+            .filter(|&(_, a)| a > 0.0)
+            .map(|(l, a)| l / a - 1.0),
+        year_ago_usd: year_ago,
+        low_usd: prices().reduce(f64::min),
+        high_usd: prices().reduce(f64::max),
+        months,
+    }
 }
 
 /// The plot of a site (M35).
@@ -822,6 +863,35 @@ pub fn production(game: &Game) -> ProductionView {
                             .collect(),
                     }
                 }),
+                price_trends: {
+                    let mut products: BTreeSet<ProductId> = s.offers.keys().copied().collect();
+                    products.extend(s.orders.keys().copied());
+                    products.extend(
+                        s.inventory
+                            .iter()
+                            .filter(|(_, l)| l.quantity > 0.0)
+                            .map(|(&p, _)| p),
+                    );
+                    products.extend(catalog.products.ids().filter(|&p| {
+                        crate::contracts::daily_need(state, catalog, site_id, p) > 0.0
+                    }));
+                    products.extend(
+                        state
+                            .contracts
+                            .iter()
+                            .filter(|c| c.buyer == site_id || c.seller == site_id)
+                            .map(|c| c.product),
+                    );
+                    products
+                        .into_iter()
+                        .map(|p| {
+                            (
+                                catalog.products.key(p).to_owned(),
+                                price_trend(state, state.markets.get(p).get(s.country)),
+                            )
+                        })
+                        .collect()
+                },
                 contracts: super::site_contracts(game, site_id),
             }
         })
@@ -2645,6 +2715,33 @@ mod explain_tests {
             person: Default::default(),
         };
         Game::new(catalog, settings).unwrap()
+    }
+
+    /// Twelve months shown; the comparison takes the month a year before the last.
+    #[test]
+    fn the_price_trend_compares_with_a_year_before() {
+        let game = game();
+        let mut m = Market::default();
+        // 14 closed months at 10, 11, … USD; the second last month sold nothing.
+        for i in 0..14 {
+            let price = if i == 12 { 0.0 } else { 10.0 + f64::from(i) };
+            m.history.price.push(Money::from_usd(price).unwrap());
+            m.history.sold.push(5.0);
+        }
+        let v = price_trend(game.state(), &m);
+        assert_eq!(v.months.len(), 12);
+        assert_eq!(v.months[10].price_usd, None);
+        assert_eq!(v.year_ago_usd, Some(11.0));
+        assert!((v.change.unwrap() - (23.0 / 11.0 - 1.0)).abs() < 1e-9);
+        assert_eq!((v.low_usd, v.high_usd), (Some(12.0), Some(23.0)));
+        // Without a year of history there is nothing to compare with.
+        m.history.price.truncate(5);
+        m.history.sold.truncate(5);
+        let short = price_trend(game.state(), &m);
+        assert_eq!(
+            (short.months.len(), short.year_ago_usd, short.change),
+            (5, None, None)
+        );
     }
 
     /// M32: goods that nobody can make yet do not appear in the market.

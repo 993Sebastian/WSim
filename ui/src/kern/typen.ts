@@ -520,6 +520,16 @@ export interface StandortErgebnis {
   products: { product: string; revenue_usd: number; margin_usd: number }[];
 }
 
+/** Market price of a product over the last twelve closed months. */
+export interface Preisverlauf {
+  months: Marktmonat[];
+  year_ago_usd: number | null;
+  /** Last closed month against a year before (0.1 = 10 % dearer). */
+  change: number | null;
+  low_usd: number | null;
+  high_usd: number | null;
+}
+
 export interface StandortDetail {
   index: number;
   country: string;
@@ -564,6 +574,8 @@ export interface StandortDetail {
   plot: StandortGrundstueck | null;
   /** Running and proposed supply contracts of the site. */
   contracts?: Vertrag[];
+  /** Market prices of the last twelve months in the site's country. */
+  price_trends?: Record<string, Preisverlauf>;
 }
 
 /** The plot of a site: location (text `lage.<key>`), area and land in use (ha). */

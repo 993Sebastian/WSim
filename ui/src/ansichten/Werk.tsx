@@ -24,6 +24,7 @@ import type {
   AnlageDetail,
   Angebot,
   Befehl,
+  Preisverlauf,
   Produktion,
   StandortDetail,
   StandortGrundstueck,
@@ -41,6 +42,8 @@ import {
   useAktion,
   ZahlFeld,
 } from "./gemeinsam";
+import { Verlauf } from "./Grafik";
+import { fortgeschrieben } from "./Markt";
 
 type Bereich = "anlagen" | "einkauf" | "verkauf" | "personal" | "kosten";
 
@@ -830,6 +833,56 @@ function WerkVertraege({ s, rolle }: { s: StandortDetail; rolle: Vertrag["role"]
   );
 }
 
+// --- Market price over twelve months, for buying and selling decisions ---
+
+function PreisVerlauf({ v, einheit: e }: { v: Preisverlauf | undefined; einheit: string }) {
+  const preise = v?.months.map((m) => m.price_usd) ?? [];
+  if (!v || preise.filter((p) => p !== null).length < 2) return null;
+  const werte = fortgeschrieben(preise, v.low_usd ?? 0);
+  const letzter = werte.at(-1) ?? 0;
+  return (
+    <details className="preisverlauf">
+      <summary>
+        {t("werk.preisverlauf")}
+        {v.change !== null && (
+          <span className="gedaempft">
+            {" "}
+            {t("werk.preisverlauf_aenderung", {
+              wert: `${v.change > 0 ? "+" : ""}${formatZahl(v.change * 100, 1)} %`,
+            })}
+          </span>
+        )}
+      </summary>
+      <Verlauf
+        name={t("werk.preisverlauf")}
+        monate={v.months.map((m) => m.month)}
+        werte={werte}
+        bezug={v.year_ago_usd ?? undefined}
+        format={(p) => formatPreis(p, e)}
+      />
+      <dl className="werte">
+        <dt>{t("werk.preisverlauf_jetzt")}</dt>
+        <dd>{formatPreis(letzter, e)}</dd>
+        {v.year_ago_usd !== null && (
+          <>
+            <dt>{t("werk.preisverlauf_vorjahr")}</dt>
+            <dd>{formatPreis(v.year_ago_usd, e)}</dd>
+          </>
+        )}
+        {v.low_usd !== null && v.high_usd !== null && (
+          <>
+            <dt>{t("werk.preisverlauf_spanne")}</dt>
+            <dd>
+              {formatPreis(v.low_usd, e)} – {formatPreis(v.high_usd, e)}
+            </dd>
+          </>
+        )}
+      </dl>
+      {v.year_ago_usd !== null && <p className="feld-hilfe">{t("werk.preisverlauf_hilfe")}</p>}
+    </details>
+  );
+}
+
 // --- Purchasing ---
 
 function Einkauf({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
@@ -981,6 +1034,7 @@ function EinkaufKarte({
           </>
         )}
       </dl>
+      <PreisVerlauf v={s.price_trends?.[v.product]} einheit={e} />
       {v.own && !auftrag && <p className="erklaerung">{t("werk.eigenes_vorprodukt")}</p>}
       <form
         className="formular-zeile"
@@ -1189,6 +1243,7 @@ function AngebotKarte({
           </>
         )}
       </dl>
+      <PreisVerlauf v={s.price_trends?.[produkt]} einheit={e} />
       <Preisvergleich
         einheit={e}
         eigen={o?.price_usd ?? null}

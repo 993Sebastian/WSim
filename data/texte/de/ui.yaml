@@ -466,6 +466,12 @@ werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
+werk.preisverlauf: Marktpreis der letzten 12 Monate
+werk.preisverlauf_aenderung: "({wert} zum Vorjahr)"
+werk.preisverlauf_jetzt: Letzter Monat
+werk.preisverlauf_vorjahr: Vor 12 Monaten
+werk.preisverlauf_spanne: Spanne
+werk.preisverlauf_hilfe: Die gestrichelte Linie ist der Preis vor 12 Monaten. Steigt der Preis, kann ein Liefervertrag den heutigen Preis sichern.
 werk.vertraege.einkauf: Bezugsverträge dieses Standorts
 werk.vertraege.verkauf: Lieferverträge dieses Standorts
 werk.vertraege.bis: "bis {datum}"

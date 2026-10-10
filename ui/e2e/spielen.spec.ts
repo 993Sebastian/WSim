@@ -178,6 +178,9 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await einkauf.getByLabel("Höchstpreis").fill("2.500");
   await expect(einkauf.getByLabel("Höchstpreis")).toHaveValue("2.500");
   await einkauf.getByRole("button", { name: /Einkauf (ändern|starten)/ }).click();
+  // The market price of the last months beside the purchase.
+  await page.locator("summary", { hasText: "Marktpreis der letzten 12 Monate" }).click();
+  await expect(page.getByText("Spanne")).toBeVisible();
 
   await page.getByRole("button", { name: "Verkauf" }).click();
   const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
