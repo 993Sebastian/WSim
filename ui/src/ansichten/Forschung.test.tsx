@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it } from "vitest";
 import type { Befehl, Forschung, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
-import { ForschungAnsicht } from "./Forschung";
+import { ForschungAnsicht, teilbaum } from "./Forschung";
 
 /** The preview core with a research center that has a laboratory ready (M37). */
 async function kernMitLabor() {
@@ -172,5 +172,32 @@ describe("Patente", () => {
     ]);
     expect(screen.getByText(/Patentiert von Konkurrenz AG/)).toBeTruthy();
     expect(screen.getByText(/Deine Anlagen in Deutschland brauchen eine Lizenz/)).toBeTruthy();
+  });
+});
+
+describe("Teilbaum", () => {
+  const tech = (key: string, field: string, prerequisites: string[], products: string[]) =>
+    ({
+      key,
+      field,
+      prerequisites,
+      recipes: products.map((product) => ({ product })),
+    }) as unknown as Forschung["technologies"][number];
+  const daten = {
+    technologies: [
+      tech("a", "metall", [], ["eisen"]),
+      tech("b", "metall", ["a"], ["stahl"]),
+      tech("c", "chemie", ["b"], ["auto"]),
+      tech("d", "chemie", [], ["farbe"]),
+    ],
+  } as unknown as Forschung;
+
+  it("zeigt zu einem Produkt die Technologie mit allen Voraussetzungen", () => {
+    expect([...teilbaum(daten, "produkt", "auto")!].sort()).toEqual(["a", "b", "c"]);
+  });
+
+  it("zeigt eine Fachrichtung mit ihren Voraussetzungen, ohne Auswahl alles", () => {
+    expect([...teilbaum(daten, "branche", "chemie")!].sort()).toEqual(["a", "b", "c", "d"]);
+    expect(teilbaum(daten, "alle", "")).toBeNull();
   });
 });

@@ -1820,6 +1820,24 @@ fieldset.grundstuecke tbody tr.gewaehlt {
   overflow-x: auto;
 }
 
+/* A second horizontal scroll bar above the tree, scrolled together with the one below. */
+.baum-scroll-oben {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.baum-ecke {
+  border-right: 1px solid var(--rahmen);
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.baum-auswahl .zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .bahnkoepfe {
   position: relative;
   width: 8.75rem;

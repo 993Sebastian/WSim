@@ -784,6 +784,15 @@ forschung.entwicklung_gestartet: "Das Zentrum entwickelt jetzt {produkt} weiter,
 forschung.weiterentwickeln: Weiterentwickeln
 forschung.entwicklung_option: "{produkt} → Stufe {stufe}"
 forschung.entwicklung_stand: "{produkt}, Stufe {stufe}: {anteil}"
+forschung.zeigen: Zeigen
+forschung.zeigen.alle: Alle Technologien
+forschung.zeigen.branche: Fachrichtung
+forschung.zeigen.produkt: Produkt
+forschung.suchen: Technologie suchen
+forschung.zoom: Zoom
+forschung.zoom_kleiner: Verkleinern
+forschung.zoom_groesser: Vergrößern
+forschung.teilbaum: "{anzahl} von {gesamt} Technologien: die gewählten mit allen Voraussetzungen. Strg + Mausrad zoomt."
 forschung.erklaerung: Jede Technologie öffnet Verfahren, Anlagen und Produkte. Erforschbar ist, wessen Voraussetzungen bekannt sind – auch vor dem historischen Jahr, dann aber teurer. Ein Klick zeigt Kosten, Dauer und was die Technologie bringt.
 forschung.darstellung: Darstellung
 forschung.darstellung.baum: Baum

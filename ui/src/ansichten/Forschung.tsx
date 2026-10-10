@@ -2,7 +2,7 @@
 // known, in progress, possible or locked, what each technology costs and how long it
 // takes, and what it opens: processes (recipes), products and facilities. A second area
 // runs the research centers.
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, useId, useLayoutEffect, useRef, useState } from "react";
 import {
   formatDatum,
   formatGeld,
@@ -27,6 +27,7 @@ import { FehlerText } from "./Dialog";
 import {
   Befehle,
   Rueckmeldung,
+  SuchAuswahl,
   Unterreiter,
   useAktion,
   useBefehl,
@@ -132,6 +133,15 @@ function Baum({
   const id = useId();
   const detailId = `${id}-detail`;
   const tech = daten.technologies.find((x) => x.key === gewaehlt) ?? null;
+  const [filter, setFilter] = useState<{ art: "alle" | "branche" | "produkt"; wert: string }>({
+    art: "alle",
+    wert: "",
+  });
+  const [zoom, setZoom] = useState(1);
+  const sichtbar = teilbaum(daten, filter.art, filter.wert);
+  const gezeigt: Forschung = sichtbar
+    ? { ...daten, technologies: daten.technologies.filter((x) => sichtbar.has(x.key)) }
+    : daten;
   // On a phone the details sit below the list item or the tree: bring them into view.
   const waehle = (k: string) => {
     setGewaehlt(k);
@@ -141,6 +151,22 @@ function Baum({
       );
     }
   };
+  // Search: choose the technology and bring its node into view.
+  const finde = (k: string) => {
+    if (sichtbar && !sichtbar.has(k)) setFilter({ art: "alle", wert: "" });
+    setGewaehlt(k);
+    requestAnimationFrame(() =>
+      document
+        .querySelector(`[data-tech="${k}"]`)
+        ?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: "smooth" }),
+    );
+  };
+  const felder = [...new Set(daten.technologies.map((x) => x.field))].sort((a, b) =>
+    t(`fachrichtung.${a}`).localeCompare(t(`fachrichtung.${b}`), "de"),
+  );
+  const produkte = [
+    ...new Set(daten.technologies.flatMap((x) => x.recipes.map((r) => r.product))),
+  ].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"));
   const detail = tech && (
     <TechnologieDetail
       key={tech.key}
@@ -156,6 +182,89 @@ function Baum({
   return (
     <>
       <p className="erklaerung">{t("forschung.erklaerung")}</p>
+      <div className="formular-zeile baum-auswahl">
+        <label>
+          {t("forschung.zeigen")}
+          <select
+            value={filter.art}
+            onChange={(e) =>
+              setFilter({
+                art: e.target.value as "alle" | "branche" | "produkt",
+                wert:
+                  e.target.value === "branche"
+                    ? (felder[0] ?? "")
+                    : e.target.value === "produkt"
+                      ? (produkte[0] ?? "")
+                      : "",
+              })
+            }
+          >
+            {(["alle", "branche", "produkt"] as const).map((a) => (
+              <option key={a} value={a}>
+                {t(`forschung.zeigen.${a}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        {filter.art !== "alle" && (
+          <div className="feld">
+            <label htmlFor={`${id}-filter`}>{t(`forschung.zeigen.${filter.art}`)}</label>
+            <SuchAuswahl
+              id={`${id}-filter`}
+              name={t(`forschung.zeigen.${filter.art}`)}
+              wert={filter.wert}
+              optionen={(filter.art === "branche" ? felder : produkte).map((w) => ({
+                wert: w,
+                text: filter.art === "branche" ? t(`fachrichtung.${w}`) : produktName(w),
+              }))}
+              onWahl={(w) => setFilter({ art: filter.art, wert: w })}
+            />
+          </div>
+        )}
+        <div className="feld">
+          <label htmlFor={`${id}-suche`}>{t("forschung.suchen")}</label>
+          <SuchAuswahl
+            id={`${id}-suche`}
+            name={t("forschung.suchen")}
+            wert={gewaehlt ?? ""}
+            optionen={[...daten.technologies]
+              .sort((a, b) => technologieName(a.key).localeCompare(technologieName(b.key), "de"))
+              .map((x) => ({
+                wert: x.key,
+                text: `${technologieName(x.key)} (${x.invention_year})`,
+              }))}
+            onWahl={finde}
+          />
+        </div>
+        {darstellung === "baum" && (
+          <span className="zoom" role="group" aria-label={t("forschung.zoom")}>
+            <button
+              type="button"
+              className="schlicht"
+              aria-label={t("forschung.zoom_kleiner")}
+              onClick={() => setZoom((z) => Math.max(0.4, Math.round((z - 0.1) * 10) / 10))}
+            >
+              −
+            </button>
+            <button type="button" className="schlicht" onClick={() => setZoom(1)}>
+              {formatProzent(zoom)}
+            </button>
+            <button
+              type="button"
+              className="schlicht"
+              aria-label={t("forschung.zoom_groesser")}
+              onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.1) * 10) / 10))}
+            >
+              +
+            </button>
+          </span>
+        )}
+      </div>
+      {sichtbar && (
+        <p className="feld-hilfe">
+          {t("forschung.teilbaum", { anzahl: sichtbar.size, gesamt: daten.technologies.length })}
+        </p>
+      )}
       <div className="formular-zeile">
         <fieldset className="auswahlgruppe waagrecht">
           <legend>{t("forschung.darstellung")}</legend>
@@ -182,10 +291,17 @@ function Baum({
       </div>
       <div className="technik-layout">
         {darstellung === "baum" ? (
-          <BaumGrafik daten={daten} gewaehlt={gewaehlt} onWahl={waehle} />
+          <BaumGrafik
+            key={`${filter.art}/${filter.wert}`}
+            daten={gezeigt}
+            gewaehlt={gewaehlt}
+            onWahl={waehle}
+            zoom={zoom}
+            onZoom={setZoom}
+          />
         ) : (
           <Liste
-            daten={daten}
+            daten={gezeigt}
             gewaehlt={gewaehlt}
             onWahl={waehle}
             detail={imListeneintrag ? detail : null}
@@ -195,6 +311,32 @@ function Baum({
       </div>
     </>
   );
+}
+
+/**
+ * The technologies to show for a field or a product: those of the field or those whose
+ * processes make the product, with all their prerequisites. `null`: all.
+ */
+export function teilbaum(
+  daten: Forschung,
+  art: "alle" | "branche" | "produkt",
+  wert: string,
+): Set<string> | null {
+  if (art === "alle" || wert === "") return null;
+  const nach = new Map(daten.technologies.map((x) => [x.key, x]));
+  const offen = daten.technologies
+    .filter((x) =>
+      art === "branche" ? x.field === wert : x.recipes.some((r) => r.product === wert),
+    )
+    .map((x) => x.key);
+  const gefunden = new Set<string>();
+  while (offen.length > 0) {
+    const k = offen.pop()!;
+    if (gefunden.has(k)) continue;
+    gefunden.add(k);
+    offen.push(...(nach.get(k)?.prerequisites ?? []));
+  }
+  return gefunden;
 }
 
 // --- The tree: lanes by field, columns by era, lines to the prerequisites ---
@@ -209,11 +351,37 @@ function BaumGrafik({
   daten,
   gewaehlt,
   onWahl,
+  zoom,
+  onZoom,
 }: {
   daten: Forschung;
   gewaehlt: string | null;
   onWahl: (k: string) => void;
+  zoom: number;
+  onZoom: (z: number) => void;
 }) {
+  const unten = useRef<HTMLDivElement>(null);
+  const oben = useRef<HTMLDivElement>(null);
+  const [breiteSichtbar, setBreiteSichtbar] = useState(0);
+  const rahmen = useRef<HTMLDivElement>(null);
+  // The scroll bar above mirrors the one below: same range, scrolled together.
+  useLayoutEffect(() => {
+    setBreiteSichtbar(unten.current?.scrollWidth ?? 0);
+  }, [zoom, daten]);
+  // Ctrl + wheel zooms the tree like a map (a native listener: React's is passive).
+  useLayoutEffect(() => {
+    const el = rahmen.current;
+    if (!el) return;
+    const rad = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      onZoom(
+        Math.min(1.6, Math.max(0.4, Math.round((zoom - Math.sign(e.deltaY) * 0.1) * 10) / 10)),
+      );
+    };
+    el.addEventListener("wheel", rad, { passive: false });
+    return () => el.removeEventListener("wheel", rad);
+  }, [zoom, onZoom]);
   const felder = [...new Set(daten.technologies.map((x) => x.field))];
   const epoche = (jahr: number) => EPOCHEN.findIndex((e) => jahr <= e.bis);
   // Nodes of one field and era stack downwards, oldest first.
@@ -252,7 +420,17 @@ function BaumGrafik({
   );
   const start = gewaehlt ? lage.get(gewaehlt) : undefined;
   return (
-    <div className="baum-rahmen">
+    <div className="baum-rahmen" style={{ zoom }} ref={rahmen}>
+      <div className="baum-ecke" />
+      <div
+        className="baum-scroll-oben"
+        ref={oben}
+        onScroll={(e) => {
+          if (unten.current) unten.current.scrollLeft = e.currentTarget.scrollLeft;
+        }}
+      >
+        <div style={{ width: breiteSichtbar, height: 1 }} />
+      </div>
       {/* The fields stay in view while the eras scroll. */}
       <div className="bahnkoepfe" style={{ height: y }}>
         {bahnen.map((b, i) => (
@@ -268,12 +446,16 @@ function BaumGrafik({
       <div
         className="baum-scroll"
         ref={(el) => {
+          unten.current = el;
           // Open at the frontier: the chosen technology near the right edge, its
           // predecessors to the left.
           if (el && start && !el.dataset.gerollt) {
             el.dataset.gerollt = "1";
             el.scrollLeft = Math.max(0, start.x + KNOTEN_B + 24 - el.clientWidth);
           }
+        }}
+        onScroll={(e) => {
+          if (oben.current) oben.current.scrollLeft = e.currentTarget.scrollLeft;
         }}
       >
         <div
@@ -329,6 +511,7 @@ function BaumGrafik({
                 aria-label={`${name}, ${x.invention_year}, ${t(`forschung.status.${x.status}`)}`}
                 aria-pressed={gewaehlt === x.key}
                 title={name}
+                data-tech={x.key}
                 onClick={() => onWahl(x.key)}
               >
                 <span>{name}</span>
@@ -370,6 +553,7 @@ function Liste({
                     type="button"
                     className={`technikzeile technik-${x.status}${gewaehlt === x.key ? " gewaehlt" : ""}`}
                     aria-pressed={gewaehlt === x.key}
+                    data-tech={x.key}
                     onClick={() => onWahl(x.key)}
                   >
                     <span className={`punkt technik-${x.status}`} />

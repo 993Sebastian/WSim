@@ -1204,6 +1204,11 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   Standortliste: Menge, Qualität, Verbrauch und Erzeugung je Tag, Reichweite, Buch- und
   Marktwert mit Summen sowie Herstellkosten je Einheit (Buchwert: eigene Erzeugung zu
   Herstellkosten, Zukauf zum Einkaufspreis; `StockView` erweitert, Sitzungstest, E2E).
+- **Technologiebaum besser einsehbar:** Oben „Zeigen“: alle Technologien, eine Fachrichtung
+  oder ein Produkt – dann nur der zugehörige Teilbaum mit allen Voraussetzungen. Suche
+  springt zur Technologie und rollt sie ins Bild. Zoom 40–160 % (Knöpfe oder Strg +
+  Mausrad), ein zweiter Scrollbalken über dem Baum läuft mit dem unteren mit (Vitest
+  `Teilbaum`, E2E).
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

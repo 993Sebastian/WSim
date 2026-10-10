@@ -138,7 +138,15 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await fliessband.getByRole("button", { name: "Automobil" }).click();
   await expect(page.getByRole("region", { name: "Automobil" })).toBeVisible();
   await bild(page, "forschung");
-  await page.getByLabel("Liste").check();
+  // Only the tree of one product: the technologies that make it with their prerequisites.
+  await page.getByLabel("Zeigen").selectOption("produkt");
+  await page.getByRole("combobox", { name: "Produkt" }).selectOption({ label: "Automobil" });
+  await expect(page.getByText(/von \d+ Technologien: die gewählten/)).toBeVisible();
+  await expect(baum.getByRole("button", { name: /^Fließband, 1913/ })).toBeVisible();
+  await page.getByLabel("Zeigen").selectOption("alle");
+  await page.getByRole("button", { name: "Vergrößern" }).click();
+  await expect(page.getByRole("button", { name: "110 %" })).toBeVisible();
+  await page.getByRole("radio", { name: "Liste" }).check();
   // Picking from the list moves the focus out of the input, so digits switch views again.
   await page.getByRole("button", { name: /Bessemer-Verfahren/ }).click();
   await expect(page.getByRole("region", { name: "Bessemer-Verfahren" })).toBeVisible();
