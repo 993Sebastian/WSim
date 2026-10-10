@@ -56,6 +56,9 @@ pub struct StrategyUnitView {
     pub level: String,
     /// Text key: the site type, `ebene.land`, `ebene.kontinent` or `ebene.firma`.
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub country: Option<String>,
     pub continent: Option<String>,
     pub site: Option<u32>,
@@ -369,6 +372,7 @@ fn unit_view(game: &Game, unit: Option<Unit>, (sites, monthly): (u32, f64)) -> S
             key: "firma".into(),
             level: "firma".into(),
             kind_text: "ebene.firma".into(),
+            site_name: None,
             country: None,
             continent: None,
             site: None,
@@ -395,6 +399,7 @@ fn unit_view(game: &Game, unit: Option<Unit>, (sites, monthly): (u32, f64)) -> S
         key: unit_key(c, u),
         level: level_key(u).to_owned(),
         kind_text: kind_text(state, u),
+        site_name: super::organisation::site_name(state, u),
         country: country.map(|k| c.countries.key(k).to_owned()),
         continent: continent.map(|k| c.continents.key(k).to_owned()),
         site: match u {

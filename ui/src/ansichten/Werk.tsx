@@ -44,6 +44,7 @@ import {
 } from "./gemeinsam";
 import { Verlauf } from "./Grafik";
 import { fortgeschrieben } from "./Markt";
+import { standortName } from "./stellen";
 
 type Bereich = "anlagen" | "einkauf" | "verkauf" | "personal" | "kosten";
 
@@ -75,7 +76,7 @@ export function formatKoepfe(anzahl: number): string {
 }
 
 export function standortTitel(s: StandortDetail): string {
-  return `${t(s.kind_text)} · ${landName(s.country)}`;
+  return standortName(s.kind_text, s.country, s.name);
 }
 
 const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "personal", "kosten"];
@@ -120,8 +121,10 @@ export function Werk({
         </button>
         <h2>
           {titel}
+          {s.name && <small>{t(s.kind_text)}</small>}
           {s.deposit && <small>{t(`lagerstaette.${s.deposit}`)}</small>}
         </h2>
+        <Umbenennen key={s.name ?? ""} s={s} />
       </div>
       <WerkKennzahlen s={s} />
       <Unterreiter
@@ -136,6 +139,42 @@ export function Werk({
       {bereich === "personal" && <Personal key={s.wage_premium} s={s} />}
       {bereich === "kosten" && <Kosten s={s} produktion={produktion} />}
     </section>
+  );
+}
+
+/** The site's own name (RenameSite); empty keeps kind and country. */
+function Umbenennen({ s }: { s: StandortDetail }) {
+  const [name, setName] = useState(s.name ?? "");
+  const { los, antwort } = useAktion(`umbenennen/${s.index}`);
+  const absenden = (ev: FormEvent) => {
+    ev.preventDefault();
+    const neu = name.trim();
+    void los(
+      [{ RenameSite: { site: s.index, name: neu === "" ? null : neu } }],
+      neu === "" ? t("werk.name_entfernt") : t("werk.name_gesetzt", { name: neu }),
+    );
+  };
+  return (
+    <details className="umbenennen">
+      <summary>{t("werk.umbenennen")}</summary>
+      <form className="formular-zeile" aria-label={t("werk.umbenennen")} onSubmit={absenden}>
+        <label>
+          {t("werk.name")}
+          <input
+            type="text"
+            value={name}
+            maxLength={40}
+            placeholder={`${t(s.kind_text)} ${landName(s.country)}`}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+        <p className="feld-hilfe">{t("werk.name_hilfe")}</p>
+        <div className="knopfreihe links">
+          <button type="submit">{t("werk.name_speichern")}</button>
+        </div>
+        <Rueckmeldung meldung={antwort} />
+      </form>
+    </details>
   );
 }
 

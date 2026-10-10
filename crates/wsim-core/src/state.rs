@@ -1351,6 +1351,9 @@ pub enum Limit {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Site {
     pub owner: CompanyId,
+    /// The owner's own name for the site; none shows the kind and the country.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     pub country: CountryId,
     pub kind: SiteType,
     pub founded: Date,

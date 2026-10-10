@@ -42,8 +42,14 @@ export function einheitName(e: {
   kind_text: string;
   country: string | null;
   continent: string | null;
+  site_name?: string | null;
 }): string {
   if (!e.country && !e.continent) return t(e.kind_text);
   const ort = e.country ? landName(e.country) : t(`kontinent.${e.continent ?? ""}`);
-  return `${t(e.kind_text)} · ${ort}`;
+  return `${e.site_name ?? t(e.kind_text)} · ${ort}`;
+}
+
+/** A site: its own name, else its kind, and the country ("Werk · Deutschland"). */
+export function standortName(artText: string, land: string, name?: string | null): string {
+  return `${name ?? t(artText)} · ${landName(land)}`;
 }

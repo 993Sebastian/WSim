@@ -60,6 +60,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
     let state = game.state_mut();
     state.sites.push(Site {
         owner,
+        name: None,
         country,
         kind: SiteType::Warehouse,
         founded: state.date,

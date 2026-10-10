@@ -59,6 +59,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
     let state = game.state_mut();
     state.sites.push(crate::state::Site {
         owner,
+        name: None,
         country,
         kind: SiteType::Warehouse,
         founded: state.date,

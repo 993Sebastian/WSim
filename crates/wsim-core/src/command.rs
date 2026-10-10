@@ -161,6 +161,8 @@ pub enum Command {
         max_price: Money,
         min_quality: f64,
     },
+    /// Gives a site the company's own name (`None` removes it).
+    RenameSite { site: SiteId, name: Option<String> },
     /// Buys `quantity` once on the country's market, at most at `max_price`, on top of
     /// the stock target; replaces an open one-off purchase (`quantity` 0 cancels it).
     BuyOnce {
@@ -1116,6 +1118,19 @@ pub fn check_product_name(
     Ok(name)
 }
 
+/// A site name: spaces collapsed, not empty and not longer than a product name.
+fn check_site_name(name: &str) -> Result<String, NameError> {
+    let name = name.split_whitespace().collect::<Vec<_>>().join(" ");
+    if name.is_empty() {
+        return Err(NameError::Empty);
+    }
+    let max = crate::product_names::MAX_LENGTH;
+    if name.chars().count() > max {
+        return Err(NameError::TooLong { max });
+    }
+    Ok(name)
+}
+
 fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
     CommandError::TechnologyUnknown(catalog.technologies.key(t).to_owned())
 }
@@ -1168,6 +1183,7 @@ fn found_site(
     }
     state.sites.push(Site {
         owner: actor,
+        name: None,
         country,
         kind,
         founded: today,
@@ -2018,6 +2034,14 @@ fn run(
             } else {
                 s.orders.remove(product);
             }
+        }
+        Command::RenameSite { site, name } => {
+            own_site(state, actor, *site)?;
+            let name = match name {
+                Some(name) => Some(check_site_name(name).map_err(CommandError::Name)?),
+                None => None,
+            };
+            state.site_mut(*site).expect("checked above").name = name;
         }
         Command::BuyOnce {
             site,

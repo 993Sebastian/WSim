@@ -43,6 +43,9 @@ pub struct GroupSiteView {
     pub company_name: String,
     pub country: String,
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     /// What the receiver pays: the book values of the site and its stocks.
     pub book_usd: f64,
 }
@@ -150,6 +153,7 @@ pub fn group(game: &Game) -> GroupView {
                     company_name: state.companies[s.owner.index()].name.clone(),
                     country: catalog.countries.key(s.country).to_owned(),
                     kind_text: site_type_key(s.kind),
+                    site_name: s.name.clone(),
                     book_usd: usd(v.fixed_assets
                         + v.under_construction
                         + v.goodwill

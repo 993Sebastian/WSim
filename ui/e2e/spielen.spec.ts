@@ -165,6 +165,15 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await page.getByRole("button", { name: "Standorte" }).click();
   await page.getByRole("button", { name: "Werk · Deutschland öffnen" }).click();
 
+  // The site's own name.
+  await page.locator("summary", { hasText: "Umbenennen" }).click();
+  const umbenennen = page.getByRole("form", { name: "Umbenennen" });
+  await umbenennen.getByLabel("Name des Standorts").fill("  Drahtwerk Nord ");
+  await umbenennen.getByRole("button", { name: "Namen speichern" }).click();
+  await expect(umbenennen.getByRole("alert")).toHaveText(
+    /Vorschau im Browser führt keine Befehle aus/,
+  );
+
   const anlage = page.getByRole("form", { name: "Nagelmaschine steuern" });
   await anlage.getByLabel("Geplante Auslastung").fill("60");
   await anlage.getByRole("button", { name: "Übernehmen" }).click();
@@ -220,6 +229,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await werbung.getByRole("button", { name: "Setzen" }).click();
 
   expect(await befehle(page)).toEqual([
+    { RenameSite: { site: 0, name: "Drahtwerk Nord" } },
     { SetProduction: { site: 0, slot: 0, recipe: "naegel_maschine", utilization: 0.6 } },
     {
       SetPurchase: {

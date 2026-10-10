@@ -307,6 +307,9 @@ pub struct PlaceView {
     pub unit: String,
     pub site: Option<u32>,
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub country: Option<String>,
     pub continent: Option<String>,
 }
@@ -358,6 +361,7 @@ pub(super) fn place_view(catalog: &Catalog, state: &GameState, unit: Unit) -> Pl
         unit: unit_key(catalog, unit),
         site: unit_site(unit),
         kind_text: kind_text(state, unit),
+        site_name: site_name(state, unit),
         country,
         continent,
     }
@@ -490,6 +494,14 @@ pub fn unit_from_key(catalog: &Catalog, key: &str) -> Option<Unit> {
 }
 
 /// Text key of a unit's kind: the site type, else the level.
+/// The player's own name of a site unit.
+pub(super) fn site_name(state: &GameState, unit: Unit) -> Option<String> {
+    match unit {
+        Unit::Site(s) => state.sites.get(s.index()).and_then(|s| s.name.clone()),
+        _ => None,
+    }
+}
+
 pub(super) fn kind_text(state: &GameState, unit: Unit) -> String {
     match unit {
         Unit::Site(s) => site_type_key(state.sites[s.index()].kind),

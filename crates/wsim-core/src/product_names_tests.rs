@@ -288,3 +288,57 @@ fn names_survive_saves_and_the_replay() {
     let replayed = Game::replay(c, s, game.journal()).unwrap();
     assert_eq!(replayed.state_hash(), game.state_hash());
 }
+
+/// Sites get the owner's own names; they survive saves and the replay.
+#[test]
+fn sites_take_own_names() {
+    let mut game = new_game(1900);
+    let c = game.catalog().clone();
+    let before = game.state().sites.len();
+    game.apply(Command::FoundSite {
+        country: c.countries.id("AAA").unwrap(),
+        kind: crate::catalog::SiteType::Factory,
+    })
+    .unwrap();
+    let site = crate::state::SiteId(u32::try_from(before).unwrap());
+    let rename = |name: Option<&str>| Command::RenameSite {
+        site,
+        name: name.map(str::to_owned),
+    };
+    game.apply(rename(Some("  Werk   am Fluss "))).unwrap();
+    assert_eq!(
+        game.state().sites[site.index()].name.as_deref(),
+        Some("Werk am Fluss")
+    );
+    assert!(matches!(
+        game.apply(rename(Some("   "))),
+        Err(CommandError::Name(NameError::Empty))
+    ));
+    assert!(matches!(
+        game.apply(rename(Some(&"x".repeat(product_names::MAX_LENGTH + 1)))),
+        Err(CommandError::Name(NameError::TooLong { .. }))
+    ));
+    game.advance(RoundLength::Day, |_| {});
+    let loaded = save::decode(&save::encode(&game), game.catalog().clone())
+        .unwrap()
+        .game;
+    assert_eq!(
+        loaded.state().sites[site.index()].name.as_deref(),
+        Some("Werk am Fluss")
+    );
+    let c = Arc::new(catalog());
+    let s = settings(&c, 1900);
+    let replayed = Game::replay(c, s, game.journal()).unwrap();
+    assert_eq!(replayed.state_hash(), game.state_hash());
+    // Removing the name shows the kind and country again.
+    game.apply(rename(None)).unwrap();
+    assert_eq!(game.state().sites[site.index()].name, None);
+    // Unknown sites cannot be renamed.
+    assert!(
+        game.apply(Command::RenameSite {
+            site: crate::state::SiteId(9_999),
+            name: Some("Fremd".into()),
+        })
+        .is_err()
+    );
+}

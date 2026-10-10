@@ -989,6 +989,7 @@ fn found_company(
         }
         new_sites.push(Site {
             owner: id,
+            name: None,
             country,
             kind,
             founded: date,

@@ -466,6 +466,12 @@ werk.arbeit_je_stueck: Arbeit je Stück (mittel = 100 %)
 werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
+werk.umbenennen: Umbenennen
+werk.name: Name des Standorts
+werk.name_hilfe: Leer lassen, um wieder Art und Land zu zeigen. Der Name erscheint überall, wo der Standort genannt wird.
+werk.name_speichern: Namen speichern
+werk.name_gesetzt: "Der Standort heißt jetzt „{name}“."
+werk.name_entfernt: Der Standort trägt wieder keinen eigenen Namen.
 werk.pauschal_titel: Einmalig kaufen
 werk.pauschal_von: "Pauschalkauf von {produkt}"
 werk.pauschal_menge: Menge

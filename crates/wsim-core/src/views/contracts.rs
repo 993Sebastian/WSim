@@ -18,6 +18,9 @@ pub struct ContractSiteView {
     pub country: String,
     /// Text key of the site type.
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     /// Products the site makes or offers.
     pub sells: Vec<String>,
     /// Products the site uses or orders.
@@ -38,6 +41,8 @@ pub struct ContractView {
     pub own_site: u32,
     pub own_country: String,
     pub own_kind_text: String,
+    #[serde(default)]
+    pub own_site_name: Option<String>,
     pub partner: String,
     pub partner_country: String,
     pub per_month: f64,
@@ -154,6 +159,7 @@ fn contract_view(game: &Game, c: &Contract) -> ContractView {
         own_site: own.0,
         own_country: catalog.countries.key(own_site.country).to_owned(),
         own_kind_text: site_type_key(own_site.kind),
+        own_site_name: own_site.name.clone(),
         partner: state.companies[c.partner(me).index()].name.clone(),
         partner_country: catalog.countries.key(other_site.country).to_owned(),
         per_month: c.per_month,
@@ -270,6 +276,7 @@ pub fn contracts(game: &Game) -> ContractsView {
                     site: site.0,
                     country: catalog.countries.key(s.country).to_owned(),
                     kind_text: site_type_key(s.kind),
+                    site_name: s.name.clone(),
                     sells: keys(sells),
                     buys: keys(buys),
                 }

@@ -6,7 +6,7 @@ import type { Anliegen, AnliegenGruppe, AnliegenOption, Anliegenantwort, Kern } 
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Rueckmeldung, useAktion, useSicht } from "./gemeinsam";
-import { einheitName, stellenName } from "./stellen";
+import { einheitName, standortName, stellenName } from "./stellen";
 
 /** Where the answers appear: at the top of the list (an answered concern leaves it). */
 const ORT = "anliegen";
@@ -46,7 +46,7 @@ function budgetOrt(a: Anliegen): string {
   if (ebene === "kontinent") return t(`kontinent.${wert}`);
   if (ebene === "land") return landName(wert);
   if (ebene === "standort" && a.site_kind_text && a.site_country) {
-    return `${t(a.site_kind_text)} · ${landName(a.site_country)}`;
+    return standortName(a.site_kind_text, a.site_country, a.site_name);
   }
   return "";
 }
@@ -79,7 +79,7 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
       </p>
       {a.site_kind_text && a.site_country && a.asker.level !== "standort" && (
         <p className="feld-hilfe">
-          {t("anliegen.ort", { ort: `${t(a.site_kind_text)} · ${landName(a.site_country)}` })}
+          {t("anliegen.ort", { ort: standortName(a.site_kind_text, a.site_country, a.site_name) })}
         </p>
       )}
       {a.path.length > 1 && <p className="feld-hilfe">{t("anliegen.weg", { weg: weg(a) })}</p>}
@@ -114,7 +114,7 @@ function AnliegenKarte({ a, ruhetage }: { a: Anliegen; ruhetage: number }) {
                   <td>
                     <strong>
                       {teil.kind_text && teil.country
-                        ? `${t(teil.kind_text)} · ${landName(teil.country)}`
+                        ? standortName(teil.kind_text, teil.country, teil.site_name)
                         : t("anliegen.ohne_ort")}
                     </strong>
                     {teil.product && ` · ${t(`produkt.${teil.product}`)}`}

@@ -535,6 +535,8 @@ export interface Preisverlauf {
 
 export interface StandortDetail {
   index: number;
+  /** The player's own name for the site, if any. */
+  name?: string | null;
   country: string;
   kind: string;
   kind_text: string;
@@ -1016,6 +1018,8 @@ export interface Zentren {
   sites: {
     site: number;
     kind_text: string;
+    /** The player's own name for the site, if any. */
+    site_name?: string | null;
     country: string;
     revenue_usd: number;
     result_usd: number;
@@ -1190,6 +1194,8 @@ export interface Ort {
   unit: string;
   site: number | null;
   kind_text: string;
+  /** The player's own name for the site, if any. */
+  site_name?: string | null;
   country: string | null;
   continent: string | null;
 }
@@ -1585,6 +1591,8 @@ export interface AnliegenWeg {
 export interface AnliegenTeil {
   site: number | null;
   kind_text: string | null;
+  /** The player's own name for the site, if any. */
+  site_name?: string | null;
   country: string | null;
   product: string | null;
   option: AnliegenOption;
@@ -1595,6 +1603,7 @@ export interface Anliegen {
   /** The site the decision is about, if any. */
   site: number | null;
   site_kind_text: string | null;
+  site_name?: string | null;
   site_country: string | null;
   /** The position that asks the player. */
   asker: AnliegenStelle;
@@ -1750,6 +1759,8 @@ export interface VorgabeEinheit {
   level: "firma" | "kontinent" | "land" | "standort";
   /** Text key: the site type, `ebene.land`, `ebene.kontinent` or `ebene.firma`. */
   kind_text: string;
+  /** The player's own name for the site, if any. */
+  site_name?: string | null;
   country: string | null;
   continent: string | null;
   site: number | null;
@@ -2079,6 +2090,8 @@ export interface VertragsStandort {
   site: number;
   country: string;
   kind_text: string;
+  /** The player's own name for the site, if any. */
+  site_name?: string | null;
   /** Products the site makes or offers. */
   sells: string[];
   /** Products the site uses or orders. */
@@ -2097,6 +2110,7 @@ export interface Vertrag {
   own_site: number;
   own_country: string;
   own_kind_text: string;
+  own_site_name?: string | null;
   partner: string;
   partner_country: string;
   per_month: number;
@@ -2229,6 +2243,8 @@ export interface KonzernStandort {
   company_name: string;
   country: string;
   kind_text: string;
+  /** The player's own name for the site, if any. */
+  site_name?: string | null;
   book_usd: number;
 }
 

@@ -7,7 +7,6 @@ import {
   geldEinheit,
   geldSchluessel,
   inAnzeige,
-  landName,
   zahlFeld,
   zahlLesen,
 } from "../format";
@@ -35,6 +34,7 @@ import { AnleihenTeil } from "./Anleihen";
 import { BankAnsicht } from "./Bank";
 import { ControllingAnsicht } from "./Controlling";
 import { formatMonatKurz, Verlauf } from "./Grafik";
+import { standortName } from "./stellen";
 
 export function FinanzenAnsicht({
   kern,
@@ -364,9 +364,7 @@ function Woher({ daten }: { daten: Finanzen }) {
               <tbody>
                 {z.sites.map((s) => (
                   <tr key={s.site}>
-                    <td>
-                      {t(s.kind_text)} · {landName(s.country)}
-                    </td>
+                    <td>{standortName(s.kind_text, s.country, s.site_name)}</td>
                     <td className="zahl" data-spalte={t("kostenart.umsatz")}>
                       {formatGeld(s.revenue_usd)}
                     </td>

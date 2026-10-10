@@ -225,6 +225,9 @@ pub struct SiteDetail {
     pub kind: SiteType,
     /// Text key, e.g. `standorttyp.werk`.
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub name: Option<String>,
     pub deposit: Option<String>,
     /// Day the development of the site's deposit field is finished.
     pub deposit_ready: Option<String>,
@@ -701,6 +704,7 @@ pub fn production(game: &Game) -> ProductionView {
                 country: catalog.countries.key(s.country).to_owned(),
                 kind: s.kind,
                 kind_text: site_type_key(s.kind),
+                name: s.name.clone(),
                 deposit: s.deposit.map(|d| catalog.deposits.key(d).to_owned()),
                 deposit_ready: concession.and_then(|c| c.ready).map(iso),
                 free_deposits: if s.kind == SiteType::Extraction && s.deposit.is_none() {
@@ -2568,6 +2572,9 @@ pub struct FinanceView {
 pub struct SiteLine {
     pub site: u32,
     pub kind_text: String,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub country: String,
     pub revenue_usd: f64,
     pub result_usd: f64,
@@ -2610,6 +2617,7 @@ fn center_results(game: &Game, period: &crate::ledger::PeriodResult) -> Option<C
             SiteLine {
                 site: id.0,
                 kind_text: site_type_key(s.kind),
+                site_name: s.name.clone(),
                 country: catalog.countries.key(s.country).to_owned(),
                 revenue_usd: usd(sum(&|c| c.site == Some(id), true)),
                 result_usd: usd(sum(&|c| c.site == Some(id), false)),

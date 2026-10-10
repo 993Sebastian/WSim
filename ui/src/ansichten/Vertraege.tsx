@@ -23,10 +23,11 @@ import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { fehlerText } from "./fehler";
 import { Rueckmeldung, useAktion, useSicht, ZahlFeld } from "./gemeinsam";
+import { standortName } from "./stellen";
 
 const einheit = (u: string) => t(`einheit.${u}`);
 
-const standortName = (s: VertragsStandort) => `${t(s.kind_text)} ${landName(s.country)}`;
+const vertragsStandort = (s: VertragsStandort) => standortName(s.kind_text, s.country, s.site_name);
 
 /** One contract with what the player can do with it. */
 function VertragZeile({ v, onNeu }: { v: Vertrag; onNeu: () => void }) {
@@ -48,8 +49,8 @@ function VertragZeile({ v, onNeu }: { v: Vertrag; onNeu: () => void }) {
         <br />
         <small className="gedaempft">
           {v.role === "verkauf"
-            ? `${landName(v.own_country)} → ${landName(v.partner_country)}`
-            : `${landName(v.partner_country)} → ${landName(v.own_country)}`}
+            ? `${v.own_site_name ?? landName(v.own_country)} → ${landName(v.partner_country)}`
+            : `${landName(v.partner_country)} → ${v.own_site_name ?? landName(v.own_country)}`}
         </small>
       </td>
       <td className="zahl">{menge(v.per_month)}</td>
@@ -237,7 +238,7 @@ function NeuerVertrag({
           >
             {daten.sites.map((x) => (
               <option key={x.site} value={x.site}>
-                {standortName(x)}
+                {vertragsStandort(x)}
               </option>
             ))}
           </select>

@@ -68,6 +68,9 @@ pub struct HopView {
 pub struct ConcernPartView {
     pub site: Option<u32>,
     pub kind_text: Option<String>,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub country: Option<String>,
     pub product: Option<String>,
     pub option: ConcernOptionView,
@@ -80,6 +83,9 @@ pub struct ConcernView {
     pub site: Option<u32>,
     pub site_kind_text: Option<String>,
     pub site_country: Option<String>,
+    /// The player's own name for the site, if any.
+    #[serde(default)]
+    pub site_name: Option<String>,
     /// The position that asks the player.
     pub asker: ConcernPositionView,
     /// The positions on the way, the first first; empty where it asks itself (MA3).
@@ -769,6 +775,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
             Some(ConcernPartView {
                 site: p.decision.site.map(|s| s.0),
                 kind_text: s.map(|s| site_type_key(s.kind)),
+                site_name: s.and_then(|s| s.name.clone()),
                 country: s.map(|s| catalog.countries.key(s.country).to_owned()),
                 product: p
                     .decision
@@ -783,6 +790,7 @@ fn concern_view(game: &Game, c: &Concern) -> ConcernView {
         site: c.decision.site.map(|s| s.0),
         site_kind_text: site.map(|s| site_type_key(s.kind)),
         site_country: site.map(|s| catalog.countries.key(s.country).to_owned()),
+        site_name: site.and_then(|s| s.name.clone()),
         asker: position_view(catalog, state, asker),
         path,
         parts,

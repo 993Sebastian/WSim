@@ -5,6 +5,7 @@ import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { LAENDER } from "./laender";
 import { Rueckmeldung, useAktion, useSicht, ZahlFeld } from "./gemeinsam";
+import { standortName } from "./stellen";
 
 type Schwerpunkt = Tochter["focus"];
 
@@ -228,9 +229,7 @@ function Standorte({ daten, onNeu }: { daten: Konzern; onNeu: () => void }) {
               const wahl = ziel[s.site] ?? andere[0]?.company;
               return (
                 <tr key={s.site}>
-                  <td>
-                    {t(s.kind_text)} {landName(s.country)}
-                  </td>
+                  <td>{standortName(s.kind_text, s.country, s.site_name)}</td>
                   <td>{s.company_name}</td>
                   <td className="zahl">{formatGeld(s.book_usd)}</td>
                   <td>

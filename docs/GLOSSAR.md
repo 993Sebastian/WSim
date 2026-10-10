@@ -89,6 +89,7 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Verkaufsangebot, Preismodus | `SaleOffer`, `PriceMode` |
 | Einkaufsauftrag | `PurchaseOrder` |
 | Pauschalkauf (einmaliger Einkauf) | `BuyOnce`, `PurchaseOrder::once` |
+| Eigener Standortname | `Site::name`, `RenameSite`, `site_name` |
 | Handel (Menge, Umsatz) | `Trade` |
 | Verkehrsmittel, Weg | `Vehicle`, `Way` |
 | Transportmodell, Frachtdienst | `TransportModel`, `transport` |

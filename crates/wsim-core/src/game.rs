@@ -886,6 +886,7 @@ pub(crate) fn start_setup(
     let site = crate::state::SiteId(u32::try_from(state.sites.len()).expect("site count fits u32"));
     state.sites.push(Site {
         owner: company,
+        name: None,
         country,
         kind: setup.site_type,
         founded: date,
