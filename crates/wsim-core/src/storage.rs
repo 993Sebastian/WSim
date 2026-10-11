@@ -55,11 +55,43 @@ pub fn capacity(catalog: &Catalog, site: &Site) -> Option<Money> {
     Some(base + m.step_capacity.scale(f64::from(site.storage_steps)))
 }
 
-/// Whether the site's store is full: its facilities stop and its orders do not buy.
-/// Power plants feed the grid and never stop for their store.
+/// Whether the site's store is full: its orders do not buy. Power plants feed the grid
+/// and never count as full.
 pub fn is_full(catalog: &Catalog, site: &Site) -> bool {
     site.kind != SiteType::PowerPlant
         && capacity(catalog, site).is_some_and(|c| fill(catalog, site) >= c)
+}
+
+/// Whether the facilities stop: the store is full and the site's own products take at
+/// least half of it. A store full of inputs keeps running, so that it empties.
+pub fn stops_output(catalog: &Catalog, site: &Site) -> bool {
+    if !is_full(catalog, site) {
+        return false;
+    }
+    let Some(cap) = capacity(catalog, site) else {
+        return false;
+    };
+    let mut made: Vec<crate::ids::ProductId> = Vec::new();
+    for sl in &site.slots {
+        if let Some(r) = sl.recipe {
+            let recipe = catalog.recipes.get(r);
+            made.push(recipe.product);
+            made.extend(recipe.by_products.iter().map(|&(p, _)| p));
+        }
+    }
+    let output = site
+        .inventory
+        .iter()
+        .filter(|(p, _)| made.contains(p))
+        .map(|(&p, s)| {
+            catalog
+                .products
+                .get(p)
+                .reference_price
+                .scale(s.quantity.max(0.0))
+        })
+        .fold(Money::ZERO, |a, b| a + b);
+    output.scale(2.0) >= cap
 }
 
 /// Storage cost of a day: a yearly share of the stored value.
@@ -106,8 +138,8 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog) {
     }
 }
 
-/// Builds `steps` steps more storage at a site (`BuildStorage`), paid from the cash and
-/// written off with the building.
+/// Builds `steps` steps more storage at a site (`BuildStorage`), paid from the cash as
+/// an expense of the storage (shelving and fittings, no lasting asset).
 pub(crate) fn build(
     state: &mut GameState,
     catalog: &Catalog,
@@ -124,15 +156,19 @@ pub(crate) fn build(
     if ledger.cash() < cost {
         return Err(CommandError::NotEnoughCash { needed: cost });
     }
-    ledger.transfer(Account::FixedAssets, Account::Cash, cost);
-    let s = &mut state.sites[site.index()];
-    s.building_cost += cost;
-    s.storage_steps += steps;
+    ledger.expense(
+        CostType::Storage,
+        CostCenter::site(site),
+        Account::Cash,
+        cost,
+    );
+    state.sites[site.index()].storage_steps += steps;
     Ok(())
 }
 
 /// Steps an AI company builds at a site whose store is filled beyond its threshold: one
-/// when the cash bears it twice over.
+/// when the site earned money in the last closed month (a store full of goods nobody
+/// buys is not worth more room) and the cash bears it twice over.
 pub(crate) fn ai_steps(catalog: &Catalog, state: &GameState, site: SiteId) -> Option<u32> {
     let m = &catalog.production_model.storage;
     let s = state.site(site)?;
@@ -140,6 +176,11 @@ pub(crate) fn ai_steps(catalog: &Catalog, state: &GameState, site: SiteId) -> Op
     if s.kind == SiteType::PowerPlant || fill(catalog, s) < cap.scale(m.ai_expand_at) {
         return None;
     }
-    let cash = state.companies[s.owner.index()].ledger.cash();
-    (cash >= m.step_cost.scale(2.0)).then_some(1)
+    let ledger = &state.companies[s.owner.index()].ledger;
+    let earned = ledger
+        .months
+        .last()
+        .and_then(|p| p.by_site.get(&site))
+        .is_some_and(|&r| r > Money::ZERO);
+    (earned && ledger.cash() >= m.step_cost.scale(2.0)).then_some(1)
 }

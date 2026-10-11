@@ -39,7 +39,7 @@ impl Closing {
 pub fn value(state: &GameState, catalog: &Catalog, site: SiteId) -> Closing {
     let pm = &catalog.production_model;
     let date = state.date;
-    let v = crate::deals::site_value(state, catalog, site);
+    let v = crate::deals::site_value_with(state, catalog, site, Money::ZERO);
     let s = &state.sites[site.index()];
     let in_production: Money = s
         .slots
@@ -108,7 +108,7 @@ pub(crate) fn close(
     }
     let today = state.date;
     let c = value(state, catalog, site);
-    let v = crate::deals::site_value(state, catalog, site);
+    let v = crate::deals::site_value_with(state, catalog, site, Money::ZERO);
 
     let center = CostCenter::site(site);
     let l = &mut state.companies[actor.index()].ledger;

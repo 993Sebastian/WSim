@@ -1299,6 +1299,20 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   (`tools/daten/regionen.py`, `regionen_umstellen.py`); Feld `frueher` für alte
   Regionscodes in Spielständen; Karte neu erzeugt; Einzelheiten und Entscheidungen in
   docs/OFFENE_PUNKTE.md, Q5.
+- **Fehleranalyse (11.10.2026):** Startformen 1900/1950/2000/2020 ohne Eingriff je drei Jahre
+  gespielt, Code der neuen Funktionen geprüft. Behoben:
+  - Startwerkstatt ab etwa 1960: fester Höchstpreis für Draht lag unter dem Marktpreis
+    (kein Einkauf, Pleite nach einem Jahr) – der Höchstpreis wächst jetzt mit dem
+    Marktpreis; Startstandorte pachteten gewachsene Grundstücke von über 1 ha in der
+    Stadt (Werkstatt 2020: 67 000 USD Pacht im Jahr) – jetzt genau die gebrauchte Fläche
+    in der günstigeren Lage. Werkstatt nach drei Jahren: 1900 231 000, 1960 91 000, 2000
+    122 000, 2020 78 000 USD (Start 100 000); Handel 1950/2000 79 000 statt 3 000 USD.
+  - Lager voller Vorprodukte blockierte das Werk für immer – Anlagen stehen nur noch, wenn
+    die eigenen Erzeugnisse das Lager füllen; KI baut nur bei Gewinn im Vormonat aus.
+  - Schließen eines Standorts mit verlorener Lieferung schrieb diese doppelt ab; ein
+    Lagerausbau blieb teils als Anlagewert stehen (jetzt Aufwand); eine Antwort auf ein
+    Anliegen öffnete Fragen zu einem aufgegebenen Standort wieder; geschlossene Standorte
+    zählten bei KI, Währungsreformen und Vorstandsanteilen mit.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

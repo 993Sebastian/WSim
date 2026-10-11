@@ -170,7 +170,7 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | **nebenprodukte_lager_tage** | Nebenprodukte über so viele Tage ihrer Erzeugung hinaus werden entsorgt (> 0) |
 | **anlagengroessen** | Anlagengrößen (M36): **kapazitaet** je Größe `sehr_klein`, `klein`, `mittel`, `gross`, `sehr_gross` (alle nötig, > 0, mit der Größe wachsend, `mittel` = 1 – für sie gelten die Werte der Anlagen); **investition_exponent** (0–1,5), **arbeit_exponent** (−1–1, auf die Stunden je Durchlauf), **flaeche_exponent** (0–1,5), **bauzeit_exponent** (0–1). Namen als `anlagengroesse.<größe>`. |
 | **richtpreis_marge** | `{minimum, maximum}` (je −1 bis 1): Bereich der Marge, den das beste Rezept eines Produkts zu Richtpreisen erreichen soll; außerhalb warnt die Prüfung (Förderung nur unter `minimum`) |
-| **startformen** | `werkstatt` und `handel` (beide nötig), je: **standorttyp**, **gebaeude_usd**, `anlagen` (Liste `{anlage, rezept, auslastung}`), `einkauf` (Liste `{produkt, ziel, hoechstpreis_usd}`), `verkauf` (Liste von Produkten, Angebot zum Marktpreis). Anlagen und Rezepte müssen 1900 bekannt sein und zum Standorttyp passen. Kosten werden vom Startkapital bezahlt. |
+| **startformen** | `werkstatt` und `handel` (beide nötig), je: **standorttyp**, **gebaeude_usd**, `anlagen` (Liste `{anlage, rezept, auslastung}`), `einkauf` (Liste `{produkt, ziel, hoechstpreis_usd}`; der Höchstpreis gilt beim Richtpreis und steigt bei späterem Start mit dem Marktpreis des Produkts), `verkauf` (Liste von Produkten, Angebot zum Marktpreis). Anlagen und Rezepte müssen 1900 bekannt sein und zum Standorttyp passen. Kosten werden vom Startkapital bezahlt. |
 
 ## forschungsmodell
 

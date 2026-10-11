@@ -267,6 +267,9 @@ pub struct StorageView {
     /// Fill as share of the capacity.
     pub share: f64,
     pub full: bool,
+    /// The site's own products fill the store: the facilities stand.
+    #[serde(default)]
+    pub stops: bool,
     pub steps: u32,
     pub step_capacity_usd: f64,
     pub step_cost_usd: f64,
@@ -287,6 +290,7 @@ fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
             0.0
         },
         full: crate::storage::is_full(catalog, site),
+        stops: crate::storage::stops_output(catalog, site),
         steps: site.storage_steps,
         step_capacity_usd: usd(m.step_capacity),
         step_cost_usd: usd(m.step_cost),

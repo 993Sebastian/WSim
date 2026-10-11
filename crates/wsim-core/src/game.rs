@@ -713,7 +713,11 @@ fn currency_reforms(state: &GameState, catalog: &Catalog, date: Date) -> Vec<Mes
         state.companies[c.index()].headquarters
     });
     let mut countries = vec![home];
-    for s in state.sites.iter().filter(|s| state.is_main(s.owner)) {
+    for s in state
+        .sites
+        .iter()
+        .filter(|s| s.closed.is_none() && state.is_main(s.owner))
+    {
         if !countries.contains(&s.country) {
             countries.push(s.country);
         }
@@ -877,6 +881,15 @@ pub(crate) fn start_setup(
         .purchases
         .iter()
         .map(|&(product, target, max_price)| {
+            // The data's price limit holds at the reference price; in later years it
+            // rises with the market price, else a workshop founded in 1990 buys no wire.
+            let reference = catalog.products.get(product).reference_price;
+            let market = market::market_price(catalog, state, country, product);
+            let max_price = if reference > Money::ZERO && market > reference {
+                max_price.scale(market.to_usd() / reference.to_usd())
+            } else {
+                max_price
+            };
             let order = PurchaseOrder {
                 target,
                 max_price,
@@ -921,8 +934,8 @@ pub(crate) fn start_setup(
     // The workshop leases its plot: the start capital pays only building and facilities.
     if crate::plots::needs_plot(catalog, setup.site_type) {
         let s = &state.sites[site.index()];
-        let need =
-            crate::plots::site_area(catalog, s, None) * (1.0 + catalog.plot_model.ai_reserve);
+        // Exactly what the workshop uses: the player leases more when expanding.
+        let need = crate::plots::site_area(catalog, s, None);
         let revenue = crate::plots::planned_revenue(state, catalog, s);
         let plot = crate::plots::for_existing(state, catalog, country, (need, revenue));
         crate::plots::occupy(state, plot, site, crate::state::Tenure::Leased);

@@ -625,8 +625,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         .map(|w| w * worker_hours)
         .collect();
     let owner = state.sites[index].owner;
-    let full = crate::storage::is_full(catalog, &state.sites[index]);
-    state.sites[index].storage_full = full;
+    state.sites[index].storage_full = crate::storage::is_full(catalog, &state.sites[index]);
+    let full = crate::storage::stops_output(catalog, &state.sites[index]);
 
     for slot in 0..state.sites[index].slots.len() {
         state.sites[index].slots[slot].last_runs = 0.0;

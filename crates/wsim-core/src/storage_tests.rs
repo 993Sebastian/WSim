@@ -2,7 +2,7 @@
 
 use crate::catalog::{Catalog, SiteType, StorageModel, test_support};
 use crate::command::{Command, CommandError};
-use crate::facility_tests::{mine, new_game};
+use crate::facility_tests::{mine, new_game, works};
 use crate::ledger::CostType;
 use crate::money::Money;
 use crate::state::Limit;
@@ -59,10 +59,7 @@ fn a_full_store_stops_the_site_until_it_is_expanded() {
         .unwrap();
     let s = &game.state().sites[site.index()];
     assert_eq!(s.storage_steps, 2);
-    assert_eq!(
-        s.building_cost - building,
-        Money::from_usd(20_000.0).unwrap()
-    );
+    assert_eq!(s.building_cost, building, "no lasting asset");
     let ledger = &game.state().company(me).unwrap().ledger;
     assert_eq!(cash - ledger.cash(), Money::from_usd(20_000.0).unwrap());
     assert!(ledger.is_balanced());
@@ -108,4 +105,37 @@ fn without_data_stocks_are_unlimited() {
         game.apply(Command::BuildStorage { site, steps: 1 }),
         Err(CommandError::NotPossible)
     );
+}
+
+#[test]
+fn a_store_full_of_inputs_keeps_the_facilities_running() {
+    let mut game = new_game(with_storage(0.0));
+    let site = works(&mut game, 1);
+    let c = game.catalog().clone();
+    game.apply(Command::SetProduction {
+        site,
+        slot: 0,
+        recipe: c.recipes.id("eisen_schmelzen"),
+        utilization: 1.0,
+    })
+    .unwrap();
+    days(&mut game, 25);
+    // Far more ore than the store holds, nothing made yet.
+    let ore = c.products.id("erz").unwrap();
+    game.state_mut().sites[site.index()]
+        .inventory
+        .entry(ore)
+        .or_default()
+        .add(1_000_000.0, Money::from_usd(1_000_000.0).unwrap(), 50.0);
+    let s = &game.state().sites[site.index()];
+    assert!(crate::storage::is_full(game.catalog(), s));
+    assert!(!crate::storage::stops_output(game.catalog(), s));
+    days(&mut game, 2);
+    let s = &game.state().sites[site.index()];
+    assert!(s.storage_full, "orders do not buy");
+    assert!(
+        s.slots[0].last_runs > 0.0,
+        "the furnace turns ore into iron"
+    );
+    assert_ne!(s.slots[0].limit, Some(Limit::Storage));
 }

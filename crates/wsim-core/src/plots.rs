@@ -262,23 +262,38 @@ pub(crate) fn supply(state: &mut GameState, catalog: &Catalog, year: i32) {
 }
 
 /// A plot for a site that must exist (start of a game, saves from before M35): a free
-/// one that holds it, else a new one in the city of exactly that size.
+/// one that holds it and is not much larger (plots of later years have grown; a workshop
+/// founded in 2000 would lease a hectare it does not use), else a new one in the city of
+/// exactly that size.
 pub(crate) fn for_existing(
     state: &mut GameState,
     catalog: &Catalog,
     country: CountryId,
     (need_ha, revenue_usd): (f64, f64),
 ) -> PlotId {
-    if let Some(p) = choose(catalog, state, country, need_ha, revenue_usd)
-        .filter(|p| state.plots[p.index()].area_ha >= need_ha)
-    {
+    let most = need_ha * (1.0 + catalog.plot_model.ai_reserve);
+    if let Some(p) = choose(catalog, state, country, need_ha, revenue_usd).filter(|p| {
+        let area = state.plots[p.index()].area_ha;
+        area >= need_ha && area <= most
+    }) {
         return p;
     }
     let m = &catalog.plot_model;
     let year = state.date.year();
     let area = (need_ha * 100.0).ceil() / 100.0;
+    // In the city or in the country, whichever costs less with the deliveries (M35).
+    let base = base_price_per_ha(catalog, state, country);
+    let cost = |l: Location| {
+        let lm = m.location(l);
+        base * lm.price_factor * area * m.rent_share + lm.delivery_cost * revenue_usd
+    };
+    let location = if cost(Location::Rural) < cost(Location::City) {
+        Location::Rural
+    } else {
+        Location::City
+    };
     // The class whose plots of this year reach the area, else the largest.
-    let grown = growth(catalog, year) * m.location(Location::City).area_factor;
+    let grown = growth(catalog, year) * m.location(location).area_factor;
     let class = m
         .classes
         .iter()
@@ -286,7 +301,7 @@ pub(crate) fn for_existing(
         .unwrap_or(m.classes.len().saturating_sub(1));
     state.plots.push(Plot {
         country,
-        location: Location::City,
+        location,
         area_ha: area,
         class: u8::try_from(class).unwrap_or(u8::MAX),
         since: year,

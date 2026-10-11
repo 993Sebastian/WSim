@@ -1204,24 +1204,28 @@ Befehl `CloseSite`, nur für eigene Standorte. Parameter: `produktionsmodell.ver
 ### Lager: Kapazität, Kosten, Verderb (Wunsch vom 10.10.2026)
 
 Parameter: `data/parameter/produktionsmodell.yaml`, Abschnitt `lager`. Gemessen wird das Lager in Wert zu Richtpreisen
-im Land (USD 2026): Waren verschiedener Einheiten (t, Stück, l) werden so vergleichbar.
+(Katalog, Preisniveau 1, USD 2026; gleich in allen Ländern): Waren verschiedener Einheiten (t, Stück, l) werden so vergleichbar.
 
-- **Füllung** *F* = Σ Bestand · Richtpreis im Land.
+- **Füllung** *F* = Σ Bestand · Richtpreis.
 - **Kapazität** *K* = max(`mindestens_usd`[Standorttyp], `tage` · *D*) + Ausbau, mit *D* dem
   Durchsatz je Tag bei voller Auslastung: Σ über die Anlagen (Erzeugnisse und Vorprodukte
   eines Laufs · Läufe je Tag) zu Richtpreisen. Ein Lager fasst damit `tage` Tage
   Durchsatz; eine Handelsniederlassung ohne Anlagen ihren Mindestwert.
 - **Ausbau** (`BuildStorage`, *n* Stufen): je Stufe `ausbau.kapazitaet_usd` mehr Kapazität
-  für `ausbau.kosten_usd`, bezahlt aus der Kasse und als Gebäude abgeschrieben.
+  für `ausbau.kosten_usd`, bezahlt aus der Kasse als Aufwand (Kostenart „Lager“; Regale
+  und Einbauten, kein bleibender Anlagewert).
 - **Lagerkosten** je Tag: `kosten_jahr_anteil` · *F* / 365, Kostenart „Lager“.
 - **Verderb** am Monatsende: je Warengruppe aus `verderb` der Anteil des Bestands (Menge
   und Wert), gebucht als Lagerverlust (Kostenart „Lager“).
-- **Volles Lager** (*F* ≥ *K*, geprüft zu Beginn des Tages): die Anlagen laufen nicht
-  (Ursache „Lager voll“), laufende Einkaufsaufträge kaufen nicht; ausdrückliche
+- **Volles Lager** (*F* ≥ *K*, geprüft zu Beginn des Tages): laufende Einkaufsaufträge
+  kaufen nicht. Belegen die eigenen Erzeugnisse (Produkte und Nebenprodukte der Anlagen
+  des Standorts) mindestens die Hälfte von *K*, laufen auch die Anlagen nicht (Ursache
+  „Lager voll“); ein Lager voller Vorprodukte läuft weiter und leert sich so. Ausdrückliche
   Einmalkäufe und Lieferungen von außen (Verträge, interne Belieferung, Ware unterwegs)
   kommen trotzdem an. Kraftwerke speisen ins Netz und halten nie an.
-- **KI**: Ist ein Lager über `ki_ausbau_ab` · *K* gefüllt, baut die KI eine Stufe aus, wenn
-  die Kasse sie trägt – derselbe Befehl wie für den Spieler.
+- **KI**: Ist ein Lager über `ki_ausbau_ab` · *K* gefüllt und hat der Standort im letzten
+  Monat Gewinn gemacht, baut die KI eine Stufe aus, wenn die Kasse das Doppelte trägt –
+  derselbe Befehl wie für den Spieler.
 
 ## M23 – Etappenziele
 
@@ -1795,7 +1799,11 @@ geben ihr Grundstück frei.
   Marktpreis im Land; Kraftwerke und Labore verkaufen nichts), bei Gleichstand das
   kleinere; sonst das größte freie. Ohne Grundstück für wenigstens eine Anlage fällt das
   Vorhaben in diesem Land aus (Neugründung und Diversifizierung suchen das nächste).
-  Startstandorte und Standorte aus alten Spielständen wählen genauso.
+  Startstandorte und Standorte aus alten Spielständen wählen genauso, nehmen aber nur ein
+  freies Grundstück bis zum (1 + `ki_reserve`)-Fachen ihres Bedarfs; sonst wird ein
+  Grundstück genau dieser Größe abgeteilt (späte Startjahre: Grundstücke sind gewachsen),
+  in der Stadt oder auf dem Land, je nachdem, was mit den Lieferkosten weniger kostet. Der
+  Startstandort des Spielers braucht dabei keine Reserve (Ausbau später möglich).
 - **Kauf oder Pacht:** gekauft, wenn danach noch `kasse_min_monate` laufende Kosten in
   der Kasse bleiben, sonst gepachtet.
 - **Ausbau (M10):** Fasst das Grundstück nicht alle geplanten Einheiten, baut die KI so

@@ -479,15 +479,16 @@ werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
 werk.lager: Lager
 werk.lagerplatz.titel: Lagerplatz
-werk.lagerplatz.erklaerung: "Das Lager fasst Ware im Wert von rund 60 Tagen Durchsatz der Anlagen (zu Richtpreisen), mindestens einen Grundwert je Standorttyp. Lagern kostet laufend, Lebensmittel und Agrarrohstoffe verderben teilweise. Ist das Lager voll, stehen die Anlagen und Einkaufsaufträge kaufen nicht."
+werk.lagerplatz.erklaerung: "Das Lager fasst Ware im Wert von rund 60 Tagen Durchsatz der Anlagen (zu Richtpreisen), mindestens einen Grundwert je Standorttyp. Lagern kostet laufend, Lebensmittel und Agrarrohstoffe verderben teilweise. Ist das Lager voll, kaufen Einkaufsaufträge nicht; belegen die eigenen Erzeugnisse mindestens die Hälfte, stehen auch die Anlagen."
 werk.lagerplatz.fuellung: Füllung
 werk.lagerplatz.kapazitaet: Kapazität (Warenwert)
 werk.lagerplatz.kosten: Lagerkosten je Tag
 werk.lagerplatz.stufen: Ausbaustufen
 werk.lagerplatz.stufen_neu: Stufen ausbauen
 werk.lagerplatz.voll: "Das Lager ist voll: Die Anlagen stehen, bis Ware verkauft oder umgelagert ist oder das Lager ausgebaut wird."
+werk.lagerplatz.voll_vorprodukte: "Das Lager ist voll, vor allem mit Vorprodukten: Die Anlagen laufen weiter und machen Platz, laufende Einkäufe ruhen."
 werk.lagerplatz.ausbauen: Lager ausbauen
-werk.lagerplatz.ausbau_hilfe: "{kapazitaet} mehr Platz für {kosten}, bezahlt aus der Kasse und mit dem Gebäude abgeschrieben."
+werk.lagerplatz.ausbau_hilfe: "{kapazitaet} mehr Platz für {kosten}, bezahlt aus der Kasse (Aufwand im laufenden Monat)."
 werk.lagerplatz.ausgebaut: "Lager um {stufen} Stufe(n) ausgebaut."
 werk.lager_hinweis: "Alles, was am Standort liegt – Vorprodukte, eigene Erzeugnisse und Handelsware. Die Reichweite gilt für die geplante Erzeugung. Herstellkosten und Buchwert: bei eigener Erzeugung Vorprodukte, Löhne, Strom und Gemeinkosten, bei gekaufter Ware der Einkaufspreis. Der Marktwert rechnet mit dem heutigen Marktpreis im Land."
 werk.lager_leer: Das Lager ist leer.

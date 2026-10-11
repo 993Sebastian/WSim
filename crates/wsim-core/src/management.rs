@@ -2774,8 +2774,15 @@ pub(crate) fn answer(
             ConcernStatus::Declined
         }
     };
+    // A concern about a site the answer gave up stays settled.
     for (i, before) in others {
-        state.concerns[i] = before;
+        if before
+            .decision
+            .site
+            .is_none_or(|s| state.site(s).is_some_and(|x| x.held_by(actor)))
+        {
+            state.concerns[i] = before;
+        }
     }
     let c = &mut state.concerns[index];
     c.status = status;

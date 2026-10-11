@@ -1265,7 +1265,7 @@ fn ai_competence(state: &mut GameState, catalog: &Catalog) {
         }
     }
     let mut sites: BTreeMap<CompanyId, u32> = BTreeMap::new();
-    for s in &state.sites {
+    for s in state.sites.iter().filter(|s| s.closed.is_none()) {
         *sites.entry(s.owner).or_default() += 1;
     }
     for (i, c) in state.companies.iter_mut().enumerate() {

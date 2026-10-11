@@ -682,6 +682,8 @@ export interface LagerKapazitaet {
   fill_usd: number;
   share: number;
   full: boolean;
+  /** The site's own products fill the store: the facilities stand. */
+  stops?: boolean;
   steps: number;
   step_capacity_usd: number;
   step_cost_usd: number;

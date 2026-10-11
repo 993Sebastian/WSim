@@ -259,7 +259,11 @@ function LagerPlatz({ s }: { s: StandortDetail }) {
           <dd>{l.steps}</dd>
         </div>
       </dl>
-      {l.full && <p className="warnung">{t("werk.lagerplatz.voll")}</p>}
+      {l.stops ? (
+        <p className="warnung">{t("werk.lagerplatz.voll")}</p>
+      ) : (
+        l.full && <p className="hinweis">{t("werk.lagerplatz.voll_vorprodukte")}</p>
+      )}
       <form
         className="formular-zeile"
         aria-label={t("werk.lagerplatz.ausbauen")}

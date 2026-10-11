@@ -69,7 +69,9 @@ pub fn decide_with(
     }
     let mut sites: BTreeMap<CompanyId, Vec<SiteId>> = BTreeMap::new();
     for (i, s) in state.sites.iter().enumerate() {
-        sites.entry(s.owner).or_default().push(site_id(i));
+        if s.closed.is_none() {
+            sites.entry(s.owner).or_default().push(site_id(i));
+        }
     }
     let none = Vec::new();
     let gaps = if first_of_year {

@@ -154,7 +154,7 @@ pub(crate) fn inbound_by_site(state: &GameState) -> std::collections::BTreeMap<S
 }
 
 /// `site_value` with the goods on the way to the site given.
-fn site_value_with(
+pub(crate) fn site_value_with(
     state: &GameState,
     catalog: &Catalog,
     site: SiteId,
