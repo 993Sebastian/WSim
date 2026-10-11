@@ -92,6 +92,7 @@ Bis 2026 laufen die realen historischen Ereignisse mit ihren wirtschaftlichen Fo
 ### 4.3 Daten
 
 - Alle Ereignisse und ihre Wirkungen liegen in bearbeitbaren Datendateien, sodass Ereignisse ergänzt oder angepasst werden können.
+- Die Wirkungsarten, die Konjunktur und der Zufallsgenerator ab 2027 sind in `docs/WELT_MARKT_BETRIEB.md`, Teil A, festgelegt (§18.8).
 
 ## 5 Unternehmen, Organisation und Personal
 
@@ -109,6 +110,7 @@ Anfangs steuert der Spieler alles selbst; mit wachsender Größe delegiert er an
 
 - Je Land beliebig viele Standorte: Minen und Förderstätten, Werke, Lager, Handelsniederlassungen, Forschungszentren.
 - Ein Werk hat: Kapazität, Automatisierungsgrad, Belegschaft nach Qualifikation, Qualitätsniveau, Zustand und Alter der Anlagen.
+- Lernkurve je Produkt, Instandhaltungsstufe mit Ausfällen und Großüberholung, Lager mit Kosten, Kapazität und Verderblichkeit: `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 13.1–13.3 (§18.8).
 
 ### 5.3 Arbeitskräfte
 
@@ -187,11 +189,13 @@ Bergbau und Rohstoffe, Metallurgie, Chemie, Energie, Holz und Papier, Textil, Le
 - Jedes gefertigte Produkt hat einen Qualitätswert.
 - Er hängt ab von: Qualität der Vorprodukte, Technologiestand, Schulungsniveau, Automatisierung, Zustand der Anlagen.
 - Qualität beeinflusst erzielbaren Preis, Nachfrage und Markenimage.
+- Ausstattungsstufen (einfach, Standard, Premium), Ausschuss und Arbeitsunfälle: `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 9.2 und 13.4 (§18.8).
 
 ### 6.4 Produktlebenszyklus
 
 - Neue Technologien bringen Nachfolgeprodukte hervor, die Vorgänger verdrängen.
 - Die Nachfrage nach dem alten Produkt sinkt schrittweise mit der Verbreitung des Nachfolgers.
+- Substitution bei Verbrauchsgütern, Veralterung, Gebrauchtmarkt und Ersatzteile: `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 9.1 und 12 (§18.8).
 
 ### 6.5 Rüstung
 
@@ -238,6 +242,7 @@ Waren bewegen sich über reale Entfernungen mit den zur jeweiligen Zeit verfügb
 - Zölle und Beschränkungen gelten je Länderpaar und Warengruppe.
 - Bis 2026 folgen sie grob der Geschichte (z. B. Embargos, Kriegszeiten).
 - Darüber hinaus verändern sie sich dynamisch; die Stärke dieser Dynamik ist im Spiel einstellbar.
+- Handelsblöcke, Zollregeln, Embargos und Kanäle: `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 5 und 6 (§18.8).
 
 ## 9 Markt, Vertrieb und Verträge
 
@@ -260,6 +265,7 @@ Die Endkunden-Nachfrage wird je Land aus Einkommensschichten berechnet, damit si
 - **Industrie-Nachfrage:** aus dem Bedarf aller Firmen nach Rohstoffen, Halbzeugen, Komponenten und Energie.
 - **Konjunktur und Ereignisse** verändern die Einkommen der Schichten und damit die Nachfrage.
 - **Preise** bilden sich je Land über Angebot und Nachfrage; Transportkosten und Zölle verbinden die Märkte.
+- **Ausschreibungen des Staates, Ruf, Vertriebswege und Trends:** `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 10–12 (§18.8).
 
 ### 9.2 Verkaufswege
 
@@ -271,6 +277,7 @@ Die Endkunden-Nachfrage wird je Land aus Einkommensschichten berechnet, damit si
 
 - Neben dem freien Markt (Spotmarkt) gibt es langfristige Verträge mit KI-Firmen, als Käufer und als Verkäufer.
 - Vertragsinhalte: Menge, Preis, Laufzeit, Mindestqualität, Vertragsstrafen.
+- Exklusivität, Lieferausfall und Make-or-buy-Ansicht: `docs/WELT_MARKT_BETRIEB.md`, Abschnitte 13.6 und 13.7 (§18.8).
 
 ### 9.4 Marketing
 
@@ -281,7 +288,8 @@ Die Endkunden-Nachfrage wird je Land aus Einkommensschichten berechnet, damit si
   Markenbekanntheit von 0 bis 1, die durch Werbung und eigene Verkäufe wächst und ohne
   beides langsam verblasst; es wirkt automatisch das beste Werbemittel der Epoche. KI-Firmen
   werben nach denselben Regeln. Wahl einzelner Werbemittel, Image durch Qualität und
-  Umwelt sowie Delegation bleiben in Stufe 2 bzw. 4.
+  Umwelt sowie Delegation bleiben in Stufe 2 bzw. 4. Das Image heißt **Ruf** und ist in
+  `docs/WELT_MARKT_BETRIEB.md`, Abschnitt 10.2, festgelegt (§18.8).
 
 ## 10 KI-Konkurrenten
 
@@ -332,7 +340,8 @@ Auflagen und Verbote greifen historisch passend und je Land unterschiedlich.
 
 - Beispiele: Arbeitsschutzgesetze, Verbot von Asbest, FCKW und verbleitem Benzin, Emissionsgrenzwerte, CO₂-Bepreisung (z. B. EU-Emissionshandel ab 2005).
 - Wirkungen: zusätzliche Kosten, Nachrüstpflichten für Anlagen, Produktions- oder Verkaufsverbote.
-- Standorte verursachen Emissionen; Umweltverhalten beeinflusst das Markenimage.
+- Standorte verursachen Emissionen; Umweltverhalten beeinflusst das Markenimage (den Ruf, `docs/WELT_MARKT_BETRIEB.md` §10.2).
+- Korruption und Rechtssicherheit als Standortfaktoren: `docs/WELT_MARKT_BETRIEB.md`, Abschnitt 13.5 (§18.8).
 - Nach 2026 können neue Regulierungen als zufällige Ereignisse entstehen (siehe 4.2).
 - Regulierungen liegen wie Ereignisse in bearbeitbaren Datendateien.
 
@@ -532,6 +541,35 @@ Alle bisher offenen Punkte sind geklärt und in die jeweiligen Abschnitte eingea
 
 Neue Fragen, die bei der Umsetzung auftauchen, werden hier gesammelt. Die vollständige
 Liste mit Vorschlägen steht in `docs/OFFENE_PUNKTE.md`.
+
+### 18.8 Entscheidungen vom 11.10.2026 (Welt und Geschichte, Markt und Nachfrage, Betrieb und Lernkurve)
+
+Die vollständige Vorgabe steht in `docs/WELT_MARKT_BETRIEB.md` (Meilensteine BP1–BP5,
+MN1–MN6, WG1–WG5). Freigabe am 11.10.2026 („so eintragen, dass Code es einbauen kann“):
+Umsetzung nach PE6 in der Reihenfolge Betrieb, Markt, Welt; sie ersetzt W3 (Zölle) und
+H1 (Ereignisfolgen) aus Architektur §4.1. Bei Widerspruch gilt sie vor §4, §6.3, §6.4,
+§8.2, §9.1, §9.4 und §12.
+
+- **Welt und Geschichte:** Ereignisse tragen **Wirkungen** in den Daten (Handelssperre,
+  Nachfrage- und Staatsbedarfsfaktor, Zerstörung mit Wiederaufbau, Zwangsproduktion,
+  Enteignung, Arbeitskräftemangel, Rohstoffpreis, Produktionsausfall, Kredit);
+  **Konjunktur** als Stimmung aus dem Wachstum der Jahreswerte mit Wirkung auf
+  Kaufneigung und Kredite; **Handelsblöcke, Zölle und Embargos** als Daten je Regel;
+  **Infrastruktursprünge** (Kanäle, Container, Werbemittel, Vertriebswege);
+  **Rohstofffunde** nach Entdeckungsjahr; **Zukunft 2027–2100** mit Zufallsgenerator
+  aus Vorlagen, Klima-Treibern und Küstenregel. Die Länderjahreswerte bleiben unverändert.
+- **Markt und Nachfrage:** **Substitution** auch bei Verbrauchs- und Ergänzungsgütern;
+  **Ausstattungsstufen** einfach/Standard/Premium je Produkt und Standort;
+  **Ausschreibungen** des Staates mit Heimatbonus (Ergebnis: Liefervertrag); **Ruf** je
+  Land neben der Bekanntheit, mit Rückrufen; **Vertriebswege nach Epoche** mit
+  Reichweite und Kosten; **Veralterung, Gebrauchtmarkt, Ersatzteile**; **Trends** als
+  Nachfragewellen, ab 2027 erzeugt.
+- **Betrieb und Lernkurve:** **Lernkurve** je Standort und Produkt (Lernrate je Branche,
+  Vergessen, Übertrag); **Instandhaltung** als Stufe mit Ausfällen und Großüberholung,
+  Zustand wirkt auf Kapazität; **Lager** mit Lagerklassen, Kosten, Kapazität,
+  Lagerhalle und Verderblichkeit; **Ausschuss und Arbeitsunfälle**; **Korruption und
+  Rechtssicherheit** als Länder-Zeitreihen mit Enteignungsrisiko; **Zulieferverträge**
+  mit Ausfall und Exklusivität; **Make-or-buy-Ansicht** im Controlling.
 
 ### 18.7 Entscheidungen vom 07.10.2026 (Lebenszyklus, Spielerfigur, Privatvermögen)
 

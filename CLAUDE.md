@@ -5,6 +5,8 @@ Anforderungen: `docs/LASTENHEFT.md`. Architektur: `docs/ARCHITEKTUR.md`.
 Offene Fragen: `docs/OFFENE_PUNKTE.md`. Manager-System (nach M41): `docs/MANAGER.md`.
 Hauptsitz, Zentralabteilungen, Start-ups (nach dem Manager-System): `docs/BETEILIGUNGEN.md`.
 Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
+Welt und Geschichte, Markt und Nachfrage, Betrieb und Lernkurve (BP1–BP5, MN1–MN6,
+WG1–WG5, nach PE6): `docs/WELT_MARKT_BETRIEB.md`.
 
 ## Umfang und Arbeitsweise
 
