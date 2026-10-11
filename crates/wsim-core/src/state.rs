@@ -1447,6 +1447,10 @@ pub struct Site {
     /// The site's own training target (W1); none: the strategy's, else none.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub training_target: Option<f64>,
+    /// The site's own condition (0–1) below which its facilities are overhauled
+    /// automatically; none: the strategy's, else never (BP2).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub overhaul_below: Option<f64>,
     /// Day the current owner bought the site (M30); `None` for sites it founded.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub acquired: Option<Date>,
@@ -1520,6 +1524,12 @@ pub enum PriceMode {
     CostPlus {
         margin: f64,
     },
+    /// The market price of the other sellers in the country plus `deviation` (−0.05 =
+    /// 5 % below), set anew every day, never below `floor`.
+    Relative {
+        deviation: f64,
+        floor: Money,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1540,6 +1550,10 @@ pub struct SaleOffer {
     pub to_traders_month: f64,
     #[serde(default)]
     pub to_companies_month: f64,
+    /// Demand per day learned from the days with goods to sell (supply by need); it holds
+    /// while the site has nothing to sell.
+    #[serde(default)]
+    pub demand: f64,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -1995,9 +2009,14 @@ pub struct Person {
     /// The private account (PE3).
     #[serde(default)]
     pub account: PrivateAccount,
-    /// Yearly salary as CEO of the main company, before income tax (PE3).
-    #[serde(default)]
+    /// Yearly salary from saves before the salary per company; moved into `salaries`
+    /// when loaded.
+    #[serde(default, skip_serializing_if = "Money::is_zero")]
     pub salary: Money,
+    /// Yearly salary per company the person leads or owns part of, before income tax
+    /// (PE3).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub salaries: BTreeMap<CompanyId, Money>,
     /// The levels of lifestyle with the day each began, the earliest first; empty only
     /// in saves from before PE3.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2060,6 +2079,7 @@ impl Default for Person {
             history: Vec::new(),
             account: PrivateAccount::default(),
             salary: Money::ZERO,
+            salaries: BTreeMap::new(),
             lifestyles: Vec::new(),
             short_since: None,
             cost_basis: BTreeMap::new(),
@@ -2115,6 +2135,8 @@ pub enum PrivateFlow {
     InheritanceTax,
     /// Partner search, private schools, health care.
     Family,
+    /// A one-off payment of a company to the person, taxed as income.
+    Bonus,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by

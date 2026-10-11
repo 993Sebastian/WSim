@@ -48704,7 +48704,11 @@
         "loans": [],
         "investors_bid_usd": 123350.7148,
         "main": true,
-        "selectable": true
+        "selectable": true,
+        "salary_usd": 0.0,
+        "salary_suggestion_usd": 12000.0,
+        "salary_max_usd": null,
+        "salary_possible": true
       }
     ],
     "home": "DEU",

@@ -320,6 +320,13 @@ pub(crate) fn start(state: &mut GameState, catalog: &Catalog, today: Date) {
 /// Fits saves from before PE3: the default lifestyle and the main company's capital as
 /// what the person paid in; the company pays no salary until the player sets one.
 pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
+    // Saves from before the salary per company: the one salary was paid by the payer.
+    if state.person.salary > Money::ZERO {
+        if let Some(company) = salary_payer(state) {
+            state.person.salaries.insert(company, state.person.salary);
+        }
+        state.person.salary = Money::ZERO;
+    }
     if !state.person.lifestyles.is_empty() {
         return;
     }
@@ -355,7 +362,9 @@ pub(crate) fn execute(
             country,
             capital,
         } => found(state, catalog, name, *form, *country, *capital).map(|_| ()),
-        Command::SetPersonSalary { amount } => set_salary(state, catalog, *amount),
+        Command::SetPersonSalary { company, amount } => {
+            set_salary(state, catalog, *company, *amount)
+        }
         Command::SetLifestyle { level } => set_lifestyle(state, catalog, *level),
         Command::SeekPartner { active } => {
             let p = &mut state.person;
@@ -398,6 +407,7 @@ pub(crate) fn execute(
             years,
         } => lend(state, catalog, *company, *amount, (*rate, *years)),
         Command::WithdrawCapital { company, amount } => withdraw(state, catalog, *company, *amount),
+        Command::PayBonus { company, amount } => pay_bonus(state, catalog, *company, *amount),
         Command::BuyStake {
             company,
             holder,
@@ -482,14 +492,43 @@ pub(crate) fn found(
         },
     });
     if leads {
-        state.person.salary = start_salary(catalog, state, id);
+        let salary = start_salary(catalog, state, id);
+        state.person.salaries.insert(id, salary);
     }
     crate::ranking::record(state);
     Ok(id)
 }
 
-/// The company that pays the person's salary: the one it leads as CEO, else the main
-/// company while the person owns part of it (pay as owner, docs/PERSON.md §7).
+/// Whether a company may pay the person a salary: one it leads as CEO or owns part of
+/// (pay as owner, docs/PERSON.md §7), while it is not bankrupt.
+pub fn pays_salary(state: &GameState, company: CompanyId) -> bool {
+    state.company(company).is_some_and(|c| !c.bankrupt)
+        && (state.person.ceo == Some(company) || crate::person::share(state, company) > 1e-9)
+}
+
+/// The person's yearly salary from a company.
+pub fn salary_of(state: &GameState, company: CompanyId) -> Money {
+    state
+        .person
+        .salaries
+        .get(&company)
+        .copied()
+        .unwrap_or(Money::ZERO)
+}
+
+/// All yearly salaries the person is paid.
+pub fn salary_total(state: &GameState) -> Money {
+    state
+        .person
+        .salaries
+        .iter()
+        .filter(|&(&c, _)| pays_salary(state, c))
+        .map(|(_, &m)| m)
+        .sum()
+}
+
+/// The company a salary is set for when the command names none: the one the person
+/// leads as CEO, else the main company while the person owns part of it.
 pub fn salary_payer(state: &GameState) -> Option<CompanyId> {
     state.person.ceo.or_else(|| {
         state.main_company.filter(|&c| {
@@ -498,8 +537,16 @@ pub fn salary_payer(state: &GameState) -> Option<CompanyId> {
     })
 }
 
-fn set_salary(state: &mut GameState, catalog: &Catalog, amount: Money) -> Result<(), CommandError> {
-    let company = salary_payer(state).ok_or(CommandError::NoCompany)?;
+fn set_salary(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: Option<CompanyId>,
+    amount: Money,
+) -> Result<(), CommandError> {
+    let company = company
+        .or_else(|| salary_payer(state))
+        .filter(|&c| pays_salary(state, c))
+        .ok_or(CommandError::NoCompany)?;
     if amount.is_negative() {
         return Err(CommandError::InvalidAmount);
     }
@@ -508,7 +555,39 @@ fn set_salary(state: &mut GameState, catalog: &Catalog, amount: Money) -> Result
     {
         return Err(CommandError::SalaryTooHigh { max });
     }
-    state.person.salary = amount;
+    if amount > Money::ZERO {
+        state.person.salaries.insert(company, amount);
+    } else {
+        state.person.salaries.remove(&company);
+    }
+    Ok(())
+}
+
+/// `PayBonus`: a one-off payment from the company's cash, its board's personnel cost,
+/// taxed as income at the month's end; with co-owners at most what the salary may be in a
+/// year.
+fn pay_bonus(
+    state: &mut GameState,
+    catalog: &Catalog,
+    company: CompanyId,
+    amount: Money,
+) -> Result<(), CommandError> {
+    if !pays_salary(state, company) {
+        return Err(CommandError::NoCompany);
+    }
+    if amount <= Money::ZERO {
+        return Err(CommandError::InvalidAmount);
+    }
+    if let Some(max) = salary_max(catalog, state, company)
+        && amount > max
+    {
+        return Err(CommandError::SalaryTooHigh { max });
+    }
+    if state.companies[company.index()].ledger.cash() < amount {
+        return Err(CommandError::NotEnoughCash { needed: amount });
+    }
+    crate::management::book_personnel(state, company, Unit::Board, amount);
+    book(&mut state.person, PrivateFlow::Bonus, amount);
     Ok(())
 }
 
@@ -843,27 +922,32 @@ fn family_month(state: &mut GameState, catalog: &Catalog, last: Date, news: &mut
 /// Offset of the partner search's draws from those of the births.
 const PARTNER_STREAM: u32 = 1 << 24;
 
-/// The salary of the month as CEO of the main company, booked as personnel costs of the
-/// board on the month's last day; from the founding by days.
+/// The salaries of the month from every company that pays one, booked as personnel
+/// costs of its board on the month's last day; from the founding by days.
 pub(crate) fn pay_salary(state: &mut GameState, last: Date) {
-    let Some(company) = salary_payer(state) else {
-        return;
-    };
-    let c = &state.companies[company.index()];
-    if c.bankrupt || state.person.salary <= Money::ZERO {
-        return;
+    let salaries: Vec<(CompanyId, Money)> = state
+        .person
+        .salaries
+        .iter()
+        .map(|(&c, &m)| (c, m))
+        .collect();
+    for (company, salary) in salaries {
+        if salary <= Money::ZERO || !pays_salary(state, company) {
+            continue;
+        }
+        let c = &state.companies[company.index()];
+        let start = last.first_of_month();
+        let next = last.next_day();
+        let from = c.founded.max(start);
+        let days = i64::from(from.days_until(next).max(0));
+        let month = i64::from(start.days_until(next).max(1));
+        let pay = Money::from_units(salary.units() / 12 * days / month);
+        if pay <= Money::ZERO {
+            continue;
+        }
+        crate::management::book_personnel(state, company, Unit::Board, pay);
+        book(&mut state.person, PrivateFlow::Salary, pay);
     }
-    let start = last.first_of_month();
-    let next = last.next_day();
-    let from = c.founded.max(start);
-    let days = i64::from(from.days_until(next).max(0));
-    let month = i64::from(start.days_until(next).max(1));
-    let pay = Money::from_units(state.person.salary.units() / 12 * days / month);
-    if pay <= Money::ZERO {
-        return;
-    }
-    crate::management::book_personnel(state, company, Unit::Board, pay);
-    book(&mut state.person, PrivateFlow::Salary, pay);
 }
 
 /// End of a month (docs/FORMELN.md, PE3): interest on the balance, income tax, the
@@ -882,6 +966,7 @@ pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) ->
     }
     let taxed: Money = [
         PrivateFlow::Salary,
+        PrivateFlow::Bonus,
         PrivateFlow::Interest,
         PrivateFlow::LoanInterest,
     ]

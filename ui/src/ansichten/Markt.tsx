@@ -111,20 +111,31 @@ export function MarktAnsicht({
         ort={land}
         regionen={daten?.regions ?? []}
         onWahl={(o) => {
+          // An open product stays open: a country shows its market, a continent or the
+          // world the product's countries side by side.
           setLand(o);
-          setProdukt(null);
         }}
       />
       {!daten ? (
         <FehlerText fehler={fehler} />
       ) : (
         <Befehle senden={senden} meldung={meldung}>
-          {produkt ? (
+          {produkt && land !== "welt" && !land.startsWith("kontinent:") ? (
             <ProduktmarktAnsicht
               kern={kern}
               land={daten.country}
               produkt={produkt}
               stand={uebersicht.date}
+              onZurueck={() => setProdukt(null)}
+            />
+          ) : produkt ? (
+            <ProduktGebietAnsicht
+              kern={kern}
+              gebiet={land}
+              regionen={daten.regions ?? []}
+              produkt={produkt}
+              stand={uebersicht.date}
+              onLand={setLand}
               onZurueck={() => setProdukt(null)}
             />
           ) : (
@@ -141,16 +152,7 @@ export function MarktAnsicht({
                 aktiv={bereich}
                 onWahl={setBereich}
               />
-              {bereich === "produkte" && (
-                <Produkte
-                  daten={daten}
-                  onProdukt={(p) => {
-                    // A product market is one country's: from a summary, the home country's.
-                    if (!LAENDER.includes(land)) setLand(uebersicht.company?.headquarters ?? "");
-                    setProdukt(p);
-                  }}
-                />
-              )}
+              {bereich === "produkte" && <Produkte daten={daten} onProdukt={setProdukt} />}
               {bereich === "marke" && <MarkeUndWerbung daten={daten} />}
               {bereich === "vertraege" && <VertraegeAnsicht kern={kern} stand={uebersicht.date} />}
               {bereich === "logistik" && <LogistikAnsicht kern={kern} stand={uebersicht.date} />}
@@ -191,7 +193,7 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
   const gefiltert = aktiv.filter(
     (z) =>
       (filter === "alle" ||
-        (filter === "eigene" && (z.own_price_usd !== null || z.own_share > 0)) ||
+        (filter === "eigene" && (z.own_active ?? z.own_share > 0)) ||
         (filter === "chancen" && z.chances.length > 0)) &&
       (gruppe === "alle" || z.group === gruppe) &&
       (gesucht === "" || t(`produkt.${z.product}`).toLocaleLowerCase("de").includes(gesucht)),
@@ -995,5 +997,94 @@ function OrtWahl({
         </select>
       </div>
     </div>
+  );
+}
+
+/**
+ * One product over a continent or the world: price, demand and supply of each country,
+ * so that the player sees where it sells; a click opens the country's market.
+ */
+function ProduktGebietAnsicht({
+  kern,
+  gebiet,
+  regionen,
+  produkt,
+  stand,
+  onLand,
+  onZurueck,
+}: {
+  kern: Kern;
+  gebiet: string;
+  regionen: { continent: string; countries: string[] }[];
+  produkt: string;
+  stand: string;
+  onLand: (land: string) => void;
+  onZurueck: () => void;
+}) {
+  const { daten, fehler } = useSicht(() => kern.weltmarkt(produkt), `${stand}/${produkt}`);
+  const kontinent = gebiet.startsWith("kontinent:") ? gebiet.slice("kontinent:".length) : null;
+  const im = kontinent ? (regionen.find((r) => r.continent === kontinent)?.countries ?? []) : null;
+  const name = t(`produkt.${produkt}`);
+  const gebietName = kontinent ? t(`kontinent.${kontinent}`) : t("markt.welt");
+  if (!daten) return <FehlerText fehler={fehler} />;
+  const e = t(`einheit.${daten.unit}`);
+  const zeilen = daten.countries
+    .filter((z) => im === null || im.includes(z.country))
+    .sort((a, b) => b.demand_last_month - a.demand_last_month);
+  const nachfrage = zeilen.reduce((s, z) => s + z.demand_last_month, 0);
+  const offen = zeilen.reduce((s, z) => s + z.unmet_last_month, 0);
+  const preis =
+    nachfrage > 0
+      ? zeilen.reduce((s, z) => s + z.price_usd * z.demand_last_month, 0) / nachfrage
+      : null;
+  return (
+    <section
+      className="werk"
+      aria-label={t("markt.produktmarkt_titel", { produkt: name, land: gebietName })}
+    >
+      <div className="werk-kopf">
+        <button type="button" className="schlicht" onClick={onZurueck}>
+          ← {t("markt.alle_produkte")}
+        </button>
+        <h2>{t("markt.produktmarkt_titel", { produkt: name, land: gebietName })}</h2>
+      </div>
+      <dl className="werte">
+        <dt>{t("markt.gebiet_preis")}</dt>
+        <dd>{preis === null ? "–" : formatPreis(preis, e)}</dd>
+        <dt>{t("markt.nachfrage_monat")}</dt>
+        <dd>
+          {formatZahl(nachfrage)} {e}
+        </dd>
+        <dt>{t("markt.versorgung")}</dt>
+        <dd>{nachfrage > 0 ? formatProzent(1 - offen / nachfrage) : "–"}</dd>
+      </dl>
+      <p className="erklaerung">{t("markt.gebiet_hilfe")}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>{t("markt.land")}</th>
+            <th className="zahl">{t("markt.preis")}</th>
+            <th className="zahl">{t("markt.nachfrage_monat")}</th>
+            <th className="zahl">{t("markt.versorgung")}</th>
+            <th className="zahl">{t("markt.anbieter")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {zeilen.map((z) => (
+            <tr key={z.country} className={z.own_sellers > 0 ? "eigen" : undefined}>
+              <td>
+                <button type="button" className="link" onClick={() => onLand(z.country)}>
+                  {landName(z.country)}
+                </button>
+              </td>
+              <td className="zahl">{formatPreis(z.price_usd, e)}</td>
+              <td className="zahl">{formatZahl(z.demand_last_month)}</td>
+              <td className="zahl">{z.supply === null ? "–" : formatProzent(z.supply)}</td>
+              <td className="zahl">{z.sellers}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }

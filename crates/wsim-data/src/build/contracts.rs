@@ -72,7 +72,27 @@ pub(super) fn contract_model(ctx: &mut Ctx, raw: &RawData) -> ContractModel {
             120.0,
             "ausfall_kuendigung_monate",
         ),
-        exclusive_premium: share(ctx, c.exclusive_premium, "exklusiv_aufschlag"),
+        exclusive_premium: in_range(
+            ctx,
+            c.exclusive_premium,
+            0.0,
+            1.0,
+            &l.field("exklusiv_aufschlag"),
+        ),
+        renegotiate_quantity_min: in_range(
+            ctx,
+            c.renegotiate_quantity_min,
+            0.0,
+            1.0,
+            &l.field("nachverhandlung_menge_min"),
+        ),
+        renegotiate_extension_min: months(
+            ctx,
+            c.renegotiate_extension_min,
+            0.0,
+            120.0,
+            "nachverhandlung_verlaengerung_monate",
+        ),
         ai: ContractAiModel {
             sale_discount,
             sale_discount_per_month: share(ctx, a.sale_discount_per_month, "abschlag_je_monat"),

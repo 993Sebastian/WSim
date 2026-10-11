@@ -11,7 +11,7 @@ type Zeitraum = Controlling["period"];
 /** Name of a level: companies by name, the rest by text key; sites with their country. */
 function name(n: ControllingKnoten): string {
   if (n.level === "firma") return n.name;
-  const text = t(n.name);
+  const text = n.site_name ?? t(n.name);
   return n.country ? `${text} · ${landName(n.country)}` : text;
 }
 

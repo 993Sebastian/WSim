@@ -872,6 +872,7 @@ fn an_ai_company_bids_for_a_competitors_area() {
         state.sites[site.index()].offers.insert(
             iron,
             SaleOffer {
+                demand: 0.0,
                 mode: PriceMode::Market {
                     markup: 0.0,
                     floor: Money::ZERO,

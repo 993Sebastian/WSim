@@ -7,6 +7,7 @@ export const geld = (usd: number): number => Math.round(usd * 10_000);
 
 export type Preisart =
   | { Market: { markup: number; floor: number } }
+  | { Relative: { deviation: number; floor: number } }
   | { Fixed: number }
   | { CostPlus: { margin: number } };
 
@@ -55,6 +56,7 @@ export type Befehl =
     }
   | { AnswerContract: { contract: number; accept: boolean } }
   | { CancelContract: { contract: number } }
+  | { RenegotiateContract: { contract: number; per_day: number; price: number; months: number } }
   | { BuyVehicles: { vehicle: string; count: number } }
   | { SellVehicles: { vehicle: string; count: number } }
   | { SetLogistics: { mode: "Market" | "State" | "Fleet"; carry_for_others: boolean } }
@@ -101,7 +103,8 @@ export type Befehl =
         capital: number;
       };
     }
-  | { SetPersonSalary: { amount: number } }
+  | { SetPersonSalary: { company?: number; amount: number } }
+  | { PayBonus: { company: number; amount: number } }
   | { SeekPartner: { active: boolean } }
   | { SetPrivateSchool: { child: number; active: boolean } }
   | { SetHealthCare: { active: boolean } }
@@ -152,6 +155,15 @@ export type Befehl =
   | { MothballFacility: { site: number; slot: number; count: number } }
   | { RestartFacility: { site: number; slot: number } }
   | { SellFacility: { site: number; slot: number; count: number } }
+  | {
+      MoveFacility: {
+        site: number;
+        slot: number;
+        count: number;
+        to: number;
+        price?: number;
+      };
+    }
   | { MakeOffer: { seller: number; object: Gegenstand; price: number } }
   | { AnswerOffer: { offer: number; answer: Antwort } }
   | { WithdrawOffer: { offer: number } }
@@ -162,6 +174,8 @@ export type Befehl =
   | { SetHiringByHead: { position: Stellenangabe; enabled: boolean } }
   | { RaiseSalary: { manager: number; salary: number } }
   | { SetTraining: { site: number; target: number | null } }
+  | { SetOverhaulThreshold: { site: number; threshold: number | null } }
+  | { ScrapStock: { site: number; product: string } }
   | { PoachManager: { manager: number; position: Stellenangabe } }
   | { SetHeadquarters: { country: string; city?: string } }
   | { StaffDepartment: { department: string; staff: number } }

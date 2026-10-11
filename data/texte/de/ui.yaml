@@ -359,7 +359,12 @@ produktion.neues_angebot: Weiteres Produkt anbieten
 produktion.erschliessen: Lagerstätte erschließen
 produktion.erschliessen_knopf: Erschließen
 produktion.erschliessung_bis: "Die Lagerstätte wird bis {datum} erschlossen."
-produktion.foerderung_jahr: "{menge} je Jahr"
+produktion.foerderung_jahr: "höchstens {menge} Förderung je Jahr"
+produktion.erschliessung_kosten: Erschließung (einmalig)
+produktion.erschliessung_dauer: Dauer
+produktion.erschliessung_hoechst: Höchstförderung der Konzession
+produktion.erschliessung_je_tag: "im Jahr (rund {menge} {einheit} am Tag)"
+produktion.erschliessung_hilfe: "Die Erschließung kauft die Konzession und schließt das Feld auf. Gefördert wird danach mit Förderanlagen, die du hier baust – die Konzession erlaubt höchstens die genannte Menge im Jahr, mehr geben auch zusätzliche Anlagen nicht her."
 produktion.keine_lagerstaette: "Im Land ist {jahr} keine entdeckte Lagerstätte mit freier Konzession."
 
 # Grundstücke (M35)
@@ -485,9 +490,10 @@ werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
 werk.lager: Lager
 werk.lagerplatz.titel: Lagerplatz
-werk.lagerplatz.erklaerung: "Das Lager fasst Ware im Wert von rund 60 Tagen Durchsatz der Anlagen (zu Richtpreisen), mindestens einen Grundwert je Standorttyp. Lagern kostet laufend, Lebensmittel und Agrarrohstoffe verderben teilweise. Ist das Lager voll, kaufen Einkaufsaufträge nicht; belegen die eigenen Erzeugnisse mindestens die Hälfte, stehen auch die Anlagen."
+werk.lagerplatz.erklaerung: "Das Lager fasst rund 60 Tage Durchsatz der Anlagen, gemessen im Lagervolumen der Güter (m³: Gewicht je Einheit durch die Stapeldichte – Schüttgut liegt dicht, Stückgut braucht Platz), mindestens einen Grundwert je Standorttyp. Die Lagerkosten richten sich nach dem Warenwert. Lagern kostet laufend, Lebensmittel und Agrarrohstoffe verderben teilweise. Ist das Lager voll, kaufen Einkaufsaufträge nicht; belegen die eigenen Erzeugnisse mindestens die Hälfte, stehen auch die Anlagen."
 werk.lagerplatz.fuellung: Füllung
-werk.lagerplatz.kapazitaet: Kapazität (Warenwert)
+werk.lagerplatz.kapazitaet: Kapazität
+werk.lagerplatz.warenwert: Warenwert (Richtpreise)
 werk.lagerplatz.kosten: Lagerkosten je Tag
 werk.lagerplatz.stufen: Ausbaustufen
 werk.lagerplatz.stufen_neu: Stufen ausbauen
@@ -506,6 +512,10 @@ werk.lager_verbrauch: Verbrauch je Tag
 werk.lager_erzeugung: Erzeugung je Tag
 werk.lager_buchwert: Buchwert
 werk.lager_stueckkosten: Herstellkosten je Einheit
+werk.verschrotten: Verschrotten
+werk.verschrotten_von: "{produkt} verschrotten"
+werk.verschrotten_ja: Ja, alles verschrotten
+werk.verschrottet: "{produkt} verschrottet – der Lagerwert ist abgeschrieben."
 werk.lager_marktwert: Marktwert
 werk.lager_summe: Summe
 produktion.lager_alle: Lager aller Standorte
@@ -548,7 +558,7 @@ werk.preisverlauf_hilfe: Die gestrichelte Linie ist der Preis vor 12 Monaten. St
 werk.vertraege.einkauf: Bezugsverträge dieses Standorts
 werk.vertraege.verkauf: Lieferverträge dieses Standorts
 werk.vertraege.bis: "bis {datum}"
-werk.vertraege.hinweis: Vertragsware kommt jeden Tag vor dem Markteinkauf an bzw. geht vor dem Marktverkauf hinaus. Abschließen, annehmen und kündigen unter Markt → Lieferverträge.
+werk.vertraege.hinweis: Vertragsware kommt jeden Tag vor dem Markteinkauf an bzw. geht vor dem Marktverkauf hinaus. Nachverhandeln und kündigen geht hier; neue Verträge schließt du unter Markt → Lieferverträge.
 werk.einkauf_hinweis: Der Standort kauft jeden Tag auf dem Markt seines Landes nach, bis das Ziellager erreicht ist – aber nie teurer als der Höchstpreis. Die Reichweite zeigt, wie lange das Lager bei geplanter Erzeugung hält.
 werk.kein_bedarf: Die Anlagen hier brauchen keine Vorprodukte.
 werk.kein_einkauf: Noch kein Einkauf – wähle unten eine Ware, die du einkaufen und weiterverkaufen willst.
@@ -647,9 +657,12 @@ werk.preis_gesetzt: "Preis auf {preis} gesetzt."
 werk.nicht_angeboten: nicht im Verkauf
 werk.preis_festlegen: "Preis für {produkt} festlegen"
 werk.preisart: Preisart
-werk.automatisch: Automatisch – folgt Angebot und Nachfrage
+werk.automatisch: Automatisch – Marktpreis mit Abweichung
 werk.fest: Fester Preis
-werk.automatisch_hilfe: Der eingegebene Preis gilt sofort; danach passt er sich täglich an.
+werk.automatisch_hilfe: Dein Preis folgt jeden Tag dem Marktpreis der anderen Anbieter im Land, um die eingestellte Abweichung höher oder niedriger.
+werk.abweichung: Abweichung vom Marktpreis
+werk.abweichung_hilfe: "Positiv = teurer als der Markt, negativ = günstiger (z. B. −5)."
+werk.abweichung_bereich: Die Abweichung muss zwischen −90 % und +200 % liegen.
 werk.fest_hilfe: Der Preis bleibt, bis du ihn änderst.
 werk.kostenaufschlag: Aufschlag auf die Herstellkosten
 werk.kostenaufschlag_hilfe: Der Preis ist jeden Tag Herstellkosten je Einheit plus Marge und folgt damit deinen Kosten. Steigen sie über den Marktpreis, verkaufst du wenig oder nichts.
@@ -970,6 +983,8 @@ forschung.art.filter: Art
 forschung.art.alle_viele: alle Produkte
 forschung.art.vormaterial_viele: nur Vormaterialien
 forschung.art.endprodukt_viele: nur Endprodukte
+forschung.produkt_branche: Branche
+forschung.alle_branchen: Alle Branchen
 forschung.suchen: Technologie suchen
 forschung.zoom: Zoom
 forschung.zoom_kleiner: Verkleinern
@@ -1526,7 +1541,15 @@ person.gehalt_eigentuemer: "Ein Manager führt die Firma; als Eigentümer kannst
 person.gehalt_hoechstens: "Mit Mitgesellschaftern höchstens {max}."
 person.gehalt_jahr: Gehalt im Jahr
 person.gehalt_setzen: Festlegen
-person.gehalt_gesetzt: "Dein Gehalt: {betrag} im Jahr."
+person.gehalt_gesetzt: "Dein Gehalt von {firma}: {betrag} im Jahr."
+person.gehalt_fuer: "Gehalt von {firma}"
+person.sonderzahlung: Sonderzahlung
+person.sonderzahlung_fuer: "Sonderzahlung von {firma}"
+person.sonderzahlung_auszahlen: Auszahlen
+person.sonderzahlung_hilfe: "Einmalig aus der Kasse der Firma (jetzt {kasse}); sie bucht es als Personalaufwand, du versteuerst es am Monatsende wie dein Gehalt."
+person.sonderzahlung_gezahlt: "{firma} zahlt dir {betrag} aus; die Einkommensteuer geht am Monatsende ab."
+person.gehalt_vorschlag: "Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
+person.gehalt_tabelle_hilfe: "Jede Firma, die du führst oder an der du beteiligt bist, kann dir ein eigenes Gehalt zahlen. Es geht monatlich als Personalaufwand ab; davon gehen {steuer} Einkommensteuer ab."
 person.kapital_fuer: "Geld für {firma}"
 person.kapital_hilfe: "Kasse der Firma: {kasse}. Dein Privatkonto: {konto}."
 person.einlage: Einlage
@@ -1566,6 +1589,7 @@ privat.startgeld: Startgeld
 privat.einlage: Einlagen in Firmen
 privat.gruendungskosten: Gründungskosten
 privat.gehalt: Gehalt
+privat.sonderzahlung: Sonderzahlungen
 privat.einkommensteuer: Einkommensteuer
 privat.zins: Guthabenzins
 privat.lebensstil: Lebensstil
@@ -1821,6 +1845,7 @@ strategie.feld.investition: Investitionsbudget
 strategie.feld.reserve: Liquiditätsreserve
 strategie.feld.schulung: Schulung
 strategie.feld.umwelt: Umwelt
+strategie.feld.ueberholung: Großüberholung
 werk.umwelt_fuer: "Umwelt: {anlage}"
 landdetail.regulierung: Regulierung und Umwelt
 landdetail.co2_preis: "CO₂-Preis: {preis} je t"
@@ -1886,6 +1911,19 @@ strategie.grenzen.personal: "Der Lohnaufschlag liegt zwischen 0 und {max}, der M
 strategie.grenzen.investition: Das Budget darf nicht negativ sein.
 strategie.grenzen.reserve: "Die Reserve liegt zwischen 0 und {max} Monaten."
 strategie.grenzen.schulung: Das Schulungsziel liegt zwischen 0 und 100 %.
+strategie.grenzen.ueberholung: Der Zustand liegt zwischen 0 und 100 % (0 = keine automatische Überholung).
+strategie.ueberholung.wert: "Großüberholung unter {zustand} Zustand"
+strategie.ueberholung.aus: Keine automatische Großüberholung
+strategie.ueberholung.zustand: Überholen unter Zustand
+strategie.ueberholung.hilfe: "Werke ohne eigene Einstellung überholen jede Anlage, deren Zustand unter diesen Wert fällt – sobald die Kasse die Überholung trägt. 0 = nie."
+werk.ueberholung_auto: Automatische Großüberholung
+werk.ueberholung_schwelle: Überholen unter Zustand
+werk.ueberholung_hilfe: "Leer lassen: die Strategie gilt. 0 = nie automatisch überholen."
+werk.ueberholung_gilt: "Anlagen unter {prozent} Zustand werden automatisch überholt, sobald die Kasse es trägt."
+werk.ueberholung_aus: Keine automatische Großüberholung.
+werk.ueberholung_bereich: Der Zustand muss zwischen 0 und 100 % liegen.
+werk.ueberholung_gesetzt: "Anlagen unter {prozent} % Zustand werden automatisch überholt."
+werk.ueberholung_strategie: Hier gilt jetzt wieder die Strategie.
 strategie.umwelt.art: Umweltauflagen
 strategie.umwelt.erfuellen: Auflagen erfüllen
 strategie.umwelt.uebererfuellen: Auflagen übererfüllen
@@ -2200,6 +2238,13 @@ vertrag.zeitraum: "{von} bis {bis}"
 vertrag.monate: "{anzahl} Monate"
 vertrag.monat: Monat
 vertrag.tag: Tag
+vertrag.aktion: Aktion
+vertrag.nachverhandeln: Nachverhandeln
+vertrag.nachverhandeln_senden: Angebot senden
+vertrag.nachverhandeln_hilfe: "Der Partner prüft die neuen Bedingungen zum heutigen Marktpreis wie ein neues Angebot. Über den Preis allein verhandelt er nicht – ändere auch die Menge deutlich oder verlängere die Laufzeit. Die neuen Bedingungen gelten ab dem nächsten Monat."
+vertrag.nachverhandeln_werte: Menge, Preis und Laufzeit müssen größer als null sein.
+vertrag.nachverhandelt: Der Partner nimmt die neuen Bedingungen an; sie gelten ab dem nächsten Monat.
+vertrag.laufzeit_ab_naechstem_monat: Laufzeit ab nächstem Monat
 vertrag.monate_einheit: Monate
 vertrag.gesamt: "gesamt {menge}"
 vertrag.marktpreis: "Markt {preis}"
@@ -2512,3 +2557,17 @@ person.privatschule_hilfe: "Kostet {kosten} je Kind und Monat bis zum Berufseins
 person.privatschule_an: Anmelden
 person.privatschule_aus: Abmelden
 person.privatschule_besucht: besucht die Privatschule
+werk.verlegen_titel: An einen anderen Standort verlegen
+werk.verlegen_ziel: Zielstandort
+werk.verlegen_preis: Preis
+werk.verlegen_hilfe: "Die Anlage behält Wert, Alter und Zustand und steht während des Umzugs {tage} Tage still. Die Verlegung kostet nichts."
+werk.verlegen_verkauf_hilfe: "Der Standort gehört einer anderen Firma des Konzerns: Sie kauft die Anlage zum Preis (Buchwert {buchwert}) und nimmt sie nach {tage} Tagen in Betrieb."
+werk.verlegen_knopf: Verlegen
+werk.verlegen_verkaufen: An Konzernfirma verkaufen
+werk.verlegt_meldung: "{anzahl} × {anlage} nach {ziel} verlegt."
+markt.gebiet_preis: Mittlerer Preis (nach Nachfrage gewichtet)
+markt.gebiet_hilfe: Ein Markt ist immer der eines Landes. Hier stehen die Länder des Gebiets nebeneinander; ein Klick auf ein Land öffnet dessen Markt für dieses Produkt.
+werk.niederlassungen_haken: "Eigene Niederlassungen zu Selbstkosten beliefern ({anzahl})"
+werk.niederlassungen_hilfe: "Die Niederlassungen beziehen das Produkt nach Bedarf von hier, zum Lagerwert (Herstellkosten) statt zum Marktpreis; Fracht und Zoll kommen hinzu. Betrifft: {liste}."
+werk.niederlassungen_an: "Die Niederlassungen beziehen {produkt} jetzt zu Selbstkosten von hier."
+werk.niederlassungen_aus: "Die Niederlassungen beziehen {produkt} nicht mehr von hier."

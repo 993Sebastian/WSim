@@ -183,6 +183,9 @@ pub struct UnitOrgView {
     pub continent: Option<String>,
     /// Text key of the site type, else `ebene.land`, `ebene.kontinent` or `ebene.vorstand`.
     pub kind_text: String,
+    /// The player's own name of the site (sites).
+    #[serde(default)]
+    pub site_name: Option<String>,
     /// The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`,
     /// `vorstand`.
     pub key: String,
@@ -289,6 +292,9 @@ pub struct ManagerMarketView {
     pub site: Option<u32>,
     pub role: String,
     pub kind_text: String,
+    /// The player's own name of the site (sites).
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub country: Option<String>,
     pub continent: String,
     /// Free candidates, those of the unit's continent first.
@@ -762,6 +768,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
             _ => None,
         },
         kind_text: kind_text(state, unit),
+        site_name: site_name(state, unit),
         key: unit_key(c, unit),
         positions,
         next_check: staffed
@@ -997,6 +1004,7 @@ pub fn manager_market(game: &Game, unit: &str, role: &str) -> Option<ManagerMark
         site: unit_site(unit),
         role: role.to_owned(),
         kind_text: kind_text(state, unit),
+        site_name: site_name(state, unit),
         country: match unit {
             Unit::Continent(_) => None,
             _ => Some(c.countries.key(seat).to_owned()),

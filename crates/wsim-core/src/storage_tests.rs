@@ -15,15 +15,17 @@ fn with_storage(spoilage: f64) -> Catalog {
         .collect();
     catalog.production_model.storage = StorageModel {
         enabled: true,
-        minimum: vec![(SiteType::Extraction, Money::from_usd(1.0).unwrap())],
+        minimum: vec![(SiteType::Extraction, 1.0)],
         days: 5.0,
-        step_capacity: Money::from_usd(1_000_000.0).unwrap(),
+        step_capacity: 1_000_000.0,
         step_cost: Money::from_usd(10_000.0).unwrap(),
         cost_share_year: 0.1,
         spoilage: if spoilage > 0.0 { groups } else { Vec::new() },
         ai_expand_at: 0.9,
         ..StorageModel::default()
     };
+    // One m³ per unit: the room counts units.
+    catalog.production_model.storage.volume = vec![1.0; catalog.products.len()];
     catalog
 }
 
@@ -226,8 +228,8 @@ fn outside_storage_costs_double_and_does_not_stop_the_site() {
     let c = game.catalog().clone();
     let ore = c.products.id("erz").unwrap();
     let cap = crate::storage::capacity(&c, &game.state().sites[site.index()]).unwrap();
-    // Fill to one and a half times the own capacity.
-    let units = cap.to_usd() * 1.5 / c.products.get(ore).reference_price.to_usd();
+    // Fill to one and a half times the own capacity (one m³ per unit).
+    let units = cap * 1.5;
     let s = &mut game.state_mut().sites[site.index()];
     s.inventory = Default::default();
     s.inventory
@@ -241,9 +243,43 @@ fn outside_storage_costs_double_and_does_not_stop_the_site() {
         "outside storage takes the rest"
     );
     let cost = crate::storage::daily_cost(&c, s).to_usd();
-    let own = cap.to_usd() * 1.5 * 0.02 / 365.0;
+    // The cost follows the value of the stock.
+    let own = units * c.products.get(ore).reference_price.to_usd() * 0.02 / 365.0;
     assert!(
         (cost - own * (1.0 + 1.0 / 3.0)).abs() < 1e-2 * own,
         "a third lies outside at double rate: {cost} vs {own}"
+    );
+}
+
+#[test]
+fn perishable_goods_are_stocked_for_half_their_shelf_life() {
+    let catalog = with_classes(Some(14));
+    let ore = catalog.products.id("erz").unwrap();
+    assert!((crate::storage::stock_days(&catalog, ore, 30.0) - 7.0).abs() < 1e-9);
+    assert!((crate::storage::stock_days(&catalog, ore, 5.0) - 5.0).abs() < 1e-9);
+    let lasting = with_classes(None);
+    assert!((crate::storage::stock_days(&lasting, ore, 30.0) - 30.0).abs() < 1e-9);
+}
+
+#[test]
+fn a_stock_position_is_scrapped_with_its_book_value() {
+    let mut game = new_game(with_storage(0.0));
+    let me = game.player();
+    let site = mine(&mut game);
+    days(&mut game, 60);
+    let ore = game.catalog().products.id("erz").unwrap();
+    let value = game.state().sites[site.index()].inventory[&ore].value;
+    assert!(value > Money::ZERO);
+    game.apply(Command::ScrapStock { site, product: ore })
+        .unwrap();
+    assert_eq!(
+        game.state().sites[site.index()].inventory[&ore].quantity,
+        0.0
+    );
+    assert!(game.state().company(me).unwrap().ledger.is_balanced());
+    assert!(inventory_matches(&game, me));
+    assert_eq!(
+        game.apply(Command::ScrapStock { site, product: ore }),
+        Err(CommandError::InvalidQuantity)
     );
 }

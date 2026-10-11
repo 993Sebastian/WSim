@@ -293,6 +293,7 @@ fn topic_of(field: StrategyField) -> Topic {
         StrategyField::Investment | StrategyField::Reserve => Topic::Expansion,
         StrategyField::Training => Topic::Wage,
         StrategyField::Environment => Topic::Expansion,
+        StrategyField::Overhaul => Topic::Expansion,
     }
 }
 

@@ -293,6 +293,11 @@ fn all_chains_run_from_raw_material_to_end_product() {
                     st.quantity
                 );
             }
+            // Made but used up in the next step (bodies go into the cars).
+            _ if state.sites[works.index()]
+                .totals
+                .get(&s.product(key))
+                .is_some_and(|t| t.made > 1e-6) => {}
             _ => missing.push(key),
         }
     }

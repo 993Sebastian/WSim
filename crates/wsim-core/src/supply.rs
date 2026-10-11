@@ -192,7 +192,9 @@ pub(crate) fn transfer(
 }
 
 /// What a site needs of a product a day: its recipes at the planned utilization and the
-/// sales of its offer (last month, else this month so far).
+/// sales of its offer. The sales are the demand the offer learned on days with goods (an
+/// empty store keeps it); without any yet, the sales so far, else a start share of the
+/// country's demand – so that a new or emptied store is filled again.
 pub fn daily_demand(
     state: &GameState,
     catalog: &Catalog,
@@ -202,12 +204,15 @@ pub fn daily_demand(
 ) -> f64 {
     let s = &state.sites[site.index()];
     let sales = s.offers.get(&product).map_or(0.0, |o| {
-        if o.sold_last_month > EPS {
+        if o.demand > EPS {
+            o.demand
+        } else if o.sold_last_month > EPS {
             o.sold_last_month / DAYS_PER_MONTH
-        } else if today.day() > 1 {
+        } else if today.day() > 1 && o.sold_month > EPS {
             o.sold_month / f64::from(today.day() - 1)
         } else {
-            0.0
+            let market = &state.markets.get(product).get(s.country).last_month;
+            market.demand / DAYS_PER_MONTH * catalog.logistics.supply_start_share
         }
     });
     contracts::daily_need(state, catalog, site, product) + sales

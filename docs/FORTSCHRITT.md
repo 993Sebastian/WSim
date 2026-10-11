@@ -3004,3 +3004,17 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Controlling. Tests: Ausschuss, Unfälle, Korruption, Formeln, Lieferausfall,
   Exklusivität, Make or buy mit echten Daten, Prüfregeln.
 
+- **Wünsche vom 11.10.2026 (Abend):** Gehalt je Firma und Sonderzahlung (versteuert);
+  Preis als Abweichung vom Marktpreis (statt ±5-Knöpfe; Minus-Eingabe repariert);
+  breiterer Rundenbericht; Technologiebaum erst Branche, dann Produkt; Lieferverträge
+  nachverhandeln (Markt und Werk-Einkauf, reine Preisverhandlung abgelehnt) und Strafe
+  nach Verursacher; Qualität der Wettbewerber immer gefüllt; Anlagen verlegen oder an
+  Konzernfirmen verkaufen; Lagerstätte erschließen verständlich; automatische
+  Großüberholung (Werk und Strategie); Lagerposition verschrotten; Markt „nur eigene“
+  ohne seit einem Monat ruhende Produkte; Kasse beim Laborbau sofort; Markt bleibt beim
+  Produkt bei Wechsel von Land/Gebiet (Gebietsübersicht); eigene Standortnamen in
+  Organisation, Managermarkt, Anliegen, Controlling und Meldungen; Haken „Niederlassungen
+  zu Selbstkosten beliefern“; Nachschub nach Bedarf mit gelerntem Bedarf (kein Absturz
+  auf 0); Lager nach Volumen (m³ aus Gewicht und Stapeldichte, je Produkt
+  überschreibbar). Offen notiert: Manager-System auf den Prüfstand (T), Q6 Forschung je
+  Produkt (Formeln stehen, Umsetzung folgt).

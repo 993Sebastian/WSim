@@ -55,6 +55,7 @@ fn game(money: f64, capital: f64) -> Game {
         })
         .unwrap();
         game.apply(Command::SetPersonSalary {
+            company: None,
             amount: Money::ZERO,
         })
         .unwrap();

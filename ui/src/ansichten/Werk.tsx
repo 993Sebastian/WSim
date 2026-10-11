@@ -13,9 +13,7 @@ import {
   formatZahl,
   geldEinheit,
   geldFeld,
-  geldRunden,
   geldSchluessel,
-  inAnzeige,
   landName,
   meldungText,
   zahlFeld,
@@ -35,10 +33,13 @@ import type {
   StandortDetail,
   StandortGrundstueck,
   Stueckkosten,
+  Uebersicht,
+  Verlegeziel,
   Versorgung,
   Vertrag,
 } from "../kern";
 import { geld } from "../kern";
+import { VertragAktionen } from "./Vertraege";
 import { t } from "../texte";
 import {
   Erklaerung,
@@ -119,6 +120,7 @@ export function Werk({
   produktion,
   bereich: start = null,
   onZurueck,
+  onGeaendert,
 }: {
   kern: Kern;
   standort: StandortDetail;
@@ -126,6 +128,8 @@ export function Werk({
   /** Area to show first. */
   bereich?: string | null;
   onZurueck: () => void;
+  /** The overview after a decision taken in an own view of the site (research). */
+  onGeaendert?: (u: Uebersicht) => void;
 }) {
   const [bereich, setBereich] = useState<Bereich>(
     BEREICHE.includes(start as Bereich)
@@ -175,7 +179,9 @@ export function Werk({
         onWahl={setBereich}
       />
       {bereich === "anlagen" && <Anlagen s={s} produktion={produktion} />}
-      {bereich === "forschung" && forschung && <ForschungImWerk kern={kern} site={s.index} />}
+      {bereich === "forschung" && forschung && (
+        <ForschungImWerk kern={kern} site={s.index} onGeaendert={onGeaendert} />
+      )}
       {bereich === "einkauf" && <Einkauf kern={kern} s={s} produktion={produktion} />}
       {bereich === "verkauf" && <Verkauf s={s} produktion={produktion} />}
       {bereich === "lager" && (
@@ -243,12 +249,16 @@ function LagerPlatz({ s }: { s: StandortDetail }) {
         <div>
           <dt>{t("werk.lagerplatz.fuellung")}</dt>
           <dd className={l.full ? "negativ" : undefined}>
-            {formatProzent(l.share)} ({formatGeld(l.fill_usd)})
+            {formatProzent(l.share)} ({formatZahl(l.fill_m3)} m³)
           </dd>
         </div>
         <div>
           <dt>{t("werk.lagerplatz.kapazitaet")}</dt>
-          <dd>{formatGeld(l.capacity_usd)}</dd>
+          <dd>{formatZahl(l.capacity_m3)} m³</dd>
+        </div>
+        <div>
+          <dt>{t("werk.lagerplatz.warenwert")}</dt>
+          <dd>{formatGeld(l.value_usd)}</dd>
         </div>
         <div>
           <dt>{t("werk.lagerplatz.kosten")}</dt>
@@ -288,7 +298,7 @@ function LagerPlatz({ s }: { s: StandortDetail }) {
         </label>
         <p className="feld-hilfe">
           {t("werk.lagerplatz.ausbau_hilfe", {
-            kapazitaet: formatGeld(l.step_capacity_usd * stufen),
+            kapazitaet: `${formatZahl(l.step_capacity_m3 * stufen)} m³`,
             kosten: formatGeld(l.step_cost_usd * stufen),
           })}
         </p>
@@ -438,7 +448,7 @@ function Anlagen({ s, produktion }: { s: StandortDetail; produktion: Produktion 
           produktion={produktion}
         />
       ))}
-      {s.kind === "Extraction" && <Erschliessung s={s} datum={produktion.date} />}
+      {s.kind === "Extraction" && <Erschliessung s={s} produktion={produktion} />}
       {s.plot && <GrundstueckKarte s={s} plot={s.plot} produktion={produktion} />}
       <AnlageBauen s={s} produktion={produktion} />
     </div>
@@ -799,7 +809,95 @@ function AnlageAbbau({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name:
         })}
       </p>
       <Rueckmeldung meldung={antwort} />
+      {gueltig && (s.move_targets ?? []).length > 0 && a.cause?.key !== "ursache.im_bau" && (
+        <AnlageVerlegen a={a} s={s} name={name} anzahl={k} buchwert={buchwert} />
+      )}
     </details>
+  );
+}
+
+/**
+ * Moving units to another site of the same type: free within the company, sold at a
+ * chosen price (the book value by default) to another company of the group.
+ */
+function AnlageVerlegen({
+  a,
+  s,
+  name,
+  anzahl,
+  buchwert,
+}: {
+  a: AnlageDetail;
+  s: StandortDetail;
+  name: string;
+  anzahl: number;
+  buchwert: number;
+}) {
+  const { los, antwort } = useAktion(`verlegen/${s.index}/${a.index}`);
+  const ziele = s.move_targets ?? [];
+  const [ziel, setZiel] = useState(String(ziele[0]?.site ?? ""));
+  const [preis, setPreis] = useState(geldFeld(buchwert));
+  const z = ziele.find((x) => String(x.site) === ziel) ?? ziele[0];
+  const p = zahlLesen(preis);
+  const verkauf = z !== undefined && !z.same_company;
+  const ortName = (x: Verlegeziel) => {
+    const ort = standortName(s.kind_text, x.country, x.name);
+    return x.same_company ? ort : `${ort} (${x.company})`;
+  };
+  return (
+    <div className="anlage-verlegen">
+      <h4>{t("werk.verlegen_titel")}</h4>
+      <label>
+        {t("werk.verlegen_ziel")}
+        <select value={ziel} onChange={(ev) => setZiel(ev.target.value)}>
+          {ziele.map((x) => (
+            <option key={x.site} value={String(x.site)}>
+              {ortName(x)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {verkauf && (
+        <ZahlFeld
+          name={t("werk.verlegen_preis")}
+          einheit={geldEinheit()}
+          wert={preis}
+          onWert={setPreis}
+        />
+      )}
+      <p className="erklaerung">
+        {t(verkauf ? "werk.verlegen_verkauf_hilfe" : "werk.verlegen_hilfe", {
+          tage: a.restart_days,
+          buchwert: formatGeld(buchwert),
+        })}
+      </p>
+      <div className="knopfreihe links">
+        <button
+          type="button"
+          disabled={z === undefined || (verkauf && (p === null || p < 0))}
+          onClick={() => {
+            if (z === undefined) return;
+            void los(
+              [
+                {
+                  MoveFacility: {
+                    site: s.index,
+                    slot: a.index,
+                    count: anzahl,
+                    to: z.site,
+                    ...(verkauf ? { price: geld(ausAnzeige(p ?? 0)) } : {}),
+                  },
+                },
+              ],
+              t("werk.verlegt_meldung", { anzahl, anlage: name, ziel: ortName(z) }),
+            );
+          }}
+        >
+          {t(verkauf ? "werk.verlegen_verkaufen" : "werk.verlegen_knopf")}
+        </button>
+      </div>
+      <Rueckmeldung meldung={antwort} />
+    </div>
   );
 }
 
@@ -1019,8 +1117,10 @@ function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produkt
   );
 }
 
-function Erschliessung({ s, datum }: { s: StandortDetail; datum: string }) {
+function Erschliessung({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
+  const datum = produktion.date;
   const [lager, setLager] = useState(s.free_deposits[0]?.key ?? "");
+  const gewaehlt = s.free_deposits.find((d) => d.key === lager);
   const { los, antwort } = useAktion(`erschliessen/${s.index}`);
   const id = useId();
   if (s.deposit) {
@@ -1051,11 +1151,31 @@ function Erschliessung({ s, datum }: { s: StandortDetail; datum: string }) {
             <option key={d.key} value={d.key}>
               {t(`lagerstaette.${d.key}`)} ({produktName(d.resource)}) – {formatGeld(d.cost_usd)},{" "}
               {t("produktion.bauzeit", { tage: d.days })},{" "}
-              {t("produktion.foerderung_jahr", { menge: formatZahl(d.output_per_year) })}
+              {t("produktion.foerderung_jahr", {
+                menge: `${formatZahl(d.output_per_year)} ${einheit(produktion, d.resource)}`,
+              })}
             </option>
           ))}
         </select>
       </div>
+      {gewaehlt && (
+        <dl className="werte">
+          <dt>{t("produktion.erschliessung_kosten")}</dt>
+          <dd>{formatGeld(gewaehlt.cost_usd)}</dd>
+          <dt>{t("produktion.erschliessung_dauer")}</dt>
+          <dd>{t("produktion.bauzeit", { tage: gewaehlt.days })}</dd>
+          <dt>{t("produktion.erschliessung_hoechst")}</dt>
+          <dd>
+            {formatZahl(gewaehlt.output_per_year)} {einheit(produktion, gewaehlt.resource)}{" "}
+            {produktName(gewaehlt.resource)}{" "}
+            {t("produktion.erschliessung_je_tag", {
+              menge: formatZahl(gewaehlt.output_per_year / 365),
+              einheit: einheit(produktion, gewaehlt.resource),
+            })}
+          </dd>
+        </dl>
+      )}
+      <p className="feld-hilfe">{t("produktion.erschliessung_hilfe")}</p>
       <div className="knopfreihe links">
         <button type="submit">{t("produktion.erschliessen_knopf")}</button>
       </div>
@@ -1065,6 +1185,44 @@ function Erschliessung({ s, datum }: { s: StandortDetail; datum: string }) {
 }
 
 // --- Stock of the site ---
+
+/** Scraps a stock position after a question: the goods and their book value are gone. */
+function Verschrotten({ s, produkt }: { s: StandortDetail; produkt: string }) {
+  const { los, antwort } = useAktion(`verschrotten/${s.index}/${produkt}`);
+  const [fragen, setFragen] = useState(false);
+  return (
+    <>
+      {fragen ? (
+        <span className="knopfreihe links">
+          <button
+            type="button"
+            className="gefahr"
+            onClick={() =>
+              void los(
+                [{ ScrapStock: { site: s.index, product: produkt } }],
+                t("werk.verschrottet", { produkt: produktName(produkt) }),
+              ).then(() => setFragen(false))
+            }
+          >
+            {t("werk.verschrotten_ja")}
+          </button>
+          <button type="button" className="schlicht" onClick={() => setFragen(false)}>
+            {t("werk.abbrechen")}
+          </button>
+        </span>
+      ) : (
+        <button
+          type="button"
+          aria-label={t("werk.verschrotten_von", { produkt: produktName(produkt) })}
+          onClick={() => setFragen(true)}
+        >
+          {t("werk.verschrotten")}
+        </button>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </>
+  );
+}
 
 /** Everything in stock at a site: quantity, quality, use, output, reach and value. */
 export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
@@ -1086,6 +1244,7 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
             <th className="zahl">{t("werk.lager_stueckkosten")}</th>
             <th className="zahl">{t("werk.lager_buchwert")}</th>
             <th className="zahl">{t("werk.lager_marktwert")}</th>
+            <th>{t("vertrag.aktion")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1122,6 +1281,9 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
                 <td className="zahl" data-titel={t("werk.lager_marktwert")}>
                   {l.market_value_usd === undefined ? "–" : formatGeld(l.market_value_usd)}
                 </td>
+                <td data-titel={t("vertrag.aktion")}>
+                  <Verschrotten s={s} produkt={l.product} />
+                </td>
               </tr>
             );
           })}
@@ -1135,6 +1297,7 @@ export function LagerTabelle({ s, produktion }: { s: StandortDetail; produktion:
             <td className="zahl" data-titel={t("werk.lager_marktwert")}>
               {formatGeld(marktwert)}
             </td>
+            <td />
           </tr>
         </tfoot>
       </table>
@@ -1160,6 +1323,7 @@ function WerkVertraege({ s, rolle }: { s: StandortDetail; rolle: Vertrag["role"]
               <th className="zahl">{t("vertrag.preis")}</th>
               <th className="zahl">{t("vertrag.geliefert")}</th>
               <th>{t("vertrag.stand")}</th>
+              <th>{t("vertrag.aktion")}</th>
             </tr>
           </thead>
           <tbody>
@@ -1194,6 +1358,9 @@ function WerkVertraege({ s, rolle }: { s: StandortDetail; rolle: Vertrag["role"]
                       </span>
                     </>
                   )}
+                </td>
+                <td data-titel={t("vertrag.aktion")}>
+                  <VertragAktionen v={v} />
                 </td>
               </tr>
             ))}
@@ -2259,7 +2426,13 @@ function AngebotKarte({
   const markt = o?.market_price_usd ?? preise?.market_usd ?? 0;
   const richt = o?.reference_usd ?? preise?.reference_usd ?? 0;
   const stueck = o?.unit_cost_usd ?? s.unit_costs.find((u) => u.product === produkt)?.total_usd;
-  const [art, setArt] = useState<"markt" | "fest" | "aufschlag">(o?.mode ?? "markt");
+  // Both automatic modes are shown as one: the market price with a deviation.
+  const [art, setArt] = useState<"markt" | "fest" | "aufschlag">(
+    o?.mode === "fest" || o?.mode === "aufschlag" ? o.mode : "markt",
+  );
+  const [abweichung, setAbweichung] = useState(
+    zahlFeld((o && (o.mode === "markt" || o.mode === "marktbezug") ? o.markup : 0) * 100, 1),
+  );
   const [marge, setMarge] = useState(zahlFeld((o?.mode === "aufschlag" ? o.markup : 0.2) * 100, 1));
   const preisFeld = geldFeld(o ? o.price_usd : markt);
   const [preis, setPreis] = useState(preisFeld);
@@ -2272,12 +2445,17 @@ function AngebotKarte({
 
   const absenden = (ev: FormEvent) => {
     ev.preventDefault();
-    const p = art === "aufschlag" ? 1 : zahlLesen(preis);
+    const p = art === "fest" ? zahlLesen(preis) : 1;
     const m = art === "markt" ? zahlLesen(mindest || "0") : 0;
     const k = zahlLesen(behalten || "0");
     const a = art === "aufschlag" ? zahlLesen(marge) : 0;
+    const d = art === "markt" ? zahlLesen(abweichung || "0") : 0;
     if (p === null || p <= 0 || m === null || m < 0 || k === null || k < 0) {
       setFehler(t("werk.verkauf_werte"));
+      return;
+    }
+    if (d === null || d < -90 || d > 200) {
+      setFehler(t("werk.abweichung_bereich"));
       return;
     }
     if (a === null || a < -50 || a > 1000) {
@@ -2296,8 +2474,8 @@ function AngebotKarte({
               : art === "fest"
                 ? { Fixed: geld(ausAnzeige(p)) }
                 : {
-                    Market: {
-                      markup: o?.mode === "markt" ? o.markup : 0,
+                    Relative: {
+                      deviation: d / 100,
                       floor: geld(ausAnzeige(m)),
                     },
                   },
@@ -2305,20 +2483,7 @@ function AngebotKarte({
         },
       },
     ];
-    // An automatic price goes on from the typed price (if the player changed it).
-    if (art === "markt" && (!o || preis.trim() !== preisFeld))
-      befehle.push({ SetPrice: { site: s.index, product: produkt, price: geld(ausAnzeige(p)) } });
     void los(befehle, t(o ? "werk.angebot_geaendert" : "werk.angebot_neu", { produkt: name }));
-  };
-
-  const schritt = (faktor: number) => {
-    if (!o) return;
-    // Rounded in the shown currency, as the field would show it.
-    const neu = ausAnzeige(geldRunden(inAnzeige(o.price_usd) * faktor));
-    void los(
-      [{ SetPrice: { site: s.index, product: produkt, price: geld(neu) } }],
-      t("werk.preis_gesetzt", { preis: formatPreis(neu, e) }),
-    );
   };
 
   return (
@@ -2413,7 +2578,7 @@ function AngebotKarte({
           </p>
         )}
         <div className="formular-zeile" data-tour={o ? "preis" : undefined}>
-          {art === "aufschlag" ? (
+          {art === "aufschlag" && (
             <ZahlFeld
               name={t("werk.kostenaufschlag_marge")}
               einheit="%"
@@ -2421,32 +2586,27 @@ function AngebotKarte({
               onWert={setMarge}
               hilfe={t("werk.kostenaufschlag_marge_hilfe")}
               gruppieren={false}
+              negativ
             />
-          ) : (
+          )}
+          {art === "fest" && (
             <ZahlFeld
-              name={art === "markt" ? t("werk.preis_jetzt") : t("werk.preis")}
+              name={t("werk.preis")}
               einheit={`${geldEinheit()}/${e}`}
               wert={preis}
               onWert={setPreis}
             />
           )}
-          {o && art !== "aufschlag" && o.mode !== "aufschlag" && (
-            <div className="schnellknoepfe" role="group" aria-label={t("werk.preis_schnell")}>
-              <button
-                type="button"
-                aria-label={t("werk.preis_minus", { produkt: name })}
-                onClick={() => schritt(0.95)}
-              >
-                −5 %
-              </button>
-              <button
-                type="button"
-                aria-label={t("werk.preis_plus", { produkt: name })}
-                onClick={() => schritt(1.05)}
-              >
-                +5 %
-              </button>
-            </div>
+          {art === "markt" && (
+            <ZahlFeld
+              name={t("werk.abweichung")}
+              einheit="%"
+              wert={abweichung}
+              onWert={setAbweichung}
+              hilfe={t("werk.abweichung_hilfe")}
+              gruppieren={false}
+              negativ
+            />
           )}
           {art === "markt" && (
             <ZahlFeld
@@ -2491,7 +2651,67 @@ function AngebotKarte({
         {/* Tells the introduction that a price was set. */}
         {antwort && !antwort.fehler && <span data-tour="preis-gesetzt" hidden />}
       </form>
+      {o && (o.outlets ?? []).length > 0 && (
+        <NiederlassungenBeliefern o={o} s={s} produkt={produkt} name={name} />
+      )}
     </article>
+  );
+}
+
+/**
+ * Supplying the company's own sales offices with a product by need, at the value of the
+ * stock (production cost) instead of a market price: one tick for all of them.
+ */
+function NiederlassungenBeliefern({
+  o,
+  s,
+  produkt,
+  name,
+}: {
+  o: Angebot;
+  s: StandortDetail;
+  produkt: string;
+  name: string;
+}) {
+  const { los, antwort } = useAktion(`niederlassungen/${s.index}/${produkt}`);
+  const id = useId();
+  const outlets = o.outlets ?? [];
+  const alle = outlets.every((x) => x.supplied_here);
+  const tage = s.supply_days_default ?? 20;
+  const umschalten = (an: boolean) =>
+    void los(
+      outlets
+        .filter((x) => x.supplied_here !== an)
+        .map((x) => ({
+          SetInternalSupply: {
+            site: x.site,
+            product: produkt,
+            source: an ? s.index : null,
+            mode: { Need: { days: tage } },
+          },
+        })),
+      t(an ? "werk.niederlassungen_an" : "werk.niederlassungen_aus", { produkt: name }),
+    );
+  return (
+    <div className="niederlassungen">
+      <label htmlFor={`${id}-haken`}>
+        <input
+          id={`${id}-haken`}
+          type="checkbox"
+          checked={alle}
+          onChange={(ev) => umschalten(ev.target.checked)}
+        />{" "}
+        {t("werk.niederlassungen_haken", { anzahl: outlets.length })}
+      </label>
+      <small className="feld-hilfe">
+        {t("werk.niederlassungen_hilfe", {
+          liste: outlets
+            .map((x) => standortName("standorttyp.niederlassung", x.country, x.name))
+            .join(", "),
+        })}
+      </small>
+      <Rueckmeldung meldung={antwort} />
+    </div>
   );
 }
 
@@ -2659,6 +2879,7 @@ function Personal({ s }: { s: StandortDetail }) {
       </form>
       <Schulung key={`${s.training_target}/${s.training_source}`} s={s} />
       {s.maintenance && <Instandhaltung key={s.maintenance.level} s={s} />}
+      {s.maintenance && <AutoUeberholung key={`ue-${s.maintenance.overhaul_below ?? "x"}`} s={s} />}
     </div>
   );
 }
@@ -2715,6 +2936,60 @@ function Instandhaltung({ s }: { s: StandortDetail }) {
           wert={stufe}
           onWert={setStufe}
           gruppieren={false}
+        />
+        <button type="submit">{t("werk.uebernehmen")}</button>
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/** Automatic overhaul once a facility's condition falls below a share (BP2). */
+function AutoUeberholung({ s }: { s: StandortDetail }) {
+  const m = s.maintenance!;
+  const { los, antwort } = useAktion(`ueberholung/${s.index}`);
+  const [wert, setWert] = useState(
+    m.overhaul_below == null ? "" : zahlFeld(m.overhaul_below * 100, 0),
+  );
+  const [fehler, setFehler] = useState<string | null>(null);
+  const setzen = (schwelle: number | null) =>
+    void los(
+      [{ SetOverhaulThreshold: { site: s.index, threshold: schwelle } }],
+      schwelle === null
+        ? t("werk.ueberholung_strategie")
+        : t("werk.ueberholung_gesetzt", { prozent: formatZahl(schwelle * 100) }),
+    );
+  return (
+    <form
+      className="karte"
+      aria-label={t("werk.ueberholung_auto")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (wert.trim() === "") return setzen(null);
+        const p = zahlLesen(wert);
+        if (p === null || p < 0 || p > 100) {
+          setFehler(t("werk.ueberholung_bereich"));
+          return;
+        }
+        setFehler(null);
+        setzen(p / 100);
+      }}
+    >
+      <h3>{t("werk.ueberholung_auto")}</h3>
+      <p className="feld-hilfe">
+        {m.overhaul_effective
+          ? t("werk.ueberholung_gilt", { prozent: formatProzent(m.overhaul_effective) })
+          : t("werk.ueberholung_aus")}
+      </p>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("werk.ueberholung_schwelle")}
+          einheit="%"
+          wert={wert}
+          onWert={setWert}
+          gruppieren={false}
+          hilfe={t("werk.ueberholung_hilfe")}
         />
         <button type="submit">{t("werk.uebernehmen")}</button>
       </div>

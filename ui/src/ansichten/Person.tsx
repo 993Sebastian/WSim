@@ -145,7 +145,7 @@ function Privatleben({ p, pl }: { p: Person; pl: NonNullable<Person["private_lif
   );
 }
 
-function Rollen({ p }: { p: Person }) {
+function Rollen({ p, g }: { p: Person; g?: PersonGeld | null }) {
   if (p.holdings.length === 0) {
     return (
       <section aria-label={t("person.rollen")}>
@@ -165,6 +165,7 @@ function Rollen({ p }: { p: Person }) {
             <th className="zahl">{t("person.wert")}</th>
             <th className="zahl">{t("person.einstand")}</th>
             <th>{t("person.rolle")}</th>
+            {g && <th>{t("person.gehalt")}</th>}
           </tr>
         </thead>
         <tbody>
@@ -187,10 +188,21 @@ function Rollen({ p }: { p: Person }) {
                     ? t("person.rolle_eigentuemer", { name: h.ceo })
                     : t("person.rolle_eigentuemer_ohne")}
               </td>
+              {g && (
+                <td data-spalte={t("person.gehalt")}>
+                  <GehaltFeld h={h} />
+                  <Sonderzahlung h={h} />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
+      {g && (
+        <p className="feld-hilfe">
+          {t("person.gehalt_tabelle_hilfe", { steuer: formatProzent(g.income_tax) })}
+        </p>
+      )}
     </section>
   );
 }
@@ -317,49 +329,76 @@ function Lebensstil({ g }: { g: PersonGeld }) {
   );
 }
 
-/** The person's salary: as CEO, or as owner of the main company led by a manager. */
-function Gehalt({ g }: { g: PersonGeld }) {
-  const [betrag, setBetrag] = useState(geldFeld(g.salary_usd));
-  const { los, antwort } = useAktion("gehalt");
+/** The person's salary from one company, in its row of the roles (PE3). */
+function GehaltFeld({ h }: { h: PersonAnteil }) {
+  const [betrag, setBetrag] = useState(geldFeld(h.salary_usd ?? 0));
+  const { los, antwort } = useAktion(`gehalt-${h.index ?? 0}`);
+  if (!h.salary_possible) return <>–</>;
+  const hilfe = [
+    t("person.gehalt_vorschlag", { vorschlag: formatGeld(h.salary_suggestion_usd ?? 0) }),
+    h.salary_max_usd != null
+      ? t("person.gehalt_hoechstens", { max: formatGeld(h.salary_max_usd) })
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
     <form
-      className="karte"
-      aria-label={t("person.gehalt")}
+      className="formular-zeile"
+      aria-label={t("person.gehalt_fuer", { firma: h.company })}
       onSubmit={(e) => {
         e.preventDefault();
         const b = zahlLesen(betrag);
         if (b === null || b < 0) return;
         void los(
-          [{ SetPersonSalary: { amount: geld(ausAnzeige(b)) } }],
-          t("person.gehalt_gesetzt", { betrag: formatGeld(ausAnzeige(b)) }),
+          [{ SetPersonSalary: { company: h.index ?? 0, amount: geld(ausAnzeige(b)) } }],
+          t("person.gehalt_gesetzt", { betrag: formatGeld(ausAnzeige(b)), firma: h.company }),
         );
       }}
     >
-      <h3>{t("person.gehalt")}</h3>
-      <p className="feld-hilfe">
-        {t(
-          g.salary_as_owner
-            ? "person.gehalt_eigentuemer"
-            : g.salary_paid
-              ? "person.gehalt_hilfe"
-              : "person.gehalt_ruht",
-          {
-            vorschlag: formatGeld(g.salary_suggestion_usd),
-            steuer: formatProzent(g.income_tax),
-          },
-        )}
-        {g.salary_max_usd !== null &&
-          ` ${t("person.gehalt_hoechstens", { max: formatGeld(g.salary_max_usd) })}`}
-      </p>
-      <div className="formular-zeile">
-        <ZahlFeld
-          name={t("person.gehalt_jahr")}
-          einheit={geldEinheit()}
-          wert={betrag}
-          onWert={setBetrag}
-        />
-        <button type="submit">{t("person.gehalt_setzen")}</button>
-      </div>
+      <ZahlFeld
+        name={t("person.gehalt_jahr")}
+        einheit={geldEinheit()}
+        wert={betrag}
+        onWert={setBetrag}
+        hilfe={hilfe}
+      />
+      <button type="submit">{t("person.gehalt_setzen")}</button>
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/** A one-off payment of the company to the person, taxed as income. */
+function Sonderzahlung({ h }: { h: PersonAnteil }) {
+  const [betrag, setBetrag] = useState("");
+  const { los, antwort } = useAktion(`sonderzahlung-${h.index ?? 0}`);
+  if (!h.salary_possible) return null;
+  return (
+    <form
+      className="formular-zeile"
+      aria-label={t("person.sonderzahlung_fuer", { firma: h.company })}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const b = zahlLesen(betrag);
+        if (b === null || b <= 0) return;
+        void los(
+          [{ PayBonus: { company: h.index ?? 0, amount: geld(ausAnzeige(b)) } }],
+          t("person.sonderzahlung_gezahlt", {
+            betrag: formatGeld(ausAnzeige(b)),
+            firma: h.company,
+          }),
+        ).then((ok) => ok && setBetrag(""));
+      }}
+    >
+      <ZahlFeld
+        name={t("person.sonderzahlung")}
+        einheit={geldEinheit()}
+        wert={betrag}
+        onWert={setBetrag}
+        hilfe={t("person.sonderzahlung_hilfe", { kasse: formatGeld(h.cash_usd ?? 0) })}
+      />
+      <button type="submit">{t("person.sonderzahlung_auszahlen")}</button>
       <Rueckmeldung meldung={antwort} />
     </form>
   );
@@ -714,8 +753,7 @@ export function PersonAnsicht({
       )}
       {g && <Vermoegen g={g} />}
       {g && <Lebensstil g={g} />}
-      {g && daten.holdings.length > 0 && <Gehalt g={g} />}
-      <Rollen p={daten} />
+      <Rollen p={daten} g={g} />
       {g &&
         daten.holdings
           .filter((h) => h.controlled)

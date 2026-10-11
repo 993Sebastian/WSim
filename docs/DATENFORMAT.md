@@ -161,7 +161,7 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | `lohnaufschlag_max` | Höchster Lohnaufschlag eines Standorts über die Landeslöhne (0–5, Vorgabe 1 = 100 %; M18) |
 | **stilllegung** | Stillgelegte Anlagen (M22): `instandhaltung_anteil` (0–1, Anteil der Wartung, den sie weiter kosten), `wiederanlauf_tage` (Dauer des Wiederanfahrens), `wiederanlauf_kosten` (0–1, Anteil der Investition) |
 | **verkauf** | Verkaufte Anlagen (M22): `erloes_anteil` (0–1, Anteil des Restbuchwerts), `schrottwert` (0–1, Mindesterlös als Anteil der Investition) |
-| **lager** | Lager (optional, ohne Abschnitt unbegrenzt): `mindestens_usd` (Mindestkapazität je Standorttyp, alle sechs Pflicht), `tage` (> 0, Tage Durchsatz bei voller Auslastung), `ausbau.kapazitaet_usd` (> 0) und `ausbau.kosten_usd` je Ausbaustufe, `kosten_jahr_anteil` (0–1, Lagerkosten je Jahr als Anteil des Lagerwerts), `verderb` (Warengruppe → Anteil 0–1 je Monat), `ki_ausbau_ab` (0–1, Füllung, ab der die KI ausbaut). Werte zu Richtpreisen. BP3: `klassen` (alle fünf Lagerklassen `schuettgut`, `stueckgut`, `fluessig`, `gekuehlt`, `gefahrgut` → Kostenanteil je Jahr 0–1), `nach_transportklasse` (jede Transportklasse → Lagerklasse), `nach_warengruppe` (optional, geht vor), `gekuehlt_bis_tage` (Haltbarkeit, bis zu der ein Produkt gekühlt liegt), `fremdlager` (`kapazitaet_faktor` 1–10, `kosten_faktor` 1–10), `verderb_meldung_ab` (0–1, Standard 0,05); `verderb` je Warengruppe bleibt möglich |
+| **lager** | Lager (optional, ohne Abschnitt unbegrenzt): `mindestens_m3` (Mindestkapazität in m³ je Standorttyp, alle sechs Pflicht), `tage` (> 0, Tage Durchsatz bei voller Auslastung), `ausbau.kapazitaet_m3` (> 0) und `ausbau.kosten_usd` je Ausbaustufe, `dichte_t_je_m3` (Stapeldichte je Lagerklasse > 0, alle fünf: Lagervolumen = Gewicht je Einheit / Dichte), `kosten_jahr_anteil` (0–1, Lagerkosten je Jahr als Anteil des Lagerwerts), `verderb` (Warengruppe → Anteil 0–1 je Monat), `ki_ausbau_ab` (0–1, Füllung, ab der die KI ausbaut). Kapazität und Füllung in m³ Lagervolumen, Kosten zu Richtpreisen. BP3: `klassen` (alle fünf Lagerklassen `schuettgut`, `stueckgut`, `fluessig`, `gekuehlt`, `gefahrgut` → Kostenanteil je Jahr 0–1), `nach_transportklasse` (jede Transportklasse → Lagerklasse), `nach_warengruppe` (optional, geht vor), `gekuehlt_bis_tage` (Haltbarkeit, bis zu der ein Produkt gekühlt liegt), `fremdlager` (`kapazitaet_faktor` 1–10, `kosten_faktor` 1–10), `verderb_meldung_ab` (0–1, Standard 0,05); `verderb` je Warengruppe bleibt möglich |
 | **lernkurve** | Lernkurve (BP1, optional, ohne Abschnitt keine Wirkung): `rate` (Branche → Lernrate 0,5–1 je Verdopplung), `rate_sonst` (0,5–1), `untergrenze` (0,05–1, kleinster Lernfaktor), `vergessen_je_monat` (0–1), `entlassung` (0–1, Verlust bei Entlassung von mehr als einem Drittel), `uebertrag` (0–1, Anteil für Nachfolgeprodukte), `start_etabliert_jahre` (≥ 0, Erfahrung der Startfirmen in Jahresausstößen) |
 | **instandhaltung** | Instandhaltung (BP2, optional, ohne Abschnitt kein Ausfall): `stufe_min` (0,1–1), `stufe_max` (1–5), `exponent` (0–5, Verschleiß · (1/Stufe)^exponent), `kapazitaet_zustand` (0–1, Kapazitätsverlust einer völlig verschlissenen Anlage), `ausfall` (`basis` 0–1 Chance je Tag bei Mindestzustand, `tage_min` ≥ 1 bis `tage_max`, `kosten_anteil` 0–1 der Investition, `warnung_ab` Ausfälle im Jahr), `ueberholung` (`kosten_anteil` 0–1, `tage`, `ki_ab` 0–1 Zustand, unter dem die KI überholt) |
 | **betrieb** | BP4 (optional): `ausschuss` (`basis` je Produktart, `min`, `max`, `schulung`, `weiterentwicklung`, je 0–1, min ≤ max), `unfaelle_je_100000_stunden` (Jahr → Zahl), `unfall_kosten_stunden`, `unfall_stillstand_anteil` (0–1), `korruption` (`grund`, `entwicklung`, `instabilitaet`, `bauzeit` 0–5, `gebuehr`, `forderung_chance`, `forderung_anteil`), `rechtssicherheit` (`grund`, `entwicklung`, `stabilitaet`), `enteignung_basis`, `make_or_buy_toleranz` (alle Anteile 0–1) |
@@ -292,6 +292,8 @@ Prüfstand für Rechenzeit und Spielstandsgröße, keine Spieldaten.
 | foerderindex | Nur Rohstoffe: Jahreswerte, mit denen die Höchstförderung und der Vorrat aller Lagerstätten des Rohstoffs gegenüber ihren Datenwerten wachsen (mehr Fläche, bessere Erträge, Erkundung), z. B. `{1900: 1.0, 1930: 1.45}`; ohne Angabe 1 |
 | pacht_anteil | Nur Rohstoffe, 0–0,9: Pacht und Förderabgaben je geförderter Einheit als Anteil am Richtpreis im Land (Bodenrente, Förderzins, Konzessionsabgaben); als Kostenart „Pacht und Förderabgaben“ gebucht; ohne Angabe 0 |
 | sehr_komplex | `true`, wenn der Produktbaum fünf oder sechs Ebenen braucht (Lastenheft §17.2); sonst Warnung ab fünf Ebenen |
+| lagerklasse, haltbarkeit_tage | BP3: Lagerklasse (sonst nach Warengruppe/Transportklasse) und Haltbarkeit in Tagen |
+| lagervolumen_m3 | Optional, > 0: Lagervolumen einer Einheit in m³; ohne Angabe Gewicht je Einheit / Stapeldichte der Lagerklasse (`produktionsmodell.lager.dichte_t_je_m3`) |
 
 Jedes Produkt muss hergestellt (Rezept, auch als Nebenprodukt) oder vom
 **Staatsmarkt** bezogen werden können. Der Staatsmarkt liefert Güter ohne eigene
@@ -679,12 +681,14 @@ gibt es keine Lieferverträge. Ein Abschnitt `vertraege` mit:
 | **kuendigung_monate** | 0–600: wer kündigt, zahlt die Strafe auf so viele Monate (Tagesmenge · 30) |
 | **ausfall_kuendigung_monate** | BP4: Fehlmonate des Verkäufers in Folge, nach denen der Käufer ohne Strafe kündigt (0 = nie) |
 | **exklusiv_aufschlag** | BP4: Preisaufschlag einer KI für einen exklusiven Vertrag (0–1) |
+| **nachverhandlung_menge_min** | 0–1: so stark (Anteil) muss sich die Tagesmenge ändern, damit eine KI nachverhandelt |
+| **nachverhandlung_verlaengerung_monate** | 0–120: so viele Monate über die Restlaufzeit hinaus genügen der KI als Verlängerung |
 | **angebot_tage** | 1–365: so lange wartet ein Angebot der KI auf die Antwort |
 | **aufbewahren_monate** | 0–600: so lange bleiben beendete Verträge in der Liste |
 | **ki** | `abschlag_verkauf` und `aufschlag_kauf` (0–1: so viel unter dem eigenen bzw. über dem Marktpreis nimmt die KI für einen Monat an), `abschlag_je_monat` und `aufschlag_je_monat` (0–1: so viel mehr je weiteren Monat Laufzeit), `abschlag_max` und `aufschlag_max` (0–1, mindestens der Grundwert: Obergrenze), `anteil` (0–1: Anteil von Leistung oder Bedarf, der in Verträge geht), `strafe_max` (0–10), `angebot_chance` (0–1 je Monat und Produkt des Spielers) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
-Texte: `vertrag.abgelehnt.<grund>` (`preis`, `menge`, `qualitaet`, `strafe`).
+Texte: `vertrag.abgelehnt.<grund>` (`preis`, `menge`, `qualitaet`, `strafe`, `nur_preis`).
 
 ## logistik
 
@@ -697,7 +701,7 @@ fahren alle Ladungen über den Frachtmarkt. Ein Abschnitt `logistik` mit:
 | **flotte** | `marge_frachtmarkt` (0–0,9: Marge der Logistikfirmen in der Marktfracht, die eine voll genutzte Flotte spart), `auslastung` (0,01–1: genutzter Anteil der Fahrleistung), `unterhalt_anteil` (0–1 je Jahr vom Kaufwert), `nutzungsdauer_jahre` (> 0: lineare Abschreibung), `verkauf_anteil` (0–1 des Buchwerts beim Verkauf), `vermietung_anteil` (0–1: Anteil des freien Platzes, der Ladung anderer findet), `vermietung_markt_anteil` (0–1: höchstens dieser Anteil der Tonnenkilometer des Frachtmarkts geht an Firmenflotten; W6) |
 | **risiko** | `land`, `see`: Jahreswerte (0–1), Wahrscheinlichkeit, eine Ladung zu verlieren |
 | **ki** | `anteil` (0–1: so viel ihrer Fracht soll die Flotte einer KI-Firma tragen), `kasse_anteil` (0–1: höchstens so viel der Kasse geht je Monat in Fahrzeuge) |
-| **nachschub** | `tage_standard` (1–`tage_max`: vorgeschlagene Reichweite der internen Belieferung nach Bedarf), `tage_max` (1–3650) |
+| **nachschub** | `tage_standard` (1–`tage_max`: vorgeschlagene Reichweite der internen Belieferung nach Bedarf), `tage_max` (1–3650), `glaettung` (0,01–1: so schnell folgt der gelernte Bedarf eines Angebots dem Absatz eines Tages mit Ware), `ausverkauft_aufschlag` (0–2: ein ausverkaufter Tag zählt so viel mehr), `start_anteil` (0–1: ohne Absatzgeschichte dieser Anteil der Nachfrage im Land) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## produktnamen

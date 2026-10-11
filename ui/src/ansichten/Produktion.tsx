@@ -44,6 +44,7 @@ export function ProduktionAnsicht({
             produktion={daten}
             bereich={werkBereich}
             onZurueck={() => onWerk(null)}
+            onGeaendert={onGeaendert}
           />
         ) : (
           <>

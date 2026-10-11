@@ -156,7 +156,7 @@ fn founding_takes_the_capital_and_its_costs() {
     assert_eq!(c.owners, Stake::sole(Holder::Player));
     assert_eq!(state.person.ceo, Some(id));
     assert_eq!(state.person.cost_basis[&id], usd(900_000.0));
-    assert!(state.person.salary > Money::ZERO);
+    assert!(crate::private::salary_total(state) > Money::ZERO);
     assert!(
         state
             .person
@@ -308,13 +308,17 @@ fn capital_goes_back_only_to_the_sole_owner() {
     let max = private::salary_max(game.catalog(), game.state(), id).unwrap();
     assert_eq!(
         game.apply(Command::SetPersonSalary {
+            company: None,
             amount: max + usd(1.0)
         }),
         Err(CommandError::SalaryTooHigh { max })
     );
-    game.apply(Command::SetPersonSalary { amount: max })
-        .unwrap();
-    assert_eq!(game.state().person.salary, max);
+    game.apply(Command::SetPersonSalary {
+        company: None,
+        amount: max,
+    })
+    .unwrap();
+    assert_eq!(crate::private::salary_total(game.state()), max);
 }
 
 #[test]
@@ -455,4 +459,31 @@ fn too_little_start_money_or_an_unknown_command_target_is_refused() {
         }),
         Err(CommandError::UnknownCompany(CompanyId(0)))
     );
+}
+
+#[test]
+fn a_bonus_leaves_the_company_and_is_taxed_as_income() {
+    let mut game = new_game(false, 1_000_000.0);
+    let id = found(&mut game, 200_000.0);
+    let cash = game.state().companies[id.index()].ledger.cash();
+    let before = balance(&game);
+    let bonus = |amount: f64| Command::PayBonus {
+        company: id,
+        amount: usd(amount),
+    };
+    assert_eq!(
+        game.apply(bonus(1e9)),
+        Err(CommandError::NotEnoughCash { needed: usd(1e9) })
+    );
+    game.apply(bonus(10_000.0)).unwrap();
+    assert_eq!(
+        game.state().companies[id.index()].ledger.cash(),
+        cash - usd(10_000.0)
+    );
+    assert_eq!(balance(&game), before + usd(10_000.0));
+    to_next_month(&mut game);
+    assert_eq!(flow(&game, PrivateFlow::Bonus), usd(10_000.0));
+    // Taxed with the salary at the month's end.
+    assert!(flow(&game, PrivateFlow::IncomeTax) < Money::ZERO);
+    assert!(game.state().companies[id.index()].ledger.is_balanced());
 }

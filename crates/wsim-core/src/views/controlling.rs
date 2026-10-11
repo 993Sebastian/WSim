@@ -70,6 +70,9 @@ pub struct ControllingNode {
     pub name: String,
     /// Country of a site.
     pub country: Option<String>,
+    /// The player's own name of a site.
+    #[serde(default)]
+    pub site_name: Option<String>,
     pub revenue_usd: f64,
     pub variable_usd: f64,
     pub margin1_usd: f64,
@@ -207,6 +210,7 @@ fn node(
         level: level.to_owned(),
         name,
         country: None,
+        site_name: None,
         revenue_usd: usd(revenue),
         variable_usd: usd(variable),
         margin1_usd: usd(revenue + variable),
@@ -361,6 +365,7 @@ fn company_node(game: &Game, id: CompanyId, period: &str) -> Option<ControllingN
                     children,
                 );
                 n.country = Some(catalog.countries.key(country).to_owned());
+                n.site_name = state.sites[site.index()].name.clone();
                 site_nodes.push(n);
                 add_into(&mut country_sums, &site_sums);
             }
@@ -491,6 +496,7 @@ pub fn controlling(game: &Game, period: &str) -> ControllingView {
             level: "konzern".to_owned(),
             name: "controlling.konzern".to_owned(),
             country: None,
+            site_name: None,
             revenue_usd: sum(|c| c.revenue_usd),
             variable_usd: sum(|c| c.variable_usd),
             margin1_usd: sum(|c| c.margin1_usd),

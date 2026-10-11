@@ -79,6 +79,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
         wage_premium: 0.0,
         training: 0.0,
         training_target: None,
+        overhaul_below: None,
         acquired: None,
         goodwill: None,
         plot: None,

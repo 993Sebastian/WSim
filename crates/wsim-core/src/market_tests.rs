@@ -78,6 +78,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
         wage_premium: 0.0,
         training: 0.0,
         training_target: None,
+        overhaul_below: None,
         acquired: None,
         goodwill: None,
         plot: None,
@@ -947,4 +948,61 @@ fn the_commodity_cycle_swings_output_within_its_limit() {
     let allowed = crate::production::deposit_output(game.catalog(), game.state(), d, year);
     assert!(allowed <= full * factor + 1e-9);
     assert_eq!(run().1, seen);
+}
+
+#[test]
+fn a_relative_price_follows_the_other_sellers() {
+    let mut game = new_game();
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let mine = warehouse(&mut game, player, "brot", 1e9, 50.0);
+    let theirs = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+    sell(&mut game, theirs, "brot", PriceMode::Fixed(usd(3.0)));
+    sell(
+        &mut game,
+        mine,
+        "brot",
+        PriceMode::Relative {
+            deviation: -0.1,
+            floor: Money::ZERO,
+        },
+    );
+    let p = product(&game, "brot");
+    let price = |game: &Game| game.state().sites[mine.index()].offers[&p].price.to_usd();
+    day(&mut game);
+    assert!((price(&game) - 2.7).abs() < 0.01, "{}", price(&game));
+    // The other seller raises its price: the own one follows at the same deviation.
+    sell(&mut game, theirs, "brot", PriceMode::Fixed(usd(4.0)));
+    day(&mut game);
+    assert!((price(&game) - 3.6).abs() < 0.01, "{}", price(&game));
+}
+
+#[test]
+fn the_demand_of_an_offer_learns_only_on_days_with_goods() {
+    let mut catalog = crate::catalog::test_support::trading();
+    catalog.logistics.supply_learn_rate = 0.1;
+    catalog.logistics.supply_sold_out_premium = 0.25;
+    let mut offer = crate::state::SaleOffer {
+        demand: 10.0,
+        mode: crate::state::PriceMode::Fixed(crate::money::Money::from_units(1)),
+        price: crate::money::Money::from_units(1),
+        keep: 0.0,
+        sold_today: 0.0,
+        sold_month: 0.0,
+        sold_last_month: 0.0,
+        to_traders_month: 0.0,
+        to_companies_month: 0.0,
+    };
+    let m = &catalog.logistics;
+    // No goods: nothing to learn.
+    crate::market::learn_demand(&catalog, &mut offer, 0.0, 0.0);
+    assert!((offer.demand - 10.0).abs() < 1e-12);
+    // Goods left over: follows the sales.
+    crate::market::learn_demand(&catalog, &mut offer, 50.0, 20.0);
+    assert!((offer.demand - (10.0 + m.supply_learn_rate * 10.0)).abs() < 1e-12);
+    // Sold out: the day counts higher than what was sold.
+    let before = offer.demand;
+    crate::market::learn_demand(&catalog, &mut offer, 5.0, 5.0);
+    let sample = 5.0 * (1.0 + m.supply_sold_out_premium);
+    assert!((offer.demand - (before + m.supply_learn_rate * (sample - before))).abs() < 1e-12);
 }

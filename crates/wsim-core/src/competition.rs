@@ -216,6 +216,7 @@ mod tests {
 
     fn offer(price: f64, sold_last_month: f64) -> SaleOffer {
         SaleOffer {
+            demand: 0.0,
             mode: PriceMode::Market {
                 markup: 0.0,
                 floor: Money::ZERO,

@@ -2071,6 +2071,52 @@ Bei der Umsetzung entschieden:
     (die Märkte führen keine Monatsreihe der Knappheit); ohne eigene Anlage keine
     Schätzung mit Investition.
 
+## S Wünsche vom 11.10.2026 (Abend) – eigenständig entschieden, zur Abnahme
+
+- **S1 Preis relativ zum Marktpreis:** Bezug ist der gewichtete Preis der *anderen*
+  Anbieter im Land (sonst Index, sonst Richtpreis), damit der eigene Preis sich nicht
+  selbst hochschaukelt. Untergrenze bleibt wählbar.
+- **S2 Nachverhandlung:** Schwellen „signifikant“ geschätzt: 20 % Mengenänderung oder
+  3 Monate Verlängerung über die Restlaufzeit. Mit dem Spieler als Partner (eigene
+  Firmen) gilt die Schwelle nicht. Eine Zustimmung prüft die KI zum heutigen
+  Marktpreis.
+- **S3 Vertragsstrafe:** Der Käufer zahlt nur für die Tage, an denen er nicht zahlen
+  konnte; fehlte Ware, zahlt der Verkäufer (Prüfung auf Wunsch).
+- **S4 Anlagen verlegen:** Kosten der Verlegung selbst nur über den Stillstand
+  (Wiederanlauftage); kein Transport der Anlage berechnet. Vorschlag: so lassen.
+- **S5 Sonderzahlung:** Höchstens die Kasse der Firma; keine Prüfung gegen Gewinn oder
+  Rücklagen (Vorschlag: so lassen, die Bank sieht die Kasse ohnehin).
+- **S6 Verderbliche Güter:** Lagerziele höchstens halbe Haltbarkeit (KI, Startbesetzung,
+  Händler) – nötig, damit Milch und Fleisch nicht im Lager verderben.
+
+- **S7 Niederlassungen zu Selbstkosten:** Umgesetzt als Haken im Verkauf eines Werks, der
+  die vorhandene interne Belieferung (Lagerwert) für alle eigenen Niederlassungen mit
+  diesem Produkt einrichtet; nur Niederlassungen derselben Firma (Konzernfirmen beziehen
+  über ihren eigenen Einkauf).
+
+- **S8 Nachschub nach Bedarf:** Bisher war der Bedarf der tatsächliche Absatz; ohne Ware
+  fiel er auf 0 und der Nachschub blieb aus. Neu: gelernter Bedarf (nur Tage mit Ware,
+  Ausverkauf zählt höher, Start aus der Landesnachfrage). Weitere denkbare Logiken, falls
+  nötig: (a) Mindestbestand je Niederlassung als feste Vorgabe; (b) Bedarf aus dem
+  Marktanteil der Firma im Land statt aus dem eigenen Absatz; (c) Sicherheitsbestand aus
+  der Schwankung des Absatzes und der Lieferzeit (klassische Lagerformel).
+
+## T Offen: Manager-System auf den Prüfstand (Wunsch vom 11.10.2026)
+
+Das Manager-System (MA1–MA6, `docs/MANAGER.md`) soll grundsätzlich überprüft werden.
+Vorschlag für die Prüfung, bevor etwas geändert wird:
+
+1. **Nutzen im Spiel:** Welche Entscheidungen nehmen Manager dem Spieler wirklich ab, welche
+   erzeugen nur Anliegen und Klicks? Messung im Weltlauf: Anliegen je Monat, Anteil
+   verfallener Anliegen, Ergebniswirkung der Entscheidungen (Trefferquote).
+2. **Bedienung:** Organisation, Managermarkt, Anliegen und Strategie sind vier Ansichten
+   für ein Thema; Vorschlag: eine Ansicht „Führung“ mit Organigramm links und Detail rechts.
+3. **Kosten und Wirkung:** Gehälter gegen Wirkung auf Kosten, Qualität und Preise prüfen
+   (lohnt sich eine Werksleitung für ein kleines Werk?).
+4. **Ebenen:** Braucht es Land und Kontinent, oder reichen Standort und Vorstand?
+
+Ergebnis: ein Bericht mit Messwerten und konkreten Änderungsvorschlägen zur Abnahme.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

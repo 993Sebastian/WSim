@@ -10,7 +10,6 @@ use crate::command::CommandError;
 use crate::management;
 use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
-use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
     Child, CompanyId, GameState, Holder, LifeEvent, LifeEventKind, Manager, ManagerId, Person,
@@ -390,7 +389,7 @@ fn leadership(state: &mut GameState, date: Date, news: &mut Vec<Message>) {
             let to = state.managers[&id].name.clone();
             state.person.ceo = None;
             // The CEO's pay ends; as owner the person sets a new one if it wants one.
-            state.person.salary = Money::ZERO;
+            state.person.salaries.remove(&company);
             state.person.history.push(LifeEvent {
                 date,
                 kind: LifeEventKind::CeoHandedOver {

@@ -10,6 +10,10 @@ vertraege:
   aufbewahren_monate: 12     # beendete Verträge bleiben so lange in der Liste
   ausfall_kuendigung_monate: 3 # liefert der Verkäufer so viele Monate in Folge zu wenig, kündigt der Käufer ohne Strafe (BP4)
   exklusiv_aufschlag: 0.1    # Preisaufschlag, den die KI für Exklusivität verlangt (BP4)
+  # Nachverhandlung laufender Verträge: nur über den Preis lässt sich die KI nicht ein;
+  # die Menge muss sich um diesen Anteil ändern oder die Laufzeit so viele Monate wachsen.
+  nachverhandlung_menge_min: 0.2
+  nachverhandlung_verlaengerung_monate: 3
   ki:
     # Rabatt für Bindung (10.10.2026): je Monat Laufzeit über den ersten mehr, bis zum Höchstwert.
     abschlag_verkauf: 0.08   # für sichere Abnahme verkauft die KI 8 % billiger …

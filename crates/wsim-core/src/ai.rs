@@ -1246,7 +1246,7 @@ fn operate(
                 // lost buyers once stayed small next to a scarce market.
                 let scarce = stock <= wanted.max(1e-9)
                     && s.offers.get(&product).is_some_and(|o| match o.mode {
-                        PriceMode::Market { floor, .. } => {
+                        PriceMode::Market { floor, .. } | PriceMode::Relative { floor, .. } => {
                             o.price > floor.scale(1.0 + b.utilization_step)
                         }
                         PriceMode::Fixed(_) | PriceMode::CostPlus { .. } => false,
@@ -1254,7 +1254,8 @@ fn operate(
                 let next = if wanted > 1e-9 {
                     // Make what is taken and steer the stock to its target (M16). The old
                     // steps of ±0.1 needed months to follow the demand.
-                    let target = st.stock.output_days * wanted;
+                    let target =
+                        crate::storage::stock_days(catalog, product, st.stock.output_days) * wanted;
                     let next = ((wanted + (target - stock) / b.stock_adjust_days) / full)
                         .clamp(b.utilization_min, 1.0);
                     if scarce {
@@ -1409,7 +1410,9 @@ fn operate(
             let keep = need.get(&product).copied().unwrap_or(0.0) * st.stock.input_max_days;
             let (old, old_markup) = match offer.mode {
                 PriceMode::Market { floor, markup } => (floor, markup),
-                PriceMode::Fixed(_) | PriceMode::CostPlus { .. } => continue,
+                PriceMode::Fixed(_) | PriceMode::CostPlus { .. } | PriceMode::Relative { .. } => {
+                    continue;
+                }
             };
             let changed = (floor.to_usd() - old.to_usd()).abs() > 0.05 * old.to_usd().max(1e-9)
                 || (keep - offer.keep).abs() > 0.1 * offer.keep.max(1.0)
@@ -1462,13 +1465,7 @@ fn operate(
                 continue;
             }
             // Perishable inputs: at most half their shelf life in stock (BP3).
-            let days = catalog
-                .production_model
-                .storage
-                .shelf_life(product)
-                .map_or(st.stock.input_max_days, |d| {
-                    st.stock.input_max_days.min(f64::from(d) / 2.0)
-                });
+            let days = crate::storage::stock_days(catalog, product, st.stock.input_max_days);
             let target = per_day * days;
             let price = market::market_price(catalog, state, country, product);
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
@@ -4755,6 +4752,7 @@ mod tests {
         state.sites[site.index()].offers.insert(
             iron,
             crate::state::SaleOffer {
+                demand: 0.0,
                 mode: PriceMode::Market {
                     markup: 0.0,
                     floor: Money::ZERO,
@@ -5609,6 +5607,7 @@ mod tests {
         state.sites[mine.index()].offers.insert(
             ore,
             crate::state::SaleOffer {
+                demand: 0.0,
                 mode: PriceMode::Market {
                     markup: 0.0,
                     floor: Money::ZERO,

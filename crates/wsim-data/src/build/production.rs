@@ -446,12 +446,12 @@ pub(super) fn learning(ctx: &mut Ctx, raw: &RawData, branches: &Keys) -> Learnin
 
 /// Storage of the sites: a minimum for every site type, positive steps, shares in range.
 fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) -> StorageModel {
-    let ml = l.field("mindestens_usd");
+    let ml = l.field("mindestens_m3");
     let names: Vec<&str> = SITE_TYPES.iter().map(|(n, _)| *n).collect();
     let mut minimum = Vec::new();
-    for (key, &usd) in &v.minimum_usd {
+    for (key, &m3) in &v.minimum_m3 {
         match SITE_TYPES.iter().find(|(n, _)| n == key) {
-            Some(&(_, kind)) => minimum.push((kind, money(ctx, usd, &ml.field(key)))),
+            Some(&(_, kind)) => minimum.push((kind, in_range(ctx, m3, 0.0, 1e9, &ml.field(key)))),
             None => ctx.error(
                 &ml.key(key),
                 messages::unknown_value(key, &names, suggest::closest(key, names.iter().copied())),
@@ -459,7 +459,7 @@ fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) ->
         }
     }
     for (name, _) in SITE_TYPES {
-        if !v.minimum_usd.contains_key(*name) {
+        if !v.minimum_m3.contains_key(*name) {
             ctx.error(&ml, messages::entry_missing("Standorttyp", name));
         }
     }
@@ -479,11 +479,7 @@ fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) ->
         enabled: true,
         minimum,
         days: positive(ctx, v.days, &l.field("tage")),
-        step_capacity: {
-            let at = step.field("kapazitaet_usd");
-            positive(ctx, v.step.capacity_usd, &at);
-            money(ctx, v.step.capacity_usd, &at)
-        },
+        step_capacity: positive(ctx, v.step.capacity_m3, &step.field("kapazitaet_m3")),
         step_cost: money(ctx, v.step.cost_usd, &step.field("kosten_usd")),
         cost_share_year: in_range(
             ctx,
@@ -505,6 +501,7 @@ fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) ->
             .collect(),
         product_class: Vec::new(),
         shelf_life: Vec::new(),
+        volume: Vec::new(),
         external_capacity: v.external.as_ref().map_or(1.0, |e| {
             in_range(
                 ctx,
@@ -582,6 +579,16 @@ pub(super) fn storage_classes(
             by_group.insert(key.clone(), c);
         }
     }
+    // The weight per unit as the catalog has it (with the defaults of the units).
+    let weights: Vec<f64> = products
+        .iter()
+        .map(|e| {
+            catalog
+                .products
+                .id(&e.value.id)
+                .map_or(0.0, |id| catalog.products.get(id).weight_kg)
+        })
+        .collect();
     let m = &mut catalog.production_model.storage;
     if !v.classes.is_empty() {
         for class in StorageClass::ALL {
@@ -593,9 +600,24 @@ pub(super) fn storage_classes(
             }
         }
     }
+    let dl = l.field("dichte_t_je_m3");
+    let mut density = BTreeMap::new();
+    for (key, &d) in &v.density {
+        if let Some(c) = storage_class(ctx, key, &dl.key(key)) {
+            density.insert(c.key(), positive(ctx, d, &dl.field(key)));
+        }
+    }
+    if !v.density.is_empty() {
+        for class in StorageClass::ALL {
+            if !v.density.contains_key(class.key()) {
+                ctx.error(&dl, messages::entry_missing("Lagerklasse", class.key()));
+            }
+        }
+    }
     let mut classes = Vec::with_capacity(products.len());
     let mut shelf = Vec::with_capacity(products.len());
-    for e in products {
+    let mut volume = Vec::with_capacity(products.len());
+    for (e, &weight_kg) in products.iter().zip(&weights) {
         let p = &e.value;
         let life = p.shelf_life_days.filter(|&d| {
             if d == 0 {
@@ -623,11 +645,24 @@ pub(super) fn storage_classes(
                 messages::entry_missing("Lagerklasse (nach_transportklasse)", &p.transport_class),
             );
         }
-        classes.push(class.unwrap_or_default());
+        let class = class.unwrap_or_default();
+        let own_volume = p.storage_volume_m3.filter(|&x| {
+            if x <= 0.0 {
+                ctx.error(&e.loc.field("lagervolumen_m3"), messages::not_positive(x));
+            }
+            x > 0.0
+        });
+        volume.push(own_volume.unwrap_or_else(|| {
+            density
+                .get(class.key())
+                .map_or(0.0, |&d| weight_kg / 1000.0 / d)
+        }));
+        classes.push(class);
         shelf.push(life);
     }
     m.product_class = classes;
     m.shelf_life = shelf;
+    m.volume = volume;
 }
 
 /// Facility sizes (M36): every size with a capacity, growing with the size, 1 for

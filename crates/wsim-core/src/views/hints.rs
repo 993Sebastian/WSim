@@ -75,7 +75,12 @@ pub fn hints(game: &Game) -> Vec<HintView> {
     for s in &view.sites {
         let at = |key: &'static str| {
             Message::new(MessageKind::Warning, key)
-                .with("standort", Param::TextKey(s.kind_text.clone()))
+                .with(
+                    "standort",
+                    s.name
+                        .clone()
+                        .map_or_else(|| Param::TextKey(s.kind_text.clone()), Param::Text),
+                )
                 .with("land", Param::Country(s.country.clone()))
         };
         let research = s.kind == crate::catalog::SiteType::ResearchCenter;

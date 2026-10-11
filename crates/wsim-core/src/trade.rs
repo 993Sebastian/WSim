@@ -309,7 +309,7 @@ pub(crate) fn plan(
         // alone, a route longer than it would only ever bring part of the demand.
         let transit = in_transit.get(&(product, country)).copied().unwrap_or(0.0);
         let days = f64::from(cheapest.3);
-        let cover = model.trader_cover_days + days;
+        let cover = crate::storage::stock_days(catalog, product, model.trader_cover_days) + days;
         let held = m.imports.quantity + transit;
         let need = cover * open - held;
         let total = cover * (open + extra) - held;

@@ -83,6 +83,12 @@ pub struct Contract {
     pub delivered_month: f64,
     #[serde(default)]
     pub short_of: Option<Shortfall>,
+    /// Days of the running month the seller lacked goods and the buyer lacked cash: the
+    /// month's missing quantity is charged to each side by its days.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub short_goods_days: u32,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub short_cash_days: u32,
     #[serde(default)]
     pub delivered_total: f64,
     /// Penalties paid by the seller and by the buyer so far.
@@ -166,6 +172,8 @@ pub enum Decline {
     Quantity,
     Quality,
     Penalty,
+    /// A renegotiation that changes little but the price.
+    PriceOnly,
 }
 
 impl Decline {
@@ -175,6 +183,7 @@ impl Decline {
             Decline::Quantity => "menge",
             Decline::Quality => "qualitaet",
             Decline::Penalty => "strafe",
+            Decline::PriceOnly => "nur_preis",
         }
     }
 }
@@ -327,6 +336,18 @@ pub fn ai_answer(
     t: &Terms,
     ai: CompanyId,
 ) -> Result<(), Decline> {
+    ai_answer_freeing(state, catalog, t, ai, 0.0)
+}
+
+/// As `ai_answer`, with `freed` per day of the contract the terms would replace counted
+/// as free (renegotiation).
+fn ai_answer_freeing(
+    state: &GameState,
+    catalog: &Catalog,
+    t: &Terms,
+    ai: CompanyId,
+    freed: f64,
+) -> Result<(), Decline> {
     let m = &catalog.contracts.ai;
     if t.penalty > m.penalty_max + EPS {
         return Err(Decline::Penalty);
@@ -345,7 +366,8 @@ pub fn ai_answer(
             return Err(Decline::Price);
         }
         let free = m.share * daily_output(state, catalog, t.seller, t.product)
-            - contracted(state, t.seller, t.product, true);
+            - contracted(state, t.seller, t.product, true)
+            + freed;
         if t.per_day > free + EPS {
             return Err(Decline::Quantity);
         }
@@ -357,7 +379,8 @@ pub fn ai_answer(
             return Err(Decline::Price);
         }
         let free = m.share * daily_need(state, catalog, t.buyer, t.product)
-            - contracted(state, t.buyer, t.product, false);
+            - contracted(state, t.buyer, t.product, false)
+            + freed;
         if t.per_day > free + EPS {
             return Err(Decline::Quantity);
         }
@@ -461,12 +484,82 @@ pub(crate) fn propose(
         cancelled_by: None,
         delivered_month: 0.0,
         short_of: None,
+        short_goods_days: 0,
+        short_cash_days: 0,
         delivered_total: 0.0,
         paid_by_seller: Money::ZERO,
         paid_by_buyer: Money::ZERO,
         exclusive: t.exclusive,
         misses: 0,
     });
+    Ok(())
+}
+
+/// Renegotiates a running contract: quantity per day, price and term. The partner takes
+/// it only with a worthwhile change besides the price (quantity or a longer term) and
+/// judges the new terms as a new proposal at today's market, with the contract's own
+/// quantity counted as free; then they apply from the next month for the new term. The
+/// cancellation against the penalty stays open as before.
+pub(crate) fn renegotiate(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    id: u32,
+    (per_day, price, months): (f64, Money, u32),
+) -> Result<(), CommandError> {
+    let i = find(state, id)?;
+    let c = &state.contracts[i];
+    if c.status != ContractStatus::Active || (actor != c.seller_company && actor != c.buyer_company)
+    {
+        return Err(CommandError::UnknownContract);
+    }
+    if !(per_day.is_finite() && per_day > 0.0) {
+        return Err(CommandError::InvalidQuantity);
+    }
+    if price <= Money::ZERO {
+        return Err(CommandError::InvalidAmount);
+    }
+    let m = &catalog.contracts;
+    if months == 0 || months > m.months_max {
+        return Err(CommandError::InvalidTerm { max: m.months_max });
+    }
+    let today = state.date;
+    // The new term starts next month; what is left after this month counts against it.
+    let left = c.months_left(today).saturating_sub(1);
+    let quantity_change = (per_day - c.per_day).abs() / c.per_day.max(1e-9);
+    let worthwhile = quantity_change + 1e-9 >= m.renegotiate_quantity_min
+        || months >= left + m.renegotiate_extension_min;
+    let declined = |d: Decline| CommandError::ContractDeclined {
+        reason: d.key().to_owned(),
+    };
+    let partner = c.partner(actor);
+    let ai_partner = !state.is_main(partner);
+    if ai_partner && !worthwhile {
+        return Err(declined(Decline::PriceOnly));
+    }
+    let t = Terms {
+        seller: c.seller,
+        buyer: c.buyer,
+        product: c.product,
+        per_day,
+        price,
+        months,
+        min_quality: c.min_quality,
+        penalty: c.penalty,
+        exclusive: c.exclusive,
+    };
+    if delivery_cost(state, catalog, (t.seller, t.buyer), t.product, t.price).is_none() {
+        return Err(CommandError::NotPossible);
+    }
+    if ai_partner {
+        ai_answer_freeing(state, catalog, &t, partner, c.per_day).map_err(declined)?;
+    }
+    let c = &mut state.contracts[i];
+    c.per_day = per_day;
+    c.price = price;
+    c.months = months;
+    c.start = Some(today.first_of_next_month());
+    c.misses = 0;
     Ok(())
 }
 
@@ -634,7 +727,13 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
             None
         };
         if short.is_some() {
-            state.contracts[i].short_of = short;
+            let c = &mut state.contracts[i];
+            c.short_of = short;
+            match short {
+                Some(Shortfall::Goods) => c.short_goods_days += 1,
+                Some(Shortfall::Cash) => c.short_cash_days += 1,
+                None => {}
+            }
         }
         if quantity > EPS && ship(state, catalog, i, quantity, today) {
             let c = &state.contracts[i];
@@ -761,33 +860,63 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
         let product = Param::TextKey(format!("produkt.{}", catalog.products.key(c.product)));
         if missing > due * 1e-6 {
             let fee = Money::times(c.price, missing).scale(c.penalty);
-            let seller_fault = c.short_of != Some(Shortfall::Cash);
-            let (payer, payee) = if seller_fault {
-                (c.seller_company, c.buyer_company)
+            // Each side pays for the days it fell short; goods lost on the way are the
+            // seller's.
+            let days = c.short_goods_days + c.short_cash_days;
+            let seller_share = if days == 0 {
+                1.0
             } else {
-                (c.buyer_company, c.seller_company)
+                f64::from(c.short_goods_days) / f64::from(days)
             };
-            if fee > Money::ZERO {
-                let site = if seller_fault { c.seller } else { c.buyer };
+            let by_seller = fee.scale(seller_share);
+            let by_buyer = fee - by_seller;
+            for (payer, payee, site, amount) in [
+                (c.seller_company, c.buyer_company, c.seller, by_seller),
+                (c.buyer_company, c.seller_company, c.buyer, by_buyer),
+            ] {
+                if amount <= Money::ZERO {
+                    continue;
+                }
                 state.companies[payer.index()].ledger.expense(
                     CostType::Other,
                     CostCenter::product(site, c.product),
                     Account::Cash,
-                    fee,
+                    amount,
                 );
                 state.companies[payee.index()].ledger.income(
                     CostType::Other,
                     CostCenter::default(),
                     Account::Cash,
-                    fee,
+                    amount,
                 );
+                let key = if Some(payer) == player {
+                    Some(keys::CONTRACT_SHORT_OWN)
+                } else if Some(payee) == player {
+                    Some(keys::CONTRACT_SHORT_PARTNER)
+                } else {
+                    None
+                };
+                if let Some(key) = key {
+                    let reason = if payer == c.seller_company {
+                        "vertrag.grund.ware"
+                    } else {
+                        "vertrag.grund.kasse"
+                    };
+                    news.push(
+                        Message::new(MessageKind::Warning, key)
+                            .with("produkt", product.clone())
+                            .with("menge", Param::Number(missing))
+                            .with("strafe", Param::Money(amount))
+                            .with("grund", Param::TextKey(reason.to_owned())),
+                    );
+                }
             }
             let cs = &mut state.contracts[i];
+            cs.paid_by_seller += by_seller;
+            cs.paid_by_buyer += by_buyer;
+            let seller_fault = by_seller > Money::ZERO;
             if seller_fault {
-                cs.paid_by_seller += fee;
                 cs.misses += 1;
-            } else {
-                cs.paid_by_buyer += fee;
             }
             let after = catalog.contracts.free_cancel_after;
             if seller_fault && after > 0 && cs.misses == after && Some(cs.buyer_company) == player {
@@ -797,19 +926,6 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
                         .with("monate", Param::Integer(i64::from(after))),
                 );
             }
-            if Some(payer) == player || Some(payee) == player {
-                let key = if Some(payer) == player {
-                    keys::CONTRACT_SHORT_OWN
-                } else {
-                    keys::CONTRACT_SHORT_PARTNER
-                };
-                news.push(
-                    Message::new(MessageKind::Warning, key)
-                        .with("produkt", product.clone())
-                        .with("menge", Param::Number(missing))
-                        .with("strafe", Param::Money(fee)),
-                );
-            }
         }
         let cs = &mut state.contracts[i];
         if missing <= due * 1e-6 {
@@ -817,6 +933,8 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
         }
         cs.delivered_month = 0.0;
         cs.short_of = None;
+        cs.short_goods_days = 0;
+        cs.short_cash_days = 0;
         if cs.end().is_some_and(|end| end <= today) {
             cs.status = ContractStatus::Ended;
             cs.closed = Some(today);

@@ -501,7 +501,9 @@ fn stock_traders(state: &mut GameState, catalog: &Catalog) {
                 .unwrap_or((local, 0));
             let price = local.max(cost.scale(1.0 + model.trader_margin));
             // Enough until the first new shipments arrive, then the usual cover.
-            let quantity = gap * (model.trader_cover_days + f64::from(days));
+            let quantity = gap
+                * (crate::storage::stock_days(catalog, product, model.trader_cover_days)
+                    + f64::from(days));
             let m = state.markets.get_mut(product).get_mut(country);
             m.imports.add(quantity, Money::times(cost, quantity), 50.0);
             m.import_price = price;
@@ -945,7 +947,8 @@ fn found_company(
             } else {
                 Money::ZERO
             };
-            let qty = output * start.output_stock_days;
+            let qty =
+                output * crate::storage::stock_days(catalog, product, start.output_stock_days);
             let value = Money::times(unit, qty);
             stock_value += value;
             inventory
@@ -953,10 +956,12 @@ fn found_company(
                 .or_insert_with(Stock::default)
                 .add(qty, value, 50.0);
             let own_use = used.get(&product).copied().unwrap_or(0.0);
-            let keep = own_use * start.input_stock_days;
+            let keep =
+                own_use * crate::storage::stock_days(catalog, product, start.input_stock_days);
             offers.insert(
                 product,
                 SaleOffer {
+                    demand: 0.0,
                     mode: PriceMode::Market {
                         markup: 0.0,
                         floor: if output > 0.0 {
@@ -980,7 +985,8 @@ fn found_company(
         }
         for (&product, &per_day) in &used {
             let price = market::market_price(catalog, state, country, product);
-            let target = per_day * start.input_stock_days;
+            let target =
+                per_day * crate::storage::stock_days(catalog, product, start.input_stock_days);
             let value = Money::times(price, target);
             stock_value += value;
             inventory
@@ -1021,6 +1027,7 @@ fn found_company(
             wage_premium: 0.0,
             training: 0.0,
             training_target: None,
+            overhaul_below: None,
             acquired: None,
             goodwill: None,
             plot: None,

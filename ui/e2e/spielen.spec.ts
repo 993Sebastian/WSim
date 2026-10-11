@@ -260,7 +260,9 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
 
   await page.getByRole("button", { name: "Verkauf" }).click();
   const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
-  await verkauf.getByRole("button", { name: "Preis für Nägel um 5 % senken" }).click();
+  // The price follows the market: 5 % below it.
+  await verkauf.getByLabel("Abweichung vom Marktpreis").fill("-5");
+  await verkauf.getByRole("button", { name: "Übernehmen" }).click();
   await verkauf.getByLabel("Fester Preis").check();
   await verkauf.getByLabel("Preis", { exact: true }).fill("2.400,50");
   await expect(verkauf.getByLabel("Preis", { exact: true })).toHaveValue("2.400,50");
@@ -326,7 +328,14 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 15_287_100 } },
     // 1 887,21 USD − 5 %, rounded to cents
     { TransferGoods: { from: 0, to: 5, product: "draht", quantity: 4 } },
-    { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
+    {
+      SetSale: {
+        site: 0,
+        product: "naegel",
+        mode: { Relative: { deviation: -0.05, floor: 0 } },
+        keep: 0,
+      },
+    },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
     { SetSale: { site: 0, product: "naegel", mode: { CostPlus: { margin: 0.25 } }, keep: 0 } },
     { SetWagePremium: { site: 0, premium: 0.125 } },

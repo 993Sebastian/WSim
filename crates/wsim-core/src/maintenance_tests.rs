@@ -116,3 +116,38 @@ fn the_level_stays_in_range_and_needs_the_model() {
         Err(CommandError::NotPossible)
     );
 }
+
+#[test]
+fn a_facility_is_overhauled_automatically_below_the_threshold() {
+    let mut game = new_game(with_maintenance());
+    let site = mine(&mut game);
+    // Built and running first.
+    days(&mut game, 40);
+    assert_eq!(
+        game.apply(Command::SetOverhaulThreshold {
+            site,
+            threshold: Some(1.5),
+        }),
+        Err(CommandError::InvalidShare)
+    );
+    game.apply(Command::SetOverhaulThreshold {
+        site,
+        threshold: Some(0.9),
+    })
+    .unwrap();
+    game.state_mut().sites[site.index()].slots[0].condition = 0.85;
+    days(&mut game, 1);
+    let sl = &game.state().sites[site.index()].slots[0];
+    assert!(sl.condition > 0.99, "overhauled: {}", sl.condition);
+    assert!(sl.down.is_some_and(|d| d.overhaul));
+    // Without a threshold nothing happens.
+    game.apply(Command::SetOverhaulThreshold {
+        site,
+        threshold: None,
+    })
+    .unwrap();
+    assert_eq!(
+        crate::maintenance::overhaul_threshold(game.state(), game.catalog(), site),
+        None
+    );
+}

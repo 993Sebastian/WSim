@@ -516,7 +516,7 @@ export interface Qualitaetsteile {
 export interface Angebot {
   product: string;
   /** `aufschlag`: production cost plus `markup` as the margin. */
-  mode: "markt" | "fest" | "aufschlag";
+  mode: "markt" | "marktbezug" | "fest" | "aufschlag";
   price_usd: number;
   floor_usd: number;
   markup: number;
@@ -534,6 +534,8 @@ export interface Angebot {
   used_here: boolean;
   /** The company's own name for the product (M42). */
   product_name?: string | null;
+  /** The company's sales offices that offer the product; supplied from here by need. */
+  outlets?: { site: number; name: string | null; country: string; supplied_here: boolean }[];
 }
 
 export interface Einkauf {
@@ -668,6 +670,9 @@ export interface StandortDetail {
     failures: number;
     accidents?: number;
     accident_rate?: number;
+    /** Condition for automatic overhauls: own setting and the one that holds. */
+    overhaul_below?: number | null;
+    overhaul_effective?: number | null;
   } | null;
   rival_premium_max: number;
   staff: Personal[];
@@ -698,23 +703,27 @@ export interface StandortDetail {
     blocker: Meldung | null;
   } | null;
   price_trends?: Record<string, Preisverlauf>;
+  /** Sites of the same type in the company and its group a facility can move to. */
+  move_targets?: Verlegeziel[];
   /** The site's store (values at reference prices); null when stocks are unlimited. */
   storage?: LagerKapazitaet | null;
 }
 
 /** Capacity and fill of a site's store, what a step of expansion brings and costs. */
 export interface LagerKapazitaet {
-  capacity_usd: number;
-  fill_usd: number;
+  /** Room and fill in m³ of storage volume; the stock's value at reference prices. */
+  capacity_m3: number;
+  fill_m3: number;
+  value_usd: number;
   share: number;
   full: boolean;
   /** The site's own products fill the store: the facilities stand. */
   stops?: boolean;
   /** Goods lie in outside storage at a higher rate (BP3). */
   external?: boolean;
-  hard_capacity_usd?: number;
+  hard_capacity_m3?: number;
   steps: number;
-  step_capacity_usd: number;
+  step_capacity_m3: number;
   step_cost_usd: number;
   cost_per_day_usd: number;
 }
@@ -804,6 +813,8 @@ export interface Markt {
     exported_last_month: number;
     sellers: number;
     own_price_usd: number | null;
+    /** Really offered here: sold last or this month, or goods in stock. */
+    own_active?: boolean;
     own_sold_last_month: number;
     group: string;
     own_share: number;
@@ -1619,6 +1630,8 @@ export interface EinheitOrganisation {
   continent: string | null;
   /** Text key of the site type, else `ebene.land`, `ebene.kontinent` or `ebene.vorstand`. */
   kind_text: string;
+  /** The player's own name of the site (sites). */
+  site_name?: string | null;
   /**
    * The unit for the market of managers: `standort:3`, `land:DEU`, `kontinent:europa`,
    * `vorstand`.
@@ -1737,6 +1750,8 @@ export interface AnliegenStelle {
   country: string | null;
   continent: string | null;
   unit: string;
+  /** The player's own name of the site (sites). */
+  site_name?: string | null;
 }
 
 /** A position a concern passed on its way (MA3). */
@@ -1839,6 +1854,8 @@ export interface Managermarkt {
   site: number | null;
   role: string;
   kind_text: string;
+  /** The player's own name of the site (sites). */
+  site_name?: string | null;
   country: string | null;
   continent: string;
   /** Free candidates, those of the site's continent first. */
@@ -1877,10 +1894,19 @@ export type Vorgabe =
   | { Investment: number }
   | { Reserve: number }
   | { Training: number }
+  | { Overhaul: number }
   | { Environment: boolean };
 
 export type Vorgabefeld =
-  "Price" | "Stock" | "Wages" | "Supply" | "Investment" | "Reserve" | "Training" | "Environment";
+  | "Price"
+  | "Stock"
+  | "Wages"
+  | "Supply"
+  | "Investment"
+  | "Reserve"
+  | "Training"
+  | "Environment"
+  | "Overhaul";
 
 /** Where a strategy holds (MA4). */
 export type Geltung = "Company" | { Continent: string } | { Country: string } | { Site: number };
@@ -1895,7 +1921,8 @@ export interface VorgabeEintrag {
     | "investition"
     | "reserve"
     | "schulung"
-    | "umwelt";
+    | "umwelt"
+    | "ueberholung";
   /** What holds; null: no investment budget. */
   value: Vorgabe | null;
   /** The unit it comes from (`firma`, `kontinent:europa`, `land:DEU`, `standort:3`); null: the default. */
@@ -2504,6 +2531,8 @@ export interface ControllingKnoten {
   /** Name of a company, else a text key. */
   name: string;
   country: string | null;
+  /** The player's own name of a site. */
+  site_name?: string | null;
   revenue_usd: number;
   variable_usd: number;
   margin1_usd: number;
@@ -2692,6 +2721,12 @@ export interface PersonAnteil {
   /** The person can choose it as main company; it is the main company now. */
   selectable?: boolean;
   main?: boolean;
+  /** The person's yearly salary from the company, the suggestion and the most it may be
+   * with co-owners; whether a salary may be set (PE3). */
+  salary_usd?: number;
+  salary_suggestion_usd?: number;
+  salary_max_usd?: number | null;
+  salary_possible?: boolean;
 }
 
 /** A loan of the person to a company (PE3). */
@@ -2793,4 +2828,13 @@ export interface Nachfolge {
   death_chance_year: number;
   generation: number;
   ancestors: { name: string; born: string; until: string; died: boolean }[];
+}
+
+/** A site a facility can be moved to (free within the company, sold within the group). */
+export interface Verlegeziel {
+  site: number;
+  name: string | null;
+  country: string;
+  company: string;
+  same_company: boolean;
 }

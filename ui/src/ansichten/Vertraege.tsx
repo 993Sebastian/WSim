@@ -31,7 +31,6 @@ const vertragsStandort = (s: VertragsStandort) => standortName(s.kind_text, s.co
 
 /** One contract with what the player can do with it. */
 function VertragZeile({ v, onNeu }: { v: Vertrag; onNeu: () => void }) {
-  const { los, antwort } = useAktion(`vertrag-${v.id}`);
   const menge = (m: number) => `${formatMenge(m)} ${einheit(v.unit)}`;
   const zeit =
     v.start && v.end
@@ -90,46 +89,135 @@ function VertragZeile({ v, onNeu }: { v: Vertrag; onNeu: () => void }) {
         )}
       </td>
       <td>
-        {v.answer && (
-          <div className="knopfreihe">
-            <button
-              type="button"
-              className="haupt"
-              onClick={() =>
-                void los([{ AnswerContract: { contract: v.id, accept: true } }]).then(
-                  (ok) => ok && onNeu(),
-                )
-              }
-            >
-              {t("vertrag.annehmen")}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                void los([{ AnswerContract: { contract: v.id, accept: false } }]).then(
-                  (ok) => ok && onNeu(),
-                )
-              }
-            >
-              {t("vertrag.ablehnen")}
-            </button>
-          </div>
-        )}
-        {v.can_cancel && !v.answer && (
+        <VertragAktionen v={v} onNeu={onNeu} />
+      </td>
+    </tr>
+  );
+}
+
+/** Answer, renegotiate or cancel a contract: under Markt → Lieferverträge and at the
+ * site's purchases and sales. */
+export function VertragAktionen({ v, onNeu }: { v: Vertrag; onNeu?: () => void }) {
+  const { los, antwort } = useAktion(`vertrag-${v.id}`);
+  const [offen, setOffen] = useState(false);
+  const [menge, setMenge] = useState(zahlFeld(v.per_day, 2));
+  const [preis, setPreis] = useState(geldFeld(v.price_usd));
+  const [monate, setMonate] = useState(String(v.months));
+  const [fehler, setFehler] = useState<string | null>(null);
+  const neu = () => onNeu?.();
+  const nachverhandeln = () => {
+    const m = zahlLesen(menge);
+    const p = zahlLesen(preis);
+    const l = zahlLesen(monate);
+    if (m === null || m <= 0 || p === null || p <= 0 || l === null || l < 1) {
+      setFehler(t("vertrag.nachverhandeln_werte"));
+      return;
+    }
+    setFehler(null);
+    void los(
+      [
+        {
+          RenegotiateContract: {
+            contract: v.id,
+            per_day: m,
+            price: geld(ausAnzeige(p)),
+            months: Math.round(l),
+          },
+        },
+      ],
+      t("vertrag.nachverhandelt"),
+    ).then((ok) => {
+      if (ok) {
+        setOffen(false);
+        neu();
+      }
+    });
+  };
+  return (
+    <>
+      {v.answer && (
+        <div className="knopfreihe">
+          <button
+            type="button"
+            className="haupt"
+            onClick={() =>
+              void los([{ AnswerContract: { contract: v.id, accept: true } }]).then(
+                (ok) => ok && neu(),
+              )
+            }
+          >
+            {t("vertrag.annehmen")}
+          </button>
           <button
             type="button"
             onClick={() =>
-              void los([{ CancelContract: { contract: v.id } }]).then((ok) => ok && onNeu())
+              void los([{ AnswerContract: { contract: v.id, accept: false } }]).then(
+                (ok) => ok && neu(),
+              )
+            }
+          >
+            {t("vertrag.ablehnen")}
+          </button>
+        </div>
+      )}
+      {v.can_cancel && !v.answer && (
+        <div className="knopfreihe links">
+          {v.status === "laufend" && (
+            <button type="button" onClick={() => setOffen(!offen)} aria-expanded={offen}>
+              {t("vertrag.nachverhandeln")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() =>
+              void los([{ CancelContract: { contract: v.id } }]).then((ok) => ok && neu())
             }
           >
             {v.status === "angeboten"
               ? t("vertrag.zurueckziehen")
               : t("vertrag.kuendigen", { strafe: formatGeld(v.cancel_fee_usd) })}
           </button>
-        )}
-        <Rueckmeldung meldung={antwort} />
-      </td>
-    </tr>
+        </div>
+      )}
+      {offen && (
+        <form
+          className="nachverhandeln"
+          aria-label={t("vertrag.nachverhandeln")}
+          onSubmit={(e) => {
+            e.preventDefault();
+            nachverhandeln();
+          }}
+        >
+          <p className="feld-hilfe">{t("vertrag.nachverhandeln_hilfe")}</p>
+          <div className="formular-zeile">
+            <ZahlFeld
+              name={t("vertrag.menge")}
+              einheit={`${einheit(v.unit)}/${t("vertrag.tag")}`}
+              wert={menge}
+              onWert={setMenge}
+            />
+            <ZahlFeld
+              name={t("vertrag.preis")}
+              einheit={`${geldEinheit()}/${einheit(v.unit)}`}
+              wert={preis}
+              onWert={setPreis}
+            />
+            <ZahlFeld
+              name={t("vertrag.laufzeit_ab_naechstem_monat")}
+              einheit={t("vertrag.monate_einheit")}
+              wert={monate}
+              onWert={setMonate}
+              gruppieren={false}
+            />
+          </div>
+          <button type="submit" className="haupt">
+            {t("vertrag.nachverhandeln_senden")}
+          </button>
+          {fehler && <p className="fehlertext">{fehler}</p>}
+        </form>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </>
   );
 }
 

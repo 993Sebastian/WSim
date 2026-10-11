@@ -107,4 +107,36 @@ describe("Produktnamen", () => {
     expect(await within(formular).findByText(/trägt keinen eigenen Namen mehr/)).toBeTruthy();
     expect(gesendet.at(-1)).toEqual({ NameProduct: { product: "moebel", name: null } });
   });
+
+  it("bleibt beim Produkt, wenn Gebiet oder Land wechseln", async () => {
+    const kern = vorschauKern(0);
+    const uebersicht = await kern.neuesSpiel({
+      seed: 1,
+      start_year: 1914,
+      country: "DEU",
+      capital_usd: 100_000,
+      start_form: "werkstatt",
+      company_name: "Test AG",
+      companies: 100,
+      difficulty: "mittel",
+      research_factor: 1,
+    });
+    render(<MarktAnsicht kern={kern} uebersicht={uebersicht} onGeaendert={() => {}} />);
+    const tabelle = await screen.findByRole("table", { name: /Markt/ });
+    const moebel = within(tabelle)
+      .getAllByRole("button")
+      .find((b) => b.textContent === t("produkt.moebel"));
+    fireEvent.click(moebel as HTMLElement);
+    await screen.findByRole("table", { name: "Anbieter im Vormonat" });
+    // A continent shows the product's countries side by side …
+    fireEvent.change(screen.getByLabelText(t("markt.gebiet")), { target: { value: "europa" } });
+    const titel = t("markt.produktmarkt_titel", {
+      produkt: t("produkt.moebel"),
+      land: t("kontinent.europa"),
+    });
+    expect(await screen.findByRole("heading", { name: titel })).toBeTruthy();
+    // … and a country opens its market of the same product again.
+    fireEvent.change(screen.getByLabelText(t("markt.land")), { target: { value: "FRA" } });
+    expect(await screen.findByRole("table", { name: "Anbieter im Vormonat" })).toBeTruthy();
+  });
 });

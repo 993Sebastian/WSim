@@ -53,6 +53,7 @@ fn game() -> Game {
     })
     .unwrap();
     game.apply(Command::SetPersonSalary {
+        company: None,
         amount: Money::ZERO,
     })
     .unwrap();

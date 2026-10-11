@@ -191,6 +191,61 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
     news
 }
 
+/// The condition below which a site's facilities are overhauled automatically: its own
+/// setting, else its company's strategy; `None`: never.
+pub fn overhaul_threshold(state: &GameState, catalog: &Catalog, site: SiteId) -> Option<f64> {
+    let s = state.site(site)?;
+    s.overhaul_below
+        .or_else(|| crate::strategy::overhaul_for_site(state, s.owner, site, catalog))
+        .filter(|&t| t > 0.0)
+}
+
+/// Sets a site's own threshold for automatic overhauls (`SetOverhaulThreshold`).
+pub(crate) fn set_threshold(
+    state: &mut GameState,
+    site: SiteId,
+    threshold: Option<f64>,
+) -> Result<(), CommandError> {
+    if threshold.is_some_and(|t| !(t.is_finite() && (0.0..=1.0).contains(&t))) {
+        return Err(CommandError::InvalidShare);
+    }
+    state.sites[site.index()].overhaul_below = threshold;
+    Ok(())
+}
+
+/// Every day: facilities worn below their site's threshold are overhauled by their owner
+/// when the cash bears it – the same `Overhaul` command as by hand.
+pub(crate) fn automatic(state: &mut GameState, catalog: &Catalog, date: Date) {
+    if !catalog.production_model.maintenance.enabled {
+        return;
+    }
+    for index in 0..state.sites.len() {
+        let site = SiteId(u32::try_from(index).unwrap_or(u32::MAX));
+        if state.sites[index].closed.is_some() {
+            continue;
+        }
+        let Some(threshold) = overhaul_threshold(state, catalog, site) else {
+            continue;
+        };
+        let worn: Vec<usize> = state.sites[index]
+            .slots
+            .iter()
+            .enumerate()
+            .filter(|(_, sl)| {
+                sl.condition < threshold
+                    && sl.ready <= date
+                    && !sl.mothballed()
+                    && down_on(sl, date).is_none()
+            })
+            .map(|(i, _)| i)
+            .collect();
+        let owner = state.sites[index].owner;
+        for slot in worn {
+            let _ = command::execute(state, catalog, owner, &Command::Overhaul { site, slot });
+        }
+    }
+}
+
 /// On 1 January: the yearly count of breakdowns starts anew.
 pub(crate) fn new_year(state: &mut GameState) {
     for s in &mut state.sites {

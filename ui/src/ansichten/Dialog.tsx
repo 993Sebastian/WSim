@@ -12,7 +12,8 @@ export function Dialog({
   titel: string;
   onSchliessen?: () => void;
   children: ReactNode;
-  breit?: boolean;
+  /** Wider than the default; "sehr": nearly the whole window (round report). */
+  breit?: boolean | "sehr";
   /** Mark for the introduction (`data-tour`). */
   tour?: string;
 }) {
@@ -30,7 +31,7 @@ export function Dialog({
   return (
     <div className="dialog-hintergrund">
       <div
-        className={`dialog${breit ? " dialog-breit" : ""}`}
+        className={`dialog${breit === "sehr" ? " dialog-sehr-breit" : breit ? " dialog-breit" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={id}

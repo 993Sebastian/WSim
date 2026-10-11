@@ -43,6 +43,7 @@ const FELDER: Record<Feld, Vorgabefeld> = {
   reserve: "Reserve",
   schulung: "Training",
   umwelt: "Environment",
+  ueberholung: "Overhaul",
 };
 
 const PREISE: Record<Exclude<Preisstrategie, { MinMargin: number }>, string> = {
@@ -114,6 +115,10 @@ export function wertText(e: VorgabeEintrag): string {
     return t("strategie.investition.wert", { betrag: formatGeld(e.budget_usd ?? 0) });
   }
   if ("Training" in v) return t("strategie.schulung.wert", { ziel: formatProzent(v.Training) });
+  if ("Overhaul" in v)
+    return v.Overhaul > 0
+      ? t("strategie.ueberholung.wert", { zustand: formatProzent(v.Overhaul) })
+      : t("strategie.ueberholung.aus");
   if ("Environment" in v) {
     return t(v.Environment ? "strategie.umwelt.uebererfuellen" : "strategie.umwelt.erfuellen");
   }
@@ -426,6 +431,28 @@ function useSchulung(e: VorgabeEintrag): Eingabe {
   };
 }
 
+function useUeberholung(e: VorgabeEintrag): Eingabe {
+  const start = e.value && "Overhaul" in e.value ? e.value.Overhaul : null;
+  const [zustand, setZustand] = useState(start === null ? "" : zahlFeld(start * 100, 0));
+  return {
+    felder: (
+      <ZahlFeld
+        name={t("strategie.ueberholung.zustand")}
+        einheit="%"
+        wert={zustand}
+        onWert={setZustand}
+        gruppieren={false}
+        hilfe={t("strategie.ueberholung.hilfe")}
+      />
+    ),
+    wert: () => {
+      const z = zahlLesen(zustand);
+      return z === null || z < 0 || z > 100 ? null : { Overhaul: z / 100 };
+    },
+    grenzen: t("strategie.grenzen.ueberholung"),
+  };
+}
+
 function useUmwelt(e: VorgabeEintrag, id: string): Eingabe {
   const start = e.value && "Environment" in e.value ? e.value.Environment : false;
   const [mehr, setMehr] = useState(start);
@@ -479,6 +506,9 @@ function ReserveKarte(p: KarteDaten) {
 function SchulungKarte(p: KarteDaten) {
   return <FeldKarte {...p} eingabe={useSchulung(p.e)} />;
 }
+function UeberholungKarte(p: KarteDaten) {
+  return <FeldKarte {...p} eingabe={useUeberholung(p.e)} />;
+}
 function UmweltKarte(p: KarteDaten) {
   const id = useId();
   return <FeldKarte {...p} eingabe={useUmwelt(p.e, id)} />;
@@ -493,6 +523,7 @@ const KARTEN: Record<Feld, (p: KarteDaten) => ReactNode> = {
   reserve: ReserveKarte,
   schulung: SchulungKarte,
   umwelt: UmweltKarte,
+  ueberholung: UeberholungKarte,
 };
 
 /** Name of the unit a budget is set for: "ganze Firma", "Europa" … */

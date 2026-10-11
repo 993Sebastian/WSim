@@ -614,6 +614,11 @@ pub struct LogisticsModel {
     /// limit).
     pub supply_days_default: f64,
     pub supply_days_max: f64,
+    /// Learned demand of an offer for supply by need: daily learning rate on days with
+    /// goods, premium of a sold-out day, start share of the country's demand.
+    pub supply_learn_rate: f64,
+    pub supply_sold_out_premium: f64,
+    pub supply_start_share: f64,
     pub provenance: Provenance,
 }
 
@@ -636,6 +641,10 @@ pub struct ContractModel {
     pub free_cancel_after: u32,
     /// Extra price an AI seller asks for an exclusive contract (BP4).
     pub exclusive_premium: f64,
+    /// A renegotiation needs more than a new price: the quantity changed by at least this
+    /// share, or the term extended by at least these months.
+    pub renegotiate_quantity_min: f64,
+    pub renegotiate_extension_min: u32,
     pub ai: ContractAiModel,
     pub provenance: Provenance,
 }
@@ -2710,12 +2719,12 @@ impl Default for ProductionModel {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct StorageModel {
     pub enabled: bool,
-    /// Capacity every site of a type has at least.
-    pub minimum: Vec<(SiteType, Money)>,
+    /// Capacity in m³ every site of a type has at least.
+    pub minimum: Vec<(SiteType, f64)>,
     /// Days of full throughput a store holds.
     pub days: f64,
-    /// One expansion step: added capacity and its price.
-    pub step_capacity: Money,
+    /// One expansion step: added capacity in m³ and its price.
+    pub step_capacity: f64,
     pub step_cost: Money,
     /// Yearly storage cost as share of the stored value.
     pub cost_share_year: f64,
@@ -2729,6 +2738,8 @@ pub struct StorageModel {
     pub product_class: Vec<StorageClass>,
     /// Shelf life in days of every product, indexed by `ProductId`; none keeps.
     pub shelf_life: Vec<Option<u32>>,
+    /// Storage volume per unit in m³ of every product, indexed by `ProductId`.
+    pub volume: Vec<f64>,
     /// Outside storage up to the capacity times this (1 = none) at `external_rate` times
     /// the cost (BP3).
     pub external_capacity: f64,
@@ -2880,11 +2891,17 @@ impl LearningModel {
 }
 
 impl StorageModel {
-    pub fn minimum(&self, kind: SiteType) -> Money {
+    /// Least room of a site type in m³.
+    pub fn minimum(&self, kind: SiteType) -> f64 {
         self.minimum
             .iter()
             .find(|(k, _)| *k == kind)
-            .map_or(Money::ZERO, |&(_, m)| m)
+            .map_or(0.0, |&(_, m)| m)
+    }
+
+    /// Storage volume of one unit of a product in m³.
+    pub fn volume(&self, product: ProductId) -> f64 {
+        self.volume.get(product.index()).copied().unwrap_or(0.0)
     }
 
     /// Yearly cost share of storing a product.

@@ -326,6 +326,7 @@ mod tests {
         .unwrap();
         let theirs = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
         let offer = |sold: f64| SaleOffer {
+            demand: 0.0,
             mode: PriceMode::Market {
                 markup: 0.0,
                 floor: Money::ZERO,

@@ -340,10 +340,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         {
             news.push(
                 Message::new(MessageKind::Info, keys::REGULATION_RETROFITTED)
-                    .with(
-                        "standort",
-                        Param::TextKey(crate::command::site_type_key(state.sites[i].kind)),
-                    )
+                    .with("standort", crate::command::site_label(&state.sites[i]))
                     .with(
                         "land",
                         Param::Country(catalog.countries.key(country).to_owned()),
@@ -363,10 +360,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         {
             news.push(
                 Message::new(MessageKind::Warning, keys::REGULATION_DEADLINE)
-                    .with(
-                        "standort",
-                        Param::TextKey(crate::command::site_type_key(state.sites[i].kind)),
-                    )
+                    .with("standort", crate::command::site_label(&state.sites[i]))
                     .with(
                         "land",
                         Param::Country(catalog.countries.key(country).to_owned()),

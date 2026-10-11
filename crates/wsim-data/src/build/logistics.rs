@@ -81,6 +81,21 @@ pub(super) fn logistics_model(ctx: &mut Ctx, raw: &RawData) -> LogisticsModel {
             v.supply.max.max(1.0),
             &nl.field("tage_standard"),
         ),
+        supply_learn_rate: in_range(ctx, v.supply.learn_rate, 0.01, 1.0, &nl.field("glaettung")),
+        supply_sold_out_premium: in_range(
+            ctx,
+            v.supply.sold_out_premium,
+            0.0,
+            2.0,
+            &nl.field("ausverkauft_aufschlag"),
+        ),
+        supply_start_share: in_range(
+            ctx,
+            v.supply.start_share,
+            0.0,
+            1.0,
+            &nl.field("start_anteil"),
+        ),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

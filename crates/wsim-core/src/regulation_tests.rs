@@ -252,6 +252,7 @@ fn antitrust_stops_a_takeover_that_dominates_a_market() {
     let player = game.player();
     // A second site of the competitor; both sold ore last month.
     let offer = SaleOffer {
+        demand: 0.0,
         mode: PriceMode::Fixed(Money::from_usd(10.0).unwrap()),
         price: Money::from_usd(10.0).unwrap(),
         keep: 0.0,

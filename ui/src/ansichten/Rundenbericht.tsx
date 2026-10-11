@@ -176,7 +176,7 @@ export function RundenberichtDialog({
   const aenderung = bericht.equity_change_usd;
   const gruppen = GRUPPEN.map((g) => [g, bericht.messages.filter((m) => m.group === g)] as const);
   return (
-    <Dialog titel={t("bericht.titel")} onSchliessen={onSchliessen} breit tour="bericht">
+    <Dialog titel={t("bericht.titel")} onSchliessen={onSchliessen} breit="sehr" tour="bericht">
       <p className="gedaempft">
         {t("bericht.zeitraum", {
           von: formatDatum(bericht.from),
@@ -202,151 +202,157 @@ export function RundenberichtDialog({
         </div>
       </dl>
 
-      <h3>{t("bericht.finanzergebnis")}</h3>
-      <Ergebnis periode={bericht.period} vorher={bericht.previous} />
+      <div className="bericht-raster">
+        <section>
+          <h3>{t("bericht.finanzergebnis")}</h3>
+          <Ergebnis periode={bericht.period} vorher={bericht.previous} />
+        </section>
 
-      {(bericht.companies?.length ?? 0) > 1 && (
-        <>
-          <h3>{t("bericht.firmen")}</h3>
-          <div className="tabelle">
-            <table className="mobil-karten" aria-label={t("bericht.firmen")}>
-              <thead>
-                <tr>
-                  <th scope="col">{t("bericht.firma")}</th>
-                  <th scope="col">{t("bericht.umsatz")}</th>
-                  <th scope="col">{t("bericht.ergebnis")}</th>
-                  <th scope="col">{t("bericht.kasse")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bericht.companies?.map((f) => (
-                  <tr key={f.company}>
-                    <th scope="row" data-spalte={t("bericht.firma")}>
-                      {f.name}
-                      {f.main && <small className="gedaempft"> ({t("bericht.hauptfirma")})</small>}
-                    </th>
-                    <td className="zahl" data-spalte={t("bericht.umsatz")}>
-                      {formatGeld(f.revenue_usd)}
-                    </td>
-                    <td
-                      className={f.result_usd < 0 ? "zahl negativ" : "zahl"}
-                      data-spalte={t("bericht.ergebnis")}
-                    >
-                      {formatGeld(f.result_usd)}
-                    </td>
-                    <td className="zahl" data-spalte={t("bericht.kasse")}>
-                      {formatGeld(f.cash_after_usd)}
-                    </td>
+        {(bericht.companies?.length ?? 0) > 1 && (
+          <section>
+            <h3>{t("bericht.firmen")}</h3>
+            <div className="tabelle">
+              <table className="mobil-karten" aria-label={t("bericht.firmen")}>
+                <thead>
+                  <tr>
+                    <th scope="col">{t("bericht.firma")}</th>
+                    <th scope="col">{t("bericht.umsatz")}</th>
+                    <th scope="col">{t("bericht.ergebnis")}</th>
+                    <th scope="col">{t("bericht.kasse")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+                </thead>
+                <tbody>
+                  {bericht.companies?.map((f) => (
+                    <tr key={f.company}>
+                      <th scope="row" data-spalte={t("bericht.firma")}>
+                        {f.name}
+                        {f.main && (
+                          <small className="gedaempft"> ({t("bericht.hauptfirma")})</small>
+                        )}
+                      </th>
+                      <td className="zahl" data-spalte={t("bericht.umsatz")}>
+                        {formatGeld(f.revenue_usd)}
+                      </td>
+                      <td
+                        className={f.result_usd < 0 ? "zahl negativ" : "zahl"}
+                        data-spalte={t("bericht.ergebnis")}
+                      >
+                        {formatGeld(f.result_usd)}
+                      </td>
+                      <td className="zahl" data-spalte={t("bericht.kasse")}>
+                        {formatGeld(f.cash_after_usd)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
-      <div data-tour="was-lief">
-        <h3>{t("bericht.was_lief")}</h3>
-        {bericht.products.length === 0 ? (
-          <p className="gedaempft">{t("bericht.nichts_verkauft")}</p>
-        ) : (
-          <div className="tabelle">
-            <table className="mobil-karten" aria-label={t("bericht.was_lief")}>
-              <thead>
-                <tr>
-                  <th>{t("uebersicht.produkt")}</th>
-                  <th className="zahl">{t("kostenart.umsatz")}</th>
-                  <th className="zahl">{t("werk.rohertrag")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bericht.products.map((p) => (
-                  <tr key={p.product}>
-                    <td>{t(`produkt.${p.product}`)}</td>
-                    <td className="zahl" data-spalte={t("kostenart.umsatz")}>
-                      {formatGeld(p.revenue_usd)}
-                    </td>
-                    <td
-                      className={`zahl ${p.margin_usd < 0 ? "negativ" : ""}`}
-                      data-spalte={t("werk.rohertrag")}
-                    >
-                      {formatGeld(p.margin_usd)}
-                    </td>
+        <div data-tour="was-lief">
+          <h3>{t("bericht.was_lief")}</h3>
+          {bericht.products.length === 0 ? (
+            <p className="gedaempft">{t("bericht.nichts_verkauft")}</p>
+          ) : (
+            <div className="tabelle">
+              <table className="mobil-karten" aria-label={t("bericht.was_lief")}>
+                <thead>
+                  <tr>
+                    <th>{t("uebersicht.produkt")}</th>
+                    <th className="zahl">{t("kostenart.umsatz")}</th>
+                    <th className="zahl">{t("werk.rohertrag")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {bericht.products.map((p) => (
+                    <tr key={p.product}>
+                      <td>{t(`produkt.${p.product}`)}</td>
+                      <td className="zahl" data-spalte={t("kostenart.umsatz")}>
+                        {formatGeld(p.revenue_usd)}
+                      </td>
+                      <td
+                        className={`zahl ${p.margin_usd < 0 ? "negativ" : ""}`}
+                        data-spalte={t("werk.rohertrag")}
+                      >
+                        {formatGeld(p.margin_usd)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {bericht.quantities && (
+          <section data-tour="mengen" className="ganz">
+            <h3>{t("bericht.mengen")}</h3>
+            <p className="feld-hilfe">{t("bericht.mengen_hilfe")}</p>
+            <Mengen k={bericht.quantities} offen />
+          </section>
+        )}
+
+        {bericht.hints.length > 0 && (
+          <section>
+            <h3>{t("bericht.jetzt_tun")}</h3>
+            <ul className="meldungen">
+              {bericht.hints.map((h, i) => (
+                <li key={i} className={`meldung meldung-${h.message.kind}`}>
+                  <span className="meldungsart">{t(`meldungsart.${h.message.kind}`)}</span>
+                  <span className="meldungstext">{meldungText(h.message)}</span>
+                  <button type="button" className="schlicht" onClick={() => onHinweis(h)}>
+                    {t("uebersicht.hingehen")}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {gruppen.map(([gruppe, liste]) =>
+          gruppe === "forschung"
+            ? (bericht.research.length > 0 || liste.length > 0) && (
+                <section key={gruppe}>
+                  <h3>{t("bericht.gruppe.forschung")}</h3>
+                  {bericht.research.map((p) => (
+                    <p key={p.technology} className="forschungszeile">
+                      <span>{t(`technologie.${p.technology}`)}</span>
+                      <progress max={p.needed} value={Math.min(p.points, p.needed)} />
+                      <span className="zahl">
+                        {formatProzent(p.needed > 0 ? p.points / p.needed : 0)}
+                      </span>
+                    </p>
+                  ))}
+                  <ul className="meldungen">
+                    {liste.map((m, i) => (
+                      <MeldungZeile key={i} m={m} onZiel={onZiel} />
+                    ))}
+                  </ul>
+                </section>
+              )
+            : liste.length > 0 && (
+                <section key={gruppe}>
+                  <h3>{t(`bericht.gruppe.${gruppe}`)}</h3>
+                  <ul className="meldungen">
+                    {liste.map((m, i) =>
+                      m.kind === "world_event" ? (
+                        <li key={i} className="meldung meldung-world_event">
+                          <span className="meldungsart">{t("meldungsart.world_event")}</span>
+                          <span className="meldungstext">{meldungText(m)}</span>
+                          <button type="button" className="schlicht" onClick={() => onEreignis(m)}>
+                            {t("bericht.ansehen")}
+                          </button>
+                        </li>
+                      ) : (
+                        <MeldungZeile key={i} m={m} onZiel={onZiel} />
+                      ),
+                    )}
+                  </ul>
+                </section>
+              ),
         )}
       </div>
-
-      {bericht.quantities && (
-        <section data-tour="mengen">
-          <h3>{t("bericht.mengen")}</h3>
-          <p className="feld-hilfe">{t("bericht.mengen_hilfe")}</p>
-          <Mengen k={bericht.quantities} offen />
-        </section>
-      )}
-
-      {bericht.hints.length > 0 && (
-        <section>
-          <h3>{t("bericht.jetzt_tun")}</h3>
-          <ul className="meldungen">
-            {bericht.hints.map((h, i) => (
-              <li key={i} className={`meldung meldung-${h.message.kind}`}>
-                <span className="meldungsart">{t(`meldungsart.${h.message.kind}`)}</span>
-                <span className="meldungstext">{meldungText(h.message)}</span>
-                <button type="button" className="schlicht" onClick={() => onHinweis(h)}>
-                  {t("uebersicht.hingehen")}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {gruppen.map(([gruppe, liste]) =>
-        gruppe === "forschung"
-          ? (bericht.research.length > 0 || liste.length > 0) && (
-              <section key={gruppe}>
-                <h3>{t("bericht.gruppe.forschung")}</h3>
-                {bericht.research.map((p) => (
-                  <p key={p.technology} className="forschungszeile">
-                    <span>{t(`technologie.${p.technology}`)}</span>
-                    <progress max={p.needed} value={Math.min(p.points, p.needed)} />
-                    <span className="zahl">
-                      {formatProzent(p.needed > 0 ? p.points / p.needed : 0)}
-                    </span>
-                  </p>
-                ))}
-                <ul className="meldungen">
-                  {liste.map((m, i) => (
-                    <MeldungZeile key={i} m={m} onZiel={onZiel} />
-                  ))}
-                </ul>
-              </section>
-            )
-          : liste.length > 0 && (
-              <section key={gruppe}>
-                <h3>{t(`bericht.gruppe.${gruppe}`)}</h3>
-                <ul className="meldungen">
-                  {liste.map((m, i) =>
-                    m.kind === "world_event" ? (
-                      <li key={i} className="meldung meldung-world_event">
-                        <span className="meldungsart">{t("meldungsart.world_event")}</span>
-                        <span className="meldungstext">{meldungText(m)}</span>
-                        <button type="button" className="schlicht" onClick={() => onEreignis(m)}>
-                          {t("bericht.ansehen")}
-                        </button>
-                      </li>
-                    ) : (
-                      <MeldungZeile key={i} m={m} onZiel={onZiel} />
-                    ),
-                  )}
-                </ul>
-              </section>
-            ),
-      )}
       {bericht.messages.length === 0 && bericht.research.length === 0 && (
         <p>{t("bericht.keine_meldungen")}</p>
       )}

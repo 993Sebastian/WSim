@@ -2511,7 +2511,7 @@ fn concern_message(
         Unit::Site(s) => {
             let site = &state.sites[s.index()];
             Message::new(kind, site_key)
-                .with("standort", Param::TextKey(site_type_key(site.kind)))
+                .with("standort", crate::command::site_label(site))
                 .with(
                     "land",
                     Param::Country(catalog.countries.key(site.country).to_owned()),
@@ -2601,7 +2601,7 @@ fn report_followups(
                 "massnahme",
                 Param::TextKey(format!("option.{}", f.kind.key())),
             )
-            .with("standort", Param::TextKey(site_type_key(site.kind)))
+            .with("standort", crate::command::site_label(site))
             .with(
                 "land",
                 Param::Country(catalog.countries.key(site.country).to_owned()),

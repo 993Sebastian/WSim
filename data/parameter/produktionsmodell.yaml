@@ -57,21 +57,25 @@ produktionsmodell:
   schliessung:
     lager_erloes_anteil: 0.5
     abfindung_monate: 3
-  # Lager (Wunsch vom 10.10.2026; docs/FORMELN.md „Lager“). Gemessen in Wert zu Richtpreisen
-  # (USD 2026). Ein Lager fasst `tage` Tage Durchsatz der Anlagen bei voller Auslastung,
+  # Lager (Wunsch vom 10.10.2026; docs/FORMELN.md „Lager“). Gemessen in m³ (Lagervolumen
+  # der Güter). Ein Lager fasst `tage` Tage Durchsatz der Anlagen bei voller Auslastung,
   # mindestens den Wert je Standorttyp; Ausbau in Stufen. Kosten je Jahr als Anteil des
   # Lagerwerts, Verderb je Monat als Anteil des Bestands. Alle Werte geschätzt
   # (annaeherung).
   lager:
-    mindestens_usd:
-      foerderstaette: 100_000
-      werk: 50_000
-      kraftwerk: 100_000
-      lager: 5_000_000
-      niederlassung: 500_000
-      forschungszentrum: 50_000
+    mindestens_m3:
+      foerderstaette: 20_000
+      werk: 5_000
+      kraftwerk: 20_000
+      lager: 200_000
+      niederlassung: 10_000
+      forschungszentrum: 1_000
     tage: 60
-    ausbau: {kapazitaet_usd: 250_000, kosten_usd: 25_000}
+    ausbau: {kapazitaet_m3: 10_000, kosten_usd: 25_000}
+    # Lagervolumen (Wunsch vom 11.10.2026): Gewicht je Einheit durch die Stapeldichte der
+    # Lagerklasse (t je m³, mit Gängen und Regalen); ein Produkt kann lagervolumen_m3
+    # selbst angeben.
+    dichte_t_je_m3: {schuettgut: 1.2, stueckgut: 0.25, fluessig: 0.8, gekuehlt: 0.35, gefahrgut: 0.6}
     kosten_jahr_anteil: 0.04
     ki_ausbau_ab: 0.9
     # Lagerklassen (BP3): Kosten je Jahr als Anteil des Lagerwerts. Klasse eines Produkts:

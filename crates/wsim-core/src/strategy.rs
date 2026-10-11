@@ -80,10 +80,12 @@ pub enum StrategyField {
     Training,
     /// Environmental rules: meet them or overfulfil them (H2).
     Environment,
+    /// Condition below which a facility is overhauled automatically (BP2).
+    Overhaul,
 }
 
 impl StrategyField {
-    pub const ALL: [StrategyField; 8] = [
+    pub const ALL: [StrategyField; 9] = [
         StrategyField::Price,
         StrategyField::Stock,
         StrategyField::Wages,
@@ -92,6 +94,7 @@ impl StrategyField {
         StrategyField::Reserve,
         StrategyField::Training,
         StrategyField::Environment,
+        StrategyField::Overhaul,
     ];
 
     /// Key of the texts (`strategie.feld.<key>`).
@@ -105,6 +108,7 @@ impl StrategyField {
             StrategyField::Reserve => "reserve",
             StrategyField::Training => "schulung",
             StrategyField::Environment => "umwelt",
+            StrategyField::Overhaul => "ueberholung",
         }
     }
 }
@@ -163,6 +167,8 @@ pub enum StrategyValue {
     Training(f64),
     /// Overfulfil the environmental rules: retrofit to the best level available (H2).
     Environment(bool),
+    /// Condition (0–1) below which facilities are overhauled automatically; 0 = never.
+    Overhaul(f64),
 }
 
 impl StrategyValue {
@@ -176,6 +182,7 @@ impl StrategyValue {
             StrategyValue::Reserve(_) => StrategyField::Reserve,
             StrategyValue::Training(_) => StrategyField::Training,
             StrategyValue::Environment(_) => StrategyField::Environment,
+            StrategyValue::Overhaul(_) => StrategyField::Overhaul,
         }
     }
 }
@@ -244,6 +251,7 @@ pub fn default_value(catalog: &Catalog, field: StrategyField) -> Option<Strategy
         StrategyField::Reserve => Some(StrategyValue::Reserve(0.0)),
         StrategyField::Training => Some(StrategyValue::Training(0.0)),
         StrategyField::Environment => Some(StrategyValue::Environment(false)),
+        StrategyField::Overhaul => Some(StrategyValue::Overhaul(0.0)),
     }
 }
 
@@ -261,6 +269,24 @@ pub fn training_for_site(
     }
     match setting(catalog, state, c, Unit::Site(site), StrategyField::Training)?.value {
         StrategyValue::Training(t) => Some(t),
+        _ => None,
+    }
+}
+
+/// The condition below which the strategy has a site's facilities overhauled; `None`
+/// without a setting.
+pub fn overhaul_for_site(
+    state: &GameState,
+    company: CompanyId,
+    site: SiteId,
+    catalog: &Catalog,
+) -> Option<f64> {
+    let c = state.companies.get(company.index())?;
+    if c.strategies.is_empty() {
+        return None;
+    }
+    match setting(catalog, state, c, Unit::Site(site), StrategyField::Overhaul)?.value {
+        StrategyValue::Overhaul(t) => Some(t),
         _ => None,
     }
 }
@@ -519,5 +545,6 @@ fn valid(catalog: &Catalog, value: &StrategyValue) -> bool {
         StrategyValue::Reserve(months) => between(months, 0.0, m.reserve_months_max),
         StrategyValue::Training(t) => between(t, 0.0, 1.0),
         StrategyValue::Environment(_) => true,
+        StrategyValue::Overhaul(c) => between(c, 0.0, 1.0),
     }
 }

@@ -298,6 +298,21 @@ select {
   width: min(44rem, 100%);
 }
 
+.dialog-sehr-breit {
+  width: min(100rem, 100%);
+}
+
+/* Parts of the round report side by side on wide screens: less scrolling. */
+.bericht-raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+  gap: 0.5rem 1.5rem;
+  align-items: start;
+}
+.bericht-raster > .ganz {
+  grid-column: 1 / -1;
+}
+
 .dialog:focus {
   outline: none;
 }

@@ -56,6 +56,7 @@ fn game() -> Game {
     .unwrap();
     // Without a salary only the test's bookings move the result.
     game.apply(Command::SetPersonSalary {
+        company: None,
         amount: Money::ZERO,
     })
     .unwrap();

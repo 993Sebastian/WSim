@@ -3939,6 +3939,18 @@ fn vertraege_werden_geprueft() {
 
     for (alt, neu, meldung, pfad) in [
         (
+            "aufbewahren_monate: 12",
+            "aufbewahren_monate: 12\n  nachverhandlung_menge_min: 1.5",
+            "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "vertraege.nachverhandlung_menge_min",
+        ),
+        (
+            "aufbewahren_monate: 12",
+            "aufbewahren_monate: 12\n  nachverhandlung_verlaengerung_monate: 500",
+            "Wert 500 liegt außerhalb des erlaubten Bereichs 0 bis 120.",
+            "vertraege.nachverhandlung_verlaengerung_monate",
+        ),
+        (
             "laufzeit_standard: 12",
             "laufzeit_standard: 72",
             "„laufzeit_standard“ muss kleiner als „laufzeit_monate_max“ sein.",
@@ -4007,6 +4019,9 @@ logistik:
   nachschub:
     tage_standard: 20
     tage_max: 365
+    glaettung: 0.1
+    ausverkauft_aufschlag: 0.25
+    start_anteil: 0.05
 ";
 
 #[test]
@@ -4055,6 +4070,18 @@ fn logistik_wird_geprueft() {
             "tage_standard: 400",
             "Wert 400 liegt außerhalb des erlaubten Bereichs 1 bis 365.",
             "logistik.nachschub.tage_standard",
+        ),
+        (
+            "glaettung: 0.1",
+            "glaettung: 0",
+            "Wert 0 liegt außerhalb des erlaubten Bereichs 0.01 bis 1.",
+            "logistik.nachschub.glaettung",
+        ),
+        (
+            "start_anteil: 0.05",
+            "start_anteil: 2",
+            "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+            "logistik.nachschub.start_anteil",
         ),
         (
             "kasse_anteil: 0.2",
@@ -4957,9 +4984,9 @@ fn lager_wird_geprueft() {
                 "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
                 &format!(
                     "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  lager:\n    \
-                     mindestens_usd: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                     mindestens_m3: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
                      niederlassung: 1, forschungszentrum: 1}}\n    tage: {tage}\n    ausbau: \
-                     {{kapazitaet_usd: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
+                     {{kapazitaet_m3: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
                      verderb: {{{verderb}}}\n    ki_ausbau_ab: 0.9\n"
                 ),
             )
@@ -5146,11 +5173,13 @@ fn lagerklassen_werden_geprueft() {
                 "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
                 &format!(
                     "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  lager:\n    \
-                     mindestens_usd: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                     mindestens_m3: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
                      niederlassung: 1, forschungszentrum: 1}}\n    tage: 60\n    ausbau: \
-                     {{kapazitaet_usd: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
+                     {{kapazitaet_m3: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
                      ki_ausbau_ab: 0.9\n    klassen: {{{klassen}}}\n    nach_transportklasse: \
-                     {{{transport}}}\n    fremdlager: {{kapazitaet_faktor: 2, kosten_faktor: 2}}\n"
+                     {{{transport}}}\n    fremdlager: {{kapazitaet_faktor: 2, kosten_faktor: 2}}\n    \
+                     dichte_t_je_m3: {{schuettgut: 1.2, stueckgut: 0.25, fluessig: 0.8, gekuehlt: \
+                     0.35, gefahrgut: 0.6}}\n"
                 ),
             )
             .laden()
@@ -5180,6 +5209,31 @@ fn lagerklassen_werden_geprueft() {
             .any(|f| f.message.contains("Lagerklasse")),
         "jedes Produkt braucht eine Klasse: {}",
         alle(&ohne)
+    );
+    // Storage volume from the weight per unit and the class density (1.2 t per m³).
+    let c = &gut.data.as_ref().unwrap().catalog;
+    let p = c.products.ids().next().unwrap();
+    let weight = c.products.get(p).weight_kg;
+    assert!((m.volume(p) - weight / 1000.0 / 1.2).abs() < 1e-9);
+    let falsche_dichte = Daten::neu()
+        .ersetze(
+            datei,
+            "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+            &format!(
+                "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  lager:\n    \
+                 mindestens_m3: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                 niederlassung: 1, forschungszentrum: 1}}\n    tage: 60\n    ausbau: \
+                 {{kapazitaet_m3: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
+                 ki_ausbau_ab: 0.9\n    klassen: {{{alle_klassen}}}\n    nach_transportklasse: \
+                 {{schuettgut: schuettgut}}\n    dichte_t_je_m3: {{schuettgut: 0, stueckgut: \
+                 0.25, fluessig: 0.8, gekuehlt: 0.35, gefahrgut: 0.6}}\n"
+            ),
+        )
+        .laden();
+    let f = befund(&falsche_dichte, "Wert 0 muss größer als 0 sein.");
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.lager.dichte_t_je_m3.schuettgut"
     );
     let luecke = mit("schuettgut: 0.02", "schuettgut: schuettgut");
     assert!(
@@ -5246,5 +5300,43 @@ fn betrieb_wird_geprueft() {
     assert_eq!(
         f.path.to_string(),
         "produktionsmodell.betrieb.ausschuss.basis.endprodukt"
+    );
+}
+
+#[test]
+fn lagervolumen_eines_produkts_wird_geprueft() {
+    let lager = "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n  lager:\n    \
+                 mindestens_m3: {foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                 niederlassung: 1, forschungszentrum: 1}\n    tage: 60\n    ausbau: \
+                 {kapazitaet_m3: 1000, kosten_usd: 100}\n    kosten_jahr_anteil: 0.04\n    \
+                 ki_ausbau_ab: 0.9\n    klassen: {schuettgut: 0.02, stueckgut: 0.04, fluessig: \
+                 0.03, gekuehlt: 0.12, gefahrgut: 0.06}\n    nach_transportklasse: {schuettgut: \
+                 schuettgut}\n    dichte_t_je_m3: {schuettgut: 1.2, stueckgut: 0.25, fluessig: \
+                 0.8, gekuehlt: 0.35, gefahrgut: 0.6}\n";
+    let mit = |volumen: &str| {
+        Daten::neu()
+            .ersetze(
+                "parameter/produktionsmodell.yaml",
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                lager,
+            )
+            .ersetze(
+                "ketten/a.yaml",
+                "    richtpreis_usd: 60\n",
+                &format!("    richtpreis_usd: 60\n    lagervolumen_m3: {volumen}\n"),
+            )
+            .laden()
+    };
+    let gut = mit("2");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let c = &gut.data.as_ref().unwrap().catalog;
+    let erz = c.products.id("erz").unwrap();
+    assert!((c.production_model.storage.volume(erz) - 2.0).abs() < 1e-12);
+    let schlecht = mit("0");
+    let f = befund(&schlecht, "Wert 0 muss größer als 0 sein.");
+    assert!(
+        f.path.to_string().ends_with("lagervolumen_m3"),
+        "{}",
+        f.path
     );
 }

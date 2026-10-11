@@ -1,34 +1,31 @@
 //! Storage of the sites: capacity, costs, spoilage and expansion (docs/FORMELN.md
-//! „Lager: Kapazität, Kosten, Verderb“). Stocks are measured by their value at reference
-//! prices, so goods of different units compare.
+//! „Lager: Kapazität, Kosten, Verderb“). Room is measured in m³ of storage volume, so goods
+//! of different units compare; costs follow the stored value.
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
 use crate::command::CommandError;
+use crate::ids::ProductId;
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
 use crate::state::{CompanyId, SiteId};
 use crate::state::{GameState, Site, Stock};
 
-/// Value of a site's stocks at reference prices.
-pub fn fill(catalog: &Catalog, site: &Site) -> Money {
+/// Storage volume of a site's stocks in m³.
+pub fn fill(catalog: &Catalog, site: &Site) -> f64 {
+    let m = &catalog.production_model.storage;
     site.inventory
         .iter()
-        .map(|(&p, s)| {
-            catalog
-                .products
-                .get(p)
-                .reference_price
-                .scale(s.quantity.max(0.0))
-        })
-        .fold(Money::ZERO, |a, b| a + b)
+        .map(|(&p, s)| m.volume(p) * s.quantity.max(0.0))
+        .sum()
 }
 
-/// Throughput of the site's built facilities per day at full load, at reference prices:
-/// what goes in and what comes out.
-fn throughput_usd(catalog: &Catalog, site: &Site) -> f64 {
-    let price = |p| catalog.products.get(p).reference_price.to_usd();
+/// Throughput of the site's built facilities per day at full load in m³: what goes in
+/// and what comes out.
+fn throughput_m3(catalog: &Catalog, site: &Site) -> f64 {
+    let m = &catalog.production_model.storage;
+    let price = |p| m.volume(p);
     site.slots
         .iter()
         .filter_map(|sl| {
@@ -45,22 +42,22 @@ fn throughput_usd(catalog: &Catalog, site: &Site) -> f64 {
         .sum()
 }
 
-/// What the site can store; `None` when storage is unlimited (no data).
-pub fn capacity(catalog: &Catalog, site: &Site) -> Option<Money> {
+/// What the site can store in m³; `None` when storage is unlimited (no data).
+pub fn capacity(catalog: &Catalog, site: &Site) -> Option<f64> {
     let m = &catalog.production_model.storage;
     if !m.enabled {
         return None;
     }
-    let by_throughput =
-        Money::from_usd(m.days * throughput_usd(catalog, site)).unwrap_or(Money::ZERO);
-    let base = m.minimum(site.kind).max(by_throughput);
-    Some(base + m.step_capacity.scale(f64::from(site.storage_steps)))
+    let base = m
+        .minimum(site.kind)
+        .max(m.days * throughput_m3(catalog, site));
+    Some(base + m.step_capacity * f64::from(site.storage_steps))
 }
 
 /// Capacity including outside storage (BP3): beyond it the site stops buying.
-pub fn hard_capacity(catalog: &Catalog, site: &Site) -> Option<Money> {
+pub fn hard_capacity(catalog: &Catalog, site: &Site) -> Option<f64> {
     let m = &catalog.production_model.storage;
-    capacity(catalog, site).map(|c| c.scale(m.external_capacity.max(1.0)))
+    capacity(catalog, site).map(|c| c * m.external_capacity.max(1.0))
 }
 
 /// Whether the site's store is full, outside storage included: its orders do not buy.
@@ -94,19 +91,14 @@ pub fn stops_output(catalog: &Catalog, site: &Site) -> bool {
             made.extend(recipe.by_products.iter().map(|&(p, _)| p));
         }
     }
-    let output = site
+    let m = &catalog.production_model.storage;
+    let output: f64 = site
         .inventory
         .iter()
         .filter(|(p, _)| made.contains(p))
-        .map(|(&p, s)| {
-            catalog
-                .products
-                .get(p)
-                .reference_price
-                .scale(s.quantity.max(0.0))
-        })
-        .fold(Money::ZERO, |a, b| a + b);
-    output.scale(2.0) >= cap
+        .map(|(&p, s)| m.volume(p) * s.quantity.max(0.0))
+        .sum();
+    output * 2.0 >= cap
 }
 
 /// Storage cost of a day: a yearly share of the stored value by storage class; what lies
@@ -116,7 +108,6 @@ pub(crate) fn daily_cost(catalog: &Catalog, site: &Site) -> Money {
     if !m.enabled {
         return Money::ZERO;
     }
-    let mut value = Money::ZERO;
     let mut cost = Money::ZERO;
     for (&p, s) in &site.inventory {
         let v = catalog
@@ -124,18 +115,28 @@ pub(crate) fn daily_cost(catalog: &Catalog, site: &Site) -> Money {
             .get(p)
             .reference_price
             .scale(s.quantity.max(0.0));
-        value += v;
         cost += v.scale(m.cost_share(p) / 365.0);
     }
+    let volume = fill(catalog, site);
     if m.external_capacity > 1.0
-        && value > Money::ZERO
+        && volume > 0.0
         && let Some(cap) = capacity(catalog, site)
-        && value > cap
+        && volume > cap
     {
-        let outside = (value - cap).to_usd() / value.to_usd();
+        let outside = (volume - cap) / volume;
         cost += cost.scale(outside * (m.external_rate - 1.0).max(0.0));
     }
     cost
+}
+
+/// Days of stock worth holding of a product: perishable goods at most half their shelf
+/// life, so that the oldest lots leave before they spoil (BP3, BP5).
+pub fn stock_days(catalog: &Catalog, product: ProductId, days: f64) -> f64 {
+    let m = &catalog.production_model.storage;
+    match m.shelf_life(product).filter(|_| m.enabled) {
+        Some(d) => days.min(f64::from(d) / 2.0),
+        None => days,
+    }
 }
 
 /// Lots of perishable goods (BP3), checked every day: what came in since yesterday gets
@@ -153,6 +154,16 @@ pub(crate) fn day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<M
         }
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));
         let mut losses = Vec::new();
+        let state_kind_marker = {
+            let s = &state.sites[index];
+            let makes: Vec<&str> = s
+                .slots
+                .iter()
+                .filter_map(|sl| sl.recipe)
+                .map(|r| catalog.products.key(catalog.recipes.get(r).product))
+                .collect();
+            format!("{:?}:{}", s.kind, makes.join("+"))
+        };
         for (&p, stock) in &mut state.sites[index].inventory {
             let Some(days) = m.shelf_life(p) else {
                 continue;
@@ -166,6 +177,16 @@ pub(crate) fn day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<M
                 })
                 .map(|&(_, q)| q)
                 .sum();
+            if expired > 1e-9 && std::env::var("WSIM_DIAG").is_ok() {
+                eprintln!(
+                    "SPOIL {} {} {:?} {:.0} of {:.0}",
+                    date.year(),
+                    catalog.products.key(p),
+                    state_kind_marker,
+                    expired,
+                    stock.quantity
+                );
+            }
             if expired > 1e-9 {
                 let before = stock.quantity;
                 let lost = stock.take(expired);
@@ -308,7 +329,7 @@ pub(crate) fn ai_steps(catalog: &Catalog, state: &GameState, site: SiteId) -> Op
     let m = &catalog.production_model.storage;
     let s = state.site(site)?;
     let cap = capacity(catalog, s)?;
-    if s.kind == SiteType::PowerPlant || fill(catalog, s) < cap.scale(m.ai_expand_at) {
+    if s.kind == SiteType::PowerPlant || fill(catalog, s) < cap * m.ai_expand_at {
         return None;
     }
     let ledger = &state.companies[s.owner.index()].ledger;

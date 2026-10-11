@@ -171,8 +171,14 @@ function Baum({
   const felder = [...new Set(daten.technologies.map((x) => x.field))].sort((a, b) =>
     t(`fachrichtung.${a}`).localeCompare(t(`fachrichtung.${b}`), "de"),
   );
+  // Choosing a product: first the field it belongs to, then only its products.
+  const [produktFeld, setProduktFeld] = useState("");
   const produkte = [
-    ...new Set(daten.technologies.flatMap((x) => x.recipes.map((r) => r.product))),
+    ...new Set(
+      daten.technologies
+        .filter((x) => produktFeld === "" || x.field === produktFeld)
+        .flatMap((x) => x.recipes.map((r) => r.product)),
+    ),
   ].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"));
   const detail = tech && (
     <TechnologieDetail
@@ -215,6 +221,33 @@ function Baum({
             ))}
           </select>
         </label>
+        {filter.art === "produkt" && (
+          <label>
+            {t("forschung.produkt_branche")}
+            <select
+              value={produktFeld}
+              onChange={(e) => {
+                const feld = e.target.value;
+                setProduktFeld(feld);
+                const erste = [
+                  ...new Set(
+                    daten.technologies
+                      .filter((x) => feld === "" || x.field === feld)
+                      .flatMap((x) => x.recipes.map((r) => r.product)),
+                  ),
+                ].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"))[0];
+                setFilter({ art: "produkt", wert: erste ?? "" });
+              }}
+            >
+              <option value="">{t("forschung.alle_branchen")}</option>
+              {felder.map((f) => (
+                <option key={f} value={f}>
+                  {t(`fachrichtung.${f}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         {(filter.art === "branche" || filter.art === "produkt") && (
           <div className="feld">
             <label htmlFor={`${id}-filter`}>{t(`forschung.zeigen.${filter.art}`)}</label>
@@ -1176,9 +1209,17 @@ function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat
  * The research center's project, shares and laboratories in the site view: the same
  * card as under Forschung → Zentren, with its own view of the research.
  */
-export function ForschungImWerk({ kern, site }: { kern: Kern; site: number }) {
+export function ForschungImWerk({
+  kern,
+  site,
+  onGeaendert,
+}: {
+  kern: Kern;
+  site: number;
+  onGeaendert?: (u: Uebersicht) => void;
+}) {
   const { daten, fehler, neu } = useSicht(() => kern.forschung(), String(site));
-  const { senden, meldung } = useBefehl(kern, () => {}, neu);
+  const { senden, meldung } = useBefehl(kern, onGeaendert ?? (() => {}), neu);
   if (!daten) return <FehlerText fehler={fehler} />;
   const z = daten.centers.find((c) => c.site === site);
   if (!z) return null;

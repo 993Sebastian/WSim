@@ -148,6 +148,44 @@ pub struct OfferView {
     /// The company's own name for the product (M42).
     #[serde(default)]
     pub product_name: Option<String>,
+    /// The company's sales offices that offer the product, and whether this site supplies
+    /// them by need at cost.
+    #[serde(default)]
+    pub outlets: Vec<OutletView>,
+}
+
+/// A sales office of the same company that offers a product.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct OutletView {
+    pub site: u32,
+    pub name: Option<String>,
+    pub country: String,
+    /// It draws the product from this site.
+    pub supplied_here: bool,
+}
+
+fn outlets(game: &Game, site: crate::state::SiteId, p: ProductId) -> Vec<OutletView> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let Some(s) = state.site(site) else {
+        return Vec::new();
+    };
+    state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|&(i, o)| {
+            i != site.index()
+                && o.kind == SiteType::SalesOffice
+                && o.held_by(s.owner)
+                && o.offers.contains_key(&p)
+        })
+        .map(|(i, o)| OutletView {
+            site: u32::try_from(i).unwrap_or(u32::MAX),
+            name: o.name.clone(),
+            country: catalog.countries.key(o.country).to_owned(),
+            supplied_here: o.supplies.get(&p).is_some_and(|x| x.source == site),
+        })
+        .collect()
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -213,6 +251,12 @@ pub struct MaintenanceView {
     pub accidents: u32,
     #[serde(default)]
     pub accident_rate: f64,
+    /// Condition below which facilities are overhauled automatically: the site's own
+    /// setting, and the one that holds (own or strategy's).
+    #[serde(default)]
+    pub overhaul_below: Option<f64>,
+    #[serde(default)]
+    pub overhaul_effective: Option<f64>,
 }
 
 /// Expected cost of one unit of a product made at the site, by kind (USD per unit).
@@ -294,11 +338,13 @@ pub struct ClosingView {
     pub blocker: Option<crate::message::Message>,
 }
 
-/// The store of a site (docs/FORMELN.md, Lager): values at reference prices.
+/// The store of a site (docs/FORMELN.md, Lager): room in m³, the stock's value at
+/// reference prices.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StorageView {
-    pub capacity_usd: f64,
-    pub fill_usd: f64,
+    pub capacity_m3: f64,
+    pub fill_m3: f64,
+    pub value_usd: f64,
     /// Fill as share of the capacity.
     pub share: f64,
     pub full: bool,
@@ -306,7 +352,7 @@ pub struct StorageView {
     #[serde(default)]
     pub stops: bool,
     pub steps: u32,
-    pub step_capacity_usd: f64,
+    pub step_capacity_m3: f64,
     pub step_cost_usd: f64,
     pub cost_per_day_usd: f64,
     /// Goods lie in outside storage at a higher rate (BP3).
@@ -314,7 +360,7 @@ pub struct StorageView {
     pub external: bool,
     /// Room up to which outside storage takes goods.
     #[serde(default)]
-    pub hard_capacity_usd: f64,
+    pub hard_capacity_m3: f64,
 }
 
 fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
@@ -322,20 +368,22 @@ fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
     let capacity = crate::storage::capacity(catalog, site)?;
     let fill = crate::storage::fill(catalog, site);
     let m = &catalog.production_model.storage;
+    let value = site
+        .inventory
+        .iter()
+        .map(|(&p, s)| catalog.products.get(p).reference_price.to_usd() * s.quantity.max(0.0))
+        .sum();
     Some(StorageView {
-        capacity_usd: usd(capacity),
-        fill_usd: usd(fill),
-        share: if capacity > Money::ZERO {
-            fill.to_usd() / capacity.to_usd()
-        } else {
-            0.0
-        },
+        capacity_m3: capacity,
+        fill_m3: fill,
+        value_usd: value,
+        share: if capacity > 0.0 { fill / capacity } else { 0.0 },
         full: crate::storage::is_full(catalog, site),
         stops: crate::storage::stops_output(catalog, site),
         external: crate::storage::external(catalog, site),
-        hard_capacity_usd: crate::storage::hard_capacity(catalog, site).map_or(0.0, usd),
+        hard_capacity_m3: crate::storage::hard_capacity(catalog, site).unwrap_or(0.0),
         steps: site.storage_steps,
-        step_capacity_usd: usd(m.step_capacity),
+        step_capacity_m3: m.step_capacity,
         step_cost_usd: usd(m.step_cost),
         cost_per_day_usd: usd(crate::storage::daily_cost(catalog, site)),
     })
@@ -440,6 +488,46 @@ pub struct SiteDetail {
     /// the site buys, sells, stores or has under contract.
     #[serde(default)]
     pub price_trends: BTreeMap<String, PriceTrendView>,
+    /// Sites of the same type of the company and its group a facility can be moved to.
+    #[serde(default)]
+    pub move_targets: Vec<MoveTargetView>,
+}
+
+/// A site a facility can be moved to: within the company free, to another company of
+/// the group as a sale.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MoveTargetView {
+    pub site: u32,
+    pub name: Option<String>,
+    pub country: String,
+    pub company: String,
+    /// The same company as the site's: the move is free.
+    pub same_company: bool,
+}
+
+fn move_targets(game: &Game, site: crate::state::SiteId) -> Vec<MoveTargetView> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let Some(s) = state.site(site) else {
+        return Vec::new();
+    };
+    state
+        .sites
+        .iter()
+        .enumerate()
+        .filter(|&(i, t)| {
+            i != site.index()
+                && t.closed.is_none()
+                && t.kind == s.kind
+                && crate::group::same_group(state, s.owner, t.owner)
+        })
+        .map(|(i, t)| MoveTargetView {
+            site: u32::try_from(i).unwrap_or(u32::MAX),
+            name: t.name.clone(),
+            country: catalog.countries.key(t.country).to_owned(),
+            company: state.companies[t.owner.index()].name.clone(),
+            same_company: t.owner == s.owner,
+        })
+        .collect()
 }
 
 /// Market price of a product over the last twelve closed months.
@@ -913,6 +1001,9 @@ pub fn production(game: &Game) -> ProductionView {
                             PriceMode::Fixed(_) => ("fest", 0.0, Money::ZERO),
                             PriceMode::CostPlus { margin } => ("aufschlag", margin, Money::ZERO),
                             PriceMode::Market { markup, floor } => ("markt", markup, floor),
+                            PriceMode::Relative { deviation, floor } => {
+                                ("marktbezug", deviation, floor)
+                            }
                         };
                         let stock = s.inventory.get(p);
                         let unit_cost_usd = unit_costs
@@ -949,6 +1040,11 @@ pub fn production(game: &Game) -> ProductionView {
                                 .product_names
                                 .get(p)
                                 .cloned(),
+                            outlets: if s.kind == SiteType::SalesOffice {
+                                Vec::new()
+                            } else {
+                                outlets(game, site_id, *p)
+                            },
                         }
                     })
                     .collect(),
@@ -1001,6 +1097,10 @@ pub fn production(game: &Game) -> ProductionView {
                         failures: s.failures,
                         accidents: s.accidents,
                         accident_rate: crate::operations::accident_rate(catalog, s, state.date),
+                        overhaul_below: s.overhaul_below,
+                        overhaul_effective: crate::maintenance::overhaul_threshold(
+                            state, catalog, site_id,
+                        ),
                     })
                 },
                 unit_costs: unit_costs
@@ -1114,6 +1214,7 @@ pub fn production(game: &Game) -> ProductionView {
                 supply_days_default: catalog.logistics.supply_days_default,
                 closing: Some(closing_view(game, site_id)),
                 storage: storage_view(game, s),
+                move_targets: move_targets(game, site_id),
             }
         })
         .collect();
@@ -1297,6 +1398,10 @@ pub struct MarketLine {
     pub own_price_usd: Option<f64>,
     /// Own sales in the last closed month.
     pub own_sold_last_month: f64,
+    /// The player really offers the product here: sold in the last or running month, or
+    /// goods in stock to sell (an offer left without goods does not count).
+    #[serde(default)]
+    pub own_active: bool,
     /// Goods group; brands and advertising work per group (M16).
     pub group: String,
     /// Own share of the sales in the country in the last closed month (0–1).
@@ -1463,6 +1568,7 @@ pub fn market(game: &Game, scope: &str) -> Option<MarketView> {
             own_price_usd: (!own_prices.is_empty())
                 .then(|| own_prices.iter().sum::<f64>() / own_prices.len() as f64),
             own_sold_last_month: own_sold,
+            own_active: all.iter().any(|l| l.own_active),
             group: base.group.clone(),
             own_share: if sold > 1e-9 { own_sold / sold } else { 0.0 },
             leader: leader.and_then(|l| l.leader.clone()),
@@ -1508,6 +1614,7 @@ fn country_market(game: &Game, c: CountryId, country: &str) -> Option<MarketView
             let mut sellers = 0;
             let mut own_price = None;
             let mut own_sold = 0.0;
+            let mut own_active = false;
             let mut by_company: BTreeMap<CompanyId, f64> = BTreeMap::new();
             for s in state.sites.iter().filter(|s| s.country == c) {
                 if let Some(o) = s.offers.get(&p) {
@@ -1519,6 +1626,9 @@ fn country_market(game: &Game, c: CountryId, country: &str) -> Option<MarketView
                     if state.is_main(s.owner) {
                         own_price = Some(usd(o.price));
                         own_sold += o.sold_last_month;
+                        let stock = s.inventory.get(&p).map_or(0.0, |x| x.quantity) - o.keep;
+                        own_active |=
+                            o.sold_last_month > 1e-9 || o.sold_month > 1e-9 || stock > 1e-9;
                     }
                 }
             }
@@ -1539,6 +1649,7 @@ fn country_market(game: &Game, c: CountryId, country: &str) -> Option<MarketView
                 sellers,
                 own_price_usd: own_price,
                 own_sold_last_month: own_sold,
+                own_active,
                 group: catalog
                     .goods_groups
                     .key(catalog.products.get(p).goods_group)
@@ -1882,9 +1993,14 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
     let m = state.markets.get(p).get(c);
     let t = &m.last_month;
     let mut sellers: Vec<SellerLine> = Vec::new();
-    // Quality × quantity and quantity of the stock, by seller.
+    // Quality × quantity and quantity of the stock, by seller; without stock (sold out)
+    // the quality its facilities make now.
     let mut stocks: Vec<(f64, f64)> = Vec::new();
-    for s in state.sites.iter().filter(|s| s.country == c) {
+    let mut made: Vec<(f64, f64)> = Vec::new();
+    for (index, s) in state.sites.iter().enumerate() {
+        if s.country != c {
+            continue;
+        }
         let Some(o) = s.offers.get(&p) else { continue };
         let company = &state.companies[s.owner.index()];
         if company.bankrupt {
@@ -1895,6 +2011,16 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
             .get(&p)
             .filter(|st| st.quantity > 1e-9)
             .map_or((0.0, 0.0), |st| (st.quality * st.quantity, st.quantity));
+        let site_id = crate::state::SiteId(u32::try_from(index).unwrap_or(u32::MAX));
+        let making = s
+            .slots
+            .iter()
+            .enumerate()
+            .filter_map(|(i, sl)| {
+                let r = catalog.recipes.get(sl.recipe?);
+                (r.product == p).then(|| slot_quality(game, site_id, i, r).total)
+            })
+            .fold((0.0, 0.0), |(sum, n), q| (sum + q, n + 1.0));
         match sellers.iter().position(|x| x.company == company.name) {
             Some(i) => {
                 let x = &mut sellers[i];
@@ -1902,6 +2028,8 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
                 x.price_usd = x.price_usd.min(usd(o.price));
                 stocks[i].0 += stock.0;
                 stocks[i].1 += stock.1;
+                made[i].0 += making.0;
+                made[i].1 += making.1;
             }
             None => sellers.push(SellerLine {
                 company: company.name.clone(),
@@ -1918,10 +2046,18 @@ pub fn product_market(game: &Game, country: &str, product: &str) -> Option<Produ
         }
         if stocks.len() < sellers.len() {
             stocks.push(stock);
+            made.push(making);
         }
     }
-    for (x, &(sum, quantity)) in sellers.iter_mut().zip(&stocks) {
-        x.quality = (quantity > 1e-9).then(|| sum / quantity);
+    for ((x, &(sum, quantity)), &(made_sum, n)) in sellers.iter_mut().zip(&stocks).zip(&made) {
+        x.quality = Some(if quantity > 1e-9 {
+            sum / quantity
+        } else if n > 0.0 {
+            made_sum / n
+        } else {
+            // A trading site, sold out and making nothing: the base quality.
+            50.0
+        });
     }
     for x in &mut sellers {
         x.share = if t.sold > 1e-9 {

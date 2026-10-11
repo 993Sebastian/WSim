@@ -308,6 +308,9 @@ pub struct RawProduct {
     /// Shelf life in days (BP3); without it the product keeps.
     #[serde(rename = "haltbarkeit_tage", default)]
     pub shelf_life_days: Option<u32>,
+    /// Storage volume per unit in m³; without it from the weight and the class density.
+    #[serde(rename = "lagervolumen_m3", default)]
+    pub storage_volume_m3: Option<f64>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -660,8 +663,8 @@ pub struct RawFacilitySale {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RawStorage {
-    #[serde(rename = "mindestens_usd")]
-    pub minimum_usd: BTreeMap<String, f64>,
+    #[serde(rename = "mindestens_m3")]
+    pub minimum_m3: BTreeMap<String, f64>,
     #[serde(rename = "tage")]
     pub days: f64,
     #[serde(rename = "ausbau")]
@@ -685,6 +688,9 @@ pub struct RawStorage {
     pub external: Option<RawExternalStorage>,
     #[serde(rename = "verderb_meldung_ab", default)]
     pub spoil_message_share: Option<f64>,
+    /// Stacking density per storage class in t per m³: weight per unit → storage volume.
+    #[serde(rename = "dichte_t_je_m3", default)]
+    pub density: BTreeMap<String, f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -827,8 +833,8 @@ pub struct RawLearning {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RawStorageStep {
-    #[serde(rename = "kapazitaet_usd")]
-    pub capacity_usd: f64,
+    #[serde(rename = "kapazitaet_m3")]
+    pub capacity_m3: f64,
     #[serde(rename = "kosten_usd")]
     pub cost_usd: f64,
 }
@@ -2942,6 +2948,10 @@ pub struct RawContracts {
     pub free_cancel_after: u32,
     #[serde(rename = "exklusiv_aufschlag", default)]
     pub exclusive_premium: f64,
+    #[serde(rename = "nachverhandlung_menge_min", default)]
+    pub renegotiate_quantity_min: f64,
+    #[serde(rename = "nachverhandlung_verlaengerung_monate", default)]
+    pub renegotiate_extension_min: u32,
     pub ki: RawContractAi,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
@@ -3035,6 +3045,15 @@ pub struct RawSupplyDays {
     pub default: f64,
     #[serde(rename = "tage_max")]
     pub max: f64,
+    /// How fast the learned demand of an offer follows the sales of a day with goods.
+    #[serde(rename = "glaettung")]
+    pub learn_rate: f64,
+    /// A sold-out day counts this much more (the true demand was higher).
+    #[serde(rename = "ausverkauft_aufschlag")]
+    pub sold_out_premium: f64,
+    /// Without any sales yet: this share of the country's demand.
+    #[serde(rename = "start_anteil")]
+    pub start_share: f64,
 }
 
 #[derive(Debug, Deserialize)]

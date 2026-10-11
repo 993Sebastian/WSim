@@ -73,7 +73,8 @@ describe("Person (PE2)", () => {
     const stil = screen.getByRole("region", { name: "Lebensstil" });
     expect(within(stil).getAllByRole("row")).toHaveLength(5);
     expect(within(stil).getByText("Luxuriös")).toBeTruthy();
-    expect(screen.getByRole("form", { name: "Dein Gehalt" })).toBeTruthy();
+    // The salary sits in the company's row of the roles.
+    expect(within(rollen).getByRole("form", { name: "Gehalt von Neue Firma" })).toBeTruthy();
     const lebenslauf = screen.getByRole("region", { name: "Lebenslauf" });
     expect(within(lebenslauf).getByText("Beginn mit der Firma Neue Firma")).toBeTruthy();
     expect(within(lebenslauf).getByText("Geburt von Paul Albrecht")).toBeTruthy();

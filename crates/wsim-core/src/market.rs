@@ -981,6 +981,57 @@ fn clear_market(
         note_unmet(&mut unmet_limit, max_price);
     }
     let mut import_price = None;
+    // What the other sellers asked today, for the offers that follow the market price at a
+    // set deviation: their mean price weighted by the goods they had, per owner left out.
+    let owners: Vec<Option<CompanyId>> = offers
+        .iter()
+        .map(|o| match o.seller {
+            Seller::Site { site, .. } => Some(state.sites[site.index()].owner),
+            Seller::Importer | Seller::StateMarket => None,
+        })
+        .collect();
+    let others_price = |owner: CompanyId| -> Option<Money> {
+        let (mut sum, mut weight) = (0.0, 0.0);
+        for (i, o) in offers.iter().enumerate() {
+            let w = available_before[i];
+            if owners[i] == Some(owner) || w <= 1e-9 || matches!(o.seller, Seller::StateMarket) {
+                continue;
+            }
+            sum += o.price.to_usd() * w;
+            weight += w;
+        }
+        (weight > 1e-9).then(|| Money::from_usd(sum / weight).unwrap_or(Money::ZERO))
+    };
+    let index = state.markets.get(product).get(country).price;
+    let relative: Vec<Option<Money>> = offers
+        .iter()
+        .enumerate()
+        .map(|(i, o)| match o.seller {
+            Seller::Site { site, .. } => match state.sites[site.index()]
+                .offers
+                .get(&product)
+                .map(|x| x.mode)
+            {
+                Some(PriceMode::Relative { deviation, floor }) => {
+                    let base = owners[i]
+                        .and_then(others_price)
+                        .unwrap_or(if index > Money::ZERO {
+                            index
+                        } else {
+                            reference
+                        });
+                    Some(
+                        base.scale(1.0 + deviation)
+                            .min(max_price)
+                            .max(floor)
+                            .max(Money::from_units(1)),
+                    )
+                }
+                _ => None,
+            },
+            Seller::Importer | Seller::StateMarket => None,
+        })
+        .collect();
     for (i, o) in offers.iter().enumerate() {
         let before = available_before[i];
         // Only a seller that had goods and sold out raises its price, and only while a
@@ -1019,12 +1070,18 @@ fn clear_market(
                 };
                 offer.sold_today = o.sold;
                 offer.sold_month += o.sold;
+                learn_demand(catalog, offer, before, o.sold);
                 offer.to_traders_month += o.to_traders;
                 offer.to_companies_month += o.to_companies;
                 match offer.mode {
                     PriceMode::Fixed(price) => offer.price = price,
                     PriceMode::CostPlus { .. } => {
                         if let Some(price) = cost_plus {
+                            offer.price = price;
+                        }
+                    }
+                    PriceMode::Relative { .. } => {
+                        if let Some(price) = relative[i] {
                             offer.price = price;
                         }
                     }
@@ -1319,4 +1376,29 @@ pub(crate) fn reset_site_months(state: &mut GameState) {
             order.bought_month = 0.0;
         }
     }
+}
+
+/// The demand an offer learns for supply by need: only days with goods to sell count, so
+/// an empty store keeps its demand instead of losing it; a sold-out day counts higher.
+pub(crate) fn learn_demand(
+    catalog: &Catalog,
+    offer: &mut crate::state::SaleOffer,
+    available: f64,
+    sold: f64,
+) {
+    let m = &catalog.logistics;
+    if available <= 1e-9 {
+        return;
+    }
+    let sold_out = sold >= available - 1e-9;
+    let sample = if sold_out {
+        sold * (1.0 + m.supply_sold_out_premium)
+    } else {
+        sold
+    };
+    offer.demand = if offer.demand <= 1e-9 {
+        sample
+    } else {
+        offer.demand + m.supply_learn_rate * (sample - offer.demand)
+    };
 }

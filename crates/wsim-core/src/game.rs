@@ -483,6 +483,7 @@ impl Game {
         report
             .messages
             .extend(crate::storage::day(&mut self.state, &self.catalog, today));
+        crate::maintenance::automatic(&mut self.state, &self.catalog, today);
         report.messages.extend(crate::maintenance::simulate_day(
             &mut self.state,
             &self.catalog,
@@ -884,6 +885,7 @@ pub(crate) fn start_setup(
         .map(|&product| {
             let price = market::market_price(catalog, state, country, product);
             let offer = SaleOffer {
+                demand: 0.0,
                 mode: PriceMode::Market {
                     markup: 0.0,
                     floor: Money::ZERO,
@@ -945,6 +947,7 @@ pub(crate) fn start_setup(
         wage_premium: 0.0,
         training: 0.0,
         training_target: None,
+        overhaul_below: None,
         acquired: None,
         goodwill: None,
         plot: None,

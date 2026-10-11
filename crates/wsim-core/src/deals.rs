@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::calendar::Date;
 use crate::catalog::{Catalog, SiteType};
-use crate::command::{self, Command, CommandError, site_type_key};
+use crate::command::{self, Command, CommandError};
 use crate::ids::{CountryId, GoodsGroupId, Id, ProductId, TechnologyId};
 use crate::ledger::{Account, CostCenter, CostType};
 use crate::math;
@@ -1090,12 +1090,10 @@ pub(crate) fn describe(
     match object {
         DealObject::Site(site) => {
             let s = &state.sites[site.index()];
-            message
-                .with("art", Param::TextKey(site_type_key(s.kind)))
-                .with(
-                    "land",
-                    Param::Country(catalog.countries.key(s.country).to_owned()),
-                )
+            message.with("art", crate::command::site_label(s)).with(
+                "land",
+                Param::Country(catalog.countries.key(s.country).to_owned()),
+            )
         }
         DealObject::License(t) => message.with(
             "technologie",

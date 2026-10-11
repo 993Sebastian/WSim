@@ -267,8 +267,13 @@ fn as_owner_the_person_can_draw_a_salary_while_a_manager_leads() {
     .unwrap();
     to_next_month(&mut game);
     assert_eq!(game.state().person.ceo, None);
-    assert_eq!(game.state().person.salary, usd(0.0), "the CEO's pay ends");
+    assert_eq!(
+        crate::private::salary_total(game.state()),
+        usd(0.0),
+        "the CEO's pay ends"
+    );
     game.apply(Command::SetPersonSalary {
+        company: None,
         amount: usd(120_000.0),
     })
     .unwrap();

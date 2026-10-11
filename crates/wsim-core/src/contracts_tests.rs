@@ -26,6 +26,8 @@ pub(super) fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Cata
         keep_months: 12,
         free_cancel_after: 3,
         exclusive_premium: 0.1,
+        renegotiate_quantity_min: 0.2,
+        renegotiate_extension_min: 3,
         ai: ContractAiModel {
             sale_discount: 0.08,
             sale_discount_per_month: 0.005,
@@ -524,4 +526,57 @@ fn an_exclusive_supplier_leaves_the_market() {
     assert!(!contracts::exclusive(game.state(), seller, product));
     game.state_mut().contracts[0].exclusive = true;
     assert!(contracts::exclusive(game.state(), seller, product));
+}
+
+#[test]
+fn a_running_contract_is_renegotiated_only_with_more_than_a_new_price() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let (_, _, other) = agreed(&mut game, "AAA", 10.0, 6);
+    days(&mut game, 31);
+    let declined = |e: CommandError| match e {
+        CommandError::ContractDeclined { reason } => reason,
+        other => panic!("{other:?}"),
+    };
+    let renegotiate = |per_day: f64, price: f64, months: u32| Command::RenegotiateContract {
+        contract: 0,
+        per_day,
+        price: usd(price),
+        months,
+    };
+    // The player as seller asks only a higher price: the buyer will not talk.
+    let e = game.apply(renegotiate(10.0, 2.5, 5)).unwrap_err();
+    assert_eq!(declined(e), "nur_preis");
+    // A longer term is worth talking about; the buyer then judges it as a new proposal
+    // (it needs no iron at all here).
+    let e = game.apply(renegotiate(10.0, 2.5, 12)).unwrap_err();
+    assert_eq!(declined(e), "menge");
+    // The other side asks the player: the new terms apply from the next month.
+    let catalog = game.catalog().clone();
+    let today = game.state().date;
+    contracts::renegotiate(game.state_mut(), &catalog, other, 0, (15.0, usd(1.8), 12)).unwrap();
+    let c = &game.state().contracts[0];
+    assert_eq!((c.per_day, c.price, c.months), (15.0, usd(1.8), 12));
+    assert_eq!(c.start, Some(today.first_of_next_month()));
+    assert_eq!(c.status, ContractStatus::Active);
+}
+
+#[test]
+fn a_buyer_without_cash_pays_only_for_its_own_days() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let player = game.player();
+    let (_, _, other) = agreed(&mut game, "AAA", 10.0, 3);
+    days(&mut game, 31);
+    // The buyer's cash is gone: everything missing this month is on the buyer.
+    let cash = cash(&game, other);
+    game.state_mut().companies[other.index()].ledger.transfer(
+        Account::FixedAssets,
+        Account::Cash,
+        cash,
+    );
+    let seller_cash = super::contracts_tests::cash(&game, player);
+    days(&mut game, 28);
+    let c = &game.state().contracts[0];
+    assert_eq!(c.paid_by_seller, Money::ZERO, "the seller had the goods");
+    assert!(c.paid_by_buyer > Money::ZERO);
+    assert!(super::contracts_tests::cash(&game, player) >= seller_cash);
 }

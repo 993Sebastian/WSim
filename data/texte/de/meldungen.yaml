@@ -475,8 +475,10 @@ meldung.ki.kauf_bereich: "{kaeufer} kauft von {verkaeufer} den Bereich {warengru
 meldung.vertrag.angebot: "{firma} bietet dir einen Liefervertrag über {produkt} an."
 meldung.vertrag.verfallen: Ein Vertragsangebot über {produkt} ist verfallen.
 meldung.vertrag.beendet: Der Liefervertrag über {produkt} ist ausgelaufen.
-meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe."
-meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe."
+meldung.vertrag.fehlmenge_eigen: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du zahlst {strafe} Vertragsstrafe ({grund})."
+meldung.vertrag.fehlmenge_partner: "Liefervertrag {produkt}: Im Vormonat fehlten {menge} – du erhältst {strafe} Vertragsstrafe ({grund})."
+vertrag.grund.ware: "der Lieferant hatte nicht genug Ware"
+vertrag.grund.kasse: "die Kasse des Käufers reichte an einzelnen Tagen nicht für die Lieferung"
 meldung.tochter.pleite: "Deine Tochter {firma} ist pleite – {verlust} Beteiligung abgeschrieben."
 meldung.boerse.uebernahme: "{kaeufer} übernimmt {firma} für {preis}."
 meldung.boerse.uebernahme_verkauft: "{kaeufer} übernimmt {firma} – deine Firma verkauft ihre Aktien für {betrag}."

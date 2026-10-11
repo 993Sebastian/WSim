@@ -61,6 +61,7 @@ fn by_need_the_stock_is_topped_up_counting_goods_on_the_way() {
     game.state_mut().sites[branch.index()].offers.insert(
         product,
         SaleOffer {
+            demand: 0.0,
             mode: PriceMode::Fixed(usd(1_000_000.0)),
             price: usd(1_000_000.0),
             keep: 0.0,
@@ -148,4 +149,51 @@ fn a_subsidiary_buys_at_the_value_of_the_stock_and_outsiders_are_refused() {
         ),
         Err(CommandError::InvalidQuantity)
     );
+}
+
+#[test]
+fn an_empty_store_keeps_its_learned_demand_and_a_new_one_starts_from_the_market() {
+    let mut catalog = test_support::trading();
+    catalog.logistics.supply_start_share = 0.05;
+    let mut game = new_game(catalog);
+    let me = game.player();
+    let branch = warehouse(&mut game, me, "AAA", 0.0);
+    let product = iron(&game);
+    let today = game.state().date;
+    let offer = SaleOffer {
+        demand: 12.0,
+        mode: PriceMode::Fixed(usd(1_000_000.0)),
+        price: usd(1_000_000.0),
+        keep: 0.0,
+        sold_today: 0.0,
+        sold_month: 0.0,
+        sold_last_month: 0.0,
+        to_traders_month: 0.0,
+        to_companies_month: 0.0,
+    };
+    game.state_mut().sites[branch.index()]
+        .offers
+        .insert(product, offer.clone());
+    let need = |game: &crate::game::Game| {
+        crate::supply::daily_demand(game.state(), game.catalog(), branch, product, today)
+    };
+    // Nothing sold for lack of goods: the learned demand holds.
+    assert!((need(&game) - 12.0).abs() < 1e-9);
+    // Without any history: a start share of the country's demand.
+    game.state_mut().sites[branch.index()].offers.insert(
+        product,
+        SaleOffer {
+            demand: 0.0,
+            ..offer
+        },
+    );
+    let country = game.state().sites[branch.index()].country;
+    game.state_mut()
+        .markets
+        .get_mut(product)
+        .get_mut(country)
+        .last_month
+        .demand = 3000.0;
+    let share = game.catalog().logistics.supply_start_share;
+    assert!((need(&game) - 100.0 * share).abs() < 1e-9);
 }

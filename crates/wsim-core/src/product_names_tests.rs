@@ -330,6 +330,20 @@ fn sites_take_own_names() {
     let s = settings(&c, 1900);
     let replayed = Game::replay(c, s, game.journal()).unwrap();
     assert_eq!(replayed.state_hash(), game.state_hash());
+    // The organisation, the market of managers and the controlling show the name too.
+    fn shown<T: serde::Serialize>(view: &T) -> bool {
+        serde_json::to_string(view).is_ok_and(|v| v.contains("Werk am Fluss"))
+    }
+    if game.catalog().management.enabled() {
+        assert!(shown(&crate::views::organisation(&game)));
+    }
+    // The controlling lists the site once a month with its costs is closed.
+    game.advance(RoundLength::Month, |_| {});
+    assert!(shown(&crate::views::controlling(&game, "monat")));
+    if let Some(m) = crate::views::manager_market(&game, &format!("standort:{}", site.0), "leitung")
+    {
+        assert_eq!(m.site_name.as_deref(), Some("Werk am Fluss"));
+    }
     // Removing the name shows the kind and country again.
     game.apply(rename(None)).unwrap();
     assert_eq!(game.state().sites[site.index()].name, None);

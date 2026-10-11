@@ -103,6 +103,14 @@ pub enum Command {
     AnswerContract { contract: u32, accept: bool },
     /// Ends a contract early (with the penalty) or withdraws a proposal.
     CancelContract { contract: u32 },
+    /// New quantity per day, price and term for a running contract; the partner answers
+    /// as to a proposal, the new terms apply from the next month.
+    RenegotiateContract {
+        contract: u32,
+        per_day: f64,
+        price: Money,
+        months: u32,
+    },
     /// Buys vehicles for the own fleet (W5).
     BuyVehicles { vehicle: VehicleId, count: u32 },
     /// Sells vehicles of the own fleet at a share of their book value.
@@ -257,6 +265,26 @@ pub enum Command {
     /// Closes a site: sells its facilities, building, plot and stocks and lets its people
     /// go (docs/FORMELN.md, Standort schließen).
     CloseSite { site: SiteId },
+    /// The condition (0–1) below which a site's facilities are overhauled automatically;
+    /// `None`: the strategy's (BP2).
+    SetOverhaulThreshold {
+        site: SiteId,
+        threshold: Option<f64>,
+    },
+    /// Moves `count` units of a facility to another site of the company (free, it keeps
+    /// value and wear) or of a company of its group (for `price`, the book value when
+    /// `None`); it stands for the restart days.
+    MoveFacility {
+        site: SiteId,
+        slot: usize,
+        count: u32,
+        to: SiteId,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        price: Option<Money>,
+    },
+    /// Scraps a site's whole stock of a product: the goods are gone, their book value is
+    /// an expense.
+    ScrapStock { site: SiteId, product: ProductId },
     /// Builds more storage at a site (docs/FORMELN.md, Lager).
     BuildStorage { site: SiteId, steps: u32 },
     /// Sets the maintenance level of a site (BP2).
@@ -403,8 +431,13 @@ pub enum Command {
         country: CountryId,
         capital: Money,
     },
-    /// The person's yearly salary as CEO of the main company (PE3).
-    SetPersonSalary { amount: Money },
+    /// The person's yearly salary from a company it leads or owns part of (PE3); without
+    /// a company, the one it leads as CEO, else the main company.
+    SetPersonSalary {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        company: Option<CompanyId>,
+        amount: Money,
+    },
     /// The person's lifestyle from the next month on (PE3).
     SetLifestyle { level: crate::state::Lifestyle },
     /// The person looks for a partner while unmarried (costs every month).
@@ -448,6 +481,9 @@ pub enum Command {
     SetHeir { child: Option<u32> },
     /// The person hands everything to the heir while alive (PE6).
     HandOver {},
+    /// A one-off payment of a company the person leads or owns part of to the person,
+    /// booked as the board's personnel cost and taxed as income.
+    PayBonus { company: CompanyId, amount: Money },
 }
 
 impl Command {
@@ -470,6 +506,7 @@ impl Command {
                 | Command::InvestPrivately { .. }
                 | Command::SetHeir { .. }
                 | Command::HandOver {}
+                | Command::PayBonus { .. }
         )
     }
 }
@@ -1121,6 +1158,14 @@ pub fn site_type_key(kind: SiteType) -> String {
     format!("standorttyp.{name}")
 }
 
+/// A site in a message: the player's own name for it, else its type.
+pub fn site_label(site: &crate::state::Site) -> crate::message::Param {
+    site.name.clone().map_or_else(
+        || crate::message::Param::TextKey(site_type_key(site.kind)),
+        crate::message::Param::Text,
+    )
+}
+
 /// Checks a company name and returns it trimmed. `own` is excluded from the
 /// uniqueness check (renaming to the same name is fine).
 pub fn check_company_name(
@@ -1261,6 +1306,7 @@ fn found_site(
         wage_premium: 0.0,
         training: 0.0,
         training_target: None,
+        overhaul_below: None,
         acquired: None,
         goodwill: None,
         plot: None,
@@ -1479,7 +1525,8 @@ fn run(
         | Command::SelectCompany { .. }
         | Command::InvestPrivately { .. }
         | Command::SetHeir { .. }
-        | Command::HandOver {} => return Err(CommandError::PersonOnly),
+        | Command::HandOver {}
+        | Command::PayBonus { .. } => return Err(CommandError::PersonOnly),
         Command::BidForStake {
             company,
             holder,
@@ -1902,6 +1949,20 @@ fn run(
         Command::CancelContract { contract } => {
             crate::contracts::cancel(state, catalog, actor, *contract)?;
         }
+        Command::RenegotiateContract {
+            contract,
+            per_day,
+            price,
+            months,
+        } => {
+            crate::contracts::renegotiate(
+                state,
+                catalog,
+                actor,
+                *contract,
+                (*per_day, *price, *months),
+            )?;
+        }
         Command::TakeLoan { amount, years } => {
             if *amount <= Money::ZERO {
                 return Err(CommandError::InvalidAmount);
@@ -1975,8 +2036,28 @@ fn run(
                         return Err(CommandError::InvalidPrice);
                     }
                     Some(SaleOffer {
+                        demand: 0.0,
                         mode: *mode.as_ref().expect("some"),
                         price: *price,
+                        keep: *keep,
+                        sold_today: 0.0,
+                        sold_month: 0.0,
+                        sold_last_month: 0.0,
+                        to_traders_month: 0.0,
+                        to_companies_month: 0.0,
+                    })
+                }
+                Some(PriceMode::Relative { deviation, floor }) => {
+                    if !(-0.9..=2.0).contains(deviation) || floor.is_negative() {
+                        return Err(CommandError::InvalidPrice);
+                    }
+                    let price = crate::market::market_price(catalog, state, country, *product)
+                        .scale(1.0 + deviation)
+                        .max(*floor);
+                    Some(SaleOffer {
+                        demand: 0.0,
+                        mode: *mode.as_ref().expect("some"),
+                        price,
                         keep: *keep,
                         sold_today: 0.0,
                         sold_month: 0.0,
@@ -1996,6 +2077,7 @@ fn run(
                                 crate::market::market_price(catalog, state, country, *product)
                             });
                     Some(SaleOffer {
+                        demand: 0.0,
                         mode: *mode.as_ref().expect("some"),
                         price,
                         keep: *keep,
@@ -2026,6 +2108,7 @@ fn run(
                         })
                         .max(*floor);
                     Some(SaleOffer {
+                        demand: 0.0,
                         mode: *mode.as_ref().expect("some"),
                         price: start,
                         keep: *keep,
@@ -2046,6 +2129,7 @@ fn run(
                         offer.sold_last_month = old.sold_last_month;
                         offer.to_traders_month = old.to_traders_month;
                         offer.to_companies_month = old.to_companies_month;
+                        offer.demand = old.demand;
                     }
                     s.offers.insert(*product, offer);
                 }
@@ -2275,7 +2359,8 @@ fn run(
                     offer.price = *price;
                 }
                 PriceMode::Market { floor, .. } => offer.price = (*price).max(*floor),
-                // Until the next day's costs set it again.
+                // Until the next day's market or costs set it again.
+                PriceMode::Relative { floor, .. } => offer.price = (*price).max(*floor),
                 PriceMode::CostPlus { .. } => offer.price = *price,
             }
         }
@@ -2383,6 +2468,47 @@ fn run(
         Command::BuildStorage { site, steps } => {
             own_site(state, actor, *site)?;
             crate::storage::build(state, catalog, actor, *site, *steps)?;
+        }
+        Command::MoveFacility {
+            site,
+            slot,
+            count,
+            to,
+            price,
+        } => crate::relocation::move_facility(
+            state,
+            catalog,
+            actor,
+            (*site, *slot, *count),
+            *to,
+            *price,
+        )?,
+        Command::ScrapStock { site, product } => {
+            own_site(state, actor, *site)?;
+            let s = state.site_mut(*site).expect("checked above");
+            let stock = s
+                .inventory
+                .get_mut(product)
+                .filter(|st| st.quantity > 0.0)
+                .ok_or(CommandError::InvalidQuantity)?;
+            let quantity = stock.quantity;
+            let value = stock.take(quantity);
+            if value > Money::ZERO {
+                state
+                    .company_mut(actor)
+                    .expect("checked above")
+                    .ledger
+                    .expense(
+                        CostType::Other,
+                        CostCenter::product(*site, *product),
+                        Account::Inventory,
+                        value,
+                    );
+            }
+        }
+        Command::SetOverhaulThreshold { site, threshold } => {
+            own_site(state, actor, *site)?;
+            crate::maintenance::set_threshold(state, *site, *threshold)?;
         }
         Command::SetMaintenance { site, level } => {
             own_site(state, actor, *site)?;

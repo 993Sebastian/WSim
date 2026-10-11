@@ -5585,3 +5585,100 @@ Parameter: `produktionsmodell.betrieb`, `vertraege` (alle Werte geschätzt).
   die Versorgung (bedienter Anteil der Nachfrage im Land im Vormonat) und die Empfehlung:
   eigene Kosten über Zukauf · (1 + `make_or_buy_toleranz`) → „Zukauf prüfen“; ohne eigene
   Fertigung und Versorgung unter 80 % → „Puffer“; sonst „so lassen“.
+
+## Wünsche vom 11.10.2026 (Abend)
+
+- **Preis relativ zum Marktpreis:** Preismodus `Relative { abweichung, untergrenze }`
+  ersetzt die ±5-%-Knöpfe. Jeden Tag gilt Preis = Bezug · (1 + Abweichung), begrenzt auf
+  den Höchstpreis und die Untergrenze; Bezug = mengengewichteter Preis der Angebote
+  anderer Eigentümer im Land, sonst der Preisindex, sonst der Richtpreis. Der Preis geht
+  so mit dem Markt mit, ohne dem eigenen Preis nachzulaufen.
+- **Gehalt je Firma:** Die Person bezieht von jeder Firma, in der sie eine Rolle hat, ein
+  eigenes Gehalt (`Person::salaries`); Vorschlag und Höchstwert wie bisher je Firma. Ein
+  altes Einzelgehalt geht beim Laden an die Hauptfirma.
+- **Sonderzahlung:** Eine Firma zahlt der Person einen Betrag aus der Kasse
+  (Personalkosten der Kostenstelle Vorstand; höchstens die Kasse). Er wird am Monatsende
+  zusammen mit dem Gehalt als Einkommen versteuert.
+- **Nachverhandlung von Lieferverträgen:** Menge je Tag, Preis und Laufzeit lassen sich
+  im laufenden Vertrag ändern; die neue Laufzeit beginnt am Monatsersten. Eine KI als
+  Partner lehnt eine reine Preisverhandlung ab („nur_preis“): Die Menge muss sich um
+  mindestens `nachverhandlung_menge_min` ändern oder die Laufzeit um mindestens
+  `nachverhandlung_verlaengerung_monate` über die Restlaufzeit hinaus verlängert werden.
+  Sonst prüft sie die neuen Bedingungen wie ein neues Angebot zum heutigen Marktpreis
+  (die bisherige Menge des Vertrags zählt als frei). Kündigen gegen Strafe bleibt.
+- **Vertragsstrafe nach Verursacher:** Je Tag zählt, ob Ware fehlte (Verkäufer) oder der
+  Käufer nicht zahlen konnte. Die Strafe des Monats teilen beide nach diesen Tagen; ohne
+  gezählte Tage trägt sie der Verkäufer (Ware auf dem Weg verloren).
+- **Automatische Großüberholung:** Je Standort eine Schwelle (0–1) oder aus der
+  Strategie (Feld `ueberholung`, je Werk/Manager-Geltungsbereich). Jeden Tag wird jede
+  fertige, laufende Anlage unter der Schwelle mit demselben Befehl `Overhaul` überholt,
+  wenn die Kasse reicht.
+- **Anlagen verlegen:** Fertige Einheiten gehen an einen anderen Standort desselben Typs
+  der Firma oder ihres Konzerns (Grundstück muss reichen). In derselben Firma behalten sie
+  Anschaffungswert, Alter und Zustand und stehen `wiederanlauf_tage` still; an eine andere
+  Konzernfirma werden sie zum Preis verkauft (Vorgabe Buchwert; Differenz zum Buchwert ist
+  Ertrag oder Aufwand des Verkäufers) und beim Käufer nach den Wiederanlauftagen fertig.
+- **Lager verschrotten:** Der ganze Bestand eines Produkts verschwindet; sein Buchwert
+  ist sonstiger Aufwand.
+- **Lagerreichweite verderblicher Güter:** Vorgaben für Lagertage (KI, Startbesetzung,
+  Händler) gelten bei verderblicher Ware höchstens für die halbe Haltbarkeit.
+- **Niederlassungen zu Selbstkosten:** Ein Haken im Verkauf eines Werks richtet für alle
+  Niederlassungen derselben Firma, die das Produkt anbieten, die interne Belieferung nach
+  Bedarf (`interne_belieferung.tage_standard`) von diesem Werk ein. Sie läuft wie jede interne
+  Belieferung zum Lagerwert (Herstellkosten) plus Fracht und Zoll; am Markt kauft ein
+  Standort ohnehin nie bei der eigenen Firma.
+- **Standortnamen:** Wo ein eigener Standort genannt wird (Organisation, Managermarkt,
+  Anliegen, Controlling, Meldungen und Hinweise), steht sein eigener Name, sonst die Art.
+- **Nachschub nach Bedarf (Niederlassungen):** Der Bedarf eines Angebots wird gelernt:
+  B ← B + `glaettung` · (x − B) nur an Tagen, an denen Ware zum Verkauf da war; x ist
+  der Absatz des Tages, bei Ausverkauf x · (1 + `ausverkauft_aufschlag`). Ohne Ware bleibt
+  B stehen, statt auf 0 zu fallen – so wird ein leeres Lager wieder aufgefüllt. Ohne
+  Absatzgeschichte gilt der Absatz des laufenden Monats, sonst `start_anteil` ·
+  Nachfrage im Land je Tag. Ziel des Nachschubs: B · Tage − Bestand − unterwegs.
+- **Lager nach Volumen (Wunsch vom 11.10.2026):** Kapazität und Füllung eines Lagers
+  werden in m³ gemessen. Lagervolumen einer Einheit = `lagervolumen_m3` des Produkts,
+  sonst Gewicht je Einheit (t) / `dichte_t_je_m3` seiner Lagerklasse (Schüttgut 1,2,
+  Flüssig 0,8, Gefahrgut 0,6, Gekühlt 0,35, Stückgut 0,25 t/m³, mit Gängen und Regalen).
+  Kapazität = max(`mindestens_m3`[Standorttyp], `tage` · Durchsatz in m³) + Stufen ·
+  `ausbau.kapazitaet_m3`. Lagerkosten bleiben ein Anteil des Warenwerts; das Fremdlager
+  rechnet den Anteil über der Kapazität nach Volumen.
+
+## Q6 – Forschung je Produkt statt Technologien, Fertigungsforschung (Wunsch vom 11.10.2026)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, Q6. Der Spieler sieht keine Technologien mehr;
+die Technologien der Daten bleiben als innerer Baustein (Aufwand, Erfindungsjahr,
+Patente, Lizenzen, Start-ups).
+
+### Ein Produkt erforschen
+
+- **Hauptrezept** H(p): das erste Rezept des Produkts in den Daten, das kein
+  Förderrezept ist (sonst das erste). Seine Technologie samt allen Voraussetzungen ist
+  die Technologiemenge T(p).
+- **Bekannt** ist ein Produkt für eine Firma, wenn sie ein Rezept dafür nutzen darf
+  (heute: alle Technologien des Rezepts bekannt). Dann darf sie es herstellen.
+- **In der Welt bekannt** ist ein Produkt, wenn es ein Rezept gibt, dessen Technologien
+  historisch erfunden sind (Erfindungsjahr erreicht) oder von irgendeiner Firma vorzeitig
+  erfunden wurden. Es lässt sich dann kaufen.
+- **Erforschbar** ist p für f, wenn f es noch nicht kennt und jedes Vorprodukt von H(p)
+  in der Welt bekannt ist (Vorgabe „ab Vorprodukten“).
+- **Aufwand** A(f, p) = Σ über die f noch fehlenden Technologien t ∈ T(p) von
+  Aufwand(t) (wie M9: vor dem historischen Jahr teurer, für Nachzügler günstiger).
+- Ein Forschungszentrum mit dem Ziel p arbeitet die fehlenden Technologien in der
+  Reihenfolge ihrer Voraussetzungen ab (die Punkte je Tag wie M9); ist die letzte
+  erreicht, ist p bekannt (Meldung „Produkt erforscht“).
+
+### Zwei Skalen je Produkt
+
+- **Weiterentwicklung** (Q1, bleibt): Niveau R und Reife S wirken auf die Produktqualität
+  (`qualitaet_max`) und die Arbeitsstunden (`arbeit_max`); die Ersparnis an Vorprodukten
+  geht an die Fertigungsforschung (`vorprodukte_max` der Weiterentwicklung: 0).
+- **Fertigungsforschung** (neu, gleiche Regeln wie Q1 mit eigenen Punkten):
+      Niveau R_F(f, p) = P_F(f, p) / max_g P_F(g, p),  Reife S_F(p) = 1 − exp(−max_g P_F / B(p))
+      Ausstoß je Durchlauf · (1 + `ausstoss_max` · R_F · S_F)
+      Vorprodukte je Durchlauf · (1 − `vorprodukte_max` · R_F · S_F)
+  Parameter in `forschungsmodell.fertigungsforschung` (Vorschlag: Ausstoß + 25 %,
+  Vorprodukte − 15 %).
+- Ein Forschungszentrum verteilt seine Punkte in Anteilen auf ein Produkt zum Erforschen,
+  auf Weiterentwicklung und auf Fertigungsforschung einzelner Produkte (Summe ≤ 100 %).
+- KI: forscht wie bisher Technologien ihrer Pläne; teilt die Produktforschung ihres
+  Zentrums hälftig auf Weiterentwicklung und Fertigung des umsatzstärksten Produkts.

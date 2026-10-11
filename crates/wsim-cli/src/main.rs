@@ -375,6 +375,9 @@ fn show_offers(daten: &Path, path: &Path, key: &str) -> Result<(), String> {
             PriceMode::Market { floor, .. } => format!("{:.0}", floor.to_usd()),
             PriceMode::Fixed(p) => format!("fest {:.0}", p.to_usd()),
             PriceMode::CostPlus { margin } => format!("kosten +{:.0} %", margin * 100.0),
+            PriceMode::Relative { deviation, floor } => {
+                format!("markt {:+.0} % ab {:.0}", deviation * 100.0, floor.to_usd())
+            }
         };
         let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
         let reference = wsim_core::market::local_reference(c, state, s.country, product);
@@ -741,23 +744,25 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "startups": session.ventures().map_err(message)?,
         "person": session.person().map_err(message)?,
     });
-    json["logistik"] = example_logistics(&mut session)?;
-    json["konzern"] = example_group(&mut session)?;
+    json["logistik"] = example_logistics(&mut session).map_err(|e| format!("logistik: {e}"))?;
+    json["konzern"] = example_group(&mut session).map_err(|e| format!("konzern: {e}"))?;
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
-    let (organisation, market, concerns, strategy) = example_organisation(&mut session)?;
+    let (organisation, market, concerns, strategy) =
+        example_organisation(&mut session).map_err(|e| format!("organisation: {e}"))?;
     json["organisation"] = organisation;
     json["managermarkt"] = market;
     json["anliegen"] = concerns;
     json["strategie"] = strategy;
     json["ruecksprache"] = example_review(data)?;
-    let (contracts, partners) = example_contracts(&mut session)?;
+    let (contracts, partners) =
+        example_contracts(&mut session).map_err(|e| format!("vertraege: {e}"))?;
     json["vertraege"] = contracts;
     json["vertragspartner"] = partners;
     // W7: the year with the group from above.
     json["controlling"] = serde_json::to_value(session.controlling("jahr").map_err(message)?)
         .map_err(|e| e.to_string())?;
-    json["boerse"] = example_stock(&mut session)?;
+    json["boerse"] = example_stock(&mut session).map_err(|e| format!("boerse: {e}"))?;
     json["bank"] =
         serde_json::to_value(session.bank().map_err(message)?).map_err(|e| e.to_string())?;
     // PE3: the person before the founding, for the founding dialog.

@@ -23,8 +23,14 @@ logistik:
   ki:
     anteil: 0.5                 # eine Flotte für die Hälfte der eigenen Fracht
     kasse_anteil: 0.2
-  # Interne Belieferung nach Bedarf: Lager für so viele Tage Bedarf (Vorgabe, höchstens)
+  # Interne Belieferung nach Bedarf: Lager für so viele Tage Bedarf (Vorgabe, höchstens).
+  # Der Bedarf eines Angebots lernt nur an Tagen mit Ware (glaettung je Tag); ein
+  # ausverkaufter Tag zählt mit ausverkauft_aufschlag mehr; ohne Absatzgeschichte gilt
+  # start_anteil der Nachfrage im Land.
   nachschub:
     tage_standard: 20
     tage_max: 365
+    glaettung: 0.1
+    ausverkauft_aufschlag: 0.25
+    start_anteil: 0.05
   annaeherung: true

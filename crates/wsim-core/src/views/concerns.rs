@@ -52,6 +52,9 @@ pub struct ConcernPositionView {
     pub continent: Option<String>,
     /// The unit as in the organisation (`standort:3`, `land:DEU` …).
     pub unit: String,
+    /// The player's own name of the site (sites).
+    #[serde(default)]
+    pub site_name: Option<String>,
 }
 
 /// A position a concern passed on its way, with its manager and recommendation (MA3).
@@ -295,7 +298,12 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("produkt", product_param(catalog, *product))
                 .with("preis", Param::Money(*price))
                 .with("einheit", unit_param(catalog, *product)),
-            Some(PriceMode::Market { markup, .. }) => m(keys::STEP_SALE_MARKET)
+            Some(
+                PriceMode::Market { markup, .. }
+                | PriceMode::Relative {
+                    deviation: markup, ..
+                },
+            ) => m(keys::STEP_SALE_MARKET)
                 .with("produkt", product_param(catalog, *product))
                 .with("aufschlag", percent(*markup)),
             Some(PriceMode::CostPlus { margin }) => m(keys::STEP_SALE_COST_PLUS)
@@ -333,7 +341,7 @@ fn step(catalog: &Catalog, state: &GameState, command: &Command) -> Option<Messa
                 .with("menge", Param::Number(*quantity))
                 .with("einheit", unit_param(catalog, *product))
                 .with("produkt", product_param(catalog, *product))
-                .with("standort", Param::TextKey(site_type_key(source.kind)))
+                .with("standort", crate::command::site_label(source))
                 .with(
                     "land",
                     Param::Country(catalog.countries.key(source.country).to_owned()),
@@ -660,6 +668,7 @@ pub(super) fn position_view(
         country: country.map(|k| catalog.countries.key(k).to_owned()),
         continent: continent.map(|k| catalog.continents.key(k).to_owned()),
         unit: unit_key(catalog, p.unit),
+        site_name: super::organisation::site_name(state, p.unit),
     }
 }
 

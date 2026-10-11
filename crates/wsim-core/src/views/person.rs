@@ -77,6 +77,12 @@ pub struct HoldingView {
     /// The person can choose it as main company, and it is the main company now.
     #[serde(default)]
     pub selectable: bool,
+    /// The person's yearly salary from the company, the suggestion (a solid CEO's) and
+    /// the most it may be with co-owners; whether a salary may be set (PE3).
+    pub salary_usd: f64,
+    pub salary_suggestion_usd: f64,
+    pub salary_max_usd: Option<f64>,
+    pub salary_possible: bool,
     #[serde(default)]
     pub main: bool,
 }
@@ -290,6 +296,10 @@ pub fn person(game: &Game) -> PersonView {
                     catalog, state, id, share,
                 )),
                 selectable: crate::holdings::selectable(state).contains(&id),
+                salary_usd: usd(private::salary_of(state, id)),
+                salary_suggestion_usd: usd(private::salary_suggestion(catalog, state, id)),
+                salary_max_usd: private::salary_max(catalog, state, id).map(usd),
+                salary_possible: private::pays_salary(state, id),
                 main: state.is_main(id),
                 loans: c
                     .loans
@@ -484,6 +494,7 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::StakeBought => "privat.anteilskauf",
         PrivateFlow::StakeSold => "privat.anteilsverkauf",
         PrivateFlow::GainTax => "privat.veraeusserungsteuer",
+        PrivateFlow::Bonus => "privat.sonderzahlung",
     }
 }
 
@@ -536,7 +547,7 @@ fn money(game: &Game) -> PersonMoneyView {
             })
             .collect(),
         short: p.short_since.is_some(),
-        salary_usd: usd(p.salary),
+        salary_usd: usd(private::salary_total(state)),
         salary_paid: private::salary_payer(state).is_some(),
         salary_as_owner: p.ceo.is_none() && private::salary_payer(state).is_some(),
         salary_suggestion_usd: private::salary_payer(state)
