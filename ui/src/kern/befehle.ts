@@ -50,6 +50,7 @@ export type Befehl =
         months: number;
         min_quality: number;
         penalty: number;
+        exclusive?: boolean;
       };
     }
   | { AnswerContract: { contract: number; accept: boolean } }

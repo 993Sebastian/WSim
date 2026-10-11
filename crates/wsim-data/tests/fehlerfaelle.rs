@@ -5192,3 +5192,59 @@ fn lagerklassen_werden_geprueft() {
         alle(&luecke)
     );
 }
+
+#[test]
+fn betrieb_wird_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let mit = |ausschuss: &str| {
+        Daten::neu()
+            .ersetze(
+                datei,
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                &format!(
+                    "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  \
+                     betrieb:\n    ausschuss: {{{ausschuss}}}\n    unfaelle_je_100000_stunden: \
+                     {{1900: 8, 2026: 0.5}}\n    unfall_kosten_stunden: 100\n    unfall_stillstand_anteil: 0.05\n    korruption: \
+                     {{grund: 0.6, entwicklung: 0.6, instabilitaet: 0.4, bauzeit: 0.5, gebuehr: \
+                     0.05, forderung_chance: 0.3, forderung_anteil: 0.005}}\n    \
+                     rechtssicherheit: {{grund: 0.1, entwicklung: 0.5, stabilitaet: 0.4}}\n    \
+                     enteignung_basis: 0.02\n    make_or_buy_toleranz: 0.1\n"
+                ),
+            )
+            .laden()
+    };
+    let gut = mit(
+        "basis: {rohstoff: 0, halbzeug: 0.02, komponente: 0.04, endprodukt: 0.04, energie: 0}, min: 0.005, max: 0.3, schulung: 0.6, weiterentwicklung: 0.8",
+    );
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut
+        .data
+        .as_ref()
+        .unwrap()
+        .catalog
+        .production_model
+        .operations;
+    assert!(m.enabled && (m.scrap_base[3] - 0.04).abs() < 1e-12);
+    let verdreht = mit(
+        "basis: {rohstoff: 0, halbzeug: 0.02, komponente: 0.04, endprodukt: 0.04, energie: 0}, min: 0.3, max: 0.1, schulung: 0.6, weiterentwicklung: 0.8",
+    );
+    let f = befund(
+        &verdreht,
+        "„min“ muss mindestens 1 sein und darf nicht über „max“ liegen.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.betrieb.ausschuss.min"
+    );
+    let zu_hoch = mit(
+        "basis: {rohstoff: 0, halbzeug: 0.02, komponente: 0.04, endprodukt: 1.5, energie: 0}, min: 0.005, max: 0.3, schulung: 0.6, weiterentwicklung: 0.8",
+    );
+    let f = befund(
+        &zu_hoch,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.betrieb.ausschuss.basis.endprodukt"
+    );
+}

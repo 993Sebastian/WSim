@@ -9,24 +9,47 @@ import { Laenderdetail } from "./Laenderdetail";
 
 const pfade = welt as Record<string, string>;
 
-export type Ebene = "absatz" | "lohn" | "bip" | "bevoelkerung" | "zoll" | "rohstoffe" | "standorte";
-const EBENEN: Ebene[] = ["absatz", "lohn", "bip", "bevoelkerung", "zoll", "rohstoffe", "standorte"];
+export type Ebene =
+  | "absatz"
+  | "lohn"
+  | "bip"
+  | "bevoelkerung"
+  | "zoll"
+  | "korruption"
+  | "rechtssicherheit"
+  | "rohstoffe"
+  | "standorte";
+const EBENEN: Ebene[] = [
+  "absatz",
+  "lohn",
+  "bip",
+  "bevoelkerung",
+  "zoll",
+  "korruption",
+  "rechtssicherheit",
+  "rohstoffe",
+  "standorte",
+];
 const STUFEN = 5;
 /** Price against the reference price: limits of the classes of the sales layer. */
 const PREISSTUFEN = [0.9, 1.0, 1.1, 1.3];
 
-type Wertebene = "lohn" | "bip" | "bevoelkerung" | "zoll";
+type Wertebene = "lohn" | "bip" | "bevoelkerung" | "zoll" | "korruption" | "rechtssicherheit";
 const wert: Record<Wertebene, (l: KartenLand) => number> = {
   lohn: (l) => l.wage_usd,
   bip: (l) => l.gdp_per_capita_usd,
   bevoelkerung: (l) => l.population,
   zoll: (l) => l.tariff ?? 0,
+  korruption: (l) => l.corruption ?? 0,
+  rechtssicherheit: (l) => l.rule_of_law ?? 0,
 };
 const anzeige: Record<Wertebene, (v: number) => string> = {
   lohn: (v) => formatPreis(v, "h"),
   bip: (v) => formatGeld(v),
   bevoelkerung: (v) => formatZahl(v),
   zoll: (v) => t("karte.zoll_titel", { zoll: formatProzent(v) }),
+  korruption: (v) => formatProzent(v),
+  rechtssicherheit: (v) => formatProzent(v),
 };
 
 /** Class limits by quantiles, so every class holds about as many countries. */

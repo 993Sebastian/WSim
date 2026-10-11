@@ -95,6 +95,9 @@ pub enum Command {
         #[serde(default)]
         min_quality: f64,
         penalty: f64,
+        /// The seller supplies no one else from its site (BP4).
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        exclusive: bool,
     },
     /// Accepts or declines a proposed contract.
     AnswerContract { contract: u32, accept: bool },
@@ -1268,6 +1271,7 @@ fn found_site(
         experience: Default::default(),
         maintenance: 1.0,
         failures: 0,
+        accidents: 0,
     });
     if let Some(p) = plot {
         let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
@@ -1592,7 +1596,23 @@ fn run(
                 Account::AssetsUnderConstruction,
                 investment,
             )?;
-            let days = sizes.build_days(*size, f.build_days);
+            // A permit where officials want their share (BP4).
+            let fee = crate::operations::permit_fee(catalog, state, *site, investment);
+            let company = state.company_mut(actor).expect("checked above");
+            if fee > Money::ZERO && company.ledger.cash() >= fee {
+                company.ledger.expense(
+                    CostType::Other,
+                    crate::ledger::CostCenter::site(*site),
+                    Account::Cash,
+                    fee,
+                );
+            }
+            let days = crate::operations::build_days(
+                catalog,
+                state,
+                *site,
+                sizes.build_days(*size, f.build_days),
+            );
             let ready = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));
             state
                 .site_mut(*site)
@@ -1793,6 +1813,7 @@ fn run(
             months,
             min_quality,
             penalty,
+            exclusive,
         } => {
             let terms = crate::contracts::Terms {
                 seller: *seller,
@@ -1803,6 +1824,7 @@ fn run(
                 months: *months,
                 min_quality: *min_quality,
                 penalty: *penalty,
+                exclusive: *exclusive,
             };
             crate::contracts::propose(state, catalog, actor, &terms)?;
         }

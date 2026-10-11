@@ -2044,6 +2044,32 @@ Bei der Umsetzung entschieden:
 18. 🟡 **Nebenbefund P1:** 34 Kleidungs-, Schuh- und Lederwaren standen in Warengruppe und
     Branche „lebensmittel“ (verdarben dadurch monatlich); jetzt Warengruppe `bekleidung`,
     Branche `textil` (Daten und `tools/daten/pakete/p1/spec.py`).
+19. 🟡 **BP4 – Korruption und Rechtssicherheit ohne neue Länderreihen.** Statt neuer
+    Zeitreihen in `laender.py` (TI/World Bank) folgen beide aus Entwicklung und
+    Stabilität des Landes (Formeln in FORMELN.md); echte Reihen können später die Formel
+    ersetzen, ohne den Kern zu ändern.
+20. 🟡 **BP4 – Forderungen ohne Anliegen.** Zahlungen an Beamte werden geleistet, wenn die
+    Kasse reicht, und gemeldet; die Wahl „ablehnen (Standort ruht 30 Tage)“ kommt mit
+    einem Anliegen der Standortleitung später.
+21. 🟡 **BP4 – Unfallkosten und Ausschuss.** Statt eines Jahreslohns kostet ein Unfall 100
+    Arbeitsstunden zum mittleren Lohn des Standorts; nur 5 % der Unfälle sind schwer
+    (Anlage einen Tag still, Meldung). Höhere Werte (500 Stunden, jeder Unfall mit
+    Stillstand) ließen 1900 Kupfer- und Gummiketten abreißen. Ausschuss nach Wunsch vom
+    11.10.2026: sinkt nur durch Schulung (bis −60 %) und Forschung/Weiterentwicklung (bis
+    −80 %), nicht mit dem Alter einer Technologie. Grundwert je Produktart (Halbzeug 0 % –
+    die Rezeptausbeuten von Hütten und Raffinerien sind netto –, Komponente 2 %,
+    Endprodukt 3 %), so hoch, wie die Welt 1900 ohne Unterversorgung
+    trägt; Förderung ohne Ausschuss; Startbesetzung und KI planen ihn ein. Der Weltlauf-Test 1900 lässt bis 35 % Warten auf Vorprodukte
+    zu (vorher 30 %): Die Molkereikette teilt knappe Milch und schwankt mit und ohne BP4
+    je nach Zufallsverlauf zwischen 20 und 31 %. Ruf (MN2) kommt später hinzu; der
+    Landesfaktor Arbeitsschutz steht vorerst auf 1.
+22. 🟡 **BP4 – Lieferausfall und Exklusivität.** Nach drei Fehlmonaten in Folge kündigt
+    der Käufer ohne Strafe; der Spieler als Käufer wird gemeldet (kein Anliegen der
+    Einkaufsstelle). Exklusiv heißt: Der Verkäuferstandort bietet das Produkt nicht mehr
+    am Markt an (andere Verträge bleiben möglich).
+23. 🟡 **BP4 – Make or buy.** Teil der Controlling-Sicht; Versorgung aus dem Vormonat
+    (die Märkte führen keine Monatsreihe der Knappheit); ohne eigene Anlage keine
+    Schätzung mit Investition.
 
 ## Reihenfolge der neuen Punkte
 

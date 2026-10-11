@@ -134,6 +134,15 @@ pub enum Stream {
         site: u32,
         day: u32,
     },
+    /// Accidents at a site on a day (BP4).
+    Accidents {
+        site: u32,
+        day: u32,
+    },
+    /// Officials' demands and expropriations in a month (BP4).
+    Officials {
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -196,6 +205,10 @@ impl Stream {
             Stream::Operations { site, day } => {
                 (27 << 56) | (u64::from(site) << 24) | u64::from(day)
             }
+            Stream::Accidents { site, day } => {
+                (28 << 56) | (u64::from(site) << 24) | u64::from(day)
+            }
+            Stream::Officials { month } => (29 << 56) | u64::from(month),
         }
     }
 }

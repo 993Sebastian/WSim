@@ -167,6 +167,9 @@ pub mod keys {
     pub const STORAGE_FULL: &str = "warnung.lager_voll";
     pub const BREAKDOWN: &str = "warnung.anlagenausfall";
     pub const SPOILED: &str = "warnung.verdorben";
+    pub const ACCIDENT: &str = "warnung.arbeitsunfall";
+    pub const CONTRACT_SUPPLIER_FAILS: &str = "warnung.vertrag_lieferant_faellt_aus";
+    pub const BRIBE_DEMAND: &str = "warnung.forderung";
     pub const EXTERNAL_STORAGE: &str = "warnung.fremdlager";
     pub const BREAKDOWN_OFTEN: &str = "warnung.anlagenausfall_oft";
     pub const COMMAND_MAINTENANCE_RANGE: &str = "fehler.befehl.instandhaltung_bereich";
@@ -888,6 +891,9 @@ pub mod keys {
         BREAKDOWN_OFTEN,
         SPOILED,
         EXTERNAL_STORAGE,
+        ACCIDENT,
+        BRIBE_DEMAND,
+        CONTRACT_SUPPLIER_FAILS,
         COMMAND_MAINTENANCE_RANGE,
         HINT_INPUT,
         HINT_LABOR,

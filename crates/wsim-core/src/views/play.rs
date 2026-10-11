@@ -100,6 +100,9 @@ pub struct SlotDetail {
     /// Expected breakdowns per year at today's condition.
     #[serde(default)]
     pub failures_year: f64,
+    /// Share of the output lost as scrap (BP4).
+    #[serde(default)]
+    pub scrap: f64,
 }
 
 /// Quality of a product in points (docs/FORMELN.md): recipe, inputs, automation,
@@ -205,6 +208,11 @@ pub struct MaintenanceView {
     pub max: f64,
     /// Breakdowns this year.
     pub failures: u32,
+    /// Accidents this year and the rate per 100 000 working hours (BP4).
+    #[serde(default)]
+    pub accidents: u32,
+    #[serde(default)]
+    pub accident_rate: f64,
 }
 
 /// Expected cost of one unit of a product made at the site, by kind (USD per unit).
@@ -840,6 +848,9 @@ pub fn production(game: &Game) -> ProductionView {
                             .then(|| usd(crate::maintenance::overhaul_cost(catalog, sl))),
                         failures_year: 365.0
                             * crate::maintenance::failure_chance(catalog, sl.condition),
+                        scrap: recipe.map_or(0.0, |r| {
+                            crate::operations::scrap_rate(catalog, game.state(), s, index, r)
+                        }),
                         quality: recipe.map(|r| slot_quality(game, site_id, index, r)),
                     }
                 })
@@ -988,6 +999,8 @@ pub fn production(game: &Game) -> ProductionView {
                         min: m.level_min,
                         max: m.level_max,
                         failures: s.failures,
+                        accidents: s.accidents,
+                        accident_rate: crate::operations::accident_rate(catalog, s, state.date),
                     })
                 },
                 unit_costs: unit_costs

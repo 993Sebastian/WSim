@@ -40,6 +40,7 @@ pub mod math;
 pub mod message;
 pub mod milestones;
 pub mod money;
+pub mod operations;
 pub mod patents;
 pub mod person;
 pub mod plots;
@@ -117,6 +118,8 @@ mod maintenance_tests;
 mod management_tests;
 #[cfg(test)]
 mod market_tests;
+#[cfg(test)]
+mod operations_tests;
 #[cfg(test)]
 mod patents_tests;
 #[cfg(test)]

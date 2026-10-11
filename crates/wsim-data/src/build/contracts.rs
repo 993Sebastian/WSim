@@ -65,6 +65,14 @@ pub(super) fn contract_model(ctx: &mut Ctx, raw: &RawData) -> ContractModel {
         cancel_months: months(ctx, c.cancel_months, 0.0, 600.0, "kuendigung_monate"),
         proposal_days: months(ctx, c.proposal_days, 1.0, 365.0, "angebot_tage"),
         keep_months: months(ctx, c.keep_months, 0.0, 600.0, "aufbewahren_monate"),
+        free_cancel_after: months(
+            ctx,
+            c.free_cancel_after,
+            0.0,
+            120.0,
+            "ausfall_kuendigung_monate",
+        ),
+        exclusive_premium: share(ctx, c.exclusive_premium, "exklusiv_aufschlag"),
         ai: ContractAiModel {
             sale_discount,
             sale_discount_per_month: share(ctx, a.sale_discount_per_month, "abschlag_je_monat"),

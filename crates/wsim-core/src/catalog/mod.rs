@@ -631,6 +631,11 @@ pub struct ContractModel {
     pub proposal_days: u32,
     /// Months closed contracts stay in the list.
     pub keep_months: u32,
+    /// Months in a row the seller falls short after which the buyer may cancel for free
+    /// (BP4); 0 = never.
+    pub free_cancel_after: u32,
+    /// Extra price an AI seller asks for an exclusive contract (BP4).
+    pub exclusive_premium: f64,
     pub ai: ContractAiModel,
     pub provenance: Provenance,
 }
@@ -2614,6 +2619,8 @@ pub struct ProductionModel {
     pub learning: LearningModel,
     /// Maintenance level, breakdowns and overhauls (docs/FORMELN.md „BP2“).
     pub maintenance: MaintenanceModel,
+    /// Scrap, accidents, corruption and rule of law (docs/FORMELN.md „BP4“).
+    pub operations: OperationsModel,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
     /// Facility sizes (M36).
@@ -2691,6 +2698,7 @@ impl Default for ProductionModel {
             storage: StorageModel::default(),
             learning: LearningModel::default(),
             maintenance: MaintenanceModel::default(),
+            operations: OperationsModel::default(),
             start_setups: Vec::new(),
             sizes: SizeModel::default(),
         }
@@ -2804,6 +2812,62 @@ pub struct MaintenanceModel {
     pub overhaul_days: u32,
     /// Condition below which the AI overhauls.
     pub ai_overhaul_below: f64,
+}
+
+/// Scrap, accidents, corruption and rule of law (BP4). Disabled without the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct OperationsModel {
+    pub enabled: bool,
+    /// Scrap share of a run of an undeveloped product with untrained staff, before
+    /// condition, experience and automation.
+    /// By product kind.
+    pub scrap_base: [f64; 5],
+    pub scrap_min: f64,
+    pub scrap_max: f64,
+    /// Share of the scrap removed by fully trained staff and by the leader's development
+    /// of a fully mature product.
+    pub scrap_training: f64,
+    pub scrap_development: f64,
+    /// Accidents per 100 000 working hours by year.
+    pub accidents: Option<TimeSeries>,
+    /// Cost of an accident in working hours of the site's average wage.
+    pub accident_hours: f64,
+    /// Share of the accidents that stop a facility for a day (and are reported).
+    pub accident_stop_share: f64,
+    /// Corruption 0–1 = base − development · weight + (1 − stability) · weight.
+    pub corruption: (f64, f64, f64),
+    /// Construction time × (1 + corruption · this).
+    pub corruption_build_time: f64,
+    /// Fee on a new facility: corruption · this · investment.
+    pub corruption_fee: f64,
+    /// Yearly chance per site of a demand: corruption · this.
+    pub demand_chance: f64,
+    /// A demand as share of the site's investment.
+    pub demand_share: f64,
+    /// Rule of law 0–1 = base + development · weight + stability · weight.
+    pub rule_of_law: (f64, f64, f64),
+    /// Yearly chance of expropriating foreign sites: (1 − law)(1 − stability) · this.
+    pub expropriation: f64,
+    /// Own cost above the bought price by more than this share: „check buying“.
+    pub make_or_buy_tolerance: f64,
+}
+
+impl OperationsModel {
+    pub fn corruption(&self, development: f64, stability: f64) -> f64 {
+        let (base, dev, unstable) = self.corruption;
+        if !self.enabled {
+            return 0.0;
+        }
+        (base - dev * development + unstable * (1.0 - stability)).clamp(0.0, 1.0)
+    }
+
+    pub fn rule_of_law(&self, development: f64, stability: f64) -> f64 {
+        let (base, dev, stable) = self.rule_of_law;
+        if !self.enabled {
+            return 1.0;
+        }
+        (base + dev * development + stable * stability).clamp(0.0, 1.0)
+    }
 }
 
 impl LearningModel {

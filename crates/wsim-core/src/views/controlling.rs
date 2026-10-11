@@ -97,6 +97,82 @@ pub struct ControllingView {
     pub months: Vec<String>,
     /// `None` before the first closed period.
     pub root: Option<ControllingNode>,
+    /// Make or buy per input of the company's sites (BP4).
+    #[serde(default)]
+    pub make_or_buy: Vec<MakeOrBuyRow>,
+}
+
+/// Making an input at an own site against buying it (BP4, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MakeOrBuyRow {
+    pub site: u32,
+    pub country: String,
+    pub product: String,
+    /// Unit cost at the cheapest own site that makes it, if any.
+    pub own_usd: Option<f64>,
+    /// Cheapest source delivered to the site (market, import, state, contract).
+    pub buy_usd: Option<f64>,
+    /// Share of the demand served in the site's country last month.
+    pub supply: f64,
+    /// `halten`, `puffer` or `zukauf_pruefen`.
+    pub advice: String,
+}
+
+fn make_or_buy(game: &Game) -> Vec<MakeOrBuyRow> {
+    let (state, catalog) = (game.state(), game.catalog());
+    let me = game.player();
+    let tolerance = catalog.production_model.operations.make_or_buy_tolerance;
+    let own_sites: Vec<SiteId> = (0..state.sites.len())
+        .map(|i| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
+        .filter(|&s| state.sites[s.index()].held_by(me))
+        .collect();
+    // Cheapest own unit cost per product.
+    let mut own: BTreeMap<ProductId, f64> = BTreeMap::new();
+    for &s in &own_sites {
+        for u in crate::production::unit_costs(catalog, state, s) {
+            let e = own.entry(u.product).or_insert(f64::INFINITY);
+            *e = e.min(u.total());
+        }
+    }
+    let mut rows = Vec::new();
+    for &s in &own_sites {
+        let site = &state.sites[s.index()];
+        let mut inputs: Vec<ProductId> = site
+            .slots
+            .iter()
+            .filter_map(|sl| sl.recipe)
+            .flat_map(|r| catalog.recipes.get(r).inputs.iter().map(|&(p, _)| p))
+            .collect();
+        inputs.sort();
+        inputs.dedup();
+        for p in inputs {
+            let key = catalog.products.key(p);
+            let buy = super::contracts::supply_sources(game, s.0, key)
+                .and_then(|v| v.sources.first().map(|x| x.price_usd));
+            let m = &state.markets.get(p).get(site.country).last_month;
+            let supply = if m.demand > 1e-9 {
+                (m.sold / m.demand).min(1.0)
+            } else {
+                1.0
+            };
+            let own_usd = own.get(&p).copied().filter(|c| c.is_finite());
+            let advice = match (own_usd, buy) {
+                (Some(o), Some(b)) if o > b * (1.0 + tolerance) => "zukauf_pruefen",
+                (None, Some(_)) if supply < 0.8 => "puffer",
+                _ => "halten",
+            };
+            rows.push(MakeOrBuyRow {
+                site: s.0,
+                country: catalog.countries.key(site.country).to_owned(),
+                product: key.to_owned(),
+                own_usd,
+                buy_usd: buy,
+                supply,
+                advice: advice.to_owned(),
+            });
+        }
+    }
+    rows
 }
 
 type Sums = BTreeMap<CostType, Money>;
@@ -444,6 +520,7 @@ pub fn controlling(game: &Game, period: &str) -> ControllingView {
         start,
         months,
         root,
+        make_or_buy: make_or_buy(game),
     }
 }
 

@@ -609,6 +609,9 @@ pub struct RawProductionModel {
     /// Maintenance, breakdowns, overhauls; without it wear as before.
     #[serde(rename = "instandhaltung", default)]
     pub maintenance: Option<RawMaintenance>,
+    /// Scrap, accidents, corruption, rule of law (BP4).
+    #[serde(rename = "betrieb", default)]
+    pub operations: Option<RawOperations>,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
     #[serde(rename = "anlagengroessen")]
@@ -691,6 +694,72 @@ pub struct RawExternalStorage {
     pub capacity: f64,
     #[serde(rename = "kosten_faktor")]
     pub rate: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOperations {
+    #[serde(rename = "ausschuss")]
+    pub scrap: RawScrap,
+    #[serde(rename = "unfaelle_je_100000_stunden")]
+    pub accidents: RawSeries,
+    #[serde(rename = "unfall_kosten_stunden")]
+    pub accident_hours: f64,
+    #[serde(rename = "unfall_stillstand_anteil")]
+    pub accident_stop_share: f64,
+    #[serde(rename = "korruption")]
+    pub corruption: RawCorruption,
+    #[serde(rename = "rechtssicherheit")]
+    pub rule_of_law: RawRuleOfLaw,
+    #[serde(rename = "enteignung_basis")]
+    pub expropriation: f64,
+    #[serde(rename = "make_or_buy_toleranz")]
+    pub make_or_buy_tolerance: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawScrap {
+    #[serde(rename = "basis")]
+    pub base: RawPerKind,
+    #[serde(rename = "min")]
+    pub min: f64,
+    #[serde(rename = "max")]
+    pub max: f64,
+    #[serde(rename = "schulung")]
+    pub training: f64,
+    #[serde(rename = "weiterentwicklung")]
+    pub development: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawCorruption {
+    #[serde(rename = "grund")]
+    pub base: f64,
+    #[serde(rename = "entwicklung")]
+    pub development: f64,
+    #[serde(rename = "instabilitaet")]
+    pub instability: f64,
+    #[serde(rename = "bauzeit")]
+    pub build_time: f64,
+    #[serde(rename = "gebuehr")]
+    pub fee: f64,
+    #[serde(rename = "forderung_chance")]
+    pub demand_chance: f64,
+    #[serde(rename = "forderung_anteil")]
+    pub demand_share: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawRuleOfLaw {
+    #[serde(rename = "grund")]
+    pub base: f64,
+    #[serde(rename = "entwicklung")]
+    pub development: f64,
+    #[serde(rename = "stabilitaet")]
+    pub stability: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -2869,6 +2938,10 @@ pub struct RawContracts {
     pub proposal_days: u32,
     #[serde(rename = "aufbewahren_monate")]
     pub keep_months: u32,
+    #[serde(rename = "ausfall_kuendigung_monate", default)]
+    pub free_cancel_after: u32,
+    #[serde(rename = "exklusiv_aufschlag", default)]
+    pub exclusive_premium: f64,
     pub ki: RawContractAi,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,

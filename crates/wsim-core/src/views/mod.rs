@@ -1322,6 +1322,11 @@ pub struct MapCountry {
     /// Average import tariff (share of the value, W3).
     #[serde(default)]
     pub tariff: f64,
+    /// Corruption and rule of law 0–1 (BP4).
+    #[serde(default)]
+    pub corruption: f64,
+    #[serde(default)]
+    pub rule_of_law: f64,
 }
 
 /// A deposit on the world map, shown at its country's capital.
@@ -1382,6 +1387,8 @@ pub fn world_map(game: &Game) -> WorldMap {
                 own_sites: own[id.index()],
                 other_sites: other[id.index()],
                 tariff: state.tariffs.average(id),
+                corruption: state.countries.get(id).corruption,
+                rule_of_law: state.countries.get(id).rule_of_law,
             }
         })
         .collect();
@@ -1472,6 +1479,11 @@ pub struct CountryDetail {
     pub development: f64,
     /// Rail, road, port, air (0–1).
     pub infrastructure: [f64; 4],
+    /// Corruption and rule of law 0–1 (BP4).
+    #[serde(default)]
+    pub corruption: f64,
+    #[serde(default)]
+    pub rule_of_law: f64,
     pub stability: f64,
     pub deposits: Vec<MapDeposit>,
     /// Companies with sites in the country, most sites first.
@@ -1760,6 +1772,8 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
             v.infrastructure.air,
         ],
         stability: v.stability,
+        corruption: v.corruption,
+        rule_of_law: v.rule_of_law,
         deposits: map
             .deposits
             .into_iter()

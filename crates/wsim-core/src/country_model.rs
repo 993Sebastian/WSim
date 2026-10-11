@@ -67,6 +67,11 @@ pub struct CountryState {
     pub military_share: f64,
     #[serde(default)]
     pub war_intensity: f64,
+    /// Corruption and rule of law 0–1, derived from development and stability (BP4).
+    #[serde(default)]
+    pub corruption: f64,
+    #[serde(default = "full")]
+    pub rule_of_law: f64,
 }
 
 /// Point in time for the yearly data: values apply to the middle of the year.
@@ -165,6 +170,11 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
     }
 
     let development = math::log_position(gdp, model.development_from_usd, model.development_to_usd);
+    let stability = v
+        .stability
+        .as_ref()
+        .map_or(model.stability, |s| s.value_at(t))
+        .clamp(0.0, 1.0);
     let grid_share = (model.grid_reach.value_at(year)
         * math::pow(gdp / model.grid_reference_usd, 0.7))
     .clamp(0.0, 1.0);
@@ -225,11 +235,7 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
         dividend_tax: own(&v.dividend_tax, &model.dividend_tax).clamp(0.0, 1.0),
         development,
         infrastructure,
-        stability: v
-            .stability
-            .as_ref()
-            .map_or(model.stability, |s| s.value_at(t))
-            .clamp(0.0, 1.0),
+        stability,
         research_efficiency,
         labor_productivity,
         automation_affinity,
@@ -238,7 +244,19 @@ pub fn compute(catalog: &Catalog, id: CountryId, date: Date) -> CountryState {
         }),
         military_share,
         war_intensity,
+        corruption: catalog
+            .production_model
+            .operations
+            .corruption(development, stability),
+        rule_of_law: catalog
+            .production_model
+            .operations
+            .rule_of_law(development, stability),
     }
+}
+
+fn full() -> f64 {
+    1.0
 }
 
 /// Interpolates table rows logarithmically in GDP per capita.

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatGeld, formatProzent, landName } from "../format";
-import type { Controlling, ControllingKnoten, Kern } from "../kern";
+import type { Controlling, ControllingKnoten, Kern, MakeOrBuyZeile } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Unterreiter, useSicht } from "./gemeinsam";
@@ -239,6 +239,41 @@ export function ControllingAnsicht({ kern, stand }: { kern: Kern; stand: string 
         onWahl={setZeitraum}
       />
       <Baum key={`${daten.period}/${daten.root?.key ?? ""}`} daten={daten} />
+      {(daten.make_or_buy ?? []).length > 0 && <MakeOrBuy zeilen={daten.make_or_buy ?? []} />}
+    </section>
+  );
+}
+
+/** Making an input at an own site against buying it (BP4). */
+function MakeOrBuy({ zeilen }: { zeilen: MakeOrBuyZeile[] }) {
+  return (
+    <section aria-labelledby="make-or-buy">
+      <h3 id="make-or-buy">{t("controlling.mob.titel")}</h3>
+      <p className="feld-hilfe">{t("controlling.mob.hilfe")}</p>
+      <table className="tabelle">
+        <thead>
+          <tr>
+            <th>{t("controlling.mob.vorprodukt")}</th>
+            <th>{t("controlling.mob.land")}</th>
+            <th className="zahl">{t("controlling.mob.eigen")}</th>
+            <th className="zahl">{t("controlling.mob.zukauf")}</th>
+            <th className="zahl">{t("controlling.mob.versorgung")}</th>
+            <th>{t("controlling.mob.empfehlung")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {zeilen.map((z) => (
+            <tr key={`${z.site}/${z.product}`}>
+              <td>{t(`produkt.${z.product}`)}</td>
+              <td>{landName(z.country)}</td>
+              <td className="zahl">{z.own_usd == null ? "–" : formatGeld(z.own_usd)}</td>
+              <td className="zahl">{z.buy_usd == null ? "–" : formatGeld(z.buy_usd)}</td>
+              <td className="zahl">{formatProzent(z.supply)}</td>
+              <td>{t(`controlling.mob.rat.${z.advice}`)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

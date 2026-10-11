@@ -1477,6 +1477,9 @@ pub struct Site {
     /// Breakdowns this year (BP2).
     #[serde(default, skip_serializing_if = "is_zero_steps")]
     pub failures: u32,
+    /// Accidents this year (BP4).
+    #[serde(default, skip_serializing_if = "is_zero_steps")]
+    pub accidents: u32,
 }
 
 impl Site {

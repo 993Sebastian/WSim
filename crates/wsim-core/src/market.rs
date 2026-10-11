@@ -678,6 +678,10 @@ fn clear_market(
     };
     for &site in sites {
         let s = &state.sites[site.index()];
+        // An exclusive supply contract binds the site's whole output (BP4).
+        if crate::contracts::exclusive(state, site, product) {
+            continue;
+        }
         if let Some(o) = s.offers.get(&product) {
             let stock = s.inventory.get(&product);
             offers.push(Offer {

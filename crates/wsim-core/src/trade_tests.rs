@@ -89,6 +89,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
         experience: Default::default(),
         maintenance: 1.0,
         failures: 0,
+        accidents: 0,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     if quantity > 0.0 {

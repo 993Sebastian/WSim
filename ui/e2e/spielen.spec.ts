@@ -616,7 +616,9 @@ test("Lieferverträge: laufender Vertrag und neues Angebot an einen Lieferanten"
   await expect(liste.getByRole("button", { name: /^Kündigen/ })).toBeVisible();
   const neu = page.getByRole("region", { name: "Neuer Liefervertrag" });
   await neu.getByLabel("Produkt").selectOption("draht");
-  await expect(neu.getByLabel("Lieferant")).toContainText("Morgan Iron and Steel Corporation");
+  await expect(neu.getByLabel("Lieferant", { exact: true })).toContainText(
+    "Morgan Iron and Steel Corporation",
+  );
   await neu.getByRole("button", { name: "Vertrag anbieten" }).click();
   await expect
     .poll(async () => JSON.stringify((await befehle(page)).at(-1)))

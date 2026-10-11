@@ -4,8 +4,8 @@ use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, MaintenanceModel,
-    PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageClass,
-    StorageModel, TrainingModel, TransportModel, Vehicle, Way,
+    OperationsModel, PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup,
+    StorageClass, StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -270,8 +270,87 @@ pub(super) fn production_model(
             .as_ref()
             .map(|v| maintenance(ctx, v, &l.field("instandhaltung")))
             .unwrap_or_default(),
+        operations: m
+            .operations
+            .as_ref()
+            .map(|v| operations(ctx, v, &l.field("betrieb")))
+            .unwrap_or_default(),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
         sizes: sizes(ctx, &m.sizes, &l.field("anlagengroessen")),
+    }
+}
+
+/// Scrap, accidents, corruption and rule of law (BP4): shares in range.
+fn operations(ctx: &mut Ctx, v: &crate::raw::RawOperations, l: &Loc) -> OperationsModel {
+    let sl = l.field("ausschuss");
+    let cl = l.field("korruption");
+    let rl = l.field("rechtssicherheit");
+    let al = l.field("unfaelle_je_100000_stunden");
+    for (&y, &n) in &v.accidents {
+        in_range(ctx, n, 0.0, 1000.0, &al.field(&y.to_string()));
+    }
+    let share = |ctx: &mut Ctx, x: f64, at: &Loc| in_range(ctx, x, 0.0, 1.0, at);
+    let scrap_min = share(ctx, v.scrap.min, &sl.field("min"));
+    let scrap_max = share(ctx, v.scrap.max, &sl.field("max"));
+    if scrap_min > scrap_max {
+        ctx.error(&sl.field("min"), messages::range_order("min", "max"));
+    }
+    OperationsModel {
+        enabled: true,
+        scrap_base: per_kind(ctx, &v.scrap.base, &sl.field("basis"), |ctx, x, loc| {
+            in_range(ctx, x, 0.0, 1.0, loc)
+        }),
+        scrap_min,
+        scrap_max,
+        scrap_training: share(ctx, v.scrap.training, &sl.field("schulung")),
+        scrap_development: share(ctx, v.scrap.development, &sl.field("weiterentwicklung")),
+        accidents: Some(time_series(ctx, &v.accidents, &al)),
+        accident_hours: in_range(
+            ctx,
+            v.accident_hours,
+            0.0,
+            10_000.0,
+            &l.field("unfall_kosten_stunden"),
+        ),
+        accident_stop_share: share(
+            ctx,
+            v.accident_stop_share,
+            &l.field("unfall_stillstand_anteil"),
+        ),
+        corruption: (
+            share(ctx, v.corruption.base, &cl.field("grund")),
+            share(ctx, v.corruption.development, &cl.field("entwicklung")),
+            share(ctx, v.corruption.instability, &cl.field("instabilitaet")),
+        ),
+        corruption_build_time: in_range(
+            ctx,
+            v.corruption.build_time,
+            0.0,
+            5.0,
+            &cl.field("bauzeit"),
+        ),
+        corruption_fee: share(ctx, v.corruption.fee, &cl.field("gebuehr")),
+        demand_chance: share(
+            ctx,
+            v.corruption.demand_chance,
+            &cl.field("forderung_chance"),
+        ),
+        demand_share: share(
+            ctx,
+            v.corruption.demand_share,
+            &cl.field("forderung_anteil"),
+        ),
+        rule_of_law: (
+            share(ctx, v.rule_of_law.base, &rl.field("grund")),
+            share(ctx, v.rule_of_law.development, &rl.field("entwicklung")),
+            share(ctx, v.rule_of_law.stability, &rl.field("stabilitaet")),
+        ),
+        expropriation: share(ctx, v.expropriation, &l.field("enteignung_basis")),
+        make_or_buy_tolerance: share(
+            ctx,
+            v.make_or_buy_tolerance,
+            &l.field("make_or_buy_toleranz"),
+        ),
     }
 }
 

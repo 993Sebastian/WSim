@@ -27,6 +27,17 @@ pub fn output_per_day(catalog: &Catalog, recipe: RecipeId) -> f64 {
     catalog.facilities.get(r.facility).runs_per_day * r.output
 }
 
+/// Daily output of one facility at full capacity after the scrap of a new facility (BP4):
+/// what new plants are planned with.
+pub fn net_output_per_day(catalog: &Catalog, recipe: RecipeId) -> f64 {
+    output_per_day(catalog, recipe) * net_share(catalog, catalog.recipes.get(recipe))
+}
+
+/// Share of a run's output left after a start company's scrap.
+fn net_share(catalog: &Catalog, recipe: &crate::catalog::Recipe) -> f64 {
+    1.0 - crate::operations::start_scrap(catalog, recipe)
+}
+
 /// Yearly output of one extraction facility for a raw material, if a recipe extracts it.
 pub fn extraction_capacity(catalog: &Catalog, resource: ProductId) -> Option<f64> {
     catalog
@@ -173,7 +184,7 @@ impl Need {
 
     fn cover(&mut self, catalog: &Catalog, p: &Placement, utilization: f64) {
         let product = catalog.recipes.get(p.recipe).product;
-        let out = output_per_day(catalog, p.recipe) * p.units(catalog) * utilization;
+        let out = net_output_per_day(catalog, p.recipe) * p.units(catalog) * utilization;
         let n = &mut self.rate[product.index()][p.country.index()];
         *n = (*n - out).max(0.0);
     }
@@ -324,7 +335,7 @@ pub(crate) fn populate(state: &mut GameState, catalog: &Catalog) {
         if p.kind == ProductKind::Energy {
             continue;
         }
-        let per_day = output_per_day(catalog, recipe);
+        let per_day = net_output_per_day(catalog, recipe);
         let rates = &need.rate[product.index()];
         // Saturated markets (M16): at full capacity the established companies could
         // make `market_cover` times the demand. More spare capacity would start a
@@ -440,7 +451,7 @@ fn stock_traders(state: &mut GameState, catalog: &Catalog) {
                 continue;
             };
             let runs = sl.full_runs(catalog) * sl.utilization;
-            supply[r.product.index()][s.country.index()] += runs * r.output;
+            supply[r.product.index()][s.country.index()] += runs * r.output * net_share(catalog, r);
             for &(p, q) in &r.inputs {
                 need[p.index()][s.country.index()] += runs * q;
             }
@@ -524,7 +535,7 @@ fn fit_to_inputs(
         for p in placements {
             let r = catalog.recipes.get(p.recipe);
             let full = catalog.facilities.get(r.facility).runs_per_day * p.units(catalog);
-            supply[r.product.index()] += full * r.output;
+            supply[r.product.index()] += full * r.output * net_share(catalog, r);
             for &(i, q) in &r.inputs {
                 used[i.index()] += full * u * q * cover(i);
             }
@@ -755,7 +766,7 @@ pub(crate) fn slot_flows(
     let variable = input_cost + labor + energy + overhead;
     SlotFlows {
         product: r.product,
-        output: runs * r.output,
+        output: runs * r.output * net_share(catalog, r),
         inputs,
         cost_per_day: Money::from_usd(variable + capital).unwrap_or(Money::ZERO),
         variable_per_day: Money::from_usd(variable).unwrap_or(Money::ZERO),
@@ -1020,6 +1031,7 @@ fn found_company(
             experience,
             maintenance: 1.0,
             failures: 0,
+            accidents: 0,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

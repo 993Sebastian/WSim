@@ -24,6 +24,8 @@ pub(super) fn with_contracts(mut catalog: Catalog, proposal_chance: f64) -> Cata
         cancel_months: 3,
         proposal_days: 30,
         keep_months: 12,
+        free_cancel_after: 3,
+        exclusive_premium: 0.1,
         ai: ContractAiModel {
             sale_discount: 0.08,
             sale_discount_per_month: 0.005,
@@ -65,6 +67,7 @@ pub(super) fn agreed(
         months,
         min_quality: 0.0,
         penalty: 0.5,
+        exclusive: false,
     };
     contracts::propose(game.state_mut(), &catalog, other, &terms).unwrap();
     assert_eq!(game.state().contracts[0].status, ContractStatus::Proposed);
@@ -197,6 +200,7 @@ fn proposals_are_checked() {
             months,
             min_quality: 0.0,
             penalty: 0.2,
+            exclusive: false,
         })
     };
     assert_eq!(
@@ -237,6 +241,7 @@ fn proposals_are_checked() {
             months: 1,
             min_quality: 0.0,
             penalty: 0.0,
+            exclusive: false,
         }),
         Err(CommandError::NoContracts)
     );
@@ -305,6 +310,7 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
         months: 12,
         min_quality: 0.0,
         penalty,
+        exclusive: false,
     };
     let answer = |t: Terms| contracts::ai_answer(state, &catalog, &t, me);
     assert_eq!(answer(buy(0.4 * need, 1.04, 0.2)), Ok(()));
@@ -324,6 +330,7 @@ fn ai_answers_by_price_quantity_quality_and_penalty() {
         months: 12,
         min_quality,
         penalty: 0.2,
+        exclusive: false,
     };
     assert_eq!(answer(sell(0.4 * output, 1.0, 0.0)), Ok(()));
     assert_eq!(answer(sell(0.4 * output, 0.9, 0.0)), Ok(()));
@@ -375,6 +382,7 @@ fn contract_goods_cost_the_contract_price_not_the_market_price() {
         months: 6,
         min_quality: 0.0,
         penalty: 0.2,
+        exclusive: false,
     };
     contracts::propose(game.state_mut(), &catalog, other, &terms).unwrap();
     let id = game.state().contracts.last().unwrap().id;
@@ -439,6 +447,7 @@ fn longer_terms_earn_a_bigger_discount() {
             months,
             min_quality: 0.0,
             penalty: 0.2,
+            exclusive: false,
         };
         assert_eq!(
             contracts::ai_answer(state, &catalog, &t(price), other),
@@ -489,4 +498,30 @@ fn ai_companies_propose_to_buy_what_the_player_offers() {
         .find(|x| x.id == c.id)
         .unwrap();
     assert_eq!(c.status, ContractStatus::Expired);
+}
+
+#[test]
+fn a_buyer_leaves_a_failing_supplier_without_penalty() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let (_, _, other) = agreed(&mut game, "AAA", 100.0, 12);
+    // 1000 in stock last ten days; three short months follow.
+    days(&mut game, 31 + 31 + 28 + 31 + 1);
+    let c = &game.state().contracts[0];
+    assert_eq!(c.misses, 3, "three months in a row short");
+    assert!(c.paid_by_seller > Money::ZERO);
+    let catalog = game.catalog().clone();
+    contracts::cancel(game.state_mut(), &catalog, other, 0).unwrap();
+    let c = &game.state().contracts[0];
+    assert_eq!(c.status, ContractStatus::Cancelled);
+    assert_eq!(c.paid_by_buyer, Money::ZERO, "no penalty for leaving");
+}
+
+#[test]
+fn an_exclusive_supplier_leaves_the_market() {
+    let mut game = new_game(with_contracts(test_support::trading(), 0.0));
+    let (seller, _, _) = agreed(&mut game, "AAA", 1.0, 12);
+    let product = iron(&game);
+    assert!(!contracts::exclusive(game.state(), seller, product));
+    game.state_mut().contracts[0].exclusive = true;
+    assert!(contracts::exclusive(game.state(), seller, product));
 }

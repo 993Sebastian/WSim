@@ -343,6 +343,9 @@ export interface KartenLand {
   other_sites: number;
   /** Average import tariff (share of the value, W3). */
   tariff?: number;
+  /** Corruption and rule of law 0–1 (BP4). */
+  corruption?: number;
+  rule_of_law?: number;
 }
 
 export interface Lagerstaette {
@@ -383,6 +386,9 @@ export interface Landdetail {
   development: number;
   infrastructure: number[];
   stability: number;
+  /** Corruption and rule of law 0–1 (BP4). */
+  corruption?: number;
+  rule_of_law?: number;
   deposits: Lagerstaette[];
   companies: { name: string; sites: number; own: boolean }[];
   markets: {
@@ -488,6 +494,8 @@ export interface AnlageDetail {
   down_overhaul?: boolean;
   overhaul_cost_usd?: number | null;
   failures_year?: number;
+  /** Share of the output lost as scrap (BP4). */
+  scrap?: number;
   /** How the quality of the next batch comes about with today's inputs (#191). */
   quality?: Qualitaetsteile | null;
 }
@@ -653,7 +661,14 @@ export interface StandortDetail {
   training_labor_saving?: number;
   training_quality?: number;
   /** Maintenance level of the site (BP2). */
-  maintenance?: { level: number; min: number; max: number; failures: number } | null;
+  maintenance?: {
+    level: number;
+    min: number;
+    max: number;
+    failures: number;
+    accidents?: number;
+    accident_rate?: number;
+  } | null;
   rival_premium_max: number;
   staff: Personal[];
   wage_cost_per_day_usd: number;
@@ -2508,6 +2523,18 @@ export interface Controlling {
   start: string | null;
   months: string[];
   root: ControllingKnoten | null;
+  /** Make or buy per input of the own sites (BP4). */
+  make_or_buy?: MakeOrBuyZeile[];
+}
+
+export interface MakeOrBuyZeile {
+  site: number;
+  country: string;
+  product: string;
+  own_usd: number | null;
+  buy_usd: number | null;
+  supply: number;
+  advice: "halten" | "puffer" | "zukauf_pruefen";
 }
 
 /** A share with what it costs or brings (K1). */

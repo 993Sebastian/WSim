@@ -131,6 +131,35 @@ produktionsmodell:
     kapazitaet_zustand: 0.3
     ausfall: {basis: 0.004, tage_min: 3, tage_max: 14, kosten_anteil: 0.02, warnung_ab: 3}
     ueberholung: {kosten_anteil: 0.3, tage: 30, ki_ab: 0.35}
+  # Betrieb (BP4), alle Werte geschätzt (annaeherung):
+  # Ausschuss a = basis · (1 − Schulung · 0,5) · (1,5 − Zustand · 0,5) · Lernfaktor^0,5
+  #   · (1 − Automatisierung · 0,3), begrenzt auf min–max.
+  # Unfälle je 100 000 Arbeitsstunden nach Jahr (Industrie, grob nach ILO/US-BLS), Kosten
+  # je Unfall in Arbeitsstunden zum Durchschnittslohn des Standorts; nur schwere Unfälle
+  # (unfall_stillstand_anteil) legen eine Anlage einen Tag still und werden gemeldet.
+  # Korruption = grund − entwicklung · Entwicklung + instabilitaet · (1 − Stabilität);
+  # Rechtssicherheit = grund + entwicklung · Entwicklung + stabilitaet · Stabilität.
+  # Bauzeit · (1 + Korruption · bauzeit), Genehmigung Korruption · gebuehr · Investition,
+  # Forderung je Standort und Jahr mit Chance Korruption · forderung_chance über
+  # forderung_anteil der Investition; Enteignung ausländischer Standorte je Land und Jahr
+  # mit Chance (1 − Rechtssicherheit)(1 − Stabilität) · enteignung_basis.
+  betrieb:
+    # Ausschuss eines neuen Produkts mit ungeschultem Personal; geschultes Personal nimmt
+    # bis zu `schulung`, die Weiterentwicklung (Stand gegen den Führenden · Reife) bis zu
+    # `weiterentwicklung` davon weg. Zusätzlich zu den Netto-Ausbeuten der Rezepte.
+    ausschuss:
+      basis: {rohstoff: 0, halbzeug: 0, komponente: 0.02, endprodukt: 0.03, energie: 0}
+      min: 0.0
+      max: 0.3
+      schulung: 0.6
+      weiterentwicklung: 0.8
+    unfaelle_je_100000_stunden: {1900: 8, 1930: 5, 1950: 3.5, 1970: 2, 1990: 1, 2026: 0.5}
+    unfall_kosten_stunden: 100
+    unfall_stillstand_anteil: 0.05   # schwere Unfälle: Anlage einen Tag still, Meldung
+    korruption: {grund: 0.6, entwicklung: 0.6, instabilitaet: 0.4, bauzeit: 0.5, gebuehr: 0.05, forderung_chance: 0.3, forderung_anteil: 0.005}
+    rechtssicherheit: {grund: 0.1, entwicklung: 0.5, stabilitaet: 0.4}
+    enteignung_basis: 0.02
+    make_or_buy_toleranz: 0.1      # Eigenfertigung um mehr als 10 % teurer: „Zukauf prüfen“
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
   # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs

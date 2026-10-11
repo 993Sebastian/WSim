@@ -5544,3 +5544,44 @@ Ergänzt „Lager: Kapazität, Kosten, Verderb“ (Wunsch vom 10.10.2026); Param
   Angabe verderben nicht; `verderb` je Warengruppe (Monatsanteil) bleibt als Option.
 - **KI:** Der Bestand, den eine KI-Firma an Vorprodukten hält (Mindestbestand in Tagen),
   ist bei verderblicher Ware höchstens die halbe Haltbarkeit.
+
+### BP4 – Ausschuss, Arbeitsunfälle, Korruption, Rechtssicherheit, Verträge, Make or buy
+
+Parameter: `produktionsmodell.betrieb`, `vertraege` (alle Werte geschätzt).
+
+- **Ausschuss** a = `ausschuss.basis`[Produktart] · (1 − `schulung` · Schulung) ·
+  (1 − `weiterentwicklung` · Stand · Reife) · (1,5 − 0,5 · Zustand) · √*L* · (1 − 0,3 ·
+  Automatisierung), begrenzt auf `min`–`max`; Stand = eigene Weiterentwicklungspunkte
+  gegen die des Führenden, Reife wie in M37. Senken lässt sich der Ausschuss also durch
+  Schulung und Forschung (Weiterentwicklung); voll geschult und voll entwickelt bleiben
+  0,4 · 0,2 = 8 % des Grundwerts. Die Startbesetzung und die KI planen neue Anlagen mit
+  dem Ausschuss einer ungeschulten, unentwickelten Anlage, damit die Welt nicht
+  unterversorgt beginnt; das Hauptprodukt eines
+  Laufs · (1 − a), die Kosten bleiben. Stückkosten rechnen mit dem Ausstoß nach Ausschuss.
+  Förderrezepte haben keinen Ausschuss, Halbzeug im Grundwert auch nicht (die Ausbeuten sind schon netto).
+- **Arbeitsunfälle** je Standort und Tag mit Chance Beschäftigte · Stunden je Tag /
+  100 000 · u(Jahr) · (1 − 0,4 · Schulung) · (1,5 − 0,5 · Zustand); u aus
+  `unfaelle_je_100000_stunden`. Ein Unfall kostet `unfall_kosten_stunden` · mittlerer
+  Stundenlohn am Standort (nach Beschäftigten gewichtet, mit Lohnaufschlag; Personal) und
+  wird im Jahr gezählt (Werk → Instandhaltung). Ein Anteil `unfall_stillstand_anteil` ist
+  schwer: Er legt eine zufällige Anlage einen Tag still und wird gemeldet.
+  Zufallsstrom `Stream::Accidents`.
+- **Korruption** K = `grund` − `entwicklung` · Entwicklung + `instabilitaet` · (1 −
+  Stabilität) und **Rechtssicherheit** R = `grund` + `entwicklung` · Entwicklung +
+  `stabilitaet` · Stabilität, je auf 0–1 begrenzt, aus den Länderwerten des Jahres.
+  Bauzeit · (1 + K · `bauzeit`); Genehmigung K · `gebuehr` · Investition (sonstige
+  Aufwände); je Standort und Monat mit Chance K · `forderung_chance` / 12 eine Zahlung von
+  `forderung_anteil` · Investition (gezahlt, wenn die Kasse reicht; Meldung).
+- **Enteignungsrisiko:** am 1. Januar je Land mit Chance (1 − R)(1 − Stabilität) ·
+  `enteignung_basis` gehen die ausländischen Standorte an den Staat (wie Abschnitt H1),
+  Entschädigung R · Buchwert.
+- **Lieferausfall:** Fehlt Ware, zahlt der Verkäufer die Strafe; nach
+  `ausfall_kuendigung_monate` Fehlmonaten in Folge kündigt der Käufer ohne Strafe
+  (Meldung an den Spieler als Käufer). **Exklusiv:** Der Verkäufer bietet das Produkt von
+  diesem Standort nicht mehr am Markt an; eine KI als Verkäufer verlangt
+  `exklusiv_aufschlag` mehr.
+- **Make or buy** (Controlling): je Vorprodukt eines eigenen Werks die günstigsten
+  eigenen Stückkosten, der günstigste gelieferte Zukauf (Markt, Import, Staat, Vertrag),
+  die Versorgung (bedienter Anteil der Nachfrage im Land im Vormonat) und die Empfehlung:
+  eigene Kosten über Zukauf · (1 + `make_or_buy_toleranz`) → „Zukauf prüfen“; ohne eigene
+  Fertigung und Versorgung unter 80 % → „Puffer“; sonst „so lassen“.

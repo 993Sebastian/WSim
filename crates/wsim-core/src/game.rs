@@ -488,6 +488,11 @@ impl Game {
             &self.catalog,
             today,
         ));
+        report.messages.extend(crate::operations::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         production::simulate_day(&mut self.state, &self.catalog, today);
         report.messages.extend(crate::contracts::deliver(
             &mut self.state,
@@ -527,6 +532,11 @@ impl Game {
         self.state.date = next;
         if next.day() == 1 {
             crate::production::commodity_month(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::operations::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             report.messages.extend(crate::contracts::month_start(
                 &mut self.state,
                 &self.catalog,
@@ -651,6 +661,7 @@ impl Game {
         if next.ordinal() == 1 {
             production::new_year(&mut self.state);
             crate::maintenance::new_year(&mut self.state);
+            crate::operations::new_year(&mut self.state);
         }
         report.messages.extend(crate::milestones::check(
             &mut self.state,
@@ -944,6 +955,7 @@ pub(crate) fn start_setup(
         experience: Default::default(),
         maintenance: 1.0,
         failures: 0,
+        accidents: 0,
     });
     // The workshop leases its plot: the start capital pays only building and facilities.
     if crate::plots::needs_plot(catalog, setup.site_type) {

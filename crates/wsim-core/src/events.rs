@@ -417,7 +417,10 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
                 } => news.extend(expropriate(
                     state,
                     catalog,
-                    (event, &effect.countries),
+                    (
+                        Param::TextKey(format!("ereignis.{}", event.key)),
+                        &effect.countries,
+                    ),
                     foreign_only,
                     compensation,
                 )),
@@ -588,11 +591,12 @@ fn site_branch(state: &GameState, catalog: &Catalog, site: SiteId) -> Option<Bra
     Some(catalog.products.get(product).branch)
 }
 
-/// Hands the seized sites in the countries to their state companies.
-fn expropriate(
+/// Hands the seized sites in the countries to their state companies; `reason` names the
+/// event in the message.
+pub(crate) fn expropriate(
     state: &mut GameState,
     catalog: &Catalog,
-    (event, countries): (&HistoricalEvent, &[CountryId]),
+    (reason, countries): (Param, &[CountryId]),
     foreign_only: bool,
     compensation: f64,
 ) -> Vec<Message> {
@@ -675,10 +679,7 @@ fn expropriate(
     }
     news.extend(mine.into_iter().map(|(country, (sites, loss, paid))| {
         Message::new(MessageKind::Crisis, keys::EVENT_EXPROPRIATION)
-            .with(
-                "ereignis",
-                Param::TextKey(format!("ereignis.{}", event.key)),
-            )
+            .with("ereignis", reason.clone())
             .with(
                 "land",
                 Param::Country(catalog.countries.key(country).to_owned()),

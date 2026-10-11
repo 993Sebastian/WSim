@@ -90,6 +90,16 @@ pub struct Contract {
     pub paid_by_seller: Money,
     #[serde(default)]
     pub paid_by_buyer: Money,
+    /// The seller sells the product from its site to no one else (BP4).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub exclusive: bool,
+    /// Months in a row the seller fell short of goods (BP4).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub misses: u32,
+}
+
+fn is_zero(n: &u32) -> bool {
+    *n == 0
 }
 
 impl Contract {
@@ -145,6 +155,8 @@ pub struct Terms {
     pub months: u32,
     pub min_quality: f64,
     pub penalty: f64,
+    /// Exclusive supply (BP4).
+    pub exclusive: bool,
 }
 
 /// Why an AI company declines a proposal (text `vertrag.abgelehnt.<key>`).
@@ -165,6 +177,16 @@ impl Decline {
             Decline::Penalty => "strafe",
         }
     }
+}
+
+/// Whether a site sells a product to one buyer only (an active exclusive contract, BP4).
+pub fn exclusive(state: &GameState, site: SiteId, product: ProductId) -> bool {
+    state.contracts.iter().any(|c| {
+        c.exclusive
+            && c.status == ContractStatus::Active
+            && c.seller == site
+            && c.product == product
+    })
 }
 
 /// Daily output of a product at a site at full load of its running units.
@@ -314,7 +336,12 @@ pub fn ai_answer(
         let (cost, _) = delivery_cost(state, catalog, (t.seller, t.buyer), t.product, t.price)
             .ok_or(Decline::Price)?;
         let own = seller_price(state, catalog, t.seller, t.product);
-        if (t.price - cost) < own.scale(1.0 - m.discount(t.months)) {
+        let premium = if t.exclusive {
+            1.0 + catalog.contracts.exclusive_premium
+        } else {
+            1.0
+        };
+        if (t.price - cost) < own.scale((1.0 - m.discount(t.months)) * premium) {
             return Err(Decline::Price);
         }
         let free = m.share * daily_output(state, catalog, t.seller, t.product)
@@ -437,6 +464,8 @@ pub(crate) fn propose(
         delivered_total: 0.0,
         paid_by_seller: Money::ZERO,
         paid_by_buyer: Money::ZERO,
+        exclusive: t.exclusive,
+        misses: 0,
     });
     Ok(())
 }
@@ -489,7 +518,11 @@ pub(crate) fn cancel(
     if c.status == ContractStatus::Proposed && c.proposer != actor {
         return Err(CommandError::UnknownContract);
     }
-    let fee = if c.status == ContractStatus::Active {
+    // A buyer whose supplier failed months in a row leaves for free (BP4).
+    let failed = actor == c.buyer_company
+        && catalog.contracts.free_cancel_after > 0
+        && c.misses >= catalog.contracts.free_cancel_after;
+    let fee = if c.status == ContractStatus::Active && !failed {
         let months = c.months_left(today).min(catalog.contracts.cancel_months);
         Money::times(c.price, c.per_day * DAYS_PER_MONTH * f64::from(months)).scale(c.penalty)
     } else {
@@ -752,8 +785,17 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
             let cs = &mut state.contracts[i];
             if seller_fault {
                 cs.paid_by_seller += fee;
+                cs.misses += 1;
             } else {
                 cs.paid_by_buyer += fee;
+            }
+            let after = catalog.contracts.free_cancel_after;
+            if seller_fault && after > 0 && cs.misses == after && Some(cs.buyer_company) == player {
+                news.push(
+                    Message::new(MessageKind::Warning, keys::CONTRACT_SUPPLIER_FAILS)
+                        .with("produkt", product.clone())
+                        .with("monate", Param::Integer(i64::from(after))),
+                );
             }
             if Some(payer) == player || Some(payee) == player {
                 let key = if Some(payer) == player {
@@ -770,6 +812,9 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, today: Date)
             }
         }
         let cs = &mut state.contracts[i];
+        if missing <= due * 1e-6 {
+            cs.misses = 0;
+        }
         cs.delivered_month = 0.0;
         cs.short_of = None;
         if cs.end().is_some_and(|end| end <= today) {
@@ -930,5 +975,6 @@ fn best_partner(
         months: m.months_default,
         min_quality: 0.0,
         penalty: m.penalty_default.min(m.ai.penalty_max),
+        exclusive: false,
     })
 }

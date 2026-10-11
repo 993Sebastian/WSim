@@ -224,6 +224,16 @@ export function Laenderdetail({
             </dd>
             <dt>{t("landdetail.stabilitaet")}</dt>
             <dd>{formatProzent(land.stability)}</dd>
+            {land.corruption !== undefined && (
+              <>
+                <dt title={t("landdetail.korruption_hilfe")}>{t("landdetail.korruption")}</dt>
+                <dd>{formatProzent(land.corruption)}</dd>
+                <dt title={t("landdetail.rechtssicherheit_hilfe")}>
+                  {t("landdetail.rechtssicherheit")}
+                </dt>
+                <dd>{formatProzent(land.rule_of_law ?? 1)}</dd>
+              </>
+            )}
           </dl>
 
           {land.land && <Gewerbeflaechen flaeche={land.land} />}

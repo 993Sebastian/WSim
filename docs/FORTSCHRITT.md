@@ -2997,4 +2997,10 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Daten: Klassen, Haltbarkeiten von 62 Lebensmitteln; Kleidung aus der Warengruppe
   Lebensmittel genommen. Tests: Verderb nach Haltbarkeit, FIFO, Fremdlager-Kosten,
   Prüfregeln.
+- **BP4 Betrieb:** Ausschuss je Lauf, Arbeitsunfälle (Kosten, Tag Stillstand, Zählung),
+  Korruption und Rechtssicherheit je Land (Bauzeit, Genehmigung, Forderungen,
+  Enteignungsrisiko; Karte und Länderdetail), Lieferverträge mit Ausfallzähler und
+  strafloser Kündigung nach drei Fehlmonaten, exklusive Verträge, Make-or-buy-Tabelle im
+  Controlling. Tests: Ausschuss, Unfälle, Korruption, Formeln, Lieferausfall,
+  Exklusivität, Make or buy mit echten Daten, Prüfregeln.
 

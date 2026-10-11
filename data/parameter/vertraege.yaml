@@ -8,6 +8,8 @@ vertraege:
   kuendigung_monate: 3       # wer kündigt, zahlt die Strafe auf so viele Monatsmengen
   angebot_tage: 30           # so lange wartet ein Angebot der KI auf die Antwort
   aufbewahren_monate: 12     # beendete Verträge bleiben so lange in der Liste
+  ausfall_kuendigung_monate: 3 # liefert der Verkäufer so viele Monate in Folge zu wenig, kündigt der Käufer ohne Strafe (BP4)
+  exklusiv_aufschlag: 0.1    # Preisaufschlag, den die KI für Exklusivität verlangt (BP4)
   ki:
     # Rabatt für Bindung (10.10.2026): je Monat Laufzeit über den ersten mehr, bis zum Höchstwert.
     abschlag_verkauf: 0.08   # für sichere Abnahme verkauft die KI 8 % billiger …

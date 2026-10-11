@@ -159,6 +159,7 @@ function NeuerVertrag({
   const [monate, setMonate] = useState(String(daten.months_default));
   const [qualitaet, setQualitaet] = useState("0");
   const [strafe, setStrafe] = useState(zahlFeld(daten.penalty_default * 100, 1));
+  const [exklusiv, setExklusiv] = useState(false);
 
   useEffect(() => {
     if (standort === null || !produkt) return;
@@ -212,6 +213,7 @@ function NeuerVertrag({
             months: Math.round(werte.monate ?? 0),
             min_quality: werte.qualitaet ?? 0,
             penalty: (werte.strafe ?? 0) / 100,
+            exclusive: exklusiv,
           },
         },
       ],
@@ -334,6 +336,14 @@ function NeuerVertrag({
               })}
             />
           </div>
+          <label className="auswahl" title={t("vertrag.exklusiv_hilfe")}>
+            <input
+              type="checkbox"
+              checked={exklusiv}
+              onChange={(e) => setExklusiv(e.target.checked)}
+            />{" "}
+            {t("vertrag.exklusiv")}
+          </label>
           <div className="knopfreihe">
             <button type="button" className="haupt" disabled={!gueltig} onClick={anbieten}>
               {t("vertrag.anbieten")}

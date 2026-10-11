@@ -253,6 +253,8 @@ karte.ebene.bip: BIP je Kopf
 karte.ebene.bevoelkerung: Bevölkerung
 karte.ebene.rohstoffe: Rohstoffe
 karte.ebene.zoll: Zölle
+karte.ebene.korruption: Korruption
+karte.ebene.rechtssicherheit: Rechtssicherheit
 karte.ebene.standorte: Standorte
 karte.rohstoff: Rohstoff
 karte.produkt: Produkt
@@ -287,6 +289,10 @@ landdetail.steuern_wert: "Gewinn {gewinn}, Dividende {dividende}"
 landdetail.infrastruktur: Infrastruktur
 landdetail.infrastruktur_wert: "Schiene {schiene}, Straße {strasse}, Hafen {hafen}"
 landdetail.stabilitaet: Stabilität
+landdetail.korruption: Korruption
+landdetail.korruption_hilfe: Verlängert die Bauzeit, kostet Genehmigungsgebühren und gelegentliche Zahlungen an Beamte.
+landdetail.rechtssicherheit: Rechtssicherheit
+landdetail.rechtssicherheit_hilfe: Je geringer, desto eher werden ausländische Betriebe enteignet – und desto weniger wird entschädigt.
 landdetail.zoelle: Einfuhrzölle
 landdetail.folgen: Folgen von Weltereignissen
 landdetail.zoll_schnitt: Im Schnitt
@@ -717,6 +723,11 @@ werk.instandhaltung_gesetzt: "Instandhaltung auf {prozent} % gesetzt."
 werk.ausfaelle_dieses_jahr: Ausfälle in diesem Jahr
 werk.wartung_fuer: "Ausfälle und Überholung von {anlage}"
 werk.ausfaelle_jahr: Erwartete Ausfälle je Jahr
+werk.ausschuss: Ausschuss
+werk.ausschuss_hilfe: Anteil der Erzeugung, der nicht verkauft werden kann; die Kosten bleiben. Schulung, Instandhaltung, Erfahrung und Automatisierung senken ihn.
+werk.unfaelle: Arbeitsunfälle
+werk.unfaelle_hilfe: Unfälle kosten Lohnfortzahlung und Entschädigung und legen eine Anlage für einen Tag still. Schulung und gut gewartete Anlagen senken das Risiko.
+werk.unfaelle_wert: "{anzahl} in diesem Jahr ({rate} je 100 000 Arbeitsstunden)"
 werk.ausfall_bis: Ausfall bis
 werk.ueberholung_bis: Großüberholung bis
 werk.ueberholen: "Großüberholung ({kosten})"
@@ -2218,6 +2229,8 @@ vertrag.eigen.einkauf: "Dein Standort braucht {menge} am Tag."
 vertrag.preis_hilfe: Je Einheit, frei Standort des Käufers.
 vertrag.qualitaet: Mindestqualität
 vertrag.strafe: Vertragsstrafe
+vertrag.exklusiv: Exklusiv – der Lieferant beliefert sonst niemanden
+vertrag.exklusiv_hilfe: Der Verkäufer verkauft das Produkt von diesem Standort aus nicht mehr am Markt. Die KI verlangt dafür einen Aufschlag.
 vertrag.strafe_hilfe: "Anteil am Wert der fehlenden Menge (höchstens {max}). Wer kündigt, zahlt sie auf bis zu {monate} Monatsmengen."
 vertrag.anbieten: Vertrag anbieten
 vertrag.abgeschlossen: Die Firma nimmt an – der Vertrag beginnt am nächsten Monatsersten.
@@ -2317,6 +2330,17 @@ tochter.summe: Summe
 finanzen.reiter_abschluss: Abschluss
 finanzen.reiter_controlling: Controlling
 controlling.titel: Controlling
+controlling.mob.titel: Eigenfertigung oder Zukauf
+controlling.mob.hilfe: Für jedes Vorprodukt deiner Werke – was es dich selbst kostet und was es geliefert kostet. Versorgung = Anteil des bedienten Bedarfs im Land im Vormonat.
+controlling.mob.vorprodukt: Vorprodukt
+controlling.mob.land: Werk in
+controlling.mob.eigen: Eigene Stückkosten
+controlling.mob.zukauf: Zukauf geliefert
+controlling.mob.versorgung: Versorgung
+controlling.mob.empfehlung: Empfehlung
+controlling.mob.rat.halten: so lassen
+controlling.mob.rat.puffer: Puffer anlegen (Versorgung unsicher)
+controlling.mob.rat.zukauf_pruefen: Zukauf prüfen
 controlling.hilfe: Womit, wo und wodurch du Geld verdienst oder verlierst. Deckungsbeitrag I ist der Umsatz abzüglich der variablen Kosten (Material, Bestand, Energie, Transport, Zölle, Lizenzen), Deckungsbeitrag II zieht die Fixkosten der Standorte ab (Personal, Instandhaltung, Abschreibung, Pacht, Verwaltung). Klappe die Ebenen auf und wähle eine, um ihre Kostenarten und die letzten Monate zu sehen.
 controlling.zeitraum.monat: Vormonat
 controlling.zeitraum.jahr: Laufendes Jahr

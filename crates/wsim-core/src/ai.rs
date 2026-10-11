@@ -3037,7 +3037,7 @@ fn open_deposit(
         let Some(recipe) = best_recipe(catalog, state, id, product, None, None) else {
             continue;
         };
-        let per_day = population::output_per_day(catalog, recipe);
+        let per_day = population::net_output_per_day(catalog, recipe);
         if open < 0.5 * per_day || piling(state, catalog, product) {
             continue;
         }
@@ -4344,7 +4344,7 @@ impl Chain<'_> {
         {
             return None;
         }
-        let per_day = population::output_per_day(catalog, recipe) * u;
+        let per_day = population::net_output_per_day(catalog, recipe) * u;
         // Capacity in units of the data size (M36), from the smallest size to twenty.
         let smallest = catalog
             .production_model

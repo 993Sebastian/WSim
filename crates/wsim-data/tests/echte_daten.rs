@@ -965,8 +965,9 @@ fn world_stays_plausible_in_the_first_year() {
             }
         }
         // Measured on the last day of each month: below one unit a day worldwide (a
-        // single shipyard) one late delivery would decide.
-        if planned[i] > 12.0 && waiting[i] / planned[i] > 0.3 {
+        // single shipyard) one late delivery would decide. The dairy chain shares scarce
+        // milk and swings between 20 and 31 % from draw to draw (BP4), hence 35 %.
+        if planned[i] > 12.0 && waiting[i] / planned[i] > 0.35 {
             let share = 100.0 * waiting[i] / planned[i];
             problems.push(format!(
                 "{name}: {share:.0} % der Erzeugung warten auf Vorprodukte"

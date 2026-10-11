@@ -595,6 +595,12 @@ function AnlageWartung({ a, s, name }: { a: AnlageDetail; s: StandortDetail; nam
       <dl className="werte">
         <dt>{t("werk.ausfaelle_jahr")}</dt>
         <dd>{formatZahl(a.failures_year ?? 0, 1)}</dd>
+        {(a.scrap ?? 0) > 0 && (
+          <>
+            <dt title={t("werk.ausschuss_hilfe")}>{t("werk.ausschuss")}</dt>
+            <dd>{formatProzent(a.scrap ?? 0)}</dd>
+          </>
+        )}
         {a.down_until && (
           <>
             <dt>{t(a.down_overhaul ? "werk.ueberholung_bis" : "werk.ausfall_bis")}</dt>
@@ -2694,6 +2700,13 @@ function Instandhaltung({ s }: { s: StandortDetail }) {
         <dd>{formatProzent(m.level)}</dd>
         <dt>{t("werk.ausfaelle_dieses_jahr")}</dt>
         <dd>{formatZahl(m.failures)}</dd>
+        <dt title={t("werk.unfaelle_hilfe")}>{t("werk.unfaelle")}</dt>
+        <dd>
+          {t("werk.unfaelle_wert", {
+            anzahl: formatZahl(m.accidents ?? 0),
+            rate: formatZahl(m.accident_rate ?? 0, 1),
+          })}
+        </dd>
       </dl>
       <div className="formular-zeile">
         <ZahlFeld

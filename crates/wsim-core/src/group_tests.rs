@@ -240,6 +240,7 @@ fn no_business_within_the_group() {
             months: 1,
             min_quality: 0.0,
             penalty: 0.0,
+            exclusive: false,
         }),
         Err(CommandError::WithinGroup)
     );

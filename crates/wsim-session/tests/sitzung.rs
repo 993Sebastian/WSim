@@ -948,3 +948,24 @@ fn a_game_starts_with_the_person_and_its_money() {
     let loaded = session.load("Gegruendet").unwrap();
     assert_eq!(loaded.company.unwrap().name, "Gründer AG");
 }
+
+/// Make or buy (BP4): every input of the workshop has a delivered price and a supply
+/// share; the advice is one of the three.
+#[test]
+fn make_or_buy_lists_the_inputs_of_the_workshop() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut session = Session::open(&data_dir(), dir.path().join("spielstaende")).unwrap();
+    session.new_game(&request()).unwrap();
+    let view = session.controlling("jahr").unwrap();
+    assert!(!view.make_or_buy.is_empty(), "the workshop buys its inputs");
+    for row in &view.make_or_buy {
+        assert_eq!(row.country, "DEU");
+        assert!(
+            row.buy_usd.is_some_and(|p| p > 0.0),
+            "{}: a price",
+            row.product
+        );
+        assert!((0.0..=1.0).contains(&row.supply));
+        assert!(["halten", "puffer", "zukauf_pruefen"].contains(&row.advice.as_str()));
+    }
+}

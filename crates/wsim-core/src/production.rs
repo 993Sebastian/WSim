@@ -398,7 +398,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             )
         };
         let mut sums: Vec<UnitCost> = Vec::new();
-        for sl in &s.slots {
+        for (slot, sl) in s.slots.iter().enumerate() {
             // Shut down facilities make nothing (M22).
             let Some(recipe) = sl
                 .recipe
@@ -448,7 +448,9 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 / 365.0;
             let line = UnitCost {
                 product: recipe.product,
-                output_per_day: runs * recipe.output,
+                output_per_day: runs
+                    * recipe.output
+                    * (1.0 - crate::operations::scrap_rate(catalog, state, s, slot, recipe)),
                 material: material * runs,
                 labor: labor * runs,
                 energy: energy * runs,
@@ -816,7 +818,10 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         };
         let quality = quality_parts(catalog, state, (site, slot), recipe, average_input).total;
 
-        let mut outputs = vec![(recipe.product, recipe.output * runs)];
+        // Scrap (BP4): the costs stay, less comes out.
+        let scrap =
+            crate::operations::scrap_rate(catalog, state, &state.sites[index], slot, recipe);
+        let mut outputs = vec![(recipe.product, recipe.output * runs * (1.0 - scrap))];
         outputs.extend(recipe.by_products.iter().map(|&(p, q)| (p, q * runs)));
         let finish = date.add_days(i32::try_from(recipe.duration_days).unwrap_or(1) - 1);
         let sl = &mut state.sites[index].slots[slot];
