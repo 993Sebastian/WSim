@@ -165,6 +165,9 @@ pub mod keys {
     pub const AI_SELLS: &str = "meldung.ki.verkauf";
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
     pub const STORAGE_FULL: &str = "warnung.lager_voll";
+    pub const BREAKDOWN: &str = "warnung.anlagenausfall";
+    pub const BREAKDOWN_OFTEN: &str = "warnung.anlagenausfall_oft";
+    pub const COMMAND_MAINTENANCE_RANGE: &str = "fehler.befehl.instandhaltung_bereich";
     pub const MILESTONE: &str = "meldung.etappe";
     pub const AI_NEW_SELLER: &str = "meldung.ki.anbieter_neu";
     pub const AI_SELLER_GONE: &str = "meldung.ki.anbieter_weg";
@@ -879,6 +882,9 @@ pub mod keys {
         AI_SELLS,
         INPUT_MISSING,
         STORAGE_FULL,
+        BREAKDOWN,
+        BREAKDOWN_OFTEN,
+        COMMAND_MAINTENANCE_RANGE,
         HINT_INPUT,
         HINT_LABOR,
         HINT_POWER,

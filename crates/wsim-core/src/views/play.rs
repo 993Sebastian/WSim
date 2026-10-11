@@ -89,6 +89,17 @@ pub struct SlotDetail {
     /// How the quality of the next batch comes about with today's stock of inputs.
     #[serde(default)]
     pub quality: Option<QualityView>,
+    /// Standing after a breakdown or for an overhaul until the day (BP2).
+    #[serde(default)]
+    pub down_until: Option<String>,
+    #[serde(default)]
+    pub down_overhaul: bool,
+    /// Cost of an overhaul; none without the maintenance model.
+    #[serde(default)]
+    pub overhaul_cost_usd: Option<f64>,
+    /// Expected breakdowns per year at today's condition.
+    #[serde(default)]
+    pub failures_year: f64,
 }
 
 /// Quality of a product in points (docs/FORMELN.md): recipe, inputs, automation,
@@ -184,6 +195,16 @@ pub struct StaffLine {
     pub wage_usd: f64,
     /// Wage per hour in the country.
     pub country_wage_usd: f64,
+}
+
+/// Maintenance of a site (BP2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MaintenanceView {
+    pub level: f64,
+    pub min: f64,
+    pub max: f64,
+    /// Breakdowns this year.
+    pub failures: u32,
 }
 
 /// Expected cost of one unit of a product made at the site, by kind (USD per unit).
@@ -373,6 +394,9 @@ pub struct SiteDetail {
     pub training_labor_saving: f64,
     #[serde(default)]
     pub training_quality: f64,
+    /// Maintenance level and its range (BP2); none without the maintenance model.
+    #[serde(default)]
+    pub maintenance: Option<MaintenanceView>,
     pub unit_costs: Vec<UnitCostView>,
     /// Result of the last closed month, if the site existed then.
     pub last_month: Option<SiteResult>,
@@ -720,6 +744,8 @@ pub fn production(game: &Game) -> ProductionView {
                             Limit::Regulation => ("ursache.regulierung", None),
                             Limit::Patent => ("ursache.patent", None),
                             Limit::Storage => ("ursache.lager_voll", None),
+                            Limit::Breakdown => ("ursache.ausfall", None),
+                            Limit::Overhaul => ("ursache.ueberholung", None),
                         })
                     };
                     SlotDetail {
@@ -774,7 +800,9 @@ pub fn production(game: &Game) -> ProductionView {
                         sale_value_usd: usd(sale.1),
                         restart_cost_usd: usd(sl.cost.scale(model.restart_cost_share)),
                         restart_days: model.restart_days,
-                        maintenance_month_usd: usd(sl.cost.scale(f.maintenance_share / 12.0)),
+                        maintenance_month_usd: usd(sl
+                            .cost
+                            .scale(f.maintenance_share * s.maintenance / 12.0)),
                         maintenance_mothballed_month_usd: usd(sl
                             .cost
                             .scale(f.maintenance_share * model.mothball_maintenance_share / 12.0)),
@@ -793,6 +821,17 @@ pub fn production(game: &Game) -> ProductionView {
                             catalog, state, site_id, index,
                         )
                         .map(usd),
+                        down_until: crate::maintenance::down_on(sl, state.date)
+                            .map(|d| iso(d.until)),
+                        down_overhaul: crate::maintenance::down_on(sl, state.date)
+                            .is_some_and(|d| d.overhaul),
+                        overhaul_cost_usd: catalog
+                            .production_model
+                            .maintenance
+                            .enabled
+                            .then(|| usd(crate::maintenance::overhaul_cost(catalog, sl))),
+                        failures_year: 365.0
+                            * crate::maintenance::failure_chance(catalog, sl.condition),
                         quality: recipe.map(|r| slot_quality(game, site_id, index, r)),
                     }
                 })
@@ -934,6 +973,15 @@ pub fn production(game: &Game) -> ProductionView {
                 ),
                 training_labor_saving: 1.0 - crate::training::labor_factor(catalog, s.training),
                 training_quality: crate::training::quality(catalog, s.training),
+                maintenance: {
+                    let m = &catalog.production_model.maintenance;
+                    m.enabled.then_some(MaintenanceView {
+                        level: s.maintenance,
+                        min: m.level_min,
+                        max: m.level_max,
+                        failures: s.failures,
+                    })
+                },
                 unit_costs: unit_costs
                     .iter()
                     .map(|u| {

@@ -129,6 +129,11 @@ pub enum Stream {
     Commodities {
         month: u32,
     },
+    /// Breakdowns of a site's facilities on a day (BP2).
+    Operations {
+        site: u32,
+        day: u32,
+    },
 }
 
 impl Stream {
@@ -188,6 +193,9 @@ impl Stream {
             Stream::Person { month } => (24 << 56) | u64::from(month),
             Stream::Succession { month } => (25 << 56) | u64::from(month),
             Stream::Commodities { month } => (26 << 56) | u64::from(month),
+            Stream::Operations { site, day } => {
+                (27 << 56) | (u64::from(site) << 24) | u64::from(day)
+            }
         }
     }
 }

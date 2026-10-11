@@ -170,6 +170,7 @@ fehler.befehl.nicht_notiert: Diese Firma ist nicht an der Börse.
 fehler.befehl.schon_notiert: Deine Firma ist schon an der Börse – neue Aktien gibst du über eine Kapitalerhöhung aus.
 fehler.befehl.eigenkapital_zu_gering: "Für den Börsengang braucht deine Firma mindestens {min} Eigenkapital."
 fehler.befehl.anteil_ausserhalb: "Der Anteil muss größer als 0 und höchstens {max} % sein."
+fehler.befehl.instandhaltung_bereich: "Die Instandhaltung muss zwischen {min} und {max} liegen."
 fehler.befehl.uebernahme_ohne_mehrheit: "Der Spieler hält {anteil} % dieser Firma und verkauft nicht – eine Übernahme ist unmöglich."
 fehler.befehl.streubesitz_zu_klein: "Im Streubesitz sind nur noch {anteil} % der Aktien."
 fehler.befehl.zu_wenig_aktien: "Du hältst nur {anteil} % dieser Firma."
@@ -426,6 +427,8 @@ meldung.vorstand.gegenangebot.standort: "Der Vorstand verlangt von {firma} {prei
 meldung.vorstand.gegenangebot.lizenz: "Der Vorstand verlangt von {firma} {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.vorstand.gegenangebot.bereich: "Der Vorstand verlangt von {firma} {preis} für deinen Bereich {warengruppe} mit Marke (Standorte: {standorte}). Antwort bis {frist}."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
+warnung.anlagenausfall: "Ausfall: {anlage} in {land} steht {tage} Tage, die Reparatur kostet {kosten}."
+warnung.anlagenausfall_oft: "Schon {anzahl} Ausfälle in diesem Jahr: {anlage} in {land} steht {tage} Tage ({kosten}). Mehr Instandhaltung oder eine Großüberholung helfen (Werk → Anlagen)."
 warnung.lager_voll: "Ein Lager in {land} ist voll: Die Anlagen stehen. Mehr verkaufen, Ware umlagern oder das Lager ausbauen (Werk → Lager)."
 
 # Hinweise der Übersicht („Zu erledigen“)

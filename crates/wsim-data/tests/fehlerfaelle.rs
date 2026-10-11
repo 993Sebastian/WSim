@@ -5086,3 +5086,51 @@ fn lernkurve_wird_geprueft() {
         alle(&schlecht)
     );
 }
+
+#[test]
+fn instandhaltung_wird_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let mit = |stufe_min: &str, tage: &str| {
+        Daten::neu()
+            .ersetze(
+                datei,
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                &format!(
+                    "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  \
+                     instandhaltung:\n    stufe_min: {stufe_min}\n    stufe_max: 1.5\n    \
+                     exponent: 1.5\n    kapazitaet_zustand: 0.3\n    ausfall: {{basis: 0.004, \
+                     {tage}, kosten_anteil: 0.02, warnung_ab: 3}}\n    ueberholung: \
+                     {{kosten_anteil: 0.3, tage: 30, ki_ab: 0.35}}\n"
+                ),
+            )
+            .laden()
+    };
+    let gut = mit("0.5", "tage_min: 3, tage_max: 14");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut
+        .data
+        .as_ref()
+        .unwrap()
+        .catalog
+        .production_model
+        .maintenance;
+    assert!(m.enabled && m.failure_days == (3, 14));
+    let zu_hoch = mit("1.2", "tage_min: 3, tage_max: 14");
+    let f = befund(
+        &zu_hoch,
+        "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0.1 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.instandhaltung.stufe_min"
+    );
+    let verdreht = mit("0.5", "tage_min: 20, tage_max: 14");
+    let f = befund(
+        &verdreht,
+        "„tage_min“ muss mindestens 1 sein und darf nicht über „tage_max“ liegen.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.instandhaltung.ausfall.tage_min"
+    );
+}

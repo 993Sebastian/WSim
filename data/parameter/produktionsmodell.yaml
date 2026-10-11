@@ -107,6 +107,20 @@ produktionsmodell:
     entlassung: 0.1
     uebertrag: 0.5
     start_etabliert_jahre: 3
+  # Instandhaltung (BP2): Stufe je Standort (Wartungskosten · Stufe), Verschleiß ·
+  # (1 / Stufe)^exponent, Kapazität · (1 − kapazitaet_zustand · (1 − Zustand)).
+  # Ausfall je Anlage und Tag: basis · ((1 − Zustand) / (1 − zustand_minimum))²; die Anlage
+  # steht tage_min–tage_max Tage, die Reparatur kostet kosten_anteil der Investition;
+  # ab warnung_ab Ausfällen im Jahr rät die Meldung zu Instandhaltung oder Überholung.
+  # Großüberholung: kosten_anteil der Investition, tage Stillstand, danach Zustand 1; die
+  # KI überholt unter ki_ab. Alle Werte geschätzt (annaeherung).
+  instandhaltung:
+    stufe_min: 0.5
+    stufe_max: 1.5
+    exponent: 1.5
+    kapazitaet_zustand: 0.3
+    ausfall: {basis: 0.004, tage_min: 3, tage_max: 14, kosten_anteil: 0.02, warnung_ab: 3}
+    ueberholung: {kosten_anteil: 0.3, tage: 30, ki_ab: 0.35}
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
   # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs

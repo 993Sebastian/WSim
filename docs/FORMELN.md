@@ -5519,3 +5519,28 @@ Werte geschätzt).
 - **KI:** Stufe = 0,8 + 0,5 · Kompetenz (auf die Grenzen beschnitten), zum Monatsbeginn
   gesetzt, wenn sie abweicht. Überholt eine Anlage, deren Zustand unter
   `ueberholung.ki_ab` liegt, wenn die Kasse das Doppelte der Kosten trägt.
+
+### BP3 – Lagerklassen, Fremdlager, Haltbarkeit
+
+Ergänzt „Lager: Kapazität, Kosten, Verderb“ (Wunsch vom 10.10.2026); Parameter weiter in
+`produktionsmodell.lager`.
+
+- **Lagerklasse** je Produkt: `lagerklasse` am Produkt, sonst `nach_warengruppe`, sonst
+  `nach_transportklasse` (jede Transportklasse braucht einen Eintrag – so hat jedes
+  Produkt eine Klasse). Produkte mit `haltbarkeit_tage` ≤ `gekuehlt_bis_tage` liegen
+  `gekuehlt`. Klassen: `schuettgut`, `stueckgut`, `fluessig`, `gekuehlt`, `gefahrgut`.
+- **Lagerkosten** je Tag = Σ Bestand · Richtpreis · `klassen[k].kosten_jahr_anteil` / 365
+  (Kostenart „Lager“). Rohstoffe liegen billig, Gekühltes teuer.
+- **Fremdlager:** Was über der Kapazität *K* liegt (bis *K* · `fremdlager_faktor`), kostet
+  den `fremdlager_satz`-fachen Satz (2) und löst die Warnung aus; erst über *K* ·
+  `fremdlager_faktor` greift die bisherige Drosselung (Einkauf stoppt, Anlagen stehen,
+  wenn eigene Erzeugnisse die Hälfte belegen).
+- **Haltbarkeit:** Produkte mit `haltbarkeit_tage` werden in Chargen nach Eingangstag
+  geführt (FIFO: Entnahmen nehmen die älteste Charge zuerst). Täglich bekommt neu
+  Eingelagertes eine Charge mit dem Tag; Chargen älter als `haltbarkeit_tage` werden
+  entsorgt (Menge und anteiliger Wert, Kostenart „Lager“). Meldung, wenn ein Standort in
+  einem Monat mehr als `verderb_meldung_ab` (5 %) eines Produkts entsorgt. Alte
+  Spielstände: der Bestand wird beim ersten Tag eine Charge mit diesem Tag. Produkte ohne
+  Angabe verderben nicht; `verderb` je Warengruppe (Monatsanteil) bleibt als Option.
+- **KI:** Der Bestand, den eine KI-Firma an Vorprodukten hält (Mindestbestand in Tagen),
+  ist bei verderblicher Ware höchstens die halbe Haltbarkeit.

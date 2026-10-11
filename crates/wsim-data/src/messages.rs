@@ -834,3 +834,7 @@ pub fn ban_without_effect() -> String {
 pub fn ban_without_products() -> String {
     "Ein Verbot braucht mindestens ein Produkt unter „produkte“.".into()
 }
+
+pub fn range_order(lower: &str, upper: &str) -> String {
+    format!("„{lower}“ muss mindestens 1 sein und darf nicht über „{upper}“ liegen.")
+}

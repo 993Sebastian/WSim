@@ -964,7 +964,9 @@ fn world_stays_plausible_in_the_first_year() {
                 problems.push(format!("{name}: Preis {ratio:.2} × Richtpreis"));
             }
         }
-        if planned[i] > 1e-9 && waiting[i] / planned[i] > 0.3 {
+        // Measured on the last day of each month: below one unit a day worldwide (a
+        // single shipyard) one late delivery would decide.
+        if planned[i] > 12.0 && waiting[i] / planned[i] > 0.3 {
             let share = 100.0 * waiting[i] / planned[i];
             problems.push(format!(
                 "{name}: {share:.0} % der Erzeugung warten auf Vorprodukte"

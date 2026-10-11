@@ -2983,3 +2983,11 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Entlassungen, Übertrag auf Nachfolgeprodukte, Startfirmen mit zehn Jahren Erfahrung;
   Werksansicht zeigt Faktor und Ersparnis. Tests: 8-fache Menge → 0,85³, erfahrenes Werk
   billiger, Vergessen, Entlassung. Entscheidungen: OFFENE_PUNKTE R 7–9.
+- **BP2 Instandhaltung:** Stufe 0,5–1,5 je Standort (Wartungskosten · Stufe, Verschleiß
+  · (1/Stufe)^1,5), Zustand senkt die Kapazität (0,7 + 0,3 · Zustand), Ausfälle
+  quadratisch mit dem Verschleiß (Stillstand 3–14 Tage, Reparatur 2 % der Investition,
+  Meldung), Großüberholung (30 %, 30 Tage, Zustand 1); KI wählt die Stufe nach Können und
+  überholt verschlissene Anlagen. Werk: Instandhaltung, erwartete Ausfälle, Überholen.
+  Tests: Stufe 0,5 fällt in zehn Jahren öfter aus als 1,5; Überholung; Bereich.
+
+  Prüfung „Weltlauf 1900 plausibel“: Warteanteil erst ab einer Tagesmenge über eins (eine einzelne Werft entschied sonst über die Stichtage).

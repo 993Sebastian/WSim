@@ -684,6 +684,14 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         if full {
             bound(&mut runs, 0.0, Limit::Storage);
         }
+        if let Some(d) = crate::maintenance::down_on(&state.sites[index].slots[slot], date) {
+            let why = if d.overhaul {
+                Limit::Overhaul
+            } else {
+                Limit::Breakdown
+            };
+            bound(&mut runs, 0.0, why);
+        }
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
                 .inventory
@@ -937,7 +945,9 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         } else {
             1.0
         };
-        maintenance += sl.cost.scale(f.maintenance_share * kept / 365.0);
+        maintenance += sl
+            .cost
+            .scale(f.maintenance_share * kept * s.maintenance / 365.0);
         let life_days = f64::from(f.lifetime_years) * 365.0;
         if f64::from(sl.ready.days_until(date)) < life_days {
             depreciation += sl.cost.scale(1.0 / life_days);
@@ -998,11 +1008,13 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         }
     }
 
-    // Wear: the condition falls linearly over the lifetime, not while shut down.
+    // Wear: the condition falls linearly over the lifetime, faster with less maintenance
+    // (BP2), not while shut down.
+    let wear = crate::maintenance::wear_factor(catalog, state.sites[index].maintenance);
     for sl in &mut state.sites[index].slots {
         if sl.ready <= date && !sl.mothballed() {
             let life_days = f64::from(catalog.facilities.get(sl.facility).lifetime_years) * 365.0;
-            sl.condition = (sl.condition - 1.0 / life_days).max(model.condition_min);
+            sl.condition = (sl.condition - wear / life_days).max(model.condition_min);
         }
     }
 }

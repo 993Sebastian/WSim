@@ -122,6 +122,7 @@ pub fn decide_with(
                     );
                 }
             }
+            crate::maintenance::ai_month(state, catalog, id, own);
             file_patents(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
@@ -4733,6 +4734,7 @@ mod tests {
             utilization,
             automation: 0.0,
             condition: 1.0,
+            down: None,
             batches: Vec::new(),
             last_runs: 0.0,
             limit: None,
@@ -5588,6 +5590,7 @@ mod tests {
             utilization: 0.5,
             automation: 0.0,
             condition: 1.0,
+            down: None,
             batches: Vec::new(),
             last_runs: 0.0,
             limit: None,

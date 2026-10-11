@@ -483,6 +483,11 @@ export interface AnlageDetail {
   retrofit?: number;
   retrofit_required?: number;
   retrofit_cost_usd?: number | null;
+  /** Standing after a breakdown or for an overhaul until the day (BP2). */
+  down_until?: string | null;
+  down_overhaul?: boolean;
+  overhaul_cost_usd?: number | null;
+  failures_year?: number;
   /** How the quality of the next batch comes about with today's inputs (#191). */
   quality?: Qualitaetsteile | null;
 }
@@ -647,6 +652,8 @@ export interface StandortDetail {
   /** Effect of the level: share of labor hours saved, quality points. */
   training_labor_saving?: number;
   training_quality?: number;
+  /** Maintenance level of the site (BP2). */
+  maintenance?: { level: number; min: number; max: number; failures: number } | null;
   rival_premium_max: number;
   staff: Personal[];
   wage_cost_per_day_usd: number;

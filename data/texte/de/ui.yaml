@@ -708,6 +708,18 @@ werk.stueckkosten_von: "Stückkosten von {produkt}"
 werk.erzeugung_tag: "{menge} {einheit} je Tag"
 werk.variable_kosten: Ohne Anlage (jedes weitere Stück)
 werk.erfahrung: Erfahrung
+werk.instandhaltung: Instandhaltung
+werk.instandhaltung_erklaerung: "Mehr Instandhaltung kostet mehr Wartung, hält die Anlagen aber länger in gutem Zustand: weniger Ausfälle, mehr Kapazität, bessere Qualität. 100 % entspricht der üblichen Wartung."
+werk.instandhaltung_stufe: Stufe
+werk.instandhaltung_bereich: "Die Stufe muss zwischen {min} und {max} % liegen."
+werk.instandhaltung_gesetzt: "Instandhaltung auf {prozent} % gesetzt."
+werk.ausfaelle_dieses_jahr: Ausfälle in diesem Jahr
+werk.wartung_fuer: "Ausfälle und Überholung von {anlage}"
+werk.ausfaelle_jahr: Erwartete Ausfälle je Jahr
+werk.ausfall_bis: Ausfall bis
+werk.ueberholung_bis: Großüberholung bis
+werk.ueberholen: "Großüberholung ({kosten})"
+werk.ueberholt: "{anlage} wird überholt."
 werk.erfahrung_wert: "{faktor} der Arbeitsstunden, spart {betrag}"
 werk.erfahrung_hinweis: Je öfter ein Standort ein Produkt gemacht hat, desto weniger Arbeitsstunden braucht ein Durchlauf (Lernkurve). Ohne Produktion geht Erfahrung langsam verloren, ebenso bei großen Entlassungen.
 
@@ -720,6 +732,10 @@ ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am
 ursache.ereignis: Gedrosselt durch ein Weltereignis
 ursache.regulierung: Gestoppt durch eine Regulierung
 ursache.patent: Gestoppt durch ein Patent
+ursache.ausfall: Ausfall
+ursache.ausfall.hilfe: Die Anlage ist ausgefallen und wird repariert. Abgenutzte Anlagen fallen öfter aus; mehr Instandhaltung oder eine Großüberholung helfen.
+ursache.ueberholung: Großüberholung
+ursache.ueberholung.hilfe: Die Anlage wird überholt und läuft danach wie neu.
 ursache.lager_voll: Lager voll
 ursache.lager_voll.hilfe: Das Lager des Standorts ist voll; die Anlagen stehen, Einkaufsaufträge kaufen nicht. Verkaufe mehr, liefere Ware an andere Standorte oder baue das Lager aus (Reiter Lager).
 ursache.patent.hilfe: Eine andere Firma hat die Technologie der Anlage oder des Verfahrens in diesem Land patentiert. Mit einer Lizenz des Inhabers (Wettbewerb → Lizenzen) läuft sie weiter; die Forschungsansicht zeigt, bis wann das Patent gilt.
@@ -847,6 +863,8 @@ ketten.hakt.ereignis: "hakt: gedrosselt durch ein Weltereignis"
 ketten.hakt.regulierung: "hakt: gestoppt durch eine Regulierung"
 ketten.hakt.patent: "hakt: gestoppt durch ein Patent"
 ketten.hakt.lager_voll: "hakt: Lager voll"
+ketten.hakt.ausfall: "hakt: Ausfall"
+ketten.hakt.ueberholung: "hakt: Großüberholung"
 ketten.verfahren: "{anlage}"
 ketten.abbau: "Abbau: {anlage}"
 ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"

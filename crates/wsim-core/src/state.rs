@@ -1267,6 +1267,17 @@ pub struct Slot {
     /// Retrofit level against pollutants (H2), 0 = none.
     #[serde(default, skip_serializing_if = "is_zero_level")]
     pub retrofit: u32,
+    /// Standing after a breakdown or for an overhaul (BP2).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub down: Option<Downtime>,
+}
+
+/// A facility stands still until a day (BP2).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Downtime {
+    pub until: Date,
+    /// An overhaul (else a breakdown).
+    pub overhaul: bool,
 }
 
 fn is_zero_level(level: &u32) -> bool {
@@ -1310,7 +1321,9 @@ impl Slot {
 
     /// Runs per day of all units at full utilization.
     pub fn full_runs(&self, catalog: &Catalog) -> f64 {
-        catalog.facilities.get(self.facility).runs_per_day * self.units(catalog)
+        catalog.facilities.get(self.facility).runs_per_day
+            * self.units(catalog)
+            * crate::maintenance::capacity_factor(catalog, self.condition)
     }
 
     /// Investment of all units at today's prices, without automation (M36).
@@ -1357,6 +1370,10 @@ pub enum Limit {
     Patent,
     /// The site's store is full.
     Storage,
+    /// A breakdown (BP2).
+    Breakdown,
+    /// An overhaul (BP2).
+    Overhaul,
 }
 
 /// Units a site made and sold of a product since it was founded (for the reports).
@@ -1450,6 +1467,12 @@ pub struct Site {
     /// Experience per product: cumulative units made here (BP1, learning curve).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub experience: BTreeMap<ProductId, Experience>,
+    /// Maintenance level (BP2), 1 = as the data say.
+    #[serde(default = "one", skip_serializing_if = "is_one")]
+    pub maintenance: f64,
+    /// Breakdowns this year (BP2).
+    #[serde(default, skip_serializing_if = "is_zero_steps")]
+    pub failures: u32,
 }
 
 impl Site {
@@ -1998,6 +2021,10 @@ pub struct Person {
 
 fn is_zero_steps(n: &u32) -> bool {
     *n == 0
+}
+
+fn is_one(x: &f64) -> bool {
+    (*x - 1.0).abs() < 1e-12
 }
 
 fn is_false(b: &bool) -> bool {

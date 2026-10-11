@@ -577,9 +577,45 @@ function AnlageKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      {!imBau && <AnlageWartung a={a} s={s} name={name} />}
       {!imBau && <AnlageUmwelt a={a} s={s} name={name} />}
       {!imBau && <AnlageAbbau a={a} s={s} name={name} />}
     </article>
+  );
+}
+
+/** Breakdowns and the overhaul of a facility (BP2). */
+function AnlageWartung({ a, s, name }: { a: AnlageDetail; s: StandortDetail; name: string }) {
+  const { los, antwort } = useAktion(`wartung/${s.index}/${a.index}`);
+  const kosten = a.overhaul_cost_usd ?? null;
+  if (kosten === null) return null;
+  return (
+    <section className="anlage-wartung" aria-label={t("werk.wartung_fuer", { anlage: name })}>
+      <dl className="werte">
+        <dt>{t("werk.ausfaelle_jahr")}</dt>
+        <dd>{formatZahl(a.failures_year ?? 0, 1)}</dd>
+        {a.down_until && (
+          <>
+            <dt>{t(a.down_overhaul ? "werk.ueberholung_bis" : "werk.ausfall_bis")}</dt>
+            <dd className="negativ">{formatDatum(a.down_until)}</dd>
+          </>
+        )}
+      </dl>
+      {!a.down_until && (
+        <button
+          type="button"
+          onClick={() =>
+            void los(
+              [{ Overhaul: { site: s.index, slot: a.index } }],
+              t("werk.ueberholt", { anlage: name }),
+            )
+          }
+        >
+          {t("werk.ueberholen", { kosten: formatGeld(kosten) })}
+        </button>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
   );
 }
 
@@ -2615,11 +2651,65 @@ function Personal({ s }: { s: StandortDetail }) {
         <Rueckmeldung meldung={antwort} />
       </form>
       <Schulung key={`${s.training_target}/${s.training_source}`} s={s} />
+      {s.maintenance && <Instandhaltung key={s.maintenance.level} s={s} />}
     </div>
   );
 }
 
 /** The site's training (W1): level, target and where it comes from, cost and effect. */
+/** Maintenance level of the site (BP2): more costs more and wears less. */
+function Instandhaltung({ s }: { s: StandortDetail }) {
+  const m = s.maintenance!;
+  const { los, antwort } = useAktion(`instandhaltung/${s.index}`);
+  const [stufe, setStufe] = useState(zahlFeld(m.level * 100, 0));
+  const [fehler, setFehler] = useState<string | null>(null);
+  return (
+    <form
+      className="karte"
+      aria-label={t("werk.instandhaltung")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const p = zahlLesen(stufe);
+        if (p === null || p < m.min * 100 - 1e-6 || p > m.max * 100 + 1e-6) {
+          setFehler(
+            t("werk.instandhaltung_bereich", {
+              min: formatZahl(m.min * 100),
+              max: formatZahl(m.max * 100),
+            }),
+          );
+          return;
+        }
+        setFehler(null);
+        void los(
+          [{ SetMaintenance: { site: s.index, level: p / 100 } }],
+          t("werk.instandhaltung_gesetzt", { prozent: formatZahl(p) }),
+        );
+      }}
+    >
+      <h3>{t("werk.instandhaltung")}</h3>
+      <p>{t("werk.instandhaltung_erklaerung")}</p>
+      <dl className="werte">
+        <dt>{t("werk.instandhaltung_stufe")}</dt>
+        <dd>{formatProzent(m.level)}</dd>
+        <dt>{t("werk.ausfaelle_dieses_jahr")}</dt>
+        <dd>{formatZahl(m.failures)}</dd>
+      </dl>
+      <div className="formular-zeile">
+        <ZahlFeld
+          name={t("werk.instandhaltung_stufe")}
+          einheit="%"
+          wert={stufe}
+          onWert={setStufe}
+          gruppieren={false}
+        />
+        <button type="submit">{t("werk.uebernehmen")}</button>
+      </div>
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
 function Schulung({ s }: { s: StandortDetail }) {
   const { los, antwort } = useAktion(`schulung/${s.index}`);
   const [ziel, setZiel] = useState(zahlFeld((s.training_target ?? 0) * 100, 0));

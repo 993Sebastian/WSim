@@ -256,6 +256,10 @@ pub enum Command {
     CloseSite { site: SiteId },
     /// Builds more storage at a site (docs/FORMELN.md, Lager).
     BuildStorage { site: SiteId, steps: u32 },
+    /// Sets the maintenance level of a site (BP2).
+    SetMaintenance { site: SiteId, level: f64 },
+    /// Overhauls a facility of a site (BP2).
+    Overhaul { site: SiteId, slot: usize },
     /// Offers another company a price for one of its sites or for a licence (M30).
     MakeOffer {
         seller: CompanyId,
@@ -706,6 +710,11 @@ pub enum CommandError {
     ShareOutOfRange {
         max: f64,
     },
+    /// A maintenance level outside the data range (BP2).
+    MaintenanceOutOfRange {
+        min: f64,
+        max: f64,
+    },
     /// The player keeps the majority of the company bid for (K3).
     TakeoverNoMajority {
         held: f64,
@@ -988,6 +997,9 @@ impl CommandError {
             CommandError::EquityTooLow { min } => {
                 e(keys::COMMAND_EQUITY_TOO_LOW).with("min", Param::Money(*min))
             }
+            CommandError::MaintenanceOutOfRange { min, max } => e(keys::COMMAND_MAINTENANCE_RANGE)
+                .with("min", Param::Number(*min))
+                .with("max", Param::Number(*max)),
             CommandError::ShareOutOfRange { max } => e(keys::COMMAND_SHARE_OUT_OF_RANGE)
                 .with("max", Param::Number((max * 1000.0).round() / 10.0)),
             CommandError::TakeoverNoMajority { held } => e(keys::COMMAND_TAKEOVER_NO_MAJORITY)
@@ -1254,6 +1266,8 @@ fn found_site(
         storage_steps: 0,
         storage_full: false,
         experience: Default::default(),
+        maintenance: 1.0,
+        failures: 0,
     });
     if let Some(p) = plot {
         let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
@@ -1598,6 +1612,7 @@ fn run(
                     },
                     automation: 0.0,
                     condition: 1.0,
+                    down: None,
                     batches: Vec::new(),
                     last_runs: 0.0,
                     limit: None,
@@ -2346,6 +2361,14 @@ fn run(
         Command::BuildStorage { site, steps } => {
             own_site(state, actor, *site)?;
             crate::storage::build(state, catalog, actor, *site, *steps)?;
+        }
+        Command::SetMaintenance { site, level } => {
+            own_site(state, actor, *site)?;
+            crate::maintenance::set_level(state, catalog, *site, *level)?;
+        }
+        Command::Overhaul { site, slot } => {
+            own_slot(state, actor, *site, *slot)?;
+            crate::maintenance::overhaul(state, catalog, actor, *site, *slot)?;
         }
         Command::MakeOffer {
             seller,

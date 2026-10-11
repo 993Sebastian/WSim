@@ -3,9 +3,9 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, PatentModel,
-    ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageModel, TrainingModel,
-    TransportModel, Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, MaintenanceModel,
+    PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageModel,
+    TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -265,8 +265,59 @@ pub(super) fn production_model(
             .map(|v| storage(ctx, v, &l.field("lager"), groups))
             .unwrap_or_default(),
         learning: LearningModel::default(),
+        maintenance: m
+            .maintenance
+            .as_ref()
+            .map(|v| maintenance(ctx, v, &l.field("instandhaltung")))
+            .unwrap_or_default(),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
         sizes: sizes(ctx, &m.sizes, &l.field("anlagengroessen")),
+    }
+}
+
+/// Maintenance (BP2): levels around 1, shares in range, days in order.
+fn maintenance(ctx: &mut Ctx, v: &crate::raw::RawMaintenance, l: &Loc) -> MaintenanceModel {
+    let fl = l.field("ausfall");
+    let ol = l.field("ueberholung");
+    let level_min = in_range(ctx, v.level_min, 0.1, 1.0, &l.field("stufe_min"));
+    let level_max = in_range(ctx, v.level_max, 1.0, 5.0, &l.field("stufe_max"));
+    if v.failure.days_min == 0 || v.failure.days_min > v.failure.days_max {
+        ctx.error(
+            &fl.field("tage_min"),
+            messages::range_order("tage_min", "tage_max"),
+        );
+    }
+    MaintenanceModel {
+        enabled: true,
+        level_min,
+        level_max,
+        exponent: in_range(ctx, v.exponent, 0.0, 5.0, &l.field("exponent")),
+        capacity_weight: in_range(
+            ctx,
+            v.capacity_weight,
+            0.0,
+            1.0,
+            &l.field("kapazitaet_zustand"),
+        ),
+        failure_chance: in_range(ctx, v.failure.chance, 0.0, 1.0, &fl.field("basis")),
+        failure_days: (v.failure.days_min, v.failure.days_max),
+        failure_cost_share: in_range(
+            ctx,
+            v.failure.cost_share,
+            0.0,
+            1.0,
+            &fl.field("kosten_anteil"),
+        ),
+        failures_warning: v.failure.warning,
+        overhaul_cost_share: in_range(
+            ctx,
+            v.overhaul.cost_share,
+            0.0,
+            1.0,
+            &ol.field("kosten_anteil"),
+        ),
+        overhaul_days: v.overhaul.days,
+        ai_overhaul_below: in_range(ctx, v.overhaul.ai_below, 0.0, 1.0, &ol.field("ki_ab")),
     }
 }
 

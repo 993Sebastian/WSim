@@ -32,6 +32,7 @@ pub mod ids;
 pub mod learning;
 pub mod ledger;
 pub mod logistics;
+pub mod maintenance;
 pub mod management;
 pub mod mandate;
 pub mod market;
@@ -110,6 +111,8 @@ mod hq_city_tests;
 mod learning_tests;
 #[cfg(test)]
 mod logistics_tests;
+#[cfg(test)]
+mod maintenance_tests;
 #[cfg(test)]
 mod management_tests;
 #[cfg(test)]

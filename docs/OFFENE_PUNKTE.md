@@ -2016,6 +2016,15 @@ Bei der Umsetzung entschieden:
     liefen die Werften 1900 so viel billiger und schneller, dass ein Drittel ihrer
     Erzeugung auf Kessel wartete; die übrigen Ketten sind auf die Datenstunden
     abgestimmt. Die Balance-Runde BP5 prüft den Wert erneut.
+11. 🟡 **BP2 – Ohne Anliegen und Strategiefeld.** Häufige Ausfälle melden sich als Warnung
+    mit Rat (ab dem vierten im Jahr), nicht als Anliegen der Produktionsstelle; die
+    Stufe setzt der Spieler je Standort, die KI nach Können. Ein Strategiefeld
+    „Instandhaltung“ folgt, wenn sich die Stufe in Testpartien bewährt.
+12. 🟡 **BP2 – Überholung und Abschreibung.** Die Großüberholung ist Aufwand
+    (Instandhaltung), kein Anlagewert; sie verlängert die Lebensdauer nicht buchhalterisch,
+    sondern über den frischen Zustand (weniger Ausfälle, volle Kapazität).
+13. 🟡 **BP2 – Ausfallchance.** `basis` 0,004 je Tag bei Mindestzustand ergibt für eine
+    halb verschlissene Anlage rund 0,4 Ausfälle im Jahr, für eine verbrauchte 1,5.
 
 ## Reihenfolge der neuen Punkte
 

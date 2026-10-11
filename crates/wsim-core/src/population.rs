@@ -880,6 +880,7 @@ fn found_company(
                 utilization: start.utilization,
                 automation: 0.0,
                 condition: 1.0,
+                down: None,
                 batches: Vec::new(),
                 last_runs: 0.0,
                 limit: None,
@@ -1017,6 +1018,8 @@ fn found_company(
             storage_steps: 0,
             storage_full: false,
             experience,
+            maintenance: 1.0,
+            failures: 0,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

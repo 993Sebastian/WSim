@@ -2612,6 +2612,8 @@ pub struct ProductionModel {
     pub storage: StorageModel,
     /// Learning curve of the sites (docs/FORMELN.md „Lernkurve“, BP1).
     pub learning: LearningModel,
+    /// Maintenance level, breakdowns and overhauls (docs/FORMELN.md „BP2“).
+    pub maintenance: MaintenanceModel,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
     /// Facility sizes (M36).
@@ -2688,6 +2690,7 @@ impl Default for ProductionModel {
             severance_months: 3.0,
             storage: StorageModel::default(),
             learning: LearningModel::default(),
+            maintenance: MaintenanceModel::default(),
             start_setups: Vec::new(),
             sizes: SizeModel::default(),
         }
@@ -2733,6 +2736,30 @@ pub struct LearningModel {
     pub transfer: f64,
     /// Experience of the AI start companies, in years of a medium facility.
     pub established_years: f64,
+}
+
+/// Maintenance level per site, breakdowns of worn facilities and overhauls (BP2).
+/// Disabled without the data section: wear as before, no breakdowns.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct MaintenanceModel {
+    pub enabled: bool,
+    pub level_min: f64,
+    pub level_max: f64,
+    /// Wear grows with (1 / level)^exponent.
+    pub exponent: f64,
+    /// Share of the capacity a fully worn facility loses.
+    pub capacity_weight: f64,
+    /// Daily breakdown chance of a facility at the lowest condition.
+    pub failure_chance: f64,
+    pub failure_days: (u32, u32),
+    /// Repair cost of a breakdown as share of the investment.
+    pub failure_cost_share: f64,
+    /// Breakdowns of a site in a year from which the message asks for more maintenance.
+    pub failures_warning: u32,
+    pub overhaul_cost_share: f64,
+    pub overhaul_days: u32,
+    /// Condition below which the AI overhauls.
+    pub ai_overhaul_below: f64,
 }
 
 impl LearningModel {

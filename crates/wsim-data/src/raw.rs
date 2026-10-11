@@ -600,6 +600,9 @@ pub struct RawProductionModel {
     /// Learning curve; without it experience has no effect.
     #[serde(rename = "lernkurve", default)]
     pub learning: Option<RawLearning>,
+    /// Maintenance, breakdowns, overhauls; without it wear as before.
+    #[serde(rename = "instandhaltung", default)]
+    pub maintenance: Option<RawMaintenance>,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
     #[serde(rename = "anlagengroessen")]
@@ -660,6 +663,49 @@ pub struct RawStorage {
     pub spoilage: BTreeMap<String, f64>,
     #[serde(rename = "ki_ausbau_ab")]
     pub ai_expand_at: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMaintenance {
+    #[serde(rename = "stufe_min")]
+    pub level_min: f64,
+    #[serde(rename = "stufe_max")]
+    pub level_max: f64,
+    #[serde(rename = "exponent")]
+    pub exponent: f64,
+    #[serde(rename = "kapazitaet_zustand")]
+    pub capacity_weight: f64,
+    #[serde(rename = "ausfall")]
+    pub failure: RawFailure,
+    #[serde(rename = "ueberholung")]
+    pub overhaul: RawOverhaul,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawFailure {
+    #[serde(rename = "basis")]
+    pub chance: f64,
+    #[serde(rename = "tage_min")]
+    pub days_min: u32,
+    #[serde(rename = "tage_max")]
+    pub days_max: u32,
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "warnung_ab")]
+    pub warning: u32,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOverhaul {
+    #[serde(rename = "kosten_anteil")]
+    pub cost_share: f64,
+    #[serde(rename = "tage")]
+    pub days: u32,
+    #[serde(rename = "ki_ab")]
+    pub ai_below: f64,
 }
 
 #[derive(Debug, Deserialize)]
