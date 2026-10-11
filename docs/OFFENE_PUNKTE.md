@@ -1,4 +1,6 @@
-Stand 08.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
+# Offene Punkte zum Lastenheft
+
+Stand 11.10.2026. Entschiedene Punkte stehen auch in §18 des Lastenhefts.
 
 **Status:** ✅ entschieden · 🟡 Vorschlag gilt vorläufig (nicht ausdrücklich bestätigt,
 bei Bedarf widersprechen) · ❓ offen
@@ -10,8 +12,6 @@ offene Punkt 38. Angenommene Vorschläge, die noch Arbeit bedeuten, gelten als A
 (z. B. Namensgruppen, Zwischenwährungen); Stufe-6-Themen (Balancing) bleiben bei Stufe 6.
 Wo ein Vorschlag zwei Wege nennt, wählt die Umsetzung einen und vermerkt ihn. Rückmeldungen
 folgen nach den ersten eigenen Testpartien. Neue Einträge ab PE6 wieder mit 🟡.
-# Offene Punkte zum Lastenheft
-
 
 ## A Abgrenzung Stufe 1 gegenüber späteren Stufen
 
@@ -1971,6 +1971,33 @@ Abnahme:**
   Nordeuropa nicht; Zollzonen: eine Region tritt mit der Mehrheit ihrer Einwohner bei
   (z. B. Südosteuropa 2007, Nordeuropa 1995). 93 Währungen ohne Land entfallen.
 - Offen für später: Grenzverschiebungen (zurückgestellt).
+
+## R Welt und Geschichte, Markt und Nachfrage, Betrieb und Lernkurve (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 11.10.2026)
+
+✅ Freigegeben am 11.10.2026 („so eintragen, dass Code es einbauen kann“). Die 23
+Entscheidungen in Abschnitt 15 der Vorgabe gelten 🟡 vorläufig (pauschal angenommen,
+Feedback nach Testpartien, wie am 08.10.2026). Reihenfolge: nach PE6 zuerst W4, dann
+BP1–BP5, MN1–MN6, WG1–WG5; W3 und H1 entfallen.
+
+Was Claude Code bei der Umsetzung selbst entscheidet, kommt hier je Meilenstein dazu
+(🟡), wie bei W1/W2 in Abschnitt P. Vorab bekannte Fragen mit Vorschlag:
+
+1. 🟡 **Zahlen der Zölle 1900–2026.** Vorschlag: Weltdurchschnitt aus Clemens/Williamson
+   und WTO-Daten als Verlauf, je Land nur USA, GBR, DEU, FRA, JPN, IND, CHN, BRA, RUS
+   eigens; Rest über Blöcke und Weltverlauf, alles `annaeherung: true`.
+2. 🟡 **Wie viele historische Ereignisse Wirkungen bekommen.** Vorschlag: die in
+   Abschnitt 3 genannte Pflichtliste (rund 20) mit WG1; die übrigen 100 bleiben Meldung,
+   bis jemand sie füllt.
+3. 🟡 **Lernkurve und Startbesetzung.** Etablierte Firmen starten mit Erfahrung
+   (n = 10 · n_0), sonst hätte der Spieler 1900 gegen Firmen ohne Erfahrung einen
+   unhistorischen Vorteil. Spielerwerkstatt startet bei 0.
+4. 🟡 **Lagerklassen aller rund 500 Produkte** werden aus Produktart und Branche
+   abgeleitet, wo die Daten nichts sagen (Prüfung warnt nur, bricht nicht ab).
+5. 🟡 **Korruption vor 1995** aus BIP je Kopf und Stabilität geschätzt (ärmer und
+   instabiler = korrupter), mit `annaeherung: true`.
+6. 🟡 **Konjunktur und ruhende Märkte** (M9): Der Konjunkturfaktor geht wie die
+   Jahreswerte monatlich in die gesammelte Buchung ein; das Ergebnis bleibt von der
+   Rundenlänge unabhängig.
 
 ## Reihenfolge der neuen Punkte
 

@@ -346,7 +346,7 @@ dem Start ohne Firma); Abweichungen zur Abnahme in `docs/OFFENE_PUNKTE.md`. Reih
 | C4 | Plausibilität 1900–1930 | Stahlwaren, Startwerkstatt, Kautschuk, Autos | Balance-Protokoll |
 | W1 | Schulung | Mitarbeiter und Manager weiterbilden | Szenariotests, Oberfläche |
 | W2 | Zentrale in der Stadt | Hauptsitz in einer Stadt, Akademiker begrenzen die Zentrale | Szenariotests |
-| W3 | Zölle | Zölle je Land und Warengruppe im Verlauf der Geschichte | Prüfregeln, Szenariotests, Weltlauf |
+| ~~W3~~ | Zölle | Entfällt: aufgegangen in WG3 (`docs/WELT_MARKT_BETRIEB.md`) | – |
 | W4 | Lieferverträge | Feste Mengen und Preise zwischen Firmen über Monate | Szenariotests, Oberfläche |
 | W5 | Logistik | Eigene Flotte, staatlicher und KI-Transport | Szenariotests, Weltlauf |
 | W6 | Tochterfirmen | Töchter als eigene Firmen mit eigener Bilanz, Konzernsicht | Bilanz-Eigenschaftstests, Oberfläche |
@@ -361,7 +361,7 @@ dem Start ohne Firma); Abweichungen zur Abnahme in `docs/OFFENE_PUNKTE.md`. Reih
 | PE4 | Dividenden | Politik, Verteilung nach Anteil, Quellensteuer, Konzernprivileg, KI-Regel | Weltlauf 1900–1930, Benchmark 1 000 KI-Firmen |
 | PE5 | Käufe und Verkäufe der Person | Anteile, private Start-up-Anteile, mehrere Firmen, Steuerung mit/ohne CEO, neues Spielende | Szenariotests |
 | PE6 | Tod, Erbe, Übergabe | Sterbetafel, Erbe (Kind, sonst Neffe/Nichte), Erbschaftsteuer, Übergabe zu Lebzeiten | Weltlauf 1900–2100 über drei Generationen |
-| H1 | Ereignisfolgen | Krieg, Krisen, Embargos wirken auf Märkte, Handel und Firmen | Prüfregeln, Weltlauf |
+| H1 | Ereignisfolgen | Krieg, Krisen, Embargos wirken auf Märkte, Handel und Firmen (umgesetzt; wird von WG1 in `docs/WELT_MARKT_BETRIEB.md` erweitert) | Prüfregeln, Weltlauf |
 | H2 | Regulierung und Umwelt | Auflagen, Emissionen, Kartellaufsicht | Prüfregeln, Szenariotests |
 | H3 | Rüstung | Rüstungsgüter und Staatsbedarf im Krieg | Prüfregeln, Weltlauf |
 | P0 | Vorbereitung der Breite | Weltläufe unabhängig vom Spieler, Leistung bei vielen Produkten (Messung mit vervielfachten Ketten), Suche und Filter in Produktlisten, Datenwerkzeug Tabelle → YAML mit Plausibilitätsbericht | Benchmark, Determinismus, Oberflächentests |
@@ -377,6 +377,19 @@ dem Start ohne Firma); Abweichungen zur Abnahme in `docs/OFFENE_PUNKTE.md`. Reih
 | P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit; Abschluss-Weltlauf 1900–2026 mit Balance | rund 50 | Prüfregeln, Weltlauf |
 | P6 | Reale Firmen | Reale Firmen treten mit ihrem Gründungsjahr auf | Prüfregeln, Weltlauf |
 | P7 | Patente | Patente auf Erfindungen, Lizenzen, Ablauf | Szenariotests |
+
+Vorgabe vom 07.10.2026 (`docs/PERSON.md`): PE1–PE6 direkt nach dem laufenden Meilenstein.
+
+Vorgabe vom 11.10.2026 (`docs/WELT_MARKT_BETRIEB.md`, Abschnitt 14): nach PE6 zuerst
+W4 (Lieferverträge), dann in dieser Reihenfolge – W3 und H1 sind darin aufgegangen:
+
+| Nr. | Meilenstein | Inhalt |
+| --- | --- | --- |
+| BP1–BP5 | Betrieb und Lernkurve | Lernkurve, Instandhaltung und Ausfälle, Lager mit Kosten und Verderblichkeit, Ausschuss und Unfälle, Korruption und Rechtssicherheit, Zulieferverträge mit Ausfall, Make or buy, Balance-Runde |
+| MN1–MN6 | Markt und Nachfrage | Substitution, Ausstattungsstufen, Ausschreibungen, Ruf, Vertriebswege, Veralterung und Gebrauchtmarkt, Trends, Anzeige, Balance-Runde |
+| WG1–WG5 | Welt und Geschichte | Ereigniswirkungen, Konjunktur, Handelsblöcke und Zölle, Infrastruktursprünge und Rohstofffunde, Zufallsgenerator ab 2027 |
+
+Danach die verbleibenden Meilensteine W5–W7, K1–K4, H2, H3, P1–P7.
 
 ---
 
