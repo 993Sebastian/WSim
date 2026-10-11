@@ -567,6 +567,10 @@ export interface Stueckkosten {
   facility_usd: number;
   total_usd: number;
   variable_usd: number;
+  /** Learning factor on the hours (1 = no experience). */
+  experience?: number;
+  experience_units?: number;
+  learning_saving_usd?: number;
 }
 
 export interface StandortErgebnis {

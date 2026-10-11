@@ -2975,3 +2975,11 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Endprodukte 1960 eindeutig und ohne echte Namen), Oberfläche (Benennen mit Vorschlag).
   Beispiel aus dem Testlauf 1960: Kühlschränke „Kelvor M80“, „Mendor R250“, Kleidung
   „Nerola Classic“, „Halina Royal“, Autos „Irvok 500“.
+
+### Betrieb, Markt, Welt (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, ab 11.10.2026)
+
+- **BP1 Lernkurve:** Erfahrung je Standort und Produkt senkt die Arbeitsstunden je Lauf
+  (Lernrate je Branche, Untergrenze 0,5), Vergessen ohne Produktion, Verlust bei großen
+  Entlassungen, Übertrag auf Nachfolgeprodukte, Startfirmen mit zehn Jahren Erfahrung;
+  Werksansicht zeigt Faktor und Ersparnis. Tests: 8-fache Menge → 0,85³, erfahrenes Werk
+  billiger, Vergessen, Entlassung. Entscheidungen: OFFENE_PUNKTE R 7–9.

@@ -707,6 +707,9 @@ werk.rohertrag_hilfe: Rohertrag = Umsatz − Herstellkosten der verkauften Menge
 werk.stueckkosten_von: "Stückkosten von {produkt}"
 werk.erzeugung_tag: "{menge} {einheit} je Tag"
 werk.variable_kosten: Ohne Anlage (jedes weitere Stück)
+werk.erfahrung: Erfahrung
+werk.erfahrung_wert: "{faktor} der Arbeitsstunden, spart {betrag}"
+werk.erfahrung_hinweis: Je öfter ein Standort ein Produkt gemacht hat, desto weniger Arbeitsstunden braucht ein Durchlauf (Lernkurve). Ohne Produktion geht Erfahrung langsam verloren, ebenso bei großen Entlassungen.
 
 ursache.vorprodukt: "Vorprodukt fehlt: {detail}"
 ursache.vorprodukt.hilfe: Das Lager reicht nicht für die geplante Menge. Einkauf erhöhen oder eigene Herstellung ausbauen.

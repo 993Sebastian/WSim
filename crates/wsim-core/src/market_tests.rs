@@ -85,6 +85,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
         closed: None,
         storage_steps: 0,
         storage_full: false,
+        experience: Default::default(),
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     state.sites[site.index()]

@@ -75,6 +75,38 @@ produktionsmodell:
     kosten_jahr_anteil: 0.04
     verderb: {lebensmittel: 0.03, agrarrohstoffe: 0.01}
     ki_ausbau_ab: 0.9
+  # Lernkurve (BP1): Je verdoppelter Menge, die ein Standort von einem Produkt gemacht hat,
+  # braucht ein Durchlauf nur noch `rate` der Arbeitsstunden (ab einem Jahresausstoß einer
+  # mittleren Anlage). Nicht genannte Branchen: rate_sonst. Ohne Produktion sinkt die
+  # Erfahrung je Monat um vergessen_je_monat, bei Entlassung von mehr als einem Drittel
+  # einmalig um entlassung; Nachfolgeprodukte (ersetzt) starten mit uebertrag der
+  # Vorgänger-Erfahrung; Startfirmen haben start_etabliert_jahre Jahresausstöße Erfahrung.
+  # Alle Werte geschätzt (annaeherung), Lernraten nach der Literatur (Wright 1936, BCG).
+  lernkurve:
+    rate:
+      luftfahrt: 0.80
+      raumfahrt: 0.80
+      fahrzeuge: 0.85
+      elektro: 0.85
+      schiffbau: 0.88
+      maschinenbau: 0.88
+      ruestung: 0.88
+      konsumgueter: 0.90
+      pharma: 0.90
+      metallurgie: 0.92
+      chemie: 0.92
+      textil: 0.92
+      holz_papier: 0.95
+      bau: 0.95
+      energie: 0.97
+      bergbau: 0.97
+      lebensmittel: 0.97
+    rate_sonst: 0.95
+    untergrenze: 0.5
+    vergessen_je_monat: 0.03
+    entlassung: 0.1
+    uebertrag: 0.5
+    start_etabliert_jahre: 3
   strom: strom                  # Produkt für Eigenstrom (Kette 7)
   einspeiseverguetung: 0.5      # Anteil des Industriestrompreises für Überschuss ins Netz
   # Verwaltung, Vertrieb und Logistik als Zuschlag auf die Umwandlungskosten eines Laufs

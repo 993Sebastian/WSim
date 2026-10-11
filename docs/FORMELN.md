@@ -5463,3 +5463,59 @@ Ausgründung nimmt den Fortschritt zur nächsten Generation mit. Die KI arbeitet
 einem Produkt je Zentrum (`SetDevelopment`, 100 %); nach der letzten Generation bewertet
 sie einen Schritt so groß wie den letzten. Der Spieler verteilt Anteile mit
 `SetResearchShares`.
+
+## BP – Betrieb (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, Abschnitt 13)
+
+### BP1 – Lernkurve
+
+Parameter: `data/parameter/produktionsmodell.yaml`, Abschnitt `lernkurve` (alle Werte
+geschätzt). Je Standort und Produkt zählt der Kern die gemachte Menge *n* (Hauptprodukt
+eines fertigen Laufs, ohne Nebenprodukte).
+
+- **Bezugsmenge** *n₀* = Ausstoß je Lauf · Läufe je Tag der Anlage (Datenwert = mittlere
+  Größe) · 365: ein Jahr einer mittleren Anlage.
+- **Lernfaktor** *L* = max(`untergrenze`, (max(*n*, *n₀*) / *n₀*)^(−*b*)), *b* = −log₂(*r*),
+  *r* = `rate`[Branche des Produkts], sonst `rate_sonst`. Bis *n₀* ist *L* = 1; jede
+  Verdopplung danach senkt die Stunden auf *r*. Beispiel *r* = 0,85: 8 · *n₀* → *L* = 0,85³
+  = 0,61.
+- **Wirkung:** Arbeitsstunden je Lauf · *L* (zusammen mit Lagerstätte, Weiterentwicklung,
+  Schulung und Größe). Material und Strom lernen nicht; der Gemeinkostenzuschlag hängt an
+  den Umwandlungskosten und sinkt mit. Stückkosten, Personalbedarf und Herstellung nutzen
+  dieselbe Rechnung, damit auch die KI-Schätzungen (Einstand, Preise).
+- **Vergessen:** am Monatsende für jedes Produkt ohne Ausstoß im Monat *n* ← *n* ·
+  (1 − `vergessen_je_monat`).
+- **Entlassung:** sinkt die Belegschaft eines Standorts bei der Personalanpassung um mehr
+  als ein Drittel, *n* ← *n* · (1 − `entlassung`) für alle Produkte, höchstens einmal im Monat.
+- **Nachfolger:** stellt ein Standort eine Anlage auf ein Produkt um, das ein anderes
+  ersetzt (`ersetzt`), startet es mit max(eigenes *n*, `uebertrag` · größtes *n* der
+  Vorgänger am Standort).
+- **Startfirmen** (Startbesetzung) haben für jedes Produkt ihrer Anlagen *n* =
+  `start_etabliert_jahre` · *n₀*; Spielerwerke, neue Werke und spätere Gründungen beginnen
+  bei 0. Gekaufte Standorte behalten ihr *n*.
+- **Anzeige:** Werksansicht → Stückkosten: Faktor *L* und die gesparten Personalkosten je
+  Einheit (Personalkosten · (1/*L* − 1)).
+
+### BP2 – Instandhaltung, Ausfälle, Großüberholung
+
+Parameter: `data/parameter/produktionsmodell.yaml`, Abschnitt `instandhaltung` (alle
+Werte geschätzt).
+
+- **Stufe** *s* je Standort (`SetMaintenance`, `stufe_min`–`stufe_max`, Standard 1).
+  Wartungskosten je Tag = Investition · Wartungsanteil der Anlage / 365 · *s*.
+- **Verschleiß** je Tag = 1 / (Lebensdauer · 365) · (1 / *s*)^`exponent`; Zustand nicht
+  unter `zustand_minimum`.
+- **Kapazität:** Läufe je Tag · (1 − `kapazitaet_zustand` · (1 − Zustand)) – bei 0,3 also
+  0,7 + 0,3 · Zustand.
+- **Ausfall** je Anlage (Zeile) und Tag mit Chance `ausfall.basis` · ((1 − Zustand) /
+  (1 − `zustand_minimum`))², Zufallsstrom `betrieb` je Standort. Die Anlage steht
+  `ausfall.tage_min`–`ausfall.tage_max` Tage (Ursache „Ausfall“) und die Reparatur kostet
+  `ausfall.kosten_anteil` · Investition (Kostenart „Instandhaltung“). Meldung an den
+  Eigentümer; ab dem vierten Ausfall eines Standorts im Jahr mit Hinweis auf Instandhaltung
+  oder Überholung.
+- **Großüberholung** (`Overhaul { site, slot }`): Kosten `ueberholung.kosten_anteil` ·
+  Investition aus der Kasse (Instandhaltung), Anlage steht `ueberholung.tage` Tage, danach
+  Zustand 1. Die Abschreibung bleibt unberührt; die längere Nutzung ergibt sich aus dem
+  frischen Zustand.
+- **KI:** Stufe = 0,8 + 0,5 · Kompetenz (auf die Grenzen beschnitten), zum Monatsbeginn
+  gesetzt, wenn sie abweicht. Überholt eine Anlage, deren Zustand unter
+  `ueberholung.ki_ab` liegt, wenn die Kasse das Doppelte der Kosten trägt.

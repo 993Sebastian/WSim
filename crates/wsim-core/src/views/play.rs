@@ -201,6 +201,12 @@ pub struct UnitCostView {
     pub total_usd: f64,
     /// Without the facilities: what one more unit costs.
     pub variable_usd: f64,
+    /// Learning factor on the hours (1 = no experience; BP1).
+    pub experience: f64,
+    /// Units the site has made (experience).
+    pub experience_units: f64,
+    /// Labor cost per unit the experience saves.
+    pub learning_saving_usd: f64,
 }
 
 /// An amount by cost type, e.g. `kostenart.material` (income positive).
@@ -930,17 +936,28 @@ pub fn production(game: &Game) -> ProductionView {
                 training_quality: crate::training::quality(catalog, s.training),
                 unit_costs: unit_costs
                     .iter()
-                    .map(|u| UnitCostView {
-                        product: catalog.products.key(u.product).to_owned(),
-                        output_per_day: u.output_per_day,
-                        material_usd: u.material,
-                        labor_usd: u.labor,
-                        energy_usd: u.energy,
-                        overhead_usd: u.overhead,
-                        rent_usd: u.rent,
-                        facility_usd: u.facility,
-                        total_usd: u.total(),
-                        variable_usd: u.variable(),
+                    .map(|u| {
+                        let experience = s
+                            .slots
+                            .iter()
+                            .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r)))
+                            .find(|r| r.product == u.product)
+                            .map_or(1.0, |r| crate::learning::factor(catalog, s, r));
+                        UnitCostView {
+                            product: catalog.products.key(u.product).to_owned(),
+                            output_per_day: u.output_per_day,
+                            material_usd: u.material,
+                            labor_usd: u.labor,
+                            energy_usd: u.energy,
+                            overhead_usd: u.overhead,
+                            rent_usd: u.rent,
+                            facility_usd: u.facility,
+                            total_usd: u.total(),
+                            variable_usd: u.variable(),
+                            experience,
+                            experience_units: crate::learning::units(s, u.product),
+                            learning_saving_usd: u.labor * (1.0 / experience - 1.0),
+                        }
                     })
                     .collect(),
                 last_month: site_result(game, site_id),

@@ -597,6 +597,9 @@ pub struct RawProductionModel {
     /// Storage capacity, costs and spoilage; without it stocks are unlimited.
     #[serde(rename = "lager", default)]
     pub storage: Option<RawStorage>,
+    /// Learning curve; without it experience has no effect.
+    #[serde(rename = "lernkurve", default)]
+    pub learning: Option<RawLearning>,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
     #[serde(rename = "anlagengroessen")]
@@ -657,6 +660,25 @@ pub struct RawStorage {
     pub spoilage: BTreeMap<String, f64>,
     #[serde(rename = "ki_ausbau_ab")]
     pub ai_expand_at: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawLearning {
+    #[serde(rename = "rate")]
+    pub rates: BTreeMap<String, f64>,
+    #[serde(rename = "rate_sonst")]
+    pub default_rate: f64,
+    #[serde(rename = "untergrenze")]
+    pub minimum: f64,
+    #[serde(rename = "vergessen_je_monat")]
+    pub forget_per_month: f64,
+    #[serde(rename = "entlassung")]
+    pub layoff_loss: f64,
+    #[serde(rename = "uebertrag")]
+    pub transfer: f64,
+    #[serde(rename = "start_etabliert_jahre")]
+    pub established_years: f64,
 }
 
 #[derive(Debug, Deserialize)]

@@ -443,6 +443,7 @@ pub(crate) fn build(
         raw,
         (&product_keys, &facility_keys, &recipe_keys, &group_keys),
     );
+    b.catalog.production_model.learning = production::learning(b.ctx, raw, &branch_keys);
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     let (market_model, media_keys) = production::market_model(b.ctx, raw);
     b.catalog.market_model = market_model;

@@ -529,6 +529,7 @@ impl Game {
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);
             crate::storage::month_end(&mut self.state, &self.catalog);
+            crate::learning::month_end(&mut self.state, &self.catalog);
             report
                 .messages
                 .extend(crate::bonds::month_end(&mut self.state, today));
@@ -930,6 +931,7 @@ pub(crate) fn start_setup(
         closed: None,
         storage_steps: 0,
         storage_full: false,
+        experience: Default::default(),
     });
     // The workshop leases its plot: the start capital pays only building and facilities.
     if crate::plots::needs_plot(catalog, setup.site_type) {

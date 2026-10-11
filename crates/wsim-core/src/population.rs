@@ -987,6 +987,7 @@ fn found_company(
                 },
             );
         }
+        let experience = crate::learning::established(catalog, &slots);
         new_sites.push(Site {
             owner: id,
             name: None,
@@ -1015,6 +1016,7 @@ fn found_company(
             closed: None,
             storage_steps: 0,
             storage_full: false,
+            experience,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

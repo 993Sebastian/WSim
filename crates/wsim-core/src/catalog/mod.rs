@@ -2610,6 +2610,8 @@ pub struct ProductionModel {
     pub severance_months: f64,
     /// Storage capacity, costs and spoilage (docs/FORMELN.md „Lager“).
     pub storage: StorageModel,
+    /// Learning curve of the sites (docs/FORMELN.md „Lernkurve“, BP1).
+    pub learning: LearningModel,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
     /// Facility sizes (M36).
@@ -2685,6 +2687,7 @@ impl Default for ProductionModel {
             close_stock_share: 0.5,
             severance_months: 3.0,
             storage: StorageModel::default(),
+            learning: LearningModel::default(),
             start_setups: Vec::new(),
             sizes: SizeModel::default(),
         }
@@ -2709,6 +2712,36 @@ pub struct StorageModel {
     pub spoilage: Vec<(GoodsGroupId, f64)>,
     /// Fill (share of the capacity) from which the AI expands.
     pub ai_expand_at: f64,
+}
+
+/// Learning curve: the more a site has made of a product, the fewer hours a run needs
+/// (docs/FORMELN.md „Lernkurve“). Disabled without the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LearningModel {
+    pub enabled: bool,
+    /// Learning rate per branch: hours per run after doubling the quantity.
+    pub rates: Vec<(BranchId, f64)>,
+    /// Rate of the branches not listed.
+    pub default_rate: f64,
+    /// Lowest learning factor.
+    pub minimum: f64,
+    /// Share of the experience lost per month without output.
+    pub forget_per_month: f64,
+    /// Share lost once when more than a third of the workforce is laid off.
+    pub layoff_loss: f64,
+    /// Share of the predecessor's experience a successor product starts with.
+    pub transfer: f64,
+    /// Experience of the AI start companies, in years of a medium facility.
+    pub established_years: f64,
+}
+
+impl LearningModel {
+    pub fn rate(&self, branch: BranchId) -> f64 {
+        self.rates
+            .iter()
+            .find(|(b, _)| *b == branch)
+            .map_or(self.default_rate, |&(_, r)| r)
+    }
 }
 
 impl StorageModel {

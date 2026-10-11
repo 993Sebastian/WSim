@@ -29,6 +29,7 @@ pub mod health;
 pub mod heirs;
 pub mod holdings;
 pub mod ids;
+pub mod learning;
 pub mod ledger;
 pub mod logistics;
 pub mod management;
@@ -105,6 +106,8 @@ mod heirs_tests;
 mod holdings_tests;
 #[cfg(test)]
 mod hq_city_tests;
+#[cfg(test)]
+mod learning_tests;
 #[cfg(test)]
 mod logistics_tests;
 #[cfg(test)]

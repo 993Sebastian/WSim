@@ -3,9 +3,9 @@
 use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
-    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, PatentModel, ProductionModel,
-    ResearchModel, SiteType, SizeModel, StartSetup, StorageModel, TrainingModel, TransportModel,
-    Vehicle, Way,
+    Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, PatentModel,
+    ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageModel, TrainingModel,
+    TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -264,8 +264,53 @@ pub(super) fn production_model(
             .as_ref()
             .map(|v| storage(ctx, v, &l.field("lager"), groups))
             .unwrap_or_default(),
+        learning: LearningModel::default(),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
         sizes: sizes(ctx, &m.sizes, &l.field("anlagengroessen")),
+    }
+}
+
+/// Learning curve (BP1): rates per branch below 1, shares in range.
+pub(super) fn learning(ctx: &mut Ctx, raw: &RawData, branches: &Keys) -> LearningModel {
+    let Some(entry) = raw.production_model.first() else {
+        return LearningModel::default();
+    };
+    let Some(v) = entry.value.learning.as_ref() else {
+        return LearningModel::default();
+    };
+    let l = entry.loc.field("lernkurve");
+    let rl = l.field("rate");
+    let rates = v
+        .rates
+        .iter()
+        .map(|(key, &rate)| {
+            (
+                super::resolve(ctx, branches, key, &rl.key(key)),
+                in_range(ctx, rate, 0.5, 1.0, &rl.field(key)),
+            )
+        })
+        .collect();
+    LearningModel {
+        enabled: true,
+        rates,
+        default_rate: in_range(ctx, v.default_rate, 0.5, 1.0, &l.field("rate_sonst")),
+        minimum: in_range(ctx, v.minimum, 0.05, 1.0, &l.field("untergrenze")),
+        forget_per_month: in_range(
+            ctx,
+            v.forget_per_month,
+            0.0,
+            1.0,
+            &l.field("vergessen_je_monat"),
+        ),
+        layoff_loss: in_range(ctx, v.layoff_loss, 0.0, 1.0, &l.field("entlassung")),
+        transfer: in_range(ctx, v.transfer, 0.0, 1.0, &l.field("uebertrag")),
+        established_years: in_range(
+            ctx,
+            v.established_years,
+            0.0,
+            1000.0,
+            &l.field("start_etabliert_jahre"),
+        ),
     }
 }
 

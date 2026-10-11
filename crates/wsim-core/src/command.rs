@@ -1253,6 +1253,7 @@ fn found_site(
         closed: None,
         storage_steps: 0,
         storage_full: false,
+        experience: Default::default(),
     });
     if let Some(p) = plot {
         let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
@@ -1678,6 +1679,9 @@ fn run(
             // Laboratories have no recipe; their utilization sets the researcher posts.
             let lab = catalog.facilities.get(sl.facility).site_type == SiteType::ResearchCenter;
             let s = state.site_mut(*site).expect("checked above");
+            if let Some(r) = recipe {
+                crate::learning::switched(catalog, s, catalog.recipes.get(*r).product);
+            }
             let sl = &mut s.slots[*slot];
             sl.recipe = *recipe;
             sl.utilization = if recipe.is_some() || lab {

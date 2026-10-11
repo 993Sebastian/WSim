@@ -1366,6 +1366,19 @@ pub struct SiteTotals {
     pub sold: f64,
 }
 
+/// Experience of a site with a product (docs/FORMELN.md „Lernkurve“).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Experience {
+    /// Cumulative units made, less what was forgotten.
+    pub units: f64,
+    /// Units made in the running month (no forgetting while it is above zero).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub month: f64,
+    /// Whether layoffs already cost experience this month.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub cut: bool,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Site {
     pub owner: CompanyId,
@@ -1434,6 +1447,9 @@ pub struct Site {
     /// The store was full at the start of the day: facilities stop, orders do not buy.
     #[serde(default, skip_serializing_if = "is_false")]
     pub storage_full: bool,
+    /// Experience per product: cumulative units made here (BP1, learning curve).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub experience: BTreeMap<ProductId, Experience>,
 }
 
 impl Site {

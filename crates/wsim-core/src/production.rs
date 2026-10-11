@@ -417,7 +417,8 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             let developed = development::effect(catalog, state, s.owner, recipe.product);
             let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
                 * developed.labor
-                * crate::training::labor_factor(catalog, s.training);
+                * crate::training::labor_factor(catalog, s.training)
+                * crate::learning::factor(catalog, s, recipe);
             let labor: f64 = hours_per_run(
                 catalog,
                 (recipe, sl.size),
@@ -506,7 +507,8 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
         let owner = state.sites[index].owner;
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
             * development::effect(catalog, state, owner, recipe.product).labor
-            * crate::training::labor_factor(catalog, state.sites[index].training);
+            * crate::training::labor_factor(catalog, state.sites[index].training)
+            * crate::learning::factor(catalog, &state.sites[index], recipe);
         for (g, h) in hours_per_run(
             catalog,
             (recipe, sl.size),
@@ -570,6 +572,7 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
         let free: Vec<f64> = (0..groups)
             .map(|g| (pool.get(g).copied().unwrap_or(0.0) - employed[country.index()][g]).max(0.0))
             .collect();
+        let before: f64 = state.sites[index].workforce.values().sum();
         for g in 0..groups {
             let id = LaborGroupId::from_index(g);
             let current = *state.sites[index].workforce.get(id);
@@ -597,6 +600,8 @@ fn staff_sites(state: &mut GameState, catalog: &Catalog, date: Date) {
             }
             *state.sites[index].workforce.get_mut(id) = new;
         }
+        let after: f64 = state.sites[index].workforce.values().sum();
+        crate::learning::laid_off(catalog, &mut state.sites[index], before, after);
         state.sites[index].staffing_due = false;
     }
 }
@@ -643,7 +648,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         let developed = development::effect(catalog, state, owner, recipe.product);
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
             * developed.labor
-            * crate::training::labor_factor(catalog, state.sites[index].training);
+            * crate::training::labor_factor(catalog, state.sites[index].training)
+            * crate::learning::factor(catalog, &state.sites[index], recipe);
         let per_run = hours_per_run(catalog, (recipe, size), automation, affinity, cost_factor);
         let rent_per_run = rent_per_run_usd(catalog, state, country, recipe);
 
@@ -843,6 +849,9 @@ pub(crate) fn deliver(catalog: &Catalog, s: &mut Site, batches: Vec<Batch>) {
     for batch in batches {
         for &(product, quantity) in &batch.outputs {
             s.totals.entry(product).or_default().made += quantity;
+        }
+        if let Some(&(product, quantity)) = batch.outputs.first() {
+            crate::learning::record(s, product, quantity);
         }
         // By-products beyond `days` of this output are disposed of (flared, dumped): a
         // refinery does not store petrol nobody buys for decades (M16). The batch's value

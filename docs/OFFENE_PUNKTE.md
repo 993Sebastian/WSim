@@ -1999,6 +1999,24 @@ Was Claude Code bei der Umsetzung selbst entscheidet, kommt hier je Meilenstein 
    Jahreswerte monatlich in die gesammelte Buchung ein; das Ergebnis bleibt von der
    Rundenlänge unabhängig.
 
+Bei der Umsetzung entschieden:
+
+7. 🟡 **BP1 – Lernraten der übrigen Branchen.** Die Vorgabe nennt sechs Gruppen; ergänzt:
+   Raumfahrt 0,80, Schiffbau und Rüstung 0,88, Konsumgüter und Pharma 0,90, Textil 0,92,
+   Holz/Papier und Bau 0,95, Energie 0,97; sonst 0,95.
+8. 🟡 **BP1 – Was zählt.** *n* zählt nur das Hauptprodukt eines Laufs; Entlassung meint die
+   Personalanpassung des Standorts (Abwerben durch andere zählt nicht) und wirkt höchstens
+   einmal im Monat, damit schwankende Auslastung die Erfahrung nicht aufzehrt.
+9. 🟡 **BP1 – Anzeige.** Der Lernvorteil steht in der Werksansicht bei den Stückkosten
+   (Faktor und gesparte Personalkosten je Einheit); eine eigene Zeile im Controlling
+   entfällt vorerst, weil das Controlling Ist-Kosten bucht und der Vorteil dort in den
+   Personalkosten schon steckt.
+10. 🟡 **BP1 – Starterfahrung (ändert Punkt 3).** Startfirmen beginnen mit drei statt zehn
+    Jahresausstößen (*L* je nach Branche 0,80–0,95 statt 0,47–0,93): Mit zehn Jahren
+    liefen die Werften 1900 so viel billiger und schneller, dass ein Drittel ihrer
+    Erzeugung auf Kessel wartete; die übrigen Ketten sind auf die Datenstunden
+    abgestimmt. Die Balance-Runde BP5 prüft den Wert erneut.
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

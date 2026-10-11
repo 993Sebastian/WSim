@@ -5044,3 +5044,45 @@ fn fruehere_regionscodes_werden_geprueft() {
         alle(&schlecht)
     );
 }
+
+#[test]
+fn lernkurve_wird_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let mit = |rate: &str| {
+        Daten::neu()
+            .ersetze(
+                datei,
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                &format!(
+                    "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  \
+                     lernkurve:\n    rate: {{{rate}}}\n    rate_sonst: 0.95\n    \
+                     untergrenze: 0.5\n    vergessen_je_monat: 0.03\n    entlassung: 0.1\n    \
+                     uebertrag: 0.5\n    start_etabliert_jahre: 10\n"
+                ),
+            )
+            .laden()
+    };
+    let gut = mit("metallurgie: 0.92");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.production_model.learning;
+    assert!(m.enabled && m.rates.len() == 1 && (m.rates[0].1 - 0.92).abs() < 1e-12);
+    let zu_hoch = mit("metallurgie: 1.2");
+    let f = befund(
+        &zu_hoch,
+        "Wert 1.2 liegt außerhalb des erlaubten Bereichs 0.5 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.lernkurve.rate.metallurgie"
+    );
+    let schlecht = mit("schmiede: 0.9");
+    assert!(
+        schlecht
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.message.contains("schmiede")),
+        "{}",
+        alle(&schlecht)
+    );
+}

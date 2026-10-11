@@ -2867,6 +2867,17 @@ function StueckkostenKarte({
         <dd className="summe">{formatPreis(u.total_usd, e)}</dd>
         <dt>{t("werk.variable_kosten")}</dt>
         <dd>{formatPreis(u.variable_usd, e)}</dd>
+        {(u.experience ?? 1) < 0.9995 && (
+          <>
+            <dt title={t("werk.erfahrung_hinweis")}>{t("werk.erfahrung")}</dt>
+            <dd>
+              {t("werk.erfahrung_wert", {
+                faktor: formatProzent(u.experience ?? 1),
+                betrag: formatPreis(u.learning_saving_usd ?? 0, e),
+              })}
+            </dd>
+          </>
+        )}
         {angebot && (
           <>
             <dt>{t("werk.eigener_preis")}</dt>
