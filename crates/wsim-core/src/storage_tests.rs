@@ -1,6 +1,6 @@
 //! Tests of the sites' storage (docs/FORMELN.md, Lager: Kapazität, Kosten, Verderb).
 
-use crate::catalog::{Catalog, SiteType, StorageModel, test_support};
+use crate::catalog::{Catalog, SiteType, StorageClass, StorageModel, test_support};
 use crate::command::{Command, CommandError};
 use crate::facility_tests::{mine, new_game, works};
 use crate::ledger::CostType;
@@ -22,6 +22,7 @@ fn with_storage(spoilage: f64) -> Catalog {
         cost_share_year: 0.1,
         spoilage: if spoilage > 0.0 { groups } else { Vec::new() },
         ai_expand_at: 0.9,
+        ..StorageModel::default()
     };
     catalog
 }
@@ -138,4 +139,111 @@ fn a_store_full_of_inputs_keeps_the_facilities_running() {
         "the furnace turns ore into iron"
     );
     assert_ne!(s.slots[0].limit, Some(Limit::Storage));
+}
+
+/// Storage classes, outside storage and shelf life (BP3).
+fn with_classes(shelf_life: Option<u32>) -> Catalog {
+    let mut catalog = with_storage(0.0);
+    let n = catalog.products.len();
+    let m = &mut catalog.production_model.storage;
+    m.classes = vec![
+        (StorageClass::Bulk, 0.02),
+        (StorageClass::Piece, 0.04),
+        (StorageClass::Liquid, 0.03),
+        (StorageClass::Chilled, 0.12),
+        (StorageClass::Hazardous, 0.06),
+    ];
+    m.product_class = vec![StorageClass::Bulk; n];
+    m.shelf_life = vec![shelf_life; n];
+    m.external_capacity = 2.0;
+    m.external_rate = 2.0;
+    m.spoil_message_share = 0.05;
+    catalog
+}
+
+#[test]
+fn goods_without_buyers_spoil_after_their_shelf_life() {
+    let mut game = new_game(with_classes(Some(30)));
+    let me = game.player();
+    let site = mine(&mut game);
+    game.apply(Command::BuildStorage { site, steps: 50 })
+        .unwrap();
+    days(&mut game, 200);
+    let ore = game.catalog().products.id("erz").unwrap();
+    let made = |game: &crate::game::Game| {
+        game.state().sites[site.index()]
+            .inventory
+            .get(&ore)
+            .map_or(0.0, |s| s.quantity)
+    };
+    assert!(made(&game) > 0.0);
+    days(&mut game, 60);
+    let stock = &game.state().sites[site.index()].inventory[&ore];
+    let oldest = stock.lots.first().unwrap().0;
+    assert!(
+        oldest.days_until(game.state().date) < 31,
+        "nothing older than the shelf life stays"
+    );
+    let total: f64 = stock.lots.iter().map(|&(_, q)| q).sum();
+    assert!(
+        total <= stock.quantity + 1e-6,
+        "today's output gets its lot tomorrow"
+    );
+    let ledger = &game.state().company(me).unwrap().ledger;
+    assert!(
+        ledger
+            .year
+            .by_type
+            .get(&CostType::Storage)
+            .copied()
+            .unwrap_or_default()
+            < Money::ZERO
+    );
+    assert!(ledger.is_balanced());
+    assert!(inventory_matches(&game, me));
+}
+
+#[test]
+fn takings_leave_the_oldest_lots_first() {
+    let d = |day| crate::calendar::Date::new(1900, 1, day).unwrap();
+    let mut stock = crate::state::Stock::default();
+    stock.add(10.0, Money::from_usd(10.0).unwrap(), 50.0);
+    crate::storage::settle_lots(&mut stock, d(1));
+    stock.add(5.0, Money::from_usd(5.0).unwrap(), 50.0);
+    crate::storage::settle_lots(&mut stock, d(2));
+    assert_eq!(stock.lots, vec![(d(1), 10.0), (d(2), 5.0)]);
+    stock.take(12.0);
+    crate::storage::settle_lots(&mut stock, d(3));
+    assert_eq!(stock.lots, vec![(d(2), 3.0)]);
+}
+
+#[test]
+fn outside_storage_costs_double_and_does_not_stop_the_site() {
+    let catalog = with_classes(None);
+    let mut game = new_game(catalog);
+    let site = mine(&mut game);
+    days(&mut game, 2);
+    let c = game.catalog().clone();
+    let ore = c.products.id("erz").unwrap();
+    let cap = crate::storage::capacity(&c, &game.state().sites[site.index()]).unwrap();
+    // Fill to one and a half times the own capacity.
+    let units = cap.to_usd() * 1.5 / c.products.get(ore).reference_price.to_usd();
+    let s = &mut game.state_mut().sites[site.index()];
+    s.inventory = Default::default();
+    s.inventory
+        .entry(ore)
+        .or_default()
+        .add(units, Money::from_usd(1.0).unwrap(), 50.0);
+    let s = &game.state().sites[site.index()];
+    assert!(crate::storage::external(&c, s));
+    assert!(
+        !crate::storage::is_full(&c, s),
+        "outside storage takes the rest"
+    );
+    let cost = crate::storage::daily_cost(&c, s).to_usd();
+    let own = cap.to_usd() * 1.5 * 0.02 / 365.0;
+    assert!(
+        (cost - own * (1.0 + 1.0 / 3.0)).abs() < 1e-2 * own,
+        "a third lies outside at double rate: {cost} vs {own}"
+    );
 }

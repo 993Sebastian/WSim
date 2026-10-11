@@ -478,6 +478,7 @@ pub(crate) fn build(
         let product = b.product(e, &refs);
         b.catalog.products.insert(&e.value.id, product);
     }
+    production::storage_classes(b.ctx, raw, &products, &mut b.catalog);
 
     for e in &technologies {
         let v = &e.value;

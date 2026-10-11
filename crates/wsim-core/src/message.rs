@@ -166,6 +166,8 @@ pub mod keys {
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
     pub const STORAGE_FULL: &str = "warnung.lager_voll";
     pub const BREAKDOWN: &str = "warnung.anlagenausfall";
+    pub const SPOILED: &str = "warnung.verdorben";
+    pub const EXTERNAL_STORAGE: &str = "warnung.fremdlager";
     pub const BREAKDOWN_OFTEN: &str = "warnung.anlagenausfall_oft";
     pub const COMMAND_MAINTENANCE_RANGE: &str = "fehler.befehl.instandhaltung_bereich";
     pub const MILESTONE: &str = "meldung.etappe";
@@ -884,6 +886,8 @@ pub mod keys {
         STORAGE_FULL,
         BREAKDOWN,
         BREAKDOWN_OFTEN,
+        SPOILED,
+        EXTERNAL_STORAGE,
         COMMAND_MAINTENANCE_RANGE,
         HINT_INPUT,
         HINT_LABOR,

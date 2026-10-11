@@ -487,6 +487,7 @@ werk.lagerplatz.stufen: Ausbaustufen
 werk.lagerplatz.stufen_neu: Stufen ausbauen
 werk.lagerplatz.voll: "Das Lager ist voll: Die Anlagen stehen, bis Ware verkauft oder umgelagert ist oder das Lager ausgebaut wird."
 werk.lagerplatz.voll_vorprodukte: "Das Lager ist voll, vor allem mit Vorprodukten: Die Anlagen laufen weiter und machen Platz, laufende Einkäufe ruhen."
+werk.lagerplatz.fremdlager: Das Lager ist übervoll; der Rest liegt im Fremdlager zum doppelten Satz. Ausbauen lohnt sich, wenn das länger so bleibt.
 werk.lagerplatz.ausbauen: Lager ausbauen
 werk.lagerplatz.ausbau_hilfe: "{kapazitaet} mehr Platz für {kosten}, bezahlt aus der Kasse (Aufwand im laufenden Monat)."
 werk.lagerplatz.ausgebaut: "Lager um {stufen} Stufe(n) ausgebaut."

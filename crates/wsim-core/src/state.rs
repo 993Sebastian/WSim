@@ -1181,6 +1181,10 @@ pub struct Stock {
     pub value: Money,
     /// Average quality 0–100.
     pub quality: f64,
+    /// Lots of perishable goods by the day they came in, oldest first (BP3); what is not
+    /// in a lot yet gets one at the next day's check.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lots: Vec<(Date, f64)>,
 }
 
 impl Stock {

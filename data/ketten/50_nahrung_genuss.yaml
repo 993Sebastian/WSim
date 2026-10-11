@@ -13,6 +13,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: fluessig
   richtpreis_usd: 500
+  haltbarkeit_tage: 7
   foerderindex:
     1900: 1.0
     1930: 1.4
@@ -31,6 +32,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 2400
+  haltbarkeit_tage: 60
   foerderindex:
     1900: 1.0
     1930: 1.3
@@ -49,6 +51,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 150
+  haltbarkeit_tage: 60
   foerderindex:
     1900: 1.0
     1930: 1.9
@@ -67,6 +70,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 4600
+  haltbarkeit_tage: 365
   foerderindex:
     1900: 1.0
     1930: 1.6
@@ -85,6 +89,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 7800
+  haltbarkeit_tage: 365
   foerderindex:
     1900: 1.0
     1930: 3.5
@@ -103,6 +108,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 9000
+  haltbarkeit_tage: 365
   foerderindex:
     1900: 1.0
     1930: 1.5
@@ -121,6 +127,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 600
+  haltbarkeit_tage: 14
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -146,6 +153,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 900
+  haltbarkeit_tage: 10
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -171,6 +179,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 700
+  haltbarkeit_tage: 14
   foerderindex:
     1900: 1.0
     1930: 1.1
@@ -189,6 +198,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 5300
+  haltbarkeit_tage: 365
   foerderindex:
     1900: 1.0
     1930: 1.5
@@ -207,6 +217,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 1000
+  haltbarkeit_tage: 365
   foerderindex:
     1900: 1.0
     1930: 1.8
@@ -236,6 +247,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 12000
+  haltbarkeit_tage: 365
   staatsmarkt:
     preis_usd: 12000
   annaeherung: true
@@ -247,6 +259,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: stueckgut
   richtpreis_usd: 15000
+  haltbarkeit_tage: 730
   staatsmarkt:
     preis_usd: 15000
   annaeherung: true
@@ -258,6 +271,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 8.34
+  haltbarkeit_tage: 14
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -277,6 +291,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 12.1
+  haltbarkeit_tage: 30
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -296,6 +311,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 22.5
+  haltbarkeit_tage: 120
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -312,6 +328,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 7
+  haltbarkeit_tage: 10
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -329,6 +346,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 0.25
+  haltbarkeit_tage: 30
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -345,6 +363,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 1
+  haltbarkeit_tage: 14
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -361,6 +380,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 20.8
+  haltbarkeit_tage: 60
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -380,6 +400,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 11
+  haltbarkeit_tage: 120
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -396,6 +417,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3
+  haltbarkeit_tage: 30
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -412,6 +434,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 8
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -431,6 +454,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 12
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -447,6 +471,8 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 4.37
+  haltbarkeit_tage: 365
+  lagerklasse: gekuehlt
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -495,6 +521,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 9
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -511,6 +538,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 18
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -527,6 +555,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 14
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -543,6 +572,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 35.5
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -559,6 +589,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3.96
+  haltbarkeit_tage: 7
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -578,6 +609,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 8
+  haltbarkeit_tage: 180
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -597,6 +629,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -613,6 +646,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 7
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -629,6 +663,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 4
+  haltbarkeit_tage: 540
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -645,6 +680,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 7.39
+  haltbarkeit_tage: 90
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -661,6 +697,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 6
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -677,6 +714,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 2.5
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -693,6 +731,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 6
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -709,6 +748,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 20
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -729,6 +769,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 4.16
+  haltbarkeit_tage: 1800
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -748,6 +789,8 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 9
+  haltbarkeit_tage: 365
+  lagerklasse: gekuehlt
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -764,6 +807,8 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 5.43
+  haltbarkeit_tage: 365
+  lagerklasse: gekuehlt
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -781,6 +826,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 5
+  haltbarkeit_tage: 30
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -798,6 +844,8 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 4
+  haltbarkeit_tage: 270
+  lagerklasse: gekuehlt
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -814,6 +862,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 12
+  haltbarkeit_tage: 180
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -830,6 +879,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -846,6 +896,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 14
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -865,6 +916,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 69.4
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -882,6 +934,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 0.686
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -898,6 +951,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 25
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -914,6 +968,7 @@ produkte:
   warengruppe: agrarrohstoffe
   transportklasse: schuettgut
   richtpreis_usd: 1430
+  haltbarkeit_tage: 365
   annaeherung: true
 - id: glasflasche
   art: halbzeug
@@ -935,6 +990,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3
+  haltbarkeit_tage: 180
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -1005,6 +1061,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 1.2
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -1021,6 +1078,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 1.03
+  haltbarkeit_tage: 730
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -1037,6 +1095,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 8.84
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -1053,6 +1112,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 3.71
+  haltbarkeit_tage: 270
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:
@@ -1069,6 +1129,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 14
+  haltbarkeit_tage: 30
   nachfrage:
     bedarfsklasse: luxus
     verbrauch:
@@ -1086,6 +1147,7 @@ produkte:
   warengruppe: lebensmittel
   transportklasse: stueckgut
   richtpreis_usd: 2.17
+  haltbarkeit_tage: 365
   nachfrage:
     bedarfsklasse: grundbedarf
     verbrauch:

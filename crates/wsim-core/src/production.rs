@@ -1045,6 +1045,16 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
             continue;
         };
         let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        if !s.storage_full && crate::storage::external(catalog, s) {
+            messages.push(
+                Message::new(MessageKind::Warning, keys::EXTERNAL_STORAGE)
+                    .with(
+                        "land",
+                        Param::Country(catalog.countries.key(s.country).to_owned()),
+                    )
+                    .of(company.clone()),
+            );
+        }
         if s.storage_full && s.slots.iter().any(|sl| sl.limit == Some(Limit::Storage)) {
             messages.push(
                 Message::new(MessageKind::Warning, keys::STORAGE_FULL)

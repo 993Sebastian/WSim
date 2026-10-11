@@ -695,6 +695,9 @@ export interface LagerKapazitaet {
   full: boolean;
   /** The site's own products fill the store: the facilities stand. */
   stops?: boolean;
+  /** Goods lie in outside storage at a higher rate (BP3). */
+  external?: boolean;
+  hard_capacity_usd?: number;
   steps: number;
   step_capacity_usd: number;
   step_cost_usd: number;

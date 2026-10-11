@@ -73,8 +73,18 @@ produktionsmodell:
     tage: 60
     ausbau: {kapazitaet_usd: 250_000, kosten_usd: 25_000}
     kosten_jahr_anteil: 0.04
-    verderb: {lebensmittel: 0.03, agrarrohstoffe: 0.01}
     ki_ausbau_ab: 0.9
+    # Lagerklassen (BP3): Kosten je Jahr als Anteil des Lagerwerts. Klasse eines Produkts:
+    # eigenes Feld lagerklasse, sonst bis gekuehlt_bis_tage Haltbarkeit gekühlt, sonst nach
+    # Warengruppe, sonst nach Transportklasse. Über der Kapazität nimmt ein Fremdlager bis
+    # zum kapazitaet_faktor-fachen auf, zum kosten_faktor-fachen Satz; Verderb nach
+    # haltbarkeit_tage der Produkte (Chargen), Meldung ab verderb_meldung_ab des Bestands.
+    klassen: {schuettgut: 0.02, stueckgut: 0.04, fluessig: 0.03, gekuehlt: 0.12, gefahrgut: 0.06}
+    nach_transportklasse: {schuettgut: schuettgut, stueckgut: stueckgut, fluessig: fluessig, gas: gefahrgut, leitung: stueckgut}
+    nach_warengruppe: {chemie: gefahrgut, mineraloel: gefahrgut, ruestung: gefahrgut}
+    gekuehlt_bis_tage: 60
+    fremdlager: {kapazitaet_faktor: 2, kosten_faktor: 2}
+    verderb_meldung_ab: 0.05
   # Lernkurve (BP1): Je verdoppelter Menge, die ein Standort von einem Produkt gemacht hat,
   # braucht ein Durchlauf nur noch `rate` der Arbeitsstunden (ab einem Jahresausstoß einer
   # mittleren Anlage). Nicht genannte Branchen: rate_sonst. Ohne Produktion sinkt die

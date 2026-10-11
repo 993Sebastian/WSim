@@ -302,6 +302,12 @@ pub struct RawProduct {
     /// May use five or six levels in its product tree (Lastenheft §17.2).
     #[serde(rename = "sehr_komplex", default)]
     pub very_complex: bool,
+    /// Storage class (BP3); without it the rules of the storage model decide.
+    #[serde(rename = "lagerklasse", default)]
+    pub storage_class: Option<String>,
+    /// Shelf life in days (BP3); without it the product keeps.
+    #[serde(rename = "haltbarkeit_tage", default)]
+    pub shelf_life_days: Option<u32>,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -663,6 +669,28 @@ pub struct RawStorage {
     pub spoilage: BTreeMap<String, f64>,
     #[serde(rename = "ki_ausbau_ab")]
     pub ai_expand_at: f64,
+    /// Yearly cost share per storage class (BP3).
+    #[serde(rename = "klassen", default)]
+    pub classes: BTreeMap<String, f64>,
+    #[serde(rename = "nach_transportklasse", default)]
+    pub by_transport: BTreeMap<String, String>,
+    #[serde(rename = "nach_warengruppe", default)]
+    pub by_group: BTreeMap<String, String>,
+    #[serde(rename = "gekuehlt_bis_tage", default)]
+    pub chilled_up_to_days: u32,
+    #[serde(rename = "fremdlager", default)]
+    pub external: Option<RawExternalStorage>,
+    #[serde(rename = "verderb_meldung_ab", default)]
+    pub spoil_message_share: Option<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawExternalStorage {
+    #[serde(rename = "kapazitaet_faktor")]
+    pub capacity: f64,
+    #[serde(rename = "kosten_faktor")]
+    pub rate: f64,
 }
 
 #[derive(Debug, Deserialize)]

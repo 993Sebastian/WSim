@@ -2991,3 +2991,10 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Tests: Stufe 0,5 fällt in zehn Jahren öfter aus als 1,5; Überholung; Bereich.
 
   Prüfung „Weltlauf 1900 plausibel“: Warteanteil erst ab einer Tagesmenge über eins (eine einzelne Werft entschied sonst über die Stichtage).
+- **BP3 Lager:** Lagerklassen mit eigenen Kostensätzen, Fremdlager bis zur doppelten
+  Kapazität (doppelter Satz, Warnung), Haltbarkeit mit Chargen (FIFO, Entsorgung,
+  Meldung ab 5 %), KI hält verderbliche Vorprodukte höchstens die halbe Haltbarkeit.
+  Daten: Klassen, Haltbarkeiten von 62 Lebensmitteln; Kleidung aus der Warengruppe
+  Lebensmittel genommen. Tests: Verderb nach Haltbarkeit, FIFO, Fremdlager-Kosten,
+  Prüfregeln.
+

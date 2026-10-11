@@ -301,6 +301,12 @@ pub struct StorageView {
     pub step_capacity_usd: f64,
     pub step_cost_usd: f64,
     pub cost_per_day_usd: f64,
+    /// Goods lie in outside storage at a higher rate (BP3).
+    #[serde(default)]
+    pub external: bool,
+    /// Room up to which outside storage takes goods.
+    #[serde(default)]
+    pub hard_capacity_usd: f64,
 }
 
 fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
@@ -318,6 +324,8 @@ fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
         },
         full: crate::storage::is_full(catalog, site),
         stops: crate::storage::stops_output(catalog, site),
+        external: crate::storage::external(catalog, site),
+        hard_capacity_usd: crate::storage::hard_capacity(catalog, site).map_or(0.0, usd),
         steps: site.storage_steps,
         step_capacity_usd: usd(m.step_capacity),
         step_cost_usd: usd(m.step_cost),

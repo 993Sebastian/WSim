@@ -480,6 +480,9 @@ impl Game {
         report
             .messages
             .extend(trade::deliver(&mut self.state, &self.catalog, today));
+        report
+            .messages
+            .extend(crate::storage::day(&mut self.state, &self.catalog, today));
         report.messages.extend(crate::maintenance::simulate_day(
             &mut self.state,
             &self.catalog,

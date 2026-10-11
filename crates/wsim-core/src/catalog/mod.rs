@@ -2715,6 +2715,50 @@ pub struct StorageModel {
     pub spoilage: Vec<(GoodsGroupId, f64)>,
     /// Fill (share of the capacity) from which the AI expands.
     pub ai_expand_at: f64,
+    /// Yearly cost share per storage class (BP3); empty: `cost_share_year` for all.
+    pub classes: Vec<(StorageClass, f64)>,
+    /// Storage class of every product, indexed by `ProductId` (BP3).
+    pub product_class: Vec<StorageClass>,
+    /// Shelf life in days of every product, indexed by `ProductId`; none keeps.
+    pub shelf_life: Vec<Option<u32>>,
+    /// Outside storage up to the capacity times this (1 = none) at `external_rate` times
+    /// the cost (BP3).
+    pub external_capacity: f64,
+    pub external_rate: f64,
+    /// Share of a stock spoiled at once from which the owner hears of it.
+    pub spoil_message_share: f64,
+}
+
+/// How goods are stored (BP3): bulk and liquids are cheap, chilled goods dear.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum StorageClass {
+    Bulk,
+    #[default]
+    Piece,
+    Liquid,
+    Chilled,
+    Hazardous,
+}
+
+impl StorageClass {
+    pub const ALL: [StorageClass; 5] = [
+        StorageClass::Bulk,
+        StorageClass::Piece,
+        StorageClass::Liquid,
+        StorageClass::Chilled,
+        StorageClass::Hazardous,
+    ];
+
+    /// Data key, e.g. `schuettgut`.
+    pub fn key(self) -> &'static str {
+        match self {
+            StorageClass::Bulk => "schuettgut",
+            StorageClass::Piece => "stueckgut",
+            StorageClass::Liquid => "fluessig",
+            StorageClass::Chilled => "gekuehlt",
+            StorageClass::Hazardous => "gefahrgut",
+        }
+    }
 }
 
 /// Learning curve: the more a site has made of a product, the fewer hours a run needs
@@ -2777,6 +2821,26 @@ impl StorageModel {
             .iter()
             .find(|(k, _)| *k == kind)
             .map_or(Money::ZERO, |&(_, m)| m)
+    }
+
+    /// Yearly cost share of storing a product.
+    pub fn cost_share(&self, product: ProductId) -> f64 {
+        if self.classes.is_empty() {
+            return self.cost_share_year;
+        }
+        let class = self
+            .product_class
+            .get(product.index())
+            .copied()
+            .unwrap_or_default();
+        self.classes
+            .iter()
+            .find(|(c, _)| *c == class)
+            .map_or(self.cost_share_year, |&(_, s)| s)
+    }
+
+    pub fn shelf_life(&self, product: ProductId) -> Option<u32> {
+        self.shelf_life.get(product.index()).copied().flatten()
     }
 
     pub fn spoilage(&self, group: GoodsGroupId) -> f64 {

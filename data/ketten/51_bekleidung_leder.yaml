@@ -111,11 +111,11 @@ produkte:
   annaeherung: true
 - id: anzug
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.5
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 400
   nachfrage:
@@ -129,11 +129,11 @@ produkte:
   annaeherung: true
 - id: mantel
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.8
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 300
   nachfrage:
@@ -150,11 +150,11 @@ produkte:
   annaeherung: true
 - id: damenkleid
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.5
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 150
   nachfrage:
@@ -168,11 +168,11 @@ produkte:
   annaeherung: true
 - id: arbeitskleidung
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.9
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 60
   nachfrage:
@@ -189,11 +189,11 @@ produkte:
   annaeherung: true
 - id: unterwaesche
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.12
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 8
   nachfrage:
@@ -209,11 +209,11 @@ produkte:
   annaeherung: true
 - id: socken
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.06
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 4
   nachfrage:
@@ -229,11 +229,11 @@ produkte:
   annaeherung: true
 - id: pullover
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.5
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 80
   nachfrage:
@@ -250,11 +250,11 @@ produkte:
   annaeherung: true
 - id: jeans
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.7
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 60
   nachfrage:
@@ -268,11 +268,11 @@ produkte:
   annaeherung: true
 - id: t_shirt
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.18
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 12
   nachfrage:
@@ -285,11 +285,11 @@ produkte:
   annaeherung: true
 - id: sportbekleidung
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.3
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 45
   nachfrage:
@@ -303,11 +303,11 @@ produkte:
   annaeherung: true
 - id: funktionsjacke
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.7
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 180
   nachfrage:
@@ -321,11 +321,11 @@ produkte:
   annaeherung: true
 - id: seidenwaren
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.2
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 279
   nachfrage:
@@ -339,11 +339,11 @@ produkte:
   annaeherung: true
 - id: krawatte
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.05
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 65.2
   nachfrage:
@@ -357,11 +357,11 @@ produkte:
   annaeherung: true
 - id: strumpfhose
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.04
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 8
   nachfrage:
@@ -374,11 +374,11 @@ produkte:
   annaeherung: true
 - id: hut
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.2
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 60
   nachfrage:
@@ -392,11 +392,11 @@ produkte:
   annaeherung: true
 - id: babykleidung
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.1
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 10
   nachfrage:
@@ -409,11 +409,11 @@ produkte:
   annaeherung: true
 - id: windeln
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.04
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 0.35
   nachfrage:
@@ -426,7 +426,7 @@ produkte:
   annaeherung: true
 - id: bettwaesche
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.0
   verwendung: konsum
@@ -447,7 +447,7 @@ produkte:
   annaeherung: true
 - id: handtuch
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.4
   verwendung: konsum
@@ -468,7 +468,7 @@ produkte:
   annaeherung: true
 - id: gardinen
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.8
   verwendung: konsum
@@ -486,7 +486,7 @@ produkte:
   annaeherung: true
 - id: wolldecke
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 2.0
   verwendung: konsum
@@ -507,7 +507,7 @@ produkte:
   annaeherung: true
 - id: teppich
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: m2
   gewicht_kg: 2.5
   verwendung: konsum
@@ -525,11 +525,11 @@ produkte:
   annaeherung: true
 - id: lederschuhe
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.9
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 80
   nachfrage:
@@ -543,11 +543,11 @@ produkte:
   annaeherung: true
 - id: stiefel
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.6
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 100
   nachfrage:
@@ -564,11 +564,11 @@ produkte:
   annaeherung: true
 - id: turnschuhe
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.6
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 50
   nachfrage:
@@ -582,11 +582,11 @@ produkte:
   annaeherung: true
 - id: gummistiefel
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.2
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 84.9
   nachfrage:
@@ -603,11 +603,11 @@ produkte:
   annaeherung: true
 - id: lederjacke
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 1.5
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 300
   nachfrage:
@@ -624,11 +624,11 @@ produkte:
   annaeherung: true
 - id: handschuhe
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.15
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 30
   nachfrage:
@@ -645,11 +645,11 @@ produkte:
   annaeherung: true
 - id: handtasche
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.8
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 120
   nachfrage:
@@ -663,11 +663,11 @@ produkte:
   annaeherung: true
 - id: guertel
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.2
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 25
   nachfrage:
@@ -681,11 +681,11 @@ produkte:
   annaeherung: true
 - id: koffer
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 3.5
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 120
   nachfrage:
@@ -699,11 +699,11 @@ produkte:
   annaeherung: true
 - id: rucksack
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.8
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 50
   nachfrage:
@@ -720,11 +720,11 @@ produkte:
   annaeherung: true
 - id: regenmantel
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 0.9
   verwendung: konsum
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 90
   nachfrage:
@@ -738,11 +738,11 @@ produkte:
   annaeherung: true
 - id: uniform
   art: endprodukt
-  branche: lebensmittel
+  branche: textil
   einheit: stueck
   gewicht_kg: 2.0
   verwendung: industrie
-  warengruppe: lebensmittel
+  warengruppe: bekleidung
   transportklasse: stueckgut
   richtpreis_usd: 221
   staatsnachfrage:

@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 
+use wsim_core::catalog::StorageClass;
 use wsim_core::ids::Id as _;
 use wsim_data::{Finding, LoadOutcome, Severity, Source, load_sources};
 
@@ -5132,5 +5133,62 @@ fn instandhaltung_wird_geprueft() {
     assert_eq!(
         f.path.to_string(),
         "produktionsmodell.instandhaltung.ausfall.tage_min"
+    );
+}
+
+#[test]
+fn lagerklassen_werden_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let mit = |klassen: &str, transport: &str| {
+        Daten::neu()
+            .ersetze(
+                datei,
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                &format!(
+                    "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  lager:\n    \
+                     mindestens_usd: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                     niederlassung: 1, forschungszentrum: 1}}\n    tage: 60\n    ausbau: \
+                     {{kapazitaet_usd: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
+                     ki_ausbau_ab: 0.9\n    klassen: {{{klassen}}}\n    nach_transportklasse: \
+                     {{{transport}}}\n    fremdlager: {{kapazitaet_faktor: 2, kosten_faktor: 2}}\n"
+                ),
+            )
+            .laden()
+    };
+    let alle_klassen =
+        "schuettgut: 0.02, stueckgut: 0.04, fluessig: 0.03, gekuehlt: 0.12, gefahrgut: 0.06";
+    let gut = mit(alle_klassen, "schuettgut: schuettgut");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.production_model.storage;
+    assert_eq!(m.classes.len(), 5);
+    assert!(m.product_class.iter().all(|&c| c == StorageClass::Bulk));
+    let falsch = mit(alle_klassen, "schuettgut: kuehlhaus");
+    assert!(
+        falsch
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.message.contains("kuehlhaus")),
+        "{}",
+        alle(&falsch)
+    );
+    let ohne = mit(alle_klassen, "");
+    assert!(
+        ohne.report
+            .findings()
+            .iter()
+            .any(|f| f.message.contains("Lagerklasse")),
+        "jedes Produkt braucht eine Klasse: {}",
+        alle(&ohne)
+    );
+    let luecke = mit("schuettgut: 0.02", "schuettgut: schuettgut");
+    assert!(
+        luecke
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.message.contains("gekuehlt")),
+        "{}",
+        alle(&luecke)
     );
 }

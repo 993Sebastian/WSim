@@ -2025,6 +2025,25 @@ Bei der Umsetzung entschieden:
     sondern über den frischen Zustand (weniger Ausfälle, volle Kapazität).
 13. 🟡 **BP2 – Ausfallchance.** `basis` 0,004 je Tag bei Mindestzustand ergibt für eine
     halb verschlissene Anlage rund 0,4 Ausfälle im Jahr, für eine verbrauchte 1,5.
+14. 🟡 **BP3 – Lagerkosten als Wertanteil.** Statt Kosten je Einheit und Tag (Einheiten
+    sind t, Stück, l) kostet jede Lagerklasse einen Anteil des Lagerwerts im Jahr
+    (Schüttgut 2 %, Stückgut 4 %, Flüssig 3 %, Gekühlt 12 %, Gefahrgut 6 %); Klasse aus
+    Transportklasse, Warengruppe (Chemie, Mineralöl, Rüstung = Gefahrgut) oder Haltbarkeit
+    bis 60 Tage (gekühlt). Die Parameter bleiben in `produktionsmodell.lager`.
+15. 🟡 **BP3 – Kapazität und Lagerhalle.** Die Kapazität bleibt aus Durchsatz und
+    Mindestwert je Standorttyp; die Ausbaustufen (`BuildStorage`) übernehmen die Rolle
+    der Lagerhalle. Eine eigene Anlage `lagerhalle` und Fläche je ha folgen, wenn die
+    Grundstücke (M35) dafür umgebaut werden.
+16. 🟡 **BP3 – Fremdlager und Drosselung.** Über der Kapazität nimmt ein Fremdlager bis
+    zur doppelten Kapazität auf (doppelter Satz, Warnung, kein Stopp); erst darüber greift
+    die Drosselung aus dem Wunsch vom 10.10.2026.
+17. 🟡 **BP3 – Haltbarkeiten.** 62 Lebensmittel und Agrarrohstoffe haben eine Haltbarkeit
+    (Rohmilch 7, Brot 7, Fisch 10, Fleisch 14, Getreide 365, Mehl 180, Konserven 1 800
+    Tage …); Tiefkühlware liegt gekühlt. Der Verderb je Warengruppe (3 %/1 % im Monat) ist
+    damit abgelöst. Ware unterwegs altert nicht.
+18. 🟡 **Nebenbefund P1:** 34 Kleidungs-, Schuh- und Lederwaren standen in Warengruppe und
+    Branche „lebensmittel“ (verdarben dadurch monatlich); jetzt Warengruppe `bekleidung`,
+    Branche `textil` (Daten und `tools/daten/pakete/p1/spec.py`).
 
 ## Reihenfolge der neuen Punkte
 

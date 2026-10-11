@@ -4,8 +4,8 @@ use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, FleetVehicle, LearningModel, MaintenanceModel,
-    PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageModel,
-    TrainingModel, TransportModel, Vehicle, Way,
+    PatentModel, ProductionModel, ResearchModel, SiteType, SizeModel, StartSetup, StorageClass,
+    StorageModel, TrainingModel, TransportModel, Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -415,7 +415,140 @@ fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) ->
         ),
         spoilage,
         ai_expand_at: in_range(ctx, v.ai_expand_at, 0.0, 1.0, &l.field("ki_ausbau_ab")),
+        classes: v
+            .classes
+            .iter()
+            .filter_map(|(key, &share)| {
+                let at = l.field("klassen");
+                let class = storage_class(ctx, key, &at.key(key))?;
+                Some((class, in_range(ctx, share, 0.0, 1.0, &at.field(key))))
+            })
+            .collect(),
+        product_class: Vec::new(),
+        shelf_life: Vec::new(),
+        external_capacity: v.external.as_ref().map_or(1.0, |e| {
+            in_range(
+                ctx,
+                e.capacity,
+                1.0,
+                10.0,
+                &l.field("fremdlager").field("kapazitaet_faktor"),
+            )
+        }),
+        external_rate: v.external.as_ref().map_or(1.0, |e| {
+            in_range(
+                ctx,
+                e.rate,
+                1.0,
+                10.0,
+                &l.field("fremdlager").field("kosten_faktor"),
+            )
+        }),
+        spoil_message_share: v.spoil_message_share.map_or(0.05, |s| {
+            in_range(ctx, s, 0.0, 1.0, &l.field("verderb_meldung_ab"))
+        }),
     }
+}
+
+fn storage_class(ctx: &mut Ctx, key: &str, at: &Loc) -> Option<StorageClass> {
+    let names: Vec<&str> = StorageClass::ALL.iter().map(|c| c.key()).collect();
+    let found = StorageClass::ALL.into_iter().find(|c| c.key() == key);
+    if found.is_none() {
+        ctx.error(
+            at,
+            messages::unknown_value(key, &names, suggest::closest(key, names.iter().copied())),
+        );
+    }
+    found
+}
+
+/// Storage class and shelf life of every product (BP3): the product's own class, else by
+/// goods group, else by transport class (each needs one); short-lived goods are chilled.
+pub(super) fn storage_classes(
+    ctx: &mut Ctx,
+    raw: &RawData,
+    products: &[&Entry<crate::raw::RawProduct>],
+    catalog: &mut Catalog,
+) {
+    let Some(entry) = raw.production_model.first() else {
+        return;
+    };
+    let Some(v) = entry.value.storage.as_ref() else {
+        return;
+    };
+    let l = entry.loc.field("lager");
+    let mut by_transport = BTreeMap::new();
+    for (key, class) in &v.by_transport {
+        let at = l.field("nach_transportklasse");
+        if catalog.transport_classes.id(key).is_none() {
+            ctx.error(
+                &at.key(key),
+                messages::unknown_reference("Transportklasse", key, None),
+            );
+        }
+        if let Some(c) = storage_class(ctx, class, &at.field(key)) {
+            by_transport.insert(key.clone(), c);
+        }
+    }
+    let mut by_group = BTreeMap::new();
+    for (key, class) in &v.by_group {
+        let at = l.field("nach_warengruppe");
+        if catalog.goods_groups.id(key).is_none() {
+            ctx.error(
+                &at.key(key),
+                messages::unknown_reference("Warengruppe", key, None),
+            );
+        }
+        if let Some(c) = storage_class(ctx, class, &at.field(key)) {
+            by_group.insert(key.clone(), c);
+        }
+    }
+    let m = &mut catalog.production_model.storage;
+    if !v.classes.is_empty() {
+        for class in StorageClass::ALL {
+            if !v.classes.contains_key(class.key()) {
+                ctx.error(
+                    &l.field("klassen"),
+                    messages::entry_missing("Lagerklasse", class.key()),
+                );
+            }
+        }
+    }
+    let mut classes = Vec::with_capacity(products.len());
+    let mut shelf = Vec::with_capacity(products.len());
+    for e in products {
+        let p = &e.value;
+        let life = p.shelf_life_days.filter(|&d| {
+            if d == 0 {
+                ctx.error(
+                    &e.loc.field("haltbarkeit_tage"),
+                    messages::not_positive(0.0),
+                );
+            }
+            d > 0
+        });
+        let own = p
+            .storage_class
+            .as_ref()
+            .and_then(|k| storage_class(ctx, k, &e.loc.field("lagerklasse")));
+        let class = own
+            .or_else(|| {
+                life.filter(|&d| d <= v.chilled_up_to_days)
+                    .map(|_| StorageClass::Chilled)
+            })
+            .or_else(|| by_group.get(&p.goods_group).copied())
+            .or_else(|| by_transport.get(&p.transport_class).copied());
+        if class.is_none() && !v.classes.is_empty() {
+            ctx.error(
+                &e.loc,
+                messages::entry_missing("Lagerklasse (nach_transportklasse)", &p.transport_class),
+            );
+        }
+        classes.push(class.unwrap_or_default());
+        shelf.push(life);
+    }
+    m.product_class = classes;
+    m.shelf_life = shelf;
 }
 
 /// Facility sizes (M36): every size with a capacity, growing with the size, 1 for

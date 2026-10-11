@@ -12,6 +12,7 @@ produkte:
     warengruppe: agrarrohstoffe
     transportklasse: schuettgut
     richtpreis_usd: 700           # um 1900 etwa 0,65 USD je Bushel
+    haltbarkeit_tage: 365
     # Höchstförderung gegenüber 1900: Weizenernte der Welt etwa 90 Mio. t (1900), 130
     # (1930), 170 (1950), 310 (1970), 585 (2000), 770 (2020); Mais und Reis wuchsen
     # stärker (M41: mit 8,5 im Jahr 2026 kostete Getreide ab 2015 das Doppelte).
@@ -27,6 +28,7 @@ produkte:
     warengruppe: lebensmittel
     transportklasse: schuettgut
     richtpreis_usd: 1100
+    haltbarkeit_tage: 180
     nachfrage:                    # Backen im Haushalt und beim Bäcker
       bedarfsklasse: grundbedarf
       verbrauch: {je_kopf_und_jahr: 0.035}  # P1: Brot und Teigwaren kommen als eigene Waren dazu
@@ -68,6 +70,7 @@ produkte:
     warengruppe: lebensmittel
     transportklasse: stueckgut
     richtpreis_usd: 1500
+    haltbarkeit_tage: 30
     staatsmarkt:
       preis_usd: 1500
     annaeherung: true
@@ -81,6 +84,7 @@ produkte:
     warengruppe: lebensmittel
     transportklasse: stueckgut
     richtpreis_usd: 4
+    haltbarkeit_tage: 1800
     nachfrage:
       bedarfsklasse: grundbedarf
       verbrauch: {je_kopf_und_jahr: 12}

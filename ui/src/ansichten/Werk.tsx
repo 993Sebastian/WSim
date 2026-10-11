@@ -264,6 +264,7 @@ function LagerPlatz({ s }: { s: StandortDetail }) {
       ) : (
         l.full && <p className="hinweis">{t("werk.lagerplatz.voll_vorprodukte")}</p>
       )}
+      {!l.full && l.external && <p className="hinweis">{t("werk.lagerplatz.fremdlager")}</p>}
       <form
         className="formular-zeile"
         aria-label={t("werk.lagerplatz.ausbauen")}

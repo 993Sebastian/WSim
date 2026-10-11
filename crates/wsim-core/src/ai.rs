@@ -1461,7 +1461,15 @@ fn operate(
             if per_day <= 1e-9 {
                 continue;
             }
-            let target = per_day * st.stock.input_max_days;
+            // Perishable inputs: at most half their shelf life in stock (BP3).
+            let days = catalog
+                .production_model
+                .storage
+                .shelf_life(product)
+                .map_or(st.stock.input_max_days, |d| {
+                    st.stock.input_max_days.min(f64::from(d) / 2.0)
+                });
+            let target = per_day * days;
             let price = market::market_price(catalog, state, country, product);
             let stock = s.inventory.get(&product).map_or(0.0, |x| x.quantity);
             let normal = price.scale(1.0 + b.purchase_markup);
