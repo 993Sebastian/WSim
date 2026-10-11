@@ -34,7 +34,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: kali_blr
-  land: BLR
+  land: UKR
   rohstoff: kalisalz
   erneuerbar: true
   erschliessung:

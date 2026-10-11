@@ -6,7 +6,7 @@
 
 namensgruppen:
   - id: deutsch
-    laender: [DEU, AUT, CHE]
+    laender: [DEU, XAL]
     familiennamen: [Becker, Hoffmann, Brandt, Lehmann, Vogt, Kessler, Hartmann, Albrecht,
                     Wendt, Körber, Steinbach, Reuter, Hahn, Lorenz, Pfeiffer, Ebert]
     vornamen: [Friedrich, Wilhelm, Hermann, Karl, Ernst, Otto, Heinrich, Paul, Walter, Klaus, Jürgen, Thomas, Margarete, Gertrud, Ursula, Ingrid, Sabine, Andrea, Katrin, Julia]
@@ -29,7 +29,7 @@ namensgruppen:
       konsumgueter: Metallwarenfabrik
 
   - id: englisch
-    laender: [GBR, USA, CAN, AUS, NZL, IRL, ZAF]
+    laender: [GBR, USA, CAN, AUS, XSA]
     standard: true
     familiennamen: [Harris, Whitfield, Morgan, Bradley, Hughes, Carter, Fletcher, Dawson,
                     Pemberton, Hale, Sutton, Barker, Lawrence, Grant, Mitchell, Holloway]
@@ -53,7 +53,7 @@ namensgruppen:
       konsumgueter: Manufacturing
 
   - id: franzoesisch
-    laender: [FRA, BEL]
+    laender: [FRA]
     familiennamen: [Durand, Lefèvre, Moreau, Girard, Bonnet, Fontaine, Rousseau, Mercier,
                     Blanchard, Gauthier, Perrin, Chevalier]
     vornamen: [Louis, Henri, Pierre, Jean, Paul, André, Jacques, Michel, Philippe, Alain, Marie, Jeanne, Marguerite, Louise, Simone, Monique, Nathalie, Sophie]
@@ -75,7 +75,7 @@ namensgruppen:
       konsumgueter: Manufacture
 
   - id: italienisch_spanisch
-    laender: [ITA, ESP, MEX, ARG, CHL, PER, COL, VEN, XPU, CUB, BOL, ECU]
+    laender: [ITA, ESP, MEX, ARG, PER, COL, XME]
     familiennamen: [Rossi, Ferrari, Colombo, Bianchi, García, Fernández, López, Martínez,
                     Ortega, Romano, Vázquez, Moretti]
     vornamen: [Giuseppe, Giovanni, Antonio, Francesco, José, Manuel, Carlos, Luis, Javier, Marco, María, Carmen, Rosa, Ana, Giulia, Lucía, Elena, Francesca]
@@ -96,7 +96,7 @@ namensgruppen:
       konsumgueter: Manifattura
 
   - id: russisch
-    laender: [RUS, UKR, BLR, KAZ, XKA, UZB, POL]
+    laender: [RUS, UKR, XZA, TUR, POL]
     familiennamen: [Morozov, Putilov, Demidov, Ryabushinsky, Kovalenko, Sokolov, Volkov,
                     Orlov, Wiśniewski, Kowalski, Shevchenko, Lebedev]
     vornamen: [Ivan, Nikolai, Alexei, Sergei, Dmitri, Mikhail, Andrei, Jan, Piotr, Olga, Tatjana, Irina, Natalia, Anna, Elena, Maria, Katarzyna, Svetlana]
@@ -118,7 +118,7 @@ namensgruppen:
       konsumgueter: Fabrik
 
   - id: skandinavisch_niederlaendisch
-    laender: [SWE, NOR, DNK, FIN, NLD]
+    laender: [XNO, NLD]
     familiennamen: [Lindqvist, Berg, Holm, Nyström, Hansen, Larsen, Virtanen, de Vries,
                     van Dijk, Bakker, Sandberg, Åkerlund]
     vornamen: [Erik, Lars, Johan, Nils, Olav, Pieter, Jan, Hendrik, Mikko, Anders, Ingrid, Astrid, Karin, Maria, Annika, Sanne, Liisa, Birgitta]

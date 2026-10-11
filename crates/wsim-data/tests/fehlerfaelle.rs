@@ -90,6 +90,7 @@ produktionsmodell:
   lohnaufschlag_max: 1.0
   stilllegung: {instandhaltung_anteil: 0.25, wiederanlauf_tage: 30, wiederanlauf_kosten: 0.02}
   verkauf: {erloes_anteil: 0.5, schrottwert: 0.03}
+  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}
   einspeiseverguetung: 0.5
   gemeinkosten_anteil: {rohstoff: 0.25, halbzeug: 0.5, komponente: 0.5, endprodukt: 1.0, energie: 0}
   richtpreis_marge: {minimum: 0.05, maximum: 0.45}
@@ -1361,6 +1362,17 @@ fn foerderkurve_wird_geprueft() {
     assert_eq!(
         f.path.to_string(),
         "produktionsmodell.schulung.arbeitsersparnis"
+    );
+    // Closing a site.
+    let d = Daten::neu().ersetze(datei, "abfindung_monate: 3", "abfindung_monate: 40");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 40 liegt außerhalb des erlaubten Bereichs 0 bis 36.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.schliessung.abfindung_monate"
     );
     // Expansions per check (C2).
     let d = Daten::neu().ersetze(
@@ -3991,6 +4003,9 @@ logistik:
   ki:
     anteil: 0.5
     kasse_anteil: 0.2
+  nachschub:
+    tage_standard: 20
+    tage_max: 365
 ";
 
 #[test]
@@ -4007,6 +4022,7 @@ fn logistik_wird_geprueft() {
     assert!(m.enabled);
     assert!((m.state_surcharge - 0.5).abs() < 1e-12);
     assert!((m.load - 0.6).abs() < 1e-12);
+    assert!((m.supply_days_default - 20.0).abs() < 1e-12);
 
     for (alt, neu, meldung, pfad) in [
         (
@@ -4032,6 +4048,12 @@ fn logistik_wird_geprueft() {
             "see: {1900: 1.5",
             "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
             "logistik.risiko.see.1900",
+        ),
+        (
+            "tage_standard: 20",
+            "tage_standard: 400",
+            "Wert 400 liegt außerhalb des erlaubten Bereichs 1 bis 365.",
+            "logistik.nachschub.tage_standard",
         ),
         (
             "kasse_anteil: 0.2",
@@ -4557,6 +4579,33 @@ fn person_wird_geprueft() {
 }
 
 #[test]
+fn privatleben_wird_geprueft() {
+    let datei = "parameter/person.yaml";
+    let mit = |text: &str| {
+        let person = format!(
+            "{}  privatleben:\n    partnersuche: {{kosten_monat: 0.3, chance_monat: 0.12}}\n    \
+             privatschule: {{kosten_monat: 0.8, ausbildung: 12}}\n    vorsorge: {{kosten_monat: 0.5, \
+             sterblichkeit: {text}}}\n",
+            PERSON
+        );
+        Daten::neu().datei(datei, &person).laden()
+    };
+    let gut = mit("0.8");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let pl = gut.data.as_ref().unwrap().catalog.person.private_life;
+    assert!(pl.enabled && (pl.care_mortality - 0.8).abs() < 1e-12);
+    let schlecht = mit("2");
+    let f = befund(
+        &schlecht,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0.1 bis 1.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "person.privatleben.vorsorge.sterblichkeit"
+    );
+}
+
+#[test]
 fn privatkonto_und_lebensstil_werden_geprueft() {
     let datei = "parameter/person.yaml";
     let lauf = |alt: &str, neu: &str| {
@@ -4894,5 +4943,104 @@ fn rohstoffzyklus_wird_geprueft() {
         datei,
         d.zeile(datei, "beharrung"),
         "produktionsmodell.rohstoffzyklus.beharrung",
+    );
+}
+
+#[test]
+fn lager_wird_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let mit = |verderb: &str, tage: &str| {
+        Daten::neu()
+            .ersetze(
+                datei,
+                "  schliessung: {lager_erloes_anteil: 0.5, abfindung_monate: 3}\n",
+                &format!(
+                    "  schliessung: {{lager_erloes_anteil: 0.5, abfindung_monate: 3}}\n  lager:\n    \
+                     mindestens_usd: {{foerderstaette: 1, werk: 1, kraftwerk: 1, lager: 1, \
+                     niederlassung: 1, forschungszentrum: 1}}\n    tage: {tage}\n    ausbau: \
+                     {{kapazitaet_usd: 1000, kosten_usd: 100}}\n    kosten_jahr_anteil: 0.04\n    \
+                     verderb: {{{verderb}}}\n    ki_ausbau_ab: 0.9\n"
+                ),
+            )
+            .laden()
+    };
+    let gut = mit("erze: 0.03", "60");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let m = &gut.data.as_ref().unwrap().catalog.production_model.storage;
+    assert!(m.enabled && m.spoilage.len() == 1 && (m.days - 60.0).abs() < 1e-12);
+    let zu_viel = mit("erze: 1.5", "60");
+    let f = befund(
+        &zu_viel,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_eq!(f.path.to_string(), "produktionsmodell.lager.verderb.erze");
+    let schlecht = mit("kaese: 0.1", "60");
+    assert!(
+        schlecht
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.message.contains("kaese")),
+        "{}",
+        alle(&schlecht)
+    );
+    let schlecht = mit("erze: 0.1", "0");
+    let f = schlecht
+        .report
+        .findings()
+        .iter()
+        .find(|f| f.path.to_string() == "produktionsmodell.lager.tage");
+    assert!(f.is_some(), "{}", alle(&schlecht));
+}
+
+#[test]
+fn fruehere_regionscodes_werden_geprueft() {
+    let mit = |frueher: &str| {
+        Daten::neu()
+            .ersetze(
+                "laender/SWE.yaml",
+                "    binnenland: false",
+                &format!("    binnenland: false\n    umfasst: [SWE, ALA]\n    frueher: {frueher}"),
+            )
+            .ersetze(
+                "texte/de/a.yaml",
+                "land.SWE: Schweden\n",
+                "land.SWE: Schweden\nteilland.SWE: Schweden\nteilland.ALA: Åland\n",
+            )
+            .laden()
+    };
+    let gut = mit("[XNO]");
+    assert!(gut.report.findings().is_empty(), "{}", alle(&gut));
+    let c = &gut.data.as_ref().unwrap().catalog;
+    assert_eq!(
+        c.countries.get(c.countries.id("SWE").unwrap()).former,
+        ["XNO"]
+    );
+    // The former code names a country of its own, or a member of the region.
+    let schlecht = mit("[SWE]");
+    assert!(
+        schlecht
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.path.to_string() == "laender[0].frueher[0]"),
+        "{}",
+        alle(&schlecht)
+    );
+    let schlecht = mit("[ALA]");
+    assert!(
+        schlecht
+            .report
+            .findings()
+            .iter()
+            .any(|f| f.path.to_string() == "laender[0].frueher[0]"),
+        "{}",
+        alle(&schlecht)
+    );
+    let schlecht = mit("[x1]");
+    assert!(
+        !schlecht.report.findings().is_empty(),
+        "{}",
+        alle(&schlecht)
     );
 }

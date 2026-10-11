@@ -23,4 +23,8 @@ logistik:
   ki:
     anteil: 0.5                 # eine Flotte für die Hälfte der eigenen Fracht
     kasse_anteil: 0.2
+  # Interne Belieferung nach Bedarf: Lager für so viele Tage Bedarf (Vorgabe, höchstens)
+  nachschub:
+    tage_standard: 20
+    tage_max: 365
   annaeherung: true

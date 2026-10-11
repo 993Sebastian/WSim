@@ -82,6 +82,8 @@ fn child(name: &str, born: (i32, u32, u32)) -> Child {
         born: Date::new(born.0, born.1, born.2).unwrap(),
         manager: None,
         died: None,
+        private_school: false,
+        school_days: 0,
     }
 }
 
@@ -179,6 +181,8 @@ fn the_eldest_child_inherits_without_a_choice() {
         p.children = vec![child("Bert", (1880, 1, 1)), child("Anna", (1878, 1, 1))];
         p.children.push(Child {
             died: Some(Date::new(1899, 1, 1).unwrap()),
+            private_school: false,
+            school_days: 0,
             ..child("Carl", (1870, 1, 1))
         });
     }

@@ -109,6 +109,17 @@ pub fn decide_with(
                 news.extend(invest(state, catalog, id, own, decider));
             }
             fleet(state, catalog, id, decider);
+            for &site in own {
+                if let Some(steps) = crate::storage::ai_steps(catalog, state, site) {
+                    act(
+                        state,
+                        catalog,
+                        id,
+                        &Command::BuildStorage { site, steps },
+                        decider,
+                    );
+                }
+            }
             file_patents(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
@@ -513,7 +524,7 @@ fn site_plan(
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == id)
+        .filter(|(_, s)| s.held_by(id))
         .map(|(i, _)| site_id(i))
         .collect();
     let price =
@@ -1097,7 +1108,7 @@ fn best_recipe(
         Some(c) => {
             let v = state.countries.get(c);
             let own = state.sites.iter().any(|s| {
-                s.owner == id && s.country == c && s.kind == crate::catalog::SiteType::PowerPlant
+                s.held_by(id) && s.country == c && s.kind == crate::catalog::SiteType::PowerPlant
             });
             let share = if own { 1.0 } else { v.grid_share.max(0.05) };
             v.electricity_price_usd_mwh / share
@@ -1648,7 +1659,7 @@ fn supply_own(
     let mut underway: BTreeMap<(SiteId, ProductId), f64> = BTreeMap::new();
     for sh in &state.shipments {
         if let crate::state::Consignee::Site(site) = sh.to
-            && state.sites[site.index()].owner == id
+            && state.sites[site.index()].held_by(id)
         {
             *underway.entry((site, sh.product)).or_default() += sh.quantity;
         }
@@ -3528,7 +3539,7 @@ pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == id)
+        .filter(|(_, s)| s.held_by(id))
         .map(|(i, _)| site_id(i))
         .collect();
     for site in given_up {
@@ -3539,7 +3550,7 @@ pub(crate) fn release_assets(state: &mut GameState, id: CompanyId) {
 /// An insolvent company stops working: its staff is released, its offers and purchases
 /// end, its research stops (M38: its sites wait for the auction).
 pub(crate) fn stop_operations(state: &mut GameState, id: CompanyId) {
-    for s in state.sites.iter_mut().filter(|s| s.owner == id) {
+    for s in state.sites.iter_mut().filter(|s| s.held_by(id)) {
         for w in s.workforce.iter_mut().map(|(_, w)| w) {
             *w = 0.0;
         }
@@ -4762,7 +4773,7 @@ mod tests {
         slot.last_runs = 0.0;
         let owned = |state: &GameState| -> Vec<SiteId> {
             (0..state.sites.len())
-                .filter(|&i| state.sites[i].owner == id)
+                .filter(|&i| state.sites[i].held_by(id))
                 .map(site_id)
                 .collect()
         };
@@ -4770,7 +4781,7 @@ mod tests {
             state
                 .sites
                 .iter()
-                .filter(|s| s.owner == id && s.kind == SiteType::PowerPlant)
+                .filter(|s| s.held_by(id) && s.kind == SiteType::PowerPlant)
                 .flat_map(|s| &s.slots)
                 .map(|sl| sl.count)
                 .sum()
@@ -5197,7 +5208,7 @@ mod tests {
             state
                 .sites
                 .iter()
-                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .find(|s| s.held_by(id) && s.kind == SiteType::ResearchCenter)
                 .and_then(|s| s.development)
         };
         research_plan(state, &catalog, id, &[works], (date, &[]), &mut Rules);
@@ -5206,7 +5217,7 @@ mod tests {
         let lab = state
             .sites
             .iter()
-            .position(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+            .position(|s| s.held_by(id) && s.kind == SiteType::ResearchCenter)
             .map(site_id)
             .expect("built");
         state.companies[id.index()]
@@ -5301,7 +5312,7 @@ mod tests {
             state
                 .sites
                 .iter()
-                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .find(|s| s.held_by(id) && s.kind == SiteType::ResearchCenter)
                 .and_then(|s| s.research)
         };
         // Nobody asks for bicycles: the iron works have nothing to research.
@@ -5419,7 +5430,7 @@ mod tests {
             state
                 .sites
                 .iter()
-                .find(|s| s.owner == id && s.kind == SiteType::ResearchCenter)
+                .find(|s| s.held_by(id) && s.kind == SiteType::ResearchCenter)
                 .and_then(|s| s.research)
         };
         // Without priority the own branch comes first.
@@ -5475,7 +5486,7 @@ mod tests {
             state
                 .sites
                 .iter()
-                .filter(|s| s.owner == id)
+                .filter(|s| s.held_by(id))
                 .flat_map(|s| &s.slots)
                 .filter(|sl| sl.recipe == Some(building))
                 .count()
@@ -5708,7 +5719,7 @@ mod tests {
                 state
                     .sites
                     .iter()
-                    .filter(|s| s.owner == id)
+                    .filter(|s| s.held_by(id))
                     .map(|s| s.slots.len())
                     .sum()
             };
@@ -5781,7 +5792,7 @@ mod tests {
                 state
                     .sites
                     .iter()
-                    .filter(|s| s.owner == id)
+                    .filter(|s| s.held_by(id))
                     .map(|s| s.slots.len())
                     .sum()
             };
@@ -5849,7 +5860,7 @@ mod tests {
             m.last_month.revenue = reference.scale(31_000.0 * paid_factor);
             let makes = |state: &GameState, c: CompanyId| {
                 state.sites.iter().any(|s| {
-                    s.owner == c
+                    s.held_by(c)
                         && s.slots.iter().any(|sl| {
                             sl.recipe
                                 .is_some_and(|r| catalog.recipes.get(r).product == iron)

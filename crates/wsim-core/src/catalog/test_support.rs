@@ -14,6 +14,7 @@ fn country(catalog: &Catalog, population: &[(i32, f64)]) -> Country {
         landlocked: false,
         neighbors: Vec::new(),
         members: Vec::new(),
+        former: Vec::new(),
         cities: Vec::new(),
         values: CountryValues {
             population: TimeSeries::new(population.to_vec()).expect("valid"),

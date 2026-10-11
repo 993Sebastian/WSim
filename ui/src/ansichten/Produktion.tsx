@@ -50,9 +50,27 @@ export function ProduktionAnsicht({
             {daten.sites.length === 0 && (
               <p className="gedaempft">{t("uebersicht.keine_standorte")}</p>
             )}
-            <div className="karten-raster" data-tour="standorte">
-              {daten.sites.map((s) => (
-                <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
+            <div data-tour="standorte">
+              {gegliedert(daten.sites).map(([kontinent, laender]) => (
+                <section
+                  key={kontinent}
+                  className="standortgruppe"
+                  aria-label={kontinentName(kontinent)}
+                >
+                  {kontinent && <h2>{kontinentName(kontinent)}</h2>}
+                  {laender.map(([land, standorte]) => (
+                    <section key={land} aria-label={landName(land)}>
+                      <h3>
+                        {landName(land)} <small className="gedaempft">({standorte.length})</small>
+                      </h3>
+                      <div className="karten-raster">
+                        {standorte.map((s) => (
+                          <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </section>
               ))}
             </div>
             {daten.sites.some((s) => s.stock.length > 0) && (
@@ -85,6 +103,25 @@ export function ProduktionAnsicht({
   );
 }
 
+/** The sites by continent and country, both in the order of their names. */
+function gegliedert(sites: StandortDetail[]): [string, [string, StandortDetail[]][]][] {
+  const kontinente = new Map<string, Map<string, StandortDetail[]>>();
+  for (const s of sites) {
+    const laender = kontinente.get(s.continent ?? "") ?? new Map<string, StandortDetail[]>();
+    kontinente.set(s.continent ?? "", laender);
+    laender.set(s.country, [...(laender.get(s.country) ?? []), s]);
+  }
+  const nachName = <T,>(a: [string, T], b: [string, T], name: (k: string) => string) =>
+    name(a[0]).localeCompare(name(b[0]), "de");
+  return [...kontinente.entries()]
+    .sort((a, b) => nachName(a, b, kontinentName))
+    .map(([k, laender]) => [k, [...laender.entries()].sort((a, b) => nachName(a, b, landName))]);
+}
+
+function kontinentName(key: string): string {
+  return key ? t(`kontinent.${key}`) : "";
+}
+
 function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => void }) {
   const titel = standortTitel(s);
   const probleme = s.slots.filter((a) => a.cause && a.cause.key !== "ursache.im_bau");
@@ -94,10 +131,10 @@ function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => v
   const m = s.last_month;
   return (
     <article className="karte standortkarte" aria-label={titel}>
-      <h2>
+      <h4>
         {titel}
         {s.deposit && <small>{t(`lagerstaette.${s.deposit}`)}</small>}
-      </h2>
+      </h4>
       {produkte.length > 0 && (
         <p className="gedaempft">{produkte.map((p) => t(`produkt.${p}`)).join(", ")}</p>
       )}

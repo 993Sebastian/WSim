@@ -138,19 +138,19 @@ fn unit_number(unit: Unit) -> u32 {
 /// continent, or any site for the board.
 pub fn has_unit(catalog: &Catalog, state: &GameState, company: CompanyId, unit: Unit) -> bool {
     match unit {
-        Unit::Board => state.sites.iter().any(|x| x.owner == company),
+        Unit::Board => state.sites.iter().any(|x| x.held_by(company)),
         Unit::Site(s) => state
             .sites
             .get(s.index())
-            .is_some_and(|x| x.owner == company),
+            .is_some_and(|x| x.held_by(company)),
         Unit::Country(c) => state
             .sites
             .iter()
-            .any(|x| x.owner == company && x.country == c),
+            .any(|x| x.held_by(company) && x.country == c),
         Unit::Continent(k) => state
             .sites
             .iter()
-            .any(|x| x.owner == company && catalog.countries.get(x.country).continent == k),
+            .any(|x| x.held_by(company) && catalog.countries.get(x.country).continent == k),
     }
 }
 
@@ -161,7 +161,7 @@ pub fn units(catalog: &Catalog, state: &GameState, company: CompanyId) -> Vec<Un
     let mut continents = BTreeSet::new();
     let mut out = Vec::new();
     for (i, s) in state.sites.iter().enumerate() {
-        if s.owner != company {
+        if !s.held_by(company) {
             continue;
         }
         // Few sites; the cast is exact.
@@ -378,7 +378,7 @@ pub fn seat_country(
             }
             let mut count: BTreeMap<CountryId, usize> = BTreeMap::new();
             for s in &state.sites {
-                if s.owner == company && catalog.countries.get(s.country).continent == k {
+                if s.held_by(company) && catalog.countries.get(s.country).continent == k {
                     *count.entry(s.country).or_default() += 1;
                 }
             }
@@ -471,7 +471,7 @@ pub(crate) fn check_own_position(
             .sites
             .get(site.index())
             .ok_or(CommandError::UnknownSite)?;
-        if site.owner != actor {
+        if !site.held_by(actor) {
             return Err(CommandError::NotOwner);
         }
     }
@@ -2148,7 +2148,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             .sites
             .iter()
             .enumerate()
-            .filter(|(_, s)| s.owner == company)
+            .filter(|(_, s)| s.held_by(company))
             // Few sites; the cast is exact.
             .map(|(i, _)| SiteId(i as u32))
             .collect();
@@ -2591,7 +2591,7 @@ fn report_followups(
     state.followups.retain(|f| f.due > today);
     for f in due {
         let site = &state.sites[f.site.index()];
-        if !state.is_main(f.company) || site.owner != f.company {
+        if !state.is_main(f.company) || !site.held_by(f.company) {
             continue;
         }
         let actual =
@@ -2739,6 +2739,17 @@ pub(crate) fn answer(
         Ok(())
     };
     let who = asker(&c).clone();
+    // Commands of the answer settle only the same question asked by others (same topic,
+    // site and product); concerns about other things stay open even when an option of
+    // theirs acts on the same object (several bottlenecks at one works).
+    let others: Vec<(usize, Concern)> = state
+        .concerns
+        .iter()
+        .enumerate()
+        .filter(|&(i, o)| i != index && o.company == actor && o.status == ConcernStatus::Open)
+        .filter(|(_, o)| !same_question(&o.decision, &c.decision))
+        .map(|(i, o)| (i, o.clone()))
+        .collect();
     let status = match answer {
         ConcernAnswer::Choose(choice) => {
             decide(state, choice)?;
@@ -2763,10 +2774,18 @@ pub(crate) fn answer(
             ConcernStatus::Declined
         }
     };
+    for (i, before) in others {
+        state.concerns[i] = before;
+    }
     let c = &mut state.concerns[index];
     c.status = status;
     c.closed = Some(today);
     Ok(())
+}
+
+/// Whether two decisions ask the same: topic, site and product.
+fn same_question(a: &Decision, b: &Decision) -> bool {
+    a.topic == b.topic && a.site == b.site && a.product == b.product
 }
 
 /// `SetBudget`: the shares of a position's reference per decision and per year; `None`

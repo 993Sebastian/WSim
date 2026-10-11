@@ -438,8 +438,11 @@ pub(crate) fn build(
         b.catalog.countries.insert(&e.value.id, country);
     }
     countries::check_neighbors(b.ctx, &b.catalog, &countries);
-    b.catalog.production_model =
-        production::production_model(b.ctx, raw, (&product_keys, &facility_keys, &recipe_keys));
+    b.catalog.production_model = production::production_model(
+        b.ctx,
+        raw,
+        (&product_keys, &facility_keys, &recipe_keys, &group_keys),
+    );
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     let (market_model, media_keys) = production::market_model(b.ctx, raw);
     b.catalog.market_model = market_model;

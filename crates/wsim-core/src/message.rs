@@ -41,6 +41,10 @@ pub struct Message {
     pub kind: MessageKind,
     pub key: String,
     pub params: Vec<(String, Param)>,
+    /// Another company of the person the message is about; none for the main company
+    /// and for the world.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub company: Option<String>,
 }
 
 impl Message {
@@ -49,7 +53,14 @@ impl Message {
             kind,
             key: key.to_owned(),
             params: Vec::new(),
+            company: None,
         }
+    }
+
+    /// The message is about the named company (another one of the person's).
+    pub fn of(mut self, company: Option<String>) -> Self {
+        self.company = company;
+        self
     }
 
     pub fn error(key: &str) -> Self {
@@ -104,6 +115,8 @@ pub mod keys {
     pub const COMMAND_ALREADY_MOTHBALLED: &str = "fehler.befehl.schon_stillgelegt";
     pub const COMMAND_NOT_MOTHBALLED: &str = "fehler.befehl.nicht_stillgelegt";
     pub const COMMAND_TOO_MANY_UNITS: &str = "fehler.befehl.zu_viele_einheiten";
+    pub const COMMAND_SITE_HAS_CONTRACTS: &str = "fehler.befehl.standort_mit_vertraegen";
+    pub const COMMAND_GOODS_ON_THE_WAY: &str = "fehler.befehl.ware_unterwegs";
     pub const COMMAND_NO_FREE_PLOT: &str = "fehler.befehl.kein_grundstueck";
     pub const COMMAND_UNKNOWN_PLOT: &str = "fehler.befehl.grundstueck_unbekannt";
     pub const COMMAND_PLOT_TAKEN: &str = "fehler.befehl.grundstueck_belegt";
@@ -151,6 +164,7 @@ pub mod keys {
     pub const AI_MOTHBALLS: &str = "meldung.ki.stilllegung";
     pub const AI_SELLS: &str = "meldung.ki.verkauf";
     pub const INPUT_MISSING: &str = "warnung.vorprodukt_fehlt";
+    pub const STORAGE_FULL: &str = "warnung.lager_voll";
     pub const MILESTONE: &str = "meldung.etappe";
     pub const AI_NEW_SELLER: &str = "meldung.ki.anbieter_neu";
     pub const AI_SELLER_GONE: &str = "meldung.ki.anbieter_weg";
@@ -167,6 +181,10 @@ pub mod keys {
     pub const COMMAND_NOT_SELLERS_OBJECT: &str = "fehler.befehl.nicht_im_besitz";
     pub const COMMAND_SITE_TOO_YOUNG: &str = "fehler.befehl.standort_zu_jung";
     pub const COMMAND_LICENSE_NOT_POSSIBLE: &str = "fehler.befehl.lizenz_unmoeglich";
+    pub const COMMAND_NOT_POSSIBLE: &str = "fehler.befehl.nicht_moeglich";
+    pub const COMMAND_UNKNOWN_CHILD: &str = "fehler.befehl.unbekanntes_kind";
+    pub const PERSON_MARRIED: &str = "meldung.person.heirat";
+    pub const PERSON_FAMILY_SHORT: &str = "meldung.person.familie_unbezahlt";
     pub const COMMAND_OFFER_EXISTS: &str = "fehler.befehl.angebot_offen";
     pub const COMMAND_OFFER_BLOCKED: &str = "fehler.befehl.angebot_gesperrt";
     pub const COMMAND_UNKNOWN_OFFER: &str = "fehler.befehl.angebot_unbekannt";
@@ -515,6 +533,8 @@ pub mod keys {
         COMMAND_ALREADY_MOTHBALLED,
         COMMAND_NOT_MOTHBALLED,
         COMMAND_TOO_MANY_UNITS,
+        COMMAND_SITE_HAS_CONTRACTS,
+        COMMAND_GOODS_ON_THE_WAY,
         COMMAND_NO_FREE_PLOT,
         COMMAND_UNKNOWN_PLOT,
         COMMAND_PLOT_TAKEN,
@@ -575,6 +595,10 @@ pub mod keys {
         COMMAND_NOT_SELLERS_OBJECT,
         COMMAND_SITE_TOO_YOUNG,
         COMMAND_LICENSE_NOT_POSSIBLE,
+        COMMAND_NOT_POSSIBLE,
+        COMMAND_UNKNOWN_CHILD,
+        PERSON_MARRIED,
+        PERSON_FAMILY_SHORT,
         COMMAND_OFFER_EXISTS,
         COMMAND_OFFER_BLOCKED,
         COMMAND_UNKNOWN_OFFER,
@@ -854,6 +878,7 @@ pub mod keys {
         AI_MOTHBALLS,
         AI_SELLS,
         INPUT_MISSING,
+        STORAGE_FULL,
         HINT_INPUT,
         HINT_LABOR,
         HINT_POWER,

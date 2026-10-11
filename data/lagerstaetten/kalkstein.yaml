@@ -134,7 +134,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: kalk_bel
-  land: BEL
+  land: NLD
   rohstoff: kalkstein
   erneuerbar: true
   erschliessung:

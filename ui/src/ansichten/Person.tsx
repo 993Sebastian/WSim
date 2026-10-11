@@ -71,6 +71,80 @@ function Familie({ p }: { p: Person }) {
   );
 }
 
+/** Partner search, private schools and health care: buttons, costs a month. */
+function Privatleben({ p, pl }: { p: Person; pl: NonNullable<Person["private_life"]> }) {
+  const { los, antwort } = useAktion("privatleben");
+  const schulfaehig = p.children
+    .map((k, i) => ({ k, i }))
+    .filter(({ k }) => !k.died && k.card_in !== null);
+  return (
+    <section className="karte" aria-label={t("person.privatleben")}>
+      <h2>{t("person.privatleben")}</h2>
+      <p className="feld-hilfe">{t("person.privatleben_hilfe")}</p>
+      {!p.married && (
+        <p>
+          {pl.seeking_partner
+            ? t("person.partner_sucht", {
+                kosten: formatGeld(pl.partner_cost_usd),
+                chance: formatProzent(pl.partner_chance),
+              })
+            : t("person.partner_hilfe", {
+                kosten: formatGeld(pl.partner_cost_usd),
+                chance: formatProzent(pl.partner_chance),
+              })}{" "}
+          <button
+            type="button"
+            onClick={() => void los([{ SeekPartner: { active: !pl.seeking_partner } }])}
+          >
+            {t(pl.seeking_partner ? "person.partner_beenden" : "person.partner_suchen")}
+          </button>
+        </p>
+      )}
+      <h3>{t("person.vorsorge")}</h3>
+      <p>
+        {t("person.vorsorge_hilfe", {
+          kosten: formatGeld(pl.care_cost_usd),
+          faktor: formatProzent(pl.care_mortality),
+        })}{" "}
+        <button
+          type="button"
+          onClick={() => void los([{ SetHealthCare: { active: !pl.health_care } }])}
+        >
+          {t(pl.health_care ? "person.vorsorge_aus" : "person.vorsorge_an")}
+        </button>
+      </p>
+      {schulfaehig.length > 0 && (
+        <>
+          <h3>{t("person.privatschule")}</h3>
+          <p className="feld-hilfe">
+            {t("person.privatschule_hilfe", {
+              kosten: formatGeld(pl.school_cost_usd),
+              punkte: formatZahl(pl.school_education),
+            })}
+          </p>
+          <ul className="liste">
+            {schulfaehig.map(({ k, i }) => (
+              <li key={`${k.name}-${k.born}`}>
+                {k.name} ({formatZahl(k.age)})
+                {k.private_school && ` – ${t("person.privatschule_besucht")}`}{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    void los([{ SetPrivateSchool: { child: i, active: !k.private_school } }])
+                  }
+                >
+                  {t(k.private_school ? "person.privatschule_aus" : "person.privatschule_an")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Rueckmeldung meldung={antwort} />
+    </section>
+  );
+}
+
 function Rollen({ p }: { p: Person }) {
   if (p.holdings.length === 0) {
     return (
@@ -243,7 +317,7 @@ function Lebensstil({ g }: { g: PersonGeld }) {
   );
 }
 
-/** The person's salary as CEO of the main company. */
+/** The person's salary: as CEO, or as owner of the main company led by a manager. */
 function Gehalt({ g }: { g: PersonGeld }) {
   const [betrag, setBetrag] = useState(geldFeld(g.salary_usd));
   const { los, antwort } = useAktion("gehalt");
@@ -263,10 +337,17 @@ function Gehalt({ g }: { g: PersonGeld }) {
     >
       <h3>{t("person.gehalt")}</h3>
       <p className="feld-hilfe">
-        {t(g.salary_paid ? "person.gehalt_hilfe" : "person.gehalt_ruht", {
-          vorschlag: formatGeld(g.salary_suggestion_usd),
-          steuer: formatProzent(g.income_tax),
-        })}
+        {t(
+          g.salary_as_owner
+            ? "person.gehalt_eigentuemer"
+            : g.salary_paid
+              ? "person.gehalt_hilfe"
+              : "person.gehalt_ruht",
+          {
+            vorschlag: formatGeld(g.salary_suggestion_usd),
+            steuer: formatProzent(g.income_tax),
+          },
+        )}
         {g.salary_max_usd !== null &&
           ` ${t("person.gehalt_hoechstens", { max: formatGeld(g.salary_max_usd) })}`}
       </p>
@@ -633,7 +714,7 @@ export function PersonAnsicht({
       )}
       {g && <Vermoegen g={g} />}
       {g && <Lebensstil g={g} />}
-      {g && daten.holdings.some((h) => h.person_ceo) && <Gehalt g={g} />}
+      {g && daten.holdings.length > 0 && <Gehalt g={g} />}
       <Rollen p={daten} />
       {g &&
         daten.holdings
@@ -645,6 +726,7 @@ export function PersonAnsicht({
           <Handel key={`handel-${h.company}`} h={h} />
         ))}
       <Familie p={daten} />
+      {daten.private_life && <Privatleben p={daten} pl={daten.private_life} />}
       {daten.succession && <NachfolgeAbschnitt n={daten.succession} />}
       <Lebenslauf p={daten} />
     </Befehle>

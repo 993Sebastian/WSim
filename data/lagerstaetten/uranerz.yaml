@@ -23,7 +23,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: uran_kaz
-  land: KAZ
+  land: XZA
   rohstoff: uranerz
   vorrat: 400000
   erschliessung:
@@ -33,7 +33,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: uran_ner
-  land: NER
+  land: XWA
   rohstoff: uranerz
   vorrat: 200000
   erschliessung:
@@ -53,7 +53,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: uran_zaf
-  land: ZAF
+  land: XSA
   rohstoff: uranerz
   vorrat: 200000
   erschliessung:
@@ -63,7 +63,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: uran_cze
-  land: CZE
+  land: POL
   rohstoff: uranerz
   vorrat: 50000
   erschliessung:
@@ -73,7 +73,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.1
   annaeherung: true
 - id: uran_uzb
-  land: UZB
+  land: XZA
   rohstoff: uranerz
   vorrat: 100000
   erschliessung:

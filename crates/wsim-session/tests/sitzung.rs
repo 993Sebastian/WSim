@@ -529,6 +529,10 @@ fn supply_contracts_with_ai_companies() {
             .all(|w| w[0].price_usd <= w[1].price_usd)
     );
     assert!(session.supply_sources(site, "gibt_es_nicht").is_err());
+    // Own sites as sources and targets (W5): the workshop has no other site yet.
+    assert!(session.internal_sources(site, "draht").unwrap().is_empty());
+    assert!(session.transfer_targets(site, "draht").unwrap().is_empty());
+    assert!(session.internal_sources(site, "gibt_es_nicht").is_err());
     let quantity = seller.free_per_day.min(0.5 * partners.own_per_day);
     assert!(quantity > 0.0);
     let price = (seller.suggested_price_usd * 10_000.0).round() as i64;

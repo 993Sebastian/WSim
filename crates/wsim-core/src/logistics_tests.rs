@@ -54,6 +54,8 @@ fn with_logistics(risk: f64) -> Catalog {
         risk_sea: series(risk),
         ai_share: 0.5,
         ai_cash_share: 1.0,
+        supply_days_default: 20.0,
+        supply_days_max: 365.0,
         provenance: Default::default(),
     };
     c

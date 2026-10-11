@@ -101,6 +101,9 @@ export type Befehl =
       };
     }
   | { SetPersonSalary: { amount: number } }
+  | { SeekPartner: { active: boolean } }
+  | { SetPrivateSchool: { child: number; active: boolean } }
+  | { SetHealthCare: { active: boolean } }
   | { SetLifestyle: { level: Stufe } }
   | { ContributeCapital: { company: number; amount: number } }
   | { LendToCompany: { company: number; amount: number; rate: number; years: number } }
@@ -125,7 +128,18 @@ export type Befehl =
       };
     }
   | { RenameSite: { site: number; name: string | null } }
+  | { CloseSite: { site: number } }
+  | { BuildStorage: { site: number; steps: number } }
   | { BuyOnce: { site: number; product: string; quantity: number; max_price: number } }
+  | { TransferGoods: { from: number; to: number; product: string; quantity: number } }
+  | {
+      SetInternalSupply: {
+        site: number;
+        product: string;
+        source: number | null;
+        mode: { Fixed: { per_day: number } } | { Need: { days: number } };
+      };
+    }
   | { SetResearch: { site: number; technology: string | null } }
   | { SetDevelopment: { site: number; product: string | null } }
   | { SetResearchShares: { site: number; shares: [string, number][] } }

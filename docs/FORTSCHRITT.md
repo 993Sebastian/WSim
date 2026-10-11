@@ -1256,6 +1256,49 @@ Vor den Branchenpaketen P1a–P5 (Stufe 5, rund 500 Endprodukte). Entscheidungen
   q · Tag des Monats, die Strafe am Monatsende auf q · Tage des Monats. Alte Spielstände
   (`per_month`) und alte Journale (`ProposeContract.per_month`) werden mit 30 Tagen je
   Monat umgerechnet. Tests angepasst, Test `monthly_quantities_of_old_saves_and_journals_become_daily`.
+- **Interne Belieferung (Wunsch 10.10.2026):** Ein Standort bezieht ein Produkt von einem
+  Standort der eigenen Firma oder des Konzerns, als feste Tagesmenge oder nach Bedarf
+  (Lager für *d* Tage Verbrauch und Absatz, Ware unterwegs zählt), z. B. Vorprodukte aus
+  China für ein Werk in Deutschland oder Konserven aus Deutschland für eine Niederlassung in
+  Frankreich. Fracht und Zoll zahlt der Empfänger; Konzernfirmen verrechnen zu
+  Herstellkosten. Werk-Einkauf „Von eigenem Standort beziehen“, Lager „An eigenen Standort
+  liefern“ (einmalig, `TransferGoods` jetzt auch für den Spieler). Modul `supply`, Befehl
+  `SetInternalSupply`, Daten `logistik.nachschub`, Tests `supply_tests`, Sitzung, E2E.
+- **Standort schließen (Wunsch 10.10.2026):** Befehl `CloseSite` (Modul `closing`):
+  Anlagen und Gebäude zum Verkaufswert (M22), gekauftes Grundstück zum heutigen Wert,
+  Restbestände zu `produktionsmodell.schliessung.lager_erloes_anteil`, Abfindung
+  `abfindung_monate` Monatslöhne; nicht möglich bei Anlagen im Bau, laufenden
+  Lieferverträgen oder Ware unterwegs. Der Standort bleibt als leerer Eintrag mit
+  `Site::closed` (Kennnummern bleiben gültig); `Site::held_by` und `GameState::site`
+  lassen geschlossene Standorte überall weg. Werksansicht: „Standort schließen“ mit
+  Vorschau (Erlöse, Buchwert, Abfindung, Ergebnis) und Bestätigung. Tests `closing_tests`.
+- **Weitere Wünsche vom 10.10.2026:** Patentanmeldung „Alle Länder auswählen“; vergebene
+  Standortnamen in Übersicht, Forschungszentren (Auswahl und Titel), Ausgründungen,
+  Kaufangeboten und Rücksprache; eine Antwort auf ein Anliegen erledigt nur noch dieselbe
+  Frage anderer Stellen (gleiches Thema, gleicher Standort, gleiches Produkt) statt aller
+  Anliegen, deren Optionen dasselbe Objekt berühren (Test
+  `answering_a_concern_leaves_other_questions_at_the_works_open`); Gehalt als Eigentümer
+  der Hauptfirma, wenn ein Manager sie führt (`private::salary_payer`, docs/PERSON.md §7).
+- **Wünsche vom 10./11.10.2026 (Fortsetzung):** Rundenbericht mit Ergebnis und Kasse
+  aller eigenen Firmen, Meldungen von Tochterfirmen mit vorangestelltem Firmennamen
+  (Parameter `firma_betroffen`); Standortübersicht nach Kontinent und Land gegliedert;
+  Forschungslabor zeigt Weiterentwicklung nicht mehr als untätig; Vormaterial/Endprodukt
+  im Technologiebaum, in Forschung und Entwicklung (Filter und Kennzeichen); Forschung
+  direkt in der Werksansicht eines Forschungszentrums; alle Tabellen per Klick auf den
+  Spaltenkopf sortierbar (`ui/src/sortieren.ts`); Markt mit Auswahl Welt → Kontinent →
+  Land (Summen und nachfragegewichtete Preise im Kern); Privatleben mit Partnersuche,
+  Privatschule für Kinder und Gesundheitsvorsorge (docs/PERSON.md §7).
+- **Lager (Wunsch 10.10.2026, „Ja baue das bitte“):** Kapazität in Warenwert zu
+  Richtpreisen (60 Tage Durchsatz, Mindestwert je Standorttyp, Ausbau in Stufen mit
+  `BuildStorage`), Lagerkosten 4 % des Lagerwerts im Jahr, Verderb bei Lebensmitteln und
+  Agrarrohstoffen, volles Lager hält Anlagen an (Ursache „Lager voll“) und laufende
+  Einkäufe; KI baut ab 90 % Füllung aus. Werksansicht → Lager zeigt Füllung, Kosten und
+  Ausbau. Formeln: docs/FORMELN.md, „Lager“; Tests `storage_tests`, Fehlerfall
+  `lager_wird_geprueft`.
+- **Regionen (Wunsch 11.10.2026):** 111 → 46 Länder und Regionen, Welt von 2026
+  (`tools/daten/regionen.py`, `regionen_umstellen.py`); Feld `frueher` für alte
+  Regionscodes in Spielständen; Karte neu erzeugt; Einzelheiten und Entscheidungen in
+  docs/OFFENE_PUNKTE.md, Q5.
 - **Offen:** `wsim beispielsichten` bricht seit P1–P5 ab (die Beispielwerkstatt hat nach
   sieben Monaten zu wenig Geld für die Tochterfirma). Die Beispieldaten der Vorschau
   bleiben bis zur Abstimmung unverändert; neue Felder sind dort optional.

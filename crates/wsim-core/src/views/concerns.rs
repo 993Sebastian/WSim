@@ -539,7 +539,7 @@ fn department_because(catalog: &Catalog, state: &GameState, c: &Concern) -> Opti
                     .sites
                     .iter()
                     .enumerate()
-                    .filter(|(_, s)| s.owner == c.company)
+                    .filter(|(_, s)| s.held_by(c.company))
                     // Few sites; the cast is exact.
                     .flat_map(|(i, _)| deals::site_groups(state, catalog, SiteId(i as u32)))
                     .collect();

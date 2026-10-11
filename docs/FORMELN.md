@@ -1171,6 +1171,58 @@ Verstöße bei der Förderung (schlechtester Wert 74 %, Kupfererz): Mit weniger
 Überkapazität laufen die Anlagen näher an ihrer Grenze, und ihr Einkauf schwankt stärker
 als die Förderung.
 
+### Standort schließen (Wunsch vom 10.10.2026)
+
+Befehl `CloseSite`, nur für eigene Standorte. Parameter: `produktionsmodell.verkauf`
+(wie M22) und `produktionsmodell.schliessung` (`lager_erloes_anteil`,
+`abfindung_monate`).
+
+- **Nicht möglich**, solange am Standort eine Anlage oder die Erschließung im Bau ist,
+  ein laufender Liefervertrag den Standort beliefert oder von ihm liefert (vorgeschlagene verfallen) oder Ware zu ihm
+  unterwegs ist. Die Oberfläche nennt den Grund; Ware lässt sich vorher an einen anderen
+  eigenen Standort liefern.
+- **Erlös** *P* (zum Tag der Schließung):
+  - Anlagen: je Anlage der Verkaufserlös aller Einheiten wie beim Verkauf (M22),
+    stillgelegte eingeschlossen.
+  - Gebäude: Restbuchwert RBW_G = Gebäudekosten · max(0, 1 − Alter / Gebäudelebensdauer),
+    Erlös `verkauf.erloes_anteil` · RBW_G.
+  - Grundstück: ein gekauftes zum heutigen Wert (M35); ein gepachtetes wird frei.
+  - Lager: Restbestände zu `schliessung.lager_erloes_anteil` · Lagerwert (Räumungsverkauf).
+  - Erschließung einer Lagerstätte und Firmenwert eines gekauften Standorts bringen
+    nichts; die Konzession fällt an den Staat zurück.
+- **Abfindung** *A* = `schliessung.abfindung_monate` · 30 · Lohnsumme je Tag (mit
+  Lohnaufschlag) der heute Beschäftigten. Manager am Standort verlieren ihre Stelle
+  (Gehalt bis heute), Vorgaben für den Standort entfallen.
+- **Buchung:** Kasse + *P*; Anlagen, Grundstücke, Firmenwert und Lager − ihre Buchwerte
+  *B*; *P* − *B* als sonstiger Ertrag bzw. Aufwand; *A* als Personalaufwand. Reicht die
+  Kasse nach dem Erlös nicht für die Abfindung, ist die Schließung nicht möglich.
+- Danach ist der Standort leer und geschlossen: Er erscheint in keiner Liste mehr, zählt
+  für keine Einheit (Land, Kontinent) und lässt sich nicht verkaufen. Bezüge anderer
+  Standorte von ihm enden, Kaufangebote für ihn werden zurückgezogen. Die Kennnummer
+  bleibt belegt (Spielstände, Journal).
+
+### Lager: Kapazität, Kosten, Verderb (Wunsch vom 10.10.2026)
+
+Parameter: `data/parameter/produktionsmodell.yaml`, Abschnitt `lager`. Gemessen wird das Lager in Wert zu Richtpreisen
+im Land (USD 2026): Waren verschiedener Einheiten (t, Stück, l) werden so vergleichbar.
+
+- **Füllung** *F* = Σ Bestand · Richtpreis im Land.
+- **Kapazität** *K* = max(`mindestens_usd`[Standorttyp], `tage` · *D*) + Ausbau, mit *D* dem
+  Durchsatz je Tag bei voller Auslastung: Σ über die Anlagen (Erzeugnisse und Vorprodukte
+  eines Laufs · Läufe je Tag) zu Richtpreisen. Ein Lager fasst damit `tage` Tage
+  Durchsatz; eine Handelsniederlassung ohne Anlagen ihren Mindestwert.
+- **Ausbau** (`BuildStorage`, *n* Stufen): je Stufe `ausbau.kapazitaet_usd` mehr Kapazität
+  für `ausbau.kosten_usd`, bezahlt aus der Kasse und als Gebäude abgeschrieben.
+- **Lagerkosten** je Tag: `kosten_jahr_anteil` · *F* / 365, Kostenart „Lager“.
+- **Verderb** am Monatsende: je Warengruppe aus `verderb` der Anteil des Bestands (Menge
+  und Wert), gebucht als Lagerverlust (Kostenart „Lager“).
+- **Volles Lager** (*F* ≥ *K*, geprüft zu Beginn des Tages): die Anlagen laufen nicht
+  (Ursache „Lager voll“), laufende Einkaufsaufträge kaufen nicht; ausdrückliche
+  Einmalkäufe und Lieferungen von außen (Verträge, interne Belieferung, Ware unterwegs)
+  kommen trotzdem an. Kraftwerke speisen ins Netz und halten nie an.
+- **KI**: Ist ein Lager über `ki_ausbau_ab` · *K* gefüllt, baut die KI eine Stufe aus, wenn
+  die Kasse sie trägt – derselbe Befehl wie für den Spieler.
+
 ## M23 – Etappenziele
 
 Lastenheft §18.3, Vorschlag 2. Daten: `data/etappen.yaml`. Etappen geben nach der
@@ -4073,6 +4125,32 @@ Fahrzeug mit dem niedrigsten Betriebsanteil, das sie ganz füllt und bei voller 
 spart (Kapazität · M · (1 − b)), als Unterhalt und Abschreibung im Monat kosten, so viele,
 wie in die Lücke passen (höchstens `ki.kasse_anteil` ihrer Kasse), und fährt fortan mit
 eigener Flotte und Fracht für andere.
+
+### Interne Belieferung (Wunsch vom 10.10.2026)
+
+Ein Standort (Werk, Handelsniederlassung) kann ein Produkt von einem anderen Standort der
+eigenen Firma oder einer Firma desselben Konzerns (W6) beziehen (Befehl
+`SetInternalSupply`: Quelle, Art). Zwei Arten:
+
+- **feste Menge** *m* je Tag;
+- **nach Bedarf** mit Reichweite *d* Tagen (Vorgabe `nachschub.tage_standard`, höchstens
+  `nachschub.tage_max`): Bedarf je Tag *b* = Verbrauch der Rezepte bei geplanter
+  Auslastung + Absatz des eigenen Angebots je Tag im Vormonat (im ersten Monat: im
+  laufenden). Ziel = *b* · *d*; geliefert wird Ziel − Lager − unterwegs (Sendungen an den
+  Standort), höchstens 0.
+
+Jeden Tag nach der Produktion und den Lieferverträgen liefert die Quelle die Menge, so weit
+ihr Lager über dem Rückhalt ihres Verkaufsangebots (`behalten`) und ihrem eigenen
+Tagesverbrauch reicht. Die Ware reist wie bei `TransferGoods`: im selben Land sofort, sonst
+als Sendung mit Fracht (Weg nach W5, Kosten beim Empfänger), Zoll auf ihren Lagerwert und
+Laufzeit der Route. Gehört die Quelle einer anderen Konzernfirma, kauft der Empfänger zum
+Lagerwert (Herstellkosten, ohne Gewinn): Er zahlt den Wert aus der Kasse, die Quelle bucht
+Umsatz und Bestandsminderung in gleicher Höhe. Fehlt dem Empfänger Geld für Fracht, Zoll
+oder Ware, wird an diesem Tag nicht geliefert.
+
+**Einmalige Lieferung:** `TransferGoods` (bisher nur für die KI) steht im Werk unter Lager
+für jede Ware zur Verfügung: Zielstandort der eigenen Firma, Menge; die Werkansicht zeigt
+vorher Fracht je Einheit, Zoll und Laufzeit.
 
 ## W6 – Tochterfirmen und Konzern
 

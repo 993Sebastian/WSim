@@ -17,6 +17,7 @@ import {
   geldSchluessel,
   inAnzeige,
   landName,
+  meldungText,
   zahlFeld,
   zahlLesen,
 } from "../format";
@@ -26,6 +27,7 @@ import type {
   Befehl,
   Bezugsquelle,
   Bezugsquellen,
+  InternerStandort,
   Kern,
   Preisverlauf,
   Qualitaetsteile,
@@ -48,10 +50,27 @@ import {
 } from "./gemeinsam";
 import { fehlerText } from "./fehler";
 import { Verlauf } from "./Grafik";
+import { ForschungImWerk } from "./Forschung";
 import { fortgeschrieben } from "./Markt";
 import { standortName } from "./stellen";
 
-type Bereich = "anlagen" | "einkauf" | "verkauf" | "lager" | "personal" | "kosten";
+/** "Werk · China (Firma)" for a site of the group. */
+function internName(x: InternerStandort): string {
+  const ort = standortName(x.kind_text, x.country, x.name);
+  return x.own_company ? ort : `${ort} (${x.company})`;
+}
+
+/** Freight and days of the way, or "im Land". */
+function wegText(x: InternerStandort, e: string): string {
+  if (x.travel_days === 0) return t("werk.intern.im_land");
+  return t("werk.intern.weg", {
+    fracht: formatPreis(x.freight_per_unit_usd, e),
+    tage: x.travel_days,
+    zoll: formatProzent(x.customs_rate),
+  });
+}
+
+type Bereich = "anlagen" | "forschung" | "einkauf" | "verkauf" | "lager" | "personal" | "kosten";
 
 /** Unit of a product as text, e.g. "t" or "Stück". */
 export function einheit(produktion: Produktion, produkt: string): string {
@@ -84,7 +103,15 @@ export function standortTitel(s: StandortDetail): string {
   return standortName(s.kind_text, s.country, s.name);
 }
 
-const BEREICHE: Bereich[] = ["anlagen", "einkauf", "verkauf", "lager", "personal", "kosten"];
+const BEREICHE: Bereich[] = [
+  "anlagen",
+  "forschung",
+  "einkauf",
+  "verkauf",
+  "lager",
+  "personal",
+  "kosten",
+];
 
 export function Werk({
   kern,
@@ -101,7 +128,11 @@ export function Werk({
   onZurueck: () => void;
 }) {
   const [bereich, setBereich] = useState<Bereich>(
-    BEREICHE.includes(start as Bereich) ? (start as Bereich) : "anlagen",
+    BEREICHE.includes(start as Bereich)
+      ? (start as Bereich)
+      : s.kind === "ResearchCenter"
+        ? "forschung"
+        : "anlagen",
   );
   const forschung = s.kind === "ResearchCenter";
   const engpaesse = s.slots.filter((a) => a.cause && a.cause.key !== "ursache.im_bau").length;
@@ -109,6 +140,7 @@ export function Werk({
   const fehlend = s.staff.filter((l) => l.employed + 0.05 < l.needed).length;
   const bereiche: { key: Bereich; text: string; zaehler?: number }[] = forschung
     ? [
+        { key: "forschung", text: t("werk.forschung") },
         { key: "anlagen", text: t("werk.anlagen"), zaehler: engpaesse },
         { key: "personal", text: t("werk.personal"), zaehler: fehlend },
       ]
@@ -133,6 +165,7 @@ export function Werk({
           {s.deposit && <small>{t(`lagerstaette.${s.deposit}`)}</small>}
         </h2>
         <Umbenennen key={s.name ?? ""} s={s} />
+        <Schliessen s={s} titel={titel} onGeschlossen={onZurueck} />
       </div>
       <WerkKennzahlen s={s} />
       <Unterreiter
@@ -142,12 +175,15 @@ export function Werk({
         onWahl={setBereich}
       />
       {bereich === "anlagen" && <Anlagen s={s} produktion={produktion} />}
+      {bereich === "forschung" && forschung && <ForschungImWerk kern={kern} site={s.index} />}
       {bereich === "einkauf" && <Einkauf kern={kern} s={s} produktion={produktion} />}
       {bereich === "verkauf" && <Verkauf s={s} produktion={produktion} />}
       {bereich === "lager" && (
         <div className="karten">
           <p className="erklaerung">{t("werk.lager_hinweis")}</p>
+          <LagerPlatz s={s} />
           <LagerTabelle s={s} produktion={produktion} />
+          <Umlagern kern={kern} s={s} produktion={produktion} />
         </div>
       )}
       {bereich === "personal" && <Personal key={s.wage_premium} s={s} />}
@@ -186,6 +222,161 @@ function Umbenennen({ s }: { s: StandortDetail }) {
         <div className="knopfreihe links">
           <button type="submit">{t("werk.name_speichern")}</button>
         </div>
+        <Rueckmeldung meldung={antwort} />
+      </form>
+    </details>
+  );
+}
+
+/** Capacity and fill of the store, its costs and the expansion (BuildStorage). */
+function LagerPlatz({ s }: { s: StandortDetail }) {
+  const [stufen, setStufen] = useState(1);
+  const { los, antwort } = useAktion(`lagerausbau/${s.index}`);
+  const l = s.storage;
+  if (!l) return null;
+  return (
+    <div className="karte">
+      <h3>{t("werk.lagerplatz.titel")}</h3>
+      <p className="erklaerung">{t("werk.lagerplatz.erklaerung")}</p>
+      <progress max={1} value={Math.min(1, l.share)} aria-label={t("werk.lagerplatz.fuellung")} />
+      <dl className="kennzahlen">
+        <div>
+          <dt>{t("werk.lagerplatz.fuellung")}</dt>
+          <dd className={l.full ? "negativ" : undefined}>
+            {formatProzent(l.share)} ({formatGeld(l.fill_usd)})
+          </dd>
+        </div>
+        <div>
+          <dt>{t("werk.lagerplatz.kapazitaet")}</dt>
+          <dd>{formatGeld(l.capacity_usd)}</dd>
+        </div>
+        <div>
+          <dt>{t("werk.lagerplatz.kosten")}</dt>
+          <dd>{formatGeld(l.cost_per_day_usd)}</dd>
+        </div>
+        <div>
+          <dt>{t("werk.lagerplatz.stufen")}</dt>
+          <dd>{l.steps}</dd>
+        </div>
+      </dl>
+      {l.full && <p className="warnung">{t("werk.lagerplatz.voll")}</p>}
+      <form
+        className="formular-zeile"
+        aria-label={t("werk.lagerplatz.ausbauen")}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void los(
+            [{ BuildStorage: { site: s.index, steps: stufen } }],
+            t("werk.lagerplatz.ausgebaut", { stufen }),
+          );
+        }}
+      >
+        <label>
+          {t("werk.lagerplatz.stufen_neu")}
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={stufen}
+            onChange={(e) => setStufen(Math.max(1, Math.round(Number(e.target.value) || 1)))}
+          />
+        </label>
+        <p className="feld-hilfe">
+          {t("werk.lagerplatz.ausbau_hilfe", {
+            kapazitaet: formatGeld(l.step_capacity_usd * stufen),
+            kosten: formatGeld(l.step_cost_usd * stufen),
+          })}
+        </p>
+        <div className="knopfreihe links">
+          <button type="submit">{t("werk.lagerplatz.ausbauen")}</button>
+        </div>
+        <Rueckmeldung meldung={antwort} />
+      </form>
+    </div>
+  );
+}
+
+/** Closing the site (CloseSite): what it brings and costs, confirmed twice. */
+function Schliessen({
+  s,
+  titel,
+  onGeschlossen,
+}: {
+  s: StandortDetail;
+  titel: string;
+  onGeschlossen: () => void;
+}) {
+  const [sicher, setSicher] = useState(false);
+  const { los, antwort } = useAktion(`schliessen/${s.index}`);
+  const c = s.closing;
+  if (!c) return null;
+  const zeilen: [string, number][] = [
+    [t("werk.schliessen.anlagen"), c.facilities_usd],
+    [t("werk.schliessen.gebaeude"), c.building_usd],
+    [t("werk.schliessen.grundstueck"), c.land_usd],
+    [t("werk.schliessen.lager"), c.stock_usd],
+  ];
+  return (
+    <details className="umbenennen">
+      <summary>{t("werk.schliessen.titel")}</summary>
+      <form
+        aria-label={t("werk.schliessen.titel")}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void los(
+            [{ CloseSite: { site: s.index } }],
+            t("werk.schliessen.erledigt", { standort: titel }),
+          ).then((ok) => ok && onGeschlossen());
+        }}
+      >
+        <p className="erklaerung">{t("werk.schliessen.erklaerung")}</p>
+        <table className="tabelle">
+          <tbody>
+            {zeilen.map(([text, wert]) => (
+              <tr key={text}>
+                <th scope="row">{text}</th>
+                <td className="zahl">{formatGeld(wert)}</td>
+              </tr>
+            ))}
+            <tr>
+              <th scope="row">{t("werk.schliessen.erloes")}</th>
+              <td className="zahl">{formatGeld(c.proceeds_usd)}</td>
+            </tr>
+            <tr>
+              <th scope="row">{t("werk.schliessen.abfindung")}</th>
+              <td className="zahl negativ">{formatGeld(-c.severance_usd)}</td>
+            </tr>
+            <tr>
+              <th scope="row">{t("werk.schliessen.buchwert")}</th>
+              <td className="zahl">{formatGeld(c.book_usd)}</td>
+            </tr>
+            <tr>
+              <th scope="row">{t("werk.schliessen.ergebnis")}</th>
+              <td className={c.result_usd < 0 ? "zahl negativ" : "zahl"}>
+                {formatGeld(c.result_usd)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {c.blocker ? (
+          <p className="warnung">{meldungText(c.blocker)}</p>
+        ) : (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                checked={sicher}
+                onChange={(e) => setSicher(e.target.checked)}
+              />
+              {t("werk.schliessen.bestaetigen", { standort: titel })}
+            </label>
+            <div className="knopfreihe links">
+              <button type="submit" className="gefahr" disabled={!sicher}>
+                {t("werk.schliessen.knopf")}
+              </button>
+            </div>
+          </>
+        )}
         <Rueckmeldung meldung={antwort} />
       </form>
     </details>
@@ -1028,18 +1219,23 @@ function Einkauf({
   s: StandortDetail;
   produktion: Produktion;
 }) {
+  const bezogen = (s.supplies ?? [])
+    .map((b) => b.product)
+    .filter(
+      (p) => !s.inputs.some((v) => v.product === p) && !s.orders.some((o) => o.product === p),
+    );
   const zeilen: Versorgung[] = [
     ...s.inputs,
-    ...s.orders
-      .filter((o) => !s.inputs.some((v) => v.product === o.product))
-      .map((o) => ({
-        product: o.product,
+    ...[...s.orders.map((o) => o.product), ...bezogen]
+      .filter((p) => !s.inputs.some((v) => v.product === p))
+      .map((p) => ({
+        product: p,
         need_per_day: 0,
-        stock: s.stock.find((l) => l.product === o.product)?.quantity ?? 0,
+        stock: s.stock.find((l) => l.product === p)?.quantity ?? 0,
         days: null,
         own: false,
-        ordered: true,
-        market_price_usd: s.prices[o.product]?.market_usd ?? 0,
+        ordered: s.orders.some((o) => o.product === p),
+        market_price_usd: s.prices[p]?.market_usd ?? 0,
       })),
   ];
   return (
@@ -1248,6 +1444,7 @@ function EinkaufKarte({
         {fehler && <p className="fehlertext">{fehler}</p>}
         <Rueckmeldung meldung={antwort} />
       </form>
+      <InternerBezugKarte kern={kern} s={s} produkt={v.product} einheit={e} />
       <BezugsquellenVergleich
         kern={kern}
         s={s}
@@ -1539,6 +1736,322 @@ function QualitaetTeile({ q }: { q: Qualitaetsteile }) {
       </table>
       <p className="feld-hilfe">{t("werk.qualitaet.hilfe")}</p>
     </details>
+  );
+}
+
+/**
+ * Drawing a product from another site of the company or group (SetInternalSupply): the
+ * running supply with what came this month and what is on the way, or a form to choose
+ * a source and a fixed quantity a day or stock for a number of days of need.
+ */
+function InternerBezugKarte({
+  kern,
+  s,
+  produkt,
+  einheit: e,
+}: {
+  kern: Kern;
+  s: StandortDetail;
+  produkt: string;
+  einheit: string;
+}) {
+  const bezug = (s.supplies ?? []).find((b) => b.product === produkt);
+  const name = produktName(produkt);
+  const { los, antwort } = useAktion(`intern/${s.index}/${produkt}`);
+  const [offen, setOffen] = useState(false);
+  const [quellen, setQuellen] = useState<InternerStandort[] | null>(null);
+  const [fehler, setFehler] = useState<string | null>(null);
+  const [quelle, setQuelle] = useState<number | null>(bezug?.source.site ?? null);
+  const [art, setArt] = useState<"fest" | "bedarf">(bezug?.mode ?? "bedarf");
+  const [menge, setMenge] = useState(zahlFeld(bezug?.per_day ?? 0, 1));
+  const [tage, setTage] = useState(zahlFeld(bezug?.days ?? s.supply_days_default ?? 20, 0));
+  const id = useId();
+  useEffect(() => {
+    if (!offen) return;
+    let aktiv = true;
+    kern
+      .interneQuellen(s.index, produkt)
+      .then((l) => {
+        if (!aktiv) return;
+        setQuellen(l);
+        setFehler(null);
+        setQuelle((q) => q ?? l[0]?.site ?? null);
+      })
+      .catch((err: unknown) => aktiv && setFehler(fehlerText(err)));
+    return () => {
+      aktiv = false;
+    };
+  }, [kern, s.index, produkt, offen]);
+  const gewaehlt = quellen?.find((q) => q.site === quelle);
+  const absenden = (ev: FormEvent) => {
+    ev.preventDefault();
+    const wert = zahlLesen(art === "fest" ? menge : tage);
+    if (quelle === null || wert === null || wert <= 0) {
+      setFehler(t("werk.intern.werte"));
+      return;
+    }
+    setFehler(null);
+    void los(
+      [
+        {
+          SetInternalSupply: {
+            site: s.index,
+            product: produkt,
+            source: quelle,
+            mode: art === "fest" ? { Fixed: { per_day: wert } } : { Need: { days: wert } },
+          },
+        },
+      ],
+      t("werk.intern.gesetzt", { produkt: name }),
+    );
+  };
+  return (
+    <details
+      className="intern"
+      open={bezug !== undefined || undefined}
+      onToggle={(ev) => setOffen(ev.currentTarget.open)}
+    >
+      <summary>{t("werk.intern.titel")}</summary>
+      {bezug && (
+        <dl className="werte" aria-label={t("werk.intern.laufend")}>
+          <dt>{t("werk.intern.quelle")}</dt>
+          <dd>
+            {internName(bezug.source)}
+            <br />
+            <span className="gedaempft">{wegText(bezug.source, e)}</span>
+          </dd>
+          <dt>{t("werk.intern.art")}</dt>
+          <dd>
+            {bezug.mode === "fest"
+              ? t("werk.intern.fest_wert", { menge: `${formatMenge(bezug.per_day ?? 0)} ${e}` })
+              : t("werk.intern.bedarf_wert", {
+                  tage: formatZahl(bezug.days ?? 0, 0),
+                  bedarf: `${formatMenge(bezug.demand_per_day)} ${e}`,
+                })}
+          </dd>
+          <dt>{t("werk.intern.geliefert")}</dt>
+          <dd>
+            {formatMenge(bezug.delivered_month)} {e}
+            {bezug.in_transit > 0 && (
+              <span className="gedaempft">
+                {" "}
+                · {t("werk.intern.unterwegs", { menge: `${formatMenge(bezug.in_transit)} ${e}` })}
+              </span>
+            )}
+          </dd>
+          <dt>{t("werk.intern.quelle_lager")}</dt>
+          <dd className={bezug.source.spare <= 0 ? "warntext" : undefined}>
+            {formatMenge(bezug.source.stock)} {e}
+          </dd>
+        </dl>
+      )}
+      {fehler && <p className="fehlertext">{fehler}</p>}
+      {quellen && quellen.length === 0 && <p className="gedaempft">{t("werk.intern.keine")}</p>}
+      {quellen && quellen.length > 0 && (
+        <form
+          className="formular-zeile"
+          aria-label={t("werk.intern.festlegen", { produkt: name })}
+          onSubmit={absenden}
+        >
+          <div className="feld">
+            <label htmlFor={`${id}-quelle`}>{t("werk.intern.quelle")}</label>
+            <select
+              id={`${id}-quelle`}
+              value={quelle ?? ""}
+              onChange={(ev) => setQuelle(Number(ev.target.value))}
+            >
+              {quellen.map((q) => (
+                <option key={q.site} value={q.site}>
+                  {t("werk.intern.quelle_wahl", {
+                    standort: internName(q),
+                    lager: `${formatMenge(q.stock)} ${e}`,
+                    leistung: `${formatMenge(q.output_per_day)} ${e}`,
+                  })}
+                </option>
+              ))}
+            </select>
+            {gewaehlt && (
+              <small className="feld-hilfe">
+                {wegText(gewaehlt, e)}
+                {!gewaehlt.own_company &&
+                  gewaehlt.unit_value_usd !== null &&
+                  ` · ${t("werk.intern.konzernpreis", { preis: formatPreis(gewaehlt.unit_value_usd, e) })}`}
+              </small>
+            )}
+          </div>
+          <fieldset className="auswahlgruppe">
+            <legend>{t("werk.intern.art")}</legend>
+            <label>
+              <input
+                type="radio"
+                name={`${id}-art`}
+                checked={art === "bedarf"}
+                onChange={() => setArt("bedarf")}
+              />
+              {t("werk.intern.nach_bedarf")}
+            </label>
+            <label>
+              <input
+                type="radio"
+                name={`${id}-art`}
+                checked={art === "fest"}
+                onChange={() => setArt("fest")}
+              />
+              {t("werk.intern.feste_menge")}
+            </label>
+          </fieldset>
+          {art === "fest" ? (
+            <ZahlFeld
+              name={t("werk.intern.menge")}
+              einheit={`${e}/${t("werk.bezug.tag")}`}
+              wert={menge}
+              onWert={setMenge}
+            />
+          ) : (
+            <ZahlFeld
+              name={t("werk.intern.reichweite")}
+              einheit={t("werk.intern.tage")}
+              wert={tage}
+              onWert={setTage}
+              hilfe={t("werk.intern.reichweite_hilfe")}
+              gruppieren={false}
+            />
+          )}
+          <div className="knopfreihe links">
+            <button type="submit">
+              {bezug ? t("werk.intern.aendern") : t("werk.intern.starten")}
+            </button>
+            {bezug && (
+              <button
+                type="button"
+                className="schlicht"
+                onClick={() =>
+                  void los(
+                    [
+                      {
+                        SetInternalSupply: {
+                          site: s.index,
+                          product: produkt,
+                          source: null,
+                          mode: { Need: { days: 1 } },
+                        },
+                      },
+                    ],
+                    t("werk.intern.beendet", { produkt: name }),
+                  )
+                }
+              >
+                {t("werk.intern.beenden")}
+              </button>
+            )}
+          </div>
+          <Rueckmeldung meldung={antwort} />
+        </form>
+      )}
+    </details>
+  );
+}
+
+/** Sends goods of the site's stock to another own site once (TransferGoods). */
+function Umlagern({
+  kern,
+  s,
+  produktion,
+}: {
+  kern: Kern;
+  s: StandortDetail;
+  produktion: Produktion;
+}) {
+  const waren = s.stock.filter((l) => l.quantity > 0).map((l) => l.product);
+  const [produkt, setProdukt] = useState(waren[0] ?? "");
+  const [ziele, setZiele] = useState<InternerStandort[] | null>(null);
+  const [ziel, setZiel] = useState<number | null>(null);
+  const [menge, setMenge] = useState("");
+  const [fehler, setFehler] = useState<string | null>(null);
+  const { los, antwort } = useAktion(`umlagern/${s.index}`);
+  const id = useId();
+  useEffect(() => {
+    if (!produkt) return;
+    let aktiv = true;
+    kern
+      .lieferziele(s.index, produkt)
+      .then((l) => {
+        if (!aktiv) return;
+        setZiele(l);
+        setZiel(l[0]?.site ?? null);
+        setFehler(null);
+      })
+      .catch((err: unknown) => aktiv && setFehler(fehlerText(err)));
+    return () => {
+      aktiv = false;
+    };
+  }, [kern, s.index, produkt]);
+  if (waren.length === 0) return null;
+  const e = einheit(produktion, produkt);
+  const lager = s.stock.find((l) => l.product === produkt)?.quantity ?? 0;
+  const gewaehlt = ziele?.find((z) => z.site === ziel);
+  const absenden = (ev: FormEvent) => {
+    ev.preventDefault();
+    const m = zahlLesen(menge);
+    if (ziel === null || m === null || m <= 0 || m > lager + 1e-9) {
+      setFehler(t("werk.umlagern.werte", { lager: `${formatMenge(lager)} ${e}` }));
+      return;
+    }
+    setFehler(null);
+    void los(
+      [{ TransferGoods: { from: s.index, to: ziel, product: produkt, quantity: m } }],
+      t("werk.umlagern.gesendet", { produkt: produktName(produkt) }),
+    );
+  };
+  return (
+    <section className="karte" aria-label={t("werk.umlagern.titel")}>
+      <h3>{t("werk.umlagern.titel")}</h3>
+      <p className="feld-hilfe">{t("werk.umlagern.hilfe")}</p>
+      <form className="formular-zeile" aria-label={t("werk.umlagern.titel")} onSubmit={absenden}>
+        <div className="feld">
+          <label htmlFor={`${id}-ware`}>{t("werk.umlagern.ware")}</label>
+          <select id={`${id}-ware`} value={produkt} onChange={(ev) => setProdukt(ev.target.value)}>
+            {waren.map((p) => (
+              <option key={p} value={p}>
+                {produktName(p)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="feld">
+          <label htmlFor={`${id}-ziel`}>{t("werk.umlagern.ziel")}</label>
+          <select
+            id={`${id}-ziel`}
+            value={ziel ?? ""}
+            onChange={(ev) => setZiel(Number(ev.target.value))}
+          >
+            {(ziele ?? []).map((z) => (
+              <option key={z.site} value={z.site}>
+                {internName(z)}
+              </option>
+            ))}
+          </select>
+          {gewaehlt && <small className="feld-hilfe">{wegText(gewaehlt, e)}</small>}
+        </div>
+        <ZahlFeld
+          name={t("werk.umlagern.menge")}
+          einheit={e}
+          wert={menge}
+          onWert={setMenge}
+          hilfe={t("werk.umlagern.im_lager", { lager: `${formatMenge(lager)} ${e}` })}
+        />
+        <div className="knopfreihe links">
+          <button type="submit" disabled={!ziele || ziele.length === 0}>
+            {t("werk.umlagern.senden")}
+          </button>
+        </div>
+        {ziele && ziele.length === 0 && (
+          <p className="gedaempft">{t("werk.umlagern.keine_ziele")}</p>
+        )}
+        {fehler && <p className="fehlertext">{fehler}</p>}
+        <Rueckmeldung meldung={antwort} />
+      </form>
+    </section>
   );
 }
 

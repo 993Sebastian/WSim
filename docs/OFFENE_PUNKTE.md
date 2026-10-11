@@ -1930,6 +1930,48 @@ Marktpreis) nach (12 Monate: 13,5 %); Abnehmer zahlen 5 % + 0,25 % je Monat, hö
 über dem Marktpreis. Ansichten und KI-Angebote schlagen diese Preise vor. Wirkung auf die
 KI-Firmen (weniger Marge bei Verträgen mit dem Spieler) im Weltlauf beobachten.
 
+### Q4 Lager mit Kapazität, Kosten und Verderb (Wunsch vom 10.10.2026)
+
+Umgesetzt nach `docs/FORMELN.md`, „Lager“. **Selbst entschieden (Auftrag vom 11.10.2026:
+„entscheide bei Notwendigkeit erstmal selbst“), zur Abnahme:**
+
+- Gemessen in Warenwert zu Richtpreisen, damit Tonnen, Stück und Liter vergleichbar sind.
+- Kapazität: 60 Tage Durchsatz bei voller Auslastung, mindestens 50 000 USD (Werk,
+  Forschung), 100 000 USD (Förderstätte, Kraftwerk), 500 000 USD (Niederlassung),
+  5 Mio. USD (Lager); Ausbau je Stufe 250 000 USD Platz für 25 000 USD.
+- Kosten 4 % des Lagerwerts im Jahr; Verderb je Monat 3 % bei Lebensmitteln, 1 % bei
+  Agrarrohstoffen, sonst keiner.
+- Volles Lager: Anlagen stehen, laufende Einkäufe ruhen; Lieferungen, Verträge und
+  Einmalkäufe kommen an. Kraftwerke halten nie an. KI baut ab 90 % Füllung eine Stufe aus.
+- Folge: Wer lange produziert, ohne zu verkaufen, zahlt Löhne für stehende Anlagen (ein Test
+  mit drei Jahren Förderung auf Halde lief deshalb in die Insolvenz und rechnet jetzt
+  ohne Lagergrenze).
+
+### Q5 Rund 50 Länder und Regionen, Welt von 2026 (Wunsch vom 11.10.2026)
+
+„Bitte versuche auf 50 Regionen zusammenzufassen … Stelle Grenzverschiebungen dafür erstmal
+zurück. Nimm die Welt von 2026 an.“ Umgesetzt: 111 → 46 Einträge
+(`tools/daten/regionen.py`); große Volkswirtschaften bleiben einzeln (USA, China, Indien,
+Japan, Deutschland, Frankreich, Vereinigtes Königreich mit Irland, Italien, Russland,
+Brasilien, Mexiko, Kanada, Türkei mit Kaukasus usw.), der Rest bildet Regionen wie Benelux,
+Nordeuropa und Baltikum, Südosteuropa, Maghreb, Westafrika. **Selbst entschieden, zur
+Abnahme:**
+
+- Eine Region trägt den Code ihres größten Mitglieds, wenn es mehr als die Hälfte der
+  Einwohner stellt (z. B. NLD für Benelux, POL für Polen, Tschechien, Slowakei, Ungarn),
+  sonst einen eigenen X-Code. Steuern, Stabilität und Prägung kommen vom Leitland
+  (`LEITLAND`, z. B. Schweiz für XAL, Schweden für XNO).
+- Alte Spielstände: aufgegangene Länder und frühere Regionscodes (`frueher`, z. B. XBA →
+  XNO) lesen sich als ihre neue Region.
+- Verweise in Ereignissen, Lagerstätten, Zöllen, Regulierungen, Namen und Währungen hat
+  `tools/daten/regionen_umstellen.py` umgestellt. Von Hand: Sperren der USA gegen Kuba und
+  Nordkorea entfallen (sie träfen ganz Mittelamerika bzw. Südkorea); Wirkungen kleiner
+  Länder (Irak, Kuwait, Libyen, Syrien, Jemen) sind nach ihrem Anteil an der Region
+  abgeschwächt, das Irak-Embargo 1990–2003 entfällt; die Ostblock-Enteignung 1945 trifft
+  Nordeuropa nicht; Zollzonen: eine Region tritt mit der Mehrheit ihrer Einwohner bei
+  (z. B. Südosteuropa 2007, Nordeuropa 1995). 93 Währungen ohne Land entfallen.
+- Offen für später: Grenzverschiebungen (zurückgestellt).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

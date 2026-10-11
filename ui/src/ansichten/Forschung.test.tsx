@@ -172,6 +172,13 @@ describe("Patente", () => {
     expect(gesendet).toEqual([
       { FilePatent: { technology: eigene, countries: ["USA", "DEU", "FRA"] } },
     ]);
+    // All countries at once, and none again.
+    const zweite = screen.getByRole("form", { name: /anmelden$/ });
+    fireEvent.click(within(zweite).getByRole("button", { name: /Auswahl aufheben/ }));
+    const kaestchen = () => within(zweite).getAllByRole("checkbox") as HTMLInputElement[];
+    expect(kaestchen().some((c) => c.checked)).toBe(false);
+    fireEvent.click(within(zweite).getByRole("button", { name: /Alle \d+ Länder auswählen/ }));
+    expect(kaestchen().every((c) => c.checked)).toBe(true);
     expect(screen.getByText(/Patentiert von Konkurrenz AG/)).toBeTruthy();
     expect(screen.getByText(/Deine Anlagen in Deutschland brauchen eine Lizenz/)).toBeTruthy();
   });

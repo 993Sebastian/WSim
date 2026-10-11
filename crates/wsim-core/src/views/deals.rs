@@ -68,6 +68,9 @@ pub struct DealObjectView {
     /// Number of sites of an area.
     pub site_count: u32,
     pub site: Option<u32>,
+    /// The owner's name for the site.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub site_name: Option<String>,
     /// Text key of the site type, e.g. `standorttyp.werk`.
     pub site_type: Option<String>,
     pub country: Option<String>,
@@ -107,6 +110,7 @@ fn object_view(game: &Game, seller: CompanyId, object: DealObject) -> DealObject
                 group: None,
                 site_count: 1,
                 site: Some(site_index(site)),
+                site_name: s.name.clone(),
                 site_type: Some(site_type_key(s.kind)),
                 country: Some(catalog.countries.key(s.country).to_owned()),
                 products: products_of(game, site),
@@ -118,6 +122,7 @@ fn object_view(game: &Game, seller: CompanyId, object: DealObject) -> DealObject
             group: None,
             site_count: 0,
             site: None,
+            site_name: None,
             site_type: None,
             country: None,
             products: Vec::new(),
@@ -138,6 +143,7 @@ fn object_view(game: &Game, seller: CompanyId, object: DealObject) -> DealObject
                 group: Some(catalog.goods_groups.key(group).to_owned()),
                 site_count: u32::try_from(sites.len()).unwrap_or(u32::MAX),
                 site: None,
+                site_name: None,
                 site_type: None,
                 country: None,
                 products,
@@ -315,7 +321,7 @@ fn row(state: &GameState, catalog: &crate::catalog::Catalog, id: CompanyId) -> C
         headquarters: catalog.countries.key(c.headquarters).to_owned(),
         equity_usd: usd(equity(c)),
         revenue_year_usd: usd(revenue_of_year(c)),
-        sites: u32::try_from(state.sites.iter().filter(|s| s.owner == id).count())
+        sites: u32::try_from(state.sites.iter().filter(|s| s.held_by(id)).count())
             .unwrap_or(u32::MAX),
         real: c.ai.as_ref().is_some_and(|a| a.real.is_some()),
         player: state.is_main(id),
@@ -526,7 +532,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == id)
+        .filter(|(_, s)| s.held_by(id))
         .map(|(i, s)| {
             let site = SiteId(u32::try_from(i).unwrap_or(u32::MAX));
             let (open, blocked) = player_offer_state(game, id, DealObject::Site(site));
@@ -575,7 +581,7 @@ pub fn company_detail(game: &Game, index: u32) -> Option<CompanyDetailView> {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == id && !company.bankrupt && deals::area_kind(s.kind))
+        .filter(|(_, s)| s.held_by(id) && !company.bankrupt && deals::area_kind(s.kind))
         .flat_map(|(i, _)| {
             deals::site_groups(state, catalog, SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
         })

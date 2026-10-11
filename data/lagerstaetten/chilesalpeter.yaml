@@ -3,7 +3,7 @@
 
 lagerstaetten:
   - id: atacama_salpeter   # Tarapacá und Antofagasta
-    land: CHL
+    land: PER
     rohstoff: chilesalpeter
     vorrat: 300_000_000
     entdeckt: 1830

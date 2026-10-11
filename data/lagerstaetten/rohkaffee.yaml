@@ -54,7 +54,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: kaffee_civ
-  land: CIV
+  land: XWA
   rohstoff: rohkaffee
   erneuerbar: true
   erschliessung:
@@ -84,7 +84,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: kaffee_ken
-  land: KEN
+  land: XOA
   rohstoff: rohkaffee
   erneuerbar: true
   erschliessung:

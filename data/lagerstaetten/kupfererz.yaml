@@ -59,7 +59,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: el_teniente
-    land: CHL
+    land: PER
     rohstoff: kupfererz
     vorrat: 3_000_000_000
     entdeckt: 1904
@@ -69,7 +69,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: chuquicamata   # Tagebau ab 1915
-    land: CHL
+    land: PER
     rohstoff: kupfererz
     vorrat: 5_000_000_000
     entdeckt: 1910
@@ -88,7 +88,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: copperbelt   # Roan Antelope, Nkana
-    land: ZMB
+    land: XSA
     rohstoff: kupfererz
     vorrat: 4_000_000_000
     entdeckt: 1923
@@ -158,7 +158,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: dscheskasgan   # Kasachstan, mit Kounrad am Balchaschsee
-    land: KAZ
+    land: XZA
     rohstoff: kupfererz
     vorrat: 1_000_000_000
     entdeckt: 1928
@@ -188,7 +188,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: almalyk
-    land: UZB
+    land: XZA
     rohstoff: kupfererz
     vorrat: 800_000_000
     entdeckt: 1954
@@ -207,7 +207,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: palabora   # Transvaal, Förderung ab 1966
-    land: ZAF
+    land: XSA
     rohstoff: kupfererz
     vorrat: 600_000_000
     entdeckt: 1956
@@ -235,7 +235,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: panguna   # Bougainville, Förderung 1972–1989
-    land: XOZ
+    land: AUS
     rohstoff: kupfererz
     vorrat: 500_000_000
     entdeckt: 1964
@@ -263,7 +263,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: escondida   # Atacama, größte Kupfermine der Welt (Förderung ab 1990)
-    land: CHL
+    land: PER
     rohstoff: kupfererz
     vorrat: 5_000_000_000
     entdeckt: 1981

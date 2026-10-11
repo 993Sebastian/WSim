@@ -74,7 +74,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: wein_zaf
-  land: ZAF
+  land: XSA
   rohstoff: trauben
   erneuerbar: true
   erschliessung:
@@ -84,7 +84,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: wein_chl
-  land: CHL
+  land: PER
   rohstoff: trauben
   erneuerbar: true
   erschliessung:
@@ -94,7 +94,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: wein_prt
-  land: PRT
+  land: ESP
   rohstoff: trauben
   erneuerbar: true
   erschliessung:

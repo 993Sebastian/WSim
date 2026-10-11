@@ -65,6 +65,7 @@ impl CostType {
             CostType::Overhead => "kostenart.gemeinkosten",
             CostType::Rent => "kostenart.pacht",
             CostType::Environment => "kostenart.umwelt",
+            CostType::Storage => "kostenart.lager",
             CostType::Licenses => "kostenart.lizenzen",
             CostType::Investments => "kostenart.beteiligungen",
             CostType::Other => "kostenart.sonstiges",

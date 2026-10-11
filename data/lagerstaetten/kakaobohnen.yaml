@@ -4,7 +4,7 @@
 
 lagerstaetten:
 - id: kakao_gha
-  land: GHA
+  land: XWA
   rohstoff: kakaobohnen
   erneuerbar: true
   erschliessung:
@@ -14,7 +14,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: kakao_civ
-  land: CIV
+  land: XWA
   rohstoff: kakaobohnen
   erneuerbar: true
   erschliessung:
@@ -34,7 +34,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: kakao_ecu
-  land: ECU
+  land: COL
   rohstoff: kakaobohnen
   erneuerbar: true
   erschliessung:
@@ -64,7 +64,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: kakao_cmr
-  land: CMR
+  land: COD
   rohstoff: kakaobohnen
   erneuerbar: true
   erschliessung:
@@ -74,7 +74,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: kakao_xme
-  land: XKB
+  land: XME
   rohstoff: kakaobohnen
   erneuerbar: true
   erschliessung:

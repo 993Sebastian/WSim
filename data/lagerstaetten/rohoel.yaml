@@ -43,7 +43,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: baku
-    land: XKA
+    land: TUR
     rohstoff: rohoel
     vorrat: 2_000_000_000
     entdeckt: 1871
@@ -62,7 +62,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ploiesti
-    land: ROU
+    land: XSO
     rohstoff: rohoel
     vorrat: 300_000_000
     entdeckt: 1857
@@ -110,7 +110,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: maracaibo   # Mene Grande
-    land: VEN
+    land: COL
     rohstoff: rohoel
     vorrat: 5_000_000_000
     entdeckt: 1914
@@ -120,7 +120,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: kirkuk
-    land: IRQ
+    land: IRN
     rohstoff: rohoel
     vorrat: 3_000_000_000
     entdeckt: 1927
@@ -130,7 +130,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: trinidad
-    land: XKB
+    land: XME
     rohstoff: rohoel
     vorrat: 100_000_000
     entdeckt: 1908
@@ -148,7 +148,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: yenangyaung
-    land: MMR
+    land: XSN
     rohstoff: rohoel
     vorrat: 100_000_000
     entdeckt: 1887
@@ -158,7 +158,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: dammam
-    land: SAU
+    land: XAR
     rohstoff: rohoel
     vorrat: 30_000_000_000
     entdeckt: 1938
@@ -168,7 +168,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: burgan
-    land: XGO
+    land: XAR
     rohstoff: rohoel
     vorrat: 10_000_000_000
     entdeckt: 1938
@@ -190,7 +190,7 @@ lagerstaetten:
   # Später entdeckt (M39): die großen Felder 1948–1979. Ohne sie war die Höchstförderung
   # aller Felder 1964 schon zu 85 % belegt.
   - id: ghawar   # größtes Ölfeld der Welt
-    land: SAU
+    land: XAR
     rohstoff: rohoel
     vorrat: 10_000_000_000
     entdeckt: 1948
@@ -210,7 +210,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: rumaila
-    land: IRQ
+    land: IRN
     rohstoff: rohoel
     vorrat: 2_500_000_000
     entdeckt: 1953
@@ -220,7 +220,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: hassi_messaoud
-    land: DZA
+    land: XMG
     rohstoff: rohoel
     vorrat: 1_500_000_000
     entdeckt: 1956
@@ -259,7 +259,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: sirte   # Zelten 1959, Sarir 1961
-    land: LBY
+    land: XMG
     rohstoff: rohoel
     vorrat: 5_000_000_000
     entdeckt: 1959
@@ -269,7 +269,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: zakum   # Abu Dhabi, Murban und Bab 1958–1964
-    land: XGO
+    land: XAR
     rohstoff: rohoel
     vorrat: 3_000_000_000
     entdeckt: 1964
@@ -309,7 +309,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ekofisk_statfjord   # norwegische Nordsee
-    land: NOR
+    land: XNO
     rohstoff: rohoel
     vorrat: 3_000_000_000
     entdeckt: 1969
@@ -339,7 +339,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: tengiz   # Kaspisches Becken, schwefelreich
-    land: KAZ
+    land: XZA
     rohstoff: rohoel
     vorrat: 1_500_000_000
     entdeckt: 1979

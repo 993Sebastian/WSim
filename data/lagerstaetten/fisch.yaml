@@ -14,7 +14,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: fisch_nor
-  land: NOR
+  land: XNO
   rohstoff: fisch
   erneuerbar: true
   erschliessung:
@@ -84,7 +84,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: fisch_isl
-  land: NOR
+  land: XNO
   rohstoff: fisch
   erneuerbar: true
   erschliessung:

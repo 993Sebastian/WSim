@@ -874,6 +874,52 @@ fn a_decision_of_the_player_settles_the_concern() {
 }
 
 #[test]
+fn answering_a_concern_leaves_other_questions_at_the_works_open() {
+    use crate::decision::ChoiceKind;
+    use crate::state::ConcernStatus;
+    let (mut game, _) = asked(cheap_furnaces());
+    // The same question asked again by another position, and one about another product
+    // whose options act on the same facility.
+    let first = game.state().concerns[0].clone();
+    let other_product = game
+        .catalog()
+        .products
+        .iter()
+        .map(|(id, _)| id)
+        .find(|&p| Some(p) != first.decision.product)
+        .unwrap();
+    let mut same = first.clone();
+    same.id = first.id + 100;
+    let mut other = first.clone();
+    other.id = first.id + 101;
+    other.decision.product = Some(other_product);
+    game.state_mut().concerns.push(same);
+    game.state_mut().concerns.push(other);
+    let choice = first
+        .decision
+        .choices
+        .iter()
+        .position(|o| o.kind == ChoiceKind::Mothball)
+        .unwrap();
+    game.apply(Command::AnswerConcern {
+        concern: first.id,
+        answer: management::ConcernAnswer::Choose(choice),
+    })
+    .unwrap();
+    let status = |id: u32| {
+        game.state()
+            .concerns
+            .iter()
+            .find(|c| c.id == id)
+            .unwrap()
+            .status
+    };
+    assert_eq!(status(first.id), ConcernStatus::Chosen(choice));
+    assert_eq!(status(first.id + 100), ConcernStatus::Settled);
+    assert_eq!(status(first.id + 101), ConcernStatus::Open);
+}
+
+#[test]
 fn a_muted_topic_can_be_asked_about_again() {
     let topic = crate::decision::Topic::Overcapacity;
     let (mut game, works) = asked(cheap_furnaces());

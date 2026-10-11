@@ -187,11 +187,26 @@ Folgen im Code:
 
 Gehalt:
 
-- Nur in der Firma, in der die Person CEO ist; Höhe frei, Vorschlag = Marktwert eines CEO
+- In der Firma, in der die Person CEO ist; Höhe frei, Vorschlag = Marktwert eines CEO
   mittlerer Stufe (MA1). Buchung als Personalaufwand der Stelle Vorstand.
+- Ist die Person nirgends CEO, zahlt die ausgewählte Hauptfirma das Gehalt als
+  Eigentümervergütung, solange die Person an ihr beteiligt ist (Wunsch vom 10.10.2026).
+  Übergibt die Person die Leitung an einen CEO, endet das bisherige Gehalt (0); ein neues
+  setzt sie selbst.
 - Mit Mitgesellschaftern höchstens das Doppelte des Marktwerts.
 - **Einkommensteuer:** neue Länder-Zeitreihe `einkommensteuer` (ein Satz, Wohnsitzland);
   monatlicher Abzug, das Netto geht aufs Privatkonto.
+
+Privatleben (Wunsch vom 10.10.2026; Parameter `person.privatleben`), Kosten je Monat in
+Akademiker-Monatslöhnen des Wohnsitzlandes, gebucht als Fluss „Familie und Vorsorge“:
+
+- **Partnersuche** (nur ledig): kostet monatlich; am Monatsende mit `chance_monat` Heirat.
+  Verheiratet kommen Kinder wie bisher.
+- **Privatschule** je Kind bis zur Managerkarte: kostet monatlich; die Tage dort zählen.
+  Beim Berufseinstieg kommen `ausbildung` · Schultage / Tage der Kindheit Punkte auf jede
+  Fähigkeit hinzu (zusätzlich zum Lebensstil).
+- **Gesundheitsvorsorge**: kostet monatlich; Sterbechance · `sterblichkeit`.
+- Reicht das Privatkonto am Monatsende nicht, enden alle drei mit einer Warnung.
 
 Dividenden:
 

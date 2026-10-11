@@ -35,7 +35,8 @@ fn block(t: CostType) -> Block {
         | CostType::Transport
         | CostType::Customs
         | CostType::Licenses
-        | CostType::Environment => Block::Variable,
+        | CostType::Environment
+        | CostType::Storage => Block::Variable,
         CostType::Personnel
         | CostType::Maintenance
         | CostType::Depreciation

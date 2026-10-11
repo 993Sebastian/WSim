@@ -44,7 +44,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: tabak_cub
-  land: CUB
+  land: XME
   rohstoff: tabak
   erneuerbar: true
   erschliessung:
@@ -84,7 +84,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.1
   annaeherung: true
 - id: tabak_grc
-  land: GRC
+  land: XSO
   rohstoff: tabak
   erneuerbar: true
   erschliessung:
@@ -94,7 +94,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: tabak_zwe
-  land: ZWE
+  land: XSA
   rohstoff: tabak
   erneuerbar: true
   erschliessung:

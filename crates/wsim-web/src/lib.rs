@@ -147,6 +147,16 @@ fn ausfuehren(anfrage: &Anfrage, fortschritt: &mut dyn FnMut(u32, u32)) -> Resul
                         let zeitraum: String = argument(args, "zeitraum")?;
                         wert(s.controlling(&zeitraum)?)
                     }
+                    "interne_quellen" => {
+                        let standort: u32 = argument(args, "standort")?;
+                        let produkt: String = argument(args, "produkt")?;
+                        wert(s.internal_sources(standort, &produkt)?)
+                    }
+                    "lieferziele" => {
+                        let standort: u32 = argument(args, "standort")?;
+                        let produkt: String = argument(args, "produkt")?;
+                        wert(s.transfer_targets(standort, &produkt)?)
+                    }
                     "bezugsquellen" => {
                         let standort: u32 = argument(args, "standort")?;
                         let produkt: String = argument(args, "produkt")?;
@@ -228,7 +238,7 @@ mod tests {
         assert!(
             optionen["countries"]
                 .as_array()
-                .is_some_and(|l| l.len() > 100)
+                .is_some_and(|l| l.len() > 40)
         );
         let spiel = json!({
             "op": "neues_spiel",

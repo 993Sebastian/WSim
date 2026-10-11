@@ -1610,7 +1610,7 @@ pub fn spin_off_plan(
     let m = &catalog.ventures;
     let s = state
         .site(site)
-        .filter(|s| s.owner == company && s.kind == SiteType::ResearchCenter)
+        .filter(|s| s.held_by(company) && s.kind == SiteType::ResearchCenter)
         .ok_or(CommandError::NoSpinOff)?;
     if m.phases.is_empty() {
         return Err(CommandError::NoSpinOff);
@@ -1731,7 +1731,7 @@ pub fn ahead_of_history(m: &VentureModel, plan: &SpinOffPlan) -> bool {
 pub fn rivals(state: &GameState, company: CompanyId, target: VentureTarget) -> u32 {
     let mut seen: BTreeSet<CompanyId> = BTreeSet::new();
     for s in &state.sites {
-        if s.owner == company
+        if s.held_by(company)
             || s.kind != SiteType::ResearchCenter
             || state.companies[s.owner.index()].bankrupt
         {

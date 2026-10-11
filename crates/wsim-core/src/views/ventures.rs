@@ -117,6 +117,9 @@ pub struct VentureView {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SpinOffView {
     pub site: u32,
+    /// The owner's name for the site.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub site_name: Option<String>,
     pub country: String,
     /// `technologie` or `verbesserung`, the key of the technology or product, and the
     /// level an improvement aims at.
@@ -410,7 +413,7 @@ fn spin_offs(game: &Game) -> Vec<SpinOffView> {
     let company = &state.companies[player.index()];
     let mut out = Vec::new();
     for (i, s) in state.sites.iter().enumerate() {
-        if s.owner != player || s.kind != SiteType::ResearchCenter {
+        if !s.held_by(player) || s.kind != SiteType::ResearchCenter {
             continue;
         }
         // A handful of sites; the cast cannot overflow.
@@ -471,6 +474,7 @@ fn spin_offs(game: &Game) -> Vec<SpinOffView> {
         let rivals = ventures::rivals(state, player, target_of);
         out.push(SpinOffView {
             site: site.0,
+            site_name: s.name.clone(),
             country: c.countries.key(s.country).to_owned(),
             kind: kind.to_owned(),
             target: target.to_owned(),

@@ -11,6 +11,7 @@ use crate::ids::CountryId;
 use crate::ledger::Account;
 use crate::message::{Message, MessageKind, Param, keys};
 use crate::money::Money;
+use crate::rng::{SimRng, Stream};
 use crate::state::{
     CompanyId, GameState, Holder, LifeEvent, LifeEventKind, Lifestyle, LifestyleSpell, Loan,
     Person, PrivateFlow, PrivateMonth, Role, Stake, StartForm, Unit, WealthPoint,
@@ -356,6 +357,37 @@ pub(crate) fn execute(
         } => found(state, catalog, name, *form, *country, *capital).map(|_| ()),
         Command::SetPersonSalary { amount } => set_salary(state, catalog, *amount),
         Command::SetLifestyle { level } => set_lifestyle(state, catalog, *level),
+        Command::SeekPartner { active } => {
+            let p = &mut state.person;
+            if !catalog.person.private_life.enabled || (*active && p.married) {
+                return Err(CommandError::NotPossible);
+            }
+            p.seeking_partner = *active;
+            Ok(())
+        }
+        Command::SetPrivateSchool { child, active } => {
+            let card = catalog.person.card_age;
+            let today = state.date;
+            let c = state
+                .person
+                .children
+                .get_mut(*child as usize)
+                .ok_or(CommandError::UnknownChild)?;
+            if !catalog.person.private_life.enabled
+                || (*active && (c.died.is_some() || crate::aging::age(c.born, today) >= card))
+            {
+                return Err(CommandError::NotPossible);
+            }
+            c.private_school = *active;
+            Ok(())
+        }
+        Command::SetHealthCare { active } => {
+            if !catalog.person.private_life.enabled {
+                return Err(CommandError::NotPossible);
+            }
+            state.person.health_care = *active;
+            Ok(())
+        }
         Command::ContributeCapital { company, amount } => {
             contribute(state, catalog, *company, *amount)
         }
@@ -456,8 +488,18 @@ pub(crate) fn found(
     Ok(id)
 }
 
+/// The company that pays the person's salary: the one it leads as CEO, else the main
+/// company while the person owns part of it (pay as owner, docs/PERSON.md §7).
+pub fn salary_payer(state: &GameState) -> Option<CompanyId> {
+    state.person.ceo.or_else(|| {
+        state.main_company.filter(|&c| {
+            !state.companies[c.index()].bankrupt && crate::person::share(state, c) > 1e-9
+        })
+    })
+}
+
 fn set_salary(state: &mut GameState, catalog: &Catalog, amount: Money) -> Result<(), CommandError> {
-    let company = state.person.ceo.ok_or(CommandError::NoCompany)?;
+    let company = salary_payer(state).ok_or(CommandError::NoCompany)?;
     if amount.is_negative() {
         return Err(CommandError::InvalidAmount);
     }
@@ -730,10 +772,81 @@ pub(crate) fn receive_dividend(state: &mut GameState, gross: Money, tax: Money) 
     }
 }
 
+/// What the person does privately costs at the month end (docs/PERSON.md §7): the
+/// partner search, private schools and health care, in academic monthly wages. What the
+/// account cannot pay ends all of it. A search finds a partner with its chance a month.
+fn family_month(state: &mut GameState, catalog: &Catalog, last: Date, news: &mut Vec<Message>) {
+    let pl = catalog.person.private_life;
+    if !pl.enabled {
+        return;
+    }
+    let wage = academic_monthly_wage(catalog, state, state.person.home);
+    let card = catalog.person.card_age;
+    let p = &mut state.person;
+    if p.married {
+        p.seeking_partner = false;
+    }
+    let mut cost = Money::ZERO;
+    if p.seeking_partner {
+        cost += wage.scale(pl.partner_cost);
+    }
+    for c in &mut p.children {
+        if !c.private_school {
+            continue;
+        }
+        if c.died.is_some() || crate::aging::age(c.born, last) >= card {
+            c.private_school = false;
+            continue;
+        }
+        cost += wage.scale(pl.school_cost);
+        c.school_days += last.day();
+    }
+    if p.health_care {
+        cost += wage.scale(pl.care_cost);
+    }
+    if cost <= Money::ZERO {
+        return;
+    }
+    let paid = cost.min(p.account.balance);
+    if paid > Money::ZERO {
+        book(p, PrivateFlow::Family, -paid);
+    }
+    if paid < cost {
+        p.seeking_partner = false;
+        p.health_care = false;
+        for c in &mut p.children {
+            c.private_school = false;
+        }
+        news.push(Message::new(
+            MessageKind::Warning,
+            keys::PERSON_FAMILY_SHORT,
+        ));
+        return;
+    }
+    if state.person.seeking_partner {
+        // A stream of its own: the births draw from the person's stream of the month.
+        let mut rng = SimRng::for_stream(
+            state.settings.seed,
+            Stream::Person {
+                month: crate::management::month_number(last) + PARTNER_STREAM,
+            },
+        );
+        if rng.chance(pl.partner_chance.clamp(0.0, 1.0)) {
+            let p = &mut state.person;
+            p.married = true;
+            p.seeking_partner = false;
+            news.push(Message::new(MessageKind::Success, keys::PERSON_MARRIED));
+        }
+    }
+}
+
+/// Offset of the partner search's draws from those of the births.
+const PARTNER_STREAM: u32 = 1 << 24;
+
 /// The salary of the month as CEO of the main company, booked as personnel costs of the
 /// board on the month's last day; from the founding by days.
 pub(crate) fn pay_salary(state: &mut GameState, last: Date) {
-    let Some(company) = state.person.ceo else {
+    let Some(company) = salary_payer(state) else {
         return;
     };
     let c = &state.companies[company.index()];
@@ -758,6 +871,7 @@ pub(crate) fn pay_salary(state: &mut GameState, last: Date) {
 /// lifestyle to the first level.
 pub(crate) fn month_end(state: &mut GameState, catalog: &Catalog, last: Date) -> Vec<Message> {
     let mut news = Vec::new();
+    family_month(state, catalog, last, &mut news);
     let rate = catalog
         .person
         .savings_rate

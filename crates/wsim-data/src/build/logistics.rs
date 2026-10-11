@@ -26,11 +26,12 @@ pub(super) fn logistics_model(ctx: &mut Ctx, raw: &RawData) -> LogisticsModel {
     }
     let v = &entry.value;
     let l = &entry.loc;
-    let (sl, fl, rl, al) = (
+    let (sl, fl, rl, al, nl) = (
         l.field("staat"),
         l.field("flotte"),
         l.field("risiko"),
         l.field("ki"),
+        l.field("nachschub"),
     );
     let f = &v.fleet;
     LogisticsModel {
@@ -72,6 +73,14 @@ pub(super) fn logistics_model(ctx: &mut Ctx, raw: &RawData) -> LogisticsModel {
         risk_sea: Some(chances(ctx, &v.risk.sea, &rl.field("see"))),
         ai_share: in_range(ctx, v.ki.share, 0.0, 1.0, &al.field("anteil")),
         ai_cash_share: in_range(ctx, v.ki.cash_share, 0.0, 1.0, &al.field("kasse_anteil")),
+        supply_days_max: in_range(ctx, v.supply.max, 1.0, 3650.0, &nl.field("tage_max")),
+        supply_days_default: in_range(
+            ctx,
+            v.supply.default,
+            1.0,
+            v.supply.max.max(1.0),
+            &nl.field("tage_standard"),
+        ),
         provenance: provenance(v.approximation, v.source.as_ref()),
     }
 }

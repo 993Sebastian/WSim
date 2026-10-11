@@ -75,6 +75,8 @@ export function webKern(): Kern {
     vertraege: () => aufruf("vertraege"),
     vertragspartner: (standort, produkt) => aufruf("vertragspartner", { standort, produkt }),
     bezugsquellen: (standort, produkt) => aufruf("bezugsquellen", { standort, produkt }),
+    interneQuellen: (standort, produkt) => aufruf("interne_quellen", { standort, produkt }),
+    lieferziele: (standort, produkt) => aufruf("lieferziele", { standort, produkt }),
     logistik: () => aufruf("logistik"),
     konzern: () => aufruf("konzern"),
     controlling: (zeitraum) => aufruf("controlling", { zeitraum }),

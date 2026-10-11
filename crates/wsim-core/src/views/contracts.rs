@@ -271,7 +271,7 @@ pub fn contracts(game: &Game) -> ContractsView {
             .sites
             .iter()
             .enumerate()
-            .filter(|(_, s)| s.owner == me)
+            .filter(|(_, s)| s.held_by(me))
             .map(|(i, s)| {
                 let site = SiteId(u32::try_from(i).expect("site count fits u32"));
                 let (sells, buys) = site_products(game, site);
@@ -312,7 +312,7 @@ pub fn contract_partners(game: &Game, site: u32, product: &str) -> Option<Contra
     let (state, catalog) = (game.state(), game.catalog());
     let me = game.player();
     let own = SiteId(site);
-    state.site(own).filter(|s| s.owner == me)?;
+    state.site(own).filter(|s| s.held_by(me))?;
     let p = catalog.products.id(product)?;
     let (sells, _) = site_products(game, own);
     let selling = sells.contains(&p);
@@ -439,7 +439,7 @@ pub fn supply_sources(game: &Game, site: u32, product: &str) -> Option<SupplySou
     let (state, catalog) = (game.state(), game.catalog());
     let me = game.player();
     let own = SiteId(site);
-    let s = state.site(own).filter(|s| s.owner == me)?;
+    let s = state.site(own).filter(|s| s.held_by(me))?;
     let p = catalog.products.id(product)?;
     let country = s.country;
     let share = catalog.contracts.ai.share;

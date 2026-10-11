@@ -167,7 +167,9 @@ pub fn hints(game: &Game) -> Vec<HintView> {
                 hint(at(keys::HINT_STAFF), Some(s.index), Some("personal")),
             ));
         }
-        if research && s.research.is_none() && s.development.is_none() {
+        if research
+            && crate::development::idle(&state.sites[s.index.try_into().unwrap_or(usize::MAX)])
+        {
             let mut m = at(keys::HINT_NO_RESEARCH);
             m.kind = MessageKind::Info;
             let mut h = hint(m, Some(s.index), None);
@@ -181,7 +183,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
     let mut offered: Vec<crate::ids::ProductId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == main)
+        .filter(|s| s.held_by(main))
         .flat_map(|s| s.offers.keys().copied())
         .filter(|&p| {
             catalog.product_naming.style(catalog, p).is_some()
@@ -200,7 +202,7 @@ pub fn hints(game: &Game) -> Vec<HintView> {
         found.push((3, h));
     }
     // Many sites and nobody to run them (MA1).
-    let sites = state.sites.iter().filter(|s| s.owner == main).count();
+    let sites = state.sites.iter().filter(|s| s.held_by(main)).count();
     let managed = state
         .managers
         .values()

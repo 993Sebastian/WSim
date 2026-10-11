@@ -12,7 +12,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: tana   # Finnmark, größter Quarzitbruch der Welt
-    land: NOR
+    land: XNO
     rohstoff: quarz
     vorrat: 100_000_000
     erschliessung: {investition_usd: 20_000_000, dauer_tage: 360}
@@ -54,7 +54,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: limpopo_quarz
-    land: ZAF
+    land: XSA
     rohstoff: quarz
     vorrat: 50_000_000
     erschliessung: {investition_usd: 15_000_000, dauer_tage: 360}

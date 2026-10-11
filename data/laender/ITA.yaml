@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 300_630
     hauptstadt: {breite: 41.90, laenge: 12.48}
     binnenland: false
-    nachbarn: [AUT, CHE, FRA, XWB]
+    nachbarn: [FRA, XAL, XSO]
     staedte:
       - {id: rom, einwohner: 3_339_000, breite: 41.90, laenge: 12.48, hauptstadt: true}
       - {id: mailand, einwohner: 2_945_000, breite: 45.47, laenge: 9.20}

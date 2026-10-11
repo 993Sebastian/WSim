@@ -104,7 +104,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: vieh_nzl
-  land: NZL
+  land: AUS
   rohstoff: schlachtvieh
   erneuerbar: true
   erschliessung:

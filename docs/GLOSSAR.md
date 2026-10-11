@@ -91,6 +91,10 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Pauschalkauf (einmaliger Einkauf) | `BuyOnce`, `PurchaseOrder::once` |
 | Aufschlag auf die Herstellkosten (Preismodus) | `PriceMode::CostPlus`, `cost_plus_price` |
 | Rabatt für Bindung, Vertragspreis | `ContractAiModel::discount`/`premium`, `contract_price`, `bid_price` |
+| Interne Belieferung (feste Menge, nach Bedarf), Umlagern | `supply::{InternalSupply, SupplyMode, transfer, simulate_day, daily_demand, in_transit, spare}`, `Site::supplies`, Befehle `SetInternalSupply`, `TransferGoods`; Sichten `SupplyView`, `SupplySiteView`, `internal_sources`, `transfer_targets`; Daten `logistik.nachschub` |
+| Lager (Kapazität, Füllung, Verderb, Ausbau) | `storage::{fill, capacity, is_full, daily_cost, month_end, build}`, Befehl `BuildStorage`, `Site::storage_steps`, `Site::storage_full`, `Limit::Storage`, `CostType::Storage`, Katalog `StorageModel`, Sicht `StorageView`; Daten `produktionsmodell.lager` |
+| Standort schließen, geschlossen | `closing::{Closing, value, blocker, close}`, Befehl `CloseSite`, `Site::closed`, `Site::held_by`, Sicht `ClosingView`; Daten `produktionsmodell.schliessung` |
+| Gehalt als Eigentümer | `private::salary_payer`, `PersonMoneyView::salary_as_owner` |
 | Bezugsquellen (Vergleich im Werk) | `SupplySourcesView`, `supply_sources` |
 | Produktqualität, Qualitätsteile | `QualityParts`, `quality_parts`, `QualityView` |
 | Eigener Standortname | `Site::name`, `RenameSite`, `site_name` |

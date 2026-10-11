@@ -104,29 +104,17 @@ export function MarktAnsicht({
   const [produkt, setProdukt] = useState<string | null>(null);
   const { daten, fehler, neu } = useSicht(() => kern.markt(land), `${uebersicht.date}/${land}`);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const id = useId();
   return (
     <main className="ansicht" id="markt">
       <h1 className="unsichtbar">{t("ansicht.markt")}</h1>
-      <div className="formular-zeile">
-        <div className="feld">
-          <label htmlFor={`${id}-land`}>{t("markt.land")}</label>
-          <select
-            id={`${id}-land`}
-            value={land}
-            onChange={(e) => {
-              setLand(e.target.value);
-              setProdukt(null);
-            }}
-          >
-            {LAENDER.map((k) => (
-              <option key={k} value={k}>
-                {landName(k)}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      <OrtWahl
+        ort={land}
+        regionen={daten?.regions ?? []}
+        onWahl={(o) => {
+          setLand(o);
+          setProdukt(null);
+        }}
+      />
       {!daten ? (
         <FehlerText fehler={fehler} />
       ) : (
@@ -153,7 +141,16 @@ export function MarktAnsicht({
                 aktiv={bereich}
                 onWahl={setBereich}
               />
-              {bereich === "produkte" && <Produkte daten={daten} onProdukt={setProdukt} />}
+              {bereich === "produkte" && (
+                <Produkte
+                  daten={daten}
+                  onProdukt={(p) => {
+                    // A product market is one country's: from a summary, the home country's.
+                    if (!LAENDER.includes(land)) setLand(uebersicht.company?.headquarters ?? "");
+                    setProdukt(p);
+                  }}
+                />
+              )}
               {bereich === "marke" && <MarkeUndWerbung daten={daten} />}
               {bereich === "vertraege" && <VertraegeAnsicht kern={kern} stand={uebersicht.date} />}
               {bereich === "logistik" && <LogistikAnsicht kern={kern} stand={uebersicht.date} />}
@@ -273,7 +270,7 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
       <div className="tabelle">
         <table
           className="mobil-karten marktliste"
-          aria-label={t("markt.titel", { land: landName(daten.country) })}
+          aria-label={t("markt.titel", { land: ortName(daten.country) })}
         >
           <thead>
             <tr>
@@ -929,5 +926,74 @@ function Werbung({ land, marke }: { land: string; marke: Marke }) {
       {fehler && <p className="fehlertext">{fehler}</p>}
       <Rueckmeldung meldung={antwort} />
     </form>
+  );
+}
+
+/** "Welt", a continent ("kontinent:europa") or a country by name. */
+export function ortName(ort: string): string {
+  if (ort === "welt") return t("markt.welt");
+  if (ort.startsWith("kontinent:")) return t(`kontinent.${ort.slice("kontinent:".length)}`);
+  return landName(ort);
+}
+
+/** Chooses the market: the world, a continent, or one of its countries. */
+function OrtWahl({
+  ort,
+  regionen,
+  onWahl,
+}: {
+  ort: string;
+  regionen: { continent: string; countries: string[] }[];
+  onWahl: (ort: string) => void;
+}) {
+  const id = useId();
+  const kontinent =
+    ort === "welt"
+      ? ""
+      : ort.startsWith("kontinent:")
+        ? ort.slice("kontinent:".length)
+        : (regionen.find((r) => r.countries.includes(ort))?.continent ?? "");
+  const laender = [...(regionen.find((r) => r.continent === kontinent)?.countries ?? [])].sort(
+    (a, b) => landName(a).localeCompare(landName(b), "de"),
+  );
+  const land = LAENDER.includes(ort) ? ort : "";
+  return (
+    <div className="formular-zeile">
+      <div className="feld">
+        <label htmlFor={`${id}-gebiet`}>{t("markt.gebiet")}</label>
+        <select
+          id={`${id}-gebiet`}
+          value={kontinent}
+          onChange={(e) => onWahl(e.target.value ? `kontinent:${e.target.value}` : "welt")}
+        >
+          <option value="">{t("markt.welt")}</option>
+          {[...regionen]
+            .sort((a, b) =>
+              t(`kontinent.${a.continent}`).localeCompare(t(`kontinent.${b.continent}`), "de"),
+            )
+            .map((r) => (
+              <option key={r.continent} value={r.continent}>
+                {t(`kontinent.${r.continent}`)}
+              </option>
+            ))}
+        </select>
+      </div>
+      <div className="feld">
+        <label htmlFor={`${id}-land`}>{t("markt.land")}</label>
+        <select
+          id={`${id}-land`}
+          value={land}
+          disabled={kontinent === ""}
+          onChange={(e) => onWahl(e.target.value || `kontinent:${kontinent}`)}
+        >
+          <option value="">{t("markt.alle_laender")}</option>
+          {laender.map((k) => (
+            <option key={k} value={k}>
+              {landName(k)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
   );
 }

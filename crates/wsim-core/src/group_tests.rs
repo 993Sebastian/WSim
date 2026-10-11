@@ -288,6 +288,8 @@ fn a_logistics_subsidiary_buys_vehicles_for_the_freight_of_others() {
         risk_sea: None,
         ai_share: 0.5,
         ai_cash_share: 0.2,
+        supply_days_default: 20.0,
+        supply_days_max: 365.0,
         provenance: Default::default(),
     };
     let mut game = new_game(catalog);

@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 8_499_361
     hauptstadt: {breite: -15.78, laenge: -47.92}
     binnenland: false
-    nachbarn: [ARG, BOL, COL, FRA, PER, VEN, XGU, XPU]
+    nachbarn: [ARG, COL, FRA, PER]
     staedte:
       - {id: sao_paulo, einwohner: 18_845_000, breite: -23.56, laenge: -46.63}
       - {id: rio_de_janeiro, einwohner: 11_748_000, breite: -22.92, laenge: -43.23}

@@ -420,17 +420,23 @@ def main():
                 city_texts.append(f"stadt.{iso}.{c['id']}: {c['german']}")
         if len(r["members"]) > 1:
             lines.append(f"    umfasst: [{', '.join(r['members'])}]")
+        former = sorted(k for k, v in regionen.FRUEHER.items() if v == iso)
+        if former:
+            lines.append(f"    frueher: [{', '.join(former)}]")
         lines += [
             "    werte:",
             f"      bevoelkerung: {series_yaml(r['pop'], 0)}",
             f"      bip_je_kopf_usd: {series_yaml(r['gdp'], 0)}",
             f"      gini: {series_yaml(r['gini'], 3)}",
         ]
-        if iso in CORPORATE_TAX:
-            lines.append(f"      steuer_unternehmen: {inline(CORPORATE_TAX[iso], 3)}")
-        if iso in STABILITY:
-            lines.append(f"      stabilitaet: {inline(STABILITY[iso], 2)}")
-        profile = PROFILE.get(iso)
+        lead = regionen.LEITLAND.get(iso, iso)
+        tax = CORPORATE_TAX.get(iso) or CORPORATE_TAX.get(lead)
+        if tax:
+            lines.append(f"      steuer_unternehmen: {inline(tax, 3)}")
+        stability = STABILITY.get(iso) or STABILITY.get(lead)
+        if stability:
+            lines.append(f"      stabilitaet: {inline(stability, 2)}")
+        profile = PROFILE.get(iso) or PROFILE.get(lead)
         if profile:
             lines.append("    praegung:")
             if "automatisierung" in profile:
@@ -456,7 +462,7 @@ def main():
     print(f"{len(texts)} Länder und Regionen geschrieben.")
     world = lambda y: sum(interpolate(s["pop"], y) for s in series.values()) / 1e9
     print(f"Weltbevölkerung 1900: {world(1900):.2f} Mrd., 1930: {world(1930):.2f} Mrd., 2020: {world(2020):.2f} Mrd.")
-    for iso in ("DEU", "GBR", "IRL", "POL", "FRA", "XBA"):
+    for iso in ("DEU", "GBR", "POL", "FRA", "XNO"):
         print(iso, round(regions[iso]["pop"][1900] / 1e6, 1), "Mio. (1900)",
               "Nachbarn:", ", ".join(regions[iso]["neighbours"]))
 

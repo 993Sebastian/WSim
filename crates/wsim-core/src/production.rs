@@ -182,7 +182,7 @@ fn own_electricity(
     state
         .sites
         .iter()
-        .filter(|s| s.owner == owner && s.country == country)
+        .filter(|s| s.held_by(owner) && s.country == country)
         .filter_map(|s| s.inventory.get(&power))
         .map(|s| s.quantity)
         .sum()
@@ -204,7 +204,7 @@ fn use_own_electricity(
         if mwh <= 0.0 {
             break;
         }
-        if s.owner != owner || s.country != country {
+        if !s.held_by(owner) || s.country != country {
             continue;
         }
         if let Some(stock) = s.inventory.get_mut(&power) {
@@ -625,6 +625,8 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         .map(|w| w * worker_hours)
         .collect();
     let owner = state.sites[index].owner;
+    let full = crate::storage::is_full(catalog, &state.sites[index]);
+    state.sites[index].storage_full = full;
 
     for slot in 0..state.sites[index].slots.len() {
         state.sites[index].slots[slot].last_runs = 0.0;
@@ -672,6 +674,9 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         // Another company's patent in the country (P7).
         if crate::patents::blocked_recipe(state, catalog, owner, recipe_id, country).is_some() {
             bound(&mut runs, 0.0, Limit::Patent);
+        }
+        if full {
+            bound(&mut runs, 0.0, Limit::Storage);
         }
         for &(p, q) in &recipe.inputs {
             let available = state.sites[index]
@@ -886,19 +891,29 @@ pub fn sale_value(catalog: &Catalog, slot: &Slot, units: u32, date: Date) -> (Mo
     (book, book.scale(model.sale_proceeds_share).max(scrap))
 }
 
+/// Wages of a site's workforce for one day in USD, with its wage premium.
+pub(crate) fn daily_wage_bill(
+    state: &GameState,
+    catalog: &Catalog,
+    site: SiteId,
+    date: Date,
+) -> f64 {
+    let s = &state.sites[site.index()];
+    let worker_hours = hours_per_worker_day(catalog, date);
+    let wages = &state.countries.get(s.country).hourly_wage_usd;
+    s.workforce
+        .iter()
+        .map(|(g, &w)| w * worker_hours * wages.get(g.index()).copied().unwrap_or(0.0))
+        .sum::<f64>()
+        * (1.0 + s.wage_premium)
+}
+
 /// Wages, maintenance, depreciation and wear of one site for one day.
 fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
     let index = site.index();
     let s = &state.sites[index];
     let owner = s.owner;
-    let worker_hours = hours_per_worker_day(catalog, date);
-    let wages = &state.countries.get(s.country).hourly_wage_usd;
-    let wage_bill: f64 = s
-        .workforce
-        .iter()
-        .map(|(g, &w)| w * worker_hours * wages.get(g.index()).copied().unwrap_or(0.0))
-        .sum::<f64>()
-        * (1.0 + s.wage_premium);
+    let wage_bill = daily_wage_bill(state, catalog, site, date);
     let model = &catalog.production_model;
     let mut maintenance = Money::ZERO;
     let mut depreciation = Money::ZERO;
@@ -943,6 +958,7 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
     };
     // Training costs a share of the wage bill (W1).
     let training = crate::training::daily_cost(catalog, state, site, wage_bill);
+    let storage = crate::storage::daily_cost(catalog, s);
     let ledger = &mut state.companies[owner.index()].ledger;
     let center = CostCenter::site(site);
     ledger.expense(
@@ -952,6 +968,7 @@ fn running_costs(state: &mut GameState, catalog: &Catalog, site: SiteId, date: D
         Money::from_usd(wage_bill + training).unwrap_or(Money::ZERO),
     );
     ledger.expense(CostType::Maintenance, center, Account::Cash, maintenance);
+    ledger.expense(CostType::Storage, center, Account::Cash, storage);
     ledger.expense(
         CostType::Depreciation,
         center,
@@ -1003,10 +1020,21 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
     let mut messages = Vec::new();
     let date = state.date.add_days(-1);
     for (index, s) in state.sites.iter().enumerate() {
-        if !state.is_main(s.owner) {
+        let Some(company) = state.news_of(s.owner) else {
+            continue;
+        };
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        if s.storage_full && s.slots.iter().any(|sl| sl.limit == Some(Limit::Storage)) {
+            messages.push(
+                Message::new(MessageKind::Warning, keys::STORAGE_FULL)
+                    .with(
+                        "land",
+                        Param::Country(catalog.countries.key(s.country).to_owned()),
+                    )
+                    .of(company.clone()),
+            );
             continue;
         }
-        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
         let mut reported: Vec<ProductId> = Vec::new();
         for (slot, sl) in s.slots.iter().enumerate() {
             let Some((recipe, planned)) = planned_runs(catalog, state, site, slot, date) else {
@@ -1037,7 +1065,8 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
                             .with(
                                 "land",
                                 Param::Country(catalog.countries.key(s.country).to_owned()),
-                            ),
+                            )
+                            .of(company.clone()),
                     );
                 }
             }

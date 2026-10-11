@@ -2,6 +2,7 @@
 
 use wsim_core::catalog::{
     AgeSpan, Catalog, CountrySeries, FoundingModel, LifeModel, LifestyleLevel, PersonModel,
+    PrivateLifeModel,
 };
 use wsim_core::ids::Id;
 use wsim_core::state::Lifestyle;
@@ -384,8 +385,33 @@ fn money_model(ctx: &mut Ctx, catalog: &Catalog, v: &RawPerson, l: &Loc) -> Pers
             &l.field("erbschaftsteuer"),
             (0.0, 1.0),
         ),
+        private_life: v
+            .private_life
+            .as_ref()
+            .map_or_else(PrivateLifeModel::default, |p| {
+                private_life(ctx, p, &l.field("privatleben"))
+            }),
         provenance: provenance(v.approximation, v.source.as_ref()),
         ..PersonModel::default()
+    }
+}
+
+/// Partner search, private schools and health care: costs 0–50 monthly wages, the chance
+/// 0–1, education 0–50 points, the factor on the death chance 0.1–1.
+fn private_life(ctx: &mut Ctx, p: &crate::raw::RawPrivateLife, l: &Loc) -> PrivateLifeModel {
+    let (pl, sl, cl) = (
+        l.field("partnersuche"),
+        l.field("privatschule"),
+        l.field("vorsorge"),
+    );
+    PrivateLifeModel {
+        enabled: true,
+        partner_cost: in_range(ctx, p.partner.cost, 0.0, 50.0, &pl.field("kosten_monat")),
+        partner_chance: in_range(ctx, p.partner.chance, 0.0, 1.0, &pl.field("chance_monat")),
+        school_cost: in_range(ctx, p.school.cost, 0.0, 50.0, &sl.field("kosten_monat")),
+        school_education: in_range(ctx, p.school.education, 0.0, 50.0, &sl.field("ausbildung")),
+        care_cost: in_range(ctx, p.care.cost, 0.0, 50.0, &cl.field("kosten_monat")),
+        care_mortality: in_range(ctx, p.care.mortality, 0.1, 1.0, &cl.field("sterblichkeit")),
     }
 }
 

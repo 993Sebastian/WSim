@@ -24,6 +24,7 @@ import type {
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
 import { Erklaerung, Rueckmeldung, ZahlFeld, useAktion, useSicht } from "./gemeinsam";
+import { standortName } from "./stellen";
 
 /** Where the answers to the mandate appear. */
 const ORT = "auftrag";
@@ -340,7 +341,7 @@ function risikoText(r: Ruecksprache["risks"][number]): string {
   switch (r.kind) {
     case "verlust":
       return t("ruecksprache.risiko.verlust", {
-        standort: `${t(r.site_kind_text ?? "")} · ${landName(r.country ?? "")}`,
+        standort: standortName(r.site_kind_text ?? "", r.country ?? "", r.site_name),
         betrag: formatGeld(r.amount_usd ?? 0),
       });
     case "ziel":

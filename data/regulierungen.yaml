@@ -91,7 +91,7 @@ regulierungen:
 
   - id: umweltschutzgesetz_swe_1969
     datum: "1969-05-29"
-    laender: [SWE]
+    laender: [XNO]
     art: auflage
     stufe: 2
     frist_monate: 60
@@ -207,7 +207,7 @@ regulierungen:
 
   - id: grossfeuerungsanlagen_eg_1988
     datum: "1988-11-24"
-    laender: [BEL, DNK, DEU, GRC, ESP, FRA, IRL, ITA, NLD, PRT, GBR]
+    laender: [NLD, XNO, DEU, XSO, ESP, FRA, GBR, ITA]
     art: auflage
     stufe: 3
     frist_monate: 96
@@ -215,7 +215,7 @@ regulierungen:
 
   - id: arbeitsschutz_eg_1989
     datum: "1989-06-12"
-    laender: [BEL, DNK, GRC, ESP, FRA, IRL, ITA, NLD, PRT]
+    laender: [NLD, XNO, XSO, ESP, FRA, GBR, ITA]
     art: arbeitsschutz
     lohnaufschlag: 0.02
     annaeherung: true
@@ -230,7 +230,7 @@ regulierungen:
 
   - id: fusionskontrolle_eg
     datum: "1990-09-21"
-    laender: [BEL, DNK, GRC, ESP, IRL, ITA, NLD, PRT]
+    laender: [NLD, XNO, XSO, ESP, GBR, ITA]
     art: kartellaufsicht
     annaeherung: true
 
@@ -266,7 +266,7 @@ regulierungen:
 
   - id: fusionskontrolle_eu_beitritte
     datum: "2004-05-01"
-    laender: [AUT, FIN, SWE, CZE, HUN, POL, XBA]
+    laender: [XAL, XNO, POL]
     art: kartellaufsicht
     annaeherung: true
 
@@ -286,7 +286,7 @@ regulierungen:
 
   - id: industrieemissionen_eu_2010
     datum: "2010-11-24"
-    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GBR, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA]
+    laender: [XAL, NLD, XSO, POL, DEU, XNO, ESP, FRA, GBR, ITA]
     art: auflage
     stufe: 4
     frist_monate: 72
@@ -300,7 +300,7 @@ regulierungen:
 
   - id: gluehlampen_eu_2012
     datum: "2012-09-01"
-    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GBR, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA]
+    laender: [XAL, NLD, XSO, POL, DEU, XNO, ESP, FRA, GBR, ITA]
     art: verbot
     produkte: [gluehlampe]
     verkauf: true
@@ -332,7 +332,7 @@ regulierungen:
 
   - id: verbrenner_eu_2035
     datum: "2035-01-01"
-    laender: [AUT, BEL, BGR, CZE, DEU, DNK, ESP, FIN, FRA, GRC, HUN, IRL, ITA, NLD, POL, PRT, ROU, SWE, XBA, NOR]
+    laender: [XAL, NLD, XSO, POL, DEU, XNO, ESP, FRA, GBR, ITA]
     art: verbot
     produkte: [automobil]
     verkauf: true

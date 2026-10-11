@@ -286,7 +286,7 @@ pub fn ai_countries(
     let own: BTreeSet<CountryId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == company)
+        .filter(|s| s.held_by(company))
         .map(|s| s.country)
         .collect();
     let largest = model(catalog).map_or(0, |m| m.ai_largest_markets);
@@ -327,10 +327,11 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog) -> Vec<Messa
         if !ended {
             continue;
         }
-        if state.is_main(p.holder) {
+        if let Some(company) = state.news_of(p.holder) {
             news.push(
                 Message::new(MessageKind::Info, key)
-                    .with("technologie", technology_param(catalog, t)),
+                    .with("technologie", technology_param(catalog, t))
+                    .of(company),
             );
         }
         *state.patents.get_mut(t) = None;
@@ -338,7 +339,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog) -> Vec<Messa
     // The player's facilities a patent stops, once a month per technology and country.
     if let Some(main) = state.main_company {
         let mut seen: BTreeSet<(TechnologyId, CountryId)> = BTreeSet::new();
-        for s in state.sites.iter().filter(|s| s.owner == main) {
+        for s in state.sites.iter().filter(|s| s.held_by(main)) {
             for sl in &s.slots {
                 let Some(recipe) = sl.recipe else {
                     continue;

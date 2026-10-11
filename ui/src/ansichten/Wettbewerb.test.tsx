@@ -32,7 +32,7 @@ async function kernMitVersteigerung() {
       d.company.auction_until = "1914-02-15";
       d.company.departments = ["finanzen", "marketing"];
       d.company.central_staff = 3;
-      d.company.moving_to = "AUT";
+      d.company.moving_to = "XAL";
       d.company.moving_until = "1914-07-01";
       d.areas = [];
       d.licenses = [];
@@ -72,7 +72,7 @@ describe("Versteigerung", () => {
     // Its central departments and a move of its headquarters (ZA4).
     expect(
       screen.getByText(
-        "Zentrale: Finanzen, Marketing (3 Angestellte). Verlegt den Hauptsitz nach Österreich (ab 01.07.1914).",
+        "Zentrale: Finanzen, Marketing (3 Angestellte). Verlegt den Hauptsitz nach Schweiz und Österreich (ab 01.07.1914).",
       ),
     ).toBeTruthy();
     const standort = (await screen.findAllByRole("article"))[0] as HTMLElement;

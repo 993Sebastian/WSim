@@ -309,7 +309,7 @@ pub fn ai_answer(
     if t.penalty > m.penalty_max + EPS {
         return Err(Decline::Penalty);
     }
-    let selling = state.sites[t.seller.index()].owner == ai;
+    let selling = state.sites[t.seller.index()].held_by(ai);
     if selling {
         let (cost, _) = delivery_cost(state, catalog, (t.seller, t.buyer), t.product, t.price)
             .ok_or(Decline::Price)?;
@@ -808,7 +808,7 @@ fn ai_proposals(state: &mut GameState, catalog: &Catalog, today: Date) -> Vec<Me
     let mut rng = SimRng::for_stream(state.settings.seed, Stream::Contracts { month });
     let own: Vec<SiteId> = (0..state.sites.len())
         .map(site_id)
-        .filter(|&s| state.sites[s.index()].owner == player)
+        .filter(|&s| state.sites[s.index()].held_by(player))
         .collect();
     let mut wanted: Vec<(SiteId, ProductId, bool)> = Vec::new();
     for &site in &own {

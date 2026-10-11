@@ -24,6 +24,25 @@ pub struct ChildView {
     pub position: Option<MessageView>,
     /// Years until the manager card.
     pub card_in: Option<u32>,
+    /// At a private school now.
+    #[serde(default)]
+    pub private_school: bool,
+}
+
+/// What the person can do privately and what it costs a month (USD).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PrivateLifeView {
+    pub seeking_partner: bool,
+    pub partner_cost_usd: f64,
+    /// Chance per month to find a partner.
+    pub partner_chance: f64,
+    pub school_cost_usd: f64,
+    /// Points on every skill for a whole childhood at a private school.
+    pub school_education: f64,
+    pub health_care: bool,
+    pub care_cost_usd: f64,
+    /// Factor on the chance to die.
+    pub care_mortality: f64,
 }
 
 /// A company the person holds shares of.
@@ -104,9 +123,13 @@ pub struct PersonMoneyView {
     pub lifestyles: Vec<LifestyleOption>,
     /// The account fell short of the lifestyle.
     pub short: bool,
-    /// Yearly salary before tax, and what is paid now: only as CEO of the main company.
+    /// Yearly salary before tax, and whether it is paid now: by the company the person
+    /// leads as CEO, else by the main company as long as the person owns part of it.
     pub salary_usd: f64,
     pub salary_paid: bool,
+    /// Paid as owner, not as CEO.
+    #[serde(default)]
+    pub salary_as_owner: bool,
     pub salary_suggestion_usd: f64,
     pub salary_max_usd: Option<f64>,
     pub income_tax: f64,
@@ -142,6 +165,9 @@ pub struct PersonView {
     /// Country of residence (ISO).
     pub home: String,
     pub married: bool,
+    /// Partner search, private schools and health care; none without them in the data.
+    #[serde(default)]
+    pub private_life: Option<PrivateLifeView>,
     pub children: Vec<ChildView>,
     /// Children still possible: the person is married and of age for them.
     pub children_possible: bool,
@@ -230,6 +256,7 @@ pub fn person(game: &Game) -> PersonView {
                 manager: manager.map(|(id, _)| id.0),
                 position,
                 card_in: (c.died.is_none() && age < card).then(|| card - age),
+                private_school: c.private_school,
             }
         })
         .collect();
@@ -372,6 +399,20 @@ pub fn person(game: &Game) -> PersonView {
         age,
         home: catalog.countries.key(p.home).to_owned(),
         married: p.married,
+        private_life: model.private_life.enabled.then(|| {
+            let pl = &model.private_life;
+            let wage = crate::private::academic_monthly_wage(catalog, state, p.home);
+            PrivateLifeView {
+                seeking_partner: p.seeking_partner,
+                partner_cost_usd: usd(wage.scale(pl.partner_cost)),
+                partner_chance: pl.partner_chance,
+                school_cost_usd: usd(wage.scale(pl.school_cost)),
+                school_education: pl.school_education,
+                health_care: p.health_care,
+                care_cost_usd: usd(wage.scale(pl.care_cost)),
+                care_mortality: pl.care_mortality,
+            }
+        }),
         children,
         children_possible: model.enabled
             && p.married
@@ -432,6 +473,7 @@ fn flow_key(f: PrivateFlow) -> &'static str {
         PrivateFlow::IncomeTax => "privat.einkommensteuer",
         PrivateFlow::Interest => "privat.zins",
         PrivateFlow::Lifestyle => "privat.lebensstil",
+        PrivateFlow::Family => "privat.familie",
         PrivateFlow::LoanGiven => "privat.darlehen",
         PrivateFlow::LoanRepaid => "privat.tilgung",
         PrivateFlow::LoanInterest => "privat.darlehenszins",
@@ -495,10 +537,13 @@ fn money(game: &Game) -> PersonMoneyView {
             .collect(),
         short: p.short_since.is_some(),
         salary_usd: usd(p.salary),
-        salary_paid: main.is_some_and(|c| p.ceo == Some(c)),
-        salary_suggestion_usd: main
+        salary_paid: private::salary_payer(state).is_some(),
+        salary_as_owner: p.ceo.is_none() && private::salary_payer(state).is_some(),
+        salary_suggestion_usd: private::salary_payer(state)
+            .or(main)
             .map_or(0.0, |c| usd(private::salary_suggestion(catalog, state, c))),
-        salary_max_usd: main
+        salary_max_usd: private::salary_payer(state)
+            .or(main)
             .and_then(|c| private::salary_max(catalog, state, c))
             .map(usd),
         income_tax: m.income_tax.value(p.home, year),

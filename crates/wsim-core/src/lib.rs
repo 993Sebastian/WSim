@@ -11,6 +11,7 @@ pub mod brand;
 pub mod calendar;
 pub mod catalog;
 pub mod central;
+pub mod closing;
 pub mod command;
 pub mod competition;
 pub mod contracts;
@@ -55,7 +56,9 @@ pub mod save;
 pub mod staffing;
 pub mod state;
 pub mod stock;
+pub mod storage;
 pub mod strategy;
+pub mod supply;
 pub mod tariffs;
 pub mod time_series;
 pub mod trade;
@@ -74,6 +77,8 @@ mod board_tests;
 mod bonds_tests;
 #[cfg(test)]
 mod central_tests;
+#[cfg(test)]
+mod closing_tests;
 #[cfg(test)]
 mod contracts_tests;
 #[cfg(test)]
@@ -129,7 +134,11 @@ mod staffing_tests;
 #[cfg(test)]
 mod stock_tests;
 #[cfg(test)]
+mod storage_tests;
+#[cfg(test)]
 mod strategy_tests;
+#[cfg(test)]
+mod supply_tests;
 #[cfg(test)]
 mod tariffs_tests;
 #[cfg(test)]

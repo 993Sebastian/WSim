@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 663_721
     hauptstadt: {breite: 48.87, laenge: 2.33}
     binnenland: false
-    nachbarn: [BEL, BRA, CHE, DEU, ESP, ITA, NLD, XGU]
+    nachbarn: [BRA, COL, DEU, ESP, ITA, NLD, XAL]
     staedte:
       - {id: paris, einwohner: 9_904_000, breite: 48.87, laenge: 2.33, hauptstadt: true}
       - {id: lyon, einwohner: 1_423_000, breite: 45.77, laenge: 4.83}

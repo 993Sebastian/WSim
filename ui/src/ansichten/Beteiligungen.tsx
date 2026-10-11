@@ -588,7 +588,7 @@ function Projekt({ p, d }: { p: Ausgruendung; d: StartUps }) {
       <h4>{titel}</h4>
       <p>
         {t("beteiligungen.projekt_stand", {
-          land: landName(p.country),
+          land: p.site_name ? `${landName(p.country)} („${p.site_name}“)` : landName(p.country),
           fortschritt: formatProzent(p.progress),
         })}
       </p>

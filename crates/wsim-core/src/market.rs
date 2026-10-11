@@ -731,7 +731,7 @@ fn clear_market(
         let s = &state.sites[site.index()];
         let order = s.orders.get(&product);
         let stock = s.inventory.get(&product).map_or(0.0, |st| st.quantity);
-        let standing = order.map(|o| {
+        let standing = order.filter(|_| !s.storage_full).map(|o| {
             (
                 site,
                 (o.target - stock).max(0.0),

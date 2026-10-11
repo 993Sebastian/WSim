@@ -56,7 +56,7 @@ export function gegenstandText(g: Gegenstandssicht): string {
       anzahl: formatZahl(g.site_count),
       produkte: g.products.map((p) => t(`produkt.${p}`)).join(", "),
     });
-  const art = t(g.site_type ?? "standorttyp.werk");
+  const art = g.site_name ?? t(g.site_type ?? "standorttyp.werk");
   const land = landName(g.country ?? "");
   const produkte = g.products.map((p) => t(`produkt.${p}`)).join(", ");
   return produkte

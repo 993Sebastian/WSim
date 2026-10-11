@@ -54,12 +54,15 @@ pub(crate) fn deliver(state: &mut GameState, catalog: &Catalog, today: Date) -> 
                     s.value,
                 );
                 crate::logistics::note_loss(state, owner, s.value);
-                if state.is_main(owner) {
-                    news.push(crate::logistics::loss_message(
-                        catalog,
-                        (s.product, s.quantity),
-                        (s.from, to),
-                    ));
+                if let Some(company) = state.news_of(owner) {
+                    news.push(
+                        crate::logistics::loss_message(
+                            catalog,
+                            (s.product, s.quantity),
+                            (s.from, to),
+                        )
+                        .of(company),
+                    );
                 }
             }
             continue;

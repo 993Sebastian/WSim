@@ -50,34 +50,31 @@ zoelle:
   zonen:
     - id: ewg                     # EWG, EG, EU (Binnenmarkt ohne Zölle)
       faktor: 0
-      mitglieder: {BEL: [1958], DEU: [1958], FRA: [1958], ITA: [1958], NLD: [1958],
-                   DNK: [1973], IRL: [1973], GBR: [1973, 2020], GRC: [1981], ESP: [1986],
-                   PRT: [1986], AUT: [1995], FIN: [1995], SWE: [1995], POL: [2004],
-                   CZE: [2004], HUN: [2004], XBA: [2004], ROU: [2007], BGR: [2007]}
+      # Regionen (11.10.2026) treten mit der Mehrheit ihrer Einwohner bei.
+      mitglieder: {NLD: [1958], DEU: [1958], FRA: [1958], ITA: [1958], GBR: [1973, 2020],
+                   ESP: [1986], XAL: [1995], XNO: [1995], POL: [2004], XSO: [2007]}
     - id: efta                    # Europäische Freihandelsassoziation
       faktor: 0
-      mitglieder: {AUT: [1960, 1995], CHE: [1960], DNK: [1960, 1973], NOR: [1960],
-                   PRT: [1960, 1986], SWE: [1960, 1995], GBR: [1960, 1973], FIN: [1986, 1995]}
+      mitglieder: {XAL: [1960, 1995], XNO: [1960, 1995], GBR: [1960, 1973]}
     - id: nafta                   # USA–Kanada 1989, NAFTA 1994, USMCA 2020
       faktor: 0
       mitglieder: {USA: [1989], CAN: [1989], MEX: [1994]}
     - id: mercosur
       faktor: 0
-      mitglieder: {ARG: [1991], BRA: [1991], XPU: [1991]}
+      mitglieder: {ARG: [1991], BRA: [1991]}
     - id: empire                  # Präferenzzölle des Empire (Ottawa 1932 bis zum EG-Beitritt)
       faktor: 0.5
-      mitglieder: {GBR: [1932, 1973], CAN: [1932, 1973], AUS: [1932, 1973], NZL: [1932, 1973],
-                   IND: [1932, 1973], ZAF: [1932, 1973]}
+      mitglieder: {GBR: [1932, 1973], CAN: [1932, 1973], AUS: [1932, 1973], IND: [1932, 1973],
+                   XSA: [1932, 1973]}
     - id: rgw                     # Rat für gegenseitige Wirtschaftshilfe (Staatshandel)
       faktor: 0.3
-      mitglieder: {RUS: [1949, 1991], UKR: [1949, 1991], BLR: [1949, 1991], POL: [1949, 1991],
-                   CZE: [1949, 1991], HUN: [1949, 1991], ROU: [1949, 1991], BGR: [1949, 1991],
-                   XBA: [1949, 1991], MNG: [1962, 1991], CUB: [1972, 1991], VNM: [1978, 1991]}
+      mitglieder: {RUS: [1949, 1991], UKR: [1949, 1991], POL: [1949, 1991], XSO: [1949, 1991],
+                   VNM: [1978, 1991]}
   # Handelssperren: kein Handel zwischen den beiden Ländern, von bis (Jahre; ohne Ende bis
   # heute); weitere folgen mit den Ereignissen (Stufe 4).
   sperren:
-    - {laender: [USA, CUB], von: 1962}
-    - {laender: [USA, PRK], von: 1950}
+    # Kuba und Nordkorea liegen seit dem 11.10.2026 in größeren Regionen; ihre Sperren
+    # entfallen.
     - {laender: [USA, IRN], von: 1995}
   # Nach 2026: jährliche Änderung je Land, gleichverteilt mit dieser Standardabweichung mal
   # dem Faktor der gewählten Dynamik, zwischen minimum und maximum.

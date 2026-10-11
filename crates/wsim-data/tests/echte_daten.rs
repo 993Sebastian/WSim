@@ -90,8 +90,8 @@ fn country_values_interpolate() {
 fn all_countries_with_complete_values() {
     let data = load_dir(&data_dir()).data.expect("data loads");
     let c = &data.catalog;
-    // 197 countries, small ones merged into 111 countries and regions (M34).
-    assert_eq!(c.countries.len(), 111);
+    // 197 countries merged into 46 countries and regions (M34, 11.10.2026).
+    assert_eq!(c.countries.len(), 46);
     for (id, country) in c.countries.iter() {
         let key = c.countries.key(id);
         for series in [
@@ -127,21 +127,25 @@ fn all_countries_with_complete_values() {
     let deu = c.countries.get(c.countries.id("DEU").unwrap());
     let mut neighbors: Vec<&str> = deu.neighbors.iter().map(|&n| c.countries.key(n)).collect();
     neighbors.sort_unstable();
-    assert_eq!(
-        neighbors,
-        ["AUT", "BEL", "CHE", "CZE", "DNK", "FRA", "NLD", "POL"]
-    );
+    assert_eq!(neighbors, ["FRA", "NLD", "POL", "XAL", "XNO"]);
     assert_eq!(data.texts.get("land.DEU"), Some("Deutschland"));
     assert!(deu.members.is_empty());
 
-    // Regions: Luxembourg went to Belgium, the Baltic states form a region of their own.
-    let bel = c.countries.get(c.countries.id("BEL").unwrap());
-    assert_eq!(bel.members, ["BEL", "LUX"]);
+    // Regions (about 50 since 11.10.2026): Benelux under the Dutch code, the Nordic and
+    // Baltic countries as a region of their own that also stands for the former Baltic one.
+    let benelux = c.countries.get(c.countries.id("NLD").unwrap());
+    assert_eq!(benelux.members, ["NLD", "BEL", "LUX"]);
     assert_eq!(data.texts.get("teilland.LUX"), Some("Luxemburg"));
-    assert!(c.countries.id("LUX").is_none());
-    let baltic = c.countries.get(c.countries.id("XBA").unwrap());
-    assert_eq!(baltic.members, ["LTU", "LVA", "EST"]);
-    assert_eq!(data.texts.get("land.XBA"), Some("Baltikum"));
+    assert!(c.countries.id("LUX").is_none() && c.countries.id("BEL").is_none());
+    let nordic = c.countries.get(c.countries.id("XNO").unwrap());
+    assert_eq!(nordic.members[0], "SWE");
+    assert_eq!(nordic.former, ["XBA"]);
+    assert_eq!(data.texts.get("land.XNO"), Some("Nordeuropa und Baltikum"));
+    assert!(
+        (40..=55).contains(&c.countries.len()),
+        "{}",
+        c.countries.len()
+    );
     let merged: usize = c
         .countries
         .iter()
@@ -236,8 +240,10 @@ fn chain_one_runs_in_britain() {
     use wsim_core::money::Money;
     use wsim_core::state::{GameSettings, SiteId, StartForm};
 
-    let data = load_dir(&data_dir()).data.expect("data loads");
-    let c = Arc::new(data.catalog);
+    let mut catalog = load_dir(&data_dir()).data.expect("data loads").catalog;
+    // The mines stockpile three years of output without selling: unlimited stores.
+    catalog.production_model.storage.enabled = false;
+    let c = Arc::new(catalog);
     let gbr = c.countries.id("GBR").unwrap();
     let mut game = Game::new(
         c.clone(),
@@ -432,10 +438,10 @@ fn freight_routes_are_plausible() {
     assert!(piece.cost_per_t > atlantic.cost_per_t);
 
     // Landlocked countries reach the sea through their neighbors.
-    let swiss = routes.get(bulk, country("CHE"), country("USA")).unwrap();
+    let swiss = routes.get(bulk, country("XAL"), country("USA")).unwrap();
     assert!(swiss.cost_per_t > atlantic.cost_per_t);
     // Neighbors without a sea leg: by land.
-    let alps = routes.get(bulk, country("CHE"), country("AUT")).unwrap();
+    let alps = routes.get(bulk, country("XAL"), country("DEU")).unwrap();
     assert!(!alps.by_sea, "{alps:?}");
 
     // Electricity only flows through the national grid in stage 1.

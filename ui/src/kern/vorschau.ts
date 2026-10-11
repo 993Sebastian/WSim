@@ -28,6 +28,7 @@ import type {
   Vertraege,
   Vertragspartnerliste,
   Bezugsquellen,
+  InternerStandort,
   Logistik,
   Konzern,
   Controlling,
@@ -65,6 +66,7 @@ const beispiel = beispielJson as unknown as {
   vertraege: Vertraege;
   vertragspartner: Vertragspartnerliste;
   bezugsquellen: Bezugsquellen;
+  interne_quellen: InternerStandort[];
   logistik: Logistik;
   konzern: Konzern;
   controlling: Controlling;
@@ -260,6 +262,14 @@ export function vorschauKern(verzoegerungMs = 15): Kern {
       if (!spiel) throw keinSpiel();
       // The preview knows the partners of one site and product; it shows them for all.
       return { ...kopie(beispiel.vertragspartner), site: standort, product: produkt };
+    },
+    interneQuellen: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.interne_quellen);
+    },
+    lieferziele: async () => {
+      if (!spiel) throw keinSpiel();
+      return kopie(beispiel.interne_quellen);
     },
     bezugsquellen: async (standort, produkt) => {
       if (!spiel) throw keinSpiel();

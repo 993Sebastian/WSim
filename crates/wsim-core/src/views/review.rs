@@ -54,6 +54,9 @@ pub struct RiskView {
     pub kind: String,
     pub site: Option<u32>,
     pub site_kind_text: Option<String>,
+    /// The owner's name for the site.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub site_name: Option<String>,
     pub country: Option<String>,
     /// The loss, or the cash.
     pub amount_usd: Option<f64>,
@@ -187,6 +190,7 @@ fn review_view(game: &Game, r: &review::Review) -> ReviewView {
                 kind: String::new(),
                 site: None,
                 site_kind_text: None,
+                site_name: None,
                 country: None,
                 amount_usd: None,
                 limit_usd: None,
@@ -200,6 +204,7 @@ fn review_view(game: &Game, r: &review::Review) -> ReviewView {
                     v.kind = "verlust".into();
                     v.site = Some(site.0);
                     v.site_kind_text = Some(site_type_key(s.kind));
+                    v.site_name = s.name.clone();
                     v.country = Some(c.countries.key(s.country).to_owned());
                     v.amount_usd = Some(usd(result));
                 }

@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 135_650
     hauptstadt: {breite: 23.73, laenge: 90.41}
     binnenland: false
-    nachbarn: [IND, MMR]
+    nachbarn: [IND, XSN]
     staedte:
       - {id: dhaka, einwohner: 12_797_394, breite: 23.73, laenge: 90.41, hauptstadt: true}
       - {id: chattogram, einwohner: 4_529_000, breite: 22.33, laenge: 91.80}

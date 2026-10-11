@@ -19,8 +19,8 @@ use wsim_core::views::{
     ContractsView, ControllingView, CountryDetail, FinanceView, GroupView, LogisticsView,
     ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView, OrganisationView,
     Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview, ReviewsView,
-    RoundReportView, StockMarketView, StrategyView, SupplySourcesView, VenturesView, WorldMap,
-    WorldMarketView,
+    RoundReportView, StockMarketView, StrategyView, SupplySiteView, SupplySourcesView,
+    VenturesView, WorldMap, WorldMarketView,
 };
 use wsim_session::{NewGameRequest, SaveEntry, Session};
 
@@ -308,6 +308,30 @@ async fn vertraege(state: State<'_, Shared>) -> Result<ContractsView, Fehler> {
 }
 
 #[tauri::command]
+async fn interne_quellen(
+    state: State<'_, Shared>,
+    standort: u32,
+    produkt: String,
+) -> Result<Vec<SupplySiteView>, Fehler> {
+    im_hintergrund(state.inner(), move |s| {
+        s.internal_sources(standort, &produkt)
+    })
+    .await
+}
+
+#[tauri::command]
+async fn lieferziele(
+    state: State<'_, Shared>,
+    standort: u32,
+    produkt: String,
+) -> Result<Vec<SupplySiteView>, Fehler> {
+    im_hintergrund(state.inner(), move |s| {
+        s.transfer_targets(standort, &produkt)
+    })
+    .await
+}
+
+#[tauri::command]
 async fn bezugsquellen(
     state: State<'_, Shared>,
     standort: u32,
@@ -421,6 +445,8 @@ fn main() {
             vertraege,
             vertragspartner,
             bezugsquellen,
+            interne_quellen,
+            lieferziele,
             logistik,
             konzern,
             controlling,

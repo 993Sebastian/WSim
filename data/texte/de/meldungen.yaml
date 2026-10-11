@@ -144,6 +144,7 @@ kostenart.instandhaltung: Instandhaltung
 kostenart.gemeinkosten: Verwaltung und Vertrieb
 kostenart.pacht: Pacht und Förderabgaben
 kostenart.umwelt: CO₂-Abgabe
+kostenart.lager: Lager und Verderb
 kostenart.lizenzen: Lizenzen und Patente
 kostenart.beteiligungen: Beteiligungen
 kostenart.sonstiges: Sonstiges
@@ -225,6 +226,8 @@ fehler.befehl.grundstueck_gekauft: Das Grundstück gehört der Firma schon.
 fehler.befehl.schon_stillgelegt: Die Anlage ist schon stillgelegt.
 fehler.befehl.nicht_stillgelegt: Die Anlage ist nicht stillgelegt.
 fehler.befehl.zu_viele_einheiten: "Die Anlage hat nur {anzahl} Einheiten."
+fehler.befehl.standort_mit_vertraegen: "Ein laufender Liefervertrag bindet den Standort. Kündige ihn zuerst (Markt → Lieferverträge)."
+fehler.befehl.ware_unterwegs: Ware ist noch auf dem Weg zum Standort. Warte, bis sie angekommen ist.
 
 # Kaufangebote (M30)
 fehler.befehl.eigenes_angebot: Der eigenen Firma kann man nichts abkaufen.
@@ -423,6 +426,7 @@ meldung.vorstand.gegenangebot.standort: "Der Vorstand verlangt von {firma} {prei
 meldung.vorstand.gegenangebot.lizenz: "Der Vorstand verlangt von {firma} {preis} für eine Lizenz auf „{technologie}“. Antwort bis {frist}."
 meldung.vorstand.gegenangebot.bereich: "Der Vorstand verlangt von {firma} {preis} für deinen Bereich {warengruppe} mit Marke (Standorte: {standorte}). Antwort bis {frist}."
 warnung.vorprodukt_fehlt: "{anlage} in {land} steht teilweise still: {produkt} fehlt im Lager."
+warnung.lager_voll: "Ein Lager in {land} ist voll: Die Anlagen stehen. Mehr verkaufen, Ware umlagern oder das Lager ausbauen (Werk → Lager)."
 
 # Hinweise der Übersicht („Zu erledigen“)
 hinweis.firma_gruenden: "Du hast noch keine Firma. In der Ansicht Person gründest du sie – mit einem Teil deines Startgelds als Einlage."
@@ -506,3 +510,7 @@ meldung.anteile.ki_firma: "Du hast die Mehrheit an {firma} abgegeben; die Firma 
 meldung.anteile.hauptfirma: "{firma} ist jetzt deine Hauptfirma."
 meldung.anteile.keine_hauptfirma: "Du hast keine eigene Firma mehr. Als Investor kannst du gründen, Anteile kaufen und in Start-ups investieren."
 meldung.spielende_mittellos: "Du hältst keine Anteile mehr, und dein Guthaben reicht nicht mehr für eine Gründung (mindestens {betrag}). Die Partie ist zu Ende."
+fehler.befehl.nicht_moeglich: Das geht im Moment nicht.
+fehler.befehl.unbekanntes_kind: Dieses Kind gibt es nicht.
+meldung.person.heirat: "Du hast geheiratet. Jetzt können Kinder kommen."
+meldung.person.familie_unbezahlt: "Dein Privatkonto reicht nicht für Partnersuche, Privatschule und Vorsorge – alles ist beendet."

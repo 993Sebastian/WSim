@@ -66,7 +66,8 @@ Lebenszyklus, Spielerfigur, Privatvermögen (PE1–PE6): `docs/PERSON.md`.
 - `data/laender/*.yaml` und `data/texte/de/laender.yaml` erzeugt
   `python3 tools/daten/laender.py` aus Gapminder und Natural Earth (Quellen werden nach
   `tools/daten/.cache/` geladen). Korrekturen und Schätzungen gehören in das Skript,
-  die Zusammenfassung kleiner Länder zu Regionen in `tools/daten/regionen.py`.
+  die Zusammenfassung kleiner Länder zu Regionen in `tools/daten/regionen.py` (danach
+  `tools/daten/regionen_umstellen.py` für die Verweise der übrigen Daten).
   Die Umrisse der Weltkarte (`ui/src/karte/welt.json`) erzeugt `tools/daten/karte.py`.
   Neue Produkte in Mengen: `tools/daten/tabelle.py` (CSV → Kettendatei mit Plausibilitätsbericht);
   die Branchenpakete (Ketten 50 ff.) erzeugt `tools/daten/pakete/<paket>/gen.py` aus `spec.py`;

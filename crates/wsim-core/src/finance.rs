@@ -249,7 +249,7 @@ pub(crate) fn check_insolvency(state: &mut GameState, catalog: &Catalog) -> Vec<
                 .date
                 .add_days(i32::try_from(catalog.deal_model.insolvency_days).unwrap_or(i32::MAX));
             state.companies[index].auction_until = Some(until);
-            let sites = state.sites.iter().filter(|s| s.owner == id).count();
+            let sites = state.sites.iter().filter(|s| s.held_by(id)).count();
             messages.push(
                 Message::new(MessageKind::Info, keys::COMPANY_INSOLVENT_AUCTION)
                     .with("firma", Param::Text(state.companies[index].name.clone()))

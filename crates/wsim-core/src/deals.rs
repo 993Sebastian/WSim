@@ -254,7 +254,7 @@ pub fn area_sites(
         .map(|i| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
         .filter(|&site| {
             let s = &state.sites[site.index()];
-            s.owner == company
+            s.held_by(company)
                 && area_kind(s.kind)
                 && site_groups(state, catalog, site).contains(&group)
         })
@@ -385,7 +385,7 @@ pub fn area_value(
 /// (docs/FORMELN.md, M31).
 fn whole_production(state: &GameState, company: CompanyId, sites: &[SiteId]) -> bool {
     state.sites.iter().enumerate().all(|(i, s)| {
-        s.owner != company
+        !s.held_by(company)
             || !matches!(s.kind, SiteType::Extraction | SiteType::Factory)
             || s.slots.is_empty()
             || sites.iter().any(|x| x.index() == i)
@@ -435,7 +435,7 @@ fn electricity_balance(
     };
     let (mut need, mut capacity) = (0.0, 0.0);
     for (i, s) in state.sites.iter().enumerate() {
-        if s.owner != company || s.country != country || except.is_some_and(|e| e.index() == i) {
+        if !s.held_by(company) || s.country != country || except.is_some_and(|e| e.index() == i) {
             continue;
         }
         for sl in s.slots.iter().filter(|sl| !sl.mothballed()) {
@@ -455,7 +455,7 @@ fn electricity_balance(
 /// Whether a company has a laboratory other than `except`.
 fn has_laboratory(state: &GameState, company: CompanyId, except: Option<SiteId>) -> bool {
     state.sites.iter().enumerate().any(|(i, s)| {
-        s.owner == company
+        s.held_by(company)
             && s.kind == SiteType::ResearchCenter
             && except.is_none_or(|e| e.index() != i)
     })
@@ -525,7 +525,7 @@ fn business(
 ) -> (BTreeSet<ProductId>, BTreeSet<(ProductId, CountryId)>) {
     let mut made = BTreeSet::new();
     let mut offered = BTreeSet::new();
-    for s in state.sites.iter().filter(|s| s.owner == company) {
+    for s in state.sites.iter().filter(|s| s.held_by(company)) {
         made.extend(
             s.slots
                 .iter()
@@ -696,7 +696,7 @@ fn check_object(
     match object {
         DealObject::Site(site) => {
             let s = state.site(site).ok_or(CommandError::UnknownSite)?;
-            if s.owner != seller {
+            if !s.held_by(seller) {
                 return Err(CommandError::NotSellersObject);
             }
             let min = catalog.deal_model.min_age_months;
@@ -777,7 +777,7 @@ pub(crate) fn make_offer(
             return Err(CommandError::SellerBankrupt);
         }
         let s = state.site(site).ok_or(CommandError::UnknownSite)?;
-        if s.owner != seller {
+        if !s.held_by(seller) {
             return Err(CommandError::NotSellersObject);
         }
         let minimum = auction_minimum(state, catalog, site);
@@ -1256,7 +1256,7 @@ fn core_site(state: &GameState, catalog: &Catalog, company: CompanyId, site: Sit
     let with_facilities = state
         .sites
         .iter()
-        .filter(|s| s.owner == company && !s.slots.is_empty())
+        .filter(|s| s.held_by(company) && !s.slots.is_empty())
         .count();
     if with_facilities <= 1 && !state.sites[site.index()].slots.is_empty() {
         return true;
@@ -1512,7 +1512,7 @@ fn close_auctions(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<M
             .sites
             .iter()
             .enumerate()
-            .filter(|(_, s)| s.owner == seller)
+            .filter(|(_, s)| s.held_by(seller))
             .map(|(i, _)| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
             .collect();
         for site in sites {
@@ -1561,7 +1561,7 @@ fn auction_bids(
             || state
                 .sites
                 .iter()
-                .any(|s| s.owner == buyer && s.country == country);
+                .any(|s| s.held_by(buyer) && s.country == country);
         if !present || crate::events::closed_to(state, buyer, country) {
             continue;
         }
@@ -1579,7 +1579,7 @@ fn auction_bids(
             || state
                 .sites
                 .iter()
-                .any(|s| s.owner == b && s.country == country)
+                .any(|s| s.held_by(b) && s.country == country)
     };
     bids.sort_by(|a, b| {
         b.0.cmp(&a.0)
@@ -1681,7 +1681,7 @@ fn ai_deal_news(state: &GameState, catalog: &Catalog, offer: &Offer) -> Option<M
         state
             .sites
             .iter()
-            .any(|o| o.owner == player && o.country == s.country)
+            .any(|o| o.held_by(player) && o.country == s.country)
             || s.offers
                 .keys()
                 .any(|&p| offered.iter().any(|&(q, _)| q == p))
@@ -1863,7 +1863,7 @@ pub(crate) fn deals_for(
     let mut countries: BTreeSet<CountryId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == buyer)
+        .filter(|s| s.held_by(buyer))
         .map(|s| s.country)
         .collect();
     countries.insert(company.headquarters);
@@ -1997,7 +1997,7 @@ pub(crate) fn deals_for(
                 state
                     .sites
                     .iter()
-                    .filter(|s| s.owner == buyer)
+                    .filter(|s| s.held_by(buyer))
                     .filter_map(|s| s.research),
             )
             .chain(search.technologies.iter().copied())
@@ -2006,7 +2006,7 @@ pub(crate) fn deals_for(
                 state
                     .sites
                     .iter()
-                    .filter(|s| s.owner == buyer)
+                    .filter(|s| s.held_by(buyer))
                     .flat_map(|s| {
                         s.slots.iter().filter_map(|sl| {
                             crate::patents::blocked_recipe(
@@ -2136,7 +2136,7 @@ fn auction_candidates(
     let countries: BTreeSet<CountryId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == buyer)
+        .filter(|s| s.held_by(buyer))
         .map(|s| s.country)
         .chain(std::iter::once(c.headquarters))
         .collect();

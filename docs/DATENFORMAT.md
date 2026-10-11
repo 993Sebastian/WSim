@@ -106,6 +106,7 @@ nachziehen). Welche Länder zu Regionen zusammengefasst werden, steht in
 | **hauptstadt** | `{breite, laenge}` in Grad; Bezugspunkt für Entfernungen |
 | **binnenland** | `true` ohne Meereszugang |
 | nachbarn | Länder mit gemeinsamer Landgrenze (muss beidseitig eingetragen sein) |
+| frueher | Nur bei Regionen: Codes früherer Regionen, die in diesem Eintrag aufgegangen sind (z. B. `XBA` in `XNO`); alte Spielstände lesen sie als diesen Eintrag. Gültige Codes, kein eigenes Land, keins doppelt oder zugleich in `umfasst` einer Region. |
 | umfasst | Nur bei Regionen (M34): ISO-Codes der zusammengefassten Länder, mindestens zwei, das namensgebende oder größte zuerst. Keins davon darf ein eigenes Land sein oder zu einer zweiten Region gehören. Jedes braucht einen Text `teilland.<ISO>`. |
 | staedte | Städte für den Hauptsitz (W2), je `{id, einwohner, breite, laenge, hauptstadt}`: `id` snake_case ohne Umlaute, je Land einmal; `einwohner` > 0 (Agglomeration heute, gilt als Anteil an der Bevölkerung von `zentrale.stadt.einwohner_jahr`); höchstens eine `hauptstadt: true`. Jede braucht einen Text `stadt.<ISO>.<id>`. Ohne Städte zählt das Land als eine Stadt. Erzeugt von `tools/daten/laender.py` (Natural Earth, bis fünf je Land). |
 | **werte.bevoelkerung** | Einwohner, Jahreswerte |
@@ -160,6 +161,8 @@ Ein einziger Abschnitt (in `parameter/produktionsmodell.yaml`); Formeln in
 | `lohnaufschlag_max` | Höchster Lohnaufschlag eines Standorts über die Landeslöhne (0–5, Vorgabe 1 = 100 %; M18) |
 | **stilllegung** | Stillgelegte Anlagen (M22): `instandhaltung_anteil` (0–1, Anteil der Wartung, den sie weiter kosten), `wiederanlauf_tage` (Dauer des Wiederanfahrens), `wiederanlauf_kosten` (0–1, Anteil der Investition) |
 | **verkauf** | Verkaufte Anlagen (M22): `erloes_anteil` (0–1, Anteil des Restbuchwerts), `schrottwert` (0–1, Mindesterlös als Anteil der Investition) |
+| **lager** | Lager (optional, ohne Abschnitt unbegrenzt): `mindestens_usd` (Mindestkapazität je Standorttyp, alle sechs Pflicht), `tage` (> 0, Tage Durchsatz bei voller Auslastung), `ausbau.kapazitaet_usd` (> 0) und `ausbau.kosten_usd` je Ausbaustufe, `kosten_jahr_anteil` (0–1, Lagerkosten je Jahr als Anteil des Lagerwerts), `verderb` (Warengruppe → Anteil 0–1 je Monat), `ki_ausbau_ab` (0–1, Füllung, ab der die KI ausbaut). Werte zu Richtpreisen |
+| **schliessung** | Standort schließen: `lager_erloes_anteil` (0–1, Erlös der Restbestände als Anteil ihres Lagerwerts), `abfindung_monate` (0–36, Monatslöhne der Beschäftigten als Abfindung) |
 | **schulung** | Schulung je Standort (W1): `kosten_anteil_lohn` (0–1, Kosten je Tag als Anteil der Lohnsumme bei Ziel 100 %), `aufbau_je_monat` (0–1, so viel steigt das Niveau je Monat bis zum Ziel), `verlust_je_monat` (0–1, so viel sinkt es über dem Ziel), `arbeitsersparnis` (0–0,9, weniger Arbeitsstunden bei Niveau 100 %), `qualitaet_punkte` (0–50, Qualitätspunkte bei Niveau 100 %). Fehlt der Abschnitt, gibt es keine Schulung |
 | strom | Produkt der Art `energie`, das für Eigenstrom steht (Kette 7) |
 | **einspeiseverguetung** | Anteil (0–1) des Industriestrompreises für überschüssigen Eigenstrom |
@@ -689,6 +692,7 @@ fahren alle Ladungen über den Frachtmarkt. Ein Abschnitt `logistik` mit:
 | **flotte** | `marge_frachtmarkt` (0–0,9: Marge der Logistikfirmen in der Marktfracht, die eine voll genutzte Flotte spart), `auslastung` (0,01–1: genutzter Anteil der Fahrleistung), `unterhalt_anteil` (0–1 je Jahr vom Kaufwert), `nutzungsdauer_jahre` (> 0: lineare Abschreibung), `verkauf_anteil` (0–1 des Buchwerts beim Verkauf), `vermietung_anteil` (0–1: Anteil des freien Platzes, der Ladung anderer findet), `vermietung_markt_anteil` (0–1: höchstens dieser Anteil der Tonnenkilometer des Frachtmarkts geht an Firmenflotten; W6) |
 | **risiko** | `land`, `see`: Jahreswerte (0–1), Wahrscheinlichkeit, eine Ladung zu verlieren |
 | **ki** | `anteil` (0–1: so viel ihrer Fracht soll die Flotte einer KI-Firma tragen), `kasse_anteil` (0–1: höchstens so viel der Kasse geht je Monat in Fahrzeuge) |
+| **nachschub** | `tage_standard` (1–`tage_max`: vorgeschlagene Reichweite der internen Belieferung nach Bedarf), `tage_max` (1–3650) |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## produktnamen
@@ -807,6 +811,7 @@ Abschnitt `person` mit:
 | **sparzins** | Guthabenzins des Privatkontos je Land und Jahr (−0,5–0,5), Aufbau wie `einkommensteuer` |
 | **erbe** | Erbe der Person (PE6): `neffe_alter: {von, bis}` (18–80 Jahre, von ≤ bis: so alt ist ein erzeugter Neffe oder eine Nichte, wenn kein Kind lebt), `hinweis_ab` (18–120: ab diesem Alter jeden Januar der Hinweis „Nachfolge bedenken“, solange kein Erbe bestimmt ist) |
 | **erbschaftsteuer** | Erbschaft- und Schenkungsteuer je Land und Jahr (0–1), Aufbau wie `einkommensteuer`: ein Satz auf den ganzen Nachlass |
+| **privatleben** | optional: `partnersuche: {kosten_monat 0–50, chance_monat 0–1}`, `privatschule: {kosten_monat 0–50, ausbildung 0–50}`, `vorsorge: {kosten_monat 0–50, sterblichkeit 0,1–1}` – Kosten in Akademiker-Monatslöhnen |
 | **annaeherung**, **quelle** | wie bei anderen Daten |
 
 ## umwelt

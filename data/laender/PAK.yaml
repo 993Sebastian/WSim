@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 873_773
     hauptstadt: {breite: 33.70, laenge: 73.16}
     binnenland: false
-    nachbarn: [AFG, CHN, IND, IRN]
+    nachbarn: [CHN, IND, IRN, XZA]
     staedte:
       - {id: karatschi, einwohner: 12_130_000, breite: 24.87, laenge: 66.99}
       - {id: lahore, einwohner: 6_577_000, breite: 31.56, laenge: 74.35}

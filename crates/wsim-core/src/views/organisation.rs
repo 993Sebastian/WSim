@@ -601,7 +601,7 @@ fn unit_view(game: &Game, unit: Unit) -> UnitOrgView {
             .sites
             .iter()
             .filter(|s| {
-                s.owner == player
+                s.held_by(player)
                     && match unit {
                         Unit::Continent(k) => c.countries.get(s.country).continent == k,
                         _ => true,
@@ -807,7 +807,7 @@ pub fn organisation(game: &Game) -> OrganisationView {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == player)
+        .filter(|(_, s)| s.held_by(player))
         // Few sites; the cast is exact.
         .map(|(i, _)| SiteId(i as u32))
         .collect();

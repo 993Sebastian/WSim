@@ -4,7 +4,7 @@
 
 lagerstaetten:
 - id: zucker_cub
-  land: CUB
+  land: XME
   rohstoff: zuckerpflanzen
   erneuerbar: true
   erschliessung:

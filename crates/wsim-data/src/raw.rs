@@ -55,6 +55,9 @@ pub struct RawCountry {
     pub neighbors: Vec<String>,
     #[serde(rename = "umfasst", default)]
     pub members: Vec<String>,
+    /// Codes of former regions that now lie in this entry (old saves read them as it).
+    #[serde(rename = "frueher", default)]
+    pub former: Vec<String>,
     #[serde(rename = "staedte", default)]
     pub cities: Vec<RawCity>,
     #[serde(rename = "werte")]
@@ -589,6 +592,11 @@ pub struct RawProductionModel {
     pub mothballing: RawMothballing,
     #[serde(rename = "verkauf")]
     pub facility_sale: RawFacilitySale,
+    #[serde(rename = "schliessung")]
+    pub closing: RawClosing,
+    /// Storage capacity, costs and spoilage; without it stocks are unlimited.
+    #[serde(rename = "lager", default)]
+    pub storage: Option<RawStorage>,
     #[serde(rename = "startformen")]
     pub start_setups: BTreeMap<String, RawStartSetup>,
     #[serde(rename = "anlagengroessen")]
@@ -631,6 +639,43 @@ pub struct RawFacilitySale {
     pub proceeds_share: f64,
     #[serde(rename = "schrottwert")]
     pub scrap_share: f64,
+}
+
+/// Storage of the sites (capacity, costs, spoilage).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStorage {
+    #[serde(rename = "mindestens_usd")]
+    pub minimum_usd: BTreeMap<String, f64>,
+    #[serde(rename = "tage")]
+    pub days: f64,
+    #[serde(rename = "ausbau")]
+    pub step: RawStorageStep,
+    #[serde(rename = "kosten_jahr_anteil")]
+    pub cost_share_year: f64,
+    #[serde(rename = "verderb", default)]
+    pub spoilage: BTreeMap<String, f64>,
+    #[serde(rename = "ki_ausbau_ab")]
+    pub ai_expand_at: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawStorageStep {
+    #[serde(rename = "kapazitaet_usd")]
+    pub capacity_usd: f64,
+    #[serde(rename = "kosten_usd")]
+    pub cost_usd: f64,
+}
+
+/// Closed sites.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawClosing {
+    #[serde(rename = "lager_erloes_anteil")]
+    pub stock_proceeds_share: f64,
+    #[serde(rename = "abfindung_monate")]
+    pub severance_months: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1907,10 +1952,51 @@ pub struct RawPerson {
     pub heirs: RawHeirs,
     #[serde(rename = "erbschaftsteuer")]
     pub inheritance_tax: RawCountrySeries,
+    #[serde(default, rename = "privatleben")]
+    pub private_life: Option<RawPrivateLife>,
     #[serde(default, rename = "annaeherung")]
     pub approximation: bool,
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
+}
+
+/// What the person can do privately: look for a partner, private schools, health care.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPrivateLife {
+    #[serde(rename = "partnersuche")]
+    pub partner: RawPartnerSearch,
+    #[serde(rename = "privatschule")]
+    pub school: RawPrivateSchool,
+    #[serde(rename = "vorsorge")]
+    pub care: RawHealthCare,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPartnerSearch {
+    #[serde(rename = "kosten_monat")]
+    pub cost: f64,
+    #[serde(rename = "chance_monat")]
+    pub chance: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawPrivateSchool {
+    #[serde(rename = "kosten_monat")]
+    pub cost: f64,
+    #[serde(rename = "ausbildung")]
+    pub education: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawHealthCare {
+    #[serde(rename = "kosten_monat")]
+    pub cost: f64,
+    #[serde(rename = "sterblichkeit")]
+    pub mortality: f64,
 }
 
 /// Heirs of the person (PE6).
@@ -2728,6 +2814,9 @@ pub struct RawLogistics {
     #[serde(rename = "risiko")]
     pub risk: RawFreightRisk,
     pub ki: RawLogisticsAi,
+    /// Internal supply by need: default and highest reach in days.
+    #[serde(rename = "nachschub")]
+    pub supply: RawSupplyDays,
     #[serde(rename = "annaeherung", default)]
     pub approximation: bool,
     #[serde(rename = "quelle", default)]
@@ -2768,6 +2857,15 @@ pub struct RawFreightRisk {
     pub land: RawSeries,
     #[serde(rename = "see")]
     pub sea: RawSeries,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSupplyDays {
+    #[serde(rename = "tage_standard")]
+    pub default: f64,
+    #[serde(rename = "tage_max")]
+    pub max: f64,
 }
 
 #[derive(Debug, Deserialize)]

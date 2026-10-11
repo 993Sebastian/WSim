@@ -486,6 +486,7 @@ impl Game {
             &self.catalog,
             today,
         ));
+        crate::supply::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
         report.messages.extend(research::simulate_day(
             &mut self.state,
@@ -527,6 +528,7 @@ impl Game {
             crate::private::pay_salary(&mut self.state, today);
             crate::central::month_end(&mut self.state, &self.catalog);
             crate::logistics::month_end(&mut self.state, &self.catalog, today);
+            crate::storage::month_end(&mut self.state, &self.catalog);
             report
                 .messages
                 .extend(crate::bonds::month_end(&mut self.state, today));
@@ -911,6 +913,10 @@ pub(crate) fn start_setup(
         acquired: None,
         goodwill: None,
         plot: None,
+        supplies: std::collections::BTreeMap::new(),
+        closed: None,
+        storage_steps: 0,
+        storage_full: false,
     });
     // The workshop leases its plot: the start capital pays only building and facilities.
     if crate::plots::needs_plot(catalog, setup.site_type) {

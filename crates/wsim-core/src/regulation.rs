@@ -214,7 +214,7 @@ pub(crate) fn retrofit(
         .sites
         .get(site.index())
         .ok_or(CommandError::UnknownSite)?;
-    if s.owner != actor {
+    if !s.held_by(actor) {
         return Err(CommandError::NotOwner);
     }
     if slot >= s.slots.len() {
@@ -263,7 +263,7 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
         let home: Vec<CountryId> = state
             .sites
             .iter()
-            .filter(|s| s.owner == main)
+            .filter(|s| s.held_by(main))
             .map(|s| s.country)
             .chain(state.company(main).map(|c| c.headquarters))
             .collect();
@@ -334,7 +334,10 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                 done += 1;
             }
         }
-        if done > 0 && state.is_main(owner) {
+        let company = state.news_of(owner);
+        if done > 0
+            && let Some(company) = company.clone()
+        {
             news.push(
                 Message::new(MessageKind::Info, keys::REGULATION_RETROFITTED)
                     .with(
@@ -345,10 +348,11 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                         "land",
                         Param::Country(catalog.countries.key(country).to_owned()),
                     )
-                    .with("anzahl", Param::Integer(i64::from(done))),
+                    .with("anzahl", Param::Integer(i64::from(done)))
+                    .of(company),
             );
         }
-        if state.is_main(owner)
+        if let Some(company) = company
             && let Some(deadline) = state.regulation.country(country).deadline
             && deadline <= date.add_months(12)
             && state.sites[i].slots.iter().any(|sl| {
@@ -367,7 +371,8 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
                         "land",
                         Param::Country(catalog.countries.key(country).to_owned()),
                     )
-                    .with("bis", Param::Date(deadline)),
+                    .with("bis", Param::Date(deadline))
+                    .of(company),
             );
         }
     }
@@ -477,7 +482,7 @@ pub fn antitrust(
             if group.contains(&s.owner) {
                 e[1] += o.sold_last_month;
             }
-            if s.owner == target {
+            if s.held_by(target) {
                 e[2] += o.sold_last_month;
             }
         }

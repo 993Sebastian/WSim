@@ -422,7 +422,7 @@ pub fn strategy(game: &Game) -> StrategyView {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == player)
+        .filter(|(_, s)| s.held_by(player))
         // Few sites; the cast is exact.
         .map(|(i, _)| SiteId(i as u32))
         .collect();

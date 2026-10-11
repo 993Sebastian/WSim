@@ -106,6 +106,8 @@ pub enum CostType {
     Investments,
     /// CO2 price of the emissions (H2).
     Environment,
+    /// Storage costs and spoiled goods.
+    Storage,
 }
 
 /// Where a cost arises; both parts optional.

@@ -10,6 +10,7 @@ use crate::command::CommandError;
 use crate::management;
 use crate::math;
 use crate::message::{Message, MessageKind, Param, keys};
+use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{
     Child, CompanyId, GameState, Holder, LifeEvent, LifeEventKind, Manager, ManagerId, Person,
@@ -198,6 +199,8 @@ pub(crate) fn start(state: &mut GameState, catalog: &Catalog, today: Date) {
             born: b,
             manager: None,
             died: None,
+            private_school: false,
+            school_days: 0,
         });
     }
     person.history.sort_by_key(|e| e.date);
@@ -284,6 +287,8 @@ fn births(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<M
         born: date,
         manager: None,
         died: None,
+        private_school: false,
+        school_days: 0,
     });
     person.history.push(LifeEvent {
         date,
@@ -297,6 +302,16 @@ fn births(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<M
                 Param::Integer(i64::try_from(person.children.len()).unwrap_or(0)),
             ),
     );
+}
+
+/// Points of a private school: its points for a whole childhood, by the share of the
+/// childhood spent there.
+fn school_bonus(catalog: &Catalog, child: &Child, card: Date) -> f64 {
+    let days = child.born.days_until(card);
+    if days <= 0 {
+        return 0.0;
+    }
+    catalog.person.private_life.school_education * f64::from(child.school_days) / f64::from(days)
 }
 
 /// Children of the card age get a manager card like a candidate of the market.
@@ -323,7 +338,8 @@ fn careers(state: &mut GameState, catalog: &Catalog, date: Date, news: &mut Vec<
         let mut rng = SimRng::for_stream(state.settings.seed, Stream::ManagerBirth { id: id.0 });
         let mut m = management::draw(catalog, &mut rng, state.person.home, &mut names);
         // Education by the lifestyle of the childhood (PE3).
-        let bonus = crate::private::education(catalog, &state.person, child.born, date);
+        let bonus = crate::private::education(catalog, &state.person, child.born, date)
+            + school_bonus(catalog, &child, date);
         let up = |v: u8| {
             // Within 0–100; the cast is exact.
             (f64::from(v) + bonus).round().clamp(0.0, 100.0) as u8
@@ -373,6 +389,8 @@ fn leadership(state: &mut GameState, date: Date, news: &mut Vec<Message>) {
         (Some(id), true) => {
             let to = state.managers[&id].name.clone();
             state.person.ceo = None;
+            // The CEO's pay ends; as owner the person sets a new one if it wants one.
+            state.person.salary = Money::ZERO;
             state.person.history.push(LifeEvent {
                 date,
                 kind: LifeEventKind::CeoHandedOver {

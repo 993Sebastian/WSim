@@ -84,7 +84,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: wallonien
-    land: BEL
+    land: NLD
     rohstoff: kohle
     vorrat: 2_000_000_000
     erschliessung: {investition_usd: 40_000_000, dauer_tage: 720}
@@ -93,7 +93,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ostrau_karwin
-    land: CZE
+    land: POL
     rohstoff: kohle
     vorrat: 3_000_000_000
     erschliessung: {investition_usd: 40_000_000, dauer_tage: 720}

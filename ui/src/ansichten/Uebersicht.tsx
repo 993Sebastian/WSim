@@ -12,6 +12,7 @@ import type { Etappe, Hinweis, Rang, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { Erklaerung } from "./gemeinsam";
 import { formatMonatKurz, Verlauf } from "./Grafik";
+import { standortName } from "./stellen";
 
 function Kennzahl({
   titel,
@@ -334,7 +335,7 @@ export function UebersichtAnsicht({
             {f.sites.length === 0 && <p>{t("uebersicht.keine_standorte")}</p>}
             <div className="karten-raster">
               {f.sites.map((s) => {
-                const titel = `${t(s.kind)} · ${landName(s.country)}`;
+                const titel = standortName(s.kind, s.country, s.name);
                 const produkte = [
                   ...new Set(s.facilities.map((a) => a.product).filter((p): p is string => !!p)),
                 ];

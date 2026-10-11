@@ -74,7 +74,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: milch_dnk
-  land: DNK
+  land: XNO
   rohstoff: milch
   erneuerbar: true
   erschliessung:
@@ -84,7 +84,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: milch_nzl
-  land: NZL
+  land: AUS
   rohstoff: milch
   erneuerbar: true
   erschliessung:

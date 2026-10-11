@@ -21,6 +21,7 @@ mod play;
 mod review;
 mod stock;
 mod strategy;
+mod supply;
 mod ventures;
 pub use bank::*;
 pub use central::*;
@@ -41,6 +42,7 @@ pub use play::*;
 pub use review::*;
 pub use stock::*;
 pub use strategy::*;
+pub use supply::*;
 pub use ventures::*;
 
 use serde::{Deserialize, Serialize};
@@ -363,6 +365,9 @@ pub(crate) fn stock_views(
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SiteView {
     pub index: u32,
+    /// The owner's name for the site.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     pub country: String,
     pub kind: String,
     pub deposit: Option<String>,
@@ -582,9 +587,10 @@ fn company_view(game: &Game) -> Option<CompanyView> {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == player)
+        .filter(|(_, s)| s.held_by(player))
         .map(|(i, s)| SiteView {
             index: u32::try_from(i).unwrap_or(u32::MAX),
+            name: s.name.clone(),
             country: catalog.countries.key(s.country).to_owned(),
             kind: site_type_key(s.kind),
             deposit: s.deposit.map(|d| catalog.deposits.key(d).to_owned()),
@@ -755,7 +761,7 @@ pub fn message_view(message: &Message) -> MessageView {
         MessageKind::Stock => "stock",
         MessageKind::Error => "error",
     };
-    let params = message
+    let mut params: BTreeMap<String, ParamView> = message
         .params
         .iter()
         .map(|(name, p)| {
@@ -773,8 +779,14 @@ pub fn message_view(message: &Message) -> MessageView {
             (name.clone(), v)
         })
         .collect();
+    // Messages about another company of the person name it (key `firma_betroffen`).
+    if let Some(c) = &message.company {
+        params.insert("firma_betroffen".to_owned(), ParamView::Text(c.clone()));
+    }
     // The view where the player can act on the message.
-    let target = if message.key == crate::message::keys::INPUT_MISSING {
+    let target = if message.key == crate::message::keys::INPUT_MISSING
+        || message.key == crate::message::keys::STORAGE_FULL
+    {
         Some("produktion")
     } else if [
         crate::message::keys::MILESTONE,
@@ -860,6 +872,16 @@ pub struct Snapshot {
     years_closed: usize,
     /// Units made and sold so far by the main company's sites, by site and product.
     site_totals: BTreeMap<(usize, crate::ids::ProductId), crate::state::SiteTotals>,
+    /// Every company the person controls: cash, the running year and the years closed.
+    companies: Vec<CompanySnapshot>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+struct CompanySnapshot {
+    company: crate::state::CompanyId,
+    cash: Money,
+    year: BTreeMap<CostType, Money>,
+    years_closed: usize,
 }
 
 fn site_totals(
@@ -1038,6 +1060,18 @@ pub fn snapshot(game: &Game) -> Snapshot {
         products: product_totals(&ledger.year),
         years_closed: ledger.years.len(),
         site_totals: site_totals(state),
+        companies: crate::private::controlled(state)
+            .into_iter()
+            .map(|c| {
+                let l = &state.companies[c.index()].ledger;
+                CompanySnapshot {
+                    company: c,
+                    cash: l.cash(),
+                    year: l.year.by_type.clone(),
+                    years_closed: l.years.len(),
+                }
+            })
+            .collect(),
     }
 }
 
@@ -1059,8 +1093,18 @@ fn period(game: &Game, before: &Snapshot) -> PeriodView {
     let state = game.state();
     let empty = crate::ledger::Ledger::new(state.date, Money::ZERO);
     let ledger = main_ledger(state).unwrap_or(&empty);
+    period_of(ledger, before.years_closed, &before.year)
+}
+
+/// What a ledger booked since a snapshot: the years closed since and the running year,
+/// less the running year at the snapshot.
+fn period_of(
+    ledger: &crate::ledger::Ledger,
+    years_closed: usize,
+    year_before: &BTreeMap<CostType, Money>,
+) -> PeriodView {
     let mut sums: BTreeMap<CostType, Money> = BTreeMap::new();
-    let closed = ledger.years.get(before.years_closed..).unwrap_or_default();
+    let closed = ledger.years.get(years_closed..).unwrap_or_default();
     for year in closed
         .iter()
         .map(|y| &y.by_type)
@@ -1071,7 +1115,7 @@ fn period(game: &Game, before: &Snapshot) -> PeriodView {
         }
     }
     // The year running at the start of the round already held these amounts.
-    for (&t, &m) in &before.year {
+    for (&t, &m) in year_before {
         *sums.entry(t).or_insert(Money::ZERO) -= m;
     }
     let get = |t: CostType| sums.get(&t).copied().unwrap_or(Money::ZERO);
@@ -1091,6 +1135,42 @@ fn period(game: &Game, before: &Snapshot) -> PeriodView {
     }
 }
 
+/// A company of the person in the round report: its result in the round and its cash.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CompanyRoundView {
+    pub company: u32,
+    pub name: String,
+    /// The main company the views show.
+    pub main: bool,
+    pub revenue_usd: f64,
+    pub result_usd: f64,
+    pub cash_before_usd: f64,
+    pub cash_after_usd: f64,
+}
+
+/// The round of every company the person controlled at its start and still controls.
+fn round_companies(game: &Game, before: &Snapshot) -> Vec<CompanyRoundView> {
+    let state = game.state();
+    before
+        .companies
+        .iter()
+        .filter(|b| crate::private::is_controlled(state, b.company))
+        .map(|b| {
+            let c = &state.companies[b.company.index()];
+            let p = period_of(&c.ledger, b.years_closed, &b.year);
+            CompanyRoundView {
+                company: b.company.0,
+                name: c.name.clone(),
+                main: state.is_main(b.company),
+                revenue_usd: p.revenue_usd,
+                result_usd: p.result_usd,
+                cash_before_usd: usd(b.cash),
+                cash_after_usd: usd(c.ledger.cash()),
+            }
+        })
+        .collect()
+}
+
 /// A research project of the player.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ResearchView {
@@ -1107,7 +1187,7 @@ fn research_projects(game: &Game) -> Vec<ResearchView> {
     };
     let company = &state.companies[main.index()];
     let mut projects: Vec<ResearchView> = Vec::new();
-    for s in state.sites.iter().filter(|s| s.owner == main) {
+    for s in state.sites.iter().filter(|s| s.held_by(main)) {
         let Some(t) = s.research else { continue };
         if projects
             .iter()
@@ -1157,6 +1237,9 @@ pub struct RoundReportView {
     /// Units made and sold, by continent, country, site and product.
     #[serde(default)]
     pub quantities: Option<QuantityNode>,
+    /// Every company the person controls (more than one: a table in the report).
+    #[serde(default)]
+    pub companies: Vec<CompanyRoundView>,
 }
 
 fn one() -> u32 {
@@ -1218,6 +1301,7 @@ pub fn round_report(game: &Game, report: &RoundReport, before: &Snapshot) -> Rou
         rounds: 1,
         stop: None,
         quantities: round_quantities(game, before),
+        companies: round_companies(game, before),
     }
 }
 
@@ -1577,7 +1661,11 @@ pub fn country_detail(game: &Game, key: &str) -> Option<CountryDetail> {
         })
         .collect();
     let mut sites: BTreeMap<usize, u32> = BTreeMap::new();
-    for s in state.sites.iter().filter(|s| s.country == id) {
+    for s in state
+        .sites
+        .iter()
+        .filter(|s| s.country == id && s.closed.is_none())
+    {
         if !state.companies[s.owner.index()].bankrupt {
             *sites.entry(s.owner.index()).or_default() += 1;
         }

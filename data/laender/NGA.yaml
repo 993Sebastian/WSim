@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 911_553
     hauptstadt: {breite: 9.09, laenge: 7.53}
     binnenland: false
-    nachbarn: [CMR, NER, XMA, XTB]
+    nachbarn: [COD, XWA]
     staedte:
       - {id: lagos, einwohner: 9_466_000, breite: 6.45, laenge: 3.39}
       - {id: kano, einwohner: 3_140_000, breite: 12.00, laenge: 8.52}

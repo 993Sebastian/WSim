@@ -128,7 +128,18 @@ fn played_game_1900_to_1905() {
     let production = session.production().unwrap();
     let slot = &production.sites[0].slots[1];
     assert_eq!(slot.count, 2);
-    assert!(slot.made_per_day > 0.0, "{slot:?}");
+    // Nails the market does not take at the floor price fill the store; then the machines
+    // stand until it empties (docs/FORMELN.md, Lager).
+    let full = production.sites[0].storage.as_ref().is_some_and(|l| l.full);
+    assert!(
+        slot.made_per_day > 0.0
+            || (full
+                && slot
+                    .cause
+                    .as_ref()
+                    .is_some_and(|c| c.key == "ursache.lager_voll")),
+        "{slot:?}"
+    );
     let finance = session.finance().unwrap();
     assert_eq!(finance.loans.len(), 1);
     assert!(finance.loans[0].balance_usd < finance.loans[0].principal_usd);

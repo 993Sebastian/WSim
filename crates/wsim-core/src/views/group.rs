@@ -125,7 +125,7 @@ pub fn group(game: &Game) -> GroupView {
                 paid_in_usd: usd(l.balance(Account::Equity)),
                 revenue_year_usd: usd(revenue_of_year(company)),
                 result_year_usd: usd(l.balance(Account::Result)),
-                sites: u32::try_from(state.sites.iter().filter(|s| s.owner == c).count())
+                sites: u32::try_from(state.sites.iter().filter(|s| s.held_by(c)).count())
                     .unwrap_or(u32::MAX),
                 vehicles: company.logistics.fleet.iter().map(|h| h.count).sum(),
                 payout_max_usd: usd((profit + capital).min(l.cash().max(Money::ZERO))),
@@ -143,7 +143,7 @@ pub fn group(game: &Game) -> GroupView {
             .sites
             .iter()
             .enumerate()
-            .filter(|(_, s)| movable(s.owner))
+            .filter(|(_, s)| s.closed.is_none() && movable(s.owner))
             .map(|(i, s)| {
                 let site = SiteId(u32::try_from(i).expect("site count fits u32"));
                 let v = crate::deals::site_value(state, catalog, site);

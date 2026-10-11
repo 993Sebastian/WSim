@@ -14,7 +14,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: tee_lka
-  land: LKA
+  land: IND
   rohstoff: teeblaetter
   erneuerbar: true
   erschliessung:
@@ -54,7 +54,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: tee_ken
-  land: KEN
+  land: XOA
   rohstoff: teeblaetter
   erneuerbar: true
   erschliessung:

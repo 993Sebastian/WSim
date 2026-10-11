@@ -13,7 +13,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: nickel_ncl
-  land: XOZ
+  land: AUS
   rohstoff: nickelerz
   vorrat: 2000000
   erschliessung:
@@ -63,7 +63,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: nickel_cub
-  land: CUB
+  land: XME
   rohstoff: nickelerz
   vorrat: 800000
   erschliessung:
@@ -73,7 +73,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: nickel_zaf
-  land: ZAF
+  land: XSA
   rohstoff: nickelerz
   vorrat: 800000
   erschliessung:
@@ -93,7 +93,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: nickel_fin
-  land: FIN
+  land: XNO
   rohstoff: nickelerz
   vorrat: 500000
   erschliessung:

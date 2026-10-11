@@ -1011,6 +1011,10 @@ fn found_company(
             acquired: None,
             goodwill: None,
             plot: None,
+            supplies: std::collections::BTreeMap::new(),
+            closed: None,
+            storage_steps: 0,
+            storage_full: false,
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);

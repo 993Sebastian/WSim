@@ -7,15 +7,15 @@ erfinder:
   - {technologie: elektrostahl, name: Paul Héroult, land: FRA, quelle: Technikgeschichte}
   - {technologie: turbogenerator, name: Charles Parsons, land: GBR, quelle: Technikgeschichte}
   - {technologie: viskoseverfahren, name: Charles Frederick Cross, land: GBR, quelle: Technikgeschichte}
-  - {technologie: wolframgluehlampe, name: Alexander Just, land: HUN, quelle: Technikgeschichte}
+  - {technologie: wolframgluehlampe, name: Alexander Just, land: POL, quelle: Technikgeschichte}
   - {technologie: phenolharz, name: Leo Baekeland, land: USA, quelle: Technikgeschichte}
   - {technologie: staubsauger, name: James Murray Spangler, land: USA, quelle: Technikgeschichte}
   - {technologie: flugmotor, name: Laurent Seguin, land: FRA, quelle: Technikgeschichte}
-  - {technologie: elektronenroehre, name: Robert von Lieben, land: AUT, quelle: Technikgeschichte}
+  - {technologie: elektronenroehre, name: Robert von Lieben, land: XAL, quelle: Technikgeschichte}
   - {technologie: thermisches_cracken, name: William Burton, land: USA, quelle: Technikgeschichte}
   - {technologie: haber_bosch, name: Fritz Haber, land: DEU, quelle: Technikgeschichte}
   - {technologie: ganzstahlkarosserie, name: Edward Budd, land: USA, quelle: Technikgeschichte}
-  - {technologie: kompressionskuehlschrank, name: Baltzar von Platen, land: SWE, quelle: Technikgeschichte}
+  - {technologie: kompressionskuehlschrank, name: Baltzar von Platen, land: XNO, quelle: Technikgeschichte}
   - {technologie: rundfunk, name: Frank Conrad, land: USA, quelle: Technikgeschichte}
   - {technologie: bildroehre, name: Manfred von Ardenne, land: DEU, quelle: Technikgeschichte}
   - {technologie: waschvollautomat, name: John Chamberlain, land: USA, quelle: Technikgeschichte}

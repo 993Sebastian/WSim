@@ -4,7 +4,8 @@ use std::collections::BTreeMap;
 
 use wsim_core::catalog::{
     Catalog, DevelopmentModel, FacilitySize, FleetVehicle, PatentModel, ProductionModel,
-    ResearchModel, SiteType, SizeModel, StartSetup, TrainingModel, TransportModel, Vehicle, Way,
+    ResearchModel, SiteType, SizeModel, StartSetup, StorageModel, TrainingModel, TransportModel,
+    Vehicle, Way,
 };
 use wsim_core::ids::{BranchId, Id, QualificationId, SpecializationId};
 use wsim_core::state::StartForm;
@@ -59,7 +60,7 @@ pub(super) const SITE_TYPES: &[(&str, SiteType)] = &[
 pub(super) fn production_model(
     ctx: &mut Ctx,
     raw: &RawData,
-    (products, facilities, recipes): (&Keys, &Keys, &Keys),
+    (products, facilities, recipes, groups): (&Keys, &Keys, &Keys, &Keys),
 ) -> ProductionModel {
     let Some(entry) = single(
         ctx,
@@ -244,8 +245,80 @@ pub(super) fn production_model(
             1.0,
             &l.field("verkauf").field("schrottwert"),
         ),
+        close_stock_share: in_range(
+            ctx,
+            m.closing.stock_proceeds_share,
+            0.0,
+            1.0,
+            &l.field("schliessung").field("lager_erloes_anteil"),
+        ),
+        severance_months: in_range(
+            ctx,
+            m.closing.severance_months,
+            0.0,
+            36.0,
+            &l.field("schliessung").field("abfindung_monate"),
+        ),
+        storage: m
+            .storage
+            .as_ref()
+            .map(|v| storage(ctx, v, &l.field("lager"), groups))
+            .unwrap_or_default(),
         start_setups: start_setups(ctx, m, l, (products, facilities, recipes)),
         sizes: sizes(ctx, &m.sizes, &l.field("anlagengroessen")),
+    }
+}
+
+/// Storage of the sites: a minimum for every site type, positive steps, shares in range.
+fn storage(ctx: &mut Ctx, v: &crate::raw::RawStorage, l: &Loc, groups: &Keys) -> StorageModel {
+    let ml = l.field("mindestens_usd");
+    let names: Vec<&str> = SITE_TYPES.iter().map(|(n, _)| *n).collect();
+    let mut minimum = Vec::new();
+    for (key, &usd) in &v.minimum_usd {
+        match SITE_TYPES.iter().find(|(n, _)| n == key) {
+            Some(&(_, kind)) => minimum.push((kind, money(ctx, usd, &ml.field(key)))),
+            None => ctx.error(
+                &ml.key(key),
+                messages::unknown_value(key, &names, suggest::closest(key, names.iter().copied())),
+            ),
+        }
+    }
+    for (name, _) in SITE_TYPES {
+        if !v.minimum_usd.contains_key(*name) {
+            ctx.error(&ml, messages::entry_missing("Standorttyp", name));
+        }
+    }
+    let sl = l.field("verderb");
+    let spoilage = v
+        .spoilage
+        .iter()
+        .map(|(key, &share)| {
+            (
+                super::resolve(ctx, groups, key, &sl.key(key)),
+                in_range(ctx, share, 0.0, 1.0, &sl.field(key)),
+            )
+        })
+        .collect();
+    let step = l.field("ausbau");
+    StorageModel {
+        enabled: true,
+        minimum,
+        days: positive(ctx, v.days, &l.field("tage")),
+        step_capacity: {
+            let at = step.field("kapazitaet_usd");
+            positive(ctx, v.step.capacity_usd, &at);
+            money(ctx, v.step.capacity_usd, &at)
+        },
+        step_cost: money(ctx, v.step.cost_usd, &step.field("kosten_usd")),
+        cost_share_year: in_range(
+            ctx,
+            v.cost_share_year,
+            0.0,
+            1.0,
+            &l.field("kosten_jahr_anteil"),
+        ),
+        spoilage,
+        ai_expand_at: in_range(ctx, v.ai_expand_at, 0.0, 1.0, &l.field("ki_ausbau_ab")),
     }
 }
 

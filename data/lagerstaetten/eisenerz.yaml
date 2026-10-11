@@ -3,7 +3,7 @@
 
 lagerstaetten:
   - id: kiruna_malmberget
-    land: SWE
+    land: XNO
     rohstoff: eisenerz
     vorrat: 3_000_000_000
     entdeckt: 1696
@@ -88,7 +88,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: steirischer_erzberg
-    land: AUT
+    land: XAL
     rohstoff: eisenerz
     vorrat: 200_000_000
     erschliessung: {investition_usd: 20_000_000, dauer_tage: 540}
@@ -165,7 +165,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: sishen   # Nordkap, Förderung ab 1953
-    land: ZAF
+    land: XSA
     rohstoff: eisenerz
     vorrat: 1_500_000_000
     entdeckt: 1940
@@ -174,7 +174,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: cerro_bolivar   # Orinoco, US Steel ab 1954
-    land: VEN
+    land: COL
     rohstoff: eisenerz
     vorrat: 800_000_000
     entdeckt: 1947

@@ -106,6 +106,7 @@ pub(super) fn country(
         landlocked: v.landlocked,
         neighbors,
         members: v.members.clone(),
+        former: v.former.clone(),
         cities,
         values: CountryValues {
             population: time_series(ctx, &v.values.population, &values.field("bevoelkerung")),
@@ -237,6 +238,20 @@ pub(super) fn check_regions(
                     ctx.error(&loc, messages::text_missing(&text_key, crate::LANGUAGE));
                 }
                 members.insert(member, loc);
+            }
+        }
+        let list = e.loc.field("frueher");
+        for (i, code) in v.former.iter().enumerate() {
+            let loc = list.index(i);
+            if !super::is_country_code(code) {
+                ctx.error(&loc, messages::invalid_country_code(code));
+            } else if countries.index.contains_key(code) {
+                ctx.error(&loc, messages::region_member_is_country(code, &v.id));
+            } else if let Some(first) = members.get(code.as_str()) {
+                let first = ctx.describe(first);
+                ctx.error(&loc, messages::region_member_twice(code, &first));
+            } else {
+                members.insert(code, loc);
             }
         }
     }

@@ -295,6 +295,23 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
         let product_key = || Param::TextKey(format!("produkt.{}", catalog.products.key(product)));
         // A successor model (B1): AI companies rename, the player gets a suggestion.
         let successor = crate::product_names::successor(catalog, state, company, product);
+        if let Some(of) = state.news_of(company)
+            && !state.is_main(company)
+        {
+            messages.push(
+                Message::new(
+                    MessageKind::Success,
+                    if top {
+                        keys::DEVELOPMENT_TOP
+                    } else {
+                        keys::DEVELOPMENT_DONE
+                    },
+                )
+                .with("produkt", product_key())
+                .with("stufe", Param::Integer(i64::from(next)))
+                .of(of),
+            );
+        }
         if state.is_main(company) {
             let key = if top {
                 keys::DEVELOPMENT_TOP

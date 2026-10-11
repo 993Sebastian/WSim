@@ -435,7 +435,7 @@ pub fn monthly_cost(catalog: &Catalog, state: &GameState, company: CompanyId) ->
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == company)
+        .filter(|(_, s)| s.held_by(company))
         // Few sites; the cast is exact.
         .map(|(i, _)| SiteId(i as u32))
         .collect();
@@ -459,7 +459,7 @@ pub(crate) fn set(
             .sites
             .get(site.index())
             .ok_or(CommandError::UnknownSite)?;
-        if s.owner != company {
+        if !s.held_by(company) {
             return Err(CommandError::NotOwner);
         }
     }

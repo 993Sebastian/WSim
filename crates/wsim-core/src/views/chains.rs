@@ -67,7 +67,7 @@ pub struct ChainRecipe {
     pub margin: Option<f64>,
 }
 
-fn kind_key(kind: ProductKind) -> &'static str {
+pub(super) fn kind_key(kind: ProductKind) -> &'static str {
     match kind {
         ProductKind::RawMaterial => "rohstoff",
         ProductKind::SemiFinished => "halbzeug",
@@ -110,7 +110,7 @@ pub fn chains(game: &Game) -> ChainsView {
     let mut buys = BTreeSet::new();
     let mut sells = BTreeSet::new();
     let mut stuck: BTreeMap<ProductId, Vec<(String, Option<String>)>> = BTreeMap::new();
-    for s in state.sites.iter().filter(|s| s.owner == player) {
+    for s in state.sites.iter().filter(|s| s.held_by(player)) {
         buys.extend(s.orders.keys().copied());
         sells.extend(s.offers.keys().copied());
         for sl in s.slots.iter().filter(|sl| sl.operating(state.date)) {
@@ -126,6 +126,7 @@ pub fn chains(game: &Game) -> ChainsView {
                 Some(Limit::Event) => ("ereignis", None),
                 Some(Limit::Regulation) => ("regulierung", None),
                 Some(Limit::Patent) => ("patent", None),
+                Some(Limit::Storage) => ("lager_voll", None),
                 None => continue,
             };
             let list = stuck.entry(r.product).or_default();

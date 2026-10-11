@@ -31,7 +31,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: amazonas_bolivien
-    land: BOL
+    land: PER
     rohstoff: kautschuk
     erneuerbar: true
     erschliessung: {investition_usd: 2_000_000, dauer_tage: 360}
@@ -60,7 +60,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ceylon_plantagen
-    land: LKA
+    land: IND
     rohstoff: kautschuk
     erneuerbar: true
     entdeckt: 1905

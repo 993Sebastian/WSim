@@ -26,8 +26,8 @@ use wsim_core::views::{
     ContractPartnersView, ContractsView, ControllingView, CountryDetail, FinanceView, GroupView,
     LogisticsView, ManagerMarketView, MarketView, MessageView, NewGameOptions, OffersView,
     OrganisationView, Overview, PersonView, ProductMarketView, ProductionView, ResearchOverview,
-    ReviewsView, RoundReportView, StockMarketView, StrategyView, SupplySourcesView, VenturesView,
-    WorldMap, WorldMarketView,
+    ReviewsView, RoundReportView, StockMarketView, StrategyView, SupplySiteView, SupplySourcesView,
+    VenturesView, WorldMap, WorldMarketView,
 };
 
 /// File extension of saves.
@@ -465,6 +465,26 @@ impl<S: SaveStore> Session<S> {
         product: &str,
     ) -> Result<SupplySourcesView, MessageView> {
         self.company_view(|g| views::supply_sources(g, site, product))?
+            .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
+    }
+
+    /// Sites of the company and group an own site can draw a product from (W5).
+    pub fn internal_sources(
+        &self,
+        site: u32,
+        product: &str,
+    ) -> Result<Vec<SupplySiteView>, MessageView> {
+        self.company_view(|g| views::internal_sources(g, site, product))?
+            .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
+    }
+
+    /// Own sites an own site can send a product to (W5).
+    pub fn transfer_targets(
+        &self,
+        site: u32,
+        product: &str,
+    ) -> Result<Vec<SupplySiteView>, MessageView> {
+        self.company_view(|g| views::transfer_targets(g, site, product))?
             .ok_or_else(|| error(keys::UNKNOWN_PRODUCT))
     }
 

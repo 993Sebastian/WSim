@@ -46,7 +46,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ferghana   # Russisch-Turkestan
-    land: UZB
+    land: XZA
     rohstoff: baumwolle
     erneuerbar: true
     erschliessung: {investition_usd: 8_000_000, dauer_tage: 240}
@@ -64,7 +64,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: gezira   # Bewässerung ab 1925
-    land: SDN
+    land: ETH
     rohstoff: baumwolle
     erneuerbar: true
     entdeckt: 1925

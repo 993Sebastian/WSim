@@ -2840,3 +2840,17 @@ details.mengen > summary {
 details.mengen details.mengen {
   margin-left: 1rem;
 }
+
+/* Sortable tables (sortieren.ts): every head sorts its column. */
+th[data-sortierbar] {
+  cursor: pointer;
+  user-select: none;
+}
+th[aria-sort="ascending"]::after {
+  content: " ▲";
+  font-size: 0.75em;
+}
+th[aria-sort="descending"]::after {
+  content: " ▼";
+  font-size: 0.75em;
+}

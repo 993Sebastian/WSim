@@ -1355,6 +1355,8 @@ pub enum Limit {
     Regulation,
     /// A patent of another company in the country (P7).
     Patent,
+    /// The site's store is full.
+    Storage,
 }
 
 /// Units a site made and sold of a product since it was founded (for the reports).
@@ -1420,6 +1422,25 @@ pub struct Site {
     /// The plot the site stands on (M35); none for extraction sites.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plot: Option<PlotId>,
+    /// Products the site draws from other sites of its company or group.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub supplies: BTreeMap<ProductId, crate::supply::InternalSupply>,
+    /// Day the owner closed the site; a closed site is empty and counts for nothing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub closed: Option<Date>,
+    /// Expansion steps of the site's store.
+    #[serde(default, skip_serializing_if = "is_zero_steps")]
+    pub storage_steps: u32,
+    /// The store was full at the start of the day: facilities stop, orders do not buy.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub storage_full: bool,
+}
+
+impl Site {
+    /// Whether the site is open and belongs to the company.
+    pub fn held_by(&self, company: CompanyId) -> bool {
+        self.owner == company && self.closed.is_none()
+    }
 }
 
 /// Goodwill of a bought site: written off linearly from the day of purchase (M30).
@@ -1951,6 +1972,20 @@ pub struct Person {
     /// The persons before, the earliest first (PE6).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub ancestors: Vec<Ancestor>,
+    /// Looks for a partner while unmarried.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub seeking_partner: bool,
+    /// Pays for health care.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub health_care: bool,
+}
+
+fn is_zero_steps(n: &u32) -> bool {
+    *n == 0
+}
+
+fn is_false(b: &bool) -> bool {
+    !*b
 }
 
 /// A person who played before the current one (PE6).
@@ -1981,6 +2016,8 @@ impl Default for Person {
             venture_basis: BTreeMap::new(),
             heir: None,
             ancestors: Vec::new(),
+            seeking_partner: false,
+            health_care: false,
         }
     }
 }
@@ -2026,6 +2063,8 @@ pub enum PrivateFlow {
     GainTax,
     /// Inheritance or gift tax (PE6).
     InheritanceTax,
+    /// Partner search, private schools, health care.
+    Family,
 }
 
 /// The person's money (PE3): a balance that never goes below zero and its movements by
@@ -2077,6 +2116,15 @@ pub struct Child {
     pub manager: Option<ManagerId>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub died: Option<Date>,
+    /// At a private school now; the days spent there so far.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub private_school: bool,
+    #[serde(default, skip_serializing_if = "is_zero_days")]
+    pub school_days: u32,
+}
+
+fn is_zero_days(d: &u32) -> bool {
+    *d == 0
 }
 
 /// An entry of the person's chronicle (PE2).
@@ -2179,6 +2227,18 @@ impl GameState {
         self.main_company == Some(company)
     }
 
+    /// Whether the player hears of what happens to a company: the main company and the
+    /// others the person controls. The name of a company that is not the main one.
+    pub fn news_of(&self, company: CompanyId) -> Option<Option<String>> {
+        if self.is_main(company) {
+            Some(None)
+        } else if self.main_company.is_some() && crate::private::is_controlled(self, company) {
+            Some(Some(self.companies[company.index()].name.clone()))
+        } else {
+            None
+        }
+    }
+
     /// The main company in tests that found it at the start.
     #[cfg(test)]
     pub(crate) fn player(&self) -> CompanyId {
@@ -2192,12 +2252,15 @@ impl GameState {
         self.companies.get_mut(id.index())
     }
 
+    /// An open site; closed ones are gone for commands and views.
     pub fn site(&self, id: SiteId) -> Option<&Site> {
-        self.sites.get(id.index())
+        self.sites.get(id.index()).filter(|s| s.closed.is_none())
     }
 
     pub fn site_mut(&mut self, id: SiteId) -> Option<&mut Site> {
-        self.sites.get_mut(id.index())
+        self.sites
+            .get_mut(id.index())
+            .filter(|s| s.closed.is_none())
     }
 
     /// Whether a company may use a technology: known to everyone at the start of the

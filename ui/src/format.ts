@@ -233,5 +233,8 @@ export function meldungText(m: Meldung): string {
   const parameter = Object.fromEntries(
     Object.entries(m.params).map(([name, p]) => [name, parameterText(p)]),
   );
-  return t(m.key, parameter);
+  const text = t(m.key, parameter);
+  // Messages about another company of the person name it first.
+  const firma = m.params.firma_betroffen;
+  return firma ? `${parameterText(firma)}: ${text}` : text;
 }

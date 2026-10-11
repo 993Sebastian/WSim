@@ -1067,7 +1067,7 @@ fn next_position(
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == company)
+        .filter(|(_, s)| s.held_by(company))
         // Few sites; the cast is exact.
         .map(|(i, _)| SiteId(i as u32))
         .map(|s| (s, revenue(state, company, Some(s))))

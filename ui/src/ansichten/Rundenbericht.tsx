@@ -205,6 +205,46 @@ export function RundenberichtDialog({
       <h3>{t("bericht.finanzergebnis")}</h3>
       <Ergebnis periode={bericht.period} vorher={bericht.previous} />
 
+      {(bericht.companies?.length ?? 0) > 1 && (
+        <>
+          <h3>{t("bericht.firmen")}</h3>
+          <div className="tabelle">
+            <table className="mobil-karten" aria-label={t("bericht.firmen")}>
+              <thead>
+                <tr>
+                  <th scope="col">{t("bericht.firma")}</th>
+                  <th scope="col">{t("bericht.umsatz")}</th>
+                  <th scope="col">{t("bericht.ergebnis")}</th>
+                  <th scope="col">{t("bericht.kasse")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bericht.companies?.map((f) => (
+                  <tr key={f.company}>
+                    <th scope="row" data-spalte={t("bericht.firma")}>
+                      {f.name}
+                      {f.main && <small className="gedaempft"> ({t("bericht.hauptfirma")})</small>}
+                    </th>
+                    <td className="zahl" data-spalte={t("bericht.umsatz")}>
+                      {formatGeld(f.revenue_usd)}
+                    </td>
+                    <td
+                      className={f.result_usd < 0 ? "zahl negativ" : "zahl"}
+                      data-spalte={t("bericht.ergebnis")}
+                    >
+                      {formatGeld(f.result_usd)}
+                    </td>
+                    <td className="zahl" data-spalte={t("bericht.kasse")}>
+                      {formatGeld(f.cash_after_usd)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
       <div data-tour="was-lief">
         <h3>{t("bericht.was_lief")}</h3>
         {bericht.products.length === 0 ? (

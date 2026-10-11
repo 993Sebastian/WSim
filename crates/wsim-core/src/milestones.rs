@@ -68,7 +68,7 @@ pub fn reached(
 /// Progress towards a condition that has a measure; `None` for yes-or-no conditions.
 pub fn progress(state: &GameState, condition: MilestoneCondition, date: Date) -> Option<Progress> {
     let player = state.main_company?;
-    let own = || state.sites.iter().filter(move |s| s.owner == player);
+    let own = || state.sites.iter().filter(move |s| s.held_by(player));
     let (current, target) = match condition {
         MilestoneCondition::Facilities(n) => {
             let units: u32 = own()
@@ -116,7 +116,7 @@ fn own_input(state: &GameState, catalog: &Catalog, player: CompanyId, date: Date
     let running: Vec<_> = state
         .sites
         .iter()
-        .filter(|s| s.owner == player && s.kind != SiteType::ResearchCenter)
+        .filter(|s| s.held_by(player) && s.kind != SiteType::ResearchCenter)
         .flat_map(|s| &s.slots)
         .filter(|sl| sl.operating(date))
         .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r)))
@@ -135,7 +135,7 @@ fn best_lead(state: &GameState, player: CompanyId) -> f64 {
     let markets: Vec<(ProductId, CountryId)> = state
         .sites
         .iter()
-        .filter(|s| s.owner == player)
+        .filter(|s| s.held_by(player))
         .flat_map(|s| s.offers.keys().map(move |&p| (p, s.country)))
         .collect();
     for (product, country) in markets {

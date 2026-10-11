@@ -242,10 +242,81 @@ pub struct DepositOption {
     pub output_per_year: f64,
 }
 
+/// What closing a site brings and costs today (docs/FORMELN.md, Standort schließen).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ClosingView {
+    pub facilities_usd: f64,
+    pub building_usd: f64,
+    pub land_usd: f64,
+    pub stock_usd: f64,
+    pub proceeds_usd: f64,
+    /// Book values written off.
+    pub book_usd: f64,
+    pub severance_usd: f64,
+    /// Proceeds less book values and severance.
+    pub result_usd: f64,
+    /// Why the site cannot be closed now.
+    pub blocker: Option<crate::message::Message>,
+}
+
+/// The store of a site (docs/FORMELN.md, Lager): values at reference prices.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StorageView {
+    pub capacity_usd: f64,
+    pub fill_usd: f64,
+    /// Fill as share of the capacity.
+    pub share: f64,
+    pub full: bool,
+    pub steps: u32,
+    pub step_capacity_usd: f64,
+    pub step_cost_usd: f64,
+    pub cost_per_day_usd: f64,
+}
+
+fn storage_view(game: &Game, site: &crate::state::Site) -> Option<StorageView> {
+    let catalog = game.catalog();
+    let capacity = crate::storage::capacity(catalog, site)?;
+    let fill = crate::storage::fill(catalog, site);
+    let m = &catalog.production_model.storage;
+    Some(StorageView {
+        capacity_usd: usd(capacity),
+        fill_usd: usd(fill),
+        share: if capacity > Money::ZERO {
+            fill.to_usd() / capacity.to_usd()
+        } else {
+            0.0
+        },
+        full: crate::storage::is_full(catalog, site),
+        steps: site.storage_steps,
+        step_capacity_usd: usd(m.step_capacity),
+        step_cost_usd: usd(m.step_cost),
+        cost_per_day_usd: usd(crate::storage::daily_cost(catalog, site)),
+    })
+}
+
+fn closing_view(game: &Game, site: crate::state::SiteId) -> ClosingView {
+    let (state, catalog) = (game.state(), game.catalog());
+    let c = crate::closing::value(state, catalog, site);
+    ClosingView {
+        facilities_usd: usd(c.facilities),
+        building_usd: usd(c.building),
+        land_usd: usd(c.land),
+        stock_usd: usd(c.stock),
+        proceeds_usd: usd(c.proceeds()),
+        book_usd: usd(c.book),
+        severance_usd: usd(c.severance),
+        result_usd: usd(c.result()),
+        blocker: crate::closing::blocker(state, catalog, site).map(|e| e.message()),
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SiteDetail {
     pub index: u32,
     pub country: String,
+    /// Key of the country's continent, to group the sites.
+    #[serde(default)]
+    pub continent: String,
     /// For commands, e.g. `Factory`.
     pub kind: SiteType,
     /// Text key, e.g. `standorttyp.werk`.
@@ -303,6 +374,18 @@ pub struct SiteDetail {
     /// Running and proposed supply contracts of the site.
     #[serde(default)]
     pub contracts: Vec<super::ContractView>,
+    /// Products the site draws from other sites of the company or group, and the
+    /// suggested reach for supply by need.
+    #[serde(default)]
+    pub supplies: Vec<super::SupplyView>,
+    #[serde(default)]
+    pub supply_days_default: f64,
+    /// What closing the site would bring and cost today.
+    #[serde(default)]
+    pub closing: Option<ClosingView>,
+    /// The site's store; `None` when stocks are unlimited.
+    #[serde(default)]
+    pub storage: Option<StorageView>,
     /// Market prices of the last twelve months in the site's country for every product
     /// the site buys, sells, stores or has under contract.
     #[serde(default)]
@@ -562,7 +645,7 @@ pub fn production(game: &Game) -> ProductionView {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == player)
+        .filter(|(_, s)| s.held_by(player))
         .map(|(i, s)| {
             let site_id = crate::state::SiteId(u32::try_from(i).unwrap_or(u32::MAX));
             let concession = s.deposit.and_then(|d| {
@@ -626,6 +709,7 @@ pub fn production(game: &Game) -> ProductionView {
                             Limit::Event => ("ursache.ereignis", None),
                             Limit::Regulation => ("ursache.regulierung", None),
                             Limit::Patent => ("ursache.patent", None),
+                            Limit::Storage => ("ursache.lager_voll", None),
                         })
                     };
                     SlotDetail {
@@ -736,6 +820,10 @@ pub fn production(game: &Game) -> ProductionView {
             SiteDetail {
                 index: u32::try_from(i).unwrap_or(u32::MAX),
                 country: catalog.countries.key(s.country).to_owned(),
+                continent: catalog
+                    .continents
+                    .key(catalog.countries.get(s.country).continent)
+                    .to_owned(),
                 kind: s.kind,
                 kind_text: site_type_key(s.kind),
                 name: s.name.clone(),
@@ -932,6 +1020,10 @@ pub fn production(game: &Game) -> ProductionView {
                         .collect()
                 },
                 contracts: super::site_contracts(game, site_id),
+                supplies: super::site_supplies(game, site_id),
+                supply_days_default: catalog.logistics.supply_days_default,
+                closing: Some(closing_view(game, site_id)),
+                storage: storage_view(game, s),
             }
         })
         .collect();
@@ -1013,7 +1105,7 @@ fn site_staff(game: &Game, site: crate::state::SiteId) -> (Vec<StaffLine>, f64, 
     let rival_premium_max = state
         .sites
         .iter()
-        .filter(|o| o.country == s.country && o.owner != s.owner)
+        .filter(|o| o.closed.is_none() && o.country == s.country && o.owner != s.owner)
         .map(|o| o.wage_premium)
         .fold(0.0, f64::max);
     (staff, rival_premium_max, wage_cost)
@@ -1188,12 +1280,132 @@ pub struct MarketView {
     pub reach_usd: f64,
     /// Unit of each product (key of `einheit.<key>`).
     pub units: BTreeMap<String, String>,
+    /// The continents with their countries, for choosing a market.
+    #[serde(default)]
+    pub regions: Vec<RegionChoice>,
 }
 
-pub fn market(game: &Game, country: &str) -> Option<MarketView> {
+/// A continent and its countries, both by key.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RegionChoice {
+    pub continent: String,
+    pub countries: Vec<String>,
+}
+
+fn region_choices(catalog: &Catalog) -> Vec<RegionChoice> {
+    catalog
+        .continents
+        .ids()
+        .map(|k| RegionChoice {
+            continent: catalog.continents.key(k).to_owned(),
+            countries: catalog
+                .countries
+                .iter()
+                .filter(|(_, c)| c.continent == k)
+                .map(|(id, _)| catalog.countries.key(id).to_owned())
+                .collect(),
+        })
+        .filter(|r| !r.countries.is_empty())
+        .collect()
+}
+
+/// The market of a country, or of several summed up: `welt` for all, `kontinent:<key>`
+/// for a continent's countries. Quantities add up, prices are weighted by demand;
+/// brands and advertising only show for a country.
+pub fn market(game: &Game, scope: &str) -> Option<MarketView> {
+    let catalog = game.catalog();
+    if let Some(c) = catalog.countries.id(scope) {
+        let mut v = country_market(game, c, scope)?;
+        v.regions = region_choices(catalog);
+        return Some(v);
+    }
+    let countries: Vec<CountryId> = if scope == "welt" {
+        catalog.countries.ids().collect()
+    } else {
+        let k = catalog.continents.id(scope.strip_prefix("kontinent:")?)?;
+        catalog
+            .countries
+            .iter()
+            .filter(|(_, c)| c.continent == k)
+            .map(|(id, _)| id)
+            .collect()
+    };
+    let views: Vec<MarketView> = countries
+        .iter()
+        .filter_map(|&c| country_market(game, c, catalog.countries.key(c)))
+        .collect();
+    let first = views.first()?;
+    let mut lines: Vec<MarketLine> = Vec::new();
+    for (i, base) in first.lines.iter().enumerate() {
+        let all: Vec<&MarketLine> = views.iter().filter_map(|v| v.lines.get(i)).collect();
+        let sum = |f: &dyn Fn(&MarketLine) -> f64| all.iter().map(|l| f(l)).sum::<f64>();
+        let demand = sum(&|l| l.demand_last_month);
+        let weight = |l: &MarketLine| {
+            if demand > 1e-9 {
+                l.demand_last_month
+            } else {
+                1.0
+            }
+        };
+        let weights = sum(&|l| weight(l)).max(1e-12);
+        let mean = |f: &dyn Fn(&MarketLine) -> f64| sum(&|l| f(l) * weight(l)) / weights;
+        let sold = sum(&|l| l.sold_last_month);
+        let own_sold = sum(&|l| l.own_sold_last_month);
+        let own_prices: Vec<f64> = all.iter().filter_map(|l| l.own_price_usd).collect();
+        // The leader of the biggest single market stands for the region.
+        let leader = all.iter().filter(|l| l.leader.is_some()).max_by(|a, b| {
+            (a.leader_share * a.sold_last_month).total_cmp(&(b.leader_share * b.sold_last_month))
+        });
+        let served = all
+            .iter()
+            .filter_map(|l| l.supply.map(|s| (s, l.demand_last_month)))
+            .fold((0.0, 0.0), |(a, b), (s, d)| (a + s * d, b + d));
+        let mut line = MarketLine {
+            product: base.product.clone(),
+            price_usd: mean(&|l| l.price_usd),
+            reference_usd: mean(&|l| l.reference_usd),
+            state_price_usd: None,
+            demand_last_month: demand,
+            sold_last_month: sold,
+            imported_last_month: sum(&|l| l.imported_last_month),
+            exported_last_month: sum(&|l| l.exported_last_month),
+            sellers: all.iter().map(|l| l.sellers).sum(),
+            own_price_usd: (!own_prices.is_empty())
+                .then(|| own_prices.iter().sum::<f64>() / own_prices.len() as f64),
+            own_sold_last_month: own_sold,
+            group: base.group.clone(),
+            own_share: if sold > 1e-9 { own_sold / sold } else { 0.0 },
+            leader: leader.and_then(|l| l.leader.clone()),
+            leader_share: leader.map_or(0.0, |l| {
+                if sold > 1e-9 {
+                    l.leader_share * l.sold_last_month / sold
+                } else {
+                    0.0
+                }
+            }),
+            price_last_month_usd: None,
+            supply: (served.1 > 1e-9).then(|| served.0 / served.1),
+            unmet_last_month: sum(&|l| l.unmet_last_month),
+            chances: Vec::new(),
+        };
+        line.chances = chances(&line);
+        lines.push(line);
+    }
+    Some(MarketView {
+        date: first.date.clone(),
+        country: scope.to_owned(),
+        lines,
+        brands: Vec::new(),
+        medium: first.medium.clone(),
+        reach_usd: 0.0,
+        units: first.units.clone(),
+        regions: region_choices(catalog),
+    })
+}
+
+fn country_market(game: &Game, c: CountryId, country: &str) -> Option<MarketView> {
     let state = game.state();
     let catalog = game.catalog();
-    let c = catalog.countries.id(country)?;
     let lines = catalog
         .products
         .ids()
@@ -1265,6 +1477,7 @@ pub fn market(game: &Game, country: &str) -> Option<MarketView> {
             .map(|m| m.key.clone()),
         reach_usd: crate::brand::reach_usd(state, catalog, c),
         units: units(catalog),
+        regions: Vec::new(),
     })
 }
 
@@ -1982,6 +2195,9 @@ impl From<crate::development::Effect> for EffectView {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ResearchCenterView {
     pub site: u32,
+    /// The owner's name for the site.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     pub country: String,
     pub researchers: f64,
     pub project: Option<String>,
@@ -2016,6 +2232,10 @@ pub struct ResearchOverview {
     /// What the lead brings at full maturity (Q1).
     pub development_max: EffectView,
     pub centers: Vec<ResearchCenterView>,
+    /// Kind of every product (`rohstoff`, `halbzeug`, `komponente`, `endprodukt`,
+    /// `energie`), to tell inputs from end products.
+    #[serde(default)]
+    pub product_kinds: BTreeMap<String, String>,
     /// Facility for research centers (to build a laboratory).
     pub laboratory: Option<String>,
     /// Its price and researcher posts.
@@ -2043,7 +2263,7 @@ fn patent_view(game: &Game, id: crate::ids::TechnologyId) -> Option<PatentView> 
     let blocks: Vec<String> = state
         .sites
         .iter()
-        .filter(|s| s.owner == player)
+        .filter(|s| s.held_by(player))
         .map(|s| s.country)
         .filter(|&c| crate::patents::blocks(state, catalog, player, id, c))
         .collect::<BTreeSet<_>>()
@@ -2146,12 +2366,12 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
     let lab_country = state
         .sites
         .iter()
-        .find(|s| s.owner == player && s.kind == SiteType::ResearchCenter)
+        .find(|s| s.held_by(player) && s.kind == SiteType::ResearchCenter)
         .map_or(company.headquarters, |s| s.country);
     let made: BTreeSet<ProductId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == player)
+        .filter(|s| s.held_by(player))
         .flat_map(|s| &s.slots)
         .filter_map(|sl| sl.recipe.map(|r| catalog.recipes.get(r).product))
         .collect();
@@ -2172,7 +2392,7 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
                 .sites
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| s.owner == player)
+                .filter(|(_, s)| s.held_by(player))
                 .filter_map(|(i, s)| {
                     development::site_shares(s)
                         .into_iter()
@@ -2283,7 +2503,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                 .sites
                 .iter()
                 .enumerate()
-                .filter(|(_, s)| s.owner == player && s.research == Some(id))
+                .filter(|(_, s)| s.held_by(player) && s.research == Some(id))
                 .map(|(i, _)| i)
                 .collect();
             let points_per_day: f64 = working
@@ -2319,7 +2539,7 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
             let lab_country = state
                 .sites
                 .iter()
-                .find(|s| s.owner == player && s.kind == SiteType::ResearchCenter)
+                .find(|s| s.held_by(player) && s.kind == SiteType::ResearchCenter)
                 .map_or(company.headquarters, |s| s.country);
             let knows = |t: Option<crate::ids::TechnologyId>| {
                 t.is_none_or(|t| state.knows(catalog, player, t))
@@ -2419,9 +2639,10 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, s)| s.owner == player && s.kind == SiteType::ResearchCenter)
+        .filter(|(_, s)| s.held_by(player) && s.kind == SiteType::ResearchCenter)
         .map(|(i, s)| ResearchCenterView {
             site: u32::try_from(i).unwrap_or(u32::MAX),
+            name: s.name.clone(),
             country: catalog.countries.key(s.country).to_owned(),
             researchers: s.workforce.values().sum(),
             project: s.research.map(|t| catalog.technologies.key(t).to_owned()),
@@ -2458,6 +2679,16 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
         development_levels: catalog.research_model.development.levels,
         development_max: crate::development::Effect::of(catalog, 1.0, 1.0).into(),
         centers,
+        product_kinds: catalog
+            .products
+            .iter()
+            .map(|(id, p)| {
+                (
+                    catalog.products.key(id).to_owned(),
+                    super::chains::kind_key(p.kind).to_owned(),
+                )
+            })
+            .collect(),
         laboratory: catalog
             .facilities
             .iter()

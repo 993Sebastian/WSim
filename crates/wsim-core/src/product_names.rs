@@ -253,7 +253,7 @@ fn fill(rng: &mut SimRng, style: &NamingStyle, pattern: &str, stem: &str) -> Str
 /// construction) or offers, in ID order.
 pub fn named_products(catalog: &Catalog, state: &GameState, company: CompanyId) -> Vec<ProductId> {
     let mut products = BTreeSet::new();
-    for s in state.sites.iter().filter(|s| s.owner == company) {
+    for s in state.sites.iter().filter(|s| s.held_by(company)) {
         let made = s
             .slots
             .iter()

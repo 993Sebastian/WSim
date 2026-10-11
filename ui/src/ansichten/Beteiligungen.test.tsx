@@ -8,7 +8,7 @@ const LAUFEND: StartUp = {
   id: 3,
   name: "Ada Muster",
   inventor: true,
-  country: "SWE",
+  country: "XNO",
   kind: "technologie",
   target: "kompressionskuehlschrank",
   level: null,
@@ -218,7 +218,7 @@ describe("Beteiligungen", () => {
     const zeile = within(tabelle).getAllByRole("row")[1]!;
     expect(within(zeile).getByText("Ada Muster")).toBeTruthy();
     expect(within(zeile).getByText("Erfinder")).toBeTruthy();
-    expect(within(zeile).getByText("Schweden")).toBeTruthy();
+    expect(within(zeile).getByText("Nordeuropa und Baltikum")).toBeTruthy();
     expect(zeile.textContent).toContain("(neu, 4 Jahre vor der Zeit)");
     expect(zeile.textContent).toContain("Prototyp (2 von 3)");
     expect(zeile.textContent).toContain("finanziert, Entscheidung am 01.02.1916");

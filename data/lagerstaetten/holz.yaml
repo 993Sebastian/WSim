@@ -38,7 +38,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: schwedische_waelder
-    land: SWE
+    land: XNO
     rohstoff: holz
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 120}
@@ -47,7 +47,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: finnische_waelder
-    land: FIN
+    land: XNO
     rohstoff: holz
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 120}
@@ -56,7 +56,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: norwegische_waelder
-    land: NOR
+    land: XNO
     rohstoff: holz
     erneuerbar: true
     erschliessung: {investition_usd: 2_000_000, dauer_tage: 120}
@@ -73,7 +73,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: alpenwaelder
-    land: AUT
+    land: XAL
     rohstoff: holz
     erneuerbar: true
     erschliessung: {investition_usd: 2_000_000, dauer_tage: 90}
@@ -99,7 +99,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: karpaten
-    land: ROU
+    land: XSO
     rohstoff: holz
     erneuerbar: true
     erschliessung: {investition_usd: 2_000_000, dauer_tage: 120}

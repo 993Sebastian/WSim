@@ -30861,7 +30861,150 @@
       "windkraftanlage": "stueck",
       "zellstoff": "t",
       "zinn": "t"
-    }
+    },
+    "regions": [
+      {
+        "continent": "asien",
+        "countries": [
+          "AFG",
+          "BGD",
+          "CHN",
+          "IDN",
+          "IND",
+          "IRN",
+          "IRQ",
+          "ISR",
+          "JPN",
+          "KAZ",
+          "KHM",
+          "KOR",
+          "LKA",
+          "MMR",
+          "MNG",
+          "MYS",
+          "NPL",
+          "PAK",
+          "PHL",
+          "PRK",
+          "SAU",
+          "SGP",
+          "SYR",
+          "THA",
+          "TUR",
+          "TWN",
+          "UZB",
+          "VNM",
+          "XGO",
+          "XKA",
+          "XLE",
+          "XZA",
+          "YEM"
+        ]
+      },
+      {
+        "continent": "afrika",
+        "countries": [
+          "AGO",
+          "BFA",
+          "CIV",
+          "CMR",
+          "COD",
+          "DZA",
+          "EGY",
+          "ETH",
+          "GHA",
+          "KEN",
+          "LBY",
+          "MAR",
+          "MDG",
+          "MLI",
+          "MOZ",
+          "MWI",
+          "NER",
+          "NGA",
+          "SDN",
+          "SEN",
+          "TUN",
+          "TZA",
+          "UGA",
+          "XHA",
+          "XMA",
+          "XRB",
+          "XSA",
+          "XTB",
+          "XWA",
+          "ZAF",
+          "ZMB",
+          "ZWE"
+        ]
+      },
+      {
+        "continent": "suedamerika",
+        "countries": [
+          "ARG",
+          "BOL",
+          "BRA",
+          "CHL",
+          "COL",
+          "ECU",
+          "PER",
+          "VEN",
+          "XGU",
+          "XPU"
+        ]
+      },
+      {
+        "continent": "ozeanien",
+        "countries": [
+          "AUS",
+          "NZL",
+          "XOZ"
+        ]
+      },
+      {
+        "continent": "europa",
+        "countries": [
+          "AUT",
+          "BEL",
+          "BGR",
+          "BLR",
+          "CHE",
+          "CZE",
+          "DEU",
+          "DNK",
+          "ESP",
+          "FIN",
+          "FRA",
+          "GBR",
+          "GRC",
+          "HUN",
+          "IRL",
+          "ITA",
+          "NLD",
+          "NOR",
+          "POL",
+          "PRT",
+          "ROU",
+          "RUS",
+          "SWE",
+          "UKR",
+          "XBA",
+          "XWB"
+        ]
+      },
+      {
+        "continent": "nordamerika",
+        "countries": [
+          "CAN",
+          "CUB",
+          "MEX",
+          "USA",
+          "XHI",
+          "XKB",
+          "XME"
+        ]
+      }
+    ]
   },
   "optionen": {
     "companies": {
@@ -41364,7 +41507,19 @@
             "low_usd": 1389.8548,
             "high_usd": 1445.1743
           }
-        }
+        },
+        "closing": {
+          "facilities_usd": 41250.0,
+          "building_usd": 9500.0,
+          "land_usd": 0.0,
+          "stock_usd": 1830.0,
+          "proceeds_usd": 52580.0,
+          "book_usd": 104300.0,
+          "severance_usd": 12600.0,
+          "result_usd": -64320.0,
+          "blocker": null
+        },
+        "continent": "europa"
       }
     ],
     "units": {
@@ -48827,5 +48982,22 @@
     "contract_months": 12,
     "contract_penalty": 0.2,
     "need_per_day": 20.0
-  }
+  },
+  "interne_quellen": [
+    {
+      "site": 5,
+      "name": "Drahtzug Shanghai",
+      "kind_text": "standorttyp.werk",
+      "country": "CHN",
+      "company": "Spielerfirma",
+      "own_company": true,
+      "stock": 800.0,
+      "output_per_day": 40.0,
+      "spare": 760.0,
+      "unit_value_usd": 95.0,
+      "freight_per_unit_usd": 12.5,
+      "travel_days": 38,
+      "customs_rate": 0.05
+    }
+  ]
 }

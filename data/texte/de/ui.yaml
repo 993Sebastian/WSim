@@ -209,6 +209,9 @@ bericht.kosten: Kosten
 bericht.lager: Lagerveränderung (zu Herstellkosten)
 bericht.lager_hinweis: Hergestellte, noch nicht verkaufte Ware zählt mit ihren Herstellkosten als Vermögen. Ihre Herstellung steckt in den Kosten; die Lagerveränderung gleicht das aus, bis sie verkauft ist.
 bericht.ergebnis: Ergebnis
+bericht.firmen: Deine Unternehmen in dieser Runde
+bericht.firma: Unternehmen
+bericht.hauptfirma: ausgewählt
 bericht.diese_runde: Diese Runde
 bericht.vorrunde: Vorrunde
 bericht.veraenderung: Veränderung
@@ -417,6 +420,7 @@ werk.gegruendet: "{art} in {land} gegründet. Öffne ihn, um Anlagen zu bauen."
 werk.alle_standorte: Alle Standorte
 werk.bereiche: Bereiche des Standorts
 werk.anlagen: Anlagen
+werk.forschung: Forschung
 werk.einkauf: Einkauf
 werk.verkauf: Verkauf
 werk.personal: Personal
@@ -474,6 +478,17 @@ werk.leistung: Leistung bei voller Auslastung
 werk.kein_verfahren: Noch kein bekanntes Verfahren – erst erforschen.
 werk.lagerstaette: Lagerstätte
 werk.lager: Lager
+werk.lagerplatz.titel: Lagerplatz
+werk.lagerplatz.erklaerung: "Das Lager fasst Ware im Wert von rund 60 Tagen Durchsatz der Anlagen (zu Richtpreisen), mindestens einen Grundwert je Standorttyp. Lagern kostet laufend, Lebensmittel und Agrarrohstoffe verderben teilweise. Ist das Lager voll, stehen die Anlagen und Einkaufsaufträge kaufen nicht."
+werk.lagerplatz.fuellung: Füllung
+werk.lagerplatz.kapazitaet: Kapazität (Warenwert)
+werk.lagerplatz.kosten: Lagerkosten je Tag
+werk.lagerplatz.stufen: Ausbaustufen
+werk.lagerplatz.stufen_neu: Stufen ausbauen
+werk.lagerplatz.voll: "Das Lager ist voll: Die Anlagen stehen, bis Ware verkauft oder umgelagert ist oder das Lager ausgebaut wird."
+werk.lagerplatz.ausbauen: Lager ausbauen
+werk.lagerplatz.ausbau_hilfe: "{kapazitaet} mehr Platz für {kosten}, bezahlt aus der Kasse und mit dem Gebäude abgeschrieben."
+werk.lagerplatz.ausgebaut: "Lager um {stufen} Stufe(n) ausgebaut."
 werk.lager_hinweis: "Alles, was am Standort liegt – Vorprodukte, eigene Erzeugnisse und Handelsware. Die Reichweite gilt für die geplante Erzeugung. Herstellkosten und Buchwert: bei eigener Erzeugung Vorprodukte, Löhne, Strom und Gemeinkosten, bei gekaufter Ware der Einkaufspreis. Der Marktwert rechnet mit dem heutigen Marktpreis im Land."
 werk.lager_leer: Das Lager ist leer.
 werk.lager_von: "Lager: {standort}"
@@ -487,6 +502,19 @@ werk.lager_marktwert: Marktwert
 werk.lager_summe: Summe
 produktion.lager_alle: Lager aller Standorte
 werk.umbenennen: Umbenennen
+werk.schliessen.titel: Standort schließen
+werk.schliessen.erklaerung: "Alle Anlagen, das Gebäude und ein gekauftes Grundstück werden verkauft, ein gepachtetes wird frei. Restbestände im Lager gehen mit Abschlag weg – liefere sie vorher an einen anderen Standort, wenn du sie brauchst. Die Beschäftigten bekommen eine Abfindung. Der Standort verschwindet danach aus allen Listen."
+werk.schliessen.anlagen: Erlös der Anlagen
+werk.schliessen.gebaeude: Erlös des Gebäudes
+werk.schliessen.grundstueck: Erlös des Grundstücks
+werk.schliessen.lager: Räumungsverkauf des Lagers
+werk.schliessen.erloes: Erlös zusammen
+werk.schliessen.abfindung: Abfindung der Beschäftigten
+werk.schliessen.buchwert: Buchwert, der ausgebucht wird
+werk.schliessen.ergebnis: Wirkung auf das Ergebnis
+werk.schliessen.bestaetigen: "Ja, {standort} endgültig schließen"
+werk.schliessen.knopf: Standort schließen
+werk.schliessen.erledigt: "{standort} ist geschlossen."
 werk.name: Name des Standorts
 werk.name_hilfe: Leer lassen, um wieder Art und Land zu zeigen. Der Name erscheint überall, wo der Standort genannt wird.
 werk.name_speichern: Namen speichern
@@ -530,6 +558,43 @@ werk.mindestqualitaet: Mindestqualität
 werk.mindestqualitaet_hilfe: Schlechtere Ware wird nicht gekauft (0 = jede). Unter den passenden Angeboten kauft der Einkauf das günstigste.
 werk.mindestqualitaet_bereich: Die Mindestqualität liegt zwischen 0 und 100.
 werk.qualitaet_lager: Qualität im Lager
+werk.intern.titel: Von eigenem Standort beziehen
+werk.intern.laufend: Laufender Bezug
+werk.intern.quelle: Quelle
+werk.intern.art: Art
+werk.intern.nach_bedarf: Nach Bedarf (Lager für einige Tage)
+werk.intern.feste_menge: Feste Menge je Tag
+werk.intern.menge: Menge je Tag
+werk.intern.reichweite: Reichweite
+werk.intern.tage: Tage
+werk.intern.reichweite_hilfe: So viele Tage Bedarf (Verbrauch der Anlagen und Verkauf) hält der Standort auf Lager; Ware unterwegs zählt mit.
+werk.intern.fest_wert: "{menge} je Tag"
+werk.intern.bedarf_wert: "Lager für {tage} Tage, Bedarf {bedarf} je Tag"
+werk.intern.geliefert: Geliefert diesen Monat
+werk.intern.unterwegs: "{menge} unterwegs"
+werk.intern.quelle_lager: Lager der Quelle
+werk.intern.quelle_wahl: "{standort} – Lager {lager}, erzeugt {leistung} je Tag"
+werk.intern.im_land: Im selben Land, ohne Fracht und sofort da
+werk.intern.weg: "Fracht {fracht}, {tage} Tage unterwegs, Zoll {zoll}"
+werk.intern.konzernpreis: "Konzernpreis (Herstellkosten) {preis}"
+werk.intern.keine: Kein Standort deiner Firma oder deines Konzerns erzeugt diese Ware oder hat sie auf Lager.
+werk.intern.festlegen: "Bezug von {produkt} festlegen"
+werk.intern.starten: Bezug starten
+werk.intern.aendern: Bezug ändern
+werk.intern.beenden: Bezug beenden
+werk.intern.werte: Wähle eine Quelle und eine Menge bzw. Reichweite über 0.
+werk.intern.gesetzt: "Der Standort bezieht {produkt} jetzt aus dem eigenen Haus."
+werk.intern.beendet: "Bezug von {produkt} beendet."
+werk.umlagern.titel: An eigenen Standort liefern
+werk.umlagern.hilfe: Einmalige Lieferung aus diesem Lager an einen anderen Standort deiner Firma. Im selben Land kommt die Ware sofort an, sonst als Fracht.
+werk.umlagern.ware: Ware
+werk.umlagern.ziel: Ziel
+werk.umlagern.menge: Menge
+werk.umlagern.im_lager: "Im Lager: {lager}"
+werk.umlagern.senden: Liefern
+werk.umlagern.keine_ziele: Deine Firma hat keinen anderen Standort, den ein Weg erreicht.
+werk.umlagern.werte: "Wähle ein Ziel und eine Menge bis {lager}."
+werk.umlagern.gesendet: "{produkt} ist auf dem Weg."
 werk.bezug.titel: Bezugsquellen vergleichen
 werk.bezug.keine: Niemand bietet die Ware hier oder für einen Liefervertrag an.
 werk.bezug.hilfe: "Preis frei Werk: auf dem Markt zahlt der Anbieter die Lieferung, beim Liefervertrag Fracht und Zoll. „Übernehmen“ setzt Mindestqualität und Höchstpreis des Einkaufs; Lieferanten aus anderen Ländern bindest du mit einem Liefervertrag. Der Vertragspreis gilt für {monate} Monate und liegt um den Rabatt für die Bindung unter dem Preis des Lieferanten; er bleibt fest, auch wenn die Marktpreise steigen."
@@ -651,6 +716,8 @@ ursache.strom.hilfe: Das Stromnetz liefert nicht genug. Ein eigenes Kraftwerk am
 ursache.ereignis: Gedrosselt durch ein Weltereignis
 ursache.regulierung: Gestoppt durch eine Regulierung
 ursache.patent: Gestoppt durch ein Patent
+ursache.lager_voll: Lager voll
+ursache.lager_voll.hilfe: Das Lager des Standorts ist voll; die Anlagen stehen, Einkaufsaufträge kaufen nicht. Verkaufe mehr, liefere Ware an andere Standorte oder baue das Lager aus (Reiter Lager).
 ursache.patent.hilfe: Eine andere Firma hat die Technologie der Anlage oder des Verfahrens in diesem Land patentiert. Mit einer Lizenz des Inhabers (Wettbewerb → Lizenzen) läuft sie weiter; die Forschungsansicht zeigt, bis wann das Patent gilt.
 ursache.regulierung.hilfe: Ein Verbot im Land oder eine Umweltauflage, für die die Einheit noch nicht nachgerüstet ist. Was gilt, zeigt die Länderansicht.
 ursache.ereignis.hilfe: Krieg, Bürgerkrieg oder eine Förderkürzung begrenzen die Produktion in diesem Land. Was wie lange gilt, zeigt die Länderansicht.
@@ -671,6 +738,9 @@ ursache.wiederanlauf.hilfe: Die Anlage wird wieder angefahren und produziert ab 
 
 # Markt
 markt.land: Land
+markt.welt: Ganze Welt
+markt.gebiet: Gebiet
+markt.alle_laender: alle Länder
 markt.titel: "Markt {land}"
 markt.bereiche: Bereiche des Markts
 markt.produkte: Produkte
@@ -772,6 +842,7 @@ ketten.hakt.lagerstaette: "hakt: Lagerstätte gibt nicht mehr her"
 ketten.hakt.ereignis: "hakt: gedrosselt durch ein Weltereignis"
 ketten.hakt.regulierung: "hakt: gestoppt durch eine Regulierung"
 ketten.hakt.patent: "hakt: gestoppt durch ein Patent"
+ketten.hakt.lager_voll: "hakt: Lager voll"
 ketten.verfahren: "{anlage}"
 ketten.abbau: "Abbau: {anlage}"
 ketten.kosten: "Stückkosten ≈ {kosten} · Marktpreis {preis}"
@@ -813,6 +884,8 @@ patent.frist: "Anmeldung bis {bis}."
 patent.schon: "Schon angemeldet: {laender}."
 patent.laender: Länder (größte Märkte zuerst)
 patent.alle_laender: "Alle {anzahl} Länder zeigen"
+patent.alle_auswaehlen: "Alle {anzahl} Länder auswählen"
+patent.keine_auswaehlen: Auswahl aufheben
 patent.anmelden_knopf: "In {anzahl} Ländern anmelden ({kosten})"
 patent.angemeldet: "{technologie} in {laender} Ländern patentiert."
 forschung.bereiche: Bereiche der Forschung
@@ -855,6 +928,14 @@ forschung.zeigen: Zeigen
 forschung.zeigen.alle: Alle Technologien
 forschung.zeigen.branche: Fachrichtung
 forschung.zeigen.produkt: Produkt
+forschung.zeigen.vormaterial: Technologien für Vormaterialien
+forschung.zeigen.endprodukt: Technologien für Endprodukte
+forschung.art.vormaterial: Vormaterial
+forschung.art.endprodukt: Endprodukt
+forschung.art.filter: Art
+forschung.art.alle_viele: alle Produkte
+forschung.art.vormaterial_viele: nur Vormaterialien
+forschung.art.endprodukt_viele: nur Endprodukte
 forschung.suchen: Technologie suchen
 forschung.zoom: Zoom
 forschung.zoom_kleiner: Verkleinern
@@ -928,6 +1009,7 @@ forschung.erst_labor: Ohne Labor forscht das Zentrum nicht. Baue zuerst ein Labo
 forschung.ohne_labor: ohne Labor
 forschung.projekt_von: "Forschungsprojekt in {land}"
 forschung.kein_projekt: – kein Projekt –
+forschung.aufgeteilt: "– aufgeteilt auf {anzahl} Produkte (Reiter Weiterentwicklung) –"
 forschung.labor_bauen: "Labor bauen ({betrag})"
 forschung.labor_erweitern: "Weiteres Labor bauen ({betrag})"
 forschung.labor_im_bau: "Labor im Bau bis {datum}"
@@ -1403,9 +1485,10 @@ person.lebensstil_aktuell: jetzt
 person.lebensstil_geplant: ab nächstem Monat
 person.lebensstil_waehlen: Wählen
 person.lebensstil_gewaehlt: "Ab dem nächsten Monat lebst du so: {stufe}."
-person.gehalt: Dein Gehalt als CEO
+person.gehalt: Dein Gehalt
 person.gehalt_hilfe: "Deine Firma zahlt es monatlich als Personalaufwand; davon gehen {steuer} Einkommensteuer ab. Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
-person.gehalt_ruht: "Solange ein Manager deine Firma führt, bekommst du kein Gehalt. Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
+person.gehalt_ruht: "Ohne Anteile an der ausgewählten Firma bekommst du kein Gehalt. Wähle oben eine Firma, an der du beteiligt bist."
+person.gehalt_eigentuemer: "Ein Manager führt die Firma; als Eigentümer kannst du dir trotzdem ein Gehalt zahlen lassen. Es geht monatlich als Personalaufwand ab, davon {steuer} Einkommensteuer. Ein CEO mit soliden Fähigkeiten verlangt {vorschlag} im Jahr."
 person.gehalt_hoechstens: "Mit Mitgesellschaftern höchstens {max}."
 person.gehalt_jahr: Gehalt im Jahr
 person.gehalt_setzen: Festlegen
@@ -1452,6 +1535,7 @@ privat.gehalt: Gehalt
 privat.einkommensteuer: Einkommensteuer
 privat.zins: Guthabenzins
 privat.lebensstil: Lebensstil
+privat.familie: Familie und Vorsorge
 privat.darlehen: Darlehen an Firmen
 privat.tilgung: Tilgung von Darlehen
 privat.darlehenszins: Darlehenszins
@@ -2365,4 +2449,19 @@ anteile.kaufen_von: "Anteile kaufen von {eigner}"
 anteile.gekauft: "{anteil} % von {firma} gekauft."
 anteile.werte: Der Anteil muss größer als 0 sein und darf nicht über dem liegen, was der Eigner hält.
 anteile.verkauft_nicht: Verkauft nicht an dich.
-
+tabelle.sortieren: "Klicken: nach dieser Spalte sortieren (absteigend, aufsteigend, ursprünglich)"
+person.privatleben: Privatleben
+person.privatleben_hilfe: "Kosten gehen monatlich vom Privatkonto ab. Reicht das Konto nicht, endet alles auf einmal."
+person.partner_suchen: Partner suchen
+person.partner_beenden: Suche beenden
+person.partner_sucht: "Du suchst einen Partner – {kosten} im Monat, Chance {chance} je Monat."
+person.partner_hilfe: "Kostet {kosten} im Monat; mit {chance} Chance je Monat findest du jemanden. Verheiratet kommen Kinder."
+person.vorsorge: Gesundheitsvorsorge
+person.vorsorge_hilfe: "Kostet {kosten} im Monat und senkt deine Sterbechance auf {faktor} des üblichen Werts."
+person.vorsorge_an: Vorsorge abschließen
+person.vorsorge_aus: Vorsorge kündigen
+person.privatschule: Privatschule
+person.privatschule_hilfe: "Kostet {kosten} je Kind und Monat bis zum Berufseinstieg; eine ganze Kindheit dort bringt {punkte} Punkte auf jede Fähigkeit der Managerkarte."
+person.privatschule_an: Anmelden
+person.privatschule_aus: Abmelden
+person.privatschule_besucht: besucht die Privatschule

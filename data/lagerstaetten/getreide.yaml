@@ -55,7 +55,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: kasachische_steppe
-    land: KAZ
+    land: XZA
     rohstoff: getreide
     erneuerbar: true
     erschliessung: {investition_usd: 5_000_000, dauer_tage: 240}
@@ -99,7 +99,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: walachei
-    land: ROU
+    land: XSO
     rohstoff: getreide
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}
@@ -107,7 +107,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: ungarische_tiefebene
-    land: HUN
+    land: POL
     rohstoff: getreide
     erneuerbar: true
     erschliessung: {investition_usd: 3_000_000, dauer_tage: 180}

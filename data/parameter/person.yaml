@@ -38,6 +38,14 @@ person:
                 sterblichkeit: 0.95}
       luxurioes: {kosten: 8, zins: -0.005, gehaltsforderung: -0.1, ausbildung: 15,
                   sterblichkeit: 0.95}
+  # Privatleben (Wunsch vom 10.10.2026): Kosten je Monat in Akademiker-Monatslöhnen des
+  # Wohnsitzlandes. Partnersuche mit dieser Chance je Monat; Privatschule je Kind bis zur
+  # Managerkarte mit so vielen Punkten auf jede Fähigkeit für eine ganze Kindheit
+  # (anteilig); Gesundheitsvorsorge als Faktor auf die Sterbechance.
+  privatleben:
+    partnersuche: {kosten_monat: 0.3, chance_monat: 0.12}
+    privatschule: {kosten_monat: 0.8, ausbildung: 12}
+    vorsorge: {kosten_monat: 0.5, sterblichkeit: 0.8}
   # Einkommensteuer je Land und Jahr: ein Satz für das Einkommen eines Unternehmers (Gehalt,
   # Zinsen), grob der mittlere Satz hoher Einkommen.
   einkommensteuer:
@@ -49,7 +57,7 @@ person:
       GBR: {1900: 0.05, 1918: 0.2, 1945: 0.45, 1980: 0.4, 2000: 0.33, 2026: 0.35}
       DEU: {1900: 0.04, 1920: 0.15, 1946: 0.4, 1960: 0.35, 2000: 0.38, 2026: 0.38}
       FRA: {1900: 0, 1916: 0.05, 1946: 0.3, 1980: 0.35, 2026: 0.35}
-      SWE: {1900: 0.03, 1920: 0.15, 1950: 0.45, 1980: 0.55, 2000: 0.45, 2026: 0.4}
+      XNO: {1900: 0.03, 1920: 0.15, 1950: 0.45, 1980: 0.55, 2000: 0.45, 2026: 0.4}
       JPN: {1900: 0.03, 1940: 0.2, 1950: 0.4, 1990: 0.35, 2026: 0.33}
   # Guthabenzins des Privatkontos je Land und Jahr (real, Kaufkraft 2026).
   sparzins:
@@ -68,6 +76,6 @@ person:
       GBR: {1900: 0.05, 1919: 0.2, 1949: 0.4, 1975: 0.3, 1988: 0.2, 2026: 0.2}
       DEU: {1900: 0.02, 1920: 0.1, 1950: 0.15, 2026: 0.1}
       FRA: {1900: 0.03, 1950: 0.2, 2026: 0.25}
-      SWE: {1900: 0.03, 1950: 0.3, 2003: 0.3, 2004: 0}
+      XNO: {1900: 0.03, 1950: 0.3, 2003: 0.3, 2004: 0}
       JPN: {1900: 0.03, 1950: 0.4, 2026: 0.3}
   annaeherung: true

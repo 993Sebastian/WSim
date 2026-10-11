@@ -19,8 +19,14 @@ pub fn death_chance(catalog: &Catalog, state: &GameState, today: Date) -> f64 {
     let p = &state.person;
     let age = f64::from(person::age(state, today));
     let level = crate::private::lifestyle_at(catalog, p, today);
+    let care = if p.health_care {
+        catalog.person.private_life.care_mortality
+    } else {
+        1.0
+    };
     (aging::death_chance_at(catalog, age, p.home, today)
-        * catalog.person.lifestyle(level).mortality)
+        * catalog.person.lifestyle(level).mortality
+        * care)
         .clamp(0.0, 1.0)
 }
 
@@ -277,6 +283,8 @@ fn take_heir(
             born,
             manager: None,
             died: None,
+            private_school: false,
+            school_days: 0,
         },
         true,
     )
@@ -315,6 +323,8 @@ fn own_children(
             born,
             manager: None,
             died: None,
+            private_school: false,
+            school_days: 0,
         };
         named.children.push(child.clone());
         kids.push(child);

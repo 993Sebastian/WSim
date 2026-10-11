@@ -13,7 +13,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: titan_zaf
-  land: ZAF
+  land: XSA
   rohstoff: titanerz
   vorrat: 60000000
   erschliessung:
@@ -23,7 +23,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: titan_nor
-  land: NOR
+  land: XNO
   rohstoff: titanerz
   vorrat: 30000000
   erschliessung:
@@ -83,7 +83,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: titan_moz
-  land: MOZ
+  land: XSA
   rohstoff: titanerz
   vorrat: 40000000
   erschliessung:

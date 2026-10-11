@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 16_879_675
     hauptstadt: {breite: 55.75, laenge: 37.61}
     binnenland: false
-    nachbarn: [BLR, CHN, FIN, KAZ, MNG, NOR, POL, PRK, UKR, XBA, XKA]
+    nachbarn: [CHN, KOR, POL, TUR, UKR, XNO, XZA]
     staedte:
       - {id: moskau, einwohner: 10_452_000, breite: 55.75, laenge: 37.61, hauptstadt: true}
       - {id: sankt_petersburg, einwohner: 4_553_000, breite: 59.94, laenge: 30.31}

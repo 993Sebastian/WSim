@@ -73,7 +73,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: blei_rus
-  land: KAZ
+  land: XZA
   rohstoff: bleierz
   vorrat: 40000000
   erschliessung:

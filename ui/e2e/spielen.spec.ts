@@ -182,6 +182,18 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
     /Vorschau im Browser führt keine Befehle aus/,
   );
 
+  // Closing the site: proceeds and severance shown, confirmed before the command.
+  await page.locator("summary", { hasText: "Standort schließen" }).click();
+  const schliessen = page.getByRole("form", { name: "Standort schließen" });
+  await expect(schliessen.getByRole("row", { name: /Abfindung/ })).toBeVisible();
+  const knopf = schliessen.getByRole("button", { name: "Standort schließen" });
+  await expect(knopf).toBeDisabled();
+  await schliessen.getByRole("checkbox").check();
+  await knopf.click();
+  await expect(schliessen.getByRole("alert")).toHaveText(
+    /Vorschau im Browser führt keine Befehle aus/,
+  );
+
   // How the quality of the product comes about (#191).
   await page.locator("summary", { hasText: "Produktqualität: 59 Punkte" }).click();
   await expect(page.getByRole("row", { name: /Forschungsniveau/ })).toContainText("+4,2");
@@ -222,6 +234,12 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await expect(bezugsvertrag.getByRole("alert")).toHaveText(
     /Vorschau im Browser führt keine Befehle aus/,
   );
+  // Drawing wire from an own works abroad, by need.
+  await page.locator("summary", { hasText: "Von eigenem Standort beziehen" }).click();
+  const intern = page.getByRole("form", { name: "Bezug von Draht festlegen" });
+  await expect(intern).toContainText("Drahtzug Shanghai");
+  await intern.getByLabel("Reichweite").fill("25");
+  await intern.getByRole("button", { name: "Bezug starten" }).click();
   // A one-off purchase on top of the stock target.
   const pauschal = page.getByRole("form", { name: "Pauschalkauf von Draht" });
   await pauschal.getByLabel("Menge").fill("5.000");
@@ -234,6 +252,11 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   await page.getByRole("button", { name: "Lager" }).click();
   const lager = page.getByRole("table", { name: "Lager: Werk · Deutschland" });
   await expect(lager.getByRole("row", { name: /Draht/ })).toContainText("3 Tage");
+  // Once to another own site: freight and days of the way are shown first.
+  const umlagern = page.getByRole("form", { name: "An eigenen Standort liefern" });
+  await expect(umlagern).toContainText("38 Tage unterwegs");
+  await umlagern.getByLabel("Menge").fill("4");
+  await umlagern.getByRole("button", { name: "Liefern" }).click();
 
   await page.getByRole("button", { name: "Verkauf" }).click();
   const verkauf = page.getByRole("form", { name: "Preis für Nägel festlegen" });
@@ -271,6 +294,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
 
   expect(await befehle(page)).toEqual([
     { RenameSite: { site: 0, name: "Drahtwerk Nord" } },
+    { CloseSite: { site: 0 } },
     { SetProduction: { site: 0, slot: 0, recipe: "naegel_maschine", utilization: 0.6 } },
     {
       SetPurchase: {
@@ -295,9 +319,13 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
         penalty: 0.2,
       },
     },
+    {
+      SetInternalSupply: { site: 0, product: "draht", source: 5, mode: { Need: { days: 25 } } },
+    },
     // The limit suggested: the market price + 10 %.
     { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 15_287_100 } },
     // 1 887,21 USD − 5 %, rounded to cents
+    { TransferGoods: { from: 0, to: 5, product: "draht", quantity: 4 } },
     { SetPrice: { site: 0, product: "naegel", price: 17_928_500 } },
     { SetSale: { site: 0, product: "naegel", mode: { Fixed: 24_005_000 }, keep: 0 } },
     { SetSale: { site: 0, product: "naegel", mode: { CostPlus: { margin: 0.25 } }, keep: 0 } },

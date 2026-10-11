@@ -255,6 +255,123 @@ fn the_person_hands_over_the_lead_and_takes_it_back() {
 }
 
 #[test]
+fn as_owner_the_person_can_draw_a_salary_while_a_manager_leads() {
+    use crate::state::PrivateFlow;
+    let mut game = game_with(catalog(), PersonSettings::default());
+    mine_and_works(&mut game);
+    let id = free(&game)[0];
+    game.apply(Command::HireManager {
+        manager: id,
+        position: Position::new(Unit::Board, Role::Head),
+    })
+    .unwrap();
+    to_next_month(&mut game);
+    assert_eq!(game.state().person.ceo, None);
+    assert_eq!(game.state().person.salary, usd(0.0), "the CEO's pay ends");
+    game.apply(Command::SetPersonSalary {
+        amount: usd(120_000.0),
+    })
+    .unwrap();
+    let view = views::person(&game);
+    let money = view.money.unwrap();
+    assert!(money.salary_paid && money.salary_as_owner);
+    to_next_month(&mut game);
+    let paid = crate::private::last_months(game.state())
+        .get(&PrivateFlow::Salary)
+        .copied()
+        .unwrap_or(usd(0.0));
+    assert!(paid > usd(0.0), "{paid:?}");
+}
+
+fn with_private_life() -> Catalog {
+    let mut c = catalog();
+    c.person.private_life = crate::catalog::PrivateLifeModel {
+        enabled: true,
+        partner_cost: 0.3,
+        partner_chance: 0.5,
+        school_cost: 0.8,
+        school_education: 12.0,
+        care_cost: 0.5,
+        care_mortality: 0.8,
+    };
+    c
+}
+
+#[test]
+fn a_partner_search_costs_until_it_finds_someone_and_care_lowers_the_death_chance() {
+    use crate::state::PrivateFlow;
+    let mut game = game_with(
+        with_private_life(),
+        PersonSettings {
+            married: false,
+            ..PersonSettings::default()
+        },
+    );
+    assert!(!game.state().person.married);
+    game.state_mut().person.account.balance = usd(1_000_000.0);
+    game.apply(Command::SeekPartner { active: true }).unwrap();
+    let chance_before = crate::heirs::death_chance(game.catalog(), game.state(), game.date());
+    game.apply(Command::SetHealthCare { active: true }).unwrap();
+    let chance = crate::heirs::death_chance(game.catalog(), game.state(), game.date());
+    assert!((chance - chance_before * 0.8).abs() < 1e-12);
+    let mut months = 0;
+    while !game.state().person.married && months < 60 {
+        to_next_month(&mut game);
+        months += 1;
+    }
+    assert!(
+        game.state().person.married,
+        "found someone within five years"
+    );
+    assert!(!game.state().person.seeking_partner);
+    let paid = crate::private::last_months(game.state())
+        .get(&PrivateFlow::Family)
+        .copied()
+        .unwrap_or(usd(0.0));
+    assert!(paid < usd(0.0), "{paid:?}");
+    // Married, the search is not possible any more.
+    assert_eq!(
+        game.apply(Command::SeekPartner { active: true }),
+        Err(CommandError::NotPossible)
+    );
+}
+
+#[test]
+fn a_private_school_counts_its_days_and_ends_with_the_career() {
+    let mut game = game_with(
+        with_private_life(),
+        PersonSettings {
+            children: 1,
+            ..PersonSettings::default()
+        },
+    );
+    game.state_mut().person.account.balance = usd(1_000_000.0);
+    let card = game.catalog().person.card_age;
+    let born = game.state().person.children[0].born;
+    let young = crate::aging::age(born, game.date()) < card;
+    if !young {
+        return;
+    }
+    game.apply(Command::SetPrivateSchool {
+        child: 0,
+        active: true,
+    })
+    .unwrap();
+    to_next_month(&mut game);
+    to_next_month(&mut game);
+    let c = &game.state().person.children[0];
+    assert!(c.private_school);
+    assert!(c.school_days >= 28, "{}", c.school_days);
+    assert_eq!(
+        game.apply(Command::SetPrivateSchool {
+            child: 7,
+            active: true,
+        }),
+        Err(CommandError::UnknownChild)
+    );
+}
+
+#[test]
 fn a_child_manager_who_dies_is_mourned() {
     let mut c = catalog();
     c.life.mortality_chance = 1.0;

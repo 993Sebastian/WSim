@@ -5,7 +5,7 @@
 
 lagerstaetten:
   - id: atacama_lithium   # Sole; SCL (Foote) seit 1984, SQM seit 1996/97
-    land: CHL
+    land: PER
     rohstoff: lithium
     vorrat: 35_000_000
     entdeckt: 1962
@@ -73,7 +73,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: bikita   # Petalit und Lepidolith
-    land: ZWE
+    land: XSA
     rohstoff: lithium
     vorrat: 300_000
     entdeckt: 1950
@@ -93,7 +93,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: uyuni   # größter Salzsee der Erde; bis 2009 ungenutzt (Regenzeit, viel Magnesium)
-    land: BOL
+    land: PER
     rohstoff: lithium
     vorrat: 50_000_000
     entdeckt: 1976

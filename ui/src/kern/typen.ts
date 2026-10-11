@@ -72,6 +72,8 @@ export interface Anlage {
 
 export interface Standort {
   index: number;
+  /** The player's name for the site. */
+  name?: string | null;
   country: string;
   /** Text key of the site type, e.g. standorttyp.werk. */
   kind: string;
@@ -274,6 +276,19 @@ export interface Rundenbericht {
   stop?: string | null;
   /** Units made and sold, by continent, country, site and product. */
   quantities?: Mengenknoten | null;
+  /** Every company the person controls: result and cash of the round. */
+  companies?: FirmaInRunde[];
+}
+
+/** A company of the person in the round report. */
+export interface FirmaInRunde {
+  company: number;
+  name: string;
+  main: boolean;
+  revenue_usd: number;
+  result_usd: number;
+  cash_before_usd: number;
+  cash_after_usd: number;
 }
 
 /** Units of a product made and sold in the round. */
@@ -596,6 +611,8 @@ export interface StandortDetail {
   /** The player's own name for the site, if any. */
   name?: string | null;
   country: string;
+  /** Key of the country's continent, to group the sites. */
+  continent?: string;
   kind: string;
   kind_text: string;
   deposit: string | null;
@@ -638,7 +655,37 @@ export interface StandortDetail {
   /** Running and proposed supply contracts of the site. */
   contracts?: Vertrag[];
   /** Market prices of the last twelve months in the site's country. */
+  /** Products the site draws from other own sites, and the suggested reach (days). */
+  supplies?: InternerBezug[];
+  supply_days_default?: number;
+  /** What closing the site brings and costs today. */
+  closing?: {
+    facilities_usd: number;
+    building_usd: number;
+    land_usd: number;
+    stock_usd: number;
+    proceeds_usd: number;
+    book_usd: number;
+    severance_usd: number;
+    result_usd: number;
+    /** Why the site cannot be closed now. */
+    blocker: Meldung | null;
+  } | null;
   price_trends?: Record<string, Preisverlauf>;
+  /** The site's store (values at reference prices); null when stocks are unlimited. */
+  storage?: LagerKapazitaet | null;
+}
+
+/** Capacity and fill of a site's store, what a step of expansion brings and costs. */
+export interface LagerKapazitaet {
+  capacity_usd: number;
+  fill_usd: number;
+  share: number;
+  full: boolean;
+  steps: number;
+  step_capacity_usd: number;
+  step_cost_usd: number;
+  cost_per_day_usd: number;
 }
 
 /** The plot of a site: location (text `lage.<key>`), area and land in use (ha). */
@@ -748,6 +795,8 @@ export interface Markt {
   medium: string | null;
   reach_usd: number;
   units: Record<string, string>;
+  /** The continents with their countries, for choosing a market. */
+  regions?: { continent: string; countries: string[] }[];
 }
 
 export interface ProduktMarkt {
@@ -990,8 +1039,12 @@ export interface Forschung {
   development_levels: number;
   /** What the lead brings at full maturity. */
   development_max: Entwicklungswirkung;
+  /** Kind of every product: rohstoff, halbzeug, komponente, endprodukt, energie. */
+  product_kinds?: Record<string, string>;
   centers: {
     site: number;
+    /** The player's name for the center. */
+    name?: string | null;
     country: string;
     researchers: number;
     project: string | null;
@@ -1130,6 +1183,7 @@ export interface Gegenstandssicht {
   /** Number of sites of an area. */
   site_count: number;
   site: number | null;
+  site_name?: string | null;
   /** Text key of the site type. */
   site_type: string | null;
   country: string | null;
@@ -1965,6 +2019,7 @@ export interface Risiko {
   kind: "verlust" | "ziel" | "reserve" | "verschuldung";
   site: number | null;
   site_kind_text: string | null;
+  site_name?: string | null;
   country: string | null;
   /** The loss, or the cash. */
   amount_usd: number | null;
@@ -2103,6 +2158,7 @@ export interface StartUp {
 /** A research project of the player that could become a start-up (SU3). */
 export interface Ausgruendung {
   site: number;
+  site_name?: string | null;
   country: string;
   kind: "technologie" | "verbesserung";
   target: string;
@@ -2229,6 +2285,40 @@ export interface Vertragspartner {
   delivery_cost_usd: number;
   /** Quality of the seller's stock (buying only). */
   quality?: number | null;
+}
+
+/** A site of the company or group seen from another, with the way between them. */
+export interface InternerStandort {
+  site: number;
+  name: string | null;
+  kind_text: string;
+  country: string;
+  company: string;
+  own_company: boolean;
+  stock: number;
+  output_per_day: number;
+  /** What it can give now. */
+  spare: number;
+  /** Production cost per unit of its stock (the price within the group). */
+  unit_value_usd: number | null;
+  /** Freight per unit and days of the way (0 within a country), customs rate. */
+  freight_per_unit_usd: number;
+  travel_days: number;
+  customs_rate: number;
+}
+
+/** A product a site draws from another site of the company or group. */
+export interface InternerBezug {
+  product: string;
+  source: InternerStandort;
+  mode: "fest" | "bedarf";
+  per_day: number | null;
+  days: number | null;
+  demand_per_day: number;
+  wanted_today: number;
+  in_transit: number;
+  delivered_month: number;
+  delivered_last_month: number;
 }
 
 /** A source of a product for a site (#191). */
@@ -2536,6 +2626,8 @@ export interface PersonKind {
   position: Meldung | null;
   /** Years until the manager card. */
   card_in: number | null;
+  /** At a private school now. */
+  private_school?: boolean;
 }
 
 /** A company the person holds shares of (PE2) with its money (PE3). */
@@ -2595,6 +2687,8 @@ export interface PersonGeld {
   short: boolean;
   salary_usd: number;
   salary_paid: boolean;
+  /** Paid as owner of the main company led by a manager, not as CEO. */
+  salary_as_owner?: boolean;
   salary_suggestion_usd: number;
   salary_max_usd: number | null;
   income_tax: number;
@@ -2620,6 +2714,17 @@ export interface Person {
   /** Country of residence (ISO). */
   home: string;
   married: boolean;
+  /** Partner search, private schools and health care; none without them in the data. */
+  private_life?: {
+    seeking_partner: boolean;
+    partner_cost_usd: number;
+    partner_chance: number;
+    school_cost_usd: number;
+    school_education: number;
+    health_care: boolean;
+    care_cost_usd: number;
+    care_mortality: number;
+  } | null;
   children: PersonKind[];
   children_possible: boolean;
   holdings: PersonAnteil[];

@@ -610,6 +610,10 @@ pub struct LogisticsModel {
     pub risk_sea: Option<TimeSeries>,
     pub ai_share: f64,
     pub ai_cash_share: f64,
+    /// Internal supply by need: default reach in days and the highest allowed (0: no
+    /// limit).
+    pub supply_days_default: f64,
+    pub supply_days_max: f64,
     pub provenance: Provenance,
 }
 
@@ -1012,7 +1016,7 @@ impl Catalog {
             .collect();
         let mut table = KeyTable::new(keys);
         for (id, country) in self.countries.iter() {
-            for member in &country.members {
+            for member in country.members.iter().chain(&country.former) {
                 table.add_alias(IdKind::Country, member, crate::ids::Id::index(id));
             }
         }
@@ -2023,7 +2027,25 @@ pub struct PersonModel {
     pub succession_hint_from: u32,
     /// Inheritance and gift tax rate by country and year.
     pub inheritance_tax: CountrySeries,
+    /// Partner search, private schools and health care.
+    pub private_life: PrivateLifeModel,
     pub provenance: Provenance,
+}
+
+/// What the person can do privately; costs in academic monthly wages of the home country.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct PrivateLifeModel {
+    pub enabled: bool,
+    pub partner_cost: f64,
+    /// Chance per month of the search to find a partner.
+    pub partner_chance: f64,
+    /// Per child and month.
+    pub school_cost: f64,
+    /// Points on every skill for a whole childhood at a private school.
+    pub school_education: f64,
+    pub care_cost: f64,
+    /// Factor on the person's chance to die.
+    pub care_mortality: f64,
 }
 
 impl PersonModel {
@@ -2054,6 +2076,7 @@ impl Default for PersonModel {
             nephew_age: [25, 40],
             succession_hint_from: 70,
             inheritance_tax: CountrySeries::default(),
+            private_life: PrivateLifeModel::default(),
             provenance: Provenance::default(),
         }
     }
@@ -2268,6 +2291,8 @@ pub struct Country {
     /// ISO codes of the countries merged into this entry (M34), the leading one first;
     /// empty for a single country. Old saves find a merged country under its region.
     pub members: Vec<String>,
+    /// Codes of former regions merged into this entry; old saves find them here too.
+    pub former: Vec<String>,
     /// The largest cities, the most populous first (W2); may be empty.
     pub cities: Vec<City>,
     pub values: CountryValues,
@@ -2579,6 +2604,12 @@ pub struct ProductionModel {
     /// as share of the investment (M22).
     pub sale_proceeds_share: f64,
     pub scrap_share: f64,
+    /// Closed sites: proceeds of the stocks as share of their value, severance in
+    /// monthly wage bills.
+    pub close_stock_share: f64,
+    pub severance_months: f64,
+    /// Storage capacity, costs and spoilage (docs/FORMELN.md „Lager“).
+    pub storage: StorageModel,
     /// What a new company owns at the start, per start form (Lastenheft §15).
     pub start_setups: Vec<(StartForm, StartSetup)>,
     /// Facility sizes (M36).
@@ -2651,9 +2682,48 @@ impl Default for ProductionModel {
             restart_cost_share: 0.02,
             sale_proceeds_share: 0.5,
             scrap_share: 0.03,
+            close_stock_share: 0.5,
+            severance_months: 3.0,
+            storage: StorageModel::default(),
             start_setups: Vec::new(),
             sizes: SizeModel::default(),
         }
+    }
+}
+
+/// Storage of the sites, measured in value at reference prices (docs/FORMELN.md
+/// „Lager“). Disabled (unlimited stocks, no costs) without the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct StorageModel {
+    pub enabled: bool,
+    /// Capacity every site of a type has at least.
+    pub minimum: Vec<(SiteType, Money)>,
+    /// Days of full throughput a store holds.
+    pub days: f64,
+    /// One expansion step: added capacity and its price.
+    pub step_capacity: Money,
+    pub step_cost: Money,
+    /// Yearly storage cost as share of the stored value.
+    pub cost_share_year: f64,
+    /// Monthly spoilage per goods group (share of the stock).
+    pub spoilage: Vec<(GoodsGroupId, f64)>,
+    /// Fill (share of the capacity) from which the AI expands.
+    pub ai_expand_at: f64,
+}
+
+impl StorageModel {
+    pub fn minimum(&self, kind: SiteType) -> Money {
+        self.minimum
+            .iter()
+            .find(|(k, _)| *k == kind)
+            .map_or(Money::ZERO, |&(_, m)| m)
+    }
+
+    pub fn spoilage(&self, group: GoodsGroupId) -> f64 {
+        self.spoilage
+            .iter()
+            .find(|(g, _)| *g == group)
+            .map_or(0.0, |&(_, s)| s)
     }
 }
 

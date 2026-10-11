@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_003_584
     hauptstadt: {breite: 30.05, laenge: 31.25}
     binnenland: false
-    nachbarn: [ISR, LBY, SDN, XLE]
+    nachbarn: [ETH, XLE, XMG]
     staedte:
       - {id: kairo, einwohner: 11_893_000, breite: 30.05, laenge: 31.25, hauptstadt: true}
       - {id: alexandria, einwohner: 4_165_000, breite: 31.20, laenge: 29.95}

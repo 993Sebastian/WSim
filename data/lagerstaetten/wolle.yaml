@@ -14,7 +14,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.7
   annaeherung: true
 - id: wolle_nzl
-  land: NZL
+  land: AUS
   rohstoff: wolle
   erneuerbar: true
   erschliessung:
@@ -34,7 +34,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: wolle_zaf
-  land: ZAF
+  land: XSA
   rohstoff: wolle
   erneuerbar: true
   erschliessung:
@@ -74,7 +74,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: wolle_ury
-  land: XPU
+  land: ARG
   rohstoff: wolle
   erneuerbar: true
   erschliessung:

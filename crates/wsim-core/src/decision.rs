@@ -764,7 +764,7 @@ fn site_result(
         .sites
         .iter()
         .enumerate()
-        .filter(|(_, x)| x.owner == owner)
+        .filter(|(_, x)| x.held_by(owner))
         .map(|(i, _)| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
         .collect();
     let (_, taken) = crate::ai::output_and_offtake(state, catalog, site, &sites, state.date);

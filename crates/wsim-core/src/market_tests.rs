@@ -81,6 +81,10 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
         acquired: None,
         goodwill: None,
         plot: None,
+        supplies: std::collections::BTreeMap::new(),
+        closed: None,
+        storage_steps: 0,
+        storage_full: false,
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     state.sites[site.index()]

@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 9_372_266
     hauptstadt: {breite: 39.93, laenge: 116.39}
     binnenland: false
-    nachbarn: [AFG, IND, KAZ, KHM, MMR, MNG, NPL, PAK, PRK, RUS, VNM, XZA]
+    nachbarn: [IND, KOR, PAK, RUS, VNM, XSN, XZA]
     staedte:
       - {id: shanghai, einwohner: 14_987_000, breite: 31.22, laenge: 121.43}
       - {id: peking, einwohner: 11_106_000, breite: 39.93, laenge: 116.39, hauptstadt: true}

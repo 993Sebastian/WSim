@@ -14,7 +14,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.8
   annaeherung: true
 - id: phosphat_tun
-  land: TUN
+  land: XMG
   rohstoff: phosphat
   erneuerbar: true
   erschliessung:
@@ -24,7 +24,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: phosphat_dza
-  land: DZA
+  land: XMG
   rohstoff: phosphat
   erneuerbar: true
   erschliessung:
@@ -34,7 +34,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.0
   annaeherung: true
 - id: phosphat_mar
-  land: MAR
+  land: XMG
   rohstoff: phosphat
   erneuerbar: true
   erschliessung:
@@ -74,7 +74,7 @@ lagerstaetten:
   foerderkosten_faktor: 0.9
   annaeherung: true
 - id: phosphat_pac
-  land: XOZ
+  land: AUS
   rohstoff: phosphat
   erneuerbar: true
   erschliessung:

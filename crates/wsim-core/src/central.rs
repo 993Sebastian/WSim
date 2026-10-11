@@ -334,7 +334,7 @@ pub fn observed_countries(
     let own: std::collections::BTreeSet<CountryId> = state
         .sites
         .iter()
-        .filter(|s| s.owner == company)
+        .filter(|s| s.held_by(company))
         .map(|s| s.country)
         .chain(std::iter::once(c.headquarters))
         .collect();
@@ -366,7 +366,7 @@ pub fn legal_technologies(
     }
     let c = &state.companies[company.index()];
     let mut groups = std::collections::BTreeSet::new();
-    for s in state.sites.iter().filter(|s| s.owner == company) {
+    for s in state.sites.iter().filter(|s| s.held_by(company)) {
         let products = s
             .slots
             .iter()
@@ -382,7 +382,7 @@ pub fn legal_technologies(
             state
                 .sites
                 .iter()
-                .filter(|s| s.owner == company)
+                .filter(|s| s.held_by(company))
                 .filter_map(|s| s.research),
         )
         .collect();
@@ -1030,7 +1030,7 @@ pub fn ai_seat(catalog: &Catalog, state: &GameState, company: CompanyId) -> Opti
     let own: Vec<crate::state::SiteId> = (0..state.sites.len())
         // Few sites; the cast is exact.
         .map(|i| crate::state::SiteId(i as u32))
-        .filter(|s| state.sites[s.index()].owner == company)
+        .filter(|s| state.sites[s.index()].held_by(company))
         .collect();
     ai_seat_among(catalog, state, company, &own)
 }

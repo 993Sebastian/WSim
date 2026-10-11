@@ -15,7 +15,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: copperbelt_kobalt   # Nkana, Chambishi
-    land: ZMB
+    land: XSA
     rohstoff: kobalt
     vorrat: 300_000
     entdeckt: 1923
@@ -54,7 +54,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: moa_bay   # Laterit, Säurelaugung (Freeport 1959, Sherritt seit 1994)
-    land: CUB
+    land: XME
     rohstoff: kobalt
     vorrat: 500_000
     entdeckt: 1950
@@ -74,7 +74,7 @@ lagerstaetten:
     annaeherung: true
 
   - id: bou_azzer   # Kobalterz als Hauptprodukt (Arsenide), Abbau seit den 1930ern
-    land: MAR
+    land: XMG
     rohstoff: kobalt
     vorrat: 60_000
     entdeckt: 1928

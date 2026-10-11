@@ -83,7 +83,7 @@ lagerstaetten:
   foerderkosten_faktor: 1.1
   annaeherung: true
 - id: zink_kaz
-  land: KAZ
+  land: XZA
   rohstoff: zinkerz
   vorrat: 40000000
   erschliessung:

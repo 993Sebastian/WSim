@@ -81,7 +81,7 @@ pub(crate) fn ai_month_start(state: &mut GameState, catalog: &Catalog, _date: Da
             .sites
             .iter()
             .enumerate()
-            .filter(|(_, s)| s.owner == id && s.kind != SiteType::ResearchCenter)
+            .filter(|(_, s)| s.held_by(id) && s.kind != SiteType::ResearchCenter)
             .filter(|(_, s)| s.training_target.is_none_or(|t| (t - wanted).abs() > 1e-9))
             .map(|(i, _)| SiteId(u32::try_from(i).unwrap_or(u32::MAX)))
             .collect();

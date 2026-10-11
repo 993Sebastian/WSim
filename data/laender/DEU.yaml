@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 356_163
     hauptstadt: {breite: 52.52, laenge: 13.40}
     binnenland: false
-    nachbarn: [AUT, BEL, CHE, CZE, DNK, FRA, NLD, POL]
+    nachbarn: [FRA, NLD, POL, XAL, XNO]
     staedte:
       - {id: berlin, einwohner: 3_406_000, breite: 52.52, laenge: 13.40, hauptstadt: true}
       - {id: frankfurt, einwohner: 2_895_000, breite: 50.10, laenge: 8.68}

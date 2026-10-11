@@ -18,8 +18,8 @@ use crate::money::Money;
 use crate::plots;
 use crate::policy::{self, BuyerGroup, SalesRule, Scope};
 use crate::state::{
-    CompanyId, Consignee, GameState, ManagerId, Operation, PerId, PlotId, Position, PriceMode,
-    PurchaseOrder, SaleOffer, Shipment, Site, SiteId, Slot, Tenure,
+    CompanyId, GameState, ManagerId, Operation, PerId, PlotId, Position, PriceMode, PurchaseOrder,
+    SaleOffer, Site, SiteId, Slot, Tenure,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -69,6 +69,14 @@ pub enum Command {
         to: SiteId,
         product: ProductId,
         quantity: f64,
+    },
+    /// Lets a site draw a product from another site of the company or its group, by a
+    /// fixed quantity a day or by need (`source` none: stops it).
+    SetInternalSupply {
+        site: SiteId,
+        product: ProductId,
+        source: Option<SiteId>,
+        mode: crate::supply::SupplyMode,
     },
     /// Proposes a supply contract between a site of the actor and one of another company
     /// (W4); an AI company answers at once.
@@ -243,6 +251,11 @@ pub enum Command {
         slot: usize,
         count: u32,
     },
+    /// Closes a site: sells its facilities, building, plot and stocks and lets its people
+    /// go (docs/FORMELN.md, Standort schließen).
+    CloseSite { site: SiteId },
+    /// Builds more storage at a site (docs/FORMELN.md, Lager).
+    BuildStorage { site: SiteId, steps: u32 },
     /// Offers another company a price for one of its sites or for a licence (M30).
     MakeOffer {
         seller: CompanyId,
@@ -387,6 +400,12 @@ pub enum Command {
     SetPersonSalary { amount: Money },
     /// The person's lifestyle from the next month on (PE3).
     SetLifestyle { level: crate::state::Lifestyle },
+    /// The person looks for a partner while unmarried (costs every month).
+    SeekPartner { active: bool },
+    /// A child goes to a private school until its career begins (costs every month).
+    SetPrivateSchool { child: u32, active: bool },
+    /// The person pays for health care: a lower chance to die.
+    SetHealthCare { active: bool },
     /// The person pays capital into a company (PE3).
     ContributeCapital { company: CompanyId, amount: Money },
     /// The person lends a company money (PE3).
@@ -432,6 +451,9 @@ impl Command {
             Command::FoundCompany { .. }
                 | Command::SetPersonSalary { .. }
                 | Command::SetLifestyle { .. }
+                | Command::SeekPartner { .. }
+                | Command::SetPrivateSchool { .. }
+                | Command::SetHealthCare { .. }
                 | Command::ContributeCapital { .. }
                 | Command::LendToCompany { .. }
                 | Command::WithdrawCapital { .. }
@@ -574,6 +596,10 @@ pub enum CommandError {
     TooManyUnits {
         count: u32,
     },
+    /// A running supply contract binds the site.
+    SiteHasContracts,
+    /// Goods are on the way to the site.
+    GoodsOnTheWay,
     /// An offer to the acting company itself (M30).
     OwnObject,
     SellerBankrupt,
@@ -588,6 +614,9 @@ pub enum CommandError {
     },
     /// The seller does not know the technology, or the buyer already does.
     LicenseNotPossible,
+    /// The person cannot do that now (married already, a child too old, …).
+    NotPossible,
+    UnknownChild,
     OfferExists,
     OfferBlocked {
         until: Date,
@@ -882,6 +911,8 @@ impl CommandError {
             CommandError::UnderConstruction => e(keys::COMMAND_UNDER_CONSTRUCTION),
             CommandError::AlreadyMothballed => e(keys::COMMAND_ALREADY_MOTHBALLED),
             CommandError::NotMothballed => e(keys::COMMAND_NOT_MOTHBALLED),
+            CommandError::SiteHasContracts => e(keys::COMMAND_SITE_HAS_CONTRACTS),
+            CommandError::GoodsOnTheWay => e(keys::COMMAND_GOODS_ON_THE_WAY),
             CommandError::TooManyUnits { count } => {
                 e(keys::COMMAND_TOO_MANY_UNITS).with("anzahl", Param::Integer(i64::from(*count)))
             }
@@ -903,6 +934,8 @@ impl CommandError {
                 e(keys::COMMAND_SITE_TOO_YOUNG).with("monate", Param::Integer(i64::from(*months)))
             }
             CommandError::LicenseNotPossible => e(keys::COMMAND_LICENSE_NOT_POSSIBLE),
+            CommandError::NotPossible => e(keys::COMMAND_NOT_POSSIBLE),
+            CommandError::UnknownChild => e(keys::COMMAND_UNKNOWN_CHILD),
             CommandError::OfferExists => e(keys::COMMAND_OFFER_EXISTS),
             CommandError::OfferBlocked { until } => {
                 e(keys::COMMAND_OFFER_BLOCKED).with("datum", Param::Date(*until))
@@ -1216,6 +1249,10 @@ fn found_site(
         acquired: None,
         goodwill: None,
         plot: None,
+        supplies: std::collections::BTreeMap::new(),
+        closed: None,
+        storage_steps: 0,
+        storage_full: false,
     });
     if let Some(p) = plot {
         let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
@@ -1231,7 +1268,7 @@ fn found_site(
 
 fn own_site(state: &GameState, actor: CompanyId, site: SiteId) -> Result<&Site, CommandError> {
     let s = state.site(site).ok_or(CommandError::UnknownSite)?;
-    if s.owner != actor {
+    if !s.held_by(actor) {
         return Err(CommandError::NotOwner);
     }
     Ok(s)
@@ -1412,6 +1449,9 @@ fn run(
         Command::FoundCompany { .. }
         | Command::SetPersonSalary { .. }
         | Command::SetLifestyle { .. }
+        | Command::SeekPartner { .. }
+        | Command::SetPrivateSchool { .. }
+        | Command::SetHealthCare { .. }
         | Command::ContributeCapital { .. }
         | Command::LendToCompany { .. }
         | Command::WithdrawCapital { .. }
@@ -1679,108 +1719,50 @@ fn run(
             if !(quantity.is_finite() && *quantity > 0.0) {
                 return Err(CommandError::InvalidQuantity);
             }
-            let source = own_site(state, actor, *from)?;
-            let target = own_site(state, actor, *to)?;
-            let (from_country, to_country) = (source.country, target.country);
-            // Sea freight is cheaper where either end lies at a port (M35).
-            let sea = plots::sea_freight(catalog, state, source)
-                .min(plots::sea_freight(catalog, state, target));
-            let route = if from_country == to_country {
-                None
-            } else {
-                Some(
-                    state
-                        .routes
-                        .for_product_via(catalog, *product, (from_country, to_country), sea)
-                        .ok_or_else(|| CommandError::NoRoute {
-                            product: catalog.products.key(*product).to_owned(),
-                            from: catalog.countries.key(from_country).to_owned(),
-                            to: catalog.countries.key(to_country).to_owned(),
-                        })?,
-                )
+            own_site(state, actor, *from)?;
+            own_site(state, actor, *to)?;
+            crate::supply::transfer(state, catalog, (*from, *to), *product, *quantity, today)?;
+        }
+        Command::SetInternalSupply {
+            site,
+            product,
+            source,
+            mode,
+        } => {
+            own_site(state, actor, *site)?;
+            let Some(source) = *source else {
+                state.sites[site.index()].supplies.remove(product);
+                return Ok(());
             };
-            let rate = state
-                .tariffs
-                .for_product(catalog, from_country, to_country, *product)
-                .ok_or_else(|| CommandError::Embargo {
-                    from: catalog.countries.key(from_country).to_owned(),
-                    to: catalog.countries.key(to_country).to_owned(),
-                })?;
-            let held = source.inventory.get(product);
-            let available = held.map_or(0.0, |s| s.quantity);
-            if *quantity > available + 1e-9 {
-                return Err(CommandError::NotEnoughGoods { available });
+            if state.site(source).is_none() {
+                return Err(CommandError::UnknownSite);
             }
-            // Customs on the value of the goods in stock (W3).
-            let customs = held.map_or(Money::ZERO, |s| {
-                s.value
-                    .scale(rate * (*quantity / s.quantity.max(1e-12)).min(1.0))
-            });
-            // The way of the load (W5): market, state or own fleet.
-            let plan = route.map(|(per_unit, _)| {
-                crate::logistics::plan(
-                    state,
-                    catalog,
-                    actor,
-                    (*product, *quantity),
-                    (from_country, to_country),
-                    Money::times(per_unit, *quantity),
-                )
-            });
-            let freight = if let (Some((_, days)), Some(plan)) = (route, &plan) {
-                let cost = plan.cost;
-                let company = state.company_mut(actor).expect("checked above");
-                if company.ledger.cash() < cost + customs {
-                    return Err(CommandError::NotEnoughCash {
-                        needed: cost + customs,
-                    });
-                }
-                company.ledger.expense(
-                    CostType::Transport,
-                    CostCenter::product(*from, *product),
-                    Account::Cash,
-                    cost,
+            if !crate::supply::allowed(state, *site, source) {
+                return Err(CommandError::NotOwner);
+            }
+            crate::supply::check_mode(catalog, *mode)?;
+            if crate::supply::route(state, catalog, (source, *site), *product).is_none() {
+                let (a, b) = (
+                    state.sites[source.index()].country,
+                    state.sites[site.index()].country,
                 );
-                if customs > Money::ZERO {
-                    company.ledger.expense(
-                        CostType::Customs,
-                        CostCenter::product(*to, *product),
-                        Account::Cash,
-                        customs,
-                    );
-                }
-                Some(days)
-            } else {
-                None
-            };
-            let stock = state
-                .site_mut(*from)
-                .expect("checked above")
-                .inventory
-                .entry(*product)
-                .or_default();
-            let quality = stock.quality;
-            let value = stock.take(*quantity);
-            let lost = plan.is_some_and(|p| crate::logistics::book(state, catalog, actor, &p));
-            match freight {
-                None => state
-                    .site_mut(*to)
-                    .expect("checked above")
-                    .inventory
-                    .entry(*product)
-                    .or_default()
-                    .add(*quantity, value, quality),
-                Some(days) => state.shipments.push(Shipment {
-                    product: *product,
-                    quantity: *quantity,
-                    quality,
-                    value,
-                    from: from_country,
-                    to: Consignee::Site(*to),
-                    arrival: today.add_days(i32::try_from(days).expect("short route")),
-                    lost,
-                }),
+                return Err(CommandError::NoRoute {
+                    product: catalog.products.key(*product).to_owned(),
+                    from: catalog.countries.key(a).to_owned(),
+                    to: catalog.countries.key(b).to_owned(),
+                });
             }
+            let entry = state.sites[site.index()]
+                .supplies
+                .entry(*product)
+                .or_insert(crate::supply::InternalSupply {
+                    source,
+                    mode: *mode,
+                    delivered_month: 0.0,
+                    delivered_last_month: 0.0,
+                });
+            entry.source = source;
+            entry.mode = *mode;
         }
         Command::ProposeContract {
             seller,
@@ -2352,6 +2334,14 @@ fn run(
                 );
             }
             ledger.transfer(Account::Cash, Account::FixedAssets, proceeds);
+        }
+        Command::CloseSite { site } => {
+            own_site(state, actor, *site)?;
+            crate::closing::close(state, catalog, actor, *site)?;
+        }
+        Command::BuildStorage { site, steps } => {
+            own_site(state, actor, *site)?;
+            crate::storage::build(state, catalog, actor, *site, *steps)?;
         }
         Command::MakeOffer {
             seller,

@@ -4,7 +4,7 @@ laender:
     flaeche_km2: 1_887_180
     hauptstadt: {breite: -6.17, laenge: 106.83}
     binnenland: false
-    nachbarn: [MYS, XOZ]
+    nachbarn: [AUS, MYS]
     staedte:
       - {id: jakarta, einwohner: 9_125_000, breite: -6.17, laenge: 106.83, hauptstadt: true}
       - {id: surabaya, einwohner: 2_845_000, breite: -7.25, laenge: 112.75}
