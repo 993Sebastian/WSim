@@ -1752,6 +1752,8 @@ pub struct RawAiBehavior {
     pub research_gap_companies: u32,
     #[serde(rename = "forschung_luecke_vorrang_umsatz", default)]
     pub research_gap_priority_revenue: f64,
+    #[serde(rename = "lernen_entwicklung_anteil", default)]
+    pub learning_development_share: f64,
     #[serde(rename = "forschung_vorlauf_jahre", default)]
     pub research_lead_years: u32,
     #[serde(rename = "kasse_min_monate")]

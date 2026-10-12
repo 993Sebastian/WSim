@@ -2226,6 +2226,30 @@ Vorschlag für die Prüfung, bevor etwas geändert wird:
 
 Ergebnis: ein Bericht mit Messwerten und konkreten Änderungsvorschlägen zur Abnahme.
 
+## W Maschinenangebote (Wunsch vom 12.10.2026 abends, `docs/MASCHINENANGEBOTE.md`)
+
+Eigene Annahmen zur Abnahme:
+
+- **W1 🟡 Reihenfolge:** MAA baut auf FW1 Teil 2 (Anlagenkauf nach Produkt, Umstellen
+  innerhalb der Branche) auf. Vorschlag: FW1 Teil 2 zuerst fertig, dann MAA.
+- **W2 🟡 Faktoren je Anlage:** Die Faktoren gelten je Slot (Anlage einer Größe). Bei
+  mehreren Einheiten eines Kaufs gelten für alle dieselben Werte des Angebots.
+- **W3 🟡 Umstellen:** Die Umstellung kostet einen Anteil des Katalogpreises der Größe
+  (Datenwert, Vorschlag 25 %), Dauer = halbe Katalog-Bauzeit. Faktoren bleiben.
+- **W4 🟡 Wochen:** Je Woche wird die Zahl der Angebote (1–5) zu Beginn der Woche gezogen,
+  die Eingangstage zufällig innerhalb der Woche. Fällt der Ausschreibungsstart auf
+  einen Monatswechsel, zählt der Start als Tag 1.
+- **W5 🟡 KI-Schwelle:** Die KI nimmt ein Angebot an, sobald dessen geschätzte
+  Lebensdauer-Stückkosten (inkl. entgangenem Deckungsbeitrag) unter denen des
+  Katalogwerts liegen; Schwelle als Datenwert (Vorschlag 0 %).
+- **W6 🟡 Bestehende Anlagen:** Ohne Kompatibilität werden alte Anlagen beim Laden nicht
+  übernommen; Startbesetzung und Startbetriebe bekommen Katalogwerte (Faktor 1).
+- **W7 🟡 Maschinenbauer-Daten:** Namen werden wie die Firmennamen erzeugt (Muster je
+  Sprachraum), 5–8 je Land/Region; Epochen über „ab/bis“-Jahre.
+- **W8 🟡 Spielerfirma mit Manager:** Die Werksleitung des Spielers startet keine
+  Ausschreibung von sich aus. Das bestehende Anliegen „Kapazität ausbauen“ schlägt eine
+  Ausschreibung vor.
+
 ## V Ein Preis je Werk (Wunsch vom 12.10.2026)
 
 - **V1 ✅ Kein Mindestpreis in den Verkaufswegen:** KI-Händler und andere Firmen kaufen zum
@@ -2261,8 +2285,12 @@ sind umgesetzt, 4 und 5 folgen. Annahmen zur Abnahme:
   gilt bisher nur für die Technologien über den Nachzüglerrabatt).
 - **U-d 🟡 KI:** Startbesetzung und historische Firmen kennen, was sie herstellen. Eine neu
   gegründete KI-Firma bringt das Wissen für das Produkt mit, für das sie gegründet wird
-  (sonst gäbe es keine Neugründungen); weitere Produkte erforscht die KI noch nicht –
-  das kommt mit der KI-Forschung je Produkt (nächster Schritt). Tochterfirmen erben das
+  (sonst gäbe es keine Neugründungen). ✅ Wunsch vom 12.10. abends: Die KI erforscht
+  weitere Produkte selbst – Produkte ihrer Branchen und Vorprodukte, das mit dem meisten
+  offenen Bedarf je Forschungspunkt zuerst, ohne Labor gründet sie eins; ihre Produkte
+  entwickelt sie weiter (M37). Weltlauf 1900–1906 mit 30 KI-Firmen: einzelne Firmen
+  lernen bis zu 93 Produkte (Balance offen: mittelgroße Labore des Spielers brauchen
+  für ein Produkt ohne Technologie deutlich länger). Tochterfirmen erben das
   Wissen der Mutter, Übernahmen bringen die Produkte der Standorte mit.
 
 Vorschläge zur Abnahme, bevor umgesetzt wird (Stand vor der Umsetzung):

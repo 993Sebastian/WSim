@@ -251,6 +251,13 @@ pub(super) fn ai_model(ctx: &mut Ctx, raw: &RawData) -> (AiModel, Keys) {
             b.research_gap_priority_revenue,
             &bl.field("forschung_luecke_vorrang_umsatz"),
         ),
+        learning_development_share: in_range(
+            ctx,
+            b.learning_development_share,
+            0.0,
+            0.9,
+            &bl.field("lernen_entwicklung_anteil"),
+        ),
         research_lead_years: {
             in_range(
                 ctx,

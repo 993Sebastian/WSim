@@ -3301,6 +3301,52 @@ fn plan_research(
         .iter()
         .copied()
         .find(|&s| state.sites[s.index()].kind == SiteType::ResearchCenter);
+    // Mandatory research (FW1): a company with a laboratory learns the product of its
+    // branches or of its inputs with the most open demand per research point, before
+    // the technologies of its branches; an urgent market gap still goes first.
+    if urgent.is_none()
+        && let Some(p) = learn_target(state, catalog, id, sites, date)
+    {
+        let Some(c) = center.or_else(|| found_lab(state, catalog, id)) else {
+            return;
+        };
+        if state.sites[c.index()].research_product != Some(p) {
+            run(
+                state,
+                catalog,
+                id,
+                &Command::SetProductResearch {
+                    site: c,
+                    product: Some(p),
+                },
+            );
+        }
+        // Meanwhile part of the researchers develop the best seller further (M37).
+        let share = catalog.ai_model.behavior.learning_development_share;
+        let shares: Vec<(ProductId, f64)> = development_target(state, catalog, id, Some(c))
+            .filter(|_| share > 0.0)
+            .map(|d| vec![(d, share)])
+            .unwrap_or_default();
+        if state.sites[c.index()]
+            .development_shares
+            .iter()
+            .map(|(&p, &s)| (p, s))
+            .collect::<Vec<_>>()
+            != shares
+        {
+            run(
+                state,
+                catalog,
+                id,
+                &Command::SetResearchShares {
+                    site: c,
+                    shares,
+                    process: Vec::new(),
+                },
+            );
+        }
+        return;
+    }
     // Nothing to research: develop the best-selling product further (M37).
     let develop = if target.is_none() {
         development_target(state, catalog, id, center)
@@ -3492,6 +3538,78 @@ fn research_decision(
         }
     }
     decision
+}
+
+/// A laboratory at the company's head office (FW1: for learning products).
+fn found_lab(state: &mut GameState, catalog: &Catalog, id: CompanyId) -> Option<SiteId> {
+    let lab = catalog
+        .facilities
+        .iter()
+        .find(|(_, f)| f.site_type == SiteType::ResearchCenter)
+        .map(|(f, _)| f)?;
+    let country = state.companies[id.index()].headquarters;
+    let place = (country, SiteType::ResearchCenter);
+    let (site, _) = found_site_for(
+        state,
+        catalog,
+        id,
+        place,
+        (Some((lab, FacilitySize::Medium, 1)), 0.0),
+    )?;
+    let build = Command::BuildFacility {
+        site,
+        facility: lab,
+        count: 1,
+        size: FacilitySize::Medium,
+    };
+    run(state, catalog, id, &build).then_some(site)
+}
+
+/// Under mandatory research (FW1): the product an AI company learns next – one of its
+/// branches or an input of what it makes, not yet known, researchable now, with the
+/// most open demand per research point still needed. `None` without mandatory research.
+fn learn_target(
+    state: &GameState,
+    catalog: &Catalog,
+    id: CompanyId,
+    sites: &[SiteId],
+    date: Date,
+) -> Option<ProductId> {
+    if !state.settings.research_mandatory {
+        return None;
+    }
+    let mut branches = Vec::new();
+    let mut inputs = Vec::new();
+    for &site in sites {
+        for r in state.sites[site.index()]
+            .slots
+            .iter()
+            .filter_map(|sl| sl.recipe)
+        {
+            let recipe = catalog.recipes.get(r);
+            branches.push(catalog.products.get(recipe.product).branch);
+            inputs.extend(recipe.inputs.iter().map(|&(p, _)| p));
+        }
+    }
+    let candidates: Vec<ProductId> = crate::product_research::all(catalog)
+        .filter(|&p| {
+            (branches.contains(&catalog.products.get(p).branch) || inputs.contains(&p))
+                && crate::product_research::can_research(catalog, state, id, p)
+        })
+        .collect();
+    if candidates.is_empty() {
+        return None;
+    }
+    let scan = Scan::new(state, catalog);
+    candidates
+        .into_iter()
+        .filter_map(|p| {
+            let value = scan.open(p, id).0;
+            let (needed, collected) = crate::product_research::effort(catalog, state, id, p, date);
+            (value > 0.0).then_some((p, value / (needed - collected).max(1.0)))
+        })
+        .max_by(|a, b| a.1.total_cmp(&b.1).then(b.0.cmp(&a.0)))
+        .map(|(p, _)| p)
 }
 
 /// The product an AI company develops when it has nothing to research (M37): the one it
@@ -5198,6 +5316,70 @@ mod tests {
             opportunity(state, &catalog, &[], id, None).map(|o| o.0),
             None
         );
+    }
+
+    /// FW1: under mandatory research a competent company with a laboratory learns the
+    /// product of its branch with open demand that it may not make yet.
+    #[test]
+    fn mandatory_research_learns_a_product_of_the_branch() {
+        let mut catalog = test_support::research();
+        let metal = catalog.specializations.id("metall").expect("exists");
+        let mut fields = vec![None; catalog.branches.len()];
+        fields[0] = Some(metal);
+        catalog.research_model.development = crate::catalog::DevelopmentModel {
+            levels: 5,
+            fields,
+            effort_share: 1.0,
+            base_effort: 1000.0,
+            ..Default::default()
+        };
+        let iron = catalog.products.id("eisen").expect("exists");
+        let template = catalog.products.get(iron).clone();
+        let nails = catalog.products.insert("naegel", template).expect("new");
+        let base = catalog
+            .recipes
+            .get(catalog.recipes.id("eisen_schmelzen").expect("exists"))
+            .clone();
+        catalog
+            .recipes
+            .insert(
+                "naegel_machen",
+                crate::catalog::Recipe {
+                    product: nails,
+                    technology: None,
+                    inputs: vec![(iron, 1.0)],
+                    ..base
+                },
+            )
+            .expect("new");
+        catalog.basic_products = vec![iron];
+        catalog.basic_technologies = crate::product_research::basic_technologies(&catalog);
+        let (mut game, id, works) = idle_works_in(catalog, 0.6);
+        let catalog = game.catalog().clone();
+        let state = game.state_mut();
+        state.settings.research_mandatory = true;
+        state.date = Date::new(1903, 1, 1).expect("valid");
+        let date = state.date;
+        let mut last_year = crate::ledger::PeriodResult::default();
+        last_year.by_type.insert(
+            CostType::Revenue,
+            Money::from_usd(15_000_000.0).expect("valid"),
+        );
+        state.companies[id.index()].ledger.years.push(last_year);
+        let aaa = catalog.countries.id("AAA").expect("exists");
+        let m = state.markets.get_mut(nails).get_mut(aaa);
+        m.open_demand = 1000.0;
+        m.idle_since = None;
+        assert!(!state.knows_product(&catalog, id, nails));
+        // It founds a laboratory and learns the nails there.
+        research_plan(state, &catalog, id, &[works], (date, &[]), &mut Rules);
+        let lab = state
+            .sites
+            .iter()
+            .position(|s| s.held_by(id) && s.kind == SiteType::ResearchCenter)
+            .map(site_id)
+            .expect("a laboratory");
+        assert_eq!(state.sites[lab.index()].research_product, Some(nails));
     }
 
     /// M37: a competent company with nothing to research develops its best seller and

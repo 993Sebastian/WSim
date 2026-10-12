@@ -5845,6 +5845,16 @@ alles wie bisher.
   - Das Fachgebiet kommt aus der Technologie des Rezepts oder sonst aus der Branche.
 - **Start:** Spieler, Startbesetzung und historische Firmen kennen die Produkte ihrer
   Startstandorte samt Technologien.
+- **KI lernt Produkte:** Eine forschende KI-Firma (Können und Umsatz wie bei der
+  Technologieforschung) wählt jedes Mal ein Produkt, sofern keine dringende Marktlücke
+  vorgeht. In Frage kommen Produkte ihrer Branchen oder Vorprodukte dessen, was sie
+  herstellt, die sie noch nicht kennt und jetzt erforschen kann.
+  - Gewählt wird das mit dem höchsten offenen Bedarf (Wert je Tag) je noch fehlendem
+    Forschungspunkt.
+  - Ohne Forschungszentrum gründet sie eines am Firmensitz.
+  - Erst danach kommen die Technologien ihrer Branchen.
+  - Gleichzeitig entwickelt `lernen_entwicklung_anteil` (0,5) ihrer Forscher den
+    Bestseller weiter (M37). Ohne Lernziel entwickelt das ganze Labor wie bisher.
 - **Neue KI-Firmen** finden ihre Gelegenheiten wie ohne Pflicht: Technologien, die
   gemeinfrei sind oder eine Firma kennt. Sie bringen das Wissen für das Gründungsprodukt
   mit.
