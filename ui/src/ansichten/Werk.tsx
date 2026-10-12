@@ -515,7 +515,17 @@ function AnlageKarte({
         {a.count > 1 ? `${a.count} × ` : ""}
         {name}
         {a.size !== "mittel" && ` (${t(`anlagengroesse.${a.size}`)})`}
-        {imBau && <small>{t("uebersicht.im_bau", { datum: formatDatum(a.ready) })}</small>}
+        {imBau && (
+          <small>
+            {t("werk.im_bau_rest", {
+              datum: formatDatum(a.ready),
+              tage: Math.max(
+                1,
+                Math.round((Date.parse(a.ready) - Date.parse(produktion.date)) / 864e5),
+              ),
+            })}
+          </small>
+        )}
         {a.operation !== "laeuft" && a.operation_date && (
           <small>
             {t(a.operation === "stillgelegt" ? "werk.stillgelegt_seit" : "werk.wiederanlauf_bis", {

@@ -428,6 +428,13 @@ werk.oeffnen: Öffnen
 werk.oeffnen_von: "{standort} öffnen"
 werk.alles_laeuft: Alle Anlagen laufen nach Plan.
 werk.anlagen_im_bau: "{anzahl} Anlage(n) im Bau"
+werk.dauern: Laufende Vorgänge
+werk.im_bau_rest: "im Bau bis {datum} – noch {tage} Tage"
+werk.dauer.im_bau: "{anlage}: im Bau bis {datum} – noch {tage} Tage"
+werk.dauer.ueberholung: "{anlage}: Überholung bis {datum} – noch {tage} Tage"
+werk.dauer.stoerung: "{anlage}: Stillstand durch Störung bis {datum} – noch {tage} Tage"
+werk.dauer.wiederanlauf: "{anlage}: Wiederanlauf bis {datum} – noch {tage} Tage"
+werk.dauer.lagerstaette: "Lagerstätte wird erschlossen bis {datum} – noch {tage} Tage"
 werk.gruenden_hinweis: Ein Werk verarbeitet Vorprodukte, eine Förderstätte baut Rohstoffe ab, ein Kraftwerk erzeugt Strom; im Forschungszentrum entstehen neue Verfahren. Danach baust du im neuen Standort seine Anlagen.
 werk.gegruendet: "{art} in {land} gegründet. Öffne ihn, um Anlagen zu bauen."
 werk.alle_standorte: Alle Standorte

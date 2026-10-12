@@ -1,7 +1,7 @@
 // Sites (docs/BEDIENUNG.md): one card per site with what matters at a glance – last
 // month's result, staff, bottlenecks – and the plant view behind it.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { formatGeld, landName } from "../format";
+import { formatDatum, formatGeld, landName } from "../format";
 import type { Befehl, Kern, Produktion, StandortDetail, Uebersicht } from "../kern";
 import { t } from "../texte";
 import { FehlerText } from "./Dialog";
@@ -66,7 +66,12 @@ export function ProduktionAnsicht({
                       </h3>
                       <div className="karten-raster">
                         {standorte.map((s) => (
-                          <StandortKarte key={s.index} s={s} onOeffnen={() => onWerk(s.index)} />
+                          <StandortKarte
+                            key={s.index}
+                            s={s}
+                            heute={uebersicht.date}
+                            onOeffnen={() => onWerk(s.index)}
+                          />
                         ))}
                       </div>
                     </section>
@@ -123,11 +128,56 @@ function kontinentName(key: string): string {
   return key ? t(`kontinent.${key}`) : "";
 }
 
-function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => void }) {
+/** Days from `heute` to `bis`, at least 1 (both ISO dates). */
+function restTage(heute: string, bis: string): number {
+  return Math.max(1, Math.round((Date.parse(bis) - Date.parse(heute)) / 864e5));
+}
+
+/** What is still running on a site and until when: construction, overhaul, restart, deposit. */
+export function laufendeDauern(s: StandortDetail, heute: string): string[] {
+  const zeile = (anlage: string | null, schluessel: string, bis: string) =>
+    t(schluessel, {
+      anlage: anlage ?? "",
+      datum: formatDatum(bis),
+      tage: restTage(heute, bis),
+    });
+  const zeilen: string[] = [];
+  for (const a of s.slots) {
+    const name = t(`anlage.${a.facility}`);
+    if (a.cause?.key === "ursache.im_bau" && a.ready > heute) {
+      zeilen.push(zeile(name, "werk.dauer.im_bau", a.ready));
+    } else if (a.down_until && a.down_until > heute) {
+      zeilen.push(
+        zeile(
+          name,
+          a.down_overhaul ? "werk.dauer.ueberholung" : "werk.dauer.stoerung",
+          a.down_until,
+        ),
+      );
+    } else if (a.operation === "wiederanlauf" && a.operation_date && a.operation_date > heute) {
+      zeilen.push(zeile(name, "werk.dauer.wiederanlauf", a.operation_date));
+    }
+  }
+  if (s.deposit_ready && s.deposit_ready > heute) {
+    zeilen.push(zeile(null, "werk.dauer.lagerstaette", s.deposit_ready));
+  }
+  return zeilen;
+}
+
+function StandortKarte({
+  s,
+  heute,
+  onOeffnen,
+}: {
+  s: StandortDetail;
+  heute: string;
+  onOeffnen: () => void;
+}) {
   const titel = standortTitel(s);
   const probleme = s.slots.filter((a) => a.cause && a.cause.key !== "ursache.im_bau");
   const imBau = s.slots.filter((a) => a.cause?.key === "ursache.im_bau").length;
   const produkte = [...new Set(s.slots.map((a) => a.product).filter((p): p is string => !!p))];
+  const dauern = laufendeDauern(s, heute);
   const benoetigt = s.staff.reduce((summe, l) => summe + l.needed, 0);
   const m = s.last_month;
   return (
@@ -168,7 +218,13 @@ function StandortKarte({ s, onOeffnen }: { s: StandortDetail; onOeffnen: () => v
       ) : (
         s.slots.length > imBau && <p className="erfolgstext">{t("werk.alles_laeuft")}</p>
       )}
-      {imBau > 0 && <p className="gedaempft">{t("werk.anlagen_im_bau", { anzahl: imBau })}</p>}
+      {dauern.length > 0 && (
+        <ul className="dauern gedaempft" aria-label={t("werk.dauern")}>
+          {dauern.map((z) => (
+            <li key={z}>{z}</li>
+          ))}
+        </ul>
+      )}
       <div className="knopfreihe links">
         <button
           type="button"
