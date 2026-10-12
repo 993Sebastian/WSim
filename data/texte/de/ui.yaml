@@ -813,6 +813,7 @@ markt.filter.chancen: Chancen
 markt.sortieren: Sortieren nach
 markt.sort.name: Name
 markt.sort.nachfrage: Nachfrage (größte zuerst)
+markt.sort.groesse: Marktgröße (größte zuerst)
 markt.sort.preis: Preis zum Richtpreis (höchster zuerst)
 markt.sort.versorgung: Versorgung (schlechteste zuerst)
 markt.keine_produkte: Keine Produkte für diese Auswahl.
@@ -829,6 +830,7 @@ markt.zum_richtpreis: Preis zum Richtpreis
 markt.richtpreis_hilfe: Marktpreis im Verhältnis zum Richtpreis des Landes; der Strich in der Mitte steht für 100 %.
 markt.trend_hilfe: Marktpreis heute gegen den Durchschnitt der Verkäufe im Vormonat
 markt.nachfrage_monat: Nachfrage im Vormonat
+markt.groesse: Marktgröße (Vormonat)
 markt.versorgung: Versorgung
 markt.anbieter: Anbieter
 markt.fuehrer: Marktführer

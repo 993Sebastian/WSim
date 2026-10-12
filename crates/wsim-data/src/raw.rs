@@ -1392,6 +1392,22 @@ pub struct RawDevelopmentEffort {
     pub growth: f64,
     #[serde(rename = "grundaufwand")]
     pub base: f64,
+    /// Product-specific effort: depth of the input chain and number of distinct parts.
+    #[serde(rename = "komplexitaet", default)]
+    pub complexity: Option<RawComplexity>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawComplexity {
+    #[serde(rename = "zuschlag_je_stufe")]
+    pub per_level: f64,
+    #[serde(rename = "zuschlag_je_bauteil")]
+    pub per_part: f64,
+    #[serde(rename = "faktor_min")]
+    pub min: f64,
+    #[serde(rename = "faktor_max")]
+    pub max: f64,
 }
 
 #[derive(Debug, Deserialize)]

@@ -1664,6 +1664,15 @@ fn development_model(
         effort_share: in_range(ctx, d.effort.share, 0.01, 2.0, &effort.field("anteil")),
         effort_growth: in_range(ctx, d.effort.growth, 1.0, 3.0, &effort.field("wachstum")),
         base_effort: positive(ctx, d.effort.base, &effort.field("grundaufwand")),
+        complexity: d.effort.complexity.as_ref().map(|c| {
+            let at = effort.field("komplexitaet");
+            wsim_core::catalog::Complexity {
+                per_level: in_range(ctx, c.per_level, 0.0, 2.0, &at.field("zuschlag_je_stufe")),
+                per_part: in_range(ctx, c.per_part, 0.0, 2.0, &at.field("zuschlag_je_bauteil")),
+                min: positive(ctx, c.min, &at.field("faktor_min")),
+                max: in_range(ctx, c.max, c.min, 1000.0, &at.field("faktor_max")),
+            }
+        }),
         fields,
     }
 }

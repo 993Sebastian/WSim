@@ -818,6 +818,7 @@ export interface Markt {
     reference_usd: number;
     state_price_usd: number | null;
     demand_last_month: number;
+    market_size_usd: number;
     sold_last_month: number;
     imported_last_month: number;
     exported_last_month: number;

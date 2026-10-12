@@ -1301,8 +1301,20 @@ pub struct DevelopmentModel {
     pub effort_share: f64,
     pub effort_growth: f64,
     pub base_effort: f64,
+    /// Product-specific effort: base · (min + per_level · depth of the input chain +
+    /// per_part · distinct parts in it), at most `max`. Without it every
+    /// product has base.
+    pub complexity: Option<Complexity>,
     /// Research field of products without a technology, indexed by `BranchId`.
     pub fields: Vec<Option<SpecializationId>>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Complexity {
+    pub per_level: f64,
+    pub per_part: f64,
+    pub min: f64,
+    pub max: f64,
 }
 
 impl Default for DevelopmentModel {
@@ -1317,6 +1329,7 @@ impl Default for DevelopmentModel {
             effort_share: 0.2,
             effort_growth: 1.6,
             base_effort: 10_000.0,
+            complexity: None,
             fields: Vec::new(),
         }
     }

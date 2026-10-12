@@ -356,7 +356,7 @@ impl UnitCost {
         self.facility += other.facility;
     }
 
-    fn per_unit(mut self) -> Self {
+    pub(crate) fn per_unit(mut self) -> Self {
         let q = self.output_per_day.max(1e-12);
         for v in [
             &mut self.material,
@@ -379,9 +379,6 @@ impl UnitCost {
 /// utilization. The whole cost goes to the main product.
 pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<UnitCost> {
     let s = &state.sites[site.index()];
-    let c = state.countries.get(s.country);
-    let affinity = (c.automation_affinity, c.labor_productivity);
-    let wage_factor = 1.0 + s.wage_premium;
     let made: Vec<ProductId> = s
         .slots
         .iter()
@@ -398,7 +395,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             )
         };
         let mut sums: Vec<UnitCost> = Vec::new();
-        for (slot, sl) in s.slots.iter().enumerate() {
+        for sl in &s.slots {
             // Shut down facilities make nothing (M22).
             let Some(recipe) = sl
                 .recipe
@@ -407,58 +404,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
             else {
                 continue;
             };
-            let f = catalog.facilities.get(sl.facility);
-            let utilization = if sl.utilization > 0.0 {
-                sl.utilization
-            } else {
-                1.0
-            };
-            let runs = sl.full_runs(catalog) * utilization;
-            let developed = slot_effect(catalog, state, s, sl, recipe.product);
-            let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
-                * developed.labor
-                * crate::training::labor_factor(catalog, s.training)
-                * crate::learning::factor(catalog, s, recipe);
-            let labor: f64 = hours_per_run(
-                catalog,
-                (recipe, sl.size),
-                sl.automation,
-                affinity,
-                cost_factor,
-            )
-            .iter()
-            .map(|&(g, h)| h * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
-            .sum::<f64>()
-                * wage_factor;
-            let energy = recipe.energy_mwh * c.electricity_price_usd_mwh;
-            let material: f64 = recipe
-                .inputs
-                .iter()
-                .map(|&(p, q)| q * developed.inputs * price(p))
-                .sum();
-            let overhead = overhead_usd(
-                catalog,
-                recipe,
-                labor + energy + capital_per_run_usd(catalog, recipe, sl.size),
-            );
-            let rent = rent_per_run_usd(catalog, state, s.country, recipe)
-                + recipe.co2_t * crate::regulation::co2_price(catalog, s.country, state.date);
-            let facility = sl.cost.to_usd()
-                * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share)
-                / 365.0;
-            let line = UnitCost {
-                product: recipe.product,
-                output_per_day: runs
-                    * recipe.output
-                    * developed.output
-                    * (1.0 - crate::operations::scrap_rate(catalog, state, s, slot, recipe)),
-                material: material * runs,
-                labor: labor * runs,
-                energy: energy * runs,
-                overhead: overhead * runs,
-                rent: rent * runs,
-                facility,
-            };
+            let line = slot_cost_line(catalog, state, site, sl, recipe, &price);
             match sums.iter_mut().find(|u| u.product == recipe.product) {
                 Some(u) => u.add(&line),
                 None => sums.push(line),
@@ -467,6 +413,75 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
         costs = sums.into_iter().map(UnitCost::per_unit).collect();
     }
     costs
+}
+
+/// Expected cost of one facility per day (inputs at `price`, labor, electricity, overhead,
+/// rent, depreciation and maintenance) and what it makes per day at its planned
+/// utilization; `UnitCost::per_unit` turns it into a cost per unit. The facility need not
+/// stand at the site yet (offers of machine builders, MAA).
+pub(crate) fn slot_cost_line(
+    catalog: &Catalog,
+    state: &GameState,
+    site: SiteId,
+    sl: &crate::state::Slot,
+    recipe: &Recipe,
+    price: &dyn Fn(ProductId) -> f64,
+) -> UnitCost {
+    let s = &state.sites[site.index()];
+    let c = state.countries.get(s.country);
+    let affinity = (c.automation_affinity, c.labor_productivity);
+    let wage_factor = 1.0 + s.wage_premium;
+    let f = catalog.facilities.get(sl.facility);
+    let utilization = if sl.utilization > 0.0 {
+        sl.utilization
+    } else {
+        1.0
+    };
+    let runs = sl.full_runs(catalog) * utilization;
+    let developed = slot_effect(catalog, state, s, sl, recipe.product);
+    let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
+        * developed.labor
+        * crate::training::labor_factor(catalog, s.training)
+        * crate::learning::factor(catalog, s, recipe);
+    let labor: f64 = hours_per_run(
+        catalog,
+        (recipe, sl.size),
+        sl.automation,
+        affinity,
+        cost_factor,
+    )
+    .iter()
+    .map(|&(g, h)| h * c.hourly_wage_usd.get(g.index()).copied().unwrap_or(0.0))
+    .sum::<f64>()
+        * wage_factor;
+    let energy = recipe.energy_mwh * c.electricity_price_usd_mwh;
+    let material: f64 = recipe
+        .inputs
+        .iter()
+        .map(|&(p, q)| q * developed.inputs * price(p))
+        .sum();
+    let overhead = overhead_usd(
+        catalog,
+        recipe,
+        labor + energy + capital_per_run_usd(catalog, recipe, sl.size),
+    );
+    let rent = rent_per_run_usd(catalog, state, s.country, recipe)
+        + recipe.co2_t * crate::regulation::co2_price(catalog, s.country, state.date);
+    let facility =
+        sl.cost.to_usd() * (1.0 / f64::from(f.lifetime_years.max(1)) + f.maintenance_share) / 365.0;
+    UnitCost {
+        product: recipe.product,
+        output_per_day: runs
+            * recipe.output
+            * developed.output
+            * (1.0 - crate::operations::scrap_rate_for(catalog, state, s, sl, recipe)),
+        material: material * runs,
+        labor: labor * runs,
+        energy: energy * runs,
+        overhead: overhead * runs,
+        rent: rent * runs,
+        facility,
+    }
 }
 
 /// What a bought input costs a site per unit: the average cost of its stock (contract

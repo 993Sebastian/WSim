@@ -1428,6 +1428,8 @@ pub struct MarketLine {
     /// Price of the state market, if it sells the product.
     pub state_price_usd: Option<f64>,
     pub demand_last_month: f64,
+    /// Size of the market: demand of the last month at the market price (USD).
+    pub market_size_usd: f64,
     pub sold_last_month: f64,
     pub imported_last_month: f64,
     pub exported_last_month: f64,
@@ -1599,6 +1601,7 @@ pub fn market(game: &Game, scope: &str) -> Option<MarketView> {
             reference_usd: mean(&|l| l.reference_usd),
             state_price_usd: None,
             demand_last_month: demand,
+            market_size_usd: sum(&|l| l.market_size_usd),
             sold_last_month: sold,
             imported_last_month: sum(&|l| l.imported_last_month),
             exported_last_month: sum(&|l| l.exported_last_month),
@@ -1681,6 +1684,7 @@ fn country_market(game: &Game, c: CountryId, country: &str) -> Option<MarketView
                 reference_usd: usd(market::local_reference(catalog, state, c, p)),
                 state_price_usd: market::state_price(catalog, state, c, p).map(usd),
                 demand_last_month: t.demand,
+                market_size_usd: t.demand * usd(market::market_price(catalog, state, c, p)),
                 sold_last_month: t.sold,
                 imported_last_month: t.imported,
                 exported_last_month: t.exported,

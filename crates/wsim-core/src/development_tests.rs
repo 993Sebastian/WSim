@@ -34,6 +34,7 @@ fn catalog() -> Catalog {
         effort_share: 0.2,
         effort_growth: 1.6,
         base_effort: 1000.0,
+        complexity: None,
         fields,
     };
     c

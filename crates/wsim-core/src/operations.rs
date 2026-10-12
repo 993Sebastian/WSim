@@ -19,13 +19,23 @@ pub fn scrap_rate(
     slot: usize,
     recipe: &Recipe,
 ) -> f64 {
+    scrap_rate_for(catalog, state, site, &site.slots[slot], recipe)
+}
+
+/// `scrap_rate` for a facility that need not stand at the site yet (an offer's values).
+pub fn scrap_rate_for(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &Site,
+    sl: &crate::state::Slot,
+    recipe: &Recipe,
+) -> f64 {
     let m = &catalog.production_model.operations;
     // Extraction yields what it yields; scrap is a matter of processing.
     let base = scrap_base(catalog, recipe);
     if base <= 0.0 {
         return 0.0;
     }
-    let sl = &site.slots[slot];
     let learning = crate::learning::factor(catalog, site, recipe);
     (base
         * (1.0 - m.scrap_training * site.training.clamp(0.0, 1.0))

@@ -53,6 +53,10 @@ pub struct MachineOffer {
     /// Price of all units (volume discount included) and the build time in days.
     pub price: Money,
     pub build_days: u32,
+    /// Market prices (USD per unit) of the recipe's inputs on the day the offer came in;
+    /// fixed then, so the material cost shown does not move with the market.
+    #[serde(default)]
+    pub input_prices: Vec<(ProductId, f64)>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -426,6 +430,24 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
             }
             state.machine_tenders[i].schedule = days;
         }
+        let input_prices: Vec<(ProductId, f64)> = base(state, catalog, site, kind)
+            .ok()
+            .zip(state.site(site).map(|s| s.country))
+            .map(|(b, country)| {
+                catalog
+                    .recipes
+                    .get(b.recipe)
+                    .inputs
+                    .iter()
+                    .map(|&(p, _)| {
+                        (
+                            p,
+                            crate::market::market_price(catalog, state, country, p).to_usd(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
         let offset = start.days_until(date);
         let due: Vec<u32> = state.machine_tenders[i]
             .schedule
@@ -475,6 +497,7 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
                     factors,
                     price,
                     build_days,
+                    input_prices: input_prices.clone(),
                 });
                 received += 1;
             }
@@ -497,4 +520,132 @@ pub fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec
     }
     state.machine_tenders.retain(|t| !t.over(m, date));
     messages
+}
+
+/// One input of an offer's material cost.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MaterialLine {
+    pub product: ProductId,
+    /// Quantity per unit made and its price (fixed on the day the offer came in).
+    pub quantity: f64,
+    pub price_usd: f64,
+}
+
+/// What making one unit would cost with the machine of an offer, and with the machine
+/// as the catalog has it (for the comparison).
+#[derive(Clone, Debug, PartialEq)]
+pub struct OfferCosts {
+    pub materials: Vec<MaterialLine>,
+    pub material_usd: f64,
+    /// All of it: material, labor, energy, overhead, rent, depreciation and maintenance.
+    pub unit_cost_usd: f64,
+    pub catalog_unit_cost_usd: f64,
+}
+
+/// The facility an offer would make of the site: for a build the new units, for a
+/// changeover the existing unit with the offer's values.
+fn probe_slot(
+    state: &GameState,
+    catalog: &Catalog,
+    tender: &MachineTender,
+    machine: Option<MachineFactors>,
+    cost: Money,
+) -> Option<(crate::state::Slot, crate::ids::RecipeId)> {
+    let b = base(state, catalog, tender.site, tender.kind).ok()?;
+    let slot = match tender.kind {
+        TenderKind::Build { .. } => crate::state::Slot {
+            facility: b.facility,
+            ready: state.date,
+            count: b.count,
+            cost,
+            recipe: Some(b.recipe),
+            utilization: 1.0,
+            automation: 0.0,
+            condition: 1.0,
+            down: None,
+            batches: Vec::new(),
+            last_runs: 0.0,
+            limit: None,
+            operation: crate::state::Operation::Running,
+            size: b.size,
+            retrofit: 0,
+            machine,
+        },
+        TenderKind::Switch { slot, .. } => {
+            let mut sl = state.site(tender.site)?.slots.get(slot)?.clone();
+            sl.facility = b.facility;
+            sl.recipe = Some(b.recipe);
+            sl.utilization = 1.0;
+            sl.machine = machine.map(|m| MachineFactors {
+                price: sl.machine.map_or(1.0, |old| old.price),
+                ..m
+            });
+            sl
+        }
+    };
+    Some((slot, b.recipe))
+}
+
+/// Material and total cost per unit of an offer (MAA §5): the inputs at the prices of the
+/// day the offer came in, labor, energy and the rest as in `production::unit_costs`.
+pub fn offer_costs(
+    state: &GameState,
+    catalog: &Catalog,
+    tender: &MachineTender,
+    offer: &MachineOffer,
+) -> Option<OfferCosts> {
+    let site = state.site(tender.site)?;
+    let price = |p: ProductId| {
+        offer
+            .input_prices
+            .iter()
+            .find(|&&(q, _)| q == p)
+            .map_or_else(
+                || crate::market::market_price(catalog, state, site.country, p).to_usd(),
+                |&(_, v)| v,
+            )
+    };
+    let (slot, recipe_id) = probe_slot(state, catalog, tender, Some(offer.factors), offer.price)?;
+    let recipe = catalog.recipes.get(recipe_id);
+    let line =
+        crate::production::slot_cost_line(catalog, state, tender.site, &slot, recipe, &price);
+    let per_day = line.output_per_day.max(1e-12);
+    let developed = crate::production::slot_effect(catalog, state, site, &slot, recipe.product);
+    let runs = slot.full_runs(catalog) * slot.utilization;
+    let materials: Vec<MaterialLine> = recipe
+        .inputs
+        .iter()
+        .map(|&(p, q)| MaterialLine {
+            product: p,
+            quantity: q * developed.inputs * runs / per_day,
+            price_usd: price(p),
+        })
+        .collect();
+    let unit = line.per_unit();
+    // The same facility as the catalog has it, at the catalog price.
+    let at_catalog = probe_slot(
+        state,
+        catalog,
+        tender,
+        None,
+        base(state, catalog, tender.site, tender.kind).ok()?.price(),
+    )
+    .map(|(sl, r)| {
+        crate::production::slot_cost_line(
+            catalog,
+            state,
+            tender.site,
+            &sl,
+            catalog.recipes.get(r),
+            &price,
+        )
+        .per_unit()
+        .total()
+    })?;
+    Some(OfferCosts {
+        material_usd: unit.material,
+        unit_cost_usd: unit.total(),
+        materials,
+        catalog_unit_cost_usd: at_catalog,
+    })
 }

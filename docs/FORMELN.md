@@ -1919,10 +1919,19 @@ je Punkt über 50), bessere Qualität bringt Marktanteile (Kaufentscheidung, M16
 Für die nächste Stufe n = L + 1:
 
     Punkte(n) = B(p) · aufwand.anteil · aufwand.wachstum^(n − 1) · N
-    B(p)      = max(aufwand.grundaufwand, größter Forschungsaufwand der Technologien
-                    der Rezepte von p)
+    B(p)      = max(aufwand.grundaufwand · K(p), größter Forschungsaufwand der
+                    Technologien der Rezepte von p)
+    K(p)      = min(faktor_min + zuschlag_je_stufe · Stufen(p)
+                    + zuschlag_je_bauteil · Bauteile(p), faktor_max)
+    Stufen(p) = Tiefe der Vorproduktkette (0 bei Rohstoffen)
+    Bauteile(p) = Zahl der verschiedenen Vorprodukte darin, über alle Ebenen
     N         = max(nachzuegler.minimum, (1 − nachzuegler.rabatt_je_jahr)^(t − E_n))
                 wenn eine Firma die Stufe n schon zum Zeitpunkt E_n erreicht hat, sonst 1
+
+Produktindividuell (Wunsch vom 12.10.2026): Rohstoffe 3 000, Muttern 35 000,
+Damenkleid 53 000, Werkzeugmaschine 91 000, Smartphone 85 000 Punkte (Richtpreis je kg
+war kein guter Maßstab: ein Kleinwagen läge unter einem Kleid). Ohne Block `komplexitaet`
+gilt K = 1.
 
 Beispiel B = 10 000 (Grundaufwand; Median der Technologien 12 000), anteil 1, wachstum 1,7:
 Stufe 1 10 000, Stufe 2 17 000, Stufe 3 28 900, Stufe 4 49 130, Stufe 5 83 521 Punkte,

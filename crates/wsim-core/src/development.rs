@@ -322,6 +322,44 @@ pub fn idle(site: &Site) -> bool {
     site.research.is_none() && site_shares(site).is_empty() && site_process_shares(site).is_empty()
 }
 
+/// Effort of a product from its own data: the base effort times a factor from the depth
+/// of its input chain and the number of distinct parts in it (without `complexity`
+/// just the base).
+fn own_base(catalog: &Catalog, product: ProductId) -> f64 {
+    let m = &catalog.research_model.development;
+    let Some(c) = m.complexity else {
+        return m.base_effort;
+    };
+    let mut parts = Vec::new();
+    let depth = collect_parts(catalog, product, 0, &mut parts);
+    let factor = c.min + c.per_level * f64::from(depth) + c.per_part * parts.len() as f64;
+    m.base_effort * factor.min(c.max)
+}
+
+/// Collects the distinct products below a product through its first recipe and returns
+/// the levels of the chain (0 for raw materials).
+fn collect_parts(
+    catalog: &Catalog,
+    product: ProductId,
+    guard: u32,
+    parts: &mut Vec<ProductId>,
+) -> u32 {
+    if guard >= 12 {
+        return 0;
+    }
+    let Some(r) = catalog.recipes.values().find(|r| r.product == product) else {
+        return 0;
+    };
+    let mut deepest = 0;
+    for &(p, _) in &r.inputs {
+        if !parts.contains(&p) {
+            parts.push(p);
+        }
+        deepest = deepest.max(1 + collect_parts(catalog, p, guard + 1, parts));
+    }
+    deepest
+}
+
 /// Research field and base effort of a product, `None` when it cannot be developed (no
 /// recipe, no field, or development turned off): the field of the technology of its
 /// first recipe with one, else that of its branch; the largest research effort of its
@@ -351,7 +389,7 @@ pub fn basis(catalog: &Catalog, product: ProductId) -> Option<(SpecializationId,
         .iter()
         .filter_map(|r| r.technology)
         .filter_map(|t| catalog.technologies.get(t).research_effort)
-        .fold(m.base_effort, f64::max);
+        .fold(own_base(catalog, product), f64::max);
     Some((field, base))
 }
 

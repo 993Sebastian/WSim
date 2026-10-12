@@ -36,7 +36,7 @@ import { LAENDER } from "./laender";
 type Zeile = Markt["lines"][number];
 type Marke = Markt["brands"][number];
 type Filter = "alle" | "eigene" | "chancen";
-type Sortierung = "name" | "nachfrage" | "preis" | "versorgung";
+type Sortierung = "name" | "nachfrage" | "groesse" | "preis" | "versorgung";
 
 const einheit = (units: Record<string, string>, p: string) => t(`einheit.${units[p] ?? "t"}`);
 
@@ -202,6 +202,8 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
     switch (sortierung) {
       case "nachfrage":
         return -z.demand_last_month;
+      case "groesse":
+        return -z.market_size_usd;
       case "preis":
         return -(z.reference_usd > 0 ? z.price_usd / z.reference_usd : 0);
       case "versorgung":
@@ -239,7 +241,7 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
             value={sortierung}
             onChange={(e) => setSortierung(e.target.value as Sortierung)}
           >
-            {(["name", "nachfrage", "preis", "versorgung"] as const).map((s) => (
+            {(["name", "nachfrage", "groesse", "preis", "versorgung"] as const).map((s) => (
               <option key={s} value={s}>
                 {t(`markt.sort.${s}`)}
               </option>
@@ -280,6 +282,7 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
               <th className="zahl">{t("markt.preis")}</th>
               <th>{t("markt.zum_richtpreis")}</th>
               <th className="zahl">{t("markt.nachfrage_monat")}</th>
+              <th className="zahl">{t("markt.groesse")}</th>
               <th className="zahl">{t("markt.versorgung")}</th>
               <th className="zahl spalte-breit">{t("markt.anbieter")}</th>
               <th className="spalte-breit">{t("markt.fuehrer")}</th>
@@ -314,6 +317,9 @@ function Produkte({ daten, onProdukt }: { daten: Markt; onProdukt: (p: string) =
                   </td>
                   <td className="zahl" data-spalte={t("markt.nachfrage_monat")}>
                     {formatZahl(z.demand_last_month, z.demand_last_month < 10 ? 1 : 0)} {e}
+                  </td>
+                  <td className="zahl" data-spalte={t("markt.groesse")}>
+                    {formatGeld(z.market_size_usd)}
                   </td>
                   <td
                     className={`zahl ${zustand ? `zustand-${zustand}` : ""}`}

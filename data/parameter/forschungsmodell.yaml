@@ -45,7 +45,19 @@ forschungsmodell:
     # Generation n kostet B · anteil · wachstum^(n − 1) Forschungspunkte; B ist der größte
     # Forschungsaufwand der Technologien des Produkts, mindestens grundaufwand. B ist auch
     # das Maß der Reife: S = 1 − e^(−Punkte des Führenden / B).
-    aufwand: {anteil: 1.0, wachstum: 1.7, grundaufwand: 10_000}
+    aufwand:
+      anteil: 1.0
+      wachstum: 1.7
+      grundaufwand: 10_000
+      # Produktindividueller Aufwand (Wunsch vom 12.10.2026): grundaufwand · (faktor_min +
+      # Zuschlag je Stufe der Vorproduktkette + Zuschlag je verschiedenem Bauteil darin),
+      # höchstens faktor_max. Gilt, wo die Technologien des Produkts keinen größeren
+      # Forschungsaufwand haben.
+      komplexitaet:
+        faktor_min: 0.3
+        zuschlag_je_stufe: 1.0
+        zuschlag_je_bauteil: 0.4
+        faktor_max: 40
     # Fachgebiet der Forscher für Produkte ohne Technologie (Ernte, einfacher Abbau),
     # nach Branche; sonst gilt das Fachgebiet der Technologie.
     fachgebiete:
