@@ -2209,6 +2209,31 @@ Vorschlag für die Prüfung, bevor etwas geändert wird:
 
 Ergebnis: ein Bericht mit Messwerten und konkreten Änderungsvorschlägen zur Abnahme.
 
+## U FW1: Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026)
+
+Vorgabe (Auszug, die Nachricht kam gekürzt an): „Der Produktionszugang wird neu geregelt:
+Zu Spielbeginn ist pro Branche nur ein Grundprodukt verfügbar und nicht mehr.“
+Eingereiht nach WG5. Baut auf Q6 (Forschung je Produkt) und der Werksansicht (M18c) auf;
+berührt MN5 (Anzeige) und P6 (reale Firmen, Startbesetzung).
+
+Vorschläge zur Abnahme, bevor umgesetzt wird:
+
+1. **Grundprodukt je Branche:** neues Datenfeld `grundprodukt` je Branche
+   (`data/grundlagen.yaml`), z. B. Metallurgie → Roheisen, Textil → Garn, Lebensmittel →
+   Mehl. Zu Spielbeginn kennt jede neue Firma nur diese 17 Produkte; alles andere braucht
+   Forschung, auch wenn es historisch längst erfunden ist (Forschungspflicht).
+2. **Rohstoffe:** Förderung (Erz, Kohle, Holz, Getreide …) bleibt frei; die Pflicht gilt
+   für Halbzeuge, Komponenten und Endprodukte. Zukauf am Markt bleibt immer möglich.
+3. **KI-Firmen:** Gleiche Regel für neu gegründete KI-Firmen. Firmen, die zum Start schon
+   produzieren (Startbesetzung, reale Firmen), behalten die Produkte, die sie herstellen.
+4. **Werksbranchen:** Ein Werk gehört nach der Gründung zu einer Branche und baut nur
+   Anlagen dieser Branche; ein Wechsel kostet einen Umbau (Anteil der Baukosten, Daten).
+5. **Produktbasierter Anlagenkauf:** Der Spieler wählt im Werk ein bekanntes Produkt der
+   Branche; das Spiel schlägt Anlage und Verfahren vor (Größe wählbar), statt erst die
+   Anlage zu wählen.
+6. **Aufwand:** Damit der Start nicht zäh wird, sinkt der Forschungsaufwand für Produkte,
+   deren Erfindung lange zurückliegt (Faktor in Daten).
+
 ## Reihenfolge der neuen Punkte
 
 ✅ Entschieden am 06.10.2026: Regionen und Grundstücke vor den restlichen Epochen – sie

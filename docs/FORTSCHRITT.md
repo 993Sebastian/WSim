@@ -103,6 +103,15 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | P5 | Energie- und Umwelttechnik, Medizintechnik, Freizeit: 52 Endprodukte, Uran; Abschluss-Weltlauf | ✅ (Weltlauf ⏳) |
 | P7 | Patente: Anspruch des ersten Erfinders, Anmeldung je Land, Sperre der Herstellung, Lizenzen nur vom Inhaber, Vorbenutzung, KI-Anmeldung | ✅ (vorgezogen auf Wunsch vom 08.10.2026) |
 | P6 | Reale Firmen nach Gründungsjahr | ⏳ |
+| BP1–BP5 | Betrieb: Lernkurve, Instandhaltung, Lager, Ausschuss/Unfälle/Korruption, Balance | ✅ |
+| MN1 | Substitution bei Verbrauchsgütern, Trends | ✅ |
+| MN2 | Ausstattungsstufen, Ruf mit Rückrufen, Ausschreibungen | ✅ |
+| MN3 | Vertriebswege mit Reichweite und Kosten | 🔄 |
+| MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | ⏳ |
+| MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
+| MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
+| WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏳ |
+| FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ⏳ (Vorgabe unvollständig, Rückfrage offen) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
 §18.3) und als M22–M29 umgesetzt. Kaufangebote zwischen Firmen und die Produkte bis 2026
