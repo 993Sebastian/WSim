@@ -2397,6 +2397,46 @@ pub struct DevelopmentView {
     pub lead_effect: EffectView,
     /// Research centers developing it, with their shares of researchers.
     pub sites: Vec<u32>,
+    /// Manufacturing research (Q6): own points, the player's share of the leader's,
+    /// how far the manufacturing is researched at all (0–1), and the centers on it.
+    #[serde(default)]
+    pub process_points: f64,
+    #[serde(default)]
+    pub process_share: f64,
+    #[serde(default)]
+    pub process_maturity: f64,
+    #[serde(default)]
+    pub process_sites: Vec<u32>,
+}
+
+/// A product to research (Q6): research works on products, the technologies stay behind.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ProductResearchView {
+    pub product: String,
+    /// `rohstoff`, `halbzeug`, `komponente`, `endprodukt`, `energie`.
+    pub kind: String,
+    pub branch: String,
+    /// `bekannt`, `in_arbeit`, `erforschbar` or `gesperrt`.
+    pub status: String,
+    /// The product exists in the world (it can be bought).
+    pub in_world: bool,
+    /// Points it still takes in all, and those collected for it.
+    pub needed: f64,
+    pub collected: f64,
+    /// Inputs that do not exist in the world yet (they block the research).
+    pub missing_inputs: Vec<String>,
+    /// Inputs of its main recipe.
+    pub inputs: Vec<String>,
+    /// Latest historical year of its missing technologies.
+    pub historical_year: Option<i32>,
+    /// Field of the researchers it needs next.
+    pub field: Option<String>,
+    /// Research centers working on it, their points per day and the days to go.
+    pub sites: Vec<u32>,
+    pub points_per_day: f64,
+    pub days: Option<f64>,
+    /// What one fully used laboratory would take.
+    pub one_lab: Option<LabEstimate>,
 }
 
 /// What a development level changes (M37): quality points, shares of labor and inputs
@@ -2406,6 +2446,9 @@ pub struct EffectView {
     pub quality: f64,
     pub labor_saved: f64,
     pub inputs_saved: f64,
+    /// Share of output gained per run (manufacturing research, Q6).
+    #[serde(default)]
+    pub output_gained: f64,
 }
 
 impl From<crate::development::Effect> for EffectView {
@@ -2414,6 +2457,7 @@ impl From<crate::development::Effect> for EffectView {
             quality: e.quality,
             labor_saved: 1.0 - e.labor,
             inputs_saved: 1.0 - e.inputs,
+            output_gained: e.output - 1.0,
         }
     }
 }
@@ -2432,6 +2476,12 @@ pub struct ResearchCenterView {
     /// Shares of the researchers per developed product (Q1); the rest works on `project`.
     #[serde(default)]
     pub shares: Vec<(String, f64)>,
+    /// Shares of the researchers on manufacturing research per product (Q6).
+    #[serde(default)]
+    pub process_shares: Vec<(String, f64)>,
+    /// Product it researches (Q6); `project` is the technology it works on for it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub research_product: Option<String>,
     /// A laboratory is ready.
     pub ready: bool,
     /// Day the first laboratory is ready while all are still being built.
@@ -2452,6 +2502,9 @@ pub struct LabView {
 pub struct ResearchOverview {
     pub date: String,
     pub technologies: Vec<TechnologyView>,
+    /// All products with their research state (Q6).
+    #[serde(default)]
+    pub products: Vec<ProductResearchView>,
     /// Products to develop (M37), the highest level and what one level brings.
     pub developments: Vec<DevelopmentView>,
     pub development_levels: u8,
@@ -2686,11 +2739,152 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
                     .and_then(|r| lab_estimate(catalog, state, lab_country, field, r)),
                 field: catalog.specializations.key(field).to_owned(),
                 effect: development::effect(catalog, state, player, p).into(),
-                lead_effect: development::Effect::of(catalog, 1.0, maturity).into(),
+                lead_effect: development::Effect::of(catalog, 1.0, maturity)
+                    .with_process(
+                        catalog,
+                        1.0,
+                        development::process_maturity(catalog, state, p),
+                    )
+                    .into(),
                 sites: working
                     .iter()
                     .map(|&(i, _)| u32::try_from(i).unwrap_or(u32::MAX))
                     .collect(),
+                process_points: development::process_points(state, player, p),
+                process_share: development::process_share(state, player, p),
+                process_maturity: development::process_maturity(catalog, state, p),
+                process_sites: state
+                    .sites
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, s)| {
+                        s.held_by(player)
+                            && development::site_process_shares(s)
+                                .iter()
+                                .any(|&(q, share)| q == p && share > 0.0)
+                    })
+                    .map(|(i, _)| u32::try_from(i).unwrap_or(u32::MAX))
+                    .collect(),
+            })
+        })
+        .collect()
+}
+
+/// Research state of every product for the player (Q6).
+fn product_research_views(game: &Game) -> Vec<ProductResearchView> {
+    use crate::product_research as pr;
+    let state = game.state();
+    let catalog = game.catalog();
+    let player = game.player();
+    let company = &state.companies[player.index()];
+    let lab_country = state
+        .sites
+        .iter()
+        .find(|s| s.held_by(player) && s.kind == SiteType::ResearchCenter)
+        .map_or(company.headquarters, |s| s.country);
+    pr::all(catalog)
+        .filter_map(|p| {
+            let recipe = pr::main_recipe(catalog, p)?;
+            let x = catalog.products.get(p);
+            let known = pr::known(catalog, state, player, p);
+            let missing = if known {
+                Vec::new()
+            } else {
+                pr::missing(catalog, state, player, p)
+            };
+            let (needed, collected) = if known {
+                (0.0, 0.0)
+            } else {
+                pr::effort(catalog, state, player, p, state.date)
+            };
+            let working: Vec<usize> = state
+                .sites
+                .iter()
+                .enumerate()
+                .filter(|(_, s)| s.held_by(player) && s.research_product == Some(p))
+                .map(|(i, _)| i)
+                .collect();
+            let next = (!known)
+                .then(|| pr::next(catalog, state, player, p))
+                .flatten()
+                .or_else(|| missing.first().copied());
+            let field = next.map(|t| catalog.technologies.get(t).field);
+            let points_per_day: f64 = field.map_or(0.0, |field| {
+                working
+                    .iter()
+                    .map(|&i| {
+                        let s = &state.sites[i];
+                        let researchers = catalog
+                            .research_model
+                            .researchers
+                            .get(field.index())
+                            .copied()
+                            .flatten()
+                            .map_or(0.0, |g| *s.workforce.get(g));
+                        researchers
+                            * crate::development::technology_share(s)
+                            * state
+                                .countries
+                                .get(s.country)
+                                .research_efficiency
+                                .get(field.index())
+                                .copied()
+                                .unwrap_or(1.0)
+                    })
+                    .sum()
+            });
+            let remaining = (!known).then(|| (needed - collected).max(0.0));
+            let status = if known {
+                "bekannt"
+            } else if !working.is_empty() {
+                "in_arbeit"
+            } else if pr::can_research(catalog, state, player, p) {
+                "erforschbar"
+            } else {
+                "gesperrt"
+            };
+            let key = |q: ProductId| catalog.products.key(q).to_owned();
+            Some(ProductResearchView {
+                product: key(p),
+                kind: super::chains::kind_key(x.kind).to_owned(),
+                branch: catalog.branches.key(x.branch).to_owned(),
+                status: status.to_owned(),
+                in_world: pr::known_in_world(catalog, state, p),
+                needed,
+                collected,
+                missing_inputs: if known {
+                    Vec::new()
+                } else {
+                    pr::missing_inputs(catalog, state, p)
+                        .into_iter()
+                        .map(key)
+                        .collect()
+                },
+                inputs: catalog
+                    .recipes
+                    .get(recipe)
+                    .inputs
+                    .iter()
+                    .map(|&(q, _)| key(q))
+                    .collect(),
+                historical_year: missing
+                    .iter()
+                    .map(|&t| catalog.technologies.get(t).invention_year)
+                    .max(),
+                field: field.map(|f| catalog.specializations.key(f).to_owned()),
+                sites: working
+                    .iter()
+                    .map(|&i| u32::try_from(i).unwrap_or(u32::MAX))
+                    .collect(),
+                points_per_day,
+                days: remaining
+                    .filter(|_| points_per_day > 0.0)
+                    .map(|r| r / points_per_day),
+                one_lab: remaining.zip(field).and_then(|(r, f)| {
+                    (r > 0.0)
+                        .then(|| lab_estimate(catalog, state, lab_country, f, r))
+                        .flatten()
+                }),
             })
         })
         .collect()
@@ -2877,6 +3071,13 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
                 .into_iter()
                 .map(|(p, share)| (catalog.products.key(p).to_owned(), share))
                 .collect(),
+            process_shares: crate::development::site_process_shares(s)
+                .into_iter()
+                .map(|(p, share)| (catalog.products.key(p).to_owned(), share))
+                .collect(),
+            research_product: s
+                .research_product
+                .map(|p| catalog.products.key(p).to_owned()),
             ready: s.slots.iter().any(|sl| sl.operating(state.date)),
             building_until: s
                 .slots
@@ -2901,9 +3102,12 @@ pub fn research_overview(game: &Game) -> ResearchOverview {
     ResearchOverview {
         date: iso(state.date),
         technologies,
+        products: product_research_views(game),
         developments: developments(game),
         development_levels: catalog.research_model.development.levels,
-        development_max: crate::development::Effect::of(catalog, 1.0, 1.0).into(),
+        development_max: crate::development::Effect::of(catalog, 1.0, 1.0)
+            .with_process(catalog, 1.0, 1.0)
+            .into(),
         centers,
         product_kinds: catalog
             .products

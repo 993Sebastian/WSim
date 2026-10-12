@@ -85,6 +85,7 @@ pub(super) fn decode_v2(
         .into_iter()
         .map(|c| {
             Ok(Company {
+                process: Default::default(),
                 brands: Vec::new(),
                 emissions: Default::default(),
                 emissions_last: Default::default(),
@@ -131,6 +132,7 @@ pub(super) fn decode_v2(
         })
         .collect::<Result<Vec<_>, LoadError>>()?;
     let state = GameState {
+        process_leader: Default::default(),
         commodity_cycle: std::collections::BTreeMap::new(),
         development_leader: std::collections::BTreeMap::new(),
         settings: GameSettings {

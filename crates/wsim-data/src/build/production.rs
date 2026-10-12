@@ -1349,6 +1349,24 @@ fn development_model(
             0.9,
             &per_level.field("vorprodukte"),
         ),
+        process_output_max: d.process.as_ref().map_or(0.0, |x| {
+            in_range(
+                ctx,
+                x.output,
+                0.0,
+                2.0,
+                &l.field("fertigung").field("ausstoss"),
+            )
+        }),
+        process_inputs_max: d.process.as_ref().map_or(0.0, |x| {
+            in_range(
+                ctx,
+                x.inputs,
+                0.0,
+                0.9,
+                &l.field("fertigung").field("vorprodukte"),
+            )
+        }),
         effort_share: in_range(ctx, d.effort.share, 0.01, 2.0, &effort.field("anteil")),
         effort_growth: in_range(ctx, d.effort.growth, 1.0, 3.0, &effort.field("wachstum")),
         base_effort: positive(ctx, d.effort.base, &effort.field("grundaufwand")),

@@ -152,7 +152,9 @@ pub mod keys {
     pub const GAME_END: &str = "meldung.spielende";
     pub const NEW_YEAR: &str = "meldung.neues_jahr";
     pub const RESEARCH_DONE: &str = "meldung.forschung_abgeschlossen";
+    pub const PRODUCT_RESEARCHED: &str = "meldung.produkt_erforscht";
     pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
+    pub const COMMAND_NOT_RESEARCHABLE_PRODUCT: &str = "fehler.befehl.produkt_nicht_erforschbar";
     pub const COMMAND_NOT_DEVELOPABLE: &str = "fehler.befehl.nicht_weiterentwickelbar";
     pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
     pub const NEW_GAME_TOO_MANY_COMPANIES: &str = "fehler.spielstart.zu_viele_firmen";
@@ -578,7 +580,9 @@ pub mod keys {
         GAME_END,
         NEW_YEAR,
         RESEARCH_DONE,
+        PRODUCT_RESEARCHED,
         COMMAND_NOT_RESEARCHABLE,
+        COMMAND_NOT_RESEARCHABLE_PRODUCT,
         COMMAND_NOT_DEVELOPABLE,
         NEW_GAME_RESEARCH_FACTOR,
         NEW_GAME_TOO_MANY_COMPANIES,

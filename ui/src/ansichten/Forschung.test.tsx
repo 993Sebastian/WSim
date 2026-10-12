@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it } from "vitest";
 import type { Befehl, Forschung, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
-import { ForschungAnsicht, teilbaum } from "./Forschung";
+import { ForschungAnsicht } from "./Forschung";
 
 /** The preview core with a research center that has a laboratory ready (M37). */
 async function kernMitLabor() {
@@ -61,7 +61,7 @@ describe("Weiterentwicklung", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Weiterentwicklung" }));
     expect(
       screen.getByText(
-        /für das Produkt bis zu \+30 Qualität, −20 % Arbeit, −15 % Vorprodukte je Stück/,
+        /für das Produkt bis zu \+30 Qualität, −20 % Arbeit, −15 % Vorprodukte, \+25 % Ausstoß je Stück/,
       ),
     ).toBeTruthy();
     // Only the own products at first: the workshop makes nails.
@@ -70,14 +70,18 @@ describe("Weiterentwicklung", () => {
     ).toBe(true);
     const karte = screen.getByRole("article", { name: "Nägel" });
     expect(within(karte).getByText("Dein Niveau")).toBeTruthy();
-    expect(within(karte).getByText("noch keine")).toBeTruthy();
+    expect(within(karte).getAllByText("noch keine")).toHaveLength(2);
     expect(within(karte).getByText("Noch forscht niemand daran.")).toBeTruthy();
     expect(within(karte).getByText(/mit einem voll besetzten Labor in Deutschland/)).toBeTruthy();
     fireEvent.click(within(karte).getByRole("button", { name: "Weiterentwickeln" }));
     expect(
-      await within(karte).findByText("100 % der Forscher entwickeln jetzt Nägel weiter."),
+      await within(karte).findByText("Nägel: 50 % Weiterentwicklung, 50 % Fertigungsforschung."),
     ).toBeTruthy();
-    expect(gesendet).toEqual([{ SetResearchShares: { site: 99, shares: [["naegel", 1]] } }]);
+    expect(gesendet).toEqual([
+      {
+        SetResearchShares: { site: 99, shares: [["naegel", 0.5]], process: [["naegel", 0.5]] },
+      },
+    ]);
 
     // All products the company may make, not only its own, with a search by name.
     fireEvent.click(screen.getByRole("checkbox", { name: /Nur eigene Produkte/ }));
@@ -113,6 +117,42 @@ describe("Weiterentwicklung", () => {
       { SetResearch: { site: 99, technology: null } },
       { SetDevelopment: { site: 99, product: null } },
     ]);
+  });
+});
+
+describe("Produkte erforschen", () => {
+  afterEach(cleanup);
+
+  it("zeigt erforschbare Produkte mit Aufwand und startet die Forschung im Zentrum", async () => {
+    const { kern, uebersicht, gesendet } = await kernMitLabor();
+    render(
+      <ForschungAnsicht
+        kern={kern}
+        uebersicht={uebersicht}
+        onGeaendert={() => {}}
+        onStandorte={() => {}}
+      />,
+    );
+    const tabelle = await screen.findByRole("table", { name: "Produkte" });
+    const zeilen = within(tabelle).getAllByRole("row");
+    expect(zeilen.length).toBeGreaterThan(2);
+    expect(within(tabelle).queryAllByText("erforscht")).toHaveLength(0);
+    // The first product opens its details: inputs, effort and a center to work on it.
+    const erstes = within(zeilen[1]!).getAllByRole("button")[0]!;
+    const name = erstes.textContent ?? "";
+    fireEvent.click(erstes);
+    const detail = screen.getByRole("region", { name });
+    expect(within(detail).getByText("Vorprodukte")).toBeTruthy();
+    fireEvent.click(within(detail).getByRole("button", { name: "Erforschen" }));
+    expect(await within(detail).findByText(`Das Zentrum erforscht jetzt ${name}.`)).toBeTruthy();
+    expect(gesendet).toHaveLength(1);
+    expect(gesendet[0]).toMatchObject({ SetProductResearch: { site: 99 } });
+
+    // Known products: the player may make them.
+    fireEvent.change(screen.getByLabelText("Zeigen"), { target: { value: "bekannt" } });
+    expect(
+      within(screen.getByRole("table", { name: "Produkte" })).getAllByText("erforscht").length,
+    ).toBeGreaterThan(0);
   });
 });
 
@@ -181,32 +221,5 @@ describe("Patente", () => {
     expect(kaestchen().every((c) => c.checked)).toBe(true);
     expect(screen.getByText(/Patentiert von Konkurrenz AG/)).toBeTruthy();
     expect(screen.getByText(/Deine Anlagen in Deutschland brauchen eine Lizenz/)).toBeTruthy();
-  });
-});
-
-describe("Teilbaum", () => {
-  const tech = (key: string, field: string, prerequisites: string[], products: string[]) =>
-    ({
-      key,
-      field,
-      prerequisites,
-      recipes: products.map((product) => ({ product })),
-    }) as unknown as Forschung["technologies"][number];
-  const daten = {
-    technologies: [
-      tech("a", "metall", [], ["eisen"]),
-      tech("b", "metall", ["a"], ["stahl"]),
-      tech("c", "chemie", ["b"], ["auto"]),
-      tech("d", "chemie", [], ["farbe"]),
-    ],
-  } as unknown as Forschung;
-
-  it("zeigt zu einem Produkt die Technologie mit allen Voraussetzungen", () => {
-    expect([...teilbaum(daten, "produkt", "auto")!].sort()).toEqual(["a", "b", "c"]);
-  });
-
-  it("zeigt eine Fachrichtung mit ihren Voraussetzungen, ohne Auswahl alles", () => {
-    expect([...teilbaum(daten, "branche", "chemie")!].sort()).toEqual(["a", "b", "c", "d"]);
-    expect(teilbaum(daten, "alle", "")).toBeNull();
   });
 });

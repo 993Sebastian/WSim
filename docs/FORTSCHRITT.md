@@ -3016,5 +3016,13 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Organisation, Managermarkt, Anliegen, Controlling und Meldungen; Haken „Niederlassungen
   zu Selbstkosten beliefern“; Nachschub nach Bedarf mit gelerntem Bedarf (kein Absturz
   auf 0); Lager nach Volumen (m³ aus Gewicht und Stapeldichte, je Produkt
-  überschreibbar). Offen notiert: Manager-System auf den Prüfstand (T), Q6 Forschung je
-  Produkt (Formeln stehen, Umsetzung folgt).
+  überschreibbar). Offen notiert: Manager-System auf den Prüfstand (T).
+- **Q6 Forschung je Produkt und Fertigungsforschung:** Der Spieler erforscht Produkte statt
+  Technologien (Reiter „Produkte erforschen“ mit Branche, Stand, Art und Suche; Zentrum
+  wählt ein Produkt, arbeitet dessen fehlende Technologien in Reihenfolge ab, Meldung bei
+  Erfolg); erforschbar, sobald alle Vorprodukte in der Welt bekannt sind. Zweite Skala
+  Fertigungsforschung (mehr Ausstoß, weniger Vorprodukte) neben der Weiterentwicklung,
+  Anteile je Zentrum. Technologiebaum entfernt. Beispieldaten der Vorschau wieder
+  erzeugbar (Start mit 250 000 USD, S9). Tests: Produkt über Technologien erforscht,
+  gesperrt durch fehlendes Vorprodukt, Wirkung und Spielstand der Fertigung, Aufteilung,
+  Prüfregeln, Oberfläche.

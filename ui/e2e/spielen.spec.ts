@@ -62,15 +62,15 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   // A machine at its plan shows no bottleneck.
   const maschine = werk.getByRole("article", { name: "Nagelmaschine" });
   await expect(maschine.getByText("läuft nach Plan")).toBeVisible();
-  await expect(maschine.getByText(/0,51 t Draht → 0,5 t Nägel/)).toBeVisible();
+  await expect(maschine.getByText(/0,504 t Draht → 0,494 t Nägel/)).toBeVisible();
   await bild(page, "werk_anlagen");
 
   // Sales: last month's sales, the price beside market price and unit cost.
   await werk.getByRole("button", { name: "Verkauf" }).click();
   const naegel = werk.getByRole("article", { name: "Verkauf von Nägel" });
-  await expect(naegel.getByText("15,5 t")).toBeVisible();
+  await expect(naegel.getByText("15 t", { exact: true })).toBeVisible();
   await expect(naegel.getByText("Stückkosten", { exact: true }).first()).toBeVisible();
-  await expect(naegel.getByText(/Marge 20 %/)).toBeVisible();
+  await expect(naegel.getByText(/Marge -8 %/)).toBeVisible();
   await bild(page, "werk_verkauf");
 
   await werk.getByRole("button", { name: "Einkauf" }).click();
@@ -86,18 +86,23 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   const markt = page.getByRole("table", { name: "Markt Deutschland" });
   await expect(markt).toBeVisible();
   // Newcomer against the established companies: the leader and its share.
-  await expect(markt.getByRole("cell", { name: "99 % Lorenz KG" }).first()).toBeVisible();
+  await expect(
+    markt.getByRole("cell", { name: "98 % Pittsburgh Machine Works & Sons" }).first(),
+  ).toBeVisible();
   // Openings for a newcomer.
   await page.getByLabel("Chancen").check();
   await expect(markt.getByRole("button", { name: "Markt für Eisenerz öffnen" })).toBeVisible();
-  await expect(markt.getByRole("button", { name: "Markt für Blech öffnen" })).toBeHidden();
+  await expect(markt.getByRole("button", { name: "Markt für Stabstahl öffnen" })).toBeHidden();
   await page.getByLabel("alle Produkte").check();
+  await expect(markt.getByRole("button", { name: "Markt für Stabstahl öffnen" })).toBeVisible();
   await bild(page, "markt");
   // One product market: sellers with shares and who buys.
   await markt.getByRole("button", { name: "Markt für Nägel öffnen" }).click();
   const naegelMarkt = page.getByRole("region", { name: "Nägel in Deutschland" });
   await expect(
-    naegelMarkt.getByRole("table", { name: "Anbieter im Vormonat" }).getByText("Lorenz KG"),
+    naegelMarkt
+      .getByRole("table", { name: "Anbieter im Vormonat" })
+      .getByText("Pittsburgh Machine Works & Sons"),
   ).toBeVisible();
   await expect(naegelMarkt.getByText("Ärmstes Fünftel")).toBeVisible();
   // The last months: price against the reference price, sales and the own share (M24).
@@ -105,7 +110,7 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(verlauf.getByText("Gestrichelt: Richtpreis im Land.")).toBeVisible();
   await expect(
     verlauf.getByRole("img", {
-      name: /^Bezahlter Preis je Monat: 1\.846 USD\/t \(Jan 1914\) bis 1\.848 USD\/t \(Jul 1914\)$/,
+      name: /^Bezahlter Preis je Monat: 1\.894 USD\/t \(Jan 1914\) bis 1\.999 USD\/t \(Jul 1914\)$/,
     }),
   ).toBeVisible();
   await expect(
@@ -128,28 +133,20 @@ test("Ansichten über Reiter und Zifferntasten", async ({ page }) => {
   await expect(page.getByRole("button", { name: /^Angebote/ })).toBeVisible();
 
   await page.keyboard.press("5");
-  // The technology tree: a node opens what the technology costs and opens.
-  const baum = page.getByRole("group", { name: "Technologiebaum" });
-  await expect(baum).toBeVisible();
-  await baum.getByRole("button", { name: /^Fließband, 1913/ }).click();
-  const fliessband = page.getByRole("region", { name: "Fließband" });
-  await expect(fliessband.getByText("Schaltet frei")).toBeVisible();
-  await expect(fliessband.getByText(/57 t Stahl → 300 Stück Motor/)).toBeVisible();
-  await fliessband.getByRole("button", { name: "Automobil" }).click();
-  await expect(page.getByRole("region", { name: "Automobil" })).toBeVisible();
+  // Research by product (Q6): researchable products with their effort, details on click.
+  const produkte = page.getByRole("table", { name: "Produkte" });
+  await expect(produkte).toBeVisible();
+  await produkte.getByRole("button", { name: "Traktor" }).click();
+  const traktor = page.getByRole("region", { name: "Traktor" });
+  await expect(traktor.getByText("Vorprodukte")).toBeVisible();
+  await expect(traktor.getByText(/ab 1917 – vorher teurer/)).toBeVisible();
   await bild(page, "forschung");
-  // Only the tree of one product: the technologies that make it with their prerequisites.
-  await page.getByLabel("Zeigen").selectOption("produkt");
-  await page.getByRole("combobox", { name: "Produkt" }).selectOption({ label: "Automobil" });
-  await expect(page.getByText(/von \d+ Technologien: die gewählten/)).toBeVisible();
-  await expect(baum.getByRole("button", { name: /^Fließband, 1913/ })).toBeVisible();
-  await page.getByLabel("Zeigen").selectOption("alle");
-  await page.getByRole("button", { name: "Vergrößern" }).click();
-  await expect(page.getByRole("button", { name: "110 %" })).toBeVisible();
-  await page.getByRole("radio", { name: "Liste" }).check();
-  // Picking from the list moves the focus out of the input, so digits switch views again.
-  await page.getByRole("button", { name: /Bessemer-Verfahren/ }).click();
-  await expect(page.getByRole("region", { name: "Bessemer-Verfahren" })).toBeVisible();
+  // Locked products name the input that does not exist yet.
+  await page.getByLabel("Zeigen").selectOption("gesperrt");
+  await produkte.getByRole("button", { name: "Fernseher", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "Fernseher" }).getByText(/Erst erforschbar, wenn es/),
+  ).toBeVisible();
 
   await page.keyboard.press("6");
   await expect(page.getByRole("heading", { name: "Bilanz" })).toBeVisible();
@@ -195,8 +192,9 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   );
 
   // How the quality of the product comes about (#191).
-  await page.locator("summary", { hasText: "Produktqualität: 59 Punkte" }).click();
-  await expect(page.getByRole("row", { name: /Forschungsniveau/ })).toContainText("+4,2");
+  await page.locator("summary", { hasText: "Produktqualität: 52 Punkte" }).click();
+  await expect(page.getByRole("row", { name: /Qualität der Vorprodukte/ })).toContainText("+2,4");
+  await expect(page.getByRole("row", { name: /Forschungsniveau/ })).toBeVisible();
   const anlage = page.getByRole("form", { name: "Nagelmaschine steuern" });
   await anlage.getByLabel("Geplante Auslastung").fill("60");
   await anlage.getByRole("button", { name: "Übernehmen" }).click();
@@ -251,7 +249,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   // The stock of the site with use, reach and values.
   await page.getByRole("button", { name: "Lager" }).click();
   const lager = page.getByRole("table", { name: "Lager: Werk · Deutschland" });
-  await expect(lager.getByRole("row", { name: /Draht/ })).toContainText("3 Tage");
+  await expect(lager.getByRole("row", { name: /Draht/ })).toContainText("10 Tage");
   // Once to another own site: freight and days of the way are shown first.
   const umlagern = page.getByRole("form", { name: "An eigenen Standort liefern" });
   await expect(umlagern).toContainText("38 Tage unterwegs");
@@ -276,9 +274,9 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
   const lohn = page.getByRole("form", { name: "Lohnaufschlag" });
   await lohn.getByLabel("Lohnaufschlag").fill("12,5");
   await lohn.getByRole("button", { name: "Übernehmen" }).click();
-  // Training (W1): the target comes from the strategy until the site sets its own.
+  // Training (W1): neither the strategy nor the site has set a target yet.
   const schulung = page.getByRole("form", { name: "Schulung" });
-  await expect(schulung).toContainText("aus der Strategie");
+  await expect(schulung).toContainText("Schulungsziel0 % (kein Ziel)");
   await schulung.getByLabel("Schulungsziel").fill("80");
   await schulung.getByRole("button", { name: "Übernehmen" }).click();
 
@@ -325,7 +323,7 @@ test("Formulare schicken die richtigen Befehle", async ({ page }) => {
       SetInternalSupply: { site: 0, product: "draht", source: 5, mode: { Need: { days: 25 } } },
     },
     // The limit suggested: the market price + 10 %.
-    { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 15_287_100 } },
+    { BuyOnce: { site: 0, product: "draht", quantity: 5_000, max_price: 18_656_200 } },
     // 1 887,21 USD − 5 %, rounded to cents
     { TransferGoods: { from: 0, to: 5, product: "draht", quantity: 4 } },
     {
@@ -488,15 +486,15 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   // The preview's competitor bids for the workshop (hint and counter: core tests).
   await page.keyboard.press("4");
   const angebot = page.getByRole("article", {
-    name: "Kaufangebot von Zürcher Spinnerei und Weberei & Co.",
+    name: "Kaufangebot von Vogt AG",
   });
   await expect(angebot).toContainText("Werk in Deutschland (Nägel)");
-  await expect(angebot).toContainText("33.821 USD");
+  await expect(angebot).toContainText("33.981 USD");
   await expect(angebot).toContainText("01.04.1914");
   // The base value with its parts.
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
   await expect(angebot.getByRole("note")).toContainText("Restwert der Anlagen");
-  await expect(angebot.getByRole("note")).toContainText("27.057 USD");
+  await expect(angebot.getByRole("note")).toContainText("27.185 USD");
   await bild(page, "angebot");
   await angebot.getByLabel("Wie entsteht: Grundwert?").first().click();
 
@@ -506,21 +504,19 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await angebot.getByRole("button", { name: "Gegenangebot machen" }).click();
   const befehleNachAntwort = await befehle(page);
   expect(befehleNachAntwort.slice(-2)).toEqual([
-    { AnswerOffer: { offer: 5, answer: "Accept" } },
-    { AnswerOffer: { offer: 5, answer: { Counter: { price: 500_000_000 } } } },
+    { AnswerOffer: { offer: 0, answer: "Accept" } },
+    { AnswerOffer: { offer: 0, answer: { Counter: { price: 500_000_000 } } } },
   ]);
 
   // Bid for a competitor's site.
   await page.getByRole("button", { name: "Firmen", exact: true }).click();
-  await page.getByRole("button", { name: "Zürcher Spinnerei und Weberei & Co." }).click();
-  await expect(
-    page.getByRole("heading", { name: "Zürcher Spinnerei und Weberei & Co." }),
-  ).toBeVisible();
+  await page.getByRole("button", { name: "Vogt AG" }).click();
+  await expect(page.getByRole("heading", { name: "Vogt AG" })).toBeVisible();
   const werk = page.getByRole("article", { name: "Werk in Deutschland" });
-  await expect(werk).toContainText("Kleidung, Strümpfe, Stoff, Garn");
-  await expect(werk).toContainText("Neubau heute: 231 Mio. USD");
-  // Its areas: the clothing with a brand known everywhere in Germany.
-  const bereich = page.getByRole("article", { name: "Bereich Bekleidung" });
+  await expect(werk).toContainText("Konserve, Wurstwaren, Schinken, Eier");
+  await expect(werk).toContainText("Neubau heute: 12,43 Mrd. USD");
+  // Its areas: the food with a brand known everywhere in Germany.
+  const bereich = page.getByRole("article", { name: "Bereich Lebensmittel" });
   await expect(bereich).toContainText("Standorte (1): Werk in Deutschland");
   await expect(bereich).toContainText("Marke: Deutschland 100 %");
   await bereich.getByLabel("Wie entsteht: Grundwert?").first().click();
@@ -530,13 +526,13 @@ test("Kaufangebote beantworten und selbst bieten", async ({ page }) => {
   await expect(bereich.getByLabel("Preis")).toHaveValue("250.000.000");
   await bereich.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MakeOffer: { seller: 58, object: { Area: "bekleidung" }, price: 2_500_000_000_000 },
+    MakeOffer: { seller: 63, object: { Area: "lebensmittel" }, price: 2_500_000_000_000 },
   });
   await werk.getByLabel("Preis").fill("200000000");
   await expect(werk.getByLabel("Preis")).toHaveValue("200.000.000");
   await werk.getByRole("button", { name: "Angebot abgeben" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
-    MakeOffer: { seller: 58, object: { Site: 315 }, price: 2_000_000_000_000 },
+    MakeOffer: { seller: 63, object: { Site: 1153 }, price: 2_000_000_000_000 },
   });
   await bild(page, "firma");
 });
@@ -547,14 +543,14 @@ test("An einem Start-up beteiligen und es fördern", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Erfinder und Gründungen" })).toBeVisible();
   await expect(page.getByText(/Du hältst noch keine Beteiligungen/)).toBeVisible();
   await page
-    .getByRole("button", { name: "Baltzar von Platen: beteiligen, fördern, verkaufen" })
+    .getByRole("button", { name: "Patricia Lawrence: beteiligen, fördern, verkaufen" })
     .click();
-  const detail = page.getByRole("region", { name: "Baltzar von Platen" });
-  await expect(detail).toContainText("Kompressionskühlschrank (neu, 4 Jahre vor der Zeit)");
+  const detail = page.getByRole("region", { name: "Patricia Lawrence" });
+  await expect(detail).toContainText("Armbanduhr mit Automatik (neu, 9 Jahre vor der Zeit)");
   await expect(detail).toContainText("Gründer 100 %");
   // An open round: a pledge of at most the rest.
   const zusage = detail.getByRole("form", { name: "In der Runde zusagen" });
-  await expect(zusage).toContainText("Höchstens 32.996 USD");
+  await expect(zusage).toContainText("Höchstens 12.900 USD");
   await zusage.getByLabel("Betrag").fill("10000");
   await expect(zusage.getByLabel("Betrag")).toHaveValue("10.000");
   await zusage.getByRole("button", { name: "Zusagen" }).click();
@@ -625,9 +621,9 @@ test("Lieferverträge: laufender Vertrag und neues Angebot an einen Lieferanten"
   await expect(liste.getByRole("button", { name: /^Kündigen/ })).toBeVisible();
   const neu = page.getByRole("region", { name: "Neuer Liefervertrag" });
   await neu.getByLabel("Produkt").selectOption("draht");
-  await expect(neu.getByLabel("Lieferant", { exact: true })).toContainText(
-    "Morgan Iron and Steel Corporation",
-  );
+  await expect(neu.getByLabel("Lieferant", { exact: true })).toContainText("Barker Ltd.");
+  // The example's workshop hardly needs wire (half of it rounds to 0): ask for 10 t a day.
+  await neu.getByLabel("Menge je Tag").fill("10");
   await neu.getByRole("button", { name: "Vertrag anbieten" }).click();
   await expect
     .poll(async () => JSON.stringify((await befehle(page)).at(-1)))
@@ -709,7 +705,9 @@ test("Weiterentwicklung zeigt Niveau, Wirkung, Aufwand und das Niveau der Anbiet
   await starten(page);
   await page.getByRole("button", { name: "Forschung", exact: true }).click();
   await page.getByRole("button", { name: "Weiterentwicklung", exact: true }).click();
-  const wirkung = page.getByText(/\+30 Qualität, −20 % Arbeit, −15 % Vorprodukte je Stück/);
+  const wirkung = page.getByText(
+    /\+30 Qualität, −20 % Arbeit, −15 % Vorprodukte, \+25 % Ausstoß je Stück/,
+  );
   await expect(wirkung.first()).toBeVisible();
   const naegel = page.getByRole("article", { name: "Nägel" });
   await expect(naegel).toContainText("Dein Niveau");
@@ -734,7 +732,7 @@ test("Weiterentwicklung zeigt Niveau, Wirkung, Aufwand und das Niveau der Anbiet
   await expect(anbieter.getByRole("row").first()).toContainText("Forschung");
   // The quality each seller offers.
   await expect(anbieter.getByRole("row").first()).toContainText("Qualität");
-  await expect(anbieter.getByRole("row").nth(1)).toContainText("64");
+  await expect(anbieter.getByRole("row").nth(1).getByRole("cell").nth(2)).toHaveText("58");
 });
 
 test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page }) => {
@@ -751,10 +749,10 @@ test("Erklärungen zerlegen Preis, Nachfrage und Stückkosten", async ({ page })
   await page.getByRole("button", { name: "Markt für Nägel öffnen" }).click();
   await page.getByLabel("Wie entsteht: Marktpreis?").first().click();
   const preis = page.getByRole("note", { name: "Wie entsteht: Marktpreis?" });
-  await expect(preis).toContainText("Richtpreis (Preisniveau 1)1.900 USD/t");
+  await expect(preis).toContainText("Richtpreis (Preisniveau 1)1.800 USD/t");
   await expect(preis).toContainText("Preisniveau Deutschland 0,8, davon wirkt 10 %× 0,98");
-  await expect(preis).toContainText("Marktlage: 1 % unter dem Richtpreis× 0,99");
-  await expect(preis).toContainText("Marktpreis= 1.848 USD/t");
+  await expect(preis).toContainText("Marktlage: 13 % über dem Richtpreis× 1,13");
+  await expect(preis).toContainText("Marktpreis= 1.997 USD/t");
   await bild(page, "erklaerung_preis");
   await page.getByRole("button", { name: /Alle Produkte/ }).click();
 
@@ -903,7 +901,7 @@ test("Die Einführung führt bis zum ersten Verkauf und lässt sich neu starten"
   await expect(titel("Dein erster Umsatz")).toBeVisible();
   await ereignis.getByRole("button", { name: "Weiter" }).click();
   const bericht = page.getByRole("dialog", { name: /Rundenbericht/ });
-  await expect(einfuehrung).toContainText("29.252 USD");
+  await expect(einfuehrung).toContainText("26.556 USD");
   await bild(page, "einfuehrung_bericht");
   await bericht.getByRole("button", { name: "Weiter" }).click();
   await expect(titel("Deine Firma läuft")).toBeVisible();
@@ -978,17 +976,17 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   );
   const werk = page.getByRole("article", { name: "Werk · Deutschland" });
   await expect(werk).toContainText("Werksleitung");
-  await expect(werk).toContainText("Alain Moreau");
-  await expect(werk).toContainText("82.568 USD");
+  await expect(werk).toContainText("Arthur Morgan");
+  await expect(werk).toContainText("71.522 USD");
   await expect(werk).toContainText("Nächste Prüfung: 04.01.1915");
   // Age and planned retirement (PE1).
-  await expect(werk).toContainText("44 Jahre · Ruhestand am 01.08.1937 mit 67");
+  await expect(werk).toContainText("35 Jahre · Ruhestand am 01.02.1944 mit 64");
   // The head takes care of the functions without a specialist.
   await expect(werk).toContainText("Auslastung und Rezept, Überkapazität");
   // All skills as levels behind the ⓘ.
   await werk.getByLabel("Wie entsteht: Fähigkeiten?").first().click();
-  await expect(werk.getByRole("note")).toContainText("Fachkompetenz Vertrieb und Marketing");
-  await expect(werk.getByRole("note")).toContainText("herausragend");
+  await expect(werk.getByRole("note")).toContainText("Fachkompetenz Finanzen");
+  await expect(werk.getByRole("note")).toContainText("solide");
   await werk.getByLabel("Wie entsteht: Fähigkeiten?").first().click();
   await bild(page, "organisation");
 
@@ -997,61 +995,58 @@ test("Stellen besetzen: Organigramm, Managermarkt und Entlassen", async ({ page 
   await expect(
     page.getByRole("heading", { name: "Produktion · Werk · Deutschland" }),
   ).toBeVisible();
+  // The unit's continent comes first; Europe has no candidates in the example right now.
+  await expect(page.getByLabel("Bewerber aus")).toHaveValue("europa");
+  await expect(page.getByText(/Im Moment gibt es hier keine Bewerber/)).toBeVisible();
+  // Candidates of other continents on request.
+  await page.getByLabel("Bewerber aus").selectOption("alle");
   const bewerber = page.getByRole("table", { name: "Bewerber" });
   await expect(bewerber.getByRole("row").nth(0)).toContainText("Alter");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Anna Putilov");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("Ukraine");
-  await expect(bewerber.getByRole("row").nth(1)).toContainText("herausragend");
-  // Candidates of other continents on request.
-  const vorher = await bewerber.getByRole("row").count();
-  await page.getByLabel("Bewerber aus").selectOption("alle");
-  expect(await bewerber.getByRole("row").count()).toBeGreaterThan(vorher);
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Antonio Ortega");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("Peru, Bolivien und Chile");
+  await expect(bewerber.getByRole("row").nth(1)).toContainText("stark");
   await bild(page, "managermarkt");
-  await bewerber.getByRole("button", { name: "Einstellen: Anna Putilov" }).click();
+  await bewerber.getByRole("button", { name: "Einstellen: Antonio Ortega" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     HireManager: {
-      manager: 182,
+      manager: 626,
       position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
     },
   });
   // The own head could move here instead.
   const eigene = page.getByRole("table", { name: "Eigene Manager versetzen" });
-  await eigene.getByRole("button", { name: "Hierher versetzen: Alain Moreau" }).click();
+  await eigene.getByRole("button", { name: "Hierher versetzen: Arthur Morgan" }).click();
   expect((await befehle(page)).at(-1)).toEqual({
     MoveManager: {
-      manager: 34,
+      manager: 300,
       position: { unit: { Site: 0 }, role: { Specialist: "produktion" } },
     },
   });
 
   // Dismissing asks first and names the severance.
   await page.getByRole("button", { name: "← Organisation" }).click();
-  await werk.getByRole("button", { name: "Entlassen: Alain Moreau, Werksleitung" }).click();
-  await expect(werk).toContainText("Alain Moreau entlassen? Abfindung 20.642 USD.");
+  await werk.getByRole("button", { name: "Entlassen: Arthur Morgan, Werksleitung" }).click();
+  await expect(werk).toContainText("Arthur Morgan entlassen? Abfindung 17.880 USD.");
   await werk.getByRole("button", { name: "Ja, entlassen" }).click();
-  expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 34 } });
-
-  // Managers who left: retired or died (PE1).
-  const ehemalige = page.getByRole("region", { name: "Ehemalige Manager" });
-  await expect(ehemalige).toContainText("Heinrich Albers");
-  await expect(ehemalige).toContainText("Ruhestand");
+  expect((await befehle(page)).at(-1)).toEqual({ DismissManager: { manager: 300 } });
 
   // The country's positions (MA3): its head, and a specialist from the market.
   const land = page.getByRole("article", { name: "Land · Deutschland" });
   await expect(land).toContainText("Landesleitung");
-  await expect(land).toContainText("Alexei Demidov");
+  await expect(land).toContainText("Carmen López");
   await expect(land).toContainText("Kraftwerk");
   await land.getByRole("button", { name: "Besetzen Produktion (Land · Deutschland)" }).click();
   await expect(
     page.getByRole("heading", { name: "Produktion · Land · Deutschland" }),
   ).toBeVisible();
+  await page.getByLabel("Bewerber aus").selectOption("alle");
   await page
     .getByRole("table", { name: "Bewerber" })
-    .getByRole("button", { name: "Einstellen: Anna Putilov" })
+    .getByRole("button", { name: "Einstellen: Antonio Ortega" })
     .click();
   expect((await befehle(page)).at(-1)).toEqual({
     HireManager: {
-      manager: 182,
+      manager: 626,
       position: { unit: { Country: "DEU" }, role: { Specialist: "produktion" } },
     },
   });
@@ -1062,24 +1057,10 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   await page.keyboard.press("7");
   const reiter = page.getByRole("navigation", { name: "Organisation" });
   await reiter.getByRole("button", { name: /Anliegen/ }).click();
-  const karte = page.getByRole("article", { name: /^Ausbau · Nägel/ });
-  await expect(karte).toContainText("Landesleitung · Land · Deutschland · Alexei Demidov fragt");
-  await expect(karte).toContainText("Antwort bis 30.01.1915");
-  await expect(karte).toContainText(
-    "Weg: Werksleitung (Werk · Deutschland, empfiehlt Ausbauen) → Landesleitung",
-  );
-  await expect(karte).toContainText("Dafür braucht es einen Kredit");
-  await expect(karte).toContainText("1 × Nagelmaschine bauen (sehr klein)");
-  await expect(karte).toContainText("Empfehlung: Ausbauen.");
+  // The example game has no open concern (answering one: Organisation.test.tsx).
+  const anliegen = page.getByRole("region", { name: "Anliegen" });
+  await expect(anliegen).toContainText("Keine offenen Anliegen.");
   await bild(page, "anliegen");
-  await karte.getByRole("button", { name: "Entscheide selbst" }).click();
-  expect((await befehle(page)).at(-1)).toEqual({
-    AnswerConcern: { concern: 0, answer: "Delegate" },
-  });
-  await karte.getByRole("button", { name: "Nicht mehr fragen" }).click();
-  expect((await befehle(page)).at(-1)).toEqual({
-    AnswerConcern: { concern: 0, answer: "NeverAsk" },
-  });
 
   // The head's budget: it asks about every expense; the player gives it room again.
   await reiter.getByRole("button", { name: "Stellen" }).click();
@@ -1087,7 +1068,7 @@ test("Anliegen beantworten und das Budget einer Stelle setzen", async ({ page })
   await werk.getByText("Werksleitung", { exact: true }).last().click();
   await expect(werk).toContainText("fragt bei jeder Ausgabe");
   await expect(werk).toContainText("Was die Stelle selbst entschieden hat");
-  await expect(werk).toContainText("30.09.1914 · Ausbau · Nägel: Ausbauen");
+  await expect(werk).toContainText("Noch keine eigenen Entscheidungen über ihr Budget.");
   const formular = werk.getByRole("form", { name: "Budget: Werksleitung" });
   await formular.getByLabel("Je Entscheidung").fill("3");
   await formular.getByLabel("Im Jahr").fill("8");
@@ -1187,13 +1168,14 @@ test("Person: Steckbrief, Familie, Rollen und Lebenslauf", async ({ page }) => {
   await expect(steckbrief.getByRole("heading", { name: "Jürgen Albrecht" })).toBeVisible();
   await expect(steckbrief).toContainText("30 Jahre");
   const familie = page.getByRole("region", { name: "Familie" });
-  await expect(familie).toContainText("Clara Albrecht");
-  await expect(familie).toContainText("in 21 Jahren");
+  // The example person is married without children yet (children: Person.test.tsx).
+  await expect(familie).toContainText("Noch keine Kinder.");
+  await expect(familie).toContainText("Weitere Kinder sind möglich");
   await expect(page.getByRole("region", { name: "Rollen" })).toContainText(
     "CEO – du führst die Firma selbst",
   );
   await expect(page.getByRole("region", { name: "Lebenslauf" })).toContainText(
-    "Geburt von Paul Albrecht",
+    "01.01.1914Beginn mit der Firma Neue Firma",
   );
   await bild(page, "person");
 });

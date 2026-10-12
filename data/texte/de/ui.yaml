@@ -936,10 +936,8 @@ patent.keine_auswaehlen: Auswahl aufheben
 patent.anmelden_knopf: "In {anzahl} Ländern anmelden ({kosten})"
 patent.angemeldet: "{technologie} in {laender} Ländern patentiert."
 forschung.bereiche: Bereiche der Forschung
-forschung.baum: Technologiebaum
 forschung.entwicklung: Weiterentwicklung
-forschung.technologien: Technologien
-forschung.entwicklung_erklaerung: "Für jedes Produkt, das du herstellen darfst, sammelst du in Forschungszentren Forschungspunkte – Rohstoffe und Vorprodukte ebenso wie Endprodukte. Wer die meisten Punkte hat, steht bei 100 %, alle anderen im Verhältnis ihrer Punkte darunter. Das Niveau bringt in allen deinen Rezepten für das Produkt bis zu {wirkung} (beim Führenden und voll ausgereiftem Produkt). Die Qualität deiner Vorprodukte zählt dazu. Es gibt kein Ende: Ein Vorsprung hält, solange du weiter forschst; Wissen geht nicht von selbst auf andere über."
+forschung.entwicklung_erklaerung: "Für jedes Produkt, das du herstellen darfst, sammelst du in Forschungszentren Punkte auf zwei Skalen: Weiterentwicklung (Qualität, Arbeit) und Fertigungsforschung (mehr Ausstoß, weniger Vorprodukte) – Rohstoffe und Vorprodukte ebenso wie Endprodukte. Wer die meisten Punkte hat, steht bei 100 %, alle anderen im Verhältnis ihrer Punkte darunter. Das Niveau bringt in allen deinen Rezepten für das Produkt bis zu {wirkung} (beim Führenden und voll ausgereiftem Produkt). Die Qualität deiner Vorprodukte zählt dazu. Es gibt kein Ende: Ein Vorsprung hält, solange du weiter forschst; Wissen geht nicht von selbst auf andere über."
 forschung.niveau: Dein Niveau
 forschung.punkte_fuehrend: "{punkte} Punkte, Führender {fuehrend}"
 forschung.noch_niemand: Noch forscht niemand daran.
@@ -949,10 +947,19 @@ forschung.reife_hilfe: Wie weit das Produkt überhaupt entwickelt ist (aus den P
 forschung.beim_fuehrenden: "Beim Führenden heute: {wirkung}"
 forschung.naechste_generation: "Generation {stufe}"
 forschung.anteil_forscher: Anteil der Forscher
-forschung.anteil_hilfe: So viel der Forscher des Zentrums arbeiten an diesem Produkt; zusammen höchstens 100 %. Der Rest forscht an der Technologie des Zentrums. 0 beendet die Forschung an diesem Produkt.
-forschung.anteil_gesetzt: "{anteil} % der Forscher entwickeln jetzt {produkt} weiter."
+forschung.anteil_hilfe: So viel der Forscher des Zentrums entwickeln dieses Produkt weiter (Qualität, Arbeit). Alle Anteile des Zentrums zusammen höchstens 100 %; der Rest erforscht das Produkt, das das Zentrum gerade erforscht. 0 und 0 beenden die Arbeit an diesem Produkt.
 forschung.anteil_beendet: "Das Zentrum forscht nicht mehr an {produkt}."
-forschung.wirkung_text: "+{qualitaet} Qualität, −{arbeit} Arbeit, −{vorprodukte} Vorprodukte je Stück"
+forschung.wirkung_text: "{liste} je Stück"
+forschung.wirkung.qualitaet: "+{wert} Qualität"
+forschung.wirkung.arbeit: "−{wert} Arbeit"
+forschung.wirkung.vorprodukte: "−{wert} Vorprodukte"
+forschung.wirkung.ausstoss: "+{wert} Ausstoß"
+forschung.fertigung: Fertigungsforschung
+forschung.fertigung_hilfe: "Eigene Punkte je Produkt wie bei der Weiterentwicklung: Wer die meisten hat, steht bei 100 %. Sie bringen mehr Ausstoß je Durchlauf und sparen Vorprodukte; die Wirkung wächst mit der Reife der Fertigung."
+forschung.fertigung_stand: "{punkte} Punkte, Reife der Fertigung {reife}"
+forschung.anteil_fertigung: Anteil Fertigungsforschung
+forschung.anteile_gesetzt: "{produkt}: {anteil} % Weiterentwicklung, {fertigung} % Fertigungsforschung."
+forschung.zentrum_anteile: "{zentrum} ({anteil} Weiterentwicklung, {fertigung} Fertigung)"
 forschung.nur_eigene: "Nur eigene Produkte ({anzahl})"
 forschung.entwicklung_leer: Noch keine eigenen Produkte – sobald du etwas herstellst, kannst du es hier weiterentwickeln. Ohne Haken siehst du alle Produkte, die du herstellen darfst.
 forschung.stufe: Stufe
@@ -971,12 +978,6 @@ forschung.entwicklung_gestartet: "Das Zentrum entwickelt jetzt {produkt} weiter,
 forschung.weiterentwickeln: Weiterentwickeln
 forschung.entwicklung_option: "{produkt} → Stufe {stufe}"
 forschung.entwicklung_stand: "{produkt}, Stufe {stufe}: {anteil}"
-forschung.zeigen: Zeigen
-forschung.zeigen.alle: Alle Technologien
-forschung.zeigen.branche: Fachrichtung
-forschung.zeigen.produkt: Produkt
-forschung.zeigen.vormaterial: Technologien für Vormaterialien
-forschung.zeigen.endprodukt: Technologien für Endprodukte
 forschung.art.vormaterial: Vormaterial
 forschung.art.endprodukt: Endprodukt
 forschung.art.filter: Art
@@ -985,33 +986,9 @@ forschung.art.vormaterial_viele: nur Vormaterialien
 forschung.art.endprodukt_viele: nur Endprodukte
 forschung.produkt_branche: Branche
 forschung.alle_branchen: Alle Branchen
-forschung.suchen: Technologie suchen
-forschung.zoom: Zoom
-forschung.zoom_kleiner: Verkleinern
-forschung.zoom_groesser: Vergrößern
-forschung.teilbaum: "{anzahl} von {gesamt} Technologien: die gewählten mit allen Voraussetzungen. Strg + Mausrad zoomt."
-forschung.erklaerung: Jede Technologie öffnet Verfahren, Anlagen und Produkte. Erforschbar ist, wessen Voraussetzungen bekannt sind – auch vor dem historischen Jahr, dann aber teurer. Ein Klick zeigt Kosten, Dauer und was die Technologie bringt.
-forschung.darstellung: Darstellung
-forschung.darstellung.baum: Baum
-forschung.darstellung.liste: Liste
-forschung.status.bekannt: bekannt
-forschung.status.in_arbeit: in Arbeit
-forschung.status.erforschbar: erforschbar
-forschung.status.gesperrt: Voraussetzungen fehlen
-forschung.epoche.bis_1850: bis 1850
-forschung.epoche.bis_1875: 1851–1875
-forschung.epoche.bis_1899: 1876–1899
-forschung.epoche.bis_1909: 1900–1909
-forschung.epoche.bis_1919: 1910–1919
-forschung.epoche.bis_1939: 1920–1939
-forschung.epoche.bis_1964: 1940–1964
-forschung.epoche.bis_1989: 1965–1989
-forschung.epoche.ab_1990: ab 1990
 forschung.erfunden: "erfunden {jahr}"
 forschung.fortschritt: Fortschritt
 forschung.punkte: "{punkte} von {bedarf} Punkten"
-forschung.vorgriff: "× {faktor} – vor dem historischen Jahr teurer, mit der Zeit günstiger"
-forschung.nachzuegler: "× {faktor} – Nachzügler forschen günstiger"
 forschung.faktor: Aufwandsfaktor
 forschung.forscht_daran: Forscht daran
 forschung.dauer: Dauer
@@ -1023,27 +1000,42 @@ forschung.kosten_etwa: "etwa {kosten}"
 forschung.kosten_hinweis: "mit einem Labor: {forscher} Forscher, Löhne und Sachkosten, ohne den Bau des Labors"
 forschung.erst_zentrum: "Zum Forschen brauchst du ein Forschungszentrum mit Labor (ein Labor kostet {betrag})."
 forschung.zu_den_zentren: Zu den Forschungszentren
-forschung.forschen_an: "An {technologie} forschen"
 forschung.zentrum: Forschungszentrum
 forschung.statt: "statt {technologie}"
-forschung.starten: Forschung starten
 forschung.gestartet: "Das Zentrum forscht jetzt an {technologie}."
 forschung.angehalten: Forschung angehalten.
-forschung.erst_voraussetzungen: "Erst erforschbar, wenn bekannt ist: {liste}."
-forschung.voraussetzungen: Voraussetzungen
 forschung.keine: keine
-forschung.fuehrt_zu: Führt zu
-forschung.schaltet_frei: Schaltet frei
-forschung.nichts_frei: Diese Technologie öffnet keine Anlage und kein Verfahren selbst; sie ist Voraussetzung für andere.
-forschung.anlagen: Anlagen (Betriebsmittel)
-forschung.anlage_info: "{art}, {betrag}, {tage} Tage Bauzeit"
-forschung.verfahren: Verfahren
-forschung.je_anlage_tag: je Anlage und Tag
-forschung.braucht_anlage: "Anlage: {anlage}"
-forschung.anlage_fehlt: "(erst mit {technologie})"
 forschung.produkte: Produkte
+forschung.produkte_reiter: Produkte erforschen
+forschung.produkte_erklaerung: "Du erforschst Produkte. Erforschbar ist ein Produkt, sobald es alle seine Vorprodukte in der Welt gibt – dann auch vor seiner historischen Zeit, nur teurer. Ist es erforscht, darfst du es herstellen und seine Anlage bauen. Vor der historischen Zeit erforscht, gibt es das Produkt ab dann in der Welt – auch für andere als Vorprodukt."
+forschung.status_filter: Zeigen
+forschung.status_filter.offen: erforschbar und in Arbeit
+forschung.status_filter.bekannt: erforscht
+forschung.status_filter.gesperrt: gesperrt
+forschung.status_filter.alle: alle
+forschung.produkte_leer: Keine Produkte für diese Auswahl.
+forschung.produkt: Produkt
+forschung.stand_spalte: Stand
+forschung.jahr: Historisch
+forschung.aufwand: Punkte offen
+forschung.produktstatus.bekannt: erforscht
+forschung.produktstatus.in_arbeit: in Arbeit
+forschung.produktstatus.erforschbar: erforschbar
+forschung.produktstatus.gesperrt: gesperrt
+forschung.in_der_welt: (in der Welt bekannt – kaufen geht schon)
+forschung.nicht_in_der_welt: (noch nirgends erfunden)
+forschung.vorprodukte: Vorprodukte
+forschung.gesperrt_weil: Gesperrt
+forschung.vorprodukt_fehlt: "Erst erforschbar, wenn es in der Welt gibt: {liste}."
+forschung.historisch: Historische Zeit
+forschung.vor_der_zeit: "ab {jahr} – vorher teurer"
+forschung.gleich_fertig: am nächsten Tag
+forschung.erforschen_an: "{produkt} erforschen"
+forschung.erforschen: Erforschen
+forschung.erforschen_option: "{produkt} erforschen"
+forschung.produkt_gestartet: "Das Zentrum erforscht jetzt {produkt}."
 forschung.anlage_bauen: Anlage bauen (zu den Standorten)
-forschung.zentren_erklaerung: "Ein Forschungszentrum arbeitet an einer Technologie oder entwickelt ein Produkt weiter. Jedes Labor hat {plaetze} Forscherplätze und kostet {betrag}; die Auslastung bestimmt, wie viele Forscher eingestellt werden. Forscher sind Akademiker des Fachgebiets; ihre Löhne und Sachkosten sind Forschungskosten."
+forschung.zentren_erklaerung: "Ein Forschungszentrum erforscht ein Produkt und teilt seine Forscher auf Weiterentwicklung und Fertigungsforschung bekannter Produkte auf. Jedes Labor hat {plaetze} Forscherplätze und kostet {betrag}; die Auslastung bestimmt, wie viele Forscher eingestellt werden. Forscher sind Akademiker des Fachgebiets; ihre Löhne und Sachkosten sind Forschungskosten."
 forschung.zentrum_in: "Forschungszentrum in {land}"
 forschung.stand_zentrum: Stand
 forschung.projekt: Projekt
@@ -1182,7 +1174,7 @@ einfuehrung.werbung.text: "Unter „Marke und Werbung“ steht deine Bekanntheit
 einfuehrung.wettbewerb.titel: Wettbewerb
 einfuehrung.wettbewerb.text: "Unter „Firmen“ stehen alle Firmen mit Rang, Umsatz und Standorten; dort kaufst du Wettbewerbern Standorte, ganze Bereiche mit ihrer Marke oder Lizenzen auf Technologien ab. Unter „Angebote“ landen ihre Angebote an dich – annehmen, ablehnen oder mit einem Gegenangebot antworten. Geht eine Firma pleite, werden ihre Standorte einige Wochen lang versteigert: Das höchste Gebot gewinnt und zahlt das zweithöchste."
 einfuehrung.forschung.titel: Forschung
-einfuehrung.forschung.text: Der Technologiebaum zeigt, welche Verfahren, Anlagen und Produkte jede Technologie freischaltet und was sie kostet. Geforscht wird in Forschungszentren mit Laboren – auch vor der historischen Zeit, dann aber teurer.
+einfuehrung.forschung.text: Unter „Produkte erforschen“ siehst du, welche Produkte du schon herstellen darfst, welche du erforschen kannst und was das kostet. Geforscht wird in Forschungszentren mit Laboren – auch vor der historischen Zeit, dann aber teurer.
 einfuehrung.weiterentwicklung.titel: Produkte weiterentwickeln
 einfuehrung.weiterentwicklung.text: "Was du herstellst, kannst du hier Stufe für Stufe verbessern – auch Rohstoffe und Vorprodukte. Jede Stufe bringt mehr Qualität und spart Arbeit und Vorprodukte; die Karte zeigt, wo deine Wettbewerber stehen und was die nächste Stufe kostet. Ein Forschungszentrum mit Labor arbeitet daran, bis das Produkt ausgereizt ist."
 einfuehrung.finanzen.titel: Finanzen
@@ -1227,7 +1219,7 @@ etappe.gewinnmonat.hinweis: Achte im Werk unter „Verkauf“ auf die Marge übe
 etappe.zweite_anlage: Zwei Anlagen in Betrieb
 etappe.zweite_anlage.hinweis: Unter „Produktion“ → „Anlage bauen“ siehst du Leistung, Personal und Kosten jeder Anlage. Baue dort, wo dein Absatz die Leistung übersteigt.
 etappe.eigenes_vorprodukt: Eigenes Vorprodukt
-etappe.eigenes_vorprodukt.hinweis: Stelle ein Vorprodukt deiner Anlagen selbst her – etwa Draht für die Nagelmaschine. Der Technologiebaum unter „Forschung“ zeigt, welche Anlage es herstellt.
+etappe.eigenes_vorprodukt.hinweis: Stelle ein Vorprodukt deiner Anlagen selbst her – etwa Draht für die Nagelmaschine. Unter „Forschung“ siehst du, ob du es schon herstellen darfst.
 etappe.zweites_land: Standort in einem zweiten Land
 etappe.zweites_land.hinweis: Gründe unter „Produktion“ → „Neuer Standort“ einen Standort im Ausland. Die Weltkarte zeigt Löhne, Rohstoffe und Märkte der Länder.
 etappe.eigene_forschung: Erste eigene Erfindung

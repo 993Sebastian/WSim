@@ -1,20 +1,10 @@
-// Research (docs/BEDIENUNG.md, M19): the technology tree by field and time – what is
-// known, in progress, possible or locked, what each technology costs and how long it
-// takes, and what it opens: processes (recipes), products and facilities. A second area
-// runs the research centers.
-import {
-  Fragment,
-  type FormEvent,
-  type ReactNode,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+// Research (docs/BEDIENUNG.md, Q6): products to research – known, in progress,
+// researchable or locked, what each costs and how long it takes –, the development and
+// manufacturing research of known products, the research centers and patents.
+import { Fragment, type FormEvent, useId, useState } from "react";
 import {
   formatDatum,
   formatGeld,
-  formatMenge,
   formatProzent,
   formatZahl,
   landName,
@@ -26,6 +16,7 @@ import type {
   Forschung,
   Kern,
   Patent,
+  Produktforschung,
   Technologie,
   Uebersicht,
   Weiterentwicklung,
@@ -35,7 +26,6 @@ import { FehlerText } from "./Dialog";
 import {
   Befehle,
   Rueckmeldung,
-  SuchAuswahl,
   Unterreiter,
   useAktion,
   useBefehl,
@@ -47,20 +37,6 @@ import { LAENDER } from "./laender";
 
 const technologieName = (k: string) => t(`technologie.${k}`);
 const produktName = (p: string) => t(`produkt.${p}`);
-const einheit = (d: Forschung, p: string) => t(`einheit.${d.units[p] ?? "t"}`);
-
-/** Eras of the tree: columns from left (oldest) to right. */
-const EPOCHEN: { bis: number; key: string }[] = [
-  { bis: 1850, key: "bis_1850" },
-  { bis: 1875, key: "bis_1875" },
-  { bis: 1899, key: "bis_1899" },
-  { bis: 1909, key: "bis_1909" },
-  { bis: 1919, key: "bis_1919" },
-  { bis: 1939, key: "bis_1939" },
-  { bis: 1964, key: "bis_1964" },
-  { bis: 1989, key: "bis_1989" },
-  { bis: Infinity, key: "ab_1990" },
-];
 
 export function ForschungAnsicht({
   kern,
@@ -76,7 +52,9 @@ export function ForschungAnsicht({
 }) {
   const { daten, fehler, neu } = useSicht(() => kern.forschung(), uebersicht.date);
   const { senden, meldung } = useBefehl(kern, onGeaendert, neu);
-  const [bereich, setBereich] = useState<"baum" | "entwicklung" | "zentren" | "patente">("baum");
+  const [bereich, setBereich] = useState<"produkte" | "entwicklung" | "zentren" | "patente">(
+    "produkte",
+  );
   const patente = daten?.technologies.filter((x) => x.patent) ?? [];
   if (!daten) return <FehlerText fehler={fehler} />;
   return (
@@ -86,7 +64,7 @@ export function ForschungAnsicht({
         <Unterreiter
           name={t("forschung.bereiche")}
           bereiche={[
-            { key: "baum", text: t("forschung.baum") },
+            { key: "produkte", text: t("forschung.produkte_reiter") },
             { key: "entwicklung", text: t("forschung.entwicklung") },
             {
               key: "zentren",
@@ -106,8 +84,12 @@ export function ForschungAnsicht({
           aktiv={bereich}
           onWahl={setBereich}
         />
-        {bereich === "baum" && (
-          <Baum daten={daten} onZentren={() => setBereich("zentren")} onStandorte={onStandorte} />
+        {bereich === "produkte" && (
+          <Produkte
+            daten={daten}
+            onZentren={() => setBereich("zentren")}
+            onStandorte={onStandorte}
+          />
         )}
         {bereich === "entwicklung" && (
           <Entwicklung daten={daten} onZentren={() => setBereich("zentren")} />
@@ -121,282 +103,11 @@ export function ForschungAnsicht({
   );
 }
 
-function Baum({
-  daten,
-  onZentren,
-  onStandorte,
-}: {
-  daten: Forschung;
-  onZentren: () => void;
-  onStandorte: () => void;
-}) {
-  const schmal = typeof window !== "undefined" && window.matchMedia?.("(max-width: 700px)").matches;
-  const [darstellung, setDarstellung] = useState<"baum" | "liste">(schmal ? "liste" : "baum");
-  const erste =
-    daten.technologies.find((x) => x.status === "in_arbeit") ??
-    daten.technologies.find((x) => x.status === "erforschbar") ??
-    daten.technologies[0];
-  const [gewaehlt, setGewaehlt] = useState<string | null>(erste?.key ?? null);
-  const id = useId();
-  const detailId = `${id}-detail`;
-  const tech = daten.technologies.find((x) => x.key === gewaehlt) ?? null;
-  const [filter, setFilter] = useState<{ art: BaumFilter; wert: string }>({
-    art: "alle",
-    wert: "",
-  });
-  const [zoom, setZoom] = useState(1);
-  const sichtbar = teilbaum(daten, filter.art, filter.wert);
-  const gezeigt: Forschung = sichtbar
-    ? { ...daten, technologies: daten.technologies.filter((x) => sichtbar.has(x.key)) }
-    : daten;
-  // On a phone the details sit below the list item or the tree: bring them into view.
-  const waehle = (k: string) => {
-    setGewaehlt(k);
-    if (schmal) {
-      requestAnimationFrame(() =>
-        document.getElementById(detailId)?.scrollIntoView?.({ block: "start", behavior: "smooth" }),
-      );
-    }
-  };
-  // Search: choose the technology and bring its node into view.
-  const finde = (k: string) => {
-    if (sichtbar && !sichtbar.has(k)) setFilter({ art: "alle", wert: "" });
-    setGewaehlt(k);
-    requestAnimationFrame(() =>
-      document
-        .querySelector(`[data-tech="${k}"]`)
-        ?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: "smooth" }),
-    );
-  };
-  const felder = [...new Set(daten.technologies.map((x) => x.field))].sort((a, b) =>
-    t(`fachrichtung.${a}`).localeCompare(t(`fachrichtung.${b}`), "de"),
-  );
-  // Choosing a product: first the field it belongs to, then only its products.
-  const [produktFeld, setProduktFeld] = useState("");
-  const produkte = [
-    ...new Set(
-      daten.technologies
-        .filter((x) => produktFeld === "" || x.field === produktFeld)
-        .flatMap((x) => x.recipes.map((r) => r.product)),
-    ),
-  ].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"));
-  const detail = tech && (
-    <TechnologieDetail
-      key={tech.key}
-      id={detailId}
-      tech={tech}
-      daten={daten}
-      onWahl={waehle}
-      onZentren={onZentren}
-      onStandorte={onStandorte}
-    />
-  );
-  const imListeneintrag = schmal && darstellung === "liste";
-  return (
-    <>
-      <p className="erklaerung">{t("forschung.erklaerung")}</p>
-      <div className="formular-zeile baum-auswahl">
-        <label>
-          {t("forschung.zeigen")}
-          <select
-            value={filter.art}
-            onChange={(e) =>
-              setFilter({
-                art: e.target.value as BaumFilter,
-                wert:
-                  e.target.value === "branche"
-                    ? (felder[0] ?? "")
-                    : e.target.value === "produkt"
-                      ? (produkte[0] ?? "")
-                      : e.target.value === "alle"
-                        ? ""
-                        : e.target.value,
-              })
-            }
-          >
-            {(["alle", "branche", "produkt", "vormaterial", "endprodukt"] as const).map((a) => (
-              <option key={a} value={a}>
-                {t(`forschung.zeigen.${a}`)}
-              </option>
-            ))}
-          </select>
-        </label>
-        {filter.art === "produkt" && (
-          <label>
-            {t("forschung.produkt_branche")}
-            <select
-              value={produktFeld}
-              onChange={(e) => {
-                const feld = e.target.value;
-                setProduktFeld(feld);
-                const erste = [
-                  ...new Set(
-                    daten.technologies
-                      .filter((x) => feld === "" || x.field === feld)
-                      .flatMap((x) => x.recipes.map((r) => r.product)),
-                  ),
-                ].sort((a, b) => produktName(a).localeCompare(produktName(b), "de"))[0];
-                setFilter({ art: "produkt", wert: erste ?? "" });
-              }}
-            >
-              <option value="">{t("forschung.alle_branchen")}</option>
-              {felder.map((f) => (
-                <option key={f} value={f}>
-                  {t(`fachrichtung.${f}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        {(filter.art === "branche" || filter.art === "produkt") && (
-          <div className="feld">
-            <label htmlFor={`${id}-filter`}>{t(`forschung.zeigen.${filter.art}`)}</label>
-            <SuchAuswahl
-              id={`${id}-filter`}
-              name={t(`forschung.zeigen.${filter.art}`)}
-              wert={filter.wert}
-              optionen={(filter.art === "branche" ? felder : produkte).map((w) => ({
-                wert: w,
-                text: filter.art === "branche" ? t(`fachrichtung.${w}`) : produktMitArt(daten, w),
-              }))}
-              onWahl={(w) => setFilter({ art: filter.art, wert: w })}
-            />
-          </div>
-        )}
-        <div className="feld">
-          <label htmlFor={`${id}-suche`}>{t("forschung.suchen")}</label>
-          <SuchAuswahl
-            id={`${id}-suche`}
-            name={t("forschung.suchen")}
-            wert={gewaehlt ?? ""}
-            optionen={[...daten.technologies]
-              .sort((a, b) => technologieName(a.key).localeCompare(technologieName(b.key), "de"))
-              .map((x) => ({
-                wert: x.key,
-                text: `${technologieName(x.key)} (${x.invention_year})`,
-              }))}
-            onWahl={finde}
-          />
-        </div>
-        {darstellung === "baum" && (
-          <span className="zoom" role="group" aria-label={t("forschung.zoom")}>
-            <button
-              type="button"
-              className="schlicht"
-              aria-label={t("forschung.zoom_kleiner")}
-              onClick={() => setZoom((z) => Math.max(0.4, Math.round((z - 0.1) * 10) / 10))}
-            >
-              −
-            </button>
-            <button type="button" className="schlicht" onClick={() => setZoom(1)}>
-              {formatProzent(zoom)}
-            </button>
-            <button
-              type="button"
-              className="schlicht"
-              aria-label={t("forschung.zoom_groesser")}
-              onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.1) * 10) / 10))}
-            >
-              +
-            </button>
-          </span>
-        )}
-      </div>
-      {sichtbar && (
-        <p className="feld-hilfe">
-          {t("forschung.teilbaum", { anzahl: sichtbar.size, gesamt: daten.technologies.length })}
-        </p>
-      )}
-      <div className="formular-zeile">
-        <fieldset className="auswahlgruppe waagrecht">
-          <legend>{t("forschung.darstellung")}</legend>
-          {(["baum", "liste"] as const).map((d) => (
-            <label key={d}>
-              <input
-                type="radio"
-                name={`${id}-darstellung`}
-                checked={darstellung === d}
-                onChange={() => setDarstellung(d)}
-              />
-              {t(`forschung.darstellung.${d}`)}
-            </label>
-          ))}
-        </fieldset>
-        <ul className="legende" aria-label={t("karte.legende")}>
-          {(["bekannt", "in_arbeit", "erforschbar", "gesperrt"] as const).map((s) => (
-            <li key={s}>
-              <span className={`punkt technik-${s}`} />
-              {t(`forschung.status.${s}`)}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="technik-layout">
-        {darstellung === "baum" ? (
-          <BaumGrafik
-            key={`${filter.art}/${filter.wert}`}
-            daten={gezeigt}
-            gewaehlt={gewaehlt}
-            onWahl={waehle}
-            zoom={zoom}
-            onZoom={setZoom}
-          />
-        ) : (
-          <Liste
-            daten={gezeigt}
-            gewaehlt={gewaehlt}
-            onWahl={waehle}
-            detail={imListeneintrag ? detail : null}
-          />
-        )}
-        {!imListeneintrag && detail}
-      </div>
-    </>
-  );
-}
-
-/**
- * The technologies to show for a field or a product: those of the field or those whose
- * processes make the product, with all their prerequisites. `null`: all.
- */
-export function teilbaum(daten: Forschung, art: BaumFilter, wert: string): Set<string> | null {
-  if (art === "alle" || wert === "") return null;
-  const nach = new Map(daten.technologies.map((x) => [x.key, x]));
-  const offen = daten.technologies
-    .filter((x) =>
-      art === "branche"
-        ? x.field === wert
-        : art === "produkt"
-          ? x.recipes.some((r) => r.product === wert)
-          : x.recipes.some((r) => warenart(daten, r.product) === art),
-    )
-    .map((x) => x.key);
-  const gefunden = new Set<string>();
-  while (offen.length > 0) {
-    const k = offen.pop()!;
-    if (gefunden.has(k)) continue;
-    gefunden.add(k);
-    offen.push(...(nach.get(k)?.prerequisites ?? []));
-  }
-  return gefunden;
-}
-
-type BaumFilter = "alle" | "branche" | "produkt" | "vormaterial" | "endprodukt";
-
-/**
- * Whether a product is an end product or an input (raw material, semi-finished good,
- * component, power); null when the view does not say.
- */
+/** Whether a product is an end product or an input; null when the view does not say. */
 export function warenart(daten: Forschung, produkt: string): "endprodukt" | "vormaterial" | null {
   const k = daten.product_kinds?.[produkt];
   if (!k) return null;
   return k === "endprodukt" ? "endprodukt" : "vormaterial";
-}
-
-/** "Automobil · Endprodukt"; the name alone when the kind is unknown. */
-function produktMitArt(daten: Forschung, produkt: string): string {
-  const a = warenart(daten, produkt);
-  return a ? `${produktName(produkt)} · ${t(`forschung.art.${a}`)}` : produktName(produkt);
 }
 
 /** A small mark "Vormaterial" or "Endprodukt" after a product. */
@@ -405,500 +116,349 @@ function ArtMarke({ daten, produkt }: { daten: Forschung; produkt: string }) {
   return a ? <small className={`artmarke ${a}`}>{t(`forschung.art.${a}`)}</small> : null;
 }
 
-// --- The tree: lanes by field, columns by era, lines to the prerequisites ---
+// --- Products to research (Q6) ---
 
-const SPALTE = 192;
-const KNOTEN_B = 176;
-const KNOTEN_H = 38;
-const ZEILE = 44;
-const KOPF = 26;
+type StatusFilter = "offen" | "bekannt" | "gesperrt" | "alle";
 
-function BaumGrafik({
+/** Order of the list: in progress, researchable, locked, known; then by name. */
+const RANG: Record<Produktforschung["status"], number> = {
+  in_arbeit: 0,
+  erforschbar: 1,
+  gesperrt: 2,
+  bekannt: 3,
+};
+
+/**
+ * Research by product (Q6): which products the player knows, which can be researched
+ * (all inputs exist in the world), how much it takes, and which center works on it.
+ */
+function Produkte({
   daten,
-  gewaehlt,
-  onWahl,
-  zoom,
-  onZoom,
-}: {
-  daten: Forschung;
-  gewaehlt: string | null;
-  onWahl: (k: string) => void;
-  zoom: number;
-  onZoom: (z: number) => void;
-}) {
-  const unten = useRef<HTMLDivElement>(null);
-  const oben = useRef<HTMLDivElement>(null);
-  const [breiteSichtbar, setBreiteSichtbar] = useState(0);
-  const rahmen = useRef<HTMLDivElement>(null);
-  // The scroll bar above mirrors the one below: same range, scrolled together.
-  useLayoutEffect(() => {
-    setBreiteSichtbar(unten.current?.scrollWidth ?? 0);
-  }, [zoom, daten]);
-  // Ctrl + wheel zooms the tree like a map (a native listener: React's is passive).
-  useLayoutEffect(() => {
-    const el = rahmen.current;
-    if (!el) return;
-    const rad = (e: WheelEvent) => {
-      if (!e.ctrlKey) return;
-      e.preventDefault();
-      onZoom(
-        Math.min(1.6, Math.max(0.4, Math.round((zoom - Math.sign(e.deltaY) * 0.1) * 10) / 10)),
-      );
-    };
-    el.addEventListener("wheel", rad, { passive: false });
-    return () => el.removeEventListener("wheel", rad);
-  }, [zoom, onZoom]);
-  const felder = [...new Set(daten.technologies.map((x) => x.field))];
-  const epoche = (jahr: number) => EPOCHEN.findIndex((e) => jahr <= e.bis);
-  // Nodes of one field and era stack downwards, oldest first.
-  const zellen = new Map<string, Technologie[]>();
-  for (const x of [...daten.technologies].sort((a, b) => a.invention_year - b.invention_year)) {
-    const k = `${x.field}/${epoche(x.invention_year)}`;
-    zellen.set(k, [...(zellen.get(k) ?? []), x]);
-  }
-  const spalten = EPOCHEN.filter((_, i) =>
-    daten.technologies.some((x) => epoche(x.invention_year) === i),
-  ).map((e) => EPOCHEN.indexOf(e));
-  const hoehe = new Map(
-    felder.map((f) => [
-      f,
-      Math.max(1, ...spalten.map((s) => zellen.get(`${f}/${s}`)?.length ?? 0)),
-    ]),
-  );
-  const lage = new Map<string, { x: number; y: number }>();
-  let y = KOPF;
-  const bahnen: { feld: string; y: number; h: number }[] = [];
-  for (const f of felder) {
-    const h = hoehe.get(f)! * ZEILE + 10;
-    bahnen.push({ feld: f, y, h });
-    spalten.forEach((s, i) => {
-      (zellen.get(`${f}/${s}`) ?? []).forEach((x, n) =>
-        lage.set(x.key, { x: i * SPALTE + 8, y: y + 6 + n * ZEILE }),
-      );
-    });
-    y += h;
-  }
-  const breite = spalten.length * SPALTE + 8;
-  const kanten = daten.technologies.flatMap((x) =>
-    x.prerequisites
-      .filter((v) => lage.has(v))
-      .map((v) => ({ von: lage.get(v)!, nach: lage.get(x.key)!, key: `${v}>${x.key}`, x })),
-  );
-  const start = gewaehlt ? lage.get(gewaehlt) : undefined;
-  return (
-    <div className="baum-rahmen" style={{ zoom }} ref={rahmen}>
-      <div className="baum-ecke" />
-      <div
-        className="baum-scroll-oben"
-        ref={oben}
-        onScroll={(e) => {
-          if (unten.current) unten.current.scrollLeft = e.currentTarget.scrollLeft;
-        }}
-      >
-        <div style={{ width: breiteSichtbar, height: 1 }} />
-      </div>
-      {/* The fields stay in view while the eras scroll. */}
-      <div className="bahnkoepfe" style={{ height: y }}>
-        {bahnen.map((b, i) => (
-          <div
-            key={b.feld}
-            className={i % 2 ? "bahn" : "bahn ungerade"}
-            style={{ top: b.y, height: b.h }}
-          >
-            {t(`fachrichtung.${b.feld}`)}
-          </div>
-        ))}
-      </div>
-      <div
-        className="baum-scroll"
-        ref={(el) => {
-          unten.current = el;
-          // Open at the frontier: the chosen technology near the right edge, its
-          // predecessors to the left.
-          if (el && start && !el.dataset.gerollt) {
-            el.dataset.gerollt = "1";
-            el.scrollLeft = Math.max(0, start.x + KNOTEN_B + 24 - el.clientWidth);
-          }
-        }}
-        onScroll={(e) => {
-          if (oben.current) oben.current.scrollLeft = e.currentTarget.scrollLeft;
-        }}
-      >
-        <div
-          className="baum-flaeche"
-          style={{ width: breite, height: y }}
-          role="group"
-          aria-label={t("forschung.baum")}
-        >
-          <svg className="technikbaum" width={breite} height={y} aria-hidden="true">
-            {bahnen.map((b, i) => (
-              <rect
-                key={b.feld}
-                className={i % 2 ? "bahn" : "bahn ungerade"}
-                x={0}
-                y={b.y}
-                width={breite}
-                height={b.h}
-              />
-            ))}
-            {spalten.map((s, i) => (
-              <text key={s} className="epoche" x={i * SPALTE + 8} y={17}>
-                {t(`forschung.epoche.${EPOCHEN[s]!.key}`)}
-              </text>
-            ))}
-            {kanten.map(({ von, nach, key, x }) => {
-              const x1 = von.x + KNOTEN_B;
-              const y1 = von.y + KNOTEN_H / 2;
-              const y2 = nach.y + KNOTEN_H / 2;
-              // Same column: around the right side; else from right edge to left edge.
-              const d =
-                nach.x <= von.x
-                  ? `M ${x1} ${y1} C ${x1 + 14} ${y1}, ${x1 + 14} ${y2}, ${nach.x + KNOTEN_B} ${y2}`
-                  : `M ${x1} ${y1} C ${x1 + 18} ${y1}, ${nach.x - 18} ${y2}, ${nach.x} ${y2}`;
-              return (
-                <path
-                  key={key}
-                  d={d}
-                  className={`kante ${gewaehlt === x.key || key.startsWith(`${gewaehlt}>`) ? "aktiv" : ""}`}
-                />
-              );
-            })}
-          </svg>
-          {daten.technologies.map((x) => {
-            const p = lage.get(x.key);
-            if (!p) return null;
-            const name = technologieName(x.key);
-            return (
-              <button
-                key={x.key}
-                type="button"
-                className={`knoten technik-${x.status}${gewaehlt === x.key ? " gewaehlt" : ""}`}
-                style={{ left: p.x, top: p.y, width: KNOTEN_B, height: KNOTEN_H }}
-                aria-label={`${name}, ${x.invention_year}, ${t(`forschung.status.${x.status}`)}`}
-                aria-pressed={gewaehlt === x.key}
-                title={name}
-                data-tech={x.key}
-                onClick={() => onWahl(x.key)}
-              >
-                <span>{name}</span>
-                <small>{x.invention_year}</small>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Liste({
-  daten,
-  gewaehlt,
-  onWahl,
-  detail,
-}: {
-  daten: Forschung;
-  gewaehlt: string | null;
-  onWahl: (k: string) => void;
-  /** Shown below the chosen item (phones). */
-  detail: ReactNode;
-}) {
-  const felder = [...new Set(daten.technologies.map((x) => x.field))];
-  return (
-    <div className="technikliste">
-      {felder.map((f) => (
-        <section key={f} aria-label={t(`fachrichtung.${f}`)}>
-          <h3>{t(`fachrichtung.${f}`)}</h3>
-          <ul>
-            {daten.technologies
-              .filter((x) => x.field === f)
-              .sort((a, b) => a.invention_year - b.invention_year)
-              .map((x) => (
-                <li key={x.key}>
-                  <button
-                    type="button"
-                    className={`technikzeile technik-${x.status}${gewaehlt === x.key ? " gewaehlt" : ""}`}
-                    aria-pressed={gewaehlt === x.key}
-                    data-tech={x.key}
-                    onClick={() => onWahl(x.key)}
-                  >
-                    <span className={`punkt technik-${x.status}`} />
-                    <span>{technologieName(x.key)}</span>
-                    <small>{x.invention_year}</small>
-                  </button>
-                  {gewaehlt === x.key && detail}
-                </li>
-              ))}
-          </ul>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-function TechnologieDetail({
-  id,
-  tech: x,
-  daten,
-  onWahl,
   onZentren,
   onStandorte,
 }: {
-  id: string;
-  tech: Technologie;
   daten: Forschung;
-  onWahl: (k: string) => void;
   onZentren: () => void;
   onStandorte: () => void;
 }) {
-  const name = technologieName(x.key);
-  const { los, antwort } = useAktion(`forschen/${x.key}`);
-  const dabei = daten.centers.filter((z) => z.project === x.key);
-  // Centers with a laboratory that could switch to this technology.
-  const bereit = daten.centers.filter((z) => z.labs.length > 0 && z.project !== x.key);
+  const alle = daten.products ?? [];
+  const [branche, setBranche] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("offen");
+  const [art, setArt] = useState<"alle" | "vormaterial" | "endprodukt">("alle");
+  const [suche, setSuche] = useState("");
+  const erste = alle.find((x) => x.status === "in_arbeit") ?? null;
+  const [gewaehlt, setGewaehlt] = useState<string | null>(erste?.product ?? null);
+  const id = useId();
+  const branchen = [...new Set(alle.map((x) => x.branch))].sort((a, b) =>
+    t(`branche.${a}`).localeCompare(t(`branche.${b}`), "de"),
+  );
+  const gesucht = suche.trim().toLocaleLowerCase("de");
+  const liste = alle
+    .filter((x) => branche === "" || x.branch === branche)
+    .filter((x) =>
+      status === "alle"
+        ? true
+        : status === "offen"
+          ? x.status === "erforschbar" || x.status === "in_arbeit"
+          : x.status === status,
+    )
+    .filter((x) => art === "alle" || warenart(daten, x.product) === art)
+    .filter(
+      (x) => gesucht === "" || produktName(x.product).toLocaleLowerCase("de").includes(gesucht),
+    )
+    .sort(
+      (a, b) =>
+        RANG[a.status] - RANG[b.status] ||
+        produktName(a.product).localeCompare(produktName(b.product), "de"),
+    );
+  const auswahl = alle.find((x) => x.product === gewaehlt) ?? null;
+  return (
+    <div className="produktforschung">
+      <p className="erklaerung">{t("forschung.produkte_erklaerung")}</p>
+      <div className="formular-zeile">
+        <label>
+          {t("forschung.produkt_branche")}{" "}
+          <select value={branche} onChange={(e) => setBranche(e.target.value)}>
+            <option value="">{t("forschung.alle_branchen")}</option>
+            {branchen.map((b) => (
+              <option key={b} value={b}>
+                {t(`branche.${b}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {t("forschung.status_filter")}{" "}
+          <select value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)}>
+            {(["offen", "bekannt", "gesperrt", "alle"] as const).map((s) => (
+              <option key={s} value={s}>
+                {t(`forschung.status_filter.${s}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {t("forschung.art.filter")}{" "}
+          <select
+            value={art}
+            onChange={(e) => setArt(e.target.value as "alle" | "vormaterial" | "endprodukt")}
+          >
+            {(["alle", "vormaterial", "endprodukt"] as const).map((a) => (
+              <option key={a} value={a}>
+                {t(`forschung.art.${a}_viele`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="feld">
+          <label htmlFor={`${id}-suche`}>{t("markt.suchen")}</label>
+          <input
+            id={`${id}-suche`}
+            type="search"
+            value={suche}
+            placeholder={t("markt.suchen_platzhalter")}
+            onChange={(e) => setSuche(e.target.value)}
+          />
+        </div>
+      </div>
+      {liste.length === 0 ? (
+        <p className="gedaempft">{t("forschung.produkte_leer")}</p>
+      ) : (
+        <table className="tabelle" aria-label={t("forschung.produkte")}>
+          <thead>
+            <tr>
+              <th>{t("forschung.produkt")}</th>
+              <th>{t("forschung.stand_spalte")}</th>
+              <th className="zahl">{t("forschung.jahr")}</th>
+              <th className="zahl">{t("forschung.aufwand")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {liste.map((x) => (
+              <Fragment key={x.product}>
+                <tr className={gewaehlt === x.product ? "gewaehlt" : undefined}>
+                  <td>
+                    <button
+                      type="button"
+                      className="schlicht"
+                      aria-expanded={gewaehlt === x.product}
+                      onClick={() => setGewaehlt(gewaehlt === x.product ? null : x.product)}
+                    >
+                      {produktName(x.product)}
+                    </button>{" "}
+                    <ArtMarke daten={daten} produkt={x.product} />
+                  </td>
+                  <td>
+                    <span className={`punkt technik-${x.status}`} />{" "}
+                    {t(`forschung.produktstatus.${x.status}`)}
+                  </td>
+                  <td className="zahl">{x.historical_year ?? "–"}</td>
+                  <td className="zahl">
+                    {x.status === "bekannt"
+                      ? "–"
+                      : formatZahl(Math.max(x.needed - x.collected, 0), 0)}
+                  </td>
+                </tr>
+                {gewaehlt === x.product && auswahl && (
+                  <tr>
+                    <td colSpan={4}>
+                      <ProduktDetail
+                        x={auswahl}
+                        daten={daten}
+                        onZentren={onZentren}
+                        onStandorte={onStandorte}
+                      />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function ProduktDetail({
+  x,
+  daten,
+  onZentren,
+  onStandorte,
+}: {
+  x: Produktforschung;
+  daten: Forschung;
+  onZentren: () => void;
+  onStandorte: () => void;
+}) {
+  const name = produktName(x.product);
+  const { los, antwort } = useAktion(`produktforschung/${x.product}`);
+  const dabei = daten.centers.filter((z) => x.sites.includes(z.site));
+  const bereit = daten.centers.filter((z) => z.labs.length > 0 && !x.sites.includes(z.site));
   const [zentrum, setZentrum] = useState(bereit[0]?.site ?? -1);
   const formId = useId();
-  const fortschritt = x.needed ? Math.min(x.points / x.needed, 1) : 0;
+  const fortschritt = x.needed > 0 ? Math.min(x.collected / x.needed, 1) : 0;
+  const offen = Math.max(x.needed - x.collected, 0);
   return (
-    <section id={id} className="karte technikdetail" aria-label={name}>
-      <h3>{name}</h3>
-      <p className="technik-kopf">
-        <span className={`chip technik-${x.status}`}>{t(`forschung.status.${x.status}`)}</span>
-        <span className="gedaempft">
-          {t(`fachrichtung.${x.field}`)} · {t("forschung.erfunden", { jahr: x.invention_year })}
-        </span>
-      </p>
-
-      {x.patent && <PatentZeile patent={x.patent} />}
-      {x.status !== "bekannt" && x.needed !== null && (
-        <dl className="werte technikwerte">
-          <dt>{t("forschung.fortschritt")}</dt>
-          <dd>
-            <span className="technik-fortschritt">
-              <progress max={1} value={fortschritt} aria-label={t("forschung.fortschritt")} />
-              <span className="zahl">{formatProzent(fortschritt)}</span>
-            </span>
+    <section className="produktdetail" aria-label={name}>
+      <dl className="werte">
+        <dt>{t("forschung.stand_spalte")}</dt>
+        <dd>
+          {t(`forschung.produktstatus.${x.status}`)}
+          {x.status !== "bekannt" && (
             <small className="gedaempft">
-              {t("forschung.punkte", {
-                punkte: formatZahl(x.points, 0),
-                bedarf: formatZahl(x.needed, 0),
-              })}
+              {" "}
+              {x.in_world ? t("forschung.in_der_welt") : t("forschung.nicht_in_der_welt")}
             </small>
-          </dd>
-          {x.factor !== null && Math.abs(x.factor - 1) > 0.01 && (
-            <>
-              <dt>{t("forschung.faktor")}</dt>
-              <dd>
-                {t(x.factor > 1 ? "forschung.vorgriff" : "forschung.nachzuegler", {
-                  faktor: formatZahl(x.factor, 2),
+          )}
+        </dd>
+        <dt>{t("forschung.vorprodukte")}</dt>
+        <dd>
+          {x.inputs.length === 0
+            ? t("forschung.keine")
+            : x.inputs.map((p, i) => (
+                <Fragment key={p}>
+                  {i > 0 && ", "}
+                  {x.missing_inputs.includes(p) ? (
+                    <strong className="warnung">{produktName(p)}</strong>
+                  ) : (
+                    produktName(p)
+                  )}
+                </Fragment>
+              ))}
+        </dd>
+        {x.missing_inputs.length > 0 && (
+          <>
+            <dt>{t("forschung.gesperrt_weil")}</dt>
+            <dd>
+              {t("forschung.vorprodukt_fehlt", {
+                liste: x.missing_inputs.map(produktName).join(", "),
+              })}
+            </dd>
+          </>
+        )}
+        {x.status !== "bekannt" && (
+          <>
+            <dt>{t("forschung.fortschritt")}</dt>
+            <dd>
+              <span className="technik-fortschritt">
+                <progress max={1} value={fortschritt} aria-label={t("forschung.fortschritt")} />
+                <span className="zahl">{formatProzent(fortschritt)}</span>
+              </span>{" "}
+              <small className="gedaempft">
+                {t("forschung.punkte", {
+                  punkte: formatZahl(x.collected, 0),
+                  bedarf: formatZahl(x.needed, 0),
                 })}
-              </dd>
-            </>
-          )}
-          {dabei.length > 0 && (
-            <>
-              <dt>{t("forschung.forscht_daran")}</dt>
-              <dd>
-                {dabei
-                  .map((z) =>
-                    z.ready
-                      ? landName(z.country)
-                      : `${landName(z.country)} (${
-                          z.building_until
-                            ? t("forschung.labor_im_bau", { datum: formatDatum(z.building_until) })
-                            : t("forschung.ohne_labor")
-                        })`,
-                  )
-                  .join(", ")}
-              </dd>
-            </>
-          )}
-          {x.days !== null ? (
-            <>
-              <dt>{t("forschung.dauer")}</dt>
-              <dd>
-                {t("forschung.tage_etwa", { tage: formatZahl(Math.ceil(x.days)) })}{" "}
-                <small className="gedaempft">
-                  {t("forschung.mit_deinen_zentren", { punkte: formatZahl(x.points_per_day, 1) })}
-                </small>
-              </dd>
-            </>
-          ) : (
-            x.one_lab && (
+              </small>
+            </dd>
+            {x.historical_year !== null && (
               <>
-                <dt>{t("forschung.dauer")}</dt>
+                <dt>{t("forschung.historisch")}</dt>
                 <dd>
+                  {x.historical_year > Number(daten.date.slice(0, 4))
+                    ? t("forschung.vor_der_zeit", { jahr: x.historical_year })
+                    : t("forschung.erfunden", { jahr: x.historical_year })}
+                </dd>
+              </>
+            )}
+            <dt>{t("forschung.dauer")}</dt>
+            <dd>
+              {x.days !== null ? (
+                <>
+                  {t("forschung.tage_etwa", { tage: formatZahl(Math.ceil(x.days)) })}{" "}
+                  <small className="gedaempft">
+                    {t("forschung.mit_deinen_zentren", {
+                      punkte: formatZahl(x.points_per_day, 1),
+                    })}
+                  </small>
+                </>
+              ) : x.one_lab ? (
+                <>
                   {t("forschung.tage_etwa", { tage: formatZahl(Math.ceil(x.one_lab.days)) })}{" "}
                   <small className="gedaempft">
                     {t("forschung.mit_einem_labor", { land: landName(x.one_lab.country) })}
                   </small>
+                </>
+              ) : offen <= 0 ? (
+                t("forschung.gleich_fertig")
+              ) : (
+                "–"
+              )}
+            </dd>
+            {x.one_lab && (
+              <>
+                <dt>{t("forschung.kosten")}</dt>
+                <dd>
+                  {t("forschung.kosten_etwa", { kosten: formatGeld(x.one_lab.cost_usd) })}{" "}
+                  <small className="gedaempft">
+                    {t("forschung.kosten_hinweis", {
+                      forscher: formatZahl(x.one_lab.researchers),
+                    })}
+                  </small>
                 </dd>
               </>
-            )
-          )}
-          {x.one_lab && (
-            <>
-              <dt>{t("forschung.kosten")}</dt>
-              <dd>
-                {t("forschung.kosten_etwa", { kosten: formatGeld(x.one_lab.cost_usd) })}{" "}
-                <small className="gedaempft">
-                  {t("forschung.kosten_hinweis", {
-                    forscher: formatZahl(x.one_lab.researchers),
-                  })}
-                </small>
-              </dd>
-            </>
-          )}
-        </dl>
-      )}
-
-      {(x.status === "erforschbar" || x.status === "in_arbeit") &&
-        (bereit.length === 0 ? (
-          dabei.length === 0 && (
-            <p className="erklaerung">
-              {t("forschung.erst_zentrum", { betrag: formatGeld(daten.laboratory_usd) })}{" "}
-              <button type="button" className="schlicht" onClick={onZentren}>
-                {t("forschung.zu_den_zentren")}
-              </button>
-            </p>
-          )
-        ) : (
-          <form
-            className="formular-zeile"
-            aria-label={t("forschung.forschen_an", { technologie: name })}
-            onSubmit={(e) => {
-              e.preventDefault();
-              void los(
-                [{ SetResearch: { site: zentrum, technology: x.key } }],
-                t("forschung.gestartet", { technologie: name }),
-              );
-            }}
-          >
-            <div className="feld">
-              <label htmlFor={`${formId}-zentrum`}>{t("forschung.zentrum")}</label>
-              <select
-                id={`${formId}-zentrum`}
-                value={zentrum}
-                onChange={(e) => setZentrum(Number(e.target.value))}
-              >
-                {bereit.map((z) => (
-                  <option key={z.site} value={z.site}>
-                    {zentrumOrt(z)}
-                    {z.project
-                      ? ` (${t("forschung.statt", { technologie: technologieName(z.project) })})`
-                      : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="haupt">
-              {t("forschung.starten")}
-            </button>
-          </form>
-        ))}
-      {/* Outside the form: it goes once the center works on this technology. */}
-      <Rueckmeldung meldung={antwort} />
-      {x.status === "gesperrt" && (
-        <p className="warntext">
-          {t("forschung.erst_voraussetzungen", {
-            liste: x.prerequisites
-              .filter((v) => daten.technologies.find((y) => y.key === v)?.status !== "bekannt")
-              .map(technologieName)
-              .join(", "),
-          })}
-        </p>
-      )}
-
-      <dl className="werte">
-        <dt>{t("forschung.voraussetzungen")}</dt>
-        <dd>
-          {x.prerequisites.length === 0
-            ? t("forschung.keine")
-            : x.prerequisites.map((v) => (
-                <button key={v} type="button" className="verweis knapp" onClick={() => onWahl(v)}>
-                  {technologieName(v)}
-                </button>
-              ))}
-        </dd>
-        <dt>{t("forschung.fuehrt_zu")}</dt>
-        <dd>
-          {x.leads_to.length === 0
-            ? t("forschung.keine")
-            : x.leads_to.map((v) => (
-                <button key={v} type="button" className="verweis knapp" onClick={() => onWahl(v)}>
-                  {technologieName(v)}
-                </button>
-              ))}
-        </dd>
+            )}
+          </>
+        )}
+        {dabei.length > 0 && (
+          <>
+            <dt>{t("forschung.forscht_daran")}</dt>
+            <dd>{dabei.map(zentrumOrt).join(", ")}</dd>
+          </>
+        )}
       </dl>
-
-      <h4>{t("forschung.schaltet_frei")}</h4>
-      {x.facilities.length === 0 && x.recipes.length === 0 && (
-        <p className="gedaempft">{t("forschung.nichts_frei")}</p>
-      )}
-      {x.facilities.length > 0 && (
-        <>
-          <h5>{t("forschung.anlagen")}</h5>
-          <ul className="freischaltungen">
-            {x.facilities.map((f) => (
-              <li key={f.key}>
-                <strong>{t(`anlage.${f.key}`)}</strong>{" "}
-                <span className="gedaempft">
-                  {t("forschung.anlage_info", {
-                    art: t(f.kind_text),
-                    betrag: formatGeld(f.investment_usd),
-                    tage: f.build_days,
-                  })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {x.recipes.length > 0 && (
-        <>
-          <h5>{t("forschung.verfahren")}</h5>
-          <ul className="freischaltungen">
-            {x.recipes.map((r) => (
-              <li key={r.key}>
-                <strong>{t(`rezept.${r.key}`)}</strong>
-                <span>
-                  {r.inputs_per_day.length > 0 &&
-                    `${r.inputs_per_day.map(([p, q]) => `${formatMenge(q)} ${einheit(daten, p)} ${produktName(p)}`).join(" + ")} → `}
-                  {formatMenge(r.output_per_day)} {einheit(daten, r.product)}{" "}
-                  {produktName(r.product)} <ArtMarke daten={daten} produkt={r.product} />{" "}
-                  {t("forschung.je_anlage_tag")}
-                </span>
-                <span className="gedaempft">
-                  {t("forschung.braucht_anlage", { anlage: t(`anlage.${r.facility}`) })}
-                  {r.facility_missing &&
-                    ` ${t("forschung.anlage_fehlt", { technologie: technologieName(r.facility_missing) })}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {x.products.length > 0 && (
-        <>
-          <h5>{t("forschung.produkte")}</h5>
-          <p>
-            {x.products.map((p, i) => (
-              <Fragment key={p}>
-                {i > 0 && ", "}
-                {produktName(p)} <ArtMarke daten={daten} produkt={p} />
-              </Fragment>
-            ))}
-          </p>
-        </>
-      )}
-      {x.status === "bekannt" && x.facilities.length > 0 && (
+      {x.status === "bekannt" ? (
         <div className="knopfreihe links">
           <button type="button" onClick={onStandorte}>
             {t("forschung.anlage_bauen")}
           </button>
         </div>
+      ) : x.status === "gesperrt" ? null : bereit.length === 0 ? (
+        dabei.length === 0 && (
+          <p className="erklaerung">
+            {t("forschung.erst_zentrum", { betrag: formatGeld(daten.laboratory_usd) })}{" "}
+            <button type="button" className="schlicht" onClick={onZentren}>
+              {t("forschung.zu_den_zentren")}
+            </button>
+          </p>
+        )
+      ) : (
+        <form
+          className="formular-zeile"
+          aria-label={t("forschung.erforschen_an", { produkt: name })}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (zentrum < 0) return;
+            void los(
+              [{ SetProductResearch: { site: zentrum, product: x.product } }],
+              t("forschung.produkt_gestartet", { produkt: name }),
+            );
+          }}
+        >
+          <div className="feld">
+            <label htmlFor={`${formId}-zentrum`}>{t("forschung.zentrum")}</label>
+            <select
+              id={`${formId}-zentrum`}
+              value={zentrum}
+              onChange={(e) => setZentrum(Number(e.target.value))}
+            >
+              {bereit.map((z) => (
+                <option key={z.site} value={z.site}>
+                  {zentrumOrt(z)}
+                  {z.research_product
+                    ? ` (${t("forschung.statt", { technologie: produktName(z.research_product) })})`
+                    : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="haupt">
+            {t("forschung.erforschen")}
+          </button>
+        </form>
       )}
+      <Rueckmeldung meldung={antwort} />
     </section>
   );
 }
@@ -915,11 +475,14 @@ function sortiert(liste: Weiterentwicklung[]): Weiterentwicklung[] {
 }
 
 function wirkungText(w: Entwicklungswirkung): string {
-  return t("forschung.wirkung_text", {
-    qualitaet: formatZahl(w.quality, 0),
-    arbeit: formatProzent(w.labor_saved),
-    vorprodukte: formatProzent(w.inputs_saved),
-  });
+  const teile = [t("forschung.wirkung.qualitaet", { wert: formatZahl(w.quality, 0) })];
+  if (w.labor_saved > 0)
+    teile.push(t("forschung.wirkung.arbeit", { wert: formatProzent(w.labor_saved) }));
+  if (w.inputs_saved > 0)
+    teile.push(t("forschung.wirkung.vorprodukte", { wert: formatProzent(w.inputs_saved) }));
+  if ((w.output_gained ?? 0) > 0)
+    teile.push(t("forschung.wirkung.ausstoss", { wert: formatProzent(w.output_gained!) }));
+  return t("forschung.wirkung_text", { liste: teile.join(", ") });
 }
 
 /**
@@ -994,7 +557,7 @@ function Entwicklung({ daten, onZentren }: { daten: Forschung; onZentren: () => 
 
 /** A center without a technology, a product or shares of products to work on. */
 function untaetig(z: Forschung["centers"][number]): boolean {
-  return z.project === null && anteile(z).length === 0;
+  return z.project === null && anteile(z).length === 0 && (z.process_shares?.length ?? 0) === 0;
 }
 
 /** The products a center develops with their shares of its researchers. */
@@ -1013,25 +576,46 @@ function EntwicklungKarte({
 }) {
   const name = produktName(d.product);
   const { los, antwort } = useAktion(`entwicklung/${d.product}`);
-  const dabei = daten.centers.filter((z) => anteile(z).some(([p]) => p === d.product));
+  const fertigung = (z: Forschung["centers"][number]) => z.process_shares ?? [];
+  const dabei = daten.centers.filter(
+    (z) => anteile(z).some(([p]) => p === d.product) || fertigung(z).some(([p]) => p === d.product),
+  );
   const bereit = daten.centers.filter((z) => z.labs.length > 0);
   const [zentrum, setZentrum] = useState(bereit[0]?.site ?? -1);
   const gewaehlt = bereit.find((z) => z.site === zentrum);
   const bisher = gewaehlt ? (anteile(gewaehlt).find(([p]) => p === d.product)?.[1] ?? 0) : 0;
-  const [anteil, setAnteil] = useState(zahlFeld(bisher > 0 ? bisher * 100 : 100, 0));
+  const bisherF = gewaehlt ? (fertigung(gewaehlt).find(([p]) => p === d.product)?.[1] ?? 0) : 0;
+  const neuAnfang = bisher <= 0 && bisherF <= 0;
+  const [anteil, setAnteil] = useState(zahlFeld(neuAnfang ? 50 : bisher * 100, 0));
+  const [anteilF, setAnteilF] = useState(zahlFeld(neuAnfang ? 50 : bisherF * 100, 0));
   const formId = useId();
   const fortschritt = d.needed ? Math.min(d.points / d.needed, 1) : 0;
   const absenden = (e: FormEvent) => {
     e.preventDefault();
     const z = bereit.find((x) => x.site === zentrum);
     const a = zahlLesen(anteil);
-    if (!z || a === null || a < 0 || a > 100) return;
-    const andere = anteile(z).filter(([p]) => p !== d.product);
-    const neu: [string, number][] = a > 0 ? [...andere, [d.product, a / 100]] : andere;
+    const f = zahlLesen(anteilF);
+    if (!z || a === null || f === null || a < 0 || f < 0 || a + f > 100) return;
+    const setze = (liste: [string, number][], wert: number): [string, number][] => {
+      const andere = liste.filter(([p]) => p !== d.product);
+      return wert > 0 ? [...andere, [d.product, wert / 100]] : andere;
+    };
     void los(
-      [{ SetResearchShares: { site: z.site, shares: neu } }],
-      a > 0
-        ? t("forschung.anteil_gesetzt", { produkt: name, anteil: formatZahl(a, 0) })
+      [
+        {
+          SetResearchShares: {
+            site: z.site,
+            shares: setze(anteile(z), a),
+            process: setze(fertigung(z), f),
+          },
+        },
+      ],
+      a + f > 0
+        ? t("forschung.anteile_gesetzt", {
+            produkt: name,
+            anteil: formatZahl(a, 0),
+            fertigung: formatZahl(f, 0),
+          })
         : t("forschung.anteil_beendet", { produkt: name }),
     );
   };
@@ -1069,6 +653,29 @@ function EntwicklungKarte({
           <small className="gedaempft">
             {t("forschung.beim_fuehrenden", { wirkung: wirkungText(d.lead_effect) })}
           </small>
+        </dd>
+        <dt title={t("forschung.fertigung_hilfe")}>{t("forschung.fertigung")}</dt>
+        <dd>
+          {(d.process_points ?? 0) > 0 ? (
+            <>
+              <span className="technik-fortschritt">
+                <progress
+                  max={1}
+                  value={d.process_share ?? 0}
+                  aria-label={t("forschung.fertigung")}
+                />
+                <span className="zahl">{formatProzent(d.process_share ?? 0)}</span>
+              </span>{" "}
+              <small className="gedaempft">
+                {t("forschung.fertigung_stand", {
+                  punkte: formatZahl(d.process_points ?? 0, 0),
+                  reife: formatProzent(d.process_maturity ?? 0),
+                })}
+              </small>
+            </>
+          ) : (
+            t("forschung.wirkung_keine")
+          )}
         </dd>
         {d.next !== null && d.needed !== null && (
           <>
@@ -1127,11 +734,12 @@ function EntwicklungKarte({
             <dt>{t("forschung.forscht_daran")}</dt>
             <dd>
               {dabei
-                .map(
-                  (z) =>
-                    `${landName(z.country)} (${formatProzent(
-                      anteile(z).find(([p]) => p === d.product)?.[1] ?? 0,
-                    )})`,
+                .map((z) =>
+                  t("forschung.zentrum_anteile", {
+                    zentrum: zentrumOrt(z),
+                    anteil: formatProzent(anteile(z).find(([p]) => p === d.product)?.[1] ?? 0),
+                    fertigung: formatProzent(fertigung(z).find(([p]) => p === d.product)?.[1] ?? 0),
+                  }),
                 )
                 .join(", ")}
             </dd>
@@ -1174,6 +782,13 @@ function EntwicklungKarte({
             onWert={setAnteil}
             hilfe={t("forschung.anteil_hilfe")}
           />
+          <ZahlFeld
+            name={t("forschung.anteil_fertigung")}
+            einheit="%"
+            wert={anteilF}
+            onWert={setAnteilF}
+            hilfe={t("forschung.fertigung_hilfe")}
+          />
           <button type="submit" className="haupt">
             {t("forschung.weiterentwickeln")}
           </button>
@@ -1185,9 +800,6 @@ function EntwicklungKarte({
 }
 
 function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat: string }) {
-  const erforschbar = daten.technologies.filter(
-    (x) => x.status === "erforschbar" || x.status === "in_arbeit",
-  );
   return (
     <div className="karten">
       <p className="erklaerung">
@@ -1198,7 +810,7 @@ function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat
       </p>
       {daten.centers.length === 0 && <p className="gedaempft">{t("forschung.keine_zentren")}</p>}
       {daten.centers.map((z) => (
-        <Zentrum key={z.site} z={z} daten={daten} erforschbar={erforschbar} />
+        <Zentrum key={z.site} z={z} daten={daten} />
       ))}
       <ZentrumGruenden kern={kern} heimat={heimat} datum={daten.date} />
     </div>
@@ -1223,32 +835,32 @@ export function ForschungImWerk({
   if (!daten) return <FehlerText fehler={fehler} />;
   const z = daten.centers.find((c) => c.site === site);
   if (!z) return null;
-  const erforschbar = daten.technologies.filter(
-    (x) => x.status === "erforschbar" || x.status === "in_arbeit",
-  );
   return (
     <Befehle senden={senden} meldung={meldung}>
       <div className="karten">
-        <Zentrum z={z} daten={daten} erforschbar={erforschbar} />
+        <Zentrum z={z} daten={daten} />
       </div>
     </Befehle>
   );
 }
 
-function Zentrum({
-  z,
-  daten,
-  erforschbar,
-}: {
-  z: Forschung["centers"][number];
-  daten: Forschung;
-  erforschbar: Technologie[];
-}) {
+function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschung }) {
   const { los, antwort } = useAktion(`zentrum/${z.site}`);
-  // "t:<technology>" or "p:<product>" (M37); empty: no project.
+  // "r:<product>" to research (Q6), "p:<product>" to develop (M37), "t:<technology>" for
+  // a technology set before Q6 (kept while it runs); empty: no project.
   const [projekt, setProjekt] = useState(
-    z.project ? `t:${z.project}` : z.development ? `p:${z.development}` : "",
+    z.research_product
+      ? `r:${z.research_product}`
+      : z.project
+        ? `t:${z.project}`
+        : z.development
+          ? `p:${z.development}`
+          : "",
   );
+  const erforschbar = (daten.products ?? [])
+    .filter((x) => x.status === "erforschbar" || x.status === "in_arbeit")
+    .sort((a, b) => produktName(a.product).localeCompare(produktName(b.product), "de"));
+  const ziel = daten.products?.find((x) => x.product === z.research_product);
   const id = useId();
   const titel = z.name
     ? `${z.name} · ${landName(z.country)}`
@@ -1276,7 +888,26 @@ function Zentrum({
               ? t("forschung.labor_im_bau", { datum: formatDatum(z.building_until) })
               : t("forschung.ohne_labor")}
         </dd>
-        {tech && tech.needed !== null && (
+        {ziel && (
+          <>
+            <dt>{t("forschung.fortschritt")}</dt>
+            <dd>
+              {t("forschung.projekt_stand", {
+                technologie: produktName(ziel.product),
+                anteil: formatProzent(
+                  ziel.needed > 0 ? Math.min(ziel.collected / ziel.needed, 1) : 0,
+                ),
+              })}
+              {ziel.days !== null && (
+                <small className="gedaempft">
+                  {" "}
+                  {t("forschung.noch_tage", { tage: formatZahl(Math.ceil(ziel.days)) })}
+                </small>
+              )}
+            </dd>
+          </>
+        )}
+        {!ziel && tech && tech.needed !== null && (
           <>
             <dt>{t("forschung.fortschritt")}</dt>
             <dd>
@@ -1324,7 +955,12 @@ function Zentrum({
           onSubmit={(e) => {
             e.preventDefault();
             const [art, key] = [projekt.slice(0, 1), projekt.slice(2)];
-            if (art === "t") {
+            if (art === "r") {
+              void los(
+                [{ SetProductResearch: { site: z.site, product: key } }],
+                t("forschung.produkt_gestartet", { produkt: produktName(key) }),
+              );
+            } else if (art === "t") {
               void los(
                 [{ SetResearch: { site: z.site, technology: key } }],
                 t("forschung.gestartet", { technologie: technologieName(key) }),
@@ -1357,10 +993,13 @@ function Zentrum({
                   ? t("forschung.aufgeteilt", { anzahl: z.shares?.length ?? 0 })
                   : t("forschung.kein_projekt")}
               </option>
-              <optgroup label={t("forschung.technologien")}>
+              {z.project && !z.research_product && (
+                <option value={`t:${z.project}`}>{technologieName(z.project)}</option>
+              )}
+              <optgroup label={t("forschung.produkte_reiter")}>
                 {erforschbar.map((x) => (
-                  <option key={x.key} value={`t:${x.key}`}>
-                    {technologieName(x.key)}
+                  <option key={x.product} value={`r:${x.product}`}>
+                    {t("forschung.erforschen_option", { produkt: produktName(x.product) })}
                   </option>
                 ))}
               </optgroup>

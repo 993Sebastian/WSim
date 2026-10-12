@@ -37,7 +37,11 @@ forschungsmodell:
     # Wirkung beim Führenden (Niveau 100 %) in allen Rezepten der Firma für das Produkt
     # (Q1): Qualitätspunkte · Niveau, eingesparter Anteil der Arbeitsstunden und der
     # Vorprodukte je Durchlauf · Niveau · Reife.
-    wirkung_max: {qualitaet: 30, arbeit: 0.2, vorprodukte: 0.15}
+    # Die Vorprodukte spart seit Q6 die Fertigungsforschung (fertigung).
+    wirkung_max: {qualitaet: 30, arbeit: 0.2, vorprodukte: 0}
+    # Fertigungsforschung (Q6, Wunsch vom 11.10.2026): beim Führenden mehr Ausstoß je
+    # Durchlauf und weniger Vorprodukte, je · Niveau · Reife.
+    fertigung: {ausstoss: 0.25, vorprodukte: 0.15}
     # Generation n kostet B · anteil · wachstum^(n − 1) Forschungspunkte; B ist der größte
     # Forschungsaufwand der Technologien des Produkts, mindestens grundaufwand. B ist auch
     # das Maß der Reife: S = 1 − e^(−Punkte des Führenden / B).

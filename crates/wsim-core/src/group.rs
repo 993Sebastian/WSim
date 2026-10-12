@@ -141,6 +141,7 @@ pub(crate) fn found(
     let index = u32::try_from(state.companies.len()).unwrap_or(u32::MAX);
     let id = CompanyId(index);
     state.companies.push(Company {
+        process: Default::default(),
         brands: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),

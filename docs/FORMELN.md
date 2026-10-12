@@ -5676,8 +5676,11 @@ Patente, Lizenzen, Start-ups).
       Niveau R_F(f, p) = P_F(f, p) / max_g P_F(g, p),  Reife S_F(p) = 1 − exp(−max_g P_F / B(p))
       Ausstoß je Durchlauf · (1 + `ausstoss_max` · R_F · S_F)
       Vorprodukte je Durchlauf · (1 − `vorprodukte_max` · R_F · S_F)
-  Parameter in `forschungsmodell.fertigungsforschung` (Vorschlag: Ausstoß + 25 %,
-  Vorprodukte − 15 %).
+  Parameter in `forschungsmodell.weiterentwicklung.fertigung` (`ausstoss` 0–2,
+  `vorprodukte` 0–0,9; gesetzt: Ausstoß + 25 %, Vorprodukte − 15 %).
+- Punkte der Fertigungsforschung je Tag wie bei der Weiterentwicklung:
+      Forscher des Fachgebiets · Anteil · Forschungseffizienz des Landes;
+  Ausstoß und Stückkosten im Werk rechnen mit dem Faktor auf den Ausstoß.
 - Ein Forschungszentrum verteilt seine Punkte in Anteilen auf ein Produkt zum Erforschen,
   auf Weiterentwicklung und auf Fertigungsforschung einzelner Produkte (Summe ≤ 100 %).
 - KI: forscht wie bisher Technologien ihrer Pläne; teilt die Produktforschung ihres

@@ -4376,6 +4376,7 @@ pub(crate) fn push_company(
         (settings.aggressiveness + spread * (2.0 * rng.next_f64() - 1.0)).clamp(0.0, 1.0);
     let name = population::company_name_for(state, catalog, &mut rng, country, branch, founder);
     state.companies.push(Company {
+        process: Default::default(),
         brands: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
@@ -4671,6 +4672,7 @@ mod tests {
             cost,
         );
         state.companies.push(Company {
+            process: Default::default(),
             brands: Vec::new(),
             emissions: Default::default(),
             emissions_last: Default::default(),

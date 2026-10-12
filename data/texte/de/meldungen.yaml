@@ -45,6 +45,9 @@ meldung.rang_vorjahr: "Rang zum Ende des Jahres {jahr} {kriterium}: Platz {platz
 rang.eigenkapital: nach Eigenkapital
 rang.umsatz: nach Umsatz
 meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“ steht jetzt zur Verfügung.
+meldung.produkt_erforscht: "Produkt erforscht – „{produkt}“ kann jetzt hergestellt werden."
+fehler.befehl.produkt_nicht_erforschbar: "„{produkt}“ lässt sich jetzt nicht erforschen: Es ist schon bekannt oder ein Vorprodukt gibt es noch nicht."
+
 meldung.weiterentwicklung.erreicht: "{produkt}: Generation {stufe} erreicht. Die Forschung läuft weiter – dein Niveau gegenüber dem Führenden bestimmt Qualität und Kosten."
 meldung.weiterentwicklung.ausgereizt: "{produkt}: Generation {stufe}, die letzte benannte, ist erreicht. Weitere Punkte halten oder bauen deinen Vorsprung aus."
 meldung.weiterentwicklung.fuehrung: "Du führst jetzt bei {produkt}: Dein Forschungsniveau liegt bei 100 %."

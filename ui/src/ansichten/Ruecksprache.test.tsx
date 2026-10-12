@@ -56,7 +56,11 @@ describe("Vorstand und Rücksprache", () => {
     expect(
       within(karte).getByRole("button", { name: "Besetzen Ressort Personal (Vorstand)" }),
     ).toBeTruthy();
-    expect(within(karte).getByText(/Entscheidest du selbst: .*Kredite, Kaufangebote/)).toBeTruthy();
+    expect(
+      within(karte).getByText(
+        /Entscheidest du selbst: .*Kredite, Umschuldung, Dividende, Kaufangebote/,
+      ),
+    ).toBeTruthy();
   });
 
   it("zeigt Bericht, Ziele, Chancen, Risiken und Anträge der letzten Rücksprache", async () => {

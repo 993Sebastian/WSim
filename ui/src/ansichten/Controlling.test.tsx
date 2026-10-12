@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { Controlling, Kern } from "../kern";
+import type { Controlling, ControllingKnoten, Kern } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { ControllingAnsicht } from "./Controlling";
 
@@ -32,11 +32,40 @@ async function zeige(aendern: (d: Controlling) => void = () => {}) {
   return zeitraeume;
 }
 
+/** The example's site produces nothing in this period: give it a product with its costs. */
+function mitProdukt(d: Controlling) {
+  const suche = (n: ControllingKnoten): ControllingKnoten | undefined =>
+    n.level === "standort" ? n : n.children.map(suche).find(Boolean);
+  const werk = d.root && suche(d.root);
+  if (!werk) throw new Error("Beispiel ohne Standort");
+  werk.children.push({
+    key: `produkt:${werk.key}:naegel`,
+    level: "produkt",
+    name: "produkt.naegel",
+    country: null,
+    revenue_usd: 24_000,
+    variable_usd: -19_000,
+    margin1_usd: 5_000,
+    fixed_usd: -1_500,
+    margin2_usd: 3_500,
+    other_usd: 0,
+    result_usd: 3_500,
+    previous_result_usd: null,
+    series_usd: [],
+    costs: [
+      { key: "kostenart.umsatz", usd: 24_000 },
+      { key: "kostenart.material", usd: -19_000 },
+      { key: "kostenart.personal", usd: -1_500 },
+    ],
+    children: [],
+  });
+}
+
 describe("Controlling", () => {
   afterEach(cleanup);
 
   it("klappt vom Konzern bis zum Produkt auf", async () => {
-    await zeige();
+    await zeige(mitProdukt);
     const tabelle = screen.getByRole("table", { name: "Ergebnis je Ebene" });
     // The group and its companies are open.
     expect(within(tabelle).getByText("Konzern")).toBeTruthy();

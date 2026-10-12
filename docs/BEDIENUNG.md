@@ -7,7 +7,7 @@ Zielbild, das M18 bis M20 umsetzen.
 
 Umsetzungsstand: Standorte und Werksansicht mit Personal und Preisen (M18b/c) sowie
 Kopfbereich, Übersicht, Markt, Finanzen, Rundenbericht, Neues Spiel, Weltkarte und
-Spielstände als Datei (M18d), der Technologiebaum (M19) und die geführte Einführung
+Spielstände als Datei (M18d), der Technologiebaum (M19, seit Q6 „Produkte erforschen“) und die geführte Einführung
 bis zum ersten Verkauf (M20) sind umgesetzt.
 
 ## Erklärungen (M27)
@@ -679,6 +679,14 @@ es mir?“
 - Nach M38: Die Spalten folgen bis 1919 den Jahrzehnten, danach den Produktepochen
   (1920–1939, 1940–1964, 1965–1989, ab 1990); vorher stand alles ab 1920 in einer
   Spalte, mit den Epochen bis 1989 gut zwanzig Technologien untereinander.
+- **Ersetzt (Q6) durch „Produkte erforschen“:** Der Spieler erforscht Produkte, nicht
+  Technologien. Tabelle aller Produkte mit Stand (in Arbeit, erforschbar, gesperrt,
+  erforscht), historischem Jahr und offenen Punkten; Auswahl nach Branche, Stand, Art
+  (Vormaterial/Endprodukt) und Suche. Klick auf ein Produkt öffnet Vorprodukte (fehlende
+  hervorgehoben, „Erst erforschbar, wenn es in der Welt gibt: …“), Fortschritt, historische
+  Zeit, Dauer und Kosten je Labor, die Zentren daran und „Erforschen“ mit Wahl des
+  Zentrums; erforschte Produkte führen zu „Anlage bauen“. Im Zentrum wählt das Projekt
+  ein Produkt zum Erforschen oder eines zum Weiterentwickeln.
 
 ### Länderdetail: Rüstung (H3)
 
@@ -709,7 +717,9 @@ es mir?“
 - Ziel: Der Spieler sieht für jedes Produkt, das er herstellt (umschaltbar: alle, die er
   herstellen darf), wo er steht und was die nächste Stufe bringt und kostet – und wo die
   Wettbewerber stehen.
-- Umgesetzt: eigener Unterreiter zwischen Technologiebaum und Forschungszentren. Oben
+- Umgesetzt: eigener Unterreiter zwischen „Produkte erforschen“ (vorher Technologiebaum)
+  und Forschungszentren. Seit Q6 je Produkt zwei Anteile im Zentrum: Weiterentwicklung
+  und Fertigungsforschung (Zeile „Fertigungsforschung“ mit Niveau, Punkten und Reife). Oben
   die Erklärung mit der Wirkung je Stufe; je Produkt eine Karte mit Stufe (Punkte,
   „Stufe 2 von 5“, Hinweis auf Gemeingut), Wirkung jetzt, bester Wettbewerber, nächste
   Stufe mit Wirkung, Fortschritt, Dauer (mit den eigenen Zentren oder mit einem Labor,

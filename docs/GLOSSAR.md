@@ -99,6 +99,8 @@ beides zu und wird mit jedem Meilenstein ergänzt.
 | Produktqualität, Qualitätsteile | `QualityParts`, `quality_parts`, `QualityView` |
 | Eigener Standortname | `Site::name`, `RenameSite`, `site_name` |
 | Forschungsniveau, Reife, Forschungsanteile (Q1) | `development::share`, `development::maturity`, `Site::development_shares`, `SetResearchShares` |
+| Produkt erforschen, Hauptrezept, in der Welt bekannt, erforschbar (Q6) | Modul `product_research` (`main_recipe`, `technologies`, `missing`, `known`, `known_in_world`, `missing_inputs`, `can_research`, `next`, `effort`, `steer`); `Site::research_product`; Befehl `SetProductResearch`; Fehler `NotResearchableProduct`; Meldung `meldung.produkt_erforscht`; Sicht `ProductResearchView` (`ResearchOverview::products`) |
+| Fertigungsforschung, Niveau und Reife der Fertigung, Mehrausstoß (Q6) | `development::{process_points, process_leader_points, process_share, process_maturity, add_process_points, site_process_shares}`, `Company::process`, `GameState::process_leader` (abgeleitet), `Site::process_shares`, `SetResearchShares::process`, `Effect::output`, `Effect::with_process`, `DevelopmentModel::{process_output_max, process_inputs_max}` (`forschungsmodell.weiterentwicklung.fertigung`) |
 | Handel (Menge, Umsatz) | `Trade` |
 | Verkehrsmittel, Weg | `Vehicle`, `Way` |
 | Transportmodell, Frachtdienst | `TransportModel`, `transport` |

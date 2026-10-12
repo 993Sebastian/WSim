@@ -5,7 +5,111 @@ import { vorschauKern } from "../kern/vorschau";
 import { hatText } from "../texte";
 import { OrganisationAnsicht, trefferquote } from "./Organisation";
 
-/** The preview core whose example concern stands twice (as from two works), sending to a list. */
+/**
+ * A concern as the head of Germany asks it about the works' expansion (MA3). The example
+ * game has none open, so the tests bring their own.
+ */
+const ausbau: Anliegen = {
+  asker: {
+    continent: null,
+    country: "DEU",
+    kind_text: "ebene.land",
+    level: "land",
+    role: "leitung",
+    unit: "land:DEU",
+  },
+  because: {
+    group: "allgemein",
+    key: "anliegen.begruendung.ergebnis",
+    kind: "info",
+    params: {
+      bis: { type: "money", value: 21615.9724 },
+      von: { type: "money", value: 10840.4426 },
+    },
+    target: null,
+  },
+  carried_out: null,
+  closed: null,
+  created: "1914-12-31",
+  deadline: "1915-01-30",
+  id: 0,
+  important: true,
+  left_usd: 0.0,
+  manager: "Carmen López",
+  options: [
+    {
+      amount_usd: 55632.6825,
+      forecast_usd: [10840.4426, 21615.9724],
+      kind: "bauen",
+      once_usd: 0.0,
+      steps: [
+        {
+          group: "allgemein",
+          key: "schritt.kredit",
+          kind: "info",
+          params: {
+            betrag: { type: "money", value: 40475.5168 },
+            jahre: { type: "integer", value: 10 },
+          },
+          target: null,
+        },
+        {
+          group: "allgemein",
+          key: "schritt.bauen",
+          kind: "info",
+          params: {
+            anlage: { type: "text_key", value: "anlage.nagelmaschine" },
+            anzahl: { type: "integer", value: 1 },
+            groesse: { type: "text_key", value: "anlagengroesse.sehr_klein" },
+          },
+          target: null,
+        },
+      ],
+    },
+    { amount_usd: 0.0, forecast_usd: null, kind: "beibehalten", once_usd: 0.0, steps: [] },
+  ],
+  parts: [],
+  path: [
+    {
+      manager: "Arthur Morgan",
+      position: {
+        continent: null,
+        country: "DEU",
+        kind_text: "standorttyp.werk",
+        level: "standort",
+        role: "leitung",
+        unit: "standort:0",
+      },
+      recommended: "bauen",
+    },
+    {
+      manager: "Carmen López",
+      position: {
+        continent: null,
+        country: "DEU",
+        kind_text: "ebene.land",
+        level: "land",
+        role: "leitung",
+        unit: "land:DEU",
+      },
+      recommended: "bauen",
+    },
+  ],
+  per_decision_usd: 0.0,
+  product: "naegel",
+  reason: "kredit",
+  recommended: 0,
+  site: 0,
+  site_country: "DEU",
+  site_kind_text: "standorttyp.werk",
+  site_result_usd: -207.7966,
+  status: "offen",
+  strategy_limit_usd: null,
+  strategy_scope: null,
+  topic: "ausbau",
+};
+
+/** The preview core with the concern above standing twice (as from two works), sending to a list. */
 async function kernMitAnliegen() {
   const vorschau = vorschauKern(0);
   const uebersicht = await vorschau.neuesSpiel({
@@ -24,8 +128,14 @@ async function kernMitAnliegen() {
     ...vorschau,
     anliegen: async () => {
       const a: AnliegenListe = await vorschau.anliegen();
-      const gruppe = a.open[0]!;
-      gruppe.concerns.push({ ...gruppe.concerns[0]!, id: 99 });
+      a.open = [
+        {
+          topic: "ausbau",
+          kind: "bauen",
+          concerns: [structuredClone(ausbau), { ...ausbau, id: 99 }],
+        },
+        ...a.open,
+      ];
       return a;
     },
     befehl: async (b) => {
@@ -79,9 +189,29 @@ describe("Anliegen", () => {
 
   it("zeigt Budget und eigene Entscheidungen einer Stelle und ändert das Budget", async () => {
     const { kern, uebersicht, gesendet } = await kernMitAnliegen();
+    // The head of the works decided an expansion on its own (none in the example game).
+    const mitEntscheidung: Kern = {
+      ...kern,
+      organisation: async () => {
+        const o = await kern.organisation();
+        const leitung = o.continents[0]!.countries[0]!.sites[0]!.positions[0]!;
+        leitung.log = [
+          ...(leitung.log ?? []),
+          {
+            date: "1914-09-30",
+            topic: "ausbau",
+            product: "naegel",
+            kind: "bauen",
+            amount_usd: 24_622.89,
+            effect_usd: 29_940.18,
+          },
+        ];
+        return o;
+      },
+    };
     render(
       <OrganisationAnsicht
-        kern={kern}
+        kern={mitEntscheidung}
         uebersicht={{ ...uebersicht, concerns_open: 0 }}
         onGeaendert={() => {}}
       />,
@@ -311,6 +441,7 @@ describe("Anliegen", () => {
   });
 
   it("zeigt Alter, Ruhestand, Nachfolger und ehemalige Manager (PE1)", async () => {
+    let landesleitung = "";
     const vorschau = vorschauKern(0);
     const uebersicht = await vorschau.neuesSpiel({
       seed: 1,
@@ -334,6 +465,45 @@ describe("Anliegen", () => {
           salary_usd: 30_000,
           since: "1914-07-01",
         };
+        // The head of Germany retires within two years, a former head of the works has
+        // retired (neither happens in the example game).
+        const land = o.continents[0]!.countries[0]!.unit!.positions[0]!.holder!;
+        land.manager = { ...land.manager, age: 64, retires_at: 65, retirement: "1915-05-01" };
+        landesleitung = land.manager.name;
+        o.retiring = [
+          {
+            name: land.manager.name,
+            age: 64,
+            position: {
+              role: "leitung",
+              level: "land",
+              kind_text: "ebene.land",
+              country: "DEU",
+              continent: null,
+              unit: "land:DEU",
+            },
+            retirement: "1915-05-01",
+            successor: null,
+          },
+        ];
+        o.former = [
+          {
+            name: "Heinrich Albers",
+            age: 64,
+            position: {
+              role: "leitung",
+              level: "standort",
+              kind_text: "standorttyp.werk",
+              country: "DEU",
+              continent: null,
+              unit: "standort:0",
+            },
+            since: "1914-01-01",
+            until: "1914-07-01",
+            judged: 0,
+            reason: "ruhestand",
+          },
+        ];
         return o;
       },
     };
@@ -347,8 +517,9 @@ describe("Anliegen", () => {
     expect(await screen.findByText(/64 Jahre · Ruhestand am 01\.03\.1915 mit 65/)).toBeTruthy();
     expect(screen.getByText(/Nachfolger: Clara Weiß \(41 Jahre\), seit 01\.07\.1914/)).toBeTruthy();
     const liste = screen.getByRole("table", { name: "Ruhestand in den nächsten zwei Jahren" });
+    expect(landesleitung).not.toBe("");
     expect(within(liste).getAllByRole("row")[1]!.textContent).toMatch(
-      /^Alexei Demidov.*Land · Deutschland6401\.05\.1915noch offen$/,
+      new RegExp(`^${landesleitung}.*Land · Deutschland6401\\.05\\.1915noch offen$`),
     );
     const ehemalige = screen.getByRole("region", { name: "Ehemalige Manager" });
     const zeile = within(ehemalige).getAllByRole("row")[1]!;

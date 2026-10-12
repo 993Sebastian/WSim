@@ -59,6 +59,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
     let groups = game.catalog().labor_groups.len();
     let state = game.state_mut();
     state.sites.push(Site {
+        process_shares: Default::default(),
         owner,
         name: None,
         totals: std::collections::BTreeMap::new(),
@@ -74,6 +75,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
         offers: Default::default(),
         orders: Default::default(),
         research: None,
+        research_product: None,
         development: None,
         development_shares: std::collections::BTreeMap::new(),
         wage_premium: 0.0,
@@ -113,6 +115,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
     let id = CompanyId(u32::try_from(state.companies.len()).unwrap());
     let date = state.date;
     state.companies.push(Company {
+        process: Default::default(),
         brands: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),

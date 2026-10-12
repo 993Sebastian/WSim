@@ -992,6 +992,8 @@ export interface Entwicklungswirkung {
   quality: number;
   labor_saved: number;
   inputs_saved: number;
+  /** Share of output gained per run (manufacturing research, Q6). */
+  output_gained?: number;
 }
 
 /** A product the player may develop or has developed (M37). */
@@ -1027,6 +1029,38 @@ export interface Weiterentwicklung {
   /** What the lead (100 %) brings at today's maturity. */
   lead_effect: Entwicklungswirkung;
   sites: number[];
+  /** Manufacturing research (Q6): own points, share of the leader's, maturity, centers. */
+  process_points?: number;
+  process_share?: number;
+  process_maturity?: number;
+  process_sites?: number[];
+}
+
+/** A product to research (Q6); the technologies stay behind it. */
+export interface Produktforschung {
+  product: string;
+  kind: string;
+  branch: string;
+  status: "bekannt" | "in_arbeit" | "erforschbar" | "gesperrt";
+  /** The product exists in the world (it can be bought). */
+  in_world: boolean;
+  needed: number;
+  collected: number;
+  /** Inputs that do not exist in the world yet. */
+  missing_inputs: string[];
+  inputs: string[];
+  historical_year: number | null;
+  field: string | null;
+  sites: number[];
+  points_per_day: number;
+  days: number | null;
+  one_lab: {
+    country: string;
+    researchers: number;
+    points_per_day: number;
+    days: number;
+    cost_usd: number;
+  } | null;
 }
 
 export interface Forschung {
@@ -1076,6 +1110,8 @@ export interface Forschung {
     /** Patent or own patent claim (P7). */
     patent?: Patent | null;
   }[];
+  /** All products with their research state (Q6). */
+  products?: Produktforschung[];
   /** Products to develop (M37) and the highest level. */
   developments: Weiterentwicklung[];
   development_levels: number;
@@ -1094,6 +1130,10 @@ export interface Forschung {
     development: string | null;
     /** Shares of the researchers per developed product; the rest works on `project`. */
     shares?: [string, number][];
+    /** Shares on manufacturing research per product (Q6). */
+    process_shares?: [string, number][];
+    /** Product it researches (Q6); `project` is the technology it works on for it. */
+    research_product?: string | null;
     ready: boolean;
     building_until: string | null;
     labs: { slot: number; count: number; utilization: number; ready: string }[];

@@ -347,6 +347,9 @@ pub struct Company {
     /// Development levels of its products and the points towards the next (M37).
     #[serde(default, skip_serializing_if = "Development::is_empty")]
     pub development: Development,
+    /// Points of manufacturing research per product (Q6).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub process: BTreeMap<ProductId, f64>,
     /// The names the company gave its end products (M42).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub product_names: BTreeMap<ProductId, String>,
@@ -1431,6 +1434,10 @@ pub struct Site {
     /// Technology the research center works on.
     #[serde(default)]
     pub research: Option<TechnologyId>,
+    /// Product the research center researches (Q6): it works through the product's
+    /// missing technologies.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub research_product: Option<ProductId>,
     /// Product the research center develops with all its researchers (M37); the AI's way.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub development: Option<ProductId>,
@@ -1438,6 +1445,9 @@ pub struct Site {
     /// `development` and the rest works on `research`.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub development_shares: BTreeMap<ProductId, f64>,
+    /// Shares of the researchers per product for manufacturing research (Q6).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub process_shares: BTreeMap<ProductId, f64>,
     /// Premium over the country's wages (M18, 0.1 = 10 %).
     #[serde(default)]
     pub wage_premium: f64,
@@ -1896,6 +1906,9 @@ pub struct GameState {
     /// Most points any company has collected per product (Q1); derived, not saved.
     #[serde(skip)]
     pub development_leader: BTreeMap<ProductId, f64>,
+    /// Most points of manufacturing research any company has per product (Q6); derived.
+    #[serde(skip)]
+    pub process_leader: BTreeMap<ProductId, f64>,
     /// Day the player reached each milestone (M23).
     #[serde(default)]
     pub milestones: PerId<MilestoneId, Option<Date>>,

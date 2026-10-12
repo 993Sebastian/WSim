@@ -1972,6 +1972,32 @@ Abnahme:**
   (z. B. Südosteuropa 2007, Nordeuropa 1995). 93 Währungen ohne Land entfallen.
 - Offen für später: Grenzverschiebungen (zurückgestellt).
 
+### Q6 Forschung je Produkt, Fertigungsforschung (Wunsch vom 11.10.2026)
+
+„Forschung ohne Technologien, der Spieler erforscht Produkte; dazu eine zweite Skala für
+die Fertigung.“ Umgesetzt (Formeln: `docs/FORMELN.md`, Q6). **Selbst entschieden, zur
+Abnahme:**
+
+- **Bekannt in der Welt** heißt: ein Rezept des Produkts nutzt nur Technologien, deren
+  historisches Jahr erreicht ist oder die eine Firma vorzeitig erfunden hat. Erforschbar
+  ist ein Produkt, sobald alle Vorprodukte seines Hauptrezepts in der Welt bekannt sind –
+  auch weit vor seiner Zeit, dann aber mit dem Aufschlag für Vorgriffe (ein
+  Lithium-Ionen-Akku kostet 1914 Billionen Punkte). Vorschlag: so lassen; der Aufwand
+  regelt es.
+- Die Technologien bleiben als innerer Baustein (Aufwand, Erfindungsjahr, Patente,
+  Lizenzen, Start-ups, KI). Der Spieler sieht keinen Technologiebaum mehr; Patente zeigen
+  weiter Technologienamen.
+- Ein Zentrum erforscht genau ein Produkt (`SetProductResearch`); daneben teilt es seine
+  Forscher in Anteilen auf Weiterentwicklung und Fertigungsforschung bekannter Produkte
+  auf (zusammen ≤ 100 %, der Rest gehört dem Produkt in Erforschung). Neu gewählt schlägt
+  die Oberfläche 50 % / 50 % vor.
+- Die Ersparnis an Vorprodukten wandert von der Weiterentwicklung zur Fertigung
+  (`wirkung_max.vorprodukte: 0`, `fertigung: {ausstoss: 0.25, vorprodukte: 0.15}`).
+- KI und Zentren mit nur einem Weiterentwicklungsprodukt (alte Spielstände) teilen
+  hälftig auf Weiterentwicklung und Fertigung.
+- Fertigungsforschung kostet wie die Weiterentwicklung (Löhne und Sachkosten der
+  Forscher); eigene Punkte verfallen nicht und gehen nicht auf andere über.
+
 ## R Welt und Geschichte, Markt und Nachfrage, Betrieb und Lernkurve (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 11.10.2026)
 
 ✅ Freigegeben am 11.10.2026 („so eintragen, dass Code es einbauen kann“). Die 23
@@ -2100,6 +2126,13 @@ Bei der Umsetzung entschieden:
   nötig: (a) Mindestbestand je Niederlassung als feste Vorgabe; (b) Bedarf aus dem
   Marktanteil der Firma im Land statt aus dem eigenen Absatz; (c) Sicherheitsbestand aus
   der Schwankung des Absatzes und der Lieferzeit (klassische Lagerformel).
+
+- **S9 Beispieldaten der Browser-Vorschau (#221):** `beispielsichten` startet jetzt mit
+  250 000 USD statt 100 000: Mit 100 000 USD ging die Werkstatt samt zwei eingestellter
+  Leitungen nach rund neun Monaten in die Insolvenz. Die Tochterfirma wird am Ende mit
+  einem Kredit gegründet. Hinweis für BP5/T: Eine kleine Werkstatt mit Werks- und
+  Landesleitung trägt die Gehälter nicht – passt zur Frage, ob sich Leitungen für kleine
+  Werke lohnen.
 
 ## T Offen: Manager-System auf den Prüfstand (Wunsch vom 11.10.2026)
 

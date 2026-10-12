@@ -1189,6 +1189,18 @@ pub struct RawProductDevelopment {
     /// Research field by branch, for products without a technology.
     #[serde(rename = "fachgebiete")]
     pub fields: BTreeMap<String, String>,
+    /// Manufacturing research (Q6): effect at the leader's level.
+    #[serde(rename = "fertigung", default)]
+    pub process: Option<RawProcessResearch>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawProcessResearch {
+    #[serde(rename = "ausstoss")]
+    pub output: f64,
+    #[serde(rename = "vorprodukte")]
+    pub inputs: f64,
 }
 
 #[derive(Debug, Deserialize)]

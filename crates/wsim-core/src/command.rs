@@ -201,6 +201,12 @@ pub enum Command {
         site: SiteId,
         technology: Option<TechnologyId>,
     },
+    /// A research center researches a product (Q6): it works through the product's
+    /// missing technologies until the company may make it; `None` stops it.
+    SetProductResearch {
+        site: SiteId,
+        product: Option<ProductId>,
+    },
     /// A research center develops a product to its next levels (M37) instead of
     /// researching a technology; `None` stops it.
     SetDevelopment {
@@ -212,6 +218,9 @@ pub enum Command {
     SetResearchShares {
         site: SiteId,
         shares: Vec<(ProductId, f64)>,
+        /// Shares for manufacturing research per product (Q6).
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        process: Vec<(ProductId, f64)>,
     },
     /// Sets who besides consumers and governments may buy the company's goods
     /// (`None` removes the policy of this scope, the more general one applies).
@@ -610,6 +619,8 @@ pub enum CommandError {
     NoOffer(String),
     /// Already known, or prerequisites missing (key of the technology).
     NotResearchable(String),
+    /// The product is known already or one of its inputs does not exist yet (Q6).
+    NotResearchableProduct(String),
     /// The company cannot make the product or it is fully developed (M37).
     NotDevelopable(String),
     /// Raw materials, semi-finished goods, components and power have no names (M42).
@@ -949,6 +960,8 @@ impl CommandError {
                 .with("produkt", Param::TextKey(format!("produkt.{product}"))),
             CommandError::NotResearchable(t) => e(keys::COMMAND_NOT_RESEARCHABLE)
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
+            CommandError::NotResearchableProduct(p) => e(keys::COMMAND_NOT_RESEARCHABLE_PRODUCT)
+                .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NotDevelopable(p) => e(keys::COMMAND_NOT_DEVELOPABLE)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NotNameable(p) => e(keys::COMMAND_NOT_NAMEABLE)
@@ -1286,6 +1299,7 @@ fn found_site(
         pay(&mut company.ledger, Account::Land, land)?;
     }
     state.sites.push(Site {
+        process_shares: Default::default(),
         owner: actor,
         name: None,
         totals: std::collections::BTreeMap::new(),
@@ -1301,6 +1315,7 @@ fn found_site(
         offers: Default::default(),
         orders: Default::default(),
         research: None,
+        research_product: None,
         development: None,
         development_shares: std::collections::BTreeMap::new(),
         wage_premium: 0.0,
@@ -2227,8 +2242,33 @@ fn run(
             }
             let s = state.site_mut(*site).expect("checked above");
             s.research = *technology;
+            s.research_product = None;
             // A single product took all researchers; shares leave the rest (Q1).
             if technology.is_some() {
+                s.development = None;
+            }
+            s.staffing_due = true;
+        }
+        Command::SetProductResearch { site, product } => {
+            let s = own_site(state, actor, *site)?;
+            if s.kind != SiteType::ResearchCenter {
+                return Err(CommandError::WrongSiteType {
+                    required: SiteType::ResearchCenter,
+                });
+            }
+            if let Some(p) = product
+                && !crate::product_research::can_research(catalog, state, actor, *p)
+            {
+                return Err(CommandError::NotResearchableProduct(
+                    catalog.products.key(*p).to_owned(),
+                ));
+            }
+            let next =
+                product.and_then(|p| crate::product_research::next(catalog, state, actor, p));
+            let s = state.site_mut(*site).expect("checked above");
+            s.research_product = *product;
+            s.research = next;
+            if product.is_some() {
                 s.development = None;
             }
             s.staffing_due = true;
@@ -2255,7 +2295,11 @@ fn run(
             }
             s.staffing_due = true;
         }
-        Command::SetResearchShares { site, shares } => {
+        Command::SetResearchShares {
+            site,
+            shares,
+            process,
+        } => {
             let s = own_site(state, actor, *site)?;
             if s.kind != SiteType::ResearchCenter {
                 return Err(CommandError::WrongSiteType {
@@ -2263,7 +2307,7 @@ fn run(
                 });
             }
             let mut sum = 0.0;
-            for &(p, share) in shares {
+            for &(p, share) in shares.iter().chain(process.iter()) {
                 if !(share.is_finite() && share > 0.0) {
                     return Err(CommandError::InvalidShare);
                 }
@@ -2280,6 +2324,7 @@ fn run(
             let s = state.site_mut(*site).expect("checked above");
             s.development = None;
             s.development_shares = shares.iter().copied().collect();
+            s.process_shares = process.iter().copied().collect();
             s.staffing_due = true;
         }
         Command::SetSalesPolicy { buyer, scope, rule } => {

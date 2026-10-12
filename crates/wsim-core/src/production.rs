@@ -450,6 +450,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 product: recipe.product,
                 output_per_day: runs
                     * recipe.output
+                    * developed.output
                     * (1.0 - crate::operations::scrap_rate(catalog, state, s, slot, recipe)),
                 material: material * runs,
                 labor: labor * runs,
@@ -821,7 +822,11 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
         // Scrap (BP4): the costs stay, less comes out.
         let scrap =
             crate::operations::scrap_rate(catalog, state, &state.sites[index], slot, recipe);
-        let mut outputs = vec![(recipe.product, recipe.output * runs * (1.0 - scrap))];
+        // Manufacturing research (Q6) brings more output per run.
+        let mut outputs = vec![(
+            recipe.product,
+            recipe.output * developed.output * runs * (1.0 - scrap),
+        )];
         outputs.extend(recipe.by_products.iter().map(|&(p, q)| (p, q * runs)));
         let finish = date.add_days(i32::try_from(recipe.duration_days).unwrap_or(1) - 1);
         let sl = &mut state.sites[index].slots[slot];

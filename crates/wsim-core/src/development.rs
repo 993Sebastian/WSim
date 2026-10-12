@@ -21,6 +21,8 @@ pub struct Effect {
     pub labor: f64,
     /// Factor on the inputs per run.
     pub inputs: f64,
+    /// Factor on the output of the main product per run (manufacturing research, Q6).
+    pub output: f64,
 }
 
 impl Effect {
@@ -28,6 +30,7 @@ impl Effect {
         quality: 0.0,
         labor: 1.0,
         inputs: 1.0,
+        output: 1.0,
     };
 
     /// The effect of a level (0–1 of the leader's points) at a maturity (0–1).
@@ -37,6 +40,17 @@ impl Effect {
             quality: m.quality_max * level,
             labor: 1.0 - m.labor_max * level * maturity,
             inputs: 1.0 - m.inputs_max * level * maturity,
+            output: 1.0,
+        }
+    }
+
+    /// Adds the effect of manufacturing research (Q6) at a level and maturity.
+    pub fn with_process(self, catalog: &Catalog, level: f64, maturity: f64) -> Effect {
+        let m = &catalog.research_model.development;
+        Effect {
+            inputs: self.inputs * (1.0 - m.process_inputs_max * level * maturity),
+            output: self.output * (1.0 + m.process_output_max * level * maturity),
+            ..self
         }
     }
 }
@@ -92,10 +106,63 @@ pub fn effect(
         return Effect::NONE;
     }
     let level = share(state, company, product);
-    if level <= 0.0 {
-        return Effect::NONE;
+    let developed = if level <= 0.0 {
+        Effect::NONE
+    } else {
+        Effect::of(catalog, level, maturity(catalog, state, product))
+    };
+    let process = process_share(state, company, product);
+    if process <= 0.0 {
+        return developed;
     }
-    Effect::of(catalog, level, maturity(catalog, state, product))
+    developed.with_process(catalog, process, process_maturity(catalog, state, product))
+}
+
+/// Points of manufacturing research a company collected for a product (Q6).
+pub fn process_points(state: &GameState, company: CompanyId, product: ProductId) -> f64 {
+    state
+        .company(company)
+        .and_then(|c| c.process.get(&product).copied())
+        .unwrap_or(0.0)
+}
+
+/// Most points of manufacturing research any company has for a product.
+pub fn process_leader_points(state: &GameState, product: ProductId) -> f64 {
+    state.process_leader.get(&product).copied().unwrap_or(0.0)
+}
+
+/// Manufacturing level of a company for a product against the leader (0–1).
+pub fn process_share(state: &GameState, company: CompanyId, product: ProductId) -> f64 {
+    let lead = process_leader_points(state, product);
+    if lead <= 0.0 {
+        return 0.0;
+    }
+    (process_points(state, company, product) / lead).clamp(0.0, 1.0)
+}
+
+/// How far the manufacturing of a product is researched at all (0–1).
+pub fn process_maturity(catalog: &Catalog, state: &GameState, product: ProductId) -> f64 {
+    let Some((_, base)) = basis(catalog, product) else {
+        return 0.0;
+    };
+    1.0 - libm::exp(-process_leader_points(state, product) / base.max(1e-9))
+}
+
+/// Adds points of manufacturing research of a company for a product.
+pub fn add_process_points(
+    state: &mut GameState,
+    company: CompanyId,
+    product: ProductId,
+    amount: f64,
+) {
+    let total = state.companies[company.index()]
+        .process
+        .entry(product)
+        .or_default();
+    *total += amount;
+    let total = *total;
+    let lead = state.process_leader.entry(product).or_default();
+    *lead = lead.max(total);
 }
 
 /// Points of the generations 1 to `n` of a product, without a latecomer's discount.
@@ -185,9 +252,14 @@ pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
         }
     }
     state.development_leader.clear();
+    state.process_leader.clear();
     for c in &state.companies {
         for (&p, &t) in &c.development.total {
             let lead = state.development_leader.entry(p).or_default();
+            *lead = lead.max(t);
+        }
+        for (&p, &t) in &c.process {
+            let lead = state.process_leader.entry(p).or_default();
             *lead = lead.max(t);
         }
     }
@@ -196,8 +268,9 @@ pub(crate) fn fit_loaded(state: &mut GameState, catalog: &Catalog) {
 /// The products a research center develops with their shares of its researchers: the
 /// shares set (Q1), else its single product with all of them.
 pub fn site_shares(site: &Site) -> Vec<(ProductId, f64)> {
-    if site.development_shares.is_empty() {
-        site.development.map(|p| vec![(p, 1.0)]).unwrap_or_default()
+    if site.development_shares.is_empty() && site.process_shares.is_empty() {
+        // A single product (the AI's way): half development, half manufacturing (Q6).
+        site.development.map(|p| vec![(p, 0.5)]).unwrap_or_default()
     } else {
         site.development_shares
             .iter()
@@ -206,17 +279,31 @@ pub fn site_shares(site: &Site) -> Vec<(ProductId, f64)> {
     }
 }
 
+/// The products a research center does manufacturing research on, with their shares.
+pub fn site_process_shares(site: &Site) -> Vec<(ProductId, f64)> {
+    if site.development_shares.is_empty() && site.process_shares.is_empty() {
+        site.development.map(|p| vec![(p, 0.5)]).unwrap_or_default()
+    } else {
+        site.process_shares.iter().map(|(&p, &s)| (p, s)).collect()
+    }
+}
+
 /// Share of a research center's researchers working on its technology.
 pub fn technology_share(site: &Site) -> f64 {
     if site.research.is_none() {
         return 0.0;
     }
-    (1.0 - site_shares(site).iter().map(|(_, s)| s).sum::<f64>()).max(0.0)
+    let products: f64 = site_shares(site)
+        .iter()
+        .chain(site_process_shares(site).iter())
+        .map(|(_, s)| s)
+        .sum();
+    (1.0 - products).max(0.0)
 }
 
 /// Whether a research center has nothing to work on.
 pub fn idle(site: &Site) -> bool {
-    site.research.is_none() && site_shares(site).is_empty()
+    site.research.is_none() && site_shares(site).is_empty() && site_process_shares(site).is_empty()
 }
 
 /// Research field and base effort of a product, `None` when it cannot be developed (no

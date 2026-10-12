@@ -1186,6 +1186,10 @@ pub struct DevelopmentModel {
     pub quality_max: f64,
     pub labor_max: f64,
     pub inputs_max: f64,
+    /// Manufacturing research at the leader's level (Q6): more output per run, fewer
+    /// inputs, both times the maturity.
+    pub process_output_max: f64,
+    pub process_inputs_max: f64,
     /// Effort of level n: base · share · growth^(n − 1); the base is the largest research
     /// effort of the product's technologies, at least `base_effort`.
     pub effort_share: f64,
@@ -1198,6 +1202,8 @@ pub struct DevelopmentModel {
 impl Default for DevelopmentModel {
     fn default() -> Self {
         Self {
+            process_output_max: 0.0,
+            process_inputs_max: 0.0,
             levels: 0,
             quality_max: 30.0,
             labor_max: 0.2,

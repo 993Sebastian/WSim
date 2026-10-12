@@ -1007,6 +1007,7 @@ fn found_company(
         }
         let experience = crate::learning::established(catalog, &slots);
         new_sites.push(Site {
+            process_shares: Default::default(),
             owner: id,
             name: None,
             totals: BTreeMap::new(),
@@ -1022,6 +1023,7 @@ fn found_company(
             offers,
             orders,
             research: None,
+            research_product: None,
             development: None,
             development_shares: std::collections::BTreeMap::new(),
             wage_premium: 0.0,
@@ -1098,6 +1100,7 @@ fn found_company(
     }
     brands.sort_by_key(|b| (b.country, b.group));
     state.companies.push(Company {
+        process: Default::default(),
         brands,
         emissions: Default::default(),
         emissions_last: Default::default(),

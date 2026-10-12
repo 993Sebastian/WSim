@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../App";
-import type { Befehl, Kern, NeuesSpiel } from "../kern";
+import type { Befehl, Kern, Meldung, NeuesSpiel } from "../kern";
 import { vorschauKern } from "../kern/vorschau";
 import { PersonAnsicht } from "./Person";
 
@@ -16,6 +16,39 @@ describe("Person (PE2)", () => {
       neuesSpiel: async (e) => {
         gesendet.push(e);
         return vorschau.neuesSpiel(e);
+      },
+      // The example person has no children yet: two born before the start.
+      person: async () => {
+        const p = await vorschau.person();
+        const kind = (name: string, born: string, age: number, card_in: number) => ({
+          name,
+          born,
+          age,
+          died: null,
+          manager: null,
+          position: null,
+          card_in,
+        });
+        p.children = [
+          kind("Clara Albrecht", "1910-03-02", 4, 21),
+          kind("Paul Albrecht", "1913-11-20", 0, 25),
+        ];
+        const geburt = (name: string, date: string): { date: string; text: Meldung } => ({
+          date,
+          text: {
+            group: "allgemein",
+            key: "person.ereignis.geburt",
+            kind: "info",
+            params: { name: { type: "text", value: name } },
+            target: null,
+          },
+        });
+        p.history = [
+          ...p.history,
+          geburt("Paul Albrecht", "1913-11-20"),
+          geburt("Clara Albrecht", "1910-03-02"),
+        ];
+        return p;
       },
     };
     render(<App kern={kern} />);

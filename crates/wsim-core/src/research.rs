@@ -93,7 +93,8 @@ pub(crate) fn wanted_researchers(
 /// One day of research for all companies. Returns messages for the player.
 pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
     let model = &catalog.research_model;
-    let mut messages = develop(state, catalog, date);
+    let mut messages = crate::product_research::steer(state, catalog);
+    messages.extend(develop(state, catalog, date));
     for index in 0..state.sites.len() {
         let s = &state.sites[index];
         let Some(technology) = s.research else {
@@ -199,6 +200,7 @@ fn develop(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message>
     let mut working: Vec<(CompanyId, ProductId)> = Vec::new();
     let mut leading_before: Vec<(ProductId, bool)> = Vec::new();
     for index in 0..state.sites.len() {
+        manufacture(state, catalog, index);
         let s = &state.sites[index];
         let shares = development::site_shares(s);
         if shares.is_empty() {
@@ -365,4 +367,50 @@ pub(crate) fn player_offers(state: &GameState, product: ProductId) -> bool {
         .sites
         .iter()
         .any(|s| state.is_main(s.owner) && s.offers.contains_key(&product))
+}
+
+/// Manufacturing research of a center (Q6): each product's share of the researchers
+/// collects points as development does, material paid alike.
+fn manufacture(state: &mut GameState, catalog: &Catalog, index: usize) {
+    let model = &catalog.research_model;
+    let s = &state.sites[index];
+    let shares = development::site_process_shares(s);
+    let owner = s.owner;
+    if shares.is_empty() || state.companies[owner.index()].bankrupt {
+        return;
+    }
+    for (product, share) in shares {
+        if !development::can_develop(catalog, state, owner, product) {
+            state.sites[index].process_shares.remove(&product);
+            continue;
+        }
+        let Some((field, _)) = development::basis(catalog, product) else {
+            continue;
+        };
+        let Some(group) = model.researchers.get(field.index()).copied().flatten() else {
+            continue;
+        };
+        let s = &state.sites[index];
+        let researchers = *s.workforce.get(group) * share;
+        if researchers <= 0.0 {
+            continue;
+        }
+        let country = state.countries.get(s.country);
+        let efficiency = country
+            .research_efficiency
+            .get(field.index())
+            .copied()
+            .unwrap_or(1.0);
+        let material =
+            Money::from_usd(researchers * model.material_usd_per_day * country.price_level)
+                .unwrap_or(Money::ZERO);
+        let site = SiteId(u32::try_from(index).expect("site count fits u32"));
+        state.companies[owner.index()].ledger.expense(
+            CostType::Research,
+            CostCenter::site(site),
+            Account::Cash,
+            material,
+        );
+        development::add_process_points(state, owner, product, researchers * efficiency);
+    }
 }

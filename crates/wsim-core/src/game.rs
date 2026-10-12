@@ -190,6 +190,7 @@ impl Game {
 
         let date = Date::first_of_year(settings.start_year);
         let mut state = GameState {
+            process_leader: Default::default(),
             world_rng: SimRng::for_stream(settings.seed, Stream::World),
             settings,
             date,
@@ -784,6 +785,7 @@ pub(crate) fn push_player_company(
     let index = u32::try_from(state.companies.len()).expect("company count fits u32");
     let date = state.date;
     state.companies.push(Company {
+        process: Default::default(),
         brands: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
@@ -927,6 +929,7 @@ pub(crate) fn start_setup(
         .collect();
     let site = crate::state::SiteId(u32::try_from(state.sites.len()).expect("site count fits u32"));
     state.sites.push(Site {
+        process_shares: Default::default(),
         owner: company,
         name: None,
         totals: std::collections::BTreeMap::new(),
@@ -942,6 +945,7 @@ pub(crate) fn start_setup(
         offers,
         orders,
         research: None,
+        research_product: None,
         development: None,
         development_shares: std::collections::BTreeMap::new(),
         wage_premium: 0.0,

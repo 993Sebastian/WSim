@@ -88,13 +88,13 @@ describe("Produktnamen", () => {
       .find((b) => b.textContent === t("produkt.moebel"));
     fireEvent.click(moebel as HTMLElement);
     const anbieter = await screen.findByRole("table", { name: "Anbieter im Vormonat" });
-    expect(within(anbieter).getByText("Zylvia Extra")).toBeTruthy();
+    expect(within(anbieter).getByText("Belisa Classic")).toBeTruthy();
 
     const formular = screen.getByRole("form", { name: "Dein Produktname" });
     expect(within(formular).getByText(/heißt bisher einfach „Möbel“/)).toBeTruthy();
     const feld = within(formular).getByLabelText("Produktname") as HTMLInputElement;
     // The first suggestion is filled in; another one is a click away.
-    expect(feld.value).toBe("Valessa");
+    expect(feld.value).toBe("Ulvira");
     fireEvent.click(within(formular).getByRole("button", { name: "Lavessa Classic" }));
     expect(feld.value).toBe("Lavessa Classic");
     fireEvent.click(within(formular).getByRole("button", { name: "Namen speichern" }));

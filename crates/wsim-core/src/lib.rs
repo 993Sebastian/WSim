@@ -48,6 +48,7 @@ pub mod policy;
 pub mod population;
 pub mod private;
 pub mod product_names;
+pub mod product_research;
 pub mod production;
 pub mod ranking;
 pub mod regulation;
@@ -131,6 +132,8 @@ mod plots_tests;
 mod private_tests;
 #[cfg(test)]
 mod product_names_tests;
+#[cfg(test)]
+mod product_research_tests;
 #[cfg(test)]
 mod production_tests;
 #[cfg(test)]

@@ -145,7 +145,7 @@ describe("Strategie", () => {
     const { gesendet } = await strategieOeffnen();
     const bereich = screen.getByRole("region", { name: "Vorgaben: Firma" });
     const schulung = within(bereich).getByRole("form", { name: "Schulung: Firma" });
-    expect(within(schulung).getByText(/Gilt: Schulungsziel 60 %/)).toBeTruthy();
+    expect(within(schulung).getByText(/Gilt: Schulungsziel 0 %/)).toBeTruthy();
     fireEvent.change(within(schulung).getByLabelText("Schulungsziel"), {
       target: { value: "150" },
     });
@@ -241,8 +241,11 @@ describe("Strategie", () => {
   it("legt die Dividendenpolitik fest (PE4)", async () => {
     const { gesendet } = await strategieOeffnen();
     const bereich = screen.getByRole("region", { name: "Dividendenpolitik" });
-    expect(within(bereich).getByText(/Noch ist kein Geschäftsjahr abgeschlossen/)).toBeTruthy();
-    // Nothing to distribute yet: no special dividend.
+    // The year 1914 closed with a loss: the policy pays nothing, and there is nothing to
+    // distribute, so no special dividend either.
+    expect(
+      within(bereich).getByText(/Jahresüberschuss 1914: -.* Nach der Politik wären das 0 USD/),
+    ).toBeTruthy();
     expect(
       (within(bereich).getByRole("button", { name: "Ausschütten" }) as HTMLButtonElement).disabled,
     ).toBe(true);

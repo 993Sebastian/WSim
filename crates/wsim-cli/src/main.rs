@@ -687,7 +687,7 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         seed: 1,
         start_year: 1914,
         country: "DEU".into(),
-        capital_usd: 100_000.0,
+        capital_usd: 250_000.0,
         start_form: "werkstatt".into(),
         company_name: "Neue Firma".into(),
         companies: options.companies.default,
@@ -745,7 +745,6 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         "person": session.person().map_err(message)?,
     });
     json["logistik"] = example_logistics(&mut session).map_err(|e| format!("logistik: {e}"))?;
-    json["konzern"] = example_group(&mut session).map_err(|e| format!("konzern: {e}"))?;
     // MA1, MA2: a head for the workshop, then the chart, the market for its production
     // and the head's concerns.
     let (organisation, market, concerns, strategy) =
@@ -759,7 +758,9 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
         example_contracts(&mut session).map_err(|e| format!("vertraege: {e}"))?;
     json["vertraege"] = contracts;
     json["vertragspartner"] = partners;
-    // W7: the year with the group from above.
+    // W6 after the months above: the subsidiary binds the workshop's cash.
+    json["konzern"] = example_group(&mut session).map_err(|e| format!("konzern: {e}"))?;
+    // W7: the year with the group.
     json["controlling"] = serde_json::to_value(session.controlling("jahr").map_err(message)?)
         .map_err(|e| e.to_string())?;
     json["boerse"] = example_stock(&mut session).map_err(|e| format!("boerse: {e}"))?;
@@ -775,6 +776,18 @@ fn example_views(data: &Path, out: &Path) -> Result<(), String> {
     session.new_game(&without).map_err(message)?;
     json["person_ohne_firma"] =
         serde_json::to_value(session.person().map_err(message)?).map_err(|e| e.to_string())?;
+    // Hand-made examples (sources from other countries and own sites the example game
+    // does not have) stay as they are in the file.
+    if let Some(previous) = fs::read_to_string(out)
+        .ok()
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+    {
+        for key in ["bezugsquellen", "interne_quellen"] {
+            if let Some(value) = previous.get(key) {
+                json[key] = value.clone();
+            }
+        }
+    }
     let text = serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
     fs::write(out, text + "\n").map_err(|e| format!("{}: {e}", out.display()))?;
     println!("Geschrieben: {}", out.display());
@@ -841,6 +854,12 @@ fn example_group(session: &mut wsim_session::Session) -> Result<serde_json::Valu
     #[allow(clippy::cast_possible_truncation)]
     let capital = (view.min_capital_usd * 10_000.0).round() as i64;
     let name = format!("{} Spedition", view.company_name);
+    // The works may have spent its cash on stock: a loan covers capital and founding.
+    #[allow(clippy::cast_possible_truncation)]
+    let loan = ((view.min_capital_usd + view.founding_cost_usd) * 10_000.0).round() as i64;
+    session
+        .command(serde_json::json!({"TakeLoan": {"amount": loan, "years": 5}}))
+        .map_err(message)?;
     session
         .command(serde_json::json!({"FoundSubsidiary": {
             "name": name, "country": "DEU", "capital": capital, "focus": "Logistics"

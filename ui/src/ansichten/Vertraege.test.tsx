@@ -18,7 +18,10 @@ function Huelle({ kern }: { kern: Kern }) {
   );
 }
 
-async function zeige(aendern: (d: Vertraege) => void = () => {}) {
+async function zeige(
+  aendern: (d: Vertraege) => void = () => {},
+  anpassen: (k: Kern) => Kern = (k) => k,
+) {
   const vorschau = vorschauKern(0);
   const uebersicht = await vorschau.neuesSpiel({
     seed: 1,
@@ -44,7 +47,7 @@ async function zeige(aendern: (d: Vertraege) => void = () => {}) {
       return uebersicht;
     },
   };
-  render(<Huelle kern={kern} />);
+  render(<Huelle kern={anpassen(kern)} />);
   await screen.findByRole("table", { name: "Lieferverträge" });
   return gesendet;
 }
@@ -92,7 +95,15 @@ describe("Lieferverträge", () => {
   });
 
   it("bietet einen neuen Vertrag mit dem Vorschlag des Lieferanten an", async () => {
-    const gesendet = await zeige();
+    // The example's workshop hardly uses wire yet; here it needs 40 t a day, of which
+    // the form proposes half.
+    const gesendet = await zeige(undefined, (k) => ({
+      ...k,
+      vertragspartner: async (standort, produkt) => ({
+        ...(await k.vertragspartner(standort, produkt)),
+        own_per_day: 40,
+      }),
+    }));
     const neu = screen.getByRole("region", { name: "Neuer Liefervertrag" });
     // The workshop sells nails and buys wire.
     const produkt = within(neu).getByLabelText("Produkt");
@@ -100,7 +111,7 @@ describe("Lieferverträge", () => {
     fireEvent.change(produkt, { target: { value: "draht" } });
     const lieferant = await within(neu).findByLabelText("Lieferant");
     expect((lieferant as HTMLSelectElement).selectedOptions[0]!.textContent).toContain(
-      "Morgan Iron and Steel Corporation (Vereinigte Staaten)",
+      "Barker Ltd. (Vereinigte Staaten)",
     );
     expect(neu.textContent).toContain("Fracht und Zoll bis zu dir");
     fireEvent.click(within(neu).getByRole("button", { name: "Vertrag anbieten" }));
@@ -109,14 +120,14 @@ describe("Lieferverträge", () => {
     const b = gesendet[0]!;
     if (!("ProposeContract" in b)) throw new Error("kein Vertragsangebot");
     expect(b.ProposeContract).toMatchObject({
-      seller: 71,
+      seller: 155,
       buyer: 0,
       product: "draht",
       months: 12,
       min_quality: 0,
       penalty: 0.2,
     });
-    expect(b.ProposeContract.per_day).toBeGreaterThan(0);
+    expect(b.ProposeContract.per_day).toBe(20);
     expect(b.ProposeContract.price).toBeGreaterThan(0);
   });
 });

@@ -169,6 +169,7 @@ forschungsmodell:
   weiterentwicklung:
     stufen: 5
     wirkung_max: {qualitaet: 30, arbeit: 0.2, vorprodukte: 0.15}
+    fertigung: {ausstoss: 0.25, vorprodukte: 0.15}
     aufwand: {anteil: 0.2, wachstum: 1.6, grundaufwand: 10_000}
     fachgebiete:
       bergbau: bergbau
@@ -2058,6 +2059,46 @@ fn weiterentwicklung_wird_geprueft() {
 
     let d = Daten::neu().ersetze(datei, "bergbau: bergbau", "bergbau: holz");
     befund(&d.laden(), "Fachrichtung „holz“ ist nicht definiert.");
+
+    // Manufacturing research (Q6): output gained and inputs saved per run.
+    assert_eq!(m.process_output_max, 0.25);
+    assert_eq!(m.process_inputs_max, 0.15);
+    let d = Daten::neu().ersetze(
+        datei,
+        "fertigung: {ausstoss: 0.25, vorprodukte: 0.15}",
+        "fertigung: {ausstoss: 2.5, vorprodukte: 0.95}",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 2.5 liegt außerhalb des erlaubten Bereichs 0 bis 2.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "fertigung:"),
+        "forschungsmodell.weiterentwicklung.fertigung.ausstoss",
+    );
+    let f = befund(
+        &outcome,
+        "Wert 0.95 liegt außerhalb des erlaubten Bereichs 0 bis 0.9.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "forschungsmodell.weiterentwicklung.fertigung.vorprodukte"
+    );
+    nur_fehler(&outcome, 2);
+    // Without the block there is no manufacturing research.
+    let d = Daten::neu().ersetze(
+        datei,
+        "    fertigung: {ausstoss: 0.25, vorprodukte: 0.15}\n",
+        "",
+    );
+    let ohne = d.laden().data.unwrap();
+    assert_eq!(
+        ohne.catalog.research_model.development.process_output_max,
+        0.0
+    );
 }
 
 #[test]

@@ -25,6 +25,8 @@ fn catalog() -> Catalog {
     let mut fields = vec![None; c.branches.len()];
     fields[mining.index()] = Some(metal);
     c.research_model.development = DevelopmentModel {
+        process_output_max: 0.0,
+        process_inputs_max: 0.0,
         levels: 5,
         quality_max: 30.0,
         labor_max: 0.2,
@@ -264,12 +266,14 @@ fn a_research_center_splits_its_researchers() {
         game.apply(Command::SetResearchShares {
             site: lab,
             shares: vec![(iron, 0.7), (ore, 0.5)],
+            process: Vec::new(),
         }),
         Err(CommandError::InvalidShare)
     );
     game.apply(Command::SetResearchShares {
         site: lab,
         shares: vec![(iron, 0.5), (ore, 0.25)],
+        process: Vec::new(),
     })
     .unwrap();
     days(&mut game, 60);

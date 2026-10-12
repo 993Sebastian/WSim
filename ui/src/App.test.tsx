@@ -59,7 +59,12 @@ describe("Spielablauf", () => {
       { timeout: 15_000 },
     );
     expect(within(ereignis).getByText(/Österreich-Ungarn erklärt Serbien den Krieg/)).toBeTruthy();
-    expect(within(ereignis).getByText(/Deutschland/)).toBeTruthy();
+    // Germany is among the affected countries (the consequences name it as well).
+    expect(
+      within(ereignis)
+        .getByText(/Betroffene Länder/)
+        .closest("p")?.textContent,
+    ).toMatch(/Deutschland/);
     fireEvent.click(within(ereignis).getByRole("button", { name: "Weiter" }));
 
     const bericht = await screen.findByRole("dialog", { name: "Rundenbericht" });

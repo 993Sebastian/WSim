@@ -115,6 +115,58 @@ describe("Abwerben", () => {
     const gesendet: Befehl[] = [];
     const kern: Kern = {
       ...vorschau,
+      // The example's company has no managers: its CEO and finance member, the latter
+      // courted just now.
+      firma: async (index) => {
+        const d = await vorschau.firma(index);
+        const vorstand = {
+          unit: "vorstand",
+          site: null,
+          kind_text: "ebene.vorstand",
+          country: null,
+          continent: null,
+        };
+        // Offers for the player's free positions; the one for production is above the cash.
+        const angebote = (d.free_positions ?? []).map((_, i) => {
+          const salary_usd = i === 1 ? d.cash_usd + 20_000 : 24_000;
+          return { salary_usd, over_cash: salary_usd > d.cash_usd };
+        });
+        const manager = (id: number, name: string, home: string, age: number) => ({
+          id,
+          name,
+          home,
+          continent: "europa",
+          focus: "produktion",
+          skills: [
+            { key: "fach.produktion", level: 3 },
+            { key: "fuehrung", level: 2 },
+          ],
+          judged: 0,
+          hit_rate: null,
+          age,
+          retires_at: 65,
+          retirement: null,
+        });
+        d.managers = [
+          {
+            manager: manager(182, "Anna Putilov", "UKR", 44),
+            place: vorstand,
+            role: "leitung",
+            options: angebote,
+            courted_until: null,
+            offer: null,
+          },
+          {
+            manager: manager(163, "Nikolai Ryabushinsky", "RUS", 51),
+            place: vorstand,
+            role: "finanzen",
+            options: angebote,
+            courted_until: "1915-03-14",
+            offer: null,
+          },
+        ];
+        return d;
+      },
       befehl: async (b) => {
         gesendet.push(b);
         return uebersicht;
@@ -133,7 +185,8 @@ describe("Abwerben", () => {
     fireEvent.click(within(fremde as HTMLElement).getAllByRole("button")[0] as HTMLElement);
     expect(await screen.findByRole("heading", { name: "Führung" })).toBeTruthy();
     const karte = screen.getByRole("article", { name: "Anna Putilov" });
-    expect(within(karte).getByText(/^CEO · Vorstand/)).toBeTruthy();
+    // The player's free board seat in the offer's list reads the same.
+    expect(within(karte).getByText(/^CEO · Vorstand/, { selector: "p" })).toBeTruthy();
     // The offer for the chosen position, above the cash in the example.
     fireEvent.change(within(karte).getByLabelText("Für die Stelle"), { target: { value: "1" } });
     expect(within(karte).getByText(/Angebot: .* im Jahr/)).toBeTruthy();
@@ -202,7 +255,7 @@ describe("Anteile kaufen (PE5)", () => {
     expect(within(form).getByText(/^Kostet /)).toBeTruthy();
     fireEvent.click(within(form).getByRole("button", { name: "Kaufen" }));
     expect(
-      await within(eigner).findByText("30 % von Sheffield Mills & Sons gekauft."),
+      await within(eigner).findByText("30 % von Sheffield Milling Corporation gekauft."),
     ).toBeTruthy();
     fireEvent.click(within(form).getByLabelText(/^Mit deiner Hauptfirma/));
     fireEvent.click(within(form).getByRole("button", { name: "Kaufen" }));
