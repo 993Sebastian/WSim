@@ -174,6 +174,7 @@ export function RundenberichtDialog({
   onSchliessen: () => void;
 }) {
   const aenderung = bericht.equity_change_usd;
+  const kasseAenderung = bericht.cash_after_usd - bericht.cash_before_usd;
   const gruppen = GRUPPEN.map((g) => [g, bericht.messages.filter((m) => m.group === g)] as const);
   return (
     <Dialog titel={t("bericht.titel")} onSchliessen={onSchliessen} breit="sehr" tour="bericht">
@@ -191,6 +192,11 @@ export function RundenberichtDialog({
           <dt>{t("bericht.kasse")}</dt>
           <dd>
             {formatGeld(bericht.cash_before_usd)} → {formatGeld(bericht.cash_after_usd)}
+            <span className={kasseAenderung < 0 ? "negativ" : "positiv"}>
+              {" "}
+              ({kasseAenderung > 0 ? "+" : ""}
+              {formatGeld(kasseAenderung)})
+            </span>
           </dd>
         </div>
         <div>
