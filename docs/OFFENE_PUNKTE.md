@@ -2305,9 +2305,12 @@ sind umgesetzt, 4 und 5 folgen. Annahmen zur Abnahme:
   Ein Branchenwechsel kostet ein neues Werk (das „Umbau“-Kostenmodell des Vorschlags
   entfällt, weil das Umstellen innerhalb der Branche schon vorgesehen ist).
 - **U-f 🟡 Umstellen:** Nur an fertigen Anlagen. Kosten 50 % des Katalogpreises der
-  Größe (W3), als Aufwand; die Bilanz behält den alten Buchwert (Aktivieren wäre eine
-  größere Änderung der Bauabschlüsse). Stillstand halbe Katalog-Bauzeit. Der
-  Flächenbedarf der neuen Anlage wird beim Umstellen nicht neu geprüft.
+  Größe (W3), als Aufwand; die Bilanz behält vorerst den alten Buchwert. ✅ Wunsch vom
+  12.10. nachts: **Aktivieren der Umstellungskosten** (Buchwert steigt, Abschreibung
+  folgt) über Nacht **nach MAA** (Aufgabe AKT). Stillstand halbe Katalog-Bauzeit.
+  ✅ Wunsch vom 12.10. nachts umgesetzt: **Der Flächenbedarf der neuen Anlage wird
+  geprüft** (Gesamtfläche des Werks ohne die alte Anlage plus die neue; sonst
+  „Grundstück zu klein“).
 - **U-g 🟡 Oberfläche:** Unter Forschungspflicht ersetzt „Anlage für ein Produkt bauen“ die
   Auswahl nach Anlage; zu jeder Anlage gehört ein Feld „Umstellen auf“.
 
@@ -2396,3 +2399,10 @@ Regeln für M5 (Formeln folgen in `docs/FORMELN.md`):
 
 Qualifikationen und Fachrichtungen stehen in `data/arbeitskraefte.yaml` und lassen
 sich ohne Programmierung ändern.
+
+### W-n: Umbau per Ausschreibung (Wunsch vom 12.10.2026)
+
+🟡 Annahme: Der Umbau nutzt dieselben Parameter und Maschinenbauer wie der Neukauf; die
+Faktoren des Umbau-Angebots ersetzen die der Anlage. Mengenrabatt entfällt nicht, gilt
+aber für die Zahl der umgestellten Einheiten. Damit wird AKT (Aktivierung der
+Umstellungskosten) auf den angenommenen Angebotspreis bezogen. Siehe `MASCHINENANGEBOTE.md` §2a.

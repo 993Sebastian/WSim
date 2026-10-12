@@ -5878,5 +5878,7 @@ alles wie bisher.
   - Stillstand = Katalog-Bauzeit der Größe × `umstellung.dauer_anteil` (0,5), aufgerundet.
   - Laufende Chargen entfallen, der Automatisierungsgrad wird auf das Maximum der neuen
     Anlage begrenzt.
-  - Der Buchwert in der Bilanz bleibt; die Anzeige rechnet die Anlage aus dem Katalog der
-    neuen Anlage neu (offen, siehe OFFENE_PUNKTE).
+  - Die Fläche wird geprüft: Gesamtfläche des Werks ohne die alte Anlage plus die neue
+    muss auf das Grundstück passen.
+  - Der Buchwert in der Bilanz bleibt vorerst; die Anzeige rechnet die Anlage aus dem
+    Katalog der neuen Anlage neu. Das Aktivieren der Kosten folgt als Aufgabe AKT nach MAA.

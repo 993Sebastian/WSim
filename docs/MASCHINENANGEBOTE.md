@@ -34,6 +34,18 @@ Abschnitt W. Alte Spielstände müssen nicht kompatibel bleiben.
 - Ohne Annahme verfällt die Ausschreibung. Eine neue kann jederzeit gestartet werden.
 - Je Standort, Produkt und Größe läuft höchstens eine Ausschreibung gleichzeitig.
 
+### 2a. Umbau (Umstellen) ebenfalls per Ausschreibung (Nachtrag vom 12.10.2026)
+
+- Das Umstellen einer bestehenden Anlage auf ein anderes Produkt der Branche wird nicht
+  mehr direkt ausgeführt, sondern muss angefragt werden (`RequestMachineOffers` mit
+  Anlage und Zielprodukt). Es gilt derselbe Ablauf: 28 Tage, 1–5 Angebote je Woche,
+  Gültigkeit 14 Tage, Annahme oder Ablehnung, eine Ausschreibung je Anlage und Zielprodukt.
+- Die Angebote streuen wie in §3; Basis sind Umstellungskosten und -dauer aus FW1
+  (50 % von Preis und Bauzeit der Größe). Die Anlage ruht erst ab Annahme.
+- Mit der Annahme übernimmt die Anlage die Faktoren des Angebots (Leistung, Personal,
+  Input, Ausschuss, Fläche) – sie ersetzen die bisherigen.
+- Flächenprüfung (siehe Umstellen): gegen die Fläche des Angebots, nicht des Katalogs.
+
 ## 3. Streuung der Angebote
 
 Jedes Angebot zieht drei verdeckte, voneinander unabhängige Werte im Bereich −1 bis +1:
