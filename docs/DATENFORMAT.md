@@ -220,6 +220,8 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | **index_glaettung** | Gewicht des Tagesdurchschnitts im Marktpreis |
 | **haendler** | KI-Händler (M8): `marge` (Aufschlag auf Einkauf und Transport), `vorrat_tage` (Lager für so viele Tage offener Nachfrage), `glaettung_tage` (1–365, Mittelung der offenen Nachfrage), `arbitrage` (C1): `abstand` (0–10: so weit muss der Marktpreis über Einstand und Marge aus dem Ausland liegen) und `anteil` (0–1: so viel des Absatzes bringen die Händler dann zusätzlich; 0 = keine Arbitrage) |
 | **marke** | Marke und Werbung (M16): `markengewicht` (5 Werte ≥ 0, ärmstes Fünftel zuerst), `vergessen_je_monat` (0–1), `mundpropaganda` (0–1, Anteil der Lücke je Monat bei 100 % Marktanteil), `kosten_je_einwohner_usd` (> 0, Werbung, die ein Land bei Preisniveau 1 einmal erreicht), `bekanntheit_start` und `bekanntheit_start_real` (0–1, etablierte generierte bzw. historische Firmen, wo sie zum Start Endprodukte verkaufen), `bekanntheit_handel` und `bekanntheit_staatsmarkt` (0–1, Bekanntheit eingeführter Ware und des Staatsmarkts), `werbemittel` (Liste `{id, ab, wirkung}`, nicht leer, `id` eindeutig, `wirkung` > 0; es wirkt das beste im Jahr verfügbare; Text `werbemittel.<id>`) |
+| **substitution** | MN1, optional: `steilheit` (0–20, wie stark der Preisvorteil je Nutzen zählt) und `je_jahr` (0–12, Anteil der Lücke zum Zielanteil, der je Jahr schließt); ohne Block keine Substitution bei Verbrauchsgütern |
+| **trends** | MN1, optional: Liste `{id, warengruppen, produkte, laender, verlauf}`; `id` eindeutig, mindestens eine Warengruppe oder ein Produkt, `laender` leer = alle, `verlauf` Jahr → Faktor (0,1–10) auf die Kaufneigung, wirkt vom ersten bis zum letzten Jahr des Verlaufs |
 
 ## transportmodell
 
@@ -288,7 +290,9 @@ Prüfstand für Rechenzeit und Spielstandsgröße, keine Spieldaten.
 | staatsnachfrage.verlauf | Jahreswerte eines Faktors auf den Bedarf je BIP, z. B. `{1913: 1.0, 1970: 8.0}`; dazwischen linear, davor und danach der erste bzw. letzte Wert; ohne Angabe 1 (M39) |
 | staatsmarkt.**preis_usd** | Ware ist in jedem Land vom staatlichen Markt zu diesem Preis erhältlich |
 | staatsmarkt.verfuegbar_ab / verfuegbar_bis | Jahre, in denen der Staatsmarkt die Ware anbietet |
-| ersetzt | Liste von Produkten, die dieses Produkt nach und nach verdrängt: als Gebrauchsgut über seinen Besitz (M9), mit Staatsnachfrage deren Staatsbedarf über `verdraengung_staat_jahre` (M33) |
+| ersetzt | Liste von Produkten, die dieses Produkt nach und nach verdrängt: als Gebrauchsgut über seinen Besitz (M9), mit Staatsnachfrage deren Staatsbedarf über `verdraengung_staat_jahre` (M33); als Verbrauchs- oder Ergänzungsgut einen Anteil ihrer Nachfrage, wenn diese ebenfalls Verbrauchs- oder Ergänzungsgüter sind (MN1, `marktmodell.substitution`) |
+| ersetzt_nutzen | MN1, optional, 0,1–10 (Standard 1): Nutzen je Einheit gegen die ersetzten Produkte (Preisvorteil je Nutzen); nur mit `ersetzt` |
+| ersetzt_anteil_max | MN1, optional, 0–1 (Standard 1): höchster Anteil der Nachfrage der ersetzten Produkte, den dieses übernimmt; nur mit `ersetzt` |
 | foerderindex | Nur Rohstoffe: Jahreswerte, mit denen die Höchstförderung und der Vorrat aller Lagerstätten des Rohstoffs gegenüber ihren Datenwerten wachsen (mehr Fläche, bessere Erträge, Erkundung), z. B. `{1900: 1.0, 1930: 1.45}`; ohne Angabe 1 |
 | pacht_anteil | Nur Rohstoffe, 0–0,9: Pacht und Förderabgaben je geförderter Einheit als Anteil am Richtpreis im Land (Bodenrente, Förderzins, Konzessionsabgaben); als Kostenart „Pacht und Förderabgaben“ gebucht; ohne Angabe 0 |
 | sehr_komplex | `true`, wenn der Produktbaum fünf oder sechs Ebenen braucht (Lastenheft §17.2); sonst Warnung ab fünf Ebenen |

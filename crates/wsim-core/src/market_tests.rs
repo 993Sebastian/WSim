@@ -1009,3 +1009,87 @@ fn the_demand_of_an_offer_learns_only_on_days_with_goods() {
     let sample = 5.0 * (1.0 + m.supply_sold_out_premium);
     assert!((offer.demand - (before + m.supply_learn_rate * (sample - before))).abs() < 1e-12);
 }
+
+/// MN1: a cheaper consumable that replaces another takes over part of its demand where
+/// it is sold, up to its highest share.
+#[test]
+fn a_cheaper_consumable_takes_over_part_of_the_demand() {
+    let run = |substitute: bool| {
+        let mut c = test_support::production();
+        let bread = c.products.id("brot").unwrap();
+        let mut margarine = c.products.get(bread).clone();
+        margarine.replaces = vec![bread];
+        margarine.replaces_max_share = 0.6;
+        c.products.insert("margarine", margarine).unwrap();
+        if substitute {
+            c.market_model.substitution_steepness = 2.0;
+            c.market_model.substitution_per_year = 3.0;
+        }
+        let mut game = game_with(c);
+        let player = game.player();
+        let site = warehouse(&mut game, player, "margarine", 1e12, 50.0);
+        sell(&mut game, site, "margarine", PriceMode::Fixed(usd(1.0)));
+        for _ in 0..24 {
+            game.advance(RoundLength::Month, |_| {});
+        }
+        let rate = |key: &str| -> f64 {
+            game.state()
+                .markets
+                .get(product(&game, key))
+                .get(aaa(&game))
+                .consumer_rate
+                .iter()
+                .sum()
+        };
+        let share = game
+            .state()
+            .markets
+            .get(product(&game, "margarine"))
+            .get(aaa(&game))
+            .substitution
+            .first()
+            .copied()
+            .unwrap_or(0.0);
+        (rate("brot"), rate("margarine"), share)
+    };
+    let (bread_off, margarine_off, share_off) = run(false);
+    let (bread_on, margarine_on, share_on) = run(true);
+    assert_eq!(share_off, 0.0);
+    assert!(share_on > 0.3 && share_on <= 0.6, "{share_on}");
+    assert!(bread_on < 0.75 * bread_off, "{bread_on} {bread_off}");
+    assert!(
+        margarine_on > margarine_off,
+        "{margarine_on} {margarine_off}"
+    );
+}
+
+/// MN1: a trend multiplies the propensity to buy while its curve runs.
+#[test]
+fn a_trend_raises_the_demand_while_it_runs() {
+    let mut c = test_support::production();
+    let bread = c.products.id("brot").unwrap();
+    let group = c.products.get(bread).goods_group;
+    let trend = crate::catalog::Trend {
+        key: "brotwelle".into(),
+        groups: Vec::new(),
+        products: vec![bread],
+        countries: Vec::new(),
+        curve: crate::time_series::TimeSeries::new(vec![(1899, 2.0), (1905, 2.0)]).unwrap(),
+    };
+    let country = c.countries.id("AAA").unwrap();
+    assert_eq!(trend.factor(bread, group, country, 1902.0), 2.0);
+    assert_eq!(trend.factor(bread, group, country, 1906.0), 1.0);
+    c.market_model.trends.push(trend);
+    let with = game_with(c);
+    let without = new_game();
+    let rate = |game: &Game| -> f64 {
+        game.state()
+            .markets
+            .get(product(game, "brot"))
+            .get(aaa(game))
+            .consumer_rate
+            .iter()
+            .sum()
+    };
+    assert!((rate(&with) / rate(&without) - 2.0).abs() < 1e-9);
+}

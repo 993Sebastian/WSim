@@ -5685,3 +5685,90 @@ Patente, Lizenzen, Start-ups).
   auf Weiterentwicklung und auf Fertigungsforschung einzelner Produkte (Summe ≤ 100 %).
 - KI: forscht wie bisher Technologien ihrer Pläne; teilt die Produktforschung ihres
   Zentrums hälftig auf Weiterentwicklung und Fertigung des umsatzstärksten Produkts.
+
+## MN1 – Substitution bei Verbrauchsgütern, Verfahrenswechsel, Trends (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 9.1 und 12.4)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, R (MN1).
+
+### Substitution
+
+Gilt für ein Produkt B mit Verbrauchs- oder Ergänzungsnachfrage, das ein Produkt A mit
+Verbrauchs- oder Ergänzungsnachfrage `ersetzt` (Gebrauchsgüter verdrängen sich weiter
+über die Besitzquote, M33). Je Land, monatlich nach dem Setzen der Nachfrage:
+
+    v   = bedienter Anteil der Endkunden- und Staatsnachfrage nach B im Vormonat (0–1)
+    π   = ln( (p_A / 1) / (p_B / u_B) )        p = Preisindex im Land (sonst Richtpreis vor Ort),
+                                               u_B = `ersetzt_nutzen` (Standard 1)
+    z   = v · a_max · σ(k · π),  σ(x) = 1 / (1 + e^(−x)),  a_max = `ersetzt_anteil_max` (Standard 1)
+    s  ← s + (z − s) · j / 12                  k = `substitution.steilheit`, j = `substitution.je_jahr`
+    Nachfrage A je Fünftel × (1 − s)
+    Nachfrage B je Fünftel + s · Nachfrage A · r_A / r_B   (r = Richtpreis: wertgleiche Menge)
+
+- s liegt am Markt von B im Land (Spielstand, Standard 0) und wächst nur, wo B bedient wird.
+- Ersetzt B mehrere Produkte oder wird A von mehreren ersetzt, wirken die Paare
+  nacheinander in Datenreihenfolge.
+- Ohne `substitution` im Marktmodell (j = 0) bleibt alles wie bisher.
+
+### Verfahrenswechsel der KI
+
+Besteht bereits (M33): Jeden Monat wählt die KI je Anlage das günstigste bekannte Rezept
+derselben Anlage nach Richtkosten plus Aufschlag knapper Vorprodukte. Keine neue Regel.
+
+### Trends
+
+`marktmodell.trends`: je Trend Warengruppen und/oder Produkte, Länder (leer = alle) und ein
+Verlauf Jahr → Faktor. Innerhalb des Verlaufs (vom ersten bis zum letzten Jahr, linear
+dazwischen) gilt
+
+    Kaufneigung S_q × Faktor   (Produkt der Faktoren aller passenden Trends)
+
+außerhalb Faktor 1. Er wirkt auf Verbrauch, Ergänzung und die Zielbesitzquote der
+Gebrauchsgüter.
+
+## MN2 – Ausstattung, Ruf mit Rückrufen, Ausschreibungen (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 9.2 und 10)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, R (MN2).
+
+### Ausstattungsstufen
+
+Je Standort und Endprodukt eine Stufe (`einfach`, `standard`, `premium`; Befehl `SetTrim`).
+Faktoren in `produktionsmodell.ausstattung` je Stufe:
+
+    Vorprodukte je Durchlauf × material,  Arbeitsstunden je Durchlauf × arbeit,
+    Qualität der Ware + qualitaet (vor der Grenze 0–100)
+
+Die Anbieterwahl bleibt (M7/M16): Ärmere Fünftel gewichten den Preis stärker, reichere die
+Qualität; so gewinnt `einfach` (billiger) unten und `premium` (besser) oben. KI: Firmen mit
+Marktausrichtung „Qualität“ (Kompetenz ≥ `kimodell.ausstattung.premium_ab`) wählen
+`premium` für Konsumgüter, Firmen unter `einfach_bis` wählen `einfach`, sonst `standard`.
+
+### Ruf
+
+Je Firma und Land R ∈ [0, 1], Start 0,5. Monatlich je Land mit Absatz an Endkunden:
+
+    R ← R + gewinn_je_monat · (Q̄_Firma − Q̄_Markt) / 50 · f_Weg       (Q̄ mengengewichtet)
+    R ← R − unfall_abzug · Unfälle des Monats im Land
+    R ← R + (0,5 − R) · rueckkehr_je_monat                  (ohne Absatz im Land)
+
+f_Weg = 1 (Vertriebswege ab MN3). **Rückruf:** Verkauft eine Firma an einem Tag Ware mit
+Qualität unter `rueckruf_schwelle` an Endkunden, tritt mit Chance `rueckruf_chance` je
+Monat und Land ein Rückruf ein (Zufallsstrom `Recalls`): Kosten = Verkäufe des Monats zu
+Herstellkosten (Kostenart Rückruf), R − `rueckruf_abzug`, Meldung.
+
+Wirkung in der Anbieterwahl: + `rufgewicht[q]` · (R − 0,5) im Exponenten (wie die Marke).
+
+### Ausschreibungen
+
+Warengruppen mit `ausschreibung: true`. Zu Quartalsbeginn je Land und Gruppe mit
+Staatsbedarf ein Los über die Staatsnachfrage der Gruppe für 12 Monate, der größte Posten
+nach Wert (ein Produkt je Los), Menge `los_anteil` · Staatsbedarf je Tag. Frist
+`frist_tage`; Gebote von Standorten mit dem Produkt im Angebot (Befehl `BidTender`,
+KI automatisch: Preis = eigener Angebotspreis · (1 − `ki_nachlass`)).
+
+    Punkte = −preisgewicht · ln(p / r) + qualitaetsgewicht · (Q − 50) / 25
+             + heimatbonus (Werk im Land; im Krieg × kriegsfaktor) + rufgewicht · (R − 0,5)
+
+Der Beste erhält einen **Staatsauftrag**: Menge je Tag zum Gebotspreis für 12 Monate ab
+dem nächsten Monatsersten, Lieferung aus dem Lager des Standorts, Zahlung durch den Staat,
+Vertragsstrafe `strafe` × Wert der Fehlmenge am Monatsende. Solange der Auftrag läuft,
+sinkt die tägliche Staatsnachfrage des Produkts im Land um die Auftragsmenge.

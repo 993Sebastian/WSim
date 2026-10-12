@@ -168,6 +168,8 @@ pub fn production() -> Catalog {
         state_demand: None,
         state_market: None,
         replaces: Vec::new(),
+        replaces_utility: 1.0,
+        replaces_max_share: 1.0,
         output_index: None,
         rent_share: 0.0,
         provenance: Provenance::default(),

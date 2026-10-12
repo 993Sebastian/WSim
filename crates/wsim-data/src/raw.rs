@@ -295,6 +295,12 @@ pub struct RawProduct {
     pub state_market: Option<RawStateMarket>,
     #[serde(rename = "ersetzt", default)]
     pub replaces: Vec<String>,
+    /// Consumables (MN1): utility of this product against the replaced one, and the
+    /// highest share of its demand it may take over.
+    #[serde(rename = "ersetzt_nutzen", default)]
+    pub replaces_utility: Option<f64>,
+    #[serde(rename = "ersetzt_anteil_max", default)]
+    pub replaces_max_share: Option<f64>,
     #[serde(rename = "foerderindex", default)]
     pub output_index: Option<RawSeries>,
     #[serde(rename = "pacht_anteil", default)]
@@ -968,6 +974,35 @@ pub struct RawMarketModel {
     pub traders: RawTraders,
     #[serde(rename = "marke")]
     pub brand: RawBrandModel,
+    /// Substitution of consumables (MN1); without it nothing is displaced.
+    #[serde(rename = "substitution", default)]
+    pub substitution: Option<RawSubstitution>,
+    /// Demand trends (MN1).
+    #[serde(rename = "trends", default)]
+    pub trends: Vec<RawTrend>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawSubstitution {
+    #[serde(rename = "steilheit")]
+    pub steepness: f64,
+    #[serde(rename = "je_jahr")]
+    pub per_year: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrend {
+    pub id: String,
+    #[serde(rename = "warengruppen", default)]
+    pub groups: Vec<String>,
+    #[serde(rename = "produkte", default)]
+    pub products: Vec<String>,
+    #[serde(rename = "laender", default)]
+    pub countries: Vec<String>,
+    #[serde(rename = "verlauf")]
+    pub curve: RawSeries,
 }
 
 #[derive(Debug, Deserialize)]

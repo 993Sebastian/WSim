@@ -2424,6 +2424,12 @@ impl Default for FinanceModel {
 /// Parameters of markets (`data/parameter/marktmodell.yaml`, formulas in docs/FORMELN.md).
 #[derive(Clone, Debug, PartialEq)]
 pub struct MarketModel {
+    /// Substitution of consumables (MN1): steepness of the logistic share and the share
+    /// of the gap closed per year (0: off).
+    pub substitution_steepness: f64,
+    pub substitution_per_year: f64,
+    /// Demand trends (MN1).
+    pub trends: Vec<Trend>,
     /// Weight of the price when choosing a seller, per income fifth (poorest first).
     pub price_weight: [f64; 5],
     /// Weight of the quality when choosing a seller, per income fifth.
@@ -2527,9 +2533,45 @@ impl Default for BrandModel {
     }
 }
 
+/// A demand trend (MN1): a factor on the propensity to buy of some goods in some
+/// countries while its curve runs.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Trend {
+    pub key: String,
+    pub groups: Vec<GoodsGroupId>,
+    pub products: Vec<ProductId>,
+    /// Empty: all countries.
+    pub countries: Vec<CountryId>,
+    pub curve: crate::time_series::TimeSeries,
+}
+
+impl Trend {
+    /// Factor on a product's propensity in a country at a fractional year; 1 outside the
+    /// curve's years or for goods and countries it does not cover.
+    pub fn factor(
+        &self,
+        product: ProductId,
+        group: GoodsGroupId,
+        country: CountryId,
+        year: f64,
+    ) -> f64 {
+        let points = self.curve.points();
+        let (first, last) = (points[0].0, points[points.len() - 1].0);
+        let covers = (self.products.contains(&product) || self.groups.contains(&group))
+            && (self.countries.is_empty() || self.countries.contains(&country));
+        if !covers || year < f64::from(first) || year > f64::from(last) {
+            return 1.0;
+        }
+        self.curve.value_at(year)
+    }
+}
+
 impl Default for MarketModel {
     fn default() -> Self {
         Self {
+            substitution_steepness: 0.0,
+            substitution_per_year: 0.0,
+            trends: Vec::new(),
             price_weight: [7.0, 6.0, 5.0, 4.0, 3.0],
             quality_weight: [0.3, 0.5, 0.8, 1.1, 1.5],
             adoption_per_year: 0.25,
@@ -3080,6 +3122,10 @@ pub struct Product {
     pub state_market: Option<StateMarketOffer>,
     /// Products this one displaces over time (Lastenheft §6.4).
     pub replaces: Vec<ProductId>,
+    /// Consumables (MN1): utility against the replaced products and the highest share
+    /// of their demand this one takes over.
+    pub replaces_utility: f64,
+    pub replaces_max_share: f64,
     /// Raw materials: how the highest output of their deposits develops over the years
     /// (more land and better yields), as factor on the deposit values (M16).
     pub output_index: Option<TimeSeries>,

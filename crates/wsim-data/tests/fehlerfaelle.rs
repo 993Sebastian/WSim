@@ -5381,3 +5381,91 @@ fn lagervolumen_eines_produkts_wird_geprueft() {
         f.path
     );
 }
+
+#[test]
+fn substitution_und_trends_werden_geprueft() {
+    let markt = "parameter/marktmodell.yaml";
+    let kette = "ketten/a.yaml";
+    let mit = |d: Daten| {
+        d.ersetze(
+            markt,
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n",
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n  substitution: {steilheit: 2, je_jahr: 0.3}\n  trends:\n    - id: eisenwelle\n      produkte: [eisen]\n      laender: [SWE]\n      verlauf: {1900: 1.0, 1905: 1.5, 1910: 1.0}\n",
+        )
+    };
+    let data = mit(Daten::neu()).laden().data.unwrap();
+    let m = &data.catalog.market_model;
+    assert_eq!(m.substitution_per_year, 0.3);
+    assert_eq!(m.trends.len(), 1);
+    let eisen = data.catalog.products.id("eisen").unwrap();
+    assert_eq!(m.trends[0].products, vec![eisen]);
+    // Without the block nothing is displaced.
+    let ohne = Daten::neu().laden().data.unwrap();
+    assert_eq!(ohne.catalog.market_model.substitution_per_year, 0.0);
+    assert!(ohne.catalog.market_model.trends.is_empty());
+
+    // A trend without goods, a duplicate, an unknown product, a factor out of range.
+    let d = mit(Daten::neu())
+        .ersetze(markt, "      produkte: [eisen]\n", "      produkte: [stahl]\n")
+        .ersetze(markt, "1905: 1.5", "1905: 50")
+        .ersetze(
+            markt,
+            "      verlauf: {1900: 1.0, 1905: 50, 1910: 1.0}\n",
+            "      verlauf: {1900: 1.0, 1905: 50, 1910: 1.0}\n    - id: eisenwelle\n      verlauf: {1900: 1.0}\n",
+        );
+    let outcome = d.laden();
+    befund(
+        &outcome,
+        "Wert 50 liegt außerhalb des erlaubten Bereichs 0.1 bis 10.",
+    );
+    befund(&outcome, "Trend „eisenwelle“ ist doppelt angegeben.");
+    let f = befund(
+        &outcome,
+        "Trend „eisenwelle“ nennt weder Warengruppen noch Produkte.",
+    );
+    assert_eq!(f.path.to_string(), "marktmodell.trends[1]");
+    befund(&outcome, "„stahl“");
+
+    // Substitution fields of a product: range, and only with something to replace.
+    let d = Daten::neu().ersetze(
+        kette,
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    ersetzt: [erz]\n    ersetzt_nutzen: 20\n    ersetzt_anteil_max: 0.5\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 20 liegt außerhalb des erlaubten Bereichs 0.1 bis 10.",
+    );
+    assert_eq!(f.path.to_string(), "produkte[1].ersetzt_nutzen");
+    nur_fehler(&outcome, 1);
+    let d = Daten::neu().ersetze(
+        kette,
+        "    richtpreis_usd: 400\n",
+        "    richtpreis_usd: 400\n    ersetzt_anteil_max: 0.5\n",
+    );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Produkt „eisen“ gibt „ersetzt_nutzen“ oder „ersetzt_anteil_max“ an, ersetzt aber nichts",
+    );
+    assert_eq!(f.path.to_string(), "produkte[1].ersetzt");
+    nur_fehler(&outcome, 1);
+    let data = Daten::neu()
+        .ersetze(
+            kette,
+            "    richtpreis_usd: 400\n",
+            "    richtpreis_usd: 400\n    ersetzt: [erz]\n    ersetzt_anteil_max: 0.5\n",
+        )
+        .laden()
+        .data
+        .unwrap();
+    let eisen = data
+        .catalog
+        .products
+        .get(data.catalog.products.id("eisen").unwrap());
+    assert_eq!(
+        (eisen.replaces_utility, eisen.replaces_max_share),
+        (1.0, 0.5)
+    );
+}

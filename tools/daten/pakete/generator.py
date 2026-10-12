@@ -81,6 +81,8 @@ def generate(paket, files, tech, tech_file, kal, text_marker, dep_marker, dep_no
                 if len(p["staat"]) > 2: e["staatsnachfrage"]["verlauf"] = p["staat"][2]
             if p.get("sm"): e["staatsmarkt"] = {"preis_usd": p["sm"]}
             if p.get("ersetzt"): e["ersetzt"] = p["ersetzt"]
+            if p.get("ersetzt_nutzen"): e["ersetzt_nutzen"] = p["ersetzt_nutzen"]
+            if p.get("ersetzt_anteil_max") is not None: e["ersetzt_anteil_max"] = p["ersetzt_anteil_max"]
             if p.get("komplex"): e["sehr_komplex"] = True
             if p.get("index"): e["foerderindex"] = p["index"]
             if p.get("pacht"): e["pacht_anteil"] = p["pacht"]

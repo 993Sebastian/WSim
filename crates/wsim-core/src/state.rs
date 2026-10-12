@@ -1652,6 +1652,10 @@ pub struct Market {
     /// The last closed months, for the charts (M24); empty for markets without sales.
     #[serde(default, skip_serializing_if = "MarketHistory::is_empty")]
     pub history: MarketHistory,
+    /// Consumables (MN1): share of the demand for each product this one replaces that it
+    /// has taken over here, in the order of `Product::replaces`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub substitution: Vec<f64>,
 }
 
 /// Closed months of a market, oldest first, the last one is the month before the

@@ -2097,6 +2097,29 @@ Bei der Umsetzung entschieden:
     (die Märkte führen keine Monatsreihe der Knappheit); ohne eigene Anlage keine
     Schätzung mit Investition.
 
+24. 🟡 **MN1 – Substitution: Menge des Nachfolgers wertgleich.** Die Vorgabe addiert
+    „s · Bedarf_A“ zum Bedarf von B; da A und B andere Einheiten haben können (kg Butter,
+    Stück Kaffeekapseln), rechnet der Kern die übernommene Menge über die Richtpreise um
+    (wertgleiche Menge, r_A / r_B).
+25. 🟡 **MN1 – Höchstanteil je Paar.** Neues Feld `ersetzt_anteil_max` (Standard 1):
+    Margarine übernimmt höchstens 60 % der Butter, Pflanzendrink 15 % der Trinkmilch,
+    Fleischersatz 10 % des Fleischs, löslicher Kaffee 30 % und Kapseln 20 % des
+    Röstkaffees, Laminat 60 % des Parketts; Floatglas ersetzt Fensterglas ganz. `nutzen`
+    heißt in den Daten `ersetzt_nutzen` (gilt für alle Einträge von `ersetzt`).
+26. 🟡 **MN1 – Verfügbarkeit aus dem Vormonat.** v ist der bediente Anteil der
+    Endkunden- und Staatsnachfrage nach B im Vormonat (statt im Vorjahr); die Trägheit
+    steckt in `je_jahr` (0,3: knapp 30 % der Lücke im Jahr).
+27. 🟡 **MN1 – Trends im Marktmodell.** Statt einer eigenen Datei `trends.yaml` stehen die
+    Trends unter `marktmodell.trends`; sie dürfen neben Warengruppen auch einzelne Produkte
+    nennen (die Warengruppen sind breit: „fahrzeuge“ träfe Fahrrad und Auto). Daten:
+    Radio 1923–1932, Fernsehen 1952–1962, Kunststoff im Haushalt 1950–1965, Heimcomputer
+    1982–1988, Elektroauto 2018–2026. Der Fahrrad-Boom 1895–1900 liegt vor dem Spielstart
+    und entfällt. Eine Meldung „Nachfragewelle“ gibt es erst für erzeugte Trends (MN4).
+28. 🟡 **MN1 – Verfahrenswechsel der KI.** Gibt es bereits seit M33: Die KI wählt jeden
+    Monat das günstigste bekannte Rezept derselben Anlage (Richtkosten plus Aufschlag
+    knapper Vorprodukte). Die vorgeschlagene Wartezeit von zwei Quartalen ist nicht
+    eingebaut; der Aufschlag knapper Vorprodukte verhindert das Hin- und Herspringen.
+
 ## S Wünsche vom 11.10.2026 (Abend) – eigenständig entschieden, zur Abnahme
 
 - **S1 Preis relativ zum Marktpreis:** Bezug ist der gewichtete Preis der *anderen*

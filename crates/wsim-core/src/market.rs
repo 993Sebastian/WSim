@@ -321,8 +321,15 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
             if let Some(d) = &p.consumer_demand {
                 let season = d.seasonality.map_or(1.0, |s| s[month]);
                 let grid = if d.needs_grid { cs.grid_share } else { 1.0 };
+                // Demand trends (MN1).
+                let trend: f64 = catalog
+                    .market_model
+                    .trends
+                    .iter()
+                    .map(|t| t.factor(product, p.goods_group, country, date.year_fraction()))
+                    .product();
                 for q in 0..5 {
-                    let share = propensity(d, incomes[q], price, reference);
+                    let share = propensity(d, incomes[q], price, reference) * trend;
                     market.consumer_rate[q] = match d.consumption {
                         ConsumptionType::Consumable {
                             per_capita_per_year,
@@ -366,6 +373,96 @@ fn update_demand(state: &mut GameState, catalog: &Catalog, date: Date, initial: 
                     * state_left
                     * state_factor
                     * armament_factor(catalog, s, cs);
+            }
+        }
+    }
+    substitute(state, catalog);
+}
+
+/// Whether a product's consumers buy it as a consumable or a complement (MN1).
+fn consumable(catalog: &Catalog, product: ProductId) -> bool {
+    catalog
+        .products
+        .get(product)
+        .consumer_demand
+        .as_ref()
+        .is_some_and(|d| !matches!(d.consumption, ConsumptionType::Durable { .. }))
+}
+
+/// Consumables displacing consumables (MN1, docs/FORMELN.md): each month the successor's
+/// share of the old product's demand moves toward its target, which grows with the
+/// successor's availability and its price advantage per unit of utility; that share of
+/// the old demand moves to the successor in units of equal reference value.
+fn substitute(state: &mut GameState, catalog: &Catalog) {
+    let model = &catalog.market_model;
+    if model.substitution_per_year <= 0.0 {
+        return;
+    }
+    let step = (model.substitution_per_year / 12.0).min(1.0);
+    for (successor, p) in catalog.products.iter() {
+        if p.replaces.is_empty() || !consumable(catalog, successor) {
+            continue;
+        }
+        let pairs: Vec<(usize, ProductId)> = p
+            .replaces
+            .iter()
+            .copied()
+            .enumerate()
+            .filter(|&(_, old)| consumable(catalog, old))
+            .collect();
+        if pairs.is_empty() {
+            continue;
+        }
+        let reference_new = p.reference_price.to_usd().max(1e-9);
+        for country in catalog.countries.ids() {
+            for &(slot, old) in &pairs {
+                let price = |product: ProductId| {
+                    let m = state.markets.get(product).get(country);
+                    if m.price > Money::ZERO {
+                        m.price.to_usd()
+                    } else {
+                        local_reference(catalog, state, country, product).to_usd()
+                    }
+                };
+                let (price_old, price_new) = (price(old), price(successor));
+                let new_market = state.markets.get(successor).get(country);
+                let served = &new_market.last_month;
+                let availability = if served.outside_demand > 0.0 {
+                    (served.outside_sold / served.outside_demand).clamp(0.0, 1.0)
+                } else {
+                    0.0
+                };
+                let advantage = if price_old > 0.0 && price_new > 0.0 {
+                    math::ln(price_old / (price_new / p.replaces_utility))
+                } else {
+                    0.0
+                };
+                let target = availability
+                    * p.replaces_max_share
+                    * (1.0 / (1.0 + math::exp(-model.substitution_steepness * advantage)));
+                let market = state.markets.get_mut(successor).get_mut(country);
+                if market.substitution.len() < p.replaces.len() {
+                    market.substitution.resize(p.replaces.len(), 0.0);
+                }
+                let share = &mut market.substitution[slot];
+                *share = (*share + (target - *share) * step).clamp(0.0, p.replaces_max_share);
+                let share = *share;
+                if share <= 0.0 {
+                    continue;
+                }
+                let factor = catalog.products.get(old).reference_price.to_usd() / reference_new;
+                let moved: [f64; 5] = {
+                    let old_market = state.markets.get_mut(old).get_mut(country);
+                    std::array::from_fn(|q| {
+                        let moved = old_market.consumer_rate[q] * share;
+                        old_market.consumer_rate[q] -= moved;
+                        moved
+                    })
+                };
+                let market = state.markets.get_mut(successor).get_mut(country);
+                for (rate, moved) in market.consumer_rate.iter_mut().zip(moved) {
+                    *rate += moved * factor;
+                }
             }
         }
     }

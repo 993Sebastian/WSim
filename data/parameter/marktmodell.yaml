@@ -59,3 +59,26 @@ marktmodell:
       - {id: radio, ab: 1923, wirkung: 1.4}
       - {id: fernsehen, ab: 1950, wirkung: 2.0}
       - {id: internet, ab: 1995, wirkung: 2.6}
+  # Substitution bei Verbrauchs- und Ergänzungsgütern (MN1, docs/FORMELN.md): Der Nachfolger
+  # übernimmt einen Anteil der Nachfrage, der mit seiner Verfügbarkeit und seinem
+  # Preisvorteil je Nutzen wächst.
+  substitution:
+    steilheit: 2.0                 # wie stark der Preisvorteil zählt (logistisch)
+    je_jahr: 0.3                   # Anteil der Lücke zum Zielanteil, der je Jahr schließt
+  # Nachfragewellen (MN1): Faktor auf die Kaufneigung, solange der Verlauf läuft.
+  trends:
+    - id: radiowelle
+      produkte: [roehrenradio]
+      verlauf: {1923: 1.0, 1926: 1.6, 1932: 1.0}
+    - id: fernsehwelle
+      produkte: [fernseher]
+      verlauf: {1952: 1.0, 1956: 1.5, 1962: 1.0}
+    - id: kunststoff_haushalt
+      produkte: [kunststoffwaren]
+      verlauf: {1950: 1.0, 1955: 1.4, 1965: 1.0}
+    - id: heimcomputer
+      produkte: [personal_computer]
+      verlauf: {1982: 1.0, 1984: 1.5, 1988: 1.0}
+    - id: elektroauto
+      produkte: [elektroauto]
+      verlauf: {2018: 1.0, 2022: 1.4, 2026: 1.2}

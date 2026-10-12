@@ -400,6 +400,7 @@ produkte:
     einkommensempfindlichkeit: 0.9
   ersetzt:
   - parkett
+  ersetzt_anteil_max: 0.6
   annaeherung: true
 - id: tapete
   art: endprodukt

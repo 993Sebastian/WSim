@@ -447,6 +447,8 @@ pub(crate) fn build(
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     let (market_model, media_keys) = production::market_model(b.ctx, raw);
     b.catalog.market_model = market_model;
+    b.catalog.market_model.trends =
+        production::trends(b.ctx, raw, (&product_keys, &group_keys, &country_keys));
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
     b.catalog.research_model = production::research_model(
         b.ctx,
@@ -920,6 +922,19 @@ impl Builder<'_, '_> {
                 resolve(self.ctx, refs.products, r, &loc)
             })
             .collect();
+        let replaces_utility = v.replaces_utility.map_or(1.0, |u| {
+            in_range(self.ctx, u, 0.1, 10.0, &l.field("ersetzt_nutzen"))
+        });
+        let replaces_max_share = v.replaces_max_share.map_or(1.0, |a| {
+            in_range(self.ctx, a, 0.0, 1.0, &l.field("ersetzt_anteil_max"))
+        });
+        if v.replaces.is_empty() && (v.replaces_utility.is_some() || v.replaces_max_share.is_some())
+        {
+            self.ctx.error(
+                &l.field("ersetzt"),
+                messages::substitution_without_replaces(&v.id),
+            );
+        }
         Product {
             kind: match v.kind {
                 RawProductKind::RawMaterial => ProductKind::RawMaterial,
@@ -981,6 +996,8 @@ impl Builder<'_, '_> {
                 .as_ref()
                 .map(|m| self.state_market(m, &l.field("staatsmarkt"))),
             replaces,
+            replaces_utility,
+            replaces_max_share,
             output_index: v.output_index.as_ref().map(|values| {
                 let loc = l.field("foerderindex");
                 if !matches!(v.kind, RawProductKind::RawMaterial) {

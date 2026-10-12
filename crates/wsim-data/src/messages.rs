@@ -203,6 +203,20 @@ pub fn season_length(found: usize) -> String {
     format!("„saison“ braucht 12 Monatswerte, angegeben sind {found}.")
 }
 
+pub fn substitution_without_replaces(key: &str) -> String {
+    format!(
+        "Produkt „{key}“ gibt „ersetzt_nutzen“ oder „ersetzt_anteil_max“ an, ersetzt aber nichts („ersetzt“ fehlt)."
+    )
+}
+
+pub fn trend_without_goods(key: &str) -> String {
+    format!("Trend „{key}“ nennt weder Warengruppen noch Produkte.")
+}
+
+pub fn trend_duplicate(key: &str) -> String {
+    format!("Trend „{key}“ ist doppelt angegeben.")
+}
+
 pub fn product_replaces_itself(key: &str) -> String {
     format!("Produkt „{key}“ kann sich nicht selbst ersetzen.")
 }

@@ -401,6 +401,51 @@ fn maintenance(ctx: &mut Ctx, v: &crate::raw::RawMaintenance, l: &Loc) -> Mainte
 }
 
 /// Learning curve (BP1): rates per branch below 1, shares in range.
+/// Demand trends of the market model (MN1).
+pub(super) fn trends(
+    ctx: &mut Ctx,
+    raw: &RawData,
+    (products, groups, countries): (&Keys, &Keys, &Keys),
+) -> Vec<wsim_core::catalog::Trend> {
+    let Some(entry) = raw.market_model.first() else {
+        return Vec::new();
+    };
+    let l = entry.loc.field("trends");
+    let mut seen = std::collections::BTreeSet::new();
+    entry
+        .value
+        .trends
+        .iter()
+        .enumerate()
+        .map(|(i, t)| {
+            let tl = l.index(i);
+            if !seen.insert(t.id.as_str()) {
+                ctx.error(&tl.field("id"), messages::trend_duplicate(&t.id));
+            }
+            if t.groups.is_empty() && t.products.is_empty() {
+                ctx.error(&tl, messages::trend_without_goods(&t.id));
+            }
+            fn list<I: Id>(ctx: &mut Ctx, keys: &[String], refs: &Keys, loc: &Loc) -> Vec<I> {
+                keys.iter()
+                    .enumerate()
+                    .map(|(j, k)| resolve(ctx, refs, k, &loc.index(j)))
+                    .collect()
+            }
+            let curve_loc = tl.field("verlauf");
+            for (&year, &f) in &t.curve {
+                in_range(ctx, f, 0.1, 10.0, &curve_loc.key(&year.to_string()));
+            }
+            wsim_core::catalog::Trend {
+                key: t.id.clone(),
+                groups: list(ctx, &t.groups, groups, &tl.field("warengruppen")),
+                products: list(ctx, &t.products, products, &tl.field("produkte")),
+                countries: list(ctx, &t.countries, countries, &tl.field("laender")),
+                curve: time_series(ctx, &t.curve, &curve_loc),
+            }
+        })
+        .collect()
+}
+
 pub(super) fn learning(ctx: &mut Ctx, raw: &RawData, branches: &Keys) -> LearningModel {
     let Some(entry) = raw.production_model.first() else {
         return LearningModel::default();
@@ -976,7 +1021,21 @@ pub(super) fn market_model(
     };
     let adjust = l.field("preisanpassung");
     let traders = l.field("haendler");
+    let substitution = l.field("substitution");
     let model = wsim_core::catalog::MarketModel {
+        substitution_steepness: m.substitution.as_ref().map_or(0.0, |s| {
+            in_range(
+                ctx,
+                s.steepness,
+                0.0,
+                20.0,
+                &substitution.field("steilheit"),
+            )
+        }),
+        substitution_per_year: m.substitution.as_ref().map_or(0.0, |s| {
+            in_range(ctx, s.per_year, 0.0, 12.0, &substitution.field("je_jahr"))
+        }),
+        trends: Vec::new(),
         price_weight,
         quality_weight,
         adoption_per_year: in_range(

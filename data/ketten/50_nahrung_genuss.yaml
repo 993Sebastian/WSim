@@ -688,6 +688,10 @@ produkte:
     kaufschwelle: 203
     preisempfindlichkeit: 0.6
     einkommensempfindlichkeit: 0.5
+  ersetzt:
+  - butter
+  ersetzt_nutzen: 0.8
+  ersetzt_anteil_max: 0.6
   annaeherung: true
 - id: marmelade
   art: endprodukt
@@ -924,6 +928,10 @@ produkte:
     kaufschwelle: 130
     preisempfindlichkeit: 0.8
     einkommensempfindlichkeit: 0.9
+  ersetzt:
+  - roestkaffee
+  ersetzt_nutzen: 0.9
+  ersetzt_anteil_max: 0.3
   annaeherung: true
 - id: kaffeekapseln
   art: endprodukt
@@ -942,6 +950,10 @@ produkte:
     kaufschwelle: 43800
     preisempfindlichkeit: 0.9
     einkommensempfindlichkeit: 1.2
+  ersetzt:
+  - roestkaffee
+  ersetzt_nutzen: 1.2
+  ersetzt_anteil_max: 0.2
   annaeherung: true
 - id: teewaren
   art: endprodukt
@@ -1120,6 +1132,10 @@ produkte:
     kaufschwelle: 8080
     preisempfindlichkeit: 0.8
     einkommensempfindlichkeit: 1.2
+  ersetzt:
+  - trinkmilch
+  ersetzt_nutzen: 0.8
+  ersetzt_anteil_max: 0.15
   annaeherung: true
 - id: fleischersatz
   art: endprodukt
@@ -1137,6 +1153,10 @@ produkte:
     kaufschwelle: 2500
     preisempfindlichkeit: 0.9
     einkommensempfindlichkeit: 1.3
+  ersetzt:
+  - fleisch
+  ersetzt_nutzen: 0.7
+  ersetzt_anteil_max: 0.1
   annaeherung: true
 - id: zigaretten
   art: endprodukt
