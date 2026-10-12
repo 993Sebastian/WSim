@@ -1041,6 +1041,7 @@ fn found_company(
             maintenance: 1.0,
             failures: 0,
             accidents: 0,
+            trims: Default::default(),
         });
     }
     let cash = daily_cost.scale(30.0 * start.cash_months);
@@ -1102,6 +1103,7 @@ fn found_company(
     state.companies.push(Company {
         process: Default::default(),
         brands,
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),

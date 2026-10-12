@@ -82,3 +82,27 @@ marktmodell:
     - id: elektroauto
       produkte: [elektroauto]
       verlauf: {2018: 1.0, 2022: 1.4, 2026: 1.2}
+  # Ruf je Firma und Land (MN2, docs/FORMELN.md): Qualität über dem Marktdurchschnitt hebt
+  # ihn, Unfälle und Rückrufe senken ihn; er wirkt in der Anbieterwahl wie die Marke.
+  ruf:
+    gewinn_je_monat: 0.05          # je 50 Qualitätspunkte über dem Durchschnitt
+    rueckkehr_je_monat: 0.02       # ohne Absatz zurück zur Mitte 0,5
+    unfall_abzug: 0.005
+    rueckruf_schwelle: 25          # Qualität, unter der Ware zurückgerufen werden kann
+    rueckruf_chance: 0.3           # je Monat und Land mit solcher Ware
+    rueckruf_abzug: 0.1
+    rufgewicht: [0.2, 0.3, 0.5, 0.7, 1.0]   # je Einkommensfünftel, ärmstes zuerst
+  # Ausschreibungen des Staates (MN2): je Quartal, Land und Warengruppe ein Los über den
+  # größten Staatsbedarf; Zuschlag ist ein Staatsauftrag über laufzeit_monate.
+  ausschreibung:
+    warengruppen: [eisen_stahl, glas_keramik, fahrzeuge, ruestung]
+    los_anteil: 0.5                # Anteil am täglichen Staatsbedarf des Produkts
+    frist_tage: 30
+    laufzeit_monate: 12
+    preisgewicht: 2.0
+    qualitaetsgewicht: 0.5
+    heimatbonus: 0.3               # Firma mit Werk im Land
+    kriegsfaktor: 3.3              # Heimatbonus im vollen Krieg ≈ 1,0
+    rufgewicht: 1.0
+    ki_nachlass: 0.05              # KI bietet Angebotspreis − 5 %
+    strafe: 0.2                    # Anteil am Wert der Fehlmenge

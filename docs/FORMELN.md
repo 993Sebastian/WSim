@@ -5759,16 +5759,58 @@ Wirkung in der Anbieterwahl: + `rufgewicht[q]` · (R − 0,5) im Exponenten (wie
 
 ### Ausschreibungen
 
-Warengruppen mit `ausschreibung: true`. Zu Quartalsbeginn je Land und Gruppe mit
-Staatsbedarf ein Los über die Staatsnachfrage der Gruppe für 12 Monate, der größte Posten
-nach Wert (ein Produkt je Los), Menge `los_anteil` · Staatsbedarf je Tag. Frist
-`frist_tage`; Gebote von Standorten mit dem Produkt im Angebot (Befehl `BidTender`,
-KI automatisch: Preis = eigener Angebotspreis · (1 − `ki_nachlass`)).
+Warengruppen aus `marktmodell.ausschreibung.warengruppen`. Zu Quartalsbeginn je Land und
+Gruppe mit Staatsbedarf ein Los über den größten Posten nach Wert (ein Produkt je Los,
+keines, solange für das Produkt im Land ein Los oder Auftrag läuft), Menge
+`los_anteil` · Staatsbedarf je Tag, Laufzeit `laufzeit_monate`. Frist `frist_tage`;
+Gebote von Standorten **im Land** mit dem Produkt im Angebot (Befehl `BidTender`, ein
+Gebot je Firma, ein neues ersetzt das alte; KI am Monatsersten automatisch vom Standort
+mit dem größten Lager: Preis = Angebotspreis · (1 − `ki_nachlass`)). Gebote über der
+Höchstpreisgrenze des Staates zählen nicht.
 
     Punkte = −preisgewicht · ln(p / r) + qualitaetsgewicht · (Q − 50) / 25
              + heimatbonus (Werk im Land; im Krieg × kriegsfaktor) + rufgewicht · (R − 0,5)
 
-Der Beste erhält einen **Staatsauftrag**: Menge je Tag zum Gebotspreis für 12 Monate ab
-dem nächsten Monatsersten, Lieferung aus dem Lager des Standorts, Zahlung durch den Staat,
-Vertragsstrafe `strafe` × Wert der Fehlmenge am Monatsende. Solange der Auftrag läuft,
+Q ist die Qualität des Lagers am Standort (ohne Lager 50), R der Ruf der Firma im Land,
+der Krieg zählt mit seiner Stärke w: Heimatbonus · (1 + (kriegsfaktor − 1) · w).
+Der Beste erhält zum ersten Monatsersten nach der Frist einen **Staatsauftrag**: Menge je
+Tag zum Gebotspreis für `laufzeit_monate` Monate, Lieferung täglich aus dem Lager des
+Standorts (Fehlmengen werden im Monat nachgeholt), Zahlung durch den Staat, am Monatsende
+Vertragsstrafe `strafe` × Wert der Fehlmenge (Kostenart Sonstiges). Die Lieferungen
+zählen für den Ruf wie Verkäufe an Endkunden. Solange der Auftrag läuft,
 sinkt die tägliche Staatsnachfrage des Produkts im Land um die Auftragsmenge.
+
+## MN3 – Vertriebswege (Vorgabe `docs/WELT_MARKT_BETRIEB.md`, 11)
+
+Entscheidungen: `docs/OFFENE_PUNKTE.md`, R (MN3).
+
+Daten `data/vertriebswege.yaml`: je Weg `verfuegbar_ab`, `warengruppen` (leer = alle mit
+Endkundennachfrage), `reichweite` (Jahr → Anteil der Haushalte), `schichtfaktor` (5 Werte,
+ärmstes Fünftel zuerst), `fixkosten_je_land_usd` (Jahr → USD je Jahr bei Preisniveau 1),
+`kosten_je_verkauf` (Anteil am Verkaufserlös), `ruf_faktor`. Dazu
+`marktmodell.vertrieb.grundreichweite` g (der allgemeine Handel, den jede Firma ohne
+eigene Wege erreicht) und `kimodell.vertrieb` (Verzögerung, Mindestumsatz).
+
+Je Firma, Land und Warengruppe wählt der Befehl `SetChannels { country, group, channels }`
+Wege aus den im Jahr verfügbaren. Reichweite je Fünftel q:
+
+    P_q = min(1, g + Σ_Wege reichweite_w(Jahr) · schichtfaktor_w[q])
+
+Ohne Wahl ist P_q = g (heutiges Verhalten). In der Anbieterwahl (M7/M16) wird die
+Anziehung eines Firmenangebots mit P_q / g multipliziert; Händler, Einfuhr und Staatsmarkt
+behalten den Faktor 1. Ohne Abschnitt `vertrieb` oder ohne Wege gilt überall 1.
+
+Kosten: Je verkaufter Einheit an Endkunden der Anteil der Wege am Absatz
+a_w = reichweite_w · schichtfaktor_w[q] / P_q (der Rest g / P_q läuft über den allgemeinen
+Handel ohne Zusatzkosten), Kosten = Erlös · Σ a_w · kosten_je_verkauf_w (Kostenart
+Gemeinkosten). Am Monatsersten je gewähltem Weg fixkosten_je_land_usd(Jahr) ·
+Preisniveau des Landes / 12 (Gemeinkosten).
+
+Ruf (MN2): f_Weg = Σ a_w · ruf_faktor_w + (1 − Σ a_w), gemittelt über den Absatz des
+Monats; der Rufgewinn wird mit f_Weg multipliziert (Markenladen 1,5, Discounter 0,7).
+
+KI: Am Jahresanfang je Land und Warengruppe mit Absatz an Endkunden nimmt die Firma jeden
+verfügbaren Weg der Gruppe, dessen Verfügbarkeit mindestens
+`verzoegerung_jahre` · (1 − Kompetenz) Jahre zurückliegt und dessen Fixkosten höchstens
+`fixkosten_anteil_max` des Vorjahresumsatzes in Land und Gruppe ausmachen; Wege, die das
+nicht mehr erfüllen, gibt sie auf.

@@ -209,6 +209,10 @@ pub fn substitution_without_replaces(key: &str) -> String {
     )
 }
 
+pub fn trim_ai_bounds(simple: f64, premium: f64) -> String {
+    format!("„ki_einfach_bis“ ({simple}) darf nicht über „ki_premium_ab“ ({premium}) liegen.")
+}
+
 pub fn trend_without_goods(key: &str) -> String {
     format!("Trend „{key}“ nennt weder Warengruppen noch Produkte.")
 }

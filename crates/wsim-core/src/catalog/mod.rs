@@ -2475,6 +2475,48 @@ pub struct MarketModel {
     pub arbitrage_share: f64,
     /// Brands and advertising (M16).
     pub brand: BrandModel,
+    /// Reputation and recalls (MN2).
+    pub reputation: ReputationModel,
+    /// Tenders of governments (MN2).
+    pub tenders: TenderModel,
+}
+
+/// Tenders of governments for goods groups (`marktmodell.ausschreibung`, MN2,
+/// docs/FORMELN.md). Disabled without the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TenderModel {
+    pub enabled: bool,
+    pub groups: Vec<GoodsGroupId>,
+    /// Share of the government's daily demand a lot covers.
+    pub lot_share: f64,
+    pub deadline_days: u32,
+    pub months: u32,
+    pub price_weight: f64,
+    pub quality_weight: f64,
+    /// For a company with a factory in the country; times `war_factor` at war.
+    pub home_bonus: f64,
+    pub war_factor: f64,
+    pub reputation_weight: f64,
+    /// AI bids at their asking price less this share.
+    pub ai_discount: f64,
+    /// Share of the value of a missing quantity.
+    pub penalty: f64,
+}
+
+/// Reputation per company and country, and recalls (`marktmodell.ruf`, MN2, docs/FORMELN.md).
+/// Disabled without the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ReputationModel {
+    pub enabled: bool,
+    pub gain_per_month: f64,
+    /// Share of the distance to 0.5 that returns per month without sales.
+    pub return_per_month: f64,
+    pub accident_loss: f64,
+    pub recall_below: f64,
+    pub recall_chance: f64,
+    pub recall_loss: f64,
+    /// Weight of the reputation when choosing a seller, per income fifth.
+    pub weight: [f64; 5],
 }
 
 /// Brand awareness and advertising (`marktmodell.marke`, formulas in docs/FORMELN.md, M16).
@@ -2593,6 +2635,8 @@ impl Default for MarketModel {
             arbitrage_gap: 0.15,
             arbitrage_share: 0.0,
             brand: BrandModel::default(),
+            reputation: ReputationModel::default(),
+            tenders: TenderModel::default(),
         }
     }
 }
@@ -2674,6 +2718,8 @@ pub struct ProductionModel {
     pub storage: StorageModel,
     /// Learning curve of the sites (docs/FORMELN.md „Lernkurve“, BP1).
     pub learning: LearningModel,
+    /// Trim levels of end products (MN2).
+    pub trims: TrimModel,
     /// Maintenance level, breakdowns and overhauls (docs/FORMELN.md „BP2“).
     pub maintenance: MaintenanceModel,
     /// Scrap, accidents, corruption and rule of law (docs/FORMELN.md „BP4“).
@@ -2754,6 +2800,7 @@ impl Default for ProductionModel {
             severance_months: 3.0,
             storage: StorageModel::default(),
             learning: LearningModel::default(),
+            trims: TrimModel::default(),
             maintenance: MaintenanceModel::default(),
             operations: OperationsModel::default(),
             start_setups: Vec::new(),
@@ -2824,6 +2871,68 @@ impl StorageClass {
             StorageClass::Liquid => "fluessig",
             StorageClass::Chilled => "gekuehlt",
             StorageClass::Hazardous => "gefahrgut",
+        }
+    }
+}
+
+/// Trim level of an end product at a site (MN2).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Trim {
+    Simple,
+    #[default]
+    Standard,
+    Premium,
+}
+
+impl Trim {
+    pub const ALL: [Trim; 3] = [Trim::Simple, Trim::Standard, Trim::Premium];
+
+    /// Text key suffix (`ausstattung.<key>`).
+    pub fn key(self) -> &'static str {
+        match self {
+            Trim::Simple => "einfach",
+            Trim::Standard => "standard",
+            Trim::Premium => "premium",
+        }
+    }
+}
+
+/// What a trim level changes per run (MN2).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct TrimEffect {
+    pub material: f64,
+    pub labor: f64,
+    pub quality: f64,
+}
+
+impl Default for TrimEffect {
+    fn default() -> Self {
+        Self {
+            material: 1.0,
+            labor: 1.0,
+            quality: 0.0,
+        }
+    }
+}
+
+/// Trim levels of end products (`produktionsmodell.ausstattung`, MN2); disabled without
+/// the data section.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TrimModel {
+    pub enabled: bool,
+    pub simple: TrimEffect,
+    pub premium: TrimEffect,
+    /// AI companies make premium from this competence on and simple up to that one.
+    pub ai_premium_from: f64,
+    pub ai_simple_up_to: f64,
+}
+
+impl TrimModel {
+    pub fn effect(&self, trim: Trim) -> TrimEffect {
+        match trim {
+            Trim::Simple if self.enabled => self.simple,
+            Trim::Premium if self.enabled => self.premium,
+            _ => TrimEffect::default(),
         }
     }
 }

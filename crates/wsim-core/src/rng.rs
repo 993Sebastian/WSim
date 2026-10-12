@@ -143,6 +143,11 @@ pub enum Stream {
     Officials {
         month: u32,
     },
+    /// Recalls of a company at a month start (MN2).
+    Recalls {
+        company: u32,
+        month: u32,
+    },
 }
 
 impl Stream {
@@ -209,6 +214,9 @@ impl Stream {
                 (28 << 56) | (u64::from(site) << 24) | u64::from(day)
             }
             Stream::Officials { month } => (29 << 56) | u64::from(month),
+            Stream::Recalls { company, month } => {
+                (30 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
         }
     }
 }

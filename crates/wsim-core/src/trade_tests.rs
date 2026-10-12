@@ -93,6 +93,7 @@ pub(super) fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: 
         maintenance: 1.0,
         failures: 0,
         accidents: 0,
+        trims: Default::default(),
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     if quantity > 0.0 {
@@ -117,6 +118,7 @@ pub(super) fn competitor(game: &mut Game) -> CompanyId {
     state.companies.push(Company {
         process: Default::default(),
         brands: Vec::new(),
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),

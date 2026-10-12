@@ -123,6 +123,24 @@ WG1–WG5, nach PE6): `docs/WELT_MARKT_BETRIEB.md`.
 - Die Browser-Version braucht das Ziel `wasm32-unknown-unknown`
   (`rustup target add wasm32-unknown-unknown`).
 
+## Statusboard für den Auftraggeber
+
+Der Auftraggeber verfolgt die Arbeit live im Artefakt
+https://claude.ai/artifact/7yghfe5P1HqnuW4XuXWFMN. Es wird mit dem Werkzeug `ArtifactData`
+aktuell gehalten (ggf. per ToolSearch laden; bestehende Dokumente erst mit `get` lesen und
+die `version` als `if_version` mitgeben; Zeiten ISO 8601 mit Zeitzone):
+
+- `status/aktuell` (update) bei Sitzungsbeginn, jedem neuen Arbeitsschritt und am Ende:
+  `zustand` (arbeitet|wartet|pausiert|fertig), `meilenstein`, `taetigkeit` (ein Satz),
+  `schritt`, `schritte_fertig`, `schritte_gesamt`, `branch`, `frage` (nur bei wartet),
+  `aktualisiert`.
+- `aufgaben/<Nr>` je Meilenstein und je Einzelauftrag des Auftraggebers: `titel`, `gruppe`,
+  `reihenfolge` (Zahl), `status` (anstehend|in_arbeit|erledigt|blockiert), `notiz`. Kleine
+  Aufträge mit eigener Nummer in der Gruppe „Kleinigkeiten“.
+- `protokoll`: je abgeschlossenem Schritt ein Dokument, doc_id `JJJJMMTT-HHMMSS`, Felder
+  `zeit`, `meilenstein`, `text`; höchstens 150 Einträge behalten.
+- Fehler beim Schreiben ins Board halten die Arbeit nie auf.
+
 ## Sprache
 
 - Kommunikation, Dokumentation, Commit-Nachrichten und Spieltexte auf Deutsch.

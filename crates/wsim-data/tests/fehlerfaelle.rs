@@ -5469,3 +5469,165 @@ fn substitution_und_trends_werden_geprueft() {
         (1.0, 0.5)
     );
 }
+
+#[test]
+fn ausstattung_wird_geprueft() {
+    let datei = "parameter/produktionsmodell.yaml";
+    let block = "  ausstattung:\n    einfach: {material: 0.85, arbeit: 0.9, qualitaet: -15}\n    premium: {material: 1.25, arbeit: 1.3, qualitaet: 15}\n    ki_premium_ab: 0.75\n    ki_einfach_bis: 0.25\n";
+    let mit = |d: Daten| {
+        d.ersetze(
+            datei,
+            "  zustand_minimum: 0.2\n",
+            &format!("  zustand_minimum: 0.2\n{block}"),
+        )
+    };
+    let data = mit(Daten::neu()).laden().data.unwrap();
+    let t = &data.catalog.production_model.trims;
+    assert!(t.enabled);
+    assert_eq!(t.premium.quality, 15.0);
+    assert_eq!(t.simple.material, 0.85);
+    assert!(
+        !Daten::neu()
+            .laden()
+            .data
+            .unwrap()
+            .catalog
+            .production_model
+            .trims
+            .enabled
+    );
+
+    let d = mit(Daten::neu())
+        .ersetze(datei, "material: 1.25", "material: 5")
+        .ersetze(datei, "ki_einfach_bis: 0.25", "ki_einfach_bis: 0.9");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 5 liegt außerhalb des erlaubten Bereichs 0.3 bis 3.",
+    );
+    assert_ort(
+        f,
+        datei,
+        d.zeile(datei, "premium:"),
+        "produktionsmodell.ausstattung.premium.material",
+    );
+    let f = befund(
+        &outcome,
+        "„ki_einfach_bis“ (0.9) darf nicht über „ki_premium_ab“ (0.75) liegen.",
+    );
+    assert_eq!(
+        f.path.to_string(),
+        "produktionsmodell.ausstattung.ki_einfach_bis"
+    );
+    nur_fehler(&outcome, 2);
+}
+
+#[test]
+fn ruf_wird_geprueft() {
+    let markt = "parameter/marktmodell.yaml";
+    let mit = |d: Daten| {
+        d.ersetze(
+            markt,
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n",
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n  ruf:\n    gewinn_je_monat: 0.05\n    rueckkehr_je_monat: 0.02\n    unfall_abzug: 0.005\n    rueckruf_schwelle: 25\n    rueckruf_chance: 0.3\n    rueckruf_abzug: 0.1\n    rufgewicht: [0.2, 0.3, 0.5, 0.7, 1.0]\n",
+        )
+    };
+    let data = mit(Daten::neu()).laden().data.unwrap();
+    let r = &data.catalog.market_model.reputation;
+    assert!(r.enabled);
+    assert_eq!(r.recall_below, 25.0);
+    assert_eq!(r.weight[4], 1.0);
+    assert!(
+        !Daten::neu()
+            .laden()
+            .data
+            .unwrap()
+            .catalog
+            .market_model
+            .reputation
+            .enabled
+    );
+
+    let d = mit(Daten::neu())
+        .ersetze(markt, "rueckruf_chance: 0.3", "rueckruf_chance: 3")
+        .ersetze(
+            markt,
+            "rufgewicht: [0.2, 0.3, 0.5, 0.7, 1.0]",
+            "rufgewicht: [0.2, 0.3]",
+        );
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 3 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        markt,
+        d.zeile(markt, "rueckruf_chance:"),
+        "marktmodell.ruf.rueckruf_chance",
+    );
+    let f = outcome
+        .report
+        .findings()
+        .iter()
+        .find(|f| f.path.to_string() == "marktmodell.ruf.rufgewicht")
+        .expect("weight length reported");
+    assert!(f.message.contains("5 Werte"), "{}", f.message);
+    nur_fehler(&outcome, 2);
+}
+
+#[test]
+fn ausschreibung_wird_geprueft() {
+    let markt = "parameter/marktmodell.yaml";
+    let mit = |d: Daten| {
+        d.ersetze(
+            markt,
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n",
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n  ausschreibung:\n    warengruppen: [erze]\n    los_anteil: 0.5\n    frist_tage: 30\n    laufzeit_monate: 12\n    preisgewicht: 2.0\n    qualitaetsgewicht: 0.5\n    heimatbonus: 0.3\n    kriegsfaktor: 3.3\n    rufgewicht: 1.0\n    ki_nachlass: 0.05\n    strafe: 0.2\n",
+        )
+    };
+    let data = mit(Daten::neu()).laden().data.unwrap();
+    let t = &data.catalog.market_model.tenders;
+    assert!(t.enabled);
+    assert_eq!(t.months, 12);
+    assert_eq!(
+        t.groups,
+        vec![data.catalog.goods_groups.id("erze").unwrap()]
+    );
+    assert!(
+        !Daten::neu()
+            .laden()
+            .data
+            .unwrap()
+            .catalog
+            .market_model
+            .tenders
+            .enabled
+    );
+
+    let d = mit(Daten::neu())
+        .ersetze(markt, "warengruppen: [erze]", "warengruppen: [erz]")
+        .ersetze(markt, "frist_tage: 30", "frist_tage: 0")
+        .ersetze(markt, "los_anteil: 0.5", "los_anteil: 2");
+    let outcome = d.laden();
+    let f = befund(&outcome, "„erz“");
+    assert_eq!(
+        f.path.to_string(),
+        "marktmodell.ausschreibung.warengruppen[0]"
+    );
+    let f = befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 1 bis 90.",
+    );
+    assert_ort(
+        f,
+        markt,
+        d.zeile(markt, "frist_tage:"),
+        "marktmodell.ausschreibung.frist_tage",
+    );
+    befund(
+        &outcome,
+        "Wert 2 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    nur_fehler(&outcome, 3);
+}

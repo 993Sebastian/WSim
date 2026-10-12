@@ -247,14 +247,30 @@ pub(crate) fn state_demand_left(
         })
 }
 
-/// Durables that displace a product (§6.4) with their highest ownership per head.
+/// Durables that displace a product (§6.4), each with the units per head that replace
+/// all of the product (MN1): one unit of the successor replaces `ersetzt_nutzen` units of
+/// the old durable, so its highest ownership divided by that utility; for an old product
+/// that is not a durable, the successor's highest ownership.
 pub(crate) fn successors(catalog: &Catalog, product: ProductId) -> Vec<(ProductId, f64)> {
+    let old_max = match catalog
+        .products
+        .get(product)
+        .consumer_demand
+        .as_ref()
+        .map(|d| d.consumption)
+    {
+        Some(ConsumptionType::Durable { max_ownership, .. }) => Some(max_ownership),
+        _ => None,
+    };
     catalog
         .products
         .iter()
         .filter(|(_, q)| q.replaces.contains(&product))
         .filter_map(|(id, q)| match q.consumer_demand.as_ref()?.consumption {
-            ConsumptionType::Durable { max_ownership, .. } => Some((id, max_ownership)),
+            ConsumptionType::Durable { max_ownership, .. } => Some((
+                id,
+                old_max.map_or(max_ownership, |m| m / q.replaces_utility.max(1e-9)),
+            )),
             ConsumptionType::Consumable { .. } | ConsumptionType::Complement { .. } => None,
         })
         .collect()
@@ -486,6 +502,22 @@ fn armament_factor(
     }
 }
 
+/// How much an offer appeals to the income fifth `q` (docs/FORMELN.md, M7/M16): its
+/// price against the reference (as log ratio), its quality and its brand.
+pub(crate) fn appeal(
+    model: &MarketModel,
+    q: usize,
+    log_relative_price: f64,
+    quality: f64,
+    brand: f64,
+) -> f64 {
+    math::exp(
+        -model.price_weight[q] * log_relative_price
+            + model.quality_weight[q] * (quality - 50.0) / 25.0
+            + model.brand.weight[q] * brand,
+    )
+}
+
 /// Who sells on a market.
 #[derive(Clone, Copy, PartialEq)]
 enum Seller {
@@ -508,6 +540,7 @@ struct Scratch {
     buyers: Vec<(SiteId, f64, Money, f64, bool)>,
     presence: Vec<f64>,
     brand: Vec<f64>,
+    reputation: Vec<f64>,
     weights: Vec<f64>,
     log_relative: Vec<f64>,
     attraction: Vec<f64>,
@@ -760,6 +793,7 @@ fn clear_market(
         weights,
         log_relative,
         attraction,
+        reputation,
         outputs,
     } = scratch;
     offers.clear();
@@ -970,6 +1004,14 @@ fn clear_market(
         Seller::Importer => model.brand.trade_awareness,
         Seller::StateMarket => model.brand.state_market_awareness,
     }));
+    // Reputation against the middle (MN2): traders and the state market stand at 0.5.
+    reputation.clear();
+    reputation.extend(offers.iter().map(|o| match o.seller {
+        Seller::Site { owner, .. } if model.reputation.enabled => {
+            state.companies[owner.index()].reputation(country) - 0.5
+        }
+        _ => 0.0,
+    }));
     let mut bought = [0.0; 5];
     weights.clear();
     weights.resize(offers.len(), 0.0);
@@ -991,11 +1033,8 @@ fn clear_market(
         if need > 1e-9 && reference > 0.0 {
             for (i, a) in attraction.iter_mut().enumerate() {
                 *a = presence[i]
-                    * math::exp(
-                        -model.price_weight[q] * log_relative[i]
-                            + model.quality_weight[q] * (offers[i].quality - 50.0) / 25.0
-                            + model.brand.weight[q] * brand[i],
-                    );
+                    * appeal(model, q, log_relative[i], offers[i].quality, brand[i])
+                    * math::exp(model.reputation.weight[q] * reputation[i]);
             }
         }
         for _ in 0..8 {
@@ -1382,6 +1421,7 @@ fn trade(
     day: &mut Trade,
 ) {
     let amount = Money::times(offer.price, quantity);
+    let mut sold_value = Money::ZERO;
     offer.available -= quantity;
     offer.sold += quantity;
     day.sold += quantity;
@@ -1390,6 +1430,7 @@ fn trade(
         Seller::Site { site, owner } => {
             let s = &mut state.sites[site.index()];
             let value = s.inventory.entry(product).or_default().take(quantity);
+            sold_value = value;
             let ledger = &mut state.companies[owner.index()].ledger;
             let center = CostCenter::product(site, product);
             ledger.income(CostType::Revenue, center, Account::Cash, amount);
@@ -1455,7 +1496,19 @@ fn trade(
                 lost: false,
             });
         }
-        Buyer::Outside => day.outside_sold += quantity,
+        Buyer::Outside => {
+            day.outside_sold += quantity;
+            if let Seller::Site { owner, .. } = offer.seller {
+                crate::reputation::record_sale(
+                    state,
+                    catalog,
+                    (owner, country),
+                    quantity,
+                    offer.quality,
+                    sold_value,
+                );
+            }
+        }
     }
 }
 

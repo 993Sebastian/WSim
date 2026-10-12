@@ -510,6 +510,8 @@ export interface Qualitaetsteile {
   condition: number;
   research: number;
   training: number;
+  /** Points from the trim level (MN2). */
+  trim?: number;
   total: number;
 }
 
@@ -536,6 +538,8 @@ export interface Angebot {
   product_name?: string | null;
   /** The company's sales offices that offer the product; supplied from here by need. */
   outlets?: { site: number; name: string | null; country: string; supplied_here: boolean }[];
+  /** Trim level of an end product made here (MN2); absent where there is none to choose. */
+  trim?: "einfach" | "standard" | "premium" | null;
 }
 
 export interface Einkauf {

@@ -333,6 +333,9 @@ pub struct Company {
     /// Brand awareness per country and goods group (M16).
     #[serde(default)]
     pub brands: Vec<Brand>,
+    /// Reputation per country and this month's sales to end customers (MN2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub reputations: Vec<Reputation>,
     /// Emissions of the running and of the last month (H2).
     #[serde(default, skip_serializing_if = "Emissions::is_empty")]
     pub emissions: Emissions,
@@ -686,6 +689,26 @@ pub struct Brand {
     pub country: CountryId,
     pub group: GoodsGroupId,
     pub awareness: f64,
+}
+
+/// A company's reputation in a country (MN2, docs/FORMELN.md) with the running month's
+/// sales to end customers.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Reputation {
+    pub country: CountryId,
+    /// 0–1, start 0.5.
+    pub value: f64,
+    #[serde(default)]
+    pub sold: f64,
+    /// Sum of quality × units sold.
+    #[serde(default)]
+    pub quality_sum: f64,
+    /// Inventory value of the goods sold (for a recall).
+    #[serde(default)]
+    pub cost: Money,
+    /// Goods below the recall threshold were sold this month.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub low_quality: bool,
 }
 
 /// Identifier of a manager (MA1); stays the same while the manager exists.
@@ -1087,6 +1110,14 @@ impl Stake {
 
 impl Company {
     /// Brand awareness in a country for a goods group (0 if unknown).
+    /// Reputation in a country (MN2); 0.5 where the company has none yet.
+    pub fn reputation(&self, country: CountryId) -> f64 {
+        self.reputations
+            .iter()
+            .find(|r| r.country == country)
+            .map_or(0.5, |r| r.value)
+    }
+
     pub fn awareness(&self, country: CountryId, group: GoodsGroupId) -> f64 {
         self.brands
             .iter()
@@ -1494,6 +1525,9 @@ pub struct Site {
     /// Accidents this year (BP4).
     #[serde(default, skip_serializing_if = "is_zero_steps")]
     pub accidents: u32,
+    /// Trim level per end product made here (MN2); missing: standard.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub trims: BTreeMap<ProductId, crate::catalog::Trim>,
 }
 
 impl Site {
@@ -1985,6 +2019,12 @@ pub struct GameState {
     /// Supply contracts, open ones and those closed in the last months (W4).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub contracts: Vec<crate::contracts::Contract>,
+    /// Government tenders, open ones and those of the last year (MN2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tenders: Vec<crate::tenders::Tender>,
+    /// Running state orders won in tenders (MN2).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub state_orders: Vec<crate::tenders::StateOrder>,
     #[serde(default)]
     pub next_contract: u32,
     /// Tonne-kilometres of the freight market this month and the month before (W6).

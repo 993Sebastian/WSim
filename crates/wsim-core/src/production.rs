@@ -414,7 +414,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 1.0
             };
             let runs = sl.full_runs(catalog) * utilization;
-            let developed = development::effect(catalog, state, s.owner, recipe.product);
+            let developed = site_effect(catalog, state, s, recipe.product);
             let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
                 * developed.labor
                 * crate::training::labor_factor(catalog, s.training)
@@ -507,9 +507,8 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
         };
         let recipe = catalog.recipes.get(recipe_id);
         let sl = &state.sites[index].slots[slot];
-        let owner = state.sites[index].owner;
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
-            * development::effect(catalog, state, owner, recipe.product).labor
+            * site_effect(catalog, state, &state.sites[index], recipe.product).labor
             * crate::training::labor_factor(catalog, state.sites[index].training)
             * crate::learning::factor(catalog, &state.sites[index], recipe);
         for (g, h) in hours_per_run(
@@ -648,7 +647,7 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             (sl.automation, sl.size)
         };
         // The company's development level of the product (M37).
-        let developed = development::effect(catalog, state, owner, recipe.product);
+        let developed = site_effect(catalog, state, &state.sites[index], recipe.product);
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
             * developed.labor
             * crate::training::labor_factor(catalog, state.sites[index].training)
@@ -1085,7 +1084,7 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
                 continue;
             }
             let r = catalog.recipes.get(recipe);
-            let developed = development::effect(catalog, state, s.owner, r.product);
+            let developed = site_effect(catalog, state, s, r.product);
             for &(input, q) in &r.inputs {
                 let stock = s.inventory.get(&input).map_or(0.0, |x| x.quantity);
                 if stock < q * developed.inputs && !reported.contains(&input) {
@@ -1116,6 +1115,27 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
     messages
 }
 
+/// Trim level of a product at a site (MN2).
+pub fn trim(site: &crate::state::Site, product: ProductId) -> crate::catalog::Trim {
+    site.trims.get(&product).copied().unwrap_or_default()
+}
+
+/// What the owner's research (Q1, Q6) and the site's trim level (MN2) change in the
+/// site's recipes for a product.
+pub fn site_effect(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &crate::state::Site,
+    product: ProductId,
+) -> development::Effect {
+    let mut e = development::effect(catalog, state, site.owner, product);
+    let t = catalog.production_model.trims.effect(trim(site, product));
+    e.inputs *= t.material;
+    e.labor *= t.labor;
+    e.quality += t.quality;
+    e
+}
+
 /// How the quality of a batch comes about (docs/FORMELN.md), in points.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct QualityParts {
@@ -1126,6 +1146,8 @@ pub struct QualityParts {
     pub condition: f64,
     /// The owner's research level of the product (Q1).
     pub research: f64,
+    /// The trim level of the product at the site (MN2).
+    pub trim: f64,
     pub training: f64,
     /// Sum of the parts, 0–100.
     pub total: f64,
@@ -1148,10 +1170,15 @@ pub fn quality_parts(
         automation: model.quality_automation * sl.automation,
         condition: -model.quality_condition * (1.0 - sl.condition),
         research: development::effect(catalog, state, s.owner, recipe.product).quality,
+        trim: catalog
+            .production_model
+            .trims
+            .effect(trim(s, recipe.product))
+            .quality,
         training: crate::training::quality(catalog, s.training),
         total: 0.0,
     };
-    q.total = (q.base + q.inputs + q.automation + q.condition + q.research + q.training)
+    q.total = (q.base + q.inputs + q.automation + q.condition + q.research + q.trim + q.training)
         .clamp(0.0, 100.0);
     q
 }

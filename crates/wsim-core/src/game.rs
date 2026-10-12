@@ -227,6 +227,8 @@ impl Game {
             events: Default::default(),
             regulation: Default::default(),
             contracts: Vec::new(),
+            tenders: Vec::new(),
+            state_orders: Vec::new(),
             next_contract: 0,
             freight_market: Default::default(),
             stock: Default::default(),
@@ -501,6 +503,7 @@ impl Game {
             &self.catalog,
             today,
         ));
+        crate::tenders::deliver(&mut self.state, &self.catalog, today);
         crate::supply::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
         report.messages.extend(research::simulate_day(
@@ -645,6 +648,11 @@ impl Game {
             crate::training::month_start(&mut self.state, &self.catalog);
             production::new_month(&mut self.state);
             market::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::tenders::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
             market::reset_site_months(&mut self.state);
             report.messages.extend(crate::competition::month_end(
                 &mut self.state,
@@ -659,6 +667,11 @@ impl Game {
                 next,
             ));
             crate::brand::month_start(&mut self.state, &self.catalog, next);
+            report.messages.extend(crate::reputation::month_start(
+                &mut self.state,
+                &self.catalog,
+                next,
+            ));
         }
         if next.ordinal() == 1 {
             production::new_year(&mut self.state);
@@ -787,6 +800,7 @@ pub(crate) fn push_player_company(
     state.companies.push(Company {
         process: Default::default(),
         brands: Vec::new(),
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),
@@ -963,6 +977,7 @@ pub(crate) fn start_setup(
         maintenance: 1.0,
         failures: 0,
         accidents: 0,
+        trims: Default::default(),
     });
     // The workshop leases its plot: the start capital pays only building and facilities.
     if crate::plots::needs_plot(catalog, setup.site_type) {

@@ -2120,6 +2120,42 @@ Bei der Umsetzung entschieden:
     knapper Vorprodukte). Die vorgeschlagene Wartezeit von zwei Quartalen ist nicht
     eingebaut; der Aufschlag knapper Vorprodukte verhindert das Hin- und Herspringen.
 
+29. 🟡 **MN1 – Verdrängung bei Gebrauchsgütern Stück gegen Stück.** Bisher galt ein
+    Vorgänger erst als verdrängt, wenn der Nachfolger seine eigene Höchstquote erreichte
+    (Glühlampen 3 je Kopf gegen Petroleumlampen 0,6): Die Petroleumlampe verlor bis 1930
+    in Deutschland nur 17 %. Jetzt ersetzt ein Stück des Nachfolgers `ersetzt_nutzen`
+    Stücke des Vorgängers (Teiler: Höchstquote des Vorgängers / Nutzen).
+30. 🟡 **MN2 – Ausstattung nur für Endprodukte.** Komponenten mit Endkundennachfrage
+    (Nägel) haben keine Ausstattung. Die Stufe gilt je Standort und Produkt; die Ware trägt
+    keine eigene Stufe, sondern nur die Qualität (der Markt unterscheidet Anbieter nach
+    Preis und Qualität, nicht nach Stufen) – die Segmente entstehen aus den Gewichten je
+    Fünftel.
+31. 🟡 **MN2 – KI-Ausstattung nach Kompetenz.** Ab 0,75 Premium, bis 0,25 einfach (Daten
+    `produktionsmodell.ausstattung.ki_*` statt `kimodell.ausstattung`), nur für
+    Konsum-Endprodukte.
+32. 🟡 **MN2 – Rückrufkosten als Kostenart „Sonstiges“.** Eine eigene Kostenart Rückruf
+    würde Controlling und Spielstände erweitern; vorerst bucht der Rückruf als Sonstiges
+    mit eigener Meldung. Kosten = Verkaufsmenge des Monats im Land zu Herstellkosten.
+33. 🟡 **MN2 – Marktdurchschnitt der Qualität nur über Firmen.** Q̄_Markt ist der
+    mengengewichtete Durchschnitt der Verkäufe von Firmenstandorten an Endkunden im Land;
+    Händler und eingeführte Ware zählen nicht mit. Ohne Absatz kehrt der Ruf langsam zu
+    0,5 zurück (`rueckkehr_je_monat`), damit alte Fehler verblassen.
+34. 🟡 **MN2 – Ruf nur für Firmenstandorte.** Händler haben keinen Ruf (Faktor 1 in der
+    Anbieterwahl); Ruf gilt für Endkunden-Verkäufe, nicht für Verkäufe an Firmen.
+35. 🟡 **MN2 – Ausschreibungen: Warengruppen im Marktmodell.** Statt eines Feldes
+    `ausschreibung: true` je Warengruppe nennt `marktmodell.ausschreibung.warengruppen`
+    die Gruppen (eine Stelle für alle Parameter). Gewählt: Eisen/Stahl (Schienen,
+    Träger), Glas/Keramik (Baustoffe), Fahrzeuge, Rüstung. Ein eigenes Produkt
+    „Schienen“ gibt es nicht; Stahlträger und Stabstahl stehen dafür.
+36. 🟡 **MN2 – Gebote nur aus dem Land.** Der Staat beliefert sich aus Standorten im Land
+    (Lager oder Werk mit Angebot); Einfuhr über eigene Niederlassungen bleibt möglich. Der
+    Heimatbonus gilt für Firmen mit einem Werk im Land. Statt eines Anliegens an alle
+    Firmen erhält der Spieler eine Meldung, wenn er das Produkt im Land anbietet. Keine
+    Teillose: ein Gebot gilt für die ganze Menge.
+37. 🟡 **MN2 – Staatsauftrag statt Liefervertrag.** Die Lieferverträge (W4) verbinden zwei
+    Standorte; der Staat hat keinen. Der Staatsauftrag nutzt dieselben Regeln (Menge je
+    Tag, Nachholen im Monat, Strafe am Monatsende), aber eine eigene Liste.
+
 ## S Wünsche vom 11.10.2026 (Abend) – eigenständig entschieden, zur Abnahme
 
 - **S1 Preis relativ zum Marktpreis:** Bezug ist der gewichtete Preis der *anderen*

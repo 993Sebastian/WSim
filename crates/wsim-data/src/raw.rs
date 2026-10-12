@@ -615,6 +615,9 @@ pub struct RawProductionModel {
     /// Learning curve; without it experience has no effect.
     #[serde(rename = "lernkurve", default)]
     pub learning: Option<RawLearning>,
+    /// Trim levels of end products (MN2); without it all make the standard.
+    #[serde(rename = "ausstattung", default)]
+    pub trims: Option<RawTrims>,
     /// Maintenance, breakdowns, overhauls; without it wear as before.
     #[serde(rename = "instandhaltung", default)]
     pub maintenance: Option<RawMaintenance>,
@@ -980,6 +983,80 @@ pub struct RawMarketModel {
     /// Demand trends (MN1).
     #[serde(rename = "trends", default)]
     pub trends: Vec<RawTrend>,
+    /// Reputation and recalls (MN2).
+    #[serde(rename = "ruf", default)]
+    pub reputation: Option<RawReputation>,
+    /// Tenders of governments (MN2).
+    #[serde(rename = "ausschreibung", default)]
+    pub tenders: Option<RawTenders>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTenders {
+    #[serde(rename = "warengruppen")]
+    pub groups: Vec<String>,
+    #[serde(rename = "los_anteil")]
+    pub lot_share: f64,
+    #[serde(rename = "frist_tage")]
+    pub deadline_days: u32,
+    #[serde(rename = "laufzeit_monate")]
+    pub months: u32,
+    #[serde(rename = "preisgewicht")]
+    pub price_weight: f64,
+    #[serde(rename = "qualitaetsgewicht")]
+    pub quality_weight: f64,
+    #[serde(rename = "heimatbonus")]
+    pub home_bonus: f64,
+    #[serde(rename = "kriegsfaktor")]
+    pub war_factor: f64,
+    #[serde(rename = "rufgewicht")]
+    pub reputation_weight: f64,
+    #[serde(rename = "ki_nachlass")]
+    pub ai_discount: f64,
+    #[serde(rename = "strafe")]
+    pub penalty: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawReputation {
+    #[serde(rename = "gewinn_je_monat")]
+    pub gain_per_month: f64,
+    #[serde(rename = "rueckkehr_je_monat")]
+    pub return_per_month: f64,
+    #[serde(rename = "unfall_abzug")]
+    pub accident_loss: f64,
+    #[serde(rename = "rueckruf_schwelle")]
+    pub recall_below: f64,
+    #[serde(rename = "rueckruf_chance")]
+    pub recall_chance: f64,
+    #[serde(rename = "rueckruf_abzug")]
+    pub recall_loss: f64,
+    #[serde(rename = "rufgewicht")]
+    pub weight: Vec<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrims {
+    pub einfach: RawTrim,
+    pub premium: RawTrim,
+    /// Competence of AI companies from which they make premium, and up to which simple.
+    #[serde(rename = "ki_premium_ab")]
+    pub ai_premium_from: f64,
+    #[serde(rename = "ki_einfach_bis")]
+    pub ai_simple_up_to: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawTrim {
+    pub material: f64,
+    #[serde(rename = "arbeit")]
+    pub labor: f64,
+    #[serde(rename = "qualitaet")]
+    pub quality: f64,
 }
 
 #[derive(Debug, Deserialize)]

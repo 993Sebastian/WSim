@@ -5,11 +5,12 @@ use std::sync::Arc;
 
 use crate::calendar::{Date, RoundLength};
 use crate::catalog::{SiteType, test_support};
-use crate::command::Command;
+use crate::command::{Command, CommandError};
 use crate::game::Game;
 use crate::ids::{CountryId, ProductId};
 use crate::ledger::{CostType, Ledger};
 use crate::market::{self, propensity};
+use crate::message::keys;
 use crate::money::Money;
 use crate::rng::{SimRng, Stream};
 use crate::state::{Company, CompanyId, CompanyKind, GameSettings, PriceMode, SiteId, StartForm};
@@ -92,6 +93,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
         maintenance: 1.0,
         failures: 0,
         accidents: 0,
+        trims: Default::default(),
     });
     let site = SiteId(u32::try_from(state.sites.len() - 1).unwrap());
     state.sites[site.index()]
@@ -116,6 +118,7 @@ fn competitor(game: &mut Game) -> CompanyId {
     state.companies.push(Company {
         process: Default::default(),
         brands: Vec::new(),
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),
@@ -1092,4 +1095,197 @@ fn a_trend_raises_the_demand_while_it_runs() {
             .sum()
     };
     assert!((rate(&with) / rate(&without) - 2.0).abs() < 1e-9);
+}
+
+fn reputation_catalog(recall_chance: f64) -> crate::catalog::Catalog {
+    let mut c = test_support::production();
+    c.market_model.reputation = crate::catalog::ReputationModel {
+        enabled: true,
+        gain_per_month: 0.05,
+        return_per_month: 0.02,
+        accident_loss: 0.005,
+        recall_below: 25.0,
+        recall_chance,
+        recall_loss: 0.1,
+        weight: [0.2, 0.3, 0.5, 0.7, 1.0],
+    };
+    c
+}
+
+/// MN2: good quality raises the reputation, bad quality lowers it and is recalled; a
+/// better reputation wins customers.
+#[test]
+fn reputation_follows_quality_and_recalls_cost() {
+    let month = |chance: f64| {
+        let mut game = game_with(reputation_catalog(chance));
+        let player = game.player();
+        let rival = competitor(&mut game);
+        let good = warehouse(&mut game, rival, "brot", 1e9, 80.0);
+        let bad = warehouse(&mut game, player, "brot", 1e9, 10.0);
+        sell(&mut game, good, "brot", PriceMode::Fixed(usd(2.0)));
+        sell(&mut game, bad, "brot", PriceMode::Fixed(usd(2.0)));
+        let report = game.advance(RoundLength::Month, |_| {});
+        (game, player, rival, report)
+    };
+    let (game, player, rival, report) = month(1.0);
+    let country = aaa(&game);
+    let s = game.state();
+    let (mine, theirs) = (
+        s.company(player).unwrap().reputation(country),
+        s.company(rival).unwrap().reputation(country),
+    );
+    assert!(theirs > 0.5 && mine < 0.4, "{mine} {theirs}");
+    assert!(
+        report
+            .messages
+            .iter()
+            .any(|m| m.key == crate::message::keys::RECALL),
+        "recall reported"
+    );
+    let ledger = &s.company(player).unwrap().ledger;
+    assert!(ledger.is_balanced());
+    // Without the recall the month ends with more cash.
+    let (calm, calm_player, _, calm_report) = month(0.0);
+    assert!(
+        !calm_report
+            .messages
+            .iter()
+            .any(|m| m.key == crate::message::keys::RECALL)
+    );
+    let calm_cash = calm.state().company(calm_player).unwrap().ledger.cash();
+    assert!(
+        ledger.cash() < calm_cash,
+        "{:?} {:?}",
+        ledger.cash(),
+        calm_cash
+    );
+
+    // Same price and quality: the better reputation sells more.
+    let mut game = game_with(reputation_catalog(0.0));
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let a = warehouse(&mut game, player, "brot", 1e9, 50.0);
+    let b = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+    sell(&mut game, a, "brot", PriceMode::Fixed(usd(2.0)));
+    sell(&mut game, b, "brot", PriceMode::Fixed(usd(2.0)));
+    let country = aaa(&game);
+    let set = |game: &mut Game, company: CompanyId, value: f64| {
+        game.state_mut().companies[company.index()]
+            .reputations
+            .push(crate::state::Reputation {
+                country,
+                value,
+                sold: 0.0,
+                quality_sum: 0.0,
+                cost: Money::ZERO,
+                low_quality: false,
+            });
+    };
+    set(&mut game, player, 0.9);
+    set(&mut game, rival, 0.1);
+    day(&mut game);
+    let sold = |s| 1e9 - stock(&game, s, "brot");
+    assert!(sold(a) > 1.1 * sold(b), "{} {}", sold(a), sold(b));
+}
+
+/// MN2: a government's lot goes to the best bid and becomes a state order with daily
+/// deliveries paid by the state.
+#[test]
+fn a_tender_awards_a_lot_as_state_order() {
+    let mut c = test_support::production();
+    let erze = c.goods_groups.id("erze").unwrap();
+    c.market_model.tenders = crate::catalog::TenderModel {
+        enabled: true,
+        groups: vec![erze],
+        lot_share: 0.5,
+        deadline_days: 30,
+        months: 12,
+        price_weight: 2.0,
+        quality_weight: 0.5,
+        home_bonus: 0.3,
+        war_factor: 3.0,
+        reputation_weight: 1.0,
+        ai_discount: 0.05,
+        penalty: 0.2,
+    };
+    let mut game = game_with(c);
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let mine = warehouse(&mut game, player, "eisen", 1e6, 50.0);
+    let theirs = warehouse(&mut game, rival, "eisen", 1e6, 50.0);
+    let iron = product(&game, "eisen");
+    let country = aaa(&game);
+    // Only the lot: no sales to anyone else.
+    for site in [mine, theirs] {
+        let owner = game.state().sites[site.index()].owner;
+        game.apply_as(
+            owner,
+            Command::SetSale {
+                site,
+                product: iron,
+                mode: Some(PriceMode::Fixed(usd(1e6))),
+                keep: 0.0,
+            },
+        )
+        .unwrap();
+    }
+    let mut opened = None;
+    for _ in 0..200 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        if let Some(t) = game.state().tenders.iter().find(|t| t.product == iron) {
+            assert!(
+                report.messages.iter().any(|m| m.key == keys::TENDER_OPEN),
+                "player told"
+            );
+            opened = Some(t.clone());
+            break;
+        }
+    }
+    let tender = opened.expect("a lot for iron");
+    assert_eq!(tender.country, country);
+    assert_eq!(game.state().date.month() % 3, 1);
+    let reference = market::local_reference(game.catalog(), game.state(), country, iron);
+    game.apply(Command::BidTender {
+        tender: tender.id,
+        site: mine,
+        price: reference,
+    })
+    .unwrap();
+    game.apply_as(
+        rival,
+        Command::BidTender {
+            tender: tender.id,
+            site: theirs,
+            price: reference.scale(1.3),
+        },
+    )
+    .unwrap();
+    // A site abroad or without the product cannot bid.
+    assert!(matches!(
+        game.apply(Command::BidTender {
+            tender: tender.id + 99,
+            site: mine,
+            price: reference,
+        }),
+        Err(CommandError::TenderClosed)
+    ));
+    let before = stock(&game, mine, "eisen");
+    let mut won = false;
+    for _ in 0..40 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        won |= report.messages.iter().any(|m| m.key == keys::TENDER_WON);
+    }
+    assert!(won, "best bid wins");
+    let s = game.state();
+    let order = s.state_orders.iter().find(|o| o.id == tender.id).unwrap();
+    assert_eq!(order.company, player);
+    assert_eq!(order.price, reference);
+    assert!(order.delivered_total > 0.0);
+    let delivered = before - stock(&game, mine, "eisen");
+    assert!((delivered - order.delivered_total).abs() < 1e-6);
+    assert_eq!(stock(&game, theirs, "eisen"), 1e6);
+    // The government buys the lot's quantity less on the market.
+    let rest = s.markets.get(iron).get(country).state_rate;
+    assert!(rest < 1.2 * tender.per_day, "{rest} {}", tender.per_day);
+    assert!(s.company(player).unwrap().ledger.is_balanced());
 }

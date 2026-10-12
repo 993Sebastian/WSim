@@ -444,11 +444,13 @@ pub(crate) fn build(
         (&product_keys, &facility_keys, &recipe_keys, &group_keys),
     );
     b.catalog.production_model.learning = production::learning(b.ctx, raw, &branch_keys);
+    b.catalog.production_model.trims = production::trims(b.ctx, raw);
     b.catalog.finance_model = production::finance_model(b.ctx, raw);
     let (market_model, media_keys) = production::market_model(b.ctx, raw);
     b.catalog.market_model = market_model;
     b.catalog.market_model.trends =
         production::trends(b.ctx, raw, (&product_keys, &group_keys, &country_keys));
+    b.catalog.market_model.tenders = production::tenders(b.ctx, raw, &group_keys);
     b.catalog.transport_model = production::transport_model(b.ctx, raw);
     b.catalog.research_model = production::research_model(
         b.ctx,

@@ -143,6 +143,7 @@ pub(crate) fn found(
     state.companies.push(Company {
         process: Default::default(),
         brands: Vec::new(),
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),

@@ -155,6 +155,13 @@ pub mod keys {
     pub const PRODUCT_RESEARCHED: &str = "meldung.produkt_erforscht";
     pub const COMMAND_NOT_RESEARCHABLE: &str = "fehler.befehl.nicht_erforschbar";
     pub const COMMAND_NOT_RESEARCHABLE_PRODUCT: &str = "fehler.befehl.produkt_nicht_erforschbar";
+    pub const COMMAND_NO_TRIM: &str = "fehler.befehl.keine_ausstattung";
+    pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
+    pub const RECALL: &str = "warnung.rueckruf";
+    pub const TENDER_OPEN: &str = "info.ausschreibung";
+    pub const TENDER_WON: &str = "erfolg.ausschreibung_gewonnen";
+    pub const TENDER_LOST: &str = "info.ausschreibung_verloren";
+    pub const STATE_ORDER_SHORT: &str = "warnung.staatsauftrag_fehlmenge";
     pub const COMMAND_NOT_DEVELOPABLE: &str = "fehler.befehl.nicht_weiterentwickelbar";
     pub const NEW_GAME_RESEARCH_FACTOR: &str = "fehler.spielstart.forschungsfaktor";
     pub const NEW_GAME_TOO_MANY_COMPANIES: &str = "fehler.spielstart.zu_viele_firmen";
@@ -583,6 +590,9 @@ pub mod keys {
         PRODUCT_RESEARCHED,
         COMMAND_NOT_RESEARCHABLE,
         COMMAND_NOT_RESEARCHABLE_PRODUCT,
+        COMMAND_NO_TRIM,
+        COMMAND_TENDER_CLOSED,
+        RECALL,
         COMMAND_NOT_DEVELOPABLE,
         NEW_GAME_RESEARCH_FACTOR,
         NEW_GAME_TOO_MANY_COMPANIES,

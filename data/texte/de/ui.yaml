@@ -645,6 +645,13 @@ werk.qualitaet.automatisierung: Automatisierung
 werk.qualitaet.zustand: Zustand der Anlagen
 werk.qualitaet.forschung: Forschungsniveau
 werk.qualitaet.schulung: Schulung
+werk.qualitaet.ausstattung: Ausstattung
+werk.ausstattung: Ausstattung
+werk.ausstattung_hilfe: Einfach spart Vorprodukte und Arbeit bei geringerer Qualität – für ärmere Kunden. Premium braucht mehr Vorprodukte und Arbeit und bringt höhere Qualität – für reichere Kunden.
+werk.ausstattung_gesetzt: "{produkt} wird jetzt in der Ausstattung „{stufe}“ gefertigt."
+ausstattung.einfach: einfach
+ausstattung.standard: Standard
+ausstattung.premium: Premium
 werk.qualitaet.gesamt: Qualität der nächsten Charge
 werk.qualitaet.hilfe: Bessere Vorprodukte, mehr Forschung gegenüber dem Führenden, Automatisierung, Wartung und Schulung heben die Qualität; auf Verbrauchermärkten entscheidet sie mit Preis und Marke über den Absatz, Firmenkunden verlangen oft eine Mindestqualität.
 werk.einkauf_aendern: Einkauf ändern

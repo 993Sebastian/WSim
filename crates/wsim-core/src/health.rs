@@ -127,7 +127,7 @@ pub fn last_month(state: &GameState, catalog: &Catalog) -> Vec<ProductHealth> {
                 sl.utilization,
                 (
                     1.0 + site.wage_premium,
-                    crate::development::effect(catalog, state, site.owner, r.product),
+                    crate::production::site_effect(catalog, state, site, r.product),
                 ),
             );
             let h = &mut health[r.product.index()];

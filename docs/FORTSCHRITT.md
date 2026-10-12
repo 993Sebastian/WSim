@@ -3026,3 +3026,16 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   erzeugbar (Start mit 250 000 USD, S9). Tests: Produkt über Technologien erforscht,
   gesperrt durch fehlendes Vorprodukt, Wirkung und Spielstand der Fertigung, Aufteilung,
   Prüfregeln, Oberfläche.
+- **MN1 Substitution und Trends:** Verbrauchsgüter verdrängen Vorgänger nach Preis je
+  Nutzen und Verfügbarkeit (Petroleumlampe in DEU/GBR/USA bis 1929 ohne Nachfrage,
+  CHN/IND kaum verändert); Gebrauchsgüter Stück gegen Stück; fünf Trends als Daten im
+  Marktmodell. Tests: Verdrängung, Trend, Prüfregeln.
+- **MN2 Ausstattung, Ruf, Ausschreibungen:** Ausstattungsstufen einfach/Standard/Premium
+  je Standort und Endprodukt (Befehl `SetTrim`, KI nach Kompetenz); Ruf je Firma und
+  Land aus der Qualität gegenüber dem Markt, Unfälle und Rückrufe (Kosten, Meldung),
+  wirkt in der Anbieterwahl; Ausschreibungen des Staates je Quartal für Eisen/Stahl,
+  Baustoffe, Fahrzeuge und Rüstung (Befehl `BidTender`, KI bietet mit), Zuschlag als
+  Staatsauftrag mit täglicher Lieferung und Strafe. Entscheidungen R29–R37. Tests:
+  Premium gewinnt oben, einfach unten; Rückruf senkt Ruf und Kasse, besserer Ruf
+  verkauft mehr; Los wird als Staatsauftrag vergeben und geliefert; Prüfregeln. Bieten
+  in der Oberfläche folgt mit MN5.

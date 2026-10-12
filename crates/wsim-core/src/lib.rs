@@ -54,6 +54,7 @@ pub mod ranking;
 pub mod regulation;
 pub mod relocation;
 pub mod reports;
+pub mod reputation;
 pub mod research;
 pub mod review;
 pub mod rng;
@@ -65,10 +66,12 @@ pub mod storage;
 pub mod strategy;
 pub mod supply;
 pub mod tariffs;
+pub mod tenders;
 pub mod time_series;
 pub mod trade;
 pub mod training;
 pub mod transport;
+pub mod trims;
 pub mod ventures;
 pub mod views;
 
@@ -160,6 +163,8 @@ mod tariffs_tests;
 mod trade_tests;
 #[cfg(test)]
 mod training_tests;
+#[cfg(test)]
+mod trims_tests;
 #[cfg(test)]
 mod ventures_tests;
 

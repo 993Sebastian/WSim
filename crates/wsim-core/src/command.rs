@@ -298,6 +298,18 @@ pub enum Command {
     BuildStorage { site: SiteId, steps: u32 },
     /// Sets the maintenance level of a site (BP2).
     SetMaintenance { site: SiteId, level: f64 },
+    /// Trim level of an end product at a site (MN2).
+    SetTrim {
+        site: SiteId,
+        product: ProductId,
+        trim: crate::catalog::Trim,
+    },
+    /// Bids for a government's lot from a site in the country (MN2).
+    BidTender {
+        tender: u32,
+        site: SiteId,
+        price: Money,
+    },
     /// Overhauls a facility of a site (BP2).
     Overhaul { site: SiteId, slot: usize },
     /// Offers another company a price for one of its sites or for a licence (M30).
@@ -621,6 +633,10 @@ pub enum CommandError {
     NotResearchable(String),
     /// The product is known already or one of its inputs does not exist yet (Q6).
     NotResearchableProduct(String),
+    /// Trim levels are off or the product is no end product (MN2).
+    NoTrim,
+    /// The tender is unknown or no longer takes bids (MN2).
+    TenderClosed,
     /// The company cannot make the product or it is fully developed (M37).
     NotDevelopable(String),
     /// Raw materials, semi-finished goods, components and power have no names (M42).
@@ -962,6 +978,8 @@ impl CommandError {
                 .with("technologie", Param::TextKey(format!("technologie.{t}"))),
             CommandError::NotResearchableProduct(p) => e(keys::COMMAND_NOT_RESEARCHABLE_PRODUCT)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
+            CommandError::NoTrim => e(keys::COMMAND_NO_TRIM),
+            CommandError::TenderClosed => e(keys::COMMAND_TENDER_CLOSED),
             CommandError::NotDevelopable(p) => e(keys::COMMAND_NOT_DEVELOPABLE)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NotNameable(p) => e(keys::COMMAND_NOT_NAMEABLE)
@@ -1333,6 +1351,7 @@ fn found_site(
         maintenance: 1.0,
         failures: 0,
         accidents: 0,
+        trims: Default::default(),
     });
     if let Some(p) = plot {
         let site = SiteId(u32::try_from(state.sites.len() - 1).expect("site count fits u32"));
@@ -2558,6 +2577,22 @@ fn run(
         Command::SetMaintenance { site, level } => {
             own_site(state, actor, *site)?;
             crate::maintenance::set_level(state, catalog, *site, *level)?;
+        }
+        Command::SetTrim {
+            site,
+            product,
+            trim,
+        } => {
+            own_site(state, actor, *site)?;
+            crate::trims::set(state, catalog, *site, *product, *trim)?;
+        }
+        Command::BidTender {
+            tender,
+            site,
+            price,
+        } => {
+            own_site(state, actor, *site)?;
+            crate::tenders::bid(state, catalog, actor, (*tender, *site, *price))?;
         }
         Command::Overhaul { site, slot } => {
             own_slot(state, actor, *site, *slot)?;

@@ -365,6 +365,7 @@ pub fn production() -> Catalog {
             "rad",
             Product {
                 replaces: vec![carriage],
+                replaces_utility: 0.2,
                 ..consumer(
                     ProductKind::EndProduct,
                     100.0,

@@ -1919,6 +1919,7 @@ function QualitaetTeile({ q }: { q: Qualitaetsteile }) {
     ["zustand", q.condition],
     ["forschung", q.research],
     ["schulung", q.training],
+    ...(q.trim ? [["ausstattung", q.trim] as [string, number]] : []),
   ];
   const punkte = (x: number) => `${x > 0 ? "+" : ""}${formatZahl(x, 1)}`;
   return (
@@ -2651,10 +2652,59 @@ function AngebotKarte({
         {/* Tells the introduction that a price was set. */}
         {antwort && !antwort.fehler && <span data-tour="preis-gesetzt" hidden />}
       </form>
+      {o?.trim && <Ausstattung s={s} produkt={produkt} name={name} stufe={o.trim} />}
       {o && (o.outlets ?? []).length > 0 && (
         <NiederlassungenBeliefern o={o} s={s} produkt={produkt} name={name} />
       )}
     </article>
+  );
+}
+
+const AUSSTATTUNG = { einfach: "Simple", standard: "Standard", premium: "Premium" } as const;
+
+/**
+ * Trim level of an end product made here (MN2): simple saves inputs and labor at lower
+ * quality for poorer customers, premium the reverse.
+ */
+export function Ausstattung({
+  s,
+  produkt,
+  name,
+  stufe,
+}: {
+  s: StandortDetail;
+  produkt: string;
+  name: string;
+  stufe: keyof typeof AUSSTATTUNG;
+}) {
+  const { los, antwort } = useAktion(`ausstattung/${s.index}/${produkt}`);
+  const id = useId();
+  return (
+    <div className="ausstattung">
+      <label htmlFor={`${id}-stufe`}>{t("werk.ausstattung")}</label>{" "}
+      <select
+        id={`${id}-stufe`}
+        value={stufe}
+        onChange={(ev) => {
+          const neu = ev.target.value as keyof typeof AUSSTATTUNG;
+          void los(
+            [{ SetTrim: { site: s.index, product: produkt, trim: AUSSTATTUNG[neu] } }],
+            t("werk.ausstattung_gesetzt", {
+              produkt: name,
+              stufe: t(`ausstattung.${neu}`),
+            }),
+          );
+        }}
+      >
+        {(Object.keys(AUSSTATTUNG) as (keyof typeof AUSSTATTUNG)[]).map((k) => (
+          <option key={k} value={k}>
+            {t(`ausstattung.${k}`)}
+          </option>
+        ))}
+      </select>
+      <small className="feld-hilfe">{t("werk.ausstattung_hilfe")}</small>
+      <Rueckmeldung meldung={antwort} />
+    </div>
   );
 }
 

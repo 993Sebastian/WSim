@@ -118,6 +118,9 @@ pub struct QualityView {
     pub condition: f64,
     pub research: f64,
     pub training: f64,
+    /// Points from the trim level (MN2).
+    #[serde(default)]
+    pub trim: f64,
     pub total: f64,
 }
 
@@ -152,6 +155,10 @@ pub struct OfferView {
     /// them by need at cost.
     #[serde(default)]
     pub outlets: Vec<OutletView>,
+    /// Trim level (`einfach`, `standard`, `premium`) of an end product made here (MN2);
+    /// `None` where there is none to choose.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trim: Option<String>,
 }
 
 /// A sales office of the same company that offers a product.
@@ -880,8 +887,7 @@ pub fn production(game: &Game) -> ProductionView {
                         inputs_per_day: recipe.map_or_else(Vec::new, |r| {
                             // The company's development level saves inputs (M37).
                             let saved =
-                                crate::development::effect(catalog, state, s.owner, r.product)
-                                    .inputs;
+                                crate::production::site_effect(catalog, state, s, r.product).inputs;
                             r.inputs
                                 .iter()
                                 .map(|&(p, q)| {
@@ -1045,6 +1051,14 @@ pub fn production(game: &Game) -> ProductionView {
                             } else {
                                 outlets(game, site_id, *p)
                             },
+                            trim: (catalog.production_model.trims.enabled
+                                && catalog.products.get(*p).kind
+                                    == crate::catalog::ProductKind::EndProduct
+                                && s.slots.iter().any(|sl| {
+                                    sl.recipe
+                                        .is_some_and(|r| catalog.recipes.get(r).product == *p)
+                                }))
+                            .then(|| crate::production::trim(s, *p).key().to_owned()),
                         }
                     })
                     .collect(),
@@ -3491,6 +3505,7 @@ fn slot_quality(
         condition: q.condition,
         research: q.research,
         training: q.training,
+        trim: q.trim,
         total: q.total,
     }
 }

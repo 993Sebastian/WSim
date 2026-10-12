@@ -135,6 +135,8 @@ export type Befehl =
   | { CloseSite: { site: number } }
   | { BuildStorage: { site: number; steps: number } }
   | { SetMaintenance: { site: number; level: number } }
+  | { SetTrim: { site: number; product: string; trim: "Simple" | "Standard" | "Premium" } }
+  | { BidTender: { tender: number; site: number; price: number } }
   | { Overhaul: { site: number; slot: number } }
   | { BuyOnce: { site: number; product: string; quantity: number; max_price: number } }
   | { TransferGoods: { from: number; to: number; product: string; quantity: number } }

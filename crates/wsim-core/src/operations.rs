@@ -125,6 +125,7 @@ pub(crate) fn simulate_day(state: &mut GameState, catalog: &Catalog, date: Date)
             * (1.0 + s.wage_premium);
         let cost = Money::from_usd(wage * m.accident_hours).unwrap_or(Money::ZERO);
         let owner = s.owner;
+        crate::reputation::accident(state, catalog, owner, country);
         let s = &mut state.sites[index];
         s.accidents += 1;
         if serious && s.slots[slot].down.is_none_or(|d| d.until <= date) {

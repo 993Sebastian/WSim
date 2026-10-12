@@ -123,6 +123,8 @@ pub fn decide_with(
                 }
             }
             crate::maintenance::ai_month(state, catalog, id, own);
+            crate::trims::ai_month(state, catalog, id, own);
+            crate::tenders::ai_bids(state, catalog, id, own);
             file_patents(state, catalog, id, decider);
             advertise(state, catalog, id, (own, None), decider);
             news.extend(crate::deals::ai_offers(state, catalog, id, decider));
@@ -4378,6 +4380,7 @@ pub(crate) fn push_company(
     state.companies.push(Company {
         process: Default::default(),
         brands: Vec::new(),
+        reputations: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),
@@ -4674,6 +4677,7 @@ mod tests {
         state.companies.push(Company {
             process: Default::default(),
             brands: Vec::new(),
+            reputations: Vec::new(),
             emissions: Default::default(),
             emissions_last: Default::default(),
             advertising: Vec::new(),

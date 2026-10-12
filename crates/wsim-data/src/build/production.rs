@@ -265,6 +265,7 @@ pub(super) fn production_model(
             .map(|v| storage(ctx, v, &l.field("lager"), groups))
             .unwrap_or_default(),
         learning: LearningModel::default(),
+        trims: wsim_core::catalog::TrimModel::default(),
         maintenance: m
             .maintenance
             .as_ref()
@@ -444,6 +445,105 @@ pub(super) fn trends(
             }
         })
         .collect()
+}
+
+/// Tenders of governments (MN2).
+pub(super) fn tenders(
+    ctx: &mut Ctx,
+    raw: &RawData,
+    groups: &Keys,
+) -> wsim_core::catalog::TenderModel {
+    let Some(entry) = raw.market_model.first() else {
+        return Default::default();
+    };
+    let Some(t) = entry.value.tenders.as_ref() else {
+        return Default::default();
+    };
+    let l = entry.loc.field("ausschreibung");
+    let gl = l.field("warengruppen");
+    if t.groups.is_empty() {
+        ctx.error(&gl, messages::list_empty());
+    }
+    let deadline_days = if (1..=90).contains(&t.deadline_days) {
+        t.deadline_days
+    } else {
+        ctx.error(
+            &l.field("frist_tage"),
+            messages::out_of_range(f64::from(t.deadline_days), 1.0, 90.0),
+        );
+        30
+    };
+    let months = if (1..=120).contains(&t.months) {
+        t.months
+    } else {
+        ctx.error(
+            &l.field("laufzeit_monate"),
+            messages::out_of_range(f64::from(t.months), 1.0, 120.0),
+        );
+        12
+    };
+    wsim_core::catalog::TenderModel {
+        enabled: true,
+        groups: t
+            .groups
+            .iter()
+            .enumerate()
+            .map(|(i, k)| resolve(ctx, groups, k, &gl.index(i)))
+            .collect(),
+        lot_share: in_range(ctx, t.lot_share, 0.0, 1.0, &l.field("los_anteil")),
+        deadline_days,
+        months,
+        price_weight: in_range(ctx, t.price_weight, 0.0, 10.0, &l.field("preisgewicht")),
+        quality_weight: in_range(
+            ctx,
+            t.quality_weight,
+            0.0,
+            10.0,
+            &l.field("qualitaetsgewicht"),
+        ),
+        home_bonus: in_range(ctx, t.home_bonus, 0.0, 10.0, &l.field("heimatbonus")),
+        war_factor: in_range(ctx, t.war_factor, 1.0, 10.0, &l.field("kriegsfaktor")),
+        reputation_weight: in_range(ctx, t.reputation_weight, 0.0, 10.0, &l.field("rufgewicht")),
+        ai_discount: in_range(ctx, t.ai_discount, 0.0, 0.9, &l.field("ki_nachlass")),
+        penalty: in_range(ctx, t.penalty, 0.0, 2.0, &l.field("strafe")),
+    }
+}
+
+/// Trim levels of end products (MN2).
+pub(super) fn trims(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::TrimModel {
+    use wsim_core::catalog::{TrimEffect, TrimModel};
+    let Some(entry) = raw.production_model.first() else {
+        return TrimModel::default();
+    };
+    let Some(v) = entry.value.trims.as_ref() else {
+        return TrimModel::default();
+    };
+    let l = entry.loc.field("ausstattung");
+    let mut level = |t: &crate::raw::RawTrim, key: &str| {
+        let tl = l.field(key);
+        TrimEffect {
+            material: in_range(ctx, t.material, 0.3, 3.0, &tl.field("material")),
+            labor: in_range(ctx, t.labor, 0.3, 3.0, &tl.field("arbeit")),
+            quality: in_range(ctx, t.quality, -50.0, 50.0, &tl.field("qualitaet")),
+        }
+    };
+    let simple = level(&v.einfach, "einfach");
+    let premium = level(&v.premium, "premium");
+    let ai_premium_from = in_range(ctx, v.ai_premium_from, 0.0, 1.0, &l.field("ki_premium_ab"));
+    let ai_simple_up_to = in_range(ctx, v.ai_simple_up_to, 0.0, 1.0, &l.field("ki_einfach_bis"));
+    if ai_simple_up_to > ai_premium_from {
+        ctx.error(
+            &l.field("ki_einfach_bis"),
+            messages::trim_ai_bounds(ai_simple_up_to, ai_premium_from),
+        );
+    }
+    TrimModel {
+        enabled: true,
+        simple,
+        premium,
+        ai_premium_from,
+        ai_simple_up_to,
+    }
 }
 
 pub(super) fn learning(ctx: &mut Ctx, raw: &RawData, branches: &Keys) -> LearningModel {
@@ -1036,6 +1136,55 @@ pub(super) fn market_model(
             in_range(ctx, s.per_year, 0.0, 12.0, &substitution.field("je_jahr"))
         }),
         trends: Vec::new(),
+        tenders: Default::default(),
+        reputation: m.reputation.as_ref().map_or_else(Default::default, |r| {
+            let rl = l.field("ruf");
+            let wl = rl.field("rufgewicht");
+            for (i, &v) in r.weight.iter().enumerate() {
+                non_negative(ctx, v, &wl.index(i));
+            }
+            let weight = <[f64; 5]>::try_from(r.weight.as_slice()).unwrap_or_else(|_| {
+                ctx.error(
+                    &wl,
+                    messages::wrong_length(r.weight.len(), "5 Werte (ärmstes Fünftel zuerst)"),
+                );
+                [0.0; 5]
+            });
+            wsim_core::catalog::ReputationModel {
+                enabled: true,
+                gain_per_month: in_range(
+                    ctx,
+                    r.gain_per_month,
+                    0.0,
+                    1.0,
+                    &rl.field("gewinn_je_monat"),
+                ),
+                return_per_month: in_range(
+                    ctx,
+                    r.return_per_month,
+                    0.0,
+                    1.0,
+                    &rl.field("rueckkehr_je_monat"),
+                ),
+                accident_loss: in_range(ctx, r.accident_loss, 0.0, 1.0, &rl.field("unfall_abzug")),
+                recall_below: in_range(
+                    ctx,
+                    r.recall_below,
+                    0.0,
+                    100.0,
+                    &rl.field("rueckruf_schwelle"),
+                ),
+                recall_chance: in_range(
+                    ctx,
+                    r.recall_chance,
+                    0.0,
+                    1.0,
+                    &rl.field("rueckruf_chance"),
+                ),
+                recall_loss: in_range(ctx, r.recall_loss, 0.0, 1.0, &rl.field("rueckruf_abzug")),
+                weight,
+            }
+        }),
         price_weight,
         quality_weight,
         adoption_per_year: in_range(

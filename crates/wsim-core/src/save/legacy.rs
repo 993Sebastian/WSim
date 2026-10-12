@@ -87,6 +87,7 @@ pub(super) fn decode_v2(
             Ok(Company {
                 process: Default::default(),
                 brands: Vec::new(),
+                reputations: Vec::new(),
                 emissions: Default::default(),
                 emissions_last: Default::default(),
                 advertising: Vec::new(),
@@ -184,6 +185,8 @@ pub(super) fn decode_v2(
         events: Default::default(),
         regulation: Default::default(),
         contracts: Vec::new(),
+        tenders: Vec::new(),
+        state_orders: Vec::new(),
         next_contract: 0,
         freight_market: Default::default(),
         stock: Default::default(),
