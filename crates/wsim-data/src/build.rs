@@ -390,6 +390,15 @@ pub(crate) fn build(
         |e| &e.id,
     );
 
+    let (_channel_keys, channels) = register(
+        b.ctx,
+        raw,
+        ("vertriebswege", "Vertriebsweg", Some("vertriebsweg")),
+        KeyFormat::Snake,
+        &raw.channels,
+        |e| &e.id,
+    );
+
     for e in &units {
         let weight_kg = e
             .value
@@ -458,6 +467,10 @@ pub(crate) fn build(
         raw,
         (&qualification_keys, &branch_keys, &specialization_keys),
     );
+    for e in &channels {
+        let channel = production::channel(b.ctx, e, &group_keys);
+        b.catalog.channels.insert(&e.value.id, channel);
+    }
     for e in &vehicles {
         let vehicle = production::vehicle(b.ctx, e, &transport_keys);
         b.catalog.vehicles.insert(&e.value.id, vehicle);

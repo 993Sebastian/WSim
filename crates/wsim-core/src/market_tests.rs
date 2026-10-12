@@ -119,6 +119,7 @@ fn competitor(game: &mut Game) -> CompanyId {
         process: Default::default(),
         brands: Vec::new(),
         reputations: Vec::new(),
+        sales_areas: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),
@@ -1288,4 +1289,144 @@ fn a_tender_awards_a_lot_as_state_order() {
     let rest = s.markets.get(iron).get(country).state_rate;
     assert!(rest < 1.2 * tender.per_day, "{rest} {}", tender.per_day);
     assert!(s.company(player).unwrap().ledger.is_balanced());
+}
+
+fn channel_catalog() -> crate::catalog::Catalog {
+    use crate::time_series::TimeSeries;
+    let mut c = test_support::production();
+    c.market_model.channels = crate::catalog::ChannelModel {
+        base_reach: 0.5,
+        ai_delay_years: 10.0,
+        ai_margin: 0.25,
+    };
+    let channel = |from: i32, reach: f64| crate::catalog::Channel {
+        available_from: from,
+        groups: Vec::new(),
+        reach: TimeSeries::new(vec![(1800, reach)]).unwrap(),
+        layer_factor: [1.0; 5],
+        fixed_cost_usd: TimeSeries::new(vec![(1800, 12_000.0)]).unwrap(),
+        cost_per_sale: 0.1,
+        reputation_factor: 1.0,
+        provenance: Default::default(),
+    };
+    c.channels.insert("versand", channel(1890, 0.5)).unwrap();
+    c.channels.insert("online", channel(1995, 0.9)).unwrap();
+    c
+}
+
+/// MN3: a channel reaches more households – the seller with it sells more at the same
+/// price and quality – and costs a share of the revenue and a fixed amount a month.
+#[test]
+fn a_sales_channel_wins_customers_and_costs() {
+    let mut game = game_with(channel_catalog());
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let a = warehouse(&mut game, player, "brot", 1e9, 50.0);
+    let b = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+    sell(&mut game, a, "brot", PriceMode::Fixed(usd(2.0)));
+    sell(&mut game, b, "brot", PriceMode::Fixed(usd(2.0)));
+    let country = aaa(&game);
+    let group = game
+        .catalog()
+        .products
+        .get(product(&game, "brot"))
+        .goods_group;
+    let (versand, online) = (
+        game.catalog().channels.id("versand").unwrap(),
+        game.catalog().channels.id("online").unwrap(),
+    );
+    // Not invented yet.
+    assert!(matches!(
+        game.apply(Command::SetChannels {
+            country,
+            group,
+            channels: vec![online],
+        }),
+        Err(CommandError::NoChannel(_))
+    ));
+    game.apply(Command::SetChannels {
+        country,
+        group,
+        channels: vec![versand],
+    })
+    .unwrap();
+    let overhead = |game: &Game| {
+        game.state()
+            .company(player)
+            .unwrap()
+            .ledger
+            .month
+            .by_type
+            .get(&CostType::Overhead)
+            .map_or(Money::ZERO, |&m| Money::ZERO - m)
+    };
+    let before = overhead(&game);
+    day(&mut game);
+    let sold = |game: &Game, s| 1e9 - stock(game, s, "brot");
+    // Reach 1.0 against 0.5: twice the attraction.
+    let (mine, theirs) = (sold(&game, a), sold(&game, b));
+    assert!(mine > 1.8 * theirs, "{mine} {theirs}");
+    // Half of the sales run through the channel at 10 %.
+    let cost = (overhead(&game) - before).to_usd();
+    let expected = mine * 2.0 * 0.5 * 0.1;
+    assert!(
+        (cost - expected).abs() < 0.01 * expected + 0.01,
+        "{cost} {expected}"
+    );
+    // The fixed cost at the month start: 12 000 USD a year at the price level.
+    while game.state().date.day() != 1 {
+        day(&mut game);
+    }
+    assert!(overhead(&game) > usd(500.0), "{:?}", overhead(&game));
+    assert!(game.state().company(player).unwrap().ledger.is_balanced());
+    // Saved and loaded with the channel.
+    let loaded = crate::save::decode(&crate::save::encode(&game), game.catalog().clone())
+        .unwrap()
+        .game;
+    assert_eq!(
+        crate::channels::chosen(loaded.state().company(player).unwrap(), country, group),
+        &[versand]
+    );
+}
+
+/// MN3: AI companies take up a channel once it is established long enough for their
+/// skill and the extra margin carries its cost.
+#[test]
+fn ai_channels_follow_skill_and_revenue() {
+    let game = game_with(channel_catalog());
+    let c = game.catalog();
+    let country = aaa(&game);
+    let group = c.products.get(product(&game, "brot")).goods_group;
+    let versand = c.channels.id("versand").unwrap();
+    let area = |revenue: f64| crate::channels::SalesArea {
+        country,
+        group,
+        channels: Vec::new(),
+        revenue: Money::ZERO,
+        revenue_last_year: usd(revenue),
+    };
+    let s = game.state();
+    // 1900: ten years after 1890 suffice for skill 0, five for skill 0.5.
+    assert_eq!(
+        crate::channels::ai_choice(c, s, &area(1e7), 0.5, 1900),
+        vec![versand]
+    );
+    assert_eq!(
+        crate::channels::ai_choice(c, s, &area(1e7), 0.0, 1899),
+        Vec::new()
+    );
+    // Too little revenue for the fixed cost.
+    assert_eq!(
+        crate::channels::ai_choice(c, s, &area(1000.0), 1.0, 1900),
+        Vec::new()
+    );
+    // A channel whose share of the revenue eats the margin is left out.
+    let mut costly = channel_catalog();
+    let id = costly.channels.id("versand").unwrap();
+    costly.channels.get_mut(id).cost_per_sale = 0.6;
+    let game = game_with(costly);
+    assert_eq!(
+        crate::channels::ai_choice(game.catalog(), game.state(), &area(1e7), 1.0, 1900),
+        Vec::new()
+    );
 }

@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use crate::ids::{Id, IdKind, KeyTable};
 
 use crate::ids::{
-    BranchId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId,
+    BranchId, ChannelId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId,
     MilestoneId, ProductId, QualificationId, RecipeId, SpecializationId, TechnologyId,
     TransportClassId, UnitId, VehicleId,
 };
@@ -40,6 +40,8 @@ pub struct Catalog {
     pub technologies: Table<TechnologyId, Technology>,
     pub deposits: Table<DepositId, Deposit>,
     pub vehicles: Table<VehicleId, Vehicle>,
+    /// Sales channels to end customers (MN3).
+    pub channels: Table<ChannelId, Channel>,
     /// Goals for the player after the introduction, in display order (M23).
     pub milestones: Table<MilestoneId, Milestone>,
     pub country_model: CountryModel,
@@ -1026,6 +1028,7 @@ impl Catalog {
                 IdKind::Deposit => self.deposits.keys().to_vec(),
                 IdKind::Vehicle => self.vehicles.keys().to_vec(),
                 IdKind::Milestone => self.milestones.keys().to_vec(),
+                IdKind::Channel => self.channels.keys().to_vec(),
             })
             .collect();
         let mut table = KeyTable::new(keys);
@@ -1118,6 +1121,46 @@ pub struct Vehicle {
     /// fleets.
     pub fleet: Option<FleetVehicle>,
     pub provenance: Provenance,
+}
+
+/// A sales channel to end customers (`data/vertriebswege.yaml`, MN3, docs/FORMELN.md).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Channel {
+    pub available_from: i32,
+    /// Goods groups sold through it; empty: all.
+    pub groups: Vec<GoodsGroupId>,
+    /// Share of a country's households it reaches, by year.
+    pub reach: TimeSeries,
+    /// Factor on the reach per income fifth, poorest first.
+    pub layer_factor: [f64; 5],
+    /// Fixed cost per country and year in USD at price level 1, by year.
+    pub fixed_cost_usd: TimeSeries,
+    /// Share of the revenue of the sales through it.
+    pub cost_per_sale: f64,
+    /// Factor on the reputation gain (MN2).
+    pub reputation_factor: f64,
+    pub provenance: Provenance,
+}
+
+impl Channel {
+    pub fn available(&self, year: i32) -> bool {
+        self.available_from <= year
+    }
+
+    pub fn serves(&self, group: GoodsGroupId) -> bool {
+        self.groups.is_empty() || self.groups.contains(&group)
+    }
+}
+
+/// Channels in the market model (`marktmodell.vertrieb`, MN3).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ChannelModel {
+    /// Reach of the general trade every company has; 0: channels off.
+    pub base_reach: f64,
+    /// Years after its introduction an AI company of skill 0 takes up a channel.
+    pub ai_delay_years: f64,
+    /// Margin on extra revenue an AI company expects when weighing a channel.
+    pub ai_margin: f64,
 }
 
 impl Vehicle {
@@ -2479,6 +2522,8 @@ pub struct MarketModel {
     pub reputation: ReputationModel,
     /// Tenders of governments (MN2).
     pub tenders: TenderModel,
+    /// Sales channels (MN3).
+    pub channels: ChannelModel,
 }
 
 /// Tenders of governments for goods groups (`marktmodell.ausschreibung`, MN2,
@@ -2637,6 +2682,7 @@ impl Default for MarketModel {
             brand: BrandModel::default(),
             reputation: ReputationModel::default(),
             tenders: TenderModel::default(),
+            channels: ChannelModel::default(),
         }
     }
 }

@@ -2155,6 +2155,23 @@ Bei der Umsetzung entschieden:
 37. 🟡 **MN2 – Staatsauftrag statt Liefervertrag.** Die Lieferverträge (W4) verbinden zwei
     Standorte; der Staat hat keinen. Der Staatsauftrag nutzt dieselben Regeln (Menge je
     Tag, Nachholen im Monat, Strafe am Monatsende), aber eine eigene Liste.
+38. 🟡 **MN3 – Ohne Wahl gilt die Grundreichweite.** Jede Firma erreicht über den
+    allgemeinen Handel `grundreichweite` (0,6) der Haushalte; gewählte Wege kommen hinzu
+    (höchstens 1). Die Anbieterwahl rechnet mit dem Verhältnis zur Grundreichweite, sodass
+    ohne Wege alles wie bisher bleibt; mit allen Wegen ist eine Firma bis zu 1/0,6-mal so
+    sichtbar.
+39. 🟡 **MN3 – KI-Parameter im Marktmodell.** Verzögerung und angenommene Marge der KI
+    stehen in `marktmodell.vertrieb` statt in `kimodell` (ein Ort für die Wege). Die KI
+    prüft ihre Wege jährlich je Land und Warengruppe mit Endkundenumsatz und nimmt nur
+    Wege, deren geschätzter Mehrumsatz mal Marge die Kosten übersteigt (sonst nähme jede
+    Firma alle Wege, und die Wirkung höbe sich auf).
+40. 🟡 **MN3 – Kosten der Wege als Gemeinkosten.** Anteil am Erlös und Fixkosten buchen als
+    Kostenart Gemeinkosten (Vertrieb und Verwaltung); keine neue Kostenart.
+41. 🟡 **MN3 – Strategiefeld und Vertriebsstelle folgen mit MN5.** Die Vorgabe sieht die
+    Einstellung je Warengruppe in der Strategie und Entscheidungen der Vertriebsstelle
+    unter ihrem Budget vor; im Kern gibt es dafür den Befehl `SetChannels`, die Anbindung
+    an Strategie und Stelle kommt mit der Oberfläche (MN5). Händler nutzen keinen Weg
+    (Faktor 1).
 
 ## S Wünsche vom 11.10.2026 (Abend) – eigenständig entschieden, zur Abnahme
 

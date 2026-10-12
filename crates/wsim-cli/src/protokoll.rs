@@ -822,6 +822,7 @@ impl Protocol {
                 );
             }
         }
+        channel_section(&mut md, game);
         write(dir, "auswertung.md", &md)?;
         write(dir, "laender.csv", &by_country(game))?;
         let countries: Vec<_> = ["DEU", "GBR", "USA"]
@@ -1230,4 +1231,48 @@ fn by_country(game: &Game) -> String {
 /// is the purchase orders of companies, counted as input need instead.
 fn outside_demand(p: &wsim_core::catalog::Product) -> bool {
     p.consumer_demand.is_some() || p.state_demand.is_some()
+}
+
+/// Sales channels (MN3): how many companies use each and the share of the consumer
+/// revenue of this year made in country/group areas that use it.
+fn channel_section(md: &mut String, game: &Game) {
+    use wsim_core::ids::{ChannelId, Id};
+    let catalog = game.catalog();
+    if catalog.channels.is_empty() {
+        return;
+    }
+    let mut total = 0.0;
+    let mut by: Vec<(usize, f64)> = vec![(0, 0.0); catalog.channels.len()];
+    for c in game.state().companies.iter().filter(|c| !c.bankrupt) {
+        let mut used = vec![false; catalog.channels.len()];
+        for a in &c.sales_areas {
+            let r = a.revenue.to_usd().max(a.revenue_last_year.to_usd());
+            total += r;
+            let year = game.state().date.year() - 1;
+            let shares = wsim_core::channels::through(catalog, &a.channels, year);
+            for (ch, share) in a.channels.iter().zip(shares) {
+                by[ch.index()].1 += r * share;
+                used[ch.index()] = true;
+            }
+        }
+        for (i, u) in used.iter().enumerate() {
+            if *u {
+                by[i].0 += 1;
+            }
+        }
+    }
+    let _ = writeln!(
+        md,
+        "\n## Vertriebswege\n\nFirmen mit dem Weg und Anteil des Endkundenumsatzes der Firmen, der über ihn läuft (Rest: allgemeiner Handel).\n\n| Weg | Firmen | Umsatzanteil |\n| --- | --- | --- |"
+    );
+    for (i, (n, r)) in by.iter().enumerate() {
+        let share = if total > 0.0 { 100.0 * r / total } else { 0.0 };
+        let _ = writeln!(
+            md,
+            "| {} | {} | {:.1} % |",
+            catalog.channels.key(ChannelId::from_index(i)),
+            n,
+            share
+        );
+    }
 }

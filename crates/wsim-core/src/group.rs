@@ -144,6 +144,7 @@ pub(crate) fn found(
         process: Default::default(),
         brands: Vec::new(),
         reputations: Vec::new(),
+        sales_areas: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),

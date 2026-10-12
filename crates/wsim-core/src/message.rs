@@ -157,6 +157,7 @@ pub mod keys {
     pub const COMMAND_NOT_RESEARCHABLE_PRODUCT: &str = "fehler.befehl.produkt_nicht_erforschbar";
     pub const COMMAND_NO_TRIM: &str = "fehler.befehl.keine_ausstattung";
     pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
+    pub const COMMAND_NO_CHANNEL: &str = "fehler.befehl.kein_vertriebsweg";
     pub const RECALL: &str = "warnung.rueckruf";
     pub const TENDER_OPEN: &str = "info.ausschreibung";
     pub const TENDER_WON: &str = "erfolg.ausschreibung_gewonnen";
@@ -592,6 +593,7 @@ pub mod keys {
         COMMAND_NOT_RESEARCHABLE_PRODUCT,
         COMMAND_NO_TRIM,
         COMMAND_TENDER_CLOSED,
+        COMMAND_NO_CHANNEL,
         RECALL,
         COMMAND_NOT_DEVELOPABLE,
         NEW_GAME_RESEARCH_FACTOR,

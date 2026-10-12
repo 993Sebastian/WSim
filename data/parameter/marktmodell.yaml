@@ -92,6 +92,14 @@ marktmodell:
     rueckruf_chance: 0.3           # je Monat und Land mit solcher Ware
     rueckruf_abzug: 0.1
     rufgewicht: [0.2, 0.3, 0.5, 0.7, 1.0]   # je Einkommensfünftel, ärmstes zuerst
+  # Vertriebswege (MN3, data/vertriebswege.yaml): grundreichweite ist der allgemeine
+  # Handel, den jede Firma ohne eigene Wege erreicht; KI-Firmen prüfen neue Wege nach
+  # ki_verzoegerung_jahre · (1 − Kompetenz) Jahren und nehmen sie, wenn der Mehrumsatz mal
+  # ki_marge die Kosten des Wegs übersteigt.
+  vertrieb:
+    grundreichweite: 0.6
+    ki_verzoegerung_jahre: 15
+    ki_marge: 0.25
   # Ausschreibungen des Staates (MN2): je Quartal, Land und Warengruppe ein Los über den
   # größten Staatsbedarf; Zuschlag ist ein Staatsauftrag über laufzeit_monate.
   ausschreibung:

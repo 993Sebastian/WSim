@@ -137,6 +137,7 @@ pub fn decide_with(
             expand(state, catalog, id, own, date, (&mut news, decider));
         }
         if first_of_year {
+            crate::channels::ai_year(state, catalog, id);
             research_plan(state, catalog, id, own, (date, &gaps), decider);
         }
     }
@@ -4381,6 +4382,7 @@ pub(crate) fn push_company(
         process: Default::default(),
         brands: Vec::new(),
         reputations: Vec::new(),
+        sales_areas: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),
@@ -4678,6 +4680,7 @@ mod tests {
             process: Default::default(),
             brands: Vec::new(),
             reputations: Vec::new(),
+            sales_areas: Vec::new(),
             emissions: Default::default(),
             emissions_last: Default::default(),
             advertising: Vec::new(),

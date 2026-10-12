@@ -223,6 +223,7 @@ Ein einziger Abschnitt (in `parameter/marktmodell.yaml`); Formeln in `docs/FORME
 | **marke** | Marke und Werbung (M16): `markengewicht` (5 Werte ≥ 0, ärmstes Fünftel zuerst), `vergessen_je_monat` (0–1), `mundpropaganda` (0–1, Anteil der Lücke je Monat bei 100 % Marktanteil), `kosten_je_einwohner_usd` (> 0, Werbung, die ein Land bei Preisniveau 1 einmal erreicht), `bekanntheit_start` und `bekanntheit_start_real` (0–1, etablierte generierte bzw. historische Firmen, wo sie zum Start Endprodukte verkaufen), `bekanntheit_handel` und `bekanntheit_staatsmarkt` (0–1, Bekanntheit eingeführter Ware und des Staatsmarkts), `werbemittel` (Liste `{id, ab, wirkung}`, nicht leer, `id` eindeutig, `wirkung` > 0; es wirkt das beste im Jahr verfügbare; Text `werbemittel.<id>`) |
 | **substitution** | MN1, optional: `steilheit` (0–20, wie stark der Preisvorteil je Nutzen zählt) und `je_jahr` (0–12, Anteil der Lücke zum Zielanteil, der je Jahr schließt); ohne Block keine Substitution bei Verbrauchsgütern |
 | **trends** | MN1, optional: Liste `{id, warengruppen, produkte, laender, verlauf}`; `id` eindeutig, mindestens eine Warengruppe oder ein Produkt, `laender` leer = alle, `verlauf` Jahr → Faktor (0,1–10) auf die Kaufneigung, wirkt vom ersten bis zum letzten Jahr des Verlaufs |
+| **vertrieb** | MN3, optional (ohne Block keine Vertriebswege): `grundreichweite` (0,05–1, Reichweite des allgemeinen Handels ohne eigene Wege), `ki_verzoegerung_jahre` (0–50, Jahre nach Einführung eines Wegs, die eine KI-Firma der Kompetenz 0 wartet), `ki_marge` (0–1, Marge, mit der eine KI-Firma den Mehrumsatz eines Wegs gegen seine Kosten rechnet) |
 | **ausschreibung** | MN2, optional (ohne Block keine Ausschreibungen): `warengruppen` (nicht leer, Warengruppen mit Losen), `los_anteil` (0–1 des täglichen Staatsbedarfs), `frist_tage` (1–90), `laufzeit_monate` (1–120), `preisgewicht`, `qualitaetsgewicht`, `heimatbonus`, `rufgewicht` (je 0–10), `kriegsfaktor` (1–10, Faktor auf den Heimatbonus im vollen Krieg), `ki_nachlass` (0–0,9), `strafe` (0–2, Anteil am Wert der Fehlmenge) |
 | **ruf** | MN2, optional (ohne Block kein Ruf): `gewinn_je_monat`, `rueckkehr_je_monat`, `unfall_abzug`, `rueckruf_chance`, `rueckruf_abzug` (je 0–1), `rueckruf_schwelle` (Qualität 0–100, darunter droht ein Rückruf), `rufgewicht` (5 Werte ≥ 0, ärmstes Fünftel zuerst; Gewicht von Ruf − 0,5 in der Anbieterwahl) |
 
@@ -399,6 +400,21 @@ Technologien bis zum frühesten Startjahr 1900 sind bei Spielbeginn allen bekann
 
 Eine Transportklasse ohne verfügbares Verkehrsmittel (in Stufe 1 `leitung`) lässt sich
 nicht zwischen Ländern befördern.
+
+## vertriebswege
+
+Vertriebswege zum Endkunden (MN3, `data/vertriebswege.yaml`); Text `vertriebsweg.<id>`.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id** | |
+| **verfuegbar_ab** | Jahr der Einführung |
+| warengruppen | Warengruppen, die über den Weg verkauft werden; leer = alle |
+| **reichweite** | Jahreswerte (0–1): Anteil der Haushalte eines Landes, den der Weg erreicht |
+| **schichtfaktor** | 5 Werte (0–5), ärmstes Fünftel zuerst: Faktor auf die Reichweite je Einkommensfünftel |
+| **fixkosten_je_land_usd** | Jahreswerte (≥ 0): Kosten je Land und Jahr bei Preisniveau 1 |
+| **kosten_je_verkauf** | Anteil am Erlös der Verkäufe über den Weg (0–0,9) |
+| **ruf_faktor** | Faktor auf den Rufgewinn (0–5, MN2) |
 
 ## kimodell
 

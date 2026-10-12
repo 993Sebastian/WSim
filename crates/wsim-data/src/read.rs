@@ -7,11 +7,11 @@ use serde::de::DeserializeOwned;
 use crate::de::{self, DeError};
 use crate::messages;
 use crate::raw::{
-    RawAiModel, RawBank, RawBonds, RawCentral, RawContracts, RawCountry, RawCountryCurrencies,
-    RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent, RawEventModel, RawFacility,
-    RawFinanceModel, RawInventor, RawLife, RawLogistics, RawManagement, RawMarketModel, RawMeta,
-    RawMilestone, RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex, RawProduct,
-    RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
+    RawAiModel, RawBank, RawBonds, RawCentral, RawChannel, RawContracts, RawCountry,
+    RawCountryCurrencies, RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent,
+    RawEventModel, RawFacility, RawFinanceModel, RawInventor, RawLife, RawLogistics, RawManagement,
+    RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex,
+    RawProduct, RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
     RawResearchModel, RawSimple, RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology,
     RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
@@ -172,6 +172,7 @@ pub(crate) struct RawData {
     pub technologies: Vec<Entry<RawTechnology>>,
     pub deposits: Vec<Entry<RawDeposit>>,
     pub vehicles: Vec<Entry<RawVehicle>>,
+    pub channels: Vec<Entry<RawChannel>>,
     pub ai_model: Vec<Entry<RawAiModel>>,
     pub deal_model: Vec<Entry<RawDealModel>>,
     pub plot_model: Vec<Entry<RawPlotModel>>,
@@ -224,6 +225,7 @@ pub(crate) const SECTIONS: &[&str] = &[
     "technologien",
     "lagerstaetten",
     "verkehrsmittel",
+    "vertriebswege",
     "kimodell",
     "kaufmodell",
     "grundstuecksmodell",
@@ -421,6 +423,7 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             "technologien" => read_list(ctx, &loc, value, &mut raw.technologies, &mut raw.broken),
             "lagerstaetten" => read_list(ctx, &loc, value, &mut raw.deposits, &mut raw.broken),
             "verkehrsmittel" => read_list(ctx, &loc, value, &mut raw.vehicles, &mut raw.broken),
+            "vertriebswege" => read_list(ctx, &loc, value, &mut raw.channels, &mut raw.broken),
             other => ctx.error(
                 &file_loc.key(other),
                 messages::unknown_section(

@@ -5631,3 +5631,65 @@ fn ausschreibung_wird_geprueft() {
     );
     nur_fehler(&outcome, 3);
 }
+
+#[test]
+fn vertriebswege_werden_geprueft() {
+    let markt = "parameter/marktmodell.yaml";
+    let wege = "vertriebswege.yaml";
+    let mit = |d: Daten| {
+        d.ersetze(
+            markt,
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n",
+            "      - {id: zeitung, ab: 1800, wirkung: 1.0}\n  vertrieb: {grundreichweite: 0.6, ki_verzoegerung_jahre: 15, ki_marge: 0.25}\n",
+        )
+        .datei(
+            wege,
+            "vertriebswege:\n  - id: versand\n    verfuegbar_ab: 1890\n    warengruppen: [erze]\n    reichweite: {1890: 0.1, 1950: 0.3}\n    schichtfaktor: [1.3, 1.2, 1.0, 0.8, 0.6]\n    fixkosten_je_land_usd: {1890: 100000}\n    kosten_je_verkauf: 0.15\n    ruf_faktor: 0.9\n    annaeherung: true\n",
+        )
+        .ersetze(
+            "texte/de/a.yaml",
+            "verkehrsmittel.fuhrwerk: Fuhrwerk\n",
+            "verkehrsmittel.fuhrwerk: Fuhrwerk\nvertriebsweg.versand: Versandhandel\n",
+        )
+    };
+    let data = mit(Daten::neu()).laden().data.unwrap();
+    let c = &data.catalog;
+    assert_eq!(c.market_model.channels.base_reach, 0.6);
+    let v = c.channels.get(c.channels.id("versand").unwrap());
+    assert_eq!(v.layer_factor[0], 1.3);
+    assert_eq!(v.groups, vec![c.goods_groups.id("erze").unwrap()]);
+    // Without the block channels are off.
+    assert_eq!(
+        Daten::neu()
+            .laden()
+            .data
+            .unwrap()
+            .catalog
+            .market_model
+            .channels
+            .base_reach,
+        0.0
+    );
+
+    let d = mit(Daten::neu())
+        .ersetze(wege, "1950: 0.3", "1950: 1.5")
+        .ersetze(wege, "[1.3, 1.2, 1.0, 0.8, 0.6]", "[1.3, 1.2]")
+        .ersetze(markt, "grundreichweite: 0.6", "grundreichweite: 0");
+    let outcome = d.laden();
+    let f = befund(
+        &outcome,
+        "Wert 1.5 liegt außerhalb des erlaubten Bereichs 0 bis 1.",
+    );
+    assert_ort(
+        f,
+        wege,
+        d.zeile(wege, "reichweite:"),
+        "vertriebswege[0].reichweite.1950",
+    );
+    befund(&outcome, "5 Werte");
+    befund(
+        &outcome,
+        "Wert 0 liegt außerhalb des erlaubten Bereichs 0.05 bis 1.",
+    );
+    nur_fehler(&outcome, 3);
+}

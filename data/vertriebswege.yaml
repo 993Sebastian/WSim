@@ -1,0 +1,90 @@
+# Vertriebswege (MN3, docs/FORMELN.md): Wege zum Endkunden je Epoche. Ohne eigene Wege
+# erreicht eine Firma die Haushalte über den allgemeinen Handel
+# (marktmodell.vertrieb.grundreichweite); jeder gewählte Weg erreicht zusätzliche
+# Haushalte – je Einkommensfünftel unterschiedlich (schichtfaktor, ärmstes zuerst) – und
+# kostet einen Anteil am Erlös sowie Fixkosten je Land (USD Kaufkraft 2026 je Jahr bei
+# Preisniveau 1). Warengruppen leer = alle mit Endkundennachfrage.
+# Reichweiten und Kosten sind Schätzungen aus Marktanteilen der Handelsformen (Kaufhäuser
+# um 1930 rund 10–15 % des Einzelhandels in Großstädten, Versandhandel in ländlichen
+# USA bis 1950 stark, Discounter ab 1960, Online-Handel ab 1995 auf über 20 % im Jahr 2026).
+
+vertriebswege:
+  - id: handelsvertreter
+    verfuegbar_ab: 1800
+    warengruppen: []
+    reichweite: {1800: 0.15, 1950: 0.1, 2000: 0.05}
+    schichtfaktor: [1.2, 1.1, 1.0, 0.9, 0.8]
+    fixkosten_je_land_usd: {1800: 20000}
+    kosten_je_verkauf: 0.08
+    ruf_faktor: 1.0
+    annaeherung: true
+
+  - id: kaufhaus
+    verfuegbar_ab: 1870
+    warengruppen: [bekleidung, textilien, moebel_hausrat, metallwaren, elektro, chemie]
+    reichweite: {1870: 0.05, 1900: 0.15, 1930: 0.3, 1965: 0.4, 2000: 0.25, 2026: 0.15}
+    schichtfaktor: [0.4, 0.7, 1.0, 1.2, 1.4]
+    fixkosten_je_land_usd: {1870: 150000}
+    kosten_je_verkauf: 0.25
+    ruf_faktor: 1.1
+    annaeherung: true
+
+  - id: versandhandel
+    verfuegbar_ab: 1890
+    warengruppen: [bekleidung, textilien, moebel_hausrat, metallwaren, elektro]
+    reichweite: {1890: 0.05, 1910: 0.2, 1950: 0.3, 1990: 0.2, 2026: 0.05}
+    schichtfaktor: [1.3, 1.2, 1.0, 0.8, 0.6]
+    fixkosten_je_land_usd: {1890: 100000}
+    kosten_je_verkauf: 0.15
+    ruf_faktor: 0.9
+    annaeherung: true
+
+  - id: fachhandel
+    verfuegbar_ab: 1800
+    warengruppen: [elektro, fahrzeuge, metallwaren, moebel_hausrat, maschinen]
+    reichweite: {1800: 0.2, 1950: 0.3, 2026: 0.2}
+    schichtfaktor: [0.6, 0.8, 1.0, 1.1, 1.2]
+    fixkosten_je_land_usd: {1800: 50000}
+    kosten_je_verkauf: 0.2
+    ruf_faktor: 1.2
+    annaeherung: true
+
+  - id: franchise
+    verfuegbar_ab: 1950
+    warengruppen: [lebensmittel, bekleidung]
+    reichweite: {1950: 0.05, 1990: 0.25, 2026: 0.3}
+    schichtfaktor: [1.0, 1.0, 1.0, 1.0, 1.0]
+    fixkosten_je_land_usd: {1950: 400000}
+    kosten_je_verkauf: 0.1
+    ruf_faktor: 1.0
+    annaeherung: true
+
+  - id: markenladen
+    verfuegbar_ab: 1900
+    warengruppen: [bekleidung, elektro, fahrzeuge]
+    reichweite: {1900: 0.03, 1970: 0.1, 2026: 0.2}
+    schichtfaktor: [0.3, 0.5, 0.8, 1.2, 1.6]
+    fixkosten_je_land_usd: {1900: 500000}
+    kosten_je_verkauf: 0.15
+    ruf_faktor: 1.5
+    annaeherung: true
+
+  - id: discounter
+    verfuegbar_ab: 1960
+    warengruppen: [lebensmittel, chemie, textilien, bekleidung, elektro]
+    reichweite: {1960: 0.05, 1990: 0.35, 2026: 0.45}
+    schichtfaktor: [1.5, 1.3, 1.0, 0.7, 0.5]
+    fixkosten_je_land_usd: {1960: 300000}
+    kosten_je_verkauf: 0.08
+    ruf_faktor: 0.7
+    annaeherung: true
+
+  - id: e_commerce
+    verfuegbar_ab: 1995
+    warengruppen: []
+    reichweite: {1995: 0.05, 2005: 0.35, 2015: 0.7, 2026: 0.9}
+    schichtfaktor: [0.7, 0.9, 1.0, 1.1, 1.2]
+    fixkosten_je_land_usd: {1995: 200000}
+    kosten_je_verkauf: 0.12
+    ruf_faktor: 1.0
+    annaeherung: true

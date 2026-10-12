@@ -1104,6 +1104,7 @@ fn found_company(
         process: Default::default(),
         brands,
         reputations: Vec::new(),
+        sales_areas: Vec::new(),
         emissions: Default::default(),
         emissions_last: Default::default(),
         advertising: Vec::new(),

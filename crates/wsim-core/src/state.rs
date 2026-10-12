@@ -336,6 +336,9 @@ pub struct Company {
     /// Reputation per country and this month's sales to end customers (MN2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub reputations: Vec<Reputation>,
+    /// Sales channels and consumer revenue per country and goods group, sorted (MN3).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sales_areas: Vec<crate::channels::SalesArea>,
     /// Emissions of the running and of the last month (H2).
     #[serde(default, skip_serializing_if = "Emissions::is_empty")]
     pub emissions: Emissions,

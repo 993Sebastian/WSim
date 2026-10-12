@@ -11,6 +11,7 @@ pub mod brand;
 pub mod calendar;
 pub mod catalog;
 pub mod central;
+pub mod channels;
 pub mod closing;
 pub mod command;
 pub mod competition;

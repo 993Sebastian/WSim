@@ -106,8 +106,8 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | BP1–BP5 | Betrieb: Lernkurve, Instandhaltung, Lager, Ausschuss/Unfälle/Korruption, Balance | ✅ |
 | MN1 | Substitution bei Verbrauchsgütern, Trends | ✅ |
 | MN2 | Ausstattungsstufen, Ruf mit Rückrufen, Ausschreibungen | ✅ |
-| MN3 | Vertriebswege mit Reichweite und Kosten | 🔄 |
-| MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | ⏳ |
+| MN3 | Vertriebswege mit Reichweite und Kosten | ✅ |
+| MN4 | Veralterung, Gebrauchtmarkt, Ersatzteile, Trend-Generator | 🔄 |
 | MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏳ |
@@ -3048,3 +3048,11 @@ auf die Rückfrage: „Ja, gleich nach M41“.) Regeln: `docs/FORMELN.md`, Absch
   Premium gewinnt oben, einfach unten; Rückruf senkt Ruf und Kasse, besserer Ruf
   verkauft mehr; Los wird als Staatsauftrag vergeben und geliefert; Prüfregeln. Bieten
   in der Oberfläche folgt mit MN5.
+- **MN3 Vertriebswege:** Acht Wege als Daten (`data/vertriebswege.yaml`: Handelsvertreter
+  bis Onlinehandel) mit Reichweite je Jahr und Einkommensfünftel, Kosten je Verkauf,
+  Fixkosten je Land und Ruf-Faktor; Befehl `SetChannels` je Land und Warengruppe; ohne
+  Wahl bleibt alles wie bisher. KI nimmt Wege nach Kompetenz-Verzögerung und
+  Kosten-Nutzen. Weltlauf 1994–2006 mit 100 KI-Firmen: 2005 laufen 8,4 % des
+  Endkundenumsatzes über den Onlinehandel (64 Firmen), 30 % über Discounter; teure Wege
+  (Kaufhaus, Markenladen) bleiben ungenutzt. Tests: Reichweite und Kosten, Fixkosten,
+  Spielstand, KI-Wahl, Prüfregeln. Entscheidungen R38–R41.

@@ -5809,8 +5809,13 @@ Preisniveau des Landes / 12 (Gemeinkosten).
 Ruf (MN2): f_Weg = Σ a_w · ruf_faktor_w + (1 − Σ a_w), gemittelt über den Absatz des
 Monats; der Rufgewinn wird mit f_Weg multipliziert (Markenladen 1,5, Discounter 0,7).
 
-KI: Am Jahresanfang je Land und Warengruppe mit Absatz an Endkunden nimmt die Firma jeden
-verfügbaren Weg der Gruppe, dessen Verfügbarkeit mindestens
-`verzoegerung_jahre` · (1 − Kompetenz) Jahre zurückliegt und dessen Fixkosten höchstens
-`fixkosten_anteil_max` des Vorjahresumsatzes in Land und Gruppe ausmachen; Wege, die das
-nicht mehr erfüllen, gibt sie auf.
+KI: Am Jahresanfang je Land und Warengruppe mit Endkundenumsatz im Vorjahr prüft die
+Firma alle verfügbaren Wege der Gruppe, deren Einführung mindestens
+`ki_verzoegerung_jahre` · (1 − Kompetenz) Jahre zurückliegt. Sie schätzt den Umsatz ohne
+Wege R₀ (Vorjahresumsatz · g / P_vorher) und nimmt schrittweise den Weg, der den Wert
+
+    W(S) = ki_marge · R(S) − Σ_w∈S (Fixkosten_w + kosten_je_verkauf_w · R(S) · r_w / (g + Σ r))
+    R(S) = R₀ · min(1, g + Σ_w∈S r_w) / g
+
+am stärksten erhöht, solange er steigt (Mitte der Einkommensfünftel). Wege außerhalb der
+neuen Wahl gibt sie auf.

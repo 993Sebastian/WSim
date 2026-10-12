@@ -509,6 +509,64 @@ pub(super) fn tenders(
     }
 }
 
+/// A sales channel (MN3).
+pub(super) fn channel(
+    ctx: &mut Ctx,
+    e: &Entry<crate::raw::RawChannel>,
+    groups: &Keys,
+) -> wsim_core::catalog::Channel {
+    let v = &e.value;
+    let l = &e.loc;
+    let available_from = year(
+        ctx,
+        v.available_from,
+        HISTORY_YEARS,
+        &l.field("verfuegbar_ab"),
+    );
+    let gl = l.field("warengruppen");
+    let groups = v
+        .groups
+        .iter()
+        .enumerate()
+        .map(|(i, k)| resolve(ctx, groups, k, &gl.index(i)))
+        .collect();
+    let reach_loc = l.field("reichweite");
+    for (&y, &r) in &v.reach {
+        in_range(ctx, r, 0.0, 1.0, &reach_loc.field(&y.to_string()));
+    }
+    let fixed_loc = l.field("fixkosten_je_land_usd");
+    for (&y, &c) in &v.fixed_cost_usd {
+        non_negative(ctx, c, &fixed_loc.field(&y.to_string()));
+    }
+    let fl = l.field("schichtfaktor");
+    for (i, &f) in v.layer_factor.iter().enumerate() {
+        in_range(ctx, f, 0.0, 5.0, &fl.index(i));
+    }
+    let layer_factor = <[f64; 5]>::try_from(v.layer_factor.as_slice()).unwrap_or_else(|_| {
+        ctx.error(
+            &fl,
+            messages::wrong_length(v.layer_factor.len(), "5 Werte (ärmstes Fünftel zuerst)"),
+        );
+        [1.0; 5]
+    });
+    wsim_core::catalog::Channel {
+        available_from,
+        groups,
+        reach: time_series(ctx, &v.reach, &reach_loc),
+        layer_factor,
+        fixed_cost_usd: time_series(ctx, &v.fixed_cost_usd, &fixed_loc),
+        cost_per_sale: in_range(
+            ctx,
+            v.cost_per_sale,
+            0.0,
+            0.9,
+            &l.field("kosten_je_verkauf"),
+        ),
+        reputation_factor: in_range(ctx, v.reputation_factor, 0.0, 5.0, &l.field("ruf_faktor")),
+        provenance: provenance(v.approximation, v.source.as_ref()),
+    }
+}
+
 /// Trim levels of end products (MN2).
 pub(super) fn trims(ctx: &mut Ctx, raw: &RawData) -> wsim_core::catalog::TrimModel {
     use wsim_core::catalog::{TrimEffect, TrimModel};
@@ -1137,6 +1195,20 @@ pub(super) fn market_model(
         }),
         trends: Vec::new(),
         tenders: Default::default(),
+        channels: m.channels.as_ref().map_or_else(Default::default, |c| {
+            let cl = l.field("vertrieb");
+            wsim_core::catalog::ChannelModel {
+                base_reach: in_range(ctx, c.base_reach, 0.05, 1.0, &cl.field("grundreichweite")),
+                ai_delay_years: in_range(
+                    ctx,
+                    c.ai_delay_years,
+                    0.0,
+                    50.0,
+                    &cl.field("ki_verzoegerung_jahre"),
+                ),
+                ai_margin: in_range(ctx, c.ai_margin, 0.0, 1.0, &cl.field("ki_marge")),
+            }
+        }),
         reputation: m.reputation.as_ref().map_or_else(Default::default, |r| {
             let rl = l.field("ruf");
             let wl = rl.field("rufgewicht");

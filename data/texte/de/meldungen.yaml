@@ -49,6 +49,7 @@ meldung.produkt_erforscht: "Produkt erforscht – „{produkt}“ kann jetzt her
 warnung.rueckruf: "Rückruf in {land}: Ware unter der Mindestqualität musste zurückgenommen werden – Kosten {kosten}, der Ruf leidet."
 fehler.befehl.keine_ausstattung: Eine Ausstattung gibt es nur für Endprodukte.
 fehler.befehl.ausschreibung_geschlossen: Diese Ausschreibung nimmt keine Gebote mehr an.
+fehler.befehl.kein_vertriebsweg: "Der Vertriebsweg {weg} ist hier nicht verfügbar oder führt diese Waren nicht."
 info.ausschreibung: "Ausschreibung in {land}: Der Staat sucht {menge} {produkt} je Tag für ein Jahr – Gebote im Markt bis Monatsende."
 erfolg.ausschreibung_gewonnen: "Zuschlag in {land}: Ihr liefert ein Jahr lang {menge} {produkt} je Tag an den Staat."
 info.ausschreibung_verloren: "Die Ausschreibung für {produkt} in {land} ging an einen Wettbewerber."
@@ -108,6 +109,7 @@ art.rezept: Rezept
 art.technologie: Technologie
 art.lagerstaette: Lagerstätte
 art.verkehrsmittel: Verkehrsmittel
+art.vertriebsweg: Vertriebsweg
 art.etappe: Etappe
 
 fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.

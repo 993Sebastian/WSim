@@ -34,10 +34,11 @@ pub enum IdKind {
     Deposit,
     Vehicle,
     Milestone,
+    Channel,
 }
 
 impl IdKind {
-    pub const ALL: [IdKind; 16] = [
+    pub const ALL: [IdKind; 17] = [
         IdKind::Unit,
         IdKind::Continent,
         IdKind::Branch,
@@ -54,6 +55,7 @@ impl IdKind {
         IdKind::Deposit,
         IdKind::Vehicle,
         IdKind::Milestone,
+        IdKind::Channel,
     ];
 
     pub fn name(self) -> &'static str {
@@ -74,6 +76,7 @@ impl IdKind {
             IdKind::Deposit => "lagerstaette",
             IdKind::Vehicle => "verkehrsmittel",
             IdKind::Milestone => "etappe",
+            IdKind::Channel => "vertriebsweg",
         }
     }
 
@@ -297,6 +300,8 @@ define_id!(
     VehicleId => Vehicle,
     /// A goal for the player after the introduction (M23).
     MilestoneId => Milestone,
+    /// A way to end customers (MN3).
+    ChannelId => Channel,
 );
 
 #[cfg(test)]

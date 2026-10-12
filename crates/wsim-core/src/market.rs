@@ -541,6 +541,7 @@ struct Scratch {
     presence: Vec<f64>,
     brand: Vec<f64>,
     reputation: Vec<f64>,
+    channel: Vec<crate::channels::Effect>,
     weights: Vec<f64>,
     log_relative: Vec<f64>,
     attraction: Vec<f64>,
@@ -794,6 +795,7 @@ fn clear_market(
         log_relative,
         attraction,
         reputation,
+        channel,
         outputs,
     } = scratch;
     offers.clear();
@@ -1012,6 +1014,17 @@ fn clear_market(
         }
         _ => 0.0,
     }));
+    // Sales channels (MN3): more households reached, a share of the revenue as cost.
+    channel.clear();
+    channel.extend(offers.iter().map(|o| match o.seller {
+        Seller::Site { owner, .. } => crate::channels::effect(
+            catalog,
+            &state.companies[owner.index()],
+            (country, group),
+            date.year(),
+        ),
+        _ => crate::channels::Effect::NONE,
+    }));
     let mut bought = [0.0; 5];
     weights.clear();
     weights.resize(offers.len(), 0.0);
@@ -1033,6 +1046,7 @@ fn clear_market(
         if need > 1e-9 && reference > 0.0 {
             for (i, a) in attraction.iter_mut().enumerate() {
                 *a = presence[i]
+                    * channel[i].reach[q]
                     * appeal(model, q, log_relative[i], offers[i].quality, brand[i])
                     * math::exp(model.reputation.weight[q] * reputation[i]);
             }
@@ -1071,6 +1085,15 @@ fn clear_market(
                         (product, country, date),
                         &mut day,
                     );
+                    if let Seller::Site { site, owner } = offers[i].seller {
+                        crate::channels::book_sale(
+                            state,
+                            (owner, CostCenter::product(site, product)),
+                            (country, group),
+                            Money::times(offers[i].price, quantity),
+                            channel[i].cost[q],
+                        );
+                    }
                     taken += quantity;
                 }
             }

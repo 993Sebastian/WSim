@@ -85,6 +85,14 @@ fachrichtung.holz_bau: Holz und Bau
 fachrichtung.lebensmittel: Lebensmittel
 fachrichtung.kaufmaennisch: Kaufmännisch
 
+vertriebsweg.handelsvertreter: Handelsvertreter
+vertriebsweg.kaufhaus: Kaufhaus
+vertriebsweg.versandhandel: Versandhandel
+vertriebsweg.fachhandel: Fachhandel
+vertriebsweg.franchise: Franchise
+vertriebsweg.markenladen: Markenladen
+vertriebsweg.discounter: Discounter
+vertriebsweg.e_commerce: Onlinehandel
 verkehrsmittel.fuhrwerk: Fuhrwerk
 verkehrsmittel.lastkraftwagen: Lastkraftwagen
 verkehrsmittel.eisenbahn: Eisenbahn

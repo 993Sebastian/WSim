@@ -304,6 +304,12 @@ pub enum Command {
         product: ProductId,
         trim: crate::catalog::Trim,
     },
+    /// Sales channels of the company in a country for a goods group (MN3).
+    SetChannels {
+        country: CountryId,
+        group: crate::ids::GoodsGroupId,
+        channels: Vec<crate::ids::ChannelId>,
+    },
     /// Bids for a government's lot from a site in the country (MN2).
     BidTender {
         tender: u32,
@@ -637,6 +643,8 @@ pub enum CommandError {
     NoTrim,
     /// The tender is unknown or no longer takes bids (MN2).
     TenderClosed,
+    /// The channel is not available or does not sell the goods group (MN3).
+    NoChannel(String),
     /// The company cannot make the product or it is fully developed (M37).
     NotDevelopable(String),
     /// Raw materials, semi-finished goods, components and power have no names (M42).
@@ -980,6 +988,9 @@ impl CommandError {
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NoTrim => e(keys::COMMAND_NO_TRIM),
             CommandError::TenderClosed => e(keys::COMMAND_TENDER_CLOSED),
+            CommandError::NoChannel(c) => {
+                e(keys::COMMAND_NO_CHANNEL).with("weg", Param::TextKey(format!("vertriebsweg.{c}")))
+            }
             CommandError::NotDevelopable(p) => e(keys::COMMAND_NOT_DEVELOPABLE)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NotNameable(p) => e(keys::COMMAND_NOT_NAMEABLE)
@@ -2585,6 +2596,13 @@ fn run(
         } => {
             own_site(state, actor, *site)?;
             crate::trims::set(state, catalog, *site, *product, *trim)?;
+        }
+        Command::SetChannels {
+            country,
+            group,
+            channels,
+        } => {
+            crate::channels::set(state, catalog, actor, (*country, *group), channels)?;
         }
         Command::BidTender {
             tender,

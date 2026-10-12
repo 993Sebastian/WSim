@@ -989,6 +989,20 @@ pub struct RawMarketModel {
     /// Tenders of governments (MN2).
     #[serde(rename = "ausschreibung", default)]
     pub tenders: Option<RawTenders>,
+    /// Sales channels (MN3).
+    #[serde(rename = "vertrieb", default)]
+    pub channels: Option<RawChannelModel>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawChannelModel {
+    #[serde(rename = "grundreichweite")]
+    pub base_reach: f64,
+    #[serde(rename = "ki_verzoegerung_jahre")]
+    pub ai_delay_years: f64,
+    #[serde(rename = "ki_marge")]
+    pub ai_margin: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1152,6 +1166,30 @@ pub enum RawWay {
     Sea,
     #[serde(rename = "luft")]
     Air,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawChannel {
+    pub id: String,
+    #[serde(rename = "verfuegbar_ab")]
+    pub available_from: i32,
+    #[serde(rename = "warengruppen", default)]
+    pub groups: Vec<String>,
+    #[serde(rename = "reichweite")]
+    pub reach: RawSeries,
+    #[serde(rename = "schichtfaktor")]
+    pub layer_factor: Vec<f64>,
+    #[serde(rename = "fixkosten_je_land_usd")]
+    pub fixed_cost_usd: RawSeries,
+    #[serde(rename = "kosten_je_verkauf")]
+    pub cost_per_sale: f64,
+    #[serde(rename = "ruf_faktor")]
+    pub reputation_factor: f64,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

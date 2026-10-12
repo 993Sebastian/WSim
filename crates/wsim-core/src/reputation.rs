@@ -66,6 +66,21 @@ pub(crate) fn accident(
     r.value = (r.value - m.accident_loss).clamp(0.0, 1.0);
 }
 
+fn channel_factor(
+    catalog: &Catalog,
+    company: &crate::state::Company,
+    country: CountryId,
+    year: i32,
+) -> f64 {
+    let (mut weight, mut sum) = (0.0, 0.0);
+    for a in company.sales_areas.iter().filter(|a| a.country == country) {
+        let w = a.revenue.to_usd().max(0.0) + 1e-9;
+        weight += w;
+        sum += w * crate::channels::reputation_factor(catalog, company, (country, a.group), year);
+    }
+    if weight > 0.0 { sum / weight } else { 1.0 }
+}
+
 /// Month start: reputation from the month's quality against the market's average, recalls
 /// of goods sold below the threshold, the way back to the middle without sales.
 pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) -> Vec<Message> {
@@ -104,7 +119,10 @@ pub(crate) fn month_start(state: &mut GameState, catalog: &Catalog, date: Date) 
             if sold > 0.0 {
                 let (all, all_quality) = totals[country.index()];
                 let average = if all > 0.0 { all_quality / all } else { 50.0 };
-                value += m.gain_per_month * (quality_sum / sold - average) / 50.0;
+                let gain = m.gain_per_month * (quality_sum / sold - average) / 50.0;
+                // Channels lift or damp the gain (MN3), weighted by this year's revenue.
+                let f = channel_factor(catalog, &state.companies[index], country, date.year());
+                value += if gain > 0.0 { gain * f } else { gain };
             } else {
                 value += (0.5 - value) * m.return_per_month;
             }
