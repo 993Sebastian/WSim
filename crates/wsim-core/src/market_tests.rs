@@ -962,7 +962,7 @@ fn the_commodity_cycle_swings_output_within_its_limit() {
 }
 
 #[test]
-fn a_relative_price_follows_the_other_sellers() {
+fn a_relative_price_follows_the_market_price_it_is_shown_against() {
     let mut game = new_game();
     let player = game.player();
     let rival = competitor(&mut game);
@@ -979,13 +979,89 @@ fn a_relative_price_follows_the_other_sellers() {
         },
     );
     let p = product(&game, "brot");
+    let country = aaa(&game);
     let price = |game: &Game| game.state().sites[mine.index()].offers[&p].price.to_usd();
     day(&mut game);
-    assert!((price(&game) - 2.7).abs() < 0.01, "{}", price(&game));
-    // The other seller raises its price: the own one follows at the same deviation.
-    sell(&mut game, theirs, "brot", PriceMode::Fixed(usd(4.0)));
+    // The price keeps the set deviation from the market price shown to the player,
+    // and setting it again does not make it jump (the set price is the one it keeps).
+    for _ in 0..5 {
+        day(&mut game);
+    }
+    let c = game.catalog().clone();
+    let market = crate::market::market_price(&c, game.state(), country, p).to_usd();
+    assert!(
+        (price(&game) - market * 0.9).abs() < 0.05 * market,
+        "price {} market {market}",
+        price(&game)
+    );
+    let before = price(&game);
+    sell(
+        &mut game,
+        mine,
+        "brot",
+        PriceMode::Relative {
+            deviation: -0.1,
+            floor: Money::ZERO,
+        },
+    );
+    let market = crate::market::market_price(&c, game.state(), country, p).to_usd();
+    assert!(
+        (price(&game) - market * 0.9).abs() < 0.01,
+        "set {}",
+        price(&game)
+    );
     day(&mut game);
-    assert!((price(&game) - 3.6).abs() < 0.01, "{}", price(&game));
+    assert!(
+        (price(&game) - before).abs() < 0.05 * before,
+        "no jump: {before} -> {}",
+        price(&game)
+    );
+}
+
+#[test]
+fn a_relative_price_starts_from_the_guide_price_alone_and_from_the_market_with_a_competitor() {
+    let mut game = new_game();
+    let player = game.player();
+    let rival = competitor(&mut game);
+    let mine = warehouse(&mut game, player, "brot", 1e9, 50.0);
+    let theirs = warehouse(&mut game, rival, "brot", 1e9, 50.0);
+    sell(
+        &mut game,
+        mine,
+        "brot",
+        PriceMode::Relative {
+            deviation: -0.1,
+            floor: Money::ZERO,
+        },
+    );
+    let p = product(&game, "brot");
+    let country = aaa(&game);
+    let c = game.catalog().clone();
+    let price = |game: &Game| game.state().sites[mine.index()].offers[&p].price.to_usd();
+    // Alone, the set value applies to the guide price – at once and the days after.
+    let guide = crate::market::local_reference(&c, game.state(), country, p).to_usd();
+    assert!(
+        (price(&game) - guide * 0.9).abs() < 0.01,
+        "{}",
+        price(&game)
+    );
+    for _ in 0..3 {
+        day(&mut game);
+    }
+    assert!(
+        (price(&game) - guide * 0.9).abs() < 0.01,
+        "{}",
+        price(&game)
+    );
+    // A competitor comes: the price goes over to the market price, without asking.
+    sell(&mut game, theirs, "brot", PriceMode::Fixed(usd(3.0)));
+    day(&mut game);
+    let market = crate::market::market_price(&c, game.state(), country, p).to_usd();
+    assert!(
+        (price(&game) - market * 0.9).abs() < 0.05 * market,
+        "price {} market {market}",
+        price(&game)
+    );
 }
 
 #[test]

@@ -2250,9 +2250,10 @@ fn run(
                     if !(-0.9..=2.0).contains(deviation) || floor.is_negative() {
                         return Err(CommandError::InvalidPrice);
                     }
-                    let price = crate::market::market_price(catalog, state, country, *product)
-                        .scale(1.0 + deviation)
-                        .max(*floor);
+                    let price =
+                        crate::market::relative_base(catalog, state, actor, country, *product)
+                            .scale(1.0 + deviation)
+                            .max(*floor);
                     Some(SaleOffer {
                         demand: 0.0,
                         mode: *mode.as_ref().expect("some"),

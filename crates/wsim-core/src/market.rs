@@ -50,6 +50,50 @@ pub fn market_price(
     }
 }
 
+/// Whether another company or a trader offers goods of a product in a country: the
+/// competition a relative price (`PriceMode::Relative`) looks at. The state market is
+/// no competitor.
+fn competitors_present(
+    state: &GameState,
+    owner: CompanyId,
+    country: CountryId,
+    product: ProductId,
+) -> bool {
+    state.markets.get(product).get(country).imports.quantity > 1e-9
+        || state.sites.iter().enumerate().any(|(i, s)| {
+            s.country == country
+                && s.owner != owner
+                && s.closed.is_none()
+                && !crate::contracts::exclusive(
+                    state,
+                    SiteId(u32::try_from(i).unwrap_or(u32::MAX)),
+                    product,
+                )
+                && s.offers.get(&product).is_some_and(|o| {
+                    s.inventory
+                        .get(&product)
+                        .is_some_and(|st| st.quantity - o.keep > 1e-9)
+                })
+        })
+}
+
+/// What a relative price starts from (`PriceMode::Relative`): the market price in the
+/// country as shown to the player, once a competitor offers the product; alone in the
+/// market the guide price (Richtpreis).
+pub fn relative_base(
+    catalog: &Catalog,
+    state: &GameState,
+    owner: CompanyId,
+    country: CountryId,
+    product: ProductId,
+) -> Money {
+    if competitors_present(state, owner, country, product) {
+        market_price(catalog, state, country, product)
+    } else {
+        local_reference(catalog, state, country, product)
+    }
+}
+
 /// Price of the state market for a product in a country, if it sells it this year.
 pub fn state_price(
     catalog: &Catalog,
@@ -1140,8 +1184,8 @@ fn clear_market(
         note_unmet(&mut unmet_limit, max_price);
     }
     let mut import_price = None;
-    // What the other sellers asked today, for the offers that follow the market price at a
-    // set deviation: their mean price weighted by the goods they had, per owner left out.
+    // The owner of each offer, for the offers that follow the market price at a set
+    // deviation (they look at the competition of the others).
     let owners: Vec<Option<CompanyId>> = offers
         .iter()
         .map(|o| match o.seller {
@@ -1149,19 +1193,6 @@ fn clear_market(
             Seller::Importer | Seller::StateMarket => None,
         })
         .collect();
-    let others_price = |owner: CompanyId| -> Option<Money> {
-        let (mut sum, mut weight) = (0.0, 0.0);
-        for (i, o) in offers.iter().enumerate() {
-            let w = available_before[i];
-            if owners[i] == Some(owner) || w <= 1e-9 || matches!(o.seller, Seller::StateMarket) {
-                continue;
-            }
-            sum += o.price.to_usd() * w;
-            weight += w;
-        }
-        (weight > 1e-9).then(|| Money::from_usd(sum / weight).unwrap_or(Money::ZERO))
-    };
-    let index = state.markets.get(product).get(country).price;
     let relative: Vec<Option<Money>> = offers
         .iter()
         .enumerate()
@@ -1172,13 +1203,9 @@ fn clear_market(
                 .map(|x| x.mode)
             {
                 Some(PriceMode::Relative { deviation, floor }) => {
-                    let base = owners[i]
-                        .and_then(others_price)
-                        .unwrap_or(if index > Money::ZERO {
-                            index
-                        } else {
-                            reference
-                        });
+                    let base = owners[i].map_or(reference, |owner| {
+                        relative_base(catalog, state, owner, country, product)
+                    });
                     Some(
                         base.scale(1.0 + deviation)
                             .min(max_price)

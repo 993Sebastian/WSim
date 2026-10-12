@@ -675,7 +675,7 @@ werk.preis_festlegen: "Preis für {produkt} festlegen"
 werk.preisart: Preisart
 werk.automatisch: Automatisch – Marktpreis mit Abweichung
 werk.fest: Fester Preis
-werk.automatisch_hilfe: Dein Preis folgt jeden Tag dem Marktpreis der anderen Anbieter im Land, um die eingestellte Abweichung höher oder niedriger.
+werk.automatisch_hilfe: Dein Preis folgt jeden Tag dem Marktpreis im Land (dem, was dort bezahlt wird), um die eingestellte Abweichung höher oder niedriger.
 werk.abweichung: Abweichung vom Marktpreis
 werk.abweichung_hilfe: "Positiv = teurer als der Markt, negativ = günstiger (z. B. −5)."
 werk.abweichung_bereich: Die Abweichung muss zwischen −90 % und +200 % liegen.
