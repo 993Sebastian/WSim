@@ -2422,3 +2422,18 @@ nochmals bis zu 10 %. Zusammen höchstens 20 %.
 - Der Rabatt wirkt auf den Preis beim Abschluss und Nachverhandeln; der Grad wird je
   Lieferant (Firma) gespeichert und in Vertrags- und Marktansicht angezeigt.
 - Der Umsatzanteil bezieht sich auf den Umsatz des Lieferanten (Firma) im letzten Jahr.
+
+## Y Forschungszentrum: Projekt je Labor (Wunsch vom 12.10.2026)
+
+Wunsch: Jedes Labor eines Forschungszentrums wählt sein eigenes Projekt (ein Produkt).
+Wählen mehrere Labore dasselbe Produkt, erarbeiten sie zusammen Punkte für dieses Produkt.
+Heute gilt ein Projekt je Standort mit einer Auslastung je Labor.
+
+🟡 Annahmen (zur Abnahme):
+- Projekt und Auslastung gehören künftig zum einzelnen Labor; die Punkte aller Labore
+  mit gleichem Projekt werden je Tag summiert (ohne Abschlag).
+- Technologien und Produktlernen (FW1) folgen derselben Regel.
+- Der Befehl `SetResearch` bekommt die Nummer des Labors; das Format der Spielstände
+  ändert sich (Version erhöhen, Altstand umwandeln: das Standortprojekt gilt für alle Labore).
+- KI-Firmen wählen je Labor ein Projekt; bei Engpässen bündeln sie bevorzugt.
+- Die Werksansicht zeigt je Labor Projekt, Fortschritt und Auslastung.

@@ -112,6 +112,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ (Forschungspflicht, Grundprodukte, KI-Produktforschung, Werksbranche, Kauf nach Produkt, Umstellen; Annahmen OFFENE_PUNKTE U) |
 | MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | ⏳ (Annahmen W0–W8 bestätigt; Start nach FW1 Teil 2) |
+| LB1 | Forschungszentrum: Projekt je Labor statt eines Projekts je Standort; forschen mehrere Labore dasselbe Produkt bzw. dieselbe Technologie, addieren sich ihre Punkte (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE Y) | ⏳ nach MAA |
 | LV2 | Lieferverträge: Partnerschaftsgrad je Lieferant (produktübergreifend, wächst mit der Dauer) und Umsatzanteil beim Lieferanten – zusammen bis 20 % Rabatt auf den üblichen Vertragspreis (Wunsch vom 12.10.2026; Annahmen OFFENE_PUNKTE X) | ⏳ nach MAA |
 | AKT | Umstellungskosten aktivieren (Buchwert, Abschreibung) – Wunsch vom 12.10.2026 nachts, über Nacht nach MAA; Annahmen OFFENE_PUNKTE U-f | ⏳ |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |
