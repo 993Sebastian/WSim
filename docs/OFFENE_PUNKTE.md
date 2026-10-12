@@ -2437,3 +2437,21 @@ Heute gilt ein Projekt je Standort mit einer Auslastung je Labor.
   ändert sich (Version erhöhen, Altstand umwandeln: das Standortprojekt gilt für alle Labore).
 - KI-Firmen wählen je Labor ein Projekt; bei Engpässen bündeln sie bevorzugt.
 - Die Werksansicht zeigt je Labor Projekt, Fortschritt und Auslastung.
+
+## Z Einkaufscontrolling (Wunsch vom 13.10.2026)
+
+Wunsch: Im Bereich Controlling eine Auswertung des Einkaufs: welche Komponente in welcher
+Menge, Qualität und zu welchem Preis eingekauft wird und wie viel Geld im letzten Monat
+und im letzten Jahr dafür ausgegeben wurde – um zu prüfen, ob sich Eigenfertigung lohnt.
+
+🟡 Annahmen (zur Abnahme):
+- Erfasst wird jeder Zukauf je Firma, Standort und Produkt: Marktkäufe, Bezug über
+  Lieferverträge und Einmalkäufe. Interne Lieferungen zwischen eigenen Standorten
+  stehen getrennt (kein Zukauf).
+- Je Zeile: Menge, mengengewichtete Durchschnittsqualität, Durchschnittspreis, Ausgaben;
+  Zeiträume „letzter Monat“, „letzte 12 Monate“, Summen je Produkt, Standort und gesamt.
+- Zusätzlich je Zeile als Entscheidungshilfe: die geschätzten Stückkosten einer
+  Eigenfertigung (wenn die Firma das Produkt herstellen darf) und der Unterschied zum
+  Einkaufspreis in %; die Entscheidung bleibt beim Spieler.
+- Die Zahlen kommen aus einem neuen Monatsspeicher je Firma (Spielstandformat steigt);
+  alles in USD Kaufkraft 2026, Anzeige in der gewählten Währung.
