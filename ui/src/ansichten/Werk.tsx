@@ -180,7 +180,12 @@ export function Werk({
       />
       {bereich === "anlagen" && <Anlagen s={s} produktion={produktion} />}
       {bereich === "forschung" && forschung && (
-        <ForschungImWerk kern={kern} site={s.index} onGeaendert={onGeaendert} />
+        <ForschungImWerk
+          kern={kern}
+          site={s.index}
+          stand={produktion.date}
+          onGeaendert={onGeaendert}
+        />
       )}
       {bereich === "einkauf" && <Einkauf kern={kern} s={s} produktion={produktion} />}
       {bereich === "verkauf" && <Verkauf s={s} produktion={produktion} />}

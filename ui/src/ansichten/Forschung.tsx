@@ -824,13 +824,16 @@ function Zentren({ kern, daten, heimat }: { kern: Kern; daten: Forschung; heimat
 export function ForschungImWerk({
   kern,
   site,
+  stand,
   onGeaendert,
 }: {
   kern: Kern;
   site: number;
+  /** Current date: the view reloads with every round. */
+  stand: string;
   onGeaendert?: (u: Uebersicht) => void;
 }) {
-  const { daten, fehler, neu } = useSicht(() => kern.forschung(), String(site));
+  const { daten, fehler, neu } = useSicht(() => kern.forschung(), `${stand}/${site}`);
   const { senden, meldung } = useBefehl(kern, onGeaendert ?? (() => {}), neu);
   if (!daten) return <FehlerText fehler={fehler} />;
   const z = daten.centers.find((c) => c.site === site);
