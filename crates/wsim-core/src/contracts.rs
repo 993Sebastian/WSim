@@ -207,7 +207,17 @@ pub fn daily_output(state: &GameState, catalog: &Catalog, site: SiteId, product:
         .filter(|sl| sl.operating(date))
         .filter_map(|sl| sl.recipe.map(|r| (sl, catalog.recipes.get(r))))
         .filter(|(_, r)| r.product == product)
-        .map(|(sl, r)| sl.full_runs(catalog) * r.output)
+        .map(|(sl, r)| {
+            // More output per run through the owner's manufacturing research.
+            let gained = crate::production::site_effect(
+                catalog,
+                state,
+                &state.sites[site.index()],
+                r.product,
+            )
+            .output;
+            sl.full_runs(catalog) * r.output * gained
+        })
         .sum()
 }
 
@@ -221,10 +231,18 @@ pub fn daily_need(state: &GameState, catalog: &Catalog, site: SiteId, product: P
         .filter_map(|sl| sl.recipe.map(|r| (sl, catalog.recipes.get(r))))
         .map(|(sl, r)| {
             let runs = sl.full_runs(catalog) * sl.utilization;
+            // What the owner's research saves in inputs (development, manufacturing).
+            let saved = crate::production::site_effect(
+                catalog,
+                state,
+                &state.sites[site.index()],
+                r.product,
+            )
+            .inputs;
             r.inputs
                 .iter()
                 .filter(|&&(i, _)| i == product)
-                .map(|&(_, q)| runs * q)
+                .map(|&(_, q)| runs * q * saved)
                 .sum::<f64>()
         })
         .sum()

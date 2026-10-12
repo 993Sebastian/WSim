@@ -473,6 +473,29 @@ fn developed_products_need_less_labor_and_inputs_and_are_better() {
     assert!((labor5 / labor0 - 0.8).abs() < 1e-9);
 }
 
+/// What research saves also counts in the plans that go before the production: the daily
+/// need of inputs that the supply and the contracts count on.
+#[test]
+fn the_planned_need_of_inputs_follows_the_research() {
+    let run = |points: f64| {
+        let mut game = new_game(catalog());
+        let works = chain(&mut game);
+        let iron = product(&game, "eisen");
+        let ore = product(&game, "erz");
+        let player = game.player();
+        if points > 0.0 {
+            development::add_points(game.state_mut(), player, iron, points);
+        }
+        crate::contracts::daily_need(game.state(), game.catalog(), works, ore)
+    };
+    let (plain, developed) = (run(0.0), run(100_000.0));
+    assert!(plain > 0.0);
+    assert!(
+        (developed / plain - 0.85).abs() < 1e-9,
+        "{plain} {developed}"
+    );
+}
+
 #[test]
 fn the_command_checks_the_site_and_the_product() {
     let mut game = new_game(catalog());

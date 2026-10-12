@@ -826,10 +826,13 @@ pub fn production(game: &Game) -> ProductionView {
                         sl.full_runs(catalog) * sl.utilization
                     };
                     if let Some(r) = recipe {
+                        // With what the owner's research saves in inputs.
+                        let saved =
+                            crate::production::site_effect(catalog, state, s, r.product).inputs;
                         for &(p, q) in &r.inputs {
                             match need.iter_mut().find(|(x, _)| *x == p) {
-                                Some((_, n)) => *n += q * runs,
-                                None => need.push((p, q * runs)),
+                                Some((_, n)) => *n += q * saved * runs,
+                                None => need.push((p, q * saved * runs)),
                             }
                         }
                     }
@@ -880,8 +883,18 @@ pub fn production(game: &Game) -> ProductionView {
                         automation: sl.automation,
                         automation_max: f.automation_max,
                         ready: iso(sl.ready),
-                        planned_per_day: recipe.map_or(0.0, |r| runs * r.output),
-                        made_per_day: recipe.map_or(0.0, |r| sl.last_runs * r.output),
+                        // With the output research of the owner (manufacturing research).
+                        planned_per_day: recipe.map_or(0.0, |r| {
+                            runs * r.output
+                                * crate::production::site_effect(catalog, state, s, r.product)
+                                    .output
+                        }),
+                        made_per_day: recipe.map_or(0.0, |r| {
+                            sl.last_runs
+                                * r.output
+                                * crate::production::site_effect(catalog, state, s, r.product)
+                                    .output
+                        }),
                         development_level: recipe.map_or(0, |r| {
                             crate::development::level(catalog, state, s.owner, r.product)
                         }),
