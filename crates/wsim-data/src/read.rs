@@ -9,11 +9,12 @@ use crate::messages;
 use crate::raw::{
     RawAiModel, RawBank, RawBonds, RawBranch, RawCentral, RawChannel, RawContracts, RawCountry,
     RawCountryCurrencies, RawCountryModel, RawCurrency, RawDealModel, RawDeposit, RawEvent,
-    RawEventModel, RawFacility, RawFinanceModel, RawInventor, RawLife, RawLogistics, RawManagement,
-    RawMarketModel, RawMeta, RawMilestone, RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex,
-    RawProduct, RawProductNaming, RawProductionModel, RawQualification, RawRealCompany, RawRecipe,
-    RawResearchModel, RawSimple, RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology,
-    RawTransportClass, RawTransportModel, RawUnit, RawVehicle, RawVentures,
+    RawEventModel, RawFacility, RawFinanceModel, RawInventor, RawLife, RawLogistics,
+    RawMachineBuilder, RawMachineOffers, RawManagement, RawMarketModel, RawMeta, RawMilestone,
+    RawNameGroup, RawPerson, RawPlotModel, RawPriceIndex, RawProduct, RawProductNaming,
+    RawProductionModel, RawQualification, RawRealCompany, RawRecipe, RawResearchModel, RawSimple,
+    RawStockMarket, RawSubsidiaries, RawTariffs, RawTechnology, RawTransportClass,
+    RawTransportModel, RawUnit, RawVehicle, RawVentures,
 };
 use crate::report::{Finding, Path, Report, Segment, Severity};
 use crate::suggest;
@@ -173,6 +174,8 @@ pub(crate) struct RawData {
     pub deposits: Vec<Entry<RawDeposit>>,
     pub vehicles: Vec<Entry<RawVehicle>>,
     pub channels: Vec<Entry<RawChannel>>,
+    pub machine_builders: Vec<Entry<RawMachineBuilder>>,
+    pub machine_offers: Vec<Entry<RawMachineOffers>>,
     pub ai_model: Vec<Entry<RawAiModel>>,
     pub deal_model: Vec<Entry<RawDealModel>>,
     pub plot_model: Vec<Entry<RawPlotModel>>,
@@ -226,6 +229,8 @@ pub(crate) const SECTIONS: &[&str] = &[
     "lagerstaetten",
     "verkehrsmittel",
     "vertriebswege",
+    "maschinenbauer",
+    "maschinenangebote",
     "kimodell",
     "kaufmodell",
     "grundstuecksmodell",
@@ -424,6 +429,13 @@ pub(crate) fn read_content_file(ctx: &mut Ctx, file: usize, raw: &mut RawData) {
             "lagerstaetten" => read_list(ctx, &loc, value, &mut raw.deposits, &mut raw.broken),
             "verkehrsmittel" => read_list(ctx, &loc, value, &mut raw.vehicles, &mut raw.broken),
             "vertriebswege" => read_list(ctx, &loc, value, &mut raw.channels, &mut raw.broken),
+            "maschinenbauer" => {
+                read_list(ctx, &loc, value, &mut raw.machine_builders, &mut raw.broken)
+            }
+            "maschinenangebote" => match de::from_node::<RawMachineOffers>(value, &loc.path) {
+                Ok(model) => raw.machine_offers.push(Entry { loc, value: model }),
+                Err(e) => ctx.de_error(file, e),
+            },
             other => ctx.error(
                 &file_loc.key(other),
                 messages::unknown_section(

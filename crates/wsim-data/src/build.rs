@@ -31,6 +31,7 @@ mod environment;
 mod events;
 mod life;
 mod logistics;
+mod machines;
 mod management;
 mod milestones;
 mod names;
@@ -390,6 +391,14 @@ pub(crate) fn build(
         |e| &e.id,
     );
 
+    let (builder_keys, machine_builders) = register(
+        b.ctx,
+        raw,
+        ("maschinenbauer", "Maschinenbauer", Some("maschinenbauer")),
+        KeyFormat::Snake,
+        &raw.machine_builders,
+        |e| &e.id,
+    );
     let (_channel_keys, channels) = register(
         b.ctx,
         raw,
@@ -467,6 +476,11 @@ pub(crate) fn build(
         raw,
         (&qualification_keys, &branch_keys, &specialization_keys),
     );
+    for e in &machine_builders {
+        let builder = machines::builder(b.ctx, e, &country_keys);
+        b.catalog.machine_builders.insert(&e.value.id, builder);
+    }
+    b.catalog.machine_offers = machines::offer_model(b.ctx, raw);
     for e in &channels {
         let channel = production::channel(b.ctx, e, &group_keys);
         b.catalog.channels.insert(&e.value.id, channel);
@@ -754,6 +768,7 @@ pub(crate) fn build(
         &qualification_keys,
         &specialization_keys,
         &country_keys,
+        &builder_keys,
         &product_keys,
         &facility_keys,
         &recipe_keys,

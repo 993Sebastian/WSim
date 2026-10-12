@@ -128,3 +128,10 @@ Leistung L, Preislage P und Bauzeit Z.
   Spieler (W8).
 - Die Auslöser „Anlage bauen/Kapazität ausbauen“ starten künftig eine Ausschreibung statt
   eines Direktkaufs.
+
+## 8. Nachtrag: Flächenanzeige (12.10.2026)
+
+- Der Flächenbedarf einer Maschine ist immer sichtbar: in der Auswahl (Katalogwert), in
+  jedem Angebot (absolut und Abweichung) und an der gebauten Anlage.
+- Das Werk zeigt deutlich, wie viele m² frei sind (Grundstück, belegt, frei, auch
+  beim Prüfen eines Angebots: „danach noch frei“). Gilt auch für den Umbau (§2a).

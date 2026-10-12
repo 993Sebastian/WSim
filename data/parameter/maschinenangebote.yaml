@@ -1,0 +1,25 @@
+# Ausschreibung von Maschinen (MAA, docs/MASCHINENANGEBOTE.md, Formeln: docs/FORMELN.md).
+# Alle Werte sind Annäherungen und gehören zum Balancing.
+
+maschinenangebote:
+  laufzeit_tage: 28              # Dauer einer Ausschreibung
+  gueltig_tage: 14               # so lange gilt ein Angebot
+  angebote_je_woche: [1, 5]      # neue Angebote je Woche (von, bis)
+  verteilung:
+    normal_anteil: 0.85          # Rest sind Ausreißer
+    abweichung: 0.35             # Standardabweichung der Normalverteilung
+    ausreisser: [0.7, 1.0]       # Betrag der Ausreißer
+  wirkung:                       # Faktor = 1 ± Wert · L (bzw. P, Z)
+    ausstoss: 0.20
+    personal: 0.15
+    vorprodukte: 0.10
+    ausschuss: 0.20
+    preis_leistung: 0.12
+    preis_lage: 0.08
+    flaeche_streuung: 0.10
+    bauzeit: 0.20
+    rauschen: 0.03
+    grenze: 0.20
+  mengenrabatt_anteil: 0.10      # Preisnachlass je Einheit = Anteil × (1 − 1/n)
+  ki_schwelle: 0.02              # KI nimmt an, wenn Stückkosten so weit unter dem Katalogwert liegen
+  annaeherung: true

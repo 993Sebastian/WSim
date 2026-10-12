@@ -2406,3 +2406,19 @@ sich ohne Programmierung ändern.
 Faktoren des Umbau-Angebots ersetzen die der Anlage. Mengenrabatt entfällt nicht, gilt
 aber für die Zahl der umgestellten Einheiten. Damit wird AKT (Aktivierung der
 Umstellungskosten) auf den angenommenen Angebotspreis bezogen. Siehe `MASCHINENANGEBOTE.md` §2a.
+
+## X Lieferverträge: Partnerschaft und Umsatzanteil (Wunsch vom 12.10.2026)
+
+Wunsch: Je Lieferant ein **Partnerschaftsgrad in %**, produktübergreifend. Er steigt mit
+der Dauer der Zusammenarbeit (auch über mehrere Verträge) und senkt den vereinbarten
+Preis um höchstens 10 % gegenüber dem üblich angebotenen Vertragspreis. Zusätzlich ein
+**Umsatzfaktor**: macht der Käufer 20 % des Gesamtumsatzes des Lieferanten, gibt es
+nochmals bis zu 10 %. Zusammen höchstens 20 %.
+
+🟡 Annahmen (zur Abnahme):
+- Partnerschaft wächst je Monat mit Lieferung linear bis 100 % nach ca. 60 Monaten
+  (Datenwert), sinkt bei Vertragsbruch/Fehlmengen und ohne Lieferung langsam.
+- Rabatt Partnerschaft = 10 % × Grad; Rabatt Umsatz = 10 % × min(1, Anteil / 20 %).
+- Der Rabatt wirkt auf den Preis beim Abschluss und Nachverhandeln; der Grad wird je
+  Lieferant (Firma) gespeichert und in Vertrags- und Marktansicht angezeigt.
+- Der Umsatzanteil bezieht sich auf den Umsatz des Lieferanten (Firma) im letzten Jahr.

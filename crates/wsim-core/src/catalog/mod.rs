@@ -15,8 +15,8 @@ use crate::ids::{Id, IdKind, KeyTable};
 
 use crate::ids::{
     BranchId, ChannelId, ContinentId, CountryId, DepositId, FacilityId, GoodsGroupId, LaborGroupId,
-    MilestoneId, ProductId, QualificationId, RecipeId, SpecializationId, TechnologyId,
-    TransportClassId, UnitId, VehicleId,
+    MachineBuilderId, MilestoneId, ProductId, QualificationId, RecipeId, SpecializationId,
+    TechnologyId, TransportClassId, UnitId, VehicleId,
 };
 use crate::money::Money;
 use crate::state::StartForm;
@@ -48,6 +48,8 @@ pub struct Catalog {
     pub vehicles: Table<VehicleId, Vehicle>,
     /// Sales channels to end customers (MN3).
     pub channels: Table<ChannelId, Channel>,
+    pub machine_builders: Table<MachineBuilderId, MachineBuilder>,
+    pub machine_offers: MachineOfferModel,
     /// Goals for the player after the introduction, in display order (M23).
     pub milestones: Table<MilestoneId, Milestone>,
     pub country_model: CountryModel,
@@ -1035,6 +1037,7 @@ impl Catalog {
                 IdKind::Vehicle => self.vehicles.keys().to_vec(),
                 IdKind::Milestone => self.milestones.keys().to_vec(),
                 IdKind::Channel => self.channels.keys().to_vec(),
+                IdKind::MachineBuilder => self.machine_builders.keys().to_vec(),
             })
             .collect();
         let mut table = KeyTable::new(keys);
@@ -1126,6 +1129,60 @@ pub struct Vehicle {
     /// Payload of one vehicle in tonnes and its price in USD (W5); `None`: not for
     /// fleets.
     pub fleet: Option<FleetVehicle>,
+    pub provenance: Provenance,
+}
+
+/// A fictitious machine builder (`data/maschinenbauer.yaml`, MAA).
+#[derive(Clone, Debug, PartialEq)]
+pub struct MachineBuilder {
+    pub country: CountryId,
+    /// Shifts the mean of an offer's performance, -0.3 to 0.3; never its build time.
+    pub tendency: f64,
+    pub from_year: i32,
+    pub until_year: Option<i32>,
+}
+
+impl MachineBuilder {
+    pub fn active(&self, year: i32) -> bool {
+        self.from_year <= year && self.until_year.is_none_or(|y| y >= year)
+    }
+}
+
+/// Tenders for machines (`parameter/maschinenangebote.yaml`, MAA, docs/MASCHINENANGEBOTE.md).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct MachineOfferModel {
+    /// Without the section facilities are bought directly.
+    pub enabled: bool,
+    /// Days a tender runs, and days each offer stays valid.
+    pub tender_days: u32,
+    pub valid_days: u32,
+    /// Offers per week of a tender, lowest and highest.
+    pub offers_per_week: (u32, u32),
+    /// The hidden values L, P and Z: share drawn normally, its deviation, and the range
+    /// of the magnitude of outliers.
+    pub normal_share: f64,
+    pub deviation: f64,
+    pub outlier: (f64, f64),
+    /// Effect of the performance L on output, labor, inputs and scrap (labor, inputs and
+    /// scrap fall as L rises).
+    pub output: f64,
+    pub labor: f64,
+    pub inputs: f64,
+    pub scrap: f64,
+    /// Effect of L and of the price position P on the price.
+    pub price_performance: f64,
+    pub price_position: f64,
+    /// Independent spread of the area, effect of Z on the build time, noise of every
+    /// figure but the build time, and the limit of every factor around the catalog value.
+    pub area_spread: f64,
+    pub build_time: f64,
+    pub noise: f64,
+    pub limit: f64,
+    /// Share of the price saved with the second unit of a purchase; n units save
+    /// share · (1 − 1/n) per unit.
+    pub volume_discount: f64,
+    /// An AI company takes an offer whose unit cost stays this much under the catalog's.
+    pub ai_threshold: f64,
     pub provenance: Provenance,
 }
 

@@ -113,6 +113,7 @@ art.technologie: Technologie
 art.lagerstaette: Lagerstätte
 art.verkehrsmittel: Verkehrsmittel
 art.vertriebsweg: Vertriebsweg
+art.maschinenbauer: Maschinenbauer
 art.etappe: Etappe
 
 fehler.befehl.betrag_ungueltig: Der Betrag muss größer als 0 sein.

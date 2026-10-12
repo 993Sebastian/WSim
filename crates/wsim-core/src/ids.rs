@@ -35,10 +35,11 @@ pub enum IdKind {
     Vehicle,
     Milestone,
     Channel,
+    MachineBuilder,
 }
 
 impl IdKind {
-    pub const ALL: [IdKind; 17] = [
+    pub const ALL: [IdKind; 18] = [
         IdKind::Unit,
         IdKind::Continent,
         IdKind::Branch,
@@ -56,6 +57,7 @@ impl IdKind {
         IdKind::Vehicle,
         IdKind::Milestone,
         IdKind::Channel,
+        IdKind::MachineBuilder,
     ];
 
     pub fn name(self) -> &'static str {
@@ -77,6 +79,7 @@ impl IdKind {
             IdKind::Vehicle => "verkehrsmittel",
             IdKind::Milestone => "etappe",
             IdKind::Channel => "vertriebsweg",
+            IdKind::MachineBuilder => "maschinenbauer",
         }
     }
 
@@ -302,6 +305,8 @@ define_id!(
     MilestoneId => Milestone,
     /// A way to end customers (MN3).
     ChannelId => Channel,
+    /// A machine builder offering facilities (MAA).
+    MachineBuilderId => MachineBuilder,
 );
 
 #[cfg(test)]

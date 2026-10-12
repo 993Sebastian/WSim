@@ -3590,3 +3590,78 @@ pub struct RawRegulation {
     #[serde(default, rename = "quelle")]
     pub source: Option<String>,
 }
+
+/// Tenders for machines (`parameter/maschinenangebote.yaml`, MAA).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMachineOffers {
+    #[serde(rename = "laufzeit_tage")]
+    pub tender_days: u32,
+    #[serde(rename = "gueltig_tage")]
+    pub valid_days: u32,
+    #[serde(rename = "angebote_je_woche")]
+    pub offers_per_week: Vec<u32>,
+    #[serde(rename = "verteilung")]
+    pub distribution: RawOfferDistribution,
+    #[serde(rename = "wirkung")]
+    pub effect: RawOfferEffect,
+    #[serde(rename = "mengenrabatt_anteil")]
+    pub volume_discount: f64,
+    #[serde(rename = "ki_schwelle")]
+    pub ai_threshold: f64,
+    #[serde(rename = "annaeherung", default)]
+    pub approximation: bool,
+    #[serde(rename = "quelle", default)]
+    pub source: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOfferDistribution {
+    #[serde(rename = "normal_anteil")]
+    pub normal_share: f64,
+    #[serde(rename = "abweichung")]
+    pub deviation: f64,
+    #[serde(rename = "ausreisser")]
+    pub outlier: Vec<f64>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawOfferEffect {
+    #[serde(rename = "ausstoss")]
+    pub output: f64,
+    #[serde(rename = "personal")]
+    pub labor: f64,
+    #[serde(rename = "vorprodukte")]
+    pub inputs: f64,
+    #[serde(rename = "ausschuss")]
+    pub scrap: f64,
+    #[serde(rename = "preis_leistung")]
+    pub price_performance: f64,
+    #[serde(rename = "preis_lage")]
+    pub price_position: f64,
+    #[serde(rename = "flaeche_streuung")]
+    pub area_spread: f64,
+    #[serde(rename = "bauzeit")]
+    pub build_time: f64,
+    #[serde(rename = "rauschen")]
+    pub noise: f64,
+    #[serde(rename = "grenze")]
+    pub limit: f64,
+}
+
+/// A fictitious machine builder (`data/maschinenbauer.yaml`, MAA).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawMachineBuilder {
+    pub id: String,
+    #[serde(rename = "land")]
+    pub country: String,
+    #[serde(rename = "tendenz")]
+    pub tendency: f64,
+    #[serde(rename = "ab")]
+    pub from: i32,
+    #[serde(rename = "bis", default)]
+    pub until: Option<i32>,
+}

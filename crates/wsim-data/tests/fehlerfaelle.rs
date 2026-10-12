@@ -5729,3 +5729,76 @@ fn grundprodukt_wird_geprueft() {
     );
     nur_fehler(&outcome, 1);
 }
+
+const ANGEBOTE: &str = "maschinenangebote:
+  laufzeit_tage: 28
+  gueltig_tage: 14
+  angebote_je_woche: [1, 5]
+  verteilung: {normal_anteil: 0.85, abweichung: 0.35, ausreisser: [0.7, 1.0]}
+  wirkung:
+    ausstoss: 0.2
+    personal: 0.15
+    vorprodukte: 0.1
+    ausschuss: 0.2
+    preis_leistung: 0.12
+    preis_lage: 0.08
+    flaeche_streuung: 0.1
+    bauzeit: 0.2
+    rauschen: 0.03
+    grenze: 0.2
+  mengenrabatt_anteil: 0.1
+  ki_schwelle: 0.02
+";
+
+const BAUER: &str = "maschinenbauer:
+  - {id: nordstahl, land: SWE, tendenz: 0.1, ab: 1900}
+";
+
+fn maschinen() -> Daten {
+    Daten::neu()
+        .datei("parameter/maschinenangebote.yaml", ANGEBOTE)
+        .datei("maschinenbauer.yaml", BAUER)
+        .datei(
+            "texte/de/maschinenbauer.yaml",
+            "maschinenbauer.nordstahl: Nordstahl\n",
+        )
+}
+
+#[test]
+fn maschinenangebote_werden_geprueft() {
+    let data = maschinen().laden().data.unwrap();
+    let c = &data.catalog;
+    assert!(c.machine_offers.enabled);
+    assert_eq!(c.machine_offers.tender_days, 28);
+    assert_eq!(c.machine_builders.len(), 1);
+
+    // Tendency beyond +-0.3.
+    let d = maschinen().ersetze("maschinenbauer.yaml", "tendenz: 0.1", "tendenz: 0.5");
+    let outcome = d.laden();
+    let f = befund(&outcome, "außerhalb des erlaubten Bereichs -0.3 bis 0.3");
+    assert_ort(
+        f,
+        "maschinenbauer.yaml",
+        d.zeile("maschinenbauer.yaml", "nordstahl"),
+        "maschinenbauer[0].tendenz",
+    );
+    nur_fehler(&outcome, 1);
+
+    // Weekly offers need exactly two values.
+    let outcome = maschinen()
+        .ersetze("parameter/maschinenangebote.yaml", "[1, 5]", "[1]")
+        .laden();
+    befund(&outcome, "2 Werte (von, bis)");
+    nur_fehler(&outcome, 1);
+
+    // Outlier magnitude outside 0..1.
+    let outcome = maschinen()
+        .ersetze(
+            "parameter/maschinenangebote.yaml",
+            "[0.7, 1.0]",
+            "[0.7, 1.5]",
+        )
+        .laden();
+    befund(&outcome, "außerhalb des erlaubten Bereichs 0 bis 1");
+    nur_fehler(&outcome, 1);
+}

@@ -927,3 +927,26 @@ geforderten Anteil ersetzt), beide Pflicht. Bewertung: `docs/FORMELN.md`, M23.
 | **art** | `erster_verkauf`, `gewinnmonat`, `anlagen`, `eigenes_vorprodukt`, `laender`, `forschung`, `marktfuehrer` oder `eigenkapital` |
 | wert | Nur und genau bei `anlagen` und `laender` (ganze Zahl 1–1000), `marktfuehrer` (Anteil am Absatz, 0,01–1) und `eigenkapital` (Vielfaches des Startkapitals, über 1 bis 1000) |
 
+
+## Maschinenangebote (MAA)
+
+`parameter/maschinenangebote.yaml`, Schlüssel `maschinenangebote` (optional; ohne ihn gilt
+der Direktkauf). Vorgabe: `docs/MASCHINENANGEBOTE.md`.
+
+| Feld | Bedeutung |
+| --- | --- |
+| **laufzeit_tage**, **gueltig_tage** | Dauer der Ausschreibung und Gültigkeit eines Angebots (1–365) |
+| **angebote_je_woche** | `[von, bis]` neue Angebote je Woche |
+| **verteilung** | `normal_anteil` (0–1), `abweichung` (0,01–1), `ausreisser: [von, bis]` (Beträge 0–1) |
+| **wirkung** | Stärke je Kennzahl (0–1): `ausstoss`, `personal`, `vorprodukte`, `ausschuss`, `preis_leistung`, `preis_lage`, `flaeche_streuung`, `bauzeit`; `rauschen` (0–0,5), `grenze` (0,01–1) |
+| **mengenrabatt_anteil** | Preisnachlass je Einheit = Anteil × (1 − 1/n), 0–1 |
+| **ki_schwelle** | Annahmeschwelle der KI (−1 bis 1) |
+
+`maschinenbauer.yaml`, Liste `maschinenbauer` (erfunden, Namen in `texte/de/maschinenbauer.yaml`,
+Schlüssel `maschinenbauer.<id>`; erzeugt von `tools/daten/maschinenbauer.py`):
+
+| Feld | Bedeutung |
+| --- | --- |
+| **id**, **land** | Schlüssel und Land (ISO oder Region) |
+| **tendenz** | −0,3 bis +0,3; verschiebt nur die Leistung L |
+| **ab**, bis | Jahre, in denen der Hersteller anbietet (`bis` nicht vor `ab`) |

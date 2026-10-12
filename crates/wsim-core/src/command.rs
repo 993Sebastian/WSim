@@ -1828,6 +1828,20 @@ fn run(
             if sl.ready > state.date {
                 return Err(CommandError::UnderConstruction);
             }
+            // The new facility may need other land than the old one (FW1).
+            if let Some(plot) = s.plot {
+                let m = &catalog.plot_model;
+                let old = plots::unit_area(catalog, sl.facility, sl.size)
+                    * f64::from(sl.count)
+                    * (1.0 + m.overhead);
+                let needed_ha =
+                    (plots::site_area(catalog, s, Some((r.facility, sl.size, sl.count))) - old)
+                        .max(m.min_site_area_ha);
+                let area_ha = state.plots[plot.index()].area_ha;
+                if needed_ha > area_ha + 1e-9 {
+                    return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
+                }
+            }
             let f = catalog.facilities.get(r.facility);
             let sizes = &catalog.production_model.sizes;
             let days = (f64::from(sizes.build_days(sl.size, f.build_days))

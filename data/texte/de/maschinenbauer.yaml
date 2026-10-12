@@ -1,0 +1,291 @@
+# Namen der Maschinenbauer (erfunden; erzeugt von tools/daten/maschinenbauer.py)
+
+maschinenbauer.arg_pampa_ingenier_a: Pampa Ingeniería
+maschinenbauer.arg_iberia_talleres: Iberia Talleres
+maschinenbauer.arg_mar_maquinaria: Mar Maquinaria
+maschinenbauer.arg_sierra_industrias: Sierra Industrias
+maschinenbauer.arg_sierra_ingenier_a_s_a: Sierra Ingeniería S.A.
+maschinenbauer.aus_crown_foundry_co: Crown Foundry Co.
+maschinenbauer.aus_atlas_industries_co: Atlas Industries Co.
+maschinenbauer.aus_union_engineering: Union Engineering
+maschinenbauer.aus_atlas_engineering_co: Atlas Engineering Co.
+maschinenbauer.aus_union_machinery_sons: Union Machinery & Sons
+maschinenbauer.bgd_hanjiang_engineering_corp: Hanjiang Engineering Corp.
+maschinenbauer.bgd_orient_engineering_corp: Orient Engineering Corp.
+maschinenbauer.bgd_lotus_engineering_corp: Lotus Engineering Corp.
+maschinenbauer.bgd_orient_machinery_corp: Orient Machinery Corp.
+maschinenbauer.bgd_sakura_machinery_co: Sakura Machinery Co.
+maschinenbauer.bgd_jade_engineering: Jade Engineering
+maschinenbauer.bgd_indus_machinery: Indus Machinery
+maschinenbauer.bgd_indus_engineering: Indus Engineering
+maschinenbauer.bra_harbor_machinery_ltd: Harbor Machinery Ltd.
+maschinenbauer.bra_union_engineering: Union Engineering
+maschinenbauer.bra_bridge_foundry_ltd: Bridge Foundry Ltd.
+maschinenbauer.bra_summit_foundry_ltd: Summit Foundry Ltd.
+maschinenbauer.bra_harbor_industries_ltd: Harbor Industries Ltd.
+maschinenbauer.can_pioneer_works: Pioneer Works
+maschinenbauer.can_crown_foundry_sons: Crown Foundry & Sons
+maschinenbauer.can_atlas_machinery_sons: Atlas Machinery & Sons
+maschinenbauer.can_pioneer_industries: Pioneer Industries
+maschinenbauer.can_iron_machinery_co: Iron Machinery Co.
+maschinenbauer.chn_fuji_machinery_co: Fuji Machinery Co.
+maschinenbauer.chn_fuji_works: Fuji Works
+maschinenbauer.chn_hanjiang_heavy_industries_corp: Hanjiang Heavy Industries Corp.
+maschinenbauer.chn_sakura_works_co: Sakura Works Co.
+maschinenbauer.chn_jade_works_co: Jade Works Co.
+maschinenbauer.chn_orient_engineering: Orient Engineering
+maschinenbauer.cod_cape_machinery_co: Cape Machinery Co.
+maschinenbauer.cod_savanna_works_ltd: Savanna Works Ltd.
+maschinenbauer.cod_niger_machinery_co: Niger Machinery Co.
+maschinenbauer.cod_niger_machinery_ltd: Niger Machinery Ltd.
+maschinenbauer.cod_zambezi_machinery_ltd: Zambezi Machinery Ltd.
+maschinenbauer.col_iberia_talleres_s_a: Iberia Talleres S.A.
+maschinenbauer.col_sierra_talleres_e_hijos: Sierra Talleres e Hijos
+maschinenbauer.col_mar_industrias: Mar Industrias
+maschinenbauer.col_castilla_ingenier_a: Castilla Ingeniería
+maschinenbauer.col_sierra_ingenier_a_e_hijos: Sierra Ingeniería e Hijos
+maschinenbauer.col_andes_maquinaria_s_a: Andes Maquinaria S.A.
+maschinenbauer.col_mar_ingenier_a_e_hijos: Mar Ingeniería e Hijos
+maschinenbauer.deu_wend_technik_soehne: Wend Technik & Söhne
+maschinenbauer.deu_alt_werke_gmbh: Alt Werke GmbH
+maschinenbauer.deu_berg_anlagenbau: Berg Anlagenbau
+maschinenbauer.deu_kron_apparatebau: Kron Apparatebau
+maschinenbauer.deu_rhein_apparatebau_soehne: Rhein Apparatebau & Söhne
+maschinenbauer.deu_rhein_technik_soehne: Rhein Technik & Söhne
+maschinenbauer.deu_ruhr_technik_ag: Ruhr Technik AG
+maschinenbauer.deu_nord_maschinenbau_soehne: Nord Maschinenbau & Söhne
+maschinenbauer.egy_anatolia_machinery: Anatolia Machinery
+maschinenbauer.egy_levant_machinery_co: Levant Machinery Co.
+maschinenbauer.egy_tigris_industrial_works_co: Tigris Industrial Works Co.
+maschinenbauer.egy_anatolia_metalworks: Anatolia Metalworks
+maschinenbauer.egy_zagros_industrial_works_brothers: Zagros Industrial Works & Brothers
+maschinenbauer.egy_sahara_industrial_works: Sahara Industrial Works
+maschinenbauer.egy_levant_metalworks_brothers: Levant Metalworks & Brothers
+maschinenbauer.egy_tigris_engineering: Tigris Engineering
+maschinenbauer.esp_castilla_maquinaria_e_hijos: Castilla Maquinaria e Hijos
+maschinenbauer.esp_pampa_ingenier_a_s_a: Pampa Ingeniería S.A.
+maschinenbauer.esp_castilla_ingenier_a_s_a: Castilla Ingeniería S.A.
+maschinenbauer.esp_sierra_industrias: Sierra Industrias
+maschinenbauer.esp_iberia_talleres: Iberia Talleres
+maschinenbauer.esp_andes_ingenier_a: Andes Ingeniería
+maschinenbauer.eth_congo_engineering_co: Congo Engineering Co.
+maschinenbauer.eth_niger_machinery_ltd: Niger Machinery Ltd.
+maschinenbauer.eth_zambezi_engineering_ltd: Zambezi Engineering Ltd.
+maschinenbauer.eth_congo_engineering: Congo Engineering
+maschinenbauer.eth_congo_works: Congo Works
+maschinenbauer.fra_loire_mecanique: Loire Mécanique
+maschinenbauer.fra_provence_mecanique_s_a: Provence Mécanique S.A.
+maschinenbauer.fra_provence_ateliers_fils: Provence Ateliers & Fils
+maschinenbauer.fra_loire_constructions_s_a: Loire Constructions S.A.
+maschinenbauer.fra_aurore_constructions: Aurore Constructions
+maschinenbauer.fra_provence_constructions_s_a: Provence Constructions S.A.
+maschinenbauer.fra_vauban_forges_fils: Vauban Forges & Fils
+maschinenbauer.gbr_thames_engineering_sons: Thames Engineering & Sons
+maschinenbauer.gbr_iron_engineering_ltd: Iron Engineering Ltd.
+maschinenbauer.gbr_harbor_machinery_sons: Harbor Machinery & Sons
+maschinenbauer.gbr_union_industries: Union Industries
+maschinenbauer.gbr_crown_industries_sons: Crown Industries & Sons
+maschinenbauer.gbr_pioneer_machinery: Pioneer Machinery
+maschinenbauer.gbr_harbor_machinery_ltd: Harbor Machinery Ltd.
+maschinenbauer.idn_ganga_works: Ganga Works
+maschinenbauer.idn_lotus_heavy_industries_corp: Lotus Heavy Industries Corp.
+maschinenbauer.idn_sakura_engineering_co: Sakura Engineering Co.
+maschinenbauer.idn_mekong_works_corp: Mekong Works Corp.
+maschinenbauer.idn_fuji_works_co: Fuji Works Co.
+maschinenbauer.idn_fuji_heavy_industries_co: Fuji Heavy Industries Co.
+maschinenbauer.ind_sakura_machinery_corp: Sakura Machinery Corp.
+maschinenbauer.ind_lotus_engineering: Lotus Engineering
+maschinenbauer.ind_sakura_engineering: Sakura Engineering
+maschinenbauer.ind_fuji_works_corp: Fuji Works Corp.
+maschinenbauer.ind_lotus_heavy_industries_co: Lotus Heavy Industries Co.
+maschinenbauer.ind_mekong_machinery_corp: Mekong Machinery Corp.
+maschinenbauer.irn_levant_metalworks: Levant Metalworks
+maschinenbauer.irn_sahara_engineering_brothers: Sahara Engineering & Brothers
+maschinenbauer.irn_levant_machinery_brothers: Levant Machinery & Brothers
+maschinenbauer.irn_nil_machinery_brothers: Nil Machinery & Brothers
+maschinenbauer.irn_sahara_metalworks_co: Sahara Metalworks Co.
+maschinenbauer.ita_adria_meccanica_figli: Adria Meccanica & Figli
+maschinenbauer.ita_adria_officine_figli: Adria Officine & Figli
+maschinenbauer.ita_torino_officine_figli: Torino Officine & Figli
+maschinenbauer.ita_liguria_meccanica: Liguria Meccanica
+maschinenbauer.ita_adria_costruzioni_s_p_a: Adria Costruzioni S.p.A.
+maschinenbauer.ita_etna_meccanica_figli: Etna Meccanica & Figli
+maschinenbauer.ita_lombarda_officine: Lombarda Officine
+maschinenbauer.ita_pavia_costruzioni_s_p_a: Pavia Costruzioni S.p.A.
+maschinenbauer.jpn_fuji_works: Fuji Works
+maschinenbauer.jpn_seoul_heavy_industries_corp: Seoul Heavy Industries Corp.
+maschinenbauer.jpn_ganga_heavy_industries_corp: Ganga Heavy Industries Corp.
+maschinenbauer.jpn_indus_heavy_industries_corp: Indus Heavy Industries Corp.
+maschinenbauer.jpn_fuji_heavy_industries: Fuji Heavy Industries
+maschinenbauer.jpn_sakura_engineering: Sakura Engineering
+maschinenbauer.jpn_ganga_machinery: Ganga Machinery
+maschinenbauer.kor_mekong_machinery_corp: Mekong Machinery Corp.
+maschinenbauer.kor_fuji_engineering: Fuji Engineering
+maschinenbauer.kor_fuji_works_corp: Fuji Works Corp.
+maschinenbauer.kor_seoul_works_corp: Seoul Works Corp.
+maschinenbauer.kor_fuji_heavy_industries_co: Fuji Heavy Industries Co.
+maschinenbauer.mex_castilla_talleres: Castilla Talleres
+maschinenbauer.mex_pampa_industrias_e_hijos: Pampa Industrias e Hijos
+maschinenbauer.mex_andes_industrias_e_hijos: Andes Industrias e Hijos
+maschinenbauer.mex_mar_talleres_e_hijos: Mar Talleres e Hijos
+maschinenbauer.mex_delta_ingenier_a_s_a: Delta Ingeniería S.A.
+maschinenbauer.mex_sierra_maquinaria: Sierra Maquinaria
+maschinenbauer.mys_seoul_works_co: Seoul Works Co.
+maschinenbauer.mys_lotus_works_corp: Lotus Works Corp.
+maschinenbauer.mys_ganga_machinery_corp: Ganga Machinery Corp.
+maschinenbauer.mys_jade_machinery_corp: Jade Machinery Corp.
+maschinenbauer.mys_sakura_works: Sakura Works
+maschinenbauer.mys_lotus_works_co: Lotus Works Co.
+maschinenbauer.mys_seoul_heavy_industries: Seoul Heavy Industries
+maschinenbauer.mys_mekong_works: Mekong Works
+maschinenbauer.nga_zambezi_works_ltd: Zambezi Works Ltd.
+maschinenbauer.nga_kilimanjaro_machinery: Kilimanjaro Machinery
+maschinenbauer.nga_niger_works: Niger Works
+maschinenbauer.nga_savanna_machinery: Savanna Machinery
+maschinenbauer.nga_savanna_works: Savanna Works
+maschinenbauer.nld_harbor_engineering: Harbor Engineering
+maschinenbauer.nld_harbor_works_ltd: Harbor Works Ltd.
+maschinenbauer.nld_summit_works_ltd: Summit Works Ltd.
+maschinenbauer.nld_crown_foundry_ltd: Crown Foundry Ltd.
+maschinenbauer.nld_granite_foundry: Granite Foundry
+maschinenbauer.pak_lotus_works_co: Lotus Works Co.
+maschinenbauer.pak_orient_machinery_co: Orient Machinery Co.
+maschinenbauer.pak_mekong_heavy_industries_co: Mekong Heavy Industries Co.
+maschinenbauer.pak_mekong_engineering_corp: Mekong Engineering Corp.
+maschinenbauer.pak_jade_heavy_industries_corp: Jade Heavy Industries Corp.
+maschinenbauer.per_pampa_maquinaria_e_hijos: Pampa Maquinaria e Hijos
+maschinenbauer.per_sierra_ingenier_a_s_a: Sierra Ingeniería S.A.
+maschinenbauer.per_castilla_talleres: Castilla Talleres
+maschinenbauer.per_castilla_maquinaria_s_a: Castilla Maquinaria S.A.
+maschinenbauer.per_mar_ingenier_a: Mar Ingeniería
+maschinenbauer.per_andes_industrias: Andes Industrias
+maschinenbauer.per_delta_talleres_s_a: Delta Talleres S.A.
+maschinenbauer.per_mar_talleres: Mar Talleres
+maschinenbauer.phl_lotus_works_co: Lotus Works Co.
+maschinenbauer.phl_sakura_works_corp: Sakura Works Corp.
+maschinenbauer.phl_indus_engineering_corp: Indus Engineering Corp.
+maschinenbauer.phl_ganga_heavy_industries_co: Ganga Heavy Industries Co.
+maschinenbauer.phl_sakura_heavy_industries_corp: Sakura Heavy Industries Corp.
+maschinenbauer.phl_ganga_machinery_corp: Ganga Machinery Corp.
+maschinenbauer.phl_orient_works_corp: Orient Works Corp.
+maschinenbauer.phl_orient_machinery_corp: Orient Machinery Corp.
+maschinenbauer.pol_volga_zavod_werke: Volga Zavod Werke
+maschinenbauer.pol_baltik_mashstroi_werke: Baltik Mashstroi Werke
+maschinenbauer.pol_tatra_zavod_werke: Tatra Zavod Werke
+maschinenbauer.pol_wisla_technika_werke: Wisła Technika Werke
+maschinenbauer.pol_baltik_mashstroi: Baltik Mashstroi
+maschinenbauer.pol_dnipro_metalloprom_werke: Dnipro Metalloprom Werke
+maschinenbauer.rus_kama_technika: Kama Technika
+maschinenbauer.rus_wisla_zavod: Wisła Zavod
+maschinenbauer.rus_dnipro_mashstroi_werke: Dnipro Mashstroi Werke
+maschinenbauer.rus_wisla_metalloprom: Wisła Metalloprom
+maschinenbauer.rus_baltik_technika_werke: Baltik Technika Werke
+maschinenbauer.tur_atlas_industrial_works_brothers: Atlas Industrial Works & Brothers
+maschinenbauer.tur_tigris_machinery_brothers: Tigris Machinery & Brothers
+maschinenbauer.tur_nil_machinery: Nil Machinery
+maschinenbauer.tur_anatolia_engineering: Anatolia Engineering
+maschinenbauer.tur_sahara_engineering: Sahara Engineering
+maschinenbauer.tur_atlas_engineering_co: Atlas Engineering Co.
+maschinenbauer.twn_lotus_machinery_co: Lotus Machinery Co.
+maschinenbauer.twn_orient_machinery_co: Orient Machinery Co.
+maschinenbauer.twn_seoul_machinery_co: Seoul Machinery Co.
+maschinenbauer.twn_sakura_engineering: Sakura Engineering
+maschinenbauer.twn_mekong_works_co: Mekong Works Co.
+maschinenbauer.ukr_volga_mashstroi_werke: Volga Mashstroi Werke
+maschinenbauer.ukr_ural_metalloprom_werke: Ural Metalloprom Werke
+maschinenbauer.ukr_baltik_mashstroi_werke: Baltik Mashstroi Werke
+maschinenbauer.ukr_ural_zavod_werke: Ural Zavod Werke
+maschinenbauer.ukr_kama_technika_werke: Kama Technika Werke
+maschinenbauer.ukr_dnipro_metalloprom_werke: Dnipro Metalloprom Werke
+maschinenbauer.usa_harbor_foundry_co: Harbor Foundry Co.
+maschinenbauer.usa_crown_engineering_co: Crown Engineering Co.
+maschinenbauer.usa_iron_machinery: Iron Machinery
+maschinenbauer.usa_bridge_industries_ltd: Bridge Industries Ltd.
+maschinenbauer.usa_granite_machinery_co: Granite Machinery Co.
+maschinenbauer.usa_crown_engineering_sons: Crown Engineering & Sons
+maschinenbauer.usa_iron_works_sons: Iron Works & Sons
+maschinenbauer.usa_atlas_works: Atlas Works
+maschinenbauer.vnm_indus_engineering_corp: Indus Engineering Corp.
+maschinenbauer.vnm_mekong_works: Mekong Works
+maschinenbauer.vnm_seoul_engineering: Seoul Engineering
+maschinenbauer.vnm_sakura_heavy_industries_corp: Sakura Heavy Industries Corp.
+maschinenbauer.vnm_hanjiang_heavy_industries_co: Hanjiang Heavy Industries Co.
+maschinenbauer.vnm_ganga_machinery: Ganga Machinery
+maschinenbauer.vnm_sakura_heavy_industries_co: Sakura Heavy Industries Co.
+maschinenbauer.xal_zambezi_machinery_co: Zambezi Machinery Co.
+maschinenbauer.xal_zambezi_engineering_ltd: Zambezi Engineering Ltd.
+maschinenbauer.xal_kilimanjaro_works_co: Kilimanjaro Works Co.
+maschinenbauer.xal_cape_engineering: Cape Engineering
+maschinenbauer.xal_niger_engineering_co: Niger Engineering Co.
+maschinenbauer.xal_savanna_engineering: Savanna Engineering
+maschinenbauer.xal_cape_engineering_co: Cape Engineering Co.
+maschinenbauer.xal_niger_engineering: Niger Engineering
+maschinenbauer.xar_wisla_technika_werke: Wisła Technika Werke
+maschinenbauer.xar_ural_metalloprom_werke: Ural Metalloprom Werke
+maschinenbauer.xar_ural_mashstroi_werke: Ural Mashstroi Werke
+maschinenbauer.xar_wisla_mashstroi_werke: Wisła Mashstroi Werke
+maschinenbauer.xar_volga_technika: Volga Technika
+maschinenbauer.xar_baltik_zavod: Baltik Zavod
+maschinenbauer.xar_volga_mashstroi: Volga Mashstroi
+maschinenbauer.xar_dnipro_metalloprom: Dnipro Metalloprom
+maschinenbauer.xle_baltik_zavod_werke: Baltik Zavod Werke
+maschinenbauer.xle_kama_technika_werke: Kama Technika Werke
+maschinenbauer.xle_wisla_metalloprom: Wisła Metalloprom
+maschinenbauer.xle_baltik_mashstroi_werke: Baltik Mashstroi Werke
+maschinenbauer.xle_baltik_zavod: Baltik Zavod
+maschinenbauer.xle_volga_zavod_werke: Volga Zavod Werke
+maschinenbauer.xle_kama_metalloprom: Kama Metalloprom
+maschinenbauer.xme_pampa_industrias_e_hijos: Pampa Industrias e Hijos
+maschinenbauer.xme_pampa_maquinaria_e_hijos: Pampa Maquinaria e Hijos
+maschinenbauer.xme_andes_maquinaria_e_hijos: Andes Maquinaria e Hijos
+maschinenbauer.xme_sierra_ingenier_a: Sierra Ingeniería
+maschinenbauer.xme_pampa_talleres_s_a: Pampa Talleres S.A.
+maschinenbauer.xme_delta_talleres: Delta Talleres
+maschinenbauer.xme_sierra_maquinaria_s_a: Sierra Maquinaria S.A.
+maschinenbauer.xmg_andes_ingenier_a: Andes Ingeniería
+maschinenbauer.xmg_mar_talleres_s_a: Mar Talleres S.A.
+maschinenbauer.xmg_castilla_maquinaria: Castilla Maquinaria
+maschinenbauer.xmg_delta_maquinaria_s_a: Delta Maquinaria S.A.
+maschinenbauer.xmg_mar_ingenier_a: Mar Ingeniería
+maschinenbauer.xmg_pampa_ingenier_a_s_a: Pampa Ingeniería S.A.
+maschinenbauer.xno_union_engineering_sons: Union Engineering & Sons
+maschinenbauer.xno_atlas_engineering_ltd: Atlas Engineering Ltd.
+maschinenbauer.xno_bridge_foundry_co: Bridge Foundry Co.
+maschinenbauer.xno_summit_works_ltd: Summit Works Ltd.
+maschinenbauer.xno_bridge_works_co: Bridge Works Co.
+maschinenbauer.xno_crown_works: Crown Works
+maschinenbauer.xoa_thames_industries: Thames Industries
+maschinenbauer.xoa_granite_engineering: Granite Engineering
+maschinenbauer.xoa_pioneer_works_sons: Pioneer Works & Sons
+maschinenbauer.xoa_harbor_works: Harbor Works
+maschinenbauer.xoa_iron_machinery_sons: Iron Machinery & Sons
+maschinenbauer.xoa_harbor_industries_ltd: Harbor Industries Ltd.
+maschinenbauer.xsa_iberia_ingenier_a_s_a: Iberia Ingeniería S.A.
+maschinenbauer.xsa_castilla_ingenier_a_s_a: Castilla Ingeniería S.A.
+maschinenbauer.xsa_delta_talleres_e_hijos: Delta Talleres e Hijos
+maschinenbauer.xsa_castilla_talleres: Castilla Talleres
+maschinenbauer.xsa_iberia_industrias_e_hijos: Iberia Industrias e Hijos
+maschinenbauer.xsn_pampa_maquinaria: Pampa Maquinaria
+maschinenbauer.xsn_castilla_maquinaria: Castilla Maquinaria
+maschinenbauer.xsn_pampa_industrias_e_hijos: Pampa Industrias e Hijos
+maschinenbauer.xsn_castilla_talleres_s_a: Castilla Talleres S.A.
+maschinenbauer.xsn_mar_ingenier_a: Mar Ingeniería
+maschinenbauer.xsn_iberia_talleres_s_a: Iberia Talleres S.A.
+maschinenbauer.xsn_pampa_ingenier_a: Pampa Ingeniería
+maschinenbauer.xso_mar_maquinaria_s_a: Mar Maquinaria S.A.
+maschinenbauer.xso_sierra_maquinaria: Sierra Maquinaria
+maschinenbauer.xso_castilla_ingenier_a_s_a: Castilla Ingeniería S.A.
+maschinenbauer.xso_pampa_ingenier_a_e_hijos: Pampa Ingeniería e Hijos
+maschinenbauer.xso_iberia_industrias: Iberia Industrias
+maschinenbauer.xso_castilla_maquinaria_s_a: Castilla Maquinaria S.A.
+maschinenbauer.xwa_nil_engineering_co: Nil Engineering Co.
+maschinenbauer.xwa_nil_metalworks: Nil Metalworks
+maschinenbauer.xwa_anatolia_engineering_co: Anatolia Engineering Co.
+maschinenbauer.xwa_nil_metalworks_brothers: Nil Metalworks & Brothers
+maschinenbauer.xwa_levant_metalworks_brothers: Levant Metalworks & Brothers
+maschinenbauer.xza_atlas_engineering_sons: Atlas Engineering & Sons
+maschinenbauer.xza_harbor_foundry_ltd: Harbor Foundry Ltd.
+maschinenbauer.xza_union_machinery: Union Machinery
+maschinenbauer.xza_iron_machinery_ltd: Iron Machinery Ltd.
+maschinenbauer.xza_atlas_works_ltd: Atlas Works Ltd.
+maschinenbauer.xza_pioneer_machinery_co: Pioneer Machinery Co.
