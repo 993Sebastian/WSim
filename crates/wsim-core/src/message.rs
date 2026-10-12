@@ -159,6 +159,12 @@ pub mod keys {
     pub const COMMAND_NO_TRIM: &str = "fehler.befehl.keine_ausstattung";
     pub const COMMAND_OTHER_BRANCH: &str = "fehler.befehl.andere_branche";
     pub const COMMAND_NO_RECIPE: &str = "fehler.befehl.kein_rezept";
+    pub const COMMAND_NO_MACHINE_TENDERS: &str = "fehler.befehl.keine_ausschreibung";
+    pub const COMMAND_MACHINE_TENDER_RUNNING: &str = "fehler.befehl.ausschreibung_laeuft";
+    pub const COMMAND_UNKNOWN_MACHINE_TENDER: &str = "fehler.befehl.ausschreibung_unbekannt";
+    pub const COMMAND_UNKNOWN_MACHINE_OFFER: &str = "fehler.befehl.angebot_unbekannt";
+    pub const COMMAND_MACHINE_OFFER_EXPIRED: &str = "fehler.befehl.angebot_abgelaufen";
+    pub const MACHINE_OFFERS_NEW: &str = "meldung.maschinenangebote.neu";
     pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
     pub const COMMAND_NO_CHANNEL: &str = "fehler.befehl.kein_vertriebsweg";
     pub const RECALL: &str = "warnung.rueckruf";
@@ -598,6 +604,12 @@ pub mod keys {
         COMMAND_NO_TRIM,
         COMMAND_OTHER_BRANCH,
         COMMAND_NO_RECIPE,
+        COMMAND_NO_MACHINE_TENDERS,
+        COMMAND_MACHINE_TENDER_RUNNING,
+        COMMAND_UNKNOWN_MACHINE_TENDER,
+        COMMAND_UNKNOWN_MACHINE_OFFER,
+        COMMAND_MACHINE_OFFER_EXPIRED,
+        MACHINE_OFFERS_NEW,
         COMMAND_TENDER_CLOSED,
         COMMAND_NO_CHANNEL,
         RECALL,

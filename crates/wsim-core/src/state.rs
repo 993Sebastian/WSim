@@ -1318,6 +1318,10 @@ pub struct Slot {
     /// Standing after a breakdown or for an overhaul (BP2).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub down: Option<Downtime>,
+    /// What the machine builder's offer made of this facility (MAA); catalog values
+    /// where there is none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub machine: Option<crate::procurement::MachineFactors>,
 }
 
 /// A facility stands still until a day (BP2).
@@ -1374,13 +1378,14 @@ impl Slot {
             * crate::maintenance::capacity_factor(catalog, self.condition)
     }
 
-    /// Investment of all units at today's prices, without automation (M36).
+    /// Investment of all units at today's prices, without automation (M36); what was
+    /// actually paid where a machine builder's offer set the price (MAA).
     pub fn investment(&self, catalog: &Catalog) -> Money {
-        catalog
-            .facilities
-            .get(self.facility)
-            .investment
-            .scale(catalog.production_model.sizes.investment(self.size) * f64::from(self.count))
+        catalog.facilities.get(self.facility).investment.scale(
+            catalog.production_model.sizes.investment(self.size)
+                * f64::from(self.count)
+                * self.machine.map_or(1.0, |m| m.price),
+        )
     }
 
     /// Book value of `units` of the facility on `date`: the investment less straight-line
@@ -2043,6 +2048,11 @@ pub struct GameState {
     /// Running state orders won in tenders (MN2).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub state_orders: Vec<crate::tenders::StateOrder>,
+    /// Machine tenders with their offers (MAA).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub machine_tenders: Vec<crate::procurement::MachineTender>,
+    #[serde(default)]
+    pub next_machine_tender: u32,
     #[serde(default)]
     pub next_contract: u32,
     /// Tonne-kilometres of the freight market this month and the month before (W6).

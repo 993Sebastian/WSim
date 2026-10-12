@@ -900,6 +900,7 @@ fn found_company(
                 operation: crate::state::Operation::Running,
                 size: p.size,
                 retrofit: 0,
+                machine: None,
             });
             let flows = slot_flows(
                 catalog,

@@ -228,6 +228,8 @@ impl Game {
             regulation: Default::default(),
             contracts: Vec::new(),
             tenders: Vec::new(),
+            machine_tenders: Vec::new(),
+            next_machine_tender: 0,
             state_orders: Vec::new(),
             next_contract: 0,
             freight_market: Default::default(),
@@ -508,6 +510,11 @@ impl Game {
             today,
         ));
         crate::tenders::deliver(&mut self.state, &self.catalog, today);
+        report.messages.extend(crate::procurement::simulate_day(
+            &mut self.state,
+            &self.catalog,
+            today,
+        ));
         crate::supply::simulate_day(&mut self.state, &self.catalog, today);
         market::clear(&mut self.state, &self.catalog, today);
         report.messages.extend(research::simulate_day(
@@ -901,6 +908,7 @@ pub(crate) fn start_setup(
             operation: crate::state::Operation::Running,
             size: crate::catalog::FacilitySize::Medium,
             retrofit: 0,
+            machine: None,
         })
         .collect();
     let offers = setup

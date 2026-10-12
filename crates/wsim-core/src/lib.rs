@@ -48,6 +48,9 @@ pub mod plots;
 pub mod policy;
 pub mod population;
 pub mod private;
+pub mod procurement;
+#[cfg(test)]
+mod procurement_tests;
 pub mod product_names;
 pub mod product_research;
 pub mod production;

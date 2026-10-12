@@ -26,3 +26,27 @@ pub fn works_branch(
     }
     Ok(branch)
 }
+
+/// What a product needs before a works can make it (the recipe, the company's knowledge of
+/// the product and its technology, the works' branch): the recipe and the branch.
+pub fn check_product(
+    state: &GameState,
+    catalog: &Catalog,
+    actor: crate::state::CompanyId,
+    site: &Site,
+    product: ProductId,
+) -> Result<(crate::ids::RecipeId, BranchId), CommandError> {
+    let recipe = crate::product_research::main_recipe(catalog, product)
+        .ok_or_else(|| CommandError::NoRecipe(catalog.products.key(product).to_owned()))?;
+    let r = catalog.recipes.get(recipe);
+    if !state.knows_product(catalog, actor, product) {
+        return Err(CommandError::ProductUnknown(
+            catalog.products.key(product).to_owned(),
+        ));
+    }
+    if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+        return Err(crate::command::unknown_technology(catalog, t));
+    }
+    let branch = works_branch(state, catalog, site, product)?;
+    Ok((recipe, branch))
+}

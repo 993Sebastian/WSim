@@ -396,6 +396,7 @@ mod tests {
             operation: crate::state::Operation::Running,
             size: crate::catalog::FacilitySize::Medium,
             retrofit: 0,
+            machine: None,
         };
         let site = state.sites.len() - 1;
         state.sites[site].slots.push(slot(mine, "erz_abbau"));

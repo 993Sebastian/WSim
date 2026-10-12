@@ -192,6 +192,8 @@ pub(super) fn decode_v2(
         tenders: Vec::new(),
         state_orders: Vec::new(),
         next_contract: 0,
+        machine_tenders: Vec::new(),
+        next_machine_tender: 0,
         freight_market: Default::default(),
         stock: Default::default(),
         main_company: Some(s.player),

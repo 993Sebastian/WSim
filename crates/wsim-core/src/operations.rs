@@ -32,7 +32,8 @@ pub fn scrap_rate(
         * (1.0 - m.scrap_development * developed(catalog, state, site, recipe))
         * (1.5 - 0.5 * sl.condition.clamp(0.0, 1.0))
         * libm::sqrt(learning)
-        * (1.0 - 0.3 * sl.automation.clamp(0.0, 1.0)))
+        * (1.0 - 0.3 * sl.automation.clamp(0.0, 1.0))
+        * sl.machine.map_or(1.0, |m| m.scrap))
     .clamp(m.scrap_min, m.scrap_max)
 }
 

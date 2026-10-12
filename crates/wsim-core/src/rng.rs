@@ -148,6 +148,11 @@ pub enum Stream {
         company: u32,
         month: u32,
     },
+    /// The schedule and the offers of a machine tender (MAA); `index` is the offer.
+    Procurement {
+        tender: u32,
+        index: u32,
+    },
 }
 
 impl Stream {
@@ -216,6 +221,9 @@ impl Stream {
             Stream::Officials { month } => (29 << 56) | u64::from(month),
             Stream::Recalls { company, month } => {
                 (30 << 56) | (u64::from(company) << 24) | u64::from(month)
+            }
+            Stream::Procurement { tender, index } => {
+                (31 << 56) | (u64::from(tender & 0xFF_FFFF) << 32) | u64::from(index)
             }
         }
     }

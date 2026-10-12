@@ -65,6 +65,28 @@ pub enum Command {
         slot: usize,
         product: ProductId,
     },
+    /// Asks machine builders for offers for `count` units of a size of the main facility of a
+    /// product (MAA); a tender runs for days and brings offers.
+    RequestMachineOffers {
+        site: SiteId,
+        product: ProductId,
+        #[serde(default)]
+        size: FacilitySize,
+        #[serde(default = "one_unit")]
+        count: u32,
+    },
+    /// Asks machine builders for offers to change a finished unit over to a product (MAA).
+    RequestSwitchOffers {
+        site: SiteId,
+        slot: usize,
+        product: ProductId,
+    },
+    /// Takes an offer of a tender: the build or changeover starts on its terms (MAA).
+    AcceptMachineOffer { tender: u32, offer: u32 },
+    /// Turns an offer down; the tender goes on (MAA).
+    DeclineMachineOffer { tender: u32, offer: u32 },
+    /// Ends a tender without an offer taken (MAA).
+    CancelMachineTender { tender: u32 },
     /// Develops a deposit for an extraction site in the same country.
     DevelopDeposit { site: SiteId, deposit: DepositId },
     /// Sets what a facility produces and how much of its capacity is planned.
@@ -667,6 +689,16 @@ pub enum CommandError {
     NoRecipe(String),
     /// The tender is unknown or no longer takes bids (MN2).
     TenderClosed,
+    /// Facilities are bought without a tender (MAA).
+    NoTenders,
+    /// A tender for the same site and product is running (MAA).
+    TenderRunning,
+    /// The machine tender is unknown (MAA).
+    UnknownTender,
+    /// The tender has no such offer (MAA).
+    UnknownMachineOffer,
+    /// The offer is no longer valid (MAA).
+    OfferExpired,
     /// The channel is not available or does not sell the goods group (MN3).
     NoChannel(String),
     /// The company cannot make the product or it is fully developed (M37).
@@ -1020,6 +1052,11 @@ impl CommandError {
             }
 
             CommandError::TenderClosed => e(keys::COMMAND_TENDER_CLOSED),
+            CommandError::NoTenders => e(keys::COMMAND_NO_MACHINE_TENDERS),
+            CommandError::TenderRunning => e(keys::COMMAND_MACHINE_TENDER_RUNNING),
+            CommandError::UnknownTender => e(keys::COMMAND_UNKNOWN_MACHINE_TENDER),
+            CommandError::UnknownMachineOffer => e(keys::COMMAND_UNKNOWN_MACHINE_OFFER),
+            CommandError::OfferExpired => e(keys::COMMAND_MACHINE_OFFER_EXPIRED),
             CommandError::NoChannel(c) => {
                 e(keys::COMMAND_NO_CHANNEL).with("weg", Param::TextKey(format!("vertriebsweg.{c}")))
             }
@@ -1309,7 +1346,7 @@ fn check_site_name(name: &str) -> Result<String, NameError> {
     Ok(name)
 }
 
-fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
+pub(crate) fn unknown_technology(catalog: &Catalog, t: TechnologyId) -> CommandError {
     CommandError::TechnologyUnknown(catalog.technologies.key(t).to_owned())
 }
 
@@ -1427,6 +1464,218 @@ fn own_slot(
         .slots
         .get(slot)
         .ok_or(CommandError::UnknownSlot)
+}
+
+/// A machine builder's offer that sets the terms of a purchase (MAA); none: the catalog.
+type Offer<'a> = Option<&'a crate::procurement::MachineOffer>;
+
+/// Builds `count` units of a facility of a size at a site: at the catalog or on the terms
+/// of an offer.
+pub(crate) fn build_facility(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    (site, facility, count, size): (SiteId, FacilityId, u32, FacilitySize),
+    offer: Offer,
+) -> Result<(), CommandError> {
+    let today = state.date;
+    if count == 0 {
+        return Err(CommandError::InvalidQuantity);
+    }
+    let s = own_site(state, actor, site)?;
+    let f = catalog.facilities.get(facility);
+    if s.kind != f.site_type {
+        return Err(CommandError::WrongSiteType {
+            required: f.site_type,
+        });
+    }
+    let area_factor = offer.map_or(1.0, |o| o.factors.area);
+    if let Some(plot) = s.plot {
+        let needed_ha =
+            plots::site_area_with(catalog, s, Some((facility, size, count)), area_factor);
+        let area_ha = state.plots[plot.index()].area_ha;
+        if needed_ha > area_ha + 1e-9 {
+            return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
+        }
+    }
+    if let Some(t) = f.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+        return Err(unknown_technology(catalog, t));
+    }
+    if let Some(t) = f
+        .technology
+        .filter(|&t| crate::patents::blocks(state, catalog, actor, t, s.country))
+    {
+        return Err(patented(state, catalog, t));
+    }
+    let company = state.company_mut(actor).expect("checked above");
+    let sizes = &catalog.production_model.sizes;
+    let investment = f
+        .investment
+        .scale(sizes.investment(size) * f64::from(count) * offer.map_or(1.0, |o| o.factors.price));
+    pay(
+        &mut company.ledger,
+        Account::AssetsUnderConstruction,
+        investment,
+    )?;
+    // A permit where officials want their share (BP4).
+    let fee = crate::operations::permit_fee(catalog, state, site, investment);
+    let company = state.company_mut(actor).expect("checked above");
+    if fee > Money::ZERO && company.ledger.cash() >= fee {
+        company.ledger.expense(
+            CostType::Other,
+            crate::ledger::CostCenter::site(site),
+            Account::Cash,
+            fee,
+        );
+    }
+    let days = offer.map_or_else(
+        || {
+            crate::operations::build_days(
+                catalog,
+                state,
+                site,
+                sizes.build_days(size, f.build_days),
+            )
+        },
+        |o| o.build_days,
+    );
+    let ready = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));
+    state
+        .site_mut(site)
+        .expect("checked above")
+        .slots
+        .push(Slot {
+            facility,
+            ready,
+            count,
+            cost: investment,
+            recipe: None,
+            // Laboratories have no recipe: they work as soon as they are ready.
+            utilization: if f.site_type == SiteType::ResearchCenter {
+                1.0
+            } else {
+                0.0
+            },
+            automation: 0.0,
+            condition: 1.0,
+            down: None,
+            batches: Vec::new(),
+            last_runs: 0.0,
+            limit: None,
+            operation: crate::state::Operation::Running,
+            size,
+            retrofit: 0,
+            machine: offer.map(|o| o.factors),
+        });
+    Ok(())
+}
+
+/// Builds the main facility of a product and sets it to make the product (FW1).
+pub(crate) fn build_for_product(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    (site, product, count, size): (SiteId, ProductId, u32, FacilitySize),
+    offer: Offer,
+) -> Result<(), CommandError> {
+    let (recipe, branch) = crate::purchase::check_product(
+        state,
+        catalog,
+        actor,
+        own_site(state, actor, site)?,
+        product,
+    )?;
+    let facility = catalog.recipes.get(recipe).facility;
+    build_facility(state, catalog, actor, (site, facility, count, size), offer)?;
+    let s = state.site_mut(site).expect("checked above");
+    s.branch = Some(branch);
+    let sl = s.slots.last_mut().expect("just built");
+    sl.recipe = Some(recipe);
+    sl.utilization = 1.0;
+    Ok(())
+}
+
+/// Changes a finished facility over to another product of its branch, at the catalog or
+/// on the terms of an offer (FW1, MAA).
+pub(crate) fn switch_product(
+    state: &mut GameState,
+    catalog: &Catalog,
+    actor: CompanyId,
+    (site, slot, product): (SiteId, usize, ProductId),
+    offer: Offer,
+) -> Result<(), CommandError> {
+    let s = own_site(state, actor, site)?;
+    let sl = own_slot(state, actor, site, slot)?;
+    let (recipe, branch) = crate::purchase::check_product(state, catalog, actor, s, product)?;
+    let r = catalog.recipes.get(recipe);
+    if sl.ready > state.date {
+        return Err(CommandError::UnderConstruction);
+    }
+    // The new facility may need other land than the old one (FW1).
+    if let Some(plot) = s.plot {
+        let m = &catalog.plot_model;
+        let old = plots::slot_unit_area(catalog, sl) * f64::from(sl.count) * (1.0 + m.overhead);
+        let needed_ha = (plots::site_area_with(
+            catalog,
+            s,
+            Some((r.facility, sl.size, sl.count)),
+            offer.map_or(1.0, |o| o.factors.area),
+        ) - old)
+            .max(m.min_site_area_ha);
+        let area_ha = state.plots[plot.index()].area_ha;
+        if needed_ha > area_ha + 1e-9 {
+            return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
+        }
+    }
+    let f = catalog.facilities.get(r.facility);
+    let sizes = &catalog.production_model.sizes;
+    let days = offer.map_or_else(
+        || {
+            (f64::from(sizes.build_days(sl.size, f.build_days)) * sizes.changeover_days_share)
+                .ceil() as u32
+        },
+        |o| o.build_days,
+    );
+    let cost = offer.map_or_else(
+        || {
+            f.investment.scale(
+                sizes.investment(sl.size) * f64::from(sl.count) * sizes.changeover_cost_share,
+            )
+        },
+        |o| o.price,
+    );
+    let cash = state.company(actor).expect("checked above").ledger.cash();
+    if cash < cost {
+        return Err(CommandError::NotEnoughCash { needed: cost });
+    }
+    let today = state.date;
+    let company = state.company_mut(actor).expect("checked above");
+    company.ledger.expense(
+        CostType::Overhead,
+        CostCenter::site(site),
+        Account::Cash,
+        cost,
+    );
+    let s = state.site_mut(site).expect("checked above");
+    s.branch = Some(branch);
+    let sl = &mut s.slots[slot];
+    sl.facility = r.facility;
+    sl.recipe = Some(recipe);
+    sl.utilization = 1.0;
+    sl.batches.clear();
+    sl.last_runs = 0.0;
+    sl.automation = sl.automation.min(f.automation_max);
+    sl.down = Some(crate::state::Downtime {
+        until: today.add_days(days as i32),
+        overhaul: false,
+    });
+    // The offer's machine values replace the old ones; the price paid for the machine
+    // stays what the base of overhaul and resale values.
+    if let Some(o) = offer {
+        let price = sl.machine.map_or(1.0, |m| m.price);
+        sl.machine = Some(crate::procurement::MachineFactors { price, ..o.factors });
+    }
+    Ok(())
 }
 
 fn check_share(value: f64) -> Result<(), CommandError> {
@@ -1684,197 +1933,68 @@ fn run(
             facility,
             count,
             size,
-        } => {
-            if *count == 0 {
-                return Err(CommandError::InvalidQuantity);
-            }
-            let s = own_site(state, actor, *site)?;
-            let f = catalog.facilities.get(*facility);
-            if s.kind != f.site_type {
-                return Err(CommandError::WrongSiteType {
-                    required: f.site_type,
-                });
-            }
-            if let Some(plot) = s.plot {
-                let needed_ha = plots::site_area(catalog, s, Some((*facility, *size, *count)));
-                let area_ha = state.plots[plot.index()].area_ha;
-                if needed_ha > area_ha + 1e-9 {
-                    return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
-                }
-            }
-            if let Some(t) = f.technology.filter(|&t| !state.knows(catalog, actor, t)) {
-                return Err(unknown_technology(catalog, t));
-            }
-            if let Some(t) = f
-                .technology
-                .filter(|&t| crate::patents::blocks(state, catalog, actor, t, s.country))
-            {
-                return Err(patented(state, catalog, t));
-            }
-            let company = state.company_mut(actor).expect("checked above");
-            let sizes = &catalog.production_model.sizes;
-            let investment = f
-                .investment
-                .scale(sizes.investment(*size) * f64::from(*count));
-            pay(
-                &mut company.ledger,
-                Account::AssetsUnderConstruction,
-                investment,
-            )?;
-            // A permit where officials want their share (BP4).
-            let fee = crate::operations::permit_fee(catalog, state, *site, investment);
-            let company = state.company_mut(actor).expect("checked above");
-            if fee > Money::ZERO && company.ledger.cash() >= fee {
-                company.ledger.expense(
-                    CostType::Other,
-                    crate::ledger::CostCenter::site(*site),
-                    Account::Cash,
-                    fee,
-                );
-            }
-            let days = crate::operations::build_days(
-                catalog,
-                state,
-                *site,
-                sizes.build_days(*size, f.build_days),
-            );
-            let ready = today.add_days(i32::try_from(days).unwrap_or(i32::MAX));
-            state
-                .site_mut(*site)
-                .expect("checked above")
-                .slots
-                .push(Slot {
-                    facility: *facility,
-                    ready,
-                    count: *count,
-                    cost: investment,
-                    recipe: None,
-                    // Laboratories have no recipe: they work as soon as they are ready.
-                    utilization: if f.site_type == SiteType::ResearchCenter {
-                        1.0
-                    } else {
-                        0.0
-                    },
-                    automation: 0.0,
-                    condition: 1.0,
-                    down: None,
-                    batches: Vec::new(),
-                    last_runs: 0.0,
-                    limit: None,
-                    operation: crate::state::Operation::Running,
-                    size: *size,
-                    retrofit: 0,
-                });
-        }
+        } => build_facility(
+            state,
+            catalog,
+            actor,
+            (*site, *facility, *count, *size),
+            None,
+        )?,
         Command::BuildForProduct {
             site,
             product,
             count,
             size,
-        } => {
-            let recipe = crate::product_research::main_recipe(catalog, *product)
-                .ok_or_else(|| CommandError::NoRecipe(catalog.products.key(*product).to_owned()))?;
-            let r = catalog.recipes.get(recipe);
-            if !state.knows_product(catalog, actor, *product) {
-                return Err(CommandError::ProductUnknown(
-                    catalog.products.key(*product).to_owned(),
-                ));
-            }
-            if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
-                return Err(unknown_technology(catalog, t));
-            }
-            let branch = crate::purchase::works_branch(
-                state,
-                catalog,
-                own_site(state, actor, *site)?,
-                *product,
-            )?;
-            execute(
-                state,
-                catalog,
-                actor,
-                &Command::BuildFacility {
-                    site: *site,
-                    facility: r.facility,
-                    count: *count,
-                    size: *size,
-                },
-            )?;
-            let s = state.site_mut(*site).expect("checked above");
-            s.branch = Some(branch);
-            let sl = s.slots.last_mut().expect("just built");
-            sl.recipe = Some(recipe);
-            sl.utilization = 1.0;
-        }
+        } => build_for_product(
+            state,
+            catalog,
+            actor,
+            (*site, *product, *count, *size),
+            None,
+        )?,
         Command::SwitchProduct {
             site,
             slot,
             product,
-        } => {
-            let s = own_site(state, actor, *site)?;
-            let sl = own_slot(state, actor, *site, *slot)?;
-            let recipe = crate::product_research::main_recipe(catalog, *product)
-                .ok_or_else(|| CommandError::NoRecipe(catalog.products.key(*product).to_owned()))?;
-            let r = catalog.recipes.get(recipe);
-            if !state.knows_product(catalog, actor, *product) {
-                return Err(CommandError::ProductUnknown(
-                    catalog.products.key(*product).to_owned(),
-                ));
-            }
-            if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
-                return Err(unknown_technology(catalog, t));
-            }
-            let branch = crate::purchase::works_branch(state, catalog, s, *product)?;
-            if sl.ready > state.date {
-                return Err(CommandError::UnderConstruction);
-            }
-            // The new facility may need other land than the old one (FW1).
-            if let Some(plot) = s.plot {
-                let m = &catalog.plot_model;
-                let old = plots::unit_area(catalog, sl.facility, sl.size)
-                    * f64::from(sl.count)
-                    * (1.0 + m.overhead);
-                let needed_ha =
-                    (plots::site_area(catalog, s, Some((r.facility, sl.size, sl.count))) - old)
-                        .max(m.min_site_area_ha);
-                let area_ha = state.plots[plot.index()].area_ha;
-                if needed_ha > area_ha + 1e-9 {
-                    return Err(CommandError::PlotTooSmall { needed_ha, area_ha });
-                }
-            }
-            let f = catalog.facilities.get(r.facility);
-            let sizes = &catalog.production_model.sizes;
-            let days = (f64::from(sizes.build_days(sl.size, f.build_days))
-                * sizes.changeover_days_share)
-                .ceil();
-            let cost = f.investment.scale(
-                sizes.investment(sl.size) * f64::from(sl.count) * sizes.changeover_cost_share,
-            );
-            let cash = state.company(actor).expect("checked above").ledger.cash();
-            if cash < cost {
-                return Err(CommandError::NotEnoughCash { needed: cost });
-            }
-            let today = state.date;
-            let company = state.company_mut(actor).expect("checked above");
-            company.ledger.expense(
-                CostType::Overhead,
-                CostCenter::site(*site),
-                Account::Cash,
-                cost,
-            );
-            let s = state.site_mut(*site).expect("checked above");
-            s.branch = Some(branch);
-            let sl = &mut s.slots[*slot];
-            sl.facility = r.facility;
-            sl.recipe = Some(recipe);
-            sl.utilization = 1.0;
-            sl.batches.clear();
-            sl.last_runs = 0.0;
-            sl.automation = sl.automation.min(f.automation_max);
-            sl.down = Some(crate::state::Downtime {
-                until: today.add_days(days as i32),
-                overhaul: false,
-            });
+        } => switch_product(state, catalog, actor, (*site, *slot, *product), None)?,
+        Command::RequestMachineOffers {
+            site,
+            product,
+            size,
+            count,
+        } => crate::procurement::request(
+            state,
+            catalog,
+            actor,
+            *site,
+            crate::procurement::TenderKind::Build {
+                product: *product,
+                size: *size,
+                count: *count,
+            },
+        )?,
+        Command::RequestSwitchOffers {
+            site,
+            slot,
+            product,
+        } => crate::procurement::request(
+            state,
+            catalog,
+            actor,
+            *site,
+            crate::procurement::TenderKind::Switch {
+                slot: *slot,
+                product: *product,
+            },
+        )?,
+        Command::AcceptMachineOffer { tender, offer } => {
+            crate::procurement::accept(state, catalog, actor, *tender, *offer)?;
+        }
+        Command::DeclineMachineOffer { tender, offer } => {
+            crate::procurement::decline(state, actor, *tender, *offer)?;
+        }
+        Command::CancelMachineTender { tender } => {
+            crate::procurement::cancel(state, actor, *tender)?;
         }
         Command::DevelopDeposit { site, deposit } => {
             let s = own_site(state, actor, *site)?;

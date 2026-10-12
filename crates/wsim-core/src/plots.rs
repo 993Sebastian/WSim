@@ -24,11 +24,17 @@ pub fn unit_area(catalog: &Catalog, facility: FacilityId, size: FacilitySize) ->
     facility_area(catalog, facility) * catalog.production_model.sizes.area(size)
 }
 
+/// Land one unit of a facility standing at a site takes (ha): what the machine builder's
+/// offer made of it (MAA).
+pub fn slot_unit_area(catalog: &Catalog, slot: &crate::state::Slot) -> f64 {
+    unit_area(catalog, slot.facility, slot.size) * slot.machine.map_or(1.0, |m| m.area)
+}
+
 /// Land of the units standing or under construction at a site, without the overhead.
 fn units_area(catalog: &Catalog, site: &Site) -> f64 {
     site.slots
         .iter()
-        .map(|sl| unit_area(catalog, sl.facility, sl.size) * f64::from(sl.count))
+        .map(|sl| slot_unit_area(catalog, sl) * f64::from(sl.count))
         .sum()
 }
 
@@ -39,10 +45,20 @@ pub fn site_area(
     site: &Site,
     extra: Option<(FacilityId, FacilitySize, u32)>,
 ) -> f64 {
+    site_area_with(catalog, site, extra, 1.0)
+}
+
+/// Like `site_area`; the extra units take `area_factor` times the catalog land (MAA).
+pub fn site_area_with(
+    catalog: &Catalog,
+    site: &Site,
+    extra: Option<(FacilityId, FacilitySize, u32)>,
+    area_factor: f64,
+) -> f64 {
     let m = &catalog.plot_model;
     let units = units_area(catalog, site)
         + extra.map_or(0.0, |(f, size, n)| {
-            unit_area(catalog, f, size) * f64::from(n)
+            unit_area(catalog, f, size) * f64::from(n) * area_factor
         });
     (units * (1.0 + m.overhead)).max(m.min_site_area_ha)
 }

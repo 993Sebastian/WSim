@@ -414,7 +414,7 @@ pub fn unit_costs(catalog: &Catalog, state: &GameState, site: SiteId) -> Vec<Uni
                 1.0
             };
             let runs = sl.full_runs(catalog) * utilization;
-            let developed = site_effect(catalog, state, s, recipe.product);
+            let developed = slot_effect(catalog, state, s, sl, recipe.product);
             let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
                 * developed.labor
                 * crate::training::labor_factor(catalog, s.training)
@@ -508,7 +508,7 @@ pub fn needed_workers(catalog: &Catalog, state: &GameState, site: SiteId, date: 
         let recipe = catalog.recipes.get(recipe_id);
         let sl = &state.sites[index].slots[slot];
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
-            * site_effect(catalog, state, &state.sites[index], recipe.product).labor
+            * slot_effect(catalog, state, &state.sites[index], sl, recipe.product).labor
             * crate::training::labor_factor(catalog, state.sites[index].training)
             * crate::learning::factor(catalog, &state.sites[index], recipe);
         for (g, h) in hours_per_run(
@@ -647,7 +647,13 @@ fn produce(state: &mut GameState, catalog: &Catalog, site: SiteId, date: Date) {
             (sl.automation, sl.size)
         };
         // The company's development level of the product (M37).
-        let developed = site_effect(catalog, state, &state.sites[index], recipe.product);
+        let developed = slot_effect(
+            catalog,
+            state,
+            &state.sites[index],
+            &state.sites[index].slots[slot],
+            recipe.product,
+        );
         let cost_factor = deposit_cost_factor(catalog, state, site, recipe)
             * developed.labor
             * crate::training::labor_factor(catalog, state.sites[index].training)
@@ -1084,7 +1090,7 @@ pub(crate) fn input_warnings(state: &GameState, catalog: &Catalog) -> Vec<Messag
                 continue;
             }
             let r = catalog.recipes.get(recipe);
-            let developed = site_effect(catalog, state, s, r.product);
+            let developed = slot_effect(catalog, state, s, sl, r.product);
             for &(input, q) in &r.inputs {
                 let stock = s.inventory.get(&input).map_or(0.0, |x| x.quantity);
                 if stock < q * developed.inputs && !reported.contains(&input) {
@@ -1133,6 +1139,24 @@ pub fn site_effect(
     e.inputs *= t.material;
     e.labor *= t.labor;
     e.quality += t.quality;
+    e
+}
+
+/// `site_effect` with what the machine builder's offer made of the facility (MAA): its
+/// output, labor and input factors on top.
+pub fn slot_effect(
+    catalog: &Catalog,
+    state: &GameState,
+    site: &crate::state::Site,
+    slot: &crate::state::Slot,
+    product: ProductId,
+) -> development::Effect {
+    let mut e = site_effect(catalog, state, site, product);
+    if let Some(m) = &slot.machine {
+        e.output *= m.output;
+        e.labor *= m.labor;
+        e.inputs *= m.inputs;
+    }
     e
 }
 
