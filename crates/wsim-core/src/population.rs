@@ -1008,6 +1008,7 @@ fn found_company(
         let experience = crate::learning::established(catalog, &slots);
         new_sites.push(Site {
             process_shares: Default::default(),
+            branch: None,
             owner: id,
             name: None,
             totals: BTreeMap::new(),

@@ -4718,6 +4718,8 @@ mod tests {
             labor_exponent: -0.15,
             area_exponent: 0.7,
             build_exponent: 0.3,
+            changeover_cost_share: 0.5,
+            changeover_days_share: 0.5,
         };
         let furnace = catalog.facilities.id("ofen").expect("exists");
         let rich = (Money::ZERO, Money::from_usd(1e9).expect("valid"));

@@ -5860,3 +5860,23 @@ alles wie bisher.
   mit.
 - **Tochterfirmen** erben das Wissen der Mutter. Wer Standorte übernimmt, kennt deren
   Produkte.
+
+### FW1 Teil 2 – Werksbranche, Anlagenkauf nach Produkt, Umstellen
+
+- **Werksbranche:** Unter Forschungspflicht gehört ein Werk zu der Branche seines ersten
+  Produkts (`Site::branch`). Ein Produkt einer anderen Branche wird dort abgelehnt
+  (`OtherBranch`), beim Kauf wie beim Setzen der Produktion. Ohne Pflicht keine
+  Einschränkung.
+- **Kauf nach Produkt** (`BuildForProduct { site, product, count, size }`): Das Produkt
+  muss bekannt sein; die Anlage ist die des Hauptrezepts. Die Prüfungen und Kosten sind
+  die des Anlagenkaufs; die Anlage steht danach auf dem Rezept des Produkts (Auslastung 1).
+- **Umstellen** (`SwitchProduct { site, slot, product }`) auf ein bekanntes Produkt der
+  Branche, nur an fertigen Anlagen:
+  - Größe und Anzahl bleiben.
+  - Kosten = Katalog-Investition der neuen Anlage × Größenfaktor × Anzahl ×
+    `umstellung.kosten_anteil` (0,5), als Aufwand (Gemeinkosten des Standorts) gebucht.
+  - Stillstand = Katalog-Bauzeit der Größe × `umstellung.dauer_anteil` (0,5), aufgerundet.
+  - Laufende Chargen entfallen, der Automatisierungsgrad wird auf das Maximum der neuen
+    Anlage begrenzt.
+  - Der Buchwert in der Bilanz bleibt; die Anzeige rechnet die Anlage aus dem Katalog der
+    neuen Anlage neu (offen, siehe OFFENE_PUNKTE).

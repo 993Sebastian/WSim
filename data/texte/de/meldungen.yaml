@@ -48,6 +48,8 @@ meldung.forschung_abgeschlossen: Forschung abgeschlossen – „{technologie}“
 meldung.produkt_erforscht: "Produkt erforscht – „{produkt}“ kann jetzt hergestellt werden."
 warnung.rueckruf: "Rückruf in {land}: Ware unter der Mindestqualität musste zurückgenommen werden – Kosten {kosten}, der Ruf leidet."
 fehler.befehl.keine_ausstattung: Eine Ausstattung gibt es nur für Endprodukte.
+fehler.befehl.andere_branche: "Dieses Werk gehört zur Branche {branche}. Ein Produkt einer anderen Branche braucht ein neues Werk."
+fehler.befehl.kein_rezept: "„{produkt}“ hat kein Rezept und lässt sich nicht herstellen."
 fehler.befehl.ausschreibung_geschlossen: Diese Ausschreibung nimmt keine Gebote mehr an.
 fehler.befehl.kein_vertriebsweg: "Der Vertriebsweg {weg} ist hier nicht verfügbar oder führt diese Waren nicht."
 info.ausschreibung: "Ausschreibung in {land}: Der Staat sucht {menge} {produkt} je Tag für ein Jahr – Gebote im Markt bis Monatsende."

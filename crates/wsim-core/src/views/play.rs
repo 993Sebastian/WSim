@@ -415,6 +415,13 @@ fn closing_view(game: &Game, site: crate::state::SiteId) -> ClosingView {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SiteDetail {
     pub index: u32,
+    /// The works' branch under mandatory research (FW1; key), none before its first product.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    /// Products the company may buy a unit for here (FW1): known products of the works'
+    /// branch, or of any branch while the works has none. Empty without mandatory research.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub buy_products: Vec<String>,
     pub country: String,
     /// Key of the country's continent, to group the sites.
     #[serde(default)]
@@ -983,6 +990,8 @@ pub fn production(game: &Game) -> ProductionView {
                 crate::training::target(catalog, state, site_id);
             SiteDetail {
                 index: u32::try_from(i).unwrap_or(u32::MAX),
+                branch: s.branch.map(|b| catalog.branches.key(b).to_owned()),
+                buy_products: buy_products(catalog, state, player, s.branch),
                 country: catalog.countries.key(s.country).to_owned(),
                 continent: catalog
                     .continents
@@ -3510,6 +3519,29 @@ fn slot_quality(
         trim: q.trim,
         total: q.total,
     }
+}
+
+/// Products a company may buy units for at a works (FW1): with mandatory research the
+/// products it knows in the works' branch, else in any branch.
+fn buy_products(
+    catalog: &Catalog,
+    state: &crate::state::GameState,
+    company: crate::state::CompanyId,
+    branch: Option<crate::ids::BranchId>,
+) -> Vec<String> {
+    if !state.settings.research_mandatory {
+        return Vec::new();
+    }
+    catalog
+        .products
+        .ids()
+        .filter(|&p| {
+            branch.is_none_or(|b| catalog.products.get(p).branch == b)
+                && crate::product_research::main_recipe(catalog, p).is_some()
+                && state.knows_product(catalog, company, p)
+        })
+        .map(|p| catalog.products.key(p).to_owned())
+        .collect()
 }
 
 #[cfg(test)]

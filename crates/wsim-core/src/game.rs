@@ -952,6 +952,7 @@ pub(crate) fn start_setup(
     let site = crate::state::SiteId(u32::try_from(state.sites.len()).expect("site count fits u32"));
     state.sites.push(Site {
         process_shares: Default::default(),
+        branch: None,
         owner: company,
         name: None,
         totals: std::collections::BTreeMap::new(),

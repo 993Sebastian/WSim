@@ -24,6 +24,8 @@ fn sizes() -> SizeModel {
         labor_exponent: -0.15,
         area_exponent: 0.7,
         build_exponent: 0.3,
+        changeover_cost_share: 0.5,
+        changeover_days_share: 0.5,
     }
 }
 

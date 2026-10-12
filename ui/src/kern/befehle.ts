@@ -38,6 +38,8 @@ export type Befehl =
   | { FoundSiteOnPlot: { plot: number; kind: string; lease: boolean } }
   | { BuyPlot: { site: number } }
   | { BuildFacility: { site: number; facility: string; count: number; size?: string } }
+  | { BuildForProduct: { site: number; product: string; count: number; size?: string } }
+  | { SwitchProduct: { site: number; slot: number; product: string } }
   | { DevelopDeposit: { site: number; deposit: string } }
   | { SetProduction: { site: number; slot: number; recipe: string | null; utilization: number } }
   | { SetAutomation: { site: number; slot: number; level: number } }

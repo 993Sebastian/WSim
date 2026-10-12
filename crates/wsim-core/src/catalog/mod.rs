@@ -1376,6 +1376,10 @@ pub struct SizeModel {
     pub labor_exponent: f64,
     pub area_exponent: f64,
     pub build_exponent: f64,
+    /// Changing a unit to another product (FW1): cost as a share of the catalog
+    /// investment of its size, days as a share of its catalog build time.
+    pub changeover_cost_share: f64,
+    pub changeover_days_share: f64,
 }
 
 impl Default for SizeModel {
@@ -1387,6 +1391,8 @@ impl Default for SizeModel {
             labor_exponent: 0.0,
             area_exponent: 0.0,
             build_exponent: 0.0,
+            changeover_cost_share: 0.5,
+            changeover_days_share: 0.5,
         }
     }
 }

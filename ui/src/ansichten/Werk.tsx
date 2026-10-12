@@ -441,12 +441,12 @@ function Anlagen({ s, produktion }: { s: StandortDetail; produktion: Produktion 
       {s.slots.length === 0 && <p className="gedaempft">{t("werk.keine_anlagen")}</p>}
       {s.slots.map((a) => (
         // New values from the core start the form afresh.
-        <AnlageKarte
-          key={`${a.index}/${a.recipe}/${a.utilization}`}
-          a={a}
-          s={s}
-          produktion={produktion}
-        />
+        <Fragment key={`${a.index}/${a.recipe}/${a.utilization}`}>
+          <AnlageKarte a={a} s={s} produktion={produktion} />
+          {(s.buy_products ?? []).length > 0 && (
+            <UmstellenKarte a={a} s={s} produktion={produktion} />
+          )}
+        </Fragment>
       ))}
       {s.kind === "Extraction" && <Erschliessung s={s} produktion={produktion} />}
       {s.plot && <GrundstueckKarte s={s} plot={s.plot} produktion={produktion} />}
@@ -968,7 +968,15 @@ function GrundstueckKarte({
   );
 }
 
+/** Under mandatory research a works buys products (FW1); otherwise facilities. */
 function AnlageBauen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
+  if ((s.buy_products ?? []).length > 0) {
+    return <ProduktBauen s={s} produktion={produktion} />;
+  }
+  return <AnlageNachBauen s={s} produktion={produktion} />;
+}
+
+function AnlageNachBauen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
   const baubar = produktion.facilities
     .filter((f) => f.site_type === s.kind)
     .sort((a, b) => a.investment_usd - b.investment_usd);
@@ -3369,5 +3377,136 @@ function WeiteresProdukt({
       </div>
       {produkt && children(produkt)}
     </div>
+  );
+}
+
+/** The facility and its sizes for a product, from the facilities and recipes of the view. */
+function anlageFuer(produktion: Produktion, produkt: string) {
+  const rezept = produktion.recipes.find((r) => r.product === produkt);
+  return produktion.facilities.find((f) => rezept !== undefined && f.recipes.includes(rezept.key));
+}
+
+/**
+ * Buying a unit for a product of the works' branch (FW1): the product picks the facility,
+ * the size is chosen as before.
+ */
+function ProduktBauen({ s, produktion }: { s: StandortDetail; produktion: Produktion }) {
+  const produkte = (s.buy_products ?? []).filter((p) => anlageFuer(produktion, p));
+  const [produkt, setProdukt] = useState(produkte[0] ?? "");
+  const [anzahl, setAnzahl] = useState("1");
+  const [groesse, setGroesse] = useState("Medium");
+  const { los, antwort } = useAktion(`bauen/${s.index}`);
+  const id = useId();
+  if (produkte.length === 0) return null;
+  const f = anlageFuer(produktion, produkt);
+  const sizes = f?.sizes ?? [];
+  const g = sizes.find((x) => x.size === groesse) ?? sizes[0];
+  const zahl = Math.floor(zahlLesen(anzahl) ?? 0);
+  return (
+    <form
+      className="karte bauen"
+      aria-label={t("produktion.produkt_bauen")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (zahl < 1 || !g) return;
+        void los(
+          [{ BuildForProduct: { site: s.index, product: produkt, count: zahl, size: g.size } }],
+          t("werk.bau_begonnen", { anlage: t(`anlage.${f?.key ?? ""}`), tage: g.build_days }),
+        );
+      }}
+    >
+      <h3>{t("produktion.produkt_bauen")}</h3>
+      <p className="erklaerung">
+        {t("werk.zweig_hinweis", { branche: t(`branche.${s.branch ?? ""}`) })}
+      </p>
+      <div className="formular-zeile">
+        <div className="feld">
+          <label htmlFor={`${id}-produkt`}>{t("werk.produkt")}</label>
+          <SuchAuswahl
+            id={`${id}-produkt`}
+            name={t("werk.produkt")}
+            wert={produkt}
+            optionen={produkte.map((p) => ({ wert: p, text: produktName(p) }))}
+            onWahl={setProdukt}
+          />
+        </div>
+        {sizes.length > 0 && (
+          <div className="feld">
+            <label htmlFor={`${id}-groesse`}>{t("werk.groesse")}</label>
+            <select
+              id={`${id}-groesse`}
+              value={g?.size}
+              onChange={(e) => setGroesse(e.target.value)}
+            >
+              {sizes.map((o) => (
+                <option key={o.size} value={o.size}>
+                  {t("werk.groesse_option", {
+                    groesse: t(`anlagengroesse.${o.key}`),
+                    leistung: formatZahl(o.capacity, 2),
+                    betrag: formatGeld(o.investment_usd),
+                  })}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <ZahlFeld name={t("produktion.anzahl")} ganzzahlig wert={anzahl} onWert={setAnzahl} />
+      </div>
+      <p className="erklaerung">{t("werk.groesse_hinweis")}</p>
+      <button type="submit" disabled={zahl < 1 || !g}>
+        {t("produktion.bauen_knopf")}
+      </button>
+      <Rueckmeldung meldung={antwort} />
+    </form>
+  );
+}
+
+/**
+ * Changing a unit to another product of the works' branch (FW1): same size, a changeover
+ * that costs the company and stands the unit still for a while.
+ */
+function UmstellenKarte({
+  a,
+  s,
+  produktion,
+}: {
+  a: AnlageDetail;
+  s: StandortDetail;
+  produktion: Produktion;
+}) {
+  const { los, antwort } = useAktion(`umstellen/${s.index}/${a.index}`);
+  const id = useId();
+  const wahlen = (s.buy_products ?? []).filter((p) => p !== a.product && anlageFuer(produktion, p));
+  const [produkt, setProdukt] = useState(wahlen[0] ?? "");
+  if (wahlen.length === 0) return null;
+  return (
+    <form
+      className="karte umstellen"
+      aria-label={t("werk.umstellen")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!produkt) return;
+        void los(
+          [{ SwitchProduct: { site: s.index, slot: a.index, product: produkt } }],
+          t("werk.umgestellt_meldung", { produkt: produktName(produkt) }),
+        );
+      }}
+    >
+      <div className="formular-zeile">
+        <div className="feld">
+          <label htmlFor={`${id}-produkt`}>{t("werk.umstellen_auf")}</label>
+          <SuchAuswahl
+            id={`${id}-produkt`}
+            name={t("werk.umstellen_auf")}
+            wert={produkt}
+            optionen={wahlen.map((p) => ({ wert: p, text: produktName(p) }))}
+            onWahl={setProdukt}
+          />
+        </div>
+        <button type="submit">{t("werk.umstellen")}</button>
+      </div>
+      <p className="erklaerung">{t("werk.umstellen_hinweis")}</p>
+      <Rueckmeldung meldung={antwort} />
+    </form>
   );
 }

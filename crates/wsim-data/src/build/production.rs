@@ -929,6 +929,20 @@ fn sizes(ctx: &mut Ctx, m: &RawFacilitySizes, loc: &Loc) -> SizeModel {
             1.5,
             &loc.field("flaeche_exponent"),
         ),
+        changeover_cost_share: in_range(
+            ctx,
+            m.changeover.kosten_anteil,
+            0.0,
+            1.0,
+            &loc.field("umstellung").field("kosten_anteil"),
+        ),
+        changeover_days_share: in_range(
+            ctx,
+            m.changeover.dauer_anteil,
+            0.0,
+            1.0,
+            &loc.field("umstellung").field("dauer_anteil"),
+        ),
         build_exponent: in_range(
             ctx,
             m.build_exponent,

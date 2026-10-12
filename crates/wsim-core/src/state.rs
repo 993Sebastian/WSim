@@ -1447,6 +1447,10 @@ pub struct Experience {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Site {
     pub owner: CompanyId,
+    /// The branch of the works (FW1): fixed by the first product made there. Older saves
+    /// and works without a product have none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub branch: Option<crate::ids::BranchId>,
     /// The owner's own name for the site; none shows the kind and the country.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,

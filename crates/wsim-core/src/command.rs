@@ -47,6 +47,24 @@ pub enum Command {
         #[serde(default)]
         size: FacilitySize,
     },
+    /// Buys `count` units in a size (FW1) to make a product of the works' branch: the
+    /// first product fixes the branch. Pick the facility of the product's main recipe.
+    BuildForProduct {
+        site: SiteId,
+        product: ProductId,
+        #[serde(default = "one_unit")]
+        count: u32,
+        #[serde(default)]
+        size: FacilitySize,
+    },
+    /// Changes a finished unit to another product of its branch (FW1): same size and
+    /// count, a changeover that costs the company an expense and stands the unit still
+    /// for half its catalog build time.
+    SwitchProduct {
+        site: SiteId,
+        slot: usize,
+        product: ProductId,
+    },
     /// Develops a deposit for an extraction site in the same country.
     DevelopDeposit { site: SiteId, deposit: DepositId },
     /// Sets what a facility produces and how much of its capacity is planned.
@@ -643,6 +661,10 @@ pub enum CommandError {
     ProductUnknown(String),
     /// Trim levels are off or the product is no end product (MN2).
     NoTrim,
+    /// The product belongs to another branch than the works (FW1; branch key).
+    OtherBranch(String),
+    /// The product has no recipe to make it (FW1; product key).
+    NoRecipe(String),
     /// The tender is unknown or no longer takes bids (MN2).
     TenderClosed,
     /// The channel is not available or does not sell the goods group (MN3).
@@ -991,6 +1013,12 @@ impl CommandError {
             CommandError::ProductUnknown(p) => e(keys::COMMAND_PRODUCT_UNKNOWN)
                 .with("produkt", Param::TextKey(format!("produkt.{p}"))),
             CommandError::NoTrim => e(keys::COMMAND_NO_TRIM),
+            CommandError::OtherBranch(b) => e(keys::COMMAND_OTHER_BRANCH)
+                .with("branche", Param::TextKey(format!("branche.{b}"))),
+            CommandError::NoRecipe(p) => {
+                e(keys::COMMAND_NO_RECIPE).with("produkt", Param::TextKey(format!("produkt.{p}")))
+            }
+
             CommandError::TenderClosed => e(keys::COMMAND_TENDER_CLOSED),
             CommandError::NoChannel(c) => {
                 e(keys::COMMAND_NO_CHANNEL).with("weg", Param::TextKey(format!("vertriebsweg.{c}")))
@@ -1333,6 +1361,7 @@ fn found_site(
     }
     state.sites.push(Site {
         process_shares: Default::default(),
+        branch: None,
         owner: actor,
         name: None,
         totals: std::collections::BTreeMap::new(),
@@ -1737,6 +1766,102 @@ fn run(
                     retrofit: 0,
                 });
         }
+        Command::BuildForProduct {
+            site,
+            product,
+            count,
+            size,
+        } => {
+            let recipe = crate::product_research::main_recipe(catalog, *product)
+                .ok_or_else(|| CommandError::NoRecipe(catalog.products.key(*product).to_owned()))?;
+            let r = catalog.recipes.get(recipe);
+            if !state.knows_product(catalog, actor, *product) {
+                return Err(CommandError::ProductUnknown(
+                    catalog.products.key(*product).to_owned(),
+                ));
+            }
+            if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+                return Err(unknown_technology(catalog, t));
+            }
+            let branch = crate::purchase::works_branch(
+                state,
+                catalog,
+                own_site(state, actor, *site)?,
+                *product,
+            )?;
+            execute(
+                state,
+                catalog,
+                actor,
+                &Command::BuildFacility {
+                    site: *site,
+                    facility: r.facility,
+                    count: *count,
+                    size: *size,
+                },
+            )?;
+            let s = state.site_mut(*site).expect("checked above");
+            s.branch = Some(branch);
+            let sl = s.slots.last_mut().expect("just built");
+            sl.recipe = Some(recipe);
+            sl.utilization = 1.0;
+        }
+        Command::SwitchProduct {
+            site,
+            slot,
+            product,
+        } => {
+            let s = own_site(state, actor, *site)?;
+            let sl = own_slot(state, actor, *site, *slot)?;
+            let recipe = crate::product_research::main_recipe(catalog, *product)
+                .ok_or_else(|| CommandError::NoRecipe(catalog.products.key(*product).to_owned()))?;
+            let r = catalog.recipes.get(recipe);
+            if !state.knows_product(catalog, actor, *product) {
+                return Err(CommandError::ProductUnknown(
+                    catalog.products.key(*product).to_owned(),
+                ));
+            }
+            if let Some(t) = r.technology.filter(|&t| !state.knows(catalog, actor, t)) {
+                return Err(unknown_technology(catalog, t));
+            }
+            let branch = crate::purchase::works_branch(state, catalog, s, *product)?;
+            if sl.ready > state.date {
+                return Err(CommandError::UnderConstruction);
+            }
+            let f = catalog.facilities.get(r.facility);
+            let sizes = &catalog.production_model.sizes;
+            let days = (f64::from(sizes.build_days(sl.size, f.build_days))
+                * sizes.changeover_days_share)
+                .ceil();
+            let cost = f.investment.scale(
+                sizes.investment(sl.size) * f64::from(sl.count) * sizes.changeover_cost_share,
+            );
+            let cash = state.company(actor).expect("checked above").ledger.cash();
+            if cash < cost {
+                return Err(CommandError::NotEnoughCash { needed: cost });
+            }
+            let today = state.date;
+            let company = state.company_mut(actor).expect("checked above");
+            company.ledger.expense(
+                CostType::Overhead,
+                CostCenter::site(*site),
+                Account::Cash,
+                cost,
+            );
+            let s = state.site_mut(*site).expect("checked above");
+            s.branch = Some(branch);
+            let sl = &mut s.slots[*slot];
+            sl.facility = r.facility;
+            sl.recipe = Some(recipe);
+            sl.utilization = 1.0;
+            sl.batches.clear();
+            sl.last_runs = 0.0;
+            sl.automation = sl.automation.min(f.automation_max);
+            sl.down = Some(crate::state::Downtime {
+                until: today.add_days(days as i32),
+                overhaul: false,
+            });
+        }
         Command::DevelopDeposit { site, deposit } => {
             let s = own_site(state, actor, *site)?;
             if s.kind != SiteType::Extraction {
@@ -1798,6 +1923,7 @@ fn run(
                         catalog.products.key(r.product).to_owned(),
                     ));
                 }
+                crate::purchase::works_branch(state, catalog, s, r.product)?;
                 if let Some(t) =
                     crate::patents::blocked_recipe(state, catalog, actor, *recipe, s.country)
                 {
@@ -1814,9 +1940,14 @@ fn run(
             }
             // Laboratories have no recipe; their utilization sets the researcher posts.
             let lab = catalog.facilities.get(sl.facility).site_type == SiteType::ResearchCenter;
+            let mandatory = state.settings.research_mandatory;
             let s = state.site_mut(*site).expect("checked above");
             if let Some(r) = recipe {
-                crate::learning::switched(catalog, s, catalog.recipes.get(*r).product);
+                let product = catalog.recipes.get(*r).product;
+                crate::learning::switched(catalog, s, product);
+                if s.branch.is_none() && mandatory {
+                    s.branch = Some(catalog.products.get(product).branch);
+                }
             }
             let sl = &mut s.slots[*slot];
             sl.recipe = *recipe;

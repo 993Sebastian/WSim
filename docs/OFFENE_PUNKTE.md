@@ -2298,6 +2298,19 @@ sind umgesetzt, 4 und 5 folgen. Annahmen zur Abnahme:
   für ein Produkt ohne Technologie deutlich länger). Tochterfirmen erben das
   Wissen der Mutter, Übernahmen bringen die Produkte der Standorte mit.
 
+**Stand 12.10.2026 nachts, Teil 2 umgesetzt (Punkte 4 und 5), Annahmen:**
+
+- **U-e 🟡 Werksbranche ab dem ersten Produkt:** Ein Werk ohne Produkt hat keine Branche;
+  sie wird beim ersten Kauf nach Produkt oder beim ersten Setzen eines Rezepts festgelegt.
+  Ein Branchenwechsel kostet ein neues Werk (das „Umbau“-Kostenmodell des Vorschlags
+  entfällt, weil das Umstellen innerhalb der Branche schon vorgesehen ist).
+- **U-f 🟡 Umstellen:** Nur an fertigen Anlagen. Kosten 50 % des Katalogpreises der
+  Größe (W3), als Aufwand; die Bilanz behält den alten Buchwert (Aktivieren wäre eine
+  größere Änderung der Bauabschlüsse). Stillstand halbe Katalog-Bauzeit. Der
+  Flächenbedarf der neuen Anlage wird beim Umstellen nicht neu geprüft.
+- **U-g 🟡 Oberfläche:** Unter Forschungspflicht ersetzt „Anlage für ein Produkt bauen“ die
+  Auswahl nach Anlage; zu jeder Anlage gehört ein Feld „Umstellen auf“.
+
 Vorschläge zur Abnahme, bevor umgesetzt wird (Stand vor der Umsetzung):
 
 1. **Grundprodukt je Branche:** neues Datenfeld `grundprodukt` je Branche

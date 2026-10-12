@@ -478,6 +478,13 @@ werk.stillgelegt_meldung: "{anzahl} × {anlage} stillgelegt."
 werk.angefahren_meldung: "{anlage} fährt wieder an und produziert in {tage} Tagen."
 werk.verkauft_meldung: "{anzahl} × {anlage} für {erloes} verkauft."
 werk.abbau_erklaerung: "Stillgelegt erzeugt die Anlage nichts, braucht kein Personal und verschleißt nicht; die Abschreibung läuft weiter. Wieder anfahren dauert {tage} Tage und kostet {kosten}. Ein Verkauf bringt einen Teil des Restbuchwerts und ist endgültig."
+produktion.produkt_bauen: Anlage für ein Produkt bauen
+werk.zweig_hinweis: "Dieses Werk stellt Produkte der Branche {branche} her. Andere Branchen brauchen ein neues Werk."
+werk.produkt: Produkt
+werk.umstellen: Umstellen
+werk.umstellen_auf: Umstellen auf
+werk.umstellen_hinweis: "Die Anlage behält ihre Größe. Die Umstellung kostet einen Anteil des Katalogpreises und steht für einen Teil der Bauzeit still."
+werk.umgestellt_meldung: "Umstellung auf {produkt} begonnen."
 werk.bau_begonnen: "Bau von {anlage} begonnen; fertig in {tage} Tagen."
 werk.anlage: Anlage
 werk.investition: Investition

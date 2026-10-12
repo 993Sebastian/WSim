@@ -102,6 +102,7 @@ produktionsmodell:
     arbeit_exponent: -0.15
     flaeche_exponent: 0.7
     bauzeit_exponent: 0.3
+    umstellung: {kosten_anteil: 0.5, dauer_anteil: 0.5}
   startformen:
     werkstatt:
       standorttyp: werk

@@ -61,6 +61,7 @@ fn warehouse(game: &mut Game, owner: CompanyId, key: &str, quantity: f64, qualit
     let state = game.state_mut();
     state.sites.push(crate::state::Site {
         process_shares: Default::default(),
+        branch: None,
         owner,
         name: None,
         totals: std::collections::BTreeMap::new(),

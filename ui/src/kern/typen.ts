@@ -632,6 +632,10 @@ export interface Lagerbestand {
 }
 
 export interface StandortDetail {
+  /** Branch of the works (FW1; key), none before its first product. */
+  branch?: string | null;
+  /** Products a unit may be bought for here (FW1); empty without mandatory research. */
+  buy_products?: string[];
   index: number;
   /** The player's own name for the site, if any. */
   name?: string | null;

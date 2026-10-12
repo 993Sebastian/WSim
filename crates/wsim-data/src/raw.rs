@@ -653,6 +653,16 @@ pub struct RawFacilitySizes {
     pub area_exponent: f64,
     #[serde(rename = "bauzeit_exponent")]
     pub build_exponent: f64,
+    #[serde(rename = "umstellung")]
+    pub changeover: RawChangeover,
+}
+
+/// Changing a unit to another product of its branch (FW1).
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RawChangeover {
+    pub kosten_anteil: f64,
+    pub dauer_anteil: f64,
 }
 
 /// Shut down facilities (M22).
