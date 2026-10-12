@@ -162,8 +162,8 @@ pub mod keys {
     pub const COMMAND_NO_MACHINE_TENDERS: &str = "fehler.befehl.keine_ausschreibung";
     pub const COMMAND_MACHINE_TENDER_RUNNING: &str = "fehler.befehl.ausschreibung_laeuft";
     pub const COMMAND_UNKNOWN_MACHINE_TENDER: &str = "fehler.befehl.ausschreibung_unbekannt";
-    pub const COMMAND_UNKNOWN_MACHINE_OFFER: &str = "fehler.befehl.angebot_unbekannt";
-    pub const COMMAND_MACHINE_OFFER_EXPIRED: &str = "fehler.befehl.angebot_abgelaufen";
+    pub const COMMAND_UNKNOWN_MACHINE_OFFER: &str = "fehler.befehl.maschinenangebot_unbekannt";
+    pub const COMMAND_MACHINE_OFFER_EXPIRED: &str = "fehler.befehl.maschinenangebot_abgelaufen";
     pub const MACHINE_OFFERS_NEW: &str = "meldung.maschinenangebote.neu";
     pub const COMMAND_TENDER_CLOSED: &str = "fehler.befehl.ausschreibung_geschlossen";
     pub const COMMAND_NO_CHANNEL: &str = "fehler.befehl.kein_vertriebsweg";

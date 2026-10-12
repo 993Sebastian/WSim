@@ -53,8 +53,8 @@ fehler.befehl.kein_rezept: "„{produkt}“ hat kein Rezept und lässt sich nich
 fehler.befehl.keine_ausschreibung: "Anlagen werden nicht ausgeschrieben, sondern direkt gekauft."
 fehler.befehl.ausschreibung_laeuft: "Für diesen Standort und dieses Produkt läuft bereits eine Ausschreibung."
 fehler.befehl.ausschreibung_unbekannt: "Diese Ausschreibung gibt es nicht mehr."
-fehler.befehl.angebot_unbekannt: "Dieses Angebot gibt es nicht mehr."
-fehler.befehl.angebot_abgelaufen: "Dieses Angebot ist abgelaufen."
+fehler.befehl.maschinenangebot_unbekannt: "Dieses Angebot gibt es nicht mehr."
+fehler.befehl.maschinenangebot_abgelaufen: "Dieses Angebot ist abgelaufen."
 meldung.maschinenangebote.neu: "Neue Maschinenangebote in {land}: {anzahl}"
 fehler.befehl.ausschreibung_geschlossen: Diese Ausschreibung nimmt keine Gebote mehr an.
 fehler.befehl.kein_vertriebsweg: "Der Vertriebsweg {weg} ist hier nicht verfügbar oder führt diese Waren nicht."
