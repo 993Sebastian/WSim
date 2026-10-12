@@ -68,6 +68,7 @@ spiel.rundenlaenge: Rundenlänge
 spiel.runde_beenden: Runde beenden
 spiel.speichern: Speichern
 spiel.laden: Laden
+spiel.vollbild: Vollbild
 spiel.menue: Menü
 spiel.kasse_trend: Veränderung seit Ende des Vormonats
 spiel.offene_hinweise: Offene Hinweise
@@ -1136,6 +1137,7 @@ tasten.runde: Runde beenden
 tasten.ansichten: Ansicht wechseln (1 Übersicht, 2 Standorte, 3 Markt, 4 Wettbewerb, 5 Forschung, 6 Finanzen, 7 Organisation, 8 Beteiligungen, 9 Weltkarte, 0 Berichte)
 tasten.speichern: Speichern
 tasten.laden: Laden
+tasten.vollbild: Vollbild ein und aus
 tasten.hilfe: Diese Übersicht
 tasten.schliessen: Fenster schließen
 

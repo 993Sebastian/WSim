@@ -160,6 +160,16 @@ function geldWahlMerken(wahl: GeldWahl) {
 }
 
 /** The way of showing amounts the core offers for a choice (null: game dollars). */
+/** Real fullscreen (the window without frame and taskbar), toggled; F11 and the menu. */
+function vollbildUmschalten() {
+  try {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen();
+  } catch {
+    // The browser or webview refuses fullscreen; nothing to do.
+  }
+}
+
 export function geldanzeigeFuer(o: Geldoptionen | null, wahl: GeldWahl): Geldanzeige | null {
   if (!o) return null;
   if (wahl.waehrung === "heimat") return wahl.preise === "basis" ? o.home_base : o.home_then;
@@ -304,6 +314,9 @@ export function Spiel({
       if (e.ctrlKey && e.key === "Enter") {
         e.preventDefault();
         if (!offen && !uebersicht.game_over) void rundeRef.current();
+      } else if (e.key === "F11") {
+        e.preventDefault();
+        vollbildUmschalten();
       } else if (e.ctrlKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
         if (!offen) setFenster({ art: "speichern" });
@@ -509,6 +522,9 @@ export function Spiel({
                   onClick={menuePunkt(() => setFenster({ art: "laden" }))}
                 >
                   {t("spiel.laden")} <kbd>Strg+O</kbd>
+                </button>
+                <button type="button" role="menuitem" onClick={menuePunkt(vollbildUmschalten)}>
+                  {t("spiel.vollbild")} <kbd>F11</kbd>
                 </button>
                 <button
                   type="button"

@@ -7,6 +7,7 @@ export const TASTEN: [string, string][] = [
   ["1 … 9", "tasten.ansichten"],
   ["Strg + S", "tasten.speichern"],
   ["Strg + O", "tasten.laden"],
+  ["F11", "tasten.vollbild"],
   ["? / F1", "tasten.hilfe"],
   ["Esc", "tasten.schliessen"],
 ];
