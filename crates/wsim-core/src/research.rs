@@ -32,8 +32,16 @@ pub fn effort(
     date: Date,
 ) -> Option<Effort> {
     let t = catalog.technologies.get(technology);
-    let base = t.research_effort?;
     let model = &catalog.research_model;
+    // Technologies before 1900 have no effort of their own; under mandatory research
+    // (FW1) a company still has to learn them, as dear as the basis of a product (else
+    // the research would never end).
+    let base = t.research_effort.or_else(|| {
+        state
+            .settings
+            .research_mandatory
+            .then_some(model.development.base_effort)
+    })?;
     let now = date.year_fraction();
     let historical = f64::from(t.invention_year);
     let first = state

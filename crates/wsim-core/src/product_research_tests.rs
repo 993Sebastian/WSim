@@ -337,3 +337,47 @@ fn a_product_without_technology_is_learned_in_the_research_center() {
         s.companies[player.index()].known_products
     );
 }
+
+/// A technology from before 1900 has no effort in the data; under mandatory research it
+/// still has to be learned and must not hold the product back for good.
+#[test]
+fn a_technology_without_effort_is_learned_too() {
+    let mut c = mandatory_catalog();
+    let turbine = c.technologies.id("turbine").unwrap();
+    c.technologies.get_mut(turbine).research_effort = None;
+    let catalog = Arc::new(c);
+    let mut settings = new_game(catalog.as_ref().clone()).state().settings.clone();
+    settings.research_mandatory = true;
+    let mut game = Game::new(catalog, settings).unwrap();
+    let lab = research_center(&mut game);
+    let player = game.player();
+    let steel = product(&game, "stahl");
+    let c = game.catalog().clone();
+    assert!(!product_research::known(&c, game.state(), player, steel));
+    game.apply(Command::SetProductResearch {
+        site: lab,
+        product: Some(steel),
+    })
+    .unwrap();
+    let mut done = false;
+    for _ in 0..4000 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        done |= report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::PRODUCT_RESEARCHED);
+        if done {
+            break;
+        }
+    }
+    let s = game.state();
+    assert!(
+        done,
+        "steel gets learned: points {:?}, techs {:?}, research {:?}",
+        s.companies[player.index()].product_points,
+        s.companies[player.index()].research,
+        s.sites[lab.index()].research
+    );
+    assert!(s.knows_product(&c, player, steel));
+    assert!(s.knows(&c, player, turbine));
+}
