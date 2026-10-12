@@ -380,4 +380,13 @@ fn a_technology_without_effort_is_learned_too() {
     );
     assert!(s.knows_product(&c, player, steel));
     assert!(s.knows(&c, player, turbine));
+    // The learned product is listed under development as an own product, though no works
+    // makes it yet.
+    let overview = crate::views::research_overview(&game);
+    let d = overview
+        .developments
+        .iter()
+        .find(|d| d.product == "stahl")
+        .expect("a learned product can be developed");
+    assert!(d.own && d.next.is_some());
 }

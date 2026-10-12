@@ -1362,3 +1362,108 @@ fn early_central_departments_ruin_a_workshop() {
     assert!(!plain.state().companies[0].bankrupt);
     assert!(early.state().companies[0].bankrupt);
 }
+
+/// Mandatory research with the shipped data (FW1): screws are researched in a research
+/// center, then built, produced and developed.
+#[test]
+fn screws_are_researched_built_and_developed_under_mandatory_research() {
+    use std::sync::Arc;
+    use wsim_core::calendar::RoundLength;
+    use wsim_core::catalog::{FacilitySize, SiteType};
+    use wsim_core::command::Command;
+    use wsim_core::game::Game;
+    use wsim_core::message::keys;
+    use wsim_core::state::{GameSettings, SiteId, StartForm};
+
+    let data = load_dir(&data_dir()).data.expect("data loads");
+    let c = Arc::new(data.catalog);
+    let deu = c.countries.id("DEU").unwrap();
+    let mut game = Game::new(
+        c.clone(),
+        GameSettings {
+            seed: 3,
+            start_year: 1900,
+            start_country: deu,
+            start_capital: Money::from_usd(50_000_000.0).unwrap(),
+            start_form: StartForm::Workshop,
+            company_name: "Schrauben AG".into(),
+            research_ahead_factor: 1.0,
+            market_scale: 1.0,
+            ai: Default::default(),
+            ventures: 1.0,
+            tariff_dynamics: 1.0,
+            event_effects: true,
+            research_mandatory: true,
+            found_at_start: true,
+            person: Default::default(),
+        },
+    )
+    .unwrap();
+    let player = game.player();
+    let screws = c.products.id("schrauben").unwrap();
+    game.apply(Command::FoundSite {
+        country: deu,
+        kind: SiteType::ResearchCenter,
+    })
+    .unwrap();
+    let lab = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildFacility {
+        site: lab,
+        facility: c.facilities.id("forschungslabor").unwrap(),
+        count: 3,
+        size: FacilitySize::Medium,
+    })
+    .unwrap();
+    for _ in 0..400 {
+        game.advance(RoundLength::Day, |_| {});
+    }
+    game.apply(Command::SetProductResearch {
+        site: lab,
+        product: Some(screws),
+    })
+    .unwrap();
+    let mut done = false;
+    let mut days = 0;
+    while !done && days < 4000 {
+        let report = game.advance(RoundLength::Day, |_| {});
+        done = report
+            .messages
+            .iter()
+            .any(|m| m.key == keys::PRODUCT_RESEARCHED);
+        days += 1;
+    }
+    let s = game.state();
+    let co = &s.companies[player.index()];
+    assert!(
+        done,
+        "screws not learned after {days} days: points {:?}, techs {:?}, site {:?}/{:?}, staff {:?}",
+        co.product_points,
+        co.research,
+        s.sites[lab.index()].research,
+        s.sites[lab.index()].research_product,
+        s.sites[lab.index()].workforce
+    );
+    assert!(s.knows_product(&c, player, screws));
+    // A works for screws can be built and produces.
+    game.apply(Command::FoundSite {
+        country: deu,
+        kind: SiteType::Factory,
+    })
+    .unwrap();
+    let works = SiteId(u32::try_from(game.state().sites.len() - 1).unwrap());
+    game.apply(Command::BuildForProduct {
+        site: works,
+        product: screws,
+        count: 1,
+        size: FacilitySize::Medium,
+    })
+    .unwrap();
+    // Development lists the product once it is learned.
+    let overview = wsim_core::views::research_overview(&game);
+    let d = overview
+        .developments
+        .iter()
+        .find(|d| d.product == "schrauben")
+        .expect("learned product is listed");
+    assert!(d.own && d.next.is_some());
+}

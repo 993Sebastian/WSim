@@ -2744,7 +2744,9 @@ fn developments(game: &Game) -> Vec<DevelopmentView> {
             let maturity = development::maturity(catalog, state, p);
             Some(DevelopmentView {
                 product: catalog.products.key(p).to_owned(),
-                own: made.contains(&p),
+                // Made now, or learned, licensed or taken over (FW1): researched products
+                // belong to the player before the first works makes them.
+                own: made.contains(&p) || company.known_products.contains(&p),
                 level,
                 own_level: level,
                 best_rival,
