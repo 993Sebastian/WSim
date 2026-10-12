@@ -2230,25 +2230,30 @@ Ergebnis: ein Bericht mit Messwerten und konkreten Änderungsvorschlägen zur Ab
 
 Eigene Annahmen zur Abnahme:
 
+- **W0 ✅ Freigabe:** Reihenfolge FW1 Teil 2 → MAA bestätigt, Annahmen W1–W8 bestätigt
+  (siehe W2, W3, W5, W8 ✅; W1, W4, W6, W7 bleiben wie vorgeschlagen).
 - **W1 🟡 Reihenfolge:** MAA baut auf FW1 Teil 2 (Anlagenkauf nach Produkt, Umstellen
   innerhalb der Branche) auf. Vorschlag: FW1 Teil 2 zuerst fertig, dann MAA.
-- **W2 🟡 Faktoren je Anlage:** Die Faktoren gelten je Slot (Anlage einer Größe). Bei
-  mehreren Einheiten eines Kaufs gelten für alle dieselben Werte des Angebots.
-- **W3 🟡 Umstellen:** Die Umstellung kostet einen Anteil des Katalogpreises der Größe
-  (Datenwert, Vorschlag 25 %), Dauer = halbe Katalog-Bauzeit. Faktoren bleiben.
+- **W2 ✅ Mengenrabatt je Kauf:** Beim Kauf mehrerer Einheiten sinkt der Preis je weitere
+  Einheit (Konstruktion und Entwicklung fallen nur einmal an). Rabatt bei n Einheiten =
+  Anteil × (1 − 1/n) mit Anteil als Datenwert (Vorschlag 0,5 bei 2 Einheiten: 25 %,
+  bei 4 Einheiten 37,5 %). Die Faktoren L, P, Z und die Kennzahlen gelten für alle
+  Einheiten desselben Angebots; der Rabatt wirkt nur auf den Preis.
+- **W3 ✅ Umstellen:** Die Umstellung kostet 50 % des Katalogpreises der Größe
+  (Datenwert), Dauer = halbe Katalog-Bauzeit. Faktoren bleiben.
 - **W4 🟡 Wochen:** Je Woche wird die Zahl der Angebote (1–5) zu Beginn der Woche gezogen,
   die Eingangstage zufällig innerhalb der Woche. Fällt der Ausschreibungsstart auf
   einen Monatswechsel, zählt der Start als Tag 1.
-- **W5 🟡 KI-Schwelle:** Die KI nimmt ein Angebot an, sobald dessen geschätzte
+- **W5 ✅ KI-Schwelle:** Die KI nimmt ein Angebot an, sobald dessen geschätzte
   Lebensdauer-Stückkosten (inkl. entgangenem Deckungsbeitrag) unter denen des
   Katalogwerts liegen; Schwelle als Datenwert (Vorschlag 0 %).
 - **W6 🟡 Bestehende Anlagen:** Ohne Kompatibilität werden alte Anlagen beim Laden nicht
   übernommen; Startbesetzung und Startbetriebe bekommen Katalogwerte (Faktor 1).
 - **W7 🟡 Maschinenbauer-Daten:** Namen werden wie die Firmennamen erzeugt (Muster je
   Sprachraum), 5–8 je Land/Region; Epochen über „ab/bis“-Jahre.
-- **W8 🟡 Spielerfirma mit Manager:** Die Werksleitung des Spielers startet keine
-  Ausschreibung von sich aus. Das bestehende Anliegen „Kapazität ausbauen“ schlägt eine
-  Ausschreibung vor.
+- **W8 ✅ Ausschreibung durch Manager:** Die Werksleitung darf ausschreiben. Entscheidet
+  über das Angebot die Kette hoch: Ist es über dem Budget, landet das Anliegen „Maschinen-
+  angebot annehmen?“ beim Vorgesetzten und, wenn es auch dort zu teuer ist, beim Spieler.
 
 ## V Ein Preis je Werk (Wunsch vom 12.10.2026)
 

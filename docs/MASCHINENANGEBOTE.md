@@ -23,6 +23,8 @@ Abschnitt W. Alte Spielstände müssen nicht kompatibel bleiben.
   `RequestMachineOffers { site, product, size }`). Sie ist kostenlos und läuft 28 Tage.
 - In jeder der vier Wochen gehen an zufälligen Tagen 1–5 neue Angebote von
   Maschinenbauern ein (Parameter `angebote_je_woche: [1, 5]`).
+- **Mengenrabatt (W2):** Bei n Einheiten je Kauf sinkt der Preis je Einheit um
+  Anteil × (1 − 1/n) (Datenwert Anteil). Der Rabatt gilt nur für den Preis.
 - Die Angebote erscheinen an der Stelle, an der die Anlage ausgewählt wurde. Dazu kommen
   eine Meldung „Neue Maschinenangebote“ und ein Status „Ausschreibung läuft – Tag X von
   28“.
@@ -109,6 +111,8 @@ Leistung L, Preislage P und Bauzeit Z.
 - Sie nehmen das beste Angebot an, sobald es eine Schwelle unterschreitet, spätestens
   am Ende der Ausschreibung.
 - Liegt der Preis über dem Manager-Budget, entsteht ein Anliegen „Maschinenangebot
-  annehmen?“ mit Empfehlung.
+  annehmen?“ mit Empfehlung. Die Werksleitung darf die Ausschreibung starten; ist das
+  Angebot zu teuer, geht das Anliegen eine Ebene hoch (Vorgesetzter) und danach an den
+  Spieler (W8).
 - Die Auslöser „Anlage bauen/Kapazität ausbauen“ starten künftig eine Ausschreibung statt
   eines Direktkaufs.

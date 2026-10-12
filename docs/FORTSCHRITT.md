@@ -111,7 +111,7 @@ Einstiegspunkt beim Weiterarbeiten nach einer Unterbrechung.
 | MN5 | Anzeige Markt: Ruf, Segmente, Vertriebswege, Gebrauchtmarkt, Bieten auf Ausschreibungen | ⏳ |
 | MN6 | Balance-Runde Markt; danach portable Windows-Version | ⏳ |
 | FW1 | Forschungspflicht, Werksbranchen und produktbasierter Anlagenkauf (Wunsch vom 12.10.2026; hängt ab von Q6 ✅, Werksansicht M18c ✅; berührt MN5 und P6) | ✅ Teil 1 (Forschungspflicht, Grundprodukte; Annahmen OFFENE_PUNKTE U) – Werksbranchen und Anlagenkauf nach Produkt offen |
-| MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | ⏳ (Einschätzung abgegeben, Annahmen OFFENE_PUNKTE W) |
+| MAA | Maschinenangebote: Ausschreibung statt Direktkauf, Angebote mit Streuung, Maschinenbauer, Anzeige, KI (Wunsch vom 12.10.2026 abends; Vorgabe `docs/MASCHINENANGEBOTE.md`; hängt ab von FW1 – Anlagenkauf nach Produkt – und M36) | ⏳ (Annahmen W0–W8 bestätigt; Start nach FW1 Teil 2) |
 | WG1–WG5 | Welt und Geschichte: Ereigniswirkungen, Konjunktur, Handelsblöcke, Infrastruktur, Zufallsgenerator | ⏸ zurückgestellt bis zur Aufforderung (Wunsch vom 12.10.2026) |
 
 Die Vorschläge aus `docs/OFFENE_PUNKTE.md`, Abschnitt E, sind freigegeben (Lastenheft
