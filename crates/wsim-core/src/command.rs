@@ -2205,7 +2205,7 @@ fn run(
             }
             let before = company.loans.len();
             let from_person = company.loans[*loan].from_person;
-            let lender = crate::finance::repay(company, *loan, amount);
+            let lender = crate::finance::repay(company, *loan, amount, today);
             let paid_off = company.loans.len() < before;
             if let Some((bank, amount)) = lender {
                 crate::bank::receive(state, bank, amount, Money::ZERO);

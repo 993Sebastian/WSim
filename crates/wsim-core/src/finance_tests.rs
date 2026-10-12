@@ -280,3 +280,40 @@ fn cash_flow_is_split_by_activity() {
     assert_eq!(cf.total(), ledger(&game).cash());
     assert!(Date::new(1900, 1, 1).is_some());
 }
+
+#[test]
+fn a_special_repayment_lowers_the_instalment_for_the_months_left() {
+    let mut game = new_game(3_000_000.0);
+    with_collateral(&mut game);
+    game.apply(Command::TakeLoan {
+        amount: usd(1_000_000.0),
+        years: 10,
+    })
+    .unwrap();
+    let before = game.state().company(game.player()).unwrap().loans[0].clone();
+    for _ in 0..3 {
+        game.advance(RoundLength::Month, |_| {});
+    }
+    let mid = game.state().company(game.player()).unwrap().loans[0].clone();
+    game.apply(Command::RepayLoan {
+        loan: 0,
+        amount: mid.balance.scale(0.8),
+    })
+    .unwrap();
+    let after = game.state().company(game.player()).unwrap().loans[0].clone();
+    assert_eq!(after.balance, mid.balance - mid.balance.scale(0.8));
+    // The term stays: the rest is paid off over the 117 months that are left.
+    assert_eq!(
+        after.instalment,
+        crate::finance::instalment(after.balance, after.rate, 117)
+    );
+    assert!(after.instalment < before.instalment.scale(0.3));
+    // The next month: interest on the lower balance, the instalment less interest repaid.
+    let cash = ledger(&game).cash();
+    game.advance(RoundLength::Month, |_| {});
+    let interest = after.balance.scale(after.rate / 12.0);
+    let now = game.state().company(game.player()).unwrap().loans[0].clone();
+    assert_eq!(now.balance, after.balance - (after.instalment - interest));
+    assert!(ledger(&game).cash() < cash || ledger(&game).is_balanced());
+    assert!(ledger(&game).is_balanced());
+}

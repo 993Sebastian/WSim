@@ -112,20 +112,29 @@ pub(crate) fn grant_loan(
         .transfer(Account::Cash, Account::Loans, amount);
 }
 
-/// Repays part of a loan early; returns the player's bank to pay, if it lent it.
+/// Repays part of a loan early; returns the player's bank to pay, if it lent it. The term
+/// stays, so the instalment falls to what the rest needs over the months that are left.
 pub(crate) fn repay(
     company: &mut Company,
     loan: usize,
     amount: Money,
+    today: Date,
 ) -> Option<(CompanyId, Money)> {
     let amount = amount.min(company.loans[loan].balance);
     let lender = company.loans[loan].lender.map(|b| (b, amount));
     company
         .ledger
         .transfer(Account::Loans, Account::Cash, amount);
-    company.loans[loan].balance -= amount;
-    if company.loans[loan].balance == Money::ZERO {
+    let l = &mut company.loans[loan];
+    l.balance -= amount;
+    if l.balance == Money::ZERO {
         company.loans.remove(loan);
+    } else {
+        // Instalments are paid at the end of every month since the start.
+        let paid =
+            (today.year() - l.start.year()) * 12 + today.month() as i32 - l.start.month() as i32;
+        let left = (i64::from(l.months) - i64::from(paid)).max(1) as u32;
+        l.instalment = instalment(l.balance, l.rate, left);
     }
     lender
 }
