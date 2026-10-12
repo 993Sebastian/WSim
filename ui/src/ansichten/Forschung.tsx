@@ -1022,9 +1022,11 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
       )}
       {z.labs.map((l, i) => (
         <LaborAuslastung
-          key={`${l.slot}/${l.utilization}`}
+          key={`${l.slot}/${l.utilization}/${l.ready}`}
           site={z.site}
           labor={l}
+          heute={daten.date}
+          titel={t("forschung.labor_nr", { nummer: i + 1 })}
           name={
             z.labs.length === 1
               ? t("forschung.labor_auslastung")
@@ -1058,15 +1060,28 @@ function Zentrum({ z, daten }: { z: Forschung["centers"][number]; daten: Forschu
 function LaborAuslastung({
   site,
   labor,
+  heute,
+  titel,
   name,
 }: {
   site: number;
   labor: Forschung["centers"][number]["labs"][number];
+  heute: string;
+  titel: string;
   name: string;
 }) {
   const [prozent, setProzent] = useState(zahlFeld(labor.utilization * 100, 0));
   const [fehler, setFehler] = useState<string | null>(null);
   const { los, antwort } = useAktion(`labor/${site}/${labor.slot}`);
+  if (labor.ready > heute) {
+    const tage = Math.max(1, Math.round((Date.parse(labor.ready) - Date.parse(heute)) / 864e5));
+    return (
+      <p className="gedaempft" role="group" aria-label={name}>
+        <strong>{titel}</strong>:{" "}
+        {t("forschung.labor_im_bau_rest", { datum: formatDatum(labor.ready), tage })}
+      </p>
+    );
+  }
   return (
     <form
       className="formular-zeile"

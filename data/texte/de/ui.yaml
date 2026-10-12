@@ -1070,6 +1070,8 @@ forschung.aufgeteilt: "– aufgeteilt auf {anzahl} Produkte (Reiter Weiterentwic
 forschung.labor_bauen: "Labor bauen ({betrag})"
 forschung.labor_erweitern: "Weiteres Labor bauen ({betrag})"
 forschung.labor_im_bau: "Labor im Bau bis {datum}"
+forschung.labor_nr: "Labor {nummer}"
+forschung.labor_im_bau_rest: "im Bau bis {datum} – noch {tage} Tage"
 forschung.labor_auslastung: Auslastung der Labore
 forschung.labor_auslastung_nr: "Auslastung von Labor {nummer}"
 forschung.gruenden: Neues Forschungszentrum
